@@ -214,14 +214,14 @@ public:
      * @brief Sets the item's caption
      * @param lbl               The new item caption
      */
-    void label(const char* lbl);
+    void label(const char* lbl) override;
 
     /**
      * @brief Returns the item's caption
      */
-    const char* label() const
+    String label() const override
     {
-        return m_body->label().c_str();
+        return m_body->label();
     }
 
     /**
@@ -436,7 +436,6 @@ class CTreeControl : public CScroll
 {
     friend class CTreeItem;
 
-private:
     /**
      * The selected items
      */

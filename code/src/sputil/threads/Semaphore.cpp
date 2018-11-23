@@ -73,7 +73,6 @@ bool Semaphore::sleep_until(DateTime timeoutAt)
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 TEST(SPTK_Semaphore, waitAndPost)
 {

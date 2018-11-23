@@ -70,21 +70,21 @@ int main(int argc, char* argv[])
             email = argv[2];
         } else {
             COUT("Please provide server hostname/port, user credentials, ad destination email address." << endl);
-            cout << "You can also use command line arguments:" << endl;
+            COUT("You can also use command line arguments:" << endl);
             COUT("  ./smtp_connect [username:password@]<hostname>[:port] <email address>" << endl << endl);
 
-            cout << "SMTP server name: ";
+            COUT("SMTP server name: ");
             cin >> host;
-            cout << "SMTP server port[25]: ";
+            COUT("SMTP server port[25]: ");
             cin >> portStr;
-            cout << "SMTP user name (or N/A if not required): ";
+            COUT("SMTP user name (or N/A if not required): ");
             cin >> user;
             if (trim(lowerCase(user)) != "n/a") {
-                cout << "SMTP user password: ";
+                COUT("SMTP user password: ");
                 cin >> password;
             } else
                 user = "";
-            cout << "E-mail address to test: ";
+            COUT("E-mail address to test: ");
             cin >> email;
         }
 

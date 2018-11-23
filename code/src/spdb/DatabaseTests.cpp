@@ -81,7 +81,8 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
         dropTable.exec();
     }
     catch (const Exception& e) {
-        if (string(e.what()).find("not exist") == string::npos)
+        RegularExpression matchTableNotExists("not exist|unknown table", "i");
+        if (!matchTableNotExists.matches(e.what()))
             CERR(e.what() << endl);
     }
 
@@ -258,7 +259,8 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
         dropTable.exec();
     }
     catch (const Exception& e) {
-        if (string(e.what()).find("not exist") == string::npos)
+        RegularExpression matchTableNotExists("not exist|unknown table", "i");
+        if (!matchTableNotExists.matches(e.what()))
             CERR(e.what() << endl);
     }
 

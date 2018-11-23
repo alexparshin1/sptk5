@@ -34,16 +34,16 @@ using namespace sptk::xml;
 Attribute::Attribute(Element* parent, const char* tagname, Value avalue) :
     NamedItem(*parent->document())
 {
-    name(tagname);
-    value(avalue);
+    NamedItem::name(tagname);
+    NamedItem::value(avalue);
     parent->attributes().push_back(this);
 }
 
 Attribute::Attribute(Element* parent, const std::string& tagname, Value avalue) :
     NamedItem(*parent->document())
 {
-    name(tagname);
-    value(avalue);
+    NamedItem::name(tagname);
+    NamedItem::value(avalue);
     parent->attributes().push_back(this);
 }
 
@@ -74,7 +74,7 @@ Attributes& Attributes::operator =(const Attributes& s)
     if (&s == this)
         return *this;
     clear();
-    for (auto node: s)
+    for (auto* node: s)
         new Attribute(m_parent, node->name(), node->value());
     return *this;
 }

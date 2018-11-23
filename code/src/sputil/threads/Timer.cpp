@@ -6,8 +6,9 @@
 using namespace std;
 using namespace sptk;
 
-struct EventIdComparator
+class EventIdComparator
 {
+public:
     bool operator()(const Timer::EventId& a, const Timer::EventId& b) const
     {
         if (a.when < b.when)
@@ -25,13 +26,38 @@ class TimerThread : public Thread
     mutex       m_scheduledMutex;
     EventMap    m_scheduledEvents;
     Semaphore   m_semaphore;
+
+    DateTime nextWakeUp()
+    {
+        lock_guard<mutex> lock(m_scheduledMutex);
+        if (m_scheduledEvents.empty())
+            return DateTime::Now() + chrono::seconds(1);
+        else {
+            auto itor = m_scheduledEvents.begin();
+            return itor->first.when;
+        }
+    }
+
+    bool popFrontEvent(Timer::Event& event)
+    {
+        lock_guard<mutex> lock(m_scheduledMutex);
+        if (m_scheduledEvents.empty())
+            return false;
+        else {
+            auto itor = m_scheduledEvents.begin();
+            event = itor->second;
+            m_scheduledEvents.erase(itor);
+            return true;
+        }
+    }
+
 protected:
+
     void threadFunction() override;
 
 public:
     void terminate() override;
 
-public:
     TimerThread()
     : Thread("Timer thread")
     {}
@@ -45,34 +71,12 @@ public:
 
     bool waitForEvent(Timer::Event& event)
     {
-        DateTime        when;
-        {
-            lock_guard<mutex> lock(m_scheduledMutex);
-            if (m_scheduledEvents.empty()) {
-                when = DateTime::Now() + chrono::seconds(1);
-            } else {
-                auto itor = m_scheduledEvents.begin();
-                when = itor->first.when;
-            }
-        }
+        DateTime when = nextWakeUp();
 
-        if (m_semaphore.sleep_until(when)) {
-            // Wait interrupted
-            return false;
-        }
+        if (m_semaphore.sleep_until(when))
+            return false; // Wait interrupted
 
-        {
-            lock_guard<mutex> lock(m_scheduledMutex);
-            if (m_scheduledEvents.empty()) {
-                return false;
-            } else {
-                auto itor = m_scheduledEvents.begin();
-                event = itor->second;
-                m_scheduledEvents.erase(itor);
-            }
-        }
-
-        return true;
+        return popFrontEvent(event);
     }
 
     void clear()
@@ -161,15 +165,18 @@ void Timer::unlink(Timer::Event event)
     m_events.erase(event);
 }
 
+static void checkTimerThreadRunning()
+{
+    lock_guard<mutex> lock(timerThreadMutex);
+    if (timerThread == nullptr) {
+        timerThread = new TimerThread();
+        timerThread->run();
+    }
+}
+
 Timer::Event Timer::fireAt(const DateTime& timestamp, void* eventData)
 {
-    {
-        lock_guard<mutex> lock(timerThreadMutex);
-        if (timerThread == nullptr) {
-            timerThread = new TimerThread();
-            timerThread->run();
-        }
-    }
+    checkTimerThreadRunning();
 
     Event event = make_shared<EventData>(*this, timestamp, eventData, chrono::milliseconds());
     timerThread->schedule(event);
@@ -182,13 +189,7 @@ Timer::Event Timer::fireAt(const DateTime& timestamp, void* eventData)
 
 Timer::Event Timer::repeat(std::chrono::milliseconds interval, void* eventData)
 {
-    {
-        lock_guard<mutex> lock(timerThreadMutex);
-        if (timerThread == nullptr) {
-            timerThread = new TimerThread();
-            timerThread->run();
-        }
-    }
+    checkTimerThreadRunning();
 
     Event event = make_shared<EventData>(*this, DateTime::Now() + interval, eventData, interval);
     timerThread->schedule(event);
@@ -229,7 +230,6 @@ void Timer::cancel()
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 static void gtestTimerCallback(void* eventData)
 {
@@ -276,10 +276,10 @@ SharedMutex eventCounterMutex;
 vector<int> eventCounter(MAX_EVENT_COUNTER);
 vector<int> eventData(MAX_EVENT_COUNTER);
 
-static void gtestTimerCallback2(void* eventData)
+static void gtestTimerCallback2(void* theEventData)
 {
     UniqueLock(eventCounterMutex);
-    size_t eventIndex = size_t(eventData);
+    size_t eventIndex = size_t(theEventData);
     eventCounter[eventIndex]++;
 }
 

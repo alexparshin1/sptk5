@@ -178,7 +178,7 @@ void Node::matchNodesThisLevel(NodeVector& nodes, const vector<XPathElement>& pa
 {
     const XPathElement& pathElement = pathElements[size_t(pathPosition)];
 
-    for (auto node: *this) {
+    for (auto* node: *this) {
         bool nameMatches;
         if (node->matchPathElement(pathElement, starPointer, nameMatches)) {
             matchedNodes.push_back(node);
@@ -208,7 +208,7 @@ void Node::matchNodesThisLevel(NodeVector& nodes, const vector<XPathElement>& pa
         matchedNodes.push_back(anode);
     }
 
-    for (auto node: matchedNodes)
+    for (auto* node: matchedNodes)
         node->matchNode(nodes, pathElements, pathPosition, starPointer);
 }
 
@@ -271,7 +271,7 @@ void Node::copy(const Node& node)
         attributes() = node.attributes();
     }
 
-    for (auto childNode: node) {
+    for (auto* childNode: node) {
         Node* element;
         switch (childNode->type()) {
             case DOM_ELEMENT:
@@ -303,7 +303,7 @@ String Node::text() const
     if ((type() & (DOM_TEXT | DOM_CDATA_SECTION)) != 0)
         ret += value();
     else {
-        for (auto np: *this) {
+        for (auto* np: *this) {
             if ((np->type() & (DOM_TEXT | DOM_CDATA_SECTION)) != 0)
                 ret += np->value();
         }
@@ -334,7 +334,7 @@ void Node::save(Buffer& buffer, int indent) const
         if (!attributes.empty()) {
             // Output attributes
             Buffer real_id, real_val;
-            for (auto attributeNode: attributes) {
+            for (auto* attributeNode: attributes) {
                 real_id.bytes(0);
                 real_val.bytes(0);
                 if (!document()->docType().encodeEntities(attributeNode->name().c_str(), real_id))
@@ -387,7 +387,7 @@ void Node::save(Buffer& buffer, int indent) const
                 }
 
                 // output all subnodes
-                for (auto np: *this) {
+                for (auto* np: *this) {
                     if (only_cdata)
                         np->save(buffer, -1);
                     else {
@@ -432,12 +432,12 @@ void Node::save(json::Element& json, string& text) const
         return;
     }
 
-    auto object = json.set_object(nodeName);
+    auto* object = json.set_object(nodeName);
     if (isElement()) {
         const Attributes& attributes = this->attributes();
         if (!attributes.empty()) {
-            auto attrs = object->set_object("attributes");
-            for (auto attributeNode: attributes)
+            auto* attrs = object->set_object("attributes");
+            for (auto* attributeNode: attributes)
                 attrs->set(attributeNode->name(), attributeNode->value());
         }
     }
@@ -462,7 +462,7 @@ void Node::save(json::Element& json, string& text) const
             } else {
                 bool done = false;
                 if (size() == 1) {
-                    for (auto np: *this)
+                    for (auto* np: *this)
                         if (np->name() == "null") {
                             done = true;
                         }
@@ -470,7 +470,7 @@ void Node::save(json::Element& json, string& text) const
                 if (!done) {
                     // output all subnodes
                     string nodeText;
-                    for (auto np: *this)
+                    for (auto* np: *this)
                         np->save(*object, nodeText);
                     if (object->isObject() && object->size() == 0) {
                         if (m_document->m_matchNumber.matches(nodeText)) {
@@ -492,13 +492,13 @@ void Node::save(json::Element& json, string& text) const
 void Node::exportTo(json::Element& element) const
 {
     string text;
-    for (auto np: *this)
+    for (auto* np: *this)
         np->save(element, text);
 }
 
 Node* Node::findFirst(const std::string& aname, bool recursively) const
 {
-    for (auto node: *this) {
+    for (auto* node: *this) {
         if (node->name() == aname)
             return node;
         if (recursively && !node->empty()) {
@@ -603,7 +603,6 @@ const std::string& CDataSection::nodeName() const
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 static const String testXML1("<AAA><BBB/><CCC/><BBB/><BBB/><DDD><BBB/></DDD><CCC/></AAA>");
 static const String testXML2("<AAA><BBB/><CCC/><BBB/><DDD><BBB/></DDD><CCC><DDD><BBB/><BBB/></DDD></CCC></AAA>");

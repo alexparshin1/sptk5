@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/json/JsonDocument.h>
 #include <sptk5/json/JsonParser.h>
 
@@ -139,7 +140,6 @@ const Element& Document::root() const
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 const char* testJSON =
         R"({ "name": "John", "age": 33, "temperature": 33.6, "timestamp": 1519005758000 )"
@@ -152,12 +152,12 @@ void verifyDocument(json::Document& document)
     EXPECT_STREQ("John", root.getString("name").c_str());
     EXPECT_EQ(33, (int) root.getNumber("age"));
     EXPECT_DOUBLE_EQ(33.6, root.getNumber("temperature"));
-	EXPECT_DOUBLE_EQ(1519005758000, root.getNumber("timestamp"));
-	EXPECT_STREQ("1519005758000", root.getString("timestamp").c_str());
+    EXPECT_DOUBLE_EQ(1519005758000, root.getNumber("timestamp"));
+    EXPECT_STREQ("1519005758000", root.getString("timestamp").c_str());
 
     json::ArrayData& arrayData = root.getArray("skills");
     Strings skills;
-    for (auto& skill: arrayData) {
+    for (auto* skill: arrayData) {
         skills.push_back(skill->getString());
     }
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
@@ -190,12 +190,12 @@ TEST(SPTK_JsonDocument, add)
     root["bool1"] = true;
     root["bool2"] = false;
 
-    auto arrayData = root.set_array("array");
+    auto* arrayData = root.set_array("array");
     arrayData->push_back("C++");
     arrayData->push_back("Java");
     arrayData->push_back("Python");
 
-    auto objectData = root.set_object("object");
+    auto* objectData = root.set_object("object");
     (*objectData)["height"] = 178;
     (*objectData)["weight"] = 85.5;
 
@@ -207,7 +207,7 @@ TEST(SPTK_JsonDocument, add)
 
     json::ArrayData& array = root.getArray("array");
     Strings skills;
-    for (auto& skill: array)
+    for (auto* skill: array)
         skills.push_back(skill->getString());
     EXPECT_STREQ("C++,Java,Python", skills.join(",").c_str());
 

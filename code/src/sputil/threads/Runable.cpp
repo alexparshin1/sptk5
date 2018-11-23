@@ -52,18 +52,3 @@ bool Runable::terminated()
 {
     return m_terminated.load();
 }
-/*
-bool Runable::completed(chrono::milliseconds timeout)
-{
-    try {
-        m_running.lock(timeout);
-        m_running.unlock();
-        // Not running
-        return true;
-    }
-    catch (TimeoutException&) {
-        // Timeout - still running
-        return false;
-    }
-}
-*/

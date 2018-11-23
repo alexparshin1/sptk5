@@ -194,6 +194,8 @@ void readJsonNull(const char* json, const char*& readPosition)
 
 void readArrayData(Element* parent, const char* json, const char*& readPosition)
 {
+    Element* element;
+
     if (*readPosition != '[')
         throwUnexpectedCharacterError(*readPosition, '[', json, readPosition - json);
 
@@ -212,52 +214,37 @@ void readArrayData(Element* parent, const char* json, const char*& readPosition)
                 break;
 
             case '[':
-            {
-                auto* jsonArrayElement = parent->push_array();
-                readArrayData(jsonArrayElement, json, readPosition);
-            }
-            break;
+                element = parent->push_array();
+                readArrayData(element, json, readPosition);
+                break;
 
             case '{':
-            {
-                auto* jsonObjectElement = parent->push_object();
-                readObjectData(jsonObjectElement, json, readPosition);
-            }
-            break;
+                element = parent->push_object();
+                readObjectData(element, json, readPosition);
+                break;
 
             case '0':
             case '-':
-            {
                 // Number
-                double number = readJsonNumber(json, readPosition);
-                parent->push_back(number);
-            }
-            break;
+                parent->push_back(readJsonNumber(json, readPosition));
+                break;
 
             case 't':
             case 'f':
-            {
                 // Boolean
-                bool value = readJsonBoolean(json, readPosition);
-                parent->push_back(value);
-            }
-            break;
+                parent->push_back(readJsonBoolean(json, readPosition));
+                break;
 
             case 'n':
-            {
                 // Null
                 readJsonNull(json, readPosition);
                 parent->push_back();
-            }
-            break;
+                break;
 
             case '"':
-            {
                 // String
-                string str = readJsonString(json, readPosition);
-                parent->push_back(str);
-            }
-            break;
+                parent->push_back(readJsonString(json, readPosition));
+                break;
 
             case ',':
                 readPosition++;
@@ -302,14 +289,14 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
 
             case '[':
             {
-                auto jsonArrayElement = parent->set_array(elementName);
+                auto* jsonArrayElement = parent->set_array(elementName);
                 readArrayData(jsonArrayElement, json, readPosition);
             }
             break;
 
             case '{':
             {
-                auto jsonObjectElement = parent->set_object(elementName);
+                auto* jsonObjectElement = parent->set_object(elementName);
                 readObjectData(jsonObjectElement, json, readPosition);
             }
             break;

@@ -53,7 +53,7 @@ void ThreadPool::threadFunction()
         WorkerThread* workerThread = nullptr;
         if (m_terminatedThreads.pop(workerThread, timeout)) {
             m_threads.remove(workerThread);
-			workerThread->join();
+            workerThread->join();
             delete workerThread;
         }
     }
@@ -61,7 +61,7 @@ void ThreadPool::threadFunction()
 
 WorkerThread* ThreadPool::createThread()
 {
-    auto workerThread = new WorkerThread(m_taskQueue, this, m_threadIdleTime);
+    auto* workerThread = new WorkerThread(m_taskQueue, this, m_threadIdleTime);
     m_threads.push_back(workerThread);
     workerThread->run();
     return workerThread;
@@ -72,15 +72,14 @@ void ThreadPool::execute(Runable* task)
     if (m_shutdown)
         throw Exception("Thread manager is stopped");
 
-    if (!m_availableThreads.sleep_for(std::chrono::milliseconds(10))) {
-        if (m_threads.size() < m_threadLimit)
+    if (!m_availableThreads.sleep_for(std::chrono::milliseconds(10)) &&
+        m_threads.size() < m_threadLimit)
             createThread();
-    }
 
     m_taskQueue.push(task);
 }
 
-void ThreadPool::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable)
+void ThreadPool::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable*)
 {
     switch (eventType) {
     case ThreadEvent::RUNABLE_STARTED:
@@ -91,8 +90,7 @@ void ThreadPool::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runabl
     case ThreadEvent::THREAD_FINISHED:
         m_terminatedThreads.push((WorkerThread*)thread);
         break;
-    case ThreadEvent::THREAD_STARTED:
-    case ThreadEvent::IDLE_TIMEOUT:
+    default:
         break;
     }
 }
@@ -107,7 +105,7 @@ void ThreadPool::stop()
 {
     m_shutdown = true;
     m_threads.each(terminateThread);
-	while (!m_threads.empty())
+    while (!m_threads.empty())
         sleep_for(chrono::milliseconds(100));
     while (!m_terminatedThreads.empty())
         sleep_for(chrono::milliseconds(100));
@@ -121,7 +119,6 @@ size_t ThreadPool::size() const
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 static SynchronizedQueue<int>  intQueue;
 
@@ -162,10 +159,10 @@ TEST(SPTK_ThreadPool, run)
     this_thread::sleep_for(chrono::milliseconds(300));
 
     EXPECT_EQ(size_t(5), tasks.size());
-    for (auto task: tasks)
+    for (auto* task: tasks)
         EXPECT_NEAR(20, task->count(), 10);
 
-    for (auto task: tasks)
+    for (auto* task: tasks)
         task->terminate();
 
     EXPECT_EQ(size_t(5), threadPool.size());

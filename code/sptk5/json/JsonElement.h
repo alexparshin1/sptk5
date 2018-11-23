@@ -121,7 +121,7 @@ protected:
     /**
      * XPath
      */
-    struct XPath : public std::vector<XPathElement>
+    struct XPath : std::vector<XPathElement>
     {
         bool rootOnly {false};          ///< XPath starts from root flag
         /**
@@ -294,7 +294,7 @@ public:
      * Element will contain null value
      * @param document          Parent JSON document
      */
-    Element(Document* document) noexcept;
+    explicit Element(Document* document) noexcept;
 
     /**
      * Constructor

@@ -85,8 +85,6 @@ class SP_EXPORT CDBListView : public CListView
      */
     bool        m_recordsLimited;
 
-protected:
-
 public:
 
     /**

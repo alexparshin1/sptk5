@@ -32,7 +32,8 @@
 using namespace std;
 using namespace sptk;
 
-void PostgreSQLParamValues::setParameters(QueryParameterList& params) {
+void PostgreSQLParamValues::setParameters(QueryParameterList& params) 
+{
     params.enumerate(m_params);
     m_count = (unsigned) m_params.size();
     resize(m_count);
@@ -45,7 +46,7 @@ void PostgreSQLParamValues::setParameters(QueryParameterList& params) {
             m_formats[i] = 1; // Binary format
         else
             m_formats[i] = 0; // Text format
-            
+
         m_values[i] = param->conversionBuffer(); // This is a default. For VAR_STRING, VAR_TEXT, VAR_BUFFER and it would be replaced later
 
         switch (ptype) {
@@ -69,7 +70,7 @@ void PostgreSQLParamValues::setParameters(QueryParameterList& params) {
              case VAR_INT64:
                 m_lengths[i] = sizeof(int64_t);
                 break;
-                
+
             default:
                 m_lengths[i] = 0;
                 break;
@@ -83,6 +84,11 @@ static const char* booleanFalse = "f";
 void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParameter* param)
 {
     VariantType ptype = param->dataType();
+    uint32_t*   uptrBuffer;
+    uint64_t*   uptrBuffer64;
+    long        days;
+    int64_t     mcs;
+    double      value;
 
     if (param->isNull())
         setParameterValue(paramIndex, nullptr, 0, 0, PG_VARCHAR);
@@ -95,15 +101,14 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
                     setParameterValue(paramIndex, booleanFalse, 1, 0, PG_VARCHAR);
                 break;
 
-            case VAR_INT: {
-                auto bufferToSend = (uint32_t*) param->conversionBuffer();
-                *bufferToSend = htonl((uint32_t) param->getInteger());
+            case VAR_INT:
+                uptrBuffer = (uint32_t*) param->conversionBuffer();
+                *uptrBuffer = htonl((uint32_t) param->getInteger());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int32_t), 1, PG_INT4);
-            }
-            break;
+                break;
 
-            case VAR_DATE: {
-                long days = chrono::duration_cast<chrono::hours>(param->getDateTime() - epochDate).count() / 24;
+            case VAR_DATE:
+                days = chrono::duration_cast<chrono::hours>(param->getDateTime() - epochDate).count() / 24;
                 if (m_int64timestamps) {
                     int64_t dt = days * 86400 * 1000000;
                     htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
@@ -112,11 +117,10 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
                     htonq_inplace((uint64_t*) (void*) &dt,(uint64_t*) param->conversionBuffer());
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_TIMESTAMP);
-            }
-            break;
+                break;
 
-            case VAR_DATE_TIME: {
-                int64_t mcs = chrono::duration_cast<chrono::microseconds>(param->getDateTime() - epochDate).count();
+            case VAR_DATE_TIME:
+                mcs = chrono::duration_cast<chrono::microseconds>(param->getDateTime() - epochDate).count();
                 if (m_int64timestamps) {
                     htonq_inplace((uint64_t*) &mcs,(uint64_t*) param->conversionBuffer());
                 } else {
@@ -124,30 +128,26 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
                     htonq_inplace((uint64_t*) (void*) &dt,(uint64_t*) param->conversionBuffer());
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_TIMESTAMP);
-            }
-            break;
+                break;
 
-            case VAR_INT64: {
-                auto bufferToSend = (uint64_t*) param->conversionBuffer();
-                *bufferToSend = htonq((uint64_t)param->getInt64());
+            case VAR_INT64:
+                uptrBuffer64 = (uint64_t*) param->conversionBuffer();
+                *uptrBuffer64 = htonq((uint64_t)param->getInt64());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_INT8);
-            }
-            break;
+                break;
 
-            case VAR_MONEY: {
-                double value = param->asFloat();
-                auto bufferToSend = (uint64_t*) param->conversionBuffer();
-                *bufferToSend = htonq(*(uint64_t*) (void*) &value);
+            case VAR_MONEY:
+                value = param->asFloat();
+                uptrBuffer64 = (uint64_t*) param->conversionBuffer();
+                *uptrBuffer64 = htonq(*(uint64_t*) (void*) &value);
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
-            }
-            break;
+                break;
 
-            case VAR_FLOAT: {
-                auto bufferToSend = (uint64_t*) param->conversionBuffer();
-                *bufferToSend = htonq(*(uint64_t*)param->dataBuffer());
+            case VAR_FLOAT:
+                uptrBuffer64 = (uint64_t*) param->conversionBuffer();
+                *uptrBuffer64 = htonq(*(uint64_t*)param->dataBuffer());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
-            }
-            break;
+                break;
 
             case VAR_STRING:
             case VAR_TEXT:
@@ -160,4 +160,3 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
         }
     }
 }
-

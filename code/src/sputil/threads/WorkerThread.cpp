@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/threads/WorkerThread.h>
 
 using namespace std;
@@ -57,11 +58,8 @@ void WorkerThread::threadFunction()
             try {
                 runable->execute();
             }
-            catch (exception& e) {
-                cerr << "Runable::execute() : " << e.what() << endl;
-            }
-            catch (...) {
-                cerr << "Runable::execute() : unknown exception" << endl;
+            catch (const Exception& e) {
+                CERR("Runable::execute() : " << e.what() << endl);
             }
             if (m_threadEvent != nullptr)
                 m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_FINISHED, runable);

@@ -32,8 +32,8 @@ using namespace std;
 using namespace sptk;
 
 xml::DocType::DocType(const char *name, const char *public_id, const char *system_id)
+: m_name(name)
 {
-    m_name = name;
     if (public_id != nullptr)
         m_public_id = public_id;
     if (system_id != nullptr)
@@ -111,7 +111,7 @@ void xml::DocType::decodeEntities(const char* str, uint32_t sz, Buffer& ret)
     while (*ptr != char(0)) {
         const char* ent_start = strchr(ptr, '&');
         if (ent_start != nullptr) {
-            auto ent_end = (char*) strchr(ent_start + 1, ';');
+            auto* ent_end = (char*) strchr(ent_start + 1, ';');
             if (ent_end != nullptr) {
                 char ch = *ent_end;
                 *ent_end = 0;

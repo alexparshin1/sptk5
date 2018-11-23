@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/threads/Thread.h>
 
 using namespace std;
@@ -35,23 +36,20 @@ namespace sptk {
 
     void Thread::threadStart(void* athread)
     {
-        auto th = (Thread*) athread;
+        auto* th = (Thread*) athread;
         try {
             th->threadFunction();
             th->onThreadExit();
         }
-        catch (exception& e) {
-            cerr << "Exception in thread '" << th->name() << "': " << e.what() << endl;
-        }
-        catch (...) {
-            cerr << "Unknown Exception in thread '" << th->name() << "'" << endl;
+        catch (const Exception& e) {
+            CERR("Exception in thread '" << th->name() << "': " << e.what() << endl);
         }
     }
 }
 
-Thread::Thread(const String& name) :
-    m_name(name),
-    m_terminated(false)
+Thread::Thread(const String& name)
+: m_name(name),
+  m_terminated(false)
 {
 }
 
@@ -104,7 +102,6 @@ bool Thread::sleep_until(DateTime timestamp)
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 class ThreadTestThread: public Thread
 {

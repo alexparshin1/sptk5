@@ -38,7 +38,7 @@ namespace sptk {
     class PostgreSQLParamValues
     {
         friend class PostgreSQLStatement;
-        size_t                      m_count;
+        size_t                      m_count {0};
         std::vector<const char*>    m_values;
         std::vector<int>            m_lengths;
         std::vector<int>            m_formats;
@@ -47,10 +47,9 @@ namespace sptk {
         bool                        m_int64timestamps;
     public:
         explicit PostgreSQLParamValues(bool int64timestamps)
-        : m_count(0)
+        : m_int64timestamps(int64timestamps)
         {
             resize(16);
-            m_int64timestamps = int64timestamps;
         }
 
         void reset()

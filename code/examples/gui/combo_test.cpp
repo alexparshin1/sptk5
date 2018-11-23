@@ -59,7 +59,7 @@ void exit_cb(Fl_Widget *w, void *)
 
 void combo_cb(Fl_Widget *w, void *)
 {
-    auto control = dynamic_cast<CControl *> (w);
+    auto* control = dynamic_cast<CControl *> (w);
     if (!control)
         return;
     switch (control->eventType()) {

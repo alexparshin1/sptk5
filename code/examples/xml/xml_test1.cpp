@@ -115,8 +115,8 @@ xml::Document *build_doc()
         doc->save(savebuffer, true);
         savebuffer.saveToFile("MyXML2.xml");
     }
-    catch (...) {
-        Fl::warning("Error!");
+    catch (const Exception& e) {
+        Fl::warning(e.what());
     }
 
     return doc;

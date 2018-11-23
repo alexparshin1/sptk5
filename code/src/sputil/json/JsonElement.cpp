@@ -353,11 +353,22 @@ double Element::getNumber(const String& name) const
     throw Exception("Not a number");
 }
 
-#ifdef _WIN32
-#define INT64_FORMAT "%lld"
-#else
-#define INT64_FORMAT "%lld"
-#endif
+static String JsonNumberToString(double number)
+{
+    long len;
+    char buffer[64];
+
+    if (number == (int64_t) number)
+        len = snprintf(buffer, sizeof(buffer) - 1, "%lld", (long long) number);
+    else {
+        len = snprintf(buffer, sizeof(buffer) - 1, "%1.8f", number);
+        const char* ptr = buffer + len - 1;
+        while (*ptr == '0')
+            ptr--;
+        len = ptr - buffer + 1;
+    }
+    return String(buffer, (size_t) len);
+}
 
 String Element::getString(const String& name) const
 {
@@ -367,20 +378,8 @@ String Element::getString(const String& name) const
         return *element.m_data.m_string;
 
     switch (element.m_type) {
-        case JDT_NUMBER: {
-            long len;
-            char buffer[64];
-            if (element.m_data.m_number == (int64_t) element.m_data.m_number)
-                len = snprintf(buffer, sizeof(buffer) - 1, INT64_FORMAT, (long long) element.m_data.m_number);
-            else {
-                len = snprintf(buffer, sizeof(buffer) - 1, "%1.8f", element.m_data.m_number);
-                const char* ptr = buffer + len - 1;
-                while (*ptr == '0')
-                    ptr--;
-				len = ptr - buffer + 1;
-            }
-            return String(buffer, (size_t) len);
-        }
+        case JDT_NUMBER:
+            return JsonNumberToString(element.m_data.m_number);
 
         case JDT_STRING:
             return *element.m_data.m_string;
@@ -444,7 +443,11 @@ const json::ObjectData& Element::getObject(const String& name) const
 
 void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) const
 {
-    string indentSpaces, newLineChar, firstElement, betweenElements(",");
+    String indentSpaces;
+    String newLineChar;
+    String firstElement;
+    String betweenElements(",");
+
     if (formatted && m_type & (JDT_ARRAY | JDT_OBJECT)) {
         if (indent)
             indentSpaces = string(indent, ' ');
@@ -503,12 +506,11 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
                         stream << " ";
                     itor.second->exportValueTo(stream, formatted, indent + 4);
                 }
-                //stream << " ";
             }
             stream << newLineChar << indentSpaces << "}";
             break;
 
-        case JDT_NULL:
+        default:
             stream << "null";
             break;
     }
@@ -517,7 +519,7 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
 
 void Element::exportValueTo(const String& name, xml::Element& parentNode) const
 {
-    auto node = new xml::Element(parentNode, name);
+    auto* node = new xml::Element(parentNode, name);
     switch (m_type) {
         case JDT_NUMBER:
         case JDT_BOOLEAN:
@@ -539,7 +541,7 @@ void Element::exportValueTo(const String& name, xml::Element& parentNode) const
             }
             break;
 
-        case JDT_NULL:
+        default:
             new xml::Element(node, "null");
             break;
     }
@@ -701,7 +703,7 @@ void Element::appendMatchedElement(ElementSet& elements, const Element::XPathEle
         if (!arrayData.empty()) {
             switch (xpathElement.index) {
                 case 0:
-                    for (auto item: arrayData)
+                    for (auto* item: arrayData)
                         elements.push_back(item);
                     break;
                 case -1:
@@ -726,8 +728,6 @@ void Element::selectElements(ElementSet& elements, const XPath& xpath, size_t xp
     if (m_type == JDT_ARRAY) {
         for (Element* element: *m_data.m_array) {
             // Continue to match children
-            //if (!matchAnyElement)
-            //    xpathPosition = 0; // Start over to match children
             element->selectElements(elements, xpath, xpathPosition, false);
         }
     } else if (m_type == JDT_OBJECT) {
@@ -829,7 +829,7 @@ void Element::optimizeArrays(const std::string& name)
     }
 
     if (isArray()) {
-        for (auto element: *m_data.m_array)
+        for (auto* element: *m_data.m_array)
             element->optimizeArrays(name);
         return;
     }
@@ -837,28 +837,28 @@ void Element::optimizeArrays(const std::string& name)
 
 Element* Element::push_array()
 {
-    auto arrayElement = new Element(m_document, new ArrayData(m_document));
+    auto* arrayElement = new Element(m_document, new ArrayData(m_document));
     add(arrayElement);
     return arrayElement;
 }
 
 Element* Element::set_array(const String& name)
 {
-    auto arrayElement = new Element(m_document, new ArrayData(m_document));
+    auto* arrayElement = new Element(m_document, new ArrayData(m_document));
     add(name, arrayElement);
     return arrayElement;
 }
 
 Element* Element::push_object()
 {
-    auto objectElement = new Element(m_document, new ObjectData(m_document));
+    auto* objectElement = new Element(m_document, new ObjectData(m_document));
     add(objectElement);
     return objectElement;
 }
 
 Element* Element::set_object(const String& name)
 {
-    auto objectElement = new Element(m_document, new ObjectData(m_document));
+    auto* objectElement = new Element(m_document, new ObjectData(m_document));
     add(name, objectElement);
     return objectElement;
 }
@@ -869,8 +869,6 @@ Document* Element::getDocument() const
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
-#include <sptk5/json/JsonDocument.h>
 
 static const String testJSON1(R"({ "AAA": { "BBB": "", "CCC": "", "BBB": "", "BBB": "", "DDD": { "BBB": "" }, "CCC": "" } })");
 static const String testJSON2(R"({ "AAA": { "BBB": "", "CCC": "", "BBB": "", "DDD": { "BBB": "" }, "CCC": { "DDD": { "BBB": "", "BBB": "" } } } })");

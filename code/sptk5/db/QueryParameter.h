@@ -66,16 +66,15 @@ class SP_EXPORT QueryParameter : public Variant
     /**
      * An integer reserved to callback parameter data length
      */
-	int32_t             m_callbackLength {0};
+    int32_t             m_callbackLength {0};
 
     /**
      * Parent param list used for notifications
      */
     QueryParameterList*         m_paramList;
 
-protected:
-
 public:
+
     /**
      * The last successfull binding information
      */

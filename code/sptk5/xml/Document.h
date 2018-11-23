@@ -137,7 +137,7 @@ public:
      */
     virtual ~Document()
     {
-        clear();
+        Document::clear();
     }
 
     /**
@@ -164,6 +164,7 @@ public:
      */
     virtual void name(const std::string& name) override
     {
+        // Document has no node name
     }
 
     /**
@@ -172,6 +173,7 @@ public:
      */
     virtual void name(const char* name) override
     {
+        // Document has no node name
     }
 
     /**

@@ -62,7 +62,6 @@ namespace sptk {
          */
         String m_value;
 
-    public:
         /**
          * Constructor
          */
@@ -289,17 +288,16 @@ namespace sptk {
         /**
          * Current spell checking word buffer position
          */
-        uint32_t m_bufferPosition;
+        uint32_t m_bufferPosition {0};
 
     public:
         /**
          * Constructor
          * @param editor CEditor *, widget to work with
          */
-        CEditorSpellChecker(CEditor* editor)
+        explicit CEditorSpellChecker(CEditor* editor)
+        : m_editor(editor)
         {
-            m_editor = editor;
-            m_bufferPosition = 0;
         }
 
         /**

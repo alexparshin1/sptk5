@@ -35,6 +35,7 @@
 #include <FL/Fl_XPM_Image.H>
 #include <FL/Fl_Group.H>
 
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 using namespace std;
@@ -47,12 +48,12 @@ void exit_cb(Fl_Widget* w, void*)
 
 void theme_cb(Fl_Widget* w, void*)
 {
-    auto themesCombo = (CComboBox*) w;
+    auto* themesCombo = (CComboBox*) w;
     String themeName = themesCombo->data().asString();
 
     CThemes::set(themeName);
 
-    auto window = (CWindow*) w->window();
+    auto* window = (CWindow*) w->window();
     window->relayout();
     window->redraw();
 }
@@ -103,7 +104,7 @@ int main(int argc, char** argv)
             snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
             snprintf(buffer2, sizeof(buffer2) - 1, "%i", maxItems - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-            auto ps = new CPackedStrings(4, rowData);
+            auto* ps = new CPackedStrings(4, rowData);
             listView.addRow(ps);
         }
 
@@ -119,14 +120,13 @@ int main(int argc, char** argv)
         themesCombo.callback(theme_cb);
         themesCombo.labelWidth(70);
 
-        auto exitButton = new CButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
+        auto* exitButton = new CButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
         exitButton->callback((Fl_Callback*) exit_cb);
         exitButton->defaultButton(true);
 
         buttonGroup.end();
 
         themesCombo.data("Default");
-        //themesCombo.data("GTK:Brushed");
 
         w.end();
         w.resizable(w);
@@ -138,7 +138,7 @@ int main(int argc, char** argv)
         return Fl::run();
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }

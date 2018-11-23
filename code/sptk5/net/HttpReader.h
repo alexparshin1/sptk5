@@ -36,8 +36,10 @@
 
 namespace sptk {
 
-struct caseInsensitiveCompare : public std::binary_function<String, String, bool>
+class caseInsensitiveCompare : public std::binary_function<String, String, bool>
 {
+public:
+
     bool operator()(const String &lhs, const String &rhs) const
     {
 #ifdef _WIN32

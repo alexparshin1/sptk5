@@ -194,7 +194,9 @@ protected:
      * to adapt m_shapePoints[] to the window size.
      */
     virtual void shapeResize(int w, int h)
-    {}
+    {
+        // Implemented in derived class
+    }
 };
 /**
  * @}

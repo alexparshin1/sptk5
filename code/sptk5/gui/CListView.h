@@ -197,8 +197,6 @@ protected:
      */
     CListViewDataMode m_dataMode;
 
-protected:
-
     /**
      * The mouse pressed position
      */

@@ -309,19 +309,17 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
     auto* statement = (PostgreSQLStatement*) query->statement();
 
     if (statement != nullptr) {
-        if (statement->stmt() != nullptr) {
-            if (!statement->name().empty()) {
-                string deallocateCommand = "DEALLOCATE \"" + statement->name() + "\"";
-                PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
-                ExecStatusType rc = PQresultStatus(res);
-                if (rc >= PGRES_BAD_RESPONSE) {
-                    string error = "DEALLOCATE command failed: ";
-                    error += PQerrorMessage(m_connect);
-                    PQclear(res);
-                    THROW_QUERY_ERROR(query, error);
-                }
+        if (statement->stmt() != nullptr && !statement->name().empty()) {
+            String deallocateCommand = "DEALLOCATE \"" + statement->name() + "\"";
+            PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
+            ExecStatusType rc = PQresultStatus(res);
+            if (rc >= PGRES_BAD_RESPONSE) {
+                String error = "DEALLOCATE command failed: ";
+                error += PQerrorMessage(m_connect);
                 PQclear(res);
+                THROW_QUERY_ERROR(query, error);
             }
+            PQclear(res);
         }
 
         delete statement;
@@ -541,9 +539,6 @@ void PostgreSQLConnection::CTypeToPostgreType(VariantType dataType, Oid& postgre
             return;        ///< Integer 4 bytes
 
         case VAR_MONEY:
-            postgreType = PG_FLOAT8;
-            return;        ///< Floating-point (double)
-
         case VAR_FLOAT:
             postgreType = PG_FLOAT8;
             return;        ///< Floating-point (double)
@@ -596,10 +591,8 @@ void PostgreSQLConnection::queryOpen(Query* query)
     auto* statement = (PostgreSQLStatement*) query->statement();
 
     auto count = (short) queryColCount(query);
-    if (count < 1) {
-        //queryCloseStmt(query);
+    if (count < 1)
         return;
-    }
 
     querySetActive(query, true);
 
@@ -620,7 +613,6 @@ void PostgreSQLConnection::queryOpen(Query* query)
             VariantType fieldType;
             PostgreTypeToCType((int) dataType, fieldType);
             int fieldLength = PQfsize(stmt, column);
-            //int mod = PQfmod(stmt, column);
             DatabaseField* field = new DatabaseField(columnName.str(), column, (int) dataType, fieldType, fieldLength);
             query->fields().push_back(field);
         }
@@ -810,18 +802,14 @@ static void decodeArray(const char* data, DatabaseField* field)
                     output << string(data, dataSize);
                     break;
 
-                case PG_DATE: {
-                    DateTime dt = readDate(data);
-                    output << dt.dateString();
+                case PG_DATE:
+                    output << readDate(data).dateString();
                     break;
-                }
 
                 case PG_TIMESTAMPTZ:
-                case PG_TIMESTAMP: {
-                    DateTime dt = readTimestamp(data, timestampsFormat == PG_INT64_TIMESTAMPS);
-                    output << dt.dateString();
+                case PG_TIMESTAMP:
+                    output << readTimestamp(data, timestampsFormat == PG_INT64_TIMESTAMPS).dateString();
                     break;
-                }
 
                 default:
                     throw DatabaseException("Unsupported array element type");
@@ -941,8 +929,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
                 }
             }
-
-        } catch (exception& e) {
+        } catch (const Exception& e) {
             THROW_QUERY_ERROR(query, "Can't read field " << field->fieldName() << ": " << e.what());
         }
     }
@@ -1055,7 +1042,7 @@ void PostgreSQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* er
             Query query(this, stmt);
             query.exec();
         }
-        catch (const exception& e) {
+        catch (const Exception& e) {
             if (errors != nullptr)
                 errors->push_back(e.what());
             else
@@ -1084,12 +1071,11 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch) const
             if (row.empty() || matchCommentRow.matches(row))
                 continue;
         }
-        if (!functionHeader) {
-            if (matchFunction.m(row, matches)) {
-                functionHeader = true;
-                statement << row << "\n";
-                continue;
-            }
+
+        if (!functionHeader && matchFunction.m(row, matches)) {
+            functionHeader = true;
+            statement << row << "\n";
+            continue;
         }
 
         if (functionHeader && !functionBody && matchFunctionBodyStart.m(row, matches)) {
@@ -1105,13 +1091,11 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch) const
             functionBody = false;
         }
 
-        if (!functionBody) {
-            if (matchStatementEnd.m(row, matches)) {
-                statement << row;
-                statements.push_back(statement.str());
-                statement.str("");
-                continue;
-            }
+        if (!functionBody && matchStatementEnd.m(row, matches)) {
+            statement << row;
+            statements.push_back(statement.str());
+            statement.str("");
+            continue;
         }
 
         statement << row << "\n";

@@ -565,6 +565,7 @@ public:
      */
     virtual void maxLength(int)
     {
+        // Implemented in derived classes
     }
 
     /**
@@ -608,6 +609,7 @@ public:
      */
     virtual void load(Query *)
     {
+        // Implemented in derived classes
     }
 
     /**
@@ -615,6 +617,7 @@ public:
      */
     virtual void save(Query *)
     {
+        // Implemented in derived classes
     }
 
     /**
@@ -681,6 +684,7 @@ public:
      */
     virtual void data(const Variant v)
     {
+        // Implemented in derived classes
     }
 
     /**
@@ -810,7 +814,7 @@ public:
     /**
      * @brief Control data conversion
      */
-    operator String() const
+    explicit operator String() const
     {
         return data().asString();
     }
@@ -818,7 +822,7 @@ public:
     /**
      * @brief Control data conversion
      */
-    operator int32_t() const
+    explicit operator int32_t() const
     {
         return data().asInteger();
     }
@@ -826,7 +830,7 @@ public:
     /**
      * @brief Control data conversion
      */
-    operator uint32_t() const
+    explicit operator uint32_t() const
     {
         return data().asInteger();
     }
@@ -834,7 +838,7 @@ public:
     /**
      * @brief Control data conversion
      */
-    operator int64_t() const
+    explicit operator int64_t() const
     {
         return data().asInt64();
     }
@@ -842,7 +846,7 @@ public:
     /**
      * @brief Control data conversion
      */
-    operator uint64_t() const
+    explicit operator uint64_t() const
     {
         return data().asInt64();
     }
@@ -850,7 +854,7 @@ public:
     /**
      * @brief Control data conversion
      */
-    operator float() const
+    explicit operator float() const
     {
         return data().asFloat();
     }
@@ -858,7 +862,7 @@ public:
     /**
      * @brief Control data conversion
      */
-    operator double() const
+    explicit operator double() const
     {
         return data().asFloat();
     }
@@ -866,7 +870,7 @@ public:
     /**
      * @brief Control data conversion
      */
-    operator DateTime() const
+    explicit operator DateTime() const
     {
         return data().asDateTime();
     }

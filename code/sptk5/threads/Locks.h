@@ -50,13 +50,15 @@ class UniqueLockInt
 {
     SharedMutex&    mutex;              ///< Shared mutex that controls lock
     bool            locked {false};     ///< True if lock is acquired
+
 public:
+
     /**
      * Constructor
      * Waits until lock is acquired.
      * @param mutex             Shared mutex that controls lock
      */
-    UniqueLockInt(SharedMutex& mutex);
+    explicit UniqueLockInt(SharedMutex& mutex);
 
     /**
      * Constructor
@@ -89,12 +91,14 @@ class SharedLockInt
 {
     SharedMutex&    mutex;              ///< Shared mutex that controls lock
     bool            locked {false};     ///< True if lock is acquired
+
 public:
+
     /**
      * Constructor
      * @param mutex             Shared mutex that controls lock
      */
-    SharedLockInt(SharedMutex& mutex);
+    explicit SharedLockInt(SharedMutex& mutex);
 
     /**
      * Constructor

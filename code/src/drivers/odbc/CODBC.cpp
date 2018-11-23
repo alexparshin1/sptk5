@@ -308,7 +308,8 @@ string extract_error(
 
     string error;
     for (;;) {
-        ret = SQLGetDiagRec(type, handle, ++i, state, &native, text, sizeof(text), &len);
+        i++;
+        ret = SQLGetDiagRec(type, handle, i, state, &native, text, sizeof(text), &len);
         if (ret != SQL_SUCCESS)
             break;
         error += removeDriverIdentification((char*) text) + string(". ");

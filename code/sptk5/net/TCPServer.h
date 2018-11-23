@@ -50,7 +50,7 @@ class TCPServerListener;
  *
  * For every incoming connection, creates connection thread.
  */
-class TCPServer : protected Thread
+class TCPServer : public Thread
 {
     friend class TCPServerListener;
     friend class ServerConnection;

@@ -58,7 +58,7 @@ class Attribute;
 class Attributes;
 
 /**
- * @brief XPath Axis enum
+ * XPath Axis enum
  */
 enum XPathAxis
 {
@@ -80,49 +80,49 @@ enum XPathAxis
 };
 
 /**
- * @brief Parsed element of XPath
+ * Parsed element of XPath
  */
 class SP_EXPORT XPathElement
 {
 public:
-	/**
-	 * Node name, or '*'
-	 */
-	const std::string* elementName{ nullptr };
+    /**
+     * Node name, or '*'
+     */
+    const std::string* elementName{ nullptr };
 
-	/**
-	 * Criteria
-	 */
-	std::string criteria;
+    /**
+     * Criteria
+     */
+    std::string criteria;
 
-	/**
-	 * Axis
-	 */
-	XPathAxis axis {XPA_CHILD};
+    /**
+     * Axis
+     */
+    XPathAxis axis {XPA_CHILD};
 
-	/**
-	 * Attribute name (optional)
-	 */
-	const std::string* attributeName{ nullptr };
+    /**
+     * Attribute name (optional)
+     */
+    const std::string* attributeName{ nullptr };
 
-	/**
-	 * Attribute value (optional)
-	 */
-	std::string attributeValue;
+    /**
+     * Attribute value (optional)
+     */
+    std::string attributeValue;
 
-	/**
-	 * true if attribute value was defined
-	 */
-	bool attributeValueDefined {0};
+    /**
+     * true if attribute value was defined
+     */
+    bool attributeValueDefined {0};
 
     /**
      * 0 (not required), -1 (last), or node position
      */
-	int nodePosition {0};
+    int nodePosition {0};
 
 public:
     /**
-     * @brief Default constructor
+     * Default constructor
      */
     XPathElement()
     {
@@ -131,7 +131,7 @@ public:
     }
 
     /**
-     * @brief Copy constructor
+     * Copy constructor
      * @param xpe CXPathElement object to copy from
      */
     XPathElement(const XPathElement& xpe)
@@ -147,7 +147,7 @@ public:
 };
 
 /**
- * @brief XML node
+ * XML node
  *
  * Basic class for any XML node
  */
@@ -162,7 +162,7 @@ class SP_EXPORT Node
 
 public:
     /**
-     * @brief Node type enumeration
+     * Node type enumeration
      */
     enum NodeType
     {
@@ -208,23 +208,23 @@ public:
     };
 
     /**
-     * @brief xml::Node own iterator for subnodes
+     * xml::Node own iterator for subnodes
      */
     typedef NodeList::iterator iterator;
 
     /**
-     * @brief xml::Node own const_iterator for subnodes
+     * xml::Node own const_iterator for subnodes
      */
     typedef NodeList::const_iterator const_iterator;
 
 private:
     /**
-     * @brief Sets parent node - for XMLParser
+     * Sets parent node - for XMLParser
      */
     void parent(Node* p);
 
     /**
-     * @brief Checks if any descendent node matches the path element (internal)
+     * Checks if any descendent node matches the path element (internal)
      * @param nodes             Output list of matched nodes
      * @param pathElements      The path elements
      * @param pathPosition      Current path elements position
@@ -234,7 +234,7 @@ private:
                          const std::string* starPointer);
 
     /**
-     * @brief Checks if the node matches the path element (internal)
+     * Checks if the node matches the path element (internal)
      * @param pathElement       The path elements
      * @param nodePosition      The position of the node in the matching group
      * @param starPointer       The pointer to SST '*' string
@@ -248,7 +248,7 @@ private:
                              const std::string* starPointer, NodeVector& matchedNodesThisLevel, bool descendants);
 
     /**
-     * @brief Checks if the node matches the path element (internal)
+     * Checks if the node matches the path element (internal)
      * @param nodes             Output list of matched nodes
      * @param pathElements      The path elements
      * @param pathPosition      Current path elements position
@@ -258,7 +258,7 @@ private:
                    const std::string* starPointer);
 
     /**
-     * @brief Save node to JSON object.
+     * Save node to JSON object.
      * @param json              JSON element
      * @param text              Temporary text buffer
      */
@@ -266,7 +266,7 @@ private:
 
 protected:
     /**
-     * @brief Always returns false for xml::Node since it has no name
+     * Always returns false for xml::Node since it has no name
      */
     virtual bool nameIs(const std::string* /*sstName*/) const
     {
@@ -283,31 +283,31 @@ protected:
     /**
      * Parent node pointer
      */
-	Node* m_parent {nullptr};
+    Node* m_parent {nullptr};
 
 
     /**
-     * @brief Protected constructor - for derived classes
+     * Protected constructor - for derived classes
      *
      * @param doc               Node document
      */
     Node(Document& doc)
-	: m_document(&doc)
-	{}
+    : m_document(&doc)
+    {}
 
     /**
-     * @brief Protected constructor - for derived classes
+     * Protected constructor - for derived classes
      *
      * @param parent            Node document
      */
     Node(Node& parent)
-	: m_document(parent.document())
-	{
+    : m_document(parent.document())
+    {
         parent.push_back(this);
     }
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~Node()
     {
@@ -317,7 +317,7 @@ protected:
 public:
 
     /**
-     * @brief Finds the first subnode with the given name
+     * Finds the first subnode with the given name
      *
      * Returns node             Pointer or NULL, if the node with such name is not found.
      * @param name              The name to find
@@ -326,7 +326,7 @@ public:
     Node* findFirst(const std::string& name, bool recursively = true) const;
 
     /**
-     * @brief Finds the first subnode with the given name, or creates a new one.
+     * Finds the first subnode with the given name, or creates a new one.
      *
      * Returns node pointer. If the node with such name is not found, then new
      * node is created.
@@ -336,7 +336,7 @@ public:
     Node* findOrCreate(const std::string& name, bool recursively = true);
 
     /**
-     * @brief Finds the first subnode with the given name, or creates a new one.
+     * Finds the first subnode with the given name, or creates a new one.
      *
      * Returns node pointer. If the node with such name is not found, then new
      * node is created. This is a shortcut for findOrCreate(name,false);
@@ -348,12 +348,12 @@ public:
     }
 
     /**
-     * @brief Returns node type
+     * Returns node type
      */
     virtual NodeType type() const = 0;
 
     /**
-     * @brief Selects nodes as defined by XPath
+     * Selects nodes as defined by XPath
      *
      * The implementation is just started, so only limited XPath standard part is supported.
      * Currently, examples 1 through 6 from http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
@@ -365,14 +365,14 @@ public:
     void select(NodeVector& nodes, String xpath);
 
     /**
-     * @brief Performs a deep copy of node and all its subnodes
+     * Performs a deep copy of node and all its subnodes
      *
      * @param node              Node to copy from
      */
     virtual void copy(const Node& node);
 
     /**
-     * @brief Deletes all child nodes
+     * Deletes all child nodes
      *
      * Any memory, associated with child nodes is released.
      */
@@ -381,7 +381,7 @@ public:
     }
 
     /**
-     * @brief Deletes all children and clears all the attributes
+     * Deletes all children and clears all the attributes
      *
      * Any memory, associated with children or attributes,
      * is released.
@@ -391,7 +391,7 @@ public:
     }
 
     /**
-     * @brief Returns parent node of this node.
+     * Returns parent node of this node.
      *
      * For Document this returns 'this' pointer.
      */
@@ -401,7 +401,7 @@ public:
     }
 
     /**
-     * @brief Returns document context associated with this node.
+     * Returns document context associated with this node.
      */
     Document* document() const
     {
@@ -409,12 +409,12 @@ public:
     }
 
     /**
-     * @brief Returns the node name.
+     * Returns the node name.
      */
     virtual const std::string& name() const = 0;
 
     /**
-     * @brief Returns the node namespace.
+     * Returns the node namespace.
      */
     virtual std::string nameSpace() const
     {
@@ -422,7 +422,7 @@ public:
     }
 
     /**
-     * @brief Returns the node tagname (without namespace).
+     * Returns the node tagname (without namespace).
      */
     virtual std::string tagname() const
     {
@@ -430,19 +430,19 @@ public:
     }
 
     /**
-     * @brief Sets the new name for the node
+     * Sets the new name for the node
      * @param name              New node name
      */
     virtual void name(const std::string& name) = 0;
 
     /**
-     * @brief Sets new name for node
+     * Sets new name for node
      * @param name              New node name
      */
     virtual void name(const char* name) = 0;
 
     /**
-     * @brief Returns the value of the node
+     * Returns the value of the node
      *
      * The meaning of the value depends on the node type.
      * DOM_DOCUMENT and DOM_ELEMENT don't have values
@@ -450,28 +450,28 @@ public:
     virtual const String& value() const;
 
     /**
-     * @brief Sets new value to node.
+     * Sets new value to node.
      */
     virtual void value(const std::string& /*new_value*/)
     {
     }
 
     /**
-     * @brief Sets new value to node
+     * Sets new value to node
      */
     virtual void value(const char* /*new_value*/)
     {
     }
 
     /**
-     * @brief Returns cdatas combined from children.
+     * Returns cdatas combined from children.
      *
      * E.g. "Some <tag>text</tag> here" becomes: "Some text here"
      */
     String text() const;
 
     /**
-     * @brief Sets text for the node.
+     * Sets text for the node.
      *
      * First, the node child nodes are removed.
      * Then, new NodeText is added to this node.
@@ -480,7 +480,7 @@ public:
     void text(const String& txt);
 
     /**
-     * @brief Returns referrence to node attributes
+     * Returns referrence to node attributes
      *
      * Returns 0 if node isn't Element or Document
      */
@@ -490,7 +490,7 @@ public:
     }
 
     /**
-     * @brief Returns referrence to node attributes (const version)
+     * Returns referrence to node attributes (const version)
      *
      * Returns 0 if node isn't Element or Document
      */
@@ -500,7 +500,7 @@ public:
     }
 
     /**
-     * @brief Returns true, if node has any attributes
+     * Returns true, if node has any attributes
      */
     virtual bool hasAttributes() const
     {
@@ -508,16 +508,16 @@ public:
     }
 
     /**
-     * @brief Returns true, if given attribute is found
-	 * @param attr              Name of attribute
-	 */
+     * Returns true, if given attribute is found
+     * @param attr              Name of attribute
+     */
     virtual bool hasAttribute(const char* attr) const
     {
         return false;
     }
 
     /**
-     * @brief Returns attribute value for given attribute.
+     * Returns attribute value for given attribute.
      *
      * HTML tags can have empty attributes, for those you should use has_attribute() method.
      * @param attr              Name of attribute
@@ -530,7 +530,7 @@ public:
     }
 
     /**
-     * @brief Sets new value to attribute 'attr'.
+     * Sets new value to attribute 'attr'.
      *
      * If attribute is not found, it's added to map.
      * @param attr              Attribute name
@@ -542,7 +542,7 @@ public:
     }
 
     /**
-     * @brief Sets new value to attribute 'attr'.
+     * Sets new value to attribute 'attr'.
      *
      * If attribute is not found, it's added to map.
      * @param attr              Attribute name
@@ -554,40 +554,40 @@ public:
     }
 
     /**
-     * @brief Save node to buffer.
+     * Save node to buffer.
      * @param buffer            Buffer to save to
      * @param indent            Number of indent spaces at start
      */
     virtual void save(Buffer& buffer, int indent = 0) const;
 
     /**
-     * @brief Save node to JSON document
+     * Save node to JSON document
      * @param json              JSON element
      */
     virtual void exportTo(json::Element& json) const;
 
     /**
-     * @brief Returns the first subnode iterator
+     * Returns the first subnode iterator
      */
     virtual iterator begin();
 
     /**
-     * @brief Returns the first subnode const iterator
+     * Returns the first subnode const iterator
      */
     virtual const_iterator begin() const;
 
     /**
-     * @brief Returns the end subnode iterator
+     * Returns the end subnode iterator
      */
     virtual iterator end();
 
     /**
-     * @brief Returns the end subnode const iterator
+     * Returns the end subnode const iterator
      */
     virtual const_iterator end() const;
 
     /**
-     * @brief Returns a number of subnodes
+     * Returns a number of subnodes
      */
     virtual uint32_t size() const
     {
@@ -595,7 +595,7 @@ public:
     }
 
     /**
-     * @brief Returns true if node has no subnodes of subnodes
+     * Returns true if node has no subnodes of subnodes
      */
     virtual bool empty() const
     {
@@ -603,14 +603,14 @@ public:
     }
 
     /**
-     * @brief Appends a subnode
+     * Appends a subnode
      */
     virtual void push_back(Node* node)
     {
     }
 
     /**
-     * @brief Inserts a subnode
+     * Inserts a subnode
      *
      * @param pos               Insert position with the list of subnodes
      * @param node              Node to insert
@@ -620,7 +620,7 @@ public:
     }
 
     /**
-     * @brief Removes a subnode
+     * Removes a subnode
      *
      * Release all the allocated memory and disconnects from parent (this node)
      */
@@ -629,7 +629,7 @@ public:
     }
 
     /**
-     * @brief Removes a subnode
+     * Removes a subnode
      *
      * Disconnects subnode from parent (this node)
      */
@@ -639,7 +639,7 @@ public:
 
 public:
     /**
-     * @brief Document node, can contain subnodes and attributes
+     * Document node, can contain subnodes and attributes
      */
     bool isDocument() const
     {
@@ -647,7 +647,7 @@ public:
     }
 
     /**
-     * @brief Normal element node or document, can contain subnodes and attributes
+     * Normal element node or document, can contain subnodes and attributes
      */
     bool isElement() const
     {
@@ -655,7 +655,7 @@ public:
     }
 
     /**
-     * @brief Processing Instruction node
+     * Processing Instruction node
      */
     bool isPI() const
     {
@@ -663,7 +663,7 @@ public:
     }
 
     /**
-     * @brief Cdata where all default entities MUST be escaped.
+     * Cdata where all default entities MUST be escaped.
      */
     bool isText() const
     {
@@ -671,7 +671,7 @@ public:
     }
 
     /**
-     * @brief Cdata section, which can contain preformatted char data.
+     * Cdata section, which can contain preformatted char data.
      */
     bool isCDataSection() const
     {
@@ -679,7 +679,7 @@ public:
     }
 
     /**
-     * @brief Comment node
+     * Comment node
      */
     bool isComment() const
     {
@@ -688,7 +688,7 @@ public:
 };
 
 /**
- * @brief Named item
+ * Named item
  *
  * Used as a base class for XML element and XML attribute
  */
@@ -705,7 +705,7 @@ class SP_EXPORT NamedItem : public Node
 
 protected:
     /**
-     * @brief Protected constructor for creating Doc only
+     * Protected constructor for creating Doc only
      *
      * @param doc a document.
      */
@@ -715,7 +715,7 @@ protected:
     }
 
     /**
-     * @brief Returns true if node name pointer (from SST) matches aname pointer
+     * Returns true if node name pointer (from SST) matches aname pointer
      * @param sstName           Node name pointer to compare with this node name pointer
      */
     virtual bool nameIs(const std::string* sstName) const
@@ -725,7 +725,7 @@ protected:
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
@@ -737,7 +737,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
@@ -749,7 +749,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
@@ -761,7 +761,7 @@ public:
     }
 
     /**
-     * @brief Returns the node name.
+     * Returns the node name.
      */
     virtual const std::string& name() const
     {
@@ -769,7 +769,7 @@ public:
     }
 
     /**
-     * @brief Returns the node name space.
+     * Returns the node name space.
      */
     virtual std::string nameSpace() const
     {
@@ -780,7 +780,7 @@ public:
     }
 
     /**
-     * @brief Returns the node tagname without namespace.
+     * Returns the node tagname without namespace.
      */
     virtual std::string tagname() const
     {
@@ -791,19 +791,19 @@ public:
     }
 
     /**
-     * @brief Sets the new name for the node
+     * Sets the new name for the node
      * @param name              New node name
      */
     virtual void name(const std::string& name);
 
     /**
-     * @brief Sets new name for node
+     * Sets new name for node
      * @param name              New node name
      */
     virtual void name(const char* name);
 
     /**
-     * @brief Returns node type
+     * Returns node type
      */
     virtual NodeType type() const
     {
@@ -812,7 +812,7 @@ public:
 };
 
 /**
- * @brief Base class for XML nodes with value
+ * Base class for XML nodes with value
  */
 class SP_EXPORT BaseTextNode : public Node
 {
@@ -823,13 +823,13 @@ class SP_EXPORT BaseTextNode : public Node
 
 protected:
     /**
-     * @brief returns node name
+     * returns node name
      */
     virtual const std::string& nodeName() const;
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      */
     BaseTextNode(Node* parent, const char* data)
             : Node(*parent)
@@ -838,7 +838,7 @@ public:
     }
 
     /**
-     * @brief Returns the value of the node
+     * Returns the value of the node
      *
      * The meaning of the value depends on the node type.
      * DOM_DOCUMENT and DOM_ELEMENT don't have values
@@ -849,7 +849,7 @@ public:
     }
 
     /**
-     * @brief Sets new value to node.
+     * Sets new value to node.
      *
      * @param new_value         New value
      * @see value()
@@ -860,7 +860,7 @@ public:
     }
 
     /**
-     * @brief Sets new value to node
+     * Sets new value to node
      *
      * @param new_value         New value
      * @see value()
@@ -871,7 +871,7 @@ public:
     }
 
     /**
-     * @brief Returns the node name.
+     * Returns the node name.
      *
      * The meaning of the value depends on the node type
      */
@@ -881,7 +881,7 @@ public:
     }
 
     /**
-     * @brief Sets the new name for the node
+     * Sets the new name for the node
      * @param name              New node name
      */
     virtual void name(const std::string& name)
@@ -889,7 +889,7 @@ public:
     }
 
     /**
-     * @brief Sets new name for node
+     * Sets new name for node
      * @param name              New node name
      */
     virtual void name(const char* name)
@@ -899,19 +899,19 @@ public:
 };
 
 /**
- * @brief XML Text
+ * XML Text
  */
 class SP_EXPORT Text : public BaseTextNode
 {
 protected:
     /**
-     * @brief returns node name
+     * returns node name
      */
     virtual const std::string& nodeName() const;
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param data              Text
@@ -922,7 +922,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param data              Text
@@ -933,7 +933,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param data              Text
@@ -944,7 +944,7 @@ public:
     }
 
     /**
-     * @brief Returns node type
+     * Returns node type
      */
     virtual NodeType type() const
     {
@@ -953,19 +953,19 @@ public:
 };
 
 /**
- * @brief XML comment
+ * XML comment
  */
 class SP_EXPORT Comment : public BaseTextNode
 {
 protected:
     /**
-     * @brief returns node name
+     * returns node name
      */
     virtual const std::string& nodeName() const;
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param data              Comment
@@ -976,7 +976,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param data              Comment
@@ -987,7 +987,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param data              Comment
@@ -998,7 +998,7 @@ public:
     }
 
     /**
-     * @brief Returns node type
+     * Returns node type
      */
     virtual NodeType type() const
     {
@@ -1007,19 +1007,19 @@ public:
 };
 
 /**
- * @brief XML CData section
+ * XML CData section
  */
 class SP_EXPORT CDataSection : public BaseTextNode
 {
 protected:
     /**
-     * @brief returns node name
+     * returns node name
      */
     virtual const std::string& nodeName() const;
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param data              Data
@@ -1030,7 +1030,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param data              Data
@@ -1041,7 +1041,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param data              Data
@@ -1052,7 +1052,7 @@ public:
     }
 
     /**
-     * @brief Returns node type
+     * Returns node type
      */
     virtual NodeType type() const
     {
@@ -1061,18 +1061,18 @@ public:
 };
 
 /**
- * @brief XML processing instructions (PI)
+ * XML processing instructions (PI)
  */
 class SP_EXPORT PI : public BaseTextNode
 {
     /**
      * Node name, stored in the parent document SST
      */
-	const std::string* m_name {nullptr};
+    const std::string* m_name {nullptr};
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node. Make sure it's a pointer to the existing node.
      * @param target            Target tag name
@@ -1085,7 +1085,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node. Make sure it's a pointer to the existing node.
      * @param target            Target tag name
@@ -1098,7 +1098,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node
      * @param target            Target tag name
@@ -1111,7 +1111,7 @@ public:
     }
 
     /**
-     * @brief Returns the node name.
+     * Returns the node name.
      *
      * The meaning of the value depends on the node type
      */
@@ -1121,19 +1121,19 @@ public:
     }
 
     /**
-     * @brief Sets the new name for the node
+     * Sets the new name for the node
      * @param name              New node name
      */
     virtual void name(const std::string& name);
 
     /**
-     * @brief Sets new name for node
+     * Sets new name for node
      * @param name              New node name
      */
     virtual void name(const char* name);
 
     /**
-     * @brief Returns node type
+     * Returns node type
      */
     virtual NodeType type() const
     {

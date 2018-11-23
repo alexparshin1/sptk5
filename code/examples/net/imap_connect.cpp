@@ -61,7 +61,9 @@ int main()
         // Initialize themes
         CThemes        themes;
         ImapConnect    IMAP;
-        String         user, password, server;
+        String         user;
+        String         password;
+        String         server;
         Registry       registry("imap_connect.ini","");
 
         COUT("Testing IMAP connectivity." << endl << endl);

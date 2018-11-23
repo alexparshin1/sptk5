@@ -34,6 +34,7 @@
 #include <cstdio>
 #include <FL/Fl.H>
 
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 using namespace std;
@@ -49,9 +50,8 @@ void exit_cb(Fl_Widget* w, void*)
 void changed_cb(Fl_Widget*, void*)
 {
     CTreeItem* item = tree->selected();
-    if (item) {
-        puts(item->label());
-    }
+    if (item)
+        COUT(item->label().c_str() << endl);
 }
 
 void add_item_cb(Fl_Widget*, void*)
@@ -174,8 +174,6 @@ int main(int argc, char* argv[])
         node = node->addItem("yyy", CTreeItem::document);
         node->addItem("zzz", CTreeItem::document);
 
-        //tree->end();
-
         tree->callback(changed_cb);
 
         CGroup group("", 10, SP_ALIGN_BOTTOM);
@@ -204,7 +202,7 @@ int main(int argc, char* argv[])
         return 0;
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }

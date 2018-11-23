@@ -183,7 +183,7 @@ public:
      *
      * @param lbl const char*, new label
      */
-    void label(const char* lbl)
+    virtual void label(const char* lbl)
     {
         m_label = lbl;
         m_widget->label(m_label.c_str());
@@ -193,7 +193,7 @@ public:
      * @brief Sets label, makes an internal copy of the string
      * @param l const string&, new label
      */
-    void label(const String& l)
+    virtual void label(const String& l)
     {
         m_label = l;
         m_widget->label(m_label.c_str());

@@ -29,6 +29,11 @@
 #include <sptk5/threads/Locks.h>
 #include <mutex>
 
+#if USE_GTEST
+#include <atomic>
+#include <sptk5/threads/Thread.h>
+#endif
+
 using namespace std;
 using namespace sptk;
 
@@ -85,11 +90,6 @@ CompareLockInt::CompareLockInt(SharedMutex& mutex1, SharedMutex& mutex2)
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
-
-#include <atomic>
-
-#include <sptk5/threads/Thread.h>
 
 static SharedMutex  amutex;
 
@@ -109,7 +109,7 @@ public:
             TimedUniqueLock(amutex, chrono::milliseconds(500));
             aresult = "locked";
         }
-        catch (const exception& e) {
+        catch (const Exception& e) {
             aresult = "lock timeout";
         }
     }
@@ -122,7 +122,6 @@ TEST(SPTK_Locks, writeLockAndWait)
     th.run();
     this_thread::sleep_for(chrono::seconds(1));
     th.join();
-    //cout << aresult << endl;
 }
 
 #endif

@@ -155,10 +155,10 @@ void dialog_cb(Fl_Widget*, void*)
 
     if (dialog.showModal()) {
         COUT(
-             (string) dialog["company_name"] << ", has " <<
+             (String) dialog["company_name"] << ", has " <<
              (int) dialog["company_size"] << " employees (" <<
-             (string) dialog["business_type"] << "), established " <<
-             (string) dialog["established"] << endl);
+             (String) dialog["business_type"] << "), established " <<
+             (String) dialog["established"] << endl);
     }
 
     /// This saves the last known state of the dialog

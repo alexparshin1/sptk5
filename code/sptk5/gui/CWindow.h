@@ -194,7 +194,7 @@ public:
     /**
      * @brief Returns the current label
      */
-    String label() const
+    virtual String label() const
     {
         return m_label;
     }
@@ -204,7 +204,7 @@ public:
      *
      * @param lbl const char*, new label
      */
-    void label(const char* lbl)
+    virtual void label(const char* lbl)
     {
         CLayoutClient::label(lbl);
     }

@@ -854,7 +854,7 @@ int main(int argc, char *argv[])
         return Fl::run();
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }

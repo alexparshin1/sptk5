@@ -337,7 +337,7 @@ void test_encode_hs256_decode()
 
 #define run_test(test_name) { cout << setw(40) << left << string(#test_name) + ": "; try { test_name(); cout << "Ok" << endl; } catch (const Exception& e) { cout << e.what() << endl; } }
 
-int main(int argc, char *argv[])
+int main()
 {
     try {
         run_test(test_dup);
@@ -355,8 +355,7 @@ int main(int argc, char *argv[])
         run_test(test_encode_hs256_decode);
     }
     catch (const Exception& e) {
-        cerr << "ERROR:" << endl;
-        cerr << e.what() << endl;
+        CERR("ERROR:" << e.what() << endl);
         return 1;
     }
 

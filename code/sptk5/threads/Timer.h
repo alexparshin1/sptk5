@@ -34,21 +34,21 @@ namespace sptk {
          * Stores event data, including references to parent Timer
          * and events map.
          */
-		class EventData
-		{
-			friend class Timer;
-		public:
-			/**
-			 * Event callback definition.
-			 * Events call that function when there is time for them to fire.
-			 */
-			typedef void(*Callback) (void* eventData);
+        class EventData
+        {
+            friend class Timer;
+        public:
+            /**
+             * Event callback definition.
+             * Events call that function when there is time for them to fire.
+             */
+            typedef void(*Callback) (void* eventData);
 
-		protected:
-			EventId                     m_id;				///< Event serial and when the event has to fire next time.
-			void*                       m_data {nullptr};   ///< Opaque event data, defined when event is scheduled. Passed by event to callback function.
-			std::chrono::milliseconds   m_repeatEvery;		///< Event repeat interval.
-			Timer*                      m_timer {nullptr};  ///< Parent timer
+        protected:
+            EventId                     m_id;                ///< Event serial and when the event has to fire next time.
+            void*                       m_data {nullptr};   ///< Opaque event data, defined when event is scheduled. Passed by event to callback function.
+            std::chrono::milliseconds   m_repeatEvery;        ///< Event repeat interval.
+            Timer*                      m_timer {nullptr};  ///< Parent timer
 
         public:
             /**
@@ -136,9 +136,9 @@ namespace sptk {
             }
         };
 
-		/**
-		 * Type definition for timer event
-		 */
+        /**
+         * Type definition for timer event
+         */
         typedef std::shared_ptr<EventData> Event;
 
     protected:

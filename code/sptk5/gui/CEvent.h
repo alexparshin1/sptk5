@@ -153,12 +153,12 @@ class CEventInfo
     /**
      * Event type
      */
-    CEvent m_event{CE_NONE};
+    CEvent m_event;
 
     /**
      * Event argument
      */
-    int32_t m_argument{0};
+    int32_t m_argument;
 
 
 public:
@@ -168,9 +168,8 @@ public:
      * @param eventArg CEvent, event argument
      */
     explicit CEventInfo(CEvent eventType = CE_NONE, int32_t eventArg = 0)
+    : m_event(eventType), m_argument(eventArg)
     {
-        m_event = eventType;
-        m_argument = eventArg;
     }
 
     /**

@@ -87,22 +87,22 @@ public:
         /**
          * Field width
          */
-        int     width:10;
+        int         width:10;
 
         /**
          * Field precision
          */
-        int     precision:5;
+        unsigned    precision:5;
 
         /**
          * Field flags like alignment, etc
          */
-        int     flags:16;
+        unsigned    flags:16;
 
         /**
          * Is field visible?
          */
-        bool    visible:1;
+        bool        visible:1;
 
     } view;
 

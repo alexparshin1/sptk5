@@ -76,28 +76,28 @@ namespace sptk {
 
 void JWT::sign_sha_hmac(char** out, unsigned int* len, const char* str)
 {
-    const EVP_MD* alg;
+    const EVP_MD* algorithm;
 
     switch (this->alg) {
         /* HMAC */
         case JWT::JWT_ALG_HS256:
-            alg = EVP_sha256();
+            algorithm = EVP_sha256();
             break;
         case JWT::JWT_ALG_HS384:
-            alg = EVP_sha384();
+            algorithm = EVP_sha384();
             break;
         case JWT::JWT_ALG_HS512:
-            alg = EVP_sha512();
+            algorithm = EVP_sha512();
             break;
         default:
             throw Exception("Invalid sign algorithm");
     }
 
-    *out = (char*) malloc(EVP_MAX_MD_SIZE);
+    *out = new char[EVP_MAX_MD_SIZE];
     if (*out == nullptr)
         throw Exception("Can't allocate memory");
 
-    HMAC(alg, key.c_str(), (int) key.length(),
+    HMAC(algorithm, key.c_str(), (int) key.length(),
          (const unsigned char*) str, (int) strlen(str), (unsigned char*) *out,
          len);
 }
@@ -105,21 +105,22 @@ void JWT::sign_sha_hmac(char** out, unsigned int* len, const char* str)
 void JWT::verify_sha_hmac(const char* head, const char* sig)
 {
     unsigned char res[EVP_MAX_MD_SIZE];
-    BIO* bmem = nullptr, * b64 = nullptr;
+    BIO* bmem = nullptr;
+    BIO* b64 = nullptr;
     unsigned int res_len;
-    const EVP_MD* alg;
+    const EVP_MD* algorithm;
     int len;
     Buffer readBuf;
 
     switch (this->alg) {
         case JWT::JWT_ALG_HS256:
-            alg = EVP_sha256();
+            algorithm = EVP_sha256();
             break;
         case JWT::JWT_ALG_HS384:
-            alg = EVP_sha384();
+            algorithm = EVP_sha384();
             break;
         case JWT::JWT_ALG_HS512:
-            alg = EVP_sha512();
+            algorithm = EVP_sha512();
             break;
         default:
             throw Exception("Invalid verify algorithm");
@@ -140,7 +141,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig)
     BIO_push(b64, bmem);
     BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 
-    HMAC(alg, key.c_str(), (int) key.length(),
+    HMAC(algorithm, key.c_str(), (int) key.length(),
          (const unsigned char*) head, (int) strlen(head), res, &res_len);
 
     BIO_write(b64, res, res_len);
@@ -154,7 +155,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig)
     readBuf.checkSize(size_t(len) + 1);
     len = BIO_read(bmem, readBuf.data(), len);
     readBuf.bytes(size_t(len));
-	readBuf[len] = 0;
+    readBuf[len] = 0;
 
     jwt_base64uri_encode(readBuf);
 
@@ -177,7 +178,7 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
     const BIGNUM* ec_sig_r = nullptr;
     const BIGNUM* ec_sig_s = nullptr;
     BIO* bufkey = nullptr;
-    const EVP_MD* alg;
+    const EVP_MD* algorithm;
     int type;
     EVP_PKEY* pkey = nullptr;
     unsigned char* sig;
@@ -186,29 +187,29 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
     switch (this->alg) {
         /* RSA */
         case JWT::JWT_ALG_RS256:
-            alg = EVP_sha256();
+            algorithm = EVP_sha256();
             type = EVP_PKEY_RSA;
             break;
         case JWT::JWT_ALG_RS384:
-            alg = EVP_sha384();
+            algorithm = EVP_sha384();
             type = EVP_PKEY_RSA;
             break;
         case JWT::JWT_ALG_RS512:
-            alg = EVP_sha512();
+            algorithm = EVP_sha512();
             type = EVP_PKEY_RSA;
             break;
 
             /* ECC */
         case JWT::JWT_ALG_ES256:
-            alg = EVP_sha256();
+            algorithm = EVP_sha256();
             type = EVP_PKEY_EC;
             break;
         case JWT::JWT_ALG_ES384:
-            alg = EVP_sha384();
+            algorithm = EVP_sha384();
             type = EVP_PKEY_EC;
             break;
         case JWT::JWT_ALG_ES512:
-            alg = EVP_sha512();
+            algorithm = EVP_sha512();
             type = EVP_PKEY_EC;
             break;
 
@@ -221,22 +222,26 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
 
     try {
         bufkey = BIO_new_mem_buf((void*) key.c_str(), (int) key.length());
-        if (bufkey == nullptr) SIGN_ERROR(ENOMEM);
+        if (bufkey == nullptr)
+            SIGN_ERROR(ENOMEM);
 
         /* This uses OpenSSL's default passphrase callback if needed. The
          * library caller can override this in many ways, all of which are
          * outside of the scope of LibJWT and this is documented in jwt.h. */
         pkey = PEM_read_bio_PrivateKey(bufkey, nullptr, nullptr, nullptr);
-        if (pkey == nullptr) SIGN_ERROR(EINVAL);
+        if (pkey == nullptr)
+            SIGN_ERROR(EINVAL);
 
         int pkey_type = EVP_PKEY_id(pkey);
-        if (pkey_type != type) SIGN_ERROR(EINVAL);
+        if (pkey_type != type)
+            SIGN_ERROR(EINVAL);
 
         mdctx = EVP_MD_CTX_create();
-        if (mdctx == nullptr) SIGN_ERROR(ENOMEM);
+        if (mdctx == nullptr)
+            SIGN_ERROR(ENOMEM);
 
         /* Initialize the DigestSign operation using alg */
-        if (EVP_DigestSignInit(mdctx, nullptr, alg, nullptr, pkey) != 1) SIGN_ERROR(EINVAL);
+        if (EVP_DigestSignInit(mdctx, nullptr, algorithm, nullptr, pkey) != 1) SIGN_ERROR(EINVAL);
 
         /* Call update with the message */
         if (EVP_DigestSignUpdate(mdctx, str, strlen(str)) != 1) SIGN_ERROR(EINVAL);
@@ -258,7 +263,11 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
             memcpy(*out, sig, slen);
             *len = (unsigned) slen;
         } else {
-            unsigned int degree, bn_len, r_len, s_len, buf_len;
+            unsigned degree;
+            unsigned bn_len;
+            unsigned r_len;
+            unsigned s_len;
+            unsigned buf_len;
             unsigned char* raw_buf;
             EC_KEY* ec_key;
 
@@ -325,7 +334,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
     BIGNUM* ec_sig_r = nullptr;
     BIGNUM* ec_sig_s = nullptr;
     EVP_PKEY* pkey = nullptr;
-    const EVP_MD* alg;
+    const EVP_MD* algorithm;
     int type;
     BIO* bufkey = nullptr;
     int slen;
@@ -333,29 +342,29 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
     switch (this->alg) {
         /* RSA */
         case JWT::JWT_ALG_RS256:
-            alg = EVP_sha256();
+            algorithm = EVP_sha256();
             type = EVP_PKEY_RSA;
             break;
         case JWT::JWT_ALG_RS384:
-            alg = EVP_sha384();
+            algorithm = EVP_sha384();
             type = EVP_PKEY_RSA;
             break;
         case JWT::JWT_ALG_RS512:
-            alg = EVP_sha512();
+            algorithm = EVP_sha512();
             type = EVP_PKEY_RSA;
             break;
 
             /* ECC */
         case JWT::JWT_ALG_ES256:
-            alg = EVP_sha256();
+            algorithm = EVP_sha256();
             type = EVP_PKEY_EC;
             break;
         case JWT::JWT_ALG_ES384:
-            alg = EVP_sha384();
+            algorithm = EVP_sha384();
             type = EVP_PKEY_EC;
             break;
         case JWT::JWT_ALG_ES512:
-            alg = EVP_sha512();
+            algorithm = EVP_sha512();
             type = EVP_PKEY_EC;
             break;
 
@@ -384,7 +393,8 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
 
         /* Convert EC sigs back to ASN1. */
         if (pkey_type == EVP_PKEY_EC) {
-            unsigned int degree, bn_len;
+            unsigned degree;
+            unsigned bn_len;
             unsigned char* p;
             EC_KEY* ec_key;
 
@@ -423,7 +433,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
         if (mdctx == nullptr) VERIFY_ERROR(ENOMEM);
 
         /* Initialize the DigestVerify operation using alg */
-        if (EVP_DigestVerifyInit(mdctx, nullptr, alg, nullptr, pkey) != 1) VERIFY_ERROR(EINVAL);
+        if (EVP_DigestVerifyInit(mdctx, nullptr, algorithm, nullptr, pkey) != 1) VERIFY_ERROR(EINVAL);
 
         /* Call update with the message */
         if (EVP_DigestVerifyUpdate(mdctx, head, strlen(head)) != 1) VERIFY_ERROR(EINVAL);

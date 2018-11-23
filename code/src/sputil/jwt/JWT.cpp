@@ -56,15 +56,12 @@ JWT::jwt_alg_t JWT::get_alg() const
 
 void JWT::set_alg(jwt_alg_t alg, const String &key)
 {
-    switch (alg) {
-        case JWT_ALG_NONE:
-            if (!key.empty())
-                throw Exception("Key is not expected here");
-            break;
-
-        default:
-            if (key.empty())
-                throw Exception("Empty key is not expected here");
+    if (alg == JWT_ALG_NONE) {
+        if (!key.empty())
+            throw Exception("Key is not expected here");
+    } else {
+        if (key.empty())
+            throw Exception("Empty key is not expected here");
     }
 
     this->key = key;
@@ -101,11 +98,10 @@ const char * JWT::alg_str(jwt_alg_t alg)
 
 JWT::jwt_alg_t JWT::str_alg(const char *alg)
 {
-    if (alg == nullptr) {
+    if (alg == nullptr)
         return JWT_ALG_INVAL;
-    }
 
-	String algUC = upperCase(alg);
+    String algUC = upperCase(alg);
     if (algUC == "NONE")
         return JWT_ALG_NONE;
     else if (algUC == "HS256")
@@ -133,7 +129,7 @@ JWT::jwt_alg_t JWT::str_alg(const char *alg)
 const json::Element* JWT::find_grant(const json::Element *js, const String& key)
 {
     if (js->isObject()) {
-        auto element = js->find(key);
+        auto* element = js->find(key);
         return element;
     }
     return nullptr;
@@ -345,7 +341,8 @@ void sptk::jwt_base64uri_encode(Buffer& buffer)
 {
     char* str = buffer.data();
     size_t len = strlen(str);
-    size_t i, t;
+    size_t i;
+    size_t t;
 
     for (i = t = 0; i < len; i++) {
         switch (str[i]) {
@@ -449,7 +446,9 @@ void JWT::decode(const char *token, const String& key)
     if (parts[1].data == nullptr)
         throw Exception("Invalid number of token parts");
 
-    Buffer head(parts[0].data, parts[0].length), body(parts[1].data, parts[1].length), sig(parts[2].data, parts[2].length);
+    Buffer head(parts[0].data, parts[0].length);
+    Buffer body(parts[1].data, parts[1].length);
+    Buffer sig(parts[2].data, parts[2].length);
 
     // Now that we have everything split up, let's check out the header.
 
@@ -463,7 +462,6 @@ void JWT::decode(const char *token, const String& key)
     // Check the signature, if needed.
     if (this->alg != JWT::JWT_ALG_NONE) {
         // Re-add this since it's part of the verified data.
-        //body[-1] = '.';
         head.append('.');
         head.append(body);
         verify(head, sig);
@@ -471,7 +469,6 @@ void JWT::decode(const char *token, const String& key)
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 TEST(SPTK_JWT, dup)
 {
@@ -520,7 +517,7 @@ TEST(SPTK_JWT, decode)
             "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
     JWT::jwt_alg_t alg;
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
 
     EXPECT_NO_THROW(jwt->decode(token)) << "Failed jwt_decode()";
     alg = jwt->get_alg();
@@ -536,7 +533,7 @@ TEST(SPTK_JWT, decode_invalid_final_dot)
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                          "3ViIjoidXNlcjAifQ";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     EXPECT_NO_THROW(jwt->decode(token)) << "Not failed jwt_decode()";
 
     delete jwt;
@@ -549,7 +546,7 @@ TEST(SPTK_JWT, decode_invalid_alg)
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                          "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
 
     delete jwt;
@@ -562,7 +559,7 @@ TEST(SPTK_JWT, decode_invalid_typ)
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                          "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
 
     delete jwt;
@@ -576,7 +573,7 @@ TEST(SPTK_JWT, decode_invalid_head)
             "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
             "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
 
     delete jwt;
@@ -590,7 +587,7 @@ TEST(SPTK_JWT, decode_alg_none_with_key)
             "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
             "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     EXPECT_NO_THROW(jwt->decode(token)) << "Not failed jwt_decode()";
 
     delete jwt;
@@ -604,7 +601,7 @@ TEST(SPTK_JWT, decode_invalid_body)
             "eyJpc3MiOiJmaWxlcy5jeBocmUuY29tIiwic"
             "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
 
     delete jwt;
@@ -619,7 +616,7 @@ TEST(SPTK_JWT, decode_hs256)
             "Q.dLFbrHVViu1e3VD1yeCd9aaLNed-bfXhSsF0Gh56fBg";
     String key256("012345678901234567890123456789XY");
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     EXPECT_NO_THROW(jwt->decode(token, key256)) << "Failed jwt_decode()";
 
     delete jwt;
@@ -638,7 +635,7 @@ TEST(SPTK_JWT, decode_hs384)
             "aaaabbbbccccddddeeeeffffg"
             "ggghhhhiiiijjjjkkkkllll");
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     EXPECT_NO_THROW(jwt->decode(token, key384)) << "Failed jwt_decode()";
 
     delete jwt;
@@ -656,7 +653,7 @@ TEST(SPTK_JWT, decode_hs512)
             "012345678901234567890123456789XY"
             "012345678901234567890123456789XY");
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     EXPECT_NO_THROW(jwt->decode(token, key512)) << "Failed jwt_decode()";
 
     delete jwt;
@@ -673,7 +670,7 @@ TEST(SPTK_JWT, encode_hs256_decode)
     jwt["iss"] = "http://test.com";
     jwt["exp"] = (int) time(nullptr) + 86400;
 
-    auto info = jwt.grants.root().set_object("info");
+    auto* info = jwt.grants.root().set_object("info");
     info->set("company", "Linotex");
     info->set("city", "Melbourne");
 

@@ -324,6 +324,24 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
         THROW_QUERY_ERROR(query, queryError(query));
 }
 
+static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
+{
+    if (!dt.zero()) {
+        short wday;
+        short yday;
+        short ms;
+        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day, &wday, &yday);
+        if (dateOnly)
+            t->hour = t->minute = t->second = 0;
+        else
+            dt.decodeTime((int16_t*) &t->hour, (int16_t*) &t->minute, (int16_t*) &t->second, &ms);
+        t->fraction = 0;
+        return true;
+    }
+    return false;
+}
+
+
 void ODBCConnection::queryBindParameters(Query* query)
 {
     static SQLLEN cbNullValue = SQL_NULL_DATA;
@@ -336,8 +354,9 @@ void ODBCConnection::queryBindParameters(Query* query)
         VariantType ptype = param->dataType();
         auto cblen = (SQLLEN&) param->callbackLength();
         for (unsigned j = 0; j < param->bindCount(); j++) {
-
-            int16_t paramType = 0, sqlType = 0, scale = 0;
+            int16_t paramType = 0;
+            int16_t sqlType = 0;
+            int16_t scale = 0;
             void* buff = param->dataBuffer();
             long len = 0;
             auto paramNumber = int16_t(param->bindIndex(j) + 1);
@@ -384,45 +403,30 @@ void ODBCConnection::queryBindParameters(Query* query)
                     }
                     continue;
 
-                case VAR_DATE: {
+                case VAR_DATE:
                     paramType = SQL_C_TIMESTAMP;
                     sqlType = SQL_TIMESTAMP;
                     len = sizeof(TIMESTAMP_STRUCT);
-                    auto* t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
-                    DateTime dt = param->getDateTime();
-                    buff = t;
-                    if (!dt.zero()) {
-                        short wday, yday;
-                        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day, &wday, &yday);
-                        t->hour = t->minute = t->second = 0;
-                        t->fraction = 0;
-                    } else {
+                    buff = param->conversionBuffer();
+                    if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*)param->conversionBuffer(), param->getDateTime(), true)) {
                         paramType = SQL_C_CHAR;
                         sqlType = SQL_CHAR;
                         *(char*) buff = 0;
                     }
-                }
                     break;
-                case VAR_DATE_TIME: {
+
+                case VAR_DATE_TIME:
                     paramType = SQL_C_TIMESTAMP;
                     sqlType = SQL_TIMESTAMP;
                     len = sizeof(TIMESTAMP_STRUCT);
-                    auto* t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
-                    DateTime dt = param->getDateTime();
-                    int16_t ms;
-                    buff = t;
-                    if (!dt.zero()) {
-                        short wday, yday;
-                        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day, &wday, &yday);
-                        dt.decodeTime((int16_t*) &t->hour, (int16_t*) &t->minute, (int16_t*) &t->second, &ms);
-                        t->fraction = 0;
-                    } else {
+                    buff = param->conversionBuffer();
+                    if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*)param->conversionBuffer(), param->getDateTime(), false)) {
                         paramType = SQL_C_CHAR;
                         sqlType = SQL_CHAR;
                         *(char*) buff = 0;
                     }
-                }
                     break;
+
                 default:
                     THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'");
             }
@@ -462,13 +466,6 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantTy
             dataType = VAR_FLOAT;
             break;
 
-        case SQL_LONGVARCHAR:
-        case SQL_VARCHAR:
-        case SQL_CHAR:
-            cType = SQL_C_CHAR;
-            dataType = VAR_STRING;
-            break;
-
         case SQL_DATE: // ODBC 2.0 only
         case SQL_TYPE_DATE: // ODBC 3.0 only
             cType = SQL_C_TIMESTAMP;
@@ -496,8 +493,6 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantTy
             break;
 
         default:
-            //cType = 0;
-            //dataType = VAR_NONE;
             cType = SQL_C_CHAR;
             dataType = VAR_STRING;
             break;

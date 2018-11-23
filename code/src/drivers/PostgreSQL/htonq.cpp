@@ -36,8 +36,8 @@ namespace sptk {
 
     uint64_t htonq(uint64_t val) {
         uint64_t result;
-        auto src = (uint32_t *)(void *)&val;
-        auto dst = (uint32_t *)(void *)&result;
+        auto* src = (uint32_t *)(void *)&val;
+        auto* dst = (uint32_t *)(void *)&result;
         dst[0] = htonl(src[1]);
         dst[1] = htonl(src[0]);
         return result;
@@ -45,8 +45,8 @@ namespace sptk {
 
     uint64_t ntohq(uint64_t val) {
         uint64_t result;
-        auto src = (uint32_t *)(void *)&val;
-        auto dst = (uint32_t *)(void *)&result;
+        auto* src = (uint32_t *)(void *)&val;
+        auto* dst = (uint32_t *)(void *)&result;
         dst[0] = htonl(src[1]);
         dst[1] = htonl(src[0]);
         return result;
@@ -54,8 +54,8 @@ namespace sptk {
 
     void htonq_inplace(uint64_t* in, uint64_t* out)
     {
-        auto src = (uint32_t *)(void *)in;
-        auto dst = (uint32_t *)(void *)out;
+        auto* src = (uint32_t *)(void *)in;
+        auto* dst = (uint32_t *)(void *)out;
         dst[1] = htonl(src[0]);
         dst[0] = htonl(src[1]);
     }

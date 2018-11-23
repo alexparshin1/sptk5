@@ -36,7 +36,6 @@
 #include <sptk5/threads/ThreadPool.h>
 #include <sptk5/DirectoryDS.h>
 #include <sptk5/threads/Timer.h>
-#include <sptk5/threads/RWLock.h>
 #include <sptk5/Tar.h>
 #include <sptk5/net/HttpConnect.h>
 #include <sptk5/Crypt.h>
@@ -63,23 +62,22 @@ public:
 // Otherwise, Visual Studio doesn't include any tests
 void stub()
 {
-    DateTime			dt;
-    JWT					jwt;
-    RegularExpression	regexp(".*");
-    CommandLine			cmd("", "", "");
-    DirectoryDS			dir("");
-    ThreadPool			threads;
-    Timer				timer(acallback);
-    MD5					md5;
-    StubServer			tcpServer;
-    Tar					tar;
-    FieldList			fieldList(false);
-    SharedStrings		sharedStrings;
-    Variant				v;
-    RWLock				lock;
+    DateTime             dt;
+    JWT                  jwt;
+    RegularExpression    regexp(".*");
+    CommandLine          cmd("", "", "");
+    DirectoryDS          dir("");
+    ThreadPool           threads;
+    Timer                timer(acallback);
+    MD5                  md5;
+    StubServer           tcpServer;
+    Tar                  tar;
+    FieldList            fieldList(false);
+    SharedStrings        sharedStrings;
+    Variant              v;
 
-    TCPSocket			socket;
-    HttpConnect			connect(socket);
+    TCPSocket            socket;
+    HttpConnect          connect(socket);
 
     string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     string key("01234567890123456789012345678901");
@@ -92,7 +90,7 @@ void stub()
     Buffer b1, b2("xxx");
     Base64::encode(b1, b2);
 
-    DatabaseConnectionPool 		connectionPool("");
+    DatabaseConnectionPool         connectionPool("");
 }
 
 TestRunner::TestRunner(int& argc, char**& argv)
@@ -128,40 +126,40 @@ int TestRunner::runAllTests()
 {
 #ifdef _WIN32
     // Make sure Winsock is initialized
-	TCPSocket socket;
+    TCPSocket socket;
 #endif
 
-	String excludeDBDriverPatterns = excludeDatabasePatterns(databaseTests.connectionStrings());
+    String excludeDBDriverPatterns = excludeDatabasePatterns(databaseTests.connectionStrings());
 
-	size_t filterArgumentIndex = 0;
-	for (int i = 1; i < m_argc; i++) {
-		if (strstr(m_argv[i], "--gtest_filter=")) {
-			filterArgumentIndex = i;
-			break;
-		}
-	}
+    size_t filterArgumentIndex = 0;
+    for (int i = 1; i < m_argc; i++) {
+        if (strstr(m_argv[i], "--gtest_filter=")) {
+            filterArgumentIndex = i;
+            break;
+        }
+    }
 
-	vector<char*> argv(m_argv, m_argv + m_argc);
-	String filter;
+    vector<char*> argv(m_argv, m_argv + m_argc);
+    String filter;
 
-	if (!excludeDBDriverPatterns.empty()) {
-		if (filterArgumentIndex != 0)
-			filter = argv[filterArgumentIndex];
+    if (!excludeDBDriverPatterns.empty()) {
+        if (filterArgumentIndex != 0)
+            filter = argv[filterArgumentIndex];
 
-		if (filter.empty())
-			filter = "-" + excludeDBDriverPatterns;
-		else
-			filter += ":-" + excludeDBDriverPatterns;
+        if (filter.empty())
+            filter = "-" + excludeDBDriverPatterns;
+        else
+            filter += ":-" + excludeDBDriverPatterns;
 
-		if (filterArgumentIndex == 0) {
-			argv.push_back((char*)filter.c_str());
-			m_argc++;
-		}
-		else
-			argv[filterArgumentIndex] = (char*) filter.c_str();
-	}
+        if (filterArgumentIndex == 0) {
+            argv.push_back((char*)filter.c_str());
+            m_argc++;
+        }
+        else
+            argv[filterArgumentIndex] = (char*) filter.c_str();
+    }
 
-	::testing::InitGoogleTest(&m_argc, &argv[0]);
+    ::testing::InitGoogleTest(&m_argc, &argv[0]);
 
-	return RUN_ALL_TESTS();
+    return RUN_ALL_TESTS();
 }

@@ -111,7 +111,10 @@ protected:
     /**
      * Executes a statement
      */
-    void queryExecute(Query *query) override {}
+    void queryExecute(Query *query) override 
+    {
+        // Not needed for PG driver
+    }
 
     /**
      * Executes unprepared statement
