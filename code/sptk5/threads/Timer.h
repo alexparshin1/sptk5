@@ -152,7 +152,7 @@ namespace sptk {
          * Constructor
          * @param callback                  Timer callback function, called when event is up
          */
-        Timer(EventData::Callback callback)
+        explicit Timer(EventData::Callback callback)
         : m_callback(callback)
         {}
 

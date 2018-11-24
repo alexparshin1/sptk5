@@ -43,8 +43,22 @@ namespace sptk {
 /// reply, then closes connection.
 class WSWebServiceProtocol : public WSProtocol
 {
-    WSRequest&          m_service;
-    const sptk::String  m_url;
+    WSRequest&          m_service;  ///< Web Service
+    const sptk::String  m_url;      ///< Request URL
+
+    /**
+     * Process request message, and store response to output
+     * @param output            Output buffer
+     * @param message           Input message
+     * @param authentication    Authentication
+     * @param requestIsJSON     Request is in JSON format
+     * @param httpStatusCode    Output HTTP status code
+     * @param httpStatusText    Output HTTP status text
+     * @param contentType       Output content type
+     */
+    void processMessage(Buffer& output, xml::Document& message,
+                        std::shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
+                        size_t& httpStatusCode, String& httpStatusText, String& contentType);
 public:
 
     /**

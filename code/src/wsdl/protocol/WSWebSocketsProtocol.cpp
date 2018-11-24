@@ -58,7 +58,7 @@ static uint64_t ntoh64(uint64_t data)
 
 void WSWebSocketsMessage::decode(const char* incomingData)
 {
-    auto ptr = (const uint8_t*) incomingData;
+    auto*  ptr = (const uint8_t*) incomingData;
 
     m_finalMessage = (*ptr & 0x80) != 0;
     m_opcode = uint32_t(*ptr & 0xF);
@@ -67,9 +67,9 @@ void WSWebSocketsMessage::decode(const char* incomingData)
     bool masked = (*ptr & 0x80) != 0;
     auto payloadLength = uint64_t((*ptr) & 0x7F);
     switch (payloadLength) {
-        default:    ptr++; break;
         case 126:   ptr++; payloadLength = ntohs(*(const uint16_t*)ptr); ptr += 2; break;
         case 127:   ptr++; payloadLength = ntoh64(*(const uint64_t*)ptr); ptr += 8; break;
+        default:    ptr++; break;
     }
 
     m_payload.checkSize(payloadLength);
@@ -91,7 +91,7 @@ void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool final, Buff
 {
     output.reset(payload.length() + 10);
 
-    auto ptr = (uint8_t*) output.data();
+    auto*  ptr = (uint8_t*) output.data();
 
     *ptr = opcode & 0xF;
     if (final)
@@ -131,7 +131,6 @@ void WSWebSocketsProtocol::process()
             throw Exception("WebSocket protocol is missing or has invalid Sec-WebSocket-Key or Sec-WebSocket-Version headers");
 
         String websocketProtocol = m_headers["Sec-WebSocket-Protocol"];
-        //clientKey = "dGhlIHNhbXBsZSBub25jZQ==";
 
         // Generate server response key from client key
         String responseKey = clientKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -160,7 +159,7 @@ void WSWebSocketsProtocol::process()
             WSWebSocketsMessage msg;
             msg.decode(message.c_str());
 
-            cout << msg.payload().c_str() << endl;
+            COUT(msg.payload().c_str() << endl);
 
             WSWebSocketsMessage::encode("Hello", WSWebSocketsMessage::OC_TEXT, true, message);
             m_socket.write(message);

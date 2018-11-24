@@ -44,7 +44,18 @@ static void extractNameSpaces(xml::Node* node, map<String,WSNameSpace>& nameSpac
     }
 }
 
-void WSRequest::processRequest(sptk::xml::Document* request, HttpAuthentication* authentication)
+xml::Element* WSRequest::findSoapBody(xml::Element* soapEnvelope, const WSNameSpace& soapNamespace)
+{
+    lock_guard<mutex> lock(*this);
+
+    xml::Element* soapBody = dynamic_cast<xml::Element*>(soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body"));
+    if (soapBody == nullptr)
+        throwException("Can't find SOAP Body node in incoming request");
+
+    return soapBody;
+}
+
+void WSRequest::processRequest(xml::Document* request, HttpAuthentication* authentication)
 {
     WSNameSpace             soapNamespace;
     WSNameSpace             requestNameSpace;
@@ -66,13 +77,7 @@ void WSRequest::processRequest(sptk::xml::Document* request, HttpAuthentication*
     if (soapEnvelope == nullptr)
         throwException("Can't find SOAP Envelope node");
 
-    xml::Element* soapBody;
-    {
-        lock_guard<mutex> lock(*this);
-        soapBody = dynamic_cast<xml::Element*>(soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body"));
-        if (soapBody == nullptr)
-            throwException("Can't find SOAP Body node in incoming request");
-    }
+    xml::Element* soapBody = findSoapBody(soapEnvelope, soapNamespace);
 
     xml::Element* requestNode = nullptr;
     for (auto* anode: *soapBody) {

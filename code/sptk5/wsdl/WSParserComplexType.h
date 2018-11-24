@@ -298,6 +298,60 @@ public:
      * Generates C++ class declaration and implementation
      */
     void generate(std::ostream& classDeclaration, std::ostream& classImplementation, const String& externalHeader);
+
+private:
+    /**
+     * Generate includes for C++ class
+     * @param classImplementation   Output stream
+     * @param className             Class name
+     */
+    void printImplementationIncludes(std::ostream& classImplementation, const String& className) const;
+
+    /**
+     * Generate C++ class destructor
+     * @param classImplementation   Output stream
+     * @param className             Class name
+     */
+    void printImplementationDestructor(std::ostream& classImplementation, const String& className) const;
+
+    /**
+     * Generate C++ class clear() method
+     * @param classImplementation   Output stream
+     * @param className             Class name
+     */
+    void printImplementationClear(std::ostream& classImplementation, const String& className) const;
+
+    /**
+     * Generate C++ class load() from XML method
+     * @param classImplementation   Output stream
+     * @param className             Class name
+     */
+    void printImplementationLoadXML(std::ostream& classImplementation, const String& className) const;
+
+    /**
+     * Generate C++ class load() from FieldList method
+     * @param classImplementation   Output stream
+     * @param className             Class name
+     */
+    void printImplementationLoadFieldList(std::ostream& classImplementation, const String& className) const;
+
+    /**
+     * Generate C++ class unload() to XML method
+     * @param classImplementation   Output stream
+     * @param className             Class name
+     */
+    void printImplementationUnloadXML(std::ostream& classImplementation, const String& className) const;
+
+    /**
+     * Generate C++ class unload() to ParamList method
+     * @param classImplementation   Output stream
+     * @param className             Class name
+     */
+    void printImplementationUnloadParamList(std::ostream& classImplementation, const String& className) const;
+
+    void printImplementationRestrictions(std::ostream& classImplementation, const Strings& requiredElements) const;
+
+    void printDeclarationIncludes(std::ostream& classDeclaration, const std::set<String>& usedClasses) const;
 };
 
 /**

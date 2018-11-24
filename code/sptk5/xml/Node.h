@@ -452,7 +452,7 @@ public:
     /**
      * Sets new value to node.
      */
-    virtual void value(const std::string& /*new_value*/)
+    virtual void value(const String& /*new_value*/)
     {
     }
 
@@ -854,7 +854,7 @@ public:
      * @param new_value         New value
      * @see value()
      */
-    virtual void value(const std::string& new_value)
+    virtual void value(const String& new_value)
     {
         m_value = new_value;
     }

@@ -36,23 +36,55 @@ WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket* socket, const String& url,
 {
 }
 
+void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message,
+                                          shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
+                                          size_t& httpStatusCode, String& httpStatusText, String& contentType)
+{
+    httpStatusCode = 200;
+    httpStatusText = "OK";
+    contentType = "text/xml; charset=utf-8";
+    try {
+        m_service.processRequest(&message, authentication.get());
+        if (requestIsJSON) {
+            // Converting XML response to JSON response
+            xml::Node* bodyElement = message.findFirst("soap:Body");
+            if (bodyElement == nullptr)
+                throw Exception("Can't find soap:Body in service response");
+            xml::Node* methodElement = *bodyElement->begin();
+            json::Document jsonOutput;
+            auto* jsonResponse = jsonOutput.root().set_object("response");
+            methodElement->exportTo(*jsonResponse);
+            jsonOutput.exportTo(output, false);
+            contentType = "application/json";
+        }
+        else
+            message.save(output, 2);
+    }
+    catch (const HTTPException& e) {
+        httpStatusCode = e.statusCode();
+        httpStatusText = e.statusText();
+        contentType = "application/json";
+
+        json::Document error;
+        error.root().set("error", e.what());
+        error.root().set("status_code", (int) e.statusCode());
+        error.root().set("status_text", e.statusText());
+        error.exportTo(output, true);
+    }
+}
+
 void WSWebServiceProtocol::process()
 {
     size_t contentLength = 0;
     auto itor = m_headers.find("Content-Length");
     if (itor != m_headers.end())
         contentLength = (size_t) string2int(itor->second);
-/*
-    cout << endl;
-    for (auto htor: m_headers)
-        cout << htor.first << ": " << htor.second << endl;
-    cout << endl << endl;
-*/
-    unique_ptr<HttpAuthentication> authentication;
+
+    shared_ptr<HttpAuthentication> authentication;
     itor = m_headers.find("authorization");
     if (itor != m_headers.end()) {
         String value(itor->second);
-        authentication = unique_ptr<HttpAuthentication>(new HttpAuthentication(value));
+        authentication = make_shared<HttpAuthentication>(value);
     }
 
     const char* startOfMessage = nullptr;
@@ -83,7 +115,7 @@ void WSWebServiceProtocol::process()
             data.checkSize(offset + socketBytes);
             socketBytes = (uint32_t) m_socket.read(data.data() + offset, (uint32_t) socketBytes);
             data.bytes(offset + socketBytes);
-            //cout << data.c_str() << endl;
+
             if (startOfMessage == nullptr) {
                 startOfMessage = strstr(data.c_str(), "<?xml");
                 if (startOfMessage == nullptr) {
@@ -117,7 +149,7 @@ void WSWebServiceProtocol::process()
         xml::Node* xmlBody = xmlEnvelope->findFirst("soap:Body", true);
         xml::Node* xmlRequest = *xmlBody->begin();
 
-        auto jsonEnvelope = jsonContent.root().set_object(xmlRequest->name());
+        auto*  jsonEnvelope = jsonContent.root().set_object(xmlRequest->name());
         xmlRequest->exportTo(*jsonEnvelope);
     }
     else if (*startOfMessage == '{' || *startOfMessage == '[') {
@@ -127,51 +159,23 @@ void WSWebServiceProtocol::process()
             throw Exception("Invalid url");
         // Converting JSON request to XML request
         String method(*url.rbegin());
-        auto xmlEnvelope = new xml::Element(message, "soap:Envelope");
+        auto*  xmlEnvelope = new xml::Element(message, "soap:Envelope");
         xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
-        auto xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
+        auto*  xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
         jsonContent.load(startOfMessage);
         jsonContent.root().exportTo("ns1:" + method, *xmlBody);
         Buffer buffer;
         message.save(buffer, true);
-        //cout << string(buffer.c_str(), buffer.bytes()) << endl;
     }
     else
         throw Exception("Request content isn't XML or JSON");
-    //cout << startOfMessage << endl << endl;
 
     Buffer output;
     size_t httpStatusCode = 200;
     String httpStatusText = "OK";
     String contentType = "text/xml; charset=utf-8";
-    try {
-        m_service.processRequest(&message, authentication.get());
-        if (requestIsJSON) {
-            // Converting XML response to JSON response
-            xml::Node* bodyElement = message.findFirst("soap:Body");
-            if (bodyElement == nullptr)
-                throw Exception("Can't find soap:Body in service response");
-            xml::Node* methodElement = *bodyElement->begin();
-            json::Document jsonOutput;
-            auto jsonResponse = jsonOutput.root().set_object("response");
-            methodElement->exportTo(*jsonResponse);
-            jsonOutput.exportTo(output, false);
-            contentType = "application/json";
-        }
-        else
-            message.save(output, 2);
-    }
-    catch (const HTTPException& e) {
-        httpStatusCode = e.statusCode();
-        httpStatusText = e.statusText();
-        contentType = "application/json";
 
-        json::Document error;
-        error.root().set("error", e.what());
-        error.root().set("status_code", (int) e.statusCode());
-        error.root().set("status_text", e.statusText());
-        error.exportTo(output, true);
-    }
+    processMessage(output, message, authentication, requestIsJSON, httpStatusCode, httpStatusText, contentType);
 
     stringstream response;
     response << "HTTP/1.1 " << httpStatusCode << " " << httpStatusText << "\n"

@@ -38,6 +38,7 @@ using namespace sptk;
 
 int testPerformance(DatabaseConnection db, const string& tableName, bool rollback)
 {
+    COUT("Testing performance on INSERTs");
     try {
         Query deleteQuery(db, "DELETE FROM " + tableName);
         Query insertQuery(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
@@ -136,7 +137,7 @@ int main(int argc, const char* argv[])
         db->open();
 
 		String tableName = "test_table";
-		/*
+
         COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
 
         DatabaseObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
@@ -253,7 +254,7 @@ int main(int argc, const char* argv[])
         testTransactions(db, tableName, false);
 
         step4Query.exec();
-		*/
+
 		testPerformance(db, tableName, false);
 
         COUT("Ok.\nStep 5: Closing the database.. ");

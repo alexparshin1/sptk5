@@ -123,6 +123,13 @@ protected:
      */
     virtual void requestBroker(xml::Element* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace) = 0;
 
+    /**
+     * Find SOAP body node
+     * @param soapEnvelope
+     * @return
+     */
+    xml::Element* findSoapBody(xml::Element* soapEnvelope, const WSNameSpace& soapNamespace);
+
 public:
     /**
      * @brief Constructor

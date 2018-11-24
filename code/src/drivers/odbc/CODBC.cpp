@@ -166,10 +166,10 @@ void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalS
 #else
     void* ParentWnd = nullptr;
 #endif
-    m_Retcode = ::SQLDriverConnect(m_hConnection, ParentWnd, (UCHAR FAR*) ConnectionString.c_str(), SQL_NTS,
-                                   (UCHAR FAR*) buff, (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = ::SQLDriverConnect(m_hConnection, ParentWnd, (UCHAR FAR*) ConnectionString.c_str(), SQL_NTS,
+                                      (UCHAR FAR*) buff, (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
 
-    if (!Successful(m_Retcode)) {
+    if (!Successful(rc)) {
         string errorInfo = errorInformation(("SQLDriverConnect(" + ConnectionString + ")").c_str());
         exception(errorInfo, __LINE__);
     }
@@ -182,12 +182,12 @@ void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalS
     // Trying to get more information about the driver
     auto* driverDescription = new SQLCHAR[2048];
     SQLSMALLINT descriptionLength = 0;
-    m_Retcode = SQLGetInfo(m_hConnection, SQL_DBMS_NAME, driverDescription, 2048, &descriptionLength);
-    if (Successful(m_Retcode))
+    rc = SQLGetInfo(m_hConnection, SQL_DBMS_NAME, driverDescription, 2048, &descriptionLength);
+    if (Successful(rc))
         m_driverDescription = (char*) driverDescription;
 
-    m_Retcode = SQLGetInfo(m_hConnection, SQL_DBMS_VER, driverDescription, 2048, &descriptionLength);
-    if (Successful(m_Retcode))
+    rc = SQLGetInfo(m_hConnection, SQL_DBMS_VER, driverDescription, 2048, &descriptionLength);
+    if (Successful(rc))
         m_driverDescription += " " + string((char*) driverDescription);
 
     delete[] driverDescription;
@@ -274,27 +274,6 @@ String sptk::removeDriverIdentification(const char* error)
     return p;
 }
 
-string ODBCEnvironment::errorInformation()
-{
-    assert(m_Retcode != SQL_SUCCESS);
-
-    char errorDescription[SQL_MAX_MESSAGE_LENGTH];
-    char errorState[SQL_MAX_MESSAGE_LENGTH];
-
-    SWORD pcnmsg = 0;
-    SQLINTEGER nativeError = 0;
-
-    *errorDescription = 0;
-    *errorState = 0;
-
-    if (SQL_SUCCESS
-        != SQLError(m_hEnvironment, SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR FAR*) errorState, &nativeError,
-                    (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg))
-        exception(cantGetInformation, __LINE__);
-
-    return string(errorDescription);
-}
-
 string extract_error(
         SQLHANDLE handle,
         SQLSMALLINT type)
@@ -320,8 +299,6 @@ string extract_error(
 
 string ODBCConnectionBase::errorInformation(const char* function)
 {
-    assert(m_Retcode != SQL_SUCCESS);
-
     char errorDescription[SQL_MAX_MESSAGE_LENGTH];
     char errorState[SQL_MAX_MESSAGE_LENGTH];
     SWORD pcnmsg = 0;

@@ -78,14 +78,9 @@ protected:
     mutable std::mutex	m_mutex;
 
     /**
-     * Last RETCODE returned from ODBC function
-     */
-    SQLRETURN			m_Retcode {0};
-
-    /**
      * Constructor
      */
-    ODBCBase() : m_Retcode(SQL_SUCCESS)
+    ODBCBase()
     {
     }
 
@@ -96,14 +91,6 @@ public:
      */
     ~ODBCBase()
     {
-    }
-
-    /**
-     * Returns last ODBC operation result
-     */
-    RETCODE retcode() const
-    {
-        return m_Retcode;
     }
 
     /**
@@ -172,12 +159,6 @@ public:
     {
         return m_hEnvironment;
     }
-
-    /**
-     * Returns the error information
-     * @returns ODBC driver error message with the user action
-     */
-    std::string errorInformation();
 
     /**
      * Destructor

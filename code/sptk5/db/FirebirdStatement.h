@@ -50,24 +50,23 @@ class FirebirdBindBuffers
     /**
      * Buffer count
      */
-    size_t  m_size;
+    size_t  m_size {0};
 
     /**
      * Buffers structure
      */
-    XSQLDA* m_sqlda;
+    XSQLDA* m_sqlda {nullptr};
 
     /**
      * Null flags (callback)
      */
-    short*  m_cbNulls;
+    short*  m_cbNulls {nullptr};
 
 public:
     /**
      * @brief Constructor
      */
     FirebirdBindBuffers()
-    : m_size(0), m_sqlda(NULL), m_cbNulls(NULL)
     {
         resize(16);
     }
@@ -77,8 +76,8 @@ public:
      */
     ~FirebirdBindBuffers()
     {
-        free(m_sqlda);
-        free(m_cbNulls);
+        delete [] (char*) m_sqlda;
+        delete [] m_cbNulls;
     }
 
     /**
@@ -101,17 +100,19 @@ public:
             size = 1024;
         m_size = size;
 
-        XSQLDA *newptr = (XSQLDA *) realloc(m_sqlda, XSQLDA_LENGTH(m_size));
+        auto* newptr = new char[XSQLDA_LENGTH(m_size)];
         if (newptr == nullptr)
             throw Exception("Can't allocate memory for Firebird statement");
-        m_sqlda = newptr;
+        delete [] (char*) m_sqlda;
+        m_sqlda = (XSQLDA *) newptr;
 
         m_sqlda->version = SQLDA_VERSION1;
         m_sqlda->sqln = (ISC_SHORT) m_size;
 
-        short* nptr = (short*) realloc(m_cbNulls, size * sizeof(short));
+        auto* nptr = new short[size];
         if (nptr == nullptr)
             throw Exception("Can't allocate memory for Firebird statement");
+        delete [] m_cbNulls;
         m_cbNulls = nptr;
 
         short* cbNull = m_cbNulls;

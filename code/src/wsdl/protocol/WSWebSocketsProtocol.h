@@ -37,7 +37,7 @@ namespace sptk {
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 
-/// @brief WebSockets protocol message
+/// WebSockets protocol message
 ///
 /// Provides WebSockets message encode and decode methods
 class WSWebSocketsMessage
@@ -56,18 +56,17 @@ public:
         OC_PING2            = 10
     };
 
-public:
-    /// @brief Default constructor
+    /// Default constructor
     WSWebSocketsMessage();
 
-    /// @brief Return message payload buffer
+    /// Return message payload buffer
     const Buffer& payload();
 
-    /// @brief Decode incoming data into message payload
+    /// Decode incoming data into message payload
     /// @param incomingData const char*, Incoming data received from WebSockets
     void decode(const char* incomingData);
 
-    /// @brief Encode a payload into WebSockets frame
+    /// Encode a payload into WebSockets frame
     /// @param payload String, Message to encode
     /// @param opcode OpCode, WebSockets operation code
     /// @param final bool, 'message is final' flag
@@ -75,7 +74,7 @@ public:
     static void encode(String payload, OpCode opcode, bool final, Buffer& output);
 };
 
-/// @brief WebSockets connection handler
+/// WebSockets connection handler
 ///
 /// Treats connection as WebSockets, implementing WebSockets
 /// handshake and client session. Session stays connected until
@@ -83,12 +82,12 @@ public:
 class WSWebSocketsProtocol : public WSProtocol
 {
 public:
-    /// @brief Constructor
+    /// Constructor
     /// @param socket TCPSocket*, Connection socket
     /// @param headers const std::map<String,String>&, Connection HTTP headers
     WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders& headers);
 
-    /// @brief Process method
+    /// Process method
     ///
     /// Implements WebSockets session
     void process() override;
@@ -105,8 +104,6 @@ class WSNotificationManager
     Strings  m_queues;
 public:
     WSNotificationManager() = default;
-    //bool receive(Buffer& message);
-    //bool send(const std::map<String,String>& headers, String data);
 };
 
 } // namespace sptk

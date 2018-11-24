@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-WSConnection::WSConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service, Logger& logger,
+WSConnection::WSConnection(SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
                            const String& staticFilesDirectory, const String& htmlIndexPage, const String& wsRequestPage)
         : ServerConnection(connectionSocket, "WSConnection"), m_service(service), m_logger(logger),
           m_staticFilesDirectory(staticFilesDirectory), m_htmlIndexPage(htmlIndexPage), m_wsRequestPage(wsRequestPage)
@@ -40,6 +40,53 @@ WSConnection::WSConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest
         m_staticFilesDirectory += "/";
     if (!m_wsRequestPage.startsWith("/"))
         m_wsRequestPage = "/" + m_wsRequestPage;
+}
+
+bool WSConnection::readHttpHeaders(String& protocolName, String& request, String& requestType, String& url,
+                                   HttpHeaders& headers)
+{
+    String row;
+    Buffer data;
+    Strings matches;
+
+    RegularExpression parseProtocol("^(GET|POST) (\\S+)", "i");
+    RegularExpression parseHeader("^([^:]+): \"{0,1}(.*)\"{0,1}$", "i");
+
+    try {
+        while (!terminated()) {
+            if (m_socket->readLine(data) == 0)
+                return false;
+            row = trim(data.c_str());
+            if (protocolName.empty()) {
+                if (row.find("<?xml") == 0) {
+                    protocolName = "xml";
+                    break;
+                }
+                if (parseProtocol.m(row, matches)) {
+                    request = row;
+                    protocolName = "http";
+                    requestType = matches[0];
+                    url = matches[1];
+                    continue;
+                }
+            }
+            if (parseHeader.m(row, matches)) {
+                String header = matches[0];
+                String value = matches[1];
+                headers[header] = value;
+                continue;
+            }
+            if (row.empty()) {
+                data.reset();
+                break;
+            }
+        }
+    }
+    catch (const Exception& e) {
+        m_logger.error(e.message());
+        return false;
+    }
+    return true;
 }
 
 void WSConnection::threadFunction()
@@ -64,43 +111,10 @@ void WSConnection::threadFunction()
         }
 
         HttpHeaders headers;
-
         String request;
 
-        try {
-            while (!terminated()) {
-                if (m_socket->readLine(data) == 0)
-                    return;
-                row = trim(data.c_str());
-                if (protocolName.empty()) {
-                    if (row.find("<?xml") == 0) {
-                        protocolName = "xml";
-                        break;
-                    }
-                    if (parseProtocol.m(row, matches)) {
-                        request = row;
-                        protocolName = "http";
-                        requestType = matches[0];
-                        url = matches[1];
-                        continue;
-                    }
-                }
-                if (parseHeader.m(row, matches)) {
-                    String header = matches[0];
-                    String value = matches[1];
-                    headers[header] = value;
-                    continue;
-                }
-                if (row.empty()) {
-                    data.reset();
-                    break;
-                }
-            }
-        }
-        catch (const Exception& e) {
-            m_logger.error(e.message());
+        if (!readHttpHeaders(protocolName, request, requestType, url, headers))
             return;
-        }
 
         if (protocolName == "http") {
 

@@ -31,19 +31,19 @@
 using namespace sptk;
 using namespace sptk::xml;
 
-Attribute::Attribute(Element* parent, const char* tagname, Value avalue) :
-    NamedItem(*parent->document())
+Attribute::Attribute(Element* parent, const char* tagname, Value avalue)
+: NamedItem(*parent->document())
 {
     NamedItem::name(tagname);
-    NamedItem::value(avalue);
+    Attribute::value(avalue);
     parent->attributes().push_back(this);
 }
 
-Attribute::Attribute(Element* parent, const std::string& tagname, Value avalue) :
-    NamedItem(*parent->document())
+Attribute::Attribute(Element* parent, const String& tagname, Value avalue)
+: NamedItem(*parent->document())
 {
     NamedItem::name(tagname);
-    NamedItem::value(avalue);
+    Attribute::value(avalue);
     parent->attributes().push_back(this);
 }
 
@@ -56,7 +56,7 @@ const String& Attribute::value() const noexcept
 /// @brief Sets new value to node.
 /// @param new_value const std::string &, new value
 /// @see value()
-void Attribute::value(const std::string &new_value) 
+void Attribute::value(const String& new_value)
 {
     m_value = new_value;
 }
@@ -64,12 +64,12 @@ void Attribute::value(const std::string &new_value)
 /// @brief Sets new value to node
 /// @param new_value const char *, value to set
 /// @see value()
-void Attribute::value(const char *new_value) 
+void Attribute::value(const char* new_value)
 {
     m_value = new_value;
 }
 
-Attributes& Attributes::operator =(const Attributes& s)
+Attributes& Attributes::operator=(const Attributes& s)
 {
     if (&s == this)
         return *this;
@@ -79,7 +79,7 @@ Attributes& Attributes::operator =(const Attributes& s)
     return *this;
 }
 
-Attribute* Attributes::getAttributeNode(std::string attr)
+Attribute* Attributes::getAttributeNode(const String& attr)
 {
     const auto itor = findFirst(attr.c_str());
     if (itor != end())
@@ -87,7 +87,7 @@ Attribute* Attributes::getAttributeNode(std::string attr)
     return nullptr;
 }
 
-const Attribute* Attributes::getAttributeNode(std::string attr) const
+const Attribute* Attributes::getAttributeNode(const String& attr) const
 {
     const auto itor = findFirst(attr.c_str());
     if (itor != end())
@@ -95,7 +95,7 @@ const Attribute* Attributes::getAttributeNode(std::string attr) const
     return nullptr;
 }
 
-Value Attributes::getAttribute(std::string attr, const char *defaultValue) const
+Value Attributes::getAttribute(const String& attr, const char* defaultValue) const
 {
     const auto itor = findFirst(attr.c_str());
     if (itor != end())
@@ -106,7 +106,7 @@ Value Attributes::getAttribute(std::string attr, const char *defaultValue) const
     return rc;
 }
 
-void Attributes::setAttribute(std::string attr, Value value, const char *defaultValue)
+void Attributes::setAttribute(const String& attr, Value value, const char* defaultValue)
 {
     const auto itor = findFirst(attr);
     if (defaultValue != nullptr && value.str() == defaultValue) {
@@ -122,7 +122,7 @@ void Attributes::setAttribute(std::string attr, Value value, const char *default
         new Attribute(m_parent, attr, value);
 }
 
-bool Attributes::hasAttribute(std::string attr) const
+bool Attributes::hasAttribute(const String& attr) const
 {
     const auto itor = findFirst(attr.c_str());
     return itor != end();

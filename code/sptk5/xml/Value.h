@@ -45,7 +45,7 @@ class Node;
 class Document;
 
 /**
- * @brief XML value
+ * XML value
  *
  * A string that has converters to and from most popular types
  */
@@ -58,7 +58,7 @@ class SP_EXPORT Value
 
 public:
     /**
-     * @brief Default constructor
+     * Default constructor
      *
      * Creates an empty XML attribute
      */
@@ -66,7 +66,7 @@ public:
     {}
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates an XML attribute from character string
      * @param v                 Value
@@ -76,7 +76,7 @@ public:
     {}
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates an XML attribute from character string
      * @param v                 Value
@@ -88,7 +88,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates an XML attribute from string
      * @param v                 value
@@ -99,7 +99,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates an XML attribute from integer
      * @param v                 Value
@@ -110,7 +110,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates an XML attribute from integer
      * @param v                 Value
@@ -121,7 +121,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates an XML attribute from int64_t
      * @param v                 Value
@@ -132,7 +132,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates an XML attribute from uint64_t
      * @param v                 Value
@@ -143,7 +143,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates an XML attribute from double
      * @param v                 Value
@@ -154,7 +154,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates an XML attribute from bool
      * @param v                 Value
@@ -165,61 +165,60 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates an XML attribute from DateTime
      * @param v                 Value
      */
     Value(DateTime v)
-            :
-            m_value(v)
+    : m_value(v)
     {
     }
 
     /**
-     * @brief Assignment of the value
+     * Assignment of the value
      *
      * @param v                 New value
      */
     Value& operator=(bool v);
 
     /**
-     * @brief Assignment of the value
+     * Assignment of the value
      *
      * @param v                 New value
      */
     Value& operator=(int32_t v);
 
     /**
-     * @brief Assignment of the value
+     * Assignment of the value
      *
      * @param v                 New value
      */
     Value& operator=(uint32_t v);
 
     /**
-     * @brief Assignment of the value
+     * Assignment of the value
      *
      * @param v                 New value
      */
     Value& operator=(int64_t v);
 
     /**
-     * @brief Assignment of the value
+     * Assignment of the value
      *
      * @param v                 New value
      */
     Value& operator=(uint64_t v);
 
     /**
-     * @brief Assignment of the value
+     * Assignment of the value
      *
      * @param v                 New value
      */
     Value& operator=(double v);
 
     /**
-     * @brief Assignment of the value
+     * Assignment of the value
      *
      * @param s                 New value
      */
@@ -230,7 +229,7 @@ public:
     }
 
     /**
-     * @brief Assignment of the value
+     * Assignment of the value
      *
      * @param s                 New value
      */
@@ -241,7 +240,7 @@ public:
     }
 
     /**
-     * @brief Assignment of the value
+     * Assignment of the value
      *
      * @param s                 New value
      */
@@ -252,7 +251,7 @@ public:
     }
 
     /**
-     * @brief Returns const reference to string value
+     * Returns const reference to string value
      */
     const String& str() const
     {
@@ -260,7 +259,7 @@ public:
     }
 
     /**
-     * @brief Returns const pointer to string data
+     * Returns const pointer to string data
      */
     const char* c_str() const
     {
@@ -268,7 +267,7 @@ public:
     }
 
     /**
-     * @brief Returns the value with the conversion
+     * Returns the value with the conversion
      */
     operator String() const
     {
@@ -276,15 +275,7 @@ public:
     }
 
     /**
-     * @brief Returns the value with the conversion
-     */
-    operator std::string() const
-    {
-        return m_value;
-    }
-
-    /**
-     * @brief Returns the value with the conversion
+     * Returns the value with the conversion
      */
     operator uint32_t() const
     {
@@ -292,7 +283,7 @@ public:
     }
 
     /**
-     * @brief Returns the value with the conversion
+     * Returns the value with the conversion
      */
     operator int32_t() const
     {
@@ -300,7 +291,7 @@ public:
     }
 
     /**
-     * @brief Returns the value with the conversion
+     * Returns the value with the conversion
      */
     operator uint64_t() const
     {
@@ -312,7 +303,7 @@ public:
     }
 
     /**
-     * @brief Returns the value with the conversion
+     * Returns the value with the conversion
      */
     operator int64_t() const
     {
@@ -324,12 +315,12 @@ public:
     }
 
     /**
-     * @brief Returns the value with the conversion
+     * Returns the value with the conversion
      */
     operator bool() const;
 
     /**
-     * @brief Returns the value with the conversion
+     * Returns the value with the conversion
      */
     operator double() const
     {
@@ -337,7 +328,7 @@ public:
     }
 
     /**
-     * @brief Returns the value length
+     * Returns the value length
      */
     size_t size() const
     {
@@ -345,7 +336,7 @@ public:
     }
 
     /**
-     * @brief Returns true if the value is empty string
+     * Returns true if the value is empty string
      */
     bool empty() const
     {

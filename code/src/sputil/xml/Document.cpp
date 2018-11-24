@@ -454,16 +454,18 @@ void Document::exportTo(json::Element& json) const
 #if USE_GTEST
 
 static const char* testXML =
-        "<name>John</name><age>33</age><temperature>33.6</temperature><timestamp>1519005758000</timestamp>"
+        "<name position='president'>John</name><age>33</age><temperature>36.6</temperature><timestamp>1519005758000</timestamp>"
         "<skills><skill>C++</skill><skill>Java</skill><skill>Motorbike</skill></skills>"
         "<address><married>true</married><employed>false</employed></address>";
 
 void verifyDocument(xml::Document& document)
 {
-    EXPECT_STREQ("John", document.findOrCreate("name")->text().c_str());
+    xml::Node* nameNode = document.findOrCreate("name");
+    EXPECT_STREQ("John", nameNode->text().c_str());
+    EXPECT_STREQ("president", nameNode->getAttribute("position").c_str());
 
     EXPECT_EQ(33, string2int(document.findOrCreate("age")->text()));
-    EXPECT_DOUBLE_EQ(33.6, string2double(document.findOrCreate("temperature")->text()));
+    EXPECT_DOUBLE_EQ(36.6, string2double(document.findOrCreate("temperature")->text()));
     EXPECT_DOUBLE_EQ(1519005758, int(string2int64(document.findOrCreate("timestamp")->text())/1000));
 
     Strings skills;

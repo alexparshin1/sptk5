@@ -44,6 +44,9 @@ class WSConnection : public ServerConnection
     String      m_htmlIndexPage;
     String      m_wsRequestPage;
 
+    bool readHttpHeaders(String& protocolName, String& request, String& requestType, String& url,
+                         HttpHeaders& headers);
+
 public:
 
     WSConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service, Logger& logger,

@@ -185,8 +185,8 @@ void WSParser::parse(std::string wsdlFile)
     xml::Element* portElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("wsdl:portType"));
     if (portElement == nullptr)
         throwException("Can't find wsdl:portType element");
-    for (auto node: *portElement) {
-        auto element = dynamic_cast<xml::Element*>(node);
+    for (auto* node: *portElement) {
+        auto* element = dynamic_cast<xml::Element*>(node);
         if (element != nullptr && element->name() == "wsdl:operation")
             parseOperation(element);
     }

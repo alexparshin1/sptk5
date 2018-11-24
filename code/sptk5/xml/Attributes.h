@@ -47,7 +47,7 @@ namespace xml {
 class Element;
 
 /**
- * @brief XML attribute is just a named item
+ * XML attribute is just a named item
  */
 class Attribute : public NamedItem
 {
@@ -61,43 +61,43 @@ protected:
 
 
     /**
-     * @brief Protected constructor (internal)
+     * Protected constructor (internal)
      *
      * Creates a new attribute. 
      * Doesn't verify if the attribute name already exists in parent element
-     * @param parent xml::Element*, parent element (can't be NULL)
-     * @param name const std::string&, attribute name
-     * @param value XMLValue, attribute value
+     * @param parent            Parent element (can't be NULL)
+     * @param name              Attribute name
+     * @param value             Attribute value
      */
-    Attribute(Element* parent, const std::string& name, Value value);
+    Attribute(Element* parent, const String& name, Value value);
 
     /**
-     * @brief Protected constructor (internal)
+     * Protected constructor (internal)
      *
      * Creates a new attribute. 
      * Doesn't verify if the attribute name already exists in parent element
-     * @param parent xml::Element*, parent element (can't be NULL)
-     * @param name const char*, attribute name
-     * @param value XMLValue, attribute value
+     * @param parent            Parent element (can't be NULL)
+     * @param name              Attribute name
+     * @param value             Attribute value
      */
     Attribute(Element* parent, const char* name, Value value);
 
 public:
     /**
-     * @brief Returns the value of the node
+     * Returns the value of the node
      */
     const String& value() const noexcept override;
 
     /**
-     * @brief Sets new value to node.
-     * @param new_value const std::string &, new value
+     * Sets new value to node.
+     * @param new_value         New value
      * @see value()
      */
-    void value(const std::string& new_value) override;
+    void value(const String& new_value) override;
 
     /**
-     * @brief Sets new value to node
-     * @param new_value const char *, value to set
+     * Sets new value to node
+     * @param new_value         Value to set
      * @see value()
      */
     void value(const char* new_value) override;
@@ -108,7 +108,7 @@ class Node;
 class Document;
 
 /**
- * @brief XML node attributes
+ * XML node attributes
  *
  * The XMLAttributes class is map for node attributes.
  */
@@ -127,10 +127,10 @@ protected:
 public:
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * The XML attributes object uses the shared strings table (SST) for attribute names
-     * @param parent xml::Element*, the parent XML element
+     * @param parent            Parent XML element
      */
     explicit Attributes(Element* parent) noexcept
     : m_parent(parent)
@@ -138,7 +138,7 @@ public:
     }
 
     /**
-     * @brief Assign operator
+     * Assign operator
      *
      * Makes copy of an attribute set to another.
      * @param src as copy source
@@ -146,52 +146,52 @@ public:
     Attributes& operator=(const Attributes& src);
 
     /**
-     * @brief Searches for named attribute
+     * Searches for named attribute
      *
      * Returns true, if given attribute is found.
-     * @param attr std::string, name of attribute to search
+     * @param attr              Name of attribute to search
      */
-    bool hasAttribute(std::string attr) const;
+    bool hasAttribute(const String& attr) const;
 
     /**
-     * @brief Returns an attribute value
+     * Returns an attribute value
      *
      * If the attribute is not found, empty string is returned.
      * HTML tags can have empty attributes, for those you should use has_attribute() method.
-     * @param attr std::string, name of attribute
-     * @param defaultValue const char *, a default value. If attribute doesn't exist then default value is returned.
+     * @param attr              Name of attribute
+     * @param defaultValue      Default value. If attribute doesn't exist then default value is returned.
      * @returns attribute value 
      */
-    Value getAttribute(std::string attr, const char* defaultValue = "") const;
+    Value getAttribute(const String& attr, const char* defaultValue = "") const;
 
     /**
-     * @brief Sets attribute value for given attribute
+     * Sets attribute value for given attribute
      *
      * @param attr std::string, name of attribute
-     * @param value XMLValue, an attribute value. See XMLValue class description for data convertions.
-     * @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
+     * @param value             Attribute value. See XMLValue class description for data convertions.
+     * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    void setAttribute(std::string attr, Value value, const char* defaultValue = "");
+    void setAttribute(const String& attr, Value value, const char* defaultValue = "");
 
     /**
-     * @brief Returns an attribute node
-     *
-     * If the attribute is not found, empty string is returned.
-     * HTML tags can have empty attributes, for those you should use has_attribute() method.
-     * @param attr std::string, name of attribute
-     * @returns attribute node or NULL 
-     */
-    Attribute* getAttributeNode(std::string attr);
-
-    /**
-     * @brief Returns an attribute node (const version)
+     * Returns an attribute node
      *
      * If the attribute is not found, empty string is returned.
      * HTML tags can have empty attributes, for those you should use has_attribute() method.
-     * @param attr std::string, name of attribute
+     * @param attr              Name of attribute
      * @returns attribute node or NULL 
      */
-    const Attribute* getAttributeNode(std::string attr) const;
+    Attribute* getAttributeNode(const String& attr);
+
+    /**
+     * Returns an attribute node (const version)
+     *
+     * If the attribute is not found, empty string is returned.
+     * HTML tags can have empty attributes, for those you should use has_attribute() method.
+     * @param attr              Name of attribute
+     * @returns attribute node or NULL 
+     */
+    const Attribute* getAttributeNode(const String& attr) const;
 };
 /**
  * @}

@@ -94,7 +94,7 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
 WSParserComplexType::~WSParserComplexType()
 {
     if (m_refcount == 0) {
-        for (auto element: m_sequence)
+        for (auto* element: m_sequence)
             delete element;
         for (auto itor: m_attributes)
             delete itor.second;
@@ -149,23 +149,8 @@ String WSParserComplexType::wsClassName(const String& name)
     return name;
 }
 
-void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
+void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, const set<String>& usedClasses) const
 {
-    String className = "C" + wsClassName(m_name);
-    set<String> usedClasses;
-
-    String defineName = "__" + className.toUpperCase() + "__";
-    classDeclaration << "#ifndef " << defineName << endl;
-    classDeclaration << "#define " << defineName << endl;
-
-    // determine the list of used classes
-    for (auto complexType: m_sequence) {
-        String cxxType = complexType->className();
-        if (cxxType[0] == 'C')
-            usedClasses.insert(cxxType);
-    }
-    classDeclaration << endl;
-
     Strings includeFiles;
     includeFiles.push_back("#include <sptk5/sptk.h>");
     includeFiles.push_back("#include <sptk5/FieldList.h>");
@@ -178,6 +163,26 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
         includeFiles.push_back("#include \"" + usedClass + ".h\"");
     includeFiles.sort();
     classDeclaration << includeFiles.join("\n") << endl << endl;
+}
+
+void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
+{
+    String className = "C" + wsClassName(m_name);
+    set<String> usedClasses;
+
+    String defineName = "__" + className.toUpperCase() + "__";
+    classDeclaration << "#ifndef " << defineName << endl;
+    classDeclaration << "#define " << defineName << endl;
+
+    // determine the list of used classes
+    for (auto* complexType: m_sequence) {
+        String cxxType = complexType->className();
+        if (cxxType[0] == 'C')
+            usedClasses.insert(cxxType);
+    }
+    classDeclaration << endl;
+
+    printDeclarationIncludes(classDeclaration, usedClasses);
 
     Strings words;
     String  tagName = lowerCase(className.substr(1));
@@ -193,12 +198,13 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     classDeclaration << "class " << className << " : public sptk::WSComplexType" << endl;
     classDeclaration << "{" << endl;
     classDeclaration << "public:" << endl;
-    Strings ctorInitializer, copyInitializer;
+    Strings ctorInitializer;
+    Strings copyInitializer;
     ctorInitializer.push_back(string("sptk::WSComplexType(elementName, optional)"));
     copyInitializer.push_back(string("sptk::WSComplexType(other.complexTypeName().c_str(), other.isOptional())"));
     if (!m_sequence.empty()) {
         classDeclaration << "   // Elements" << endl;
-        for (auto complexType: m_sequence) {
+        for (auto* complexType: m_sequence) {
             String cxxType = complexType->className();
             if (!complexType->documentation().empty()) {
                 classDeclaration << endl;
@@ -303,25 +309,27 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     classDeclaration << "#endif" << endl;
 }
 
-void WSParserComplexType::generateImplementation(std::ostream& classImplementation)
+void WSParserComplexType::printImplementationIncludes(ostream& classImplementation, const String& className) const
 {
-    String className = "C" + wsClassName(m_name);
-
     classImplementation << "#include \"" << className << ".h\"" << endl << endl;
     classImplementation << "using namespace std;" << endl;
     classImplementation << "using namespace sptk;" << endl << endl;
+}
 
-    // Destructor
+void WSParserComplexType::printImplementationDestructor(ostream& classImplementation, const String& className) const
+{
     classImplementation << className << "::~" << className << "()" << endl;
     classImplementation << "{" << endl;
     classImplementation << "    clear();" << endl;
     classImplementation << "}" << endl << endl;
+}
 
-    // Clear content
+void WSParserComplexType::printImplementationClear(ostream& classImplementation, const String& className) const
+{
     classImplementation << "void " << className << "::_clear()" << endl;
     classImplementation << "{" << endl;
     classImplementation << "    // Clear elements" << endl;
-    for (auto complexType: m_sequence) {
+    for (auto* complexType: m_sequence) {
         if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
             classImplementation << "    for (auto element: m_" << complexType->name() << ")" << endl;
             classImplementation << "        delete element;" << endl;
@@ -336,8 +344,28 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         }
     }
     classImplementation << "}" << endl << endl;
+}
 
-    // Loader from XML element
+void WSParserComplexType::printImplementationRestrictions(ostream& classImplementation,
+                                                          const Strings& requiredElements) const
+{
+    if (!requiredElements.empty()) {
+        classImplementation << "    // Check restrictions" << endl;
+        bool first = true;
+        for (auto& requiredElement : requiredElements) {
+            if (first)
+                first = false;
+            else
+                classImplementation << endl;
+            classImplementation << "    if (m_" << requiredElement << ".isNull())" << endl;
+            classImplementation << "        throw SOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(
+                    m_name) << "'.\");" << endl;
+        }
+    }
+}
+
+void WSParserComplexType::printImplementationLoadXML(ostream& classImplementation, const String& className) const
+{
     classImplementation << "void " << className << "::load(const sptk::xml::Element* input)" << endl
                         << "{" << endl
                         << "    UniqueLock(m_mutex);" << endl
@@ -360,12 +388,11 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         classImplementation << "            continue;" << endl;
         classImplementation << "        }" << endl;
         Strings requiredElements;
-        for (auto complexType: m_sequence) {
+        for (auto* complexType: m_sequence) {
             classImplementation << endl;
             classImplementation << "        if (element->name() == \"" << complexType->name() << "\") {" << endl;
             if (complexType->m_restriction != nullptr)
                 classImplementation << "            static const " << complexType->m_restriction->generateConstructor("restriction") << ";" << endl;
-            //string optional = complexType->multiplicity() & WSM_OPTIONAL ? "true" : "false";
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
                 classImplementation << "            auto item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
                 classImplementation << "            item->load(element);" << endl;
@@ -385,24 +412,15 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         }
         classImplementation << "    }" << endl;
 
-        if (!requiredElements.empty()) {
-            classImplementation << endl << "    // Check restrictions" << endl;
-            bool first = true;
-            for (string& requiredElement : requiredElements) {
-                if (first)
-                    first = false;
-                else
-                    classImplementation << endl;
-                classImplementation << "    if (m_" << requiredElement << ".isNull())" << endl;
-                classImplementation << "        throw SOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(m_name) << "'.\");" << endl;
-            }
-        }
+        printImplementationRestrictions(classImplementation, requiredElements);
     }
     classImplementation << "}" << endl << endl;
+}
 
+void WSParserComplexType::printImplementationLoadFieldList(ostream& classImplementation, const String& className) const
+{
     RegularExpression matchStandardType("^xsd:");
 
-    // Loader from FieldList
     classImplementation << "void " << className << "::load(const sptk::FieldList& input)" << endl
                         << "{" << endl
                         << "    UniqueLock(m_mutex);" << endl
@@ -427,7 +445,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 
     if (!m_sequence.empty()) {
         fieldLoads << endl << "    // Load elements" << endl;
-        for (auto complexType: m_sequence) {
+        for (auto* complexType: m_sequence) {
             if ((complexType->multiplicity() & WSM_REQUIRED) != 0)
                 requiredElements.push_back(complexType->name());
             if (!matchStandardType.matches(complexType->m_typeName))
@@ -457,22 +475,13 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         classImplementation << fieldLoads.str();
     }
 
-    if (!requiredElements.empty()) {
-        classImplementation << "    // Check restrictions" << endl;
-        bool first = true;
-        for (string& requiredElement : requiredElements) {
-            if (first)
-                first = false;
-            else
-                classImplementation << endl;
-            classImplementation << "    if (m_" << requiredElement << ".isNull())" << endl;
-            classImplementation << "        throw SOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(m_name) << "'.\");" << endl;
-        }
-    }
+    printImplementationRestrictions(classImplementation, requiredElements);
 
     classImplementation << "}" << endl << endl;
+}
 
-    // Unloader to Element
+void WSParserComplexType::printImplementationUnloadXML(ostream& classImplementation, const String& className) const
+{
     classImplementation << "void " << className << "::unload(sptk::xml::Element* output) const" << endl
                         << "{" << endl
                         << "    SharedLock(m_mutex);" << endl;
@@ -485,7 +494,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     }
     if (!m_sequence.empty()) {
         classImplementation << "    // Unload elements" << endl;
-        for (auto complexType: m_sequence) {
+        for (auto* complexType: m_sequence) {
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
                 classImplementation << "    for (auto element: m_" << complexType->name() << ")" << endl;
                 classImplementation << "        element->addElement(output);" << endl;
@@ -495,8 +504,26 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         }
     }
     classImplementation << "}" << endl << endl;
+}
 
-    // Unloader to ParamList
+void WSParserComplexType::generateImplementation(std::ostream& classImplementation)
+{
+    String className = "C" + wsClassName(m_name);
+
+    printImplementationIncludes(classImplementation, className);
+    printImplementationDestructor(classImplementation, className);
+    printImplementationClear(classImplementation, className);
+    printImplementationLoadXML(classImplementation, className);
+
+    RegularExpression matchStandardType("^xsd:");
+    printImplementationLoadFieldList(classImplementation, className);
+
+    printImplementationUnloadXML(classImplementation, className);
+    printImplementationUnloadParamList(classImplementation, className);
+}
+
+void WSParserComplexType::printImplementationUnloadParamList(ostream& classImplementation, const String& className) const
+{
     classImplementation << "void " << className << "::unload(sptk::QueryParameterList& output) const" << endl
                         << "{" << endl
                         << "    SharedLock(m_mutex);" << endl;
@@ -513,7 +540,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         if (!m_attributes.empty())
             classImplementation << endl;
         classImplementation << "    // Unload attributes" << endl;
-        for (auto complexType: m_sequence) {
+        for (auto* complexType: m_sequence) {
             if (!complexType->isArray())
                 classImplementation << "    WSComplexType::unload(output, \"" << complexType->name() << "\", dynamic_cast<const WSBasicType*>(&m_" << complexType->name() << "));" << endl;
         }

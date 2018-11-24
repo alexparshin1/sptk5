@@ -28,6 +28,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/CMakeLists.txt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Configuration/SetupDatabase.cpp">
           <value>
             <set />
@@ -93,7 +98,42 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestExecuteTask.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestState.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/TaskList.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/TaskList.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/TaskState.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/TaskState.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/TaskStates.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/TaskStates.h">
           <value>
             <set />
           </value>
@@ -558,12 +598,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/FirebirdStatement.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/db/ODBCConnection.h">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/db/ODBCEnvironment.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/Query.h">
           <value>
             <set />
           </value>
@@ -764,6 +814,26 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/threads/Timer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/wsdl/WSParserComplexType.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/wsdl/WSRequest.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/xml/Attributes.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/xml/Value.h">
           <value>
             <set />
           </value>
@@ -1203,6 +1273,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/xml/Attributes.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/xml/Document.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/test/unit_tests.cpp">
           <value>
             <set />
@@ -1244,6 +1324,31 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/wsdl/WSRestriction.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/protocol/WSStaticHttpProtocol.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/protocol/WSWebServiceProtocol.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/protocol/WSWebServiceProtocol.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/protocol/WSWebSocketsProtocol.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/protocol/WSWebSocketsProtocol.h">
           <value>
             <set />
           </value>

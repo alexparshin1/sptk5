@@ -55,7 +55,7 @@ namespace sptk {
  * execute a database queries. The type of the database
  * depends on the DatabaseConnection object query is connected to.
  */
-class SP_EXPORT Query: public DataSource, protected SharedMutex
+class SP_EXPORT Query: public DataSource, public SharedMutex
 {
     friend class PoolDatabaseConnection;
 
