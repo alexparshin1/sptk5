@@ -262,10 +262,6 @@ private:
     SQLRETURN readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
                                  SQLLEN& dataLength);
 
-    /**
-     * Disconnect first query in the list
-     */
-    void disconnectQuery() const;
 };
 
 

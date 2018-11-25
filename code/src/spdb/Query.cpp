@@ -328,11 +328,10 @@ void Query::closeQuery(bool releaseStatement)
     m_active = false;
     m_eof = true;
     if (m_statement != nullptr) {
-        if (releaseStatement) {
+        if (releaseStatement)
             freeStmt();
-        } else {
+        else
             closeStmt();
-        }
     }
 }
 
@@ -372,4 +371,14 @@ void Query::throwError(const String& method, const String& error)
 {
     String errorText("Exception in " + method + ": " + error);
     throw DatabaseException(errorText);
+}
+
+bool Query::bulkMode() const
+{
+    return m_bulkMode;
+}
+
+void Query::bulkMode(bool bulkMode)
+{
+    m_bulkMode = bulkMode;
 }

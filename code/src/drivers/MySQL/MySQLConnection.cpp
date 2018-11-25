@@ -46,16 +46,8 @@ MySQLConnection::~MySQLConnection()
     try {
         if (m_inTransaction && MySQLConnection::active())
             rollbackTransaction();
+        disconnectAllQueries();
         close();
-        while (!m_queryList.empty()) {
-            try {
-                auto* query = (Query*) m_queryList[0];
-                query->disconnect();
-            } catch (const Exception& e) {
-                CERR(e.what() << endl);
-            }
-        }
-        m_queryList.clear();
     } catch (const Exception& e) {
         CERR(e.what() << endl);
     }
@@ -69,7 +61,7 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
     if (!active()) {
         m_inTransaction = false;
         if (!newConnectionString.empty())
-            m_connString = DatabaseConnectionString(newConnectionString);
+            connectionString(DatabaseConnectionString(newConnectionString));
 
         {
             lock_guard<mutex> lock(libraryInitMutex);
@@ -83,12 +75,13 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
         if (m_connection == nullptr)
             connectionError = "Can't initialize MySQL environment";
         else {
+            const DatabaseConnectionString& connString = connectionString();
             if (mysql_real_connect(m_connection,
-                                   m_connString.hostName().c_str(),
-                                   m_connString.userName().c_str(),
-                                   m_connString.password().c_str(),
-                                   m_connString.databaseName().c_str(),
-                                   m_connString.portNumber(),
+                                   connString.hostName().c_str(),
+                                   connString.userName().c_str(),
+                                   connString.password().c_str(),
+                                   connString.databaseName().c_str(),
+                                   connString.portNumber(),
                                    nullptr,
                                    CLIENT_MULTI_RESULTS) == nullptr) {
                 connectionError = mysql_error(m_connection);
@@ -104,13 +97,7 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
 
 void MySQLConnection::closeDatabase()
 {
-    for (auto* query: m_queryList) {
-        try {
-            queryFreeStmt(query);
-        } catch (const Exception& e) {
-            CERR(e.what() << endl);
-        }
-    }
+    disconnectAllQueries();
 
     if (m_connection != nullptr) {
         mysql_close(m_connection);
@@ -130,12 +117,13 @@ bool MySQLConnection::active() const
 
 String MySQLConnection::nativeConnectionString() const
 {
+    const DatabaseConnectionString& connString = connectionString();
     // Connection string in format: host[:port][/instance]
-    stringstream connectionString(m_connString.hostName());
-    if (m_connString.portNumber() != 0)
-        connectionString << ":" << int2string(m_connString.portNumber());
-    if (!m_connString.databaseName().empty())
-        connectionString << "/" << m_connString.databaseName();
+    stringstream connectionString(connString.hostName());
+    if (connString.portNumber() != 0)
+        connectionString << ":" << int2string(connString.portNumber());
+    if (!connString.databaseName().empty())
+        connectionString << "/" << connString.databaseName();
     return connectionString.str();
 }
 

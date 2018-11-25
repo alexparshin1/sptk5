@@ -41,29 +41,31 @@ PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString)
 
 PoolDatabaseConnection::~PoolDatabaseConnection()
 {
-    // To prevent the exceptions, if the database connection
-    // is terminated already
-    try {
-        while (!m_queryList.empty()) {
-            auto* query = (Query *) m_queryList[0];
-            query->disconnect();
+    disconnectAllQueries();
+}
+
+void PoolDatabaseConnection::disconnectAllQueries()
+{
+    for (auto* query: m_queryList) {
+        try {
+            query->closeQuery(true);
+        }
+        catch (const Exception& e) {
+            CERR(e.what() << endl);
         }
     }
-    catch (const Exception& e) {
-        CERR(e.what() << endl);
-    }
+    m_queryList.clear();
 }
 
 bool PoolDatabaseConnection::linkQuery(Query *q)
 {
-    m_queryList.push_back(q);
+    m_queryList.insert(q);
     return true;
 }
 
 bool PoolDatabaseConnection::unlinkQuery(Query *q)
 {
-    auto itor = find(m_queryList.begin(), m_queryList.end(), q);
-    m_queryList.erase(itor);
+    m_queryList.erase(q);
     return true;
 }
 
@@ -86,10 +88,7 @@ void PoolDatabaseConnection::close()
 {
     if (active()) {
         m_inTransaction = false;
-
-        for (auto* query: m_queryList)
-            query->closeQuery(true);
-
+        disconnectAllQueries();
         closeDatabase();
     }
 }

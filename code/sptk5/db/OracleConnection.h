@@ -35,6 +35,7 @@
 
 #include <sptk5/db/OracleStatement.h>
 #include <sptk5/db/OracleEnvironment.h>
+#include "DatabaseField.h"
 
 namespace sptk
 {
@@ -272,6 +273,18 @@ public:
      * @param objects           Object list (output)
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
+
+private:
+
+    void executeMultipleStatements(const Strings& statements, Strings* errors);
+
+    void readTimestamp(oracle::occi::ResultSet* resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
+
+    void readDate(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+
+    void readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+
+    void readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
 };
 
 #define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }

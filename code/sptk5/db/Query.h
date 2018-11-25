@@ -129,12 +129,18 @@ class SP_EXPORT Query: public DataSource, public SharedMutex
      */
     unsigned                m_createdLine {0};
 
-protected:
-
     /**
      * Bulk mode flag
      */
     bool                    m_bulkMode {false};
+
+protected:
+
+    /**
+     * Set bulk mode flag
+     * @param _bulkMode        True for bulk mode
+     */
+    void bulkMode(bool _bulkMode);
 
     /**
      * Counts columns of the dataset (if any) returned by query
@@ -610,9 +616,10 @@ public:
     }
 
     /**
-     *@ brief Returns bulk mode flag
+     * Return bulk mode flag
+     * @return true for bulk mode
      */
-    bool bulkMode() const { return m_bulkMode; }
+    bool bulkMode() const;
 };
 /**
  * @}

@@ -39,7 +39,6 @@ namespace sptk
  */
 template <class Connection, class Statement> class DatabaseStatement
 {
-protected:
     /**
      * DB connection
      */
@@ -50,10 +49,29 @@ protected:
      */
     Statement*      m_statement;
 
+public:
+
+    Connection* connection() const
+    {
+        return m_connection;
+    }
+
+    void statement(Statement* stmt)
+    {
+        m_statement = stmt;
+    }
+
+    Statement* statement() const
+    {
+        return m_statement;
+    }
+
     /**
      * Enumerated parameters
      */
     CParamVector    m_enumeratedParams;
+
+protected:
 
     /**
      * Statement state type definition
@@ -80,11 +98,19 @@ protected:
         unsigned    outputParameterCount:1;
     } State;
 
+private:
+
     /**
      * State flags
      */
     State m_state;
 
+protected:
+
+    State& state()
+    {
+        return m_state;
+    }
 
 public:
     /**

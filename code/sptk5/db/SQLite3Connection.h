@@ -195,7 +195,6 @@ public:
      */
     virtual void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
-    void disconnectQuery() const;
 };
 
 /**

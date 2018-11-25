@@ -134,9 +134,10 @@ int main(int argc, const char* argv[])
         DatabaseConnection db = connectionPool.getConnection();
 
         COUT("Openning the database, using connection string " << connectString << ":" << endl);
+
         db->open();
 
-		String tableName = "test_table";
+        String tableName = "test_table";
 
         COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
 
@@ -157,8 +158,8 @@ int main(int argc, const char* argv[])
         COUT("-------------------------------------------------" << endl);
 
         // Defining the queries
-        Query step1Query(db, "CREATE TABLE " + tableName + "(id INT,name CHAR(20),position CHAR(20))");
-        Query step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
+        Query step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(20) NULL, position CHAR(20) NULL)");
+        Query step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id, :person_name, :position_name)");
         Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id");
         Query step4Query(db, "DROP TABLE " + tableName);
 
@@ -253,9 +254,9 @@ int main(int argc, const char* argv[])
         testTransactions(db, tableName, true);
         testTransactions(db, tableName, false);
 
-        step4Query.exec();
+        testPerformance(db, tableName, false);
 
-		testPerformance(db, tableName, false);
+        step4Query.exec();
 
         COUT("Ok.\nStep 5: Closing the database.. ");
         db->close();

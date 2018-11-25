@@ -79,7 +79,7 @@ public:
      * @brief Creates new database connection
      * @param connectionString DatabaseConnectionString&, Connection parameters
      */
-    oracle::occi::Connection* createConnection(DatabaseConnectionString& connectionString);
+    oracle::occi::Connection* createConnection(const DatabaseConnectionString& connectionString);
 
     /**
      * @brief Terminates database connection

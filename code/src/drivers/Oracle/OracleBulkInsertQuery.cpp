@@ -34,7 +34,7 @@ using namespace sptk;
 OracleBulkInsertQuery::OracleBulkInsertQuery(PoolDatabaseConnection *db, const std::string& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes)
 : Query(db, sql), m_recordCount(recordCount), m_recordNumber(0), m_batchSize(2), m_lastIteration(false), m_columnTypeSizes(columnTypeSizes)
 {
-    m_bulkMode = true;
+    bulkMode(true);
 }
 
 void OracleBulkInsertQuery::execNext()

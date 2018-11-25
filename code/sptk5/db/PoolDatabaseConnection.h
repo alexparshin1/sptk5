@@ -48,7 +48,7 @@ namespace sptk {
 class Query;
 
 /**
- * @brief Database connection type
+ * Database connection type
  */
 enum DatabaseConnectionType : uint16_t {
     /**
@@ -94,7 +94,7 @@ enum DatabaseConnectionType : uint16_t {
 };
 
 /**
- * @brief Types of the objects for DatabaseConnection::listObjects method
+ * Types of the objects for DatabaseConnection::listObjects method
  */
 enum DatabaseObjectType : uint8_t
 {
@@ -125,7 +125,7 @@ enum DatabaseObjectType : uint8_t
 };
 
 /**
- * @brief Column type and size structure
+ * Column type and size structure
  */
 struct QueryColumnTypeSize
 {
@@ -142,43 +142,43 @@ struct QueryColumnTypeSize
 };
 
 /**
- * @brief Vector of column type and size structures
+ * Vector of column type and size structures
  */
 typedef std::vector<QueryColumnTypeSize> QueryColumnTypeSizeVector;
 
 /**
- * @brief Map of column names to column type and size structures
+ * Map of column names to column type and size structures
  */
 typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
 
 /**
- * @brief Database connector
+ * Database connector
  *
  * Implements a thread-safe connection to general database. It is used
  * as a base class for actual database driver classes.
  */
 class SP_EXPORT PoolDatabaseConnection
 {
-    typedef std::vector<Query*> CQueryVector;
     friend class Query;
 
+    /**
+     * The list of queries that use this database
+     */
+    std::set<Query*>            m_queryList;
+
+    /**
+     * The connection string
+     */
+    DatabaseConnectionString    m_connString;
+
 public:
+
     /**
     * Mutex that protects access to data members
     */
     mutable std::mutex    m_mutex;
 
 protected:
-
-    /**
-     * The list of queries that use this database
-     */
-    CQueryVector                m_queryList;
-
-    /**
-     * The connection string
-     */
-    DatabaseConnectionString    m_connString;
 
     /**
      * The connection type
@@ -190,19 +190,14 @@ protected:
      */
     bool                        m_inTransaction;
 
-    /**
-     * Object name for logs and error messages
-     */
-    String                      m_objectName;
-
 
     /**
-     * @brief Attaches (links) query to the database
+     * Attaches (links) query to the database
      */
     bool linkQuery(Query* q);
 
     /**
-     * @brief Unlinks query from the database
+     * Unlinks query from the database
      */
     bool unlinkQuery(Query* q);
 
@@ -310,7 +305,7 @@ protected:
 
 
     /**
-     * @brief Returns parameter mark
+     * Returns parameter mark
      *
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex unsigned, parameter index in SQL starting from 0
@@ -323,7 +318,7 @@ protected:
     String  m_driverDescription;
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Protected constructor prevents creating an instance of the
      * DatabaseConnection. Instead, it is possible to create an instance of derived
@@ -350,7 +345,7 @@ protected:
 
 
     /**
-     * @brief Opens the database connection.
+     * Opens the database connection.
      *
      * This method should be overwritten in derived classes
      * @param connectionString  The ODBC connection string
@@ -358,21 +353,21 @@ protected:
     virtual void _openDatabase(const String& connectionString);
 
     /**
-     * @brief Closes the database connection.
+     * Closes the database connection.
      *
      * This method should be overwritten in derived classes
      */
     virtual void closeDatabase();
 
     /**
-     * @brief Begins the transaction
+     * Begins the transaction
      *
      * This method should be implemented in derived driver
      */
     virtual void driverBeginTransaction();
 
     /**
-     * @brief Ends the transaction
+     * Ends the transaction
      *
      * This method should be implemented in derived driver
      * @param commit            Commit if true, rollback if false
@@ -380,7 +375,7 @@ protected:
     virtual void driverEndTransaction(bool commit);
 
     /**
-     * @brief Throws an exception
+     * Throws an exception
      *
      * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
      * @param method            Method name where error has occured
@@ -389,7 +384,7 @@ protected:
     void logAndThrow(const String& method, const String& error);
 
     /**
-     * @brief Executes bulk inserts of data from memory buffer
+     * Executes bulk inserts of data from memory buffer
      *
      * Data is inserted the fastest possible way. The server-specific format definition provides extra information
      * about data. If format is empty than default server-specific data format is used.
@@ -403,7 +398,7 @@ protected:
                              const String& format);
 
     /**
-     * @brief Executes SQL batch file
+     * Executes SQL batch file
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
@@ -413,7 +408,7 @@ protected:
     virtual void _executeBatchFile(const String& batchFileName, Strings* errors);
 
     /**
-     * @brief Executes SQL batch queries
+     * Executes SQL batch queries
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
@@ -425,7 +420,7 @@ protected:
 public:
 
     /**
-     * @brief Destructor
+     * Destructor
      *
      * Closes the database connection and all the connected queries.
      * Releases all the database resources allocated during the connection.
@@ -433,7 +428,7 @@ public:
     virtual ~PoolDatabaseConnection();
 
     /**
-     * @brief Opens the database connection
+     * Opens the database connection
      *
      * If unsuccessful throws an exception.
      * @param connectionString  The ODBC connection string
@@ -441,35 +436,44 @@ public:
     void open(const String& connectionString = "");
 
     /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
+     * Closes the database connection. If unsuccessful throws an exception.
      */
     void close();
 
     /**
-     * @brief Returns true if database is opened
+     * Returns true if database is opened
      */
     virtual bool active() const;
 
     /**
-     * @brief Returns the database connection handle
+     * Returns the database connection handle
      */
     virtual void* handle() const;
 
     /**
-     * @brief Returns the connection string
+     * Returns the connection string
      */
-    virtual const DatabaseConnectionString& connectionString() const
+    const DatabaseConnectionString& connectionString() const
     {
         return m_connString;
     }
 
     /**
-     * @brief Returns driver-specific connection string
+     * Set connecting string
+     * @param connectionString  Connection string
+     */
+    void connectionString(const DatabaseConnectionString& connectionString)
+    {
+        m_connString = connectionString;
+    }
+
+    /**
+     * Returns driver-specific connection string
      */
     virtual String nativeConnectionString() const = 0;
 
     /**
-     * @brief Returns the connection type
+     * Returns the connection type
      */
     virtual DatabaseConnectionType connectionType() const
     {
@@ -477,7 +481,7 @@ public:
     }
 
     /**
-     * @brief Returns the driver description
+     * Returns the driver description
      */
     virtual String driverDescription() const
     {
@@ -485,22 +489,22 @@ public:
     }
 
     /**
-     * @brief Begins the transaction
+     * Begins the transaction
      */
     void beginTransaction();
 
     /**
-     * @brief Commits the transaction
+     * Commits the transaction
      */
     void commitTransaction();
 
     /**
-     * @brief Rolls back the transaction
+     * Rolls back the transaction
      */
     void rollbackTransaction();
 
     /**
-     * @brief Reports true if in transaction
+     * Reports true if in transaction
      */
     int inTransaction()
     {
@@ -508,7 +512,7 @@ public:
     }
 
     /**
-     * @brief Lists database objects
+     * Lists database objects
      *
      * Not implemented in DatabaseConnection. The derived database class
      * must provide its own implementation
@@ -518,7 +522,7 @@ public:
     virtual void objectList(DatabaseObjectType objectType, Strings& objects) = 0;
 
     /**
-     * @brief Executes bulk inserts of data from memory buffer
+     * Executes bulk inserts of data from memory buffer
      *
      * Data is inserted the fastest possible way. The server-specific format definition provides extra information
      * about data. If format is empty than default server-specific data format is used.
@@ -534,7 +538,7 @@ public:
     }
 
     /**
-     * @brief Executes SQL batch file
+     * Executes SQL batch file
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
@@ -547,7 +551,7 @@ public:
     }
 
     /**
-     * @brief Executes SQL batch queries
+     * Executes SQL batch queries
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
@@ -558,6 +562,13 @@ public:
     {
         _executeBatchSQL(batchSQL, errors);
     }
+
+    /**
+     * Close all queries, connected to this connection,
+     * free their statements, and empty connected query
+     * list.
+     */
+    void disconnectAllQueries();
 };
 /**
  * @}

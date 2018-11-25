@@ -72,35 +72,23 @@ ODBCConnection::~ODBCConnection()
         if (m_inTransaction && ODBCConnection::active())
             rollbackTransaction();
         close();
-        while (!m_queryList.empty())
-            disconnectQuery();
-        m_queryList.clear();
         delete m_connect;
     } catch (const Exception& e) {
         CERR(e.what() << endl)
     }
 }
 
-void ODBCConnection::disconnectQuery() const
-{
-    try {
-        auto* query = (Query*) m_queryList[0];
-        query->disconnect();
-    } catch (const Exception& e) {
-        CERR(e.what() << endl);
-    }
-}
-
 String ODBCConnection::nativeConnectionString() const
 {
+    const DatabaseConnectionString& connString = connectionString();
     stringstream connectionString;
-    connectionString << "DSN=" << m_connString.hostName();
-    if (!m_connString.userName().empty())
-        connectionString << ";UID=" << m_connString.userName();
-    if (!m_connString.password().empty())
-        connectionString << ";PWD=" << m_connString.password();
-    if (!m_connString.databaseName().empty())
-        connectionString << ";DATABASE=" << m_connString.databaseName();
+    connectionString << "DSN=" << connString.hostName();
+    if (!connString.userName().empty())
+        connectionString << ";UID=" << connString.userName();
+    if (!connString.password().empty())
+        connectionString << ";PWD=" << connString.password();
+    if (!connString.databaseName().empty())
+        connectionString << ";DATABASE=" << connString.databaseName();
     return connectionString.str();
 }
 
@@ -109,7 +97,7 @@ void ODBCConnection::_openDatabase(const String& newConnectionString)
     if (!active()) {
         m_inTransaction = false;
         if (!newConnectionString.empty())
-            m_connString = DatabaseConnectionString(newConnectionString);
+            connectionString(DatabaseConnectionString(newConnectionString));
 
         string finalConnectionString;
         m_connect->connect(nativeConnectionString(), finalConnectionString, false);
@@ -120,13 +108,7 @@ void ODBCConnection::_openDatabase(const String& newConnectionString)
 
 void ODBCConnection::closeDatabase()
 {
-    for (auto* query: m_queryList) {
-        try {
-            queryFreeStmt(query);
-        } catch (const Exception& e) {
-            CERR(e.what() << endl)
-        }
-    }
+    disconnectAllQueries();
     m_connect->freeConnect();
 }
 

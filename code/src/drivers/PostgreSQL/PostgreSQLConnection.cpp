@@ -151,14 +151,7 @@ PostgreSQLConnection::~PostgreSQLConnection()
     try {
         if (m_inTransaction && PostgreSQLConnection::active())
             rollbackTransaction();
-
         close();
-
-        while (!m_queryList.empty()) {
-            auto* query = (Query*) m_queryList[0];
-            query->disconnect();
-        }
-        m_queryList.clear();
     } catch (const Exception& e) {
         CERR(e.what() << endl)
     }
@@ -173,16 +166,17 @@ static string csParam(const string& name, const string& value)
 
 String PostgreSQLConnection::nativeConnectionString() const
 {
-    String port;
+    String                          port;
+    const DatabaseConnectionString& connString = connectionString();
 
-    if (m_connString.portNumber() != 0)
-        port = int2string(m_connString.portNumber());
+    if (connString.portNumber() != 0)
+        port = int2string(connString.portNumber());
 
     string result =
-        csParam("dbname", m_connString.databaseName()) +
-        csParam("host", m_connString.hostName()) +
-        csParam("user", m_connString.userName()) +
-        csParam("password", m_connString.password()) +
+        csParam("dbname", connString.databaseName()) +
+        csParam("host", connString.hostName()) +
+        csParam("user", connString.userName()) +
+        csParam("password", connString.password()) +
         csParam("port", port);
 
     return result;
@@ -194,7 +188,7 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
         m_inTransaction = false;
 
         if (!newConnectionString.empty())
-            m_connString = DatabaseConnectionString(newConnectionString);
+            connectionString(DatabaseConnectionString(newConnectionString));
 
         m_connect = PQconnectdb(nativeConnectionString().c_str());
 
@@ -217,14 +211,7 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
 
 void PostgreSQLConnection::closeDatabase()
 {
-    for (auto* query: m_queryList) {
-        try {
-            queryFreeStmt(query);
-        } catch (const Exception& e) {
-            CERR(e.what() << endl)
-        }
-    }
-
+    disconnectAllQueries();
     PQfinish(m_connect);
     m_connect = nullptr;
 }

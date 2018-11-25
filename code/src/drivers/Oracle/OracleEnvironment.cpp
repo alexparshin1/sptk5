@@ -46,7 +46,11 @@ OracleEnvironment::~OracleEnvironment()
 /// @brief Returns client version
 std::string OracleEnvironment::clientVersion() const
 {
-    int major, minor, update, patch, portUpdate;
+    int major;
+    int minor;
+    int update;
+    int patch;
+    int portUpdate;
     Environment::getClientVersion(major, minor, update, patch, portUpdate);
     string version = "Oracle " + int2string(major) + "." + int2string(minor);
     if (update)
@@ -54,7 +58,7 @@ std::string OracleEnvironment::clientVersion() const
     return version;
 }
 
-oracle::occi::Connection* OracleEnvironment::createConnection(DatabaseConnectionString& connectionString)
+oracle::occi::Connection* OracleEnvironment::createConnection(const DatabaseConnectionString& connectionString)
 {
     String host = connectionString.hostName();
     if (connectionString.portNumber())

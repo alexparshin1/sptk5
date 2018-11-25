@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-#define throwMySQLError throw DatabaseException(mysql_stmt_error(m_statement))
+#define throwMySQLError throw DatabaseException(mysql_stmt_error(statement()))
 
 // When TEXT field is large, fetch in chunks:
 #define FETCH_BUFFER 256
@@ -87,15 +87,15 @@ MySQLStatement::MySQLStatement(MySQLConnection* connection, const string& sql, b
 : DatabaseStatement<MySQLConnection,MYSQL_STMT>(connection), m_sql(sql), m_result(nullptr), m_row{}
 {
     if (autoPrepare)
-        m_statement = mysql_stmt_init((MYSQL*)connection->handle());
+        statement(mysql_stmt_init((MYSQL*)connection->handle()));
     else
-        m_statement = nullptr; // direct execution
+        statement(nullptr); // direct execution
 }
 
 MySQLStatement::~MySQLStatement()
 {
-    if (m_statement != nullptr)
-       mysql_stmt_close(m_statement);
+    if (statement() != nullptr)
+       mysql_stmt_close(statement());
     if (m_result != nullptr)
         mysql_free_result(m_result);
 }
@@ -291,37 +291,37 @@ void MySQLStatement::setParameterValues()
         bind.error = nullptr;
     }
         /// Bind the buffers
-    if (mysql_stmt_bind_param(m_statement, &m_paramBuffers[0]) != 0)
+    if (mysql_stmt_bind_param(statement(), &m_paramBuffers[0]) != 0)
         throwMySQLError;
 }
 
 void MySQLStatement::MySQLStatement::prepare(const string& sql)
 {
-    if (mysql_stmt_prepare(m_statement, sql.c_str(), sql.length()) != 0)
+    if (mysql_stmt_prepare(statement(), sql.c_str(), sql.length()) != 0)
         throwMySQLError;
 }
 
 void MySQLStatement::execute(bool)
 {
-    m_state.eof = false;
+    state().eof = false;
     if (m_result != nullptr) {
         mysql_free_result(m_result);
         m_result = nullptr;
     }
-    if (m_statement != nullptr) {
-        if (mysql_stmt_execute(m_statement) != 0)
+    if (statement() != nullptr) {
+        if (mysql_stmt_execute(statement()) != 0)
             throwMySQLError;
-        m_state.columnCount = mysql_stmt_field_count(m_statement);
-        if (m_state.columnCount != 0)
-            m_result = mysql_stmt_result_metadata(m_statement);
+        state().columnCount = mysql_stmt_field_count(statement());
+        if (state().columnCount != 0)
+            m_result = mysql_stmt_result_metadata(statement());
     } else {
-        MYSQL* conn = m_connection->m_connection;
+        MYSQL* conn = connection()->m_connection;
         if (mysql_query(conn, m_sql.c_str()) != 0) {
             string error = mysql_error(conn);
             throw DatabaseException(error);
         }
-        m_state.columnCount = mysql_field_count(conn);
-        if (m_state.columnCount != 0)
+        state().columnCount = mysql_field_count(conn);
+        if (state().columnCount != 0)
             m_result = mysql_store_result(conn);
     }
 }
@@ -333,7 +333,7 @@ void MySQLStatement::bindResult(FieldList& fields)
         return;
 
     char columnName[256];
-    for (unsigned columnIndex = 0; columnIndex < m_state.columnCount; columnIndex++) {
+    for (unsigned columnIndex = 0; columnIndex < state().columnCount; columnIndex++) {
         MYSQL_FIELD *fieldMetadata = mysql_fetch_field(m_result);
         if (fieldMetadata == nullptr)
             throwMySQLError;
@@ -348,10 +348,10 @@ void MySQLStatement::bindResult(FieldList& fields)
         fields.push_back(new CMySQLStatementField(columnName, (int) columnIndex, fieldMetadata->type, fieldType, (int) fieldLength));
     }
 
-    if (m_statement != nullptr) {
+    if (statement() != nullptr) {
         // Bind initialized fields to MySQL bind buffers
-        m_fieldBuffers.resize(m_state.columnCount);
-        for (unsigned columnIndex = 0; columnIndex < m_state.columnCount; columnIndex++) {
+        m_fieldBuffers.resize(state().columnCount);
+        for (unsigned columnIndex = 0; columnIndex < state().columnCount; columnIndex++) {
             auto*        field = (CMySQLStatementField*) &fields[columnIndex];
             MYSQL_BIND& bind = m_fieldBuffers[columnIndex];
 
@@ -405,14 +405,14 @@ void MySQLStatement::bindResult(FieldList& fields)
 
             field->bindCallbacks(&bind);
         }
-        if (mysql_stmt_bind_result(m_statement, &m_fieldBuffers[0]) != 0)
+        if (mysql_stmt_bind_result(statement(), &m_fieldBuffers[0]) != 0)
             throwMySQLError;
     }
 }
 
 void MySQLStatement::readResultRow(FieldList& fields)
 {
-    if (m_statement != nullptr)
+    if (statement() != nullptr)
         readPreparedResultRow(fields);
     else
         readUnpreparedResultRow(fields);
@@ -553,7 +553,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
                     field->checkSize(dataLength+1);
                     bind.buffer = (char*) field->getBuffer() + offset;
                     bind.buffer_length = remainingBytes;
-                    if (mysql_stmt_fetch_column(m_statement, &bind, fieldIndex, offset) != 0)
+                    if (mysql_stmt_fetch_column(statement(), &bind, fieldIndex, offset) != 0)
                         throwMySQLError;
                     bind.buffer_length = field->bufferSize();
                     bind.buffer = (void*) field->getBuffer();
@@ -572,7 +572,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             throwDatabaseException("Unsupported Variant type: " + int2string(fieldType));
         }
     }
-    if (fieldSizeChanged && mysql_stmt_bind_result(m_statement, &m_fieldBuffers[0]) != 0)
+    if (fieldSizeChanged && mysql_stmt_bind_result(statement(), &m_fieldBuffers[0]) != 0)
         throwMySQLError;
 }
 
@@ -580,7 +580,7 @@ void MySQLStatement::close()
 {
     if (m_result != nullptr) {
         // Read all the results until EOF
-        while (!m_state.eof)
+        while (!state().eof)
             fetch();
         mysql_free_result(m_result);
         m_result = nullptr;
@@ -589,16 +589,16 @@ void MySQLStatement::close()
 
 void MySQLStatement::fetch()
 {
-    if (m_statement != nullptr) {
-        int rc = mysql_stmt_fetch(m_statement);
+    if (statement() != nullptr) {
+        int rc = mysql_stmt_fetch(statement());
         switch (rc) {
         case 0: // Successful, the data has been fetched to application data buffers
         case MYSQL_DATA_TRUNCATED: // Successful, but one or mode fields were truncated
-            m_state.eof = false;
+            state().eof = false;
             break;
 
         case MYSQL_NO_DATA: // All data fetched
-            m_state.eof = true;
+            state().eof = true;
             break;
 
         default: // Error during fetch, retrieving error
@@ -607,10 +607,10 @@ void MySQLStatement::fetch()
     } else {
         m_row = mysql_fetch_row(m_result);
         if (m_row == nullptr) {
-            int err = mysql_errno(m_connection->m_connection);
+            int err = mysql_errno(connection()->m_connection);
             if (err != 0)
                 throwMySQLError;
-            m_state.eof = true;
+            state().eof = true;
         }
     }
 }

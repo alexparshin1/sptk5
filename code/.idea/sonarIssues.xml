@@ -28,6 +28,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/AcceptHost.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/CMakeLists.txt">
           <value>
             <set />
@@ -44,6 +49,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/ControlService.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/ControlService.h">
           <value>
             <set />
           </value>
@@ -104,6 +114,26 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestState.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Service/CDataPortalServiceBase.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Service/CGetTaskList.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Service/CGetTaskListResponse.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Service/CTaskStatesType.h">
           <value>
             <set />
           </value>
@@ -613,7 +643,27 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/OracleConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/OracleStatement.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/PoolDatabaseConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/db/Query.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/SQLite3Connection.h">
           <value>
             <set />
           </value>
@@ -624,6 +674,16 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/gui/CButtonGroup.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/gui/CCalendar.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/gui/CCheckButtons.h">
           <value>
             <set />
           </value>
@@ -663,7 +723,17 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/gui/CGroup.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/gui/CIcon.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/gui/CLayoutClient.h">
           <value>
             <set />
           </value>
@@ -689,6 +759,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/gui/CRect.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/gui/CScroll.h">
           <value>
             <set />
           </value>
@@ -719,6 +794,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/gui/CTreeControl.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/gui/CWindow.h">
           <value>
             <set />
           </value>
@@ -764,6 +844,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/net/TCPServerConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/net/TCPServerListener.h">
           <value>
             <set />
           </value>
@@ -858,7 +943,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/Oracle/OracleBulkInsertQuery.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/drivers/Oracle/OracleConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/Oracle/OracleEnvironment.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/Oracle/OracleStatement.cpp">
           <value>
             <set />
           </value>

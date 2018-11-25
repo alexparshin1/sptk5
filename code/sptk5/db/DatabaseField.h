@@ -52,8 +52,6 @@ class SP_EXPORT DatabaseField : public Field
 {
     friend class Query;
 
-protected:
-
     /**
      * Native database data type
      */
@@ -74,6 +72,14 @@ protected:
      */
     int     m_fldScale;
 
+protected:
+
+    void setFieldType(int fieldType, int fieldLength, int fieldScale)
+    {
+        m_fldType = fieldType;
+        m_fldSize = fieldLength;
+        m_fldScale = fieldScale;
+    }
 
 public:
 

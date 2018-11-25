@@ -37,6 +37,7 @@
 
 #include <sptk5/db/DatabaseStatement.h>
 #include <sptk5/FieldList.h>
+#include "DatabaseField.h"
 
 namespace sptk
 {
@@ -147,9 +148,8 @@ public:
      */
     void fetch()
     {
-        if (m_resultSet) {
-            m_state.eof = (m_resultSet->next() == ResultSet::END_OF_FETCH);
-        }
+        if (m_resultSet)
+            state().eof = (m_resultSet->next() == ResultSet::END_OF_FETCH);
     }
 
     /**
@@ -161,6 +161,89 @@ public:
     }
 
     void getOutputParameters(FieldList& fields);
+
+private:
+
+    /**
+     * Read BLOB field
+     * @param index             Column number
+     * @param field             Field
+     */
+    void getBLOBOutputParameter(unsigned int index, DatabaseField* field);
+
+    /**
+     * Read CLOB field
+     * @param index             Column number
+     * @param field             Field
+     */
+    void getCLOBOutputParameter(unsigned int index, sptk::DatabaseField* field);
+
+    /**
+     * Set CLOB parameter value
+     * @param parameterIndex    Parameter number
+     * @param parameter         Query parameter
+     */
+    void setCLOBParameterValue(unsigned int parameterIndex, const QueryParameter& parameter);
+
+    /**
+     * Set BLOB parameter value
+     * @param parameterIndex    Parameter number
+     * @param parameter         Query parameter
+     */
+    void setBLOBParameterValue(unsigned int parameterIndex, const QueryParameter& parameter);
+
+    /**
+     * Set Date parameter value
+     * @param parameterIndex    Parameter number
+     * @param parameter         Query parameter
+     */
+    void setDateParameterValue(unsigned int parameterIndex, const QueryParameter& parameter);
+
+    /**
+     * Set DateTime parameter value
+     * @param parameterIndex    Parameter number
+     * @param parameter         Query parameter
+     */
+    void setDateTimeParameterValue(unsigned int parameterIndex, const QueryParameter& parameter);
+
+    /**
+     * Set int64 parameter value
+     * @param parameterIndex    Parameter number
+     * @param parameter         Query parameter
+     */
+    void setInt64ParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
+
+    /**
+     * Set bool parameter value
+     * @param parameterIndex    Parameter number
+     * @param parameter         Query parameter
+     */
+    void setBooleanParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
+
+    /**
+     * Set string parameter value
+     * @param parameterIndex    Parameter number
+     * @param parameter         Query parameter
+     */
+    void setStringParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
+
+    /**
+     * Set float parameter value
+     * @param parameterIndex    Parameter number
+     * @param parameter         Query parameter
+     */
+    void setFloatParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
+
+    /**
+     * Set int parameter value
+     * @param parameterIndex    Parameter number
+     * @param parameter         Query parameter
+     */
+    void setIntParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
+
+    void getDateOutputParameter(unsigned int index, DatabaseField* field);
+
+    void getDateTimeOutputParameter(unsigned int index, DatabaseField* field);
 };
 
 }

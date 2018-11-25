@@ -46,16 +46,8 @@ FirebirdConnection::~FirebirdConnection()
     try {
         if (m_inTransaction && active())
             rollbackTransaction();
+        disconnectAllQueries();
         close();
-        while (!m_queryList.empty()) {
-            try {
-                auto* query = (Query *) m_queryList[0];
-                query->disconnect();
-            } catch (const Exception& e) {
-                CERR(e.what() << endl);
-            }
-        }
-        m_queryList.clear();
     } catch (const Exception& e) {
         CERR(e.what() << endl);
     }
@@ -83,7 +75,7 @@ void FirebirdConnection::_openDatabase(const String& newConnectionString)
     if (!active()) {
         m_inTransaction = false;
         if (newConnectionString.length())
-            m_connString = DatabaseConnectionString(newConnectionString);
+            connectionString(DatabaseConnectionString(newConnectionString));
 
         char dpb_buffer[256], *dpb;
         short dpb_length;
@@ -97,16 +89,18 @@ void FirebirdConnection::_openDatabase(const String& newConnectionString)
 
         dpb = dpb_buffer;
 
-        const string& username = m_connString.userName();
+        const DatabaseConnectionString& connString = connectionString();
+
+        const string& username = connString.userName();
         if (!username.empty())
             isc_modify_dpb(&dpb, &dpb_length, isc_dpb_user_name, username.c_str(), (short) username.length());
 
-        const string& password = m_connString.password();
+        const string& password = connString.password();
         if (!password.empty())
             isc_modify_dpb(&dpb, &dpb_length, isc_dpb_password, password.c_str(), (short) password.length());
 
         m_connection = 0;
-        string fullDatabaseName = m_connString.hostName() + ":/" + m_connString.databaseName();
+        string fullDatabaseName = connString.hostName() + ":/" + connString.databaseName();
         isc_attach_database(status_vector, (short) fullDatabaseName.length(), fullDatabaseName.c_str(), &m_connection, dpb_length, dpb);
         checkStatus(status_vector, __FILE__, __LINE__);
     }
@@ -119,13 +113,7 @@ void FirebirdConnection::closeDatabase()
     if (m_transaction)
         driverEndTransaction(false);
 
-    for (auto* query: m_queryList) {
-        try {
-            queryFreeStmt(query);
-        } catch (const Exception& e) {
-            CERR(e.what() << endl);
-        }
-    }
+    disconnectAllQueries();
 
     if (m_connection) {
         isc_detach_database(status_vector, &m_connection);
@@ -152,11 +140,12 @@ String FirebirdConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
     stringstream connectionString;
-    connectionString << m_connString.hostName();
-    if (m_connString.portNumber())
-        connectionString << ":" << int2string(m_connString.portNumber());
-    if (!m_connString.databaseName().empty())
-        connectionString << "/" << m_connString.databaseName();
+    const DatabaseConnectionString& connString = PoolDatabaseConnection::connectionString();
+    connectionString << connString.hostName();
+    if (connString.portNumber())
+        connectionString << ":" << int2string(connString.portNumber());
+    if (!connString.databaseName().empty())
+        connectionString << "/" << connString.databaseName();
     return connectionString.str();
 }
 

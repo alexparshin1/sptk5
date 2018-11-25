@@ -47,13 +47,6 @@ public:
     : DatabaseField(fieldName, fieldColumn, 0, VAR_NONE, 0, 0)
     {
     }
-
-    void setFieldType(int fieldType, int fieldLength, int fieldScale)
-    {
-        m_fldType = fieldType;
-        m_fldSize = fieldLength;
-        m_fldScale = fieldScale;
-    }
 };
 
 } // namespace sptk
@@ -77,23 +70,7 @@ SQLite3Connection::~SQLite3Connection()
     try {
         if (m_inTransaction && SQLite3Connection::active())
             rollbackTransaction();
-
         close();
-
-        while (!m_queryList.empty())
-            disconnectQuery();
-        m_queryList.clear();
-
-    } catch (const Exception& e) {
-        CERR(e.what() << endl);
-    }
-}
-
-void SQLite3Connection::disconnectQuery() const
-{
-    try {
-        auto* query = (Query *) m_queryList[0];
-        query->disconnect();
     } catch (const Exception& e) {
         CERR(e.what() << endl);
     }
@@ -101,7 +78,7 @@ void SQLite3Connection::disconnectQuery() const
 
 String SQLite3Connection::nativeConnectionString() const
 {
-    return m_connString.databaseName();
+    return connectionString().databaseName();
 }
 
 void SQLite3Connection::_openDatabase(const String& newConnectionString)
@@ -110,7 +87,7 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
         m_inTransaction = false;
 
         if (!newConnectionString.empty())
-            m_connString = DatabaseConnectionString(newConnectionString);
+            connectionString(DatabaseConnectionString(newConnectionString));
 
         if (sqlite3_open(nativeConnectionString().c_str(), &m_connect) != 0) {
             string error = sqlite3_errmsg(m_connect);
@@ -123,14 +100,7 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
 
 void SQLite3Connection::closeDatabase()
 {
-    for (auto* query: m_queryList) {
-        try {
-            queryFreeStmt(query);
-        } catch (const Exception& e) {
-            CERR(e.what() << endl);
-        }
-    }
-
+    disconnectAllQueries();
     sqlite3_close(m_connect);
     m_connect = nullptr;
 }
