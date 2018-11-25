@@ -142,7 +142,7 @@ void TCPServer::terminate()
 class EchoConnection : public TCPServerConnection
 {
 public:
-    EchoConnection(SOCKET connectionSocket, sockaddr_in* addr)
+    EchoConnection(SOCKET connectionSocket, sockaddr_in*)
     : TCPServerConnection(connectionSocket)
     {
     }

@@ -142,6 +142,12 @@ public:
      * Returns number of bytes available to read
      */
     size_t availableBytes() const;
+
+    /**
+     * Read more (as much as we can) from socket into buffer
+     * @param availableBytes    Number of bytes already available in buffer
+     */
+    void readMoreFromSocket(int availableBytes);
 };
 
 /**

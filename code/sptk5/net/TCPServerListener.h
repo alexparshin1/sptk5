@@ -65,6 +65,8 @@ class TCPServerListener: public Thread, public std::mutex
      */
     String          m_error;
 
+    void acceptConnection();
+
 public:
     /**
      * @brief Constructor

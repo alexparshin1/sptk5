@@ -98,6 +98,18 @@ int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
     return bytes();
 }
 
+void TCPSocketReader::readMoreFromSocket(int availableBytes)
+{
+    if (m_readOffset != 0) {
+        memmove(data(), data() + m_readOffset, (size_t) availableBytes);
+        m_readOffset = 0;
+        bytes((size_t) availableBytes);
+    } else
+        checkSize(capacity() + 128);
+    size_t receivedBytes = m_socket.recv(data() + availableBytes, capacity() - availableBytes);
+    bytes(bytes() + receivedBytes);
+}
+
 int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimiter, bool read_line, sockaddr_in* from)
 {
     auto availableBytes = int(bytes() - m_readOffset);
@@ -124,15 +136,7 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
             if (cr != nullptr)
                 len = cr - readPosition + 1;
             else {
-                if (m_readOffset != 0) {
-                    memmove(data(), data() + m_readOffset, (size_t) availableBytes);
-                    m_readOffset = 0;
-                    bytes((size_t) availableBytes);
-                } else {
-                    checkSize(capacity() + 128);
-                }
-                size_t receivedBytes = m_socket.recv(data() + availableBytes, capacity() - availableBytes);
-                bytes(bytes() + receivedBytes);
+                readMoreFromSocket(availableBytes);
                 return 0;
             }
         }

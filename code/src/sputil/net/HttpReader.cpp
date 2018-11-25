@@ -125,9 +125,8 @@ bool HttpReader::readData(TCPSocket& socket)
             bytesToRead = m_contentLength - m_contentReceivedLength;
             if (bytesToRead == 0)
                 return true;
-        } else {
+        } else
             bytesToRead = socket.socketBytes();
-        }
 
         if (!m_contentIsChunked) {
             if (readBytes > (int) bytesToRead) // 0 bytes case is a workaround for OpenSSL

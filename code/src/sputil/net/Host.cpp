@@ -165,11 +165,9 @@ void Host::getHostAddress()
             throw Exception(gai_strerror(rc));
     }
 
-    {
-        UniqueLock(m_mutex);
-        memset(&m_address, 0, sizeof(m_address));
-        memcpy(&m_address, (struct sockaddr_in*) result->ai_addr, result->ai_addrlen);
-    }
+    UniqueLock(m_mutex);
+    memset(&m_address, 0, sizeof(m_address));
+    memcpy(&m_address, (struct sockaddr_in*) result->ai_addr, result->ai_addrlen);
 
     freeaddrinfo(result);
 #endif
