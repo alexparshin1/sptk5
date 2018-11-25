@@ -161,7 +161,7 @@ protected:
     /**
      * Internal handle() function for the FLTK widgets
      */
-    int  handle(int);
+    int handle(int) override;
 
 public:
     /**
@@ -184,7 +184,7 @@ public:
      * @param w int, widget width
      * @param h int, widget height
      */
-    void resize(int x,int y,int w,int h);
+    void resize(int x,int y,int w,int h) override;
 
     /**
      * @brief Function that is used to report that calendar is clicked on and should be hidden.

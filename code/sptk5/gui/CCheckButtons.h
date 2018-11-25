@@ -71,7 +71,7 @@ public:
      * @param event int, FLTK event type
      * @return true if the event was processed
      */
-    int handle(int event);
+    int handle(int event) override;
 
     /**
      * Reports the preferred size of the widget based on offered size.
@@ -79,7 +79,7 @@ public:
      * @param h int, input/output desirable widget heigth
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w,int& h);
+    bool preferredSize(int& w,int& h) override;
 };
 
 /**

@@ -141,7 +141,7 @@ protected:
      * @param iconSize CIconSize, the size of the icon
      * @param label const char*, optional label
      */
-    void image(CButtonKind buttonKind, CIconSize iconSize, const char* label = "");
+    void image(CButtonKind buttonKind, CIconSize iconSize, String label = "");
 
     /**
      * @brief Draws the button
@@ -165,7 +165,7 @@ protected:
      * @param h int&, button height
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w, int& h);
+    bool preferredSize(int& w, int& h) override;
 
     /**
      * @brief Constructor in SPTK style
@@ -225,7 +225,7 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const
+    String className() const override
     {
         return "button";
     }
@@ -253,16 +253,19 @@ public:
      * @brief Returns button label
      * @returns button label
      */
-    virtual const char* label() const
+    const String& label() const override
     {
-        return m_label.c_str();
+        return m_label;
     }
 
     /**
      * @brief Sets button label
      * @param lbl const char *, new button label
      */
-    virtual void label(const char* lbl);
+    void label(const String& lbl) override
+    {
+        m_label = lbl;
+    }
 };
 
 /**

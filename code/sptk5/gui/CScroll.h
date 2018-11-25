@@ -205,7 +205,7 @@ public:
     /**
      * @brief Returns the current label
      */
-    std::string label() const
+    const String& label() const override
     {
         return m_label;
     }
@@ -213,18 +213,9 @@ public:
     /**
      * @brief Sets the new label
      *
-     * @param lbl const char*, new label
+     * @param lbl               New label
      */
-    void label(const char* lbl)
-    {
-        CLayoutClient::label(lbl);
-    }
-
-    /**
-     * Sets label for the group, makes an internal copy of the string
-     * @param lbl const string&, new label
-     */
-    void label(const std::string& lbl)
+    void label(const String& lbl) override
     {
         CLayoutClient::label(lbl);
     }

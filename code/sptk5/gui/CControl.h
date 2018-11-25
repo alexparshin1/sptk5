@@ -473,7 +473,7 @@ public:
     /**
      * @brief Returns control's label
      */
-    const String& label() const
+    const String& label() const override
     {
         return m_label;
     }
@@ -481,7 +481,7 @@ public:
     /**
      * @brief Sets control's label
      */
-    void label(const String&);
+    void label(const String&) override;
 
     /**
      * @brief Returns control's menu

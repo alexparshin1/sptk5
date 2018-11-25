@@ -214,12 +214,12 @@ public:
      * @brief Sets the item's caption
      * @param lbl               The new item caption
      */
-    void label(const char* lbl) override;
+    void label(const String& lbl) override;
 
     /**
      * @brief Returns the item's caption
      */
-    String label() const override
+    const String& label() const override
     {
         return m_body->label();
     }

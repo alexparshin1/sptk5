@@ -137,9 +137,9 @@ void CTreeItem::resize(int xx, int yy, int ww, int hh)
     Fl_Widget::resize(xx, yy, ww, hh);
 }
 
-void CTreeItem::label(const char* lbl)
+void CTreeItem::label(const String& lbl)
 {
-    auto* abox = dynamic_cast<CBox*> (m_body);
+    auto* abox = dynamic_cast<CBox*>(m_body);
 
     if (abox) {
         abox->data(lbl);

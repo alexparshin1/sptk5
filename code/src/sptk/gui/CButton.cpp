@@ -39,7 +39,7 @@
 using namespace sptk;
 using namespace std;
 
-void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, const char* label)
+void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, String label)
 {
     const char* name;
     const char* l;
@@ -183,7 +183,7 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, const char* 
             break;
         }
     }
-    if (!label)
+    if (label.empty())
         label = l;
     m_image = nullptr;
     if (name)
@@ -192,12 +192,6 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, const char* 
         this->label(label);
     m_kind = buttonKind;
     m_iconSize = iconSize;
-}
-
-void CBaseButton::label(const char* lbl)
-{
-    m_label = lbl;
-    Fl_Button::label(m_label.c_str());
 }
 
 #ifdef __COMPATIBILITY_MODE__
@@ -319,7 +313,7 @@ void CBaseButton::draw()
         int hh = H - 6;
         int tx = xx + m_image->w() + 2;
         int tw = ww - (tx - xx) - 2;
-        if (!label()) { // center image
+        if (label().empty()) { // center image
             xx = x() + (w() - m_image->w() - 1) / 2 + pressedOffset;
             m_image->draw(xx, yy, m_image->w(), m_image->h(), 0, 0);
         } else {
@@ -329,9 +323,9 @@ void CBaseButton::draw()
         fl_font(FL_HELVETICA, FL_NORMAL_SIZE);
         int wt = tw;
         int ht = 0;
-        fl_measure(label(), wt, ht);
+        fl_measure(label().c_str(), wt, ht);
         int ty = Y + H / 2 - ht / 2;
-        fl_draw(label(), tx, ty, wt, ht, Fl_Align(FL_ALIGN_LEFT | FL_ALIGN_TOP));
+        fl_draw(label().c_str(), tx, ty, wt, ht, Fl_Align(FL_ALIGN_LEFT | FL_ALIGN_TOP));
         if (Fl::focus() == this)
             drawFocus(usingTheme);
     }
@@ -385,7 +379,7 @@ bool CBaseButton::preferredSize(int& w, int& h)
     fl_font(labelfont(), labelsize());
     int lw = 0;
     int lh = 0;
-    fl_measure(label(), lw, lh);
+    fl_measure(label().c_str(), lw, lh);
     if (lh + 8 > h) h = lh + 8;
     if (lw) lw += 8;
     int ww = lw + 6 + br;

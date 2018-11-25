@@ -128,7 +128,7 @@ protected:
     /**
      * @brief Saves data to the Query
      */
-    void save(Query *);
+    void save(Query *) override;
 
     /**
      * @brief Loads control data from XML
@@ -138,7 +138,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void load(const xml::Node* node, CLayoutXMLmode xmlMode);
+    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Saves control data to XML
@@ -148,12 +148,12 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void save(xml::Node* node, CLayoutXMLmode xmlMode) const;
+    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * Returns true, if the data is valid.
      */
-    bool valid() const
+    bool valid() const override
     {
         return true;
     }
@@ -280,17 +280,17 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    virtual void resize(int x, int y, int w, int h);
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * Universal data connection. Operates with selected list view item's ID.
      */
-    virtual Variant data() const;
+    Variant data() const override;
 
     /**
      * Universal data connection. Operates with selected list view item's ID.
      */
-    virtual void data(const Variant v);
+    void data(const Variant v) override;
 
     /**
      * Sets data mode for the data() methods.
@@ -392,7 +392,7 @@ public:
 
     /**
      * Returns the SQL query parameter reference for the parameter name. It is
-     * typical to call: myCombo.param("customer_id") = 1234;
+     * typical to call: myCombo.param("customer_id") = 1234
      * @param paramName const char *, parameter name.
      * @returns the parameter reference, if found, or throws an excception.
      */
@@ -446,7 +446,7 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w, int& h);
+    bool preferredSize(int& w, int& h) override;
 };
 
 /**
