@@ -61,8 +61,8 @@ public:
 extern Printer __stdout;
 extern Printer __stderr;
 
-#define COUT(a) { std::stringstream _printstream; _printstream << a; __stdout.print(_printstream.str().c_str()); }
-#define CERR(a) { std::stringstream _printstream; _printstream << a; __stderr.print(_printstream.str().c_str()); }
+#define COUT(a) { std::stringstream _printstream; _printstream << a; sptk::__stdout.print(_printstream.str().c_str()); }
+#define CERR(a) { std::stringstream _printstream; _printstream << a; sptk::__stderr.print(_printstream.str().c_str()); }
 
 }
 
