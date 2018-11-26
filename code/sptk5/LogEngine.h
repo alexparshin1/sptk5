@@ -55,14 +55,16 @@ class SP_EXPORT LogEngine : public Thread
 {
     friend class Logger;
 
-public:
-    void threadFunction() override;
-
-protected:
     /**
      * Mutex that protects internal data access
      */
     mutable SharedMutex                 m_mutex;
+
+public:
+
+    void threadFunction() override;
+
+protected:
 
     /**
      * The default priority for the new message

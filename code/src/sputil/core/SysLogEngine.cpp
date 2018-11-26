@@ -78,7 +78,7 @@ void SysLogEngine::saveMessage(const Logger::Message* message)
 
     if (options & LO_ENABLE) {
 #ifndef _WIN32
-        UniqueLock(m_mutex);
+        UniqueLock(syslogMutex);
         if (!m_logOpened)
             openlog(programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
         syslog(int(facilities | message->priority), "[%s] %s", priorityName(message->priority).c_str(), message->message.c_str());
