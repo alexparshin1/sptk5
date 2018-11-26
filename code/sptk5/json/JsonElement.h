@@ -677,12 +677,12 @@ public:
     /**
      * Conversion to integer
      */
-    operator int () const { return (int) getNumber(); }
+    explicit operator int () const { return (int) getNumber(); }
 
     /**
      * Conversion to double
      */
-    operator double () const { return getNumber(); }
+    explicit operator double () const { return getNumber(); }
 
     /**
      * Element type check
@@ -693,7 +693,7 @@ public:
     /**
      * Conversion to double
      */
-    operator String () const { return getString(); }
+    explicit operator String () const { return getString(); }
 
     /**
      * Element type check

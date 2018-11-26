@@ -478,11 +478,11 @@ TEST(SPTK_JWT, dup)
     JWT jwt;
 
     jwt["iss"] = "test";
-    String val = jwt["iss"];
+    String val = (String) jwt["iss"];
     EXPECT_FALSE(val.empty()) << "Can't get grant for first JWT";
 
     JWT newJWT(jwt);
-    val = newJWT["iss"];
+    val = (String) newJWT["iss"];
     EXPECT_FALSE(val.empty()) << "Can't get grant for second JWT";
 
     EXPECT_STREQ("test", val.c_str()) << "Got incorrect grant";
@@ -491,7 +491,7 @@ TEST(SPTK_JWT, dup)
     now = time(nullptr);
     jwt["iat"] = (int) now;
 
-    valint = jwt["iat"];
+    valint = (int) jwt["iat"];
     EXPECT_EQ((long)now, valint) << "Failed jwt_get_grant_int()";
 }
 
@@ -504,7 +504,7 @@ TEST(SPTK_JWT, dup_signed)
     jwt.set_alg(JWT::JWT_ALG_HS256, key256);
 
     JWT newJWT(jwt);
-    String val = newJWT["iss"];
+    String val = (String) newJWT["iss"];
     EXPECT_STREQ("test", val.c_str()) << "Failed jwt_get_grant_int()";
     EXPECT_EQ(JWT::JWT_ALG_HS256, jwt.get_alg()) << "Failed jwt_get_alg()";
 }

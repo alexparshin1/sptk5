@@ -49,8 +49,6 @@ class ObjectData
 {
     friend class Element;
 
-    Document*                                   m_document;
-
 public:
     /**
      * Type definition: map of element names to elements
@@ -67,7 +65,9 @@ public:
      */
     typedef Map::const_iterator                 const_iterator;
 
-protected:
+private:
+
+    Document*                                   m_document;
 
     /**
      * Parent JSON element
@@ -78,6 +78,8 @@ protected:
      * Child JSON elements
      */
     Map                                         m_items;
+
+protected:
 
     /**
      * Set parent JSON element

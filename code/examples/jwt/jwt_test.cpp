@@ -48,12 +48,12 @@ bool test_dup()
     JWT jwt;
 
     jwt["iss"] = "test";
-    String val = jwt["iss"];
+    String val = (String) jwt["iss"];
     if (val.empty())
         throw Exception("Can't get grant");
 
     JWT newJWT(jwt);
-    val = newJWT["iss"];
+    val = (String) newJWT["iss"];
     if (val.empty())
         throw Exception("Can't get grant");
 
@@ -66,7 +66,7 @@ bool test_dup()
     now = time(nullptr);
     jwt["iat"] = (int) now;
 
-    valint = jwt["iat"];
+    valint = (int) jwt["iat"];
     if (((long)now) != valint)
         throw Exception("Failed jwt_get_grant_int()");
 
@@ -83,7 +83,7 @@ bool test_dup_signed()
     jwt.set_alg(JWT::JWT_ALG_HS256, key256);
 
     JWT newJWT(jwt);
-    String val = newJWT["iss"];
+    String val = (String) newJWT["iss"];
     if (val != "test")
         throw Exception("Failed jwt_get_grant_int()");
 
