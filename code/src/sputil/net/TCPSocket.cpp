@@ -88,7 +88,7 @@ int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
                 if (!m_socket.readyToRead(chrono::seconds(1)))
                     throw TimeoutException("Can't read from socket: timeout");
             } else
-                THROW_SOCKET_ERROR("Can't read from socket");
+                throw SystemException("Can't read from socket");
         }
         bytes((size_t)receivedBytes);
     } while (error == EAGAIN);

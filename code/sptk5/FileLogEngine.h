@@ -49,14 +49,19 @@ namespace sptk {
 class SP_EXPORT FileLogEngine: public sptk::LogEngine
 {
     /**
+     * Mutex that protects internal data
+     */
+    mutable SharedMutex m_mutex;
+
+    /**
      * Log file stream
      */
-    std::ofstream   m_fileStream;
+    std::ofstream       m_fileStream;
 
     /**
      * Log file name
      */
-    String          m_fileName;
+    String              m_fileName;
 
 
 public:
