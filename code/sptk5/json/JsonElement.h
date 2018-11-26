@@ -71,7 +71,7 @@ class Element
     friend class Parser;
     friend class ArrayData;
     friend class ObjectData;
-protected:
+
     /**
      * Parent JSON document
      */
@@ -97,6 +97,8 @@ protected:
         ArrayData*          m_array;
         ObjectData*         m_object;
     } m_data;
+
+protected:
 
     /**
      * XPath element

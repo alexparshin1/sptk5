@@ -167,13 +167,7 @@ int main(int argc, char **argv)
             return -1;
 
         Buffer buffer;
-        try {
-            buffer.loadFromFile(fileName.c_str());
-        }
-        catch (const Exception& e) {
-            CERR(e.what() << endl);
-            return 1;
-        }
+        buffer.loadFromFile(fileName.c_str());
 
         auto* window = new CWindow(700, 200, 300, 300);
         window->resizable(window);
@@ -209,6 +203,7 @@ int main(int argc, char **argv)
     }
     catch (const Exception& e) {
         CERR(e.what() << endl);
+        return 1;
     }
     return 0;
 }

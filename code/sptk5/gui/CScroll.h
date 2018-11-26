@@ -203,24 +203,6 @@ public:
     int handle(int) override;
 
     /**
-     * @brief Returns the current label
-     */
-    const String& label() const override
-    {
-        return m_label;
-    }
-
-    /**
-     * @brief Sets the new label
-     *
-     * @param lbl               New label
-     */
-    void label(const String& lbl) override
-    {
-        CLayoutClient::label(lbl);
-    }
-
-    /**
      * @brief Creates a widget based on the XML node information
      * @param node xml::Node*, an XML node with widget information
      */

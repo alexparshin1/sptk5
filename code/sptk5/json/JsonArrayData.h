@@ -63,8 +63,6 @@ public:
      */
     typedef Vector::const_iterator  const_iterator;
 
-protected:
-
     /**
      * Document this object belongs to
      */
@@ -79,6 +77,8 @@ protected:
      * Array of elements
      */
     Vector                  m_items;
+
+protected:
 
     /**
      * Set parent JSON element for this array
