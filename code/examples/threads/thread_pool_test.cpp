@@ -54,13 +54,13 @@ public:
     }
 };
 
-uint32_t CMyTask::taskCount;
+uint32_t CMyTask::taskCount {1};
 
 CMyTask::CMyTask(SysLogEngine& sharedLog)
-        :
-        m_name("Task " + int2string(++taskCount)),
-        m_log(sharedLog)
+: m_name("Task " + int2string(taskCount)),
+  m_log(sharedLog)
 {
+    taskCount++;
 }
 
 // The task function. Prints a message once a second till terminated

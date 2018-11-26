@@ -93,7 +93,6 @@ String HttpParams::decodeString(const String& str)
             src++;
             break;
         }
-        dest++;
     }
     return String(buffer.c_str(), buffer.length());
 }

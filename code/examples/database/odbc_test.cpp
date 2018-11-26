@@ -112,6 +112,20 @@ int testTransactions(DatabaseConnection db, const string& tableName, bool rollba
     return true;
 }
 
+void createTestTable(DatabaseConnection db, String tableName)
+{
+    Query query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(20) NULL, position CHAR(20) NULL)");
+    COUT("Ok.\nStep 1: Creating the test table.. ");
+    try {
+        query.exec();
+    }
+    catch (const Exception& e) {
+        if (strstr(e.what(), " already ") == nullptr)
+            throw;
+        COUT("Table already exists, ");
+    }
+}
+
 int main(int argc, const char* argv[])
 {
     String connectString;
@@ -148,29 +162,18 @@ int main(int argc, const char* argv[])
             COUT("-------------------------------------------------" << endl);
             COUT("First 10 " << objectTypeNames[i] << " in the database:" << endl);
             Strings objectList;
-            try {
-                db->objectList(objectTypes[i], objectList);
-            } catch (const Exception& e) {
-                COUT(e.what() << endl);
-            }
-            for (unsigned j = 0; j < objectList.size() && j < 10; j++) COUT("  " << objectList[j] << endl);
+            db->objectList(objectTypes[i], objectList);
+            for (unsigned j = 0; j < objectList.size() && j < 10; j++)
+                COUT("  " << objectList[j] << endl);
         }
         COUT("-------------------------------------------------" << endl);
 
         // Defining the queries
-        Query step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(20) NULL, position CHAR(20) NULL)");
         Query step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id, :person_name, :position_name)");
         Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id");
         Query step4Query(db, "DROP TABLE " + tableName);
 
-        COUT("Ok.\nStep 1: Creating the test table.. ");
-        try {
-            step1Query.exec();
-        } catch (const Exception& e) {
-            if (strstr(e.what(), " already ") == nullptr)
-                throw;
-            COUT("Table already exists, ");
-        }
+        createTestTable(db, tableName);
 
         COUT("Ok.\nStep 2: Inserting data into the test table.. ");
 
