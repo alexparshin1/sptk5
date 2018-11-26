@@ -69,19 +69,6 @@ Buffer::Buffer(const char* str)
     m_buffer[sz] = 0;
 }
 
-Buffer::Buffer(const string& str)
-: m_storage(str.length() + 1)
-{
-    m_buffer = &*m_storage.begin();
-    auto sz = str.length();
-
-    if (!str.empty()) {
-        memcpy(m_buffer, str.c_str(), sz);
-        m_bytes = sz;
-    }
-    m_buffer[sz] = 0;
-}
-
 Buffer::Buffer(const String& str)
 : m_storage(str.length() + 1)
 {
@@ -127,20 +114,6 @@ void Buffer::append(char ch)
     checkSize(m_bytes + 1);
     m_buffer[m_bytes] = ch;
     m_bytes++;
-}
-
-void Buffer::append(uint8_t val)
-{
-    checkSize(m_bytes + 1);
-    m_buffer[m_bytes] = val;
-    m_bytes++;
-}
-
-void Buffer::append(uint16_t val)
-{
-    checkSize(m_bytes + 2);
-    *(uint16_t*)(m_buffer + m_bytes) = val;
-    m_bytes += 2;
 }
 
 void Buffer::append(const char* data, size_t sz)
@@ -225,7 +198,7 @@ Buffer& Buffer::operator = (const Buffer& other)
     return *this;
 }
 
-Buffer& Buffer::operator = (const std::string& str)
+Buffer& Buffer::operator = (const String& str)
 {
     auto sz = (size_t) str.length();
     checkSize(sz);

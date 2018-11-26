@@ -36,18 +36,21 @@ using namespace sptk;
 // access to the field by name
 const Field& MemoryDS::operator[](const char* field_name) const
 {
+    SharedLock(m_mutex);
     checkDSopen(m_current);
     return (*m_current)[field_name];
 }
 
 Field& MemoryDS::operator[](const char* field_name)
 {
+    UniqueLock(m_mutex);
     checkDSopen(m_current);
     return (*m_current)[field_name];
 }
 
 uint32_t MemoryDS::recordCount() const
 {
+    SharedLock(m_mutex);
     checkDSopen(m_current);
     return (uint32_t) m_list.size();
 }
@@ -56,20 +59,25 @@ uint32_t MemoryDS::recordCount() const
 
 uint32_t MemoryDS::fieldCount() const
 {
-    if (m_current == nullptr) return 0;
+    SharedLock(m_mutex);
     checkDSopen(m_current);
+    if (m_current == nullptr) {
+        return 0;
+    }
     return m_current->size();
 }
 
 // access to the field by number, 0..field.size()-1
 const Field& MemoryDS::operator[](uint32_t index) const
 {
+    SharedLock(m_mutex);
     checkDSopen(m_current);
     return (*m_current)[index];
 }
 
 Field& MemoryDS::operator[](uint32_t index)
 {
+    UniqueLock(m_mutex);
     checkDSopen(m_current);
     return (*m_current)[index];
 }
@@ -77,6 +85,7 @@ Field& MemoryDS::operator[](uint32_t index)
 // read this field data into external value
 bool MemoryDS::readField(const char* fname, Variant& fvalue)
 {
+    SharedLock(m_mutex);
     try {
         fvalue = *(Variant*) &(*this)[fname];
     } catch (Exception&) {
@@ -88,6 +97,7 @@ bool MemoryDS::readField(const char* fname, Variant& fvalue)
 // write this field data from external value
 bool MemoryDS::writeField(const char* fname, const Variant& fvalue)
 {
+    UniqueLock(m_mutex);
     try {
         (*this)[fname] = fvalue;
     } catch (Exception&) {
@@ -104,6 +114,8 @@ bool MemoryDS::close()
 
 bool MemoryDS::first()
 {
+    UniqueLock(m_mutex);
+
     if (!m_list.empty()) {
         m_currentIndex = 0;
         m_current = (FieldList*) m_list[m_currentIndex];
@@ -116,6 +128,8 @@ bool MemoryDS::first()
 
 bool MemoryDS::last()
 {
+    UniqueLock(m_mutex);
+
     auto cnt = (uint32_t) m_list.size();
     if (cnt != 0) {
         m_currentIndex = cnt - 1;
@@ -129,6 +143,8 @@ bool MemoryDS::last()
 
 bool MemoryDS::next()
 {
+    UniqueLock(m_mutex);
+
     auto cnt = (uint32_t) m_list.size();
     if (m_currentIndex + 1 < cnt) {
         m_currentIndex++;
@@ -142,6 +158,8 @@ bool MemoryDS::next()
 
 bool MemoryDS::prior()
 {
+    UniqueLock(m_mutex);
+
     if (m_currentIndex > 0) {
         m_currentIndex--;
         m_current = (FieldList*) m_list[m_currentIndex];
@@ -154,6 +172,8 @@ bool MemoryDS::prior()
 
 bool MemoryDS::find(Variant position)
 {
+    SharedLock(m_mutex);
+
     auto cnt = (uint32_t) m_list.size();
     String name;
     uint32_t i;
@@ -184,6 +204,8 @@ bool MemoryDS::find(Variant position)
 
 void MemoryDS::clear()
 {
+    UniqueLock(m_mutex);
+
     auto cnt = (uint32_t) m_list.size();
     for (uint32_t i = 0; i < cnt; i++)
         delete (FieldList*) m_list[i];
@@ -191,4 +213,17 @@ void MemoryDS::clear()
     m_current = nullptr;
     m_currentIndex = 0;
     m_eof = true;
+}
+
+void MemoryDS::push_back(FieldList* fieldList)
+{
+    UniqueLock(m_mutex);
+    m_list.push_back(fieldList);
+    m_eof = false;
+}
+
+bool MemoryDS::empty() const
+{
+    SharedLock(m_mutex);
+    return m_list.empty();
 }

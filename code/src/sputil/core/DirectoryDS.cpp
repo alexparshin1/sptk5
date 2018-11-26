@@ -219,7 +219,7 @@ bool DirectoryDS::open()
     Strings             fileNames = getFileNames();
     unsigned            index = 0;
 
-    m_list.clear();
+    clear();
     for (auto& fileName: fileNames) {
 
         if (fileName.endsWith("\\") || fileName.endsWith("/"))
@@ -256,19 +256,19 @@ bool DirectoryDS::open()
         FieldList* df = makeFileListEntry(st, index, fileName, fullName, is_link);
 
         if (is_dir)
-            m_list.push_back(df);
+            push_back(df);
         else
             fileList.push_back(df);
 
     }
 
     for (auto* df: fileList)
-        m_list.push_back(df);
+        push_back(df);
     fileList.clear();
 
     first();
 
-    return !m_list.empty();
+    return !empty();
 }
 
 FieldList* DirectoryDS::makeFileListEntry(const struct stat& st, unsigned& index, const String& fileName,

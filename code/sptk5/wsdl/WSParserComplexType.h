@@ -206,7 +206,6 @@ public:
      */
     static String wsClassName(const String&);
 
-public:
     /**
      * Constructor
      * @param complexTypeElement WSDL complexType element

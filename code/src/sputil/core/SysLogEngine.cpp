@@ -135,7 +135,7 @@ void SysLogEngine::saveMessage(const Logger::Message* message)
 void SysLogEngine::getOptions(uint32_t& options, string& programName, uint32_t& facilities) const
 {
     SharedLock(syslogMutex);
-    options = (uint32_t) m_options;
+    options = this->options();
     programName = m_programName;
     facilities = m_facilities;
 }

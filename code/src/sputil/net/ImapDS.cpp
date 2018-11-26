@@ -64,7 +64,7 @@ bool ImapDS::open()
             fld->setInteger((int32_t) msg_id);
             df->push_back(fld);
 
-            m_list.push_back(df);
+            push_back(df);
 
             if (m_callback != nullptr)
                 m_callback(total_messages, (int) msg_id);
@@ -81,7 +81,5 @@ bool ImapDS::open()
     m_imap.cmd_logout();
     m_imap.close();
 
-    m_eof = m_list.empty();
-
-    return !m_eof;
+    return !eof();
 }

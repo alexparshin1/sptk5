@@ -34,20 +34,21 @@ using namespace sptk;
 void FileLogEngine::saveMessage(const Logger::Message* message)
 {
     UniqueLock(m_mutex);
-    if ((m_options & LO_ENABLE) == LO_ENABLE) {
+    int32_t _options = options();
+    if ((_options & LO_ENABLE) == LO_ENABLE) {
         if (!m_fileStream.is_open()) {
             m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
             if (!m_fileStream.is_open())
                 throw Exception("Can't append or create log file '" + m_fileName + "'", __FILE__, __LINE__);
         }
 
-        if ((m_options & LO_DATE) == LO_DATE)
+        if ((_options & LO_DATE) == LO_DATE)
             m_fileStream << message->timestamp.dateString() << " ";
 
-        if ((m_options & LO_TIME) == LO_TIME)
+        if ((_options & LO_TIME) == LO_TIME)
             m_fileStream << message->timestamp.timeString(true) << " ";
 
-        if ((m_options & LO_PRIORITY) == LO_PRIORITY)
+        if ((_options & LO_PRIORITY) == LO_PRIORITY)
             m_fileStream << "[" << priorityName(message->priority) << "] ";
 
         m_fileStream << message << endl;

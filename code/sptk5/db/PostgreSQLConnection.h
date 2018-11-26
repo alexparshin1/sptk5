@@ -60,7 +60,7 @@ class SP_EXPORT PostgreSQLConnection: public PoolDatabaseConnection
     /**
      * PostgreSQL database connection
      */
-    PGconn* m_connect;
+    PGconn* m_connect {nullptr};
 
 
 protected:

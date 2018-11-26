@@ -596,52 +596,42 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator bool() const;
+    virtual explicit operator bool() const;
 
     /**
      * Conversion operator
      */
-	explicit operator int() const;
+    virtual explicit operator int() const;
 
     /**
      * Conversion operator
      */
-	explicit operator unsigned() const;
+    virtual explicit operator unsigned() const;
 
     /**
      * Conversion operator
      */
-	explicit operator int64_t() const;
+    virtual explicit operator int64_t() const;
 
     /**
      * Conversion operator
      */
-	explicit operator uint64_t() const;
+    virtual explicit operator uint64_t() const;
 
     /**
      * Conversion operator
      */
-	explicit operator float() const;
+    virtual explicit operator double() const;
 
     /**
      * Conversion operator
      */
-	explicit operator double() const;
+	virtual explicit operator String() const;
 
     /**
      * Conversion operator
      */
-	explicit operator std::string() const;
-
-    /**
-     * Conversion operator
-     */
-	explicit operator String() const;
-
-    /**
-     * Conversion operator
-     */
-	explicit operator DateTime() const;
+	virtual explicit operator DateTime() const;
 
     /**
      * Conversion method
@@ -744,13 +734,13 @@ public:
      * Loads the data from XML node
      * @param node              XML node to load data from
      */
-    void load(const xml::Node& node);
+    virtual void load(const xml::Node& node);
 
     /**
      * Loads the data from XML node
      * @param node              XML node to load data from
      */
-    void load(const xml::Node* node);
+    virtual void load(const xml::Node* node);
 
     /**
      * Saves the data into XML node

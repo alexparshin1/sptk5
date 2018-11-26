@@ -140,10 +140,8 @@ enum PostgreSQLTimestampFormat
 static PostgreSQLTimestampFormat timestampsFormat;
 
 PostgreSQLConnection::PostgreSQLConnection(const String& connectionString)
-: PoolDatabaseConnection(connectionString)
+: PoolDatabaseConnection(connectionString, DCT_POSTGRES)
 {
-    m_connect = nullptr;
-    m_connType = DCT_POSTGRES;
 }
 
 PostgreSQLConnection::~PostgreSQLConnection()

@@ -49,11 +49,16 @@ namespace sptk {
  */
 class CGroup : public Fl_Group, public CLayoutManager
 {
-protected:
     /**
      * Draw the contens of the group clipped inside the group
      */
     bool m_drawClipped;
+public:
+    bool drawClipped() const;
+
+    void drawClipped(bool drawClipped);
+
+protected:
 
 
     /**

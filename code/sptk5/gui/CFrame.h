@@ -98,12 +98,9 @@ public:
 
     CFrame(const Buffer& imageData, uint32_t frameWidth, uint32_t cornerZone,
            CPatternDrawMode drawMode = CPngImage::PDM_STRETCH, CFrameKind kind = USER_EXTENDED)
-            : CPngImage(imageData)
+    : CPngImage(imageData), m_frameWidth(frameWidth), m_cornerZone(cornerZone),
+      m_drawMode(drawMode), m_kind(kind)
     {
-        m_frameWidth = frameWidth;
-        m_cornerZone = cornerZone;
-        m_kind = kind;
-        m_drawMode = drawMode;
     }
 
     /**

@@ -90,8 +90,6 @@ class SP_EXPORT Document : public SharedStrings, public Element
      */
     void processAttributes(Node* node, const char* ptr);
 
-protected:
-
     /**
      * Regular expression to match a number
      */
@@ -102,6 +100,7 @@ protected:
      */
     Buffer m_decodeBuffer;
 
+protected:
 
     /**
      * Creates new named node of type xml::Node::DOM_ELEMENT.
@@ -110,6 +109,12 @@ protected:
      * @see xml::Node
      */
     Node* createElement(const char* tagname);
+
+    /**
+     * Does string match a number?
+     * @return true if string constains a number
+     */
+    bool isNumber(const String& str);
 
 public:
 

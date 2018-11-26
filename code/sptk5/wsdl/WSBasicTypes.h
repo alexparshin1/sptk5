@@ -69,37 +69,58 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSBasicType(const char* name, bool optional) : Field(name), m_optional(optional)
+    WSBasicType(const char* name, bool optional)
+            : Field(name), m_optional(optional)
     {}
 
     /**
      * Sets optionality flag
      * @param opt               Element optionality flag
      */
-    void optional(bool opt) { m_optional = opt; }
+    void optional(bool opt)
+    { m_optional = opt; }
 
     /**
      * Clears content (sets to NULL)
      */
-    void clear() { setNull(VAR_NONE); }
+    void clear()
+    { setNull(VAR_NONE); }
 
     /**
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) = 0;
+    void load(const xml::Node& attr) override
+    {
+        Variant::load(attr);
+    }
+
+    /**
+     * Loads type data from request XML node
+     * @param attr              XML node
+     */
+    void load(const xml::Node* attr) override
+    {
+        Variant::load(attr);
+    }
 
     /**
      * Loads type data from string
      * @param attr              A string
      */
-    virtual void load(const String& attr) = 0;
+    virtual void load(const String& attr)
+    {
+        setString(attr);
+    }
 
     /**
      * Loads type data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) = 0;
+    virtual void load(const Field& field)
+    {
+        *(Variant*) this = field;
+    }
 
     /**
      * Adds an element to response XML with this object data
@@ -127,7 +148,8 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSString(const char* name, bool optional=false) : WSBasicType(name, optional)
+    WSString(const char* name, bool optional = false)
+            : WSBasicType(name, optional)
     {
         Field::setNull(VAR_STRING);
     }
@@ -135,7 +157,8 @@ public:
     /**
      * Return class name
      */
-    sptk::String className() const override { return "WSString"; }
+    sptk::String className() const override
+    { return "WSString"; }
 
     /**
      * Loads type data from request XML node
@@ -158,7 +181,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator =(const char * value) override
+    virtual WSString& operator=(const char* value) override
     {
         setString(value);
         return *this;
@@ -167,7 +190,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator =(const sptk::String& value) override
+    virtual WSString& operator=(const sptk::String& value) override
     {
         setString(value.c_str(), (uint32_t) value.length());
         return *this;
@@ -176,7 +199,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator =(const Buffer& value) override
+    virtual WSString& operator=(const Buffer& value) override
     {
         setBuffer(value.data(), value.bytes());
         return *this;
@@ -185,7 +208,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator =(int32_t value) override
+    virtual WSString& operator=(int32_t value) override
     {
         setInteger(value);
         return *this;
@@ -194,7 +217,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator =(int64_t value) override
+    virtual WSString& operator=(int64_t value) override
     {
         setInt64(value);
         return *this;
@@ -203,7 +226,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator sptk::String() const
+    explicit operator String() const override
     {
         return asString();
     }
@@ -220,7 +243,8 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSBool(const char* name, bool optional=false) : WSBasicType(name, optional)
+    WSBool(const char* name, bool optional = false)
+            : WSBasicType(name, optional)
     {
         Field::setNull(VAR_BOOL);
     }
@@ -228,7 +252,8 @@ public:
     /**
      * Return class name
      */
-    sptk::String className() const override { return "WSBool"; }
+    sptk::String className() const override
+    { return "WSBool"; }
 
     /**
      * Loads type data from request XML node
@@ -251,24 +276,16 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSBool& operator =(bool value)
+    virtual WSBool& operator=(bool value)
     {
         setBool(value);
         return *this;
     }
 
     /**
-     * Conversion to bool
-     */
-    bool asBool() const
-    {
-        return Field::asBool();
-    }
-
-    /**
      * Conversion operator
      */
-    explicit operator sptk::String() const
+    explicit operator sptk::String() const override
     {
         return asString();
     }
@@ -285,7 +302,8 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSDate(const char* name, bool optional=false) : WSBasicType(name, optional)
+    WSDate(const char* name, bool optional = false)
+            : WSBasicType(name, optional)
     {
         Field::setNull(VAR_DATE);
     }
@@ -293,7 +311,8 @@ public:
     /**
      * Return class name
      */
-    sptk::String className() const override { return "WSDate"; }
+    sptk::String className() const override
+    { return "WSDate"; }
 
     /**
      * Loads type data from request XML node
@@ -316,7 +335,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSDate& operator =(DateTime value) override
+    virtual WSDate& operator=(DateTime value) override
     {
         setDate(value);
         return *this;
@@ -325,7 +344,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator DateTime() const
+    explicit operator DateTime() const override
     {
         return asDate();
     }
@@ -333,7 +352,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator sptk::String() const
+    explicit operator sptk::String() const override
     {
         return asString();
     }
@@ -350,7 +369,8 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSDateTime(const char* name, bool optional=false) : WSBasicType(name, optional)
+    WSDateTime(const char* name, bool optional = false)
+            : WSBasicType(name, optional)
     {
         Field::setNull(VAR_DATE_TIME);
     }
@@ -358,7 +378,8 @@ public:
     /**
      * Return class name
      */
-    sptk::String className() const override { return "WSDateTime"; }
+    sptk::String className() const override
+    { return "WSDateTime"; }
 
     /**
      * Loads type data from request XML node
@@ -386,7 +407,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSDateTime& operator =(DateTime value) override
+    virtual WSDateTime& operator=(DateTime value) override
     {
         setDateTime(value);
         return *this;
@@ -395,7 +416,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator DateTime() const
+    explicit operator DateTime() const override
     {
         return asDateTime();
     }
@@ -403,7 +424,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator sptk::String() const
+    explicit operator sptk::String() const override
     {
         return asString();
     }
@@ -420,7 +441,8 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSDouble(const char* name, bool optional=false) : WSBasicType(name, optional)
+    WSDouble(const char* name, bool optional = false)
+            : WSBasicType(name, optional)
     {
         Field::setNull(VAR_FLOAT);
     }
@@ -428,7 +450,8 @@ public:
     /**
      * Return class name
      */
-    sptk::String className() const override { return "WSDouble"; }
+    sptk::String className() const override
+    { return "WSDouble"; }
 
     /**
      * Loads type data from request XML node
@@ -451,7 +474,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSDouble& operator =(float value) override
+    virtual WSDouble& operator=(float value) override
     {
         setFloat(value);
         return *this;
@@ -460,23 +483,16 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSDouble& operator =(double value) override
+    virtual WSDouble& operator=(double value) override
     {
         setFloat(value);
         return *this;
-    }
-    /**
-     * Conversion operator
-     */
-    explicit operator float() const
-    {
-        return (float) asFloat();
     }
 
     /**
      * Conversion operator
      */
-    explicit operator double() const
+    explicit operator double() const override
     {
         return asFloat();
     }
@@ -484,7 +500,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator sptk::String() const
+    explicit operator sptk::String() const override
     {
         return asString();
     }
@@ -501,7 +517,8 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSInteger(const char* name, bool optional=false) : WSBasicType(name, optional)
+    WSInteger(const char* name, bool optional = false)
+            : WSBasicType(name, optional)
     {
         Field::setNull(VAR_INT);
     }
@@ -509,7 +526,10 @@ public:
     /**
      * Return class name
      */
-    sptk::String className() const override { return "WSInteger"; }
+    sptk::String className() const override
+    {
+        return "WSInteger";
+    }
 
     /**
      * Loads type data from request XML node
@@ -532,7 +552,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(int64_t value) override
+    virtual WSInteger& operator=(int64_t value) override
     {
         setInt64(value);
         return *this;
@@ -541,7 +561,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(uint64_t value) override
+    virtual WSInteger& operator=(uint64_t value) override
     {
         setInt64((int64_t) value);
         return *this;
@@ -550,7 +570,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(int32_t value) override
+    virtual WSInteger& operator=(int32_t value) override
     {
         setInteger(value);
         return *this;
@@ -559,7 +579,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(uint32_t value) override
+    virtual WSInteger& operator=(uint32_t value) override
     {
         setInteger((int32_t) value);
         return *this;
@@ -568,7 +588,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(int16_t value) override
+    virtual WSInteger& operator=(int16_t value) override
     {
         setInteger(value);
         return *this;
@@ -577,7 +597,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(uint16_t value) override
+    virtual WSInteger& operator=(uint16_t value) override
     {
         setInteger(value);
         return *this;
@@ -586,7 +606,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator int32_t() const
+    explicit operator int32_t() const override
     {
         return asInteger();
     }
@@ -594,7 +614,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator uint32_t() const
+    explicit operator uint32_t() const override
     {
         return (uint32_t) asInteger();
     }
@@ -602,7 +622,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator int64_t() const
+    explicit operator int64_t() const override
     {
         return asInt64();
     }
@@ -610,7 +630,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator uint64_t() const
+    explicit operator uint64_t() const override
     {
         return (uint64_t) asInt64();
     }
@@ -618,7 +638,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator sptk::String() const
+    explicit operator sptk::String() const override
     {
         return asString();
     }
@@ -627,13 +647,17 @@ public:
 /**
  * Wrapper for WSDL int type
  */
-template <class T> class WSArray : public std::vector<T>, public WSTypeName
+template<class T>
+class WSArray : public std::vector<T>, public WSTypeName
 {
 public:
     /**
      * Return class name
      */
-    sptk::String className() const override { return "WSArray"; }
+    sptk::String className() const override
+    {
+        return "WSArray";
+    }
 };
 
 /**

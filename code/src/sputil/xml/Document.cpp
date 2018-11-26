@@ -30,6 +30,8 @@
 #include <sptk5/Strings.h>
 #include <sptk5/cxml>
 #include <sptk5/json/JsonDocument.h>
+#include <sptk5/xml/Document.h>
+
 
 using namespace std;
 using namespace sptk;
@@ -40,18 +42,16 @@ namespace xml {
 static const char* MATCH_NUMBER = "^[+\\-]?(\\d|[1-9]\\d*)(\\.\\d+)?(e-?\\d+)?$";
 
 Document::Document()
-        :
-        Element(*this),
-        m_indentSpaces(2),
-        m_matchNumber(MATCH_NUMBER, "i")
+: Element(*this),
+  m_indentSpaces(2),
+  m_matchNumber(MATCH_NUMBER, "i")
 {
 }
 
 Document::Document(const String& xml)
-        :
-        Element(*this),
-        m_indentSpaces(2),
-        m_matchNumber(MATCH_NUMBER, "i")
+: Element(*this),
+  m_indentSpaces(2),
+  m_matchNumber(MATCH_NUMBER, "i")
 {
     Document::load(xml);
 }
@@ -446,6 +446,11 @@ void Document::exportTo(json::Element& json) const
     Node* rootNode = *begin();
     rootNode->exportTo(json);
     json.optimizeArrays("item");
+}
+
+bool Document::isNumber(const String& str)
+{
+    return m_matchNumber.matches(str);
 }
 
 } // namespace xml

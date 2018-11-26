@@ -55,18 +55,18 @@ class Document;
 class SP_EXPORT Element : public NamedItem
 {
     friend class Document;
+
     /**
      * The list of subnodes
      */
     NodeList       m_nodes;
 
-
-protected:
     /**
      * Node attributes
      */
     Attributes     m_attributes;
 
+protected:
 
     /**
      * @brief Protected constructor for creating Doc only

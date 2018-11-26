@@ -148,3 +148,13 @@ void CGroup::draw()
     }
     box(b);
 }
+
+bool CGroup::drawClipped() const
+{
+    return m_drawClipped;
+}
+
+void CGroup::drawClipped(bool drawClipped)
+{
+    m_drawClipped = drawClipped;
+}

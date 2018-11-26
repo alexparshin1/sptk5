@@ -171,6 +171,11 @@ class SP_EXPORT PoolDatabaseConnection
      */
     DatabaseConnectionString    m_connString;
 
+    /**
+     * The connection type
+     */
+    DatabaseConnectionType      m_connType;
+
 public:
 
     /**
@@ -179,11 +184,6 @@ public:
     mutable std::mutex    m_mutex;
 
 protected:
-
-    /**
-     * The connection type
-     */
-    DatabaseConnectionType      m_connType;
 
     /**
      * The in-transaction flag
@@ -325,7 +325,7 @@ protected:
      * classes.
      * @param connectionString  The connection string
      */
-    explicit PoolDatabaseConnection(const String& connectionString);
+    explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType);
 
     /**
      * Stub function to throw an exception in case if the
@@ -416,6 +416,14 @@ protected:
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
     virtual void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
+
+    /**
+     * Set the connection type
+     */
+    virtual void connectionType(DatabaseConnectionType connType)
+    {
+        m_connType = connType;
+    }
 
 public:
 

@@ -47,7 +47,7 @@ const Fl_Image* CTreeItem::document;
 CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Image* closedImage, void* data)
 : CGroup("", 10, SP_ALIGN_TOP), m_labelWidth(0), m_labelHeight(0), m_body(nullptr)
 {
-    m_drawClipped = false;
+    drawClipped(false);
     m_selected = false;
     m_tree = dynamic_cast<CTreeControl*> (parent());
     auto* par = dynamic_cast<CTreeItem*> (parent());
@@ -108,7 +108,7 @@ CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Imag
 
 bool CTreeItem::preferredSize(int& ww, int& hh)
 {
-    if (m_lastPreferredW == ww && m_lastPreferredH == hh)
+    if (lastPreferredW() == ww && lastPreferredH() == hh)
         return false;
 
     int offsetX = m_indent + 2;
@@ -119,8 +119,8 @@ bool CTreeItem::preferredSize(int& ww, int& hh)
 
     bool rc = autoLayout(offsetX, 0, www, hh, false);
     ww = www + (offsetX + 2);
-    m_lastPreferredW = ww;
-    m_lastPreferredH = hh;
+    lastPreferredW(ww);
+    lastPreferredH(hh);
     return rc;
 }
 

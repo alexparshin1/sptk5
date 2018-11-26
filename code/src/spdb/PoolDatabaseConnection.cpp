@@ -33,8 +33,8 @@
 using namespace std;
 using namespace sptk;
 
-PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString)
-: m_connString(connectionString), m_connType(DCT_UNKNOWN)
+PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType)
+: m_connString(connectionString), m_connType(connectionType)
 {
     m_inTransaction = false;
 }

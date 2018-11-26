@@ -48,6 +48,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/eureka-client/LeaseInfo.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/eureka-client/LeaseInfo.h">
           <value>
             <set />
@@ -59,6 +64,36 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/MQClient.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/MQClient.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/azure/Client.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/kafka/KafkaClient.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/mqtt/MQTTFrame.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/stomp/StompClient.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/stomp/StompClient.h">
           <value>
             <set />
           </value>
@@ -214,6 +249,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Handlers/DBCommandHandler.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Handlers/Handlers.cpp">
           <value>
             <set />
           </value>
@@ -698,6 +738,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/Buffer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/CommandLine.h">
           <value>
             <set />
@@ -843,6 +888,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/PostgreSQLConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/db/Query.h">
           <value>
             <set />
@@ -904,6 +954,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/gui/CFontComboBox.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/gui/CFrame.h">
           <value>
             <set />
           </value>
@@ -1088,6 +1143,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/wsdl/WSBasicTypes.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/wsdl/WSParserComplexType.h">
           <value>
             <set />
@@ -1099,6 +1159,16 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/xml/Attributes.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/xml/Document.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/xml/Element.h">
           <value>
             <set />
           </value>
@@ -1273,12 +1343,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CGroup.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sptk/gui/CInput.cpp">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sptk/gui/CIntegerInput.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CLayoutClient.cpp">
           <value>
             <set />
           </value>
@@ -1393,6 +1473,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/Buffer.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/DateTime.cpp">
           <value>
             <set />
@@ -1414,6 +1499,16 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/FieldList.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/FileLogEngine.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/MemoryDS.cpp">
           <value>
             <set />
           </value>
@@ -1564,6 +1659,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/xml/Document.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/xml/Node.cpp">
           <value>
             <set />
           </value>

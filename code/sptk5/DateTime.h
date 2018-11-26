@@ -45,7 +45,7 @@ namespace sptk {
     class DateTimeFormat;
 
 /**
- * @brief Date and Time value.
+ * Date and Time value.
  *
  * Represents the date and time value. This value is stored as
  * a floating point number. Allows to synchronize the Now() time
@@ -94,82 +94,15 @@ public:
         PF_GMT = 16
     };
 
-protected:
-
-    /**
-     * @brief Internal decode date operation into year, month, and day
-     * @param dt                Date to decode
-     * @param year              Year (output)
-     * @param month             Month (output)
-     * @param day               Day (output)
-     * @param dayOfWeek         Day of week, 0..6 (output)
-     * @param dayOfYear         Day of year (output)
-     * @param gmt               Use GMT timezone for output
-    */
-    static void decodeDate(const time_point& dt, short& year, short& month, short& day, short& dayOfWeek, short& dayOfYear,
-                           bool gmt = false);
-
-    /**
-     * @brief Internal decode time operation into hour, minute, second, and millisecond
-     * @param dt                Date to decode
-     * @param hour              Hour (output)
-     * @param minute            Minute (output)
-     * @param second            Second (output)
-     * @param millisecond       Millisecond (output)
-     * @param gmt               Use GMT timezone for output
-    */
-    static void decodeTime(const time_point& dt, short& hour, short& minute, short& second, short& millisecond,
-                           bool gmt = false);
-
-    /**
-     * @brief Internal encode date operation from y,m,d
-     */
-    static void encodeDate(time_point& dt, short y = 0, short m = 0, short d = 0);
-
-    /**
-     * @brief Internal encode date operation from string
-     */
-    static void encodeDate(time_point& dt, const char* dat);
-
-    /**
-     * @brief Internal encode timee operation from h,m,s,ms
-     */
-    static void encodeTime(time_point& dt, short h = 0, short m = 0, short s = 0, short ms = 0);
-
-    /**
-     * @brief Internal encode timee operation from string
-     */
-    static void encodeTime(time_point& dt, const char* tim);
-
-    /**
-     * @brief Returns true for the leap year
-     */
-    static int isLeapYear(const int16_t year)
-    {
-        return ((year&3) == 0 && year%100) || ((year%400) == 0);
-    }
-
-    /**
-     * Split date string to components
-     * @param bdat                  Date string
-     * @param datePart              Date components (output)
-     * @param actualDateSeparator   Date separator (output)
-     * @return
-     */
-    static short splitDateString(char* bdat, short* datePart, char& actualDateSeparator);
-
-    /**
-     * Split timee string to components
-     * @param bdat              Time string
-     * @param timePart          Time components (output)
-     * @return
-     */
-    static short splitTimeString(char* bdat, short* timePart);
+private:
 
     /**
      * Actual date and time value
      */
     time_point                  m_dateTime;
+
+protected:
+
 
 public:
 
@@ -236,13 +169,13 @@ public:
     static void setTimeZone(const sptk::String& timeZoneName);
 
     /**
-    * @brief Default constructor
+    * Default constructor
     */
     DateTime() noexcept
     {}
 
     /**
-    * @brief Constructor
+    * Constructor
     * @param y                  Year
     * @param m                  Month
     * @param d                  Day
@@ -254,41 +187,33 @@ public:
     DateTime(short y, short m, short d, short h = 0, short mm = 0, short s = 0, short ms = 0) noexcept;
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param dateStr           Date string
      */
     explicit DateTime(const char* dateStr) noexcept;
 
     /**
-     * @brief Copy constructor
+     * Copy constructor
      */
     DateTime(const DateTime& dt) noexcept = default;
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param dt                Time point
      */
     explicit DateTime(const time_point& dt) noexcept;
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param dt                Duration since epoch
      */
     explicit DateTime(const duration& dt) noexcept;
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param sinceEpochMS      Time since epoch, milliseconds
      */
     explicit DateTime(int64_t sinceEpochMS) noexcept;
-
-    /**
-     * Returns time_point presentation of the date and time
-     */
-    time_point& timePoint()
-    {
-        return m_dateTime;
-    }
 
     /**
      * Returns time_point presentation of the date and time
@@ -299,57 +224,27 @@ public:
     }
 
     /**
-     * @brief Assignment
+     * Assignment
      */
     DateTime& operator=(const DateTime& date) = default;
 
     /**
-     * @brief Assignment
+     * Assignment
      */
     DateTime& operator=(const char* dat);
 
     /**
-     * @brief Addition, another DateTime
+     * Addition, a duration of time
      */
     DateTime operator+(duration& dt);
 
     /**
-     * @brief Substruction, another DateTime
+     * Substruction, a duration of time
      */
     DateTime operator-(duration& dt);
 
     /**
-     * @brief Increment by another DateTime
-     */
-    DateTime& operator+=(duration& dt);
-
-    /**
-     * @brief Decrement by another DateTime
-     */
-    DateTime& operator-=(duration& dt);
-
-    /**
-     * @brief Increment by day, prefix
-     */
-    DateTime& operator++();
-
-    /**
-     * @brief Increment by day, postfix
-     */
-    const DateTime operator++(int);
-
-    /**
-     * @brief Decrement by day, prefix
-     */
-    DateTime& operator--();
-
-    /**
-     * @brief Decrement by day, postfix
-     */
-    const DateTime operator--(int);
-
-    /**
-     * @brief Print the date into stream
+     * Print the date into stream
      * @param str               Output stream
      * @param printFlags        Print flags, recognised { PF_GMT, PF_RFC_DATE }
      */
@@ -372,7 +267,7 @@ public:
     }
 
     /**
-     * @brief Set the current date and time for this program only.
+     * Set the current date and time for this program only.
      *
      * The system time is not affected. Useful for synchronization between
      * different hosts' programs.
@@ -380,98 +275,83 @@ public:
     static void Now(DateTime dt);
 
     /**
-     * @brief Reports the system date and time.
+     * Reports the system date and time.
      */
     static DateTime System();
 
     /**
-     * @brief Reports the current date and time.
+     * Reports the current date and time.
      */
     static DateTime Now();
 
     /**
-     * @brief Reports the current date.
-     */
-    static DateTime Date();
-
-    /**
-     * @brief Reports the current time.
-     */
-    static DateTime Time();
-
-    /**
-     * @brief Converts C time into DateTime
+     * Converts C time into DateTime
      * @param tt                C time to convert
      */
     static DateTime convertCTime(const time_t tt);
 
     /**
-     * @brief Reports the number of days in the month in this date (1..31)
+     * Reports the number of days in the month in this date (1..31)
      */
     int16_t daysInMonth() const;
 
     /**
-     * @brief Reports the day of the week in this date (1..7)
+     * Reports the day of the week in this date (1..7)
      */
     int16_t dayOfWeek() const;
 
     /**
-     * @brief Reports the day since the beginning of the year in this date
-     */
-    short dayOfYear() const;
-
-    /**
-     * @brief Reports the day of the week name in this date ('Sunday'..'Saturday')
+     * Reports the day of the week name in this date ('Sunday'..'Saturday')
      */
     String dayOfWeekName() const;
 
     /**
-     * @brief Reports the month name in this date ('Sunday'..'Saturday')
+     * Reports the month name in this date ('Sunday'..'Saturday')
      */
     String monthName() const;
 
     /**
-     * @brief Reports the date part only
+     * Reports the date part only
      */
     DateTime date() const;
 
     /**
-     * @brief Reports the day of month (1..31)
+     * Reports the day of month (1..31)
      */
     short day() const;
 
     /**
-     * @brief Reports the month number (1..12)
+     * Reports the month number (1..12)
      */
     short month() const;
 
     /**
-     * @brief Reports the year
+     * Reports the year
      */
     short year() const;
 
     /**
-     * @brief Returns date as a string
+     * Returns date as a string
      * @param printFlags        Print flags, recognised { PF_GMT, PF_RFC_DATE }
      */
     String dateString(int printFlags = 0) const;
 
     /**
-     * @brief Returns time as a string
+     * Returns time as a string
      * @param printFlags        Print flags, recognised { PF_GMT, PF_TIMEZONE, PF_12HOURS }
      * @param printAccuracy     Print accuracy, @see PrintAccuracy
      */
     String timeString(int printFlags = 0, PrintAccuracy printAccuracy = PA_SECONDS) const;
 
     /**
-     * @brief Returns time as a ISO date and time string
+     * Returns time as a ISO date and time string
      * @param printAccuracy     Print accuracy, @see PrintAccuracy
      * @param gmt               If true print GMT time
      */
     String isoDateTimeString(PrintAccuracy printAccuracy = PA_SECONDS, bool gmt = false) const;
 
     /**
-     * @brief Returns date and time as a string
+     * Returns date and time as a string
      */
     explicit operator String() const
     {
@@ -479,7 +359,7 @@ public:
     }
 
     /**
-     * @brief Returns time_t presentation
+     * Returns time_t presentation
      */
     explicit operator time_t() const
     {
@@ -487,23 +367,17 @@ public:
     }
 
     /**
-     * @brief Decodes date into y,m,d
+     * Decodes date into y,m,d
      */
-    void decodeDate(short* year, short* month, short* day, short* wday, short* yday, bool gmt = false) const
-    {
-        decodeDate(m_dateTime, *year, *month, *day, *wday, *yday, gmt);
-    }
+    void decodeDate(short* year, short* month, short* day, short* wday, short* yday, bool gmt = false) const;
 
     /**
-     * @brief Decodes time into h,m,s,ms
+     * Decodes time into h,m,s,ms
      */
-    void decodeTime(short* h, short* m, short* s, short* ms, bool gmt = false) const
-    {
-        decodeTime(m_dateTime, *h, *m, *s, *ms, gmt);
-    }
+    void decodeTime(short* h, short* m, short* s, short* ms, bool gmt = false) const;
 
     /**
-     * @brief Return true if date and time are at epoch
+     * Return true if date and time are at epoch
      */
     bool zero() const
     {
@@ -511,60 +385,58 @@ public:
     }
 
     /**
-     * @brief Returns system's time mode.
+     * Returns system's time mode.
      */
     static bool time24Mode();
 
     /**
-     * @brief Sets system's time mode
+     * Sets system's time mode
      */
     static void time24Mode(bool t24mode);
-
-    static short correctTwoDigitYear(short year);
 };
 
 /**
- * @brief Compares DateTime values
+ * Compares DateTime values
  */
 bool operator<(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
- * @brief Compares DateTime values
+ * Compares DateTime values
  */
 bool operator<=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
- * @brief Compares DateTime values
+ * Compares DateTime values
  */
 bool operator>(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
- * @brief Compares DateTime values
+ * Compares DateTime values
  */
 bool operator>=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
- * @brief Compares DateTime values
+ * Compares DateTime values
  */
 bool operator==(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
- * @brief Compares DateTime values
+ * Compares DateTime values
  */
 bool operator!=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
- * @brief Adds two DateTime values
+ * Adds two DateTime values
  */
 sptk::DateTime operator+(const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
 
 /**
- * @brief Adds two DateTime values
+ * Adds two DateTime values
  */
 sptk::DateTime operator-(const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
 
 /**
- * @brief Subtracts two DateTime values
+ * Subtracts two DateTime values
  */
 sptk::DateTime::duration operator-(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 

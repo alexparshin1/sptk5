@@ -469,7 +469,7 @@ void Node::save(json::Element& json, string& text) const
                 }
                 if (!done) {
                     // output all subnodes
-                    string nodeText;
+                    String nodeText;
                     for (auto* np: *this)
                         np->save(*object, nodeText);
                     if (object->isObject() && object->size() == 0) {

@@ -139,11 +139,13 @@ namespace sptk {
          */
         typedef std::shared_ptr<EventData> Event;
 
-    protected:
+    private:
 
         std::mutex                  m_mutex;        ///< Mutex protecting events set
         std::set<Event>             m_events;       ///< Events scheduled by this timer
         EventData::Callback         m_callback;     ///< Event callback function.
+
+    protected:
 
         void unlink(Event event);                   ///< Remove event from this timer
 

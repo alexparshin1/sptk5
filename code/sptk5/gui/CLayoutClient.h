@@ -54,7 +54,7 @@ enum CLayoutAlign
 };
 
 /**
- * @brief Layout load and save mode
+ * Layout load and save mode
  */
 enum CLayoutXMLmode
 {
@@ -75,7 +75,7 @@ enum CLayoutXMLmode
 };
 
 /**
- * @brief Base layout manager client.
+ * Base layout manager client.
  *
  * Allows CLayoutManager objects to move and resize
  * the CLayoutClient objects in accordancy with they preferredSize() and
@@ -85,9 +85,8 @@ class CLayoutClient
 {
     friend class CLayoutManager;
 
-protected:
     /**
-     * @brief The preferred layout size
+     * The preferred layout size
      *
      * It makes different sense depending on the widget layout align.
      * For layout align SP_ALIGN_TOP or SP_ALIGN_BOTTOM it is a recomended height of the widget.
@@ -108,6 +107,14 @@ protected:
      */
     int m_lastPreferredH {0};
 
+protected:
+
+    int lastPreferredH() const;
+    int lastPreferredW() const;
+    void lastPreferredH(int height);
+    void lastPreferredW(int width);
+
+protected:
 
     /**
      * Widget to manage
@@ -131,7 +138,7 @@ protected:
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param widget Fl_Widget*, widget to control
      * @param layoutSize int, the size of the widget in layout. See m_layoutSize for more information.
      * @param ca CLayoutAlign, widget align in layout
@@ -139,13 +146,13 @@ public:
     CLayoutClient(Fl_Widget* widget, int layoutSize, CLayoutAlign ca);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~CLayoutClient()
     {}
 
     /**
-     * @brief Returns widget's layout align
+     * Returns widget's layout align
      * @see CLayoutAlign
      */
     CLayoutAlign layoutAlign() const
@@ -154,7 +161,7 @@ public:
     }
 
     /**
-     * @brief Sets widget's layout align
+     * Sets widget's layout align
      * @see CLayoutAlign
      */
     void layoutAlign(CLayoutAlign al)
@@ -163,7 +170,7 @@ public:
     }
 
     /**
-     * @brief Returns widget's layout size
+     * Returns widget's layout size
      */
     int layoutSize() const
     {
@@ -171,7 +178,7 @@ public:
     }
 
     /**
-     * @brief Sets widget's layout size
+     * Sets widget's layout size
      */
     void layoutSize(int ls)
     {
@@ -179,7 +186,7 @@ public:
     }
 
     /**
-     * @brief Sets label, makes an internal copy of the string
+     * Sets label, makes an internal copy of the string
      * @param l                 New label
      */
     virtual void label(const String& l)
@@ -189,7 +196,7 @@ public:
     }
 
     /**
-     * @brief Returns the current label
+     * Returns the current label
      */
     virtual const String& label() const
     {
@@ -197,7 +204,7 @@ public:
     }
 
     /**
-     * @brief Sets the new widget name
+     * Sets the new widget name
      *
      * @param aname const char*, new widget name
      */
@@ -207,7 +214,7 @@ public:
     }
 
     /**
-     * @brief Sets the new widget name
+     * Sets the new widget name
      *
      * @param aname             New widget name
      */
@@ -217,7 +224,7 @@ public:
     }
 
     /**
-     * @brief Returns the current name
+     * Returns the current name
      */
     const String& name() const
     {
@@ -225,7 +232,7 @@ public:
     }
 
     /**
-     * @brief Computes widget's preferred size.
+     * Computes widget's preferred size.
      *
      * Should be overriten in derived widget if it has any ideas about it's size limits.
      * Widget may want to change none, one, or both preferred width and height suggested by the
@@ -238,7 +245,7 @@ public:
     { return false; }
 
     /**
-     * @brief Computes widget's preferred size, and stores size values internally as cache
+     * Computes widget's preferred size, and stores size values internally as cache
      *
      * Used internally by CLayoutManager.
      * @param w int&, input/output widget preferred width
@@ -253,7 +260,7 @@ public:
     }
 
     /**
-     * @brief Returns widget class name (internal SPTK RTTI).
+     * Returns widget class name (internal SPTK RTTI).
      */
     virtual String className() const
     {
@@ -261,7 +268,7 @@ public:
     }
 
     /**
-     * @brief Returns widget handled by that object
+     * Returns widget handled by that object
      */
     Fl_Widget* widget() const
     {
@@ -269,7 +276,7 @@ public:
     }
 
     /**
-     * @brief Loads layout client information from XML node
+     * Loads layout client information from XML node
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
@@ -279,7 +286,7 @@ public:
     void load(const xml::Node* node, CLayoutXMLmode xmlMode);
 
     /**
-     * @brief Saves layout client information from XML node
+     * Saves layout client information from XML node
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states

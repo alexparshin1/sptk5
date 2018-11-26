@@ -176,3 +176,23 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
             control->save(node, LXM_DATA);
     }
 }
+
+int CLayoutClient::lastPreferredH() const
+{
+    return m_lastPreferredH;
+}
+
+int CLayoutClient::lastPreferredW() const
+{
+    return m_lastPreferredW;
+}
+
+void CLayoutClient::lastPreferredH(int height)
+{
+    m_lastPreferredH = height;
+}
+
+void CLayoutClient::lastPreferredW(int width)
+{
+    m_lastPreferredW = width;
+}

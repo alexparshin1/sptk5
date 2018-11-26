@@ -35,10 +35,9 @@ using namespace std;
 using namespace sptk;
 
 MySQLConnection::MySQLConnection(const String& connectionString)
-: PoolDatabaseConnection(connectionString),
+: PoolDatabaseConnection(connectionString, DCT_MYSQL),
   m_connection(nullptr)
 {
-    m_connType = DCT_MYSQL;
 }
 
 MySQLConnection::~MySQLConnection()

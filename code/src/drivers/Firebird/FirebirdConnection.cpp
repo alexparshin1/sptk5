@@ -35,10 +35,9 @@ using namespace std;
 using namespace sptk;
 
 FirebirdConnection::FirebirdConnection(const String& connectionString)
-: PoolDatabaseConnection(connectionString),
+: PoolDatabaseConnection(connectionString, DCT_FIREBIRD),
   m_connection(0)
 {
-    m_connType = DCT_FIREBIRD;
 }
 
 FirebirdConnection::~FirebirdConnection()

@@ -58,7 +58,7 @@ class SP_EXPORT SQLite3Connection: public PoolDatabaseConnection
     /**
      * The SQLite3 database connection object
      */
-    sqlite3 *m_connect;
+    sqlite3 *m_connect {nullptr};
 
 
 protected:

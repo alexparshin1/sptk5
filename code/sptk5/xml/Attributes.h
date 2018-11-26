@@ -53,11 +53,12 @@ class Attribute : public NamedItem
 {
     friend class Attributes;
 
-protected:
     /**
      * Attribute value
      */
     String m_value;
+
+protected:
 
 
     /**
@@ -117,12 +118,12 @@ class SP_EXPORT Attributes : public NodeList
     friend class Node;
     friend class Element;
 
-protected:
-
     /**
      * The parent XML element
      */
     Element* m_parent;
+
+protected:
 
 public:
 

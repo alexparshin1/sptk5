@@ -115,16 +115,16 @@ int SmtpConnect::command(const string& cmd, bool encodeCommand, bool decodeRespo
     return getResponse(decodeResponse);
 }
 
-string SmtpConnect::mime(const Buffer& buffer)
+String SmtpConnect::mime(const Buffer& buffer)
 {
     Buffer result;
     Base64::encode(result, buffer);
-    return (string) result;
+    return (String) result;
 }
 
-string SmtpConnect::mime(const String& s)
+String SmtpConnect::mime(const String& s)
 {
-    string result;
+    String result;
     Buffer src;
     src.set(s.c_str(), (uint32_t) s.length());
     Base64::encode(result, src);

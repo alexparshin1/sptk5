@@ -34,6 +34,7 @@
 #include <sptk5/DataSource.h>
 #include <sptk5/Exception.h>
 #include <vector>
+#include <sptk5/threads/Locks.h>
 
 namespace sptk {
 
@@ -51,7 +52,8 @@ namespace sptk {
  */
 class MemoryDS : public DataSource
 {
-protected:
+    mutable SharedMutex     m_mutex;
+
     /**
      * Internal list of the dataset records
      */
@@ -72,6 +74,8 @@ protected:
      */
     bool                    m_eof;
 
+protected:
+
     /**
      * Default constructor is protected, to prevent creating of the instance of that class
      */
@@ -90,6 +94,13 @@ protected:
         other.m_currentIndex = 0;
         other.m_eof = false;
     }
+
+    /**
+     * Push back field list.
+     * Memory DS takes ownership of the data
+     * @param fieldList         Field list
+     */
+    void push_back(FieldList* fieldList);
 
 public:
 
@@ -112,6 +123,7 @@ public:
      */
     virtual FieldList& current()
     {
+        UniqueLock(m_mutex);
         return *m_current;
     }
 
@@ -219,7 +231,12 @@ public:
      * Returns true if there are no more records in the datasource. Implemented in derved class.
      */
     virtual bool eof() const
-    { return m_eof; }
+    {
+        SharedLock(m_mutex);
+        return m_eof;
+    }
+
+    bool empty() const;
 };
 /**
  * @}

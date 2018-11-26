@@ -54,7 +54,11 @@ class SP_EXPORT Thread
 {
     static void threadStart(void* athread);
 
-protected:
+    /**
+     * Thread synchronization object
+     */
+    std::mutex          m_mutex;
+
     /**
      * Thread name
      */
@@ -66,14 +70,11 @@ protected:
     std::thread         m_thread;
 
     /**
-     * Thread synchronization object
-     */
-    std::mutex          m_mutex;
-
-    /**
      * Flag: is the thread terminated?
      */
     std::atomic_bool    m_terminated;
+
+protected:
 
     /**
      * Pause object

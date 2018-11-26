@@ -89,14 +89,14 @@ protected:
      * @param buffer            Source data
      * @return MIME-encoded data
      */
-    static std::string mime(const Buffer& buffer);
+    static String mime(const Buffer& buffer);
 
     /**
      * @brief Mime-encodes the string
      * @param s                 Source data
      * @return MIME-encoded data
      */
-    static std::string mime(const String& s);
+    static String mime(const String& s);
 
     /**
      * @brief Mime-decodes the string

@@ -60,12 +60,6 @@ class SP_EXPORT LogEngine : public Thread
      */
     mutable SharedMutex                 m_mutex;
 
-public:
-
-    void threadFunction() override;
-
-protected:
-
     /**
      * The default priority for the new message
      */
@@ -74,17 +68,21 @@ protected:
     /**
      * Min message priority, should be defined for every message
      */
-	std::atomic<LogPriority>            m_minPriority;
+    std::atomic<LogPriority>            m_minPriority;
 
     /**
      * Log options, a bit combination of Option
      */
-	std::atomic<int32_t>                m_options;
+    std::atomic<int32_t>                m_options;
 
-	/**
-	 * Message queue
-	 */
+    /**
+     * Message queue
+     */
     SynchronizedQueue<Logger::Message*> m_messages;
+
+protected:
+
+    void threadFunction() override;
 
     /**
      * Log a message
