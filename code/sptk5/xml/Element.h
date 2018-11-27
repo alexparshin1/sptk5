@@ -109,6 +109,14 @@ public:
     {}
 
     /**
+     * Destructor
+     */
+    ~Element()
+    {
+        Element::clear();
+    }
+
+    /**
      * @brief Returns node type
      */
     NodeType type() const override

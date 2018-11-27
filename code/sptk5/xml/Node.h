@@ -308,7 +308,6 @@ protected:
      */
     virtual ~Node()
     {
-        clear();
     }
 
 public:
@@ -336,7 +335,7 @@ public:
      * Finds the first subnode with the given name, or creates a new one.
      *
      * Returns node pointer. If the node with such name is not found, then new
-     * node is created. This is a shortcut for findOrCreate(name,false);
+     * node is created.
      * @param name              The name to find
      */
     Node& operator[](const std::string& name)
@@ -644,7 +643,6 @@ public:
         // Implement in derived classes
     }
 
-public:
     /**
      * Document node, can contain subnodes and attributes
      */
@@ -740,7 +738,7 @@ public:
     NamedItem(Node& parent, const char* tagname)
     : Node(parent)
     {
-        name(tagname);
+        NamedItem::name(tagname);
     }
 
     /**
@@ -752,7 +750,7 @@ public:
     NamedItem(Node* parent, const char* tagname)
     : Node(*parent)
     {
-        name(tagname);
+        NamedItem::name(tagname);
     }
 
     /**
@@ -764,7 +762,7 @@ public:
     NamedItem(Node& parent, const std::string& tagname)
     : Node(parent)
     {
-        name(tagname);
+        NamedItem::name(tagname);
     }
 
     /**
@@ -839,9 +837,9 @@ public:
      * Constructor
      */
     BaseTextNode(Node* parent, const char* data)
-            : Node(*parent)
+    : Node(*parent)
     {
-        value(data);
+        BaseTextNode::value(data);
     }
 
     /**

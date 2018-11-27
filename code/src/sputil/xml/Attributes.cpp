@@ -117,7 +117,7 @@ void Attributes::setAttribute(const String& attr, Value value, const char* defau
         return;
     }
     if (itor != end())
-        (*itor)->value(value);
+        (*itor)->value(String(value));
     else
         new Attribute(m_parent, attr, value);
 }
