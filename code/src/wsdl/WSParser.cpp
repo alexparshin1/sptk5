@@ -238,6 +238,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "/// by overriding abstract methods" << endl;
     serviceDefinition << "class " << serviceClassName << " : public sptk::WSRequest" << endl;
     serviceDefinition << "{" << endl;
+    serviceDefinition << "    sptk::LogEngine*  m_logEngine;    ///< Optional logger, or nullptr" << endl;
     for (auto itor: m_operations) {
         string requestName = strip_namespace(itor.second.m_input->name());
         serviceDefinition << "    /**" << endl;
@@ -260,7 +261,9 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "    void requestBroker(sptk::xml::Element* requestNode, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace) override;" << endl << endl;
     serviceDefinition << "public:" << endl;
     serviceDefinition << "    /// @brief Constructor" << endl;
-    serviceDefinition << "    " << serviceClassName << "() = default;" << endl << endl;
+    serviceDefinition << "    " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr)" << endl;
+    serviceDefinition << "     : m_logEngine(logEngine)" << endl;
+    serviceDefinition << "     {}" << endl << endl;
     serviceDefinition << "    /// @brief Destructor" << endl;
     serviceDefinition << "    ~" << serviceClassName << "() override = default;" << endl << endl;
     serviceDefinition << "    // Abstract methods below correspond to WSDL-defined operations. " << endl;
@@ -339,6 +342,12 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "        auto* faultStringNode = new xml::Element(faultNode, \"faultstring\");" << endl;
     serviceImplementation << "        faultStringNode->text(e.what());" << endl;
     serviceImplementation << "        new xml::Element(faultNode, \"detail\");" << endl;
+    serviceImplementation << "    }" << endl;
+    serviceImplementation << "    catch (const exception& e) {" << endl;
+    serviceImplementation << "        if (m_logEngine != nullptr) {" << endl;
+    serviceImplementation << "            Logger logger(*m_logEngine);" << endl;
+    serviceImplementation << "            logger.error(String(\"WS request error: \") + e.what());" << endl;
+    serviceImplementation << "        }" << endl;
     serviceImplementation << "    }" << endl;
     serviceImplementation << "}" << endl << endl;
 
