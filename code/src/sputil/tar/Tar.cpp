@@ -176,7 +176,7 @@ void Tar::read(const char* fileName)
     int rc = tar_open(&tar, (char*) fileName, nullptr, 0, 0, TAR_GNU);
     if (rc < 0) throwError(fileName);
     m_tar = tar;
-    while (loadFile()) { }
+    while (loadFile()) ;
     tar_close((TAR*) m_tar);
     m_tar = nullptr;
 }
@@ -194,7 +194,7 @@ void Tar::read(const Buffer& tarData)
     memHandle->sourceBuffer = tarData.data();
     memHandle->sourceBufferLen = tarData.bytes();
     m_tar = tar;
-    while (loadFile()) { }
+    while (loadFile()) ;
     tar_close((TAR*) m_tar);
     m_tar = nullptr;
 }

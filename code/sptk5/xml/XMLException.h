@@ -65,7 +65,7 @@ public:
      * @brief Copy constructor
      * @param other             Other exception object
      */
-    XMLException(const TimeoutException& other)
+    explicit XMLException(const TimeoutException& other)
     : Exception(other)
     {}
 

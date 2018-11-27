@@ -1086,7 +1086,7 @@ public:
     PI(Node& parent, std::string target, const char* data)
     : BaseTextNode(&parent, data)
     {
-        name(target);
+        PI::name(target);
     }
 
     /**
@@ -1099,7 +1099,7 @@ public:
     PI(Node* parent, std::string target, const char* data)
     : BaseTextNode(parent, data)
     {
-        name(target);
+        PI::name(target);
     }
 
     /**
@@ -1112,7 +1112,7 @@ public:
     PI(Node& parent, std::string target, const std::string& data)
     : BaseTextNode(&parent, data.c_str())
     {
-        name(target);
+        PI::name(target);
     }
 
     /**

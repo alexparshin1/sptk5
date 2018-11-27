@@ -31,7 +31,7 @@ int path_hashfunc(char *key, int numbuckets)
     char *p;
 
     strncpy(buf, key, sizeof(buf));
-	buf[MAXPATHLEN] = 0;
+    buf[MAXPATHLEN] = 0;
     p = basename(buf);
 
     return (((int) p[0]) % numbuckets);
@@ -39,7 +39,8 @@ int path_hashfunc(char *key, int numbuckets)
 
 int th_crc_calc(TAR *t)
 {
-    int i, sum = 0;
+    int i;
+    int sum = 0;
 
     for (i = 0; i < T_BLOCKSIZE; i++)
         sum += ((unsigned char *) (&(t->th_buf)))[i];
@@ -93,6 +94,4 @@ char* libtar_strsep(char **stringp, const char *delim)
             }
         } while (sc != 0);
     }
-    /* NOTREACHED */
-    return nullptr;
 }

@@ -68,7 +68,7 @@ libtar_list_t* libtar_list_new(int flags, libtar_cmpfunc_t cmpfunc)
 
 /*
 ** libtar_list_iterate() - call a function for every element
-**				      in a list
+**                      in a list
 */
 int libtar_list_iterate(libtar_list_t* l, libtar_iterate_func_t plugin, void* state)
 {
@@ -126,12 +126,13 @@ unsigned int libtar_list_nents(libtar_list_t* l)
 /*
 ** libtar_list_add() - adds an element to the list
 ** returns:
-**	0			success
-**	-1 (and sets errno)	failure
+**    0            success
+**    -1 (and sets errno)    failure
 */
 int libtar_list_add(libtar_list_t* l, void* data)
 {
-    libtar_listptr_t n, m;
+    libtar_listptr_t n;
+    libtar_listptr_t m;
 
 #ifdef LIBTAR_DEBUG2
     printf("==> libtar_list_add(\"%s\")\n", (char *)data);
@@ -239,7 +240,7 @@ int libtar_list_add(libtar_list_t* l, void* data)
 
 /*
 ** libtar_list_del() - remove the element pointed to by n
-**				  from the list l
+**                  from the list l
 */
 void libtar_list_del(libtar_list_t* l, libtar_listptr_t* n)
 {
@@ -270,8 +271,8 @@ void libtar_list_del(libtar_list_t* l, libtar_listptr_t* n)
 /*
 ** libtar_list_next() - get the next element in the list
 ** returns:
-**	1			success
-**	0			end of list
+**    1            success
+**    0            end of list
 */
 int libtar_list_next(libtar_list_t* l,
                  libtar_listptr_t* n)
@@ -288,8 +289,8 @@ int libtar_list_next(libtar_list_t* l,
 /*
 ** libtar_list_prev() - get the previous element in the list
 ** returns:
-**	1			success
-**	0			end of list
+**    1            success
+**    0            end of list
 */
 int libtar_list_prev(libtar_list_t* l,
                  libtar_listptr_t* n)
@@ -306,8 +307,8 @@ int libtar_list_prev(libtar_list_t* l,
 /*
 ** libtar_str_match() - string matching function
 ** returns:
-**	1			match
-**	0			no match
+**    1            match
+**    0            no match
 */
 int libtar_str_match(char* check, char* data)
 {
@@ -319,15 +320,16 @@ char* libtar_strsep(char** stringp, const char* delim);
 
 /*
 ** libtar_list_add_str() - splits string str into delim-delimited
-**				      elements and adds them to list l
+**                      elements and adds them to list l
 ** returns:
-**	0			success
-**	-1 (and sets errno)	failure
+**    0            success
+**    -1 (and sets errno)    failure
 */
 int libtar_list_add_str(libtar_list_t* l, char* str, char* delim)
 {
     char tmp[10241];
-    char* tokp, * nextp = tmp;
+    char* tokp;
+    char* nextp = tmp;
 
     strncpy(tmp, str, sizeof(tmp));
     tmp[10240] = '\0';
@@ -345,8 +347,8 @@ int libtar_list_add_str(libtar_list_t* l, char* str, char* delim)
 /*
 ** libtar_list_search() - find an entry in a list
 ** returns:
-**	1			match found
-**	0			no match
+**    1            match found
+**    0            no match
 */
 int
 libtar_list_search(libtar_list_t* l,

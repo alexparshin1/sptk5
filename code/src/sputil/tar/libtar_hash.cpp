@@ -23,8 +23,8 @@
 void
 libtar_hashptr_reset(libtar_hashptr_t *hp)
 {
-	libtar_listptr_reset(&(hp->node));
-	hp->bucket = -1;
+    libtar_listptr_reset(&(hp->node));
+    hp->bucket = -1;
 }
 
 
@@ -34,33 +34,33 @@ libtar_hashptr_reset(libtar_hashptr_t *hp)
 void *
 libtar_hashptr_data(libtar_hashptr_t *hp)
 {
-	return libtar_listptr_data(&(hp->node));
+    return libtar_listptr_data(&(hp->node));
 }
 
 
 /*
 ** libtar_str_hashfunc() - default hash function, optimized for
-**				      7-bit strings
+**                      7-bit strings
 */
 unsigned int
 libtar_str_hashfunc(const char* key, unsigned int num_buckets)
 {
 #if 0
-	register unsigned result = 0;
-	register int i;
+    register unsigned result = 0;
+    register int i;
 
-	if (key == NULL)
-		return 0;
+    if (key == NULL)
+        return 0;
 
-	for (i = 0; *key != '\0' && i < 32; i++)
-		result = result * 33U + *key++;
+    for (i = 0; *key != '\0' && i < 32; i++)
+        result = result * 33U + *key++;
 
-	return (result % num_buckets);
+    return (result % num_buckets);
 #else
-	if (key == nullptr)
-		return 0;
+    if (key == nullptr)
+        return 0;
 
-	return ((unsigned)key[0] % num_buckets);
+    return ((unsigned)key[0] % num_buckets);
 #endif
 }
 
@@ -71,7 +71,7 @@ libtar_str_hashfunc(const char* key, unsigned int num_buckets)
 unsigned int
 libtar_hash_nents(libtar_hash_t *h)
 {
-	return h->nents;
+    return h->nents;
 }
 
 
@@ -81,119 +81,119 @@ libtar_hash_nents(libtar_hash_t *h)
 libtar_hash_t *
 libtar_hash_new(int num, libtar_hashfunc_t hashfunc)
 {
-	libtar_hash_t *hash;
+    libtar_hash_t *hash;
 
-	hash = (libtar_hash_t *)calloc(1, sizeof(libtar_hash_t));
-	if (hash == nullptr)
-		return nullptr;
-	hash->numbuckets = num;
-	if (hashfunc != nullptr)
-		hash->hashfunc = hashfunc;
-	else
-		hash->hashfunc = (libtar_hashfunc_t)libtar_str_hashfunc;
+    hash = (libtar_hash_t *)calloc(1, sizeof(libtar_hash_t));
+    if (hash == nullptr)
+        return nullptr;
+    hash->numbuckets = num;
+    if (hashfunc != nullptr)
+        hash->hashfunc = hashfunc;
+    else
+        hash->hashfunc = (libtar_hashfunc_t)libtar_str_hashfunc;
 
-	hash->table = (libtar_list_t **)calloc(size_t(num), sizeof(libtar_list_t *));
-	if (hash->table == nullptr)
-	{
-		free(hash);
-		return nullptr;
-	}
+    hash->table = (libtar_list_t **)calloc(size_t(num), sizeof(libtar_list_t *));
+    if (hash->table == nullptr)
+    {
+        free(hash);
+        return nullptr;
+    }
 
-	return hash;
+    return hash;
 }
 
 
 /*
 ** libtar_hash_next() - get next element in hash
 ** returns:
-**	1			data found
-**	0			end of list
+**    1            data found
+**    0            end of list
 */
 int
 libtar_hash_next(libtar_hash_t *h,
-			    libtar_hashptr_t *hp)
+                libtar_hashptr_t *hp)
 {
 #ifdef LIBTAR_DEBUG2
-	printf("==> libtar_hash_next(h=0x%lx, hp={%d,0x%lx})\n",
-	       h, hp->bucket, hp->node);
+    printf("==> libtar_hash_next(h=0x%lx, hp={%d,0x%lx})\n",
+           h, hp->bucket, hp->node);
 #endif
 
-	if (hp->bucket >= 0 && hp->node != nullptr &&
-	    libtar_list_next(h->table[hp->bucket], &(hp->node)) != 0)
-	{
+    if (hp->bucket >= 0 && hp->node != nullptr &&
+        libtar_list_next(h->table[hp->bucket], &(hp->node)) != 0)
+    {
 #ifdef LIBTAR_DEBUG2
-		printf("    libtar_hash_next(): found additional "
-		       "data in current bucket (%d), returing 1\n",
-		       hp->bucket);
+        printf("    libtar_hash_next(): found additional "
+               "data in current bucket (%d), returing 1\n",
+               hp->bucket);
 #endif
-		return 1;
-	}
+        return 1;
+    }
 
 #ifdef LIBTAR_DEBUG2
-	printf("    libtar_hash_next(): done with bucket %d\n",
-	       hp->bucket);
+    printf("    libtar_hash_next(): done with bucket %d\n",
+           hp->bucket);
 #endif
 
-	for (hp->bucket++; hp->bucket < h->numbuckets; hp->bucket++)
-	{
+    for (hp->bucket++; hp->bucket < h->numbuckets; hp->bucket++)
+    {
 #ifdef LIBTAR_DEBUG2
-		printf("    libtar_hash_next(): "
-		       "checking bucket %d\n", hp->bucket);
+        printf("    libtar_hash_next(): "
+               "checking bucket %d\n", hp->bucket);
 #endif
-		hp->node = nullptr;
-		if (h->table[hp->bucket] != nullptr &&
-		    libtar_list_next(h->table[hp->bucket],
-		    				&(hp->node)) != 0)
-		{
+        hp->node = nullptr;
+        if (h->table[hp->bucket] != nullptr &&
+            libtar_list_next(h->table[hp->bucket],
+                            &(hp->node)) != 0)
+        {
 #ifdef LIBTAR_DEBUG2
-			printf("    libtar_hash_next(): "
-			       "found data in bucket %d, returing 1\n",
-			       hp->bucket);
+            printf("    libtar_hash_next(): "
+                   "found data in bucket %d, returing 1\n",
+                   hp->bucket);
 #endif
-			return 1;
-		}
-	}
+            return 1;
+        }
+    }
 
-	if (hp->bucket == h->numbuckets)
-	{
+    if (hp->bucket == h->numbuckets)
+    {
 #ifdef LIBTAR_DEBUG2
-		printf("    libtar_hash_next(): hash pointer "
-		       "wrapped to 0\n");
+        printf("    libtar_hash_next(): hash pointer "
+               "wrapped to 0\n");
 #endif
-		hp->bucket = -1;
-		hp->node = nullptr;
-	}
+        hp->bucket = -1;
+        hp->node = nullptr;
+    }
 
 #ifdef LIBTAR_DEBUG2
-	printf("<== libtar_hash_next(): no more data, "
-	       "returning 0\n");
+    printf("<== libtar_hash_next(): no more data, "
+           "returning 0\n");
 #endif
-	return 0;
+    return 0;
 }
 
 
 /*
 ** libtar_hash_del() - delete an entry from the hash
 ** returns:
-**	0			success
-**	-1 (and sets errno)	failure
+**    0            success
+**    -1 (and sets errno)    failure
 */
 int
 libtar_hash_del(libtar_hash_t *h,
-			   libtar_hashptr_t *hp)
+               libtar_hashptr_t *hp)
 {
-	if (hp->bucket < 0
-	    || hp->bucket >= h->numbuckets
-	    || h->table[hp->bucket] == nullptr
-	    || hp->node == nullptr)
-	{
-		errno = EINVAL;
-		return -1;
-	}
+    if (hp->bucket < 0
+        || hp->bucket >= h->numbuckets
+        || h->table[hp->bucket] == nullptr
+        || hp->node == nullptr)
+    {
+        errno = EINVAL;
+        return -1;
+    }
 
-	libtar_list_del(h->table[hp->bucket], &(hp->node));
-	h->nents--;
-	return 0;
+    libtar_list_del(h->table[hp->bucket], &(hp->node));
+    h->nents--;
+    return 0;
 }
 
 
@@ -203,13 +203,13 @@ libtar_hash_del(libtar_hash_t *h,
 void
 libtar_hash_empty(libtar_hash_t *h, libtar_freefunc_t freefunc)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < h->numbuckets; i++)
-		if (h->table[i] != nullptr)
-			libtar_list_empty(h->table[i], freefunc);
+    for (i = 0; i < h->numbuckets; i++)
+        if (h->table[i] != nullptr)
+            libtar_list_empty(h->table[i], freefunc);
 
-	h->nents = 0;
+    h->nents = 0;
 }
 
 
@@ -219,118 +219,119 @@ libtar_hash_empty(libtar_hash_t *h, libtar_freefunc_t freefunc)
 void
 libtar_hash_free(libtar_hash_t *h, libtar_freefunc_t freefunc)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < h->numbuckets; i++)
-		if (h->table[i] != nullptr)
-			libtar_list_free(h->table[i], freefunc);
+    for (i = 0; i < h->numbuckets; i++)
+        if (h->table[i] != nullptr)
+            libtar_list_free(h->table[i], freefunc);
 
-	free(h->table);
-	free(h);
+    free(h->table);
+    free(h);
 }
 
 
 /*
 ** libtar_hash_search() - iterative search for an element in a hash
 ** returns:
-**	1			match found
-**	0			no match
+**    1            match found
+**    0            no match
 */
 int
 libtar_hash_search(libtar_hash_t *h,
-			      libtar_hashptr_t *hp, void *data,
-			      libtar_matchfunc_t matchfunc)
+                  libtar_hashptr_t *hp, void *data,
+                  libtar_matchfunc_t matchfunc)
 {
-	while (libtar_hash_next(h, hp) != 0)
-		if ((*matchfunc)(data, libtar_listptr_data(&(hp->node))) != 0)
-			return 1;
+    while (libtar_hash_next(h, hp) != 0)
+        if ((*matchfunc)(data, libtar_listptr_data(&(hp->node))) != 0)
+            return 1;
 
-	return 0;
+    return 0;
 }
 
 
 /*
 ** libtar_hash_getkey() - hash-based search for an element in a hash
 ** returns:
-**	1			match found
-**	0			no match
+**    1            match found
+**    0            no match
 */
 int
 libtar_hash_getkey(libtar_hash_t *h,
-			      libtar_hashptr_t *hp, void *key,
-			      libtar_matchfunc_t matchfunc)
+                  libtar_hashptr_t *hp, void *key,
+                  libtar_matchfunc_t matchfunc)
 {
 #ifdef LIBTAR_DEBUG2
-	printf("==> libtar_hash_getkey(h=0x%lx, hp={%d,0x%lx}, "
-	       "key=0x%lx, matchfunc=0x%lx)\n",
-	       h, hp->bucket, hp->node, key, matchfunc);
+    printf("==> libtar_hash_getkey(h=0x%lx, hp={%d,0x%lx}, "
+           "key=0x%lx, matchfunc=0x%lx)\n",
+           h, hp->bucket, hp->node, key, matchfunc);
 #endif
 
-	if (hp->bucket == -1)
-	{
-		hp->bucket = (int) (*(h->hashfunc))(key, unsigned(h->numbuckets));
+    if (hp->bucket == -1)
+    {
+        hp->bucket = (int) (*(h->hashfunc))(key, unsigned(h->numbuckets));
 #ifdef LIBTAR_DEBUG2
-		printf("    libtar_hash_getkey(): hp->bucket "
-		       "set to %d\n", hp->bucket);
+        printf("    libtar_hash_getkey(): hp->bucket "
+               "set to %d\n", hp->bucket);
 #endif
-	}
+    }
 
-	if (h->table[hp->bucket] == nullptr)
-	{
+    if (h->table[hp->bucket] == nullptr)
+    {
 #ifdef LIBTAR_DEBUG2
-		printf("    libtar_hash_getkey(): no list "
-		       "for bucket %d, returning 0\n", hp->bucket);
+        printf("    libtar_hash_getkey(): no list "
+               "for bucket %d, returning 0\n", hp->bucket);
 #endif
-		hp->bucket = -1;
-		return 0;
-	}
+        hp->bucket = -1;
+        return 0;
+    }
 
 #ifdef LIBTAR_DEBUG2
-	printf("<== libtar_hash_getkey(): "
-	       "returning libtar_list_search()\n");
+    printf("<== libtar_hash_getkey(): "
+           "returning libtar_list_search()\n");
 #endif
-	return libtar_list_search(h->table[hp->bucket], &(hp->node),
-					     key, matchfunc);
+    return libtar_list_search(h->table[hp->bucket], &(hp->node),
+                         key, matchfunc);
 }
 
 
 /*
 ** libtar_hash_add() - add an element to the hash
 ** returns:
-**	0			success
-**	-1 (and sets errno)	failure
+**    0            success
+**    -1 (and sets errno)    failure
 */
 int
 libtar_hash_add(libtar_hash_t *h, void *data)
 {
-	int bucket, i;
+    int bucket;
+    int i;
 
 #ifdef LIBTAR_DEBUG2
-	printf("==> libtar_hash_add(h=0x%lx, data=0x%lx)\n",
-	       h, data);
+    printf("==> libtar_hash_add(h=0x%lx, data=0x%lx)\n",
+           h, data);
 #endif
 
-	bucket = (int) (*(h->hashfunc))(data, (unsigned) h->numbuckets);
+    bucket = (int) (*(h->hashfunc))(data, (unsigned) h->numbuckets);
 #ifdef LIBTAR_DEBUG2
-	printf("    libtar_hash_add(): inserting in bucket %d\n",
-	       bucket);
+    printf("    libtar_hash_add(): inserting in bucket %d\n",
+           bucket);
 #endif
-	if (h->table[bucket] == nullptr)
-	{
+    if (h->table[bucket] == nullptr)
+    {
 #ifdef LIBTAR_DEBUG2
-		printf("    libtar_hash_add(): creating new list\n");
+        printf("    libtar_hash_add(): creating new list\n");
 #endif
-		h->table[bucket] = libtar_list_new(LIST_QUEUE, nullptr);
-	}
+        h->table[bucket] = libtar_list_new(LIST_QUEUE, nullptr);
+    }
 
 #ifdef LIBTAR_DEBUG2
-	printf("<== libtar_hash_add(): "
-	       "returning libtar_list_add()\n");
+    printf("<== libtar_hash_add(): "
+           "returning libtar_list_add()\n");
 #endif
-	i = libtar_list_add(h->table[bucket], data);
-	if (i == 0)
-		h->nents++;
-	return i;
+    i = libtar_list_add(h->table[bucket], data);
+    if (i == 0)
+        h->nents++;
+    return i;
 }
 
 
