@@ -120,7 +120,6 @@ public:
      */
     int nodePosition {0};
 
-public:
     /**
      * Default constructor
      */
@@ -264,17 +263,6 @@ private:
      */
     virtual void save(json::Element& json, std::string& text) const;
 
-protected:
-    /**
-     * Always returns false for xml::Node since it has no name
-     */
-    virtual bool nameIs(const std::string* /*sstName*/) const
-    {
-        return false;
-    }
-
-protected:
-
     /**
      * Parent document pointer
      */
@@ -285,13 +273,22 @@ protected:
      */
     Node* m_parent {nullptr};
 
+protected:
+    /**
+     * Always returns false for xml::Node since it has no name
+     */
+    virtual bool nameIs(const std::string* /*sstName*/) const
+    {
+        return false;
+    }
+
 
     /**
      * Protected constructor - for derived classes
      *
      * @param doc               Node document
      */
-    Node(Document& doc)
+    explicit Node(Document& doc)
     : m_document(&doc)
     {}
 
@@ -300,7 +297,7 @@ protected:
      *
      * @param parent            Node document
      */
-    Node(Node& parent)
+    explicit Node(Node& parent)
     : m_document(parent.document())
     {
         parent.push_back(this);
@@ -378,6 +375,7 @@ public:
      */
     virtual void clearChildren()
     {
+        // Implement in derived classes
     }
 
     /**
@@ -388,6 +386,7 @@ public:
      */
     virtual void clear()
     {
+        // Implement in derived classes
     }
 
     /**
@@ -454,6 +453,7 @@ public:
      */
     virtual void value(const String& /*new_value*/)
     {
+        // Implement in derived classes
     }
 
     /**
@@ -461,6 +461,7 @@ public:
      */
     virtual void value(const char* /*new_value*/)
     {
+        // Implement in derived classes
     }
 
     /**
@@ -539,6 +540,7 @@ public:
      */
     virtual void setAttribute(const char* attr, Value value, const char* defaultValue = "")
     {
+        // Implement in derived classes
     }
 
     /**
@@ -551,6 +553,7 @@ public:
      */
     virtual void setAttribute(const std::string& attr, Value value, const char* defaultValue = "")
     {
+        // Implement in derived classes
     }
 
     /**
@@ -607,6 +610,7 @@ public:
      */
     virtual void push_back(Node* node)
     {
+        // Implement in derived classes
     }
 
     /**
@@ -617,6 +621,7 @@ public:
      */
     virtual void insert(iterator pos, Node* node)
     {
+        // Implement in derived classes
     }
 
     /**
@@ -626,6 +631,7 @@ public:
      */
     virtual void remove(Node* node)
     {
+        // Implement in derived classes
     }
 
     /**
@@ -635,6 +641,7 @@ public:
      */
     virtual void unlink(Node* node)
     {
+        // Implement in derived classes
     }
 
 public:

@@ -32,17 +32,22 @@
 #include <sptk5/Tar.h>
 
 #ifdef _WIN32
-    #include <io.h>
+#include <io.h>
+#endif
+
+#if USE_GTEST
+#include <fstream>
+#include <sptk5/md5.h>
 #endif
 
 using namespace std;
 using namespace sptk;
 
 extern "C" {
-typedef int (* CMemOpenCallback)(const char*, int, ...);
-typedef int (* CMemCloseCallback)(int);
-typedef int (* CMemReadCallback)(int, void*, size_t);
-typedef int (* CMemWriteCallback)(int, const void*, size_t);
+    typedef int (* CMemOpenCallback)(const char*, int, ...);
+    typedef int (* CMemCloseCallback)(int);
+    typedef int (* CMemReadCallback)(int, void*, size_t);
+    typedef int (* CMemWriteCallback)(int, const void*, size_t);
 }
 
 #ifdef _MSC_VER
@@ -64,7 +69,7 @@ MemoryTarHandle* Tar::tarMemoryHandle(int handle)
 int Tar::mem_open(const char*, int, ...)
 {
     lastTarHandle++;
-    auto memHandle = new MemoryTarHandle;
+    auto* memHandle = new MemoryTarHandle;
     (*tarHandleMap)[lastTarHandle] = memHandle;
     return lastTarHandle;
 }
@@ -112,19 +117,19 @@ Tar::Tar()
 
 bool Tar::loadFile()
 {
-    auto tar = (TAR*) m_tar;
+    auto* tar = (TAR*) m_tar;
     // Read file header
     int rc = th_read(tar);
     if (rc > 0) return false; // End of archive
     if (rc < 0) throwError(m_fileName);
 
-	char path[1024];
+    char path[1024];
     th_get_pathname(tar, path, sizeof(path));
-	string fileName(path);
+    String fileName(path);
     auto fileSize = (uint32_t) th_get_size(tar);
 
     if (fileSize != 0) {
-        auto buffer = new Buffer(fileSize + 1);
+        auto* buffer = new Buffer(fileSize + 1);
         char* buf = buffer->data();
 
         uint32_t offset = 0;
@@ -148,7 +153,6 @@ bool Tar::loadFile()
             mem_read((int) tar->fd, nullptr, size_t(emptyTail));
         } else {
             if (::read((int) tar->fd, buff, size_t(emptyTail)) == -1)
-                //if (lseek(tar->fd,emptyTail,SEEK_CUR) == (off_t) -1)
                 throwError(m_fileName);
         }
     }
@@ -213,9 +217,6 @@ const Buffer& Tar::file(std::string fileName) const
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
-#include <fstream>
-#include <sptk5/md5.h>
 
 static const string gtestTempDirectory("gtest_temp_directory3");
 static const string file1_md5("2934e1a7ae11b11b88c9b0e520efd978");
@@ -244,16 +245,18 @@ TEST(SPTK_Tar, read)
     ASSERT_EQ(0, system(("tar cf gtest_temp.tar " + gtestTempDirectory).c_str()));
     EXPECT_NO_THROW(tar.read("gtest_temp.tar"));
 
-    Buffer outfile1, outfile2;
+    Buffer outfile1;
+    Buffer outfile2;
+
     EXPECT_NO_THROW(outfile1 = tar.file(gtestTempDirectory + "/file1.txt"));
     EXPECT_NO_THROW(outfile2 = tar.file(gtestTempDirectory + "/file2.txt"));
     EXPECT_STREQ(file1_md5.c_str(), md5(outfile1).c_str());
     EXPECT_STREQ(file2_md5.c_str(), md5(outfile2).c_str());
 
 #ifdef _WIN32
-	EXPECT_EQ(0, system(("rmdir /s /q " + gtestTempDirectory).c_str()));
+    EXPECT_EQ(0, system(("rmdir /s /q " + gtestTempDirectory).c_str()));
 #else
-	EXPECT_EQ(0, system(("rm -rf " + gtestTempDirectory).c_str()));
+    EXPECT_EQ(0, system(("rm -rf " + gtestTempDirectory).c_str()));
 #endif
 }
 

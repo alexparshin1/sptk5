@@ -50,6 +50,11 @@ template <class T>
 class SynchronizedList
 {
     /**
+     * Lock to synchronize list operations
+     */
+    mutable SharedMutex     m_sync;
+
+    /**
      * Semaphore to waiting for an item if list is empty
      */
     Semaphore               m_semaphore;
@@ -58,15 +63,6 @@ class SynchronizedList
      * List
      */
     std::list<T>*           m_list;
-
-
-protected:
-
-    /**
-     * Lock to synchronize list operations
-     */
-    mutable SharedMutex     m_sync;
-
 
 public:
 

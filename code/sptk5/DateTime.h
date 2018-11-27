@@ -101,9 +101,6 @@ private:
      */
     time_point                  m_dateTime;
 
-protected:
-
-
 public:
 
     /**
@@ -267,19 +264,6 @@ public:
     }
 
     /**
-     * Set the current date and time for this program only.
-     *
-     * The system time is not affected. Useful for synchronization between
-     * different hosts' programs.
-     */
-    static void Now(DateTime dt);
-
-    /**
-     * Reports the system date and time.
-     */
-    static DateTime System();
-
-    /**
      * Reports the current date and time.
      */
     static DateTime Now();
@@ -314,21 +298,6 @@ public:
      * Reports the date part only
      */
     DateTime date() const;
-
-    /**
-     * Reports the day of month (1..31)
-     */
-    short day() const;
-
-    /**
-     * Reports the month number (1..12)
-     */
-    short month() const;
-
-    /**
-     * Reports the year
-     */
-    short year() const;
 
     /**
      * Returns date as a string
@@ -384,16 +353,18 @@ public:
         return m_dateTime.time_since_epoch().count() == 0;
     }
 
-    /**
-     * Returns system's time mode.
-     */
-    static bool time24Mode();
-
-    /**
-     * Sets system's time mode
-     */
-    static void time24Mode(bool t24mode);
 };
+
+
+/**
+ * Returns system's time mode.
+ */
+bool time24Mode();
+
+/**
+ * Sets system's time mode
+ */
+void time24Mode(bool t24mode);
 
 /**
  * Compares DateTime values

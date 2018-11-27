@@ -60,7 +60,6 @@ static const short _monthDays[2][13] =
 };
 
 static bool _time24Mode;
-static DateTime::duration dateTimeOffset;
 
 char     DateTime::dateFormat[32];
 char     DateTime::datePartsOrder[4];
@@ -243,7 +242,7 @@ void DateTimeFormat::init() noexcept
     // Build local date and time formats
     DateTime::datePartsOrder[0] = 0;
     DateTime::dateSeparator = parseDateOrTime(DateTime::dateFormat, dateBuffer);
-    DateTime::time24Mode(timeBuffer[0] == '2');
+    ::time24Mode(timeBuffer[0] == '2');
 
     // Filling up the week day names, as defined in locale.
     // This date should be Monday:
@@ -573,15 +572,15 @@ static int isLeapYear(const int16_t year)
 void sptk::DateTime::setTimeZone(const String& _timeZoneName)
 {
 #ifdef _WIN32
-	_putenv_s("TZ", _timeZoneName.c_str());
+    _putenv_s("TZ", _timeZoneName.c_str());
 #else
-	setenv("TZ", _timeZoneName.c_str(), 1);
+    setenv("TZ", _timeZoneName.c_str(), 1);
 #endif
     ::tzset();
     dateTimeFormatInitializer.init();
 }
 
-void DateTime::time24Mode(bool t24mode)
+void sptk::time24Mode(bool t24mode)
 {
     const char* timeBuffer = "10:48:59AM";
 
@@ -621,12 +620,12 @@ using days = duration<int, ratio<86400>>;
 
 DateTime::DateTime(const char* dat) noexcept
 {
-	if (*dat == 'n' && strcmp(dat, "now") == 0) {
-		m_dateTime = clock::now();
-		return;
-	}
+    if (*dat == 'n' && strcmp(dat, "now") == 0) {
+        m_dateTime = clock::now();
+        return;
+    }
 
-	while (*dat == ' ') dat++;
+    while (*dat == ' ') dat++;
     if (*dat == char(0)) {
         m_dateTime = time_point();
         return;
@@ -845,7 +844,7 @@ void DateTime::decodeTime(short* h, short* m, short* s, short* ms, bool gmt) con
 // Get the current system time with optional synchronization offset
 DateTime DateTime::Now()
 {
-    return DateTime(clock::now() + ::dateTimeOffset);
+    return DateTime(clock::now());
 }
 
 short DateTime::daysInMonth() const
@@ -865,45 +864,6 @@ DateTime DateTime::date() const
     long days = duration_cast<hours>(sinceEpoch).count() / 24;
     DateTime dt(time_point() + hours(days * 24));  // Sets the current date
     return dt;
-}
-
-short DateTime::day() const
-{
-    short y = 0;
-    short m = 0;
-    short d = 0;
-    short wd = 0;
-    short yd = 0;
-
-    sptk::decodeDate(m_dateTime, y, m, d, wd, yd, false);
-
-    return d;
-}
-
-short DateTime::month() const
-{
-    short y = 0;
-    short m = 0;
-    short d = 0;
-    short wd = 0;
-    short yd = 0;
-
-    sptk::decodeDate(m_dateTime, y, m, d, wd, yd, false);
-
-    return m;
-}
-
-short DateTime::year() const
-{
-    short y = 0;
-    short m = 0;
-    short d = 0;
-    short wd = 0;
-    short yd = 0;
-
-    sptk::decodeDate(m_dateTime, y, m, d, wd, yd, false);
-
-    return y;
 }
 
 short DateTime::dayOfWeek() const
@@ -926,7 +886,15 @@ String DateTime::dayOfWeekName() const
 
 String DateTime::monthName() const
 {
-    return DateTime::monthNames[month() - 1];
+    short y = 0;
+    short m = 0;
+    short d = 0;
+    short wd = 0;
+    short yd = 0;
+
+    sptk::decodeDate(m_dateTime, y, m, d, wd, yd, false);
+
+    return DateTime::monthNames[m - 1];
 }
 
 String DateTime::dateString(int printFlags) const
@@ -957,9 +925,9 @@ DateTime DateTime::convertCTime(const time_t tt)
     return DateTime(clock::from_time_t(tt));
 }
 
-bool DateTime::time24Mode()
+bool sptk::time24Mode()
 {
-    return _time24Mode;
+    return ::_time24Mode;
 }
 
 double sptk::duration2seconds(const DateTime::duration& duration)

@@ -50,6 +50,11 @@ template <class T>
 class SynchronizedQueue
 {
     /**
+     * Lock to synchronize queue operations
+     */
+    mutable SharedMutex     m_mutex;
+
+    /**
      * Semaphore to waiting for an item if queue is empty
      */
     Semaphore               m_semaphore;
@@ -58,15 +63,6 @@ class SynchronizedQueue
      * Queue
      */
     std::queue<T>*          m_queue;
-
-
-protected:
-
-    /**
-     * Lock to synchronize queue operations
-     */
-    mutable SharedMutex     m_mutex;
-
 
 public:
 

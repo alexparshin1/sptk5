@@ -123,8 +123,6 @@ class SP_EXPORT Attributes : public NodeList
      */
     Element* m_parent;
 
-protected:
-
 public:
 
     /**

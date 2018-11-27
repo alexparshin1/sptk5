@@ -47,20 +47,16 @@ namespace sptk {
 template <class K, class T>
 class SynchronizedMap
 {
-    typedef std::map<K,T>   Map;
-    /**
-     * Map
-     */
-    Map                     m_map;
-
-
-protected:
-
     /**
      * Lock to synchronize map operations
      */
     mutable std::mutex      m_sync;
 
+    typedef std::map<K,T>   Map;
+    /**
+     * Map
+     */
+    Map                     m_map;
 
 public:
 
