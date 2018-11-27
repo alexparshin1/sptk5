@@ -31,7 +31,7 @@
    Fields are numeric unless otherwise noted below; numbers are ISO 646
    representations of octal numbers, with leading zeros as needed.
 
-   linkname is only valid when typeflag==LNKTYPE.  It doesn't use prefix;
+   linkname is only valid when typeflag==LNKTYPE.  It doesn't use prefix
    files that are links to pathnames >100 chars long can not be stored
    in a tar archive.
 

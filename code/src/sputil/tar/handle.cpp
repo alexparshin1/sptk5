@@ -30,9 +30,10 @@ static int tar_init(TAR **t, char *pathname, tartype_t *type,int oflags, int /*m
         return -1;
     }
 
-    *t = (TAR *)calloc(1, sizeof(TAR));
+    *t = new TAR;
     if (*t == nullptr)
         return -1;
+    memset(*t, 0, sizeof(TAR));
 
     (*t)->pathname = pathname;
     (*t)->options = options;
@@ -42,7 +43,7 @@ static int tar_init(TAR **t, char *pathname, tartype_t *type,int oflags, int /*m
     (*t)->h = libtar_hash_new(256, (libtar_hashfunc_t)path_hashfunc);
     if ((*t)->h == nullptr)
     {
-        free(*t);
+        delete *t;
         return -1;
     }
 
@@ -67,7 +68,7 @@ int tar_open(TAR **t, char *pathname, tartype_t *type,
     (*t)->fd = (*((*t)->type->openfunc))(pathname, oflags, mode);
     if ((*t)->fd == -1)
     {
-        free(*t);
+        delete *t;
         return -1;
     }
 
@@ -84,9 +85,7 @@ int tar_close(TAR *t)
 
     if (t->h != nullptr)
         libtar_hash_free(t->h, &free);
-    free(t);
+    delete t;
 
     return i;
 }
-
-
