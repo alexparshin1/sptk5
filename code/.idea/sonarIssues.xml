@@ -98,12 +98,32 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/rest-clients/RestIterator.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/AcceptHost.cpp">
           <value>
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/AcceptHost.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/CMakeLists.txt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Configuration/Configuration.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Configuration/Configuration.h">
           <value>
             <set />
           </value>
@@ -284,6 +304,16 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestState.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Requests.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Server.cpp">
           <value>
             <set />
           </value>
@@ -1739,6 +1769,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/wsdl/protocol/WSWebSocketsProtocol.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/Buffer.h">
           <value>
             <set />
           </value>

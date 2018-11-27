@@ -39,6 +39,7 @@ String HttpParams::encodeString(const String& str)
     char hexBuffer[5];
     Buffer buffer(cnt * 3 + 1);
     buffer.data();
+    int len;
     while (*src != 0) {
         if (isalnum(*src) != 0) {
             buffer.append(*src);
@@ -52,8 +53,8 @@ String HttpParams::encodeString(const String& str)
                 buffer.append(*src);
                 break;
             default:
-                snprintf(hexBuffer, sizeof(hexBuffer), "%%%02X", (unsigned char)*src);
-                buffer.append(hexBuffer);
+                len = snprintf(hexBuffer, sizeof(hexBuffer), "%%%02X", (unsigned char)*src);
+                buffer.append(hexBuffer, len);
                 break;
             }
         }
