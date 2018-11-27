@@ -36,45 +36,47 @@
 using namespace std;
 using namespace sptk;
 
-void Strings::splitByDelimiter(const String& src, const char* delimitter)
+static void splitByDelimiter(Strings& dest, const String& src, const char* delimitter)
 {
+    dest.clear();
     size_t pos = 0;
     size_t delimitterLength = strlen(delimitter);
     while (true) {
         size_t end = src.find(delimitter, pos);
         if (end != string::npos) {
-            m_strings.emplace_back(src.substr(pos, end - pos));
+            dest.emplace_back(src.substr(pos, end - pos));
             pos = end + delimitterLength;
         } else {
             if (pos + 1 <= src.length())
-                m_strings.emplace_back(src.substr(pos));
+                dest.emplace_back(src.substr(pos));
             break;
         }
     }
-    m_sorted = UNSORTED;
 }
 
-void Strings::splitByAnyChar(const String& src, const char* delimitter)
+static void splitByAnyChar(Strings& dest, const String& src, const char* delimitter)
 {
+    dest.clear();
     size_t pos = 0;
     while (pos != string::npos) {
         size_t end = src.find_first_of(delimitter, pos);
         if (end != string::npos) {
-            m_strings.emplace_back(src.substr(pos, end - pos));
+            dest.emplace_back(src.substr(pos, end - pos));
             pos = src.find_first_not_of(delimitter, end + 1);
         } else {
             if (pos + 1 < src.length())
-                m_strings.emplace_back(src.substr(pos));
+                dest.emplace_back(src.substr(pos));
             break;
         }
     }
-    m_sorted = UNSORTED;
 }
 
-void Strings::splitByRegExp(const String& src, const char* pattern)
+static void splitByRegExp(Strings& dest, const String& src, const char* pattern)
 {
     RegularExpression regularExpression(pattern);
-    regularExpression.split(src, *this);
+
+    dest.clear();
+    regularExpression.split(src, dest);
 }
 
 Strings::Strings(const String& src, const char *delimiter, SplitMode mode) noexcept
@@ -103,13 +105,13 @@ void Strings::fromString(const String& src, const char* delimitter, SplitMode mo
     clear();
     switch (mode) {
         case SM_ANYCHAR:
-            splitByAnyChar(src, delimitter);
+            splitByAnyChar(*this, src, delimitter);
             break;
         case SM_REGEXP:
-            splitByRegExp(src, delimitter);
+            splitByRegExp(*this, src, delimitter);
             break;
         default:
-            splitByDelimiter(src, delimitter);
+            splitByDelimiter(*this, src, delimitter);
             break;
     }
 }
@@ -181,7 +183,7 @@ void Strings::loadFromFile(const String& fileName)
             delimiter = text.substr(pos1, 2);
     }
 
-    splitByDelimiter(text, delimiter.c_str());
+    splitByDelimiter(*this, text, delimiter.c_str());
 }
 
 String Strings::join(const String& delimiter) const
@@ -200,12 +202,12 @@ Strings Strings::grep(const String& pattern) const
     return output;
 }
 
-bool Strings::sortAscending(const String& first, const String& second)
+static bool sortAscending(const String& first, const String& second)
 {
     return first < second;
 }
 
-bool Strings::sortDescending(const String& first, const String& second)
+static bool sortDescending(const String& first, const String& second)
 {
     return first > second;
 }

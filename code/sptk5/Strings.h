@@ -95,47 +95,6 @@ private:
      */
     SortOrder           m_sorted {UNSORTED};
 
-    /**
-     * Ascending sort compare function, used in sort()
-     * @param first             First compared string
-     * @param second            Second compared string
-     */
-    static bool sortAscending(const String& first, const String& second);
-
-    /**
-     * Descending sort compare function, used in sort()
-     * @param first             First compared string
-     * @param second            Second compared string
-     */
-    static bool sortDescending(const String& first, const String& second);
-
-    /**
-     * Splits source string on substrings using exact delimiter
-     *
-     * Consequent delimiters create empty strings.
-     * @param src               Source string
-     * @param delimiter         Delimiter string
-     */
-    void splitByDelimiter(const String& src, const char *delimiter);
-
-    /**
-     * Splits source string on substrings using any char in delimiter
-     *
-     * Consequent delimiters are treated as a single one.
-     * @param src               Source string
-     * @param delimiter         Delimiter string
-     */
-    void splitByAnyChar(const String& src, const char *delimiter);
-
-    /**
-     * Splits source string on substrings using regular expression
-     *
-     * Consequent delimiters are treated as a single one.
-     * @param src               Source string
-     * @param pattern           Regex pattern string
-     */
-    void splitByRegExp(const String& src, const char *pattern);
-
 public:
 
     /**
@@ -295,7 +254,7 @@ public:
      */
     void clear()
     {
-        m_sorted = ASCENDING;
+        m_sorted = UNSORTED;
         m_strings.clear();
         m_userData = 0;
     }

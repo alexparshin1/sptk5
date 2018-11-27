@@ -223,7 +223,6 @@ protected:
         MoneyData           moneyData;  ///< Money data
     } VariantData;
 
-
     /**
      * Internal variant data storage
      */
@@ -238,7 +237,6 @@ protected:
      * Data type
      */
     uint16_t                m_dataType;
-
 
     /**
      * Copies data from another CVariant
