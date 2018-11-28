@@ -300,10 +300,12 @@ public:
      */
     void bytes(size_t b)
     {
-        if (b + 1 > m_storage.size())
-            throw Exception("Attempt to set buffer size outside storage");
-        m_bytes = b;
-        m_buffer[b] = 0;
+        if (b < m_storage.size()) {
+            m_bytes = b;
+            m_storage[b] = 0;
+            return;
+        }
+        throw Exception("Attempt to set buffer size outside storage");
     }
 
     /**

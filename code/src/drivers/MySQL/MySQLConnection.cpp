@@ -43,7 +43,7 @@ MySQLConnection::MySQLConnection(const String& connectionString)
 MySQLConnection::~MySQLConnection()
 {
     try {
-        if (m_inTransaction && MySQLConnection::active())
+        if (getInTransaction() && MySQLConnection::active())
             rollbackTransaction();
         disconnectAllQueries();
         close();
@@ -58,7 +58,7 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
     static std::mutex libraryInitMutex;
 
     if (!active()) {
-        m_inTransaction = false;
+        setInTransaction(false);
         if (!newConnectionString.empty())
             connectionString(DatabaseConnectionString(newConnectionString));
 
@@ -137,20 +137,20 @@ void MySQLConnection::executeCommand(const String& command)
 
 void MySQLConnection::driverBeginTransaction()
 {
-    if (m_inTransaction)
+    if (getInTransaction())
         throwMySQLException("Transaction already started");
 
     executeCommand("BEGIN");
-    m_inTransaction = true;
+    setInTransaction(true);
 }
 
 void MySQLConnection::driverEndTransaction(bool commit)
 {
-    if (!m_inTransaction) throwDatabaseException("Transaction isn't started.");
+    if (!getInTransaction()) throwDatabaseException("Transaction isn't started.");
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
     executeCommand(action);
-    m_inTransaction = false;
+    setInTransaction(false);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -247,7 +247,7 @@ void MySQLConnection::queryExecute(Query* query)
     auto* statement = (MySQLStatement*) query->statement();
     try {
         if (statement == nullptr) throwDatabaseException("Query is not prepared");
-        statement->execute(m_inTransaction);
+        statement->execute(getInTransaction());
     }
     catch (const Exception& e) {
         THROW_QUERY_ERROR(query, e.what());

@@ -44,7 +44,7 @@ OracleConnection::OracleConnection(const String& connectionString)
 OracleConnection::~OracleConnection()
 {
     try {
-        if (m_inTransaction && OracleConnection::active())
+        if (getInTransaction() && OracleConnection::active())
             rollbackTransaction();
         disconnectAllQueries();
         close();
@@ -58,7 +58,7 @@ OracleConnection::~OracleConnection()
 void OracleConnection::_openDatabase(const String& newConnectionString)
 {
     if (!active()) {
-        m_inTransaction = false;
+        setInTransaction(false);
         if (newConnectionString.length())
             connectionString(DatabaseConnectionString(newConnectionString));
 
@@ -125,14 +125,14 @@ void OracleConnection::driverBeginTransaction()
     if (!m_connection)
         open();
 
-    if (m_inTransaction) throwOracleException("Transaction already started.");
+    if (getInTransaction()) throwOracleException("Transaction already started.");
 
-    m_inTransaction = true;
+    setInTransaction(true);
 }
 
 void OracleConnection::driverEndTransaction(bool commit)
 {
-    if (!m_inTransaction) throwOracleException("Transaction isn't started.");
+    if (!getInTransaction()) throwOracleException("Transaction isn't started.");
 
     string action;
     try {
@@ -148,7 +148,7 @@ void OracleConnection::driverEndTransaction(bool commit)
         throwOracleException((action + " failed: ") + e.what());
     }
 
-    m_inTransaction = false;
+    setInTransaction(false);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -310,9 +310,9 @@ void OracleConnection::queryExecute(Query* query)
             auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
             if (bulkInsertQuery == nullptr)
                 throw Exception("Query is not COracleBulkInsertQuery");
-            statement->execBulk(m_inTransaction, bulkInsertQuery->lastIteration());
+            statement->execBulk(getInTransaction(), bulkInsertQuery->lastIteration());
         } else
-            statement->execute(m_inTransaction);
+            statement->execute(getInTransaction());
     }
     catch (const SQLException& e) {
         throwOracleException(e.what());

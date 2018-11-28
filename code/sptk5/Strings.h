@@ -417,22 +417,16 @@ public:
     }
 
     /**
-     * Erase string at the iterator position
-     * @param itor              Iterator of the position
-     */
-    void erase(iterator itor)
-    {
-        m_strings.erase(itor);
-    }
-
-    /**
      * Erase strings between the iterator positions
      * @param from              Iterator of the from position
      * @param to                Iterator of the to position
      */
     void erase(iterator from, iterator to)
     {
-        m_strings.erase(from, to);
+        if (from == to)
+            m_strings.erase(from);
+        else
+            m_strings.erase(from, to);
     }
 };
 

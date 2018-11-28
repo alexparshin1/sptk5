@@ -51,10 +51,8 @@ class SP_EXPORT MySQLConnection: public PoolDatabaseConnection
     friend class Query;
     friend class MySQLStatement;
 
-    /**
-     * MySQL database connection
-     */
-    MYSQL*  m_connection;
+    MYSQL*                      m_connection;           ///< MySQL database connection
+    mutable std::mutex          m_mutex;                ///< Mutex that protects access to data members
 
     void executeCommand(const String& command);
 

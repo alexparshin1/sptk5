@@ -161,35 +161,18 @@ class SP_EXPORT PoolDatabaseConnection
 {
     friend class Query;
 
-    /**
-     * The list of queries that use this database
-     */
-    std::set<Query*>            m_queryList;
-
-    /**
-     * The connection string
-     */
-    DatabaseConnectionString    m_connString;
-
-    /**
-     * The connection type
-     */
-    DatabaseConnectionType      m_connType;
-
-public:
-
-    /**
-    * Mutex that protects access to data members
-    */
-    mutable std::mutex    m_mutex;
+    std::set<Query*>            m_queryList;            ///< The list of queries that use this database
+    DatabaseConnectionString    m_connString;           ///< The connection string
+    DatabaseConnectionType      m_connType;             ///< The connection type
+    String                      m_driverDescription;    ///< Driver description is filled by the particular driver.
+    bool                        m_inTransaction;        ///< The in-transaction flag
 
 protected:
 
-    /**
-     * The in-transaction flag
-     */
-    bool                        m_inTransaction;
-
+    String getDriverDescription() const;
+    void   setDriverDescritpion(const String& description);
+    bool   getInTransaction() const;
+    void   setInTransaction(bool inTransaction);
 
     /**
      * Attaches (links) query to the database
@@ -311,11 +294,6 @@ protected:
      * @param paramIndex unsigned, parameter index in SQL starting from 0
      */
     virtual String paramMark(unsigned paramIndex);
-
-    /**
-     * Driver description is filled by the particular driver.
-     */
-    String  m_driverDescription;
 
     /**
      * Constructor

@@ -57,11 +57,8 @@ class SP_EXPORT PostgreSQLConnection: public PoolDatabaseConnection
 {
     friend class Query;
 
-    /**
-     * PostgreSQL database connection
-     */
-    PGconn* m_connect {nullptr};
-
+    mutable std::mutex      m_mutex;                ///< Mutex that protects access to data members
+    PGconn*                 m_connect {nullptr};    ///< PostgreSQL database connection
 
 protected:
 

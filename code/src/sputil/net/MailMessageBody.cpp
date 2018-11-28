@@ -45,7 +45,7 @@ String MailMessageBody::stripHtml(const String& origHtml)
             continue;
         str = str.substr(pos + 1);
         if (str.empty()) {
-            html.erase(html.begin() + i);
+            html.erase(html.begin() + i, html.begin() + i);
             i--;
         }
     }

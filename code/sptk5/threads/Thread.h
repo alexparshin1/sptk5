@@ -74,8 +74,6 @@ class SP_EXPORT Thread
      */
     std::atomic_bool    m_terminated;
 
-protected:
-
     /**
      * Pause object
      */

@@ -64,7 +64,7 @@
    devminor	337		8
    prefix	345		155		NUL-terminated if NUL fits
 
-   If the first character of prefix is '\0', the file name is name;
+   If the first character of prefix is '\0', the file name is name,
    otherwise, it is prefix/name.  Files whose pathnames don't fit in that
    length can not be stored in a tar archive.  */
 

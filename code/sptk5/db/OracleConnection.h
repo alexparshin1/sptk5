@@ -67,21 +67,10 @@ public:
 
 private:
 
-    /**
-     * Oracle connection environment
-     */
-    OracleEnvironment  m_environment;
-
-    /**
-     * Oracle database connection
-     */
-    Connection*         m_connection;
-
-    /**
-     * Last error in this connection or query
-     */
-    std::string         m_lastError;
-
+    mutable std::mutex          m_mutex;            ///< Mutex that protects access to data members
+    OracleEnvironment           m_environment;      ///< Oracle connection environment
+    Connection*                 m_connection;       ///< Oracle database connection
+    std::string                 m_lastError;        ///< Last error in this connection or query
 
 protected:
 

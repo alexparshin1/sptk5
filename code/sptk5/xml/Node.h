@@ -158,7 +158,7 @@ class SP_EXPORT Node
     friend class Element;
     friend class Attribute;
     friend class Attributes;
-
+    friend class NodeSearchAlgorithms;
 public:
     /**
      * Node type enumeration
@@ -223,40 +223,6 @@ private:
     void parent(Node* p);
 
     /**
-     * Checks if any descendent node matches the path element (internal)
-     * @param nodes             Output list of matched nodes
-     * @param pathElements      The path elements
-     * @param pathPosition      Current path elements position
-     * @param starPointer       The pointer to SST '*' string
-     */
-    void scanDescendents(NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
-                         const std::string* starPointer);
-
-    /**
-     * Checks if the node matches the path element (internal)
-     * @param pathElement       The path elements
-     * @param nodePosition      The position of the node in the matching group
-     * @param starPointer       The pointer to SST '*' string
-     * @param nameMatches       (output) true if the node name matches the XPath element
-     * @param positionMatches   (output) true if the node position matches the XPath element
-     * @returns true if node matches the XPath element
-     */
-    bool matchPathElement(const XPathElement& pathElement, const std::string* starPointer, bool& nameMatches);
-
-    void matchNodesThisLevel(NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
-                             const std::string* starPointer, NodeVector& matchedNodesThisLevel, bool descendants);
-
-    /**
-     * Checks if the node matches the path element (internal)
-     * @param nodes             Output list of matched nodes
-     * @param pathElements      The path elements
-     * @param pathPosition      Current path elements position
-     * @param starPointer       The pointer to SST '*' string
-     */
-    void matchNode(NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
-                   const std::string* starPointer);
-
-    /**
      * Save node to JSON object.
      * @param json              JSON element
      * @param text              Temporary text buffer
@@ -274,6 +240,7 @@ private:
     Node* m_parent {nullptr};
 
 protected:
+
     /**
      * Always returns false for xml::Node since it has no name
      */
@@ -281,7 +248,6 @@ protected:
     {
         return false;
     }
-
 
     /**
      * Protected constructor - for derived classes
@@ -690,6 +656,18 @@ public:
     {
         return type() == DOM_COMMENT;
     }
+};
+
+class SP_EXPORT NodeSearchAlgorithms
+{
+public:
+    static void scanDescendents(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+                                const std::string* starPointer);
+    static void matchNode(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+                          const std::string* starPointer);
+    static void matchNodesThisLevel(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+                                    const std::string* starPointer, NodeVector& matchedNodes, bool descendants);
+    static bool matchPathElement(Node* thisNode, const XPathElement& pathElement, const std::string* starPointer, bool& nameMatches);
 };
 
 /**

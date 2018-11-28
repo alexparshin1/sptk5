@@ -54,20 +54,10 @@ class SP_EXPORT FirebirdConnection: public PoolDatabaseConnection
     friend class Query;
     friend class FirebirdStatement;
 
-    /**
-     * Database connection handle
-     */
-    isc_db_handle   m_connection;
-
-    /**
-     * Database transaction handle
-     */
-    isc_tr_handle   m_transaction;
-
-    /**
-     * Connection status on last checkStatus
-     */
-    std::string     m_lastStatus;
+    mutable std::mutex          m_mutex;        ///< Mutex that protects access to data members
+    isc_db_handle               m_connection;   ///< Database connection handle
+    isc_tr_handle               m_transaction;  ///< Database transaction handle
+    std::string                 m_lastStatus;   ///< Connection status on last checkStatus
 
 protected:
 

@@ -57,6 +57,26 @@ void PoolDatabaseConnection::disconnectAllQueries()
     m_queryList.clear();
 }
 
+String PoolDatabaseConnection::getDriverDescription() const
+{
+    return m_driverDescription;
+}
+
+void PoolDatabaseConnection::setDriverDescritpion(const String& description)
+{
+    m_driverDescription = description;
+}
+
+bool PoolDatabaseConnection::getInTransaction() const
+{
+    return m_inTransaction;
+}
+
+void PoolDatabaseConnection::setInTransaction(bool inTransaction)
+{
+    m_inTransaction = inTransaction;
+}
+
 bool PoolDatabaseConnection::linkQuery(Query *q)
 {
     m_queryList.insert(q);

@@ -147,7 +147,7 @@ PostgreSQLConnection::PostgreSQLConnection(const String& connectionString)
 PostgreSQLConnection::~PostgreSQLConnection()
 {
     try {
-        if (m_inTransaction && PostgreSQLConnection::active())
+        if (getInTransaction() && PostgreSQLConnection::active())
             rollbackTransaction();
         close();
     } catch (const Exception& e) {
@@ -183,7 +183,7 @@ String PostgreSQLConnection::nativeConnectionString() const
 void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
 {
     if (!active()) {
-        m_inTransaction = false;
+        setInTransaction(false);
 
         if (!newConnectionString.empty())
             connectionString(DatabaseConnectionString(newConnectionString));
@@ -229,7 +229,7 @@ void PostgreSQLConnection::driverBeginTransaction()
     if (m_connect == nullptr)
         open();
 
-    if (m_inTransaction)
+    if (getInTransaction())
         throw DatabaseException("Transaction already started.");
 
     PGresult* res = PQexec(m_connect, "BEGIN");
@@ -243,12 +243,12 @@ void PostgreSQLConnection::driverBeginTransaction()
 
     PQclear(res);
 
-    m_inTransaction = true;
+    setInTransaction(true);
 }
 
 void PostgreSQLConnection::driverEndTransaction(bool commit)
 {
-    if (!m_inTransaction)
+    if (!getInTransaction())
         throw DatabaseException("Transaction isn't started.");
 
     string action;
@@ -269,7 +269,7 @@ void PostgreSQLConnection::driverEndTransaction(bool commit)
 
     PQclear(res);
 
-    m_inTransaction = false;
+    setInTransaction(false);
 }
 
 //-----------------------------------------------------------------------------------------------

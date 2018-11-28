@@ -68,7 +68,7 @@ ODBCConnection::ODBCConnection(const String& connectionString)
 ODBCConnection::~ODBCConnection()
 {
     try {
-        if (m_inTransaction && ODBCConnection::active())
+        if (getInTransaction() && ODBCConnection::active())
             rollbackTransaction();
         close();
         delete m_connect;
@@ -94,7 +94,7 @@ String ODBCConnection::nativeConnectionString() const
 void ODBCConnection::_openDatabase(const String& newConnectionString)
 {
     if (!active()) {
-        m_inTransaction = false;
+        setInTransaction(false);
         if (!newConnectionString.empty())
             connectionString(DatabaseConnectionString(newConnectionString));
 
@@ -126,16 +126,16 @@ void ODBCConnection::driverBeginTransaction()
     if (!m_connect->isConnected())
         open();
 
-    if (m_inTransaction)
+    if (getInTransaction())
         logAndThrow("CODBCConnection::driverBeginTransaction", "Transaction already started.");
 
     m_connect->beginTransaction();
-    m_inTransaction = true;
+    setInTransaction(true);
 }
 
 void ODBCConnection::driverEndTransaction(bool commit)
 {
-    if (!m_inTransaction) {
+    if (!getInTransaction()) {
         if (commit)
             logAndThrow("CODBCConnection::driverEndTransaction", "Can't commit - transaction isn't started.");
         else
@@ -148,7 +148,7 @@ void ODBCConnection::driverEndTransaction(bool commit)
         m_connect->rollback();
 
     m_connect->setConnectOption(SQL_ATTR_AUTOCOMMIT, true);
-    m_inTransaction = false;
+    setInTransaction(false);
 }
 
 //-----------------------------------------------------------------------------------------------

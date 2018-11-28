@@ -66,7 +66,7 @@ SQLite3Connection::SQLite3Connection(const String& connectionString)
 SQLite3Connection::~SQLite3Connection()
 {
     try {
-        if (m_inTransaction && SQLite3Connection::active())
+        if (getInTransaction() && SQLite3Connection::active())
             rollbackTransaction();
         close();
     } catch (const Exception& e) {
@@ -82,7 +82,7 @@ String SQLite3Connection::nativeConnectionString() const
 void SQLite3Connection::_openDatabase(const String& newConnectionString)
 {
     if (!active()) {
-        m_inTransaction = false;
+        setInTransaction(false);
 
         if (!newConnectionString.empty())
             connectionString(DatabaseConnectionString(newConnectionString));
@@ -118,7 +118,7 @@ void SQLite3Connection::driverBeginTransaction()
     if (m_connect == nullptr)
         open();
 
-    if (m_inTransaction)
+    if (getInTransaction())
         throw DatabaseException("Transaction already started.");
 
     char* zErrMsg;
@@ -126,12 +126,12 @@ void SQLite3Connection::driverBeginTransaction()
     if (sqlite3_exec(m_connect, "BEGIN TRANSACTION", nullptr, nullptr, &zErrMsg) != SQLITE_OK)
         throw DatabaseException(zErrMsg);
 
-    m_inTransaction = true;
+    setInTransaction(true);
 }
 
 void SQLite3Connection::driverEndTransaction(bool commit)
 {
-    if (!m_inTransaction)
+    if (!getInTransaction())
         throw DatabaseException("Transaction isn't started.");
 
     string action;
@@ -146,7 +146,7 @@ void SQLite3Connection::driverEndTransaction(bool commit)
     if (sqlite3_exec(m_connect, action.c_str(), nullptr, nullptr, &zErrMsg) != SQLITE_OK)
         throw DatabaseException(zErrMsg);
 
-    m_inTransaction = false;
+    setInTransaction(false);
 }
 
 //-----------------------------------------------------------------------------------------------

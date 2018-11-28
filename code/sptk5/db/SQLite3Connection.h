@@ -55,10 +55,8 @@ class SP_EXPORT SQLite3Connection: public PoolDatabaseConnection
     typedef sqlite3_stmt * SQLHSTMT;
     typedef sqlite3 * SQLHDBC;
 
-    /**
-     * The SQLite3 database connection object
-     */
-    sqlite3 *m_connect {nullptr};
+    mutable std::mutex  m_mutex;                ///< Mutex that protects access to data members
+    sqlite3*            m_connect {nullptr};    ///< Database connection
 
 
 protected:
