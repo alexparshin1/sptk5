@@ -16,6 +16,7 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 /*
 ** libtar_hashptr_reset() - reset a hash pointer
@@ -81,11 +82,11 @@ libtar_hash_nents(libtar_hash_t *h)
 libtar_hash_t *
 libtar_hash_new(int num, libtar_hashfunc_t hashfunc)
 {
-    libtar_hash_t *hash;
-
-    hash = (libtar_hash_t *)calloc(1, sizeof(libtar_hash_t));
+    libtar_hash_t *hash = new libtar_hash_t;
     if (hash == nullptr)
         return nullptr;
+    memset(hash, 0, sizeof(libtar_hash_t));
+
     hash->numbuckets = num;
     if (hashfunc != nullptr)
         hash->hashfunc = hashfunc;
@@ -95,7 +96,7 @@ libtar_hash_new(int num, libtar_hashfunc_t hashfunc)
     hash->table = (libtar_list_t **)calloc(size_t(num), sizeof(libtar_list_t *));
     if (hash->table == nullptr)
     {
-        free(hash);
+        delete hash;
         return nullptr;
     }
 
@@ -226,7 +227,7 @@ libtar_hash_free(libtar_hash_t *h, libtar_freefunc_t freefunc)
             libtar_list_free(h->table[i], freefunc);
 
     free(h->table);
-    free(h);
+    delete h;
 }
 
 
