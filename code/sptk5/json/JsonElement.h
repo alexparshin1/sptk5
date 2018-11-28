@@ -669,12 +669,6 @@ public:
     void select(ElementSet& elements, const String& xpath);
 
     /**
-     * Element type check
-     * @return true if element is a number
-     */
-    bool isNumber()  const { return m_type == JDT_NUMBER; }
-
-    /**
      * Conversion to integer
      */
     explicit operator int () const { return (int) getNumber(); }
@@ -685,15 +679,21 @@ public:
     explicit operator double () const { return getNumber(); }
 
     /**
+     * Conversion to double
+     */
+    explicit operator String () const { return getString(); }
+
+    /**
+     * Element type check
+     * @return true if element is a number
+     */
+    bool isNumber()  const { return m_type == JDT_NUMBER; }
+
+    /**
      * Element type check
      * @return true if element is a string
      */
     bool isString()  const { return m_type == JDT_STRING; }
-
-    /**
-     * Conversion to double
-     */
-    explicit operator String () const { return getString(); }
 
     /**
      * Element type check

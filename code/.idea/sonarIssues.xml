@@ -1078,6 +1078,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/json/JsonElement.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/net/BaseSocket.h">
           <value>
             <set />
