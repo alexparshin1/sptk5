@@ -53,9 +53,11 @@ libtar_list_t* libtar_list_new(int flags, libtar_cmpfunc_t cmpfunc)
         return nullptr;
     }
 
-    newlist = (libtar_list_t*) calloc(1, sizeof(libtar_list_t));
+    newlist = new libtar_list_t;
     if (newlist == nullptr)
         return nullptr;
+    memset(newlist, 0, sizeof(libtar_list_t));
+
     if (cmpfunc != nullptr)
         newlist->cmpfunc = cmpfunc;
     else
@@ -110,7 +112,7 @@ void libtar_list_empty(libtar_list_t* l, libtar_freefunc_t freefunc)
 void libtar_list_free(libtar_list_t* l, libtar_freefunc_t freefunc)
 {
     libtar_list_empty(l, freefunc);
-    free(l);
+    delete l;
 }
 
 
