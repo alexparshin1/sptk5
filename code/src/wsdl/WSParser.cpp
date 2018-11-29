@@ -62,8 +62,8 @@ void WSParser::clear()
 
 void WSParser::parseElement(const xml::Element* elementNode)
 {
-    string elementName = elementNode->getAttribute("name");
-    string elementType = elementNode->getAttribute("type");
+    String elementName = (String) elementNode->getAttribute("name");
+    String elementType = (String) elementNode->getAttribute("type");
 
     size_t namespacePos = elementType.find(':');
     if (namespacePos != string::npos)
@@ -84,13 +84,13 @@ void WSParser::parseElement(const xml::Element* elementNode)
 
 void WSParser::parseComplexType(const xml::Element* complexTypeElement)
 {
-    String complexTypeName = complexTypeElement->getAttribute("name");
+    String complexTypeName = (String) complexTypeElement->getAttribute("name");
     if (complexTypeName.empty())
-        complexTypeName = complexTypeElement->parent()->getAttribute("name").str();
+        complexTypeName = (String) complexTypeElement->parent()->getAttribute("name");
 
     if (complexTypeName.empty()) {
         const xml::Node* parent = complexTypeElement->parent();
-        complexTypeName = parent->getAttribute("name").c_str();
+        complexTypeName = (String) parent->getAttribute("name");
     }
 
     if (m_complexTypes.find(complexTypeName) != m_complexTypes.end())
@@ -112,8 +112,8 @@ void WSParser::parseOperation(xml::Element* operationNode)
         if (message == nullptr)
             throw Exception("The node " + node->name() + " is not an XML element");
         xml::Node* part = message->findFirst("wsdl:part");
-        string messageName = message->getAttribute("name").c_str();
-        string elementName = strip_namespace(part->getAttribute("element"));
+        String messageName = (String) message->getAttribute("name");
+        String elementName = strip_namespace((String) part->getAttribute("element"));
         messageToElementMap[messageName] = elementName;
         xml::Node* documentationNode = part->findFirst("wsdl:documentation");
         if (documentationNode != nullptr)
@@ -126,7 +126,7 @@ void WSParser::parseOperation(xml::Element* operationNode)
         auto* element = dynamic_cast<const xml::Element*>(node);
         if (element == nullptr)
             throw Exception("The node " + node->name() + " is not an XML element");
-        string message = element->getAttribute("message");
+        String message = (String) element->getAttribute("message");
         size_t pos = message.find(':');
         if (pos != string::npos)
             message = message.substr(pos+1);
@@ -144,7 +144,7 @@ void WSParser::parseOperation(xml::Element* operationNode)
     }
 
     if (found) {
-        string operationName = operationNode->getAttribute("name");
+        String operationName = (String) operationNode->getAttribute("name");
         m_operations[operationName] = operation;
     }
 }
@@ -175,7 +175,7 @@ void WSParser::parse(std::string wsdlFile)
     wsdlXML.load(buffer);
 
     xml::Element* service = (xml::Element*) wsdlXML.findFirst("wsdl:service");
-    m_serviceName = service->getAttribute("name").str();
+    m_serviceName = (String) service->getAttribute("name");
 
     xml::Element* schemaElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("xsd:schema"));
     if (schemaElement == nullptr)

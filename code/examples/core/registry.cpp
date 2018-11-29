@@ -57,9 +57,9 @@ void printRegistry(RegistryMode mode)
                     // Processing the subnodes of <colors>
                     COUT("Window colors:" << endl);
                     for (auto* colorNode: *node) {
-                        COUT("  " << (string) colorNode->getAttribute("name")
-                             << ": fg " << (string) colorNode->getAttribute("foreground")
-                             << ", bg " << (string) colorNode->getAttribute("background")
+                        COUT("  " << (String) colorNode->getAttribute("name")
+                             << ": fg " << (String) colorNode->getAttribute("foreground")
+                             << ", bg " << (String) colorNode->getAttribute("background")
                              << endl);
                     }
                 }

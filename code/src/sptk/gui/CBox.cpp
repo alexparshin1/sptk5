@@ -68,7 +68,7 @@ CLayoutClient* CBox::creator(xml::Node* node)
 {
     auto* widget = new CBox("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
-    widget->dragable(node->getAttribute("drag", "N"));
+    widget->dragable((bool) node->getAttribute("drag", "N"));
     return widget;
 }
 

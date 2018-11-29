@@ -25,6 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/cutils>
 #include <sptk5/wsdl/WSParser.h>
 
 using namespace std;
@@ -32,10 +33,10 @@ using namespace sptk;
 
 void help()
 {
-    cout << "WSDL to C++ prototype parser. (C) 2012-2013 Alexey Parshin" << endl << endl;
-    cout << "Generates Web Service C++ class that is used as a base class for actual Web Service implementation." << endl;
-    cout << "Usage:" << endl << endl;
-    cout << "  wsdl2cxx <WSDL file> [output directory] [header file]" << endl;
+    COUT("WSDL to C++ prototype parser. (C) 2012-2013 Alexey Parshin" << endl << endl);
+    COUT("Generates Web Service C++ class that is used as a base class for actual Web Service implementation." << endl);
+    COUT("Usage:" << endl << endl);
+    COUT("  wsdl2cxx <WSDL file> [output directory] [header file]" << endl);
 }
 
 int main(int argc, const char* argv[])
@@ -59,7 +60,7 @@ int main(int argc, const char* argv[])
 
         int rc = system(("mkdir -p " + outputDirectory).c_str());
         if (rc != 0) {
-            cerr << "Can't open or create output directory '" << outputDirectory << "'." << endl;
+            CERR("Can't open or create output directory '" << outputDirectory << "'." << endl);
             return 1;
         }
 
@@ -69,7 +70,7 @@ int main(int argc, const char* argv[])
         return 0;
     }
     catch (const exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }

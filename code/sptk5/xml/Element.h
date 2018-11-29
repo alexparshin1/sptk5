@@ -32,7 +32,6 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/Strings.h>
 #include <sptk5/DateTime.h>
-#include <sptk5/xml/Value.h>
 #include <sptk5/xml/Attributes.h>
 
 #include <string>
@@ -259,7 +258,7 @@ public:
      * @param defaultValue      Default value. If attribute doesn't exist then default value is returned.
      * @returns attribute value
      */
-    Value getAttribute(const std::string& attr, const char *defaultValue="") const override
+    Variant getAttribute(const std::string& attr, const char *defaultValue="") const override
     {
         return m_attributes.getAttribute(attr,defaultValue);
     }
@@ -272,7 +271,7 @@ public:
      * @param value             Attribute value
      * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    void setAttribute(const char *attr, Value value, const char *defaultValue="") override
+    void setAttribute(const char *attr, Variant value, const char *defaultValue="") override
     {
         m_attributes.setAttribute(attr,value,defaultValue);
     }
@@ -285,7 +284,7 @@ public:
      * @param value             Attribute value
      * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    void setAttribute(const std::string& attr, Value value, const char *defaultValue="") override
+    void setAttribute(const std::string& attr, Variant value, const char *defaultValue="") override
     {
         m_attributes.setAttribute(attr.c_str(),value,defaultValue);
     }

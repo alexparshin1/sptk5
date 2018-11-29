@@ -57,11 +57,11 @@ CColumn::CColumn(const CColumn& col)
 
 void CColumn::load(const xml::Node& node)
 {
-    m_name = (string) node.getAttribute("caption");
-    m_type = (VariantType) (unsigned) node.getAttribute("type");
-    m_width = node.getAttribute("width");
-    m_visible = node.getAttribute("visible");
-    m_autoWidth = node.getAttribute("auto_width");
+    m_name = (String) node.getAttribute("caption");
+    m_type = (VariantType) (int) node.getAttribute("type");
+    m_width = (int) node.getAttribute("width");
+    m_visible = (bool) node.getAttribute("visible");
+    m_autoWidth = (bool) node.getAttribute("auto_width");
 }
 
 void CColumn::save(xml::Node& node) const
@@ -94,7 +94,7 @@ void CColumnList::load(const xml::Node& node)
     for (; itor != iend; ++itor) {
         try {
             xml::Node& columnNode = *(*itor);
-            unsigned columnIndex = columnNode.getAttribute("index");
+            unsigned columnIndex = (int) columnNode.getAttribute("index");
             if (columnIndex >= size())
                 continue;
             CColumn& column = (*this)[columnIndex];

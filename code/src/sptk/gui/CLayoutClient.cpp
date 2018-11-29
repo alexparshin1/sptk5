@@ -48,7 +48,7 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 {
     if (xmlMode & (int) LXM_LAYOUT) {
         CLayoutAlign layoutAlign;
-        String alignName(lowerCase(node->getAttribute("layout_align")));
+        String alignName(lowerCase((String)node->getAttribute("layout_align")));
         switch (alignName[0]) {
             case 'b':
                 layoutAlign = SP_ALIGN_BOTTOM;
@@ -68,10 +68,10 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
             default:
                 layoutAlign = SP_ALIGN_NONE;
                 {
-                    int x = node->getAttribute("x", "-1");
-                    int y = node->getAttribute("y", "-1");
-                    int w = node->getAttribute("w", "-1");
-                    int h = node->getAttribute("h", "-1");
+                    int x = (int) node->getAttribute("x", "-1");
+                    int y = (int) node->getAttribute("y", "-1");
+                    int w = (int) node->getAttribute("w", "-1");
+                    int h = (int) node->getAttribute("h", "-1");
                     if (x > -1 && y > -1)
                         m_widget->position(x, y);
                     if (w > -1 && h > -1)
@@ -80,18 +80,18 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
                 break;
         }
         m_layoutAlign = layoutAlign;
-        name(node->getAttribute("name"));
-        label(node->getAttribute("label"));
+        name((String) node->getAttribute("name"));
+        label((String) node->getAttribute("label"));
 
         if (layoutAlign != SP_ALIGN_NONE) {
-            int layoutSize = node->getAttribute("layout_size");
+            int layoutSize = (int) node->getAttribute("layout_size");
             if (layoutSize)
                 m_layoutSize = layoutSize;
         }
 
-        string boxTypeName = node->getAttribute("box");
+        String boxTypeName = (String) node->getAttribute("box");
         if (boxTypeName.empty())
-            boxTypeName = (string) node->getAttribute("frame");
+            boxTypeName = (String) node->getAttribute("frame");
         if (!boxTypeName.empty()) {
             auto btor = CLayoutManager::boxTypeNames().find(boxTypeName);
             if (btor != CLayoutManager::boxTypeNames().end())

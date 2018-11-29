@@ -172,7 +172,7 @@ namespace sptk {
             }
         }
         catch (exception& e) {
-            cerr << "Error parsing engine '" << engineNode->getAttribute("name", "").str() << "': " << e.what() << endl;
+            cerr << "Error parsing engine '" << (String) engineNode->getAttribute("name", "") << "': " << e.what() << endl;
         }
     }
 
@@ -182,7 +182,7 @@ namespace sptk {
         if (gtkrc[currentRow].find("style") != 0)
             throw Exception("Expecting 'style' in row " + gtkrc[currentRow]);
         xml::Node* styleNode = parseParameter(gtkrc[currentRow++], parentNode);
-        if (styleNode->getAttribute("name").str() == "scrollbar")
+        if ((String) styleNode->getAttribute("name") == "scrollbar")
             styleNode->setAttribute("name", "scrollbars");
         if (gtkrc[currentRow] != "{")
             throw Exception("Expecting '{' in row '" + gtkrc[currentRow] + "'");

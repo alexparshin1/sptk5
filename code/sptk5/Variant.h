@@ -33,9 +33,12 @@
 #include <sptk5/DateTime.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
-#include <sptk5/cxml>
 
 namespace sptk {
+
+namespace xml {
+    class Node;
+}
 
 /**
  * @addtogroup utility Utility Classes

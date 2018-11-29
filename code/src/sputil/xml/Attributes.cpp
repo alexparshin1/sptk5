@@ -31,19 +31,19 @@
 using namespace sptk;
 using namespace sptk::xml;
 
-Attribute::Attribute(Element* parent, const char* tagname, Value avalue)
+Attribute::Attribute(Element* parent, const char* tagname, Variant avalue)
 : NamedItem(*parent->document())
 {
     NamedItem::name(tagname);
-    Attribute::value(avalue);
+    Attribute::value(avalue.asString());
     parent->attributes().push_back(this);
 }
 
-Attribute::Attribute(Element* parent, const String& tagname, Value avalue)
+Attribute::Attribute(Element* parent, const String& tagname, Variant avalue)
 : NamedItem(*parent->document())
 {
     NamedItem::name(tagname);
-    Attribute::value(avalue);
+    Attribute::value(avalue.asString());
     parent->attributes().push_back(this);
 }
 
@@ -95,21 +95,21 @@ const Attribute* Attributes::getAttributeNode(const String& attr) const
     return nullptr;
 }
 
-Value Attributes::getAttribute(const String& attr, const char* defaultValue) const
+Variant Attributes::getAttribute(const String& attr, const char* defaultValue) const
 {
     const auto itor = findFirst(attr.c_str());
     if (itor != end())
         return (*itor)->value();
-    Value rc;
+    Variant rc;
     if (defaultValue != nullptr)
         rc = defaultValue;
     return rc;
 }
 
-void Attributes::setAttribute(const String& attr, Value value, const char* defaultValue)
+void Attributes::setAttribute(const String& attr, Variant value, const char* defaultValue)
 {
     const auto itor = findFirst(attr);
-    if (defaultValue != nullptr && value.str() == defaultValue) {
+    if (defaultValue != nullptr && value.asString() == defaultValue) {
         if (itor != end()) {
             delete *itor;
             erase(itor);

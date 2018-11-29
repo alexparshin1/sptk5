@@ -151,9 +151,9 @@ void CThemeScrollBar::loadGtkScrollbars(xml::Document& xml)
     xml.select(scrollBarDefaults, "/styles/style/GtkRange");
     if (!scrollBarDefaults.empty()) {
         xml::Node* node = scrollBarDefaults[0];
-        m_scrollBarTroughBorder = node->getAttribute("trough_border", "1");
-        m_scrollBarSliderWidth = node->getAttribute("slider_width", "14");
-        m_scrollBarStepperSize = node->getAttribute("stepper_size", "14");
+        m_scrollBarTroughBorder = (int) node->getAttribute("trough_border", "1");
+        m_scrollBarSliderWidth = (int) node->getAttribute("slider_width", "14");
+        m_scrollBarStepperSize = (int) node->getAttribute("stepper_size", "14");
     }
     loadGtkScrollbarButtons(xml, "UP", m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[0]);
     loadGtkScrollbarButtons(xml, "DOWN", m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[1]);

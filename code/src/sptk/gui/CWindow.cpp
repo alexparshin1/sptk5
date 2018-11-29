@@ -118,14 +118,14 @@ void CWindow::save(xml::Node* node, CLayoutXMLmode xmlMode) const
 
 void CWindow::loadPosition(const xml::Node* node)
 {
-    int hh = node->getAttribute("height");
+    int hh = (int) node->getAttribute("height");
     if (!hh)
-        hh = node->getAttribute("h");
-    int ww = node->getAttribute("width");
+        hh = (int) node->getAttribute("h");
+    int ww = (int) node->getAttribute("width");
     if (!ww)
-        ww = node->getAttribute("w");
+        ww = (int) node->getAttribute("w");
     if (hh > 0 && ww > 0)
-        resize(node->getAttribute("x", "0"), node->getAttribute("y", "0"), ww, hh);
+        resize((int) node->getAttribute("x", "0"), (int) node->getAttribute("y", "0"), ww, hh);
 }
 
 void CWindow::savePosition(xml::Node* node) const

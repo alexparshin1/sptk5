@@ -467,7 +467,7 @@ void verifyDocument(xml::Document& document)
 {
     xml::Node* nameNode = document.findOrCreate("name");
     EXPECT_STREQ("John", nameNode->text().c_str());
-    EXPECT_STREQ("president", nameNode->getAttribute("position").c_str());
+    EXPECT_STREQ("president", nameNode->getAttribute("position").asString().c_str());
 
     EXPECT_EQ(33, string2int(document.findOrCreate("age")->text()));
     EXPECT_DOUBLE_EQ(36.6, string2double(document.findOrCreate("temperature")->text()));

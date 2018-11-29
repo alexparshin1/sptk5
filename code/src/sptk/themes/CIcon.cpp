@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
+#include <sptk5/cutils>
 
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CPngImage.h>
@@ -82,8 +82,8 @@ void CIconMap::load(Tar& tar, xml::Node* iconsNode)
     for (auto node: *iconsNode) {
         if (node->name() != "icon")
             continue;
-        string iconName = node->getAttribute("name");
-        string fileName = node->getAttribute("image");
+        String iconName = (String) node->getAttribute("name");
+        String fileName = (String) node->getAttribute("image");
         if (iconName.empty())
             continue;
         try {
@@ -100,8 +100,8 @@ void CIconMap::load(Tar& tar, xml::Node* iconsNode)
             if (!icon->image())
                 throw Exception("Can't load " + fileName);
         }
-        catch (exception& e) {
-            cerr << "ERROR: " << e.what() << endl;
+        catch (const Exception& e) {
+            CERR(e.what() << endl);
         }
     }
 }

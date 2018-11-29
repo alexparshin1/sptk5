@@ -161,7 +161,7 @@ bool NodeSearchAlgorithms::matchPathElement(Node* thisNode, const XPathElement& 
                 }
             } else
                 attributeMatch =
-                        attributes.getAttribute(*pathElement.attributeName).str() == pathElement.attributeValue;
+                        attributes.getAttribute(*pathElement.attributeName).asString() == pathElement.attributeValue;
         } else {
             if (pathElement.attributeName == starPointer)
                 attributeMatch = thisNode->hasAttributes();

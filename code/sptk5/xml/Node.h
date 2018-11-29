@@ -32,7 +32,7 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/Strings.h>
 #include <sptk5/DateTime.h>
-#include <sptk5/xml/Value.h>
+#include <sptk5/Variant.h>
 #include <sptk5/xml/NodeList.h>
 
 #include <string>
@@ -42,8 +42,8 @@
 namespace sptk {
 
 namespace json {
-class Document;
-class Element;
+    class Document;
+    class Element;
 }
 
 namespace xml {
@@ -490,9 +490,9 @@ public:
      * @param defaultValue      A default value. If attribute doesn't exist then default value is returned.
      * @returns attribute value
      */
-    virtual Value getAttribute(const std::string& attr, const char* defaultValue = "") const
+    virtual Variant getAttribute(const std::string& attr, const char* defaultValue = "") const
     {
-        return defaultValue;
+        return Variant(defaultValue);
     }
 
     /**
@@ -503,7 +503,7 @@ public:
      * @param value             Attribute value
      * @param defaultValue      A default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    virtual void setAttribute(const char* attr, Value value, const char* defaultValue = "")
+    virtual void setAttribute(const char* attr, Variant value, const char* defaultValue = "")
     {
         // Implement in derived classes
     }
@@ -516,7 +516,7 @@ public:
      * @param value             Attribute value
      * @param defaultValue      A default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    virtual void setAttribute(const std::string& attr, Value value, const char* defaultValue = "")
+    virtual void setAttribute(const std::string& attr, Variant value, const char* defaultValue = "")
     {
         // Implement in derived classes
     }

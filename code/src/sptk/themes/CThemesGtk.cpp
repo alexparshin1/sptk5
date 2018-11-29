@@ -47,15 +47,15 @@ void CThemes::loadGtkButton(xml::Node* imageNode, std::map<CThemeImageState, std
 {
     static const Strings buttonStates("NORMAL|ACTIVE|DFRAME|PRELIGHT", "|"); /// DFRAME is a stub
 
-    bool defaultFrame = imageNode->getAttribute("detail", "").str() == "buttondefault";
+    bool defaultFrame = (String) imageNode->getAttribute("detail", "") == "buttondefault";
 
-    String fileName = imageNode->getAttribute("file");
+    String fileName = (String) imageNode->getAttribute("file");
     if (fileName.empty())
-        fileName = imageNode->getAttribute("overlay_file").str();
+        fileName = (String) imageNode->getAttribute("overlay_file");
 
-    String state = upperCase(imageNode->getAttribute("state", "NORMAL"));
+    String state = upperCase((String) imageNode->getAttribute("state", "NORMAL"));
     //string border = imageNode->getAttribute("border");
-    String shadow = upperCase(imageNode->getAttribute("shadow", "OUT"));
+    String shadow = upperCase((String) imageNode->getAttribute("shadow", "OUT"));
     if (shadow == "ETCHED_IN")
         return;
     if (fileName[0] == '/') fileName = fileName.substr(1, 255);
@@ -76,7 +76,7 @@ void CThemes::loadGtkButtonFileNames(
     buttonFileNames.clear();
     xml.select(buttonImages, XPath);
     for (auto imageNode : buttonImages) {
-        if (!orientation.empty() && imageNode->getAttribute("arrow_direction").str() != orientation)
+        if (!orientation.empty() && (String) imageNode->getAttribute("arrow_direction") != orientation)
             continue;
         loadGtkButton(imageNode, buttonFileNames);
     }
@@ -144,7 +144,7 @@ void CThemes::loadGtkTheme(const String& gtkThemeName)
     xml::NodeVector bgImageNodes;
     xml.select(bgImageNodes, "/styles/style/bg_pixmap");
     if (!bgImageNodes.empty()) {
-        string fileName = CThemeImageCollection::gtkFullFileName(bgImageNodes[0]->getAttribute("NORMAL"));
+        String fileName = CThemeImageCollection::gtkFullFileName((String) bgImageNodes[0]->getAttribute("NORMAL"));
         m_background[3] = loadValidatePNGImage(fileName, true);
     }
 }

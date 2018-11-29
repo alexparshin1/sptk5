@@ -232,7 +232,7 @@ void CThemeColorCollection::loadFromGtkTheme(xml::Document& gtkTheme)
     gtkTheme.select(styleNodes, stylesXPath);
     xml::Node* defaultStyleNode = *styleNodes.begin();
     for (auto styleNode : styleNodes) {
-        String styleName(styleNode->getAttribute("name").str());
+        String styleName((String) styleNode->getAttribute("name"));
         if (styleName == "default" || styleName.find("-default") != STRING_NPOS) {
             defaultStyleNode = styleNode;
             break;
@@ -268,7 +268,7 @@ void CThemeColorCollection::loadColorMap(xml::Document& gtkTheme, const String& 
 
     xml::Node* colorMapNode = *(colorMapNodes.begin());
 
-    Strings colorMapStrings(colorMapNode->getAttribute("colors"), "\\n");
+    Strings colorMapStrings((String) colorMapNode->getAttribute("colors"), "\\n");
 
     for (const auto& colorMapString : colorMapStrings) {
         Strings colorInfo(colorMapString, ":#");

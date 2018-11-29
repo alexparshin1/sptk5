@@ -39,7 +39,7 @@ WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElemen
     for (auto* node: enumerationNodes) {
         auto* enumerationNode = dynamic_cast<xml::Element*>(node);
         if (enumerationNode != nullptr)
-            m_enumerations.push_back(string(enumerationNode->getAttribute("value").c_str()));
+            m_enumerations.push_back((String) enumerationNode->getAttribute("value"));
     }
 }
 

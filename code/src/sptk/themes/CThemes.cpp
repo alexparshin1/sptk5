@@ -274,7 +274,7 @@ void CThemes::set(string theThemeName)
                 xml::Node* iconsNode = *itor;
                 if (iconsNode->name() != "icons")
                     continue;
-                string iconsSizeStr = iconsNode->getAttribute("size", "large");
+                String iconsSizeStr = (String) iconsNode->getAttribute("size", "large");
                 CIconSize iconsSize;
                 switch (iconsSizeStr[0]) {
                     case 'c':
@@ -294,9 +294,9 @@ void CThemes::set(string theThemeName)
             }
 
             xml::Node* buttonsNode = m_registry->findOrCreate("buttons", false);
-            m_desaturateInactiveButtons = buttonsNode->getAttribute("DesaturateInactive", "N");
-            m_buttonFocusRadius = buttonsNode->getAttribute("FocusRadius", "0");
-            m_flatButtons = buttonsNode->getAttribute("FlatInactive", "N");
+            m_desaturateInactiveButtons = (bool) buttonsNode->getAttribute("DesaturateInactive", "N");
+            m_buttonFocusRadius = (int) buttonsNode->getAttribute("FocusRadius", "0");
+            m_flatButtons = (bool) buttonsNode->getAttribute("FlatInactive", "N");
 
             xml::Node* tabsNode = m_registry->findOrCreate("tabs", false);
             m_tabImages.load(m_tar, tabsNode);
@@ -305,14 +305,14 @@ void CThemes::set(string theThemeName)
             m_fonts.clear();
             for (itor = fontsTopic->begin(); itor != fontsTopic->end(); ++itor) {
                 xml::Node* fontInfo = *itor;
-                string fontName = fontInfo->getAttribute("name", "Arial");
+                String fontName = (String) fontInfo->getAttribute("name", "Arial");
                 CFont* screenFont = screenFonts.find(fontName);
                 if (!screenFont)
                     continue;
-                string object = fontInfo->getAttribute("object", "Arial");
+                String object = (String) fontInfo->getAttribute("object", "Arial");
                 CFont* font = new CFont(fontName,
-                        fontInfo->getAttribute("size", "10"),
-                        fontInfo->getAttribute("color", "0"),
+                        (int) fontInfo->getAttribute("size", "10"),
+                        (int) fontInfo->getAttribute("color", "0"),
                         screenFont->index(),
                         screenFont->attributes()
                         );

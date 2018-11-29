@@ -52,13 +52,13 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
                                          const String& typeName)
 : m_element(complexTypeElement), m_refcount(0), m_restriction(nullptr)
 {
-    m_name = name.empty() ? complexTypeElement->getAttribute("name").str() : name;
-    m_typeName = typeName.empty() ? complexTypeElement->getAttribute("type").str() : typeName;
+    m_name = name.empty() ? (String) complexTypeElement->getAttribute("name") : name;
+    m_typeName = typeName.empty() ? (String) complexTypeElement->getAttribute("type") : typeName;
 
     if (m_typeName.empty() && complexTypeElement->name() == "xsd:element") {
         xml::Node* restrictionElement = complexTypeElement->findFirst("xsd:restriction");
         if (restrictionElement != nullptr) {
-            m_typeName = restrictionElement->getAttribute("base").c_str();
+            m_typeName = (String) restrictionElement->getAttribute("base");
             m_restriction = new WSRestriction(m_typeName, (xml::Element*) restrictionElement->parent());
         }
     }
@@ -73,9 +73,9 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
     String maxOccurs;
     String minOccurs;
     if (complexTypeElement->hasAttribute("maxOccurs"))
-        maxOccurs = (string) complexTypeElement->getAttribute("maxOccurs");
+        maxOccurs = (String) complexTypeElement->getAttribute("maxOccurs");
     if (complexTypeElement->hasAttribute("minOccurs"))
-        minOccurs = (string) complexTypeElement->getAttribute("minOccurs");
+        minOccurs = (String) complexTypeElement->getAttribute("minOccurs");
 
     m_multiplicity = WSM_REQUIRED;
 
@@ -133,8 +133,8 @@ void WSParserComplexType::parse()
         if (element == nullptr)
             throw Exception("The node " + node->name() + " is not an XML element");
         if (element->name() == "xsd:attribute") {
-            string attrName = element->getAttribute("name");
-            m_attributes[attrName] = new WSParserAttribute(attrName, element->getAttribute("type"));
+            String attrName = (String) element->getAttribute("name");
+            m_attributes[attrName] = new WSParserAttribute(attrName, (String) element->getAttribute("type"));
             continue;
         }
         if (element->name() == "xsd:sequence") {
@@ -388,7 +388,7 @@ void WSParserComplexType::printImplementationLoadXML(ostream& classImplementatio
         classImplementation << endl << "    // Load attributes" << endl;
         for (auto itor: m_attributes) {
             WSParserAttribute& attr = *itor.second;
-            classImplementation << "    m_" << attr.name() << ".load(input->getAttribute(\"" << attr.name() << "\"));" << endl;
+            classImplementation << "    m_" << attr.name() << ".load((String) input->getAttribute(\"" << attr.name() << "\"));" << endl;
         }
     }
 

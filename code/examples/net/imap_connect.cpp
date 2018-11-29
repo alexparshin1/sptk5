@@ -88,9 +88,9 @@ int main()
         registry.load();
         xml::Node* hostNode = registry.findFirst("host");
         if (hostNode) {
-            server = (string) hostNode->getAttribute("hostname");
-            user = (string) hostNode->getAttribute("user");
-            password = (string) hostNode->getAttribute("password");
+            server = (String) hostNode->getAttribute("hostname");
+            user = (String) hostNode->getAttribute("user");
+            password = (String) hostNode->getAttribute("password");
         }
         IMAP.host(Host(server,143));
 

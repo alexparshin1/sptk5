@@ -398,9 +398,9 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
         auto itor = groupNode->begin();
         for (; itor != groupNode->end(); ++itor) {
             xml::Node* node = *itor;
-            string label = node->getAttribute("label");
+            String label = (String) node->getAttribute("label");
             if (label.empty())
-                label = "noName:" + (string) node->getAttribute("nn_index");
+                label = "noName:" + (String) node->getAttribute("nn_index");
             if (node->name() == "group")
                 xmlGroups[label] = node;
             else if (node->name() == "control")

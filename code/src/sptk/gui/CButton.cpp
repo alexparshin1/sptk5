@@ -405,8 +405,8 @@ CLayoutClient* CButton::creator(xml::Node* node)
 void CButton::load(const xml::Node* node)
 {
     CLayoutClient::load(node, LXM_LAYOUT);
-    string iconName = node->getAttribute("icon");
-    string iconType = node->getAttribute("size", "large");
+    String iconName = (String) node->getAttribute("icon");
+    String iconType = (String) node->getAttribute("size", "large");
     CIconSize iconSize;
     switch (iconType[0]) {
         case 'c':

@@ -579,9 +579,9 @@ void sptk::createControls(const xml::NodeList& xmlControls)
 {
     for (auto* node: xmlControls) {
         CControlKind controlKind = CControlKindIndex::type(node->name());
-        CControl* control = createControl(controlKind, node->getAttribute("label", ""),
-                                          node->getAttribute("fieldName", ""),
-                                          node->getAttribute("size", "12"));
+        CControl* control = createControl(controlKind, (String) node->getAttribute("label", ""),
+                                          (String) node->getAttribute("fieldName", ""),
+                                          (int) node->getAttribute("size", "12"));
         if ((int) node->getAttribute("visible", "1") == 0)
             control->hide();
         if ((int) node->getAttribute("enable", "1") == 0)

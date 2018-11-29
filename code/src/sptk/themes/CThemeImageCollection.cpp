@@ -115,15 +115,15 @@ void CThemeImageCollection::loadFromGtkTheme(
     string normalImageFileName;
     string normalOverlayFileName;
     for (auto imageNode : images) {
-        if (!attribute.empty() && imageNode->getAttribute(attribute).str() != attributeValue)
+        if (!attribute.empty() && (String) imageNode->getAttribute(attribute) != attributeValue)
             continue;
 
-        bool defaultFrame = imageNode->getAttribute("detail", "").str() == "buttondefault";
+        bool defaultFrame = (String) imageNode->getAttribute("detail", "") == "buttondefault";
 
-        string fileName = gtkFullFileName(imageNode->getAttribute("file"));
-        string overlayFileName = gtkFullFileName(imageNode->getAttribute("overlay_file"));
+        String fileName = gtkFullFileName((String) imageNode->getAttribute("file"));
+        String overlayFileName = gtkFullFileName((String) imageNode->getAttribute("overlay_file"));
 
-        String state = upperCase(imageNode->getAttribute("state", "NORMAL"));
+        String state = upperCase((String) imageNode->getAttribute("state", "NORMAL"));
         int buttonState = buttonStates.indexOf(state);
 
         if (normalImageFileName.empty() && (state == "NORMAL" || state == "ACTIVE"))
@@ -133,8 +133,8 @@ void CThemeImageCollection::loadFromGtkTheme(
             normalOverlayFileName = overlayFileName;
 
         if (!borderInitted) {
-            m_stretch = imageNode->getAttribute("stretch").str() == "TRUE";
-            string border = imageNode->getAttribute("border", "{ 0, 0, 0, 0 }");
+            m_stretch = (String) imageNode->getAttribute("stretch") == "TRUE";
+            String border = (String) imageNode->getAttribute("border", "{ 0, 0, 0, 0 }");
             size_t pos1 = border.find('{');
             size_t pos2 = border.find('}');
             if (pos1 != STRING_NPOS && pos2 != STRING_NPOS) {
@@ -147,7 +147,7 @@ void CThemeImageCollection::loadFromGtkTheme(
             borderInitted = true;
         }
 
-        String shadow = upperCase(imageNode->getAttribute("shadow", "OUT"));
+        String shadow = upperCase((String) imageNode->getAttribute("shadow", "OUT"));
         if (shadow == "ETCHED_IN")
             continue;
 

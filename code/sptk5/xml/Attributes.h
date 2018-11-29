@@ -30,6 +30,7 @@
 #define __SPTK_XML_ATTRIBUTES_H__
 
 #include <sptk5/DateTime.h>
+#include <sptk5/Variant.h>
 #include <sptk5/xml/Node.h>
 #include <sptk5/xml/Element.h>
 #include <sptk5/xml/NodeList.h>
@@ -70,7 +71,7 @@ protected:
      * @param name              Attribute name
      * @param value             Attribute value
      */
-    Attribute(Element* parent, const String& name, Value value);
+    Attribute(Element* parent, const String& name, Variant value);
 
     /**
      * Protected constructor (internal)
@@ -81,7 +82,7 @@ protected:
      * @param name              Attribute name
      * @param value             Attribute value
      */
-    Attribute(Element* parent, const char* name, Value value);
+    Attribute(Element* parent, const char* name, Variant value);
 
 public:
     /**
@@ -161,16 +162,16 @@ public:
      * @param defaultValue      Default value. If attribute doesn't exist then default value is returned.
      * @returns attribute value 
      */
-    Value getAttribute(const String& attr, const char* defaultValue = "") const;
+    Variant getAttribute(const String& attr, const char* defaultValue = "") const;
 
     /**
      * Sets attribute value for given attribute
      *
      * @param attr std::string, name of attribute
-     * @param value             Attribute value. See XMLValue class description for data convertions.
+     * @param value             Attribute value
      * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    void setAttribute(const String& attr, Value value, const char* defaultValue = "");
+    void setAttribute(const String& attr, Variant value, const char* defaultValue = "");
 
     /**
      * Returns an attribute node

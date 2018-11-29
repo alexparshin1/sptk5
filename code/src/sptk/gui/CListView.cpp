@@ -1950,12 +1950,12 @@ void CListView::loadList(const xml::Node* node)
                 strings.resize(colCount);
                 for (; itor != anode->end(); ++itor) {
                     xml::Node* rowNode = *itor;
-                    int rowID = rowNode->getAttribute("id");
+                    int rowID = (int) rowNode->getAttribute("id");
                     auto rtor = rowNode->begin();
                     unsigned c = 0;
                     for (; rtor != rowNode->end(); ++rtor, ++c) {
                         xml::Node* cellNode = *rtor;
-                        unsigned index = cellNode->getAttribute("index");
+                        unsigned index = (int) cellNode->getAttribute("index");
                         if (index)
                             c = index;
                         if (c >= colCount)

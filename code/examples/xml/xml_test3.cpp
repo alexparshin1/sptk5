@@ -53,7 +53,7 @@ void testXPath(const string& fileName, const string& xpath, int expectedNodeCoun
     for (auto* node: selectedNodes) {
         COUT(node->name());
         if (node->hasAttribute("N"))
-            COUT(", N=" << node->getAttribute("N").str());
+            COUT(", N=" << node->getAttribute("N").asString());
         if (!node->value().empty())
             COUT(", value=" << node->value());
         COUT(endl);

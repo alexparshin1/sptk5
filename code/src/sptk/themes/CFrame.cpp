@@ -57,16 +57,16 @@ void CFrames::load(Tar& tar, xml::Node* framesNode)
         xml::Node* frameNode = *itor;
         if (frameNode->name() != "frame")
             continue;
-        string fileName = frameNode->getAttribute("image");
+        String fileName = (String) frameNode->getAttribute("image");
         if (fileName.empty())
             continue;
-        string frameTypeStr = frameNode->getAttribute("type");
-        string frameName = frameNode->getAttribute("name", frameTypeStr.c_str());
+        String frameTypeStr = (String) frameNode->getAttribute("type");
+        String frameName = (String) frameNode->getAttribute("name", frameTypeStr.c_str());
         if (frameTypeStr.empty())
             frameTypeStr = frameName;
         unsigned frameTypeInt = (unsigned) frameTypeNames.indexOf(frameTypeStr);
-        unsigned frameWidth = frameNode->getAttribute("width", "1");
-        unsigned cornerZone = frameNode->getAttribute("corner", "1");
+        unsigned frameWidth = (int) frameNode->getAttribute("width", "1");
+        unsigned cornerZone = (int) frameNode->getAttribute("corner", "1");
         Fl_Boxtype frameType = FL_NO_BOX;
         CFrame::CFrameKind kind = CFrame::USER_EXTENDED;
         if (frameTypeInt < 4) {
@@ -74,7 +74,7 @@ void CFrames::load(Tar& tar, xml::Node* framesNode)
             kind = CFrame::FLTK_STANDARD;
         }
         CPngImage::CPatternDrawMode drawMode = CPngImage::PDM_STRETCH;
-        if (frameNode->getAttribute("mode").str() == "tile")
+        if ((String) frameNode->getAttribute("mode") == "tile")
             drawMode = CPngImage::PDM_TILE;
         const Buffer& imageData = tar.file(fileName);
         registerFrame(frameName, new CFrame(imageData, frameWidth, cornerZone, drawMode, kind), frameType);
@@ -100,7 +100,8 @@ CFrame* CFrames::find(Fl_Boxtype frameType) const
         if (itor == m_fltkFrames.end())
             return nullptr;
         return itor->second;
-    } catch (...) {
+    }
+    catch (const Exception&) {
         return nullptr;
     }
 }

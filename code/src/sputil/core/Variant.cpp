@@ -1232,7 +1232,7 @@ VariantType Variant::nameType(const char* name)
 
 void Variant::load(const xml::Node& node)
 {
-    const string& ntype = node.getAttribute("type").str();
+    const String& ntype = node.getAttribute("type").asString();
     unsigned type = nameType(ntype.c_str());
 
     switch (type) {

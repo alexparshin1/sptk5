@@ -36,14 +36,14 @@ using namespace sptk;
 
 CTabImage::CTabImage(const Tar& tar, const xml::Node* tabImageNode)
 {
-    m_name = tabImageNode->getAttribute("name").str();
-    string fileName = tabImageNode->getAttribute("image");
+    m_name = (String) tabImageNode->getAttribute("name");
+    String fileName = (String) tabImageNode->getAttribute("image");
     m_image = new CPngImage(tar.file(fileName));
-    m_leftFrameWidth = tabImageNode->getAttribute("left_frame", "0");
-    m_rightFrameWidth = tabImageNode->getAttribute("right_frame", "0");
-    m_topFrameHeight = tabImageNode->getAttribute("top_frame", "0");
-    m_bottomFrameHeight = tabImageNode->getAttribute("bottom_frame", "0");
-    if (tabImageNode->getAttribute("fill").str() == "stretch")
+    m_leftFrameWidth = (int) tabImageNode->getAttribute("left_frame", "0");
+    m_rightFrameWidth = (int) tabImageNode->getAttribute("right_frame", "0");
+    m_topFrameHeight = (int) tabImageNode->getAttribute("top_frame", "0");
+    m_bottomFrameHeight = (int) tabImageNode->getAttribute("bottom_frame", "0");
+    if ((String) tabImageNode->getAttribute("fill") == "stretch")
         m_backgroundDrawMode = CPngImage::PDM_STRETCH;
     else
         m_backgroundDrawMode = CPngImage::PDM_TILE;
@@ -93,23 +93,6 @@ void CTabImage::draw(int x, int y, int w, int h)
                             m_image->h() - (m_topFrameHeight + m_bottomFrameHeight),
                             x + m_leftFrameWidth, y + m_topFrameHeight, w - (m_leftFrameWidth + m_rightFrameWidth),
                             h - (m_topFrameHeight + m_bottomFrameHeight));
-/*
-    if (drawMode == PDM_STRETCH) {
-        cutStretchDraw(cornerSizeX,0,w()-cornerSizeX*2,cornerSizeY,xx+cornerSizeX,yy,ww-cornerSizeX*2,cornerSizeY);
-        cutStretchDraw(cornerSizeX,h()-cornerSizeY,w()-cornerSizeX*2,cornerSizeY,xx+cornerSizeX,yy+hh-cornerSizeY,ww-cornerSizeX*2,cornerSizeY);
-        cutStretchDraw(0,cornerSizeY,cornerSizeX,h()-cornerSizeY*2,xx,yy+cornerSizeY,cornerSizeX,hh-cornerSizeY*2);
-        cutStretchDraw(w()-cornerSizeX,cornerSizeY,cornerSizeX,h()-cornerSizeY*2,xx+ww-cornerSizeX,yy+cornerSizeY,cornerSizeX,hh-cornerSizeY*2);
-        if (drawBackground)
-            cutStretchDraw(cornerSizeX,cornerSizeY,w()-cornerSizeX*2,h()-cornerSizeY*2,xx+cornerSizeX,yy+cornerSizeY,ww-cornerSizeX*2,hh-cornerSizeY*2);
-    } else {
-        cutTileDraw(cornerSizeX,0,w()-cornerSizeX*2,cornerSizeY,xx+cornerSizeX,yy,ww-cornerSizeX*2,cornerSizeY);
-        cutTileDraw(cornerSizeX,h()-cornerSizeY,w()-cornerSizeX*2,cornerSizeY,xx+cornerSizeX,yy+hh-cornerSizeY,ww-cornerSizeX*2,cornerSizeY);
-        cutTileDraw(0,cornerSizeY,cornerSizeX,h()-cornerSizeY*2,xx,yy+cornerSizeY,cornerSizeX,hh-cornerSizeY*2);
-        cutTileDraw(w()-cornerSizeX,cornerSizeY,cornerSizeX,h()-cornerSizeY*2,xx+ww-cornerSizeX,yy+cornerSizeY,cornerSizeX,hh-cornerSizeY*2);
-        if (drawBackground)
-            cutTileDraw(cornerSizeX,cornerSizeY,w()-cornerSizeX*2,h()-cornerSizeY*2,xx+cornerSizeX,yy+cornerSizeY,ww-cornerSizeX*2,hh-cornerSizeY*2);
-    }
-    */
 }
 
 void CTabImages::load(const Tar& tar, const xml::Node* tabImagesNode)
