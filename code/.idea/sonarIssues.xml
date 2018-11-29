@@ -488,6 +488,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CDocumentEvent.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CDocumentEventHandler.cpp">
           <value>
             <set />
@@ -498,7 +503,17 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/COwnerDocumentEventThread.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CProtisCoreConfig.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CProtisCoreConfig.h">
           <value>
             <set />
           </value>
@@ -509,6 +524,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CopyProject.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CopyProject.h">
           <value>
             <set />
           </value>
@@ -533,7 +553,17 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/Translate/GoogleTranslate.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/protis_core/Translate/TranslatorEngine.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/Translate/TranslatorEngine.h">
           <value>
             <set />
           </value>
@@ -568,12 +598,32 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/document/BaseDocument.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/document/BaseDocument.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/protis_core/owner_database/UpdateOwnerDatabases.cpp">
           <value>
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/pdf/PDF_Document.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/protis_core/protis_core.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/protis_core.wsdl">
           <value>
             <set />
           </value>
@@ -1779,6 +1829,11 @@
           </value>
         </entry>
         <entry key="/usr/local/include/sptk5/Buffer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/MemoryDS.h">
           <value>
             <set />
           </value>

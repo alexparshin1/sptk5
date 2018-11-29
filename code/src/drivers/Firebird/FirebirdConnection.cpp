@@ -43,7 +43,7 @@ FirebirdConnection::FirebirdConnection(const String& connectionString)
 FirebirdConnection::~FirebirdConnection()
 {
     try {
-        if (m_inTransaction && active())
+        if (getInTransaction() && active())
             rollbackTransaction();
         disconnectAllQueries();
         close();
@@ -72,7 +72,7 @@ void FirebirdConnection::_openDatabase(const String& newConnectionString)
     ISC_STATUS status_vector[20];
 
     if (!active()) {
-        m_inTransaction = false;
+        setInTransaction(false);
         if (newConnectionString.length())
             connectionString(DatabaseConnectionString(newConnectionString));
 
@@ -155,7 +155,7 @@ void FirebirdConnection::driverBeginTransaction()
     if (!m_connection)
         open();
 
-    if (m_inTransaction) {
+    if (getInTransaction()) {
         driverEndTransaction(true);
         //throw CDatabaseException("Transaction already started");
     }
@@ -165,14 +165,14 @@ void FirebirdConnection::driverBeginTransaction()
     isc_start_transaction(status_vector, &m_transaction, 1, &m_connection, sizeof(isc_tpb), isc_tpb);
     checkStatus(status_vector, __FILE__, __LINE__);
 
-    m_inTransaction = true;
+    setInTransaction(true);
 }
 
 void FirebirdConnection::driverEndTransaction(bool commit)
 {
     ISC_STATUS status_vector[20];
 
-    if (!m_inTransaction)
+    if (!getInTransaction())
         throwDatabaseException("Transaction isn't started.");
 
     if (commit)
@@ -182,7 +182,7 @@ void FirebirdConnection::driverEndTransaction(bool commit)
 
     checkStatus(status_vector, __FILE__, __LINE__);
     m_transaction = 0L;
-    m_inTransaction = false;
+    setInTransaction(false);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -277,7 +277,7 @@ void FirebirdConnection::queryExecute(Query *query)
     try {
         if (!statement)
             throwDatabaseException("Query is not prepared");
-        statement->execute(m_inTransaction);
+        statement->execute(getInTransaction());
     }
     catch (const Exception& e) {
         throwDatabaseException(e.what());

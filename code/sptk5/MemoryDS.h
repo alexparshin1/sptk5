@@ -95,6 +95,16 @@ protected:
         other.m_eof = false;
     }
 
+    std::vector<FieldList*>& rows()
+    {
+        return m_list;
+    }
+
+    const std::vector<FieldList*>& rows() const
+    {
+        return m_list;
+    }
+
     /**
      * Push back field list.
      * Memory DS takes ownership of the data

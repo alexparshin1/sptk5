@@ -261,7 +261,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "    void requestBroker(sptk::xml::Element* requestNode, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace) override;" << endl << endl;
     serviceDefinition << "public:" << endl;
     serviceDefinition << "    /// @brief Constructor" << endl;
-    serviceDefinition << "    " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr)" << endl;
+    serviceDefinition << "    explicit " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr)" << endl;
     serviceDefinition << "     : m_logEngine(logEngine)" << endl;
     serviceDefinition << "     {}" << endl << endl;
     serviceDefinition << "    /// @brief Destructor" << endl;
