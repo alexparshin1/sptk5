@@ -168,7 +168,7 @@ public:
      */
     virtual void checkSize(size_t sz)
     {
-        if (sz > m_storage.size())
+        if (sz >= m_storage.size())
             adjustSize(sz);
     }
 
