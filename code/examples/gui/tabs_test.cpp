@@ -188,7 +188,7 @@ void widgetDemo(CTabs* tabs)
                 box->color(t->color());
 
                 auto* htmlBox = new CHtmlBox("HTML output:");
-                string htmlTxt = " This is a <b>bold</b> <i>italic</i> read-only text in HTML. It is very useful sometimes. ";
+                String htmlTxt = " This is a <b>bold</b> <i>italic</i> read-only text in HTML. It is very useful sometimes. ";
                 htmlTxt = htmlTxt + htmlTxt;
                 htmlTxt = htmlTxt + htmlTxt;
                 htmlBox->data(htmlTxt);

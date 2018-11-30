@@ -108,7 +108,7 @@ public:
      * @param fieldName         Field name
      * @returns field reference
      */
-    virtual const Field& operator [] (const char *fieldName) const = 0;
+    virtual const Field& operator [] (const String& fieldName) const = 0;
 
     /**
      * Field access by the field name, const version.
@@ -117,7 +117,7 @@ public:
      * @param fieldName         Field name
      * @returns field reference
      */
-    virtual Field&       operator [] (const char *fieldName) = 0;
+    virtual Field&       operator [] (const String& fieldName) = 0;
 
     /**
      * Returns field count in the datasource.

@@ -29,7 +29,6 @@
 #include <sptk5/cutils>
 #include "PostgreSQLParamValues.h"
 #include "htonq.h"
-#include <iomanip>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/Query.h>
 

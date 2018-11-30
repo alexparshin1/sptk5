@@ -151,53 +151,15 @@ typedef std::vector<QueryColumnTypeSize> QueryColumnTypeSizeVector;
  */
 typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
 
-/**
- * Database connector
- *
- * Implements a thread-safe connection to general database. It is used
- * as a base class for actual database driver classes.
- */
-class SP_EXPORT PoolDatabaseConnection
+class SP_EXPORT PoolDatabaseConnection_QueryMethods
 {
     friend class Query;
 
-    std::set<Query*>            m_queryList;            ///< The list of queries that use this database
-    DatabaseConnectionString    m_connString;           ///< The connection string
-    DatabaseConnectionType      m_connType;             ///< The connection type
-    String                      m_driverDescription;    ///< Driver description is filled by the particular driver.
-    bool                        m_inTransaction;        ///< The in-transaction flag
-
 protected:
-
-    String getDriverDescription() const;
-    void   setDriverDescritpion(const String& description);
-    bool   getInTransaction() const;
-    void   setInTransaction(bool inTransaction);
-
-    /**
-     * Attaches (links) query to the database
-     */
-    bool linkQuery(Query* q);
-
-    /**
-     * Unlinks query from the database
-     */
-    bool unlinkQuery(Query* q);
-
-    /**
-     * Sets internal CQuery m_autoPrepare flag
-     */
-    void querySetAutoPrep(Query* q, bool pf);
-
     /**
      * Sets internal CQuery statement handle
      */
     void querySetStmt(Query* q, void *stmt);
-
-    /**
-     * Sets internal CQuery connection handle
-     */
-    void querySetConn(Query* q, void *conn);
 
     /**
      * Sets internal CQuery m_prepared flag
@@ -213,7 +175,6 @@ protected:
      * Sets internal CQuery m_eof flag
      */
     void querySetEof(Query* q, bool eof);
-
 
     // These methods implement the actions requested by CQuery
     /**
@@ -286,7 +247,6 @@ protected:
      */
     virtual void queryFetch(Query* query);
 
-
     /**
      * Returns parameter mark
      *
@@ -294,6 +254,45 @@ protected:
      * @param paramIndex unsigned, parameter index in SQL starting from 0
      */
     virtual String paramMark(unsigned paramIndex);
+
+    /**
+     * Stub function to throw an exception in case if the
+     * called method isn't implemented in the derived class
+     */
+    void notImplemented(const String& methodName) const;
+
+};
+
+/**
+ * Database connector
+ *
+ * Implements a thread-safe connection to general database. It is used
+ * as a base class for actual database driver classes.
+ */
+class SP_EXPORT PoolDatabaseConnection : public PoolDatabaseConnection_QueryMethods
+{
+    friend class Query;
+
+    std::set<Query*>            m_queryList;            ///< The list of queries that use this database
+    DatabaseConnectionString    m_connString;           ///< The connection string
+    DatabaseConnectionType      m_connType;             ///< The connection type
+    String                      m_driverDescription;    ///< Driver description is filled by the particular driver.
+    bool                        m_inTransaction;        ///< The in-transaction flag
+
+protected:
+
+    bool   getInTransaction() const;
+    void   setInTransaction(bool inTransaction);
+
+    /**
+     * Attaches (links) query to the database
+     */
+    bool linkQuery(Query* q);
+
+    /**
+     * Unlinks query from the database
+     */
+    bool unlinkQuery(Query* q);
 
     /**
      * Constructor
@@ -304,23 +303,6 @@ protected:
      * @param connectionString  The connection string
      */
     explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType);
-
-    /**
-     * Stub function to throw an exception in case if the
-     * called method isn't implemented in the derived class
-     */
-    void notImplemented(const String& methodName) const;
-
-    /**
-     * Retrieves internal query handle
-     */
-    void *queryHandle(Query* query) const;
-
-    /**
-     * Sets internal query handle
-     */
-    void queryHandle(Query* query, void *handle);
-
 
     /**
      * Opens the database connection.

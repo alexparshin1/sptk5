@@ -63,7 +63,7 @@ void DataSource::toXML(xml::Node& parentNode, const string& nodeName, bool compa
         }
         close();
     }
-    catch (const exception&) {
+    catch (const Exception&) {
         close();
         throw;
     }

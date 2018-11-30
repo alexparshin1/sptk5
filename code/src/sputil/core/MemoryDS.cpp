@@ -34,14 +34,14 @@ using namespace sptk;
 #define checkDSopen(ds) if (!(ds)) throw Exception("Dataset isn't open")
 
 // access to the field by name
-const Field& MemoryDS::operator[](const char* field_name) const
+const Field& MemoryDS::operator[](const String& field_name) const
 {
     SharedLock(m_mutex);
     checkDSopen(m_current);
     return (*m_current)[field_name];
 }
 
-Field& MemoryDS::operator[](const char* field_name)
+Field& MemoryDS::operator[](const String& field_name)
 {
     UniqueLock(m_mutex);
     checkDSopen(m_current);

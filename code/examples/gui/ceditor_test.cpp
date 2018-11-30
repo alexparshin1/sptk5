@@ -550,7 +550,7 @@ void cursor_cb(Fl_Widget* w, void*)
     int row;
     int col;
     e->editor->cursorRowCol(row, col);
-    e->cursor_position->data("Row " + int2string(row) + ", Col " + int2string(col));
+    e->cursor_position->data(String("Row " + int2string(row) + ", Col " + int2string(col)));
     e->relayout();
 }
 

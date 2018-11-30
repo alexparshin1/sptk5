@@ -54,23 +54,23 @@ JWT::jwt_alg_t JWT::get_alg() const
     return alg;
 }
 
-void JWT::set_alg(jwt_alg_t alg, const String &key)
+void JWT::set_alg(jwt_alg_t _alg, const String &_key)
 {
-    if (alg == JWT_ALG_NONE) {
-        if (!key.empty())
+    if (_alg == JWT_ALG_NONE) {
+        if (!_key.empty())
             throw Exception("Key is not expected here");
     } else {
-        if (key.empty())
+        if (_key.empty())
             throw Exception("Empty key is not expected here");
     }
 
-    this->key = key;
-    this->alg = alg;
+    key = _key;
+    alg = _alg;
 }
 
-const char * JWT::alg_str(jwt_alg_t alg)
+const char * JWT::alg_str(jwt_alg_t _alg)
 {
-    switch (alg) {
+    switch (_alg) {
         case JWT_ALG_NONE:
             return "none";
         case JWT_ALG_HS256:
@@ -424,7 +424,7 @@ static void jwt_verify_head(JWT *jwt, const Buffer& head)
     }
 }
 
-void JWT::decode(const char *token, const String& key)
+void JWT::decode(const char *token, const String& _key)
 {
     struct {
         const char* data;
@@ -453,8 +453,8 @@ void JWT::decode(const char *token, const String& key)
     // Now that we have everything split up, let's check out the header.
 
     // Copy the key over for verify_head.
-    if (!key.empty())
-        this->key = key;
+    if (!_key.empty())
+        this->key = _key;
 
     jwt_verify_head(this, head);
     jwt_parse_body(this, body);

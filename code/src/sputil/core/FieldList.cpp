@@ -75,7 +75,7 @@ void FieldList::clear()
         m_index->clear();
 }
 
-Field& FieldList::push_back(const char *fname, bool checkDuplicates)
+Field& FieldList::push_back(const String& fname, bool checkDuplicates)
 {
     if (checkDuplicates) {
         Field *pfld = findField(fname);
@@ -103,7 +103,7 @@ Field& FieldList::push_back(Field *field)
     return *field;
 }
 
-Field *FieldList::findField(const char* fname) const
+Field *FieldList::findField(const String& fname) const
 {
     if (m_index) {
         Map::const_iterator itor = m_index->find(fname);
@@ -112,7 +112,7 @@ Field *FieldList::findField(const char* fname) const
     }
     else {
         for (auto* field: *this) {
-            if (strcmp(field->m_name.c_str(), fname) == 0)
+            if (strcmp(field->m_name.c_str(), fname.c_str()) == 0)
                 return field;
         }
     }

@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-Field::Field(const char* name)
+Field::Field(const String& name)
 : m_name(name), displayName(name)
 {
     view.width = -1;

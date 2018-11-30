@@ -116,7 +116,7 @@ void OracleStatement::setParameterValues()
         if (!parameter.isOutput() && parameter.isNull()) {
             if (priorDataType == VAR_NONE)
                 priorDataType = VAR_STRING;
-            Type nativeType = OracleConnection::VariantTypeToOracleType(parameter.m_binding.m_dataType);
+            Type nativeType = VariantTypeToOracleType(parameter.m_binding.m_dataType);
             statement()->setNull(parameterIndex, nativeType);
             continue;
         }

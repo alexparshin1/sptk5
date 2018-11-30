@@ -28,11 +28,12 @@
 
 #include "LoadBalance.h"
 #include <signal.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-int main(int argc, const char* argv[])
+int main()
 {
     // Mask unwanted signals
 #ifndef _WIN32
@@ -53,8 +54,8 @@ int main(int argc, const char* argv[])
 
         return 0;
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 }

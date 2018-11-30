@@ -251,7 +251,7 @@ bool CSpellChecker::spellCheck()
             m_suggestionListView->clear();
             const AspellWordList* suggestions = aspell_speller_suggest(m_spellChecker, word.c_str(), (int) word.length());
             AspellStringEnumeration* elements = aspell_word_list_elements(suggestions);
-            string best;
+            String best;
             bool bestAssigned = false;
             while (!aspell_string_enumeration_at_end(elements)) {
                 const char* nextWord = aspell_string_enumeration_next(elements);

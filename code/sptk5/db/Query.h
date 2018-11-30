@@ -58,7 +58,9 @@ namespace sptk {
 class SP_EXPORT Query: public DataSource, public SharedMutex
 {
     friend class PoolDatabaseConnection;
+    friend class PoolDatabaseConnection_QueryMethods;
 
+protected:
     /**
      * Prepare the query automatically, on thedynamic_cast<COracleBulkInsertQuery*>( first call
      */
@@ -168,18 +170,7 @@ protected:
     void execute();
 
     /**
-     * In a dataset returned by a query, retrieves the column attributes
-     */
-    void colAttributes(int16_t column, int16_t descType, int32_t& value);
-
-    /**
-     * In a dataset returned by a query, retrieves the column attributes
-     */
-    void colAttributes(int16_t column, int16_t descType, char *buff, int len);
-
-
-    /**
-     * Retrieves an error (if any) after executing an ODBC statement
+     * Retrieves an error (if any) after executing a statement
      */
     String getError() const;
 
@@ -271,16 +262,6 @@ public:
     ~Query();
 
     /**
-     * @brief Finds a field by the field name
-     * @param fname const char *, field name
-     * @returns CField pointer, or 0L if not found
-     */
-    Field* fieldByName(const char * fname) const
-    {
-        return m_fields.fieldByName(fname);
-    }
-
-    /**
      * @brief Field access by number, const version
      *
      * Field index should be inside 0..fieldCount()-1
@@ -305,22 +286,6 @@ public:
     /**
      * @brief Field access by field name, const version
      */
-    virtual const Field& operator [](const char *fieldName) const
-    {
-        return m_fields[fieldName];
-    }
-
-    /**
-     * @brief Field access by field name.
-     */
-    virtual Field& operator [](const char *fieldName)
-    {
-        return m_fields[fieldName];
-    }
-
-    /**
-     * @brief Field access by field name, const version
-     */
     virtual const Field& operator [](const String& fieldName) const
     {
         return m_fields[fieldName.c_str()];
@@ -335,11 +300,10 @@ public:
     }
 
     /**
-     * @brief Reports a number of columns in the recordset for the active query.
-     *
-     * Typically is used after the open() method is called, but before query is closed.
+     * Returns field count in the recordset
+     * @returns field count
      */
-    virtual uint32_t fieldCount() const
+    uint32_t fieldCount() const override
     {
         return m_fields.size();
     }
@@ -349,7 +313,7 @@ public:
      *
      * Currently is NOT implemented.
      */
-    virtual uint32_t recordCount() const
+    uint32_t recordCount() const override
     {
         notImplemented("recordCount");
         return 0;

@@ -67,12 +67,12 @@ private:
     /**
      * Field vector
      */
-    typedef std::vector<Field*>                                        Vector;
+    typedef std::vector<Field*>                                 Vector;
 
     /**
      * Field name to field case-insensitive map
      */
-    typedef std::map<std::string, Field *, CaseInsensitiveCompare>     Map;
+    typedef std::map<String, Field *, CaseInsensitiveCompare>   Map;
 
 
     /**
@@ -183,7 +183,7 @@ public:
      * @param checkDuplicates   If true check if the field already exists in the list
      * @returns new field reference
      */
-    Field& push_back(const char *fname,bool checkDuplicates);
+    Field& push_back(const String& fname, bool checkDuplicates);
 
     /**
      * Adds a new field int the list without creating a new copy of the field.
@@ -202,7 +202,7 @@ public:
      * @param fname             Field name
      * @returns CField pointer, or 0L if not found
      */
-    Field* findField(const char * fname) const;
+    Field* findField(const String& fname) const;
 
     /**
      * Finds a field by the field name
@@ -215,7 +215,7 @@ public:
     {
         Field* field = findField(fname);
         if (field == nullptr)
-            throw Exception("Field name '" + std::string(fname) + "' not found");
+            throw Exception("Field name '" + String(fname) + "' not found");
         return field;
     }
 
@@ -286,7 +286,7 @@ public:
      * @param fname             Field name
      * @returns field reference
      */
-    Field& operator [](const std::string& fname)
+    Field& operator [](const String& fname)
     {
         return *fieldByName(fname.c_str());
     }
@@ -296,7 +296,7 @@ public:
      * @param fname             Field name
      * @returns field reference
      */
-    const Field& operator [](const std::string& fname) const
+    const Field& operator [](const String& fname) const
     {
         return *fieldByName(fname.c_str());
     }

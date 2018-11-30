@@ -48,10 +48,10 @@ class SP_EXPORT CaseInsensitiveCompare
 public:
     /**
      * @brief Compare method
-     * @param s1 const std::string&, First compare string
-     * @param s2 const std::string&, Second compare string
+     * @param s1                First compare string
+     * @param s2                Second compare string
      */
-    bool operator()(const std::string& s1, const std::string& s2) const
+    bool operator()(const String& s1, const String& s2) const
     {
 #ifdef WIN32
         return stricmp(s1.c_str(), s2.c_str()) > 0;

@@ -611,7 +611,7 @@ DateTime::DateTime(short year, short month, short day, short hour, short minute,
         encodeDate(m_dateTime, year, month, day);
         encodeTime(m_dateTime, hour, minute, second, millisecond);
     }
-    catch (const exception&) {
+    catch (const Exception&) {
         m_dateTime = time_point();
     }
 }
@@ -645,7 +645,7 @@ DateTime::DateTime(const char* dat) noexcept
                 encodeTime(m_dateTime, s2);
         } else
             encodeTime(m_dateTime, s1.c_str());
-    } catch (const exception&) {
+    } catch (const Exception&) {
         m_dateTime = time_point();
     }
 }

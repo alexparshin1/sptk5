@@ -100,18 +100,6 @@ int Query::countCols()
     return 0;
 }
 
-void Query::colAttributes(int16_t column, int16_t descType, int32_t& value)
-{
-    if (m_db != nullptr && m_statement != nullptr)
-        m_db->queryColAttributes(this, column, descType, value);
-}
-
-void Query::colAttributes(int16_t column, int16_t descType, char* buff, int32_t len)
-{
-    if (m_db != nullptr && m_statement != nullptr)
-        m_db->queryColAttributes(this, column, descType, buff, len);
-}
-
 String Query::getError() const
 {
     if (m_db != nullptr && m_statement != nullptr)

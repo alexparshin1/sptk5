@@ -40,7 +40,7 @@ void font_cb(Fl_Widget *fc, void *)
     if (!fontCombo)
         return;
     if (fontCombo->eventType() == CE_DATA_CHANGED) {
-        std::string fontName = fontCombo->fontName();
+        String fontName = fontCombo->fontName();
         fontName = fontName + "  " + fontName + "  ";
         fontName = fontName + "\n" + fontName + "\n";
         fontName = fontName + fontName;

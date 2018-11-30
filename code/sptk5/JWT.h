@@ -108,17 +108,17 @@ public:
 
     /**
      * Set signature encryption algorithm
-     * @param alg               Signature encryption algorithm
-     * @param key               Signature encryption key
+     * @param _alg               Signature encryption algorithm
+     * @param _key               Signature encryption key
      */
-    void set_alg(jwt_alg_t alg, const String &key);
+    void set_alg(jwt_alg_t _alg, const String &_key);
 
     /**
      * Get signature encryption algorithm name
-     * @param alg               Signature encryption algorithm
+     * @param _alg               Signature encryption algorithm
      * @return
      */
-    static const char * alg_str(jwt_alg_t alg);
+    static const char * alg_str(jwt_alg_t _alg);
 
     /**
      * Get signature encryption algorithm from name
@@ -144,9 +144,9 @@ public:
     /**
      * Decode token
      * @param token             Input token data
-     * @param key               Optional signature encryption key
+     * @param _key               Optional signature encryption key
      */
-    void decode(const char *token, const String& key="");
+    void decode(const char *token, const String& _key="");
 
     /**
      * Export token to stream

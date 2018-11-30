@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/db/Transaction.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -43,7 +44,9 @@ Transaction::~Transaction()
         if (m_active)
             m_db->rollbackTransaction();
     }
-    catch (...) {}
+    catch (Exception& e) {
+        CERR(e.what() << endl);
+    }
 }
 
 void Transaction::begin()

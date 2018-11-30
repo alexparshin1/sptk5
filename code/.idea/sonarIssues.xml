@@ -248,6 +248,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/DateIterator.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/EDPCommandLine.cpp">
           <value>
             <set />
@@ -284,6 +289,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/JWTManager.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Notification.h">
           <value>
             <set />
           </value>
@@ -663,6 +673,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/examples/gui/calendar_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/examples/gui/ceditor_test.cpp">
           <value>
             <set />
@@ -819,6 +834,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/Buffer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/CaseInsensitiveCompare.h">
           <value>
             <set />
           </value>
@@ -1373,6 +1393,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/Transaction.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sptk/gui/CButton.cpp">
           <value>
             <set />
@@ -1404,6 +1429,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sptk/gui/CControlList.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CDateIntervalInput.cpp">
           <value>
             <set />
           </value>
@@ -1568,6 +1598,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/DataSource.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/DateTime.cpp">
           <value>
             <set />
@@ -1649,6 +1684,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/string_ext.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/jwt/JWT.cpp">
           <value>
             <set />
           </value>
@@ -1758,6 +1798,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/test/TestRunner.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/test/unit_tests.cpp">
           <value>
             <set />
@@ -1824,6 +1869,26 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/wsdl/protocol/WSWebSocketsProtocol.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/themes/tar2h.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/utilities/load_balance/LoadBalance.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/utilities/load_balance/load_balance.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/utilities/wsdl2cxx.cpp">
           <value>
             <set />
           </value>

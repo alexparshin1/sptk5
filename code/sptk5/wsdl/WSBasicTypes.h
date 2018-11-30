@@ -474,15 +474,6 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSDouble& operator=(float value) override
-    {
-        setFloat(value);
-        return *this;
-    }
-
-    /**
-     * Assignment operation
-     */
     virtual WSDouble& operator=(double value) override
     {
         setFloat(value);
@@ -561,43 +552,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator=(uint64_t value) override
-    {
-        setInt64((int64_t) value);
-        return *this;
-    }
-
-    /**
-     * Assignment operation
-     */
     virtual WSInteger& operator=(int32_t value) override
-    {
-        setInteger(value);
-        return *this;
-    }
-
-    /**
-     * Assignment operation
-     */
-    virtual WSInteger& operator=(uint32_t value) override
-    {
-        setInteger((int32_t) value);
-        return *this;
-    }
-
-    /**
-     * Assignment operation
-     */
-    virtual WSInteger& operator=(int16_t value) override
-    {
-        setInteger(value);
-        return *this;
-    }
-
-    /**
-     * Assignment operation
-     */
-    virtual WSInteger& operator=(uint16_t value) override
     {
         setInteger(value);
         return *this;

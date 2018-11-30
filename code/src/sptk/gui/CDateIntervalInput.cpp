@@ -147,7 +147,7 @@ Variant CDateIntervalInput::data() const
     if (dt1.zero() && dt2.zero())
         return "";
 
-    std::string result = m_firstDateInput->input()->value();
+    String result = m_firstDateInput->input()->value();
     result += m_separator;
     result += m_secondDateInput->input()->value();
     return result;

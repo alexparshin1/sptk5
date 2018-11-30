@@ -155,10 +155,8 @@ void FirebirdConnection::driverBeginTransaction()
     if (!m_connection)
         open();
 
-    if (getInTransaction()) {
+    if (getInTransaction())
         driverEndTransaction(true);
-        //throw CDatabaseException("Transaction already started");
-    }
 
     m_transaction = 0L;
     static char isc_tpb[] = { isc_tpb_version3, isc_tpb_write, isc_tpb_read_committed, isc_tpb_no_rec_version, isc_tpb_wait};

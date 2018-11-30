@@ -251,94 +251,134 @@ public:
      * Returns the data type
      */
     VariantType dataType() const;
+
+    /**
+     * Returns the data size
+     */
+    size_t dataSize() const;
+
+    /**
+     * Sets the data size
+     * @param ds                Data size (in bytes).
+     */
+    void dataSize(size_t ds);
+
+    /**
+     * Returns the allocated buffer size
+     */
+    size_t bufferSize() const;
+
+    /**
+     * Returns the internal buffer
+     */
+    void* dataBuffer() const;
+
+    /**
+     * Null flag
+     *
+     * Returns true if the NULL state is set
+     */
+    bool isNull() const;
+    /**
+     * Returns a name for a particular variant type
+     * @param type              Variant type
+     */
+    static String typeName(VariantType type);
+
+    /**
+     * Returns a type for a particular variant type name
+     * @param name              Variant type name
+     */
+    static VariantType nameType(const char* name);
 };
 
-/**
- * Universal data storage.
- *
- * Reasonably compact an fast class what allows storing data of different
- * types. It also allows conversions to and from supported types.
- */
-class SP_EXPORT Variant : public BaseVariant
+class SP_EXPORT Variant_GetMethods : public BaseVariant
+{
+    friend class Variant_SetMethods;
+
+protected:
+
+    /**
+     * Return money data as string
+     * @param printBuffer      Internal print buffer
+     * @param printBufferSize   Internal print buffer size
+     * @return
+     */
+    String getMoneyString(char* printBuffer, size_t printBufferSize) const;
+
+public:
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual bool getBool() const;
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual const int32_t& getInteger() const;
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual const int64_t& getInt64() const;
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual const double& getFloat() const;
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual const MoneyData& getMoney() const;
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual const char* getString() const;
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual const char* getBuffer() const;
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual const char* getText() const;
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual DateTime getDateTime() const;
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual DateTime getDate() const;
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual void* getImagePtr() const;
+
+    /**
+     * Directly reads the internal data
+     */
+    virtual uint32_t getImageNdx() const;
+};
+
+class SP_EXPORT Variant_SetMethods : public Variant_GetMethods
 {
 protected:
 
     /**
      * Copies data from another CVariant
      */
-    void setData(const Variant& C);
+    void setData(const Variant_GetMethods& C);
 
 public:
-
-    /**
-     * Constructor
-     */
-    Variant();
-
-    /**
-     * Constructor
-     */
-    Variant(int32_t value);
-
-    /**
-     * Constructor
-     */
-    Variant(uint32_t value);
-
-    /**
-     * Constructor
-     */
-    Variant(int64_t value, unsigned scale = 1);
-
-    /**
-     * Constructor
-     */
-    Variant(uint64_t value);
-
-    /**
-     * Constructor
-     */
-    Variant(float value);
-
-    /**
-     * Constructor
-     */
-    Variant(double value);
-
-    /**
-     * Constructor
-     */
-    Variant(const char * value);
-
-    /**
-     * Constructor
-     */
-    Variant(const std::string& v);
-
-    /**
-     * Constructor
-     */
-    Variant(DateTime v);
-
-    /**
-     * Constructor
-     */
-    Variant(const void * value, size_t sz);
-
-    /**
-     * Constructor
-     */
-    Variant(const Buffer& value);
-
-    /**
-     * Constructor
-     */
-    Variant(const Variant& value);
-
-    /**
-     * Destructor
-     */
-    virtual ~Variant();
 
     /**
      * Assignment method
@@ -446,214 +486,41 @@ public:
     virtual void setMoney(const MoneyData& value);
 
     /**
-     * Assignment operator
+     * Sets the NULL state
+     *
+     * Useful for the database operations.
+     * Releases the memory allocated for string/text/blob types.
+     * Retains the data type. Sets the data to zero(s).
      */
-    Variant& operator =(const Variant &C);
+    virtual void setNull() { setNull(VAR_NONE); }
 
     /**
-     * Assignment operator
+     * Sets the NULL state
+     *
+     * Useful for the database operations.
+     * Releases the memory allocated for string/text/blob types.
+     * Sets the data to zero(s).
+     * @param vtype             Optional variant type to enforce
      */
-    virtual Variant& operator =(int32_t value);
+    virtual void setNull(VariantType vtype);
+};
 
+class SP_EXPORT Variant_Adaptors : public Variant_SetMethods
+{
+public:
     /**
-     * Assignment operator
+     * Conversion method
+     *
+     * Converts variant value to double.
      */
-    virtual Variant& operator =(int64_t value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(uint32_t value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(uint64_t value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(int16_t value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(uint16_t value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(float value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(double value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(const MoneyData& value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(const char * value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(const String& value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(DateTime value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(const void *value);
-
-    /**
-     * Assignment operator
-     */
-    virtual Variant& operator =(const Buffer& value);
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual bool getBool() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual const int32_t& getInteger() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual const int64_t& getInt64() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual const double& getFloat() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual const MoneyData& getMoney() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual const char* getString() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual const char* getBuffer() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual const char* getText() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual DateTime getDateTime() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual DateTime getDate() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual void* getImagePtr() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual uint32_t getImageNdx() const;
-
-    /**
-     * Returns the data size
-     */
-    size_t dataSize() const;
-
-    /**
-     * Sets the data size
-     * @param ds                Data size (in bytes).
-     */
-    void dataSize(size_t ds);
-
-    /**
-     * Returns the allocated buffer size
-     */
-    size_t bufferSize() const;
-
-    /**
-     * Returns the internal buffer
-     */
-    void* dataBuffer() const;
-
-    /**
-     * Conversion operator
-     */
-    virtual explicit operator bool() const;
-
-    /**
-     * Conversion operator
-     */
-    virtual explicit operator int() const;
-
-    /**
-     * Conversion operator
-     */
-    virtual explicit operator unsigned() const;
-
-    /**
-     * Conversion operator
-     */
-    virtual explicit operator int64_t() const;
-
-    /**
-     * Conversion operator
-     */
-    virtual explicit operator uint64_t() const;
-
-    /**
-     * Conversion operator
-     */
-    virtual explicit operator double() const;
-
-    /**
-     * Conversion operator
-     */
-	virtual explicit operator String() const;
-
-    /**
-     * Conversion operator
-     */
-	virtual explicit operator DateTime() const;
+    int asInteger() const;
 
     /**
      * Conversion method
      *
      * Converts variant value to double.
      */
-	int asInteger() const;
-
-    /**
-     * Conversion method
-     *
-     * Converts variant value to double.
-     */
-	int64_t asInt64() const;
+    int64_t asInt64() const;
 
     /**
      * Conversion to bool
@@ -699,44 +566,172 @@ public:
      * For incompatible types throws an exception.
      */
     void *asImagePtr() const;
+};
+
+/**
+ * Universal data storage.
+ *
+ * Reasonably compact an fast class what allows storing data of different
+ * types. It also allows conversions to and from supported types.
+ */
+class SP_EXPORT Variant : public Variant_Adaptors
+{
+public:
 
     /**
-     * Sets the NULL state
-     *
-     * Useful for the database operations.
-     * Releases the memory allocated for string/text/blob types.
-     * Retains the data type. Sets the data to zero(s).
+     * Constructor
      */
-    virtual void setNull() { setNull(VAR_NONE); }
+    Variant();
 
     /**
-     * Sets the NULL state
-     *
-     * Useful for the database operations.
-     * Releases the memory allocated for string/text/blob types.
-     * Sets the data to zero(s).
-     * @param vtype             Optional variant type to enforce
+     * Constructor
      */
-    virtual void setNull(VariantType vtype);
+    Variant(int32_t value);
 
     /**
-     * Null flag
-     *
-     * Returns true if the NULL state is set
+     * Constructor
      */
-    bool isNull() const;
+    Variant(uint32_t value);
 
     /**
-     * Returns a name for a particular variant type
-     * @param type              Variant type
+     * Constructor
      */
-    static String typeName(VariantType type);
+    Variant(int64_t value, unsigned scale = 1);
 
     /**
-     * Returns a type for a particular variant type name
-     * @param name              Variant type name
+     * Constructor
      */
-    static VariantType nameType(const char* name);
+    Variant(uint64_t value);
+
+    /**
+     * Constructor
+     */
+    Variant(double value);
+
+    /**
+     * Constructor
+     */
+    Variant(const char * value);
+
+    /**
+     * Constructor
+     */
+    Variant(const String& v);
+
+    /**
+     * Constructor
+     */
+    Variant(DateTime v);
+
+    /**
+     * Constructor
+     */
+    Variant(const void * value, size_t sz);
+
+    /**
+     * Constructor
+     */
+    Variant(const Buffer& value);
+
+    /**
+     * Constructor
+     */
+    Variant(const Variant& value);
+
+    /**
+     * Destructor
+     */
+    virtual ~Variant();
+
+    /**
+     * Assignment operator
+     */
+    Variant& operator =(const Variant &C);
+
+    /**
+     * Assignment operator
+     */
+    virtual Variant& operator =(int32_t value);
+
+    /**
+     * Assignment operator
+     */
+    virtual Variant& operator =(int64_t value);
+
+    /**
+     * Assignment operator
+     */
+    virtual Variant& operator =(double value);
+
+    /**
+     * Assignment operator
+     */
+    virtual Variant& operator =(const MoneyData& value);
+
+    /**
+     * Assignment operator
+     */
+    virtual Variant& operator =(const char * value);
+
+    /**
+     * Assignment operator
+     */
+    virtual Variant& operator =(const String& value);
+
+    /**
+     * Assignment operator
+     */
+    virtual Variant& operator =(DateTime value);
+
+    /**
+     * Assignment operator
+     */
+    virtual Variant& operator =(const void *value);
+
+    /**
+     * Assignment operator
+     */
+    virtual Variant& operator =(const Buffer& value);
+
+    /**
+     * Conversion operator
+     */
+    virtual explicit operator bool() const;
+
+    /**
+     * Conversion operator
+     */
+    virtual explicit operator int() const;
+
+    /**
+     * Conversion operator
+     */
+    virtual explicit operator unsigned() const;
+
+    /**
+     * Conversion operator
+     */
+    virtual explicit operator int64_t() const;
+
+    /**
+     * Conversion operator
+     */
+    virtual explicit operator uint64_t() const;
+
+    /**
+     * Conversion operator
+     */
+    virtual explicit operator double() const;
+
+    /**
+     * Conversion operator
+     */
+	virtual explicit operator String() const;
+
+    /**
+     * Conversion operator
+     */
+	virtual explicit operator DateTime() const;
 
     /**
      * Loads the data from XML node
@@ -762,14 +757,6 @@ public:
      */
     void save(xml::Node* node) const;
 
-private:
-    /**
-     * Return money data as string
-     * @param printBuffer      Internal print buffer
-     * @param printBufferSize   Internal print buffer size
-     * @return
-     */
-    String getMoneyString(char* printBuffer, size_t printBufferSize) const;
 };
 /**
  * @}

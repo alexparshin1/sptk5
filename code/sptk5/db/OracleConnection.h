@@ -75,20 +75,6 @@ private:
 protected:
 
     /**
-     * @brief Translates Oracle native type to CVariant type
-     * @param oracleType        Oracle native type
-     * @returns Variant type
-     */
-    static VariantType OracleTypeToVariantType(Type oracleType, int scale);
-
-    /**
-     * @brief Translates CVariant type to Oracle native type
-     * @param dataType          CVariant type
-     * @returns Oracle native type
-     */
-    static Type VariantTypeToOracleType(VariantType dataType);
-
-    /**
      * @brief Begins the transaction
      */
     void driverBeginTransaction() override;
@@ -275,6 +261,20 @@ private:
 
     void readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
 };
+
+/**
+ * @brief Translates Oracle native type to CVariant type
+ * @param oracleType        Oracle native type
+ * @returns Variant type
+ */
+VariantType OracleTypeToVariantType(OracleConnection::Type oracleType, int scale);
+
+/**
+ * @brief Translates CVariant type to Oracle native type
+ * @param dataType          CVariant type
+ * @returns Oracle native type
+ */
+OracleConnection::Type VariantTypeToOracleType(VariantType dataType);
 
 #define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }
 

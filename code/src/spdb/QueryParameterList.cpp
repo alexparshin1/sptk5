@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/db/QueryParameterList.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -41,7 +42,8 @@ QueryParameterList::~QueryParameterList()
 {
     try {
         clear();
-    } catch (...) {
+    } catch (const Exception& e) {
+        CERR(e.what() << endl);
     }
 }
 

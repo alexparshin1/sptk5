@@ -37,7 +37,7 @@ CBox *dateBox;
 void cb_clicked(Fl_Widget *w, void *)
 {
     auto* calendar = (CCalendar *) w;
-    string dateString = calendar->date().dateString();
+    String dateString = calendar->date().dateString();
     dateBox->data(dateString);
 }
 

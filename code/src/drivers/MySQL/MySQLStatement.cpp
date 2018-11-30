@@ -256,6 +256,7 @@ void MySQLStatement::setParameterValues()
         case VAR_BOOL:
         case VAR_INT:
         case VAR_FLOAT:
+        case VAR_INT64:
             m_paramLengths[paramIndex] = 0;
             bind.buffer = (void*) &param->getInt64();
             break;
@@ -274,11 +275,6 @@ void MySQLStatement::setParameterValues()
                 m_paramLengths[paramIndex] = 0;
             else
                 dateTimeToMySQLDate(*(MYSQL_TIME*)bind.buffer, param->getDateTime(), param->dataType());
-            break;
-
-        case VAR_INT64:
-            m_paramLengths[paramIndex] = 0;
-            bind.buffer = (void*) &param->getInt64();
             break;
 
         default:

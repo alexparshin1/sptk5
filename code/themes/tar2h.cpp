@@ -41,8 +41,8 @@ int main(int argc, char **argv)
 
         return 0;
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 }

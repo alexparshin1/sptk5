@@ -244,7 +244,7 @@ void OracleConnection::queryBindParameters(Query* query)
     }
 }
 
-VariantType OracleConnection::OracleTypeToVariantType(Type oracleType, int scale)
+VariantType OracleTypeToVariantType(Type oracleType, int scale)
 {
     switch (oracleType) {
         case Type(SQLT_NUM):
@@ -274,7 +274,7 @@ VariantType OracleConnection::OracleTypeToVariantType(Type oracleType, int scale
     }
 }
 
-Type OracleConnection::VariantTypeToOracleType(VariantType dataType)
+Type VariantTypeToOracleType(VariantType dataType)
 {
     switch (dataType) {
         case VAR_NONE: throwException("Data type is not defined");
@@ -553,7 +553,7 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
 }
 
 void OracleConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                                   const String& format)
+                                   const String& /*format*/)
 {
     Query tableColumnsQuery(this,
                             "SELECT column_name, data_type, data_length "

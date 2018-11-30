@@ -156,14 +156,14 @@ public:
      * @param fieldName const char *, field name
      * @returns field reference
      */
-    virtual const Field& operator[](const char* fieldName) const;
+    virtual const Field& operator[](const String& fieldName) const;
 
     /**
      * Field access by the field name, non-const version.
      * @param fieldName const char *, field name
      * @returns field reference
      */
-    virtual Field& operator[](const char* fieldName);
+    virtual Field& operator[](const String& fieldName);
 
     /**
      * Returns user_data associated with the datasource.

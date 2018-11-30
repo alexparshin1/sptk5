@@ -28,6 +28,7 @@
 
 #include "LoadBalance.h"
 #include "Channel.h"
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -50,8 +51,6 @@ void LoadBalance::destinationEventCallback(void *userData, SocketEventType event
     Channel* channel = (Channel*) userData;
 
     if (eventType == ET_CONNECTION_CLOSED) {
-        //cout << "Destination socket closed" << endl;
-        //cout.flush();
         channel->close();
         delete channel;
         return;
@@ -87,9 +86,9 @@ void LoadBalance::threadFunction()
         try {
             channel->open(sourceFD, interfaceAddress, destination);
         }
-        catch (const exception& e) {
+        catch (const Exception& e) {
             delete channel;
-            cerr << e.what() << endl;
+            CERR(e.what() << endl);
         }
     }
 

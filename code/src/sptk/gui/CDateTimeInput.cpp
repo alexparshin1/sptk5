@@ -315,7 +315,9 @@ DateTime CDateTimeInput::dateTimeValue() const
 
 Variant CDateTimeInput::data() const
 {
-    return std::string(m_dateInput->input()->value()) + " " + std::string(m_timeInput->value());
+    String dateStr = m_dateInput->input()->value();
+    String timeStr = m_timeInput->value();
+    return String(dateStr + " " + timeStr);
 }
 
 void CDateTimeInput::data(const Variant s)

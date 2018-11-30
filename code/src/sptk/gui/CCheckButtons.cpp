@@ -128,7 +128,7 @@ Fl_Button* CCheckButtons::createButton(const char* label, int sz, CLayoutAlign l
 
 Variant CCheckButtons::data() const
 {
-    string result;
+    String result;
     auto* group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {

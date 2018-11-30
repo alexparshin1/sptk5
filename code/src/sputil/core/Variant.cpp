@@ -75,7 +75,7 @@ void BaseVariant::releaseBuffers()
 }
 
 //---------------------------------------------------------------------------
-void Variant::dataSize(size_t ds)
+void BaseVariant::dataSize(size_t ds)
 {
     m_dataSize = ds;
     if (m_dataSize > 0)
@@ -131,13 +131,6 @@ Variant::Variant(uint64_t value)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(float value)
-{
-    m_dataType = VAR_FLOAT;
-    m_data.floatData = value;
-}
-
-//---------------------------------------------------------------------------
 Variant::Variant(double value)
 {
     m_dataType = VAR_FLOAT;
@@ -152,7 +145,7 @@ Variant::Variant(const char* value)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(const std::string& v)
+Variant::Variant(const String& v)
 {
     m_dataType = VAR_NONE;
     Variant::setString(v.c_str(), v.length());
@@ -194,7 +187,7 @@ Variant::~Variant()
 }
 
 //---------------------------------------------------------------------------
-void Variant::setBool(bool value)
+void Variant_SetMethods::setBool(bool value)
 {
     if (m_dataType != VAR_BOOL) {
         releaseBuffers();
@@ -206,7 +199,7 @@ void Variant::setBool(bool value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setInteger(int32_t value)
+void Variant_SetMethods::setInteger(int32_t value)
 {
     if (m_dataType != VAR_INT) {
         releaseBuffers();
@@ -218,7 +211,7 @@ void Variant::setInteger(int32_t value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setInt64(int64_t value)
+void Variant_SetMethods::setInt64(int64_t value)
 {
     if (m_dataType != VAR_INT64) {
         releaseBuffers();
@@ -230,7 +223,7 @@ void Variant::setInt64(int64_t value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setFloat(double value)
+void Variant_SetMethods::setFloat(double value)
 {
     if (m_dataType != VAR_FLOAT) {
         releaseBuffers();
@@ -242,7 +235,7 @@ void Variant::setFloat(double value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setMoney(int64_t value, unsigned scale)
+void Variant_SetMethods::setMoney(int64_t value, unsigned scale)
 {
     if (m_dataType != VAR_MONEY) {
         releaseBuffers();
@@ -255,7 +248,7 @@ void Variant::setMoney(int64_t value, unsigned scale)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setString(const char* value, size_t maxlen)
+void Variant_SetMethods::setString(const char* value, size_t maxlen)
 {
     uint32_t dtype = VAR_STRING;
 
@@ -298,13 +291,13 @@ void Variant::setString(const char* value, size_t maxlen)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setString(const std::string& value)
+void Variant_SetMethods::setString(const std::string& value)
 {
     setString(value.c_str(), value.length());
 }
 
 //---------------------------------------------------------------------------
-void Variant::setExternalString(const char* value, int length)
+void Variant_SetMethods::setExternalString(const char* value, int length)
 {
     uint32_t dtype = VAR_STRING;
 
@@ -329,13 +322,13 @@ void Variant::setExternalString(const char* value, int length)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setExternalString(const std::string& value)
+void Variant_SetMethods::setExternalString(const std::string& value)
 {
     setExternalString(value.c_str(), (int) value.length());
 }
 
 //---------------------------------------------------------------------------
-void Variant::setText(const char* value)
+void Variant_SetMethods::setText(const char* value)
 {
     releaseBuffers();
     dataType(VAR_TEXT);
@@ -354,7 +347,7 @@ void Variant::setText(const char* value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setText(const string& value)
+void Variant_SetMethods::setText(const string& value)
 {
     releaseBuffers();
     dataType(VAR_TEXT);
@@ -374,7 +367,7 @@ void Variant::setText(const string& value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setExternalText(const char* value)
+void Variant_SetMethods::setExternalText(const char* value)
 {
     releaseBuffers();
     dataType(VAR_TEXT);
@@ -393,7 +386,7 @@ void Variant::setExternalText(const char* value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setBuffer(const void* value, size_t sz)
+void Variant_SetMethods::setBuffer(const void* value, size_t sz)
 {
     releaseBuffers();
     dataType(VAR_BUFFER);
@@ -409,13 +402,13 @@ void Variant::setBuffer(const void* value, size_t sz)
         setNull();
 }
 
-void Variant::setBuffer(const Buffer& value)
+void Variant_SetMethods::setBuffer(const Buffer& value)
 {
     setBuffer(value.data(), value.bytes());
 }
 
 //---------------------------------------------------------------------------
-void Variant::setBuffer(const string& value)
+void Variant_SetMethods::setBuffer(const string& value)
 {
     releaseBuffers();
     dataType(VAR_BUFFER);
@@ -433,7 +426,7 @@ void Variant::setBuffer(const string& value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setExternalBuffer(const void* value, size_t sz)
+void Variant_SetMethods::setExternalBuffer(const void* value, size_t sz)
 {
     releaseBuffers();
     dataType(VAR_BUFFER);
@@ -450,7 +443,7 @@ void Variant::setExternalBuffer(const void* value, size_t sz)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setDateTime(DateTime value)
+void Variant_SetMethods::setDateTime(DateTime value)
 {
     if (m_dataType != VAR_DATE_TIME) {
         releaseBuffers();
@@ -462,7 +455,7 @@ void Variant::setDateTime(DateTime value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setDate(DateTime value)
+void Variant_SetMethods::setDate(DateTime value)
 {
     if (m_dataType != VAR_DATE) {
         releaseBuffers();
@@ -476,7 +469,7 @@ void Variant::setDate(DateTime value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setImagePtr(const void* value)
+void Variant_SetMethods::setImagePtr(const void* value)
 {
     if (m_dataType != VAR_IMAGE_PTR) {
         releaseBuffers();
@@ -488,7 +481,7 @@ void Variant::setImagePtr(const void* value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setImageNdx(uint32_t value)
+void Variant_SetMethods::setImageNdx(uint32_t value)
 {
     if (dataType() != VAR_IMAGE_NDX) {
         releaseBuffers();
@@ -500,7 +493,7 @@ void Variant::setImageNdx(uint32_t value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setMoney(const MoneyData& value)
+void Variant_SetMethods::setMoney(const MoneyData& value)
 {
     if (dataType() != VAR_MONEY) {
         releaseBuffers();
@@ -512,7 +505,7 @@ void Variant::setMoney(const MoneyData& value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setData(const Variant& C)
+void Variant_SetMethods::setData(const Variant_GetMethods& C)
 {
     switch (C.dataType()) {
         case VAR_BOOL:
@@ -594,41 +587,6 @@ Variant& Variant::operator=(int64_t value)
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator=(uint32_t value)
-{
-    setInteger((int32_t) value);
-    return *this;
-}
-
-//---------------------------------------------------------------------------
-Variant& Variant::operator=(uint64_t value)
-{
-    setInt64((int64_t) value);
-    return *this;
-}
-
-//---------------------------------------------------------------------------
-Variant& Variant::operator=(int16_t value)
-{
-    setInteger(value);
-    return *this;
-}
-
-//---------------------------------------------------------------------------
-Variant& Variant::operator=(uint16_t value)
-{
-    setInteger(value);
-    return *this;
-}
-
-//---------------------------------------------------------------------------
-Variant& Variant::operator=(float value)
-{
-    setFloat(value);
-    return *this;
-}
-
-//---------------------------------------------------------------------------
 Variant& Variant::operator=(double value)
 {
     setFloat(value);
@@ -678,74 +636,74 @@ Variant& Variant::operator=(const Buffer& value)
 }
 
 //---------------------------------------------------------------------------
-bool Variant::getBool() const
+bool Variant_GetMethods::getBool() const
 {
     return m_data.boolData;
 }
 
 //---------------------------------------------------------------------------
-const int32_t& Variant::getInteger() const
+const int32_t& Variant_GetMethods::getInteger() const
 {
     return m_data.intData;
 }
 
 //---------------------------------------------------------------------------
-const int64_t& Variant::getInt64() const
+const int64_t& Variant_GetMethods::getInt64() const
 {
     return m_data.int64Data;
 }
 
 //---------------------------------------------------------------------------
-const double& Variant::getFloat() const
+const double& Variant_GetMethods::getFloat() const
 {
     return m_data.floatData;
 }
 
 //---------------------------------------------------------------------------
-const MoneyData& Variant::getMoney() const
+const MoneyData& Variant_GetMethods::getMoney() const
 {
     return m_data.moneyData;
 }
 
 //---------------------------------------------------------------------------
-const char* Variant::getString() const
+const char* Variant_GetMethods::getString() const
 {
     return m_data.buffer.data;
 }
 
 //---------------------------------------------------------------------------
-const char* Variant::getBuffer() const
+const char* Variant_GetMethods::getBuffer() const
 {
     return m_data.buffer.data;
 }
 
 //---------------------------------------------------------------------------
-const char* Variant::getText() const
+const char* Variant_GetMethods::getText() const
 {
     return m_data.buffer.data;
 }
 
 //---------------------------------------------------------------------------
-DateTime Variant::getDateTime() const
+DateTime Variant_GetMethods::getDateTime() const
 {
     return DateTime(DateTime::time_point(chrono::microseconds(m_data.timeData)));
 }
 
 //---------------------------------------------------------------------------
-DateTime Variant::getDate() const
+DateTime Variant_GetMethods::getDate() const
 {
     int64_t days = m_data.timeData / 1000000 / 86400;
     return DateTime(DateTime::time_point(chrono::hours(days * 24)));
 }
 
 //---------------------------------------------------------------------------
-void* Variant::getImagePtr() const
+void* Variant_GetMethods::getImagePtr() const
 {
     return m_data.imagePtr;
 }
 
 //---------------------------------------------------------------------------
-uint32_t Variant::getImageNdx() const
+uint32_t Variant_GetMethods::getImageNdx() const
 {
     return (uint32_t) m_data.imageNdx;
 }
@@ -757,19 +715,19 @@ VariantType BaseVariant::dataType() const
 }
 
 //---------------------------------------------------------------------------
-size_t Variant::dataSize() const
+size_t BaseVariant::dataSize() const
 {
     return m_dataSize;
 }
 
 //---------------------------------------------------------------------------
-size_t Variant::bufferSize() const
+size_t BaseVariant::bufferSize() const
 {
     return m_data.buffer.size;
 }
 
 //---------------------------------------------------------------------------
-void* Variant::dataBuffer() const
+void* BaseVariant::dataBuffer() const
 {
     return (void*) &m_data;
 }
@@ -824,7 +782,7 @@ Variant::operator DateTime() const
 
 //---------------------------------------------------------------------------
 // convertors
-int32_t Variant::asInteger() const
+int32_t Variant_Adaptors::asInteger() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return 0;
@@ -861,7 +819,7 @@ int32_t Variant::asInteger() const
     }
 }
 
-int64_t Variant::asInt64() const
+int64_t Variant_Adaptors::asInt64() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return 0;
@@ -908,7 +866,7 @@ int64_t Variant::asInt64() const
     }
 }
 
-bool Variant::asBool() const
+bool Variant_Adaptors::asBool() const
 {
     char ch;
 
@@ -952,7 +910,7 @@ bool Variant::asBool() const
     }
 }
 
-double Variant::asFloat() const
+double Variant_Adaptors::asFloat() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return 0;
@@ -989,7 +947,7 @@ double Variant::asFloat() const
     }
 }
 
-String Variant::asString() const
+String Variant_Adaptors::asString() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return "";
@@ -1041,7 +999,7 @@ String Variant::asString() const
     }
 }
 
-String Variant::getMoneyString(char* printBuffer, size_t printBufferSize) const
+String Variant_GetMethods::getMoneyString(char* printBuffer, size_t printBufferSize) const
 {
     char format[64];
     int64_t absValue;
@@ -1061,7 +1019,7 @@ String Variant::getMoneyString(char* printBuffer, size_t printBufferSize) const
     return String(printBuffer, len);
 }
 
-DateTime Variant::asDate() const
+DateTime Variant_Adaptors::asDate() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return DateTime();
@@ -1092,7 +1050,7 @@ DateTime Variant::asDate() const
     }
 }
 
-DateTime Variant::asDateTime() const
+DateTime Variant_Adaptors::asDateTime() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return DateTime();
@@ -1123,7 +1081,7 @@ DateTime Variant::asDateTime() const
     }
 }
 
-void* Variant::asImagePtr() const
+void* Variant_Adaptors::asImagePtr() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return nullptr;
@@ -1134,7 +1092,7 @@ void* Variant::asImagePtr() const
     throw Exception("Can't convert field for that type");
 }
 
-void Variant::setNull(VariantType vtype)
+void Variant_SetMethods::setNull(VariantType vtype)
 {
     if (vtype != sptk::VAR_NONE) {
         releaseBuffers();
@@ -1160,12 +1118,12 @@ void Variant::setNull(VariantType vtype)
     m_dataType |= VAR_NULL;
 }
 
-bool Variant::isNull() const
+bool BaseVariant::isNull() const
 {
     return (m_dataType & VAR_NULL) != 0;
 }
 
-String Variant::typeName(VariantType type)
+String BaseVariant::typeName(VariantType type)
 {
     switch (type) {
         case VAR_BOOL:
@@ -1209,7 +1167,7 @@ String Variant::typeName(VariantType type)
     }
 }
 
-VariantType Variant::nameType(const char* name)
+VariantType BaseVariant::nameType(const char* name)
 {
     static std::map<string, VariantType> nameToTypeMap;
 

@@ -288,10 +288,10 @@ FieldList* DirectoryDS::makeFileListEntry(const struct stat& st, unsigned& index
     if (modeName == "Directory")
         df->push_back("Size", false) = "";
     else
-        df->push_back("Size", false) = (uint32_t) st.st_size;
+        df->push_back("Size", false) = (int32_t) st.st_size;
     df->push_back("Type", false) = modeName;
     df->push_back("Modified", false) = DateTime::convertCTime(st.st_mtime);
-    df->push_back("", false) = (uint32_t) index; // Fake key value
+    df->push_back("", false) = (int32_t) index; // Fake key value
     index++;
 
     if (access(fullName.c_str(), R_OK) != 0) {

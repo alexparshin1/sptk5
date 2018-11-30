@@ -69,7 +69,7 @@ int main(int argc, const char* argv[])
 
         return 0;
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         CERR(e.what() << endl);
         return 1;
     }

@@ -203,7 +203,6 @@ void MySQLConnection::queryPrepare(Query* query)
             catch (const Exception& e) {
                 THROW_QUERY_ERROR(query, e.what());
             }
-            //querySetPrepared(query, true);
         }
     }
 }
@@ -361,7 +360,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
 }
 
 void MySQLConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                                  const String& format)
+                                  const String& /*format*/)
 {
     Query insertQuery(this,
                       "INSERT INTO " + tableName + "(" + columnNames.asString(",") +

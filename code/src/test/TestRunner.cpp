@@ -84,7 +84,7 @@ void stub()
     string iv("0123456789012345");
 
     Buffer intext(text), outtext;
-    cout << "Encrypt text (" << text.length() << " bytes)." << endl;
+    COUT("Encrypt text (" << text.length() << " bytes)." << endl);
     Crypt::encrypt(outtext, intext, key, iv);
 
     Buffer b1, b2("xxx");

@@ -72,7 +72,7 @@ public:
      * @brief Constructor
      * @param name               Field name
      */
-    explicit Field(const char *name);
+    explicit Field(const String& name);
 
     /**
      * @brief Copy constructor
@@ -147,54 +147,9 @@ public:
     /**
      * @brief Assignment operation
      */
-    Field& operator =(uint64_t value) override
-    {
-        setInt64((int64_t) value);
-        return *this;
-    }
-
-    /**
-     * @brief Assignment operation
-     */
     Field& operator =(int32_t value) override
     {
         setInteger(value);
-        return *this;
-    }
-
-    /**
-     * @brief Assignment operation
-     */
-    Field& operator =(uint32_t value) override
-    {
-        setInteger((int32_t) value);
-        return *this;
-    }
-
-    /**
-     * @brief Assignment operation
-     */
-    Field& operator =(int16_t value) override
-    {
-        setInteger(value);
-        return *this;
-    }
-
-    /**
-     * @brief Assignment operation
-     */
-    Field& operator =(uint16_t value) override
-    {
-        setInteger(value);
-        return *this;
-    }
-
-    /**
-     * @brief Assignment operation
-     */
-    Field& operator =(float value) override
-    {
-        setFloat(value);
         return *this;
     }
 

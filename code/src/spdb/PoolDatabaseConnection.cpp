@@ -57,16 +57,6 @@ void PoolDatabaseConnection::disconnectAllQueries()
     m_queryList.clear();
 }
 
-String PoolDatabaseConnection::getDriverDescription() const
-{
-    return m_driverDescription;
-}
-
-void PoolDatabaseConnection::setDriverDescritpion(const String& description)
-{
-    m_driverDescription = description;
-}
-
 bool PoolDatabaseConnection::getInTransaction() const
 {
     return m_inTransaction;
@@ -142,128 +132,6 @@ void PoolDatabaseConnection::rollbackTransaction()
 
 //-----------------------------------------------------------------------------------------------
 
-String PoolDatabaseConnection::queryError(const Query*) const
-{
-    notImplemented("queryError");
-    return String();
-}
-
-void PoolDatabaseConnection::querySetAutoPrep(Query *q, bool pf)
-{
-    q->m_autoPrepare = pf;
-}
-
-void PoolDatabaseConnection::querySetStmt(Query *q, void *stmt)
-{
-    q->m_statement = stmt;
-}
-
-void PoolDatabaseConnection::querySetConn(Query *q, void *conn)
-{
-    q->m_connection = conn;
-}
-
-void PoolDatabaseConnection::querySetPrepared(Query *q, bool pf)
-{
-    q->m_prepared = pf;
-}
-
-void PoolDatabaseConnection::querySetActive(Query *q, bool af)
-{
-    q->m_active = af;
-}
-
-void PoolDatabaseConnection::querySetEof(Query *q, bool eof)
-{
-    q->m_eof = eof;
-}
-
-void PoolDatabaseConnection::queryAllocStmt(Query*)
-{
-    notImplemented("queryAllocStmt");
-}
-
-void PoolDatabaseConnection::queryFreeStmt(Query*)
-{
-    notImplemented("queryFreeStmt");
-}
-
-void PoolDatabaseConnection::queryCloseStmt(Query*)
-{
-    notImplemented("queryCloseStmt");
-}
-
-void PoolDatabaseConnection::queryPrepare(Query*)
-{
-    notImplemented("queryPrepare");
-}
-
-void PoolDatabaseConnection::queryUnprepare(Query *query)
-{
-    queryFreeStmt(query);
-}
-
-void PoolDatabaseConnection::queryExecute(Query*)
-{
-    notImplemented("queryExecute");
-}
-
-void PoolDatabaseConnection::queryExecDirect(Query*)
-{
-    notImplemented("queryExecDirect");
-}
-
-int PoolDatabaseConnection::queryColCount(Query*)
-{
-    notImplemented("queryColCount");
-    return 0;
-}
-
-void PoolDatabaseConnection::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
-{
-    notImplemented("queryColAttributes");
-}
-
-void PoolDatabaseConnection::queryColAttributes(Query*, int16_t, int16_t, char *, int32_t)
-{
-    notImplemented("queryColAttributes");
-}
-
-void PoolDatabaseConnection::queryBindParameters(Query*)
-{
-    notImplemented("queryBindParameters");
-}
-
-void PoolDatabaseConnection::queryOpen(Query*)
-{
-    notImplemented("queryOpen");
-}
-
-void PoolDatabaseConnection::queryFetch(Query*)
-{
-    notImplemented("queryFetch");
-}
-
-void PoolDatabaseConnection::notImplemented(const String& methodName) const
-{
-    throw DatabaseException("Method '" + methodName + "' is not supported by this database driver.");
-}
-
-void *PoolDatabaseConnection::queryHandle(Query *query) const
-{
-    return query->m_statement;
-}
-
-void PoolDatabaseConnection::queryHandle(Query *query, void *handle)
-{
-    query->m_statement = handle;
-}
-
-String PoolDatabaseConnection::paramMark(unsigned /*paramIndex*/)
-{
-    return String("?");
-}
-
 void PoolDatabaseConnection::logAndThrow(const String& method, const String& error)
 {
     String errorText("Exception in " + method + ": " + error);
@@ -281,7 +149,7 @@ void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
 }
 
 void PoolDatabaseConnection::_bulkInsert(
-        const String& tableName, const Strings& columnNames, const Strings& data, const String& format)
+        const String& tableName, const Strings& columnNames, const Strings& data, const String& /*format*/)
 {
     Query insertQuery(this,
                       "INSERT INTO " + tableName + "(" + columnNames.asString(",") +
@@ -305,3 +173,106 @@ void PoolDatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Stri
 {
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }
+
+void PoolDatabaseConnection_QueryMethods::querySetStmt(Query *q, void *stmt)
+{
+    q->m_statement = stmt;
+}
+
+void PoolDatabaseConnection_QueryMethods::querySetPrepared(Query *q, bool pf)
+{
+    q->m_prepared = pf;
+}
+
+void PoolDatabaseConnection_QueryMethods::querySetActive(Query *q, bool af)
+{
+    q->m_active = af;
+}
+
+void PoolDatabaseConnection_QueryMethods::querySetEof(Query *q, bool eof)
+{
+    q->m_eof = eof;
+}
+
+String PoolDatabaseConnection_QueryMethods::queryError(const Query*) const
+{
+    notImplemented("queryError");
+    return String();
+}
+
+void PoolDatabaseConnection_QueryMethods::queryAllocStmt(Query*)
+{
+    notImplemented("queryAllocStmt");
+}
+
+void PoolDatabaseConnection_QueryMethods::queryFreeStmt(Query*)
+{
+    notImplemented("queryFreeStmt");
+}
+
+void PoolDatabaseConnection_QueryMethods::queryCloseStmt(Query*)
+{
+    notImplemented("queryCloseStmt");
+}
+
+void PoolDatabaseConnection_QueryMethods::queryPrepare(Query*)
+{
+    notImplemented("queryPrepare");
+}
+
+void PoolDatabaseConnection_QueryMethods::queryUnprepare(Query *query)
+{
+    queryFreeStmt(query);
+}
+
+void PoolDatabaseConnection_QueryMethods::queryExecute(Query*)
+{
+    notImplemented("queryExecute");
+}
+
+void PoolDatabaseConnection_QueryMethods::queryExecDirect(Query*)
+{
+    notImplemented("queryExecDirect");
+}
+
+int PoolDatabaseConnection_QueryMethods::queryColCount(Query*)
+{
+    notImplemented("queryColCount");
+    return 0;
+}
+
+void PoolDatabaseConnection_QueryMethods::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
+{
+    notImplemented("queryColAttributes");
+}
+
+void PoolDatabaseConnection_QueryMethods::queryColAttributes(Query*, int16_t, int16_t, char *, int32_t)
+{
+    notImplemented("queryColAttributes");
+}
+
+void PoolDatabaseConnection_QueryMethods::queryBindParameters(Query*)
+{
+    notImplemented("queryBindParameters");
+}
+
+void PoolDatabaseConnection_QueryMethods::queryOpen(Query*)
+{
+    notImplemented("queryOpen");
+}
+
+void PoolDatabaseConnection_QueryMethods::queryFetch(Query*)
+{
+    notImplemented("queryFetch");
+}
+
+void PoolDatabaseConnection_QueryMethods::notImplemented(const String& methodName) const
+{
+    throw DatabaseException("Method '" + methodName + "' is not supported by this database driver.");
+}
+
+String PoolDatabaseConnection_QueryMethods::paramMark(unsigned /*paramIndex*/)
+{
+    return String("?");
+}
+
