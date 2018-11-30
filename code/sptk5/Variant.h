@@ -201,13 +201,7 @@ public:
 
 };
 
-/**
- * Universal data storage.
- *
- * Reasonably compact an fast class what allows storing data of different
- * types. It also allows conversions to and from supported types.
- */
-class SP_EXPORT Variant
+class SP_EXPORT BaseVariant
 {
 protected:
     /**
@@ -242,11 +236,6 @@ protected:
     uint16_t                m_dataType;
 
     /**
-     * Copies data from another CVariant
-     */
-    void setData(const Variant& C);
-
-    /**
      * Releases allocated buffer (if any)
      */
     void releaseBuffers();
@@ -255,6 +244,29 @@ protected:
      * Sets the data type
      */
     void dataType(uint32_t dt);
+
+public:
+
+    /**
+     * Returns the data type
+     */
+    VariantType dataType() const;
+};
+
+/**
+ * Universal data storage.
+ *
+ * Reasonably compact an fast class what allows storing data of different
+ * types. It also allows conversions to and from supported types.
+ */
+class SP_EXPORT Variant : public BaseVariant
+{
+protected:
+
+    /**
+     * Copies data from another CVariant
+     */
+    void setData(const Variant& C);
 
 public:
 
@@ -567,11 +579,6 @@ public:
      * Directly reads the internal data
      */
     virtual uint32_t getImageNdx() const;
-
-    /**
-     * Returns the data type
-     */
-    VariantType dataType() const;
 
     /**
      * Returns the data size

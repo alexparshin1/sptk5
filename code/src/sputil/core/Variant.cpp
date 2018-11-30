@@ -62,7 +62,7 @@ MoneyData::operator bool() const
 }
 
 //---------------------------------------------------------------------------
-void Variant::releaseBuffers()
+void BaseVariant::releaseBuffers()
 {
     if ((m_dataType & (VAR_STRING | VAR_BUFFER | VAR_TEXT)) != 0 &&
         m_data.buffer.data != nullptr) {
@@ -83,7 +83,7 @@ void Variant::dataSize(size_t ds)
 }
 
 //---------------------------------------------------------------------------
-void Variant::dataType(uint32_t dt)
+void BaseVariant::dataType(uint32_t dt)
 {
     m_dataType = (uint16_t) dt;
 }
@@ -751,7 +751,7 @@ uint32_t Variant::getImageNdx() const
 }
 
 //---------------------------------------------------------------------------
-VariantType Variant::dataType() const
+VariantType BaseVariant::dataType() const
 {
     return (VariantType) (m_dataType & VAR_TYPES);
 }
