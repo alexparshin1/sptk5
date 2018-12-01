@@ -54,7 +54,7 @@ bool WSConnection::readHttpHeaders(String& protocolName, String& request, String
 
     try {
         while (!terminated()) {
-            if (m_socket->readLine(data) == 0)
+            if (socket().readLine(data) == 0)
                 return false;
             row = trim(data.c_str());
             if (protocolName.empty()) {
@@ -104,8 +104,8 @@ void WSConnection::threadFunction()
     String requestType;
 
     try {
-        if (!m_socket->readyToRead(chrono::seconds(30))) {
-            m_socket->close();
+        if (!socket().readyToRead(chrono::seconds(30))) {
+            socket().close();
             m_logger.debug("Client closed connection");
             return;
         }
@@ -124,7 +124,7 @@ void WSConnection::threadFunction()
             else {
 
                 if (headers["Upgrade"] == "websocket") {
-                    WSWebSocketsProtocol protocol(m_socket, headers);
+                    WSWebSocketsProtocol protocol(&socket(), headers);
                     protocol.process();
                     return;
                 }
@@ -133,7 +133,7 @@ void WSConnection::threadFunction()
                     if (url == "/")
                         url = m_htmlIndexPage;
 
-                    WSStaticHttpProtocol protocol(m_socket, url, headers, m_staticFilesDirectory);
+                    WSStaticHttpProtocol protocol(&socket(), url, headers, m_staticFilesDirectory);
                     protocol.process();
                     return;
                 }
@@ -141,17 +141,17 @@ void WSConnection::threadFunction()
         }
 
         if (protocolName == "websocket") {
-            WSWebSocketsProtocol protocol(m_socket, headers);
+            WSWebSocketsProtocol protocol(&socket(), headers);
             protocol.process();
             return;
         }
 
-        WSWebServiceProtocol protocol(m_socket, url, headers, m_service);
+        WSWebServiceProtocol protocol(&socket(), url, headers, m_service);
         protocol.process();
     }
     catch (const Exception& e) {
         if (!terminated())
-            m_logger.error("Error in thread " + name() + ": " + string(e.what()));
+            m_logger.error("Error in thread " + name() + ": " + String(e.what()));
     }
 }
 
@@ -161,14 +161,12 @@ WSSSLConnection::WSSSLConnection(SOCKET connectionSocket, sockaddr_in* addr, WSR
 : WSConnection(connectionSocket, addr, service, logger, staticFilesDirectory, htmlIndexPage, wsRequestPage)
 {
     if (encrypted)
-        m_socket = new SSLSocket;
+        setSocket(new SSLSocket);
     else
-        m_socket = new TCPSocket;
-    m_socket->attach(connectionSocket);
+        setSocket(new TCPSocket);
+    socket().attach(connectionSocket);
 }
 
 WSSSLConnection::~WSSSLConnection()
 {
-    delete m_socket;
-    m_socket = nullptr;
 }

@@ -176,22 +176,22 @@ void PoolDatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Stri
 
 void PoolDatabaseConnection_QueryMethods::querySetStmt(Query *q, void *stmt)
 {
-    q->m_statement = stmt;
+    q->setStatement(stmt);
 }
 
 void PoolDatabaseConnection_QueryMethods::querySetPrepared(Query *q, bool pf)
 {
-    q->m_prepared = pf;
+    q->setPrepared(pf);
 }
 
 void PoolDatabaseConnection_QueryMethods::querySetActive(Query *q, bool af)
 {
-    q->m_active = af;
+    q->setActive(af);
 }
 
 void PoolDatabaseConnection_QueryMethods::querySetEof(Query *q, bool eof)
 {
-    q->m_eof = eof;
+    q->setEof(eof);
 }
 
 String PoolDatabaseConnection_QueryMethods::queryError(const Query*) const

@@ -48,33 +48,17 @@ namespace sptk {
  * @{
  */
 
-/**
- * @brief Database query
- *
- * A CDataset connected to the database to
- * execute a database queries. The type of the database
- * depends on the DatabaseConnection object query is connected to.
- */
-class SP_EXPORT Query: public DataSource, public SharedMutex
+class SP_EXPORT Query_StatementManagement: public DataSource
 {
-    friend class PoolDatabaseConnection;
-    friend class PoolDatabaseConnection_QueryMethods;
-
-protected:
     /**
      * Prepare the query automatically, on thedynamic_cast<COracleBulkInsertQuery*>( first call
      */
-    bool                    m_autoPrepare {false};
+    bool                    m_autoPrepare {true};
 
     /**
      * ODBC statement handle
      */
     void*                   m_statement {nullptr};
-
-    /**
-     * Database server connection
-     */
-    void*                   m_connection {nullptr};
 
     /**
      * True if the statement is prepared
@@ -92,19 +76,9 @@ protected:
     bool                    m_eof {true};
 
     /**
-     * List of query parameters
+     * Bulk mode flag
      */
-    QueryParameterList      m_params;
-
-    /**
-     * List of query fields - makes sense after fetch
-     */
-    FieldList               m_fields;
-
-    /**
-     * Database connection
-     */
-    PoolDatabaseConnection* m_db {nullptr};
+    bool                    m_bulkMode {false};
 
     /**
      * SQL statement string
@@ -116,43 +90,41 @@ protected:
      */
     Strings                 m_messages;
 
-    /**
-     * Unique index for query object
-     */
-    int                     m_objectIndex {0};
-
-    /**
-     * The source file the query was created in
-     */
-    const char*             m_createdFile {nullptr};
-
-    /**
-     * The source file line the query was created at
-     */
-    unsigned                m_createdLine {0};
-
-    /**
-     * Bulk mode flag
-     */
-    bool                    m_bulkMode {false};
-
 protected:
+
+    /**
+     * Database connection
+     */
+    PoolDatabaseConnection* m_db {nullptr};
+
+    /**
+     * @brief Returns query statement handle
+     */
+    void setStatement(void *statement)
+    {
+        m_statement = statement;
+    }
+
+    void setPrepared(bool prepared)
+    {
+        m_prepared = prepared;
+    }
+
+    void setActive(bool active)
+    {
+        m_active = active;
+    }
+
+    void setEof(bool eof)
+    {
+        m_eof = eof;
+    }
 
     /**
      * Set bulk mode flag
      * @param _bulkMode        True for bulk mode
      */
-    void bulkMode(bool _bulkMode);
-
-    /**
-     * Counts columns of the dataset (if any) returned by query
-     */
-    int countCols();
-
-    /**
-     * Allocates a statement
-     */
-    void allocStmt();
+    void setBulkMode(bool _bulkMode);
 
     /**
      * Deallocates a statement. All the resources allocated by statement are released.
@@ -165,33 +137,135 @@ protected:
     void closeStmt();
 
     /**
-     * Executes a statement
-     */
-    void execute();
-
-    /**
-     * Retrieves an error (if any) after executing a statement
-     */
-    String getError() const;
-
-    /**
-     * Internal number to implement unique query index. That is pretty useful for logs
-     */
-    static int      nextObjectIndex;
-
-
-    /**
-     * Internal function to throw 'Not implemented' exception
-     */
-    void notImplemented(const String& functionName) const;
-
-    /**
      * @brief Closes query by closing the statement.
      *
      * If the statement isn't released it may be re-used later.
      * @param releaseStatement  True if we need to release the query's ODBC statement
      */
     void closeQuery(bool releaseStatement = false);
+
+    /**
+     * @brief Prepares query for the fast execution
+     */
+    virtual void prepare();
+
+    /**
+     * @brief Unprepares query releasing previously prepared statement
+     */
+    virtual void unprepare();
+
+    /**
+     * Optional diagnostic messages populated after exec() or open()
+     */
+    Strings& messages()
+    {
+        return m_messages;
+    }
+
+    const String& getSQL() const
+    {
+        return m_sql;
+    }
+
+    void setSQL(const String& sql)
+    {
+        m_sql = sql;
+    }
+
+    /**
+     * Internal function to throw 'Not implemented' exception
+     */
+    void notImplemented(const String& functionName) const;
+
+public:
+
+    explicit Query_StatementManagement(bool autoPrepare)
+    : m_autoPrepare(autoPrepare)
+    {}
+
+    Query_StatementManagement(const Query_StatementManagement& other)
+    : m_autoPrepare(other.m_autoPrepare)
+    {}
+
+    /**
+     * @brief Returns query statement handle
+     */
+    void *statement() const
+    {
+        return m_statement;
+    }
+
+    /**
+     * @brief Returns the value for auto-prepare flag.
+     *
+     * If the flag is set the query would automatically call prepare() when needed.
+     */
+    bool autoPrepare() const
+    {
+        return m_autoPrepare;
+    }
+
+    /**
+     * @brief Reports if the query is opened
+     */
+    bool active() const
+    {
+        return m_active;
+    }
+
+    /**
+     * @brief True if the statement is prepared
+     */
+    bool prepared() const
+    {
+        return m_prepared;
+    }
+
+    /**
+     * @brief Returns true if there is no more rows in the recordset
+     */
+    bool eof() const override
+    {
+        return m_eof;
+    }
+
+    /**
+     * Return bulk mode flag
+     * @return true for bulk mode
+     */
+    bool bulkMode() const;
+};
+
+/**
+ * @brief Database query
+ *
+ * A CDataset connected to the database to
+ * execute a database queries. The type of the database
+ * depends on the DatabaseConnection object query is connected to.
+ */
+class SP_EXPORT Query: public Query_StatementManagement
+{
+    friend class PoolDatabaseConnection;
+    friend class PoolDatabaseConnection_QueryMethods;
+
+protected:
+
+    /**
+     * List of query parameters
+     */
+    QueryParameterList      m_params;
+
+    /**
+     * List of query fields - makes sense after fetch
+     */
+    FieldList               m_fields;
+
+protected:
+
+    /**
+     * Executes a statement
+     */
+    void execute();
 
     /**
      * @brief In CDataset it should load data into the dataset.
@@ -322,9 +396,9 @@ public:
     /**
      * @brief Returns the text of current SQL query as String
      */
-    String sql()
+    const String& sql() const
     {
-        return m_sql;
+        return getSQL();
     }
 
     /**
@@ -379,14 +453,6 @@ public:
     {
         fetch();
         return true;
-    }
-
-    /**
-     * @brief Returns true if there is no more rows in the recordset
-     */
-    bool eof() const override
-    {
-        return m_eof;
     }
 
     /**
@@ -474,22 +540,6 @@ public:
     }
 
     /**
-     * @brief Returns query statement handle
-     */
-    void *statement() const
-    {
-        return m_statement;
-    }
-
-    /**
-     * @brief Returns SQL Query text
-     */
-    String sql() const
-    {
-        return m_sql;
-    }
-
-    /**
      * @brief Sets SQL Query text.
      * If the Query text is not the same and the db statement was prepared earlier
      * then the db statement is released and new one is created.
@@ -513,52 +563,6 @@ public:
     }
 
     /**
-     * @brief Reports if the query is opened
-     */
-    bool active() const
-    {
-        return m_active;
-    }
-
-    /**
-     * @brief True if the statement is prepared
-     */
-    bool prepared() const
-    {
-        return m_prepared;
-    }
-
-    /**
-     * @brief Returns the value for auto-prepare flag.
-     *
-     * If the flag is set the query would automatically call prepare() when needed.
-     */
-    bool autoPrepare() const
-    {
-        return m_autoPrepare;
-    }
-
-    /**
-     * @brief Sets the value for auto-prepare flag.
-     *
-     * If the flag is set the query would automatically call prepare() when needed.
-     */
-    void autoPrepare(bool ap)
-    {
-        m_autoPrepare = ap;
-    }
-
-    /**
-     * @brief Prepares query for the fast execution
-     */
-    virtual void prepare();
-
-    /**
-     * @brief Unprepares query releasing previously prepared statement
-     */
-    virtual void unprepare();
-
-    /**
      * @brief Throws an exception
      *
      * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
@@ -566,24 +570,6 @@ public:
      * @param error             Error text
      */
     void throwError(const String& method, const String& error);
-
-    /**
-     * @brief Access to diag messages
-     *
-     * Some of the database drivers (ODBC, for example) may return diag messages
-     * after the execution of the query. Usually, such messages may be generated
-     * by a stored procedure call.
-     */
-    Strings& messages()
-    {
-        return m_messages;
-    }
-
-    /**
-     * Return bulk mode flag
-     * @return true for bulk mode
-     */
-    bool bulkMode() const;
 };
 /**
  * @}

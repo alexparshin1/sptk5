@@ -244,7 +244,7 @@ void OracleConnection::queryBindParameters(Query* query)
     }
 }
 
-VariantType OracleTypeToVariantType(Type oracleType, int scale)
+VariantType sptk::OracleTypeToVariantType(Type oracleType, int scale)
 {
     switch (oracleType) {
         case Type(SQLT_NUM):
@@ -274,7 +274,7 @@ VariantType OracleTypeToVariantType(Type oracleType, int scale)
     }
 }
 
-Type VariantTypeToOracleType(VariantType dataType)
+Type sptk::VariantTypeToOracleType(VariantType dataType)
 {
     switch (dataType) {
         case VAR_NONE: throwException("Data type is not defined");

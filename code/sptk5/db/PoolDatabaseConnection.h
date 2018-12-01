@@ -154,6 +154,7 @@ typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
 class SP_EXPORT PoolDatabaseConnection_QueryMethods
 {
     friend class Query;
+    friend class Query_StatementManagement;
 
 protected:
     /**
