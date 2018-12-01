@@ -203,7 +203,7 @@ public:
      */
     Field& operator =(const Buffer& value) override
     {
-        setBuffer(value.data(), value.bytes());
+        setBuffer(value.data(), value.bytes(), VAR_DATE_TIME, false);
         return *this;
     }
 

@@ -274,7 +274,7 @@ public:
      * tries not to decrease the allocated buffer.
      * @param value const string&, string to assign
      */
-    virtual void setString(const std::string& value) {
+    virtual void setString(const String& value) {
         setString(value.c_str(), (uint32_t)value.length());
     }
 

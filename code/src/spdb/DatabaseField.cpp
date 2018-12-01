@@ -77,7 +77,7 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
         break;
 
     case VAR_BUFFER:
-        Variant::setBuffer("", 1);
+        Variant::setBuffer("", 1, VAR_DATE_TIME, false);
         checkSize((size_t)fieldLength);
         view.width = 1;
         break;

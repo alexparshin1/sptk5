@@ -463,7 +463,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
             field->setString(data, dataLength);
             break;
         case VAR_BUFFER:
-            field->setBuffer(data, dataLength);
+            field->setBuffer(data, dataLength, VAR_DATE_TIME, false);
             break;
 
         case VAR_INT64:

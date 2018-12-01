@@ -413,37 +413,17 @@ public:
     /**
      * Assignment method
      */
-    virtual void setString(const std::string& value);
+    virtual void setString(const String& value);
 
     /**
      * Assignment method
      */
-    void setExternalString(const char *value, int length = -1);
+    virtual void setText(const String& str);
 
     /**
      * Assignment method
      */
-    void setExternalString(const std::string& value);
-
-    /**
-     * Assignment method
-     */
-    virtual void setText(const char * value);
-
-    /**
-     * Assignment method
-     */
-    virtual void setText(const std::string& str);
-
-    /**
-     * Assignment method
-     */
-    virtual void setExternalText(const char * value);
-
-    /**
-     * Assignment method
-     */
-    virtual void setBuffer(const void * value, size_t sz);
+    virtual void setBuffer(const void* value, size_t sz, VariantType type=VAR_BUFFER, bool externalBuffer=false);
 
     /**
      * Assignment method
@@ -453,12 +433,7 @@ public:
     /**
      * Assignment method
      */
-    virtual void setExternalBuffer(const void * value, size_t sz);
-
-    /**
-     * Assignment method
-     */
-    virtual void setBuffer(const std::string& str);
+    virtual void setBuffer(const String& str);
 
     /**
      * Assignment method

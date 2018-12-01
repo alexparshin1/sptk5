@@ -32,6 +32,8 @@
 using namespace std;
 using namespace sptk;
 
+#define BUFFER_TYPES (VAR_STRING|VAR_TEXT|VAR_BUFFER)
+
 int64_t MoneyData::dividers[16] = {1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL, 1000000000LL,
                                    10000000000LL, 100000000000LL,
                                    1000000000000LL, 10000000000000LL, 100000000000000LL, 1000000000000000LL};
@@ -163,14 +165,14 @@ Variant::Variant(DateTime v)
 Variant::Variant(const void* value, size_t sz)
 {
     m_dataType = VAR_NONE;
-    Variant::setBuffer(value, sz);
+    Variant::setBuffer(value, sz, VAR_DATE_TIME, false);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(const Buffer& value)
 {
     m_dataType = VAR_NONE;
-    Variant::setBuffer(value.data(), value.bytes());
+    Variant::setBuffer(value.data(), value.bytes(), VAR_DATE_TIME, false);
 }
 
 //---------------------------------------------------------------------------
@@ -291,63 +293,13 @@ void Variant_SetMethods::setString(const char* value, size_t maxlen)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setString(const std::string& value)
+void Variant_SetMethods::setString(const String& value)
 {
     setString(value.c_str(), value.length());
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setExternalString(const char* value, int length)
-{
-    uint32_t dtype = VAR_STRING;
-
-    if ((m_dataType & VAR_EXTERNAL_BUFFER) == 0)
-        releaseBuffers();
-
-    if (value != nullptr) {
-        if (length < 0)
-            length = (int) strlen(value);
-
-        m_dataSize = size_t(length);
-        m_data.buffer.size = (size_t) length + 1;
-        dtype |= VAR_EXTERNAL_BUFFER;
-    } else {
-        m_dataSize = 0;
-        m_data.buffer.size = 0;
-        dtype |= VAR_NULL;
-    }
-
-    m_data.buffer.data = (char*) value;
-    m_dataType = (uint16_t) dtype;
-}
-
-//---------------------------------------------------------------------------
-void Variant_SetMethods::setExternalString(const std::string& value)
-{
-    setExternalString(value.c_str(), (int) value.length());
-}
-
-//---------------------------------------------------------------------------
-void Variant_SetMethods::setText(const char* value)
-{
-    releaseBuffers();
-    dataType(VAR_TEXT);
-
-    if (value != nullptr) {
-        dataSize(strlen(value));
-        m_data.buffer.size = dataSize() + 1;
-        m_data.buffer.data = new char[m_data.buffer.size];
-        strncpy(m_data.buffer.data, value, m_data.buffer.size);
-    } else {
-        m_dataType |= VAR_NULL;
-        m_data.buffer.data = nullptr;
-        m_data.buffer.size = 0;
-        dataSize(0);
-    }
-}
-
-//---------------------------------------------------------------------------
-void Variant_SetMethods::setText(const string& value)
+void Variant_SetMethods::setText(const String& value)
 {
     releaseBuffers();
     dataType(VAR_TEXT);
@@ -367,79 +319,40 @@ void Variant_SetMethods::setText(const string& value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setExternalText(const char* value)
+void Variant_SetMethods::setBuffer(const void* value, size_t sz, VariantType type, bool externalBuffer)
 {
-    releaseBuffers();
-    dataType(VAR_TEXT);
+    if ((type & BUFFER_TYPES) == 0)
+        throw Exception("Invalid buffer type");
 
-    if (value != nullptr) {
-        dataSize(strlen(value));
-        m_data.buffer.size = dataSize() + 1;
-        m_data.buffer.data = (char*) value;
-        m_dataType |= VAR_EXTERNAL_BUFFER;
-    } else {
-        m_dataType |= VAR_NULL;
-        m_data.buffer.data = nullptr;
-        m_data.buffer.size = 0;
-        dataSize(0);
-    }
-}
-
-//---------------------------------------------------------------------------
-void Variant_SetMethods::setBuffer(const void* value, size_t sz)
-{
     releaseBuffers();
-    dataType(VAR_BUFFER);
+    dataType(type);
 
     if (value != nullptr || sz != 0) {
-        m_data.buffer.size = sz;
-        dataSize(sz);
-        m_data.buffer.data = new char[sz];
-
-        if (m_data.buffer.data != nullptr && value != nullptr)
-            memcpy(m_data.buffer.data, value, sz);
+        if (externalBuffer) {
+            m_data.buffer.size = sz;
+            m_data.buffer.data = (char*) value;
+            dataSize(sz);
+            dataType(type | VAR_EXTERNAL_BUFFER);
+        } else {
+            m_data.buffer.size = sz;
+            dataSize(sz);
+            m_data.buffer.data = new char[sz];
+            if (m_data.buffer.data != nullptr && value != nullptr)
+                memcpy(m_data.buffer.data, value, sz);
+        }
     } else
         setNull();
 }
 
 void Variant_SetMethods::setBuffer(const Buffer& value)
 {
-    setBuffer(value.data(), value.bytes());
+    setBuffer(value.data(), value.bytes(), VAR_BUFFER, false);
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setBuffer(const string& value)
+void Variant_SetMethods::setBuffer(const String& value)
 {
-    releaseBuffers();
-    dataType(VAR_BUFFER);
-    size_t vlen = value.length();
-
-    if (vlen != 0) {
-        size_t sz = vlen + 1;
-        m_data.buffer.size = sz;
-        dataSize(sz);
-        m_data.buffer.data = new char[sz];
-        if (m_data.buffer.data != nullptr && !value.empty())
-            memcpy(m_data.buffer.data, value.c_str(), sz);
-    } else
-        setNull();
-}
-
-//---------------------------------------------------------------------------
-void Variant_SetMethods::setExternalBuffer(const void* value, size_t sz)
-{
-    releaseBuffers();
-    dataType(VAR_BUFFER);
-    m_data.buffer.data = (char*) value;
-
-    if (value != nullptr) {
-        m_data.buffer.size = sz;
-        dataSize(sz);
-        m_dataType |= VAR_EXTERNAL_BUFFER;
-    } else {
-        dataSize(0);
-        m_dataType |= VAR_NULL;
-    }
+    setBuffer(value.data(), value.size(), VAR_BUFFER, false);
 }
 
 //---------------------------------------------------------------------------
@@ -537,7 +450,7 @@ void Variant_SetMethods::setData(const Variant_GetMethods& C)
             break;
 
         case VAR_BUFFER:
-            setBuffer(C.getBuffer(), C.dataSize());
+            setBuffer(C.getBuffer(), C.dataSize(), VAR_DATE_TIME, false);
             break;
 
         case VAR_DATE:
@@ -631,7 +544,7 @@ Variant& Variant::operator=(const void* value)
 //---------------------------------------------------------------------------
 Variant& Variant::operator=(const Buffer& value)
 {
-    setBuffer(value.data(), value.bytes());
+    setBuffer(value.data(), value.bytes(), VAR_DATE_TIME, false);
     return *this;
 }
 
