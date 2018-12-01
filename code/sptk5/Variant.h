@@ -203,6 +203,8 @@ public:
 
 class SP_EXPORT BaseVariant
 {
+    friend class Variant_SetMethods;
+
 protected:
     /**
      * Internal variant data storage type definition
@@ -290,11 +292,6 @@ public:
      * @param name              Variant type name
      */
     static VariantType nameType(const char* name);
-};
-
-class SP_EXPORT Variant_GetMethods : public BaseVariant
-{
-    friend class Variant_SetMethods;
 
 protected:
 
@@ -369,14 +366,14 @@ public:
     virtual uint32_t getImageNdx() const;
 };
 
-class SP_EXPORT Variant_SetMethods : public Variant_GetMethods
+class SP_EXPORT Variant_SetMethods : public BaseVariant
 {
 protected:
 
     /**
      * Copies data from another CVariant
      */
-    void setData(const Variant_GetMethods& C);
+    void setData(const BaseVariant& C);
 
 public:
 

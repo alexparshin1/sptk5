@@ -139,7 +139,7 @@ TEST(SPTK_FieldList, copy)
     FieldList fieldList2(fieldList);
 
     EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
-    EXPECT_EQ(12345, fieldList2["value"].asInteger());
+    EXPECT_EQ(12345, (int32_t) fieldList2["value"]);
 }
 
 TEST(SPTK_FieldList, push_back)
@@ -153,6 +153,6 @@ TEST(SPTK_FieldList, push_back)
     fieldList["value"] = 12345;
 
     EXPECT_STREQ("id", fieldList["name"].asString().c_str());
-    EXPECT_EQ(12345, fieldList["value"].asInteger());
+    EXPECT_EQ(12345, (int32_t) fieldList["value"]);
 }
 #endif

@@ -418,7 +418,7 @@ void Variant_SetMethods::setMoney(const MoneyData& value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setData(const Variant_GetMethods& C)
+void Variant_SetMethods::setData(const BaseVariant& C)
 {
     switch (C.dataType()) {
         case VAR_BOOL:
@@ -549,74 +549,74 @@ Variant& Variant::operator=(const Buffer& value)
 }
 
 //---------------------------------------------------------------------------
-bool Variant_GetMethods::getBool() const
+bool BaseVariant::getBool() const
 {
     return m_data.boolData;
 }
 
 //---------------------------------------------------------------------------
-const int32_t& Variant_GetMethods::getInteger() const
+const int32_t& BaseVariant::getInteger() const
 {
     return m_data.intData;
 }
 
 //---------------------------------------------------------------------------
-const int64_t& Variant_GetMethods::getInt64() const
+const int64_t& BaseVariant::getInt64() const
 {
     return m_data.int64Data;
 }
 
 //---------------------------------------------------------------------------
-const double& Variant_GetMethods::getFloat() const
+const double& BaseVariant::getFloat() const
 {
     return m_data.floatData;
 }
 
 //---------------------------------------------------------------------------
-const MoneyData& Variant_GetMethods::getMoney() const
+const MoneyData& BaseVariant::getMoney() const
 {
     return m_data.moneyData;
 }
 
 //---------------------------------------------------------------------------
-const char* Variant_GetMethods::getString() const
+const char* BaseVariant::getString() const
 {
     return m_data.buffer.data;
 }
 
 //---------------------------------------------------------------------------
-const char* Variant_GetMethods::getBuffer() const
+const char* BaseVariant::getBuffer() const
 {
     return m_data.buffer.data;
 }
 
 //---------------------------------------------------------------------------
-const char* Variant_GetMethods::getText() const
+const char* BaseVariant::getText() const
 {
     return m_data.buffer.data;
 }
 
 //---------------------------------------------------------------------------
-DateTime Variant_GetMethods::getDateTime() const
+DateTime BaseVariant::getDateTime() const
 {
     return DateTime(DateTime::time_point(chrono::microseconds(m_data.timeData)));
 }
 
 //---------------------------------------------------------------------------
-DateTime Variant_GetMethods::getDate() const
+DateTime BaseVariant::getDate() const
 {
     int64_t days = m_data.timeData / 1000000 / 86400;
     return DateTime(DateTime::time_point(chrono::hours(days * 24)));
 }
 
 //---------------------------------------------------------------------------
-void* Variant_GetMethods::getImagePtr() const
+void* BaseVariant::getImagePtr() const
 {
     return m_data.imagePtr;
 }
 
 //---------------------------------------------------------------------------
-uint32_t Variant_GetMethods::getImageNdx() const
+uint32_t BaseVariant::getImageNdx() const
 {
     return (uint32_t) m_data.imageNdx;
 }
@@ -912,7 +912,7 @@ String Variant_Adaptors::asString() const
     }
 }
 
-String Variant_GetMethods::getMoneyString(char* printBuffer, size_t printBufferSize) const
+String BaseVariant::getMoneyString(char* printBuffer, size_t printBufferSize) const
 {
     char format[64];
     int64_t absValue;

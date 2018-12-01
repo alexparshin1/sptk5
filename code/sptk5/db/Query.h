@@ -199,7 +199,7 @@ protected:
      * Since the query loads all the data by open() or fetch(),
      * in Query this method does exactly nothing
      */
-    virtual bool loadData()
+    bool loadData() override
     {
         return false;
     }
@@ -210,7 +210,7 @@ protected:
      * Since the query saves all the data by execute,
      * in Query this method does exactly nothing
      */
-    virtual bool saveData()
+    bool saveData() override
     {
         return false;
     }
@@ -267,7 +267,7 @@ public:
      * Field index should be inside 0..fieldCount()-1
      * @param fieldIndex int, field index
      */
-    virtual const Field& operator [](uint32_t fieldIndex) const
+    const Field& operator [](uint32_t fieldIndex) const override
     {
         return m_fields[fieldIndex];
     }
@@ -278,7 +278,7 @@ public:
      * Field index should be inside 0..fieldCount()-1
      * @param fieldIndex int, field index
      */
-    virtual Field& operator [](uint32_t fieldIndex)
+    Field& operator [](uint32_t fieldIndex) override
     {
         return m_fields[fieldIndex];
     }
@@ -286,7 +286,7 @@ public:
     /**
      * @brief Field access by field name, const version
      */
-    virtual const Field& operator [](const String& fieldName) const
+    const Field& operator [](const String& fieldName) const override
     {
         return m_fields[fieldName.c_str()];
     }
@@ -294,7 +294,7 @@ public:
     /**
      * @brief Field access by field name.
      */
-    virtual Field& operator [](const String& fieldName)
+    Field& operator [](const String& fieldName) override
     {
         return m_fields[fieldName.c_str()];
     }
@@ -346,12 +346,12 @@ public:
     /**
      * @brief Field read access by the field name, for the universal data connection
      */
-    virtual bool readField(const char *fname, Variant& value);
+    bool readField(const char *fname, Variant& value) override;
 
     /**
      * @brief Field write access by the field name, for the universal data connection
      */
-    virtual bool writeField(const char *fname, const Variant& fvalue);
+    bool writeField(const char *fname, const Variant& fvalue) override;
 
     /**
      * @brief Opens the query and fetches the first row.
@@ -359,14 +359,14 @@ public:
      * It is necessary for the select queries and some stored procedures
      * that may return the dataset. First-time call for open() also prepares the query.
      */
-    virtual bool open();
+    bool open() override;
 
     /**
      * @brief Closes the query
      *
      * Doesn't release the db statement, so the query may be called again, and faster than for the first time.
      */
-    virtual bool close()
+    bool close() override
     {
         closeQuery();
         return true;
@@ -375,7 +375,7 @@ public:
     /**
      * @brief Fetches the next row from the recordset, same as fetch()
      */
-    virtual bool next()
+    bool next() override
     {
         fetch();
         return true;
@@ -384,7 +384,7 @@ public:
     /**
      * @brief Returns true if there is no more rows in the recordset
      */
-    virtual bool eof() const
+    bool eof() const override
     {
         return m_eof;
     }
