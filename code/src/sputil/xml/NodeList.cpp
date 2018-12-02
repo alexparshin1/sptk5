@@ -35,7 +35,7 @@ using namespace sptk::xml;
 
 void NodeList::clear()
 {
-    for (auto item: *this)
+    for (auto* item: *this)
         delete item;
     NodeVector::clear();
 }

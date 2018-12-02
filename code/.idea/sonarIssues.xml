@@ -1698,6 +1698,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/jwt/JWT-openssl.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/jwt/JWT.cpp">
           <value>
             <set />
@@ -1808,6 +1813,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/xml/NodeList.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/test/TestRunner.cpp">
           <value>
             <set />
@@ -1884,6 +1894,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/themes/tar2h.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/utilities/load_balance/Channel.h">
           <value>
             <set />
           </value>

@@ -307,7 +307,7 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
             *len = buf_len;
         }
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         error = e.what();
     }
 
@@ -441,7 +441,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
         /* Now check the sig for validity. */
         if (EVP_DigestVerifyFinal(mdctx, sig, (unsigned) slen) != 1) VERIFY_ERROR(EINVAL);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         error = e.what();
     }
 

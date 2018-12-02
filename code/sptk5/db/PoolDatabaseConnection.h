@@ -98,30 +98,12 @@ enum DatabaseConnectionType : uint16_t {
  */
 enum DatabaseObjectType : uint8_t
 {
-    /**
-     * Tables
-     */
-    DOT_TABLES,
-
-    /**
-     * Views
-     */
-    DOT_VIEWS,
-
-    /**
-     * Stored procedures
-     */
-    DOT_PROCEDURES,
-
-    /**
-     * Stored functions
-     */
-    DOT_FUNCTIONS,
-
-    /**
-     * Available databases
-     */
-    DOT_DATABASES
+    DOT_UNDEFINED,      ///< Undefined
+    DOT_TABLES,         ///< Tables
+    DOT_VIEWS,          ///< Views
+    DOT_PROCEDURES,     ///< Stored procedures
+    DOT_FUNCTIONS,      ///< Stored functions
+    DOT_DATABASES       ///< Available databases
 };
 
 /**

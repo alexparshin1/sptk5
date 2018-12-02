@@ -343,6 +343,8 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
             objectsSQL =
                     "SHOW SCHEMAS where `Database` NOT IN ('information_schema','performance_schema','mysql')";
             break;
+        default:
+            break;
     }
 
     Query query(this, objectsSQL);
@@ -386,8 +388,10 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     RegularExpression matchEscapeChars("([$.])", "g");
     RegularExpression matchCommentRow("^\\s*--");
 
-    Strings statements, matches;
-    String statement, delimiter = ";";
+    Strings statements;
+    Strings matches;
+    String statement;
+    String delimiter = ";";
     for (auto row: sqlBatch) {
         row = row.trim();
         if (row.empty() || matchCommentRow.matches(row))

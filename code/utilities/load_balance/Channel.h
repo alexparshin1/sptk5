@@ -31,6 +31,7 @@
 
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/net/SocketEvents.h>
+#include <sptk5/cutils>
 
 namespace sptk {
 
@@ -57,7 +58,9 @@ public:
         try {
             close();
         }
-        catch (...) {}
+        catch (const Exception& e) {
+            CERR(e.what() << std::endl);
+        }
     }
 
     void open(SOCKET sourceFD, const String& interfaceAddess, const Host& destination);

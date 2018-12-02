@@ -299,7 +299,9 @@ void JWT::exportTo(ostream& output, bool pretty) const
 void sptk::jwt_b64_decode(Buffer& destination, const char* src)
 {
     char *newData;
-    size_t len, i, z;
+    size_t len;
+    size_t i;
+    size_t z;
 
     /* Decode based on RFC-4648 URI safe encoding. */
     len = strlen(src);

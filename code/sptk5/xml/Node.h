@@ -345,8 +345,6 @@ class SP_EXPORT Node: public Node_Base
 
     friend class NodeSearchAlgorithms;
 
-private:
-
     /**
      * Save node to JSON object.
      * @param json              JSON element

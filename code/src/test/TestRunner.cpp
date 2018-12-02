@@ -55,7 +55,6 @@ protected:
     {
         return nullptr;
     }
-public:
 };
 
 // Hints to linker that we need other modules.
@@ -83,11 +82,13 @@ void stub()
     string key("01234567890123456789012345678901");
     string iv("0123456789012345");
 
-    Buffer intext(text), outtext;
+    Buffer intext(text);
+    Buffer outtext;
     COUT("Encrypt text (" << text.length() << " bytes)." << endl);
     Crypt::encrypt(outtext, intext, key, iv);
 
-    Buffer b1, b2("xxx");
+    Buffer b1;
+    Buffer b2("xxx");
     Base64::encode(b1, b2);
 
     DatabaseConnectionPool         connectionPool("");

@@ -260,8 +260,6 @@ protected:
      */
     FieldList               m_fields;
 
-protected:
-
     /**
      * Executes a statement
      */
