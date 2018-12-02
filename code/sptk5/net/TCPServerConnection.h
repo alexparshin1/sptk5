@@ -55,8 +55,8 @@ public:
     explicit TCPServerConnection(SOCKET connectionSocket)
     : ServerConnection(connectionSocket, "TCPServerConnection")
     {
-        m_socket = new TCPSocket;
-        m_socket->attach(connectionSocket);
+        setSocket(new TCPSocket);
+        socket().attach(connectionSocket);
     }
 };
 

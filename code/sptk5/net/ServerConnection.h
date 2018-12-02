@@ -50,7 +50,7 @@ class TCPServer;
 class ServerConnection: public Thread
 {
     friend class TCPServer;
-protected:
+
     /**
      * Connection socket
      */
@@ -60,6 +60,28 @@ protected:
      * Parent server object
      */
     TCPServer*     m_server;
+
+protected:
+
+    TCPSocket& socket() const
+    {
+        return *m_socket;
+    }
+
+    void setSocket(TCPSocket* socket)
+    {
+        m_socket = socket;
+    }
+
+    TCPServer& server() const
+    {
+        return *m_server;
+    }
+
+    void setServer(TCPServer* server)
+    {
+        m_server = server;
+    }
 
 public:
     /**

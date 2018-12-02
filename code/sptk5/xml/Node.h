@@ -145,12 +145,46 @@ public:
     }
 };
 
+class SP_EXPORT Node_Iterators
+{
+public:
+    /**
+     * xml::Node own iterator for subnodes
+     */
+    typedef NodeList::iterator iterator;
+
+    /**
+     * xml::Node own const_iterator for subnodes
+     */
+    typedef NodeList::const_iterator const_iterator;
+
+    /**
+     * Returns the first subnode iterator
+     */
+    virtual iterator begin();
+
+    /**
+     * Returns the first subnode const iterator
+     */
+    virtual const_iterator begin() const;
+
+    /**
+     * Returns the end subnode iterator
+     */
+    virtual iterator end();
+
+    /**
+     * Returns the end subnode const iterator
+     */
+    virtual const_iterator end() const;
+};
+
 /**
  * XML node
  *
  * Basic class for any XML node
  */
-class SP_EXPORT Node
+class SP_EXPORT Node: public Node_Iterators
 {
     friend class Parser;
     friend class NodeList;
@@ -205,16 +239,6 @@ public:
          */
         DOM_ATTRIBUTE = 64
     };
-
-    /**
-     * xml::Node own iterator for subnodes
-     */
-    typedef NodeList::iterator iterator;
-
-    /**
-     * xml::Node own const_iterator for subnodes
-     */
-    typedef NodeList::const_iterator const_iterator;
 
 private:
     /**
@@ -533,26 +557,6 @@ public:
      * @param json              JSON element
      */
     virtual void exportTo(json::Element& json) const;
-
-    /**
-     * Returns the first subnode iterator
-     */
-    virtual iterator begin();
-
-    /**
-     * Returns the first subnode const iterator
-     */
-    virtual const_iterator begin() const;
-
-    /**
-     * Returns the end subnode iterator
-     */
-    virtual iterator end();
-
-    /**
-     * Returns the end subnode const iterator
-     */
-    virtual const_iterator end() const;
 
     /**
      * Returns a number of subnodes

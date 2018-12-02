@@ -152,7 +152,7 @@ public:
      */
     void terminate() override
     {
-        m_socket->close();
+        socket().close();
         TCPServerConnection::terminate();
     }
 
@@ -164,12 +164,12 @@ public:
         Buffer data;
         while (!terminated()) {
             try {
-                if (m_socket->readyToRead(chrono::seconds(30))) {
-                    if (m_socket->readLine(data) == 0)
+                if (socket().readyToRead(chrono::seconds(30))) {
+                    if (socket().readLine(data) == 0)
                         return;
                     string str(data.c_str());
                     str += "\n";
-                    m_socket->write(str);
+                    socket().write(str);
                 } else
                     break;
             }
@@ -177,7 +177,7 @@ public:
                 CERR(e.what() << endl);
             }
         }
-        m_socket->close();
+        socket().close();
     }
 };
 

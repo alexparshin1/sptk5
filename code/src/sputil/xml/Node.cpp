@@ -42,29 +42,31 @@ static const String indentsString(1024, ' ');
 /// An empty nodes set to emulate a set of stub iterators
 static NodeList emptyNodes;
 
+Node::iterator Node_Iterators::begin()
+{
+    return emptyNodes.end();
+}
+
+Node::const_iterator Node_Iterators::begin() const
+{
+    return emptyNodes.end();
+}
+
+Node::iterator Node_Iterators::end()
+{
+    return emptyNodes.end();
+}
+
+Node::const_iterator Node_Iterators::end() const
+{
+    return emptyNodes.end();
+}
+
+//──────────────────────────────────────────────────────────────────────────────
+
 const String& Node::value() const
 {
     return emptyString;
-}
-
-Node::iterator Node::begin()
-{
-    return emptyNodes.end();
-}
-
-Node::const_iterator Node::begin() const
-{
-    return emptyNodes.end();
-}
-
-Node::iterator Node::end()
-{
-    return emptyNodes.end();
-}
-
-Node::const_iterator Node::end() const
-{
-    return emptyNodes.end();
 }
 
 void Node::parent(Node* p)
