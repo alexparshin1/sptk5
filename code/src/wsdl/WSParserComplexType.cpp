@@ -199,6 +199,8 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     classDeclaration << "class " << className << " : public sptk::WSComplexType" << endl;
     classDeclaration << "{" << endl;
 
+    classDeclaration << "    mutable sptk::SharedMutex m_mutex; ///< Mutext that protects access to internal data" << endl << endl;
+
     classDeclaration << "public:" << endl << endl;
 
     Strings ctorInitializer;
@@ -382,7 +384,7 @@ void WSParserComplexType::printImplementationLoadXML(ostream& classImplementatio
                         << "{" << endl
                         << "    UniqueLock(m_mutex);" << endl
                         << "    _clear();" << endl
-                        << "    m_loaded = true;" << endl;
+                        << "    setLoaded(true);" << endl;
 
     if (!m_attributes.empty()) {
         classImplementation << endl << "    // Load attributes" << endl;
@@ -480,7 +482,7 @@ void WSParserComplexType::printImplementationLoadFieldList(ostream& classImpleme
                         << "{" << endl
                         << "    UniqueLock(m_mutex);" << endl
                         << "    _clear();" << endl
-                        << "    m_loaded = true;" << endl;
+                        << "    setLoaded(true);" << endl;
 
 
 

@@ -57,14 +57,14 @@ void Field::setNull(VariantType vtype)
         case VAR_TEXT:
         case VAR_BUFFER:
             if ((m_dataType & VAR_EXTERNAL_BUFFER) == VAR_EXTERNAL_BUFFER)
-                m_data.buffer.data = nullptr;
-            else if (m_data.buffer.data != nullptr)
-                m_data.buffer.data[0] = 0;
+                m_data.getBuffer().data = nullptr;
+            else if (m_data.getBuffer().data != nullptr)
+                m_data.getBuffer().data[0] = 0;
 
             break;
 
         default:
-            m_data.int64Data = 0;
+            m_data.getInt64() = 0;
             break;
     }
 
@@ -83,20 +83,20 @@ String Field::asString() const
 
     switch (dataType()) {
         case VAR_BOOL:
-            if (m_data.intData != 0)
+            if (m_data.getInteger() != 0)
                 return "true";
             else
                 return "false";
 
         case VAR_INT:
-            len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.intData);
+            len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.getInteger());
             return String(print_buffer, len);
 
         case VAR_INT64:
 #ifndef _WIN32
-            len = snprintf(print_buffer, sizeof(print_buffer), "%li", m_data.int64Data);
+            len = snprintf(print_buffer, sizeof(print_buffer), "%li", m_data.getInt64());
 #else
-            len = snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.int64Data);
+            len = snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.getInt64());
 #endif
             return String(print_buffer, len);
 
@@ -109,23 +109,23 @@ String Field::asString() const
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            if (m_data.buffer.data == nullptr)
+            if (m_data.getBuffer().data == nullptr)
                 return "";
 
-            return m_data.buffer.data;
+            return m_data.getBuffer().data;
 
         case VAR_DATE:
-            return DateTime(chrono::microseconds(m_data.timeData)).dateString();
+            return DateTime(chrono::microseconds(m_data.getInt64())).dateString();
 
         case VAR_DATE_TIME:
             return epochDataToDateTimeString();
 
         case VAR_IMAGE_PTR:
-            len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.imagePtr);
+            len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.getImagePtr());
             return String(print_buffer, len);
 
         case VAR_IMAGE_NDX:
-            len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.imageNdx);
+            len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.getInteger());
             return String(print_buffer, len);
 
         default:
@@ -135,7 +135,7 @@ String Field::asString() const
 
 String Field::epochDataToDateTimeString() const
 {
-    DateTime dt(chrono::microseconds(m_data.timeData));
+    DateTime dt(chrono::microseconds(m_data.getInt64()));
     return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PA_SECONDS);
 }
 
@@ -145,16 +145,16 @@ String Field::moneyDataToString(char* printBuffer, size_t printBufferSize) const
     int64_t absValue;
     char* formatPtr = format;
 
-    if (m_data.moneyData.quantity < 0) {
+    if (m_data.getMoneyData().quantity < 0) {
         *formatPtr = '-';
         formatPtr++;
-        absValue = -m_data.moneyData.quantity;
+        absValue = -m_data.getMoneyData().quantity;
     } else
-        absValue = m_data.moneyData.quantity;
+        absValue = m_data.getMoneyData().quantity;
 
-    snprintf(formatPtr, sizeof(format) - 2, "%%Ld.%%0%dLd", m_data.moneyData.scale);
-    int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
-    int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
+    snprintf(formatPtr, sizeof(format) - 2, "%%Ld.%%0%dLd", m_data.getMoneyData().scale);
+    int64_t intValue = absValue / MoneyData::dividers[m_data.getMoneyData().scale];
+    int64_t fraction = absValue % MoneyData::dividers[m_data.getMoneyData().scale];
     int len = snprintf(printBuffer, printBufferSize - 1, format, intValue, fraction);
     return String(printBuffer, len);
 }
@@ -163,7 +163,7 @@ String Field::doubleDataToString(char* printBuffer, size_t printBufferSize) cons
 {
     char formatString[10];
     snprintf(formatString, sizeof(formatString), "%%0.%if", view.precision);
-    int len = snprintf(printBuffer, printBufferSize, formatString, m_data.floatData);
+    int len = snprintf(printBuffer, printBufferSize, formatString, m_data.getFloat());
     return String(printBuffer, len);
 }
 

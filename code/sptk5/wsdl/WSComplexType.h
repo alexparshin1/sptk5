@@ -70,6 +70,16 @@ class WSComplexType : public WSTypeName
 
 protected:
 
+    const bool loaded() const
+    {
+        return m_loaded;
+    }
+
+    void setLoaded(bool flag)
+    {
+        m_loaded = flag;
+    }
+
     /**
      * Internal clear data
      */

@@ -73,7 +73,7 @@ namespace sptk
 /**
  * Buffered Socket reader.
  */
-class SP_EXPORT TCPSocketReader: protected Buffer
+class SP_EXPORT TCPSocketReader: public Buffer
 {
     /**
      * Socket to read from
@@ -158,7 +158,6 @@ public:
  */
 class SP_EXPORT TCPSocket: public BaseSocket
 {
-protected:
     /**
      * Socket buffered reader
      */
@@ -168,6 +167,17 @@ protected:
      * Buffer to read a line
      */
     Buffer              m_stringBuffer;
+
+protected:
+
+    /**
+     * Access to internal socket reader for derived classes
+     * @return internal socket reader
+     */
+    TCPSocketReader& reader()
+    {
+        return m_reader;
+    }
 
     /**
      * @brief Opens the client socket connection by host and port
@@ -213,7 +223,7 @@ public:
      * @param clientSocketFD    Connected client socket FD
      * @param clientInfo        Connected client info
      */
-    void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo) override;
+    virtual void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo);
 
     /**
      * @brief Returns number of bytes available in socket
@@ -225,12 +235,6 @@ public:
      * @param timeout           Read timeout
      */
     bool readyToRead(std::chrono::milliseconds timeout) override;
-
-    /**
-     * @brief Reports true if socket is ready for reading from it
-     * @param timeout           Read timeout date and time
-     */
-    bool readyToRead(DateTime timeout) override;
 
     /**
      * @brief Reads one line from the socket into existing memory buffer

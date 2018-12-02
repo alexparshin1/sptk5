@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __BASEMAILCONNECT_H__
-#define __BASEMAILCONNECT_H__
+#ifndef __BASE_MAIL_CONNECT_H__
+#define __BASE_MAIL_CONNECT_H__
 
 #include <sptk5/sptk.h>
 #include <sptk5/Buffer.h>
@@ -50,7 +50,6 @@ namespace sptk
  */
 class SP_EXPORT BaseMailConnect
 {
-protected:
     /**
      * Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
      */
@@ -90,6 +89,8 @@ protected:
      * Internal message buffer
      */
     Buffer             m_messageBuffer;
+
+protected:
 
     /**
      * Encoding the message into internal message buffer

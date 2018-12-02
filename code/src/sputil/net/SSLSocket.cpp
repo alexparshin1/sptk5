@@ -140,7 +140,7 @@ SSLSocket::~SSLSocket()
 void SSLSocket::loadKeys(const String& keyFileName, const String& certificateFileName, const String& password,
                          const String& caFileName, int verifyMode, int verifyDepth)
 {
-    if (m_sockfd > 0)
+    if (socketFD() > 0)
         throw Exception("Socket already opened");
 
     m_keyFileName = keyFileName;
@@ -172,17 +172,17 @@ void SSLSocket::initContextAndSocket()
     }
 }
 
-void SSLSocket::_open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
+void SSLSocket::_open(const Host& _host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
     initContextAndSocket();
 
-    if (!host.hostname().empty())
-        m_host = host;
-    if (m_host.hostname().empty())
+    if (!_host.hostname().empty())
+        host(_host);
+    if (host().hostname().empty())
         throw Exception("Please, define the host name", __FILE__, __LINE__);
 
     sockaddr_in addr = {};
-    host.getAddress(addr);
+    host().getAddress(addr);
 
     _open(addr, openMode, _blockingMode, timeout);
 }
@@ -195,7 +195,7 @@ void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
 
     lock_guard<mutex> lock(*this);
 
-    SSL_set_fd(m_ssl, (int) m_sockfd);
+    SSL_set_fd(m_ssl, (int) socketFD());
 
     if (timeout == chrono::milliseconds(0)) {
         int rc = SSL_connect(m_ssl);
@@ -212,14 +212,15 @@ void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
         if (rc == 1)
             break;
         if (rc <= 0) {
+            chrono::milliseconds nextTimeout = chrono::duration_cast<chrono::milliseconds>(timeoutAt - DateTime("now"));
             int errorCode = SSL_get_error(m_ssl, rc);
             if (errorCode == SSL_ERROR_WANT_READ) {
-                if (!readyToRead(timeoutAt))
+                if (!readyToRead(nextTimeout))
                     throw Exception("SSL handshake read timeout");
                 continue;
             }
             else if (errorCode == SSL_ERROR_WANT_WRITE) {
-                if (!readyToWrite(timeoutAt))
+                if (!readyToWrite(nextTimeout))
                     throw Exception("SSL handshake write timeout");
                 continue;
             }
@@ -242,7 +243,7 @@ void SSLSocket::attach(SOCKET socketHandle)
     initContextAndSocket();
 
     int rc = 1;
-    if (m_sockfd != socketHandle) {
+    if (socketFD() != socketHandle) {
         TCPSocket::attach(socketHandle);
         rc = SSL_set_fd(m_ssl, (int) socketHandle);
     }
@@ -293,8 +294,8 @@ string SSLSocket::getSSLError(const string& function, int32_t openSSLError) cons
 
 size_t SSLSocket::socketBytes()
 {
-    if (m_reader.availableBytes() > 0)
-        return m_reader.availableBytes();
+    if (reader().availableBytes() > 0)
+        return reader().availableBytes();
     if (m_ssl != nullptr) {
         char dummy[8];
         SSL_read(m_ssl, dummy, 0);

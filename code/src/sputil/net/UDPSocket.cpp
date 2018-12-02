@@ -31,16 +31,16 @@
 using namespace std;
 using namespace sptk;
 
-UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY domain)
- : BaseSocket(domain, SOCK_DGRAM)
+UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY _domain)
+ : BaseSocket(_domain, SOCK_DGRAM)
 {
-    m_sockfd = socket (m_domain, m_type, m_protocol);
+    setSocketFD(socket(domain(), type(), protocol()));
 }
 
 size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from)
 {
     socklen_t addrLength = sizeof(sockaddr_in);
-    auto bytes = recvfrom(m_sockfd, buffer, (int) size, 0, (sockaddr*) from, &addrLength);
+    auto bytes = recvfrom(socketFD(), buffer, (int) size, 0, (sockaddr*) from, &addrLength);
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read to socket");
     return (size_t) bytes;

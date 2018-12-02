@@ -43,7 +43,7 @@ static int   m_socketCount;
 static bool  m_inited(false);
 #endif
 
-void BaseSocket::throwSocketError(const String& operation, const char* file, int line)
+void sptk::throwSocketError(const String& operation, const char* file, int line)
 {
     string errorStr;
 #ifdef _WIN32
@@ -397,74 +397,9 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
     return rc != 0;
 }
 
-bool BaseSocket::readyToRead(DateTime timeout)
-{
-    const auto timeoutMS = (int) chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
-#ifdef _WIN32
-    struct timeval time;
-    time.tv_sec = int32_t (timeoutMS) / 1000;
-    time.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
-
-    fd_set  inputs, errors;
-    FD_ZERO(&inputs);
-    FD_ZERO(&errors);
-    FD_SET(m_sockfd, &inputs);
-    FD_SET(m_sockfd, &errors);
-
-    const int rc = select(FD_SETSIZE, &inputs, nullptr, &errors, &time);
-    if (rc < 0)
-        THROW_SOCKET_ERROR("Can't read from socket");
-    if (FD_ISSET(m_sockfd, &errors))
-        throw ConnectionException("Connection closed");
-#else
-    struct pollfd pfd = {};
-
-    pfd.fd = m_sockfd;
-    pfd.events = POLLIN;
-    int rc = poll(&pfd, 1, timeoutMS);
-    if (rc < 0)
-        THROW_SOCKET_ERROR("Can't read from socket");
-    if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
-        throw ConnectionException("Connection closed");
-#endif
-    return rc != 0;
-}
-
 bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 {
     const auto timeoutMS = (int) timeout.count();
-#ifdef _WIN32
-    struct timeval time;
-    time.tv_sec = int32_t (timeoutMS) / 1000;
-    time.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
-
-    fd_set  inputs, errors;
-    FD_ZERO(&inputs);
-    FD_ZERO(&errors);
-    FD_SET(m_sockfd, &inputs);
-    FD_SET(m_sockfd, &errors);
-
-    const int rc = select(FD_SETSIZE, nullptr, &inputs, &errors, &time);
-    if (rc < 0)
-        THROW_SOCKET_ERROR("Can't read from socket");
-    if (FD_ISSET(m_sockfd, &errors))
-        THROW_SOCKET_ERROR("Socket closed");
-#else
-    struct pollfd pfd = {};
-    pfd.fd = m_sockfd;
-    pfd.events = POLLOUT;
-    int rc = poll(&pfd, 1, timeoutMS);
-    if (rc < 0)
-        THROW_SOCKET_ERROR("Can't read from socket");
-    if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
-        throw Exception("Connection closed");
-#endif
-    return rc != 0;
-}
-
-bool BaseSocket::readyToWrite(DateTime timeout)
-{
-	const auto timeoutMS = (int) chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
 #ifdef _WIN32
     struct timeval time;
     time.tv_sec = int32_t (timeoutMS) / 1000;

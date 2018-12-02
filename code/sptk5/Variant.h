@@ -33,6 +33,7 @@
 #include <sptk5/DateTime.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
+#include <sptk5/VariantData.h>
 
 namespace sptk {
 
@@ -133,94 +134,11 @@ enum VariantType : uint32_t {
 
 class Field;
 
-/**
- * Variant data buffer (internal).
- *
- * A buffer for data with the variable length like strings, or just generic buffers
- */
-struct VariantDataBuffer
-{
-    /**
-     * String or buffer pointer
-     */
-    char*        data;
-
-    /**
-     * Allocated buffer size
-     */
-    size_t       size;
-
-};
-
-/**
- * Money data (internal).
- *
- * A combination of integer quantity and scale - positive integer presenting power of ten for divider.
- * A money value is quantity / 10^(scale)
- */
-class MoneyData
-{
-public:
-
-    static int64_t dividers[16];///< Dividers that help formatting money data
-
-    /**
-     * Integer value 
-     */
-    int64_t      quantity;
-
-    /**
-     * Scale (1..15)
-     */
-    uint8_t      scale:4;
-
-    /**
-     * Convert to double value
-     */
-    explicit operator double () const;
-
-    /**
-     * Convert to integer value
-     */
-    explicit operator int64_t () const;
-
-    /**
-     * Convert to integer value
-     */
-    explicit operator size_t () const;
-
-    /**
-     * Convert to integer value
-     */
-    explicit operator int32_t () const;
-
-    /**
-     * Convert to bool value
-     */
-    explicit operator bool () const;
-
-};
-
 class SP_EXPORT BaseVariant
 {
     friend class Variant_SetMethods;
 
 protected:
-    /**
-     * Internal variant data storage type definition
-     */
-    typedef union variantData
-    {
-        bool                boolData;   ///< Boolean data
-        int32_t             intData;    ///< Integer data
-        int64_t             int64Data;  ///< 64 bit integer data
-        double              floatData;  ///< Floating point data
-        int64_t             timeData;   ///< DateTime data
-        VariantDataBuffer   buffer;     ///< A buffer for data with the variable length like strings, or just generic buffers
-        void*               imagePtr;   ///< Image pointer
-        int32_t             imageNdx;   ///< Image index in object-specific table of image pointers
-        MoneyData           moneyData;  ///< Money data
-    } VariantData;
 
     /**
      * Internal variant data storage
@@ -358,7 +276,7 @@ public:
     /**
      * Directly reads the internal data
      */
-    virtual void* getImagePtr() const;
+    virtual const void* getImagePtr() const;
 
     /**
      * Directly reads the internal data
@@ -537,7 +455,7 @@ public:
      * Simply returns the internal data pointer for string/text/blob types.
      * For incompatible types throws an exception.
      */
-    void *asImagePtr() const;
+    const void *asImagePtr() const;
 };
 
 /**

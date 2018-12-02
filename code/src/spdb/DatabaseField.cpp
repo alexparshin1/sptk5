@@ -44,7 +44,7 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
     displayName = fName;
     alignment = ALIGN_LEFT;
 
-    m_data.buffer.size = 0;
+    m_data.getBuffer().size = 0;
 
     switch (dataType)
     {
@@ -104,16 +104,16 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
 
 void DatabaseField::checkSize(size_t sz)
 {
-    if (sz > m_data.buffer.size) {
+    if (sz > m_data.getBuffer().size) {
         size_t newSize = (sz / 16 + 1) * 16;
         auto* p = new char[newSize + 1];
         if (p == nullptr)
             throw DatabaseException("Can't reallocate a buffer");
-        if (m_data.buffer.data != nullptr) {
-            memcpy(p, m_data.buffer.data, m_data.buffer.size);
-            delete[] m_data.buffer.data;
+        if (m_data.getBuffer().data != nullptr) {
+            memcpy(p, m_data.getBuffer().data, m_data.getBuffer().size);
+            delete[] m_data.getBuffer().data;
         }
-        m_data.buffer.data = p;
-        m_data.buffer.size = newSize;
+        m_data.getBuffer().data = p;
+        m_data.getBuffer().size = newSize;
     }
 }

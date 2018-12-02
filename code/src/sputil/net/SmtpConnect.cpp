@@ -223,11 +223,11 @@ String parseAddress(const String& fullAddress)
 
 void SmtpConnect::sendMessage()
 {
-    int rc = command("MAIL FROM:<" + parseAddress(m_from) + ">");
+    int rc = command("MAIL FROM:<" + parseAddress(from()) + ">");
     if (rc > 251)
         throw Exception("Can't send message:\n" + m_response.asString("\n"));
 
-    String rcpts = m_to + ";" + m_cc + ";" + m_bcc;
+    String rcpts = to() + ";" + cc() + ";" + bcc();
     rcpts = rcpts.replace("[, ]+", ";");
     Strings recepients(rcpts, ";");
     auto cnt = (uint32_t) recepients.size();
@@ -239,12 +239,13 @@ void SmtpConnect::sendMessage()
             throw Exception("Recepient " + recepients[i] + " is not accepted.\n" + m_response.asString("\n"));
     }
 
-    mimeMessage(m_messageBuffer);
+    Buffer message(messageBuffer());
+    mimeMessage(message);
     rc = command("DATA");
     if (rc != 354)
         throw Exception("DATA command is not accepted.\n" + m_response.asString("\n"));
 
-    sendCommand(m_messageBuffer.data());
+    sendCommand(message.data());
     rc = command("\n.");
     if (rc > 251)
         throw Exception("Message body is not accepted.\n" + m_response.asString("\n"));

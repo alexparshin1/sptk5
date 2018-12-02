@@ -54,8 +54,8 @@ public:
     SSLServerConnection(SOCKET connectionSocket)
     : ServerConnection(connectionSocket, "SSLServerConnection")
     {
-        m_socket = new SSLSocket;
-        m_socket->attach(connectionSocket);
+        setSocket(new SSLSocket);
+        socket().attach(connectionSocket);
     }
 
     /**
@@ -63,10 +63,6 @@ public:
      */
     virtual ~SSLServerConnection()
     {
-        if (m_socket) {
-            delete m_socket;
-            m_socket = NULL;
-        }
     }
 };
 

@@ -59,11 +59,44 @@ class Host
     mutable SharedMutex m_mutex;        ///< Mutex to protect internal class data
     String              m_hostname;     ///< Host name or IP address
     uint16_t            m_port {0};     ///< Port number
+/*
     union {
         struct sockaddr	    any;
         struct sockaddr_in  ip_v4;
         struct sockaddr_in6 ip_v6;
     } m_address {{}};                   ///< Host address
+*/
+    uint8_t             m_address[sizeof(sockaddr_in6)];
+
+    sockaddr& any()
+    {
+        return *(sockaddr*) m_address;
+    }
+
+    const sockaddr& any() const
+    {
+        return *(sockaddr*) m_address;
+    }
+
+    sockaddr_in& ip_v4()
+    {
+        return *(sockaddr_in*) m_address;
+    }
+
+    const sockaddr_in& ip_v4() const
+    {
+        return *(sockaddr_in*) m_address;
+    }
+
+    sockaddr_in6& ip_v6()
+    {
+        return *(sockaddr_in6*) m_address;
+    }
+
+    const sockaddr_in6& ip_v6() const
+    {
+        return *(sockaddr_in6*) m_address;
+    }
 
     /**
      * Get host address
@@ -157,7 +190,7 @@ public:
      */
     void port(uint16_t p)
     {
-		setPort(p);
+        setPort(p);
     }
 
     /**
@@ -184,7 +217,7 @@ public:
     void getAddress(sockaddr_in& address) const
     {
         SharedLock(m_mutex);
-        memcpy(&address, &m_address.ip_v4, sizeof(address));
+        memcpy(&address, &m_address, sizeof(address));
     }
 
     /**
@@ -193,7 +226,7 @@ public:
     void getAddress(sockaddr_in6& address) const
     {
         SharedLock(m_mutex);
-        memcpy(&address, &m_address.ip_v6, sizeof(address));
+        memcpy(&address, &m_address, sizeof(address));
     }
 };
 

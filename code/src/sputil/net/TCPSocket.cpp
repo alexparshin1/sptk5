@@ -236,15 +236,15 @@ TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protoco
 {
 }
 
-void TCPSocket::_open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
+void TCPSocket::_open(const Host& _host, CSocketOpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
 {
-    if (!host.hostname().empty())
-        m_host = host;
-    if (m_host.hostname().empty())
+    if (!_host.hostname().empty())
+        host(_host);
+    if (host().hostname().empty())
         throw Exception("Please, define the host name", __FILE__, __LINE__);
 
     sockaddr_in address = {};
-    m_host.getAddress(address);
+    host().getAddress(address);
 
     _open(address, openMode, _blockingMode, timeout);
 }
@@ -268,7 +268,7 @@ void TCPSocket::close() noexcept
 void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
 {
     socklen_t len = sizeof(clientInfo);
-    clientSocketFD = ::accept(m_sockfd, (struct sockaddr *) & clientInfo, &len);
+    clientSocketFD = ::accept(socketFD(), (struct sockaddr *) & clientInfo, &len);
     if (clientSocketFD < 0)
         THROW_SOCKET_ERROR("Error on accept(). ");
 }
@@ -281,11 +281,6 @@ size_t TCPSocket::socketBytes()
 }
 
 bool TCPSocket::readyToRead(chrono::milliseconds timeout)
-{
-    return m_reader.availableBytes() > 0 || BaseSocket::readyToRead(timeout);
-}
-
-bool TCPSocket::readyToRead(DateTime timeout)
 {
     return m_reader.availableBytes() > 0 || BaseSocket::readyToRead(timeout);
 }

@@ -58,8 +58,8 @@
 
 #else
     #include <winsock2.h>
-	#include <ws2tcpip.h>
-	#include <windows.h>
+    #include <ws2tcpip.h>
+    #include <windows.h>
     typedef int socklen_t;
     typedef unsigned short SOCKET_ADDRESS_FAMILY;
 #endif
@@ -87,30 +87,6 @@ namespace sptk
  */
 class SP_EXPORT BaseSocket
 {
-public:
-    /**
-    * A mode to open a socket, one of
-    */
-    enum CSocketOpenMode : uint8_t
-    {
-        /**
-        * Only create (Typical UDP connectionless socket)
-        */
-        SOM_CREATE,
-
-        /**
-        * Connect
-        */
-        SOM_CONNECT,
-
-        /**
-        * Bind (listen)
-        */
-        SOM_BIND
-
-    };
-
-protected:
     /**
      * Socket internal (OS) handle
      */
@@ -135,6 +111,74 @@ protected:
      * Host
      */
     Host        m_host;
+
+protected:
+
+    /**
+     * Get socket internal (OS) handle
+     */
+    SOCKET socketFD() const
+    {
+        return m_sockfd;
+    }
+
+    /**
+     * Set socket internal (OS) handle
+     */
+    void setSocketFD(SOCKET fd)
+    {
+        m_sockfd = fd;
+    }
+
+    /**
+     * Get socket domain type
+     */
+    int32_t domain() const
+    {
+        return m_domain;
+    }
+
+    /**
+     * Get socket type
+     */
+    int32_t type() const
+    {
+        return m_type;
+    }
+
+    /**
+     * Get socket protocol
+     */
+    int32_t protocol() const
+    {
+        return m_protocol;
+    }
+
+public:
+    /**
+    * A mode to open a socket, one of
+    */
+    enum CSocketOpenMode : uint8_t
+    {
+        /**
+        * Only create (Typical UDP connectionless socket)
+        */
+        SOM_CREATE,
+
+        /**
+        * Connect
+        */
+        SOM_CONNECT,
+
+        /**
+        * Bind (listen)
+        */
+        SOM_BIND
+
+    };
+
+
+protected:
 
 #ifdef _WIN32
     /**
@@ -171,14 +215,6 @@ protected:
     }
 
 public:
-
-    /**
-    * Throws socket exception with error description retrieved from socket state
-    * @param message           Error message
-    * @param file              Source file name
-    * @param line              Source file line number
-    */
-    static void throwSocketError(const String& message, const char* file, int line);
 
     /**
     * Opens the socket connection by address.
@@ -278,18 +314,6 @@ public:
      * @param portNumber        The port number
      */
     void listen(uint16_t portNumber = 0);
-
-    /**
-     * In server mode, waits for the incoming connection.
-     *
-     * When incoming connection is made, exits returning the connection info
-     * @param clientSocketFD    Connected client socket FD
-     * @param clientInfo        Connected client info
-     */
-    virtual void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
-    {
-        // Implement in derived class
-    }
 
     /**
      * Closes the socket connection
@@ -404,25 +428,21 @@ public:
     virtual bool readyToRead(std::chrono::milliseconds timeout);
 
     /**
-     * Reports true if socket is ready for reading from it
-     * @param timeout           Read timeout date and time
-     */
-    virtual bool readyToRead(DateTime timeout);
-
-    /**
      * Reports true if socket is ready for writing to it
      * @param timeout           Write timeout
      */
     virtual bool readyToWrite(std::chrono::milliseconds timeout);
-
-    /**
-     * Reports true if socket is ready for writing to it
-     * @param timeout           Write timeout
-     */
-    virtual bool readyToWrite(DateTime timeout);
 };
 
-#define THROW_SOCKET_ERROR(msg) BaseSocket::throwSocketError(msg,__FILE__,__LINE__)
+/**
+ * Throws socket exception with error description retrieved from socket state
+ * @param message           Error message
+ * @param file              Source file name
+ * @param line              Source file line number
+ */
+void throwSocketError(const String& message, const char* file, int line);
+
+#define THROW_SOCKET_ERROR(msg) sptk::throwSocketError(msg,__FILE__,__LINE__)
 
 /**
  * @}

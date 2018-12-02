@@ -125,19 +125,8 @@ void ImapConnect::cmd_login(const String& user, const String& password)
     command("login " + user + " " + password);
 }
 
-// RFC 2060 test message :)
+// RFC 2060 describes message
 
-/*
-CBuffer testMsg(
-   "Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)\n\r"
-   "From: Fred Foobar <foobar@Blurdybloop.COM\n\r"
-   "Subject: afternoon meeting\n\r"
-   "To: mooch@owatagu.siam.edu\n\r"
-   "Message-Id: <B27397-0100000@Blurdybloop.COM>\n\r"
-   "MIME-Version: 1.0\n\r"
-   "Content-Type: TEXT/PLAIN; CHARSET=US-ASCII\n\r\n\r"
-   "Hello Joe, do you think we can meet at 3:30 tomorrow?\n\r");
- */
 void ImapConnect::cmd_append(const String& mail_box, const Buffer& message)
 {
     String cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string((uint32_t) message.bytes()) + "}";
