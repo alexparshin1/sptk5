@@ -46,8 +46,8 @@ public:
         DatabaseField(fieldName, fieldColumn, fieldType & 0xFFFE, dataType, fieldSize),
         m_sqlvar(sqlvar), m_cbNull(0), m_numericScale(1)
     {
-        setInt64(0);
-        m_sqlvar.sqldata = (ISC_SCHAR*) &getInt64();
+        DatabaseField::setInt64(0);
+        m_sqlvar.sqldata = (ISC_SCHAR*) &DatabaseField::getInt64();
         fieldType &= 0xFFFE;
         switch (fieldType) {
             case SQL_LONG:
@@ -62,8 +62,8 @@ public:
                 break;
 
             default:
-                setBuffer(nullptr, (size_t) fieldSize + 1);
-                m_sqlvar.sqldata = (ISC_SCHAR*) getBuffer();
+                DatabaseField::setBuffer(nullptr, (size_t) fieldSize + 1);
+                m_sqlvar.sqldata = (ISC_SCHAR*) DatabaseField::getBuffer();
                 break;
         }
         m_sqlvar.sqlind = &m_cbNull;
@@ -92,7 +92,16 @@ FirebirdStatement::~FirebirdStatement()
 
 void FirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantType timeType)
 {
-    short year, month, day, wday, yday, hour, minute, second, msecond;
+    short year;
+    short month;
+    short day;
+    short wday;
+    short yday;
+    short hour;
+    short minute;
+    short second;
+    short msecond;
+
     memset(&firebirdDate, 0, sizeof(firebirdDate));
     if (timeType == VAR_DATE) {
         // Date only

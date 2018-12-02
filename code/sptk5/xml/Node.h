@@ -179,80 +179,10 @@ public:
     virtual const_iterator end() const;
 };
 
-/**
- * XML node
- *
- * Basic class for any XML node
- */
-class SP_EXPORT Node: public Node_Iterators
+class Node;
+
+class SP_EXPORT Node_Base: public Node_Iterators
 {
-    friend class Parser;
-    friend class NodeList;
-    friend class Document;
-    friend class Element;
-    friend class Attribute;
-    friend class Attributes;
-    friend class NodeSearchAlgorithms;
-public:
-    /**
-     * Node type enumeration
-     */
-    enum NodeType
-    {
-        /**
-         * Type isn't defined yet
-         */
-        DOM_UNDEFINED = 0,
-
-        /**
-         * Document node
-         */
-        DOM_DOCUMENT = 1,
-
-        /**
-         * Normal element node, can contain subnodes
-         */
-        DOM_ELEMENT = 2,
-
-        /**
-         * Processing Instruction node
-         */
-        DOM_PI = 4,
-
-        /**
-         * Cdata where all default entities MUST be escaped.
-         */
-        DOM_TEXT = 8,
-
-        /**
-         * Cdata section, which can contain preformatted char data.
-         */
-        DOM_CDATA_SECTION = 16,
-
-        /**
-         * Comment node
-         */
-        DOM_COMMENT = 32,
-
-        /**
-         * Attribute node
-         */
-        DOM_ATTRIBUTE = 64
-    };
-
-private:
-    /**
-     * Sets parent node - for XMLParser
-     */
-    void parent(Node* p);
-
-    /**
-     * Save node to JSON object.
-     * @param json              JSON element
-     * @param text              Temporary text buffer
-     */
-    virtual void save(json::Element& json, std::string& text) const;
-
     /**
      * Parent document pointer
      */
@@ -266,6 +196,110 @@ private:
 protected:
 
     /**
+     * Sets parent node - for XMLParser
+     */
+    void setParent(Node* p, bool minimal);
+
+public:
+
+    /**
+     * Node type enumeration
+     */
+    enum NodeType
+    {
+        DOM_UNDEFINED = 0,      ///< Type isn't defined yet
+        DOM_DOCUMENT = 1,       ///< Document node
+        DOM_ELEMENT = 2,        ///< Normal element node, can contain subnodes
+        DOM_PI = 4,             ///< Processing Instruction node
+        DOM_TEXT = 8,           ///< CDATA where all default entities MUST be escaped
+        DOM_CDATA_SECTION = 16, ///< CDATA section, which can contain preformatted char data
+        DOM_COMMENT = 32,       ///< Comment node
+        DOM_ATTRIBUTE = 64      ///< Attribute node
+    };
+
+    explicit Node_Base(Document* document)
+    : m_document(document)
+    {}
+
+    /**
+     * Returns parent node of this node.
+     *
+     * For Document this returns 'this' pointer.
+     */
+    Node* parent() const
+    {
+        return m_parent;
+    }
+
+    /**
+     * Returns document context associated with this node.
+     */
+    Document* document() const
+    {
+        return m_document;
+    }
+
+    /**
+     * Appends a subnode
+     */
+    virtual void push_back(Node* node)
+    {
+        // Implement in derived classes
+    }
+
+    /**
+     * Inserts a subnode
+     *
+     * @param pos               Insert position with the list of subnodes
+     * @param node              Node to insert
+     */
+    virtual void insert(iterator pos, Node* node)
+    {
+        // Implement in derived classes
+    }
+
+    /**
+     * Removes a subnode
+     *
+     * Release all the allocated memory and disconnects from parent (this node)
+     */
+    virtual void remove(Node* node)
+    {
+        // Implement in derived classes
+    }
+
+    /**
+     * Removes a subnode
+     *
+     * Disconnects subnode from parent (this node)
+     */
+    virtual void unlink(Node* node)
+    {
+        // Implement in derived classes
+    }
+
+    /**
+     * Deletes all child nodes
+     *
+     * Any memory, associated with child nodes is released.
+     */
+    virtual void clearChildren()
+    {
+        // Implement in derived classes
+    }
+
+    /**
+     * Deletes all children and clears all the attributes
+     *
+     * Any memory, associated with children or attributes,
+     * is released.
+     */
+    virtual void clear()
+    {
+        // Implement in derived classes
+    }
+
+    /**
      * Always returns false for xml::Node since it has no name
      */
     virtual bool nameIs(const std::string* /*sstName*/) const
@@ -274,12 +308,61 @@ protected:
     }
 
     /**
+     * Returns the node name.
+     */
+    virtual const std::string& name() const = 0;
+
+    /**
+     * Sets the new name for the node
+     * @param name              New node name
+     */
+    virtual void name(const std::string& name) = 0;
+
+    /**
+     * Sets new name for node
+     * @param name              New node name
+     */
+    virtual void name(const char* name) = 0;
+
+    /**
+     * Returns node type
+     */
+    virtual NodeType type() const = 0;
+};
+
+/**
+ * XML node
+ *
+ * Basic class for any XML node
+ */
+class SP_EXPORT Node: public Node_Base
+{
+    friend class NodeList;
+    friend class Document;
+    friend class Element;
+    friend class Attribute;
+    friend class Attributes;
+
+    friend class NodeSearchAlgorithms;
+
+private:
+
+    /**
+     * Save node to JSON object.
+     * @param json              JSON element
+     * @param text              Temporary text buffer
+     */
+    virtual void save(json::Element& json, std::string& text) const;
+
+protected:
+
+    /**
      * Protected constructor - for derived classes
      *
      * @param doc               Node document
      */
     explicit Node(Document& doc)
-    : m_document(&doc)
+    : Node_Base(&doc)
     {}
 
     /**
@@ -288,7 +371,7 @@ protected:
      * @param parent            Node document
      */
     explicit Node(Node& parent)
-    : m_document(parent.document())
+    : Node_Base(parent.document())
     {
         parent.push_back(this);
     }
@@ -334,11 +417,6 @@ public:
     }
 
     /**
-     * Returns node type
-     */
-    virtual NodeType type() const = 0;
-
-    /**
      * Selects nodes as defined by XPath
      *
      * The implementation is just started, so only limited XPath standard part is supported.
@@ -358,50 +436,6 @@ public:
     virtual void copy(const Node& node);
 
     /**
-     * Deletes all child nodes
-     *
-     * Any memory, associated with child nodes is released.
-     */
-    virtual void clearChildren()
-    {
-        // Implement in derived classes
-    }
-
-    /**
-     * Deletes all children and clears all the attributes
-     *
-     * Any memory, associated with children or attributes,
-     * is released.
-     */
-    virtual void clear()
-    {
-        // Implement in derived classes
-    }
-
-    /**
-     * Returns parent node of this node.
-     *
-     * For Document this returns 'this' pointer.
-     */
-    Node* parent() const
-    {
-        return m_parent;
-    }
-
-    /**
-     * Returns document context associated with this node.
-     */
-    Document* document() const
-    {
-        return m_document;
-    }
-
-    /**
-     * Returns the node name.
-     */
-    virtual const std::string& name() const = 0;
-
-    /**
      * Returns the node namespace.
      */
     virtual std::string nameSpace() const
@@ -416,18 +450,6 @@ public:
     {
         return "";
     }
-
-    /**
-     * Sets the new name for the node
-     * @param name              New node name
-     */
-    virtual void name(const std::string& name) = 0;
-
-    /**
-     * Sets new name for node
-     * @param name              New node name
-     */
-    virtual void name(const char* name) = 0;
 
     /**
      * Returns the value of the node
@@ -572,45 +594,6 @@ public:
     virtual bool empty() const
     {
         return true;
-    }
-
-    /**
-     * Appends a subnode
-     */
-    virtual void push_back(Node* node)
-    {
-        // Implement in derived classes
-    }
-
-    /**
-     * Inserts a subnode
-     *
-     * @param pos               Insert position with the list of subnodes
-     * @param node              Node to insert
-     */
-    virtual void insert(iterator pos, Node* node)
-    {
-        // Implement in derived classes
-    }
-
-    /**
-     * Removes a subnode
-     *
-     * Release all the allocated memory and disconnects from parent (this node)
-     */
-    virtual void remove(Node* node)
-    {
-        // Implement in derived classes
-    }
-
-    /**
-     * Removes a subnode
-     *
-     * Disconnects subnode from parent (this node)
-     */
-    virtual void unlink(Node* node)
-    {
-        // Implement in derived classes
     }
 
     /**
@@ -830,7 +813,7 @@ public:
      * The meaning of the value depends on the node type.
      * DOM_DOCUMENT and DOM_ELEMENT don't have values
      */
-    virtual const String& value() const
+    const String& value() const override
     {
         return m_value;
     }
@@ -841,7 +824,7 @@ public:
      * @param new_value         New value
      * @see value()
      */
-    virtual void value(const String& new_value)
+    void value(const String& new_value) override
     {
         m_value = new_value;
     }
@@ -852,7 +835,7 @@ public:
      * @param new_value         New value
      * @see value()
      */
-    virtual void value(const char* new_value)
+    void value(const char* new_value) override
     {
         m_value = new_value;
     }
@@ -862,7 +845,7 @@ public:
      *
      * The meaning of the value depends on the node type
      */
-    virtual const std::string& name() const
+    const std::string& name() const override
     {
         return nodeName();
     }
@@ -871,16 +854,18 @@ public:
      * Sets the new name for the node
      * @param name              New node name
      */
-    virtual void name(const std::string& name)
+    void name(const std::string& name) override
     {
+        // Text node con't have name
     }
 
     /**
      * Sets new name for node
      * @param name              New node name
      */
-    virtual void name(const char* name)
+    void name(const char* name) override
     {
+        // Text node con't have name
     }
 
 };

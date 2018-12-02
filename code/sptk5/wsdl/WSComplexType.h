@@ -49,31 +49,34 @@ namespace sptk {
 class WSComplexType : public WSTypeName
 {
     /**
+     * Mutex that protects internal data
+     */
+    mutable SharedMutex m_mutex;
+
+    /**
     * WSDL element name
     */
-    std::string  m_name;
+    String       m_name;
 
     /**
      * Element optionality flag
      */
     bool         m_optional;
 
-protected:
-
     /**
-     * Is data loaded flage
+     * Is data loaded flag
      */
     bool         m_loaded;
 
-    /**
-     * Mutex that protects internal data
-     */
-    mutable SharedMutex m_mutex;
+protected:
 
     /**
      * Internal clear data
      */
-    virtual void _clear() {}
+    virtual void _clear()
+    {
+        // Implemented in derived classes
+    }
 
 public:
     /**
@@ -81,12 +84,15 @@ public:
      * @param name              Element name
      * @param optional          Element optionality flag
      */
-    WSComplexType(const char* name, bool optional=false) : m_name(name), m_optional(optional), m_loaded(false) {}
+    WSComplexType(const char* name, bool optional=false)
+    : m_name(name), m_optional(optional), m_loaded(false)
+    {}
 
     /**
      * Destructor
      */
-    virtual ~WSComplexType() {}
+    virtual ~WSComplexType()
+    {}
 
     /**
      * Return class name

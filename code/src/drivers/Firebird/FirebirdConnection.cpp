@@ -43,7 +43,7 @@ FirebirdConnection::FirebirdConnection(const String& connectionString)
 FirebirdConnection::~FirebirdConnection()
 {
     try {
-        if (getInTransaction() && active())
+        if (getInTransaction() && FirebirdConnection::active())
             rollbackTransaction();
         disconnectAllQueries();
         close();
@@ -76,7 +76,8 @@ void FirebirdConnection::_openDatabase(const String& newConnectionString)
         if (newConnectionString.length())
             connectionString(DatabaseConnectionString(newConnectionString));
 
-        char dpb_buffer[256], *dpb;
+        char dpb_buffer[256];
+        char *dpb;
         short dpb_length;
 
         dpb = dpb_buffer;

@@ -64,22 +64,25 @@ Node::const_iterator Node_Iterators::end() const
 
 //──────────────────────────────────────────────────────────────────────────────
 
-const String& Node::value() const
-{
-    return emptyString;
-}
-
-void Node::parent(Node* p)
+void Node_Base::setParent(Node* p, bool minimal)
 {
     if (m_parent == p)
         return;
-    if (m_parent != nullptr)
+
+    if (!minimal && m_parent != nullptr)
         m_parent->unlink(p);
 
     m_parent = p;
 
-    if (m_parent != nullptr)
-        m_parent->push_back(this);
+    if (!minimal && m_parent != nullptr)
+        m_parent->push_back((Node*)this);
+}
+
+//──────────────────────────────────────────────────────────────────────────────
+
+const String& Node::value() const
+{
+    return emptyString;
 }
 
 void parsePathElement(Document* document, const string& pathElementStr, XPathElement& pathElement)
@@ -393,7 +396,7 @@ void Node::save(Buffer& buffer, int indent) const
                     if (only_cdata)
                         np->save(buffer, -1);
                     else {
-                        np->save(buffer, indent + m_document->indentSpaces());
+                        np->save(buffer, indent + document()->indentSpaces());
                         if (buffer.data()[buffer.bytes() - 1] != '\n')
                             buffer.append(char('\n'));
                     }
@@ -475,7 +478,7 @@ void Node::save(json::Element& json, string& text) const
                     for (auto* np: *this)
                         np->save(*object, nodeText);
                     if (object->isObject() && object->size() == 0) {
-                        if (m_document->m_matchNumber.matches(nodeText)) {
+                        if (document()->m_matchNumber.matches(nodeText)) {
                             double value = string2double(nodeText);
                             *object = value;
                         } else
@@ -538,13 +541,13 @@ void NamedItem::name(const char* name)
 void Element::insert(iterator itor, Node* node)
 {
     m_nodes.insert(itor, node);
-    node->m_parent = this;
+    node->setParent(this, true);
 }
 
 void Element::push_back(Node* node)
 {
     m_nodes.insert(m_nodes.end(), node);
-    node->m_parent = this;
+    node->setParent(this, true);
 }
 
 void Element::unlink(Node* node)
