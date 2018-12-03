@@ -134,7 +134,7 @@ void Host::getHostAddress()
 #ifdef _WIN32
     struct hostent* host_info = gethostbyname(m_hostname.c_str());
     if (host_info == nullptr)
-        BaseSocket::throwSocketError("Can't get host info for " + m_hostname, __FILE__, __LINE__);
+        throwSocketError("Can't get host info for " + m_hostname, __FILE__, __LINE__);
 
     UniqueLock(m_mutex);
     memset(&m_address, 0, sizeof(m_address));
@@ -188,9 +188,9 @@ String Host::toString(bool forceAddress) const
         void *addr;
         // Get the pointer to the address itself, different fields in IPv4 and IPv6
         if (any().sa_family == AF_INET) {
-            addr = &(ipv4().sin_addr);
+            addr = (void*) &(ip_v4().sin_addr);
         } else {
-            addr = &(ipv6().sin6_addr);
+            addr = (void*) &(ip_v6().sin6_addr);
         }
         if (inet_ntop(any().sa_family, addr, buffer, sizeof(buffer) - 1) == nullptr)
 #else

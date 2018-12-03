@@ -354,7 +354,7 @@ static void decodeTime(const DateTime::time_point& dt, short& h, short& m, short
     m = (short) time.tm_min;
     s = (short) time.tm_sec;
 
-    duration dur = dt.time_since_epoch();
+	milliseconds dur = duration_cast<milliseconds>(dt.time_since_epoch());
     seconds sec = duration_cast<seconds>(dt.time_since_epoch());
     milliseconds msec = duration_cast<milliseconds>(dur - sec);
     ms = (short) msec.count();
