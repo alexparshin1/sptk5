@@ -1021,7 +1021,7 @@ void Variant_SetMethods::setNull(VariantType vtype)
 
 bool BaseVariant::isNull() const
 {
-    return (m_dataType & VAR_NULL) != 0;
+    return (m_dataType & VAR_NULL) != 0 || (m_dataType & VAR_TYPES) == VAR_NONE;
 }
 
 void BaseVariant::setNotNull()
