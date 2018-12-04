@@ -127,7 +127,7 @@ String Field::asString() const
             return String(print_buffer, len);
 
         default:
-            throw Exception("Can't convert field for that type");
+            throw Exception("Can't convert field " + fieldName() + " to type String");
     }
 }
 

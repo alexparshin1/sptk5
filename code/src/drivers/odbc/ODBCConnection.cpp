@@ -41,7 +41,7 @@ using namespace sptk;
 namespace sptk
 {
 
-class CODBCField : public DatabaseField
+class ODBCField : public DatabaseField
 {
     friend class ODBCConnection;
 
@@ -52,7 +52,7 @@ protected:
     }
 
 public:
-    CODBCField(const string& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale)
+    ODBCField(const string& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale)
     : DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
     {
     }
@@ -517,7 +517,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
         if (dataType == VAR_FLOAT && (columnScale < 0 || columnScale > 20))
             columnScale = 0;
 
-        Field* field = new CODBCField(columnNameStr.str(), column, cType, dataType, (int) columnLength, (int) columnScale);
+        Field* field = new ODBCField(columnNameStr.str(), column, cType, dataType, (int) columnLength, (int) columnScale);
         query->fields().push_back(field);
     }
 }
@@ -643,10 +643,10 @@ void ODBCConnection::queryFetch(Query* query)
     if (fieldCount == 0)
         return;
 
-    CODBCField* field = nullptr;
+    ODBCField* field = nullptr;
     for (unsigned column = 0; column < fieldCount;)
         try {
-            field = (CODBCField*) &(*query)[column];
+            field = (ODBCField*) &(*query)[column];
             auto fieldType = (int16_t) field->fieldType();
             char* buffer = field->getData();
 
@@ -686,7 +686,7 @@ void ODBCConnection::queryFetch(Query* query)
                 dataLength = (SQLINTEGER) trimField(buffer, (uint32_t) dataLength);
 
             if (dataLength <= 0)
-                field->setNull(VAR_NONE);
+                field->setNull(field->dataType());
             else
                 field->dataSize((size_t)dataLength);
         } catch (Exception& e) {
