@@ -54,7 +54,7 @@ sptk::SSLContext* CachedSSLContext::get(const sptk::String& keyFileName, const s
     return &newContext;
 }
 
-String CachedSSLContext::makeIdent(const String& keyFileName, const String& certificateFileName, const String& password,
+String CachedSSLContext::makeIdent(const String& keyFileName, const String& certificateFileName, const String& /*password*/,
                              const String& caFileName, int verifyMode, int verifyDepth)
 {
     Buffer buffer;

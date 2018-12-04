@@ -127,10 +127,29 @@ void Host::setPort(uint16_t p)
     }
 }
 
-void Host::getHostAddress()
+static struct addrinfo* safeGetAddrInfo(const String& hostname)
 {
     static SharedMutex getaddrinfoMutex;
 
+    struct addrinfo hints = {};
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;          // IPv4 or IPv6
+    hints.ai_socktype = SOCK_STREAM;    // Socket type
+    hints.ai_protocol = 0;
+
+    UniqueLock(getaddrinfoMutex);
+
+    struct addrinfo* result;
+    int rc = getaddrinfo(hostname.c_str(), nullptr, &hints, &result);
+    if (rc != 0)
+        throw Exception(gai_strerror(rc));
+
+    return result;
+}
+
+
+void Host::getHostAddress()
+{
 #ifdef _WIN32
     struct hostent* host_info = gethostbyname(m_hostname.c_str());
     if (host_info == nullptr)
@@ -150,20 +169,8 @@ void Host::getHostAddress()
     }
 
 #else
-    struct addrinfo hints = {};
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;          // IPv4 or IPv6
-    hints.ai_socktype = SOCK_STREAM;    // Socket type
-    hints.ai_protocol = 0;
 
-    struct addrinfo* result;
-    {
-        UniqueLock(getaddrinfoMutex);
-
-        int rc = getaddrinfo(m_hostname.c_str(), nullptr, &hints, &result);
-        if (rc != 0)
-            throw Exception(gai_strerror(rc));
-    }
+    struct addrinfo* result = safeGetAddrInfo(m_hostname);
 
     UniqueLock(m_mutex);
     memset(&m_address, 0, sizeof(m_address));
