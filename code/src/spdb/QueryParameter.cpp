@@ -83,6 +83,27 @@ QueryParameter& QueryParameter::operator = (const Variant& param)
     return *this;
 }
 
+void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t valueLength)
+{
+    m_dataSize = valueLength;
+    m_data.getBuffer().size = valueLength + 1;
+    if (maxlen != 0) {
+        if (m_data.getBuffer().data != nullptr)
+            delete [] m_data.getBuffer().data;
+        m_data.getBuffer().data = new char[m_data.getBuffer().size];
+        if (m_data.getBuffer().data != nullptr) {
+            strncpy(m_data.getBuffer().data, value, maxlen);
+            m_data.getBuffer().data[maxlen] = 0;
+        }
+    } else {
+        if ((dataType() & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0 && m_data.getBuffer().data != nullptr)
+            delete [] m_data.getBuffer().data;
+        m_data.getBuffer().size = m_dataSize + 1;
+        m_data.getBuffer().data = new char[m_data.getBuffer().size];
+        strncpy(m_data.getBuffer().data, value, m_data.getBuffer().size);
+    }
+}
+
 void QueryParameter::setString(const char * value, size_t maxlen)
 {
     size_t valueLength;
@@ -107,25 +128,9 @@ void QueryParameter::setString(const char * value, size_t maxlen)
             m_dataSize = 0;
         }
     } else {
-        if (value != nullptr) {
-            m_dataSize = valueLength;
-            m_data.getBuffer().size = valueLength + 1;
-            if (maxlen != 0) {
-                if (m_data.getBuffer().data != nullptr)
-                    delete [] m_data.getBuffer().data;
-                m_data.getBuffer().data = new char[m_data.getBuffer().size];
-                if (m_data.getBuffer().data != nullptr) {
-                    strncpy(m_data.getBuffer().data, value, maxlen);
-                    m_data.getBuffer().data[maxlen] = 0;
-                }
-            } else {
-                if ((dataType() & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0 && m_data.getBuffer().data != nullptr)
-                    delete [] m_data.getBuffer().data;
-                m_data.getBuffer().size = m_dataSize + 1;
-                m_data.getBuffer().data = new char[m_data.getBuffer().size];
-                strncpy(m_data.getBuffer().data, value, m_data.getBuffer().size);
-            }
-        } else {
+        if (value != nullptr)
+            reallocateBuffer(value, maxlen, valueLength);
+        else {
             m_dataSize = 0;
             dtype |= VAR_NULL;
         }

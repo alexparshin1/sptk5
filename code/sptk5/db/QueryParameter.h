@@ -284,6 +284,8 @@ public:
     bool isOutput() const {
         return m_binding.m_output;
     }
+
+    void reallocateBuffer(const char* value, size_t maxlen, size_t valueLength);
 };
 
 /**
