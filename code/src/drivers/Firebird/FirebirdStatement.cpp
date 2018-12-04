@@ -71,7 +71,7 @@ public:
 
     void clearNull()
     {
-        m_dataType &= ~VAR_NULL;
+        setNotNull();
     }
 };
 

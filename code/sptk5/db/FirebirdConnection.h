@@ -30,6 +30,7 @@
 #define __SPTK_FIREBIRDCONNECTION_H__
 
 #include <sptk5/db/PoolDatabaseConnection.h>
+#include <mutex>
 
 #if HAVE_FIREBIRD == 1
 
