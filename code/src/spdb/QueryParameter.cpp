@@ -96,7 +96,7 @@ void QueryParameter::setString(const char * value, size_t maxlen)
             valueLength = 0;
     }
 
-    if (m_dataType == VAR_STRING && m_data.getBuffer().size >= valueLength + 1) {
+    if (dataType() == VAR_STRING && m_data.getBuffer().size >= valueLength + 1) {
         if (value != nullptr) {
             memcpy(m_data.getBuffer().data, value, valueLength);
             m_data.getBuffer().data[valueLength] = 0;
@@ -119,7 +119,7 @@ void QueryParameter::setString(const char * value, size_t maxlen)
                     m_data.getBuffer().data[maxlen] = 0;
                 }
             } else {
-                if ((m_dataType & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0 && m_data.getBuffer().data != nullptr)
+                if ((dataType() & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0 && m_data.getBuffer().data != nullptr)
                     delete [] m_data.getBuffer().data;
                 m_data.getBuffer().size = m_dataSize + 1;
                 m_data.getBuffer().data = new char[m_data.getBuffer().size];
@@ -130,5 +130,5 @@ void QueryParameter::setString(const char * value, size_t maxlen)
             dtype |= VAR_NULL;
         }
     }
-    dataType((VariantType) dtype);
+    setDataType((VariantType) dtype);
 }

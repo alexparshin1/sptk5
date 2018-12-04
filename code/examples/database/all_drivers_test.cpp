@@ -38,8 +38,8 @@ using namespace sptk;
 bool testTransactions(DatabaseConnection db, const string& tableName, bool rollback)
 {
     try {
-        Query step5Query(db, "DELETE FROM " + tableName, true, __FILE__, __LINE__);
-        Query step6Query(db, "SELECT count(*) FROM " + tableName, true, __FILE__, __LINE__);
+        Query step5Query(db, "DELETE FROM " + tableName, true);
+        Query step6Query(db, "SELECT count(*) FROM " + tableName, true);
 
         step6Query.open();
         int counter = step6Query[uint32_t(0)].asInteger();
@@ -86,7 +86,7 @@ String fieldToString(const Field& field)
 
 void testBLOBs(PoolDatabaseConnection* db)
 {
-    Query createTableQuery(db, "CREATE TABLE sptk_blob_test(id INT, data CLOB)", true, __FILE__, __LINE__);
+    Query createTableQuery(db, "CREATE TABLE sptk_blob_test(id INT, data CLOB)", true);
     try {
         createTableQuery.exec();
     }
@@ -94,7 +94,7 @@ void testBLOBs(PoolDatabaseConnection* db)
         CERR(e.what() << endl);
     }
 
-    Query createBlobQuery(db, "INSERT INTO sptk_blob_test VALUES(:id, :data)", true, __FILE__, __LINE__);
+    Query createBlobQuery(db, "INSERT INTO sptk_blob_test VALUES(:id, :data)", true);
 
     for (unsigned i = 0; i < 1000; i++) {
         createBlobQuery.param("id").setInteger(i);
@@ -102,7 +102,7 @@ void testBLOBs(PoolDatabaseConnection* db)
         createBlobQuery.exec();
     }
 
-    Query selectBlobsQuery(db, "SELECT id, data FROM sptk_blob_test WHERE id < 10", true, __FILE__, __LINE__);
+    Query selectBlobsQuery(db, "SELECT id, data FROM sptk_blob_test WHERE id < 10", true);
     selectBlobsQuery.open();
     while (!selectBlobsQuery.eof()) {
         COUT(selectBlobsQuery["id"].asInteger()
@@ -112,7 +112,7 @@ void testBLOBs(PoolDatabaseConnection* db)
     }
     selectBlobsQuery.close();
 
-    Query dropTableQuery(db, "DROP TABLE sptk_blob_test", true, __FILE__, __LINE__);
+    Query dropTableQuery(db, "DROP TABLE sptk_blob_test", true);
     dropTableQuery.exec();
 }
 
@@ -170,7 +170,7 @@ void createTempTable(DatabaseConnection db, const String& tableName)
 
 void dropTempTable(const DatabaseConnection& db, const string& tableName)
 {
-    Query dropTempTableQuery(db, "DROP TABLE " + tableName, false, __FILE__, __LINE__);
+    Query dropTempTableQuery(db, "DROP TABLE " + tableName, false);
     try {
         dropTempTableQuery.exec();
     }
@@ -193,14 +193,11 @@ int testDatabase(const string& connectionString)
         printDatabaseObjects(db);
 
         // Defining the statements
-        // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
 
         Query insertRecordQuery(db, "INSERT INTO " + tableName +
-                                    " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true, __FILE__,
-                                __LINE__);
-        Query selectRecordsQuery(db, "SELECT * FROM " + tableName + " WHERE id >= 1 OR id IS NULL", false, __FILE__,
-                                 __LINE__);
+                                    " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true);
+        Query selectRecordsQuery(db, "SELECT * FROM " + tableName + " WHERE id >= 1 OR id IS NULL", false);
 
         dropTempTable(db, tableName);
 

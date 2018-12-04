@@ -36,7 +36,6 @@
 #include <sptk5/Logger.h>
 
 #include <vector>
-#include <mutex>
 
 namespace sptk {
 
@@ -255,6 +254,7 @@ protected:
 class SP_EXPORT PoolDatabaseConnection : public PoolDatabaseConnection_QueryMethods
 {
     friend class Query;
+    friend class Query_StatementManagement;
 
     std::set<Query*>            m_queryList;            ///< The list of queries that use this database
     DatabaseConnectionString    m_connString;           ///< The connection string

@@ -95,6 +95,23 @@ void Query_StatementManagement::notImplemented(const String& functionName) const
     throw DatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, getSQL());
 }
 
+void Query_StatementManagement::connect(PoolDatabaseConnection* _db)
+{
+    if (m_db == _db)
+        return;
+    disconnect();
+    m_db = _db;
+    m_db->linkQuery((Query*)this);
+}
+
+void Query_StatementManagement::disconnect()
+{
+    closeQuery(true);
+    if (m_db != nullptr)
+        m_db->unlinkQuery((Query*)this);
+    m_db = nullptr;
+}
+
 void Query::execute()
 {
     if (m_db != nullptr && statement() !=nullptr) {
@@ -109,7 +126,7 @@ Query::Query() noexcept
 {
 }
 
-Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
+Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare)
 : Query_StatementManagement(autoPrepare), m_fields(true)
 {
     if (_db) {
@@ -121,7 +138,7 @@ Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare, const
     Query::sql(_sql);
 }
 
-Query::Query(PoolDatabaseConnection* _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
+Query::Query(PoolDatabaseConnection* _db, const String& _sql, bool autoPrepare)
 : Query_StatementManagement(autoPrepare), m_fields(true)
 {
     if (_db != nullptr) {
@@ -290,23 +307,6 @@ void Query::fetch()
         throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, sql());
 
     m_db->queryFetch(this);
-}
-
-void Query::connect(PoolDatabaseConnection* _db)
-{
-    if (m_db == _db)
-        return;
-    disconnect();
-    m_db = _db;
-    m_db->linkQuery(this);
-}
-
-void Query::disconnect()
-{
-    closeQuery(true);
-    if (m_db != nullptr)
-        m_db->unlinkQuery(this);
-    m_db = nullptr;
 }
 
 bool Query::readField(const char*, Variant&)

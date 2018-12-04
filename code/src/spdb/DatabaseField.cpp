@@ -85,7 +85,7 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
     case VAR_DATE:
     case VAR_DATE_TIME:
         Variant::setDateTime(DateTime());
-        Field::dataType(dataType);
+        Variant::setDataType(dataType);
         view.width = 10;
         break;
 

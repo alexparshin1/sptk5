@@ -56,7 +56,7 @@ void Field::setNull(VariantType vtype)
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            if ((m_dataType & VAR_EXTERNAL_BUFFER) == VAR_EXTERNAL_BUFFER)
+            if (isExternalBuffer())
                 m_data.getBuffer().data = nullptr;
             else if (m_data.getBuffer().data != nullptr)
                 m_data.getBuffer().data[0] = 0;
@@ -68,10 +68,7 @@ void Field::setNull(VariantType vtype)
             break;
     }
 
-    if (vtype == VAR_NONE)
-        m_dataType |= VAR_NULL;
-    else
-        m_dataType = uint16_t(vtype | VAR_NULL);
+    setDataType(vtype | VAR_NULL);
 }
 
 String Field::asString() const
@@ -79,7 +76,8 @@ String Field::asString() const
     char print_buffer[64];
     int len;
 
-    if ((m_dataType & VAR_NULL) == VAR_NULL) return "";
+    if (isNull())
+        return "";
 
     switch (dataType()) {
         case VAR_BOOL:

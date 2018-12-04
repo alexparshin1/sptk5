@@ -30,6 +30,7 @@
 #define __SPTK_POSTGRESQLCONNECTION_H__
 
 #include <sptk5/db/PoolDatabaseConnection.h>
+#include <mutex>
 
 #if HAVE_POSTGRESQL == 1
 

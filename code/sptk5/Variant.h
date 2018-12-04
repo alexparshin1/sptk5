@@ -138,6 +138,11 @@ class SP_EXPORT BaseVariant
 {
     friend class Variant_SetMethods;
 
+    /**
+     * Data type
+     */
+    uint16_t                m_dataType;
+
 protected:
 
     /**
@@ -151,26 +156,38 @@ protected:
     size_t                  m_dataSize {0};
 
     /**
-     * Data type
-     */
-    uint16_t                m_dataType;
-
-    /**
      * Releases allocated buffer (if any)
      */
     void releaseBuffers();
 
     /**
-     * Sets the data type
+     * Sets the data type and necessary flags
+     * @param type               Data type
      */
-    void dataType(uint32_t dt);
+    void setDataType(uint32_t type)
+    {
+        m_dataType = type;
+    }
+
+    bool isExternalBuffer() const
+    {
+        return (m_dataType & VAR_EXTERNAL_BUFFER) != 0;
+    }
+
+    /**
+     * Clear null flag
+     */
+    void setNotNull();
 
 public:
 
     /**
      * Returns the data type
      */
-    VariantType dataType() const;
+    VariantType dataType() const
+    {
+        return (VariantType) (m_dataType & VAR_TYPES);
+    }
 
     /**
      * Returns the data size
@@ -194,12 +211,6 @@ public:
     void* dataBuffer() const;
 
     /**
-     * Null flag
-     *
-     * Returns true if the NULL state is set
-     */
-    bool isNull() const;
-    /**
      * Returns a name for a particular variant type
      * @param type              Variant type
      */
@@ -210,6 +221,13 @@ public:
      * @param name              Variant type name
      */
     static VariantType nameType(const char* name);
+
+    /**
+     * Null flag
+     *
+     * @return true if the NULL state is set
+     */
+    bool isNull() const;
 
 protected:
 

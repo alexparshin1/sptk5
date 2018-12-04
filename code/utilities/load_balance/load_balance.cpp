@@ -51,8 +51,6 @@ int main()
         loadBalance.run();
         while (true)
             this_thread::sleep_for(chrono::milliseconds(100));
-
-        return 0;
     }
     catch (const Exception& e) {
         CERR(e.what() << endl);

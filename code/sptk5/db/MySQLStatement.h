@@ -92,6 +92,14 @@ class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
      */
     void readPreparedResultRow(FieldList& fields);
 
+    /**
+     * Convert MySQL time data to field
+     * @param field             Output field
+     * @param mysqlTime         MySQL time
+     * @param fieldType         Field type (date or datetime)
+     */
+    void decodeMySQLTime(Field* field, MYSQL_TIME& mysqlTime, VariantType fieldType);
+
 public:
 
     /**

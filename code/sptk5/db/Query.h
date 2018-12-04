@@ -234,6 +234,20 @@ public:
      * @return true for bulk mode
      */
     bool bulkMode() const;
+
+    /**
+     * @brief Connects a query to a database
+     *
+     * If the query was connected
+     * to another database, releases all the allocated resources in it.
+     */
+    void connect(PoolDatabaseConnection *db);
+
+    /**
+     * @brief Disconnects query from the database and releases all the allocated resourses.
+     */
+    void disconnect();
+
 };
 
 /**
@@ -248,8 +262,6 @@ class SP_EXPORT Query: public Query_StatementManagement
     friend class PoolDatabaseConnection;
     friend class PoolDatabaseConnection_QueryMethods;
 
-protected:
-
     /**
      * List of query parameters
      */
@@ -259,6 +271,8 @@ protected:
      * List of query fields - makes sense after fetch
      */
     FieldList               m_fields;
+
+protected:
 
     /**
      * Executes a statement
@@ -303,10 +317,8 @@ public:
      * @param db                The database to connect to, optional
      * @param sql               The SQL query text to use, optional
      * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
-     * @param createdFile       The name of the file this query was created in (optional)
-     * @param createdLine       The line of the file this query was created at (optional)
      */
-    Query(DatabaseConnection db, const String& sql = "", bool autoPrepare = true, const char* createdFile = nullptr, unsigned createdLine = 0);
+    Query(DatabaseConnection db, const String& sql = "", bool autoPrepare = true);
 
     /**
      * @brief Constructor
@@ -318,10 +330,8 @@ public:
      * @param db                The database to connect to, optional
      * @param sql               The SQL query text to use, optional
      * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
-     * @param createdFile       The name of the file this query was created in (optional)
-     * @param createdLine       The line of the file this query was created at (optional)
      */
-    Query(PoolDatabaseConnection *db, const String& sql = "", bool autoPrepare = true, const char* createdFile = nullptr, unsigned createdLine = 0);
+    Query(PoolDatabaseConnection *db, const String& sql = "", bool autoPrepare = true);
 
     /**
      * @brief Copy constructor
@@ -477,19 +487,6 @@ public:
      * @brief Fetches the next row from the recordset, same as next()
      */
     void fetch();
-
-    /**
-     * @brief Connects a query to a database
-     *
-     * If the query was connected
-     * to another database, releases all the allocated resources in it.
-     */
-    void connect(PoolDatabaseConnection *db);
-
-    /**
-     * @brief Disconnects query from the database and releases all the allocated resourses.
-     */
-    void disconnect();
 
     /**
      * @brief Reports the number of unique parameters in the query.
