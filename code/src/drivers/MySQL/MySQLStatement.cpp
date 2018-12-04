@@ -476,6 +476,23 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
     }
 }
 
+void MySQLStatement::decodeMySQLTime(Field* _field, MYSQL_TIME& mysqlTime, VariantType fieldType)
+{
+    auto* field = dynamic_cast<CMySQLStatementField*>(_field);
+    if (mysqlTime.day == 0 && mysqlTime.month == 0) {
+        // Date returned as 0000-00-00
+        field->setNull(fieldType);
+    } else {
+        DateTime dt(short(mysqlTime.year), short(mysqlTime.month), short(mysqlTime.day),
+                    short(mysqlTime.hour), short(mysqlTime.minute), short(mysqlTime.second));
+        if (fieldType == VAR_DATE)
+            field->setDate(dt);
+        else
+            field->setDateTime(dt);
+        field->setDataSize(sizeof(int64_t));
+    }
+}
+
 void MySQLStatement::readPreparedResultRow(FieldList& fields)
 {
     uint32_t    fieldCount = fields.size();
@@ -503,21 +520,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
 
         case VAR_DATE:
         case VAR_DATE_TIME:
-            {
-                MYSQL_TIME& mysqlTime = *(MYSQL_TIME*) bind.buffer;
-                if (mysqlTime.day == 0 && mysqlTime.month == 0) {
-                    // Date returned as 0000-00-00
-                    field->setNull(fieldType);
-                } else {
-                    DateTime dt(short(mysqlTime.year), short(mysqlTime.month), short(mysqlTime.day),
-                                short(mysqlTime.hour), short(mysqlTime.minute), short(mysqlTime.second));
-                    if (fieldType == VAR_DATE)
-                        field->setDate(dt);
-                    else
-                        field->setDateTime(dt);
-                    field->setDataSize(sizeof(int64_t));
-                }
-            }
+            decodeMySQLTime(field, *(MYSQL_TIME*) bind.buffer, fieldType);
             break;
 
         case VAR_FLOAT:

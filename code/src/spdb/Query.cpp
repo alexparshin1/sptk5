@@ -109,7 +109,7 @@ Query::Query() noexcept
 {
 }
 
-Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
+Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare)
 : Query_StatementManagement(autoPrepare), m_fields(true)
 {
     if (_db) {
@@ -121,7 +121,7 @@ Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare, const
     Query::sql(_sql);
 }
 
-Query::Query(PoolDatabaseConnection* _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
+Query::Query(PoolDatabaseConnection* _db, const String& _sql, bool autoPrepare)
 : Query_StatementManagement(autoPrepare), m_fields(true)
 {
     if (_db != nullptr) {

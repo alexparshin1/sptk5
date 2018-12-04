@@ -36,7 +36,6 @@
 #include <sptk5/Logger.h>
 
 #include <vector>
-#include <mutex>
 
 namespace sptk {
 

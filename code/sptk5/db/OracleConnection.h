@@ -30,6 +30,7 @@
 #define __SPTK_ORACLECONNECTION_H__
 
 #include <sptk5/db/PoolDatabaseConnection.h>
+#include <mutex>
 
 #if HAVE_ORACLE == 1
 

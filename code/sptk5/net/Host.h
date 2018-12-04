@@ -56,43 +56,60 @@ namespace sptk {
  */
 class Host
 {
-    mutable SharedMutex m_mutex;        ///< Mutex to protect internal class data
-    String              m_hostname;     ///< Host name or IP address
-    uint16_t            m_port {0};     ///< Port number
-/*
-    union {
-        struct sockaddr	    any;
-        struct sockaddr_in  ip_v4;
-        struct sockaddr_in6 ip_v6;
-    } m_address {{}};                   ///< Host address
-*/
-    uint8_t             m_address[sizeof(sockaddr_in6)];
+    mutable SharedMutex m_mutex;                            ///< Mutex to protect internal class data
+    String              m_hostname;                         ///< Host name or IP address
+    uint16_t            m_port {0};                         ///< Port number
+    uint8_t             m_address[sizeof(sockaddr_in6)];    ///< Storage for IPv4 and IPv6 addresses
 
+    /**
+     * Get address presentation as generic IP address
+     * @return address presentation as generic IP address
+     */
     sockaddr& any()
     {
         return *(sockaddr*) m_address;
     }
 
+    /**
+     * Get address presentation as generic IP address (read-only)
+     * @return address presentation as generic IP address
+     */
     const sockaddr& any() const
     {
         return *(sockaddr*) m_address;
     }
 
+    /**
+     * Get address presentation as IPv4 address
+     * @return address presentation as IPv4 address
+     */
     sockaddr_in& ip_v4()
     {
         return *(sockaddr_in*) m_address;
     }
 
+    /**
+     * Get address presentation as IPv4 address (read-only)
+     * @return address presentation as IPv4 address
+     */
     const sockaddr_in& ip_v4() const
     {
         return *(sockaddr_in*) m_address;
     }
 
+    /**
+     * Get address presentation as IPv6 address
+     * @return address presentation as IPv6 address
+     */
     sockaddr_in6& ip_v6()
     {
         return *(sockaddr_in6*) m_address;
     }
 
+    /**
+     * Get address presentation as IPv6 address (read-only)
+     * @return address presentation as IPv6 address
+     */
     const sockaddr_in6& ip_v6() const
     {
         return *(sockaddr_in6*) m_address;

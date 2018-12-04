@@ -34,6 +34,7 @@
 #if HAVE_MYSQL == 1
 
 #include <sptk5/db/MySQLStatement.h>
+#include <mutex>
 
 namespace sptk
 {
@@ -54,6 +55,14 @@ class SP_EXPORT MySQLConnection: public PoolDatabaseConnection
     MYSQL*                      m_connection;           ///< MySQL database connection
     mutable std::mutex          m_mutex;                ///< Mutex that protects access to data members
 
+    /**
+     * @brief Init connection to MySQL server
+     */
+    void initConnection();
+
+    /**
+     * @brief Execute MySQL command
+     */
     void executeCommand(const String& command);
 
 protected:

@@ -52,45 +52,43 @@ MySQLConnection::~MySQLConnection()
     }
 }
 
-
-void MySQLConnection::_openDatabase(const String& newConnectionString)
+void MySQLConnection::initConnection()
 {
     static std::mutex libraryInitMutex;
 
+    lock_guard<mutex> lock(libraryInitMutex);
+    m_connection = mysql_init(m_connection);
+    if (m_connection == nullptr)
+        throw DatabaseException("Can't initialize MySQL environment");
+    mysql_options(m_connection, MYSQL_SET_CHARSET_NAME, "utf8");
+    mysql_options(m_connection, MYSQL_INIT_COMMAND, "SET NAMES utf8");
+}
+
+void MySQLConnection::_openDatabase(const String& newConnectionString)
+{
     if (!active()) {
         setInTransaction(false);
         if (!newConnectionString.empty())
             connectionString(DatabaseConnectionString(newConnectionString));
 
-        {
-            lock_guard<mutex> lock(libraryInitMutex);
-            m_connection = mysql_init(m_connection);
-        }
-
-        mysql_options(m_connection, MYSQL_SET_CHARSET_NAME, "utf8");
-        mysql_options(m_connection, MYSQL_INIT_COMMAND, "SET NAMES utf8");
+        initConnection();
 
         string connectionError;
-        if (m_connection == nullptr)
-            connectionError = "Can't initialize MySQL environment";
-        else {
-            const DatabaseConnectionString& connString = connectionString();
-            if (mysql_real_connect(m_connection,
-                                   connString.hostName().c_str(),
-                                   connString.userName().c_str(),
-                                   connString.password().c_str(),
-                                   connString.databaseName().c_str(),
-                                   connString.portNumber(),
-                                   nullptr,
-                                   CLIENT_MULTI_RESULTS) == nullptr) {
-                connectionError = mysql_error(m_connection);
-                mysql_close(m_connection);
-                m_connection = nullptr;
-            }
-        }
-
-        if (m_connection == nullptr)
+        const DatabaseConnectionString& connString = connectionString();
+        if (mysql_real_connect(m_connection,
+                               connString.hostName().c_str(),
+                               connString.userName().c_str(),
+                               connString.password().c_str(),
+                               connString.databaseName().c_str(),
+                               connString.portNumber(),
+                               nullptr,
+                               CLIENT_MULTI_RESULTS) == nullptr)
+        {
+            connectionError = mysql_error(m_connection);
+            mysql_close(m_connection);
+            m_connection = nullptr;
             throw DatabaseException("Can't connect to MySQL: " + connectionError);
+        }
     }
 }
 

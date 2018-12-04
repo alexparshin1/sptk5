@@ -248,8 +248,6 @@ class SP_EXPORT Query: public Query_StatementManagement
     friend class PoolDatabaseConnection;
     friend class PoolDatabaseConnection_QueryMethods;
 
-protected:
-
     /**
      * List of query parameters
      */
@@ -259,6 +257,8 @@ protected:
      * List of query fields - makes sense after fetch
      */
     FieldList               m_fields;
+
+protected:
 
     /**
      * Executes a statement
@@ -303,10 +303,8 @@ public:
      * @param db                The database to connect to, optional
      * @param sql               The SQL query text to use, optional
      * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
-     * @param createdFile       The name of the file this query was created in (optional)
-     * @param createdLine       The line of the file this query was created at (optional)
      */
-    Query(DatabaseConnection db, const String& sql = "", bool autoPrepare = true, const char* createdFile = nullptr, unsigned createdLine = 0);
+    Query(DatabaseConnection db, const String& sql = "", bool autoPrepare = true);
 
     /**
      * @brief Constructor
@@ -318,10 +316,8 @@ public:
      * @param db                The database to connect to, optional
      * @param sql               The SQL query text to use, optional
      * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
-     * @param createdFile       The name of the file this query was created in (optional)
-     * @param createdLine       The line of the file this query was created at (optional)
      */
-    Query(PoolDatabaseConnection *db, const String& sql = "", bool autoPrepare = true, const char* createdFile = nullptr, unsigned createdLine = 0);
+    Query(PoolDatabaseConnection *db, const String& sql = "", bool autoPrepare = true);
 
     /**
      * @brief Copy constructor
