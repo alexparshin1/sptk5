@@ -302,6 +302,10 @@ public:
     virtual uint32_t getImageNdx() const;
 };
 
+/**
+ * Variant set methods collection
+ * 15 methods
+ */
 class SP_EXPORT Variant_SetMethods : public BaseVariant
 {
 protected:
@@ -361,22 +365,7 @@ public:
     /**
      * Assignment method
      */
-    virtual void setBuffer(const Buffer& value);
-
-    /**
-     * Assignment method
-     */
-    virtual void setBuffer(const String& str);
-
-    /**
-     * Assignment method
-     */
-    virtual void setDate(DateTime value);
-
-    /**
-     * Assignment method
-     */
-    virtual void setDateTime(DateTime value);
+    virtual void setDateTime(DateTime value, bool dateOnly=false);
 
     /**
      * Assignment method
@@ -398,19 +387,10 @@ public:
      *
      * Useful for the database operations.
      * Releases the memory allocated for string/text/blob types.
-     * Retains the data type. Sets the data to zero(s).
-     */
-    virtual void setNull() { setNull(VAR_NONE); }
-
-    /**
-     * Sets the NULL state
-     *
-     * Useful for the database operations.
-     * Releases the memory allocated for string/text/blob types.
      * Sets the data to zero(s).
      * @param vtype             Optional variant type to enforce
      */
-    virtual void setNull(VariantType vtype);
+    virtual void setNull(VariantType vtype=VAR_NONE);
 };
 
 class SP_EXPORT Variant_Adaptors : public Variant_SetMethods

@@ -441,7 +441,7 @@ void OracleStatement::getDateOutputParameter(unsigned int index, DatabaseField* 
     unsigned min;
     unsigned sec;
     statement()->getDate(index).getDate(year, month, day, hour, min, sec);
-    field->setDate(DateTime(short(year), short(month), short(day), short(0), short(0), short(0)));
+    field->setDateTime(DateTime(short(year), short(month), short(day), short(0), short(0), short(0)), true);
 }
 
 void OracleStatement::close()

@@ -338,41 +338,23 @@ void Variant_SetMethods::setBuffer(const void* value, size_t sz, VariantType typ
         setNull();
 }
 
-void Variant_SetMethods::setBuffer(const Buffer& value)
-{
-    setBuffer(value.data(), value.bytes(), VAR_BUFFER, false);
-}
-
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setBuffer(const String& value)
+void Variant_SetMethods::setDateTime(DateTime value, bool dateOnly)
 {
-    setBuffer(value.data(), value.size(), VAR_BUFFER, false);
-}
-
-//---------------------------------------------------------------------------
-void Variant_SetMethods::setDateTime(DateTime value)
-{
-    if (m_dataType != VAR_DATE_TIME) {
+    if ((m_dataType & (VAR_DATE|VAR_DATE_TIME)) == 0) {
         releaseBuffers();
-        setDataType(VAR_DATE_TIME);
         dataSize(sizeof(value));
     }
-    DateTime::duration sinceEpoch = value.timePoint().time_since_epoch();
-    m_data.getInt64() = chrono::duration_cast<chrono::microseconds>(sinceEpoch).count();
-}
 
-//---------------------------------------------------------------------------
-void Variant_SetMethods::setDate(DateTime value)
-{
-    if (m_dataType != VAR_DATE) {
-        releaseBuffers();
+    DateTime::duration sinceEpoch = value.timePoint().time_since_epoch();
+    if (dateOnly) {
         setDataType(VAR_DATE);
-        dataSize(sizeof(value));
+        int64_t days = chrono::duration_cast<chrono::hours>(sinceEpoch).count() / 24;
+        m_data.getInt64() = days * 86400 * 1000000;
+    } else {
+        setDataType(VAR_DATE_TIME);
+        m_data.getInt64() = chrono::duration_cast<chrono::microseconds>(sinceEpoch).count();
     }
-
-    DateTime::duration sinceEpoch = value.timePoint().time_since_epoch();
-    int64_t days = chrono::duration_cast<chrono::hours>(sinceEpoch).count() / 24;
-    m_data.getInt64() = days * 86400 * 1000000;
 }
 
 //---------------------------------------------------------------------------
@@ -448,11 +430,11 @@ void Variant_SetMethods::setData(const BaseVariant& C)
             break;
 
         case VAR_DATE:
-            setDate(C.getDateTime());
+            setDateTime(C.getDateTime(), true);
             break;
 
         case VAR_DATE_TIME:
-            setDateTime(C.getDateTime());
+            setDateTime(C.getDateTime(), false);
             break;
 
         case VAR_IMAGE_PTR:
@@ -1199,6 +1181,9 @@ TEST(SPTK_Variant, assigns)
     v = testDate;
 
     EXPECT_STREQ("2018-02-01T09:11:14.345Z", v.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+
+    v.setDateTime(testDate, true);
+    EXPECT_STREQ("2018-02-01T00:00:00.000Z", v.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
 }
 
 TEST(SPTK_Variant, copy)
@@ -1211,6 +1196,9 @@ TEST(SPTK_Variant, copy)
     Variant v2(1.2345);
     Variant v3("Test");
 
+    Variant v4;
+    v4.setDateTime(testDate, true);
+
     v = v0;
     EXPECT_EQ(12345, v.asInteger());
 
@@ -1222,6 +1210,9 @@ TEST(SPTK_Variant, copy)
 
     v = v3;
     EXPECT_STREQ("Test", v.asString().c_str());
+
+    v = v4;
+    EXPECT_STREQ("2018-02-01T00:00:00.000Z", v.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
 }
 
 TEST(SPTK_Variant, toString)

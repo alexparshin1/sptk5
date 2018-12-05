@@ -90,7 +90,7 @@ void WSDate::load(const xml::Node* attr)
     if (text.empty())
         setNull(VAR_DATE);
     else
-        setDate(DateTime(attr->text().c_str()));
+        setDateTime(DateTime(attr->text().c_str()), true);
 }
 
 void WSDate::load(const String& attr)
@@ -98,7 +98,7 @@ void WSDate::load(const String& attr)
     if (attr.empty())
         setNull(VAR_DATE);
     else
-        setDate(DateTime(attr.c_str()));
+        setDateTime(DateTime(attr.c_str()), true);
 }
 
 void WSDate::load(const Field& field)
@@ -106,7 +106,7 @@ void WSDate::load(const Field& field)
     if (field.isNull())
         setNull(VAR_DATE);
     else
-        setDate(field.asDate());
+        setDateTime(field.asDate(), true);
 }
 
 void WSDateTime::load(const xml::Node* attr)

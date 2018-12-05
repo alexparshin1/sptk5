@@ -337,7 +337,7 @@ public:
      */
     virtual WSDate& operator=(DateTime value) override
     {
-        setDate(value);
+        setDateTime(value, true);
         return *this;
     }
 

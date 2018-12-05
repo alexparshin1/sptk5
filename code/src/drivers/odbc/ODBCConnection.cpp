@@ -609,10 +609,7 @@ SQLRETURN ODBCConnection::readTimestampField(SQLHSTMT statement, DatabaseField* 
     SQLRETURN rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, (SQLPOINTER) &t, 0, &dataLength);
     if (dataLength > 0) {
         DateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
-        if (field->dataType() == VAR_DATE)
-            field->setDate(dt);
-        else
-            field->setDateTime(dt);
+        field->setDateTime(dt, field->dataType() == VAR_DATE);
     }
     return rc;
 }

@@ -444,7 +444,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
             break;
 
         case VAR_DATE:
-            field->setDate(DateTime(data));
+            field->setDateTime(DateTime(data), true);
             break;
 
         case VAR_DATE_TIME:
@@ -485,10 +485,7 @@ void MySQLStatement::decodeMySQLTime(Field* _field, MYSQL_TIME& mysqlTime, Varia
     } else {
         DateTime dt(short(mysqlTime.year), short(mysqlTime.month), short(mysqlTime.day),
                     short(mysqlTime.hour), short(mysqlTime.minute), short(mysqlTime.second));
-        if (fieldType == VAR_DATE)
-            field->setDate(dt);
-        else
-            field->setDateTime(dt);
+        field->setDateTime(dt, fieldType == VAR_DATE);
         field->setDataSize(sizeof(int64_t));
     }
 }

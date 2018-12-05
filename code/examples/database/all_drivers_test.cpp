@@ -220,7 +220,7 @@ int testDatabase(const string& connectionString)
         insertRecordQuery.param(uint32_t(0)) = 3;
         insertRecordQuery.param(1) = "UTF-8: тестик (Russian, 6 chars)";
         insertRecordQuery.param(2).setNull(VAR_STRING);
-        insertRecordQuery.param(3).setDate(DateTime::Now());
+        insertRecordQuery.param(3).setDateTime(DateTime::Now(), true);
         insertRecordQuery.param(4) = 12340.001234;
         insertRecordQuery.exec();
 

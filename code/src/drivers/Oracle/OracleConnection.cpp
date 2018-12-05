@@ -403,7 +403,7 @@ void OracleConnection::readDate(ResultSet* resultSet, DatabaseField* field, unsi
     unsigned min;
     unsigned sec;
     resultSet->getDate(columnIndex).getDate(year, month, day, hour, min, sec);
-    field->setDate(DateTime(short(year), short(month), short(day), short(0), short(0), short(0)));
+    field->setDateTime(DateTime(short(year), short(month), short(day), short(0), short(0), short(0)), true);
 }
 
 void OracleConnection::queryFetch(Query* query)

@@ -300,7 +300,7 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
             try {
                 Field &field = results[header_name];
                 if (header_name == "date")
-                    field.setDate(decodeDate(header_value));
+                    field.setDateTime(decodeDate(header_value), true);
                 else
                     field = header_value;
             } catch (const Exception& e) {

@@ -242,9 +242,10 @@ public:
 
     /**
      * @brief Assign operator
+     * @param buffer             Data buffer
      */
     QueryParameter& operator = (const Buffer& buffer) {
-        setBuffer(buffer);
+        setBuffer(buffer.c_str(), buffer.bytes());
         return *this;
     }
 
