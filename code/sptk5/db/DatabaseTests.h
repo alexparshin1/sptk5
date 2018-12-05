@@ -87,6 +87,12 @@ public:
     void testConnect(const DatabaseConnectionString& connectionString);
 
     /**
+     * Test SELECT statements
+     * @param connectionString Database connection string
+     */
+    void testSelect(const DatabaseConnectionString& connectionString);
+
+    /**
      * Test basic DDL statements
      * @param connectionString Database connection string
      */

@@ -294,6 +294,90 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
         throw Exception("Expected bulk insert result doesn't match inserted data");
 }
 
+void DatabaseTests::testSelect(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection db = connectionPool.getConnection();
+
+    auto itor = dateTimeFieldTypes.find(connectionString.driverName());
+    if (itor == dateTimeFieldTypes.end())
+        throw Exception("DateTime data type mapping is not defined for the test");
+    String dateTimeType = itor->second;
+
+    db->open();
+    Query createTable(db,
+                      "CREATE TABLE gtest_temp_table(id INTEGER NULL, name CHAR(40) NULL, position_name CHAR(20) NULL, hire_date CHAR(12) NULL)");
+    Query dropTable(db, "DROP TABLE gtest_temp_table");
+    Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
+    Query selectData(db, "SELECT * FROM gtest_temp_table");
+
+    try {
+        dropTable.exec();
+    }
+    catch (const Exception& e) {
+        RegularExpression matchTableNotExists("not exist|unknown table", "i");
+        if (!matchTableNotExists.matches(e.what()))
+            CERR(e.what() << endl);
+    }
+
+    createTable.exec();
+
+    Strings data;
+    data.push_back(string("1\tAlex\tProgrammer\t01-JAN-2014"));
+    data.push_back(string("2\tDavid\tCEO\t01-JAN-2014"));
+    data.push_back(string("3\tRoger\tBunny\t01-JAN-2014"));
+
+    for (auto& row: data) {
+        // Insert all nulls
+        insertData.param("id").setNull(VAR_INT);
+        insertData.param("name").setNull(VAR_STRING);
+        insertData.param("position").setNull(VAR_STRING);
+        insertData.param("hired").setNull(VAR_STRING);
+        insertData.exec();
+
+        // Insert data row
+        Strings values(row, "\t");
+        insertData.param("id") = string2int(values[0]);
+        insertData.param("name") = values[1];
+        insertData.param("position") = values[2];
+        insertData.param("hired") = values[3];
+        insertData.exec();
+    }
+
+    selectData.open();
+    Strings printRows;
+    while (!selectData.eof()) {
+        // Check if all fields are NULLs
+        int column = 0;
+        for (auto* field: selectData.fields()) {
+            if (!field->isNull())
+                throw Exception("Field " + field->fieldName() + " = [" + field->asString() + "] but null is expected");
+            VariantType expectedType = VAR_INT;
+            if (column != 0)
+                expectedType = VAR_STRING;
+            if (field->dataType() != expectedType)
+                throw Exception("Field " + field->fieldName() + " has data type " + to_string(field->dataType()) + " but expected " + to_string(expectedType));
+            column++;
+        }
+        selectData.next();
+
+        Strings row;
+        for (auto* field: selectData.fields())
+            row.push_back(field->asString().trim());
+        printRows.push_back(row.join("|"));
+        selectData.next();
+    }
+    selectData.close();
+
+    if (printRows.size() > 3)
+        throw Exception(
+                "Expected result (3 rows) doesn't match table data (" + int2string(printRows.size()) + ")");
+
+    String actualResult(printRows.join(" # "));
+    if (actualResult != expectedBulkInsertResult)
+        throw Exception("Expected result doesn't match inserted data");
+}
+
 size_t DatabaseTests::countRowsInTable(DatabaseConnection db, const String& table)
 {
     Query select(db, "SELECT count(*) cnt FROM " + table);

@@ -215,6 +215,8 @@ void DatabaseConnectionPool::destroyConnection(PoolDatabaseConnection* connectio
 
 #if USE_GTEST
 
+//───────────────────────────────── PostgreSQL ───────────────────────────────────────────
+
 TEST(SPTK_PostgreSQLConnection, connect)
 {
     DatabaseConnectionString connectionString = databaseTests.connectionString("postgresql");
@@ -279,6 +281,21 @@ TEST(SPTK_PostgreSQLConnection, transaction)
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
+
+TEST(SPTK_PostgreSQLConnection, select)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("postgresql");
+    if (connectionString.empty())
+        FAIL() << "PostgreSQL connection is not defined";
+    try {
+        databaseTests.testSelect(connectionString);
+    }
+    catch (const Exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+//───────────────────────────────── MySQL ────────────────────────────────────────────────
 
 TEST(SPTK_MySQLConnection, connect)
 {
@@ -345,6 +362,21 @@ TEST(SPTK_MySQLConnection, transaction)
     }
 }
 
+TEST(SPTK_MySQLConnection, select)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mysql");
+    if (connectionString.empty())
+        FAIL() << "MySQL connection is not defined";
+    try {
+        databaseTests.testSelect(connectionString);
+    }
+    catch (const Exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+//───────────────────────────────── Oracle ─────────────────────────────────────────────
+
 TEST(SPTK_OracleConnection, connect)
 {
     DatabaseConnectionString connectionString = databaseTests.connectionString("oracle");
@@ -410,6 +442,21 @@ TEST(SPTK_OracleConnection, transaction)
     }
 }
 
+TEST(SPTK_OracleConnection, select)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("oracle");
+    if (connectionString.empty())
+        FAIL() << "Oralce connection is not defined";
+    try {
+        databaseTests.testSelect(connectionString);
+    }
+    catch (const Exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+//───────────────────────────────── MS SQL ─────────────────────────────────────────────
+
 TEST(SPTK_MSSQLConnection, connect)
 {
     DatabaseConnectionString connectionString = databaseTests.connectionString("mssql");
@@ -469,6 +516,19 @@ TEST(SPTK_MSSQLConnection, transaction)
         FAIL() << "MSSQL connection is not defined";
     try {
         databaseTests.testTransaction(connectionString);
+    }
+    catch (const Exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_MSSQLConnection, select)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mssql");
+    if (connectionString.empty())
+        FAIL() << "MSSQL connection is not defined";
+    try {
+        databaseTests.testSelect(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
