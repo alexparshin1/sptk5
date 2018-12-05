@@ -98,7 +98,8 @@ void testBLOBs(PoolDatabaseConnection* db)
 
     for (unsigned i = 0; i < 1000; i++) {
         createBlobQuery.param("id").setInteger(i);
-        createBlobQuery.param("data").setText("This is a test " + int2string(i));
+        String text("This is a test " + to_string(i));
+        createBlobQuery.param("data").setBuffer(text.c_str(), text.size());
         createBlobQuery.exec();
     }
 

@@ -370,7 +370,7 @@ void MySQLConnection::_bulkInsert(const String& tableName, const Strings& column
         for (unsigned i = 0; i < columnNames.size(); i++) {
             String& value = rowData[i];
             if (value.length() > 255)
-                insertQuery.param(i).setText(value);
+                insertQuery.param(i).setBuffer(value.c_str(), value.size(), VAR_TEXT);
             else
                 insertQuery.param(i).setString(value);
         }

@@ -437,7 +437,7 @@ void FirebirdStatement::fetchResult(FieldList& fields)
             // Date and time types
             case SQL_TYPE_DATE:
                 isc_decode_sql_date((ISC_DATE*)sqlvar.sqldata, &times);
-                field->setDate(DateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday)));
+                field->setDateTime(DateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday)), true);
                 break;
 
             case SQL_TYPE_TIME:
@@ -497,7 +497,7 @@ void FirebirdStatement::fetchResult(FieldList& fields)
             case SQL_VARYING:
                 {
                     size_t len = *(uint16_t*) sqlvar.sqldata;
-                    field->setString(sqlvar.sqldata + 2, len);
+                    field->setBuffer(sqlvar.sqldata + 2, len, VAR_STRING);
                 }
                 break;
 

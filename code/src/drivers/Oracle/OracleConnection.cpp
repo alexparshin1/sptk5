@@ -599,8 +599,9 @@ void OracleConnection::_bulkInsert(const String& tableName, const Strings& colum
     for (auto& row: data) {
         Strings rowData(row, "\t");
         for (unsigned i = 0; i < columnNames.size(); i++) {
+            String& value = rowData[i];
             if (columnTypeSizeVector[i].type == VAR_TEXT)
-                insertQuery.param(i).setText(rowData[i]);
+                insertQuery.param(i).setBuffer(value.c_str(), value.size(), VAR_TEXT);
             else
                 insertQuery.param(i).setString(rowData[i]);
         }

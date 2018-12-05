@@ -449,12 +449,12 @@ void SQLite3Connection::queryFetch(Query* query)
                         break;
 
                     case SQLITE_TEXT:
-                        field->setString((const char*) sqlite3_column_text(statement, int(column)), dataLength);
+                        field->setBuffer((const char*) sqlite3_column_text(statement, int(column)), dataLength, VAR_STRING);
                         dataLength = trimField((char*) field->getString(), dataLength);
                         break;
 
                     case SQLITE_BLOB:
-                        field->setBuffer(sqlite3_column_blob(statement, int(column)), dataLength, VAR_DATE_TIME, false);
+                        field->setBuffer(sqlite3_column_blob(statement, int(column)), dataLength, VAR_BUFFER, false);
                         break;
 
                     default:

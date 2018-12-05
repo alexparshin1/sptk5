@@ -304,7 +304,7 @@ public:
 
 /**
  * Variant set methods collection
- * 15 methods
+ * 13 methods
  */
 class SP_EXPORT Variant_SetMethods : public BaseVariant
 {
@@ -345,17 +345,7 @@ public:
     /**
      * Assignment method
      */
-    virtual void setString(const char * value, size_t maxlen = 0);
-
-    /**
-     * Assignment method
-     */
     virtual void setString(const String& value);
-
-    /**
-     * Assignment method
-     */
-    virtual void setText(const String& str);
 
     /**
      * Assignment method

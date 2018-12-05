@@ -144,7 +144,7 @@ Variant::Variant(const char* value)
 Variant::Variant(const String& v)
 {
     setDataType(VAR_NONE);
-    Variant::setString(v.c_str(), v.length());
+    Variant::setBuffer(v.c_str(), v.length(), VAR_STRING);
 }
 
 //---------------------------------------------------------------------------
@@ -159,14 +159,14 @@ Variant::Variant(DateTime v)
 Variant::Variant(const void* value, size_t sz)
 {
     setDataType(VAR_NONE);
-    Variant::setBuffer(value, sz, VAR_DATE_TIME, false);
+    Variant::setBuffer(value, sz, VAR_BUFFER, false);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(const Buffer& value)
 {
     setDataType(VAR_NONE);
-    Variant::setBuffer(value.data(), value.bytes(), VAR_DATE_TIME, false);
+    Variant::setBuffer(value.data(), value.bytes(), VAR_BUFFER, false);
 }
 
 //---------------------------------------------------------------------------
@@ -244,72 +244,9 @@ void Variant_SetMethods::setMoney(int64_t value, unsigned scale)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setString(const char* value, size_t maxlen)
-{
-    uint32_t dtype = VAR_STRING;
-
-    if (dataType() == VAR_STRING && maxlen != 0 && m_data.getBuffer().size == maxlen + 1) {
-        if (value != nullptr) {
-            strncpy(m_data.getBuffer().data, value, maxlen);
-            m_data.getBuffer().data[maxlen] = 0;
-        } else {
-            m_data.getBuffer().data[0] = 0;
-            dtype |= VAR_NULL;
-        }
-    } else {
-        releaseBuffers();
-
-        if (value != nullptr) {
-            if (maxlen != 0) {
-                dataSize(maxlen);
-                m_data.getBuffer().size = maxlen + 1;
-                m_data.getBuffer().data = new char[m_data.getBuffer().size];
-                if (m_data.getBuffer().data != nullptr) {
-                    strncpy(m_data.getBuffer().data, value, maxlen);
-                    m_data.getBuffer().data[maxlen] = 0;
-                }
-            } else {
-                dataSize(strlen(value));
-                dtype &= VAR_TYPES | VAR_EXTERNAL_BUFFER;
-                m_data.getBuffer().size = dataSize() + 1;
-                m_data.getBuffer().data = new char[m_data.getBuffer().size];
-                strncpy(m_data.getBuffer().data, value, m_data.getBuffer().size);
-            }
-        } else {
-            m_data.getBuffer().data = nullptr;
-            dataSize(0);
-            m_data.getBuffer().size = 0;
-            dtype |= VAR_NULL;
-        }
-    }
-
-    setDataType(dtype);
-}
-
-//---------------------------------------------------------------------------
 void Variant_SetMethods::setString(const String& value)
 {
-    setString(value.c_str(), value.length());
-}
-
-//---------------------------------------------------------------------------
-void Variant_SetMethods::setText(const String& value)
-{
-    releaseBuffers();
-    setDataType(VAR_TEXT);
-    size_t vlen = value.length();
-
-    if (vlen != 0) {
-        dataSize(vlen);
-        m_data.getBuffer().size = vlen + 1;
-        m_data.getBuffer().data = new char[m_data.getBuffer().size];
-        strncpy(m_data.getBuffer().data, value.c_str(), m_data.getBuffer().size);
-    } else {
-        m_dataType |= VAR_NULL;
-        m_data.getBuffer().data = nullptr;
-        m_data.getBuffer().size = 0;
-        dataSize(0);
-    }
+    setBuffer(value.c_str(), value.length(), VAR_STRING);
 }
 
 //---------------------------------------------------------------------------
@@ -328,11 +265,13 @@ void Variant_SetMethods::setBuffer(const void* value, size_t sz, VariantType typ
             dataSize(sz);
             setDataType(type | VAR_EXTERNAL_BUFFER);
         } else {
-            m_data.getBuffer().size = sz;
+            m_data.getBuffer().size = sz + 1;
             dataSize(sz);
-            m_data.getBuffer().data = new char[sz];
-            if (m_data.getBuffer().data != nullptr && value != nullptr)
+            m_data.getBuffer().data = new char[sz + 1];
+            if (m_data.getBuffer().data != nullptr && value != nullptr) {
                 memcpy(m_data.getBuffer().data, value, sz);
+                m_data.getBuffer().data[sz] = 0;
+            }
         }
     } else
         setNull();
@@ -418,15 +357,15 @@ void Variant_SetMethods::setData(const BaseVariant& C)
             break;
 
         case VAR_STRING:
-            setString(C.getString(), C.dataSize());
+            setBuffer(C.getString(), C.dataSize(), VAR_STRING);
             break;
 
         case VAR_TEXT:
-            setText(C.getText());
+            setBuffer(C.getText(), strlen(C.getText()), VAR_TEXT);
             break;
 
         case VAR_BUFFER:
-            setBuffer(C.getBuffer(), C.dataSize(), VAR_DATE_TIME, false);
+            setBuffer(C.getBuffer(), C.dataSize(), VAR_BUFFER);
             break;
 
         case VAR_DATE:
@@ -499,7 +438,7 @@ Variant& Variant::operator=(const char* value)
 //---------------------------------------------------------------------------
 Variant& Variant::operator=(const String& value)
 {
-    setString(value.c_str(), value.length());
+    setBuffer(value.c_str(), value.length(), VAR_STRING);
     return *this;
 }
 
@@ -520,7 +459,7 @@ Variant& Variant::operator=(const void* value)
 //---------------------------------------------------------------------------
 Variant& Variant::operator=(const Buffer& value)
 {
-    setBuffer(value.data(), value.bytes(), VAR_DATE_TIME, false);
+    setBuffer(value.data(), value.bytes(), VAR_BUFFER, false);
     return *this;
 }
 
@@ -1223,12 +1162,15 @@ TEST(SPTK_Variant, toString)
     Variant v2(2.22);
     Variant v3("Test");
     Variant v4(testDate);
+    Variant v5;
+
+    v5.setDateTime(testDate, true);
 
     EXPECT_STREQ("1", v1.asString().c_str());
     EXPECT_STREQ("2.22", v2.asString().c_str());
     EXPECT_STREQ("Test", v3.asString().c_str());
-    EXPECT_STREQ("2018-02-01T09:11:14.345Z",
-                 v4.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_STREQ("01/02/18 20:11:14", v4.asString().c_str());
+    EXPECT_STREQ("01/02/18", v5.asString().c_str());
 }
 
 #endif

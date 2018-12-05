@@ -192,7 +192,7 @@ public:
      */
     virtual WSString& operator=(const sptk::String& value) override
     {
-        setString(value.c_str(), (uint32_t) value.length());
+        setBuffer(value.c_str(), value.length(), VAR_STRING);
         return *this;
     }
 
@@ -201,7 +201,7 @@ public:
      */
     virtual WSString& operator=(const Buffer& value) override
     {
-        setBuffer(value.data(), value.bytes(), VAR_DATE_TIME, false);
+        setBuffer(value.data(), value.bytes(), VAR_BUFFER, false);
         return *this;
     }
 

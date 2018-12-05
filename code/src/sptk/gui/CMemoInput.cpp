@@ -104,7 +104,7 @@ void CMemoInput::save(Query* updateQuery)
     if (m_fieldName.empty())
         return;
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
-    param.setText(data().getString());
+    param.setBuffer(data().getString(), strlen(data().getString()), VAR_TEXT);
 }
 
 bool CMemoInput::preferredSize(int& w, int& h)
