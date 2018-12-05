@@ -262,6 +262,8 @@ class SP_EXPORT Query: public Query_StatementManagement
     friend class PoolDatabaseConnection;
     friend class PoolDatabaseConnection_QueryMethods;
 
+protected:
+
     /**
      * List of query parameters
      */
@@ -271,8 +273,6 @@ class SP_EXPORT Query: public Query_StatementManagement
      * List of query fields - makes sense after fetch
      */
     FieldList               m_fields;
-
-protected:
 
     /**
      * Executes a statement

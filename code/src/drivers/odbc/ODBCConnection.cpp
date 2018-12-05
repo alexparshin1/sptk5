@@ -41,7 +41,7 @@ using namespace sptk;
 namespace sptk
 {
 
-class ODBCField : public DatabaseField
+class CODBCField : public DatabaseField
 {
     friend class ODBCConnection;
 
@@ -52,7 +52,7 @@ protected:
     }
 
 public:
-    ODBCField(const string& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale)
+    CODBCField(const string& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale)
     : DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
     {
     }
@@ -517,7 +517,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
         if (dataType == VAR_FLOAT && (columnScale < 0 || columnScale > 20))
             columnScale = 0;
 
-        Field* field = new ODBCField(columnNameStr.str(), column, cType, dataType, (int) columnLength, (int) columnScale);
+        Field* field = new CODBCField(columnNameStr.str(), column, cType, dataType, (int) columnLength, (int) columnScale);
         query->fields().push_back(field);
     }
 }
@@ -609,7 +609,10 @@ SQLRETURN ODBCConnection::readTimestampField(SQLHSTMT statement, DatabaseField* 
     SQLRETURN rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, (SQLPOINTER) &t, 0, &dataLength);
     if (dataLength > 0) {
         DateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
-        field->setDateTime(dt, field->dataType() == VAR_DATE);
+        if (field->dataType() == VAR_DATE)
+            field->setDateTime(dt, true);
+        else
+            field->setDateTime(dt, false);
     }
     return rc;
 }
@@ -640,10 +643,10 @@ void ODBCConnection::queryFetch(Query* query)
     if (fieldCount == 0)
         return;
 
-    ODBCField* field = nullptr;
+    CODBCField* field = nullptr;
     for (unsigned column = 0; column < fieldCount;)
         try {
-            field = (ODBCField*) &(*query)[column];
+            field = (CODBCField*) &(*query)[column];
             auto fieldType = (int16_t) field->fieldType();
             char* buffer = field->getData();
 
@@ -683,7 +686,7 @@ void ODBCConnection::queryFetch(Query* query)
                 dataLength = (SQLINTEGER) trimField(buffer, (uint32_t) dataLength);
 
             if (dataLength <= 0)
-                field->setNull(field->dataType());
+                field->setNull(VAR_NONE);
             else
                 field->dataSize((size_t)dataLength);
         } catch (Exception& e) {

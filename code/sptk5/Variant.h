@@ -138,11 +138,6 @@ class SP_EXPORT BaseVariant
 {
     friend class Variant_SetMethods;
 
-    /**
-     * Data type
-     */
-    uint16_t                m_dataType;
-
 protected:
 
     /**
@@ -156,18 +151,19 @@ protected:
     size_t                  m_dataSize {0};
 
     /**
+     * Data type
+     */
+    uint16_t                m_dataType;
+
+    /**
      * Releases allocated buffer (if any)
      */
     void releaseBuffers();
 
     /**
-     * Sets the data type and necessary flags
-     * @param type               Data type
+     * Sets the data type
      */
-    void setDataType(uint32_t type)
-    {
-        m_dataType = type;
-    }
+    void dataType(uint32_t dt);
 
     bool isExternalBuffer() const
     {
@@ -184,10 +180,7 @@ public:
     /**
      * Returns the data type
      */
-    VariantType dataType() const
-    {
-        return (VariantType) (m_dataType & VAR_TYPES);
-    }
+    VariantType dataType() const;
 
     /**
      * Returns the data size
@@ -211,6 +204,12 @@ public:
     void* dataBuffer() const;
 
     /**
+     * Null flag
+     *
+     * Returns true if the NULL state is set
+     */
+    bool isNull() const;
+    /**
      * Returns a name for a particular variant type
      * @param type              Variant type
      */
@@ -221,13 +220,6 @@ public:
      * @param name              Variant type name
      */
     static VariantType nameType(const char* name);
-
-    /**
-     * Null flag
-     *
-     * @return true if the NULL state is set
-     */
-    bool isNull() const;
 
 protected:
 
@@ -377,10 +369,19 @@ public:
      *
      * Useful for the database operations.
      * Releases the memory allocated for string/text/blob types.
+     * Retains the data type. Sets the data to zero(s).
+     */
+    virtual void setNull() { setNull(VAR_NONE); }
+
+    /**
+     * Sets the NULL state
+     *
+     * Useful for the database operations.
+     * Releases the memory allocated for string/text/blob types.
      * Sets the data to zero(s).
      * @param vtype             Optional variant type to enforce
      */
-    virtual void setNull(VariantType vtype=VAR_NONE);
+    virtual void setNull(VariantType vtype);
 };
 
 class SP_EXPORT Variant_Adaptors : public Variant_SetMethods

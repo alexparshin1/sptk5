@@ -83,16 +83,6 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/kafka/KafkaClient.h">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/mqtt/MQTTClient.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/mqtt/MQTTFrame.cpp">
           <value>
             <set />
@@ -134,11 +124,6 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Configuration/Configuration.h">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Configuration/ConfigurationObject.cpp">
           <value>
             <set />
           </value>
@@ -303,16 +288,6 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/InsertQuery.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/InsertQuery.h">
-          <value>
-            <set />
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/JWTManager.cpp">
           <value>
             <set />
@@ -328,11 +303,6 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestDataProcess.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestExecuteTask.cpp">
           <value>
             <set />
@@ -343,17 +313,7 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestExecuteThreadPool.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestState.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestThread.cpp">
           <value>
             <set />
           </value>
@@ -998,7 +958,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/FirebirdConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/db/FirebirdStatement.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/MySQLConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/MySQLStatement.h">
           <value>
             <set />
           </value>
@@ -1034,6 +1009,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/db/Query.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/QueryParameter.h">
           <value>
             <set />
           </value>
@@ -1194,6 +1174,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/net/BaseSocket.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/net/Host.h">
           <value>
             <set />
           </value>
@@ -1754,11 +1739,6 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/net/BaseSocket.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/net/CachedSSLContext.cpp">
           <value>
             <set />
           </value>

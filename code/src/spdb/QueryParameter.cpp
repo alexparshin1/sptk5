@@ -135,5 +135,5 @@ void QueryParameter::setString(const char * value, size_t maxlen)
             dtype |= VAR_NULL;
         }
     }
-    setDataType((VariantType) dtype);
+    dataType((VariantType) dtype);
 }
