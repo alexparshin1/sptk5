@@ -90,12 +90,17 @@ class SP_EXPORT Query_StatementManagement: public DataSource
      */
     Strings                 m_messages;
 
-protected:
-
     /**
      * Database connection
      */
     PoolDatabaseConnection* m_db {nullptr};
+
+protected:
+
+    /**
+     * @brief Set database (internal)
+     */
+    void setDatabase(PoolDatabaseConnection* db);
 
     /**
      * @brief Returns query statement handle
@@ -248,6 +253,22 @@ public:
      */
     void disconnect();
 
+    /**
+     * @brief Returns the database the query is connected to
+     */
+    PoolDatabaseConnection *database() const
+    {
+        return m_db;
+    }
+
+    /**
+     * @brief Connects the query to the database different database.
+     */
+    void database(PoolDatabaseConnection *db)
+    {
+        connect(db);
+    }
+
 };
 
 /**
@@ -334,9 +355,9 @@ public:
     Query(PoolDatabaseConnection *db, const String& sql = "", bool autoPrepare = true);
 
     /**
-     * @brief Copy constructor
+     * @brief Deleted copy constructor
      */
-    Query(const Query&);
+    Query(const Query&) = delete;
 
     /**
      * @brief Destructor
@@ -540,22 +561,6 @@ public:
      * then the db statement is released and new one is created.
      */
     virtual void sql(const String& _sql);
-
-    /**
-     * @brief Returns the database the query is connected to
-     */
-    PoolDatabaseConnection *database() const
-    {
-        return m_db;
-    }
-
-    /**
-     * @brief Connects the query to the database different database.
-     */
-    void database(PoolDatabaseConnection *db)
-    {
-        connect(db);
-    }
 
     /**
      * @brief Throws an exception

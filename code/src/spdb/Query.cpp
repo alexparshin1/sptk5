@@ -33,6 +33,11 @@
 using namespace std;
 using namespace sptk;
 
+void Query_StatementManagement::setDatabase(PoolDatabaseConnection* db)
+{
+    m_db = db;
+}
+
 bool Query_StatementManagement::bulkMode() const
 {
     return m_bulkMode;
@@ -40,8 +45,8 @@ bool Query_StatementManagement::bulkMode() const
 
 void Query_StatementManagement::freeStmt()
 {
-    if (m_db != nullptr && statement() !=nullptr) {
-        m_db->queryFreeStmt((Query*)this);
+    if (database() != nullptr && statement() !=nullptr) {
+        database()->queryFreeStmt((Query*)this);
         setPrepared(false);
         setActive(false);
     }
@@ -49,8 +54,8 @@ void Query_StatementManagement::freeStmt()
 
 void Query_StatementManagement::closeStmt()
 {
-    if (m_db != nullptr && statement() !=nullptr) {
-        m_db->queryCloseStmt((Query*)this);
+    if (database() != nullptr && statement() !=nullptr) {
+        database()->queryCloseStmt((Query*)this);
         setActive(false);
     }
 }
@@ -73,8 +78,8 @@ void Query_StatementManagement::prepare()
         throw DatabaseException("Can't prepare this statement");
     if (prepared())
         return;
-    if (m_db != nullptr && statement() !=nullptr) {
-        m_db->queryPrepare((Query*)this);
+    if (database() != nullptr && statement() !=nullptr) {
+        database()->queryPrepare((Query*)this);
         setPrepared(true);
     }
 }
@@ -83,8 +88,8 @@ void Query_StatementManagement::unprepare()
 {
     if (!prepared())
         return;
-    if (m_db != nullptr && statement() !=nullptr) {
-        m_db->queryUnprepare((Query*)this);
+    if (database() != nullptr && statement() !=nullptr) {
+        database()->queryUnprepare((Query*)this);
         setPrepared(false);
         setActive(false);
     }
@@ -97,26 +102,26 @@ void Query_StatementManagement::notImplemented(const String& functionName) const
 
 void Query_StatementManagement::connect(PoolDatabaseConnection* _db)
 {
-    if (m_db == _db)
+    if (database() == _db)
         return;
     disconnect();
-    m_db = _db;
-    m_db->linkQuery((Query*)this);
+    setDatabase(_db);
+    database()->linkQuery((Query*)this);
 }
 
 void Query_StatementManagement::disconnect()
 {
     closeQuery(true);
-    if (m_db != nullptr)
-        m_db->unlinkQuery((Query*)this);
-    m_db = nullptr;
+    if (database() != nullptr)
+        database()->unlinkQuery((Query*)this);
+    setDatabase(nullptr);
 }
 
 void Query::execute()
 {
-    if (m_db != nullptr && statement() !=nullptr) {
+    if (database() != nullptr && statement() !=nullptr) {
         messages().clear();
-        m_db->queryExecute(this);
+        database()->queryExecute(this);
     }
 }
 
@@ -126,40 +131,24 @@ Query::Query() noexcept
 {
 }
 
-Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare)
+Query::Query(DatabaseConnection db, const String& sql, bool autoPrepare)
 : Query_StatementManagement(autoPrepare), m_fields(true)
 {
-    if (_db) {
-        m_db = _db->connection();
-        m_db->linkQuery(this);
-    } else {
-        m_db = nullptr;
+    if (db) {
+        setDatabase(db->connection());
+        database()->linkQuery(this);
     }
-    Query::sql(_sql);
+    Query::sql(sql);
 }
 
-Query::Query(PoolDatabaseConnection* _db, const String& _sql, bool autoPrepare)
+Query::Query(PoolDatabaseConnection* db, const String& sql, bool autoPrepare)
 : Query_StatementManagement(autoPrepare), m_fields(true)
 {
-    if (_db != nullptr) {
-        m_db = _db;
-        m_db->linkQuery(this);
-    } else {
-        m_db = nullptr;
+    if (db != nullptr) {
+        setDatabase(db);
+        database()->linkQuery(this);
     }
-    Query::sql(_sql);
-}
-
-Query::Query(const Query& srcQuery)
-: Query_StatementManagement(srcQuery), m_fields(true)
-{
-    if (srcQuery.m_db != nullptr) {
-        m_db = srcQuery.m_db;
-        m_db->linkQuery(this);
-    } else
-        m_db = nullptr;
-
-    Query::sql(srcQuery.sql());
+    Query::sql(sql);
 }
 
 Query::~Query()
@@ -170,8 +159,8 @@ Query::~Query()
     catch (const Exception& e) {
         CERR(e.what() << endl);
     }
-    if (m_db != nullptr)
-        m_db->unlinkQuery(this);
+    if (database() != nullptr)
+        database()->unlinkQuery(this);
 }
 
 void Query::sql(const String& _sql)
@@ -258,9 +247,9 @@ void Query::sql(const String& _sql)
                 m_params.add(param);
             }
             param->bindAdd(uint32_t(paramNumber));
-            if (m_db == nullptr)
+            if (database() == nullptr)
                 throw DatabaseException("Query isn't connected to the database");
-            sql += m_db->paramMark(uint32_t(paramNumber));
+            sql += database()->paramMark(uint32_t(paramNumber));
             paramNumber++;
 
             break;
@@ -284,18 +273,18 @@ void Query::sql(const String& _sql)
 
 bool Query::open()
 {
-    if (m_db == nullptr)
+    if (database() == nullptr)
         throw DatabaseException("Query is not connected to the database", __FILE__, __LINE__, sql());
 
     try {
-        m_db->queryOpen(this);
+        database()->queryOpen(this);
     }
     catch (const DatabaseException& e) {
         if (strstr(e.what(), "connection") == nullptr)
             throw;
-        m_db->close();
-        m_db->open();
-        m_db->queryOpen(this);
+        database()->close();
+        database()->open();
+        database()->queryOpen(this);
     }
 
     return true;
@@ -303,10 +292,10 @@ bool Query::open()
 
 void Query::fetch()
 {
-    if (m_db == nullptr || !active())
+    if (database() == nullptr || !active())
         throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, sql());
 
-    m_db->queryFetch(this);
+    database()->queryFetch(this);
 }
 
 bool Query::readField(const char*, Variant&)
