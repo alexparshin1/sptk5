@@ -50,7 +50,15 @@ void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message
             xml::Node* bodyElement = message.findFirst("soap:Body");
             if (bodyElement == nullptr)
                 throw Exception("Can't find soap:Body in service response");
-            xml::Node* methodElement = *bodyElement->begin();
+            xml::Node* methodElement = nullptr;
+            for (auto* node: *bodyElement) {
+                if (node->isElement()) {
+                    methodElement = node;
+                    break;
+                }
+            }
+            if (methodElement == nullptr)
+                throw Exception("Can't find soap method in service response");
             json::Document jsonOutput;
             auto* jsonResponse = jsonOutput.root().set_object("response");
             methodElement->exportTo(*jsonResponse);
@@ -75,6 +83,12 @@ void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message
 
 void WSWebServiceProtocol::process()
 {
+    String contentType = "text/xml; charset=utf-8";
+    auto ctor = m_headers.find("Content-Type");
+    if (ctor != m_headers.end())
+        contentType = ctor->second;
+    bool requestIsJSON = contentType.startsWith("application/json");
+
     size_t contentLength = 0;
     auto itor = m_headers.find("Content-Length");
     if (itor != m_headers.end())
@@ -137,10 +151,13 @@ void WSWebServiceProtocol::process()
     while ((unsigned char)*startOfMessage < 33)
         startOfMessage++;
 
+    Buffer output;
+    size_t httpStatusCode = 200;
+    String httpStatusText = "OK";
+
     xml::Document message;
     json::Document jsonContent;
 
-    bool requestIsJSON = false;
     if (*startOfMessage == '<') {
         if (endOfMessage != nullptr)
             *(char*) endOfMessage = 0;
@@ -153,7 +170,6 @@ void WSWebServiceProtocol::process()
         xmlRequest->exportTo(*jsonEnvelope);
     }
     else if (*startOfMessage == '{' || *startOfMessage == '[') {
-        requestIsJSON = true;
         Strings url(m_url, "/");
         if (url.size() < 2)
             throw Exception("Invalid url");
@@ -164,18 +180,18 @@ void WSWebServiceProtocol::process()
         auto*  xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
         jsonContent.load(startOfMessage);
         jsonContent.root().exportTo("ns1:" + method, *xmlBody);
-        Buffer buffer;
-        message.save(buffer, true);
     }
-    else
-        throw Exception("Request content isn't XML or JSON");
+    else {
+        httpStatusCode = 400;
+        httpStatusText = "Bad Request";
+        if (requestIsJSON)
+            output.set(R"({ "error": "Expected JSON content" })");
+        else
+            output.set(R"(<?xml><error>Expected XML content</error>)");
+    }
 
-    Buffer output;
-    size_t httpStatusCode = 200;
-    String httpStatusText = "OK";
-    String contentType = "text/xml; charset=utf-8";
-
-    processMessage(output, message, authentication, requestIsJSON, httpStatusCode, httpStatusText, contentType);
+    if (httpStatusCode < 400)
+        processMessage(output, message, authentication, requestIsJSON, httpStatusCode, httpStatusText, contentType);
 
     stringstream response;
     response << "HTTP/1.1 " << httpStatusCode << " " << httpStatusText << "\n"
