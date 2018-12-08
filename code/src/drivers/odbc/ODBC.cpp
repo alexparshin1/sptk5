@@ -220,6 +220,8 @@ void ODBCConnectionBase::execQuery(const char* query)
 {
     SQLHSTMT hstmt = SQL_NULL_HSTMT;
 
+    lock_guard<mutex> lock(m_mutex);
+
     // Allocate Statement Handle
     if (!Successful(SQLAllocHandle(SQL_HANDLE_STMT, m_hConnection, &hstmt)))
         throw Exception("Can't allocate handle");
@@ -239,8 +241,6 @@ void ODBCConnectionBase::transact(UWORD fType)
 {
     if (!isConnected())
         exception(string(cantEndTranscation) + "Not connected to the database", __LINE__);
-
-    lock_guard<mutex> lock(m_mutex);
 
     if (fType == SQL_COMMIT)
         execQuery("COMMIT");

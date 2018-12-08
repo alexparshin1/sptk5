@@ -31,24 +31,30 @@
 using namespace std;
 using namespace sptk;
 
-Runable::Runable() 
-: m_terminated(false)
+Runable::Runable(const String& name)
+: m_terminated(false), m_name(name)
 {
 }
 
 void Runable::execute()
 {
-    m_terminated = false;
-    lock_guard<mutex> lock(m_running);
+    setTerminated(false);
     run();
 }
 
 void Runable::terminate()
 {
-    m_terminated.store(true);
+    setTerminated(true);
 }
 
-bool Runable::terminated()
+bool Runable::terminated() const
 {
-    return m_terminated.load();
+    SharedLock(m_mutex);
+    return m_terminated;
+}
+
+void Runable::setTerminated(bool terminated)
+{
+    UniqueLock(m_mutex);
+    m_terminated = terminated;
 }

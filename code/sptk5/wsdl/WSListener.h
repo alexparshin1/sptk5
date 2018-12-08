@@ -108,10 +108,11 @@ public:
      * @param wsRequestPage         WSDL request page name
      * @param hostname              This service hostname
      * @param encrypted             True if communication is encrypted
+     * @param threadCount           Max number of simultaneously running requests
      */
     WSListener(WSRequest& service, LogEngine& logger, const String& staticFilesDirectory,
-               const String& indexPage, const String& wsRequestPage, const String& hostname,
-               bool encrypted);
+               const String& indexPage, const String& wsRequestPage, const String& hostname, bool encrypted,
+               size_t threadCount=16);
  };
 
 /**

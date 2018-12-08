@@ -50,10 +50,11 @@ class TCPServerConnection: public ServerConnection
 public:
     /**
      * @brief Constructor
-     * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
+     * @param server            TCP server
+     * @param connectionSocket  Already accepted by accept() function incoming connection socket
      */
-    explicit TCPServerConnection(SOCKET connectionSocket)
-    : ServerConnection(connectionSocket, "TCPServerConnection")
+    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket)
+    : ServerConnection(server, connectionSocket, "TCPServerConnection")
     {
         setSocket(new TCPSocket);
         socket().attach(connectionSocket);

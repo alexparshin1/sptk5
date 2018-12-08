@@ -43,7 +43,7 @@ namespace sptk
  */
 
 /**
- * @brief Abstract runable object.
+ * Abstract runable object.
  *
  * Should be used for deriving a user class for executing by a worker
  * thread in a thread pool. Derived class must override run() method.
@@ -51,20 +51,26 @@ namespace sptk
 class SP_EXPORT Runable
 {
     /**
-     * Flag: is the task sent terminate request?
-     */
-    std::atomic_bool    m_terminated;
-
-    /**
      * Synchronized object locked while the task running
      */
-    std::mutex          m_running;
+    mutable SharedMutex m_mutex;
 
+    /**
+     * Flag: is the task sent terminate request?
+     */
+    bool                m_terminated;
+
+    /**
+     * Name
+     */
+    String              m_name;
+
+    void setTerminated(bool terminated);
 
 protected:
 
     /**
-     * @brief Method that is executed by worker thread
+     * Method that is executed by worker thread
      *
      * Should be overwritten by derived class.
      */
@@ -73,17 +79,17 @@ protected:
 public:
 
     /**
-     * @brief Default Constructor
+     * Default Constructor
      */
-    Runable();
+    Runable(const String& name);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~Runable() = default;
 
     /**
-     * @brief Executes task' run method
+     * Executes task' run method
      *
      * Task may be executed multiple times, but only one caller
      * may execute same task at a time.
@@ -91,14 +97,20 @@ public:
     void execute();
 
     /**
-     * @brief Requests execution termination
+     * Requests execution termination
      */
-    void terminate();
+    virtual void terminate();
 
     /**
-     * @brief Returns true if terminate request is sent to runable
+     * Returns true if terminate request is sent to runable
      */
-    bool terminated();
+    bool terminated() const;
+
+    String name() const
+    {
+        SharedLock(m_mutex);
+        return m_name;
+    }
 };
 /**
  * @}

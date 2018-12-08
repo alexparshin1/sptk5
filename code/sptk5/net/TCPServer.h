@@ -34,6 +34,7 @@
 #include <set>
 #include <iostream>
 #include <sptk5/threads/SynchronizedQueue.h>
+#include <sptk5/threads/ThreadPool.h>
 
 namespace sptk
 {
@@ -50,7 +51,7 @@ class TCPServerListener;
  *
  * For every incoming connection, creates connection thread.
  */
-class TCPServer : public Thread
+class TCPServer : public ThreadPool
 {
     friend class TCPServerListener;
     friend class ServerConnection;
@@ -70,21 +71,6 @@ class TCPServer : public Thread
      */
     Logger*                                 m_logger;
 
-    /**
-     * Per-connection thread set
-     */
-    std::set<ServerConnection*>             m_connectionThreads;
-
-    /**
-     * Per-connection thread set
-     */
-    SynchronizedQueue<ServerConnection*>    m_completedConnectionThreads;
-
-    /**
-     * Lock to protect per-connection thread set manipulations
-     */
-    mutable SharedMutex                     m_connectionThreadsLock;
-
 protected:
     /**
      * @brief Screens incoming connection request
@@ -96,7 +82,7 @@ protected:
     virtual bool allowConnection(sockaddr_in* connectionRequest);
 
     /**
-     * @brief Creates connection thread derived from CTCPServerConnection or CSSLServerConnection
+     * @brief Creates connection thread derived from TCPServerConnection or SSLServerConnection
      *
      * Application should override this method to create concrete connection object.
      * Created connection object is maintained by CTCPServer.
@@ -105,36 +91,11 @@ protected:
      */
     virtual ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
 
-    /**
-     * @brief Receives notification on connection thread created
-     * @param connection        Newly created connection thread
-     */
-    void registerConnection(ServerConnection* connection);
-
-    /**
-     * @brief Receives notification on connection thread exited
-     *
-     * Connection thread is self-destructing immediately after exiting this method
-     * @param connection        Exited connection thread
-     */
-    void unregisterConnection(ServerConnection* connection);
-
-    /**
-     * Server thread function.
-     * Cleans up completed connections.
-     */
-    void threadFunction() override;
-
-    /*
-     * Custom terminate function.
-     */
-    void terminate() override;
-
 public:
     /**
      * @brief Constructor
      */
-    explicit TCPServer(Logger* logger=NULL);
+    explicit TCPServer(const String& listenerName, size_t threadLimit, Logger* logger=NULL);
 
     /**
      * @brief Destructor

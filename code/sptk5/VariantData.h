@@ -147,7 +147,8 @@ public:
 
     void setImagePtr(void* ptr)             ///< Image pointer
     {
-        memcpy(m_data, ptr, sizeof(ptr));
+        size_t ptrSize = sizeof(ptr);
+        memcpy(m_data, ptr, ptrSize);
     }
 
     MoneyData& getMoneyData()       ///< Money data

@@ -49,10 +49,11 @@ class SSLServerConnection: public ServerConnection
 public:
     /**
      * @brief Constructor
-     * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
+     * @param server             TCP server
+     * @param connectionSocket   SOCKET, Already accepted by accept() function incoming connection socket
      */
-    SSLServerConnection(SOCKET connectionSocket)
-    : ServerConnection(connectionSocket, "SSLServerConnection")
+    SSLServerConnection(TCPServer& server, SOCKET connectionSocket)
+    : ServerConnection(server, connectionSocket, "SSLServerConnection")
     {
         setSocket(new SSLSocket);
         socket().attach(connectionSocket);

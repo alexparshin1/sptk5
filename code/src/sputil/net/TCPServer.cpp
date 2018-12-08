@@ -36,10 +36,9 @@
 using namespace std;
 using namespace sptk;
 
-TCPServer::TCPServer(Logger* logger)
-: Thread("TCPServer"), m_listenerThread(nullptr), m_logger(logger)
+TCPServer::TCPServer(const String& listenerName, size_t threadLimit, Logger* logger)
+: ThreadPool(threadLimit, std::chrono::seconds(60), listenerName), m_listenerThread(nullptr), m_logger(logger)
 {
-    run();
 }
 
 TCPServer::~TCPServer()
@@ -56,12 +55,16 @@ uint16_t TCPServer::port() const
 
 void TCPServer::listen(uint16_t port)
 {
+    if (!running())
+        run();
+
     UniqueLock(m_mutex);
     if (m_listenerThread != nullptr) {
         m_listenerThread->terminate();
         m_listenerThread->join();
         delete m_listenerThread;
     }
+
     m_listenerThread = new TCPServerListener(this, port);
     m_listenerThread->listen();
     m_listenerThread->run();
@@ -75,24 +78,7 @@ bool TCPServer::allowConnection(sockaddr_in*)
 void TCPServer::stop()
 {
     UniqueLock(m_mutex);
-    {
-        UniqueLock(m_connectionThreadsLock);
-        for (auto* connectionThread: m_connectionThreads)
-            connectionThread->terminate();
-    }
-
-    while (true) {
-        this_thread::sleep_for(chrono::milliseconds(100));
-        UniqueLock(m_connectionThreadsLock);
-        if (m_connectionThreads.empty())
-            break;
-    }
-
-    while (!m_completedConnectionThreads.empty()) {
-        ServerConnection* connection;
-        if (m_completedConnectionThreads.pop(connection, chrono::milliseconds(100)))
-            delete connection;
-    }
+    ThreadPool::stop();
 
     if (m_listenerThread != nullptr) {
         m_listenerThread->terminate();
@@ -100,38 +86,6 @@ void TCPServer::stop()
         delete m_listenerThread;
         m_listenerThread = nullptr;
     }
-    terminate();
-    join();
-}
-
-void TCPServer::registerConnection(ServerConnection* connection)
-{
-    UniqueLock(m_connectionThreadsLock);
-    m_connectionThreads.insert(connection);
-    connection->m_server = this;
-}
-
-void TCPServer::unregisterConnection(ServerConnection* connection)
-{
-    UniqueLock(m_connectionThreadsLock);
-    m_connectionThreads.erase(connection);
-    m_completedConnectionThreads.push(connection);
-}
-
-void TCPServer::threadFunction()
-{
-    chrono::seconds timeout(1);
-    while (!terminated()) {
-        ServerConnection* connection;
-        if (m_completedConnectionThreads.pop(connection, timeout))
-            delete connection;
-    }
-}
-
-void TCPServer::terminate()
-{
-    m_completedConnectionThreads.wakeup();
-    Thread::terminate();
 }
 
 #if USE_GTEST
@@ -142,8 +96,8 @@ void TCPServer::terminate()
 class EchoConnection : public TCPServerConnection
 {
 public:
-    EchoConnection(SOCKET connectionSocket, sockaddr_in*)
-    : TCPServerConnection(connectionSocket)
+    EchoConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*)
+    : TCPServerConnection(server, connectionSocket)
     {
     }
 
@@ -159,7 +113,7 @@ public:
     /**
      * Connection thread function
      */
-    void threadFunction() override
+    void run() override
     {
         Buffer data;
         while (!terminated()) {
@@ -187,12 +141,12 @@ protected:
 
     sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override
     {
-        return new EchoConnection(connectionSocket, peer);
+        return new EchoConnection(*this, connectionSocket, peer);
     }
 
 public:
 
-    EchoServer() {}
+    EchoServer() : TCPServer("EchoServer", 16) {}
 
 };
 
@@ -206,18 +160,21 @@ TEST(SPTK_TCPServer, minimal)
     TCPSocket socket;
     ASSERT_NO_THROW(socket.open(Host("localhost:3000")));
 
-    Strings words("Hello, World!\n"
+    Strings rows("Hello, World!\n"
                   "This is a test of TCPServer class.\n"
                   "Using simple echo server to verify data flow.\n"
                   "The session is terminated when this row is received", "\n");
 
-    for (auto& word: words) {
-        socket.write(word + "\n");
+    int rowCount = 0;
+    for (auto& row: rows) {
+        socket.write(row + "\n");
         buffer.bytes(0);
         if (socket.readyToRead(chrono::seconds(3)))
             socket.readLine(buffer);
-        EXPECT_STREQ(word.c_str(), buffer.c_str());
+        EXPECT_STREQ(row.c_str(), buffer.c_str());
+        rowCount++;
     }
+    EXPECT_EQ(4, rowCount);
 
     socket.close();
 }

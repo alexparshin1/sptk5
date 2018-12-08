@@ -56,7 +56,8 @@ int main()
         int rc = gethostname(hostname, sizeof(hostname));
         if (rc != 0)
             throw SystemException("Can't get hostname");
-        WSListener server(request, log, "/var/lib/pgman/webapp", "index.html", "request", hostname, false);
+        WSListener server(request, log, "/var/lib/pgman/webapp", "index.html", "request", hostname, false,
+                          0);
         server.listen(8000);
         while (true)
             this_thread::sleep_for(chrono::milliseconds(1000));

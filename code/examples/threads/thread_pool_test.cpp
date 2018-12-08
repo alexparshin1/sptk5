@@ -36,7 +36,6 @@ SynchronizedQueue<int>  intQueue;
 
 class CMyTask : public Runable
 {
-    string       m_name; /// Task name, for distinguishing different tasks output
     Logger       m_log;  /// Task proxy log
 
     static uint32_t taskCount;
@@ -47,17 +46,12 @@ public:
 
     // The thread function.
     void run() override;
-
-    string name() const
-    {
-        return m_name;
-    }
 };
 
 uint32_t CMyTask::taskCount {1};
 
 CMyTask::CMyTask(SysLogEngine& sharedLog)
-: m_name("Task " + int2string(taskCount)),
+: Runable("Task " + int2string(taskCount)),
   m_log(sharedLog)
 {
     taskCount++;
@@ -85,7 +79,7 @@ int main()
         vector<CMyTask*> tasks;
 
         /// Thread manager controls tasks execution.
-        ThreadPool threadPool;
+        ThreadPool threadPool(16, std::chrono::milliseconds(), "test thread pool");
 
         /// Threads send messages through their own Logger objects.
         /// Multiple Logger objects can share same log object thread-safely.

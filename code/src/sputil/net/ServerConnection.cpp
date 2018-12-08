@@ -32,12 +32,28 @@
 using namespace std;
 using namespace sptk;
 
-void ServerConnection::onThreadExit()
+TCPSocket& ServerConnection::socket() const
 {
-    try {
-        m_server->unregisterConnection(this);
-    }
-    catch (const Exception& e) {
-        CERR(e.what() << endl);
-    }
+    return *m_socket;
+}
+
+void ServerConnection::setSocket(TCPSocket* socket)
+{
+    m_socket = socket;
+}
+
+TCPServer& ServerConnection::server() const
+{
+    return m_server;
+}
+
+ServerConnection::ServerConnection(TCPServer& server, SOCKET connectionSocket, const String& taskName)
+: Runable(taskName), m_server(server), m_socket(nullptr)
+{
+}
+
+ServerConnection::~ServerConnection()
+{
+    if (m_socket)
+        delete m_socket;
 }

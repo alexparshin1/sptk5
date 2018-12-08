@@ -55,21 +55,21 @@ Thread::Thread(const String& name)
 
 Thread::~Thread()
 {
-    if (m_thread.joinable()) {
-        m_pause.post();
-        m_terminated = true;
+    terminate();
+    if (m_thread.joinable())
         m_thread.join();
-    }
 }
 
 void Thread::terminate()
 {
+    UniqueLock(m_mutex);
     m_pause.post();
     m_terminated = true;
 }
 
 bool Thread::terminated()
 {
+    SharedLock(m_mutex);
     return m_terminated;
 }
 
@@ -86,7 +86,7 @@ void Thread::join()
 
 void Thread::run()
 {
-    lock_guard<std::mutex> lock(m_mutex);
+    UniqueLock(m_mutex);
     m_terminated = false;
     m_thread = thread(threadStart, (void *) this);
 }
@@ -99,6 +99,11 @@ bool Thread::sleep_for(std::chrono::milliseconds interval)
 bool Thread::sleep_until(DateTime timestamp)
 {
     return m_pause.sleep_until(timestamp);
+}
+
+bool Thread::running() const
+{
+    return m_thread.get_id() != (thread::id) 0;
 }
 
 #if USE_GTEST

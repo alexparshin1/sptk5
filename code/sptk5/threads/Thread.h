@@ -57,7 +57,7 @@ class SP_EXPORT Thread
     /**
      * Thread synchronization object
      */
-    std::mutex          m_mutex;
+    SharedMutex         m_mutex;
 
     /**
      * Thread name
@@ -72,7 +72,7 @@ class SP_EXPORT Thread
     /**
      * Flag: is the thread terminated?
      */
-    std::atomic_bool    m_terminated;
+    bool                m_terminated;
 
     /**
      * Pause object
@@ -102,6 +102,12 @@ public:
      * Starts the already created thread
      */
     void run();
+
+    /**
+     * Check thread status
+     * @return true if thread is running
+     */
+    bool running() const;
 
     /**
      * The thread function. Should be overwritten by the derived class.

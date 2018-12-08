@@ -273,6 +273,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/EurekaState.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Handlers/DBCommandHandler.cpp">
           <value>
             <set />
@@ -298,6 +303,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/NotificationThread.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/NotificationThread.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request.cpp">
           <value>
             <set />
@@ -309,6 +324,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestExecuteTask.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestExecuteThreadPool.cpp">
           <value>
             <set />
           </value>
@@ -938,6 +958,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/VariantData.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/db/AutoDatabaseConnection.h">
           <value>
             <set />
@@ -1248,6 +1273,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/threads/Runable.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/threads/SynchronizedList.h">
           <value>
             <set />
@@ -1273,6 +1303,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/threads/ThreadPool.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/threads/Timer.h">
           <value>
             <set />
@@ -1284,6 +1319,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/wsdl/WSComplexType.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/wsdl/WSListener.h">
           <value>
             <set />
           </value>
@@ -1379,6 +1419,16 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/drivers/odbc/CODBCConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/odbc/ODBC.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/odbc/ODBCConnection.cpp">
           <value>
             <set />
           </value>
@@ -1723,6 +1773,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/json/JsonDocument.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/jwt/JWT-openssl.cpp">
           <value>
             <set />
@@ -1823,6 +1878,21 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/threads/Runable.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/threads/Thread.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/threads/ThreadPool.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/xml/Attributes.cpp">
           <value>
             <set />
@@ -1869,6 +1939,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/wsdl/WSConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/WSListener.cpp">
           <value>
             <set />
           </value>
@@ -1954,6 +2029,11 @@
           </value>
         </entry>
         <entry key="/usr/local/include/sptk5/db/Query.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/net/SSLServerConnection.h">
           <value>
             <set />
           </value>

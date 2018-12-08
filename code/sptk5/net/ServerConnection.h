@@ -31,6 +31,7 @@
 
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/threads/Thread.h>
+#include <sptk5/threads/Runable.h>
 
 namespace sptk
 {
@@ -47,71 +48,41 @@ class TCPServer;
  *
  * Used a base class for CTCPServerConnection and COpenSSLServerConnection
  */
-class ServerConnection: public Thread
+class ServerConnection: public Runable
 {
     friend class TCPServer;
+
+    /**
+     * Parent server object
+     */
+    TCPServer&     m_server;
 
     /**
      * Connection socket
      */
     TCPSocket*     m_socket;
 
-    /**
-     * Parent server object
-     */
-    TCPServer*     m_server;
-
 protected:
 
-    TCPSocket& socket() const
-    {
-        return *m_socket;
-    }
+    TCPSocket& socket() const;
 
-    void setSocket(TCPSocket* socket)
-    {
-        m_socket = socket;
-    }
+    void setSocket(TCPSocket* socket);
 
-    TCPServer& server() const
-    {
-        return *m_server;
-    }
-
-    void setServer(TCPServer* server)
-    {
-        m_server = server;
-    }
+    TCPServer& server() const;
 
 public:
+
     /**
      * @brief Constructor
-     * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
-     * @param threadName std::string, Already accepted by accept() function incoming connection socket
+     * @param connectionSocket  Already accepted by accept() function incoming connection socket
+     * @param taskName          Task name
      */
-    ServerConnection(SOCKET connectionSocket, std::string threadName)
-    : Thread(threadName), m_socket(nullptr), m_server(nullptr)
-    {
-    }
+    ServerConnection(TCPServer& server, SOCKET connectionSocket, const String& taskName);
 
     /**
      * @brief Destructor
      */
-    virtual ~ServerConnection()
-    {
-        if (m_socket)
-            delete m_socket;
-    }
-
-    /**
-     * @brief Thread function
-     */
-    virtual void threadFunction() = 0;
-
-    /**
-     * @brief Method that is called upon thread exit
-     */
-    virtual void onThreadExit();
+    virtual ~ServerConnection();
 };
 
 /**

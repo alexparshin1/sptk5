@@ -97,19 +97,16 @@ void Document::load(const char* json)
 
 void Document::load(istream& json)
 {
-    stringstream    buffer;
-    string          row;
-    for (;;) {
-        getline(json, row);
-        if (json.eof()) {
-            buffer << row << "\n";
-            break;
-        }
-        if (!json.good())
-            throw Exception("Error reading JSON data from stream");
-        buffer << row << "\n";
-    }
-    load(buffer.str());
+    streampos       pos = json.tellg();
+    json.seekg (0, json.end);
+
+    streampos       length = json.tellg() - pos;
+    json.seekg (pos, json.beg);
+
+    Buffer buffer(length);
+    json.read(buffer.data(), length);
+    buffer.bytes(length);
+    load(buffer.c_str());
 }
 
 void Document::exportTo(std::ostream& stream, bool formatted) const

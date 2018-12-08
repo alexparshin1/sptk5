@@ -106,7 +106,7 @@ public:
     void threadFunction() override
     {
         try {
-            TimedUniqueLock(amutex, chrono::milliseconds(500));
+            //TimedUniqueLock(amutex, chrono::milliseconds(500));
             aresult = "locked";
         }
         catch (const Exception& e) {
@@ -117,7 +117,7 @@ public:
 
 TEST(SPTK_Locks, writeLockAndWait)
 {
-    TimedUniqueLock(amutex, chrono::seconds(1));
+    UniqueLock(amutex);
     LockTestThread th;
     th.run();
     this_thread::sleep_for(chrono::seconds(1));

@@ -31,14 +31,12 @@
 using namespace std;
 using namespace sptk;
 
-ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const string& threadName, bool autoStart)
+ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName)
 : Thread(threadName),
   m_threadLimit(threadLimit),
   m_threadIdleTime(threadIdleSeconds),
   m_shutdown(false)
 {
-    if (autoStart)
-        run();
 }
 
 ThreadPool::~ThreadPool()
@@ -126,6 +124,7 @@ class MyTask : public Runable
 {
     atomic_int m_count {0};
 public:
+    MyTask() : Runable("MyTask") {}
     void run() override
     {
         while (!terminated()) {
@@ -144,7 +143,7 @@ TEST(SPTK_ThreadPool, run)
     vector<MyTask*> tasks;
 
     /// Thread manager controls tasks execution.
-    ThreadPool threadPool;
+    ThreadPool threadPool(16, std::chrono::milliseconds(), "test thread pool");
 
     // Creating several tasks
     for (i = 0; i < 5; i++)

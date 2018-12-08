@@ -33,9 +33,10 @@ using namespace std;
 using namespace sptk;
 
 WSListener::WSListener(WSRequest& service, LogEngine& logger, const String& staticFilesDirectory,
-                       const String& indexPage, const String& wsRequestPage, const String& hostname,
-                       bool encrypted)
-: m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory),
+                       const String& indexPage, const String& wsRequestPage, const String& hostname, bool encrypted,
+                       size_t threadCount)
+: TCPServer(service.title(), threadCount, nullptr),
+  m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory),
   m_indexPage(indexPage.empty() ? "index.html" : indexPage),
   m_wsRequestPage(wsRequestPage.empty() ? "request" : wsRequestPage),
   m_encrypted(encrypted), m_hostname(hostname)
@@ -44,6 +45,7 @@ WSListener::WSListener(WSRequest& service, LogEngine& logger, const String& stat
 
 ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    return new WSSSLConnection(connectionSocket, peer, m_service, m_logger, m_staticFilesDirectory, m_indexPage,
+    return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_staticFilesDirectory,
+                               m_indexPage,
                                m_wsRequestPage, m_encrypted);
 }

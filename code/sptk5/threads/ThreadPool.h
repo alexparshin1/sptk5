@@ -110,11 +110,11 @@ public:
     /**
      * @brief Constructor
      * @param threadLimit       Maximum number of threads in this pool
-     * @param threadIdleTime    Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
+     * @param threadIdleSeconds    Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
      * @param threadName        Thread pool own threadName
      * @param autoStart         Start upon creation
      */
-    ThreadPool(uint32_t threadLimit=100, std::chrono::milliseconds threadIdleTime=std::chrono::seconds(600), const std::string& threadName="Thread Pool", bool autoStart=true);
+    ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName);
 
     /**
      * @brief Destructor

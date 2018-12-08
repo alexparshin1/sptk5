@@ -259,6 +259,7 @@ public:
      */
     bool isConnected() const
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_connected;
     }
 
@@ -272,6 +273,7 @@ public:
      */
     std::string connectString() const
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_connectString;
     }
 
@@ -280,6 +282,7 @@ public:
      */
     std::string driverDescription() const
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_driverDescription;
     }
 

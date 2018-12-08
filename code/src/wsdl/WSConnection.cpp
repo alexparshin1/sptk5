@@ -31,10 +31,11 @@
 using namespace std;
 using namespace sptk;
 
-WSConnection::WSConnection(SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
-                           const String& staticFilesDirectory, const String& htmlIndexPage, const String& wsRequestPage)
-        : ServerConnection(connectionSocket, "WSConnection"), m_service(service), m_logger(logger),
-          m_staticFilesDirectory(staticFilesDirectory), m_htmlIndexPage(htmlIndexPage), m_wsRequestPage(wsRequestPage)
+WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service,
+                           Logger& logger, const String& staticFilesDirectory, const String& htmlIndexPage,
+                           const String& wsRequestPage)
+: ServerConnection(server, connectionSocket, "WSConnection"), m_service(service), m_logger(logger),
+  m_staticFilesDirectory(staticFilesDirectory), m_htmlIndexPage(htmlIndexPage), m_wsRequestPage(wsRequestPage)
 {
     if (!m_staticFilesDirectory.endsWith("/"))
         m_staticFilesDirectory += "/";
@@ -89,7 +90,7 @@ bool WSConnection::readHttpHeaders(String& protocolName, String& request, String
     return true;
 }
 
-void WSConnection::threadFunction()
+void WSConnection::run()
 {
     RegularExpression parseProtocol("^(GET|POST) (\\S+)", "i");
     RegularExpression parseHeader("^([^:]+): \"{0,1}(.*)\"{0,1}$", "i");
@@ -155,10 +156,11 @@ void WSConnection::threadFunction()
     }
 }
 
-WSSSLConnection::WSSSLConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service, Logger& logger,
-                                 const String& staticFilesDirectory, const String& htmlIndexPage,
+WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
+                                 Logger& logger, const String& staticFilesDirectory, const String& htmlIndexPage,
                                  const String& wsRequestPage, bool encrypted)
-: WSConnection(connectionSocket, addr, service, logger, staticFilesDirectory, htmlIndexPage, wsRequestPage)
+: WSConnection(server, connectionSocket, addr, service, logger, staticFilesDirectory, htmlIndexPage,
+               wsRequestPage)
 {
     if (encrypted)
         setSocket(new SSLSocket);

@@ -49,28 +49,38 @@ class WSConnection : public ServerConnection
 
 public:
 
-    WSConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service, Logger& logger,
-                 const String& staticFilesDirectory, const String& htmlIndexPage, const String& wsRequestPage);
+    WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service,
+                     Logger& logger, const String& staticFilesDirectory, const String& htmlIndexPage,
+                     const String& wsRequestPage);
 
-    void threadFunction() override;
+    /**
+     * Destructor
+     */
+    virtual ~WSConnection()
+    {}
+
+    /**
+     * Thread function
+     */
+    void run() override;
 };
 
 /**
- * @brief WS server connection
+ * WS server connection
  */
 class WSSSLConnection : public WSConnection
 {
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
      */
-    WSSSLConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service, Logger& logger,
-                    const String& staticFilesDirectory, const String& htmlIndexPage,
+    WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
+                    Logger& logger, const String& staticFilesDirectory, const String& htmlIndexPage,
                     const String& wsRequestPage, bool encrypted);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~WSSSLConnection();
 };
