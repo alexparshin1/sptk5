@@ -51,7 +51,7 @@ class SP_EXPORT Semaphore
     /**
      * Mutex object
      */
-    std::mutex              m_mutex;
+    mutable std::mutex      m_lockMutex;
 
     /**
      * Mutex condition object
@@ -61,14 +61,32 @@ class SP_EXPORT Semaphore
     /**
      * Semaphore value
      */
-    uint32_t                m_value;
+    size_t                  m_value {0};
 
     /**
      * Semaphore max value
      */
-    uint32_t                m_maxValue;
+    size_t                  m_maxValue {0};
+
+    /**
+     * Number of waiters
+     */
+    size_t                  m_waiters {0};
+
+    /**
+     * Terminated flag
+     */
+    bool                    m_terminated {false};
+
+    void terminate();
+
+    /**
+     * Current number of waiters
+     */
+    size_t waiters() const;
 
 public:
+
     /**
      * @brief Constructor
      *
@@ -76,12 +94,12 @@ public:
      * @param startingValue     Starting semaphore value
      * @param maxValue          Maximum semaphore value, or 0 if unlimited
      */
-    Semaphore(uint32_t startingValue=0, uint32_t maxValue=0);
+    Semaphore(size_t startingValue=0, size_t maxValue=0);
 
     /**
      * @brief Destructor
      */
-    virtual ~Semaphore() = default;
+    virtual ~Semaphore();
 
     /**
      * @brief Posts the semaphore

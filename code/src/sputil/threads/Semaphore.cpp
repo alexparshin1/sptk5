@@ -31,14 +31,34 @@
 using namespace std;
 using namespace sptk;
 
-Semaphore::Semaphore(uint32_t startingValue, uint32_t maxValue)
+Semaphore::Semaphore(size_t startingValue, size_t maxValue)
 : m_value(startingValue), m_maxValue(maxValue)
 {
 }
 
+Semaphore::~Semaphore()
+{
+    terminate();
+    do {
+        post();
+    } while (waiters() > 0);
+}
+
+void Semaphore::terminate()
+{
+    lock_guard<mutex>  lock(m_lockMutex);
+    m_terminated = true;
+}
+
+size_t Semaphore::waiters() const
+{
+    lock_guard<mutex>  lock(m_lockMutex);
+    return m_waiters;
+}
+
 void Semaphore::post()
 {
-    lock_guard<mutex>  lock(m_mutex);
+    lock_guard<mutex>  lock(m_lockMutex);
     if (m_maxValue == 0 || m_value < m_maxValue) {
         m_value++;
         m_condition.notify_one();
@@ -53,21 +73,26 @@ bool Semaphore::sleep_for(chrono::milliseconds timeout)
 
 bool Semaphore::sleep_until(DateTime timeoutAt)
 {
-    unique_lock<mutex>  lock(m_mutex);
+    unique_lock<mutex>  lock(m_lockMutex);
+
+    m_waiters++;
 
     // Wait until semaphore value is greater than 0
-    while (true) {
+    while (!m_terminated) {
         if (!m_condition.wait_until(lock,
                                     timeoutAt.timePoint(),
                                     [this]() { return m_value > 0; }))
         {
-            if (timeoutAt < DateTime::Now())
+            if (timeoutAt < DateTime::Now()) {
+                m_waiters--;
                 return false;
+            }
         } else
             break;
     }
 
     m_value--;
+    m_waiters--;
 
     return true;
 }
