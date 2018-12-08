@@ -459,9 +459,19 @@ bool Document::isNumber(const String& str)
 #if USE_GTEST
 
 static const char* testXML =
-        "<name position='president'>John</name><age>33</age><temperature>36.6</temperature><timestamp>1519005758000</timestamp>"
-        "<skills><skill>C++</skill><skill>Java</skill><skill>Motorbike</skill></skills>"
-        "<address><married>true</married><employed>false</employed></address>";
+    "<name position='president'>John</name><age>33</age><temperature>36.6</temperature><timestamp>1519005758000</timestamp>"
+    "<skills><skill>C++</skill><skill>Java</skill><skill>Motorbike</skill></skills>"
+    "<address><married>true</married><employed>false</employed></address>";
+
+static const char* testREST =
+    R"(<?xml version="1.0" encoding="UTF-8" ?>\n)"
+    R"(<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\n)"
+    R"(<soap:Body>\n)"
+    R"(<ns1:GetRequests>\n)"
+    R"(<vendor_id>1</vendor_id>\n)"
+    R"(</ns1:GetRequests>\n)"
+    R"(</soap:Body>\n)"
+    R"(</soap:Envelope>\n)";
 
 void verifyDocument(xml::Document& document)
 {
@@ -543,6 +553,30 @@ TEST(SPTK_XmlDocument, save)
 
     document.load(testXML);
     verifyDocument(document);
+}
+
+TEST(SPTK_XmlDocument, parse)
+{
+    xml::Document document;
+    document.load(testREST);
+
+    xml::Node* bodyElement = document.findFirst("soap:Body");
+    if (bodyElement == nullptr)
+        FAIL() << "Node soap:Body not found";
+    EXPECT_EQ(2, bodyElement->type());
+    EXPECT_EQ(3, bodyElement->size());
+    EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
+
+    xml::Node* methodElement = nullptr;
+    for (auto* node: *bodyElement) {
+        if (node->isElement()) {
+            methodElement = node;
+            break;
+        }
+    }
+    EXPECT_EQ(2, methodElement->type());
+    EXPECT_EQ(3, methodElement->size());
+    EXPECT_STREQ("ns1:GetRequests", methodElement->name().c_str());
 }
 
 #endif
