@@ -163,7 +163,7 @@ public:
     /**
      * @brief Removes all elements with the specific value from the list
      */
-    virtual void remove(T& item)
+    virtual void remove(T& item) const
     {
         UniqueLock(m_sync);
         m_list->remove(item);

@@ -74,6 +74,15 @@ public:
     ///
     /// Calls WebService request through service object
     void process() override;
+
+private:
+
+    xml::Node* getFirstChildElement(const xml::Node* element) const;
+
+    xml::Node* findRequestNode(const xml::Document& message, const String& messageType) const;
+
+    void generateFault(Buffer& output, size_t& httpStatusCode, String& httpStatusText, String& contentType,
+                       const HTTPException& e, bool jsonOutput);
 };
 
 /// @}

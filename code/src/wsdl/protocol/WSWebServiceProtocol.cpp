@@ -36,6 +36,72 @@ WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket* socket, const String& url,
 {
 }
 
+xml::Node* WSWebServiceProtocol::getFirstChildElement(const xml::Node* element) const
+{
+    xml::Node* methodElement = nullptr;
+    for (auto* node: *element) {
+        if (node->isElement()) {
+            methodElement = node;
+            break;
+        }
+    }
+    return methodElement;
+}
+
+xml::Node* WSWebServiceProtocol::findRequestNode(const xml::Document& message, const String& messageType) const
+{
+    String ns = "soap";
+    for (auto* node: message) {
+        if (lowerCase(node->name()).endsWith(":envelope")) {
+            size_t pos = node->name().find(":");
+            ns = node->name().substr(0, pos);
+        }
+    }
+
+    xml::Node* xmlBody = message.findFirst(ns + ":Body", true);
+    if (xmlBody == nullptr)
+        throw HTTPException(400, "Can't find " + ns + ":Body in " + messageType);
+    xml::Node* xmlRequest = getFirstChildElement(xmlBody);
+    if (xmlRequest == nullptr)
+        throw HTTPException(400, "Can't find request data in " + messageType);
+
+    return xmlRequest;
+}
+
+void WSWebServiceProtocol::generateFault(Buffer& output, size_t& httpStatusCode, String& httpStatusText,
+                                         String& contentType, const HTTPException& e, bool jsonOutput)
+{
+    httpStatusCode = e.statusCode();
+    httpStatusText = e.statusText();
+
+    if (jsonOutput) {
+        contentType = "application/json";
+
+        json::Document error;
+        error.root().set("error", e.what());
+        error.root().set("status_code", (int) e.statusCode());
+        error.root().set("status_text", e.statusText());
+        error.exportTo(output, true);
+    } else {
+        contentType = "application/xml";
+
+        xml::Document error;
+        auto* xmlEnvelope = new xml::Element(&error, "soap:Envelope");
+        xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
+
+        auto* xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
+        auto* faultNode = new xml::Element(xmlBody, "soap:Fault");
+
+        auto* faultcodeNode = new xml::Element(faultNode, "faultcode");
+        faultcodeNode->text("soap:Client");
+
+        auto* faultstringNode = new xml::Element(faultNode, "faultcode");
+        faultstringNode->text(e.what());
+
+        error.save(output, 2);
+    }
+}
+
 void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message,
                                           shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
                                           size_t& httpStatusCode, String& httpStatusText, String& contentType)
@@ -46,19 +112,9 @@ void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message
     try {
         m_service.processRequest(&message, authentication.get());
         if (requestIsJSON) {
+            xml::Node* methodElement = findRequestNode(message, "service response");
+
             // Converting XML response to JSON response
-            xml::Node* bodyElement = message.findFirst("soap:Body");
-            if (bodyElement == nullptr)
-                throw Exception("Can't find soap:Body in service response");
-            xml::Node* methodElement = nullptr;
-            for (auto* node: *bodyElement) {
-                if (node->isElement()) {
-                    methodElement = node;
-                    break;
-                }
-            }
-            if (methodElement == nullptr)
-                throw Exception("Can't find soap method in service response");
             json::Document jsonOutput;
             auto* jsonResponse = jsonOutput.root().set_object("response");
             methodElement->exportTo(*jsonResponse);
@@ -69,15 +125,7 @@ void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message
             message.save(output, 2);
     }
     catch (const HTTPException& e) {
-        httpStatusCode = e.statusCode();
-        httpStatusText = e.statusText();
-        contentType = "application/json";
-
-        json::Document error;
-        error.root().set("error", e.what());
-        error.root().set("status_code", (int) e.statusCode());
-        error.root().set("status_text", e.statusText());
-        error.exportTo(output, true);
+        generateFault(output, httpStatusCode, httpStatusText, contentType, e, false);
     }
 }
 
@@ -162,10 +210,7 @@ void WSWebServiceProtocol::process()
         if (endOfMessage != nullptr)
             *(char*) endOfMessage = 0;
         message.load(startOfMessage);
-        xml::Node* xmlEnvelope = message.findFirst("soap:Envelope", true);
-        xml::Node* xmlBody = xmlEnvelope->findFirst("soap:Body", true);
-        xml::Node* xmlRequest = *xmlBody->begin();
-
+        xml::Node* xmlRequest = findRequestNode(message, "API request");
         auto*  jsonEnvelope = jsonContent.root().set_object(xmlRequest->name());
         xmlRequest->exportTo(*jsonEnvelope);
     }
@@ -173,6 +218,7 @@ void WSWebServiceProtocol::process()
         Strings url(m_url, "/");
         if (url.size() < 2)
             throw Exception("Invalid url");
+
         // Converting JSON request to XML request
         String method(*url.rbegin());
         auto*  xmlEnvelope = new xml::Element(message, "soap:Envelope");
@@ -182,12 +228,8 @@ void WSWebServiceProtocol::process()
         jsonContent.root().exportTo("ns1:" + method, *xmlBody);
     }
     else {
-        httpStatusCode = 400;
-        httpStatusText = "Bad Request";
-        if (requestIsJSON)
-            output.set(R"({ "error": "Expected JSON content" })");
-        else
-            output.set(R"(<?xml><error>Expected XML content</error>)");
+        generateFault(output, httpStatusCode, httpStatusText, contentType, HTTPException(400, "Expect JSON content"),
+                      requestIsJSON);
     }
 
     if (httpStatusCode < 400)

@@ -67,6 +67,9 @@ WorkerThread* ThreadPool::createThread()
 
 void ThreadPool::execute(Runable* task)
 {
+    if (!running())
+        run();
+
     if (m_shutdown)
         throw Exception("Thread manager is stopped");
 
@@ -77,7 +80,7 @@ void ThreadPool::execute(Runable* task)
     m_taskQueue.push(task);
 }
 
-void ThreadPool::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable*)
+void ThreadPool::threadEvent(Thread* athread, ThreadEvent::Type eventType, Runable*)
 {
     switch (eventType) {
     case ThreadEvent::RUNABLE_STARTED:
@@ -86,7 +89,7 @@ void ThreadPool::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runabl
         m_availableThreads.post();
         break;
     case ThreadEvent::THREAD_FINISHED:
-        m_terminatedThreads.push((WorkerThread*)thread);
+        m_terminatedThreads.push((WorkerThread*)athread);
         break;
     default:
         break;
@@ -105,8 +108,11 @@ void ThreadPool::stop()
     m_threads.each(terminateThread);
     while (!m_threads.empty())
         sleep_for(chrono::milliseconds(100));
-    while (!m_terminatedThreads.empty())
-        sleep_for(chrono::milliseconds(100));
+    while (!m_terminatedThreads.empty()) {
+        WorkerThread* terminatedThread;
+        if (m_terminatedThreads.pop(terminatedThread, chrono::milliseconds(100)))
+            terminatedThread->join();
+    }
     terminate();
     join();
 }
@@ -143,7 +149,7 @@ TEST(SPTK_ThreadPool, run)
     vector<MyTask*> tasks;
 
     /// Thread manager controls tasks execution.
-    ThreadPool threadPool(16, std::chrono::milliseconds(), "test thread pool");
+    ThreadPool threadPool(16, std::chrono::milliseconds(60), "test thread pool");
 
     // Creating several tasks
     for (i = 0; i < 5; i++)

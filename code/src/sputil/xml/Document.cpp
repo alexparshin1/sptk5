@@ -564,7 +564,7 @@ TEST(SPTK_XmlDocument, parse)
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
     EXPECT_EQ(2, bodyElement->type());
-    EXPECT_EQ(3, bodyElement->size());
+    EXPECT_EQ(3, (int) bodyElement->size());
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 
     xml::Node* methodElement = nullptr;
@@ -575,7 +575,7 @@ TEST(SPTK_XmlDocument, parse)
         }
     }
     EXPECT_EQ(2, methodElement->type());
-    EXPECT_EQ(3, methodElement->size());
+    EXPECT_EQ(3, (int) methodElement->size());
     EXPECT_STREQ("ns1:GetRequests", methodElement->name().c_str());
 }
 

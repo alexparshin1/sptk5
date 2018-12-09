@@ -37,7 +37,6 @@ LogEngine::LogEngine(const String& logEngineName)
   m_minPriority(LP_INFO),
   m_options(LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY)
 {
-    run();
 }
 
 void LogEngine::option(Option option, bool flag)
@@ -98,6 +97,9 @@ LogPriority LogEngine::priorityFromName(const String& prt)
 
 void LogEngine::log(Logger::Message* message)
 {
+    if (!running())
+        run();
+
     m_messages.push(message);
 }
 
