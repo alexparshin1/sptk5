@@ -103,7 +103,7 @@ bool Thread::sleep_until(DateTime timestamp)
 
 bool Thread::running() const
 {
-    return m_thread.get_id() != (thread::id) 0;
+    return m_thread.joinable();
 }
 
 #if USE_GTEST
