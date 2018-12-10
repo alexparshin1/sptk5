@@ -638,10 +638,10 @@ static std::string codePointToUTF8(unsigned cp)
 
 string Element::decode(const string& text)
 {
-    string result;
-
-    size_t length = text.length();
-    size_t position = 0;
+    string   result;
+    size_t   length = text.length();
+    size_t   position = 0;
+    unsigned ucharCode;
 
     while (position < length) {
         size_t pos = text.find_first_of('\\', position);
@@ -679,14 +679,13 @@ string Element::decode(const string& text)
             case 't':
                 result += '\t';
                 break;
-            case 'u': {
+            case 'u':
                 pos++;
-                string ucharCodeStr = text.substr(pos, 4);
-                auto ucharCode = (unsigned) strtol(ucharCodeStr.c_str(), nullptr, 16);
+                ucharCode = (unsigned) strtol(text.substr(pos, 4).c_str(), nullptr, 16);
                 pos += 3;
                 result += codePointToUTF8(ucharCode);
                 break;
-            }
+
             default:
                 throw Exception("Unknown escape character");
         }

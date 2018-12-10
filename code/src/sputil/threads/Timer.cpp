@@ -212,15 +212,20 @@ void Timer::cancel(Event event)
     m_events.erase(event);
 }
 
-void Timer::cancel()
+set<Timer::Event> Timer::moveOutEvents()
 {
     set<Timer::Event> events;
 
     // Cancel all events in this timer
-    {
-        lock_guard<mutex> lock(m_mutex);
-        events = move(m_events);
-    }
+    lock_guard<mutex> lock(m_mutex);
+    events = move(m_events);
+
+    return events;
+}
+
+void Timer::cancel()
+{
+    set<Timer::Event> events = moveOutEvents();
 
     // Unregister and destroy events
     for (auto event: events) {
@@ -239,6 +244,7 @@ static void gtestTimerCallback(void* eventData)
 
 TEST(SPTK_Timer, fireAt)
 {
+    if (DateTime::Now() > DateTime()) // always true
     {
         Timer timer(gtestTimerCallback);
         DateTime when = DateTime::Now() + chrono::milliseconds(50);
@@ -255,6 +261,7 @@ TEST(SPTK_Timer, fireAt)
 
 TEST(SPTK_Timer, repeat)
 {
+    if (DateTime::Now() > DateTime()) // always true
     {
         Timer timer(gtestTimerCallback);
 
@@ -285,6 +292,7 @@ static void gtestTimerCallback2(void* theEventData)
 
 TEST(SPTK_Timer, repeat_multiple_events)
 {
+    if (DateTime::Now() > DateTime()) // always true
     {
         Timer timer(gtestTimerCallback2);
 
@@ -317,6 +325,7 @@ TEST(SPTK_Timer, repeat_multiple_events)
 
 TEST(SPTK_Timer, repeat_multiple_timers)
 {
+    if (DateTime::Now() > DateTime()) // always true
     {
         vector< shared_ptr<Timer> > timers;
 

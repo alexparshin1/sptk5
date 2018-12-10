@@ -141,9 +141,11 @@ namespace sptk {
 
     private:
 
-        std::mutex                  m_mutex;        ///< Mutex protecting events set
+        mutable std::mutex          m_mutex;        ///< Mutex protecting events set
         std::set<Event>             m_events;       ///< Events scheduled by this timer
         EventData::Callback         m_callback;     ///< Event callback function.
+
+        std::set<Timer::Event> moveOutEvents();
 
     protected:
 

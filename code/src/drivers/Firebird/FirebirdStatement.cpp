@@ -420,6 +420,9 @@ void FirebirdStatement::fetchResult(FieldList& fields)
 {
     struct tm       times{};
     uint32_t        fieldCount = fields.size();
+    int             pos;
+    size_t          len;
+    char            buffer[64];
 
     for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         auto*       field = (FirebirdStatementField*) &fields[fieldIndex];
@@ -485,28 +488,21 @@ void FirebirdStatement::fetchResult(FieldList& fields)
                 break;
 
             case SQL_TEXT:
-                {
-                    int pos = sqlvar.sqllen - 1;
-                    while (sqlvar.sqldata[pos] == ' ' && pos >= 0)
-                        pos--;
-                    pos++;
-                    sqlvar.sqldata[pos] = 0;
-                    break;
-                }
+                pos = sqlvar.sqllen - 1;
+                while (sqlvar.sqldata[pos] == ' ' && pos >= 0)
+                    pos--;
+                pos++;
+                sqlvar.sqldata[pos] = 0;
+                break;
 
             case SQL_VARYING:
-                {
-                    size_t len = *(uint16_t*) sqlvar.sqldata;
-                    field->setBuffer(sqlvar.sqldata + 2, len, VAR_STRING);
-                }
+                len = *(uint16_t*) sqlvar.sqldata;
+                field->setBuffer(sqlvar.sqldata + 2, len, VAR_STRING);
                 break;
 
             default:
-                {
-                    char buffer[256];
-                    snprintf(buffer, sizeof(buffer) - 1, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
-                    throw DatabaseException(buffer);
-                }
+                snprintf(buffer, sizeof(buffer) - 1, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
+                throw DatabaseException(buffer);
         }
     }
 }

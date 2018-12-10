@@ -1813,6 +1813,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/json/JsonElement.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/json/JsonParser.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/jwt/JWT-openssl.cpp">
           <value>
             <set />
@@ -1929,6 +1939,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/threads/ThreadPool.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/threads/Timer.cpp">
           <value>
             <set />
           </value>

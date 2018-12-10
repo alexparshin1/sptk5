@@ -107,11 +107,12 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
     Base64::encode(strDest, bufSource);
     const auto cnt = (uint32_t) strDest.length();
     const char* data = strDest.c_str();
-	char line[90] {};
+	char line[LINE_CHARS + 2] {};
     for (uint32_t p = 0; p < cnt; p += LINE_CHARS) {
         uint32_t length = cnt - p;
-        if (length > LINE_CHARS) length = LINE_CHARS;
-        memcpy(line, data + p, 80);
+        if (length > LINE_CHARS)
+            length = LINE_CHARS;
+        memcpy(line, data + p, length);
         line[length] = '\n';
         length++;
         line[length] = 0;

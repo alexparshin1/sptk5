@@ -338,7 +338,8 @@ void Node::save(Buffer& buffer, int indent) const
         const Attributes& attributes = this->attributes();
         if (!attributes.empty()) {
             // Output attributes
-            Buffer real_id, real_val;
+            Buffer real_id;
+            Buffer real_val;
             for (auto* attributeNode: attributes) {
                 real_id.bytes(0);
                 real_val.bytes(0);
@@ -379,7 +380,7 @@ void Node::save(Buffer& buffer, int indent) const
             buffer.append("<!-- " + value() + " -->\n");
             break;
 
-        case DOM_ELEMENT: {
+        case DOM_ELEMENT:
             if (!empty()) {
                 bool only_cdata;
                 Node* nd = *begin();
@@ -415,7 +416,6 @@ void Node::save(Buffer& buffer, int indent) const
                 //LEAF
                 buffer.append("/>\n", 3);
             }
-        }
             break;
 
         default: // unknown nodetype
@@ -461,7 +461,7 @@ void Node::save(json::Element& json, string& text) const
             object->set("comments", value());
             break;
 
-        case DOM_ELEMENT: {
+        case DOM_ELEMENT:
             if (empty()) {
                 *object = "";
             } else {
@@ -486,7 +486,6 @@ void Node::save(json::Element& json, string& text) const
                     }
                 }
             }
-        }
             break;
 
         default: // unknown nodetype

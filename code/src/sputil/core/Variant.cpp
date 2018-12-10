@@ -928,28 +928,21 @@ const void* Variant_Adaptors::asImagePtr() const
 
 void Variant_SetMethods::setNull(VariantType vtype)
 {
-    if (vtype != sptk::VAR_NONE) {
-        releaseBuffers();
-        dataType(vtype);
-    }
+    releaseBuffers();
+    dataType(vtype | VAR_NULL);
 
     switch (dataType()) {
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            if (isExternalBuffer())
-                m_data.getBuffer().data = nullptr;
-            else if (m_data.getBuffer().data != nullptr)
-                m_data.getBuffer().data[0] = 0;
-
+            m_data.getBuffer().data = nullptr;
+            m_data.getBuffer().size = 0;
             break;
 
         default:
             m_data.getInt64() = 0;
             break;
     }
-
-    m_dataType |= VAR_NULL;
 }
 
 bool BaseVariant::isNull() const

@@ -178,11 +178,12 @@ void WSWebServiceProtocol::process()
             socketBytes = (uint32_t) m_socket.read(data.data() + offset, (uint32_t) socketBytes);
             data.bytes(offset + socketBytes);
 
+            const char* endOfData = data.c_str() + data.bytes();
             if (startOfMessage == nullptr) {
                 startOfMessage = strstr(data.c_str(), "<?xml");
-                if (startOfMessage == nullptr) {
+                if (startOfMessage == nullptr && startOfMessage < endOfData) {
                     startOfMessage = strstr(data.c_str(), "Envelope");
-                    if (startOfMessage != nullptr)
+                    if (startOfMessage != nullptr && startOfMessage < endOfData)
                         while (*startOfMessage != '<' && startOfMessage > data.c_str())
                             startOfMessage--;
                 }

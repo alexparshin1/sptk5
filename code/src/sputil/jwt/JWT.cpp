@@ -688,8 +688,10 @@ TEST(SPTK_JWT, encode_hs256_decode)
     stringstream copiedJSON;
     jwt2.exportTo(copiedJSON, false);
 
-    json::Document original, copied;
-    Buffer originalBuffer, copiedBuffer;
+    json::Document original;
+    json::Document copied;
+    Buffer originalBuffer;
+    Buffer copiedBuffer;
 
     original.load(originalJSON.str());
     original.exportTo(originalBuffer);

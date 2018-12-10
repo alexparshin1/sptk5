@@ -104,8 +104,6 @@ typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
  */
 class SocketPool : public std::mutex
 {
-private:
-
 #ifdef _WIN32
     EventWindow*                m_pool;
     std::thread::id             m_threadId;

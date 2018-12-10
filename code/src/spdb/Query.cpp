@@ -201,7 +201,7 @@ void Query::sql(const String& _sql)
         }
 
         if (*paramStart == '/' && paramStart[1] == '*') {
-            // Started block comment '/* comment text */', jump to the end of comment
+            // Started C-style block comment, jump to the end of comment
             const char* endOfRow = strstr(paramStart + 1, "*/");
             if (endOfRow == nullptr)
                 break;  // Comment at the end of last row

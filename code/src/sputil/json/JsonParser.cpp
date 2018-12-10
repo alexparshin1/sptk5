@@ -121,7 +121,7 @@ string readJsonString(const char* json, const char*& readPosition)
     while (true) {
         pos = strpbrk(pos, "\\\"");
         if (pos == nullptr)
-            throwError("Premature end of data, expecting '\"'", json, readPosition - json);
+            throw Exception(R"(Premature end of data, expecting '"')");
         else {
             char ch = *pos;
             if (ch == '"')
@@ -282,58 +282,44 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
         if (isdigit(firstChar))
             firstChar = '0';
 
+        json::Element* element;
         switch (firstChar) {
             case '}':
                 // Close bracket
                 break;
 
             case '[':
-            {
-                auto* jsonArrayElement = parent->set_array(elementName);
-                readArrayData(jsonArrayElement, json, readPosition);
-            }
-            break;
+                element = parent->set_array(elementName);
+                readArrayData(element, json, readPosition);
+                break;
 
             case '{':
-            {
-                auto* jsonObjectElement = parent->set_object(elementName);
-                readObjectData(jsonObjectElement, json, readPosition);
-            }
-            break;
+                element = parent->set_object(elementName);
+                readObjectData(element, json, readPosition);
+                break;
 
             case '0':
             case '-':
-            {
                 // Number
-                double number = readJsonNumber(json, readPosition);
-                parent->set(elementName, number);
-            }
-            break;
+                parent->set(elementName, readJsonNumber(json, readPosition));
+                break;
 
             case 't':
             case 'f':
-            {
                 // Boolean
-                bool value = readJsonBoolean(json, readPosition);
-                parent->set(elementName, value);
-            }
-            break;
+                parent->set(elementName, readJsonBoolean(json, readPosition));
+                break;
 
             case 'n':
-            {
                 // Null
                 readJsonNull(json, readPosition);
                 parent->set(elementName);
-            }
-            break;
+                break;
 
             case '"':
-            {
                 // String
-                string str = readJsonString(json, readPosition);
-                parent->set(elementName, str);
-            }
-            break;
+                parent->set(elementName, readJsonString(json, readPosition));
+                break;
 
             default:
                 throwUnexpectedCharacterError(*readPosition, 0, json, readPosition - json);

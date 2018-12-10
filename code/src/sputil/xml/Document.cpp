@@ -264,6 +264,7 @@ void Document::load(const char* xmlData)
         *tokenEnd = 0;
         char* nodeName = tokenStart;
         char* nodeEnd;
+        const char* value;
         switch (*tokenStart) {
             case '!':
                 if (strncmp(nodeName, "!--", 3) == 0) {
@@ -307,9 +308,8 @@ void Document::load(const char* xmlData)
                 }
                 break;
 
-            case '?': {
+            case '?':
                 /// Processing instructions
-                const char* value;
                 if (ch == ' ') {
                     value = tokenEnd + 1;
                     nodeEnd = (char*) strstr(value, "?>");
@@ -322,10 +322,9 @@ void Document::load(const char* xmlData)
                 *nodeEnd = 0;
                 new PI(currentNode, nodeName + 1, value);
                 tokenEnd = nodeEnd + 1;
-            }
                 break;
 
-                case '/':
+            case '/':
                 /// Closing tag
                 if (ch != '>')
                     throw Exception("Invalid tag (spaces before closing '>')");

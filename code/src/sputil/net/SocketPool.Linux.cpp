@@ -88,12 +88,9 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 
 void SocketPool::forgetSocket(BaseSocket& socket)
 {
-    if (!socket.active())
-        throw Exception("Socket is closed");
-
     epoll_event* event;
 
-    {
+    if (socket.active()) {
         lock_guard<mutex> lock(*this);
 
         auto itor = m_socketData.find(&socket);
@@ -102,7 +99,8 @@ void SocketPool::forgetSocket(BaseSocket& socket)
 
         event = (epoll_event*) itor->second;
         m_socketData.erase(itor);
-    }
+    } else
+        throw Exception("Socket is closed");
 
     int rc = epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.handle(), event);
     if (rc == -1)
