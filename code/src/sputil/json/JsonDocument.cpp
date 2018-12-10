@@ -98,10 +98,10 @@ void Document::load(const char* json)
 void Document::load(istream& json)
 {
     streampos       pos = json.tellg();
-    json.seekg (0, json.end);
+    json.seekg (0, ios::end);
 
     streampos       length = json.tellg() - pos;
-    json.seekg (pos, json.beg);
+    json.seekg (pos, ios::beg);
 
     Buffer buffer(length);
     json.read(buffer.data(), length);

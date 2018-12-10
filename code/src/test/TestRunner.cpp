@@ -48,10 +48,13 @@ using namespace sptk;
 
 void acallback(void*) {}
 
+/**
+ * Stub TCP server - testing only
+ */
 class StubServer : public TCPServer
 {
 protected:
-    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override
+    ServerConnection* createConnection(SOCKET, sockaddr_in*) override
     {
         return nullptr;
     }

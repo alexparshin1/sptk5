@@ -49,7 +49,7 @@ class CSSLLibraryLoader
         OpenSSL_add_all_algorithms();
     }
 
-    static void lock_callback(int mode, int type, char *file, int line)
+    static void lock_callback(int mode, int type, char* /*file*/, int /*line*/)
     {
         if ((mode & CRYPTO_LOCK) == CRYPTO_LOCK)
             m_locks[type].lock();
@@ -81,15 +81,8 @@ class CSSLLibraryLoader
         delete [] m_locks;
     }
 
-    CSSLLibraryLoader(const CSSLLibraryLoader& other) = default;
-    CSSLLibraryLoader(CSSLLibraryLoader&& other) noexcept {}
-    CSSLLibraryLoader& operator = (const CSSLLibraryLoader& other) = default;
-    CSSLLibraryLoader& operator = (CSSLLibraryLoader&& other) noexcept
-    {
-        return *this;
-    }
-
 public:
+
     CSSLLibraryLoader() noexcept
     {
         load_library();
