@@ -201,7 +201,7 @@ public:
      * @param connection Connection*, Firebird connection
      * @param sql std::string, SQL statement
      */
-    FirebirdStatement(FirebirdConnection* connection, std::string sql);
+    FirebirdStatement(FirebirdConnection* connection, const String& sql);
 
     /**
      * @brief Destructor

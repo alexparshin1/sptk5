@@ -76,7 +76,7 @@ public:
 };
 
 
-FirebirdStatement::FirebirdStatement(FirebirdConnection* connection, string sql)
+FirebirdStatement::FirebirdStatement(FirebirdConnection* connection, const String& /*sql*/)
 : DatabaseStatement<FirebirdConnection,isc_stmt_handle>(connection)
 {
     statement(new isc_stmt_handle);
