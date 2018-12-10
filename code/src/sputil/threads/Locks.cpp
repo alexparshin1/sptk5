@@ -106,7 +106,7 @@ public:
     void threadFunction() override
     {
         try {
-            //TimedUniqueLock(amutex, chrono::milliseconds(500));
+            TimedUniqueLock(amutex, chrono::milliseconds(500));
             aresult = "locked";
         }
         catch (const Exception& e) {
