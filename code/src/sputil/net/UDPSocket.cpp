@@ -27,6 +27,8 @@
 */
 
 #include <sptk5/net/UDPSocket.h>
+#include <sptk5/threads/Thread.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -45,3 +47,91 @@ size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from)
         THROW_SOCKET_ERROR("Can't read to socket");
     return (size_t) bytes;
 }
+
+#if USE_GTEST
+
+/**
+ * Not encrypted connection to control service
+ */
+class UDPEchoServer : public UDPSocket, public Thread
+{
+    UDPSocket   socket;
+public:
+    UDPEchoServer()
+    : Thread("UDP server")
+    {
+        socket.bind(nullptr, 3000);
+    }
+
+    void getAddress(sockaddr_in& addr) const
+    {
+        return socket.host().getAddress(addr);
+    }
+
+    /**
+     * Terminate connection thread
+     */
+    void terminate() override
+    {
+        socket.close();
+    }
+
+    /**
+     * Connection thread function
+     */
+    void threadFunction() override
+    {
+        Buffer data(2048);
+        while (!terminated()) {
+            try {
+                if (socket.readyToRead(chrono::seconds(30))) {
+                    sockaddr_in from;
+                    int sz = socket.read(data.data(), 2048, &from);
+                    if (sz == 0)
+                        return;
+                    data.bytes(sz);
+                    socket.write(data.c_str(), sz, &from);
+                }
+            }
+            catch (const Exception& e) {
+                CERR(e.what() << endl);
+            }
+        }
+        socket.close();
+    }
+};
+
+TEST(SPTK_UDPSocket, minimal)
+{
+    Buffer buffer(2048);
+
+    UDPEchoServer echoServer;
+    echoServer.run();
+
+    sockaddr_in serverAddr;
+    Host serverHost("127.0.0.1:3000");
+    serverHost.getAddress(serverAddr);
+
+    Strings rows("Hello, World!\n"
+                 "This is a test of TCPServer class.\n"
+                 "Using simple echo server to verify data flow.\n"
+                 "The session is terminated when this row is received", "\n");
+
+
+    UDPSocket socket;
+
+    int rowCount = 0;
+    for (auto& row: rows) {
+        socket.write(row.c_str(), row.length(), &serverAddr);
+        buffer.bytes(0);
+        if (socket.readyToRead(chrono::seconds(3)))
+            socket.read(buffer.data(), 2048);
+        EXPECT_STREQ(row.c_str(), buffer.c_str());
+        rowCount++;
+    }
+    EXPECT_EQ(4, rowCount);
+
+    socket.close();
+}
+
+#endif
