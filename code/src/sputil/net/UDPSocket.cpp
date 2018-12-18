@@ -50,9 +50,6 @@ size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from)
 
 #if USE_GTEST
 
-/**
- * Not encrypted connection to control service
- */
 class UDPEchoServer : public UDPSocket, public Thread
 {
     UDPSocket   socket;

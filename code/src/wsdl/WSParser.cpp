@@ -343,7 +343,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "        faultStringNode->text(e.what());" << endl;
     serviceImplementation << "        new xml::Element(faultNode, \"detail\");" << endl;
     serviceImplementation << "    }" << endl;
-    serviceImplementation << "    catch (const exception& e) {" << endl;
+    serviceImplementation << "    catch (const Exception& e) {" << endl;
     serviceImplementation << "        if (m_logEngine != nullptr) {" << endl;
     serviceImplementation << "            Logger logger(*m_logEngine);" << endl;
     serviceImplementation << "            logger.error(String(\"WS request error: \") + e.what());" << endl;
