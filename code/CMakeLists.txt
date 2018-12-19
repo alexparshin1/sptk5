@@ -32,6 +32,7 @@ OPTION (USE_OPENSSL    "Build OpenSSL support library" ON)
 OPTION (USE_ORACLE     "Build Oracle support library" ON)
 OPTION (USE_POSTGRESQL "Build PostgreSQL support library" ON)
 OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
+OPTION (USE_ZMQ        "Build ZeroMQ support library" ON)
 OPTION (USE_GTEST      "Build Google Test unit tests" ON)
 
 OPTION (USE_PCRE       "Use PCRE library" ON)
@@ -167,6 +168,18 @@ IF (USE_FIREBIRD)
     MESSAGE("Firebird support:   don't compile")
   ENDIF (Firebird_FOUND)
 ENDIF (USE_FIREBIRD)
+
+
+SET (ZMQ_FLAG "0")
+IF (USE_ZMQ)
+  FIND_PACKAGE(ZeroMQ QUIET)
+  IF (ZMQ_FOUND)
+    MESSAGE("ZeroMQ support:     compile")
+    SET (ZMQ_FLAG "1")
+  ELSE (ZMQ_FOUND)
+    MESSAGE("ZeroMQ support:     don't compile")
+  ENDIF (ZMQ_FOUND)
+ENDIF (USE_ZMQ)
 
 
 SET (ORACLE_FLAG "0")
