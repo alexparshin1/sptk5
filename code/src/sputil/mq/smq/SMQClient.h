@@ -45,6 +45,7 @@ public:
     SMQClient();
     void connect(const Host& host);
     void disconnect();
+    void subscribe(const String& destination);
     bool getMessage(Message&& message, std::chrono::milliseconds timeout);
     void sendMessage(const String& destination, const Message& message);
 };

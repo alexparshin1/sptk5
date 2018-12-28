@@ -71,3 +71,8 @@ void SMQClient::sendMessage(const String& destination, const Message& message)
     m_socket.write(magic, strlen(magic));
     m_socket.write(output);
 }
+
+void SMQClient::subscribe(const String& destination)
+{
+    sendMessage(destination, Message(Message::SUBSCRIBE));
+}

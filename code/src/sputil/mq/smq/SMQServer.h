@@ -38,20 +38,24 @@ namespace sptk {
 
 class SMQServer : public TCPServer
 {
-    std::mutex                      m_mutex;
+    std::mutex                                          m_mutex;
 protected:
 
-    typedef std::shared_ptr<Message>    SMessage;
-    typedef SynchronizedQueue<SMessage> SMessageQueue;
+    typedef std::shared_ptr<Message>                    SMessage;
+    typedef SynchronizedQueue<SMessage>                 SMessageQueue;
 
-    std::map<String, SMessageQueue>     m_queues;
-    SocketEvents                        m_socketEvents;
+    std::map<String, std::shared_ptr<SMessageQueue>>    m_queues;
+    SocketEvents                                        m_socketEvents;
 
     static void socketEventCallback(void *userData, SocketEventType eventType);
 
 public:
     class Connection : public TCPServerConnection
     {
+        std::mutex                      m_mutex;
+        std::shared_ptr<SMessageQueue>  m_subscribedQueue;
+
+        std::shared_ptr<SMessageQueue>  subscribedQueue();
         void readMessage(String& destination, Buffer& message);
     public:
         Connection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*);
@@ -59,12 +63,14 @@ public:
         void run() override;
         void terminate() override;
         void readRawMessage(String& destination, Buffer& message, uint8_t& messageType);
+        void subscribeTo(const String& destination);
     };
 
     ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
 
 public:
     SMQServer();
+    std::shared_ptr<SMessageQueue> getClientQueue(const String& destination);
     void distributeMessage(const String& destination, SMessage message);
 };
 

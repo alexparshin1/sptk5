@@ -121,35 +121,57 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
         connection->readRawMessage(destination, data, messageType);
         auto msg = make_shared<Message>((Message::Type) messageType, move(data));
 
-        cout << data.c_str() << endl;
-
-        //SMQServer* smqServer = dynamic_cast<SMQServer*>(&connection->server());
-        //smqServer->distributeMessage(destination, msg);
+        SMQServer* smqServer = dynamic_cast<SMQServer*>(&connection->server());
+        switch (messageType) {
+            case Message::SUBSCRIBE:
+                connection->subscribeTo(destination);
+                break;
+            case Message::MESSAGE:
+                smqServer->distributeMessage(destination, msg);
+                break;
+        }
     }
 }
 
 void SMQServer::distributeMessage(const String& destination, SMQServer::SMessage message)
 {
+    shared_ptr<SMessageQueue> queue = getClientQueue(destination);
+    queue->push(message);
+}
+
+void SMQServer::Connection::subscribeTo(const String& destination)
+{
     lock_guard<mutex> lock(m_mutex);
-    SMessageQueue& queue = m_queues[destination];
-    queue.push(message);
+    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
+    m_subscribedQueue = smqServer->getClientQueue(destination);
+}
+
+shared_ptr<SMQServer::SMessageQueue> SMQServer::Connection::subscribedQueue()
+{
+    lock_guard<mutex> lock(m_mutex);
+    return m_subscribedQueue;
+}
+
+shared_ptr<SMQServer::SMessageQueue> SMQServer::getClientQueue(const String& destination)
+{
+    lock_guard<mutex> lock(m_mutex);
+    auto queue = m_queues[destination];
+    if (!queue) {
+        queue = make_shared<SMQServer::SMessageQueue>();
+        m_queues[destination] = queue;
+    }
+    return queue;
 }
 
 void SMQServer::Connection::run()
 {
     while (!terminated()) {
         try {
-            /*
-            if (socket().readyToRead(chrono::seconds(1))) {
-                Buffer data;
-                String destination;
-                readRawMessage(destination, data);
-                SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
-                if (smqServer != nullptr)
-                    smqServer->distributeMessage(destination, data);
+            shared_ptr<SMQServer::SMessageQueue> queue = subscribedQueue();
+            SMessage message;
+            if (queue && queue->pop(message, chrono::milliseconds(1000))) {
+                cout << message->c_str() << endl;
             }
-            */
-            this_thread::sleep_for(chrono::milliseconds(1000));
         }
         catch (const Exception& e) {
             CERR(e.what() << endl);
@@ -171,6 +193,7 @@ TEST(SPTK_SMQServer, minimal)
     SMQClient smqClient;
     ASSERT_NO_THROW(smqClient.connect(Host("localhost:4000")));
 
+    smqClient.subscribe("test-queue");
     smqClient.sendMessage("test-queue", Message(Message::MESSAGE, Buffer("Hello, World!")));
     smqClient.sendMessage("test-queue", Message(Message::MESSAGE, Buffer("This is SMQ test")));
 
