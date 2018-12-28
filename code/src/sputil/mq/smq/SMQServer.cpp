@@ -43,14 +43,19 @@ ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_
     return new Connection(*this, connectionSocket, peer);
 }
 
-void SMQServer::distributeMessage(const String& destination, Message&& message)
-{
-
-}
-
 SMQServer::Connection::Connection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*)
 : TCPServerConnection(server, connectionSocket)
 {
+    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server);
+    if (smqServer != nullptr)
+        smqServer->m_socketEvents.add(socket(), this);
+}
+
+SMQServer::Connection::~Connection()
+{
+    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
+    if (smqServer != nullptr)
+        smqServer->m_socketEvents.remove(socket());
 }
 
 void SMQServer::Connection::terminate()
@@ -59,38 +64,82 @@ void SMQServer::Connection::terminate()
     TCPServerConnection::terminate();
 }
 
-void SMQServer::Connection::readRawMessage(String& destination, Buffer& message)
+void SMQServer::Connection::readMessage(String& destination, Buffer& message)
+{
+    // Read destination
+    uint32_t dataSize;
+    socket().read((char*)&dataSize, sizeof(dataSize));
+    if (dataSize == 0 || dataSize > 256)
+        throw Exception("Invalid message destination size");
+    socket().read(destination, dataSize);
+
+    // Read message data
+    socket().read((char*) &dataSize, sizeof(dataSize));
+    if (dataSize > 0) {
+        message.checkSize(dataSize);
+        socket().read(message.data(), dataSize);
+        message.bytes(dataSize);
+    }
+}
+
+void SMQServer::Connection::readRawMessage(String& destination, Buffer& message, uint8_t& messageType)
 {
     char data[16];
+
+    // Read message signature
     socket().read(data, 4);
     if (strncmp(data, "MSG:", 4) != 0)
         throw Exception("Invalid message magic byte");
 
-    uint32_t dataSize;
-    socket().read((char*)&dataSize, sizeof(dataSize));
-    if (dataSize == 0)
-        throw Exception("Invalid message destination size");
+    // Read message type
+    socket().read((char*)&messageType, sizeof(messageType));
+    if (messageType > Message::MESSAGE)
+        throw Exception("Invalid message type");
 
-    socket().read(destination, dataSize);
-
-    socket().read((char*)&dataSize, sizeof(dataSize));
-    if (dataSize == 0)
-        throw Exception("Invalid message data size");
-
-    message.checkSize(dataSize);
-    socket().read(message.data(), dataSize);
-    message.bytes(dataSize);
+    switch (messageType) {
+        case Message::MESSAGE:
+        case Message::SUBSCRIBE:
+        case Message::UNSUBSCRIBE:
+            readMessage(destination, message);
+            break;
+        default:
+            destination = "";
+            message.bytes(0);
+            break;
+    }
 }
 
 void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
 {
+    Connection* connection = (Connection*) userData;
 
+    while (connection->socket().socketBytes() > 0) {
+        uint8_t messageType;
+        Buffer data;
+        String destination;
+
+        connection->readRawMessage(destination, data, messageType);
+        auto msg = make_shared<Message>((Message::Type) messageType, move(data));
+
+        cout << data.c_str() << endl;
+
+        //SMQServer* smqServer = dynamic_cast<SMQServer*>(&connection->server());
+        //smqServer->distributeMessage(destination, msg);
+    }
+}
+
+void SMQServer::distributeMessage(const String& destination, SMQServer::SMessage message)
+{
+    lock_guard<mutex> lock(m_mutex);
+    SMessageQueue& queue = m_queues[destination];
+    queue.push(message);
 }
 
 void SMQServer::Connection::run()
 {
     while (!terminated()) {
         try {
+            /*
             if (socket().readyToRead(chrono::seconds(1))) {
                 Buffer data;
                 String destination;
@@ -99,12 +148,15 @@ void SMQServer::Connection::run()
                 if (smqServer != nullptr)
                     smqServer->distributeMessage(destination, data);
             }
+            */
+            this_thread::sleep_for(chrono::milliseconds(1000));
         }
         catch (const Exception& e) {
             CERR(e.what() << endl);
         }
     }
     socket().close();
+    cerr << "Connection terminated" << endl;
 }
 
 #if USE_GTEST
@@ -119,8 +171,8 @@ TEST(SPTK_SMQServer, minimal)
     SMQClient smqClient;
     ASSERT_NO_THROW(smqClient.connect(Host("localhost:4000")));
 
-    smqClient.sendMessage("test-queue", Message(Buffer("Hello, World!")));
-    smqClient.sendMessage("test-queue", Message(Buffer("This is SMQ test")));
+    smqClient.sendMessage("test-queue", Message(Message::MESSAGE, Buffer("Hello, World!")));
+    smqClient.sendMessage("test-queue", Message(Message::MESSAGE, Buffer("This is SMQ test")));
 
     this_thread::sleep_for(chrono::seconds(300));
 

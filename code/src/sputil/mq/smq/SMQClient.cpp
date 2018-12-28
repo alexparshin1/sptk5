@@ -57,6 +57,9 @@ void SMQClient::sendMessage(const String& destination, const Message& message)
     if (!m_socket.active())
         throw Exception("Not connected");
 
+    // Append message type
+    output.append((uint8_t)message.type());
+
     // Append destination
     output.append((uint32_t)destination.size());
     output.append(destination);
