@@ -10,6 +10,7 @@ SET (SPUTIL_SOURCES
     core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/Printer.cpp core/SystemException.cpp core/md5.cpp
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
     jwt/JWT.cpp jwt/JWT-openssl.cpp
+    mq/Message.cpp mq/smq/SMQClient.cpp mq/smq/SMQServer.cpp mq/smq/SMQMessage.cpp
     net/AsyncTcpSocket.cpp net/BaseMailConnect.cpp net/BaseSocket.cpp net/CachedSSLContext.cpp
     net/Host.cpp net/HttpAuthentication.cpp net/HttpConnect.cpp net/HttpParams.cpp net/HttpAuthentication.cpp net/HttpReader.cpp
     net/ImapConnect.cpp net/MailMessageBody.cpp net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp net/SocketEvents.cpp 

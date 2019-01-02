@@ -39,6 +39,8 @@ namespace sptk {
 class SMQServer : public TCPServer
 {
     std::mutex                                          m_mutex;
+    String                                              m_username;
+    String                                              m_password;
 protected:
 
     typedef std::shared_ptr<Message>                    SMessage;
@@ -56,6 +58,16 @@ public:
         std::shared_ptr<SMessageQueue>  m_subscribedQueue;
 
         std::shared_ptr<SMessageQueue>  subscribedQueue();
+
+        template<class T> void read(T& data)
+        {
+            socket().read((char*)&data, sizeof(data));
+        }
+
+        void read(String& str);
+        void read(Buffer& str);
+
+        void readConnect();
         void readMessage(String& destination, Buffer& message);
     public:
         Connection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*);
@@ -67,11 +79,14 @@ public:
     };
 
     ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
+    bool authenticate(const String& username, const String& password);
 
 public:
-    SMQServer();
+    SMQServer(const String& username, const String& password, LogEngine& logEngine);
     std::shared_ptr<SMessageQueue> getClientQueue(const String& destination);
     void distributeMessage(const String& destination, SMessage message);
+
+    static void sendMessage(TCPSocket& socket, const Message& message);
 };
 
 }

@@ -37,17 +37,21 @@ namespace sptk {
 
 class SMQClient : public Thread
 {
+    std::mutex                  m_mutex;
     TCPSocket                   m_socket;
+    Host                        m_server;
+    String                      m_username;
+    String                      m_password;
     SynchronizedQueue<Message>  m_receivedMessages;
 protected:
     void threadFunction() override;
 public:
     SMQClient();
-    void connect(const Host& host);
+    void connect(const Host& server, const String& username, const String& password);
     void disconnect();
     void subscribe(const String& destination);
     bool getMessage(Message&& message, std::chrono::milliseconds timeout);
-    void sendMessage(const String& destination, const Message& message);
+    void sendMessage(const Message& message);
 };
 
 }

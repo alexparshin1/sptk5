@@ -35,9 +35,27 @@ SMQClient::SMQClient()
 : Thread("SMQClient")
 {}
 
-void SMQClient::connect(const Host& host)
+void SMQClient::connect(const Host& server, const String& username, const String& password)
 {
-    m_socket.open(host);
+    lock_guard<mutex> lock(m_mutex);
+
+    if (m_socket.active()) {
+        if (m_server == server &&  m_username == username && m_password == password)
+            return;
+        m_socket.close();
+    }
+
+    m_server = server;
+    m_username = username;
+    m_password = password;
+
+    m_socket.open(server);
+    Message connectMessage(Message::CONNECT);
+    connectMessage.append((uint8_t)username.length());
+    connectMessage.append(username.c_str(), username.length());
+    connectMessage.append((uint8_t)password.length());
+    connectMessage.append(password.c_str(), password.length());
+    sendMessage(connectMessage);
 }
 
 void SMQClient::disconnect()
@@ -47,10 +65,21 @@ void SMQClient::disconnect()
 
 void SMQClient::threadFunction()
 {
-
+    while (!terminated()) {
+        if (!m_socket.active()) {
+            try {
+                connect(m_server, m_username, m_password);
+            }
+            catch (const Exception& e) {
+                cerr << "SMQClient: " << e.what() << endl;
+                sleep_for(chrono::seconds(10));
+                continue;
+            }
+        }
+    }
 }
 
-void SMQClient::sendMessage(const String& destination, const Message& message)
+void SMQClient::sendMessage(const Message& message)
 {
     Buffer output;
 
@@ -60,9 +89,13 @@ void SMQClient::sendMessage(const String& destination, const Message& message)
     // Append message type
     output.append((uint8_t)message.type());
 
-    // Append destination
-    output.append((uint32_t)destination.size());
-    output.append(destination);
+    if (message.type() == Message::MESSAGE || message.type() == Message::SUBSCRIBE) {
+        if (message.destination().empty())
+            throw Exception("Empty destination");
+        // Append destination
+        output.append((uint8_t) message.destination().size());
+        output.append(message.destination());
+    }
 
     output.append((uint32_t)message.bytes());
     output.append(message.c_str(), message.bytes());
@@ -74,5 +107,7 @@ void SMQClient::sendMessage(const String& destination, const Message& message)
 
 void SMQClient::subscribe(const String& destination)
 {
-    sendMessage(destination, Message(Message::SUBSCRIBE));
+    Message subscribeMessage(Message::SUBSCRIBE);
+    subscribeMessage.destination(destination);
+    sendMessage(subscribeMessage);
 }

@@ -217,7 +217,12 @@ public:
      * Allocates memory if needed.
      * @param val               Short integer
      */
-    void append(uint16_t val);
+    template <class T> void append(T val)
+    {
+        checkSize(m_bytes + sizeof(val));
+        memcpy(m_buffer + m_bytes, &val, sizeof(val));
+        m_bytes += sizeof(val);
+    }
 
     /**
      * Appends the external data of size sz to the current buffer.

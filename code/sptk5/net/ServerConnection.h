@@ -50,6 +50,7 @@ class TCPServer;
  */
 class ServerConnection: public Runable
 {
+    friend class SMQServer;
     friend class TCPServer;
 
     /**

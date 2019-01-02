@@ -23,6 +23,7 @@ public:
     typedef std::map<String, String> Headers;
 
     enum Type {
+        UNDEFINED,
         CONNECT,
         DISCONNECT,
         SUBSCRIBE,
@@ -36,6 +37,7 @@ private:
     Headers         m_headers;
     DateTime        m_created;
     Type            m_type { MESSAGE };
+    String          m_destination;
 
 public:
 
@@ -44,26 +46,31 @@ public:
 
     Message(const Message& other) = default;
 
-    Message(Type type, const Buffer& other)
+    Message(Type type, const Buffer& other, const String& destination = "")
     : Buffer(other),
       m_created("now"),
-      m_type(type)
+      m_type(type),
+      m_destination(destination)
     {}
 
-    Message(Type type, const Buffer&& other)
+    Message(Type type, const Buffer&& other, const String& destination = "")
     : Buffer(other),
       m_created("now"),
-      m_type(type)
+      m_type(type),
+      m_destination(destination)
     {}
 
     Message(Message&& other) noexcept
     : Buffer(std::move(other)),
       m_headers(std::move(other.m_headers)),
       m_created(other.m_created),
-      m_type(other.m_type)
+      m_type(other.m_type),
+      m_destination(std::move(other.destination()))
     {}
 
     virtual ~Message() = default;
+
+    void clear();
 
     Message& operator=(const Message& other) = default;
     Message& operator=(Message&& other) noexcept;
@@ -78,6 +85,10 @@ public:
     Type type() const { return m_type; }
 
     static String typeToString(Type type);
+
+    const String& destination() const;
+
+    void destination(const String& destination);
 };
 
 }

@@ -15,11 +15,20 @@
 using namespace std;
 using namespace sptk;
 
+void Message::clear()
+{
+    m_headers.clear();
+    m_type = UNDEFINED;
+    m_destination.clear();
+    bytes(0);
+}
+
 Message& Message::operator=(Message&& other) noexcept
 {
     m_headers = std::move(other.m_headers);
     m_created = other.m_created;
     m_type = other.m_type;
+    m_destination = std::move(other.m_destination);
     other.m_type = MESSAGE;
     other.m_created = DateTime();
     *(Buffer*)this = std::move(*(Buffer*)&other);
@@ -45,6 +54,8 @@ String Message::toString() const
     for (auto itor: m_headers) {
         output << itor.first << ": " << itor.second << endl;
     }
+    if (!m_destination.empty())
+        output << "destination: " << m_destination << endl;
     output << "timestamp: " << m_created.isoDateTimeString(DateTime::PA_MILLISECONDS) << endl << endl;
     output << c_str() << endl;
     return output.str();
@@ -67,6 +78,16 @@ String Message::typeToString(Type type)
             break;
     }
     return "MESSAGE";
+}
+
+const String& Message::destination() const
+{
+    return m_destination;
+}
+
+void Message::destination(const String& destination)
+{
+    m_destination = destination;
 }
 
 #if USE_GTEST

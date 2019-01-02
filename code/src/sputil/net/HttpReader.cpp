@@ -116,7 +116,7 @@ bool HttpReader::readData(TCPSocket& socket)
     if (readBytes == 0) {
         if (m_contentLength != 0)
             throw Exception("Server closed connection");
-        return true; // Server closed connection
+        return true; // SMQServer closed connection
     }
 
     while (socket.readyToRead(chrono::seconds(10))) {

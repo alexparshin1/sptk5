@@ -116,13 +116,6 @@ void Buffer::append(char ch)
     m_bytes++;
 }
 
-void Buffer::append(uint16_t data)
-{
-    checkSize(m_bytes + sizeof(uint16_t));
-    memcpy(m_buffer + m_bytes, &data, sizeof(uint16_t));
-    m_bytes += sizeof(uint16_t);
-}
-
 void Buffer::append(const char* data, size_t sz)
 {
     if (sz == 0)

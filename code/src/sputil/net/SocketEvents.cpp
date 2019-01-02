@@ -51,6 +51,8 @@ SocketEvents::~SocketEvents()
 
 void SocketEvents::add(BaseSocket& socket, void* userData)
 {
+    if (!running())
+        run();
     m_socketPool.watchSocket(socket, userData);
 }
 

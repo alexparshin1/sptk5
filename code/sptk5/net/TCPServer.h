@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTCPSERVER_H__
-#define __CTCPSERVER_H__
+#ifndef __TCP_SERVER_H__
+#define __TCP_SERVER_H__
 
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/Logger.h>
@@ -47,7 +47,7 @@ class TCPServerListener;
  */
 
 /**
- * @brief TCP server
+ * TCP server
  *
  * For every incoming connection, creates connection thread.
  */
@@ -69,11 +69,11 @@ class TCPServer : public ThreadPool
     /**
      * Optional logger
      */
-    Logger*                                 m_logger;
+    std::shared_ptr<Logger>                 m_logger;
 
 protected:
     /**
-     * @brief Screens incoming connection request
+     * Screens incoming connection request
      *
      * Method is called right after connection request is accepted,
      * and allows ignoring unwanted connections. By default simply returns true (allow).
@@ -82,7 +82,7 @@ protected:
     virtual bool allowConnection(sockaddr_in* connectionRequest);
 
     /**
-     * @brief Creates connection thread derived from TCPServerConnection or SSLServerConnection
+     * Creates connection thread derived from TCPServerConnection or SSLServerConnection
      *
      * Application should override this method to create concrete connection object.
      * Created connection object is maintained by CTCPServer.
@@ -93,33 +93,36 @@ protected:
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
+     * @param listenerName      Logical name of the listener
+     * @param threadLimit       Number of worker threads in thread pool
+     * @param logEngine         Optional log engine
      */
-    explicit TCPServer(const String& listenerName, size_t threadLimit, Logger* logger=NULL);
+    explicit TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine=nullptr);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     ~TCPServer() override;
 
     /**
-     * @brief Returns listener port number
+     * Returns listener port number
      */
     uint16_t port() const;
 
     /**
-     * @brief Starts listener
+     * Starts listener
      * @param port              Listener port number
      */
     void listen(uint16_t port);
 
     /**
-     * @brief Stops listener
+     * Stops listener
      */
     void stop();
 
     /**
-     * @brief Returns server state
+     * Returns server state
      */
     bool active() const
     {
@@ -127,9 +130,11 @@ public:
     }
 
     /**
-     * @brief Server operation log
+     * Server operation log
+     * @param priority          Log message priority
+     * @param message           Log message
      */
-    void log(LogPriority priority, std::string message)
+    void log(LogPriority priority, String message)
     {
         if (m_logger)
             m_logger->log(priority, message);
