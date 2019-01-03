@@ -28,6 +28,7 @@
 
 #include "SMQServer.h"
 #include "SMQClient.h"
+#include "SMQMessage.h"
 #include <sptk5/cutils>
 
 using namespace std;
@@ -66,34 +67,14 @@ void SMQServer::Connection::terminate()
     TCPServerConnection::terminate();
 }
 
-void SMQServer::Connection::read(String& str)
-{
-    uint8_t dataSize;
-    read(dataSize);
-    if (dataSize == 0)
-        throw Exception("Invalid string size");
-    socket().read(str, dataSize);
-}
-
-void SMQServer::Connection::read(Buffer& data)
-{
-    uint32_t dataSize;
-    read(dataSize);
-    if (dataSize > 0) {
-        data.checkSize(dataSize);
-        socket().read(data.data(), dataSize);
-    }
-    data.bytes(dataSize);
-}
-
 void SMQServer::Connection::readConnect()
 {
     uint32_t    messageSize;
     String      username;
     String      password;
-    read(messageSize);
-    read(username);
-    read(password);
+    SMQMessage::read(socket(), messageSize);
+    SMQMessage::read(socket(), username);
+    SMQMessage::read(socket(), password);
 
     SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
     if (!smqServer->authenticate(username, password))
@@ -102,8 +83,8 @@ void SMQServer::Connection::readConnect()
 
 void SMQServer::Connection::readMessage(String& destination, Buffer& message)
 {
-    read(destination);
-    read(message);
+    SMQMessage::read(socket(), destination);
+    SMQMessage::read(socket(), message);
 }
 
 void SMQServer::Connection::readRawMessage(String& destination, Buffer& message, uint8_t& messageType)

@@ -59,14 +59,6 @@ public:
 
         std::shared_ptr<SMessageQueue>  subscribedQueue();
 
-        template<class T> void read(T& data)
-        {
-            socket().read((char*)&data, sizeof(data));
-        }
-
-        void read(String& str);
-        void read(Buffer& str);
-
         void readConnect();
         void readMessage(String& destination, Buffer& message);
     public:
