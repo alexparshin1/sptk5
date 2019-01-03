@@ -441,6 +441,43 @@ const json::ObjectData& Element::getObject(const String& name) const
     throw Exception("Not an object");
 }
 
+void Element::exportArray(ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
+{
+    stream << "[";
+    if (m_data.m_array) {
+        bool first = true;
+        for (Element* element: *m_data.m_array) {
+            if (first) {
+                first = false;
+                stream << firstElement;
+            } else
+                stream << betweenElements;
+            element->exportValueTo(stream, formatted, indent + 4);
+        }
+    }
+    stream << newLineChar << indentSpaces << "]";
+}
+
+void Element::exportObject(ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
+{
+    stream << "{";
+    if (m_data.m_object) {
+        bool first = true;
+        for (auto& itor: *m_data.m_object) {
+            if (first) {
+                first = false;
+                stream << firstElement;
+            } else
+                stream << betweenElements;
+            stream << "\"" << *itor.first << "\":";
+            if (formatted)
+                stream << " ";
+            itor.second->exportValueTo(stream, formatted, indent + 4);
+        }
+    }
+    stream << newLineChar << indentSpaces << "}";
+}
+
 void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) const
 {
     String indentSpaces;
@@ -475,39 +512,11 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
             break;
 
         case JDT_ARRAY:
-            stream << "[";
-            if (m_data.m_array) {
-                bool first = true;
-                for (Element* element: *m_data.m_array) {
-                    if (first) {
-                        first = false;
-                        stream << firstElement;
-                    } else
-                        stream << betweenElements;
-                    element->exportValueTo(stream, formatted, indent + 4);
-                }
-                stream << " ";
-            }
-            stream << "]";
+            exportArray(stream, formatted, indent, firstElement, betweenElements, newLineChar, indentSpaces);
             break;
 
         case JDT_OBJECT:
-            stream << "{";
-            if (m_data.m_object) {
-                bool first = true;
-                for (auto& itor: *m_data.m_object) {
-                    if (first) {
-                        first = false;
-                        stream << firstElement;
-                    } else
-                        stream << betweenElements;
-                    stream << "\"" << *itor.first << "\":";
-                    if (formatted)
-                        stream << " ";
-                    itor.second->exportValueTo(stream, formatted, indent + 4);
-                }
-            }
-            stream << newLineChar << indentSpaces << "}";
+            exportObject(stream, formatted, indent, firstElement, betweenElements, newLineChar, indentSpaces);
             break;
 
         default:
@@ -718,6 +727,16 @@ void Element::appendMatchedElement(ElementSet& elements, const Element::XPathEle
         elements.push_back(element);
 }
 
+void Element::selectChildElements(ElementSet& elements, const Element::XPath& xpath, bool rootOnly) const
+{
+    if (!rootOnly) {
+        for (auto& itor: *m_data.m_object) {
+            if (itor.second->m_type == JDT_OBJECT || itor.second->m_type == JDT_ARRAY)
+                itor.second->selectElements(elements, xpath, 0, false);
+        }
+    }
+}
+
 void Element::selectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly)
 {
     const XPathElement& xpathElement(xpath[xpathPosition]);
@@ -754,12 +773,7 @@ void Element::selectElements(ElementSet& elements, const XPath& xpath, size_t xp
             }
         }
 
-        if (!rootOnly) {
-            for (auto& itor: *m_data.m_object) {
-                if (itor.second->m_type == JDT_OBJECT || itor.second->m_type == JDT_ARRAY)
-                    itor.second->selectElements(elements, xpath, 0, false);
-            }
-        }
+        selectChildElements(elements, xpath, rootOnly);
     }
 }
 
@@ -872,7 +886,19 @@ Document* Element::getDocument() const
 static const String testJSON1(R"({ "AAA": { "BBB": "", "CCC": "", "BBB": "", "BBB": "", "DDD": { "BBB": "" }, "CCC": "" } })");
 static const String testJSON2(R"({ "AAA": { "BBB": "", "CCC": "", "BBB": "", "DDD": { "BBB": "" }, "CCC": { "DDD": { "BBB": "", "BBB": "" } } } })");
 static const String testJSON3(R"({ "AAA": { "XXX": { "DDD": { "BBB": "", "BBB": "", "EEE": null, "FFF": null } }, "CCC": { "DDD": { "BBB": null, "BBB": null, "EEE": null, "FFF": null } }, "CCC": { "BBB": { "BBB": { "BBB": null } } } } })");
-static const String testJSON4(R"({ "AAA": {"BBB": "1", "BBB": "2", "BBB": "3", "BBB": "4" } })");
+static const String testJSON4(R"({ "AAA": { "BBB": "1", "BBB": "2", "BBB": "3", "BBB": "4" } })");
+
+static const String testJSON5(R"({"data":{"array":[1,2,3,"test"]}})");
+static const String testJSON6(R"({
+    "data": {
+        "array": [
+            1,
+            2,
+            3,
+            "test"
+        ]
+    }
+})");
 
 TEST(SPTK_JsonElement, select)
 {
@@ -933,6 +959,19 @@ TEST(SPTK_JsonElement, select4)
     document.root().select(elementSet, "/AAA/BBB[last()]");
     EXPECT_EQ(size_t(1), elementSet.size());
     EXPECT_STREQ("4", elementSet[0]->getString().c_str());
+}
+
+TEST(SPTK_JsonElement, export)
+{
+    json::Document   document;
+
+    document.load(testJSON5);
+
+    Buffer buffer;
+    document.exportTo(buffer, false);
+    EXPECT_STREQ(testJSON5.c_str(), buffer.c_str());
+    document.exportTo(buffer, true);
+    EXPECT_STREQ(testJSON6.c_str(), buffer.c_str());
 }
 
 #endif

@@ -161,6 +161,30 @@ protected:
     void moveElement(Element&& other) noexcept;
 
     /**
+     * Export JSON array element to text format
+     * @param stream            Output stream
+     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
+     * @param indent            Formatting indent, number of spaces
+     * @param firstElement      First element indent, string of spaces
+     * @param betweenElements   Space between elements, string of spaces
+     * @param newLineChar       New line character(s)
+     * @param indentSpaces      Indent, string of spaces
+     */
+    void exportArray(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+
+    /**
+     * Export JSON object element to text format
+     * @param stream            Output stream
+     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
+     * @param indent            Formatting indent, number of spaces
+     * @param firstElement      First element indent, string of spaces
+     * @param betweenElements   Space between elements, string of spaces
+     * @param newLineChar       New line character(s)
+     * @param indentSpaces      Indent, string of spaces
+     */
+    void exportObject(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+
+    /**
      * Export JSON element to text format
      * @param stream            Output stream
      * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
@@ -175,7 +199,17 @@ protected:
      */
     void exportValueTo(const String &name, xml::Element &element) const;
 
+    /**
+     * Find child elements matching particular xpath element
+     * @param elements          Elements matching xpath (output)
+     * @param xpath             Xpath elements
+     * @param xpathPosition     Position in xpath currently being checked
+     * @param rootOnly          Flag indicating that only root level elements are checked
+     */
+    void selectChildElements(ElementSet& elements, const XPath& xpath, bool rootOnly) const;
+
 public:
+
     /**
      * Escape special characters
      * @param text              Text with special characters
@@ -191,7 +225,7 @@ public:
     static std::string decode(const std::string& text);
 
     /**
-     * Find all child elements matching particular xpath element
+     * Find elements matching particular xpath element
      * @param elements          Elements matching xpath (output)
      * @param xpath             Xpath elements
      * @param xpathPosition     Position in xpath currently being checked
@@ -403,8 +437,8 @@ public:
     {
         add(new Element(m_document, value));
     }
-
 protected:
+
     /**
      * Add JSON element to JSON array element.
      *
@@ -502,8 +536,8 @@ protected:
     {
         return add(name, new Element(m_document, value));
     }
-
 public:
+
     /**
      * Find JSON element in JSON object element
      * @param name              Name of the element in the object element
