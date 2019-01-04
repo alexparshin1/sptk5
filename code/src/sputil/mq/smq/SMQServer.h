@@ -31,52 +31,50 @@
 
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerConnection.h>
-#include <src/sputil/mq/Message.h>
+#include <src/sputil/mq/smq/SMQMessage.h>
 #include <sptk5/net/SocketEvents.h>
 
 namespace sptk {
 
 class SMQServer : public TCPServer
 {
-    std::mutex                                          m_mutex;
+
+private:
+    mutable std::mutex                                  m_mutex;
     String                                              m_username;
     String                                              m_password;
-protected:
-
-    typedef std::shared_ptr<Message>                    SMessage;
-    typedef SynchronizedQueue<SMessage>                 SMessageQueue;
-
+    std::set<String>                                    m_clientIds;
     std::map<String, std::shared_ptr<SMessageQueue>>    m_queues;
     SocketEvents                                        m_socketEvents;
 
+protected:
     static void socketEventCallback(void *userData, SocketEventType eventType);
 
 public:
     class Connection : public TCPServerConnection
     {
-        std::mutex                      m_mutex;
+        mutable std::mutex              m_mutex;
+        String                          m_clientId;
         std::shared_ptr<SMessageQueue>  m_subscribedQueue;
 
         std::shared_ptr<SMessageQueue>  subscribedQueue();
 
-        void readConnect();
-        void readMessage(String& destination, Buffer& message);
     public:
         Connection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*);
         ~Connection() override;
         void run() override;
         void terminate() override;
-        void readRawMessage(String& destination, Buffer& message, uint8_t& messageType);
+        String clientId() const;
         void subscribeTo(const String& destination);
     };
 
     ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
-    bool authenticate(const String& username, const String& password);
+    void removeConnection(ServerConnection* connection);
+    bool authenticate(const String& clientId, const String& username, const String& password);
 
-public:
     SMQServer(const String& username, const String& password, LogEngine& logEngine);
     std::shared_ptr<SMessageQueue> getClientQueue(const String& destination);
-    void distributeMessage(const String& destination, SMessage message);
+    void distributeMessage(SMessage message);
 
     static void sendMessage(TCPSocket& socket, const Message& message);
 };

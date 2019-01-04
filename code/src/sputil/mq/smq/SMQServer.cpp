@@ -34,18 +34,6 @@
 using namespace std;
 using namespace sptk;
 
-SMQServer::SMQServer(const String& username, const String& password, LogEngine& logEngine)
-: TCPServer("SMQServer", 16, &logEngine),
-  m_username(username), m_password(password),
-  m_socketEvents(SMQServer::socketEventCallback, chrono::seconds(1))
-{
-}
-
-ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
-{
-    return new Connection(*this, connectionSocket, peer);
-}
-
 SMQServer::Connection::Connection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*)
 : TCPServerConnection(server, connectionSocket)
 {
@@ -67,77 +55,92 @@ void SMQServer::Connection::terminate()
     TCPServerConnection::terminate();
 }
 
-void SMQServer::Connection::readConnect()
+void SMQServer::Connection::subscribeTo(const String& destination)
 {
-    uint32_t    messageSize;
-    String      username;
-    String      password;
-    SMQMessage::read(socket(), messageSize);
-    SMQMessage::read(socket(), username);
-    SMQMessage::read(socket(), password);
-
+    lock_guard<mutex> lock(m_mutex);
     SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
-    if (!smqServer->authenticate(username, password))
-        terminate();
+    m_subscribedQueue = smqServer->getClientQueue(destination);
 }
 
-void SMQServer::Connection::readMessage(String& destination, Buffer& message)
+shared_ptr<SMessageQueue> SMQServer::Connection::subscribedQueue()
 {
-    SMQMessage::read(socket(), destination);
-    SMQMessage::read(socket(), message);
+    lock_guard<mutex> lock(m_mutex);
+    return m_subscribedQueue;
 }
 
-void SMQServer::Connection::readRawMessage(String& destination, Buffer& message, uint8_t& messageType)
+void SMQServer::Connection::run()
 {
-    char data[16];
-
-    // Read message signature
-    socket().read(data, 4);
-    if (strncmp(data, "MSG:", 4) != 0)
-        throw Exception("Invalid message magic byte");
-
-    // Read message type
-    socket().read((char*)&messageType, sizeof(messageType));
-    if (messageType > Message::MESSAGE)
-        throw Exception("Invalid message type");
-
-    switch (messageType) {
-        case Message::CONNECT:
-            readConnect();
-            break;
-        case Message::MESSAGE:
-        case Message::SUBSCRIBE:
-        case Message::UNSUBSCRIBE:
-            readMessage(destination, message);
-            break;
-        default:
-            destination = "";
-            message.bytes(0);
-            break;
+    while (!terminated()) {
+        try {
+            shared_ptr<SMessageQueue> queue = subscribedQueue();
+            SMessage message;
+            if (queue && queue->pop(message, chrono::milliseconds(1000))) {
+                SMQServer::sendMessage(socket(), *message);
+            }
+        }
+        catch (const Exception& e) {
+            CERR(e.what() << endl);
+        }
     }
+    socket().close();
+    CERR("Connection terminated" << endl);
+}
+
+String SMQServer::Connection::clientId() const
+{
+    lock_guard<mutex> lock(m_mutex);
+    return m_clientId;
+}
+
+//-------------------------------------------------------------------------------
+
+SMQServer::SMQServer(const String& username, const String& password, LogEngine& logEngine)
+: TCPServer("SMQServer", 16, &logEngine),
+  m_username(username), m_password(password),
+  m_socketEvents(SMQServer::socketEventCallback, chrono::seconds(1))
+{
+}
+
+ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
+{
+    return new Connection(*this, connectionSocket, peer);
+}
+
+void SMQServer::removeConnection(ServerConnection* connection)
+{
+    String clientId = dynamic_cast<Connection*>(connection)->clientId();
+    lock_guard<mutex> lock(m_mutex);
+    m_clientIds.erase(clientId);
 }
 
 void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
 {
     Connection* connection = (Connection*) userData;
+
+    if (eventType == ET_CONNECTION_CLOSED) {
+        connection->terminate();
+        return;
+    }
+
     SMQServer* smqServer = dynamic_cast<SMQServer*>(&connection->server());
 
     try {
         while (connection->socket().socketBytes() > 0) {
-            uint8_t messageType;
-            Buffer data;
-            String destination;
 
-            connection->readRawMessage(destination, data, messageType);
-            auto msg = make_shared<Message>((Message::Type) messageType, move(data));
+            auto msg = SMQMessage::readRawMessage(connection->socket());
 
-            switch (messageType) {
+            switch (msg->type()) {
+                case Message::CONNECT:
+                    if (!smqServer->authenticate(<#initializer#>, (*msg)["username"], (*msg)["password"]))
+                        connection->terminate();
+                    break;
                 case Message::SUBSCRIBE:
-                    connection->subscribeTo(destination);
+                    connection->subscribeTo(msg->destination());
                     break;
                 case Message::MESSAGE:
-                    msg->destination(destination);
-                    smqServer->distributeMessage(destination, msg);
+                    smqServer->distributeMessage(msg);
+                    break;
+                default:
                     break;
             }
         }
@@ -148,59 +151,35 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
     }
 }
 
-void SMQServer::distributeMessage(const String& destination, SMQServer::SMessage message)
+void SMQServer::distributeMessage(SMessage message)
 {
-    shared_ptr<SMessageQueue> queue = getClientQueue(destination);
+    shared_ptr<SMessageQueue> queue = getClientQueue(message->destination());
     queue->push(message);
 }
 
-void SMQServer::Connection::subscribeTo(const String& destination)
-{
-    lock_guard<mutex> lock(m_mutex);
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
-    m_subscribedQueue = smqServer->getClientQueue(destination);
-}
-
-shared_ptr<SMQServer::SMessageQueue> SMQServer::Connection::subscribedQueue()
-{
-    lock_guard<mutex> lock(m_mutex);
-    return m_subscribedQueue;
-}
-
-shared_ptr<SMQServer::SMessageQueue> SMQServer::getClientQueue(const String& destination)
+shared_ptr<SMessageQueue> SMQServer::getClientQueue(const String& destination)
 {
     lock_guard<mutex> lock(m_mutex);
     auto queue = m_queues[destination];
     if (!queue) {
-        queue = make_shared<SMQServer::SMessageQueue>();
+        queue = make_shared<SMessageQueue>();
         m_queues[destination] = queue;
     }
     return queue;
 }
 
-bool SMQServer::authenticate(const String& username, const String& password)
+bool SMQServer::authenticate(const String& clientId, const String& username, const String& password)
 {
     lock_guard<mutex> lock(m_mutex);
-    return username == m_username && password == m_password;
-}
-
-void SMQServer::Connection::run()
-{
-    while (!terminated()) {
-        try {
-            shared_ptr<SMQServer::SMessageQueue> queue = subscribedQueue();
-            SMessage message;
-            if (queue && queue->pop(message, chrono::milliseconds(1000))) {
-                cout << message->c_str() << endl;
-                SMQServer::sendMessage(socket(), *message);
-            }
-        }
-        catch (const Exception& e) {
-            CERR(e.what() << endl);
-        }
+    if (m_clientIds.find(clientId) != m_clientIds.end()) {
+        log(LP_ERROR, "Duplicate client id: " + clientId);
+        return false;
     }
-    socket().close();
-    cerr << "Connection terminated" << endl;
+    if (username != m_username || password != m_password) {
+        log(LP_ERROR, "Invalid username or password, client id: " + clientId);
+        return false;
+    }
+    return true;
 }
 
 void SMQServer::sendMessage(TCPSocket& socket, const Message& message)
@@ -231,6 +210,8 @@ void SMQServer::sendMessage(TCPSocket& socket, const Message& message)
 
 #if USE_GTEST
 
+size_t messageCount {50000};
+
 TEST(SPTK_SMQServer, minimal)
 {
     Buffer          buffer;
@@ -240,13 +221,20 @@ TEST(SPTK_SMQServer, minimal)
     ASSERT_NO_THROW(smqServer.listen(4000));
 
     SMQClient smqClient;
-    ASSERT_NO_THROW(smqClient.connect(Host("localhost:4000"), "user", "secret"));
+    ASSERT_NO_THROW(smqClient.connect(Host("localhost:4000"), "test-client1", "user", "secret"));
 
     smqClient.subscribe("test-queue");
-    smqClient.sendMessage(Message(Message::MESSAGE, Buffer("Hello, World!"), "test-queue"));
-    smqClient.sendMessage(Message(Message::MESSAGE, Buffer("This is SMQ test"), "test-queue"));
 
-    this_thread::sleep_for(chrono::seconds(300));
+    DateTime started("now");
+    for (size_t m = 0; m < messageCount; m++)
+        smqClient.sendMessage(Message(Message::MESSAGE, Buffer("This is SMQ test"), "test-queue"));
+
+    while (smqClient.hasMessages() < messageCount)
+        this_thread::sleep_for(chrono::milliseconds(1));
+
+    DateTime ended("now");
+    size_t durationMS = chrono::duration_cast<chrono::milliseconds>(ended - started).count();
+    COUT("Done for " << durationMS << " ms, " << double(messageCount) / durationMS * 1000 << " msg/sec" << endl);
 
     smqClient.disconnect();
     smqServer.stop();

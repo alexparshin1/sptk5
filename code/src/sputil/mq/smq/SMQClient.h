@@ -31,7 +31,7 @@
 
 #include <sptk5/cthreads>
 #include <sptk5/cnet>
-#include <src/sputil/mq/Message.h>
+#include <src/sputil/mq/smq/SMQMessage.h>
 
 namespace sptk {
 
@@ -40,18 +40,20 @@ class SMQClient : public Thread
     std::mutex                  m_mutex;
     TCPSocket                   m_socket;
     Host                        m_server;
+    String                      m_clientId;
     String                      m_username;
     String                      m_password;
-    SynchronizedQueue<Message>  m_receivedMessages;
+    SMessageQueue               m_receivedMessages;
 protected:
     void threadFunction() override;
 public:
     SMQClient();
-    void connect(const Host& server, const String& username, const String& password);
+    void connect(const Host& server, const String& clientId, const String& username, const String& password);
     void disconnect();
     void subscribe(const String& destination);
-    bool getMessage(Message&& message, std::chrono::milliseconds timeout);
+    SMessage getMessage(std::chrono::milliseconds timeout);
     void sendMessage(const Message& message);
+    size_t hasMessages() const;
 };
 
 }

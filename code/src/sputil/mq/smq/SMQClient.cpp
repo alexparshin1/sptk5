@@ -27,6 +27,8 @@
 */
 
 #include "SMQClient.h"
+#include "SMQMessage.h"
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -35,46 +37,67 @@ SMQClient::SMQClient()
 : Thread("SMQClient")
 {}
 
-void SMQClient::connect(const Host& server, const String& username, const String& password)
+void SMQClient::connect(const Host& server, const String& clientId, const String& username, const String& password)
 {
     lock_guard<mutex> lock(m_mutex);
 
     if (m_socket.active()) {
-        if (m_server == server &&  m_username == username && m_password == password)
+        if (m_server == server && m_clientId == clientId && m_username == username && m_password == password)
             return;
         m_socket.close();
     }
 
     m_server = server;
+    m_clientId = clientId;
     m_username = username;
     m_password = password;
 
     m_socket.open(server);
     Message connectMessage(Message::CONNECT);
+    connectMessage.append((uint8_t)clientId.length());
+    connectMessage.append(clientId.c_str(), clientId.length());
     connectMessage.append((uint8_t)username.length());
     connectMessage.append(username.c_str(), username.length());
     connectMessage.append((uint8_t)password.length());
     connectMessage.append(password.c_str(), password.length());
     sendMessage(connectMessage);
+
+    if (!running())
+        run();
 }
 
 void SMQClient::disconnect()
 {
+    terminate();
+    join();
     m_socket.close();
 }
 
 void SMQClient::threadFunction()
 {
+    String errorMessagePrefix;
     while (!terminated()) {
-        if (!m_socket.active()) {
-            try {
-                connect(m_server, m_username, m_password);
+        try {
+            if (!m_socket.active() && !m_clientId.empty()) {
+                try {
+                    errorMessagePrefix = "SMQClient " + m_clientId + ": ";
+                    connect(m_server, m_clientId, m_username, m_password);
+                }
+                catch (const Exception& e) {
+                    CERR(errorMessagePrefix << e.what() << endl);
+                    sleep_for(chrono::seconds(10));
+                    continue;
+                }
             }
-            catch (const Exception& e) {
-                cerr << "SMQClient: " << e.what() << endl;
-                sleep_for(chrono::seconds(10));
-                continue;
+
+            if (m_socket.readyToRead(chrono::seconds(1))) {
+                auto message = SMQMessage::readRawMessage(m_socket);
+                m_receivedMessages.push(message);
             }
+        }
+        catch (const Exception& e) {
+            CERR(errorMessagePrefix << e.what() << endl);
+            m_socket.close();
         }
     }
 }
@@ -110,4 +133,16 @@ void SMQClient::subscribe(const String& destination)
     Message subscribeMessage(Message::SUBSCRIBE);
     subscribeMessage.destination(destination);
     sendMessage(subscribeMessage);
+}
+
+size_t SMQClient::hasMessages() const
+{
+    return m_receivedMessages.size();
+}
+
+SMessage SMQClient::getMessage(std::chrono::milliseconds timeout)
+{
+    SMessage message;
+    m_receivedMessages.pop(message, timeout);
+    return sptk::SMessage();
 }

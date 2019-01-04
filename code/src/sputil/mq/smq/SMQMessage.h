@@ -3,6 +3,7 @@
 
 #include <src/sputil/mq/Message.h>
 #include <sptk5/net/TCPSocket.h>
+#include <sptk5/threads/SynchronizedQueue.h>
 
 namespace sptk {
 
@@ -17,7 +18,12 @@ public:
 
     static void read(TCPSocket& socket, String& str);
     static void read(TCPSocket& socket, Buffer& data);
+    static std::shared_ptr<Message> readConnect(TCPSocket& socket);
+    static std::shared_ptr<Message> readRawMessage(TCPSocket& socket);
 };
+
+typedef std::shared_ptr<Message>                    SMessage;
+typedef SynchronizedQueue<SMessage>                 SMessageQueue;
 
 } // namespace sptk
 

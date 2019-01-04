@@ -37,15 +37,12 @@ namespace sptk {
 
 class Channel
 {
-protected:
-
+    std::mutex      m_mutex;
     TCPSocket       m_source;
     TCPSocket       m_destination;
 
     SocketEvents&   m_sourceEvents;
     SocketEvents&   m_destinationEvents;
-
-    std::mutex      m_mutex;
 
 public:
 
