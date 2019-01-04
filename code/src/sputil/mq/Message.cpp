@@ -8,7 +8,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "Message.h"
+#include <sptk5/mq/Message.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/cxml>
 

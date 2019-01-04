@@ -1,7 +1,7 @@
 #ifndef __SMQ_MESSAGE_H__
 #define __SMQ_MESSAGE_H__
 
-#include <src/sputil/mq/Message.h>
+#include <sptk5/mq/Message.h>
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 

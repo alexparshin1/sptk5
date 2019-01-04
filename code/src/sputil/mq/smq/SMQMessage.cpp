@@ -1,4 +1,4 @@
-#include "SMQMessage.h"
+#include <sptk5/mq/SMQMessage.h>
 
 using namespace std;
 using namespace sptk;

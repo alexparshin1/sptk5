@@ -115,14 +115,6 @@ class SP_EXPORT BaseSocket
 protected:
 
     /**
-     * Get socket internal (OS) handle
-     */
-    SOCKET socketFD() const
-    {
-        return m_sockfd;
-    }
-
-    /**
      * Set socket internal (OS) handle
      */
     void setSocketFD(SOCKET fd)
@@ -216,12 +208,20 @@ protected:
 
 public:
 
-    /**
-    * Opens the socket connection by address.
-    * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
-    * @param addr              Defines socket address/port information
-    * @param timeout           Connection timeout. If 0 then wait forever.
-    */
+	/**
+	 * Get socket internal (OS) handle
+	 */
+	SOCKET socketFD() const
+	{
+		return m_sockfd;
+	}
+
+	/**
+     * Opens the socket connection by address.
+     * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
+     * @param addr              Defines socket address/port information
+     * @param timeout           Connection timeout. If 0 then wait forever.
+     */
     void open_addr(CSocketOpenMode openMode = SOM_CREATE, const sockaddr_in* addr = nullptr, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
 
     /**

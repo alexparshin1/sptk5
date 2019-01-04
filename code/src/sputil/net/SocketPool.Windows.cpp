@@ -82,11 +82,11 @@ EventWindow::~EventWindow()
 
 #define WM_SOCKET_EVENT (WM_USER + 1000)
 
-void EventWindow::eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam)
+SocketEventType EventWindow::translateEvent(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (uMsg == WM_SOCKET_EVENT) {
-        SocketEventType events = ET_UNKNOW_EVENT;
-
+	SocketEventType events = ET_UNKNOWN_EVENT;
+	
+	if (uMsg == WM_SOCKET_EVENT) {
         switch (WSAGETSELECTEVENT(lParam)) {
         case FD_ACCEPT:
         case FD_READ:
@@ -97,36 +97,38 @@ void EventWindow::eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
-        if (events == ET_UNKNOW_EVENT && WSAGETSELECTERROR(lParam))
+        if (events == ET_UNKNOWN_EVENT && WSAGETSELECTERROR(lParam))
             events = ET_CONNECTION_CLOSED;
+	}
 
-        if (events)
-            m_eventsCallback((void*)wParam, events);
-   }
+	return events;
 }
 
-int EventWindow::poll(std::vector<event>&, size_t timeoutMS)
+SocketEventType EventWindow::poll(SOCKET& socket, size_t timeoutMS)
 {
 	MSG			msg;
     UINT_PTR	timeoutTimerId = SetTimer(m_window, 0, (UINT) timeoutMS, NULL);
 
     int rc = GetMessage(&msg, m_window, 0, 0);
     if (rc == -1)
-        return 0;
+        return ET_UNKNOWN_EVENT;
 
     if (msg.message == WM_TIMER)
-        return false; // timeout
+        return ET_UNKNOWN_EVENT; // timeout
     KillTimer(m_window, timeoutTimerId);
 
-    eventMessageFunction(msg.message, msg.wParam, msg.lParam);
+    SocketEventType eventType = translateEvent(msg.message, msg.wParam, msg.lParam);
+	if (eventType == ET_UNKNOWN_EVENT)
+		socket = 0;
+	else
+		socket = (SOCKET) msg.wParam;
 
-    return 1;
+	return eventType;
 }
 
 SocketPool::SocketPool(SocketEventCallback eventsCallback)
-: m_pool(NULL), m_threadId(this_thread::get_id()), m_eventsCallback(eventsCallback)
+: m_pool(nullptr), m_eventsCallback(eventsCallback)
 {
-    open();
 }
 
 SocketPool::~SocketPool()
@@ -136,22 +138,33 @@ SocketPool::~SocketPool()
 
 void SocketPool::open()
 {
+	lock_guard<mutex> lock(*this);
+
     if (m_pool)
         return;
+
     m_pool = new EventWindow(m_eventsCallback);
+	m_threadId = this_thread::get_id();
 }
 
 void SocketPool::close()
 {
-    if (m_pool) {
+	lock_guard<mutex> lock(*this);
+
+	if (m_pool) {
         delete m_pool;
-        m_pool = NULL;
+        m_pool = nullptr;
     }
 
-    lock_guard<mutex> lock(*this);
     for (auto itor: m_socketData)
         free(itor.second);
     m_socketData.clear();
+}
+
+bool SocketPool::active()
+{
+	lock_guard<mutex> lock(*this);
+	return m_pool != nullptr;
 }
 
 void SocketPool::watchSocket(BaseSocket& socket, void* userData)
@@ -159,14 +172,14 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
     if (!socket.active())
         throw Exception("Socket is closed");
 
-    lock_guard<mutex> lock(*this);
+	int socketFD = socket.handle();
 
-    int socketFD = socket.handle();
+	lock_guard<mutex> lock(*this);
 
     if (WSAAsyncSelect(socketFD, m_pool->handle(), WM_SOCKET_EVENT, FD_ACCEPT|FD_READ|FD_CLOSE) != 0)
         throw SystemException("Can't add socket to WSAAsyncSelect");
 
-    m_socketData[&socket] = userData;
+    m_socketData[socketFD] = userData;
 }
 
 void SocketPool::forgetSocket(BaseSocket& socket)
@@ -174,17 +187,19 @@ void SocketPool::forgetSocket(BaseSocket& socket)
     if (!socket.active())
         throw Exception("Socket is closed");
 
-    {
+	int socketFD = socket.handle();
+	
+	{
         lock_guard<mutex> lock(*this);
 
-        map<BaseSocket*,void*>::iterator itor = m_socketData.find(&socket);
+        auto itor = m_socketData.find(socketFD);
         if (itor == m_socketData.end())
             return;
 
         m_socketData.erase(itor);
     }
 
-    if (WSAAsyncSelect(socket.handle(), m_pool->handle(), WM_SOCKET_EVENT, 0))
+    if (WSAAsyncSelect(socketFD, m_pool->handle(), WM_SOCKET_EVENT, 0))
         throw SystemException("Can't remove socket from WSAAsyncSelect");
 }
 
@@ -195,15 +210,18 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout)
     if (threadId != m_threadId)
         throw Exception("SocketPool has to be used in the same must thread where it is created");
 
-    vector<event> signaled;
-    m_pool->poll(signaled, timeoutMS);
-/*
-    for (int i = 0; i < eventCount; i++) {
-        epoll_event& event = events[i];
-        if (event.events & (EPOLLHUP | EPOLLRDHUP))
-            m_eventsCallback(event.data.ptr, ET_CONNECTION_CLOSED);
-        else
-            m_eventsCallback(event.data.ptr, ET_HAS_DATA);
-    }
-*/
+    SOCKET socketFD;
+	SocketEventType eventType = m_pool->poll(socketFD, timeoutMS);
+
+	if (eventType != ET_UNKNOWN_EVENT) {
+		lock_guard<mutex> lock(*this);
+
+		auto itor = m_socketData.find(socketFD);
+		if (itor == m_socketData.end())
+			return;
+
+		void* userData = itor->second;
+
+		m_eventsCallback(userData, eventType);
+	}
 }

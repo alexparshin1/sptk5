@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQClient.h - description                              ║
+║                       SMQServer.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,34 +26,57 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_CLIENT_H__
-#define __SMQ_CLIENT_H__
+#ifndef __SMQ_SERVER_H__
+#define __SMQ_SERVER_H__
 
-#include <sptk5/cthreads>
-#include <sptk5/cnet>
-#include <src/sputil/mq/smq/SMQMessage.h>
+#include <sptk5/net/TCPServer.h>
+#include <sptk5/net/TCPServerConnection.h>
+#include <sptk5/mq/SMQMessage.h>
+#include <sptk5/net/SocketEvents.h>
 
 namespace sptk {
 
-class SMQClient : public Thread
+class SMQServer : public TCPServer
 {
-    std::mutex                  m_mutex;
-    TCPSocket                   m_socket;
-    Host                        m_server;
-    String                      m_clientId;
-    String                      m_username;
-    String                      m_password;
-    SMessageQueue               m_receivedMessages;
+
+private:
+    mutable std::mutex                                  m_mutex;
+    String                                              m_username;
+    String                                              m_password;
+    std::set<String>                                    m_clientIds;
+    std::map<String, std::shared_ptr<SMessageQueue>>    m_queues;
+    SocketEvents                                        m_socketEvents;
+
 protected:
-    void threadFunction() override;
+    static void socketEventCallback(void *userData, SocketEventType eventType);
+
 public:
-    SMQClient();
-    void connect(const Host& server, const String& clientId, const String& username, const String& password);
-    void disconnect();
-    void subscribe(const String& destination);
-    SMessage getMessage(std::chrono::milliseconds timeout);
-    void sendMessage(const Message& message);
-    size_t hasMessages() const;
+    class Connection : public TCPServerConnection
+    {
+        mutable std::mutex              m_mutex;
+        String                          m_clientId;
+        std::shared_ptr<SMessageQueue>  m_subscribedQueue;
+
+        std::shared_ptr<SMessageQueue>  subscribedQueue();
+
+    public:
+        Connection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*);
+        ~Connection() override;
+        void run() override;
+        void terminate() override;
+        String clientId() const;
+        void subscribeTo(const String& destination);
+    };
+
+    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
+    void removeConnection(ServerConnection* connection);
+    bool authenticate(const String& clientId, const String& username, const String& password);
+
+    SMQServer(const String& username, const String& password, LogEngine& logEngine);
+    std::shared_ptr<SMessageQueue> getClientQueue(const String& destination);
+    void distributeMessage(SMessage message);
+
+    static void sendMessage(TCPSocket& socket, const Message& message);
 };
 
 }

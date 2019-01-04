@@ -44,7 +44,7 @@ typedef enum {
     /**
      * Event is unknown or undefined
      */
-    ET_UNKNOW_EVENT,
+    ET_UNKNOWN_EVENT,
     /**
      * Socket has data available to read
      */
@@ -88,10 +88,10 @@ typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
         EventWindow(SocketEventCallback eventsCallback);
         ~EventWindow();
 
-        void eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam);
+        SocketEventType translateEvent(UINT uMsg, WPARAM wParam, LPARAM lParam);
         HWND handle() { return m_window; }
 
-        int poll(std::vector<event>&, size_t timeoutMS);
+        SocketEventType poll(SOCKET& socket, size_t timeoutMS);
     };
 #endif
 
@@ -122,7 +122,11 @@ class SocketPool : public std::mutex
     /**
      * Map of sockets to corresponding user data
      */
-    std::map<BaseSocket*,void*> m_socketData;
+#ifdef _WIN32
+	std::map<SOCKET, void*>		m_socketData;
+#else
+	std::map<BaseSocket*,void*> m_socketData;
+#endif
 
 public:
     /**
@@ -165,6 +169,10 @@ public:
      * @param socket BaseSocket&, Socket from this pool
      */
     void forgetSocket(BaseSocket& socket);
+
+#ifdef _WIN32
+	bool active();
+#endif
 };
 
 }

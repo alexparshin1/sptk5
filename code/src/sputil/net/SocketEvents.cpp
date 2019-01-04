@@ -51,8 +51,11 @@ SocketEvents::~SocketEvents()
 
 void SocketEvents::add(BaseSocket& socket, void* userData)
 {
-    if (!running())
-        run();
+	if (!running()) {
+		run();
+		while (!m_socketPool.active())
+			this_thread::sleep_for(chrono::milliseconds(10));
+	}
     m_socketPool.watchSocket(socket, userData);
 }
 

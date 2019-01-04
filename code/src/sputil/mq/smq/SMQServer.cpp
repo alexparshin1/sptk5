@@ -26,9 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "SMQServer.h"
-#include "SMQClient.h"
-#include "SMQMessage.h"
+#include <sptk5/mq/SMQServer.h>
+#include <sptk5/mq/SMQClient.h>
 #include <sptk5/cutils>
 
 using namespace std;
@@ -131,7 +130,7 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
 
             switch (msg->type()) {
                 case Message::CONNECT:
-                    if (!smqServer->authenticate(<#initializer#>, (*msg)["username"], (*msg)["password"]))
+                    if (!smqServer->authenticate((*msg)["clientid"], (*msg)["username"], (*msg)["password"]))
                         connection->terminate();
                     break;
                 case Message::SUBSCRIBE:
@@ -210,14 +209,14 @@ void SMQServer::sendMessage(TCPSocket& socket, const Message& message)
 
 #if USE_GTEST
 
-size_t messageCount {50000};
+size_t messageCount {2};
 
 TEST(SPTK_SMQServer, minimal)
 {
     Buffer          buffer;
-    SysLogEngine    sysLogEngine;
+    FileLogEngine   logEngine("SMQServer.log");
 
-    SMQServer smqServer("user", "secret", sysLogEngine);
+    SMQServer smqServer("user", "secret", logEngine);
     ASSERT_NO_THROW(smqServer.listen(4000));
 
     SMQClient smqClient;
@@ -229,8 +228,13 @@ TEST(SPTK_SMQServer, minimal)
     for (size_t m = 0; m < messageCount; m++)
         smqClient.sendMessage(Message(Message::MESSAGE, Buffer("This is SMQ test"), "test-queue"));
 
-    while (smqClient.hasMessages() < messageCount)
+    size_t maxWait = 1000;
+    while (smqClient.hasMessages() < messageCount) {
         this_thread::sleep_for(chrono::milliseconds(1));
+        maxWait--;
+        if (maxWait == 0)
+            break;
+    }
 
     DateTime ended("now");
     size_t durationMS = chrono::duration_cast<chrono::milliseconds>(ended - started).count();
