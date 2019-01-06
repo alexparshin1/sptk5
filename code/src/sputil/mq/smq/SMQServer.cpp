@@ -209,7 +209,7 @@ void SMQServer::sendMessage(TCPSocket& socket, const Message& message)
 
 #if USE_GTEST
 
-size_t messageCount {2};
+size_t messageCount {1000};
 
 TEST(SPTK_SMQServer, minimal)
 {
