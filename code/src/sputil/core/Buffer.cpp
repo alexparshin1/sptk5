@@ -92,7 +92,11 @@ Buffer::Buffer(Buffer&& other) noexcept
 : m_storage(move(other.m_storage)), m_bytes(other.m_bytes)
 {
     m_buffer = &*m_storage.begin();
-    other.m_bytes = 0;
+
+	other.m_storage.resize(1);
+	other.m_storage[0] = 0;
+	other.m_buffer = &*other.m_storage.begin();
+	other.m_bytes = 0;
 }
 
 void Buffer::adjustSize(size_t sz)

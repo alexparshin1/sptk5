@@ -239,12 +239,23 @@ public:
      * Allocates memory if needed.
      * @param str               String to append
      */
-    void append(const String& str)
+    void append(const std::string& str)
     {
         return append(str.c_str(), str.length());
     }
 
-    /**
+	/**
+	 * Appends the string to the current buffer.
+	 *
+	 * Allocates memory if needed.
+	 * @param str               String to append
+	 */
+	void append(const String& str)
+	{
+		return append(str.c_str(), str.length());
+	}
+
+	/**
      * Appends the string to the current buffer.
      *
      * Allocates memory if needed.
