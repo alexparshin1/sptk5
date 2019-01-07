@@ -41,17 +41,29 @@ SocketEvents::SocketEvents(SocketEventCallback eventsCallback, chrono::milliseco
 
 SocketEvents::~SocketEvents()
 {
-    try {
-        m_socketPool.close();
-    }
-    catch (const Exception& e) {
-        CERR(e.message() << endl);
-    }
+	stop();
+}
+
+void SocketEvents::stop()
+{
+	try {
+		if (running()) {
+			m_socketPool.close();
+			terminate();
+			join();
+		}
+	}
+	catch (const Exception& e) {
+		CERR(e.message() << endl);
+	}
 }
 
 void SocketEvents::add(BaseSocket& socket, void* userData)
 {
 	if (!running()) {
+		lock_guard<mutex> lock(m_mutex);
+		if (m_shutdown)
+			throw Exception("SocketEvents already stopped");
 		run();
 		while (!m_socketPool.active())
 			this_thread::sleep_for(chrono::milliseconds(10));
@@ -76,4 +88,11 @@ void SocketEvents::threadFunction()
         }
     }
     m_socketPool.close();
+}
+
+void SocketEvents::terminate()
+{
+	Thread::terminate();
+	lock_guard<mutex> lock(m_mutex);
+	m_shutdown = true;
 }

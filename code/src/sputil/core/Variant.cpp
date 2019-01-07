@@ -816,7 +816,7 @@ String Variant_Adaptors::asString() const
                 return "";
 
         case VAR_DATE:
-            return DateTime(chrono::microseconds(m_data.getInt64())).dateString();
+            return (String) DateTime(chrono::microseconds(m_data.getInt64())).dateString();
 
         case VAR_DATE_TIME:
             return (String) DateTime(chrono::microseconds(m_data.getInt64()));
@@ -1168,14 +1168,22 @@ TEST(SPTK_Variant, toString)
     Variant v3("Test");
     Variant v4(testDate);
     Variant v5;
+	DateTime dt;
+	String dtStr;
 
     v5.setDateTime(testDate, true);
 
     EXPECT_STREQ("1", v1.asString().c_str());
     EXPECT_STREQ("2.22", v2.asString().c_str());
     EXPECT_STREQ("Test", v3.asString().c_str());
-    EXPECT_STREQ("01/02/18 20:11:14", v4.asString().c_str());
-    EXPECT_STREQ("01/02/18", v5.asString().c_str());
+    
+	dt = v4.asDateTime();
+	dtStr = dt.dateString() + " " + dt.timeString();
+	EXPECT_STREQ(dtStr.c_str(), v4.asString().c_str());
+
+	dt = v5.asDateTime();
+	dtStr = dt.dateString();
+    EXPECT_STREQ(dtStr.c_str(), v5.asString().c_str());
 }
 
 #endif

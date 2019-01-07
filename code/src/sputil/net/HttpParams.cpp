@@ -117,10 +117,10 @@ void HttpParams::encode(Buffer& result) const
 {
     unsigned cnt = 0;
     for (auto& itor: *this) {
-        string param;
+        String param;
         param = itor.first + "=" + encodeString(itor.second);
         if (cnt != 0)
-            result.append("&",1);
+            result.append('&');
         result.append(param);
         cnt++;
     }

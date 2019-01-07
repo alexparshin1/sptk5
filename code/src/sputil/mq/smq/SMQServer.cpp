@@ -100,6 +100,12 @@ SMQServer::SMQServer(const String& username, const String& password, LogEngine& 
 {
 }
 
+void SMQServer::stop()
+{
+	m_socketEvents.stop();
+	TCPServer::stop();
+}
+
 ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
     return new Connection(*this, connectionSocket, peer);
@@ -186,7 +192,7 @@ void SMQServer::sendMessage(TCPSocket& socket, const Message& message)
     if (!socket.active())
         throw Exception("Not connected");
 
-    Buffer output;
+    Buffer output("MSG:", 4);
 
     // Append message type
     output.append((uint8_t)message.type());
@@ -202,14 +208,12 @@ void SMQServer::sendMessage(TCPSocket& socket, const Message& message)
     output.append((uint32_t)message.bytes());
     output.append(message.c_str(), message.bytes());
 
-    const char* magic = "MSG:";
-    socket.write(magic, strlen(magic));
     socket.write(output);
 }
 
 #if USE_GTEST
 
-size_t messageCount {1000};
+static size_t messageCount {1000};
 
 TEST(SPTK_SMQServer, minimal)
 {

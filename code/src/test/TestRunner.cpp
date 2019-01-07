@@ -84,8 +84,13 @@ void stub()
     TCPSocket            socket;
     HttpConnect          connect(socket);
 
-	SysLogEngine		 logger;
-	SMQServer			 smqServer("user", "password", logger);
+	try {
+		SysLogEngine		 logger("unit_tests");
+		SMQServer			 smqServer("user", "password", logger);
+	}
+	catch (Exception&) {
+		CERR("");
+	}
 
     string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     string key("01234567890123456789012345678901");

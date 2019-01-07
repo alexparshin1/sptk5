@@ -47,17 +47,17 @@ public:
 
 int main()
 {
-    StubRequest     request;
-    SysLogEngine    log;
-    Logger          logger(log);
-    try {
-        // Create the socket
+	try {
+		StubRequest     request;
+		SysLogEngine    log("ws_server_test");
+		Logger          logger(log);
+        
+		// Create the socket
         char hostname[128];
         int rc = gethostname(hostname, sizeof(hostname));
         if (rc != 0)
             throw SystemException("Can't get hostname");
-        WSListener server(request, log, "/var/lib/pgman/webapp", "index.html", "request", hostname, false,
-                          0);
+        WSListener server(request, log, "/var/lib/pgman/webapp", "index.html", "request", hostname, false, 0);
         server.listen(8000);
         while (true)
             this_thread::sleep_for(chrono::milliseconds(1000));

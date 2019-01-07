@@ -119,7 +119,7 @@ public:
     /**
      * Stops listener
      */
-    void stop();
+    virtual void stop();
 
     /**
      * Returns server state

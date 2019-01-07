@@ -117,13 +117,19 @@ SocketEventType EventWindow::poll(SOCKET& socket, size_t timeoutMS)
         return ET_UNKNOWN_EVENT; // timeout
     KillTimer(m_window, timeoutTimerId);
 
-    SocketEventType eventType = translateEvent(msg.message, msg.wParam, msg.lParam);
-	if (eventType == ET_UNKNOWN_EVENT)
-		socket = 0;
-	else
-		socket = (SOCKET) msg.wParam;
+	if (msg.message == WM_SOCKET_EVENT) {
+		SocketEventType eventType = translateEvent(msg.message, msg.wParam, msg.lParam);
+		if (eventType == ET_UNKNOWN_EVENT)
+			socket = 0;
+		else
+			socket = (SOCKET)msg.wParam;
+		return eventType;
+	}
+	
+	TranslateMessage(&msg);
+	DispatchMessage(&msg);
 
-	return eventType;
+	return ET_UNKNOWN_EVENT;
 }
 
 SocketPool::SocketPool(SocketEventCallback eventsCallback)
@@ -154,11 +160,8 @@ void SocketPool::close()
 	if (m_pool) {
         delete m_pool;
         m_pool = nullptr;
-    }
-
-    for (auto itor: m_socketData)
-        free(itor.second);
-    m_socketData.clear();
+		m_socketData.clear();
+	}
 }
 
 bool SocketPool::active()
@@ -210,8 +213,18 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout)
     if (threadId != m_threadId)
         throw Exception("SocketPool has to be used in the same must thread where it is created");
 
-    SOCKET socketFD;
-	SocketEventType eventType = m_pool->poll(socketFD, timeoutMS);
+	SOCKET socketFD;
+	SocketEventType eventType = ET_UNKNOWN_EVENT;
+	{
+		lock_guard<mutex> lock(*this);
+
+		if (m_pool == nullptr) {
+			this_thread::sleep_for(chrono::milliseconds(100));
+			return;
+		}
+	}
+
+	eventType = m_pool->poll(socketFD, timeoutMS);
 
 	if (eventType != ET_UNKNOWN_EVENT) {
 		lock_guard<mutex> lock(*this);

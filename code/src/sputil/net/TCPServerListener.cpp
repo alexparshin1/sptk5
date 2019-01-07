@@ -81,7 +81,6 @@ void TCPServerListener::threadFunction()
 void TCPServerListener::terminate()
 {
     Thread::terminate();
-
-    lock_guard<mutex> lock(*this);
-    m_listenerSocket.close();
+	lock_guard<mutex> lock(*this);
+	m_listenerSocket.close();
 }

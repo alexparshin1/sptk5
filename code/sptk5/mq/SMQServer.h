@@ -73,6 +73,7 @@ public:
     bool authenticate(const String& clientId, const String& username, const String& password);
 
     SMQServer(const String& username, const String& password, LogEngine& logEngine);
+	void stop() override;
     std::shared_ptr<SMessageQueue> getClientQueue(const String& destination);
     void distributeMessage(SMessage message);
 

@@ -68,6 +68,8 @@ class SocketEvents : public Thread
      */
     std::chrono::milliseconds   m_timeout;
 
+	bool						m_shutdown {false};
+
 protected:
 
     /**
@@ -100,6 +102,9 @@ public:
      * @param socket	            Socket to remove
      */
     void remove(BaseSocket& socket);
+
+	void stop();
+	void terminate() override;
 };
 
 }

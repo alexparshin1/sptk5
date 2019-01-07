@@ -94,7 +94,7 @@ public:
      * @param programName       Program name
      * @param facilities        Log facility or a set of facilities.
      */
-    SysLogEngine(const std::string& programName = "", uint32_t facilities = LOG_USER);
+    SysLogEngine(const std::string& programName, uint32_t facilities = LOG_USER);
 
     /**
      * @brief Destructor

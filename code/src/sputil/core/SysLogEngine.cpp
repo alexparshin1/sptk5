@@ -174,7 +174,7 @@ void SysLogEngine::setupEventSource()
 
     HKEY keyHandle;
     if (RegCreateKey(HKEY_LOCAL_MACHINE, keyName.c_str(), &keyHandle) != ERROR_SUCCESS)
-        throw runtime_error("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
+        throw Exception("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
 
     unsigned long len = _MAX_PATH;
     unsigned long vtype = REG_EXPAND_SZ;
@@ -226,7 +226,7 @@ void SysLogEngine::setupEventSource()
                     error << "REG_DWORD " << valueData[i].intValue;
                 else
                     error << "REG_SZ " << valueData[i].strValue;
-                throw runtime_error(error.str());
+                throw Exception(error.str());
             }
         }
     }

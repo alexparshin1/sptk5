@@ -96,7 +96,41 @@ TEST(SPTK_Message,ctor)
     DateTime    started("now");
     Message     message;
 
-    message["queue"] = "/test";
-    message = Message(Message::MESSAGE, Buffer("/test"));
+    message = Message(Message::MESSAGE, Buffer("test data"));
+	message["queue"] = "/test";
+
+	EXPECT_STREQ("test data", message.c_str());
+	EXPECT_STREQ("/test", message["queue"].c_str());
+}
+
+TEST(SPTK_Message, copy_ctor)
+{
+	DateTime    started("now");
+	Message     message;
+
+	message = Message(Message::MESSAGE, Buffer("test data"));
+	message["queue"] = "/test";
+
+	Message		message2(message);
+
+	EXPECT_STREQ("test data", message2.c_str());
+	EXPECT_STREQ("/test", message2["queue"].c_str());
+}
+
+TEST(SPTK_Message, move_ctor)
+{
+	DateTime    started("now");
+	Message     message;
+
+	message = Message(Message::MESSAGE, Buffer("test data"));
+	message["queue"] = "/test";
+
+	Message		message2(move(message));
+
+	EXPECT_STREQ("", message.c_str());
+	EXPECT_STREQ("", message["queue"].c_str());
+
+	EXPECT_STREQ("test data", message2.c_str());
+	EXPECT_STREQ("/test", message2["queue"].c_str());
 }
 #endif
