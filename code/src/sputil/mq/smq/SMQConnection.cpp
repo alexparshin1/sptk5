@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQServer.h - description                              ║
+║                       SMQServer.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,43 +26,66 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_SERVER_H__
-#define __SMQ_SERVER_H__
+#include <sptk5/mq/SMQServer.h>
+#include <sptk5/cutils>
 
-#include "SMQConnection.h"
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-class SMQServer : public TCPServer
+SMQConnection::SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*)
+: TCPServerConnection(server, connectionSocket)
 {
-    friend class SMQConnection;
-private:
-    mutable std::mutex                                  m_mutex;
-    String                                              m_username;
-    String                                              m_password;
-    std::set<String>                                    m_clientIds;
-    std::map<String, std::shared_ptr<SMessageQueue>>    m_queues;
-    SocketEvents                                        m_socketEvents;
-
-protected:
-    static void socketEventCallback(void *userData, SocketEventType eventType);
-    void watchSocket(TCPSocket& socket, void* userData);
-    void forgetSocket(TCPSocket& socket);
-
-public:
-
-    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
-    void removeConnection(ServerConnection* connection);
-    bool authenticate(const String& clientId, const String& username, const String& password);
-
-    SMQServer(const String& username, const String& password, LogEngine& logEngine);
-	void stop() override;
-    std::shared_ptr<SMessageQueue> getClientQueue(const String& destination);
-    void distributeMessage(SMessage message);
-
-    static void sendMessage(TCPSocket& socket, const Message& message);
-};
-
+    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server);
+    if (smqServer != nullptr)
+        smqServer->watchSocket(socket(), this);
 }
 
-#endif
+SMQConnection::~SMQConnection()
+{
+    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
+    if (smqServer != nullptr)
+        smqServer->forgetSocket(socket());
+}
+
+void SMQConnection::terminate()
+{
+    socket().close();
+    TCPServerConnection::terminate();
+}
+
+void SMQConnection::subscribeTo(const String& destination)
+{
+    lock_guard<mutex> lock(m_mutex);
+    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
+    m_subscribedQueue = smqServer->getClientQueue(destination);
+}
+
+shared_ptr<SMessageQueue> SMQConnection::subscribedQueue()
+{
+    lock_guard<mutex> lock(m_mutex);
+    return m_subscribedQueue;
+}
+
+void SMQConnection::run()
+{
+    while (!terminated()) {
+        try {
+            shared_ptr<SMessageQueue> queue = subscribedQueue();
+            SMessage message;
+            if (queue && queue->pop(message, chrono::milliseconds(1000))) {
+                SMQServer::sendMessage(socket(), *message);
+            }
+        }
+        catch (const Exception& e) {
+            CERR(e.what() << endl);
+        }
+    }
+    socket().close();
+    CERR("Connection terminated" << endl);
+}
+
+String SMQConnection::clientId() const
+{
+    lock_guard<mutex> lock(m_mutex);
+    return m_clientId;
+}

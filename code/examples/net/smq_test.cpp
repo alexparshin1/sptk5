@@ -34,8 +34,8 @@ int main()
 
         size_t maxWait = 20000;
         while (smqClient.hasMessages() < messageCount) {
-            this_thread::sleep_for(chrono::milliseconds(100));
-            maxWait -= 100;
+            this_thread::sleep_for(chrono::milliseconds(10));
+            maxWait -= 10;
             if (maxWait == 0)
                 break;
             COUT("Received " << smqClient.hasMessages() << endl);

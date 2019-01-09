@@ -33,66 +33,6 @@
 using namespace std;
 using namespace sptk;
 
-SMQServer::Connection::Connection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*)
-: TCPServerConnection(server, connectionSocket)
-{
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server);
-    if (smqServer != nullptr)
-        smqServer->m_socketEvents.add(socket(), this);
-}
-
-SMQServer::Connection::~Connection()
-{
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
-    if (smqServer != nullptr)
-        smqServer->m_socketEvents.remove(socket());
-}
-
-void SMQServer::Connection::terminate()
-{
-    socket().close();
-    TCPServerConnection::terminate();
-}
-
-void SMQServer::Connection::subscribeTo(const String& destination)
-{
-    lock_guard<mutex> lock(m_mutex);
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
-    m_subscribedQueue = smqServer->getClientQueue(destination);
-}
-
-shared_ptr<SMessageQueue> SMQServer::Connection::subscribedQueue()
-{
-    lock_guard<mutex> lock(m_mutex);
-    return m_subscribedQueue;
-}
-
-void SMQServer::Connection::run()
-{
-    while (!terminated()) {
-        try {
-            shared_ptr<SMessageQueue> queue = subscribedQueue();
-            SMessage message;
-            if (queue && queue->pop(message, chrono::milliseconds(1000))) {
-                SMQServer::sendMessage(socket(), *message);
-            }
-        }
-        catch (const Exception& e) {
-            CERR(e.what() << endl);
-        }
-    }
-    socket().close();
-    CERR("Connection terminated" << endl);
-}
-
-String SMQServer::Connection::clientId() const
-{
-    lock_guard<mutex> lock(m_mutex);
-    return m_clientId;
-}
-
-//-------------------------------------------------------------------------------
-
 SMQServer::SMQServer(const String& username, const String& password, LogEngine& logEngine)
 : TCPServer("SMQServer", 16, &logEngine),
   m_username(username), m_password(password),
@@ -108,19 +48,19 @@ void SMQServer::stop()
 
 ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    return new Connection(*this, connectionSocket, peer);
+    return new SMQConnection(*this, connectionSocket, peer);
 }
 
 void SMQServer::removeConnection(ServerConnection* connection)
 {
-    String clientId = dynamic_cast<Connection*>(connection)->clientId();
+    String clientId = dynamic_cast<SMQConnection*>(connection)->clientId();
     lock_guard<mutex> lock(m_mutex);
     m_clientIds.erase(clientId);
 }
 
 void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
 {
-    Connection* connection = (Connection*) userData;
+    SMQConnection* connection = (SMQConnection*) userData;
 
     if (eventType == ET_CONNECTION_CLOSED) {
         connection->terminate();
@@ -209,6 +149,16 @@ void SMQServer::sendMessage(TCPSocket& socket, const Message& message)
     output.append(message.c_str(), message.bytes());
 
     socket.write(output);
+}
+
+void SMQServer::watchSocket(TCPSocket& socket, void* userData)
+{
+    m_socketEvents.add(socket, userData);
+}
+
+void SMQServer::forgetSocket(TCPSocket& socket)
+{
+    m_socketEvents.remove(socket);
 }
 
 #if USE_GTEST
