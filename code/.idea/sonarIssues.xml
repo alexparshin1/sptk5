@@ -873,6 +873,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/examples/net/smq_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/examples/net/smtp_connect.cpp">
           <value>
             <set />
@@ -1309,6 +1314,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/net/SmtpConnect.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/net/SocketEvents.h">
           <value>
             <set />
           </value>

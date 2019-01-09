@@ -170,9 +170,7 @@ public:
      */
     void forgetSocket(BaseSocket& socket);
 
-#ifdef _WIN32
 	bool active();
-#endif
 };
 
 }

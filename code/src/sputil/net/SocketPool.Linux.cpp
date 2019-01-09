@@ -29,6 +29,8 @@
 #include "sptk5/SystemException.h"
 #include "sptk5/net/SocketPool.h"
 #include <sys/epoll.h>
+#include <sptk5/net/SocketPool.h>
+
 
 using namespace std;
 using namespace sptk;
@@ -126,4 +128,9 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout)
         else
             m_eventsCallback(event.data.ptr, ET_HAS_DATA);
     }
+}
+
+bool SocketPool::active()
+{
+    return m_pool != INVALID_SOCKET;
 }
