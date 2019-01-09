@@ -267,6 +267,13 @@ public:
     }
 
     /**
+     * Remove fragment from buffer's content
+     * @param offset            Fragment start offset
+     * @param length            Fragment length
+     */
+    void erase(size_t offset, size_t length);
+
+    /**
      * Truncates the current buffer to the size sz.
      *
      * Deallocates unused memory if needed.

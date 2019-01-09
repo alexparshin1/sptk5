@@ -226,6 +226,18 @@ Buffer& Buffer::operator = (const char* str)
     return *this;
 }
 
+void Buffer::erase(size_t offset, size_t length)
+{
+    if (offset >= m_bytes || length == 0)
+        return; // Nothing to do
+    if (offset + length > m_bytes)
+        length = m_bytes - offset;
+    if (length > 0)
+        memmove(m_buffer + offset, m_buffer + offset + length, length);
+    m_bytes -= length;
+    m_buffer[m_bytes] = 0;
+}
+
 ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 {
     char fillChar = stream.fill('0');
@@ -346,6 +358,15 @@ TEST(SPTK_Buffer, reset)
     EXPECT_STREQ("", buffer1.c_str());
     EXPECT_EQ(size_t(0), buffer1.bytes());
     EXPECT_TRUE(buffer1.capacity() > 0);
+}
+
+TEST(SPTK_Buffer, erase)
+{
+    Buffer  buffer1(testPhrase);
+
+    buffer1.erase(4, 5);
+
+    EXPECT_STREQ("This test", buffer1.c_str());
 }
 
 #endif
