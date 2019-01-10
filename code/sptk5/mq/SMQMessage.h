@@ -18,8 +18,9 @@ public:
 
     static void read(TCPSocket& socket, String& str);
     static void read(TCPSocket& socket, Buffer& data);
-    static std::shared_ptr<Message> readConnect(TCPSocket& socket);
+
     static std::shared_ptr<Message> readRawMessage(TCPSocket& socket);
+    static void sendMessage(TCPSocket& socket, const Message& message);
 };
 
 typedef std::shared_ptr<Message>                    SMessage;

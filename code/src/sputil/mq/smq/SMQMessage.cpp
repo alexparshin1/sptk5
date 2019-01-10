@@ -23,30 +23,28 @@ void SMQMessage::read(TCPSocket& socket, Buffer& data)
     data.bytes(dataSize);
 }
 
-shared_ptr<Message> SMQMessage::readConnect(TCPSocket& socket)
+static void parseHeaders(Buffer& buffer, Message::Headers& headers)
 {
-    uint32_t    messageSize;
-    String      clientId;
-    String      username;
-    String      password;
-
-    SMQMessage::read(socket, messageSize);
-    SMQMessage::read(socket, clientId);
-    SMQMessage::read(socket, username);
-    SMQMessage::read(socket, password);
-
-    auto message = make_shared<Message>(Message::CONNECT);
-    (*message)["clientid"] = clientId;
-    (*message)["username"] = username;
-    (*message)["password"] = password;
-
-    return message;
+    char* pstart = buffer.data();
+    char* pend = buffer.data() + buffer.bytes();
+    for (char* ptr = pstart; ptr < pend; ) {
+        char* nameEnd = strstr(ptr, ": ");
+        if (nameEnd == nullptr)
+            break;
+        *nameEnd = 0;
+        char* valueStart = nameEnd + 2;
+        char* valueEnd = strchr(valueStart, '\n');
+        if (valueStart != nullptr)
+            *valueEnd = 0;
+        headers[ptr] = valueStart;
+        ptr = valueEnd + 1;
+    }
 }
 
 shared_ptr<Message> SMQMessage::readRawMessage(TCPSocket& socket)
 {
     char    data[16];
-    String  destination;
+    Buffer  headers;
     Buffer  message;
     uint8_t messageType;
 
@@ -62,22 +60,56 @@ shared_ptr<Message> SMQMessage::readRawMessage(TCPSocket& socket)
 
     switch (messageType) {
         case Message::CONNECT:
-            return SMQMessage::readConnect(socket);
+        case Message::SUBSCRIBE:
+            SMQMessage::read(socket, headers);
+            break;
 
         case Message::MESSAGE:
-        case Message::SUBSCRIBE:
-            SMQMessage::read(socket, destination);
+            SMQMessage::read(socket, headers);
             SMQMessage::read(socket, message);
             break;
 
         default:
-            destination = "";
             message.bytes(0);
             break;
     }
 
     auto msg = make_shared<Message>((Message::Type) messageType, move(message));
-    msg->destination(destination);
+    if (!headers.empty())
+        parseHeaders(headers, msg->headers());
 
     return msg;
+}
+
+void SMQMessage::sendMessage(TCPSocket& socket, const Message& message)
+{
+    Buffer output("MSG:", 4);
+
+    if (!socket.active())
+        throw Exception("Not connected");
+
+    // Append message type
+    output.append((uint8_t)message.type());
+
+    Buffer headers;
+    for (auto itor: message.headers()) {
+        headers.append(itor.first);
+        headers.append(": ", 2);
+        headers.append(itor.second);
+        headers.append('\n');
+    }
+    output.append((uint32_t) headers.bytes());
+    output.append(headers.c_str(), headers.bytes());
+
+    if ((message.type() & (Message::MESSAGE|Message::SUBSCRIBE)) != 0) {
+        if (message.destination().empty())
+        throw Exception("Message destination is empty or not defined");
+
+        if (message.type() == Message::MESSAGE) {
+            output.append((uint32_t) message.bytes());
+            output.append(message.c_str(), message.bytes());
+        }
+    }
+
+    socket.write(output);
 }

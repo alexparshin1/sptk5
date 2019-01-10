@@ -54,12 +54,9 @@ void SMQClient::connect(const Host& server, const String& clientId, const String
 
     m_socket.open(server);
     Message connectMessage(Message::CONNECT);
-    connectMessage.append((uint8_t)clientId.length());
-    connectMessage.append(clientId.c_str(), clientId.length());
-    connectMessage.append((uint8_t)username.length());
-    connectMessage.append(username.c_str(), username.length());
-    connectMessage.append((uint8_t)password.length());
-    connectMessage.append(password.c_str(), password.length());
+    connectMessage["clientid"] = clientId;
+    connectMessage["username"] = username;
+    connectMessage["password"] = password;
     sendMessage(connectMessage);
 
     if (!running())
@@ -104,28 +101,7 @@ void SMQClient::threadFunction()
 
 void SMQClient::sendMessage(const Message& message)
 {
-    Buffer output;
-
-    if (!m_socket.active())
-        throw Exception("Not connected");
-
-    // Append message type
-    output.append((uint8_t)message.type());
-
-    if (message.type() == Message::MESSAGE || message.type() == Message::SUBSCRIBE) {
-        if (message.destination().empty())
-            throw Exception("Empty destination");
-        // Append destination
-        output.append((uint8_t) message.destination().size());
-        output.append(message.destination());
-    }
-
-    output.append((uint32_t)message.bytes());
-    output.append(message.c_str(), message.bytes());
-
-    const char* magic = "MSG:";
-    m_socket.write(magic, strlen(magic));
-    m_socket.write(output);
+    SMQMessage::sendMessage(m_socket, message);
 }
 
 void SMQClient::subscribe(const String& destination)
@@ -144,5 +120,5 @@ SMessage SMQClient::getMessage(std::chrono::milliseconds timeout)
 {
     SMessage message;
     m_receivedMessages.pop(message, timeout);
-    return sptk::SMessage();
+    return message;
 }

@@ -23,13 +23,13 @@ public:
     typedef std::map<String, String> Headers;
 
     enum Type {
-        UNDEFINED,
-        CONNECT,
-        DISCONNECT,
-        SUBSCRIBE,
-        UNSUBSCRIBE,
-        PING,
-        MESSAGE
+        UNDEFINED    = 0,
+        CONNECT      = 1,
+        DISCONNECT   = 2,
+        SUBSCRIBE    = 4,
+        UNSUBSCRIBE  = 8,
+        PING         = 16,
+        MESSAGE      = 32
     };
 
 
@@ -37,7 +37,6 @@ private:
     Headers         m_headers;
     DateTime        m_created;
     Type            m_type { MESSAGE };
-    String          m_destination;
 
 public:
 
@@ -49,23 +48,24 @@ public:
     Message(Type type, const Buffer& other, const String& destination = "")
     : Buffer(other),
       m_created("now"),
-      m_type(type),
-      m_destination(destination)
-    {}
+      m_type(type)
+    {
+        m_headers["destination"] = destination;
+    }
 
     Message(Type type, const Buffer&& other, const String& destination = "")
     : Buffer(other),
       m_created("now"),
-      m_type(type),
-      m_destination(destination)
-    {}
+      m_type(type)
+    {
+        m_headers["destination"] = destination;
+    }
 
     Message(Message&& other) noexcept
     : Buffer(std::move(other)),
       m_headers(std::move(other.m_headers)),
       m_created(other.m_created),
-      m_type(other.m_type),
-      m_destination(std::move(other.destination()))
+      m_type(other.m_type)
     {}
 
     virtual ~Message() = default;
@@ -79,6 +79,9 @@ public:
     String  operator[](const String& header) const;
 
     const DateTime created() const  { return m_created; }
+
+    Headers& headers() { return m_headers; }
+    const Headers& headers() const { return m_headers; }
 
     String toString() const;
 

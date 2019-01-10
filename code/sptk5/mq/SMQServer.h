@@ -60,7 +60,6 @@ public:
     std::shared_ptr<SMessageQueue> getClientQueue(const String& destination);
     void distributeMessage(SMessage message);
 
-    static void sendMessage(TCPSocket& socket, const Message& message);
 };
 
 }

@@ -65,7 +65,11 @@ void SocketPool::open()
 void SocketPool::close()
 {
     if (m_pool != INVALID_EPOLL) {
+#ifdef _WIN32
         epoll_close(m_pool);
+#else
+        ::close(m_pool);
+#endif
         m_pool = INVALID_EPOLL;
     }
 

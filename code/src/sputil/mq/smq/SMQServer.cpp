@@ -127,30 +127,6 @@ bool SMQServer::authenticate(const String& clientId, const String& username, con
     return true;
 }
 
-void SMQServer::sendMessage(TCPSocket& socket, const Message& message)
-{
-    if (!socket.active())
-        throw Exception("Not connected");
-
-    Buffer output("MSG:", 4);
-
-    // Append message type
-    output.append((uint8_t)message.type());
-
-    if (message.type() == Message::MESSAGE || message.type() == Message::SUBSCRIBE) {
-        if (message.destination().empty())
-            throw Exception("Empty destination");
-        // Append destination
-        output.append((uint8_t) message.destination().size());
-        output.append(message.destination());
-    }
-
-    output.append((uint32_t)message.bytes());
-    output.append(message.c_str(), message.bytes());
-
-    socket.write(output);
-}
-
 void SMQServer::watchSocket(TCPSocket& socket, void* userData)
 {
     m_socketEvents.add(socket, userData);
@@ -163,7 +139,7 @@ void SMQServer::forgetSocket(TCPSocket& socket)
 
 #if USE_GTEST
 
-static size_t messageCount {10000};
+static size_t messageCount {10};
 
 TEST(SPTK_SMQServer, minimal)
 {
@@ -188,6 +164,49 @@ TEST(SPTK_SMQServer, minimal)
         maxWait--;
         if (maxWait == 0)
             break;
+    }
+
+    DateTime ended("now");
+    size_t durationMS = chrono::duration_cast<chrono::milliseconds>(ended - started).count();
+    COUT("Done for " << durationMS << " ms, " << double(messageCount) / durationMS * 1000 << " msg/sec" << endl);
+
+    smqClient.disconnect();
+    smqServer.stop();
+}
+
+TEST(SPTK_SMQServer, shortMessages)
+{
+    Buffer          buffer;
+    FileLogEngine   logEngine("SMQServer.log");
+
+    SMQServer smqServer("user", "secret", logEngine);
+    ASSERT_NO_THROW(smqServer.listen(4000));
+
+    SMQClient smqClient;
+    ASSERT_NO_THROW(smqClient.connect(Host("localhost:4000"), "test-client1", "user", "secret"));
+
+    smqClient.subscribe("test-queue");
+
+    DateTime started("now");
+    Message msg(Message::MESSAGE, Buffer(""), "test-queue");
+    for (size_t m = 0; m < messageCount; m++) {
+        msg["subject"] = "subject " + to_string(m);
+        msg.set("data " + to_string(m));
+        smqClient.sendMessage(msg);
+    }
+
+    size_t maxWait = 1000;
+    while (smqClient.hasMessages() < messageCount) {
+        this_thread::sleep_for(chrono::milliseconds(1));
+        maxWait--;
+        if (maxWait == 0)
+            break;
+    }
+
+    for (size_t m = 0; m < messageCount; m++) {
+        auto msg = smqClient.getMessage(chrono::milliseconds(100));
+        EXPECT_STREQ((*msg)["subject"].c_str(), ("subject " + to_string(m)).c_str());
+        EXPECT_STREQ(msg->c_str(), ("data " + to_string(m)).c_str());
     }
 
     DateTime ended("now");
