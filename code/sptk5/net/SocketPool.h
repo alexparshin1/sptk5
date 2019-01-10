@@ -61,39 +61,10 @@ typedef enum {
 typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
 
 #ifdef _WIN32
-    class EventWindowClass
-    {
-        std::string                 m_className;
-        ATOM                        m_windowClass;
-    public:
-        EventWindowClass();
-        static LRESULT CALLBACK EventWindowClass::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-        const std::string className() const;
-        const ATOM windowClass() const;
-    };
-
-    struct event {
-        int      events;
-        void*    udate;
-    };
-
-    class EventWindow
-    {
-        HWND                        m_window;
-        SocketEventCallback         m_eventsCallback;
-
-        static LRESULT CALLBACK     windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-    public:
-        EventWindow(SocketEventCallback eventsCallback);
-        ~EventWindow();
-
-        SocketEventType translateEvent(UINT uMsg, WPARAM wParam, LPARAM lParam);
-        HWND handle() { return m_window; }
-
-        SocketEventType poll(SOCKET& socket, size_t timeoutMS);
-    };
-#endif
+#define INVALID_EPOLL nullptr
+#else
+#define INVALID_EPOLL INVALID_SOCKET
+#endif // _WIN32
 
 /**
  * Socket event manager.
@@ -104,15 +75,14 @@ typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
  */
 class SocketPool : public std::mutex
 {
-#ifdef _WIN32
-    EventWindow*                m_pool;
-    std::thread::id             m_threadId;
-#else
     /**
      * Socket that controls other sockets events
      */
-    SOCKET                      m_pool;
-#endif
+#ifdef _WIN32
+    HANDLE                      m_pool { INVALID_EPOLL };
+#else
+    SOCKET                      m_pool { INVALID_EPOLL };
+#endif // _WIN32
 
     /**
      * Callback function executed upon socket events
@@ -122,11 +92,7 @@ class SocketPool : public std::mutex
     /**
      * Map of sockets to corresponding user data
      */
-#ifdef _WIN32
-	std::map<SOCKET, void*>		m_socketData;
-#else
 	std::map<BaseSocket*,void*> m_socketData;
-#endif
 
 public:
     /**

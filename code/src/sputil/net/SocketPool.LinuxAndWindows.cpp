@@ -28,7 +28,14 @@
 
 #include "sptk5/SystemException.h"
 #include "sptk5/net/SocketPool.h"
+#ifdef _WIN32
+#include <wepoll.h>
+#include <WS2tcpip.h>
+#include <WinSock2.h>
+#include <Windows.h>
+#else
 #include <sys/epoll.h>
+#endif
 #include <sptk5/net/SocketPool.h>
 
 
@@ -36,7 +43,7 @@ using namespace std;
 using namespace sptk;
 
 SocketPool::SocketPool(SocketEventCallback eventsCallback)
-: m_pool(INVALID_SOCKET), m_eventsCallback(eventsCallback)
+: m_eventsCallback(eventsCallback)
 {
     open();
 }
@@ -48,18 +55,18 @@ SocketPool::~SocketPool()
 
 void SocketPool::open()
 {
-    if (m_pool != INVALID_SOCKET)
+    if (m_pool != INVALID_EPOLL)
         return;
     m_pool = epoll_create1(0);
-    if (m_pool == -1)
+    if (m_pool == INVALID_EPOLL)
         throw SystemException("epoll_create1");
 }
 
 void SocketPool::close()
 {
-    if (m_pool != INVALID_SOCKET) {
-        ::close(m_pool);
-        m_pool = INVALID_SOCKET;
+    if (m_pool != INVALID_EPOLL) {
+        epoll_close(m_pool);
+        m_pool = INVALID_EPOLL;
     }
 
     lock_guard<mutex> lock(*this);
@@ -132,5 +139,5 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout)
 
 bool SocketPool::active()
 {
-    return m_pool != INVALID_SOCKET;
+    return m_pool != INVALID_EPOLL;
 }

@@ -1,0 +1,3 @@
+SPTK on Windows uses wepoll for epoll() emplementation:
+
+https://github.com/piscisaureus/wepoll

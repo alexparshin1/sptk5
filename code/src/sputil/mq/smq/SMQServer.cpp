@@ -163,7 +163,7 @@ void SMQServer::forgetSocket(TCPSocket& socket)
 
 #if USE_GTEST
 
-static size_t messageCount {1000};
+static size_t messageCount {10000};
 
 TEST(SPTK_SMQServer, minimal)
 {
