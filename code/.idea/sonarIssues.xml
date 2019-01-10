@@ -8,6 +8,11 @@
             <set />
           </value>
         </entry>
+        <entry key="/GTest (disassembly)">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="/data_portal (disassembly)">
           <value>
             <set />
@@ -53,7 +58,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/BaseSocket.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/SocketEvents.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/net/SocketPool.LinuxAndWindows.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/TCPSocket.cpp">
           <value>
             <set />
           </value>

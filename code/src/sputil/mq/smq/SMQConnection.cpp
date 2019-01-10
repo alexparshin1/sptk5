@@ -81,7 +81,6 @@ void SMQConnection::run()
         }
     }
     socket().close();
-    CERR("Connection terminated" << endl);
 }
 
 String SMQConnection::clientId() const

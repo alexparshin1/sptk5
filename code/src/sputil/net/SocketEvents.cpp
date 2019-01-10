@@ -84,7 +84,10 @@ void SocketEvents::threadFunction()
             m_socketPool.waitForEvents(m_timeout);
         }
         catch (const Exception& e) {
-            CERR(e.message() << endl);
+        	if (m_socketPool.active()) {
+				CERR(e.message() << endl);
+			} else
+        		break;
         }
     }
     m_socketPool.close();

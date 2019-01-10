@@ -1,4 +1,5 @@
 #include <sptk5/mq/SMQMessage.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -49,7 +50,9 @@ shared_ptr<Message> SMQMessage::readRawMessage(TCPSocket& socket)
     uint8_t messageType;
 
     // Read message signature
-    socket.read(data, 4);
+    size_t bytes = socket.read(data, 4);
+    if (bytes == 0)
+        throw ConnectionException("Connection closed");
     if (strncmp(data, "MSG:", 4) != 0)
         throw Exception("Invalid message magic byte");
 

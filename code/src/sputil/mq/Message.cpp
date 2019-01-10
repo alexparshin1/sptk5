@@ -49,6 +49,7 @@ String Message::operator[](const String& header) const
 String Message::toString() const
 {
     stringstream output;
+    output << typeToString(m_type) << endl;
     for (auto itor: m_headers) {
         output << itor.first << ": " << itor.second << endl;
     }

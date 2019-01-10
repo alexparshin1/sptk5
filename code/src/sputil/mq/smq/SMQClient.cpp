@@ -72,25 +72,21 @@ void SMQClient::disconnect()
 
 void SMQClient::threadFunction()
 {
-    String errorMessagePrefix;
+    String errorMessagePrefix = "SMQClient " + m_clientId + ": ";
     while (!terminated()) {
         try {
-            if (!m_socket.active() && !m_clientId.empty()) {
-                try {
-                    errorMessagePrefix = "SMQClient " + m_clientId + ": ";
-                    connect(m_server, m_clientId, m_username, m_password);
-                }
-                catch (const Exception& e) {
-                    CERR(errorMessagePrefix << e.what() << endl);
-                    sleep_for(chrono::seconds(10));
-                    continue;
-                }
+            if (!m_socket.active()) {
+                sleep_for(chrono::milliseconds(100));
+                continue;
             }
 
             if (m_socket.readyToRead(chrono::seconds(1))) {
                 auto message = SMQMessage::readRawMessage(m_socket);
                 m_receivedMessages.push(message);
             }
+        }
+        catch (const ConnectionException&) {
+            m_socket.close();
         }
         catch (const Exception& e) {
             CERR(errorMessagePrefix << e.what() << endl);
