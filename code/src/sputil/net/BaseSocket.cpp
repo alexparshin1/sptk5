@@ -368,21 +368,20 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
 {
     const auto timeoutMS = (int) timeout.count();
 #ifdef _WIN32
-    struct timeval time;
-    time.tv_sec = int32_t (timeoutMS) / 1000;
-    time.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
-
-    fd_set  inputs, errors;
-    FD_ZERO(&inputs);
-    FD_ZERO(&errors);
-    FD_SET(m_sockfd, &inputs);
-    FD_SET(m_sockfd, &errors);
-
-    const int rc = select(FD_SETSIZE, &inputs, nullptr, &errors, &time);
-    if (rc < 0)
-        THROW_SOCKET_ERROR("Can't read from socket");
-    if (FD_ISSET(m_sockfd, &errors))
-        throw ConnectionException("Connection closed");
+    WSAPOLLFD fdarray{};
+    fdarray.fd = m_sockfd;
+    fdarray.events = POLLRDNORM;
+    switch (WSAPoll(&fdarray, 1, timeoutMS)) {
+    case 0:
+        return false;
+    case 1:
+        if (fdarray.revents & POLLRDNORM)
+            return true;
+        break;
+    default:
+        break;
+    }
+    THROW_SOCKET_ERROR("WSAPoll error");
 #else
     struct pollfd pfd = {};
 
@@ -393,29 +392,28 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
         throw ConnectionException("Connection closed");
-#endif
     return rc != 0;
+#endif
 }
 
 bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 {
     const auto timeoutMS = (int) timeout.count();
 #ifdef _WIN32
-    struct timeval time;
-    time.tv_sec = int32_t (timeoutMS) / 1000;
-    time.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
-
-    fd_set  inputs, errors;
-    FD_ZERO(&inputs);
-    FD_ZERO(&errors);
-    FD_SET(m_sockfd, &inputs);
-    FD_SET(m_sockfd, &errors);
-
-    const int rc = select(FD_SETSIZE, nullptr, &inputs, &errors, &time);
-    if (rc < 0)
-        THROW_SOCKET_ERROR("Can't read from socket");
-    if (FD_ISSET(m_sockfd, &errors))
-        THROW_SOCKET_ERROR("Socket closed");
+    WSAPOLLFD fdarray {};
+    fdarray.fd = m_sockfd;
+    fdarray.events = POLLWRNORM;
+    switch (WSAPoll(&fdarray, 1, timeoutMS)) {
+    case 0: 
+        return false;
+    case 1:
+        if (fdarray.revents & POLLWRNORM)
+            return true;
+        break;
+    default:
+        break;
+    }
+    THROW_SOCKET_ERROR("WSAPoll error");
 #else
     struct pollfd pfd = {};
     pfd.fd = m_sockfd;
@@ -425,8 +423,8 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
         throw Exception("Connection closed");
-#endif
     return rc != 0;
+#endif
 }
 
 #ifdef _WIN32
