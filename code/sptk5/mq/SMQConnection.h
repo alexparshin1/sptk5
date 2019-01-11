@@ -38,7 +38,7 @@ namespace sptk {
 
 class SMQConnection : public TCPServerConnection
 {
-    mutable std::mutex              m_mutex;
+    mutable SharedMutex             m_mutex;
     String                          m_clientId;
     std::shared_ptr<SMessageQueue>  m_subscribedQueue;
 

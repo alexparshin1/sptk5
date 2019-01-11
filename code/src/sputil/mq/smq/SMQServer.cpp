@@ -139,7 +139,7 @@ void SMQServer::forgetSocket(TCPSocket& socket)
 
 #if USE_GTEST
 
-static size_t messageCount {10};
+static size_t messageCount {100};
 
 TEST(SPTK_SMQServer, minimal)
 {
@@ -237,7 +237,7 @@ TEST(SPTK_SMQServer, multiClients)
     SMQClient sender;
     ASSERT_NO_THROW(sender.connect(serverHost, "sender", "user", "secret"));
 
-    size_t clientCount = 10;
+    size_t clientCount = 3;
     vector<SMQClient> receivers(clientCount);
     size_t clientIndex = 0;
     for (auto& client: receivers) {
@@ -271,6 +271,8 @@ TEST(SPTK_SMQServer, multiClients)
             break;
     }
 
+    EXPECT_EQ(messageCount * clientCount, totalMessages);
+
     for (auto& client: receivers) {
         for (size_t m = 0; m < messageCount; m++) {
             auto msg = client.getMessage(chrono::milliseconds(100));
@@ -278,6 +280,64 @@ TEST(SPTK_SMQServer, multiClients)
             EXPECT_STREQ(msg->c_str(), ("data " + to_string(m)).c_str());
         }
     }
+
+    for (auto& client: receivers)
+        client.disconnect();
+
+    smqServer.stop();
+}
+
+TEST(SPTK_SMQServer, multiClientsSingleQueue)
+{
+    Buffer          buffer;
+    FileLogEngine   logEngine("SMQServer.log");
+    Host            serverHost("localhost:4000");
+
+    SMQServer smqServer("user", "secret", logEngine);
+    ASSERT_NO_THROW(smqServer.listen(4000));
+
+    SMQClient sender;
+    ASSERT_NO_THROW(sender.connect(serverHost, "sender", "user", "secret"));
+
+    size_t clientCount = 3;
+    vector<SMQClient> receivers(clientCount);
+    size_t clientIndex = 0;
+    for (auto& client: receivers) {
+        String clientId = "receiver" + to_string(clientIndex);
+        ASSERT_NO_THROW(client.connect(serverHost, clientId, "user", "secret"));
+        ASSERT_NO_THROW(client.subscribe("test-queue"));
+        clientIndex++;
+    }
+
+    this_thread::sleep_for(chrono::milliseconds(1000));
+
+    Message msg1;
+    for (size_t m = 0; m < messageCount; m++) {
+        msg1["subject"] = "subject " + to_string(m);
+        msg1.set("data " + to_string(m));
+        for (size_t clientIndex1 = 0; clientIndex1 < clientCount; clientIndex1++) {
+            msg1.destination("test-queue");
+            sender.sendMessage(msg1);
+        }
+    }
+
+    size_t totalMessages = 0;
+    size_t maxWait = 1000;
+    while (totalMessages < messageCount * clientCount) {
+        this_thread::sleep_for(chrono::milliseconds(1));
+        totalMessages = 0;
+        for (auto& client: receivers) {
+            totalMessages += client.hasMessages();
+        }
+        maxWait--;
+        if (maxWait == 0)
+            break;
+    }
+
+    EXPECT_EQ(messageCount * clientCount, totalMessages);
+
+    for (auto& client: receivers)
+        COUT("Client " << client.clientId() << " has " <<client.hasMessages() << endl);
 
     for (auto& client: receivers)
         client.disconnect();

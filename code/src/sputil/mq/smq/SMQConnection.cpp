@@ -55,14 +55,14 @@ void SMQConnection::terminate()
 
 void SMQConnection::subscribeTo(const String& destination)
 {
-    lock_guard<mutex> lock(m_mutex);
+    UniqueLock(m_mutex);
     SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
     m_subscribedQueue = smqServer->getClientQueue(destination);
 }
 
 shared_ptr<SMessageQueue> SMQConnection::subscribedQueue()
 {
-    lock_guard<mutex> lock(m_mutex);
+    SharedLock(m_mutex);
     return m_subscribedQueue;
 }
 
@@ -72,8 +72,10 @@ void SMQConnection::run()
         try {
             shared_ptr<SMessageQueue> queue = subscribedQueue();
             SMessage message;
-            if (queue && queue->pop(message, chrono::milliseconds(1000))) {
-                SMQMessage::sendMessage(socket(), *message);
+            if (queue) {
+                if (queue->pop(message, chrono::milliseconds(1000))) {
+                    SMQMessage::sendMessage(socket(), *message);
+                }
             }
         }
         catch (const Exception& e) {
@@ -85,6 +87,6 @@ void SMQConnection::run()
 
 String SMQConnection::clientId() const
 {
-    lock_guard<mutex> lock(m_mutex);
+    SharedLock(m_mutex);
     return m_clientId;
 }

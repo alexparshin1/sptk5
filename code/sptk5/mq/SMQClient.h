@@ -54,6 +54,7 @@ public:
     SMessage getMessage(std::chrono::milliseconds timeout);
     void sendMessage(const Message& message);
     size_t hasMessages() const;
+    const String& clientId() const { return m_clientId; }
 };
 
 }
