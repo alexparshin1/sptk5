@@ -72,10 +72,8 @@ void SMQConnection::run()
         try {
             shared_ptr<SMessageQueue> queue = subscribedQueue();
             SMessage message;
-            if (queue) {
-                if (queue->pop(message, chrono::milliseconds(1000))) {
-                    SMQMessage::sendMessage(socket(), *message);
-                }
+            if (queue && queue->pop(message, chrono::milliseconds(1000))) {
+                SMQMessage::sendMessage(socket(), *message);
             }
         }
         catch (const Exception& e) {

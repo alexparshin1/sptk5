@@ -18,6 +18,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/Query.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/mq/Message.h">
           <value>
             <set />
@@ -38,7 +43,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/SMQServer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/threads/Runable.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/CMakeLists.txt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/jwt/JWT-openssl.cpp">
           <value>
             <set />
           </value>
@@ -84,6 +104,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/net/TCPSocket.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/test/TestRunner.cpp">
           <value>
             <set />
           </value>

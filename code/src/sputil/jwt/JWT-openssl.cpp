@@ -169,7 +169,13 @@ void JWT::verify_sha_hmac(const char* head, const char* sig)
         throw Exception("Signature doesn't match");
 }
 
-#define SIGN_ERROR(__err) { if ((__err) == EINVAL) throw Exception("Invalid value"); else throw Exception("Can't allocate memory"); }
+static void SIGN_ERROR(int __err)
+{
+    if ((__err) == EINVAL)
+        throw Exception("Invalid value");
+    else
+        throw Exception("Can't allocate memory");
+}
 
 void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
 {
@@ -324,7 +330,13 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
         throw Exception("Sign error: " + string(error));
 }
 
-#define VERIFY_ERROR(__err) { if ((__err) == EINVAL) throw Exception("Invalid value"); else throw Exception("Can't allocate memory"); }
+static void VERIFY_ERROR(int __err)
+{
+    if ((__err) == EINVAL)
+        throw Exception("Invalid value");
+    else
+        throw Exception("Can't allocate memory");
+}
 
 void JWT::verify_sha_pem(const char* head, const char* sig_b64)
 {

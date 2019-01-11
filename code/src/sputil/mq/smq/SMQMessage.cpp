@@ -105,8 +105,9 @@ void SMQMessage::sendMessage(TCPSocket& socket, const Message& message)
     output.append(headers.c_str(), headers.bytes());
 
     if ((message.type() & (Message::MESSAGE|Message::SUBSCRIBE)) != 0) {
-        if (message.destination().empty())
-        throw Exception("Message destination is empty or not defined");
+        if (message.destination().empty()) {
+            throw Exception("Message destination is empty or not defined");
+        }
 
         if (message.type() == Message::MESSAGE) {
             output.append((uint32_t) message.bytes());

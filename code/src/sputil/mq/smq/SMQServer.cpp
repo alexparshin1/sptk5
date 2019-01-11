@@ -215,9 +215,9 @@ TEST(SPTK_SMQServer, shortMessages)
     EXPECT_EQ(messageCount, smqReceiver.hasMessages());
 
     for (size_t m = 0; m < messageCount; m++) {
-        auto msg = smqReceiver.getMessage(chrono::milliseconds(100));
-        EXPECT_STREQ((*msg)["subject"].c_str(), ("subject " + to_string(m)).c_str());
-        EXPECT_STREQ(msg->c_str(), ("data " + to_string(m)).c_str());
+        auto message = smqReceiver.getMessage(chrono::milliseconds(100));
+        EXPECT_STREQ((*message)["subject"].c_str(), ("subject " + to_string(m)).c_str());
+        EXPECT_STREQ(message->c_str(), ("data " + to_string(m)).c_str());
     }
 
     smqSender.disconnect();

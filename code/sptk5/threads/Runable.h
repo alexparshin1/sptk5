@@ -81,7 +81,7 @@ public:
     /**
      * Default Constructor
      */
-    Runable(const String& name);
+    explicit Runable(const String& name);
 
     /**
      * Destructor

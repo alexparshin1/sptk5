@@ -36,7 +36,7 @@ namespace sptk {
 class SMQServer : public TCPServer
 {
     friend class SMQConnection;
-private:
+
     mutable std::mutex                                  m_mutex;
     String                                              m_username;
     String                                              m_password;

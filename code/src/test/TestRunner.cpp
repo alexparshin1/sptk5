@@ -47,7 +47,10 @@
 using namespace std;
 using namespace sptk;
 
-void acallback(void*) {}
+static void acallback(void*)
+{
+    // Dummy callback
+}
 
 /**
  * Stub TCP server - testing only
