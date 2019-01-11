@@ -84,6 +84,10 @@ protected:
      */
     void threadFunction() override;
 
+    /**
+     * Set or clear currently executed runable
+     * @param runable           Runable
+     */
 	void setCurrentRunable(Runable* runable);
 
 public:
