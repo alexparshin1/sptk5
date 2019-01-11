@@ -82,7 +82,7 @@ protected:
     /**
      * @brief Thread function
      */
-    void threadFunction();
+    void threadFunction() override;
 
 	void setCurrentRunable(Runable* runable);
 
