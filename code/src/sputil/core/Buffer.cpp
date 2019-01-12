@@ -56,19 +56,6 @@ Buffer::Buffer(const void* data, size_t sz)
         m_buffer[0] = 0;
 }
 
-Buffer::Buffer(const char* str)
-{
-    auto sz = (size_t) strlen(str);
-    m_storage.resize(sz + 1);
-    m_buffer = &*m_storage.begin();
-
-    if (str != nullptr) {
-        memcpy(m_buffer, str, sz);
-        m_bytes = sz;
-    }
-    m_buffer[sz] = 0;
-}
-
 Buffer::Buffer(const String& str)
 : m_storage(str.length() + 1)
 {

@@ -92,16 +92,6 @@ public:
      * The return of the bytes() method will be the input string length.
      * @param str               Input string
      */
-    explicit Buffer(const char* str);
-
-    /**
-     * Constructor
-     *
-     * Creates a buffer from string.
-     * The string is copied inside the buffer.
-     * The return of the bytes() method will be the input string length.
-     * @param str               Input string
-     */
     explicit Buffer(const String& str);
 
     /**
@@ -212,12 +202,12 @@ public:
     void append(char ch);
 
     /**
-     * Append an integer to the current buffer.
+     * Append a value of primitive type or structure to the current buffer.
      *
      * Allocates memory if needed.
-     * @param val               Short integer
+     * @param val               Primitive type or structure
      */
-    template <class T> void append(T val)
+    template <class T> void append(T& val)
     {
         checkSize(m_bytes + sizeof(val));
         memcpy(m_buffer + m_bytes, &val, sizeof(val));
