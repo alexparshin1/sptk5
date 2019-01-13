@@ -207,7 +207,7 @@ public:
      * Allocates memory if needed.
      * @param val               Primitive type or structure
      */
-    template <class T> void append(T& val)
+    template <class T> void append(T val)
     {
         checkSize(m_bytes + sizeof(val));
         memcpy(m_buffer + m_bytes, &val, sizeof(val));

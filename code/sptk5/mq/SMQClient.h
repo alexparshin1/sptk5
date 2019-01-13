@@ -48,6 +48,7 @@ protected:
     void threadFunction() override;
 public:
     SMQClient();
+    bool connected() const { return m_socket.active(); }
     void connect(const Host& server, const String& clientId, const String& username, const String& password);
     void disconnect();
     void subscribe(const String& destination);
