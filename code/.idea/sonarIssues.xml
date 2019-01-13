@@ -118,6 +118,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/FileLogEngine.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQClient.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQServer.cpp">
           <value>
             <set />

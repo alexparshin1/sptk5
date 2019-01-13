@@ -51,7 +51,7 @@ void FileLogEngine::saveMessage(const Logger::Message* message)
         if ((_options & LO_PRIORITY) == LO_PRIORITY)
             m_fileStream << "[" << priorityName(message->priority) << "] ";
 
-        m_fileStream << message << endl;
+        m_fileStream << message->message << endl;
     }
 
 	if (m_fileStream.bad())
