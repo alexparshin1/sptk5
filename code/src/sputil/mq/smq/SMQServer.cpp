@@ -76,8 +76,10 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
 
             switch (msg->type()) {
                 case Message::CONNECT:
-                    if (!smqServer->authenticate((*msg)["clientid"], (*msg)["username"], (*msg)["password"]))
+                    if (!smqServer->authenticate((*msg)["clientid"], (*msg)["username"], (*msg)["password"])) {
+                        smqServer->removeConnection(connection);
                         connection->terminate();
+                    }
                     break;
                 case Message::SUBSCRIBE:
                     connection->subscribeTo(msg->destination());
@@ -91,6 +93,7 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
         }
     }
     catch (const Exception& e) {
+        smqServer->removeConnection(connection);
         connection->terminate();
         smqServer->log(LP_ERROR, e.message());
     }

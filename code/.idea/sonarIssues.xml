@@ -8,12 +8,22 @@
             <set />
           </value>
         </entry>
+        <entry key="/edp_procman (disassembly)">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="/edp_request (disassembly)">
           <value>
             <set />
           </value>
         </entry>
         <entry key="/fragment.mm">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/poc/ProcessManager.cpp">
           <value>
             <set />
           </value>
@@ -44,6 +54,21 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Module/ModuleArguments.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Module/ProcessManager.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_modules/edp_procman/LogManager.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_modules/edp_procman/child.cpp">
           <value>
             <set />
           </value>
@@ -234,6 +259,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQServer.cpp">
           <value>
             <set />
           </value>
