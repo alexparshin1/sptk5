@@ -50,7 +50,7 @@ class DatabaseTests
      * @param table         Database table
      * @return number of rows in table
      */
-    size_t countRowsInTable(DatabaseConnection db, const String& table);
+    size_t countRowsInTable(DatabaseConnection& db, const String& table);
 
     void testTransaction(DatabaseConnection db, bool commit);
 
@@ -58,7 +58,7 @@ public:
     /**
      * Constructor
      */
-    DatabaseTests();
+    DatabaseTests() = default;
 
     /**
      * Add database connection to future tests.

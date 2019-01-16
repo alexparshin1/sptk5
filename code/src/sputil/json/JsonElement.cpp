@@ -340,7 +340,7 @@ const Element& Element::getChild(const String& name) const
     if (!name.empty()) {
         element = find(name);
         if (element == nullptr)
-            throw Exception("Not a number");
+            throw Exception("No such child element");
     }
     return *element;
 }

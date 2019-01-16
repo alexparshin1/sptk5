@@ -88,15 +88,14 @@ void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t v
     m_dataSize = valueLength;
     m_data.getBuffer().size = valueLength + 1;
     if (maxlen != 0) {
-        if (m_data.getBuffer().data != nullptr)
-            delete [] m_data.getBuffer().data;
+        delete [] m_data.getBuffer().data;
         m_data.getBuffer().data = new char[m_data.getBuffer().size];
         if (m_data.getBuffer().data != nullptr) {
             strncpy(m_data.getBuffer().data, value, maxlen);
             m_data.getBuffer().data[maxlen] = 0;
         }
     } else {
-        if ((dataType() & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0 && m_data.getBuffer().data != nullptr)
+        if ((dataType() & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0)
             delete [] m_data.getBuffer().data;
         m_data.getBuffer().size = m_dataSize + 1;
         m_data.getBuffer().data = new char[m_data.getBuffer().size];

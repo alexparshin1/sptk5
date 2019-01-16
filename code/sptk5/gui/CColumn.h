@@ -86,7 +86,7 @@ public:
      * @brief Copy constructor
      * @param col               Source column object
      */
-    CColumn(const CColumn& col);
+    CColumn(const CColumn& col) = default;
 
     /**
      * @brief Returns column name

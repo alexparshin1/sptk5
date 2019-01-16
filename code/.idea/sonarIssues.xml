@@ -43,6 +43,21 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_modules/process_utils/CMakeLists.txt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_modules/process_utils/EDPConfigurationFile.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_modules/process_utils/EDPConfigurationFile.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_modules/process_utils/Module.cpp">
           <value>
             <set />
@@ -53,7 +68,17 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_modules/process_utils/ProcessManager.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_modules/request/RequestModule.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_modules/request/RequestModule.h">
           <value>
             <set />
           </value>
@@ -108,27 +133,52 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/sptk5/Buffer.h">
+        <entry key="$PROJECT_DIR$/examples/database/all_drivers_test.cpp">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/sptk5/mq/SMQClient.h">
+        <entry key="$PROJECT_DIR$/sptk5/db/DatabaseTests.h">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/core/FileLogEngine.cpp">
+        <entry key="$PROJECT_DIR$/sptk5/gui/CColumn.h">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQClient.cpp">
+        <entry key="$PROJECT_DIR$/src/spdb/DatabaseConnectionString.cpp">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQServer.cpp">
+        <entry key="$PROJECT_DIR$/src/spdb/DatabaseTests.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/QueryParameter.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CBox.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CColumn.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CFont.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CGroup.cpp">
           <value>
             <set />
           </value>

@@ -98,7 +98,7 @@ bool CGroup::preferredSize(int& ww, int& hh)
 
 void CGroup::draw()
 {
-    string lbl = label();
+    String lbl = label();
     label("");
 
     Fl_Boxtype b = box();

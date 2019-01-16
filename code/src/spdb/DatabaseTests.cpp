@@ -38,14 +38,10 @@ using namespace sptk;
 
 DatabaseTests sptk::databaseTests;
 
-DatabaseTests::DatabaseTests()
-{
-}
-
 vector<DatabaseConnectionString> DatabaseTests::connectionStrings() const
 {
     vector<DatabaseConnectionString> connectionStrings;
-    for (auto itor: m_connectionStrings)
+    for (auto& itor: m_connectionStrings)
         connectionStrings.push_back(itor.second);
     return connectionStrings;
 }
@@ -378,11 +374,11 @@ void DatabaseTests::testSelect(const DatabaseConnectionString& connectionString)
         throw Exception("Expected result doesn't match inserted data");
 }
 
-size_t DatabaseTests::countRowsInTable(DatabaseConnection db, const String& table)
+size_t DatabaseTests::countRowsInTable(DatabaseConnection& db, const String& table)
 {
     Query select(db, "SELECT count(*) cnt FROM " + table);
     select.open();
-    size_t count = select["cnt"].asInteger();
+    size_t count = (size_t) select["cnt"].asInteger();
     select.close();
 
     return count;

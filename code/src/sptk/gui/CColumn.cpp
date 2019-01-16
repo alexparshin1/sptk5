@@ -46,15 +46,6 @@ CColumn::CColumn(const string& cname, VariantType type, int32_t cwidth, bool cvi
     }
 }
 
-CColumn::CColumn(const CColumn& col)
-: m_name(col.m_name),
-  m_width(col.m_width),
-  m_type(col.m_type),
-  m_visible(col.m_visible),
-  m_autoWidth(col.m_autoWidth)
-{
-}
-
 void CColumn::load(const xml::Node& node)
 {
     m_name = (String) node.getAttribute("caption");
