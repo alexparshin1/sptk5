@@ -34,12 +34,7 @@ using namespace sptk;
 AutoDatabaseConnection::AutoDatabaseConnection(DatabaseConnectionPool& connectionPool)
 : m_connectionPool(connectionPool)
 {
-    try {
-        m_connection = m_connectionPool.createConnection();
-    }
-    catch (const Exception&) {
-        m_connection = nullptr;
-    }
+    m_connection = m_connectionPool.createConnection();
 }
 
 AutoDatabaseConnection::~AutoDatabaseConnection()

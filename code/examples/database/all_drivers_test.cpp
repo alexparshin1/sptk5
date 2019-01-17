@@ -194,7 +194,7 @@ int testDatabase(const string& connectionString)
         printDatabaseObjects(db);
 
         // Defining the statements
-        string tableName = "test_table";
+        String tableName = "test_table";
 
         Query insertRecordQuery(db, "INSERT INTO " + tableName +
                                     " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true);

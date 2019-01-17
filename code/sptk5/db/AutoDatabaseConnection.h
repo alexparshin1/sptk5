@@ -42,7 +42,7 @@ namespace sptk
 class DatabaseConnectionPool;
 
 /**
- * @brief Wrapper for CDatabase connection that automatically handles connection create and release
+ * Wrapper for CDatabase connection that automatically handles connection create and release
  */
 class AutoDatabaseConnection
 {
@@ -54,30 +54,30 @@ class AutoDatabaseConnection
     /**
      * Database connection
      */
-    PoolDatabaseConnection*     m_connection;
+    PoolDatabaseConnection*     m_connection {nullptr};
 
 public:
 
     /**
-     * @brief Constructor
+     * Constructor
      * Automatically gets connection from connection pool
-     * @param connectionPool    DatabaseConnectionPool&, Database connection pool
+     * @param connectionPool    Database connection pool
      */
     explicit AutoDatabaseConnection(DatabaseConnectionPool& connectionPool);
 
     /**
-     * @brief Destructor
+     * Destructor
      * Releases connection to connection pool
      */
     ~AutoDatabaseConnection();
 
     /**
-     * @brief Returns database connection acquired from the connection pool
+     * Returns database connection acquired from the connection pool
      */
     PoolDatabaseConnection* connection();
 
     /**
-     * @brief Opens the database connection
+     * Opens the database connection
      *
      * If unsuccessful throws an exception.
      * @param connectionString  The ODBC connection string
@@ -91,7 +91,7 @@ public:
     }
 
     /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
+     * Closes the database connection. If unsuccessful throws an exception.
      */
     void close()
     {
@@ -99,15 +99,15 @@ public:
     }
 
     /**
-     * @brief Returns true if database is opened
+     * Returns true if database is opened
      */
     bool active() const
     {
-        return m_connection->active();
+        return m_connection != nullptr && m_connection->active();
     }
 
     /**
-     * @brief Returns the connection string
+     * Returns the connection string
      */
     const DatabaseConnectionString& connectionString() const
     {
@@ -115,7 +115,7 @@ public:
     }
 
     /**
-     * @brief Returns driver-specific connection string
+     * Returns driver-specific connection string
      */
     String nativeConnectionString() const
     {
@@ -123,7 +123,7 @@ public:
     }
 
     /**
-     * @brief Returns the connection type
+     * Returns the connection type
      */
     DatabaseConnectionType connectionType() const
     {
@@ -131,7 +131,7 @@ public:
     }
 
     /**
-     * @brief Returns the driver description
+     * Returns the driver description
      */
     String driverDescription() const
     {
@@ -139,7 +139,7 @@ public:
     }
 
     /**
-     * @brief Begins the transaction
+     * Begins the transaction
      */
     void beginTransaction()
     {
@@ -147,7 +147,7 @@ public:
     }
 
     /**
-     * @brief Commits the transaction
+     * Commits the transaction
      */
     void commitTransaction()
     {
@@ -155,7 +155,7 @@ public:
     }
 
     /**
-     * @brief Rolls back the transaction
+     * Rolls back the transaction
      */
     void rollbackTransaction()
     {
@@ -163,7 +163,7 @@ public:
     }
 
     /**
-     * @brief Reports true if in transaction
+     * Reports true if in transaction
      */
     int inTransaction()
     {
@@ -171,7 +171,7 @@ public:
     }
 
     /**
-     * @brief Lists database objects
+     * Lists database objects
      *
      * Not implemented in DatabaseConnection. The derived database class
      * must provide its own implementation
@@ -184,7 +184,7 @@ public:
     }
 
     /**
-     * @brief Executes bulk inserts of data from memory buffer
+     * Executes bulk inserts of data from memory buffer
      *
      * Data is inserted the fastest possible way. The server-specific format definition provides extra information
      * about data. If format is empty than default server-specific data format is used.
@@ -200,7 +200,7 @@ public:
     }
 
     /**
-     * @brief Executes SQL batch file
+     * Executes SQL batch file
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
@@ -213,7 +213,7 @@ public:
     }
 
     /**
-     * @brief Executes SQL batch queries
+     * Executes SQL batch queries
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
