@@ -8,6 +8,11 @@
             <set />
           </value>
         </entry>
+        <entry key="/data_portal (disassembly)">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="/edp_procman (disassembly)">
           <value>
             <set />
@@ -38,6 +43,31 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Configuration/Configuration.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Configuration/Configuration.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Configuration/Connections.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Configuration/LiveConfigurationObject.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/ControlService.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Module/Module.cpp">
           <value>
             <set />
@@ -59,6 +89,36 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Module/ProcessManager.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request/Handlers/DBCommandHandler.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request/Handlers/MQHandler.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request/Request.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request/Request.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request/RequestExecuteTask.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Server.cpp">
           <value>
             <set />
           </value>
@@ -163,6 +223,26 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_request/CMakeLists.txt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_request/RequestHandlers.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_request/RequestModule.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_request/RequestModule.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/module/CMakeLists.txt">
           <value>
             <set />
@@ -213,12 +293,27 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/AutoDatabaseConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/db/DatabaseTests.h">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/gui/CColumn.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/wsdl/WSComplexType.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/AutoDatabaseConnection.cpp">
           <value>
             <set />
           </value>
@@ -268,7 +363,27 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/xml/Document.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/WSComplexType.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="/usr/local/include/sptk5/Buffer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/db/AutoDatabaseConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="be97296b-fd52-4860-bfe2-294840437751/consoles/Edulog">
           <value>
             <set />
           </value>
