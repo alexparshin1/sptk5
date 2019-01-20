@@ -195,6 +195,11 @@ public:
         SharedLock(m_mutex);
         return m_optional;
     }
+
+    /*
+     * Print element as XML text
+     */
+    String toString(bool asJSON=true) const;
 };
 
 /**

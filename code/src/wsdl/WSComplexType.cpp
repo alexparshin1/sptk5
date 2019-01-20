@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/wsdl/WSComplexType.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -52,4 +53,23 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
 void WSComplexType::addElement(xml::Element* parent) const
 {
     unload(new xml::Element(parent, m_name.c_str()));
+}
+
+String WSComplexType::toString(bool asJSON) const
+{
+    xml::Document   outputXML;
+    json::Document  outputJSON;
+    Buffer          output;
+
+    auto element = new xml::Element(outputXML, "type");
+    unload(element);
+
+    if (asJSON) {
+        outputXML.exportTo(outputJSON.root());
+        outputJSON.exportTo(output, true);
+    }
+    else
+        outputXML.save(output, 2);
+
+    return String(output.c_str(), output.bytes());
 }
