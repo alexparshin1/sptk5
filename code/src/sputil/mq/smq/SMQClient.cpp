@@ -82,7 +82,8 @@ void SMQClient::threadFunction()
 
             if (m_socket.readyToRead(chrono::seconds(1))) {
                 auto message = SMQMessage::readRawMessage(m_socket);
-                m_receivedMessages.push(message);
+                if (previewMessage(*message))
+                    m_receivedMessages.push(message);
             }
         }
         catch (const ConnectionException&) {

@@ -37,24 +37,87 @@ namespace sptk {
 
 class SMQClient : public Thread
 {
-    std::mutex                  m_mutex;
-    TCPSocket                   m_socket;
-    Host                        m_server;
-    String                      m_clientId;
-    String                      m_username;
-    String                      m_password;
-    SMessageQueue               m_receivedMessages;
+    std::mutex                  m_mutex;            ///< Mutex that protects internal data
+    TCPSocket                   m_socket;           ///< TCP or SSL connection socket
+    Host                        m_server;           ///< SMQ server host
+    String                      m_clientId;         ///< Unique SMQ client id
+    String                      m_username;         ///< Connection user name
+    String                      m_password;         ///< Connection password
+    SMessageQueue               m_receivedMessages; ///< Received messages queue
+
 protected:
+    /**
+     * Thread function
+     *
+     * Retrieves incoming messages
+     */
     void threadFunction() override;
+
+    /**
+     * Preview received messages before placing them in the received messages queue.
+     * Message may be modified, or ignored.
+     * @param message           Received message
+     * @return true if message should be placed to the received messages queue.
+     */
+    virtual bool previewMessage(Message& message) { return true; }
+
 public:
+
+    /**
+     * Constructor
+     */
     SMQClient();
+
+    /**
+     * Check if client is connected to server
+     * @return true if client is connected to server
+     */
     bool connected() const { return m_socket.active(); }
+
+    /**
+     * Connect to SMQ server
+     * @param server            SMQ server host
+     * @param clientId          Unique SMQ client id
+     * @param username          SMQ server username
+     * @param password          SMQ server password
+     */
     void connect(const Host& server, const String& clientId, const String& username, const String& password);
+
+    /**
+     * Disconnect from SMQ server
+     */
     void disconnect();
+
+    /**
+     * Subscribe to a queue
+     * @param destination       Destination queue name
+     */
     void subscribe(const String& destination);
+
+    /**
+     * Get a single message from received messages queue
+     * @param timeout           Timeout
+     * @return shared pointer to message, or empty pointer if timeout
+     */
     SMessage getMessage(std::chrono::milliseconds timeout);
+
+    /**
+     * Send a message
+     *
+     * Destination queue is defined in message 'destination' header
+     * @param message           Message to send
+     */
     void sendMessage(const Message& message);
+
+    /**
+     * Check if client has any messages in received messages queue
+     * @return number of messages available
+     */
     size_t hasMessages() const;
+    /**
+     * Get client id
+     * @return
+     */
     const String& clientId() const { return m_clientId; }
 };
 

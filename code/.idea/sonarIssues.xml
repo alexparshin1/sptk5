@@ -113,7 +113,17 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request/RequestEventStatistics.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request/RequestExecuteTask.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request/RequestVariables.cpp">
           <value>
             <set />
           </value>
@@ -308,6 +318,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/SMQClient.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/wsdl/WSComplexType.h">
           <value>
             <set />
@@ -349,6 +364,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sptk/gui/CGroup.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQClient.cpp">
           <value>
             <set />
           </value>
