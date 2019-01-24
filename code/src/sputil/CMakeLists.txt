@@ -17,7 +17,7 @@ SET (SPUTIL_SOURCES
     net/TCPServer.cpp net/TCPServerListener.cpp net/TCPSocket.cpp net/ServerConnection.cpp net/UDPSocket.cpp net/ImapDS.cpp
     xml/Attributes.cpp xml/Document.cpp xml/DocType.cpp xml/Node.cpp xml/NodeList.cpp
     tar/block.cpp tar/Tar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
-    threads/Locks.cpp threads/Thread.cpp threads/ThreadPool.cpp threads/Semaphore.cpp threads/Runable.cpp
+    threads/Flag.cpp threads/Locks.cpp threads/Thread.cpp threads/ThreadPool.cpp threads/Semaphore.cpp threads/Runable.cpp
     threads/WorkerThread.cpp threads/Timer.cpp
 )
 
@@ -44,7 +44,7 @@ ENDIF (EPOLL_FLAG)
 
 
 IF (PCRE_FLAG)
-    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp)
+    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp threads/Flag.cpp threads/Flag.h)
 ENDIF (PCRE_FLAG)
 
 ADD_LIBRARY (sputil5 ${LIBRARY_TYPE} ${SPUTIL_SOURCES})

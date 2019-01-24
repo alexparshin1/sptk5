@@ -123,6 +123,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request/RequestHttpParams.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request/RequestVariables.cpp">
           <value>
             <set />
@@ -368,6 +373,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/CMakeLists.txt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQClient.cpp">
           <value>
             <set />
@@ -379,6 +389,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQServer.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/threads/Flag.h">
           <value>
             <set />
           </value>
