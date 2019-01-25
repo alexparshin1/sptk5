@@ -308,6 +308,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/Strings.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/db/AutoDatabaseConnection.h">
           <value>
             <set />
@@ -378,6 +383,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/Strings.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQClient.cpp">
           <value>
             <set />
@@ -409,6 +419,11 @@
           </value>
         </entry>
         <entry key="/usr/local/include/sptk5/Buffer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/Strings.h">
           <value>
             <set />
           </value>

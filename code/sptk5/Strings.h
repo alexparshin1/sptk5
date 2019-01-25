@@ -159,6 +159,13 @@ public:
     Strings(const char *src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept;
 
     /**
+     * Constructor from a string with elements separated by a delimiter string
+     * @param argc              Number of arguments
+     * @param argv              Arguments
+     */
+    Strings(int argc, const char *argv[]) noexcept;
+
+    /**
      * Assignment operator
      * @param other             Other object
      */
