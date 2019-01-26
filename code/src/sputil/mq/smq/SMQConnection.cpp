@@ -28,6 +28,8 @@
 
 #include <sptk5/mq/SMQServer.h>
 #include <sptk5/cutils>
+#include <sptk5/mq/SMQConnection.h>
+
 
 using namespace std;
 using namespace sptk;
@@ -56,8 +58,11 @@ void SMQConnection::terminate()
 void SMQConnection::subscribeTo(const String& destination)
 {
     UniqueLock(m_mutex);
+
     SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
     m_subscribedQueue = smqServer->getClientQueue(destination);
+
+    smqServer->log(LP_INFO, "(" + m_clientId + ") Subscribed to " + destination);
 }
 
 shared_ptr<SMessageQueue> SMQConnection::subscribedQueue()
@@ -87,8 +92,14 @@ void SMQConnection::run()
     socket().close();
 }
 
-String SMQConnection::clientId() const
+String SMQConnection::getClientId() const
 {
     SharedLock(m_mutex);
     return m_clientId;
+}
+
+void SMQConnection::setClientId(String& id)
+{
+    UniqueLock(m_mutex);
+    m_clientId = id;
 }

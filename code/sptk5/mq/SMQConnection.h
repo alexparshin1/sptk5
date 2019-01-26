@@ -47,9 +47,13 @@ class SMQConnection : public TCPServerConnection
 public:
     SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*);
     ~SMQConnection() override;
+
     void run() override;
     void terminate() override;
-    String clientId() const;
+
+    String getClientId() const;
+    void   setClientId(String& id);
+
     void subscribeTo(const String& destination);
 };
 

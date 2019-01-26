@@ -50,8 +50,9 @@ protected:
     void forgetSocket(TCPSocket& socket);
 
 public:
+	void run() override;
 
-    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
+	ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
     void removeConnection(ServerConnection* connection);
     bool authenticate(const String& clientId, const String& username, const String& password);
 

@@ -44,6 +44,7 @@ void SMQServer::stop()
 {
 	m_socketEvents.stop();
 	TCPServer::stop();
+    log(LP_NOTICE, "Server stopped");
 }
 
 ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
@@ -53,7 +54,7 @@ ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_
 
 void SMQServer::removeConnection(ServerConnection* connection)
 {
-    String clientId = dynamic_cast<SMQConnection*>(connection)->clientId();
+    String clientId = dynamic_cast<SMQConnection*>(connection)->getClientId();
     lock_guard<mutex> lock(m_mutex);
     m_clientIds.erase(clientId);
 }
@@ -79,7 +80,8 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
                     if (!smqServer->authenticate((*msg)["clientid"], (*msg)["username"], (*msg)["password"])) {
                         smqServer->removeConnection(connection);
                         connection->terminate();
-                    }
+                    } else
+                        connection->setClientId((*msg)["clientid"]);
                     break;
                 case Message::SUBSCRIBE:
                     connection->subscribeTo(msg->destination());
@@ -119,14 +121,21 @@ shared_ptr<SMessageQueue> SMQServer::getClientQueue(const String& destination)
 bool SMQServer::authenticate(const String& clientId, const String& username, const String& password)
 {
     lock_guard<mutex> lock(m_mutex);
+
+    String logPrefix("(" + clientId + ") ");
+
     if (m_clientIds.find(clientId) != m_clientIds.end()) {
-        log(LP_ERROR, "Duplicate client id: " + clientId);
+        log(LP_ERROR, logPrefix + "Duplicate client id");
         return false;
     }
+
     if (username != m_username || password != m_password) {
-        log(LP_ERROR, "Invalid username or password, client id: " + clientId);
+        log(LP_ERROR, logPrefix + "Invalid username or password");
         return false;
     }
+
+    log(LP_INFO, logPrefix + "Authenticated");
+
     return true;
 }
 
@@ -138,6 +147,12 @@ void SMQServer::watchSocket(TCPSocket& socket, void* userData)
 void SMQServer::forgetSocket(TCPSocket& socket)
 {
     m_socketEvents.remove(socket);
+}
+
+void SMQServer::run()
+{
+    Thread::run();
+    log(LP_NOTICE, "Server started");
 }
 
 #if USE_GTEST

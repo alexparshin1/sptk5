@@ -98,7 +98,7 @@ public:
      */
     virtual ~Thread();
 
-    /**
+    virtual /**
      * Starts the already created thread
      */
     void run();

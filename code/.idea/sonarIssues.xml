@@ -333,6 +333,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/SMQConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/SMQServer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/wsdl/WSComplexType.h">
           <value>
             <set />
