@@ -67,6 +67,9 @@ WorkerThread* ThreadPool::createThread()
 
 void ThreadPool::execute(Runable* task)
 {
+    if (terminated())
+        return;
+
     if (!running())
         run();
 

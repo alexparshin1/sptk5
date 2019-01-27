@@ -313,6 +313,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/LogEngine.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/Logger.h">
           <value>
             <set />
@@ -444,6 +449,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/threads/Flag.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/threads/ThreadPool.cpp">
           <value>
             <set />
           </value>
