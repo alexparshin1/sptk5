@@ -209,7 +209,7 @@ public:
     /**
     * @brief Destructor
     */
-    virtual ~TCPSocket() = default;
+    virtual ~TCPSocket();
 
     /**
      * Close socket connection

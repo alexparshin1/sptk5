@@ -236,6 +236,11 @@ TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protoco
 {
 }
 
+TCPSocket::~TCPSocket()
+{
+    TCPSocket::close();
+}
+
 void TCPSocket::_open(const Host& _host, CSocketOpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
 {
     if (!_host.hostname().empty())
@@ -261,8 +266,8 @@ void TCPSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
 
 void TCPSocket::close() noexcept
 {
-    BaseSocket::close();
     m_reader.close();
+    BaseSocket::close();
 }
 
 void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)

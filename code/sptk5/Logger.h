@@ -58,6 +58,7 @@ class SP_EXPORT Logger
      * The actual log to store messages to (destination log)
      */
     LogEngine&      m_destination;
+    String          m_prefix;
 
 public:
 
@@ -79,9 +80,10 @@ public:
 
     /**
      * @brief Constructor
-     * @param destination LogEngine&, destination logger
+     * @param destination       Destination logger
+     * @param prefix            Optional log message prefix
      */
-    explicit Logger(LogEngine& destination);
+    Logger(LogEngine& destination, const String& prefix = "");
 
     /**
      * @brief Returns log engine (destination logger)

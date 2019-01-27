@@ -69,6 +69,11 @@ public:
     SMQClient();
 
     /**
+     * Destructor
+     */
+    virtual ~SMQClient();
+
+    /**
      * Check if client is connected to server
      * @return true if client is connected to server
      */

@@ -238,6 +238,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_procman/ModuleManager.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_request/CMakeLists.txt">
           <value>
             <set />
@@ -308,6 +313,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/Logger.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/Strings.h">
           <value>
             <set />
@@ -339,6 +349,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/mq/SMQServer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/net/TCPSocket.h">
           <value>
             <set />
           </value>
@@ -393,6 +408,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/LogEngine.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/Logger.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/Strings.cpp">
           <value>
             <set />
@@ -409,6 +434,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQServer.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/TCPSocket.cpp">
           <value>
             <set />
           </value>
@@ -433,12 +463,22 @@
             <set />
           </value>
         </entry>
+        <entry key="/usr/local/include/sptk5/Logger.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="/usr/local/include/sptk5/Strings.h">
           <value>
             <set />
           </value>
         </entry>
         <entry key="/usr/local/include/sptk5/db/AutoDatabaseConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/mq/SMQClient.h">
           <value>
             <set />
           </value>

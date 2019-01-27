@@ -35,42 +35,42 @@ Logger::Message::Message(LogPriority priority, const String& message)
 : timestamp(DateTime::Now()), priority(priority), message(message)
 {}
 
-Logger::Logger(LogEngine& destination)
-: m_destination(destination)
+Logger::Logger(LogEngine& destination, const String& prefix)
+: m_destination(destination), m_prefix(prefix)
 {
 }
 
 void Logger::log(LogPriority priority, const String& message)
 {
-    m_destination.log(new Message(priority, message));
+    m_destination.log(new Message(priority, m_prefix + message));
 }
 
 void Logger::debug(const String& message)
 {
-    m_destination.log(new Message(LP_DEBUG, message));
+    m_destination.log(new Message(LP_DEBUG, m_prefix + message));
 }
 
 void Logger::info(const String& message)
 {
-    m_destination.log(new Message(LP_INFO, message));
+    m_destination.log(new Message(LP_INFO, m_prefix + message));
 }
 
 void Logger::notice(const String& message)
 {
-    m_destination.log(new Message(LP_NOTICE, message));
+    m_destination.log(new Message(LP_NOTICE, m_prefix + message));
 }
 
 void Logger::warning(const String& message)
 {
-    m_destination.log(new Message(LP_WARNING, message));
+    m_destination.log(new Message(LP_WARNING, m_prefix + message));
 }
 
 void Logger::error(const String& message)
 {
-    m_destination.log(new Message(LP_ERROR, message));
+    m_destination.log(new Message(LP_ERROR, m_prefix + message));
 }
 
 void Logger::critical(const String& message)
 {
-    m_destination.log(new Message(LP_CRITICAL, message));
+    m_destination.log(new Message(LP_CRITICAL, m_prefix + message));
 }

@@ -97,6 +97,9 @@ LogPriority LogEngine::priorityFromName(const String& prt)
 
 void LogEngine::log(Logger::Message* message)
 {
+    if (terminated())
+        return;
+
     if (!running())
         run();
 

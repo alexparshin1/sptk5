@@ -119,3 +119,9 @@ SMessage SMQClient::getMessage(std::chrono::milliseconds timeout)
     m_receivedMessages.pop(message, timeout);
     return message;
 }
+
+SMQClient::~SMQClient()
+{
+    terminate();
+    join();
+}
