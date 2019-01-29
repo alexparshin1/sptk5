@@ -78,13 +78,17 @@ public:
      * @param opt               Element optionality flag
      */
     void optional(bool opt)
-    { m_optional = opt; }
+    {
+        m_optional = opt;
+    }
 
     /**
      * Clears content (sets to NULL)
      */
     void clear()
-    { setNull(VAR_NONE); }
+    {
+        setNull(VAR_NONE);
+    }
 
     /**
      * Loads type data from request XML node
@@ -226,7 +230,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator String() const override
+    operator String() const override
     {
         return asString();
     }
@@ -285,7 +289,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator sptk::String() const override
+    operator sptk::String() const override
     {
         return asString();
     }
@@ -344,7 +348,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator DateTime() const override
+    operator DateTime() const override
     {
         return asDate();
     }
@@ -352,7 +356,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator sptk::String() const override
+    operator sptk::String() const override
     {
         return asString();
     }
@@ -416,7 +420,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator DateTime() const override
+    operator DateTime() const override
     {
         return asDateTime();
     }
@@ -424,7 +428,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator sptk::String() const override
+    operator sptk::String() const override
     {
         return asString();
     }
@@ -483,7 +487,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator double() const override
+    operator double() const override
     {
         return asFloat();
     }
@@ -491,7 +495,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator sptk::String() const override
+    operator sptk::String() const override
     {
         return asString();
     }
@@ -561,7 +565,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator int32_t() const override
+    operator int32_t() const override
     {
         return asInteger();
     }
@@ -569,7 +573,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator uint32_t() const override
+    operator uint32_t() const override
     {
         return (uint32_t) asInteger();
     }
@@ -577,7 +581,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator int64_t() const override
+    operator int64_t() const override
     {
         return asInt64();
     }
@@ -585,7 +589,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator uint64_t() const override
+    operator uint64_t() const override
     {
         return (uint64_t) asInt64();
     }
@@ -593,7 +597,7 @@ public:
     /**
      * Conversion operator
      */
-    explicit operator sptk::String() const override
+    operator sptk::String() const override
     {
         return asString();
     }

@@ -605,12 +605,12 @@ public:
     /**
      * Conversion operator
      */
-	virtual explicit operator String() const;
+    virtual explicit operator String() const;
 
     /**
      * Conversion operator
      */
-	virtual explicit operator DateTime() const;
+    virtual explicit operator DateTime() const;
 
     /**
      * Loads the data from XML node
