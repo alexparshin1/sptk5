@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQConnection.h - description                          ║
+║                       SMQSubscription.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday December 23 2018                                ║
+║  begin                Friday February 1 2019                                 ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,38 +26,44 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_CONNECTION_H__
-#define __SMQ_CONNECTION_H__
+#ifndef __SMQ_SUBSCRIPTION_H__
+#define __SMQ_SUBSCRIPTION_H__
 
-#include <sptk5/net/TCPServer.h>
-#include <sptk5/net/TCPServerConnection.h>
-#include <sptk5/mq/SMQMessage.h>
-#include <sptk5/net/SocketEvents.h>
+#include <sptk5/mq/SMQConnection.h>
 
 namespace sptk {
 
-class SMQConnection : public TCPServerConnection
-{
-    mutable SharedMutex             m_mutex;
-    String                          m_clientId;
-    std::shared_ptr<SMessageQueue>  m_subscribedQueue;
+typedef std::shared_ptr<SMQConnection> SharedSMQConnection;
 
-    std::shared_ptr<SMessageQueue>  subscribedQueue();
+class SMQSubscription
+{
+public:
+    enum Type
+    {
+        QUEUE,
+        TOPIC
+    };
+private:
+    mutable sptk::SharedMutex               m_mutex;
+    Type                                    m_type;
+
+    std::set<SharedSMQConnection>           m_subscribers;
+    std::set<SharedSMQConnection>::iterator m_currentSubscriber;
+
+    std::set<String>                        m_queueNames;
 
 public:
-    SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*);
-    ~SMQConnection() override;
+    SMQSubscription(Type type);
 
-    void run() override;
-    void terminate() override;
+    std::shared_ptr<SMQSubscription> clone(SharedSMQConnection connection, const String& addQueue, const String& removeQueue);
 
-    String getClientId() const;
-    void   setClientId(String& id);
+    void addConnection(SharedSMQConnection connection);
+    void removeConnection(SharedSMQConnection connection);
+    bool deliverMessage(const String& queue, const Message& message);
 
-    void subscribeTo(const String& destination);
-    void sendMessage(const Message& message);
+    Type type() const;
 };
 
-}
+} // namespace sptk
 
 #endif

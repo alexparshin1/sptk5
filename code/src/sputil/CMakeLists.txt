@@ -11,6 +11,7 @@ SET (SPUTIL_SOURCES
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
     jwt/JWT.cpp jwt/JWT-openssl.cpp
     mq/Message.cpp mq/smq/SMQClient.cpp mq/smq/SMQConnection.cpp mq/smq/SMQServer.cpp mq/smq/SMQMessage.cpp
+    mq/smq/SMQSubscription.cpp mq/smq/SMQSubscriptions.cpp
     net/AsyncTcpSocket.cpp net/BaseMailConnect.cpp net/BaseSocket.cpp net/CachedSSLContext.cpp
     net/Host.cpp net/HttpAuthentication.cpp net/HttpConnect.cpp net/HttpParams.cpp net/HttpAuthentication.cpp net/HttpReader.cpp
     net/ImapConnect.cpp net/MailMessageBody.cpp net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp net/SocketEvents.cpp
@@ -44,7 +45,7 @@ ENDIF (EPOLL_FLAG)
 
 
 IF (PCRE_FLAG)
-    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp threads/Flag.cpp threads/Flag.h)
+    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp threads/Flag.cpp threads/Flag.h )
 ENDIF (PCRE_FLAG)
 
 ADD_LIBRARY (sputil5 ${LIBRARY_TYPE} ${SPUTIL_SOURCES})

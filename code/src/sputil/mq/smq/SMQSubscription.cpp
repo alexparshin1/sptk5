@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQServer.cpp - description                            ║
+║                       SMQSubscription.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday December 23 2018                                ║
+║  begin                Friday February 1 2019                                 ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,85 +26,90 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/mq/SMQServer.h>
+#include "SMQSubscription.h"
 #include <sptk5/cutils>
-#include <sptk5/mq/SMQConnection.h>
-
 
 using namespace std;
 using namespace sptk;
 
-SMQConnection::SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*)
-: TCPServerConnection(server, connectionSocket)
+SMQSubscription::SMQSubscription(SMQSubscription::Type type)
+: m_type(type), m_currentSubscriber(m_subscribers.end())
 {
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server);
-    if (smqServer != nullptr)
-        smqServer->watchSocket(socket(), this);
 }
 
-SMQConnection::~SMQConnection()
-{
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
-    if (smqServer != nullptr)
-        smqServer->forgetSocket(socket());
-}
-
-void SMQConnection::terminate()
-{
-    socket().close();
-    TCPServerConnection::terminate();
-}
-
-void SMQConnection::subscribeTo(const String& destination)
+void SMQSubscription::addConnection(SharedSMQConnection connection)
 {
     UniqueLock(m_mutex);
-
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
-    m_subscribedQueue = smqServer->getClientQueue(destination);
-
-    smqServer->log(LP_INFO, "(" + m_clientId + ") Subscribed to " + destination);
+    m_subscribers.insert(connection);
 }
 
-shared_ptr<SMessageQueue> SMQConnection::subscribedQueue()
+void SMQSubscription::removeConnection(SharedSMQConnection connection)
+{
+    UniqueLock(m_mutex);
+    m_subscribers.erase(connection);
+}
+
+bool SMQSubscription::deliverMessage(const String& queue, const Message& message)
 {
     SharedLock(m_mutex);
-    return m_subscribedQueue;
-}
 
-void SMQConnection::run()
-{
-    while (!terminated()) {
-        try {
-            shared_ptr<SMessageQueue> queue = subscribedQueue();
-            SMessage message;
-            if (queue) {
-                if (queue->pop(message, chrono::milliseconds(1000))) {
-                    SMQMessage::sendMessage(socket(), *message);
-                }
+    // Does this subscriiption incude the queue?
+    auto itor = m_queueNames.find(queue);
+    if (itor == m_queueNames.end())
+        return false;
+
+    // If the subscription is TOPIC, send it to every subscriber:
+    if (m_type == TOPIC) {
+        for (auto subscriber: m_subscribers) {
+            try {
+                subscriber->sendMessage(message);
             }
-            else
-                this_thread::sleep_for(chrono::milliseconds(10));
+            catch (const Exception& e) {
+                CERR("Can't send message to a subscriber " << subscriber->getClientId() << ": " << e.what() << endl);
+            }
+        }
+    } else {
+        // If the subscription is QUEUE, send it to current subscriber,
+        // and switch to next subscriber
+        if (m_subscribers.empty())
+            return true;
+        if (m_currentSubscriber == m_subscribers.end())
+            m_currentSubscriber = m_subscribers.begin();
+        try {
+            (*m_currentSubscriber)->sendMessage(message);
         }
         catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR("Can't send message to a subscriber " << (*m_currentSubscriber)->getClientId() << ": " << e.what() << endl);
         }
+        ++m_currentSubscriber;
     }
-    socket().close();
+    return true;
 }
 
-String SMQConnection::getClientId() const
+SMQSubscription::Type SMQSubscription::type() const
 {
     SharedLock(m_mutex);
-    return m_clientId;
+    return m_type;
 }
 
-void SMQConnection::setClientId(String& id)
+shared_ptr<SMQSubscription> SMQSubscription::clone(SharedSMQConnection connection, const String& addQueue,
+                                                   const String& removeQueue)
 {
+    if (addQueue.empty() && removeQueue.empty())
+        throw Exception("Subscription is not modified");
+
     UniqueLock(m_mutex);
-    m_clientId = id;
-}
 
-void SMQConnection::sendMessage(const Message& message)
-{
-    SMQMessage::sendMessage(socket(), message);
+    auto newSubscription = make_shared<SMQSubscription>(m_type);
+
+    newSubscription->m_subscribers.insert(connection);
+    m_subscribers.erase(connection);
+
+    newSubscription->m_queueNames = m_queueNames;
+    if (!addQueue.empty())
+        newSubscription->m_queueNames.insert(addQueue);
+    if (!removeQueue.empty())
+        newSubscription->m_queueNames.erase(removeQueue);
+
+    return newSubscription;
 }

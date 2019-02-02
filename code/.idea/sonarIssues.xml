@@ -308,6 +308,211 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/DBDialect.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/DBDialect.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/DBSchema.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/MSSQLDialect.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/MSSQLDialect.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/MySQLDialect.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/MySQLDialect.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/OracleDialect.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/PGDialect.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/PGDialect.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/Table.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/db_pump.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_update/db_update.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/make_font_list/make_font_list.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CDocumentEvent.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CDocumentEventHandler.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/COwnerDocumentEventThread.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/COwnerDocumentEventThread.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CProtisCoreConfig.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CProtisCoreConfig.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CProtisCoreListener.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CProtisCoreService.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/CopyProject.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/DatabaseChanges.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/DatabaseChanges.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/InsertQuery.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/InsertQuery.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/OwnerDatabaseConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/OwnerDatabaseConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/Service/CCheckOwnerDatabaseExistsRequest.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/TempDocumentFiles.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/Translate/TranslatorEngine.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/Translate/TranslatorEngine.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/config/Assignment.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/config/Common.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/config/Common.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/config/Exercise.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/config/ExerciseTest.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/config/Lesson.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/config/ProtisDataSources.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/config/ScreenTranslation.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/examples/database/all_drivers_test.cpp">
           <value>
             <set />
@@ -324,6 +529,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/Strings.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/Variant.h">
           <value>
             <set />
           </value>
@@ -363,47 +573,12 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/wsdl/WSBasicTypes.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/wsdl/WSComplexType.h">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/spdb/AutoDatabaseConnection.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/spdb/DatabaseConnectionString.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/spdb/DatabaseTests.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/spdb/QueryParameter.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sptk/gui/CBox.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sptk/gui/CColumn.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sptk/gui/CFont.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sptk/gui/CGroup.cpp">
           <value>
             <set />
           </value>
@@ -413,57 +588,32 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/core/LogEngine.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/core/Logger.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/core/Strings.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQClient.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQConnection.cpp">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQServer.cpp">
+        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQSubscription.cpp">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/net/TCPSocket.cpp">
+        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQSubscription.h">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/threads/Flag.h">
+        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQSubscriptions.cpp">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/threads/ThreadPool.cpp">
+        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQSubscriptions.h">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/xml/Document.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/wsdl/WSComplexType.cpp">
+        <entry key="$PROJECT_DIR$/../../untitled/main.cpp">
           <value>
             <set />
           </value>
@@ -474,6 +624,11 @@
           </value>
         </entry>
         <entry key="/usr/local/include/sptk5/Logger.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/Printer.h">
           <value>
             <set />
           </value>
@@ -489,6 +644,11 @@
           </value>
         </entry>
         <entry key="/usr/local/include/sptk5/mq/SMQClient.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/wsdl/WSBasicTypes.h">
           <value>
             <set />
           </value>

@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQConnection.h - description                          ║
+║                       SMQSubscriptions.cpp - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday December 23 2018                                ║
+║  begin                Friday February 1 2019                                 ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,38 +26,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_CONNECTION_H__
-#define __SMQ_CONNECTION_H__
+#include "SMQSubscriptions.h"
 
-#include <sptk5/net/TCPServer.h>
-#include <sptk5/net/TCPServerConnection.h>
-#include <sptk5/mq/SMQMessage.h>
-#include <sptk5/net/SocketEvents.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-class SMQConnection : public TCPServerConnection
+void SMQSubscriptions::sendMessage(const String& queue, const Message& message)
 {
-    mutable SharedMutex             m_mutex;
-    String                          m_clientId;
-    std::shared_ptr<SMessageQueue>  m_subscribedQueue;
-
-    std::shared_ptr<SMessageQueue>  subscribedQueue();
-
-public:
-    SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*);
-    ~SMQConnection() override;
-
-    void run() override;
-    void terminate() override;
-
-    String getClientId() const;
-    void   setClientId(String& id);
-
-    void subscribeTo(const String& destination);
-    void sendMessage(const Message& message);
-};
-
+    SharedLock(m_mutex);
+    for (auto itor: m_subscriptions)
+        itor.second->deliverMessage(queue, message);
 }
-
-#endif
