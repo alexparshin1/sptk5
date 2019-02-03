@@ -48,7 +48,7 @@ void TCPServerListener::acceptConnection()
             return;
         if (m_server->allowConnection(&connectionInfo)) {
             ServerConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
-            m_server->execute(connection);
+            //m_server->execute(connection);
         }
         else {
 #ifndef _WIN32

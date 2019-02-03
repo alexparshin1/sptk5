@@ -27,9 +27,9 @@
 */
 
 #include <sptk5/mq/SMQServer.h>
-#include <sptk5/cutils>
 #include <sptk5/mq/SMQConnection.h>
-
+#include <sptk5/mq/SMQSubscription.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -47,6 +47,14 @@ SMQConnection::~SMQConnection()
     SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
     if (smqServer != nullptr)
         smqServer->forgetSocket(socket());
+
+    UniqueLock(m_mutex);
+    for (auto* subscription: m_subscriptions)
+        subscription->removeConnection(this);
+    m_subscriptions.clear();
+
+    socket().close();
+    COUT("DTOR " << m_clientId << endl);
 }
 
 void SMQConnection::terminate()
@@ -55,41 +63,10 @@ void SMQConnection::terminate()
     TCPServerConnection::terminate();
 }
 
-void SMQConnection::subscribeTo(const String& destination)
-{
-    UniqueLock(m_mutex);
-
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
-    m_subscribedQueue = smqServer->getClientQueue(destination);
-
-    smqServer->log(LP_INFO, "(" + m_clientId + ") Subscribed to " + destination);
-}
-
-shared_ptr<SMessageQueue> SMQConnection::subscribedQueue()
-{
-    SharedLock(m_mutex);
-    return m_subscribedQueue;
-}
-
 void SMQConnection::run()
 {
-    while (!terminated()) {
-        try {
-            shared_ptr<SMessageQueue> queue = subscribedQueue();
-            SMessage message;
-            if (queue) {
-                if (queue->pop(message, chrono::milliseconds(1000))) {
-                    SMQMessage::sendMessage(socket(), *message);
-                }
-            }
-            else
-                this_thread::sleep_for(chrono::milliseconds(10));
-        }
-        catch (const Exception& e) {
-            CERR(e.what() << endl);
-        }
-    }
-    socket().close();
+    // SMQServer doesn't tasks
+    return;
 }
 
 String SMQConnection::getClientId() const
@@ -107,4 +84,16 @@ void SMQConnection::setClientId(String& id)
 void SMQConnection::sendMessage(const Message& message)
 {
     SMQMessage::sendMessage(socket(), message);
+}
+
+void SMQConnection::subscribe(SMQSubscription* subscription)
+{
+    UniqueLock(m_mutex);
+    m_subscriptions.insert(subscription);
+}
+
+void SMQConnection::unsubscribe(SMQSubscription* subscription)
+{
+    UniqueLock(m_mutex);
+    m_subscriptions.erase(subscription);
 }

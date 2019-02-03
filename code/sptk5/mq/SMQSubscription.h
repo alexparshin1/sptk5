@@ -47,19 +47,17 @@ private:
     mutable sptk::SharedMutex               m_mutex;
     Type                                    m_type;
 
-    std::set<SharedSMQConnection>           m_subscribers;
-    std::set<SharedSMQConnection>::iterator m_currentSubscriber;
-
-    std::set<String>                        m_queueNames;
+    std::set<SMQConnection*>                m_connections;
+    std::set<SMQConnection*>::iterator      m_currentConnection;
 
 public:
     SMQSubscription(Type type);
 
-    std::shared_ptr<SMQSubscription> clone(SharedSMQConnection connection, const String& addQueue, const String& removeQueue);
+    virtual ~SMQSubscription();
 
-    void addConnection(SharedSMQConnection connection);
-    void removeConnection(SharedSMQConnection connection);
-    bool deliverMessage(const String& queue, const Message& message);
+    void addConnection(SMQConnection* connection);
+    void removeConnection(SMQConnection* connection);
+    bool deliverMessage(const SMessage message);
 
     Type type() const;
 };

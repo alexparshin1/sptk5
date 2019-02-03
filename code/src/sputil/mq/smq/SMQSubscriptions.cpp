@@ -26,14 +26,55 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "SMQSubscriptions.h"
+#include <sptk5/md5.h>
+#include <sptk5/mq/SMQSubscriptions.h>
+
+#include "sptk5/mq/SMQSubscriptions.h"
 
 using namespace std;
 using namespace sptk;
 
-void SMQSubscriptions::sendMessage(const String& queue, const Message& message)
+void SMQSubscriptions::deliverMessage(const String& queueName, const SMessage message)
 {
     SharedLock(m_mutex);
-    for (auto itor: m_subscriptions)
-        itor.second->deliverMessage(queue, message);
+    auto itor = m_subscriptions.find(queueName);
+    if (itor != m_subscriptions.end())
+        itor->second->deliverMessage(message);
+}
+
+void SMQSubscriptions::subscribe(SMQConnection* connection, const String& queueName)
+{
+    UniqueLock(m_mutex);
+
+    // Does subscription already exist?
+    SharedSMQSubscription subscription;
+    auto itor = m_subscriptions.find(queueName);
+    if (itor == m_subscriptions.end()) {
+        SMQSubscription::Type subscriptionType = queueName.startsWith("/topic/") ? SMQSubscription::TOPIC : SMQSubscription::QUEUE;
+        subscription = make_shared<SMQSubscription>(subscriptionType);
+        m_subscriptions[queueName] = subscription;
+    } else
+        subscription = itor->second;
+
+    subscription->addConnection(connection);
+}
+
+void SMQSubscriptions::unsubscribe(SMQConnection* connection, const String& queueName)
+{
+    UniqueLock(m_mutex);
+
+    // Does subscription already exist?
+    SharedSMQSubscription subscription;
+    auto itor = m_subscriptions.find(queueName);
+    if (itor == m_subscriptions.end())
+        return;
+
+    subscription = itor->second;
+    subscription->removeConnection(connection);
+}
+
+void SMQSubscriptions::clear()
+{
+    UniqueLock(m_mutex);
+    m_subscriptions.clear();
 }

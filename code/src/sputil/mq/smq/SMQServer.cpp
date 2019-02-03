@@ -32,11 +32,12 @@
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
 SMQServer::SMQServer(const String& username, const String& password, LogEngine& logEngine)
 : TCPServer("SMQServer", 16, &logEngine),
   m_username(username), m_password(password),
-  m_socketEvents(SMQServer::socketEventCallback, chrono::seconds(1))
+  m_socketEvents(SMQServer::socketEventCallback, seconds(1))
 {
 }
 
@@ -49,14 +50,24 @@ void SMQServer::stop()
 
 ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    return new SMQConnection(*this, connectionSocket, peer);
+    auto* newConnection = new SMQConnection(*this, connectionSocket, peer);
+
+    lock_guard<mutex> lock(m_mutex);
+    m_connections.insert(newConnection);
+
+    return newConnection;
 }
 
 void SMQServer::removeConnection(ServerConnection* connection)
 {
-    String clientId = dynamic_cast<SMQConnection*>(connection)->getClientId();
+    auto* smqConnection = dynamic_cast<SMQConnection*>(connection);
+    String clientId = smqConnection->getClientId();
+
+    delete smqConnection;
+
     lock_guard<mutex> lock(m_mutex);
     m_clientIds.erase(clientId);
+    m_connections.erase(smqConnection);
 }
 
 void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
@@ -84,10 +95,17 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
                         connection->setClientId((*msg)["clientid"]);
                     break;
                 case Message::SUBSCRIBE:
-                    connection->subscribeTo(msg->destination());
+                    smqServer->subscribe(connection, msg->destination());
+                    break;
+                case Message::UNSUBSCRIBE:
+                    smqServer->unsubscribe(connection, msg->destination());
                     break;
                 case Message::MESSAGE:
                     smqServer->distributeMessage(msg);
+                    break;
+                case Message::DISCONNECT:
+                    smqServer->removeConnection(connection);
+                    connection->terminate();
                     break;
                 default:
                     break;
@@ -103,19 +121,7 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
 
 void SMQServer::distributeMessage(SMessage message)
 {
-    shared_ptr<SMessageQueue> queue = getClientQueue(message->destination());
-    queue->push(message);
-}
-
-shared_ptr<SMessageQueue> SMQServer::getClientQueue(const String& destination)
-{
-    lock_guard<mutex> lock(m_mutex);
-    auto queue = m_queues[destination];
-    if (!queue) {
-        queue = make_shared<SMessageQueue>();
-        m_queues[destination] = queue;
-    }
-    return queue;
+    m_subscriptions.deliverMessage(message->destination(), message);
 }
 
 bool SMQServer::authenticate(const String& clientId, const String& username, const String& password)
@@ -155,9 +161,34 @@ void SMQServer::run()
     log(LP_NOTICE, "Server started");
 }
 
+void SMQServer::subscribe(SMQConnection* connection, const String& destination)
+{
+    m_subscriptions.subscribe(connection, destination);
+}
+
+void SMQServer::unsubscribe(SMQConnection* connection, const String& destination)
+{
+    m_subscriptions.unsubscribe(connection, destination);
+}
+
+void SMQServer::clear()
+{
+    m_subscriptions.clear();
+    lock_guard<mutex> lock(m_mutex);
+    for (auto* connection: m_connections)
+        delete connection;
+    m_connections.clear();
+    m_clientIds.clear();
+}
+
+SMQServer::~SMQServer()
+{
+    clear();
+}
+
 #if USE_GTEST
 
-static size_t messageCount {1000};
+static size_t messageCount {100};
 
 TEST(SPTK_SMQServer, minimal)
 {
@@ -179,7 +210,7 @@ TEST(SPTK_SMQServer, minimal)
 
     size_t maxWait = 1000;
     while (smqReceiver.hasMessages() < messageCount) {
-        this_thread::sleep_for(chrono::milliseconds(1));
+        this_thread::sleep_for(milliseconds(1));
         maxWait--;
         if (maxWait == 0)
             break;
@@ -188,7 +219,7 @@ TEST(SPTK_SMQServer, minimal)
     EXPECT_EQ(messageCount, smqReceiver.hasMessages());
 
     for (size_t m = 0; m < messageCount; m++) {
-        auto msg = smqReceiver.getMessage(chrono::milliseconds(100));
+        auto msg = smqReceiver.getMessage(milliseconds(100));
         if (msg) {
             EXPECT_STREQ("test-queue", msg->destination().c_str());
             EXPECT_STREQ("This is SMQ test", msg->c_str());
@@ -224,7 +255,7 @@ TEST(SPTK_SMQServer, shortMessages)
 
     size_t maxWait = 1000;
     while (smqReceiver.hasMessages() < messageCount) {
-        this_thread::sleep_for(chrono::milliseconds(1));
+        this_thread::sleep_for(milliseconds(1));
         maxWait--;
         if (maxWait == 0)
             break;
@@ -233,7 +264,7 @@ TEST(SPTK_SMQServer, shortMessages)
     EXPECT_EQ(messageCount, smqReceiver.hasMessages());
 
     for (size_t m = 0; m < messageCount; m++) {
-        auto message = smqReceiver.getMessage(chrono::milliseconds(100));
+        auto message = smqReceiver.getMessage(milliseconds(100));
         EXPECT_STREQ((*message)["subject"].c_str(), ("subject " + to_string(m)).c_str());
         EXPECT_STREQ(message->c_str(), ("data " + to_string(m)).c_str());
     }
@@ -279,7 +310,7 @@ TEST(SPTK_SMQServer, multiClients)
     size_t totalMessages = 0;
     size_t maxWait = 1000;
     while (totalMessages < messageCount * clientCount) {
-        this_thread::sleep_for(chrono::milliseconds(1));
+        this_thread::sleep_for(milliseconds(1));
         totalMessages = 0;
         for (auto& client: receivers) {
             totalMessages += client.hasMessages();
@@ -293,7 +324,7 @@ TEST(SPTK_SMQServer, multiClients)
 
     for (auto& client: receivers) {
         for (size_t m = 0; m < messageCount; m++) {
-            auto msg = client.getMessage(chrono::milliseconds(100));
+            auto msg = client.getMessage(milliseconds(100));
             EXPECT_STREQ((*msg)["subject"].c_str(), ("subject " + to_string(m)).c_str());
             EXPECT_STREQ(msg->c_str(), ("data " + to_string(m)).c_str());
         }
@@ -305,7 +336,56 @@ TEST(SPTK_SMQServer, multiClients)
     smqServer.stop();
 }
 
-TEST(SPTK_SMQServer, multiClientsSingleQueue)
+TEST(SPTK_SMQServer, singleClientMultipleQueues)
+{
+    Buffer          buffer;
+    FileLogEngine   logEngine("SMQServer.log");
+    Host            serverHost("localhost:4000");
+
+    SMQServer smqServer("user", "secret", logEngine);
+    ASSERT_NO_THROW(smqServer.listen(4000));
+
+    SMQClient sender;
+    ASSERT_NO_THROW(sender.connect(serverHost, "sender", "user", "secret"));
+
+    SMQClient client;
+    ASSERT_NO_THROW(client.connect(serverHost, "receiver", "user", "secret"));
+
+    vector<String> queueNames = { "test-queue1",  "test-queue2", "test-queue3", };
+    for (auto& queueName: queueNames)
+        ASSERT_NO_THROW(client.subscribe(queueName));
+
+    this_thread::sleep_for(milliseconds(100));
+
+    for (auto& queueName: queueNames) {
+        for (size_t m = 0; m < messageCount; m++) {
+            Message msg1;
+            msg1["subject"] = "subject " + to_string(m);
+            msg1.set("data " + to_string(m));
+            msg1.destination(queueName);
+            sender.sendMessage(msg1);
+        }
+    }
+
+    size_t totalMessages = 0;
+    size_t maxWait = 1000;
+    while (totalMessages < messageCount * queueNames.size()) {
+        this_thread::sleep_for(milliseconds(1));
+        totalMessages = client.hasMessages();
+        maxWait--;
+        if (maxWait == 0)
+            break;
+    }
+
+    EXPECT_EQ(messageCount * queueNames.size(), totalMessages);
+
+    COUT("Client " << client.clientId() << " has " <<client.hasMessages() << endl);
+    client.disconnect();
+
+    smqServer.stop();
+}
+
+TEST(SPTK_SMQServer, multipleClientsSingleQueue)
 {
     Buffer          buffer;
     FileLogEngine   logEngine("SMQServer.log");
@@ -327,7 +407,7 @@ TEST(SPTK_SMQServer, multiClientsSingleQueue)
         clientIndex++;
     }
 
-    this_thread::sleep_for(chrono::milliseconds(1000));
+    this_thread::sleep_for(milliseconds(100));
 
     Message msg1;
     for (size_t m = 0; m < messageCount; m++) {
@@ -342,7 +422,63 @@ TEST(SPTK_SMQServer, multiClientsSingleQueue)
     size_t totalMessages = 0;
     size_t maxWait = 1000;
     while (totalMessages < messageCount * clientCount) {
-        this_thread::sleep_for(chrono::milliseconds(1));
+        this_thread::sleep_for(milliseconds(1));
+        totalMessages = 0;
+        for (auto& client: receivers) {
+            totalMessages += client.hasMessages();
+        }
+        maxWait--;
+        if (maxWait == 0)
+            break;
+    }
+
+    EXPECT_EQ(messageCount * clientCount, totalMessages);
+
+    for (auto& client: receivers)
+    COUT("Client " << client.clientId() << " has " <<client.hasMessages() << endl);
+
+    for (auto& client: receivers)
+        client.disconnect();
+
+    smqServer.stop();
+}
+
+TEST(SPTK_SMQServer, multipleClientsSingleTopic)
+{
+    Buffer          buffer;
+    FileLogEngine   logEngine("SMQServer.log");
+    Host            serverHost("localhost:4000");
+
+    SMQServer smqServer("user", "secret", logEngine);
+    ASSERT_NO_THROW(smqServer.listen(4000));
+
+    SMQClient sender;
+    ASSERT_NO_THROW(sender.connect(serverHost, "sender", "user", "secret"));
+
+    size_t clientCount = 10;
+    vector<SMQClient> receivers(clientCount);
+    size_t clientIndex = 0;
+    for (auto& client: receivers) {
+        String clientId = "receiver" + to_string(clientIndex);
+        ASSERT_NO_THROW(client.connect(serverHost, clientId, "user", "secret"));
+        ASSERT_NO_THROW(client.subscribe("/topic/test"));
+        clientIndex++;
+    }
+
+    this_thread::sleep_for(milliseconds(100));
+
+    Message msg1;
+    for (size_t m = 0; m < messageCount; m++) {
+        msg1["subject"] = "subject " + to_string(m);
+        msg1.set("data " + to_string(m));
+        msg1.destination("/topic/test");
+        sender.sendMessage(msg1);
+    }
+
+    size_t totalMessages = 0;
+    size_t maxWait = 1000;
+    while (totalMessages < messageCount * clientCount) {
+        this_thread::sleep_for(milliseconds(1));
         totalMessages = 0;
         for (auto& client: receivers) {
             totalMessages += client.hasMessages();

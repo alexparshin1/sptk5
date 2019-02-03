@@ -568,6 +568,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/SMQSubscription.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/SMQSubscriptions.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/net/TCPSocket.h">
           <value>
             <set />
@@ -593,6 +603,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQServer.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQSubscription.cpp">
           <value>
             <set />
@@ -609,6 +624,16 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQSubscriptions.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/TCPServerListener.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/TCPSocket.cpp">
           <value>
             <set />
           </value>

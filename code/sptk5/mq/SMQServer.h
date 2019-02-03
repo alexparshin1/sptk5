@@ -29,6 +29,7 @@
 #ifndef __SMQ_SERVER_H__
 #define __SMQ_SERVER_H__
 
+#include <sptk5/mq/SMQSubscriptions.h>
 #include "SMQConnection.h"
 
 namespace sptk {
@@ -37,30 +38,36 @@ class SMQServer : public TCPServer
 {
     friend class SMQConnection;
 
-    mutable std::mutex                                  m_mutex;
-    String                                              m_username;
-    String                                              m_password;
-    std::set<String>                                    m_clientIds;
-    std::map<String, std::shared_ptr<SMessageQueue>>    m_queues;
-    SocketEvents                                        m_socketEvents;
+    mutable std::mutex              m_mutex;
+    String                          m_username;
+    String                          m_password;
+    std::set<String>                m_clientIds;
+    std::set<SMQConnection*>        m_connections;
+    SocketEvents                    m_socketEvents;
+    SMQSubscriptions				m_subscriptions;
 
 protected:
     static void socketEventCallback(void *userData, SocketEventType eventType);
     void watchSocket(TCPSocket& socket, void* userData);
     void forgetSocket(TCPSocket& socket);
+    void clear();
+    void run() override;
 
 public:
-	void run() override;
 
-	ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
+    SMQServer(const String& username, const String& password, LogEngine& logEngine);
+    ~SMQServer();
+
+    void stop() override;
+
+    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
     void removeConnection(ServerConnection* connection);
     bool authenticate(const String& clientId, const String& username, const String& password);
 
-    SMQServer(const String& username, const String& password, LogEngine& logEngine);
-	void stop() override;
-    std::shared_ptr<SMessageQueue> getClientQueue(const String& destination);
     void distributeMessage(SMessage message);
 
+    void subscribe(SMQConnection* connection, const String& destination);
+	void unsubscribe(SMQConnection* connection, const String& destination);
 };
 
 }

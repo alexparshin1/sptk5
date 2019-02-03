@@ -107,7 +107,7 @@ public:
      * @param socket            Socket to work with
      * @param bufferSize        The desirable size of the internal buffer
      */
-    TCPSocketReader(BaseSocket& socket, size_t bufferSize = 65536);
+    TCPSocketReader(BaseSocket& socket, size_t bufferSize = 16384);
 
     /**
      * @brief Connects the reader to the socket handle

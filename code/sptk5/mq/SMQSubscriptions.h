@@ -30,7 +30,7 @@
 #define __SMQ_SUBSCRIPTIONS_H__
 
 #include <sptk5/String.h>
-#include "SMQSubscription.h"
+#include <sptk5/mq/SMQSubscription.h>
 
 namespace sptk {
 
@@ -42,9 +42,10 @@ class SMQSubscriptions
     std::map<String,SharedSMQSubscription>  m_subscriptions;
 public:
     SMQSubscriptions() = default;
-    void sendMessage(const String& queue, const Message& message);
-    void subscribe(SharedSMQConnection connection, const String& queue);
-    void unsubscribe(SharedSMQConnection connection, const String& queue);
+    void clear();
+    void deliverMessage(const String& queueName, const SMessage message);
+    void subscribe(SMQConnection* connection, const String& queueName);
+    void unsubscribe(SMQConnection* connection, const String& queueName);
 };
 
 } // namespace sptk

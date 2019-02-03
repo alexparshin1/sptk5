@@ -232,7 +232,7 @@ size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
 
 // Constructor
 TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-: BaseSocket(domain, type, protocol), m_reader(*this, 65536)
+: BaseSocket(domain, type, protocol), m_reader(*this, 16384)
 {
 }
 

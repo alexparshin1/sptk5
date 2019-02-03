@@ -36,13 +36,13 @@
 
 namespace sptk {
 
+class SMQSubscription;
+
 class SMQConnection : public TCPServerConnection
 {
     mutable SharedMutex             m_mutex;
     String                          m_clientId;
-    std::shared_ptr<SMessageQueue>  m_subscribedQueue;
-
-    std::shared_ptr<SMessageQueue>  subscribedQueue();
+    std::set<SMQSubscription*>      m_subscriptions;
 
 public:
     SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*);
@@ -54,7 +54,9 @@ public:
     String getClientId() const;
     void   setClientId(String& id);
 
-    void subscribeTo(const String& destination);
+    void subscribe(SMQSubscription* subscription);
+    void unsubscribe(SMQSubscription* subscription);
+
     void sendMessage(const Message& message);
 };
 

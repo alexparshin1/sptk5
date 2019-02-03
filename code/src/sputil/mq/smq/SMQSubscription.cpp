@@ -26,43 +26,48 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "SMQSubscription.h"
+#include "sptk5/mq/SMQSubscription.h"
 #include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-SMQSubscription::SMQSubscription(SMQSubscription::Type type)
-: m_type(type), m_currentSubscriber(m_subscribers.end())
+SMQSubscription::SMQSubscription(Type type)
+: m_type(type), m_currentConnection(m_connections.end())
 {
 }
 
-void SMQSubscription::addConnection(SharedSMQConnection connection)
-{
-    UniqueLock(m_mutex);
-    m_subscribers.insert(connection);
-}
-
-void SMQSubscription::removeConnection(SharedSMQConnection connection)
+SMQSubscription::~SMQSubscription()
 {
     UniqueLock(m_mutex);
-    m_subscribers.erase(connection);
+    for (auto* connection: m_connections)
+        connection->unsubscribe(this);
+    m_connections.clear();
 }
 
-bool SMQSubscription::deliverMessage(const String& queue, const Message& message)
+void SMQSubscription::addConnection(SMQConnection* connection)
+{
+    UniqueLock(m_mutex);
+    m_connections.insert(connection);
+    connection->subscribe(this);
+}
+
+void SMQSubscription::removeConnection(SMQConnection* connection)
+{
+    UniqueLock(m_mutex);
+    m_connections.erase(connection);
+    connection->unsubscribe(this);
+}
+
+bool SMQSubscription::deliverMessage(const SMessage message)
 {
     SharedLock(m_mutex);
 
-    // Does this subscriiption incude the queue?
-    auto itor = m_queueNames.find(queue);
-    if (itor == m_queueNames.end())
-        return false;
-
     // If the subscription is TOPIC, send it to every subscriber:
     if (m_type == TOPIC) {
-        for (auto subscriber: m_subscribers) {
+        for (auto subscriber: m_connections) {
             try {
-                subscriber->sendMessage(message);
+                subscriber->sendMessage(*message);
             }
             catch (const Exception& e) {
                 CERR("Can't send message to a subscriber " << subscriber->getClientId() << ": " << e.what() << endl);
@@ -71,17 +76,17 @@ bool SMQSubscription::deliverMessage(const String& queue, const Message& message
     } else {
         // If the subscription is QUEUE, send it to current subscriber,
         // and switch to next subscriber
-        if (m_subscribers.empty())
+        if (m_connections.empty())
             return true;
-        if (m_currentSubscriber == m_subscribers.end())
-            m_currentSubscriber = m_subscribers.begin();
+        if (m_currentConnection == m_connections.end())
+            m_currentConnection = m_connections.begin();
         try {
-            (*m_currentSubscriber)->sendMessage(message);
+            (*m_currentConnection)->sendMessage(*message);
         }
         catch (const Exception& e) {
-            CERR("Can't send message to a subscriber " << (*m_currentSubscriber)->getClientId() << ": " << e.what() << endl);
+            CERR("Can't send message to a subscriber " << (*m_currentConnection)->getClientId() << ": " << e.what() << endl);
         }
-        ++m_currentSubscriber;
+        ++m_currentConnection;
     }
     return true;
 }
@@ -90,26 +95,4 @@ SMQSubscription::Type SMQSubscription::type() const
 {
     SharedLock(m_mutex);
     return m_type;
-}
-
-shared_ptr<SMQSubscription> SMQSubscription::clone(SharedSMQConnection connection, const String& addQueue,
-                                                   const String& removeQueue)
-{
-    if (addQueue.empty() && removeQueue.empty())
-        throw Exception("Subscription is not modified");
-
-    UniqueLock(m_mutex);
-
-    auto newSubscription = make_shared<SMQSubscription>(m_type);
-
-    newSubscription->m_subscribers.insert(connection);
-    m_subscribers.erase(connection);
-
-    newSubscription->m_queueNames = m_queueNames;
-    if (!addQueue.empty())
-        newSubscription->m_queueNames.insert(addQueue);
-    if (!removeQueue.empty())
-        newSubscription->m_queueNames.erase(removeQueue);
-
-    return newSubscription;
 }
