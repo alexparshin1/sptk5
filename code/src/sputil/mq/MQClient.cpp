@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       MQClient.h - description                               ║
+║                       MQClient.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,14 +26,15 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/mq/SMQClient.h>
 #include <sptk5/mq/MQClient.h>
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-MQClient::MQClient(std::shared_ptr<SocketEvents>& socketEvents, const String& clientId)
-: m_socketEvents(socketEvents), m_clientId(clientId)
+MQClient::MQClient(const String& clientId)
+: m_clientId(clientId)
 {}
 
 const String& MQClient::getClientId() const
@@ -52,4 +53,21 @@ bool MQClient::connected() const
 {
     SharedLock(m_mutex);
     return m_connected;
+}
+
+SMessage MQClient::getMessage(std::chrono::milliseconds timeout)
+{
+    SMessage message;
+    m_incomingMessages.pop(message, timeout);
+    return message;
+}
+
+size_t MQClient::hasMessages() const
+{
+    return m_incomingMessages.size();
+}
+
+void MQClient::acceptMessage(SMessage& message)
+{
+    m_incomingMessages.push(message);
 }

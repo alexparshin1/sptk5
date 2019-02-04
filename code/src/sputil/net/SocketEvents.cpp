@@ -31,12 +31,14 @@
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
 #define MAXEVENTS 128
 
-SocketEvents::SocketEvents(SocketEventCallback eventsCallback, chrono::milliseconds timeout)
-: Thread("socket events"), m_socketPool(eventsCallback), m_timeout(timeout)
+SocketEvents::SocketEvents(const String& name, SocketEventCallback eventsCallback, milliseconds timeout)
+: Thread(name), m_socketPool(eventsCallback), m_timeout(timeout)
 {
+    m_socketPool.open();
 }
 
 SocketEvents::~SocketEvents()
@@ -64,8 +66,7 @@ void SocketEvents::add(BaseSocket& socket, void* userData)
 		if (m_shutdown)
 			throw Exception("SocketEvents already stopped");
 		run();
-		while (!m_socketPool.active())
-			this_thread::sleep_for(chrono::milliseconds(10));
+		m_started.wait_for(true, milliseconds(1000));
 	}
     m_socketPool.watchSocket(socket, userData);
 }
@@ -78,6 +79,7 @@ void SocketEvents::remove(BaseSocket& socket)
 void SocketEvents::threadFunction()
 {
     m_socketPool.open();
+    m_started = true;
     while (!terminated()) {
         try {
             m_socketPool.waitForEvents(m_timeout);

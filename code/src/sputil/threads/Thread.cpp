@@ -55,7 +55,7 @@ Thread::Thread(const String& name)
 
 Thread::~Thread()
 {
-    terminate();
+    Thread::terminate();
     if (m_thread.joinable())
         m_thread.join();
 }

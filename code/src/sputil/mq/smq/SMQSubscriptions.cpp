@@ -28,8 +28,7 @@
 
 #include <sptk5/md5.h>
 #include <sptk5/mq/SMQSubscriptions.h>
-
-#include "sptk5/mq/SMQSubscriptions.h"
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;

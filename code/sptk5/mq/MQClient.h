@@ -33,6 +33,8 @@
 #include <sptk5/cnet>
 #include <sptk5/mq/Message.h>
 #include <sptk5/net/SocketEvents.h>
+#include <sptk5/cthreads>
+#include "TCPMQClient.h"
 
 namespace sptk {
 
@@ -43,6 +45,12 @@ namespace sptk {
  */
 class MQClient
 {
+protected:
+
+    typedef std::shared_ptr<SocketEvents> SharedSocketEvents;
+
+private:
+
     /**
      * Mutex that protects internal data
      */
@@ -64,43 +72,34 @@ class MQClient
     bool                            m_connected {false};
 
     /**
-     * Socket events manager
-     */
-    std::shared_ptr<SocketEvents>   m_socketEvents;
-
-    /**
      * Queue of incoming messages
      */
-    SynchronizedQueue<Message>      m_incomingMessages;
+    SynchronizedQueue<SMessage>     m_incomingMessages;
 
 protected:
 
     /**
-     * Access to socket event manager for derived classes
-     * @return socket event manager
+     * Preview received messages before placing them in the received messages queue.
+     * Message may be modified, or ignored.
+     * @param message           Received message
+     * @return true if message should be placed to the received messages queue.
      */
-    std::shared_ptr<SocketEvents> socketEvents()
-    {
-        return m_socketEvents;
-    }
+    virtual bool previewMessage(Message& message) { return true; }
 
     /**
-     * Access to incoming messages queue for derived classes
-     * @return incoming messages queue
+     * Place received message into received messages queue.
+     * @param message           Received message
+     * @return true if message should be placed to the received messages queue.
      */
-    SynchronizedQueue<Message>& incomingMessages()
-    {
-        return m_incomingMessages;
-    }
+    void acceptMessage(SMessage& message);
 
 public:
 
     /**
      * Constructor
-     * @param socketEvents      Socket manager for receiving client socket events
      * @param clientId          Unique client id
      */
-    MQClient(std::shared_ptr<SocketEvents>& socketEvents, const String& clientId);
+    MQClient(const String& clientId);
 
     /**
      * Destructor
@@ -109,12 +108,14 @@ public:
 
     /*
      * Connect to MQ server
+     * @param server            MQ server host and port
      * @param user              MQ server username.
      * @param password          MQ server password.
      * @param encrypted         Use encrypted connection. If true, then SSL keys must be loaded prior to this call.
      * @param timeout           Operation timeout
      */
-    virtual void connect(const String& username, const String password, bool encrypted, std::chrono::milliseconds timeout) = 0;
+    virtual void connect(const Host& server, const String& username, const String password, bool encrypted,
+                         std::chrono::milliseconds timeout) = 0;
 
     /**
      * Disconnect from server
@@ -142,15 +143,14 @@ public:
      * @param message           Message
      * @param timeout           Operation timeout
      */
-    virtual void send(const String& destination, const Message& message, std::chrono::milliseconds timeout) = 0;
+    virtual void send(const String& destination, Message& message, std::chrono::milliseconds timeout) = 0;
 
     /**
      * Receive a message
-     * @param message           Message (output)
      * @param timeout           Operation timeout
-     * @returns true if message received
+     * @returns shared ptr message, that is false if timeout
      */
-    virtual bool receive(Message& message, std::chrono::milliseconds timeout) = 0;
+    virtual SMessage getMessage(std::chrono::milliseconds timeout);
 
     /**
      * Subscribe to queue or topic
@@ -181,7 +181,13 @@ public:
      * Return client connection status
      * @return true if client is connected
      */
-    bool connected() const;
+    virtual bool connected() const;
+
+    /**
+     * Check if client has any messages in received messages queue
+     * @return number of messages available
+     */
+    size_t hasMessages() const;
 };
 
 } // namespace sptk

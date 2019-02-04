@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQClient.h - description                              ║
+║                       TCPMQClient.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,79 +26,66 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/mq/SMQClient.h>
-#include <sptk5/mq/SMQMessage.h>
-#include <sptk5/mq/TCPMQClient.h>
-#include <sptk5/cutils>
+#ifndef __TCP_MQ_CLIENT_H__
+#define __TCP_MQ_CLIENT_H__
 
-using namespace std;
-using namespace sptk;
-using namespace chrono;
+#include <sptk5/mq/MQClient.h>
 
-SMQClient::SMQClient(const String& clientId)
-: TCPMQClient(clientId)
+namespace sptk {
+
+class TCPMQClient : public MQClient
 {
-}
+    mutable SharedMutex         m_mutex;
+    std::shared_ptr<TCPSocket>  m_socket;           ///< TCP or SSL connection socket
+    static SharedSocketEvents   smqSocketEvents;    ///< Shared event manager
 
-void SMQClient::connect(const Host& server, const String& username, const String password, bool encrypted, milliseconds timeout)
-{
-    UniqueLock(m_mutex);
+    /**
+     * Callback function that receives socket events
+     * @param userData          Socket event data, here - pointer to SMQ client object
+     * @param eventType         Socket event type
+     */
+    static void smqSocketEventCallback(void *userData, SocketEventType eventType);
 
-    createConnection(server, encrypted, timeout);
+    /**
+     * Initialize shared event manager
+     * @return
+     */
+    static SharedSocketEvents& initSocketEvents();
 
-    m_server = server;
-    m_username = username;
-    m_password = password;
+protected:
 
-    Message connectMessage(Message::CONNECT);
-    connectMessage["clientid"] = m_clientId;
-    connectMessage["username"] = username;
-    connectMessage["password"] = password;
-    send("", connectMessage, timeout);
-}
+    /**
+     * Constructor
+     * @param clientId          Unique client id
+     */
+    TCPMQClient(const String& clientId);
 
-void SMQClient::disconnect(bool)
-{
-    destroyConnection();
-}
+public:
 
-void SMQClient::send(const String& destination, Message& message, std::chrono::milliseconds timeout)
-{
-    message["destination"] = destination;
-    SMQMessage::sendMessage(socket(), message);
-}
+    virtual ~TCPMQClient();
 
-void SMQClient::subscribe(const String& destination, std::chrono::milliseconds timeout)
-{
-    Message subscribeMessage(Message::SUBSCRIBE);
-    send(destination, subscribeMessage, timeout);
-}
+    void loadSslKeys(const String& keyFile, const String& certificateFile, const String& password, const String& caFile,
+                     int verifyMode, int verifyDepth) override;
 
-void SMQClient::unsubscribe(const String& destination, std::chrono::milliseconds timeout)
-{
-    Message unsubscribeMessage(Message::UNSUBSCRIBE);
-    send(destination, unsubscribeMessage, timeout);
-}
-
-SMQClient::~SMQClient()
-{
-}
-
-void SMQClient::socketEvent(SocketEventType eventType)
-{
-    if (eventType == ET_CONNECTION_CLOSED) {
-        destroyConnection();
-        return;
+protected:
+    TCPSocket& socket()
+    {
+        return *m_socket;
     }
 
-    try {
-        while (connected() && socket().socketBytes() > 0) {
-            auto msg = SMQMessage::readRawMessage(socket());
-            if (msg->type() == Message::MESSAGE)
-                acceptMessage(msg);
-        }
-    }
-    catch (const Exception&) {
-        destroyConnection();
-    }
-}
+    /**
+     * Check if client is connected to server
+     * @return true if client is connected to server
+     */
+    bool connected() const override { return m_socket->active(); }
+
+    virtual void socketEvent(SocketEventType eventType) = 0;
+
+    void createConnection(const Host& server, bool encrypted, std::chrono::milliseconds timeout);
+
+    void destroyConnection();
+};
+
+} // namespace sptk
+
+#endif

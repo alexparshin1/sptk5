@@ -32,93 +32,71 @@
 #include <sptk5/cthreads>
 #include <sptk5/cnet>
 #include <sptk5/mq/SMQMessage.h>
+#include "TCPMQClient.h"
+#include "MQClient.h"
 
 namespace sptk {
 
-class SMQClient : public Thread
+class SMQClient : public TCPMQClient
 {
-    std::mutex                  m_mutex;            ///< Mutex that protects internal data
-    TCPSocket                   m_socket;           ///< TCP or SSL connection socket
+    mutable SharedMutex         m_mutex;            ///< Mutex that protects internal data
     Host                        m_server;           ///< SMQ server host
     String                      m_clientId;         ///< Unique SMQ client id
     String                      m_username;         ///< Connection user name
     String                      m_password;         ///< Connection password
-    SMessageQueue               m_receivedMessages; ///< Received messages queue
-
 protected:
-    /**
-     * Thread function
-     *
-     * Retrieves incoming messages
-     */
-    void threadFunction() override;
-
-    /**
-     * Preview received messages before placing them in the received messages queue.
-     * Message may be modified, or ignored.
-     * @param message           Received message
-     * @return true if message should be placed to the received messages queue.
-     */
-    virtual bool previewMessage(Message& message) { return true; }
+    void socketEvent(SocketEventType eventType) override;
 
 public:
 
     /**
      * Constructor
+     * @param clientId          Unique client id
      */
-    SMQClient();
+    explicit SMQClient(const String& clientId);
 
     /**
      * Destructor
      */
     virtual ~SMQClient();
 
-    /**
-     * Check if client is connected to server
-     * @return true if client is connected to server
+    /*
+     * Connect to MQ server
+     * @param server            MQ server host and port
+     * @param user              MQ server username.
+     * @param password          MQ server password.
+     * @param encrypted         Use encrypted connection. If true, then SSL keys must be loaded prior to this call.
+     * @param timeout           Operation timeout
      */
-    bool connected() const { return m_socket.active(); }
+    void connect(const Host& server, const String& username, const String password, bool encrypted,
+                 std::chrono::milliseconds timeout) override;
 
     /**
-     * Connect to SMQ server
-     * @param server            SMQ server host
-     * @param clientId          Unique SMQ client id
-     * @param username          SMQ server username
-     * @param password          SMQ server password
+     * Disconnect from server
+     * @param immediate         If false then disconnect as defined by server protocol. Otherwise, just terminate connection.
      */
-    void connect(const Host& server, const String& clientId, const String& username, const String& password);
+    void disconnect(bool immediate) override;
 
     /**
-     * Disconnect from SMQ server
+     * Subscribe to a queue or topic
+     * @param destination       Destination queue or topic name
      */
-    void disconnect();
+    void subscribe(const String& destination, std::chrono::milliseconds timeout);
 
     /**
-     * Subscribe to a queue
-     * @param destination       Destination queue name
+     * Un-subscribe from a queue or topic
+     * @param destination       Destination queue or topic name
      */
-    void subscribe(const String& destination);
+    void unsubscribe(const String& destination, std::chrono::milliseconds timeout);
 
     /**
-     * Get a single message from received messages queue
-     * @param timeout           Timeout
-     * @return shared pointer to message, or empty pointer if timeout
+     * Send message
+     * @param destination       Queue or topic name
+     * @param message           Message
+     * @param timeout           Operation timeout
      */
-    SMessage getMessage(std::chrono::milliseconds timeout);
+    void send(const String& destination, Message& message, std::chrono::milliseconds timeout) override;
 
-    /**
-     * Send a message
-     *
-     * Destination queue is defined in message 'destination' header
-     * @param message           Message to send
-     */
-    void sendMessage(const Message& message);
-
-    /**
-     * Check if client has any messages in received messages queue
-     * @return number of messages available
-     */
-    size_t hasMessages() const;
     /**
      * Get client id
      * @return

@@ -14,6 +14,7 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/Strings.h>
 #include <sptk5/DateTime.h>
+#include <sptk5/threads/SynchronizedQueue.h>
 
 namespace sptk {
 
@@ -45,20 +46,18 @@ public:
 
     Message(const Message& other) = default;
 
-    Message(Type type, const Buffer& other, const String& destination = "")
+    Message(Type type, const Buffer& other)
     : Buffer(other),
       m_created("now"),
       m_type(type)
     {
-        m_headers["destination"] = destination;
     }
 
-    Message(Type type, const Buffer&& other, const String& destination = "")
+    Message(Type type, const Buffer&& other)
     : Buffer(other),
       m_created("now"),
       m_type(type)
     {
-        m_headers["destination"] = destination;
     }
 
     Message(Message&& other) noexcept
@@ -93,6 +92,9 @@ public:
 
     void destination(const String& destination);
 };
+
+typedef std::shared_ptr<Message>    SMessage;
+typedef SynchronizedQueue<SMessage> SMessageQueue;
 
 }
 

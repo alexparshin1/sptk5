@@ -23,9 +23,6 @@ public:
     static void sendMessage(TCPSocket& socket, const Message& message);
 };
 
-typedef std::shared_ptr<Message>                    SMessage;
-typedef SynchronizedQueue<SMessage>                 SMessageQueue;
-
 } // namespace sptk
 
 #endif

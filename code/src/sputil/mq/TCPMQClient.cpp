@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQClient.h - description                              ║
+║                       TCPMQClient.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,79 +26,66 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/mq/SMQClient.h>
-#include <sptk5/mq/SMQMessage.h>
-#include <sptk5/mq/TCPMQClient.h>
-#include <sptk5/cutils>
+#include "sptk5/mq/TCPMQClient.h"
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-SMQClient::SMQClient(const String& clientId)
-: TCPMQClient(clientId)
+MQClient::SharedSocketEvents TCPMQClient::smqSocketEvents;
+
+MQClient::SharedSocketEvents& TCPMQClient::initSocketEvents()
 {
+    static mutex              amutex;
+
+    lock_guard<mutex> lock(amutex);
+
+    if (!smqSocketEvents)
+        smqSocketEvents = make_shared<SocketEvents>("MQ Client", smqSocketEventCallback);
+
+    return smqSocketEvents;
 }
 
-void SMQClient::connect(const Host& server, const String& username, const String password, bool encrypted, milliseconds timeout)
+TCPMQClient::TCPMQClient(const String& clientId)
+: MQClient(clientId)
 {
     UniqueLock(m_mutex);
-
-    createConnection(server, encrypted, timeout);
-
-    m_server = server;
-    m_username = username;
-    m_password = password;
-
-    Message connectMessage(Message::CONNECT);
-    connectMessage["clientid"] = m_clientId;
-    connectMessage["username"] = username;
-    connectMessage["password"] = password;
-    send("", connectMessage, timeout);
+    initSocketEvents();
 }
 
-void SMQClient::disconnect(bool)
+TCPMQClient::~TCPMQClient()
 {
     destroyConnection();
 }
 
-void SMQClient::send(const String& destination, Message& message, std::chrono::milliseconds timeout)
+void TCPMQClient::createConnection(const Host& server, bool encrypted, std::chrono::milliseconds timeout)
 {
-    message["destination"] = destination;
-    SMQMessage::sendMessage(socket(), message);
-}
-
-void SMQClient::subscribe(const String& destination, std::chrono::milliseconds timeout)
-{
-    Message subscribeMessage(Message::SUBSCRIBE);
-    send(destination, subscribeMessage, timeout);
-}
-
-void SMQClient::unsubscribe(const String& destination, std::chrono::milliseconds timeout)
-{
-    Message unsubscribeMessage(Message::UNSUBSCRIBE);
-    send(destination, unsubscribeMessage, timeout);
-}
-
-SMQClient::~SMQClient()
-{
-}
-
-void SMQClient::socketEvent(SocketEventType eventType)
-{
-    if (eventType == ET_CONNECTION_CLOSED) {
-        destroyConnection();
+    UniqueLock(m_mutex);
+    if (m_socket && m_socket->active())
         return;
-    }
+    m_socket = make_shared<TCPSocket>();
+    m_socket->open(server, TCPSocket::SOM_CONNECT, true, timeout);
+    smqSocketEvents->add(*m_socket, this);
+}
 
-    try {
-        while (connected() && socket().socketBytes() > 0) {
-            auto msg = SMQMessage::readRawMessage(socket());
-            if (msg->type() == Message::MESSAGE)
-                acceptMessage(msg);
-        }
+void TCPMQClient::destroyConnection()
+{
+    UniqueLock(m_mutex);
+    if (m_socket) {
+        smqSocketEvents->remove(*m_socket);
+        m_socket->close();
+        m_socket.reset();
     }
-    catch (const Exception&) {
-        destroyConnection();
-    }
+}
+
+void TCPMQClient::smqSocketEventCallback(void* userData, SocketEventType eventType)
+{
+    auto* client = (TCPMQClient*) userData;
+    client->socketEvent(eventType);
+}
+
+void TCPMQClient::loadSslKeys(const String& keyFile, const String& certificateFile, const String& password,
+                              const String& caFile, int verifyMode, int verifyDepth)
+{
+
 }

@@ -35,6 +35,7 @@
 #include <sptk5/threads/Thread.h>
 #include <sptk5/net/BaseSocket.h>
 #include <sptk5/net/SocketPool.h>
+#include <src/sputil/threads/Flag.h>
 #include "sptk5/SystemException.h"
 
 namespace sptk {
@@ -68,6 +69,7 @@ class SocketEvents : public Thread
      */
     std::chrono::milliseconds   m_timeout;
 
+    Flag                        m_started;
 	bool						m_shutdown {false};
 
 protected:
@@ -80,10 +82,11 @@ protected:
 public:
     /**
      * Constructor
+     * @param name                  Logical name for event manager (also the thread name)
      * @param eventsCallback        Callback function called for socket events
      * @param timeout	            Timeout in event monitoring loop
      */
-    SocketEvents(SocketEventCallback eventsCallback, std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
+    SocketEvents(const String& name, SocketEventCallback eventsCallback, std::chrono::milliseconds timeout = std::chrono::milliseconds(100));
 
     /**
      * Destructor

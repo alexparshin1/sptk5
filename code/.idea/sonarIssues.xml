@@ -613,12 +613,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/Message.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/mq/SMQClient.h">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/mq/SMQConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/SMQMessage.h">
           <value>
             <set />
           </value>
@@ -634,6 +644,21 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/mq/SMQSubscriptions.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/TCPMQClient.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/net/SocketEvents.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/net/SocketPool.h">
           <value>
             <set />
           </value>
@@ -723,6 +748,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/TCPMQClient.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/TCPMQClient.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQClient.cpp">
           <value>
             <set />
@@ -778,12 +813,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/SocketPool.LinuxAndWindows.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/net/TCPServerListener.cpp">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/net/TCPSocket.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/threads/Thread.cpp">
           <value>
             <set />
           </value>

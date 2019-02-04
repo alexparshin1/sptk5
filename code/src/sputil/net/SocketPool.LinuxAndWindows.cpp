@@ -43,9 +43,8 @@ using namespace std;
 using namespace sptk;
 
 SocketPool::SocketPool(SocketEventCallback eventsCallback)
-: m_eventsCallback(eventsCallback)
+: m_pool(INVALID_EPOLL), m_eventsCallback(eventsCallback)
 {
-    open();
 }
 
 SocketPool::~SocketPool()
@@ -55,15 +54,21 @@ SocketPool::~SocketPool()
 
 void SocketPool::open()
 {
+    lock_guard<mutex> lock(*this);
+
     if (m_pool != INVALID_EPOLL)
         return;
+
     m_pool = epoll_create1(0);
+
     if (m_pool == INVALID_EPOLL)
         throw SystemException("epoll_create1");
 }
 
 void SocketPool::close()
 {
+    lock_guard<mutex> lock(*this);
+
     if (m_pool != INVALID_EPOLL) {
 #ifdef _WIN32
         epoll_close(m_pool);
@@ -73,9 +78,9 @@ void SocketPool::close()
         m_pool = INVALID_EPOLL;
     }
 
-    lock_guard<mutex> lock(*this);
     for (auto itor: m_socketData)
         free(itor.second);
+
     m_socketData.clear();
 }
 

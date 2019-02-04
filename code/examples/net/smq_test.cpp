@@ -1,6 +1,7 @@
 #include <sptk5/mq/SMQServer.h>
 #include <sptk5/mq/SMQClient.h>
 #include <sptk5/cutils>
+#include "MQClient.h"
 
 using namespace std;
 using namespace sptk;
@@ -19,7 +20,7 @@ int main()
         SMQClient smqClient;
         smqClient.connect(Host("localhost:4000"), "test-client1", "user", "secret");
 
-        smqClient.subscribe("test-queue");
+        smqClient.subscribe("test-queue", std::chrono::milliseconds());
 
         DateTime started("now");
         Message msg(Message::MESSAGE, Buffer("This is SMQ test"), "test-queue");
