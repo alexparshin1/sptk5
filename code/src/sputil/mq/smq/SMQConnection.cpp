@@ -45,7 +45,7 @@ SMQConnection::SMQConnection(TCPServer& server, SOCKET connectionSocket, sockadd
 SMQConnection::~SMQConnection()
 {
     SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
-    if (smqServer != nullptr)
+    if (smqServer != nullptr && socket().active())
         smqServer->forgetSocket(socket());
 
     UniqueLock(m_mutex);
@@ -54,7 +54,6 @@ SMQConnection::~SMQConnection()
     m_subscriptions.clear();
 
     socket().close();
-    COUT("DTOR " << m_clientId << endl);
 }
 
 void SMQConnection::terminate()

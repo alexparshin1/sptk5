@@ -58,6 +58,6 @@ string sptk::WSRestriction::generateConstructor(const string& variableName) cons
 {
     stringstream str;
     str << "WSRestriction " << variableName << "(\"" << m_typeName << "\", "
-        << "\"" << m_enumerations.asString("|") << "\", \"|\")";
+        << "\"" << m_enumerations.join("|") << "\", \"|\")";
     return str.str();
 }

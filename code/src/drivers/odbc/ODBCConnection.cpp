@@ -269,7 +269,7 @@ void ODBCConnection::queryExecute(Query* query)
                     break;
                 errors.push_back(removeDriverIdentification((const char*) text));
             }
-            THROW_QUERY_ERROR(query, errors.asString("; "));
+            THROW_QUERY_ERROR(query, errors.join("; "));
         }
     }
 

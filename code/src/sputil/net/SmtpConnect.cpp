@@ -149,7 +149,7 @@ void SmtpConnect::cmd_auth(const string& user, const string& password)
 
     int rc = command("EHLO localhost");
     if (rc > 251)
-        throw Exception(m_response.asString("\n"));
+        throw Exception(m_response.join("\n"));
 
     Strings authInfo = m_response.grep("^AUTH ");
     if (authInfo.empty())
@@ -170,15 +170,15 @@ void SmtpConnect::cmd_auth(const string& user, const string& password)
         if (method == "LOGIN") {
             rc = command("AUTH LOGIN", false, true);
             if (rc > 432)
-                throw Exception(m_response.asString("\n"));
+                throw Exception(m_response.join("\n"));
 
             rc = command(user, true, true);
             if (rc > 432)
-                throw Exception(m_response.asString("\n"));
+                throw Exception(m_response.join("\n"));
 
             rc = command(password, true, false);
             if (rc > 432)
-                throw Exception(m_response.asString("\n"));
+                throw Exception(m_response.join("\n"));
             return;
         }
 
@@ -193,7 +193,7 @@ void SmtpConnect::cmd_auth(const string& user, const string& password)
             string userAndPasswordMimed = mime(userAndPassword);
             rc = command("AUTH PLAIN " + userAndPasswordMimed, false, false);
             if (rc > 432)
-                throw Exception(m_response.asString("\n"));
+                throw Exception(m_response.join("\n"));
             return;
         }
 
@@ -225,7 +225,7 @@ void SmtpConnect::sendMessage()
 {
     int rc = command("MAIL FROM:<" + parseAddress(from()) + ">");
     if (rc > 251)
-        throw Exception("Can't send message:\n" + m_response.asString("\n"));
+        throw Exception("Can't send message:\n" + m_response.join("\n"));
 
     String rcpts = to() + ";" + cc() + ";" + bcc();
     rcpts = rcpts.replace("[, ]+", ";");
@@ -236,17 +236,17 @@ void SmtpConnect::sendMessage()
         if (address[0] == 0) continue;
         rc = command("RCPT TO:<" + parseAddress(recepients[i]) + ">");
         if (rc > 251)
-            throw Exception("Recepient " + recepients[i] + " is not accepted.\n" + m_response.asString("\n"));
+            throw Exception("Recepient " + recepients[i] + " is not accepted.\n" + m_response.join("\n"));
     }
 
     Buffer message(messageBuffer());
     mimeMessage(message);
     rc = command("DATA");
     if (rc != 354)
-        throw Exception("DATA command is not accepted.\n" + m_response.asString("\n"));
+        throw Exception("DATA command is not accepted.\n" + m_response.join("\n"));
 
     sendCommand(message.data());
     rc = command("\n.");
     if (rc > 251)
-        throw Exception("Message body is not accepted.\n" + m_response.asString("\n"));
+        throw Exception("Message body is not accepted.\n" + m_response.join("\n"));
 }

@@ -592,8 +592,8 @@ void OracleConnection::_bulkInsert(const String& tableName, const Strings& colum
     }
 
     OracleBulkInsertQuery insertQuery(this,
-                                      "INSERT INTO " + tableName + "(" + columnNames.asString(",") +
-                                      ") VALUES (:" + columnNames.asString(",:") + ")",
+                                      "INSERT INTO " + tableName + "(" + columnNames.join(",") +
+                                      ") VALUES (:" + columnNames.join(",:") + ")",
                                       data.size(),
                                       columnTypeSizeMap);
     for (auto& row: data) {

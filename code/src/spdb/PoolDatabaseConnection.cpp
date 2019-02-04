@@ -152,8 +152,8 @@ void PoolDatabaseConnection::_bulkInsert(
         const String& tableName, const Strings& columnNames, const Strings& data, const String& /*format*/)
 {
     Query insertQuery(this,
-                      "INSERT INTO " + tableName + "(" + columnNames.asString(",") +
-                      ") VALUES (:" + columnNames.asString(",:") + ")");
+                      "INSERT INTO " + tableName + "(" + columnNames.join(",") +
+                      ") VALUES (:" + columnNames.join(",:") + ")");
     for (auto& row: data) {
         Strings rowData(row,"\t");
         for (unsigned i = 0; i < columnNames.size(); i++)

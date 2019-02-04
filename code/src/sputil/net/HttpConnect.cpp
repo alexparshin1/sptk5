@@ -108,7 +108,7 @@ int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParame
 {
     Strings headers = makeHeaders("GET", pageName, requestParameters);
 
-    string command = headers.asString("\r\n") + "\r\n\r\n";
+    string command = headers.join("\r\n") + "\r\n\r\n";
     sendCommand(command);
 
     return getResponse(output, timeout);
@@ -136,7 +136,7 @@ int HttpConnect::cmd_post(const sptk::String& pageName, const HttpParams& parame
     }
     headers.push_back("Content-Length: " + int2string((uint32_t) data->bytes()));
 
-    Buffer command(headers.asString("\r\n") + "\r\n\r\n");
+    Buffer command(headers.join("\r\n") + "\r\n\r\n");
     command.append(*data);
 
     sendCommand(command);
@@ -156,7 +156,7 @@ int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& request
     if (!putData.empty())
         headers.push_back("Content-Length: " + int2string((uint32_t) putData.bytes()));
 
-    string command = headers.asString("\r\n") + "\r\n\r\n";
+    string command = headers.join("\r\n") + "\r\n\r\n";
 
     if (!putData.empty())
         command += putData.data();
@@ -170,7 +170,7 @@ int HttpConnect::cmd_delete(const sptk::String& pageName, const HttpParams& requ
                             std::chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("DELETE", pageName, requestParameters);
-    string  command = headers.asString("\r\n") + "\r\n\r\n";
+    string  command = headers.join("\r\n") + "\r\n\r\n";
 
     sendCommand(command);
 

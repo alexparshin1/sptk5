@@ -148,7 +148,7 @@ String DirectoryDS::absolutePath(const String& _path) const
 #ifdef _WIN32
     path = pathItems.asString(slashStr);
 #else
-    path = "/" + pathItems.asString(slashStr);
+    path = "/" + pathItems.join(slashStr);
 #endif
     if (!path.length())
         path = slashStr;

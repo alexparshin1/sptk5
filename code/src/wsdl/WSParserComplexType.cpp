@@ -268,12 +268,12 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     classDeclaration << "    * @param elementName        WSDL element name" << endl;
     classDeclaration << "    * @param optional bool, Is element optional flag" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   explicit " << className << "(const char* elementName=\"" << tagName << "\", bool optional=false) noexcept" << endl << "   : " << ctorInitializer.asString(", ") << endl << "   {}" << endl << endl;
+    classDeclaration << "   explicit " << className << "(const char* elementName=\"" << tagName << "\", bool optional=false) noexcept" << endl << "   : " << ctorInitializer.join(", ") << endl << "   {}" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Copy constructor" << endl;
     classDeclaration << "    * @param other              Other element to copy from" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "(const " << className << "& other) noexcept" << endl << "   : " << copyInitializer.asString(", ") << endl
+    classDeclaration << "   " << className << "(const " << className << "& other) noexcept" << endl << "   : " << copyInitializer.join(", ") << endl
                      << "   {" << endl
                      << "       copyFrom(other);" << endl
                      << "   }" << endl << endl;

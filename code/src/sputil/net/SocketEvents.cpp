@@ -48,7 +48,6 @@ void SocketEvents::stop()
 {
 	try {
 		if (running()) {
-			m_socketPool.close();
 			terminate();
 			join();
 		}

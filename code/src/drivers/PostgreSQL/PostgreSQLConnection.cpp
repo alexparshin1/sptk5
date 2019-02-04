@@ -985,7 +985,7 @@ void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& c
                                        const String& format)
 {
     stringstream sql;
-    sql << "COPY " << tableName << "(" << columnNames.asString(",") << ") FROM STDIN " << format;
+    sql << "COPY " << tableName << "(" << columnNames.join(",") << ") FROM STDIN " << format;
 
     PGresult* res = PQexec(m_connect, sql.str().c_str());
 

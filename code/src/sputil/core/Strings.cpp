@@ -121,20 +121,6 @@ void Strings::fromString(const String& src, const char* delimitter, SplitMode mo
     }
 }
 
-String Strings::asString(const char* delimitter) const
-{
-    stringstream result;
-    bool first = true;
-    for (auto& str: *this) {
-        if (first) {
-            result << str;
-            first = false;
-        } else
-            result << delimitter << str;
-    }
-    return result.str();
-}
-
 int Strings::indexOf(const String& s) const
 {
     const_iterator itor;
@@ -191,9 +177,18 @@ void Strings::loadFromFile(const String& fileName)
     splitByDelimiter(*this, text, delimiter.c_str());
 }
 
-String Strings::join(const String& delimiter) const
+String Strings::join(const char* delimitter) const
 {
-    return asString(delimiter.c_str());
+    stringstream result;
+    bool first = true;
+    for (auto& str: *this) {
+        if (first) {
+            result << str;
+            first = false;
+        } else
+            result << delimitter << str;
+    }
+    return result.str();
 }
 
 Strings Strings::grep(const String& pattern) const

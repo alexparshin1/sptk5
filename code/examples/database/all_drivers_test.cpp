@@ -418,7 +418,7 @@ int main(int argc, const char* argv[])
             String hostOrDSN;
 
             for (;;) {
-                COUT("Please select database type (" << databaseTypes.asString(",") << ")> ");
+                COUT("Please select database type (" << databaseTypes.join(",") << ")> ");
                 cin >> dbtype;
                 if (databaseTypes.indexOf(dbtype) != -1)
                     break;

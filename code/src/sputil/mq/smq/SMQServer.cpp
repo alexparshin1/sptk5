@@ -43,8 +43,9 @@ SMQServer::SMQServer(const String& username, const String& password, LogEngine& 
 
 void SMQServer::stop()
 {
-	m_socketEvents.stop();
+    m_socketEvents.terminate();
 	TCPServer::stop();
+    m_socketEvents.stop();
     log(LP_NOTICE, "Server stopped");
 }
 
@@ -88,10 +89,9 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
 
             switch (msg->type()) {
                 case Message::CONNECT:
-                    if (!smqServer->authenticate((*msg)["clientid"], (*msg)["username"], (*msg)["password"])) {
+                    if (!smqServer->authenticate((*msg)["clientid"], (*msg)["username"], (*msg)["password"]))
                         smqServer->removeConnection(connection);
-                        connection->terminate();
-                    } else
+                    else
                         connection->setClientId((*msg)["clientid"]);
                     break;
                 case Message::SUBSCRIBE:
@@ -105,7 +105,6 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
                     break;
                 case Message::DISCONNECT:
                     smqServer->removeConnection(connection);
-                    connection->terminate();
                     break;
                 default:
                     break;
@@ -226,8 +225,12 @@ TEST(SPTK_SMQServer, minimal)
         }
     }
 
+    smqSender.terminate();
+    smqReceiver.terminate();
+
     smqSender.disconnect();
     smqReceiver.disconnect();
+
     smqServer.stop();
 }
 
@@ -269,8 +272,12 @@ TEST(SPTK_SMQServer, shortMessages)
         EXPECT_STREQ(message->c_str(), ("data " + to_string(m)).c_str());
     }
 
+    smqSender.terminate();
+    smqReceiver.terminate();
+
     smqSender.disconnect();
     smqReceiver.disconnect();
+
     smqServer.stop();
 }
 
@@ -331,6 +338,9 @@ TEST(SPTK_SMQServer, multiClients)
     }
 
     for (auto& client: receivers)
+        client.terminate();
+
+    for (auto& client: receivers)
         client.disconnect();
 
     smqServer.stop();
@@ -379,7 +389,12 @@ TEST(SPTK_SMQServer, singleClientMultipleQueues)
 
     EXPECT_EQ(messageCount * queueNames.size(), totalMessages);
 
-    COUT("Client " << client.clientId() << " has " <<client.hasMessages() << endl);
+    COUT("Client " << client.clientId() << " has " <<client.hasMessages() << " messages" << endl);
+
+    sender.terminate();
+    client.terminate();
+
+    sender.disconnect();
     client.disconnect();
 
     smqServer.stop();
@@ -435,7 +450,10 @@ TEST(SPTK_SMQServer, multipleClientsSingleQueue)
     EXPECT_EQ(messageCount * clientCount, totalMessages);
 
     for (auto& client: receivers)
-    COUT("Client " << client.clientId() << " has " <<client.hasMessages() << endl);
+    COUT("Client " << client.clientId() << " has " <<client.hasMessages() << " messages" << endl);
+
+    for (auto& client: receivers)
+        client.terminate();
 
     for (auto& client: receivers)
         client.disconnect();
@@ -445,9 +463,9 @@ TEST(SPTK_SMQServer, multipleClientsSingleQueue)
 
 TEST(SPTK_SMQServer, multipleClientsSingleTopic)
 {
-    Buffer          buffer;
-    FileLogEngine   logEngine("SMQServer.log");
-    Host            serverHost("localhost:4000");
+    Buffer buffer;
+    FileLogEngine logEngine("SMQServer.log");
+    Host serverHost("localhost:4000");
 
     SMQServer smqServer("user", "secret", logEngine);
     ASSERT_NO_THROW(smqServer.listen(4000));
@@ -491,7 +509,10 @@ TEST(SPTK_SMQServer, multipleClientsSingleTopic)
     EXPECT_EQ(messageCount * clientCount, totalMessages);
 
     for (auto& client: receivers)
-        COUT("Client " << client.clientId() << " has " <<client.hasMessages() << endl);
+        COUT("Client " << client.clientId() << " has " << client.hasMessages() << " messages" << endl);
+
+    for (auto& client: receivers)
+        client.terminate();
 
     for (auto& client: receivers)
         client.disconnect();

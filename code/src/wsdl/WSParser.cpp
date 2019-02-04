@@ -197,7 +197,7 @@ String capitalize(const String& name)
     Strings parts(lowerCase(name),"_");
     for (auto& part : parts)
         part[0] = (char) toupper(part[0]);
-    return parts.asString("");
+    return parts.join("");
 }
 
 string WSParser::strip_namespace(const string& name)
@@ -301,7 +301,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
         String requestName = strip_namespace(itor.second.m_input->name());
         serviceOperations.push_back(requestName);
     }
-    String operationNames = serviceOperations.asString("|");
+    String operationNames = serviceOperations.join("|");
     WSMessageIndex serviceOperationsIndex(serviceOperations);
 
     serviceImplementation << "#include \"" << serviceClassName << ".h\"" << endl;

@@ -50,7 +50,7 @@ String MailMessageBody::stripHtml(const String& origHtml)
         }
     }
 
-    return trim(html.asString(" ").replace(" +", " "));
+    return trim(html.join(" ").replace(" +", " "));
 }
 
 void MailMessageBody::text(const string& messageText, bool smtp)

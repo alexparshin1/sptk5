@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
         if (!user.empty() && !password.empty())
             SMTP.cmd_auth(user, password);  // Supported methods are login and plain
 
-        COUT(SMTP.response().asString("\n") << endl);
+        COUT(SMTP.response().join("\n") << endl);
 
         SMTP.subject("Test e-mail");
         SMTP.from("Me <" + email + ">");
@@ -108,11 +108,11 @@ int main(int argc, char* argv[])
 
         COUT("\nSending test message.." << endl);
         SMTP.cmd_send();
-        COUT(SMTP.response().asString("\n") << endl);
+        COUT(SMTP.response().join("\n") << endl);
 
         COUT("\nClosing SMTP connection.." << endl);
         SMTP.cmd_quit();
-        COUT(SMTP.response().asString("\n") << endl);
+        COUT(SMTP.response().join("\n") << endl);
 
         COUT(endl << "Message sent. Please, check your mail in " << email << endl);
 
