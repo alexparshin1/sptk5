@@ -100,6 +100,11 @@ class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
      */
     void decodeMySQLTime(Field* field, MYSQL_TIME& mysqlTime, VariantType fieldType);
 
+    void throwMySQLError()
+    {
+        throw DatabaseException(mysql_stmt_error(statement()));
+    }
+
 public:
 
     /**

@@ -122,7 +122,7 @@ public:
     /**
      * Default constructor
      */
-    Strings() noexcept {}
+    Strings() noexcept = default;
 
     /**
      * Copy constructor
@@ -187,12 +187,6 @@ public:
     void fromString(const String& src, const char *delimiter, SplitMode mode);
 
     /**
-     * Makes string from own strings separated by a delimiter string
-     * @param delimiter         Delimiter string
-     */
-    String asString(const char* delimiter) const;
-
-    /**
      * Returns an index of the string in strings, or -1 if not found.
      * If strings were sorted prior to calling this method, and not modified
      * since that, then binary search is used.
@@ -243,7 +237,7 @@ public:
      * Returns concatenated string
      * @param delimiter         Delimiter
      */
-    String join(const String& delimiter) const;
+    String join(const char* delimiter) const;
 
     /**
      * Returns strings matching regex pattern

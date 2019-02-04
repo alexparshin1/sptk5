@@ -32,8 +32,6 @@
 using namespace std;
 using namespace sptk;
 
-#define throwMySQLError throw DatabaseException(mysql_stmt_error(statement()))
-
 // When TEXT field is large, fetch in chunks:
 #define FETCH_BUFFER 256
 
@@ -214,7 +212,8 @@ enum_field_types MySQLStatement::variantTypeToMySQLType(VariantType dataType)
         return MYSQL_TYPE_DOUBLE;
 
     case VAR_STRING:
-        return MYSQL_TYPE_VARCHAR;
+        //return MYSQL_TYPE_VARCHAR; // Stopped working after upgrade to MariaDB?
+        return MYSQL_TYPE_STRING;
 
     case VAR_TEXT:
     case VAR_BUFFER:
@@ -288,13 +287,13 @@ void MySQLStatement::setParameterValues()
     }
         /// Bind the buffers
     if (mysql_stmt_bind_param(statement(), &m_paramBuffers[0]) != 0)
-        throwMySQLError;
+        throwMySQLError();
 }
 
 void MySQLStatement::MySQLStatement::prepare(const string& sql)
 {
     if (mysql_stmt_prepare(statement(), sql.c_str(), sql.length()) != 0)
-        throwMySQLError;
+        throwMySQLError();
 }
 
 void MySQLStatement::execute(bool)
@@ -306,7 +305,7 @@ void MySQLStatement::execute(bool)
     }
     if (statement() != nullptr) {
         if (mysql_stmt_execute(statement()) != 0)
-            throwMySQLError;
+            throwMySQLError();
         state().columnCount = mysql_stmt_field_count(statement());
         if (state().columnCount != 0)
             m_result = mysql_stmt_result_metadata(statement());
@@ -332,7 +331,7 @@ void MySQLStatement::bindResult(FieldList& fields)
     for (unsigned columnIndex = 0; columnIndex < state().columnCount; columnIndex++) {
         MYSQL_FIELD *fieldMetadata = mysql_fetch_field(m_result);
         if (fieldMetadata == nullptr)
-            throwMySQLError;
+            throwMySQLError();
         strncpy(columnName, fieldMetadata->name, sizeof(columnName));
         columnName[sizeof(columnName)-1] = 0;
         if (columnName[0] == 0)
@@ -402,7 +401,7 @@ void MySQLStatement::bindResult(FieldList& fields)
             field->bindCallbacks(&bind);
         }
         if (mysql_stmt_bind_result(statement(), &m_fieldBuffers[0]) != 0)
-            throwMySQLError;
+            throwMySQLError();
     }
 }
 
@@ -548,7 +547,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
                     bind.buffer = (char*) field->getBuffer() + offset;
                     bind.buffer_length = remainingBytes;
                     if (mysql_stmt_fetch_column(statement(), &bind, fieldIndex, offset) != 0)
-                        throwMySQLError;
+                        throwMySQLError();
                     bind.buffer_length = field->bufferSize();
                     bind.buffer = (void*) field->getBuffer();
                     fieldSizeChanged = true;
@@ -567,7 +566,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
         }
     }
     if (fieldSizeChanged && mysql_stmt_bind_result(statement(), &m_fieldBuffers[0]) != 0)
-        throwMySQLError;
+        throwMySQLError();
 }
 
 void MySQLStatement::close()
@@ -596,14 +595,14 @@ void MySQLStatement::fetch()
             break;
 
         default: // Error during fetch, retrieving error
-            throwMySQLError;
+            throwMySQLError();
         }
     } else {
         m_row = mysql_fetch_row(m_result);
         if (m_row == nullptr) {
             int err = mysql_errno(connection()->m_connection);
             if (err != 0)
-                throwMySQLError;
+                throwMySQLError();
             state().eof = true;
         }
     }
