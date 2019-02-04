@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQClient.h - description                              ║
+║                       MQClient.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,102 +26,30 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/mq/SMQClient.h>
-#include <sptk5/mq/SMQMessage.h>
-#include <sptk5/cutils>
+#include <sptk5/mq/MQClient.h>
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
-SMQClient::SMQClient()
-: Thread("SMQClient")
+MQClient::MQClient(std::shared_ptr<SocketEvents>& socketEvents, const String& clientId)
+: m_socketEvents(socketEvents), m_clientId(clientId)
 {}
 
-void SMQClient::connect(const Host& server, const String& clientId, const String& username, const String& password)
+const String& MQClient::getClientId() const
 {
-    lock_guard<mutex> lock(m_mutex);
-
-    if (m_socket.active()) {
-        if (m_server == server && m_clientId == clientId && m_username == username && m_password == password)
-            return;
-        m_socket.close();
-    }
-
-    m_server = server;
-    m_clientId = clientId;
-    m_username = username;
-    m_password = password;
-
-    m_socket.open(server);
-    Message connectMessage(Message::CONNECT);
-    connectMessage["clientid"] = clientId;
-    connectMessage["username"] = username;
-    connectMessage["password"] = password;
-    sendMessage(connectMessage);
-
-    if (!running())
-        run();
+    SharedLock(m_mutex);
+    return m_clientId;
 }
 
-void SMQClient::disconnect()
+Host MQClient::getHost() const
 {
-    terminate();
-    join();
-    m_socket.close();
+    SharedLock(m_mutex);
+    return Host(m_host);
 }
 
-void SMQClient::threadFunction()
+bool MQClient::connected() const
 {
-    String errorMessagePrefix = "SMQClient " + m_clientId + ": ";
-    while (!terminated()) {
-        try {
-            if (!m_socket.active()) {
-                sleep_for(chrono::milliseconds(100));
-                continue;
-            }
-
-            if (m_socket.readyToRead(chrono::seconds(1))) {
-                auto message = SMQMessage::readRawMessage(m_socket);
-                if (previewMessage(*message))
-                    m_receivedMessages.push(message);
-            }
-        }
-        catch (const ConnectionException&) {
-            m_socket.close();
-        }
-        catch (const Exception& e) {
-            CERR(errorMessagePrefix << e.what() << endl);
-            m_socket.close();
-        }
-    }
-}
-
-void SMQClient::sendMessage(const Message& message)
-{
-    SMQMessage::sendMessage(m_socket, message);
-}
-
-void SMQClient::subscribe(const String& destination)
-{
-    Message subscribeMessage(Message::SUBSCRIBE);
-    subscribeMessage.destination(destination);
-    sendMessage(subscribeMessage);
-}
-
-size_t SMQClient::hasMessages() const
-{
-    return m_receivedMessages.size();
-}
-
-SMessage SMQClient::getMessage(std::chrono::milliseconds timeout)
-{
-    SMessage message;
-    m_receivedMessages.pop(message, timeout);
-    return message;
-}
-
-SMQClient::~SMQClient()
-{
-    Thread::terminate();
-    Thread::join();
+    SharedLock(m_mutex);
+    return m_connected;
 }

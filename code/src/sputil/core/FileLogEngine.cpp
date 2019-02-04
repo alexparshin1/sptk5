@@ -65,8 +65,8 @@ FileLogEngine::FileLogEngine(const String& fileName)
 
 FileLogEngine::~FileLogEngine()
 {
-	terminate();
-	join();
+	Thread::terminate();
+    Thread::join();
     if (m_fileStream.is_open())
         m_fileStream.close();
 }

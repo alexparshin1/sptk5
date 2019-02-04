@@ -51,12 +51,12 @@ private:
     std::set<SMQConnection*>::iterator      m_currentConnection;
 
 public:
-    SMQSubscription(Type type);
+    explicit SMQSubscription(Type type);
 
     virtual ~SMQSubscription();
 
     void addConnection(SMQConnection* connection);
-    void removeConnection(SMQConnection* connection);
+    void removeConnection(SMQConnection* connection, bool updateConnection);
     bool deliverMessage(const SMessage message);
 
     Type type() const;

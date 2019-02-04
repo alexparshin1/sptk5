@@ -59,12 +59,12 @@ ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_
     return newConnection;
 }
 
-void SMQServer::removeConnection(ServerConnection* connection)
+void SMQServer::closeConnection(ServerConnection* connection)
 {
     auto* smqConnection = dynamic_cast<SMQConnection*>(connection);
     String clientId = smqConnection->getClientId();
 
-    delete smqConnection;
+    delete connection;
 
     lock_guard<mutex> lock(m_mutex);
     m_clientIds.erase(clientId);
@@ -75,23 +75,24 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
 {
     SMQConnection* connection = (SMQConnection*) userData;
 
+    SMQServer* smqServer = dynamic_cast<SMQServer*>(&connection->server());
+
     if (eventType == ET_CONNECTION_CLOSED) {
-        connection->terminate();
+        smqServer->closeConnection(connection);
         return;
     }
 
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&connection->server());
-
     try {
-        while (connection->socket().socketBytes() > 0) {
+        while (connection != nullptr && connection->socket().socketBytes() > 0) {
 
             auto msg = SMQMessage::readRawMessage(connection->socket());
 
             switch (msg->type()) {
                 case Message::CONNECT:
-                    if (!smqServer->authenticate((*msg)["clientid"], (*msg)["username"], (*msg)["password"]))
-                        smqServer->removeConnection(connection);
-                    else
+                    if (!smqServer->authenticate((*msg)["clientid"], (*msg)["username"], (*msg)["password"])) {
+                        smqServer->closeConnection(connection);
+                        connection = nullptr;
+                    } else
                         connection->setClientId((*msg)["clientid"]);
                     break;
                 case Message::SUBSCRIBE:
@@ -104,7 +105,8 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
                     smqServer->distributeMessage(msg);
                     break;
                 case Message::DISCONNECT:
-                    smqServer->removeConnection(connection);
+                    smqServer->closeConnection(connection);
+                    connection = nullptr;
                     break;
                 default:
                     break;
@@ -112,8 +114,8 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
         }
     }
     catch (const Exception& e) {
-        smqServer->removeConnection(connection);
-        connection->terminate();
+        if (connection != nullptr)
+            smqServer->closeConnection(connection);
         smqServer->log(LP_ERROR, e.message());
     }
 }
@@ -183,6 +185,11 @@ void SMQServer::clear()
 SMQServer::~SMQServer()
 {
     clear();
+}
+
+void SMQServer::execute(Runable*)
+{
+    // SMQServer doesn't use tasks model
 }
 
 #if USE_GTEST

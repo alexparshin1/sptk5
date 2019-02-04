@@ -50,7 +50,7 @@ SMQConnection::~SMQConnection()
 
     UniqueLock(m_mutex);
     for (auto* subscription: m_subscriptions)
-        subscription->removeConnection(this);
+        subscription->removeConnection(this, false);
     m_subscriptions.clear();
 
     socket().close();
@@ -59,7 +59,6 @@ SMQConnection::~SMQConnection()
 void SMQConnection::terminate()
 {
     socket().close();
-    TCPServerConnection::terminate();
 }
 
 void SMQConnection::run()

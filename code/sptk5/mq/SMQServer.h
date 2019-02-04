@@ -51,17 +51,19 @@ protected:
     void watchSocket(TCPSocket& socket, void* userData);
     void forgetSocket(TCPSocket& socket);
     void clear();
+
+    void execute(Runable* task) override;
     void run() override;
 
 public:
 
-    SMQServer(const String& username, const String& password, LogEngine& logEngine);
+	SMQServer(const String& username, const String& password, LogEngine& logEngine);
     ~SMQServer();
 
     void stop() override;
 
     ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
-    void removeConnection(ServerConnection* connection);
+    void closeConnection(ServerConnection* connection);
     bool authenticate(const String& clientId, const String& username, const String& password);
 
     void distributeMessage(SMessage message);

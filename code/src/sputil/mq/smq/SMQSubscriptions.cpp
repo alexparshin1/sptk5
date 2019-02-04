@@ -70,7 +70,7 @@ void SMQSubscriptions::unsubscribe(SMQConnection* connection, const String& queu
         return;
 
     subscription = itor->second;
-    subscription->removeConnection(connection);
+    subscription->removeConnection(connection, true);
 }
 
 void SMQSubscriptions::clear()

@@ -52,11 +52,12 @@ void SMQSubscription::addConnection(SMQConnection* connection)
     connection->subscribe(this);
 }
 
-void SMQSubscription::removeConnection(SMQConnection* connection)
+void SMQSubscription::removeConnection(SMQConnection* connection, bool updateConnection)
 {
     UniqueLock(m_mutex);
     m_connections.erase(connection);
-    connection->unsubscribe(this);
+    if (updateConnection)
+        connection->unsubscribe(this);
 }
 
 bool SMQSubscription::deliverMessage(const SMessage message)
