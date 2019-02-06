@@ -23,14 +23,15 @@ class Message : public Buffer
 public:
     typedef std::map<String, String> Headers;
 
-    enum Type {
+    enum Type : uint8_t {
         UNDEFINED    = 0,
         CONNECT      = 1,
         DISCONNECT   = 2,
         SUBSCRIBE    = 4,
         UNSUBSCRIBE  = 8,
         PING         = 16,
-        MESSAGE      = 32
+        MESSAGE      = 32,
+        ACK          = 64
     };
 
 

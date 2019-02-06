@@ -32,6 +32,7 @@
 #include <sptk5/cutils>
 #include <sptk5/cnet>
 #include <sptk5/mq/Message.h>
+#include <sptk5/mq/protocols/MQProtocol.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/cthreads>
 #include "TCPMQClient.h"
@@ -76,6 +77,11 @@ private:
      */
     SynchronizedQueue<SMessage>     m_incomingMessages;
 
+    /**
+     * MQ protocol type
+     */
+    const MQProtocolType            m_protocolType;
+
 protected:
 
     /**
@@ -97,9 +103,10 @@ public:
 
     /**
      * Constructor
+     * @param protocolType      MQ protocol type
      * @param clientId          Unique client id
      */
-    MQClient(const String& clientId);
+    MQClient(MQProtocolType protocolType, const String& clientId);
 
     /**
      * Destructor
@@ -143,7 +150,7 @@ public:
      * @param message           Message
      * @param timeout           Operation timeout
      */
-    virtual void send(const String& destination, Message& message, std::chrono::milliseconds timeout) = 0;
+    virtual void send(const String& destination, SMessage& message, std::chrono::milliseconds timeout) = 0;
 
     /**
      * Receive a message
@@ -188,6 +195,8 @@ public:
      * @return number of messages available
      */
     size_t hasMessages() const;
+
+    MQProtocolType protocolType() const;
 };
 
 } // namespace sptk

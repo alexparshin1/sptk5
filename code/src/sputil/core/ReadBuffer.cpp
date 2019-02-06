@@ -42,15 +42,7 @@ bool ReadBuffer::read(void* data, size_t length)
     return true;
 }
 
-bool ReadBuffer::peek(void* data, size_t length)
-{
-    if (bytes() - m_readOffset < length)
-        return false;
-    memcpy(data, c_str() + m_readOffset, length);
-    return true;
-}
-
-bool ReadBuffer::read(std::string& data, size_t length)
+bool ReadBuffer::read(String& data, size_t length)
 {
     data.resize(length);
     return read((char*)data.c_str(), length);
@@ -71,7 +63,7 @@ TEST(SPTK_ReadBuffer, read)
     for (int i = 0; i < 3; i++)
         buffer.append(i);
 
-    string test1(":test1:");
+    String test1(":test1:");
     buffer.append(test1);
 
     for (int i = 3; i < 5; i++)
@@ -85,7 +77,7 @@ TEST(SPTK_ReadBuffer, read)
         buffer.read(x);
         EXPECT_EQ(i, x);
         if (i == 2) {
-            string test;
+            String test;
             buffer.read(test, test1.length());
         }
     }

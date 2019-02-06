@@ -30,16 +30,23 @@
 #include <sptk5/mq/SMQClient.h>
 #include <sptk5/mq/MQClient.h>
 #include <sptk5/cutils>
+#include <sptk5/mq/protocols/MQTTProtocol.h>
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-SMQServer::SMQServer(const String& username, const String& password, LogEngine& logEngine)
+SMQServer::SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine)
 : TCPServer("SMQServer", 16, &logEngine),
+  m_protocol(protocol),
   m_username(username), m_password(password),
   m_socketEvents("SMQ Server", SMQServer::socketEventCallback, milliseconds(100))
 {
+}
+
+SMQServer::~SMQServer()
+{
+    clear();
 }
 
 void SMQServer::stop()
@@ -63,7 +70,7 @@ ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_
 void SMQServer::closeConnection(ServerConnection* connection)
 {
     auto* smqConnection = dynamic_cast<SMQConnection*>(connection);
-    String clientId = smqConnection->getClientId();
+    String clientId = smqConnection->clientId();
 
     delete connection;
 
@@ -86,15 +93,18 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
     try {
         while (connection != nullptr && connection->socket().socketBytes() > 0) {
 
-            auto msg = SMQMessage::readRawMessage(connection->socket());
+            SMessage msg;
+            MQProtocol& protocol = connection->protocol();
+            protocol.readMessage(msg);
 
             switch (msg->type()) {
                 case Message::CONNECT:
-                    if (!smqServer->authenticate((*msg)["clientid"], (*msg)["username"], (*msg)["password"])) {
+                    if (!smqServer->authenticate((*msg)["client_id"], (*msg)["username"], (*msg)["password"])) {
                         smqServer->closeConnection(connection);
                         connection = nullptr;
                     } else
-                        connection->setClientId((*msg)["clientid"]);
+                        connection->setupClient((*msg)["client_id"]);
+                    protocol.ack(Message::CONNECT, "");
                     break;
                 case Message::SUBSCRIBE:
                     smqServer->subscribe(connection, msg->destination());
@@ -183,19 +193,21 @@ void SMQServer::clear()
     m_clientIds.clear();
 }
 
-SMQServer::~SMQServer()
-{
-    clear();
-}
-
 void SMQServer::execute(Runable*)
 {
     // SMQServer doesn't use tasks model
 }
 
+MQProtocolType SMQServer::protocol() const
+{
+    lock_guard<mutex> lock(m_mutex);
+    return m_protocol;
+}
+
 #if USE_GTEST
 
-static size_t messageCount {100};
+static const MQProtocolType protocolType = MP_SMQ;
+static const size_t messageCount {100};
 
 TEST(SPTK_SMQServer, minimal)
 {
@@ -204,22 +216,22 @@ TEST(SPTK_SMQServer, minimal)
     uint16_t        serverPort {4001};
     Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer("user", "secret", logEngine);
+    SMQServer smqServer(MP_SMQ, "user", "secret", logEngine);
 
     ASSERT_NO_THROW(smqServer.listen(serverPort));
 
     seconds connectTimeout(10);
     seconds sendTimeout(1);
 
-    SMQClient smqSender("test-sender");
+    SMQClient smqSender(protocolType, "test-sender");
     ASSERT_NO_THROW(smqSender.connect(serverHost, "user", "secret", false, connectTimeout));
 
-    SMQClient smqReceiver("test-receiver");
+    SMQClient smqReceiver(protocolType, "test-receiver");
     ASSERT_NO_THROW(smqReceiver.connect(serverHost, "user", "secret", false, connectTimeout));
     ASSERT_NO_THROW(smqReceiver.subscribe("test-queue", std::chrono::milliseconds()));
     this_thread::sleep_for(milliseconds(1)); // Wait until subscription is completed
 
-    Message testMessage(Message::MESSAGE, Buffer("This is SMQ test"));
+    auto testMessage = make_shared<Message>(Message::MESSAGE, Buffer("This is SMQ test"));
     for (size_t m = 0; m < messageCount; m++)
         smqSender.send("test-queue", testMessage, sendTimeout);
 
@@ -254,24 +266,24 @@ TEST(SPTK_SMQServer, shortMessages)
     uint16_t        serverPort {4002};
     Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer("user", "secret", logEngine);
+    SMQServer smqServer(MP_SMQ, "user", "secret", logEngine);
     ASSERT_NO_THROW(smqServer.listen(serverPort));
 
     seconds connectTimeout(10);
     seconds sendTimeout(1); // Wait until subscription is completed
 
-    SMQClient smqSender("test-client1");
+    SMQClient smqSender(protocolType, "test-client1");
     ASSERT_NO_THROW(smqSender.connect(serverHost, "user", "secret", false, connectTimeout));
 
-    SMQClient smqReceiver("test-client1");
+    SMQClient smqReceiver(protocolType, "test-client1");
     ASSERT_NO_THROW(smqReceiver.connect(serverHost, "user", "secret", false, connectTimeout));
     smqReceiver.subscribe("test-queue", std::chrono::milliseconds());
     this_thread::sleep_for(milliseconds(1));
 
-    Message msg(Message::MESSAGE, Buffer(""));
+    auto msg = make_shared<Message>(Message::MESSAGE, Buffer(""));
     for (size_t m = 0; m < messageCount; m++) {
-        msg["subject"] = "subject " + to_string(m);
-        msg.set("data " + to_string(m));
+        msg->headers()["subject"] = "subject " + to_string(m);
+        msg->set("data " + to_string(m));
         smqSender.send("test-queue", msg, sendTimeout);
     }
 
@@ -304,13 +316,13 @@ TEST(SPTK_SMQServer, multiClients)
     uint16_t        serverPort {4003};
     Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer("user", "secret", logEngine);
+    SMQServer smqServer(protocolType, "user", "secret", logEngine);
     ASSERT_NO_THROW(smqServer.listen(serverPort));
 
     seconds connectTimeout(10);
     seconds sendTimeout(1);
 
-    SMQClient sender("sender");
+    SMQClient sender(protocolType, "sender");
     ASSERT_NO_THROW(sender.connect(serverHost, "user", "secret", false, connectTimeout));
 
     size_t clientCount = 3;
@@ -318,7 +330,7 @@ TEST(SPTK_SMQServer, multiClients)
     size_t clientIndex = 0;
     for (size_t index = 0; index < clientCount; index++) {
         String clientId = "receiver" + to_string(clientIndex);
-        auto client = make_shared<SMQClient>(clientId);
+        auto client = make_shared<SMQClient>(protocolType, clientId);
         receivers.push_back(client);
         String clientQueue = "test-queue" + to_string(clientIndex);
         ASSERT_NO_THROW(client->connect(serverHost, "user", "secret", false, connectTimeout));
@@ -326,10 +338,10 @@ TEST(SPTK_SMQServer, multiClients)
         clientIndex++;
     }
 
-    Message msg1;
+    auto msg1 = make_shared<Message>();
     for (size_t m = 0; m < messageCount; m++) {
-        msg1["subject"] = "subject " + to_string(m);
-        msg1.set("data " + to_string(m));
+        msg1->headers()["subject"] = "subject " + to_string(m);
+        msg1->set("data " + to_string(m));
         for (size_t clientIndex1 = 0; clientIndex1 < clientCount; clientIndex1++) {
             String destination("test-queue" + to_string(clientIndex1));
             sender.send(destination, msg1, sendTimeout);
@@ -372,16 +384,16 @@ TEST(SPTK_SMQServer, singleClientMultipleQueues)
     uint16_t        serverPort {4004};
     Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer("user", "secret", logEngine);
+    SMQServer smqServer(MP_SMQ, "user", "secret", logEngine);
     ASSERT_NO_THROW(smqServer.listen(serverPort));
 
     seconds connectTimeout(10);
     seconds sendTimeout(1);
 
-    SMQClient sender("sender");
+    SMQClient sender(protocolType, "sender");
     ASSERT_NO_THROW(sender.connect(serverHost, "user", "secret", false, connectTimeout));
 
-    SMQClient client("receiver");
+    SMQClient client(protocolType, "receiver");
     ASSERT_NO_THROW(client.connect(serverHost, "user", "secret", false, connectTimeout));
 
     vector<String> queueNames = { "test-queue1",  "test-queue2", "test-queue3", };
@@ -392,9 +404,9 @@ TEST(SPTK_SMQServer, singleClientMultipleQueues)
 
     for (auto& queueName: queueNames) {
         for (size_t m = 0; m < messageCount; m++) {
-            Message msg1;
-            msg1["subject"] = "subject " + to_string(m);
-            msg1.set("data " + to_string(m));
+            auto msg1 = make_shared<Message>();
+            msg1->headers()["subject"] = "subject " + to_string(m);
+            msg1->set("data " + to_string(m));
             sender.send(queueName, msg1, sendTimeout);
         }
     }
@@ -426,13 +438,13 @@ TEST(SPTK_SMQServer, multipleClientsSingleQueue)
     uint16_t        serverPort {4005};
     Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer("user", "secret", logEngine);
+    SMQServer smqServer(MP_SMQ, "user", "secret", logEngine);
     ASSERT_NO_THROW(smqServer.listen(serverPort));
 
     seconds connectTimeout(10);
     seconds sendTimeout(1);
 
-    SMQClient sender("sender");
+    SMQClient sender(protocolType, "sender");
     ASSERT_NO_THROW(sender.connect(serverHost, "user", "secret", false, connectTimeout));
 
     size_t clientCount = 3;
@@ -440,7 +452,7 @@ TEST(SPTK_SMQServer, multipleClientsSingleQueue)
     size_t clientIndex = 0;
     for (size_t index = 0; index < clientCount; index++) {
         String clientId = "receiver" + to_string(clientIndex);
-        auto client = make_shared<SMQClient>(clientId);
+        auto client = make_shared<SMQClient>(protocolType, clientId);
         receivers.push_back(client);
         ASSERT_NO_THROW(client->connect(serverHost, "user", "secret", false, connectTimeout));
         ASSERT_NO_THROW(client->subscribe("test-queue", std::chrono::milliseconds()));
@@ -449,10 +461,10 @@ TEST(SPTK_SMQServer, multipleClientsSingleQueue)
 
     this_thread::sleep_for(milliseconds(100));
 
-    Message msg1;
+    auto msg1 = make_shared<Message>();
     for (size_t m = 0; m < messageCount; m++) {
-        msg1["subject"] = "subject " + to_string(m);
-        msg1.set("data " + to_string(m));
+        msg1->headers()["subject"] = "subject " + to_string(m);
+        msg1->set("data " + to_string(m));
         for (size_t clientIndex1 = 0; clientIndex1 < clientCount; clientIndex1++)
             sender.send("test-queue", msg1, sendTimeout);
     }
@@ -488,13 +500,13 @@ TEST(SPTK_SMQServer, multipleClientsSingleTopic)
     uint16_t        serverPort {4006};
     Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer("user", "secret", logEngine);
+    SMQServer smqServer(MP_SMQ, "user", "secret", logEngine);
     ASSERT_NO_THROW(smqServer.listen(serverPort));
 
     seconds connectTimeout(10);
     seconds sendTimeout(1);
 
-    SMQClient sender("sender");
+    SMQClient sender(protocolType, "sender");
     ASSERT_NO_THROW(sender.connect(serverHost, "user", "secret", false, connectTimeout));
 
     size_t clientCount = 10;
@@ -502,7 +514,7 @@ TEST(SPTK_SMQServer, multipleClientsSingleTopic)
     size_t clientIndex = 0;
     for (size_t index = 0; index < clientCount; index++) {
         String clientId = "receiver" + to_string(clientIndex);
-        auto client = make_shared<SMQClient>(clientId);
+        auto client = make_shared<SMQClient>(protocolType, clientId);
         receivers.push_back(client);
         ASSERT_NO_THROW(client->connect(serverHost, "user", "secret", false, connectTimeout));
         ASSERT_NO_THROW(client->subscribe("/topic/test", std::chrono::milliseconds()));
@@ -511,10 +523,10 @@ TEST(SPTK_SMQServer, multipleClientsSingleTopic)
 
     this_thread::sleep_for(milliseconds(100));
 
-    Message msg1;
+    auto msg1 = make_shared<Message>();
     for (size_t m = 0; m < messageCount; m++) {
-        msg1["subject"] = "subject " + to_string(m);
-        msg1.set("data " + to_string(m));
+        msg1->headers()["subject"] = "subject " + to_string(m);
+        msg1->set("data " + to_string(m));
         sender.send("/topic/test", msg1, sendTimeout);
     }
 

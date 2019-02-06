@@ -31,7 +31,7 @@
 
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerConnection.h>
-#include <sptk5/mq/SMQMessage.h>
+#include <sptk5/mq/protocols/SMQProtocol.h>
 #include <sptk5/net/SocketEvents.h>
 
 namespace sptk {
@@ -41,6 +41,12 @@ class SMQSubscription;
 class SMQConnection : public TCPServerConnection
 {
     mutable SharedMutex             m_mutex;
+    MQProtocolType                  m_protocolType { MP_SMQ };
+public:
+    MQProtocolType getProtocolType() const;
+
+private:
+    std::shared_ptr<MQProtocol>     m_protocol;
     String                          m_clientId;
     std::set<SMQSubscription*>      m_subscriptions;
 
@@ -51,13 +57,20 @@ public:
     void run() override;
     void terminate() override;
 
-    String getClientId() const;
-    void   setClientId(String& id);
+    MQProtocol& protocol();
+
+    String clientId() const;
+    void   setupClient(String& id);
 
     void subscribe(SMQSubscription* subscription);
     void unsubscribe(SMQSubscription* subscription);
 
-    void sendMessage(const Message& message);
+    void sendMessage(SMessage& message);
+
+    // Low-level operations
+    void ack(Message::Type sourceMessageType, const String& messageId);
+    bool readMessage(SMessage& message);
+    bool sendMessage(const String& destination, SMessage& message);
 };
 
 }

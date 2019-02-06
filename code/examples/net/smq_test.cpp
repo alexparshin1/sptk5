@@ -1,34 +1,38 @@
 #include <sptk5/mq/SMQServer.h>
 #include <sptk5/mq/SMQClient.h>
 #include <sptk5/cutils>
-#include "MQClient.h"
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
-static size_t messageCount {50000};
+static size_t messageCount {1000};
 
 int main()
 {
     try {
         Buffer          buffer;
         FileLogEngine   logEngine("SMQServer.log");
+        seconds         connectTimeout(10);
+        seconds         sendTimeout(5);
 
-        SMQServer smqServer("user", "secret", logEngine);
+        MQProtocolType protocolType = MP_MQTT;
+
+        SMQServer smqServer(protocolType, "user", "secret", logEngine);
         smqServer.listen(4000);
 
-        SMQClient smqClient;
-        smqClient.connect(Host("localhost:4000"), "test-client1", "user", "secret");
+        this_thread::sleep_for(seconds(86400));
 
-        smqClient.subscribe("test-queue", std::chrono::milliseconds());
+        SMQClient smqClient(protocolType, "test-client1");
+        smqClient.connect(Host("localhost:4000"), "user", "secret", false, connectTimeout);
+
+        smqClient.subscribe("test-queue", connectTimeout);
 
         DateTime started("now");
-        Message msg(Message::MESSAGE, Buffer("This is SMQ test"), "test-queue");
+        auto msg = make_shared<Message>(Message::MESSAGE, Buffer("This is SMQ test"));
         for (size_t m = 0; m < messageCount; m++) {
-            //if (m%5 == 0)
-                //this_thread::sleep_for(chrono::microseconds(10));
-            msg.set("This is SMQ message " + to_string(m));
-            smqClient.sendMessage(msg);
+            msg->set("This is SMQ message " + to_string(m));
+            smqClient.send("test-queue", msg, sendTimeout);
             if (m % 100 == 0)
                 COUT("Sent " << m << ", received " << smqClient.hasMessages() << endl);
         }
@@ -43,10 +47,10 @@ int main()
         }
 
         DateTime ended("now");
-        size_t durationMS = chrono::duration_cast<chrono::milliseconds>(ended - started).count();
+        size_t durationMS = duration_cast<milliseconds>(ended - started).count();
         COUT("Done for " << durationMS << " ms, " << double(messageCount) / durationMS * 1000 << " msg/sec" << endl);
 
-        smqClient.disconnect();
+        smqClient.disconnect(true);
         smqServer.stop();
     }
     catch (const Exception& e) {

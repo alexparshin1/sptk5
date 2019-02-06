@@ -30,6 +30,7 @@
 #define __SMQ_SERVER_H__
 
 #include <sptk5/mq/SMQSubscriptions.h>
+#include <sptk5/mq/protocols/MQProtocol.h>
 #include "SMQConnection.h"
 
 namespace sptk {
@@ -39,12 +40,17 @@ class SMQServer : public TCPServer
     friend class SMQConnection;
 
     mutable std::mutex              m_mutex;
-    String                          m_username;
-    String                          m_password;
-    std::set<String>                m_clientIds;
-    std::set<SMQConnection*>        m_connections;
-    SocketEvents                    m_socketEvents;
-    SMQSubscriptions				m_subscriptions;
+	MQProtocolType 				    m_protocol;
+public:
+	MQProtocolType protocol() const;
+
+private:
+	String                          m_username;
+	String                          m_password;
+	std::set<String>                m_clientIds;
+	std::set<SMQConnection*>        m_connections;
+	SocketEvents                    m_socketEvents;
+	SMQSubscriptions				m_subscriptions;
 
 protected:
     static void socketEventCallback(void *userData, SocketEventType eventType);
@@ -57,7 +63,7 @@ protected:
 
 public:
 
-	SMQServer(const String& username, const String& password, LogEngine& logEngine);
+	SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine);
     ~SMQServer();
 
     void stop() override;

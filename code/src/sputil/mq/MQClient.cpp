@@ -33,8 +33,8 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-MQClient::MQClient(const String& clientId)
-: m_clientId(clientId)
+MQClient::MQClient(MQProtocolType protocolType, const String& clientId)
+: m_clientId(clientId), m_protocolType(protocolType)
 {}
 
 const String& MQClient::getClientId() const
@@ -70,4 +70,10 @@ size_t MQClient::hasMessages() const
 void MQClient::acceptMessage(SMessage& message)
 {
     m_incomingMessages.push(message);
+}
+
+MQProtocolType MQClient::protocolType() const
+{
+    SharedLock(m_mutex);
+    return m_protocolType;
 }

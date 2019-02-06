@@ -30,6 +30,7 @@
 #define __TCP_MQ_CLIENT_H__
 
 #include <sptk5/mq/MQClient.h>
+#include <sptk5/mq/protocols/MQProtocol.h>
 
 namespace sptk {
 
@@ -37,8 +38,10 @@ class TCPMQClient : public MQClient
 {
     mutable SharedMutex         m_mutex;
     std::shared_ptr<TCPSocket>  m_socket;           ///< TCP or SSL connection socket
+    std::shared_ptr<MQProtocol> m_protocol;         ///< MQ protocol
     static SharedSocketEvents   smqSocketEvents;    ///< Shared event manager
 
+private:
     /**
      * Callback function that receives socket events
      * @param userData          Socket event data, here - pointer to SMQ client object
@@ -58,11 +61,13 @@ protected:
      * Constructor
      * @param clientId          Unique client id
      */
-    TCPMQClient(const String& clientId);
+    TCPMQClient(MQProtocolType protocolType, const String& clientId);
 
 public:
 
     virtual ~TCPMQClient();
+
+    MQProtocol& protocol();
 
     void loadSslKeys(const String& keyFile, const String& certificateFile, const String& password, const String& caFile,
                      int verifyMode, int verifyDepth) override;

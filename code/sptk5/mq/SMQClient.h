@@ -31,7 +31,7 @@
 
 #include <sptk5/cthreads>
 #include <sptk5/cnet>
-#include <sptk5/mq/SMQMessage.h>
+#include <sptk5/mq/protocols/SMQProtocol.h>
 #include "TCPMQClient.h"
 #include "MQClient.h"
 
@@ -53,7 +53,7 @@ public:
      * Constructor
      * @param clientId          Unique client id
      */
-    explicit SMQClient(const String& clientId);
+    SMQClient(MQProtocolType protocolType, const String& clientId);
 
     /**
      * Destructor
@@ -95,7 +95,7 @@ public:
      * @param message           Message
      * @param timeout           Operation timeout
      */
-    void send(const String& destination, Message& message, std::chrono::milliseconds timeout) override;
+    void send(const String& destination, SMessage& message, std::chrono::milliseconds timeout) override;
 
     /**
      * Get client id

@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQSubscription.h - description                        ║
+║                       MQTTProtocol.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday February 1 2019                                 ║
+║  begin                Sunday December 23 2018                                ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,42 +26,85 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_SUBSCRIPTION_H__
-#define __SMQ_SUBSCRIPTION_H__
+#include <sptk5/mq/protocols/MQTTProtocol.h>
+#include <sptk5/mq/protocols/MQTTFrame.h>
 
-#include <sptk5/mq/SMQConnection.h>
+using namespace std;
+using namespace sptk;
+using namespace chrono;
 
-namespace sptk {
-
-typedef std::shared_ptr<SMQConnection> SharedSMQConnection;
-
-class SMQSubscription
+void MQTTProtocol::ack(Message::Type sourceMessageType, const String& messageId)
 {
-public:
-    enum Type
-    {
-        QUEUE,
-        TOPIC
-    };
-private:
-    mutable sptk::SharedMutex               m_mutex;
-    Type                                    m_type;
+    MQTTFrameType ackType = FT_UNDEFINED;
+    switch (sourceMessageType) {
+        case Message::CONNECT:
+            ackType = FT_CONNACK;
+            break;
+        default:
+            return;
+    }
 
-    std::set<SMQConnection*>                m_connections;
-    std::set<SMQConnection*>::iterator      m_currentConnection;
+    uint16_t shortMessageId = messageId.empty() ? 0 : (uint16_t) string2int(messageId);
+    MQTTFrame ackFrame(ackType, shortMessageId, QOS_0);
+    ackFrame.setACK(shortMessageId, ackType);
+    socket().send(ackFrame.c_str(), ackFrame.bytes());
+}
 
-public:
-    explicit SMQSubscription(Type type);
+bool MQTTProtocol::readMessage(SMessage& message)
+{
+    MQTTFrame frame(FT_UNDEFINED, 0, QOS_0);
 
-    virtual ~SMQSubscription();
+    Message::Headers headers;
+    try {
+        if (frame.read(socket(), headers, seconds(10))) {
+            message = make_shared<Message>(mqMessageType(frame.type()));
+            message->headers() = move(headers);
+            message->set(frame);
+            return true;
+        }
+    }
+    catch (...) {
+        if (socket().active())
+            throw;
+    }
 
-    void addConnection(SMQConnection* connection);
-    void removeConnection(SMQConnection* connection, bool updateConnection);
-    bool deliverMessage(SMessage message);
+    return false;
+}
 
-    Type type() const;
-};
+bool MQTTProtocol::sendMessage(const String& destination, SMessage& message)
+{
+    return false;
+}
 
-} // namespace sptk
+Message::Type MQTTProtocol::mqMessageType(MQTTFrameType nativeMessageType)
+{
+    switch (nativeMessageType) {
+        case FT_CONNECT:        return Message::CONNECT;
+        case FT_PUBLISH:        return Message::MESSAGE;
+        case FT_SUBSCRIBE:      return Message::SUBSCRIBE;
+        case FT_UNSUBSCRIBE:    return Message::UNSUBSCRIBE;
+        case FT_DISCONNECT:     return Message::DISCONNECT;
+        case FT_PINGREQ:
+        case FT_PINGRESP:       return Message::PING;
+        case FT_UNSUBACK:
+        case FT_SUBACK:
+        case FT_PUBACK:
+        case FT_CONNACK:        return Message::ACK;
+        default:                return Message::UNDEFINED;
+    }
+}
 
-#endif
+MQTTFrameType MQTTProtocol::nativeMessageType(Message::Type mqMessageType)
+{
+    switch (mqMessageType) {
+        case Message::CONNECT:      return FT_CONNECT;
+        case Message::DISCONNECT:   return FT_DISCONNECT;
+        case Message::SUBSCRIBE:    return FT_SUBSCRIBE;
+        case Message::UNSUBSCRIBE:  return FT_UNSUBSCRIBE;
+        case Message::PING:         return FT_PINGREQ;
+        case Message::MESSAGE:      return FT_PUBLISH;
+        case Message::ACK:          return FT_PUBACK;
+        default:                    return FT_UNDEFINED;
+    }
+}
+

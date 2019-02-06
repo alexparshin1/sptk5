@@ -58,7 +58,7 @@ public:
     /**
      * Default constructor
      */
-    ReadBuffer() {}
+    explicit ReadBuffer(size_t size=64) : Buffer(size) {}
 
     /**
      * Constructor
@@ -66,6 +66,17 @@ public:
      * @param size              Data size
      */
     ReadBuffer(const char* data, size_t size) : Buffer(data, size) {}
+
+    /**
+     * Read into data of primitive type (int, double, etc).
+     * @param data              Data
+     * @return true if read was successful
+     */
+    template <typename T>
+    bool read(T& data)
+    {
+        return read(&data, sizeof(T));
+    }
 
     /**
      * Read data. Internal read offset is advanced by length.
@@ -76,20 +87,12 @@ public:
     bool read(void* data, size_t length);
 
     /**
-     * Peek abstract data. Internal read offset is unchanged.
-     * @param data              Data
-     * @param size              Data size
-     * @return true if read was successful
-     */
-    bool peek(void* data, size_t length);
-
-    /**
      * Read into string
      * @param data              Data
      * @param length            Data size
      * @return true if read was successful
      */
-    bool read(std::string& data, size_t length);
+    bool read(String& data, size_t length);
 
     /**
      * Read into buffer
@@ -106,18 +109,6 @@ public:
     char* head() const
     {
         return data() + m_readOffset;
-    }
-
-    /**
-     * Read into data of primitive type (int, double, etc).
-     *
-     * Read size is computed from size of the data type.
-     * @param data              Data
-     * @return true if read was successful
-     */
-    template <class T> bool read(T& data)
-    {
-        return read(&data, sizeof(data));
     }
 
     /**

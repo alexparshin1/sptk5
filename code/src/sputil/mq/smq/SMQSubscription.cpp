@@ -60,7 +60,7 @@ void SMQSubscription::removeConnection(SMQConnection* connection, bool updateCon
         connection->unsubscribe(this);
 }
 
-bool SMQSubscription::deliverMessage(const SMessage message)
+bool SMQSubscription::deliverMessage(SMessage message)
 {
     SharedLock(m_mutex);
 
@@ -68,10 +68,10 @@ bool SMQSubscription::deliverMessage(const SMessage message)
     if (m_type == TOPIC) {
         for (auto subscriber: m_connections) {
             try {
-                subscriber->sendMessage(*message);
+                subscriber->sendMessage(message);
             }
             catch (const Exception& e) {
-                CERR("Can't send message to a subscriber " << subscriber->getClientId() << ": " << e.what() << endl);
+                CERR("Can't send message to a subscriber " << subscriber->clientId() << ": " << e.what() << endl);
             }
         }
     } else {
@@ -82,10 +82,10 @@ bool SMQSubscription::deliverMessage(const SMessage message)
         if (m_currentConnection == m_connections.end())
             m_currentConnection = m_connections.begin();
         try {
-            (*m_currentConnection)->sendMessage(*message);
+            (*m_currentConnection)->sendMessage(message);
         }
         catch (const Exception& e) {
-            CERR("Can't send message to a subscriber " << (*m_currentConnection)->getClientId() << ": " << e.what() << endl);
+            CERR("Can't send message to a subscriber " << (*m_currentConnection)->clientId() << ": " << e.what() << endl);
         }
         ++m_currentConnection;
     }

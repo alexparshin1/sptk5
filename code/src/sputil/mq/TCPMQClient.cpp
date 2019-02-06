@@ -46,8 +46,8 @@ MQClient::SharedSocketEvents& TCPMQClient::initSocketEvents()
     return smqSocketEvents;
 }
 
-TCPMQClient::TCPMQClient(const String& clientId)
-: MQClient(clientId)
+TCPMQClient::TCPMQClient(MQProtocolType protocolType, const String& clientId)
+: MQClient(protocolType, clientId)
 {
     UniqueLock(m_mutex);
     initSocketEvents();
@@ -63,9 +63,16 @@ void TCPMQClient::createConnection(const Host& server, bool encrypted, std::chro
     UniqueLock(m_mutex);
     if (m_socket && m_socket->active())
         return;
-    m_socket = make_shared<TCPSocket>();
+    if (encrypted) {
+        m_socket = make_shared<SSLSocket>();
+        //loadKeys(keyFile, certificateFile, password, caFile, verifyMode, verifyDepth);
+    } else {
+        m_socket = make_shared<TCPSocket>();
+    }
     m_socket->open(server, TCPSocket::SOM_CONNECT, true, timeout);
     smqSocketEvents->add(*m_socket, this);
+
+    m_protocol = MQProtocol::factory(protocolType(), *m_socket);
 }
 
 void TCPMQClient::destroyConnection()
@@ -87,5 +94,14 @@ void TCPMQClient::smqSocketEventCallback(void* userData, SocketEventType eventTy
 void TCPMQClient::loadSslKeys(const String& keyFile, const String& certificateFile, const String& password,
                               const String& caFile, int verifyMode, int verifyDepth)
 {
+    if (m_socket) {
+        SSLSocket* sslSocket = dynamic_cast<SSLSocket*>(m_socket.get());
+        if (sslSocket != nullptr)
+            sslSocket->loadKeys(keyFile, certificateFile, password, caFile, verifyMode, verifyDepth);
+    }
+}
 
+MQProtocol& TCPMQClient::protocol()
+{
+    return *m_protocol;
 }

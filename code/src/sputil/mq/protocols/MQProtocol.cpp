@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQSubscription.h - description                        ║
+║                       MQProtocol.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday February 1 2019                                 ║
+║  begin                Sunday December 23 2018                                ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,42 +26,61 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_SUBSCRIPTION_H__
-#define __SMQ_SUBSCRIPTION_H__
+#include <sptk5/mq/protocols/SMQProtocol.h>
+#include <sptk5/mq/protocols/MQTTProtocol.h>
+#include <sptk5/mq/protocols/MQProtocol.h>
 
-#include <sptk5/mq/SMQConnection.h>
 
-namespace sptk {
+using namespace std;
+using namespace sptk;
+using namespace chrono;
 
-typedef std::shared_ptr<SMQConnection> SharedSMQConnection;
-
-class SMQSubscription
+size_t MQProtocol::read(String& str)
 {
-public:
-    enum Type
-    {
-        QUEUE,
-        TOPIC
-    };
-private:
-    mutable sptk::SharedMutex               m_mutex;
-    Type                                    m_type;
+    uint8_t dataSize;
+    read(dataSize);
+    if (dataSize == 0)
+        throw Exception("Invalid string size");
+    return m_socket.read(str, dataSize) + sizeof(uint8_t);
+}
 
-    std::set<SMQConnection*>                m_connections;
-    std::set<SMQConnection*>::iterator      m_currentConnection;
+size_t MQProtocol::read(Buffer& data)
+{
+    uint32_t dataSize;
+    read(dataSize);
+    if (dataSize > 0) {
+        data.checkSize(dataSize);
+        m_socket.read(data.data(), dataSize);
+    }
+    data.bytes(dataSize);
+    return dataSize + sizeof(dataSize);
+}
 
-public:
-    explicit SMQSubscription(Type type);
+size_t MQProtocol::read(char* data, size_t dataSize)
+{
+    return m_socket.read(data, dataSize);
+}
 
-    virtual ~SMQSubscription();
+size_t MQProtocol::write(String& str)
+{
+    return m_socket.write(str.c_str(), str.length());
+}
 
-    void addConnection(SMQConnection* connection);
-    void removeConnection(SMQConnection* connection, bool updateConnection);
-    bool deliverMessage(SMessage message);
+size_t MQProtocol::write(Buffer& data)
+{
+    return m_socket.write(data.c_str(), data.bytes());
+}
 
-    Type type() const;
-};
+std::shared_ptr<MQProtocol> MQProtocol::factory(MQProtocolType protocolType, TCPSocket& socket)
+{
+    switch (protocolType) {
+        case MP_SMQ:    return make_shared<SMQProtocol>(socket);
+        case MP_MQTT:   return make_shared<MQTTProtocol>(socket);
+        default:        throw Exception("Protocol is not yet supported");
+    }
+}
 
-} // namespace sptk
-
-#endif
+TCPSocket& MQProtocol::socket() const
+{
+    return m_socket;
+}

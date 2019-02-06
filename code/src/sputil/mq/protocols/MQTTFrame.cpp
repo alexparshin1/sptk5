@@ -10,13 +10,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "mqtt/MQTTFrame.h"
+#include "sptk5/mq/protocols/MQTTFrame.h"
+#include <sptk5/mq/Message.h>
 
 using namespace std;
-using namespace vsparc;
-using namespace vsparc::mqtt;
+using namespace sptk;
+using namespace chrono;
 
-uint16_t Frame::nextPacketId()
+uint16_t MQTTFrame::nextPacketId()
 {
     static mutex nextPacketIdMutex;
     static auto packetId = (uint16_t) time(nullptr);
@@ -26,26 +27,26 @@ uint16_t Frame::nextPacketId()
     return ++packetId;
 }
 
-void Frame::appendShortValue(uint16_t value)
+void MQTTFrame::appendShortValue(uint16_t value)
 {
     append(htons(value));
 }
 
-void Frame::appendVariableHeader(const char* data, uint16_t dataLength)
+void MQTTFrame::appendVariableHeader(const char* data, uint16_t dataLength)
 {
     appendShortValue(dataLength);
     if (dataLength != 0)
         append(data, dataLength);
 }
 
-void Frame::appendVariableHeader(const string& data)
+void MQTTFrame::appendVariableHeader(const string& data)
 {
     appendShortValue((uint16_t)data.length());
     if (!data.empty())
         append(data);
 }
 
-void Frame::appendRemainingLength(unsigned remainingLength)
+void MQTTFrame::appendRemainingLength(unsigned remainingLength)
 {
     unsigned X = remainingLength;
     do {
@@ -58,12 +59,12 @@ void Frame::appendRemainingLength(unsigned remainingLength)
     } while ( X> 0 );
 }
 
-Frame::Frame(MessageType type, uint16_t id, QOS qos)
+MQTTFrame::MQTTFrame(MQTTFrameType type, uint16_t id, MQTTQOS qos)
 : m_type(type), m_id(id), m_qos(qos)
 {}
 
-const Buffer& Frame::connectFrame(uint16_t keepAliveSeconds, string username, string password, string clientId, std::string willTopic,
-                                  MQTTProtocol protocol, const Host& host)
+const Buffer& MQTTFrame::connectFrame(uint16_t keepAliveSeconds, string username, string password, string clientId, std::string willTopic,
+                                  MQTTProtocolVersion protocol, const Host& host)
 {
     bytes(0);
 
@@ -100,11 +101,10 @@ const Buffer& Frame::connectFrame(uint16_t keepAliveSeconds, string username, st
     string willMessage;
     // If will topic and message are defined - add their size to payload length
     if (!willTopic.empty()) {
-        MQMessage will;
+        Message will;
+        will["event"] = "connection_terminated";
         will["client_id"] = clientId;
-        will["broker_host"] = host.toString();
-        will["subject"] = "connection_terminated";
-        will.body().append("Connection to MQTT broker terminated");
+        will.append("Lost connection to MQTT broker");
         willMessage = will.toString();
 
         connectFlags |= CF_WILL_QOS_1 | CF_WILL_FLAG;
@@ -112,7 +112,7 @@ const Buffer& Frame::connectFrame(uint16_t keepAliveSeconds, string username, st
         payloadlen += willMessage.length() + 2;
     }
 
-    append((uint8_t) MT_CONNECT);
+    append((uint8_t) FT_CONNECT);
     appendRemainingLength((unsigned int) (headerlen + payloadlen));        // Remaining Length
     appendVariableHeader(protocolName);                 // Protocol Name
     append((uint8_t) protocolVersion);                  // Protocol Version
@@ -140,18 +140,18 @@ const Buffer& Frame::connectFrame(uint16_t keepAliveSeconds, string username, st
     return *this;
 }
 
-const Buffer& Frame::publishFrame(const string& topic, const Buffer& data, QOS qos, bool dup, bool retain)
+const Buffer& MQTTFrame::publishFrame(const string& topic, const Buffer& data, MQTTQOS qos, bool dup, bool retain)
 {
     bytes(0);
 
     auto packetlen = unsigned(topic.length() + 2 + data.bytes());
     if (qos != QOS_0)
-        packetlen += 2; // Two bytes of message id
+        packetlen += 2; // Need extra two bytes of message id
 
     // Fixed header
     int dupFlag = dup ? 1 : 0;
     int retainFlag = retain ? 1 : 0;
-    append((uint8_t) (unsigned) (MT_PUBLISH|(dupFlag<<3)|(qos << 1)|retainFlag));
+    append((uint8_t) (FT_PUBLISH | (dupFlag<<3) | (qos << 1) | retainFlag));
     appendRemainingLength(packetlen);
 
     // Variable header
@@ -169,7 +169,7 @@ const Buffer& Frame::publishFrame(const string& topic, const Buffer& data, QOS q
     return *this;
 }
 
-const Buffer& Frame::publishAckFrame(uint16_t messageId, MessageType ackType)
+void MQTTFrame::setACK(uint16_t messageId, MQTTFrameType ackType)
 {
     bytes(0);
 
@@ -180,18 +180,16 @@ const Buffer& Frame::publishAckFrame(uint16_t messageId, MessageType ackType)
     append((uint8_t) packetlen);                            // Remaining Length
 
     appendShortValue(messageId);
-
-    return *this;
 }
 
-const Buffer& Frame::subscribeFrame(const string& topic, QOS qos)
+const Buffer& MQTTFrame::subscribeFrame(const string& topic, MQTTQOS qos)
 {
     bytes(0);
 
     auto packetlen = unsigned((topic.length() + 2) + 2 + 1);
 
     // Fixed header
-    append((uint8_t) (unsigned) (MT_SUBSCRIBE|(1 << 1)));
+    append((uint8_t) (unsigned) (FT_SUBSCRIBE|(1 << 1)));
     appendRemainingLength(packetlen);
 
     // Variable header
@@ -209,7 +207,7 @@ const Buffer& Frame::subscribeFrame(const string& topic, QOS qos)
     return *this;
 }
 
-const Buffer& Frame::subscribeFrame(const Strings& topics, QOS qos)
+const Buffer& MQTTFrame::subscribeFrame(const Strings& topics, MQTTQOS qos)
 {
     bytes(0);
 
@@ -218,7 +216,7 @@ const Buffer& Frame::subscribeFrame(const Strings& topics, QOS qos)
         packetlen += (topic.length() + 2) + 1;
 
     // Fixed header
-    append((uint8_t) (unsigned) (MT_SUBSCRIBE|(1 << 1)));
+    append((uint8_t) (unsigned) (FT_SUBSCRIBE|(1 << 1)));
     appendRemainingLength(packetlen);
 
     // Variable header
@@ -238,14 +236,14 @@ const Buffer& Frame::subscribeFrame(const Strings& topics, QOS qos)
     return *this;
 }
 
-const Buffer& Frame::unsubscribeFrame(const string& topic, QOS qos)
+const Buffer& MQTTFrame::unsubscribeFrame(const string& topic, MQTTQOS qos)
 {
     bytes(0);
 
     unsigned packetlen = unsigned(topic.length() + 2) + 2;
 
     // Fixed header
-    append((uint8_t) (unsigned) (MT_UNSUBSCRIBE|(1 << 1)));
+    append((uint8_t) (unsigned) (FT_UNSUBSCRIBE|(1 << 1)));
     appendRemainingLength(packetlen);
 
     // Variable header
@@ -262,7 +260,7 @@ const Buffer& Frame::unsubscribeFrame(const string& topic, QOS qos)
     return *this;
 }
 
-const Buffer& Frame::unsubscribeFrame(const Strings& topics, QOS qos)
+const Buffer& MQTTFrame::unsubscribeFrame(const Strings& topics, MQTTQOS qos)
 {
     bytes(0);
 
@@ -271,7 +269,7 @@ const Buffer& Frame::unsubscribeFrame(const Strings& topics, QOS qos)
         packetlen += (topic.length() + 2);
 
     // Fixed header
-    append((uint8_t) (unsigned) (MT_UNSUBSCRIBE|(1 << 1)));
+    append((uint8_t) (unsigned) (FT_UNSUBSCRIBE|(1 << 1)));
     appendRemainingLength(packetlen);
 
     // Variable header
@@ -289,18 +287,18 @@ const Buffer& Frame::unsubscribeFrame(const Strings& topics, QOS qos)
     return *this;
 }
 
-const Buffer& Frame::pingFrame()
+const Buffer& MQTTFrame::pingFrame()
 {
     bytes(0);
 
     // Fixed header
-    append((uint8_t) (unsigned) MT_PINGREQ);
+    append((uint8_t) (unsigned) FT_PINGREQ);
     appendRemainingLength(0);
 
     return *this;
 }
 
-unsigned Frame::receiveRemainingLength(Socket& connection)
+unsigned MQTTFrame::receiveRemainingLength(TCPSocket& connection)
 {
     uint8_t     digit;
     int         multiplier = 1;
@@ -314,33 +312,71 @@ unsigned Frame::receiveRemainingLength(Socket& connection)
     return value;
 }
 
-MessageType Frame::ackType(MessageType messageType)
+MQTTFrameType MQTTFrame::ackType(MQTTFrameType messageType)
 {
-    MessageType _ackType;
+    MQTTFrameType _ackType;
     switch (messageType) {
-        case MT_CONNECT:        _ackType = MT_CONNACK; break;
-        case MT_PUBLISH:        _ackType = MT_PUBACK; break;
-        case MT_SUBSCRIBE:      _ackType = MT_SUBACK; break;
-        case MT_UNSUBSCRIBE:    _ackType = MT_UNSUBACK; break;
-        default:                _ackType = MT_UNDEFINED; break;
+        case FT_CONNECT:        _ackType = FT_CONNACK; break;
+        case FT_PUBLISH:        _ackType = FT_PUBACK; break;
+        case FT_SUBSCRIBE:      _ackType = FT_SUBACK; break;
+        case FT_UNSUBSCRIBE:    _ackType = FT_UNSUBACK; break;
+        default:                _ackType = FT_UNDEFINED; break;
     }
     return _ackType;
 }
 
-uint16_t Frame::receiveShortValue(Socket& connection)
+uint8_t MQTTFrame::readByte(TCPSocket& socket)
+{
+    uint8_t byte;
+    socket.read((char*)&byte, 1);
+    return byte;
+}
+
+uint16_t MQTTFrame::readShortInteger(TCPSocket& socket)
 {
     uint16_t len;
-    connection.read((char*)&len, 2);
+    socket.read((char*)&len, 2);
     return ntohs(len);
 }
 
-void Frame::receiveVariableHeader(Socket& connection, string& header)
+void MQTTFrame::readString(TCPSocket& socket, String& header)
 {
-    uint16_t len = receiveShortValue(connection);
-    connection.read(header, len);
+    uint16_t len = readShortInteger(socket);
+    header.resize(len);
+    socket.read((char*)header.c_str(), len);
 }
 
-void Frame::receiveConnectACK(Socket& connection)
+void MQTTFrame::readConnectFrame(TCPSocket& socket, MQProtocol::Parameters& loginInfo)
+{
+    loginInfo.clear();
+
+    readString(socket, loginInfo["protocol_name"]);
+    loginInfo["protocol_version"] = to_string(readByte(socket));
+
+    uint8_t connectFlags = readByte(socket);
+
+    loginInfo["keep_alive"] = to_string(readShortInteger(socket));
+
+    bool expectUsername = (connectFlags & CF_USERNAME) == CF_USERNAME;
+    bool expectPassword = (connectFlags & CF_PASSWORD) == CF_PASSWORD;
+    bool expectWillTopic = (connectFlags & CF_WILL_FLAG) == CF_WILL_FLAG;
+
+    // Variable payload
+    readString(socket, loginInfo["client_id"]);
+
+    if (expectWillTopic) {
+        readString(socket, loginInfo["will_topic"]);
+        readString(socket, loginInfo["will_message"]);
+    }
+
+    if (expectUsername) {
+        readString(socket, loginInfo["username"]);
+        if (expectPassword)
+            readString(socket, loginInfo["password"]);
+    }
+}
+
+void MQTTFrame::readConnectACK(TCPSocket& connection)
 {
     uint8_t connectACK(0), connectRC;
 
@@ -358,11 +394,11 @@ void Frame::receiveConnectACK(Socket& connection)
     }
 }
 
-void Frame::receivePublishFrame(Socket& connection, unsigned remainingLength, QOS qos, string& topicName)
+void MQTTFrame::readPublishFrame(TCPSocket& connection, unsigned remainingLength, MQTTQOS qos, String& topicName)
 {
     int variableHeaderLength = 0;
 
-    receiveVariableHeader(connection, topicName);
+    readString(connection, topicName);
     variableHeaderLength += topicName.length() + 2;
 
     if (qos != QOS_0) {
@@ -378,86 +414,72 @@ void Frame::receivePublishFrame(Socket& connection, unsigned remainingLength, QO
     bytes(dataLength);
 
     connection.read(*this, dataLength);
-    m_buffer[dataLength] = 0;
 }
 
-void Frame::receiveAnyFrame(Socket& socket, unsigned remainingLength)
+void MQTTFrame::readUnknownFrame(TCPSocket& socket, unsigned remainingLength)
 {
     checkSize(remainingLength + 1);
     socket.read(*this, remainingLength);
     bytes(remainingLength);
-    m_buffer[remainingLength] = 0;
 }
 
-int Frame::receive(Socket& connection, uint32_t timeoutMS, string& topicName)
+bool MQTTFrame::read(TCPSocket& socket, MQProtocol::Parameters& parameters, milliseconds timeout)
 {
-    if (timeoutMS > 0 && !connection.waitForRead(timeoutMS))
-        return 0;
+    if (!socket.readyToRead(timeout))
+        throw ConnectionException("Read timeout");
 
-    auto availableBytes = (unsigned) connection.getAvailableBytes();
-    if (availableBytes == 0)
-        throw Exception("Server closed connection");
+    if (socket.socketBytes() == 0)
+        throw ConnectionException("Connection closed");
 
     // Read fixed header
-    uint8_t   messageHeader;
-    connection.read((char*)&messageHeader, 1);
-    m_type = (MessageType) (messageHeader & 0xF0);
-    m_qos = (QOS) ((messageHeader & 0x06) >> 1);
-    unsigned remainingLength = receiveRemainingLength(connection);
+    uint8_t messageHeader;
+    socket.read((char*)&messageHeader, 1);
+    m_type = (MQTTFrameType) (messageHeader & 0xF0);
+    m_qos = (MQTTQOS) ((messageHeader & 0x06) >> 1);
+    unsigned remainingLength = receiveRemainingLength(socket);
 
     switch (m_type) {
-        case MT_UNDEFINED:
-            return 0;
-
-        // CONNECT ACK
-        case MT_CONNACK:
-            receiveConnectACK(connection);
+        case FT_CONNECT:
+            readConnectFrame(socket, parameters);
             break;
 
-        // PUBLISH
-        case MT_PUBLISH:
-            receivePublishFrame(connection, remainingLength, m_qos, topicName);
+        case FT_CONNACK:
+            readConnectACK(socket);
             break;
 
-        // PUB ACK
-        case MT_PUBACK:
-            if (remainingLength != 2)
-                THROW_EXCEPTION("Invalid remaining length for PUBACK: " << remainingLength);
-            receiveAnyFrame(connection, remainingLength);
+        case FT_PUBLISH:
+            readPublishFrame(socket, remainingLength, m_qos, parameters["destination"]);
             break;
 
-        // Other ACKs
-        case MT_SUBACK:
-        case MT_UNSUBACK:
-            receiveAnyFrame(connection, remainingLength);
-            break;
+        case FT_UNDEFINED:
+            throw Exception("Received frame type");
 
         default:
-            receiveAnyFrame(connection, remainingLength);
+            readUnknownFrame(socket, remainingLength);
             break;
     }
 
-    return 1;
+    return true;
 }
 
-std::string Frame::typeName() const
+std::string MQTTFrame::typeName() const
 {
     switch (m_type) {
-        case MT_UNDEFINED:  return "UNDEFINED";
-        case MT_CONNECT:    return "CONNECT";
-        case MT_CONNACK:    return "CONN ACK";
-        case MT_PUBLISH:    return "PUBLISH";
-        case MT_PUBACK:     return "PUB ACK";
-        case MT_PUBREC:     return "PUB REC";
-        case MT_PUBREL:     return "PUB REL";
-        case MT_PUBCOMP:    return "PUB COMP";
-        case MT_SUBSCRIBE:  return "SUBSCRIBE";
-        case MT_SUBACK:     return "SUB ACK";
-        case MT_UNSUBSCRIBE: return "UNSUBSCRIBE";
-        case MT_UNSUBACK:   return "UNSUB ACK";
-        case MT_PINGREQ:    return "PING REQ";
-        case MT_PINGRESP:   return "PING RESP";
-        case MT_DISCONNECT: return "DISCONNECT";
+        case FT_UNDEFINED:  return "UNDEFINED";
+        case FT_CONNECT:    return "CONNECT";
+        case FT_CONNACK:    return "CONN ACK";
+        case FT_PUBLISH:    return "PUBLISH";
+        case FT_PUBACK:     return "PUB ACK";
+        case FT_PUBREC:     return "PUB REC";
+        case FT_PUBREL:     return "PUB REL";
+        case FT_PUBCOMP:    return "PUB COMP";
+        case FT_SUBSCRIBE:  return "SUBSCRIBE";
+        case FT_SUBACK:     return "SUB ACK";
+        case FT_UNSUBSCRIBE: return "UNSUBSCRIBE";
+        case FT_UNSUBACK:   return "UNSUB ACK";
+        case FT_PINGREQ:    return "PING REQ";
+        case FT_PINGRESP:   return "PING RESP";
+        case FT_DISCONNECT: return "DISCONNECT";
     }
     return "UNDEFINED";
 }

@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/mq/SMQClient.h>
-#include <sptk5/mq/SMQMessage.h>
+#include <sptk5/mq/protocols/SMQProtocol.h>
 #include <sptk5/mq/TCPMQClient.h>
 #include <sptk5/cutils>
 
@@ -35,8 +35,8 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-SMQClient::SMQClient(const String& clientId)
-: TCPMQClient(clientId)
+SMQClient::SMQClient(MQProtocolType protocolType, const String& clientId)
+: TCPMQClient(protocolType, clientId)
 {
 }
 
@@ -50,10 +50,10 @@ void SMQClient::connect(const Host& server, const String& username, const String
     m_username = username;
     m_password = password;
 
-    Message connectMessage(Message::CONNECT);
-    connectMessage["clientid"] = m_clientId;
-    connectMessage["username"] = username;
-    connectMessage["password"] = password;
+    auto connectMessage = make_shared<Message>(Message::CONNECT);
+    (*connectMessage)["client_id"] = m_clientId;
+    (*connectMessage)["username"] = username;
+    (*connectMessage)["password"] = password;
     send("", connectMessage, timeout);
 }
 
@@ -62,21 +62,20 @@ void SMQClient::disconnect(bool)
     destroyConnection();
 }
 
-void SMQClient::send(const String& destination, Message& message, std::chrono::milliseconds timeout)
+void SMQClient::send(const String& destination, SMessage& message, std::chrono::milliseconds timeout)
 {
-    message["destination"] = destination;
-    SMQMessage::sendMessage(socket(), message);
+    protocol().sendMessage(destination, message);
 }
 
 void SMQClient::subscribe(const String& destination, std::chrono::milliseconds timeout)
 {
-    Message subscribeMessage(Message::SUBSCRIBE);
+    auto subscribeMessage = make_shared<Message>(Message::SUBSCRIBE);
     send(destination, subscribeMessage, timeout);
 }
 
 void SMQClient::unsubscribe(const String& destination, std::chrono::milliseconds timeout)
 {
-    Message unsubscribeMessage(Message::UNSUBSCRIBE);
+    auto unsubscribeMessage = make_shared<Message>(Message::UNSUBSCRIBE);
     send(destination, unsubscribeMessage, timeout);
 }
 
@@ -91,11 +90,13 @@ void SMQClient::socketEvent(SocketEventType eventType)
         return;
     }
 
+    SMessage msg;
     try {
         while (connected() && socket().socketBytes() > 0) {
-            auto msg = SMQMessage::readRawMessage(socket());
-            if (msg->type() == Message::MESSAGE)
-                acceptMessage(msg);
+            if (protocol().readMessage(msg)) {
+                if (msg->type() == Message::MESSAGE)
+                    acceptMessage(msg);
+            }
         }
     }
     catch (const Exception&) {

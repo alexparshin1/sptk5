@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQSubscription.h - description                        ║
+║                       MQProtocol.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday February 1 2019                                 ║
+║  begin                Sunday December 23 2018                                ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,40 +26,61 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_SUBSCRIPTION_H__
-#define __SMQ_SUBSCRIPTION_H__
+#ifndef __MQ_PROTOCOLS_H__
+#define __MQ_PROTOCOLS_H__
 
-#include <sptk5/mq/SMQConnection.h>
+#include <sptk5/cnet>
+#include <sptk5/mq/Message.h>
 
 namespace sptk {
 
-typedef std::shared_ptr<SMQConnection> SharedSMQConnection;
-
-class SMQSubscription
+/**
+ * MQ Protocols
+ */
+enum MQProtocolType
 {
+    MP_SMQ,
+    MP_MQTT,
+    MP_STOMP,
+    MP_AMQP
+};
+
+class MQProtocol
+{
+    TCPSocket&  m_socket;
+
 public:
-    enum Type
+
+    typedef std::map<String, String> Parameters;
+
+protected:
+
+    MQProtocol(TCPSocket& socket) : m_socket(socket) {}
+
+    TCPSocket& socket() const;
+
+public:
+
+    template<class T> size_t read(T& data)
     {
-        QUEUE,
-        TOPIC
-    };
-private:
-    mutable sptk::SharedMutex               m_mutex;
-    Type                                    m_type;
+        return m_socket.read((char*)&data, sizeof(data));
+    }
+    size_t read(String& str);
+    size_t read(Buffer& data);
+    size_t read(char* data, size_t dataSize);
 
-    std::set<SMQConnection*>                m_connections;
-    std::set<SMQConnection*>::iterator      m_currentConnection;
+    template<class T> size_t write(const T& data)
+    {
+        return m_socket.write((const char*)&data, sizeof(data));
+    }
+    size_t write(String& str);
+    size_t write(Buffer& data);
 
-public:
-    explicit SMQSubscription(Type type);
+    virtual void ack(Message::Type sourceMessageType, const String& messageId) = 0;
+    virtual bool readMessage(SMessage& message) = 0;
+    virtual bool sendMessage(const String& destination, SMessage& message) = 0;
 
-    virtual ~SMQSubscription();
-
-    void addConnection(SMQConnection* connection);
-    void removeConnection(SMQConnection* connection, bool updateConnection);
-    bool deliverMessage(SMessage message);
-
-    Type type() const;
+    static std::shared_ptr<MQProtocol> factory(MQProtocolType protocolType, TCPSocket& socket);
 };
 
 } // namespace sptk

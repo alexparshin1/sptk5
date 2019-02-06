@@ -89,7 +89,7 @@ void stub()
 
 	try {
 		SysLogEngine		 logger("unit_tests");
-		SMQServer			 smqServer("user", "password", logger);
+		SMQServer			 smqServer(MP_SMQ, "user", "password", logger);
 	}
 	catch (Exception&) {
 		CERR("");

@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQSubscription.h - description                        ║
+║                       MQTTProtocol.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday February 1 2019                                 ║
+║  begin                Sunday December 23 2018                                ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,42 +26,28 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_SUBSCRIPTION_H__
-#define __SMQ_SUBSCRIPTION_H__
+#ifndef SPTK_MQTTPROTOCOL_H
+#define SPTK_MQTTPROTOCOL_H
 
-#include <sptk5/mq/SMQConnection.h>
+#include <sptk5/mq/protocols/MQProtocol.h>
+#include "MQTTFrame.h"
 
 namespace sptk {
 
-typedef std::shared_ptr<SMQConnection> SharedSMQConnection;
-
-class SMQSubscription
+class MQTTProtocol : public MQProtocol
 {
-public:
-    enum Type
-    {
-        QUEUE,
-        TOPIC
-    };
-private:
-    mutable sptk::SharedMutex               m_mutex;
-    Type                                    m_type;
-
-    std::set<SMQConnection*>                m_connections;
-    std::set<SMQConnection*>::iterator      m_currentConnection;
 
 public:
-    explicit SMQSubscription(Type type);
+    MQTTProtocol(TCPSocket& socket) : MQProtocol(socket) {}
 
-    virtual ~SMQSubscription();
+    static Message::Type mqMessageType(MQTTFrameType nativeMessageType);
+    static MQTTFrameType nativeMessageType(Message::Type mqMessageType);
 
-    void addConnection(SMQConnection* connection);
-    void removeConnection(SMQConnection* connection, bool updateConnection);
-    bool deliverMessage(SMessage message);
-
-    Type type() const;
+    void ack(Message::Type sourceMessageType, const String& messageId) override;
+    bool readMessage(SMessage& message) override;
+    bool sendMessage(const String& destination, SMessage& message) override;
 };
 
-} // namespace sptk
+}
 
-#endif
+#endif //SPTK_MQTTPROTOCOL_H

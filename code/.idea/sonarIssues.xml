@@ -563,6 +563,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/examples/net/smq_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/examples/net/smtp_connect.cpp">
           <value>
             <set />
@@ -574,6 +579,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/Logger.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/ReadBuffer.h">
           <value>
             <set />
           </value>
@@ -613,6 +623,21 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/MQProtocol.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/MQProtocolType.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/MQProtocols.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/mq/Message.h">
           <value>
             <set />
@@ -633,6 +658,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/SMQProtocol.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/mq/SMQServer.h">
           <value>
             <set />
@@ -649,6 +679,26 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/mq/TCPMQClient.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/protocols/MQProtocol.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/protocols/MQTTFrame.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/protocols/MQTTProtocol.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/protocols/SMQProtocol.h">
           <value>
             <set />
           </value>
@@ -733,6 +783,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/ReadBuffer.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/Registry.cpp">
           <value>
             <set />
@@ -748,6 +803,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/MQProtocol.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/TCPMQClient.cpp">
           <value>
             <set />
@@ -758,12 +818,52 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/protocols/MQProtocol.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/protocols/MQTTFrame.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/protocols/MQTTFrame.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/protocols/MQTTProtocol.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/protocols/MQTTProtocol.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/protocols/SMQProtocol.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQClient.cpp">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQMessage.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQProtocol.cpp">
           <value>
             <set />
           </value>
@@ -829,6 +929,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/threads/Thread.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/test/TestRunner.cpp">
           <value>
             <set />
           </value>
