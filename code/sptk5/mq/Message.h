@@ -24,14 +24,18 @@ public:
     typedef std::map<String, String> Headers;
 
     enum Type : uint8_t {
-        UNDEFINED    = 0,
-        CONNECT      = 1,
-        DISCONNECT   = 2,
-        SUBSCRIBE    = 4,
-        UNSUBSCRIBE  = 8,
-        PING         = 16,
-        MESSAGE      = 32,
-        ACK          = 64
+        UNDEFINED       = 0,
+        CONNECT         = 1,
+        DISCONNECT      = 2,
+        SUBSCRIBE       = 3,
+        UNSUBSCRIBE     = 4,
+        PING            = 5,
+        MESSAGE         = 6,
+        CONNECT_ACK     = 7,
+        SUBSCRIBE_ACK   = 8,
+        PUBLISH_ACK     = 9,
+        UNSUBSCRIBE_ACK = 10,
+        PING_ACK        = 11
     };
 
 

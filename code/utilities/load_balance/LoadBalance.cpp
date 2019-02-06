@@ -61,7 +61,7 @@ void LoadBalance::destinationEventCallback(void *userData, SocketEventType event
 
 LoadBalance::LoadBalance(int listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
 : Thread("load balance"), m_listenerPort(listenerPort), m_destinations(destinations), m_interfaces(interfaces),
-  m_sourceEvents(sourceEventCallback), m_destinationEvents(destinationEventCallback)
+  m_sourceEvents("Source Events", sourceEventCallback), m_destinationEvents("Destination Events", destinationEventCallback)
 {
 }
 

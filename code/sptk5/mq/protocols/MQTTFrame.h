@@ -39,8 +39,8 @@ namespace sptk {
  */
 enum MQTTProtocolVersion : uint8_t
 {
-    MQTT_PROTOCOL_V31  = 1,
-    MQTT_PROTOCOL_V311 = 2
+    MQTT_PROTOCOL_V31  = 3,
+    MQTT_PROTOCOL_V311 = 4
 };
 
 /**
@@ -246,16 +246,15 @@ public:
     /**
      * Generate MQTT CONNECT frame
      * @param keepAliveSeconds uint16_t, Interval between keep alive packets, seconds
-     * @param userName std::string, Optional user name or empty string if not needed
+     * @param username std::string, Optional user name or empty string if not needed
      * @param password std::string, Optional password or empty string if not needed
      * @param clientId std::string, Client id
      * @param willTopic std::string, Optional topic to send last will
-     * @param protocol MQTTProtocolVersion, Optional MQTT protocol version
-     * @param host const Host&, MQTT broker host - for the will message content
+     * @param protocolVersion MQTTProtocolVersion, Optional MQTT protocol version
      * @return this object reference
      */
-    const Buffer& connectFrame(uint16_t keepAliveSeconds, std::string userName, std::string password, std::string clientId,
-                                   std::string willTopic, MQTTProtocolVersion protocol, const Host& host);
+    const Buffer& setCONNECT(uint16_t keepAliveSeconds, String username, String password, String clientId,
+                             String willTopic, MQTTProtocolVersion protocolVersion);
 
     /**
      * Generate MQTT PUBLISH frame

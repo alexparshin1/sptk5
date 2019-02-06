@@ -63,26 +63,24 @@ MQTTFrame::MQTTFrame(MQTTFrameType type, uint16_t id, MQTTQOS qos)
 : m_type(type), m_id(id), m_qos(qos)
 {}
 
-const Buffer& MQTTFrame::connectFrame(uint16_t keepAliveSeconds, string username, string password, string clientId, std::string willTopic,
-                                  MQTTProtocolVersion protocol, const Host& host)
+const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, String username, String password, String clientId,
+                                    String willTopic, MQTTProtocolVersion protocolVersion)
 {
-    bytes(0);
 
-    string  protocolName;
-    int     headerlen = 12;
-    uint8_t protocolVersion = 3;
+    String  protocolName;
+    int     headerlen;
 
-    switch (protocol) {
+    switch (protocolVersion) {
         case MQTT_PROTOCOL_V31:
             headerlen = 12;
             protocolName = "MQIsdp";
-            protocolVersion = 3;
             break;
         case MQTT_PROTOCOL_V311:
             headerlen = 10;
             protocolName = "MQTT";
-            protocolVersion = 4;
             break;
+        default:
+            throw Exception("Unsupported MQTT protocol version");
     }
 
     uint8_t connectFlags = 0;
@@ -112,10 +110,11 @@ const Buffer& MQTTFrame::connectFrame(uint16_t keepAliveSeconds, string username
         payloadlen += willMessage.length() + 2;
     }
 
-    append((uint8_t) FT_CONNECT);
+    bytes(0);
+    append(FT_CONNECT);
     appendRemainingLength((unsigned int) (headerlen + payloadlen));        // Remaining Length
     appendVariableHeader(protocolName);                 // Protocol Name
-    append((uint8_t) protocolVersion);                  // Protocol Version
+    append(protocolVersion);                            // Protocol Version
 
     append(connectFlags);                               // Connect Flags
     appendShortValue(keepAliveSeconds);
@@ -378,7 +377,8 @@ void MQTTFrame::readConnectFrame(TCPSocket& socket, MQProtocol::Parameters& logi
 
 void MQTTFrame::readConnectACK(TCPSocket& connection)
 {
-    uint8_t connectACK(0), connectRC;
+    uint8_t connectACK;
+    uint8_t connectRC;
 
     connection.read((char*)&connectACK, 1);
     connection.read((char*)&connectRC, 1);
@@ -480,6 +480,7 @@ std::string MQTTFrame::typeName() const
         case FT_PINGREQ:    return "PING REQ";
         case FT_PINGRESP:   return "PING RESP";
         case FT_DISCONNECT: return "DISCONNECT";
+        default:            break;
     }
     return "UNDEFINED";
 }

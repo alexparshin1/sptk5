@@ -63,7 +63,7 @@ bool MQTTProtocol::readMessage(SMessage& message)
             return true;
         }
     }
-    catch (...) {
+    catch (const Exception&) {
         if (socket().active())
             throw;
     }
@@ -84,12 +84,12 @@ Message::Type MQTTProtocol::mqMessageType(MQTTFrameType nativeMessageType)
         case FT_SUBSCRIBE:      return Message::SUBSCRIBE;
         case FT_UNSUBSCRIBE:    return Message::UNSUBSCRIBE;
         case FT_DISCONNECT:     return Message::DISCONNECT;
-        case FT_PINGREQ:
-        case FT_PINGRESP:       return Message::PING;
-        case FT_UNSUBACK:
-        case FT_SUBACK:
-        case FT_PUBACK:
-        case FT_CONNACK:        return Message::ACK;
+        case FT_PINGREQ:        return Message::PING;
+        case FT_PINGRESP:       return Message::PING_ACK;
+        case FT_UNSUBACK:       return Message::UNSUBSCRIBE_ACK;
+        case FT_SUBACK:         return Message::SUBSCRIBE_ACK;
+        case FT_PUBACK:         return Message::PUBLISH_ACK;
+        case FT_CONNACK:        return Message::CONNECT_ACK;
         default:                return Message::UNDEFINED;
     }
 }
@@ -97,14 +97,18 @@ Message::Type MQTTProtocol::mqMessageType(MQTTFrameType nativeMessageType)
 MQTTFrameType MQTTProtocol::nativeMessageType(Message::Type mqMessageType)
 {
     switch (mqMessageType) {
-        case Message::CONNECT:      return FT_CONNECT;
-        case Message::DISCONNECT:   return FT_DISCONNECT;
-        case Message::SUBSCRIBE:    return FT_SUBSCRIBE;
-        case Message::UNSUBSCRIBE:  return FT_UNSUBSCRIBE;
-        case Message::PING:         return FT_PINGREQ;
-        case Message::MESSAGE:      return FT_PUBLISH;
-        case Message::ACK:          return FT_PUBACK;
-        default:                    return FT_UNDEFINED;
+        case Message::CONNECT:          return FT_CONNECT;
+        case Message::DISCONNECT:       return FT_DISCONNECT;
+        case Message::SUBSCRIBE:        return FT_SUBSCRIBE;
+        case Message::UNSUBSCRIBE:      return FT_UNSUBSCRIBE;
+        case Message::PING:             return FT_PINGREQ;
+        case Message::MESSAGE:          return FT_PUBLISH;
+        case Message::CONNECT_ACK:      return FT_CONNACK;
+        case Message::SUBSCRIBE_ACK:    return FT_CONNACK;
+        case Message::UNSUBSCRIBE_ACK:  return FT_UNSUBACK;
+        case Message::PUBLISH_ACK:      return FT_PUBACK;
+        case Message::PING_ACK:         return FT_PINGRESP;
+        default:                        return FT_UNDEFINED;
     }
 }
 

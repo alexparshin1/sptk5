@@ -51,17 +51,31 @@ static void parseHeaders(Buffer& buffer, Message::Headers& headers)
 
 void SMQProtocol::ack(Message::Type sourceMessageType, const String& messageId)
 {
-/*
-    auto ackMessage = make_shared<Message>(Message::ACK);
-    ackMessage->headers()["id"] = messageId;
+    return;
+
+    Message::Type ackType;
     switch (sourceMessageType) {
         case Message::CONNECT:
-            sendMessage("", ackMessage);
+            ackType = Message::CONNECT_ACK;
+            break;
+        case Message::SUBSCRIBE:
+            ackType = Message::SUBSCRIBE_ACK;
+            break;
+        case Message::UNSUBSCRIBE:
+            ackType = Message::SUBSCRIBE_ACK;
+            break;
+        case Message::MESSAGE:
+            ackType = Message::PUBLISH_ACK;
+            break;
+        case Message::PING:
+            ackType = Message::PING_ACK;
             break;
         default:
-            break;
+            return;
     }
-*/
+    auto ackMessage = make_shared<Message>(ackType);
+    ackMessage->headers()["id"] = messageId;
+    sendMessage("", ackMessage);
 }
 
 bool SMQProtocol::readMessage(SMessage& outputMessage)
@@ -128,10 +142,9 @@ bool SMQProtocol::sendMessage(const String& destination, SMessage& message)
     output.append((uint32_t) headers.bytes());
     output.append(headers.c_str(), headers.bytes());
 
-    if ((message->type() & (Message::MESSAGE|Message::SUBSCRIBE)) != 0) {
-        if (message->destination().empty()) {
+    if (message->type() == Message::MESSAGE || message->type() == Message::SUBSCRIBE) {
+        if (message->destination().empty())
             throw Exception("Message destination is empty or not defined");
-        }
 
         if (message->type() == Message::MESSAGE) {
             output.append((uint32_t) message->bytes());

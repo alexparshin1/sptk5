@@ -70,13 +70,12 @@ ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_
 void SMQServer::closeConnection(ServerConnection* connection)
 {
     auto* smqConnection = dynamic_cast<SMQConnection*>(connection);
-    String clientId = smqConnection->clientId();
-
-    delete connection;
-
-    lock_guard<mutex> lock(m_mutex);
-    m_clientIds.erase(clientId);
-    m_connections.erase(smqConnection);
+    if (smqConnection != nullptr) {
+        String clientId = smqConnection->clientId();
+        lock_guard<mutex> lock(m_mutex);
+        m_clientIds.erase(clientId);
+        m_connections.erase(smqConnection);
+    }
 }
 
 void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
@@ -87,6 +86,7 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
 
     if (eventType == ET_CONNECTION_CLOSED) {
         smqServer->closeConnection(connection);
+        delete connection;
         return;
     }
 
@@ -101,6 +101,7 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
                 case Message::CONNECT:
                     if (!smqServer->authenticate((*msg)["client_id"], (*msg)["username"], (*msg)["password"])) {
                         smqServer->closeConnection(connection);
+                        delete connection;
                         connection = nullptr;
                     } else
                         connection->setupClient((*msg)["client_id"]);
@@ -117,6 +118,7 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
                     break;
                 case Message::DISCONNECT:
                     smqServer->closeConnection(connection);
+                    delete connection;
                     connection = nullptr;
                     break;
                 default:
@@ -125,8 +127,10 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
         }
     }
     catch (const Exception& e) {
-        if (connection != nullptr)
+        if (connection != nullptr) {
             smqServer->closeConnection(connection);
+            delete connection;
+        }
         smqServer->log(LP_ERROR, e.message());
     }
 }

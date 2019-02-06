@@ -52,6 +52,7 @@ SMQConnection::~SMQConnection()
         smqServer->forgetSocket(socket());
 
     UniqueLock(m_mutex);
+
     for (auto* subscription: m_subscriptions)
         subscription->removeConnection(this, false);
     m_subscriptions.clear();
