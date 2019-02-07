@@ -4,7 +4,7 @@
 ║                       SMQServer.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
-║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,7 +28,7 @@
 
 #include <sptk5/mq/SMQServer.h>
 #include <sptk5/mq/SMQClient.h>
-#include <sptk5/mq/MQClient.h>
+#include <sptk5/mq/BaseMQClient.h>
 #include <sptk5/cutils>
 #include <sptk5/mq/protocols/MQTTProtocol.h>
 

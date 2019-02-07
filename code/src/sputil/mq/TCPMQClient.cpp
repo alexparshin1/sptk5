@@ -4,7 +4,7 @@
 ║                       TCPMQClient.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
-║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,9 +32,9 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-MQClient::SharedSocketEvents TCPMQClient::smqSocketEvents;
+SharedSocketEvents TCPMQClient::smqSocketEvents;
 
-MQClient::SharedSocketEvents& TCPMQClient::initSocketEvents()
+SharedSocketEvents& TCPMQClient::initSocketEvents()
 {
     static mutex              amutex;
 
@@ -47,7 +47,7 @@ MQClient::SharedSocketEvents& TCPMQClient::initSocketEvents()
 }
 
 TCPMQClient::TCPMQClient(MQProtocolType protocolType, const String& clientId)
-: MQClient(protocolType, clientId)
+: BaseMQClient(protocolType, clientId)
 {
     UniqueLock(m_mutex);
     initSocketEvents();

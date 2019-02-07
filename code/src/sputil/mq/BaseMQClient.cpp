@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       MQClient.cpp - description                             ║
+║                       BaseMQClient.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
-║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,53 +27,65 @@
 */
 
 #include <sptk5/mq/SMQClient.h>
-#include <sptk5/mq/MQClient.h>
+#include <sptk5/mq/BaseMQClient.h>
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-MQClient::MQClient(MQProtocolType protocolType, const String& clientId)
+BaseMQClient::BaseMQClient(MQProtocolType protocolType, const String& clientId)
 : m_clientId(clientId), m_protocolType(protocolType)
 {}
 
-const String& MQClient::getClientId() const
+const String& BaseMQClient::getClientId() const
 {
     SharedLock(m_mutex);
     return m_clientId;
 }
 
-Host MQClient::getHost() const
+Host BaseMQClient::getHost() const
 {
     SharedLock(m_mutex);
     return Host(m_host);
 }
 
-bool MQClient::connected() const
+bool BaseMQClient::connected() const
 {
     SharedLock(m_mutex);
     return m_connected;
 }
 
-SMessage MQClient::getMessage(std::chrono::milliseconds timeout)
+SMessage BaseMQClient::getMessage(std::chrono::milliseconds timeout)
 {
     SMessage message;
     m_incomingMessages.pop(message, timeout);
     return message;
 }
 
-size_t MQClient::hasMessages() const
+size_t BaseMQClient::hasMessages() const
 {
     return m_incomingMessages.size();
 }
 
-void MQClient::acceptMessage(SMessage& message)
+void BaseMQClient::acceptMessage(SMessage& message)
 {
     m_incomingMessages.push(message);
 }
 
-MQProtocolType MQClient::protocolType() const
+MQProtocolType BaseMQClient::protocolType() const
 {
     SharedLock(m_mutex);
     return m_protocolType;
+}
+
+void BaseMQClient::enable(bool state)
+{
+    UniqueLock(m_mutex);
+    m_enabled = state;
+}
+
+bool BaseMQClient::enabled() const
+{
+    SharedLock(m_mutex);
+    return m_enabled;
 }

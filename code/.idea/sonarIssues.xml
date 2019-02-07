@@ -38,6 +38,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/CMakeLists.txt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/log_collector.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/poc/ProcessManager.cpp">
           <value>
             <set />
@@ -109,6 +119,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Module/ModuleArguments.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Module/ModuleSMQClient.h">
           <value>
             <set />
           </value>
@@ -263,7 +278,17 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_procman/LogManager.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_procman/ModuleManager.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_procman/child.cpp">
           <value>
             <set />
           </value>
@@ -573,6 +598,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/Buffer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/LogEngine.h">
           <value>
             <set />
@@ -614,6 +644,21 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/gui/CColumn.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/gui/CFont.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/gui/CFontComboBox.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/mq/BaseMQClient.h">
           <value>
             <set />
           </value>
@@ -718,6 +763,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/wsdl/SourceModule.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/wsdl/WSBasicTypes.h">
           <value>
             <set />
@@ -794,6 +844,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/Strings.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/mq/BaseMQClient.cpp">
           <value>
             <set />
           </value>
@@ -928,6 +983,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/threads/Flag.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/threads/Thread.cpp">
           <value>
             <set />
@@ -954,6 +1014,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/utilities/load_balance/LoadBalance.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/utilities/wsdl2cxx.cpp">
           <value>
             <set />
           </value>
@@ -989,6 +1054,16 @@
           </value>
         </entry>
         <entry key="/usr/local/include/sptk5/mq/SMQClient.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/mq/TCPMQClient.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/net/SocketEvents.h">
           <value>
             <set />
           </value>

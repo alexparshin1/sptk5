@@ -4,7 +4,7 @@
 ║                       SMQClient.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
-║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -33,7 +33,7 @@
 #include <sptk5/cnet>
 #include <sptk5/mq/protocols/SMQProtocol.h>
 #include "TCPMQClient.h"
-#include "MQClient.h"
+#include "BaseMQClient.h"
 
 namespace sptk {
 
@@ -68,7 +68,7 @@ public:
      * @param encrypted         Use encrypted connection. If true, then SSL keys must be loaded prior to this call.
      * @param timeout           Operation timeout
      */
-    void connect(const Host& server, const String& username, const String password, bool encrypted,
+    void connect(const Host& server, const String& username, const String& password, bool encrypted,
                  std::chrono::milliseconds timeout) override;
 
     /**

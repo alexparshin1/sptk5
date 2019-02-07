@@ -411,6 +411,9 @@ INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db)
 FILE (GLOB includeFilesMQ "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/mq/*.h")
 INSTALL (FILES ${includeFilesMQ} DESTINATION include/sptk5/mq)
 
+FILE (GLOB includeFilesMQProtocols "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/mq/protocols/*.h")
+INSTALL (FILES ${includeFilesMQProtocols} DESTINATION include/sptk5/mq/protocols)
+
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/test/*.h")
 INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/test)
 

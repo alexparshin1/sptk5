@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       MQClient.h - description                               ║
+║                       BaseMQClient.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
-║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __MQ_CLIENT_H__
-#define __MQ_CLIENT_H__
+#ifndef __BASE_MQ_CLIENT_H__
+#define __BASE_MQ_CLIENT_H__
 
 #include <sptk5/cutils>
 #include <sptk5/cnet>
@@ -44,14 +44,8 @@ namespace sptk {
  *
  * All derived MQ clients must implement this interface.
  */
-class MQClient
+class BaseMQClient
 {
-protected:
-
-    typedef std::shared_ptr<SocketEvents> SharedSocketEvents;
-
-private:
-
     /**
      * Mutex that protects internal data
      */
@@ -71,6 +65,11 @@ private:
      * Flag: connected to MQ server
      */
     bool                            m_connected {false};
+
+    /**
+     * Flag: disable reconnects
+     */
+    bool                            m_enabled {true};
 
     /**
      * Queue of incoming messages
@@ -106,12 +105,12 @@ public:
      * @param protocolType      MQ protocol type
      * @param clientId          Unique client id
      */
-    MQClient(MQProtocolType protocolType, const String& clientId);
+    BaseMQClient(MQProtocolType protocolType, const String& clientId);
 
     /**
      * Destructor
      */
-    virtual ~MQClient() = default;
+    virtual ~BaseMQClient() = default;
 
     /*
      * Connect to MQ server
@@ -121,7 +120,7 @@ public:
      * @param encrypted         Use encrypted connection. If true, then SSL keys must be loaded prior to this call.
      * @param timeout           Operation timeout
      */
-    virtual void connect(const Host& server, const String& username, const String password, bool encrypted,
+    virtual void connect(const Host& server, const String& username, const String& password, bool encrypted,
                          std::chrono::milliseconds timeout) = 0;
 
     /**
@@ -196,7 +195,22 @@ public:
      */
     size_t hasMessages() const;
 
+    /**
+     * MQ protocol type
+     * @return
+     */
     MQProtocolType protocolType() const;
+
+    /**
+     * Disable or enable MQ client.
+     * @param state             If false, then client is disabled.
+     */
+    void enable(bool state);
+
+    /**
+     * Return true if client is enabled
+     */
+    bool enabled() const;
 };
 
 } // namespace sptk

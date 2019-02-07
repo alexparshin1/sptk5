@@ -4,7 +4,7 @@
 ║                       TCPMQClient.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
-║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,17 +29,17 @@
 #ifndef __TCP_MQ_CLIENT_H__
 #define __TCP_MQ_CLIENT_H__
 
-#include <sptk5/mq/MQClient.h>
+#include <sptk5/mq/BaseMQClient.h>
 #include <sptk5/mq/protocols/MQProtocol.h>
 
 namespace sptk {
 
-class TCPMQClient : public MQClient
+class TCPMQClient : public BaseMQClient
 {
-    mutable SharedMutex         m_mutex;
-    std::shared_ptr<TCPSocket>  m_socket;           ///< TCP or SSL connection socket
-    std::shared_ptr<MQProtocol> m_protocol;         ///< MQ protocol
-    static SharedSocketEvents   smqSocketEvents;    ///< Shared event manager
+    mutable SharedMutex                 m_mutex;
+    std::shared_ptr<TCPSocket>          m_socket;           ///< TCP or SSL connection socket
+    std::shared_ptr<MQProtocol>         m_protocol;         ///< MQ protocol
+    static SharedSocketEvents           smqSocketEvents;    ///< Shared event manager
 
 private:
     /**
@@ -72,17 +72,18 @@ public:
     void loadSslKeys(const String& keyFile, const String& certificateFile, const String& password, const String& caFile,
                      int verifyMode, int verifyDepth) override;
 
-protected:
-    TCPSocket& socket()
-    {
-        return *m_socket;
-    }
-
     /**
      * Check if client is connected to server
      * @return true if client is connected to server
      */
     bool connected() const override { return m_socket->active(); }
+
+protected:
+
+    TCPSocket& socket()
+    {
+        return *m_socket;
+    }
 
     virtual void socketEvent(SocketEventType eventType) = 0;
 

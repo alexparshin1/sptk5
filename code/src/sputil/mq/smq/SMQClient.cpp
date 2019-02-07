@@ -4,7 +4,7 @@
 ║                       SMQClient.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
-║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -40,7 +40,7 @@ SMQClient::SMQClient(MQProtocolType protocolType, const String& clientId)
 {
 }
 
-void SMQClient::connect(const Host& server, const String& username, const String password, bool encrypted, milliseconds timeout)
+void SMQClient::connect(const Host& server, const String& username, const String& password, bool encrypted, milliseconds timeout)
 {
     UniqueLock(m_mutex);
 
