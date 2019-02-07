@@ -4,7 +4,7 @@
 ║                       HttpReader.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Saturday November 18 2017                              ║
-║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐

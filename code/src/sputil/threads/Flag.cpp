@@ -4,7 +4,7 @@
 ║                       Flag.cpp - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Friday January 25 2019                                 ║
-║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "Flag.h"
+#include <sptk5/threads/Flag.h>
 
 using namespace std;
 using namespace sptk;

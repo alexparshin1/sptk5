@@ -3,7 +3,7 @@
                           CTar.cpp  -  description
                              -------------------
     begin                : Fri Sep 1 2006
-    copyright            : (C) 1999-2018 by Alexey Parshin. All rights reserved.
+    copyright            : © 1999-2019 by Alexey Parshin. All rights reserved.
 
     This module creation was sponsored by Total Knowledge (http://www.total-knowledge.com).
     Author thanks the developers of CPPSERV project (http://www.total-knowledge.com/progs/cppserv)

@@ -4,7 +4,7 @@
 ║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday Sep 17 2015                                   ║
-║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,10 +32,10 @@
 #include <map>
 #include <mutex>
 #include <sptk5/Exception.h>
-#include <sptk5/threads/Thread.h>
 #include <sptk5/net/BaseSocket.h>
 #include <sptk5/net/SocketPool.h>
-#include <src/sputil/threads/Flag.h>
+#include <sptk5/threads/Thread.h>
+#include <sptk5/threads/Flag.h>
 #include "sptk5/SystemException.h"
 
 namespace sptk {
@@ -109,6 +109,8 @@ public:
 	void stop();
 	void terminate() override;
 };
+
+typedef std::shared_ptr<SocketEvents> SharedSocketEvents;
 
 }
 
