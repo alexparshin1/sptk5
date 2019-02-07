@@ -4,7 +4,7 @@
 ║                       WSParser.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -349,7 +349,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "            logger.error(String(\"WS request error: \") + e.what());" << endl;
     serviceImplementation << "        }" << endl;
     serviceImplementation << "    }" << endl;
-    serviceImplementation << "}" << endl << endl;
+    serviceImplementation << "}" << endl;
 
     for (auto itor: m_operations) {
         String operationName = itor.first;
@@ -360,6 +360,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
         else
             requestName = nameParts[1];
         WSOperation& operation = itor.second;
+        serviceImplementation << endl;
         serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(xml::Element* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl;
         serviceImplementation << "{" << endl;
         serviceImplementation << "    String ns(requestNameSpace.getAlias());" << endl;
@@ -372,7 +373,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
         serviceImplementation << "    auto* response = new xml::Element(soapBody, (ns + \":" << operation.m_output->name() << "\").c_str());" << endl;
         serviceImplementation << "    response->setAttribute(\"xmlns:\" + ns, requestNameSpace.getLocation());" << endl;
         serviceImplementation << "    outputData.unload(response);" << endl;
-        serviceImplementation << "}" << endl << endl;
+        serviceImplementation << "}" << endl;
     }
 }
 
@@ -384,6 +385,11 @@ void WSParser::generate(std::string sourceDirectory, std::string headerFile)
     if (!headerFile.empty())
         externalHeader.loadFromFile(headerFile);
 
+    ofstream cmakeLists(sourceDirectory + "/CMakeLists.txt");
+    cmakeLists << "# The following list of files is generated automatically." << endl;
+    cmakeLists << "# Please don't edit it, or your changes may be overwritten." << endl << endl;
+    cmakeLists << "SET (" << capitalize(m_serviceName) << "WebServiceFiles" << endl;
+
     Strings usedClasses;
     for (auto itor: m_complexTypes) {
         WSParserComplexType* complexType = itor.second;
@@ -391,6 +397,7 @@ void WSParser::generate(std::string sourceDirectory, std::string headerFile)
         module.open();
         complexType->generate(module.header(), module.source(), externalHeader.c_str());
         usedClasses.push_back("C" + complexType->name());
+        cmakeLists << "  C" << complexType->name() << ".cpp C" << complexType->name() << ".h" << endl;
     }
 
     // Generate Service class definition
@@ -406,4 +413,7 @@ void WSParser::generate(std::string sourceDirectory, std::string headerFile)
 
     generateDefinition(usedClasses, serviceModule.header());
     generateImplementation(serviceModule.source());
+
+    cmakeLists << ")" << endl;
+    cmakeLists.close();
 }
