@@ -73,33 +73,32 @@ int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwf
     return (int) strlen(replyBuffer);
 }
 
-void SSLContext::loadKeys(const String& privateKeyFileName, const String& certificateFileName, const String& password,
-                          const String& caFileName, int verifyMode, int verifyDepth)
+void SSLContext::loadKeys(const SSLKeys& keys)
 {
     UniqueLock(*this);
 
-    m_password = password;
+    m_password = keys.password();
 
     // Load keys and certificates
-    if (SSL_CTX_use_certificate_chain_file(m_ctx, certificateFileName.c_str()) <= 0)
-        throwError("Can't use certificate file " + certificateFileName);
+    if (SSL_CTX_use_certificate_chain_file(m_ctx, keys.certificateFileName().c_str()) <= 0)
+        throwError("Can't use certificate file " + keys.certificateFileName());
 
     // Define password for auto-answer in callback function
     SSL_CTX_set_default_passwd_cb(m_ctx, passwordReplyCallback);
     SSL_CTX_set_default_passwd_cb_userdata(m_ctx, (void*) m_password.c_str());
-    if (SSL_CTX_use_PrivateKey_file(m_ctx, privateKeyFileName.c_str(), SSL_FILETYPE_PEM) <= 0)
-        throwError("Can't use private key file " + privateKeyFileName);
+    if (SSL_CTX_use_PrivateKey_file(m_ctx, keys.privateKeyFileName().c_str(), SSL_FILETYPE_PEM) <= 0)
+        throwError("Can't use private key file " + keys.privateKeyFileName());
 
     if (SSL_CTX_check_private_key(m_ctx) == 0)
-        throwError("Can't check private key file " + privateKeyFileName);
+        throwError("Can't check private key file " + keys.privateKeyFileName());
 
     // Load the CAs we trust
-    if (!caFileName.empty() && SSL_CTX_load_verify_locations(m_ctx, caFileName.c_str(), nullptr) <= 0)
-        throwError("Can't load or verify CA file " + caFileName);
+    if (!keys.caFileName().empty() && SSL_CTX_load_verify_locations(m_ctx, keys.caFileName().c_str(), nullptr) <= 0)
+        throwError("Can't load or verify CA file " + keys.caFileName());
 
     if (SSL_CTX_set_default_verify_paths(m_ctx) <= 0)
         throwError("Can't set default verify paths");
 
-    SSL_CTX_set_verify(m_ctx, verifyMode, nullptr);
-    SSL_CTX_set_verify_depth(m_ctx, verifyDepth);
+    SSL_CTX_set_verify(m_ctx, keys.verifyMode(), nullptr);
+    SSL_CTX_set_verify_depth(m_ctx, keys.verifyDepth());
 }

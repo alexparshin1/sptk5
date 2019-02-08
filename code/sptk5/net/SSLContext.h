@@ -34,6 +34,7 @@
 #include <openssl/ssl.h>
 #include <mutex>
 #include <sptk5/threads/Locks.h>
+#include <sptk5/net/SSLKeys.h>
 
 namespace sptk {
 
@@ -87,15 +88,14 @@ public:
      * A single file containing private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
      * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keyFileName           Private key file name
+     * @param keys           Private key file name
      * @param certificateFileName   Certificate file name
      * @param password              Key file password
      * @param caFileName            Optional CA (root certificate) file name
      * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
      * @param verifyDepth           Connection verify depth
      */
-    void loadKeys(const String& keyFileName, const String& certificateFileName, const String& password,
-                  const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
+    void loadKeys(const SSLKeys& keys);
 
     /**
      * Returns SSL context handle

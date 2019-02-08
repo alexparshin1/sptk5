@@ -133,15 +133,14 @@ public:
      * Load SSL private key and certificate(s).
      *
      * Should be called at least once to load PEM keys and certificates required for SSL authentication.
-     * @param keyFile           Private key file name
+     * @param keys           Private key file name
      * @param certificateFile   Certificate file name
      * @param password          Optional private key file password
      * @param caFile            Optional root certificate file name
      * @param verifyMode        SSL verify mode, minimal is SSL_VERIFY_NONE
      * @param verifyDepth       SSL verify depth, minimal is 0
      */
-    virtual void loadSslKeys(const String& keyFile, const String& certificateFile, const String& password,
-                             const String& caFile, int verifyMode, int verifyDepth) = 0;
+    virtual void loadSslKeys(const SSLKeys& keys) = 0;
 
     /**
      * Send message

@@ -63,7 +63,8 @@ void readAndReply(SSLSocket& socket)
 void processConnection(SOCKET clientSocketFD)
 {
     SSLSocket connection;
-    connection.loadKeys("key.pem", "cert.pem", "");
+    SSLKeys   keys("key.pem", "cert.pem", "");
+    connection.loadKeys(keys);
     try {
                 connection.attach(clientSocketFD);
                 readAndReply(connection);         /* service connection */

@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TCPMQClient.cpp - description                          ║
+║                       SSLKeys.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday December 23 2018                                ║
+║  begin                Friday Feb 8 2019                                      ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,81 +26,69 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/mq/TCPMQClient.h"
+#ifndef __SSL_KEYS_H__
+#define __SSL_KEYS_H__
 
-using namespace std;
-using namespace sptk;
-using namespace chrono;
+#include <sptk5/sptk.h>
+#include <sptk5/String.h>
+#include <openssl/ssl.h>
+#include <sptk5/threads/Locks.h>
 
-SharedSocketEvents TCPMQClient::smqSocketEvents;
+namespace sptk {
 
-SharedSocketEvents& TCPMQClient::initSocketEvents()
+class SSLKeys
 {
-    static mutex              amutex;
+    mutable SharedMutex m_mutex;
+    String              m_privateKeyFileName;
+    String              m_certificateFileName;
+    String              m_password;
+    String              m_caFileName;
+    int                 m_verifyMode {SSL_VERIFY_NONE};
+    int                 m_verifyDepth {0};
 
-    lock_guard<mutex> lock(amutex);
+public:
 
-    if (!smqSocketEvents)
-        smqSocketEvents = make_shared<SocketEvents>("MQ Client", smqSocketEventCallback);
+    /**
+     * Default constructor
+     */
+    SSLKeys() {}
 
-    return smqSocketEvents;
+    /**
+     * Constructor
+     *
+     * Private key and certificates must be encoded with PEM format.
+     * A single file containing private key and certificate can be used by supplying it for both,
+     * private key and certificate parameters.
+     * If private key is protected with password, then password can be supplied to auto-answer.
+     * @param keyFileName           Private key file name
+     * @param certificateFileName   Certificate file name
+     * @param password              Key file password
+     * @param caFileName            Optional CA (root certificate) file name
+     * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
+     * @param verifyDepth           Connection verify depth
+     */
+    SSLKeys(const String& privateKeyFileName, const String& certificateFileName, const String& password="",
+            const String& caFileName="", int verifyMode=SSL_VERIFY_NONE, int verifyDepth=0);
+    SSLKeys(const SSLKeys& other);
+
+    SSLKeys& operator = (const SSLKeys& other);
+
+    String ident() const;
+
+    String privateKeyFileName() const;
+
+    String certificateFileName() const;
+
+    String password() const;
+
+    String caFileName() const;
+
+    int verifyMode() const;
+
+    int verifyDepth() const;
+
+};
+
 }
 
-TCPMQClient::TCPMQClient(MQProtocolType protocolType, const String& clientId)
-: BaseMQClient(protocolType, clientId)
-{
-    UniqueLock(m_mutex);
-    initSocketEvents();
-}
-
-TCPMQClient::~TCPMQClient()
-{
-    destroyConnection();
-}
-
-void TCPMQClient::createConnection(const Host& server, bool encrypted, std::chrono::milliseconds timeout)
-{
-    UniqueLock(m_mutex);
-    if (m_socket && m_socket->active())
-        return;
-    if (encrypted) {
-        m_socket = make_shared<SSLSocket>();
-        //loadKeys(keyFile, certificateFile, password, caFile, verifyMode, verifyDepth);
-    } else {
-        m_socket = make_shared<TCPSocket>();
-    }
-    m_socket->open(server, TCPSocket::SOM_CONNECT, true, timeout);
-    smqSocketEvents->add(*m_socket, this);
-
-    m_protocol = MQProtocol::factory(protocolType(), *m_socket);
-}
-
-void TCPMQClient::destroyConnection()
-{
-    UniqueLock(m_mutex);
-    if (m_socket) {
-        smqSocketEvents->remove(*m_socket);
-        m_socket->close();
-        m_socket.reset();
-    }
-}
-
-void TCPMQClient::smqSocketEventCallback(void* userData, SocketEventType eventType)
-{
-    auto* client = (TCPMQClient*) userData;
-    client->socketEvent(eventType);
-}
-
-void TCPMQClient::loadSslKeys(const SSLKeys& keys)
-{
-    if (m_socket) {
-        SSLSocket* sslSocket = dynamic_cast<SSLSocket*>(m_socket.get());
-        if (sslSocket != nullptr)
-            sslSocket->loadKeys(keys);
-    }
-}
-
-MQProtocol& TCPMQClient::protocol()
-{
-    return *m_protocol;
-}
+#endif

@@ -92,9 +92,6 @@ bool WSConnection::readHttpHeaders(String& protocolName, String& request, String
 
 void WSConnection::run()
 {
-    RegularExpression parseProtocol("^(GET|POST) (\\S+)", "i");
-    RegularExpression parseHeader("^([^:]+): \"{0,1}(.*)\"{0,1}$", "i");
-
     Buffer data;
 
     // Read request data
@@ -159,8 +156,7 @@ void WSConnection::run()
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
                                  Logger& logger, const String& staticFilesDirectory, const String& htmlIndexPage,
                                  const String& wsRequestPage, bool encrypted)
-: WSConnection(server, connectionSocket, addr, service, logger, staticFilesDirectory, htmlIndexPage,
-               wsRequestPage)
+: WSConnection(server, connectionSocket, addr, service, logger, staticFilesDirectory, htmlIndexPage, wsRequestPage)
 {
     if (encrypted)
         setSocket(new SSLSocket);

@@ -37,7 +37,8 @@ int main(int, const char**)
 {
     try {
         SSLSocket client;
-        client.loadKeys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
+        SSLKeys   keys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
+        client.loadKeys(keys);
         Buffer buffer;
 
         for (unsigned i = 0; i < 10; i++) {

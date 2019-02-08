@@ -166,7 +166,7 @@ size_t Base64::decode(Buffer& bufDest, const Buffer& bufSource)
     return internal_decode(bufDest, source);
 }
 
-size_t Base64::decode(Buffer &bufDest, const string& strSource)
+size_t Base64::decode(Buffer &bufDest, const String& strSource)
 {
     return internal_decode(bufDest, strSource);
 }

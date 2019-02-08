@@ -69,8 +69,7 @@ public:
 
     MQProtocol& protocol();
 
-    void loadSslKeys(const String& keyFile, const String& certificateFile, const String& password, const String& caFile,
-                     int verifyMode, int verifyDepth) override;
+    void loadSslKeys(const SSLKeys& keys) override;
 
     /**
      * Check if client is connected to server

@@ -93,7 +93,7 @@ public:
      * @param strSource const std::string &, source string that holds base64 decoded data
      * @returns length of the returned string
      */
-    static size_t decode(Buffer &bufDest, const std::string &strSource);
+    static size_t decode(Buffer &bufDest, const String &strSource);
 };
 /**
  * @}

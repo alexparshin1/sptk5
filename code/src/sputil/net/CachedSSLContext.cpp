@@ -28,6 +28,7 @@
 
 #include <sptk5/Buffer.h>
 #include "sptk5/net/CachedSSLContext.h"
+#include "sptk5/net/SSLKeys.h"
 
 using namespace std;
 using namespace sptk;
@@ -35,11 +36,9 @@ using namespace sptk;
 SharedMutex                             CachedSSLContext::m_mutex;
 CachedSSLContext::CachedSSLContextMap   CachedSSLContext::m_contexts;
 
-sptk::SSLContext* CachedSSLContext::get(const sptk::String& keyFileName, const sptk::String& certificateFileName,
-                                        const sptk::String& password, const sptk::String& caFileName,
-                                        int verifyMode, int verifyDepth)
+SSLContext* CachedSSLContext::get(const SSLKeys& keys)
 {
-    String ident = makeIdent(keyFileName, certificateFileName, password, caFileName, verifyMode, verifyDepth);
+    String ident = keys.ident();
 
     UniqueLock(m_mutex);
 
@@ -48,8 +47,8 @@ sptk::SSLContext* CachedSSLContext::get(const sptk::String& keyFileName, const s
         return &itor->second;
 
     SSLContext& newContext = m_contexts[ident];
-    if (!keyFileName.empty() || !certificateFileName.empty())
-        newContext.loadKeys(keyFileName, certificateFileName, password, caFileName, verifyMode, verifyDepth);
+    if (!keys.privateKeyFileName().empty() || !keys.certificateFileName().empty())
+        newContext.loadKeys(keys);
 
     return &newContext;
 }

@@ -35,6 +35,7 @@
 #include <iostream>
 #include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/threads/ThreadPool.h>
+#include <sptk5/net/SSLKeys.h>
 
 namespace sptk
 {
@@ -70,6 +71,11 @@ class TCPServer : public ThreadPool
      * Optional logger
      */
     std::shared_ptr<Logger>                 m_logger;
+
+    /**
+     * Optional SSL keys
+     */
+    std::shared_ptr<SSLKeys>                 m_sslKeys;
 
 protected:
     /**
@@ -139,6 +145,18 @@ public:
         if (m_logger)
             m_logger->log(priority, message);
     }
+
+    /**
+     * Set SSL keys for SSL connections (encrypted mode only)
+     * @param sslKeys            SSL keys info
+     */
+    void setSSLKeys(std::shared_ptr<SSLKeys> sslKeys);
+
+    /**
+     * Get SSL keys for SSL connections (encrypted mode only)
+     * @return SSL keys info
+     */
+    const SSLKeys& getSSLKeys() const;
 };
 
 /**

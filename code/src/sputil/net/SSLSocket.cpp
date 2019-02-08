@@ -130,18 +130,11 @@ SSLSocket::~SSLSocket()
         SSL_free(m_ssl);
 }
 
-void SSLSocket::loadKeys(const String& keyFileName, const String& certificateFileName, const String& password,
-                         const String& caFileName, int verifyMode, int verifyDepth)
+void SSLSocket::loadKeys(const SSLKeys& keys)
 {
     if (socketFD() > 0)
-        throw Exception("Socket already opened");
-
-    m_keyFileName = keyFileName;
-    m_certificateFileName = certificateFileName;
-    m_password = password;
-    m_caFileName = caFileName;
-    m_verifyMode = verifyMode;
-    m_verifyDepth = verifyDepth;
+        throw Exception("Can't set keys on opened socket");
+    m_keys = keys;
 }
 
 void SSLSocket::setSNIHostName(const String& sniHostName)
@@ -151,7 +144,7 @@ void SSLSocket::setSNIHostName(const String& sniHostName)
 
 void SSLSocket::initContextAndSocket()
 {
-    m_sslContext = CachedSSLContext::get(m_keyFileName, m_certificateFileName, m_password, m_caFileName, m_verifyMode, m_verifyDepth);
+    m_sslContext = CachedSSLContext::get(m_keys);
 
     if (m_ssl != nullptr)
         SSL_free(m_ssl);

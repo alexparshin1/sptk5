@@ -50,11 +50,11 @@ const sptk::json::Element& sptk::HttpAuthentication::getData()
             m_userData = new json::Document;
             m_type = EMPTY;
         }
-        else if (m_authenticationHeader.startsWith("Basic ")) {
+        else if (m_authenticationHeader.toLowerCase().startsWith("basic ")) {
             Buffer encoded(m_authenticationHeader.substr(6));
-            string decoded;
-            Base64::decode(encoded, decoded);
-            Strings usernameAndPassword(decoded,":");
+            Buffer decoded;
+            Base64::decode(decoded, encoded);
+            Strings usernameAndPassword(decoded.c_str(),":");
             if (usernameAndPassword.size() != 2)
                 throw Exception("Invalid or unsupported 'Authentication' header format");
             auto* xuserData = new json::Document;
@@ -63,7 +63,7 @@ const sptk::json::Element& sptk::HttpAuthentication::getData()
             m_userData = xuserData;
             m_type = BASIC;
         }
-        else if (m_authenticationHeader.startsWith("Bearer ")) {
+        else if (m_authenticationHeader.toLowerCase().startsWith("bearer ")) {
             auto* xjwtData = new JWT;
             try {
                 xjwtData->decode(m_authenticationHeader.substr(7).c_str());

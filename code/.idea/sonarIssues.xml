@@ -43,7 +43,42 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/LogCollectorService.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/LogCollectorService.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/Service/CLogCollectorServiceBase.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/Service/CLogCollectorServiceBase.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/Service/CMakeLists.txt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/log_collector.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/mqtt/MQTTClient.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/mq-clients/stomp/StompClient.cpp">
           <value>
             <set />
           </value>
@@ -94,6 +129,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/ControlService.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/ControlServiceListener.cpp">
           <value>
             <set />
           </value>
@@ -598,6 +638,21 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/examples/net/ssl_client_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/examples/net/ssl_server_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/Base64.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/Buffer.h">
           <value>
             <set />
@@ -748,12 +803,27 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/net/HttpAuthentication.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/net/SSLSocket.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/net/SocketEvents.h">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/net/SocketPool.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/net/TCPServer.h">
           <value>
             <set />
           </value>
@@ -814,6 +884,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/CMakeLists.txt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/Base64.cpp">
           <value>
             <set />
           </value>
@@ -948,12 +1023,47 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/CachedSSLContext.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/Host.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/HttpAuthentication.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/net/HttpConnect.cpp">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/net/MailMessageBody.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/SSLContext.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/SSLKeys.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/SSLKeys.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/SSLSocket.cpp">
           <value>
             <set />
           </value>
@@ -969,6 +1079,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/net/SocketPool.LinuxAndWindows.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/TCPServer.cpp">
           <value>
             <set />
           </value>
@@ -994,6 +1109,16 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/test/TestRunner.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/WSConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/WSListener.cpp">
           <value>
             <set />
           </value>
@@ -1063,7 +1188,17 @@
             <set />
           </value>
         </entry>
+        <entry key="/usr/local/include/sptk5/net/CachedSSLContext.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="/usr/local/include/sptk5/net/SocketEvents.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/net/TCPServer.h">
           <value>
             <set />
           </value>

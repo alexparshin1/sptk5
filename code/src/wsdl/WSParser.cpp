@@ -232,10 +232,12 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition << "#include \"" << usedClass << ".h\"" << endl;
     serviceDefinition << endl;
 
-    serviceDefinition << "/// @brief Base class for service method." << endl;
-    serviceDefinition << "///" << endl;
-    serviceDefinition << "/// Web Service application derives its service class from this class" << endl;
-    serviceDefinition << "/// by overriding abstract methods" << endl;
+    serviceDefinition << "/**" << endl;
+    serviceDefinition << " * Base class for service method." << endl;
+    serviceDefinition << " *" << endl;
+    serviceDefinition << " * Web Service application derives its service class from this class" << endl;
+    serviceDefinition << " * by overriding abstract methods" << endl;
+    serviceDefinition << " */" << endl;
     serviceDefinition << "class " << serviceClassName << " : public sptk::WSRequest" << endl;
     serviceDefinition << "{" << endl;
     serviceDefinition << "    sptk::LogEngine*  m_logEngine;    ///< Optional logger, or nullptr" << endl;
@@ -260,11 +262,16 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "     */" << endl;
     serviceDefinition << "    void requestBroker(sptk::xml::Element* requestNode, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace) override;" << endl << endl;
     serviceDefinition << "public:" << endl;
-    serviceDefinition << "    /// @brief Constructor" << endl;
+    serviceDefinition << "    /**" << endl;
+    serviceDefinition << "     * Constructor" << endl;
+    serviceDefinition << "     * @param logEngine        Optional log engine for error messages" << endl;
+    serviceDefinition << "     */" << endl;
     serviceDefinition << "    explicit " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr)" << endl;
     serviceDefinition << "     : m_logEngine(logEngine)" << endl;
     serviceDefinition << "     {}" << endl << endl;
-    serviceDefinition << "    /// @brief Destructor" << endl;
+    serviceDefinition << "    /**" << endl;
+    serviceDefinition << "     * Destructor" << endl;
+    serviceDefinition << "     */" << endl;
     serviceDefinition << "    ~" << serviceClassName << "() override = default;" << endl << endl;
     serviceDefinition << "    // Abstract methods below correspond to WSDL-defined operations. " << endl;
     serviceDefinition << "    // Application must overwrite these methods with processing of corresponding" << endl;
@@ -272,17 +279,19 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     for (auto itor: m_operations) {
         WSOperation& operation = itor.second;
         serviceDefinition << endl;
-        serviceDefinition << "    /// @brief Web Service " << itor.first << " operation" << endl;
-        serviceDefinition << "    ///" << endl;
+        serviceDefinition << "    /**" << endl;
+        serviceDefinition << "     * Web Service " << itor.first << " operation" << endl;
+        serviceDefinition << "     *" << endl;
         string documentation = m_documentation[operation.m_input->name()];
         if (!documentation.empty()) {
             Strings documentationRows(documentation, "\n");
             for (unsigned i = 0; i < documentationRows.size(); i++)
-                serviceDefinition << "    /// " << trim(documentationRows[i]) << endl;
+                serviceDefinition << "     * " << trim(documentationRows[i]) << endl;
         }
-        serviceDefinition << "    /// This method is abstract and must be overwritten by derived Web Service implementation class." << endl;
-        serviceDefinition << "    /// @param input            Operation input data" << endl;
-        serviceDefinition << "    /// @param output           Operation response data" << endl;
+        serviceDefinition << "     * This method is abstract and must be overwritten by derived Web Service implementation class." << endl;
+        serviceDefinition << "     * @param input            Operation input data" << endl;
+        serviceDefinition << "     * @param output           Operation response data" << endl;
+        serviceDefinition << "     */" << endl;
         serviceDefinition
             << "    virtual void " << itor.first
             << "(const " << operation.m_input->className() << "& input, "
@@ -377,18 +386,19 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     }
 }
 
-/// @brief Stores parsed classes to files in source directory
-/// @param sourceDirectory std::string, Directory to store output classes
 void WSParser::generate(std::string sourceDirectory, std::string headerFile)
 {
     Buffer externalHeader;
     if (!headerFile.empty())
         externalHeader.loadFromFile(headerFile);
 
+    string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
+
     ofstream cmakeLists(sourceDirectory + "/CMakeLists.txt");
     cmakeLists << "# The following list of files is generated automatically." << endl;
     cmakeLists << "# Please don't edit it, or your changes may be overwritten." << endl << endl;
-    cmakeLists << "SET (" << capitalize(m_serviceName) << "WebServiceFiles" << endl;
+    cmakeLists << "ADD_LIBRARY (" << capitalize(m_serviceName) << "WebService STATIC" << endl;
+    cmakeLists << "  " << serviceClassName << ".cpp " << serviceClassName << ".h" << endl;
 
     Strings usedClasses;
     for (auto itor: m_complexTypes) {
@@ -401,8 +411,6 @@ void WSParser::generate(std::string sourceDirectory, std::string headerFile)
     }
 
     // Generate Service class definition
-    string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
-
     SourceModule serviceModule(serviceClassName, sourceDirectory);
     serviceModule.open();
 

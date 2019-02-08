@@ -46,6 +46,5 @@ WSListener::WSListener(WSRequest& service, LogEngine& logger, const String& stat
 ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
     return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_staticFilesDirectory,
-                               m_indexPage,
-                               m_wsRequestPage, m_encrypted);
+                               m_indexPage, m_wsRequestPage, m_encrypted);
 }

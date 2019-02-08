@@ -90,6 +90,18 @@ void TCPServer::stop()
     }
 }
 
+void TCPServer::setSSLKeys(shared_ptr<SSLKeys> sslKeys)
+{
+    UniqueLock(m_mutex);
+    m_sslKeys = sslKeys;
+}
+
+const SSLKeys& TCPServer::getSSLKeys() const
+{
+    SharedLock(m_mutex);
+    return *m_sslKeys;
+}
+
 #if USE_GTEST
 
 /**
