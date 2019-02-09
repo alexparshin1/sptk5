@@ -219,6 +219,7 @@ void WSWebServiceProtocol::process()
     Buffer output;
     size_t httpStatusCode = 200;
     String httpStatusText = "OK";
+    bool   returnWSDL = false;
 
     xml::Document message;
     json::Document jsonContent;
@@ -243,11 +244,17 @@ void WSWebServiceProtocol::process()
         }
     } else {
         // Empty request content
-        Strings url(m_url, "/");
-        RESTtoSOAP(url, "", message);
+
+        if (m_url.endsWith("?wsdl")) {
+            returnWSDL = true;
+            output.set(m_service.wsdl());
+        } else {
+            Strings url(m_url, "/");
+            RESTtoSOAP(url, "", message);
+        }
     }
 
-    if (httpStatusCode < 400)
+    if (!returnWSDL && httpStatusCode < 400)
         processMessage(output, message, authentication, requestIsJSON, httpStatusCode, httpStatusText, contentType);
 
     stringstream response;

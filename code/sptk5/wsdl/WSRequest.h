@@ -154,7 +154,7 @@ public:
      *
      * Application should overwrite this method to return mor appropriate text
      */
-    virtual std::string title() const
+    virtual String title() const
     {
         return "Generic SPTK WS Request Broker";
     }
@@ -164,9 +164,14 @@ public:
      *
      * Application should overwrite this method to return mor appropriate text
      */
-    virtual std::string defaultPage() const
+    virtual String defaultPage() const
     {
         return "index.html";
+    }
+
+    virtual String wsdl() const
+    {
+        return String("Not defined");
     }
 };
 

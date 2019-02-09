@@ -167,7 +167,7 @@ void WSParser::parseSchema(xml::Element* schemaElement)
     }
 }
 
-void WSParser::parse(std::string wsdlFile)
+void WSParser::parse(String wsdlFile)
 {
     xml::Document wsdlXML;
     Buffer buffer;
@@ -225,6 +225,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "#ifndef " << defineName << endl;
     serviceDefinition << "#define " << defineName << endl << endl;
 
+    serviceDefinition << "#include \"" << "C" + capitalize(m_serviceName) + "WSDL.h\"" << endl;
     serviceDefinition << "#include <sptk5/wsdl/WSRequest.h>" << endl;
     serviceDefinition << "#include <sptk5/net/HttpAuthentication.h>" << endl << endl;
     serviceDefinition << "// This Web Service types" << endl;
@@ -297,6 +298,14 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
             << "(const " << operation.m_input->className() << "& input, "
             << operation.m_output->className() << "& output, sptk::HttpAuthentication* authentication) = 0;" << endl;
     }
+    serviceDefinition << endl;
+    serviceDefinition << "    /**" << endl;
+    serviceDefinition << "     * @return original WSDL file content" << endl;
+    serviceDefinition << "     */" << endl;
+    serviceDefinition << "    sptk::String wsdl() const override" << endl;
+    serviceDefinition << "    {" << endl;
+    serviceDefinition << "        return sptk::String(" << m_serviceName << "_wsdl);" << endl;
+    serviceDefinition << "    }" << endl;
     serviceDefinition << "};" << endl << endl;
     serviceDefinition << "#endif" << endl;
 }
@@ -400,6 +409,9 @@ void WSParser::generate(std::string sourceDirectory, std::string headerFile)
     cmakeLists << "ADD_LIBRARY (" << capitalize(m_serviceName) << "WebService STATIC" << endl;
     cmakeLists << "  " << serviceClassName << ".cpp " << serviceClassName << ".h" << endl;
 
+    String wsdlFileName = "C" + capitalize(m_serviceName) + "WSDL";
+    cmakeLists << "  " << wsdlFileName << ".cpp " << wsdlFileName << ".h" << endl;
+
     Strings usedClasses;
     for (auto itor: m_complexTypes) {
         WSParserComplexType* complexType = itor.second;
@@ -425,3 +437,30 @@ void WSParser::generate(std::string sourceDirectory, std::string headerFile)
     cmakeLists << ")" << endl;
     cmakeLists.close();
 }
+
+void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& _wsdlFileName)
+{
+    Buffer wsdl;
+    wsdl.loadFromFile(_wsdlFileName);
+
+    Buffer externalHeader;
+    if (!headerFile.empty())
+        externalHeader.loadFromFile(headerFile);
+
+    String baseFileName = "C" + capitalize(m_serviceName) + "WSDL";
+    String wsdlFileName = sourceDirectory + "/" + baseFileName;
+
+    ofstream wsdlHeader(wsdlFileName + ".h");
+    wsdlHeader << externalHeader.c_str() << endl;
+    wsdlHeader << "#ifndef __" << m_serviceName.toUpperCase() << "_WSDL__" << endl;
+    wsdlHeader << "#define __" << m_serviceName.toUpperCase() << "_WSDL__" << endl;
+    wsdlHeader << endl << "extern const char* " << m_serviceName << "_wsdl;" << endl << endl;
+    wsdlHeader << "#endif" << endl;
+
+    ofstream wsdlCxx(wsdlFileName + ".cpp");
+    wsdlCxx << externalHeader.c_str() << endl;
+    wsdlCxx << "#include \"" << baseFileName << ".h\"" << endl << endl;
+    wsdlCxx << "const char* " << m_serviceName << "_wsdl = " << endl;
+    wsdlCxx << "R\"(" << wsdl.c_str() << ")\";" << endl;
+}
+

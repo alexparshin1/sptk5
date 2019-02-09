@@ -36,7 +36,11 @@ void help()
     COUT("WSDL to C++ prototype parser. (C) 2012-2019 Alexey Parshin" << endl << endl);
     COUT("Generates Web Service C++ class that is used as a base class for actual Web Service implementation." << endl);
     COUT("Usage:" << endl << endl);
-    COUT("  wsdl2cxx <WSDL file> [output directory] [header file]" << endl);
+    COUT("  wsdl2cxx <WSDL file> [output directory [header file]]" << endl << endl);
+    COUT("Parameters:" << endl);
+    COUT("WSDL file         WSDL file that defines Web Service" << endl);
+    COUT("output directory  Directory where generated files will be stored" << endl);
+    COUT("header file       File that contains text too be added at the start of gerated files" << endl);
 }
 
 int main(int argc, const char* argv[])
@@ -66,6 +70,7 @@ int main(int argc, const char* argv[])
 
         wsParser.parse(argv[1]);
         wsParser.generate(outputDirectory, headerFile);
+        wsParser.generateWsdlCxx(outputDirectory, headerFile, argv[1]);
 
         return 0;
     }
