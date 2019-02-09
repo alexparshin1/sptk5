@@ -158,9 +158,12 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, soc
                                  const String& wsRequestPage, bool encrypted)
 : WSConnection(server, connectionSocket, addr, service, logger, staticFilesDirectory, htmlIndexPage, wsRequestPage)
 {
-    if (encrypted)
-        setSocket(new SSLSocket);
-    else
+    if (encrypted) {
+        auto& sslKeys = server.getSSLKeys();
+        auto* socket = new SSLSocket;
+        socket->loadKeys(sslKeys);
+        setSocket(socket);
+    } else
         setSocket(new TCPSocket);
     socket().attach(connectionSocket);
 }

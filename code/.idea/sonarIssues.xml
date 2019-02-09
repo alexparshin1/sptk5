@@ -1138,6 +1138,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/protocol/WSWebServiceProtocol.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/protocol/WSWebServiceProtocol.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/utilities/load_balance/LoadBalance.cpp">
           <value>
             <set />
@@ -1149,6 +1159,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../untitled/main.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/log_collector (disassembly)">
           <value>
             <set />
           </value>
