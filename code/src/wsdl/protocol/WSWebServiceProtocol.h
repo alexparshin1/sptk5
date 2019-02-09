@@ -83,6 +83,8 @@ private:
 
     void generateFault(Buffer& output, size_t& httpStatusCode, String& httpStatusText, String& contentType,
                        const HTTPException& e, bool jsonOutput);
+
+    void RESTtoSOAP(Strings& url, const char* startOfMessage, xml::Document& message) const;
 };
 
 /// @}

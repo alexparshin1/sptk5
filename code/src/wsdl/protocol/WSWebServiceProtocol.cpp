@@ -129,6 +129,18 @@ void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message
     }
 }
 
+void WSWebServiceProtocol::RESTtoSOAP(Strings& url, const char* startOfMessage, xml::Document& message) const
+{
+    // Converting JSON request to XML request
+    json::Document jsonContent;
+    String method(*url.rbegin());
+    auto* xmlEnvelope = new xml::Element(message, "soap:Envelope");
+    xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
+    auto* xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
+    jsonContent.load(startOfMessage);
+    jsonContent.root().exportTo("ns1:" + method, *xmlBody);
+}
+
 void WSWebServiceProtocol::process()
 {
     String contentType = "text/xml; charset=utf-8";
@@ -137,10 +149,10 @@ void WSWebServiceProtocol::process()
         contentType = ctor->second;
     bool requestIsJSON = contentType.startsWith("application/json");
 
-    size_t contentLength = 0;
+    int contentLength = -1; // Undefined
     auto itor = m_headers.find("Content-Length");
     if (itor != m_headers.end())
-        contentLength = (size_t) string2int(itor->second);
+        contentLength = string2int(itor->second);
 
     shared_ptr<HttpAuthentication> authentication;
     itor = m_headers.find("authorization");
@@ -154,10 +166,14 @@ void WSWebServiceProtocol::process()
 
     Buffer data;
 
-    if (contentLength != 0) {
+    if (contentLength > 0) {
         m_socket.read(data, contentLength);
         startOfMessage = data.c_str();
         endOfMessage = startOfMessage + data.bytes();
+    }
+    else if (contentLength == 0) {
+        startOfMessage = data.c_str();
+        endOfMessage = startOfMessage;
     } else {
         size_t socketBytes = m_socket.socketBytes();
         if (socketBytes == 0) {
@@ -197,7 +213,7 @@ void WSWebServiceProtocol::process()
         endOfMessage += strlen(endOfMessageMark);
     }
 
-    while ((unsigned char)*startOfMessage < 33)
+    while (startOfMessage != endOfMessage && (unsigned char)*startOfMessage < 33)
         startOfMessage++;
 
     Buffer output;
@@ -207,30 +223,28 @@ void WSWebServiceProtocol::process()
     xml::Document message;
     json::Document jsonContent;
 
-    if (*startOfMessage == '<') {
-        if (endOfMessage != nullptr)
-            *(char*) endOfMessage = 0;
-        message.load(startOfMessage);
-        xml::Node* xmlRequest = findRequestNode(message, "API request");
-        auto*  jsonEnvelope = jsonContent.root().set_object(xmlRequest->name());
-        xmlRequest->exportTo(*jsonEnvelope);
-    }
-    else if (*startOfMessage == '{' || *startOfMessage == '[') {
+    if (startOfMessage != endOfMessage) {
+        if (*startOfMessage == '<') {
+            if (endOfMessage != nullptr)
+                *(char*) endOfMessage = 0;
+            message.load(startOfMessage);
+            xml::Node* xmlRequest = findRequestNode(message, "API request");
+            auto* jsonEnvelope = jsonContent.root().set_object(xmlRequest->name());
+            xmlRequest->exportTo(*jsonEnvelope);
+        } else if (*startOfMessage == '{' || *startOfMessage == '[') {
+            Strings url(m_url, "/");
+            if (url.size() < 2)
+                throw Exception("Invalid url");
+            RESTtoSOAP(url, startOfMessage, message);
+        } else {
+            generateFault(output, httpStatusCode, httpStatusText, contentType,
+                          HTTPException(400, "Expect JSON content"),
+                          requestIsJSON);
+        }
+    } else {
+        // Empty request content
         Strings url(m_url, "/");
-        if (url.size() < 2)
-            throw Exception("Invalid url");
-
-        // Converting JSON request to XML request
-        String method(*url.rbegin());
-        auto*  xmlEnvelope = new xml::Element(message, "soap:Envelope");
-        xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
-        auto*  xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
-        jsonContent.load(startOfMessage);
-        jsonContent.root().exportTo("ns1:" + method, *xmlBody);
-    }
-    else {
-        generateFault(output, httpStatusCode, httpStatusText, contentType, HTTPException(400, "Expect JSON content"),
-                      requestIsJSON);
+        RESTtoSOAP(url, "", message);
     }
 
     if (httpStatusCode < 400)
