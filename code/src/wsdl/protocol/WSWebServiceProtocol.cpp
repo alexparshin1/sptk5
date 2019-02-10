@@ -244,11 +244,12 @@ void WSWebServiceProtocol::process()
         }
     } else {
         // Empty request content
-
         if (m_url.endsWith("?wsdl")) {
+            // Requested WSDL content
             returnWSDL = true;
             output.set(m_service.wsdl());
         } else {
+            // Regular request w/o content
             Strings url(m_url, "/");
             RESTtoSOAP(url, "", message);
         }

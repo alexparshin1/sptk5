@@ -848,6 +848,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/wsdl/WSParser.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/wsdl/WSRequest.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/drivers/MySQL/MySQLConnection.cpp">
           <value>
             <set />
@@ -1219,6 +1229,11 @@
           </value>
         </entry>
         <entry key="/usr/local/include/sptk5/wsdl/WSBasicTypes.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/wsdl/WSRequest.h">
           <value>
             <set />
           </value>
