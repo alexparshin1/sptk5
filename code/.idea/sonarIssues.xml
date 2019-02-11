@@ -43,6 +43,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/LogCollectorConfiguration.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/LogCollectorConfiguration.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/LogCollectorService.cpp">
           <value>
             <set />
@@ -673,6 +683,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/String.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/Strings.h">
           <value>
             <set />
@@ -924,6 +939,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/Registry.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/String.cpp">
           <value>
             <set />
           </value>

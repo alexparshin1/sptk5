@@ -215,6 +215,11 @@ public:
     String toLowerCase() const;
 
     /**
+     * @brief Converts string to integer
+     */
+    int toInt() const;
+
+    /**
      * @brief Returns true if the string starts from subject
      * @param subject           Subject to look for
      */

@@ -63,6 +63,11 @@ private:
     const JWT*              m_jwtData = { nullptr };    ///< JWT token, if type is BEARER
     const json::Document*   m_userData = { nullptr };   ///< Decoded user data
 
+    /**
+     * Decode authentication data (username and password, or JWT)
+     */
+    void parse();
+
 public:
     /**
      * Constructor
@@ -84,7 +89,7 @@ public:
     /**
      * Get authentication data type
      */
-    Type type() const { return m_type; }
+    Type type();
 };
 
 } // namespace sptk

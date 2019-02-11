@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/Base64.h>
-#include "sptk5/net/HttpAuthentication.h"
+#include <sptk5/net/HttpAuthentication.h>
 
 using namespace std;
 using namespace sptk;
@@ -45,16 +45,30 @@ sptk::HttpAuthentication::~HttpAuthentication()
 
 const sptk::json::Element& sptk::HttpAuthentication::getData()
 {
+    parse();
+
+    switch (m_type) {
+        case EMPTY:
+        case BASIC:
+            return m_userData->root();
+        case BEARER:
+            return m_jwtData->grants.root();
+        default:
+            throw Exception("Invalid or unsupported 'Authentication' header format");
+    }
+}
+
+void HttpAuthentication::parse()
+{
     if (m_type == UNDEFINED) {
         if (m_authenticationHeader.empty()) {
             m_userData = new json::Document;
             m_type = EMPTY;
-        }
-        else if (m_authenticationHeader.toLowerCase().startsWith("basic ")) {
+        } else if (m_authenticationHeader.toLowerCase().startsWith("basic ")) {
             Buffer encoded(m_authenticationHeader.substr(6));
             Buffer decoded;
             Base64::decode(decoded, encoded);
-            Strings usernameAndPassword(decoded.c_str(),":");
+            Strings usernameAndPassword(decoded.c_str(), ":");
             if (usernameAndPassword.size() != 2)
                 throw Exception("Invalid or unsupported 'Authentication' header format");
             auto* xuserData = new json::Document;
@@ -62,8 +76,7 @@ const sptk::json::Element& sptk::HttpAuthentication::getData()
             xuserData->root()["password"] = usernameAndPassword[1];
             m_userData = xuserData;
             m_type = BASIC;
-        }
-        else if (m_authenticationHeader.toLowerCase().startsWith("bearer ")) {
+        } else if (m_authenticationHeader.toLowerCase().startsWith("bearer ")) {
             auto* xjwtData = new JWT;
             try {
                 xjwtData->decode(m_authenticationHeader.substr(7).c_str());
@@ -76,11 +89,10 @@ const sptk::json::Element& sptk::HttpAuthentication::getData()
             m_type = BEARER;
         }
     }
+}
 
-    switch (m_type) {
-        case EMPTY:
-        case BASIC:     return m_userData->root();
-        case BEARER:    return m_jwtData->grants.root();
-        default:        throw Exception("Invalid or unsupported 'Authentication' header format");
-    }
+HttpAuthentication::Type HttpAuthentication::type()
+{
+    parse();
+    return m_type;
 }

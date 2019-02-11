@@ -29,6 +29,8 @@
 #include <fstream>
 #include <sptk5/Strings.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/String.h>
+
 
 using namespace std;
 using namespace sptk;
@@ -79,6 +81,11 @@ String String::trim() const
         return String("");
     size_t endPos = find_last_not_of(" \n\r\t\b");
     return substr(startPos, endPos - startPos + 1);
+}
+
+int String::toInt() const
+{
+    return string2int(*this, 0);
 }
 
 #if USE_GTEST
