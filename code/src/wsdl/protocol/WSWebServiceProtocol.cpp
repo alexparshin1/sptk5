@@ -259,9 +259,9 @@ void WSWebServiceProtocol::process()
         processMessage(output, message, authentication, requestIsJSON, httpStatusCode, httpStatusText, contentType);
 
     stringstream response;
-    response << "HTTP/1.1 " << httpStatusCode << " " << httpStatusText << "\n"
-             << "Content-Type: " << contentType << "\n"
-             << "Content-Length: " << output.bytes() << "\n\n";
+    response << "HTTP/1.1 " << httpStatusCode << " " << httpStatusText << "\r\n"
+             << "Content-Type: " << contentType << "\r\n"
+             << "Content-Length: " << output.bytes() << "\r\n\r\n";
     m_socket.write(response.str());
     m_socket.write(output);
 }

@@ -42,7 +42,7 @@ HttpReader::HttpReader(Buffer& output)
   m_contentReceivedLength(0),
   m_currentChunkSize(0),
   m_contentIsChunked(false),
-  m_matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s+(\\S.*)?\r"),
+  m_matchProtocolAndResponseCode("^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"),
   m_output(output)
 {
     output.reset(128);
