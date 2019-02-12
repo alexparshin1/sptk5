@@ -183,6 +183,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/PublishServiceState.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request/Handlers/DBCommandHandler.cpp">
           <value>
             <set />
@@ -918,6 +923,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/core/Crypt.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/DirectoryDS.cpp">
           <value>
             <set />
@@ -1049,6 +1059,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/smq/SMQSubscriptions.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/BaseMailConnect.cpp">
           <value>
             <set />
           </value>

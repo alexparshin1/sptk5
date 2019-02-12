@@ -98,7 +98,7 @@ void Base64::encode(Buffer& bufDest, const Buffer& bufSource)
     encode(bufDest, bufSource.data(), bufSource.bytes());
 }
 
-void Base64::encode(string& strDest, const Buffer& bufSource)
+void Base64::encode(String& strDest, const Buffer& bufSource)
 {
     Buffer bufOut;
     encode(bufOut, bufSource);
@@ -185,7 +185,7 @@ TEST(SPTK_Base64, decode)
 
 TEST(SPTK_Base64, encode)
 {
-    string encoded;
+    String encoded;
     Base64::encode(encoded, Buffer(testPhrase));
     EXPECT_STREQ(testPhraseBase64, encoded.c_str());
 }

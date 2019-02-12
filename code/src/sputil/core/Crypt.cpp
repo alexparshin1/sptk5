@@ -127,7 +127,7 @@ static const char* encryptedB64 = "4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTS
 TEST(SPTK_Crypt, encrypt)
 {
     Buffer encrypted;
-    string encryptedStr;
+    String encryptedStr;
 
     Crypt::encrypt(encrypted, Buffer(testText), testKey, testIV);
     Base64::encode(encryptedStr, encrypted);

@@ -70,17 +70,17 @@ public:
     /**
      * @brief Data encoding.
      * Encodes data (base64) in given buffer bufSource and returns result in std::string.
-     * @param strDest std::string Destination string
-     * @param bufSource CBuffer& Source buffer
+     * @param strDest           Destination string
+     * @param bufSource         Source buffer
      */
-    static void encode(std::string& strDest, const Buffer& bufSource);
+    static void encode(String& strDest, const Buffer& bufSource);
 
     /**
      * @brief Data decoding.
      * Decodes base64 encoded buffer bufSource into buffer bufDest.
      * Throws CException in case of error
-     * @param bufDest CBuffer destination buffer
-     * @param bufSource CBuffer source buffer that holds base64 decoded data
+     * @param bufDest           Destination buffer
+     * @param bufSource         Source buffer that holds base64 decoded data
      * @returns length of returned buffer
      */
     static size_t decode(Buffer &bufDest, const Buffer &bufSource);
@@ -89,11 +89,11 @@ public:
      * @brief Data decoding.
      * Decodes base64 encoded string strSource into buffer bufDest.
      * Throws CException in case of error
-     * @param bufDest CBuffer, destination buffer
-     * @param strSource const std::string &, source string that holds base64 decoded data
+     * @param bufDest           Destination buffer
+     * @param strSource         Source string that holds base64 decoded data
      * @returns length of the returned string
      */
-    static size_t decode(Buffer &bufDest, const String &strSource);
+    static size_t decode(Buffer& bufDest, const String& strSource);
 };
 /**
  * @}

@@ -92,11 +92,11 @@ string ContentTypes::type(const string& fileName)
 void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, stringstream& message)
 {
     Buffer bufSource;
-    string strDest;
+    String strDest;
 
     bufSource.loadFromFile(fileName);
 
-    string ctype = contentTypes.type(trim(fileName));
+    String ctype = contentTypes.type(trim(fileName));
 
     message << "Content-Type: " << ctype << "; name=\"" << fileAlias << "\"" << endl;
     message << "Content-Transfer-Encoding: base64" << endl;
