@@ -302,10 +302,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "    /**" << endl;
     serviceDefinition << "     * @return original WSDL file content" << endl;
     serviceDefinition << "     */" << endl;
-    serviceDefinition << "    sptk::String wsdl() const override" << endl;
-    serviceDefinition << "    {" << endl;
-    serviceDefinition << "        return sptk::String(" << m_serviceName << "_wsdl);" << endl;
-    serviceDefinition << "    }" << endl;
+    serviceDefinition << "    sptk::String wsdl() const override;" << endl;
     serviceDefinition << "};" << endl << endl;
     serviceDefinition << "#endif" << endl;
 }
@@ -393,6 +390,14 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
         serviceImplementation << "    outputData.unload(response);" << endl;
         serviceImplementation << "}" << endl;
     }
+    serviceImplementation << endl;
+    serviceImplementation << "    String " << serviceClassName << "::wsdl() const" << endl;
+    serviceImplementation << "    {" << endl;
+    serviceImplementation << "        stringstream output;" << endl;
+    serviceImplementation << "        for (int i = 0; " << m_serviceName << "_wsdl[i] != nullptr; i++)" << endl;
+    serviceImplementation << "            output << " << m_serviceName << "_wsdl[i] << endl;" << endl;
+    serviceImplementation << "        return output.str();" << endl;
+    serviceImplementation << "    }" << endl;
 }
 
 void WSParser::generate(std::string sourceDirectory, std::string headerFile)
@@ -454,16 +459,17 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
     wsdlHeader << externalHeader.c_str() << endl;
     wsdlHeader << "#ifndef __" << m_serviceName.toUpperCase() << "_WSDL__" << endl;
     wsdlHeader << "#define __" << m_serviceName.toUpperCase() << "_WSDL__" << endl;
-    wsdlHeader << endl << "extern const char* " << m_serviceName << "_wsdl;" << endl << endl;
+    wsdlHeader << endl << "extern const char* " << m_serviceName << "_wsdl[];" << endl << endl;
     wsdlHeader << "#endif" << endl;
 
     ofstream wsdlCxx(wsdlFileName + ".cpp");
     wsdlCxx << externalHeader.c_str() << endl;
     wsdlCxx << "#include \"" << baseFileName << ".h\"" << endl << endl;
-    wsdlCxx << "const char* " << m_serviceName << "_wsdl = " << endl;
+    wsdlCxx << "const char* " << m_serviceName << "_wsdl[] = {" << endl;
 
     for (auto& row: wsdl)
-        wsdlCxx << "R\"(" << row << "\\n)\"" << endl;
-    wsdlCxx << ";" << endl;
+        wsdlCxx << "    R\"(" << row << ")\"," << endl;
+    wsdlCxx << "    nullptr" << endl;
+    wsdlCxx << "};" << endl;
 }
 
