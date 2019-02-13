@@ -75,7 +75,7 @@ public:
      * Check if client is connected to server
      * @return true if client is connected to server
      */
-    bool connected() const override { return m_socket->active(); }
+    bool connected() const override { return m_socket? m_socket->active(): false; }
 
 protected:
 
