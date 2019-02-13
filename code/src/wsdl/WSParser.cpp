@@ -440,7 +440,7 @@ void WSParser::generate(std::string sourceDirectory, std::string headerFile)
 
 void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& _wsdlFileName)
 {
-    Buffer wsdl;
+    Strings wsdl;
     wsdl.loadFromFile(_wsdlFileName);
 
     Buffer externalHeader;
@@ -461,6 +461,9 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
     wsdlCxx << externalHeader.c_str() << endl;
     wsdlCxx << "#include \"" << baseFileName << ".h\"" << endl << endl;
     wsdlCxx << "const char* " << m_serviceName << "_wsdl = " << endl;
-    wsdlCxx << "R\"(" << wsdl.c_str() << ")\";" << endl;
+
+    for (auto& row: wsdl)
+        wsdlCxx << "R\"(" << row << "\\n)\"" << endl;
+    wsdlCxx << ";" << endl;
 }
 

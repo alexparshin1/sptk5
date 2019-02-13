@@ -38,6 +38,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/eureka-client/Instance.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/log-collector/CMakeLists.txt">
           <value>
             <set />
@@ -143,6 +148,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/ControlService.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/ControlServiceListener.cpp">
           <value>
             <set />
@@ -183,7 +193,17 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/OSService.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/PublishServiceState.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/PublishServiceState.h">
           <value>
             <set />
           </value>
@@ -229,6 +249,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Server.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/db.updates/16.Added_log_collector.all.sql">
           <value>
             <set />
           </value>
@@ -1088,6 +1113,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/HttpReader.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/net/MailMessageBody.cpp">
           <value>
             <set />
@@ -1204,6 +1234,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../untitled/main.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../untitled1/main.cpp">
           <value>
             <set />
           </value>
