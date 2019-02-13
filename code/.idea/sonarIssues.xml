@@ -668,6 +668,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/examples/net/imap_connect.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/examples/net/smq_test.cpp">
           <value>
             <set />
@@ -934,6 +939,16 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/spdb/PoolDatabaseConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CButtonGroup.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CFileDialog.cpp">
           <value>
             <set />
           </value>

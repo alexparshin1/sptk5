@@ -42,7 +42,7 @@ using namespace sptk;
 
 void printResponse(const Strings& response)
 {
-    COUT(response.asString("\n") << endl);
+    COUT(response.join("\n") << endl);
     COUT("---------------------------------" << endl);
 }
 

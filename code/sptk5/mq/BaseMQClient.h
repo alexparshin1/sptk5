@@ -180,7 +180,7 @@ public:
      * Get connection host
      * @return connection host name
      */
-    Host getHost() const;
+    const Host& getHost() const;
 
     /**
      * Return client connection status

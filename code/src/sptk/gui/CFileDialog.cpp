@@ -108,7 +108,7 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
                     }
                 }
 
-                fileDialog->m_fileNameInput->data(fileNames.asString("; "));
+                fileDialog->m_fileNameInput->data(fileNames.join("; "));
             }
 
             break;
@@ -370,5 +370,5 @@ String CFileDialog::fullFileName() const
         fileName = trim(fname.replace("[\\/\\\\]{2}", slashStr));
     }
 
-    return fileNames.asString(";");
+    return fileNames.join(";");
 }

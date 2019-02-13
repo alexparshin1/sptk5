@@ -203,5 +203,5 @@ void CButtonGroup::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 void CButtonGroup::save(xml::Node* node, CLayoutXMLmode xmlMode) const
 {
     CControl::save(node, xmlMode);
-    node->setAttribute("buttons", buttons().asString("|"));
+    node->setAttribute("buttons", buttons().join("|"));
 }
