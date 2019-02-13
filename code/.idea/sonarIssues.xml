@@ -703,6 +703,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/JWT.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/LogEngine.h">
           <value>
             <set />
@@ -1003,6 +1008,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/jwt/JWT-openssl.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/jwt/JWT.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sputil/mq/BaseMQClient.cpp">
           <value>
             <set />
@@ -1264,6 +1279,11 @@
           </value>
         </entry>
         <entry key="/usr/local/include/sptk5/Buffer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/JWT.h">
           <value>
             <set />
           </value>

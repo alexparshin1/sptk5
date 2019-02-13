@@ -74,7 +74,7 @@ static int ECDSA_SIG_set0(ECDSA_SIG *sig, BIGNUM *r, BIGNUM *s)
 
 namespace sptk {
 
-void JWT::sign_sha_hmac(char** out, unsigned int* len, const char* str)
+void JWT::sign_sha_hmac(Buffer& out, const char* str)
 {
     const EVP_MD* algorithm;
 
@@ -93,13 +93,13 @@ void JWT::sign_sha_hmac(char** out, unsigned int* len, const char* str)
             throw Exception("Invalid sign algorithm");
     }
 
-    *out = new char[EVP_MAX_MD_SIZE];
-    if (*out == nullptr)
-        throw Exception("Can't allocate memory");
+    out.checkSize(EVP_MAX_MD_SIZE);
 
+    unsigned len;
     HMAC(algorithm, key.c_str(), (int) key.length(),
-         (const unsigned char*) str, (int) strlen(str), (unsigned char*) *out,
-         len);
+         (const unsigned char*) str, (int) strlen(str), (unsigned char*) out.data(),
+         &len);
+    out.bytes(len);
 }
 
 void JWT::verify_sha_hmac(const char* head, const char* sig)
@@ -177,7 +177,7 @@ static void SIGN_ERROR(int __err)
         throw Exception("Can't allocate memory");
 }
 
-void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
+void JWT::sign_sha_pem(Buffer& out, const char* str)
 {
     EVP_MD_CTX* mdctx = nullptr;
     ECDSA_SIG* ec_sig = nullptr;
@@ -264,10 +264,7 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
         if (EVP_DigestSignFinal(mdctx, sig, &slen) != 1) SIGN_ERROR(EINVAL);
 
         if (pkey_type != EVP_PKEY_EC) {
-            *out = (char*) malloc(slen);
-            if (*out == nullptr) SIGN_ERROR(ENOMEM);
-            memcpy(*out, sig, slen);
-            *len = (unsigned) slen;
+            out.set((char*)sig, slen);
         } else {
             unsigned degree;
             unsigned bn_len;
@@ -307,10 +304,7 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
             BN_bn2bin(ec_sig_r, raw_buf + bn_len - r_len);
             BN_bn2bin(ec_sig_s, raw_buf + buf_len - s_len);
 
-            *out = (char*) malloc(buf_len);
-            if (*out == nullptr) SIGN_ERROR(ENOMEM);
-            memcpy(*out, raw_buf, buf_len);
-            *len = buf_len;
+            out.set((char*)raw_buf, buf_len);
         }
     }
     catch (const Exception& e) {

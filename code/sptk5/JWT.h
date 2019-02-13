@@ -129,11 +129,10 @@ public:
 
     /**
      * Sign token
-     * @param out               Output token data
-     * @param len               Output token length
+     * @param token             Output token data
      * @param str               Data to sign
      */
-    void sign(char** out, unsigned int* len, const char* str);
+    void sign(Buffer& token, const char* str);
 
     /**
      * Encode token to stream
@@ -218,10 +217,9 @@ public:
     /**
      * Sign using SHA algorithm to HMAC format
      * @param out               Output data
-     * @param len               Output data length
      * @param str               Input data
      */
-    void sign_sha_hmac(char** out, unsigned int* len, const char* str);
+    void sign_sha_hmac(Buffer& out, const char* str);
 
     /**
      * Verify using SHA algorithm in HMAC format
@@ -233,10 +231,9 @@ public:
     /**
      * Sign using SHA algorithm to PEM format
      * @param out               Output data
-     * @param len               Output data length
      * @param str               Input data
      */
-    void sign_sha_pem(char** out, unsigned int* len, const char* str);
+    void sign_sha_pem(Buffer& out, const char* str);
 
     /**
      * Verify using SHA algorithm in PEM format

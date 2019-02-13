@@ -218,14 +218,14 @@ void JWT::write_body(std::ostream& output, bool pretty) const
     grants.exportTo(output, pretty);
 }
 
-void JWT::sign(char** out, unsigned int* len, const char* str)
+void JWT::sign(Buffer& out, const char* str)
 {
     switch (alg) {
         /* HMAC */
         case JWT::JWT_ALG_HS256:
         case JWT::JWT_ALG_HS384:
         case JWT::JWT_ALG_HS512:
-            sign_sha_hmac(out, len, str);
+            sign_sha_hmac(out, str);
             break;
 
             /* RSA */
@@ -237,7 +237,7 @@ void JWT::sign(char** out, unsigned int* len, const char* str)
         case JWT::JWT_ALG_ES256:
         case JWT::JWT_ALG_ES384:
         case JWT::JWT_ALG_ES512:
-            sign_sha_pem(out, len, str);
+            sign_sha_pem(out, str);
             break;
 
             /* You wut, mate? */
@@ -279,11 +279,11 @@ void JWT::encode(ostream& out)
     }
 
     /* Now the signature. */
-    char* sig;
-    sign(&sig, &sig_len, output.data());
+    Buffer sig;
+    sign(sig, output.data());
 
     Buffer signature;
-    Base64::encode(signature, sig, sig_len);
+    Base64::encode(signature, sig);
     jwt_base64uri_encode(signature);
 
     out << output.c_str() << '.' << signature.c_str();
