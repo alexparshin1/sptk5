@@ -43,10 +43,10 @@ const String& BaseMQClient::getClientId() const
     return m_clientId;
 }
 
-Host BaseMQClient::getHost() const
+const Host& BaseMQClient::getHost() const
 {
     SharedLock(m_mutex);
-    return Host(m_host);
+    return m_host;
 }
 
 bool BaseMQClient::connected() const
