@@ -49,6 +49,8 @@ void sptk::throwSocketError(const String& operation, const char* file, int line)
 #ifdef _WIN32
     LPCTSTR lpMsgBuf = nullptr;
     const DWORD dw = GetLastError();
+    if (dw == 0)
+        return; // No error
     FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
         nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr );
@@ -371,17 +373,21 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
     WSAPOLLFD fdarray{};
     fdarray.fd = m_sockfd;
     fdarray.events = POLLRDNORM;
-    switch (WSAPoll(&fdarray, 1, timeoutMS)) {
+    int rc = WSAPoll(&fdarray, 1, timeoutMS);
+    switch (rc) {
     case 0:
         return false;
     case 1:
         if (fdarray.revents & POLLRDNORM)
             return true;
+        if (fdarray.revents & POLLHUP)
+            throw ConnectionException("Connection closed");
         break;
     default:
+        THROW_SOCKET_ERROR("WSAPoll error");
         break;
     }
-    THROW_SOCKET_ERROR("WSAPoll error");
+    return false;
 #else
     struct pollfd pfd = {};
 
@@ -409,11 +415,14 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
     case 1:
         if (fdarray.revents & POLLWRNORM)
             return true;
+        if (fdarray.revents & POLLHUP)
+            throw ConnectionException("Connection closed");
         break;
     default:
+        THROW_SOCKET_ERROR("WSAPoll error");
         break;
     }
-    THROW_SOCKET_ERROR("WSAPoll error");
+    return false;
 #else
     struct pollfd pfd = {};
     pfd.fd = m_sockfd;
