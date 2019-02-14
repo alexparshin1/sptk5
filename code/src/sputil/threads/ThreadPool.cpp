@@ -113,8 +113,10 @@ void ThreadPool::stop()
         sleep_for(chrono::milliseconds(100));
     while (!m_terminatedThreads.empty()) {
         WorkerThread* terminatedThread;
-        if (m_terminatedThreads.pop(terminatedThread, chrono::milliseconds(100)))
+        if (m_terminatedThreads.pop(terminatedThread, chrono::milliseconds(100))) {
             terminatedThread->join();
+            delete terminatedThread;
+        }
     }
     terminate();
     join();
