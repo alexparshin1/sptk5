@@ -370,8 +370,11 @@ TEST(SPTK_SMQServer, multiClients)
     for (auto& client: receivers) {
         for (size_t m = 0; m < messageCount; m++) {
             auto msg = client->getMessage(milliseconds(100));
-            EXPECT_STREQ((*msg)["subject"].c_str(), ("subject " + to_string(m)).c_str());
-            EXPECT_STREQ(msg->c_str(), ("data " + to_string(m)).c_str());
+            if (msg) {
+                EXPECT_STREQ((*msg)["subject"].c_str(), ("subject " + to_string(m)).c_str());
+                EXPECT_STREQ(msg->c_str(), ("data " + to_string(m)).c_str());
+            } else
+                FAIL() << "Received only " << m + 1 << "messages out of " << messageCount;
         }
     }
 

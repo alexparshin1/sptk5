@@ -64,7 +64,7 @@ bool HttpReader::readStatus(TCPSocket& socket)
     }
     m_statusCode = string2int(matches[1]);
     if (matches.size() > 2)
-        m_statusText = matches[2];
+        m_statusText = matches[2].trim();
 
     return true;
 }

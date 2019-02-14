@@ -141,6 +141,24 @@ void WSWebServiceProtocol::RESTtoSOAP(Strings& url, const char* startOfMessage, 
     jsonContent.root().exportTo("ns1:" + method, *xmlBody);
 }
 
+static void substituteHostname(Buffer& page, edulog::ControlService& service)
+{
+    xml::Document wsdl;
+    wsdl.load(page);
+    xml::Node* node = wsdl.findFirst("soap:address");
+    if (node == nullptr) {
+        throw Exception("Can't find <soap:address> in WSDL file");
+    }
+    String location = (String) node->getAttribute("location", "");
+    if (location.empty())
+        throw Exception("Can't find location attribute of <soap:address> in WSDL file");
+    stringstream listener;
+    listener << "http://" << service.getHostName() << ":" << int2string(service.getPort()) << "/";
+    location = location.replace("http://([^\\/]+)/", listener.str());
+    node->setAttribute("location", location);
+    wsdl.save(page, 2);
+}
+
 void WSWebServiceProtocol::process()
 {
     String contentType = "text/xml; charset=utf-8";

@@ -36,10 +36,13 @@ WSListener::WSListener(WSRequest& service, LogEngine& logger, const String& stat
                        const String& indexPage, const String& wsRequestPage, const String& hostname, bool encrypted,
                        size_t threadCount)
 : TCPServer(service.title(), threadCount, nullptr),
-  m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory),
+  m_service(service),
+  m_logger(logger),
+  m_staticFilesDirectory(staticFilesDirectory),
   m_indexPage(indexPage.empty() ? "index.html" : indexPage),
   m_wsRequestPage(wsRequestPage.empty() ? "request" : wsRequestPage),
-  m_encrypted(encrypted), m_hostname(hostname)
+  m_encrypted(encrypted),
+  m_hostname(hostname)
 {
 }
 
@@ -47,4 +50,10 @@ ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr
 {
     return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_staticFilesDirectory,
                                m_indexPage, m_wsRequestPage, m_encrypted);
+}
+
+String WSListener::hostname() const
+{
+    SharedLock(m_mutex);
+    return m_hostname;
 }

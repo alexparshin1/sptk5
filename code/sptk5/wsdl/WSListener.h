@@ -41,7 +41,7 @@ namespace sptk {
  */
 
 /**
- * @brief Web Service Listener
+ * Web Service Listener
  *
  * Simple server to accept Web Service requests.
  * Actual request processing is implemented in Web Service request processor,
@@ -51,45 +51,20 @@ namespace sptk {
  */
 class WSListener : public TCPServer
 {
-    /**
-     * Web Service request processor
-     */
-    WSRequest&      m_service;
-
-    /**
-     * Logger object
-     */
-    Logger          m_logger;
+    mutable SharedMutex m_mutex;                ///< Mutex that protects internal data
+    WSRequest&          m_service;              ///< Web Service request processor
+    Logger              m_logger;               ///< Logger object
 
 protected:
 
-    /**
-     * Web Service static files directory
-     */
-    const String    m_staticFilesDirectory;
+    const String        m_staticFilesDirectory; ///< Web Service static files directory
+    const String        m_indexPage;            ///< Default index page. If empty then it's index.html
+    const String        m_wsRequestPage;        ///< Page name that is used for WS requests
+    const bool          m_encrypted;            ///< Connection protocol is encrypted flag
+    const String        m_hostname;             ///< This service hostname
 
     /**
-     * Default index page. If empty then it's index.html.
-     */
-    const String    m_indexPage;
-
-    /**
-     * Page name that is used for WS requests
-     */
-    const String    m_wsRequestPage;
-
-    /**
-     * Connection protocol is encrypted flag
-     */
-    const bool      m_encrypted;
-
-    /**
-     * This service hostname
-     */
-    const String    m_hostname;
-
-    /**
-     * @brief Creates connection thread derived from CTCPServerConnection
+     * Creates connection thread derived from CTCPServerConnection
      *
      * Application should override this method to create concrete connection object.
      * Created connection object is maintained by CTCPServer.
@@ -100,7 +75,7 @@ protected:
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param service               Web Service request processor
      * @param logger                Logger
      * @param staticFilesDirectory  Web Service static files directory
@@ -113,7 +88,13 @@ public:
     WSListener(WSRequest& service, LogEngine& logger, const String& staticFilesDirectory,
                const String& indexPage, const String& wsRequestPage, const String& hostname, bool encrypted,
                size_t threadCount=16);
- };
+
+    /**
+     * Get host name of the listener
+     * @return host name of the listener
+     */
+    String hostname() const;
+};
 
 /**
  * @}

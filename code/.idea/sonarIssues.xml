@@ -158,6 +158,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/ControlServiceListener.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/DataProvider/RestDataProvider.h">
           <value>
             <set />
@@ -903,6 +908,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/wsdl/WSListener.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/wsdl/WSParser.h">
           <value>
             <set />
@@ -1334,6 +1344,11 @@
           </value>
         </entry>
         <entry key="/usr/local/include/sptk5/wsdl/WSBasicTypes.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/wsdl/WSListener.h">
           <value>
             <set />
           </value>
