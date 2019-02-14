@@ -114,6 +114,9 @@ void WSConnection::run()
         if (!readHttpHeaders(protocolName, request, requestType, url, headers))
             return;
 
+        if (url == m_wsRequestPage + "?wsdl")
+            protocolName = "wsdl";
+
         if (protocolName == "http") {
 
             String contentType = headers["Content-Type"];

@@ -169,6 +169,9 @@ void WSWebServiceProtocol::process()
     bool requestIsJSON = contentType.startsWith("application/json");
 
     int contentLength = -1; // Undefined
+    if (m_url.endsWith("?wsdl"))
+        contentLength = 0;
+
     auto itor = m_headers.find("Content-Length");
     if (itor != m_headers.end())
         contentLength = string2int(itor->second);

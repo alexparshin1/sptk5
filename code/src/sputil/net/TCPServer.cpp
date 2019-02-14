@@ -45,7 +45,9 @@ TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* 
     char hostname[128];
     int rc = gethostname(hostname, sizeof(hostname));
     if (rc != 0)
-        throw SystemException("Can't get hostname");
+        m_hostname = "localhost";
+    else
+        m_hostname = hostname;
 }
 
 TCPServer::~TCPServer()
