@@ -698,6 +698,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/examples/net/ws_server_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/Base64.h">
           <value>
             <set />
@@ -1219,6 +1224,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/threads/Thread.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/threads/ThreadPool.cpp">
           <value>
             <set />
           </value>

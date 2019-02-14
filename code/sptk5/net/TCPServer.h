@@ -57,25 +57,11 @@ class TCPServer : public ThreadPool
     friend class TCPServerListener;
     friend class ServerConnection;
 
-    /**
-     * Mutex protecting internal data
-     */
-    mutable SharedMutex                     m_mutex;
-
-    /**
-     * Server listener object
-     */
-    TCPServerListener*                      m_listenerThread;
-
-    /**
-     * Optional logger
-     */
-    std::shared_ptr<Logger>                 m_logger;
-
-    /**
-     * Optional SSL keys
-     */
-    std::shared_ptr<SSLKeys>                 m_sslKeys;
+    mutable SharedMutex                     m_mutex;            ///< Mutex protecting internal data
+    TCPServerListener*                      m_listenerThread;   ///< Server listener
+    std::shared_ptr<Logger>                 m_logger;           ///< Optional logger
+    std::shared_ptr<SSLKeys>                m_sslKeys;          ///< Optional SSL keys. Only used for SSL server.
+    String                                  m_hostname;         ///< This host name
 
 protected:
     /**
@@ -104,12 +90,14 @@ public:
      * @param threadLimit       Number of worker threads in thread pool
      * @param logEngine         Optional log engine
      */
-    explicit TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine=nullptr);
+    explicit TCPServer(const String& listenerName, size_t threadLimit=16, LogEngine* logEngine=nullptr);
 
     /**
      * Destructor
      */
     ~TCPServer() override;
+
+    String hostname() const;
 
     /**
      * Returns listener port number

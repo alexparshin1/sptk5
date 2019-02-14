@@ -31,8 +31,9 @@
 using namespace std;
 using namespace sptk;
 
-WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket* socket, const String& url, const HttpHeaders& headers, WSRequest& service)
-: WSProtocol(socket, headers), m_service(service), m_url(url)
+WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket* socket, const String& url, const HttpHeaders& headers,
+                                           WSRequest& service, const String& hostname, uint16_t port)
+: WSProtocol(socket, headers), m_service(service), m_url(url), m_hostname(hostname), m_port(port)
 {
 }
 
@@ -141,7 +142,7 @@ void WSWebServiceProtocol::RESTtoSOAP(Strings& url, const char* startOfMessage, 
     jsonContent.root().exportTo("ns1:" + method, *xmlBody);
 }
 
-static void substituteHostname(Buffer& page, edulog::ControlService& service)
+static void substituteHostname(Buffer& page, const String& hostname, uint16_t port)
 {
     xml::Document wsdl;
     wsdl.load(page);
@@ -153,7 +154,7 @@ static void substituteHostname(Buffer& page, edulog::ControlService& service)
     if (location.empty())
         throw Exception("Can't find location attribute of <soap:address> in WSDL file");
     stringstream listener;
-    listener << "http://" << service.getHostName() << ":" << int2string(service.getPort()) << "/";
+    listener << "http://" << hostname << ":" << to_string(port) << "/";
     location = location.replace("http://([^\\/]+)/", listener.str());
     node->setAttribute("location", location);
     wsdl.save(page, 2);
@@ -266,6 +267,7 @@ void WSWebServiceProtocol::process()
             // Requested WSDL content
             returnWSDL = true;
             output.set(m_service.wsdl());
+            substituteHostname(output, m_hostname, m_port);
         } else {
             // Regular request w/o content
             Strings url(m_url, "/");

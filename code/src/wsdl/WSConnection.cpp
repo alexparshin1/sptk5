@@ -144,7 +144,7 @@ void WSConnection::run()
             return;
         }
 
-        WSWebServiceProtocol protocol(&socket(), url, headers, m_service);
+        WSWebServiceProtocol protocol(&socket(), url, headers, m_service, server().hostname(), server().port());
         protocol.process();
     }
     catch (const Exception& e) {

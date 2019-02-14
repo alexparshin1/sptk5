@@ -52,7 +52,6 @@ int main()
 		SysLogEngine    log("ws_server_test");
 		Logger          logger(log);
         
-		// Create the socket
         char hostname[128];
         int rc = gethostname(hostname, sizeof(hostname));
         if (rc != 0)

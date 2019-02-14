@@ -41,11 +41,22 @@ TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* 
 {
     if (logEngine != nullptr)
         m_logger = make_shared<Logger>(*logEngine);
+
+    char hostname[128];
+    int rc = gethostname(hostname, sizeof(hostname));
+    if (rc != 0)
+        throw SystemException("Can't get hostname");
 }
 
 TCPServer::~TCPServer()
 {
     stop();
+}
+
+String TCPServer::hostname() const
+{
+    SharedLock(m_mutex);
+    return m_hostname;
 }
 
 uint16_t TCPServer::port() const
