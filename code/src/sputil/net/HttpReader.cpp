@@ -110,15 +110,7 @@ bool HttpReader::readHeaders(TCPSocket& socket)
 
 bool HttpReader::readData(TCPSocket& socket)
 {
-    if (!socket.readyToRead(chrono::seconds(10)))
-        throw TimeoutException("Connection timeout");
-    auto readBytes = (int) socket.socketBytes();
-    if (readBytes == 0) {
-        if (m_contentLength != 0)
-            throw Exception("Server closed connection");
-        return true; // SMQServer closed connection
-    }
-
+    int readBytes = 0;
     while (socket.readyToRead(chrono::seconds(10))) {
         size_t bytesToRead;
         if (m_contentLength > 0) {
@@ -129,13 +121,9 @@ bool HttpReader::readData(TCPSocket& socket)
             bytesToRead = socket.socketBytes();
 
         if (!m_contentIsChunked) {
-            if (readBytes > (int) bytesToRead) // 0 bytes case is a workaround for OpenSSL
-                readBytes = (int) bytesToRead;
-            if (!socket.readyToRead(chrono::seconds(30)))
-                throw TimeoutException("Read timeout");
-            readBytes = (int) socket.read(m_read_buffer, (size_t) readBytes);
+            readBytes = (int) socket.read(m_read_buffer, bytesToRead);
             if (readBytes == 0) // 0 bytes case is a workaround for OpenSSL
-                readBytes = (int) socket.read(m_read_buffer, (size_t) readBytes);
+                readBytes = (int) socket.read(m_read_buffer, bytesToRead);
             m_output.append(m_read_buffer);
             m_contentReceivedLength += readBytes;
             if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength) // No more data
