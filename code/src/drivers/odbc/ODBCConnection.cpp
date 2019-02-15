@@ -385,7 +385,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                                           SQL_LONGVARBINARY, (SQLULEN) len, scale, buff, SQLINTEGER(len), &cblen);
                     if (rc != 0) {
                         param->m_binding.reset(false);
-                        THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber);
+                        THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber << ", value: '" << param->asString() << "'");
                     }
                     continue;
 

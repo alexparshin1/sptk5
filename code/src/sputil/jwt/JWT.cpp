@@ -248,8 +248,6 @@ void JWT::sign(Buffer& out, const char* str)
 
 void JWT::encode(ostream& out)
 {
-    unsigned int sig_len;
-
     /* First the header. */
     stringstream header;
     write_head(header, false);
