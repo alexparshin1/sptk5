@@ -93,7 +93,7 @@ public:
      * Get host name of the listener
      * @return host name of the listener
      */
-    String hostname() const;
+    String hostname() const override;
 };
 
 /**

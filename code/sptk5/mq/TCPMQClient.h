@@ -41,7 +41,6 @@ class TCPMQClient : public BaseMQClient
     std::shared_ptr<MQProtocol>         m_protocol;         ///< MQ protocol
     static SharedSocketEvents           smqSocketEvents;    ///< Shared event manager
 
-private:
     /**
      * Callback function that receives socket events
      * @param userData          Socket event data, here - pointer to SMQ client object

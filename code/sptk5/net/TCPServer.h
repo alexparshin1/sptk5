@@ -97,7 +97,11 @@ public:
      */
     ~TCPServer() override;
 
-    String hostname() const;
+    /**
+     * Get current hostname of the server
+     * @return
+     */
+    virtual String hostname() const;
 
     /**
      * Returns listener port number

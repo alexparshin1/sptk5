@@ -898,6 +898,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/threads/ThreadPool.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/wsdl/SourceModule.h">
           <value>
             <set />
@@ -1134,6 +1139,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/net/BaseMailConnect.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/BaseSocket.cpp">
           <value>
             <set />
           </value>

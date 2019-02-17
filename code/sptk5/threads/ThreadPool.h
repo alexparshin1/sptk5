@@ -44,7 +44,7 @@ namespace sptk {
  */
 
 /**
- * @brief Controls creation and execution of the threads.
+ * Controls creation and execution of the threads.
  *
  * When a thread is requested from the thread pool, it ether
  * creates a new thread or returns one from the thread pool.
@@ -90,7 +90,7 @@ class SP_EXPORT ThreadPool : public ThreadEvent, public Thread, public std::mute
 
 
     /**
-     * @brief Creates a new thread and adds it to thread pool
+     * Creates a new thread and adds it to thread pool
      *
      * Create new worker thread
      */
@@ -99,7 +99,7 @@ class SP_EXPORT ThreadPool : public ThreadEvent, public Thread, public std::mute
 protected:
 
     /**
-     * @brief Thread pool control thread function
+     * Thread pool control thread function
      *
      * Manages terminated threads
      */
@@ -108,7 +108,7 @@ protected:
 public:
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param threadLimit       Maximum number of threads in this pool
      * @param threadIdleSeconds Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
      * @param threadName        Thread pool own threadName
@@ -117,7 +117,7 @@ public:
     ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName);
 
     /**
-     * @brief Destructor
+     * Destructor
      *
      * All worker threads are sent terminate() message,
      * then thread pool waits while threads are destroyed
@@ -125,13 +125,13 @@ public:
     virtual ~ThreadPool();
 
     /**
-     * @brief Executes task
+     * Executes task
      * @param task              Task to execute
      */
     virtual void execute(Runable* task);
 
     /**
-     * @brief Thread event callback function
+     * Thread event callback function
      *
      * Receives events that occur in the threads
      * @param thread            Thread where event occured
@@ -141,14 +141,14 @@ public:
     void threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable) override;
 
     /**
-     * @brief Sends terminate() message to all worker threads, and sets shutdown state
+     * Sends terminate() message to all worker threads, and sets shutdown state
      *
      * After thread pool is stopped, it no longer accepts tasks for execution.
      */
-    void stop();
+    virtual void stop();
 
     /**
-     * @brief Number of active threads in the pool
+     * Number of active threads in the pool
      */
     size_t size() const;
 };

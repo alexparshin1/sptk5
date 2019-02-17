@@ -54,6 +54,8 @@ SSLKeys::SSLKeys(const SSLKeys& other)
 SSLKeys& SSLKeys::operator=(const SSLKeys& other)
 {
     CopyLock(m_mutex, other.m_mutex);
+    if (&other == this)
+        return *this;
     m_privateKeyFileName = other.m_privateKeyFileName;
     m_certificateFileName = other.m_certificateFileName;
     m_password = other.m_password;
