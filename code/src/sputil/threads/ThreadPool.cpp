@@ -41,7 +41,7 @@ ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdl
 
 ThreadPool::~ThreadPool()
 {
-    stop();
+    ThreadPool::stop();
 }
 
 void ThreadPool::threadFunction()

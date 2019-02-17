@@ -15,7 +15,7 @@ SET (SPUTIL_SOURCES
     mq/protocols/MQProtocol.cpp mq/protocols/MQTTFrame.cpp mq/protocols/MQTTProtocol.cpp mq/protocols/SMQProtocol.cpp
     mq/smq/SMQSubscription.cpp mq/smq/SMQSubscriptions.cpp
     #mq/mqtt/MQTTClient.cpp mq/mqtt/MQTTFrame.cpp
-    net/AsyncTcpSocket.cpp net/BaseMailConnect.cpp net/BaseSocket.cpp net/CachedSSLContext.cpp
+        net/BaseMailConnect.cpp net/BaseSocket.cpp net/CachedSSLContext.cpp
     net/Host.cpp net/HttpAuthentication.cpp net/HttpConnect.cpp net/HttpParams.cpp net/HttpAuthentication.cpp net/HttpReader.cpp
     net/ImapConnect.cpp net/MailMessageBody.cpp net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp net/SSLKeys.cpp
     net/SocketEvents.cpp net/TCPServer.cpp net/TCPServerListener.cpp net/TCPSocket.cpp net/ServerConnection.cpp

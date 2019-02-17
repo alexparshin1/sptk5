@@ -933,6 +933,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/xml/Document.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/drivers/MySQL/MySQLConnection.cpp">
           <value>
             <set />
@@ -1239,6 +1244,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/threads/ThreadPool.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/xml/Document.cpp">
           <value>
             <set />
           </value>
