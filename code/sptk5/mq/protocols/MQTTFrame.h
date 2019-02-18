@@ -95,20 +95,9 @@ enum MQTTConnectFlags : uint8_t
  */
 class MQTTFrame : public Buffer
 {
-    /**
-     * Message type
-     */
-    MQTTFrameType           m_type;
-
-    /**
-     * Message id
-     */
-    uint16_t                m_id;
-
-    /**
-     * QOS (Quality Of Service)
-     */
-    MQTTQOS                 m_qos;
+    MQTTFrameType           m_type;     ///< Frame type
+    uint16_t                m_id;       ///< Frame id
+    MQTTQOS                 m_qos;      ///< QOS (Quality Of Service)
 
     /**
      * Next packet id generator
@@ -118,92 +107,101 @@ class MQTTFrame : public Buffer
 
     /**
      * Append short (16 bit) as Big Endian to the frame buffer
-     * @param value     16-bit integer
+     * @param value             16-bit integer
      */
     void appendShortValue(uint16_t value);
 
     /**
      * Append string as 16 bit length (Big Endian) followed by the string characters
-     * @param data const char*, Character string
-     * @param dataLength uint16_t, Character string length
+     * @param data              Character string
+     * @param dataLength        Character string length
      */
     void appendVariableHeader(const char* data, uint16_t dataLength);
 
     /**
      * Append string as 16 bit length (Big Endian) followed by the string characters
-     * @param data const std::string&, Character string
+     * @param data              Character string
      */
-    void appendVariableHeader(const std::string& data);
+    void appendVariableHeader(const String& data);
 
     /**
      * Append 'remaining length' using the multi-byte presentation MQTT algorithm
-     * @param remainingLength unsigned, Remaining length
+     * @param remainingLength   Remaining length
      */
     void appendRemainingLength(unsigned remainingLength);
 
     /**
      * Receive 16-bit integer and swaps its bytes
-     * @param socket TCPSocket&, MQTT server connection
+     * @param socket            MQTT server connection
      * @returns 16 bit value
      */
     uint8_t readByte(TCPSocket& socket);
 
     /**
      * Receive 16-bit integer and swaps its bytes
-     * @param socket TCPSocket&, MQTT server connection
+     * @param socket            MQTT server connection
      * @returns 16 bit value
      */
     uint16_t readShortInteger(TCPSocket& socket);
 
     /**
      * Receive character string as 16 bit length (Big Endian) followed by the string characters
-     * @param socket Socket&, MQTT server connection
-     * @param header string, header (output)
+     * @param socket            MQTT server connection
+     * @param header            Header (output)
      */
     void readString(TCPSocket& socket, String& header);
 
     /**
      * Receive 'remaining length' using the multi-byte presentation MQTT algorithm
-     * @param connection Socket&, MQTT server connection
+     * @param connection        MQTT server connection
      */
     unsigned receiveRemainingLength(TCPSocket& connection);
 
     /**
      * Receive CONNECT MQTT frame (connection request)
-     * @param socket Socket&, MQTT server connection
+     * @param socket            MQTT server connection
      */
     void readConnectFrame(TCPSocket& socket, MQProtocol::Parameters& loginInfo);
 
     /**
      * Receive CONNACK MQTT frame
-     * @param connection Socket&, MQTT server connection
+     * @param connection        MQTT server connection
      */
     void readConnectACK(TCPSocket& connection);
 
     /**
      * Receive any MQTT frame, starting from variable header, placing the payload into this object
-     * @param connection Socket&, MQTT server connection
-     * @param remainingLength unsigned, Remaining length
+     * @param connection        MQTT server connection
+     * @param remainingLength   Remaining length
      */
     void readUnknownFrame(TCPSocket& connection, unsigned remainingLength);
 
     /**
-     * Receive PUBLISH MQTT frame, starting from variable header, placing the payload into this object
-     * @param connection TCPSocket&, MQTT server connection
-     * @param remainingLength unsigned, Remaining length
-     * @param qos QOS, Quality Of Service
-     * @param topicName std::string*, Related topic if applicable (output)
+     * Receive PUBLISH frame, starting from variable header, placing the payload into this object
+     * @param connection        MQTT server connection
+     * @param remainingLength   Remaining length
+     * @param qos               QOS - Quality Of Service
+     * @param topicName         Related topic if applicable (output)
      */
     void readPublishFrame(TCPSocket& connection, unsigned remainingLength, MQTTQOS qos, String& topicName);
+
+    /**
+     * Receive SUBSCRIBE frame
+     * @param connection        MQTT server connection
+     * @param remainingLength   Remaining length
+     * @param qos               QOS - Quality Of Service
+     * @param topicName         Topic if applicable (output)
+     */
+    void readSubscribeFrame(TCPSocket& connection, unsigned remainingLength, MQTTQOS& qos, String& topicName);
 
 public:
     /**
      * Constructor
-     * @param type MessageType, MQTT frame type
-     * @param id uint16_t, Message id
-     * @param qos QOS, Message QOS (Quality Of Service)
+     * @param type              MQTT frame type
+     * @param id                Message id
+     * @param qos               QOS - Quality Of Service
      */
-    MQTTFrame(MQTTFrameType type, uint16_t id, MQTTQOS qos);
+    MQTTFrame(MQTTFrameType type=FT_UNDEFINED, uint16_t id=0, MQTTQOS qos=QOS_0);
 
     /**
      * Get MQTT frame type
@@ -245,56 +243,57 @@ public:
 
     /**
      * Generate MQTT CONNECT frame
-     * @param keepAliveSeconds uint16_t, Interval between keep alive packets, seconds
-     * @param username std::string, Optional user name or empty string if not needed
-     * @param password std::string, Optional password or empty string if not needed
-     * @param clientId std::string, Client id
-     * @param willTopic std::string, Optional topic to send last will
-     * @param protocolVersion MQTTProtocolVersion, Optional MQTT protocol version
+     * @param keepAliveSeconds  Interval between keep alive packets, seconds
+     * @param username          Optional user name or empty string if not needed
+     * @param password          Optional password or empty string if not needed
+     * @param clientId          Client id
+     * @param lastWillTopic         Optional topic to send last will
+     * @param protocolVersion   Optional MQTT protocol version
      * @return this object reference
      */
-    const Buffer& setCONNECT(uint16_t keepAliveSeconds, String username, String password, String clientId,
-                             String willTopic, MQTTProtocolVersion protocolVersion);
+    const Buffer& setCONNECT(uint16_t keepAliveSeconds, const String& username, const String& password,
+                             const String& clientId,
+                             const String& lastWillTopic, MQTTProtocolVersion protocolVersion);
 
     /**
      * Generate MQTT PUBLISH frame
-     * @param topic std::string, Topic name to publish to
-     * @param data const Buffer&, Data to publish
-     * @param qos QOS, QOS (Quality of Service)
-     * @param dup bool, Flag: this packet is a duplicate
-     * @param retain bool, Flag: retain this message
+     * @param topic             Destination topic or queue name
+     * @param data              Data to publish
+     * @param qos               QOS - Quality of Service
+     * @param dup               Duplicate packet flag
+     * @param retain            Retain message flag
      * @return this object reference
      */
-    const Buffer& publishFrame(const std::string& topic, const Buffer& data, MQTTQOS qos, bool dup, bool retain);
+    const Buffer& setPUBLISH(const String& topic, const Buffer& data, MQTTQOS qos=QOS_0, bool dup=false, bool retain=false);
 
     /**
      * Generate MQTT SUBSCRIBE frame
-     * @param topic std::string, Topic name to publish to
-     * @param qos QOS, QOS (Quality of Service)
+     * @param topic             Destination topic or queu name
+     * @param qos               QOS - Quality of Service
      * @return this object reference
      */
-    const Buffer& subscribeFrame(const std::string& topic, MQTTQOS qos);
+    const Buffer& subscribeFrame(const String& topic, MQTTQOS qos);
 
     /**
      * Generate MQTT SUBSCRIBE frame
-     * @param topics const Strings&, Topic names to publish to
-     * @param qos QOS, QOS (Quality of Service)
+     * @param topics            Topic names to publish to
+     * @param qos               QOS - Quality of Service
      * @return this object reference
      */
     const Buffer& subscribeFrame(const Strings& topics, MQTTQOS qos);
 
     /**
      * Generate MQTT UNSUBSCRIBE frame
-     * @param topic std::string, Topic name to unsubscribe from
-     * @param qos QOS, QOS (Quality of Service)
+     * @param topic             Topic name to unsubscribe from
+     * @param qos               QOS - Quality of Service
      * @return this object reference
      */
     const Buffer& unsubscribeFrame(const std::string& topic, MQTTQOS qos);
 
     /**
      * Generate MQTT UNSUBSCRIBE frame
-     * @param topic const Strings&, Topic names to unsubscribe from
-     * @param qos QOS, QOS (Quality of Service)
+     * @param topic             Topic name to unsubscribe from
+     * @param qos               QOS - Quality of Service
      * @return this object reference
      */
     const Buffer& unsubscribeFrame(const Strings& topics, MQTTQOS qos);
@@ -307,13 +306,18 @@ public:
 
     /**
      * Receive next MQTT frame
-     * @param socket TCPSocket&, MQTT server connection
-     * @param timeout uint32_t, Receive timeout, milliseconds
-     * @param headers std::string&, Related topic name if applicable
+     * @param socket            MQTT server connection
+     * @param headers           Output message headers
+     * @param timeout           Receive timeout, milliseconds
      * @return 0 if failure
      */
     bool read(TCPSocket& socket, MQProtocol::Parameters& headers, std::chrono::milliseconds timeout);
 
+    /**
+     * Get ACK type corresponding to source message type
+     * @param messageType       Source message type
+     * @return ACK type
+     */
     static MQTTFrameType ackType(MQTTFrameType messageType);
 };
 

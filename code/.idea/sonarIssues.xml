@@ -33,6 +33,11 @@
             <set />
           </value>
         </entry>
+        <entry key="/fragment.m">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="/fragment.mm">
           <value>
             <set />
@@ -659,6 +664,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/protis_core/config/ScreenTranslation.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/owner_database/UpdateOwnerDatabases.cpp">
           <value>
             <set />
           </value>
@@ -1314,6 +1324,11 @@
           </value>
         </entry>
         <entry key="/log_collector (disassembly)">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/mosquitto_sub (disassembly)">
           <value>
             <set />
           </value>

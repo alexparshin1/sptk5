@@ -12,6 +12,8 @@
 
 #include "sptk5/mq/protocols/MQTTFrame.h"
 #include <sptk5/mq/Message.h>
+#include <sptk5/mq/protocols/MQTTFrame.h>
+
 
 using namespace std;
 using namespace sptk;
@@ -39,7 +41,7 @@ void MQTTFrame::appendVariableHeader(const char* data, uint16_t dataLength)
         append(data, dataLength);
 }
 
-void MQTTFrame::appendVariableHeader(const string& data)
+void MQTTFrame::appendVariableHeader(const String& data)
 {
     appendShortValue((uint16_t)data.length());
     if (!data.empty())
@@ -63,8 +65,9 @@ MQTTFrame::MQTTFrame(MQTTFrameType type, uint16_t id, MQTTQOS qos)
 : m_type(type), m_id(id), m_qos(qos)
 {}
 
-const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, String username, String password, String clientId,
-                                    String willTopic, MQTTProtocolVersion protocolVersion)
+const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, const String& username, const String& password,
+                                    const String& clientId,
+                                    const String& lastWillTopic, MQTTProtocolVersion protocolVersion)
 {
 
     String  protocolName;
@@ -98,7 +101,7 @@ const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, String username, 
 
     string willMessage;
     // If will topic and message are defined - add their size to payload length
-    if (!willTopic.empty()) {
+    if (!lastWillTopic.empty()) {
         Message will;
         will["event"] = "connection_terminated";
         will["client_id"] = clientId;
@@ -106,7 +109,7 @@ const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, String username, 
         willMessage = will.toString();
 
         connectFlags |= CF_WILL_QOS_1 | CF_WILL_FLAG;
-        payloadlen += willTopic.length() + 2;
+        payloadlen += lastWillTopic.length() + 2;
         payloadlen += willMessage.length() + 2;
     }
 
@@ -125,8 +128,8 @@ const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, String username, 
         throw Exception("Client Id shouldn't be empty");
     appendVariableHeader(clientId);                 // Client id
 
-    if (!willTopic.empty()) {
-        appendVariableHeader(willTopic);
+    if (!lastWillTopic.empty()) {
+        appendVariableHeader(lastWillTopic);
         appendVariableHeader(willMessage);
     }
 
@@ -139,8 +142,9 @@ const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, String username, 
     return *this;
 }
 
-const Buffer& MQTTFrame::publishFrame(const string& topic, const Buffer& data, MQTTQOS qos, bool dup, bool retain)
+const Buffer& MQTTFrame::setPUBLISH(const String& topic, const Buffer& data, MQTTQOS qos, bool dup, bool retain)
 {
+    m_type = FT_PUBLISH;
     bytes(0);
 
     auto packetlen = unsigned(topic.length() + 2 + data.bytes());
@@ -181,7 +185,7 @@ void MQTTFrame::setACK(uint16_t messageId, MQTTFrameType ackType)
     appendShortValue(messageId);
 }
 
-const Buffer& MQTTFrame::subscribeFrame(const string& topic, MQTTQOS qos)
+const Buffer& MQTTFrame::subscribeFrame(const String& topic, MQTTQOS qos)
 {
     bytes(0);
 
@@ -416,6 +420,31 @@ void MQTTFrame::readPublishFrame(TCPSocket& connection, unsigned remainingLength
     connection.read(*this, dataLength);
 }
 
+void MQTTFrame::readSubscribeFrame(TCPSocket& connection, unsigned remainingLength, MQTTQOS& qos, String& topicName)
+{
+    int variableHeaderLength = 0;
+
+    uint16_t id;
+    connection.read((char*)&id, 2);
+    m_id = ntohs(id);
+    variableHeaderLength += 2;
+
+    unsigned dataLength = remainingLength - variableHeaderLength;
+
+    Strings topicNames;
+    qos = QOS_0;
+    while (dataLength > 0) {
+        String topic;
+        readString(connection, topic);
+        topicNames.push_back(topic);
+        uint8_t aqos = readByte(connection);
+        if (aqos > qos)
+            qos = (MQTTQOS) aqos;
+        dataLength -= topic.length() + 3;
+    }
+    topicName = topicNames.join(";");
+}
+
 void MQTTFrame::readUnknownFrame(TCPSocket& socket, unsigned remainingLength)
 {
     checkSize(remainingLength + 1);
@@ -449,6 +478,10 @@ bool MQTTFrame::read(TCPSocket& socket, MQProtocol::Parameters& parameters, mill
 
         case FT_PUBLISH:
             readPublishFrame(socket, remainingLength, m_qos, parameters["destination"]);
+            break;
+
+        case FT_SUBSCRIBE:
+            readSubscribeFrame(socket, remainingLength, m_qos, parameters["destination"]);
             break;
 
         case FT_UNDEFINED:

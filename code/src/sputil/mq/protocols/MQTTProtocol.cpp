@@ -73,7 +73,10 @@ bool MQTTProtocol::readMessage(SMessage& message)
 
 bool MQTTProtocol::sendMessage(const String& destination, SMessage& message)
 {
-    return false;
+    MQTTFrame publishFrame;
+    publishFrame.setPUBLISH(destination, *message, QOS_0);
+    socket().send(publishFrame.c_str(), publishFrame.bytes());
+    return true;
 }
 
 Message::Type MQTTProtocol::mqMessageType(MQTTFrameType nativeMessageType)
