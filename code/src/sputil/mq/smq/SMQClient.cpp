@@ -62,7 +62,7 @@ void SMQClient::disconnect(bool)
     destroyConnection();
 }
 
-void SMQClient::send(const String& destination, SMessage& message, std::chrono::milliseconds timeout)
+void SMQClient::send(const String& destination, SMessage& message, std::chrono::milliseconds)
 {
     protocol().sendMessage(destination, message);
 }
