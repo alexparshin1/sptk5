@@ -211,6 +211,20 @@ Strings DirectoryDS::getFileNames()
     return fileNames;
 }
 
+static void getFileInfo(const String& filename, struct stat& st, bool& is_link)
+{
+    if (lstat(filename.c_str(), &st) != 0)
+        throw SystemException("Can't access file '" + filename + "'");
+
+#ifndef _WIN32
+    if ((st.st_mode & S_IFLNK) == S_IFLNK) {
+        is_link = true;
+        if (stat(filename.c_str(), &st) != 0)
+            throw SystemException("Can't get file info");
+    }
+#endif
+}
+
 bool DirectoryDS::open()
 {
     clear();
@@ -232,16 +246,8 @@ bool DirectoryDS::open()
         bool is_link = false;
 
         String fullName = m_directory + "/" + fileName;
-        if (lstat(fullName.c_str(), &st) != 0)
-            throw SystemException("Can't access file '" + fullName + "'");
+        getFileInfo(fullName, st, is_link);
 
-#ifndef _WIN32
-        if ((st.st_mode & S_IFLNK) == S_IFLNK) {
-            is_link = true;
-            if (stat(fullName.c_str(), &st) != 0)
-                throw SystemException("Can't get directory info");
-        }
-#endif
         bool is_dir = S_ISDIR(st.st_mode);
         if (!is_dir) {
             if ((showPolicy() & DDS_HIDE_FILES) == DDS_HIDE_FILES)
