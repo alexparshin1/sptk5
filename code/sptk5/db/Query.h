@@ -293,6 +293,15 @@ class SP_EXPORT Query: public Query_StatementManagement
      */
     FieldList               m_fields;
 
+    /**
+     * Parse query parameter during assigning SQL to query
+     * @param paramStart        Start of parameter
+     * @param paramEnd          End of parameter
+     * @param paramNumber       Current parameter (placeholder) number
+     * @param sql               Current SQL (output)
+     */
+    void sqlParseParameter(const char* paramStart, const char* paramEnd, int& paramNumber, String& sql);
+
 protected:
 
     /**
@@ -321,8 +330,8 @@ protected:
     {
         return false;
     }
-
 public:
+
     /**
      * @brief Default constructor
      */

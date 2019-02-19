@@ -163,10 +163,88 @@ Query::~Query()
         database()->unlinkQuery(this);
 }
 
-void Query::sql(const String& _sql)
+bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql)
 {
     // Looking up for SQL parameters
     char delimitters[] = "':-/";
+
+    // Find param start
+    paramStart = strpbrk(paramEnd, delimitters);
+    if (paramStart == nullptr)
+        return false;      // No more parameters
+
+    if (*paramStart == '\'') {
+        // Started string constant
+        const char* nextQuote = strchr(paramStart + 1, '\'');
+        if (nextQuote == nullptr) {
+            paramEnd = nullptr;
+            return false;  // Quote opened but never closed?
+        }
+        sql += string(paramEnd, nextQuote - paramEnd + 1);
+        paramEnd = (char*) nextQuote + 1;
+        return false;
+    }
+
+    if (*paramStart == '-' && paramStart[1] == '-') {
+        // Started inline comment '--comment text', jump to the end of comment
+        const char* endOfRow = strchr(paramStart + 1, '\n');
+        if (endOfRow == nullptr) {
+            paramEnd = nullptr;
+            return false;  // Comment at the end of last row
+        }
+        sql += string(paramEnd, endOfRow - paramEnd + 1);
+        paramEnd = (char*) endOfRow + 1;
+        return false;
+    }
+
+    if (*paramStart == '/' && paramStart[1] == '*') {
+        // Started C-style block comment, jump to the end of comment
+        const char* endOfRow = strstr(paramStart + 1, "*/");
+        if (endOfRow == nullptr) {
+            paramEnd = nullptr;
+            return false;  // Comment never closed
+        }
+        sql += string(paramEnd, endOfRow - paramEnd + 2);
+        paramEnd = (char*) endOfRow + 2;
+        return false;
+    }
+
+    if (*paramStart == '/' || paramStart[1] == ':' || paramStart[1] == '=') {
+        // Started PostgreSQL type qualifier '::' or assignment ':='
+        sql += string(paramEnd, paramStart - paramEnd + 2);
+        paramEnd = paramStart + 2;
+        return false;
+    }
+
+    sql += string(paramEnd, paramStart - paramEnd);
+
+    paramEnd = paramStart + 1;
+    if (*paramStart != ':') {
+        sql += *paramStart;
+        return false;
+    }
+
+    return true;
+}
+
+void Query::sqlParseParameter(const char* paramStart, const char* paramEnd, int& paramNumber, String& sql)
+{
+    string paramName(paramStart + 1, paramEnd - paramStart - 1);
+    QueryParameter* param = m_params.find(paramName.c_str());
+    if (param == nullptr) {
+        param = new QueryParameter(paramName.c_str());
+        m_params.add(param);
+    }
+    param->bindAdd(uint32_t(paramNumber));
+    sql += database()->paramMark(uint32_t(paramNumber));
+    paramNumber++;
+}
+
+void Query::sql(const String& _sql)
+{
+    if (database() == nullptr)
+        throw DatabaseException("Query isn't connected to the database");
+
     const char* paramStart;
     const char* paramEnd = _sql.c_str();
     int paramNumber = 0;
@@ -175,53 +253,9 @@ void Query::sql(const String& _sql)
 
     String sql;
     for (; ;) {
-        // Find param start
-        paramStart = strpbrk(paramEnd, delimitters);
-        if (paramStart == nullptr)
-            break;      // No more parameters
-
-        if (*paramStart == '\'') {
-            // Started string constant
-            const char* nextQuote = strchr(paramStart + 1, '\'');
-            if (nextQuote == nullptr)
-                break;  // Quote opened but never closed?
-            sql += string(paramEnd, nextQuote - paramEnd + 1);
-            paramEnd = (char*) nextQuote + 1;
-            continue;
-        }
-
-        if (*paramStart == '-' && paramStart[1] == '-') {
-            // Started inline comment '--comment text', jump to the end of comment
-            const char* endOfRow = strchr(paramStart + 1, '\n');
-            if (endOfRow == nullptr)
-                break;  // Comment at the end of last row
-            sql += string(paramEnd, endOfRow - paramEnd + 1);
-            paramEnd = (char*) endOfRow + 1;
-            continue;
-        }
-
-        if (*paramStart == '/' && paramStart[1] == '*') {
-            // Started C-style block comment, jump to the end of comment
-            const char* endOfRow = strstr(paramStart + 1, "*/");
-            if (endOfRow == nullptr)
-                break;  // Comment at the end of last row
-            sql += string(paramEnd, endOfRow - paramEnd + 2);
-            paramEnd = (char*) endOfRow + 2;
-            continue;
-        }
-
-        if (*paramStart == '/' || paramStart[1] == ':' || paramStart[1] == '=') {
-            // Started PostgreSQL type qualifier '::' or assignment ':='
-            sql += string(paramEnd, paramStart - paramEnd + 2);
-            paramEnd = paramStart + 2;
-            continue;
-        }
-
-        sql += string(paramEnd, paramStart - paramEnd);
-
-        paramEnd = paramStart + 1;
-        if (*paramStart != ':') {
-            sql += *paramStart;
+        if (!skipToNextParameter(paramStart, paramEnd, sql)) {
+            if (paramStart == nullptr || paramEnd == nullptr)
+                break;
             continue;
         }
 
@@ -240,18 +274,7 @@ void Query::sql(const String& _sql)
                 break;
             }
 
-            string paramName(paramStart + 1, paramEnd - paramStart - 1);
-            QueryParameter* param = m_params.find(paramName.c_str());
-            if (param == nullptr) {
-                param = new QueryParameter(paramName.c_str());
-                m_params.add(param);
-            }
-            param->bindAdd(uint32_t(paramNumber));
-            if (database() == nullptr)
-                throw DatabaseException("Query isn't connected to the database");
-            sql += database()->paramMark(uint32_t(paramNumber));
-            paramNumber++;
-
+            sqlParseParameter(paramStart, paramEnd, paramNumber, sql);
             break;
         }
     }
