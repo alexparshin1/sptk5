@@ -41,21 +41,23 @@ void SMQSubscriptions::deliverMessage(const String& queueName, const SMessage me
         itor->second->deliverMessage(message);
 }
 
-void SMQSubscriptions::subscribe(SMQConnection* connection, const String& queueName)
+void SMQSubscriptions::subscribe(SMQConnection* connection, const Strings& queueNames)
 {
     UniqueLock(m_mutex);
 
-    // Does subscription already exist?
-    SharedSMQSubscription subscription;
-    auto itor = m_subscriptions.find(queueName);
-    if (itor == m_subscriptions.end()) {
-        SMQSubscription::Type subscriptionType = queueName.startsWith("/topic/") ? SMQSubscription::TOPIC : SMQSubscription::QUEUE;
-        subscription = make_shared<SMQSubscription>(subscriptionType);
-        m_subscriptions[queueName] = subscription;
-    } else
-        subscription = itor->second;
-
-    subscription->addConnection(connection);
+    for (auto& queueName: queueNames) {
+        // Does subscription already exist?
+        SharedSMQSubscription subscription;
+        auto itor = m_subscriptions.find(queueName);
+        if (itor == m_subscriptions.end()) {
+            SMQSubscription::Type subscriptionType = queueName.startsWith("/topic/") ? SMQSubscription::TOPIC
+                                                                                     : SMQSubscription::QUEUE;
+            subscription = make_shared<SMQSubscription>(subscriptionType);
+            m_subscriptions[queueName] = subscription;
+        } else
+            subscription = itor->second;
+        subscription->addConnection(connection);
+    }
 }
 
 void SMQSubscriptions::unsubscribe(SMQConnection* connection, const String& queueName)

@@ -108,7 +108,7 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
                     protocol.ack(Message::CONNECT, "");
                     break;
                 case Message::SUBSCRIBE:
-                    smqServer->subscribe(connection, msg->destination());
+                    smqServer->subscribe(connection, Strings(msg->destination(), ","));
                     break;
                 case Message::UNSUBSCRIBE:
                     smqServer->unsubscribe(connection, msg->destination());
@@ -177,9 +177,9 @@ void SMQServer::run()
     log(LP_NOTICE, "Server started");
 }
 
-void SMQServer::subscribe(SMQConnection* connection, const String& destination)
+void SMQServer::subscribe(SMQConnection* connection, const Strings& destinations)
 {
-    m_subscriptions.subscribe(connection, destination);
+    m_subscriptions.subscribe(connection, destinations);
 }
 
 void SMQServer::unsubscribe(SMQConnection* connection, const String& destination)

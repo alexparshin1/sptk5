@@ -74,7 +74,7 @@ public:
 
     void distributeMessage(SMessage message);
 
-    void subscribe(SMQConnection* connection, const String& destination);
+    void subscribe(SMQConnection* connection, const Strings& destinations);
 	void unsubscribe(SMQConnection* connection, const String& destination);
 };
 
