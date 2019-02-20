@@ -29,9 +29,9 @@
 #ifndef __SMQ_CONNECTION_H__
 #define __SMQ_CONNECTION_H__
 
+#include <SMQ/protocols/SMQProtocol.h>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerConnection.h>
-#include <sptk5/mq/protocols/SMQProtocol.h>
 #include <sptk5/net/SocketEvents.h>
 
 namespace sptk {

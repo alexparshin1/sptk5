@@ -29,8 +29,9 @@
 #ifndef __SMQ_SUBSCRIPTIONS_H__
 #define __SMQ_SUBSCRIPTIONS_H__
 
-#include <sptk5/String.h>
-#include <sptk5/mq/SMQSubscription.h>
+#include <SMQ/smq/SMQConnection.h>
+#include <SMQ/smq/SMQSubscription.h>
+#include <sptk5/cthreads>
 
 namespace sptk {
 

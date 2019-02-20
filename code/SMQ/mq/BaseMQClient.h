@@ -31,11 +31,11 @@
 
 #include <sptk5/cutils>
 #include <sptk5/cnet>
-#include <sptk5/mq/Message.h>
-#include <sptk5/mq/protocols/MQProtocol.h>
+#include <SMQ/mq/Message.h>
+#include <SMQ/mq/TCPMQClient.h>
+#include <SMQ/protocols/MQProtocol.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/cthreads>
-#include "TCPMQClient.h"
 
 namespace sptk {
 

@@ -29,8 +29,8 @@
 #ifndef SPTK_MQTTPROTOCOL_H
 #define SPTK_MQTTPROTOCOL_H
 
-#include <sptk5/mq/protocols/MQProtocol.h>
-#include "MQTTFrame.h"
+#include <SMQ/protocols/MQProtocol.h>
+#include <SMQ/protocols/MQTTFrame.h>
 
 namespace sptk {
 

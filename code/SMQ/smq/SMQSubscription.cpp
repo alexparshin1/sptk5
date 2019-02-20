@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/mq/SMQSubscription.h"
+#include <SMQ/smq/SMQSubscription.h>
 #include <sptk5/cutils>
 
 using namespace std;

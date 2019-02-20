@@ -713,6 +713,36 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/SMQ/mq/BaseMQClient.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/mq/Message.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/mq/SMQClient.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/mq/SMQServer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/smq/SMQConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/smq/smq_server.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/examples/database/all_drivers_test.cpp">
           <value>
             <set />
@@ -1344,6 +1374,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/wsdl/protocol/WSWebServiceProtocol.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/test/TestRunner.cpp">
           <value>
             <set />
           </value>

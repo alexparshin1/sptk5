@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/mq/TCPMQClient.h"
+#include "SMQ/mq/TCPMQClient.h"
 
 using namespace std;
 using namespace sptk;

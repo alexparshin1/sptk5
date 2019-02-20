@@ -29,8 +29,8 @@
 #ifndef __TCP_MQ_CLIENT_H__
 #define __TCP_MQ_CLIENT_H__
 
-#include <sptk5/mq/BaseMQClient.h>
-#include <sptk5/mq/protocols/MQProtocol.h>
+#include <SMQ/mq/BaseMQClient.h>
+#include <SMQ/protocols/MQProtocol.h>
 
 namespace sptk {
 

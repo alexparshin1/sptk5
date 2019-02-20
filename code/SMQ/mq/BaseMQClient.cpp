@@ -26,8 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/mq/SMQClient.h>
-#include <sptk5/mq/BaseMQClient.h>
+#include <SMQ/mq/SMQClient.h>
 
 using namespace std;
 using namespace sptk;

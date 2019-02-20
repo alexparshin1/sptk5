@@ -26,11 +26,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/mq/SMQServer.h>
-#include <sptk5/mq/SMQClient.h>
-#include <sptk5/mq/BaseMQClient.h>
+#include <SMQ/smq/SMQServer.h>
+#include <SMQ/mq/SMQClient.h>
+#include <SMQ/mq/BaseMQClient.h>
+#include <SMQ/protocols/MQTTProtocol.h>
 #include <sptk5/cutils>
-#include <sptk5/mq/protocols/MQTTProtocol.h>
 
 using namespace std;
 using namespace sptk;

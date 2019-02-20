@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/mq/protocols/SMQProtocol.h>
+#include <SMQ/protocols/SMQProtocol.h>
 
 using namespace std;
 using namespace sptk;

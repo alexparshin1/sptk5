@@ -8,9 +8,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/mq/Message.h>
-#include <sptk5/RegularExpression.h>
-#include <sptk5/cxml>
+#include <SMQ/mq/Message.h>
 
 using namespace std;
 using namespace sptk;

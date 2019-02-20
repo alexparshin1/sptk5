@@ -31,9 +31,9 @@
 
 #include <sptk5/cthreads>
 #include <sptk5/cnet>
-#include <sptk5/mq/protocols/SMQProtocol.h>
-#include "TCPMQClient.h"
-#include "BaseMQClient.h"
+#include <SMQ/protocols/SMQProtocol.h>
+#include <SMQ/mq/TCPMQClient.h>
+#include <SMQ/mq/BaseMQClient.h>
 
 namespace sptk {
 

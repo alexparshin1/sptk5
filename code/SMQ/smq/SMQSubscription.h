@@ -29,7 +29,7 @@
 #ifndef __SMQ_SUBSCRIPTION_H__
 #define __SMQ_SUBSCRIPTION_H__
 
-#include <sptk5/mq/SMQConnection.h>
+#include <SMQ/smq/SMQConnection.h>
 
 namespace sptk {
 

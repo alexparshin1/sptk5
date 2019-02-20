@@ -26,10 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/mq/SMQClient.h>
-#include <sptk5/mq/protocols/SMQProtocol.h>
-#include <sptk5/mq/TCPMQClient.h>
-#include <sptk5/cutils>
+#include <SMQ/mq/SMQClient.h>
 
 using namespace std;
 using namespace sptk;
@@ -93,10 +90,8 @@ void SMQClient::socketEvent(SocketEventType eventType)
     SMessage msg;
     try {
         while (connected() && socket().socketBytes() > 0) {
-            if (protocol().readMessage(msg)) {
-                if (msg->type() == Message::MESSAGE)
-                    acceptMessage(msg);
-            }
+            if (protocol().readMessage(msg) && msg->type() == Message::MESSAGE)
+                acceptMessage(msg);
         }
     }
     catch (const Exception&) {

@@ -29,9 +29,9 @@
 #ifndef __SMQ_MESSAGE_H__
 #define __SMQ_MESSAGE_H__
 
-#include <sptk5/mq/Message.h>
+#include <SMQ/mq/Message.h>
+#include <SMQ/protocols/MQProtocol.h>
 #include <sptk5/net/TCPSocket.h>
-#include "sptk5/mq/protocols/MQProtocol.h"
 
 namespace sptk {
 
