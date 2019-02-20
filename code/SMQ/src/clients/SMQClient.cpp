@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQSubscription.cpp - description                      ║
+║                       SMQClient.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday February 1 2019                                 ║
+║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,74 +26,71 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <SMQ/smq/SMQSubscription.h>
-#include <sptk5/cutils>
+#include <smq/clients/SMQClient.h>
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
-SMQSubscription::SMQSubscription(Type type)
-: m_type(type), m_currentConnection(m_connections.end())
+SMQClient::SMQClient(MQProtocolType protocolType, const String& clientId)
+: TCPMQClient(protocolType, clientId)
 {
 }
 
-SMQSubscription::~SMQSubscription()
+void SMQClient::connect(const Host& server, const String& username, const String& password, bool encrypted, milliseconds timeout)
 {
     UniqueLock(m_mutex);
-    for (auto* connection: m_connections)
-        connection->unsubscribe(this);
-    m_connections.clear();
+
+    createConnection(server, encrypted, timeout);
+
+    m_server = server;
+    m_username = username;
+    m_password = password;
+
+    auto connectMessage = make_shared<Message>(Message::CONNECT);
+    (*connectMessage)["client_id"] = m_clientId;
+    (*connectMessage)["username"] = username;
+    (*connectMessage)["password"] = password;
+    send("", connectMessage, timeout);
 }
 
-void SMQSubscription::addConnection(SMQConnection* connection)
+void SMQClient::disconnect(bool)
 {
-    UniqueLock(m_mutex);
-    m_connections.insert(connection);
-    connection->subscribe(this);
+    destroyConnection();
 }
 
-void SMQSubscription::removeConnection(SMQConnection* connection, bool updateConnection)
+void SMQClient::send(const String& destination, SMessage& message, std::chrono::milliseconds)
 {
-    UniqueLock(m_mutex);
-    m_connections.erase(connection);
-    if (updateConnection)
-        connection->unsubscribe(this);
+    protocol().sendMessage(destination, message);
 }
 
-bool SMQSubscription::deliverMessage(SMessage message)
+void SMQClient::subscribe(const String& destination, std::chrono::milliseconds timeout)
 {
-    SharedLock(m_mutex);
+    auto subscribeMessage = make_shared<Message>(Message::SUBSCRIBE);
+    send(destination, subscribeMessage, timeout);
+}
 
-    // If the subscription is TOPIC, send it to every subscriber:
-    if (m_type == TOPIC) {
-        for (auto subscriber: m_connections) {
-            try {
-                subscriber->sendMessage(message);
-            }
-            catch (const Exception& e) {
-                CERR("Can't send message to a subscriber " << subscriber->clientId() << ": " << e.what() << endl);
-            }
-        }
-    } else {
-        // If the subscription is QUEUE, send it to current subscriber,
-        // and switch to next subscriber
-        if (m_connections.empty())
-            return true;
-        if (m_currentConnection == m_connections.end())
-            m_currentConnection = m_connections.begin();
-        try {
-            (*m_currentConnection)->sendMessage(message);
-        }
-        catch (const Exception& e) {
-            CERR("Can't send message to a subscriber " << (*m_currentConnection)->clientId() << ": " << e.what() << endl);
-        }
-        ++m_currentConnection;
+void SMQClient::unsubscribe(const String& destination, std::chrono::milliseconds timeout)
+{
+    auto unsubscribeMessage = make_shared<Message>(Message::UNSUBSCRIBE);
+    send(destination, unsubscribeMessage, timeout);
+}
+
+void SMQClient::socketEvent(SocketEventType eventType)
+{
+    if (eventType == ET_CONNECTION_CLOSED) {
+        destroyConnection();
+        return;
     }
-    return true;
-}
 
-SMQSubscription::Type SMQSubscription::type() const
-{
-    SharedLock(m_mutex);
-    return m_type;
+    SMessage msg;
+    try {
+        while (connected() && socket().socketBytes() > 0) {
+            if (protocol().readMessage(msg) && msg->type() == Message::MESSAGE)
+                acceptMessage(msg);
+        }
+    }
+    catch (const Exception&) {
+        destroyConnection();
+    }
 }

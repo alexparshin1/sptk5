@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQSubscription.h - description                        ║
+║                       SMQSubscription.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Friday February 1 2019                                 ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,42 +26,74 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_SUBSCRIPTION_H__
-#define __SMQ_SUBSCRIPTION_H__
+#include <smq/server/SMQSubscription.h>
+#include <sptk5/cutils>
 
-#include <SMQ/smq/SMQConnection.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-typedef std::shared_ptr<SMQConnection> SharedSMQConnection;
-
-class SMQSubscription
+SMQSubscription::SMQSubscription(Type type)
+: m_type(type), m_currentConnection(m_connections.end())
 {
-public:
-    enum Type
-    {
-        QUEUE,
-        TOPIC
-    };
-private:
-    mutable sptk::SharedMutex               m_mutex;
-    Type                                    m_type;
+}
 
-    std::set<SMQConnection*>                m_connections;
-    std::set<SMQConnection*>::iterator      m_currentConnection;
+SMQSubscription::~SMQSubscription()
+{
+    UniqueLock(m_mutex);
+    for (auto* connection: m_connections)
+        connection->unsubscribe(this);
+    m_connections.clear();
+}
 
-public:
-    explicit SMQSubscription(Type type);
+void SMQSubscription::addConnection(SMQConnection* connection)
+{
+    UniqueLock(m_mutex);
+    m_connections.insert(connection);
+    connection->subscribe(this);
+}
 
-    virtual ~SMQSubscription();
+void SMQSubscription::removeConnection(SMQConnection* connection, bool updateConnection)
+{
+    UniqueLock(m_mutex);
+    m_connections.erase(connection);
+    if (updateConnection)
+        connection->unsubscribe(this);
+}
 
-    void addConnection(SMQConnection* connection);
-    void removeConnection(SMQConnection* connection, bool updateConnection);
-    bool deliverMessage(SMessage message);
+bool SMQSubscription::deliverMessage(SMessage message)
+{
+    SharedLock(m_mutex);
 
-    Type type() const;
-};
+    // If the subscription is TOPIC, send it to every subscriber:
+    if (m_type == TOPIC) {
+        for (auto subscriber: m_connections) {
+            try {
+                subscriber->sendMessage(message);
+            }
+            catch (const Exception& e) {
+                CERR("Can't send message to a subscriber " << subscriber->clientId() << ": " << e.what() << endl);
+            }
+        }
+    } else {
+        // If the subscription is QUEUE, send it to current subscriber,
+        // and switch to next subscriber
+        if (m_connections.empty())
+            return true;
+        if (m_currentConnection == m_connections.end())
+            m_currentConnection = m_connections.begin();
+        try {
+            (*m_currentConnection)->sendMessage(message);
+        }
+        catch (const Exception& e) {
+            CERR("Can't send message to a subscriber " << (*m_currentConnection)->clientId() << ": " << e.what() << endl);
+        }
+        ++m_currentConnection;
+    }
+    return true;
+}
 
-} // namespace sptk
-
-#endif
+SMQSubscription::Type SMQSubscription::type() const
+{
+    SharedLock(m_mutex);
+    return m_type;
+}

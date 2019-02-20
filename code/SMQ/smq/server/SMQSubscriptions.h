@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       BaseMQClient.cpp - description                         ║
+║                       SMQSubscriptions.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday December 23 2018                                ║
+║  begin                Friday February 1 2019                                 ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,65 +26,29 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <SMQ/mq/SMQClient.h>
+#ifndef __SMQ_SUBSCRIPTIONS_H__
+#define __SMQ_SUBSCRIPTIONS_H__
 
-using namespace std;
-using namespace sptk;
-using namespace chrono;
+#include <smq/server/SMQConnection.h>
+#include <smq/server/SMQSubscription.h>
+#include <sptk5/cthreads>
 
-BaseMQClient::BaseMQClient(MQProtocolType protocolType, const String& clientId)
-: m_clientId(clientId), m_protocolType(protocolType)
-{}
+namespace sptk {
 
-const String& BaseMQClient::getClientId() const
+typedef std::shared_ptr<SMQSubscription> SharedSMQSubscription;
+
+class SMQSubscriptions
 {
-    SharedLock(m_mutex);
-    return m_clientId;
-}
+    mutable sptk::SharedMutex               m_mutex;
+    std::map<String,SharedSMQSubscription>  m_subscriptions;
+public:
+    SMQSubscriptions() = default;
+    void clear();
+    void deliverMessage(const String& queueName, const SMessage message);
+    void subscribe(SMQConnection* connection, const Strings& queueNames);
+    void unsubscribe(SMQConnection* connection, const String& queueName);
+};
 
-const Host& BaseMQClient::getHost() const
-{
-    SharedLock(m_mutex);
-    return m_host;
-}
+} // namespace sptk
 
-bool BaseMQClient::connected() const
-{
-    SharedLock(m_mutex);
-    return m_connected;
-}
-
-SMessage BaseMQClient::getMessage(std::chrono::milliseconds timeout)
-{
-    SMessage message;
-    m_incomingMessages.pop(message, timeout);
-    return message;
-}
-
-size_t BaseMQClient::hasMessages() const
-{
-    return m_incomingMessages.size();
-}
-
-void BaseMQClient::acceptMessage(SMessage& message)
-{
-    m_incomingMessages.push(message);
-}
-
-MQProtocolType BaseMQClient::protocolType() const
-{
-    SharedLock(m_mutex);
-    return m_protocolType;
-}
-
-void BaseMQClient::enable(bool state)
-{
-    UniqueLock(m_mutex);
-    m_enabled = state;
-}
-
-bool BaseMQClient::enabled() const
-{
-    SharedLock(m_mutex);
-    return m_enabled;
-}
+#endif

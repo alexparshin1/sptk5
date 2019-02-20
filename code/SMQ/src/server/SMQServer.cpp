@@ -26,9 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <SMQ/smq/SMQServer.h>
-#include <SMQ/mq/SMQClient.h>
-#include <SMQ/protocols/MQTTProtocol.h>
+#include <smq/server/SMQServer.h>
+#include <smq/clients/SMQClient.h>
+#include <smq/protocols/MQTTProtocol.h>
 
 using namespace std;
 using namespace sptk;

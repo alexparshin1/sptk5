@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQServer.h - description                              ║
+║                       SMQClient.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,56 +26,82 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_SERVER_H__
-#define __SMQ_SERVER_H__
+#ifndef __SMQ_CLIENT_H__
+#define __SMQ_CLIENT_H__
 
-#include <SMQ/smq/SMQSubscriptions.h>
-#include <SMQ/smq/SMQConnection.h>
-#include <SMQ/protocols/MQProtocol.h>
+#include <sptk5/cthreads>
+#include <sptk5/cnet>
+#include <smq/protocols/SMQProtocol.h>
+#include <smq/clients/TCPMQClient.h>
+#include <smq/clients/BaseMQClient.h>
 
 namespace sptk {
 
-class SMQServer : public TCPServer
+class SMQClient : public TCPMQClient
 {
-    friend class SMQConnection;
-
-    mutable std::mutex              m_mutex;
-	MQProtocolType 				    m_protocol;
-public:
-	MQProtocolType protocol() const;
-
-private:
-	String                          m_username;
-	String                          m_password;
-	std::set<String>                m_clientIds;
-	std::set<SMQConnection*>        m_connections;
-	SocketEvents                    m_socketEvents;
-	SMQSubscriptions				m_subscriptions;
-
+    mutable SharedMutex         m_mutex;            ///< Mutex that protects internal data
+    Host                        m_server;           ///< SMQ server host
+    String                      m_clientId;         ///< Unique SMQ client id
+    String                      m_username;         ///< Connection user name
+    String                      m_password;         ///< Connection password
 protected:
-    static void socketEventCallback(void *userData, SocketEventType eventType);
-    void watchSocket(TCPSocket& socket, void* userData);
-    void forgetSocket(TCPSocket& socket);
-    void clear();
-
-    void execute(Runable* task) override;
-    void run() override;
+    void socketEvent(SocketEventType eventType) override;
 
 public:
 
-	SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine);
-    ~SMQServer() override;
+    /**
+     * Constructor
+     * @param clientId          Unique client id
+     */
+    SMQClient(MQProtocolType protocolType, const String& clientId);
 
-    void stop() override;
+    /**
+     * Destructor
+     */
+    ~SMQClient() override = default;
 
-    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
-    void closeConnection(ServerConnection* connection);
-    bool authenticate(const String& clientId, const String& username, const String& password);
+    /*
+     * Connect to MQ server
+     * @param server            MQ server host and port
+     * @param user              MQ server username.
+     * @param password          MQ server password.
+     * @param encrypted         Use encrypted connection. If true, then SSL keys must be loaded prior to this call.
+     * @param timeout           Operation timeout
+     */
+    void connect(const Host& server, const String& username, const String& password, bool encrypted,
+                 std::chrono::milliseconds timeout) override;
 
-    void distributeMessage(SMessage message);
+    /**
+     * Disconnect from server
+     * @param immediate         If false then disconnect as defined by server protocol. Otherwise, just terminate connection.
+     */
+    void disconnect(bool immediate) override;
 
-    void subscribe(SMQConnection* connection, const Strings& destinations);
-	void unsubscribe(SMQConnection* connection, const String& destination);
+    /**
+     * Subscribe to a queue or topic
+     * @param destination       Destination queue or topic name
+     */
+    void subscribe(const String& destination, std::chrono::milliseconds timeout) override;
+
+    /**
+     * Un-subscribe from a queue or topic
+     * @param destination       Destination queue or topic name
+     */
+    void unsubscribe(const String& destination, std::chrono::milliseconds timeout) override;
+
+    /**
+     * Send message
+     * @param destination       Queue or topic name
+     * @param message           Message
+     * @param timeout           Operation timeout
+     */
+    void send(const String& destination, SMessage& message, std::chrono::milliseconds timeout) override;
+
+    /**
+     * Get client id
+     * @return
+     */
+    const String& clientId() const { return m_clientId; }
 };
 
 }

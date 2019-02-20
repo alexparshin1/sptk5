@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TCPMQClient.h - description                            ║
+║                       SMQServer.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,70 +26,58 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __TCP_MQ_CLIENT_H__
-#define __TCP_MQ_CLIENT_H__
+#ifndef __SMQ_SERVER_H__
+#define __SMQ_SERVER_H__
 
-#include <SMQ/mq/BaseMQClient.h>
-#include <SMQ/protocols/MQProtocol.h>
+#include <smq/server/SMQSubscriptions.h>
+#include <smq/server/SMQConnection.h>
+#include <smq/protocols/MQProtocol.h>
 
 namespace sptk {
 
-class TCPMQClient : public BaseMQClient
+class SMQServer : public TCPServer
 {
-    mutable SharedMutex                 m_mutex;
-    std::shared_ptr<TCPSocket>          m_socket;           ///< TCP or SSL connection socket
-    std::shared_ptr<MQProtocol>         m_protocol;         ///< MQ protocol
-    static SharedSocketEvents           smqSocketEvents;    ///< Shared event manager
+    friend class SMQConnection;
 
-    /**
-     * Callback function that receives socket events
-     * @param userData          Socket event data, here - pointer to SMQ client object
-     * @param eventType         Socket event type
-     */
-    static void smqSocketEventCallback(void *userData, SocketEventType eventType);
+    mutable std::mutex              m_mutex;
+	MQProtocolType 				    m_protocol;
+public:
+	MQProtocolType protocol() const;
 
-    /**
-     * Initialize shared event manager
-     * @return
-     */
-    static SharedSocketEvents& initSocketEvents();
+private:
+	String                          m_username;
+	String                          m_password;
+	std::set<String>                m_clientIds;
+	std::set<SMQConnection*>        m_connections;
+	SocketEvents                    m_socketEvents;
+	SMQSubscriptions				m_subscriptions;
 
 protected:
+    static void socketEventCallback(void *userData, SocketEventType eventType);
+    void watchSocket(TCPSocket& socket, void* userData);
+    void forgetSocket(TCPSocket& socket);
+    void clear();
 
-    /**
-     * Constructor
-     * @param clientId          Unique client id
-     */
-    TCPMQClient(MQProtocolType protocolType, const String& clientId);
+    void execute(Runable* task) override;
+    void run() override;
 
 public:
 
-    virtual ~TCPMQClient();
+	SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine);
+    ~SMQServer() override;
 
-    MQProtocol& protocol();
+    void stop() override;
 
-    void loadSslKeys(const SSLKeys& keys) override;
+    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
+    void closeConnection(ServerConnection* connection);
+    bool authenticate(const String& clientId, const String& username, const String& password);
 
-    /**
-     * Check if client is connected to server
-     * @return true if client is connected to server
-     */
-    bool connected() const override { return m_socket? m_socket->active(): false; }
+    void distributeMessage(SMessage message);
 
-protected:
-
-    TCPSocket& socket()
-    {
-        return *m_socket;
-    }
-
-    virtual void socketEvent(SocketEventType eventType) = 0;
-
-    void createConnection(const Host& server, bool encrypted, std::chrono::milliseconds timeout);
-
-    void destroyConnection();
+    void subscribe(SMQConnection* connection, const Strings& destinations);
+	void unsubscribe(SMQConnection* connection, const String& destination);
 };
 
-} // namespace sptk
+}
 
 #endif

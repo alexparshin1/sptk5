@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <SMQ/protocols/SMQProtocol.h>
+#include <smq/protocols/SMQProtocol.h>
 
 using namespace std;
 using namespace sptk;
@@ -42,9 +42,11 @@ static void parseHeaders(Buffer& buffer, Message::Headers& headers)
         *nameEnd = 0;
         char* valueStart = nameEnd + 2;
         char* valueEnd = strchr(valueStart, '\n');
-        if (valueStart != nullptr)
+        if (valueEnd != nullptr)
             *valueEnd = 0;
         headers[ptr] = valueStart;
+        if (valueEnd == nullptr)
+            break;
         ptr = valueEnd + 1;
     }
 }

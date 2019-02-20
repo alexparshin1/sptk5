@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQSubscriptions.cpp - description                     ║
+║                       SMQServer.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday February 1 2019                                 ║
+║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,55 +26,100 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/md5.h>
-#include <SMQ/smq/SMQSubscriptions.h>
+#include <smq/server/SMQServer.h>
 
 using namespace std;
 using namespace sptk;
 
-void SMQSubscriptions::deliverMessage(const String& queueName, const SMessage message)
+SMQConnection::SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*)
+: TCPServerConnection(server, connectionSocket)
 {
-    SharedLock(m_mutex);
-    auto itor = m_subscriptions.find(queueName);
-    if (itor != m_subscriptions.end())
-        itor->second->deliverMessage(message);
-}
-
-void SMQSubscriptions::subscribe(SMQConnection* connection, const Strings& queueNames)
-{
-    UniqueLock(m_mutex);
-
-    for (auto& queueName: queueNames) {
-        // Does subscription already exist?
-        SharedSMQSubscription subscription;
-        auto itor = m_subscriptions.find(queueName);
-        if (itor == m_subscriptions.end()) {
-            SMQSubscription::Type subscriptionType = queueName.startsWith("/topic/") ? SMQSubscription::TOPIC
-                                                                                     : SMQSubscription::QUEUE;
-            subscription = make_shared<SMQSubscription>(subscriptionType);
-            m_subscriptions[queueName] = subscription;
-        } else
-            subscription = itor->second;
-        subscription->addConnection(connection);
+    auto* smqServer = dynamic_cast<SMQServer*>(&server);
+    if (smqServer != nullptr) {
+        m_protocolType = smqServer->protocol();
+        m_protocol = MQProtocol::factory(m_protocolType, socket());
+        smqServer->watchSocket(socket(), this);
     }
 }
 
-void SMQSubscriptions::unsubscribe(SMQConnection* connection, const String& queueName)
+SMQConnection::~SMQConnection()
 {
+    auto* smqServer = dynamic_cast<SMQServer*>(&server());
+    if (smqServer != nullptr && socket().active())
+        smqServer->forgetSocket(socket());
+
     UniqueLock(m_mutex);
 
-    // Does subscription already exist?
-    SharedSMQSubscription subscription;
-    auto itor = m_subscriptions.find(queueName);
-    if (itor == m_subscriptions.end())
-        return;
+    for (auto* subscription: m_subscriptions)
+        subscription->removeConnection(this, false);
+    m_subscriptions.clear();
 
-    subscription = itor->second;
-    subscription->removeConnection(connection, true);
+    socket().close();
 }
 
-void SMQSubscriptions::clear()
+void SMQConnection::terminate()
+{
+    socket().close();
+}
+
+void SMQConnection::run()
+{
+    // SMQServer doesn't run tasks
+}
+
+String SMQConnection::clientId() const
+{
+    SharedLock(m_mutex);
+    return m_clientId;
+}
+
+void SMQConnection::setupClient(String& id)
 {
     UniqueLock(m_mutex);
-    m_subscriptions.clear();
+    m_clientId = id;
+}
+
+void SMQConnection::sendMessage(SMessage& message)
+{
+    sendMessage(message->destination(), message);
+}
+
+void SMQConnection::subscribe(SMQSubscription* subscription)
+{
+    UniqueLock(m_mutex);
+    m_subscriptions.insert(subscription);
+}
+
+void SMQConnection::unsubscribe(SMQSubscription* subscription)
+{
+    UniqueLock(m_mutex);
+    m_subscriptions.erase(subscription);
+}
+
+MQProtocolType SMQConnection::getProtocolType() const
+{
+    SharedLock(m_mutex);
+    return m_protocolType;
+}
+
+void SMQConnection::ack(Message::Type sourceMessageType, const String& messageId)
+{
+    m_protocol->ack(sourceMessageType, messageId);
+}
+
+bool SMQConnection::readMessage(SMessage& message)
+{
+    protocol().readMessage(message);
+    return false;
+}
+
+bool SMQConnection::sendMessage(const String& destination, SMessage& message)
+{
+    protocol().sendMessage(destination, message);
+    return false;
+}
+
+MQProtocol& SMQConnection::protocol()
+{
+    return *m_protocol;
 }

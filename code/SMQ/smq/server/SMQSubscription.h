@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQSubscriptions.h - description                       ║
+║                       SMQSubscription.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Friday February 1 2019                                 ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,27 +26,40 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_SUBSCRIPTIONS_H__
-#define __SMQ_SUBSCRIPTIONS_H__
+#ifndef __SMQ_SUBSCRIPTION_H__
+#define __SMQ_SUBSCRIPTION_H__
 
-#include <SMQ/smq/SMQConnection.h>
-#include <SMQ/smq/SMQSubscription.h>
-#include <sptk5/cthreads>
+#include <smq/server/SMQConnection.h>
 
 namespace sptk {
 
-typedef std::shared_ptr<SMQSubscription> SharedSMQSubscription;
+typedef std::shared_ptr<SMQConnection> SharedSMQConnection;
 
-class SMQSubscriptions
+class SMQSubscription
 {
-    mutable sptk::SharedMutex               m_mutex;
-    std::map<String,SharedSMQSubscription>  m_subscriptions;
 public:
-    SMQSubscriptions() = default;
-    void clear();
-    void deliverMessage(const String& queueName, const SMessage message);
-    void subscribe(SMQConnection* connection, const Strings& queueNames);
-    void unsubscribe(SMQConnection* connection, const String& queueName);
+    enum Type
+    {
+        QUEUE,
+        TOPIC
+    };
+private:
+    mutable sptk::SharedMutex               m_mutex;
+    Type                                    m_type;
+
+    std::set<SMQConnection*>                m_connections;
+    std::set<SMQConnection*>::iterator      m_currentConnection;
+
+public:
+    explicit SMQSubscription(Type type);
+
+    virtual ~SMQSubscription();
+
+    void addConnection(SMQConnection* connection);
+    void removeConnection(SMQConnection* connection, bool updateConnection);
+    bool deliverMessage(SMessage message);
+
+    Type type() const;
 };
 
 } // namespace sptk

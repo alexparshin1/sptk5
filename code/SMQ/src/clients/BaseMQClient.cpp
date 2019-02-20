@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQClient.h - description                              ║
+║                       BaseMQClient.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,84 +26,65 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_CLIENT_H__
-#define __SMQ_CLIENT_H__
+#include <smq/clients/SMQClient.h>
 
-#include <sptk5/cthreads>
-#include <sptk5/cnet>
-#include <SMQ/protocols/SMQProtocol.h>
-#include <SMQ/mq/TCPMQClient.h>
-#include <SMQ/mq/BaseMQClient.h>
+using namespace std;
+using namespace sptk;
+using namespace chrono;
 
-namespace sptk {
+BaseMQClient::BaseMQClient(MQProtocolType protocolType, const String& clientId)
+: m_clientId(clientId), m_protocolType(protocolType)
+{}
 
-class SMQClient : public TCPMQClient
+const String& BaseMQClient::getClientId() const
 {
-    mutable SharedMutex         m_mutex;            ///< Mutex that protects internal data
-    Host                        m_server;           ///< SMQ server host
-    String                      m_clientId;         ///< Unique SMQ client id
-    String                      m_username;         ///< Connection user name
-    String                      m_password;         ///< Connection password
-protected:
-    void socketEvent(SocketEventType eventType) override;
-
-public:
-
-    /**
-     * Constructor
-     * @param clientId          Unique client id
-     */
-    SMQClient(MQProtocolType protocolType, const String& clientId);
-
-    /**
-     * Destructor
-     */
-    virtual ~SMQClient() = default;
-
-    /*
-     * Connect to MQ server
-     * @param server            MQ server host and port
-     * @param user              MQ server username.
-     * @param password          MQ server password.
-     * @param encrypted         Use encrypted connection. If true, then SSL keys must be loaded prior to this call.
-     * @param timeout           Operation timeout
-     */
-    void connect(const Host& server, const String& username, const String& password, bool encrypted,
-                 std::chrono::milliseconds timeout) override;
-
-    /**
-     * Disconnect from server
-     * @param immediate         If false then disconnect as defined by server protocol. Otherwise, just terminate connection.
-     */
-    void disconnect(bool immediate) override;
-
-    /**
-     * Subscribe to a queue or topic
-     * @param destination       Destination queue or topic name
-     */
-    void subscribe(const String& destination, std::chrono::milliseconds timeout) override;
-
-    /**
-     * Un-subscribe from a queue or topic
-     * @param destination       Destination queue or topic name
-     */
-    void unsubscribe(const String& destination, std::chrono::milliseconds timeout) override;
-
-    /**
-     * Send message
-     * @param destination       Queue or topic name
-     * @param message           Message
-     * @param timeout           Operation timeout
-     */
-    void send(const String& destination, SMessage& message, std::chrono::milliseconds timeout) override;
-
-    /**
-     * Get client id
-     * @return
-     */
-    const String& clientId() const { return m_clientId; }
-};
-
+    SharedLock(m_mutex);
+    return m_clientId;
 }
 
-#endif
+const Host& BaseMQClient::getHost() const
+{
+    SharedLock(m_mutex);
+    return m_host;
+}
+
+bool BaseMQClient::connected() const
+{
+    SharedLock(m_mutex);
+    return m_connected;
+}
+
+SMessage BaseMQClient::getMessage(std::chrono::milliseconds timeout)
+{
+    SMessage message;
+    m_incomingMessages.pop(message, timeout);
+    return message;
+}
+
+size_t BaseMQClient::hasMessages() const
+{
+    return m_incomingMessages.size();
+}
+
+void BaseMQClient::acceptMessage(SMessage& message)
+{
+    m_incomingMessages.push(message);
+}
+
+MQProtocolType BaseMQClient::protocolType() const
+{
+    SharedLock(m_mutex);
+    return m_protocolType;
+}
+
+void BaseMQClient::enable(bool state)
+{
+    UniqueLock(m_mutex);
+    m_enabled = state;
+}
+
+bool BaseMQClient::enabled() const
+{
+    SharedLock(m_mutex);
+    return m_enabled;
+}

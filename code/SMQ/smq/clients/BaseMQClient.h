@@ -31,9 +31,9 @@
 
 #include <sptk5/cutils>
 #include <sptk5/cnet>
-#include <SMQ/mq/Message.h>
-#include <SMQ/mq/TCPMQClient.h>
-#include <SMQ/protocols/MQProtocol.h>
+#include <smq/Message.h>
+#include <smq/clients/TCPMQClient.h>
+#include <smq/protocols/MQProtocol.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/cthreads>
 

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQProtocol.h - description                            ║
+║                       MQTTProtocol.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,24 +26,28 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_MESSAGE_H__
-#define __SMQ_MESSAGE_H__
+#ifndef SPTK_MQTTPROTOCOL_H
+#define SPTK_MQTTPROTOCOL_H
 
-#include <SMQ/mq/Message.h>
-#include <SMQ/protocols/MQProtocol.h>
-#include <sptk5/net/TCPSocket.h>
+#include <smq/protocols/MQProtocol.h>
+#include <smq/protocols/MQTTFrame.h>
 
 namespace sptk {
 
-class SMQProtocol : public MQProtocol
+class MQTTProtocol : public MQProtocol
 {
+
 public:
-    explicit SMQProtocol(TCPSocket& socket) : MQProtocol(socket) {}
+    explicit MQTTProtocol(TCPSocket& socket) : MQProtocol(socket) {}
+
+    static Message::Type mqMessageType(MQTTFrameType nativeMessageType);
+    static MQTTFrameType nativeMessageType(Message::Type mqMessageType);
+
     void ack(Message::Type sourceMessageType, const String& messageId) override;
     bool readMessage(SMessage& message) override;
     bool sendMessage(const String& destination, SMessage& message) override;
 };
 
-} // namespace sptk
+}
 
-#endif
+#endif //SPTK_MQTTPROTOCOL_H

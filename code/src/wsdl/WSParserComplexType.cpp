@@ -29,7 +29,6 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSParserComplexType.h>
 #include <sptk5/wsdl/WSTypeTranslator.h>
-#include <iomanip>
 
 using namespace std;
 using namespace sptk;
@@ -159,8 +158,10 @@ void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, co
     includeFiles.push_back("#include <sptk5/wsdl/WSBasicTypes.h>");
     includeFiles.push_back("#include <sptk5/wsdl/WSComplexType.h>");
     includeFiles.push_back("#include <sptk5/wsdl/WSRestriction.h>");
-    for (auto& usedClass: usedClasses)
-        includeFiles.push_back("#include \"" + usedClass + ".h\"");
+
+    std::transform(usedClasses.begin(), usedClasses.end(), includeFiles.begin(),
+                   [](const String& s) -> String { return "#include \"" + s + ".h\""; });
+
     includeFiles.sort();
     classDeclaration << includeFiles.join("\n") << endl << endl;
 }
@@ -350,7 +351,7 @@ void WSParserComplexType::printImplementationClear(ostream& classImplementation,
     }
     if (!m_attributes.empty()) {
         classImplementation << "    // Clear attributes" << endl;
-        for (auto itor: m_attributes) {
+        for (auto& itor: m_attributes) {
             WSParserAttribute& attr = *(itor.second);
             classImplementation << "    m_" << attr.name() << ".setNull(VAR_NONE);" << endl;
         }
@@ -388,7 +389,7 @@ void WSParserComplexType::printImplementationLoadXML(ostream& classImplementatio
 
     if (!m_attributes.empty()) {
         classImplementation << endl << "    // Load attributes" << endl;
-        for (auto itor: m_attributes) {
+        for (auto& itor: m_attributes) {
             WSParserAttribute& attr = *itor.second;
             classImplementation << "    m_" << attr.name() << ".load((String) input->getAttribute(\"" << attr.name() << "\"));" << endl;
         }
@@ -440,7 +441,7 @@ void WSParserComplexType::printImplementationLoadFieldList(ostream& classImpleme
 
     if (!m_attributes.empty()) {
         fieldLoads << endl << "    // Load attributes" << endl;
-        for (auto itor: m_attributes) {
+        for (auto& itor: m_attributes) {
             WSParserAttribute& attr = *itor.second;
             fieldLoads << "    if ((field = input.fieldByName(\"" << attr.name() << "\")) != nullptr) {" << endl;
             fieldLoads << "        m_" << attr.name() << ".load(*field);" << endl;
@@ -506,7 +507,7 @@ void WSParserComplexType::printImplementationUnloadXML(ostream& classImplementat
 
     if (!m_attributes.empty()) {
         classImplementation << endl << "    // Unload attributes" << endl;
-        for (auto itor: m_attributes) {
+        for (auto& itor: m_attributes) {
             WSParserAttribute& attr = *itor.second;
             classImplementation << "    output->setAttribute(\"" << attr.name() << "\", m_" << attr.name() << ".asString());" << endl;
         }
@@ -533,7 +534,7 @@ void WSParserComplexType::printImplementationUnloadParamList(ostream& classImple
 
     if (!m_attributes.empty()) {
         unloadList << endl << "    // Unload attributes" << endl;
-        for (auto itor: m_attributes) {
+        for (auto& itor: m_attributes) {
             WSParserAttribute& attr = *itor.second;
             unloadList << "    WSComplexType::unload(output, \"" << attr.name() << "\", &m_" << attr.name() << ");" << endl;
             unloadListCount++;

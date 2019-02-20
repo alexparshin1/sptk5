@@ -1,5 +1,5 @@
-#include <SMQ/smq/SMQServer.h>
-#include <SMQ/mq/SMQClient.h>
+#include <smq/server/SMQServer.h>
+#include <smq/clients/SMQClient.h>
 
 using namespace std;
 using namespace sptk;
@@ -46,7 +46,7 @@ int main()
         }
 
         DateTime ended("now");
-        size_t durationMS = duration_cast<milliseconds>(ended - started).count();
+        long durationMS = duration_cast<milliseconds>(ended - started).count();
         COUT("Done for " << durationMS << " ms, " << double(messageCount) / durationMS * 1000 << " msg/sec" << endl);
 
         smqClient.disconnect(true);

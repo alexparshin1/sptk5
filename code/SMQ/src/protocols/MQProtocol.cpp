@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       MQTTProtocol.h - description                           ║
+║                       MQProtocol.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,28 +26,60 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_MQTTPROTOCOL_H
-#define SPTK_MQTTPROTOCOL_H
+#include <smq/protocols/SMQProtocol.h>
+#include <smq/protocols/MQTTProtocol.h>
 
-#include <SMQ/protocols/MQProtocol.h>
-#include <SMQ/protocols/MQTTFrame.h>
 
-namespace sptk {
+using namespace std;
+using namespace sptk;
+using namespace chrono;
 
-class MQTTProtocol : public MQProtocol
+size_t MQProtocol::read(String& str)
 {
-
-public:
-    explicit MQTTProtocol(TCPSocket& socket) : MQProtocol(socket) {}
-
-    static Message::Type mqMessageType(MQTTFrameType nativeMessageType);
-    static MQTTFrameType nativeMessageType(Message::Type mqMessageType);
-
-    void ack(Message::Type sourceMessageType, const String& messageId) override;
-    bool readMessage(SMessage& message) override;
-    bool sendMessage(const String& destination, SMessage& message) override;
-};
-
+    uint8_t dataSize;
+    read(dataSize);
+    if (dataSize == 0)
+        throw Exception("Invalid string size");
+    return m_socket.read(str, dataSize) + sizeof(uint8_t);
 }
 
-#endif //SPTK_MQTTPROTOCOL_H
+size_t MQProtocol::read(Buffer& data)
+{
+    uint32_t dataSize;
+    read(dataSize);
+    if (dataSize > 0) {
+        data.checkSize(dataSize);
+        m_socket.read(data.data(), dataSize);
+    }
+    data.bytes(dataSize);
+    return dataSize + sizeof(dataSize);
+}
+
+size_t MQProtocol::read(char* data, size_t dataSize)
+{
+    return m_socket.read(data, dataSize);
+}
+
+size_t MQProtocol::write(String& str)
+{
+    return m_socket.write(str.c_str(), str.length());
+}
+
+size_t MQProtocol::write(Buffer& data)
+{
+    return m_socket.write(data.c_str(), data.bytes());
+}
+
+std::shared_ptr<MQProtocol> MQProtocol::factory(MQProtocolType protocolType, TCPSocket& socket)
+{
+    switch (protocolType) {
+        case MP_SMQ:    return make_shared<SMQProtocol>(socket);
+        case MP_MQTT:   return make_shared<MQTTProtocol>(socket);
+        default:        throw Exception("Protocol is not yet supported");
+    }
+}
+
+TCPSocket& MQProtocol::socket() const
+{
+    return m_socket;
+}

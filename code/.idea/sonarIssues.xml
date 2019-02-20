@@ -643,6 +643,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/Service/CCheckOwnerDatabaseExistsRequest.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/protis_core/TempDocumentFiles.cpp">
           <value>
             <set />
@@ -713,7 +718,17 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/SMQ/mq/SMQClient.cpp">
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/protis_core.wsdl">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/CMakeLists.txt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/mq/BaseMQClient.cpp">
           <value>
             <set />
           </value>
@@ -728,72 +743,127 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/SMQ/mq/TCPMQClient.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/SMQ/protocols/MQProtocol.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/SMQ/protocols/MQProtocol.h">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/SMQ/protocols/MQTTFrame.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/SMQ/protocols/MQTTFrame.h">
-          <value>
-            <set />
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/SMQ/protocols/MQTTProtocol.cpp">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/SMQ/protocols/MQTTProtocol.h">
+        <entry key="$PROJECT_DIR$/SMQ/smq/clients/BaseMQClient.h">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/SMQ/protocols/SMQProtocol.cpp">
+        <entry key="$PROJECT_DIR$/SMQ/smq/clients/SMQClient.h">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/SMQ/protocols/SMQProtocol.h">
+        <entry key="$PROJECT_DIR$/SMQ/smq/clients/TCPMQClient.h">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/SMQ/smq/SMQConnection.cpp">
+        <entry key="$PROJECT_DIR$/SMQ/smq/protocols/MQProtocol.h">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/SMQ/smq/SMQServer.cpp">
+        <entry key="$PROJECT_DIR$/SMQ/smq/protocols/MQTTProtocol.h">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/SMQ/smq/SMQServer.h">
+        <entry key="$PROJECT_DIR$/SMQ/smq/protocols/SMQProtocol.h">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/SMQ/smq/SMQSubscriptions.cpp">
+        <entry key="$PROJECT_DIR$/SMQ/smq/server/SMQConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/smq/server/SMQServer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/smq/server/SMQSubscription.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/smq/server/SMQSubscriptions.h">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/SMQ/smq/smq_server.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/clients/BaseMQClient.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/clients/Message.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/clients/SMQClient.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/clients/TCPMQClient.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/protocols/MQProtocol.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/protocols/MQTTFrame.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/protocols/MQTTProtocol.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/protocols/SMQProtocol.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/server/SMQConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/server/SMQServer.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/server/SMQSubscription.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/server/SMQSubscriptions.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/SMQ/src/server/smq_server.cpp">
           <value>
             <set />
           </value>
@@ -893,12 +963,7 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/spdb/DatabaseConnectionPool.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sptk/gui/CFileDialog.cpp">
+        <entry key="$PROJECT_DIR$/src/sputil/core/FieldList.cpp">
           <value>
             <set />
           </value>
@@ -1013,17 +1078,7 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/wsdl/WSConnection.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/wsdl/WSConnection.h">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/wsdl/WSParserComplexType.cpp">
+        <entry key="$PROJECT_DIR$/test/TestRunner.cpp">
           <value>
             <set />
           </value>

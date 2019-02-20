@@ -30,7 +30,7 @@
 #define __MQ_PROTOCOLS_H__
 
 #include <sptk5/cnet>
-#include <SMQ/mq/Message.h>
+#include <smq/Message.h>
 
 namespace sptk {
 

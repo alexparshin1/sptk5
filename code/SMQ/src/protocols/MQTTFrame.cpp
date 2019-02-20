@@ -10,7 +10,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <SMQ/protocols/MQTTFrame.h>
+#include <smq/protocols/MQTTFrame.h>
 
 using namespace std;
 using namespace sptk;

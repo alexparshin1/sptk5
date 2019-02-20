@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQServer.cpp - description                            ║
+║                       SMQProtocol.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,100 +26,24 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <SMQ/smq/SMQServer.h>
+#ifndef __SMQ_MESSAGE_H__
+#define __SMQ_MESSAGE_H__
 
-using namespace std;
-using namespace sptk;
+#include <smq/Message.h>
+#include <smq/protocols/MQProtocol.h>
+#include <sptk5/net/TCPSocket.h>
 
-SMQConnection::SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*)
-: TCPServerConnection(server, connectionSocket)
+namespace sptk {
+
+class SMQProtocol : public MQProtocol
 {
-    auto* smqServer = dynamic_cast<SMQServer*>(&server);
-    if (smqServer != nullptr) {
-        m_protocolType = smqServer->protocol();
-        m_protocol = MQProtocol::factory(m_protocolType, socket());
-        smqServer->watchSocket(socket(), this);
-    }
-}
+public:
+    explicit SMQProtocol(TCPSocket& socket) : MQProtocol(socket) {}
+    void ack(Message::Type sourceMessageType, const String& messageId) override;
+    bool readMessage(SMessage& message) override;
+    bool sendMessage(const String& destination, SMessage& message) override;
+};
 
-SMQConnection::~SMQConnection()
-{
-    auto* smqServer = dynamic_cast<SMQServer*>(&server());
-    if (smqServer != nullptr && socket().active())
-        smqServer->forgetSocket(socket());
+} // namespace sptk
 
-    UniqueLock(m_mutex);
-
-    for (auto* subscription: m_subscriptions)
-        subscription->removeConnection(this, false);
-    m_subscriptions.clear();
-
-    socket().close();
-}
-
-void SMQConnection::terminate()
-{
-    socket().close();
-}
-
-void SMQConnection::run()
-{
-    // SMQServer doesn't run tasks
-}
-
-String SMQConnection::clientId() const
-{
-    SharedLock(m_mutex);
-    return m_clientId;
-}
-
-void SMQConnection::setupClient(String& id)
-{
-    UniqueLock(m_mutex);
-    m_clientId = id;
-}
-
-void SMQConnection::sendMessage(SMessage& message)
-{
-    sendMessage(message->destination(), message);
-}
-
-void SMQConnection::subscribe(SMQSubscription* subscription)
-{
-    UniqueLock(m_mutex);
-    m_subscriptions.insert(subscription);
-}
-
-void SMQConnection::unsubscribe(SMQSubscription* subscription)
-{
-    UniqueLock(m_mutex);
-    m_subscriptions.erase(subscription);
-}
-
-MQProtocolType SMQConnection::getProtocolType() const
-{
-    SharedLock(m_mutex);
-    return m_protocolType;
-}
-
-void SMQConnection::ack(Message::Type sourceMessageType, const String& messageId)
-{
-    m_protocol->ack(sourceMessageType, messageId);
-}
-
-bool SMQConnection::readMessage(SMessage& message)
-{
-    protocol().readMessage(message);
-    return false;
-}
-
-bool SMQConnection::sendMessage(const String& destination, SMessage& message)
-{
-    protocol().sendMessage(destination, message);
-    return false;
-}
-
-MQProtocol& SMQConnection::protocol()
-{
-    return *m_protocol;
-}
+#endif

@@ -8,7 +8,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <SMQ/mq/Message.h>
+#include <smq/Message.h>
 
 using namespace std;
 using namespace sptk;

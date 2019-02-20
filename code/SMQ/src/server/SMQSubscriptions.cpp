@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TCPMQClient.cpp - description                          ║
+║                       SMQSubscriptions.cpp - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday December 23 2018                                ║
+║  begin                Friday February 1 2019                                 ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,81 +26,55 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "SMQ/mq/TCPMQClient.h"
+#include <sptk5/md5.h>
+#include <smq/server/SMQSubscriptions.h>
 
 using namespace std;
 using namespace sptk;
-using namespace chrono;
 
-SharedSocketEvents TCPMQClient::smqSocketEvents;
-
-SharedSocketEvents& TCPMQClient::initSocketEvents()
+void SMQSubscriptions::deliverMessage(const String& queueName, const SMessage message)
 {
-    static mutex              amutex;
-
-    lock_guard<mutex> lock(amutex);
-
-    if (!smqSocketEvents)
-        smqSocketEvents = make_shared<SocketEvents>("MQ Client", smqSocketEventCallback);
-
-    return smqSocketEvents;
+    SharedLock(m_mutex);
+    auto itor = m_subscriptions.find(queueName);
+    if (itor != m_subscriptions.end())
+        itor->second->deliverMessage(message);
 }
 
-TCPMQClient::TCPMQClient(MQProtocolType protocolType, const String& clientId)
-: BaseMQClient(protocolType, clientId)
+void SMQSubscriptions::subscribe(SMQConnection* connection, const Strings& queueNames)
 {
     UniqueLock(m_mutex);
-    initSocketEvents();
+
+    for (auto& queueName: queueNames) {
+        // Does subscription already exist?
+        SharedSMQSubscription subscription;
+        auto itor = m_subscriptions.find(queueName);
+        if (itor == m_subscriptions.end()) {
+            SMQSubscription::Type subscriptionType = queueName.startsWith("/topic/") ? SMQSubscription::TOPIC
+                                                                                     : SMQSubscription::QUEUE;
+            subscription = make_shared<SMQSubscription>(subscriptionType);
+            m_subscriptions[queueName] = subscription;
+        } else
+            subscription = itor->second;
+        subscription->addConnection(connection);
+    }
 }
 
-TCPMQClient::~TCPMQClient()
-{
-    destroyConnection();
-}
-
-void TCPMQClient::createConnection(const Host& server, bool encrypted, std::chrono::milliseconds timeout)
+void SMQSubscriptions::unsubscribe(SMQConnection* connection, const String& queueName)
 {
     UniqueLock(m_mutex);
-    if (m_socket && m_socket->active())
+
+    // Does subscription already exist?
+    SharedSMQSubscription subscription;
+    auto itor = m_subscriptions.find(queueName);
+    if (itor == m_subscriptions.end())
         return;
-    if (encrypted) {
-        m_socket = make_shared<SSLSocket>();
-        //loadKeys(keyFile, certificateFile, password, caFile, verifyMode, verifyDepth);
-    } else {
-        m_socket = make_shared<TCPSocket>();
-    }
-    m_socket->open(server, TCPSocket::SOM_CONNECT, true, timeout);
-    smqSocketEvents->add(*m_socket, this);
 
-    m_protocol = MQProtocol::factory(protocolType(), *m_socket);
+    subscription = itor->second;
+    subscription->removeConnection(connection, true);
 }
 
-void TCPMQClient::destroyConnection()
+void SMQSubscriptions::clear()
 {
     UniqueLock(m_mutex);
-    if (m_socket) {
-        smqSocketEvents->remove(*m_socket);
-        m_socket->close();
-        m_socket.reset();
-    }
-}
-
-void TCPMQClient::smqSocketEventCallback(void* userData, SocketEventType eventType)
-{
-    auto* client = (TCPMQClient*) userData;
-    client->socketEvent(eventType);
-}
-
-void TCPMQClient::loadSslKeys(const SSLKeys& keys)
-{
-    if (m_socket) {
-        auto* sslSocket = dynamic_cast<SSLSocket*>(m_socket.get());
-        if (sslSocket != nullptr)
-            sslSocket->loadKeys(keys);
-    }
-}
-
-MQProtocol& TCPMQClient::protocol()
-{
-    return *m_protocol;
+    m_subscriptions.clear();
 }

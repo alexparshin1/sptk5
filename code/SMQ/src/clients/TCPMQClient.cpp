@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       MQProtocol.cpp - description                           ║
+║                       TCPMQClient.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,60 +26,81 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <SMQ/protocols/SMQProtocol.h>
-#include <SMQ/protocols/MQTTProtocol.h>
-
+#include "smq/clients/TCPMQClient.h"
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-size_t MQProtocol::read(String& str)
+SharedSocketEvents TCPMQClient::smqSocketEvents;
+
+SharedSocketEvents& TCPMQClient::initSocketEvents()
 {
-    uint8_t dataSize;
-    read(dataSize);
-    if (dataSize == 0)
-        throw Exception("Invalid string size");
-    return m_socket.read(str, dataSize) + sizeof(uint8_t);
+    static mutex              amutex;
+
+    lock_guard<mutex> lock(amutex);
+
+    if (!smqSocketEvents)
+        smqSocketEvents = make_shared<SocketEvents>("MQ Client", smqSocketEventCallback);
+
+    return smqSocketEvents;
 }
 
-size_t MQProtocol::read(Buffer& data)
+TCPMQClient::TCPMQClient(MQProtocolType protocolType, const String& clientId)
+: BaseMQClient(protocolType, clientId)
 {
-    uint32_t dataSize;
-    read(dataSize);
-    if (dataSize > 0) {
-        data.checkSize(dataSize);
-        m_socket.read(data.data(), dataSize);
+    UniqueLock(m_mutex);
+    initSocketEvents();
+}
+
+TCPMQClient::~TCPMQClient()
+{
+    destroyConnection();
+}
+
+void TCPMQClient::createConnection(const Host& server, bool encrypted, std::chrono::milliseconds timeout)
+{
+    UniqueLock(m_mutex);
+    if (m_socket && m_socket->active())
+        return;
+    if (encrypted) {
+        m_socket = make_shared<SSLSocket>();
+        //loadKeys(keyFile, certificateFile, password, caFile, verifyMode, verifyDepth);
+    } else {
+        m_socket = make_shared<TCPSocket>();
     }
-    data.bytes(dataSize);
-    return dataSize + sizeof(dataSize);
+    m_socket->open(server, TCPSocket::SOM_CONNECT, true, timeout);
+    smqSocketEvents->add(*m_socket, this);
+
+    m_protocol = MQProtocol::factory(protocolType(), *m_socket);
 }
 
-size_t MQProtocol::read(char* data, size_t dataSize)
+void TCPMQClient::destroyConnection()
 {
-    return m_socket.read(data, dataSize);
-}
-
-size_t MQProtocol::write(String& str)
-{
-    return m_socket.write(str.c_str(), str.length());
-}
-
-size_t MQProtocol::write(Buffer& data)
-{
-    return m_socket.write(data.c_str(), data.bytes());
-}
-
-std::shared_ptr<MQProtocol> MQProtocol::factory(MQProtocolType protocolType, TCPSocket& socket)
-{
-    switch (protocolType) {
-        case MP_SMQ:    return make_shared<SMQProtocol>(socket);
-        case MP_MQTT:   return make_shared<MQTTProtocol>(socket);
-        default:        throw Exception("Protocol is not yet supported");
+    UniqueLock(m_mutex);
+    if (m_socket) {
+        smqSocketEvents->remove(*m_socket);
+        m_socket->close();
+        m_socket.reset();
     }
 }
 
-TCPSocket& MQProtocol::socket() const
+void TCPMQClient::smqSocketEventCallback(void* userData, SocketEventType eventType)
 {
-    return m_socket;
+    auto* client = (TCPMQClient*) userData;
+    client->socketEvent(eventType);
+}
+
+void TCPMQClient::loadSslKeys(const SSLKeys& keys)
+{
+    if (m_socket) {
+        auto* sslSocket = dynamic_cast<SSLSocket*>(m_socket.get());
+        if (sslSocket != nullptr)
+            sslSocket->loadKeys(keys);
+    }
+}
+
+MQProtocol& TCPMQClient::protocol()
+{
+    return *m_protocol;
 }

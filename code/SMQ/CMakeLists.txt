@@ -1,18 +1,24 @@
-ADD_LIBRARY(smq_lib 
-    mq/Message.cpp mq/BaseMQClient.cpp mq/TCPMQClient.cpp mq/SMQClient.cpp
-    protocols/MQProtocol.cpp protocols/MQTTFrame.cpp protocols/MQTTProtocol.cpp protocols/SMQProtocol.cpp
-    smq/SMQConnection.cpp smq/SMQServer.cpp
-    smq/SMQSubscription.cpp smq/SMQSubscriptions.cpp
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+
+ADD_LIBRARY(smq SHARED
+        src/clients/Message.cpp src/clients/BaseMQClient.cpp src/clients/TCPMQClient.cpp src/clients/SMQClient.cpp
+        src/protocols/MQProtocol.cpp src/protocols/MQTTFrame.cpp src/protocols/MQTTProtocol.cpp src/protocols/SMQProtocol.cpp
+        src/server/SMQConnection.cpp src/server/SMQServer.cpp
+        src/server/SMQSubscription.cpp src/server/SMQSubscriptions.cpp
 )
 
 ADD_EXECUTABLE (smq_server
-    smq/smq_server
+        src/server/smq_server
 )
 
-TARGET_LINK_LIBRARIES(smq_server smq_lib sputil5)
+TARGET_LINK_LIBRARIES(smq_server smq sputil5)
 
-INSTALL(TARGETS smq_server
+INSTALL(TARGETS smq_server smq
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
   )
+
+INSTALL (DIRECTORY "smq"
+      DESTINATION include
+      DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE )

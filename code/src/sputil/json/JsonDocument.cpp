@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/cutils>
-#include <sptk5/json/JsonDocument.h>
 #include <sptk5/json/JsonParser.h>
 
 using namespace std;
@@ -103,9 +102,9 @@ void Document::load(istream& json)
     streampos       length = json.tellg() - pos;
     json.seekg (pos, ios::beg);
 
-    Buffer buffer(length);
+    Buffer buffer((size_t)length);
     json.read(buffer.data(), length);
-    buffer.bytes(length);
+    buffer.bytes((size_t)length);
     load(buffer.c_str());
 }
 
@@ -154,9 +153,9 @@ void verifyDocument(json::Document& document)
 
     json::ArrayData& arrayData = root.getArray("skills");
     Strings skills;
-    for (auto* skill: arrayData) {
-        skills.push_back(skill->getString());
-    }
+    skills.resize(arrayData.size());
+    transform(arrayData.begin(), arrayData.end(), skills.begin(),
+              [](const json::Element* skill) -> String { return skill->getString(); });
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
 
     json::Element* ptr = root.find("address");
@@ -204,8 +203,9 @@ TEST(SPTK_JsonDocument, add)
 
     json::ArrayData& array = root.getArray("array");
     Strings skills;
-    for (auto* skill: array)
-        skills.push_back(skill->getString());
+    skills.resize(array.size());
+    transform(array.begin(), array.end(), skills.begin(),
+              [](json::Element* skill) -> String { return skill->getString(); });
     EXPECT_STREQ("C++,Java,Python", skills.join(",").c_str());
 
     json::Element* object = root.find("object");

@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <SMQ/protocols/MQTTProtocol.h>
+#include <smq/protocols/MQTTProtocol.h>
 
 using namespace std;
 using namespace sptk;
@@ -43,7 +43,7 @@ void MQTTProtocol::ack(Message::Type sourceMessageType, const String& messageId)
             return;
     }
 
-    uint16_t shortMessageId = messageId.empty() ? 0 : (uint16_t) string2int(messageId);
+    uint16_t shortMessageId = uint16_t(messageId.empty() ? 0 : string2int(messageId));
     MQTTFrame ackFrame(ackType, shortMessageId, QOS_0);
     ackFrame.setACK(shortMessageId, ackType);
     socket().send(ackFrame.c_str(), ackFrame.bytes());
