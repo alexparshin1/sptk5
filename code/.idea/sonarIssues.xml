@@ -23,6 +23,11 @@
             <set />
           </value>
         </entry>
+        <entry key="/db_pump (disassembly)">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="/edp_procman (disassembly)">
           <value>
             <set />
@@ -473,6 +478,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/Index.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/Index.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/db_pump/IndexColumn.cpp">
           <value>
             <set />
@@ -503,6 +518,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/OracleDialect.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/db_pump/PGDialect.cpp">
           <value>
             <set />
@@ -514,6 +534,16 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/db_pump/Table.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/Table.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/db_pump/UniqueList.h">
           <value>
             <set />
           </value>
@@ -668,6 +698,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../protis/src/protis_core/db_changes/owner_database/004.Added_date_is_null_function.oracle.sql">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../protis/src/protis_core/owner_database/UpdateOwnerDatabases.cpp">
           <value>
             <set />
@@ -769,6 +804,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/db/MySQLStatement.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/ODBCEnvironment.h">
           <value>
             <set />
           </value>
@@ -964,6 +1004,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/drivers/PostgreSQL/PostgreSQLConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/odbc/ODBC.cpp">
           <value>
             <set />
           </value>
