@@ -38,7 +38,7 @@ namespace sptk {
 class SMQProtocol : public MQProtocol
 {
 public:
-    SMQProtocol(TCPSocket& socket) : MQProtocol(socket) {}
+    explicit SMQProtocol(TCPSocket& socket) : MQProtocol(socket) {}
     void ack(Message::Type sourceMessageType, const String& messageId) override;
     bool readMessage(SMessage& message) override;
     bool sendMessage(const String& destination, SMessage& message) override;

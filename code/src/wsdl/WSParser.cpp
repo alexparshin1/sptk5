@@ -47,14 +47,14 @@ WSParser::~WSParser()
 
 void WSParser::clear()
 {
-    for (auto itor: m_complexTypes) {
+    for (auto& itor: m_complexTypes) {
         WSParserComplexType* complexType = itor.second;
         if (complexType->refCount() != 0)
             complexType->decreaseRefCount();
         else
             delete complexType;
     }
-    for (auto itor: m_elements)
+    for (auto& itor: m_elements)
         delete itor.second;
     m_complexTypes.clear();
     m_elements.clear();
@@ -242,7 +242,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "class " << serviceClassName << " : public sptk::WSRequest" << endl;
     serviceDefinition << "{" << endl;
     serviceDefinition << "    sptk::LogEngine*  m_logEngine;    ///< Optional logger, or nullptr" << endl;
-    for (auto itor: m_operations) {
+    for (auto& itor: m_operations) {
         string requestName = strip_namespace(itor.second.m_input->name());
         serviceDefinition << "    /**" << endl;
         serviceDefinition << "     * Internal Web Service " << requestName << " processing" << endl;
@@ -277,7 +277,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "    // Abstract methods below correspond to WSDL-defined operations. " << endl;
     serviceDefinition << "    // Application must overwrite these methods with processing of corresponding" << endl;
     serviceDefinition << "    // requests, reading data from input and writing data to output structures." << endl;
-    for (auto itor: m_operations) {
+    for (auto& itor: m_operations) {
         WSOperation& operation = itor.second;
         serviceDefinition << endl;
         serviceDefinition << "    /**" << endl;
@@ -286,8 +286,8 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         string documentation = m_documentation[operation.m_input->name()];
         if (!documentation.empty()) {
             Strings documentationRows(documentation, "\n");
-            for (unsigned i = 0; i < documentationRows.size(); i++)
-                serviceDefinition << "     * " << trim(documentationRows[i]) << endl;
+            for (auto& row: documentationRows)
+                serviceDefinition << "     * " << trim(row) << endl;
         }
         serviceDefinition << "     * This method is abstract and must be overwritten by derived Web Service implementation class." << endl;
         serviceDefinition << "     * @param input            Operation input data" << endl;
@@ -312,7 +312,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     Strings serviceOperations;
-    for (auto itor: m_operations) {
+    for (auto& itor: m_operations) {
         String requestName = strip_namespace(itor.second.m_input->name());
         serviceOperations.push_back(requestName);
     }
@@ -334,7 +334,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "    int messageIndex = messageNames.indexOf(requestName);" << endl;
     serviceImplementation << "    try {" << endl;
     serviceImplementation << "        switch (messageIndex) {" << endl;
-    for (auto itor: m_operations) {
+    for (auto& itor: m_operations) {
         string requestName = strip_namespace(itor.second.m_input->name());
         int messageIndex = serviceOperationsIndex.indexOf(requestName);
         serviceImplementation << "        case " << messageIndex << ":" << endl;
@@ -366,7 +366,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "    }" << endl;
     serviceImplementation << "}" << endl;
 
-    for (auto itor: m_operations) {
+    for (auto& itor: m_operations) {
         String operationName = itor.first;
         Strings nameParts(itor.second.m_input->name(), ":");
         String requestName;
@@ -418,7 +418,7 @@ void WSParser::generate(std::string sourceDirectory, std::string headerFile)
     cmakeLists << "  " << wsdlFileName << ".cpp " << wsdlFileName << ".h" << endl;
 
     Strings usedClasses;
-    for (auto itor: m_complexTypes) {
+    for (auto& itor: m_complexTypes) {
         WSParserComplexType* complexType = itor.second;
         SourceModule module("C" + complexType->name(), sourceDirectory);
         module.open();

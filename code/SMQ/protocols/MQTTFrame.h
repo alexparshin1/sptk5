@@ -201,7 +201,7 @@ public:
      * @param id                Message id
      * @param qos               QOS - Quality Of Service
      */
-    MQTTFrame(MQTTFrameType type=FT_UNDEFINED, uint16_t id=0, MQTTQOS qos=QOS_0);
+    explicit MQTTFrame(MQTTFrameType type=FT_UNDEFINED, uint16_t id=0, MQTTQOS qos=QOS_0);
 
     /**
      * Get MQTT frame type

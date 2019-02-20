@@ -56,8 +56,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~WSConnection()
-    {}
+    virtual ~WSConnection() = default;
 
     /**
      * Thread function
@@ -82,7 +81,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~WSSSLConnection();
+    virtual ~WSSSLConnection() = default;
 };
 
 }

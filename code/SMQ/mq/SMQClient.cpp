@@ -76,10 +76,6 @@ void SMQClient::unsubscribe(const String& destination, std::chrono::milliseconds
     send(destination, unsubscribeMessage, timeout);
 }
 
-SMQClient::~SMQClient()
-{
-}
-
 void SMQClient::socketEvent(SocketEventType eventType)
 {
     if (eventType == ET_CONNECTION_CLOSED) {

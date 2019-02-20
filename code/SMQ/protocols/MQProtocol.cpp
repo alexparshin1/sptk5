@@ -28,7 +28,6 @@
 
 #include <SMQ/protocols/SMQProtocol.h>
 #include <SMQ/protocols/MQTTProtocol.h>
-#include <SMQ/protocols/MQProtocol.h>
 
 
 using namespace std;

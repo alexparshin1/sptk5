@@ -170,7 +170,3 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, soc
         setSocket(new TCPSocket);
     socket().attach(connectionSocket);
 }
-
-WSSSLConnection::~WSSSLConnection()
-{
-}

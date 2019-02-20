@@ -64,7 +64,7 @@ protected:
 public:
 
 	SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine);
-    ~SMQServer();
+    ~SMQServer() override;
 
     void stop() override;
 

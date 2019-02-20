@@ -28,9 +28,7 @@
 
 #include <SMQ/smq/SMQServer.h>
 #include <SMQ/mq/SMQClient.h>
-#include <SMQ/mq/BaseMQClient.h>
 #include <SMQ/protocols/MQTTProtocol.h>
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -80,9 +78,8 @@ void SMQServer::closeConnection(ServerConnection* connection)
 
 void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
 {
-    SMQConnection* connection = (SMQConnection*) userData;
-
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&connection->server());
+    auto* connection = (SMQConnection*) userData;
+    auto* smqServer = dynamic_cast<SMQServer*>(&connection->server());
 
     if (eventType == ET_CONNECTION_CLOSED) {
         smqServer->closeConnection(connection);

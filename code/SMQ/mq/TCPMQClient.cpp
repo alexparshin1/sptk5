@@ -94,7 +94,7 @@ void TCPMQClient::smqSocketEventCallback(void* userData, SocketEventType eventTy
 void TCPMQClient::loadSslKeys(const SSLKeys& keys)
 {
     if (m_socket) {
-        SSLSocket* sslSocket = dynamic_cast<SSLSocket*>(m_socket.get());
+        auto* sslSocket = dynamic_cast<SSLSocket*>(m_socket.get());
         if (sslSocket != nullptr)
             sslSocket->loadKeys(keys);
     }

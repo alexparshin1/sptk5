@@ -55,7 +55,7 @@ public:
 
 protected:
 
-    MQProtocol(TCPSocket& socket) : m_socket(socket) {}
+    explicit MQProtocol(TCPSocket& socket) : m_socket(socket) {}
 
     TCPSocket& socket() const;
 

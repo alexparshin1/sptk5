@@ -38,7 +38,7 @@ class MQTTProtocol : public MQProtocol
 {
 
 public:
-    MQTTProtocol(TCPSocket& socket) : MQProtocol(socket) {}
+    explicit MQTTProtocol(TCPSocket& socket) : MQProtocol(socket) {}
 
     static Message::Type mqMessageType(MQTTFrameType nativeMessageType);
     static MQTTFrameType nativeMessageType(Message::Type mqMessageType);

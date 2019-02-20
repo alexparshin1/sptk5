@@ -27,7 +27,6 @@
 */
 
 #include <SMQ/protocols/MQTTProtocol.h>
-#include <SMQ/protocols/MQTTFrame.h>
 
 using namespace std;
 using namespace sptk;

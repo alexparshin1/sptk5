@@ -58,7 +58,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~SMQClient();
+    virtual ~SMQClient() = default;
 
     /*
      * Connect to MQ server
@@ -81,13 +81,13 @@ public:
      * Subscribe to a queue or topic
      * @param destination       Destination queue or topic name
      */
-    void subscribe(const String& destination, std::chrono::milliseconds timeout);
+    void subscribe(const String& destination, std::chrono::milliseconds timeout) override;
 
     /**
      * Un-subscribe from a queue or topic
      * @param destination       Destination queue or topic name
      */
-    void unsubscribe(const String& destination, std::chrono::milliseconds timeout);
+    void unsubscribe(const String& destination, std::chrono::milliseconds timeout) override;
 
     /**
      * Send message

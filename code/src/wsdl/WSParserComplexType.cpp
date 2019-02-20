@@ -96,7 +96,7 @@ WSParserComplexType::~WSParserComplexType()
     if (m_refcount == 0) {
         for (auto* element: m_sequence)
             delete element;
-        for (auto itor: m_attributes)
+        for (auto& itor: m_attributes)
             delete itor.second;
         delete m_restriction;
     }
@@ -234,7 +234,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
 
     if (!m_attributes.empty()) {
         classDeclaration << "   // Attributes" << endl;
-        for (auto itor: m_attributes) {
+        for (auto& itor: m_attributes) {
             WSParserAttribute& attr = *itor.second;
             classDeclaration << "   " << attr.generate() << ";" << endl;
             ctorInitializer.push_back("m_" + attr.name() + "(\"" + attr.name() + "\")");

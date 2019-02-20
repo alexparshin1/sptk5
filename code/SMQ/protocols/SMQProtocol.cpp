@@ -133,7 +133,7 @@ bool SMQProtocol::sendMessage(const String& destination, SMessage& message)
     message->destination(destination);
 
     Buffer headers;
-    for (auto itor: message->headers()) {
+    for (auto& itor: message->headers()) {
         headers.append(itor.first);
         headers.append(": ", 2);
         headers.append(itor.second);

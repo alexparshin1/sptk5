@@ -1,6 +1,5 @@
 #include <SMQ/smq/SMQServer.h>
 #include <SMQ/mq/SMQClient.h>
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;

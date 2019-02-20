@@ -11,7 +11,6 @@
 */
 
 #include <SMQ/protocols/MQTTFrame.h>
-#include <SMQ/mq/Message.h>
 
 using namespace std;
 using namespace sptk;
@@ -97,7 +96,7 @@ const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, const String& use
         }
     }
 
-    string willMessage;
+    String willMessage;
     // If will topic and message are defined - add their size to payload length
     if (!lastWillTopic.empty()) {
         Message will;

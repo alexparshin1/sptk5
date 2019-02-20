@@ -34,7 +34,7 @@ using namespace sptk;
 SMQConnection::SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*)
 : TCPServerConnection(server, connectionSocket)
 {
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server);
+    auto* smqServer = dynamic_cast<SMQServer*>(&server);
     if (smqServer != nullptr) {
         m_protocolType = smqServer->protocol();
         m_protocol = MQProtocol::factory(m_protocolType, socket());
@@ -44,7 +44,7 @@ SMQConnection::SMQConnection(TCPServer& server, SOCKET connectionSocket, sockadd
 
 SMQConnection::~SMQConnection()
 {
-    SMQServer* smqServer = dynamic_cast<SMQServer*>(&server());
+    auto* smqServer = dynamic_cast<SMQServer*>(&server());
     if (smqServer != nullptr && socket().active())
         smqServer->forgetSocket(socket());
 
@@ -64,8 +64,7 @@ void SMQConnection::terminate()
 
 void SMQConnection::run()
 {
-    // SMQServer doesn't tasks
-    return;
+    // SMQServer doesn't run tasks
 }
 
 String SMQConnection::clientId() const
