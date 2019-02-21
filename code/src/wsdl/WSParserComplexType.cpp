@@ -159,8 +159,8 @@ void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, co
     includeFiles.push_back("#include <sptk5/wsdl/WSComplexType.h>");
     includeFiles.push_back("#include <sptk5/wsdl/WSRestriction.h>");
 
-    std::transform(usedClasses.begin(), usedClasses.end(), includeFiles.begin(),
-                   [](const String& s) -> String { return "#include \"" + s + ".h\""; });
+    for (auto& usedClass: usedClasses)
+        includeFiles.push_back("#include \"" + usedClass + ".h\"");
 
     includeFiles.sort();
     classDeclaration << includeFiles.join("\n") << endl << endl;

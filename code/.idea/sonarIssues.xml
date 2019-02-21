@@ -378,12 +378,27 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_procman/LogManager.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_procman/ModuleManager.cpp">
           <value>
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_procman/ModuleManager.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_procman/child.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_procman/edp_procman.cpp">
           <value>
             <set />
           </value>
@@ -409,6 +424,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_request/RestRequest.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/edp_request/edp_request.cpp">
           <value>
             <set />
           </value>
@@ -1074,6 +1094,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/test/TestRunner.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/wsdl/WSParserComplexType.cpp">
           <value>
             <set />
           </value>
