@@ -200,7 +200,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~MySQLConnection();
+    ~MySQLConnection() override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.

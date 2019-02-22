@@ -220,7 +220,7 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = NULL)
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = nullptr)
     {
         m_connection->executeBatchSQL(batchSQL, errors);
     }

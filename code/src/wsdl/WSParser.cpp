@@ -106,7 +106,7 @@ void WSParser::parseOperation(xml::Element* operationNode)
     xml::NodeVector messageNodes;
     operationNode->document()->select(messageNodes, "//wsdl:message");
 
-    map<string, string> messageToElementMap;
+    map<String, String> messageToElementMap;
     for (auto* node: messageNodes) {
         auto* message = dynamic_cast<xml::Element*>(node);
         if (message == nullptr)

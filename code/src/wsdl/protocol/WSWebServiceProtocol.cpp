@@ -54,7 +54,7 @@ xml::Node* WSWebServiceProtocol::findRequestNode(const xml::Document& message, c
     String ns = "soap";
     for (auto* node: message) {
         if (lowerCase(node->name()).endsWith(":envelope")) {
-            size_t pos = node->name().find(":");
+            size_t pos = node->name().find(':');
             ns = node->name().substr(0, pos);
         }
     }

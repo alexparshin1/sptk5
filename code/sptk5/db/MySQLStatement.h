@@ -33,7 +33,7 @@
 
 #include <list>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/DatabaseStatement.h>

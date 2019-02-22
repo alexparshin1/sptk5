@@ -80,10 +80,8 @@ int th_read_internal(TAR *t)
 
 void clearTarHeader(struct tar_header* th)
 {
-    if (th->gnu_longname != nullptr)
-        delete [] th->gnu_longname;
-    if (th->gnu_longlink != nullptr)
-        delete [] th->gnu_longlink;
+    delete [] th->gnu_longname;
+    delete [] th->gnu_longlink;
     memset(th, 0, sizeof(struct tar_header));
 }
 

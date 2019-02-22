@@ -45,7 +45,7 @@
 #endif
 
 #include <sqlext.h>
-#include <assert.h>
+#include <cassert>
 
 #include <sptk5/db/QueryParameterList.h>
 #include <mutex>
@@ -80,18 +80,14 @@ protected:
     /**
      * Constructor
      */
-    ODBCBase()
-    {
-    }
+    ODBCBase() = default;
 
 public:
 
     /**
      * Destructor
      */
-    ~ODBCBase()
-    {
-    }
+    ~ODBCBase() = default;
 
     /**
      * Throws the exception

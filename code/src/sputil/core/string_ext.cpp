@@ -246,7 +246,7 @@ static void capitalizeWord(char* current, char* wordStart)
         *ptr = (char) tolower(*ptr);
 }
 
-static void lowerCaseWord(char* current, char* wordStart)
+static void lowerCaseWord(const char* current, char* wordStart)
 {
     if (wordStart != nullptr) {
         for (char* ptr = wordStart; ptr < current; ptr++)
@@ -254,9 +254,8 @@ static void lowerCaseWord(char* current, char* wordStart)
     }
 }
 
-String sptk::capitalizeWords(const String& str)
+String sptk::capitalizeWords(const String& s)
 {
-    String s(str);
     auto* current = (char*) s.c_str();
     char* wordStart = nullptr;
 

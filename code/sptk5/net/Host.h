@@ -151,13 +151,13 @@ public:
      * Copy constructor
      * @param other             The other object
      */
-    explicit Host(const Host& other);
+    Host(const Host& other);
 
     /**
      * Move constructor
      * @param other             The other object
      */
-    explicit Host(Host&& other) noexcept;
+    Host(Host&& other) noexcept;
 
     /**
      * Destructor

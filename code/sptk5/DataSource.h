@@ -74,14 +74,12 @@ public:
     /**
      * Default constructor
      */
-    DataSource()
-    {}
+    DataSource() = default;
 
     /**
      * Destructor
      */
-    virtual ~DataSource()
-    {}
+    virtual ~DataSource() = default;
 
     /**
      * Field access by the field index, const version.
@@ -140,7 +138,7 @@ public:
      */
     virtual void* user_data() const 
     {
-        return 0L;
+        return nullptr;
     }
 
     /**

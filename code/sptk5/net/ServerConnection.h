@@ -83,7 +83,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~ServerConnection();
+    ~ServerConnection() override;
 };
 
 /**

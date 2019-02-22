@@ -140,7 +140,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~Document()
+    ~Document() override
     {
         Document::clear();
     }
@@ -148,7 +148,7 @@ public:
     /**
      * Returns node type
      */
-    virtual NodeType type() const override
+    NodeType type() const override
     {
         return DOM_DOCUMENT;
     }
@@ -156,18 +156,18 @@ public:
     /**
      * Destroys all nodes in document
      */
-    virtual void clear() override;
+    void clear() override;
 
     /**
      * Returns the node name.
      */
-    virtual const std::string& name() const override;
+    const std::string& name() const override;
 
     /**
      * Sets the new name for the node
      * @param name              New node name
      */
-    virtual void name(const std::string& name) override
+    void name(const std::string& name) override
     {
         // Document has no node name
     }
@@ -176,7 +176,7 @@ public:
      * Sets new name for node
      * @param name              New node name
      */
-    virtual void name(const char* name) override
+    void name(const char* name) override
     {
         // Document has no node name
     }

@@ -91,7 +91,7 @@ public:
     /**
      * Destructor
      */
-    ~SocketEvents();
+    ~SocketEvents() override;
 
     /**
      * Add socket to collection and start monitoring its events

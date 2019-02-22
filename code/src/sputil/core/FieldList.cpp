@@ -106,7 +106,7 @@ Field& FieldList::push_back(Field *field)
 Field *FieldList::findField(const String& fname) const
 {
     if (m_index) {
-        Map::const_iterator itor = m_index->find(fname);
+        auto itor = m_index->find(fname);
         if (itor != m_index->end())
             return itor->second;
     }

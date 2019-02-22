@@ -104,7 +104,7 @@ public:
      * @param indexed           If you want to have a field index by name added. Such index speeds up the search of the field by name, but increases the occupied memory.
      * @param compactXmlMode    Compact XML export flag, @see xmlMode for details
      */
-    FieldList(bool indexed, bool compactXmlMode=true);
+    explicit FieldList(bool indexed, bool compactXmlMode=true);
 
     /**
      * Copy constructor

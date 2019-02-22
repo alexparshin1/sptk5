@@ -74,7 +74,7 @@ protected:
      * @param cmd               SMTP protocol command
      * @param encode            Encode the arguments to Base64 or not
      */
-    void sendCommand(std::string cmd, bool encode = false);
+    void sendCommand(String cmd, bool encode = false);
 
     /**
      * @brief Retrieves the server response after the command into internal Strings buffer
@@ -111,12 +111,12 @@ public:
      * @brief Default constructor
      * @param log               Optional log object
      */
-    explicit SmtpConnect(Logger* log=NULL);
+    explicit SmtpConnect(Logger* log=nullptr);
 
     /**
      * Destructor
      */
-    ~SmtpConnect();
+    ~SmtpConnect() override;
 
     /**
      * Sends command using SMTP protocol and retrieve the server response.
@@ -162,7 +162,7 @@ public:
      * The message based on the information defined by the methods from
      * CBaseMailConnect, and retrieves the server output.
      */
-    virtual void sendMessage();
+    void sendMessage() override;
 
     /**
      * @brief Strips HTML tags off the message, prepare the alternative text for an HTML message

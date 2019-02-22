@@ -64,7 +64,7 @@ protected:
 
 public:
 
-    virtual ~TCPMQClient();
+    ~TCPMQClient() override;
 
     MQProtocol& protocol();
 

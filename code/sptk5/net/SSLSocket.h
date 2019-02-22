@@ -57,7 +57,7 @@ public:
     /**
      * Returns number of bytes available for read
      */
-    virtual size_t socketBytes() override;
+    size_t socketBytes() override;
 
     /**
      * Throws SSL error based on SSL function return code
@@ -103,7 +103,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~SSLSocket();
+    ~SSLSocket() override;
 
     /**
      * Loads private key and certificate(s)

@@ -101,7 +101,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~ImapDS()
+    ~ImapDS() override
     {
         MemoryDS::close();
     }

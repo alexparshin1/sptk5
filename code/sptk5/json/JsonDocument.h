@@ -63,24 +63,20 @@ class Document
      */
     void parse(const std::string& json);
 
+public:
+
+    /**
+    * Constructor
+    * Creates empty JSON document.
+    * Use one of the load() methods to populate it, or use add(), remove() methods of the root element to modify it.
+    * @param isObject bool, If true then document root is JSON object. Otherwise, document root is JSON array.
+    */
+    explicit Document(bool isObject=true);
+
     /**
      * Disable copy constructor
      */
     Document(const Document&) = delete;
-
-    /**
-     * Disable copy assignment
-     */
-    Document& operator = (const Document&) = delete;
-
-public:
-    /**
-     * Constructor
-     * Creates empty JSON document.
-     * Use one of the load() methods to populate it, or use add(), remove() methods of the root element to modify it.
-     * @param isObject bool, If true then document root is JSON object. Otherwise, document root is JSON array.
-     */
-    explicit Document(bool isObject=true);
 
     /**
      * Move constructor
@@ -94,6 +90,11 @@ public:
      * Destructor
      */
     ~Document();
+
+    /**
+     * Disable copy assignment
+     */
+    Document& operator = (const Document&) = delete;
 
     /**
      * Load document from JSON text, replacing existing document

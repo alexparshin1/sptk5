@@ -72,7 +72,7 @@ public:
       m_type(other.m_type)
     {}
 
-    virtual ~Message() = default;
+    ~Message() override = default;
 
     void clear();
 

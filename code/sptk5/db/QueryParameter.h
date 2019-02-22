@@ -122,12 +122,12 @@ public:
      * @param name char *, parameter name
      * @param isOutput bool, parameter binding type: input or output
      */
-    QueryParameter(const char* name, bool isOutput=false);
+    explicit QueryParameter(const char* name, bool isOutput=false);
 
     /**
      * @brief Destructor
      */
-    ~QueryParameter();
+    ~QueryParameter() override;
 
     /**
      * @brief Returns parameter name
@@ -163,7 +163,8 @@ public:
     /**
      * @brief Assign operator
      */
-    QueryParameter& operator = (int32_t v) {
+    QueryParameter& operator = (int32_t v)  override
+    {
         setInteger(v);
         return *this;
     }
@@ -179,7 +180,8 @@ public:
     /**
      * @brief Assign operator
      */
-    QueryParameter& operator = (int64_t v) {
+    QueryParameter& operator = (int64_t v) override
+    {
         setInt64(v);
         return *this;
     }
@@ -187,7 +189,8 @@ public:
     /**
      * @brief Assign operator
      */
-    QueryParameter& operator = (uint64_t v) {
+    QueryParameter& operator = (uint64_t v)
+    {
         setInt64((int64_t)v);
         return *this;
     }
@@ -203,7 +206,8 @@ public:
     /**
      * @brief Assign operator
      */
-    QueryParameter& operator = (double v) {
+    QueryParameter& operator = (double v) override
+    {
         setFloat(v);
         return *this;
     }
@@ -211,7 +215,7 @@ public:
     /**
      * @brief Assign operator
      */
-    QueryParameter& operator = (const char* s) {
+    QueryParameter& operator = (const char* s) override {
         setString(s, 0);
         return *this;
     }
@@ -227,7 +231,7 @@ public:
     /**
      * @brief Assign operator
      */
-    QueryParameter& operator = (DateTime dt) {
+    QueryParameter& operator = (DateTime dt) override {
         setDateTime(dt);
         return *this;
     }
@@ -235,7 +239,7 @@ public:
     /**
      * @brief Assignment operator
      */
-    virtual QueryParameter& operator = (const void* value) {
+    virtual QueryParameter& operator = (const void* value) override {
         setImagePtr(value);
         return *this;
     }
@@ -244,7 +248,7 @@ public:
      * @brief Assign operator
      * @param buffer             Data buffer
      */
-    QueryParameter& operator = (const Buffer& buffer) {
+    QueryParameter& operator = (const Buffer& buffer) override {
         setBuffer(buffer.c_str(), buffer.bytes());
         return *this;
     }
@@ -275,7 +279,7 @@ public:
      * tries not to decrease the allocated buffer.
      * @param value const string&, string to assign
      */
-    virtual void setString(const String& value) {
+    virtual void setString(const String& value) override {
         setString(value.c_str(), (uint32_t)value.length());
     }
 

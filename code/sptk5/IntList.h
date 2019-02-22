@@ -55,7 +55,7 @@ public:
     /**
      * Constructor
      */
-    IntList() {}
+    IntList() = default;
 
     /**
      * Assigns another IntList

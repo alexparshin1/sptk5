@@ -234,7 +234,7 @@ const char* xml::DocType::getReplacement(const char *name, uint32_t& replacement
     }
 
     // Find in custom attributes
-    Entities::const_iterator itor = m_entities.find(name);
+    auto itor = m_entities.find(name);
     if (itor != m_entities.end()) {
         const string& rep = itor->second;
         replacementLength = (uint32_t) rep.length();

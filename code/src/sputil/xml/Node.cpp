@@ -157,8 +157,7 @@ bool NodeSearchAlgorithms::matchPathElement(Node* thisNode, const XPathElement& 
         bool attributeMatch = false;
         if (pathElement.attributeValueDefined) {
             if (pathElement.attributeName == starPointer) {
-                for (Attributes::const_iterator attr = attributes.begin(); attr != attributes.end(); ++attr) {
-                    Node* a = *attr;
+                for (auto a: attributes) {
                     if (a->name() == pathElement.attributeValue) {
                         attributeMatch = true;
                         break;

@@ -162,7 +162,7 @@ void DirectoryDS::directory(const String& d)
 
 static bool fileMatchesPattern(const String& fileName, vector< shared_ptr<RegularExpression> >& matchPatterns)
 {
-    for (auto matchPattern: matchPatterns) {
+    for (auto& matchPattern: matchPatterns) {
         if (matchPattern->matches(fileName))
             return true;
     }

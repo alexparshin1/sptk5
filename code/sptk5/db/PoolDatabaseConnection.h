@@ -496,7 +496,7 @@ public:
      * @param batchFileName     SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchFile(const String& batchFileName, Strings* errors = NULL)
+    void executeBatchFile(const String& batchFileName, Strings* errors = nullptr)
     {
         _executeBatchFile(batchFileName, errors);
     }
@@ -509,7 +509,7 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = NULL)
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = nullptr)
     {
         _executeBatchSQL(batchSQL, errors);
     }

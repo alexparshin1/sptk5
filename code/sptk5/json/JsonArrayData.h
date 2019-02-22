@@ -93,7 +93,7 @@ public:
      * @param document          Document this object belongs to
      * @param parent            Parent JSON element
      */
-    explicit ArrayData(const Document* document, Element* parent = NULL);
+    explicit ArrayData(const Document* document, Element* parent = nullptr);
 
     /**
      * Destructor

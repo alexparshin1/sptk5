@@ -79,10 +79,9 @@ libtar_hash_nents(libtar_hash_t *h)
 /*
 ** libtar_hash_new() - create a new hash
 */
-libtar_hash_t *
-libtar_hash_new(int num, libtar_hashfunc_t hashfunc)
+libtar_hash_t* libtar_hash_new(int num, libtar_hashfunc_t hashfunc)
 {
-    libtar_hash_t *hash = new libtar_hash_t;
+    auto* hash = new libtar_hash_t;
     if (hash == nullptr)
         return nullptr;
     memset(hash, 0, sizeof(libtar_hash_t));

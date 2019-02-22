@@ -80,7 +80,7 @@
     #endif
 #else
     #include <unistd.h>
-    #include <errno.h>
+    #include <cerrno>
 #endif
 
 #ifndef STRING_NPOS
@@ -100,8 +100,8 @@
 #define ALIGN_CENTER 3
 
 #ifdef __UNIX_COMPILER__
-    #include <inttypes.h>
-    #include <stdint.h>
+    #include <cinttypes>
+    #include <cstdint>
 
 #elif __BORLANDC__
     #include <stdint.h>
