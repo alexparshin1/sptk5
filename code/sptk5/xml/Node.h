@@ -145,6 +145,9 @@ public:
     }
 };
 
+/**
+ * XML Node iterators
+ */
 class SP_EXPORT Node_Iterators
 {
 public:
@@ -181,6 +184,9 @@ public:
 
 class Node;
 
+/**
+ * Base XML Node class
+ */
 class SP_EXPORT Node_Base: public Node_Iterators
 {
     /**
