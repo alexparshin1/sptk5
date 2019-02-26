@@ -653,15 +653,33 @@ public:
     }
 };
 
+/**
+ * Algorithms for searching nodes
+ */
 class SP_EXPORT NodeSearchAlgorithms
 {
 public:
+    /**
+     * Scan descendents nodes
+     */
     static void scanDescendents(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
                                 const std::string* starPointer);
+
+    /**
+     * Match nodes
+     */
     static void matchNode(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
                           const std::string* starPointer);
+
+    /**
+     * Match nodes only this level
+     */
     static void matchNodesThisLevel(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
                                     const std::string* starPointer, NodeVector& matchedNodes, bool descendants);
+
+    /**
+     * Match path element
+     */
     static bool matchPathElement(Node* thisNode, const XPathElement& pathElement, const std::string* starPointer, bool& nameMatches);
 };
 
