@@ -412,7 +412,13 @@ void ODBCConnection::queryBindParameters(Query* query)
                         *(char*) buff = 0;
                     }
                     break;
-
+                    /*
+                case VAR_NONE:
+                    buff = (void*)param->getString();
+                    paramType = SQL_C_CHAR;
+                    sqlType = SQL_WVARCHAR;
+                    break;
+                    */
                 default:
                     THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'");
             }
