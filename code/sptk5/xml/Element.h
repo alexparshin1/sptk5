@@ -110,7 +110,7 @@ public:
     /**
      * Destructor
      */
-    ~Element()
+    ~Element() override
     {
         Element::clear();
     }
@@ -238,7 +238,7 @@ public:
      */
     bool hasAttributes() const override
     {
-        return m_attributes.size() != 0;
+        return !m_attributes.empty();
     }
 
     /**

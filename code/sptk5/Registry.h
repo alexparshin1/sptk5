@@ -109,7 +109,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~Registry() = default;
+    ~Registry() override = default;
 
     /**
      * @brief Sets the registry file name
@@ -122,7 +122,7 @@ public:
     /**
      * @brief Returns the registry file name
      */
-    const std::string fileName()
+    const String fileName()
     {
         return m_fileName;
     }
@@ -142,7 +142,7 @@ public:
      * @brief Loads registry from std::string.
      * @param data const std::string&, source string
      */
-    virtual void load(const std::string& data)
+    void load(const std::string& data) override
     {
         load(data.c_str());
     }
@@ -151,7 +151,7 @@ public:
      * @brief Loads registry from buffer
      * @param data const char*, source string
      */
-    virtual void load(const char* data);
+    void load(const char* data) override;
 
     /**
      * @brief Loads registry from XML node
@@ -166,7 +166,7 @@ public:
      * @brief Loads registry from buffer.
      * @param buffer const CBuffer&, source buffer
      */
-    virtual void load(const Buffer &buffer)
+    void load(const Buffer &buffer) override
     {
         clear();
         xml::Document::load(buffer);
@@ -205,7 +205,7 @@ public:
      * @param buffer CBuffer&, Output buffer to save document
      * @param indent int, formatting indent (spaces)
      */
-    virtual void save(Buffer &buffer, int indent) const
+    void save(Buffer &buffer, int indent) const override
     {
         xml::Document::save(buffer, indent);
     }

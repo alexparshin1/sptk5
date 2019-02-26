@@ -380,7 +380,7 @@ void MySQLConnection::_bulkInsert(const String& tableName, const Strings& column
 
 void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
-    unique_ptr<RegularExpression> matchStatementEnd(new RegularExpression("(;\\s*)$"));
+    shared_ptr<RegularExpression> matchStatementEnd(new RegularExpression("(;\\s*)$"));
 
     RegularExpression matchDelimiterChange("^DELIMITER\\s+(\\S+)");
     RegularExpression matchEscapeChars("([$.])", "g");
@@ -397,8 +397,7 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
         if (matchDelimiterChange.m(row, matches)) {
             delimiter = matches[0];
             delimiter = matchEscapeChars.s(delimiter, "\\\\1");
-            matchStatementEnd = unique_ptr<RegularExpression>(
-                    new RegularExpression("(" + delimiter + ")(\\s*|-- .*)$"));
+            matchStatementEnd = make_shared<RegularExpression>("(" + delimiter + ")(\\s*|-- .*)$");
             statement = "";
             continue;
         }

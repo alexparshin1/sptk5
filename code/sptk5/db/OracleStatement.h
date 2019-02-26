@@ -33,7 +33,7 @@
 
 #include <list>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 
 #include <sptk5/db/DatabaseStatement.h>
 #include <sptk5/FieldList.h>
@@ -118,18 +118,18 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~OracleStatement();
+    ~OracleStatement() override;
 
     /**
      * @brief Sets actual parameter values for the statement execution
      */
-    void setParameterValues();
+    void setParameterValues() override;
 
     /**
      * @brief Executes statement
      * @param inTransaction bool, True if statement is executed from transaction
      */
-    void execute(bool inTransaction);
+    void execute(bool inTransaction) override;
 
     /**
      * @brief Executes statement in bulk mode
@@ -141,12 +141,12 @@ public:
     /**
      * @brief Closes statement and releases allocated resources
      */
-    void close();
+    void close() override;
 
     /**
      * @brief Fetches next record
      */
-    void fetch()
+    void fetch() override
     {
         if (m_resultSet)
             state().eof = (m_resultSet->next() == ResultSet::END_OF_FETCH);

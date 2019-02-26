@@ -94,7 +94,7 @@ int SmtpConnect::getResponse(bool decode)
     return rc;
 }
 
-void SmtpConnect::sendCommand(string cmd, bool encode)
+void SmtpConnect::sendCommand(String cmd, bool encode)
 {
     if (!active())
         throw Exception("Socket isn't open");
@@ -190,7 +190,7 @@ void SmtpConnect::cmd_auth(const string& user, const string& password)
             userAndPassword.append(&nullChar, 1);
             userAndPassword.append(password.c_str(), password.size());
 
-            string userAndPasswordMimed = mime(userAndPassword);
+            String userAndPasswordMimed = mime(userAndPassword);
             rc = command("AUTH PLAIN " + userAndPasswordMimed, false, false);
             if (rc > 432)
                 throw Exception(m_response.join("\n"));

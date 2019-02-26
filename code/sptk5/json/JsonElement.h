@@ -236,20 +236,6 @@ public:
 private:
 
     /**
-     * Blocked constructor
-     * @param document          Parent JSON document
-     * @param value             Array of JSON elements
-     */
-    Element(Document* document, ArrayData& value) = delete;
-
-    /**
-     * Blocked constructor
-     * @param document          Parent JSON document
-     * @param value             Map of JSON Elements
-     */
-    Element(Document* document, ObjectData& value) = delete;
-
-    /**
      * Get immediate child element, or return this element if the name is empty.
      * Throws an exception if child is not found.
      * @param name              Name of the element in the object element
@@ -345,6 +331,20 @@ public:
      * @param other             Element to assign from
      */
     Element(Document* document, Element&& other) noexcept;
+
+    /**
+     * Blocked constructor
+     * @param document          Parent JSON document
+     * @param value             Array of JSON elements
+     */
+    Element(Document* document, ArrayData& value) = delete;
+
+    /**
+     * Blocked constructor
+     * @param document          Parent JSON document
+     * @param value             Map of JSON Elements
+     */
+    Element(Document* document, ObjectData& value) = delete;
 
     /**
      * Destructor

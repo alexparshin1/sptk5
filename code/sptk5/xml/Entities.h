@@ -52,7 +52,7 @@ public:
     /**
      * @brief Constructor
      */
-    Entities() {}
+    Entities() = default;
 
     /**
      * @brief Removes named entity

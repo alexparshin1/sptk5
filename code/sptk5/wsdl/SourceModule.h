@@ -50,12 +50,12 @@ class SourceModule
     /**
      * Module name
      */
-    std::string     m_name;
+    String          m_name;
 
     /**
      * Module path
      */
-    std::string     m_path;
+    String          m_path;
 
     /**
      * Module hpp file
@@ -70,10 +70,10 @@ class SourceModule
 public:
     /**
      * @brief Constructor
-     * @param moduleName std::string, Module name
-     * @param modulePath std::string, Module path
+     * @param moduleName        Module name
+     * @param modulePath        Module path
      */
-    SourceModule(std::string moduleName, std::string modulePath)
+    SourceModule(const String& moduleName, const String& modulePath)
     : m_name(moduleName), m_path(modulePath)
     {
     }

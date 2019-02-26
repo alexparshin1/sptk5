@@ -113,7 +113,7 @@ public:
     /**
      * Destructor, closes the connection if it's open.
      */
-    ~ImapConnect();
+    ~ImapConnect() override;
 
     /**
      * Sends a command with the arguments. Arguments (if any) are automatically

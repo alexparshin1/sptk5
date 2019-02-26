@@ -98,7 +98,7 @@ void ODBCConnection::_openDatabase(const String& newConnectionString)
         if (!newConnectionString.empty())
             connectionString(DatabaseConnectionString(newConnectionString));
 
-        string finalConnectionString;
+        String finalConnectionString;
         m_connect->connect(nativeConnectionString(), finalConnectionString, false);
         if (m_connect->driverDescription().find("Microsoft SQL Server") != string::npos)
             connectionType(DCT_MSSQL_ODBC);

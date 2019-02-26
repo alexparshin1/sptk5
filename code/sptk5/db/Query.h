@@ -348,7 +348,7 @@ public:
      * @param sql               The SQL query text to use, optional
      * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
      */
-    Query(DatabaseConnection db, const String& sql = "", bool autoPrepare = true);
+    explicit Query(DatabaseConnection db, const String& sql = "", bool autoPrepare = true);
 
     /**
      * @brief Constructor
@@ -361,7 +361,7 @@ public:
      * @param sql               The SQL query text to use, optional
      * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
      */
-    Query(PoolDatabaseConnection *db, const String& sql = "", bool autoPrepare = true);
+    explicit Query(PoolDatabaseConnection *db, const String& sql = "", bool autoPrepare = true);
 
     /**
      * @brief Deleted copy constructor
@@ -371,7 +371,7 @@ public:
     /**
      * @brief Destructor
      */
-    ~Query();
+    ~Query() override;
 
     /**
      * @brief Field access by number, const version

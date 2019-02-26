@@ -80,7 +80,7 @@ protected:
      * Default constructor is protected, to prevent creating of the instance of that class
      */
     MemoryDS()
-    : DataSource(), m_current(0L), m_currentIndex(0), m_eof(false)
+    : DataSource(), m_current(nullptr), m_currentIndex(0), m_eof(false)
     {}
 
     /**

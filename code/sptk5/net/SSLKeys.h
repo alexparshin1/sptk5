@@ -51,7 +51,7 @@ public:
     /**
      * Default constructor
      */
-    SSLKeys() {}
+    SSLKeys() = default;
 
     /**
      * Constructor

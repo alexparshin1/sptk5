@@ -44,7 +44,7 @@ static inline bool Successful(RETCODE ret)
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
 
-void ODBCBase::exception(string text, int line) const
+void ODBCBase::exception(const String& text, int line) const
 {
     throw DatabaseException(text, __FILE__, line);
 }
@@ -141,7 +141,7 @@ void ODBCConnectionBase::freeConnect()
     m_connectString = "";
 }
 
-void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalString, bool /*EnableDriverPrompt*/)
+void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalString, bool /*EnableDriverPrompt*/)
 {
     // Check parameters
     if (ConnectionString.empty())
@@ -158,7 +158,7 @@ void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalS
 
     m_connectString = ConnectionString;
 
-    auto* buff = new char[2048];
+    Buffer buff(2048);
     SWORD bufflen = 0;
 
 #ifdef WIN32
@@ -167,30 +167,28 @@ void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalS
     void* ParentWnd = nullptr;
 #endif
     SQLRETURN rc = ::SQLDriverConnect(m_hConnection, ParentWnd, (UCHAR FAR*) ConnectionString.c_str(), SQL_NTS,
-                                      (UCHAR FAR*) buff, (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
+                                      (UCHAR FAR*) buff.data(), (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
+
 
     if (!Successful(rc)) {
-        string errorInfo = errorInformation(("SQLDriverConnect(" + ConnectionString + ")").c_str());
+        String errorInfo = errorInformation(("SQLDriverConnect(" + ConnectionString + ")").c_str());
         exception(errorInfo, __LINE__);
     }
-    pFinalString = buff;
-    delete[] buff;
 
+    pFinalString = buff.c_str();
     m_connected = true;
     m_connectString = pFinalString;
 
     // Trying to get more information about the driver
-    auto* driverDescription = new SQLCHAR[2048];
+    Buffer driverDescription(2048);
     SQLSMALLINT descriptionLength = 0;
-    rc = SQLGetInfo(m_hConnection, SQL_DBMS_NAME, driverDescription, 2048, &descriptionLength);
+    rc = SQLGetInfo(m_hConnection, SQL_DBMS_NAME, driverDescription.data(), 2048, &descriptionLength);
     if (Successful(rc))
-        m_driverDescription = (char*) driverDescription;
+        m_driverDescription = driverDescription.c_str();
 
-    rc = SQLGetInfo(m_hConnection, SQL_DBMS_VER, driverDescription, 2048, &descriptionLength);
+    rc = SQLGetInfo(m_hConnection, SQL_DBMS_VER, driverDescription.data(), 2048, &descriptionLength);
     if (Successful(rc))
-        m_driverDescription += " " + string((char*) driverDescription);
-
-    delete[] driverDescription;
+        m_driverDescription += " " + String(driverDescription.c_str());
 }
 
 void ODBCConnectionBase::disconnect()
@@ -297,7 +295,7 @@ string extract_error(
     return error;
 }
 
-string ODBCConnectionBase::errorInformation(const char* function)
+String ODBCConnectionBase::errorInformation(const char* function)
 {
     char errorDescription[SQL_MAX_MESSAGE_LENGTH];
     char errorState[SQL_MAX_MESSAGE_LENGTH];

@@ -94,7 +94,7 @@ public:
      * @param startingValue     Starting semaphore value
      * @param maxValue          Maximum semaphore value, or 0 if unlimited
      */
-    Semaphore(size_t startingValue=0, size_t maxValue=0);
+    explicit Semaphore(size_t startingValue=0, size_t maxValue=0);
 
     /**
      * @brief Destructor

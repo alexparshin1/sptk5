@@ -149,20 +149,18 @@ void JWT::verify_sha_hmac(const char* head, const char* sig)
     (void) BIO_flush(b64);
 
     len = BIO_pending(bmem);
-    if (len < 0)
-        goto jwt_verify_hmac_done;
+    if (len >= 0) {
+        readBuf.checkSize(size_t(len) + 1);
+        len = BIO_read(bmem, readBuf.data(), len);
+        readBuf.bytes(size_t(len));
+        readBuf[len] = 0;
 
-    readBuf.checkSize(size_t(len) + 1);
-    len = BIO_read(bmem, readBuf.data(), len);
-    readBuf.bytes(size_t(len));
-    readBuf[len] = 0;
+        jwt_base64uri_encode(readBuf);
 
-    jwt_base64uri_encode(readBuf);
+        /* And now... */
+        matches = strcmp(readBuf.c_str(), sig) == 0;
+    }
 
-    /* And now... */
-    matches = strcmp(readBuf.c_str(), sig) == 0;
-
-    jwt_verify_hmac_done:
     BIO_free_all(b64);
 
     if (!matches)
@@ -257,7 +255,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str)
 
         /* Allocate memory for signature based on returned size */
         sig_buffer.checkSize(slen);
-        unsigned char* sig_ptr = (unsigned char*) sig_buffer.data();
+        auto* sig_ptr = (unsigned char*) sig_buffer.data();
 
         /* Get the signature */
         if (EVP_DigestSignFinal(mdctx, sig_ptr, &slen) != 1) SIGN_ERROR(EINVAL);
@@ -379,7 +377,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
 
     Buffer sig_buffer;
     jwt_b64_decode(sig_buffer, sig_b64);
-    unsigned char* sig_ptr = (unsigned char*) sig_buffer.data();
+    auto* sig_ptr = (unsigned char*) sig_buffer.data();
     slen = (int) sig_buffer.bytes();
 
     string error;

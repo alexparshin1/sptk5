@@ -69,7 +69,7 @@ public:
      * @brief Stores or sends log message to actual destination
      * @param message           Log message
      */
-    virtual void saveMessage(const Logger::Message* message) override;
+    void saveMessage(const Logger::Message* message) override;
 
     /**
      * @brief Constructor
@@ -85,7 +85,7 @@ public:
      *
      * Destructs the log object, closes the log file, releases all the allocated resources
      */
-    virtual ~FileLogEngine();
+    ~FileLogEngine() override;
 
     /**
      * @brief Restarts the log

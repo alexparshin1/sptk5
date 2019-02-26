@@ -419,7 +419,7 @@ void Document::save(Buffer& buffer, int) const
         if (!docType().entities().empty()) {
             buffer.append(" [\n", 3);
             const Entities& entities = docType().entities();
-            for (auto it: entities)
+            for (auto& it: entities)
                 buffer.append("<!ENTITY " + it.first + " \"" + it.second + "\">\n");
             buffer.append("]", 1);
         }

@@ -74,7 +74,7 @@ public:
      * @brief Move constructor
      * @param src				Other object
      */
-    explicit String(String&& src) noexcept
+    String(String&& src) noexcept
     : std::string(std::move(src)), m_id(src.m_id)
     {
         src.m_id = 0;
@@ -84,7 +84,7 @@ public:
      * @brief Move constructor
      * @param src				Other object
      */
-    explicit String(std::string&& src) noexcept
+    String(std::string&& src) noexcept
     : std::string(std::move(src))
     {}
 
@@ -186,7 +186,7 @@ public:
      * @param pattern           Regular expression pattern
      * @param options           Regular expression options (@see class CRegExp)
      */
-    bool matches(const String& pattern, const String& options = "") const;
+    bool matches(const String& pattern, const String& options = String()) const;
 
     /**
      * @brief Returns strings produced from current string by splitting it using regular expression pattern

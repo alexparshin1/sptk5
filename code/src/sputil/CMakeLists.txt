@@ -10,12 +10,7 @@ SET (SPUTIL_SOURCES
     core/SystemException.cpp core/md5.cpp
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
     jwt/JWT.cpp jwt/JWT-openssl.cpp
-    mq/Message.cpp mq/BaseMQClient.cpp mq/TCPMQClient.cpp
-    mq/smq/SMQClient.cpp mq/smq/SMQConnection.cpp mq/smq/SMQServer.cpp
-    mq/protocols/MQProtocol.cpp mq/protocols/MQTTFrame.cpp mq/protocols/MQTTProtocol.cpp mq/protocols/SMQProtocol.cpp
-    mq/smq/SMQSubscription.cpp mq/smq/SMQSubscriptions.cpp
-    #mq/mqtt/MQTTClient.cpp mq/mqtt/MQTTFrame.cpp
-        net/BaseMailConnect.cpp net/BaseSocket.cpp net/CachedSSLContext.cpp
+    net/BaseMailConnect.cpp net/BaseSocket.cpp net/CachedSSLContext.cpp
     net/Host.cpp net/HttpAuthentication.cpp net/HttpConnect.cpp net/HttpParams.cpp net/HttpAuthentication.cpp net/HttpReader.cpp
     net/ImapConnect.cpp net/MailMessageBody.cpp net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp net/SSLKeys.cpp
     net/SocketEvents.cpp net/TCPServer.cpp net/TCPServerListener.cpp net/TCPSocket.cpp net/ServerConnection.cpp

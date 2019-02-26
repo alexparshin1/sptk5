@@ -54,6 +54,5 @@ ServerConnection::ServerConnection(TCPServer& server, SOCKET connectionSocket, c
 
 ServerConnection::~ServerConnection()
 {
-    if (m_socket)
-        delete m_socket;
+    delete m_socket;
 }

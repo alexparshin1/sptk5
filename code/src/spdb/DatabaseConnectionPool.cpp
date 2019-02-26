@@ -28,7 +28,6 @@
 
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseConnectionPool.h>
-#include <sptk5/SystemException.h>
 
 #ifndef WIN32
 #include <dlfcn.h>

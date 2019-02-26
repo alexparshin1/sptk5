@@ -45,7 +45,7 @@
 #endif
 
 #include <sqlext.h>
-#include <assert.h>
+#include <cassert>
 
 #include <sptk5/db/QueryParameterList.h>
 #include <mutex>
@@ -80,23 +80,19 @@ protected:
     /**
      * Constructor
      */
-    ODBCBase()
-    {
-    }
+    ODBCBase() = default;
 
 public:
 
     /**
      * Destructor
      */
-    ~ODBCBase()
-    {
-    }
+    ~ODBCBase() = default;
 
     /**
      * Throws the exception
      */
-    void exception(std::string text, int line) const;
+    void exception(const String& text, int line) const;
 
 private:
 
@@ -173,30 +169,11 @@ public:
  */
 class SP_DRIVER_EXPORT ODBCConnectionBase : public ODBCBase
 {
-    /**
-     * ODBC environment
-     */
-    ODBCEnvironment&    m_cEnvironment;
-
-    /**
-     * ODBC connection handle
-     */
-    SQLHDBC             m_hConnection;
-
-    /**
-     * Is connection active?
-     */
-    bool                m_connected;
-
-    /**
-     * ODBC connection string
-     */
-    std::string         m_connectString;
-
-    /**
-     * Driver description, filled in during the connection to the DSN
-     */
-    std::string         m_driverDescription;
+    ODBCEnvironment&    m_cEnvironment;     ///< ODBC environment
+    SQLHDBC             m_hConnection;      ///< ODBC connection handle
+    bool                m_connected;        ///< Is connection active?
+    String              m_connectString;    ///< ODBC connection string
+    String              m_driverDescription;///< Driver description, filled in during the connection to the DSN
 
 protected:
     /**
@@ -239,7 +216,7 @@ public:
      * Connects to the database passing ODBC connection string.
      * The full connection string is returned in FinalConnectionString.
      */
-    void connect(const std::string& ConnectionString, std::string& FinalConnectionString, bool EnableDriverPrompt = false);
+    void connect(const String& ConnectionString, String& FinalConnectionString, bool EnableDriverPrompt = false);
 
     /**
      * Disconnects from the database passing ODBC connection string.
@@ -271,7 +248,7 @@ public:
     /**
      * Returns the ODBC connection string for the active connection
      */
-    std::string connectString() const
+    String connectString() const
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         return m_connectString;
@@ -280,7 +257,7 @@ public:
     /**
      * Returns the ODBC driver description string for the active connection
      */
-    std::string driverDescription() const
+    String driverDescription() const
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         return m_driverDescription;
@@ -321,7 +298,7 @@ public:
      * Retrieves an error information for user action name
      * @returns ODBC driver error message with the user action
      */
-    std::string errorInformation(const char* action);
+    String errorInformation(const char* action);
 };
 
 /**

@@ -56,8 +56,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~WSConnection()
-    {}
+    ~WSConnection() override = default;
 
     /**
      * Thread function
@@ -82,7 +81,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~WSSSLConnection();
+    ~WSSSLConnection() override = default;
 };
 
 }

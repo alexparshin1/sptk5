@@ -76,7 +76,7 @@ public:
     /**
      * @brief Constructor
      */
-    DocType(const char* name, const char* public_id = 0, const char* system_id = 0);
+    DocType(const char* name, const char* public_id = nullptr, const char* system_id = nullptr);
 
     /**
      * @brief Returns the name of the document type as specified in the <!DOCTYPE name> tag
