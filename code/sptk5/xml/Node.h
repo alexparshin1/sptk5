@@ -223,6 +223,10 @@ public:
         DOM_ATTRIBUTE = 64      ///< Attribute node
     };
 
+    /**
+     * Constructor
+     * @param document          Parent XML document
+     */
     explicit Node_Base(Document* document)
     : m_document(document)
     {}
