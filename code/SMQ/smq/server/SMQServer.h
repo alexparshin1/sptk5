@@ -35,7 +35,7 @@
 
 namespace sptk {
 
-class SMQServer : public TCPServer
+class SP_EXPORT SMQServer : public TCPServer
 {
     friend class SMQConnection;
 

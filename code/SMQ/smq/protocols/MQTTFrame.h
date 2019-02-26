@@ -93,7 +93,7 @@ enum MQTTConnectFlags : uint8_t
 /**
  * MQTT frame
  */
-class MQTTFrame : public Buffer
+class SP_EXPORT MQTTFrame : public Buffer
 {
     MQTTFrameType           m_type;     ///< Frame type
     uint16_t                m_id;       ///< Frame id

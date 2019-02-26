@@ -35,7 +35,7 @@
 
 namespace sptk {
 
-class SMQProtocol : public MQProtocol
+class SP_EXPORT SMQProtocol : public MQProtocol
 {
 public:
     explicit SMQProtocol(TCPSocket& socket) : MQProtocol(socket) {}

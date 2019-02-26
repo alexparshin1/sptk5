@@ -1,7 +1,3 @@
-IF (LIBRARY_TYPE STREQUAL "SHARED")
-  ADD_DEFINITIONS (-DSP_LIBRARY)
-ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
-
 SET (SPUTIL_SOURCES
     core/Base64.cpp core/Crypt.cpp core/Buffer.cpp core/CommandLine.cpp core/DataSource.cpp core/DateTime.cpp core/Exception.cpp
     core/Field.cpp core/FieldList.cpp core/FileLogEngine.cpp core/IntList.cpp core/LogEngine.cpp core/Registry.cpp 

@@ -37,7 +37,7 @@ namespace sptk {
 
 typedef std::shared_ptr<SMQSubscription> SharedSMQSubscription;
 
-class SMQSubscriptions
+class SP_EXPORT SMQSubscriptions
 {
     mutable sptk::SharedMutex               m_mutex;
     std::map<String,SharedSMQSubscription>  m_subscriptions;

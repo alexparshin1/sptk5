@@ -34,7 +34,7 @@
 
 namespace sptk {
 
-class MQTTProtocol : public MQProtocol
+class SP_EXPORT MQTTProtocol : public MQProtocol
 {
 
 public:

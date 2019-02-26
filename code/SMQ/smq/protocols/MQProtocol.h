@@ -45,7 +45,7 @@ enum MQProtocolType
     MP_AMQP
 };
 
-class MQProtocol
+class SP_EXPORT MQProtocol
 {
     TCPSocket&  m_socket;
 

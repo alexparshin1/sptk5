@@ -18,7 +18,7 @@
 
 namespace sptk {
 
-class Message : public Buffer
+class SP_EXPORT Message : public Buffer
 {
 public:
     typedef std::map<String, String> Headers;

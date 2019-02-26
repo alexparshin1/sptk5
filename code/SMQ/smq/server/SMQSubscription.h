@@ -35,7 +35,7 @@ namespace sptk {
 
 typedef std::shared_ptr<SMQConnection> SharedSMQConnection;
 
-class SMQSubscription
+class SP_EXPORT SMQSubscription
 {
 public:
     enum Type

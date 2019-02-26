@@ -37,7 +37,7 @@
 
 namespace sptk {
 
-class SMQClient : public TCPMQClient
+class SP_EXPORT SMQClient : public TCPMQClient
 {
     mutable SharedMutex         m_mutex;            ///< Mutex that protects internal data
     Host                        m_server;           ///< SMQ server host
