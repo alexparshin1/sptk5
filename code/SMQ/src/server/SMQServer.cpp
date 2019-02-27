@@ -230,7 +230,7 @@ TEST(SPTK_SMQServer, minimal)
     SMQClient smqReceiver(protocolType, "test-receiver");
     ASSERT_NO_THROW(smqReceiver.connect(serverHost, "user", "secret", false, connectTimeout));
     ASSERT_NO_THROW(smqReceiver.subscribe("test-queue", std::chrono::milliseconds()));
-    this_thread::sleep_for(milliseconds(1)); // Wait until subscription is completed
+    this_thread::sleep_for(milliseconds(10)); // Wait until subscription is completed
 
     auto testMessage = make_shared<Message>(Message::MESSAGE, Buffer("This is SMQ test"));
     for (size_t m = 0; m < messageCount; m++)
@@ -339,6 +339,8 @@ TEST(SPTK_SMQServer, multiClients)
         clientIndex++;
     }
 
+    this_thread::sleep_for(milliseconds(100));
+
     auto msg1 = make_shared<Message>();
     for (size_t m = 0; m < messageCount; m++) {
         msg1->headers()["subject"] = "subject " + to_string(m);
@@ -366,12 +368,12 @@ TEST(SPTK_SMQServer, multiClients)
 
     for (auto& client: receivers) {
         for (size_t m = 0; m < messageCount; m++) {
-            auto msg = client->getMessage(milliseconds(100));
+            auto msg = client->getMessage(milliseconds(1000));
             if (msg) {
                 EXPECT_STREQ((*msg)["subject"].c_str(), ("subject " + to_string(m)).c_str());
                 EXPECT_STREQ(msg->c_str(), ("data " + to_string(m)).c_str());
             } else
-                FAIL() << "Received only " << m + 1 << "messages out of " << messageCount;
+                FAIL() << "Received " << m << " messages out of " << messageCount;
         }
     }
 
