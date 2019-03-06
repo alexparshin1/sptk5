@@ -207,7 +207,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     Strings ctorInitializer;
     Strings copyInitializer;
     ctorInitializer.push_back(string("sptk::WSComplexType(elementName, optional)"));
-    copyInitializer.push_back(string("sptk::WSComplexType(other.complexTypeName().c_str(), other.isOptional())"));
+    copyInitializer.push_back(string("sptk::WSComplexType(other)"));
     if (!m_sequence.empty()) {
         classDeclaration << "   // Elements" << endl;
         for (auto* complexType: m_sequence) {

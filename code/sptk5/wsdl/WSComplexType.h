@@ -99,10 +99,55 @@ public:
     {}
 
     /**
+     * Copy constructor
+     * @param other             Other object
+     */
+    WSComplexType(const WSComplexType& other)
+    : m_name(other.m_name), m_optional(other.m_optional), m_loaded(other.m_loaded)
+    {}
+
+    /**
+     * Move constructor
+     * @param other             Other object
+     */
+    WSComplexType(WSComplexType&& other)
+    : m_name(std::move(other.m_name)), m_optional(other.m_optional), m_loaded(other.m_loaded)
+    {
+        other.m_optional = false;
+        other.m_loaded = false;
+    }
+
+    /**
      * Destructor
      */
     virtual ~WSComplexType()
     {}
+
+    /**
+     * Copy assignment
+     * @param other             Other object
+     */
+    WSComplexType& operator = (const WSComplexType& other)
+    {
+        m_name = other.m_name;
+        m_optional = other.m_optional;
+        m_loaded = other.m_loaded;
+        return *this;
+    }
+
+    /**
+     * Move assignment
+     * @param other             Other object
+     */
+    WSComplexType& operator = (WSComplexType&& other)
+    {
+        m_name = std::move(other.m_name);
+        m_optional = other.m_optional;
+        m_loaded = other.m_loaded;
+        other.m_optional = false;
+        other.m_loaded = false;
+        return *this;
+    }
 
     /**
      * Return class name
