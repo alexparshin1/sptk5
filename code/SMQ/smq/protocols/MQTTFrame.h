@@ -44,16 +44,6 @@ enum MQTTProtocolVersion : uint8_t
 };
 
 /**
- * QOS (Quality Of Service) levels
- */
-enum MQTTQOS : uint8_t
-{
-    QOS_0               = 0,
-    QOS_1               = 1,
-    QOS_2               = 2
-};
-
-/**
  * MQTT frame types
  */
 enum MQTTFrameType : uint8_t
@@ -97,7 +87,7 @@ class SP_EXPORT MQTTFrame : public Buffer
 {
     MQTTFrameType           m_type;     ///< Frame type
     uint16_t                m_id;       ///< Frame id
-    MQTTQOS                 m_qos;      ///< QOS (Quality Of Service)
+    QOS                     m_qos;      ///< QOS (Quality Of Service)
 
     /**
      * Next packet id generator
@@ -183,7 +173,7 @@ class SP_EXPORT MQTTFrame : public Buffer
      * @param qos               QOS - Quality Of Service
      * @param topicName         Related topic if applicable (output)
      */
-    void readPublishFrame(TCPSocket& connection, unsigned remainingLength, MQTTQOS qos, String& topicName);
+    void readPublishFrame(TCPSocket& connection, unsigned remainingLength, QOS qos, String& topicName);
 
     /**
      * Receive SUBSCRIBE frame
@@ -192,7 +182,7 @@ class SP_EXPORT MQTTFrame : public Buffer
      * @param qos               QOS - Quality Of Service
      * @param topicName         Topic if applicable (output)
      */
-    void readSubscribeFrame(TCPSocket& connection, unsigned remainingLength, MQTTQOS& qos, String& topicName);
+    void readSubscribeFrame(TCPSocket& connection, unsigned remainingLength, QOS& qos, String& topicName);
 
 public:
     /**
@@ -201,7 +191,7 @@ public:
      * @param id                Message id
      * @param qos               QOS - Quality Of Service
      */
-    explicit MQTTFrame(MQTTFrameType type=FT_UNDEFINED, uint16_t id=0, MQTTQOS qos=QOS_0);
+    explicit MQTTFrame(MQTTFrameType type=FT_UNDEFINED, uint16_t id=0, QOS qos=QOS_0);
 
     /**
      * Get MQTT frame type
@@ -229,7 +219,7 @@ public:
     /**
      * Get message QOS
      */
-    MQTTQOS qos() const
+    QOS qos() const
     {
         return m_qos;
     }
@@ -264,7 +254,7 @@ public:
      * @param retain            Retain message flag
      * @return this object reference
      */
-    const Buffer& setPUBLISH(const String& topic, const Buffer& data, MQTTQOS qos=QOS_0, bool dup=false, bool retain=false);
+    const Buffer& setPUBLISH(const String& topic, const Buffer& data, QOS qos=QOS_0, bool dup=false, bool retain=false);
 
     /**
      * Generate MQTT SUBSCRIBE frame
@@ -272,7 +262,7 @@ public:
      * @param qos               QOS - Quality of Service
      * @return this object reference
      */
-    const Buffer& subscribeFrame(const String& topic, MQTTQOS qos);
+    const Buffer& subscribeFrame(const String& topic, QOS qos);
 
     /**
      * Generate MQTT SUBSCRIBE frame
@@ -280,7 +270,7 @@ public:
      * @param qos               QOS - Quality of Service
      * @return this object reference
      */
-    const Buffer& subscribeFrame(const Strings& topics, MQTTQOS qos);
+    const Buffer& subscribeFrame(const Strings& topics, QOS qos);
 
     /**
      * Generate MQTT UNSUBSCRIBE frame
@@ -288,7 +278,7 @@ public:
      * @param qos               QOS - Quality of Service
      * @return this object reference
      */
-    const Buffer& unsubscribeFrame(const std::string& topic, MQTTQOS qos);
+    const Buffer& unsubscribeFrame(const std::string& topic, QOS qos);
 
     /**
      * Generate MQTT UNSUBSCRIBE frame
@@ -296,7 +286,7 @@ public:
      * @param qos               QOS - Quality of Service
      * @return this object reference
      */
-    const Buffer& unsubscribeFrame(const Strings& topics, MQTTQOS qos);
+    const Buffer& unsubscribeFrame(const Strings& topics, QOS qos);
 
     /**
      * Generate MQTT PING frame
