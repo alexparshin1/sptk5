@@ -183,6 +183,16 @@ Variant::Variant(const Variant& value)
 }
 
 //---------------------------------------------------------------------------
+Variant::Variant(Variant&& other)
+{
+    m_data = move(other.m_data);
+    m_dataType = other.m_dataType;
+    m_dataSize = other.m_dataSize;
+    other.m_dataType = VAR_NONE | VAR_NULL;
+    other.m_dataSize = 0;
+}
+
+//---------------------------------------------------------------------------
 Variant::~Variant()
 {
     releaseBuffers();
@@ -398,11 +408,24 @@ void Variant_SetMethods::setData(const BaseVariant& C)
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator=(const Variant& C)
+Variant& Variant::operator=(const Variant& other)
 {
-    if (this == &C)
+    if (this == &other)
         return *this;
-    setData(C);
+    setData(other);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator=(Variant&& other)
+{
+    if (this == &other)
+        return *this;
+    m_data = move(other.m_data);
+    m_dataType = other.m_dataType;
+    m_dataSize = other.m_dataSize;
+    other.m_dataType = VAR_NONE | VAR_NULL;
+    other.m_dataSize = 0;
     return *this;
 }
 
@@ -1107,6 +1130,51 @@ TEST(SPTK_Variant, ctors)
                  v4.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
 }
 
+TEST(SPTK_Variant, copy_ctors)
+{
+    DateTime testDate("2018-02-01 09:11:14.345Z");
+
+    Variant v1(1);
+    Variant v2(2.22);
+    Variant v3("Test");
+    Variant v4(testDate);
+
+    Variant v1c(v1);
+    Variant v2c(v2);
+    Variant v3c(v3);
+    Variant v4c(v4);
+
+    EXPECT_EQ(1, v1c.asInteger());
+    EXPECT_DOUBLE_EQ(2.22, v2c.asFloat());
+    EXPECT_STREQ("Test", v3c.asString().c_str());
+    EXPECT_STREQ("2018-02-01T09:11:14.345Z",
+                 v4c.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+}
+
+TEST(SPTK_Variant, move_ctors)
+{
+    DateTime testDate("2018-02-01 09:11:14.345Z");
+
+    Variant v1(1);
+    Variant v2(2.22);
+    Variant v3("Test");
+    Variant v4(testDate);
+
+    Variant v1m(move(v1));
+    Variant v2m(move(v2));
+    Variant v3m(move(v3));
+    Variant v4m(move(v4));
+
+    EXPECT_EQ(1, v1m.asInteger());
+    EXPECT_DOUBLE_EQ(2.22, v2m.asFloat());
+    EXPECT_STREQ("Test", v3m.asString().c_str());
+    EXPECT_STREQ("2018-02-01T09:11:14.345Z",
+                 v4m.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+
+    EXPECT_EQ(true, v1.isNull());
+    EXPECT_EQ(VAR_NONE, v1.dataType());
+}
+
 TEST(SPTK_Variant, assigns)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
@@ -1128,6 +1196,43 @@ TEST(SPTK_Variant, assigns)
 
     v.setDateTime(testDate, true);
     EXPECT_STREQ("2018-02-01T00:00:00.000Z", v.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+}
+
+TEST(SPTK_Variant, move_assigns)
+{
+    DateTime testDate("2018-02-01 09:11:14.345Z");
+
+    Variant v, vm;
+
+    v = 1;
+    vm = move(v);
+    EXPECT_EQ(1, vm.asInteger());
+    EXPECT_EQ(true, v.isNull());
+    EXPECT_EQ(VAR_NONE, v.dataType());
+
+    v = 2.22;
+    vm = move(v);
+    EXPECT_DOUBLE_EQ(2.22, vm.asFloat());
+    EXPECT_EQ(true, v.isNull());
+    EXPECT_EQ(VAR_NONE, v.dataType());
+
+    v = "Test";
+    vm = move(v);
+    EXPECT_STREQ("Test", vm.asString().c_str());
+    EXPECT_EQ(true, v.isNull());
+    EXPECT_EQ(VAR_NONE, v.dataType());
+
+    v = testDate;
+    vm = move(v);
+    EXPECT_STREQ("2018-02-01T09:11:14.345Z", vm.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_EQ(true, v.isNull());
+    EXPECT_EQ(VAR_NONE, v.dataType());
+
+    v.setDateTime(testDate, true);
+    vm = move(v);
+    EXPECT_STREQ("2018-02-01T00:00:00.000Z", vm.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_EQ(true, v.isNull());
+    EXPECT_EQ(VAR_NONE, v.dataType());
 }
 
 TEST(SPTK_Variant, copy)

@@ -513,9 +513,16 @@ public:
     Variant(const Buffer& value);
 
     /**
-     * Constructor
+     * Copy constructor
+     * @param                   Other object
      */
-    Variant(const Variant& value);
+    Variant(const Variant& other);
+
+    /**
+     * Move constructor
+     * @param                   Other object
+     */
+    Variant(Variant&& other);
 
     /**
      * Destructor
@@ -524,8 +531,15 @@ public:
 
     /**
      * Assignment operator
+     * @param                   Other object
      */
-    Variant& operator =(const Variant &C);
+    Variant& operator =(const Variant& other);
+
+    /**
+     * Assignment operator
+     * @param                   Other object
+     */
+    Variant& operator =(Variant&& other);
 
     /**
      * Assignment operator
