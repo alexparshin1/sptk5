@@ -436,7 +436,7 @@ void MQTTFrame::readSubscribeFrame(TCPSocket& connection, unsigned remainingLeng
         uint8_t aqos = readByte(connection);
         if (aqos > qos)
             qos = (QOS) aqos;
-        topicNames.push_back(topic + ":" + to_string(aqos));
+        topicNames.push_back(topic + "%" + to_string(aqos));
         dataLength -= topic.length() + 3;
     }
     topicName = topicNames.join(";");

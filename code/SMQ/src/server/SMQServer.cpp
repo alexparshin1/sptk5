@@ -80,7 +80,7 @@ static map<String,QOS> parseDestinations(const String& destinations)
 {
     map<String,QOS> destinationsAndQOS;
     for (auto& destination: Strings(destinations,",")) {
-        Strings parts(destination,":");
+        Strings parts(destination,"%");
         if (parts.size() == 2)
             destinationsAndQOS[ parts[0] ] = QOS(string2int(parts[1]) & 1);
         else
