@@ -45,6 +45,13 @@ enum MQProtocolType
     MP_AMQP
 };
 
+enum QOS : uint8_t
+{
+    QOS_0,
+    QOS_1,
+    QOS_2
+};
+
 class SP_EXPORT MQProtocol
 {
     TCPSocket&  m_socket;

@@ -40,18 +40,20 @@ void SMQSubscriptions::deliverMessage(const String& queueName, const SMessage me
         itor->second->deliverMessage(message);
 }
 
-void SMQSubscriptions::subscribe(SMQConnection* connection, const Strings& queueNames)
+void SMQSubscriptions::subscribe(SMQConnection* connection, const map<String,QOS>& queueNames)
 {
     UniqueLock(m_mutex);
 
-    for (auto& queueName: queueNames) {
+    for (auto& qtor: queueNames) {
+        auto& queueName = qtor.first;
+        auto  qos = qtor.second;
         // Does subscription already exist?
         SharedSMQSubscription subscription;
         auto itor = m_subscriptions.find(queueName);
         if (itor == m_subscriptions.end()) {
             SMQSubscription::Type subscriptionType = queueName.startsWith("/topic/") ? SMQSubscription::TOPIC
                                                                                      : SMQSubscription::QUEUE;
-            subscription = make_shared<SMQSubscription>(subscriptionType);
+            subscription = make_shared<SMQSubscription>(subscriptionType, qos);
             m_subscriptions[queueName] = subscription;
         } else
             subscription = itor->second;

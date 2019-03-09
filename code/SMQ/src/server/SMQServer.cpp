@@ -76,6 +76,19 @@ void SMQServer::closeConnection(ServerConnection* connection)
     }
 }
 
+static map<String,QOS> parseDestinations(const String& destinations)
+{
+    map<String,QOS> destinationsAndQOS;
+    for (auto& destination: Strings(destinations,",")) {
+        Strings parts(destination,":");
+        if (parts.size() == 2)
+            destinationsAndQOS[ parts[0] ] = QOS(string2int(parts[1]) & 1);
+        else
+            destinationsAndQOS[ parts[0] ] = QOS_1;
+    }
+    return destinationsAndQOS;
+}
+
 void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
 {
     auto* connection = (SMQConnection*) userData;
@@ -105,7 +118,7 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
                     protocol.ack(Message::CONNECT, "");
                     break;
                 case Message::SUBSCRIBE:
-                    smqServer->subscribe(connection, Strings(msg->destination(), ","));
+                    smqServer->subscribe(connection, parseDestinations(msg->destination()));
                     break;
                 case Message::UNSUBSCRIBE:
                     smqServer->unsubscribe(connection, msg->destination());
@@ -174,7 +187,7 @@ void SMQServer::run()
     log(LP_NOTICE, "Server started");
 }
 
-void SMQServer::subscribe(SMQConnection* connection, const Strings& destinations)
+void SMQServer::subscribe(SMQConnection* connection, const map<String,QOS>& destinations)
 {
     m_subscriptions.subscribe(connection, destinations);
 }

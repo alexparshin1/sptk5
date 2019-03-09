@@ -32,8 +32,8 @@
 using namespace std;
 using namespace sptk;
 
-SMQSubscription::SMQSubscription(Type type)
-: m_type(type), m_currentConnection(m_connections.end())
+SMQSubscription::SMQSubscription(Type type, QOS qos)
+: m_type(type), m_qos(qos), m_currentConnection(m_connections.end())
 {
 }
 

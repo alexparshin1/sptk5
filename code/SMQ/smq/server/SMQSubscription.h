@@ -38,20 +38,22 @@ typedef std::shared_ptr<SMQConnection> SharedSMQConnection;
 class SP_EXPORT SMQSubscription
 {
 public:
-    enum Type
+    enum Type : uint8_t
     {
         QUEUE,
         TOPIC
     };
+
 private:
     mutable sptk::SharedMutex               m_mutex;
     Type                                    m_type;
+    QOS                                     m_qos;
 
     std::set<SMQConnection*>                m_connections;
     std::set<SMQConnection*>::iterator      m_currentConnection;
 
 public:
-    explicit SMQSubscription(Type type);
+    SMQSubscription(Type type, QOS qos);
 
     virtual ~SMQSubscription();
 

@@ -45,7 +45,7 @@ public:
     SMQSubscriptions() = default;
     void clear();
     void deliverMessage(const String& queueName, const SMessage message);
-    void subscribe(SMQConnection* connection, const Strings& queueNames);
+    void subscribe(SMQConnection* connection, const std::map<String,QOS>& queueNames);
     void unsubscribe(SMQConnection* connection, const String& queueName);
 };
 

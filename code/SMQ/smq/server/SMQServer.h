@@ -40,17 +40,17 @@ class SP_EXPORT SMQServer : public TCPServer
     friend class SMQConnection;
 
     mutable std::mutex              m_mutex;
-	MQProtocolType 				    m_protocol;
+    MQProtocolType                  m_protocol;
 public:
-	MQProtocolType protocol() const;
+    MQProtocolType protocol() const;
 
 private:
-	String                          m_username;
-	String                          m_password;
-	std::set<String>                m_clientIds;
-	std::set<SMQConnection*>        m_connections;
-	SocketEvents                    m_socketEvents;
-	SMQSubscriptions				m_subscriptions;
+    String                          m_username;
+    String                          m_password;
+    std::set<String>                m_clientIds;
+    std::set<SMQConnection*>        m_connections;
+    SocketEvents                    m_socketEvents;
+    SMQSubscriptions                m_subscriptions;
 
 protected:
     static void socketEventCallback(void *userData, SocketEventType eventType);
@@ -63,7 +63,7 @@ protected:
 
 public:
 
-	SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine);
+    SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine);
     ~SMQServer() override;
 
     void stop() override;
@@ -74,8 +74,8 @@ public:
 
     void distributeMessage(SMessage message);
 
-    void subscribe(SMQConnection* connection, const Strings& destinations);
-	void unsubscribe(SMQConnection* connection, const String& destination);
+    void subscribe(SMQConnection* connection, const std::map<String,QOS>& destinations);
+    void unsubscribe(SMQConnection* connection, const String& destination);
 };
 
 }

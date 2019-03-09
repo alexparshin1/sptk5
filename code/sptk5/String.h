@@ -63,7 +63,7 @@ public:
 
     /**
      * @brief Copy constructor
-     * @param str				Source string
+     * @param str                Source string
      */
     String(const String& str) noexcept
     : std::string(str), m_id(str.m_id)
@@ -72,7 +72,7 @@ public:
 
     /**
      * @brief Move constructor
-     * @param src				Other object
+     * @param src                Other object
      */
     String(String&& src) noexcept
     : std::string(std::move(src)), m_id(src.m_id)
@@ -82,7 +82,7 @@ public:
 
     /**
      * @brief Move constructor
-     * @param src				Other object
+     * @param src                Other object
      */
     String(std::string&& src) noexcept
     : std::string(std::move(src))
@@ -90,8 +90,8 @@ public:
 
     /**
      * @brief Constructor
-     * @param str				Source string
-     * @param id				Optional string id
+     * @param str                Source string
+     * @param id                Optional string id
      */
     String(const std::string& str, int32_t id = 0) noexcept
     : std::string(str), m_id(id)
@@ -100,8 +100,8 @@ public:
 
     /**
      * @brief Constructor
-     * @param str				Source string
-     * @param id				Optional string id
+     * @param str                Source string
+     * @param id                Optional string id
      */
     String(const char* str, int32_t id = 0) noexcept
     : std::string(str), m_id(id)
@@ -110,9 +110,9 @@ public:
 
     /**
      * Constructor
-     * @param str				Source string
-     * @param len				Optional string length
-     * @param id				Optional string id
+     * @param str                Source string
+     * @param len                Optional string length
+     * @param id                Optional string id
      */
     String(const char* str, size_t len, int32_t id = 0) noexcept
     : std::string(str, len), m_id(id)
@@ -121,9 +121,9 @@ public:
 
     /**
      * Constructor
-     * @param len				String length
-     * @param ch				Fill character
-     * @param id				Optional string id
+     * @param len                String length
+     * @param ch                Fill character
+     * @param id                Optional string id
      */
     String(size_t len, char ch, int32_t id = 0) noexcept
     : std::string(len, ch), m_id(id)
@@ -132,7 +132,7 @@ public:
 
     /**
      * Assignment operator
-     * @param si 				Source string
+     * @param si                 Source string
      */
     String& operator=(const std::string& si)
     {
@@ -143,7 +143,7 @@ public:
 
     /**
      * Assignment operator
-     * @param other 	        Source string
+     * @param other             Source string
      */
     String& operator=(const String& other)
     {
@@ -156,7 +156,7 @@ public:
 
     /**
      * Assignment operator
-     * @param str				Source string
+     * @param str                Source string
      */
     String& operator=(const char* str)
     {
