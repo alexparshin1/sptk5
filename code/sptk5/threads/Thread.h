@@ -52,33 +52,16 @@ namespace sptk
  */
 class SP_EXPORT Thread
 {
-    static void threadStart(void* athread);
+    SharedMutex                     m_mutex;        ///< Thread synchronization object
+    String                          m_name;         ///< Thread name
+    std::shared_ptr<std::thread>    m_thread;       ///< Thread object
+    bool                            m_terminated;   ///< Flag: is the thread terminated?
+    Semaphore                       m_pause;        ///< Pause object
 
     /**
-     * Thread synchronization object
+     * Thread function wrapper
      */
-    SharedMutex         m_mutex;
-
-    /**
-     * Thread name
-     */
-    String              m_name;
-
-    /**
-     * Thread object
-     */
-    std::thread         m_thread;
-
-    /**
-     * Flag: is the thread terminated?
-     */
-    bool                m_terminated;
-
-    /**
-     * Pause object
-     */
-    Semaphore           m_pause;
-
+    void threadStart();
 public:
 
     /**
@@ -89,7 +72,7 @@ public:
 
     /**
      * Constructor
-     * @param name CString, name of the thread for future references.
+     * @param name              Name of the thread for future references.
      */
     explicit Thread(const String& name);
 
@@ -98,10 +81,10 @@ public:
      */
     virtual ~Thread();
 
-    virtual /**
+    /**
      * Starts the already created thread
      */
-    void run();
+    virtual void run();
 
     /**
      * Check thread status
@@ -162,7 +145,7 @@ public:
      * The pause is automatically interrupted when terminate() is called.
      * @param timestamp         Moment of time
      */
-    virtual bool sleep_until(DateTime timestamp);
+    virtual bool sleep_until(const DateTime& timestamp);
 };
 /**
  * @}
