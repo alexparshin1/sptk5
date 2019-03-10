@@ -58,7 +58,7 @@ void MQTTFrame::appendRemainingLength(unsigned remainingLength)
     } while ( X> 0 );
 }
 
-MQTTFrame::MQTTFrame(MQTTFrameType type, uint16_t id, QOS qos)
+MQTTFrame::MQTTFrame(MQTTFrameType type, uint16_t id, sptk::QOS qos)
 : m_type(type), m_id(id), m_qos(qos)
 {}
 
@@ -139,7 +139,7 @@ const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, const String& use
     return *this;
 }
 
-const Buffer& MQTTFrame::setPUBLISH(const String& topic, const Buffer& data, QOS qos, bool dup, bool retain)
+const Buffer& MQTTFrame::setPUBLISH(const String& topic, const Buffer& data, sptk::QOS qos, bool dup, bool retain)
 {
     m_type = FT_PUBLISH;
     bytes(0);
@@ -182,7 +182,7 @@ void MQTTFrame::setACK(uint16_t messageId, MQTTFrameType ackType)
     appendShortValue(messageId);
 }
 
-const Buffer& MQTTFrame::subscribeFrame(const String& topic, QOS qos)
+const Buffer& MQTTFrame::subscribeFrame(const String& topic, sptk::QOS qos)
 {
     bytes(0);
 
@@ -207,7 +207,7 @@ const Buffer& MQTTFrame::subscribeFrame(const String& topic, QOS qos)
     return *this;
 }
 
-const Buffer& MQTTFrame::subscribeFrame(const Strings& topics, QOS qos)
+const Buffer& MQTTFrame::subscribeFrame(const Strings& topics, sptk::QOS qos)
 {
     bytes(0);
 
@@ -236,7 +236,7 @@ const Buffer& MQTTFrame::subscribeFrame(const Strings& topics, QOS qos)
     return *this;
 }
 
-const Buffer& MQTTFrame::unsubscribeFrame(const string& topic, QOS qos)
+const Buffer& MQTTFrame::unsubscribeFrame(const string& topic, sptk::QOS qos)
 {
     bytes(0);
 
@@ -260,7 +260,7 @@ const Buffer& MQTTFrame::unsubscribeFrame(const string& topic, QOS qos)
     return *this;
 }
 
-const Buffer& MQTTFrame::unsubscribeFrame(const Strings& topics, QOS qos)
+const Buffer& MQTTFrame::unsubscribeFrame(const Strings& topics, sptk::QOS qos)
 {
     bytes(0);
 
@@ -395,7 +395,7 @@ void MQTTFrame::readConnectACK(TCPSocket& connection)
     }
 }
 
-void MQTTFrame::readPublishFrame(TCPSocket& connection, unsigned remainingLength, QOS qos, String& topicName)
+void MQTTFrame::readPublishFrame(TCPSocket& connection, unsigned remainingLength, sptk::QOS qos, String& topicName)
 {
     int variableHeaderLength = 0;
 
@@ -417,7 +417,7 @@ void MQTTFrame::readPublishFrame(TCPSocket& connection, unsigned remainingLength
     connection.read(*this, dataLength);
 }
 
-void MQTTFrame::readSubscribeFrame(TCPSocket& connection, unsigned remainingLength, QOS& qos, String& topicName)
+void MQTTFrame::readSubscribeFrame(TCPSocket& connection, unsigned remainingLength, sptk::QOS& qos, String& topicName)
 {
     int variableHeaderLength = 0;
 
@@ -435,7 +435,7 @@ void MQTTFrame::readSubscribeFrame(TCPSocket& connection, unsigned remainingLeng
         readString(connection, topic);
         uint8_t aqos = readByte(connection);
         if (aqos > qos)
-            qos = (QOS) aqos;
+            qos = (sptk::QOS) aqos;
         topicNames.push_back(topic + "%" + to_string(aqos));
         dataLength -= topic.length() + 3;
     }

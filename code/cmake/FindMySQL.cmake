@@ -1,8 +1,8 @@
 IF (WIN32)
    SET (MYSQL_POSSIBLE_INCLUDE_PATHS
         $ENV{ProgramFiles}/MySQL/*
-        $ENV{ProgramFiles}/MySQL/*/include
-        $ENV{ProgramW6432}/MySQL/*/include)
+        $ENV{ProgramW6432}/MySQL/*/include
+        $ENV{ProgramW6432}/MySQL/*)
    SET (MYSQL_POSSIBLE_LIB_PATHS
         $ENV{ProgramFiles}/MySQL/*/lib
         $ENV{ProgramW6432}/MySQL/*/lib)
@@ -21,7 +21,10 @@ ENDIF (WIN32)
 
 
 FIND_PATH(MySQL_INCLUDE_DIR mysql.h ${MYSQL_POSSIBLE_INCLUDE_PATHS} PATH_SUFFIXES mysql include)
-#FIND_PATH(MySQL_INCLUDE_DIR mysql.h ${MYSQL_POSSIBLE_INCLUDE_PATHS})
+IF (NOT MySQL_INCLUDE_DIR)
+    FIND_PATH(MySQL_INCLUDE_DIR mysql.h ${MYSQL_POSSIBLE_INCLUDE_PATHS})
+ENDIF()
+
 FIND_LIBRARY(MySQL_LIBRARY NAMES mysqlclient_r mysqlclient PATHS ${MYSQL_POSSIBLE_LIB_PATHS} PATH_SUFFIXES mysql vs14 vs17)
 
 IF (MySQL_INCLUDE_DIR AND MySQL_LIBRARY)

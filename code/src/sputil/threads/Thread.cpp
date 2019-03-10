@@ -73,7 +73,7 @@ Thread::Id Thread::id()
 {
     if (m_thread)
         return m_thread->get_id();
-    return Id(0);
+    return Id();
 }
 
 void Thread::join()

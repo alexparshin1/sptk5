@@ -76,13 +76,13 @@ void SMQServer::closeConnection(ServerConnection* connection)
     }
 }
 
-static map<String,QOS> parseDestinations(const String& destinations)
+static map<String,sptk::QOS> parseDestinations(const String& destinations)
 {
-    map<String,QOS> destinationsAndQOS;
+    map<String,sptk::QOS> destinationsAndQOS;
     for (auto& destination: Strings(destinations,",")) {
         Strings parts(destination,"%");
         if (parts.size() == 2)
-            destinationsAndQOS[ parts[0] ] = QOS(string2int(parts[1]) & 1);
+            destinationsAndQOS[ parts[0] ] = sptk::QOS(string2int(parts[1]) & 1);
         else
             destinationsAndQOS[ parts[0] ] = QOS_1;
     }
@@ -187,7 +187,7 @@ void SMQServer::run()
     log(LP_NOTICE, "Server started");
 }
 
-void SMQServer::subscribe(SMQConnection* connection, const map<String,QOS>& destinations)
+void SMQServer::subscribe(SMQConnection* connection, const map<String,sptk::QOS>& destinations)
 {
     m_subscriptions.subscribe(connection, destinations);
 }
@@ -292,7 +292,7 @@ TEST(SPTK_SMQServer, shortMessages)
     SMQClient smqReceiver(protocolType, "test-client1");
     ASSERT_NO_THROW(smqReceiver.connect(serverHost, "user", "secret", false, connectTimeout));
     smqReceiver.subscribe("test-queue", std::chrono::milliseconds());
-    this_thread::sleep_for(milliseconds(1));
+    this_thread::sleep_for(milliseconds(10));
 
     auto msg = make_shared<Message>(Message::MESSAGE, Buffer(""));
     for (size_t m = 0; m < messageCount; m++) {

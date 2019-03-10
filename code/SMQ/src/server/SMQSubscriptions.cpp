@@ -40,7 +40,7 @@ void SMQSubscriptions::deliverMessage(const String& queueName, const SMessage me
         itor->second->deliverMessage(message);
 }
 
-void SMQSubscriptions::subscribe(SMQConnection* connection, const map<String,QOS>& queueNames)
+void SMQSubscriptions::subscribe(SMQConnection* connection, const map<String,sptk::QOS>& queueNames)
 {
     UniqueLock(m_mutex);
 

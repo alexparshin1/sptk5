@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-SMQSubscription::SMQSubscription(Type type, QOS qos)
+SMQSubscription::SMQSubscription(Type type, sptk::QOS qos)
 : m_type(type), m_qos(qos), m_currentConnection(m_connections.end())
 {
 }
