@@ -30,6 +30,7 @@
 #define __SMQ_CONNECTION_H__
 
 #include <smq/protocols/SMQProtocol.h>
+#include <smq/protocols/MQLastWillMessage.h>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerConnection.h>
 #include <sptk5/net/SocketEvents.h>
@@ -46,9 +47,10 @@ public:
     MQProtocolType getProtocolType() const;
 
 private:
-    std::shared_ptr<MQProtocol>     m_protocol;
-    String                          m_clientId;
-    std::set<SMQSubscription*>      m_subscriptions;
+    std::shared_ptr<MQProtocol>             m_protocol;
+    String                                  m_clientId;
+    std::set<SMQSubscription*>              m_subscriptions;
+    std::shared_ptr<MQLastWillMessage>      m_lastWillMessage;
 
 public:
     SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*);
@@ -60,7 +62,7 @@ public:
     MQProtocol& protocol();
 
     String clientId() const;
-    void   setupClient(String& id);
+    void setupClient(const String& id, const String& lastWillDestination, const String& lastWillMessage);
 
     void subscribe(SMQSubscription* subscription);
     void unsubscribe(SMQSubscription* subscription);
@@ -71,6 +73,7 @@ public:
     void ack(Message::Type sourceMessageType, const String& messageId);
     bool readMessage(SMessage& message);
     bool sendMessage(const String& destination, SMessage& message);
+    SMessage getLastWillMessage();
 };
 
 }

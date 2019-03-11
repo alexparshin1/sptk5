@@ -69,7 +69,7 @@ public:
     void stop() override;
 
     ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
-    void closeConnection(ServerConnection* connection);
+    void closeConnection(ServerConnection* connection, bool brokenConnection);
     bool authenticate(const String& clientId, const String& username, const String& password);
 
     void distributeMessage(SMessage message);

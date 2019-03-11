@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQClient.h - description                              ║
+║                       MQLastWill.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday December 23 2018                                ║
+║  begin                Monday March 11 2019                                   ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,85 +26,47 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <smq/clients/SMQClient.h>
-#include <SMQ/smq/clients/SMQClient.h>
+#ifndef __MQ_LAST_WILL_H__
+#define __MQ_LAST_WILL_H__
 
+#include <sptk5/String.h>
+#include <sptk5/Buffer.h>
 
-using namespace std;
-using namespace sptk;
-using namespace chrono;
+namespace sptk {
 
-SMQClient::SMQClient(MQProtocolType protocolType, const String& clientId)
-: TCPMQClient(protocolType, clientId)
+/**
+ * MQTT Last Will message definition.
+ *
+ * Last will message is published to the defined topic,
+ * when a client that defined it drops the connection to MQTT server.
+ */
+class MQLastWillMessage
 {
-}
+    String      m_destination;  ///< Topic to publish the message
+    String      m_message;      ///< Message to publish
+public:
+    /**
+     * Constructor
+     * @param destination       Topic to publish the message
+     * @param message           Message to publish
+     */
+    MQLastWillMessage(const String& destination, const String& message)
+    : m_destination(destination), m_message(message)
+    {}
 
-void SMQClient::connect(const Host& server, const String& username, const String& password, bool encrypted, milliseconds timeout)
-{
-    UniqueLock(m_mutex);
+    /**
+     * Get message destination
+     * @return message destination
+     */
+    String destination() const { return m_destination; }
 
-    createConnection(server, encrypted, timeout);
+    /**
+     * Get message content
+     * @return message content
+     */
+    String message() const { return m_message; }
+};
 
-    m_server = server;
-    m_username = username;
-    m_password = password;
+} // namespace sptk
 
-    auto connectMessage = make_shared<Message>(Message::CONNECT);
-    (*connectMessage)["client_id"] = getClientId();
-    (*connectMessage)["username"] = username;
-    (*connectMessage)["password"] = password;
-
-    if (m_lastWillMessage) {
-        (*connectMessage)["last_will_destination"] = m_lastWillMessage->destination();
-        (*connectMessage)["last_will_message"] = (String) m_lastWillMessage->message();
-    }
-
-    send("", connectMessage, timeout);
-}
-
-void SMQClient::disconnect(bool)
-{
-    destroyConnection();
-}
-
-void SMQClient::send(const String& destination, SMessage& message, std::chrono::milliseconds)
-{
-    protocol().sendMessage(destination, message);
-}
-
-void SMQClient::subscribe(const String& destination, std::chrono::milliseconds timeout)
-{
-    auto subscribeMessage = make_shared<Message>(Message::SUBSCRIBE);
-    send(destination, subscribeMessage, timeout);
-}
-
-void SMQClient::unsubscribe(const String& destination, std::chrono::milliseconds timeout)
-{
-    auto unsubscribeMessage = make_shared<Message>(Message::UNSUBSCRIBE);
-    send(destination, unsubscribeMessage, timeout);
-}
-
-void SMQClient::socketEvent(SocketEventType eventType)
-{
-    if (eventType == ET_CONNECTION_CLOSED) {
-        destroyConnection();
-        return;
-    }
-
-    SMessage msg;
-    try {
-        while (connected() && socket().socketBytes() > 0) {
-            if (protocol().readMessage(msg) && msg->type() == Message::MESSAGE)
-                acceptMessage(msg);
-        }
-    }
-    catch (const Exception&) {
-        destroyConnection();
-    }
-}
-
-void SMQClient::setLastWillMessage(std::unique_ptr<MQLastWillMessage>& lastWillMessage)
-{
-    UniqueLock(m_mutex);
-    m_lastWillMessage = move(lastWillMessage);
-}
+#endif

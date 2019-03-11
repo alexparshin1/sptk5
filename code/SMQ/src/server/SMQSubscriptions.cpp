@@ -51,8 +51,8 @@ void SMQSubscriptions::subscribe(SMQConnection* connection, const map<String,spt
         SharedSMQSubscription subscription;
         auto itor = m_subscriptions.find(queueName);
         if (itor == m_subscriptions.end()) {
-            SMQSubscription::Type subscriptionType = queueName.startsWith("/topic/") ? SMQSubscription::TOPIC
-                                                                                     : SMQSubscription::QUEUE;
+            SMQSubscription::Type subscriptionType = queueName.startsWith("/queue/") ? SMQSubscription::QUEUE
+                                                                                     : SMQSubscription::TOPIC;
             subscription = make_shared<SMQSubscription>(subscriptionType, qos);
             m_subscriptions[queueName] = subscription;
         } else

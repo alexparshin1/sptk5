@@ -34,16 +34,17 @@
 #include <smq/protocols/SMQProtocol.h>
 #include <smq/clients/TCPMQClient.h>
 #include <smq/clients/BaseMQClient.h>
+#include <SMQ/smq/protocols/MQLastWillMessage.h>
 
 namespace sptk {
 
 class SP_EXPORT SMQClient : public TCPMQClient
 {
-    mutable SharedMutex         m_mutex;            ///< Mutex that protects internal data
-    Host                        m_server;           ///< SMQ server host
-    String                      m_clientId;         ///< Unique SMQ client id
-    String                      m_username;         ///< Connection user name
-    String                      m_password;         ///< Connection password
+    mutable SharedMutex                     m_mutex;            ///< Mutex that protects internal data
+    Host                                    m_server;           ///< SMQ server host
+    String                                  m_username;         ///< Connection user name
+    String                                  m_password;         ///< Connection password
+    std::unique_ptr<MQLastWillMessage>      m_lastWillMessage;  ///< Optional last will message
 protected:
     void socketEvent(SocketEventType eventType) override;
 
@@ -59,6 +60,15 @@ public:
      * Destructor
      */
     ~SMQClient() override = default;
+
+    /**
+     * Set last will message
+     *
+     * Last will message is published when client abnormally terminates connection to server.
+     * This message only has effect on the next connect operation(s).
+     * @param lastWillMessage   Last will message
+     */
+    void setLastWillMessage(std::unique_ptr<MQLastWillMessage>& lastWillMessage);
 
     /*
      * Connect to MQ server
@@ -96,12 +106,6 @@ public:
      * @param timeout           Operation timeout
      */
     void send(const String& destination, SMessage& message, std::chrono::milliseconds timeout) override;
-
-    /**
-     * Get client id
-     * @return
-     */
-    const String& clientId() const { return m_clientId; }
 };
 
 }

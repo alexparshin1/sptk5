@@ -31,6 +31,7 @@
 
 #include <sptk5/cnet>
 #include <smq/Message.h>
+#include "MQLastWillMessage.h"
 
 namespace sptk {
 

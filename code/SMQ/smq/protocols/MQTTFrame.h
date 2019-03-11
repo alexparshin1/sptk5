@@ -237,13 +237,15 @@ public:
      * @param username          Optional user name or empty string if not needed
      * @param password          Optional password or empty string if not needed
      * @param clientId          Client id
-     * @param lastWillTopic         Optional topic to send last will
+     * @param lastWillTopic     Optional topic to send last will
+     * @param lastWillMessage   Optional last will message
      * @param protocolVersion   Optional MQTT protocol version
      * @return this object reference
      */
     const Buffer& setCONNECT(uint16_t keepAliveSeconds, const String& username, const String& password,
                              const String& clientId,
-                             const String& lastWillTopic, MQTTProtocolVersion protocolVersion);
+                             const String& lastWillTopic, const String& lastWillMessage,
+                             MQTTProtocolVersion protocolVersion);
 
     /**
      * Generate MQTT PUBLISH frame
@@ -262,15 +264,7 @@ public:
      * @param qos               QOS - Quality of Service
      * @return this object reference
      */
-    const Buffer& subscribeFrame(const String& topic, QOS qos);
-
-    /**
-     * Generate MQTT SUBSCRIBE frame
-     * @param topics            Topic names to publish to
-     * @param qos               QOS - Quality of Service
-     * @return this object reference
-     */
-    const Buffer& subscribeFrame(const Strings& topics, QOS qos);
+    const Buffer& setSUBSCRIBE(const String& topic, QOS qos);
 
     /**
      * Generate MQTT UNSUBSCRIBE frame

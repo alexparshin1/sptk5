@@ -9,9 +9,7 @@ ADD_LIBRARY(smq ${LIBRARY_TYPE}
 
 TARGET_LINK_LIBRARIES(smq sputil5)
 
-ADD_EXECUTABLE (smq_server
-        src/server/smq_server
-)
+ADD_EXECUTABLE (smq_server src/server/smq_server)
 
 TARGET_LINK_LIBRARIES(smq_server smq)
 

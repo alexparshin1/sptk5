@@ -58,13 +58,14 @@ void MQTTFrame::appendRemainingLength(unsigned remainingLength)
     } while ( X> 0 );
 }
 
-MQTTFrame::MQTTFrame(MQTTFrameType type, uint16_t id, sptk::QOS qos)
+MQTTFrame::MQTTFrame(MQTTFrameType type, uint16_t id, QOS qos)
 : m_type(type), m_id(id), m_qos(qos)
 {}
 
 const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, const String& username, const String& password,
                                     const String& clientId,
-                                    const String& lastWillTopic, MQTTProtocolVersion protocolVersion)
+                                    const String& lastWillTopic, const String& lastWillMessage,
+                                    MQTTProtocolVersion protocolVersion)
 {
 
     String  protocolName;
@@ -99,15 +100,9 @@ const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, const String& use
     String willMessage;
     // If will topic and message are defined - add their size to payload length
     if (!lastWillTopic.empty()) {
-        Message will;
-        will["event"] = "connection_terminated";
-        will["client_id"] = clientId;
-        will.append("Lost connection to MQTT broker");
-        willMessage = will.toString();
-
         connectFlags |= CF_WILL_QOS_1 | CF_WILL_FLAG;
         payloadlen += lastWillTopic.length() + 2;
-        payloadlen += willMessage.length() + 2;
+        payloadlen += lastWillMessage.length() + 2;
     }
 
     bytes(0);
@@ -127,7 +122,7 @@ const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, const String& use
 
     if (!lastWillTopic.empty()) {
         appendVariableHeader(lastWillTopic);
-        appendVariableHeader(willMessage);
+        appendVariableHeader(lastWillMessage);
     }
 
     if (!username.empty()) {
@@ -139,7 +134,7 @@ const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, const String& use
     return *this;
 }
 
-const Buffer& MQTTFrame::setPUBLISH(const String& topic, const Buffer& data, sptk::QOS qos, bool dup, bool retain)
+const Buffer& MQTTFrame::setPUBLISH(const String& topic, const Buffer& data, QOS qos, bool dup, bool retain)
 {
     m_type = FT_PUBLISH;
     bytes(0);
@@ -182,7 +177,7 @@ void MQTTFrame::setACK(uint16_t messageId, MQTTFrameType ackType)
     appendShortValue(messageId);
 }
 
-const Buffer& MQTTFrame::subscribeFrame(const String& topic, sptk::QOS qos)
+const Buffer& MQTTFrame::setSUBSCRIBE(const String& topic, QOS qos)
 {
     bytes(0);
 
@@ -193,12 +188,8 @@ const Buffer& MQTTFrame::subscribeFrame(const String& topic, sptk::QOS qos)
     appendRemainingLength(packetlen);
 
     // Variable header
-    if (qos != QOS_0) {
-        m_id = nextPacketId();
-        appendShortValue(m_id);
-    } else {
-        m_id = 0;
-    }
+    m_id = nextPacketId();
+    appendShortValue(m_id);
 
     // Payload
     appendVariableHeader(topic);
@@ -207,36 +198,7 @@ const Buffer& MQTTFrame::subscribeFrame(const String& topic, sptk::QOS qos)
     return *this;
 }
 
-const Buffer& MQTTFrame::subscribeFrame(const Strings& topics, sptk::QOS qos)
-{
-    bytes(0);
-
-    unsigned packetlen = 2;
-    for (auto& topic: topics)
-        packetlen += (topic.length() + 2) + 1;
-
-    // Fixed header
-    append((uint8_t) (unsigned) (FT_SUBSCRIBE|(1 << 1)));
-    appendRemainingLength(packetlen);
-
-    // Variable header
-    if (qos != QOS_0) {
-        m_id = nextPacketId();
-        appendShortValue(m_id);
-    } else {
-        m_id = 0;
-    }
-
-    // Payload
-    for (auto& topic: topics) {
-        appendVariableHeader(topic);
-        append((uint8_t) qos);
-    }
-
-    return *this;
-}
-
-const Buffer& MQTTFrame::unsubscribeFrame(const string& topic, sptk::QOS qos)
+const Buffer& MQTTFrame::unsubscribeFrame(const string& topic, QOS qos)
 {
     bytes(0);
 
@@ -260,7 +222,7 @@ const Buffer& MQTTFrame::unsubscribeFrame(const string& topic, sptk::QOS qos)
     return *this;
 }
 
-const Buffer& MQTTFrame::unsubscribeFrame(const Strings& topics, sptk::QOS qos)
+const Buffer& MQTTFrame::unsubscribeFrame(const Strings& topics, QOS qos)
 {
     bytes(0);
 
@@ -365,8 +327,8 @@ void MQTTFrame::readConnectFrame(TCPSocket& socket, MQProtocol::Parameters& logi
     readString(socket, loginInfo["client_id"]);
 
     if (expectWillTopic) {
-        readString(socket, loginInfo["will_topic"]);
-        readString(socket, loginInfo["will_message"]);
+        readString(socket, loginInfo["last_will_destination"]);
+        readString(socket, loginInfo["last_will_message"]);
     }
 
     if (expectUsername) {
@@ -395,7 +357,7 @@ void MQTTFrame::readConnectACK(TCPSocket& connection)
     }
 }
 
-void MQTTFrame::readPublishFrame(TCPSocket& connection, unsigned remainingLength, sptk::QOS qos, String& topicName)
+void MQTTFrame::readPublishFrame(TCPSocket& connection, unsigned remainingLength, QOS qos, String& topicName)
 {
     int variableHeaderLength = 0;
 
@@ -417,13 +379,11 @@ void MQTTFrame::readPublishFrame(TCPSocket& connection, unsigned remainingLength
     connection.read(*this, dataLength);
 }
 
-void MQTTFrame::readSubscribeFrame(TCPSocket& connection, unsigned remainingLength, sptk::QOS& qos, String& topicName)
+void MQTTFrame::readSubscribeFrame(TCPSocket& connection, unsigned remainingLength, QOS& qos, String& topicName)
 {
     int variableHeaderLength = 0;
 
-    uint16_t id;
-    connection.read((char*)&id, 2);
-    m_id = ntohs(id);
+    m_id = readShortInteger(connection);
     variableHeaderLength += 2;
 
     unsigned dataLength = remainingLength - variableHeaderLength;
@@ -435,7 +395,7 @@ void MQTTFrame::readSubscribeFrame(TCPSocket& connection, unsigned remainingLeng
         readString(connection, topic);
         uint8_t aqos = readByte(connection);
         if (aqos > qos)
-            qos = (sptk::QOS) aqos;
+            qos = (QOS) aqos;
         topicNames.push_back(topic + "%" + to_string(aqos));
         dataLength -= topic.length() + 3;
     }

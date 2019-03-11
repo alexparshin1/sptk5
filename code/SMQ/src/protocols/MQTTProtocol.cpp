@@ -72,9 +72,29 @@ bool MQTTProtocol::readMessage(SMessage& message)
 
 bool MQTTProtocol::sendMessage(const String& destination, SMessage& message)
 {
-    MQTTFrame publishFrame;
-    publishFrame.setPUBLISH(destination, *message, QOS_0);
-    socket().send(publishFrame.c_str(), publishFrame.bytes());
+    MQTTFrame frame;
+    switch (message->type()) {
+        case Message::CONNECT:
+            frame.setCONNECT(
+                    60,
+                    (*message)["username"],
+                    (*message)["password"],
+                    (*message)["client_id"],
+                    (*message)["last_will_destination"],
+                    (*message)["last_will_message"],
+                    MQTT_PROTOCOL_V311
+                    );
+            break;
+        case Message::SUBSCRIBE:
+            frame.setSUBSCRIBE(destination, QOS_0);
+            break;
+        case Message::MESSAGE:
+            frame.setPUBLISH(destination, *message, QOS_0);
+            break;
+        default:
+            throw Exception("Message type not handled!");
+    }
+    socket().send(frame.c_str(), frame.bytes());
     return true;
 }
 

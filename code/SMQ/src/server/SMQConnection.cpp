@@ -27,6 +27,8 @@
 */
 
 #include <smq/server/SMQServer.h>
+#include <SMQ/smq/server/SMQConnection.h>
+
 
 using namespace std;
 using namespace sptk;
@@ -73,10 +75,14 @@ String SMQConnection::clientId() const
     return m_clientId;
 }
 
-void SMQConnection::setupClient(String& id)
+void SMQConnection::setupClient(const String& id, const String& lastWillDestination, const String& lastWillMessage)
 {
     UniqueLock(m_mutex);
     m_clientId = id;
+    if (!lastWillDestination.empty())
+        m_lastWillMessage = make_shared<MQLastWillMessage>(lastWillDestination, lastWillMessage);
+    else
+        m_lastWillMessage.reset();
 }
 
 void SMQConnection::sendMessage(SMessage& message)
@@ -117,6 +123,17 @@ bool SMQConnection::sendMessage(const String& destination, SMessage& message)
 {
     protocol().sendMessage(destination, message);
     return false;
+}
+
+SMessage SMQConnection::getLastWillMessage()
+{
+    if (!m_lastWillMessage)
+        return SMessage();
+
+    auto lastWillMessage = make_shared<Message>(Message::MESSAGE);
+    (*lastWillMessage)["destination"] = m_lastWillMessage->destination();
+    lastWillMessage->set(m_lastWillMessage->message());
+    return lastWillMessage;
 }
 
 MQProtocol& SMQConnection::protocol()

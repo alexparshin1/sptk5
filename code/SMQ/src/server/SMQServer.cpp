@@ -65,7 +65,7 @@ ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_
     return newConnection;
 }
 
-void SMQServer::closeConnection(ServerConnection* connection)
+void SMQServer::closeConnection(ServerConnection* connection, bool brokenConnection)
 {
     auto* smqConnection = dynamic_cast<SMQConnection*>(connection);
     if (smqConnection != nullptr) {
@@ -73,6 +73,12 @@ void SMQServer::closeConnection(ServerConnection* connection)
         lock_guard<mutex> lock(m_mutex);
         m_clientIds.erase(clientId);
         m_connections.erase(smqConnection);
+
+        if (brokenConnection) {
+            SMessage lastWillMessage = smqConnection->getLastWillMessage();
+            if (lastWillMessage)
+                distributeMessage(lastWillMessage);
+        }
     }
 }
 
@@ -95,7 +101,7 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
     auto* smqServer = dynamic_cast<SMQServer*>(&connection->server());
 
     if (eventType == ET_CONNECTION_CLOSED) {
-        smqServer->closeConnection(connection);
+        smqServer->closeConnection(connection, true);
         delete connection;
         return;
     }
@@ -110,11 +116,18 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
             switch (msg->type()) {
                 case Message::CONNECT:
                     if (!smqServer->authenticate((*msg)["client_id"], (*msg)["username"], (*msg)["password"])) {
-                        smqServer->closeConnection(connection);
+                        smqServer->closeConnection(connection, false);
                         delete connection;
                         connection = nullptr;
-                    } else
-                        connection->setupClient((*msg)["client_id"]);
+                    } else {
+                        const String& lastWillDestination = (*msg)["last_will_destination"];
+                        const String& lastWillMessage = (*msg)["last_will_message"];
+                        connection->setupClient((*msg)["client_id"], lastWillDestination, lastWillMessage);
+                        if (!lastWillDestination.empty()) {
+                            msg->headers().erase("last_will_destination");
+                            msg->headers().erase("last_will_message");
+                        }
+                    }
                     protocol.ack(Message::CONNECT, "");
                     break;
                 case Message::SUBSCRIBE:
@@ -127,7 +140,7 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
                     smqServer->distributeMessage(msg);
                     break;
                 case Message::DISCONNECT:
-                    smqServer->closeConnection(connection);
+                    smqServer->closeConnection(connection, false);
                     delete connection;
                     connection = nullptr;
                     break;
@@ -138,7 +151,7 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
     }
     catch (const Exception& e) {
         if (connection != nullptr) {
-            smqServer->closeConnection(connection);
+            smqServer->closeConnection(connection, true);
             delete connection;
         }
         smqServer->log(LP_ERROR, e.message());
@@ -442,7 +455,7 @@ TEST(SPTK_SMQServer, singleClientMultipleQueues)
 
     EXPECT_EQ(messageCount * queueNames.size(), totalMessages);
 
-    COUT("Client " << client.clientId() << " has " <<client.hasMessages() << " messages" << endl);
+    COUT("Client " << client.getClientId() << " has " <<client.hasMessages() << " messages" << endl);
 
     sender.disconnect(true);
     client.disconnect(true);
@@ -474,7 +487,7 @@ TEST(SPTK_SMQServer, multipleClientsSingleQueue)
         auto client = make_shared<SMQClient>(protocolType, clientId);
         receivers.push_back(client);
         ASSERT_NO_THROW(client->connect(serverHost, "user", "secret", false, connectTimeout));
-        ASSERT_NO_THROW(client->subscribe("test-queue", std::chrono::milliseconds()));
+        ASSERT_NO_THROW(client->subscribe("/queue/test", std::chrono::milliseconds()));
         clientIndex++;
     }
 
@@ -485,7 +498,7 @@ TEST(SPTK_SMQServer, multipleClientsSingleQueue)
         msg1->headers()["subject"] = "subject " + to_string(m);
         msg1->set("data " + to_string(m));
         for (size_t clientIndex1 = 0; clientIndex1 < clientCount; clientIndex1++)
-            sender.send("test-queue", msg1, sendTimeout);
+            sender.send("/queue/test", msg1, sendTimeout);
     }
 
     size_t totalMessages = 0;
@@ -504,7 +517,7 @@ TEST(SPTK_SMQServer, multipleClientsSingleQueue)
     EXPECT_EQ(messageCount * clientCount, totalMessages);
 
     for (auto& client: receivers)
-        COUT("Client " << client->clientId() << " has " <<client->hasMessages() << " messages" << endl);
+        COUT("Client " << client->getClientId() << " has " <<client->hasMessages() << " messages" << endl);
 
     for (auto& client: receivers)
         client->disconnect(true);
@@ -564,11 +577,98 @@ TEST(SPTK_SMQServer, multipleClientsSingleTopic)
     EXPECT_EQ(messageCount * clientCount, totalMessages);
 
     for (auto& client: receivers)
-        COUT("Client " << client->clientId() << " has " << client->hasMessages() << " messages" << endl);
+        COUT("Client " << client->getClientId() << " has " << client->hasMessages() << " messages" << endl);
 
     for (auto& client: receivers)
         client->disconnect(true);
 
+    smqServer.stop();
+}
+
+TEST(SPTK_SMQServer, mqttMinimal)
+{
+    Buffer          buffer;
+    FileLogEngine   logEngine("SMQServer.log");
+    uint16_t        serverPort {4007};
+    Host            serverHost("localhost", serverPort);
+    MQProtocolType  protocolType(MP_MQTT);
+
+    SMQServer smqServer(protocolType, "user", "secret", logEngine);
+
+    ASSERT_NO_THROW(smqServer.listen(serverPort));
+
+    seconds connectTimeout(10);
+    seconds sendTimeout(1);
+
+    SMQClient smqReceiver(protocolType, "test-receiver");
+    ASSERT_NO_THROW(smqReceiver.connect(serverHost, "user", "secret", false, connectTimeout));
+    ASSERT_NO_THROW(smqReceiver.subscribe("test-queue", std::chrono::milliseconds()));
+    this_thread::sleep_for(milliseconds(10)); // Wait until subscription is completed
+
+    SMQClient smqSender(protocolType, "test-sender");
+    ASSERT_NO_THROW(smqSender.connect(serverHost, "user", "secret", false, connectTimeout));
+
+    auto testMessage = make_shared<Message>(Message::MESSAGE, Buffer("This is SMQ test"));
+    for (size_t m = 0; m < messageCount; m++)
+        smqSender.send("test-queue", testMessage, sendTimeout);
+
+    size_t maxWait = 1000;
+    while (smqReceiver.hasMessages() < messageCount) {
+        this_thread::sleep_for(milliseconds(1));
+        maxWait--;
+        if (maxWait == 0)
+            break;
+    }
+
+    EXPECT_EQ(messageCount, smqReceiver.hasMessages());
+
+    for (size_t m = 0; m < messageCount; m++) {
+        auto msg = smqReceiver.getMessage(milliseconds(100));
+        if (msg) {
+            EXPECT_STREQ("test-queue", msg->destination().c_str());
+            EXPECT_STREQ("This is SMQ test", msg->c_str());
+        }
+    }
+
+    smqSender.disconnect(true);
+    smqReceiver.disconnect(true);
+
+    smqServer.stop();
+}
+
+TEST(SPTK_SMQServer, mqttLastWill)
+{
+    Buffer          buffer;
+    FileLogEngine   logEngine("SMQServer.log");
+    uint16_t        serverPort {4007};
+    Host            serverHost("localhost", serverPort);
+    MQProtocolType  protocolType(MP_MQTT);
+
+    SMQServer smqServer(protocolType, "user", "secret", logEngine);
+
+    ASSERT_NO_THROW(smqServer.listen(serverPort));
+
+    seconds connectTimeout(10);
+    seconds sendTimeout(1);
+
+    SMQClient smqReceiver(protocolType, "test-receiver");
+    auto lastWillMessage = make_unique<MQLastWillMessage>("last_will", "Client connection terminated");
+    SMQClient smqSender(protocolType, "test-sender");
+    ASSERT_NO_THROW(smqSender.setLastWillMessage(lastWillMessage));
+    ASSERT_NO_THROW(smqSender.connect(serverHost, "user", "secret", false, connectTimeout));
+
+    ASSERT_NO_THROW(smqReceiver.connect(serverHost, "user", "secret", false, connectTimeout));
+    ASSERT_NO_THROW(smqReceiver.subscribe("last_will", std::chrono::milliseconds()));
+
+    this_thread::sleep_for(milliseconds(100)); // Wait until subscription is completed
+
+    smqSender.disconnect(true);
+
+    auto msg = smqReceiver.getMessage(milliseconds(10000));
+    if (msg)
+        EXPECT_STREQ("Client connection terminated", msg->c_str());
+
+    smqReceiver.disconnect(true);
     smqServer.stop();
 }
 
