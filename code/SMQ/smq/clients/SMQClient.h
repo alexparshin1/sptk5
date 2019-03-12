@@ -34,7 +34,7 @@
 #include <smq/protocols/SMQProtocol.h>
 #include <smq/clients/TCPMQClient.h>
 #include <smq/clients/BaseMQClient.h>
-#include <SMQ/smq/protocols/MQLastWillMessage.h>
+#include <smq/protocols/MQLastWillMessage.h>
 
 namespace sptk {
 

@@ -27,7 +27,7 @@
 */
 
 #include <smq/clients/SMQClient.h>
-#include <SMQ/smq/clients/SMQClient.h>
+#include <smq/clients/SMQClient.h>
 
 
 using namespace std;
