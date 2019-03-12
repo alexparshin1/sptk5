@@ -230,3 +230,5 @@ MQProtocolType SMQServer::protocol() const
     lock_guard<mutex> lock(m_mutex);
     return m_protocol;
 }
+
+#include "unit_tests/SMQServer_UT.cpp"
