@@ -5,6 +5,7 @@ ADD_LIBRARY(smq ${LIBRARY_TYPE}
         src/protocols/MQProtocol.cpp src/protocols/MQTTFrame.cpp src/protocols/MQTTProtocol.cpp src/protocols/SMQProtocol.cpp
         src/server/SMQConnection.cpp src/server/SMQServer.cpp
         src/server/SMQSubscription.cpp src/server/SMQSubscriptions.cpp
+        src/server/unit_tests/SMQServer_UT.cpp
 )
 
 TARGET_LINK_LIBRARIES(smq sputil5)
