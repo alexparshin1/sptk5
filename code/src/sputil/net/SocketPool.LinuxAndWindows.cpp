@@ -108,17 +108,14 @@ void SocketPool::forgetSocket(BaseSocket& socket)
 {
     epoll_event* event;
 
-    if (socket.active()) {
-        lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(*this);
 
-        auto itor = m_socketData.find(&socket);
-        if (itor == m_socketData.end())
-            return;
+    auto itor = m_socketData.find(&socket);
+    if (itor == m_socketData.end())
+        return;
 
-        event = (epoll_event*) itor->second;
-        m_socketData.erase(itor);
-    } else
-        throw Exception("Socket is closed");
+    event = (epoll_event*) itor->second;
+    m_socketData.erase(itor);
 
     int rc = epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.handle(), event);
     if (rc == -1)
