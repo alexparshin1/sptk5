@@ -89,7 +89,7 @@ protected:
      * @param message           Received message
      * @return true if message should be placed to the received messages queue.
      */
-    virtual bool previewMessage(Message& message) { return true; }
+    virtual bool previewMessage(SMessage& message) { return true; }
 
     /**
      * Place received message into received messages queue.

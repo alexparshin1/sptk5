@@ -68,7 +68,8 @@ size_t BaseMQClient::hasMessages() const
 
 void BaseMQClient::acceptMessage(SMessage& message)
 {
-    m_incomingMessages.push(message);
+    if (previewMessage(message) && message)
+        m_incomingMessages.push(message);
 }
 
 MQProtocolType BaseMQClient::protocolType() const

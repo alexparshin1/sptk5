@@ -203,6 +203,12 @@ void SMQServer::run()
 void SMQServer::subscribe(SMQConnection* connection, const map<String,sptk::QOS>& destinations)
 {
     m_subscriptions.subscribe(connection, destinations);
+
+    Strings destinationNames;
+    for (auto& itor: destinations)
+        destinationNames.push_back(itor.first);
+
+    log(LP_INFO, "(" + connection->clientId() + ") Subscribed to " + destinationNames.join(", "));
 }
 
 void SMQServer::unsubscribe(SMQConnection* connection, const String& destination)
