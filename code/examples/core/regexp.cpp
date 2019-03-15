@@ -108,10 +108,12 @@ int main()
         COUT("\nSubstituting text '" << text << "' to digits." << endl);
         COUT("The result is '" << phoneNumber << "'." << endl << endl);
 
+        text = "This text contains phone number: (415)-123-4567";
+
         unsigned counter = 0;
         unsigned tests = 1000000;
         for (unsigned i = 0; i < tests; i++) {
-            if (RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}").matches(text))
+            if (RegularExpression(R"(\(\d{3}\)-\d{3}-\d{4})").matches(text))
                 counter++;
         }
         DateTime finished = DateTime::Now();
