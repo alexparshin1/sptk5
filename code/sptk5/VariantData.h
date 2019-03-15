@@ -123,14 +123,17 @@ public:
 
     VariantData& operator = (const VariantData& other)
     {
-        memcpy(m_data, other.m_data, sizeof(m_data));
+        if (&other != this)
+            memcpy(m_data, other.m_data, sizeof(m_data));
         return *this;
     }
 
     VariantData& operator = (VariantData&& other)
     {
-        memcpy(m_data, other.m_data, sizeof(m_data));
-        memset(other.m_data, 0, sizeof(m_data));
+        if (&other != this) {
+            memcpy(m_data, other.m_data, sizeof(m_data));
+            memset(other.m_data, 0, sizeof(m_data));
+        }
         return *this;
     }
 

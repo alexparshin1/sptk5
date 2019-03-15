@@ -182,10 +182,10 @@ TEST(SPTK_TCPServer, minimal)
     Buffer buffer;
 
     EchoServer echoServer;
-    ASSERT_NO_THROW(echoServer.listen(3000));
+    ASSERT_NO_THROW(echoServer.listen(3001));
 
     TCPSocket socket;
-    ASSERT_NO_THROW(socket.open(Host("localhost:3000")));
+    ASSERT_NO_THROW(socket.open(Host("localhost", 3001)));
 
     Strings rows("Hello, World!\n"
                   "This is a test of TCPServer class.\n"

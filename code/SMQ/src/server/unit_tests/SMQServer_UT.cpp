@@ -1,18 +1,27 @@
 #if USE_GTEST
 
-static const MQProtocolType protocolType = MP_SMQ;
-static const size_t messageCount {100};
+shared_ptr<FileLogEngine> logEngine;
+
+unique_ptr<SMQServer> createSMQServer(const MQProtocolType protocolType, const Host& serverHost)
+{
+    if (!logEngine)
+        logEngine = make_shared<FileLogEngine>("SMQServer.log");
+
+    unique_ptr<SMQServer> smqServer = make_unique<SMQServer>(protocolType, "user", "secret", *logEngine);
+    smqServer->listen(serverHost.port());
+
+    return smqServer;
+}
 
 TEST(SPTK_SMQServer, minimal)
 {
     Buffer          buffer;
-    FileLogEngine   logEngine("SMQServer.log");
-    uint16_t        serverPort {4001};
-    Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer(MP_SMQ, "user", "secret", logEngine);
+    size_t          messageCount {100};
+    MQProtocolType  protocolType {MP_SMQ};
+    Host            serverHost("localhost", 4001);
 
-    ASSERT_NO_THROW(smqServer.listen(serverPort));
+    auto smqServer = createSMQServer(protocolType, serverHost);
 
     seconds connectTimeout(10);
     seconds sendTimeout(1);
@@ -50,18 +59,19 @@ TEST(SPTK_SMQServer, minimal)
     smqSender.disconnect(true);
     smqReceiver.disconnect(true);
 
-    smqServer.stop();
+    smqServer->stop();
 }
 
 TEST(SPTK_SMQServer, shortMessages)
 {
     Buffer          buffer;
     FileLogEngine   logEngine("SMQServer.log");
-    uint16_t        serverPort {4002};
-    Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer(MP_SMQ, "user", "secret", logEngine);
-    ASSERT_NO_THROW(smqServer.listen(serverPort));
+    size_t          messageCount {100};
+    MQProtocolType  protocolType {MP_SMQ};
+    Host            serverHost("localhost", 4002);
+
+    auto smqServer = createSMQServer(protocolType, serverHost);
 
     seconds connectTimeout(10);
     seconds sendTimeout(1); // Wait until subscription is completed
@@ -100,18 +110,19 @@ TEST(SPTK_SMQServer, shortMessages)
     smqSender.disconnect(true);
     smqReceiver.disconnect(true);
 
-    smqServer.stop();
+    smqServer->stop();
 }
 
 TEST(SPTK_SMQServer, multiClients)
 {
     Buffer          buffer;
     FileLogEngine   logEngine("SMQServer.log");
-    uint16_t        serverPort {4003};
-    Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer(protocolType, "user", "secret", logEngine);
-    ASSERT_NO_THROW(smqServer.listen(serverPort));
+    size_t          messageCount {100};
+    MQProtocolType  protocolType {MP_SMQ};
+    Host            serverHost("localhost", 4003);
+
+    auto smqServer = createSMQServer(protocolType, serverHost);
 
     seconds connectTimeout(10);
     seconds sendTimeout(1);
@@ -173,18 +184,18 @@ TEST(SPTK_SMQServer, multiClients)
     for (auto& client: receivers)
         client->disconnect(true);
 
-    smqServer.stop();
+    smqServer->stop();
 }
 
 TEST(SPTK_SMQServer, singleClientMultipleQueues)
 {
     Buffer          buffer;
-    FileLogEngine   logEngine("SMQServer.log");
-    uint16_t        serverPort {4004};
-    Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer(MP_SMQ, "user", "secret", logEngine);
-    ASSERT_NO_THROW(smqServer.listen(serverPort));
+    size_t          messageCount {100};
+    MQProtocolType  protocolType {MP_SMQ};
+    Host            serverHost("localhost", 4004);
+
+    auto smqServer = createSMQServer(protocolType, serverHost);
 
     seconds connectTimeout(10);
     seconds sendTimeout(1);
@@ -227,18 +238,18 @@ TEST(SPTK_SMQServer, singleClientMultipleQueues)
     sender.disconnect(true);
     client.disconnect(true);
 
-    smqServer.stop();
+    smqServer->stop();
 }
 
 TEST(SPTK_SMQServer, multipleClientsSingleQueue)
 {
     Buffer          buffer;
-    FileLogEngine   logEngine("SMQServer.log");
-    uint16_t        serverPort {4005};
-    Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer(MP_SMQ, "user", "secret", logEngine);
-    ASSERT_NO_THROW(smqServer.listen(serverPort));
+    size_t          messageCount {100};
+    MQProtocolType  protocolType {MP_SMQ};
+    Host            serverHost("localhost", 4005);
+
+    auto smqServer = createSMQServer(protocolType, serverHost);
 
     seconds connectTimeout(10);
     seconds sendTimeout(1);
@@ -289,18 +300,18 @@ TEST(SPTK_SMQServer, multipleClientsSingleQueue)
     for (auto& client: receivers)
         client->disconnect(true);
 
-    smqServer.stop();
+    smqServer->stop();
 }
 
 TEST(SPTK_SMQServer, multipleClientsSingleTopic)
 {
     Buffer          buffer;
-    FileLogEngine   logEngine("SMQServer.log");
-    uint16_t        serverPort {4006};
-    Host            serverHost("localhost", serverPort);
 
-    SMQServer smqServer(MP_SMQ, "user", "secret", logEngine);
-    ASSERT_NO_THROW(smqServer.listen(serverPort));
+    size_t          messageCount {100};
+    MQProtocolType  protocolType {MP_SMQ};
+    Host            serverHost("localhost", 4006);
+
+    auto smqServer = createSMQServer(protocolType, serverHost);
 
     seconds connectTimeout(10);
     seconds sendTimeout(1);
@@ -349,20 +360,18 @@ TEST(SPTK_SMQServer, multipleClientsSingleTopic)
     for (auto& client: receivers)
         client->disconnect(true);
 
-    smqServer.stop();
+    smqServer->stop();
 }
 
 TEST(SPTK_SMQServer, mqttMinimal)
 {
     Buffer          buffer;
-    FileLogEngine   logEngine("SMQServer.log");
-    uint16_t        serverPort {4007};
-    Host            serverHost("localhost", serverPort);
-    MQProtocolType  protocolType(MP_MQTT);
 
-    SMQServer smqServer(protocolType, "user", "secret", logEngine);
+    size_t          messageCount {100};
+    MQProtocolType  protocolType {MP_MQTT};
+    Host            serverHost("localhost", 4007);
 
-    ASSERT_NO_THROW(smqServer.listen(serverPort));
+    auto smqServer = createSMQServer(protocolType, serverHost);
 
     seconds connectTimeout(10);
     seconds sendTimeout(1);
@@ -400,23 +409,19 @@ TEST(SPTK_SMQServer, mqttMinimal)
     smqSender.disconnect(true);
     smqReceiver.disconnect(true);
 
-    smqServer.stop();
+    smqServer->stop();
 }
 
 TEST(SPTK_SMQServer, mqttLastWill)
 {
     Buffer          buffer;
-    FileLogEngine   logEngine("SMQServer.log");
-    uint16_t        serverPort {4007};
-    Host            serverHost("localhost", serverPort);
-    MQProtocolType  protocolType(MP_MQTT);
 
-    SMQServer smqServer(protocolType, "user", "secret", logEngine);
+    MQProtocolType  protocolType {MP_MQTT};
+    Host            serverHost("localhost", 4008);
 
-    ASSERT_NO_THROW(smqServer.listen(serverPort));
+    auto smqServer = createSMQServer(protocolType, serverHost);
 
     seconds connectTimeout(10);
-    seconds sendTimeout(1);
 
     SMQClient smqReceiver1(protocolType, "test-receiver1");
     SMQClient smqReceiver2(protocolType, "test-receiver2");
@@ -458,7 +463,7 @@ TEST(SPTK_SMQServer, mqttLastWill)
 
     smqReceiver1.disconnect(true);
     smqReceiver2.disconnect(true);
-    smqServer.stop();
+    smqServer->stop();
 }
 
 #endif

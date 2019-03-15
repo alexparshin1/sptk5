@@ -39,6 +39,9 @@ void MQTTProtocol::ack(Message::Type sourceMessageType, const String& messageId)
         case Message::CONNECT:
             ackType = FT_CONNACK;
             break;
+        case Message::SUBSCRIBE:
+            ackType = FT_SUBACK;
+            break;
         default:
             return;
     }

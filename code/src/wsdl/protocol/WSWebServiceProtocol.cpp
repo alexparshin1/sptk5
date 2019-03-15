@@ -219,7 +219,7 @@ void WSWebServiceProtocol::process()
             const char* endOfData = data.c_str() + data.bytes();
             if (startOfMessage == nullptr) {
                 startOfMessage = strstr(data.c_str(), "<?xml");
-                if (startOfMessage == nullptr && startOfMessage < endOfData) {
+                if (startOfMessage == nullptr) {
                     startOfMessage = strstr(data.c_str(), "Envelope");
                     if (startOfMessage != nullptr && startOfMessage < endOfData)
                         while (*startOfMessage != '<' && startOfMessage > data.c_str())
