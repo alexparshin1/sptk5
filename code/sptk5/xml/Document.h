@@ -182,12 +182,7 @@ public:
     }
 
     /**
-     * Returns doctype of document.
-     *
-     * You can use it to add e.g. custom entities.
-     * <pre>
-     * mydoc->doctype().set_entity("myentity", "myreplacement");
-     * </pre>
+     * Return doctype of document.
      */
     DocType& docType()
     {
@@ -196,11 +191,6 @@ public:
 
     /**
      * Return doctype of document.
-     *
-     * You can use it to add e.g. custom entities.
-     * <pre>
-     * mydoc->doctype().set_entity("myentity", "myreplacement");
-     * </pre>
      */
     const DocType& docType() const
     {
@@ -208,7 +198,7 @@ public:
     }
 
     /**
-     * Returns pointer to root element of document
+     * Return pointer to root element of document
      */
     Node* rootNode();
 

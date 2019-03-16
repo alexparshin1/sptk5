@@ -43,6 +43,7 @@
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/test/TestRunner.h>
 #include <smq/server/SMQServer.h>
+#include <SMQ/smq/unit_tests/SMQServer_UT.h>
 
 using namespace std;
 using namespace sptk;
@@ -86,6 +87,8 @@ void stub()
 
     TCPSocket            socket;
     HttpConnect          connect(socket);
+
+    SMQServer_UT         smqServer_ut;
 
 	try {
 		SysLogEngine		 logger("unit_tests");

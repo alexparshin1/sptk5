@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XML_DOC_TYPE_H__
-#define __SPTK_XML_DOC_TYPE_H__
+#ifndef __XML_DOC_TYPE_H__
+#define __XML_DOC_TYPE_H__
 
 #include <sptk5/xml/Entities.h>
 

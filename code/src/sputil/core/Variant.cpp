@@ -1202,7 +1202,8 @@ TEST(SPTK_Variant, move_assigns)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
-    Variant v, vm;
+    Variant v;
+    Variant vm;
 
     v = 1;
     vm = move(v);
