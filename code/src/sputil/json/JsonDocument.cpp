@@ -155,7 +155,7 @@ void verifyDocument(json::Document& document)
     Strings skills;
     skills.resize(arrayData.size());
     transform(arrayData.begin(), arrayData.end(), skills.begin(),
-              [](const json::Element* skill) -> String { return skill->getString(); });
+              [](const json::Element* skill) { return skill->getString(); });
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
 
     json::Element* ptr = root.find("address");
@@ -205,7 +205,7 @@ TEST(SPTK_JsonDocument, add)
     Strings skills;
     skills.resize(array.size());
     transform(array.begin(), array.end(), skills.begin(),
-              [](json::Element* skill) -> String { return skill->getString(); });
+              [](json::Element* skill) { return skill->getString(); });
     EXPECT_STREQ("C++,Java,Python", skills.join(",").c_str());
 
     json::Element* object = root.find("object");

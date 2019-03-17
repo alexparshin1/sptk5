@@ -175,19 +175,10 @@ static void SIGN_ERROR(int __err)
         throw Exception("Can't allocate memory");
 }
 
-void JWT::sign_sha_pem(Buffer& out, const char* str)
+static const EVP_MD* signAlgorithm(const JWT::jwt_alg_t alg, int& type)
 {
-    EVP_MD_CTX* mdctx = nullptr;
-    ECDSA_SIG* ec_sig = nullptr;
-    const BIGNUM* ec_sig_r = nullptr;
-    const BIGNUM* ec_sig_s = nullptr;
-    BIO* bufkey = nullptr;
-    const EVP_MD* algorithm;
-    int type;
-    EVP_PKEY* pkey = nullptr;
-    size_t slen;
-
-    switch (this->alg) {
+    const EVP_MD* algorithm {nullptr};
+    switch (alg) {
         /* RSA */
         case JWT::JWT_ALG_RS256:
             algorithm = EVP_sha256();
@@ -219,6 +210,23 @@ void JWT::sign_sha_pem(Buffer& out, const char* str)
         default:
             throw Exception("Invalid sign algorithm");
     }
+
+    return algorithm;
+}
+
+void JWT::sign_sha_pem(Buffer& out, const char* str)
+{
+    EVP_MD_CTX* mdctx = nullptr;
+    ECDSA_SIG* ec_sig = nullptr;
+    const BIGNUM* ec_sig_r = nullptr;
+    const BIGNUM* ec_sig_s = nullptr;
+    BIO* bufkey = nullptr;
+    const EVP_MD* algorithm;
+    int type;
+    EVP_PKEY* pkey = nullptr;
+    size_t slen;
+
+    algorithm = signAlgorithm(alg, type);
 
     Buffer sig_buffer;
     string error;
