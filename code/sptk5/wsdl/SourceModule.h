@@ -73,53 +73,27 @@ public:
      * @param moduleName        Module name
      * @param modulePath        Module path
      */
-    SourceModule(const String& moduleName, const String& modulePath)
-    : m_name(moduleName), m_path(modulePath)
-    {
-    }
+    SourceModule(const String& moduleName, const String& modulePath);
 
     /**
      * @brief Destructor
      */
-    ~SourceModule()
-    {
-        if (m_header.is_open())
-            m_header.close();
-        if (m_source.is_open())
-            m_source.close();
-    }
+    ~SourceModule();
 
     /**
      * @brief Opens module output files
      */
-    void open()
-    {
-        if (m_path.empty())
-            m_path = ".";
-        std::string fileName = m_path + "/" + m_name;
-        m_header.open((fileName + ".h").c_str(), std::ofstream::out | std::ofstream::trunc);
-        if (!m_header.is_open())
-            throw Exception("Can't create file " + fileName + ".h");
-        m_source.open((fileName + ".cpp").c_str(), std::ofstream::out | std::ofstream::trunc);
-        if (!m_source.is_open())
-            throw Exception("Can't create file " + fileName + ".cpp");
-    }
+    void open();
 
     /**
      * @brief Returns header file stream
      */
-    std::ofstream& header()
-    {
-        return m_header;
-    }
+    std::ostream& header();
 
     /**
      * @brief Returns source file stream
      */
-    std::ofstream& source()
-    {
-        return m_source;
-    }
+    std::ostream& source();
 };
 
 /**

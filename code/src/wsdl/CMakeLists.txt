@@ -3,6 +3,7 @@ IF (LIBRARY_TYPE STREQUAL "SHARED")
 ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 ADD_LIBRARY (spwsdl5 ${LIBRARY_TYPE}
+    SourceModule.cpp
     WSBasicTypes.cpp
     WSComplexType.cpp
     WSConnection.cpp
