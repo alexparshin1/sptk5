@@ -106,6 +106,8 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
         return;
     }
 
+    String messageId;
+
     try {
         while (connection != nullptr && connection->socket().socketBytes() > 0) {
 
@@ -127,17 +129,21 @@ void SMQServer::socketEventCallback(void *userData, SocketEventType eventType)
                             msg->headers().erase("last_will_destination");
                             msg->headers().erase("last_will_message");
                         }
+                        protocol.ack(msg->type(), "");
                     }
-                    protocol.ack(Message::CONNECT, "");
                     break;
                 case Message::SUBSCRIBE:
                     smqServer->subscribe(connection, parseDestinations(msg->destination()));
+                    protocol.ack(msg->type(), "");
                     break;
                 case Message::UNSUBSCRIBE:
                     smqServer->unsubscribe(connection, msg->destination());
                     break;
                 case Message::MESSAGE:
                     smqServer->distributeMessage(msg);
+                    messageId = msg->headers()["message_id"];
+                    if (!messageId.empty())
+                        protocol.ack(msg->type(), messageId);
                     break;
                 case Message::DISCONNECT:
                     smqServer->closeConnection(connection, false);

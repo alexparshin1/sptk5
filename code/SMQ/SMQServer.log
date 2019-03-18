@@ -9,3 +9,118 @@
 03/17/2019 22:25:36 [ERROR] (mosqsub|7290-www.protis) Invalid username or password
 03/17/2019 22:25:49 [NOTICE] Server started
 03/17/2019 22:25:49 [ERROR] (mosqsub|7290-www.protis) Invalid username or password
+18/03/19 19:47:32 [NOTICE] Server started
+18/03/19 19:49:11 [NOTICE] Server started
+18/03/19 19:51:40 [NOTICE] Server started
+18/03/19 19:52:24 [NOTICE] Server started
+18/03/19 19:53:00 [ERROR] (mosqsub|7414-thinker8) Invalid username or password
+18/03/19 19:53:29 [NOTICE] Server started
+18/03/19 19:53:29 [ERROR] (mosqsub|7414-thinker8) Invalid username or password
+18/03/19 19:53:30 [ERROR] (mosqsub|7414-thinker8) Invalid username or password
+18/03/19 19:53:31 [ERROR] (mosqsub|7414-thinker8) Invalid username or password
+18/03/19 19:53:32 [ERROR] (mosqsub|7414-thinker8) Invalid username or password
+18/03/19 19:53:33 [ERROR] (mosqsub|7414-thinker8) Invalid username or password
+18/03/19 19:53:34 [ERROR] (mosqsub|7414-thinker8) Invalid username or password
+18/03/19 19:54:25 [NOTICE] Server started
+18/03/19 19:54:27 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:28 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:29 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:30 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:31 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:32 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:33 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:34 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:35 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:36 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:37 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:38 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:39 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:40 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:41 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:49 [NOTICE] Server started
+18/03/19 19:54:49 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:50 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:54:51 [ERROR] (mosqsub|7673-thinker8) Invalid username or password
+18/03/19 19:55:01 [INFO] (mosqsub|7763-thinker8) Authenticated
+18/03/19 19:55:01 [INFO] (mosqsub|7763-thinker8) Subscribed to test1
+18/03/19 19:55:09 [INFO] (mosqsub|7781-thinker8) Authenticated
+18/03/19 19:55:18 [NOTICE] Server started
+18/03/19 19:55:18 [INFO] (mosqsub|7781-thinker8) Authenticated
+18/03/19 19:55:18 [INFO] (mosqsub|7781-thinker8) Subscribed to test1
+18/03/19 19:55:22 [INFO] (mosqsub|7849-thinker8) Authenticated
+18/03/19 19:56:40 [INFO] (mosqsub|7849-thinker8) Subscribed to test1
+18/03/19 19:57:32 [NOTICE] Server started
+18/03/19 19:57:32 [INFO] (mosqsub|7849-thinker8) Authenticated
+18/03/19 19:57:36 [INFO] (mosqsub|7849-thinker8) Subscribed to test1
+18/03/19 19:58:31 [ERROR] (mosqpub|8143-thinker8) Invalid username or password
+18/03/19 19:59:12 [INFO] (mosqsub|8185-thinker8) Authenticated
+18/03/19 19:59:36 [INFO] (mosqsub|8185-thinker8) Subscribed to test1
+18/03/19 19:59:36 [INFO] (mosqsub|8208-thinker8) Authenticated
+18/03/19 19:59:39 [INFO] (mosqsub|8208-thinker8) Subscribed to test1
+18/03/19 19:59:45 [ERROR] (mosqpub|8230-thinker8) Invalid username or password
+18/03/19 20:00:02 [ERROR] (mosqpub|8250-thinker8) Invalid username or password
+18/03/19 20:00:18 [INFO] (mosqpub|8268-thinker8) Authenticated
+18/03/19 20:00:23 [INFO] (mosqpub|8273-thinker8) Authenticated
+18/03/19 20:00:31 [INFO] (mosqpub|8278-thinker8) Authenticated
+18/03/19 20:00:38 [INFO] (mosqpub|8284-thinker8) Authenticated
+18/03/19 20:00:42 [INFO] (mosqpub|8289-thinker8) Authenticated
+18/03/19 20:00:52 [INFO] (mosqpub|8296-thinker8) Authenticated
+18/03/19 20:01:02 [INFO] (mosqpub|8306-thinker8) Authenticated
+18/03/19 20:01:11 [INFO] (mosqpub|8313-thinker8) Authenticated
+18/03/19 20:01:15 [INFO] (mosqpub|8317-thinker8) Authenticated
+18/03/19 20:01:25 [INFO] (mosqpub|8326-thinker8) Authenticated
+18/03/19 20:01:38 [INFO] (mosqsub|8208-thinker8) Authenticated
+18/03/19 20:01:38 [INFO] (mosqsub|8208-thinker8) Subscribed to test1
+18/03/19 20:01:40 [INFO] (mosqpub|8356-thinker8) Authenticated
+18/03/19 20:22:26 [NOTICE] Server started
+18/03/19 20:22:35 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:22:35 [INFO] (mosqsub|10023-thinker8) Subscribed to test1
+18/03/19 20:22:41 [INFO] (mosqpub|10040-thinker8) Authenticated
+18/03/19 20:22:48 [INFO] (mosqpub|10045-thinker8) Authenticated
+18/03/19 20:23:00 [INFO] (mosqpub|10063-thinker8) Authenticated
+18/03/19 20:23:15 [INFO] (mosqpub|10082-thinker8) Authenticated
+18/03/19 20:23:31 [INFO] (mosqpub|10104-thinker8) Authenticated
+18/03/19 20:24:00 [INFO] (mosqpub|10132-thinker8) Authenticated
+18/03/19 20:25:58 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:26:27 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:26:38 [INFO] (mosqsub|10023-thinker8) Subscribed to test1
+18/03/19 20:27:19 [INFO] (mosqpub|10371-thinker8) Authenticated
+18/03/19 20:28:08 [INFO] (mosqpub|10425-thinker8) Authenticated
+18/03/19 20:28:36 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:28:36 [INFO] (mosqsub|10023-thinker8) Subscribed to test1
+18/03/19 20:29:00 [INFO] (mosqpub|10493-thinker8) Authenticated
+18/03/19 20:31:52 [NOTICE] Server started
+18/03/19 20:31:53 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:31:53 [INFO] (mosqsub|10023-thinker8) Subscribed to test1
+18/03/19 20:31:59 [INFO] (mosqpub|10758-thinker8) Authenticated
+18/03/19 20:32:09 [INFO] (mosqpub|10771-thinker8) Authenticated
+18/03/19 20:32:40 [NOTICE] Server started
+18/03/19 20:32:40 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:32:40 [INFO] (mosqsub|10023-thinker8) Subscribed to test1
+18/03/19 20:32:45 [INFO] (mosqpub|10859-thinker8) Authenticated
+18/03/19 20:33:08 [NOTICE] Server started
+18/03/19 20:33:09 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:33:09 [INFO] (mosqsub|10023-thinker8) Subscribed to test1
+18/03/19 20:33:40 [INFO] (mosqpub|10958-thinker8) Authenticated
+18/03/19 20:41:18 [NOTICE] Server started
+18/03/19 20:41:18 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:41:18 [INFO] (mosqsub|10023-thinker8) Subscribed to test1
+18/03/19 20:41:21 [INFO] (mosqpub|11899-thinker8) Authenticated
+18/03/19 20:41:31 [NOTICE] Server started
+18/03/19 20:41:32 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:41:32 [INFO] (mosqsub|10023-thinker8) Subscribed to test1
+18/03/19 20:41:34 [INFO] (mosqpub|11962-thinker8) Authenticated
+18/03/19 20:42:11 [NOTICE] Server started
+18/03/19 20:42:14 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:42:15 [INFO] (mosqsub|10023-thinker8) Subscribed to test1
+18/03/19 20:42:20 [INFO] (mosqpub|12056-thinker8) Authenticated
+18/03/19 20:43:36 [INFO] (mosqpub|12180-thinker8) Authenticated
+18/03/19 20:44:53 [NOTICE] Server started
+18/03/19 20:44:53 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:44:56 [INFO] (mosqsub|10023-thinker8) Subscribed to test1
+18/03/19 20:44:59 [INFO] (mosqpub|12378-thinker8) Authenticated
+18/03/19 20:45:08 [INFO] (mosqpub|12394-thinker8) Authenticated
+18/03/19 20:45:51 [NOTICE] Server started
+18/03/19 20:45:51 [INFO] (mosqsub|10023-thinker8) Authenticated
+18/03/19 20:45:51 [INFO] (mosqsub|10023-thinker8) Subscribed to test1
+18/03/19 20:45:55 [INFO] (mosqpub|12539-thinker8) Authenticated

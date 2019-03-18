@@ -23,7 +23,7 @@ int main()
         this_thread::sleep_for(seconds(86400));
 
         SMQClient smqClient(protocolType, "test-client1");
-        smqClient.connect(Host("localhost:4000"), "user", "secret", false, connectTimeout);
+        smqClient.connect(Host("localhost:1883"), "user", "secret", false, connectTimeout);
 
         smqClient.subscribe("test-queue", connectTimeout);
 
