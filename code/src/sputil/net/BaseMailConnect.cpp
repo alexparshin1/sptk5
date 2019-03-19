@@ -105,18 +105,18 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
     Buffer buffer;
 
     Base64::encode(strDest, bufSource);
-    const auto cnt = (uint32_t) strDest.length();
-    const char* data = strDest.c_str();
-	char line[LINE_CHARS + 2] {};
-    for (uint32_t p = 0; p < cnt; p += LINE_CHARS) {
-        uint32_t length = cnt - p;
-        if (length > LINE_CHARS)
-            length = LINE_CHARS;
-        memcpy(line, data + p, length);
-        line[length] = '\n';
-        length++;
-        line[length] = 0;
-        buffer.append(line, length);
+
+    // Split encoded data to lines
+    size_t dataLen = strDest.length();
+    buffer.checkSize(dataLen + dataLen / LINE_CHARS);
+
+    const char* ptr = strDest.c_str();
+    for (uint32_t pos = 0; pos < dataLen; pos += LINE_CHARS) {
+        size_t lineLen = dataLen - pos;
+        if (lineLen > LINE_CHARS)
+            lineLen = LINE_CHARS;
+        buffer.append(ptr + pos, lineLen);
+        buffer.append('\n');
     }
     message << buffer.data();
 }
@@ -156,7 +156,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     date.decodeDate(&dy, &dm, &dd, &wd, &yd);
     date.decodeTime(&th, &tm, &ts, &tms);
 
-	char dateBuffer[128] = {};
+    char dateBuffer[128] = {};
     const char* sign = "-";
     int offset = DateTime::timeZoneOffset;
     if (offset >= 0)
