@@ -206,8 +206,10 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
 
     Strings ctorInitializer;
     Strings copyInitializer;
+    Strings moveInitializer;
     ctorInitializer.push_back(string("sptk::WSComplexType(elementName, optional)"));
     copyInitializer.push_back(string("sptk::WSComplexType(other)"));
+    moveInitializer.push_back(string("sptk::WSComplexType(std::move(other))"));
     if (!m_sequence.empty()) {
         classDeclaration << "   // Elements" << endl;
         for (auto* complexType: m_sequence) {
@@ -226,7 +228,8 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
             else {
                 string optional = (complexType->multiplicity() & WSM_OPTIONAL) != 0 ? ", true" : "";
                 ctorInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\"" + optional + ")");
-                copyInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\"" + optional + ")");
+                copyInitializer.push_back("m_" + complexType->name() + "(" + "other.m_" + complexType->name() + ")");
+                moveInitializer.push_back("m_" + complexType->name() + "(" + "std::move(other.m_" + complexType->name() + "))");
             }
 
             classDeclaration << "   " << left << setw(20) << cxxType << " m_" << complexType->name() << ";" << endl;
@@ -244,17 +247,6 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     }
 
     classDeclaration << endl;
-    classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Disabled move constructor" << endl;
-    classDeclaration << "    * @param other              Other element to move from" << endl;
-    classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "(" << className << "&& other) = delete;" << endl << endl;
-    classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Disabled move assignment" << endl;
-    classDeclaration << "    * @param other              Other element to move from" << endl;
-    classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "& operator = (" << className << "&& other) = delete;" << endl << endl;
-
     classDeclaration << "protected:" << endl << endl;
 
     classDeclaration << "   /**" << endl
@@ -269,15 +261,28 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     classDeclaration << "    * @param elementName        WSDL element name" << endl;
     classDeclaration << "    * @param optional bool, Is element optional flag" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   explicit " << className << "(const char* elementName=\"" << tagName << "\", bool optional=false) noexcept" << endl << "   : " << ctorInitializer.join(", ") << endl << "   {}" << endl << endl;
+    classDeclaration << "   explicit " << className << "(const char* elementName=\"" << tagName << "\", bool optional=false) noexcept" << endl
+                     << "   : " << ctorInitializer.join(",\n     ") << endl << "   {}" << endl << endl;
+
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Copy constructor" << endl;
     classDeclaration << "    * @param other              Other element to copy from" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "(const " << className << "& other) noexcept" << endl << "   : " << copyInitializer.join(", ") << endl
+    classDeclaration << "   " << className << "(const " << className << "& other) noexcept" << endl
+                     << "   : " << copyInitializer.join(",\n     ") << endl
                      << "   {" << endl
-                     << "       copyFrom(other);" << endl
                      << "   }" << endl << endl;
+
+    classDeclaration << "   /**" << endl;
+    classDeclaration << "    * Move constructor" << endl;
+    classDeclaration << "    * @param other              Other element to move from" << endl;
+    classDeclaration << "    */" << endl;
+    classDeclaration << "   " << className << "(" << className << "&& other)" << endl
+                     << "   : " << moveInitializer.join(",\n     ") << endl
+                     << "   {" << endl
+                     << "       other.clear();" << endl
+                     << "   }" << endl << endl;
+
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Destructor" << endl;
     classDeclaration << "    */" << endl;
@@ -293,6 +298,19 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
                      << "       copyFrom(other);" << endl
                      << "       return *this;" << endl
                      << "   }" << endl << endl;
+
+    classDeclaration << "   /**" << endl;
+    classDeclaration << "    * Move assignment" << endl;
+    classDeclaration << "    * @param other              Other element to move from" << endl;
+    classDeclaration << "    */" << endl;
+    classDeclaration << "   " << className << "& operator = (" << className << "&& other)" << endl
+                     << "   {" << endl
+                     << "       if (&other == this)" << endl
+                     << "           return *this;" << endl
+                     << "       copyFrom(other);" << endl
+                     << "       other.clear();" << endl
+                     << "   }" << endl << endl;
+
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Load " << className << " from XML node" << endl;
     classDeclaration << "    *" << endl;

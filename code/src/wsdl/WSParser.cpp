@@ -400,7 +400,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "    }" << endl;
 }
 
-void WSParser::generate(std::string sourceDirectory, std::string headerFile)
+void WSParser::generate(const String& sourceDirectory, const String& headerFile)
 {
     Buffer externalHeader;
     if (!headerFile.empty())
