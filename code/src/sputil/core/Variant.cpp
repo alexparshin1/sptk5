@@ -272,7 +272,6 @@ void Variant_SetMethods::setBuffer(const void* value, size_t sz, VariantType typ
         throw Exception("Invalid buffer type");
 
     releaseBuffers();
-    dataType(type);
 
     if (value != nullptr || sz != 0) {
         if (externalBuffer) {
@@ -288,9 +287,10 @@ void Variant_SetMethods::setBuffer(const void* value, size_t sz, VariantType typ
                 memcpy(m_data.getBuffer().data, value, sz);
                 m_data.getBuffer().data[sz] = 0;
             }
+            dataType(type);
         }
     } else
-        setNull();
+        setNull(type);
 }
 
 //---------------------------------------------------------------------------
@@ -1138,17 +1138,23 @@ TEST(SPTK_Variant, copy_ctors)
     Variant v2(2.22);
     Variant v3("Test");
     Variant v4(testDate);
+    Variant v5;
+
+    v5.setNull(VAR_STRING);
 
     Variant v1c(v1);
     Variant v2c(v2);
     Variant v3c(v3);
     Variant v4c(v4);
+    Variant v5c(v5);
 
     EXPECT_EQ(1, v1c.asInteger());
     EXPECT_DOUBLE_EQ(2.22, v2c.asFloat());
     EXPECT_STREQ("Test", v3c.asString().c_str());
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  v4c.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_EQ(v5c.isNull(), true);
+    EXPECT_EQ(v5c.dataType(), VAR_STRING);
 }
 
 TEST(SPTK_Variant, move_ctors)
@@ -1159,11 +1165,15 @@ TEST(SPTK_Variant, move_ctors)
     Variant v2(2.22);
     Variant v3("Test");
     Variant v4(testDate);
+    Variant v5;
+
+    v5.setNull(VAR_STRING);
 
     Variant v1m(move(v1));
     Variant v2m(move(v2));
     Variant v3m(move(v3));
     Variant v4m(move(v4));
+    Variant v5m(move(v5));
 
     EXPECT_EQ(1, v1m.asInteger());
     EXPECT_DOUBLE_EQ(2.22, v2m.asFloat());
@@ -1173,6 +1183,9 @@ TEST(SPTK_Variant, move_ctors)
 
     EXPECT_EQ(true, v1.isNull());
     EXPECT_EQ(VAR_NONE, v1.dataType());
+
+    EXPECT_EQ(v5m.isNull(), true);
+    EXPECT_EQ(v5m.dataType(), VAR_STRING);
 }
 
 TEST(SPTK_Variant, assigns)

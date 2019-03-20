@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SourceModule.h - description                           ║
+║                       SourceModule.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,71 +26,63 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_SOURCEMODULE_H__
-#define __SPTK_SOURCEMODULE_H__
+#include <sptk5/wsdl/SourceModule.h>
+#include <fstream>
 
-#include <sptk5/sptk.h>
-#include <sptk5/Buffer.h>
-#include <iostream>
-#include <sstream>
+using namespace std;
+using namespace sptk;
 
-namespace sptk
+SourceModule::SourceModule(const String& moduleName, const String& modulePath)
+: m_name(moduleName), m_path(modulePath)
 {
-
-/**
- * @addtogroup wsdl WSDL-related Classes
- * @{
- */
-
-/**
- * @brief Helper module to generate source files
- */
-class SourceModule
-{
-    String              m_name;     ///< Module name
-    String              m_path;     ///< Module path
-    std::stringstream   m_header;   ///< Module .h file content
-    std::stringstream   m_source;   ///< Module cpp file content
-
-    /**
-     * Write data to file if it doesn't exist, or if file content is different from data
-     * @param fileNameAndExtension  File name
-     * @param data                  Data to write
-     */
-    void writeFile(const String& fileNameAndExtension, const Buffer& data);
-
-public:
-    /**
-     * @brief Constructor
-     * @param moduleName        Module name
-     * @param modulePath        Module path
-     */
-    SourceModule(const String& moduleName, const String& modulePath);
-
-    /**
-     * @brief Destructor
-     */
-    ~SourceModule();
-
-    /**
-     * @brief Opens module output files
-     */
-    void open();
-
-    /**
-     * @brief Returns header file stream
-     */
-    std::ostream& header();
-
-    /**
-     * @brief Returns source file stream
-     */
-    std::ostream& source();
-};
-
-/**
- * @}
- */
-
 }
-#endif
+
+SourceModule::~SourceModule()
+{
+    writeFile(m_name + ".h", Buffer(m_header.str()));
+    writeFile(m_name + ".cpp", Buffer(m_source.str()));
+}
+
+void SourceModule::open()
+{
+    if (m_path.empty())
+        m_path = ".";
+    m_header.str("");
+    m_source.str("");
+}
+
+ostream& SourceModule::header()
+{
+    return m_header;
+}
+
+ostream& SourceModule::source()
+{
+    return m_source;
+}
+
+void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& data)
+{
+    Buffer existingData;
+
+    if (m_path.empty())
+        m_path = ".";
+    String fileName = m_path + "/" + fileNameAndExtension;
+
+    try {
+        existingData.loadFromFile(fileName);
+    }
+    catch (const Exception&) {
+        existingData.bytes(0);
+    }
+
+    if (strcmp(existingData.c_str(), data.c_str()) == 0)
+        return;
+
+    ofstream file;
+    file.open(fileName.c_str(), ofstream::out | ofstream::trunc);
+    if (!file.is_open())
+        throw Exception("Can't create file " + fileNameAndExtension);
+    file.write(data.c_str(), data.bytes());
+    file.close();
+}

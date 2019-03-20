@@ -184,7 +184,7 @@ public:
      * @param sourceDirectory   Directory to store output classes
      * @param headerFile        Optional header file to insert at the start of each generated file
      */
-    void generate(std::string sourceDirectory=".", std::string headerFile="");
+    void generate(const String& sourceDirectory = ".", const String& headerFile = "");
 
     /**
      * Stores WSDL to C++ file

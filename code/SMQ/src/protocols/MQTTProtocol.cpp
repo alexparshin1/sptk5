@@ -42,6 +42,9 @@ void MQTTProtocol::ack(Message::Type sourceMessageType, const String& messageId)
         case Message::SUBSCRIBE:
             ackType = FT_SUBACK;
             break;
+        case Message::MESSAGE:
+            ackType = FT_PUBACK;
+            break;
         default:
             return;
     }
@@ -61,6 +64,9 @@ bool MQTTProtocol::readMessage(SMessage& message)
         if (frame.read(socket(), headers, seconds(10))) {
             message = make_shared<Message>(mqMessageType(frame.type()));
             message->headers() = move(headers);
+            message->headers()["qos"] = to_string(frame.qos());
+            if (frame.qos() != QOS_0)
+                message->headers()["message_id"] = to_string(frame.id());
             message->set(frame);
             return true;
         }
