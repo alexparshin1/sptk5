@@ -30,9 +30,9 @@
 #define __SPTK_SOURCEMODULE_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/Exception.h>
+#include <sptk5/Buffer.h>
 #include <iostream>
-#include <fstream>
+#include <sstream>
 
 namespace sptk
 {
@@ -47,25 +47,17 @@ namespace sptk
  */
 class SourceModule
 {
-    /**
-     * Module name
-     */
-    String          m_name;
+    String              m_name;     ///< Module name
+    String              m_path;     ///< Module path
+    std::stringstream   m_header;   ///< Module .h file content
+    std::stringstream   m_source;   ///< Module cpp file content
 
     /**
-     * Module path
+     * Write data to file if it doesn't exist, or if file content is different from data
+     * @param fileNameAndExtension  File name
+     * @param data                  Data to write
      */
-    String          m_path;
-
-    /**
-     * Module hpp file
-     */
-    std::ofstream   m_header;
-
-    /**
-     * Module cpp file
-     */
-    std::ofstream   m_source;
+    void writeFile(const String& fileNameAndExtension, const Buffer& data);
 
 public:
     /**

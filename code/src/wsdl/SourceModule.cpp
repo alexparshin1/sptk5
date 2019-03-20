@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/wsdl/SourceModule.h>
+#include <fstream>
 
 using namespace std;
 using namespace sptk;
@@ -38,23 +39,16 @@ SourceModule::SourceModule(const String& moduleName, const String& modulePath)
 
 SourceModule::~SourceModule()
 {
-    if (m_header.is_open())
-        m_header.close();
-    if (m_source.is_open())
-        m_source.close();
+    writeFile(m_name + ".h", Buffer(m_header.str()));
+    writeFile(m_name + ".cpp", Buffer(m_source.str()));
 }
 
 void SourceModule::open()
 {
     if (m_path.empty())
         m_path = ".";
-    string fileName = m_path + "/" + m_name;
-    m_header.open((fileName + ".h").c_str(), ofstream::out | ofstream::trunc);
-    if (!m_header.is_open())
-        throw Exception("Can't create file " + fileName + ".h");
-    m_source.open((fileName + ".cpp").c_str(), ofstream::out | ofstream::trunc);
-    if (!m_source.is_open())
-        throw Exception("Can't create file " + fileName + ".cpp");
+    m_header.str("");
+    m_source.str("");
 }
 
 ostream& SourceModule::header()
@@ -65,4 +59,30 @@ ostream& SourceModule::header()
 ostream& SourceModule::source()
 {
     return m_source;
+}
+
+void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& data)
+{
+    Buffer existingData;
+
+    if (m_path.empty())
+        m_path = ".";
+    String fileName = m_path + "/" + fileNameAndExtension;
+
+    try {
+        existingData.loadFromFile(fileName);
+    }
+    catch (const Exception&) {
+        existingData.bytes(0);
+    }
+
+    if (strcmp(existingData.c_str(), data.c_str()) == 0)
+        return;
+
+    ofstream file;
+    file.open(fileName.c_str(), ofstream::out | ofstream::trunc);
+    if (!file.is_open())
+        throw Exception("Can't create file " + fileNameAndExtension);
+    file.write(data.c_str(), data.bytes());
+    file.close();
 }
