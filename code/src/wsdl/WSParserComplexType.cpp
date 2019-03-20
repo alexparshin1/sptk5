@@ -309,6 +309,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
                      << "           return *this;" << endl
                      << "       copyFrom(other);" << endl
                      << "       other.clear();" << endl
+                     << "       return *this;" << endl
                      << "   }" << endl << endl;
 
     classDeclaration << "   /**" << endl;
