@@ -61,11 +61,6 @@ class SP_EXPORT LogEngine : public Thread
     mutable SharedMutex                 m_mutex;
 
     /**
-     * The default priority for the new message
-     */
-    std::atomic<LogPriority>            m_defaultPriority;
-
-    /**
      * Min message priority, should be defined for every message
      */
     std::atomic<LogPriority>            m_minPriority;
@@ -141,7 +136,7 @@ public:
      *
      * Destructs the log object, releases all the allocated resources
      */
-	virtual ~LogEngine();
+    virtual ~LogEngine();
 
     /**
      * @brief Restarts the log
@@ -184,29 +179,6 @@ public:
     void priority(LogPriority prt)
     {
         m_minPriority = prt;
-    }
-
-    /**
-     * @brief Sets the default priority
-     *
-     * The default priority is used for the new message,
-     * if you are not defining priority.
-     * @param priority LogPriority, new default priority
-     */
-    virtual void defaultPriority(LogPriority priority)
-    {
-        m_defaultPriority = priority;
-    }
-
-    /**
-     * @brief Returns the default priority
-     *
-     * The default priority is used for the new message,
-     * if you are not defining priority.
-     */
-    virtual LogPriority defaultPriority() const
-    {
-        return m_defaultPriority;
     }
 
     /**

@@ -38,7 +38,8 @@ SMQServer::SMQServer(MQProtocolType protocol, const String& username, const Stri
 : TCPServer("SMQServer", 16, &logEngine),
   m_protocol(protocol),
   m_username(username), m_password(password),
-  m_socketEvents("SMQ Server", SMQServer::socketEventCallback, milliseconds(100))
+  m_socketEvents("SMQ Server", SMQServer::socketEventCallback, milliseconds(100)),
+  m_subscriptions(logEngine)
 {
 }
 
@@ -50,7 +51,7 @@ SMQServer::~SMQServer()
 void SMQServer::stop()
 {
     m_socketEvents.terminate();
-	TCPServer::stop();
+    TCPServer::stop();
     m_socketEvents.stop();
     log(LP_NOTICE, "Server stopped");
 }

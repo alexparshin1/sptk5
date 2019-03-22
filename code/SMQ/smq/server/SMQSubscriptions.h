@@ -41,8 +41,9 @@ class SP_EXPORT SMQSubscriptions
 {
     mutable sptk::SharedMutex               m_mutex;
     std::map<String,SharedSMQSubscription>  m_subscriptions;
+    sptk::LogEngine&                        m_logEngine;
 public:
-    SMQSubscriptions() = default;
+    SMQSubscriptions(sptk::LogEngine& logEngine);
     void clear();
     void deliverMessage(const String& queueName, const SMessage message);
     void subscribe(SMQConnection* connection, const std::map<String,QOS>& queueNames);

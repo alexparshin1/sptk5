@@ -32,6 +32,11 @@
 using namespace std;
 using namespace sptk;
 
+SMQSubscriptions::SMQSubscriptions(LogEngine& logEngine)
+: m_logEngine(logEngine)
+{
+}
+
 void SMQSubscriptions::deliverMessage(const String& queueName, const SMessage message)
 {
     SharedLock(m_mutex);
@@ -53,7 +58,7 @@ void SMQSubscriptions::subscribe(SMQConnection* connection, const map<String,spt
         if (itor == m_subscriptions.end()) {
             SMQSubscription::Type subscriptionType = queueName.startsWith("/queue/") ? SMQSubscription::QUEUE
                                                                                      : SMQSubscription::TOPIC;
-            subscription = make_shared<SMQSubscription>(subscriptionType, qos);
+            subscription = make_shared<SMQSubscription>(subscriptionType, qos, m_logEngine);
             m_subscriptions[queueName] = subscription;
         } else
             subscription = itor->second;

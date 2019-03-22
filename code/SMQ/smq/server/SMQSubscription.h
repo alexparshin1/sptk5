@@ -48,12 +48,13 @@ private:
     mutable sptk::SharedMutex               m_mutex;
     Type                                    m_type;
     QOS                                     m_qos;
+    sptk::LogEngine&                        m_logEngine;
 
     std::set<SMQConnection*>                m_connections;
     std::set<SMQConnection*>::iterator      m_currentConnection;
 
 public:
-    SMQSubscription(Type type, QOS qos);
+    SMQSubscription(Type type, QOS qos, sptk::LogEngine& logEngine);
 
     virtual ~SMQSubscription();
 

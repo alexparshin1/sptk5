@@ -32,8 +32,8 @@
 using namespace std;
 using namespace sptk;
 
-SMQSubscription::SMQSubscription(Type type, sptk::QOS qos)
-: m_type(type), m_qos(qos), m_currentConnection(m_connections.end())
+SMQSubscription::SMQSubscription(Type type, sptk::QOS qos, LogEngine& logEngine)
+: m_type(type), m_qos(qos), m_logEngine(logEngine), m_currentConnection(m_connections.end())
 {
 }
 
@@ -62,6 +62,7 @@ void SMQSubscription::removeConnection(SMQConnection* connection, bool updateCon
 
 bool SMQSubscription::deliverMessage(SMessage message)
 {
+    Logger logger(m_logEngine, "(SMQ) ");
     SharedLock(m_mutex);
 
     // If the subscription is TOPIC, send it to every subscriber:
@@ -69,9 +70,11 @@ bool SMQSubscription::deliverMessage(SMessage message)
         for (auto subscriber: m_connections) {
             try {
                 subscriber->sendMessage(message);
+                logger.debug("Sent message to " + subscriber->clientId());
+                logger.debug(message->c_str());
             }
             catch (const Exception& e) {
-                CERR("Can't send message to a subscriber " << subscriber->clientId() << ": " << e.what() << endl);
+                logger.error("Can't send message to a subscriber " + subscriber->clientId() + ": " + String(e.what()));
             }
         }
     } else {
@@ -83,9 +86,11 @@ bool SMQSubscription::deliverMessage(SMessage message)
             m_currentConnection = m_connections.begin();
         try {
             (*m_currentConnection)->sendMessage(message);
+            logger.debug("Sent message to " + (*m_currentConnection)->clientId());
+            logger.debug(message->c_str());
         }
         catch (const Exception& e) {
-            CERR("Can't send message to a subscriber " << (*m_currentConnection)->clientId() << ": " << e.what() << endl);
+            logger.error("Can't send message to a subscriber " + (*m_currentConnection)->clientId() + ": " + String(e.what()));
         }
         ++m_currentConnection;
     }

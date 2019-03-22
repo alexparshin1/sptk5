@@ -126,7 +126,7 @@ public:
             m_counter++;
             if (m_counter == m_maxCounter)
                 break;
-            sleep_for(chrono::milliseconds(10));
+            sleep_for(chrono::milliseconds(5));
         }
     }
 
@@ -138,7 +138,7 @@ TEST(SPTK_Thread, run)
 {
     ThreadTestThread testThread("Test Thread", 5);
     testThread.run();
-    this_thread::sleep_for(chrono::milliseconds(50));
+    this_thread::sleep_for(chrono::milliseconds(60));
     testThread.terminate();
     testThread.join();
     EXPECT_EQ(5, testThread.counter());
@@ -150,7 +150,7 @@ TEST(SPTK_Thread, runAgain)
     ThreadTestThread testThread("Test Thread", 5);
 
     testThread.run();
-    this_thread::sleep_for(chrono::milliseconds(50));
+    this_thread::sleep_for(chrono::milliseconds(60));
     testThread.terminate();
     testThread.join();
     EXPECT_EQ(5, testThread.counter());
