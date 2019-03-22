@@ -12,6 +12,7 @@ int main()
     try {
         FileLogEngine   logEngine("SMQServer.log");
         logEngine.minPriority(LP_DEBUG);
+        logEngine.reset();
 
         Buffer          buffer;
         seconds         connectTimeout(10);

@@ -34,12 +34,14 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-SMQServer::SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine)
+SMQServer::SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine, uint8_t debugLogFilter)
 : TCPServer("SMQServer", 16, &logEngine),
   m_protocol(protocol),
   m_username(username), m_password(password),
   m_socketEvents("SMQ Server", SMQServer::socketEventCallback, milliseconds(100)),
-  m_subscriptions(logEngine)
+  m_subscriptions(logEngine, debugLogFilter),
+  m_logEngine(logEngine),
+  m_debugLogFilter(debugLogFilter)
 {
 }
 
@@ -58,7 +60,7 @@ void SMQServer::stop()
 
 ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    auto* newConnection = new SMQConnection(*this, connectionSocket, peer);
+    auto* newConnection = new SMQConnection(*this, connectionSocket, peer, m_logEngine, m_debugLogFilter);
 
     lock_guard<mutex> lock(m_mutex);
     m_connections.insert(newConnection);
@@ -210,12 +212,6 @@ void SMQServer::run()
 void SMQServer::subscribe(SMQConnection* connection, const map<String,sptk::QOS>& destinations)
 {
     m_subscriptions.subscribe(connection, destinations);
-
-    Strings destinationNames;
-    for (auto& itor: destinations)
-        destinationNames.push_back(itor.first);
-
-    log(LP_INFO, "(" + connection->clientId() + ") Subscribed to " + destinationNames.join(", "));
 }
 
 void SMQServer::unsubscribe(SMQConnection* connection, const String& destination)

@@ -39,11 +39,12 @@ typedef std::shared_ptr<SMQSubscription> SharedSMQSubscription;
 
 class SP_EXPORT SMQSubscriptions
 {
-    mutable sptk::SharedMutex               m_mutex;
+    mutable SharedMutex                     m_mutex;
     std::map<String,SharedSMQSubscription>  m_subscriptions;
-    sptk::LogEngine&                        m_logEngine;
+    LogEngine&                              m_logEngine;
+    uint8_t                                 m_debugLogFilter;
 public:
-    SMQSubscriptions(sptk::LogEngine& logEngine);
+    SMQSubscriptions(sptk::LogEngine& logEngine, uint8_t debugLogFilter);
     void clear();
     void deliverMessage(const String& queueName, const SMessage message);
     void subscribe(SMQConnection* connection, const std::map<String,QOS>& queueNames);

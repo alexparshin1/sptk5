@@ -37,6 +37,15 @@
 
 namespace sptk {
 
+enum SMQLogGroup : uint8_t
+{
+    LOG_SERVER_OPS            = 1,
+    LOG_CONNECTIONS           = 2,
+    LOG_SUBSCRIPTIONS         = 4,
+    LOG_MESSAGE_OPS           = 8,
+    LOG_MESSAGE_DETAILS       = 16
+};
+    
 class SMQSubscription;
 
 class SMQConnection : public TCPServerConnection
@@ -51,9 +60,10 @@ private:
     String                                  m_clientId;
     std::set<SMQSubscription*>              m_subscriptions;
     std::shared_ptr<MQLastWillMessage>      m_lastWillMessage;
-
+    sptk::LogEngine&                        m_logEngine;
+    uint8_t                                 m_debugLogFilter;
 public:
-    SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*);
+    SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* peer, sptk::LogEngine& logEngine, uint8_t debugLogFilter);
     ~SMQConnection() override;
 
     void run() override;
@@ -64,8 +74,8 @@ public:
     String clientId() const;
     void setupClient(const String& id, const String& lastWillDestination, const String& lastWillMessage);
 
-    void subscribe(SMQSubscription* subscription);
-    void unsubscribe(SMQSubscription* subscription);
+    void subscribe(const sptk::String& destination, SMQSubscription* subscription);
+    void unsubscribe(const sptk::String& destination, SMQSubscription* subscription);
 
     void sendMessage(SMessage& message);
 

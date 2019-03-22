@@ -33,8 +33,15 @@
 using namespace std;
 using namespace sptk;
 
-SMQConnection::SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*)
-: TCPServerConnection(server, connectionSocket)
+static String clientLogPrefix(const String& clientId)
+{
+    return "{" + clientId + "} ";
+}
+
+SMQConnection::SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, sptk::LogEngine& logEngine, uint8_t debugLogFilter)
+: TCPServerConnection(server, connectionSocket),
+  m_logEngine(logEngine),
+  m_debugLogFilter(debugLogFilter)
 {
     auto* smqServer = dynamic_cast<SMQServer*>(&server);
     if (smqServer != nullptr) {
@@ -57,6 +64,11 @@ SMQConnection::~SMQConnection()
     m_subscriptions.clear();
 
     socket().close();
+
+    if (m_debugLogFilter & LOG_SUBSCRIPTIONS) {
+        Logger logger(m_logEngine, clientLogPrefix(m_clientId));
+        logger.debug("Disconnected");
+    }
 }
 
 void SMQConnection::terminate()
@@ -83,6 +95,10 @@ void SMQConnection::setupClient(const String& id, const String& lastWillDestinat
         m_lastWillMessage = make_shared<MQLastWillMessage>(lastWillDestination, lastWillMessage);
     else
         m_lastWillMessage.reset();
+    if (m_debugLogFilter & LOG_CONNECTIONS) {
+        Logger logger(m_logEngine, clientLogPrefix(m_clientId));
+        logger.debug("Connected");
+    }
 }
 
 void SMQConnection::sendMessage(SMessage& message)
@@ -90,15 +106,23 @@ void SMQConnection::sendMessage(SMessage& message)
     sendMessage(message->destination(), message);
 }
 
-void SMQConnection::subscribe(SMQSubscription* subscription)
+void SMQConnection::subscribe(const String& destination, SMQSubscription* subscription)
 {
     UniqueLock(m_mutex);
     m_subscriptions.insert(subscription);
+    if (m_debugLogFilter & LOG_SUBSCRIPTIONS) {
+        Logger logger(m_logEngine, clientLogPrefix(m_clientId));
+        logger.debug("Subscribed to " + subscription->typeNameUnlocked() + " " + destination);
+    }
 }
 
-void SMQConnection::unsubscribe(SMQSubscription* subscription)
+void SMQConnection::unsubscribe(const String& destination, SMQSubscription* subscription)
 {
     UniqueLock(m_mutex);
+    if (m_debugLogFilter & LOG_SUBSCRIPTIONS) {
+        Logger logger(m_logEngine, clientLogPrefix(m_clientId));
+        logger.debug("Subscribed to " + subscription->typeNameUnlocked() + " " + destination);
+    }
     m_subscriptions.erase(subscription);
 }
 
@@ -122,6 +146,12 @@ bool SMQConnection::readMessage(SMessage& message)
 bool SMQConnection::sendMessage(const String& destination, SMessage& message)
 {
     protocol().sendMessage(destination, message);
+
+    if (m_debugLogFilter & LOG_MESSAGE_OPS) {
+        Logger logger(m_logEngine, clientLogPrefix(m_clientId));
+        logger.debug("Sent message to " + destination);
+    }
+
     return false;
 }
 

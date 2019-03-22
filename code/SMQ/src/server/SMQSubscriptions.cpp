@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-SMQSubscriptions::SMQSubscriptions(LogEngine& logEngine)
+SMQSubscriptions::SMQSubscriptions(LogEngine& logEngine, uint8_t debugLogFilter)
 : m_logEngine(logEngine)
 {
 }
@@ -58,7 +58,7 @@ void SMQSubscriptions::subscribe(SMQConnection* connection, const map<String,spt
         if (itor == m_subscriptions.end()) {
             SMQSubscription::Type subscriptionType = queueName.startsWith("/queue/") ? SMQSubscription::QUEUE
                                                                                      : SMQSubscription::TOPIC;
-            subscription = make_shared<SMQSubscription>(subscriptionType, qos, m_logEngine);
+            subscription = make_shared<SMQSubscription>(queueName, subscriptionType, qos, m_logEngine, m_debugLogFilter);
             m_subscriptions[queueName] = subscription;
         } else
             subscription = itor->second;

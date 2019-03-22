@@ -37,6 +37,7 @@ typedef std::shared_ptr<SMQConnection> SharedSMQConnection;
 
 class SP_EXPORT SMQSubscription
 {
+    friend class SMQConnection;
 public:
     enum Type : uint8_t
     {
@@ -46,15 +47,21 @@ public:
 
 private:
     mutable sptk::SharedMutex               m_mutex;
+    String                                  m_destination;
     Type                                    m_type;
     QOS                                     m_qos;
-    sptk::LogEngine&                        m_logEngine;
+    LogEngine&                              m_logEngine;
+    uint8_t                                 m_debugLogFilter;
 
     std::set<SMQConnection*>                m_connections;
     std::set<SMQConnection*>::iterator      m_currentConnection;
 
+protected:
+    Type typeUnlocked() const;
+    String typeNameUnlocked() const;
+
 public:
-    SMQSubscription(Type type, QOS qos, sptk::LogEngine& logEngine);
+    SMQSubscription(const String& destination, Type type, QOS qos, sptk::LogEngine& logEngine, uint8_t debugLogFilter);
 
     virtual ~SMQSubscription();
 
@@ -63,6 +70,9 @@ public:
     bool deliverMessage(SMessage message);
 
     Type type() const;
+    String typeName() const;
+
+    String destination() const { return m_destination; }
 };
 
 } // namespace sptk
