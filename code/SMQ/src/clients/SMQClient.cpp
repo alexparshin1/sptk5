@@ -94,11 +94,13 @@ void SMQClient::socketEvent(SocketEventType eventType)
     SMessage msg;
     try {
         while (connected() && socket().socketBytes() > 0) {
-            if (protocol().readMessage(msg) && msg->type() == Message::MESSAGE)
+            if (protocol().readMessage(msg) && msg->type() == Message::MESSAGE) {
                 acceptMessage(msg);
+            }
         }
     }
-    catch (const Exception&) {
+    catch (const Exception& e) {
+        CERR("ERROR: " << e.what() << endl);
         destroyConnection();
     }
 }
