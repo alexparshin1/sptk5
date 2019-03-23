@@ -74,7 +74,7 @@ bool SMQSubscription::deliverMessage(SMessage message)
                 if (m_debugLogFilter & LOG_MESSAGE_OPS)
                     logger.debug("Sent message to " + subscriber->clientId());
                 if (m_debugLogFilter & LOG_MESSAGE_DETAILS)
-                    logger.debug(message->c_str());
+                    logger.debug(message->toString());
             }
             catch (const Exception& e) {
                 logger.error("Can't send message to a subscriber " + subscriber->clientId() + ": " + String(e.what()));
@@ -92,7 +92,7 @@ bool SMQSubscription::deliverMessage(SMessage message)
             if (m_debugLogFilter & LOG_MESSAGE_OPS)
                 logger.debug("Sent message to " + (*m_currentConnection)->clientId());
             if (m_debugLogFilter & LOG_MESSAGE_DETAILS)
-                logger.debug(message->c_str());
+                logger.debug(message->toString());
         }
         catch (const Exception& e) {
             logger.error("Can't send message to a subscriber " + (*m_currentConnection)->clientId() + ": " + String(e.what()));
