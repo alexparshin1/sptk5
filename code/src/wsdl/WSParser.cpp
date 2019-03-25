@@ -44,6 +44,7 @@ static void replaceFile(const String& fileName, const stringstream& fileData)
     }
     catch (const Exception&) {
         // Doesn't exist?
+        oldData.bytes(0);
     }
 
     if (String(oldData.c_str()) != String(newData.c_str()))
