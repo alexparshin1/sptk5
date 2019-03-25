@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQConnection.h - description                          ║
+║                       SMQConnectionsThreadPool.cpp - description             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,64 +26,22 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_CONNECTION_H__
-#define __SMQ_CONNECTION_H__
+#ifndef __SMQ_CONNECTIONS_THREAD_POOL_H__
+#define __SMQ_CONNECTIONS_THREAD_POOL_H__
 
-#include <smq/protocols/SMQProtocol.h>
-#include <smq/protocols/MQLastWillMessage.h>
-#include <sptk5/net/TCPServer.h>
-#include <sptk5/net/TCPServerConnection.h>
-#include <sptk5/net/SocketEvents.h>
+#include <sptk5/threads/ThreadPool.h>
 
 namespace sptk {
 
-enum SMQLogGroup : uint8_t
+class SMQConnectionsThreadPool
 {
-    LOG_SERVER_OPS            = 1,
-    LOG_CONNECTIONS           = 2,
-    LOG_SUBSCRIPTIONS         = 4,
-    LOG_MESSAGE_OPS           = 8,
-    LOG_MESSAGE_DETAILS       = 16
-};
-
-class SMQSubscription;
-
-class SMQConnection : public TCPServerConnection
-{
-    mutable SharedMutex             m_mutex;
-    MQProtocolType                  m_protocolType { MP_SMQ };
 public:
-    MQProtocolType getProtocolType() const;
+    SMQConnectionsThreadPool(size_t maxThreads);
+
+    void activateConnection();
 
 private:
-    std::shared_ptr<MQProtocol>             m_protocol;
-    String                                  m_clientId;
-    std::set<SMQSubscription*>              m_subscriptions;
-    std::shared_ptr<MQLastWillMessage>      m_lastWillMessage;
-    sptk::LogEngine&                        m_logEngine;
-    uint8_t                                 m_debugLogFilter;
-public:
-    SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* peer, sptk::LogEngine& logEngine, uint8_t debugLogFilter);
-    ~SMQConnection() override;
-
-    void run() override;
-    void terminate() override;
-
-    MQProtocol& protocol();
-
-    String clientId() const;
-    void setupClient(const String& id, const String& lastWillDestination, const String& lastWillMessage);
-
-    void subscribe(const sptk::String& destination, SMQSubscription* subscription);
-    void unsubscribe(const sptk::String& destination, SMQSubscription* subscription);
-
-    void sendMessage(SMessage& message);
-
-    // Low-level operations
-    void ack(Message::Type sourceMessageType, const String& messageId);
-    bool readMessage(SMessage& message);
-    bool sendMessage(const String& destination, SMessage& message);
-    SMessage getLastWillMessage();
+    sptk::ThreadPool m_threads;
 };
 
 }
