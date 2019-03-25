@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQConnectionQueue.h - description                     ║
+║                       SMQConnectionsThreadPool.cpp - description             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,22 +26,22 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_CONNECTION_QUEUE_H__
-#define __SMQ_CONNECTION_QUEUE_H__
+#ifndef __SMQ_CONNECTIONS_THREAD_POOL_H__
+#define __SMQ_CONNECTIONS_THREAD_POOL_H__
 
-#include <smq/Message.h>
+#include <sptk5/threads/ThreadPool.h>
 
 namespace sptk {
 
-class SMQConnectionQueue
+class SMQSendThreadPool
 {
-    mutable std::mutex          m_mutex;
-    std::queue<SMessage>        m_messages;
-    SMQConnectionsThreadPool&   m_threadPool;
 public:
-    SMQConnectionQueue(SMQConnectionsThreadPool& threadPool);
-    void push(std::queue<SMessage>& message);
-    void pop(std::queue<SMessage>& message);
+    SMQSendThreadPool(size_t maxThreads);
+
+    void activateConnection();
+
+private:
+    sptk::ThreadPool m_threads;
 };
 
 }

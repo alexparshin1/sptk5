@@ -26,13 +26,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "smq/server/SMQConnectionsThreadPool.h"
+#include "smq/server/SMQSendThreadPool.h"
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-SMQConnectionsThreadPool::SMQConnectionsThreadPool(size_t maxThreads)
+SMQSendThreadPool::SMQSendThreadPool(size_t maxThreads)
 : m_threads(maxThreads, seconds(30), "SMQ Connections Thread Pool")
 {
 }

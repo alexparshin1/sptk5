@@ -26,7 +26,51 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <SMQ/smq/server/SMQConnectionQueue.h>
+#include <SMQ/smq/server/SMQSendQueue.h>
 
 using namespace std;
 using namespace sptk;
+
+SMQSendQueue::SMQSendQueue(ThreadPool& threadPool)
+: Runable("SMQ Send Queue"), m_threadPool(threadPool)
+{}
+
+void SMQSendQueue::push(SMessage& message)
+{
+    lock_guard<mutex> lock(m_mutex);
+    m_messages.push(message);
+    if (!m_processing)
+        m_threadPool.execute(this);
+}
+
+void SMQSendQueue::run()
+{
+    setProcessing(true);
+    while (true) {
+        SMessage message = getMessage();
+        if (!message)
+            break;
+    }
+}
+
+SMessage SMQSendQueue::getMessage()
+{
+    SMessage message;
+
+    lock_guard<mutex> lock(m_mutex);
+
+    if (!m_messages.empty()) {
+        message = m_messages.front();
+        m_messages.pop();
+    }
+
+    m_processing = !m_messages.empty();
+
+    return message;
+}
+
+void SMQSendQueue::setProcessing(bool processing)
+{
+    lock_guard<mutex> lock(m_mutex);
+    m_processing = processing;
+}

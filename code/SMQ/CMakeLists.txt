@@ -6,8 +6,8 @@ ADD_LIBRARY(smq ${LIBRARY_TYPE}
         src/server/SMQConnection.cpp src/server/SMQServer.cpp
         src/server/SMQSubscription.cpp src/server/SMQSubscriptions.cpp
         src/unit_tests/SMQServer_UT.cpp
-        src/server/SMQConnectionQueue.cpp
-        src/server/SMQConnectionsThreadPool.cpp)
+        src/server/SMQSendQueue.cpp
+        src/server/SMQSendThreadPool.cpp)
 
 TARGET_LINK_LIBRARIES(smq sputil5)
 

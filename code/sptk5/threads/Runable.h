@@ -50,21 +50,14 @@ namespace sptk
  */
 class SP_EXPORT Runable
 {
-    /**
-     * Synchronized object locked while the task running
-     */
-    mutable SharedMutex m_mutex;
+    mutable SharedMutex m_mutex;        ///< Synchronized object locked while the task running
+    bool                m_terminated;   ///< Flag indicating if task is terminated
+    String              m_name;         ///< Runable object name
 
     /**
-     * Flag: is the task sent terminate request?
+     * Set runable to terminated
+     * @param terminated        Is terminated flag
      */
-    bool                m_terminated;
-
-    /**
-     * Name
-     */
-    String              m_name;
-
     void setTerminated(bool terminated);
 
 protected:
@@ -106,6 +99,9 @@ public:
      */
     bool terminated() const;
 
+    /**
+     * @return object name
+     */
     String name() const
     {
         SharedLock(m_mutex);
