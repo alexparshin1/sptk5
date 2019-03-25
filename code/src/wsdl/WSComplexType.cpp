@@ -66,7 +66,7 @@ String WSComplexType::toString(bool asJSON) const
 
     if (asJSON) {
         outputXML.exportTo(outputJSON.root());
-        outputJSON.exportTo(output, true);
+        outputJSON.exportTo(output, false);
     }
     else
         outputXML.save(output, 2);

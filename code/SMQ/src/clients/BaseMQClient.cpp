@@ -68,8 +68,13 @@ size_t BaseMQClient::hasMessages() const
 
 void BaseMQClient::acceptMessage(SMessage& message)
 {
-    if (previewMessage(message) && message)
-        m_incomingMessages.push(message);
+    try {
+        if (previewMessage(message) && message)
+            m_incomingMessages.push(message);
+    }
+    catch (const Exception& e) {
+        CERR("Can't accept message: " + String(e.what()));
+    }
 }
 
 MQProtocolType BaseMQClient::protocolType() const

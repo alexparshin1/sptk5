@@ -10,8 +10,11 @@ static size_t messageCount {1000};
 int main()
 {
     try {
-        Buffer          buffer;
         FileLogEngine   logEngine("SMQServer.log");
+        logEngine.minPriority(LP_DEBUG);
+        logEngine.reset();
+
+        Buffer          buffer;
         seconds         connectTimeout(10);
         seconds         sendTimeout(5);
 

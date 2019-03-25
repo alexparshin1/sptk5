@@ -35,6 +35,22 @@
 using namespace std;
 using namespace sptk;
 
+static void replaceFile(const String& fileName, const stringstream& fileData)
+{
+    Buffer newData(fileData.str());
+    Buffer oldData;
+    try {
+        oldData.loadFromFile(fileName);
+    }
+    catch (const Exception&) {
+        // Doesn't exist?
+        oldData.bytes(0);
+    }
+
+    if (String(oldData.c_str()) != String(newData.c_str()))
+        newData.saveToFile(fileName);
+}
+
 WSParser::~WSParser()
 {
     try {
@@ -408,7 +424,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile)
 
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
-    ofstream cmakeLists(sourceDirectory + "/CMakeLists.txt");
+    stringstream cmakeLists;
     cmakeLists << "# The following list of files is generated automatically." << endl;
     cmakeLists << "# Please don't edit it, or your changes may be overwritten." << endl << endl;
     cmakeLists << "ADD_LIBRARY (" << capitalize(m_serviceName) << "WebService STATIC" << endl;
@@ -440,7 +456,8 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile)
     generateImplementation(serviceModule.source());
 
     cmakeLists << ")" << endl;
-    cmakeLists.close();
+
+    replaceFile(sourceDirectory + "/CMakeLists.txt", cmakeLists);
 }
 
 void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& _wsdlFileName)
@@ -455,14 +472,14 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
     String baseFileName = "C" + capitalize(m_serviceName) + "WSDL";
     String wsdlFileName = sourceDirectory + "/" + baseFileName;
 
-    ofstream wsdlHeader(wsdlFileName + ".h");
+    stringstream wsdlHeader;
     wsdlHeader << externalHeader.c_str() << endl;
     wsdlHeader << "#ifndef __" << m_serviceName.toUpperCase() << "_WSDL__" << endl;
     wsdlHeader << "#define __" << m_serviceName.toUpperCase() << "_WSDL__" << endl;
     wsdlHeader << endl << "extern const char* " << m_serviceName << "_wsdl[];" << endl << endl;
     wsdlHeader << "#endif" << endl;
 
-    ofstream wsdlCxx(wsdlFileName + ".cpp");
+    stringstream wsdlCxx;
     wsdlCxx << externalHeader.c_str() << endl;
     wsdlCxx << "#include \"" << baseFileName << ".h\"" << endl << endl;
     wsdlCxx << "const char* " << m_serviceName << "_wsdl[] = {" << endl;
@@ -471,5 +488,8 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
         wsdlCxx << "    R\"(" << row << ")\"," << endl;
     wsdlCxx << "    nullptr" << endl;
     wsdlCxx << "};" << endl;
+
+    replaceFile(wsdlFileName + ".h", wsdlHeader);
+    replaceFile(wsdlFileName + ".cpp", wsdlCxx);
 }
 

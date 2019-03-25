@@ -51,6 +51,8 @@ private:
     std::set<SMQConnection*>        m_connections;
     SocketEvents                    m_socketEvents;
     SMQSubscriptions                m_subscriptions;
+    LogEngine&                      m_logEngine;
+    uint8_t                         m_debugLogFilter;
 
 protected:
     static void socketEventCallback(void *userData, SocketEventType eventType);
@@ -63,7 +65,8 @@ protected:
 
 public:
 
-    SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine);
+    SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine,
+              uint8_t debugLogFilter=(LOG_SERVER_OPS|LOG_CONNECTIONS|LOG_SUBSCRIPTIONS|LOG_MESSAGE_OPS));
     ~SMQServer() override;
 
     void stop() override;

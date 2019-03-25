@@ -32,8 +32,9 @@
 using namespace std;
 using namespace sptk;
 
-SMQSubscription::SMQSubscription(Type type, sptk::QOS qos)
-: m_type(type), m_qos(qos), m_currentConnection(m_connections.end())
+SMQSubscription::SMQSubscription(const String& destination, Type type, sptk::QOS qos, LogEngine& logEngine, uint8_t debugLogFilter)
+: m_destination(destination), m_type(type), m_qos(qos), m_logEngine(logEngine), m_debugLogFilter(debugLogFilter),
+  m_currentConnection(m_connections.end())
 {
 }
 
@@ -41,7 +42,7 @@ SMQSubscription::~SMQSubscription()
 {
     UniqueLock(m_mutex);
     for (auto* connection: m_connections)
-        connection->unsubscribe(this);
+        connection->unsubscribe(m_destination, this);
     m_connections.clear();
 }
 
@@ -49,7 +50,7 @@ void SMQSubscription::addConnection(SMQConnection* connection)
 {
     UniqueLock(m_mutex);
     m_connections.insert(connection);
-    connection->subscribe(this);
+    connection->subscribe(m_destination, this);
 }
 
 void SMQSubscription::removeConnection(SMQConnection* connection, bool updateConnection)
@@ -57,11 +58,12 @@ void SMQSubscription::removeConnection(SMQConnection* connection, bool updateCon
     UniqueLock(m_mutex);
     m_connections.erase(connection);
     if (updateConnection)
-        connection->unsubscribe(this);
+        connection->unsubscribe(m_destination, this);
 }
 
 bool SMQSubscription::deliverMessage(SMessage message)
 {
+    Logger logger(m_logEngine, "(SMQ) ");
     SharedLock(m_mutex);
 
     // If the subscription is TOPIC, send it to every subscriber:
@@ -69,9 +71,13 @@ bool SMQSubscription::deliverMessage(SMessage message)
         for (auto subscriber: m_connections) {
             try {
                 subscriber->sendMessage(message);
+                if (m_debugLogFilter & LOG_MESSAGE_OPS)
+                    logger.debug("Sent message to " + subscriber->clientId());
+                if (m_debugLogFilter & LOG_MESSAGE_DETAILS)
+                    logger.debug(message->toString());
             }
             catch (const Exception& e) {
-                CERR("Can't send message to a subscriber " << subscriber->clientId() << ": " << e.what() << endl);
+                logger.error("Can't send message to a subscriber " + subscriber->clientId() + ": " + String(e.what()));
             }
         }
     } else {
@@ -83,9 +89,13 @@ bool SMQSubscription::deliverMessage(SMessage message)
             m_currentConnection = m_connections.begin();
         try {
             (*m_currentConnection)->sendMessage(message);
+            if (m_debugLogFilter & LOG_MESSAGE_OPS)
+                logger.debug("Sent message to " + (*m_currentConnection)->clientId());
+            if (m_debugLogFilter & LOG_MESSAGE_DETAILS)
+                logger.debug(message->toString());
         }
         catch (const Exception& e) {
-            CERR("Can't send message to a subscriber " << (*m_currentConnection)->clientId() << ": " << e.what() << endl);
+            logger.error("Can't send message to a subscriber " + (*m_currentConnection)->clientId() + ": " + String(e.what()));
         }
         ++m_currentConnection;
     }
@@ -96,4 +106,24 @@ SMQSubscription::Type SMQSubscription::type() const
 {
     SharedLock(m_mutex);
     return m_type;
+}
+
+SMQSubscription::Type SMQSubscription::typeUnlocked() const
+{
+    return m_type;
+}
+
+String SMQSubscription::typeName() const
+{
+    SharedLock(m_mutex);
+    if (m_type == QUEUE)
+        return "queue";
+    return "topic";
+}
+
+String SMQSubscription::typeNameUnlocked() const
+{
+    if (m_type == QUEUE)
+        return "queue";
+    return "topic";
 }
