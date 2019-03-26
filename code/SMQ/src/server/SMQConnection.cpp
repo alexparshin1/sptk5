@@ -38,10 +38,11 @@ static String clientLogPrefix(const String& clientId)
     return "{" + clientId + "} ";
 }
 
-SMQConnection::SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, sptk::LogEngine& logEngine, uint8_t debugLogFilter)
+SMQConnection::SMQConnection(TCPServer& server, ThreadPool& sendThreadPool, SOCKET connectionSocket, sockaddr_in*, sptk::LogEngine& logEngine, uint8_t debugLogFilter)
 : TCPServerConnection(server, connectionSocket),
   m_logEngine(logEngine),
-  m_debugLogFilter(debugLogFilter)
+  m_debugLogFilter(debugLogFilter),
+  m_sendQueue(sendThreadPool)
 {
     auto* smqServer = dynamic_cast<SMQServer*>(&server);
     if (smqServer != nullptr) {

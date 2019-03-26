@@ -34,6 +34,7 @@
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerConnection.h>
 #include <sptk5/net/SocketEvents.h>
+#include "SMQSendQueue.h"
 
 namespace sptk {
 
@@ -52,6 +53,7 @@ class SMQConnection : public TCPServerConnection
 {
     mutable SharedMutex             m_mutex;
     MQProtocolType                  m_protocolType { MP_SMQ };
+
 public:
     MQProtocolType getProtocolType() const;
 
@@ -62,8 +64,11 @@ private:
     std::shared_ptr<MQLastWillMessage>      m_lastWillMessage;
     sptk::LogEngine&                        m_logEngine;
     uint8_t                                 m_debugLogFilter;
+
+    SMQSendQueue                            m_sendQueue;
+
 public:
-    SMQConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* peer, sptk::LogEngine& logEngine, uint8_t debugLogFilter);
+    SMQConnection(TCPServer& server, ThreadPool& sendThreadPool, SOCKET connectionSocket, sockaddr_in* peer, sptk::LogEngine& logEngine, uint8_t debugLogFilter);
     ~SMQConnection() override;
 
     void run() override;

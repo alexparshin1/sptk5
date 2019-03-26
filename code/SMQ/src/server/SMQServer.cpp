@@ -62,7 +62,7 @@ void SMQServer::stop()
 
 ServerConnection* SMQServer::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    auto* newConnection = new SMQConnection(*this, connectionSocket, peer, m_logEngine, m_debugLogFilter);
+    auto* newConnection = new SMQConnection(*this, m_sendThreadPool, connectionSocket, peer, m_logEngine, m_debugLogFilter);
 
     lock_guard<mutex> lock(m_mutex);
     m_connections.insert(newConnection);

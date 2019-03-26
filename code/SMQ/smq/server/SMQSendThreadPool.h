@@ -33,17 +33,10 @@
 
 namespace sptk {
 
-class SMQSendThreadPool
+class SMQSendThreadPool : public ThreadPool
 {
 public:
     SMQSendThreadPool(size_t maxThreads);
-
-    void run();
-    void stop();
-    void activateConnection();
-
-private:
-    sptk::ThreadPool m_threads;
 };
 
 }
