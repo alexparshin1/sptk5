@@ -540,10 +540,10 @@ TEST(SPTK_SMQServer, performance)
     }
     DateTime ended("now");
     milliseconds elapsed = duration_cast<milliseconds>(ended - started);
-    double performance = messageCount * 1000.0 / elapsed.count();
-    COUT("Performance: " << (int) performance << " msg/s" << endl);
+    double performance = double(messageCount) / elapsed.count();
+    COUT("Performance: " << fixed << setprecision(1) << performance << "K msg/s" << endl);
 
-    EXPECT_GT(performance, 50000);
+    EXPECT_GT(performance, 50);
     EXPECT_EQ(messageCount, smqReceiver.hasMessages());
 
     smqSender.disconnect(true);
