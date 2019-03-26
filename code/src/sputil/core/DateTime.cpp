@@ -121,15 +121,6 @@ static int trimRight(char* s)
     return len;
 }
 
-static void upperCase(char* dest, const char* src)
-{
-    int i = 0;
-    auto len = (int) strlen(src);
-    for (; i < len; i++)
-        dest[i] = (char) toupper(src[i]);
-    dest[i] = 0;
-}
-
 char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
 {
     char separator[] = " ";

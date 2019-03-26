@@ -202,7 +202,8 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
 
     classDeclaration << "    mutable sptk::SharedMutex m_mutex; ///< Mutext that protects access to internal data" << endl << endl;
 
-    classDeclaration << "public:" << endl << endl;
+    if (!m_attributes.empty() || !m_sequence.empty())
+        classDeclaration << "public:" << endl << endl;
 
     Strings ctorInitializer;
     Strings copyInitializer;
