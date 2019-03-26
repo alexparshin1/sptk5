@@ -29,13 +29,11 @@
 #include <ctime>
 #include <cmath>
 #include <cstring>
-#include <sptk5/DateTime.h>
-#include <sptk5/Exception.h>
+#include <sptk5/cutils>
 #include <iomanip>
-#include <sptk5/Buffer.h>
 
 using namespace std;
-using namespace std::chrono;
+using namespace chrono;
 using namespace sptk;
 
 namespace sptk
@@ -1033,6 +1031,21 @@ TEST(SPTK_DateTime, formatTime)
 
     EXPECT_STREQ("11:22:33.444Z", dateTime.timeString(DateTime::PF_GMT|DateTime::PF_TIMEZONE, DateTime::PA_MILLISECONDS).c_str());
     EXPECT_STREQ("11:22:33", dateTime.timeString(DateTime::PF_GMT).c_str());
+}
+
+TEST(SPTK_DateTime, parsePerformance)
+{
+    DateTime started("now");
+
+    DateTime dateTime("2018-08-07 11:22:33.444Z");
+    size_t count = 100000;
+    for (size_t i = 0; i < count; i++)
+        dateTime = "2018-08-07 11:22:33.444Z";
+
+    DateTime ended("now");
+    double durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;
+
+    COUT("Performed " << size_t (count / 1E3 / durationSec)  << "K parses/sec" << endl);
 }
 
 #endif
