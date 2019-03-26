@@ -38,6 +38,8 @@ class SMQSendThreadPool
 public:
     SMQSendThreadPool(size_t maxThreads);
 
+    void run();
+    void stop();
     void activateConnection();
 
 private:

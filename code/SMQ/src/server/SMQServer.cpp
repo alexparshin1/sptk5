@@ -41,7 +41,8 @@ SMQServer::SMQServer(MQProtocolType protocol, const String& username, const Stri
   m_socketEvents("SMQ Server", SMQServer::socketEventCallback, milliseconds(100)),
   m_subscriptions(logEngine, debugLogFilter),
   m_logEngine(logEngine),
-  m_debugLogFilter(debugLogFilter)
+  m_debugLogFilter(debugLogFilter),
+  m_sendThreadPool(16)
 {
 }
 
@@ -52,6 +53,7 @@ SMQServer::~SMQServer()
 
 void SMQServer::stop()
 {
+    m_sendThreadPool.stop();
     m_socketEvents.terminate();
     TCPServer::stop();
     m_socketEvents.stop();
@@ -206,6 +208,7 @@ void SMQServer::forgetSocket(TCPSocket& socket)
 void SMQServer::run()
 {
     Thread::run();
+    m_sendThreadPool.run();
     log(LP_NOTICE, "Server started");
 }
 

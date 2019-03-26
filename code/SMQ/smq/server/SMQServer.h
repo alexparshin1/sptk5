@@ -31,6 +31,7 @@
 
 #include <smq/server/SMQSubscriptions.h>
 #include <smq/server/SMQConnection.h>
+#include <smq/server/SMQSendThreadPool.h>
 #include <smq/protocols/MQProtocol.h>
 
 namespace sptk {
@@ -53,6 +54,8 @@ private:
     SMQSubscriptions                m_subscriptions;
     LogEngine&                      m_logEngine;
     uint8_t                         m_debugLogFilter;
+
+    SMQSendThreadPool               m_sendThreadPool;
 
 protected:
     static void socketEventCallback(void *userData, SocketEventType eventType);
