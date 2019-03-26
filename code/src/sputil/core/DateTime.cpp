@@ -84,6 +84,7 @@ static int decodeTZOffset(const char* tzOffset)
     int sign = 1;
     switch (*p) {
         case 'Z':
+        case 'z':
             return 0;
         case '+':
             p++;
@@ -389,12 +390,14 @@ static short splitDateString(char* bdat, short* datePart, char& actualDateSepara
             actualDateSeparator = c;
             c = DateTime::dateSeparator;
         }
-        if (c == DateTime::dateSeparator || c == DateTime::timeSeparator || c == ' ' || c == '-' || c == 0) {
+        if (c == DateTime::dateSeparator || c == '-' || c == 0) {
             if (actualDateSeparator == char(0) && c == DateTime::dateSeparator)
                 actualDateSeparator = DateTime::dateSeparator;
-            if (c == DateTime::timeSeparator && partNumber < 3)
-                partNumber = 3;
             if (ptr != nullptr) { // end of token
+                if (partNumber >= 3) {
+                    partNumber = 0;
+                    break;
+                }
                 bdat[i] = 0;
                 datePart[partNumber] = (short) string2int(ptr);
                 partNumber++;
@@ -457,63 +460,11 @@ static void encodeTime(DateTime::time_point& dt, short h, short m, short s, shor
 }
 
 
-static void encodeDate(DateTime::time_point& dt, const char* dat)
-{
-    char bdat[64];
-    short datePart[7];
-
-    memset(datePart, 0, sizeof(datePart));
-    ::upperCase(bdat, dat);
-
-    char actualDateSeparator;
-    short partNumber = splitDateString(bdat, datePart, actualDateSeparator);
-
-    if (partNumber < 3) { // Not enough date parts
-        dt = DateTime::time_point();
-        return;
-    }
-
-    short month = 0;
-    short day = 0;
-    short year = 0;
-    if (actualDateSeparator != DateTime::dateSeparator && datePart[0] > 31) {
-        // YYYY-MM-DD format
-        year = datePart[0];
-        month = datePart[1];
-        day = datePart[2];
-    } else {
-        for (int ii = 0; ii < 3; ii++) {
-            switch (DateTime::datePartsOrder[ii]) {
-                case 'M':
-                    month = datePart[ii];
-                    break;
-                case 'D':
-                    day = datePart[ii];
-                    break;
-                case 'Y':
-                    year = datePart[ii];
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    year = correctTwoDigitYear(year);
-
-    DateTime::time_point dd;
-    encodeDate(dd, year, month, day);
-    if (partNumber > 3) // Time part included into string
-        encodeTime(dd, datePart[3], datePart[4], datePart[5], datePart[6]);
-    dt = dd;
-}
-
-
 static void encodeTime(DateTime::time_point& dt, const char* tim)
 {
     char bdat[32];
 
-    ::upperCase(bdat, tim);
+    strncpy(bdat, tim, sizeof(bdat));
 
     if (trimRight(bdat) == 0) {
         dt = DateTime::time_point();
@@ -523,15 +474,17 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
     bool afternoon = false;
     short timePart[4] = {0, 0, 0, 0};
     int tzOffsetMin = 0;
-    char* p = strpbrk(bdat, "APZ+-"); // Looking for AM, PM, or timezone
+    char* p = strpbrk(bdat, "apzAPZ+-"); // Looking for AM, PM, or timezone
     if (p != nullptr) {
         char* p1;
         switch (*p) {
             case 'P':
+            case 'p':
                 afternoon = true;
                 break;
             case 'A':
-                p1 = strpbrk(bdat, "Z+-");
+            case 'a':
+                p1 = strpbrk(bdat, "zZ+-");
                 if (p1 != nullptr) {
                     tzOffsetMin = -decodeTZOffset(p1);
                 }
@@ -557,6 +510,66 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
     encodeTime(dt, timePart[0], timePart[1], timePart[2], timePart[3]);
     if (tzOffsetMin != 0)
         dt += minutes(tzOffsetMin);
+}
+
+
+static void encodeDate(DateTime::time_point& dt, const char* dat)
+{
+    char bdat[64];
+    short datePart[7];
+
+    memset(datePart, 0, sizeof(datePart));
+    strncpy(bdat, dat, sizeof(bdat));
+
+    char *timePtr = strpbrk(bdat, " T");
+    if (timePtr != nullptr) {
+        *timePtr = 0;
+        timePtr++;
+    }
+
+    char actualDateSeparator;
+    short partNumber = splitDateString(bdat, datePart, actualDateSeparator);
+
+    if (partNumber != 0) {
+        short month = 0;
+        short day = 0;
+        short year = 0;
+        if (actualDateSeparator != DateTime::dateSeparator && datePart[0] > 31) {
+            // YYYY-MM-DD format
+            year = datePart[0];
+            month = datePart[1];
+            day = datePart[2];
+        } else {
+            for (int ii = 0; ii < 3; ii++) {
+                switch (DateTime::datePartsOrder[ii]) {
+                    case 'M':
+                        month = datePart[ii];
+                        break;
+                    case 'D':
+                        day = datePart[ii];
+                        break;
+                    case 'Y':
+                        year = datePart[ii];
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        year = correctTwoDigitYear(year);
+
+        encodeDate(dt, year, month, day);
+    } else {
+        dt = DateTime::time_point();
+        timePtr = bdat;
+    }
+
+    if (timePtr != nullptr) {// Time part included into string
+        DateTime::time_point dtime;
+        encodeTime(dtime, timePtr);
+        dt += dtime.time_since_epoch();
+    }
 }
 
 
@@ -949,6 +962,24 @@ TEST(SPTK_DateTime, ctor2)
     chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
     chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
+}
+
+TEST(SPTK_DateTime, assign1)
+{
+    DateTime dateTime;
+
+    dateTime = "2018-01-01 11:22:33.444+10";
+    chrono::milliseconds msSinceEpoch = duration_cast<chrono::milliseconds>(dateTime.sinceEpoch());
+    EXPECT_EQ(1514769753444, msSinceEpoch.count());
+}
+
+TEST(SPTK_DateTime, assign2)
+{
+    DateTime dateTime;
+
+    dateTime = "11:22:33.444+10";
+    chrono::milliseconds msSinceEpoch = duration_cast<chrono::milliseconds>(dateTime.sinceEpoch());
+    EXPECT_EQ(44553444, msSinceEpoch.count());
 }
 
 TEST(SPTK_DateTime, timeZones)
