@@ -510,7 +510,7 @@ TEST(SPTK_SMQServer, mqttLastWill)
     smqServer->stop();
 }
 
-TEST(SPTK_SMQServer, performance)
+TEST(SPTK_SMQServer, performanceSingleSenderSingleReceiver)
 {
     Buffer          buffer;
 
@@ -553,6 +553,65 @@ TEST(SPTK_SMQServer, performance)
     EXPECT_EQ(messageCount, smqReceiver.hasMessages());
 
     smqSender.disconnect(true);
+    smqReceiver.disconnect(true);
+
+    smqServer->stop();
+}
+
+TEST(SPTK_SMQServer, performanceMultipleSendersSingleReceiver)
+{
+    Buffer          buffer;
+
+    size_t          messageCount {100000};
+    size_t          senderCount {2};
+    MQProtocolType  protocolType {MP_SMQ};
+    Host            serverHost("localhost", 4009);
+
+    auto smqServer = createSMQServer(protocolType, serverHost);
+
+    seconds connectTimeout(10);
+    seconds sendTimeout(1);
+
+    vector< shared_ptr<SMQClient> > senders;
+    for (size_t i = 0; i < senderCount; i++) {
+        auto smqSender = make_shared<SMQClient>(protocolType, "test-sender" + to_string(i));
+        ASSERT_NO_THROW(smqSender->connect(serverHost, "user", "secret", false, connectTimeout));
+        senders.push_back(smqSender);
+    }
+
+    SMQClient smqReceiver(protocolType, "test-receiver");
+    ASSERT_NO_THROW(smqReceiver.connect(serverHost, "user", "secret", false, connectTimeout));
+    ASSERT_NO_THROW(smqReceiver.subscribe("test-performance", std::chrono::milliseconds()));
+    this_thread::sleep_for(milliseconds(10)); // Wait until subscription is completed
+
+    DateTime started("now");
+
+    auto testMessage = make_shared<Message>(Message::MESSAGE, Buffer("This is SMQ performance test"));
+    size_t sentMessages = 0;
+    while (sentMessages < messageCount) {
+        for (auto sender: senders) {
+            sender->send("test-performance", testMessage, sendTimeout);
+            sentMessages++;
+        }
+    }
+
+    size_t maxWait = 2000;
+    while (smqReceiver.hasMessages() < messageCount) {
+        this_thread::sleep_for(milliseconds(1));
+        maxWait--;
+        if (maxWait == 0)
+            break;
+    }
+    DateTime ended("now");
+    milliseconds elapsed = duration_cast<milliseconds>(ended - started);
+    double performance = double(messageCount) / elapsed.count();
+    COUT("Performance: " << fixed << setprecision(1) << performance << "K msg/s" << endl);
+
+    EXPECT_GT(performance, 25);
+    EXPECT_EQ(messageCount, smqReceiver.hasMessages());
+
+    for (auto sender: senders)
+        sender->disconnect(true);
     smqReceiver.disconnect(true);
 
     smqServer->stop();
