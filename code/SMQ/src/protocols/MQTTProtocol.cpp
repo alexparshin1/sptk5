@@ -60,9 +60,11 @@ bool MQTTProtocol::readMessage(SMessage& message)
     MQTTFrame frame(FT_UNDEFINED, 0, QOS_0);
 
     Message::Headers headers;
+    String destination;
     try {
-        if (frame.read(socket(), headers, seconds(10))) {
+        if (frame.read(socket(), destination, headers, seconds(10))) {
             message = make_shared<Message>(mqMessageType(frame.type()));
+            message->destination(destination);
             message->headers() = move(headers);
             message->headers()["qos"] = to_string(frame.qos());
             if (frame.qos() != QOS_0)

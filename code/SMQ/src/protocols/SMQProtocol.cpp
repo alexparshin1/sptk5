@@ -117,8 +117,14 @@ bool SMQProtocol::readMessage(SMessage& outputMessage)
     }
 
     outputMessage = make_shared<Message>((Message::Type) messageType, move(message));
-    if (!headers.empty())
+    if (!headers.empty()) {
         parseHeaders(headers, outputMessage->headers());
+        auto itor = outputMessage->headers().find("destination");
+        if (itor != outputMessage->headers().end()) {
+            outputMessage->destination(itor->second);
+            outputMessage->headers().erase(itor);
+        }
+    }
 
     return true;
 }
@@ -135,12 +141,18 @@ bool SMQProtocol::sendMessage(const String& destination, SMessage& message)
     message->destination(destination);
 
     Buffer headers;
+
+    headers.append("destination: ", 13);
+    headers.append(destination);
+    headers.append('\n');
+
     for (auto& itor: message->headers()) {
         headers.append(itor.first);
         headers.append(": ", 2);
         headers.append(itor.second);
         headers.append('\n');
     }
+
     output.append((uint32_t) headers.bytes());
     output.append(headers.c_str(), headers.bytes());
 

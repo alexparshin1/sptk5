@@ -151,7 +151,7 @@ SMessage SMQConnection::getLastWillMessage()
         return SMessage();
 
     auto lastWillMessage = make_shared<Message>(Message::MESSAGE);
-    (*lastWillMessage)["destination"] = m_lastWillMessage->destination();
+    lastWillMessage->destination(m_lastWillMessage->destination());
     lastWillMessage->set(m_lastWillMessage->message());
     return lastWillMessage;
 }

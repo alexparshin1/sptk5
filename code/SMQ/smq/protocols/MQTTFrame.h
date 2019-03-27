@@ -291,11 +291,13 @@ public:
     /**
      * Receive next MQTT frame
      * @param socket            MQTT server connection
-     * @param headers           Output message headers
+     * @param destination       Message destination (output)
+     * @param parameters        Message headers (output)
      * @param timeout           Receive timeout, milliseconds
      * @return 0 if failure
      */
-    bool read(TCPSocket& socket, MQProtocol::Parameters& headers, std::chrono::milliseconds timeout);
+    bool read(TCPSocket& socket, String& destination, MQProtocol::Parameters& parameters,
+              std::chrono::milliseconds timeout);
 
     /**
      * Get ACK type corresponding to source message type

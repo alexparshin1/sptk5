@@ -409,7 +409,7 @@ void MQTTFrame::readUnknownFrame(TCPSocket& socket, unsigned remainingLength)
     bytes(remainingLength);
 }
 
-bool MQTTFrame::read(TCPSocket& socket, MQProtocol::Parameters& parameters, milliseconds timeout)
+bool MQTTFrame::read(TCPSocket& socket, String& destination, MQProtocol::Parameters& parameters, milliseconds timeout)
 {
     if (!socket.readyToRead(timeout))
         throw ConnectionException("Read timeout");
@@ -434,11 +434,11 @@ bool MQTTFrame::read(TCPSocket& socket, MQProtocol::Parameters& parameters, mill
             break;
 
         case FT_PUBLISH:
-            readPublishFrame(socket, remainingLength, m_qos, parameters["destination"]);
+            readPublishFrame(socket, remainingLength, m_qos, destination);
             break;
 
         case FT_SUBSCRIBE:
-            readSubscribeFrame(socket, remainingLength, m_qos, parameters["destination"]);
+            readSubscribeFrame(socket, remainingLength, m_qos, destination);
             break;
 
         case FT_UNDEFINED:

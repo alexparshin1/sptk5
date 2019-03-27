@@ -43,6 +43,7 @@ private:
     Headers         m_headers;
     DateTime        m_created;
     Type            m_type { MESSAGE };
+    String          m_destination;
 
 public:
 
@@ -69,7 +70,8 @@ public:
     : Buffer(std::move(other)),
       m_headers(std::move(other.m_headers)),
       m_created(other.m_created),
-      m_type(other.m_type)
+      m_type(other.m_type),
+      m_destination(std::move(other.m_destination))
     {}
 
     ~Message() override = default;
@@ -93,7 +95,7 @@ public:
 
     static String typeToString(Type type);
 
-    const String& destination() const;
+    String destination() const;
 
     void destination(const String& destination);
 };

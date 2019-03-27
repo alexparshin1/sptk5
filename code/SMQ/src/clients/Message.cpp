@@ -75,18 +75,14 @@ String Message::typeToString(Type type)
     return "MESSAGE";
 }
 
-const String& Message::destination() const
+String Message::destination() const
 {
-    static const String emptyDestination;
-    auto itor = m_headers.find("destination");
-    if (itor == m_headers.end())
-        return emptyDestination;
-    return itor->second;
+    return m_destination;
 }
 
 void Message::destination(const String& destination)
 {
-    m_headers["destination"] = destination;
+    m_destination = destination;
 }
 
 #if USE_GTEST
