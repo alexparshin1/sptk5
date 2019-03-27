@@ -59,17 +59,9 @@ class MoneyData
 {
 public:
 
-    static int64_t dividers[16];///< Dividers that help formatting money data
-
-    /**
-     * Integer value
-     */
-    int64_t      quantity;
-
-    /**
-     * Scale (1..15)
-     */
-    uint8_t      scale:4;
+    static int64_t dividers[16];        ///< Dividers that help formatting money data
+    int64_t      quantity;              ///< Integer value
+    uint8_t      scale:4;               ///< Scale (1..15)
 
     /**
      * Convert to double value
@@ -106,21 +98,36 @@ class SP_EXPORT VariantData
 
 public:
 
+    /**
+     * Default constructor
+     */
     VariantData()
     {
     }
 
+    /**
+     * Copy constructor
+     * @param other             Other object
+     */
     VariantData(const VariantData& other)
     {
         memcpy(m_data, other.m_data, sizeof(m_data));
     }
 
+    /**
+     * Move constructor
+     * @param other             Other object
+     */
     VariantData(VariantData&& other)
     {
         memcpy(m_data, other.m_data, sizeof(m_data));
         memset(other.m_data, 0, sizeof(m_data));
     }
 
+    /**
+     * Copy assigment
+     * @param other             Other object
+     */
     VariantData& operator = (const VariantData& other)
     {
         if (&other != this)
@@ -128,6 +135,10 @@ public:
         return *this;
     }
 
+    /**
+     * Move assignment
+     * @param other             Other object
+     */
     VariantData& operator = (VariantData&& other)
     {
         if (&other != this) {
@@ -173,33 +184,33 @@ public:
         memcpy(m_data, ptr, ptrSize);
     }
 
-    MoneyData& getMoneyData()       ///< Money data
+    MoneyData& getMoneyData()               ///< Money data
     {
         return *(MoneyData*) m_data;
     }
 
 
-    const bool& getBool() const         ///< Boolean data
+    const bool& getBool() const             ///< Boolean data
     {
         return *(bool*) m_data;
     }
 
-    const int32_t& getInteger() const   ///< Integer data
+    const int32_t& getInteger() const       ///< Integer data
     {
         return *(int32_t*) m_data;
     }
 
-    const int64_t& getInt64() const     ///< 64 bit integer data
+    const int64_t& getInt64() const         ///< 64 bit integer data
     {
         return *(int64_t*) m_data;
     }
 
-    const double& getFloat() const      ///< Floating point data
+    const double& getFloat() const          ///< Floating point data
     {
         return *(double*) m_data;
     }
 
-    const int64_t getTime() const       ///< DateTime data
+    const int64_t getTime() const           ///< DateTime data
     {
         return *(int64_t*) m_data;
     }
@@ -209,12 +220,12 @@ public:
         return *(VariantDataBuffer*) m_data;
     }
 
-    const void* getImagePtr() const     ///< Image pointer
+    const void* getImagePtr() const         ///< Image pointer
     {
         return (void*) m_data;
     }
 
-    const MoneyData& getMoneyData() const ///< Money data
+    const MoneyData& getMoneyData() const     ///< Money data
     {
         return *(MoneyData*) m_data;
     }

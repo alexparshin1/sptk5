@@ -563,7 +563,7 @@ TEST(SPTK_SMQServer, performanceMultipleSendersSingleReceiver)
     Buffer          buffer;
 
     size_t          messageCount {100000};
-    size_t          senderCount {2};
+    size_t          senderCount {5000};
     MQProtocolType  protocolType {MP_SMQ};
     Host            serverHost("localhost", 4009);
 
@@ -595,7 +595,7 @@ TEST(SPTK_SMQServer, performanceMultipleSendersSingleReceiver)
         }
     }
 
-    size_t maxWait = 2000;
+    size_t maxWait = 10000;
     while (smqReceiver.hasMessages() < messageCount) {
         this_thread::sleep_for(milliseconds(1));
         maxWait--;
@@ -607,7 +607,7 @@ TEST(SPTK_SMQServer, performanceMultipleSendersSingleReceiver)
     double performance = double(messageCount) / elapsed.count();
     COUT("Performance: " << fixed << setprecision(1) << performance << "K msg/s" << endl);
 
-    EXPECT_GT(performance, 25);
+    EXPECT_GT(performance, 10);
     EXPECT_EQ(messageCount, smqReceiver.hasMessages());
 
     for (auto sender: senders)
