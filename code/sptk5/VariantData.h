@@ -148,84 +148,132 @@ public:
         return *this;
     }
 
-    bool& getBool()                 ///< Boolean data
+    /**
+     * @return boolean data
+     */
+    bool& getBool()
     {
         return *(bool*) m_data;
     }
 
-    int32_t& getInteger()           ///< Integer data
+    /**
+     * @return integer data
+     */
+    int32_t& getInteger()
     {
         return *(int32_t*) m_data;
     }
 
-    int64_t& getInt64()             ///< 64 bit integer data
+    /**
+     * @return 64 bit integer data
+     */
+    int64_t& getInt64()
     {
         return *(int64_t*) m_data;
     }
 
-    double& getFloat()              ///< Floating point data
+    /**
+     * @return floating point data
+     */
+    double& getFloat()
     {
         return *(double*) m_data;
     }
 
-    int64_t& getTime()              ///< DateTime data
+    /**
+     * @return date and time data
+     */
+    int64_t& getTime()
     {
         return *(int64_t*) m_data;
     }
 
-    VariantDataBuffer& getBuffer()  ///< A buffer for data with the variable length like strings, or just generic buffers
+    /**
+     * @return buffer for data with the variable length like strings, or just generic buffers
+     */
+    VariantDataBuffer& getBuffer()
     {
         return *(VariantDataBuffer*) m_data;
     }
 
-    void setImagePtr(void* ptr)             ///< Image pointer
+    /**
+     * @return image pointer
+     */
+    void setImagePtr(void* ptr)
     {
         size_t ptrSize = sizeof(ptr);
         memcpy(m_data, ptr, ptrSize);
     }
 
-    MoneyData& getMoneyData()               ///< Money data
+    /**
+     * @return money data
+     */
+    MoneyData& getMoneyData()
     {
         return *(MoneyData*) m_data;
     }
 
 
-    const bool& getBool() const             ///< Boolean data
+    /**
+     * @return boolean data
+     */
+    bool getBool() const
     {
         return *(bool*) m_data;
     }
 
-    const int32_t& getInteger() const       ///< Integer data
+    /**
+     * @return integer data
+     */
+    int32_t getInteger() const
     {
         return *(int32_t*) m_data;
     }
 
-    const int64_t& getInt64() const         ///< 64 bit integer data
+    /**
+     * @return 64 bit integer data
+     */
+    int64_t getInt64() const
     {
         return *(int64_t*) m_data;
     }
 
-    const double& getFloat() const          ///< Floating point data
+    /**
+     * @return floating point data
+     */
+    double getFloat() const
     {
         return *(double*) m_data;
     }
 
-    const int64_t getTime() const           ///< DateTime data
+    /**
+     * @return date and time data
+     */
+    const int64_t getTime() const
     {
         return *(int64_t*) m_data;
     }
 
-    const VariantDataBuffer&getBuffer() const ///< A buffer for data with the variable length like strings, or just generic buffers
+    /**
+     * @return buffer for data with the variable length like strings, or just generic buffers
+     */
+    const VariantDataBuffer& getBuffer() const
     {
         return *(VariantDataBuffer*) m_data;
     }
 
-    const void* getImagePtr() const         ///< Image pointer
+    /**
+     * @return image pointer
+     */
+    const void* getImagePtr() const
     {
         return (void*) m_data;
     }
 
-    const MoneyData& getMoneyData() const     ///< Money data
+    /**
+     * @return money data
+     */
+    const MoneyData& getMoneyData() const
     {
         return *(MoneyData*) m_data;
     }
