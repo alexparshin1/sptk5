@@ -217,7 +217,7 @@ public:
     /**
      * @return boolean data
      */
-    bool getBool() const
+    const bool& getBool() const
     {
         return *(bool*) m_data;
     }
@@ -225,7 +225,7 @@ public:
     /**
      * @return integer data
      */
-    int32_t getInteger() const
+    const int32_t& getInteger() const
     {
         return *(int32_t*) m_data;
     }
@@ -233,7 +233,7 @@ public:
     /**
      * @return 64 bit integer data
      */
-    int64_t getInt64() const
+    const int64_t& getInt64() const
     {
         return *(int64_t*) m_data;
     }
@@ -241,7 +241,7 @@ public:
     /**
      * @return floating point data
      */
-    double getFloat() const
+    const double& getFloat() const
     {
         return *(double*) m_data;
     }
