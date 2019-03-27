@@ -42,7 +42,7 @@ SMQConnection::SMQConnection(TCPServer& server, ThreadPool& sendThreadPool, SOCK
 : TCPServerConnection(server, connectionSocket),
   m_logEngine(logEngine),
   m_debugLogFilter(debugLogFilter),
-  m_sendQueue(sendThreadPool)
+  m_sendQueue(sendThreadPool, *this)
 {
     auto* smqServer = dynamic_cast<SMQServer*>(&server);
     if (smqServer != nullptr) {
@@ -104,7 +104,8 @@ void SMQConnection::setupClient(const String& id, const String& lastWillDestinat
 
 void SMQConnection::sendMessage(SMessage& message)
 {
-    sendMessage(message->destination(), message);
+    m_sendQueue.push(message);
+    //protocol().sendMessage(message->destination(), message);
 }
 
 void SMQConnection::subscribe(const String& destination, SMQSubscription* subscription)
@@ -141,18 +142,6 @@ void SMQConnection::ack(Message::Type sourceMessageType, const String& messageId
 bool SMQConnection::readMessage(SMessage& message)
 {
     protocol().readMessage(message);
-    return false;
-}
-
-bool SMQConnection::sendMessage(const String& destination, SMessage& message)
-{
-    protocol().sendMessage(destination, message);
-
-    if (m_debugLogFilter & LOG_MESSAGE_OPS) {
-        Logger logger(m_logEngine, clientLogPrefix(m_clientId));
-        logger.debug("Sent message to " + destination);
-    }
-
     return false;
 }
 

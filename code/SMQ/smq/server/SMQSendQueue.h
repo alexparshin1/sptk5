@@ -34,9 +34,12 @@
 
 namespace sptk {
 
+class SMQConnection;
+
 class SMQSendQueue : public Runable
 {
     mutable std::mutex          m_mutex;
+    SMQConnection&              m_connection;
     std::queue<SMessage>        m_messages;
     ThreadPool&                 m_threadPool;
     std::atomic<bool>           m_processing {false};
@@ -48,7 +51,7 @@ protected:
     SMessage getMessage();
 
 public:
-    SMQSendQueue(ThreadPool& threadPool);
+    SMQSendQueue(ThreadPool& threadPool, SMQConnection& connection);
 
     void push(SMessage& message);
 };

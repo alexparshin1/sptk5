@@ -87,7 +87,6 @@ public:
     // Low-level operations
     void ack(Message::Type sourceMessageType, const String& messageId);
     bool readMessage(SMessage& message);
-    bool sendMessage(const String& destination, SMessage& message);
     SMessage getLastWillMessage();
 };
 
