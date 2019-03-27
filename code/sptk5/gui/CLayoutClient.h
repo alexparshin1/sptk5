@@ -109,9 +109,26 @@ class CLayoutClient
 
 protected:
 
+    /**
+     * @return last preferred height
+     */
     int lastPreferredH() const;
+
+    /**
+     * @return last preferred width
+     */
     int lastPreferredW() const;
+
+    /**
+     * Set last preferred height
+     * @param height            Height
+     */
     void lastPreferredH(int height);
+
+    /**
+     * Set last preferred width
+     * @param width             Width
+     */
     void lastPreferredW(int width);
 
 protected:
