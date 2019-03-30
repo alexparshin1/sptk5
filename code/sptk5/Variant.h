@@ -165,6 +165,9 @@ protected:
      */
     void dataType(uint32_t dt);
 
+    /**
+     * @return True if current data type is external buffer
+     */
     bool isExternalBuffer() const
     {
         return (m_dataType & VAR_EXTERNAL_BUFFER) != 0;
@@ -504,23 +507,26 @@ public:
 
     /**
      * Constructor
+     * @param value             Buffer to copy from
+     * @param sz                Buffer size
      */
     Variant(const void * value, size_t sz);
 
     /**
      * Constructor
+     * @param value             Buffer to copy from
      */
     Variant(const Buffer& value);
 
     /**
      * Copy constructor
-     * @param                   Other object
+     * @param other             Other object
      */
     Variant(const Variant& other);
 
     /**
      * Move constructor
-     * @param                   Other object
+     * @param other             Other object
      */
     Variant(Variant&& other);
 
@@ -531,58 +537,67 @@ public:
 
     /**
      * Assignment operator
-     * @param                   Other object
+     * @param other             Other object
      */
     Variant& operator =(const Variant& other);
 
     /**
      * Assignment operator
-     * @param                   Other object
+     * @param other             Other object
      */
     Variant& operator =(Variant&& other);
 
     /**
      * Assignment operator
+     * @param value             Value to assign
      */
     virtual Variant& operator =(int32_t value);
 
     /**
      * Assignment operator
+     * @param value             Value to assign
      */
     virtual Variant& operator =(int64_t value);
 
     /**
      * Assignment operator
+     * @param value             Value to assign
      */
     virtual Variant& operator =(double value);
 
     /**
      * Assignment operator
+     * @param value             Value to assign
      */
     virtual Variant& operator =(const MoneyData& value);
 
     /**
      * Assignment operator
+     * @param value             Value to assign
      */
     virtual Variant& operator =(const char * value);
 
     /**
      * Assignment operator
+     * @param value             Value to assign
      */
     virtual Variant& operator =(const String& value);
 
     /**
      * Assignment operator
+     * @param value             Value to assign
      */
     virtual Variant& operator =(DateTime value);
 
     /**
      * Assignment operator
+     * @param value             Value to assign
      */
     virtual Variant& operator =(const void *value);
 
     /**
      * Assignment operator
+     * @param value             Value to assign
      */
     virtual Variant& operator =(const Buffer& value);
 
