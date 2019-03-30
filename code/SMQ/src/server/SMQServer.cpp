@@ -55,7 +55,7 @@ void SMQServer::stop()
 {
     m_sendThreadPool.stop();
     m_socketEvents.terminate();
-    TCPServer::stop();
+	TCPServer::stop();
     m_socketEvents.stop();
     log(LP_NOTICE, "Server stopped");
 }
