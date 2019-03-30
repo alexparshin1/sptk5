@@ -62,10 +62,12 @@ int main(int argc, const char* argv[])
         if (argc > 3)
             headerFile = argv[3];
 
-        int rc = system(("mkdir -p " + outputDirectory).c_str());
-        if (rc != 0) {
-            CERR("Can't open or create output directory '" << outputDirectory << "'." << endl);
-            return 1;
+        if (access(outputDirectory.c_str(), 0) < 0) {
+            int rc = system(("mkdir " + outputDirectory).c_str());
+            if (rc != 0) {
+                CERR("Can't open or create output directory '" << outputDirectory << "'." << endl);
+                return 1;
+            }
         }
 
         wsParser.parse(argv[1]);
