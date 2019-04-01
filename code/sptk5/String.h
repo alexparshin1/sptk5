@@ -44,7 +44,7 @@ namespace sptk {
 class Strings;
 
 /**
- * @brief String with ID
+ * String with ID
  * Extended version of std::string that supports an integer string ID
  */
 class SP_EXPORT String : public std::string
@@ -56,13 +56,13 @@ class SP_EXPORT String : public std::string
 
 public:
     /**
-     * @brief Default constructor
+     * Default constructor
      */
     String() noexcept
     {}
 
     /**
-     * @brief Copy constructor
+     * Copy constructor
      * @param str                Source string
      */
     String(const String& str) noexcept
@@ -71,7 +71,7 @@ public:
     }
 
     /**
-     * @brief Move constructor
+     * Move constructor
      * @param src                Other object
      */
     String(String&& src) noexcept
@@ -81,7 +81,7 @@ public:
     }
 
     /**
-     * @brief Move constructor
+     * Move constructor
      * @param src                Other object
      */
     String(std::string&& src) noexcept
@@ -89,7 +89,7 @@ public:
     {}
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param str                Source string
      * @param id                Optional string id
      */
@@ -99,7 +99,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param str                Source string
      * @param len                Optional string id
      */
@@ -109,7 +109,7 @@ public:
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param str                Source string
      * @param len                Optional string id
      */
@@ -176,7 +176,7 @@ public:
     }
 
     /**
-     * @brief Returns string ID
+     * Returns string ID
      */
     int64_t ident() const
     {
@@ -184,7 +184,7 @@ public:
     }
 
     /**
-     * @brief Sets string ID
+     * Sets string ID
      */
     void ident(int64_t id)
     {
@@ -192,20 +192,20 @@ public:
     }
 
     /**
-     * @brief Checks if string is matching with regular expression pattern
+     * Checks if string is matching with regular expression pattern
      * @param pattern           Regular expression pattern
      * @param options           Regular expression options (@see class CRegExp)
      */
     bool matches(const String& pattern, const String& options = String()) const;
 
     /**
-     * @brief Returns strings produced from current string by splitting it using regular expression pattern
+     * Returns strings produced from current string by splitting it using regular expression pattern
      * @param pattern           Regular expression pattern
      */
     Strings split(const String& pattern) const;
 
     /**
-     * @brief Returns string with regular expression pattern replaced to replacement string
+     * Returns string with regular expression pattern replaced to replacement string
      *
      * Replacement string may optionally use references to pattern's group
      * @return Processed string
@@ -215,34 +215,34 @@ public:
     String replace(const String& pattern, const String& replacement) const;
 
     /**
-     * @brief Returns upper case version of the string
+     * Returns upper case version of the string
      */
     String toUpperCase() const;
 
     /**
-     * @brief Returns upper case version of the string
+     * Returns upper case version of the string
      */
     String toLowerCase() const;
 
     /**
-     * @brief Converts string to integer
+     * Converts string to integer
      */
     int toInt() const;
 
     /**
-     * @brief Returns true if the string starts from subject
+     * Returns true if the string starts from subject
      * @param subject           Subject to look for
      */
     bool startsWith(const String& subject) const;
 
     /**
-     * @brief Returns true if the string ends with subject
+     * Returns true if the string ends with subject
      * @param subject           Subject to look for
      */
     bool endsWith(const String& subject) const;
 
     /**
-     * @brief Returns trimmed string
+     * Returns trimmed string
      */
     String trim() const;
 };
