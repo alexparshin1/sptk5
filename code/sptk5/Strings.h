@@ -421,13 +421,14 @@ public:
      * Erase strings between the iterator positions
      * @param from              Iterator of the from position
      * @param to                Iterator of the to position
+     * @return iterator to the next item after removed
      */
-    void erase(iterator from, iterator to)
+    iterator erase(iterator from, iterator to)
     {
         if (from == to)
-            m_strings.erase(from);
+            return m_strings.erase(from);
         else
-            m_strings.erase(from, to);
+            return m_strings.erase(from, to);
     }
 };
 
