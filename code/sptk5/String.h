@@ -52,7 +52,7 @@ class SP_EXPORT String : public std::string
     /**
      * String ID
      */
-    int32_t m_id {0};
+    int64_t m_id {0};
 
 public:
     /**
@@ -66,7 +66,7 @@ public:
      * @param str                Source string
      */
     String(const String& str) noexcept
-    : std::string(str), m_id(str.m_id)
+            : std::string(str), m_id(str.m_id)
     {
     }
 
@@ -75,7 +75,7 @@ public:
      * @param src                Other object
      */
     String(String&& src) noexcept
-    : std::string(std::move(src)), m_id(src.m_id)
+            : std::string(std::move(src)), m_id(src.m_id)
     {
         src.m_id = 0;
     }
@@ -85,7 +85,7 @@ public:
      * @param src                Other object
      */
     String(std::string&& src) noexcept
-    : std::string(std::move(src))
+            : std::string(std::move(src))
     {}
 
     /**
@@ -93,29 +93,39 @@ public:
      * @param str                Source string
      * @param id                Optional string id
      */
-    String(const std::string& str, int32_t id = 0) noexcept
-    : std::string(str), m_id(id)
+    String(const std::string& str, int64_t id = 0) noexcept
+            : std::string(str), m_id(id)
     {
     }
 
     /**
      * @brief Constructor
      * @param str                Source string
-     * @param id                Optional string id
+     * @param len                Optional string id
      */
-    String(const char* str, int32_t id = 0) noexcept
-    : std::string(str), m_id(id)
+    String(const char* str) noexcept
+            : std::string(str), m_id(0)
+    {
+    }
+
+    /**
+     * @brief Constructor
+     * @param str                Source string
+     * @param len                Optional string id
+     */
+    String(const char* str, size_t len) noexcept
+            : std::string(str, len), m_id(0)
     {
     }
 
     /**
      * Constructor
      * @param str                Source string
-     * @param len                Optional string length
-     * @param id                Optional string id
+     * @param len                String length
+     * @param id                 String id
      */
-    String(const char* str, size_t len, int32_t id = 0) noexcept
-    : std::string(str, len), m_id(id)
+    String(const char* str, size_t len, int64_t id) noexcept
+            : std::string(str, len), m_id(id)
     {
     }
 
@@ -125,8 +135,8 @@ public:
      * @param ch                Fill character
      * @param id                Optional string id
      */
-    String(size_t len, char ch, int32_t id = 0) noexcept
-    : std::string(len, ch), m_id(id)
+    String(size_t len, char ch, int64_t id = 0) noexcept
+            : std::string(len, ch), m_id(id)
     {
     }
 
@@ -168,7 +178,7 @@ public:
     /**
      * @brief Returns string ID
      */
-    int32_t ident() const
+    int64_t ident() const
     {
         return m_id;
     }
@@ -176,7 +186,7 @@ public:
     /**
      * @brief Sets string ID
      */
-    void ident(int32_t id)
+    void ident(int64_t id)
     {
         m_id = id;
     }
