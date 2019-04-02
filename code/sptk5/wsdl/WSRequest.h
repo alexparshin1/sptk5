@@ -169,6 +169,9 @@ public:
         return "index.html";
     }
 
+    /**
+     * @return service WSDL
+     */
     virtual String wsdl() const
     {
         return String("Not defined");

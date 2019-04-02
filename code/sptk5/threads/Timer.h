@@ -68,7 +68,7 @@ namespace sptk {
              * Disabled event assignment
              * @param other                 Other event
              */
-            EventData& operator = (const EventData&) = delete;
+            EventData& operator = (const EventData& other) = delete;
 
             /**
              * Constructor
