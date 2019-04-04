@@ -65,7 +65,7 @@ SysLogEngine::SysLogEngine(const string& _programName, uint32_t facilities)
 void SysLogEngine::saveMessage(const Logger::Message* message)
 {
     uint32_t    options;
-    string      programName;
+    String      programName;
     uint32_t    facilities;
 
     getOptions(options, programName, facilities);

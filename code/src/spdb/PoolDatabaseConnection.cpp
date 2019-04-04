@@ -168,7 +168,7 @@ static void insertRecords(PoolDatabaseConnection* db, const String& tableName, c
                 firstValue = false;
             else
                 sql << ", ";
-            if (value == "\\n")
+            if (value == "\\N")
                 sql << "NULL";
             else if (value.empty())
                 sql << "''";
