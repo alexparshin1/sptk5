@@ -148,17 +148,60 @@ void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
     notImplemented("driverEndTransaction");
 }
 
+static void insertRecords(PoolDatabaseConnection* db, const String& tableName, const Strings& columnNames, vector<Strings>& rows)
+{
+    RegularExpression   matchInteger(R"(^[+-]?[1-9]\d*$)");
+    RegularExpression   matchDouble(R"(^[+-]?(0|[1-9]+)(\.\\d*)(E[+-]?\\d+)?$)", "i");
+    RegularExpression   matchSingleQuote("'", "g");
+    stringstream sql;
+    sql << "INSERT INTO " << tableName << " (" << columnNames.join(",") << ") VALUES ";
+    bool firstRow = true;
+    for (auto& row: rows) {
+        if (firstRow)
+            firstRow = false;
+        else
+            sql << ", ";
+        sql << "(";
+        bool firstValue = true;
+        for (auto& value: row) {
+            if (firstValue)
+                firstValue = false;
+            else
+                sql << ", ";
+            if (value == "\\n")
+                sql << "NULL";
+            else if (value.empty())
+                sql << "''";
+            else if (matchInteger.matches(value) || matchDouble.matches(value))
+                sql << value;
+            else {
+                if (value.find('\'') != string::npos)
+                    value = matchSingleQuote.s(value, "''");
+                sql << "'" << value << "'";
+            }
+        }
+        sql << ")";
+    }
+    Query insertRows(db, sql.str());
+    insertRows.exec();
+}
+
 void PoolDatabaseConnection::_bulkInsert(
         const String& tableName, const Strings& columnNames, const Strings& data, const String& /*format*/)
 {
-    Query insertQuery(this,
-                      "INSERT INTO " + tableName + "(" + columnNames.join(",") +
-                      ") VALUES (:" + columnNames.join(",:") + ")");
+    vector<Strings> rowsToInsert;
+
     for (auto& row: data) {
-        Strings rowData(row,"\t");
-        for (unsigned i = 0; i < columnNames.size(); i++)
-            insertQuery.param(i).setString(rowData[i]);
-        insertQuery.exec();
+        rowsToInsert.emplace_back(row,"\t");
+        if (rowsToInsert.size() > 256) {
+            insertRecords(this, tableName, columnNames, rowsToInsert);
+            rowsToInsert.clear();
+        }
+    }
+
+    if (!rowsToInsert.empty()) {
+        insertRecords(this, tableName, columnNames, rowsToInsert);
+        rowsToInsert.clear();
     }
 }
 
