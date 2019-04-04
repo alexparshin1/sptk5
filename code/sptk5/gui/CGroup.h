@@ -50,12 +50,20 @@ namespace sptk {
 class CGroup : public Fl_Group, public CLayoutManager
 {
     /**
-     * Draw the contens of the group clipped inside the group
+     * Draw the contents of the group clipped inside the group
      */
     bool m_drawClipped;
 public:
+
+    /**
+     * @returns true if contents of the group is drawn clipped inside the group
+     */
     bool drawClipped() const;
 
+    /**
+     * Set that contents of the group is drawn clipped or not inside the group
+     * @param drawClipped        True if contents of the group is drawn clipped inside the group
+     */
     void drawClipped(bool drawClipped);
 
 protected:

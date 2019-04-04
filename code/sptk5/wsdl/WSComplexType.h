@@ -70,11 +70,18 @@ class WSComplexType : public WSTypeName
 
 protected:
 
+    /**
+     * @return true if object is loaded
+     */
     const bool loaded() const
     {
         return m_loaded;
     }
 
+    /**
+     * Set loaded flag
+     * @param flag              If true then object is loaded
+     */
     void setLoaded(bool flag)
     {
         m_loaded = flag;
@@ -245,8 +252,10 @@ public:
         return m_optional;
     }
 
-    /*
+    /**
      * Print element as XML text
+     * @param asJSON            If true then return JSON; otherwise return XML.
+     * @return object presentation as JSON or XML string
      */
     String toString(bool asJSON=true) const;
 };

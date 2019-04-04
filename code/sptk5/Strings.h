@@ -88,7 +88,7 @@ private:
     /**
      * User-specified data
      */
-    int32_t             m_userData {0};
+    int64_t             m_userData {0};
 
     /**
      * Is sorted flag
@@ -210,7 +210,7 @@ public:
     /**
      * Returns user data as integer
      */
-    int32_t argument() const
+    int64_t argument() const
     {
         return(int) m_userData;
     }
@@ -219,7 +219,7 @@ public:
      * Sets user data as integer
      * @param d                 New value for user data
      */
-    void argument(int32_t d)
+    void argument(int64_t d)
     {
         m_userData = d;
     }
@@ -228,7 +228,7 @@ public:
      * Removes a string from this object
      * @param i                 String index in the string vector
      */
-    void remove(uint32_t i)
+    void remove(size_t i)
     {
         m_strings.erase(m_strings.begin() + i);
     }
@@ -421,13 +421,14 @@ public:
      * Erase strings between the iterator positions
      * @param from              Iterator of the from position
      * @param to                Iterator of the to position
+     * @return iterator to the next item after removed
      */
-    void erase(iterator from, iterator to)
+    iterator erase(iterator from, iterator to)
     {
         if (from == to)
-            m_strings.erase(from);
+            return m_strings.erase(from);
         else
-            m_strings.erase(from, to);
+            return m_strings.erase(from, to);
     }
 };
 
