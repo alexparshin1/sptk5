@@ -47,7 +47,7 @@ namespace sptk
  */
 
 /**
- * @brief A log stored in the system log.
+ * A log stored in the system log.
  *
  * On *nix , the log is sent to *nix syslog daemon.
  * On Windows NT/2000+/XP the log is sent to Event Log (Application).
@@ -60,7 +60,7 @@ class SP_EXPORT SysLogEngine: public LogEngine
     /**
      * (Windows) The handle of the log file
      */
-    std::atomic<HANDLE> m_logHandle;
+    std::atomic<HANDLE> m_logHandle {0};
 
 #endif
 
@@ -75,7 +75,7 @@ class SP_EXPORT SysLogEngine: public LogEngine
     void setupEventSource();
 public:
     /**
-     * @brief Stores or sends log message to actual destination
+     * Stores or sends log message to actual destination
      *
      * This method should be overwritten by the actual log implementation
      * @param message           Log message
@@ -83,7 +83,7 @@ public:
     virtual void saveMessage(const Logger::Message* message) override;
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates a new log object based on the syslog facility (or facilities).
      * For Windows, parameter facilities is ignored and messages are stored
@@ -97,15 +97,19 @@ public:
     SysLogEngine(const std::string& programName, uint32_t facilities = LOG_USER);
 
     /**
-     * @brief Destructor
+     * Destructor
      *
      * Destructs the log object, closes the log descriptor, releases all the allocated resources
      */
     virtual ~SysLogEngine();
 
-    bool unregisterInstance() const;
-
-    void getOptions(uint32_t& options, std::string& programName, uint32_t& facilities) const;
+    /**
+     * Get log engine options
+     * @param options           Log engine output options
+     * @param programName       Log engine program name
+     * @param facilities        Log engine facilities
+     */
+    void getOptions(uint32_t& options, String& programName, uint32_t& facilities) const;
 };
 /**
  * @}
