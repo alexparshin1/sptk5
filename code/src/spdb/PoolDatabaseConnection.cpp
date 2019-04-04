@@ -151,7 +151,7 @@ void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
 static void insertRecords(PoolDatabaseConnection* db, const String& tableName, const Strings& columnNames, vector<Strings>& rows)
 {
     RegularExpression   matchInteger(R"(^[+-]?[1-9]\d*$)");
-    RegularExpression   matchDouble(R"(^[+-]?(0|[1-9]+)(\.\\d*)(E[+-]?\\d+)?$)", "i");
+    RegularExpression   matchDouble(R"(^[+-]?(0|[1-9]+)?(\.\\d*)(E[+-]?\\d+)?$)", "i");
     RegularExpression   matchSingleQuote("'", "g");
     stringstream sql;
     sql << "INSERT INTO " << tableName << " (" << columnNames.join(",") << ") VALUES ";
