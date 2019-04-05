@@ -152,23 +152,23 @@ void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
 String sptk::escapeSQLString(const String& str)
 {
     String output;
-    size_t startPosition = 0;
+    const char* start = str.c_str();
     while (true) {
-        size_t endPosition = str.find_first_of("'\t\n\r", startPosition);
-        if (endPosition != string::npos) {
-            output += str.substr(startPosition, endPosition - startPosition);
-            switch (str[endPosition]) {
+        const char* end = strpbrk(start, "'\t\n\r");
+        if (end != nullptr) {
+            output.append(start, end - start);
+            switch (*end) {
                 case '\'': output += "''"; break;
                 case '\t': output += "\\t"; break;
                 case '\r': output += "\\r"; break;
                 case '\n': output += "\\n"; break;
                 default: break;
             }
-            startPosition = endPosition + 1;
-            if (startPosition == str.length())
+            start = end + 1;
+            if (*start == 0)
                 break;
         } else {
-            output += str.substr(startPosition);
+            output.append(start);
             break;
         }
     }
