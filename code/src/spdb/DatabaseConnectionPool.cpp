@@ -354,7 +354,7 @@ TEST(SPTK_MySQLConnection, bulkInsertPerformance)
     if (connectionString.empty())
         FAIL() << "MySQL connection is not defined";
     try {
-        databaseTests.testBulkInsertPerformance(connectionString, 1024);
+        databaseTests.testBulkInsertPerformance(connectionString, 16384);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
