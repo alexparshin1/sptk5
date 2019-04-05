@@ -344,7 +344,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     DateTime started2("now");
     size_t i = 1;
     for (auto& row: data) {
-        insertData.param(int(0)) = row[0].asInteger();
+        insertData.param(uint32_t(0)) = row[0].asInteger();
         insertData.param(1) = row[1].asString();
         insertData.param(2) = row[2].asString();
         insertData.param(3) = row[3].asString();

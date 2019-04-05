@@ -201,12 +201,9 @@ static void insertRecords(
                 case VAR_BOOL:
                     sql << "true";
                     break;
-                case VAR_FLOAT:
-                    sql << value.asFloat();
-                    break;
-                case VAR_INT:
-                case VAR_INT64:
-                    sql << value.asFloat();
+                case VAR_STRING:
+                case VAR_TEXT:
+                    sql << "'" << escapeSQLString(value.asString()) << "'";
                     break;
                 default:
                     sql << "'" << value.asString() << "'";
