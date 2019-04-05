@@ -60,7 +60,7 @@ public:
      * A single file containing private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
      * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keyFileName           Private key file name
+     * @param privateKeyFileName    Private key file name
      * @param certificateFileName   Certificate file name
      * @param password              Key file password
      * @param caFileName            Optional CA (root certificate) file name
