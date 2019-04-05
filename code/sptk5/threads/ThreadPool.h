@@ -112,7 +112,6 @@ public:
      * @param threadLimit       Maximum number of threads in this pool
      * @param threadIdleSeconds Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
      * @param threadName        Thread pool own threadName
-     * @param autoStart         Start upon creation
      */
     ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName);
 
