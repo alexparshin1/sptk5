@@ -359,25 +359,6 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     }
 }
 
-void MySQLConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                                  const String& /*format*/)
-{
-    Query insertQuery(this,
-                      "INSERT INTO " + tableName + "(" + columnNames.join(",") +
-                      ") VALUES (:" + columnNames.join(",:") + ")");
-    for (auto& row: data) {
-        Strings rowData(row,"\t");
-        for (unsigned i = 0; i < columnNames.size(); i++) {
-            String& value = rowData[i];
-            if (value.length() > 255)
-                insertQuery.param(i).setBuffer(value.c_str(), value.size(), VAR_TEXT);
-            else
-                insertQuery.param(i).setString(value);
-        }
-        insertQuery.exec();
-    }
-}
-
 void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     shared_ptr<RegularExpression> matchStatementEnd(new RegularExpression("(;\\s*)$"));

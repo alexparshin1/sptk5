@@ -552,8 +552,8 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     query.close();
 }
 
-void OracleConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                                   const String& /*format*/)
+void OracleConnection::_bulkInsert(const String& tableName, const Strings& columnNames,
+                                   const vector<VariantVector>& data)
 {
     Query tableColumnsQuery(this,
                             "SELECT column_name, data_type, data_length "
@@ -597,13 +597,12 @@ void OracleConnection::_bulkInsert(const String& tableName, const Strings& colum
                                       data.size(),
                                       columnTypeSizeMap);
     for (auto& row: data) {
-        Strings rowData(row, "\t");
         for (unsigned i = 0; i < columnNames.size(); i++) {
-            String& value = rowData[i];
-            if (columnTypeSizeVector[i].type == VAR_TEXT)
-                insertQuery.param(i).setBuffer(value.c_str(), value.size(), VAR_TEXT);
-            else
-                insertQuery.param(i).setString(rowData[i]);
+            auto& value = row[i];
+            if (columnTypeSizeVector[i].type == VAR_TEXT) {
+                insertQuery.param(i).setBuffer(value.getText(), value.dataSize(), VAR_TEXT);
+            } else
+                insertQuery.param(i).setString(value.asString());
         }
         insertQuery.execNext();
     }

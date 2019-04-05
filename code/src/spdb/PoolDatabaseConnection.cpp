@@ -29,6 +29,7 @@
 #include <sptk5/cutils>
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
+#include <list>
 
 using namespace std;
 using namespace sptk;
@@ -148,18 +149,42 @@ void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
     notImplemented("driverEndTransaction");
 }
 
-static void insertRecords(PoolDatabaseConnection* db, const String& tableName, const Strings& columnNames, vector<Strings>& rows)
+String sptk::escapeSQLString(const String& str)
 {
-    RegularExpression   matchInteger(R"(^[+-]?[1-9]\d*$)");
-    RegularExpression   matchDouble(R"(^[+-]?(0|[1-9]+)?(\.\\d*)(E[+-]?\\d+)?$)", "i");
-    RegularExpression   matchSingleQuote("'", "g");
+    String output;
+    size_t startPosition = 0;
+    while (true) {
+        size_t endPosition = str.find_first_of("'\t\n\r", startPosition);
+        if (endPosition != string::npos) {
+            output += str.substr(startPosition, endPosition - startPosition);
+            switch (str[endPosition]) {
+                case '\'': output += "''"; break;
+                case '\t': output += "\\t"; break;
+                case '\r': output += "\\r"; break;
+                case '\n': output += "\\n"; break;
+                default: break;
+            }
+            startPosition = endPosition + 1;
+            if (startPosition == str.length())
+                break;
+        } else {
+            output += str.substr(startPosition);
+            break;
+        }
+    }
+    return output;
+}
+
+// Note: end row is not included
+static void insertRecords(
+        PoolDatabaseConnection* db, const String& tableName, const Strings& columnNames,
+        vector<VariantVector>::const_iterator& begin, vector<VariantVector>::const_iterator& end)
+{
     stringstream sql;
     sql << "INSERT INTO " << tableName << " (" << columnNames.join(",") << ") VALUES ";
-    bool firstRow = true;
-    for (auto& row: rows) {
-        if (firstRow)
-            firstRow = false;
-        else
+    for (auto itor = begin; itor != end; ++itor) {
+        const VariantVector& row = *itor;
+        if (itor != begin)
             sql << ", ";
         sql << "(";
         bool firstValue = true;
@@ -168,16 +193,24 @@ static void insertRecords(PoolDatabaseConnection* db, const String& tableName, c
                 firstValue = false;
             else
                 sql << ", ";
-            if (value == "\\N")
+            if (value.isNull()) {
                 sql << "NULL";
-            else if (value.empty())
-                sql << "''";
-            else if (matchInteger.matches(value) || matchDouble.matches(value))
-                sql << value;
-            else {
-                if (value.find('\'') != string::npos)
-                    value = matchSingleQuote.s(value, "''");
-                sql << "'" << value << "'";
+                continue;
+            }
+            switch (value.dataType()) {
+                case VAR_BOOL:
+                    sql << "true";
+                    break;
+                case VAR_FLOAT:
+                    sql << value.asFloat();
+                    break;
+                case VAR_INT:
+                case VAR_INT64:
+                    sql << value.asFloat();
+                    break;
+                default:
+                    sql << "'" << value.asString() << "'";
+                    break;
             }
         }
         sql << ")";
@@ -186,23 +219,20 @@ static void insertRecords(PoolDatabaseConnection* db, const String& tableName, c
     insertRows.exec();
 }
 
-void PoolDatabaseConnection::_bulkInsert(
-        const String& tableName, const Strings& columnNames, const Strings& data, const String& /*format*/)
+void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings& columnNames,
+                                         const vector<VariantVector>& data)
 {
-    vector<Strings> rowsToInsert;
-
-    for (auto& row: data) {
-        rowsToInsert.emplace_back(row,"\t");
-        if (rowsToInsert.size() > 256) {
-            insertRecords(this, tableName, columnNames, rowsToInsert);
-            rowsToInsert.clear();
+    auto begin = data.begin();
+    auto end = data.begin();
+    for (; end != data.end(); ++end) {
+        if (end - begin > 256) {
+            insertRecords(this, tableName, columnNames, begin, end);
+            begin = end;
         }
     }
 
-    if (!rowsToInsert.empty()) {
-        insertRecords(this, tableName, columnNames, rowsToInsert);
-        rowsToInsert.clear();
-    }
+    if (begin != end)
+        insertRecords(this, tableName, columnNames, begin, end);
 }
 
 void PoolDatabaseConnection::_executeBatchFile(const String& batchFileName, Strings* errors)
@@ -319,3 +349,13 @@ String PoolDatabaseConnection_QueryMethods::paramMark(unsigned /*paramIndex*/)
     return String("?");
 }
 
+#if USE_GTEST
+
+TEST(SPTK_BulkInsert, escapeSqlString)
+{
+    String sourceString = "Hello, 'World'.\n\rLet's go\n";
+    String escapedString = escapeSQLString(sourceString);
+    EXPECT_STREQ("Hello, ''World''.\\n\\rLet''s go\\n", escapedString.c_str());
+}
+
+#endif

@@ -72,10 +72,26 @@ int main()
         COUT("Ok.\nStep 2: Inserting data into the test table.. ");
         Strings columnNames("id,name,position_name,hire_date", ",");
 
-        Strings data;
-        data.push_back(string("1\tAlex\tProgrammer\t01-JAN-2014"));
-        data.push_back(string("2\tDavid\tCEO\t01-JAN-2014"));
-        data.push_back(string("3\tRoger\tBunny\t01-JAN-2014"));
+        vector<VariantVector> data;
+        VariantVector arow;
+
+        arow.emplace_back(1);
+        arow.emplace_back("Alex");
+        arow.emplace_back("Programmer");
+        arow.emplace_back("01-JAN-2014");
+        data.push_back(move(arow));
+
+        arow.emplace_back(2);
+        arow.emplace_back("David");
+        arow.emplace_back("CEO");
+        arow.emplace_back("01-JAN-2015");
+        data.push_back(move(arow));
+
+        arow.emplace_back(3);
+        arow.emplace_back("Roger");
+        arow.emplace_back("Bunny");
+        arow.emplace_back("01-JAN-2016");
+        data.push_back(move(arow));
 
         db->bulkInsert(tableName, columnNames, data);
 

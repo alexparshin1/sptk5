@@ -58,7 +58,7 @@ public:
     /**
      * Constructor
      */
-    DatabaseTests() = default;
+    DatabaseTests();
 
     /**
      * Add database connection to future tests.

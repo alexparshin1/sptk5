@@ -37,6 +37,8 @@
 #include <libpq-fe.h>
 #ifndef _WIN32
 #include <netinet/in.h>
+#include <list>
+
 #endif
 
 namespace sptk
@@ -182,10 +184,8 @@ public:
      * @param tableName         Table name to insert into
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
-     * @param format            PostgreSQL-specific data format options
      */
-    void _bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                     const String& format) override;
+    void _bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data) override;
 
     /**
      * @brief Executes SQL batch file

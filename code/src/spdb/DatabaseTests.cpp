@@ -233,7 +233,7 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
 }
 
 static const string expectedBulkInsertResult(
-        "1|Alex|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2014 # 3|Roger|Bunny|01-JAN-2014");
+        "1|Alex|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2015 # 3|Roger|Bunny|01-JAN-2016");
 
 void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionString)
 {
@@ -262,10 +262,27 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
 
     createTable.exec();
 
-    Strings data;
-    data.push_back(string("1\tAlex\tProgrammer\t01-JAN-2014"));
-    data.push_back(string("2\tDavid\tCEO\t01-JAN-2014"));
-    data.push_back(string("3\tRoger\tBunny\t01-JAN-2014"));
+    vector<VariantVector> data;
+
+    VariantVector arow;
+
+    arow.emplace_back(1);
+    arow.emplace_back("Alex");
+    arow.emplace_back("Programmer");
+    arow.emplace_back("01-JAN-2014");
+    data.push_back(move(arow));
+
+    arow.emplace_back(2);
+    arow.emplace_back("David");
+    arow.emplace_back("CEO");
+    arow.emplace_back("01-JAN-2015");
+    data.push_back(move(arow));
+
+    arow.emplace_back(3);
+    arow.emplace_back("Roger");
+    arow.emplace_back("Bunny");
+    arow.emplace_back("01-JAN-2016");
+    data.push_back(move(arow));
 
     Strings columnNames("id,name,position_name,hire_date", ",");
     db->bulkInsert("gtest_temp_table", columnNames, data);
@@ -320,8 +337,8 @@ void DatabaseTests::testSelect(const DatabaseConnectionString& connectionString)
 
     Strings data;
     data.push_back(string("1\tAlex\tProgrammer\t01-JAN-2014"));
-    data.push_back(string("2\tDavid\tCEO\t01-JAN-2014"));
-    data.push_back(string("3\tRoger\tBunny\t01-JAN-2014"));
+    data.push_back(string("2\tDavid\tCEO\t01-JAN-2015"));
+    data.push_back(string("3\tRoger\tBunny\t01-JAN-2016"));
 
     for (auto& row: data) {
         // Insert all nulls
@@ -382,4 +399,9 @@ size_t DatabaseTests::countRowsInTable(DatabaseConnection& db, const String& tab
     select.close();
 
     return count;
+}
+
+DatabaseTests::DatabaseTests()
+{
+    escapeSQLString("x");
 }

@@ -31,6 +31,7 @@
 #include "htonq.h"
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/Query.h>
+#include <list>
 
 using namespace std;
 using namespace sptk;
@@ -981,11 +982,28 @@ String PostgreSQLConnection::paramMark(unsigned paramIndex)
     return string(mark);
 }
 
-void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                                       const String& format)
+static void appendTSV(Buffer& dest, const VariantVector& row)
+{
+    bool firstValue = true;
+    for (auto& value: row) {
+        if (firstValue)
+            firstValue = false;
+        else
+            dest.append(char('\t'));
+        if (value.isNull()) {
+            dest.append("\\N", 2);
+            continue;
+        }
+        dest.append(escapeSQLString(value.asString()));
+    }
+    dest.append(char('\n'));
+}
+
+void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& columnNames,
+                                       const vector<VariantVector>& data)
 {
     stringstream sql;
-    sql << "COPY " << tableName << "(" << columnNames.join(",") << ") FROM STDIN " << format;
+    sql << "COPY " << tableName << "(" << columnNames.join(",") << ") FROM STDIN ";
 
     PGresult* res = PQexec(m_connect, sql.str().c_str());
 
@@ -1000,8 +1018,7 @@ void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& c
 
     Buffer buffer;
     for (auto& row: data) {
-        buffer.append(row);
-        buffer.append(char('\n'));
+        appendTSV(buffer, row);
     }
 
     if (PQputCopyData(m_connect, buffer.c_str(), (int) buffer.bytes()) != 1) {
