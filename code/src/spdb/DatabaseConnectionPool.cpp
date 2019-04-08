@@ -215,6 +215,7 @@ void DatabaseConnectionPool::destroyConnection(PoolDatabaseConnection* connectio
 #if USE_GTEST
 
 //───────────────────────────────── PostgreSQL ───────────────────────────────────────────
+#if HAVE_POSTGRESQL
 
 TEST(SPTK_PostgreSQLConnection, connect)
 {
@@ -307,7 +308,10 @@ TEST(SPTK_PostgreSQLConnection, select)
     }
 }
 
+#endif
+
 //───────────────────────────────── MySQL ────────────────────────────────────────────────
+#if HAVE_MYSQL
 
 TEST(SPTK_MySQLConnection, connect)
 {
@@ -400,7 +404,10 @@ TEST(SPTK_MySQLConnection, select)
     }
 }
 
+#endif
+
 //───────────────────────────────── Oracle ─────────────────────────────────────────────
+#if HAVE_ORACLE
 
 TEST(SPTK_OracleConnection, connect)
 {
@@ -493,7 +500,10 @@ TEST(SPTK_OracleConnection, select)
     }
 }
 
+#endif
+
 //───────────────────────────────── MS SQL ─────────────────────────────────────────────
+#if HAVE_ODBC
 
 TEST(SPTK_MSSQLConnection, connect)
 {
@@ -585,5 +595,7 @@ TEST(SPTK_MSSQLConnection, select)
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
+
+#endif
 
 #endif
