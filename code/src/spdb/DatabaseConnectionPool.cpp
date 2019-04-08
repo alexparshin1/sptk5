@@ -215,6 +215,7 @@ void DatabaseConnectionPool::destroyConnection(PoolDatabaseConnection* connectio
 #if USE_GTEST
 
 //───────────────────────────────── PostgreSQL ───────────────────────────────────────────
+#if HAVE_POSTGRESQL
 
 TEST(SPTK_PostgreSQLConnection, connect)
 {
@@ -249,6 +250,19 @@ TEST(SPTK_PostgreSQLConnection, bulkInsert)
         FAIL() << "PostgreSQL connection is not defined";
     try {
         databaseTests.testBulkInsert(connectionString);
+    }
+    catch (const Exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_PostgreSQLConnection, bulkInsertPerformance)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("postgresql");
+    if (connectionString.empty())
+        FAIL() << "PostgreSQL connection is not defined";
+    try {
+        databaseTests.testBulkInsertPerformance(connectionString, 1024);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -294,7 +308,10 @@ TEST(SPTK_PostgreSQLConnection, select)
     }
 }
 
+#endif
+
 //───────────────────────────────── MySQL ────────────────────────────────────────────────
+#if HAVE_MYSQL
 
 TEST(SPTK_MySQLConnection, connect)
 {
@@ -329,6 +346,19 @@ TEST(SPTK_MySQLConnection, bulkInsert)
         FAIL() << "MySQL connection is not defined";
     try {
         databaseTests.testBulkInsert(connectionString);
+    }
+    catch (const Exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_MySQLConnection, bulkInsertPerformance)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mysql");
+    if (connectionString.empty())
+        FAIL() << "MySQL connection is not defined";
+    try {
+        databaseTests.testBulkInsertPerformance(connectionString, 1024);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -374,7 +404,10 @@ TEST(SPTK_MySQLConnection, select)
     }
 }
 
+#endif
+
 //───────────────────────────────── Oracle ─────────────────────────────────────────────
+#if HAVE_ORACLE
 
 TEST(SPTK_OracleConnection, connect)
 {
@@ -409,6 +442,19 @@ TEST(SPTK_OracleConnection, bulkInsert)
         FAIL() << "Oracle connection is not defined";
     try {
         databaseTests.testBulkInsert(connectionString);
+    }
+    catch (const Exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_OracleConnection, bulkInsertPerformance)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("oracle");
+    if (connectionString.empty())
+        FAIL() << "Oracle connection is not defined";
+    try {
+        databaseTests.testBulkInsertPerformance(connectionString, 1024);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -454,7 +500,10 @@ TEST(SPTK_OracleConnection, select)
     }
 }
 
+#endif
+
 //───────────────────────────────── MS SQL ─────────────────────────────────────────────
+#if HAVE_ODBC
 
 TEST(SPTK_MSSQLConnection, connect)
 {
@@ -489,6 +538,19 @@ TEST(SPTK_MSSQLConnection, bulkInsert)
         FAIL() << "MSSQL connection is not defined";
     try {
         databaseTests.testBulkInsert(connectionString);
+    }
+    catch (const Exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_MSSQLConnection, bulkInsertPerformance)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mssql");
+    if (connectionString.empty())
+        FAIL() << "MSSQL connection is not defined";
+    try {
+        databaseTests.testBulkInsertPerformance(connectionString, 1024);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -533,5 +595,7 @@ TEST(SPTK_MSSQLConnection, select)
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
+
+#endif
 
 #endif

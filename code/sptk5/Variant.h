@@ -666,6 +666,12 @@ public:
     void save(xml::Node* node) const;
 
 };
+
+/**
+ * Vector of Variant objects
+ */
+typedef std::vector<Variant>    VariantVector;
+
 /**
  * @}
  */

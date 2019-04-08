@@ -65,10 +65,22 @@ class ServerConnection: public Runable
 
 protected:
 
+    /**
+     * Access to internal socket for derived classes
+     * @return internal socket
+     */
     TCPSocket& socket() const;
 
+    /**
+     * Assign new socket
+     * @param socket            Socket to assign
+     */
     void setSocket(TCPSocket* socket);
 
+    /**
+     * Parent TCP server reference
+     * @return
+     */
     TCPServer& server() const;
 
 public:

@@ -194,8 +194,7 @@ public:
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
      */
-    void _bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                     const String& format) override;
+    void _bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data) override;
 
     /**
      * @brief Executes SQL batch file

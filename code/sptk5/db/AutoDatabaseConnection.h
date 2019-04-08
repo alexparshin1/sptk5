@@ -192,11 +192,10 @@ public:
      * @param tableName         Table name to insert into
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
-     * @param format            Data format (may be database-specific). The default is TAB-delimited data.
      */
-    void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "")
+    void bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data)
     {
-        m_connection->bulkInsert(tableName, columnNames, data, format);
+        m_connection->bulkInsert(tableName, columnNames, data);
     }
 
     /**

@@ -35,6 +35,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
 DatabaseTests sptk::databaseTests;
 
@@ -232,24 +233,21 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
     return itor->second;
 }
 
-static const string expectedBulkInsertResult(
-        "1|Alex|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2014 # 3|Roger|Bunny|01-JAN-2014");
-
-void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionString)
+void DatabaseTests::createTestTable(DatabaseConnection db)
 {
-    DatabaseConnectionPool connectionPool(connectionString.toString());
-    DatabaseConnection db = connectionPool.getConnection();
-
-    auto itor = dateTimeFieldTypes.find(connectionString.driverName());
+    auto itor = dateTimeFieldTypes.find(db->connectionString().driverName());
     if (itor == dateTimeFieldTypes.end())
         throw Exception("DateTime data type mapping is not defined for the test");
     String dateTimeType = itor->second;
 
     db->open();
     Query createTable(db,
-                      "CREATE TABLE gtest_temp_table(id INTEGER,name CHAR(40),position_name CHAR(20),hire_date CHAR(12))");
+                      "CREATE TABLE gtest_temp_table("
+                        "id INTEGER NULL, "
+                        "name CHAR(40) NULL, "
+                        "position_name CHAR(20) NULL, "
+                        "hire_date CHAR(12) NULL)");
     Query dropTable(db, "DROP TABLE gtest_temp_table");
-    Query selectData(db, "SELECT * FROM gtest_temp_table");
 
     try {
         dropTable.exec();
@@ -257,15 +255,44 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     catch (const Exception& e) {
         RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
-            CERR(e.what() << endl);
+        CERR(e.what() << endl);
     }
 
     createTable.exec();
+}
 
-    Strings data;
-    data.push_back(string("1\tAlex\tProgrammer\t01-JAN-2014"));
-    data.push_back(string("2\tDavid\tCEO\t01-JAN-2014"));
-    data.push_back(string("3\tRoger\tBunny\t01-JAN-2014"));
+static const string expectedBulkInsertResult(
+        "1|Alex,'Doe'|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2015 # 3|Roger|Bunny|01-JAN-2016");
+
+void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection db = connectionPool.getConnection();
+    createTestTable(db);
+
+    Query selectData(db, "SELECT * FROM gtest_temp_table");
+
+    vector<VariantVector> data;
+
+    VariantVector arow;
+
+    arow.emplace_back(1);
+    arow.emplace_back("Alex,'Doe'");
+    arow.emplace_back("Programmer");
+    arow.emplace_back("01-JAN-2014");
+    data.push_back(move(arow));
+
+    arow.emplace_back(2);
+    arow.emplace_back("David");
+    arow.emplace_back("CEO");
+    arow.emplace_back("01-JAN-2015");
+    data.push_back(move(arow));
+
+    arow.emplace_back(3);
+    arow.emplace_back("Roger");
+    arow.emplace_back("Bunny");
+    arow.emplace_back("01-JAN-2016");
+    data.push_back(move(arow));
 
     Strings columnNames("id,name,position_name,hire_date", ",");
     db->bulkInsert("gtest_temp_table", columnNames, data);
@@ -290,38 +317,62 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
         throw Exception("Expected bulk insert result doesn't match inserted data");
 }
 
+void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount)
+{
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection db = connectionPool.getConnection();
+    createTestTable(db);
+
+    Query selectData(db, "SELECT * FROM gtest_temp_table");
+    Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
+
+    vector<VariantVector> data;
+    VariantVector arow;
+    for (size_t i = 1; i <= recordCount; i++) {
+        arow.emplace_back(i);
+        arow.emplace_back("Alex,'Doe'");
+        arow.emplace_back("Programmer");
+        arow.emplace_back("01-JAN-2014");
+        data.push_back(move(arow));
+    }
+
+    DateTime started1("now");
+    Strings columnNames("id,name,position_name,hire_date", ",");
+    db->bulkInsert("gtest_temp_table", columnNames, data);
+    DateTime ended1("now");
+
+    DateTime started2("now");
+    size_t i = 1;
+    for (auto& row: data) {
+        insertData.param(uint32_t(0)) = row[0].asInteger();
+        insertData.param(1) = row[1].asString();
+        insertData.param(2) = row[2].asString();
+        insertData.param(3) = row[3].asString();
+        insertData.exec();
+        i++;
+    }
+    DateTime ended2("now");
+
+    auto durationMS1 = duration_cast<milliseconds>(ended1 - started1).count();
+    COUT("Bulk Insert:    " << setw(10) << durationMS1 << " ms, " << setprecision(1) << fixed << data.size() * 1000.0 / durationMS1 << " rec/sec" << endl);
+
+    auto durationMS2 = duration_cast<milliseconds>(ended2 - started2).count();
+    COUT("Regular Insert: " << setw(10) << durationMS2 << " ms, " << setprecision(1) << fixed << data.size() * 1000.0 / durationMS2 << " rec/sec" << endl);
+}
+
 void DatabaseTests::testSelect(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
     DatabaseConnection db = connectionPool.getConnection();
+    createTestTable(db);
 
-    auto itor = dateTimeFieldTypes.find(connectionString.driverName());
-    if (itor == dateTimeFieldTypes.end())
-        throw Exception("DateTime data type mapping is not defined for the test");
-    String dateTimeType = itor->second;
-
-    db->open();
-    Query createTable(db,
-                      "CREATE TABLE gtest_temp_table(id INTEGER NULL, name CHAR(40) NULL, position_name CHAR(20) NULL, hire_date CHAR(12) NULL)");
-    Query dropTable(db, "DROP TABLE gtest_temp_table");
-    Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
     Query selectData(db, "SELECT * FROM gtest_temp_table");
-
-    try {
-        dropTable.exec();
-    }
-    catch (const Exception& e) {
-        RegularExpression matchTableNotExists("not exist|unknown table", "i");
-        if (!matchTableNotExists.matches(e.what()))
-            CERR(e.what() << endl);
-    }
-
-    createTable.exec();
+    Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
 
     Strings data;
-    data.push_back(string("1\tAlex\tProgrammer\t01-JAN-2014"));
-    data.push_back(string("2\tDavid\tCEO\t01-JAN-2014"));
-    data.push_back(string("3\tRoger\tBunny\t01-JAN-2014"));
+    data.push_back(string("1\tAlex,'Doe'\tProgrammer\t01-JAN-2014"));
+    data.push_back(string("2\tDavid\tCEO\t01-JAN-2015"));
+    data.push_back(string("3\tRoger\tBunny\t01-JAN-2016"));
 
     for (auto& row: data) {
         // Insert all nulls
@@ -382,4 +433,9 @@ size_t DatabaseTests::countRowsInTable(DatabaseConnection& db, const String& tab
     select.close();
 
     return count;
+}
+
+DatabaseTests::DatabaseTests()
+{
+    escapeSQLString("x");
 }

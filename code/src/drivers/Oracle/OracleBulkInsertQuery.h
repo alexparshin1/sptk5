@@ -45,10 +45,10 @@ class SP_EXPORT OracleBulkInsertQuery : public Query
 {
     friend class OracleConnection;
 
-    size_t              m_recordCount;      ///< Inserted record count
-    size_t              m_recordNumber;     ///< Current record number
-    size_t              m_batchSize;        ///< Batch size
-    bool                m_lastIteration;    ///< Last iteration
+    size_t                  m_recordCount;      ///< Inserted record count
+    size_t                  m_recordNumber;     ///< Current record number
+    size_t                  m_batchSize;        ///< Batch size
+    bool                    m_lastIteration;    ///< Last iteration
     QueryColumnTypeSizeMap  m_columnTypeSizes;  ///< Column type sizes
 
 protected:

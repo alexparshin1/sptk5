@@ -52,13 +52,24 @@ class DatabaseTests
      */
     size_t countRowsInTable(DatabaseConnection& db, const String& table);
 
+    /**
+     * Test transactions
+     * @param db            Database connection
+     * @param commit        If true then commit the transaction
+     */
     void testTransaction(DatabaseConnection db, bool commit);
+
+    /**
+     * Connect to database and create test table
+     * @return
+     */
+    void createTestTable(DatabaseConnection db);
 
 public:
     /**
      * Constructor
      */
-    DatabaseTests() = default;
+    DatabaseTests();
 
     /**
      * Add database connection to future tests.
@@ -115,6 +126,13 @@ public:
      * @param connectionString Database connection string
      */
     void testBulkInsert(const DatabaseConnectionString& connectionString);
+
+    /**
+     * Test bulk insert operation performance
+     * @param connectionString  Database connection string
+     * @param recordCount       Records to insert during test
+     */
+    void testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount);
 };
 
 /**
