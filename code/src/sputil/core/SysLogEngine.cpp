@@ -37,7 +37,7 @@ static atomic_int   m_objectCounter(0);
 
 #ifdef _WIN32
 #include <events.w32/event_provider.h>
-static string   m_moduleFileName;
+//static string   m_moduleFileName;
 static bool     m_registrySet(false);
 #endif
 
