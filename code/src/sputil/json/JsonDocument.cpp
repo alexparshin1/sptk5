@@ -51,10 +51,12 @@ void Document::parse(const string& json)
 {
     delete m_root;
 
-    m_root = new Element(this);
-
-    if (json.empty())
+    if (json.empty()) {
+        m_root = new Element(this, new ObjectData(this));
         return;
+    }
+
+    m_root = new Element(this);
 
     Parser parser;
     parser.parse(*m_root, json);
