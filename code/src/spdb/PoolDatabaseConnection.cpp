@@ -222,7 +222,7 @@ void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings&
     auto begin = data.begin();
     auto end = data.begin();
     for (; end != data.end(); ++end) {
-        if (end - begin > 128) {
+        if (end - begin > 256) {
             insertRecords(this, tableName, columnNames, begin, end);
             begin = end;
         }

@@ -42,9 +42,9 @@ void Document::clear()
     }
 
     if (elementType == JDT_ARRAY)
-        m_root = new Element(this, (ArrayData*)nullptr);
+        m_root = new Element(this, new ArrayData(this));
     else
-        m_root = new Element(this, (ObjectData*)nullptr);
+        m_root = new Element(this, new ObjectData(this));
 }
 
 void Document::parse(const string& json)
