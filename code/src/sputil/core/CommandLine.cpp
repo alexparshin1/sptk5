@@ -32,6 +32,14 @@
 using namespace std;
 using namespace sptk;
 
+#ifdef _WIN32
+static const char* doubleLine("=");
+static const char* singleLine("-");
+#else
+static const char* doubleLine("═");
+static const char* singleLine("─");
+#endif
+
 CommandLine::Visibility::Visibility(const String& pattern, bool _mustMatch)
 : m_inverted(!_mustMatch), m_pattern(pattern)
 {
@@ -481,11 +489,11 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     }
 
     COUT(m_programVersion << endl);
-    printLine("═", screenColumns);
+    printLine(doubleLine, screenColumns);
     COUT(m_description << endl);
 
     COUT("\nSyntax:" << endl);
-    printLine("─", screenColumns);
+    printLine(singleLine, screenColumns);
 
     String commandLinePrototype = m_commandLinePrototype;
     if (!onlyForCommand.empty())
@@ -541,7 +549,7 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
 {
     if (!m_optionTemplates.empty()) {
         COUT("\nOptions:" << endl);
-        printLine("─", screenColumns);
+        printLine(singleLine, screenColumns);
         for (const String& optionName : sortedOptions) {
             auto itor = m_optionTemplates.find(optionName);
             const CommandLineElement* optionTemplate = itor->second;
@@ -563,7 +571,7 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
 {
     if (onlyForCommand.empty() && !m_argumentTemplates.empty()) {
         COUT("\nCommands:" << endl);
-        printLine("─", screenColumns);
+        printLine(singleLine, screenColumns);
         for (const String& commandName : sortedCommands) {
             auto ator = m_argumentTemplates.find(commandName);
             const CommandLineArgument* commandTemplate = ator->second;
