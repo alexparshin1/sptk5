@@ -174,27 +174,33 @@ public:
     }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) override;
+    void load(const xml::Node* attr) override;
+
+    /**
+     * Load data from JSON element
+     * @param attr              JSON element
+     */
+    void load(const json::Element* attr) override;
 
     /**
      * Loads type data from string
      * @param attr              A string
      */
-    virtual void load(const String& attr) override;
+    void load(const String& attr) override;
 
     /**
      * Loads type data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) override;
+    void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSString& operator=(const char* value) override
+    WSString& operator=(const char* value) override
     {
         setString(value);
         return *this;
@@ -271,13 +277,19 @@ public:
     }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
     virtual void load(const xml::Node* attr) override;
 
     /**
-     * Loads type data from string
+     * Load data from JSON element
+     * @param attr              JSON element
+     */
+    virtual void load(const json::Element* attr) override;
+
+    /**
+     * Load data from string
      * @param attr              A string
      */
     virtual void load(const String& attr) override;
@@ -332,27 +344,33 @@ public:
     }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) override;
+    void load(const xml::Node* attr) override;
 
     /**
-     * Loads type data from string
+     * Load data from JSON element
+     * @param attr              JSON element
+     */
+    void load(const json::Element* attr) override;
+
+    /**
+     * Load data from string
      * @param attr              A string
      */
-    virtual void load(const String& attr) override;
+    void load(const String& attr) override;
 
     /**
-     * Loads type data from database field
+     * Load data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) override;
+    void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSDate& operator=(DateTime value) override
+    WSDate& operator=(DateTime value) override
     {
         setDateTime(value, true);
         return *this;
@@ -401,22 +419,28 @@ public:
     }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) override;
+    void load(const xml::Node* attr) override;
 
     /**
-     * Loads type data from string
+     * Load data from JSON element
+     * @param attr              JSON element
+     */
+    void load(const json::Element* attr) override;
+
+    /**
+     * Load data from string
      * @param attr              A string
      */
-    virtual void load(const sptk::String& attr) override;
+    void load(const sptk::String& attr) override;
 
     /**
-     * Loads type data from database field
+     * Load data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) override;
+    void load(const Field& field) override;
 
     /**
      * Better (than in base class) conversion method
@@ -473,27 +497,33 @@ public:
     { return "WSDouble"; }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) override;
+    void load(const xml::Node* attr) override;
 
     /**
-     * Loads type data from string
+     * Load data from JSON element
+     * @param attr              JSON element
+     */
+    void load(const json::Element* attr) override;
+
+    /**
+     * Load data from string
      * @param attr              A string
      */
-    virtual void load(const sptk::String& attr) override;
+    void load(const sptk::String& attr) override;
 
     /**
-     * Loads type data from database field
+     * Load data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) override;
+    void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSDouble& operator=(double value) override
+    WSDouble& operator=(double value) override
     {
         setFloat(value);
         return *this;
@@ -542,27 +572,33 @@ public:
     }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) override;
+    void load(const xml::Node* attr) override;
 
     /**
-     * Loads type data from string
+     * Load data from JSON node
+     * @param attr              JSON node
+     */
+    void load(const json::Element* attr) override;
+
+    /**
+     * Load data from string
      * @param attr              A string
      */
-    virtual void load(const sptk::String& attr) override;
+    void load(const sptk::String& attr) override;
 
     /**
-     * Loads type data from database field
+     * Load data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) override;
+    void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator=(int64_t value) override
+    WSInteger& operator=(int64_t value) override
     {
         setInt64(value);
         return *this;

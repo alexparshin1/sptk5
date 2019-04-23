@@ -192,6 +192,12 @@ public:
     virtual void load(const xml::Element* input) = 0;
 
     /**
+     * Load data from JSON element
+     * @param input             XML node containing CAddHandler data
+     */
+    virtual void load(const json::Element* input) = 0;
+
+    /**
      * Load data from FieldList
      *
      * Only simple WSDL type members are loaded.

@@ -96,7 +96,7 @@ public:
      * @param name              Attribute name
      * @param typeName          Attribute WSDL type name
      */
-    WSParserAttribute(const String& name = "", const String& typeName = "");
+    explicit WSParserAttribute(const String& name = "", const String& typeName = "");
 
     /**
      * Copy constructor
@@ -117,12 +117,12 @@ public:
     /**
      * Returns attribute C++ type name
      */
-    std::string cxxTypeName() const { return m_cxxTypeName; }
+    String cxxTypeName() const { return m_cxxTypeName; }
 
     /**
      * Returns attribute WSDL type name
      */
-    std::string wsTypeName() const { return m_wsTypeName; }
+    String wsTypeName() const { return m_wsTypeName; }
 };
 
 /**
@@ -212,7 +212,7 @@ public:
      * @param name              Object name
      * @param typeName          Object types
      */
-    WSParserComplexType(const xml::Element* complexTypeElement, const String& name = "", const String& typeName = "");
+    explicit WSParserComplexType(const xml::Element* complexTypeElement, const String& name = "", const String& typeName = "");
 
     /**
      * Destructor
@@ -326,6 +326,13 @@ private:
      * @param className             Class name
      */
     void printImplementationLoadXML(std::ostream& classImplementation, const String& className) const;
+
+    /**
+     * Generate C++ class load() from JSON method
+     * @param classImplementation   Output stream
+     * @param className             Class name
+     */
+    void printImplementationLoadJSON(std::ostream& classImplementation, const String& className) const;
 
     /**
      * Generate C++ class load() from FieldList method
