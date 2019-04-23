@@ -342,6 +342,13 @@ private:
     void printImplementationUnloadXML(std::ostream& classImplementation, const String& className) const;
 
     /**
+     * Generate C++ class unload() to JSON method
+     * @param classImplementation   Output stream
+     * @param className             Class name
+     */
+    void printImplementationUnloadJSON(std::ostream& classImplementation, const String& className) const;
+
+    /**
      * Generate C++ class unload() to ParamList method
      * @param classImplementation   Output stream
      * @param className             Class name

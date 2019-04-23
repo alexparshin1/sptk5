@@ -32,6 +32,7 @@
 #include <sptk5/cxml>
 #include <sptk5/Field.h>
 #include <sptk5/xml/Element.h>
+#include <sptk5/json/JsonElement.h>
 
 namespace sptk {
 
@@ -70,7 +71,7 @@ public:
      * @param optional          Element optionality flag
      */
     WSBasicType(const char* name, bool optional)
-            : Field(name), m_optional(optional)
+    : Field(name), m_optional(optional)
     {}
 
     /**
@@ -100,10 +101,10 @@ public:
     }
 
     /**
-     * Loads type data from request XML node
-     * @param attr              XML node
+     * Loads type data from request JSON element
+     * @param attr              JSON element
      */
-    void load(const xml::Node* attr) override
+    void load(const json::Element* attr) override
     {
         Variant::load(attr);
     }
@@ -131,6 +132,12 @@ public:
      * @param parent            Parent XML element
      */
     xml::Element* addElement(xml::Element* parent) const;
+
+    /**
+     * Adds an element to response JSON with this object data
+     * @param parent            Parent JSON element
+     */
+    json::Element* addElement(json::Element* parent) const;
 
     /**
      * Returns element name
@@ -162,7 +169,9 @@ public:
      * Return class name
      */
     sptk::String className() const override
-    { return "WSString"; }
+    {
+        return "WSString";
+    }
 
     /**
      * Loads type data from request XML node
@@ -248,7 +257,7 @@ public:
      * @param optional          Element optionality flag
      */
     WSBool(const char* name, bool optional = false)
-            : WSBasicType(name, optional)
+    : WSBasicType(name, optional)
     {
         Field::setNull(VAR_BOOL);
     }
@@ -257,7 +266,9 @@ public:
      * Return class name
      */
     sptk::String className() const override
-    { return "WSBool"; }
+    {
+        return "WSBool";
+    }
 
     /**
      * Loads type data from request XML node
@@ -307,7 +318,7 @@ public:
      * @param optional          Element optionality flag
      */
     WSDate(const char* name, bool optional = false)
-            : WSBasicType(name, optional)
+    : WSBasicType(name, optional)
     {
         Field::setNull(VAR_DATE);
     }
@@ -316,7 +327,9 @@ public:
      * Return class name
      */
     sptk::String className() const override
-    { return "WSDate"; }
+    {
+        return "WSDate";
+    }
 
     /**
      * Loads type data from request XML node
@@ -374,7 +387,7 @@ public:
      * @param optional          Element optionality flag
      */
     WSDateTime(const char* name, bool optional = false)
-            : WSBasicType(name, optional)
+    : WSBasicType(name, optional)
     {
         Field::setNull(VAR_DATE_TIME);
     }
@@ -383,7 +396,9 @@ public:
      * Return class name
      */
     sptk::String className() const override
-    { return "WSDateTime"; }
+    {
+        return "WSDateTime";
+    }
 
     /**
      * Loads type data from request XML node

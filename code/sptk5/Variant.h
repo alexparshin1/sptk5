@@ -41,6 +41,10 @@ namespace xml {
     class Node;
 }
 
+namespace json {
+    class Element;
+}
+
 /**
  * @addtogroup utility Utility Classes
  * @{
@@ -652,6 +656,12 @@ public:
      * @param node              XML node to load data from
      */
     virtual void load(const xml::Node* node);
+
+    /**
+     * Loads the data from JSON element
+     * @param node              JSON element to load data from
+     */
+    virtual void load(const json::Element* node);
 
     /**
      * Saves the data into XML node

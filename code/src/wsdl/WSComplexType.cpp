@@ -55,6 +55,12 @@ void WSComplexType::addElement(xml::Element* parent) const
     unload(new xml::Element(parent, m_name.c_str()));
 }
 
+void WSComplexType::addElement(json::Element* parent) const
+{
+    json::Element* element = parent->set(m_name);
+    unload(element);
+}
+
 String WSComplexType::toString(bool asJSON) const
 {
     xml::Document   outputXML;

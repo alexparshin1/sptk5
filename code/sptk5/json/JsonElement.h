@@ -406,9 +406,9 @@ public:
      * Set null element in JSON object
      * @param name              Element name
      */
-    void set(const String& name)
+    Element* set(const String& name)
     {
-        add(name, new Element(m_document));
+        return add(name, new Element(m_document));
     }
 
     /**
@@ -416,9 +416,9 @@ public:
      * @param name              Element name
      * @param value             Element value
      */
-    template <typename T> void set(const String& name, T value)
+    template <typename T> Element* set(const String& name, T value)
     {
-        add(name, new Element(m_document, value));
+        return add(name, new Element(m_document, value));
     }
 
     /**

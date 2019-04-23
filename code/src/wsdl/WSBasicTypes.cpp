@@ -41,6 +41,33 @@ xml::Element* WSBasicType::addElement(xml::Element* parent) const
     return element;
 }
 
+json::Element* WSBasicType::addElement(json::Element* parent) const
+{
+    String text(asString());
+    if (m_optional && (isNull() || text.empty()))
+        return nullptr;
+    json::Element* element;
+    switch (dataType()) {
+        case VAR_BOOL:
+            parent->set(name(), asBool());
+            break;
+        case VAR_INT:
+            parent->set(name(), asInteger());
+            break;
+        case VAR_INT64:
+            parent->set(name(), asInt64());
+            break;
+        case VAR_FLOAT:
+            parent->set(name(), asFloat());
+            break;
+        default:
+            parent->set(name(), asString());
+            break;
+    }
+
+    return element;
+}
+
 void WSString::load(const xml::Node* attr)
 {
     setString(attr->text());

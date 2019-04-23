@@ -30,6 +30,7 @@
 #define __SPTK_WSCOMPLEXTYPE_H__
 
 #include <sptk5/cxml>
+#include <sptk5/json/JsonElement.h>
 #include <sptk5/Variant.h>
 #include <sptk5/FieldList.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
@@ -206,6 +207,12 @@ public:
     virtual void unload(xml::Element* output) const = 0;
 
     /**
+     * Unload data to existing JSON node
+     * @param output            Existing JSON node
+     */
+    virtual void unload(json::Element* output) const = 0;
+
+    /**
      * Unload data to Query's parameters
      * @param output            Query parameters
      */
@@ -224,6 +231,12 @@ public:
      * @param parent            Parent XML node where new node is created
      */
     virtual void addElement(xml::Element* parent) const;
+
+    /**
+     * Unload data to new JSON node
+     * @param parent            Parent JSON node where new node is created
+     */
+    virtual void addElement(json::Element* parent) const;
 
     /**
      * True is data was loaded
