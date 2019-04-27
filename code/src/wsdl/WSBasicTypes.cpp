@@ -31,12 +31,13 @@
 using namespace std;
 using namespace sptk;
 
-xml::Element* WSBasicType::addElement(xml::Element* parent) const
+xml::Element* WSBasicType::addElement(xml::Element* parent, const char* _name) const
 {
+    String elementName = _name == nullptr? name() : _name;
     String text(asString());
     if (m_optional && (isNull() || text.empty()))
         return nullptr;
-    auto* element = new xml::Element(*parent, name());
+    auto* element = new xml::Element(*parent, elementName);
     element->text(text);
     return element;
 }

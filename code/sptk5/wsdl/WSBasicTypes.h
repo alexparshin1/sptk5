@@ -131,7 +131,7 @@ public:
      * Adds an element to response XML with this object data
      * @param parent            Parent XML element
      */
-    xml::Element* addElement(xml::Element* parent) const;
+    xml::Element* addElement(xml::Element* parent, const char* name=nullptr) const;
 
     /**
      * Adds an element to response JSON with this object data

@@ -153,7 +153,7 @@ class WSParserComplexType
     /**
      * XML element for that WSDL element
      */
-    const xml::Element*       m_element;
+    const xml::Element*     m_element;
 
     /**
      * Element attributes

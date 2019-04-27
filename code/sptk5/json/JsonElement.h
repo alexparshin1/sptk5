@@ -103,7 +103,8 @@ protected:
     /**
      * XPath element
      */
-    struct XPathElement {
+    struct XPathElement
+    {
         String          name;       ///< Path element name
         int             index {0};  ///< Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
         /**
@@ -405,6 +406,7 @@ public:
     /**
      * Set null element in JSON object
      * @param name              Element name
+     * @return                  Created element
      */
     Element* set(const String& name)
     {
@@ -415,6 +417,7 @@ public:
      * Set element in JSON object
      * @param name              Element name
      * @param value             Element value
+     * @return                  Created element
      */
     template <typename T> Element* set(const String& name, T value)
     {
@@ -423,19 +426,21 @@ public:
 
     /**
      * Push null element to JSON array
+     * @return                  Created element
      */
-    void push_back()
+    Element* push_back()
     {
-        add(new Element(m_document));
+        return add(new Element(m_document));
     }
 
     /**
      * Push element to JSON object
      * @param value             Element value
+     * @return                  Created element
      */
-    template <typename T> void push_back(T value)
+    template <typename T> Element* push_back(T value)
     {
-        add(new Element(m_document, value));
+        return add(new Element(m_document, value));
     }
 protected:
 

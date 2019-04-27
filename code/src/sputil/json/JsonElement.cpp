@@ -185,11 +185,13 @@ Element* Element::add(const String& name, Element* element)
 {
     element->m_document = m_document;
 
-    if (m_type != JDT_OBJECT)
+    if (m_type != JDT_OBJECT && m_type != JDT_NULL)
         throw Exception("Parent element is not JSON object");
 
-    if (!m_data.m_object)
+    if (!m_data.m_object || m_type == JDT_NULL) {
+        m_type = JDT_OBJECT;
         m_data.m_object = new ObjectData(m_document, this);
+    }
 
     Element* sameNameExistingElement = m_data.m_object->find(name);
     if (sameNameExistingElement == nullptr) {

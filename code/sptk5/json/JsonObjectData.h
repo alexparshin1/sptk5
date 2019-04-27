@@ -49,11 +49,18 @@ class ObjectData
 {
     friend class Element;
 
+    struct CompareStringPtrs {
+        bool operator() (const std::string* lhs, const std::string* rhs) const
+        {
+            return *lhs < *rhs;
+        }
+    };
+
 public:
     /**
      * Type definition: map of element names to elements
      */
-    typedef std::unordered_map<const std::string*, Element*> Map;
+    typedef std::map< const std::string*, Element*, CompareStringPtrs > Map;
 
     /**
      * Type definition: map of element names to elements iterator
