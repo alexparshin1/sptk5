@@ -147,6 +147,9 @@ void WSConnection::run()
             return;
         }
 
+        String contentLength = headers["Content-Length"];
+        if (requestType == "GET" && contentLength.empty())
+            headers["Content-Length"] = "0";
         WSWebServiceProtocol protocol(&socket(), url, headers, m_service, server().hostname(), server().port());
         protocol.process();
     }
