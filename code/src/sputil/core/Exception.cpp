@@ -234,7 +234,7 @@ TEST(Exception, throw)
     }
     catch (const Exception& e) {
 #ifdef _WIN32
-		EXPECT_STREQ("Test exception in core\\exception.cpp(1234). This happens sometimes.", e.what());
+		EXPECT_STREQ("Test exception in core\\Exception.cpp(1234). This happens sometimes.", e.what());
 #else
 		EXPECT_STREQ("Test exception in core/Exception.cpp(1234). This happens sometimes.", e.what());
 #endif
@@ -251,7 +251,7 @@ TEST(HttpException, throw)
     }
     catch (const HTTPException& e) {
 #ifdef _WIN32
-		EXPECT_STREQ("File not found in core\\exception.cpp(1234). This happens sometimes.", e.what());
+		EXPECT_STREQ("File not found in core\\Exception.cpp(1234). This happens sometimes.", e.what());
 #else
 		EXPECT_STREQ("File not found in core/Exception.cpp(1234). This happens sometimes.", e.what());
 #endif

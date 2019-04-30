@@ -94,7 +94,7 @@ class SP_EXPORT VariantData
 {
     friend class Variant_SetMethods;
 
-    uint8_t     m_data[32];         ///< Variant data BLOB
+	uint8_t     m_data[32]{};         ///< Variant data BLOB
 
 public:
 
@@ -118,7 +118,7 @@ public:
      * Move constructor
      * @param other             Other object
      */
-    VariantData(VariantData&& other)
+    VariantData(VariantData&& other) noexcept
     {
         memcpy(m_data, other.m_data, sizeof(m_data));
         memset(other.m_data, 0, sizeof(m_data));
@@ -139,7 +139,7 @@ public:
      * Move assignment
      * @param other             Other object
      */
-    VariantData& operator = (VariantData&& other)
+    VariantData& operator = (VariantData&& other) noexcept
     {
         if (&other != this) {
             memcpy(m_data, other.m_data, sizeof(m_data));

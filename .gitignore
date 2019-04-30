@@ -10,3 +10,5 @@
 /code/bin/RelWithDebInfo
 /code/cmake-build-debug
 /code/lib
+/code/w64
+/code/bin
