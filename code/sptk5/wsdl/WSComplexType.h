@@ -30,6 +30,7 @@
 #define __SPTK_WSCOMPLEXTYPE_H__
 
 #include <sptk5/cxml>
+#include <sptk5/json/JsonElement.h>
 #include <sptk5/Variant.h>
 #include <sptk5/FieldList.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
@@ -191,6 +192,12 @@ public:
     virtual void load(const xml::Element* input) = 0;
 
     /**
+     * Load data from JSON element
+     * @param input             XML node containing CAddHandler data
+     */
+    virtual void load(const json::Element* input) = 0;
+
+    /**
      * Load data from FieldList
      *
      * Only simple WSDL type members are loaded.
@@ -204,6 +211,12 @@ public:
      * @param output            Existing XML node
      */
     virtual void unload(xml::Element* output) const = 0;
+
+    /**
+     * Unload data to existing JSON node
+     * @param output            Existing JSON node
+     */
+    virtual void unload(json::Element* output) const = 0;
 
     /**
      * Unload data to Query's parameters
@@ -223,7 +236,13 @@ public:
      * Unload data to new XML node
      * @param parent            Parent XML node where new node is created
      */
-    virtual void addElement(xml::Element* parent) const;
+    virtual void addElement(xml::Element* parent, const char* name=nullptr) const;
+
+    /**
+     * Unload data to new JSON node
+     * @param parent            Parent JSON node where new node is created
+     */
+    virtual void addElement(json::Element* parent) const;
 
     /**
      * True is data was loaded

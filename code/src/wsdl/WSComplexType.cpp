@@ -50,9 +50,20 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
         *param = *elementOrAttribute;
 }
 
-void WSComplexType::addElement(xml::Element* parent) const
+void WSComplexType::addElement(xml::Element* parent, const char* name) const
 {
-    unload(new xml::Element(parent, m_name.c_str()));
+    const char *elementName = name == nullptr? m_name.c_str() : name;
+    unload(new xml::Element(parent, elementName));
+}
+
+void WSComplexType::addElement(json::Element* parent) const
+{
+    json::Element* element;
+    if (parent->isArray())
+        element = parent->push_back();
+    else
+        element = parent->set(m_name);
+    unload(element);
 }
 
 String WSComplexType::toString(bool asJSON) const

@@ -31,19 +31,55 @@
 using namespace std;
 using namespace sptk;
 
-xml::Element* WSBasicType::addElement(xml::Element* parent) const
+xml::Element* WSBasicType::addElement(xml::Element* parent, const char* _name) const
+{
+    String elementName = _name == nullptr? name() : _name;
+    String text(asString());
+    if (m_optional && (isNull() || text.empty()))
+        return nullptr;
+    auto* element = new xml::Element(*parent, elementName);
+    element->text(text);
+    return element;
+}
+
+json::Element* WSBasicType::addElement(json::Element* parent) const
 {
     String text(asString());
     if (m_optional && (isNull() || text.empty()))
         return nullptr;
-    auto* element = new xml::Element(*parent, name());
-    element->text(text);
+    json::Element* element;
+    switch (dataType()) {
+        case VAR_BOOL:
+            element = parent->set(name(), asBool());
+            break;
+        case VAR_INT:
+            element = parent->set(name(), asInteger());
+            break;
+        case VAR_INT64:
+            element = parent->set(name(), asInt64());
+            break;
+        case VAR_FLOAT:
+            element = parent->set(name(), asFloat());
+            break;
+        default:
+            element = parent->set(name(), asString());
+            break;
+    }
+
     return element;
 }
 
 void WSString::load(const xml::Node* attr)
 {
     setString(attr->text());
+}
+
+void WSString::load(const json::Element* attr)
+{
+    if (attr->isNull())
+        setNull(VAR_STRING);
+    else
+        setString(attr->getString());
 }
 
 void WSString::load(const String& attr)
@@ -65,7 +101,15 @@ void WSBool::load(const xml::Node* attr)
     if (text.empty())
         setNull(VAR_BOOL);
     else
-        setBool(attr->text() == "true");
+        setBool(text == "true");
+}
+
+void WSBool::load(const json::Element* attr)
+{
+    if (attr->isNull())
+        setNull(VAR_BOOL);
+    else
+        setBool(attr->getBoolean());
 }
 
 void WSBool::load(const String& attr)
@@ -90,7 +134,16 @@ void WSDate::load(const xml::Node* attr)
     if (text.empty())
         setNull(VAR_DATE);
     else
-        setDateTime(DateTime(attr->text().c_str()), true);
+        setDateTime(DateTime(text.c_str()), true);
+}
+
+void WSDate::load(const json::Element* attr)
+{
+    String text = attr->getString();
+    if (attr->isNull() || text.empty())
+        setNull(VAR_DATE);
+    else
+        setDateTime(DateTime(text.c_str()), true);
 }
 
 void WSDate::load(const String& attr)
@@ -115,7 +168,16 @@ void WSDateTime::load(const xml::Node* attr)
     if (text.empty())
         setNull(VAR_DATE_TIME);
     else
-        setDateTime(DateTime(attr->text().c_str()));
+        setDateTime(DateTime(text.c_str()));
+}
+
+void WSDateTime::load(const json::Element* attr)
+{
+    String text = attr->getString();
+    if (text.empty())
+        setNull(VAR_DATE_TIME);
+    else
+        setDateTime(DateTime(text.c_str()));
 }
 
 void WSDateTime::load(const String& attr)
@@ -145,6 +207,11 @@ void WSDouble::load(const xml::Node* attr)
     setFloat(strtod(attr->text().c_str(), nullptr));
 }
 
+void WSDouble::load(const json::Element* attr)
+{
+    setFloat(attr->getNumber());
+}
+
 void WSDouble::load(const String& attr)
 {
     if (attr.empty())
@@ -167,7 +234,15 @@ void WSInteger::load(const xml::Node* attr)
     if (text.empty())
         setNull(VAR_INT64);
     else
-        setInt64(strtol(attr->text().c_str(), nullptr, 10));
+        setInt64(strtol(text.c_str(), nullptr, 10));
+}
+
+void WSInteger::load(const json::Element* attr)
+{
+    if (attr->isNull())
+        setNull(VAR_INT64);
+    else
+        setInt64(attr->getNumber());
 }
 
 void WSInteger::load(const String& attr)

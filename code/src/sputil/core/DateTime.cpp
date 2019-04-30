@@ -955,22 +955,13 @@ TEST(SPTK_DateTime, ctor2)
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
 }
 
-TEST(SPTK_DateTime, assign1)
+TEST(SPTK_DateTime, assign)
 {
     DateTime dateTime;
 
     dateTime = "2018-01-01 11:22:33.444+10";
     chrono::milliseconds msSinceEpoch = duration_cast<chrono::milliseconds>(dateTime.sinceEpoch());
     EXPECT_EQ(1514769753444, msSinceEpoch.count());
-}
-
-TEST(SPTK_DateTime, assign2)
-{
-    DateTime dateTime;
-
-    dateTime = "11:22:33.444+10";
-    chrono::milliseconds msSinceEpoch = duration_cast<chrono::milliseconds>(dateTime.sinceEpoch());
-    EXPECT_EQ(44553444, msSinceEpoch.count());
 }
 
 TEST(SPTK_DateTime, timeZones)

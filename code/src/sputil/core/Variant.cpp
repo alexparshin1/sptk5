@@ -28,6 +28,7 @@
 
 #include <cmath>
 #include <sptk5/Field.h>
+#include <sptk5/json/JsonElement.h>
 
 using namespace std;
 using namespace sptk;
@@ -1075,6 +1076,26 @@ void Variant::load(const xml::Node& node)
 void Variant::load(const xml::Node* node)
 {
     load(*node);
+}
+
+void Variant::load(const json::Element* element)
+{
+    switch (element->type()) {
+        case json::JDT_NUMBER:
+            *this = element->getNumber();
+            break;
+        case json::JDT_BOOLEAN:
+            *this = element->getBoolean();
+            break;
+        case json::JDT_NULL:
+            setNull();
+            break;
+        case json::JDT_STRING:
+            *this = element->getString();
+            break;
+        default:
+            break;
+    }
 }
 
 void Variant::save(xml::Node& node) const
