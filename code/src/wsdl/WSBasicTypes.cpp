@@ -242,7 +242,7 @@ void WSInteger::load(const json::Element* attr)
     if (attr->isNull())
         setNull(VAR_INT64);
     else
-        setInt64(attr->getNumber());
+        setInt64((int64_t)attr->getNumber());
 }
 
 void WSInteger::load(const String& attr)

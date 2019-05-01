@@ -36,7 +36,7 @@ static atomic_bool      m_logOpened(false);
 
 #ifdef _WIN32
 #include <events.w32/event_provider.h>
-static string   m_moduleFileName;
+//static string   m_moduleFileName;
 static bool     m_registrySet(false);
 #endif
 
