@@ -358,7 +358,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
         serviceImplementation << "            break;" << endl;
     }
     serviceImplementation << "        default:" << endl;
-    serviceImplementation << "            throwSOAPException(\"Request node \'\" + requestNode->name() + \"' is not defined in this service\");" << endl;
+    serviceImplementation << "            throwSOAPException(\"Request node \'\" + requestNode->name() + \"' is not defined in this service\")" << endl;
     serviceImplementation << "        }" << endl;
     serviceImplementation << "    }" << endl;
     serviceImplementation << "    catch (const SOAPException& e) {" << endl;
