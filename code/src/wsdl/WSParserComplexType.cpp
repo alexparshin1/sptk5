@@ -304,7 +304,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     classDeclaration << "    * Move assignment" << endl;
     classDeclaration << "    * @param other              Other element to move from" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "& operator = (" << className << "&& other)" << endl
+    classDeclaration << "   " << className << "& operator = (" << className << "&& other) noexcept" << endl
                      << "   {" << endl
                      << "       if (&other == this)" << endl
                      << "           return *this;" << endl
