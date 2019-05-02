@@ -149,12 +149,15 @@ void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
     notImplemented("driverEndTransaction");
 }
 
-String sptk::escapeSQLString(const String& str)
+String sptk::escapeSQLString(const String& str, bool tsv)
 {
     String output;
+    const char* replaceChars = "'\t\n\r";
+    if (tsv)
+        replaceChars = "\t\n\r";
     const char* start = str.c_str();
     while (true) {
-        const char* end = strpbrk(start, "'\t\n\r");
+        const char* end = strpbrk(start, replaceChars);
         if (end != nullptr) {
             output.append(start, end - start);
             switch (*end) {
@@ -203,7 +206,7 @@ static void insertRecords(
                     break;
                 case VAR_STRING:
                 case VAR_TEXT:
-                    sql << "'" << escapeSQLString(value.asString()) << "'";
+                    sql << "'" << escapeSQLString(value.asString(), false) << "'";
                     break;
                 default:
                     sql << "'" << value.asString() << "'";
@@ -351,7 +354,7 @@ String PoolDatabaseConnection_QueryMethods::paramMark(unsigned /*paramIndex*/)
 TEST(SPTK_BulkInsert, escapeSqlString)
 {
     String sourceString = "Hello, 'World'.\n\rLet's go\n";
-    String escapedString = escapeSQLString(sourceString);
+    String escapedString = escapeSQLString(sourceString, false);
     EXPECT_STREQ("Hello, ''World''.\\n\\rLet''s go\\n", escapedString.c_str());
 }
 

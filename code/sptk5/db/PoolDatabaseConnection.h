@@ -524,9 +524,10 @@ public:
 /**
  * Escape SQL string for bulk insert
  * @param str                   String to escape
+ * @param tsv                   True if output data is TSV (tab-separated values)
  * @return                      Escaped string
  */
-String escapeSQLString(const String& str);
+String escapeSQLString(const String& str, bool tsv=false);
 
 /**
  * @}

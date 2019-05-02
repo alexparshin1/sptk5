@@ -437,5 +437,5 @@ size_t DatabaseTests::countRowsInTable(DatabaseConnection& db, const String& tab
 
 DatabaseTests::DatabaseTests()
 {
-    escapeSQLString("x");
+    escapeSQLString("x", false);
 }
