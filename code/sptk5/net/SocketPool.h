@@ -136,7 +136,10 @@ public:
      */
     void forgetSocket(BaseSocket& socket);
 
-	bool active();
+    /**
+     * @return true if socket pool is active
+     */
+    bool active() const;
 };
 
 }

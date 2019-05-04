@@ -143,7 +143,7 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout)
     }
 }
 
-bool SocketPool::active()
+bool SocketPool::active() const
 {
     return m_pool != INVALID_EPOLL;
 }

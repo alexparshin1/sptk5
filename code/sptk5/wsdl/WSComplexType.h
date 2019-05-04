@@ -235,6 +235,7 @@ public:
     /**
      * Unload data to new XML node
      * @param parent            Parent XML node where new node is created
+     * @param name              Optional name for the child element
      */
     virtual void addElement(xml::Element* parent, const char* name=nullptr) const;
 

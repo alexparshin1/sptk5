@@ -130,6 +130,7 @@ public:
     /**
      * Adds an element to response XML with this object data
      * @param parent            Parent XML element
+     * @param name              Optional name for child element
      */
     xml::Element* addElement(xml::Element* parent, const char* name=nullptr) const;
 
