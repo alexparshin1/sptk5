@@ -155,6 +155,12 @@ public:
     {
         return asString();
     }
+
+    /**
+     * Throw SOAPException is the object is null
+     * @param parentTypeName    Parent object type name
+     */
+    void throwIfNull(const String& parentTypeName) const;
 };
 
 /**

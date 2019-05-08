@@ -401,17 +401,9 @@ void WSParserComplexType::printImplementationRestrictions(ostream& classImplemen
                                                           const Strings& requiredElements) const
 {
     if (!requiredElements.empty()) {
-        classImplementation << endl << "    // Check restrictions" << endl;
-        bool first = true;
-        for (auto& requiredElement : requiredElements) {
-            if (first)
-                first = false;
-            else
-                classImplementation << endl;
-            classImplementation << "    if (m_" << requiredElement << ".isNull())" << endl;
-            classImplementation << "        throw SOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(
-                    m_name) << "'.\");" << endl;
-        }
+        classImplementation << endl << "    // Check 'required' restrictions" << endl;
+        for (auto& requiredElement : requiredElements)
+            classImplementation << "    m_" << requiredElement << ".throwIfNull(\"" << wsClassName(m_name) << "\");" << endl;
     }
 }
 

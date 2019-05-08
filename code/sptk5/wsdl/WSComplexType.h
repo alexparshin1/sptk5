@@ -278,6 +278,12 @@ public:
      * @return object presentation as JSON or XML string
      */
     String toString(bool asJSON=true) const;
+
+    /**
+     * Throw SOAPException is the object is null
+     * @param parentTypeName    Parent object type name
+     */
+    void throwIfNull(const String& parentTypeName) const;
 };
 
 /**
