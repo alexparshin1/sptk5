@@ -134,6 +134,7 @@ void LogEngine::threadFunction()
                 if (message->priority <= LP_ERROR)
                     dest = stderr;
                 fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
+				fflush(dest);
             }
 
             delete message;
