@@ -42,7 +42,7 @@ public:
 private:
     Headers         m_headers;
     DateTime        m_created;
-    Type            m_type { MESSAGE };
+    Type            m_type {MESSAGE};
     String          m_destination;
 
 public:

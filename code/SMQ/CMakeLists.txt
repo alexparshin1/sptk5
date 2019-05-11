@@ -5,6 +5,7 @@ ADD_LIBRARY(smq ${LIBRARY_TYPE}
         src/protocols/MQProtocol.cpp src/protocols/MQTTFrame.cpp src/protocols/MQTTProtocol.cpp src/protocols/SMQProtocol.cpp
         src/server/SMQConnection.cpp src/server/SMQServer.cpp
         src/server/SMQSubscription.cpp src/server/SMQSubscriptions.cpp
+        src/storage/SMQStorage.cpp
         src/unit_tests/SMQServer_UT.cpp
         src/server/SMQSendQueue.cpp
         src/server/SMQSendThreadPool.cpp)
