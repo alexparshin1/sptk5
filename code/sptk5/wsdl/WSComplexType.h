@@ -118,7 +118,7 @@ public:
      * Move constructor
      * @param other             Other object
      */
-    WSComplexType(WSComplexType&& other)
+    WSComplexType(WSComplexType&& other) noexcept
     : m_name(std::move(other.m_name)), m_optional(other.m_optional), m_loaded(other.m_loaded)
     {
         other.m_optional = false;
@@ -149,7 +149,7 @@ public:
      * Move assignment
      * @param other             Other object
      */
-    WSComplexType& operator = (WSComplexType&& other)
+    WSComplexType& operator = (WSComplexType&& other) noexcept
     {
         if (&other != this) {
             m_name = std::move(other.m_name);
@@ -278,6 +278,12 @@ public:
      * @return object presentation as JSON or XML string
      */
     String toString(bool asJSON=true) const;
+
+    /**
+     * Throw SOAPException is the object is null
+     * @param parentTypeName    Parent object type name
+     */
+    void throwIfNull(const String& parentTypeName) const;
 };
 
 /**

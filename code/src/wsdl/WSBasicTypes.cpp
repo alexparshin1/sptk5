@@ -69,6 +69,12 @@ json::Element* WSBasicType::addElement(json::Element* parent) const
     return element;
 }
 
+void WSBasicType::throwIfNull(const String& parentTypeName) const
+{
+    if (isNull())
+        throw SOAPException("Element '" + fieldName() + "' is required in '" + parentTypeName + "'.");
+}
+
 void WSString::load(const xml::Node* attr)
 {
     setString(attr->text());
