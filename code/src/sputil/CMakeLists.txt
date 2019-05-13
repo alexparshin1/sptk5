@@ -12,7 +12,7 @@ SET (SPUTIL_SOURCES
     net/SocketEvents.cpp net/TCPServer.cpp net/TCPServerListener.cpp net/TCPSocket.cpp net/ServerConnection.cpp
     net/UDPSocket.cpp net/ImapDS.cpp
     xml/Attributes.cpp xml/Document.cpp xml/DocType.cpp xml/Node.cpp xml/NodeList.cpp
-        persist/PersistentMemoryBlock.cpp persist/PersistentMemoryBucket.cpp
+    persist/MemoryBlock.cpp persist/MemoryBucket.cpp persist/MemoryManager.cpp
     tar/block.cpp tar/Tar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
     threads/Flag.cpp threads/Locks.cpp threads/Thread.cpp threads/ThreadPool.cpp threads/Semaphore.cpp threads/Runable.cpp
     threads/WorkerThread.cpp threads/Timer.cpp

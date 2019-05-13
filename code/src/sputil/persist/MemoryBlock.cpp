@@ -1,4 +1,4 @@
-#include "sptk5/persist/PersistentMemoryBlock.h"
+#include "sptk5/persist/MemoryBlock.h"
 #include <vector>
 
 #ifndef _WIN32
@@ -9,10 +9,11 @@
 
 using namespace std;
 using namespace sptk;
+using namespace persist;
 
-size_t PersistentMemoryBlock::m_allocationUnit {0};
+size_t MemoryBlock::m_allocationUnit {0};
 
-PersistentMemoryBlock::PersistentMemoryBlock(const std::string &fileName, size_t fileSize)
+MemoryBlock::MemoryBlock(const std::string &fileName, size_t fileSize)
 : m_fileName(fileName),
   m_fileSize(fileSize)
 {
@@ -28,18 +29,18 @@ PersistentMemoryBlock::PersistentMemoryBlock(const std::string &fileName, size_t
 #endif
 }
 
-PersistentMemoryBlock::~PersistentMemoryBlock()
+MemoryBlock::~MemoryBlock()
 {
     close();
 }
 
-void PersistentMemoryBlock::open()
+void MemoryBlock::open()
 {
     createOrOpenFile();
     createFileMapping();
 }
 
-void PersistentMemoryBlock::close()
+void MemoryBlock::close()
 {
 #ifdef _WIN32    
     if (m_data != nullptr) {
@@ -63,7 +64,7 @@ void PersistentMemoryBlock::close()
 #endif
 }
 
-void PersistentMemoryBlock::createOrOpenFile()
+void MemoryBlock::createOrOpenFile()
 {
 #ifdef _WIN32
     // Create or open the file
@@ -113,7 +114,7 @@ void PersistentMemoryBlock::createOrOpenFile()
 #endif
 }
 
-void PersistentMemoryBlock::createFileMapping()
+void MemoryBlock::createFileMapping()
 {
 #ifdef _WIN32
     // Create a file mapping object for the file

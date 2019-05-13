@@ -2,10 +2,11 @@
 #include <cstdio>
 #include <stdexcept>
 #include <chrono>
-#include <sptk5/persist/PersistentMemoryBucket.h>
+#include <sptk5/persist/MemoryBucket.h>
 
 using namespace std;
 using namespace sptk;
+using namespace persist;
 using namespace chrono;
 
 int main()
@@ -17,12 +18,12 @@ int main()
         const char* fileName = "/tmp/mmfile.1";
 #endif
 
-        PersistentMemoryBucket bucket(fileName, 16 * 1024 * 1024);
+        size_t maxMessages = 1024 * 1024;
+
+        MemoryBucket bucket(fileName, 128 * maxMessages); // Message size is 100 bytes, plus 24 bytes of storage header
         bucket.clear();
 
         steady_clock::time_point started = steady_clock::now();
-
-        size_t maxMessages = 1024 * 128; // bucket.size() / 110; // 100 bytes of message + 8 bytes header
 
         size_t i = 0;
         vector<char> buffer(100);
