@@ -69,6 +69,8 @@ protected:
 
 public:
 
+    virtual ~MQProtocol() {}
+
     template<class T> size_t read(T& data)
     {
         return m_socket.read((char*)&data, sizeof(data));

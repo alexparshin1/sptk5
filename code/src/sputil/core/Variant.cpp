@@ -1045,9 +1045,9 @@ VariantType BaseVariant::nameType(const char* name)
     return itor->second;
 }
 
-void Variant::load(const xml::Node& node)
+void Variant::load(const xml::Node* node)
 {
-    const String& ntype = node.getAttribute("type").asString();
+    const String& ntype = node->getAttribute("type").asString();
     unsigned type = nameType(ntype.c_str());
 
     switch (type) {
@@ -1060,22 +1060,17 @@ void Variant::load(const xml::Node& node)
         case VAR_DATE:
         case VAR_DATE_TIME:
         case VAR_IMAGE_NDX:
-            *this = node.text();
+            *this = node->text();
             break;
 
         case VAR_TEXT:
         case VAR_BUFFER:
-            *this = node.text();
+            *this = node->text();
             break;
 
         default:
             break;
     }
-}
-
-void Variant::load(const xml::Node* node)
-{
-    load(*node);
 }
 
 void Variant::load(const json::Element* element)
@@ -1098,10 +1093,10 @@ void Variant::load(const json::Element* element)
     }
 }
 
-void Variant::save(xml::Node& node) const
+void Variant::save(xml::Node* node) const
 {
     String stringValue(asString());
-    node.setAttribute("type", typeName(dataType()));
+    node->setAttribute("type", typeName(dataType()));
 
     if (!stringValue.empty()) {
         switch (dataType()) {
@@ -1114,23 +1109,18 @@ void Variant::save(xml::Node& node) const
             case VAR_DATE:
             case VAR_DATE_TIME:
             case VAR_IMAGE_NDX:
-                new xml::Text(node, stringValue);
+                new xml::Text(*node, stringValue);
                 break;
 
             case VAR_TEXT:
             case VAR_BUFFER:
-                new xml::CDataSection(node, asString());
+                new xml::CDataSection(*node, asString());
                 break;
 
             default:
                 break;
         }
     }
-}
-
-void Variant::save(xml::Node* node) const
-{
-    save(*node);
 }
 
 #if USE_GTEST

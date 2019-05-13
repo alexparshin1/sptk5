@@ -117,7 +117,7 @@ public:
     /**
      * Stops listener
      */
-    virtual void stop();
+    void stop() override;
 
     /**
      * Returns server state

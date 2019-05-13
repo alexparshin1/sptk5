@@ -95,7 +95,7 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    void load(const xml::Node& attr) override
+    void load(const xml::Node* attr) override
     {
         Variant::load(attr);
     }
@@ -151,7 +151,7 @@ public:
     /**
      * Conversion operator
      */
-    virtual operator String() const
+    operator String() const override
     {
         return asString();
     }

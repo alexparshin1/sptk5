@@ -71,7 +71,7 @@ protected:
      * @param connectionSocket      Already accepted incoming connection socket
      * @param peer                  Incoming connection information
      */
-    virtual ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer);
+    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
 
 public:
     /**

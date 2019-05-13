@@ -39,6 +39,8 @@ class SP_EXPORT SMQProtocol : public MQProtocol
 {
 public:
     explicit SMQProtocol(TCPSocket& socket) : MQProtocol(socket) {}
+    ~SMQProtocol() override {};
+
     void ack(Message::Type sourceMessageType, const String& messageId) override;
     bool readMessage(SMessage& message) override;
     bool sendMessage(const String& destination, SMessage& message) override;

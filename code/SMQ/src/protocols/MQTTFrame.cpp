@@ -80,8 +80,6 @@ const Buffer& MQTTFrame::setCONNECT(uint16_t keepAliveSeconds, const String& use
             headerlen = 10;
             protocolName = "MQTT";
             break;
-        default:
-            throw Exception("Unsupported MQTT protocol version");
     }
 
     uint8_t connectFlags = 0;
@@ -470,7 +468,6 @@ std::string MQTTFrame::typeName() const
         case FT_PINGREQ:    return "PING REQ";
         case FT_PINGRESP:   return "PING RESP";
         case FT_DISCONNECT: return "DISCONNECT";
-        default:            break;
     }
     return "UNDEFINED";
 }

@@ -209,7 +209,7 @@ public:
      * Opens the IMAP server connection with user name and password defined with user() and password().
      * Scans the IMAP folder defined with folder(), than closes the IMAP server connection.
      */
-    virtual bool open();
+    bool open() override;
 
     /**
      * Optional callback for the open() method progression.
