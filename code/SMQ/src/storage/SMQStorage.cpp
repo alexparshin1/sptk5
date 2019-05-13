@@ -35,13 +35,13 @@ using namespace chrono;
 
 void SMQStorage::store(uint64_t id, SMessage& message)
 {
-    UniqueLock(m_mutex);
+    lock_guard<mutex> lock(m_mutex);
     m_messages[id] = message;
 }
 
 SMessage SMQStorage::get(uint64_t id)
 {
-    SharedLock(m_mutex);
+    lock_guard<mutex> lock(m_mutex);
     auto itor = m_messages.find(id);
     if (itor == m_messages.end())
         return SMessage();
@@ -50,8 +50,8 @@ SMessage SMQStorage::get(uint64_t id)
 
 SMessage SMQStorage::erase(uint64_t id)
 {
+    lock_guard<mutex> lock(m_mutex);
     SMessage message;
-    SharedLock(m_mutex);
     auto itor = m_messages.find(id);
     if (itor != m_messages.end())
         message = itor->second;

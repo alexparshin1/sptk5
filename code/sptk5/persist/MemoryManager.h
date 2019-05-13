@@ -8,10 +8,11 @@ namespace persist {
 
 class MemoryManager
 {
-    String                  m_directory;
-    std::set<MemoryBucket>  m_buckets;
 public:
-
+    MemoryManager(const String& directory);
+private:
+    String                          m_directory;
+    std::map<void*,MemoryBucket>    m_buckets;
 };
 
 }

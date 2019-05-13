@@ -35,7 +35,7 @@ namespace sptk {
 
 class SMQStorage
 {
-    mutable SharedMutex         m_mutex;
+    mutable std::mutex          m_mutex;
     std::map<uint64_t,SMessage> m_messages;
 public:
     virtual void store(uint64_t id, SMessage& message);

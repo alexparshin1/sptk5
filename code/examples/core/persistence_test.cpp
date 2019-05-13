@@ -36,7 +36,7 @@ int main()
 
         steady_clock::time_point ended = steady_clock::now();
         double durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;
-        cout << "Stored " << i / 1024 << "K messages: " << maxMessages/durationSec << " msg/sec" << endl;
+        cout << "Found " << i / 1024 << "K messages: " << int(maxMessages / durationSec) / 1024 << "K msg/sec" << endl;
         
         started = steady_clock::now();
         i = 0;
@@ -47,7 +47,7 @@ int main()
         }
         ended = steady_clock::now();
         durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;
-        cout << "Found " << i / 1024 << "K messages: " << maxMessages / durationSec << " msg/sec" << endl;
+        cout << "Found " << i / 1024 << "K messages: " << int(maxMessages / durationSec) / 1024 << "K msg/sec" << endl;
 /*
         started = steady_clock::now();
         i = 0;
@@ -57,7 +57,7 @@ int main()
         }
         ended = steady_clock::now();
         durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;
-        cout << "Found and erased " << i / 1024 << "K messages: " << maxMessages / durationSec << " msg/sec" << endl;
+        cout << "Found " << i / 1024 << "K messages: " << int(maxMessages / durationSec) / 1024 << "K msg/sec" << endl;
 */
     }
     catch (const exception& e) {
