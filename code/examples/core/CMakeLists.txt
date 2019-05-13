@@ -10,7 +10,7 @@ ENDIF (UNIX)
 
 SET (CONSOLE_TESTS
      command_line datetime exceptions logfile_test syslog_test
-     unique_instance registry string2md5 encrypt_decrypt timer
+     unique_instance persistence_test registry string2md5 encrypt_decrypt timer
      zlib_test
     )
 

@@ -1,6 +1,12 @@
 #include "sptk5/persist/PersistentMemoryBlock.h"
 #include <vector>
 
+#ifndef _WIN32
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#endif
+
 using namespace std;
 using namespace sptk;
 
@@ -50,7 +56,11 @@ void PersistentMemoryBlock::close()
         CloseHandle(m_file);
         m_file = INVALID_HANDLE_VALUE;
     }
-#endif    
+#else
+    if (m_data != nullptr)
+        munmap(m_data, m_fileSize);
+    ::close(m_file);
+#endif
 }
 
 void PersistentMemoryBlock::createOrOpenFile()
@@ -64,18 +74,37 @@ void PersistentMemoryBlock::createOrOpenFile()
                        OPEN_ALWAYS,
                        FILE_ATTRIBUTE_NORMAL,
                        NULL);
+#else
+    m_file = ::open(m_fileName.c_str(), O_RDWR | O_CREAT, (mode_t)0600);
+#endif
 
     if (m_file == INVALID_HANDLE_VALUE)
         throw runtime_error("Can't create or open file " + m_fileName);
 
+#ifdef _WIN32
     uint64_t fileSize = GetFileSize(m_file,  NULL);
     if (fileSize != 0) {
         m_fileSize = fileSize;  // Using size of existing file
     } else {
-        vector<char> buffer(m_allocationUnit, 1);
+        vector<char> buffer(m_allocationUnit);
         DWORD dBytesWritten;
         while (fileSize < m_fileSize) {
             if (WriteFile(m_file, buffer.data(), (DWORD) m_allocationUnit, &dBytesWritten, NULL) == 0)
+                throw runtime_error("Can't write to file " + m_fileName);
+            fileSize += m_allocationUnit;
+        }
+        m_fileSize = fileSize;
+    }
+#else
+    struct stat st {};
+    fstat(m_file, &st);
+    uint64_t fileSize = st.st_size;
+    if (fileSize != 0) {
+        m_fileSize = fileSize;  // Using size of existing file
+    } else {
+        vector<char> buffer(m_allocationUnit);
+        while (fileSize < m_fileSize) {
+            if (write(m_file, buffer.data(), m_allocationUnit) != (int) m_allocationUnit)
                 throw runtime_error("Can't write to file " + m_fileName);
             fileSize += m_allocationUnit;
         }
@@ -106,5 +135,13 @@ void PersistentMemoryBlock::createFileMapping()
                            (DWORD) m_fileSize);       // number of bytes to map
     if (m_data == nullptr)
         throw runtime_error("Can't create file mapping");
+#else
+    /* Now the file is ready to be mmapped.
+     */
+    m_data = mmap(0, m_fileSize, PROT_READ | PROT_WRITE, MAP_SHARED, m_file, 0);
+    if (m_data == MAP_FAILED) {
+        m_data = nullptr;
+        throw runtime_error("Can't create file mapping");
+    }
 #endif
 }

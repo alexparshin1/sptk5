@@ -2,16 +2,23 @@
 #include <cstdio>
 #include <stdexcept>
 #include <chrono>
-#include "PersistentMemoryBucket.h"
+#include <sptk5/persist/PersistentMemoryBucket.h>
 
 using namespace std;
+using namespace sptk;
 using namespace chrono;
 
 int main()
 {
     try {
-        PersistentMemoryBucket bucket("C:\\tmp\\mmfile.1", 16 * 1024 * 1024);
-        //bucket.clear();
+#ifdef _WIN32
+        const char* fileName = "C:\\tmp\\mmfile.1";
+#else
+        const char* fileName = "/tmp/mmfile.1";
+#endif
+
+        PersistentMemoryBucket bucket(fileName, 16 * 1024 * 1024);
+        bucket.clear();
 
         steady_clock::time_point started = steady_clock::now();
 
@@ -21,7 +28,6 @@ int main()
         vector<char> buffer(100);
         memcpy(buffer.data(), "Hello, World!", 14);
         while (bucket.available() > buffer.size()) {
-            size_t bucketAvailable = bucket.available();
             bucket.insert(i + 1, buffer.data(), buffer.size());
             i++;
         }
