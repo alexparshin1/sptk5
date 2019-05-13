@@ -229,8 +229,8 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
             else {
                 string optional = (complexType->multiplicity() & WSM_OPTIONAL) != 0 ? ", true" : "";
                 ctorInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\"" + optional + ")");
-                copyInitializer.push_back("m_" + complexType->name() + "(" + "other.m_" + complexType->name() + ")");
-                moveInitializer.push_back("m_" + complexType->name() + "(" + "std::move(other.m_" + complexType->name() + "))");
+                copyInitializer.push_back("m_" + complexType->name() + "(other.m_" + complexType->name() + ")");
+                moveInitializer.push_back("m_" + complexType->name() + "(std::move(other.m_" + complexType->name() + "))");
             }
 
             classDeclaration << "   " << left << setw(20) << cxxType << " m_" << complexType->name() << ";" << endl;
@@ -243,7 +243,8 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
             WSParserAttribute& attr = *itor.second;
             classDeclaration << "   " << attr.generate() << ";" << endl;
             ctorInitializer.push_back("m_" + attr.name() + "(\"" + attr.name() + "\")");
-            copyInitializer.push_back("m_" + attr.name() + "(\"" + attr.name() + "\")");
+            copyInitializer.push_back("m_" + attr.name() + "(other.m_" + attr.name() + ")");
+            moveInitializer.push_back("m_" + attr.name() + "(std::move(other.m_" + attr.name() + "))");
         }
     }
 
@@ -474,11 +475,12 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
 
     if (!m_attributes.empty()) {
         classImplementation << endl << "    // Load attributes" << endl;
-        classImplementation << endl << "    json::Element* attributes = input->find(\"attributes\");" << endl;
-        classImplementation << endl << "    if (attributes != nullptr) {" << endl;
+        classImplementation << "    auto* attributes = input->find(\"attributes\");" << endl;
+        classImplementation << "    const json::Element* attribute;" << endl;
+        classImplementation << "    if (attributes != nullptr) {" << endl;
         for (auto& itor: m_attributes) {
             WSParserAttribute& attr = *itor.second;
-            classImplementation << "        json::Element* attribute = attributes->find(\"" << attr.name() << "\");" << endl;
+            classImplementation << "        attribute = attributes->find(\"" << attr.name() << "\");" << endl;
             classImplementation << "        if (attribute != nullptr)" << endl;
             classImplementation << "            m_" << attr.name() << ".load(attribute);" << endl;
         }
@@ -628,7 +630,7 @@ void WSParserComplexType::printImplementationUnloadJSON(ostream& classImplementa
     if (!m_attributes.empty()) {
         classImplementation << endl << "    // Unload attributes" << endl;
 
-        classImplementation << "    auto* attributes = output->set_object(\"attributes\");";
+        classImplementation << "    auto* attributes = output->set_object(\"attributes\");" << endl;
 
         for (auto& itor: m_attributes) {
             WSParserAttribute& attr = *itor.second;
@@ -641,7 +643,7 @@ void WSParserComplexType::printImplementationUnloadJSON(ostream& classImplementa
             else if (attr.wsTypeName() == "xsd:int")
                 attributeOutputMethod = ".asInt64()";
 
-            classImplementation << "    attrs->set(\"" << attr.name() << "\", m_" << attr.name() << attributeOutputMethod << ");" << endl;
+            classImplementation << "    attributes->set(\"" << attr.name() << "\", m_" << attr.name() << attributeOutputMethod << ");" << endl;
         }
     }
 
