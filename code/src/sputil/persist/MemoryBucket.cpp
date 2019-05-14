@@ -28,7 +28,7 @@ void MemoryBucket::load()
         if (id != 0) {
             // item isn't deleted
             auto ret = m_index.insert(pair<uint64_t, Item *>(id, item));
-            if (ret.second == false) {
+            if (!ret.second) {
                 // Duplicate id
                 item->id = 0;
             } else
@@ -59,7 +59,7 @@ void * MemoryBucket::insert(uint64_t id, void *data, size_t bytes)
         throw invalid_argument("Invalid id");
 
     auto ret = m_index.insert(pair<uint64_t ,Item*>(id, item));
-    if (ret.second == false)
+    if (!ret.second)
         throw invalid_argument("Duplicate id");
 
     item->signature = itemSignature;
@@ -112,7 +112,7 @@ size_t MemoryBucket::available() const
     int availableBytes = (int) m_memory.size() - int(m_allocated + sizeof(Item));
     if (availableBytes < 0)
         availableBytes = 0;
-    return availableBytes;
+    return (size_t) availableBytes;
 }
 
 void* MemoryBucket::find(uint64_t id, size_t& size) const

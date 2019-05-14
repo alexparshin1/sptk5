@@ -1,9 +1,7 @@
 #include "sptk5/persist/MemoryBlock.h"
-#include <vector>
 
 #ifndef _WIN32
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <sys/mman.h>
 #endif
 
@@ -99,7 +97,7 @@ void MemoryBlock::createOrOpenFile()
 #else
     struct stat st {};
     fstat(m_file, &st);
-    uint64_t fileSize = st.st_size;
+    uint64_t fileSize = (uint64_t) st.st_size;
     if (fileSize != 0) {
         m_fileSize = fileSize;  // Using size of existing file
     } else {
@@ -139,7 +137,7 @@ void MemoryBlock::createFileMapping()
 #else
     /* Now the file is ready to be mmapped.
      */
-    m_data = mmap(0, m_fileSize, PROT_READ | PROT_WRITE, MAP_SHARED, m_file, 0);
+    m_data = mmap(nullptr, m_fileSize, PROT_READ | PROT_WRITE, MAP_SHARED, m_file, 0);
     if (m_data == MAP_FAILED) {
         m_data = nullptr;
         throw runtime_error("Can't create file mapping");
