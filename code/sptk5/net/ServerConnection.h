@@ -48,7 +48,7 @@ class TCPServer;
  *
  * Used a base class for CTCPServerConnection and COpenSSLServerConnection
  */
-class ServerConnection: public Runable
+class SP_EXPORT ServerConnection: public Runable
 {
     friend class TCPServer;
 

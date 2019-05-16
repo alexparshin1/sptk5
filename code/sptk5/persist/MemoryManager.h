@@ -6,13 +6,13 @@
 namespace sptk {
 namespace persist {
 
-class MemoryManager
+class SP_EXPORT MemoryManager
 {
 public:
     MemoryManager(const String& directory, const String& objectName);
 private:
     String                          m_directory;
-    std::map<void*,MemoryBucket>    m_buckets;
+    std::map<void*,MemoryBucket*>   m_buckets;
 };
 
 }

@@ -50,7 +50,7 @@ namespace sptk {
  * can be loaded all at once, in the datasource open() operation. It's a base class
  * for several actual datasources.
  */
-class MemoryDS : public DataSource
+class SP_EXPORT MemoryDS : public DataSource
 {
     mutable SharedMutex     m_mutex;
 

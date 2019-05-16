@@ -37,7 +37,7 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-DatabaseTests sptk::databaseTests;
+DatabaseTests DatabaseTests::_databaseTests;
 
 vector<DatabaseConnectionString> DatabaseTests::connectionStrings() const
 {
@@ -438,4 +438,9 @@ size_t DatabaseTests::countRowsInTable(DatabaseConnection& db, const String& tab
 DatabaseTests::DatabaseTests()
 {
     escapeSQLString("x", false);
+}
+
+DatabaseTests& DatabaseTests::tests()
+{
+	return _databaseTests;
 }

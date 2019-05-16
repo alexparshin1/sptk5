@@ -111,6 +111,7 @@ void Element::moveElement(Element&& other) noexcept
 Element::Element(Document*document, Element&& other) noexcept
 : m_document(document), m_type(JDT_NULL)
 {
+	m_data.m_boolean = false;
     moveElement(move(other));
 }
 

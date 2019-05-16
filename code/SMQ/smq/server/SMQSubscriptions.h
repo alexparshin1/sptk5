@@ -42,7 +42,7 @@ class SP_EXPORT SMQSubscriptions
     mutable sptk::SharedMutex                     m_mutex;
     std::map<sptk::String,SharedSMQSubscription>  m_subscriptions;
     sptk::LogEngine&                              m_logEngine;
-    uint8_t                                       m_debugLogFilter;
+	uint8_t                                       m_debugLogFilter {0};
 public:
     SMQSubscriptions(sptk::LogEngine& logEngine, uint8_t debugLogFilter);
     void clear();

@@ -527,7 +527,7 @@ public:
  * @param tsv                   True if output data is TSV (tab-separated values)
  * @return                      Escaped string
  */
-String escapeSQLString(const String& str, bool tsv=false);
+SP_EXPORT String escapeSQLString(const String& str, bool tsv=false);
 
 /**
  * @}

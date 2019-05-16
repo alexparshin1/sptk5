@@ -44,7 +44,7 @@ namespace smq {
  *
  * All derived MQ clients must implement this interface.
  */
-class BaseMQClient
+class SP_EXPORT BaseMQClient
 {
     /**
      * Mutex that protects internal data

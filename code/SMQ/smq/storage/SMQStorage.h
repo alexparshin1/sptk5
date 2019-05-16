@@ -33,7 +33,7 @@
 
 namespace smq {
 
-class SMQStorage
+class SP_EXPORT SMQStorage
 {
     mutable std::mutex          m_mutex;
     std::map<uint64_t,SMessage> m_messages;

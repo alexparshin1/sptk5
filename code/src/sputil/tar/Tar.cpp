@@ -129,7 +129,7 @@ bool Tar::loadFile()
     auto fileSize = (uint32_t) th_get_size(tar);
 
     if (fileSize != 0) {
-        auto* buffer = new Buffer(fileSize + 1);
+        auto* buffer = new Buffer(size_t(fileSize) + 1);
         char* buf = buffer->data();
 
         uint32_t offset = 0;

@@ -33,7 +33,7 @@
 
 namespace smq {
 
-class SMQSendThreadPool : public sptk::ThreadPool
+class SP_EXPORT SMQSendThreadPool : public sptk::ThreadPool
 {
 public:
     SMQSendThreadPool(size_t maxThreads);

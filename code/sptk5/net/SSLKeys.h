@@ -36,7 +36,7 @@
 
 namespace sptk {
 
-class SSLKeys
+class SP_EXPORT SSLKeys
 {
     mutable SharedMutex m_mutex;
     String              m_privateKeyFileName;

@@ -81,7 +81,7 @@ typedef std::map<int, MemoryTarHandle*> TarHandleMap;
  * Allows reading tar archive files into memory buffers.
  * The main usage currently is to read an SPTK theme from tar-archive.
  */
-class Tar
+class SP_EXPORT Tar
 {
     typedef std::map<std::string,Buffer*>  FileCollection;
     /**

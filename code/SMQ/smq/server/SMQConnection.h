@@ -49,7 +49,7 @@ enum SMQLogGroup : uint8_t
 
 class SMQSubscription;
 
-class SMQConnection : public sptk::TCPServerConnection
+class SP_EXPORT SMQConnection : public sptk::TCPServerConnection
 {
     mutable sptk::SharedMutex                   m_mutex;
     MQProtocolType                              m_protocolType { MP_SMQ };

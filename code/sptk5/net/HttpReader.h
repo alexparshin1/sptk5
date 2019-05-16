@@ -36,7 +36,7 @@
 
 namespace sptk {
 
-class caseInsensitiveCompare : public std::binary_function<String, String, bool>
+class SP_EXPORT caseInsensitiveCompare : public std::binary_function<String, String, bool>
 {
 public:
 
@@ -59,7 +59,7 @@ typedef std::map<String, String, caseInsensitiveCompare> HttpHeaders;
  *
  * Designed to be able accepting asynchronous data
  */
-class HttpReader
+class SP_EXPORT HttpReader
 {
 public:
     /**

@@ -49,7 +49,7 @@ namespace sptk {
  * As a bonus, WSListener also serves static files, located in staticFilesDirectory.
  * That may be used to implement a web application.
  */
-class WSListener : public TCPServer
+class SP_EXPORT WSListener : public TCPServer
 {
     mutable SharedMutex m_mutex;                ///< Mutex that protects internal data
     WSRequest&          m_service;              ///< Web Service request processor

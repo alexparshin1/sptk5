@@ -40,7 +40,7 @@ namespace sptk {
  * Only Basic and Bearer authentication types are currently supported.
  * The data is parsed upon first getData() call.
  */
-class HttpAuthentication
+class SP_EXPORT HttpAuthentication
 {
 public:
     /**

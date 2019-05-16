@@ -41,7 +41,7 @@ namespace sptk
 /**
  * Simple wrapper for ZLib functions
  */
-class ZLib
+class SP_EXPORT ZLib
 {
 public:
     /**

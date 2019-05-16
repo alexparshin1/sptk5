@@ -1,6 +1,7 @@
 #ifndef __PERSIST_MEMORY_BLOCK_H__
 #define __PERSIST_MEMORY_BLOCK_H__
 
+#include <sptk5/sptk.h>
 #include <sptk5/cutils>
 
 namespace sptk {
@@ -9,7 +10,7 @@ namespace persist {
 /**
  * Persistent memory block, associated with memory-mapped file
  */
-class MemoryMappedFile
+class SP_EXPORT MemoryMappedFile
 {
 #ifndef _WIN32
     static constexpr int INVALID_HANDLE_VALUE {-1};  ///< Invalid handle value

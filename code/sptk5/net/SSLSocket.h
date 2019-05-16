@@ -45,10 +45,10 @@ namespace sptk {
 /**
  * Encrypted TCP Socket
  */
-class SSLSocket: public TCPSocket, public std::mutex
+class SP_EXPORT SSLSocket: public TCPSocket, public std::mutex
 {
-    SSLContext* m_sslContext;                           ///< SSL context
-    SSL*        m_ssl;                                  ///< SSL socket
+	SSLContext* m_sslContext {nullptr};                 ///< SSL context
+	SSL*        m_ssl {nullptr};                        ///< SSL socket
     SSLKeys     m_keys;                                 ///< SSL keys info
 
     String      m_sniHostName;                          ///< SNI host name (optional)

@@ -122,7 +122,7 @@ TestRunner::TestRunner(int& argc, char**& argv)
 
 void TestRunner::addDatabaseConnection(const DatabaseConnectionString& connectionString)
 {
-    databaseTests.addDatabaseConnection(connectionString);
+    DatabaseTests::tests().addDatabaseConnection(connectionString);
 }
 
 static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& definedConnections)
@@ -151,7 +151,7 @@ int TestRunner::runAllTests()
     TCPSocket socket;
 #endif
 
-    String excludeDBDriverPatterns = excludeDatabasePatterns(databaseTests.connectionStrings());
+    String excludeDBDriverPatterns = excludeDatabasePatterns(DatabaseTests::tests().connectionStrings());
 
     size_t filterArgumentIndex = 0;
     for (int i = 1; i < m_argc; i++) {

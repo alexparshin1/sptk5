@@ -36,7 +36,7 @@ namespace smq {
 
 class SMQConnection;
 
-class SMQSendQueue : public sptk::Runable
+class SP_EXPORT SMQSendQueue : public sptk::Runable
 {
     mutable std::mutex          m_mutex;
     SMQConnection&              m_connection;

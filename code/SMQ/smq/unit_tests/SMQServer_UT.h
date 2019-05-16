@@ -31,7 +31,7 @@
 
 namespace smq {
 
-class SMQServer_UT
+class SP_EXPORT SMQServer_UT
 {
 public:
     SMQServer_UT();

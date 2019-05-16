@@ -11,7 +11,7 @@ namespace sptk {
      * Generic timer class.
      * Can fire one time off and repeatable events
      */
-    class Timer
+    class SP_EXPORT Timer
     {
     public:
 

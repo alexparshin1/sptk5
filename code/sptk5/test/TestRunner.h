@@ -36,7 +36,7 @@ namespace sptk {
 /**
  * GTest run test wrapper
  */
-class TestRunner
+class SP_EXPORT TestRunner
 {
     int&        m_argc;     ///< Reference to command line arguments number
     char**&     m_argv;     ///< Reference to command line arguments array

@@ -82,7 +82,7 @@ enum DirectoryDSpolicies {
  * and may use the list. Method close() should be called aftewards
  * to release any allocated resourses.
  */
-class DirectoryDS: public MemoryDS
+class SP_EXPORT DirectoryDS: public MemoryDS
 {
 protected:
     /**

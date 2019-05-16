@@ -120,7 +120,6 @@ void SSLSocket::throwSSLError(const String& function, int rc)
 }
 
 SSLSocket::SSLSocket()
-: m_ssl(nullptr)
 {
 }
 

@@ -34,7 +34,7 @@
 
 namespace smq {
 
-class TCPMQClient : public BaseMQClient
+class SP_EXPORT TCPMQClient : public BaseMQClient
 {
     mutable sptk::SharedMutex                 m_mutex;
     std::shared_ptr<sptk::TCPSocket>          m_socket;           ///< TCP or SSL connection socket

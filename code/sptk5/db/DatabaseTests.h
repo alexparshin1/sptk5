@@ -37,9 +37,14 @@ namespace sptk {
 /**
  * Common operations used by database-related unit tests
  */
-class DatabaseTests
+class SP_EXPORT DatabaseTests
 {
-    /**
+	/**
+	 * Global database tests collection
+	 */
+	static DatabaseTests _databaseTests;
+
+	/**
      * Connection strings for which tests will be executed
      */
     std::map<String, DatabaseConnectionString> m_connectionStrings;
@@ -133,12 +138,12 @@ public:
      * @param recordCount       Records to insert during test
      */
     void testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount);
-};
 
-/**
- * Global database tests collection
- */
-extern DatabaseTests databaseTests;
+	/**
+	 * Global database tests collection
+	 */
+	static DatabaseTests& tests();
+};
 
 }
 

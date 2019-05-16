@@ -45,7 +45,7 @@ namespace sptk {
  * Sends and receives data using UDP protocol.
  * Not buffered. Doesn't use CSocket timeout settings in read and write operations by default.
  */
-class UDPSocket : public BaseSocket
+class SP_EXPORT UDPSocket : public BaseSocket
 {
 public:
     /**

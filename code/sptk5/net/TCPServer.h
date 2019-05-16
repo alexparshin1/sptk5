@@ -52,7 +52,7 @@ class TCPServerListener;
  *
  * For every incoming connection, creates connection thread.
  */
-class TCPServer : public ThreadPool
+class SP_EXPORT TCPServer : public ThreadPool
 {
     friend class TCPServerListener;
     friend class ServerConnection;

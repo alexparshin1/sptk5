@@ -15,7 +15,7 @@ static constexpr uint32_t releasedMark = 0x5E7E9EAE;
  * Abstract interface that defines methods
  * needed to store/restore class in/from persistent memory
  */
-class Record
+class SP_EXPORT Record
 {
 protected:
     virtual size_t packSize() const = 0;
@@ -23,7 +23,7 @@ protected:
     virtual void unpack(const void* destination) = 0;
 };
 
-class Handle : public Record
+class SP_EXPORT Handle : public Record
 {
     friend class MemoryBucket;
     MemoryBucket*   m_bucket {nullptr};
@@ -45,7 +45,7 @@ public:
     size_t size() const;
 };
 
-class MemoryBucket
+class SP_EXPORT MemoryBucket
 {
     friend class Handle;
     struct FreeBlocks
