@@ -4,125 +4,473 @@
 using namespace std;
 using namespace sptk;
 using namespace persist;
+using namespace chrono;
 
-MemoryBucket::MemoryBucket(const std::string& fileName, size_t size)
-: m_memory(fileName, size)
+size_t Handle::packSize() const
 {
-    m_memory.open();
+    return 2 * sizeof(uint32_t);
+}
+
+Handle::Handle(MemoryBucket& bucket, size_t m_bucketOffset)
+: m_bucket(&bucket), m_record((void*)((const char*)m_bucket->data() + m_bucketOffset))
+{
+}
+
+Handle::Handle(size_t bucketId, size_t m_bucketOffset)
+{
+    m_bucket = MemoryBucket::find(bucketId);
+    if (m_bucket == nullptr)
+        throw Exception("Bucket doesn't exist");
+    m_record = (void*)((const char*)m_bucket->data() + m_bucketOffset);
+}
+
+void Handle::pack(void* destination) const
+{
+    uint32_t* d = (uint32_t*) destination;
+
+    uint32_t offset = uint32_t((const char*)m_record - (const char*)m_bucket->data());
+    *(d++) = m_bucket->id();
+    *d = offset;
+}
+
+void Handle::unpack(const void* destination)
+{
+    uint32_t* d = (uint32_t*) destination;
+    uint32_t bucketId = *(d++);
+    m_bucket = MemoryBucket::find(bucketId);
+    m_record = (void*) ((const char*)m_bucket->data() + *d);
+}
+
+Handle::operator void*() const
+{
+    MemoryBucket::Item* item = (MemoryBucket::Item*) m_record;
+    if (item->signature != allocatedMark)
+        return nullptr;
+    return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
+}
+
+void* Handle::data() const
+{
+    MemoryBucket::Item* item = (MemoryBucket::Item*) m_record;
+    if (item->signature != allocatedMark)
+        return nullptr;
+    return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
+}
+
+const char* Handle::c_str() const
+{
+    MemoryBucket::Item* item = (MemoryBucket::Item*) m_record;
+    if (item->signature != allocatedMark)
+        return nullptr;
+    return (const char*) m_record + sizeof(MemoryBucket::Item);
+}
+
+size_t Handle::size() const
+{
+    MemoryBucket::Item* item = (MemoryBucket::Item*) m_record;
+    if (item->signature != allocatedMark)
+        return 0;
+    return ((MemoryBucket::Item*) m_record)->size;
+}
+
+String MemoryBucket::formatId(uint32_t bucketId)
+{
+    char formattedId[64];
+    snprintf(formattedId, 32, "%010d", bucketId);
+    return String(formattedId, 10);
+}
+
+MemoryBucket::MemoryBucket(const String& directoryName, uint32_t id, size_t size)
+: m_mappedFile(directoryName + "/" + formatId(id), size),
+  m_freeBlocks(m_mappedFile.size())
+{
+    m_mappedFile.open();
     load();
 }
 
-void MemoryBucket::load()
+vector<Handle> MemoryBucket::load()
 {
     lock_guard<mutex> lock(m_mutex);
 
-    m_index.clear();
+    vector<Handle> handles;
 
-    char* memoryStart = (char*) m_memory.data();
-    char* memoryEnd = memoryStart + m_memory.size();
+    m_freeBlocks.clear();
+
+    char* memoryStart = (char*) m_mappedFile.data();
+    char* memoryEnd = memoryStart + m_mappedFile.size();
     char* itemPtr = memoryStart;
     Item* item = (Item*) itemPtr;
-    size_t itemsLoaded {0};
-    while (item->signature == itemSignature) {
-        uint64_t id = item->id;
-        if (id != 0) {
-            // item isn't deleted
-            auto ret = m_index.insert(pair<uint64_t, Item *>(id, item));
-            if (!ret.second) {
-                // Duplicate id
-                item->id = 0;
-            } else
-                itemsLoaded++;
-        }
+    bool done = false;
+    uint32_t offset = 0;
+    while (!done) {
         size_t itemFullSize = sizeof(Item) + item->size;
-        itemPtr += itemFullSize;
+        switch (item->signature) {
+            case allocatedMark:
+                handles.emplace_back(*this, offset);
+                offset += itemFullSize;
+                break;
+            case releasedMark:
+                m_freeBlocks.load(offset, item->size);
+                offset += itemFullSize;
+                break;
+            default:
+                done = true;
+                break;
+        }
+        itemPtr = memoryStart + offset;
         if (itemPtr > memoryEnd)
             break;
         item = (Item*)itemPtr;
     }
-    cout << "loaded " << itemsLoaded << endl;
+
+    if (offset < m_mappedFile.size())
+        m_freeBlocks.load(offset, m_mappedFile.size() - offset);
+
+    return handles;
 }
 
-void * MemoryBucket::insert(uint64_t id, void *data, size_t bytes)
+Handle MemoryBucket::alloc(void* data, size_t bytes)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    size_t itemFullSize = sizeof(Item) + bytes;
-    if (m_memory.size() < m_allocated + itemFullSize)
-        throw runtime_error("Bucket is full");
+    size_t   itemFullSize = sizeof(Item) + bytes;
+    uint32_t offset = m_freeBlocks.alloc((uint32_t)itemFullSize);
+    Handle   handle(*this, offset);
+    if (offset == UINT32_MAX)
+        return handle;
 
-    char* itemPtr = (char*) m_memory.data() + m_allocated;
+    char* itemPtr = (char*) m_mappedFile.data() + offset;
     char* dataPtr = itemPtr + sizeof(Item);
     Item* item = (Item*) itemPtr;
 
-    if (id == 0)
-        throw invalid_argument("Invalid id");
-
-    auto ret = m_index.insert(pair<uint64_t ,Item*>(id, item));
-    if (!ret.second)
-        throw invalid_argument("Duplicate id");
-
-    item->signature = itemSignature;
-    item->id = id;
+    item->signature = allocatedMark;
     item->size = bytes;
 
     memcpy(dataPtr, data, bytes);
 
-    m_allocated += itemFullSize;
-
-    return dataPtr;
+    return handle;
 }
 
-void MemoryBucket::free(void *data)
+void MemoryBucket::free(Handle& data)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto* itemPtr = (char*) data - sizeof(Item);
-    auto* item = (Item*) itemPtr;
-    if (item->signature != itemSignature)
+    auto* item = (Item*) data.m_record;
+    if (item->signature != allocatedMark) {
+        if (item->signature == releasedMark)
+            return;
         throw invalid_argument("Invalid persistent address");
+    }
 
-    m_index.erase(item->id);
-    item->id = 0;
+    uint32_t offset = (char*) data.m_record - (char*) m_mappedFile.data();
+    m_freeBlocks.free(offset, item->size);
+
+    item->signature = releasedMark;
 }
 
 void MemoryBucket::clear()
 {
     lock_guard<mutex> lock(m_mutex);
-    auto* itemPtr = (char*)m_memory.data();
-    memset(itemPtr, 0, m_memory.size());
-    m_index.clear();
-    m_allocated = 0;
+    auto* itemPtr = (char*)m_mappedFile.data();
+    memset(itemPtr, 0, m_mappedFile.size());
+    m_freeBlocks.clear();
+    m_freeBlocks.load(0, m_mappedFile.size());
 }
 
 bool MemoryBucket::empty() const
 {
-    return m_index.empty();
+    return m_freeBlocks.available() == m_mappedFile.size();
 }
 
 size_t MemoryBucket::size() const
 {
     lock_guard<mutex> lock(m_mutex);
-    return m_memory.size();
+    return m_mappedFile.size();
 }
 
 size_t MemoryBucket::available() const
 {
     lock_guard<mutex> lock(m_mutex);
-    int availableBytes = (int) m_memory.size() - int(m_allocated + sizeof(Item));
-    if (availableBytes < 0)
-        availableBytes = 0;
-    return (size_t) availableBytes;
+    uint32_t available = m_freeBlocks.available();
+    if (available <= sizeof(Item))
+        return 0;
+    return available - sizeof(Item);
 }
 
-void* MemoryBucket::find(uint64_t id, size_t& size) const
+const uint32_t MemoryBucket::id() const
 {
-    lock_guard<mutex> lock(m_mutex);
-
-    auto itor = m_index.find(id);
-    if (itor == m_index.end())
-        return nullptr;
-
-    size = itor->second->size;
-    return (char*) itor->second + sizeof(Item);
+    return m_id;
 }
+
+const void* MemoryBucket::data() const
+{
+    return m_mappedFile.data();
+}
+
+static mutex                        bucketMapMutex;
+static map<uint32_t,MemoryBucket*>  bucketMap;
+
+MemoryBucket* MemoryBucket::find(uint32_t bucketId)
+{
+    lock_guard<mutex> lock(bucketMapMutex);
+    auto itor = bucketMap.find(bucketId);
+    if (itor == bucketMap.end())
+        return nullptr;
+    return itor->second;
+}
+
+MemoryBucket::FreeBlocks::FreeBlocks(uint32_t size)
+: m_size(size)
+{
+}
+
+static multimap<uint32_t,uint32_t>::iterator replaceKeyAndValue(multimap<uint32_t,uint32_t>& map,
+                        uint32_t oldKey, uint32_t oldValue,
+                        uint32_t newKey, uint32_t newValue)
+{
+    auto range = map.equal_range(oldKey);
+    for (auto stor = range.first; stor != range.second; stor++) {
+        if (stor->second == oldValue) {
+            map.erase(stor);
+            return map.insert(pair<uint32_t, uint32_t>(newKey, newValue));
+        }
+    }
+    return map.end();
+}
+
+void MemoryBucket::FreeBlocks::free(uint32_t offset, uint32_t size)
+{
+    // Find nearest free block down
+    auto itor = m_offsetMap.upper_bound(offset);
+    if (itor == m_offsetMap.begin())
+        itor = m_offsetMap.end();
+    else
+        itor--;
+
+    auto sizeItor = m_sizeMap.end();
+
+    if (itor == m_offsetMap.end()) {
+        // No nearest free block down
+        auto rc = m_offsetMap.insert(pair<uint32_t,uint32_t>(offset,size));
+        itor = rc.first;
+        sizeItor = m_sizeMap.insert(pair<uint32_t, uint32_t>(size, offset));
+    } else {
+        uint32_t endOfPriorBlock = itor->first + itor->second + sizeof(Item);
+        if (offset == endOfPriorBlock) {
+            // Append to existing free block
+            uint32_t oldBlockOffset = itor->first;
+            uint32_t oldBlockSize = itor->second;
+            itor->second += size + sizeof(Item);
+            sizeItor = replaceKeyAndValue(m_sizeMap, oldBlockSize, oldBlockOffset, itor->second, itor->first);
+        } else {
+            auto rc = m_offsetMap.insert(pair<uint32_t, uint32_t>(offset, size));
+            itor = rc.first;
+            sizeItor = m_sizeMap.insert(pair<uint32_t, uint32_t>(size, offset));
+        }
+    }
+
+    auto nextItor = itor;
+    nextItor++;
+    if (nextItor == m_offsetMap.end())
+        return;
+
+    // Can we join to the next free block?
+    uint32_t endOfBlock = itor->first + itor->second + sizeof(Item);
+    if (endOfBlock == nextItor->first) {
+        uint32_t nextBlockOffset = nextItor->first;
+        uint32_t nextBlockSize = nextItor->second;
+        itor->second += nextBlockSize + sizeof(Item);
+        m_offsetMap.erase(nextItor);
+        if (sizeItor != m_sizeMap.end())
+            m_sizeMap.erase(sizeItor);
+        replaceKeyAndValue(m_sizeMap, nextBlockSize, nextBlockOffset, itor->second, itor->first);
+    }
+}
+
+uint32_t MemoryBucket::FreeBlocks::alloc(uint32_t size)
+{
+    // Find smallest memory block to use
+    auto itor = m_sizeMap.lower_bound(size);
+    if (itor == m_sizeMap.end())
+        return UINT32_MAX;
+
+    uint32_t blockSize = itor->first;
+    uint32_t blockOffset = itor->second;
+
+    uint32_t newBlockSize = blockSize - size;
+    uint32_t newBlockOffset = blockOffset + size;
+
+    m_sizeMap.erase(itor);
+    m_offsetMap.erase(blockOffset);
+    if (newBlockSize > 0) {
+        m_sizeMap.insert(pair<uint32_t, uint32_t>(newBlockSize, newBlockOffset));
+        m_offsetMap.insert(pair<uint32_t, uint32_t>(newBlockOffset, newBlockSize));
+    }
+
+    return blockOffset;
+}
+
+void MemoryBucket::FreeBlocks::load(uint32_t offset, uint32_t size)
+{
+    auto rc = m_offsetMap.insert(pair<uint32_t, uint32_t>(offset, size));
+    if (rc.second)
+        m_sizeMap.insert(pair<uint32_t, uint32_t>(size, offset));
+}
+
+void MemoryBucket::FreeBlocks::clear()
+{
+    m_offsetMap.clear();
+    m_sizeMap.clear();
+}
+
+uint32_t MemoryBucket::FreeBlocks::count() const
+{
+    return m_offsetMap.size();
+}
+
+uint32_t MemoryBucket::FreeBlocks::available() const
+{
+    if (m_offsetMap.empty())
+        return 0;
+
+    uint32_t available = m_sizeMap.rbegin()->first;
+
+    return available;
+}
+
+void MemoryBucket::FreeBlocks::print() const
+{
+    cout << "Size map:" << endl;
+    for (auto itor: m_sizeMap)
+        cout << left << setw(5) << itor.first << "| " << setw(8) << itor.second << endl;
+
+    cout << endl << "Offset map:" << endl;
+    for (auto itor: m_offsetMap)
+        cout << left << setw(5) << itor.first << "| " << setw(8) << itor.second << endl;
+}
+
+#if USE_GTEST
+
+constexpr size_t storageHandleSize = 2 * sizeof(uint32_t);
+static const char* testData = "Test Data ";
+static const char* testBucketDirectory = "/tmp/mmf_test";
+
+static size_t populateBucket(MemoryBucket& bucket, size_t count, vector<Handle>& handles)
+{
+    size_t totalStoredSize = 0;
+    for (size_t i = 0; i < count; i++) {
+        String testStr(testData);
+        testStr += to_string(i);
+        Handle handle = bucket.alloc((void*) testStr.c_str(), testStr.size());
+        handles.push_back(handle);
+        totalStoredSize += testStr.size() + storageHandleSize;
+    }
+    return totalStoredSize;
+}
+
+TEST(SPTK_MemoryBucket, allocAndClear)
+{
+    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 128 * 1024);
+    bucket->clear();
+
+    EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
+
+    // Populate test data
+    vector<Handle> handles;
+    size_t totalStoredSize = populateBucket(*bucket, 10, handles);
+
+    EXPECT_EQ(bucket->available(), bucket->size() - totalStoredSize - storageHandleSize);
+
+    bucket->clear();
+
+    EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
+}
+
+TEST(SPTK_MemoryBucket, allocAndRead)
+{
+    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 128 * 1024);
+    bucket->clear();
+
+    // Populate test data
+    vector<Handle> handles;
+    populateBucket(*bucket, 10, handles);
+
+    bucket.reset(); // Destroy the bucket object: doesn't destroy file on disk
+
+    // Re-open the bucket
+    bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 128 * 1024);
+
+    // Check the stored data, using handles from prior open
+    size_t i = 0;
+    for (auto& handle: handles) {
+        String testStr(testData);
+        testStr += to_string(i);
+
+        String storedStr(handle.c_str(), handle.size());
+        EXPECT_STREQ(testStr.c_str(), storedStr.c_str());
+        i++;
+    }
+}
+
+TEST(SPTK_MemoryBucket, free)
+{
+    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 128 * 1024);
+    bucket->clear();
+
+    EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
+
+    // Populate test data
+    vector<Handle> handles;
+    populateBucket(*bucket, 10, handles);
+
+    // Free every allocated string
+    for (auto& handle: handles)
+        bucket->free(handle);
+
+    //bucket->freeBlocks().print();
+
+    EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
+}
+
+TEST(SPTK_MemoryBucket, performance)
+{
+    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 32 * 1024 * 1024);
+    bucket->clear();
+
+    EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
+
+    vector<Handle>  handles;
+    size_t          count = 1024 * 1024;
+
+    DateTime started("now");
+    populateBucket(*bucket, count, handles);
+    DateTime ended("now");
+
+    double durationSec = duration_cast<microseconds>(ended - started).count() / 1E6;
+    cout << "Allocated " << count << " items for " << durationSec << " sec, " << (int) count / durationSec / 1000 << "K op/sec" << endl;
+
+    started = DateTime::Now();
+    // Free every odd allocated string
+    size_t i = 0;
+    for (auto& handle: handles) {
+        if (i % 2 == 1) {
+            String storedStr(handle.c_str(), handle.size());
+            bucket->free(handle);
+        }
+        i++;
+    }
+    // Free every even allocated string
+    for (auto& handle: handles) {
+        if (i % 2 == 0) {
+            String storedStr(handle.c_str(), handle.size());
+            bucket->free(handle);
+        }
+        i++;
+    }
+    ended = DateTime::Now();
+
+    durationSec = duration_cast<microseconds>(ended - started).count() / 1E6;
+    cout << "Deallocated " << count << " items for " << durationSec << " sec, " << (int) count / durationSec / 1000 << "K op/sec" << endl;
+}
+
+#endif

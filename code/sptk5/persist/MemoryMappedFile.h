@@ -9,7 +9,7 @@ namespace persist {
 /**
  * Persistent memory block, associated with memory-mapped file
  */
-class MemoryBlock
+class MemoryMappedFile
 {
 #ifndef _WIN32
     static constexpr int INVALID_HANDLE_VALUE {-1};  ///< Invalid handle value
@@ -21,12 +21,12 @@ public:
      * @param fileName          Memory mapped file name
      * @param fileSize          Size of memory mapped file and block of memory
      */
-    MemoryBlock(const std::string& fileName, size_t fileSize);
+    MemoryMappedFile(const std::string& fileName, size_t fileSize);
 
     /**
      * Destructor
      */
-    virtual ~MemoryBlock();
+    virtual ~MemoryMappedFile();
 
     /**
      * Open existing memory mapped file, or create new one

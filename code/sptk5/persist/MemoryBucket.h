@@ -1,23 +1,82 @@
 #ifndef __PERSIST_MEMORYBUCKET_H__
 #define __PERSIST_MEMORYBUCKET_H__
 
-#include "MemoryBlock.h"
+#include "MemoryMappedFile.h"
 
 namespace sptk {
 namespace persist {
 
+class MemoryBucket;
+
+static constexpr uint32_t allocatedMark = 0x5F7F9FAF;
+static constexpr uint32_t releasedMark = 0x5E7E9EAE;
+
+/**
+ * Abstract interface that defines methods
+ * needed to store/restore class in/from persistent memory
+ */
+class Record
+{
+protected:
+    virtual size_t packSize() const = 0;
+    virtual void pack(void* destination) const = 0;
+    virtual void unpack(const void* destination) = 0;
+};
+
+class Handle : public Record
+{
+    friend class MemoryBucket;
+    MemoryBucket*   m_bucket {nullptr};
+
+protected:
+    void*           m_record {nullptr};
+
+    size_t packSize() const override;
+    void pack(void* destination) const override;
+    void unpack(const void* destination) override;
+public:
+    Handle(MemoryBucket& bucket, size_t m_bucketOffset);
+    Handle(size_t bucketId, size_t m_bucketOffset);
+    Handle(const Handle& other) = default;
+    Handle& operator = (const Handle& other) = default;
+    explicit operator void* () const;
+    void* data() const;
+    const char* c_str() const;
+    size_t size() const;
+};
+
 class MemoryBucket
 {
+    friend class Handle;
+    struct FreeBlocks
+    {
+        uint32_t                            m_size;
+        std::map<uint32_t,uint32_t>         m_offsetMap;
+        std::multimap<uint32_t,uint32_t>    m_sizeMap;
+
+        FreeBlocks(uint32_t size);
+        void load(uint32_t offset, uint32_t size);
+        void free(uint32_t offset, uint32_t size);
+        uint32_t alloc(uint32_t size);
+        void clear();
+        uint32_t count() const;
+        uint32_t available() const;
+
+        void print() const;
+    };
+
 public:
-    MemoryBucket(const std::string& fileName, size_t size);
 
-    void load();
+    MemoryBucket(const String& directoryName, uint32_t id, size_t size);
 
-    void* insert(uint64_t id, void* data, size_t bytes);
+    std::vector<Handle> load();
 
-    void* find(uint64_t id, size_t& bytes) const;
+    const uint32_t id() const;
+    const void* data() const;
 
-    void free(void* data);
+    Handle alloc(void* data, size_t bytes);
+
+    void free(Handle& data);
 
     void clear();
 
@@ -27,21 +86,26 @@ public:
 
     size_t available() const;
 
-private:
+    static MemoryBucket* find(uint32_t bucketId);
 
-    static constexpr uint32_t itemSignature = 0x5F7F9FAF;
+    const FreeBlocks& freeBlocks() { return m_freeBlocks; }
+
+protected:
 
     struct Item
     {
-        uint32_t signature{0};
-        size_t size{0};
-        uint64_t id{0};
+        uint32_t signature {0};
+        uint32_t size {0};
     };
 
+private:
+
     mutable std::mutex          m_mutex;
-    MemoryBlock                 m_memory;
-    std::map<uint64_t, Item*>   m_index;
-    size_t                      m_allocated{0};
+    uint32_t                    m_id;
+    MemoryMappedFile            m_mappedFile;
+    FreeBlocks                  m_freeBlocks;
+
+    String formatId(uint32_t bucketId);
 };
 
 }

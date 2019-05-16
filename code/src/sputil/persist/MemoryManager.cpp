@@ -4,7 +4,7 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::persist;
 
-MemoryManager::MemoryManager(const String& directory)
+MemoryManager::MemoryManager(const String& directory, const String& objectName)
 : m_directory(directory)
 {
 }

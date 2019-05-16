@@ -20,7 +20,7 @@ int main()
 
         size_t maxMessages = 1024 * 1024;
 
-        MemoryBucket bucket(fileName, 128 * maxMessages); // Message size is 100 bytes, plus 24 bytes of storage header
+        MemoryBucket bucket(fileName, 0, 128 * maxMessages); // Message size is 100 bytes, plus 24 bytes of storage header
         bucket.clear();
 
         steady_clock::time_point started = steady_clock::now();
@@ -29,7 +29,7 @@ int main()
         vector<char> buffer(100);
         memcpy(buffer.data(), "Hello, World!", 14);
         while (bucket.available() > buffer.size()) {
-            bucket.insert(i + 1, buffer.data(), buffer.size());
+            bucket.alloc(buffer.data(), buffer.size());
             i++;
         }
         maxMessages = i;
@@ -38,16 +38,6 @@ int main()
         double durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;
         cout << "Found " << i / 1024 << "K messages: " << int(maxMessages / durationSec) / 1024 << "K msg/sec" << endl;
         
-        started = steady_clock::now();
-        i = 0;
-        size_t sz;
-        for (i = 0; i < maxMessages; i++) {
-            char* ptr = (char*) bucket.find(i + 1, sz);
-            strcpy(buffer.data(), ptr);
-        }
-        ended = steady_clock::now();
-        durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;
-        cout << "Found " << i / 1024 << "K messages: " << int(maxMessages / durationSec) / 1024 << "K msg/sec" << endl;
 /*
         started = steady_clock::now();
         i = 0;
