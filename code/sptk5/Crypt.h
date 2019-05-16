@@ -37,7 +37,7 @@ namespace sptk
 /**
  * Simple wrapper for OpenSSL encryption functions
  */
-class Crypt
+class SP_EXPORT Crypt
 {
 public:
     /**

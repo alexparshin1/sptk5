@@ -720,7 +720,7 @@ void Element::appendMatchedElement(ElementSet& elements, const Element::XPathEle
                     elements.push_back(&arrayData[arrayData.size() - 1]);
                     break;
                 default:
-                    elements.push_back(&arrayData[xpathElement.index - 1]);
+                    elements.push_back(&arrayData[size_t(xpathElement.index) - 1]);
                     break;
             }
         }

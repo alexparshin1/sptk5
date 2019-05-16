@@ -41,7 +41,7 @@ namespace sptk {
 /**
  * Java Web Token encoding and decoding
  */
-class JWT
+class SP_EXPORT JWT
 {
 public:
     /** JWT algorithm types. */

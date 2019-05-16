@@ -59,17 +59,17 @@ static const short _monthDays[2][13] =
 
 static bool _time24Mode;
 
-char     DateTime::dateFormat[32];
-char     DateTime::datePartsOrder[4];
-char     DateTime::fullTimeFormat[32];
-char     DateTime::shortTimeFormat[32];
-char     DateTime::dateSeparator;
-char     DateTime::timeSeparator;
-String   DateTime::weekDayNames[7];
-String   DateTime::monthNames[12];
-String   DateTime::timeZoneName;
-int      DateTime::timeZoneOffset;
-int      DateTime::isDaylightSavingsTime;
+char     DateTime::_dateFormat[32];
+char     DateTime::_datePartsOrder[4];
+char     DateTime::_fullTimeFormat[32];
+char     DateTime::_shortTimeFormat[32];
+char     DateTime::_dateSeparator;
+char     DateTime::_timeSeparator;
+vector<String> DateTime::_weekDayNames(7);
+vector<String> DateTime::_monthNames(12);
+String   DateTime::_timeZoneName;
+int      DateTime::_timeZoneOffset;
+int      DateTime::_isDaylightSavingsTime;
 
 // Returns timezone offset in minutes from formats:
 // "Z" - UTC
@@ -168,19 +168,19 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
                 break;
             case 17:
                 pattern = "39";   // day
-                if (strlen(DateTime::datePartsOrder) < sizeof(DateTime::datePartsOrder) - 2)
-                    strncat(DateTime::datePartsOrder, "D", 2);
+                if (strlen(DateTime::_datePartsOrder) < sizeof(DateTime::_datePartsOrder) - 2)
+                    strncat(DateTime::_datePartsOrder, "D", 2);
                 break;
             case 6:
                 pattern = "19";   // month
-                if (strlen(DateTime::datePartsOrder) < sizeof(DateTime::datePartsOrder) - 2)
-                    strncat(DateTime::datePartsOrder, "M", 2);
+                if (strlen(DateTime::_datePartsOrder) < sizeof(DateTime::_datePartsOrder) - 2)
+                    strncat(DateTime::_datePartsOrder, "M", 2);
                 break;
             case 2000:
             case 0:
                 pattern = "2999"; // year
-                if (strlen(DateTime::datePartsOrder) < sizeof(DateTime::datePartsOrder) - 2)
-                    strncat(DateTime::datePartsOrder, "Y", 2);
+                if (strlen(DateTime::_datePartsOrder) < sizeof(DateTime::_datePartsOrder) - 2)
+                    strncat(DateTime::_datePartsOrder, "Y", 2);
                 break;
             default:
                 pattern = nullptr;
@@ -230,9 +230,9 @@ void DateTimeFormat::init() noexcept
     strftime(dateBuffer, 32, "%x", &t);
 
     // Build local date and time formats
-    DateTime::datePartsOrder[0] = 0;
-    DateTime::dateSeparator = parseDateOrTime(DateTime::dateFormat, dateBuffer);
-    ::time24Mode(timeBuffer[0] == '2');
+    DateTime::_datePartsOrder[0] = 0;
+    DateTime::_dateSeparator = parseDateOrTime(DateTime::_dateFormat, dateBuffer);
+	DateTime::time24Mode(timeBuffer[0] == '2');
 
     // Filling up the week day names, as defined in locale.
     // This date should be Monday:
@@ -245,7 +245,7 @@ void DateTimeFormat::init() noexcept
     for (int wday = 0; wday < 7; wday++) {
         t.tm_wday = wday;
         strftime(dateBuffer, 32, "%A", &t);
-        DateTime::weekDayNames[wday] = string(dateBuffer);
+        DateTime::_weekDayNames[wday] = string(dateBuffer);
     }
 
     // Filling up the month names, as defined in locale.
@@ -260,7 +260,7 @@ void DateTimeFormat::init() noexcept
     for (int month = 0; month < 12; month++) {
         t.tm_mon = month;
         strftime(dateBuffer, 32, "%B", &t);
-        DateTime::monthNames[month] = string(dateBuffer);
+        DateTime::_monthNames[month] = string(dateBuffer);
     }
     ::tzset();
 #if defined(__BORLANDC__) || _MSC_VER > 1800
@@ -273,7 +273,7 @@ void DateTimeFormat::init() noexcept
     if (p1 != nullptr)
         len = int(p1 - ptr);
 
-    DateTime::timeZoneName = string(ptr, (unsigned) len);
+    DateTime::_timeZoneName = string(ptr, (unsigned) len);
 
     time_t ts = time(nullptr);
     char buf[16];
@@ -287,8 +287,8 @@ void DateTimeFormat::init() noexcept
     int offset = string2int(buf);
     int minutes = offset % 100;
     int hours = offset / 100;
-    DateTime::isDaylightSavingsTime = ltime.tm_isdst == -1? 0 : ltime.tm_isdst;
-    DateTime::timeZoneOffset = hours * 60 + minutes;
+    DateTime::_isDaylightSavingsTime = ltime.tm_isdst == -1? 0 : ltime.tm_isdst;
+    DateTime::_timeZoneOffset = hours * 60 + minutes;
 }
 
 static DateTimeFormat dateTimeFormatInitializer;
@@ -363,7 +363,7 @@ static void encodeDate(DateTime::time_point& dt, short year, short month, short 
     time.tm_year = year - 1900;
     time.tm_mon = month - 1;
     time.tm_mday = day;
-    time.tm_isdst = DateTime::isDaylightSavingsTime;
+    time.tm_isdst = DateTime::isDaylightSavingsTime();
 
     time_t t = mktime(&time);
     dt = DateTime::clock::from_time_t(t);
@@ -379,11 +379,11 @@ static short splitDateString(char* bdat, short* datePart, char& actualDateSepara
         char c = bdat[i];
         if (actualDateSeparator == char(0) && c == '-') {
             actualDateSeparator = c;
-            c = DateTime::dateSeparator;
+            c = DateTime::dateSeparator();
         }
-        if (c == DateTime::dateSeparator || c == '-' || c == 0) {
-            if (actualDateSeparator == char(0) && c == DateTime::dateSeparator)
-                actualDateSeparator = DateTime::dateSeparator;
+        if (c == DateTime::dateSeparator() || c == '-' || c == 0) {
+            if (actualDateSeparator == char(0) && c == DateTime::dateSeparator())
+                actualDateSeparator = DateTime::dateSeparator();
             if (ptr != nullptr) { // end of token
                 if (partNumber >= 3) {
                     partNumber = 0;
@@ -414,7 +414,7 @@ static short splitTimeString(char* bdat, short* timePart)
     auto len = (uint32_t) strlen(bdat);
     for (uint32_t i = 0; i <= len && partNumber < 4; i++) {
         char c = bdat[i];
-        if (c == DateTime::timeSeparator || c == ' ' || c == '.' || c == 0) {
+        if (c == DateTime::timeSeparator() || c == ' ' || c == '.' || c == 0) {
             if (ptr != nullptr) { // end of token
                 bdat[i] = 0;
                 timePart[partNumber] = (short) string2int(ptr);
@@ -485,7 +485,7 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
                 break;
         }
         *p = 0;
-        tzOffsetMin += DateTime::timeZoneOffset;
+        tzOffsetMin += DateTime::timeZoneOffset();
     }
     trimRight(bdat);
 
@@ -511,6 +511,7 @@ static void encodeDate(DateTime::time_point& dt, const char* dat)
 
     memset(datePart, 0, sizeof(datePart));
     strncpy(bdat, dat, sizeof(bdat));
+	bdat[sizeof(bdat) - 1] = 0;
 
     char *timePtr = strpbrk(bdat, " T");
     if (timePtr != nullptr) {
@@ -525,14 +526,14 @@ static void encodeDate(DateTime::time_point& dt, const char* dat)
         short month = 0;
         short day = 0;
         short year = 0;
-        if (actualDateSeparator != DateTime::dateSeparator && datePart[0] > 31) {
+        if (actualDateSeparator != DateTime::dateSeparator() && datePart[0] > 31) {
             // YYYY-MM-DD format
             year = datePart[0];
             month = datePart[1];
             day = datePart[2];
         } else {
             for (int ii = 0; ii < 3; ii++) {
-                switch (DateTime::datePartsOrder[ii]) {
+                switch (DateTime::datePartsOrder()[ii]) {
                     case 'M':
                         month = datePart[ii];
                         break;
@@ -571,7 +572,7 @@ static int isLeapYear(const int16_t year)
 
 }
 
-void sptk::DateTime::setTimeZone(const String& _timeZoneName)
+void DateTime::setTimeZone(const String& _timeZoneName)
 {
 #ifdef _WIN32
     _putenv_s("TZ", _timeZoneName.c_str());
@@ -582,7 +583,7 @@ void sptk::DateTime::setTimeZone(const String& _timeZoneName)
     dateTimeFormatInitializer.init();
 }
 
-void sptk::time24Mode(bool t24mode)
+void DateTime::time24Mode(bool t24mode)
 {
     const char* timeBuffer = "10:48:59AM";
 
@@ -590,17 +591,18 @@ void sptk::time24Mode(bool t24mode)
         timeBuffer = "22:48:59";
 
     _time24Mode = t24mode;
-    DateTime::timeSeparator = DateTimeFormat::parseDateOrTime(DateTime::fullTimeFormat, timeBuffer);
-    strncpy(DateTime::shortTimeFormat, DateTime::fullTimeFormat, sizeof(DateTime::shortTimeFormat) - 1);
-    char* p = strchr(DateTime::shortTimeFormat, DateTime::timeSeparator);
+    DateTime::_timeSeparator = DateTimeFormat::parseDateOrTime(DateTime::_fullTimeFormat, timeBuffer);
+    strncpy(DateTime::_shortTimeFormat, DateTime::_fullTimeFormat, sizeof(DateTime::_shortTimeFormat));
+	DateTime::_shortTimeFormat[sizeof(DateTime::_shortTimeFormat) - 1] = 0;
+	char* p = strchr(DateTime::_shortTimeFormat, DateTime::_timeSeparator);
     if (p != nullptr) {
-        p = strchr(p + 1, DateTime::timeSeparator);
+        p = strchr(p + 1, DateTime::_timeSeparator);
         if (p != nullptr)
             *p = 0;
     }
     if (!_time24Mode) {
-        strncat(DateTime::fullTimeFormat, "TM", sizeof(DateTime::fullTimeFormat) - 1);
-        strncat(DateTime::shortTimeFormat, "TM", sizeof(DateTime::shortTimeFormat) - 1);
+        strncat(DateTime::_fullTimeFormat, "TM", sizeof(DateTime::_fullTimeFormat) - 1);
+        strncat(DateTime::_shortTimeFormat, "TM", sizeof(DateTime::_shortTimeFormat) - 1);
     }
 }
 
@@ -641,9 +643,9 @@ DateTime::DateTime(const char* dat) noexcept
     }
 
     try {
-        if (strchr(s1.c_str(), dateSeparator) != nullptr || strchr(s1.c_str(), '-') != nullptr) {
+        if (strchr(s1.c_str(), _dateSeparator) != nullptr || strchr(s1.c_str(), '-') != nullptr) {
             encodeDate(m_dateTime, s1.c_str());
-            if (s2 != nullptr && strchr(s2, timeSeparator) != nullptr)
+            if (s2 != nullptr && strchr(s2, _timeSeparator) != nullptr)
                 encodeTime(m_dateTime, s2);
         } else
             encodeTime(m_dateTime, s1.c_str());
@@ -797,15 +799,15 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
     }
 
     char savedFill = str.fill('0');
-    str << setw(2) << h << timeSeparator << setw(2) << m;
+    str << setw(2) << h << _timeSeparator << setw(2) << m;
     switch (printAccuracy) {
         case PA_MINUTES:
             break;
         case PA_SECONDS:
-            str << timeSeparator << setw(2) << s;
+            str << _timeSeparator << setw(2) << s;
             break;
         default:
-            str << timeSeparator << setw(2) << s << "." << setw(3) << ms;
+            str << _timeSeparator << setw(2) << s << "." << setw(3) << ms;
             break;
     }
 
@@ -813,16 +815,16 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
         str << appendix;
 
     if ((printFlags & PF_TIMEZONE) != 0) {
-        if (timeZoneOffset == 0 || (printFlags & PF_GMT) != 0)
+        if (_timeZoneOffset == 0 || (printFlags & PF_GMT) != 0)
             str << "Z";
         else {
             int minutes;
-            if (timeZoneOffset > 0) {
+            if (_timeZoneOffset > 0) {
                 str << '+';
-                minutes = timeZoneOffset;
+                minutes = _timeZoneOffset;
             } else {
                 str << '-';
-                minutes = -timeZoneOffset;
+                minutes = -_timeZoneOffset;
             }
             str << setw(2) << minutes / 60 << ":" << setw(2) << minutes % 60;
         }
@@ -883,7 +885,7 @@ short DateTime::dayOfWeek() const
 
 String DateTime::dayOfWeekName() const
 {
-    return DateTime::weekDayNames[dayOfWeek() - 1];
+    return DateTime::_weekDayNames[size_t(dayOfWeek()) - 1];
 }
 
 String DateTime::monthName() const
@@ -896,7 +898,7 @@ String DateTime::monthName() const
 
     sptk::decodeDate(m_dateTime, y, m, d, wd, yd, false);
 
-    return DateTime::monthNames[m - 1];
+    return DateTime::_monthNames[size_t(m) - 1];
 }
 
 String DateTime::dateString(int printFlags) const
@@ -927,7 +929,18 @@ DateTime DateTime::convertCTime(const time_t tt)
     return DateTime(clock::from_time_t(tt));
 }
 
-bool sptk::time24Mode()
+const char* DateTime::dateFormat() { return _dateFormat; }
+const char* DateTime::datePartsOrder() { return _datePartsOrder; }
+const char* DateTime::fullTimeFormat() { return _fullTimeFormat; }
+const char* DateTime::shortTimeFormat() { return _shortTimeFormat; }
+char DateTime::dateSeparator() { return _dateSeparator; }
+char DateTime::timeSeparator() { return _timeSeparator; }
+vector<String> DateTime::monthNames() { return _monthNames; }
+String DateTime::timeZoneName() { return _timeZoneName; }
+int DateTime::timeZoneOffset() { return _timeZoneOffset; }
+int DateTime::isDaylightSavingsTime() { return _isDaylightSavingsTime; }
+
+bool DateTime::time24Mode()
 {
     return ::_time24Mode;
 }

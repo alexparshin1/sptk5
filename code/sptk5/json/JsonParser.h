@@ -42,7 +42,7 @@ namespace sptk { namespace json {
  *
  * Loads JSON text into JSON element
  */
-class Parser
+class SP_EXPORT Parser
 {
     friend class Element;
 

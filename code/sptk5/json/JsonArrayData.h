@@ -43,7 +43,7 @@ class Element;
 /**
  * Array of JSON Element objects
  */
-class ArrayData
+class SP_EXPORT ArrayData
 {
     friend class Element;
 

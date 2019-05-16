@@ -42,7 +42,7 @@ namespace sptk { namespace json {
 /**
  * JSON document
  */
-class Document
+class SP_EXPORT Document
 {
     friend class ObjectData;
     friend class Element;

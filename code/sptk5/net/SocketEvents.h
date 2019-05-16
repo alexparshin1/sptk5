@@ -47,7 +47,7 @@ namespace sptk {
  * such as data available for read or peer closed connection,
  * to its sockets.
  */
-class SocketEvents : public Thread
+class SP_EXPORT SocketEvents : public Thread
 {
     /**
      * OS-specific event manager

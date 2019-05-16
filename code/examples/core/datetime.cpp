@@ -80,7 +80,7 @@ int main()
     COUT("Time:   " << dt.timeString(printFlags) << endl);
 
     COUT(endl << "Get the date and time from the system for TZ=':US/Pacific', and print the date components:" << endl << endl);
-    COUT("Local TZ offset is " << DateTime::timeZoneOffset << " seconds." << endl);
+    COUT("Local TZ offset is " << DateTime::timeZoneOffset() << " seconds." << endl);
 
 #ifndef _WIN32
     DateTime::setTimeZone(":US/Pacific");

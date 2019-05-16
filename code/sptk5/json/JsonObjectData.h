@@ -45,7 +45,7 @@ class Document;
 /**
  * Map of names to JSON Element objects
  */
-class ObjectData
+class SP_EXPORT ObjectData
 {
     friend class Element;
 

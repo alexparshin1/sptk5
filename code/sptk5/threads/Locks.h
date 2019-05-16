@@ -46,7 +46,7 @@ typedef std::shared_timed_mutex             SharedMutex;
  * Lock is acquired by constructor.
  * For timed lock, waiting for longer than timeout, throws an exception.
  */
-class UniqueLockInt
+class SP_EXPORT UniqueLockInt
 {
     SharedMutex&    mutex;              ///< Shared mutex that controls lock
     bool            locked {false};     ///< True if lock is acquired
@@ -87,7 +87,7 @@ public:
  * Lock is acquired by constructor.
  * For timed lock, waiting for longer than timeout, throws an exception.
  */
-class SharedLockInt
+class SP_EXPORT SharedLockInt
 {
     SharedMutex&    mutex;              ///< Shared mutex that controls lock
     bool            locked {false};     ///< True if lock is acquired

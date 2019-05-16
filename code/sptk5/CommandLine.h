@@ -45,7 +45,7 @@ namespace sptk {
 /**
  * @brief Command line parser
  */
-class CommandLine
+class SP_EXPORT CommandLine
 {
     /**
      * Program version and copyright message (forhelp only).
@@ -71,7 +71,7 @@ public:
      * that ether should match or should not match depending
      * on constructor mustMatch parameter value.
      */
-    class Visibility
+    class SP_EXPORT Visibility
     {
         /**
          * If true then expression shoul not match
@@ -125,7 +125,7 @@ protected:
     /**
      * @brief Command line element that could be argument/command, option, or option with value
      */
-    class CommandLineElement
+    class SP_EXPORT CommandLineElement
     {
         /**
          * Element name
@@ -254,7 +254,7 @@ protected:
      * Command line argument that doesn't start from '-' character and doesn't expect a value,
      * AKA command.
      */
-    class CommandLineArgument: public CommandLineElement
+    class SP_EXPORT CommandLineArgument: public CommandLineElement
     {
     public:
         /**
@@ -276,7 +276,7 @@ protected:
      * Command line argument that starts from '-' character and doesn't expect a value.
      * It may have a long name that starts from '--', and/or a short name, that starts from '-'.
      */
-    class CommandLineOption: public CommandLineElement
+    class SP_EXPORT CommandLineOption: public CommandLineElement
     {
     public:
         /**
@@ -318,7 +318,7 @@ protected:
      * Value has human readable name, such as 'file name', 'text', 'number', etc.. and optional
      * validation pattern that can be regular expression or empty string.
      */
-    class CommandLineParameter: public CommandLineElement
+    class SP_EXPORT CommandLineParameter: public CommandLineElement
     {
         /**
          * Value name, for using in help

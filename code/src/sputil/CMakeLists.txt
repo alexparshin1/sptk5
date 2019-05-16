@@ -2,7 +2,7 @@ SET (SPUTIL_SOURCES
     core/Base64.cpp core/Crypt.cpp core/Buffer.cpp core/CommandLine.cpp core/DataSource.cpp core/DateTime.cpp core/Exception.cpp
     core/Field.cpp core/FieldList.cpp core/FileLogEngine.cpp core/IntList.cpp core/LogEngine.cpp core/Registry.cpp 
     core/SharedStrings.cpp core/String.cpp core/Strings.cpp core/SysLogEngine.cpp core/UniqueInstance.cpp core/Variant.cpp
-    core/string_ext.cpp core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/Printer.cpp core/ReadBuffer.cpp
+    core/string_ext.cpp core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/ReadBuffer.cpp
     core/SystemException.cpp core/md5.cpp
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
     jwt/JWT.cpp jwt/JWT-openssl.cpp

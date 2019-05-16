@@ -65,7 +65,7 @@ class ArrayData;
  *
  * May contain any type of JSON object
  */
-class Element
+class SP_EXPORT Element
 {
     friend class Document;
     friend class Parser;
@@ -75,17 +75,17 @@ class Element
     /**
      * Parent JSON document
      */
-    Document*       m_document;
+	Document*		m_document{nullptr};
 
     /**
      * Parent JSON element
      */
-    Element*        m_parent;
+	Element*		m_parent{nullptr};
 
     /**
      * JSON element type
      */
-    Type            m_type;
+	Type            m_type{JDT_NULL};
 
     /**
      * JSON element data
@@ -96,7 +96,7 @@ class Element
         bool                m_boolean;
         ArrayData*          m_array;
         ObjectData*         m_object;
-    } m_data;
+	} m_data {};
 
 protected:
 

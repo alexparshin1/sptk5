@@ -390,8 +390,8 @@ public:
 
 /**
  * Print buffer to ostream as hexadecimal dump
-  */
-  std::ostream& operator<<(std::ostream&, const Buffer& buffer);
+*/
+SP_EXPORT std::ostream& operator<<(std::ostream&, const Buffer& buffer);
 
 /**
  * @}

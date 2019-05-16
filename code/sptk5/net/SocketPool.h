@@ -73,7 +73,7 @@ typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
  * On Linux it is using epoll, on BSD it is using kqueue,
  * and on Windows WSAAsyncSelect is used.
  */
-class SocketPool : public std::mutex
+class SP_EXPORT SocketPool : public std::mutex
 {
     /**
      * Socket that controls other sockets events

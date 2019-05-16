@@ -54,7 +54,7 @@ namespace sptk {
 /**
  * Network host information
  */
-class Host
+class SP_EXPORT Host
 {
     mutable SharedMutex m_mutex;                            ///< Mutex to protect internal class data
     String              m_hostname;                         ///< Host name or IP address

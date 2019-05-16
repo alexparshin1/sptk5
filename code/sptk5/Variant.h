@@ -157,7 +157,7 @@ protected:
     /**
      * Data type
      */
-    uint16_t                m_dataType;
+	uint16_t                m_dataType {0};
 
     /**
      * Releases allocated buffer (if any)

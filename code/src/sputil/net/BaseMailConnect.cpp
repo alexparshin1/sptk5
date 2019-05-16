@@ -158,7 +158,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
 
     char dateBuffer[128] = {};
     const char* sign = "-";
-    int offset = DateTime::timeZoneOffset;
+    int offset = DateTime::timeZoneOffset();
     if (offset >= 0)
         sign = "";
     else {
@@ -169,12 +169,12 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
             "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
             date.dayOfWeekName().substr(0, 3).c_str(),
             dd,
-            DateTime::monthNames[dm - 1].substr(0, 3).c_str(),
+            DateTime::monthNames()[size_t(dm) - 1].substr(0, 3).c_str(),
             dy,
             th, tm, ts,
             sign,
             offset * 100,
-            DateTime::timeZoneName.c_str()
+            DateTime::timeZoneName().c_str()
     );
 
     message << string(dateBuffer, (size_t) len) << endl;
