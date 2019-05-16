@@ -228,12 +228,13 @@ static multimap<uint32_t,uint32_t>::iterator replaceKeyAndValue(multimap<uint32_
                         uint32_t oldKey, uint32_t oldValue,
                         uint32_t newKey, uint32_t newValue)
 {
-    auto range = map.equal_range(oldKey);
-    for (auto stor = range.first; stor != range.second; stor++) {
-        if (stor->second == oldValue) {
-            map.erase(stor);
+    auto itor = map.find(oldKey);
+    while (itor != map.end()) {
+        if (itor->second == oldValue) {
+            map.erase(itor);
             return map.insert(pair<uint32_t, uint32_t>(newKey, newValue));
         }
+        itor++;
     }
     return map.end();
 }
@@ -353,7 +354,18 @@ void MemoryBucket::FreeBlocks::print() const
 
 constexpr size_t storageHandleSize = 2 * sizeof(uint32_t);
 static const char* testData = "Test Data ";
+
+#ifdef _WIN32
+static const char* testBucketDirectory = "C:/Windows/temp/mmf_test";
+#else
 static const char* testBucketDirectory = "/tmp/mmf_test";
+#endif
+
+static void prepareTestDirectory()
+{
+    if (access(testBucketDirectory, 0) != 0)
+        mkdir(testBucketDirectory, 0777);
+}
 
 static size_t populateBucket(MemoryBucket& bucket, size_t count, vector<Handle>& handles)
 {
@@ -370,6 +382,8 @@ static size_t populateBucket(MemoryBucket& bucket, size_t count, vector<Handle>&
 
 TEST(SPTK_MemoryBucket, allocAndClear)
 {
+    prepareTestDirectory();
+
     auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 128 * 1024);
     bucket->clear();
 
@@ -388,6 +402,8 @@ TEST(SPTK_MemoryBucket, allocAndClear)
 
 TEST(SPTK_MemoryBucket, allocAndRead)
 {
+    prepareTestDirectory();
+
     auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 128 * 1024);
     bucket->clear();
 
@@ -414,6 +430,8 @@ TEST(SPTK_MemoryBucket, allocAndRead)
 
 TEST(SPTK_MemoryBucket, free)
 {
+    prepareTestDirectory();
+
     auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 128 * 1024);
     bucket->clear();
 
@@ -434,6 +452,8 @@ TEST(SPTK_MemoryBucket, free)
 
 TEST(SPTK_MemoryBucket, performance)
 {
+    prepareTestDirectory();
+
     auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 32 * 1024 * 1024);
     bucket->clear();
 
