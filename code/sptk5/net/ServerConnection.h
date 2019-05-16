@@ -50,7 +50,6 @@ class TCPServer;
  */
 class ServerConnection: public Runable
 {
-    friend class SMQServer;
     friend class TCPServer;
 
     /**
@@ -66,22 +65,10 @@ class ServerConnection: public Runable
 protected:
 
     /**
-     * Access to internal socket for derived classes
-     * @return internal socket
-     */
-    TCPSocket& socket() const;
-
-    /**
      * Assign new socket
      * @param socket            Socket to assign
      */
     void setSocket(TCPSocket* socket);
-
-    /**
-     * Parent TCP server reference
-     * @return
-     */
-    TCPServer& server() const;
 
 public:
 
@@ -96,6 +83,18 @@ public:
      * @brief Destructor
      */
     ~ServerConnection() override;
+
+    /**
+     * Access to internal socket for derived classes
+     * @return internal socket
+     */
+    TCPSocket& socket() const;
+
+    /**
+     * Parent TCP server reference
+     * @return
+     */
+    TCPServer& server() const;
 };
 
 /**

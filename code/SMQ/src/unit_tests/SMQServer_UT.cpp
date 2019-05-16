@@ -34,6 +34,7 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+using namespace smq;
 
 SMQServer_UT::SMQServer_UT()
 {

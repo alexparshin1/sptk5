@@ -36,7 +36,7 @@
 #include <sptk5/net/SocketEvents.h>
 #include "SMQSendQueue.h"
 
-namespace sptk {
+namespace smq {
 
 enum SMQLogGroup : uint8_t
 {
@@ -49,26 +49,26 @@ enum SMQLogGroup : uint8_t
 
 class SMQSubscription;
 
-class SMQConnection : public TCPServerConnection
+class SMQConnection : public sptk::TCPServerConnection
 {
-    mutable SharedMutex             m_mutex;
-    MQProtocolType                  m_protocolType { MP_SMQ };
+    mutable sptk::SharedMutex                   m_mutex;
+    MQProtocolType                              m_protocolType { MP_SMQ };
 
 public:
     MQProtocolType getProtocolType() const;
 
 private:
-    std::shared_ptr<MQProtocol>             m_protocol;
-    String                                  m_clientId;
-    std::set<SMQSubscription*>              m_subscriptions;
-    std::shared_ptr<MQLastWillMessage>      m_lastWillMessage;
-    sptk::LogEngine&                        m_logEngine;
-    uint8_t                                 m_debugLogFilter;
+    std::shared_ptr<MQProtocol>                 m_protocol;
+    sptk::String                                m_clientId;
+    std::set<SMQSubscription*>                  m_subscriptions;
+    std::shared_ptr<MQLastWillMessage>          m_lastWillMessage;
+    sptk::LogEngine&                            m_logEngine;
+    uint8_t                                     m_debugLogFilter;
 
-    SMQSendQueue                            m_sendQueue;
+    SMQSendQueue                                m_sendQueue;
 
 public:
-    SMQConnection(TCPServer& server, ThreadPool& sendThreadPool, SOCKET connectionSocket, sockaddr_in* peer, sptk::LogEngine& logEngine, uint8_t debugLogFilter);
+    SMQConnection(sptk::TCPServer& server, sptk::ThreadPool& sendThreadPool, SOCKET connectionSocket, sockaddr_in* peer, sptk::LogEngine& logEngine, uint8_t debugLogFilter);
     ~SMQConnection() override;
 
     void run() override;
@@ -76,8 +76,8 @@ public:
 
     MQProtocol& protocol();
 
-    String clientId() const;
-    void setupClient(const String& id, const String& lastWillDestination, const String& lastWillMessage);
+    sptk::String clientId() const;
+    void setupClient(const sptk::String& id, const sptk::String& lastWillDestination, const sptk::String& lastWillMessage);
 
     void subscribe(const sptk::String& destination, SMQSubscription* subscription);
     void unsubscribe(const sptk::String& destination, SMQSubscription* subscription);
@@ -85,7 +85,7 @@ public:
     void sendMessage(SMessage& message);
 
     // Low-level operations
-    void ack(Message::Type sourceMessageType, const String& messageId);
+    void ack(Message::Type sourceMessageType, const sptk::String& messageId);
     bool readMessage(SMessage& message);
     SMessage getLastWillMessage();
 };

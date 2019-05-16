@@ -32,16 +32,16 @@
 #include <smq/Message.h>
 #include <sptk5/cthreads>
 
-namespace sptk {
+namespace smq {
 
 class SMQConnection;
 
-class SMQSendQueue : public Runable
+class SMQSendQueue : public sptk::Runable
 {
     mutable std::mutex          m_mutex;
     SMQConnection&              m_connection;
     std::queue<SMessage>        m_messages;
-    ThreadPool&                 m_threadPool;
+    sptk::ThreadPool&           m_threadPool;
     std::atomic<bool>           m_processing {false};
 
     void setProcessing(bool processing);
@@ -51,7 +51,7 @@ protected:
     SMessage getMessage();
 
 public:
-    SMQSendQueue(ThreadPool& threadPool, SMQConnection& connection);
+    SMQSendQueue(sptk::ThreadPool& threadPool, SMQConnection& connection);
 
     void push(SMessage& message);
 };

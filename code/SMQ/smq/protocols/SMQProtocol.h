@@ -33,17 +33,17 @@
 #include <smq/protocols/MQProtocol.h>
 #include <sptk5/net/TCPSocket.h>
 
-namespace sptk {
+namespace smq {
 
 class SP_EXPORT SMQProtocol : public MQProtocol
 {
 public:
-    explicit SMQProtocol(TCPSocket& socket) : MQProtocol(socket) {}
+    explicit SMQProtocol(sptk::TCPSocket& socket) : MQProtocol(socket) {}
     ~SMQProtocol() override {};
 
-    void ack(Message::Type sourceMessageType, const String& messageId) override;
+    void ack(Message::Type sourceMessageType, const sptk::String& messageId) override;
     bool readMessage(SMessage& message) override;
-    bool sendMessage(const String& destination, SMessage& message) override;
+    bool sendMessage(const sptk::String& destination, SMessage& message) override;
 };
 
 } // namespace sptk

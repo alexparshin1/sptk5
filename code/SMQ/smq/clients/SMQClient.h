@@ -36,17 +36,17 @@
 #include <smq/clients/BaseMQClient.h>
 #include <smq/protocols/MQLastWillMessage.h>
 
-namespace sptk {
+namespace smq {
 
 class SP_EXPORT SMQClient : public TCPMQClient
 {
-    mutable SharedMutex                     m_mutex;            ///< Mutex that protects internal data
-    Host                                    m_server;           ///< SMQ server host
-    String                                  m_username;         ///< Connection user name
-    String                                  m_password;         ///< Connection password
-    std::unique_ptr<MQLastWillMessage>      m_lastWillMessage;  ///< Optional last will message
+    mutable sptk::SharedMutex                     m_mutex;            ///< Mutex that protects internal data
+    sptk::Host                                    m_server;           ///< SMQ server host
+    sptk::String                                  m_username;         ///< Connection user name
+    sptk::String                                  m_password;         ///< Connection password
+    std::unique_ptr<MQLastWillMessage>            m_lastWillMessage;  ///< Optional last will message
 protected:
-    void socketEvent(SocketEventType eventType) override;
+    void socketEvent(sptk::SocketEventType eventType) override;
 
 public:
 
@@ -54,7 +54,7 @@ public:
      * Constructor
      * @param clientId          Unique client id
      */
-    SMQClient(MQProtocolType protocolType, const String& clientId);
+    SMQClient(MQProtocolType protocolType, const sptk::String& clientId);
 
     /**
      * Destructor
@@ -78,7 +78,7 @@ public:
      * @param encrypted         Use encrypted connection. If true, then SSL keys must be loaded prior to this call.
      * @param timeout           Operation timeout
      */
-    void connect(const Host& server, const String& username, const String& password, bool encrypted,
+    void connect(const sptk::Host& server, const sptk::String& username, const sptk::String& password, bool encrypted,
                  std::chrono::milliseconds timeout) override;
 
     /**
@@ -91,13 +91,13 @@ public:
      * Subscribe to a queue or topic
      * @param destination       Destination queue or topic name
      */
-    void subscribe(const String& destination, std::chrono::milliseconds timeout) override;
+    void subscribe(const sptk::String& destination, std::chrono::milliseconds timeout) override;
 
     /**
      * Un-subscribe from a queue or topic
      * @param destination       Destination queue or topic name
      */
-    void unsubscribe(const String& destination, std::chrono::milliseconds timeout) override;
+    void unsubscribe(const sptk::String& destination, std::chrono::milliseconds timeout) override;
 
     /**
      * Send message
@@ -105,7 +105,7 @@ public:
      * @param message           Message
      * @param timeout           Operation timeout
      */
-    void send(const String& destination, SMessage& message, std::chrono::milliseconds timeout) override;
+    void send(const sptk::String& destination, SMessage& message, std::chrono::milliseconds timeout) override;
 };
 
 }

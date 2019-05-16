@@ -31,6 +31,7 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+using namespace smq;
 
 BaseMQClient::BaseMQClient(MQProtocolType protocolType, const String& clientId)
 : m_clientId(clientId), m_protocolType(protocolType)

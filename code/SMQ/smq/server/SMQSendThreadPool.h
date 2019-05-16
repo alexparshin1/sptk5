@@ -31,9 +31,9 @@
 
 #include <sptk5/threads/ThreadPool.h>
 
-namespace sptk {
+namespace smq {
 
-class SMQSendThreadPool : public ThreadPool
+class SMQSendThreadPool : public sptk::ThreadPool
 {
 public:
     SMQSendThreadPool(size_t maxThreads);

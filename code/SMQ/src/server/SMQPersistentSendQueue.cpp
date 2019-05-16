@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQSubscriptions.h - description                       ║
+║                       SMQConnectionQueue.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday February 1 2019                                 ║
+║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,31 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_SUBSCRIPTIONS_H__
-#define __SMQ_SUBSCRIPTIONS_H__
+#include "smq/server/SMQPersistentSendQueue.h"
 
-#include <smq/server/SMQConnection.h>
-#include <smq/server/SMQSubscription.h>
-#include <sptk5/cthreads>
-
-namespace smq {
-
-typedef std::shared_ptr<SMQSubscription> SharedSMQSubscription;
-
-class SP_EXPORT SMQSubscriptions
-{
-    mutable sptk::SharedMutex                     m_mutex;
-    std::map<sptk::String,SharedSMQSubscription>  m_subscriptions;
-    sptk::LogEngine&                              m_logEngine;
-    uint8_t                                       m_debugLogFilter;
-public:
-    SMQSubscriptions(sptk::LogEngine& logEngine, uint8_t debugLogFilter);
-    void clear();
-    void deliverMessage(const sptk::String& queueName, const SMessage message);
-    void subscribe(SMQConnection* connection, const std::map<sptk::String,QOS>& queueNames);
-    void unsubscribe(SMQConnection* connection, const sptk::String& queueName);
-};
-
-} // namespace sptk
-
-#endif
+using namespace std;
+using namespace sptk;
+using namespace smq;

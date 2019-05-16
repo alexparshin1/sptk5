@@ -34,9 +34,9 @@
 #include <smq/server/SMQSendThreadPool.h>
 #include <smq/protocols/MQProtocol.h>
 
-namespace sptk {
+namespace smq {
 
-class SP_EXPORT SMQServer : public TCPServer
+class SP_EXPORT SMQServer : public sptk::TCPServer
 {
     friend class SMQConnection;
 
@@ -46,42 +46,42 @@ public:
     MQProtocolType protocol() const;
 
 private:
-    String                          m_username;
-    String                          m_password;
-    std::set<String>                m_clientIds;
+    sptk::String                    m_username;
+    sptk::String                    m_password;
+    std::set<sptk::String>          m_clientIds;
     std::set<SMQConnection*>        m_connections;
-    SocketEvents                    m_socketEvents;
+    sptk::SocketEvents              m_socketEvents;
     SMQSubscriptions                m_subscriptions;
-    LogEngine&                      m_logEngine;
+    sptk::LogEngine&                m_logEngine;
     uint8_t                         m_debugLogFilter;
 
     SMQSendThreadPool               m_sendThreadPool;
 
 protected:
-    static void socketEventCallback(void *userData, SocketEventType eventType);
-    void watchSocket(TCPSocket& socket, void* userData);
-    void forgetSocket(TCPSocket& socket);
+    static void socketEventCallback(void *userData, sptk::SocketEventType eventType);
+    void watchSocket(sptk::TCPSocket& socket, void* userData);
+    void forgetSocket(sptk::TCPSocket& socket);
     void clear();
 
-    void execute(Runable* task) override;
+    void execute(sptk::Runable* task) override;
     void run() override;
 
 public:
 
-    SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine,
+    SMQServer(MQProtocolType protocol, const sptk::String& username, const sptk::String& password, sptk::LogEngine& logEngine,
               uint8_t debugLogFilter=(LOG_SERVER_OPS|LOG_CONNECTIONS|LOG_SUBSCRIPTIONS|LOG_MESSAGE_OPS));
     ~SMQServer() override;
 
     void stop() override;
 
-    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
-    void closeConnection(ServerConnection* connection, bool brokenConnection);
-    bool authenticate(const String& clientId, const String& username, const String& password);
+    sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
+    void closeConnection(sptk::ServerConnection* connection, bool brokenConnection);
+    bool authenticate(const sptk::String& clientId, const sptk::String& username, const sptk::String& password);
 
     void distributeMessage(SMessage message);
 
-    void subscribe(SMQConnection* connection, const std::map<String,QOS>& destinations);
-    void unsubscribe(SMQConnection* connection, const String& destination);
+    void subscribe(SMQConnection* connection, const std::map<sptk::String,QOS>& destinations);
+    void unsubscribe(SMQConnection* connection, const sptk::String& destination);
 };
 
 }

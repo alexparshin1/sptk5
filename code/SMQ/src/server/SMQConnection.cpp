@@ -29,9 +29,9 @@
 #include <smq/server/SMQServer.h>
 #include <SMQ/smq/server/SMQConnection.h>
 
-
 using namespace std;
 using namespace sptk;
+using namespace smq;
 
 static String clientLogPrefix(const String& clientId)
 {

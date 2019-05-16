@@ -32,7 +32,7 @@
 #include <sptk5/String.h>
 #include <sptk5/Buffer.h>
 
-namespace sptk {
+namespace smq {
 
 /**
  * MQTT Last Will message definition.
@@ -42,15 +42,15 @@ namespace sptk {
  */
 class MQLastWillMessage
 {
-    String      m_destination;  ///< Topic to publish the message
-    String      m_message;      ///< Message to publish
+    sptk::String      m_destination;  ///< Topic to publish the message
+    sptk::String      m_message;      ///< Message to publish
 public:
     /**
      * Constructor
      * @param destination       Topic to publish the message
      * @param message           Message to publish
      */
-    MQLastWillMessage(const String& destination, const String& message)
+    MQLastWillMessage(const sptk::String& destination, const sptk::String& message)
     : m_destination(destination), m_message(message)
     {}
 
@@ -58,13 +58,13 @@ public:
      * Get message destination
      * @return message destination
      */
-    String destination() const { return m_destination; }
+    sptk::String destination() const { return m_destination; }
 
     /**
      * Get message content
      * @return message content
      */
-    String message() const { return m_message; }
+    sptk::String message() const { return m_message; }
 };
 
 } // namespace sptk

@@ -32,6 +32,7 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+using namespace smq;
 
 void SMQStorage::store(uint64_t id, SMessage& message)
 {

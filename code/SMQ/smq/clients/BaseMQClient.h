@@ -37,7 +37,7 @@
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/cthreads>
 
-namespace sptk {
+namespace smq {
 
 /**
  * Base MQ client interface
@@ -49,17 +49,17 @@ class BaseMQClient
     /**
      * Mutex that protects internal data
      */
-    mutable SharedMutex             m_mutex;
+    mutable sptk::SharedMutex       m_mutex;
 
     /**
      * Unique client id
      */
-    String                          m_clientId;
+    sptk::String                    m_clientId;
 
     /**
      * Connection host
      */
-    Host                            m_host;
+    sptk::Host                      m_host;
 
     /**
      * Flag: connected to MQ server
@@ -74,7 +74,7 @@ class BaseMQClient
     /**
      * Queue of incoming messages
      */
-    SynchronizedQueue<SMessage>     m_incomingMessages;
+    sptk::SynchronizedQueue<SMessage> m_incomingMessages;
 
     /**
      * MQ protocol type
@@ -105,7 +105,7 @@ public:
      * @param protocolType      MQ protocol type
      * @param clientId          Unique client id
      */
-    BaseMQClient(MQProtocolType protocolType, const String& clientId);
+    BaseMQClient(MQProtocolType protocolType, const sptk::String& clientId);
 
     /**
      * Destructor
@@ -120,8 +120,8 @@ public:
      * @param encrypted         Use encrypted connection. If true, then SSL keys must be loaded prior to this call.
      * @param timeout           Operation timeout
      */
-    virtual void connect(const Host& server, const String& username, const String& password, bool encrypted,
-                         std::chrono::milliseconds timeout) = 0;
+    virtual void connect(const sptk::Host& server, const sptk::String& username, const sptk::String& password,
+                         bool encrypted, std::chrono::milliseconds timeout) = 0;
 
     /**
      * Disconnect from server
@@ -140,7 +140,7 @@ public:
      * @param verifyMode        SSL verify mode, minimal is SSL_VERIFY_NONE
      * @param verifyDepth       SSL verify depth, minimal is 0
      */
-    virtual void loadSslKeys(const SSLKeys& keys) = 0;
+    virtual void loadSslKeys(const sptk::SSLKeys& keys) = 0;
 
     /**
      * Send message
@@ -148,7 +148,7 @@ public:
      * @param message           Message
      * @param timeout           Operation timeout
      */
-    virtual void send(const String& destination, SMessage& message, std::chrono::milliseconds timeout) = 0;
+    virtual void send(const sptk::String& destination, SMessage& message, std::chrono::milliseconds timeout) = 0;
 
     /**
      * Receive a message
@@ -162,25 +162,25 @@ public:
      * @param destination       Queue or topic name
      * @param timeout           Operation timeout
      */
-    virtual void subscribe(const String& destination, std::chrono::milliseconds timeout) = 0;
+    virtual void subscribe(const sptk::String& destination, std::chrono::milliseconds timeout) = 0;
 
     /**
      * Un-subscribe from queue or topic
      * @param destination       Queue or topic name
      * @param timeout           Operation timeout
      */
-    virtual void unsubscribe(const String& destination, std::chrono::milliseconds timeout) = 0;
+    virtual void unsubscribe(const sptk::String& destination, std::chrono::milliseconds timeout) = 0;
 
     /**
      * Get automatically generated unique client id
      */
-    const String& getClientId() const;
+    const sptk::String& getClientId() const;
 
     /**
      * Get connection host
      * @return connection host name
      */
-    const Host& getHost() const;
+    const sptk::Host& getHost() const;
 
     /**
      * Return client connection status

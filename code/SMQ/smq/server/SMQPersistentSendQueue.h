@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQSubscriptions.h - description                       ║
+║                       SMQConnectionQueue.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday February 1 2019                                 ║
+║  begin                Sunday December 23 2018                                ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,31 +26,38 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMQ_SUBSCRIPTIONS_H__
-#define __SMQ_SUBSCRIPTIONS_H__
+#ifndef __SMQ_PERSISTENT_SEND_QUEUE_H__
+#define __SMQ_PERSISTENT_SEND_QUEUE_H__
 
-#include <smq/server/SMQConnection.h>
-#include <smq/server/SMQSubscription.h>
+#include <smq/Message.h>
 #include <sptk5/cthreads>
 
 namespace smq {
 
-typedef std::shared_ptr<SMQSubscription> SharedSMQSubscription;
+class SMQConnection;
 
-class SP_EXPORT SMQSubscriptions
+class SMQPersistentSendQueue : public sptk::Runable
 {
-    mutable sptk::SharedMutex                     m_mutex;
-    std::map<sptk::String,SharedSMQSubscription>  m_subscriptions;
-    sptk::LogEngine&                              m_logEngine;
-    uint8_t                                       m_debugLogFilter;
+    mutable std::mutex          m_mutex;
+    SMQConnection&              m_connection;
+    std::queue<SMessage>        m_messages;
+    sptk::ThreadPool&           m_threadPool;
+    std::atomic<bool>           m_processing {false};
+
+    void setProcessing(bool processing);
+
+protected:
+
+    void run() override;
+    SMessage getMessage();
+
 public:
-    SMQSubscriptions(sptk::LogEngine& logEngine, uint8_t debugLogFilter);
-    void clear();
-    void deliverMessage(const sptk::String& queueName, const SMessage message);
-    void subscribe(SMQConnection* connection, const std::map<sptk::String,QOS>& queueNames);
-    void unsubscribe(SMQConnection* connection, const sptk::String& queueName);
+
+    SMQPersistentSendQueue(sptk::ThreadPool& threadPool, SMQConnection& connection);
+
+    void push(SMessage& message);
 };
 
-} // namespace sptk
+}
 
 #endif

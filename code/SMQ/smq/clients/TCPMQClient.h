@@ -32,27 +32,27 @@
 #include <smq/clients/BaseMQClient.h>
 #include <smq/protocols/MQProtocol.h>
 
-namespace sptk {
+namespace smq {
 
 class TCPMQClient : public BaseMQClient
 {
-    mutable SharedMutex                 m_mutex;
-    std::shared_ptr<TCPSocket>          m_socket;           ///< TCP or SSL connection socket
-    std::shared_ptr<MQProtocol>         m_protocol;         ///< MQ protocol
-    static SharedSocketEvents           smqSocketEvents;    ///< Shared event manager
+    mutable sptk::SharedMutex                 m_mutex;
+    std::shared_ptr<sptk::TCPSocket>          m_socket;           ///< TCP or SSL connection socket
+    std::shared_ptr<MQProtocol>               m_protocol;         ///< MQ protocol
+    static sptk::SharedSocketEvents           smqSocketEvents;    ///< Shared event manager
 
     /**
      * Callback function that receives socket events
      * @param userData          Socket event data, here - pointer to SMQ client object
      * @param eventType         Socket event type
      */
-    static void smqSocketEventCallback(void *userData, SocketEventType eventType);
+    static void smqSocketEventCallback(void *userData, sptk::SocketEventType eventType);
 
     /**
      * Initialize shared event manager
      * @return
      */
-    static SharedSocketEvents& initSocketEvents();
+    static sptk::SharedSocketEvents& initSocketEvents();
 
 protected:
 
@@ -60,7 +60,7 @@ protected:
      * Constructor
      * @param clientId          Unique client id
      */
-    TCPMQClient(MQProtocolType protocolType, const String& clientId);
+    TCPMQClient(MQProtocolType protocolType, const sptk::String& clientId);
 
 public:
 
@@ -68,7 +68,7 @@ public:
 
     MQProtocol& protocol();
 
-    void loadSslKeys(const SSLKeys& keys) override;
+    void loadSslKeys(const sptk::SSLKeys& keys) override;
 
     /**
      * Check if client is connected to server
@@ -78,14 +78,14 @@ public:
 
 protected:
 
-    TCPSocket& socket()
+    sptk::TCPSocket& socket()
     {
         return *m_socket;
     }
 
-    virtual void socketEvent(SocketEventType eventType) = 0;
+    virtual void socketEvent(sptk::SocketEventType eventType) = 0;
 
-    void createConnection(const Host& server, bool encrypted, std::chrono::milliseconds timeout);
+    void createConnection(const sptk::Host& server, bool encrypted, std::chrono::milliseconds timeout);
 
     void destroyConnection();
 };

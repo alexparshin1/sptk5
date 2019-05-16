@@ -31,6 +31,7 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+using namespace smq;
 
 void MQTTProtocol::ack(Message::Type sourceMessageType, const String& messageId)
 {

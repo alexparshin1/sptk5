@@ -30,6 +30,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace smq;
 
 SMQSendQueue::SMQSendQueue(ThreadPool& threadPool, SMQConnection& connection)
 : Runable("SMQ Send Queue"), m_connection(connection), m_threadPool(threadPool)

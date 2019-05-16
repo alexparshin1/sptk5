@@ -33,6 +33,7 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+using namespace smq;
 
 SMQServer::SMQServer(MQProtocolType protocol, const String& username, const String& password, LogEngine& logEngine, uint8_t debugLogFilter)
 : TCPServer("SMQServer", 16, &logEngine),
@@ -87,13 +88,13 @@ void SMQServer::closeConnection(ServerConnection* connection, bool brokenConnect
     }
 }
 
-static map<String,sptk::QOS> parseDestinations(const String& destinations)
+static map<String,smq::QOS> parseDestinations(const String& destinations)
 {
-    map<String,sptk::QOS> destinationsAndQOS;
+    map<String,smq::QOS> destinationsAndQOS;
     for (auto& destination: Strings(destinations,",")) {
         Strings parts(destination,"%");
         if (parts.size() == 2)
-            destinationsAndQOS[ parts[0] ] = sptk::QOS(string2int(parts[1]) & 1);
+            destinationsAndQOS[ parts[0] ] = smq::QOS(string2int(parts[1]) & 1);
         else
             destinationsAndQOS[ parts[0] ] = QOS_1;
     }
@@ -212,7 +213,7 @@ void SMQServer::run()
     log(LP_NOTICE, "Server started");
 }
 
-void SMQServer::subscribe(SMQConnection* connection, const map<String,sptk::QOS>& destinations)
+void SMQServer::subscribe(SMQConnection* connection, const map<String,smq::QOS>& destinations)
 {
     m_subscriptions.subscribe(connection, destinations);
 }

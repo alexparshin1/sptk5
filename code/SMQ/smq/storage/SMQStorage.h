@@ -31,7 +31,7 @@
 
 #include <smq/Message.h>
 
-namespace sptk {
+namespace smq {
 
 class SMQStorage
 {

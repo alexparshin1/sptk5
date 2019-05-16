@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace smq;
 using namespace chrono;
 
 static size_t messageCount {1000};

@@ -33,7 +33,7 @@
 #include <smq/Message.h>
 #include "MQLastWillMessage.h"
 
-namespace sptk {
+namespace smq {
 
 /**
  * MQ Protocols
@@ -55,17 +55,17 @@ enum QOS : uint8_t
 
 class SP_EXPORT MQProtocol
 {
-    TCPSocket&  m_socket;
+    sptk::TCPSocket&  m_socket;
 
 public:
 
-    typedef std::map<String, String> Parameters;
+    typedef std::map<sptk::String, sptk::String> Parameters;
 
 protected:
 
-    explicit MQProtocol(TCPSocket& socket) : m_socket(socket) {}
+    explicit MQProtocol(sptk::TCPSocket& socket) : m_socket(socket) {}
 
-    TCPSocket& socket() const;
+    sptk::TCPSocket& socket() const;
 
 public:
 
@@ -75,22 +75,22 @@ public:
     {
         return m_socket.read((char*)&data, sizeof(data));
     }
-    size_t read(String& str);
-    size_t read(Buffer& data);
+    size_t read(sptk::String& str);
+    size_t read(sptk::Buffer& data);
     size_t read(char* data, size_t dataSize);
 
     template<class T> size_t write(const T& data)
     {
         return m_socket.write((const char*)&data, sizeof(data));
     }
-    size_t write(String& str);
-    size_t write(Buffer& data);
+    size_t write(sptk::String& str);
+    size_t write(sptk::Buffer& data);
 
-    virtual void ack(Message::Type sourceMessageType, const String& messageId) = 0;
+    virtual void ack(Message::Type sourceMessageType, const sptk::String& messageId) = 0;
     virtual bool readMessage(SMessage& message) = 0;
-    virtual bool sendMessage(const String& destination, SMessage& message) = 0;
+    virtual bool sendMessage(const sptk::String& destination, SMessage& message) = 0;
 
-    static std::shared_ptr<MQProtocol> factory(MQProtocolType protocolType, TCPSocket& socket);
+    static std::shared_ptr<MQProtocol> factory(MQProtocolType protocolType, sptk::TCPSocket& socket);
 };
 
 } // namespace sptk

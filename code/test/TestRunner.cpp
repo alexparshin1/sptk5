@@ -47,6 +47,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace smq;
 
 static void acallback(void*)
 {

@@ -33,6 +33,7 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+using namespace smq;
 
 size_t MQProtocol::read(String& str)
 {

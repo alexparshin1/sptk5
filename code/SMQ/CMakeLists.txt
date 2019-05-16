@@ -3,7 +3,9 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 ADD_LIBRARY(smq ${LIBRARY_TYPE}
         src/clients/Message.cpp src/clients/BaseMQClient.cpp src/clients/TCPMQClient.cpp src/clients/SMQClient.cpp
         src/protocols/MQProtocol.cpp src/protocols/MQTTFrame.cpp src/protocols/MQTTProtocol.cpp src/protocols/SMQProtocol.cpp
-        src/server/SMQConnection.cpp src/server/SMQServer.cpp
+        src/server/SMQConnection.cpp
+        src/server/SMQPersistentSendQueue.cpp
+        src/server/SMQServer.cpp
         src/server/SMQSubscription.cpp src/server/SMQSubscriptions.cpp
         src/storage/SMQStorage.cpp
         src/unit_tests/SMQServer_UT.cpp

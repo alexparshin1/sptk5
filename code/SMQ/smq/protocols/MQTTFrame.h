@@ -32,7 +32,7 @@
 #include <sptk5/cnet>
 #include "MQProtocol.h"
 
-namespace sptk {
+namespace smq {
 
 /**
  * MQTT Protocol versions
@@ -83,7 +83,7 @@ enum MQTTConnectFlags : uint8_t
 /**
  * MQTT frame
  */
-class SP_EXPORT MQTTFrame : public Buffer
+class SP_EXPORT MQTTFrame : public sptk::Buffer
 {
     MQTTFrameType           m_type;     ///< Frame type
     uint16_t                m_id;       ///< Frame id
@@ -112,7 +112,7 @@ class SP_EXPORT MQTTFrame : public Buffer
      * Append string as 16 bit length (Big Endian) followed by the string characters
      * @param data              Character string
      */
-    void appendVariableHeader(const String& data);
+    void appendVariableHeader(const sptk::String& data);
 
     /**
      * Append 'remaining length' using the multi-byte presentation MQTT algorithm
@@ -125,46 +125,46 @@ class SP_EXPORT MQTTFrame : public Buffer
      * @param socket            MQTT server connection
      * @returns 16 bit value
      */
-    uint8_t readByte(TCPSocket& socket);
+    uint8_t readByte(sptk::TCPSocket& socket);
 
     /**
      * Receive 16-bit integer and swaps its bytes
      * @param socket            MQTT server connection
      * @returns 16 bit value
      */
-    uint16_t readShortInteger(TCPSocket& socket);
+    uint16_t readShortInteger(sptk::TCPSocket& socket);
 
     /**
      * Receive character string as 16 bit length (Big Endian) followed by the string characters
      * @param socket            MQTT server connection
      * @param header            Header (output)
      */
-    void readString(TCPSocket& socket, String& header);
+    void readString(sptk::TCPSocket& socket, sptk::String& header);
 
     /**
      * Receive 'remaining length' using the multi-byte presentation MQTT algorithm
      * @param connection        MQTT server connection
      */
-    unsigned receiveRemainingLength(TCPSocket& connection);
+    unsigned receiveRemainingLength(sptk::TCPSocket& connection);
 
     /**
      * Receive CONNECT MQTT frame (connection request)
      * @param socket            MQTT server connection
      */
-    void readConnectFrame(TCPSocket& socket, MQProtocol::Parameters& loginInfo);
+    void readConnectFrame(sptk::TCPSocket& socket, MQProtocol::Parameters& loginInfo);
 
     /**
      * Receive CONNACK MQTT frame
      * @param connection        MQTT server connection
      */
-    void readConnectACK(TCPSocket& connection);
+    void readConnectACK(sptk::TCPSocket& connection);
 
     /**
      * Receive any MQTT frame, starting from variable header, placing the payload into this object
      * @param connection        MQTT server connection
      * @param remainingLength   Remaining length
      */
-    void readUnknownFrame(TCPSocket& connection, unsigned remainingLength);
+    void readUnknownFrame(sptk::TCPSocket& connection, unsigned remainingLength);
 
     /**
      * Receive PUBLISH frame, starting from variable header, placing the payload into this object
@@ -173,7 +173,7 @@ class SP_EXPORT MQTTFrame : public Buffer
      * @param qos               QOS - Quality Of Service
      * @param topicName         Related topic if applicable (output)
      */
-    void readPublishFrame(TCPSocket& connection, unsigned remainingLength, QOS qos, String& topicName);
+    void readPublishFrame(sptk::TCPSocket& connection, unsigned remainingLength, QOS qos, sptk::String& topicName);
 
     /**
      * Receive SUBSCRIBE frame
@@ -182,7 +182,7 @@ class SP_EXPORT MQTTFrame : public Buffer
      * @param qos               QOS - Quality Of Service
      * @param topicName         Topic if applicable (output)
      */
-    void readSubscribeFrame(TCPSocket& connection, unsigned remainingLength, QOS& qos, String& topicName);
+    void readSubscribeFrame(sptk::TCPSocket& connection, unsigned remainingLength, QOS& qos, sptk::String& topicName);
 
 public:
     /**
@@ -206,7 +206,7 @@ public:
      * Get MQTT frame type name
      * @return MQTT frame type name
      */
-    std::string typeName() const;
+    sptk::String typeName() const;
 
     /**
      * Get message id
@@ -242,9 +242,9 @@ public:
      * @param protocolVersion   Optional MQTT protocol version
      * @return this object reference
      */
-    const Buffer& setCONNECT(uint16_t keepAliveSeconds, const String& username, const String& password,
-                             const String& clientId,
-                             const String& lastWillTopic, const String& lastWillMessage,
+    const Buffer& setCONNECT(uint16_t keepAliveSeconds, const sptk::String& username, const sptk::String& password,
+                             const sptk::String& clientId,
+                             const sptk::String& lastWillTopic, const sptk::String& lastWillMessage,
                              MQTTProtocolVersion protocolVersion);
 
     /**
@@ -256,7 +256,7 @@ public:
      * @param retain            Retain message flag
      * @return this object reference
      */
-    const Buffer& setPUBLISH(const String& topic, const Buffer& data, QOS qos=QOS_0, bool dup=false, bool retain=false);
+    const Buffer& setPUBLISH(const sptk::String& topic, const Buffer& data, QOS qos=QOS_0, bool dup=false, bool retain=false);
 
     /**
      * Generate MQTT SUBSCRIBE frame
@@ -264,7 +264,7 @@ public:
      * @param qos               QOS - Quality of Service
      * @return this object reference
      */
-    const Buffer& setSUBSCRIBE(const String& topic, QOS qos);
+    const Buffer& setSUBSCRIBE(const sptk::String& topic, QOS qos);
 
     /**
      * Generate MQTT UNSUBSCRIBE frame
@@ -280,7 +280,7 @@ public:
      * @param qos               QOS - Quality of Service
      * @return this object reference
      */
-    const Buffer& unsubscribeFrame(const Strings& topics, QOS qos);
+    const Buffer& unsubscribeFrame(const sptk::Strings& topics, QOS qos);
 
     /**
      * Generate MQTT PING frame
@@ -296,7 +296,7 @@ public:
      * @param timeout           Receive timeout, milliseconds
      * @return 0 if failure
      */
-    bool read(TCPSocket& socket, String& destination, MQProtocol::Parameters& parameters,
+    bool read(sptk::TCPSocket& socket, sptk::String& destination, MQProtocol::Parameters& parameters,
               std::chrono::milliseconds timeout);
 
     /**

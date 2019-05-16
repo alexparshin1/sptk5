@@ -31,6 +31,7 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+using namespace smq;
 
 SMQSendThreadPool::SMQSendThreadPool(size_t maxThreads)
 : ThreadPool(maxThreads, seconds(30), "SMQ Connections Thread Pool")

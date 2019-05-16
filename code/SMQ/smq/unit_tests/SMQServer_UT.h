@@ -29,7 +29,7 @@
 #ifndef __SMQ_SERVER_UT_H__
 #define __SMQ_SERVER_UT_H__
 
-namespace sptk {
+namespace smq {
 
 class SMQServer_UT
 {

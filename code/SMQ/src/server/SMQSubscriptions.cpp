@@ -31,6 +31,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace smq;
 
 SMQSubscriptions::SMQSubscriptions(LogEngine& logEngine, uint8_t debugLogFilter)
 : m_logEngine(logEngine)
@@ -45,7 +46,7 @@ void SMQSubscriptions::deliverMessage(const String& queueName, const SMessage me
         itor->second->deliverMessage(message);
 }
 
-void SMQSubscriptions::subscribe(SMQConnection* connection, const map<String,sptk::QOS>& queueNames)
+void SMQSubscriptions::subscribe(SMQConnection* connection, const map<String,smq::QOS>& queueNames)
 {
     UniqueLock(m_mutex);
 

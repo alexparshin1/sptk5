@@ -31,7 +31,7 @@
 
 #include <smq/server/SMQConnection.h>
 
-namespace sptk {
+namespace smq {
 
 typedef std::shared_ptr<SMQConnection> SharedSMQConnection;
 
@@ -47,10 +47,10 @@ public:
 
 private:
     mutable sptk::SharedMutex               m_mutex;
-    String                                  m_destination;
+    sptk::String                            m_destination;
     Type                                    m_type;
     QOS                                     m_qos;
-    LogEngine&                              m_logEngine;
+    sptk::LogEngine&                        m_logEngine;
     uint8_t                                 m_debugLogFilter;
 
     std::set<SMQConnection*>                m_connections;
@@ -58,10 +58,10 @@ private:
 
 protected:
     Type typeUnlocked() const;
-    String typeNameUnlocked() const;
+    sptk::String typeNameUnlocked() const;
 
 public:
-    SMQSubscription(const String& destination, Type type, QOS qos, sptk::LogEngine& logEngine, uint8_t debugLogFilter);
+    SMQSubscription(const sptk::String& destination, Type type, QOS qos, sptk::LogEngine& logEngine, uint8_t debugLogFilter);
 
     virtual ~SMQSubscription();
 
@@ -70,9 +70,9 @@ public:
     bool deliverMessage(SMessage message);
 
     Type type() const;
-    String typeName() const;
+    sptk::String typeName() const;
 
-    String destination() const { return m_destination; }
+    sptk::String destination() const { return m_destination; }
 };
 
 } // namespace sptk

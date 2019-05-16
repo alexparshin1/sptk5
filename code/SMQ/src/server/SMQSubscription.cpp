@@ -31,8 +31,9 @@
 
 using namespace std;
 using namespace sptk;
+using namespace smq;
 
-SMQSubscription::SMQSubscription(const String& destination, Type type, sptk::QOS qos, LogEngine& logEngine, uint8_t debugLogFilter)
+SMQSubscription::SMQSubscription(const String& destination, Type type, smq::QOS qos, LogEngine& logEngine, uint8_t debugLogFilter)
 : m_destination(destination), m_type(type), m_qos(qos), m_logEngine(logEngine), m_debugLogFilter(debugLogFilter),
   m_currentConnection(m_connections.end())
 {

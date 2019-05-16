@@ -32,20 +32,20 @@
 #include <smq/protocols/MQProtocol.h>
 #include <smq/protocols/MQTTFrame.h>
 
-namespace sptk {
+namespace smq {
 
 class SP_EXPORT MQTTProtocol : public MQProtocol
 {
 
 public:
-    explicit MQTTProtocol(TCPSocket& socket) : MQProtocol(socket) {}
+    explicit MQTTProtocol(sptk::TCPSocket& socket) : MQProtocol(socket) {}
 
     static Message::Type mqMessageType(MQTTFrameType nativeMessageType);
     static MQTTFrameType nativeMessageType(Message::Type mqMessageType);
 
-    void ack(Message::Type sourceMessageType, const String& messageId) override;
+    void ack(Message::Type sourceMessageType, const sptk::String& messageId) override;
     bool readMessage(SMessage& message) override;
-    bool sendMessage(const String& destination, SMessage& message) override;
+    bool sendMessage(const sptk::String& destination, SMessage& message) override;
 };
 
 }

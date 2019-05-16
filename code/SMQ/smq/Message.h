@@ -16,12 +16,12 @@
 #include <sptk5/DateTime.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
-namespace sptk {
+namespace smq {
 
-class SP_EXPORT Message : public Buffer
+class SP_EXPORT Message : public sptk::Buffer
 {
 public:
-    typedef std::map<String, String> Headers;
+    typedef std::map<sptk::String, sptk::String> Headers;
 
     enum Type : uint8_t {
         UNDEFINED       = 0,
@@ -41,9 +41,9 @@ public:
 
 private:
     Headers         m_headers;
-    DateTime        m_created;
+    sptk::DateTime  m_created;
     Type            m_type {MESSAGE};
-    String          m_destination;
+    sptk::String    m_destination;
 
 public:
 
@@ -81,27 +81,27 @@ public:
     Message& operator=(const Message& other) = default;
     Message& operator=(Message&& other) noexcept;
 
-    String& operator[](const String& header);
-    String  operator[](const String& header) const;
+    sptk::String& operator[](const sptk::String& header);
+    sptk::String  operator[](const sptk::String& header) const;
 
-    const DateTime created() const  { return m_created; }
+    const sptk::DateTime created() const  { return m_created; }
 
     Headers& headers() { return m_headers; }
     const Headers& headers() const { return m_headers; }
 
-    String toString() const;
+    sptk::String toString() const;
 
     Type type() const { return m_type; }
 
-    static String typeToString(Type type);
+    static sptk::String typeToString(Type type);
 
-    String destination() const;
+    sptk::String destination() const;
 
-    void destination(const String& destination);
+    void destination(const sptk::String& destination);
 };
 
 typedef std::shared_ptr<Message>    SMessage;
-typedef SynchronizedQueue<SMessage> SMessageQueue;
+typedef sptk::SynchronizedQueue<SMessage> SMessageQueue;
 
 }
 

@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace smq;
 
 void Message::clear()
 {

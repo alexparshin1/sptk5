@@ -33,6 +33,7 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+using namespace smq;
 
 SMQClient::SMQClient(MQProtocolType protocolType, const String& clientId)
 : TCPMQClient(protocolType, clientId)
