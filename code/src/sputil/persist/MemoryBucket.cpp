@@ -224,68 +224,82 @@ MemoryBucket::FreeBlocks::FreeBlocks(uint32_t size)
 {
 }
 
-static multimap<uint32_t,uint32_t>::iterator replaceKeyAndValue(multimap<uint32_t,uint32_t>& map,
-                        uint32_t oldKey, uint32_t oldValue,
-                        uint32_t newKey, uint32_t newValue)
+static void replaceKeyAndValue(multimap<uint32_t,uint32_t>& map,
+                               uint32_t oldKey, uint32_t oldValue,
+                               uint32_t newKey, uint32_t newValue)
 {
     auto itor = map.find(oldKey);
     while (itor != map.end()) {
         if (itor->second == oldValue) {
             map.erase(itor);
-            return map.insert(pair<uint32_t, uint32_t>(newKey, newValue));
+            if (newKey != 0)
+                map.insert(pair<uint32_t, uint32_t>(newKey, newValue));
+            return;
         }
         itor++;
     }
-    return map.end();
 }
 
 void MemoryBucket::FreeBlocks::free(uint32_t offset, uint32_t size)
 {
+    uint32_t fullItemSize = size + sizeof(Item);
     // Find nearest free block down
-    auto itor = m_offsetMap.upper_bound(offset);
-    if (itor == m_offsetMap.begin())
-        itor = m_offsetMap.end();
+    auto nextBlockItor = m_offsetMap.upper_bound(offset);
+    auto priorBlockItor = nextBlockItor;
+    if (priorBlockItor != m_offsetMap.begin() && priorBlockItor != m_offsetMap.end())
+        priorBlockItor--;
     else
-        itor--;
+        priorBlockItor = m_offsetMap.end(); // No prior block
 
-    auto sizeItor = m_sizeMap.end();
+    uint32_t priorBlockOffset {0};
+    uint32_t priorBlockSize {0};
 
-    if (itor == m_offsetMap.end()) {
-        // No nearest free block down
-        auto rc = m_offsetMap.insert(pair<uint32_t,uint32_t>(offset,size));
-        itor = rc.first;
-        sizeItor = m_sizeMap.insert(pair<uint32_t, uint32_t>(size, offset));
-    } else {
-        uint32_t endOfPriorBlock = itor->first + itor->second + sizeof(Item);
-        if (offset == endOfPriorBlock) {
-            // Append to existing free block
-            uint32_t oldBlockOffset = itor->first;
-            uint32_t oldBlockSize = itor->second;
-            itor->second += size + sizeof(Item);
-            sizeItor = replaceKeyAndValue(m_sizeMap, oldBlockSize, oldBlockOffset, itor->second, itor->first);
-        } else {
-            auto rc = m_offsetMap.insert(pair<uint32_t, uint32_t>(offset, size));
-            itor = rc.first;
-            sizeItor = m_sizeMap.insert(pair<uint32_t, uint32_t>(size, offset));
+    // Can we join to prior free block?
+    if (priorBlockItor != m_offsetMap.end()) {
+        uint32_t endOfPriorBlock = priorBlockItor->first + priorBlockItor->second;
+        if (offset != endOfPriorBlock)
+            priorBlockItor = m_offsetMap.end();
+        else {
+            priorBlockOffset = priorBlockItor->first;
+            priorBlockSize = priorBlockItor->second;
         }
     }
 
-    auto nextItor = itor;
-    nextItor++;
-    if (nextItor == m_offsetMap.end())
-        return;
-
-    // Can we join to the next free block?
-    uint32_t endOfBlock = itor->first + itor->second + sizeof(Item);
-    if (endOfBlock == nextItor->first) {
-        uint32_t nextBlockOffset = nextItor->first;
-        uint32_t nextBlockSize = nextItor->second;
-        itor->second += nextBlockSize + sizeof(Item);
-        m_offsetMap.erase(nextItor);
-        if (sizeItor != m_sizeMap.end())
-            m_sizeMap.erase(sizeItor);
-        replaceKeyAndValue(m_sizeMap, nextBlockSize, nextBlockOffset, itor->second, itor->first);
+    if (nextBlockItor != m_offsetMap.end()) {
+        // Can we join to the next free block?
+        uint32_t endOfBlock = offset + fullItemSize;
+        if (endOfBlock != nextBlockItor->first)
+            nextBlockItor = m_offsetMap.end();
     }
+
+    if (priorBlockItor != m_offsetMap.end()) {
+        if (nextBlockItor == m_offsetMap.end()) {
+            // Join new block to prior block
+            priorBlockItor->second += fullItemSize;
+            replaceKeyAndValue(m_sizeMap, priorBlockSize, priorBlockOffset, priorBlockItor->second, priorBlockItor->first);
+            return;
+        } else {
+            // Join prior, new, and next free blocks together
+            priorBlockItor->second += nextBlockItor->second + fullItemSize;
+            replaceKeyAndValue(m_sizeMap, nextBlockItor->second, nextBlockItor->first, 0, 0);
+            replaceKeyAndValue(m_sizeMap, priorBlockSize, priorBlockOffset, priorBlockItor->second, priorBlockItor->first);
+            m_offsetMap.erase(nextBlockItor);
+            return;
+        }
+    }
+    else if (nextBlockItor != m_offsetMap.end()) {
+        // Join new block with the next free block
+        uint32_t nextBlockOffset = nextBlockItor->first;
+        uint32_t nextBlockSize = nextBlockItor->second;
+        uint32_t newBlockSize = nextBlockSize + fullItemSize;
+        nextBlockItor->second = newBlockSize;
+        replaceKeyAndValue(m_sizeMap, nextBlockSize, nextBlockOffset, newBlockSize, offset);
+        m_offsetMap.erase(nextBlockItor);
+        m_offsetMap[offset] = newBlockSize;
+        return;
+    }
+    m_offsetMap[offset] = fullItemSize;
+    m_sizeMap.insert(pair<uint32_t,uint32_t>(fullItemSize, offset));
 }
 
 uint32_t MemoryBucket::FreeBlocks::alloc(uint32_t size)
@@ -432,7 +446,7 @@ TEST(SPTK_MemoryBucket, free)
 {
     prepareTestDirectory();
 
-    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 128 * 1024);
+    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 16 * 1024);
     bucket->clear();
 
     EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
@@ -442,10 +456,12 @@ TEST(SPTK_MemoryBucket, free)
     populateBucket(*bucket, 10, handles);
 
     // Free every allocated string
-    for (auto& handle: handles)
+    for (int i = 9; i >= 0; i--) {
+        auto& handle = handles[i];
         bucket->free(handle);
+    }
 
-    //bucket->freeBlocks().print();
+    bucket->freeBlocks().print();
 
     EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
 }
