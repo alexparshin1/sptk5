@@ -1,5 +1,4 @@
 #include "sptk5/persist/MemoryBucket.h"
-#include <iostream>
 
 using namespace std;
 using namespace sptk;
@@ -18,7 +17,7 @@ Handle::Handle(MemoryBucket& bucket, size_t m_bucketOffset)
 
 Handle::Handle(size_t bucketId, size_t m_bucketOffset)
 {
-    m_bucket = MemoryBucket::find(bucketId);
+    m_bucket = MemoryBucket::find(uint32_t(bucketId));
     if (m_bucket == nullptr)
         throw Exception("Bucket doesn't exist");
     m_record = (void*)((const char*)m_bucket->data() + m_bucketOffset);
@@ -26,16 +25,16 @@ Handle::Handle(size_t bucketId, size_t m_bucketOffset)
 
 void Handle::pack(void* destination) const
 {
-    uint32_t* d = (uint32_t*) destination;
+    auto* d = (uint32_t*) destination;
 
-    uint32_t offset = uint32_t((const char*)m_record - (const char*)m_bucket->data());
+    auto offset = uint32_t((const char*)m_record - (const char*)m_bucket->data());
     *(d++) = m_bucket->id();
     *d = offset;
 }
 
 void Handle::unpack(const void* destination)
 {
-    uint32_t* d = (uint32_t*) destination;
+    auto* d = (uint32_t*) destination;
     uint32_t bucketId = *(d++);
     m_bucket = MemoryBucket::find(bucketId);
     m_record = (void*) ((const char*)m_bucket->data() + *d);
@@ -43,7 +42,7 @@ void Handle::unpack(const void* destination)
 
 Handle::operator void*() const
 {
-    MemoryBucket::Item* item = (MemoryBucket::Item*) m_record;
+    auto* item = (MemoryBucket::Item*) m_record;
     if (item->signature != allocatedMark)
         return nullptr;
     return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
@@ -51,7 +50,7 @@ Handle::operator void*() const
 
 void* Handle::data() const
 {
-    MemoryBucket::Item* item = (MemoryBucket::Item*) m_record;
+    auto* item = (MemoryBucket::Item*) m_record;
     if (item->signature != allocatedMark)
         return nullptr;
     return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
@@ -59,7 +58,7 @@ void* Handle::data() const
 
 const char* Handle::c_str() const
 {
-    MemoryBucket::Item* item = (MemoryBucket::Item*) m_record;
+    auto* item = (MemoryBucket::Item*) m_record;
     if (item->signature != allocatedMark)
         return nullptr;
     return (const char*) m_record + sizeof(MemoryBucket::Item);
@@ -67,7 +66,7 @@ const char* Handle::c_str() const
 
 size_t Handle::size() const
 {
-    MemoryBucket::Item* item = (MemoryBucket::Item*) m_record;
+    auto* item = (MemoryBucket::Item*) m_record;
     if (item->signature != allocatedMark)
         return 0;
     return ((MemoryBucket::Item*) m_record)->size;
@@ -81,8 +80,9 @@ String MemoryBucket::formatId(uint32_t bucketId)
 }
 
 MemoryBucket::MemoryBucket(const String& directoryName, uint32_t id, size_t size)
-: m_mappedFile(directoryName + "/" + formatId(id), size),
-  m_freeBlocks(m_mappedFile.size())
+: m_id(id),
+  m_mappedFile(directoryName + "/" + formatId(id), size),
+  m_freeBlocks((uint32_t)m_mappedFile.size())
 {
     m_mappedFile.open();
     load();
@@ -124,7 +124,7 @@ vector<Handle> MemoryBucket::load()
     }
 
     if (offset < m_mappedFile.size())
-        m_freeBlocks.load(offset, m_mappedFile.size() - offset);
+        m_freeBlocks.load(offset, uint32_t(m_mappedFile.size()) - offset);
 
     return handles;
 }
@@ -144,7 +144,7 @@ Handle MemoryBucket::alloc(void* data, size_t bytes)
     Item* item = (Item*) itemPtr;
 
     item->signature = allocatedMark;
-    item->size = bytes;
+    item->size = (uint32_t) bytes;
 
     memcpy(dataPtr, data, bytes);
 
@@ -162,7 +162,7 @@ void MemoryBucket::free(Handle& data)
         throw invalid_argument("Invalid persistent address");
     }
 
-    uint32_t offset = (char*) data.m_record - (char*) m_mappedFile.data();
+    auto offset = uint32_t( (char*) data.m_record - (char*) m_mappedFile.data() );
     m_freeBlocks.free(offset, item->size);
 
     item->signature = releasedMark;
@@ -174,7 +174,7 @@ void MemoryBucket::clear()
     auto* itemPtr = (char*)m_mappedFile.data();
     memset(itemPtr, 0, m_mappedFile.size());
     m_freeBlocks.clear();
-    m_freeBlocks.load(0, m_mappedFile.size());
+    m_freeBlocks.load(0, (uint32_t) m_mappedFile.size());
 }
 
 bool MemoryBucket::empty() const
@@ -338,7 +338,7 @@ void MemoryBucket::FreeBlocks::clear()
     m_sizeMap.clear();
 }
 
-uint32_t MemoryBucket::FreeBlocks::count() const
+size_t MemoryBucket::FreeBlocks::count() const
 {
     return m_offsetMap.size();
 }

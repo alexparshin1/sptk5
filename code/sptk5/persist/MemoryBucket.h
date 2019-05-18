@@ -59,7 +59,7 @@ class SP_EXPORT MemoryBucket
         void free(uint32_t offset, uint32_t size);
         uint32_t alloc(uint32_t size);
         void clear();
-        uint32_t count() const;
+        size_t count() const;
         uint32_t available() const;
 
         void print() const;
@@ -105,7 +105,7 @@ private:
     MemoryMappedFile            m_mappedFile;
     FreeBlocks                  m_freeBlocks;
 
-    String formatId(uint32_t bucketId);
+    static String formatId(uint32_t bucketId);
 };
 
 }

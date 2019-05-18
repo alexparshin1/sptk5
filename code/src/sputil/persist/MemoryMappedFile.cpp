@@ -9,7 +9,7 @@ using namespace std;
 using namespace sptk;
 using namespace persist;
 
-size_t MemoryMappedFile::m_allocationUnit {0};
+size_t MemoryMappedFile::m_allocationUnit(0);
 
 MemoryMappedFile::MemoryMappedFile(const std::string &fileName, size_t fileSize)
 : m_fileName(fileName)
@@ -100,7 +100,7 @@ void MemoryMappedFile::createOrOpenFile()
 #else
     struct stat st {};
     fstat(m_file, &st);
-    uint64_t fileSize = (uint64_t) st.st_size;
+    auto fileSize = (uint64_t) st.st_size;
     if (fileSize != 0) {
         m_fileSize = fileSize;  // Using size of existing file
     } else {

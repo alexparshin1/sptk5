@@ -6,10 +6,10 @@
 namespace sptk {
 namespace persist {
 
-class SP_EXPORT MemoryManager
+class SP_EXPORT MemoryPool
 {
 public:
-    MemoryManager(const String& directory, const String& objectName);
+    MemoryPool(const String& directory, const String& objectName);
 private:
     String                          m_directory;
     std::map<void*,MemoryBucket*>   m_buckets;

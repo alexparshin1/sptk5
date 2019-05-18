@@ -84,7 +84,7 @@ int main()
 
 #ifndef _WIN32
     DateTime::setTimeZone(":US/Pacific");
-    COUT("US/Pacific TZ offset is " << DateTime::timeZoneOffset << " seconds."  << endl);
+    COUT("US/Pacific TZ offset is " << DateTime::timeZoneOffset() << " seconds."  << endl);
 
     dt = DateTime::Now();
     dt.decodeDate(&year, &month, &day, &wday, &yday);
@@ -95,7 +95,7 @@ int main()
     COUT("Day:    " << day << ", " << dt.dayOfWeekName() << endl);
     COUT("Date:   " << dt.dateString() << endl);
     COUT("Time:   " << dt.timeString() << endl);
-    COUT("TZ offset is " << DateTime::timeZoneOffset << endl);
+    COUT("TZ offset is " << DateTime::timeZoneOffset() << endl);
 #endif
 
     return 0;
