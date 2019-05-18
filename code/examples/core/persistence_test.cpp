@@ -20,7 +20,7 @@ int main()
 
         size_t maxMessages = 1024 * 1024;
 
-        MemoryBucket bucket(fileName, 0, 128 * maxMessages); // Message size is 100 bytes, plus 24 bytes of storage header
+        MemoryBucket bucket(fileName, "test", 0, 128 * maxMessages); // Message size is 100 bytes, plus 24 bytes of storage header
         bucket.clear();
 
         steady_clock::time_point started = steady_clock::now();
@@ -29,7 +29,7 @@ int main()
         vector<char> buffer(100);
         memcpy(buffer.data(), "Hello, World!", 14);
         while (bucket.available() > buffer.size()) {
-            bucket.alloc(buffer.data(), buffer.size());
+            bucket.insert(buffer.data(), buffer.size());
             i++;
         }
         maxMessages = i;

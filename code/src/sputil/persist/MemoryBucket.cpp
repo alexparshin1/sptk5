@@ -79,20 +79,19 @@ String MemoryBucket::formatId(uint32_t bucketId)
     return String(formattedId, 10);
 }
 
-MemoryBucket::MemoryBucket(const String& directoryName, uint32_t id, size_t size)
+MemoryBucket::MemoryBucket(const String& directoryName, const String& objectName, uint32_t id, size_t size)
 : m_id(id),
-  m_mappedFile(directoryName + "/" + formatId(id), size),
+  m_objectName(objectName),
+  m_mappedFile(directoryName + "/" + objectName + "_" + formatId(id), size),
   m_freeBlocks((uint32_t)m_mappedFile.size())
 {
     m_mappedFile.open();
-    load();
+    load(nullptr);
 }
 
-vector<Handle> MemoryBucket::load()
+void MemoryBucket::load(std::vector<Handle>* handles)
 {
     lock_guard<mutex> lock(m_mutex);
-
-    vector<Handle> handles;
 
     m_freeBlocks.clear();
 
@@ -106,7 +105,8 @@ vector<Handle> MemoryBucket::load()
         size_t itemFullSize = sizeof(Item) + item->size;
         switch (item->signature) {
             case allocatedMark:
-                handles.emplace_back(*this, offset);
+                if (handles)
+                    handles->emplace_back(*this, offset);
                 offset += itemFullSize;
                 break;
             case releasedMark:
@@ -125,19 +125,18 @@ vector<Handle> MemoryBucket::load()
 
     if (offset < m_mappedFile.size())
         m_freeBlocks.load(offset, uint32_t(m_mappedFile.size()) - offset);
-
-    return handles;
 }
 
-Handle MemoryBucket::alloc(void* data, size_t bytes)
+Handle MemoryBucket::insert(const void* data, size_t bytes)
 {
     lock_guard<mutex> lock(m_mutex);
 
     size_t   itemFullSize = sizeof(Item) + bytes;
     uint32_t offset = m_freeBlocks.alloc((uint32_t)itemFullSize);
-    Handle   handle(*this, offset);
     if (offset == UINT32_MAX)
-        return handle;
+        return Handle();
+
+    Handle handle(*this, offset);
 
     char* itemPtr = (char*) m_mappedFile.data() + offset;
     char* dataPtr = itemPtr + sizeof(Item);
@@ -387,7 +386,7 @@ static size_t populateBucket(MemoryBucket& bucket, size_t count, vector<Handle>&
     for (size_t i = 0; i < count; i++) {
         String testStr(testData);
         testStr += to_string(i);
-        Handle handle = bucket.alloc((void*) testStr.c_str(), testStr.size());
+        Handle handle = bucket.insert((void*) testStr.c_str(), testStr.size());
         handles.push_back(handle);
         totalStoredSize += testStr.size() + storageHandleSize;
     }
@@ -398,7 +397,7 @@ TEST(SPTK_MemoryBucket, allocAndClear)
 {
     prepareTestDirectory();
 
-    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 128 * 1024);
+    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, "bucket", 1, 128 * 1024);
     bucket->clear();
 
     EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
@@ -418,7 +417,7 @@ TEST(SPTK_MemoryBucket, allocAndRead)
 {
     prepareTestDirectory();
 
-    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 128 * 1024);
+    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, "bucket", 1, 128 * 1024);
     bucket->clear();
 
     // Populate test data
@@ -428,7 +427,7 @@ TEST(SPTK_MemoryBucket, allocAndRead)
     bucket.reset(); // Destroy the bucket object: doesn't destroy file on disk
 
     // Re-open the bucket
-    bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 128 * 1024);
+    bucket = make_shared<MemoryBucket>(testBucketDirectory, "bucket", 1, 128 * 1024);
 
     // Check the stored data, using handles from prior open
     size_t i = 0;
@@ -446,7 +445,7 @@ TEST(SPTK_MemoryBucket, free)
 {
     prepareTestDirectory();
 
-    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 16 * 1024);
+    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, "bucket", 1, 16 * 1024);
     bucket->clear();
 
     EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
@@ -470,7 +469,7 @@ TEST(SPTK_MemoryBucket, performance)
 {
     prepareTestDirectory();
 
-    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, 1, 32 * 1024 * 1024);
+    auto bucket = make_shared<MemoryBucket>(testBucketDirectory, "bucket", 1, 32 * 1024 * 1024);
     bucket->clear();
 
     EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);

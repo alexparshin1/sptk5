@@ -200,7 +200,21 @@ public:
     static std::shared_ptr<RegularExpression> wildcardToRegexp(const String& wildcard);
 
 private:
+    /**
+     * Re-read directory content
+     * @return file names
+     */
     Strings getFileNames();
+
+    /**
+     * Create a row in the data source
+     * @param st                File information
+     * @param index             Incremental index
+     * @param fileName          File name
+     * @param fullName          Full file name
+     * @param is_link           Is file a link?
+     * @return data source row
+     */
     FieldList* makeFileListEntry(const struct stat& st, unsigned& index, const String& fileName,
                                      const String& fullName, bool is_link) const;
     CSmallPixmapType imageTypeFromExtention(const char* ext) const;

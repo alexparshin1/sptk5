@@ -35,10 +35,12 @@ protected:
     void pack(void* destination) const override;
     void unpack(const void* destination) override;
 public:
+    Handle() {}
     Handle(MemoryBucket& bucket, size_t m_bucketOffset);
     Handle(size_t bucketId, size_t m_bucketOffset);
     Handle(const Handle& other) = default;
     Handle& operator = (const Handle& other) = default;
+    bool isNull() const { return m_bucket == nullptr; }
     explicit operator void* () const;
     void* data() const;
     const char* c_str() const;
@@ -67,14 +69,14 @@ class SP_EXPORT MemoryBucket
 
 public:
 
-    MemoryBucket(const String& directoryName, uint32_t id, size_t size);
+    MemoryBucket(const String& directoryName, const String& objectName, uint32_t id, size_t size);
 
-    std::vector<Handle> load();
+    void load(std::vector<Handle>* handles);
 
     const uint32_t id() const;
     const void* data() const;
 
-    Handle alloc(void* data, size_t bytes);
+    Handle insert(const void* data, size_t bytes);
 
     void free(Handle& data);
 
@@ -102,11 +104,14 @@ private:
 
     mutable std::mutex          m_mutex;
     uint32_t                    m_id;
+    String                      m_objectName;
     MemoryMappedFile            m_mappedFile;
     FreeBlocks                  m_freeBlocks;
 
     static String formatId(uint32_t bucketId);
 };
+
+typedef std::shared_ptr<MemoryBucket> SMemoryBucket;
 
 }
 }
