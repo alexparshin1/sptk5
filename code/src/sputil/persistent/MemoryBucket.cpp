@@ -1,76 +1,37 @@
-#include "sptk5/persist/MemoryBucket.h"
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       MemoryBucket.cpp - description                         ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  begin                Sunday May 19 2019                                     ║
+║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
+
+#include "sptk5/persistent/MemoryBucket.h"
 
 using namespace std;
 using namespace sptk;
-using namespace persist;
+using namespace persistent;
 using namespace chrono;
-
-size_t Handle::packSize() const
-{
-    return 2 * sizeof(uint32_t);
-}
-
-Handle::Handle(MemoryBucket& bucket, size_t m_bucketOffset)
-: m_bucket(&bucket), m_record((void*)((const char*)m_bucket->data() + m_bucketOffset))
-{
-}
-
-Handle::Handle(size_t bucketId, size_t m_bucketOffset)
-{
-    m_bucket = MemoryBucket::find(uint32_t(bucketId));
-    if (m_bucket == nullptr)
-        throw Exception("Bucket doesn't exist");
-    m_record = (void*)((const char*)m_bucket->data() + m_bucketOffset);
-}
-
-void Handle::pack(void* destination) const
-{
-    auto* d = (uint32_t*) destination;
-
-    auto offset = uint32_t((const char*)m_record - (const char*)m_bucket->data());
-    *(d++) = m_bucket->id();
-    *d = offset;
-}
-
-void Handle::unpack(const void* destination)
-{
-    auto* d = (uint32_t*) destination;
-    uint32_t bucketId = *(d++);
-    m_bucket = MemoryBucket::find(bucketId);
-    m_record = (void*) ((const char*)m_bucket->data() + *d);
-}
-
-Handle::operator void*() const
-{
-    auto* item = (MemoryBucket::Item*) m_record;
-    if (item->signature != allocatedMark)
-        return nullptr;
-    return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
-}
-
-void* Handle::data() const
-{
-    auto* item = (MemoryBucket::Item*) m_record;
-    if (item->signature != allocatedMark)
-        return nullptr;
-    return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
-}
-
-const char* Handle::c_str() const
-{
-    auto* item = (MemoryBucket::Item*) m_record;
-    if (item->signature != allocatedMark)
-        return nullptr;
-    return (const char*) m_record + sizeof(MemoryBucket::Item);
-}
-
-size_t Handle::size() const
-{
-    auto* item = (MemoryBucket::Item*) m_record;
-    if (item->signature != allocatedMark)
-        return 0;
-    return ((MemoryBucket::Item*) m_record)->size;
-}
 
 String MemoryBucket::formatId(uint32_t bucketId)
 {
@@ -145,7 +106,8 @@ Handle MemoryBucket::insert(const void* data, size_t bytes)
     item->signature = allocatedMark;
     item->size = (uint32_t) bytes;
 
-    memcpy(dataPtr, data, bytes);
+    if (data != nullptr)
+        memcpy(dataPtr, data, bytes);
 
     return handle;
 }
@@ -475,7 +437,7 @@ TEST(SPTK_MemoryBucket, performance)
     EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
 
     vector<Handle>  handles;
-    size_t          count = 1024 * 1024;
+    size_t          count = 256 * 1024;
 
     DateTime started("now");
     populateBucket(*bucket, count, handles);
@@ -489,7 +451,6 @@ TEST(SPTK_MemoryBucket, performance)
     size_t i = 0;
     for (auto& handle: handles) {
         if (i % 2 == 1) {
-            String storedStr(handle.c_str(), handle.size());
             bucket->free(handle);
         }
         i++;
@@ -497,7 +458,6 @@ TEST(SPTK_MemoryBucket, performance)
     // Free every even allocated string
     for (auto& handle: handles) {
         if (i % 2 == 0) {
-            String storedStr(handle.c_str(), handle.size());
             bucket->free(handle);
         }
         i++;

@@ -410,7 +410,7 @@ INSTALL (FILES ${includeFilesJSON} DESTINATION include/sptk5/json)
 FILE (GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
 INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml)
 
-FILE (GLOB includeFilesPersist "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/persist/*.h")
+FILE (GLOB includeFilesPersist "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/persistent/*.h")
 INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/persist)
 
 FILE (GLOB includeFilesWSDL "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/wsdl/*.h")
