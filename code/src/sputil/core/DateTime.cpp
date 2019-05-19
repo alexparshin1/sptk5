@@ -935,6 +935,7 @@ const char* DateTime::fullTimeFormat() { return _fullTimeFormat; }
 const char* DateTime::shortTimeFormat() { return _shortTimeFormat; }
 char DateTime::dateSeparator() { return _dateSeparator; }
 char DateTime::timeSeparator() { return _timeSeparator; }
+vector<String> DateTime::weekDayNames() { return _weekDayNames; }
 vector<String> DateTime::monthNames() { return _monthNames; }
 String DateTime::timeZoneName() { return _timeZoneName; }
 int DateTime::timeZoneOffset() { return _timeZoneOffset; }

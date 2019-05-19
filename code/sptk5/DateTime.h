@@ -189,6 +189,11 @@ public:
 	 */
 	static char timeSeparator();
 
+    /**
+     * The locale-defined weekday names
+     */
+    static std::vector<String> weekDayNames();
+
 	/**
 	 * The locale-defined weekday names
 	 */
