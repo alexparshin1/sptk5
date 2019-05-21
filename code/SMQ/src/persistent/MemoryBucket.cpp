@@ -59,11 +59,11 @@ void MemoryBucket::load(std::vector<Handle>* handles)
     char* memoryStart = (char*) m_mappedFile.data();
     char* memoryEnd = memoryStart + m_mappedFile.size();
     char* itemPtr = memoryStart;
-    Item* item = (Item*) itemPtr;
+    HandleStorage* item = (HandleStorage*) itemPtr;
     bool done = false;
     uint32_t offset = 0;
     while (!done) {
-        size_t itemFullSize = sizeof(Item) + item->size;
+        size_t itemFullSize = sizeof(HandleStorage) + item->size;
         switch (item->signature) {
             case allocatedMark:
                 if (handles)
@@ -81,7 +81,7 @@ void MemoryBucket::load(std::vector<Handle>* handles)
         itemPtr = memoryStart + offset;
         if (itemPtr > memoryEnd)
             break;
-        item = (Item*)itemPtr;
+        item = (HandleStorage*)itemPtr;
     }
 
     if (offset < m_mappedFile.size())
@@ -92,7 +92,7 @@ Handle MemoryBucket::insert(const void* data, size_t bytes)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    size_t   itemFullSize = sizeof(Item) + bytes;
+    size_t   itemFullSize = sizeof(HandleStorage) + bytes;
     uint32_t offset = m_freeBlocks.alloc((uint32_t)itemFullSize);
     if (offset == UINT32_MAX)
         return Handle();
@@ -100,8 +100,8 @@ Handle MemoryBucket::insert(const void* data, size_t bytes)
     Handle handle(*this, offset);
 
     char* itemPtr = (char*) m_mappedFile.data() + offset;
-    char* dataPtr = itemPtr + sizeof(Item);
-    Item* item = (Item*) itemPtr;
+    char* dataPtr = itemPtr + sizeof(HandleStorage);
+    HandleStorage* item = (HandleStorage*) itemPtr;
 
     item->signature = allocatedMark;
     item->size = (uint32_t) bytes;
@@ -116,7 +116,7 @@ void MemoryBucket::free(Handle& data)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto* item = (Item*) data.m_record;
+    auto* item = (HandleStorage*) data.m_record;
     if (item->signature != allocatedMark) {
         if (item->signature == releasedMark)
             return;
@@ -153,9 +153,9 @@ size_t MemoryBucket::available() const
 {
     lock_guard<mutex> lock(m_mutex);
     uint32_t available = m_freeBlocks.available();
-    if (available <= sizeof(Item))
+    if (available <= sizeof(HandleStorage))
         return 0;
-    return available - sizeof(Item);
+    return available - sizeof(HandleStorage);
 }
 
 const uint32_t MemoryBucket::id() const
@@ -203,7 +203,7 @@ static void replaceKeyAndValue(multimap<uint32_t,uint32_t>& map,
 
 void MemoryBucket::FreeBlocks::free(uint32_t offset, uint32_t size)
 {
-    uint32_t fullItemSize = size + sizeof(Item);
+    uint32_t fullItemSize = size + sizeof(HandleStorage);
     // Find nearest free block down
     auto nextBlockItor = m_offsetMap.upper_bound(offset);
     auto priorBlockItor = nextBlockItor;

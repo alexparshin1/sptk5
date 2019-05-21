@@ -34,8 +34,13 @@ using namespace std;
 using namespace sptk;
 using namespace smq::persistent;
 
+Handle::Handle()
+: m_bucket(nullptr), m_record(nullptr)
+{
+}
+
 Handle::Handle(MemoryBucket& bucket, size_t m_bucketOffset)
-: m_bucket(&bucket), m_record((void*)((const char*)m_bucket->data() + m_bucketOffset))
+: m_bucket(&bucket), m_record((HandleStorage*)((const char*)m_bucket->data() + m_bucketOffset))
 {
 }
 
@@ -44,39 +49,39 @@ Handle::Handle(size_t bucketId, size_t m_bucketOffset)
     m_bucket = MemoryBucket::find(uint32_t(bucketId));
     if (m_bucket == nullptr)
         throw Exception("Bucket doesn't exist");
-    m_record = (void*)((const char*)m_bucket->data() + m_bucketOffset);
+    m_record = (HandleStorage*)((const char*)m_bucket->data() + m_bucketOffset);
 }
 
 Handle::operator void*() const
 {
-    auto* item = (MemoryBucket::Item*) m_record;
+    auto* item = (HandleStorage*) m_record;
     if (item->signature != allocatedMark)
         return nullptr;
-    return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
+    return (void*)((const char*) m_record + sizeof(HandleStorage));
 }
 
 void* Handle::data() const
 {
-    auto* item = (MemoryBucket::Item*) m_record;
+    auto* item = (HandleStorage*) m_record;
     if (item->signature != allocatedMark)
         return nullptr;
-    return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
+    return (void*)((const char*) m_record + sizeof(HandleStorage));
 }
 
 const char* Handle::c_str() const
 {
-    auto* item = (MemoryBucket::Item*) m_record;
+    auto* item = (HandleStorage*) m_record;
     if (item->signature != allocatedMark)
         return nullptr;
-    return (const char*) m_record + sizeof(MemoryBucket::Item);
+    return (const char*) m_record + sizeof(HandleStorage);
 }
 
 size_t Handle::size() const
 {
-    auto* item = (MemoryBucket::Item*) m_record;
+    auto* item = (HandleStorage*) m_record;
     if (item->signature != allocatedMark)
         return 0;
-    return ((MemoryBucket::Item*) m_record)->size;
+    return m_record->size;
 }
 
 void Handle::free()
@@ -85,4 +90,19 @@ void Handle::free()
         m_bucket->free(*this);
     m_bucket = nullptr;
     m_record = nullptr;
+}
+
+uint32_t Handle::storageSize() const
+{
+    return sizeof(HandleStorage);
+}
+
+void Handle::store(void* destination)
+{
+    memcpy(destination, m_record, sizeof(HandleStorage));
+}
+
+void Handle::restore(void* source)
+{
+    memcpy(m_record, source, sizeof(HandleStorage));
 }

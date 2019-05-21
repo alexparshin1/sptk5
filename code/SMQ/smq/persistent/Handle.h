@@ -36,6 +36,14 @@ namespace persistent {
 
 class MemoryBucket;
 
+struct HandleStorage
+{
+    unsigned  signature:16;
+    unsigned  type:8;
+    unsigned  size:24;
+    HandleStorage() : signature(0), type(0), size(0) {}
+};
+
 class SP_EXPORT Handle
 {
     friend class MemoryBucket;
@@ -43,11 +51,11 @@ class SP_EXPORT Handle
 
 protected:
 
-    void*           m_record {nullptr};
+    HandleStorage*  m_record {nullptr};
 
 public:
 
-    Handle() {}
+    Handle();
     Handle(MemoryBucket& bucket, size_t m_bucketOffset);
     Handle(size_t bucketId, size_t m_bucketOffset);
     Handle(const Handle& other) = default;
@@ -58,6 +66,11 @@ public:
     const char* c_str() const;
     size_t size() const;
     void free();
+
+    uint32_t storageSize() const;
+    HandleStorage& storage() const { return *m_record; }
+    void store(void *destination);
+    void restore(void *source);
 };
 
 }

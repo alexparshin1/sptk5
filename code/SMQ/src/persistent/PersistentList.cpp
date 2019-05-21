@@ -37,15 +37,12 @@ using namespace persistent;
 PersistentList::PersistentList(MemoryPool& pool, const String& name)
 : m_pool(pool)
 {
-    cout << "Size of Handle: " << sizeof(Handle) << endl;
-    cout << "Size of Header: " << sizeof(Header) << endl;
     size_t headerLength = sizeof(Header) + name.length();
-    Handle m_header = m_pool.insert(nullptr, headerLength);
+    m_header = m_pool.insert(nullptr, headerLength);
 
     auto* header = (Header*) m_header.data();
 
-    header->type = PDT_LIST_HEADER;
-    header->first = Handle();
+    header->first.type = PDT_LIST_HEADER;
     strcpy(header->name, name.c_str());
     header->nameLength = name.length();
 }
@@ -59,16 +56,16 @@ Handle PersistentList::push_front(const void* data, size_t size)
 
     auto* item = (Item*) itemHandle.data();
 
-    item->prior = Handle();
+    item->prior = HandleStorage();
     if (m_handles.empty()) {
-        item->next = Handle();
+        item->next = HandleStorage();
         auto* header = (Header*) m_header.data();
-        header->first = itemHandle;
+        header->first = itemHandle.storage();
     } else {
         Handle& front = m_handles.front();
-        item->next = front;
+        item->next = front.storage();
         Item* frontItem = (Item*) front.data();
-        frontItem->prior = itemHandle;
+        frontItem->prior = itemHandle.storage();
     }
 
     item->dataLength = size;
@@ -88,16 +85,16 @@ Handle PersistentList::push_back(const void* data, size_t size)
 
     auto* item = (Item*) itemHandle.data();
 
-    item->next = Handle();
+    item->next = HandleStorage();
     if (m_handles.empty()) {
-        item->prior = Handle();
+        item->prior = HandleStorage();
         auto* header = (Header*) m_header.data();
-        header->first = itemHandle;
+        header->first = itemHandle.storage();
     } else {
         Handle& back = m_handles.back();
-        item->prior = back;
+        item->prior = back.storage();
         Item* backItem = (Item*) back.data();
-        backItem->next = itemHandle;
+        backItem->next = itemHandle.storage();
     }
 
     item->dataLength = size;
@@ -137,16 +134,16 @@ void PersistentList::erase(iterator from, iterator to)
 
     if (priorItem != nullptr) {
         if (nextItem != nullptr)
-            priorItem->next = *next;
+            priorItem->next = next->storage();
         else
-            priorItem->next = Handle();
+            priorItem->next = HandleStorage();
     }
 
     if (nextItem != nullptr) {
         if (priorItem != nullptr)
-            nextItem->prior = *prior;
+            nextItem->prior = prior->storage();
         else
-            nextItem->prior = Handle();
+            nextItem->prior = HandleStorage();
     }
 }
 
@@ -178,9 +175,16 @@ TEST(SMQ_PersistentList, alloc)
     prepareTestDirectory();
 
     MemoryPool pool(testPoolDirectory, "lists", 128 * 1024);
+    pool.load(nullptr);
     pool.clear();
 
-    PersistentList list(pool, "List 00001");
+    PersistentList list1(pool, "List 00001");
+    PersistentList list2(pool, "List 00002");
+
+    for (size_t i = 0; i < 2; i++) {
+        String st("Item " + to_string(i));
+        list1.push_back(st.c_str(), st.length());
+    }
 }
 
 #endif

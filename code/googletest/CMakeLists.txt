@@ -9,7 +9,7 @@ include(GNUInstallDirs)
 
 # BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to
 # make it prominent in the GUI.
-set(BUILD_SHARED_LIBS OFF)
+set(BUILD_SHARED_LIBS ON)
 
 # When other libraries are using a shared version of runtime libraries,
 # Google Test also has to use one.

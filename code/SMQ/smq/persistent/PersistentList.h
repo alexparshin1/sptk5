@@ -40,18 +40,16 @@ class PersistentList
 {
     struct Header
     {
-        PersistentDataType  type {PDT_LIST_HEADER};
-        Handle              first;
-        size_t              nameLength {0};
+        HandleStorage       first;
+        uint32_t            nameLength {0};
         char                name[1];
     };
 
     struct Item
     {
-        PersistentDataType  type {PDT_LIST_ITEM};
-        Handle              prior;
-        Handle              next;
-        size_t              dataLength {0};
+        HandleStorage       prior;
+        HandleStorage       next;
+        uint32_t            dataLength {0};
         uint8_t             data[1];
     };
 

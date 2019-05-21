@@ -92,15 +92,6 @@ public:
 
     const sptk::String fileName() const { return m_mappedFile.fileName(); }
 
-protected:
-
-    struct Item
-    {
-        unsigned            signature:16;
-        PersistentDataType  type:8;
-        unsigned            size:24;
-    };
-
 private:
 
     mutable std::mutex          m_mutex;
