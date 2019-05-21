@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Handle.cpp - description                               ║
+║                       Handle.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday May 19 2019                                     ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,53 +26,41 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/persistent/MemoryBucket.h>
+#ifndef __PERSIST_HANDLE_H__
+#define __PERSIST_HANDLE_H__
 
-using namespace std;
-using namespace sptk;
-using namespace persistent;
+#include <sptk5/sptk.h>
 
-Handle::Handle(MemoryBucket& bucket, size_t m_bucketOffset)
-: m_bucket(&bucket), m_record((void*)((const char*)m_bucket->data() + m_bucketOffset))
+namespace smq {
+namespace persistent {
+
+class MemoryBucket;
+
+class SP_EXPORT Handle
 {
+    friend class MemoryBucket;
+    MemoryBucket*   m_bucket {nullptr};
+
+protected:
+
+    void*           m_record {nullptr};
+
+public:
+
+    Handle() {}
+    Handle(MemoryBucket& bucket, size_t m_bucketOffset);
+    Handle(size_t bucketId, size_t m_bucketOffset);
+    Handle(const Handle& other) = default;
+    Handle& operator = (const Handle& other) = default;
+    bool isNull() const { return m_bucket == nullptr; }
+    explicit operator void* () const;
+    void* data() const;
+    const char* c_str() const;
+    size_t size() const;
+    void free();
+};
+
+}
 }
 
-Handle::Handle(size_t bucketId, size_t m_bucketOffset)
-{
-    m_bucket = MemoryBucket::find(uint32_t(bucketId));
-    if (m_bucket == nullptr)
-        throw Exception("Bucket doesn't exist");
-    m_record = (void*)((const char*)m_bucket->data() + m_bucketOffset);
-}
-
-Handle::operator void*() const
-{
-    auto* item = (MemoryBucket::Item*) m_record;
-    if (item->signature != allocatedMark)
-        return nullptr;
-    return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
-}
-
-void* Handle::data() const
-{
-    auto* item = (MemoryBucket::Item*) m_record;
-    if (item->signature != allocatedMark)
-        return nullptr;
-    return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
-}
-
-const char* Handle::c_str() const
-{
-    auto* item = (MemoryBucket::Item*) m_record;
-    if (item->signature != allocatedMark)
-        return nullptr;
-    return (const char*) m_record + sizeof(MemoryBucket::Item);
-}
-
-size_t Handle::size() const
-{
-    auto* item = (MemoryBucket::Item*) m_record;
-    if (item->signature != allocatedMark)
-        return 0;
-    return ((MemoryBucket::Item*) m_record)->size;
-}
+#endif

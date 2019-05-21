@@ -26,12 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/persistent/MemoryPool.h>
+#include <smq/persistent/MemoryPool.h>
 #include <sptk5/DirectoryDS.h>
 
 using namespace std;
 using namespace sptk;
-using namespace sptk::persistent;
+using namespace smq::persistent;
 
 MemoryPool::MemoryPool(const String& directory, const String& objectName, uint32_t bucketSize)
 : m_directory(directory), m_bucketSize(bucketSize)
@@ -63,6 +63,20 @@ SMemoryBucket MemoryPool::createBucket(uint32_t id)
 {
     lock_guard<mutex> lock(m_mutex);
     return createBucketUnlocked(id);
+}
+
+void MemoryPool::clear()
+{
+    lock_guard<mutex> lock(m_mutex);
+
+    m_bucketLoop.clear();
+
+    for (auto& itor: m_bucketMap) {
+        auto& bucket = itor.second;
+        String fileName = bucket->fileName();
+        bucket.reset();
+        unlink(fileName.c_str());
+    }
 }
 
 void MemoryPool::load(std::vector<Handle>* handles)
@@ -109,6 +123,11 @@ uint32_t MemoryPool::makeBucketIdUnlocked()
     return id;
 }
 
+void MemoryPool::free(Handle handle)
+{
+    handle.free();
+}
+
 #if USE_GTEST
 
 constexpr size_t storageHandleSize = 2 * sizeof(uint32_t);
@@ -139,7 +158,7 @@ static size_t populatePool(MemoryPool& pool, size_t count, vector<Handle>& handl
     return totalStoredSize;
 }
 
-TEST(SPTK_MemoryPool, alloc)
+TEST(SMQ_MemoryPool, alloc)
 {
     prepareTestDirectory();
 
@@ -149,7 +168,7 @@ TEST(SPTK_MemoryPool, alloc)
 
     // Populate test data
     vector<Handle> handles;
-    size_t totalStoredSize = populatePool(pool, 10, handles);
+    populatePool(pool, 10, handles);
 }
 
 #endif

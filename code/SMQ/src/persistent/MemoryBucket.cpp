@@ -26,11 +26,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/persistent/MemoryBucket.h"
+#include "smq/persistent/MemoryBucket.h"
 
 using namespace std;
 using namespace sptk;
-using namespace persistent;
+using namespace smq::persistent;
 using namespace chrono;
 
 String MemoryBucket::formatId(uint32_t bucketId)
@@ -355,7 +355,7 @@ static size_t populateBucket(MemoryBucket& bucket, size_t count, vector<Handle>&
     return totalStoredSize;
 }
 
-TEST(SPTK_MemoryBucket, allocAndClear)
+TEST(SMQ_MemoryBucket, allocAndClear)
 {
     prepareTestDirectory();
 
@@ -375,7 +375,7 @@ TEST(SPTK_MemoryBucket, allocAndClear)
     EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
 }
 
-TEST(SPTK_MemoryBucket, allocAndRead)
+TEST(SMQ_MemoryBucket, allocAndRead)
 {
     prepareTestDirectory();
 
@@ -403,7 +403,7 @@ TEST(SPTK_MemoryBucket, allocAndRead)
     }
 }
 
-TEST(SPTK_MemoryBucket, free)
+TEST(SMQ_MemoryBucket, free)
 {
     prepareTestDirectory();
 
@@ -427,7 +427,7 @@ TEST(SPTK_MemoryBucket, free)
     EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
 }
 
-TEST(SPTK_MemoryBucket, performance)
+TEST(SMQ_MemoryBucket, performance)
 {
     prepareTestDirectory();
 

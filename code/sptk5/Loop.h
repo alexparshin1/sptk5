@@ -16,6 +16,12 @@ public:
         m_position = m_list.end();
     }
 
+    void clear()
+    {
+        m_position = m_list.end();
+        m_list.clear();
+    }
+
     void add(const T& data)
     {
         m_list.push_back(data);

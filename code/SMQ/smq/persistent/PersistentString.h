@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Handle.h - description                                 ║
+║                       PersistentString.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday May 19 2019                                     ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,37 +26,18 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __PERSIST_HANDLE_H__
-#define __PERSIST_HANDLE_H__
+#ifndef __PERSISTENT_STRING_H__
+#define __PERSISTENT_STRING_H__
 
-#include <sptk5/sptk.h>
+#include <smq/persistent/MemoryPool.h>
 
-namespace sptk {
+namespace smq {
 namespace persistent {
 
-class MemoryBucket;
-
-class SP_EXPORT Handle
+class PersistentString
 {
-    friend class MemoryBucket;
-    MemoryBucket*   m_bucket {nullptr};
-
-protected:
-
-    void*           m_record {nullptr};
-
-public:
-
-    Handle() {}
-    Handle(MemoryBucket& bucket, size_t m_bucketOffset);
-    Handle(size_t bucketId, size_t m_bucketOffset);
-    Handle(const Handle& other) = default;
-    Handle& operator = (const Handle& other) = default;
-    bool isNull() const { return m_bucket == nullptr; }
-    explicit operator void* () const;
-    void* data() const;
-    const char* c_str() const;
-    size_t size() const;
+    uint32_t    m_length;
+    char        m_data[1];
 };
 
 }
