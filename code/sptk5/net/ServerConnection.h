@@ -44,7 +44,7 @@ class TCPServer;
  */
 
 /**
- * @brief Abstract TCP or SSL server connection thread
+ * Abstract TCP or SSL server connection thread
  *
  * Used a base class for CTCPServerConnection and COpenSSLServerConnection
  */
@@ -73,14 +73,15 @@ protected:
 public:
 
     /**
-     * @brief Constructor
+     * Constructor
+     * @param server            Server that created this connection
      * @param connectionSocket  Already accepted by accept() function incoming connection socket
      * @param taskName          Task name
      */
     ServerConnection(TCPServer& server, SOCKET connectionSocket, const String& taskName);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     ~ServerConnection() override;
 
