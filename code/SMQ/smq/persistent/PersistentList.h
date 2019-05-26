@@ -38,36 +38,56 @@ namespace persistent {
 
 class PersistentList
 {
-    struct Header
+#pragma pack(push,1)
+    struct ItemStorage : public HandleStorage
     {
-        HandleStorage       first;
-        uint32_t            nameLength {0};
-        char                name[1];
+        Location    next;
+        uint32_t    dataLength {0};
+        uint8_t     data[1];
     };
+#pragma pack(pop)
 
-    struct Item
+    class ItemHandle : public Handle
     {
-        HandleStorage       prior;
-        HandleStorage       next;
-        uint32_t            dataLength {0};
-        uint8_t             data[1];
+    public:
+        ItemHandle() : Handle() {}
+        ItemHandle(MemoryBucket& bucket, size_t bucketOffset) : Handle(bucket, bucketOffset) {}
+        ItemHandle(size_t bucketId, size_t bucketOffset) : Handle(bucketId, bucketOffset) {}
+        explicit ItemHandle(Location& location) : Handle(location) {}
+        explicit ItemHandle(const Handle& handle) : Handle(handle) {}
+
+        explicit operator void*() const override;
+        void* data() const override;
+        const char* c_str() const override;
+        size_t size() const override;
     };
 
     mutable sptk::SharedMutex   m_mutex;
     MemoryPool&                 m_pool;
     Handle                      m_header;
-    std::list<Handle>           m_handles;
+    std::list<ItemHandle>       m_handles;
+    sptk::String                m_name;
+
+    ItemStorage* header()            { return (ItemStorage*) (m_header.header()); }
+    ItemStorage* item(Handle handle) { return (ItemStorage*) (handle.header()); }
 
 public:
 
     PersistentList(MemoryPool& pool, const sptk::String& name);
+    PersistentList(MemoryPool& pool, Handle& header);
 
-    typedef std::list<Handle>::iterator         iterator;
-    typedef std::list<Handle>::const_iterator   const_iterator;
+    void load();
+
+    typedef std::list<ItemHandle>::iterator         iterator;
+    typedef std::list<ItemHandle>::const_iterator   const_iterator;
 
     Handle push_front(const void* data, size_t size);
-
     Handle push_back(const void* data, size_t size);
+
+    sptk::String name() const
+    {
+        return m_name;
+    }
 
     iterator begin()
     {
@@ -119,6 +139,8 @@ public:
     void clear();
 
 };
+
+typedef std::shared_ptr<PersistentList> SPersistentList;
 
 }
 }

@@ -42,7 +42,7 @@ public:
     MemoryPool(const sptk::String& directory, const sptk::String& objectName, uint32_t bucketSize);
 
     void clear();
-    void load(std::vector<Handle>* handles);
+    virtual void load(SHandles handles, HandleType type=HT_UNKNOWN);
 
     Handle insert(const void* data, size_t bytes);
     void free(Handle handle);

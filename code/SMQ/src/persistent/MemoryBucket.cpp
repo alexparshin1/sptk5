@@ -30,8 +30,11 @@
 
 using namespace std;
 using namespace sptk;
-using namespace smq::persistent;
 using namespace chrono;
+using namespace smq::persistent;
+
+static mutex                        bucketMapMutex;
+static map<uint32_t,MemoryBucket*>  bucketMap;
 
 String MemoryBucket::formatId(uint32_t bucketId)
 {
@@ -48,9 +51,12 @@ MemoryBucket::MemoryBucket(const String& directoryName, const String& objectName
 {
     m_mappedFile.open();
     load(nullptr);
+
+    lock_guard<mutex> lock(bucketMapMutex);
+    bucketMap[id] = this;
 }
 
-void MemoryBucket::load(std::vector<Handle>* handles)
+void MemoryBucket::load(SHandles handles, HandleType type)
 {
     lock_guard<mutex> lock(m_mutex);
 
@@ -66,7 +72,7 @@ void MemoryBucket::load(std::vector<Handle>* handles)
         size_t itemFullSize = sizeof(HandleStorage) + item->size;
         switch (item->signature) {
             case allocatedMark:
-                if (handles)
+                if (handles && (type == HT_UNKNOWN || type == item->type))
                     handles->emplace_back(*this, offset);
                 offset += itemFullSize;
                 break;
@@ -167,9 +173,6 @@ const void* MemoryBucket::data() const
 {
     return m_mappedFile.data();
 }
-
-static mutex                        bucketMapMutex;
-static map<uint32_t,MemoryBucket*>  bucketMap;
 
 MemoryBucket* MemoryBucket::find(uint32_t bucketId)
 {

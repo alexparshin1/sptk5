@@ -11,7 +11,8 @@ ADD_LIBRARY(smq ${LIBRARY_TYPE}
     src/unit_tests/SMQServer_UT.cpp
     src/server/SMQSendQueue.cpp
     src/server/SMQSendThreadPool.cpp
-    src/persistent/Handle.cpp src/persistent/MemoryMappedFile.cpp src/persistent/MemoryBucket.cpp src/persistent/MemoryPool.cpp
+    src/persistent/Handle.cpp src/persistent/ListPool.cpp src/persistent/MemoryMappedFile.cpp
+    src/persistent/MemoryBucket.cpp src/persistent/MemoryPool.cpp
     src/persistent/PersistentList.cpp src/persistent/PersistentString.cpp
 )
 

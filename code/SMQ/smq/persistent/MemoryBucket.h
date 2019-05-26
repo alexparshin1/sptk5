@@ -38,13 +38,6 @@ namespace persistent {
 static constexpr uint16_t allocatedMark = 0x5F7F;
 static constexpr uint16_t releasedMark = 0x5E7E;
 
-enum PersistentDataType : uint8_t
-{
-    PDT_STRING          = 1,
-    PDT_LIST_HEADER     = 2,
-    PDT_LIST_ITEM       = 4
-};
-
 class SP_EXPORT MemoryBucket
 {
     friend class Handle;
@@ -69,7 +62,7 @@ public:
 
     MemoryBucket(const sptk::String& directoryName, const sptk::String& objectName, uint32_t id, size_t size);
 
-    void load(std::vector<Handle>* handles);
+    void load(SHandles handles, HandleType type=HT_UNKNOWN);
 
     const uint32_t id() const;
     const void* data() const;

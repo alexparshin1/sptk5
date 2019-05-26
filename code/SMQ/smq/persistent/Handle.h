@@ -34,15 +34,36 @@
 namespace smq {
 namespace persistent {
 
+enum HandleType : uint8_t
+{
+    HT_UNKNOWN         = 0,
+    HT_STRING          = 1,
+    HT_LIST_HEADER     = 2,
+    HT_LIST_ITEM       = 4
+};
+
+#pragma pack(push,1)
+struct Location
+{
+    uint16_t    bucketId {0};
+    uint32_t    offset {0};
+    Location() {}
+    Location(uint32_t _bucketId, uint32_t _offset) : bucketId(_bucketId), offset(_offset) {}
+    bool empty() const { return bucketId == 0; }
+};
+#pragma pack(pop)
+
 class MemoryBucket;
 
+#pragma pack(push,1)
 struct HandleStorage
 {
-    unsigned  signature:16;
-    unsigned  type:8;
-    unsigned  size:24;
-    HandleStorage() : signature(0), type(0), size(0) {}
+    uint16_t    signature;
+    HandleType  type;
+    uint32_t    size;
 };
+#pragma pack(pop)
+
 
 class SP_EXPORT Handle
 {
@@ -56,22 +77,32 @@ protected:
 public:
 
     Handle();
-    Handle(MemoryBucket& bucket, size_t m_bucketOffset);
-    Handle(size_t bucketId, size_t m_bucketOffset);
+    Handle(MemoryBucket& bucket, size_t bucketOffset);
+    Handle(size_t bucketId, size_t bucketOffset);
+    Handle(Location& location);
     Handle(const Handle& other) = default;
     Handle& operator = (const Handle& other) = default;
     bool isNull() const { return m_bucket == nullptr; }
-    explicit operator void* () const;
-    void* data() const;
-    const char* c_str() const;
-    size_t size() const;
+    void* header() const { return m_record; }
+    explicit virtual operator void* () const;
+    virtual void* data() const;
+    virtual const char* c_str() const;
+    virtual size_t size() const;
+    HandleType type() const { return m_record == nullptr? HT_UNKNOWN: m_record->type; }
     void free();
+
+    uint32_t bucketId() const;
+    uint32_t offset() const;
+    Location location() const;
 
     uint32_t storageSize() const;
     HandleStorage& storage() const { return *m_record; }
     void store(void *destination);
     void restore(void *source);
 };
+
+typedef std::vector<Handle>         Handles;
+typedef std::shared_ptr<Handles>    SHandles;
 
 }
 }

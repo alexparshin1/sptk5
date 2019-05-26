@@ -79,7 +79,7 @@ void MemoryPool::clear()
     }
 }
 
-void MemoryPool::load(std::vector<Handle>* handles)
+void MemoryPool::load(SHandles handles, HandleType type)
 {
     DirectoryDS         bucketFiles(m_directory, m_objectName + "_*", DDS_HIDE_DIRECTORIES|DDS_HIDE_DOT_FILES);
     RegularExpression   matchFileName(m_objectName + "_(\\d+)$");
@@ -91,7 +91,7 @@ void MemoryPool::load(std::vector<Handle>* handles)
         if (matchFileName.m(fileName,matches)) {
             auto id = (uint32_t) string2int64(matches[0]);
             auto bucket = createBucket(id);
-            bucket->load(handles);
+            bucket->load(handles, type);
         }
         bucketFiles.next();
     }
@@ -163,8 +163,7 @@ TEST(SMQ_MemoryPool, alloc)
     prepareTestDirectory();
 
     MemoryPool pool(testPoolDirectory, "bucket", 128 * 1024);
-    vector<Handle> oldHandles;
-    pool.load(&oldHandles);
+    pool.load(SHandles());
 
     // Populate test data
     vector<Handle> handles;

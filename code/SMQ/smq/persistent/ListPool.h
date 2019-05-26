@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Handle.cpp - description                               ║
+║                       ListPool.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday May 19 2019                                     ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,108 +26,28 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <smq/persistent/MemoryBucket.h>
-#include <SMQ/smq/persistent/Handle.h>
+#ifndef __PERSISTENT_LIST_POOL_H__
+#define __PERSISTENT_LIST_POOL_H__
 
+#include <smq/persistent/MemoryPool.h>
+#include <smq/persistent/PersistentList.h>
 
-using namespace std;
-using namespace sptk;
-using namespace smq::persistent;
+namespace smq {
+namespace persistent {
 
-Handle::Handle()
-: m_bucket(nullptr), m_record(nullptr)
+class ListPool : public MemoryPool
 {
+    mutable std::mutex                          m_mutex;
+    std::map<sptk::String, SPersistentList>     m_lists;
+public:
+    ListPool(const sptk::String& directory, const sptk::String& objectName, uint32_t bucketSize)
+    : MemoryPool(directory, objectName, bucketSize)
+    {}
+
+    void load(SHandles handles, HandleType type=HT_UNKNOWN) override;
+};
+
+}
 }
 
-Handle::Handle(MemoryBucket& bucket, size_t bucketOffset)
-: m_bucket(&bucket), m_record((HandleStorage*)((const char*)m_bucket->data() + bucketOffset))
-{
-}
-
-Handle::Handle(size_t bucketId, size_t bucketOffset)
-{
-    m_bucket = MemoryBucket::find(uint32_t(bucketId));
-    if (m_bucket == nullptr)
-        throw Exception("Bucket doesn't exist");
-    m_record = (HandleStorage*)((const char*)m_bucket->data() + bucketOffset);
-}
-
-Handle::Handle(Location& location)
-{
-    m_bucket = MemoryBucket::find(location.bucketId);
-    if (m_bucket == nullptr)
-        throw Exception("Bucket doesn't exist");
-    m_record = (HandleStorage*)((const char*)m_bucket->data() + location.offset);
-}
-
-Handle::operator void*() const
-{
-    auto* item = (HandleStorage*) m_record;
-    if (item->signature != allocatedMark)
-        return nullptr;
-    return (void*)((const char*) m_record + sizeof(HandleStorage));
-}
-
-void* Handle::data() const
-{
-    auto* item = (HandleStorage*) m_record;
-    if (item->signature != allocatedMark)
-        return nullptr;
-    return (void*)((const char*) m_record + sizeof(HandleStorage));
-}
-
-const char* Handle::c_str() const
-{
-    auto* item = (HandleStorage*) m_record;
-    if (item->signature != allocatedMark)
-        return nullptr;
-    return (const char*) m_record + sizeof(HandleStorage);
-}
-
-size_t Handle::size() const
-{
-    auto* item = (HandleStorage*) m_record;
-    if (item->signature != allocatedMark)
-        return 0;
-    return m_record->size;
-}
-
-void Handle::free()
-{
-    if (m_bucket != nullptr)
-        m_bucket->free(*this);
-    m_bucket = nullptr;
-    m_record = nullptr;
-}
-
-uint32_t Handle::storageSize() const
-{
-    return sizeof(HandleStorage);
-}
-
-void Handle::store(void* destination)
-{
-    memcpy(destination, m_record, sizeof(HandleStorage));
-}
-
-void Handle::restore(void* source)
-{
-    memcpy(m_record, source, sizeof(HandleStorage));
-}
-
-uint32_t Handle::bucketId() const
-{
-    return m_bucket == nullptr? 0: m_bucket->id();
-}
-
-uint32_t Handle::offset() const
-{
-    return m_record == nullptr? 0: (char*)m_record - (char*)m_bucket->data();
-}
-
-Location Handle::location() const
-{
-    if (m_record == nullptr)
-        return Location();
-    return Location(m_bucket->id(), (char*)m_record - (char*)m_bucket->data());
-}
+#endif //SPTK_LISTPOOL_H
