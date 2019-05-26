@@ -25,8 +25,8 @@ public:
     void add(const T& data)
     {
         m_list.push_back(data);
-        if (m_list.size() == 1)
-            m_position = m_list.begin();
+        m_position = m_list.end();
+        m_position--;
     }
 
     T& get()

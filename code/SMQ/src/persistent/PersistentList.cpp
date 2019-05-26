@@ -240,14 +240,14 @@ TEST(SMQ_PersistentList, alloc)
     }
     DateTime ended("now");
     double durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;
-    COUT("Total " << totalItems << " items loaded for " << durationSec << ", " << totalItems / durationSec << "/sec");
+    COUT("Total " << fixed << setprecision(3) << totalItems << " items loaded for " << durationSec << " sec, " << totalItems / durationSec / 1E6 << "M/sec");
 
     pool.clear();
 
     PersistentList list1(pool, "List 00001");
     PersistentList list2(pool, "List 00002");
 
-    for (size_t i = 0; i < 1024 * 4; i++) {
+    for (size_t i = 0; i < 1024 * 256; i++) {
         String st("List 1 Item " + to_string(i));
         list1.push_back(st.c_str(), st.length());
         //String st2("List 2 Item " + to_string(i));
