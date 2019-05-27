@@ -220,7 +220,8 @@ TEST(SMQ_PersistentList, alloc)
 {
     prepareTestDirectory();
 
-    MemoryPool pool(testPoolDirectory, "lists", 128 * 1024);
+    size_t maxItems = 128 * 1024;
+    MemoryPool pool(testPoolDirectory, "lists", maxItems);
     SHandles listHandles = make_shared<Handles>();
     pool.load(listHandles, HT_LIST_HEADER);
 
@@ -247,12 +248,18 @@ TEST(SMQ_PersistentList, alloc)
     PersistentList list1(pool, "List 00001");
     PersistentList list2(pool, "List 00002");
 
-    for (size_t i = 0; i < 1024 * 4; i++) {
+    totalItems = 0;
+    started = DateTime::Now();
+    for (size_t i = 0; i < maxItems; i++) {
         String st("List 1 Item " + to_string(i));
         list1.push_back(st.c_str(), st.length());
         //String st2("List 2 Item " + to_string(i));
         //list2.push_back(st2.c_str(), st2.length());
+        totalItems += 2;
     }
+    ended = DateTime::Now();
+    durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;
+    COUT("Total " << totalItems << " items inserted for " << durationSec << ", " << totalItems / durationSec << "/sec");
 }
 
 #endif
