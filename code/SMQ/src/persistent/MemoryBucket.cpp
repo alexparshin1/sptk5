@@ -26,12 +26,15 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/persistent/MemoryBucket.h"
+#include "smq/persistent/MemoryBucket.h"
 
 using namespace std;
 using namespace sptk;
-using namespace persistent;
 using namespace chrono;
+using namespace smq::persistent;
+
+static mutex                        bucketMapMutex;
+static map<uint32_t,MemoryBucket*>  bucketMap;
 
 String MemoryBucket::formatId(uint32_t bucketId)
 {
@@ -48,9 +51,12 @@ MemoryBucket::MemoryBucket(const String& directoryName, const String& objectName
 {
     m_mappedFile.open();
     load(nullptr);
+
+    lock_guard<mutex> lock(bucketMapMutex);
+    bucketMap[id] = this;
 }
 
-void MemoryBucket::load(std::vector<Handle>* handles)
+void MemoryBucket::load(SHandles handles, HandleType type)
 {
     lock_guard<mutex> lock(m_mutex);
 
@@ -59,14 +65,14 @@ void MemoryBucket::load(std::vector<Handle>* handles)
     char* memoryStart = (char*) m_mappedFile.data();
     char* memoryEnd = memoryStart + m_mappedFile.size();
     char* itemPtr = memoryStart;
-    Item* item = (Item*) itemPtr;
+    HandleStorage* item = (HandleStorage*) itemPtr;
     bool done = false;
     uint32_t offset = 0;
     while (!done) {
-        size_t itemFullSize = sizeof(Item) + item->size;
+        size_t itemFullSize = sizeof(HandleStorage) + item->size;
         switch (item->signature) {
             case allocatedMark:
-                if (handles)
+                if (handles && (type == HT_UNKNOWN || type == item->type))
                     handles->emplace_back(*this, offset);
                 offset += itemFullSize;
                 break;
@@ -81,7 +87,7 @@ void MemoryBucket::load(std::vector<Handle>* handles)
         itemPtr = memoryStart + offset;
         if (itemPtr > memoryEnd)
             break;
-        item = (Item*)itemPtr;
+        item = (HandleStorage*)itemPtr;
     }
 
     if (offset < m_mappedFile.size())
@@ -92,7 +98,7 @@ Handle MemoryBucket::insert(const void* data, size_t bytes)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    size_t   itemFullSize = sizeof(Item) + bytes;
+    size_t   itemFullSize = sizeof(HandleStorage) + bytes;
     uint32_t offset = m_freeBlocks.alloc((uint32_t)itemFullSize);
     if (offset == UINT32_MAX)
         return Handle();
@@ -100,8 +106,8 @@ Handle MemoryBucket::insert(const void* data, size_t bytes)
     Handle handle(*this, offset);
 
     char* itemPtr = (char*) m_mappedFile.data() + offset;
-    char* dataPtr = itemPtr + sizeof(Item);
-    Item* item = (Item*) itemPtr;
+    char* dataPtr = itemPtr + sizeof(HandleStorage);
+    HandleStorage* item = (HandleStorage*) itemPtr;
 
     item->signature = allocatedMark;
     item->size = (uint32_t) bytes;
@@ -116,7 +122,7 @@ void MemoryBucket::free(Handle& data)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto* item = (Item*) data.m_record;
+    auto* item = (HandleStorage*) data.m_record;
     if (item->signature != allocatedMark) {
         if (item->signature == releasedMark)
             return;
@@ -153,9 +159,9 @@ size_t MemoryBucket::available() const
 {
     lock_guard<mutex> lock(m_mutex);
     uint32_t available = m_freeBlocks.available();
-    if (available <= sizeof(Item))
+    if (available <= sizeof(HandleStorage))
         return 0;
-    return available - sizeof(Item);
+    return available - sizeof(HandleStorage);
 }
 
 const uint32_t MemoryBucket::id() const
@@ -167,9 +173,6 @@ const void* MemoryBucket::data() const
 {
     return m_mappedFile.data();
 }
-
-static mutex                        bucketMapMutex;
-static map<uint32_t,MemoryBucket*>  bucketMap;
 
 MemoryBucket* MemoryBucket::find(uint32_t bucketId)
 {
@@ -203,7 +206,7 @@ static void replaceKeyAndValue(multimap<uint32_t,uint32_t>& map,
 
 void MemoryBucket::FreeBlocks::free(uint32_t offset, uint32_t size)
 {
-    uint32_t fullItemSize = size + sizeof(Item);
+    uint32_t fullItemSize = size + sizeof(HandleStorage);
     // Find nearest free block down
     auto nextBlockItor = m_offsetMap.upper_bound(offset);
     auto priorBlockItor = nextBlockItor;
@@ -355,7 +358,7 @@ static size_t populateBucket(MemoryBucket& bucket, size_t count, vector<Handle>&
     return totalStoredSize;
 }
 
-TEST(SPTK_MemoryBucket, allocAndClear)
+TEST(SMQ_MemoryBucket, allocAndClear)
 {
     prepareTestDirectory();
 
@@ -375,7 +378,7 @@ TEST(SPTK_MemoryBucket, allocAndClear)
     EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
 }
 
-TEST(SPTK_MemoryBucket, allocAndRead)
+TEST(SMQ_MemoryBucket, allocAndRead)
 {
     prepareTestDirectory();
 
@@ -403,7 +406,7 @@ TEST(SPTK_MemoryBucket, allocAndRead)
     }
 }
 
-TEST(SPTK_MemoryBucket, free)
+TEST(SMQ_MemoryBucket, free)
 {
     prepareTestDirectory();
 
@@ -427,7 +430,7 @@ TEST(SPTK_MemoryBucket, free)
     EXPECT_EQ(bucket->available(), bucket->size() - storageHandleSize);
 }
 
-TEST(SPTK_MemoryBucket, performance)
+TEST(SMQ_MemoryBucket, performance)
 {
     prepareTestDirectory();
 

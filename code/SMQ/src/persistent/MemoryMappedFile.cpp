@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/persistent/MemoryMappedFile.h"
+#include <smq/persistent/MemoryMappedFile.h>
 
 #ifndef _WIN32
 #include <fcntl.h>
@@ -35,7 +35,7 @@
 
 using namespace std;
 using namespace sptk;
-using namespace persistent;
+using namespace smq::persistent;
 
 size_t MemoryMappedFile::m_allocationUnit(0);
 

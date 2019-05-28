@@ -26,12 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/persistent/MemoryPool.h>
+#include <smq/persistent/MemoryPool.h>
 #include <sptk5/DirectoryDS.h>
 
 using namespace std;
 using namespace sptk;
-using namespace sptk::persistent;
+using namespace smq::persistent;
 
 MemoryPool::MemoryPool(const String& directory, const String& objectName, uint32_t bucketSize)
 : m_directory(directory), m_bucketSize(bucketSize)
@@ -65,7 +65,21 @@ SMemoryBucket MemoryPool::createBucket(uint32_t id)
     return createBucketUnlocked(id);
 }
 
-void MemoryPool::load(std::vector<Handle>* handles)
+void MemoryPool::clear()
+{
+    lock_guard<mutex> lock(m_mutex);
+
+    m_bucketLoop.clear();
+
+    for (auto& itor: m_bucketMap) {
+        auto& bucket = itor.second;
+        String fileName = bucket->fileName();
+        bucket.reset();
+        unlink(fileName.c_str());
+    }
+}
+
+void MemoryPool::load(SHandles handles, HandleType type)
 {
     DirectoryDS         bucketFiles(m_directory, m_objectName + "_*", DDS_HIDE_DIRECTORIES|DDS_HIDE_DOT_FILES);
     RegularExpression   matchFileName(m_objectName + "_(\\d+)$");
@@ -77,7 +91,7 @@ void MemoryPool::load(std::vector<Handle>* handles)
         if (matchFileName.m(fileName,matches)) {
             auto id = (uint32_t) string2int64(matches[0]);
             auto bucket = createBucket(id);
-            bucket->load(handles);
+            bucket->load(handles, type);
         }
         bucketFiles.next();
     }
@@ -107,6 +121,11 @@ uint32_t MemoryPool::makeBucketIdUnlocked()
         id++;
     }
     return id;
+}
+
+void MemoryPool::free(Handle handle)
+{
+    handle.free();
 }
 
 #if USE_GTEST
@@ -139,17 +158,16 @@ static size_t populatePool(MemoryPool& pool, size_t count, vector<Handle>& handl
     return totalStoredSize;
 }
 
-TEST(SPTK_MemoryPool, alloc)
+TEST(SMQ_MemoryPool, alloc)
 {
     prepareTestDirectory();
 
     MemoryPool pool(testPoolDirectory, "bucket", 128 * 1024);
-    vector<Handle> oldHandles;
-    pool.load(&oldHandles);
+    pool.load(SHandles());
 
     // Populate test data
     vector<Handle> handles;
-    size_t totalStoredSize = populatePool(pool, 10, handles);
+    populatePool(pool, 10, handles);
 }
 
 #endif

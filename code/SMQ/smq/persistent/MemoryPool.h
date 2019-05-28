@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       ServerConnection.h - description                       ║
+║                       MemoryPool.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Sunday May 19 2019                                     ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,80 +26,44 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SERVERCONNECTION_H__
-#define __SERVERCONNECTION_H__
+#ifndef __PERSIST_MEMORY_MANAGER_H__
+#define __PERSIST_MEMORY_MANAGER_H__
 
-#include <sptk5/net/TCPSocket.h>
-#include <sptk5/threads/Thread.h>
-#include <sptk5/threads/Runable.h>
+#include <smq/persistent/MemoryBucket.h>
+#include <sptk5/Loop.h>
 
-namespace sptk
+namespace smq {
+namespace persistent {
+
+class SP_EXPORT MemoryPool
 {
-
-class TCPServer;
-
-/**
- * @addtogroup net Networking Classes
- * @{
- */
-
-/**
- * Abstract TCP or SSL server connection thread
- *
- * Used a base class for CTCPServerConnection and COpenSSLServerConnection
- */
-class SP_EXPORT ServerConnection: public Runable
-{
-    friend class TCPServer;
-
-    /**
-     * Parent server object
-     */
-    TCPServer&     m_server;
-
-    /**
-     * Connection socket
-     */
-    TCPSocket*     m_socket;
-
-protected:
-
-    /**
-     * Assign new socket
-     * @param socket            Socket to assign
-     */
-    void setSocket(TCPSocket* socket);
-
 public:
 
-    /**
-     * Constructor
-     * @param server            Server that created this connection
-     * @param connectionSocket  Already accepted by accept() function incoming connection socket
-     * @param taskName          Task name
-     */
-    ServerConnection(TCPServer& server, SOCKET connectionSocket, const String& taskName);
+    MemoryPool(const sptk::String& directory, const sptk::String& objectName, uint32_t bucketSize);
 
-    /**
-     * Destructor
-     */
-    ~ServerConnection() override;
+    void clear();
+    virtual void load(SHandles handles, HandleType type=HT_UNKNOWN);
 
-    /**
-     * Access to internal socket for derived classes
-     * @return internal socket
-     */
-    TCPSocket& socket() const;
+    Handle insert(const void* data, size_t bytes);
+    void free(Handle handle);
 
-    /**
-     * Parent TCP server reference
-     * @return
-     */
-    TCPServer& server() const;
+private:
+
+    std::mutex                          m_mutex;
+
+    sptk::String                        m_directory;
+    sptk::String                        m_objectName;
+    uint32_t                            m_bucketSize;
+    Loop<SMemoryBucket>                 m_bucketLoop;
+    std::map<uint32_t,SMemoryBucket>    m_bucketMap;
+
+    uint32_t      makeBucketIdUnlocked();
+    SMemoryBucket createBucketUnlocked(uint32_t id);
+
+    SMemoryBucket createBucket(uint32_t id);
 };
 
-/**
- * @}
- */
 }
+}
+
 #endif

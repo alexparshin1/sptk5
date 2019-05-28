@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       MemoryBucket.h - description                           ║
+║                       ListPool.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday May 19 2019                                     ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,85 +26,28 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __PERSIST_MEMORY_BUCKET_H__
-#define __PERSIST_MEMORY_BUCKET_H__
+#include <smq/persistent/ListPool.h>
 
-#include <sptk5/persistent/MemoryMappedFile.h>
-#include <sptk5/persistent/Handle.h>
+using namespace std;
+using namespace sptk;
+using namespace chrono;
+using namespace smq::persistent;
 
-namespace sptk {
-namespace persistent {
-
-static constexpr uint32_t allocatedMark = 0x5F7F9FAF;
-static constexpr uint32_t releasedMark = 0x5E7E9EAE;
-
-class SP_EXPORT MemoryBucket
+void ListPool::load(SHandles handles, HandleType)
 {
-    friend class Handle;
-    struct FreeBlocks
-    {
-        uint32_t                            m_size;
-        std::map<uint32_t,uint32_t>         m_offsetMap;
-        std::multimap<uint32_t,uint32_t>    m_sizeMap;
+    lock_guard<mutex> lock(m_mutex);
 
-        FreeBlocks(uint32_t size);
-        void load(uint32_t offset, uint32_t size);
-        void free(uint32_t offset, uint32_t size);
-        uint32_t alloc(uint32_t size);
-        void clear();
-        size_t count() const;
-        uint32_t available() const;
+    m_lists.clear();
 
-        void print() const;
-    };
-
-public:
-
-    MemoryBucket(const String& directoryName, const String& objectName, uint32_t id, size_t size);
-
-    void load(std::vector<Handle>* handles);
-
-    const uint32_t id() const;
-    const void* data() const;
-
-    Handle insert(const void* data, size_t bytes);
-
-    void free(Handle& data);
-
-    void clear();
-
-    bool empty() const;
-
-    size_t size() const;
-
-    size_t available() const;
-
-    static MemoryBucket* find(uint32_t bucketId);
-
-    const FreeBlocks& freeBlocks() { return m_freeBlocks; }
-
-protected:
-
-    struct Item
-    {
-        uint32_t signature {0};
-        uint32_t size {0};
-    };
-
-private:
-
-    mutable std::mutex          m_mutex;
-    uint32_t                    m_id;
-    String                      m_objectName;
-    MemoryMappedFile            m_mappedFile;
-    FreeBlocks                  m_freeBlocks;
-
-    static String formatId(uint32_t bucketId);
-};
-
-typedef std::shared_ptr<MemoryBucket> SMemoryBucket;
-
+    SHandles poolHandles;
+    if (handles)
+        poolHandles = handles;
+    else
+        poolHandles = make_shared<Handles>();
+    MemoryPool::load(poolHandles, HT_LIST_HEADER);
+    for (auto& handle: *poolHandles) {
+        auto list = make_shared<PersistentList>(*this, handle);
+        m_lists[list->name()] = list;
+        list->load();
+    }
 }
-}
-
-#endif

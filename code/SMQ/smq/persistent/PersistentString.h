@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       MemoryPool.h - description                             ║
+║                       PersistentString.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday May 19 2019                                     ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,40 +26,18 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __PERSIST_MEMORY_MANAGER_H__
-#define __PERSIST_MEMORY_MANAGER_H__
+#ifndef __PERSISTENT_STRING_H__
+#define __PERSISTENT_STRING_H__
 
-#include <sptk5/persistent/MemoryBucket.h>
-#include <sptk5/Loop.h>
+#include <smq/persistent/MemoryPool.h>
 
-namespace sptk {
+namespace smq {
 namespace persistent {
 
-class SP_EXPORT MemoryPool
+class PersistentString
 {
-public:
-
-    MemoryPool(const String& directory, const String& objectName, uint32_t bucketSize);
-
-    void load(std::vector<Handle>* handles);
-
-    Handle insert(const void* data, size_t bytes);
-    void free(Handle handle);
-
-private:
-
-    std::mutex                          m_mutex;
-
-    String                              m_directory;
-    String                              m_objectName;
-    uint32_t                            m_bucketSize;
-    Loop<SMemoryBucket>                 m_bucketLoop;
-    std::map<uint32_t,SMemoryBucket>    m_bucketMap;
-
-    uint32_t      makeBucketIdUnlocked();
-    SMemoryBucket createBucketUnlocked(uint32_t id);
-
-    SMemoryBucket createBucket(uint32_t id);
+    uint32_t    m_length;
+    char        m_data[1];
 };
 
 }

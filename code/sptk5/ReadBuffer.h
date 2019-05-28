@@ -84,7 +84,7 @@ public:
      * @param size              Data size
      * @return true if read was successful
      */
-    bool read(void* data, size_t length);
+    bool read(void* data, size_t size);
 
     /**
      * Read into string

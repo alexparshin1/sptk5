@@ -26,53 +26,108 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/persistent/MemoryBucket.h>
+#include <smq/persistent/MemoryBucket.h>
+#include <SMQ/smq/persistent/Handle.h>
+
 
 using namespace std;
 using namespace sptk;
-using namespace persistent;
+using namespace smq::persistent;
 
-Handle::Handle(MemoryBucket& bucket, size_t m_bucketOffset)
-: m_bucket(&bucket), m_record((void*)((const char*)m_bucket->data() + m_bucketOffset))
+Handle::Handle()
+: m_bucket(nullptr), m_record(nullptr)
 {
 }
 
-Handle::Handle(size_t bucketId, size_t m_bucketOffset)
+Handle::Handle(MemoryBucket& bucket, size_t bucketOffset)
+: m_bucket(&bucket), m_record((HandleStorage*)((const char*)m_bucket->data() + bucketOffset))
+{
+}
+
+Handle::Handle(size_t bucketId, size_t bucketOffset)
 {
     m_bucket = MemoryBucket::find(uint32_t(bucketId));
     if (m_bucket == nullptr)
         throw Exception("Bucket doesn't exist");
-    m_record = (void*)((const char*)m_bucket->data() + m_bucketOffset);
+    m_record = (HandleStorage*)((const char*)m_bucket->data() + bucketOffset);
+}
+
+Handle::Handle(Location& location)
+{
+    m_bucket = MemoryBucket::find(location.bucketId);
+    if (m_bucket == nullptr)
+        throw Exception("Bucket doesn't exist");
+    m_record = (HandleStorage*)((const char*)m_bucket->data() + location.offset);
 }
 
 Handle::operator void*() const
 {
-    auto* item = (MemoryBucket::Item*) m_record;
+    auto* item = (HandleStorage*) m_record;
     if (item->signature != allocatedMark)
         return nullptr;
-    return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
+    return (void*)((const char*) m_record + sizeof(HandleStorage));
 }
 
 void* Handle::data() const
 {
-    auto* item = (MemoryBucket::Item*) m_record;
+    auto* item = (HandleStorage*) m_record;
     if (item->signature != allocatedMark)
         return nullptr;
-    return (void*)((const char*) m_record + sizeof(MemoryBucket::Item));
+    return (void*)((const char*) m_record + sizeof(HandleStorage));
 }
 
 const char* Handle::c_str() const
 {
-    auto* item = (MemoryBucket::Item*) m_record;
+    auto* item = (HandleStorage*) m_record;
     if (item->signature != allocatedMark)
         return nullptr;
-    return (const char*) m_record + sizeof(MemoryBucket::Item);
+    return (const char*) m_record + sizeof(HandleStorage);
 }
 
 size_t Handle::size() const
 {
-    auto* item = (MemoryBucket::Item*) m_record;
+    auto* item = (HandleStorage*) m_record;
     if (item->signature != allocatedMark)
         return 0;
-    return ((MemoryBucket::Item*) m_record)->size;
+    return m_record->size;
+}
+
+void Handle::free()
+{
+    if (m_bucket != nullptr)
+        m_bucket->free(*this);
+    m_bucket = nullptr;
+    m_record = nullptr;
+}
+
+uint32_t Handle::storageSize() const
+{
+    return sizeof(HandleStorage);
+}
+
+void Handle::store(void* destination)
+{
+    memcpy(destination, m_record, sizeof(HandleStorage));
+}
+
+void Handle::restore(void* source)
+{
+    memcpy(m_record, source, sizeof(HandleStorage));
+}
+
+uint32_t Handle::bucketId() const
+{
+    return m_bucket == nullptr? 0: m_bucket->id();
+}
+
+uint32_t Handle::offset() const
+{
+    return m_record == nullptr? 0: (char*)m_record - (char*)m_bucket->data();
+}
+
+Location Handle::location() const
+{
+    if (m_record == nullptr)
+        return Location();
+    return Location(m_bucket->id(), (char*)m_record - (char*)m_bucket->data());
 }

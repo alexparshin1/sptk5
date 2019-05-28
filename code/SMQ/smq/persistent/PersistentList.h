@@ -30,100 +30,86 @@
 #define __PERSISTENT_LIST_H__
 
 #include <sptk5/threads/Locks.h>
-#include <sptk5/persistent/MemoryPool.h>
+#include <smq/persistent/MemoryPool.h>
 #include <list>
 
-namespace sptk {
+namespace smq {
 namespace persistent {
 
-template <class Struct>
 class PersistentList
 {
-    struct Item
+#pragma pack(push,1)
+    struct ItemStorage : public HandleStorage
     {
-        Struct  data;
-        Handle  prior;
-        Handle  next;
+        Location    next;
+        uint32_t    dataLength {0};
+        uint8_t     data[1];
+    };
+#pragma pack(pop)
+
+    class ItemHandle : public Handle
+    {
+    public:
+        ItemHandle() : Handle() {}
+        ItemHandle(MemoryBucket& bucket, size_t bucketOffset) : Handle(bucket, bucketOffset) {}
+        ItemHandle(size_t bucketId, size_t bucketOffset) : Handle(bucketId, bucketOffset) {}
+        explicit ItemHandle(Location& location) : Handle(location) {}
+        explicit ItemHandle(const Handle& handle) : Handle(handle) {}
+
+        explicit operator void*() const override;
+        void* data() const override;
+        const char* c_str() const override;
+        size_t size() const override;
     };
 
-    SharedMutex         m_mutex;
-    MemoryPool          m_pool;
-    std::list<Handle>   m_handles;
+    mutable sptk::SharedMutex   m_mutex;
+    MemoryPool&                 m_pool;
+    Handle                      m_header;
+    std::list<ItemHandle>       m_handles;
+    sptk::String                m_name;
+
+    ItemStorage* header()            { return (ItemStorage*) (m_header.header()); }
+    ItemStorage* item(Handle handle) { return (ItemStorage*) (handle.header()); }
 
 public:
 
-    PersistentList(MemoryPool& pool) : m_pool(pool) {}
+    PersistentList(MemoryPool& pool, const sptk::String& name);
+    PersistentList(MemoryPool& pool, Handle& header);
 
-    typedef std::list<Handle>::iterator         iterator;
-    typedef std::list<Handle>::const_iterator   const_iterator;
+    void load();
 
-    Handle push_front(const Struct& data)
+    typedef std::list<ItemHandle>::iterator         iterator;
+    typedef std::list<ItemHandle>::const_iterator   const_iterator;
+
+    Handle push_front(const void* data, size_t size);
+    Handle push_back(const void* data, size_t size);
+
+    sptk::String name() const
     {
-        UniqueLock(m_mutex);
-
-        Item item;
-
-        if (!m_handles.empty())
-            item.next = m_handles.front();
-
-        memcpy(&item.data, data, sizeof(Struct));
-        Handle handle = m_pool.insert(&item, sizeof(Item));
-
-        if (!m_handles.empty()) {
-            Handle& front = m_handles.front();
-            Item* frontItem = (Item*) front.data();
-            frontItem->prior = handle;
-        }
-
-        m_handles.push_front(handle);
-
-        return m_handles.front();
-    }
-
-    Handle push_back(const Struct& data)
-    {
-        UniqueLock(m_mutex);
-
-        Item item;
-
-        if (!m_handles.empty())
-            item.prior = m_handles.back();
-
-        memcpy(&item.data, data, sizeof(Struct));
-        Handle handle = m_pool.insert(&item, sizeof(Item));
-
-        if (!m_handles.empty()) {
-            Handle& back = m_handles.back();
-            Item* backItem = (Item*) back.data();
-            backItem->next = handle;
-        }
-
-        m_handles.push_front(handle);
-
-        return m_handles.back();
+        return m_name;
     }
 
     iterator begin()
     {
-        UniqueLock(m_mutex);
+        sptk::UniqueLock(m_mutex);
         return m_handles.begin();
     }
 
     iterator end()
     {
-        UniqueLock(m_mutex);
+        sptk::UniqueLock(m_mutex);
         return m_handles.end();
     }
 
     const_iterator begin() const
     {
-        SharedLock(m_mutex);
+        sptk::SharedLock(m_mutex);
         return m_handles.begin();
     }
 
     const_iterator end() const
     {
-        SharedLock(m_mutex);
+        sptk::SharedLock(m_mutex);
         return m_handles.end();
     }
 
@@ -132,7 +118,7 @@ public:
      */
     bool empty() const
     {
-        SharedLock(m_mutex);
+        sptk::SharedLock(m_mutex);
         return m_handles.empty();
     }
 
@@ -141,62 +127,20 @@ public:
      */
     size_t size() const
     {
-        SharedLock(m_mutex);
+        sptk::SharedLock(m_mutex);
         return m_handles.size();
     }
 
-    void erase(iterator from, iterator to)
-    {
-        UniqueLock(m_mutex);
-        for(auto& itor = from; itor != to; itor++) {
-            auto& handle = *itor;
-            m_pool.free(handle);
-        }
-
-        auto& prior = from;
-        Item* priorItem;
-        if (from != m_handles.begin()) {
-            prior--;
-            priorItem = (Item*) prior->data();
-        } else {
-            prior = m_handles.end();
-            priorItem = nullptr;
-        }
-
-        auto& next = m_handles.erase(from, to);
-        Item* nextItem;
-        if (next != m_handles.end())
-            nextItem = (Item*) next->data();
-        else
-            nextItem = nullptr;
-
-        if (priorItem != nullptr) {
-            if (nextItem != nullptr)
-                priorItem->next = *next;
-            else
-                priorItem->next = Handle();
-        }
-
-        if (nextItem != nullptr) {
-            if (priorItem != nullptr)
-                nextItem->prior = *prior;
-            else
-                nextItem->prior = Handle();
-        }
-    }
+    void erase(iterator from, iterator to);
 
     /**
      * @brief Removes all items from the list
      */
-    void clear()
-    {
-        UniqueLock(m_mutex);
-        for (auto& handle: m_handles)
-            m_pool.free(handle);
-        m_handles.clear();
-    }
+    void clear();
 
 };
+
+typedef std::shared_ptr<PersistentList> SPersistentList;
 
 }
 }

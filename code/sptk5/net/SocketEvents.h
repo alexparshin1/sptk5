@@ -106,8 +106,15 @@ public:
      */
     void remove(BaseSocket& socket);
 
-	void stop();
-	void terminate() override;
+    /**
+     * Stop socket events manager and wait until it joins.
+     */
+    void stop();
+
+    /**
+     * Terminate socket events manager and continue.
+     */
+    void terminate() override;
 };
 
 typedef std::shared_ptr<SocketEvents> SharedSocketEvents;

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       PersistentString.cpp - description                     ║
+║                       ListPool.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday May 19 2019                                     ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,4 +26,28 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/persistent/PersistentString.h>
+#ifndef __PERSISTENT_LIST_POOL_H__
+#define __PERSISTENT_LIST_POOL_H__
+
+#include <smq/persistent/MemoryPool.h>
+#include <smq/persistent/PersistentList.h>
+
+namespace smq {
+namespace persistent {
+
+class ListPool : public MemoryPool
+{
+    mutable std::mutex                          m_mutex;
+    std::map<sptk::String, SPersistentList>     m_lists;
+public:
+    ListPool(const sptk::String& directory, const sptk::String& objectName, uint32_t bucketSize)
+    : MemoryPool(directory, objectName, bucketSize)
+    {}
+
+    void load(SHandles handles, HandleType type=HT_UNKNOWN) override;
+};
+
+}
+}
+
+#endif //SPTK_LISTPOOL_H
