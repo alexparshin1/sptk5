@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TCPMQClient.cpp - description                          ║
+║                       StopWatch.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday December 23 2018                                ║
+║  begin                Monday May 27 2019                                     ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,82 +26,27 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "smq/clients/TCPMQClient.h"
+#include "sptk5/StopWatch.h"
 
-using namespace std;
 using namespace sptk;
-using namespace chrono;
-using namespace smq;
 
-SharedSocketEvents TCPMQClient::smqSocketEvents;
-
-SharedSocketEvents& TCPMQClient::initSocketEvents()
+StopWatch::StopWatch()
+: m_started("Now")
 {
-    static mutex              amutex;
-
-    lock_guard<mutex> lock(amutex);
-
-    if (!smqSocketEvents)
-        smqSocketEvents = make_shared<SocketEvents>("MQ Client", smqSocketEventCallback);
-
-    return smqSocketEvents;
 }
 
-TCPMQClient::TCPMQClient(MQProtocolType protocolType, const String& clientId)
-: BaseMQClient(protocolType, clientId)
+void StopWatch::start()
 {
-    UniqueLock(m_mutex);
-    initSocketEvents();
+    m_started = DateTime::Now();
+    m_ended = m_started;
 }
 
-TCPMQClient::~TCPMQClient()
+void StopWatch::stop()
 {
-    destroyConnection();
+    m_ended = DateTime::Now();
 }
 
-void TCPMQClient::createConnection(const Host& server, bool encrypted, std::chrono::milliseconds timeout)
+double StopWatch::seconds() const
 {
-    UniqueLock(m_mutex);
-    if (m_socket && m_socket->active())
-        return;
-    if (encrypted) {
-        m_socket = make_shared<SSLSocket>();
-        //loadKeys(keyFile, certificateFile, password, caFile, verifyMode, verifyDepth);
-    } else {
-        m_socket = make_shared<TCPSocket>();
-    }
-    m_socket->open(server, TCPSocket::SOM_CONNECT, true, timeout);
-    smqSocketEvents->add(*m_socket, this);
-
-    m_protocol = MQProtocol::factory(protocolType(), *m_socket);
-}
-
-void TCPMQClient::destroyConnection()
-{
-    UniqueLock(m_mutex);
-    if (m_socket) {
-        smqSocketEvents->remove(*m_socket);
-        m_socket->close();
-        m_socket.reset();
-    }
-}
-
-void TCPMQClient::smqSocketEventCallback(void* userData, SocketEventType eventType)
-{
-    auto* client = (TCPMQClient*) userData;
-    client->socketEvent(eventType);
-}
-
-void TCPMQClient::loadSslKeys(const SSLKeys& keys)
-{
-    if (m_socket) {
-        auto* sslSocket = dynamic_cast<SSLSocket*>(m_socket.get());
-        if (sslSocket != nullptr)
-            sslSocket->loadKeys(keys);
-    }
-}
-
-MQProtocol& TCPMQClient::protocol()
-{
-    return *m_protocol;
+    return duration2seconds(m_ended - m_started);
 }

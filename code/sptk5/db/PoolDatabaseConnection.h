@@ -37,6 +37,7 @@
 
 #include <vector>
 #include <list>
+#include <set>
 
 namespace sptk {
 

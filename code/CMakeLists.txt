@@ -368,7 +368,7 @@ ENDIF ()
 CONFIGURE_FILE ("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 
 
-IF (GTEST_FLAG)
+IF (USE_GTEST)
   SET (gtest_force_shared_crt ON CACHE BOOL "" FORCE)
   ADD_SUBDIRECTORY (googletest)
   IF (WIN32)
@@ -382,14 +382,11 @@ IF (FLTK_FLAG)
   ADD_SUBDIRECTORY (themes)
 ENDIF (FLTK_FLAG)
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/SMQ)
-
 IF (LIBRARY_TYPE STREQUAL "SHARED")
   ADD_DEFINITIONS (-DSP_LIBRARY)
 ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 ADD_SUBDIRECTORY (src)
-ADD_SUBDIRECTORY (SMQ)
 
 IF (BUILD_EXAMPLES)
   ADD_SUBDIRECTORY (examples)
@@ -399,7 +396,9 @@ IF (BUILD_UTILS)
   ADD_SUBDIRECTORY (utilities)
 ENDIF ()
 
-ADD_SUBDIRECTORY (test)
+IF (USE_GTEST)
+  ADD_SUBDIRECTORY (test)
+ENDIF ()
 
 FILE (GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
 INSTALL (FILES ${includeFiles} DESTINATION include/sptk5)
@@ -409,9 +408,6 @@ INSTALL (FILES ${includeFilesJSON} DESTINATION include/sptk5/json)
 
 FILE (GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
 INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml)
-
-FILE (GLOB includeFilesPersist "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/persistent/*.h")
-INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/persist)
 
 FILE (GLOB includeFilesWSDL "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/wsdl/*.h")
 INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/wsdl)
@@ -424,12 +420,6 @@ INSTALL (FILES ${includeFilesThreads} DESTINATION include/sptk5/threads)
 
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/db/*.h")
 INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db)
-
-FILE (GLOB includeFilesMQ "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/mq/*.h")
-INSTALL (FILES ${includeFilesMQ} DESTINATION include/sptk5/mq)
-
-FILE (GLOB includeFilesMQProtocols "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/mq/protocols/*.h")
-INSTALL (FILES ${includeFilesMQProtocols} DESTINATION include/sptk5/mq/protocols)
 
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/test/*.h")
 INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/test)

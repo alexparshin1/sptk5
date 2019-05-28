@@ -28,6 +28,7 @@
 
 #include <sptk5/Registry.h>
 #include <sptk5/SystemException.h>
+#include <sys/stat.h>
 
 using namespace std;
 using namespace sptk;

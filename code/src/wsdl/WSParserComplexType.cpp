@@ -29,6 +29,7 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSParserComplexType.h>
 #include <sptk5/wsdl/WSTypeTranslator.h>
+#include <iomanip>
 
 using namespace std;
 using namespace sptk;

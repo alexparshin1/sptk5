@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SMQSubscriptions.cpp - description                     ║
+║                       StopWatch.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday February 1 2019                                 ║
+║  begin                Monday May 27 2019                                     ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,63 +26,26 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/md5.h>
-#include <smq/server/SMQSubscriptions.h>
+#ifndef __STOP_WATCH_H__
+#define __STOP_WATCH_H__
 
-using namespace std;
-using namespace sptk;
-using namespace smq;
+#include <sptk5/DateTime.h>
+#include <chrono>
 
-SMQSubscriptions::SMQSubscriptions(LogEngine& logEngine, uint8_t debugLogFilter)
-: m_logEngine(logEngine)
+namespace sptk {
+
+class StopWatch
 {
+    DateTime    m_started;
+    DateTime    m_ended;
+public:
+    StopWatch();
+
+    void start();
+    void stop();
+    double seconds() const;
+};
+
 }
 
-void SMQSubscriptions::deliverMessage(const String& queueName, const SMessage message)
-{
-    SharedLock(m_mutex);
-    auto itor = m_subscriptions.find(queueName);
-    if (itor != m_subscriptions.end())
-        itor->second->deliverMessage(message);
-}
-
-void SMQSubscriptions::subscribe(SMQConnection* connection, const map<String,smq::QOS>& queueNames)
-{
-    UniqueLock(m_mutex);
-
-    for (auto& qtor: queueNames) {
-        auto& queueName = qtor.first;
-        auto  qos = qtor.second;
-        // Does subscription already exist?
-        SharedSMQSubscription subscription;
-        auto itor = m_subscriptions.find(queueName);
-        if (itor == m_subscriptions.end()) {
-            SMQSubscription::Type subscriptionType = queueName.startsWith("/queue/") ? SMQSubscription::QUEUE
-                                                                                     : SMQSubscription::TOPIC;
-            subscription = make_shared<SMQSubscription>(queueName, subscriptionType, qos, m_logEngine, m_debugLogFilter);
-            m_subscriptions[queueName] = subscription;
-        } else
-            subscription = itor->second;
-        subscription->addConnection(connection);
-    }
-}
-
-void SMQSubscriptions::unsubscribe(SMQConnection* connection, const String& queueName)
-{
-    UniqueLock(m_mutex);
-
-    // Does subscription already exist?
-    SharedSMQSubscription subscription;
-    auto itor = m_subscriptions.find(queueName);
-    if (itor == m_subscriptions.end())
-        return;
-
-    subscription = itor->second;
-    subscription->removeConnection(connection, true);
-}
-
-void SMQSubscriptions::clear()
-{
-    UniqueLock(m_mutex);
-    m_subscriptions.clear();
-}
+#endif
