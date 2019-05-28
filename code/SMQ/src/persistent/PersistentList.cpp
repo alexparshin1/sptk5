@@ -27,6 +27,7 @@
 */
 
 #include <smq/persistent/PersistentList.h>
+#include <sptk5/StopWatch.h>
 
 using namespace std;
 using namespace sptk;
@@ -216,43 +217,70 @@ static void prepareTestDirectory()
         mkdir(testPoolDirectory, 0777);
 }
 
+class TestListThread : public Thread
+{
+    SPersistentList m_list;
+    size_t          m_maxItems {1024};
+
+protected:
+    void threadFunction() override
+    {
+        String listItem = m_list->name() + ": long text item long text item long text item long text item";
+        for (size_t i = 0; i < m_maxItems; i++)
+            m_list->push_back(listItem.c_str(), listItem.length());
+    }
+
+public:
+    TestListThread(SPersistentList list, size_t maxItems)
+    : Thread("Test"), m_list(list), m_maxItems(maxItems)
+    {}
+};
+
 TEST(SMQ_PersistentList, alloc)
 {
     prepareTestDirectory();
 
-    MemoryPool pool(testPoolDirectory, "lists", 128 * 1024);
+    MemoryPool pool(testPoolDirectory, "lists", 16 * 1024 * 1024);
     SHandles listHandles = make_shared<Handles>();
     pool.load(listHandles, HT_LIST_HEADER);
 
-    DateTime started("now");
+    StopWatch stopWatch;
+
+    stopWatch.start();
     size_t totalItems = 0;
     for (auto& handle: *listHandles) {
         PersistentList list(pool, handle);
         list.load();
         totalItems += list.size();
-/*
-        for (auto& item: list) {
-            String s(item.c_str(), item.size());
-            cout << item.c_str() << endl;
-        }
-        cout << "--------------------------" << endl;
-*/
     }
-    DateTime ended("now");
-    double durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;
-    COUT("Total " << fixed << setprecision(3) << totalItems << " items loaded for " << durationSec << " sec, " << totalItems / durationSec / 1E6 << "M/sec");
+    stopWatch.stop();
+    COUT("Total " << fixed << setprecision(3) << totalItems << " items loaded for "
+         << stopWatch.seconds() << " sec, " << totalItems / stopWatch.seconds() / 1E3 << "K/sec" << endl);
 
     pool.clear();
 
-    PersistentList list1(pool, "List 00001");
-    PersistentList list2(pool, "List 00002");
-
-    for (size_t i = 0; i < 1024 * 256; i++) {
-        String st("List 1 Item " + to_string(i));
-        list1.push_back(st.c_str(), st.length());
-        //String st2("List 2 Item " + to_string(i));
-        //list2.push_back(st2.c_str(), st2.length());
+    vector<shared_ptr<TestListThread>> threads;
+    size_t maxItems = 16 * 1024;
+    size_t maxThreads = 16;
+    maxItems = maxItems / maxThreads * maxThreads;
+    for (size_t i = 0; i < maxThreads; i++) {
+        auto list = make_shared<PersistentList>(pool, "List " + to_string(i));
+        auto thread = make_shared<TestListThread>(list, maxItems / maxThreads);
+        threads.push_back(thread);
     }
+
+    stopWatch.start();
+
+    for (auto& thread: threads)
+        thread->run();
+
+    for (auto& thread: threads)
+        thread->join();
+
+    stopWatch.stop();
+
+    COUT("Total " << fixed << setprecision(3) << totalItems << " items created for "
+         << stopWatch.seconds() << " sec, " << totalItems / stopWatch.seconds() / 1E3 << "K/sec" << endl);
 }
 
 #endif

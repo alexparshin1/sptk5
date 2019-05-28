@@ -77,6 +77,8 @@ void MemoryPool::clear()
         bucket.reset();
         unlink(fileName.c_str());
     }
+
+    m_bucketMap.clear();
 }
 
 void MemoryPool::load(SHandles handles, HandleType type)

@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Loop.h - description                                   ║
+║                       StopWatch.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Monday May 27 2019                                     ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,58 +26,27 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __LOOP__
-#define __LOOP__
+#include "sptk5/StopWatch.h"
 
-#include <sptk5/Exception.h>
-#include <list>
-#include <mutex>
+using namespace sptk;
 
-template <class T> class Loop
+StopWatch::StopWatch()
+: m_started("Now")
 {
-    std::list<T>                    m_list;
-    typename std::list<T>::iterator m_position;
-public:
+}
 
-    Loop()
-    {
-        m_position = m_list.end();
-    }
+void StopWatch::start()
+{
+    m_started = DateTime::Now();
+    m_ended = m_started;
+}
 
-    void clear()
-    {
-        m_position = m_list.end();
-        m_list.clear();
-    }
+void StopWatch::stop()
+{
+    m_ended = DateTime::Now();
+}
 
-    void add(const T& data)
-    {
-        m_list.push_back(data);
-        m_position = m_list.end();
-        m_position--;
-    }
-
-    T& get()
-    {
-        if (m_list.empty())
-            throw sptk::Exception("Loop is empty");
-        return *m_position;
-    }
-
-    T& loop()
-    {
-        if (m_list.empty())
-            throw sptk::Exception("Loop is empty");
-        ++m_position;
-        if (m_position == m_list.end())
-            m_position = m_list.begin();
-        return *m_position;
-    }
-
-    size_t size() const
-    {
-        return m_list.size();
-    }
-};
-
-#endif
+double StopWatch::seconds() const
+{
+    return duration2seconds(m_ended - m_started);
+}
