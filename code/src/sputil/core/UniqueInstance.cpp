@@ -108,7 +108,7 @@ int UniqueInstance::write_pid()
 
 const String& UniqueInstance::lockFileName() const
 {
-	return m_fileName;
+    return m_fileName;
 }
 #endif
 
@@ -117,7 +117,7 @@ bool UniqueInstance::isUnique()
     return m_lockCreated;
 }
 
-#ifdef USE_GTEST
+#if USE_GTEST
 
 #ifndef _WIN32
 TEST(SPTK_UniqueInstance, create)

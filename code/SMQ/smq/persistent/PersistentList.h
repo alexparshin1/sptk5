@@ -53,6 +53,7 @@ class PersistentList
         ItemHandle() : Handle() {}
         ItemHandle(MemoryBucket& bucket, size_t bucketOffset) : Handle(bucket, bucketOffset) {}
         ItemHandle(size_t bucketId, size_t bucketOffset) : Handle(bucketId, bucketOffset) {}
+        ~ItemHandle() override = default;
         explicit ItemHandle(Location& location) : Handle(location) {}
         explicit ItemHandle(const Handle& handle) : Handle(handle) {}
 

@@ -399,7 +399,9 @@ IF (BUILD_UTILS)
   ADD_SUBDIRECTORY (utilities)
 ENDIF ()
 
-ADD_SUBDIRECTORY (test)
+IF (USE_GTEST)
+  ADD_SUBDIRECTORY (test)
+ENDIF ()
 
 FILE (GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
 INSTALL (FILES ${includeFiles} DESTINATION include/sptk5)

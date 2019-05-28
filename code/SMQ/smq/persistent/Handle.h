@@ -81,6 +81,9 @@ public:
     Handle(size_t bucketId, size_t bucketOffset);
     Handle(Location& location);
     Handle(const Handle& other) = default;
+
+    virtual ~Handle() = default;
+
     Handle& operator = (const Handle& other) = default;
     bool isNull() const { return m_bucket == nullptr; }
     void* header() const { return m_record; }

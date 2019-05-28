@@ -21,3 +21,5 @@ pwd
 debuild -us -uc -b
 
 cd ${BUILD_HOME}
+
+cp ../sptk_${VERSION}_amd64.deb /var/www/sites/sptk/download/
