@@ -368,7 +368,7 @@ ENDIF ()
 CONFIGURE_FILE ("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 
 
-IF (GTEST_FLAG)
+IF (USE_GTEST)
   SET (gtest_force_shared_crt ON CACHE BOOL "" FORCE)
   ADD_SUBDIRECTORY (googletest)
   IF (WIN32)
