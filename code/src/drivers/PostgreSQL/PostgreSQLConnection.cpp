@@ -994,7 +994,7 @@ static void appendTSV(Buffer& dest, const VariantVector& row)
             dest.append("\\N", 2);
             continue;
         }
-        if (value.dataType() && (VAR_BUFFER|VAR_STRING|VAR_TEXT))
+        if (value.dataType() & (VAR_BUFFER|VAR_STRING|VAR_TEXT))
             dest.append(escapeSQLString(value.asString(), true));
         else
             dest.append(value.asString());
