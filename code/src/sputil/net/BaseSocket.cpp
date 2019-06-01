@@ -192,7 +192,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
                     if (!readyToWrite(timeout))
                         throw Exception("Connection timeout");
                 }
-                catch (const Exception& e) {
+                catch (const Exception&) {
                     close();
                     throw;
                 }

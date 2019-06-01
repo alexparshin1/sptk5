@@ -368,7 +368,7 @@ static String JsonNumberToString(double number)
         const char* ptr = buffer + len - 1;
         while (*ptr == '0')
             ptr--;
-        len = ptr - buffer + 1;
+        len = long(ptr - buffer + 1);
     }
     return String(buffer, (size_t) len);
 }
