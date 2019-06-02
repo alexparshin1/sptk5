@@ -11,7 +11,7 @@ cd ../code || exit 1
 
 ./distclean.sh
 
-cmake . -DCMAKE_INSTALL_PREFIX=/usr -DUSE_GTEST=NO
+cmake . -DCMAKE_INSTALL_PREFIX=/usr -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF
 
 cd ..
 tar zcf sptk_${VERSION}.orig.tar.gz code || exit 1
