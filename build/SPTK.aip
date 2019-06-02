@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="16.0" Modules="professional" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
+  <COMPONENT cid="caphyon.advinst.msicomp.ProjectOptionsComponent">
+    <ROW Name="HiddenItems" Value="AppXAppDetailsComponent;AppXCapabilitiesComponent;AppXDependenciesComponent;AppXProductDetailsComponent;AppXVisualAssetsComponent;AppXAppDeclarationsComponent;AppXUriRulesComponent;FixupComponent"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
+    <ROW Property="AI_FINDEXE_TITLE" Value="Select the installation package for [|ProductName]" ValueLocId="AI.Property.FindExeTitle"/>
+    <ROW Property="ALLUSERS" Value="1"/>
+    <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
+    <ROW Property="ARPCONTACT" Value="alexeyp@gmail.com"/>
+    <ROW Property="ARPNOREPAIR" MultiBuildValue="DefaultBuild:1"/>
+    <ROW Property="ARPURLINFOABOUT" Value="http://www.sptk.net"/>
+    <ROW Property="Manufacturer" Value="Linotex Pty Ltd"/>
+    <ROW Property="MsiLogging" MultiBuildValue="DefaultBuild:vp"/>
+    <ROW Property="ProductCode" Value="1033:{D0EE5BE1-277E-4D01-BA70-2DDB7F332020} " Type="16"/>
+    <ROW Property="ProductLanguage" Value="1033"/>
+    <ROW Property="ProductName" Value="SPTK"/>
+    <ROW Property="ProductVersion" Value="5.2.19" Type="32"/>
+    <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
+    <ROW Property="UpgradeCode" Value="{7DE1367E-A155-4C2D-8B6A-922D34EF53C7}"/>
+    <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsType9XDisplay" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT" MultiBuildValue="DefaultBuild:Windows 9x/ME/NT/2000/XP/Vista/Windows 7/Windows 8 x86/Windows 8.1 x86/Windows 10 x86" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT50" MultiBuildValue="DefaultBuild:Windows 2000" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT50Display" MultiBuildValue="DefaultBuild:Windows 2000" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT5X" MultiBuildValue="DefaultBuild:Windows XP/2003 RTM, Windows XP/2003 SP1, Windows XP SP2 x86" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT5XDisplay" MultiBuildValue="DefaultBuild:Windows XP/2003 RTM, Windows XP/2003 SP1, Windows XP SP2 x86" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNTDisplay" MultiBuildValue="DefaultBuild:32-bit Windows versions" ValueLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
+    <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="ProgramFiles64Folder" Directory_Parent="TARGETDIR" DefaultDir="PROGRA~2|ProgramFiles64Folder" IsPseudoRoot="1"/>
+    <ROW Directory="SPTK_Dir" Directory_Parent="ProgramFiles64Folder" DefaultDir="SPTK"/>
+    <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
+    <ROW Directory="bin_1_Dir" Directory_Parent="sptk5_1_Dir" DefaultDir="bin"/>
+    <ROW Directory="bin_2_Dir" Directory_Parent="sptk5_2_Dir" DefaultDir="bin"/>
+    <ROW Directory="bin_Dir" Directory_Parent="SPTK_Dir" DefaultDir="bin"/>
+    <ROW Directory="db_Dir" Directory_Parent="sptk5_Dir" DefaultDir="db"/>
+    <ROW Directory="include_Dir" Directory_Parent="SPTK_Dir" DefaultDir="include"/>
+    <ROW Directory="json_Dir" Directory_Parent="sptk5_Dir" DefaultDir="json"/>
+    <ROW Directory="lib_Dir" Directory_Parent="SPTK_Dir" DefaultDir="lib"/>
+    <ROW Directory="net_Dir" Directory_Parent="sptk5_Dir" DefaultDir="net"/>
+    <ROW Directory="resources_Dir" Directory_Parent="sptk5_1_Dir" DefaultDir="RESOUR~1|resources"/>
+    <ROW Directory="share_Dir" Directory_Parent="SPTK_Dir" DefaultDir="share"/>
+    <ROW Directory="sptk5_1_Dir" Directory_Parent="share_Dir" DefaultDir="sptk5"/>
+    <ROW Directory="sptk5_2_Dir" Directory_Parent="lib_Dir" DefaultDir="sptk5"/>
+    <ROW Directory="sptk5_Dir" Directory_Parent="include_Dir" DefaultDir="sptk5"/>
+    <ROW Directory="test_Dir" Directory_Parent="sptk5_Dir" DefaultDir="test"/>
+    <ROW Directory="threads_Dir" Directory_Parent="sptk5_Dir" DefaultDir="threads"/>
+    <ROW Directory="wsdl_Dir" Directory_Parent="sptk5_Dir" DefaultDir="wsdl"/>
+    <ROW Directory="xml_Dir" Directory_Parent="sptk5_Dir" DefaultDir="xml"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="AI_ExePath" ComponentId="{46CFA9FB-9E2C-4C37-B719-895E817FD887}" Directory_="APPDIR" Attributes="260" KeyPath="AI_ExePath"/>
+    <ROW Component="Application" ComponentId="{5AA5A3F5-A95D-43C5-9040-CD9FDBD45C17}" Directory_="APPDIR" Attributes="260" KeyPath="Application"/>
+    <ROW Component="Attributes.h" ComponentId="{A2773F3D-393D-41E7-A6C6-B47A53D209F7}" Directory_="xml_Dir" Attributes="0" KeyPath="Attributes.h" Type="0"/>
+    <ROW Component="AutoDatabaseConnection.h" ComponentId="{4BCC76A2-5263-4A8B-9FA3-0A5D7FDDD36D}" Directory_="db_Dir" Attributes="0" KeyPath="AutoDatabaseConnection.h" Type="0"/>
+    <ROW Component="Base64.h" ComponentId="{8FD8AA0E-8C94-4E15-A950-DDFF14DFB7CF}" Directory_="sptk5_Dir" Attributes="0" KeyPath="Base64.h" Type="0"/>
+    <ROW Component="BaseMailConnect.h" ComponentId="{8B35E225-50A8-486E-A717-31724CB1BAE2}" Directory_="net_Dir" Attributes="0" KeyPath="BaseMailConnect.h" Type="0"/>
+    <ROW Component="CategoryCount" ComponentId="{BCAFF568-6B0E-4089-8707-2663C170E4CE}" Directory_="APPDIR" Attributes="260" KeyPath="CategoryCount"/>
+    <ROW Component="CategoryMessageFile" ComponentId="{609E634C-812E-4920-8EE1-F8F16184B8BF}" Directory_="APPDIR" Attributes="260" KeyPath="CategoryMessageFile"/>
+    <ROW Component="EventLog" ComponentId="{72558A19-B26C-43EE-B8CF-73F9C318D46F}" Directory_="APPDIR" Attributes="260" KeyPath="EventLog"/>
+    <ROW Component="EventMessageFile" ComponentId="{5D57D2E4-3290-47F9-91CD-F3DDB4B499D6}" Directory_="APPDIR" Attributes="260" KeyPath="EventMessageFile"/>
+    <ROW Component="Flag.h" ComponentId="{E5397DC4-E3AF-4AC4-ADC8-FFA0A1DAA33F}" Directory_="threads_Dir" Attributes="0" KeyPath="Flag.h" Type="0"/>
+    <ROW Component="JsonArrayData.h" ComponentId="{37D421E7-FD3C-49CE-ABB3-E518CF89CE61}" Directory_="json_Dir" Attributes="0" KeyPath="JsonArrayData.h" Type="0"/>
+    <ROW Component="New_Key" ComponentId="{1AC045D3-FD6C-473C-AA41-48D4F69D95AF}" Directory_="APPDIR" Attributes="260" KeyPath="New_Key"/>
+    <ROW Component="ParameterMessageFile" ComponentId="{A00B10D6-392E-4AFF-95A2-FA3FA635DC4B}" Directory_="APPDIR" Attributes="260" KeyPath="ParameterMessageFile"/>
+    <ROW Component="ProductInformation" ComponentId="{9F3242C3-7926-48D4-88F7-F62CF2DBAFD5}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
+    <ROW Component="SYSTEM" ComponentId="{018D2633-AEB0-4B3E-9AC6-C847985E397A}" Directory_="APPDIR" Attributes="260" KeyPath="SYSTEM"/>
+    <ROW Component="Services" ComponentId="{5139979C-7948-4BC9-96F1-0F0F087D6922}" Directory_="APPDIR" Attributes="260" KeyPath="Services"/>
+    <ROW Component="SourceModule.h" ComponentId="{B838827A-65EC-4DCD-996B-653DC3DF3296}" Directory_="wsdl_Dir" Attributes="0" KeyPath="SourceModule.h" Type="0"/>
+    <ROW Component="TestRunner.h" ComponentId="{F5AA82F1-0024-44B2-B1D8-5C50BA6A13E8}" Directory_="test_Dir" Attributes="0" KeyPath="TestRunner.h" Type="0"/>
+    <ROW Component="TypesSupported" ComponentId="{6D325452-8F71-49EF-BA3E-071E6365A994}" Directory_="APPDIR" Attributes="260" KeyPath="TypesSupported"/>
+    <ROW Component="command_line.exe" ComponentId="{335BE3A0-72CA-43F8-B559-C944136A29D8}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="command_line.exe_1" ComponentId="{0F825452-EE23-4F1E-8DB2-838C7DF756EB}" Directory_="bin_1_Dir" Attributes="256" KeyPath="command_line.exe"/>
+    <ROW Component="datetime.exe" ComponentId="{682BCB15-17A6-4BCE-B899-ACA2A42456AA}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="datetime.exe_1" ComponentId="{3A47EB96-5D2F-4D95-905F-6B08375C0FF6}" Directory_="bin_1_Dir" Attributes="256" KeyPath="datetime.exe"/>
+    <ROW Component="driver_load_test.exe" ComponentId="{3E2EDD39-A086-4271-9B2B-542124FDCE9D}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="driver_load_test.exe_1" ComponentId="{6C31038F-6DB9-4B69-9A0B-F7CACD7B1069}" Directory_="bin_2_Dir" Attributes="256" KeyPath="driver_load_test.exe"/>
+    <ROW Component="encrypt_decrypt.exe" ComponentId="{2419B897-018C-4358-A663-329636B9AA3B}" Directory_="bin_1_Dir" Attributes="256" KeyPath="encrypt_decrypt.exe"/>
+    <ROW Component="event_provider.rc" ComponentId="{00BC9802-257B-4EC1-B110-BD2E0E7F3B20}" Directory_="resources_Dir" Attributes="0" KeyPath="event_provider.rc" Type="0"/>
+    <ROW Component="eventlog_test.exe" ComponentId="{433E8C66-7B9C-4616-86C3-175B697D8666}" Directory_="bin_1_Dir" Attributes="256" KeyPath="eventlog_test.exe"/>
+    <ROW Component="exceptions.exe" ComponentId="{13C30DDF-B4A2-4192-8C9E-B78ADAFE410D}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="exceptions.exe_1" ComponentId="{0A5FEEBD-B097-4E6D-BD43-A28EFCEB971D}" Directory_="bin_1_Dir" Attributes="256" KeyPath="exceptions.exe"/>
+    <ROW Component="load_balance.exe" ComponentId="{0C49BDF5-5046-4A08-B727-F7BDBAB226AA}" Directory_="bin_Dir" Attributes="256" KeyPath="load_balance.exe"/>
+    <ROW Component="logfile_test.exe" ComponentId="{6FB21073-13D4-49A8-AA2E-91A057791B15}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="logfile_test.exe_1" ComponentId="{037C8ABE-899C-4728-810E-248A0E4364F8}" Directory_="bin_1_Dir" Attributes="256" KeyPath="logfile_test.exe"/>
+    <ROW Component="odbc_test.exe" ComponentId="{8DC5D433-1CE5-4EE1-9C06-0469625F5D01}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="odbc_test.exe_1" ComponentId="{9AE7C92D-11F1-4FB3-AEB3-70357F56A905}" Directory_="bin_2_Dir" Attributes="256" KeyPath="odbc_test.exe"/>
+    <ROW Component="regexp.exe" ComponentId="{342D01C0-1D97-4DC0-8E7B-94BB1202969D}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="regexp.exe_1" ComponentId="{C0A0ED1F-7E7B-4686-B250-22438C2EF78D}" Directory_="bin_1_Dir" Attributes="256" KeyPath="regexp.exe"/>
+    <ROW Component="registry.exe" ComponentId="{10C38119-09DE-4AC7-8E79-2B49660322F5}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="registry.exe_1" ComponentId="{780D58D8-64A1-45D0-8E55-6539BC95A14D}" Directory_="bin_1_Dir" Attributes="256" KeyPath="registry.exe"/>
+    <ROW Component="semaphore.exe" ComponentId="{14C1121C-D1D5-4888-943E-D17D6B9311B1}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="semaphore.exe_1" ComponentId="{7817C831-BEA1-4315-B475-3692500E509D}" Directory_="bin_2_Dir" Attributes="256" KeyPath="semaphore.exe"/>
+    <ROW Component="spdb5.dll" ComponentId="{B283D339-591D-4A64-A322-E8942609148E}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5.dll"/>
+    <ROW Component="spdb5.lib" ComponentId="{73ED2AD4-8E7B-45CD-A858-6A5034C61714}" Directory_="lib_Dir" Attributes="0" KeyPath="spdb5.lib" Type="0"/>
+    <ROW Component="spdb5_mysql.dll" ComponentId="{B71CFB66-EEFE-4A8E-997B-BC96C4E1AD4C}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5_mysql.dll"/>
+    <ROW Component="spdb5_odbc.dll" ComponentId="{672F8DE2-D142-4C47-AD9A-DA0E6D06AC78}" Directory_="bin_Dir" Attributes="256"/>
+    <ROW Component="spdb5_odbc.dll_1" ComponentId="{E9E45FC2-033B-41BC-B597-BC8F9B5AF56C}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5_odbc.dll"/>
+    <ROW Component="spdb5_postgresql.dll" ComponentId="{E09FF020-058D-4604-B27A-1A613F87F549}" Directory_="bin_Dir" Attributes="256"/>
+    <ROW Component="spdb5_postgresql.dll_1" ComponentId="{3ACA69CE-F956-496A-8652-658755D8ADAE}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5_postgresql.dll"/>
+    <ROW Component="sputil5.dll" ComponentId="{5FDEDF35-6D4B-4ACE-9DEA-7DC9700DBAC6}" Directory_="bin_Dir" Attributes="256" KeyPath="sputil5.dll"/>
+    <ROW Component="spwsdl5.dll" ComponentId="{2C3A4C00-868B-4A1A-8CDC-3D5061E58420}" Directory_="bin_Dir" Attributes="256" KeyPath="spwsdl5.dll"/>
+    <ROW Component="string2md5.exe" ComponentId="{13A53927-35A3-4F3D-9A4D-CCF4F76265CE}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="string2md5.exe_1" ComponentId="{FD44DA3C-7EF9-4DC1-950C-A2A0C8EC1244}" Directory_="bin_1_Dir" Attributes="256" KeyPath="string2md5.exe"/>
+    <ROW Component="syslog_test.exe" ComponentId="{5211CE9A-3A3A-4010-A526-7E723277A2D3}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="syslog_test.exe_1" ComponentId="{A4CAA701-168C-49FE-A818-D67DC3A053B3}" Directory_="bin_1_Dir" Attributes="256" KeyPath="syslog_test.exe"/>
+    <ROW Component="thread_pool_test.exe" ComponentId="{C04E83D1-6E90-454D-A1E3-F8D65D5513F3}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="thread_pool_test.exe_1" ComponentId="{CA4D71F4-A94D-44ED-B099-DF9AC63F9130}" Directory_="bin_2_Dir" Attributes="256" KeyPath="thread_pool_test.exe"/>
+    <ROW Component="thread_rwlock.exe" ComponentId="{F95E756D-2838-4B46-AF09-4678F4DA03AF}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="thread_test.exe" ComponentId="{A4A15F30-12D1-4D0B-8416-03E867DAA87A}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="thread_test.exe_1" ComponentId="{4A2C677C-6134-4354-8014-0814F8784019}" Directory_="bin_2_Dir" Attributes="256" KeyPath="thread_test.exe"/>
+    <ROW Component="timer.exe" ComponentId="{BBD005D9-AFC7-4A6E-B7B9-7B9523B03F71}" Directory_="bin_1_Dir" Attributes="256" KeyPath="timer.exe"/>
+    <ROW Component="unique_instance.exe" ComponentId="{C6800A98-68DD-4F08-A0C3-79DE3197102A}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="unique_instance.exe_1" ComponentId="{A46DC029-CC20-48B1-8DDF-B2E316A82B67}" Directory_="bin_1_Dir" Attributes="256" KeyPath="unique_instance.exe"/>
+    <ROW Component="wsdl2cxx.exe" ComponentId="{CC00EA0B-F64D-40ED-9D7D-528AFC8E2E6E}" Directory_="bin_Dir" Attributes="256"/>
+    <ROW Component="wsdl2cxx.exe_1" ComponentId="{2F0D3EA1-BD46-42D4-971B-6D13CD01C674}" Directory_="bin_Dir" Attributes="256" KeyPath="wsdl2cxx.exe"/>
+    <ROW Component="zlib_test.exe" ComponentId="{1E183B28-C134-4084-AE77-2EFD61EBFAA7}" Directory_="bin_1_Dir" Attributes="256" KeyPath="zlib_test.exe"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0"/>
+    <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="load_balance.exe" Component_="load_balance.exe" FileName="LOAD_B~1.EXE|load_balance.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\bin\load_balance.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="spdb5.dll" Component_="spdb5.dll" FileName="spdb5.dll" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\bin\spdb5.dll" SelfReg="false"/>
+    <ROW File="spdb5_mysql.dll" Component_="spdb5_mysql.dll" FileName="SPDB5_~1.DLL|spdb5_mysql.dll" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\bin\spdb5_mysql.dll" SelfReg="false"/>
+    <ROW File="spdb5_odbc.dll" Component_="spdb5_odbc.dll_1" FileName="SPDB5_~2.DLL|spdb5_odbc.dll" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\bin\spdb5_odbc.dll" SelfReg="false"/>
+    <ROW File="spdb5_postgresql.dll" Component_="spdb5_postgresql.dll_1" FileName="SPDB5_~3.DLL|spdb5_postgresql.dll" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\bin\spdb5_postgresql.dll" SelfReg="false"/>
+    <ROW File="sputil5.dll" Component_="sputil5.dll" FileName="sputil5.dll" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\bin\sputil5.dll" SelfReg="false"/>
+    <ROW File="spwsdl5.dll" Component_="spwsdl5.dll" FileName="spwsdl5.dll" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\bin\spwsdl5.dll" SelfReg="false"/>
+    <ROW File="wsdl2cxx.exe" Component_="wsdl2cxx.exe_1" FileName="wsdl2cxx.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\bin\wsdl2cxx.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="Base64.h" Component_="Base64.h" FileName="Base64.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Base64.h" SelfReg="false"/>
+    <ROW File="Buffer.h" Component_="Base64.h" FileName="Buffer.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Buffer.h" SelfReg="false"/>
+    <ROW File="CaseInsensitiveCompare.h" Component_="Base64.h" FileName="CASEIN~1.H|CaseInsensitiveCompare.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\CaseInsensitiveCompare.h" SelfReg="false"/>
+    <ROW File="cdatabase" Component_="Base64.h" FileName="CDATAB~1|cdatabase" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\cdatabase" SelfReg="false"/>
+    <ROW File="cgui" Component_="Base64.h" FileName="cgui" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\cgui" SelfReg="false"/>
+    <ROW File="cnet" Component_="Base64.h" FileName="cnet" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\cnet" SelfReg="false"/>
+    <ROW File="CommandLine.h" Component_="Base64.h" FileName="COMMAN~1.H|CommandLine.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\CommandLine.h" SelfReg="false"/>
+    <ROW File="Crypt.h" Component_="Base64.h" FileName="Crypt.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Crypt.h" SelfReg="false"/>
+    <ROW File="CSmallPixmapIDs.h" Component_="Base64.h" FileName="CSMALL~1.H|CSmallPixmapIDs.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\CSmallPixmapIDs.h" SelfReg="false"/>
+    <ROW File="cthreads" Component_="Base64.h" FileName="cthreads" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\cthreads" SelfReg="false"/>
+    <ROW File="cutils" Component_="Base64.h" FileName="cutils" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\cutils" SelfReg="false"/>
+    <ROW File="cxml" Component_="Base64.h" FileName="cxml" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\cxml" SelfReg="false"/>
+    <ROW File="DataSource.h" Component_="Base64.h" FileName="DATASO~1.H|DataSource.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\DataSource.h" SelfReg="false"/>
+    <ROW File="DateTime.h" Component_="Base64.h" FileName="DateTime.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\DateTime.h" SelfReg="false"/>
+    <ROW File="AutoDatabaseConnection.h" Component_="AutoDatabaseConnection.h" FileName="AUTODA~1.H|AutoDatabaseConnection.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\AutoDatabaseConnection.h" SelfReg="false"/>
+    <ROW File="ConnectionParameters.h" Component_="AutoDatabaseConnection.h" FileName="CONNEC~1.H|ConnectionParameters.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\ConnectionParameters.h" SelfReg="false"/>
+    <ROW File="DatabaseConnectionParameters.h" Component_="AutoDatabaseConnection.h" FileName="DATABA~1.H|DatabaseConnectionParameters.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\DatabaseConnectionParameters.h" SelfReg="false"/>
+    <ROW File="DatabaseConnectionPool.h" Component_="AutoDatabaseConnection.h" FileName="DATABA~2.H|DatabaseConnectionPool.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\DatabaseConnectionPool.h" SelfReg="false"/>
+    <ROW File="DatabaseConnectionString.h" Component_="AutoDatabaseConnection.h" FileName="DATABA~3.H|DatabaseConnectionString.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\DatabaseConnectionString.h" SelfReg="false"/>
+    <ROW File="DatabaseField.h" Component_="AutoDatabaseConnection.h" FileName="DATABA~4.H|DatabaseField.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\DatabaseField.h" SelfReg="false"/>
+    <ROW File="DatabaseStatement.h" Component_="AutoDatabaseConnection.h" FileName="DATABA~5.H|DatabaseStatement.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\DatabaseStatement.h" SelfReg="false"/>
+    <ROW File="DatabaseTests.h" Component_="AutoDatabaseConnection.h" FileName="DATABA~6.H|DatabaseTests.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\DatabaseTests.h" SelfReg="false"/>
+    <ROW File="FirebirdConnection.h" Component_="AutoDatabaseConnection.h" FileName="FIREBI~1.H|FirebirdConnection.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\FirebirdConnection.h" SelfReg="false"/>
+    <ROW File="FirebirdStatement.h" Component_="AutoDatabaseConnection.h" FileName="FIREBI~2.H|FirebirdStatement.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\FirebirdStatement.h" SelfReg="false"/>
+    <ROW File="MySQLConnection.h" Component_="AutoDatabaseConnection.h" FileName="MYSQLC~1.H|MySQLConnection.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\MySQLConnection.h" SelfReg="false"/>
+    <ROW File="MySQLStatement.h" Component_="AutoDatabaseConnection.h" FileName="MYSQLS~1.H|MySQLStatement.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\MySQLStatement.h" SelfReg="false"/>
+    <ROW File="ODBCConnection.h" Component_="AutoDatabaseConnection.h" FileName="ODBCCO~1.H|ODBCConnection.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\ODBCConnection.h" SelfReg="false"/>
+    <ROW File="ODBCEnvironment.h" Component_="AutoDatabaseConnection.h" FileName="ODBCEN~1.H|ODBCEnvironment.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\ODBCEnvironment.h" SelfReg="false"/>
+    <ROW File="OracleConnection.h" Component_="AutoDatabaseConnection.h" FileName="ORACLE~1.H|OracleConnection.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\OracleConnection.h" SelfReg="false"/>
+    <ROW File="OracleEnvironment.h" Component_="AutoDatabaseConnection.h" FileName="ORACLE~2.H|OracleEnvironment.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\OracleEnvironment.h" SelfReg="false"/>
+    <ROW File="OracleStatement.h" Component_="AutoDatabaseConnection.h" FileName="ORACLE~3.H|OracleStatement.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\OracleStatement.h" SelfReg="false"/>
+    <ROW File="PoolDatabaseConnection.h" Component_="AutoDatabaseConnection.h" FileName="POOLDA~1.H|PoolDatabaseConnection.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\PoolDatabaseConnection.h" SelfReg="false"/>
+    <ROW File="PostgreSQLConnection.h" Component_="AutoDatabaseConnection.h" FileName="POSTGR~1.H|PostgreSQLConnection.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\PostgreSQLConnection.h" SelfReg="false"/>
+    <ROW File="Query.h" Component_="AutoDatabaseConnection.h" FileName="Query.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\Query.h" SelfReg="false"/>
+    <ROW File="QueryParameter.h" Component_="AutoDatabaseConnection.h" FileName="QUERYP~1.H|QueryParameter.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\QueryParameter.h" SelfReg="false"/>
+    <ROW File="QueryParameterBinding.h" Component_="AutoDatabaseConnection.h" FileName="QUERYP~2.H|QueryParameterBinding.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\QueryParameterBinding.h" SelfReg="false"/>
+    <ROW File="QueryParameterList.h" Component_="AutoDatabaseConnection.h" FileName="QUERYP~3.H|QueryParameterList.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\QueryParameterList.h" SelfReg="false"/>
+    <ROW File="SQLite3Connection.h" Component_="AutoDatabaseConnection.h" FileName="SQLITE~1.H|SQLite3Connection.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\SQLite3Connection.h" SelfReg="false"/>
+    <ROW File="Transaction.h" Component_="AutoDatabaseConnection.h" FileName="TRANSA~1.H|Transaction.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\db\Transaction.h" SelfReg="false"/>
+    <ROW File="DebugMacros.h" Component_="Base64.h" FileName="DEBUGM~1.H|DebugMacros.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\DebugMacros.h" SelfReg="false"/>
+    <ROW File="DirectoryDS.h" Component_="Base64.h" FileName="DIRECT~1.H|DirectoryDS.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\DirectoryDS.h" SelfReg="false"/>
+    <ROW File="Exception.h" Component_="Base64.h" FileName="EXCEPT~1.H|Exception.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Exception.h" SelfReg="false"/>
+    <ROW File="Field.h" Component_="Base64.h" FileName="Field.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Field.h" SelfReg="false"/>
+    <ROW File="FieldList.h" Component_="Base64.h" FileName="FIELDL~1.H|FieldList.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\FieldList.h" SelfReg="false"/>
+    <ROW File="filedefs.h" Component_="Base64.h" FileName="filedefs.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\filedefs.h" SelfReg="false"/>
+    <ROW File="FileLogEngine.h" Component_="Base64.h" FileName="FILELO~1.H|FileLogEngine.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\FileLogEngine.h" SelfReg="false"/>
+    <ROW File="IntList.h" Component_="Base64.h" FileName="IntList.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\IntList.h" SelfReg="false"/>
+    <ROW File="JsonArrayData.h" Component_="JsonArrayData.h" FileName="JSONAR~1.H|JsonArrayData.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\json\JsonArrayData.h" SelfReg="false"/>
+    <ROW File="JsonDocument.h" Component_="JsonArrayData.h" FileName="JSONDO~1.H|JsonDocument.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\json\JsonDocument.h" SelfReg="false"/>
+    <ROW File="JsonElement.h" Component_="JsonArrayData.h" FileName="JSONEL~1.H|JsonElement.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\json\JsonElement.h" SelfReg="false"/>
+    <ROW File="JsonObjectData.h" Component_="JsonArrayData.h" FileName="JSONOB~1.H|JsonObjectData.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\json\JsonObjectData.h" SelfReg="false"/>
+    <ROW File="JsonParser.h" Component_="JsonArrayData.h" FileName="JSONPA~1.H|JsonParser.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\json\JsonParser.h" SelfReg="false"/>
+    <ROW File="JWT.h" Component_="Base64.h" FileName="JWT.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\JWT.h" SelfReg="false"/>
+    <ROW File="LogEngine.h" Component_="Base64.h" FileName="LOGENG~1.H|LogEngine.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\LogEngine.h" SelfReg="false"/>
+    <ROW File="Logger.h" Component_="Base64.h" FileName="Logger.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Logger.h" SelfReg="false"/>
+    <ROW File="LogPriority.h" Component_="Base64.h" FileName="LOGPRI~1.H|LogPriority.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\LogPriority.h" SelfReg="false"/>
+    <ROW File="Loop.h" Component_="Base64.h" FileName="Loop.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Loop.h" SelfReg="false"/>
+    <ROW File="md5.h" Component_="Base64.h" FileName="md5.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\md5.h" SelfReg="false"/>
+    <ROW File="MemoryDS.h" Component_="Base64.h" FileName="MemoryDS.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\MemoryDS.h" SelfReg="false"/>
+    <ROW File="BaseMailConnect.h" Component_="BaseMailConnect.h" FileName="BASEMA~1.H|BaseMailConnect.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\BaseMailConnect.h" SelfReg="false"/>
+    <ROW File="BaseSocket.h" Component_="BaseMailConnect.h" FileName="BASESO~1.H|BaseSocket.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\BaseSocket.h" SelfReg="false"/>
+    <ROW File="CachedSSLContext.h" Component_="BaseMailConnect.h" FileName="CACHED~1.H|CachedSSLContext.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\CachedSSLContext.h" SelfReg="false"/>
+    <ROW File="Host.h" Component_="BaseMailConnect.h" FileName="Host.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\Host.h" SelfReg="false"/>
+    <ROW File="HttpAuthentication.h" Component_="BaseMailConnect.h" FileName="HTTPAU~1.H|HttpAuthentication.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\HttpAuthentication.h" SelfReg="false"/>
+    <ROW File="HttpConnect.h" Component_="BaseMailConnect.h" FileName="HTTPCO~1.H|HttpConnect.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\HttpConnect.h" SelfReg="false"/>
+    <ROW File="HttpParams.h" Component_="BaseMailConnect.h" FileName="HTTPPA~1.H|HttpParams.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\HttpParams.h" SelfReg="false"/>
+    <ROW File="HttpReader.h" Component_="BaseMailConnect.h" FileName="HTTPRE~1.H|HttpReader.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\HttpReader.h" SelfReg="false"/>
+    <ROW File="ImapConnect.h" Component_="BaseMailConnect.h" FileName="IMAPCO~1.H|ImapConnect.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\ImapConnect.h" SelfReg="false"/>
+    <ROW File="ImapDS.h" Component_="BaseMailConnect.h" FileName="ImapDS.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\ImapDS.h" SelfReg="false"/>
+    <ROW File="IPAddress.h" Component_="BaseMailConnect.h" FileName="IPADDR~1.H|IPAddress.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\IPAddress.h" SelfReg="false"/>
+    <ROW File="MailMessageBody.h" Component_="BaseMailConnect.h" FileName="MAILME~1.H|MailMessageBody.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\MailMessageBody.h" SelfReg="false"/>
+    <ROW File="ServerConnection.h" Component_="BaseMailConnect.h" FileName="SERVER~1.H|ServerConnection.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\ServerConnection.h" SelfReg="false"/>
+    <ROW File="SmtpConnect.h" Component_="BaseMailConnect.h" FileName="SMTPCO~1.H|SmtpConnect.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\SmtpConnect.h" SelfReg="false"/>
+    <ROW File="SocketEvents.h" Component_="BaseMailConnect.h" FileName="SOCKET~1.H|SocketEvents.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\SocketEvents.h" SelfReg="false"/>
+    <ROW File="SocketPool.h" Component_="BaseMailConnect.h" FileName="SOCKET~2.H|SocketPool.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\SocketPool.h" SelfReg="false"/>
+    <ROW File="SSLContext.h" Component_="BaseMailConnect.h" FileName="SSLCON~1.H|SSLContext.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\SSLContext.h" SelfReg="false"/>
+    <ROW File="SSLKeys.h" Component_="BaseMailConnect.h" FileName="SSLKeys.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\SSLKeys.h" SelfReg="false"/>
+    <ROW File="SSLServerConnection.h" Component_="BaseMailConnect.h" FileName="SSLSER~1.H|SSLServerConnection.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\SSLServerConnection.h" SelfReg="false"/>
+    <ROW File="SSLSocket.h" Component_="BaseMailConnect.h" FileName="SSLSOC~1.H|SSLSocket.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\SSLSocket.h" SelfReg="false"/>
+    <ROW File="TCPServer.h" Component_="BaseMailConnect.h" FileName="TCPSER~1.H|TCPServer.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\TCPServer.h" SelfReg="false"/>
+    <ROW File="TCPServerConnection.h" Component_="BaseMailConnect.h" FileName="TCPSER~2.H|TCPServerConnection.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\TCPServerConnection.h" SelfReg="false"/>
+    <ROW File="TCPServerListener.h" Component_="BaseMailConnect.h" FileName="TCPSER~3.H|TCPServerListener.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\TCPServerListener.h" SelfReg="false"/>
+    <ROW File="TCPSocket.h" Component_="BaseMailConnect.h" FileName="TCPSOC~1.H|TCPSocket.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\TCPSocket.h" SelfReg="false"/>
+    <ROW File="UDPSocket.h" Component_="BaseMailConnect.h" FileName="UDPSOC~1.H|UDPSocket.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\UDPSocket.h" SelfReg="false"/>
+    <ROW File="PackedStrings.h" Component_="Base64.h" FileName="PACKED~1.H|PackedStrings.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\PackedStrings.h" SelfReg="false"/>
+    <ROW File="Printer.h" Component_="Base64.h" FileName="Printer.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Printer.h" SelfReg="false"/>
+    <ROW File="ReadBuffer.h" Component_="Base64.h" FileName="READBU~1.H|ReadBuffer.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\ReadBuffer.h" SelfReg="false"/>
+    <ROW File="Registry.h" Component_="Base64.h" FileName="Registry.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Registry.h" SelfReg="false"/>
+    <ROW File="RegularExpression.h" Component_="Base64.h" FileName="REGULA~1.H|RegularExpression.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\RegularExpression.h" SelfReg="false"/>
+    <ROW File="SharedStrings.h" Component_="Base64.h" FileName="SHARED~1.H|SharedStrings.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\SharedStrings.h" SelfReg="false"/>
+    <ROW File="sptkconfig.h" Component_="Base64.h" FileName="SPTK-C~1.H|sptk-config.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\sptk-config.h" SelfReg="false"/>
+    <ROW File="sptk.h" Component_="Base64.h" FileName="sptk.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\sptk.h" SelfReg="false"/>
+    <ROW File="StopWatch.h" Component_="Base64.h" FileName="STOPWA~1.H|StopWatch.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\StopWatch.h" SelfReg="false"/>
+    <ROW File="String.h" Component_="Base64.h" FileName="String.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\String.h" SelfReg="false"/>
+    <ROW File="Strings.h" Component_="Base64.h" FileName="Strings.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Strings.h" SelfReg="false"/>
+    <ROW File="string_ext.h" Component_="Base64.h" FileName="STRING~1.H|string_ext.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\string_ext.h" SelfReg="false"/>
+    <ROW File="SysLogEngine.h" Component_="Base64.h" FileName="SYSLOG~1.H|SysLogEngine.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\SysLogEngine.h" SelfReg="false"/>
+    <ROW File="SystemException.h" Component_="Base64.h" FileName="SYSTEM~1.H|SystemException.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\SystemException.h" SelfReg="false"/>
+    <ROW File="Tar.h" Component_="Base64.h" FileName="Tar.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Tar.h" SelfReg="false"/>
+    <ROW File="TestRunner.h" Component_="TestRunner.h" FileName="TESTRU~1.H|TestRunner.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\test\TestRunner.h" SelfReg="false"/>
+    <ROW File="Flag.h" Component_="Flag.h" FileName="Flag.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\Flag.h" SelfReg="false"/>
+    <ROW File="Location.h" Component_="Flag.h" FileName="Location.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\Location.h" SelfReg="false"/>
+    <ROW File="Locks.h" Component_="Flag.h" FileName="Locks.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\Locks.h" SelfReg="false"/>
+    <ROW File="Runable.h" Component_="Flag.h" FileName="Runable.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\Runable.h" SelfReg="false"/>
+    <ROW File="Semaphore.h" Component_="Flag.h" FileName="SEMAPH~1.H|Semaphore.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\Semaphore.h" SelfReg="false"/>
+    <ROW File="SynchronizedList.h" Component_="Flag.h" FileName="SYNCHR~1.H|SynchronizedList.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\SynchronizedList.h" SelfReg="false"/>
+    <ROW File="SynchronizedMap.h" Component_="Flag.h" FileName="SYNCHR~2.H|SynchronizedMap.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\SynchronizedMap.h" SelfReg="false"/>
+    <ROW File="SynchronizedQueue.h" Component_="Flag.h" FileName="SYNCHR~3.H|SynchronizedQueue.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\SynchronizedQueue.h" SelfReg="false"/>
+    <ROW File="Thread.h" Component_="Flag.h" FileName="Thread.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\Thread.h" SelfReg="false"/>
+    <ROW File="ThreadEvent.h" Component_="Flag.h" FileName="THREAD~1.H|ThreadEvent.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\ThreadEvent.h" SelfReg="false"/>
+    <ROW File="ThreadPool.h" Component_="Flag.h" FileName="THREAD~2.H|ThreadPool.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\ThreadPool.h" SelfReg="false"/>
+    <ROW File="Timer.h" Component_="Flag.h" FileName="Timer.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\Timer.h" SelfReg="false"/>
+    <ROW File="WorkerThread.h" Component_="Flag.h" FileName="WORKER~1.H|WorkerThread.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\threads\WorkerThread.h" SelfReg="false"/>
+    <ROW File="UniqueInstance.h" Component_="Base64.h" FileName="UNIQUE~1.H|UniqueInstance.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\UniqueInstance.h" SelfReg="false"/>
+    <ROW File="Variant.h" Component_="Base64.h" FileName="Variant.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\Variant.h" SelfReg="false"/>
+    <ROW File="VariantData.h" Component_="Base64.h" FileName="VARIAN~1.H|VariantData.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\VariantData.h" SelfReg="false"/>
+    <ROW File="SourceModule.h" Component_="SourceModule.h" FileName="SOURCE~1.H|SourceModule.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\wsdl\SourceModule.h" SelfReg="false"/>
+    <ROW File="WSBasicTypes.h" Component_="SourceModule.h" FileName="WSBASI~1.H|WSBasicTypes.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\wsdl\WSBasicTypes.h" SelfReg="false"/>
+    <ROW File="WSComplexType.h" Component_="SourceModule.h" FileName="WSCOMP~1.H|WSComplexType.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\wsdl\WSComplexType.h" SelfReg="false"/>
+    <ROW File="WSListener.h" Component_="SourceModule.h" FileName="WSLIST~1.H|WSListener.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\wsdl\WSListener.h" SelfReg="false"/>
+    <ROW File="WSMessageIndex.h" Component_="SourceModule.h" FileName="WSMESS~1.H|WSMessageIndex.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\wsdl\WSMessageIndex.h" SelfReg="false"/>
+    <ROW File="WSParser.h" Component_="SourceModule.h" FileName="WSParser.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\wsdl\WSParser.h" SelfReg="false"/>
+    <ROW File="WSParserComplexType.h" Component_="SourceModule.h" FileName="WSPARS~1.H|WSParserComplexType.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\wsdl\WSParserComplexType.h" SelfReg="false"/>
+    <ROW File="WSRequest.h" Component_="SourceModule.h" FileName="WSREQU~1.H|WSRequest.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\wsdl\WSRequest.h" SelfReg="false"/>
+    <ROW File="WSRestriction.h" Component_="SourceModule.h" FileName="WSREST~1.H|WSRestriction.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\wsdl\WSRestriction.h" SelfReg="false"/>
+    <ROW File="WSTypeTranslator.h" Component_="SourceModule.h" FileName="WSTYPE~1.H|WSTypeTranslator.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\wsdl\WSTypeTranslator.h" SelfReg="false"/>
+    <ROW File="Attributes.h" Component_="Attributes.h" FileName="ATTRIB~1.H|Attributes.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\xml\Attributes.h" SelfReg="false"/>
+    <ROW File="DocType.h" Component_="Attributes.h" FileName="DocType.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\xml\DocType.h" SelfReg="false"/>
+    <ROW File="Document.h" Component_="Attributes.h" FileName="Document.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\xml\Document.h" SelfReg="false"/>
+    <ROW File="Element.h" Component_="Attributes.h" FileName="Element.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\xml\Element.h" SelfReg="false"/>
+    <ROW File="Entities.h" Component_="Attributes.h" FileName="Entities.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\xml\Entities.h" SelfReg="false"/>
+    <ROW File="Node.h" Component_="Attributes.h" FileName="Node.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\xml\Node.h" SelfReg="false"/>
+    <ROW File="NodeList.h" Component_="Attributes.h" FileName="NodeList.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\xml\NodeList.h" SelfReg="false"/>
+    <ROW File="XMLException.h" Component_="Attributes.h" FileName="XMLEXC~1.H|XMLException.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\xml\XMLException.h" SelfReg="false"/>
+    <ROW File="ZLib.h" Component_="Base64.h" FileName="ZLib.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\ZLib.h" SelfReg="false"/>
+    <ROW File="spdb5.lib" Component_="spdb5.lib" FileName="spdb5.lib" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\spdb5.lib" SelfReg="false"/>
+    <ROW File="spdb5_mysql.lib" Component_="spdb5.lib" FileName="SPDB5_~1.LIB|spdb5_mysql.lib" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\spdb5_mysql.lib" SelfReg="false"/>
+    <ROW File="spdb5_odbc.lib" Component_="spdb5.lib" FileName="SPDB5_~2.LIB|spdb5_odbc.lib" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\spdb5_odbc.lib" SelfReg="false"/>
+    <ROW File="spdb5_postgresql.lib" Component_="spdb5.lib" FileName="SPDB5_~3.LIB|spdb5_postgresql.lib" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\spdb5_postgresql.lib" SelfReg="false"/>
+    <ROW File="driver_load_test.exe" Component_="driver_load_test.exe_1" FileName="DRIVER~1.EXE|driver_load_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sptk5\bin\driver_load_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="odbc_test.exe" Component_="odbc_test.exe_1" FileName="ODBC_T~1.EXE|odbc_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sptk5\bin\odbc_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="semaphore.exe" Component_="semaphore.exe_1" FileName="SEMAPH~1.EXE|semaphore.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sptk5\bin\semaphore.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="thread_pool_test.exe" Component_="thread_pool_test.exe_1" FileName="THREAD~1.EXE|thread_pool_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sptk5\bin\thread_pool_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="thread_test.exe" Component_="thread_test.exe_1" FileName="THREAD~2.EXE|thread_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sptk5\bin\thread_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="sputil5.lib" Component_="spdb5.lib" FileName="sputil5.lib" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sputil5.lib" SelfReg="false"/>
+    <ROW File="spwsdl5.lib" Component_="spdb5.lib" FileName="spwsdl5.lib" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\spwsdl5.lib" SelfReg="false"/>
+    <ROW File="command_line.exe" Component_="command_line.exe_1" FileName="COMMAN~1.EXE|command_line.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\command_line.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="datetime.exe" Component_="datetime.exe_1" FileName="datetime.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\datetime.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="encrypt_decrypt.exe" Component_="encrypt_decrypt.exe" FileName="ENCRYP~1.EXE|encrypt_decrypt.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\encrypt_decrypt.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="eventlog_test.exe" Component_="eventlog_test.exe" FileName="EVENTL~1.EXE|eventlog_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\eventlog_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="exceptions.exe" Component_="exceptions.exe_1" FileName="EXCEPT~1.EXE|exceptions.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\exceptions.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="logfile_test.exe" Component_="logfile_test.exe_1" FileName="LOGFIL~1.EXE|logfile_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\logfile_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="regexp.exe" Component_="regexp.exe_1" FileName="regexp.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\regexp.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="registry.exe" Component_="registry.exe_1" FileName="registry.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\registry.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="string2md5.exe" Component_="string2md5.exe_1" FileName="STRING~1.EXE|string2md5.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\string2md5.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="syslog_test.exe" Component_="syslog_test.exe_1" FileName="SYSLOG~1.EXE|syslog_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\syslog_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="timer.exe" Component_="timer.exe" FileName="timer.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\timer.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="unique_instance.exe" Component_="unique_instance.exe_1" FileName="UNIQUE~1.EXE|unique_instance.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\unique_instance.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="zlib_test.exe" Component_="zlib_test.exe" FileName="ZLIB_T~1.EXE|zlib_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\zlib_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="event_provider.rc" Component_="event_provider.rc" FileName="EVENT_~1.RC|event_provider.rc" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\resources\event_provider.rc" SelfReg="false"/>
+    <ROW File="MSG00409.bin" Component_="event_provider.rc" FileName="MSG00409.bin" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\resources\MSG00409.bin" SelfReg="false"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="2" CabsLocation="1" CompressCabs="false" UseLzma="true" LzmaMethod="2" LzmaCompressionLevel="2" PackageType="1" FilesInsideExe="true" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" UseLargeSchema="true" MsiPackageType="x64" UACExecutionLevel="2"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
+    <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
+    <ROW Fragment="FolderDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\FolderDlg.aip"/>
+    <ROW Fragment="MaintenanceTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceTypeDlg.aip"/>
+    <ROW Fragment="MaintenanceWelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceWelcomeDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
+    <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
+    <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
+    <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
+    <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
+    <ROW Fragment="VerifyRemoveDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRemoveDlg.aip"/>
+    <ROW Fragment="VerifyRepairDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRepairDlg.aip"/>
+    <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
+    <ROW Action="AI_DeleteLzma" Description="Deleting files extracted from archive" DescriptionLocId="ActionText.Description.AI_DeleteLzma" TemplateLocId="-"/>
+    <ROW Action="AI_DeleteRLzma" Description="Deleting files extracted from archive" DescriptionLocId="ActionText.Description.AI_DeleteLzma" TemplateLocId="-"/>
+    <ROW Action="AI_ExtractFiles" Description="Extracting files from archive" DescriptionLocId="ActionText.Description.AI_ExtractLzma" TemplateLocId="-"/>
+    <ROW Action="AI_ExtractLzma" Description="Extracting files from archive" DescriptionLocId="ActionText.Description.AI_ExtractLzma" TemplateLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiAppSearchComponent">
+    <ROW Property="AI_SETUPEXEPATH" Signature_="AI_EXE_PATH_CU" Builds="DefaultBuild"/>
+    <ROW Property="AI_SETUPEXEPATH" Signature_="AI_EXE_PATH_LM" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
+    <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
+    <ROW Name="lzmaextractor.dll" SourcePath="&lt;AI_CUSTACTS&gt;lzmaextractor.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="99"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_MAINT" Ordering="198"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="202"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="197"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT" Ordering="101"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="501"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RemoveButton" Event="NewDialog" Argument="VerifyRemoveDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RepairButton" Event="NewDialog" Argument="VerifyRepairDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Repair" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="399" Options="1"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Remove" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="299" Options="1"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_PATCH" Ordering="201"/>
+    <ROW Dialog_="ResumeDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_RESUME" Ordering="299"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="199"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="203"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="DoAction" Argument="AI_InstallModeCheck" Condition="AI_MAINT" Ordering="100" MsiKey="CustomizeDlg#Next#DoAction#AI_InstallModeCheck#AI_MAINT"/>
+    <ROW Dialog_="FatalError" Control_="Finish" Event="DoAction" Argument="AI_SHOW_LOG" Condition="(MsiLogFileLocation AND AI_LOG_CHECKBOX)" Ordering="101" MsiKey="FatalError#Finish#DoAction#AI_SHOW_LOG#(MsiLogFileLocation AND AI_LOG_CHECKBOX)"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH_ORIGINAL" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DATA_SETTER" Type="51" Source="AI_ExtractFiles" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DeleteCadLzma" Type="51" Source="AI_DeleteLzma" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DeleteLzma" Type="1025" Source="lzmaextractor.dll" Target="DeleteLZMAFiles"/>
+    <ROW Action="AI_DeleteRCadLzma" Type="51" Source="AI_DeleteRLzma" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DeleteRLzma" Type="1281" Source="lzmaextractor.dll" Target="DeleteLZMAFiles"/>
+    <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
+    <ROW Action="AI_EnableDebugLog" Type="321" Source="aicustact.dll" Target="EnableDebugLog"/>
+    <ROW Action="AI_EstimateExtractFiles" Type="1" Source="Prereq.dll" Target="EstimateExtractFiles"/>
+    <ROW Action="AI_ExtractCadLzma" Type="51" Source="AI_ExtractLzma" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_ExtractFiles" Type="1025" Source="Prereq.dll" Target="ExtractSourceFiles" AdditionalSeq="AI_DATA_SETTER"/>
+    <ROW Action="AI_ExtractLzma" Type="1025" Source="lzmaextractor.dll" Target="ExtractLZMAFiles"/>
+    <ROW Action="AI_FindExeLzma" Type="1" Source="lzmaextractor.dll" Target="FindEXE"/>
+    <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH" Target="[AI_SETUPEXEPATH_ORIGINAL]"/>
+    <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
+    <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder][ProductName]"/>
+    <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
+    <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiEnvComponent">
+    <ROW Environment="Path" Name="=-*Path" Value="[~];[SPTK_Dir]bin" Component_="ProductInformation"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatCompsComponent">
+    <ROW Feature_="MainFeature" Component_="AI_ExePath"/>
+    <ROW Feature_="MainFeature" Component_="Application"/>
+    <ROW Feature_="MainFeature" Component_="CategoryCount"/>
+    <ROW Feature_="MainFeature" Component_="CategoryMessageFile"/>
+    <ROW Feature_="MainFeature" Component_="EventLog"/>
+    <ROW Feature_="MainFeature" Component_="EventMessageFile"/>
+    <ROW Feature_="MainFeature" Component_="New_Key"/>
+    <ROW Feature_="MainFeature" Component_="ParameterMessageFile"/>
+    <ROW Feature_="MainFeature" Component_="ProductInformation"/>
+    <ROW Feature_="MainFeature" Component_="SYSTEM"/>
+    <ROW Feature_="MainFeature" Component_="Services"/>
+    <ROW Feature_="MainFeature" Component_="TypesSupported"/>
+    <ROW Feature_="MainFeature" Component_="command_line.exe"/>
+    <ROW Feature_="MainFeature" Component_="datetime.exe"/>
+    <ROW Feature_="MainFeature" Component_="driver_load_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="exceptions.exe"/>
+    <ROW Feature_="MainFeature" Component_="logfile_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="odbc_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="regexp.exe"/>
+    <ROW Feature_="MainFeature" Component_="registry.exe"/>
+    <ROW Feature_="MainFeature" Component_="semaphore.exe"/>
+    <ROW Feature_="MainFeature" Component_="spdb5_odbc.dll"/>
+    <ROW Feature_="MainFeature" Component_="spdb5_postgresql.dll"/>
+    <ROW Feature_="MainFeature" Component_="string2md5.exe"/>
+    <ROW Feature_="MainFeature" Component_="syslog_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="thread_pool_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="thread_rwlock.exe"/>
+    <ROW Feature_="MainFeature" Component_="thread_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="unique_instance.exe"/>
+    <ROW Feature_="MainFeature" Component_="wsdl2cxx.exe"/>
+    <ROW Feature_="MainFeature" Component_="load_balance.exe"/>
+    <ROW Feature_="MainFeature" Component_="spdb5.dll"/>
+    <ROW Feature_="MainFeature" Component_="spdb5_mysql.dll"/>
+    <ROW Feature_="MainFeature" Component_="spdb5_odbc.dll_1"/>
+    <ROW Feature_="MainFeature" Component_="spdb5_postgresql.dll_1"/>
+    <ROW Feature_="MainFeature" Component_="sputil5.dll"/>
+    <ROW Feature_="MainFeature" Component_="spwsdl5.dll"/>
+    <ROW Feature_="MainFeature" Component_="wsdl2cxx.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="Base64.h"/>
+    <ROW Feature_="MainFeature" Component_="AutoDatabaseConnection.h"/>
+    <ROW Feature_="MainFeature" Component_="JsonArrayData.h"/>
+    <ROW Feature_="MainFeature" Component_="BaseMailConnect.h"/>
+    <ROW Feature_="MainFeature" Component_="TestRunner.h"/>
+    <ROW Feature_="MainFeature" Component_="Flag.h"/>
+    <ROW Feature_="MainFeature" Component_="SourceModule.h"/>
+    <ROW Feature_="MainFeature" Component_="Attributes.h"/>
+    <ROW Feature_="MainFeature" Component_="spdb5.lib"/>
+    <ROW Feature_="MainFeature" Component_="driver_load_test.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="odbc_test.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="semaphore.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="thread_pool_test.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="thread_test.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="command_line.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="datetime.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="encrypt_decrypt.exe"/>
+    <ROW Feature_="MainFeature" Component_="eventlog_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="exceptions.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="logfile_test.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="regexp.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="registry.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="string2md5.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="syslog_test.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="timer.exe"/>
+    <ROW Feature_="MainFeature" Component_="unique_instance.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="zlib_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="event_provider.rc"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
+    <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
+    <ROW Action="AI_EnableDebugLog" Sequence="51"/>
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99" Builds="DefaultBuild"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="101" Builds="DefaultBuild"/>
+    <ROW Action="AI_DeleteCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="199" Builds="DefaultBuild"/>
+    <ROW Action="AI_DeleteRCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="198" Builds="DefaultBuild"/>
+    <ROW Action="AI_ExtractCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="197" Builds="DefaultBuild"/>
+    <ROW Action="AI_FindExeLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="196" Builds="DefaultBuild"/>
+    <ROW Action="AI_ExtractLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="1549" Builds="DefaultBuild"/>
+    <ROW Action="AI_DeleteRLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="1548" Builds="DefaultBuild"/>
+    <ROW Action="AI_DeleteLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="6599" Builds="DefaultBuild"/>
+    <ROW Action="AI_ExtractFiles" Sequence="3998" Builds="DefaultBuild"/>
+    <ROW Action="AI_DATA_SETTER" Sequence="3997"/>
+    <ROW Action="AI_EstimateExtractFiles" Sequence="3999" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
+    <ROW Action="AI_DpiContentScale" Sequence="52"/>
+    <ROW Action="AI_EnableDebugLog" Sequence="51"/>
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="101"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="( Version9X OR VersionNT64 )" Description="[ProductName] cannot be installed on [WindowsTypeNTDisplay]." DescriptionLocId="AI.LaunchCondition.NoNT" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on [WindowsTypeNT40Display]." DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="(VersionNT &lt;&gt; 500)" Description="[ProductName] cannot be installed on [WindowsTypeNT50Display]." DescriptionLocId="AI.LaunchCondition.NoNT50" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="(VersionNT64 OR ((VersionNT &lt;&gt; 501) OR (ServicePackLevel = 3))) AND ((VersionNT &lt;&gt; 502) OR (ServicePackLevel = 2))" Description="[ProductName] cannot be installed on [WindowsTypeNT5XDisplay]." DescriptionLocId="AI.LaunchCondition.NoNT5X" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="SETUPEXEDIR OR (REMOVE=&quot;ALL&quot;)" Description="This package can only be run from a bootstrapper." DescriptionLocId="AI.LaunchCondition.RequireBootstrapper" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]." DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
+    <ROW Signature_="AI_EXE_PATH_CU" Root="1" Key="Software\Caphyon\Advanced Installer\LZMA\[ProductCode]\[ProductVersion]" Name="AI_ExePath" Type="2"/>
+    <ROW Signature_="AI_EXE_PATH_LM" Root="2" Key="Software\Caphyon\Advanced Installer\LZMA\[ProductCode]\[ProductVersion]" Name="AI_ExePath" Type="2"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="AI_ExePath" Root="-1" Key="Software\Caphyon\Advanced Installer\LZMA\[ProductCode]\[ProductVersion]" Name="AI_ExePath" Value="[AI_SETUPEXEPATH]" Component_="AI_ExePath"/>
+    <ROW Registry="Application" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application" Name="+" Component_="Application"/>
+    <ROW Registry="CategoryCount" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application\SPTK Event Provider" Name="CategoryCount" Value="#1" Component_="CategoryCount"/>
+    <ROW Registry="CategoryMessageFile" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application\SPTK Event Provider" Name="CategoryMessageFile" Value="[bin_1_Dir]syslog_test.exe" Component_="CategoryMessageFile"/>
+    <ROW Registry="EventLog" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog" Name="+" Component_="EventLog"/>
+    <ROW Registry="EventMessageFile" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application\SPTK Event Provider" Name="EventMessageFile" Value="[bin_1_Dir]syslog_test.exe" Component_="EventMessageFile"/>
+    <ROW Registry="New_Key" Root="2" Key="SYSTEM\CurrentControlSet" Name="+" Component_="New_Key"/>
+    <ROW Registry="ParameterMessageFile" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application\SPTK Event Provider" Name="ParameterMessageFile" Value="[bin_1_Dir]syslog_test.exe" Component_="ParameterMessageFile"/>
+    <ROW Registry="Path" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Path" Value="[APPDIR]" Component_="ProductInformation"/>
+    <ROW Registry="SYSTEM" Root="2" Key="SYSTEM" Name="+" Component_="SYSTEM"/>
+    <ROW Registry="Services" Root="2" Key="SYSTEM\CurrentControlSet\Services" Name="+" Component_="Services"/>
+    <ROW Registry="TypesSupported" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application\SPTK Event Provider" Name="TypesSupported" Value="#7" Component_="TypesSupported"/>
+    <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
+    <ATTRIBUTE name="UsedTheme" value="classic"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="0.0.1" VersionMax="[|ProductVersion]" Attributes="257" ActionProperty="OLDPRODUCTS"/>
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
+  </COMPONENT>
+</DOCUMENT>

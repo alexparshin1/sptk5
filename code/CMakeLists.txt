@@ -1,15 +1,12 @@
-# Under Cygwin, CMake 2.8.4 and newer doesn't define WIN32 anymore.
-# For other environments, required CMake version can be 2.6 or higher.
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
-# The name of our project is "SPTK".  CMakeLists files in this project can
+# The name of the project is "SPTK".  CMakeLists files in this project can
 # refer to the root source directory of the project as ${SPTK_SOURCE_DIR} and
 # to the root binary directory of the project as ${SPTK_BINARY_DIR}.
 PROJECT (SPTK)
 
-
 #SET (CMAKE_BUILD_TYPE Release)
-SET (CMAKE_BUILD_TYPE Debug)
+#SET (CMAKE_BUILD_TYPE Debug)
 
 SET (VERSION "5.2.19")
 SET (SOVERSION "5")
@@ -361,8 +358,10 @@ INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
 
 IF (USE_GTEST)
   SET (GTEST_FLAG "1")
+  MESSAGE("GTest unit tests:   compile")
 ELSE ()
   SET (GTEST_FLAG "0")
+  MESSAGE("GTest unit tests:   don't compile")
 ENDIF ()
 
 CONFIGURE_FILE ("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)

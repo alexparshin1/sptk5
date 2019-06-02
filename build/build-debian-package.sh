@@ -22,4 +22,5 @@ debuild -us -uc -b
 
 cd ${BUILD_HOME}
 
-cp ../sptk_${VERSION}_amd64.deb /var/www/sites/sptk/download/
+mv ../sptk_${VERSION}_amd64.deb Downloads/
+cp Downloads/sptk_${VERSION}_amd64.deb /var/www/sites/sptk/download/

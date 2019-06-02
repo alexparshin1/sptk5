@@ -128,7 +128,7 @@ bool test_decode_invalid_final_dot()
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (const Exception& e) {
+    catch (const Exception&) {
         // We must get here
         return true;
     }

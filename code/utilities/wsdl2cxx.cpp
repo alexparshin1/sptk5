@@ -27,6 +27,9 @@
 
 #include <sptk5/cutils>
 #include <sptk5/wsdl/WSParser.h>
+#ifdef _WIN32
+#include <io.h>
+#endif
 
 using namespace std;
 using namespace sptk;
@@ -42,6 +45,10 @@ void help()
     COUT("output directory  Directory where generated files will be stored" << endl);
     COUT("header file       File that contains text too be added at the start of gerated files" << endl);
 }
+
+#ifdef _WIN32
+#define access _access
+#endif
 
 int main(int argc, const char* argv[])
 {

@@ -77,7 +77,7 @@ int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
 #else
             socklen_t flen = sizeof(sockaddr_in);
 #endif
-            receivedBytes = (int) recvfrom(m_socket.handle(), data(), capacity() - 2, 0, (sockaddr*) from, &flen);
+            receivedBytes = (int) recvfrom(m_socket.handle(), data(), (int) capacity() - 2, 0, (sockaddr*) from, &flen);
         } else
             receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
 
@@ -95,7 +95,7 @@ int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
 
     data()[bytes()] = 0;
 
-    return bytes();
+    return (int32_t) bytes();
 }
 
 void TCPSocketReader::readMoreFromSocket(int availableBytes)
