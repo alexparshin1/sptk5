@@ -28,5 +28,5 @@ echo Build RPM
 cd $CWD
 rpmbuild -bb sptk.spec
 
-cp ~/rpmbuild/RPMS/x86_64/sptk*.rpm .
+cp ~/rpmbuild/RPMS/x86_64/*.rpm /build/output/
 
