@@ -50,7 +50,9 @@
 #define BITNESS          @BITNESS@          ///< Number of machine bits
 
 #define USE_NEW_ABI      @NEW_ABI_FLAG@     ///< Flag if new ABI is used
-  #define USE_GTEST      @GTEST_FLAG@       ///< Flag indicating if GTest library is installed and used
+#define USE_GTEST        @GTEST_FLAG@       ///< Flag indicating if GTest library is installed and used
+
+#define CXX_STANDARD     @CXX_STANDARD@     ///< Flag indicating if GTest library is installed and used
 
 /// @}
 

@@ -31,14 +31,32 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
+
+#if CXX_STANDARD == 17
+#define USE_SHARED_MUTEX 1
 #include <shared_mutex>
+#else
+#define USE_SHARED_MUTEX 0
+#include <mutex>
+#endif
 
 namespace sptk {
 
+#if USE_SHARED_MUTEX
 /**
  * Shared timed mutex
  */
 typedef std::shared_timed_mutex             SharedMutex;
+typedef std::shared_lock<SharedMutex>       ReadLockType;
+typedef std::unique_lock<SharedMutex>       WriteLockType;
+#else
+/**
+ * Regular timed mutex, since c++ 14 doesn't support shared mutex
+ */
+typedef std::timed_mutex                    SharedMutex;
+typedef std::unique_lock<SharedMutex>       ReadLockType;
+typedef std::unique_lock<SharedMutex>       WriteLockType;
+#endif
 
 /**
  * Unique lock
@@ -117,7 +135,11 @@ public:
     virtual ~SharedLockInt()
     {
         if (locked)
+#if USE_SHARED_MUTEX
             mutex.unlock_shared();
+#else
+            mutex.unlock();
+#endif
     }
 };
 
@@ -129,15 +151,9 @@ public:
  */
 class CopyLockInt
 {
-    /**
-     * Unique lock that belongs to destination object
-     */
-    std::unique_lock<SharedMutex>   destinationLock;
+    WriteLockType   destinationLock;    ///< Unique lock that belongs to destination object
+    ReadLockType    sourceLock;         ///< Shared lock that belongs to source object
 
-    /**
-     * Shared lock that belongs to source object
-     */
-    std::shared_lock<SharedMutex>   sourceLock;
 
 public:
 
@@ -157,15 +173,8 @@ public:
  */
 class CompareLockInt
 {
-    /**
-     * Shared lock that belongs to first object
-     */
-    std::shared_lock<SharedMutex>   lock1;
-
-    /**
-     * Shared lock that belongs to second object
-     */
-    std::shared_lock<SharedMutex>   lock2;
+    ReadLockType   lock1;   ///< Shared lock that belongs to first object
+    ReadLockType   lock2;   ///< Shared lock that belongs to second object
 
 public:
 
