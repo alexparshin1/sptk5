@@ -54,7 +54,7 @@ class SP_EXPORT HttpConnect
     /**
      * HTTP reader
      */
-    std::unique_ptr<HttpReader> m_reader;
+    std::shared_ptr<HttpReader> m_reader;
 
     /**
      * External socket

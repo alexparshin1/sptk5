@@ -50,7 +50,7 @@ String HttpConnect::responseHeader(const String& headerName) const
 
 int HttpConnect::getResponse(Buffer& output, chrono::milliseconds readTimeout)
 {
-    m_reader = make_unique<HttpReader>(output);
+    m_reader = make_shared<HttpReader>(output);
     while (m_reader->getReaderState() < HttpReader::COMPLETED) {
         if (!m_socket.readyToRead(readTimeout)) {
             m_socket.close();
