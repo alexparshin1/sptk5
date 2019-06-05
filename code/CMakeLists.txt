@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 # The name of the project is "SPTK".  CMakeLists files in this project can
 # refer to the root source directory of the project as ${SPTK_SOURCE_DIR} and
@@ -360,7 +360,7 @@ IF (CXX17_COMPILER)
   enable_cxx17()
   SET (CXX_STANDARD "17")
 ELSE (CXX17_COMPILER)
-  MESSAGE(FATAL_ERROR "C++17 compiler is not available")
+  MESSAGE("C++17 compiler is not available")
 ENDIF (CXX17_COMPILER)
 
 
