@@ -25,7 +25,7 @@ Cross-platform C++ class library.
 
 %prep
 %setup -q
-cmake3 -DCMAKE_INSTALL_PREFIX:PATH=$RPM_BUILD_ROOT/usr/local -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF .
+cmake -DCMAKE_INSTALL_PREFIX:PATH=$RPM_BUILD_ROOT/usr/local -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF .
 
 %build
 make -j${CORES}

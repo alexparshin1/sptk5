@@ -18,7 +18,7 @@ tar zcf sptk_${VERSION}.orig.tar.gz code || exit 1
 cd code || exit 1
 
 pwd
-debuild -us -uc -b
+debuild -eDEB_BUILD_OPTIONS="parallel=4" -us -uc -b
 
 cd ${BUILD_HOME}
 
