@@ -122,7 +122,7 @@ public:
     /**
      * Default constructor
      */
-    Strings() noexcept = default;
+    Strings() = default;
 
     /**
      * Copy constructor
