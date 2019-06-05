@@ -34,6 +34,7 @@
 #include <sptk5/net/HttpParams.h>
 #include <sptk5/net/HttpReader.h>
 #include <sptk5/net/TCPSocket.h>
+#include <memory>
 
 namespace sptk
 {
