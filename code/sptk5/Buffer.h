@@ -36,6 +36,7 @@
 #include <string.h>
 #include <string>
 #include <iostream>
+#include <memory>
 
 namespace sptk
 {
@@ -387,6 +388,8 @@ public:
         return String(m_buffer, m_bytes);
     }
 };
+
+typedef std::shared_ptr<Buffer> SBuffer;
 
 /**
  * Print buffer to ostream as hexadecimal dump
