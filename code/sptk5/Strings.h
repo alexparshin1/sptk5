@@ -418,6 +418,17 @@ public:
     }
 
     /**
+     * Insert a string
+     * @param where             Insert position
+     * @param str               String to insert
+     * @return                  Iterator to inserted item
+     */
+    iterator insert(iterator where, const String& str)
+    {
+        return m_strings.insert(where, str);
+    }
+
+    /**
      * Erase strings between the iterator positions
      * @param from              Iterator of the from position
      * @param to                Iterator of the to position
