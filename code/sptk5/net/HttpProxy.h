@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TCPServerConnection.h - description                    ║
+║                       Proxy.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Wednesday June 19 2019                                 ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,43 +26,23 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __TCPSERVERCONNECTION_H__
-#define __TCPSERVERCONNECTION_H__
+#ifndef __SPTK_HTTP_PROXY_H__
+#define __SPTK_HTTP_PROXY_H__
 
-#include <sptk5/net/ServerConnection.h>
+#include <sptk5/net/Proxy.h>
 
-namespace sptk
-{
+namespace sptk {
 
-/**
- * @addtogroup net Networking Classes
- * @{
- */
-
-/**
- * @brief Abstract TCP server connection thread
- *
- * Application derives concrete TCP server connections based on this class,
- * to use with CTCPServer as connection template
- */
-class TCPServerConnection: public ServerConnection
+class HttpProxy : public Proxy
 {
 public:
-    /**
-     * @brief Constructor
-     * @param server            TCP server
-     * @param connectionSocket  Already accepted by accept() function incoming connection socket
-     */
-    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket)
-    : ServerConnection(server, connectionSocket, "TCPServerConnection")
-    {
-        setSocket(new TCPSocket);
-        socket().attach(connectionSocket, false);
-    }
+    HttpProxy(const Host& host, const String& username="", const String& password="")
+    : Proxy(host, username, password)
+    {}
+
+    SOCKET connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) override;
 };
 
-/**
- * @}
- */
 }
+
 #endif

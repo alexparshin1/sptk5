@@ -288,10 +288,18 @@ void BaseSocket::close() noexcept
     }
 }
 
-void BaseSocket::attach(SOCKET socketHandle)
+void BaseSocket::attach(SOCKET socketHandle, bool accept)
 {
     close();
     m_sockfd = socketHandle;
+}
+
+SOCKET BaseSocket::detach()
+{
+    SOCKET sockfd = m_sockfd;
+    m_sockfd = INVALID_SOCKET;
+    close();
+    return sockfd;
 }
 
 size_t BaseSocket::read(char* buffer, size_t size, sockaddr_in* from)

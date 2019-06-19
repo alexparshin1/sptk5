@@ -161,7 +161,7 @@ public:
      * This method is designed to only attach socket handles obtained with accept().
      * @param socketHandle          External socket handle.
      */
-    void attach(SOCKET socketHandle) override;
+    void attach(SOCKET socketHandle, bool accept) override;
 
     /**
      * Closes the socket connection
@@ -177,6 +177,9 @@ public:
     {
         return m_ssl;
     }
+
+private:
+    void openSocketFD(bool blockingMode, const std::chrono::milliseconds& timeout);
 };
 
 /**

@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TCPServerConnection.h - description                    ║
+║                       Proxy.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Wednesday June 19 2019                                 ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,43 +26,28 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __TCPSERVERCONNECTION_H__
-#define __TCPSERVERCONNECTION_H__
+#ifndef __SPTK_PROXY_H__
+#define __SPTK_PROXY_H__
 
-#include <sptk5/net/ServerConnection.h>
+#include <sptk5/net/Host.h>
+#include <sptk5/net/BaseSocket.h>
 
-namespace sptk
+namespace sptk {
+
+class TCPSocket;
+
+class Proxy
 {
-
-/**
- * @addtogroup net Networking Classes
- * @{
- */
-
-/**
- * @brief Abstract TCP server connection thread
- *
- * Application derives concrete TCP server connections based on this class,
- * to use with CTCPServer as connection template
- */
-class TCPServerConnection: public ServerConnection
-{
+protected:
+    const Host                  m_host;
+    const String                m_username;
+    const String                m_password;
 public:
-    /**
-     * @brief Constructor
-     * @param server            TCP server
-     * @param connectionSocket  Already accepted by accept() function incoming connection socket
-     */
-    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket)
-    : ServerConnection(server, connectionSocket, "TCPServerConnection")
-    {
-        setSocket(new TCPSocket);
-        socket().attach(connectionSocket, false);
-    }
+    Proxy(const Host& host, const String& username="", const String& password="");
+    virtual ~Proxy() = default;
+    virtual SOCKET connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) = 0;
 };
 
-/**
- * @}
- */
 }
+
 #endif

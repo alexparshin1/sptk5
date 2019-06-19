@@ -248,10 +248,15 @@ void TCPSocket::_open(const Host& _host, CSocketOpenMode openMode, bool _blockin
     if (host().hostname().empty())
         throw Exception("Please, define the host name", __FILE__, __LINE__);
 
-    sockaddr_in address = {};
-    host().getAddress(address);
+    if (proxy() != nullptr) {
+        SOCKET fd = proxy()->connect(host(), _blockingMode, timeout);
+        attach(fd, false);
+    } else {
+        sockaddr_in addr = {};
+        host().getAddress(addr);
 
-    _open(address, openMode, _blockingMode, timeout);
+        _open(addr, openMode, _blockingMode, timeout);
+    }
 }
 
 void TCPSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode,
@@ -329,4 +334,9 @@ size_t TCPSocket::read(String& buffer, size_t size, sockaddr_in* from)
     size_t rc = m_reader.read((char*)buffer.c_str(), size, 0, false, from);
     buffer.resize(rc);
     return rc;
+}
+
+void TCPSocket::setProxy(unique_ptr<Proxy> proxy)
+{
+    m_proxy = move(proxy);
 }

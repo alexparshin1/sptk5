@@ -35,6 +35,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
 // OpenSSL library initialization
 class CSSLLibraryLoader
@@ -161,24 +162,22 @@ void SSLSocket::_open(const Host& _host, CSocketOpenMode openMode, bool _blockin
 {
     initContextAndSocket();
 
-    if (!_host.hostname().empty())
-        host(_host);
-    if (host().hostname().empty())
-        throw Exception("Please, define the host name", __FILE__, __LINE__);
-
-    sockaddr_in addr = {};
-    host().getAddress(addr);
-
-    _open(addr, openMode, _blockingMode, timeout);
+    TCPSocket::_open(_host, openMode, _blockingMode, timeout);
 }
 
 void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
-    DateTime started = DateTime::Now();
-    DateTime timeoutAt(started + timeout);
     TCPSocket::_open(address, openMode, _blockingMode, timeout);
 
     lock_guard<mutex> lock(*this);
+
+    openSocketFD(_blockingMode, timeout);
+}
+
+void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& timeout)
+{
+    DateTime started = DateTime::Now();
+    DateTime timeoutAt(started + timeout);
 
     SSL_set_fd(m_ssl, (int) socketFD());
 
@@ -203,8 +202,7 @@ void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
                 if (!readyToRead(nextTimeout))
                     throw Exception("SSL handshake read timeout");
                 continue;
-            }
-            else if (errorCode == SSL_ERROR_WANT_WRITE) {
+            } else if (errorCode == SSL_ERROR_WANT_WRITE) {
                 if (!readyToWrite(nextTimeout))
                     throw Exception("SSL handshake write timeout");
                 continue;
@@ -221,7 +219,7 @@ void SSLSocket::close() noexcept
     TCPSocket::close();
 }
 
-void SSLSocket::attach(SOCKET socketHandle)
+void SSLSocket::attach(SOCKET socketHandle, bool accept)
 {
     lock_guard<mutex> lock(*this);
 
@@ -229,12 +227,21 @@ void SSLSocket::attach(SOCKET socketHandle)
 
     int rc = 1;
     if (socketFD() != socketHandle) {
-        TCPSocket::attach(socketHandle);
+        TCPSocket::attach(socketHandle, false);
         rc = SSL_set_fd(m_ssl, (int) socketHandle);
+        if (rc <= 0) {
+            int32_t errorCode = SSL_get_error(m_ssl, rc);
+            string error = getSSLError("SSL_accept", errorCode);
+            throw ConnectionException(error);
+        }
     }
 
-    if (rc > 0)
-        rc = SSL_accept(m_ssl);
+    if (!accept) {
+        openSocketFD(false, seconds(10));
+        return;
+    }
+
+    rc = SSL_accept(m_ssl);
 
     if (rc <= 0) {
         int32_t errorCode = SSL_get_error(m_ssl, rc);

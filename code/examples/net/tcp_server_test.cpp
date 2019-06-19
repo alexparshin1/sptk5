@@ -35,7 +35,7 @@ using namespace sptk;
 void processConnection(TCPSocket& server, SOCKET clientSocketFD)
 {
     TCPSocket new_sock;
-    new_sock.attach(clientSocketFD);
+    new_sock.attach(clientSocketFD, false);
 
     try {
         String data;

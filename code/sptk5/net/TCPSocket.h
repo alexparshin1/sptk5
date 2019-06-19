@@ -61,6 +61,7 @@
 #include <sptk5/Exception.h>
 #include <sptk5/Strings.h>
 #include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/Proxy.h>
 
 namespace sptk
 {
@@ -78,7 +79,7 @@ class SP_EXPORT TCPSocketReader: public Buffer
     /**
      * Socket to read from
      */
-    BaseSocket&    m_socket;
+    BaseSocket&     m_socket;
 
     /**
      * Current offset in the read buffer
@@ -158,15 +159,9 @@ public:
  */
 class SP_EXPORT TCPSocket: public BaseSocket
 {
-    /**
-     * Socket buffered reader
-     */
-    TCPSocketReader     m_reader;
-
-    /**
-     * Buffer to read a line
-     */
-    Buffer              m_stringBuffer;
+    TCPSocketReader         m_reader;          ///< Buffered socket reader
+    std::unique_ptr<Proxy>  m_proxy;           ///< Optional proxy
+    Buffer                  m_stringBuffer;    ///< Buffer to read a line
 
 protected:
 
@@ -197,6 +192,12 @@ protected:
      */
     void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
+    /**
+     * Get proxy information
+     * @return
+     */
+    Proxy* proxy() { return m_proxy.get(); }
+
 public:
     /**
     * @brief Constructor
@@ -210,6 +211,12 @@ public:
     * @brief Destructor
     */
     virtual ~TCPSocket();
+
+    /**
+     * Set proxy
+     * @param proxy             Proxy.
+     */
+    void setProxy(std::unique_ptr<Proxy> proxy);
 
     /**
      * Close socket connection

@@ -260,7 +260,14 @@ public:
      * Attaches socket handle
      * @param socketHandle      Existing socket handle
      */
-    virtual void attach(SOCKET socketHandle);
+    virtual void attach(SOCKET socketHandle, bool accept);
+
+    /**
+     * Detaches socket handle, setting it to INVALID_SOCKET.
+     * Closes the socket without affecting socket handle.
+     * @return Existing socket handle
+     */
+    virtual SOCKET detach();
 
     /**
      * Sets the host name

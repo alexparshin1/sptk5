@@ -66,7 +66,7 @@ void processConnection(SOCKET clientSocketFD)
     SSLKeys   keys("key.pem", "cert.pem", "");
     connection.loadKeys(keys);
     try {
-                connection.attach(clientSocketFD);
+        connection.attach(clientSocketFD, false);
                 readAndReply(connection);         /* service connection */
                 connection.close();
             }
