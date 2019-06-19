@@ -29,6 +29,7 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/net/BaseSocket.h>
 #include <sptk5/SystemException.h>
+#include <netinet/in.h>
 
 using namespace std;
 using namespace sptk;
@@ -191,7 +192,7 @@ String Host::toString(bool forceAddress) const
     String address;
     if (forceAddress) {
         char buffer[128];
-#ifdef _WIN32
+
         void *addr;
         // Get the pointer to the address itself, different fields in IPv4 and IPv6
         if (any().sa_family == AF_INET) {
@@ -199,11 +200,10 @@ String Host::toString(bool forceAddress) const
         } else {
             addr = (void*) &(ip_v6().sin6_addr);
         }
+
         if (inet_ntop(any().sa_family, addr, buffer, sizeof(buffer) - 1) == nullptr)
-#else
-        if (inet_ntop(any().sa_family, &m_address, buffer, sizeof(buffer) - 1) == nullptr)
-#endif
             throw SystemException("Can't print IP address");
+
         address = buffer;
     } else
         address = m_hostname;

@@ -30,6 +30,8 @@
 #define __SPTK_HTTP_PROXY_H__
 
 #include <sptk5/net/Proxy.h>
+#include <sptk5/net/Host.h>
+#include <sptk5/net/BaseSocket.h>
 
 namespace sptk {
 
@@ -41,6 +43,8 @@ public:
     {}
 
     SOCKET connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) override;
+
+    static bool getDefaultProxy(Host& proxyHost, String& proxyUser, String& proxyPassword);
 };
 
 }
