@@ -29,7 +29,10 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/net/BaseSocket.h>
 #include <sptk5/SystemException.h>
+
+#ifndef _WIN32
 #include <netinet/in.h>
+#endif
 
 using namespace std;
 using namespace sptk;

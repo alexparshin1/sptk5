@@ -15,14 +15,14 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-rem cmake -G "Visual Studio 16 2019" -A x64 -DUSE_GTEST=OFF "C:\Users\alexe\workspace\sptk5\code"
+cmake -G "Visual Studio 16 2019" -A x64 -DUSE_GTEST=OFF "C:\Users\alexe\workspace\sptk5\code"
 if errorlevel 1 (
     echo "Can't configure build"
     exit /b %errorlevel%
 )
 cd ..
 
-rem cmake --build build64 --config Release --target INSTALL
+cmake --build build64 --config Release --target INSTALL
 if errorlevel 1 (
     echo "Can't complete build and install"
     exit /b %errorlevel%
