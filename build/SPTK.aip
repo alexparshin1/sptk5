@@ -295,6 +295,8 @@
     <ROW File="zlib_test.exe" Component_="zlib_test.exe" FileName="ZLIB_T~1.EXE|zlib_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\zlib_test.exe" SelfReg="false" DigSign="true"/>
     <ROW File="event_provider.rc" Component_="event_provider.rc" FileName="EVENT_~1.RC|event_provider.rc" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\resources\event_provider.rc" SelfReg="false"/>
     <ROW File="MSG00409.bin" Component_="event_provider.rc" FileName="MSG00409.bin" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\resources\MSG00409.bin" SelfReg="false"/>
+    <ROW File="HttpProxy.h" Component_="BaseMailConnect.h" FileName="HTTPPR~1.H|HttpProxy.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\HttpProxy.h" SelfReg="false"/>
+    <ROW File="Proxy.h" Component_="BaseMailConnect.h" FileName="Proxy.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\Proxy.h" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="2" CabsLocation="1" CompressCabs="false" UseLzma="true" LzmaMethod="2" LzmaCompressionLevel="2" PackageType="1" FilesInsideExe="true" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" UseLargeSchema="true" MsiPackageType="x64" UACExecutionLevel="2"/>
