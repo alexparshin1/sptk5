@@ -37,22 +37,24 @@
 
 #define HAVE_FLTK        @FLTK_FLAG@        ///< Flag indicating if FLTK library is installed
 #define HAVE_ODBC        @ODBC_FLAG@        ///< Flag indicating if ODBC library is installed
-#define HAVE_SQLITE3     @SQLITE3_FLAG@     ///< Flag indicating if SQLite3 library is installed
-#define HAVE_POSTGRESQL  @POSTGRESQL_FLAG@  ///< Flag indicating if LibPQ (PostgreSQL client) library is installed
-#define HAVE_FIREBIRD    @FIREBIRD_FLAG@    ///< Flag indicating if Firebird client library is installed
-#define HAVE_MYSQL       @MYSQL_FLAG@       ///< Flag indicating if MySQL client library is installed
-#define HAVE_ORACLE      @ORACLE_FLAG@      ///< Flag indicating if Oracle client library is installed
-#define HAVE_ASPELL      @ASPELL_FLAG@      ///< Flag indicating if ASpell library is installed
+#define HAVE_SQLITE3     @SQLITE3_FLAG@        ///< Flag indicating if SQLite3 library is installed
+#define HAVE_POSTGRESQL  @POSTGRESQL_FLAG@        ///< Flag indicating if LibPQ (PostgreSQL client) library is installed
+#define HAVE_FIREBIRD    @FIREBIRD_FLAG@        ///< Flag indicating if Firebird client library is installed
+#define HAVE_MYSQL       @MYSQL_FLAG@        ///< Flag indicating if MySQL client library is installed
+#define HAVE_ORACLE      @ORACLE_FLAG@        ///< Flag indicating if Oracle client library is installed
+#define HAVE_ASPELL      @ASPELL_FLAG@        ///< Flag indicating if ASpell library is installed
 #define HAVE_PCRE        @PCRE_FLAG@        ///< Flag indicating if PCRE library is installed
-#define HAVE_OPENSSL     @OPENSSL_FLAG@     ///< Flag indicating if OpenSSL library is installed
+#define HAVE_OPENSSL     @OPENSSL_FLAG@        ///< Flag indicating if OpenSSL library is installed
 #define HAVE_ZLIB        @ZLIB_FLAG@        ///< Flag indicating if ZLib library is installed
-#define WORDS_BIG_ENDIAN @BIG_ENDIAN_INIT@  ///< Flag indicating if byte order for mashine is big endian
-#define BITNESS          @BITNESS@          ///< Number of machine bits
+#define WORDS_BIG_ENDIAN @BIG_ENDIAN_INIT@         ///< Flag indicating if byte order for mashine is big endian
+#define BITNESS          @BITNESS@       ///< Number of machine bits
 
-#define USE_NEW_ABI      @NEW_ABI_FLAG@     ///< Flag if new ABI is used
-#define USE_GTEST        @GTEST_FLAG@       ///< Flag indicating if GTest library is installed and used
+#define USE_NEW_ABI      @NEW_ABI_FLAG@        ///< Flag if new ABI is used
+#define USE_GTEST        @GTEST_FLAG@        ///< Flag indicating if GTest library is installed and used
 
-#define CXX_STANDARD     @CXX_STANDARD@     ///< Flag indicating if GTest library is installed and used
+#define CXX_STANDARD     @CXX_STANDARD@       ///< Flag indicating if GTest library is installed and used
+
+#define TEST_DIRECTORY   "@TEST_DIRECTORY@"    ///< Directory that contains data, used in unit tests
 
 /// @}
 

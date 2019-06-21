@@ -43,12 +43,7 @@ SSLKeys::SSLKeys(const String& privateKeyFileName, const String& certificateFile
 SSLKeys::SSLKeys(const SSLKeys& other)
 {
     SharedLock(other.m_mutex);
-    m_privateKeyFileName = other.m_privateKeyFileName;
-    m_certificateFileName = other.m_certificateFileName;
-    m_password = other.m_password;
-    m_caFileName = other.m_caFileName;
-    m_verifyMode = other.m_verifyMode;
-    m_verifyDepth = other.m_verifyDepth;
+    assign(other);
 }
 
 SSLKeys& SSLKeys::operator=(const SSLKeys& other)
@@ -56,13 +51,18 @@ SSLKeys& SSLKeys::operator=(const SSLKeys& other)
     CopyLock(m_mutex, other.m_mutex);
     if (&other == this)
         return *this;
+    assign(other);
+    return *this;
+}
+
+void SSLKeys::assign(const SSLKeys& other)
+{
     m_privateKeyFileName = other.m_privateKeyFileName;
     m_certificateFileName = other.m_certificateFileName;
     m_password = other.m_password;
     m_caFileName = other.m_caFileName;
     m_verifyMode = other.m_verifyMode;
     m_verifyDepth = other.m_verifyDepth;
-    return *this;
 }
 
 String SSLKeys::privateKeyFileName() const

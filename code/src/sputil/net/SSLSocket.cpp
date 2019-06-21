@@ -342,3 +342,22 @@ size_t SSLSocket::send(const void* buffer, size_t len)
         this_thread::sleep_for(chrono::milliseconds(10));
     }
 }
+
+#if USE_GTEST
+
+TEST(SPTK_SSLSocket, connect)
+{
+    SSLKeys     keys(TEST_DIRECTORY "/keys/test.key", TEST_DIRECTORY "/keys/test.cert");
+    SSLSocket   sslSocket;
+
+    try {
+        sslSocket.loadKeys(keys);
+        sslSocket.open(Host("www.google.com:443"));
+        sslSocket.close();
+    }
+    catch (const Exception& e) {
+        FAIL() << e.what();
+    }
+}
+
+#endif

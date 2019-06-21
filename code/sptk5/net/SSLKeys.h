@@ -46,6 +46,12 @@ class SP_EXPORT SSLKeys
     int                 m_verifyMode {SSL_VERIFY_NONE};
     int                 m_verifyDepth {0};
 
+    /**
+     * Assign keys from another object
+     * @param other
+     */
+    void assign(const SSLKeys& other);
+
 public:
 
     /**
