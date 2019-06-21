@@ -15,7 +15,7 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-cmake -G "Visual Studio 16 2019" -A x64 -DUSE_GTEST=OFF "C:\Users\alexe\workspace\sptk5\code"
+cmake -G "Visual Studio 16 2019" -A x64 -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF "C:\Users\alexe\workspace\sptk5\code"
 if errorlevel 1 (
     echo "Can't configure build"
     exit /b %errorlevel%
