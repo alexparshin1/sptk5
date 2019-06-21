@@ -82,7 +82,7 @@ void BaseSocket::cleanup() noexcept
 
 // Constructor
 BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-: m_domain(domain), m_type(type), m_protocol(protocol)
+: m_sockfd(INVALID_SOCKET), m_domain(domain), m_type(type), m_protocol(protocol)
 {
 #ifdef _WIN32
     init();

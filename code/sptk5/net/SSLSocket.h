@@ -98,7 +98,7 @@ public:
     /**
      * Constructor
      */
-    SSLSocket();
+    SSLSocket() = default;
 
     /**
      * Destructor

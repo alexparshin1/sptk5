@@ -279,7 +279,7 @@ void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
 {
     socklen_t len = sizeof(clientInfo);
     clientSocketFD = ::accept(socketFD(), (struct sockaddr *) & clientInfo, &len);
-    if (clientSocketFD < 0)
+    if (clientSocketFD == INVALID_SOCKET)
         THROW_SOCKET_ERROR("Error on accept(). ");
 }
 

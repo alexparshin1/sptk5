@@ -120,10 +120,6 @@ void SSLSocket::throwSSLError(const String& function, int rc)
     throw Exception(error, __FILE__, __LINE__);
 }
 
-SSLSocket::SSLSocket()
-{
-}
-
 SSLSocket::~SSLSocket()
 {
     if (m_ssl != nullptr)
@@ -132,7 +128,7 @@ SSLSocket::~SSLSocket()
 
 void SSLSocket::loadKeys(const SSLKeys& keys)
 {
-    if (socketFD() > 0)
+    if (socketFD() != INVALID_SOCKET)
         throw Exception("Can't set keys on opened socket");
     m_keys = keys;
 }
