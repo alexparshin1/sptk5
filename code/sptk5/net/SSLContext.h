@@ -72,9 +72,10 @@ class SSLContext : public SharedMutex
 public:
 
     /**
-     * Default constructor
+     * Constructor
+	 * @param cipherList		Cipher list. Use "ALL" if not known.
      */
-    SSLContext();
+    SSLContext(const String& cipherList);
 
     /**
      * Destructor
@@ -97,6 +98,8 @@ public:
      */
     SSL_CTX* handle();
 };
+
+typedef std::shared_ptr<SSLContext> SharedSSLContext;
 
 /**
  * @}

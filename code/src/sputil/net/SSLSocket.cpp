@@ -44,11 +44,13 @@ class CSSLLibraryLoader
 
     void load_library()
     {
-        SSL_library_init();
-        SSL_load_error_strings();
-        ERR_load_BIO_strings();
-        OpenSSL_add_all_algorithms();
-    }
+		OpenSSL_add_all_algorithms();
+		ERR_load_BIO_strings();
+		ERR_load_crypto_strings();
+		SSL_load_error_strings();
+
+		SSL_library_init();
+	}
 
     static void lock_callback(int mode, int type, char* /*file*/, int /*line*/)
     {
@@ -120,10 +122,15 @@ void SSLSocket::throwSSLError(const String& function, int rc)
     throw Exception(error, __FILE__, __LINE__);
 }
 
+SSLSocket::SSLSocket(const String& cipherList)
+: m_cipherList(cipherList)
+{
+}
+
 SSLSocket::~SSLSocket()
 {
-    if (m_ssl != nullptr)
-        SSL_free(m_ssl);
+	if (m_ssl != nullptr)
+		SSL_free(m_ssl);
 }
 
 void SSLSocket::loadKeys(const SSLKeys& keys)
@@ -140,7 +147,7 @@ void SSLSocket::setSNIHostName(const String& sniHostName)
 
 void SSLSocket::initContextAndSocket()
 {
-    m_sslContext = CachedSSLContext::get(m_keys);
+    m_sslContext = CachedSSLContext::get(m_keys, m_cipherList);
 
     if (m_ssl != nullptr)
         SSL_free(m_ssl);
@@ -348,7 +355,7 @@ TEST(SPTK_SSLSocket, connect)
 
     try {
         sslSocket.loadKeys(keys);
-        sslSocket.open(Host("www.google.com:443"));
+		sslSocket.open(Host("www.google.com:443"));
         sslSocket.close();
     }
     catch (const Exception& e) {

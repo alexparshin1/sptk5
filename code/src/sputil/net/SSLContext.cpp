@@ -46,10 +46,11 @@ void SSLContext::throwError(const String& humanDescription)
     throwException(humanDescription + "\n" + errorStr);
 }
 
-SSLContext::SSLContext()
+SSLContext::SSLContext(const String& cipherList)
 {
     m_ctx = SSL_CTX_new(SSLv23_method());
-    SSL_CTX_set_cipher_list(m_ctx, "ALL");
+	if (!cipherList.empty())
+		SSL_CTX_set_cipher_list(m_ctx, cipherList.c_str());
     SSL_CTX_set_mode(m_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
     SSL_CTX_set_session_id_context(m_ctx, (const unsigned char*) &s_server_session_id_context, sizeof s_server_session_id_context);
 }

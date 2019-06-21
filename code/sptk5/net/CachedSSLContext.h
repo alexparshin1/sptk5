@@ -36,7 +36,7 @@ namespace sptk {
 
 class CachedSSLContext
 {
-    typedef std::map<String,SSLContext> CachedSSLContextMap;
+    typedef std::map<String, SharedSSLContext> CachedSSLContextMap;
 
     static SharedMutex          m_mutex;
     static CachedSSLContextMap  m_contexts;
@@ -49,10 +49,11 @@ class CachedSSLContext
      * @param caFileName            Optional CA (root certificate) file name
      * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
      * @param verifyDepth           Connection verify depth
+	 * @return						SSL context ident
      */
     static String makeIdent(const String& keyFileName = "", const String& certificateFileName = "",
                             const String& password = "",
-                            const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
+                            const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0, const String & cipherList="ALL");
 public:
     /**
      * @brief Loads private key and certificate(s)
@@ -61,14 +62,11 @@ public:
      * A single file containing private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
      * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keys           Private key file name
-     * @param certificateFileName   Certificate file name
-     * @param password              Key file password
-     * @param caFileName            Optional CA (root certificate) file name
-     * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
-     * @param verifyDepth           Connection verify depth
+     * @param keys				Keys
+	 * @param cipherList		Cipher list
+     * @return					Shared SSL context
      */
-    static SSLContext* get(const SSLKeys& keys);
+    static SharedSSLContext get(const SSLKeys& keys, const String& cipherList);
 };
 
 }
