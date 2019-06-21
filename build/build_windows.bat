@@ -8,6 +8,8 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
+rmdir /S /Q build64 2>&1 >> build.log
+
 mkdir build64 2>&1 >> build.log
 cd build64
 if errorlevel 1 (
