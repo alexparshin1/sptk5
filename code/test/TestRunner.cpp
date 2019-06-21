@@ -30,6 +30,7 @@
 #include <sptk5/Strings.h>
 #include <googletest/include/gtest/gtest.h>
 #include <sptk5/net/TCPServer.h>
+#include <sptk5/net/SSLSocket.h>
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/JWT.h>
 #include <sptk5/CommandLine.h>
@@ -83,8 +84,8 @@ void stub()
     SharedStrings        sharedStrings;
     Variant              v;
 
-    TCPSocket            socket;
-    HttpConnect          connect(socket);
+	SSLSocket            socket;
+	HttpConnect          connect(socket);
 
     string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     string key("01234567890123456789012345678901");
