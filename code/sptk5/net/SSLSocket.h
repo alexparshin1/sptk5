@@ -47,11 +47,12 @@ namespace sptk {
  */
 class SP_EXPORT SSLSocket: public TCPSocket, public std::mutex
 {
-	SSLContext* m_sslContext {nullptr};                 ///< SSL context
-	SSL*        m_ssl {nullptr};                        ///< SSL socket
-    SSLKeys     m_keys;                                 ///< SSL keys info
+	SharedSSLContext	m_sslContext {nullptr};     ///< SSL context
+	SSL*				m_ssl {nullptr};            ///< SSL socket
+    SSLKeys				m_keys;                     ///< SSL keys info
 
-    String      m_sniHostName;                          ///< SNI host name (optional)
+    String				m_sniHostName;              ///< SNI host name (optional)
+	String				m_cipherList;				///< Cipher List, the default is "ALL"
 
 public:
     /**
@@ -97,8 +98,9 @@ public:
 
     /**
      * Constructor
+	 * @param cipherList		Optional cipher list
      */
-    SSLSocket() = default;
+    SSLSocket(const String& cipherList="ALL");
 
     /**
      * Destructor
