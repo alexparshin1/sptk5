@@ -347,7 +347,7 @@ TEST(SPTK_SSLSocket, connect)
     SSLSocket   sslSocket;
 
     try {
-        sslSocket.loadKeys(keys);
+        sslSocket.loadKeys(keys); // Optional test - not required for Google connect
         sslSocket.open(Host("www.google.com:443"));
         sslSocket.close();
     }
