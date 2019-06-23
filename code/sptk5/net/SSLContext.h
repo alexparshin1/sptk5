@@ -31,10 +31,11 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/String.h>
-#include <openssl/ssl.h>
-#include <mutex>
 #include <sptk5/threads/Locks.h>
 #include <sptk5/net/SSLKeys.h>
+#include <openssl/ssl.h>
+#include <mutex>
+#include <memory>
 
 namespace sptk {
 
