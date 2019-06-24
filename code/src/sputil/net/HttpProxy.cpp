@@ -112,56 +112,56 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
 #ifdef _WIN32
 Buffer windowsQueryInternetOption(int option)
 {
-	// Determine the required buffer size.
-	DWORD dwSize{ 0 };
-	InternetQueryOption(NULL, option, NULL, &dwSize);
+    // Determine the required buffer size.
+    DWORD dwSize{ 0 };
+    InternetQueryOption(NULL, option, NULL, &dwSize);
 
-	Buffer output(dwSize);
+    Buffer output(dwSize);
 
-	// Call InternetQueryOption again with the provided buffer.
-	InternetQueryOption(NULL, option, output.data(), &dwSize);
+    // Call InternetQueryOption again with the provided buffer.
+    InternetQueryOption(NULL, option, output.data(), &dwSize);
 
-	return output;
+    return output;
 }
 #endif
 
 bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& proxyPassword)
 {
 #ifdef _WIN32
-	auto buffer = windowsQueryInternetOption(INTERNET_OPTION_PROXY);
-	INTERNET_PROXY_INFO* proxy = (INTERNET_PROXY_INFO*)buffer.data();
-	if (proxy->dwAccessType != INTERNET_OPEN_TYPE_PROXY)
-		return false;
+    auto buffer = windowsQueryInternetOption(INTERNET_OPTION_PROXY);
+    INTERNET_PROXY_INFO* proxy = (INTERNET_PROXY_INFO*)buffer.data();
+    if (proxy->dwAccessType != INTERNET_OPEN_TYPE_PROXY)
+        return false;
 
-	if (strlen(proxy->lpszProxy) == 0)
-		return false;
+    if (strlen(proxy->lpszProxy) == 0)
+        return false;
 
-	proxyHost = Host(proxy->lpszProxy);
+    proxyHost = Host(proxy->lpszProxy);
 
-	buffer = windowsQueryInternetOption(INTERNET_OPTION_PROXY_USERNAME);
-	proxyUser = buffer.c_str();
+    buffer = windowsQueryInternetOption(INTERNET_OPTION_PROXY_USERNAME);
+    proxyUser = buffer.c_str();
 
-	buffer = windowsQueryInternetOption(INTERNET_OPTION_PROXY_PASSWORD);
-	proxyPassword = buffer.c_str();
+    buffer = windowsQueryInternetOption(INTERNET_OPTION_PROXY_PASSWORD);
+    proxyPassword = buffer.c_str();
 
-	return true;
+    return true;
 #else
-	RegularExpression matchProxy(R"(^(http://)?((\S+)(:\S+)@)?(\S+:\d+)$)");
-	char* proxyEnv = getenv("http_proxy");
-	if (proxyEnv == nullptr)
-		proxyEnv = getenv("HTTP_PROXY");
-	if (proxyEnv == nullptr)
-		return false;
+    RegularExpression matchProxy(R"(^(http://)?((\S+)(:\S+)@)?(\S+:\d+)$)");
+    char* proxyEnv = getenv("http_proxy");
+    if (proxyEnv == nullptr)
+        proxyEnv = getenv("HTTP_PROXY");
+    if (proxyEnv == nullptr)
+        return false;
 
-	Strings parts;
-	if (matchProxy.m(proxyEnv, parts)) {
-		proxyUser = parts[2];
-		proxyPassword = parts[3].empty() ? "" : parts[3].substr(1);
-		proxyHost = Host(parts[4]);
-		return true;
-	}
+    Strings parts;
+    if (matchProxy.m(proxyEnv, parts)) {
+        proxyUser = parts[2];
+        proxyPassword = parts[3].empty() ? "" : parts[3].substr(1);
+        proxyHost = Host(parts[4]);
+        return true;
+    }
 
-	return false;
+    return false;
 #endif
 }
 
@@ -203,7 +203,7 @@ TEST(SPTK_HttpProxy, getDefaultProxy)
     String proxyPassword;
 
 #ifdef _WIN32
-	HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
+    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
 #else
     setenv("HTTP_PROXY", "127.0.0.1:3128", 1);
     HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
