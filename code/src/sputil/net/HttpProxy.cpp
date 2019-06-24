@@ -31,6 +31,7 @@
 #include <sptk5/Base64.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/net/HttpConnect.h>
+#include <sptk5/cutils>
 
 #ifdef _WIN32
 #include <winhttp.h>
@@ -44,62 +45,63 @@ using namespace chrono;
 SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout)
 {
     auto socket = make_shared<TCPSocket>();
-    try {
-        socket->open(m_host, BaseSocket::SOM_CONNECT, blockingMode, timeout);
-    }
-    catch (const Exception& e) {
-        throw ConnectionException("Can't connect to proxy " + m_host.toString() + ": " + String(e.what()));
-    }
 
-    if (destination.port() == 80) {
-        socket->write("GET " + destination.toString() + " HTTP/1.1\r\n");
-    } else {
-        socket->write("CONNECT " + destination.toString() + " HTTP/1.1\r\n");
-        socket->write("Proxy-Connection: keep-alive\r\n");
-    }
+    Strings methods("CONNECT|GET", "|");
+    bool proxyConnected = false;
+    for (auto& method: methods) {
+        try {
+            socket->open(m_host, BaseSocket::SOM_CONNECT, blockingMode, timeout);
+            socket->write(method + " " + destination.toString() + " HTTP/1.1\r\n");
+            socket->write("Proxy-Connection: keep-alive\r\n");
 
-    socket->write("User-agent: SPTK\r\n");
-    if (!m_username.empty()) {
-        Buffer usernameAndPassword(m_username + ":" + m_password);
-        Buffer encodedUsernameAndPassword;
-        Base64::encode(encodedUsernameAndPassword, usernameAndPassword.c_str(), usernameAndPassword.bytes());
-        socket->write("Proxy-Authorization: Basic " + String(encodedUsernameAndPassword.c_str()) + "\r\n");
-    }
-    socket->write("\r\n");
-
-    String error("Proxy connection timeout");
-    if (socket->readyToRead(seconds(10))) {
-        Buffer buffer;
-        socket->readLine(buffer);
-
-        RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
-        Strings matches;
-        if (matchProxyResponse.m(buffer.c_str(), matches)) {
-            int rc = matches[0].toInt();
-            if (rc >= 400) {
-                socket->close();
-                throw Exception("Proxy connection error: " + matches[1]);
+            socket->write("User-agent: SPTK\r\n");
+            if (!m_username.empty()) {
+                Buffer usernameAndPassword(m_username + ":" + m_password);
+                Buffer encodedUsernameAndPassword;
+                Base64::encode(encodedUsernameAndPassword, usernameAndPassword.c_str(), usernameAndPassword.bytes());
+                socket->write("Proxy-Authorization: Basic " + String(encodedUsernameAndPassword.c_str()) + "\r\n");
             }
-        }
+            socket->write("\r\n");
 
-        // Read all headers
-        RegularExpression matchResponseHeader(R"(^(\S+): (.*)$)");
-        int contentLength = -1;
-        while (buffer.bytes() > 1) {
-            socket->readLine(buffer);
-            if (matchResponseHeader.m(buffer.c_str(), matches)) {
-                if (matches[0].toLowerCase() == "content-length")
-                    contentLength = matches[1].toInt();
-            } else
+            String error("Proxy connection timeout");
+            if (socket->readyToRead(seconds(10))) {
+                Buffer buffer;
+                socket->readLine(buffer);
+
+                RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
+                Strings matches;
+                if (matchProxyResponse.m(buffer.c_str(), matches)) {
+                    int rc = matches[0].toInt();
+                    if (rc < 400)
+                        proxyConnected = true;
+                }
+
+                // Read all headers
+                RegularExpression matchResponseHeader(R"(^(\S+): (.*)$)");
+                int contentLength = -1;
+                while (buffer.bytes() > 1) {
+                    socket->readLine(buffer);
+                    if (matchResponseHeader.m(buffer.c_str(), matches)) {
+                        if (matches[0].toLowerCase() == "content-length")
+                            contentLength = matches[1].toInt();
+                    } else
+                        break;
+                }
+
+                // Read response body (if any)
+                if (contentLength > 0) {
+                    socket->read(buffer, contentLength);
+                } else {
+                    while (socket->readyToRead(milliseconds(100)))
+                        socket->read(buffer, socket->socketBytes());
+                }
+            }
+
+            if (proxyConnected)
                 break;
         }
-
-        // Read response body (if any)
-        if (contentLength > 0) {
-            socket->read(buffer, contentLength);
-        } else {
-            while (socket->readyToRead(milliseconds(100)))
-                socket->read(buffer, socket->socketBytes());
+        catch (const Exception& e) {
+            CERR("Can't connect to proxy " << m_host.toString() << ": " << String(e.what()))
         }
     }
 
@@ -199,7 +201,7 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
 
 TEST(SPTK_HttpProxy, connect)
 {
-    auto httpProxy = make_unique<HttpProxy>(Host("192.168.1.1:3128"), "auser", "apassword");
+    auto httpProxy = make_unique<HttpProxy>(Host("192.168.97.102:8080"), "Baicomms\\AlexeyP", "Sl0nic#757");
     String error;
     try {
         //Host ahost("www.chiark.greenend.org.uk:443");
