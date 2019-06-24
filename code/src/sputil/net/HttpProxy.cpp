@@ -33,7 +33,7 @@
 #include <sptk5/net/HttpConnect.h>
 
 #ifdef _WIN32
-#include <wininet.h>
+#include <winhttp.h>
 #endif
 
 
@@ -110,41 +110,71 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
 }
 
 #ifdef _WIN32
-Buffer windowsQueryInternetOption(int option)
+static bool windowsGetDefaultProxy(Host& host, String& username, String& password)
 {
-    // Determine the required buffer size.
-    DWORD dwSize{ 0 };
-    InternetQueryOption(NULL, option, NULL, &dwSize);
+    WINHTTP_AUTOPROXY_OPTIONS  AutoProxyOptions {};
+    WINHTTP_PROXY_INFO         ProxyInfo {};
 
-    Buffer output(dwSize);
+    HINTERNET hHttpSession = WinHttpOpen(L"WinHTTP AutoProxy",
+        WINHTTP_ACCESS_TYPE_NO_PROXY,
+        WINHTTP_NO_PROXY_NAME,
+        WINHTTP_NO_PROXY_BYPASS,
+        0);
 
-    // Call InternetQueryOption again with the provided buffer.
-    InternetQueryOption(NULL, option, output.data(), &dwSize);
+    if (!hHttpSession)
+        throw Exception("Can't initialize WinHTTP");
 
-    return output;
+    // Use auto-detection because the Proxy 
+    // Auto-Config URL is not known.
+    AutoProxyOptions.dwFlags = WINHTTP_AUTOPROXY_AUTO_DETECT;
+
+    // Use DHCP and DNS-based auto-detection.
+    AutoProxyOptions.dwAutoDetectFlags = WINHTTP_AUTO_DETECT_TYPE_DHCP | WINHTTP_AUTO_DETECT_TYPE_DNS_A;
+
+    // If obtaining the PAC script requires NTLM/Negotiate
+    // authentication, then automatically supply the client
+    // domain credentials.
+    AutoProxyOptions.fAutoLogonIfChallenged = TRUE;
+
+    // Call WinHttpGetProxyForUrl with our target URL
+    char proxy[256] {};
+    char userName[256] {};
+    char passWord[256] {};
+    DWORD size = sizeof(password);
+    if (WinHttpGetProxyForUrl(hHttpSession,
+    L"https://www.microsoft.com/ms.htm",
+    &AutoProxyOptions,
+    &ProxyInfo))
+    {
+        if (ProxyInfo.lpszProxy == nullptr)
+            return false;
+
+        wcstombs(proxy, ProxyInfo.lpszProxy, sizeof(proxy));
+        host = Host(proxy);
+
+        if (WinHttpQueryOption(hHttpSession, WINHTTP_OPTION_PROXY_USERNAME, userName, &size))
+            username = userName;
+
+        if (WinHttpQueryOption(hHttpSession, WINHTTP_OPTION_PROXY_PASSWORD, passWord, &size))
+            password = passWord;
+    }
+
+    if (ProxyInfo.lpszProxy != nullptr)
+        GlobalFree(ProxyInfo.lpszProxy);
+
+    if (ProxyInfo.lpszProxyBypass != nullptr)
+        GlobalFree(ProxyInfo.lpszProxyBypass);
+
+    WinHttpCloseHandle(hHttpSession);
+
+    return true;
 }
 #endif
 
 bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& proxyPassword)
 {
 #ifdef _WIN32
-    auto buffer = windowsQueryInternetOption(INTERNET_OPTION_PROXY);
-    INTERNET_PROXY_INFO* proxy = (INTERNET_PROXY_INFO*)buffer.data();
-    if (proxy->dwAccessType != INTERNET_OPEN_TYPE_PROXY)
-        return false;
-
-    if (strlen(proxy->lpszProxy) == 0)
-        return false;
-
-    proxyHost = Host(proxy->lpszProxy);
-
-    buffer = windowsQueryInternetOption(INTERNET_OPTION_PROXY_USERNAME);
-    proxyUser = buffer.c_str();
-
-    buffer = windowsQueryInternetOption(INTERNET_OPTION_PROXY_PASSWORD);
-    proxyPassword = buffer.c_str();
-
-    return true;
+    return windowsGetDefaultProxy(proxyHost, proxyUser, proxyPassword);
 #else
     RegularExpression matchProxy(R"(^(http://)?((\S+)(:\S+)@)?(\S+:\d+)$)");
     char* proxyEnv = getenv("http_proxy");
