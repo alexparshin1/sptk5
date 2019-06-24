@@ -36,7 +36,7 @@ namespace sptk {
 
 class TCPSocket;
 
-class Proxy
+class SP_EXPORT Proxy
 {
 protected:
     const Host                  m_host;
