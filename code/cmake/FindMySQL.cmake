@@ -11,7 +11,9 @@ ELSE (WIN32)
         /usr/include
         /usr/include/mysql
         /usr/mysql/include
-        /usr/local/include)
+        /usr/local/include
+        /usr/include/mariadb
+       )
    SET (MYSQL_POSSIBLE_LIB_PATHS
         /usr/lib64
         /usr/lib
@@ -25,7 +27,7 @@ IF (NOT MySQL_INCLUDE_DIR)
     FIND_PATH(MySQL_INCLUDE_DIR mysql.h ${MYSQL_POSSIBLE_INCLUDE_PATHS})
 ENDIF()
 
-FIND_LIBRARY(MySQL_LIBRARY NAMES mysqlclient_r mysqlclient PATHS ${MYSQL_POSSIBLE_LIB_PATHS} PATH_SUFFIXES mysql vs14 vs17)
+FIND_LIBRARY(MySQL_LIBRARY NAMES mysqlclient_r mysqlclient mariadbclient PATHS ${MYSQL_POSSIBLE_LIB_PATHS} PATH_SUFFIXES mysql vs14 vs17)
 
 IF (MySQL_INCLUDE_DIR AND MySQL_LIBRARY)
    SET(MySQL_FOUND TRUE)
