@@ -39,16 +39,16 @@ using namespace sptk;
 static void splitByDelimiter(Strings& dest, const String& src, const char* delimitter)
 {
     dest.clear();
-    size_t pos = 0;
+    auto pos = src.c_str();
     size_t delimitterLength = strlen(delimitter);
     while (true) {
-        size_t end = src.find(delimitter, pos);
-        if (end != string::npos) {
-            dest.emplace_back(src.substr(pos, end - pos));
+        auto end = strstr(pos, delimitter);
+        if (end != nullptr) {
+            dest.emplace_back(pos, size_t(end - pos));
             pos = end + delimitterLength;
         } else {
-            if (pos + 1 <= src.length())
-                dest.emplace_back(src.substr(pos));
+            if (*pos != 0)
+                dest.emplace_back(pos);
             break;
         }
     }
@@ -226,20 +226,21 @@ void Strings::sort(bool ascending)
 #if USE_GTEST
 
 static const String testString("This is a test\ntext that contains several\nexample rows");
+static const String resultString("This is a test\rtext that contains several\rexample rows");
 
 TEST(SPTK_Strings, ctor)
 {
     Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
     EXPECT_EQ(size_t(3), strings.size());
-    EXPECT_STREQ(testString.c_str(), strings.join("\n").c_str());
+    EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
 
     Strings strings2(strings);
     EXPECT_EQ(size_t(3), strings2.size());
-    EXPECT_STREQ(testString.c_str(), strings2.join("\n").c_str());
+    EXPECT_STREQ(resultString.c_str(), strings2.join("\r").c_str());
 
     strings.fromString(testString, "\n", Strings::SM_DELIMITER);
     EXPECT_EQ(size_t(3), strings.size());
-    EXPECT_STREQ(testString.c_str(), strings.join("\n").c_str());
+    EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
 }
 
 TEST(SPTK_Strings, sort)
