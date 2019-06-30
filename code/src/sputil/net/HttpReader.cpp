@@ -205,7 +205,7 @@ void HttpReader::read(TCPSocket& socket)
 #if HAVE_ZLIB
         Buffer unzipBuffer;
         ZLib::decompress(unzipBuffer, m_output);
-        *(Buffer*)this = move(unzipBuffer);
+        m_output = move(unzipBuffer);
 #else
         throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
 #endif
