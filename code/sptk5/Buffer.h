@@ -56,17 +56,17 @@ class SP_EXPORT Buffer
     /**
      * Actual storage
      */
-    std::vector<char>   m_storage;
+    char*               m_buffer {nullptr};
+
+    /**
+     * Alocated storage size
+     */
+    size_t              m_size {0};
 
     /**
      * Actual size of the data in buffer
      */
     size_t              m_bytes {0};
-
-    /**
-     * The pointer to beginning of the storage
-     */
-    char*               m_buffer;
 
     /**
      * Resizes current buffer
@@ -159,7 +159,7 @@ public:
      */
     virtual void checkSize(size_t sz)
     {
-        if (sz >= m_storage.size())
+        if (sz >= m_size)
             adjustSize(sz);
     }
 
@@ -285,7 +285,7 @@ public:
      */
     size_t capacity()  const
     {
-        return m_storage.size();
+        return m_size;
     }
 
     /**
@@ -314,9 +314,9 @@ public:
      */
     void bytes(size_t b)
     {
-        if (b < m_storage.size()) {
+        if (b < m_size) {
             m_bytes = b;
-            m_storage[b] = 0;
+            m_buffer[b] = 0;
             return;
         }
         throw Exception("Attempt to set buffer size outside storage");

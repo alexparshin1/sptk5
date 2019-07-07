@@ -35,68 +35,59 @@ using namespace std;
 using namespace sptk;
 
 Buffer::Buffer(size_t sz)
-: m_storage(sz + 1)
+: m_buffer((char*)calloc(sz + 1, 1)), m_size(sz + 1)
 {
-    m_buffer = &*m_storage.begin();
-    m_buffer[sz] = 0;
 }
 
 Buffer::Buffer(const void* data, size_t sz)
-: m_storage(sz + 1)
+: m_buffer((char*)calloc(sz + 1, 1)), m_size(sz + 1)
 {
-    m_buffer = &*m_storage.begin();
-
-    if (data != nullptr)
-    {
+    if (data != nullptr) {
         memcpy(m_buffer, data, sz);
         m_bytes = sz;
-        m_buffer[sz] = 0;
     }
-    else
-        m_buffer[0] = 0;
 }
 
 Buffer::Buffer(const String& str)
-: m_storage(str.length() + 1)
 {
-    m_buffer = &*m_storage.begin();
-    auto sz = str.length();
-
     if (!str.empty()) {
-        memcpy(m_buffer, str.c_str(), sz);
-        m_bytes = sz;
+        m_size = str.length() + 1;
+        m_buffer = (char*) calloc(m_size, 1);
+
+        m_bytes = m_size - 1;
+        memcpy(m_buffer, str.c_str(), m_bytes);
     }
-    m_buffer[sz] = 0;
 }
 
 Buffer::Buffer(const Buffer& other)
-: m_storage(other.m_storage), m_bytes(other.m_bytes)
+: m_buffer((char*) calloc(other.m_bytes + 1, 1)), m_size(other.m_bytes + 1), m_bytes(other.m_bytes)
 {
-    m_buffer = &*m_storage.begin();
+    memcpy(m_buffer, other.m_buffer, m_bytes);
 }
 
 Buffer::Buffer(Buffer&& other) noexcept
-: m_storage(move(other.m_storage)), m_bytes(other.m_bytes)
+: m_buffer(other.m_buffer), m_size(other.m_size), m_bytes(other.m_bytes)
 {
-    m_buffer = &*m_storage.begin();
-
-	other.m_storage.resize(1);
-	other.m_storage[0] = 0;
-	other.m_buffer = &*other.m_storage.begin();
+	other.m_buffer = nullptr;
+    other.m_size = 0;
 	other.m_bytes = 0;
 }
 
 void Buffer::adjustSize(size_t sz)
 {
-    m_storage.resize(sz + 1);
-    m_buffer = &*m_storage.begin();
+    sz = (sz / 64 + 1) * 64;
+    auto newptr = realloc(m_buffer, sz + 1);
+    if (newptr == nullptr)
+        throw Exception("Can't reallocate buffer to " + to_string(sz) + " bytes");
+    m_buffer = (char*) newptr;
     m_buffer[sz] = 0;
+    m_size = sz + 1;
 }
 
 void Buffer::set(const char* data, size_t sz)
 {
     checkSize(sz);
-    memcpy(m_buffer, data, sz);
+    memcpy(m_buffer, data, sz + 1);
     m_bytes = sz;
 }
 
@@ -129,7 +120,6 @@ void Buffer::fill(char c, size_t count)
 void Buffer::reset(size_t sz)
 {
     checkSize(sz + 1);
-    m_buffer = &*m_storage.begin();
     m_buffer[0] = 0;
     m_bytes = 0;
 }
@@ -168,8 +158,9 @@ void Buffer::saveToFile(const String& fileName) const
 
 Buffer& Buffer::operator = (Buffer&& other) DOESNT_THROW
 {
-    m_storage = move(other.m_storage);
-    m_buffer = &m_storage[0];
+    m_buffer = other.m_buffer;
+    other.m_buffer = nullptr;
+    other.m_size = 0;
 
     m_bytes = other.m_bytes;
     other.m_bytes = 0;
@@ -182,8 +173,17 @@ Buffer& Buffer::operator = (const Buffer& other)
     if (&other == this)
         return *this;
 
-    m_storage.assign(other.m_storage.begin(), other.m_storage.end());
-    m_buffer = &m_storage[0];
+    size_t newSize = (other.m_bytes / 64 + 1) * 64 + 1;
+
+    if (m_size != newSize) {
+        auto* newptr = realloc(m_buffer, newSize);
+        if (newptr == nullptr)
+            throw Exception("Can't reallocate buffer to " + to_string(newSize) + " bytes");
+        m_buffer = (char*) newptr;
+        m_size = newSize;
+    }
+
+    memcpy(m_buffer, other.m_buffer, other.m_bytes + 1);
     m_bytes = other.m_bytes;
 
     return *this;
