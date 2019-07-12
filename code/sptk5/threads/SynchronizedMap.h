@@ -90,7 +90,7 @@ public:
     virtual void insert(const K& key, const T& data)
     {
         std::lock_guard<std::mutex> lock(m_sync);
-        m_map[key] = data;
+        m_map.emplace(key, data);
     }
 
     /**

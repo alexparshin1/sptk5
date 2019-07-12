@@ -101,7 +101,7 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
                 break;
         }
         catch (const Exception& e) {
-            CERR("Can't connect to proxy " << m_host.toString() << ": " << String(e.what()))
+            throw ConnectionException("Can't connect to proxy " + m_host.toString() + ": " + String(e.what()));
         }
     }
 
@@ -201,10 +201,29 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
 
 TEST(SPTK_HttpProxy, connect)
 {
-    auto httpProxy = make_unique<HttpProxy>(Host("192.168.97.102:8080"), "Baicomms\\AlexeyP", "Sl0nic#757");
+    // Check if proxy is defined in environment variable.
+    // It's typical for Linux, and rare for Windows.
+    // If proxy is not defined or defined in wrong format, this test is exiting.
+    const char* proxy = getenv("HTTP_PROXY");
+    if (proxy == nullptr)
+        proxy = getenv("http_proxy");
+    if (proxy == nullptr)
+        return; // No proxy defined, don't test
+
+    RegularExpression matchProxy(R"(^((.*):(.*)@)?(\d+\.\d+\.\d+\.\d+:\d+)$)");
+    Strings matches;
+    if (!matchProxy.m(proxy, matches)) {
+        CERR("Can't parse proxy from environment variable" << endl)
+        return;
+    }
+
+    String  proxyUser(matches[1]);
+    String  proxyPassword(matches[2]);
+    Host    proxyHost(matches[3]);
+
+    auto httpProxy = make_unique<HttpProxy>(proxyHost, proxyUser, proxyPassword);
     String error;
     try {
-        //Host ahost("www.chiark.greenend.org.uk:443");
         Host ahost("www.sptk.net:80");
 
         shared_ptr<TCPSocket> socket;
