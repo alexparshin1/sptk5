@@ -1,5 +1,8 @@
 #!/bin/bash
 
+cat /etc/redhat-release
+echo
+
 VERSION=$(head -1 /build/scripts/VERSION)
 RELEASE="1"
 PACKAGE_NAME="SPTK-$VERSION"

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+cat /etc/lsb-release
+echo
+
 export PATH=/opt/sonar-scanner/bin:$PATH
 
 which debuild > /dev/null || sudo apt install build-essential devscripts debhelper
