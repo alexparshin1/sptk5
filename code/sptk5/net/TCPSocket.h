@@ -160,7 +160,7 @@ public:
 class SP_EXPORT TCPSocket: public BaseSocket
 {
     TCPSocketReader         m_reader;          ///< Buffered socket reader
-    std::unique_ptr<Proxy>  m_proxy;           ///< Optional proxy
+    std::shared_ptr<Proxy>  m_proxy;           ///< Optional proxy
     Buffer                  m_stringBuffer;    ///< Buffer to read a line
 
 protected:
@@ -216,7 +216,7 @@ public:
      * Set proxy
      * @param proxy             Proxy.
      */
-    void setProxy(std::unique_ptr<Proxy> proxy);
+    void setProxy(std::shared_ptr<Proxy> proxy);
 
     /**
      * Close socket connection

@@ -336,7 +336,7 @@ size_t TCPSocket::read(String& buffer, size_t size, sockaddr_in* from)
     return rc;
 }
 
-void TCPSocket::setProxy(unique_ptr<Proxy> proxy)
+void TCPSocket::setProxy(shared_ptr<Proxy> proxy)
 {
     m_proxy = move(proxy);
 }
