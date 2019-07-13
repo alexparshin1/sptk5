@@ -28,14 +28,17 @@
 
 #include <sptk5/sptk.h>
 
+#include <FL/Fl.H>
+#include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
+
 #include <sptk5/gui/CToolBar.h>
 
 using namespace std;
 using namespace sptk;
 
 CToolBar::CToolBar(CLayoutAlign layoutAlignment)
-    : CGroup("", 5, layoutAlignment)
+: CGroup("", 5, layoutAlignment)
 {
     m_colapsed = false;
     layoutSpacing(4);

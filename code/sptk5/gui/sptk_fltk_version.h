@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       sptk.h - description                                   ║
+║                       sptk_fltk_version.h - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,113 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_H__
-#define __SPTK_H__
+#ifndef __SPTK_FLTK_VERSION_H__
+#define __SPTK_FLTK_VERSION_H__
 
-#if defined(__GNUC__) || defined(__SUNPRO_CC)
-    /**
-     * Unix compiler flag
-     */
-    #define __UNIX_COMPILER__
-
-#endif
-
-#ifndef __UNIX_COMPILER__
-#  if defined(SP_DLL) && defined(WIN32)
-#    ifdef SP_LIBRARY
-#      define SP_EXPORT   __declspec(dllexport)
-#    else
-#      define SP_EXPORT   __declspec(dllimport)
-#    endif
-#  else
-#    define SP_EXPORT
-#  endif
-#else
-#  define SP_EXPORT     ///< DLL/SO classes load attributes
-#endif
-
-#ifndef __UNIX_COMPILER__
-#  if defined(WIN32)
-#    ifdef SP_DRIVER_LIBRARY
-#      define SP_DRIVER_EXPORT   __declspec(dllexport)
-#    else
-#      define SP_DRIVER_EXPORT   __declspec(dllimport)
-#    endif
-#  else
-#    define SP_DRIVER_EXPORT
-#  endif
-#else
-#  define SP_DRIVER_EXPORT  ///< DLL/SO driver classes load attributes
-#endif
-
-#include <sptk5/sptk-config.h>
-#if defined(_MSC_VER) || defined(__BORLANDC__)
-    #include <winsock2.h>
-    #include <windows.h>
-    #include <process.h>
-    #pragma warning (disable: 4251)
-    #pragma warning (disable: 4290)
-    #pragma warning (disable: 4355)
-    #pragma warning (disable: 4786)
-    #pragma warning (disable: 4996)
-    #if defined(_MSC_VER)
-        #define STRING_NPOS -1
-    #endif
-#else
-    #include <unistd.h>
-    #include <cerrno>
-#endif
-
-#ifndef STRING_NPOS
-    /**
-     * Definition for string::npos missing in some compilers
-     */
-    #define STRING_NPOS string::npos
-
-#endif
-
-#include <map>
-#include <string>
-#include <vector>
-
-#define ALIGN_LEFT   1
-#define ALIGN_RIGHT  2
-#define ALIGN_CENTER 3
-
-#ifdef __UNIX_COMPILER__
-    #include <cinttypes>
-    #include <cstdint>
-
-#elif __BORLANDC__
-    #include <stdint.h>
-    #include <ctype.h>
-
-#elif defined(_MSC_VER)
-    #if _MSC_VER >= 1800
-        // Visual Studio 2013 and up
-        #include <stdint.h>
-        #include <inttypes.h>
-    #else
-        // Visual Studio 2012 and before
-        #include <stdint.h>
-        #include <inttypes.h>
-    #endif
-#else
-    #include <stdint.h>
-    #include <inttypes.h>
-
-#endif
-
-#ifdef _WIN32 
-	#define snprintf _snprintf
-	#define vsnprintf _vsnprintf
-	#define strcasecmp _stricmp
-	#define strncasecmp _strnicmp
-	#define strtok_r strtok_s
-#endif
-
-#if USE_GTEST
-#include <gtest/gtest.h>
+#include <FL/Fl.H>
+#if (FL_MAJOR_VERSION != 1 || FL_MINOR_VERSION >= 4)
+#include <FL/platform.H>
 #endif
 
 #endif

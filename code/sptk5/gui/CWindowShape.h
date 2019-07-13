@@ -30,7 +30,7 @@
 #define __CWINDOWSHAPE_H__
 
 #include <vector>
-
+#include <sptk5/gui/sptk_fltk_version.h>
 #include <sptk5/gui/CShapePoint.h>
 
 namespace sptk {
