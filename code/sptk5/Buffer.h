@@ -125,7 +125,10 @@ public:
     /**
      * Destructor
      */
-    virtual ~Buffer() = default;
+    virtual ~Buffer()
+    {
+        free(m_buffer);
+    }
 
     /**
      * Returns pointer on the data buffer.

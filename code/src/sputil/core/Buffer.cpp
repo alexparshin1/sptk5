@@ -35,12 +35,14 @@ using namespace std;
 using namespace sptk;
 
 Buffer::Buffer(size_t sz)
-: m_buffer((char*)calloc(sz + 1, 1)), m_size(sz + 1)
+: m_buffer((char*)calloc(sz + 1, 1)),
+  m_size(sz + 1)
 {
 }
 
 Buffer::Buffer(const void* data, size_t sz)
-: m_buffer((char*)calloc(sz + 1, 1)), m_size(sz + 1)
+: m_buffer((char*)calloc(sz + 1, 1)),
+  m_size(sz + 1)
 {
     if (data != nullptr) {
         memcpy(m_buffer, data, sz);
