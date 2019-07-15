@@ -34,16 +34,19 @@ using namespace sptk;
 
 TCPSocket& ServerConnection::socket() const
 {
+    lock_guard<mutex>   lock(m_mutex);
     return *m_socket;
 }
 
 void ServerConnection::setSocket(TCPSocket* socket)
 {
+    lock_guard<mutex>   lock(m_mutex);
     m_socket = socket;
 }
 
 TCPServer& ServerConnection::server() const
 {
+    lock_guard<mutex>   lock(m_mutex);
     return m_server;
 }
 
@@ -54,5 +57,6 @@ ServerConnection::ServerConnection(TCPServer& server, SOCKET connectionSocket, c
 
 ServerConnection::~ServerConnection()
 {
+    lock_guard<mutex>   lock(m_mutex);
     delete m_socket;
 }

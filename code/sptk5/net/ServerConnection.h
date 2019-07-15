@@ -52,6 +52,8 @@ class SP_EXPORT ServerConnection: public Runable
 {
     friend class TCPServer;
 
+    mutable std::mutex          m_mutex;
+
     /**
      * Parent server object
      */
