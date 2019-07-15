@@ -30,7 +30,7 @@
 #define __SPTK_LOADBALANCE_H__
 
 #include <vector>
-#include "Loop.h"
+#include <sptk5/Loop.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/net/TCPSocket.h>
 
