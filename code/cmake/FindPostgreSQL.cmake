@@ -13,13 +13,30 @@ IF (WIN32)
         $ENV{ProgramW6432}/PostgreSQL/*/lib)
    FIND_PATH(PostgreSQL_INCLUDE_DIR libpq-fe.h ${PGSQL_POSSIBLE_INCLUDE_PATHS})
    FIND_LIBRARY(PostgreSQL_LIBRARY NAMES libpq pq PATHS ${PGSQL_POSSIBLE_LIB_PATHS})
+
 ELSE (WIN32)
+
+   SET (PGSQL_POSSIBLE_INCLUDE_PATHS
+        /usr/include
+        /usr/*/include
+        /usr/include/*
+        /usr/local/include
+        /usr/local/*/include
+        /usr/local/include/*)
+   SET (PGSQL_POSSIBLE_LIB_PATHS
+        /usr/lib
+        /usr/*/lib
+        /usr/local/lib
+        /usr/local/*/lib)
+
    FIND_PROGRAM (PGSQL_CONFIG pg_config PATHS /usr/bin /usr/postgres/*/bin /usr/local/bin)
    IF (PGSQL_CONFIG)
       EXEC_PROGRAM ("${PGSQL_CONFIG}" ARGS --includedir OUTPUT_VARIABLE PostgreSQL_INCLUDE_DIR)
       EXEC_PROGRAM ("${PGSQL_CONFIG}" ARGS --libdir OUTPUT_VARIABLE PostgreSQL_LIB_DIR)
-   ENDIF (PGSQL_CONFIG)
-   FIND_LIBRARY(PostgreSQL_LIBRARY NAMES pq PATHS "${PostgreSQL_LIB_DIR}" /usr/lib /usr/local/lib)
+   ELSE ()
+      FIND_PATH(PostgreSQL_INCLUDE_DIR libpq-fe.h ${PGSQL_POSSIBLE_INCLUDE_PATHS})
+   ENDIF ()
+   FIND_LIBRARY(PostgreSQL_LIBRARY NAMES pq PATHS "${PostgreSQL_LIB_DIR}" ${PGSQL_POSSIBLE_LIB_PATHS})
 ENDIF (WIN32)
 
 IF (PostgreSQL_INCLUDE_DIR AND PostgreSQL_LIBRARY)

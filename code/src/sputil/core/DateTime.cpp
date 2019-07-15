@@ -127,7 +127,7 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     char dt[32];
 
     strncpy(dt, dateOrTime, sizeof(dt));
-	dt[31] = 0;
+    dt[31] = 0;
 
     // Cut-off trailing non-digit characters
     auto len = (int) strlen(dt);
@@ -344,7 +344,7 @@ static void decodeTime(const DateTime::time_point& dt, short& h, short& m, short
     m = (short) time.tm_min;
     s = (short) time.tm_sec;
 
-	milliseconds dur = duration_cast<milliseconds>(dt.time_since_epoch());
+    milliseconds dur = duration_cast<milliseconds>(dt.time_since_epoch());
     seconds sec = duration_cast<seconds>(dt.time_since_epoch());
     milliseconds msec = duration_cast<milliseconds>(dur - sec);
     ms = (short) msec.count();
@@ -971,6 +971,7 @@ TEST(SPTK_DateTime, assign2)
     dateTime = "11:22:33.444+10";
     chrono::milliseconds msSinceEpoch = duration_cast<chrono::milliseconds>(dateTime.sinceEpoch());
     EXPECT_EQ(44553444, msSinceEpoch.count());
+    cout << "### " << dateTime.timeString() << endl;
 }
 
 TEST(SPTK_DateTime, timeZones)

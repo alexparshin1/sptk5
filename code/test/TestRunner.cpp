@@ -42,8 +42,6 @@
 #include <sptk5/Base64.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/test/TestRunner.h>
-#include <smq/server/SMQServer.h>
-#include <SMQ/smq/unit_tests/SMQServer_UT.h>
 
 using namespace std;
 using namespace sptk;
@@ -88,15 +86,12 @@ void stub()
     TCPSocket            socket;
     HttpConnect          connect(socket);
 
-    SMQServer_UT         smqServer_ut;
-
-	try {
-		SysLogEngine		 logger("unit_tests");
-		SMQServer			 smqServer(MP_SMQ, "user", "password", logger);
-	}
-	catch (Exception&) {
-		CERR("");
-	}
+    try {
+        SysLogEngine logger("unit_tests");
+    }
+    catch (Exception&) {
+        CERR("");
+    }
 
     string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     string key("01234567890123456789012345678901");

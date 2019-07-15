@@ -33,7 +33,6 @@ OPTION (USE_OPENSSL    "Build OpenSSL support library" ON)
 OPTION (USE_ORACLE     "Build Oracle support library" ON)
 OPTION (USE_POSTGRESQL "Build PostgreSQL support library" ON)
 OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
-OPTION (USE_ZMQ        "Build ZeroMQ support library" ON)
 OPTION (USE_GTEST      "Build Google Test unit tests" ON)
 
 OPTION (USE_PCRE       "Use PCRE library" ON)
@@ -377,14 +376,11 @@ IF (FLTK_FLAG)
   ADD_SUBDIRECTORY (themes)
 ENDIF (FLTK_FLAG)
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/SMQ)
-
 IF (LIBRARY_TYPE STREQUAL "SHARED")
   ADD_DEFINITIONS (-DSP_LIBRARY)
 ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 ADD_SUBDIRECTORY (src)
-ADD_SUBDIRECTORY (SMQ)
 
 IF (BUILD_EXAMPLES)
   ADD_SUBDIRECTORY (examples)
@@ -416,12 +412,6 @@ INSTALL (FILES ${includeFilesThreads} DESTINATION include/sptk5/threads)
 
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/db/*.h")
 INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db)
-
-FILE (GLOB includeFilesMQ "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/mq/*.h")
-INSTALL (FILES ${includeFilesMQ} DESTINATION include/sptk5/mq)
-
-FILE (GLOB includeFilesMQProtocols "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/mq/protocols/*.h")
-INSTALL (FILES ${includeFilesMQProtocols} DESTINATION include/sptk5/mq/protocols)
 
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/test/*.h")
 INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/test)

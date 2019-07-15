@@ -5,5 +5,5 @@ IF (GTEST_FLAG)
     INSTALL(TARGETS sptest RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
     ADD_EXECUTABLE(unit_tests unit_tests.cpp)
-    TARGET_LINK_LIBRARIES(unit_tests sputil5 spdb5 sptest gtest smq)
+    TARGET_LINK_LIBRARIES(unit_tests sputil5 spdb5 sptest gtest)
 ENDIF()
