@@ -30,7 +30,6 @@
 #define __STOP_WATCH_H__
 
 #include <sptk5/DateTime.h>
-#include <chrono>
 
 namespace sptk {
 
