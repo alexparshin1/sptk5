@@ -41,7 +41,8 @@ using namespace sptk;
 #endif
 
 TCPSocketReader::TCPSocketReader(BaseSocket& socket, size_t buffer_size)
-    : Buffer(buffer_size), m_socket(socket)
+: Buffer(buffer_size),
+  m_socket(socket)
 {
     m_readOffset = 0;
 }
@@ -232,7 +233,8 @@ size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
 
 // Constructor
 TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-: BaseSocket(domain, type, protocol), m_reader(*this, 16384)
+: BaseSocket(domain, type, protocol),
+  m_reader(*this, 16384)
 {
 }
 
