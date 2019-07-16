@@ -160,6 +160,12 @@ void Buffer::saveToFile(const String& fileName) const
 
 Buffer& Buffer::operator = (Buffer&& other) DOESNT_THROW
 {
+    if (this == &other)
+        return *this;
+
+    if (m_buffer != nullptr)
+        free(m_buffer);
+
     m_buffer = other.m_buffer;
     other.m_buffer = nullptr;
     other.m_size = 0;

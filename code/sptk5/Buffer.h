@@ -32,8 +32,8 @@
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <string>
 #include <iostream>
 #include <memory>
@@ -80,10 +80,17 @@ public:
      * Default constructor
      *
      * Creates an empty buffer.
+     */
+    Buffer() = default;
+
+    /**
+     * Constructor
+     *
+     * Creates an empty buffer.
      * The return of the bytes() method will be 0.
      * @param sz                Buffer size to be pre-allocated
      */
-    explicit Buffer(size_t sz = 16);
+    explicit Buffer(size_t sz);
 
     /**
      * Constructor
@@ -183,7 +190,10 @@ public:
      */
     void set(const Buffer& data)
     {
-        set(data.m_buffer, data.m_bytes);
+        if (data.m_bytes == 0)
+            m_bytes = 0;
+        else
+            set(data.m_buffer, data.m_bytes);
     }
 
     /**
@@ -317,6 +327,8 @@ public:
      */
     void bytes(size_t b)
     {
+        if (m_bytes == b)
+            return;
         if (b < m_size) {
             m_bytes = b;
             m_buffer[b] = 0;
