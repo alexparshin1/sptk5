@@ -248,6 +248,7 @@ rm -rf %{buildroot}
 /usr/local/include/sptk5/gui/CWindow.h
 /usr/local/include/sptk5/gui/CWindowShape.h
 /usr/local/include/sptk5/gui/default_icons.h
+/usr/local/include/sptk5/gui/sptk_fltk_version.h
 /usr/local/lib/libspdb5_sqlite3.so
 /usr/local/lib/libspdb5_sqlite3.so.5
 /usr/local/lib/libspdb5_sqlite3.so.5.2.19
