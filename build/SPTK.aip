@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="16.0" Modules="professional" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="16.1" Modules="professional" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
   <COMPONENT cid="caphyon.advinst.msicomp.ProjectOptionsComponent">
     <ROW Name="HiddenItems" Value="AppXAppDetailsComponent;AppXCapabilitiesComponent;AppXDependenciesComponent;AppXProductDetailsComponent;AppXVisualAssetsComponent;AppXAppDeclarationsComponent;AppXUriRulesComponent;FixupComponent"/>
   </COMPONENT>
@@ -55,6 +55,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="AI_ExePath" ComponentId="{46CFA9FB-9E2C-4C37-B719-895E817FD887}" Directory_="APPDIR" Attributes="260" KeyPath="AI_ExePath"/>
+    <ROW Component="APPDIR" ComponentId="{DE2848A1-946F-4613-A935-268E0FCBC91A}" Directory_="APPDIR" Attributes="0"/>
     <ROW Component="Application" ComponentId="{5AA5A3F5-A95D-43C5-9040-CD9FDBD45C17}" Directory_="APPDIR" Attributes="260" KeyPath="Application"/>
     <ROW Component="Attributes.h" ComponentId="{A2773F3D-393D-41E7-A6C6-B47A53D209F7}" Directory_="xml_Dir" Attributes="0" KeyPath="Attributes.h" Type="0"/>
     <ROW Component="AutoDatabaseConnection.h" ComponentId="{4BCC76A2-5263-4A8B-9FA3-0A5D7FDDD36D}" Directory_="db_Dir" Attributes="0" KeyPath="AutoDatabaseConnection.h" Type="0"/>
@@ -74,28 +75,19 @@
     <ROW Component="SourceModule.h" ComponentId="{B838827A-65EC-4DCD-996B-653DC3DF3296}" Directory_="wsdl_Dir" Attributes="0" KeyPath="SourceModule.h" Type="0"/>
     <ROW Component="TestRunner.h" ComponentId="{F5AA82F1-0024-44B2-B1D8-5C50BA6A13E8}" Directory_="test_Dir" Attributes="0" KeyPath="TestRunner.h" Type="0"/>
     <ROW Component="TypesSupported" ComponentId="{6D325452-8F71-49EF-BA3E-071E6365A994}" Directory_="APPDIR" Attributes="260" KeyPath="TypesSupported"/>
+    <ROW Component="bin" ComponentId="{BF6CA98B-77F3-4304-A7F5-44ABD94EF856}" Directory_="bin_2_Dir" Attributes="0"/>
+    <ROW Component="bin_1" ComponentId="{8145804D-0ED5-48FD-8B50-2F4625664D74}" Directory_="bin_1_Dir" Attributes="0"/>
     <ROW Component="command_line.exe" ComponentId="{335BE3A0-72CA-43F8-B559-C944136A29D8}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="command_line.exe_1" ComponentId="{0F825452-EE23-4F1E-8DB2-838C7DF756EB}" Directory_="bin_1_Dir" Attributes="256" KeyPath="command_line.exe"/>
     <ROW Component="datetime.exe" ComponentId="{682BCB15-17A6-4BCE-B899-ACA2A42456AA}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="datetime.exe_1" ComponentId="{3A47EB96-5D2F-4D95-905F-6B08375C0FF6}" Directory_="bin_1_Dir" Attributes="256" KeyPath="datetime.exe"/>
     <ROW Component="driver_load_test.exe" ComponentId="{3E2EDD39-A086-4271-9B2B-542124FDCE9D}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="driver_load_test.exe_1" ComponentId="{6C31038F-6DB9-4B69-9A0B-F7CACD7B1069}" Directory_="bin_2_Dir" Attributes="256" KeyPath="driver_load_test.exe"/>
-    <ROW Component="encrypt_decrypt.exe" ComponentId="{2419B897-018C-4358-A663-329636B9AA3B}" Directory_="bin_1_Dir" Attributes="256" KeyPath="encrypt_decrypt.exe"/>
     <ROW Component="event_provider.rc" ComponentId="{00BC9802-257B-4EC1-B110-BD2E0E7F3B20}" Directory_="resources_Dir" Attributes="0" KeyPath="event_provider.rc" Type="0"/>
-    <ROW Component="eventlog_test.exe" ComponentId="{433E8C66-7B9C-4616-86C3-175B697D8666}" Directory_="bin_1_Dir" Attributes="256" KeyPath="eventlog_test.exe"/>
     <ROW Component="exceptions.exe" ComponentId="{13C30DDF-B4A2-4192-8C9E-B78ADAFE410D}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="exceptions.exe_1" ComponentId="{0A5FEEBD-B097-4E6D-BD43-A28EFCEB971D}" Directory_="bin_1_Dir" Attributes="256" KeyPath="exceptions.exe"/>
     <ROW Component="load_balance.exe" ComponentId="{0C49BDF5-5046-4A08-B727-F7BDBAB226AA}" Directory_="bin_Dir" Attributes="256" KeyPath="load_balance.exe"/>
     <ROW Component="logfile_test.exe" ComponentId="{6FB21073-13D4-49A8-AA2E-91A057791B15}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="logfile_test.exe_1" ComponentId="{037C8ABE-899C-4728-810E-248A0E4364F8}" Directory_="bin_1_Dir" Attributes="256" KeyPath="logfile_test.exe"/>
     <ROW Component="odbc_test.exe" ComponentId="{8DC5D433-1CE5-4EE1-9C06-0469625F5D01}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="odbc_test.exe_1" ComponentId="{9AE7C92D-11F1-4FB3-AEB3-70357F56A905}" Directory_="bin_2_Dir" Attributes="256" KeyPath="odbc_test.exe"/>
     <ROW Component="regexp.exe" ComponentId="{342D01C0-1D97-4DC0-8E7B-94BB1202969D}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="regexp.exe_1" ComponentId="{C0A0ED1F-7E7B-4686-B250-22438C2EF78D}" Directory_="bin_1_Dir" Attributes="256" KeyPath="regexp.exe"/>
     <ROW Component="registry.exe" ComponentId="{10C38119-09DE-4AC7-8E79-2B49660322F5}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="registry.exe_1" ComponentId="{780D58D8-64A1-45D0-8E55-6539BC95A14D}" Directory_="bin_1_Dir" Attributes="256" KeyPath="registry.exe"/>
     <ROW Component="semaphore.exe" ComponentId="{14C1121C-D1D5-4888-943E-D17D6B9311B1}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="semaphore.exe_1" ComponentId="{7817C831-BEA1-4315-B475-3692500E509D}" Directory_="bin_2_Dir" Attributes="256" KeyPath="semaphore.exe"/>
     <ROW Component="spdb5.dll" ComponentId="{B283D339-591D-4A64-A322-E8942609148E}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5.dll"/>
     <ROW Component="spdb5.lib" ComponentId="{73ED2AD4-8E7B-45CD-A858-6A5034C61714}" Directory_="lib_Dir" Attributes="0" KeyPath="spdb5.lib" Type="0"/>
     <ROW Component="spdb5_mysql.dll" ComponentId="{B71CFB66-EEFE-4A8E-997B-BC96C4E1AD4C}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5_mysql.dll"/>
@@ -106,20 +98,13 @@
     <ROW Component="sputil5.dll" ComponentId="{5FDEDF35-6D4B-4ACE-9DEA-7DC9700DBAC6}" Directory_="bin_Dir" Attributes="256" KeyPath="sputil5.dll"/>
     <ROW Component="spwsdl5.dll" ComponentId="{2C3A4C00-868B-4A1A-8CDC-3D5061E58420}" Directory_="bin_Dir" Attributes="256" KeyPath="spwsdl5.dll"/>
     <ROW Component="string2md5.exe" ComponentId="{13A53927-35A3-4F3D-9A4D-CCF4F76265CE}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="string2md5.exe_1" ComponentId="{FD44DA3C-7EF9-4DC1-950C-A2A0C8EC1244}" Directory_="bin_1_Dir" Attributes="256" KeyPath="string2md5.exe"/>
     <ROW Component="syslog_test.exe" ComponentId="{5211CE9A-3A3A-4010-A526-7E723277A2D3}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="syslog_test.exe_1" ComponentId="{A4CAA701-168C-49FE-A818-D67DC3A053B3}" Directory_="bin_1_Dir" Attributes="256" KeyPath="syslog_test.exe"/>
     <ROW Component="thread_pool_test.exe" ComponentId="{C04E83D1-6E90-454D-A1E3-F8D65D5513F3}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="thread_pool_test.exe_1" ComponentId="{CA4D71F4-A94D-44ED-B099-DF9AC63F9130}" Directory_="bin_2_Dir" Attributes="256" KeyPath="thread_pool_test.exe"/>
     <ROW Component="thread_rwlock.exe" ComponentId="{F95E756D-2838-4B46-AF09-4678F4DA03AF}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="thread_test.exe" ComponentId="{A4A15F30-12D1-4D0B-8416-03E867DAA87A}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="thread_test.exe_1" ComponentId="{4A2C677C-6134-4354-8014-0814F8784019}" Directory_="bin_2_Dir" Attributes="256" KeyPath="thread_test.exe"/>
-    <ROW Component="timer.exe" ComponentId="{BBD005D9-AFC7-4A6E-B7B9-7B9523B03F71}" Directory_="bin_1_Dir" Attributes="256" KeyPath="timer.exe"/>
     <ROW Component="unique_instance.exe" ComponentId="{C6800A98-68DD-4F08-A0C3-79DE3197102A}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="unique_instance.exe_1" ComponentId="{A46DC029-CC20-48B1-8DDF-B2E316A82B67}" Directory_="bin_1_Dir" Attributes="256" KeyPath="unique_instance.exe"/>
     <ROW Component="wsdl2cxx.exe" ComponentId="{CC00EA0B-F64D-40ED-9D7D-528AFC8E2E6E}" Directory_="bin_Dir" Attributes="256"/>
     <ROW Component="wsdl2cxx.exe_1" ComponentId="{2F0D3EA1-BD46-42D4-971B-6D13CD01C674}" Directory_="bin_Dir" Attributes="256" KeyPath="wsdl2cxx.exe"/>
-    <ROW Component="zlib_test.exe" ComponentId="{1E183B28-C134-4084-AE77-2EFD61EBFAA7}" Directory_="bin_1_Dir" Attributes="256" KeyPath="zlib_test.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0"/>
@@ -273,26 +258,8 @@
     <ROW File="spdb5_mysql.lib" Component_="spdb5.lib" FileName="SPDB5_~1.LIB|spdb5_mysql.lib" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\spdb5_mysql.lib" SelfReg="false"/>
     <ROW File="spdb5_odbc.lib" Component_="spdb5.lib" FileName="SPDB5_~2.LIB|spdb5_odbc.lib" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\spdb5_odbc.lib" SelfReg="false"/>
     <ROW File="spdb5_postgresql.lib" Component_="spdb5.lib" FileName="SPDB5_~3.LIB|spdb5_postgresql.lib" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\spdb5_postgresql.lib" SelfReg="false"/>
-    <ROW File="driver_load_test.exe" Component_="driver_load_test.exe_1" FileName="DRIVER~1.EXE|driver_load_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sptk5\bin\driver_load_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="odbc_test.exe" Component_="odbc_test.exe_1" FileName="ODBC_T~1.EXE|odbc_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sptk5\bin\odbc_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="semaphore.exe" Component_="semaphore.exe_1" FileName="SEMAPH~1.EXE|semaphore.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sptk5\bin\semaphore.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="thread_pool_test.exe" Component_="thread_pool_test.exe_1" FileName="THREAD~1.EXE|thread_pool_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sptk5\bin\thread_pool_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="thread_test.exe" Component_="thread_test.exe_1" FileName="THREAD~2.EXE|thread_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sptk5\bin\thread_test.exe" SelfReg="false" DigSign="true"/>
     <ROW File="sputil5.lib" Component_="spdb5.lib" FileName="sputil5.lib" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\sputil5.lib" SelfReg="false"/>
     <ROW File="spwsdl5.lib" Component_="spdb5.lib" FileName="spwsdl5.lib" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\lib\spwsdl5.lib" SelfReg="false"/>
-    <ROW File="command_line.exe" Component_="command_line.exe_1" FileName="COMMAN~1.EXE|command_line.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\command_line.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="datetime.exe" Component_="datetime.exe_1" FileName="datetime.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\datetime.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="encrypt_decrypt.exe" Component_="encrypt_decrypt.exe" FileName="ENCRYP~1.EXE|encrypt_decrypt.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\encrypt_decrypt.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="eventlog_test.exe" Component_="eventlog_test.exe" FileName="EVENTL~1.EXE|eventlog_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\eventlog_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="exceptions.exe" Component_="exceptions.exe_1" FileName="EXCEPT~1.EXE|exceptions.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\exceptions.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="logfile_test.exe" Component_="logfile_test.exe_1" FileName="LOGFIL~1.EXE|logfile_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\logfile_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="regexp.exe" Component_="regexp.exe_1" FileName="regexp.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\regexp.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="registry.exe" Component_="registry.exe_1" FileName="registry.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\registry.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="string2md5.exe" Component_="string2md5.exe_1" FileName="STRING~1.EXE|string2md5.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\string2md5.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="syslog_test.exe" Component_="syslog_test.exe_1" FileName="SYSLOG~1.EXE|syslog_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\syslog_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="timer.exe" Component_="timer.exe" FileName="timer.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\timer.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="unique_instance.exe" Component_="unique_instance.exe_1" FileName="UNIQUE~1.EXE|unique_instance.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\unique_instance.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="zlib_test.exe" Component_="zlib_test.exe" FileName="ZLIB_T~1.EXE|zlib_test.exe" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\bin\zlib_test.exe" SelfReg="false" DigSign="true"/>
     <ROW File="event_provider.rc" Component_="event_provider.rc" FileName="EVENT_~1.RC|event_provider.rc" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\resources\event_provider.rc" SelfReg="false"/>
     <ROW File="MSG00409.bin" Component_="event_provider.rc" FileName="MSG00409.bin" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\share\sptk5\resources\MSG00409.bin" SelfReg="false"/>
     <ROW File="HttpProxy.h" Component_="BaseMailConnect.h" FileName="HTTPPR~1.H|HttpProxy.h" Attributes="0" SourcePath="..\..\..\..\..\Program Files\SPTK\include\sptk5\net\HttpProxy.h" SelfReg="false"/>
@@ -359,6 +326,11 @@
     <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="203"/>
     <ROW Dialog_="CustomizeDlg" Control_="Next" Event="DoAction" Argument="AI_InstallModeCheck" Condition="AI_MAINT" Ordering="100" MsiKey="CustomizeDlg#Next#DoAction#AI_InstallModeCheck#AI_MAINT"/>
     <ROW Dialog_="FatalError" Control_="Finish" Event="DoAction" Argument="AI_SHOW_LOG" Condition="(MsiLogFileLocation AND AI_LOG_CHECKBOX)" Ordering="101" MsiKey="FatalError#Finish#DoAction#AI_SHOW_LOG#(MsiLogFileLocation AND AI_LOG_CHECKBOX)"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
+    <ROW Directory_="APPDIR" Component_="APPDIR" ManualDelete="true"/>
+    <ROW Directory_="bin_2_Dir" Component_="bin" ManualDelete="false"/>
+    <ROW Directory_="bin_1_Dir" Component_="bin_1" ManualDelete="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH_ORIGINAL" Target="[AI_SETUPEXEPATH]"/>
@@ -437,32 +409,17 @@
     <ROW Feature_="MainFeature" Component_="SourceModule.h"/>
     <ROW Feature_="MainFeature" Component_="Attributes.h"/>
     <ROW Feature_="MainFeature" Component_="spdb5.lib"/>
-    <ROW Feature_="MainFeature" Component_="driver_load_test.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="odbc_test.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="semaphore.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="thread_pool_test.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="thread_test.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="command_line.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="datetime.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="encrypt_decrypt.exe"/>
-    <ROW Feature_="MainFeature" Component_="eventlog_test.exe"/>
-    <ROW Feature_="MainFeature" Component_="exceptions.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="logfile_test.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="regexp.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="registry.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="string2md5.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="syslog_test.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="timer.exe"/>
-    <ROW Feature_="MainFeature" Component_="unique_instance.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="zlib_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="bin_1"/>
     <ROW Feature_="MainFeature" Component_="event_provider.rc"/>
+    <ROW Feature_="MainFeature" Component_="APPDIR"/>
+    <ROW Feature_="MainFeature" Component_="bin"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
     <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
     <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
-    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="54"/>
     <ROW Action="AI_EnableDebugLog" Sequence="51"/>
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99" Builds="DefaultBuild"/>
     <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="101" Builds="DefaultBuild"/>

@@ -30,7 +30,7 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-"C:\Program Files (x86)\Caphyon\Advanced Installer 16.0\bin\x86\advinst.exe" /build SPTK.aip 2>&1 >> build.log
+"C:\Program Files (x86)\Caphyon\Advanced Installer 16.1\bin\x86\advinst.exe" /build SPTK.aip 2>&1 >> build.log
 if errorlevel 1 (
     echo "Can't build installer"
     exit /b %errorlevel%
