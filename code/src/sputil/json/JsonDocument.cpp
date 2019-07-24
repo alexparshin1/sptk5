@@ -28,6 +28,8 @@
 
 #include <sptk5/cutils>
 #include <sptk5/json/JsonParser.h>
+#include <sptk5/json/JsonDocument.h>
+
 
 using namespace std;
 using namespace sptk;
@@ -47,7 +49,7 @@ void Document::clear()
         m_root = new Element(this, new ObjectData(this));
 }
 
-void Document::parse(const string& json)
+void Document::parse(const String& json)
 {
     delete m_root;
 
@@ -71,6 +73,14 @@ Document::Document(bool isObject)
         m_root = new Element(this, new ArrayData(this));
 }
 
+Document::Document(const Document& other)
+: m_emptyElement(this, "")
+{
+    Buffer buffer;
+    other.exportTo(buffer);
+    load(buffer.c_str());
+}
+
 Document::Document(Document&& other) noexcept
 : m_root(other.m_root), m_emptyElement(this, "")
 {
@@ -85,7 +95,7 @@ Document::~Document()
     delete m_root;
 }
 
-void Document::load(const string& json)
+void Document::load(const String& json)
 {
     parse(json);
 }
@@ -122,7 +132,7 @@ void Document::exportTo(Buffer& buffer, bool formatted) const
     buffer.set(stream.str());
 }
 
-void Document::exportTo(xml::Document& document, const string& rootNodeName) const
+void Document::exportTo(xml::Document& document, const String& rootNodeName) const
 {
     m_root->exportTo(rootNodeName, document);
 }
