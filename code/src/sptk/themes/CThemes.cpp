@@ -350,15 +350,15 @@ void CThemes::set(string theThemeName)
         m_checkButtons.loadFromSptkTheme(Strings("check_button0,check_button1,check_button2,check_button3",","));
         m_radioButtons.loadFromSptkTheme(Strings("radio_button0,radio_button1,radio_button2,radio_button3",","));
 
-        CTreeItem::treeOpened = getIconImage("tree_opened", IS_SMALL_ICON); ///< Default image of the opened tree
-        CTreeItem::treeClosed = getIconImage("tree_closed", IS_SMALL_ICON); ///< Default image of the closed tree
-        CTreeItem::folderOpened = getIconImage("folder_opened", IS_SMALL_ICON); ///< Default image of the opened floder
-        CTreeItem::folderClosed = getIconImage("folder_closed", IS_SMALL_ICON); ///< Default image of the closed floder
-        CTreeItem::document = getIconImage("document", IS_SMALL_ICON); ///< Default image of the document
-        if (!CTreeItem::folderOpened)
-            CTreeItem::folderOpened = CTreeItem::treeOpened;
-        if (!CTreeItem::folderClosed)
-            CTreeItem::folderClosed = CTreeItem::treeClosed;
+        CTreeItem::setTreeOpened(getIconImage("tree_opened", IS_SMALL_ICON)); ///< Default image of the opened tree
+        CTreeItem::setTreeClosed(getIconImage("tree_closed", IS_SMALL_ICON)); ///< Default image of the closed tree
+        CTreeItem::setFolderOpened(getIconImage("folder_opened", IS_SMALL_ICON)); ///< Default image of the opened floder
+        CTreeItem::setFolderClosed(getIconImage("folder_closed", IS_SMALL_ICON)); ///< Default image of the closed floder
+        CTreeItem::setDocument(getIconImage("document", IS_SMALL_ICON)); ///< Default image of the document
+        if (!CTreeItem::getFolderOpened())
+            CTreeItem::setFolderOpened(CTreeItem::getTreeOpened());
+        if (!CTreeItem::getFolderClosed())
+            CTreeItem::setFolderClosed(CTreeItem::getTreeClosed());
 
         /*
         try {

@@ -26,17 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
+#include <sptk5/cutils>
+#include <sptk5/cgui>
 
 #include <FL/Fl.H>
 #include <FL/Fl_XPM_Image.H>
 #include <FL/Fl_Group.H>
-
-#include <sptk5/cutils>
-#include <sptk5/cgui>
 
 using namespace std;
 using namespace sptk;

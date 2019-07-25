@@ -847,3 +847,62 @@ void CTreeControl::save(xml::Node& groupNode) const
     if (!active())
         groupNode.setAttribute("enable", "N");
 }
+
+const Fl_Image* CTreeItem::getTreeOpened()
+{
+	return treeOpened;
+}
+
+/**
+ * Default image of the opened tree
+ */
+void CTreeItem::setTreeOpened(const Fl_Image* image)
+{
+	treeOpened = image;
+}
+
+/**
+ * Default image of the closed tree
+ */
+const Fl_Image* CTreeItem::getTreeClosed()
+{
+	return treeClosed;
+}
+
+/**
+ * Default image of the closed tree
+ */
+void CTreeItem::setTreeClosed(const Fl_Image* image)
+{
+	treeClosed = image;
+}
+
+const Fl_Image* CTreeItem::getFolderOpened()
+{
+	return folderOpened;
+}
+
+void CTreeItem::setFolderOpened(const Fl_Image* image)
+{
+	folderOpened = image;
+}
+
+const Fl_Image* CTreeItem::getFolderClosed()
+{
+	return folderClosed;
+}
+
+void CTreeItem::setFolderClosed(const Fl_Image* image)
+{
+	folderClosed = image;
+}
+
+const Fl_Image* CTreeItem::getDocument()
+{
+	return document;
+}
+
+void CTreeItem::setDocument(const Fl_Image* image)
+{
+	document = image;
+}

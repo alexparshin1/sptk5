@@ -137,31 +137,32 @@ protected:
     CTreeItem* addPathOffset(const std::vector<String>& pathFolders, uint32_t offset, const Fl_Image* openedImage,
                              const Fl_Image* closedImage, const Fl_Image* itemImage = 0L, void* data = 0L);
 
+	/**
+	 * Default image of the opened tree
+	 */
+	static const Fl_Image* treeOpened;
+
+	/**
+	 * Default image of the closed tree
+	 */
+	static const Fl_Image* treeClosed;
+
+	/**
+	 * Default image of the opened floder
+	 */
+	static const Fl_Image* folderOpened;
+
+	/**
+	 * Default image of the closed floder
+	 */
+	static const Fl_Image* folderClosed;
+
+	/**
+	 * Default image of the document
+	 */
+	static const Fl_Image* document;
+
 public:
-    /**
-     * Default image of the opened tree
-     */
-    static const Fl_Image* treeOpened;
-
-    /**
-     * Default image of the closed tree
-     */
-    static const Fl_Image* treeClosed;
-
-    /**
-     * Default image of the opened floder
-     */
-    static const Fl_Image* folderOpened;
-
-    /**
-     * Default image of the closed floder
-     */
-    static const Fl_Image* folderClosed;
-
-    /**
-     * Default image of the document
-     */
-    static const Fl_Image* document;
 
     /** Constructor. If the closedImage parameter is omitted the openedImage is used instead.
      * @param label             The item label
@@ -418,6 +419,56 @@ public:
     {
         return "treeitem";
     }
+
+	/**
+	 * Default image of the opened tree
+	 */
+	static const Fl_Image* getTreeOpened();
+
+	/**
+	 * Default image of the opened tree
+	 */
+	static void setTreeOpened(const Fl_Image* image);
+
+	/**
+	 * Default image of the closed tree
+	 */
+	static const Fl_Image* getTreeClosed();
+
+	/**
+	 * Default image of the closed tree
+	 */
+	static void setTreeClosed(const Fl_Image* image);
+
+	/**
+	 * Default image of the opened floder
+	 */
+	static const Fl_Image* getFolderOpened();
+
+	/**
+	 * Default image of the opened floder
+	 */
+	static void setFolderOpened(const Fl_Image* image);
+
+	/**
+	 * Default image of the closed floder
+	 */
+	static const Fl_Image* getFolderClosed();
+
+	/**
+	 * Default image of the closed floder
+	 */
+	static void setFolderClosed(const Fl_Image* image);
+
+	/**
+	 * Default image of the document
+	 */
+	static const Fl_Image* getDocument();
+
+	/**
+	 * Default image of the document
+	 */
+	static void setDocument(const Fl_Image* image);
 };
 
 /**

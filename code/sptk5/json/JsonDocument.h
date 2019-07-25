@@ -34,7 +34,8 @@
 #include <istream>
 #include <sptk5/Buffer.h>
 
-namespace sptk::json {
+namespace sptk { 
+namespace json {
 
 /// @addtogroup JSON
 /// @{
@@ -177,6 +178,6 @@ protected:
     }
 };
 
-}
+}}
 
 #endif
