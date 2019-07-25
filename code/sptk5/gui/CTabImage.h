@@ -52,7 +52,7 @@ enum CTabImageIndex {
 /**
  * @brief An image representing one of three required images for theme tabs
  */
-class CTabImage {
+class SP_EXPORT CTabImage {
     /**
      * Tab image
      */

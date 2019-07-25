@@ -164,7 +164,7 @@ int32_t CRadioButtons::intValue() const
         if (!b)
             continue;
         if (b->value())
-            return (int32_t) (long) b->user_data();
+            return (int32_t) (uint64_t) b->user_data();
     }
     return 0;
 }
@@ -178,7 +178,7 @@ void CRadioButtons::intValue(int32_t v)
         auto* btn = dynamic_cast<Fl_Button*>(group->child(i));
         if (!btn)
             continue;
-        if (long(btn->user_data()) == v) {
+        if (uint64_t(btn->user_data()) == v) {
             btn->value(1);
             break;
         }

@@ -122,8 +122,6 @@ xml::Document *build_doc()
     return doc;
 }
 
-extern int autoLayoutCounter;
-
 double diffSeconds(DateTime start, DateTime end)
 {
     return chrono::duration_cast<chrono::milliseconds>(end-start).count() / 1000.0;
@@ -199,7 +197,6 @@ int main(int argc, char **argv)
         Fl::run();
 
         COUT("--------------------------------" << endl);
-        COUT("There were " << autoLayoutCounter << " calls to autoLayout()" << endl);
     }
     catch (const Exception& e) {
         CERR(e.what() << endl);

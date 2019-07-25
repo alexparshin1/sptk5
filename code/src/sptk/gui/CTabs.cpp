@@ -42,7 +42,7 @@ namespace sptk {
 
 class CTabButtons;
 
-class CTabButton : public Fl_Button
+class SP_EXPORT CTabButton : public Fl_Button
 {
     Fl_Group* m_page;
     CTabButtons* m_ownerRow {nullptr};

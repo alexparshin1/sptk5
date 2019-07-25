@@ -81,7 +81,7 @@ enum CLayoutXMLmode
  * the CLayoutClient objects in accordancy with they preferredSize() and
  * layout alignment.
  */
-class CLayoutClient
+class SP_EXPORT CLayoutClient
 {
     friend class CLayoutManager;
 

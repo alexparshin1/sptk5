@@ -44,7 +44,7 @@ namespace sptk {
 /**
  * @brief Stores and restores the color schema
  */
-class CColorSchema {
+class SP_EXPORT CColorSchema {
     /**
      * Color map index
      */

@@ -344,20 +344,12 @@ protected:
      * @brief Changes the default scrollbar width for the class
      * @param b int, new scrollbar width
      */
-
-    static void scrollbar_width(int b)
-    {
-        m_scrollbarWidth = b;
-    }
+	static void scrollbar_width(int b);
 
     /**
      * @brief Returns the default scrollbar width for the class
      */
-
-    static int scrollbar_width()
-    {
-        return m_scrollbarWidth;
-    }
+	static int scrollbar_width();
 
     /**
      * @brief Finds item with ID

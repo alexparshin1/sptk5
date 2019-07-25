@@ -49,7 +49,7 @@ namespace sptk {
  * Actually implements most of these classes functionality.
  * Can't be used by itself, only as a base class.
  */
-class CFileDialog : public CDialog
+class SP_EXPORT CFileDialog : public CDialog
 {
 protected:
     /**

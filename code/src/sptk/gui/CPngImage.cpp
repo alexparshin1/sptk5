@@ -29,8 +29,8 @@
 #include <sptk5/cutils>
 
 #include <FL/fl_draw.H>
+#include <FL/images/png.h>
 #include <sptk5/gui/CPngImage.h>
-#include <png.h>
 
 using namespace sptk;
 using namespace std;

@@ -28,8 +28,8 @@ int main(int argc, char **argv)
 
         size_t dataSize = data.bytes();
 
-        printf("static size_t %s_len = %ld;\n", argv[2], dataSize);
-        printf("static unsigned char %s[%ld] = {\n", argv[2], dataSize);
+        printf("static size_t %s_len = %ld;\n", argv[2], (long) dataSize);
+        printf("static unsigned char %s[%ld] = {\n", argv[2], (long) dataSize);
 
         auto* x = (unsigned char *)data.data();
 

@@ -99,7 +99,7 @@ CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
     m_data = nullptr;
 
     int j = 0;
-    long keyValue = 0;
+    uint64_t keyValue = 0;
     Strings strings;
     {
         for (int i = 0; i < cnt; i++) {
@@ -172,7 +172,7 @@ CPackedStrings& CPackedStrings::operator=(const Strings& strings)
 
     flags = 0;
     height = 0;
-    m_data = (void*) (long) strings.argument();
+    m_data = (void*) (uint64_t) strings.argument();
 
     int sz = offsetsSpace + sizeof(uint16_t);
 

@@ -47,7 +47,7 @@ class CInput_;
  * A masked date input with a small drop-down button inside.
  * Clicking on the button displays the calendar window.
  */
-class CDateControl : public Fl_Group {
+class SP_EXPORT CDateControl : public Fl_Group {
 
     /**
      * Drop-down button

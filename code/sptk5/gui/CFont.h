@@ -43,7 +43,7 @@ namespace sptk {
 /**
  * @brief Font information
  */
-class CFont
+class SP_EXPORT CFont
 {
     /**
      * Font name
@@ -149,7 +149,7 @@ public:
  *
  * The map contains just pointers to the fonts stored in outside list.
  */
-class CFontsMap : public std::map<std::string, CFont*>
+class SP_EXPORT CFontsMap : public std::map<std::string, CFont*>
 {
 public:
     /**

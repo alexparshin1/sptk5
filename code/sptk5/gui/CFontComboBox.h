@@ -44,7 +44,7 @@ namespace sptk {
  *
  * A combobox filled with the system fonts names
  */
-class CFontComboBox : public CComboBox
+class SP_EXPORT CFontComboBox : public CComboBox
 {
 public:
     /**

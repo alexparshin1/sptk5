@@ -48,7 +48,7 @@ enum CBorderIndex
  *
  * This class is used by SPTK themes
  */
-class CPngImage : public Fl_RGB_Image
+class SP_EXPORT CPngImage : public Fl_RGB_Image
 {
 
     friend class CIcon;

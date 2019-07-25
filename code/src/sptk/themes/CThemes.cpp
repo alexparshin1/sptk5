@@ -126,6 +126,12 @@ CThemes::~CThemes()
     delete m_registry;
 }
 
+std::string CThemes::name() { return m_name; }
+
+std::string CThemes::themeFolder() { return m_themeFolder; }
+
+int CThemes::buttonFocusRadius() { return m_buttonFocusRadius; }
+
 CIcon* CThemes::getIcon(const string& iconName, CIconSize iconSize)
 {
     auto itor = m_icons[iconSize].find(iconName);

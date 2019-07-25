@@ -134,12 +134,12 @@ namespace sptk {
             /**
              * Sets user_data as integer
              */
-            void argument(int32_t arg)  { m_data = (void *) (long) arg; }
+            void argument(int32_t arg)  { m_data = (void *) (uint64_t) arg; }
 
             /**
              * Returns user_data as integer
              */
-            int32_t argument() const   { return (int32_t)(long) m_data;   }
+            int32_t argument() const   { return (int32_t)(uint64_t) m_data;   }
 
             /**
              * Row height for CListView

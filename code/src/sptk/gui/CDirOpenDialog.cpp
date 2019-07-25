@@ -30,6 +30,12 @@
 
 #ifdef _WIN32
 #include <io.h>
+
+#if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
+#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#endif
+
 #endif
 
 #include <sys/stat.h>
@@ -58,9 +64,15 @@ bool CDirOpenDialog::okPressed()
         dname = removeTrailingSlash(dname) + slashStr;
 
         memset(&st, 0, sizeof(struct stat));
+
+#ifdef _WIN32
+		if (stat((dname + string(".")).c_str(), &st) != 0)
+			throw Exception("Can't access directory '" + dname + "'");
+#else
         if (lstat((dname + string(".")).c_str(), &st) != 0)
             throw Exception("Can't access directory '" + dname + "'");
-        if (!S_ISDIR(st.st_mode))
+#endif
+		if (!S_ISDIR(st.st_mode))
             dname = directory();
 
         directory(dname);

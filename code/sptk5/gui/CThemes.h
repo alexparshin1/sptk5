@@ -60,7 +60,7 @@ enum CThemeButtonType { THM_BUTTON_COMBO, THM_BUTTON_CHECK, THM_BUTTON_RADIO, TH
  * Class CThemes is a static loader for the themes. Only one one instance of the class should exist, and it's created automatically.
  * The class allows to load a set of routines to draw the particular elements of the interface, and the images for these routines.
  */
-class CThemes :
+class SP_EXPORT CThemes :
     public CThemeScrollBar
 {
     friend class CBaseButton;
@@ -453,9 +453,7 @@ public:
     /**
      * Returns the button focuse corner radius
      */
-    static int  buttonFocusRadius() {
-        return m_buttonFocusRadius;
-    }
+    static int  buttonFocusRadius();
 
     /**
      * Draws a check button image
@@ -535,12 +533,12 @@ public:
     /**
      * @brief Returns theme name
      */
-    static std::string name() { return m_name; }
+	static std::string name();
 
     /**
      * @brief Returns path to the theme folder
      */
-    static std::string themeFolder() { return m_themeFolder; }
+	static std::string themeFolder();
 
     /**
      * @brief Theme tar archive. Contains all the theme data

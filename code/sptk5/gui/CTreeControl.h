@@ -64,7 +64,7 @@ typedef CLayoutClient* (* CTreeItemCreator)(CTreeItem* item);
  * A group widget with the extra information about item pixmaps
  * and current state.
  */
-class CTreeItem : public CGroup
+class SP_EXPORT CTreeItem : public CGroup
 {
     /**
      * Returns the height of the item text
@@ -432,7 +432,7 @@ typedef std::vector<CTreeItem*> CTreeItemVector;
  * CTreeView widget, but also can be used by itself. It's missing for data connection
  * support of CTreeView, though.
  */
-class CTreeControl : public CScroll
+class SP_EXPORT CTreeControl : public CScroll
 {
     friend class CTreeItem;
 

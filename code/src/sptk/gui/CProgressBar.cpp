@@ -38,7 +38,7 @@
 using namespace std;
 using namespace sptk;
 
-class CProgressBox : public Fl_Box
+class SP_EXPORT CProgressBox : public Fl_Box
 {
 public:
     float m_value;

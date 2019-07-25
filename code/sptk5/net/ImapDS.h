@@ -52,7 +52,7 @@ typedef void (*ProgressCallback)(int total, int progress);
  * Allows to browse the list of messages and folders on IMAP server.
  * It returns a dataset with message headers.
  */
-class ImapDS: public MemoryDS
+class SP_EXPORT ImapDS: public MemoryDS
 {
     /**
      * IMAP socket connector

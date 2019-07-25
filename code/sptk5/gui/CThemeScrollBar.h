@@ -56,7 +56,7 @@ enum CThemeScrollBarType
  * @brief The complete set of four images to draw a scroll bar
  */
 
-class CScrollBarImages
+class SP_EXPORT CScrollBarImages
 {
 public:
 
@@ -114,7 +114,7 @@ public:
     void clear();
 };
 
-class CThemeScrollBar
+class SP_EXPORT CThemeScrollBar
 {
 public:
     /**

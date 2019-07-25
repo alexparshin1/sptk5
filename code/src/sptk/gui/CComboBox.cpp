@@ -160,7 +160,7 @@ void CBaseListBox::comboButtonPressed(Fl_Widget* btn, void* data)
     auto* combo = (CBaseListBox*) btn->parent();
     if (!combo)
         return;
-    combo->button_handle((uint32_t) (long) data);
+    combo->button_handle((uint32_t) (uint64_t) data);
 }
 
 void CBaseListBox::ctor_init(const char* label, int _mode)
@@ -178,7 +178,7 @@ void CBaseListBox::ctor_init(const char* label, int _mode)
     m_control->align(FL_ALIGN_LEFT);
     m_buttonSpace = 0;
     for (int i = 0; i < 5; i++) {
-        long kind = buttonKind[i];
+		uint64_t kind = buttonKind[i];
         auto* btn = new CSmallButton(SP_UNDEFINED_BUTTON, SP_ALIGN_NONE);
         btn->buttonImage(buttonKind[i], IS_COMBO_ICON);
         btn->callback(comboButtonPressed);

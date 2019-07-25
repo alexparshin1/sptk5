@@ -47,7 +47,7 @@ namespace sptk {
  * Extended version of FLTK Fl_Group that can be a layout manager and layout client
  * at the same time.
  */
-class CGroup : public Fl_Group, public CLayoutManager
+class SP_EXPORT CGroup : public Fl_Group, public CLayoutManager
 {
     /**
      * Draw the contents of the group clipped inside the group

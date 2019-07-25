@@ -126,13 +126,13 @@ void CTreeView::save(xml::Node* node) const
 Variant CTreeView::data() const
 {
     CTreeItem* node = m_treeControl->selected();
-    if (node != nullptr) return (int32_t) (long) node->user_data();
+    if (node != nullptr) return (int32_t) (uint64_t) node->user_data();
     return int32_t(0);
 }
 
 void CTreeView::data(const Variant v)
 {
-    CTreeItem* node = m_treeControl->findData((void*) (long) v.asInteger());
+    CTreeItem* node = m_treeControl->findData((void*) (uint64_t) v.asInteger());
     if (node != nullptr)
         m_treeControl->makeVisible(node);
 }

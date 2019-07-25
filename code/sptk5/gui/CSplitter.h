@@ -46,7 +46,7 @@ namespace sptk {
  * It works only with SPTK-style widgets derived from CLayoutClient,
  * and placed on a group derived from CLayoutManager (CGroup,CScroll).
  */
-class CSplitter : public CBox
+class SP_EXPORT CSplitter : public CBox
 {
     Fl_Widget      *m_chainedWidget;           /// Pointer on the widget that will be resized
     CLayoutClient  *m_chainedWidgetLayout;     /// Pointer on the CLayoutClient of the resized widget

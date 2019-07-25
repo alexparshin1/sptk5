@@ -112,7 +112,7 @@ enum CThemeColorState
 
 typedef Fl_Color (*gtk_color_function)(const String& expression);
 
-class CThemeColorCollection 
+class SP_EXPORT CThemeColorCollection
 {
     static std::map<String,gtk_color_function>* m_gtkColorFunctionMap;
     static std::map<String,Fl_Color> m_colorMap;

@@ -184,7 +184,7 @@ void CCheckButtons::getSelections(IntList& selection) const
         if (!b)
             continue;
         if (b->value()) {
-            auto id = (uint32_t) (long) b->user_data();
+            auto id = (uint32_t) (uint64_t) b->user_data();
             selection.push_back(id);
         }
     }
@@ -199,7 +199,7 @@ void CCheckButtons::setSelections(const IntList& selection)
         auto* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
             continue;
-        auto id = (uint32_t) (long) b->user_data();
+        auto id = (uint32_t) (uint64_t) b->user_data();
         auto itor = std::find(selection.begin(), selection.end(), id);
         if (itor != selection.end())
             b->value(1);

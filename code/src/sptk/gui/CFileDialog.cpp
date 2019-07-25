@@ -268,9 +268,8 @@ void CFileDialog::directory(const String& p)
 
     for (unsigned d = 0; d < driveList.size(); d++) {
         pseudoID++;
-        m_lookInCombo->addRow(Strings(driveList[d], "|"), pseudoID);
+        m_lookInCombo->addRow(pseudoID, Strings(driveList[d], "|"));
     }
-
 #endif
 
     m_directory.directory(p);
@@ -285,7 +284,6 @@ void CFileDialog::directory(const String& p)
             incrementalPath += slashStr;
 
 #ifdef WIN32
-
         if (i)
 #endif
         {

@@ -44,8 +44,8 @@ namespace sptk {
  * The extended version of FLTK's standard Fl_Progress.
  * Added the CLayoutClient interface and preferred size computations.
  */
-class CProgressBar : public CInput {
-
+class SP_EXPORT CProgressBar : public CInput 
+{
     /**
      * Constructor initializer
      * @param label const char *, widget label

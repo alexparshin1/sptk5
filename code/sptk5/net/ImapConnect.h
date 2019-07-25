@@ -50,7 +50,7 @@ namespace sptk
  * It implements the most popular commands of IMAP protocol to build
  * a simple IMAP client.
  */
-class ImapConnect: public TCPSocket
+class SP_EXPORT ImapConnect: public TCPSocket
 {
     /**
      * Internal response buffer

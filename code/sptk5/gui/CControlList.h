@@ -50,7 +50,7 @@ typedef std::map<std::string, CControl *, CaseInsensitiveCompare> CStringControl
 /**
  * @brief List of CControl object pointers in Fl_Group
  */
-class CControlList: public CStringControlMap
+class SP_EXPORT CControlList: public CStringControlMap
 {
 protected:
 

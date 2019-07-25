@@ -46,7 +46,7 @@ namespace sptk {
  * Contains the frame image and frame width
  */
 
-class CFrame : public CPngImage
+class SP_EXPORT CFrame : public CPngImage
 {
 public:
     /**
@@ -150,7 +150,7 @@ public:
  * @brief Frame images collection
  */
 
-class CFrames
+class SP_EXPORT CFrames
 {
     /**
      * String (frame name) to frame map

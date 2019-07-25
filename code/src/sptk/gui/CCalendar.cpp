@@ -47,7 +47,7 @@ static const char* switchLabels[4] = {
         "@<<", "@<", "@>", "@>>"
 };
 
-static const long monthChanges[4] = {
+static const uint64_t monthChanges[4] = {
         -12, -1, 1, 12
 };
 
@@ -57,7 +57,7 @@ void CCalendar::cbDayButtonClicked(Fl_Widget* button, void* param)
     Fl_Group* buttonBox = button->parent();
     auto* calendar = dynamic_cast<CCalendar*>(buttonBox->parent());
     if (!calendar) return;
-    calendar->dayButtonClicked((uint32_t)(unsigned long) param);
+    calendar->dayButtonClicked((uint32_t)(uint64_t) param);
 }
 
 // Callback function for switch buttons
@@ -65,7 +65,7 @@ void CCalendar::cbSwitchButtonClicked(Fl_Widget* button, void* param)
 {
     auto* calendar = dynamic_cast<CCalendar*>(button->parent());
     if (!calendar) return;
-    calendar->switchButtonClicked((uint32_t)(long) param);
+    calendar->switchButtonClicked((uint32_t)(uint64_t) param);
 }
 
 void CCalendar::dayButtonClicked(uint32_t day)
@@ -141,7 +141,7 @@ void CCalendar::ctor_init()
     // Weekday headers
     unsigned i;
     for (i = 0; i < 7; i++) {
-        char* label = m_weekDayLabels + (i * 2);
+        auto* label = m_weekDayLabels + uint64_t(i * 2);
         label[0] = DateTime::weekDayNames()[i].c_str()[0];
         label[1] = 0;
         m_dayNameBoxes[i] = new Fl_Box(xx + i * 16, yy + 16, 16, 16, label);
@@ -158,7 +158,7 @@ void CCalendar::ctor_init()
     for (i = 0; i < 31; i++) {
         auto* btn = new Fl_Button(xx, yy, 16, 16, monthDayLabels[i]);
         m_dayButtons[i] = btn;
-        btn->callback(cbDayButtonClicked, (void*)long(i + 1));
+        btn->callback(cbDayButtonClicked, (void*)uint64_t(i + 1));
         btn->color(fl_lighter(fl_lighter(color())));
         btn->box(FL_THIN_UP_BOX);
     }

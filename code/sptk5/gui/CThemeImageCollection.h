@@ -45,7 +45,7 @@ namespace sptk {
  *
  * The images are stored for the different states of the object
  */
-    class CThemeImageCollection
+    class SP_EXPORT CThemeImageCollection
     {
         /**
          * List of images for different image states

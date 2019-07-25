@@ -49,7 +49,7 @@ class CWindow;
  * The derived window should modify the shape points array by ovewriting shapeResize() method.
  * The window resize support is activated only if window resizable() is true.
  */
-class CWindowShape
+class SP_EXPORT CWindowShape
 {
     /**
      * Window to change shape

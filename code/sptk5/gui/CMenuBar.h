@@ -45,7 +45,7 @@ namespace sptk {
  * Extended version of FLTK's standard Fl_Menu_Bar.
  * Added the CLayoutClient interface and preferred size computations.
  */
-class CMenuBar : public Fl_Menu_Bar, public CLayoutClient {
+class SP_EXPORT CMenuBar : public Fl_Menu_Bar, public CLayoutClient {
 public:
 
     /**

@@ -47,7 +47,7 @@ namespace sptk {
  * Extended version of FLTK's standard Fl_Double_Window, with added
  * CLayoutManager capabilities
  */
-class CWindow : public Fl_Double_Window, public CLayoutManager, public CWindowShape
+class SP_EXPORT CWindow : public Fl_Double_Window, public CLayoutManager, public CWindowShape
 {
 public:
 

@@ -47,7 +47,7 @@ namespace sptk {
  * It has a modified handle() function to track the current cursor position.
  * It also allocates the text buffer in constructor and destroys it in destructor.
  */
-class CEditor : public Fl_Text_Editor, public CLayoutClient {
+class SP_EXPORT CEditor : public Fl_Text_Editor, public CLayoutClient {
 
     /**
      * Constructor initializer

@@ -92,7 +92,7 @@ enum CDialogModalResult
  * The main difference is - it hides the tab label
  * and the border when there is only one tab.
  */
-class CDialogTabs: public CTabs
+class SP_EXPORT CDialogTabs: public CTabs
 {
     /**
      * @brief Sets the proper box type for the widget and for the group depending on the number of tabs

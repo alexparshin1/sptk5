@@ -560,7 +560,7 @@ void CControl::internalCallback(Fl_Widget* internalWidget, void* data)
          parentWidget != nullptr; parentWidget = parentWidget->parent()) {
         auto* control = dynamic_cast<CControl*>(parentWidget);
         if (control != nullptr) {
-            control->fireEvent(CE_DATA_CHANGED, (int32_t)(long)(data));
+            control->fireEvent(CE_DATA_CHANGED, (int32_t)(uint64_t)(data));
             break;
         }
     }

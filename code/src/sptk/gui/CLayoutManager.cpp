@@ -104,6 +104,13 @@ void CLayoutManager::clear()
     m_group->clear();
 }
 
+const std::map<std::string, Fl_Boxtype>& CLayoutManager::boxTypeNames() { return m_boxTypeNames; }
+
+void CLayoutManager::registerControl(std::string typeName, createControlCallback creator) noexcept 
+{
+	controlCreator[typeName] = creator;
+}
+
 void CLayoutManager::relayout()
 {
     if (!m_group)

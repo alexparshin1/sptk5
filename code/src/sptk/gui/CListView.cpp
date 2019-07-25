@@ -55,6 +55,16 @@ void CListView::hscrollbar_callback(Fl_Widget* s, void*)
 
 int CListView::m_scrollbarWidth = 16;
 
+void CListView::scrollbar_width(int b)
+{
+	m_scrollbarWidth = b;
+}
+
+int CListView::scrollbar_width()
+{
+	return m_scrollbarWidth;
+}
+
 // Cause minimal update to redraw the given item:
 
 void CListView::redraw_line(unsigned l)
@@ -847,7 +857,7 @@ void CListView::textValue(const string& tv)
             }
         }
     if (dataWasChanged)
-        fireEvent(CE_DATA_CHANGED, (int32_t) (long) dataValue);
+        fireEvent(CE_DATA_CHANGED, (int32_t) (uint64_t) dataValue);
     redraw();
 }
 
@@ -911,7 +921,7 @@ void CListView::data(const Variant vv)
             dataValue = newSelectedRow->user_data();
     }
     if (dataWasChanged)
-        fireEvent(CE_DATA_CHANGED, (int32_t) (long) dataValue);
+        fireEvent(CE_DATA_CHANGED, (int32_t) (uint64_t) dataValue);
     redraw();
 }
 

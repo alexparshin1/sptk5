@@ -62,7 +62,7 @@ enum CScrollbarMode
  * Extended version of FLTK Fl_Group that can be a layout manager and layout client
  * at the same time.
  */
-class CScroll : public ::Fl_Group, public CLayoutManager
+class SP_EXPORT CScroll : public ::Fl_Group, public CLayoutManager
 {
 
     /**
