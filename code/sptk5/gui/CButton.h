@@ -297,7 +297,7 @@ public:
      * @param label const char * label
      * @param tbt CThemeButtonType, the size type of the button
      */
-    CButton(CButtonKind kind, CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, const char* label = 0,
+    CButton(CButtonKind kind, CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, const char* label = "",
             CThemeButtonType tbt = THM_BUTTON_NORMAL)
             : CBaseButton(kind, layoutAlign, false, label, tbt)
     {}
@@ -308,7 +308,7 @@ public:
      * @param layoutAlign CLayoutAlign widget align in layout
      * @param tbt CThemeButtonType, the button type (size)
      */
-    CButton(const char* label = 0, CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, CThemeButtonType tbt = THM_BUTTON_NORMAL)
+    CButton(const char* label = "", CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, CThemeButtonType tbt = THM_BUTTON_NORMAL)
             : CBaseButton(label, layoutAlign, tbt)
     {}
 
