@@ -29,7 +29,11 @@
 #include <sptk5/cutils>
 
 #include <FL/fl_draw.H>
+#ifdef _WIN32
 #include <FL/images/png.h>
+#else
+#include <png.h>
+#endif
 #include <sptk5/gui/CPngImage.h>
 
 using namespace sptk;

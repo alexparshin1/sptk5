@@ -47,7 +47,7 @@ static const char* switchLabels[4] = {
         "@<<", "@<", "@>", "@>>"
 };
 
-static const uint64_t monthChanges[4] = {
+static const int64_t monthChanges[4] = {
         -12, -1, 1, 12
 };
 
