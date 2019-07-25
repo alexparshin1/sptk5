@@ -178,7 +178,7 @@ void CRadioButtons::intValue(int32_t v)
         auto* btn = dynamic_cast<Fl_Button*>(group->child(i));
         if (!btn)
             continue;
-        if (uint64_t(btn->user_data()) == v) {
+        if (int64_t(btn->user_data()) == v) {
             btn->value(1);
             break;
         }
