@@ -9,6 +9,9 @@ PROJECT (SPTK)
 #SET (CMAKE_BUILD_TYPE Debug)
 
 SET (VERSION "5.2.19")
+SET (VERSION_MAJOR "5")
+SET (VERSION_MINOR "2")
+SET (VERSION_PATCH "19")
 SET (SOVERSION "5")
 
 SET (CMAKE_ENABLE_COMPILE_COMMANDS ON)
@@ -18,6 +21,7 @@ SET (LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 SET (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
 SET (TEST_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+SET (CMAKE_INSTALL_RPATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 IF (UNIX)
     OPTION (USE_NEW_ABI "Use new GCC ABI" ON)
@@ -38,6 +42,7 @@ OPTION (USE_PCRE       "Use PCRE library" ON)
 
 OPTION (BUILD_EXAMPLES "Build usage examples" ON)
 OPTION (BUILD_UTILS    "Build utitlity programs" ON)
+OPTION (BUILD_PACKAGE  "Build OS package" ON)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindASPELL.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
@@ -414,44 +419,41 @@ IF (USE_GTEST)
   ADD_SUBDIRECTORY (test)
 ENDIF ()
 
+IF (BUILD_PACKAGE)
+  ADD_SUBDIRECTORY (packages)
+ENDIF ()
+
 FILE (GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
-INSTALL (FILES ${includeFiles} DESTINATION include/sptk5)
+INSTALL (FILES ${includeFiles} DESTINATION include/sptk5 COMPONENT sptk5)
 
 FILE (GLOB includeFilesJSON "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/json/*.h")
-INSTALL (FILES ${includeFilesJSON} DESTINATION include/sptk5/json)
+INSTALL (FILES ${includeFilesJSON} DESTINATION include/sptk5/json COMPONENT sputil5)
 
 FILE (GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
-INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml)
+INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml COMPONENT sputil5)
 
 FILE (GLOB includeFilesWSDL "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/wsdl/*.h")
-INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/wsdl)
+INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/wsdl COMPONENT sputil5)
 
 FILE (GLOB includeFilesNet "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/net/*.h")
-INSTALL (FILES ${includeFilesNet} DESTINATION include/sptk5/net)
+INSTALL (FILES ${includeFilesNet} DESTINATION include/sptk5/net COMPONENT sputil5)
 
 FILE (GLOB includeFilesThreads "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/threads/*.h")
-INSTALL (FILES ${includeFilesThreads} DESTINATION include/sptk5/threads)
+INSTALL (FILES ${includeFilesThreads} DESTINATION include/sptk5/threads COMPONENT sputil5)
 
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/db/*.h")
-INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db)
+INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db COMPONENT spdb5)
 
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/test/*.h")
 INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/test)
 
 IF (FLTK_FLAG)
   FILE (GLOB includeFilesGUI "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/gui/*.h")
-  INSTALL (FILES ${includeFilesGUI} DESTINATION include/sptk5/gui)
+  INSTALL (FILES ${includeFilesGUI} DESTINATION include/sptk5/gui COMPONENT sptk5)
 ENDIF (FLTK_FLAG)
 
 FILE (GLOB includeFilesGroup "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/c*")
-INSTALL (FILES ${includeFilesGroup} DESTINATION include/sptk5)
-
-IF (POSTGRESQL_FLAG)
-  FILE (GLOB pgSQLscripts "${CMAKE_CURRENT_SOURCE_DIR}/dbtools/sql2cpp")
-  INSTALL (PROGRAMS ${pgSQLscripts} DESTINATION bin)
-  FILE (GLOB pgSQLscriptConfigs "${CMAKE_CURRENT_SOURCE_DIR}/dbtools/*.conf")
-  INSTALL (FILES ${pgSQLscriptConfigs} DESTINATION share/sptk5/doc)
-ENDIF (POSTGRESQL_FLAG)
+INSTALL (FILES ${includeFilesGroup} DESTINATION include/sptk5 COMPONENT sputil5)
 
 # create uninstall configuration file
 CONFIGURE_FILE(

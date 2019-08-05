@@ -15,7 +15,8 @@ IF (SQLITE3_LIBRARY)
   ADD_EXECUTABLE (sqlite3_test sqlite3_test.cpp)
   TARGET_LINK_LIBRARIES (sqlite3_test sputil5 spdb5)
 
-  INSTALL(TARGETS sqlite3_test
+  INSTALL(
+    TARGETS sqlite3_test
     RUNTIME DESTINATION share/sptk5/bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
