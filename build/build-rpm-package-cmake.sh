@@ -22,7 +22,7 @@ tar zcf sptk-$VERSION.tar.gz $PACKAGE_NAME
 
 echo Build RPM
 cd $CWD
-cmake . & make -j4 package
+cmake . && make -j4 package
 
 #cp ~/rpmbuild/RPMS/x86_64/*.rpm /build/output/
 
