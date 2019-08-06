@@ -127,7 +127,7 @@ double diffSeconds(DateTime start, DateTime end)
     return chrono::duration_cast<chrono::milliseconds>(end-start).count() / 1000.0;
 }
 
-void saveDocument(const unique_ptr<xml::Document>& doc)
+void saveDocument(const shared_ptr<xml::Document>& doc)
 {
     try {
             DateTime start("now");
@@ -175,7 +175,7 @@ int main(int argc, char **argv)
         window->end();
 
         DateTime start = DateTime::Now();
-        unique_ptr<xml::Document> doc(new xml::Document);
+        shared_ptr<xml::Document> doc(new xml::Document);
         doc->load(buffer);
         DateTime end = DateTime::Now();
 

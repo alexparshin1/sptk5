@@ -610,7 +610,7 @@ CommandLine* createTestCommandLine()
 
 TEST(SPTK_CommandLine, ctor)
 {
-    unique_ptr<CommandLine> commandLine(createTestCommandLine());
+    shared_ptr<CommandLine> commandLine(createTestCommandLine());
     commandLine->init(7, testCommandLineArgs);
 
     EXPECT_STREQ("ahostname", commandLine->getOptionValue("host").c_str());
@@ -620,7 +620,7 @@ TEST(SPTK_CommandLine, ctor)
 
 TEST(SPTK_CommandLine, wrongArgumentValue)
 {
-    unique_ptr<CommandLine> commandLine(createTestCommandLine());
+    shared_ptr<CommandLine> commandLine(createTestCommandLine());
 
     EXPECT_THROW(
         commandLine->init(7, testCommandLineArgs2),
@@ -630,7 +630,7 @@ TEST(SPTK_CommandLine, wrongArgumentValue)
 
 TEST(SPTK_CommandLine, wrongOption)
 {
-    unique_ptr<CommandLine> commandLine(createTestCommandLine());
+    shared_ptr<CommandLine> commandLine(createTestCommandLine());
 
     EXPECT_THROW(
             commandLine->init(7, testCommandLineArgs3),
