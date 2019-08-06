@@ -424,36 +424,36 @@ IF (BUILD_PACKAGE)
 ENDIF ()
 
 FILE (GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
-INSTALL (FILES ${includeFiles} DESTINATION include/sptk5 COMPONENT sptk5)
+INSTALL (FILES ${includeFiles} DESTINATION include/sptk5 COMPONENT core)
 
 FILE (GLOB includeFilesJSON "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/json/*.h")
-INSTALL (FILES ${includeFilesJSON} DESTINATION include/sptk5/json COMPONENT sputil5)
+INSTALL (FILES ${includeFilesJSON} DESTINATION include/sptk5/json COMPONENT core)
 
 FILE (GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
-INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml COMPONENT sputil5)
+INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml COMPONENT core)
 
 FILE (GLOB includeFilesWSDL "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/wsdl/*.h")
-INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/wsdl COMPONENT sputil5)
+INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/wsdl COMPONENT core)
 
 FILE (GLOB includeFilesNet "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/net/*.h")
-INSTALL (FILES ${includeFilesNet} DESTINATION include/sptk5/net COMPONENT sputil5)
+INSTALL (FILES ${includeFilesNet} DESTINATION include/sptk5/net COMPONENT core)
 
 FILE (GLOB includeFilesThreads "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/threads/*.h")
-INSTALL (FILES ${includeFilesThreads} DESTINATION include/sptk5/threads COMPONENT sputil5)
+INSTALL (FILES ${includeFilesThreads} DESTINATION include/sptk5/threads COMPONENT core)
 
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/db/*.h")
-INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db COMPONENT spdb5)
+INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db COMPONENT db)
 
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/test/*.h")
 INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/test)
 
 IF (FLTK_FLAG)
   FILE (GLOB includeFilesGUI "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/gui/*.h")
-  INSTALL (FILES ${includeFilesGUI} DESTINATION include/sptk5/gui COMPONENT sptk5)
+  INSTALL (FILES ${includeFilesGUI} DESTINATION include/sptk5/gui COMPONENT gui)
 ENDIF (FLTK_FLAG)
 
 FILE (GLOB includeFilesGroup "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/c*")
-INSTALL (FILES ${includeFilesGroup} DESTINATION include/sptk5 COMPONENT sputil5)
+INSTALL (FILES ${includeFilesGroup} DESTINATION include/sptk5 COMPONENT core)
 
 # create uninstall configuration file
 CONFIGURE_FILE(

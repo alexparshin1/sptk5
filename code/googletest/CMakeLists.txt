@@ -108,12 +108,12 @@ endif()
 install(
     TARGETS gtest gtest_main
     RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib
-    COMPONENT sputil5
+    COMPONENT core
 )
 install(
     DIRECTORY ${gtest_SOURCE_DIR}/include/gtest
     DESTINATION include
-    COMPONENT sputil5
+    COMPONENT core
 )
 
 ########################################################################

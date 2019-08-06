@@ -11,9 +11,9 @@ IF (ODBC_FLAG)
     TARGET_LINK_LIBRARIES(spdb5_odbc spdb5 sputil5 ${ODBC_LIBRARY})
     INSTALL(
         TARGETS spdb5_odbc
-        RUNTIME DESTINATION bin COMPONENT spdb5_odbc
-        LIBRARY DESTINATION lib COMPONENT spdb5_odbc
-        ARCHIVE DESTINATION lib COMPONENT spdb5_odbc)
+        RUNTIME DESTINATION bin COMPONENT db_odbc
+        LIBRARY DESTINATION lib COMPONENT db_odbc
+        ARCHIVE DESTINATION lib COMPONENT db_odbc)
 ENDIF (ODBC_FLAG)
 
 # SQLite3 support library
@@ -24,9 +24,9 @@ IF (SQLITE3_FLAG)
     TARGET_LINK_LIBRARIES(spdb5_sqlite3 spdb5 sputil5 ${SQLITE3_LIBRARY})
     INSTALL(
         TARGETS spdb5_sqlite3
-        RUNTIME DESTINATION bin COMPONENT spdb5_sqlite3
-        LIBRARY DESTINATION lib COMPONENT spdb5_sqlite3
-        ARCHIVE DESTINATION lib COMPONENT spdb5_sqlite3)
+        RUNTIME DESTINATION bin COMPONENT db_sqlite3
+        LIBRARY DESTINATION lib COMPONENT db_sqlite3
+        ARCHIVE DESTINATION lib COMPONENT db_sqlite3)
 ENDIF (SQLITE3_FLAG)
 
 SET (POSTGRESQL_SOURCES)
@@ -41,9 +41,9 @@ IF (POSTGRESQL_FLAG)
     TARGET_LINK_LIBRARIES(spdb5_postgresql spdb5 sputil5 ${PostgreSQL_LIBRARY})
     INSTALL(
         TARGETS spdb5_postgresql
-        RUNTIME DESTINATION bin COMPONENT spdb5_postgresql
-        LIBRARY DESTINATION lib COMPONENT spdb5_postgresql
-        ARCHIVE DESTINATION lib COMPONENT spdb5_postgresql)
+        RUNTIME DESTINATION bin COMPONENT db_postgresql
+        LIBRARY DESTINATION lib COMPONENT db_postgresql
+        ARCHIVE DESTINATION lib COMPONENT db_postgresql)
 ENDIF (POSTGRESQL_FLAG)
 
 IF (ORACLE_FLAG)
@@ -61,9 +61,9 @@ IF (ORACLE_FLAG)
     TARGET_LINK_LIBRARIES (spdb5_oracle spdb5 sputil5 ${Oracle_LIBRARIES})
     INSTALL(
         TARGETS spdb5_oracle
-        RUNTIME DESTINATION bin COMPONENT spdb5_oracle
-        LIBRARY DESTINATION lib COMPONENT spdb5_oracle
-        ARCHIVE DESTINATION lib COMPONENT spdb5_oracle)
+        RUNTIME DESTINATION bin COMPONENT db_oracle
+        LIBRARY DESTINATION lib COMPONENT db_oracle
+        ARCHIVE DESTINATION lib COMPONENT db_oracle)
 ENDIF (ORACLE_FLAG)
 
 IF (MYSQL_FLAG)
@@ -76,9 +76,9 @@ IF (MYSQL_FLAG)
     TARGET_LINK_LIBRARIES (spdb5_mysql spdb5 sputil5 ${MySQL_LIBRARY})
     INSTALL(
         TARGETS spdb5_mysql
-        RUNTIME DESTINATION bin COMPONENT spdb5_mysql
-        LIBRARY DESTINATION lib COMPONENT spdb5_mysql
-        ARCHIVE DESTINATION lib COMPONENT spdb5_mysql)
+        RUNTIME DESTINATION bin COMPONENT db_mysql
+        LIBRARY DESTINATION lib COMPONENT db_mysql
+        ARCHIVE DESTINATION lib COMPONENT db_mysql)
 ENDIF (MYSQL_FLAG)
 
 IF (FIREBIRD_FLAG)
@@ -91,7 +91,7 @@ IF (FIREBIRD_FLAG)
     TARGET_LINK_LIBRARIES (spdb5_firebird spdb5 sputil5 ${Firebird_LIBRARY})
     INSTALL(
         TARGETS spdb5_firebird
-        RUNTIME DESTINATION bin COMPONENT spdb5_firebird
-        LIBRARY DESTINATION lib COMPONENT spdb5_firebird
-        ARCHIVE DESTINATION lib COMPONENT spdb5_firebird)
+        RUNTIME DESTINATION bin COMPONENT db_firebird
+        LIBRARY DESTINATION lib COMPONENT db_firebird
+        ARCHIVE DESTINATION lib COMPONENT db_firebird)
 ENDIF (FIREBIRD_FLAG)

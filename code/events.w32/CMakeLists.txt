@@ -26,6 +26,6 @@ IF (WIN32)
     # Install resource files into SPTK share directory
     INSTALL (
         FILES ${resourceFiles}
-        DESTINATION share/sptk5/resources COMPONENT sputil5)
+        DESTINATION share/sptk5/resources COMPONENT core)
 
 ENDIF (WIN32)
