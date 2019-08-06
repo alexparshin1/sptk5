@@ -221,7 +221,7 @@ TEST(SPTK_HttpProxy, connect)
     String  proxyPassword(matches[2]);
     Host    proxyHost(matches[3]);
 
-    auto httpProxy = make_unique<HttpProxy>(proxyHost, proxyUser, proxyPassword);
+    auto httpProxy = make_shared<HttpProxy>(proxyHost, proxyUser, proxyPassword);
     String error;
     try {
         Host ahost("www.sptk.net:80");
