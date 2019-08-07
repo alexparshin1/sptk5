@@ -128,6 +128,11 @@ public:
     {
     }
 
+    ~EchoConnection() override
+    {
+        COUT("Connection destroyed" << endl)
+    }
+
     /**
      * Terminate connection thread
      */

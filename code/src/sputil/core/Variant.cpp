@@ -67,13 +67,14 @@ MoneyData::operator bool() const
 //---------------------------------------------------------------------------
 void BaseVariant::releaseBuffers()
 {
+    auto& buffer = m_data.getBuffer();
     if ((m_dataType & (VAR_STRING | VAR_BUFFER | VAR_TEXT)) != 0 &&
-        m_data.getBuffer().data != nullptr) {
+        buffer.data != nullptr) {
         if (!isExternalBuffer())
-            delete [] m_data.getBuffer().data;
+            delete [] buffer.data;
 
-        m_data.getBuffer().data = nullptr;
-        m_data.getBuffer().size = 0;
+        buffer.data = nullptr;
+        buffer.size = 0;
     }
 }
 
@@ -275,18 +276,19 @@ void Variant_SetMethods::setBuffer(const void* value, size_t sz, VariantType typ
     releaseBuffers();
 
     if (value != nullptr || sz != 0) {
+        auto& buffer = m_data.getBuffer();
         if (externalBuffer) {
-            m_data.getBuffer().size = sz;
-            m_data.getBuffer().data = (char*) value;
+            buffer.size = sz;
+            buffer.data = (char*) value;
             dataSize(sz);
             dataType(type | VAR_EXTERNAL_BUFFER);
         } else {
-            m_data.getBuffer().size = sz + 1;
+            buffer.size = sz + 1;
             dataSize(sz);
-            m_data.getBuffer().data = new char[sz + 1];
-            if (m_data.getBuffer().data != nullptr && value != nullptr) {
-                memcpy(m_data.getBuffer().data, value, sz);
-                m_data.getBuffer().data[sz] = 0;
+            buffer.data = new char[sz + 1];
+            if (buffer.data != nullptr && value != nullptr) {
+                memcpy(buffer.data, value, sz);
+                buffer.data[sz] = 0;
             }
             dataType(type);
         }

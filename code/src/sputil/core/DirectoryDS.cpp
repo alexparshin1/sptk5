@@ -233,7 +233,6 @@ bool DirectoryDS::open()
     Strings             fileNames = getFileNames();
     unsigned            index = 0;
 
-    clear();
     for (auto& fileName: fileNames) {
 
         if (fileName.endsWith("\\") || fileName.endsWith("/"))
