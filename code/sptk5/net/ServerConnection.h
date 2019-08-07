@@ -62,7 +62,7 @@ class SP_EXPORT ServerConnection: public Runable
     /**
      * Connection socket
      */
-    TCPSocket*     m_socket;
+    TCPSocket*     m_socket {nullptr};
 
 protected:
 
