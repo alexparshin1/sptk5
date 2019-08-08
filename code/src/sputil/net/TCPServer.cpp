@@ -176,6 +176,15 @@ protected:
         return new EchoConnection(*this, connectionSocket, peer);
     }
 
+    void threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable) override
+    {
+        if (eventType == RUNABLE_FINISHED) {
+            delete runable;
+            runable = nullptr;
+        }
+        ThreadPool::threadEvent(thread, eventType, runable);
+    }
+
 public:
 
     EchoServer() : TCPServer("EchoServer", 16) {}

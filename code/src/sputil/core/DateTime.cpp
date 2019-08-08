@@ -455,7 +455,7 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
 {
     char bdat[32];
 
-    strncpy(bdat, tim, sizeof(bdat));
+    strncpy(bdat, tim, sizeof(bdat) - 1);
 
     if (trimRight(bdat) == 0) {
         dt = DateTime::time_point();

@@ -202,14 +202,23 @@ Timer::Event Timer::repeat(std::chrono::milliseconds interval, void* eventData)
 
 void Timer::fire(Timer::Event event)
 {
-    m_callback(event->getData());
+    if (event) {
+        try {
+            m_callback(event->getData());
+        }
+        catch (const Exception& e) {
+            // ignore
+        }
+    }
 }
 
 void Timer::cancel(Event event)
 {
     lock_guard<mutex> lock(m_mutex);
-    timerThread->forget(event);
-    m_events.erase(event);
+    if (event) {
+        timerThread->forget(event);
+        m_events.erase(event);
+    }
 }
 
 set<Timer::Event> Timer::moveOutEvents()
