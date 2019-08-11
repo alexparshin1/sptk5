@@ -35,6 +35,7 @@
 
 template <class T> class Loop
 {
+    mutable std::mutex              m_mutex;
     std::list<T>                    m_list;
     typename std::list<T>::iterator m_position;
 public:
@@ -46,12 +47,14 @@ public:
 
     void clear()
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_position = m_list.end();
         m_list.clear();
     }
 
     void add(const T& data)
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_list.push_back(data);
         m_position = m_list.end();
         m_position--;
@@ -59,6 +62,7 @@ public:
 
     T& get()
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         if (m_list.empty())
             throw sptk::Exception("Loop is empty");
         return *m_position;
@@ -66,6 +70,7 @@ public:
 
     T& loop()
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         if (m_list.empty())
             throw sptk::Exception("Loop is empty");
         ++m_position;
@@ -76,6 +81,7 @@ public:
 
     size_t size() const
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_list.size();
     }
 };
