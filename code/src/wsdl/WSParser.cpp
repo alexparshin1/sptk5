@@ -38,6 +38,9 @@ using namespace sptk;
 static void replaceFile(const String& fileName, const stringstream& fileData)
 {
     Buffer newData(fileData.str());
+    if (newData.empty())
+        newData.set("", 2);
+
     Buffer oldData;
     try {
         oldData.loadFromFile(fileName);
@@ -421,6 +424,8 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile)
     Buffer externalHeader;
     if (!headerFile.empty())
         externalHeader.loadFromFile(headerFile);
+    else
+        externalHeader.set("");
 
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
