@@ -39,9 +39,9 @@ static void replaceFile(const String& fileName, const stringstream& fileData)
 {
     Buffer newData(fileData.str());
     if (newData.empty())
-        newData.set("", 2);
+        newData.set("", 1);
 
-    Buffer oldData;
+    Buffer oldData("", 1);
     try {
         oldData.loadFromFile(fileName);
     }

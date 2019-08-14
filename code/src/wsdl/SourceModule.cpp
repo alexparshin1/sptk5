@@ -63,7 +63,7 @@ ostream& SourceModule::source()
 
 void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& data)
 {
-    Buffer existingData;
+    Buffer existingData("", 1);
 
     if (m_path.empty())
         m_path = ".";
