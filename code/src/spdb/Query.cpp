@@ -279,7 +279,8 @@ void Query::sql(const String& _sql)
         }
     }
 
-    sql += paramEnd;
+    if (paramEnd != nullptr)
+        sql += paramEnd;
 
     for (int i = (int) m_params.size() - 1; i >= 0; i--)
         if (m_params[i].bindCount() == 0)
