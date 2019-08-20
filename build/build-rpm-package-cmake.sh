@@ -1,28 +1,39 @@
 #!/bin/bash
 
-cat /etc/redhat-release
+OS_NAME=$(grep -E "^ID=" /etc/os-release | sed -re 's/^ID=//; s/"//g')
+OS_VERSION=$(grep -E "^VERSION_ID=" /etc/os-release | sed -re 's/^VERSION_ID=//; s/"//g')
+
+echo $OS_NAME $OS_VERSION
 echo
 
 VERSION=$(head -1 /build/scripts/VERSION)
 RELEASE="1"
 PACKAGE_NAME="SPTK-$VERSION"
 
-CORES=$(grep processor /proc/cpuinfo | wc -l)
-CORES=$(($CORES-1))
+case $OS_NAME in
+    ubuntu)
+        OS_TYPE="ubuntu-$OS_VERSION"
+        ;;
+
+    centos)
+        OS_TYPE="el7"
+        ;;
+
+    *)
+        OS_TYPE="$OS_NAME-$OS_VERSION"
+        ;;
+esac
 
 cd /build/$PACKAGE_NAME
 
-cat /build/scripts/sptk.spec.src | sed -r "s/\{\{CORES\}\}/$CORES/" | sed -r "s/\{\{VERSION\}\}/$VERSION/" | sed -r "s/\{\{RELEASE\}\}/$RELEASE/" > sptk.spec
-
-echo Make source distribution archive
 CWD=`pwd`
 ./distclean.sh
-cd ..
-tar zcf sptk-$VERSION.tar.gz $PACKAGE_NAME
 
-echo Build RPM
-cd $CWD
 cmake . && make -j4 package
+mkdir -p /build/output/$VERSION/
 
-#cp ~/rpmbuild/RPMS/x86_64/*.rpm /build/output/
-
+for fname in *.rpm
+do
+    name=$(echo $fname | sed -re 's/SPTK.*Linux-/sptk-/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
+    mv $fname /build/output/$VERSION/$name
+done
