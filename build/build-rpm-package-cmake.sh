@@ -29,6 +29,10 @@ cd /build/$PACKAGE_NAME
 CWD=`pwd`
 ./distclean.sh
 
+src_name="/build/output/${VERSION}/sptk_${VERSION}"
+[ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz *
+[ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip *
+
 cmake . && make -j4 package
 mkdir -p /build/output/$VERSION/
 chmod 777 /build/output/$VERSION/
