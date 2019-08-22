@@ -2,6 +2,8 @@
 
 [ -f Makefile ] && make clean
 
+[ -d _CPack_Packages ] && rm -rf _CPack_Packages
+
 rm CMakeCache.txt
 for file in Makefile CMakeFiles install_manifest.txt cmake_install.cmake cmake_uninstall.cmake compile_commands.json *.deb install_manifest*.txt
 do
