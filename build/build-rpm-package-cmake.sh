@@ -16,7 +16,11 @@ case $OS_NAME in
         ;;
 
     centos)
-        OS_TYPE="el7"
+        OS_TYPE="el-$OS_VERSION"
+        ;;
+
+    fedora)
+        OS_TYPE="fc-$OS_VERSION"
         ;;
 
     *)
