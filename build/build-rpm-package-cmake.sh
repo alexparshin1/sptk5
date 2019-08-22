@@ -31,6 +31,7 @@ CWD=`pwd`
 
 cmake . && make -j4 package
 mkdir -p /build/output/$VERSION/
+chmod 777 /build/output/$VERSION/
 
 for fname in *.rpm
 do
