@@ -1,3 +1,4 @@
+exclude_from_tarball.lst
 adjust_google_test.sh
 cmake_uninstall.cmake.in
 convert_doxygen_to_javadoc.pl
@@ -9,3 +10,4 @@ install_themes.sh
 sonar-build.sh
 sonar-project.properties
 SPTK.cbp
+coverity-build.sh
