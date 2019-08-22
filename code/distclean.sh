@@ -4,10 +4,20 @@
 
 [ -d _CPack_Packages ] && rm -rf _CPack_Packages
 
-rm CMakeCache.txt
-for file in Makefile CMakeFiles install_manifest.txt cmake_install.cmake cmake_uninstall.cmake compile_commands.json *.deb install_manifest*.txt
+for dname in $(find -name CMakeFiles -type d)
+do
+    [ -d $dname ] && rm -rf $dname
+done
+
+[ -f CMakeCache.txt ] && rm CMakeCache.txt
+
+for file in Makefile install_manifest.txt cmake_install.cmake cmake_uninstall.cmake compile_commands.json *.deb install_manifest*.txt
 do
   find -name $file -exec rm -rf {} \;
 done
 
-rm lib/*
+for fname in lib/*
+do
+    rm $fname
+done
+
