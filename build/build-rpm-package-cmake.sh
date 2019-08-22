@@ -37,3 +37,5 @@ do
     name=$(echo $fname | sed -re 's/SPTK.*Linux-/sptk-/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
     mv $fname /build/output/$VERSION/$name
 done
+
+./distclean.sh
