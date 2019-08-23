@@ -233,6 +233,20 @@ void Buffer::erase(size_t offset, size_t length)
     m_buffer[m_bytes] = 0;
 }
 
+bool Buffer::operator==(const Buffer& other)
+{
+    if (m_bytes != other.m_bytes)
+        return false;
+    return memcmp(m_buffer, other.m_buffer, m_bytes) == 0;
+}
+
+bool Buffer::operator!=(const Buffer& other)
+{
+    if (m_bytes != other.m_bytes)
+        return true;
+    return memcmp(m_buffer, other.m_buffer, m_bytes) != 0;
+}
+
 ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 {
     char fillChar = stream.fill('0');

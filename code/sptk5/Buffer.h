@@ -356,6 +356,20 @@ public:
     }
 
     /**
+     * Compare operator
+     * @param other             Other buffer
+     * @return                  True if buffer contents are identical
+     */
+    bool operator == (const Buffer& other);
+
+    /**
+     * Compare operator
+     * @param other             Other buffer
+     * @return                  True if buffer contents are not matching
+     */
+    bool operator != (const Buffer& other);
+
+    /**
      * Loads the buffer from file fileName.
      * @param fileName          Name of the input file
      */
