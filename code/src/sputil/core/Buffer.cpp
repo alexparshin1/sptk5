@@ -167,10 +167,11 @@ Buffer& Buffer::operator = (Buffer&& other) DOESNT_THROW
         free(m_buffer);
 
     m_buffer = other.m_buffer;
+    m_size = other.m_size;
+    m_bytes = other.m_bytes;
+
     other.m_buffer = nullptr;
     other.m_size = 0;
-
-    m_bytes = other.m_bytes;
     other.m_bytes = 0;
 
     return *this;
@@ -181,7 +182,7 @@ Buffer& Buffer::operator = (const Buffer& other)
     if (&other == this)
         return *this;
 
-    size_t newSize = (other.m_bytes / 64 + 1) * 64 + 1;
+    size_t newSize = other.m_size;
 
     if (m_size != newSize) {
         auto* newptr = realloc(m_buffer, newSize);
@@ -191,7 +192,9 @@ Buffer& Buffer::operator = (const Buffer& other)
         m_size = newSize;
     }
 
-    memcpy(m_buffer, other.m_buffer, other.m_bytes + 1);
+    if (other.m_buffer != nullptr)
+        memcpy(m_buffer, other.m_buffer, other.m_bytes + 1);
+
     m_bytes = other.m_bytes;
 
     return *this;
@@ -306,6 +309,28 @@ TEST(SPTK_Buffer, create)
     EXPECT_STREQ(testPhrase, buffer1.c_str());
     EXPECT_EQ(strlen(testPhrase), buffer1.bytes());
     EXPECT_TRUE(strlen(testPhrase) < buffer1.capacity());
+}
+
+TEST(SPTK_Buffer, copyCtor)
+{
+    auto buffer1 = make_shared<Buffer>(testPhrase);
+    Buffer  buffer2(*buffer1);
+    buffer1.reset();
+
+    EXPECT_STREQ(testPhrase, buffer2.c_str());
+    EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
+    EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
+}
+
+TEST(SPTK_Buffer, moveCtor)
+{
+    auto buffer1 = make_shared<Buffer>(testPhrase);
+    Buffer  buffer2(move(*buffer1));
+    buffer1.reset();
+
+    EXPECT_STREQ(testPhrase, buffer2.c_str());
+    EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
+    EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
 }
 
 Buffer* ptr;
