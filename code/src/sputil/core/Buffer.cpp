@@ -185,10 +185,15 @@ Buffer& Buffer::operator = (const Buffer& other)
     size_t newSize = other.m_size;
 
     if (m_size != newSize) {
-        auto* newptr = realloc(m_buffer, newSize);
-        if (newptr == nullptr)
-            throw Exception("Can't reallocate buffer to " + to_string(newSize) + " bytes");
-        m_buffer = (char*) newptr;
+        if (newSize == 0) {
+            free(m_buffer);
+            m_buffer = nullptr;
+        } else {
+            auto* newptr = realloc(m_buffer, newSize);
+            if (newptr == nullptr)
+                throw Exception("Can't reallocate buffer to " + to_string(newSize) + " bytes");
+            m_buffer = (char*) newptr;
+        }
         m_size = newSize;
     }
 
