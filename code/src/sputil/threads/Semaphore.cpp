@@ -65,6 +65,17 @@ void Semaphore::post()
     }
 }
 
+void Semaphore::set(size_t value)
+{
+    lock_guard<mutex>  lock(m_lockMutex);
+    if (m_maxValue == 0 || value < m_maxValue) {
+        if (m_value != value) {
+            m_value = value;
+            m_condition.notify_one();
+        }
+    }
+}
+
 bool Semaphore::sleep_for(chrono::milliseconds timeout)
 {
     auto timeoutAt = DateTime::Now() + timeout;
