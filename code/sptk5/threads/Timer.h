@@ -3,6 +3,8 @@
 
 #include "Thread.h"
 #include "Semaphore.h"
+
+#include <functional>
 #include <set>
 
 namespace sptk {
@@ -42,7 +44,7 @@ namespace sptk {
              * Event callback definition.
              * Events call that function when there is time for them to fire.
              */
-            typedef void(*Callback) (void* eventData);
+            typedef std::function<void(void* eventData)> Callback;
 
         private:
 

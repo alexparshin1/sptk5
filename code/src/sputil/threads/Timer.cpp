@@ -299,6 +299,19 @@ static void gtestTimerCallback2(void* theEventData)
     eventCounter[eventIndex]++;
 }
 
+TEST(SPTK_Timer, minimal)
+{
+    int counter = 0;
+    Timer timer([&counter](void* eventData) {
+        auto value = (size_t) eventData;
+        counter += value;
+    });
+
+    timer.fireAt(DateTime::Now() + chrono::milliseconds(10), (void*)2);
+    this_thread::sleep_for(chrono::milliseconds(20));
+    EXPECT_EQ(counter, 2);
+}
+
 TEST(SPTK_Timer, repeat_multiple_events)
 {
     if (DateTime::Now() > DateTime()) // always true
