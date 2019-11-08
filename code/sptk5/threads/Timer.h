@@ -44,14 +44,13 @@ namespace sptk {
              * Event callback definition.
              * Events call that function when there is time for them to fire.
              */
-            typedef std::function<void(void* eventData)> Callback;
+            typedef std::function<void()> Callback;
 
         private:
 
             EventId                     m_id;                ///< Event serial and when the event has to fire next time.
-            void*                       m_data {nullptr};    ///< Opaque event data, defined when event is scheduled. Passed by event to callback function.
+            Callback                    m_callback;          ///< Event callback function, defined when event is scheduled.
             std::chrono::milliseconds   m_repeatEvery;       ///< Event repeat interval.
-            Timer*                      m_timer {nullptr};   ///< Parent timer
 
         public:
 
@@ -74,12 +73,11 @@ namespace sptk {
 
             /**
              * Constructor
-             * @param timer                 Parent timer
              * @param timestamp             Fire at timestamp
-             * @param eventData             Event data that will be passed to timer callback
+             * @param eventCallback         Event callback function
              * @param repeatEvery           Event repeate interval
              */
-            EventData(Timer& timer, const DateTime& timestamp, void* eventData, std::chrono::milliseconds repeatEvery);
+            EventData(const DateTime& timestamp, Callback& eventCallback, std::chrono::milliseconds repeatEvery);
 
             /**
              * Destructor
@@ -104,22 +102,6 @@ namespace sptk {
             }
 
             /**
-             * @return event data
-             */
-            void* getData() const
-            {
-                return m_data;
-            }
-
-            /**
-             * @return parent timer
-             */
-            Timer& getTimer() const
-            {
-                return *m_timer;
-            }
-
-            /**
              * @return event repeat interval
              */
             const std::chrono::milliseconds& getInterval() const
@@ -128,12 +110,10 @@ namespace sptk {
             }
 
             /**
-             * Disconnect event from timer (internal)
+             * Fire event by calling its callback function..
              */
-            void unlinkFromTimer()
-            {
-                m_timer = nullptr;
-            }
+            void fire();
+
         };
 
         /**
@@ -145,7 +125,6 @@ namespace sptk {
 
         mutable std::mutex          m_mutex;        ///< Mutex protecting events set
         std::set<Event>             m_events;       ///< Events scheduled by this timer
-        EventData::Callback         m_callback;     ///< Event callback function.
 
         std::set<Timer::Event> moveOutEvents();
 
@@ -156,11 +135,8 @@ namespace sptk {
     public:
         /**
          * Constructor
-         * @param callback                  Timer callback function, called when event is up
          */
-        explicit Timer(EventData::Callback callback)
-        : m_callback(callback)
-        {}
+        Timer() = default;
 
         /**
          * Copy constructor
@@ -175,27 +151,21 @@ namespace sptk {
         virtual ~Timer();
 
         /**
-         * Fire single event.
-         * @param event                     User data that will be passed to timer callback function.
-         */
-        void fire(Event event);
-
-        /**
          * Schedule single event.
          * @param timestamp                 Fire at timestamp
-         * @param eventData                 User data that will be passed to timer callback function.
+         * @param eventCallback             Event callback.
          * @return event handle, that may be used to cancel this event.
          */
-        Event fireAt(const DateTime& timestamp, void* eventData);
+        Event fireAt(const DateTime& timestamp, EventData::Callback eventCallback);
 
         /**
          * Schedule repeatable event.
          * The first event is scheduled at current time + interval.
          * @param interval                  Event repeat interval.
-         * @param eventData                 User data that will be passed to timer callback function.
+         * @param eventCallback             Event callback.
          * @return event handle, that may be used to cancel this event.
          */
-        Event repeat(std::chrono::milliseconds interval, void* eventData);
+        Event repeat(std::chrono::milliseconds interval, EventData::Callback eventCallback);
 
         /**
          * Cancel event

@@ -47,11 +47,6 @@
 using namespace std;
 using namespace sptk;
 
-static void acallback(void*)
-{
-    // Dummy callback
-}
-
 /**
  * Stub TCP server - testing only
  */
@@ -76,7 +71,7 @@ void stub()
     CommandLine          cmd("", "", "");
     DirectoryDS          dir("");
     ThreadPool           threads(1, std::chrono::milliseconds(), "test");
-    Timer                timer(acallback);
+    Timer                timer;
     MD5                  md5;
     StubServer           tcpServer;
     Tar                  tar;

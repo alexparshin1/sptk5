@@ -1,10 +1,12 @@
 
 #include <sptk5/threads/Timer.h>
+#include <sptk5/cutils>
 
 #include "sptk5/threads/Timer.h"
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
 class EventIdComparator
 {
@@ -31,7 +33,7 @@ class TimerThread : public Thread
     {
         lock_guard<mutex> lock(m_scheduledMutex);
         if (m_scheduledEvents.empty())
-            return DateTime::Now() + chrono::seconds(1);
+            return DateTime::Now() + seconds(1);
         else {
             auto itor = m_scheduledEvents.begin();
             return itor->first.when;
@@ -82,12 +84,7 @@ public:
     void clear()
     {
         lock_guard<mutex> lock(m_scheduledMutex);
-        while (!m_scheduledEvents.empty()) {
-            auto itor = m_scheduledEvents.begin();
-            Timer::Event event = itor->second;
-            event->unlinkFromTimer();
-            m_scheduledEvents.erase(itor);
-        }
+        m_scheduledEvents.clear();
     }
 
     void forget(Timer::Event event)
@@ -115,8 +112,8 @@ Timer::EventId::EventId(const DateTime& when)
 {
 }
 
-Timer::EventData::EventData(Timer& timer, const DateTime& timestamp, void* eventData, std::chrono::milliseconds repeatEvery)
-: m_id(timestamp), m_data(eventData), m_repeatEvery(repeatEvery), m_timer(&timer)
+Timer::EventData::EventData(const DateTime& timestamp, Callback& eventCallback, milliseconds repeatEvery)
+: m_id(timestamp), m_callback(eventCallback), m_repeatEvery(repeatEvery)
 {
     eventAllocations++;
 }
@@ -131,15 +128,23 @@ const Timer::EventId& Timer::EventData::getId() const
     return m_id;
 }
 
+void Timer::EventData::fire()
+{
+    try {
+        m_callback();
+    }
+    catch (const Exception& e) {
+        CERR(e.what())
+    }
+}
+
 void TimerThread::threadFunction()
 {
     while (!terminated()) {
         Timer::Event event;
         if (waitForEvent(event)) {
-            event->getTimer().fire(event);
-            if (event->getInterval().count() == 0)
-                event->unlinkFromTimer();
-            else {
+            event->fire();
+            if (event->getInterval().count() != 0) {
                 event->shift(event->getInterval());
                 schedule(event);
             }
@@ -174,11 +179,11 @@ static void checkTimerThreadRunning()
     }
 }
 
-Timer::Event Timer::fireAt(const DateTime& timestamp, void* eventData)
+Timer::Event Timer::fireAt(const DateTime& timestamp, EventData::Callback eventCallback)
 {
     checkTimerThreadRunning();
 
-    Event event = make_shared<EventData>(*this, timestamp, eventData, chrono::milliseconds());
+    Event event = make_shared<EventData>(timestamp, eventCallback, milliseconds());
     timerThread->schedule(event);
 
     lock_guard<mutex> lock(m_mutex);
@@ -187,29 +192,17 @@ Timer::Event Timer::fireAt(const DateTime& timestamp, void* eventData)
     return event;
 }
 
-Timer::Event Timer::repeat(std::chrono::milliseconds interval, void* eventData)
+Timer::Event Timer::repeat(milliseconds interval, EventData::Callback eventCallback)
 {
     checkTimerThreadRunning();
 
-    Event event = make_shared<EventData>(*this, DateTime::Now() + interval, eventData, interval);
+    Event event = make_shared<EventData>(DateTime::Now() + interval, eventCallback, interval);
     timerThread->schedule(event);
 
     lock_guard<mutex> lock(m_mutex);
     m_events.insert(event);
 
     return event;
-}
-
-void Timer::fire(Timer::Event event)
-{
-    if (event) {
-        try {
-            m_callback(event->getData());
-        }
-        catch (const Exception& e) {
-            // ignore
-        }
-    }
 }
 
 void Timer::cancel(Event event)
@@ -237,10 +230,8 @@ void Timer::cancel()
     set<Timer::Event> events = moveOutEvents();
 
     // Unregister and destroy events
-    for (auto event: events) {
+    for (auto event: events)
         timerThread->forget(event);
-        event->m_timer = nullptr;
-    }
 }
 
 #if USE_GTEST
@@ -255,13 +246,13 @@ TEST(SPTK_Timer, fireAt)
 {
     if (DateTime::Now() > DateTime()) // always true
     {
-        Timer timer(gtestTimerCallback);
-        DateTime when = DateTime::Now() + chrono::milliseconds(50);
+        Timer timer;
+        DateTime when = DateTime::Now() + milliseconds(50);
 
         int eventSet(0);
-
-        timer.fireAt(when, &eventSet);
-        this_thread::sleep_until((when + chrono::milliseconds(20)).timePoint());
+        function<void()> eventCallback = bind(gtestTimerCallback, &eventSet);
+        timer.fireAt(when, eventCallback);
+        this_thread::sleep_until((when + milliseconds(20)).timePoint());
 
         EXPECT_EQ(1, eventSet);
     }
@@ -272,12 +263,13 @@ TEST(SPTK_Timer, repeat)
 {
     if (DateTime::Now() > DateTime()) // always true
     {
-        Timer timer(gtestTimerCallback);
+        Timer timer;
 
         int eventSet(0);
 
-        Timer::Event handle = timer.repeat(chrono::milliseconds(20), &eventSet);
-        this_thread::sleep_for(chrono::milliseconds(110));
+        function<void()> eventCallback = bind(gtestTimerCallback, &eventSet);
+        Timer::Event handle = timer.repeat(milliseconds(20), eventCallback);
+        this_thread::sleep_for(milliseconds(110));
         timer.cancel(handle);
 
         EXPECT_NEAR(5, eventSet, 1);
@@ -301,14 +293,15 @@ static void gtestTimerCallback2(void* theEventData)
 
 TEST(SPTK_Timer, minimal)
 {
-    int counter = 0;
-    Timer timer([&counter](void* eventData) {
-        auto value = (size_t) eventData;
-        counter += value;
-    });
+    int counter = 1;
+    Timer timer;
 
-    timer.fireAt(DateTime::Now() + chrono::milliseconds(10), (void*)2);
-    this_thread::sleep_for(chrono::milliseconds(20));
+    timer.fireAt(DateTime::Now() + milliseconds(10), [&counter]()
+        {
+            counter++;
+        }
+    );
+    this_thread::sleep_for(milliseconds(20));
     EXPECT_EQ(counter, 2);
 }
 
@@ -316,23 +309,24 @@ TEST(SPTK_Timer, repeat_multiple_events)
 {
     if (DateTime::Now() > DateTime()) // always true
     {
-        Timer timer(gtestTimerCallback2);
+        Timer timer;
 
         vector<Timer::Event> createdEvents;
         for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
             eventData[eventIndex] = eventIndex;
-            Timer::Event event = timer.repeat(chrono::milliseconds(20), (void*)eventIndex);
+            function<void()> callback = bind(gtestTimerCallback2, (void*)eventIndex);
+            Timer::Event event = timer.repeat(milliseconds(20), callback);
             createdEvents.push_back(event);
         }
 
-        this_thread::sleep_for(chrono::milliseconds(110));
+        this_thread::sleep_for(milliseconds(110));
 
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
             Timer::Event event = createdEvents[eventIndex];
             timer.cancel(event);
         }
 
-        this_thread::sleep_for(chrono::milliseconds(20));
+        this_thread::sleep_for(milliseconds(20));
 
         int totalEvents(0);
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
@@ -352,20 +346,22 @@ TEST(SPTK_Timer, repeat_multiple_timers)
         vector< shared_ptr<Timer> > timers;
 
         for (size_t timerIndex = 0; timerIndex < MAX_TIMERS; timerIndex++) {
-            timers.push_back(make_shared<Timer>(gtestTimerCallback2));
+            timers.push_back(make_shared<Timer>());
             shared_ptr<Timer> timer = timers[timerIndex];
-            for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++)
-                timer->repeat(chrono::milliseconds(20), (void*) eventIndex);
+            for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
+                function<void()> callback = bind(gtestTimerCallback2, (void*)eventIndex);
+                timer->repeat(milliseconds(20), callback);
+            }
         }
 
-        this_thread::sleep_for(chrono::milliseconds(110));
+        this_thread::sleep_for(milliseconds(110));
 
         for (size_t timerIndex = 0; timerIndex < MAX_TIMERS; timerIndex++) {
             shared_ptr<Timer> timer = timers[timerIndex];
             timer->cancel();
         }
 
-        this_thread::sleep_for(chrono::milliseconds(10));
+        this_thread::sleep_for(milliseconds(10));
 
         int totalEvents(0);
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {

@@ -32,26 +32,26 @@
 using namespace std;
 using namespace sptk;
 
-void timerCallback(void* eventData)
+void timerCallback(const char* eventData)
 {
-    COUT(DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " " << (const char*) eventData << "." << endl);
+    COUT(DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " " << eventData << "." << endl);
 }
 
 int main()
 {
     try {
-        Timer timer(timerCallback);
+        Timer timer;
 
         COUT(DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " scheduled." << endl);
 
         // Schedule single event
-        timer.fireAt(DateTime::Now() + chrono::milliseconds(2500), (void*) "single");
+        timer.fireAt(DateTime::Now() + chrono::milliseconds(2500), bind(timerCallback, "single"));
 
         // Schedule repeatable event
-        timer.repeat(chrono::seconds(1), (void*) "every second");
+        timer.repeat(chrono::seconds(1), bind(timerCallback, "every second"));
 
         // Schedule repeatable event, using event handle to cancel it later
-        Timer::Event every3seconds = timer.repeat(chrono::seconds(3), (void*) "every 3 seconds");
+        Timer::Event every3seconds = timer.repeat(chrono::seconds(3), bind(timerCallback, "every 3 seconds"));
 
         this_thread::sleep_for(chrono::seconds(5));
 
