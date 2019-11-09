@@ -1,6 +1,7 @@
 
 #include <sptk5/threads/Timer.h>
 #include <sptk5/cutils>
+#include <sptk5/StopWatch.h>
 
 #include "sptk5/threads/Timer.h"
 
@@ -112,8 +113,8 @@ Timer::EventId::EventId(const DateTime& when)
 {
 }
 
-Timer::EventData::EventData(const DateTime& timestamp, Callback& eventCallback, milliseconds repeatEvery)
-: m_id(timestamp), m_callback(eventCallback), m_repeatEvery(repeatEvery)
+Timer::EventData::EventData(const DateTime& timestamp, Callback& eventCallback, milliseconds repeatEvery, int repeatCount)
+: m_id(timestamp), m_callback(eventCallback), m_repeatInterval(repeatEvery), m_repeatCount(repeatCount)
 {
     eventAllocations++;
 }
@@ -128,7 +129,7 @@ const Timer::EventId& Timer::EventData::getId() const
     return m_id;
 }
 
-void Timer::EventData::fire()
+bool Timer::EventData::fire()
 {
     try {
         m_callback();
@@ -136,6 +137,19 @@ void Timer::EventData::fire()
     catch (const Exception& e) {
         CERR(e.what())
     }
+
+    if (m_repeatCount == 0)
+        return false;
+
+    if (m_repeatCount > 0) {
+        m_repeatCount--;
+        if (m_repeatCount == 0)
+            return false;
+    }
+
+    m_id.when = m_id.when + m_repeatInterval;
+
+    return true;
 }
 
 void TimerThread::threadFunction()
@@ -143,11 +157,8 @@ void TimerThread::threadFunction()
     while (!terminated()) {
         Timer::Event event;
         if (waitForEvent(event)) {
-            event->fire();
-            if (event->getInterval().count() != 0) {
-                event->shift(event->getInterval());
+            if (event->fire())
                 schedule(event);
-            }
         }
     }
     clear();
@@ -183,7 +194,7 @@ Timer::Event Timer::fireAt(const DateTime& timestamp, EventData::Callback eventC
 {
     checkTimerThreadRunning();
 
-    Event event = make_shared<EventData>(timestamp, eventCallback, milliseconds());
+    Event event = make_shared<EventData>(timestamp, eventCallback, milliseconds(), 0);
     timerThread->schedule(event);
 
     lock_guard<mutex> lock(m_mutex);
@@ -192,11 +203,11 @@ Timer::Event Timer::fireAt(const DateTime& timestamp, EventData::Callback eventC
     return event;
 }
 
-Timer::Event Timer::repeat(milliseconds interval, EventData::Callback eventCallback)
+Timer::Event Timer::repeat(milliseconds interval, EventData::Callback eventCallback, int repeatCount)
 {
     checkTimerThreadRunning();
 
-    Event event = make_shared<EventData>(DateTime::Now() + interval, eventCallback, interval);
+    Event event = make_shared<EventData>(DateTime::Now() + interval, eventCallback, interval, repeatCount);
     timerThread->schedule(event);
 
     lock_guard<mutex> lock(m_mutex);
@@ -242,23 +253,6 @@ static void gtestTimerCallback(void* eventData)
     eventSet++;
 }
 
-TEST(SPTK_Timer, fireAt)
-{
-    if (DateTime::Now() > DateTime()) // always true
-    {
-        Timer timer;
-        DateTime when = DateTime::Now() + milliseconds(50);
-
-        int eventSet(0);
-        function<void()> eventCallback = bind(gtestTimerCallback, &eventSet);
-        timer.fireAt(when, eventCallback);
-        this_thread::sleep_until((when + milliseconds(20)).timePoint());
-
-        EXPECT_EQ(1, eventSet);
-    }
-    EXPECT_EQ(0, eventAllocations);
-}
-
 TEST(SPTK_Timer, repeat)
 {
     if (DateTime::Now() > DateTime()) // always true
@@ -280,32 +274,59 @@ TEST(SPTK_Timer, repeat)
 
 #define MAX_EVENT_COUNTER (10)
 #define MAX_TIMERS        (10)
-SharedMutex eventCounterMutex;
-vector<int> eventCounter(MAX_EVENT_COUNTER);
-vector<int> eventData(MAX_EVENT_COUNTER);
+static mutex        eventCounterMutex;
+static vector<int>  eventCounter(MAX_EVENT_COUNTER);
+static vector<int>  eventData(MAX_EVENT_COUNTER);
 
 static void gtestTimerCallback2(void* theEventData)
 {
-    UniqueLock(eventCounterMutex);
+    lock_guard<mutex> lock(eventCounterMutex);
     size_t eventIndex = size_t(theEventData);
     eventCounter[eventIndex]++;
 }
 
-TEST(SPTK_Timer, minimal)
+TEST(SPTK_Timer, fireOnce)
 {
-    int counter = 1;
-    Timer timer;
+    mutex   counterMutex;
+    int     counter = 1;
+    Timer   timer;
 
-    timer.fireAt(DateTime::Now() + milliseconds(10), [&counter]()
-        {
+    timer.fireAt(
+        DateTime::Now() + milliseconds(10),
+        [&counter, &counterMutex]() {
+            lock_guard<mutex> lock(counterMutex);
             counter++;
         }
     );
+
     this_thread::sleep_for(milliseconds(20));
+
+    lock_guard<mutex> lock(counterMutex);
     EXPECT_EQ(counter, 2);
 }
 
-TEST(SPTK_Timer, repeat_multiple_events)
+TEST(SPTK_Timer, repeatTwice)
+{
+    mutex   counterMutex;
+    int     counter = 0;
+    Timer   timer;
+
+    timer.repeat(
+            milliseconds(10),
+            [&counter, &counterMutex]() {
+                lock_guard<mutex> lock(counterMutex);
+                counter++;
+            },
+            2
+    );
+
+    this_thread::sleep_for(milliseconds(40));
+
+    lock_guard<mutex> lock(counterMutex);
+    EXPECT_EQ(counter, 2);
+}
+
+TEST(SPTK_Timer, repeatMultipleEvents)
 {
     if (DateTime::Now() > DateTime()) // always true
     {
@@ -330,7 +351,7 @@ TEST(SPTK_Timer, repeat_multiple_events)
 
         int totalEvents(0);
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
-            UniqueLock(eventCounterMutex);
+            lock_guard<mutex> lock(eventCounterMutex);
             totalEvents += eventCounter[eventIndex];
         }
 
@@ -339,39 +360,107 @@ TEST(SPTK_Timer, repeat_multiple_events)
     EXPECT_EQ(0, eventAllocations);
 }
 
-TEST(SPTK_Timer, repeat_multiple_timers)
+TEST(SPTK_Timer, repeatMultipleTimers)
 {
-    if (DateTime::Now() > DateTime()) // always true
+    int repeatCount = 10;
+    vector<Timer> timers(MAX_TIMERS);
+
     {
-        vector< shared_ptr<Timer> > timers;
-
-        for (size_t timerIndex = 0; timerIndex < MAX_TIMERS; timerIndex++) {
-            timers.push_back(make_shared<Timer>());
-            shared_ptr<Timer> timer = timers[timerIndex];
-            for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
-                function<void()> callback = bind(gtestTimerCallback2, (void*)eventIndex);
-                timer->repeat(milliseconds(20), callback);
-            }
-        }
-
-        this_thread::sleep_for(milliseconds(110));
-
-        for (size_t timerIndex = 0; timerIndex < MAX_TIMERS; timerIndex++) {
-            shared_ptr<Timer> timer = timers[timerIndex];
-            timer->cancel();
-        }
-
-        this_thread::sleep_for(milliseconds(10));
-
-        int totalEvents(0);
-        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
-            UniqueLock(eventCounterMutex);
-            totalEvents += eventCounter[eventIndex];
-        }
-
-        EXPECT_NEAR(MAX_TIMERS * MAX_EVENT_COUNTER * 6, totalEvents, 10 * MAX_TIMERS);
+        lock_guard<mutex> lock(eventCounterMutex);
+        eventCounter.clear();
+        eventCounter.resize(MAX_EVENT_COUNTER);
     }
-    EXPECT_EQ(0, eventAllocations);
+
+    for (auto& timer: timers) {
+        for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
+            function<void()> callback = bind(gtestTimerCallback2, (void*)eventIndex);
+            timer.repeat(
+                    milliseconds(10),
+                    callback,
+                    repeatCount);
+        }
+    }
+
+    this_thread::sleep_for(milliseconds(200));
+
+    int totalEvents(0);
+    {
+        lock_guard<mutex> lock(eventCounterMutex);
+        for (auto counter: eventCounter)
+            totalEvents += counter;
+    }
+
+    EXPECT_EQ(MAX_TIMERS * MAX_EVENT_COUNTER * repeatCount, totalEvents);
+}
+
+class NotifyObject
+{
+    mutable mutex   m_mutex;
+    int             m_value {0};
+public:
+    int  getValue() const
+    {
+        lock_guard<mutex> lock(m_mutex);
+        return m_value;
+    }
+    void setValue(int v)
+    {
+        lock_guard<mutex> lock(m_mutex);
+        m_value = v;
+    }
+};
+
+TEST(SPTK_Timer, notifyObjects)
+{
+    NotifyObject    object1;
+    NotifyObject    object2;
+    Timer           timer;
+
+    function<void()> object1function = bind(&NotifyObject::setValue, &object1, 1);
+    function<void()> object2function = bind(&NotifyObject::setValue, &object2, -1);
+
+    timer.fireAt(
+            DateTime::Now() + milliseconds(10),
+            object1function
+    );
+    timer.fireAt(
+            DateTime::Now() + milliseconds(10),
+            object2function
+    );
+    this_thread::sleep_for(milliseconds(30));
+    EXPECT_EQ(object1.getValue(), 1);
+    EXPECT_EQ(object2.getValue(), -1);
+}
+
+TEST(SPTK_Timer, scheduleEventsPerformance)
+{
+    Timer   timer;
+    size_t  maxEvents = 100000;
+    vector<Timer::Event> createdEvents;
+
+    StopWatch   stopwatch;
+
+    DateTime    when("now");
+    when = when + hours(1);
+
+    stopwatch.start();
+    for (size_t eventIndex = 0; eventIndex < maxEvents; eventIndex++) {
+        function<void()> callback = bind(gtestTimerCallback2, (void*)eventIndex);
+        Timer::Event event = timer.fireAt(when, callback);
+        createdEvents.push_back(event);
+    }
+    stopwatch.stop();
+
+    COUT(maxEvents << " events scheduled, " << maxEvents / stopwatch.seconds() << " events/s" << endl)
+
+    stopwatch.start();
+    for (auto& event: createdEvents) {
+        timer.cancel(event);
+    }
+    stopwatch.stop();
+
+    COUT(maxEvents << " events canceled, " << maxEvents / stopwatch.seconds() << " events/s" << endl)
+
 }
 
 #endif

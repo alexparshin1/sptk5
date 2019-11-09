@@ -50,7 +50,8 @@ namespace sptk {
 
             EventId                     m_id;                ///< Event serial and when the event has to fire next time.
             Callback                    m_callback;          ///< Event callback function, defined when event is scheduled.
-            std::chrono::milliseconds   m_repeatEvery;       ///< Event repeat interval.
+            std::chrono::milliseconds   m_repeatInterval;    ///< Event repeat interval.
+            int                         m_repeatCount {0};   ///< Number of event repeats, -1 means no limit.
 
         public:
 
@@ -76,8 +77,9 @@ namespace sptk {
              * @param timestamp             Fire at timestamp
              * @param eventCallback         Event callback function
              * @param repeatEvery           Event repeate interval
+             * @param repeatCount           Repeat count, -1 means no limit
              */
-            EventData(const DateTime& timestamp, Callback& eventCallback, std::chrono::milliseconds repeatEvery);
+            EventData(const DateTime& timestamp, Callback& eventCallback, std::chrono::milliseconds repeatEvery, int repeatCount=-1);
 
             /**
              * Destructor
@@ -96,9 +98,20 @@ namespace sptk {
              * Add interval to event fire at timestamp
              * @param interval              Shift interval
              */
-            void shift(std::chrono::milliseconds interval)
+            bool shift(std::chrono::milliseconds interval)
             {
+                if (m_repeatCount == 0)
+                    return false;
+
+                if (m_repeatCount > 0) {
+                    m_id.when = m_id.when + interval;
+                    m_repeatCount--;
+                    return true;
+                }
+
+                // Repeat count < 0 - infinite repeats
                 m_id.when = m_id.when + interval;
+                return true;
             }
 
             /**
@@ -106,13 +119,21 @@ namespace sptk {
              */
             const std::chrono::milliseconds& getInterval() const
             {
-                return m_repeatEvery;
+                return m_repeatInterval;
+            }
+
+            /**
+             * @return event repeat count
+             */
+            int getRepeatCount() const
+            {
+                return m_repeatCount;
             }
 
             /**
              * Fire event by calling its callback function..
              */
-            void fire();
+            bool fire();
 
         };
 
@@ -163,9 +184,10 @@ namespace sptk {
          * The first event is scheduled at current time + interval.
          * @param interval                  Event repeat interval.
          * @param eventCallback             Event callback.
+         * @param repeatCount               Repeat count, -1 means no limit
          * @return event handle, that may be used to cancel this event.
          */
-        Event repeat(std::chrono::milliseconds interval, EventData::Callback eventCallback);
+        Event repeat(std::chrono::milliseconds interval, EventData::Callback eventCallback, int repeatCount=-1);
 
         /**
          * Cancel event
