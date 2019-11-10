@@ -49,7 +49,9 @@ class SP_EXPORT ObjectData
 {
     friend class Element;
 
-    struct CompareStringPtrs {
+    class CompareStringPtrs
+    {
+    public:
         bool operator() (const std::string* lhs, const std::string* rhs) const
         {
             return *lhs < *rhs;

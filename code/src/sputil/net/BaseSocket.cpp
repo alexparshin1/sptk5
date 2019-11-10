@@ -141,7 +141,7 @@ size_t BaseSocket::recv(void* buffer, size_t len)
 
 size_t BaseSocket::send(const void* buffer, size_t len)
 {
-    return (size_t) ::send(m_sockfd, (char*) buffer, (int32_t) len, 0);
+    return (size_t) ::send(m_sockfd, (const char*) buffer, (int32_t) len, 0);
 }
 
 int32_t BaseSocket::control(int flag, const uint32_t* check)
@@ -179,7 +179,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
             currentOperation = "connect";
             if (timeoutMS != 0) {
                 blockingMode(false);
-                rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
+                rc = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
                 switch (rc) {
                     case ENETUNREACH:
                         throw Exception("Network unreachable");
@@ -199,7 +199,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
                 rc = 0;
                 blockingMode(true);
             } else
-                rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
+                rc = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
             break;
 
         case SOM_BIND:
@@ -211,7 +211,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
 #endif
             }
             currentOperation = "bind";
-            rc = ::bind(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
+            rc = ::bind(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
             if (rc == 0 && m_type != SOCK_DGRAM) {
                 rc = ::listen(m_sockfd, SOMAXCONN);
                 currentOperation = "listen";
@@ -347,7 +347,7 @@ size_t BaseSocket::write(const char* buffer, size_t size, const sockaddr_in* pee
     auto remaining = (int) size;
     while (remaining > 0) {
         if (peer != nullptr)
-            bytes = (int) sendto(m_sockfd, p, (int32_t) size, 0, (sockaddr*) peer, sizeof(sockaddr_in));
+            bytes = (int) sendto(m_sockfd, p, (int32_t) size, 0, (const sockaddr*) peer, sizeof(sockaddr_in));
         else
             bytes = (int) send(p, (int32_t) size);
         if (bytes == -1)

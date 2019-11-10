@@ -29,6 +29,12 @@
 #ifndef __TCPSOCKET_H__
 #define __TCPSOCKET_H__
 
+#include <sptk5/Buffer.h>
+#include <sptk5/Exception.h>
+#include <sptk5/Strings.h>
+#include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/Proxy.h>
+
 #ifndef _WIN32
     #include <arpa/inet.h>
     #include <fcntl.h>
@@ -56,12 +62,6 @@
     typedef int socklen_t;
     typedef unsigned short SOCKET_ADDRESS_FAMILY;
 #endif
-
-#include <sptk5/Buffer.h>
-#include <sptk5/Exception.h>
-#include <sptk5/Strings.h>
-#include <sptk5/net/BaseSocket.h>
-#include <sptk5/net/Proxy.h>
 
 namespace sptk
 {

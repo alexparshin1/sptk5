@@ -259,7 +259,7 @@ void OracleStatement::setBLOBParameterValue(unsigned int parameterIndex, const Q
         statement()->registerOutParam(parameterIndex, OCCIBLOB);
         m_outputParamIndex.push_back(parameterIndex);
     } else
-        setBlobParameter(parameterIndex, (unsigned char*) parameter.getString(), (unsigned) parameter.dataSize());
+        setBlobParameter(parameterIndex, (unsigned char*) const_cast<char*>(parameter.getString()), (unsigned) parameter.dataSize());
 }
 
 void OracleStatement::setCLOBParameterValue(unsigned int parameterIndex, const QueryParameter& parameter)
@@ -268,7 +268,7 @@ void OracleStatement::setCLOBParameterValue(unsigned int parameterIndex, const Q
         statement()->registerOutParam(parameterIndex, OCCICLOB);
         m_outputParamIndex.push_back(parameterIndex);
     } else
-        setClobParameter(parameterIndex, (unsigned char*) parameter.getString(), (unsigned) parameter.dataSize());
+        setClobParameter(parameterIndex, (unsigned char*) const_cast<char*>(parameter.getString()), (unsigned) parameter.dataSize());
 }
 
 void OracleStatement::execBulk(bool inTransaction, bool lastIteration)

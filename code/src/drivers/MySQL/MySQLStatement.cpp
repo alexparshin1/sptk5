@@ -535,7 +535,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
         case VAR_BUFFER:
             if (dataLength == 0) {
                 // Empty string
-                auto* data = (char*) field->getBuffer();
+                auto* data = const_cast<char*>(field->getBuffer());
                 *data = 0;
                 field->setDataSize(0);
             } else {
@@ -544,7 +544,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
                     auto remainingBytes = uint32_t(dataLength - bind.buffer_length);
                     auto offset = (uint32_t) bind.buffer_length;
                     field->checkSize(dataLength+1);
-                    bind.buffer = (char*) field->getBuffer() + offset;
+                    bind.buffer = const_cast<char*>(field->getBuffer() + offset);
                     bind.buffer_length = remainingBytes;
                     if (mysql_stmt_fetch_column(statement(), &bind, fieldIndex, offset) != 0)
                         throwMySQLError();

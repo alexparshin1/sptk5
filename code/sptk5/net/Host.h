@@ -76,7 +76,7 @@ class SP_EXPORT Host
      */
     const sockaddr& any() const
     {
-        return *(sockaddr*) m_address;
+        return *(const sockaddr*) m_address;
     }
 
     /**
@@ -94,7 +94,7 @@ class SP_EXPORT Host
      */
     const sockaddr_in& ip_v4() const
     {
-        return *(sockaddr_in*) m_address;
+        return *(const sockaddr_in*) m_address;
     }
 
     /**
@@ -112,7 +112,7 @@ class SP_EXPORT Host
      */
     const sockaddr_in6& ip_v6() const
     {
-        return *(sockaddr_in6*) m_address;
+        return *(const sockaddr_in6*) m_address;
     }
 
     /**

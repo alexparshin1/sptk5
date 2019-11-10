@@ -44,9 +44,6 @@ namespace sptk {
  */
 
 class Query;
-
-#include <sptk5/Variant.h>
-
 class FieldList;
 
 /**
@@ -87,7 +84,7 @@ public:
         /**
          * Field width
          */
-        int         width:10;
+        signed int  width:10;
 
         /**
          * Field precision

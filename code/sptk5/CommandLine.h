@@ -297,17 +297,17 @@ protected:
         /**
          * @brief Returns true if element expects value
          */
-        virtual bool hasValue() const;
+        bool hasValue() const override;
 
         /**
          * @brief Returns element type
          */
-        virtual CommandLineElement::Type type() const;
+        CommandLineElement::Type type() const override;
 
         /**
          * @brief Returns element name in help print format
          */
-        virtual String printableName() const;
+        String printableName() const override;
     };
 
     /**
@@ -354,23 +354,23 @@ protected:
         /**
          * @brief Returns element name in help print format
          */
-        virtual String printableName() const;
+        String printableName() const override;
 
         /**
          * @brief Validates parameter value
          * @param value         Value to validate
          */
-        virtual void validate(const String& value) const;
+        void validate(const String& value) const override;
 
         /**
          * @brief Returns true if element expects value
          */
-        virtual bool hasValue() const;
+        bool hasValue() const override;
 
         /**
          * @brief Returns element type
          */
-        virtual Type type() const;
+        Type type() const override;
     };
 
 private:

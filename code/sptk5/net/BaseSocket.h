@@ -29,6 +29,13 @@
 #ifndef __BASESOCKET_H__
 #define __BASESOCKET_H__
 
+#include <chrono>
+#include <sptk5/DateTime.h>
+#include <sptk5/Exception.h>
+#include <sptk5/net/Host.h>
+#include <sptk5/Strings.h>
+#include <sptk5/Buffer.h>
+
 #ifndef _WIN32
     #include <sys/types.h>
     #include <sys/socket.h>
@@ -63,13 +70,6 @@
     typedef int socklen_t;
     typedef unsigned short SOCKET_ADDRESS_FAMILY;
 #endif
-
-#include <chrono>
-#include <sptk5/DateTime.h>
-#include <sptk5/Exception.h>
-#include <sptk5/net/Host.h>
-#include <sptk5/Strings.h>
-#include <sptk5/Buffer.h>
 
 namespace sptk
 {

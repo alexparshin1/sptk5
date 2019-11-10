@@ -274,7 +274,7 @@ public:
 
     /**
      * Print element as XML text
-     * @param asJSON            If true then return JSON; otherwise return XML.
+     * @param asJSON            If true then return JSON, otherwise return XML.
      * @return object presentation as JSON or XML string
      */
     String toString(bool asJSON=true) const;

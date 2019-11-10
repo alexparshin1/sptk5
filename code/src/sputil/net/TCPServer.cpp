@@ -52,7 +52,7 @@ TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* 
 
 TCPServer::~TCPServer()
 {
-    stop();
+    TCPServer::stop();
 }
 
 String TCPServer::hostname() const

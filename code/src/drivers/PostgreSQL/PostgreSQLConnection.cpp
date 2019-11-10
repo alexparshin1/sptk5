@@ -615,40 +615,40 @@ static inline bool readBool(const char* data)
 
 static inline int16_t readInt2(const char* data)
 {
-    return (int16_t) ntohs(*(uint16_t*) data);
+    return (int16_t) ntohs(*(const uint16_t*) data);
 }
 
 static inline int32_t readInt4(const char* data)
 {
-    return (int32_t) ntohl(*(uint32_t*) data);
+    return (int32_t) ntohl(*(const uint32_t*) data);
 }
 
 static inline int64_t readInt8(const char* data)
 {
-    return (int64_t) ntohq(*(uint64_t*) data);
+    return (int64_t) ntohq(*(const uint64_t*) data);
 }
 
 static inline float readFloat4(const char* data)
 {
-    auto v = (int32_t) ntohl(*(uint32_t*) data);
+    auto v = (int32_t) ntohl(*(const uint32_t*) data);
     return *(float*) (void*) &v;
 }
 
 static inline double readFloat8(const char* data)
 {
-    auto v = (int64_t) ntohq(*(uint64_t*) data);
+    auto v = (int64_t) ntohq(*(const uint64_t*) data);
     return *(double*) (void*) &v;
 }
 
 static inline DateTime readDate(const char* data)
 {
-    auto dt = (int32_t) ntohl(*(uint32_t*) data);
+    auto dt = (int32_t) ntohl(*(const uint32_t*) data);
     return epochDate + chrono::hours(dt * 24);
 }
 
 static inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 {
-    auto v = (int64_t) ntohq(*(uint64_t*) data);
+    auto v = (int64_t) ntohq(*(const uint64_t*) data);
 
     if (integerTimestamps) {
         // time is in usecs
@@ -663,10 +663,10 @@ static inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 // Converts internal NUMERIC Postgresql binary to long double
 static inline MoneyData readNumericToScaledInteger(const char* v)
 {
-    auto ndigits = (int16_t) ntohs(*(uint16_t*) v);
-    auto weight = (int16_t) ntohs(*(uint16_t*) (v + 2));
-    auto sign = (int16_t) ntohs(*(uint16_t*) (v + 4));
-    uint16_t dscale = ntohs(*(uint16_t*) (v + 6));
+    auto ndigits = (int16_t) ntohs(*(const uint16_t*) v);
+    auto weight = (int16_t) ntohs(*(const uint16_t*) (v + 2));
+    auto sign = (int16_t) ntohs(*(const uint16_t*) (v + 4));
+    uint16_t dscale = ntohs(*(const uint16_t*) (v + 6));
 
     v += 8;
     int64_t value = 0;
@@ -679,7 +679,7 @@ static inline MoneyData readNumericToScaledInteger(const char* v)
 
     int16_t digitWeight = weight;
     for (int i = 0; i < ndigits; i++, v += 2, digitWeight--) {
-        auto digit = (int16_t) ntohs(*(uint16_t*) v);
+        auto digit = (int16_t) ntohs(*(const uint16_t*) v);
 
         value = value * 10000 + digit;
         if (digitWeight < 0)
@@ -757,7 +757,7 @@ static void decodeArray(const char* data, DatabaseField* field)
             if (element != 0)
                 output << ",";
 
-            uint32_t dataSize = ntohl(*(uint32_t*) data);
+            uint32_t dataSize = ntohl(*(const uint32_t*) data);
             data += sizeof(uint32_t);
 
             switch (arrayHeader->elementType) {

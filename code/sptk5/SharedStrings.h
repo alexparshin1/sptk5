@@ -101,7 +101,7 @@ public:
     /**
      * @brief Clear shared starings
      */
-    void clear();
+    virtual void clear();
 };
 
 /**

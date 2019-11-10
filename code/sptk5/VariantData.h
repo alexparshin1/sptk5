@@ -219,7 +219,7 @@ public:
      */
     const bool& getBool() const
     {
-        return *(bool*) m_data;
+        return *(const bool*) m_data;
     }
 
     /**
@@ -227,7 +227,7 @@ public:
      */
     const int32_t& getInteger() const
     {
-        return *(int32_t*) m_data;
+        return *(const int32_t*) m_data;
     }
 
     /**
@@ -235,7 +235,7 @@ public:
      */
     const int64_t& getInt64() const
     {
-        return *(int64_t*) m_data;
+        return *(const int64_t*) m_data;
     }
 
     /**
@@ -243,7 +243,7 @@ public:
      */
     const double& getFloat() const
     {
-        return *(double*) m_data;
+        return *(const double*) m_data;
     }
 
     /**
@@ -251,7 +251,7 @@ public:
      */
     const int64_t getTime() const
     {
-        return *(int64_t*) m_data;
+        return *(const int64_t*) m_data;
     }
 
     /**
@@ -259,7 +259,7 @@ public:
      */
     const VariantDataBuffer& getBuffer() const
     {
-        return *(VariantDataBuffer*) m_data;
+        return *(const VariantDataBuffer*) m_data;
     }
 
     /**
@@ -267,7 +267,7 @@ public:
      */
     const void* getImagePtr() const
     {
-        return (void*) m_data;
+        return (const void*) m_data;
     }
 
     /**
@@ -275,7 +275,7 @@ public:
      */
     const MoneyData& getMoneyData() const
     {
-        return *(MoneyData*) m_data;
+        return *(const MoneyData*) m_data;
     }
 };
 

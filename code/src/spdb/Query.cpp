@@ -181,7 +181,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
             return false;  // Quote opened but never closed?
         }
         sql += string(paramEnd, nextQuote - paramEnd + 1);
-        paramEnd = (char*) nextQuote + 1;
+        paramEnd = (const char*) nextQuote + 1;
         return false;
     }
 
@@ -193,7 +193,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
             return false;  // Comment at the end of last row
         }
         sql += string(paramEnd, endOfRow - paramEnd + 1);
-        paramEnd = (char*) endOfRow + 1;
+        paramEnd = (const char*) endOfRow + 1;
         return false;
     }
 
@@ -205,7 +205,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
             return false;  // Comment never closed
         }
         sql += string(paramEnd, endOfRow - paramEnd + 2);
-        paramEnd = (char*) endOfRow + 2;
+        paramEnd = (const char*) endOfRow + 2;
         return false;
     }
 

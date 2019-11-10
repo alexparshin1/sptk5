@@ -107,7 +107,7 @@ void sptk::join(string& dest, const vector<string>& src, const string& separator
 void sptk::split(vector<string>& dest, const string& src, const string& delimitter)
 {
     dest.clear();
-    auto* buffer = (char*) src.c_str();
+    auto* buffer = const_cast<char*>(src.c_str());
 
     if (strlen(buffer) == 0)
         return;
@@ -256,7 +256,7 @@ static void lowerCaseWord(const char* current, char* wordStart)
 
 String sptk::capitalizeWords(const String& s)
 {
-    auto* current = (char*) s.c_str();
+    auto* current = const_cast<char*>(s.c_str());
     char* wordStart = nullptr;
 
     if (*current != char(0)) {

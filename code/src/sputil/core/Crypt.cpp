@@ -56,7 +56,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const std::string& key, con
     if (iv.length() < 16)
         throw Exception("Please use 128 bit initialization vector");
 
-    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (unsigned char*) key.c_str(), (unsigned char*) iv.c_str()) != 1)
+    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (const unsigned char*) key.c_str(), (const unsigned char*) iv.c_str()) != 1)
         throw Exception("Error calling EVP_EncryptInit_ex()");
 
     int len;
@@ -88,7 +88,7 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const std::string& key, con
     if (ctx == nullptr)
         throw Exception("Error calling EVP_CIPHER_CTX_new()");
 
-    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (unsigned char*) key.c_str(), (unsigned char*) iv.c_str()) != 1)
+    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (const unsigned char*) key.c_str(), (const unsigned char*) iv.c_str()) != 1)
         throw Exception("Error calling EVP_DecryptInit_ex()");
 
     int len;
