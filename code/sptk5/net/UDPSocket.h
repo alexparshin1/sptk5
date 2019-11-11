@@ -57,7 +57,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~UDPSocket() {}
+    ~UDPSocket() override = default;
 
     /**
      * @brief Reads data from the socket
@@ -66,7 +66,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(char *buffer,size_t size,sockaddr_in* from=NULL);
+    size_t read(char *buffer,size_t size,sockaddr_in* from=NULL) override;
 };
 
 /**

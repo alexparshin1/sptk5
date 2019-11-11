@@ -723,7 +723,7 @@ static inline MoneyData readNumericToScaledInteger(const char* v)
 }
 
 
-static void decodeArray(const char* data, DatabaseField* field)
+static void decodeArray(char* data, DatabaseField* field)
 {
     struct PGArrayHeader
     {

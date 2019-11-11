@@ -273,7 +273,7 @@ public:
     /**
      * Directly reads the internal data
      */
-    virtual const char* getBuffer() const;
+    virtual char* getBuffer() const;
 
     /**
      * Directly reads the internal data

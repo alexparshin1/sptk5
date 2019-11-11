@@ -54,13 +54,6 @@ namespace sptk {
  */
 class SP_EXPORT WorkerThread : public Thread
 {
-	/**
-	 * Mutex that protects internal data
-	 */
-	mutable std::mutex				m_mutex;
-
-	Runable*						m_currentRunnable {nullptr};
-
     /**
      * Task queue
      */
@@ -69,7 +62,7 @@ class SP_EXPORT WorkerThread : public Thread
     /**
      * Optional thread event interface
      */
-    ThreadEvent*                    m_threadEvent;
+    ThreadEvent*                    m_threadEvent {nullptr};
 
     /**
      * Number of thread idle seconds before thread terminates automatically
@@ -83,12 +76,6 @@ protected:
      * @brief Thread function
      */
     void threadFunction() override;
-
-    /**
-     * Set or clear currently executed runable
-     * @param runable           Runable
-     */
-	void setCurrentRunable(Runable* runable);
 
 public:
 
@@ -117,11 +104,6 @@ public:
      * @param task              Task to execute in the worker thread
      */
     void execute(Runable* task);
-
-	/**
-	 * @brief Extended terminate: also sends terminate() to currently running runable
-	 */
-	void terminate() override;
 };
 
 /**

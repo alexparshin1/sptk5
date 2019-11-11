@@ -532,7 +532,7 @@ const char* BaseVariant::getString() const
 }
 
 //---------------------------------------------------------------------------
-const char* BaseVariant::getBuffer() const
+char* BaseVariant::getBuffer() const
 {
     return m_data.getBuffer().data;
 }

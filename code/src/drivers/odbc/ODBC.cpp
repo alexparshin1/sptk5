@@ -252,24 +252,28 @@ String sptk::removeDriverIdentification(const char* error)
     if (error == nullptr)
         return "";
 
-    auto* p = (char*) error;
+    auto* p = error;
     const char* p1 = error;
     while (p1 != nullptr) {
         p1 = strstr(p, "][");
         if (p1 != nullptr)
-            p = (char*) p1 + 1;
+            p = p1 + 1;
     }
     p1 = strstr(p, "]");
     if (p1 != nullptr)
-        p = (char*) p1 + 1;
+        p = p1 + 1;
+
+    auto len = (int) strlen(p);
+
     p1 = strstr(p, "sqlerrm(");
     if (p1 != nullptr) {
-        p = (char*) p1 + 8;
-        auto len = (int) strlen(p);
+        p = p1 + 8;
+        len = (int) strlen(p);
         if (p[len - 1] == ')')
-            p[len - 1] = 0;
+            len--;
     }
-    return p;
+
+    return String(p, len);
 }
 
 string extract_error(

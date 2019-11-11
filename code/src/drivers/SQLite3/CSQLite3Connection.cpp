@@ -450,7 +450,7 @@ void SQLite3Connection::queryFetch(Query* query)
 
                     case SQLITE_TEXT:
                         field->setBuffer((const char*) sqlite3_column_text(statement, int(column)), dataLength, VAR_STRING);
-                        dataLength = trimField(const_cast<char*>(field->getString()), dataLength);
+                        dataLength = trimField(field->getBuffer(), dataLength);
                         break;
 
                     case SQLITE_BLOB:

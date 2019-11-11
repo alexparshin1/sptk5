@@ -1013,7 +1013,7 @@ protected:
     /**
      * returns node name
      */
-    virtual const std::string& nodeName() const;
+    const std::string& nodeName() const override;
 
 public:
     /**
@@ -1023,7 +1023,7 @@ public:
      * @param data              Data
      */
     CDataSection(Node& parent, const char* data)
-            : BaseTextNode(&parent, data)
+    : BaseTextNode(&parent, data)
     {
     }
 
@@ -1034,7 +1034,7 @@ public:
      * @param data              Data
      */
     CDataSection(Node* parent, const char* data)
-            : BaseTextNode(parent, data)
+    : BaseTextNode(parent, data)
     {
     }
 
@@ -1045,14 +1045,14 @@ public:
      * @param data              Data
      */
     CDataSection(Node& parent, const std::string& data)
-            : BaseTextNode(&parent, data.c_str())
+    : BaseTextNode(&parent, data.c_str())
     {
     }
 
     /**
      * Returns node type
      */
-    virtual NodeType type() const
+    NodeType type() const override
     {
         return DOM_CDATA_SECTION;
     }

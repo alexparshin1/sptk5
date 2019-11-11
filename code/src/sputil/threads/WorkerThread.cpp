@@ -39,12 +39,6 @@ WorkerThread::WorkerThread(SynchronizedQueue<Runable*>& queue, ThreadEvent* thre
   m_maxIdleSeconds(maxIdleTime)
 {}
 
-void WorkerThread::setCurrentRunable(Runable* runable)
-{
-	lock_guard<mutex> lock(m_mutex);
-	m_currentRunnable = runable;
-}
-
 void WorkerThread::threadFunction()
 {
     if (m_threadEvent != nullptr)
@@ -58,7 +52,6 @@ void WorkerThread::threadFunction()
 
         Runable* runable = nullptr;
         if (m_queue.pop(runable, chrono::milliseconds(1000))) {
-			setCurrentRunable(runable);
             idleSeconds = chrono::milliseconds(0);
             if (m_threadEvent != nullptr)
                 m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_STARTED, runable);
@@ -68,7 +61,6 @@ void WorkerThread::threadFunction()
             catch (const Exception& e) {
                 CERR("Runable::execute() : " << e.what() << endl);
             }
-			setCurrentRunable(nullptr);
             if (m_threadEvent != nullptr)
                 m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_FINISHED, runable);
         } else
@@ -81,12 +73,4 @@ void WorkerThread::threadFunction()
 void WorkerThread::execute(Runable* task)
 {
     m_queue.push(task);
-}
-
-void WorkerThread::terminate()
-{
-	lock_guard<mutex> lock(m_mutex);
-	if (m_currentRunnable != nullptr)
-		m_currentRunnable->terminate();
-	Thread::terminate();
 }
