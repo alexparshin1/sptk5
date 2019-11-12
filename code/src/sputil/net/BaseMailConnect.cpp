@@ -169,7 +169,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
             "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
             date.dayOfWeekName().substr(0, 3).c_str(),
             dd,
-            DateTime::monthNames()[size_t(dm) - 1].substr(0, 3).c_str(),
+            DateTime::format(DateTime::MONTH_NAME, size_t(dm) - 1).substr(0, 3).c_str(),
             dy,
             th, tm, ts,
             sign,

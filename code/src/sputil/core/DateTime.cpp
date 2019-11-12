@@ -65,8 +65,8 @@ char     DateTime::_fullTimeFormat[32];
 char     DateTime::_shortTimeFormat[32];
 char     DateTime::_dateSeparator;
 char     DateTime::_timeSeparator;
-vector<String> DateTime::_weekDayNames(7);
-vector<String> DateTime::_monthNames(12);
+Strings  DateTime::_weekDayNames;
+Strings  DateTime::_monthNames;
 String   DateTime::_timeZoneName;
 int      DateTime::_timeZoneOffset;
 int      DateTime::_isDaylightSavingsTime;
@@ -242,10 +242,11 @@ void DateTimeFormat::init() noexcept
     t.tm_hour = 0;
     t.tm_min = 0;
     t.tm_sec = 0;
+    DateTime::_weekDayNames.clear();
     for (int wday = 0; wday < 7; wday++) {
         t.tm_wday = wday;
         strftime(dateBuffer, 32, "%A", &t);
-        DateTime::_weekDayNames[wday] = string(dateBuffer);
+        DateTime::_weekDayNames.push_back(dateBuffer);
     }
 
     // Filling up the month names, as defined in locale.
@@ -257,10 +258,11 @@ void DateTimeFormat::init() noexcept
     t.tm_min = 0;
     t.tm_sec = 0;
     t.tm_wday = 3;
+    DateTime::_monthNames.clear();
     for (int month = 0; month < 12; month++) {
         t.tm_mon = month;
         strftime(dateBuffer, 32, "%B", &t);
-        DateTime::_monthNames[month] = string(dateBuffer);
+        DateTime::_monthNames.push_back(dateBuffer);
     }
     ::tzset();
 #if defined(__BORLANDC__) || _MSC_VER > 1800
@@ -371,65 +373,52 @@ static void encodeDate(DateTime::time_point& dt, short year, short month, short 
 
 static short splitDateString(char* bdat, short* datePart, char& actualDateSeparator)
 {
-    short partNumber = 0;
     actualDateSeparator = 0;
-    const char* ptr = nullptr;
-    auto len = (uint32_t) strlen(bdat);
-    for (uint32_t i = 0; i <= len && partNumber < 7; i++) {
-        char c = bdat[i];
-        if (actualDateSeparator == char(0) && c == '-') {
-            actualDateSeparator = c;
-            c = DateTime::dateSeparator();
-        }
-        if (c == DateTime::dateSeparator() || c == '-' || c == 0) {
-            if (actualDateSeparator == char(0) && c == DateTime::dateSeparator())
-                actualDateSeparator = DateTime::dateSeparator();
-            if (ptr != nullptr) { // end of token
-                if (partNumber >= 3) {
-                    partNumber = 0;
-                    break;
-                }
-                bdat[i] = 0;
-                datePart[partNumber] = (short) string2int(ptr);
-                partNumber++;
-                ptr = nullptr;
-            }
-        } else {
-            if (isdigit(c) == 0) {
-                partNumber = 0;
-                break;
-            }
-            if (ptr == nullptr)
-                ptr = bdat + i;
-        }
+
+    const char* ptr = bdat;
+    char* end = nullptr;
+    size_t partNumber = 0;
+    for (; partNumber < 3; partNumber++) {
+        errno = 0;
+        datePart[partNumber] = (short) strtol(ptr, &end, 10);
+        if (errno)
+            throw Exception("Invalid date string (1) " + String(bdat));
+
+        if (*end == char(0))
+            break;
+
+        if (actualDateSeparator == char(0))
+            actualDateSeparator = *end;
+        else if (actualDateSeparator != *end)
+            throw Exception("Invalid date string (2) " + String(bdat));
+
+        ptr = end + 1;
     }
+
     return partNumber;
 }
 
 
 static short splitTimeString(char* bdat, short* timePart)
 {
-    char* ptr = nullptr;
-    short partNumber = 0;
-    auto len = (uint32_t) strlen(bdat);
-    for (uint32_t i = 0; i <= len && partNumber < 4; i++) {
-        char c = bdat[i];
-        if (c == DateTime::timeSeparator() || c == ' ' || c == '.' || c == 0) {
-            if (ptr != nullptr) { // end of token
-                bdat[i] = 0;
-                timePart[partNumber] = (short) string2int(ptr);
-                partNumber++;
-                ptr = nullptr;
-            }
-        } else {
-            if (isdigit(c) == 0) {
-                partNumber = 0;
-                break;
-            }
-            if (ptr == nullptr)
-                ptr = bdat + i;
-        }
+    const char* ptr = bdat;
+    char* end = nullptr;
+
+    size_t partNumber = 0;
+    for (; partNumber < 4; partNumber++) {
+        errno = 0;
+        timePart[partNumber] = (short) strtol(ptr, &end, 10);
+        if (errno)
+            throw Exception("Invalid time string (1) " + String(bdat));
+
+        if (*end == ':' || *end == '.')
+            ptr = end + 1;
+        else if (*end == char(0))
+            break;
+        else
+            throw Exception("Invalid time string (1) " + String(bdat));
     }
+
     return partNumber;
 }
 
@@ -532,8 +521,9 @@ static void encodeDate(DateTime::time_point& dt, const char* dat)
             month = datePart[1];
             day = datePart[2];
         } else {
+            auto datePartsOrder(DateTime::format(DateTime::DATE_PARTS_ORDER, 0));
             for (int ii = 0; ii < 3; ii++) {
-                switch (DateTime::datePartsOrder()[ii]) {
+                switch (datePartsOrder[ii]) {
                     case 'M':
                         month = datePart[ii];
                         break;
@@ -572,12 +562,12 @@ static int isLeapYear(const int16_t year)
 
 }
 
-void DateTime::setTimeZone(const String& _timeZoneName)
+void DateTime::setTimeZone(const String& timeZoneName)
 {
 #ifdef _WIN32
     _putenv_s("TZ", _timeZoneName.c_str());
 #else
-    setenv("TZ", _timeZoneName.c_str(), 1);
+    setenv("TZ", timeZoneName.c_str(), 1);
 #endif
     ::tzset();
     dateTimeFormatInitializer.init();
@@ -929,14 +919,27 @@ DateTime DateTime::convertCTime(const time_t tt)
     return DateTime(clock::from_time_t(tt));
 }
 
-const char* DateTime::dateFormat() { return _dateFormat; }
-const char* DateTime::datePartsOrder() { return _datePartsOrder; }
-const char* DateTime::fullTimeFormat() { return _fullTimeFormat; }
-const char* DateTime::shortTimeFormat() { return _shortTimeFormat; }
+String DateTime::format(Format dtFormat, size_t arg)
+{
+    switch (dtFormat) {
+        case DATE_FORMAT:
+            return _dateFormat;
+        case DATE_PARTS_ORDER:
+            return _datePartsOrder;
+        case FULL_TIME_FORMAT:
+            return _fullTimeFormat;
+        case SHORT_TIME_FORMAT:
+            return _shortTimeFormat;
+        case MONTH_NAME:
+            return _monthNames[arg];
+        case WEEKDAY_NAME:
+            return _weekDayNames[arg];
+        default:
+            return "";
+    }
+}
 char DateTime::dateSeparator() { return _dateSeparator; }
 char DateTime::timeSeparator() { return _timeSeparator; }
-vector<String> DateTime::weekDayNames() { return _weekDayNames; }
-vector<String> DateTime::monthNames() { return _monthNames; }
 String DateTime::timeZoneName() { return _timeZoneName; }
 int DateTime::timeZoneOffset() { return _timeZoneOffset; }
 int DateTime::isDaylightSavingsTime() { return _isDaylightSavingsTime; }

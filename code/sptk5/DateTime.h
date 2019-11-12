@@ -134,12 +134,12 @@ private:
     /**
      * The locale-defined weekday names
      */
-    static std::vector<String> _weekDayNames;
+    static Strings _weekDayNames;
 
     /**
      * The locale-defined weekday names
      */
-    static std::vector<String> _monthNames;
+    static Strings _monthNames;
 
     /**
      * Time zone abbbreviastion
@@ -158,26 +158,21 @@ private:
 
 public:
 
-	/**
-	 * System's date format
-	 */
-	static const char* dateFormat();
+    enum Format {
+        DATE_FORMAT,
+        DATE_PARTS_ORDER,
+        FULL_TIME_FORMAT,
+        SHORT_TIME_FORMAT,
+        MONTH_NAME,
+        WEEKDAY_NAME
+    };
 
 	/**
-	 * System's date parts order
+	 * System's format info
+	 * @param dtFormat          Format type
+	 * @param arg               Optional format argument, for MONTH_NAME and WEEKDAY_NAME
 	 */
-	static const char* datePartsOrder();
-
-	/**
-	 * System's time format
-	 */
-	static const char* fullTimeFormat();
-
-	/**
-	 * System's time format
-	 */
-	static const char* shortTimeFormat();
-
+	static String format(Format dtFormat, size_t arg=0);
 
 	/**
 	 * System's date separator
@@ -188,16 +183,6 @@ public:
 	 * System's time separator
 	 */
 	static char timeSeparator();
-
-    /**
-     * The locale-defined weekday names
-     */
-    static std::vector<String> weekDayNames();
-
-	/**
-	 * The locale-defined weekday names
-	 */
-	static std::vector<String> monthNames();
 
 	/**
 	 * Time zone abbbreviastion
@@ -231,7 +216,6 @@ public:
 	 * Sets system's time mode
 	 */
 	static void time24Mode(bool t24mode);
-
 
     /**
     * Default constructor
