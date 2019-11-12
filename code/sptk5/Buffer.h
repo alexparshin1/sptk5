@@ -74,6 +74,58 @@ class SP_EXPORT Buffer
      */
     void adjustSize(size_t sz);
 
+    /**
+     * Allocate memory
+     * @param size              Number of bytes for new buffer
+     */
+    void allocate(size_t size)
+    {
+        m_buffer = (char*) calloc(size, 1);
+        m_size = size;
+        m_bytes = 0;
+    }
+
+    /**
+     * Allocate memory
+     * @param size              Number of bytes for new buffer
+     */
+    void allocate(const String& str)
+    {
+        m_buffer = strdup(str.c_str());
+        m_bytes = str.length();
+        m_size = m_bytes + 1;
+    }
+
+    /**
+     * Reallocate memory
+     * @param size              Number of bytes for new buffer
+     */
+    void reallocate(size_t size)
+    {
+        if (size != m_size) {
+            auto* ptr = (char*) realloc(m_buffer, size);
+            if (ptr == nullptr)
+                throwException("Out of memory");
+            m_buffer = ptr;
+            m_size = size;
+            if (m_bytes >= m_size) {
+                m_bytes = m_size;
+                if (m_bytes > 0)
+                    m_bytes--;
+            }
+        }
+    }
+
+    /**
+     * Free memory
+     */
+    void deallocate()
+    {
+        free(m_buffer);
+        m_buffer = nullptr;
+        m_bytes = 0;
+        m_size = 0;
+    }
 public:
 
     /**
@@ -134,7 +186,7 @@ public:
      */
     virtual ~Buffer()
     {
-        free(m_buffer);
+        deallocate();
     }
 
     /**

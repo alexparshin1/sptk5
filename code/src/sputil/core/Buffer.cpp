@@ -35,15 +35,13 @@ using namespace std;
 using namespace sptk;
 
 Buffer::Buffer(size_t sz)
-: m_buffer((char*)calloc(sz + 1, 1)),
-  m_size(sz + 1)
 {
+    allocate(sz + 1);
 }
 
 Buffer::Buffer(const void* data, size_t sz)
-: m_buffer((char*)calloc(sz + 1, 1)),
-  m_size(sz + 1)
 {
+    allocate(sz + 1);
     if (data != nullptr) {
         memcpy(m_buffer, data, sz);
         m_bytes = sz;
@@ -52,18 +50,14 @@ Buffer::Buffer(const void* data, size_t sz)
 
 Buffer::Buffer(const String& str)
 {
-    if (!str.empty()) {
-        m_size = str.length() + 1;
-        m_buffer = (char*) calloc(m_size, 1);
-
-        m_bytes = m_size - 1;
-        memcpy(m_buffer, str.c_str(), m_bytes);
-    }
+    if (!str.empty())
+        allocate(str);
 }
 
 Buffer::Buffer(const Buffer& other)
-: m_buffer((char*) calloc(other.m_bytes + 1, 1)), m_size(other.m_bytes + 1), m_bytes(other.m_bytes)
 {
+    allocate(other.m_bytes + 1);
+    m_bytes = other.m_bytes;
     memcpy(m_buffer, other.m_buffer, m_bytes);
 }
 
@@ -78,12 +72,8 @@ Buffer::Buffer(Buffer&& other) noexcept
 void Buffer::adjustSize(size_t sz)
 {
     sz = (sz / 64 + 1) * 64;
-    auto newptr = realloc(m_buffer, sz + 1);
-    if (newptr == nullptr)
-        throw Exception("Can't reallocate buffer to " + to_string(sz) + " bytes");
-    m_buffer = (char*) newptr;
+    reallocate(sz);
     m_buffer[sz] = 0;
-    m_size = sz + 1;
 }
 
 void Buffer::set(const char* data, size_t sz)
@@ -164,7 +154,7 @@ Buffer& Buffer::operator = (Buffer&& other) DOESNT_THROW
         return *this;
 
     if (m_buffer != nullptr)
-        free(m_buffer);
+        deallocate();
 
     m_buffer = other.m_buffer;
     m_size = other.m_size;
@@ -186,8 +176,8 @@ Buffer& Buffer::operator = (const Buffer& other)
 
     if (m_size != newSize) {
         if (newSize == 0) {
-            free(m_buffer);
-            m_buffer = nullptr;
+            deallocate();
+            return *this;
         } else {
             auto* newptr = realloc(m_buffer, newSize);
             if (newptr == nullptr)
