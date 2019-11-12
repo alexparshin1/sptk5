@@ -55,6 +55,11 @@ namespace sptk {
 class SP_EXPORT WorkerThread : public Thread
 {
     /**
+     * Mutex protecting internal data
+     */
+    mutable std::mutex              m_mutex;
+
+    /**
      * Task queue
      */
     SynchronizedQueue<Runable*>&    m_queue;
@@ -69,6 +74,9 @@ class SP_EXPORT WorkerThread : public Thread
      */
     std::chrono::milliseconds       m_maxIdleSeconds;
 
+    Runable*                        m_currentRunable {nullptr};
+
+    void setRunable(Runable* runable);
 
 protected:
 
@@ -104,6 +112,8 @@ public:
      * @param task              Task to execute in the worker thread
      */
     void execute(Runable* task);
+
+    void terminate() override;
 };
 
 /**

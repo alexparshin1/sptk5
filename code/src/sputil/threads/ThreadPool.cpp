@@ -172,15 +172,15 @@ TEST(SPTK_ThreadPool, run)
     for (auto* task: tasks)
         EXPECT_NEAR(20, task->count(), 10);
 
-    for (auto* task: tasks) {
-        task->terminate();
-        delete task;
-    }
-
     EXPECT_EQ(size_t(5), threadPool.size());
 
     threadPool.stop();
     EXPECT_EQ(size_t(0), threadPool.size());
+
+    for (auto* task: tasks) {
+        task->terminate();
+        delete task;
+    }
 }
 
 #endif
