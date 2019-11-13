@@ -156,10 +156,8 @@ void TimerThread::threadFunction()
 {
     while (!terminated()) {
         Timer::Event event;
-        if (waitForEvent(event)) {
-            if (event->fire())
-                schedule(event);
-        }
+        if (waitForEvent(event) && event->fire())
+            schedule(event);
     }
     clear();
 }
@@ -365,7 +363,7 @@ TEST(SPTK_Timer, repeatMultipleTimers)
     int repeatCount = 10;
     vector<Timer> timers(MAX_TIMERS);
 
-    {
+    if (!timers.empty()) {
         lock_guard<mutex> lock(eventCounterMutex);
         eventCounter.clear();
         eventCounter.resize(MAX_EVENT_COUNTER);
@@ -384,7 +382,7 @@ TEST(SPTK_Timer, repeatMultipleTimers)
     this_thread::sleep_for(milliseconds(200));
 
     int totalEvents(0);
-    {
+    if (!timers.empty()) {
         lock_guard<mutex> lock(eventCounterMutex);
         for (auto counter: eventCounter)
             totalEvents += counter;
