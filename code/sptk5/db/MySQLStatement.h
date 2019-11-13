@@ -102,11 +102,11 @@ class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
 
     /**
      * Convert MySQL float data to field
-     * @param field             Output field
-     * @param mysqlBind         MySQL field bind
+     * @param _field             Output field
+     * @param bind         MySQL field bind
      * @param fieldType         Field type (date or datetime)
      */
-    void decodeMySQLFloat(Field* field, MYSQL_BIND& mysqlBind, VariantType fieldType);
+    void decodeMySQLFloat(Field* _field, MYSQL_BIND& bind);
 
     void throwMySQLError()
     {

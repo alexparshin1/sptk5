@@ -45,6 +45,10 @@ public:
     SOCKET connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     static bool getDefaultProxy(Host& proxyHost, String& proxyUser, String& proxyPassword);
+
+    void sendRequest(const Host& destination, std::shared_ptr<TCPSocket>& socket, const String& method) const;
+
+    bool readResponse(std::shared_ptr<TCPSocket>& socket) const;
 };
 
 }

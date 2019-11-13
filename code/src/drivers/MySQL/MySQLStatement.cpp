@@ -487,7 +487,7 @@ void MySQLStatement::decodeMySQLTime(Field* _field, MYSQL_TIME& mysqlTime, Varia
     }
 }
 
-void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind, VariantType fieldType)
+void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
 {
     auto* field = dynamic_cast<CMySQLStatementField*>(_field);
     if (bind.buffer_type == MYSQL_TYPE_NEWDECIMAL) {
@@ -534,7 +534,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             break;
 
         case VAR_FLOAT:
-            decodeMySQLFloat(field, bind, fieldType);
+            decodeMySQLFloat(field, bind);
             break;
 
         case VAR_STRING:

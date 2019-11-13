@@ -177,11 +177,6 @@ protected:
         return (m_dataType & VAR_EXTERNAL_BUFFER) != 0;
     }
 
-    /**
-     * Clear null flag
-     */
-    void setNotNull();
-
 public:
 
     /**

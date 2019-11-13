@@ -79,7 +79,7 @@ void SocketPool::close()
     }
 
     for (auto itor: m_socketData)
-        free(itor.second);
+        delete (epoll_event*) itor.second;
 
     m_socketData.clear();
 }
@@ -93,7 +93,7 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 
     int socketFD = socket.handle();
 
-    auto* event = (epoll_event*) malloc(sizeof(epoll_event));
+    auto* event = new epoll_event;
     event->data.ptr = userData;
     event->events = EPOLLIN | EPOLLHUP | EPOLLRDHUP;
 
@@ -121,7 +121,7 @@ void SocketPool::forgetSocket(BaseSocket& socket)
     if (rc == -1)
         throw SystemException("Can't remove socket from epoll");
 
-    free(event);
+    delete event;
 }
 
 #define MAXEVENTS 16

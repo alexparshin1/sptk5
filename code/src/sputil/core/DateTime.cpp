@@ -67,9 +67,10 @@ char     DateTime::_dateSeparator;
 char     DateTime::_timeSeparator;
 Strings  DateTime::_weekDayNames;
 Strings  DateTime::_monthNames;
-String   DateTime::_timeZoneName;
-int      DateTime::_timeZoneOffset;
-int      DateTime::_isDaylightSavingsTime;
+
+static String   _timeZoneName;
+static int      _timeZoneOffset;
+static int      _isDaylightSavingsTime;
 
 // Returns timezone offset in minutes from formats:
 // "Z" - UTC
@@ -275,7 +276,7 @@ void DateTimeFormat::init() noexcept
     if (p1 != nullptr)
         len = int(p1 - ptr);
 
-    DateTime::_timeZoneName = string(ptr, (unsigned) len);
+    _timeZoneName = string(ptr, (unsigned) len);
 
     time_t ts = time(nullptr);
     char buf[16];
@@ -289,8 +290,8 @@ void DateTimeFormat::init() noexcept
     int offset = string2int(buf);
     int minutes = offset % 100;
     int hours = offset / 100;
-    DateTime::_isDaylightSavingsTime = ltime.tm_isdst == -1? 0 : ltime.tm_isdst;
-    DateTime::_timeZoneOffset = hours * 60 + minutes;
+    _isDaylightSavingsTime = ltime.tm_isdst == -1? 0 : ltime.tm_isdst;
+    _timeZoneOffset = hours * 60 + minutes;
 }
 
 static DateTimeFormat dateTimeFormatInitializer;
@@ -365,7 +366,7 @@ static void encodeDate(DateTime::time_point& dt, short year, short month, short 
     time.tm_year = year - 1900;
     time.tm_mon = month - 1;
     time.tm_mday = day;
-    time.tm_isdst = DateTime::isDaylightSavingsTime();
+    time.tm_isdst = TimeZone::isDaylightSavingsTime();
 
     time_t t = mktime(&time);
     dt = DateTime::clock::from_time_t(t);
@@ -474,7 +475,7 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
                 break;
         }
         *p = 0;
-        tzOffsetMin += DateTime::timeZoneOffset();
+        tzOffsetMin += TimeZone::offset();
     }
     trimRight(bdat);
 
@@ -562,7 +563,7 @@ static int isLeapYear(const int16_t year)
 
 }
 
-void DateTime::setTimeZone(const String& timeZoneName)
+void TimeZone::set(const String& timeZoneName)
 {
 #ifdef _WIN32
     _putenv_s("TZ", _timeZoneName.c_str());
@@ -614,6 +615,9 @@ using days = duration<int, ratio<86400>>;
 
 DateTime::DateTime(const char* dat) noexcept
 {
+    if (dat == nullptr || *dat == char(0))
+        return;
+
     if (*dat == 'n' && strcmp(dat, "now") == 0) {
         m_dateTime = clock::now();
         return;
@@ -652,24 +656,6 @@ DateTime::DateTime(const time_point& dt) noexcept
 DateTime::DateTime(const duration& dt) noexcept
 : m_dateTime(dt)
 {
-}
-
-DateTime::DateTime(int64_t sinceEpochMS) noexcept
-: m_dateTime(milliseconds(sinceEpochMS))
-{
-}
-
-//----------------------------------------------------------------
-// Assignments
-//----------------------------------------------------------------
-
-DateTime& DateTime::operator=(const char* dat)
-{
-    if (dat != nullptr)
-        encodeDate(m_dateTime, dat);
-    else
-        m_dateTime = time_point();
-    return *this;
 }
 
 //----------------------------------------------------------------
@@ -940,9 +926,9 @@ String DateTime::format(Format dtFormat, size_t arg)
 }
 char DateTime::dateSeparator() { return _dateSeparator; }
 char DateTime::timeSeparator() { return _timeSeparator; }
-String DateTime::timeZoneName() { return _timeZoneName; }
-int DateTime::timeZoneOffset() { return _timeZoneOffset; }
-int DateTime::isDaylightSavingsTime() { return _isDaylightSavingsTime; }
+String TimeZone::name() { return _timeZoneName; }
+int TimeZone::offset() { return _timeZoneOffset; }
+int TimeZone::isDaylightSavingsTime() { return _isDaylightSavingsTime; }
 
 bool DateTime::time24Mode()
 {
@@ -970,15 +956,6 @@ TEST(SPTK_DateTime, ctor2)
     chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
     chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
-}
-
-TEST(SPTK_DateTime, assign)
-{
-    DateTime dateTime;
-
-    dateTime = "2018-01-01 11:22:33.444+10";
-    chrono::milliseconds msSinceEpoch = duration_cast<chrono::milliseconds>(dateTime.sinceEpoch());
-    EXPECT_EQ(1514769753444, msSinceEpoch.count());
 }
 
 TEST(SPTK_DateTime, timeZones)
@@ -1070,7 +1047,7 @@ TEST(SPTK_DateTime, parsePerformance)
     DateTime dateTime("2018-08-07 11:22:33.444Z");
     size_t count = 100000;
     for (size_t i = 0; i < count; i++)
-        dateTime = "2018-08-07 11:22:33.444Z";
+        dateTime = DateTime("2018-08-07 11:22:33.444Z");
 
     DateTime ended("now");
     double durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;

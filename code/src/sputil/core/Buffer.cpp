@@ -179,10 +179,7 @@ Buffer& Buffer::operator = (const Buffer& other)
             deallocate();
             return *this;
         } else {
-            auto* newptr = realloc(m_buffer, newSize);
-            if (newptr == nullptr)
-                throw Exception("Can't reallocate buffer to " + to_string(newSize) + " bytes");
-            m_buffer = (char*) newptr;
+            reallocate(newSize);
         }
         m_size = newSize;
     }

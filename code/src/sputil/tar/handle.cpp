@@ -23,7 +23,7 @@
 
 static tartype_t default_type = { (openfunc_t)open, (closefunc_t)close, (readfunc_t)read, (writefunc_t)write };
 
-static int tar_init(TAR **t, char *pathname, tartype_t *type,int oflags, int /*mode*/, int options)
+static int tar_init(TAR **t, const char *pathname, tartype_t *type,int oflags, int /*mode*/, int options)
 {
     if ((oflags & (O_RDWR|O_RDONLY|O_WRONLY)) == O_RDWR)
     {
@@ -53,7 +53,7 @@ static int tar_init(TAR **t, char *pathname, tartype_t *type,int oflags, int /*m
 
 
 /* open a new tarfile handle */
-int tar_open(TAR **t, char *pathname, tartype_t *type,
+int tar_open(TAR **t, const char *pathname, tartype_t *type,
      int oflags, int mode, int options)
 {
     if (tar_init(t, pathname, type, oflags, mode, options) == -1)

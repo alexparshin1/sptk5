@@ -80,11 +80,11 @@ int main()
     COUT("Time:   " << dt.timeString(printFlags) << endl);
 
     COUT(endl << "Get the date and time from the system for TZ=':US/Pacific', and print the date components:" << endl << endl);
-    COUT("Local TZ offset is " << DateTime::timeZoneOffset() << " seconds." << endl);
+    COUT("Local TZ offset is " << TimeZone::offset() << " seconds." << endl);
 
 #ifndef _WIN32
-    DateTime::setTimeZone(":US/Pacific");
-    COUT("US/Pacific TZ offset is " << DateTime::timeZoneOffset() << " seconds."  << endl);
+    TimeZone::set(":US/Pacific");
+    COUT("US/Pacific TZ offset is " << TimeZone::offset() << " seconds."  << endl);
 
     dt = DateTime::Now();
     dt.decodeDate(&year, &month, &day, &wday, &yday);
@@ -95,7 +95,7 @@ int main()
     COUT("Day:    " << day << ", " << dt.dayOfWeekName() << endl);
     COUT("Date:   " << dt.dateString() << endl);
     COUT("Time:   " << dt.timeString() << endl);
-    COUT("TZ offset is " << DateTime::timeZoneOffset() << endl);
+    COUT("TZ offset is " << TimeZone::offset() << endl);
 #endif
 
     return 0;

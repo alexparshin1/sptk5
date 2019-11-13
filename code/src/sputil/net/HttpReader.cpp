@@ -40,7 +40,6 @@ HttpReader::HttpReader(Buffer& output)
   m_statusCode(0),
   m_contentLength(0),
   m_contentReceivedLength(0),
-  m_currentChunkSize(0),
   m_contentIsChunked(false),
   m_matchProtocolAndResponseCode("^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"),
   m_output(output)
@@ -103,9 +102,45 @@ bool HttpReader::readHeaders(TCPSocket& socket)
         m_contentIsChunked = itor->second.find("chunked") != string::npos;
 
     m_contentReceivedLength = 0;
-    m_currentChunkSize = 0;
 
     return true;
+}
+
+static size_t readAndAppend(TCPSocket& socket, Buffer& output, size_t bytesToRead)
+{
+    Buffer buffer(bytesToRead);
+
+    if (!socket.readyToRead(chrono::seconds(30)))
+        throw TimeoutException("Timeout reading from connection");
+
+    size_t readBytes = socket.read(buffer, bytesToRead);
+    if (readBytes == 0) // 0 bytes case is a workaround for OpenSSL
+        readBytes = (int) socket.read(buffer, bytesToRead);
+
+    output.append(buffer);
+    return readBytes;
+}
+
+static size_t readChunk(TCPSocket& socket, Buffer& m_output)
+{
+    // Starting next chunk
+    String chunkSizeStr;
+    while (chunkSizeStr.empty()) {
+        if (!socket.readyToRead(chrono::seconds(30)))
+            throw TimeoutException("Timeout reading next chunk");
+        if (socket.readLine(chunkSizeStr) > 0)
+            chunkSizeStr = trim(chunkSizeStr);
+    }
+
+    errno = 0;
+    size_t chunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
+    if (errno != 0)
+        throw Exception("Strange chunk size: '" + chunkSizeStr + "'");
+
+    if (chunkSize == 0)
+        return 0; // Last chunk
+
+    return readAndAppend(socket, m_output, chunkSize);
 }
 
 bool HttpReader::readData(TCPSocket& socket)
@@ -121,46 +156,14 @@ bool HttpReader::readData(TCPSocket& socket)
             bytesToRead = socket.socketBytes();
 
         if (!m_contentIsChunked) {
-            readBytes = (int) socket.read(m_read_buffer, bytesToRead);
-            if (readBytes == 0) // 0 bytes case is a workaround for OpenSSL
-                readBytes = (int) socket.read(m_read_buffer, bytesToRead);
-            m_output.append(m_read_buffer);
+            readBytes = readAndAppend(socket, m_output, bytesToRead);
             m_contentReceivedLength += readBytes;
             if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength) // No more data
                 return true;
         } else {
-            if (m_currentChunkSize == 0) {
-                // Starting next chunk
-                String chunkSizeStr;
-                while (chunkSizeStr.empty()) {
-                    if (socket.readLine(chunkSizeStr) == 0) {
-                        this_thread::sleep_for(chrono::milliseconds(10));
-                        continue;
-                    }
-                    chunkSizeStr = trim(chunkSizeStr);
-                }
-
-                errno = 0;
-                m_currentChunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
-                if (errno != 0)
-                    throw Exception("Strange chunk size: '" + chunkSizeStr + "'");
-
-                if (m_currentChunkSize == 0)
-                    return true; // Last chunk
-            }
-
-            m_output.checkSize(m_output.bytes() + m_currentChunkSize + 16384);
-            char* appendPtr = m_output.data() + m_output.bytes();
-            if (!socket.readyToRead(chrono::seconds(30)))
-                throw TimeoutException("Read timeout");
-            readBytes = (int) socket.read(appendPtr, m_currentChunkSize, nullptr);
-            if (readBytes > 0) {
-                m_contentReceivedLength += readBytes;
-                appendPtr[readBytes] = 0;
-                m_currentChunkSize = 0;
-                m_output.bytes(m_output.bytes() + readBytes);
-                return false; // Not the last chunk
-            }
+            size_t chunkSize = readChunk(socket, m_output);
+            m_contentReceivedLength += chunkSize;
+            return (chunkSize == 0); // 0 means last chunk
         }
         readBytes = (int) socket.socketBytes();
         if (readBytes == 0 && m_output.bytes() > 13) {

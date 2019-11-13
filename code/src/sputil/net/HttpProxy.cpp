@@ -51,51 +51,11 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
     for (auto& method: methods) {
         try {
             socket->open(m_host, BaseSocket::SOM_CONNECT, blockingMode, timeout);
-            socket->write(method + " " + destination.toString() + " HTTP/1.1\r\n");
-            socket->write("Proxy-Connection: keep-alive\r\n");
-
-            socket->write("User-agent: SPTK\r\n");
-            if (!m_username.empty()) {
-                Buffer usernameAndPassword(m_username + ":" + m_password);
-                Buffer encodedUsernameAndPassword;
-                Base64::encode(encodedUsernameAndPassword, usernameAndPassword.c_str(), usernameAndPassword.bytes());
-                socket->write("Proxy-Authorization: Basic " + String(encodedUsernameAndPassword.c_str()) + "\r\n");
-            }
-            socket->write("\r\n");
+            sendRequest(destination, socket, method);
 
             String error("Proxy connection timeout");
-            if (socket->readyToRead(seconds(10))) {
-                Buffer buffer;
-                socket->readLine(buffer);
-
-                RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
-                Strings matches;
-                if (matchProxyResponse.m(buffer.c_str(), matches)) {
-                    int rc = matches[0].toInt();
-                    if (rc < 400)
-                        proxyConnected = true;
-                }
-
-                // Read all headers
-                RegularExpression matchResponseHeader(R"(^(\S+): (.*)$)");
-                int contentLength = -1;
-                while (buffer.bytes() > 1) {
-                    socket->readLine(buffer);
-                    if (matchResponseHeader.m(buffer.c_str(), matches)) {
-                        if (matches[0].toLowerCase() == "content-length")
-                            contentLength = matches[1].toInt();
-                    } else
-                        break;
-                }
-
-                // Read response body (if any)
-                if (contentLength > 0) {
-                    socket->read(buffer, contentLength);
-                } else {
-                    while (socket->readyToRead(milliseconds(100)))
-                        socket->read(buffer, socket->socketBytes());
-                }
-            }
+            if (socket->readyToRead(seconds(10)))
+                proxyConnected = readResponse(socket);
 
             if (proxyConnected)
                 break;
@@ -109,6 +69,58 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
     socket.reset();
 
     return handle;
+}
+
+bool HttpProxy::readResponse(shared_ptr<TCPSocket>& socket) const
+{
+    bool proxyConnected;
+    Buffer buffer;
+    socket->readLine(buffer);
+
+    RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
+    Strings responseMatches;
+    if (matchProxyResponse.m(buffer.c_str(), responseMatches)) {
+        int rc = responseMatches[0].toInt();
+        if (rc < 400)
+            proxyConnected = true;
+    }
+
+    // Read all headers
+    Strings matches;
+    RegularExpression matchResponseHeader(R"(^(\S+): (.*)$)");
+    int contentLength = -1;
+    while (buffer.bytes() > 1) {
+        socket->readLine(buffer);
+        if (matchResponseHeader.m(buffer.c_str(), matches)) {
+            if (matches[0].toLowerCase() == "content-length")
+                contentLength = matches[1].toInt();
+        } else
+            break;
+    }
+
+    // Read response body (if any)
+    if (contentLength > 0) {
+        socket->read(buffer, contentLength);
+    } else {
+        while (socket->readyToRead(milliseconds(100)))
+            socket->read(buffer, socket->socketBytes());
+    }
+    return proxyConnected;
+}
+
+void HttpProxy::sendRequest(const Host& destination, shared_ptr<TCPSocket>& socket, const String& method) const
+{
+    socket->write(method + " " + destination.toString() + " HTTP/1.1\r\n");
+    socket->write("Proxy-Connection: keep-alive\r\n");
+
+    socket->write("User-agent: SPTK\r\n");
+    if (!m_username.empty()) {
+        Buffer usernameAndPassword(m_username + ":" + m_password);
+        Buffer encodedUsernameAndPassword;
+        Base64::encode(encodedUsernameAndPassword, usernameAndPassword.c_str(), usernameAndPassword.bytes());
+        socket->write("Proxy-Authorization: Basic " + String(encodedUsernameAndPassword.c_str()) + "\r\n");
+    }
+    socket->write("\r\n");
 }
 
 #ifdef _WIN32
@@ -239,12 +251,11 @@ TEST(SPTK_HttpProxy, connect)
 
         Buffer output;
         http.cmd_get("/", HttpParams(), output);
-        cout << output.c_str() << endl;
+        COUT(output.c_str() << endl);
     }
     catch (const Exception& e) {
         FAIL() << e.what();
     }
-    //EXPECT_NE(sock, INVALID_SOCKET);
 }
 
 TEST(SPTK_HttpProxy, getDefaultProxy)

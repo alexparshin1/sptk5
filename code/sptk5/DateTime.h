@@ -42,7 +42,39 @@ namespace sptk {
  * @{
  */
 
-    class DateTimeFormat;
+class DateTimeFormat;
+class DateTime;
+
+/**
+ * Timezone-related information (global, static)
+ */
+class SP_EXPORT TimeZone
+{
+public:
+    /**
+     * Time zone abbbreviastion
+     */
+    static String name();
+
+    /**
+    * Get timezone offset
+    * @return timezone offset, seconds
+    */
+    static int offset();
+
+    /**
+    * Get timezone offset
+    * @return timezone offset
+    */
+    static int isDaylightSavingsTime();
+
+    /**
+    * Set timezone for the application
+    * @param timeZoneName       Time zone name, such as "UTC", ":US/Pacific", etc
+    */
+    static void set(const sptk::String& timeZoneName);
+};
+
 
 /**
  * Date and Time value.
@@ -141,21 +173,6 @@ private:
      */
     static Strings _monthNames;
 
-    /**
-     * Time zone abbbreviastion
-     */
-    static String _timeZoneName;
-
-    /**
-    * Time zone offset from GMT in minutes
-    */
-    static int _timeZoneOffset;
-
-    /**
-    * Daylight savings time 0 or 1
-    */
-    static int _isDaylightSavingsTime;
-
 public:
 
     enum Format {
@@ -185,29 +202,6 @@ public:
 	static char timeSeparator();
 
 	/**
-	 * Time zone abbbreviastion
-	 */
-	static String timeZoneName();
-
-	/**
-	* Get timezone offset
-	* @return timezone offset, seconds
-	*/
-	static int timeZoneOffset();
-
-	/**
-	* Get timezone offset
-	* @return timezone offset
-	*/
-	static int isDaylightSavingsTime();
-
-	/**
-    * Set timezone for the application
-    * @param timeZoneName       Time zone name, such as "UTC", ":US/Pacific", etc
-    */
-    static void setTimeZone(const sptk::String& timeZoneName);
-
-	/**
 	 * Returns system's time mode.
 	 */
 	static bool time24Mode();
@@ -216,12 +210,6 @@ public:
 	 * Sets system's time mode
 	 */
 	static void time24Mode(bool t24mode);
-
-    /**
-    * Default constructor
-    */
-    DateTime() noexcept
-    {}
 
     /**
     * Constructor
@@ -239,7 +227,7 @@ public:
      * Constructor
      * @param dateStr           Date string
      */
-    explicit DateTime(const char* dateStr) noexcept;
+    explicit DateTime(const char* dateStr=nullptr) noexcept;
 
     /**
      * Copy constructor
@@ -259,12 +247,6 @@ public:
     explicit DateTime(const duration& dt) noexcept;
 
     /**
-     * Constructor
-     * @param sinceEpochMS      Time since epoch, milliseconds
-     */
-    explicit DateTime(int64_t sinceEpochMS) noexcept;
-
-    /**
      * Returns time_point presentation of the date and time
      */
     const time_point& timePoint() const
@@ -276,11 +258,6 @@ public:
      * Assignment
      */
     DateTime& operator=(const DateTime& date) = default;
-
-    /**
-     * Assignment
-     */
-    DateTime& operator=(const char* dat);
 
     /**
      * Addition, a duration of time

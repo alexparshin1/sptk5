@@ -94,47 +94,6 @@ String sptk::trim(const String& str)
     return str.substr(size_t(startpos), size_t(long(endpos - startpos + 1)));
 }
 
-void sptk::join(string& dest, const vector<string>& src, const string& separator)
-{
-    dest = "";
-    auto itor = src.begin();
-
-    for (; itor != src.end(); ++itor) {
-        dest += *itor + separator;
-    }
-}
-
-void sptk::split(vector<string>& dest, const string& src, const string& delimitter)
-{
-    dest.clear();
-    auto* buffer = const_cast<char*>(src.c_str());
-
-    if (strlen(buffer) == 0)
-        return;
-
-    auto dlen = (uint32_t) delimitter.length();
-
-    if (dlen == 0)
-        return;
-
-    char* p = buffer;
-
-    for (;;) {
-        char* end = strstr(p, delimitter.c_str());
-
-        if (end != nullptr) {
-            char sc = *end;
-            *end = 0;
-            dest.emplace_back(p);
-            *end = sc;
-            p = end + dlen;
-        } else {
-            dest.emplace_back(p);
-            break;
-        }
-    }
-}
-
 String sptk::int2string(int32_t value)
 {
     char buff[32];
@@ -288,6 +247,11 @@ TEST(SPTK_string_ext, to_string)
 {
     EXPECT_STREQ("2.22", double2string(2.22).c_str());
     EXPECT_STREQ("This is a Short Text", capitalizeWords("THIS IS a short text").c_str());
+}
+
+TEST(SPTK_string_ext, split)
+{
+//    void sptk::split(vector<string>& dest, const string& src, const string& delimitter)
 }
 
 #endif

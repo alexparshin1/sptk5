@@ -26,7 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <fstream>
 #include <sstream>
 #include <cstring>
 #include <sptk5/Strings.h>

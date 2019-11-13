@@ -158,7 +158,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
 
     char dateBuffer[128] = {};
     const char* sign = "-";
-    int offset = DateTime::timeZoneOffset();
+    int offset = TimeZone::offset();
     if (offset >= 0)
         sign = "";
     else {
@@ -174,7 +174,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
             th, tm, ts,
             sign,
             offset * 100,
-            DateTime::timeZoneName().c_str()
+            TimeZone::name().c_str()
     );
 
     message << string(dateBuffer, (size_t) len) << endl;

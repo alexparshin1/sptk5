@@ -173,7 +173,7 @@ void Tar::read(const char* fileName)
     m_memoryRead = false;
     TAR* tar;
     clear();
-    int rc = tar_open(&tar, (char*) fileName, nullptr, 0, 0, TAR_GNU);
+    int rc = tar_open(&tar, fileName, nullptr, 0, 0, TAR_GNU);
     if (rc < 0) throwError(fileName);
     m_tar = tar;
     while (loadFile()) ;
@@ -187,7 +187,7 @@ void Tar::read(const Buffer& tarData)
     m_memoryRead = true;
     TAR* tar;
     clear();
-    tar_open(&tar, (char*) "memory", &memtype, 0, 0, TAR_GNU);
+    tar_open(&tar, "memory", &memtype, 0, 0, TAR_GNU);
     MemoryTarHandle* memHandle = tarMemoryHandle((int) tar->fd);
     if (memHandle == nullptr)
         throw Exception("Can't open the archive", __FILE__, __LINE__);

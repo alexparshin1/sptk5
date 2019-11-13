@@ -976,12 +976,6 @@ bool BaseVariant::isNull() const
     return (m_dataType & VAR_NULL) != 0 || (m_dataType & VAR_TYPES) == VAR_NONE;
 }
 
-void BaseVariant::setNotNull()
-{
-    if ((m_dataType & VAR_NULL) != 0)
-        m_dataType -= VAR_NULL;
-}
-
 String BaseVariant::typeName(VariantType type)
 {
     switch (type) {

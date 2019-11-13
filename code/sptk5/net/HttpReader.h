@@ -102,27 +102,22 @@ private:
     /**
      * HTTP response status code
      */
-    int                 m_statusCode;
+    int                 m_statusCode {0};
 
     /**
      * Content length (as defined in responce headers), or 0
      */
-    size_t              m_contentLength;
+    size_t              m_contentLength {0};
 
     /**
      * Received content length so far
      */
-    size_t              m_contentReceivedLength;
-
-    /**
-     * Current chunk size
-     */
-    size_t              m_currentChunkSize;
+    size_t              m_contentReceivedLength {0};
 
     /**
      * Chunked content (as defined in responce headers)
      */
-    bool                m_contentIsChunked;
+    bool                m_contentIsChunked {false};
 
     /**
      * HTTP response headers
