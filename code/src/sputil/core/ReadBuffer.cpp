@@ -45,7 +45,7 @@ bool ReadBuffer::read(void* data, size_t length)
 bool ReadBuffer::read(String& data, size_t length)
 {
     data.resize(length);
-    return read((char*)data.c_str(), length);
+    return read(&data[0], length);
 }
 
 bool ReadBuffer::read(Buffer& data, size_t length)

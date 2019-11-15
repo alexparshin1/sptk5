@@ -183,18 +183,18 @@ void WSWebServiceProtocol::process()
         authentication = make_shared<HttpAuthentication>(value);
     }
 
-    const char* startOfMessage = nullptr;
-    const char* endOfMessage = nullptr;
+    char* startOfMessage = nullptr;
+    char* endOfMessage = nullptr;
 
     Buffer data;
 
     if (contentLength > 0) {
         m_socket.read(data, contentLength);
-        startOfMessage = data.c_str();
+        startOfMessage = data.data();
         endOfMessage = startOfMessage + data.bytes();
     }
     else if (contentLength == 0) {
-        startOfMessage = data.c_str();
+        startOfMessage = data.data();
         endOfMessage = startOfMessage;
     } else {
         size_t socketBytes = m_socket.socketBytes();
@@ -218,9 +218,9 @@ void WSWebServiceProtocol::process()
 
             const char* endOfData = data.c_str() + data.bytes();
             if (startOfMessage == nullptr) {
-                startOfMessage = strstr(data.c_str(), "<?xml");
+                startOfMessage = strstr(data.data(), "<?xml");
                 if (startOfMessage == nullptr) {
-                    startOfMessage = strstr(data.c_str(), "Envelope");
+                    startOfMessage = strstr(data.data(), "Envelope");
                     if (startOfMessage != nullptr && startOfMessage < endOfData)
                         while (*startOfMessage != '<' && startOfMessage > data.c_str())
                             startOfMessage--;

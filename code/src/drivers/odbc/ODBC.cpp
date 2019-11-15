@@ -166,7 +166,8 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
 #else
     void* ParentWnd = nullptr;
 #endif
-    SQLRETURN rc = ::SQLDriverConnect(m_hConnection, ParentWnd, (UCHAR FAR*) ConnectionString.c_str(), SQL_NTS,
+    char* pConnectString = m_connectString.empty() ? nullptr: &m_connectString[0];
+    SQLRETURN rc = ::SQLDriverConnect(m_hConnection, ParentWnd, (UCHAR FAR*) pConnectString, SQL_NTS,
                                       (UCHAR FAR*) buff.data(), (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
 
 
