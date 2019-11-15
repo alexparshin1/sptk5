@@ -169,7 +169,6 @@ public:
 
     };
 
-
 protected:
 
 #ifdef _WIN32
@@ -182,7 +181,6 @@ protected:
      * WinSock cleanup
      */
     static void cleanup() noexcept;
-
 #endif
 
     /**
@@ -211,7 +209,7 @@ public:
 	/**
 	 * Get socket internal (OS) handle
 	 */
-	SOCKET socketFD() const
+	SOCKET fd() const
 	{
 		return m_sockfd;
 	}
@@ -247,14 +245,6 @@ public:
      * Returns number of bytes available in socket
      */
     virtual size_t socketBytes();
-
-    /**
-     * Returns socket handle
-     */
-    int handle() const
-    {
-        return (int) m_sockfd;
-    }
 
     /**
      * Attaches socket handle

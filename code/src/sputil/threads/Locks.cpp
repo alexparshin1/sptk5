@@ -118,7 +118,7 @@ public:
             aresult = "locked";
         }
         catch (const Exception& e) {
-            aresult = "lock timeout";
+            aresult = "lock timeout: " + String(e.what());
         }
     }
 };

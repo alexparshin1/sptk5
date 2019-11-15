@@ -42,7 +42,7 @@ UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY _domain)
 size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from)
 {
     socklen_t addrLength = sizeof(sockaddr_in);
-    auto bytes = recvfrom(socketFD(), buffer, (int) size, 0, (sockaddr*) from, &addrLength);
+    auto bytes = recvfrom(fd(), buffer, (int) size, 0, (sockaddr*) from, &addrLength);
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read to socket");
     return (size_t) bytes;

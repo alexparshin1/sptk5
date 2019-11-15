@@ -152,14 +152,6 @@ public:
 
     /**
      * Constructor from a string with elements separated by a delimiter string
-     * @param src               Source string
-     * @param delimiter         Delimiter string
-     * @param mode              Delimiter string usage
-     */
-    Strings(const char *src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept;
-
-    /**
-     * Constructor from a string with elements separated by a delimiter string
      * @param argc              Number of arguments
      * @param argv              Arguments
      */

@@ -212,20 +212,6 @@ protected:
 public:
 
     /**
-     * Escape special characters
-     * @param text              Text with special characters
-     * @returns escaped text
-     */
-    static std::string escape(const std::string& text);
-
-    /**
-     * Decode escaped text
-     * @param text              Escaped text
-     * @returns decoded text
-     */
-    static std::string decode(const std::string& text);
-
-    /**
      * Find elements matching particular xpath element
      * @param elements          Elements matching xpath (output)
      * @param xpath             Xpath elements
@@ -726,37 +712,7 @@ public:
      * Element type check
      * @return true if element is a number
      */
-    bool isNumber()  const { return m_type == JDT_NUMBER; }
-
-    /**
-     * Element type check
-     * @return true if element is a string
-     */
-    bool isString()  const { return m_type == JDT_STRING; }
-
-    /**
-     * Element type check
-     * @return true if element is a boolean
-     */
-    bool isBoolean() const { return m_type == JDT_BOOLEAN; }
-
-    /**
-     * Element type check
-     * @return true if element is an array
-     */
-    bool isArray()   const { return m_type == JDT_ARRAY; }
-
-    /**
-     * Element type check
-     * @return true if element is an object
-     */
-    bool isObject()  const { return m_type == JDT_OBJECT; }
-
-    /**
-     * Element type check
-     * @return true if element is a null
-     */
-    bool isNull()    const { return m_type == JDT_NULL; }
+    bool is(Type type) const { return m_type == type; }
 
     /**
      * Get number of elements in array or object.
@@ -778,6 +734,20 @@ public:
      */
     Document* getDocument() const;
 };
+
+/**
+ * Escape special characters
+ * @param text              Text with special characters
+ * @returns escaped text
+ */
+std::string escape(const std::string& text);
+
+/**
+ * Decode escaped text
+ * @param text              Escaped text
+ * @returns decoded text
+ */
+std::string decode(const std::string& text);
 
 }}
 

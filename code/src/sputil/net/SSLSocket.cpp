@@ -135,7 +135,7 @@ SSLSocket::~SSLSocket()
 
 void SSLSocket::loadKeys(const SSLKeys& keys)
 {
-    if (socketFD() != INVALID_SOCKET)
+    if (fd() != INVALID_SOCKET)
         throw Exception("Can't set keys on opened socket");
     m_keys = keys;
 }
@@ -182,7 +182,7 @@ void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& tim
     DateTime started = DateTime::Now();
     DateTime timeoutAt(started + timeout);
 
-    SSL_set_fd(m_ssl, (int) socketFD());
+    SSL_set_fd(m_ssl, (int) fd());
 
     if (timeout == chrono::milliseconds(0)) {
         int rc = SSL_connect(m_ssl);
@@ -229,7 +229,7 @@ void SSLSocket::attach(SOCKET socketHandle, bool accept)
     initContextAndSocket();
 
     int rc = 1;
-    if (socketFD() != socketHandle) {
+    if (fd() != socketHandle) {
         TCPSocket::attach(socketHandle, false);
         rc = SSL_set_fd(m_ssl, (int) socketHandle);
         if (rc <= 0) {

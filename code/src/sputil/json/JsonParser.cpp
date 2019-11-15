@@ -131,7 +131,7 @@ string readJsonString(const char* json, const char*& readPosition)
             pos++;
         }
     }
-    string str = Element::decode(string(readPosition + 1, pos - readPosition - 1));
+    string str = json::decode(string(readPosition + 1, pos - readPosition - 1));
 
     readPosition = pos + 1;
 

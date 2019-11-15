@@ -201,7 +201,7 @@ Element* Element::add(const String& name, Element* element)
         return element;
     }
 
-    if (sameNameExistingElement->isArray()) {
+    if (sameNameExistingElement->is(JDT_ARRAY)) {
         sameNameExistingElement->add(element);
         return element;
     }
@@ -569,7 +569,7 @@ void Element::exportTo(const string& name, xml::Element& parentNode) const
     exportValueTo(name, parentNode);
 }
 
-string Element::escape(const string& text)
+string json::escape(const string& text)
 {
     string result;
 
@@ -648,7 +648,7 @@ static std::string codePointToUTF8(unsigned cp)
     return result;
 }
 
-string Element::decode(const string& text)
+string json::decode(const string& text)
 {
     string   result;
     size_t   length = text.length();
@@ -826,11 +826,11 @@ size_t Element::size() const
 
 void Element::optimizeArrays(const std::string& name)
 {
-    if (isObject()) {
+    if (is(JDT_OBJECT)) {
         if (size() == 1) {
             auto itor = m_data.m_object->begin();
             Element* itemElement = itor->second;
-            if ((*itor->first == name || name.empty()) && itemElement->isArray()) {
+            if ((*itor->first == name || name.empty()) && itemElement->is(JDT_ARRAY)) {
                 m_data.m_object->move(*itor->first);
                 *this = ::move(*itemElement);
                 optimizeArrays(name);
@@ -844,7 +844,7 @@ void Element::optimizeArrays(const std::string& name)
         return;
     }
 
-    if (isArray()) {
+    if (is(JDT_ARRAY)) {
         for (auto* element: *m_data.m_array)
             element->optimizeArrays(name);
         return;

@@ -33,11 +33,7 @@
 #include <sstream>
 #include <iomanip>
 
-namespace sptk {
-
 #define COUT(a) { std::stringstream _printstream; _printstream << a; std::cout << _printstream.str().c_str(); }
 #define CERR(a) { std::stringstream _printstream; _printstream << a; std::cerr << _printstream.str().c_str(); }
-
-}
 
 #endif

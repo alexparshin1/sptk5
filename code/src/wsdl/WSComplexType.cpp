@@ -59,7 +59,7 @@ void WSComplexType::addElement(xml::Element* parent, const char* name) const
 void WSComplexType::addElement(json::Element* parent) const
 {
     json::Element* element;
-    if (parent->isArray())
+    if (parent->is(json::JDT_ARRAY))
         element = parent->push_back();
     else
         element = parent->set(m_name);

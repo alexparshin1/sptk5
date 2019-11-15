@@ -88,16 +88,6 @@ Strings::Strings(const String& src, const char *delimiter, SplitMode mode) noexc
     }
 }
 
-Strings::Strings(const char *src, const char *delimiter, SplitMode mode) noexcept
-{
-    try {
-        fromString(src, delimiter, mode);
-    }
-    catch (const Exception& e) {
-        push_back("# ERROR: " + String(e.what()));
-    }
-}
-
 Strings::Strings(int argc, const char *argv[]) noexcept
 {
     for (int i = 0; i < argc; i++)

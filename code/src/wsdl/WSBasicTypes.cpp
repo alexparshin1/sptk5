@@ -82,7 +82,7 @@ void WSString::load(const xml::Node* attr)
 
 void WSString::load(const json::Element* attr)
 {
-    if (attr->isNull())
+    if (attr->is(json::JDT_NULL))
         setNull(VAR_STRING);
     else
         setString(attr->getString());
@@ -112,7 +112,7 @@ void WSBool::load(const xml::Node* attr)
 
 void WSBool::load(const json::Element* attr)
 {
-    if (attr->isNull())
+    if (attr->is(json::JDT_NULL))
         setNull(VAR_BOOL);
     else
         setBool(attr->getBoolean());
@@ -146,7 +146,7 @@ void WSDate::load(const xml::Node* attr)
 void WSDate::load(const json::Element* attr)
 {
     String text = attr->getString();
-    if (attr->isNull() || text.empty())
+    if (attr->is(json::JDT_NULL) || text.empty())
         setNull(VAR_DATE);
     else
         setDateTime(DateTime(text.c_str()), true);
@@ -245,7 +245,7 @@ void WSInteger::load(const xml::Node* attr)
 
 void WSInteger::load(const json::Element* attr)
 {
-    if (attr->isNull())
+    if (attr->is(json::JDT_NULL))
         setNull(VAR_INT64);
     else
         setInt64((int64_t)attr->getNumber());

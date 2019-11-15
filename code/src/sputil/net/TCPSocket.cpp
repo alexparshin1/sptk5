@@ -78,7 +78,7 @@ int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
 #else
             socklen_t flen = sizeof(sockaddr_in);
 #endif
-            receivedBytes = (int) recvfrom(m_socket.handle(), data(), (int) capacity() - 2, 0, (sockaddr*) from, &flen);
+            receivedBytes = (int) recvfrom(m_socket.fd(), data(), (int) capacity() - 2, 0, (sockaddr*) from, &flen);
         } else
             receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
 
@@ -169,7 +169,7 @@ size_t TCPSocketReader::read(char* destination, size_t sz, char delimiter, bool 
     int total = 0;
     int eol = 0;
 
-    if (m_socket.handle() <= 0)
+    if (m_socket.fd() <= 0)
         throw Exception("Can't read from closed socket", __FILE__, __LINE__);
 
     while (eol == 0) {
@@ -203,7 +203,7 @@ size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
     size_t total = 0;
     int eol = 0;
 
-    if (m_socket.handle() <= 0)
+    if (m_socket.fd() <= 0)
         throw Exception("Can't read from closed socket", __FILE__, __LINE__);
 
     while (eol == 0) {
@@ -280,7 +280,7 @@ void TCPSocket::close() noexcept
 void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
 {
     socklen_t len = sizeof(clientInfo);
-    clientSocketFD = ::accept(socketFD(), (struct sockaddr *) & clientInfo, &len);
+    clientSocketFD = ::accept(fd(), (struct sockaddr *) & clientInfo, &len);
     if (clientSocketFD == INVALID_SOCKET)
         THROW_SOCKET_ERROR("Error on accept(). ");
 }

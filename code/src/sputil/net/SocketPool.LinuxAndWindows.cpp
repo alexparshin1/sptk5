@@ -91,7 +91,7 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 
     lock_guard<mutex> lock(*this);
 
-    int socketFD = socket.handle();
+    int socketFD = socket.fd();
 
     auto* event = new epoll_event;
     event->data.ptr = userData;
@@ -117,7 +117,7 @@ void SocketPool::forgetSocket(BaseSocket& socket)
     event = (epoll_event*) itor->second;
     m_socketData.erase(itor);
 
-    int rc = epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.handle(), event);
+    int rc = epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), event);
     if (rc == -1)
         throw SystemException("Can't remove socket from epoll");
 

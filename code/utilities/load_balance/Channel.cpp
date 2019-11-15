@@ -75,18 +75,18 @@ int Channel::copyData(TCPSocket& source, TCPSocket& destination)
     while ((size_t) readBytes == fragmentSize) {
 
 #ifdef _WIN32
-        readBytes = _read(source.handle(), buffer, (unsigned) fragmentSize);
+        readBytes = _read(source.socketFD(), buffer, (unsigned) fragmentSize);
         if (readBytes < 0)
             throw SystemException("Can't read from socket");
 
-        if (_write(destination.handle(), buffer, readBytes) < 0)
+        if (_write(destination.socketFD(), buffer, readBytes) < 0)
             throw SystemException("Can't write to socket");
 #else
-        readBytes = ::read(source.handle(), buffer, fragmentSize);
+        readBytes = ::read(source.fd(), buffer, fragmentSize);
         if (readBytes < 0)
             throw SystemException("Can't read from socket");
 
-        if (::write(destination.handle(), buffer, (size_t) readBytes) < 0)
+        if (::write(destination.fd(), buffer, (size_t) readBytes) < 0)
             throw SystemException("Can't write to socket");
 #endif
         totalBytes += readBytes;
