@@ -32,6 +32,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/string_ext.h>
 #include <sptk5/Exception.h>
+#include <sptk5/Buffer.h>
 
 using namespace std;
 
@@ -205,7 +206,7 @@ static void capitalizeWord(char* current, char* wordStart)
         *ptr = (char) tolower(*ptr);
 }
 
-static void lowerCaseWord(const char* current, char* wordStart)
+static void lowerCaseWord(char* current, char* wordStart)
 {
     if (wordStart != nullptr) {
         for (char* ptr = wordStart; ptr < current; ptr++)
@@ -215,7 +216,8 @@ static void lowerCaseWord(const char* current, char* wordStart)
 
 String sptk::capitalizeWords(const String& s)
 {
-    auto* current = const_cast<char*>(s.c_str());
+    Buffer buffer(s);
+    auto* current = buffer.data();
     char* wordStart = nullptr;
 
     if (*current != char(0)) {
@@ -238,20 +240,17 @@ String sptk::capitalizeWords(const String& s)
         }
     }
 
-    return s;
+    return String(buffer.c_str(), buffer.length());
 }
 
 #if USE_GTEST
 
 TEST(SPTK_string_ext, to_string)
 {
+    EXPECT_EQ(222, string2int("222"));
+    EXPECT_DOUBLE_EQ(2.22, string2double("2.22"));
     EXPECT_STREQ("2.22", double2string(2.22).c_str());
     EXPECT_STREQ("This is a Short Text", capitalizeWords("THIS IS a short text").c_str());
-}
-
-TEST(SPTK_string_ext, split)
-{
-//    void sptk::split(vector<string>& dest, const string& src, const string& delimitter)
 }
 
 #endif
