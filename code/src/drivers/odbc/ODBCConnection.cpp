@@ -231,7 +231,8 @@ void ODBCConnection::queryPrepare(Query* query)
 
     query->fields().clear();
 
-    if (!successful(SQLPrepare(query->statement(), (SQLCHAR*) query->sql().c_str(), SQL_NTS)))
+    char* sql = query->sql().empty()? nullptr: &query->sql()[0];
+    if (!successful(SQLPrepare(query->statement(), (SQLCHAR*) sql, SQL_NTS)))
         THROW_QUERY_ERROR(query, queryError(query));
 }
 
@@ -248,8 +249,10 @@ void ODBCConnection::queryExecute(Query* query)
     int rc = 0;
     if (query->prepared())
         rc = SQLExecute(query->statement());
-    else
-        rc = SQLExecDirect(query->statement(), (SQLCHAR*) query->sql().c_str(), SQL_NTS);
+    else {
+        char* sql = query->sql().empty()? nullptr: &query->sql()[0];
+        rc = SQLExecDirect(query->statement(), (SQLCHAR*) sql, SQL_NTS);
+    }
 
     if (!successful(rc)) {
         SQLCHAR state[16];
@@ -755,17 +758,17 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 
         switch (objectType) {
             case DOT_TABLES:
-                if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, (SQLCHAR*) "TABLE", SQL_NTS) != SQL_SUCCESS)
+                if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, (SQLCHAR*) Buffer("TABLE").data(), SQL_NTS) != SQL_SUCCESS)
                     throw DatabaseException("SQLTables");
                 break;
 
             case DOT_VIEWS:
-                if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, (SQLCHAR*) "VIEW", SQL_NTS) != SQL_SUCCESS)
+                if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, (SQLCHAR*) Buffer("VIEW").data(), SQL_NTS) != SQL_SUCCESS)
                     throw DatabaseException("SQLTables");
                 break;
 
             case DOT_PROCEDURES:
-                rc = SQLProcedures(stmt, nullptr, 0, (SQLCHAR*) "", SQL_NTS, (SQLCHAR*) "%", SQL_NTS);
+                rc = SQLProcedures(stmt, nullptr, 0, (SQLCHAR*) Buffer("").data(), SQL_NTS, (SQLCHAR*) Buffer("%").data(), SQL_NTS);
                 if (rc != SQL_SUCCESS)
                     throw DatabaseException("SQLProcedures");
                 break;

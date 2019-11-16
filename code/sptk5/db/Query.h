@@ -167,6 +167,11 @@ protected:
         return m_messages;
     }
 
+    String& getSQL()
+    {
+        return m_sql;
+    }
+
     const String& getSQL() const
     {
         return m_sql;
@@ -434,7 +439,7 @@ public:
     /**
      * @brief Returns the text of current SQL query as String
      */
-    const String& sql() const
+    String& sql()
     {
         return getSQL();
     }

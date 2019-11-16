@@ -224,10 +224,13 @@ void ODBCConnectionBase::execQuery(const char* query)
     // Allocate Statement Handle
     if (!Successful(SQLAllocHandle(SQL_HANDLE_STMT, m_hConnection, &hstmt)))
         throw Exception("Can't allocate handle");
-    if (!Successful(SQLExecDirect(hstmt, (SQLCHAR*) query, (SQLINTEGER) strlen(query)))) {
+
+    Buffer queryBuffer(query, strlen(query));
+    if (!Successful(SQLExecDirect(hstmt, (SQLCHAR*) queryBuffer.data(), (SQLINTEGER) queryBuffer.length()))) {
         SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
         throw Exception("Can't execute query: " + String(query));
     }
+
     SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
 }
 

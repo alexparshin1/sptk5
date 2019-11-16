@@ -157,11 +157,11 @@ int TestRunner::runAllTests()
             filter += ":-" + excludeDBDriverPatterns;
 
         if (filterArgumentIndex == 0) {
-            argv.push_back((char*)filter.c_str());
+            argv.push_back(&filter[0]);
             m_argc++;
         }
         else
-            argv[filterArgumentIndex] = (char*) filter.c_str();
+            argv[filterArgumentIndex] = &filter[0];
     }
 
     ::testing::InitGoogleTest(&m_argc, &argv[0]);

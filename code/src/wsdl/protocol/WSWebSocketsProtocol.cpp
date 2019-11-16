@@ -112,7 +112,7 @@ void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool final, Buff
         ptr += 8;
     }
 
-    output.bytes(ptr - (uint8_t*) output.c_str());
+    output.bytes(ptr - (uint8_t*) output.data());
     output.append(payload);
 }
 

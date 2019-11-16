@@ -104,14 +104,15 @@ static const CEntityCache xml_entities(builtin_ent_xml);
 
 void xml::DocType::decodeEntities(const char* str, uint32_t sz, Buffer& ret)
 {
+    Buffer buffer(str, sz);
     ret.bytes(0);
 
-    const char* start = str;
-    const char* ptr = str;
+    char* start = buffer.data();
+    char* ptr = start;
     while (*ptr != char(0)) {
-        const char* ent_start = strchr(ptr, '&');
+        char* ent_start = strchr(ptr, '&');
         if (ent_start != nullptr) {
-            auto* ent_end = (char*) strchr(ent_start + 1, ';');
+            auto* ent_end = strchr(ent_start + 1, ';');
             if (ent_end != nullptr) {
                 char ch = *ent_end;
                 *ent_end = 0;
