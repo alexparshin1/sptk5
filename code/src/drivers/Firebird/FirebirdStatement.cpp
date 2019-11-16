@@ -68,11 +68,6 @@ public:
         }
         m_sqlvar.sqlind = &m_cbNull;
     }
-
-    void clearNull()
-    {
-        setNotNull();
-    }
 };
 
 
@@ -431,9 +426,9 @@ void FirebirdStatement::fetchResult(FieldList& fields)
             field->setNull(VAR_STRING);
             continue;
         }
-        field->clearNull();
         switch (sqlvar.sqltype & 0xFFFE) {
             case SQL_BLOB:
+                field->setBuffer("", 0);
                 fetchBLOB((ISC_QUAD*)sqlvar.sqldata, field);
                 break;
 
@@ -493,6 +488,7 @@ void FirebirdStatement::fetchResult(FieldList& fields)
                     pos--;
                 pos++;
                 sqlvar.sqldata[pos] = 0;
+                field->setBuffer(sqlvar.sqldata + 2, pos, VAR_TEXT);
                 break;
 
             case SQL_VARYING:
