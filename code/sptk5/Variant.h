@@ -140,24 +140,13 @@ class Field;
 
 class SP_EXPORT BaseVariant
 {
-    friend class Variant_SetMethods;
+    friend class Variant_Adaptors;
 
 protected:
 
-    /**
-     * Internal variant data storage
-     */
-    VariantData             m_data;
-
-    /**
-     * Data size
-     */
-    size_t                  m_dataSize {0};
-
-    /**
-     * Data type
-     */
-	uint16_t                m_dataType {0};
+    VariantData             m_data;             ///< Internal variant data storage
+    size_t                  m_dataSize {0};     ///< Data size
+	uint16_t                m_dataType {0};     ///< Data type
 
     /**
      * Releases allocated buffer (if any)
@@ -297,10 +286,10 @@ public:
 };
 
 /**
- * Variant set methods collection
- * 13 methods
+ * Variant set methods and adaptors
+ * 22 methods
  */
-class SP_EXPORT Variant_SetMethods : public BaseVariant
+class SP_EXPORT Variant_Adaptors : public BaseVariant
 {
 protected:
 
@@ -384,11 +373,7 @@ public:
      * @param vtype             Optional variant type to enforce
      */
     virtual void setNull(VariantType vtype);
-};
 
-class SP_EXPORT Variant_Adaptors : public Variant_SetMethods
-{
-public:
     /**
      * Conversion method
      *

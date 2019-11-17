@@ -85,16 +85,17 @@ Node* Document::createElement(const char* tagname)
     return node;
 }
 
-void Document::processAttributes(Node* node, const char* ptr)
+void Document::processAttributes(Node* node, char* ptr)
 {
-    const char* tokenStart = ptr;
+    char  emptyString[2] = {};
+    char* tokenStart = ptr;
 
     Attributes& attr = node->attributes();
     while (*tokenStart != 0 && *tokenStart <= ' ')
         tokenStart++;
 
     while (*tokenStart != 0) {
-        auto* tokenEnd = (char*) strpbrk(tokenStart, " =");
+        auto* tokenEnd = strpbrk(tokenStart, " =");
         if (tokenEnd == nullptr)
             throw Exception("Incorrect attribute - missing '='");
         *tokenEnd = 0;
@@ -129,7 +130,7 @@ void Document::processAttributes(Node* node, const char* ptr)
         if (tokenEnd != nullptr)
             tokenStart = tokenEnd + 1;
         else
-            tokenStart = "";
+            tokenStart = emptyString;
 
         while (*tokenStart != 0 && *tokenStart <= ' ')
             tokenStart++;
@@ -144,16 +145,14 @@ void Document::parseEntities(char* entitiesSection)
         if (start == nullptr)
             break;
         start += 9;
-        while (*start <= ' ')
-            start++;
+        start = skipSpaces(start);
         auto* end = (unsigned char*) strchr((char*) start, ' ');
         if (end == nullptr)
             break;
         *end = 0;
         unsigned char* ent_name = start;
         unsigned char* ent_value = end + 1;
-        while (*ent_value <= ' ')
-            ent_value++;
+        ent_value = skipSpaces(ent_value);
         unsigned char delimiter = *ent_value;
         if (delimiter == '\'' || delimiter == '\"') {
             ent_value++;
@@ -176,6 +175,13 @@ void Document::parseEntities(char* entitiesSection)
         m_doctype.m_entities.setEntity((char*) ent_name, (char*) ent_value);
         start = end + 1;
     }
+}
+
+unsigned char* Document::skipSpaces(unsigned char* start) const
+{
+    while (*start <= ' ')
+        start++;
+    return start;
 }
 
 void Document::parseDocType(char* docTypeSection)

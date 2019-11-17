@@ -50,7 +50,7 @@ TCPServer& ServerConnection::server() const
     return m_server;
 }
 
-ServerConnection::ServerConnection(TCPServer& server, SOCKET connectionSocket, const String& taskName)
+ServerConnection::ServerConnection(TCPServer& server, SOCKET, const String& taskName)
 : Runable(taskName), m_server(server), m_socket(nullptr)
 {
 }

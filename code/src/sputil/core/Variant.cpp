@@ -201,7 +201,7 @@ Variant::~Variant()
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setBool(bool value)
+void Variant_Adaptors::setBool(bool value)
 {
     if (m_dataType != VAR_BOOL) {
         releaseBuffers();
@@ -213,7 +213,7 @@ void Variant_SetMethods::setBool(bool value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setInteger(int32_t value)
+void Variant_Adaptors::setInteger(int32_t value)
 {
     if (m_dataType != VAR_INT) {
         releaseBuffers();
@@ -225,7 +225,7 @@ void Variant_SetMethods::setInteger(int32_t value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setInt64(int64_t value)
+void Variant_Adaptors::setInt64(int64_t value)
 {
     if (m_dataType != VAR_INT64) {
         releaseBuffers();
@@ -237,7 +237,7 @@ void Variant_SetMethods::setInt64(int64_t value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setFloat(double value)
+void Variant_Adaptors::setFloat(double value)
 {
     if (m_dataType != VAR_FLOAT) {
         releaseBuffers();
@@ -249,7 +249,7 @@ void Variant_SetMethods::setFloat(double value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setMoney(int64_t value, unsigned scale)
+void Variant_Adaptors::setMoney(int64_t value, unsigned scale)
 {
     if (m_dataType != VAR_MONEY) {
         releaseBuffers();
@@ -262,13 +262,13 @@ void Variant_SetMethods::setMoney(int64_t value, unsigned scale)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setString(const String& value)
+void Variant_Adaptors::setString(const String& value)
 {
     setBuffer(value.c_str(), value.length(), VAR_STRING);
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setBuffer(const void* value, size_t sz, VariantType type, bool externalBuffer)
+void Variant_Adaptors::setBuffer(const void* value, size_t sz, VariantType type, bool externalBuffer)
 {
     if ((type & BUFFER_TYPES) == 0)
         throw Exception("Invalid buffer type");
@@ -297,7 +297,7 @@ void Variant_SetMethods::setBuffer(const void* value, size_t sz, VariantType typ
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setDateTime(DateTime value, bool dateOnly)
+void Variant_Adaptors::setDateTime(DateTime value, bool dateOnly)
 {
     if ((m_dataType & (VAR_DATE|VAR_DATE_TIME)) == 0) {
         releaseBuffers();
@@ -316,7 +316,7 @@ void Variant_SetMethods::setDateTime(DateTime value, bool dateOnly)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setImagePtr(const void* value)
+void Variant_Adaptors::setImagePtr(const void* value)
 {
     if (m_dataType != VAR_IMAGE_PTR) {
         releaseBuffers();
@@ -328,7 +328,7 @@ void Variant_SetMethods::setImagePtr(const void* value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setImageNdx(uint32_t value)
+void Variant_Adaptors::setImageNdx(uint32_t value)
 {
     if (dataType() != VAR_IMAGE_NDX) {
         releaseBuffers();
@@ -340,7 +340,7 @@ void Variant_SetMethods::setImageNdx(uint32_t value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setMoney(const MoneyData& value)
+void Variant_Adaptors::setMoney(const MoneyData& value)
 {
     if (dataType() != VAR_MONEY) {
         releaseBuffers();
@@ -352,7 +352,7 @@ void Variant_SetMethods::setMoney(const MoneyData& value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_SetMethods::setData(const BaseVariant& C)
+void Variant_Adaptors::setData(const BaseVariant& C)
 {
     switch (C.dataType()) {
         case VAR_BOOL:
@@ -952,7 +952,7 @@ const void* Variant_Adaptors::asImagePtr() const
     throw Exception("Can't convert field for that type");
 }
 
-void Variant_SetMethods::setNull(VariantType vtype)
+void Variant_Adaptors::setNull(VariantType vtype)
 {
     releaseBuffers();
     dataType(vtype | VAR_NULL);

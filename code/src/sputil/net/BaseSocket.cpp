@@ -288,7 +288,7 @@ void BaseSocket::close() noexcept
     }
 }
 
-void BaseSocket::attach(SOCKET socketHandle, bool accept)
+void BaseSocket::attach(SOCKET socketHandle, bool)
 {
     close();
     m_sockfd = socketHandle;
