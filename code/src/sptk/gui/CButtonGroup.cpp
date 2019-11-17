@@ -98,7 +98,7 @@ void CButtonGroup::buttons(const Strings& sl)
     }
     if (otherLabel) {
         Fl_Button* btn = createButton("", 16, SP_ALIGN_LEFT);
-        btn->argument(otherLabel->ident());
+        btn->argument((long)otherLabel->ident());
         m_otherButton = btn;
         m_otherInput = new CInput_("");
         m_otherInput->color(FL_LIGHT3);
