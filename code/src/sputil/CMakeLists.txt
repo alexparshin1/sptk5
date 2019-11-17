@@ -3,7 +3,7 @@ SET (SPUTIL_SOURCES
     core/Field.cpp core/FieldList.cpp core/FileLogEngine.cpp core/IntList.cpp core/LogEngine.cpp core/Registry.cpp 
     core/SharedStrings.cpp core/String.cpp core/Strings.cpp core/SysLogEngine.cpp core/UniqueInstance.cpp core/Variant.cpp
     core/string_ext.cpp core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/ReadBuffer.cpp core/StopWatch.cpp
-    core/SystemException.cpp core/md5.cpp
+    core/SystemException.cpp core/md5.cpp core/BufferStorage.cpp
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
     jwt/JWT.cpp jwt/JWT-openssl.cpp
     net/BaseMailConnect.cpp net/BaseSocket.cpp net/CachedSSLContext.cpp

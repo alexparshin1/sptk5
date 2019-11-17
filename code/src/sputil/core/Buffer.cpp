@@ -35,85 +35,29 @@ using namespace std;
 using namespace sptk;
 
 Buffer::Buffer(size_t sz)
+: BufferStorage(sz)
 {
-    allocate(sz + 1);
 }
 
 Buffer::Buffer(const void* data, size_t sz)
+: BufferStorage(data, sz)
 {
-    allocate(sz + 1);
-    if (data != nullptr) {
-        memcpy(m_buffer, data, sz);
-        m_bytes = sz;
-    }
 }
 
 Buffer::Buffer(const String& str)
+: BufferStorage(str.c_str(), str.length())
 {
-    if (!str.empty())
-        allocate(str);
 }
 
 Buffer::Buffer(const Buffer& other)
+: BufferStorage(other.data(), other.length())
 {
-    allocate(other.m_bytes + 1);
-    m_bytes = other.m_bytes;
-    memcpy(m_buffer, other.m_buffer, m_bytes);
 }
 
 Buffer::Buffer(Buffer&& other) noexcept
-: m_buffer(other.m_buffer), m_size(other.m_size), m_bytes(other.m_bytes)
 {
-	other.m_buffer = nullptr;
-    other.m_size = 0;
-	other.m_bytes = 0;
-}
-
-void Buffer::adjustSize(size_t sz)
-{
-    sz = (sz / 64 + 1) * 64;
-    reallocate(sz);
-    m_buffer[sz] = 0;
-}
-
-void Buffer::set(const char* data, size_t sz)
-{
-    checkSize(sz);
-    memcpy(m_buffer, data, sz + 1);
-    m_bytes = sz;
-}
-
-void Buffer::append(char ch)
-{
-    checkSize(m_bytes + 1);
-    m_buffer[m_bytes] = ch;
-    m_bytes++;
-}
-
-void Buffer::append(const char* data, size_t sz)
-{
-    if (sz == 0)
-        sz = (size_t) strlen(data);
-
-    checkSize(m_bytes + sz + 1);
-    memcpy(m_buffer + m_bytes, data, sz);
-    m_bytes += sz;
-    m_buffer[m_bytes] = 0;
-}
-
-void Buffer::fill(char c, size_t count)
-{
-    checkSize(count + 1);
-    memset(m_buffer, c, count);
-    m_bytes = count;
-    m_buffer[m_bytes] = 0;
-}
-
-void Buffer::reset(size_t sz)
-{
-    checkSize(sz + 1);
-    m_buffer[0] = 0;
-    m_bytes = 0;
+    init(other.data(), other.capacity(), other.bytes());
+    other.init(nullptr, 0, 0);
 }
 
 void Buffer::loadFromFile(const String& fileName)
@@ -132,8 +76,7 @@ void Buffer::loadFromFile(const String& fileName)
     auto size = (size_t) st.st_size;
 
     reset(size + 1);
-    m_buffer[size] = 0;
-    m_bytes = fread(m_buffer, 1, size, f);
+    bytes(fread(data(), 1, size, f));
     fclose(f);
 }
 
@@ -144,7 +87,7 @@ void Buffer::saveToFile(const String& fileName) const
     if (f == nullptr)
         throw SystemException("Can't open file " + fileName + " for writing");
 
-    fwrite(m_buffer, bytes(), 1, f);
+    fwrite(data(), bytes(), 1, f);
     fclose(f);
 }
 
@@ -153,16 +96,11 @@ Buffer& Buffer::operator = (Buffer&& other) DOESNT_THROW
     if (this == &other)
         return *this;
 
-    if (m_buffer != nullptr)
+    if (data() != nullptr)
         deallocate();
 
-    m_buffer = other.m_buffer;
-    m_size = other.m_size;
-    m_bytes = other.m_bytes;
-
-    other.m_buffer = nullptr;
-    other.m_size = 0;
-    other.m_bytes = 0;
+    init(other.data(), other.capacity(), other.bytes());
+    other.init(nullptr, 0, 0);
 
     return *this;
 }
@@ -172,74 +110,37 @@ Buffer& Buffer::operator = (const Buffer& other)
     if (&other == this)
         return *this;
 
-    size_t newSize = other.m_size;
-
-    if (m_size != newSize) {
-        if (newSize == 0) {
-            deallocate();
-            return *this;
-        } else {
-            reallocate(newSize);
-        }
-        m_size = newSize;
-    }
-
-    if (other.m_buffer != nullptr)
-        memcpy(m_buffer, other.m_buffer, other.m_bytes + 1);
-
-    m_bytes = other.m_bytes;
+    set(other.data(), other.length());
 
     return *this;
 }
 
-Buffer& Buffer::operator = (const String& str)
+Buffer& Buffer::operator = (const String& other)
 {
-    auto sz = (size_t) str.length();
-    checkSize(sz);
+    set(other.c_str(), other.length());
 
-    if (sz != 0)
-        memcpy(m_buffer, str.c_str(), sz + 1);
-
-    m_bytes = sz;
     return *this;
 }
 
 Buffer& Buffer::operator = (const char* str)
 {
-    auto sz = (size_t) strlen(str);
-    checkSize(sz + 1);
+    set(str, (size_t) strlen(str));
 
-    if (sz != 0)
-        memcpy(m_buffer, str, sz + 1);
-
-    m_bytes = sz;
     return *this;
-}
-
-void Buffer::erase(size_t offset, size_t length)
-{
-    if (offset >= m_bytes || length == 0)
-        return; // Nothing to do
-    if (offset + length > m_bytes)
-        length = m_bytes - offset;
-    if (length > 0)
-        memmove(m_buffer + offset, m_buffer + offset + length, length);
-    m_bytes -= length;
-    m_buffer[m_bytes] = 0;
 }
 
 bool Buffer::operator==(const Buffer& other)
 {
-    if (m_bytes != other.m_bytes)
+    if (bytes() != other.bytes())
         return false;
-    return memcmp(m_buffer, other.m_buffer, m_bytes) == 0;
+    return memcmp(data(), other.data(), bytes()) == 0;
 }
 
 bool Buffer::operator!=(const Buffer& other)
 {
-    if (m_bytes != other.m_bytes)
+    if (bytes() != other.bytes())
         return true;
-    return memcmp(m_buffer, other.m_buffer, m_bytes) != 0;
+    return memcmp(data(), other.data(), bytes()) != 0;
 }
 
 ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
