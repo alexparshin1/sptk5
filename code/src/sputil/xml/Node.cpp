@@ -85,7 +85,33 @@ const String& Node::value() const
     return emptyString;
 }
 
-void parsePathElement(Document* document, const string& pathElementStr, XPathElement& pathElement)
+static void makeCriteria(Document* document, XPathElement& pathElement, size_t pos)
+{
+    string& criteria = pathElement.criteria;
+
+    if (!criteria.empty()) {
+        int& nodePosition = pathElement.nodePosition;
+        nodePosition = string2int(pathElement.criteria);
+        if (nodePosition == 0 && criteria == "last()")
+            nodePosition = -1;
+
+        if (nodePosition == 0 && criteria[0] == '@') {
+            pos = criteria.find('=');
+            if (pos == STRING_NPOS)
+                pathElement.attributeName = &document->shareString(criteria.c_str() + 1);
+            else {
+                pathElement.attributeName = &document->shareString(criteria.substr(1, pos - 1));
+                if (criteria[pos + 1] == '\'' || criteria[pos + 1] == '"')
+                    pathElement.attributeValue = criteria.substr(pos + 2, criteria.length() - (pos + 3));
+                else
+                    pathElement.attributeValue = criteria.substr(pos + 1, criteria.length() - (pos + 1));
+                pathElement.attributeValueDefined = true;
+            }
+        }
+    }
+}
+
+static void parsePathElement(Document* document, const string& pathElementStr, XPathElement& pathElement)
 {
     pathElement.elementName = nullptr;
     pathElement.attributeName = nullptr;
@@ -121,28 +147,7 @@ void parsePathElement(Document* document, const string& pathElementStr, XPathEle
     else
         pathElement.elementName = &document->shareString(pathElementName.c_str());
 
-    string& criteria = pathElement.criteria;
-
-    if (!criteria.empty()) {
-        int& nodePosition = pathElement.nodePosition;
-        nodePosition = string2int(pathElement.criteria);
-        if (nodePosition == 0 && criteria == "last()")
-            nodePosition = -1;
-
-        if (nodePosition == 0 && criteria[0] == '@') {
-            pos = criteria.find('=');
-            if (pos == STRING_NPOS)
-                pathElement.attributeName = &document->shareString(criteria.c_str() + 1);
-            else {
-                pathElement.attributeName = &document->shareString(criteria.substr(1, pos - 1));
-                if (criteria[pos + 1] == '\'' || criteria[pos + 1] == '"')
-                    pathElement.attributeValue = criteria.substr(pos + 2, criteria.length() - (pos + 3));
-                else
-                    pathElement.attributeValue = criteria.substr(pos + 1, criteria.length() - (pos + 1));
-                pathElement.attributeValueDefined = true;
-            }
-        }
-    }
+    makeCriteria(document, pathElement, pos);
 }
 
 bool NodeSearchAlgorithms::matchPathElement(Node* thisNode, const XPathElement& pathElement, const string* starPointer, bool& nameMatches)
@@ -322,6 +327,66 @@ void Node::text(const String& txt)
     new Text(*this, txt);
 }
 
+void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
+{
+    buffer.append('<');
+    buffer.append(nodeName);
+    if (!this->attributes().empty()) {
+        // Output attributes
+        Buffer real_id;
+        Buffer real_val;
+        for (auto* attributeNode: this->attributes()) {
+            real_id.bytes(0);
+            real_val.bytes(0);
+            if (!document()->docType().encodeEntities(attributeNode->name().c_str(), real_id))
+                real_id = attributeNode->name();
+            if (!document()->docType().encodeEntities(attributeNode->value().c_str(), real_val))
+                real_val = attributeNode->value();
+
+            buffer.append(' ');
+            buffer.append(real_id);
+            buffer.append("=\"");
+            buffer.append(real_val);
+            buffer.append("\"");
+        }
+    }
+    if (!empty()) {
+        bool only_cdata;
+        Node* nd = *begin();
+        if (size() == 1 && nd->type() == DOM_TEXT) {
+            only_cdata = true;
+            buffer.append('>');
+        } else {
+            only_cdata = false;
+            buffer.append(">\n", 2);
+        }
+
+        // output all subnodes
+        for (auto* np: *this) {
+            if (only_cdata)
+                np->save(buffer, -1);
+            else {
+                np->save(buffer, indent + document()->indentSpaces());
+                if (buffer.data()[buffer.bytes() - 1] != '\n')
+                    buffer.append(char('\n'));
+            }
+        }
+
+        // output indendation spaces
+        if (!only_cdata && indent > 0)
+            buffer.append(indentsString.c_str(), size_t(indent));
+
+        // output closing tag
+        buffer.append("</", 2);
+        buffer.append(name());
+        buffer.append(">\n", 2);
+
+    } else {
+        //LEAF
+        buffer.append("/>\n", 3);
+    }
+}
+
 void Node::save(Buffer& buffer, int indent) const
 {
     // output indendation spaces
@@ -329,32 +394,6 @@ void Node::save(Buffer& buffer, int indent) const
         buffer.append(indentsString.c_str(), size_t(indent));
 
     const string& nodeName = name();
-
-    if (type() == DOM_ELEMENT) {
-        // Output tag name
-        buffer.append('<');
-        buffer.append(nodeName);
-        const Attributes& attributes = this->attributes();
-        if (!attributes.empty()) {
-            // Output attributes
-            Buffer real_id;
-            Buffer real_val;
-            for (auto* attributeNode: attributes) {
-                real_id.bytes(0);
-                real_val.bytes(0);
-                if (!document()->docType().encodeEntities(attributeNode->name().c_str(), real_id))
-                    real_id = attributeNode->name();
-                if (!document()->docType().encodeEntities(attributeNode->value().c_str(), real_val))
-                    real_val = attributeNode->value();
-
-                buffer.append(' ');
-                buffer.append(real_id);
-                buffer.append("=\"");
-                buffer.append(real_val);
-                buffer.append("\"");
-            }
-        }
-    }
 
     // depending on the nodetype, do output
     switch (type()) {
@@ -380,41 +419,7 @@ void Node::save(Buffer& buffer, int indent) const
             break;
 
         case DOM_ELEMENT:
-            if (!empty()) {
-                bool only_cdata;
-                Node* nd = *begin();
-                if (size() == 1 && nd->type() == DOM_TEXT) {
-                    only_cdata = true;
-                    buffer.append('>');
-                } else {
-                    only_cdata = false;
-                    buffer.append(">\n", 2);
-                }
-
-                // output all subnodes
-                for (auto* np: *this) {
-                    if (only_cdata)
-                        np->save(buffer, -1);
-                    else {
-                        np->save(buffer, indent + document()->indentSpaces());
-                        if (buffer.data()[buffer.bytes() - 1] != '\n')
-                            buffer.append(char('\n'));
-                    }
-                }
-
-                // output indendation spaces
-                if (!only_cdata && indent > 0)
-                    buffer.append(indentsString.c_str(), size_t(indent));
-
-                // output closing tag
-                buffer.append("</", 2);
-                buffer.append(name());
-                buffer.append(">\n", 2);
-
-            } else {
-                //LEAF
-                buffer.append("/>\n", 3);
-            }
+            saveElement(nodeName, buffer, indent);
             break;
 
         default: // unknown nodetype

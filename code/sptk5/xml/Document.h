@@ -90,6 +90,10 @@ class SP_EXPORT Document : public SharedStrings, public Element
      */
     void processAttributes(Node* node, const char* ptr);
 
+    char* readComment(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
+    char* readCDataSection(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
+    char* readDocType(char* tokenEnd);
+
     /**
      * Regular expression to match a number
      */
@@ -115,6 +119,12 @@ protected:
      * @return true if string constains a number
      */
     bool isNumber(const String& str);
+
+    /**
+     * Extract entities
+     * @param docTypeSection    Document type section
+     */
+    void extractEntities(char* docTypeSection);
 
 public:
 

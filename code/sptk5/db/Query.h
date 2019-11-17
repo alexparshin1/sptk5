@@ -132,14 +132,10 @@ protected:
     void setBulkMode(bool _bulkMode);
 
     /**
-     * Deallocates a statement. All the resources allocated by statement are released.
-     */
-    void freeStmt();
-
-    /**
      * Closes a statement. Prepared statement stay prepared but closed.
+     * @param freeStatement     If true then statement is freed.
      */
-    void closeStmt();
+    void closeStmt(bool freeStatement=false);
 
     /**
      * @brief Closes query by closing the statement.
@@ -584,6 +580,8 @@ public:
      * @param error             Error text
      */
     void throwError(const String& method, const String& error);
+
+    String parseParameters(const String& _sql);
 };
 /**
  * @}

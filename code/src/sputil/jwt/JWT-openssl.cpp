@@ -338,19 +338,11 @@ static void VERIFY_ERROR(int __err)
         throw Exception("Can't allocate memory");
 }
 
-void JWT::verify_sha_pem(const char* head, const char* sig_b64)
+static const EVP_MD* getAlgorithm(JWT::jwt_alg_t alg, int& type)
 {
-    EVP_MD_CTX* mdctx = nullptr;
-    ECDSA_SIG* ec_sig = nullptr;
-    BIGNUM* ec_sig_r = nullptr;
-    BIGNUM* ec_sig_s = nullptr;
-    EVP_PKEY* pkey = nullptr;
     const EVP_MD* algorithm;
-    int type;
-    BIO* bufkey = nullptr;
-    int slen;
 
-    switch (this->alg) {
+    switch (alg) {
         /* RSA */
         case JWT::JWT_ALG_RS256:
             algorithm = EVP_sha256();
@@ -382,6 +374,23 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
         default:
             throw Exception("Invalid verify algorythm");
     }
+
+    return algorithm;
+}
+
+void JWT::verify_sha_pem(const char* head, const char* sig_b64)
+{
+    EVP_MD_CTX* mdctx = nullptr;
+    ECDSA_SIG* ec_sig = nullptr;
+    BIGNUM* ec_sig_r = nullptr;
+    BIGNUM* ec_sig_s = nullptr;
+    EVP_PKEY* pkey = nullptr;
+    const EVP_MD* algorithm;
+    int type;
+    BIO* bufkey = nullptr;
+    int slen;
+
+    algorithm = getAlgorithm(this->alg, type);
 
     Buffer sig_buffer;
     jwt_b64_decode(sig_buffer, sig_b64);
