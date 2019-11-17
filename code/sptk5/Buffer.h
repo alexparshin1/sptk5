@@ -29,8 +29,7 @@
 #ifndef __SPTK_BUFFER_H__
 #define __SPTK_BUFFER_H__
 
-#include <sptk5/sptk.h>
-#include <sptk5/Exception.h>
+#include <sptk5/BufferStorage.h>
 
 #include <cstdlib>
 #include <cstring>
@@ -51,81 +50,9 @@ namespace sptk
  *
  * Generic buffer with a special memory-allocation strategy for effective append() operation
  */
-class SP_EXPORT Buffer
+class SP_EXPORT Buffer : public BufferStorage
 {
-    /**
-     * Actual storage
-     */
-    char*               m_buffer {nullptr};
 
-    /**
-     * Alocated storage size
-     */
-    size_t              m_size {0};
-
-    /**
-     * Actual size of the data in buffer
-     */
-    size_t              m_bytes {0};
-
-    /**
-     * Resizes current buffer
-     * @param sz                Required memory size
-     */
-    void adjustSize(size_t sz);
-
-    /**
-     * Allocate memory
-     * @param size              Number of bytes for new buffer
-     */
-    void allocate(size_t size)
-    {
-        m_buffer = (char*) calloc(size, 1);
-        m_size = size;
-        m_bytes = 0;
-    }
-
-    /**
-     * Allocate memory
-     * @param size              Number of bytes for new buffer
-     */
-    void allocate(const String& str)
-    {
-        m_buffer = strdup(str.c_str());
-        m_bytes = str.length();
-        m_size = m_bytes + 1;
-    }
-
-    /**
-     * Reallocate memory
-     * @param size              Number of bytes for new buffer
-     */
-    void reallocate(size_t size)
-    {
-        if (size != m_size) {
-            auto* ptr = (char*) realloc(m_buffer, size);
-            if (ptr == nullptr)
-                throwException("Out of memory");
-            m_buffer = ptr;
-            m_size = size;
-            if (m_bytes >= m_size) {
-                m_bytes = m_size;
-                if (m_bytes > 0)
-                    m_bytes--;
-            }
-        }
-    }
-
-    /**
-     * Free memory
-     */
-    void deallocate()
-    {
-        free(m_buffer);
-        m_buffer = nullptr;
-        m_bytes = 0;
-        m_size = 0;
-    }
 public:
 
     /**
@@ -190,94 +117,14 @@ public:
     }
 
     /**
-     * Returns pointer on the data buffer.
-     */
-    char* data() const
-    {
-        return m_buffer;
-    }
-
-    /**
-     * Returns const char pointer on the data buffer.
-     */
-    const char* c_str() const
-    {
-        return m_buffer;
-    }
-
-    /**
-     * Returns true if number of bytes in buffer is zero.
-     */
-    bool empty() const
-    {
-        return m_bytes == 0;
-    }
-
-    /**
-     * Checks if the current buffer size is enough
-     *
-     * Allocates memory if needed.
-     * @param sz                Required memory size
-     */
-    virtual void checkSize(size_t sz)
-    {
-        if (sz >= m_size)
-            adjustSize(sz);
-    }
-
-    /**
-     * Copies the external data of size sz into the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param data              External data buffer
-     * @param sz                Required memory size
-     */
-    void set(const char* data, size_t sz);
-
-    /**
-     * Copies the external data of size sz into the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param data              External data buffer
-     */
-    void set(const Buffer& data)
-    {
-        if (data.m_bytes == 0)
-            m_bytes = 0;
-        else
-            set(data.m_buffer, data.m_bytes);
-    }
-
-    /**
-     * Copies the external data of size sz into the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param data              External data
-     */
-    void set(const String& data)
-    {
-        set(data.c_str(), data.length());
-    }
-
-    /**
      * Appends a single char to the current buffer.
      *
      * Allocates memory if needed.
      * @param ch                Single character
      */
-    void append(char ch);
-
-    /**
-     * Append a value of primitive type or structure to the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param val               Primitive type or structure
-     */
-    template <class T> void append(T val)
+    void append(char ch) override
     {
-        checkSize(m_bytes + sizeof(val));
-        memcpy(m_buffer + m_bytes, &val, sizeof(val));
-        m_bytes += sizeof(val);
+        BufferStorage::append(ch);
     }
 
     /**
@@ -287,7 +134,21 @@ public:
      * @param data              External data buffer
      * @param sz                Required memory size
      */
-    void append(const char* data, size_t sz = 0);
+    void append(const char* data, size_t sz = 0) override
+    {
+        BufferStorage::append(data, sz);
+    }
+
+    /**
+     * Append a value of primitive type or structure to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param val               Primitive type or structure
+     */
+    template <class T> void append(T val)
+    {
+        append((char*)&val, sizeof(val));
+    }
 
     /**
      * Appends the string to the current buffer.
@@ -323,79 +184,12 @@ public:
     }
 
     /**
-     * Remove fragment from buffer's content
-     * @param offset            Fragment start offset
-     * @param length            Fragment length
-     */
-    void erase(size_t offset, size_t length);
-
-    /**
-     * Truncates the current buffer to the size sz.
-     *
-     * Deallocates unused memory if needed.
-     * @param sz                Required data size in bytes
-     */
-    void reset(size_t sz = 0);
-
-    /**
-     * Fills the bytes() characters in buffer with character ch.
-     * @param ch                The character to fill the buffer
-     * @param count             How many characters are to be filled. If counter is greater than capacity, then buffer is extended.
-     */
-    void fill(char ch, size_t count);
-
-    /**
-     * Returns the size of memory allocated for the data buffer
-     * @returns buffer size
-     */
-    size_t capacity()  const
-    {
-        return m_size;
-    }
-
-    /**
-     * Returns the size of data in the data buffer
-     * @returns data size
-     */
-    size_t length() const
-    {
-        return m_bytes;
-    }
-
-    /**
-     * Returns the size of data in the data buffer
-     * @returns data size
-     */
-    size_t bytes() const
-    {
-        return m_bytes;
-    }
-
-    /**
-     * Sets the size of the data stored
-     *
-     * Doesn't check anything so use it this caution.
-     * @param b                 New size of the buffer
-     */
-    void bytes(size_t b)
-    {
-        if (m_bytes == b)
-            return;
-        if (b < m_size) {
-            m_bytes = b;
-            m_buffer[b] = 0;
-            return;
-        }
-        throw Exception("Attempt to set buffer size outside storage");
-    }
-
-    /**
      * Access the chars by index
      * @param index             Character index
      */
     char& operator[](size_t index)
     {
-        return m_buffer[index];
+        return data()[index];
     }
 
     /**
@@ -404,7 +198,7 @@ public:
      */
     const char& operator[](size_t index) const
     {
-        return m_buffer[index];
+        return data()[index];
     }
 
     /**
@@ -466,7 +260,7 @@ public:
      */
     explicit operator String() const
     {
-        return String(m_buffer, m_bytes);
+        return String(data(), bytes());
     }
 };
 

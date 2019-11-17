@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       ServerConnection.cpp - description                     ║
+║                       Buffer.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
@@ -26,37 +26,87 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
-#include <sptk5/net/TCPServer.h>
+#include <sptk5/Buffer.h>
+#include <sptk5/SystemException.h>
+#include <sptk5/filedefs.h>
 
 using namespace std;
 using namespace sptk;
 
-TCPSocket& ServerConnection::socket() const
+BufferStorage::BufferStorage(size_t sz)
 {
-    lock_guard<mutex>   lock(m_mutex);
-    return *m_socket;
+    allocate(sz + 1);
 }
 
-void ServerConnection::setSocket(TCPSocket* socket)
+BufferStorage::BufferStorage(const void* data, size_t sz)
 {
-    lock_guard<mutex>   lock(m_mutex);
-    m_socket = socket;
+    allocate(sz + 1);
+    if (data != nullptr) {
+        memcpy(m_buffer, data, sz);
+        m_bytes = sz;
+    }
 }
 
-TCPServer& ServerConnection::server() const
+void BufferStorage::adjustSize(size_t sz)
 {
-    lock_guard<mutex>   lock(m_mutex);
-    return m_server;
+    sz = (sz / 128 + 1) * 128;
+    reallocate(sz);
+    m_buffer[sz] = 0;
 }
 
-ServerConnection::ServerConnection(TCPServer& server, SOCKET, const String& taskName)
-: Runable(taskName), m_server(server), m_socket(nullptr)
+void BufferStorage::set(const char* data, size_t sz)
 {
+    checkSize(sz);
+    if (data != nullptr) {
+        memcpy(this->data(), data, sz + 1);
+        m_bytes = sz;
+    } else
+        m_bytes = 0;
 }
 
-ServerConnection::~ServerConnection()
+void BufferStorage::append(char ch)
 {
-    lock_guard<mutex>   lock(m_mutex);
-    delete m_socket;
+    checkSize(m_bytes + 1);
+    m_buffer[m_bytes] = ch;
+    m_bytes++;
+}
+
+void BufferStorage::append(const char* data, size_t sz)
+{
+    if (sz == 0)
+        sz = (size_t) strlen(data);
+
+    checkSize(m_bytes + sz + 1);
+    if (data != nullptr) {
+        memcpy(m_buffer + m_bytes, data, sz);
+        m_bytes += sz;
+        m_buffer[m_bytes] = 0;
+    }
+}
+
+void BufferStorage::reset(size_t sz)
+{
+    checkSize(sz + 1);
+    m_buffer[0] = 0;
+    m_bytes = 0;
+}
+
+void BufferStorage::fill(char c, size_t count)
+{
+    checkSize(count + 1);
+    memset(m_buffer, c, count);
+    m_bytes = count;
+    m_buffer[m_bytes] = 0;
+}
+
+void BufferStorage::erase(size_t offset, size_t length)
+{
+    if (offset >= m_bytes || length == 0)
+        return; // Nothing to do
+    if (offset + length > m_bytes)
+        length = m_bytes - offset;
+    if (length > 0)
+        memmove(m_buffer + offset, m_buffer + offset + length, length);
+    m_bytes -= length;
+    m_buffer[m_bytes] = 0;
 }

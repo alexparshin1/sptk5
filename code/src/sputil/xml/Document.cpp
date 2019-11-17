@@ -85,16 +85,17 @@ Node* Document::createElement(const char* tagname)
     return node;
 }
 
-void Document::processAttributes(Node* node, const char* ptr)
+void Document::processAttributes(Node* node, char* ptr)
 {
-    const char* tokenStart = ptr;
+    char  emptyString[2] = {};
+    char* tokenStart = ptr;
 
     Attributes& attr = node->attributes();
     while (*tokenStart != 0 && *tokenStart <= ' ')
         tokenStart++;
 
     while (*tokenStart != 0) {
-        auto* tokenEnd = (char*) strpbrk(tokenStart, " =");
+        auto* tokenEnd = strpbrk(tokenStart, " =");
         if (tokenEnd == nullptr)
             throw Exception("Incorrect attribute - missing '='");
         *tokenEnd = 0;
@@ -129,7 +130,7 @@ void Document::processAttributes(Node* node, const char* ptr)
         if (tokenEnd != nullptr)
             tokenStart = tokenEnd + 1;
         else
-            tokenStart = "";
+            tokenStart = emptyString;
 
         while (*tokenStart != 0 && *tokenStart <= ' ')
             tokenStart++;
@@ -144,16 +145,14 @@ void Document::parseEntities(char* entitiesSection)
         if (start == nullptr)
             break;
         start += 9;
-        while (*start <= ' ')
-            start++;
+        start = skipSpaces(start);
         auto* end = (unsigned char*) strchr((char*) start, ' ');
         if (end == nullptr)
             break;
         *end = 0;
         unsigned char* ent_name = start;
         unsigned char* ent_value = end + 1;
-        while (*ent_value <= ' ')
-            ent_value++;
+        ent_value = skipSpaces(ent_value);
         unsigned char delimiter = *ent_value;
         if (delimiter == '\'' || delimiter == '\"') {
             ent_value++;
@@ -178,6 +177,13 @@ void Document::parseEntities(char* entitiesSection)
     }
 }
 
+unsigned char* Document::skipSpaces(unsigned char* start) const
+{
+    while (*start <= ' ')
+        start++;
+    return start;
+}
+
 void Document::parseDocType(char* docTypeSection)
 {
     m_doctype.m_name = "";
@@ -188,16 +194,8 @@ void Document::parseDocType(char* docTypeSection)
     int index = 0;
     int t = 0;
 
-    char* entitiesSection = strchr(docTypeSection, '[');
-    if (entitiesSection != nullptr) {
-        *entitiesSection = 0;
-        entitiesSection++;
-        char* end = strchr(entitiesSection, ']');
-        if (end != nullptr) {
-            *end = 0;
-            parseEntities(entitiesSection);
-        }
-    }
+    extractEntities(docTypeSection);
+
     char delimiter = ' ';
     while (start != nullptr) {
         while (*start == ' ' || *start == delimiter)
@@ -245,6 +243,62 @@ void Document::parseDocType(char* docTypeSection)
     }
 }
 
+void Document::extractEntities(char* docTypeSection)
+{
+    char* entitiesSection = strchr(docTypeSection, '[');
+    if (entitiesSection != nullptr) {
+        *entitiesSection = 0;
+        entitiesSection++;
+        char* end = strchr(entitiesSection, ']');
+        if (end != nullptr) {
+            *end = 0;
+            parseEntities(entitiesSection);
+        }
+    }
+}
+
+char* Document::readComment(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd)
+{
+    nodeEnd = strstr(nodeName + 3, "-->");
+    if (nodeEnd == nullptr)
+        throw Exception("Invalid end of the comment tag");
+    *nodeEnd = 0;
+    new Comment(currentNode, nodeName + 3);
+    tokenEnd = nodeEnd + 2;
+    return tokenEnd;
+}
+
+char* Document::readCDataSection(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd)
+{
+    nodeEnd = strstr(nodeName + 1, "]]>");
+    if (nodeEnd == nullptr)
+        throw Exception("Invalid CDATA section");
+    *nodeEnd = 0;
+    new CDataSection(currentNode, nodeName + 8);
+    tokenEnd = nodeEnd + 2;
+    return tokenEnd;
+}
+
+char* Document::readDocType(char* tokenEnd)
+{
+    char* nodeEnd = (char*) strstr(tokenEnd + 1, "]>");
+
+    if (nodeEnd != nullptr) { /// ENTITIES
+        nodeEnd++;
+        *nodeEnd = 0;
+    } else {
+        nodeEnd = strchr(tokenEnd + 1, '>');
+        if (nodeEnd == nullptr)
+            throw Exception("Invalid CDATA section");
+        *nodeEnd = 0;
+    }
+
+    parseDocType(tokenEnd + 1);
+    tokenEnd = nodeEnd;
+
+    return tokenEnd;
+}
+
 void Document::load(const char* xmlData)
 {
     clear();
@@ -264,47 +318,26 @@ void Document::load(const char* xmlData)
         *tokenEnd = 0;
         char* nodeName = tokenStart;
         char* nodeEnd;
-        const char* value;
+        char* value;
         switch (*tokenStart) {
             case '!':
                 if (strncmp(nodeName, "!--", 3) == 0) {
                     /// Comment
                     *tokenEnd = ch; // ' ' or '>' could be within a comment
-                    nodeEnd = strstr(nodeName + 3, "-->");
-                    if (nodeEnd == nullptr)
-                        throw Exception("Invalid end of the comment tag");
-                    *nodeEnd = 0;
-                    new Comment(currentNode, nodeName + 3);
-                    tokenEnd = nodeEnd + 2;
+                    tokenEnd = readComment(currentNode, nodeName, nodeEnd, tokenEnd);
                     break;
                 }
                 if (strncmp(nodeName, "![CDATA[", 8) == 0) {
                     /// CDATA section
                     *tokenEnd = ch;
-                    nodeEnd = strstr(nodeName + 1, "]]>");
-                    if (nodeEnd == nullptr)
-                        throw Exception("Invalid CDATA section");
-                    *nodeEnd = 0;
-                    new CDataSection(currentNode, nodeName + 8);
-                    tokenEnd = nodeEnd + 2;
+                    tokenEnd = readCDataSection(currentNode, nodeName, nodeEnd, tokenEnd);
                     break;
                 }
                 if (strncmp(nodeName, "!DOCTYPE", 8) == 0) {
                     /// DOCTYPE section
                     if (ch == '>')
                         break;
-                    nodeEnd = (char*) strstr(tokenEnd + 1, "]>");
-                    if (nodeEnd != nullptr) { /// ENTITIES
-                        nodeEnd++;
-                        *nodeEnd = 0;
-                    } else {
-                        nodeEnd = strchr(tokenEnd + 1, '>');
-                        if (nodeEnd == nullptr)
-                            throw Exception("Invalid CDATA section");
-                        *nodeEnd = 0;
-                    }
-                    parseDocType(tokenEnd + 1);
-                    tokenEnd = nodeEnd;
+                    tokenEnd = readDocType(tokenEnd);
                 }
                 break;
 
@@ -314,13 +347,16 @@ void Document::load(const char* xmlData)
                     value = tokenEnd + 1;
                     nodeEnd = (char*) strstr(value, "?>");
                 } else {
-                    value = "";
+                    value = nullptr;
                     nodeEnd = strstr(tokenStart, "?");
                 }
                 if (nodeEnd == nullptr)
                     throw Exception("Invalid PI section");
                 *nodeEnd = 0;
-                new PI(currentNode, nodeName + 1, value);
+                if (value != nullptr)
+                    new PI(currentNode, nodeName + 1, value);
+                else
+                    new PI(currentNode, nodeName + 1, "");
                 tokenEnd = nodeEnd + 1;
                 break;
 

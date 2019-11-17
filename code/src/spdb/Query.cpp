@@ -43,33 +43,23 @@ bool Query_StatementManagement::bulkMode() const
     return m_bulkMode;
 }
 
-void Query_StatementManagement::freeStmt()
+void Query_StatementManagement::closeStmt(bool freeStatement)
 {
     if (database() != nullptr && statement() !=nullptr) {
-        database()->queryFreeStmt((Query*)this);
+        if (freeStatement)
+            database()->queryFreeStmt((Query*)this);
+        else
+            database()->queryCloseStmt((Query*)this);
         setPrepared(false);
-        setActive(false);
-    }
-}
-
-void Query_StatementManagement::closeStmt()
-{
-    if (database() != nullptr && statement() !=nullptr) {
-        database()->queryCloseStmt((Query*)this);
         setActive(false);
     }
 }
 
 void Query_StatementManagement::closeQuery(bool releaseStatement)
 {
-    setActive(false);
     setEof(true);
-    if (statement() !=nullptr) {
-        if (releaseStatement)
-            freeStmt();
-        else
-            closeStmt();
-    }
+    if (statement() !=nullptr)
+        closeStmt(releaseStatement);
 }
 
 void Query_StatementManagement::prepare()
@@ -245,13 +235,30 @@ void Query::sql(const String& _sql)
     if (database() == nullptr)
         throw DatabaseException("Query isn't connected to the database");
 
+    String sql = parseParameters(_sql);
+
+    for (int i = (int) m_params.size() - 1; i >= 0; i--)
+        if (m_params[i].bindCount() == 0)
+            m_params.remove(uint32_t(i));
+
+    if (getSQL() != sql) {
+        setSQL(sql);
+        if (active())
+            close();
+        setPrepared(false);
+        m_fields.clear();
+    }
+}
+
+String Query::parseParameters(const String& _sql)
+{
     const char* paramStart;
     const char* paramEnd = _sql.c_str();
-    int paramNumber = 0;
 
     m_params.clear();
-
     String sql;
+
+    int paramNumber = 0;
     for (; ;) {
         if (!skipToNextParameter(paramStart, paramEnd, sql)) {
             if (paramStart == nullptr || paramEnd == nullptr)
@@ -281,18 +288,7 @@ void Query::sql(const String& _sql)
 
     if (paramEnd != nullptr)
         sql += paramEnd;
-
-    for (int i = (int) m_params.size() - 1; i >= 0; i--)
-        if (m_params[i].bindCount() == 0)
-            m_params.remove(uint32_t(i));
-
-    if (getSQL() != sql) {
-        setSQL(sql);
-        if (active())
-            close();
-        setPrepared(false);
-        m_fields.clear();
-    }
+    return sql;
 }
 
 bool Query::open()

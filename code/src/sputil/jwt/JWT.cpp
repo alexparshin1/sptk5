@@ -517,13 +517,11 @@ TEST(SPTK_JWT, decode)
             "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
     JWT::jwt_alg_t alg;
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
 
     EXPECT_NO_THROW(jwt->decode(token)) << "Failed jwt_decode()";
     alg = jwt->get_alg();
     EXPECT_EQ(JWT::JWT_ALG_NONE, alg) << "Failed jwt_get_alg()";
-
-    delete jwt;
 }
 
 
@@ -533,10 +531,8 @@ TEST(SPTK_JWT, decode_invalid_final_dot)
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                          "3ViIjoidXNlcjAifQ";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token)) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -546,10 +542,8 @@ TEST(SPTK_JWT, decode_invalid_alg)
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                          "3ViIjoidXNlcjAifQ.";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -559,10 +553,8 @@ TEST(SPTK_JWT, decode_invalid_typ)
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                          "3ViIjoidXNlcjAifQ.";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -573,10 +565,8 @@ TEST(SPTK_JWT, decode_invalid_head)
             "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
             "3ViIjoidXNlcjAifQ.";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -587,10 +577,8 @@ TEST(SPTK_JWT, decode_alg_none_with_key)
             "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
             "3ViIjoidXNlcjAifQ.";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token)) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -601,10 +589,8 @@ TEST(SPTK_JWT, decode_invalid_body)
             "eyJpc3MiOiJmaWxlcy5jeBocmUuY29tIiwic"
             "3ViIjoidXNlcjAifQ.";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -616,10 +602,8 @@ TEST(SPTK_JWT, decode_hs256)
             "Q.dLFbrHVViu1e3VD1yeCd9aaLNed-bfXhSsF0Gh56fBg";
     String key256("012345678901234567890123456789XY");
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token, key256)) << "Failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -635,10 +619,8 @@ TEST(SPTK_JWT, decode_hs384)
             "aaaabbbbccccddddeeeeffffg"
             "ggghhhhiiiijjjjkkkkllll");
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token, key384)) << "Failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -653,10 +635,14 @@ TEST(SPTK_JWT, decode_hs512)
             "012345678901234567890123456789XY"
             "012345678901234567890123456789XY");
 
-    auto* jwt = new JWT;
-    EXPECT_NO_THROW(jwt->decode(token, key512)) << "Failed jwt_decode()";
+    auto jwt = make_shared<JWT>();
 
-    delete jwt;
+    try {
+        jwt->decode(token, key512);
+    }
+    catch (const Exception& e) {
+        FAIL() << e.what();
+    }
 }
 
 TEST(SPTK_JWT, encode_hs256_decode)

@@ -362,6 +362,8 @@ class SP_EXPORT Node: public Node_Base
      */
     virtual void save(json::Element& json, std::string& text) const;
 
+    void saveElement(const String& nodeName, Buffer& buffer, int indent) const;
+
 protected:
 
     /**

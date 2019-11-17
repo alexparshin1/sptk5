@@ -609,14 +609,6 @@ public:
     /**
      * Conversion operator
      */
-    operator uint32_t() const override
-    {
-        return (uint32_t) asInteger();
-    }
-
-    /**
-     * Conversion operator
-     */
     operator int64_t() const override
     {
         return asInt64();
