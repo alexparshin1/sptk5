@@ -605,12 +605,6 @@ Variant::operator int() const
 }
 
 //---------------------------------------------------------------------------
-Variant::operator unsigned() const
-{
-    return (unsigned) asInteger();
-}
-
-//---------------------------------------------------------------------------
 Variant::operator int64_t() const
 {
     return asInt64();

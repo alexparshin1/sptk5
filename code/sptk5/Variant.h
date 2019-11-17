@@ -598,11 +598,6 @@ public:
     /**
      * Conversion operator
      */
-    virtual explicit operator unsigned() const;
-
-    /**
-     * Conversion operator
-     */
     virtual explicit operator int64_t() const;
 
     /**
