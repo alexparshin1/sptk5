@@ -856,7 +856,7 @@ public:
      */
     explicit operator float() const
     {
-        return data().asFloat();
+        return (float) data().asFloat();
     }
 
     /**
