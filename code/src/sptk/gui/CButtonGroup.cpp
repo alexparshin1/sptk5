@@ -92,7 +92,7 @@ void CButtonGroup::buttons(const Strings& sl)
             otherLabel = &m_buttonLabels[i];
         } else {
             Fl_Button* btn = createButton(si.c_str());
-            btn->argument(si.ident());
+            btn->argument((long)si.ident());
             btn->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT | FL_ALIGN_WRAP);
         }
     }

@@ -155,7 +155,7 @@ Variant CProgressBar::data() const
 void CProgressBar::data(const Variant v)
 {
     auto* pb = (CProgressBox*) m_control;
-    pb->m_value = v.asFloat();
+    pb->m_value = (float) v.asFloat();
 }
 
 void CProgressBar::units(const char* un)
