@@ -156,7 +156,7 @@ bool HttpReader::readData(TCPSocket& socket)
             bytesToRead = socket.socketBytes();
 
         if (!m_contentIsChunked) {
-            readBytes = readAndAppend(socket, m_output, bytesToRead);
+            readBytes = (int) readAndAppend(socket, m_output, bytesToRead);
             m_contentReceivedLength += readBytes;
             if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength) // No more data
                 return true;
