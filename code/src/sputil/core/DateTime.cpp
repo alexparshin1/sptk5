@@ -396,7 +396,7 @@ static short splitDateString(char* bdat, short* datePart, char& actualDateSepara
         ptr = end + 1;
     }
 
-    return partNumber;
+    return (short) partNumber;
 }
 
 
