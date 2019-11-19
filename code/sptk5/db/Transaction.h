@@ -64,7 +64,7 @@ public:
      * Constructor
      * @param db DatabaseConnection&, the database to work with
      */
-    explicit Transaction(DatabaseConnection db);
+    explicit Transaction(const DatabaseConnection& db);
 
     /**
      * Destructor

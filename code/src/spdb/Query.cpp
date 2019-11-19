@@ -250,6 +250,29 @@ void Query::sql(const String& _sql)
     }
 }
 
+const char* Query::readParamater(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd)
+{
+    for (; ; paramEnd++) {
+
+        if (isalnum(*paramEnd) != 0)
+            continue;
+
+        if (*paramEnd == '_')
+            continue;
+
+        if (*paramEnd == '.') {
+            // Oracle ':new.' or ':old.'
+            sql += string(paramStart, paramEnd - paramStart + 1);
+            paramEnd++;
+            return paramEnd;
+        }
+
+        sqlParseParameter(paramStart, paramEnd, paramNumber, sql);
+        break;
+    }
+    return paramEnd;
+}
+
 String Query::parseParameters(const String& _sql)
 {
     const char* paramStart;
@@ -266,24 +289,7 @@ String Query::parseParameters(const String& _sql)
             continue;
         }
 
-        for (; ; paramEnd++) {
-
-            if (isalnum(*paramEnd) != 0)
-                continue;
-
-            if (*paramEnd == '_')
-                continue;
-
-            if (*paramEnd == '.') {
-                // Oracle ':new.' or ':old.'
-                sql += string(paramStart, paramEnd - paramStart + 1);
-                paramEnd++;
-                break;
-            }
-
-            sqlParseParameter(paramStart, paramEnd, paramNumber, sql);
-            break;
-        }
+        paramEnd = readParamater(sql, paramNumber, paramStart, paramEnd);
     }
 
     if (paramEnd != nullptr)
