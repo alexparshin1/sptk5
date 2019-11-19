@@ -31,6 +31,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
+#include <string.h>
 
 namespace sptk
 {
