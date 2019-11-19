@@ -233,7 +233,7 @@ void ODBCConnection::queryPrepare(Query* query)
 
     char* sql = query->sql().empty()? nullptr: &query->sql()[0];
     if (!successful(SQLPrepare(query->statement(), (SQLCHAR*) sql, SQL_NTS)))
-        THROW_QUERY_ERROR(query, queryError(query));
+        THROW_QUERY_ERROR(query, queryError(query))
 }
 
 void ODBCConnection::queryUnprepare(Query* query)
@@ -258,7 +258,7 @@ void ODBCConnection::queryExecute(Query* query)
         SQLCHAR state[16];
         SQLCHAR text[1024];
         SQLINTEGER nativeError = 0;
-        SQLINTEGER recordCount = 0;
+        SQLSMALLINT recordCount = 0;
         SQLSMALLINT textLength = 0;
 
         rc = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
@@ -272,12 +272,12 @@ void ODBCConnection::queryExecute(Query* query)
                     break;
                 errors.push_back(removeDriverIdentification((const char*) text));
             }
-            THROW_QUERY_ERROR(query, errors.join("; "));
+            THROW_QUERY_ERROR(query, errors.join("; "))
         }
     }
 
     if (!successful(rc))
-        THROW_QUERY_ERROR(query, queryError(query));
+        THROW_QUERY_ERROR(query, queryError(query))
 }
 
 int ODBCConnection::queryColCount(Query* query)
@@ -286,7 +286,7 @@ int ODBCConnection::queryColCount(Query* query)
 
     int16_t count = 0;
     if (!successful(SQLNumResultCols(query->statement(), &count)))
-        THROW_QUERY_ERROR(query, queryError(query));
+        THROW_QUERY_ERROR(query, queryError(query))
 
     return count;
 }
@@ -297,7 +297,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     SQLLEN result;
 
     if (!successful(SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr, &result)))
-        THROW_QUERY_ERROR(query, queryError(query));
+        THROW_QUERY_ERROR(query, queryError(query))
     value = (int32_t) result;
 }
 
@@ -305,12 +305,12 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
 {
     int16_t available;
     if (buff == nullptr || len <= 0)
-        THROW_QUERY_ERROR(query, "Invalid buffer or buffer len");
+        THROW_QUERY_ERROR(query, "Invalid buffer or buffer len")
 
     lock_guard<mutex> lock(m_connect->m_mutex);
 
     if (!successful(SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len, &available, nullptr)))
-        THROW_QUERY_ERROR(query, queryError(query));
+        THROW_QUERY_ERROR(query, queryError(query))
 }
 
 static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
@@ -388,7 +388,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                                           SQL_LONGVARBINARY, (SQLULEN) len, scale, buff, SQLINTEGER(len), &cblen);
                     if (rc != 0) {
                         param->m_binding.reset(false);
-                        THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber << ", value: '" << param->asString() << "'");
+                        THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber << ", value: '" << param->asString() << "'")
                     }
                     continue;
 
@@ -417,7 +417,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                     break;
 
                 default:
-                    THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'");
+                    THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'")
             }
             SQLLEN* cbValue = nullptr;
             if (param->isNull()) {
@@ -429,7 +429,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                                   buff, SQLINTEGER(len), cbValue);
             if (rc != 0) {
                 param->m_binding.reset(false);
-                THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber);
+                THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber)
             }
         }
     }
@@ -500,7 +500,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
     stringstream columnNameStr;
     columnNameStr.fill('0');
 
-    for (int16_t column = 1; column <= count; column++) {
+    for (int16_t column = 1; column <= int16_t(count); column++) {
         queryColAttributes(query, column, SQL_COLUMN_NAME, columnName, 255);
         queryColAttributes(query, column, SQL_COLUMN_TYPE, columnType);
         queryColAttributes(query, column, SQL_COLUMN_LENGTH, columnLength);
@@ -543,7 +543,7 @@ void ODBCConnection::queryOpen(Query* query)
         throw DatabaseException(e.what());
     }
     catch (const Exception& e) {
-        THROW_QUERY_ERROR(query, e.what());
+        THROW_QUERY_ERROR(query, e.what())
     }
 
     if (query->autoPrepare() && !query->prepared()) {
@@ -593,11 +593,11 @@ SQLRETURN ODBCConnection::readStringObBlobField(SQLHSTMT statement, DatabaseFiel
                                                 int16_t fieldType, SQLLEN& dataLength)
 {
     size_t readSize = field->bufferSize();
-    auto* buffer = (char*) field->getBuffer();
+    auto* buffer = field->getBuffer();
     SQLRETURN rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
     if (dataLength > SQLINTEGER(readSize)) { // continue to fetch BLOB data
         field->checkSize(uint32_t(dataLength + 1));
-        buffer = (char*) field->getBuffer();
+        buffer = field->getBuffer();
         char* offset = buffer + readSize - 1;
         readSize = dataLength - readSize + 2;
         rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, offset, SQLINTEGER(readSize), nullptr);
@@ -612,10 +612,7 @@ SQLRETURN ODBCConnection::readTimestampField(SQLHSTMT statement, DatabaseField* 
     SQLRETURN rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, (SQLPOINTER) &t, 0, &dataLength);
     if (dataLength > 0) {
         DateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
-        if (field->dataType() == VAR_DATE)
-            field->setDateTime(dt, true);
-        else
-            field->setDateTime(dt, false);
+        field->setDateTime(dt, field->dataType() == VAR_DATE);
     }
     return rc;
 }
@@ -623,7 +620,7 @@ SQLRETURN ODBCConnection::readTimestampField(SQLHSTMT statement, DatabaseField* 
 void ODBCConnection::queryFetch(Query* query)
 {
     if (!query->active())
-        THROW_QUERY_ERROR(query, "Dataset isn't open");
+        THROW_QUERY_ERROR(query, "Dataset isn't open")
 
     auto* statement = (SQLHSTMT) query->statement();
 
@@ -633,7 +630,7 @@ void ODBCConnection::queryFetch(Query* query)
 
     if (!successful(rc)) {
         if (rc < 0) {
-            THROW_QUERY_ERROR(query, queryError(query));
+            THROW_QUERY_ERROR(query, queryError(query))
         } else {
             querySetEof(query, rc == SQL_NO_DATA);
             return;
@@ -647,7 +644,7 @@ void ODBCConnection::queryFetch(Query* query)
         return;
 
     CODBCField* field = nullptr;
-    for (unsigned column = 0; column < fieldCount;)
+    for (SQLUSMALLINT column = 0; column < (SQLUSMALLINT) fieldCount;)
         try {
             field = (CODBCField*) &(*query)[column];
             auto fieldType = (int16_t) field->fieldType();
@@ -660,7 +657,7 @@ void ODBCConnection::queryFetch(Query* query)
 
                 case SQL_C_SLONG:
                 case SQL_C_DOUBLE:
-                    rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, buffer, 0, &dataLength);
+                    rc = SQLGetData(statement, column, fieldType, buffer, 0, &dataLength);
                     break;
 
                 case SQL_C_TIMESTAMP:
@@ -670,11 +667,11 @@ void ODBCConnection::queryFetch(Query* query)
                 case SQL_C_BINARY:
                 case SQL_C_CHAR:
                     rc = readStringObBlobField(statement, field, column, fieldType, dataLength);
-                    buffer = (char*) field->getBuffer();
+                    buffer = field->getBuffer();
                     break;
 
                 case SQL_BIT:
-                    rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, buffer, 1, &dataLength);
+                    rc = SQLGetData(statement, column, fieldType, buffer, 1, &dataLength);
                     break;
 
                 default:
@@ -873,7 +870,7 @@ void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 
 void* odbc_create_connection(const char* connectionString)
 {
-    ODBCConnection* connection = new ODBCConnection(connectionString);
+    auto* connection = new ODBCConnection(connectionString);
     return connection;
 }
 

@@ -124,7 +124,7 @@ void OracleStatement::setParameterValues()
         switch (priorDataType) {
 
             case VAR_NONE:      ///< Undefined
-            throwDatabaseException("Parameter " + parameter.name() + " data type is undefined");
+            throwDatabaseException("Parameter " + parameter.name() + " data type is undefined")
 
             case VAR_INT:       ///< Integer
                 setIntParamValue(parameterIndex, parameter);
@@ -162,7 +162,7 @@ void OracleStatement::setParameterValues()
                 setBooleanParamValue(parameterIndex, parameter);
                 break;
 
-            default: throwDatabaseException("Unsupported data type for parameter " + parameter.name());
+            default: throwDatabaseException("Unsupported data type for parameter " + parameter.name())
         }
     }
 }
@@ -372,7 +372,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
         try {
             parameter = m_enumeratedParams[index - 1];
 
-            DatabaseField* field = new DatabaseField(parameter->name(), (int) columnIndex, OCCIANYDATA,
+            auto* field = new DatabaseField(parameter->name(), (int) columnIndex, OCCIANYDATA,
                                                      parameter->dataType(), 256);
             fields.push_back(field);
 

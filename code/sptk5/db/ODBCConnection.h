@@ -161,7 +161,7 @@ protected:
      * List all data sources (user and system)
      * @param dsns
      */
-    void listDataSources(Strings& dsns);
+    static void listDataSources(Strings& dsns);
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
@@ -247,7 +247,7 @@ private:
      * @param dataLength        Output data length
      * @return operation result
      */
-    SQLRETURN readStringObBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
+    static SQLRETURN readStringObBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
                                     SQLLEN& dataLength);
 
     /**
@@ -259,7 +259,7 @@ private:
      * @param rc
      * @param dataLength        Output data length
      */
-    SQLRETURN readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
+    static SQLRETURN readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
                                  SQLLEN& dataLength);
 
 };

@@ -67,7 +67,7 @@ public:
 
     size_t batchSize() const { return m_batchSize; }
     bool lastIteration() const { return m_lastIteration; }
-    const QueryColumnTypeSizeMap columnTypeSizes() const { return m_columnTypeSizes; }
+    QueryColumnTypeSizeMap columnTypeSizes() const { return m_columnTypeSizes; }
 };
 /// @}
 }

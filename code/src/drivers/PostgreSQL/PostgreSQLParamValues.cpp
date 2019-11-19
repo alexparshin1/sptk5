@@ -35,9 +35,9 @@ using namespace sptk;
 void PostgreSQLParamValues::setParameters(QueryParameterList& params) 
 {
     params.enumerate(m_params);
-    m_count = (unsigned) m_params.size();
+    m_count = m_params.size();
     resize(m_count);
-    for (unsigned i = 0; i < m_count; i++) {
+    for (size_t i = 0; i < m_count; i++) {
         QueryParameter* param = m_params[i];
         VariantType ptype = param->dataType();
         PostgreSQLConnection::CTypeToPostgreType(ptype, m_types[i], param->name());
@@ -113,7 +113,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
                     int64_t dt = days * 86400 * 1000000;
                     htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
                 } else {
-                    double dt = days * 86400.0;
+                    double dt = double(days) * 86400;
                     htonq_inplace((uint64_t*) (void*) &dt,(uint64_t*) param->conversionBuffer());
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_TIMESTAMP);

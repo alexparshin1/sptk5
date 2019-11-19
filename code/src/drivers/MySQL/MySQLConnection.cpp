@@ -48,7 +48,7 @@ MySQLConnection::~MySQLConnection()
         disconnectAllQueries();
         close();
     } catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 }
 
@@ -129,7 +129,7 @@ void MySQLConnection::executeCommand(const String& command)
     if (m_connection == nullptr)
         open();
 
-    if (mysql_real_query(m_connection, command.c_str(), (unsigned long) command.length()) != 0)
+    if (mysql_real_query(m_connection, command.c_str(), command.length()) != 0)
         throwMySQLException("Can't execute " + command);
 }
 
@@ -144,7 +144,7 @@ void MySQLConnection::driverBeginTransaction()
 
 void MySQLConnection::driverEndTransaction(bool commit)
 {
-    if (!getInTransaction()) throwDatabaseException("Transaction isn't started.");
+    if (!getInTransaction()) throwDatabaseException("Transaction isn't started.")
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
     executeCommand(action);
@@ -183,7 +183,7 @@ void MySQLConnection::queryCloseStmt(Query* query)
             statement->close();
     }
     catch (const Exception& e) {
-        THROW_QUERY_ERROR(query, e.what());
+        THROW_QUERY_ERROR(query, e.what())
     }
 }
 
@@ -199,7 +199,7 @@ void MySQLConnection::queryPrepare(Query* query)
                 statement->enumerateParams(query->params());
             }
             catch (const Exception& e) {
-                THROW_QUERY_ERROR(query, e.what());
+                THROW_QUERY_ERROR(query, e.what())
             }
         }
     }
@@ -215,11 +215,11 @@ int MySQLConnection::queryColCount(Query* query)
     int colCount = 0;
     auto* statement = (MySQLStatement*) query->statement();
     try {
-        if (statement == nullptr) throwDatabaseException("Query not opened");
+        if (statement == nullptr) throwDatabaseException("Query not opened")
         colCount = (int) statement->colCount();
     }
     catch (const Exception& e) {
-        THROW_QUERY_ERROR(query, e.what());
+        THROW_QUERY_ERROR(query, e.what())
     }
     return colCount;
 }
@@ -231,11 +231,11 @@ void MySQLConnection::queryBindParameters(Query* query)
     auto* statement = (MySQLStatement*) query->statement();
     try {
         if (statement == nullptr)
-            throwDatabaseException("Query not prepared");
+            throwDatabaseException("Query not prepared")
         statement->setParameterValues();
     }
     catch (const Exception& e) {
-        THROW_QUERY_ERROR(query, e.what());
+        THROW_QUERY_ERROR(query, e.what())
     }
 }
 
@@ -243,11 +243,11 @@ void MySQLConnection::queryExecute(Query* query)
 {
     auto* statement = (MySQLStatement*) query->statement();
     try {
-        if (statement == nullptr) throwDatabaseException("Query is not prepared");
+        if (statement == nullptr) throwDatabaseException("Query is not prepared")
         statement->execute(getInTransaction());
     }
     catch (const Exception& e) {
-        THROW_QUERY_ERROR(query, e.what());
+        THROW_QUERY_ERROR(query, e.what())
     }
 }
 
@@ -289,7 +289,7 @@ void MySQLConnection::queryOpen(Query* query)
 void MySQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
-        THROW_QUERY_ERROR(query, "Dataset isn't open");
+        THROW_QUERY_ERROR(query, "Dataset isn't open")
 
     lock_guard<mutex> lock(m_mutex);
 
@@ -355,7 +355,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
         query.close();
     }
     catch (const Exception& e) {
-        CERR("Error fetching system info: " << e.what() << endl);
+        CERR("Error fetching system info: " << e.what() << endl)
     }
 }
 
@@ -425,7 +425,7 @@ String MySQLConnection::paramMark(unsigned)
 
 void* mysql_create_connection(const char* connectionString)
 {
-    MySQLConnection* connection = new MySQLConnection(connectionString);
+    auto* connection = new MySQLConnection(connectionString);
     return connection;
 }
 

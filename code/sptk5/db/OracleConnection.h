@@ -253,13 +253,13 @@ private:
 
     void executeMultipleStatements(const Strings& statements, Strings* errors);
 
-    void readTimestamp(oracle::occi::ResultSet* resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
+    static void readTimestamp(oracle::occi::ResultSet* resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
 
-    void readDate(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+    static void readDate(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
 
-    void readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+    static void readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
 
-    void readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+    static void readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
 };
 
 /**
