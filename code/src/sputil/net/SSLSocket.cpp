@@ -74,13 +74,13 @@ class CSSLLibraryLoader
     static void init_locks()
     {
         m_locks = new mutex[CRYPTO_num_locks()];
-        CRYPTO_set_id_callback(thread_id)
-        CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback)
+		CRYPTO_set_id_callback(thread_id);
+		CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback);
     }
 
     static void kill_locks()
     {
-        CRYPTO_set_locking_callback(NULL)
+		CRYPTO_set_locking_callback(NULL);
         delete [] m_locks;
     }
 
@@ -94,8 +94,8 @@ public:
 
     ~CSSLLibraryLoader() noexcept
     {
-        CRYPTO_set_locking_callback(NULL)
-        CRYPTO_set_id_callback(NULL)
+		CRYPTO_set_locking_callback(NULL);
+		CRYPTO_set_id_callback(NULL);
 #if OPENSSL_VERSION_NUMBER > 0x1000114fL
 #if OPENSSL_VERSION_NUMBER > 0x20000000L
         SSL_COMP_free_compression_methods();
