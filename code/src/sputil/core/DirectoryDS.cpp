@@ -387,8 +387,8 @@ class TempDirectory
 public:
     String m_path;
 
-    explicit TempDirectory(const String& path)
-            : m_path(path)
+    explicit TempDirectory(String path)
+    : m_path(move(path))
     {
 #ifdef _WIN32
         int rc = system(("mkdir " + m_path).c_str());

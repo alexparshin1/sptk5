@@ -302,7 +302,7 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
                 String error = "DEALLOCATE command failed: ";
                 error += PQerrorMessage(m_connect);
                 PQclear(res);
-                THROW_QUERY_ERROR(query, error);
+                THROW_QUERY_ERROR(query, error)
             }
             PQclear(res);
         }
@@ -346,7 +346,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
         string error = "PREPARE command failed: ";
         error += PQerrorMessage(m_connect);
         PQclear(stmt);
-        THROW_QUERY_ERROR(query, error);
+        THROW_QUERY_ERROR(query, error)
     }
 
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
@@ -422,7 +422,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     if (!error.empty()) {
         PQclear(stmt);
         statement->clear();
-        THROW_QUERY_ERROR(query, error);
+        THROW_QUERY_ERROR(query, error)
     }
 }
 
@@ -470,7 +470,7 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
     if (!error.empty()) {
         PQclear(stmt);
         statement->clear();
-        THROW_QUERY_ERROR(query, error);
+        THROW_QUERY_ERROR(query, error)
     }
 }
 
@@ -598,7 +598,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
             VariantType fieldType;
             PostgreTypeToCType((int) dataType, fieldType);
             int fieldLength = PQfsize(stmt, column);
-            DatabaseField* field = new DatabaseField(columnName.str(), column, (int) dataType, fieldType, fieldLength);
+            auto* field = new DatabaseField(columnName.str(), column, (int) dataType, fieldType, fieldLength);
             query->fields().push_back(field);
         }
     }
@@ -809,7 +809,7 @@ static void decodeArray(char* data, DatabaseField* field)
 void PostgreSQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
-        THROW_QUERY_ERROR(query, "Dataset isn't open");
+        THROW_QUERY_ERROR(query, "Dataset isn't open")
 
     lock_guard<mutex> lock(m_mutex);
 
@@ -830,7 +830,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
     DatabaseField* field = nullptr;
     const PGresult* stmt = statement->stmt();
-    int currentRow = statement->currentRow();
+    int currentRow = (int) statement->currentRow();
 
     for (int column = 0; column < fieldCount; column++) {
         try {
@@ -910,12 +910,12 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     default:
-                        field->setBuffer(data, dataLength, VAR_STRING, true); // External string
+                        field->setBuffer(data, size_t(dataLength), VAR_STRING, true); // External string
                         break;
                 }
             }
         } catch (const Exception& e) {
-            THROW_QUERY_ERROR(query, "Can't read field " << field->fieldName() << ": " << e.what());
+            THROW_QUERY_ERROR(query, "Can't read field " << field->fieldName() << ": " << e.what())
         }
     }
 }
@@ -1112,7 +1112,7 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch) const
 
 void* postgresql_create_connection(const char* connectionString)
 {
-    PostgreSQLConnection* connection = new PostgreSQLConnection(connectionString);
+    auto* connection = new PostgreSQLConnection(connectionString);
     return connection;
 }
 

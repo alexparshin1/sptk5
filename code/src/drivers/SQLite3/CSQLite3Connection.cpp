@@ -70,7 +70,7 @@ SQLite3Connection::~SQLite3Connection()
             rollbackTransaction();
         close();
     } catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 }
 
@@ -184,14 +184,7 @@ void SQLite3Connection::queryFreeStmt(Query* query)
 
 void SQLite3Connection::queryCloseStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
-
-    auto* stmt = (SQLHSTMT) query->statement();
-    if (stmt != nullptr)
-        sqlite3_finalize(stmt);
-
-    querySetStmt(query, nullptr);
-    querySetPrepared(query, false);
+    queryFreeStmt(query);
 }
 
 void SQLite3Connection::queryPrepare(Query* query)
@@ -277,7 +270,7 @@ void SQLite3Connection::queryBindParameters(Query* query)
 
                     case VAR_DATE:
                     case VAR_DATE_TIME:
-                        throwException("Date and time types isn't yet supported for SQLite3");
+                        throwException("Date and time types isn't yet supported for SQLite3")
 
                     default:
                         throw DatabaseException(
@@ -347,7 +340,7 @@ void SQLite3Connection::queryOpen(Query* query)
 
     if (count < 1) {
         if (sqlite3_step(stmt) != SQLITE_DONE) {
-            string error = queryError(query);
+            String error = queryError(query);
             queryCloseStmt(query);
             throw DatabaseException(error, __FILE__, __LINE__, query->sql());
         }
@@ -368,7 +361,7 @@ void SQLite3Connection::queryOpen(Query* query)
         if (columnName[0] == 0)
             snprintf(columnName, sizeof(columnName), "column%02i", column);
 
-        CSQLite3Field* field = new CSQLite3Field(columnName, column);
+        auto* field = new CSQLite3Field(columnName, column);
         query->fields().push_back(field);
     }
 
@@ -512,7 +505,7 @@ String SQLite3Connection::driverDescription() const
 
 void* sqlite3_create_connection(const char* connectionString)
 {
-    SQLite3Connection* connection = new SQLite3Connection(connectionString);
+    auto* connection = new SQLite3Connection(connectionString);
     return connection;
 }
 

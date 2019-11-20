@@ -96,7 +96,7 @@ public:
      * Constructor
      * @param instanceName      Instance name
      */
-    explicit UniqueInstance(const String& instanceName);
+    explicit UniqueInstance(String  instanceName);
 
     /**
      * Destructor

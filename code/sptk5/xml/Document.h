@@ -90,7 +90,7 @@ class SP_EXPORT Document : public SharedStrings, public Element
      */
     void processAttributes(Node* node, char* ptr);
 
-    char* readComment(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
+    static char* readComment(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
     char* readCDataSection(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
     char* readDocType(char* tokenEnd);
 

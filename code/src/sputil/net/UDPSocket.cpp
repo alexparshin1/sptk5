@@ -83,7 +83,7 @@ public:
             try {
                 if (socket.readyToRead(chrono::seconds(30))) {
                     sockaddr_in from;
-                    int sz = socket.read(data.data(), 2048, &from);
+                    size_t sz = socket.read(data.data(), 2048, &from);
                     if (sz == 0)
                         return;
                     data.bytes(sz);
@@ -91,7 +91,7 @@ public:
                 }
             }
             catch (const Exception& e) {
-                CERR(e.what() << endl);
+                CERR(e.what() << endl)
             }
         }
         socket.close();

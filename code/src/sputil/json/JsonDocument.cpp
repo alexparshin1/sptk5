@@ -26,10 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/json/JsonParser.h>
 #include <sptk5/json/JsonDocument.h>
-
 
 using namespace std;
 using namespace sptk;
@@ -60,8 +58,7 @@ void Document::parse(const String& json)
 
     m_root = new Element(this);
 
-    Parser parser;
-    parser.parse(*m_root, json);
+    Parser::parse(*m_root, json);
 }
 
 Document::Document(bool isObject)

@@ -36,7 +36,6 @@
 #endif
 
 #if USE_GTEST
-#include <fstream>
 #include <sptk5/md5.h>
 #endif
 

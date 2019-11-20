@@ -30,7 +30,6 @@
 #include <mutex>
 
 #if USE_GTEST
-#include <atomic>
 #include <sptk5/threads/Thread.h>
 #endif
 

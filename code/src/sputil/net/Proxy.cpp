@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/net/Proxy.h>
-#include <sptk5/net/TCPSocket.h>
 
 using namespace std;
 using namespace sptk;

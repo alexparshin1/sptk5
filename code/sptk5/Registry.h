@@ -92,7 +92,7 @@ class SP_EXPORT Registry: public xml::Document
      * Removes the empty children nodes. The empty nodes are nodes without children and attributes.
      * @param node xml::Node*, the node to clean
      */
-    void clean(Node* node);
+    static void clean(Node* node);
 
 public:
 
@@ -100,11 +100,11 @@ public:
      * @brief Constructor
      *
      * @param fileName const std::string&, the registry file name w/o path
-     * @param programGroupName std::string, the name of the program group to generate a directory name for the registry files.
+     * @param _programGroupName std::string, the name of the program group to generate a directory name for the registry files.
      * Should be a single phrase without '\\' or '/'
      * @param mode RegistryMode, see RegistryMode for details
      */
-    Registry(const String& fileName, const String& programGroupName, RegistryMode mode = USER_REGISTRY);
+    Registry(String fileName, const String& _programGroupName, RegistryMode mode = USER_REGISTRY);
 
     /**
      * @brief Destructor

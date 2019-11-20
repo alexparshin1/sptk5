@@ -101,7 +101,7 @@ void Document::processAttributes(Node* node, char* ptr)
         *tokenEnd = 0;
 
         const char* attributeName = tokenStart;
-        char* attributeValue = tokenEnd + 1;
+        char* attributeValue = tokenEnd + size_t(1);
         while (*attributeValue == ' ' || *attributeValue == '=')
             attributeValue++;
         char delimiter = *attributeValue;
@@ -128,7 +128,7 @@ void Document::processAttributes(Node* node, char* ptr)
         attr.setAttribute(attributeName, m_encodeBuffer.c_str());
 
         if (tokenEnd != nullptr)
-            tokenStart = tokenEnd + 1;
+            tokenStart = tokenEnd + size_t(1);
         else
             tokenStart = emptyString;
 
@@ -281,7 +281,7 @@ char* Document::readCDataSection(Node* currentNode, char* nodeName, char* nodeEn
 
 char* Document::readDocType(char* tokenEnd)
 {
-    char* nodeEnd = (char*) strstr(tokenEnd + 1, "]>");
+    auto* nodeEnd = strstr(tokenEnd + 1, "]>");
 
     if (nodeEnd != nullptr) { /// ENTITIES
         nodeEnd++;
@@ -345,7 +345,7 @@ void Document::load(const char* xmlData)
                 /// Processing instructions
                 if (ch == ' ') {
                     value = tokenEnd + 1;
-                    nodeEnd = (char*) strstr(value, "?>");
+                    nodeEnd = strstr(value, "?>");
                 } else {
                     value = nullptr;
                     nodeEnd = strstr(tokenStart, "?");

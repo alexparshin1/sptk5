@@ -220,7 +220,7 @@ HTTPException::HTTPException(size_t statusCode, const String& text, const String
 
 #if USE_GTEST
 
-TEST(Exception, throw)
+TEST(SPTK_Exception, throw)
 {
     try {
         throw Exception("Test exception");
@@ -244,7 +244,7 @@ TEST(Exception, throw)
     }
 }
 
-TEST(HttpException, throw)
+TEST(SPTK_HttpException, throw)
 {
     try {
         throw HTTPException(404, "File not found", __FILE__, 1234, "This happens sometimes");

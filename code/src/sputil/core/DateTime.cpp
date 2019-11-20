@@ -420,7 +420,7 @@ static short splitTimeString(char* bdat, short* timePart)
             throw Exception("Invalid time string (1) " + String(bdat));
     }
 
-    return partNumber;
+    return (short) partNumber;
 }
 
 static short correctTwoDigitYear(short year)
@@ -1014,7 +1014,7 @@ TEST(SPTK_DateTime, formatDate)
 {
     DateTime dateTime("2018-08-07 11:22:33.444Z");
 
-    time_t t = (time_t) dateTime;
+    auto t = (time_t) dateTime;
     tm     tt {};
     localtime_r(&t, &tt);
 
@@ -1052,7 +1052,7 @@ TEST(SPTK_DateTime, parsePerformance)
     DateTime ended("now");
     double durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;
 
-    COUT("Performed " << size_t (count / 1E3 / durationSec)  << "K parses/sec" << endl);
+    COUT("Performed " << size_t (count / 1E3 / durationSec)  << "K parses/sec" << endl)
 }
 
 #endif

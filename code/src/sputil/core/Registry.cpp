@@ -86,8 +86,8 @@ String Registry::homeDirectory()
     return homeDir;
 }
 
-Registry::Registry(const String& fileName, const String& _programGroupName, RegistryMode mode)
-        : xml::Document("Configuration"), m_fileName(fileName)
+Registry::Registry(String fileName, const String& _programGroupName, RegistryMode mode)
+: xml::Document("Configuration"), m_fileName(move(fileName))
 {
     String programGroupName(_programGroupName);
     if (!m_fileName.empty()) {

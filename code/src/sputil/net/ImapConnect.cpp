@@ -304,7 +304,7 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
                 else
                     field = header_value;
             } catch (const Exception& e) {
-                CERR(e.what() << endl);
+                CERR(e.what() << endl)
             }
         }
     }

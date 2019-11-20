@@ -40,10 +40,21 @@ namespace sptk {
 /// @brief Abstract base class for different protocols used in Web Service servers
 class WSProtocol
 {
-protected:
-
     TCPSocket&      m_socket;   ///< Connection socket
     HttpHeaders     m_headers;  ///< Connection HTTP headers
+
+protected:
+    /**
+     * Connection socket
+     * @return Connection socket
+     */
+    TCPSocket& socket() { return m_socket; }
+
+    /**
+     * Connection HTTP headers
+     * @return Connection HTTP headers
+     */
+    HttpHeaders& headers() { return m_headers; }
 
 public:
 

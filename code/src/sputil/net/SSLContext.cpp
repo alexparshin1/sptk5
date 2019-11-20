@@ -32,7 +32,6 @@
 
 // This include must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
-#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
@@ -43,7 +42,7 @@ void SSLContext::throwError(const String& humanDescription)
 {
     unsigned long error = ERR_get_error();
     string errorStr = ERR_func_error_string(error) + string("(): ") + ERR_reason_error_string(error);
-    throwException(humanDescription + "\n" + errorStr);
+    throwException(humanDescription + "\n" + errorStr)
 }
 
 SSLContext::SSLContext(const String& cipherList)

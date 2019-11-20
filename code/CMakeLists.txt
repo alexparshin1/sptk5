@@ -24,7 +24,7 @@ SET (TEST_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
 SET (CMAKE_INSTALL_RPATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 IF (UNIX)
-    OPTION (USE_NEW_ABI "Use new GCC ABI" ON)
+    OPTION (USE_NEW_ABI "Use new GCC ABI" OFF)
 ENDIF ()
 
 OPTION (USE_EPOLL      "Build Asynchronous sockets (epoll) support" ON)

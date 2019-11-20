@@ -26,7 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdio>
 #include <cstring>
 
 #include <sptk5/db/ODBCEnvironment.h>
@@ -277,7 +276,7 @@ String sptk::removeDriverIdentification(const char* error)
             len--;
     }
 
-    return String(p, len);
+    return String(p, size_t(len));
 }
 
 string extract_error(

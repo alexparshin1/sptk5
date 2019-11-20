@@ -30,7 +30,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdlib>
 #include <cstring>
 #include <cerrno>
 
@@ -439,7 +438,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
             ECDSA_SIG_set0(ec_sig, ec_sig_r, ec_sig_s);
 
             slen = i2d_ECDSA_SIG(ec_sig, nullptr);
-            sig_buffer.checkSize(slen);
+            sig_buffer.checkSize((size_t)slen);
             sig_ptr = (unsigned char*) sig_buffer.data();
 
             p = sig_ptr;

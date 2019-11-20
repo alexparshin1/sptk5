@@ -55,8 +55,8 @@ void RegularExpression::initPCRE()
 #endif
 }
 
-RegularExpression::RegularExpression(const String& pattern, const String& options)
-: m_pattern(pattern), m_global(false), m_pcre(nullptr), m_pcreExtra(nullptr), m_pcreOptions()
+RegularExpression::RegularExpression(String pattern, const String& options)
+: m_pattern(move(pattern)), m_global(false), m_pcre(nullptr), m_pcreExtra(nullptr), m_pcreOptions()
 {
     for (auto ch: options) {
         switch (ch) {
@@ -104,7 +104,7 @@ RegularExpression::~RegularExpression()
 size_t RegularExpression::nextMatch(const String& text, size_t& offset, Match matchOffsets[],
                                     size_t matchOffsetsSize) const
 {
-    if (!m_pcre) throwException(m_error);
+    if (!m_pcre) throwException(m_error)
 
     int rc = pcre_exec(m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0, (int*) matchOffsets,
                        (int) matchOffsetsSize * 2);
@@ -113,12 +113,12 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, Match ma
 
     if (rc < 0) {
         switch (rc) {
-            case PCRE_ERROR_NULL         : throwException("Null argument");
-            case PCRE_ERROR_BADOPTION    : throwException("Invalid regular expression option");
+            case PCRE_ERROR_NULL         : throwException("Null argument")
+            case PCRE_ERROR_BADOPTION    : throwException("Invalid regular expression option")
             case PCRE_ERROR_BADMAGIC     :
-            case PCRE_ERROR_UNKNOWN_NODE : throwException("Invalid compiled regular expression\n");
-            case PCRE_ERROR_NOMEMORY     : throwException("Out of memory");
-            default                      : throwException("Unknown error");
+            case PCRE_ERROR_UNKNOWN_NODE : throwException("Invalid compiled regular expression\n")
+            case PCRE_ERROR_NOMEMORY     : throwException("Out of memory")
+            default                      : throwException("Unknown error")
         }
     }
 

@@ -100,7 +100,7 @@ bool HttpProxy::readResponse(shared_ptr<TCPSocket>& socket) const
 
     // Read response body (if any)
     if (contentLength > 0) {
-        socket->read(buffer, contentLength);
+        socket->read(buffer, (size_t) contentLength);
     } else {
         while (socket->readyToRead(milliseconds(100)))
             socket->read(buffer, socket->socketBytes());
@@ -251,7 +251,7 @@ TEST(SPTK_HttpProxy, connect)
 
         Buffer output;
         http.cmd_get("/", HttpParams(), output);
-        COUT(output.c_str() << endl);
+        COUT(output.c_str() << endl)
     }
     catch (const Exception& e) {
         FAIL() << e.what();

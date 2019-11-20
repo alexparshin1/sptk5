@@ -64,69 +64,69 @@ protected:
     /**
      * @brief Begins the transaction
      */
-    virtual void driverBeginTransaction() override;
+    void driverBeginTransaction() override;
 
     /**
      * @brief Ends the transaction
      * @param commit            Commit if true, rollback if false
      */
-    virtual void driverEndTransaction(bool commit) override;
+    void driverEndTransaction(bool commit) override;
 
     // These methods implement the actions requested by CQuery
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    virtual String queryError(const Query *query) const override;
+    String queryError(const Query *query) const override;
 
     /**
      * Allocates an SQLite3 statement
      */
-    virtual void queryAllocStmt(Query *query) override;
+    void queryAllocStmt(Query *query) override;
 
     /**
      * Deallocates an SQLite3 statement
      */
-    virtual void queryFreeStmt(Query *query) override;
+    void queryFreeStmt(Query *query) override;
 
     /**
      * Closes an SQLite3 statement
      */
-    virtual void queryCloseStmt(Query *query) override;
+    void queryCloseStmt(Query *query) override;
 
     /**
      * Prepares a query if supported by database
      */
-    virtual void queryPrepare(Query *query) override;
+    void queryPrepare(Query *query) override;
 
     /**
      * Unprepares a query if supported by database
      */
-    virtual void queryUnprepare(Query *query) override;
+    void queryUnprepare(Query *query) override;
 
     /**
      * Executes a statement
      */
-    virtual void queryExecute(Query *query) override;
+    void queryExecute(Query *query) override;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    virtual int queryColCount(Query *query) override;
+    int queryColCount(Query *query) override;
 
     /**
      * Binds the parameters to the query
      */
-    virtual void queryBindParameters(Query *query) override;
+    void queryBindParameters(Query *query) override;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    virtual void queryOpen(Query *query) override;
+    void queryOpen(Query *query) override;
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    virtual void queryFetch(Query *query) override;
+    void queryFetch(Query *query) override;
 
 
     /**
@@ -140,7 +140,7 @@ protected:
     /**
      * @brief Converts datatype from SQLite type to SPTK VariantType
      */
-    void SQLITEtypeToCType(int sqliteType, VariantType& dataType);
+    static void SQLITEtypeToCType(int sqliteType, VariantType& dataType);
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
@@ -159,7 +159,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~SQLite3Connection();
+    ~SQLite3Connection() override;
 
     /**
      * @brief Returns driver-specific connection string
@@ -179,19 +179,19 @@ public:
     /**
      * @brief Returns the database connection handle
      */
-    virtual void* handle() const override;
+    void* handle() const override;
 
     /**
      * @brief Returns the SQLite3 driver description for the active connection
      */
-    virtual String driverDescription() const override;
+    String driverDescription() const override;
 
     /**
      * @brief Lists database objects
      * @param objectType        Object type to list
      * @param objects           Object list (output)
      */
-    virtual void objectList(DatabaseObjectType objectType, Strings& objects) override;
+    void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
 };
 

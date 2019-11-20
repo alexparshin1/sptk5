@@ -129,7 +129,7 @@ public:
      * @param pattern           PCRE pattern
      * @param options           Pattern options
      */
-    explicit RegularExpression(const sptk::String& pattern, const sptk::String& options = "");
+    explicit RegularExpression(String pattern, const sptk::String& options = "");
 
     /**
      * Copy constructor

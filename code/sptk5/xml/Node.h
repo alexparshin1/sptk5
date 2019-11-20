@@ -653,6 +653,11 @@ public:
     {
         return type() == DOM_COMMENT;
     }
+
+private:
+    void saveAttributes(Buffer& buffer) const;
+    void saveAttributes(json::Element* object) const;
+    void saveElement(json::Element* object) const;
 };
 
 /**

@@ -98,7 +98,7 @@ class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
      * @param mysqlTime         MySQL time
      * @param fieldType         Field type (date or datetime)
      */
-    void decodeMySQLTime(Field* field, MYSQL_TIME& mysqlTime, VariantType fieldType);
+    static void decodeMySQLTime(Field* field, MYSQL_TIME& mysqlTime, VariantType fieldType);
 
     /**
      * Convert MySQL float data to field
@@ -106,7 +106,7 @@ class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
      * @param bind         MySQL field bind
      * @param fieldType         Field type (date or datetime)
      */
-    void decodeMySQLFloat(Field* _field, MYSQL_BIND& bind);
+    static void decodeMySQLFloat(Field* _field, MYSQL_BIND& bind);
 
     void throwMySQLError()
     {
@@ -155,18 +155,18 @@ public:
     /**
      * Destructor
      */
-    virtual ~MySQLStatement();
+    ~MySQLStatement() override;
 
     /**
      * Generates normalized list of parameters
      * @param queryParams CParamList&, Standard query parameters
      */
-    void enumerateParams(QueryParameterList& queryParams);
+    void enumerateParams(QueryParameterList& queryParams) override;
 
     /**
      * Sets actual parameter values for the statement execution
      */
-    void setParameterValues();
+    void setParameterValues() override;
 
     /**
      * Prepares MySQL statement
@@ -177,7 +177,7 @@ public:
     /**
      * Executes statement
      */
-    void execute(bool);
+    void execute(bool) override;
 
     /**
      * Binds statement result metadata to query fields
@@ -194,12 +194,12 @@ public:
     /**
      * Closes statement and releases allocated resources
      */
-    void close();
+    void close() override;
 
     /**
      * Fetches next record
      */
-    void fetch();
+    void fetch() override;
 };
 
 }

@@ -101,7 +101,7 @@ public:
          */
         bool        visible:1;
 
-    } view;
+    } view {};
 
     /**
      * @brief Returns field name

@@ -333,22 +333,7 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
     buffer.append(nodeName);
     if (!this->attributes().empty()) {
         // Output attributes
-        Buffer real_id;
-        Buffer real_val;
-        for (auto* attributeNode: this->attributes()) {
-            real_id.bytes(0);
-            real_val.bytes(0);
-            if (!document()->docType().encodeEntities(attributeNode->name().c_str(), real_id))
-                real_id = attributeNode->name();
-            if (!document()->docType().encodeEntities(attributeNode->value().c_str(), real_val))
-                real_val = attributeNode->value();
-
-            buffer.append(' ');
-            buffer.append(real_id);
-            buffer.append("=\"");
-            buffer.append(real_val);
-            buffer.append("\"");
-        }
+        saveAttributes(buffer);
     }
     if (!empty()) {
         bool only_cdata;
@@ -384,6 +369,26 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
     } else {
         //LEAF
         buffer.append("/>\n", 3);
+    }
+}
+
+void Node::saveAttributes(Buffer& buffer) const
+{
+    Buffer real_id;
+    Buffer real_val;
+    for (auto* attributeNode: attributes()) {
+        real_id.bytes(0);
+        real_val.bytes(0);
+        if (!document()->docType().encodeEntities(attributeNode->name().c_str(), real_id))
+            real_id = attributeNode->name();
+        if (!document()->docType().encodeEntities(attributeNode->value().c_str(), real_val))
+            real_val = attributeNode->value();
+
+        buffer.append(' ');
+        buffer.append(real_id);
+        buffer.append("=\"");
+        buffer.append(real_val);
+        buffer.append("\"");
     }
 }
 
@@ -442,14 +447,8 @@ void Node::save(json::Element& json, string& text) const
     }
 
     auto* object = json.set_object(nodeName);
-    if (isElement()) {
-        const Attributes& attributes = this->attributes();
-        if (!attributes.empty()) {
-            auto* attrs = object->set_object("attributes");
-            for (auto* attributeNode: attributes)
-                attrs->set(attributeNode->name(), attributeNode->value());
-        }
-    }
+    if (isElement())
+        saveAttributes(object);
 
     switch (type()) {
         case DOM_TEXT:
@@ -466,34 +465,49 @@ void Node::save(json::Element& json, string& text) const
             break;
 
         case DOM_ELEMENT:
-            if (empty()) {
-                *object = "";
-            } else {
-                bool done = false;
-                if (size() == 1) {
-                    for (auto* np: *this)
-                        if (np->name() == "null") {
-                            done = true;
-                        }
-                }
-                if (!done) {
-                    // output all subnodes
-                    String nodeText;
-                    for (auto* np: *this)
-                        np->save(*object, nodeText);
-                    if (object->is(json::JDT_OBJECT) && object->size() == 0) {
-                        if (document()->m_matchNumber.matches(nodeText)) {
-                            double value = string2double(nodeText);
-                            *object = value;
-                        } else
-                            *object = nodeText;
-                    }
-                }
-            }
+            saveElement(object);
             break;
 
         default: // unknown nodetype
             break;
+    }
+}
+
+void Node::saveElement(json::Element* object) const
+{
+    if (empty()) {
+        *object = "";
+    } else {
+        bool done = false;
+        if (size() == 1) {
+            for (auto* np: *this)
+                if (np->name() == "null") {
+                    done = true;
+                }
+        }
+        if (!done) {
+            // output all subnodes
+            String nodeText;
+            for (auto* np: *this)
+                np->save(*object, nodeText);
+            if (object->is(json::JDT_OBJECT) && object->size() == 0) {
+                if (document()->m_matchNumber.matches(nodeText)) {
+                    double value = string2double(nodeText);
+                    *object = value;
+                } else
+                    *object = nodeText;
+            }
+        }
+    }
+}
+
+void Node::saveAttributes(json::Element* object) const
+{
+    const Attributes& attributes = this->attributes();
+    if (!attributes.empty()) {
+        auto* attrs = object->set_object("attributes");
+        for (auto* attributeNode: attributes)
+            attrs->set(attributeNode->name(), attributeNode->value());
     }
 }
 

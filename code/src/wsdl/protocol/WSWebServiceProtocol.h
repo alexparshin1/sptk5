@@ -90,6 +90,12 @@ private:
                        const HTTPException& e, bool jsonOutput);
 
     void RESTtoSOAP(Strings& url, const char* startOfMessage, xml::Document& message) const;
+
+    int getContentLength();
+
+    std::shared_ptr<HttpAuthentication> getAuthentication();
+
+    void readMessage(Buffer& data, char*& startOfMessage, char*& endOfMessage);
 };
 
 /// @}

@@ -95,7 +95,7 @@ protected:
     /**
      * Encoding the message into internal message buffer
      */
-    void mimeFile(const String& fileName, const String& fileAlias, std::stringstream& message);
+    static void mimeFile(const String& fileName, const String& fileAlias, std::stringstream& message);
 
 public:
     /**

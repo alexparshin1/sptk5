@@ -160,7 +160,7 @@ public:
                     break;
             }
             catch (const Exception& e) {
-                CERR(e.what() << endl);
+                CERR(e.what() << endl)
             }
         }
         socket().close();
