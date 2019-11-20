@@ -74,13 +74,13 @@ class CSSLLibraryLoader
     static void init_locks()
     {
         m_locks = new mutex[CRYPTO_num_locks()];
-        CRYPTO_set_id_callback(thread_id);
-        CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback);
+        CRYPTO_set_id_callback(thread_id)
+        CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback)
     }
 
     static void kill_locks()
     {
-        CRYPTO_set_locking_callback(NULL);
+        CRYPTO_set_locking_callback(NULL)
         delete [] m_locks;
     }
 
@@ -94,8 +94,8 @@ public:
 
     ~CSSLLibraryLoader() noexcept
     {
-        CRYPTO_set_locking_callback(NULL);
-        CRYPTO_set_id_callback(NULL);
+        CRYPTO_set_locking_callback(NULL)
+        CRYPTO_set_id_callback(NULL)
 #if OPENSSL_VERSION_NUMBER > 0x1000114fL
 #if OPENSSL_VERSION_NUMBER > 0x20000000L
         SSL_COMP_free_compression_methods();
@@ -228,10 +228,9 @@ void SSLSocket::attach(SOCKET socketHandle, bool accept)
 
     initContextAndSocket();
 
-    int rc = 1;
     if (fd() != socketHandle) {
         TCPSocket::attach(socketHandle, false);
-        rc = SSL_set_fd(m_ssl, (int) socketHandle);
+        int rc = SSL_set_fd(m_ssl, (int) socketHandle);
         if (rc <= 0) {
             int32_t errorCode = SSL_get_error(m_ssl, rc);
             string error = getSSLError("SSL_accept", errorCode);
@@ -244,8 +243,7 @@ void SSLSocket::attach(SOCKET socketHandle, bool accept)
         return;
     }
 
-    rc = SSL_accept(m_ssl);
-
+    int rc = SSL_accept(m_ssl);
     if (rc <= 0) {
         int32_t errorCode = SSL_get_error(m_ssl, rc);
         string error = getSSLError("SSL_accept", errorCode);

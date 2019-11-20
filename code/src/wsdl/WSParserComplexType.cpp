@@ -170,19 +170,13 @@ void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, co
 void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
 {
     String className = "C" + wsClassName(m_name);
-    set<String> usedClasses;
 
     String defineName = "__" + className.toUpperCase() + "__";
     classDeclaration << "#ifndef " << defineName << endl;
     classDeclaration << "#define " << defineName << endl;
-
-    // determine the list of used classes
-    for (auto* complexType: m_sequence) {
-        String cxxType = complexType->className();
-        if (cxxType[0] == 'C')
-            usedClasses.insert(cxxType);
-    }
     classDeclaration << endl;
+
+    set<String> usedClasses = getUsedClasses();
 
     printDeclarationIncludes(classDeclaration, usedClasses);
 
@@ -361,6 +355,19 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     classDeclaration << "#endif" << endl;
 }
 
+set<String> WSParserComplexType::getUsedClasses() const
+{
+    set<String> usedClasses;
+    // determine the list of used classes
+    for (auto* complexType: m_sequence) {
+        String cxxType = complexType->className();
+        if (cxxType[0] == 'C') {
+            usedClasses.insert(cxxType);
+        }
+    }
+    return usedClasses;
+}
+
 void WSParserComplexType::printImplementationIncludes(ostream& classImplementation, const String& className) const
 {
     classImplementation << "#include \"" << className << ".h\"" << endl;
@@ -419,6 +426,14 @@ void WSParserComplexType::printImplementationLoadXML(ostream& classImplementatio
                         << "    _clear();" << endl
                         << "    setLoaded(true);" << endl;
 
+    printImplementationLoadXMLAttributes(classImplementation);
+    printImplementationLoadXMLFields(classImplementation);
+
+    classImplementation << "}" << endl << endl;
+}
+
+void WSParserComplexType::printImplementationLoadXMLAttributes(ostream& classImplementation) const
+{
     if (!m_attributes.empty()) {
         classImplementation << endl << "    // Load attributes" << endl;
         for (auto& itor: m_attributes) {
@@ -426,7 +441,10 @@ void WSParserComplexType::printImplementationLoadXML(ostream& classImplementatio
             classImplementation << "    m_" << attr.name() << ".load((String) input->getAttribute(\"" << attr.name() << "\"));" << endl;
         }
     }
+}
 
+void WSParserComplexType::printImplementationLoadXMLFields(ostream& classImplementation) const
+{
     if (!m_sequence.empty()) {
         classImplementation << endl << "    // Load elements" << endl;
         classImplementation << "    for (auto* node: *input) {" << endl;
@@ -461,7 +479,6 @@ void WSParserComplexType::printImplementationLoadXML(ostream& classImplementatio
 
         printImplementationRestrictions(classImplementation, requiredElements);
     }
-    classImplementation << "}" << endl << endl;
 }
 
 void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementation, const String& className) const
@@ -474,19 +491,7 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
                         << "    _clear();" << endl
                         << "    setLoaded(true);" << endl;
 
-    if (!m_attributes.empty()) {
-        classImplementation << endl << "    // Load attributes" << endl;
-        classImplementation << "    auto* attributes = input->find(\"attributes\");" << endl;
-        classImplementation << "    const json::Element* attribute;" << endl;
-        classImplementation << "    if (attributes != nullptr) {" << endl;
-        for (auto& itor: m_attributes) {
-            WSParserAttribute& attr = *itor.second;
-            classImplementation << "        attribute = attributes->find(\"" << attr.name() << "\");" << endl;
-            classImplementation << "        if (attribute != nullptr)" << endl;
-            classImplementation << "            m_" << attr.name() << ".load(attribute);" << endl;
-        }
-        classImplementation << endl << "    }" << endl;
-    }
+    printImplementationLoadJSONAttributes(classImplementation);
 
     if (!m_sequence.empty()) {
         classImplementation << endl << "    // Load elements" << endl;
@@ -525,23 +530,56 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
     classImplementation << "}" << endl << endl;
 }
 
-void WSParserComplexType::printImplementationLoadFieldList(ostream& classImplementation, const String& className) const
+void WSParserComplexType::printImplementationLoadJSONAttributes(ostream& classImplementation) const
 {
-    RegularExpression   matchStandardType("^xsd:");
+    if (!m_attributes.empty()) {
+        classImplementation << endl << "    // Load attributes" << endl;
+        classImplementation << "    auto* attributes = input->find(\"attributes\");" << endl;
+        classImplementation << "    const json::Element* attribute;" << endl;
+        classImplementation << "    if (attributes != nullptr) {" << endl;
+        for (auto& itor: m_attributes) {
+            WSParserAttribute& attr = *itor.second;
+            classImplementation << "        attribute = attributes->find(\"" << attr.name() << "\");" << endl;
+            classImplementation << "        if (attribute != nullptr)" << endl;
+            classImplementation << "            m_" << attr.name() << ".load(attribute);" << endl;
+        }
+        classImplementation << endl << "    }" << endl;
+    }
+}
+
+void WSParserComplexType::printImplementationLoadFields(ostream& classImplementation, const String& className) const
+{
     Strings             requiredElements;
     stringstream        fieldLoads;
     int                 fieldLoadCount = 0;
 
-    if (!m_attributes.empty()) {
-        fieldLoads << endl << "    // Load attributes" << endl;
-        for (auto& itor: m_attributes) {
-            WSParserAttribute& attr = *itor.second;
-            fieldLoads << "    if ((field = input.fieldByName(\"" << attr.name() << "\")) != nullptr) {" << endl;
-            fieldLoads << "        m_" << attr.name() << ".load(*field);" << endl;
-            fieldLoads << "    }" << endl << endl;
-            fieldLoadCount++;
-        }
+    makeImplementationLoadAttributes(fieldLoads, fieldLoadCount);
+    makeImplementationLoadFields(fieldLoads, fieldLoadCount, requiredElements);
+
+    bool hideInputParameter = fieldLoadCount == 0;
+    classImplementation << "void " << className << "::load(const FieldList&"
+                        << (hideInputParameter? "" : " input") << ")" << endl
+                        << "{" << endl
+                        << "    UniqueLock(m_mutex);" << endl
+                        << "    _clear();" << endl
+                        << "    setLoaded(true);" << endl;
+
+
+
+    if (fieldLoadCount != 0) {
+        classImplementation << "    Field* field;" << endl;
+        classImplementation << fieldLoads.str();
     }
+
+    printImplementationRestrictions(classImplementation, requiredElements);
+
+    classImplementation << "}" << endl << endl;
+}
+
+void WSParserComplexType::makeImplementationLoadFields(stringstream& fieldLoads, int& fieldLoadCount,
+                                                       Strings& requiredElements) const
+{
+    RegularExpression matchStandardType("^xsd:");
 
     if (!m_sequence.empty()) {
         fieldLoads << endl << "    // Load elements" << endl;
@@ -569,25 +607,20 @@ void WSParserComplexType::printImplementationLoadFieldList(ostream& classImpleme
             fieldLoads << "    }" << endl << endl;
         }
     }
+}
 
-    bool hideInputParameter = fieldLoadCount == 0;
-    classImplementation << "void " << className << "::load(const FieldList&"
-                        << (hideInputParameter? "" : " input") << ")" << endl
-                        << "{" << endl
-                        << "    UniqueLock(m_mutex);" << endl
-                        << "    _clear();" << endl
-                        << "    setLoaded(true);" << endl;
-
-
-
-    if (fieldLoadCount != 0) {
-        classImplementation << "    Field* field;" << endl;
-        classImplementation << fieldLoads.str();
+void WSParserComplexType::makeImplementationLoadAttributes(stringstream& fieldLoads, int& fieldLoadCount) const
+{
+    if (!m_attributes.empty()) {
+        fieldLoads << endl << "    // Load attributes" << endl;
+        for (auto& itor: m_attributes) {
+            WSParserAttribute& attr = *itor.second;
+            fieldLoads << "    if ((field = input.fieldByName(\"" << attr.name() << "\")) != nullptr) {" << endl;
+            fieldLoads << "        m_" << attr.name() << ".load(*field);" << endl;
+            fieldLoads << "    }" << endl << endl;
+            fieldLoadCount++;
+        }
     }
-
-    printImplementationRestrictions(classImplementation, requiredElements);
-
-    classImplementation << "}" << endl << endl;
 }
 
 void WSParserComplexType::printImplementationUnloadXML(ostream& classImplementation, const String& className) const
@@ -710,7 +743,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     printImplementationLoadJSON(classImplementation, className);
 
     RegularExpression matchStandardType("^xsd:");
-    printImplementationLoadFieldList(classImplementation, className);
+    printImplementationLoadFields(classImplementation, className);
 
     printImplementationUnloadXML(classImplementation, className);
     printImplementationUnloadJSON(classImplementation, className);

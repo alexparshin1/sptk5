@@ -140,7 +140,7 @@ protected:
      * @param xpathElement      Current XPath element
      * @param element           Current element
      */
-    void appendMatchedElement(ElementSet& elements, const Element::XPathElement& xpathElement, Element* element);
+    static void appendMatchedElement(ElementSet& elements, const Element::XPathElement& xpathElement, Element* element);
 
     /**
      * Clear JSON element.

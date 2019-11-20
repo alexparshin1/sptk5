@@ -28,16 +28,19 @@ int main(int argc, char **argv)
 
         size_t dataSize = data.bytes();
 
-        printf("static size_t %s_len = %ld;\n", argv[2], (long) dataSize);
-        printf("static unsigned char %s[%ld] = {\n", argv[2], (long) dataSize);
+        COUT("static size_t " << argv[2] << "_len = " << dataSize << ";" << endl)
+        COUT("static unsigned char " << argv[2] << "[" << dataSize << "] = {" << endl)
 
         auto* x = (unsigned char *)data.data();
 
+        stringstream str;
+        str.fill('0');
         for (unsigned i = 0; i < dataSize; i++) {
-            printf("0x%02x, ", (unsigned) x[i]);
-            if (!(i & 0xf)) printf("\n");
+            str << "0x" << hex << setw(2) << ", " << (unsigned) x[i];
+            if (!(i & 0xf)) str << endl;
         }
-        printf("};\n");
+        str << "};" << endl;
+        COUT(str.str())
 
         return 0;
     }

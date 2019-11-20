@@ -185,7 +185,7 @@ Variant::Variant(const Variant& value)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(Variant&& other)
+Variant::Variant(Variant&& other) noexcept
 {
     m_data = move(other.m_data);
     m_dataType = other.m_dataType;
@@ -420,7 +420,7 @@ Variant& Variant::operator=(const Variant& other)
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator=(Variant&& other)
+Variant& Variant::operator=(Variant&& other) noexcept
 {
     if (this == &other)
         return *this;

@@ -60,8 +60,7 @@ void Document::parse(const String& json)
 
     m_root = new Element(this);
 
-    Parser parser;
-    parser.parse(*m_root, json);
+    Parser::parse(*m_root, json);
 }
 
 Document::Document(bool isObject)

@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <utility>
 
 #include <sptk5/Exception.h>
 #include <sptk5/UniqueInstance.h>
@@ -44,11 +45,11 @@ using namespace std;
 using namespace sptk;
 
 // Constructor
-UniqueInstance::UniqueInstance(const String& instanceName)
-: m_instanceName(instanceName)
+UniqueInstance::UniqueInstance(String  instanceName)
+: m_instanceName(move(instanceName))
 {
 #ifndef _WIN32
-    std::string home = getenv("HOME");
+    String home = getenv("HOME");
     m_fileName = home + "/" + m_instanceName + ".lock";
     if (read_pid() == 0)
         write_pid();

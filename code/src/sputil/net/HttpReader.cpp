@@ -173,7 +173,6 @@ bool HttpReader::readData(TCPSocket& socket)
 				break;
             if (!socket.readyToRead(chrono::seconds(30)))
                 throw TimeoutException("Read timeout");
-            readBytes = (int) socket.socketBytes();
         }
     }
     return true;

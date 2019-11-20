@@ -13,7 +13,6 @@
 */
 
 #include "libtar_listhash.h"
-#include <cstdlib>
 #include <cstring>
 #include <sptk5/sptk.h>
 
@@ -99,7 +98,7 @@ void libtar_list_empty(libtar_list_t* l, libtar_freefunc_t freefunc)
         l->first = n->next;
         if (freefunc != nullptr)
             (*freefunc)(n->data);
-        free(n);
+        delete n;
     }
 
     l->nents = 0;
@@ -140,7 +139,7 @@ int libtar_list_add(libtar_list_t* l, void* data)
     printf("==> libtar_list_add(\"%s\")\n", (char *)data);
 #endif
 
-    n = (libtar_listptr_t) malloc(sizeof(struct libtar_node));
+    n = (libtar_listptr_t) new struct libtar_node;
     if (n == nullptr)
         return -1;
     n->data = data;
@@ -265,7 +264,7 @@ void libtar_list_del(libtar_list_t* l, libtar_listptr_t* n)
     else
         l->last = (*n)->prev;
 
-    free(*n);
+    delete *n;
     *n = m;
 }
 

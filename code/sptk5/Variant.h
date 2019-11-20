@@ -512,7 +512,7 @@ public:
      * Move constructor
      * @param other             Other object
      */
-    Variant(Variant&& other);
+    Variant(Variant&& other) noexcept;
 
     /**
      * Destructor
@@ -529,7 +529,7 @@ public:
      * Assignment operator
      * @param other             Other object
      */
-    Variant& operator =(Variant&& other);
+    Variant& operator =(Variant&& other) noexcept;
 
     /**
      * Assignment operator

@@ -41,17 +41,17 @@ void WSStaticHttpProtocol::process()
     Buffer page;
     try {
         page.loadFromFile(m_staticFilesDirectory + m_url);
-        m_socket.write("HTTP/1.1 200 OK\n");
-        m_socket.write("Content-Type: text/html; charset=utf-8\n");
-        m_socket.write("Content-Length: " + int2string(page.bytes()) + "\n\n");
-        m_socket.write(page);
+        socket().write("HTTP/1.1 200 OK\n");
+        socket().write("Content-Type: text/html; charset=utf-8\n");
+        socket().write("Content-Length: " + int2string(page.bytes()) + "\n\n");
+        socket().write(page);
     }
     catch (const Exception&) {
         string text("<html><head><title>Not Found</title></head><body>Sorry, the page " + m_staticFilesDirectory + m_url + " was not found.</body></html>\n");
-        m_socket.write("HTTP/1.1 404 Not Found\n");
-        m_socket.write("Content-Type: text/html; charset=utf-8\n");
-        m_socket.write("Content-length: " + int2string(text.length()) + "\n\n");
-        m_socket.write(text);
+        socket().write("HTTP/1.1 404 Not Found\n");
+        socket().write("Content-Type: text/html; charset=utf-8\n");
+        socket().write("Content-length: " + int2string(text.length()) + "\n\n");
+        socket().write(text);
     }
 }
 

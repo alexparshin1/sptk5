@@ -281,7 +281,7 @@ char* Document::readCDataSection(Node* currentNode, char* nodeName, char* nodeEn
 
 char* Document::readDocType(char* tokenEnd)
 {
-    char* nodeEnd = (char*) strstr(tokenEnd + 1, "]>");
+    auto* nodeEnd = strstr(tokenEnd + 1, "]>");
 
     if (nodeEnd != nullptr) { /// ENTITIES
         nodeEnd++;
@@ -345,7 +345,7 @@ void Document::load(const char* xmlData)
                 /// Processing instructions
                 if (ch == ' ') {
                     value = tokenEnd + 1;
-                    nodeEnd = (char*) strstr(value, "?>");
+                    nodeEnd = strstr(value, "?>");
                 } else {
                     value = nullptr;
                     nodeEnd = strstr(tokenStart, "?");

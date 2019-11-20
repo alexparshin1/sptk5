@@ -155,12 +155,12 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
     for (const string& helpRow : helpText) {
         if (firstRow) {
             snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), printableName().c_str(), helpRow.c_str());
-            COUT(rowBuffer << endl);
+            COUT(rowBuffer << endl)
             firstRow = false;
         }
         else {
             snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", helpRow.c_str());
-            COUT(rowBuffer << endl);
+            COUT(rowBuffer << endl)
         }
     }
 
@@ -171,7 +171,7 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
             printDefaultValue = "'" + optionDefaultValue + "'";
         string defaultValueStr = "The default value is " + printDefaultValue + ".";
         snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", defaultValueStr.c_str());
-        COUT(rowBuffer << endl);
+        COUT(rowBuffer << endl)
     }
 }
 //=============================================================================
@@ -473,7 +473,7 @@ void CommandLine::printLine(const String& ch, size_t count)
     stringstream line;
     for (size_t i = 0; i < count; i++)
         line << ch;
-    COUT(line.str() << endl);
+    COUT(line.str() << endl)
 }
 
 void CommandLine::printHelp(size_t screenColumns) const
@@ -484,21 +484,21 @@ void CommandLine::printHelp(size_t screenColumns) const
 void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) const
 {
     if (!onlyForCommand.empty() && m_argumentTemplates.find(onlyForCommand) == m_argumentTemplates.end()) {
-        CERR("Command '" << onlyForCommand << "' is not defined" << endl);
+        CERR("Command '" << onlyForCommand << "' is not defined" << endl)
         return;
     }
 
-    COUT(m_programVersion << endl);
+    COUT(m_programVersion << endl)
     printLine(doubleLine, screenColumns);
-    COUT(m_description << endl);
+    COUT(m_description << endl)
 
-    COUT("\nSyntax:" << endl);
+    COUT("\nSyntax:" << endl)
     printLine(singleLine, screenColumns);
 
     String commandLinePrototype = m_commandLinePrototype;
     if (!onlyForCommand.empty())
         commandLinePrototype = commandLinePrototype.replace("<command>", onlyForCommand);
-    COUT(commandLinePrototype << endl);
+    COUT(commandLinePrototype << endl)
 
     // Find out space needed for command and option names
     size_t nameColumns = 10;
@@ -536,7 +536,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
 
     size_t helpTextColumns = screenColumns - (nameColumns + 2);
     if ((int)helpTextColumns < 10) {
-        CERR("Can't print help information - the screen width is too small" << endl);
+        CERR("Can't print help information - the screen width is too small" << endl)
         return;
     }
 
@@ -548,7 +548,7 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
                                const Strings& sortedOptions, size_t helpTextColumns) const
 {
     if (!m_optionTemplates.empty()) {
-        COUT("\nOptions:" << endl);
+        COUT("\nOptions:" << endl)
         printLine(singleLine, screenColumns);
         for (const String& optionName : sortedOptions) {
             auto itor = m_optionTemplates.find(optionName);
@@ -570,7 +570,7 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
                                 const Strings& sortedCommands, size_t helpTextColumns) const
 {
     if (onlyForCommand.empty() && !m_argumentTemplates.empty()) {
-        COUT("\nCommands:" << endl);
+        COUT("\nCommands:" << endl)
         printLine(singleLine, screenColumns);
         for (const String& commandName : sortedCommands) {
             auto ator = m_argumentTemplates.find(commandName);
@@ -584,7 +584,7 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
 
 void CommandLine::printVersion() const
 {
-    COUT(m_programVersion << endl);
+    COUT(m_programVersion << endl)
 }
 
 #if USE_GTEST

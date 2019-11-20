@@ -163,25 +163,13 @@ static void substituteHostname(Buffer& page, const String& hostname, uint16_t po
 void WSWebServiceProtocol::process()
 {
     String contentType = "text/xml; charset=utf-8";
-    auto ctor = m_headers.find("Content-Type");
-    if (ctor != m_headers.end())
+    auto ctor = headers().find("Content-Type");
+    if (ctor != headers().end())
         contentType = ctor->second;
     bool requestIsJSON = contentType.startsWith("application/json");
 
-    int contentLength = -1; // Undefined
-    if (m_url.endsWith("?wsdl"))
-        contentLength = 0;
-
-    auto itor = m_headers.find("Content-Length");
-    if (itor != m_headers.end())
-        contentLength = string2int(itor->second);
-
-    shared_ptr<HttpAuthentication> authentication;
-    itor = m_headers.find("authorization");
-    if (itor != m_headers.end()) {
-        String value(itor->second);
-        authentication = make_shared<HttpAuthentication>(value);
-    }
+    auto contentLength = getContentLength();
+    auto authentication = getAuthentication();
 
     char* startOfMessage = nullptr;
     char* endOfMessage = nullptr;
@@ -189,7 +177,7 @@ void WSWebServiceProtocol::process()
     Buffer data;
 
     if (contentLength > 0) {
-        m_socket.read(data, contentLength);
+        socket().read(data, contentLength);
         startOfMessage = data.data();
         endOfMessage = startOfMessage + data.bytes();
     }
@@ -197,42 +185,7 @@ void WSWebServiceProtocol::process()
         startOfMessage = data.data();
         endOfMessage = startOfMessage;
     } else {
-        size_t socketBytes = m_socket.socketBytes();
-        if (socketBytes == 0) {
-            if (!m_socket.readyToRead(chrono::seconds(30)))
-                throwException("Client disconnected");
-            socketBytes = m_socket.socketBytes();
-        }
-
-        // If socket is signaled but empty - then other side closed connection
-        if (socketBytes == 0)
-            throwException("Client disconnected");
-
-        uint32_t offset = 0;
-        const char* endOfMessageMark = ":Envelope>";
-        do {
-            // Read all available data (appending to data buffer)
-            data.checkSize(offset + socketBytes);
-            socketBytes = (uint32_t) m_socket.read(data.data() + offset, (uint32_t) socketBytes);
-            data.bytes(offset + socketBytes);
-
-            const char* endOfData = data.c_str() + data.bytes();
-            if (startOfMessage == nullptr) {
-                startOfMessage = strstr(data.data(), "<?xml");
-                if (startOfMessage == nullptr) {
-                    startOfMessage = strstr(data.data(), "Envelope");
-                    if (startOfMessage != nullptr && startOfMessage < endOfData)
-                        while (*startOfMessage != '<' && startOfMessage > data.c_str())
-                            startOfMessage--;
-                }
-                if (startOfMessage == nullptr)
-                    throwException("Message start <?xml> not found");
-            }
-            endOfMessage = strstr(startOfMessage, endOfMessageMark);
-        } while (endOfMessage == nullptr);
-
-        // Message received, processing it
-        endOfMessage += strlen(endOfMessageMark);
+        readMessage(data, startOfMessage, endOfMessage);
     }
 
     while (startOfMessage != endOfMessage && (unsigned char)*startOfMessage < 33)
@@ -285,6 +238,69 @@ void WSWebServiceProtocol::process()
     response << "HTTP/1.1 " << httpStatusCode << " " << httpStatusText << "\r\n"
              << "Content-Type: " << contentType << "\r\n"
              << "Content-Length: " << output.bytes() << "\r\n\r\n";
-    m_socket.write(response.str());
-    m_socket.write(output);
+    socket().write(response.str());
+    socket().write(output);
+}
+
+shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()
+{
+    shared_ptr<HttpAuthentication> authentication;
+    auto itor = headers().find("authorization");
+    if (itor != headers().end()) {
+        String value(itor->second);
+        authentication = make_shared<HttpAuthentication>(value);
+    }
+    return authentication;
+}
+
+int WSWebServiceProtocol::getContentLength()
+{
+    int contentLength = -1; // Undefined
+    if (m_url.endsWith("?wsdl"))
+        contentLength = 0;
+
+    auto itor = headers().find("Content-Length");
+    if (itor != headers().end())
+        contentLength = string2int(itor->second);
+    return contentLength;
+}
+
+void WSWebServiceProtocol::readMessage(Buffer& data, char*& startOfMessage, char*& endOfMessage)
+{
+    size_t socketBytes = socket().socketBytes();
+    if (socketBytes == 0) {
+        if (!socket().readyToRead(chrono::seconds(30)))
+        throwException("Client disconnected");
+        socketBytes = socket().socketBytes();
+    }
+
+    // If socket is signaled but empty - then other side closed connection
+    if (socketBytes == 0)
+    throwException("Client disconnected");
+
+    uint32_t offset = 0;
+    const char* endOfMessageMark = ":Envelope>";
+    do {
+        // Read all available data (appending to data buffer)
+        data.checkSize(offset + socketBytes);
+        socketBytes = (uint32_t) socket().read(data.data() + offset, (uint32_t) socketBytes);
+        data.bytes(offset + socketBytes);
+
+        const char* endOfData = data.c_str() + data.bytes();
+        if (startOfMessage == nullptr) {
+            startOfMessage = strstr(data.data(), "<?xml");
+            if (startOfMessage == nullptr) {
+                startOfMessage = strstr(data.data(), "Envelope");
+                if (startOfMessage != nullptr && startOfMessage < endOfData)
+                    while (*startOfMessage != '<' && startOfMessage > data.c_str())
+                        startOfMessage--;
+            }
+            if (startOfMessage == nullptr)
+            throwException("Message start <?xml> not found");
+        }
+        endOfMessage = strstr(startOfMessage, endOfMessageMark);
+    } while (endOfMessage == nullptr);
+
+    // Message received, processing it
+    endOfMessage += strlen(endOfMessageMark);
 }

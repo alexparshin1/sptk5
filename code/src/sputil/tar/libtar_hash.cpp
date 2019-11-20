@@ -14,8 +14,6 @@
 
 #include "libtar_listhash.h"
 #include <cerrno>
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
 
 /*
@@ -92,12 +90,13 @@ libtar_hash_t* libtar_hash_new(int num, libtar_hashfunc_t hashfunc)
     else
         hash->hashfunc = (libtar_hashfunc_t)libtar_str_hashfunc;
 
-    hash->table = (libtar_list_t **)calloc(size_t(num), sizeof(libtar_list_t *));
+    hash->table = new libtar_list_t* [num];
     if (hash->table == nullptr)
     {
         delete hash;
         return nullptr;
     }
+    memset(hash->table, 0, sizeof(libtar_list_t*) * num);
 
     return hash;
 }
@@ -225,7 +224,7 @@ libtar_hash_free(libtar_hash_t *h, libtar_freefunc_t freefunc)
         if (h->table[i] != nullptr)
             libtar_list_free(h->table[i], freefunc);
 
-    free(h->table);
+    delete [] h->table;
     delete h;
 }
 

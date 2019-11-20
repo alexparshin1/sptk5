@@ -83,7 +83,7 @@ class SP_EXPORT MailMessageBody
     /**
      * Builds a plain text string from HTML text
      */
-    String stripHtml(const String& origHtml);
+    static String stripHtml(const String& origHtml);
 
 public:
     /**

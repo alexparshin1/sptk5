@@ -339,7 +339,7 @@ private:
      * @param classImplementation   Output stream
      * @param className             Class name
      */
-    void printImplementationLoadFieldList(std::ostream& classImplementation, const String& className) const;
+    void printImplementationLoadFields(std::ostream& classImplementation, const String& className) const;
 
     /**
      * Generate C++ class unload() to XML method
@@ -365,6 +365,18 @@ private:
     void printImplementationRestrictions(std::ostream& classImplementation, const Strings& requiredElements) const;
 
     void printDeclarationIncludes(std::ostream& classDeclaration, const std::set<String>& usedClasses) const;
+
+    std::set<String> getUsedClasses() const;
+
+    void printImplementationLoadJSONAttributes(std::ostream& classImplementation) const;
+
+    void makeImplementationLoadAttributes(std::stringstream& fieldLoads, int& fieldLoadCount) const;
+
+    void makeImplementationLoadFields(std::stringstream& fieldLoads, int& fieldLoadCount, Strings& requiredElements) const;
+
+    void printImplementationLoadXMLAttributes(std::ostream& classImplementation) const;
+
+    void printImplementationLoadXMLFields(std::ostream& classImplementation) const;
 };
 
 /**

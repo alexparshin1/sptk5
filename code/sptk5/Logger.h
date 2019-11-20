@@ -75,7 +75,7 @@ public:
          * @param priority       Message priority
          * @param message        Message text
          */
-        Message(LogPriority priority, const String& message);
+        Message(LogPriority priority, String message);
     };
 
     /**
@@ -83,7 +83,7 @@ public:
      * @param destination       Destination logger
      * @param prefix            Optional log message prefix
      */
-    Logger(LogEngine& destination, const String& prefix = "");
+    Logger(LogEngine& destination, String prefix = "");
 
     /**
      * @brief Returns log engine (destination logger)
