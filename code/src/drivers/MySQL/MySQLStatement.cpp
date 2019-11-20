@@ -81,8 +81,8 @@ public:
 };
 
 
-MySQLStatement::MySQLStatement(MySQLConnection* connection, const string& sql, bool autoPrepare)
-: DatabaseStatement<MySQLConnection,MYSQL_STMT>(connection), m_sql(sql), m_result(nullptr), m_row{}
+MySQLStatement::MySQLStatement(MySQLConnection* connection, String sql, bool autoPrepare)
+: DatabaseStatement<MySQLConnection,MYSQL_STMT>(connection), m_sql(move(sql)), m_result(nullptr), m_row{}
 {
     if (autoPrepare)
         statement(mysql_stmt_init((MYSQL*)connection->handle()));

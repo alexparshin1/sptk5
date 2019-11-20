@@ -131,7 +131,7 @@ Query::Query(DatabaseConnection db, const String& sql, bool autoPrepare)
     Query::sql(sql);
 }
 
-Query::Query(PoolDatabaseConnection* db, const String& sql, bool autoPrepare)
+Query::Query(PoolDatabaseConnection* db, String sql, bool autoPrepare)
 : Query_StatementManagement(autoPrepare), m_fields(true)
 {
     if (db != nullptr) {

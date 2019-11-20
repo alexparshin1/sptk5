@@ -56,7 +56,7 @@ public:
             close();
         }
         catch (const Exception& e) {
-            CERR(e.what() << std::endl);
+            CERR(e.what() << std::endl)
         }
     }
 

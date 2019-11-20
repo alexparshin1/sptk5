@@ -367,7 +367,7 @@ void OracleConnection::queryOpen(Query* query)
                 if (columnType == Type::OCCI_SQLT_LNG && columnDataSize == 0)
                     resultSet->setMaxColumnSize(columnIndex + 1, 16384);
                 VariantType dataType = OracleTypeToVariantType(columnType, columnScale);
-                DatabaseField* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize,
+                auto* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize,
                                                          columnScale);
                 query->fields().push_back(field);
             }
@@ -597,7 +597,7 @@ void OracleConnection::_bulkInsert(const String& tableName, const Strings& colum
                                       data.size(),
                                       columnTypeSizeMap);
     for (auto& row: data) {
-        for (unsigned i = 0; i < columnNames.size(); i++) {
+        for (size_t i = 0; i < columnNames.size(); i++) {
             auto& value = row[i];
             if (columnTypeSizeVector[i].type == VAR_TEXT) {
                 insertQuery.param(i).setBuffer(value.getText(), value.dataSize(), VAR_TEXT);
@@ -696,7 +696,7 @@ void OracleConnection::executeMultipleStatements(const Strings& statements, Stri
 
 void* oracle_create_connection(const char* connectionString)
 {
-    OracleConnection* connection = new OracleConnection(connectionString);
+    auto* connection = new OracleConnection(connectionString);
     return connection;
 }
 

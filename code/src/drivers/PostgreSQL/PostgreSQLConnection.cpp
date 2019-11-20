@@ -97,12 +97,12 @@ namespace sptk {
             m_currentRow = -1;
         }
 
-        const PGresult* stmt() const
+        [[nodiscard]] const PGresult* stmt() const
         {
             return m_stmt;
         }
 
-        string name() const
+        [[nodiscard]] String name() const
         {
             return m_stmtName;
         }
@@ -117,12 +117,12 @@ namespace sptk {
             return m_currentRow >= m_rows;
         }
 
-        unsigned currentRow() const
+        [[nodiscard]] unsigned currentRow() const
         {
             return (unsigned) m_currentRow;
         }
 
-        unsigned colCount() const
+        [[nodiscard]] unsigned colCount() const
         {
             return (unsigned) m_cols;
         }
@@ -1058,9 +1058,9 @@ void PostgreSQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* er
 Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch) const
 {
     RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
-    RegularExpression matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
-    RegularExpression matchStatementEnd(";(\\s*|\\s*--.*)$");
-    RegularExpression matchCommentRow("^\\s*--");
+    RegularExpression matchFunctionBodyStart(R"(AS\s+(\S+)\s*$)", "i");
+    RegularExpression matchStatementEnd(R"(;(\s*|\s*--.*)$)");
+    RegularExpression matchCommentRow(R"(^\s*--)");
 
     Strings statements;
     Strings matches;

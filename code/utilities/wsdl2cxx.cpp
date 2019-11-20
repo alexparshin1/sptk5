@@ -36,14 +36,14 @@ using namespace sptk;
 
 void help()
 {
-    COUT("WSDL to C++ prototype parser. (C) 2012-2019 Alexey Parshin" << endl << endl);
-    COUT("Generates Web Service C++ class that is used as a base class for actual Web Service implementation." << endl);
-    COUT("Usage:" << endl << endl);
-    COUT("  wsdl2cxx <WSDL file> [output directory [header file]]" << endl << endl);
-    COUT("Parameters:" << endl);
-    COUT("WSDL file         WSDL file that defines Web Service" << endl);
-    COUT("output directory  Directory where generated files will be stored" << endl);
-    COUT("header file       File that contains text too be added at the start of gerated files" << endl);
+    COUT("WSDL to C++ prototype parser. (C) 2012-2019 Alexey Parshin" << endl << endl)
+    COUT("Generates Web Service C++ class that is used as a base class for actual Web Service implementation." << endl)
+    COUT("Usage:" << endl << endl)
+    COUT("  wsdl2cxx <WSDL file> [output directory [header file]]" << endl << endl)
+    COUT("Parameters:" << endl)
+    COUT("WSDL file         WSDL file that defines Web Service" << endl)
+    COUT("output directory  Directory where generated files will be stored" << endl)
+    COUT("header file       File that contains text too be added at the start of gerated files" << endl)
 }
 
 #ifdef _WIN32
@@ -72,7 +72,7 @@ int main(int argc, const char* argv[])
         if (access(outputDirectory.c_str(), 0) < 0) {
             int rc = system(("mkdir " + outputDirectory).c_str());
             if (rc != 0) {
-                CERR("Can't open or create output directory '" << outputDirectory << "'." << endl);
+                CERR("Can't open or create output directory '" << outputDirectory << "'." << endl)
                 return 1;
             }
         }
@@ -84,7 +84,7 @@ int main(int argc, const char* argv[])
         return 0;
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

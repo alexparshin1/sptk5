@@ -56,7 +56,7 @@ protected:
     /// @param db DatabaseConnection, the database to connect to, optional
     /// @param sql std::string, the SQL query text to use, optional
     /// @param recordCount size_t, number of records to insert
-    OracleBulkInsertQuery(PoolDatabaseConnection *db, const std::string& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes);
+    OracleBulkInsertQuery(PoolDatabaseConnection *db, String sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes);
 
     /// @brief Destructor
     ~OracleBulkInsertQuery() override = default;

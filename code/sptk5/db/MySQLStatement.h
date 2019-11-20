@@ -51,7 +51,7 @@ class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
     /**
      * Statement SQL
      */
-    std::string                     m_sql;
+    String                          m_sql;
 
     /**
      * Parameter binding buffers
@@ -150,7 +150,7 @@ public:
      * @param sql std::string, SQL statement
      * @param autoPrepare bool, If true then statement is executed as prepared.
      */
-    MySQLStatement(MySQLConnection* connection, const std::string& sql, bool autoPrepare);
+    MySQLStatement(MySQLConnection* connection, String sql, bool autoPrepare);
 
     /**
      * Destructor

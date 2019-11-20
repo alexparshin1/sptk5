@@ -60,4 +60,4 @@ namespace sptk {
         dst[0] = htonl(src[1]);
     }
 
-} // namespace sptk
+}
