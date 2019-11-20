@@ -169,7 +169,7 @@ void createTempTable(DatabaseConnection db, const String& tableName)
     }
 }
 
-void dropTempTable(const DatabaseConnection& db, const string& tableName)
+void dropTempTable(DatabaseConnection& db, const string& tableName)
 {
     Query dropTempTableQuery(db, "DROP TABLE " + tableName, false);
     try {

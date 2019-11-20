@@ -80,7 +80,7 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
     catch (const Exception& e) {
         RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
     }
 
     createTable.exec();
@@ -135,7 +135,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         dropTable.exec();
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 
     createTable.exec();
@@ -213,7 +213,7 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
         dropTable.exec();
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 
     createTable.exec();
@@ -255,7 +255,7 @@ void DatabaseTests::createTestTable(DatabaseConnection db)
     catch (const Exception& e) {
         RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 
     createTable.exec();
@@ -354,10 +354,10 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     DateTime ended2("now");
 
     auto durationMS1 = duration_cast<milliseconds>(ended1 - started1).count();
-    COUT("Bulk Insert:    " << setw(10) << durationMS1 << " ms, " << setprecision(1) << fixed << data.size() * 1000.0 / durationMS1 << " rec/sec" << endl);
+    COUT("Bulk Insert:    " << setw(10) << durationMS1 << " ms, " << setprecision(1) << fixed << data.size() * 1000.0 / durationMS1 << " rec/sec" << endl)
 
     auto durationMS2 = duration_cast<milliseconds>(ended2 - started2).count();
-    COUT("Regular Insert: " << setw(10) << durationMS2 << " ms, " << setprecision(1) << fixed << data.size() * 1000.0 / durationMS2 << " rec/sec" << endl);
+    COUT("Regular Insert: " << setw(10) << durationMS2 << " ms, " << setprecision(1) << fixed << data.size() * 1000.0 / durationMS2 << " rec/sec" << endl)
 }
 
 void DatabaseTests::testSelect(const DatabaseConnectionString& connectionString)

@@ -43,7 +43,7 @@ QueryParameterList::~QueryParameterList()
     try {
         clear();
     } catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 }
 
@@ -84,7 +84,7 @@ QueryParameter& QueryParameterList::operator[](const char* paramName) const
     auto itor = m_index.find(pname);
 
     if (itor == m_index.end())
-        throwException("Invalid parameter name: " << pname);
+        throwException("Invalid parameter name: " << pname)
 
     return *itor->second;
 }

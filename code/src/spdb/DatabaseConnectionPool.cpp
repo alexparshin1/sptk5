@@ -47,7 +47,7 @@ public:
     DriverLoaders() = default;
     ~DriverLoaders()
     {
-        for (auto itor: drivers)
+        for (auto& itor: drivers)
             delete itor.second;
     }
 
@@ -207,7 +207,7 @@ void DatabaseConnectionPool::destroyConnection(PoolDatabaseConnection* connectio
         connection->close();
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
     m_destroyConnection(connection);
 }

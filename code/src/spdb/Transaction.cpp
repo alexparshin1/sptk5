@@ -45,7 +45,7 @@ Transaction::~Transaction()
             m_db->rollbackTransaction();
     }
     catch (Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 }
 

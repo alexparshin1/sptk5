@@ -121,7 +121,7 @@ Query::Query() noexcept
 {
 }
 
-Query::Query(DatabaseConnection db, const String& sql, bool autoPrepare)
+Query::Query(DatabaseConnection& db, const String& sql, bool autoPrepare)
 : Query_StatementManagement(autoPrepare), m_fields(true)
 {
     if (db) {
@@ -131,7 +131,7 @@ Query::Query(DatabaseConnection db, const String& sql, bool autoPrepare)
     Query::sql(sql);
 }
 
-Query::Query(PoolDatabaseConnection* db, String sql, bool autoPrepare)
+Query::Query(PoolDatabaseConnection* db, const String& sql, bool autoPrepare)
 : Query_StatementManagement(autoPrepare), m_fields(true)
 {
     if (db != nullptr) {
@@ -147,7 +147,7 @@ Query::~Query()
         closeQuery(true);
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
     if (database() != nullptr)
         database()->unlinkQuery(this);
