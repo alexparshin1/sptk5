@@ -29,29 +29,37 @@
 #ifndef __WS_CONNECTION_H__
 #define __WS_CONNECTION_H__
 
-#include "protocol/WSStaticHttpProtocol.h"
-#include "protocol/WSWebServiceProtocol.h"
-#include "protocol/WSWebSocketsProtocol.h"
+#include "src/wsdl/protocol/WSStaticHttpProtocol.h"
+#include "src/wsdl/protocol/WSWebServiceProtocol.h"
+#include "src/wsdl/protocol/WSWebSocketsProtocol.h"
 #include <sptk5/wsdl/WSRequest.h>
 
 namespace sptk {
 
 class WSConnection : public ServerConnection
 {
-    WSRequest&  m_service;
-    Logger&     m_logger;
-    String      m_staticFilesDirectory;
-    String      m_htmlIndexPage;
-    String      m_wsRequestPage;
+public:
+
+    class Paths
+    {
+    public:
+        String  htmlIndexPage;
+        String  wsRequestPage;
+        String  staticFilesDirectory;
+        Paths(String htmlIndexPage, String wsRequestPage, String staticFilesDirectory)
+        : htmlIndexPage(std::move(htmlIndexPage)),
+          wsRequestPage(std::move(wsRequestPage)),
+          staticFilesDirectory(std::move(staticFilesDirectory))
+        {
+        }
+        Paths(const Paths& other) = default;
+    };
 
     bool readHttpHeaders(String& protocolName, String& request, String& requestType, String& url,
                          HttpHeaders& headers);
 
-public:
-
     WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service,
-                     Logger& logger, const String& staticFilesDirectory, const String& htmlIndexPage,
-                     const String& wsRequestPage);
+                 Logger& logger, const Paths& paths);
 
     /**
      * Destructor
@@ -62,6 +70,12 @@ public:
      * Thread function
      */
     void run() override;
+
+private:
+
+    WSRequest&  m_service;
+    Logger&     m_logger;
+    Paths       m_paths;
 };
 
 /**
@@ -75,8 +89,7 @@ public:
      * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
      */
     WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
-                    Logger& logger, const String& staticFilesDirectory, const String& htmlIndexPage,
-                    const String& wsRequestPage, bool encrypted);
+                    Logger& logger, const Paths& paths, bool encrypted);
 
     /**
      * Destructor

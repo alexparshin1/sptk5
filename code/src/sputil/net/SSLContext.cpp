@@ -32,7 +32,6 @@
 
 // This include must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
-#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;

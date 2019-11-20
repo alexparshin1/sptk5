@@ -123,7 +123,7 @@ void xml::DocType::decodeEntities(const char* str, uint32_t sz, Buffer& ret)
                     auto len = uint32_t(ent_start - start);
                     if (len != 0)
                         ret.append(start, len);
-                    ptr = ent_end + 1;
+                    ptr = ent_end + size_t(1);
                     start = ptr;
                     ret.append(rep, replacementLength);
                 } else

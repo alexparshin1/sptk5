@@ -26,21 +26,20 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "WSConnection.h"
+#include "sptk5/wsdl/WSConnection.h"
 
 using namespace std;
 using namespace sptk;
 
 WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service,
-                           Logger& logger, const String& staticFilesDirectory, const String& htmlIndexPage,
-                           const String& wsRequestPage)
+                           Logger& logger, const Paths& paths)
 : ServerConnection(server, connectionSocket, "WSConnection"), m_service(service), m_logger(logger),
-  m_staticFilesDirectory(staticFilesDirectory), m_htmlIndexPage(htmlIndexPage), m_wsRequestPage(wsRequestPage)
+  m_paths(paths)
 {
-    if (!m_staticFilesDirectory.endsWith("/"))
-        m_staticFilesDirectory += "/";
-    if (!m_wsRequestPage.startsWith("/"))
-        m_wsRequestPage = "/" + m_wsRequestPage;
+    if (!m_paths.staticFilesDirectory.endsWith("/"))
+        m_paths.staticFilesDirectory += "/";
+    if (!m_paths.wsRequestPage.startsWith("/"))
+        m_paths.wsRequestPage = "/" + m_paths.wsRequestPage;
 }
 
 bool WSConnection::readHttpHeaders(String& protocolName, String& request, String& requestType, String& url,
@@ -114,7 +113,7 @@ void WSConnection::run()
         if (!readHttpHeaders(protocolName, request, requestType, url, headers))
             return;
 
-        if (url == m_wsRequestPage + "?wsdl")
+        if (url == m_paths.wsRequestPage + "?wsdl")
             protocolName = "wsdl";
 
         if (protocolName == "http") {
@@ -130,11 +129,11 @@ void WSConnection::run()
                     return;
                 }
 
-                if (url != m_wsRequestPage) {
+                if (url != m_paths.wsRequestPage) {
                     if (url == "/")
-                        url = m_htmlIndexPage;
+                        url = m_paths.htmlIndexPage;
 
-                    WSStaticHttpProtocol protocol(&socket(), url, headers, m_staticFilesDirectory);
+                    WSStaticHttpProtocol protocol(&socket(), url, headers, m_paths.staticFilesDirectory);
                     protocol.process();
                     return;
                 }
@@ -160,9 +159,8 @@ void WSConnection::run()
 }
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
-                                 Logger& logger, const String& staticFilesDirectory, const String& htmlIndexPage,
-                                 const String& wsRequestPage, bool encrypted)
-: WSConnection(server, connectionSocket, addr, service, logger, staticFilesDirectory, htmlIndexPage, wsRequestPage)
+                                 Logger& logger, const Paths& paths, bool encrypted)
+: WSConnection(server, connectionSocket, addr, service, logger, paths)
 {
     if (encrypted) {
         auto& sslKeys = server.getSSLKeys();

@@ -503,6 +503,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     // Find out space needed for command and option names
     size_t nameColumns = 10;
     Strings sortedCommands;
+
     for (auto& itor : m_argumentTemplates)
         sortedCommands.push_back(itor.first);
 

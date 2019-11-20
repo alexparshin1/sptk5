@@ -36,7 +36,6 @@
 #else
 #include <sys/epoll.h>
 #endif
-#include <sptk5/net/SocketPool.h>
 
 
 using namespace std;

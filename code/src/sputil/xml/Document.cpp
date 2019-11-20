@@ -101,7 +101,7 @@ void Document::processAttributes(Node* node, char* ptr)
         *tokenEnd = 0;
 
         const char* attributeName = tokenStart;
-        char* attributeValue = tokenEnd + 1;
+        char* attributeValue = tokenEnd + size_t(1);
         while (*attributeValue == ' ' || *attributeValue == '=')
             attributeValue++;
         char delimiter = *attributeValue;
@@ -128,7 +128,7 @@ void Document::processAttributes(Node* node, char* ptr)
         attr.setAttribute(attributeName, m_encodeBuffer.c_str());
 
         if (tokenEnd != nullptr)
-            tokenStart = tokenEnd + 1;
+            tokenStart = tokenEnd + size_t(1);
         else
             tokenStart = emptyString;
 
