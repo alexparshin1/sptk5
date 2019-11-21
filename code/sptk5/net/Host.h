@@ -162,8 +162,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~Host()
-    {}
+    virtual ~Host() = default;
 
     /**
      * Assign from another host

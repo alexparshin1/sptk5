@@ -138,7 +138,7 @@ public:
     /**
      * @brief Returns number of items in the list
      */
-    uint32_t size() const
+    size_t size() const
     {
         std::lock_guard<std::mutex> lock(m_sync);
         return m_map.size();

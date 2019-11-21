@@ -34,8 +34,9 @@
 #include <sptk5/Exception.h>
 #include <sptk5/json/JsonObjectData.h>
 #include <set>
+#include <utility>
 
-namespace sptk { namespace json {
+namespace sptk::json {
 
 /// @addtogroup JSON
 /// @{
@@ -112,7 +113,7 @@ protected:
          * @param name          Path element name
          * @param index         Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
          */
-        XPathElement(const String& name, int index) : name(name), index(index) {}
+        XPathElement(String  name, int index) : name(std::move(name)), index(index) {}
 
         /**
          * Copy constructor
@@ -234,7 +235,7 @@ private:
      * Throws an exception if child is not found.
      * @param name              Name of the element in the object element
      */
-    const Element& getChild(const String& name) const;
+    [[nodiscard]] const Element& getChild(const String& name) const;
 
 public:
 
@@ -534,7 +535,7 @@ public:
      * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
-    const Element* find(const String& name) const;
+    [[nodiscard]] const Element* find(const String& name) const;
 
     /**
      * Find JSON element in JSON object element
@@ -611,25 +612,25 @@ public:
      * Get JSON element type
      * @returns JSON element type
      */
-    Type type() const;
+    [[nodiscard]] Type type() const;
 
     /**
      * Get value of JSON element
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    double getNumber(const String& name="") const;
+    [[nodiscard]] double getNumber(const String& name="") const;
 
     /**
      * Get value of JSON element
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    String getString(const String& name="") const;
+    [[nodiscard]] String getString(const String& name="") const;
 
     /**
      * Get value of JSON element
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    bool getBoolean(const String& name="") const;
+    [[nodiscard]] bool getBoolean(const String& name="") const;
 
     /**
      * Get value of JSON element.
@@ -647,7 +648,7 @@ public:
      * Alternatively, create a new ArrayData object and replace existing one.
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    const ArrayData& getArray(const String& name="") const;
+    [[nodiscard]] const ArrayData& getArray(const String& name="") const;
 
     /**
      * Get value of JSON element
@@ -665,7 +666,7 @@ public:
      * Alternatively, create a new ObjectData object and replace existing one.
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    const ObjectData& getObject(const String& name="") const;
+    [[nodiscard]] const ObjectData& getObject(const String& name="") const;
 
     /**
      * Export JSON element (and all children) to stream
@@ -712,13 +713,13 @@ public:
      * Element type check
      * @return true if element is a number
      */
-    bool is(Type type) const { return m_type == type; }
+    [[nodiscard]] bool is(Type type) const { return m_type == type; }
 
     /**
      * Get number of elements in array or object.
      * Returns 0 for not { JDT_ARRAY, JDT_OBJECT }
      */
-    size_t size() const;
+    [[nodiscard]] size_t size() const;
 
     /**
      * Optimize arrays
@@ -732,7 +733,7 @@ public:
      * Get document this JSON element belongs to.
      * @return pointer to the owner document
      */
-    Document* getDocument() const;
+    [[nodiscard]] Document* getDocument() const;
 };
 
 /**
@@ -749,6 +750,6 @@ std::string escape(const std::string& text);
  */
 std::string decode(const std::string& text);
 
-}}
+}
 
 #endif

@@ -72,7 +72,7 @@ protected:
     /**
      * Create default headers for HTTP request
      */
-    sptk::Strings makeHeaders(const sptk::String& httpCommand, const sptk::String& pageName,
+    Strings makeHeaders(const String& httpCommand, const String& pageName,
                               const HttpParams& requestParameters);
 
     /**
@@ -81,7 +81,7 @@ protected:
      * CRLF characters are automatically appended to the command.
      * @param cmd               HTTP command
      */
-    void sendCommand(const sptk::String& cmd);
+    void sendCommand(const String& cmd);
 
     /**
      * @brief Sends a single command to HTTP server
@@ -130,7 +130,7 @@ public:
      * getResponse() method internally).
      * @returns internal http headers reference
      */
-    const HttpHeaders& responseHeaders() const
+    [[nodiscard]] const HttpHeaders& responseHeaders() const
     {
         return m_reader->getResponseHeaders();
     }
@@ -160,7 +160,7 @@ public:
      * @param timeout           Response timeout
      * @return HTTP result code
      */
-    int cmd_post(const sptk::String& pageName, const HttpParams& parameters, const Buffer& content, bool gzipContent,
+    int cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& content, bool gzipContent,
                  Buffer& output, std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**
@@ -174,7 +174,7 @@ public:
      * @param timeout           Response timeout
      * @return HTTP result code
      */
-    int cmd_put(const sptk::String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
+    int cmd_put(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
                 std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
    /**
@@ -187,7 +187,7 @@ public:
      * @param timeout           Request timeout
      * @return HTTP result code
      */
-   int cmd_delete(const sptk::String& pageName, const HttpParams& parameters, Buffer& output,
+   int cmd_delete(const String& pageName, const HttpParams& parameters, Buffer& output,
                  std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**
@@ -195,19 +195,19 @@ public:
      * @param headerName        Response header name
      * @return header value, or empty string if header is not a part of the response
      */
-    String responseHeader(const sptk::String& headerName) const;
+    [[nodiscard]] String responseHeader(const String& headerName) const;
 
     /**
      * @brief Get the request execution status code
      * @return request execution status code
      */
-    int statusCode() const;
+    [[nodiscard]] int statusCode() const;
 
     /**
      * @brief Get the request execution status text
      * @return request execution status text
      */
-    sptk::String statusText() const;
+    [[nodiscard]] String statusText() const;
 };
 
 /**

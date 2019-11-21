@@ -124,7 +124,7 @@ public:
      */
     bool active() const
     {
-        return m_listenerThread != NULL;
+        return m_listenerThread != nullptr;
     }
 
     /**
@@ -132,7 +132,7 @@ public:
      * @param priority          Log message priority
      * @param message           Log message
      */
-    void log(LogPriority priority, String message)
+    void log(LogPriority priority, const String& message)
     {
         if (m_logger)
             m_logger->log(priority, message);

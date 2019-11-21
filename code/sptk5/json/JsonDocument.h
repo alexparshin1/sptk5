@@ -34,8 +34,7 @@
 #include <istream>
 #include <sptk5/Buffer.h>
 
-namespace sptk { 
-namespace json {
+namespace sptk::json {
 
 /// @addtogroup JSON
 /// @{
@@ -139,7 +138,7 @@ public:
     /**
      * Get document root element
      */
-    const Element& root() const;
+    [[nodiscard]] const Element& root() const;
 
     /**
      * Clear document content
@@ -152,7 +151,7 @@ protected:
      * Return empty const JSON element
      * @return                  Empty const JSON element reference
      */
-    const Element& getEmptyElement() const
+    [[nodiscard]] const Element& getEmptyElement() const
     {
         return m_emptyElement;
     }
@@ -178,6 +177,6 @@ protected:
     }
 };
 
-}}
+}
 
 #endif

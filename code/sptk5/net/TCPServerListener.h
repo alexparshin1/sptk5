@@ -78,12 +78,12 @@ public:
     /**
      * @brief Thread function
      */
-    virtual void threadFunction();
+    void threadFunction() override;
 
     /**
      * @brief Custom thread terminate method
      */
-    virtual void terminate();
+    void terminate() override;
 
     /**
      * @brief Start socket listening

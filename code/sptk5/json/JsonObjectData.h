@@ -34,7 +34,7 @@
 #include <set>
 #include <unordered_map>
 
-namespace sptk { namespace json {
+namespace sptk::json {
 
 /// @addtogroup JSON
 /// @{
@@ -143,7 +143,7 @@ public:
      * @param name              Child element name
      * @returns Child element const pointer, or NULL if not found
      */
-    const Element* find(const std::string& name) const;
+    [[nodiscard]] const Element* find(const std::string& name) const;
 
     /**
      * Remove child element by name (and release its memory)
@@ -174,23 +174,23 @@ public:
      * Get const begin iterator of child elements
      * @return const begin iterator of child elements
      */
-    const_iterator begin() const { return m_items.begin(); }
+    [[nodiscard]] const_iterator begin() const { return m_items.begin(); }
 
     /**
      * Get const end iterator of child elements
      * @return const end iterator of child elements
      */
-    const_iterator end() const { return m_items.end(); }
+    [[nodiscard]] const_iterator end() const { return m_items.end(); }
 
     /**
      * Get number of child elements
      * @return number of child elements
      */
-    size_t size() const { return m_items.size(); }
+    [[nodiscard]] size_t size() const { return m_items.size(); }
 };
 
 /// @}
 
-}}
+}
 
 #endif

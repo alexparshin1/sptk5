@@ -38,7 +38,7 @@ namespace sptk {
 class SP_EXPORT HttpProxy : public Proxy
 {
 public:
-    HttpProxy(const Host& host, const String& username="", const String& password="")
+    explicit HttpProxy(const Host& host, const String& username="", const String& password="")
     : Proxy(host, username, password)
     {}
 

@@ -43,7 +43,7 @@ protected:
     const String                m_username;
     const String                m_password;
 public:
-    Proxy(const Host& host, const String& username="", const String& password="");
+    explicit Proxy(const Host& host, const String& username="", const String& password="");
     virtual ~Proxy() = default;
     virtual SOCKET connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) = 0;
 

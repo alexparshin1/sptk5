@@ -192,7 +192,7 @@ public:
     {
         UniqueLock(m_mutex);
 
-        std::queue<T> newQueue = new std::queue<T>;
+        std::queue<T>* newQueue = new std::queue<T>;
 
         // Iterating through queue until callback returns false
         bool rc = true;

@@ -148,22 +148,22 @@ public:
     /**
      * Get array const begin iterator
      */
-    const_iterator begin() const { return m_items.begin(); }
+    [[nodiscard]] const_iterator begin() const { return m_items.begin(); }
 
     /**
      * Get array const end iterator
      */
-    const_iterator end() const { return m_items.end(); }
+    [[nodiscard]] const_iterator end() const { return m_items.end(); }
 
     /**
      * Get array size
      */
-    size_t size() const { return m_items.size(); }
+    [[nodiscard]] size_t size() const { return m_items.size(); }
 
     /**
      * Is array empty?
      */
-    bool empty() const { return m_items.empty(); }
+    [[nodiscard]] bool empty() const { return m_items.empty(); }
 };
 
 }}

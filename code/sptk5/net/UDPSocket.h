@@ -66,7 +66,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    size_t read(char *buffer,size_t size,sockaddr_in* from=NULL) override;
+    size_t read(char *buffer,size_t size,sockaddr_in* from=nullptr) override;
 };
 
 /**

@@ -56,15 +56,6 @@ class SP_EXPORT SmtpConnect: public BaseMailConnect, public TCPSocket
     Logger*    m_log;
     Strings    m_response;
 
-    /**
-     * @brief Processes tag for strippedHtml.
-     *
-     * Extracts the text information for the tag
-     * @param tag               The tag name
-     * @param params            The tag parameters
-     * @returns the extracted text like URL
-     */
-    static std::string processTag(std::string tag, std::string params);
 protected:
 
     /**
@@ -163,13 +154,6 @@ public:
      * CBaseMailConnect, and retrieves the server output.
      */
     void sendMessage() override;
-
-    /**
-     * @brief Strips HTML tags off the message, prepare the alternative text for an HTML message
-     * @param html              The HTML text
-     * @returns plain text with stripped HTML messages
-     */
-    static std::string stripHtml(const std::string& html);
 };
 /**
  * @}

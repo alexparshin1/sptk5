@@ -98,12 +98,12 @@ class SP_EXPORT Query_StatementManagement: public DataSource
 protected:
 
     /**
-     * @brief Set database (internal)
+     * Set database (internal)
      */
     void setDatabase(PoolDatabaseConnection* db);
 
     /**
-     * @brief Returns query statement handle
+     * Returns query statement handle
      */
     void setStatement(void *statement)
     {
@@ -138,7 +138,7 @@ protected:
     void closeStmt(bool freeStatement=false);
 
     /**
-     * @brief Closes query by closing the statement.
+     * Closes query by closing the statement.
      *
      * If the statement isn't released it may be re-used later.
      * @param releaseStatement  True if we need to release the query's ODBC statement
@@ -146,12 +146,12 @@ protected:
     void closeQuery(bool releaseStatement = false);
 
     /**
-     * @brief Prepares query for the fast execution
+     * Prepares query for the fast execution
      */
     virtual void prepare();
 
     /**
-     * @brief Unprepares query releasing previously prepared statement
+     * Unprepares query releasing previously prepared statement
      */
     virtual void unprepare();
 
@@ -185,6 +185,10 @@ protected:
 
 public:
 
+    /**
+     * Constructor
+     * @param autoPrepare       If true the auto-prepare statement
+     */
     explicit Query_StatementManagement(bool autoPrepare)
     : m_autoPrepare(autoPrepare)
     {}
@@ -194,7 +198,7 @@ public:
     {}
 
     /**
-     * @brief Returns query statement handle
+     * Returns query statement handle
      */
     void *statement() const
     {
@@ -202,7 +206,7 @@ public:
     }
 
     /**
-     * @brief Returns the value for auto-prepare flag.
+     * Returns the value for auto-prepare flag.
      *
      * If the flag is set the query would automatically call prepare() when needed.
      */
@@ -212,7 +216,7 @@ public:
     }
 
     /**
-     * @brief Reports if the query is opened
+     * Reports if the query is opened
      */
     bool active() const
     {
@@ -220,7 +224,7 @@ public:
     }
 
     /**
-     * @brief True if the statement is prepared
+     * True if the statement is prepared
      */
     bool prepared() const
     {
@@ -228,7 +232,7 @@ public:
     }
 
     /**
-     * @brief Returns true if there is no more rows in the recordset
+     * Returns true if there is no more rows in the recordset
      */
     bool eof() const override
     {
@@ -242,7 +246,7 @@ public:
     bool bulkMode() const;
 
     /**
-     * @brief Connects a query to a database
+     * Connects a query to a database
      *
      * If the query was connected
      * to another database, releases all the allocated resources in it.
@@ -250,12 +254,12 @@ public:
     void connect(PoolDatabaseConnection *db);
 
     /**
-     * @brief Disconnects query from the database and releases all the allocated resourses.
+     * Disconnects query from the database and releases all the allocated resourses.
      */
     void disconnect();
 
     /**
-     * @brief Returns the database the query is connected to
+     * Returns the database the query is connected to
      */
     PoolDatabaseConnection *database() const
     {
@@ -263,7 +267,7 @@ public:
     }
 
     /**
-     * @brief Connects the query to the database different database.
+     * Connects the query to the database different database.
      */
     void database(PoolDatabaseConnection *db)
     {
@@ -273,7 +277,7 @@ public:
 };
 
 /**
- * @brief Database query
+ * Database query
  *
  * A CDataset connected to the database to
  * execute a database queries. The type of the database
@@ -311,7 +315,7 @@ protected:
     void execute();
 
     /**
-     * @brief In CDataset it should load data into the dataset.
+     * In CDataset it should load data into the dataset.
      *
      * Since the query loads all the data by open() or fetch(),
      * in Query this method does exactly nothing
@@ -322,7 +326,7 @@ protected:
     }
 
     /**
-     * @brief In CDataset it should save data into the dataset.
+     * In CDataset it should save data into the dataset.
      *
      * Since the query saves all the data by execute,
      * in Query this method does exactly nothing
@@ -334,12 +338,12 @@ protected:
 public:
 
     /**
-     * @brief Default constructor
+     * Default constructor
      */
     Query() noexcept;
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * You can optionally provide the name of the file and line number where
      * this query is created. This is used to collect statistical information
@@ -349,10 +353,10 @@ public:
      * @param sql               The SQL query text to use, optional
      * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
      */
-    explicit Query(DatabaseConnection& db, const String& sql = "", bool autoPrepare = true);
+    explicit Query(DatabaseConnection db, const String& sql = "", bool autoPrepare = true);
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * You can optionally provide the name of the file and line number where
      * this query is created. This is used to collect statistical information
@@ -365,17 +369,17 @@ public:
     explicit Query(PoolDatabaseConnection *db, const String& sql = "", bool autoPrepare = true);
 
     /**
-     * @brief Deleted copy constructor
+     * Deleted copy constructor
      */
     Query(const Query&) = delete;
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     ~Query() override;
 
     /**
-     * @brief Field access by number, const version
+     * Field access by number, const version
      *
      * Field index should be inside 0..fieldCount()-1
      * @param fieldIndex int, field index
@@ -386,7 +390,7 @@ public:
     }
 
     /**
-     * @brief Field access by number, const version
+     * Field access by number, const version
      *
      * Field index should be inside 0..fieldCount()-1
      * @param fieldIndex int, field index
@@ -397,7 +401,7 @@ public:
     }
 
     /**
-     * @brief Field access by field name, const version
+     * Field access by field name, const version
      */
     const Field& operator [](const String& fieldName) const override
     {
@@ -405,7 +409,7 @@ public:
     }
 
     /**
-     * @brief Field access by field name.
+     * Field access by field name.
      */
     Field& operator [](const String& fieldName) override
     {
@@ -422,7 +426,7 @@ public:
     }
 
     /**
-     * @brief Reports the record count for the recordset, returned by the open() method.
+     * Reports the record count for the recordset, returned by the open() method.
      *
      * Currently is NOT implemented.
      */
@@ -433,7 +437,7 @@ public:
     }
 
     /**
-     * @brief Returns the text of current SQL query as String
+     * Returns the text of current SQL query as String
      */
     String& sql()
     {
@@ -441,7 +445,7 @@ public:
     }
 
     /**
-     * @brief Returns the query fields list
+     * Returns the query fields list
      */
     FieldList& fields()
     {
@@ -449,7 +453,7 @@ public:
     }
 
     /**
-     * @brief Returns the query parameters list
+     * Returns the query parameters list
      */
     QueryParameterList& params()
     {
@@ -457,17 +461,17 @@ public:
     }
 
     /**
-     * @brief Field read access by the field name, for the universal data connection
+     * Field read access by the field name, for the universal data connection
      */
     bool readField(const char *fname, Variant& value) override;
 
     /**
-     * @brief Field write access by the field name, for the universal data connection
+     * Field write access by the field name, for the universal data connection
      */
     bool writeField(const char *fname, const Variant& fvalue) override;
 
     /**
-     * @brief Opens the query and fetches the first row.
+     * Opens the query and fetches the first row.
      *
      * It is necessary for the select queries and some stored procedures
      * that may return the dataset. First-time call for open() also prepares the query.
@@ -475,7 +479,7 @@ public:
     bool open() override;
 
     /**
-     * @brief Closes the query
+     * Closes the query
      *
      * Doesn't release the db statement, so the query may be called again, and faster than for the first time.
      */
@@ -486,7 +490,7 @@ public:
     }
 
     /**
-     * @brief Fetches the next row from the recordset, same as fetch()
+     * Fetches the next row from the recordset, same as fetch()
      */
     bool next() override
     {
@@ -495,7 +499,7 @@ public:
     }
 
     /**
-     * @brief Executes the query and closes the statement.
+     * Executes the query and closes the statement.
      */
     virtual void exec()
     {
@@ -503,7 +507,7 @@ public:
     }
 
     /**
-     * @brief Executes the query and closes the statement.
+     * Executes the query and closes the statement.
      *
      * Query SQL would be set to the new SQL statement
      * @param newSQL            SQL statement to execute
@@ -515,12 +519,12 @@ public:
     }
 
     /**
-     * @brief Fetches the next row from the recordset, same as next()
+     * Fetches the next row from the recordset, same as next()
      */
     void fetch();
 
     /**
-     * @brief Reports the number of unique parameters in the query.
+     * Reports the number of unique parameters in the query.
      *
      * Makes sense after the SQL query text is set.
      */
@@ -530,7 +534,7 @@ public:
     }
 
     /**
-     * @brief Returns the parameter by the name.
+     * Returns the parameter by the name.
      *
      * If the parameter name isn't found, throws an exception
      * @param paramName const char *, parameter name
@@ -543,7 +547,7 @@ public:
     }
 
     /**
-     * @brief Returns the parameter by the name.
+     * Returns the parameter by the name.
      *
      * If the parameter name isn't found, throws an exception
      * @param paramName         Parameter name
@@ -556,7 +560,7 @@ public:
     }
 
     /**
-     * @brief Returns the parameter by the index.
+     * Returns the parameter by the index.
      * @returns parameter
      * @see CParamList
      */
@@ -566,14 +570,14 @@ public:
     }
 
     /**
-     * @brief Sets SQL Query text.
+     * Sets SQL Query text.
      * If the Query text is not the same and the db statement was prepared earlier
      * then the db statement is released and new one is created.
      */
     virtual void sql(const String& _sql);
 
     /**
-     * @brief Throws an exception
+     * Throws an exception
      *
      * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
      * @param method            Method name where error has occured

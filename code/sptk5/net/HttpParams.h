@@ -93,7 +93,7 @@ public:
      * @param paramName         Parameter name
      * @return parameter value
      */
-    String get(const String& paramName) const;
+    [[nodiscard]] String get(const String& paramName) const;
 };
 /**
  * @}

@@ -99,7 +99,7 @@ class SP_EXPORT TCPSocketReader: public Buffer
      * @param from              An optional structure for source address
      * @returns number of bytes read
      */
-    int32_t bufferedRead(char *destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = NULL);
+    int32_t bufferedRead(char *destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = nullptr);
 
 public:
 
@@ -108,7 +108,7 @@ public:
      * @param socket            Socket to work with
      * @param bufferSize        The desirable size of the internal buffer
      */
-    TCPSocketReader(BaseSocket& socket, size_t bufferSize = 16384);
+    explicit TCPSocketReader(BaseSocket& socket, size_t bufferSize = 16384);
 
     /**
      * @brief Connects the reader to the socket handle
@@ -129,7 +129,7 @@ public:
      * @param from              An optional structure for source address
      * @returns bytes read from the internal buffer
      */
-    size_t read(char* destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = NULL);
+    size_t read(char* destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = nullptr);
 
     /**
      * @brief Performs the buffered read of LF-terminated string
@@ -142,7 +142,7 @@ public:
     /**
      * Returns number of bytes available to read
      */
-    size_t availableBytes() const;
+    [[nodiscard]] size_t availableBytes() const;
 
     /**
      * Read more (as much as we can) from socket into buffer
@@ -205,12 +205,12 @@ public:
     * @param type              Socket type
     * @param protocol          Protocol type
     */
-    TCPSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
+    explicit TCPSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
     /**
     * @brief Destructor
     */
-    virtual ~TCPSocket();
+    ~TCPSocket() override;
 
     /**
      * Set proxy

@@ -121,7 +121,7 @@ Query::Query() noexcept
 {
 }
 
-Query::Query(DatabaseConnection& db, const String& sql, bool autoPrepare)
+Query::Query(DatabaseConnection db, const String& sql, bool autoPrepare)
 : Query_StatementManagement(autoPrepare), m_fields(true)
 {
     if (db) {

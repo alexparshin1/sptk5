@@ -58,7 +58,7 @@ public:
      * Actually run tests
      * @return 0 if tests were successful
      */
-    int runAllTests();
+    [[nodiscard]] int runAllTests();
 };
 
 } // namespace sptk

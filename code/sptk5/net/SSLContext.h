@@ -76,7 +76,7 @@ public:
      * Constructor
 	 * @param cipherList		Cipher list. Use "ALL" if not known.
      */
-    SSLContext(const String& cipherList);
+    explicit SSLContext(const String& cipherList);
 
     /**
      * Destructor

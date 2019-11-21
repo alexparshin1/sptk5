@@ -139,7 +139,7 @@ public:
     /**
      * @return true if socket pool is active
      */
-    bool active() const;
+    [[nodiscard]] bool active() const;
 };
 
 }

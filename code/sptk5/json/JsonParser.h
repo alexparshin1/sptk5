@@ -32,7 +32,7 @@
 #include <sptk5/json/JsonElement.h>
 #include <sptk5/json/JsonArrayData.h>
 
-namespace sptk { namespace json {
+namespace sptk::json {
 
 /// @addtogroup JSON
 /// @{
@@ -61,6 +61,6 @@ public:
     static void parse(Element& jsonElement, const std::string& json);
 };
 
-}}
+}
 
 #endif

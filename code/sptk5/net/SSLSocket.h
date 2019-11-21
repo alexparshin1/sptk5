@@ -100,7 +100,7 @@ public:
      * Constructor
 	 * @param cipherList		Optional cipher list
      */
-    SSLSocket(const String& cipherList="ALL");
+    explicit SSLSocket(const String& cipherList="ALL");
 
     /**
      * Destructor
