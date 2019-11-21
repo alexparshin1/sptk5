@@ -59,7 +59,7 @@ class SP_EXPORT Host
     mutable SharedMutex m_mutex;                            ///< Mutex to protect internal class data
     String              m_hostname;                         ///< Host name or IP address
     uint16_t            m_port {0};                         ///< Port number
-    uint8_t             m_address[sizeof(sockaddr_in6)];    ///< Storage for IPv4 and IPv6 addresses
+    uint8_t             m_address[sizeof(sockaddr_in6)] {}; ///< Storage for IPv4 and IPv6 addresses
 
     /**
      * Get address presentation as generic IP address
@@ -138,7 +138,7 @@ public:
      * @param hostname          Host name or IP address
      * @param port              Port number
      */
-    Host(const String& hostname, uint16_t port);
+    Host(String  hostname, uint16_t port);
 
     /**
      * Constructor

@@ -133,7 +133,7 @@ static size_t readChunk(TCPSocket& socket, Buffer& m_output)
     }
 
     errno = 0;
-    size_t chunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
+    auto chunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
     if (errno != 0)
         throw Exception("Strange chunk size: '" + chunkSizeStr + "'");
 

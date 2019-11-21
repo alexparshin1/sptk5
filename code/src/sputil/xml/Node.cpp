@@ -265,7 +265,7 @@ void Node::select(NodeVector& nodes, String xpath)
 
     Strings pathElementStrs(ptr, "/");
     vector<XPathElement> pathElements(pathElementStrs.size());
-    for (unsigned i = 0; i < pathElements.size(); i++)
+    for (size_t i = 0; i < pathElements.size(); i++)
         parsePathElement(document(), pathElementStrs[i], pathElements[i]);
 
     const string* starPointer = &document()->shareString("*");

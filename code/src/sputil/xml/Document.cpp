@@ -36,10 +36,9 @@
 using namespace std;
 using namespace sptk;
 
-namespace sptk {
-namespace xml {
+namespace sptk::xml {
 
-static const char* MATCH_NUMBER = "^[+\\-]?(\\d|[1-9]\\d*)(\\.\\d+)?(e-?\\d+)?$";
+static const char* MATCH_NUMBER = R"(^[+\-]?(\d|[1-9]\d*)(\.\d+)?(e-?\d+)?$)";
 
 Document::Document()
 : Element(*this),
@@ -488,7 +487,6 @@ bool Document::isNumber(const String& str)
     return m_matchNumber.matches(str);
 }
 
-} // namespace xml
 } // namespace sptk
 
 #if USE_GTEST

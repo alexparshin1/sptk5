@@ -843,7 +843,7 @@ String Variant_Adaptors::asString() const
 
         case VAR_IMAGE_PTR:
             len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.getImagePtr());
-            return String(print_buffer, len);
+            return String(print_buffer, (size_t) len);
 
         case VAR_IMAGE_NDX:
             return int2string(m_data.getInteger());
@@ -870,7 +870,7 @@ String BaseVariant::getMoneyString(char* printBuffer, size_t printBufferSize) co
     int64_t intValue = absValue / MoneyData::dividers[m_data.getMoneyData().scale];
     int64_t fraction = absValue % MoneyData::dividers[m_data.getMoneyData().scale];
     int len = snprintf(printBuffer, printBufferSize, format, intValue, fraction);
-    return String(printBuffer, len);
+    return String(printBuffer, (size_t) len);
 }
 
 DateTime Variant_Adaptors::asDate() const

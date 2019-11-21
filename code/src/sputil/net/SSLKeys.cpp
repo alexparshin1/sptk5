@@ -27,16 +27,18 @@
 */
 
 #include <sptk5/Buffer.h>
+
+#include <utility>
 #include "sptk5/net/SSLKeys.h"
 
 using namespace std;
 using namespace sptk;
 
-SSLKeys::SSLKeys(const String& privateKeyFileName, const String& certificateFileName,
-                 const String& password, const String& caFileName, int verifyMode,
+SSLKeys::SSLKeys(String privateKeyFileName, String certificateFileName,
+                 String password, String caFileName, int verifyMode,
                  int verifyDepth)
-: m_privateKeyFileName(privateKeyFileName), m_certificateFileName(certificateFileName),
-  m_password(password), m_caFileName(caFileName), m_verifyMode(verifyMode), m_verifyDepth(verifyDepth)
+: m_privateKeyFileName(std::move(privateKeyFileName)), m_certificateFileName(std::move(certificateFileName)),
+  m_password(std::move(password)), m_caFileName(std::move(caFileName)), m_verifyMode(verifyMode), m_verifyDepth(verifyDepth)
 {
 }
 

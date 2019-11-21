@@ -276,10 +276,10 @@ static DateTime decodeDate(const String& dt)
 void ImapConnect::parseMessage(FieldList &results, bool headers_only)
 {
     results.clear();
-    unsigned i;
+    size_t i;
     for (i = 0; required_headers[i] != nullptr; i++) {
         String headerName = required_headers[i];
-        Field *fld = new Field(lowerCase(headerName).c_str());
+        auto *fld = new Field(lowerCase(headerName).c_str());
         if (i == 0)
             fld->view.width = 16;
         else
@@ -310,7 +310,7 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
     }
 
     for (i = 0; i < results.size(); i++) {
-        Field &field = results[i];
+        Field &field = results[int(i)];
         if (field.dataType() == VAR_NONE)
             field.setString("");
     }

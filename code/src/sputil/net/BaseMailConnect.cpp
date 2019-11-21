@@ -111,7 +111,7 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
     buffer.checkSize(dataLen + dataLen / LINE_CHARS);
 
     const char* ptr = strDest.c_str();
-    for (uint32_t pos = 0; pos < dataLen; pos += LINE_CHARS) {
+    for (size_t pos = 0; pos < dataLen; pos += LINE_CHARS) {
         size_t lineLen = dataLen - pos;
         if (lineLen > LINE_CHARS)
             lineLen = LINE_CHARS;

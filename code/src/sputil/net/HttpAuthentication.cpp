@@ -29,11 +29,13 @@
 #include <sptk5/Base64.h>
 #include <sptk5/net/HttpAuthentication.h>
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 
-sptk::HttpAuthentication::HttpAuthentication(const sptk::String& authenticationHeader)
-: m_authenticationHeader(authenticationHeader)
+sptk::HttpAuthentication::HttpAuthentication(String authenticationHeader)
+: m_authenticationHeader(std::move(authenticationHeader))
 {
 }
 

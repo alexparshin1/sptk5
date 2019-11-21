@@ -32,6 +32,8 @@
 
 #ifndef _WIN32
 #include <netinet/in.h>
+
+#include <utility>
 #endif
 
 using namespace std;
@@ -46,8 +48,8 @@ Host::Host() noexcept
     memset(&m_address, 0, sizeof(m_address));
 }
 
-Host::Host(const String& hostname, uint16_t port)
-: m_hostname(hostname), m_port(port)
+Host::Host(String hostname, uint16_t port)
+: m_hostname(std::move(hostname)), m_port(port)
 {
     getHostAddress();
     setPort(m_port);
@@ -55,7 +57,7 @@ Host::Host(const String& hostname, uint16_t port)
 
 Host::Host(const String& hostAndPort)
 {
-    RegularExpression matchHost("^(\\[.*\\]|[^\\[\\]:]*)(:\\d+)?");
+    RegularExpression matchHost(R"(^(\[.*\]|[^\[\]:]*)(:\d+)?)");
     Strings matches;
     if (matchHost.m(hostAndPort, matches)) {
         m_hostname = matches[0];

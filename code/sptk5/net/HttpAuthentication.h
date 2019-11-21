@@ -73,7 +73,7 @@ public:
      * Constructor
      * @param authenticationHeader  Authentication HTTP header content
      */
-    explicit HttpAuthentication(const String& authenticationHeader);
+    explicit HttpAuthentication(String  authenticationHeader);
 
     /**
      * Destructor

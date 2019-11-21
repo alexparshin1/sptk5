@@ -73,8 +73,8 @@ public:
      * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
      * @param verifyDepth           Connection verify depth
      */
-    SSLKeys(const String& privateKeyFileName, const String& certificateFileName, const String& password="",
-            const String& caFileName="", int verifyMode=SSL_VERIFY_NONE, int verifyDepth=0);
+    SSLKeys(String privateKeyFileName, String certificateFileName, String password="",
+            String caFileName="", int verifyMode=SSL_VERIFY_NONE, int verifyDepth=0);
 
     /**
      * Copy constructor

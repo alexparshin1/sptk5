@@ -35,10 +35,9 @@ using namespace sptk;
 String MailMessageBody::stripHtml(const String& origHtml)
 {
     Strings html(origHtml, "<");
-    unsigned i = 0;
 
     // Remove comments and scripts
-    for (i = 0; i < html.size(); i++) {
+    for (size_t i = 0; i < html.size(); i++) {
         string& str = html[i];
         size_t pos = str.find('>');
         if (pos == STRING_NPOS)

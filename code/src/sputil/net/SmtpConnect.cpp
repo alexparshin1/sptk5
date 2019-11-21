@@ -101,7 +101,7 @@ void SmtpConnect::sendCommand(String cmd, bool encode)
     if (encode)
         cmd = mime(cmd);
     if (m_log != nullptr)
-        m_log->debug("[SEND] " + string(cmd));
+        m_log->debug("[SEND] " + cmd);
     cmd += "\r\n";
     write(cmd.c_str(), (uint32_t) cmd.length());
 }

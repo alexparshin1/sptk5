@@ -75,7 +75,7 @@ public:
         }
     }
 
-    const struct entity *find(const std::string &ent) const
+    [[nodiscard]] const struct entity *find(const std::string &ent) const
     {
         auto itor = m_hash.find(ent);
         if (itor != m_hash.end())

@@ -82,7 +82,7 @@ public:
         while (!terminated()) {
             try {
                 if (socket.readyToRead(chrono::seconds(30))) {
-                    sockaddr_in from;
+                    sockaddr_in from {};
                     size_t sz = socket.read(data.data(), 2048, &from);
                     if (sz == 0)
                         return;
@@ -105,7 +105,7 @@ TEST(SPTK_UDPSocket, minimal)
     UDPEchoServer echoServer;
     echoServer.run();
 
-    sockaddr_in serverAddr;
+    sockaddr_in serverAddr {};
     Host serverHost("127.0.0.1:3000");
     serverHost.getAddress(serverAddr);
 
