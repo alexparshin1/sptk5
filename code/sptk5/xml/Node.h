@@ -320,13 +320,13 @@ public:
     /**
      * Returns the node name.
      */
-    virtual const std::string& name() const = 0;
+    virtual String name() const = 0;
 
     /**
      * Sets the new name for the node
      * @param name              New node name
      */
-    virtual void name(const std::string& name) = 0;
+    virtual void name(const String& name) = 0;
 
     /**
      * Sets new name for node
@@ -338,6 +338,22 @@ public:
      * Returns node type
      */
     virtual NodeType type() const = 0;
+
+    /**
+     * Returns the node namespace.
+     */
+    virtual String nameSpace() const
+    {
+        return "";
+    }
+
+    /**
+     * Returns the node tagname (without namespace).
+     */
+    virtual String tagname() const
+    {
+        return "";
+    }
 };
 
 /**
@@ -402,7 +418,7 @@ public:
      * @param name              The name to find
      * @param recursively       If true, also search in all subnodes
      */
-    Node* findFirst(const std::string& name, bool recursively = true) const;
+    Node* findFirst(const String& name, bool recursively = true) const;
 
     /**
      * Finds the first subnode with the given name, or creates a new one.
@@ -412,7 +428,7 @@ public:
      * @param name              The name to find
      * @param recursively       If true, also search in all subnodes
      */
-    Node* findOrCreate(const std::string& name, bool recursively = true);
+    Node* findOrCreate(const String& name, bool recursively = true);
 
     /**
      * Finds the first subnode with the given name, or creates a new one.
@@ -421,7 +437,7 @@ public:
      * node is created.
      * @param name              The name to find
      */
-    Node& operator[](const std::string& name)
+    Node& operator[](const String& name)
     {
         return *findOrCreate(name, false);
     }
@@ -444,22 +460,6 @@ public:
      * @param node              Node to copy from
      */
     virtual void copy(const Node& node);
-
-    /**
-     * Returns the node namespace.
-     */
-    virtual std::string nameSpace() const
-    {
-        return "";
-    }
-
-    /**
-     * Returns the node tagname (without namespace).
-     */
-    virtual std::string tagname() const
-    {
-        return "";
-    }
 
     /**
      * Returns the value of the node
@@ -546,7 +546,7 @@ public:
      * @param defaultValue      A default value. If attribute doesn't exist then default value is returned.
      * @returns attribute value
      */
-    virtual Variant getAttribute(const std::string& attr, const char* defaultValue = "") const
+    virtual Variant getAttribute(const String& attr, const char* defaultValue = "") const
     {
         return Variant(defaultValue);
     }
@@ -572,7 +572,7 @@ public:
      * @param value             Attribute value
      * @param defaultValue      A default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    virtual void setAttribute(const std::string& attr, Variant value, const char* defaultValue = "")
+    virtual void setAttribute(const String& attr, Variant value, const char* defaultValue = "")
     {
         // Implement in derived classes
     }
@@ -757,7 +757,7 @@ public:
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
      */
-    NamedItem(Node& parent, const std::string& tagname)
+    NamedItem(Node& parent, const String& tagname)
     : Node(parent)
     {
         NamedItem::name(tagname);
@@ -766,7 +766,7 @@ public:
     /**
      * Returns the node name.
      */
-    virtual const std::string& name() const
+    String name() const override
     {
         return *m_name;
     }
@@ -774,7 +774,7 @@ public:
     /**
      * Returns the node name space.
      */
-    virtual std::string nameSpace() const
+    String nameSpace() const override
     {
         size_t pos = m_name->find(":");
         if (pos == std::string::npos)
@@ -785,7 +785,7 @@ public:
     /**
      * Returns the node tagname without namespace.
      */
-    virtual std::string tagname() const
+    String tagname() const override
     {
         size_t pos = m_name->find(":");
         if (pos == std::string::npos)
@@ -797,18 +797,18 @@ public:
      * Sets the new name for the node
      * @param name              New node name
      */
-    virtual void name(const std::string& name);
+    void name(const String& name) override;
 
     /**
      * Sets new name for node
      * @param name              New node name
      */
-    virtual void name(const char* name);
+    void name(const char* name) override;
 
     /**
      * Returns node type
      */
-    virtual NodeType type() const
+    NodeType type() const override
     {
         return DOM_ATTRIBUTE;
     }
@@ -828,7 +828,7 @@ protected:
     /**
      * returns node name
      */
-    virtual const std::string& nodeName() const;
+    virtual String nodeName() const;
 
 public:
     /**
@@ -878,7 +878,7 @@ public:
      *
      * The meaning of the value depends on the node type
      */
-    const std::string& name() const override
+    String name() const override
     {
         return nodeName();
     }
@@ -887,7 +887,7 @@ public:
      * Sets the new name for the node
      * @param name              New node name
      */
-    void name(const std::string& name) override
+    void name(const String& name) override
     {
         // Text node con't have name
     }
@@ -912,7 +912,7 @@ protected:
     /**
      * returns node name
      */
-    virtual const std::string& nodeName() const;
+    virtual String nodeName() const;
 
 public:
     /**
@@ -922,7 +922,7 @@ public:
      * @param data              Text
      */
     Text(Node& parent, const char* data)
-            : BaseTextNode(&parent, data)
+    : BaseTextNode(&parent, data)
     {
     }
 
@@ -933,7 +933,7 @@ public:
      * @param data              Text
      */
     Text(Node* parent, const char* data)
-            : BaseTextNode(parent, data)
+    : BaseTextNode(parent, data)
     {
     }
 
@@ -943,8 +943,8 @@ public:
      * @param parent            Parent node.
      * @param data              Text
      */
-    Text(Node& parent, const std::string& data)
-            : BaseTextNode(&parent, data.c_str())
+    Text(Node& parent, const String& data)
+    : BaseTextNode(&parent, data.c_str())
     {
     }
 
@@ -966,7 +966,7 @@ protected:
     /**
      * returns node name
      */
-    virtual const std::string& nodeName() const;
+    virtual String nodeName() const;
 
 public:
     /**
@@ -976,7 +976,7 @@ public:
      * @param data              Comment
      */
     Comment(Node& parent, const char* data)
-            : BaseTextNode(&parent, data)
+    : BaseTextNode(&parent, data)
     {
     }
 
@@ -987,7 +987,7 @@ public:
      * @param data              Comment
      */
     Comment(Node* parent, const char* data)
-            : BaseTextNode(parent, data)
+    : BaseTextNode(parent, data)
     {
     }
 
@@ -997,8 +997,8 @@ public:
      * @param parent            Parent node.
      * @param data              Comment
      */
-    Comment(Node& parent, const std::string& data)
-            : BaseTextNode(&parent, data.c_str())
+    Comment(Node& parent, const String& data)
+    : BaseTextNode(&parent, data.c_str())
     {
     }
 
@@ -1020,7 +1020,7 @@ protected:
     /**
      * returns node name
      */
-    const std::string& nodeName() const override;
+    String nodeName() const override;
 
 public:
     /**
@@ -1051,7 +1051,7 @@ public:
      * @param parent            Parent node.
      * @param data              Data
      */
-    CDataSection(Node& parent, const std::string& data)
+    CDataSection(Node& parent, const String& data)
     : BaseTextNode(&parent, data.c_str())
     {
     }
@@ -1062,87 +1062,6 @@ public:
     NodeType type() const override
     {
         return DOM_CDATA_SECTION;
-    }
-};
-
-/**
- * XML processing instructions (PI)
- */
-class SP_EXPORT PI : public BaseTextNode
-{
-    /**
-     * Node name, stored in the parent document SST
-     */
-    const std::string* m_name {nullptr};
-
-public:
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node. Make sure it's a pointer to the existing node.
-     * @param target            Target tag name
-     * @param data              Data
-     */
-    PI(Node& parent, std::string target, const char* data)
-    : BaseTextNode(&parent, data)
-    {
-        PI::name(target);
-    }
-
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node. Make sure it's a pointer to the existing node.
-     * @param target            Target tag name
-     * @param data              Data
-     */
-    PI(Node* parent, std::string target, const char* data)
-    : BaseTextNode(parent, data)
-    {
-        PI::name(target);
-    }
-
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node
-     * @param target            Target tag name
-     * @param data              Data
-     */
-    PI(Node& parent, std::string target, const std::string& data)
-    : BaseTextNode(&parent, data.c_str())
-    {
-        PI::name(target);
-    }
-
-    /**
-     * Returns the node name.
-     *
-     * The meaning of the value depends on the node type
-     */
-    virtual const std::string& name() const
-    {
-        return *m_name;
-    }
-
-    /**
-     * Sets the new name for the node
-     * @param name              New node name
-     */
-    virtual void name(const std::string& name);
-
-    /**
-     * Sets new name for node
-     * @param name              New node name
-     */
-    virtual void name(const char* name);
-
-    /**
-     * Returns node type
-     */
-    virtual NodeType type() const
-    {
-        return DOM_PI;
     }
 };
 

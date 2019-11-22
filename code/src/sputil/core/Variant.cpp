@@ -1194,6 +1194,7 @@ TEST(SPTK_Variant, assigns)
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
     Variant v;
+    Variant v1;
 
     v = 1;
     EXPECT_EQ(1, v.asInteger());
@@ -1203,6 +1204,9 @@ TEST(SPTK_Variant, assigns)
 
     v = "Test";
     EXPECT_STREQ("Test", v.asString().c_str());
+
+    v1 = v;
+    EXPECT_STREQ("Test", v1.asString().c_str());
 
     v = testDate;
 

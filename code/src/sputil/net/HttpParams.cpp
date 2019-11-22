@@ -54,7 +54,7 @@ String HttpParams::encodeString(const String& str)
                 break;
             default:
                 len = snprintf(hexBuffer, sizeof(hexBuffer), "%%%02X", (unsigned char)*src);
-                buffer.append(hexBuffer, len);
+                buffer.append(hexBuffer, (size_t) len);
                 break;
             }
         }

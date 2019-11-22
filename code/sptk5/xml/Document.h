@@ -173,13 +173,13 @@ public:
     /**
      * Returns the node name.
      */
-    const std::string& name() const override;
+    String name() const override;
 
     /**
      * Sets the new name for the node
      * @param name              New node name
      */
-    void name(const std::string& name) override
+    void name(const String& name) override
     {
         // Document has no node name
     }
@@ -268,6 +268,15 @@ public:
      * @param json              JSON element
      */
     void exportTo(json::Element& json) const override;
+
+private:
+
+    RegularExpression   m_parseAttributes { R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])","g" };
+
+    char* readExclamationTag(char* nodeName, char* tokenEnd, char* nodeEnd, Node* currentNode);
+
+    char* readProcessingInstructions(char* nodeName, char* tokenStart, char* tokenEnd, char*& nodeEnd,
+                                     Node* currentNode);
 };
 
 } // namespace xml

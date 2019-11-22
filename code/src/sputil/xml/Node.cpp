@@ -518,7 +518,7 @@ void Node::exportTo(json::Element& element) const
         np->save(element, text);
 }
 
-Node* Node::findFirst(const std::string& aname, bool recursively) const
+Node* Node::findFirst(const String& aname, bool recursively) const
 {
     for (auto* node: *this) {
         if (node->name() == aname)
@@ -532,7 +532,7 @@ Node* Node::findFirst(const std::string& aname, bool recursively) const
     return nullptr;
 }
 
-Node* Node::findOrCreate(const std::string& aname, bool recursively)
+Node* Node::findOrCreate(const String& aname, bool recursively)
 {
     Node* node = findFirst(aname, recursively);
     if (node != nullptr)
@@ -540,12 +540,12 @@ Node* Node::findOrCreate(const std::string& aname, bool recursively)
     return new Element(*this, aname);
 }
 
-const std::string& BaseTextNode::nodeName() const
+String BaseTextNode::nodeName() const
 {
     return emptyString;
 }
 
-void NamedItem::name(const std::string& name)
+void NamedItem::name(const String& name)
 {
     m_name = &document()->shareString(name.c_str());
 }
@@ -596,31 +596,21 @@ void Element::clear()
     m_attributes.clear();
 }
 
-void PI::name(const std::string& name)
+String Comment::nodeName() const
 {
-    m_name = &document()->shareString(name.c_str());
-}
-
-void PI::name(const char* name)
-{
-    m_name = &document()->shareString(name);
-}
-
-const std::string& Comment::nodeName() const
-{
-    static const string nodeNameString("#comment");
+    static const String nodeNameString("#comment");
     return nodeNameString;
 }
 
-const std::string& Text::nodeName() const
+String Text::nodeName() const
 {
-    static const string nodeNameString("#text");
+    static const String nodeNameString("#text");
     return nodeNameString;
 }
 
-const std::string& CDataSection::nodeName() const
+String CDataSection::nodeName() const
 {
-    static const string nodeNameString("#cdata-section");
+    static const String nodeNameString("#cdata-section");
     return nodeNameString;
 }
 

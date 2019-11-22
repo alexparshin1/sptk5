@@ -272,9 +272,9 @@ TEST(SPTK_Timer, repeat)
 
 #define MAX_EVENT_COUNTER (10)
 #define MAX_TIMERS        (10)
-static mutex        eventCounterMutex;
-static vector<int>  eventCounter(MAX_EVENT_COUNTER);
-static vector<int>  eventData(MAX_EVENT_COUNTER);
+static mutex            eventCounterMutex;
+static vector<size_t>   eventCounter(MAX_EVENT_COUNTER);
+static vector<size_t>   eventData(MAX_EVENT_COUNTER);
 
 static void gtestTimerCallback2(void* theEventData)
 {
@@ -286,7 +286,7 @@ static void gtestTimerCallback2(void* theEventData)
 TEST(SPTK_Timer, fireOnce)
 {
     mutex   counterMutex;
-    int     counter = 1;
+    size_t  counter = 1;
     Timer   timer;
 
     timer.fireAt(
@@ -300,13 +300,13 @@ TEST(SPTK_Timer, fireOnce)
     this_thread::sleep_for(milliseconds(20));
 
     lock_guard<mutex> lock(counterMutex);
-    EXPECT_EQ(counter, 2);
+    EXPECT_EQ(counter, size_t(2));
 }
 
 TEST(SPTK_Timer, repeatTwice)
 {
     mutex   counterMutex;
-    int     counter = 0;
+    size_t  counter = 0;
     Timer   timer;
 
     timer.repeat(
@@ -321,7 +321,7 @@ TEST(SPTK_Timer, repeatTwice)
     this_thread::sleep_for(milliseconds(40));
 
     lock_guard<mutex> lock(counterMutex);
-    EXPECT_EQ(counter, 2);
+    EXPECT_EQ(counter, size_t(2));
 }
 
 TEST(SPTK_Timer, repeatMultipleEvents)

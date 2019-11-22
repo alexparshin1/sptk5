@@ -103,7 +103,7 @@ public:
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
      */
-    Element(Node& parent, const std::string& tagname)
+    Element(Node& parent, const String& tagname)
     : NamedItem(parent,tagname), m_attributes(this)
     {}
 
@@ -258,7 +258,7 @@ public:
      * @param defaultValue      Default value. If attribute doesn't exist then default value is returned.
      * @returns attribute value
      */
-    Variant getAttribute(const std::string& attr, const char *defaultValue="") const override
+    Variant getAttribute(const String& attr, const char *defaultValue="") const override
     {
         return m_attributes.getAttribute(attr,defaultValue);
     }
@@ -284,9 +284,57 @@ public:
      * @param value             Attribute value
      * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    void setAttribute(const std::string& attr, Variant value, const char *defaultValue="") override
+    void setAttribute(const String& attr, Variant value, const char *defaultValue="") override
     {
         m_attributes.setAttribute(attr.c_str(),value,defaultValue);
+    }
+};
+
+/**
+ * XML processing instructions (PI)
+ */
+class SP_EXPORT PI : public Element
+{
+public:
+    /**
+     * Constructor
+     *
+     * @param parent            Parent node. Make sure it's a pointer to the existing node.
+     * @param target            Target tag name
+     */
+    PI(Node& parent, const String& target)
+    : Element(parent, target)
+    {
+    }
+
+    /**
+     * Constructor
+     *
+     * @param parent            Parent node. Make sure it's a pointer to the existing node.
+     * @param target            Target tag name
+     */
+    PI(Node* parent, const String& target)
+    : Element(*parent, target)
+    {
+    }
+
+    /**
+     * Constructor
+     *
+     * @param parent            Parent node
+     * @param target            Target tag name
+     */
+    PI(Node& parent, String target, const String& data)
+    : Element(parent, target)
+    {
+    }
+
+    /**
+     * Returns node type
+     */
+    virtual NodeType type() const
+    {
+        return DOM_PI;
     }
 };
 

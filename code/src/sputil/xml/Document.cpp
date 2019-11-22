@@ -86,53 +86,17 @@ Node* Document::createElement(const char* tagname)
 
 void Document::processAttributes(Node* node, char* ptr)
 {
-    char  emptyString[2] = {};
-    char* tokenStart = ptr;
+    Strings matches;
+    m_parseAttributes.m(ptr, matches);
 
-    Attributes& attr = node->attributes();
-    while (*tokenStart != 0 && *tokenStart <= ' ')
-        tokenStart++;
-
-    while (*tokenStart != 0) {
-        auto* tokenEnd = strpbrk(tokenStart, " =");
-        if (tokenEnd == nullptr)
-            throw Exception("Incorrect attribute - missing '='");
-        *tokenEnd = 0;
-
-        const char* attributeName = tokenStart;
-        char* attributeValue = tokenEnd + size_t(1);
-        while (*attributeValue == ' ' || *attributeValue == '=')
-            attributeValue++;
-        char delimiter = *attributeValue;
-        uint32_t valueLength;
-        if (delimiter == '\'' || delimiter == '\"') {
-            attributeValue++;
-            tokenEnd = strchr(attributeValue, delimiter);
-            if (tokenEnd == nullptr)
-                throw Exception("Incorrect attribute format - missing quote");
-            *tokenEnd = 0;
-            valueLength = uint32_t(tokenEnd - attributeValue);
-        } else {
-            tokenEnd = strchr(attributeValue, ' ');
-            if (tokenEnd != nullptr) {
-                valueLength = uint32_t(tokenEnd - attributeValue);
-                *tokenEnd = 0;
-            } else {
-                valueLength = (uint32_t) strlen(attributeValue);
-            }
-        }
-
+    for (auto itor = matches.begin(); itor != matches.end(); ++itor) {
+        auto& attributeName = *itor;
+        ++itor;
+        if (itor == matches.end())
+            break;
         m_encodeBuffer.bytes(0);
-        m_doctype.decodeEntities(attributeValue, valueLength, m_encodeBuffer);
-        attr.setAttribute(attributeName, m_encodeBuffer.c_str());
-
-        if (tokenEnd != nullptr)
-            tokenStart = tokenEnd + size_t(1);
-        else
-            tokenStart = emptyString;
-
-        while (*tokenStart != 0 && *tokenStart <= ' ')
-            tokenStart++;
+        m_doctype.decodeEntities(itor->c_str(), itor->length(), m_encodeBuffer);
+        node->setAttribute(attributeName, m_encodeBuffer.c_str());
     }
 }
 
@@ -298,6 +262,52 @@ char* Document::readDocType(char* tokenEnd)
     return tokenEnd;
 }
 
+char* Document::readExclamationTag(char* nodeName, char* tokenEnd, char* nodeEnd, Node* currentNode)
+{
+    char ch = *tokenEnd;
+    *tokenEnd = 0;
+    if (strncmp(nodeName, "!--", 3) == 0) {
+        /// Comment
+        *tokenEnd = ch; // ' ' or '>' could be within a comment
+        tokenEnd = readComment(currentNode, nodeName, nodeEnd, tokenEnd);
+    }
+    else if (strncmp(nodeName, "![CDATA[", 8) == 0) {
+        /// CDATA section
+        *tokenEnd = ch;
+        tokenEnd = readCDataSection(currentNode, nodeName, nodeEnd, tokenEnd);
+    }
+    else if (strncmp(nodeName, "!DOCTYPE", 8) == 0) {
+        /// DOCTYPE section
+        if (ch != '>')
+            tokenEnd = readDocType(tokenEnd);
+    }
+    return tokenEnd;
+}
+
+char* Document::readProcessingInstructions(char* nodeName, char* tokenStart, char* tokenEnd, char*& nodeEnd,
+                                           Node* currentNode)
+{
+    nodeEnd = strstr(tokenEnd, ">");
+    if (nodeEnd != nullptr) {
+        nodeEnd--;
+        if (*nodeEnd != '?')
+            nodeEnd = nullptr;
+    }
+    if (nodeEnd == nullptr)
+        throw Exception("Invalid PI section: no closing tag");
+    *nodeEnd = 0;
+
+    Strings matches;
+    m_parseAttributes.m(tokenEnd, matches);
+
+    *tokenEnd = 0;
+    auto* pi = new PI(*currentNode, nodeName + 1, "");
+    processAttributes(pi, tokenEnd + 1);
+
+    tokenEnd = nodeEnd + 1;
+    return tokenEnd;
+}
+
 void Document::load(const char* xmlData)
 {
     clear();
@@ -317,46 +327,15 @@ void Document::load(const char* xmlData)
         *tokenEnd = 0;
         char* nodeName = tokenStart;
         char* nodeEnd;
-        char* value;
         switch (*tokenStart) {
             case '!':
-                if (strncmp(nodeName, "!--", 3) == 0) {
-                    /// Comment
-                    *tokenEnd = ch; // ' ' or '>' could be within a comment
-                    tokenEnd = readComment(currentNode, nodeName, nodeEnd, tokenEnd);
-                    break;
-                }
-                if (strncmp(nodeName, "![CDATA[", 8) == 0) {
-                    /// CDATA section
-                    *tokenEnd = ch;
-                    tokenEnd = readCDataSection(currentNode, nodeName, nodeEnd, tokenEnd);
-                    break;
-                }
-                if (strncmp(nodeName, "!DOCTYPE", 8) == 0) {
-                    /// DOCTYPE section
-                    if (ch == '>')
-                        break;
-                    tokenEnd = readDocType(tokenEnd);
-                }
+                *tokenEnd = ch;
+                tokenEnd = readExclamationTag(nodeName, tokenEnd, nodeEnd, currentNode);
                 break;
 
             case '?':
-                /// Processing instructions
-                if (ch == ' ') {
-                    value = tokenEnd + 1;
-                    nodeEnd = strstr(value, "?>");
-                } else {
-                    value = nullptr;
-                    nodeEnd = strstr(tokenStart, "?");
-                }
-                if (nodeEnd == nullptr)
-                    throw Exception("Invalid PI section");
-                *nodeEnd = 0;
-                if (value != nullptr)
-                    new PI(currentNode, nodeName + 1, value);
-                else
-                    new PI(currentNode, nodeName + 1, "");
-                tokenEnd = nodeEnd + 1;
+                *tokenEnd = ch;
+                tokenEnd = readProcessingInstructions(nodeName, tokenStart, tokenEnd, nodeEnd, currentNode);
                 break;
 
             case '/':
@@ -469,9 +448,9 @@ void Document::save(Buffer& buffer, int) const
     }
 }
 
-const std::string& Document::name() const
+String Document::name() const
 {
-    static const string nodeNameString("#document");
+    static const String nodeNameString("#document");
     return nodeNameString;
 }
 
@@ -593,7 +572,11 @@ TEST(SPTK_XmlDocument, parse)
     xml::Document document;
     document.load(testREST);
 
-    xml::Node* bodyElement = document.findFirst("soap:Body");
+    auto* xmlElement = document.findFirst("xml");
+    EXPECT_STREQ(xmlElement->getAttribute("version").asString().c_str(), "1.0");
+    EXPECT_STREQ(xmlElement->getAttribute("encoding").asString().c_str(), "UTF-8");
+
+    auto* bodyElement = document.findFirst("soap:Body");
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
     EXPECT_EQ(2, bodyElement->type());
