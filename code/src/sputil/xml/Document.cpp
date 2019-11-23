@@ -276,16 +276,13 @@ char* Document::readExclamationTag(char* nodeName, char* tokenEnd, char* nodeEnd
         *tokenEnd = ch;
         tokenEnd = readCDataSection(currentNode, nodeName, nodeEnd, tokenEnd);
     }
-    else if (strncmp(nodeName, "!DOCTYPE", 8) == 0) {
-        /// DOCTYPE section
-        if (ch != '>')
-            tokenEnd = readDocType(tokenEnd);
+    else if (strncmp(nodeName, "!DOCTYPE", 8) == 0 && ch != '>') {
+        tokenEnd = readDocType(tokenEnd);
     }
     return tokenEnd;
 }
 
-char* Document::readProcessingInstructions(char* nodeName, char* tokenStart, char* tokenEnd, char*& nodeEnd,
-                                           Node* currentNode)
+char* Document::readProcessingInstructions(char* nodeName, char* tokenEnd, char*& nodeEnd, Node* currentNode)
 {
     nodeEnd = strstr(tokenEnd, ">");
     if (nodeEnd != nullptr) {
@@ -308,6 +305,54 @@ char* Document::readProcessingInstructions(char* nodeName, char* tokenStart, cha
     return tokenEnd;
 }
 
+char* Document::readClosingTag(char* nodeName, char* tokenEnd, Node*& currentNode)
+{
+    char ch = *tokenEnd;
+    *tokenEnd = 0;
+    if (ch != '>')
+        throw Exception("Invalid tag (spaces before closing '>')");
+    nodeName++;
+    if (currentNode->name() != nodeName)
+        throw Exception(
+                "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() +
+                ">");
+    currentNode = currentNode->parent();
+    if (currentNode == nullptr)
+        throw Exception(
+                "Closing tag <" + string(nodeName) + "> doesn't have corresponding opening tag");
+    return tokenEnd;
+}
+
+char* Document::readOpenningTag(char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode)
+{
+    char ch = *tokenEnd;
+    *tokenEnd = 0;
+    if (ch == '>') {
+        if (*(tokenEnd - 1) == '/') {
+            *(tokenEnd - 1) = 0;
+            new Element(currentNode, nodeName);
+        } else
+            currentNode = new Element(currentNode, nodeName);
+        return tokenEnd;
+    }
+
+    /// Attributes
+    auto* tokenStart = tokenEnd + 1;
+    nodeEnd = strchr(tokenStart, '>');
+    if (nodeEnd == nullptr)
+        throw Exception("Invalid tag (started, not closed)");
+    *nodeEnd = 0;
+    Node* anode;
+    if (*(nodeEnd - 1) == '/') {
+        anode = new Element(currentNode, nodeName);
+        *(nodeEnd - 1) = 0;
+    } else
+        anode = currentNode = new Element(currentNode, nodeName);
+    processAttributes(anode, tokenStart);
+    tokenEnd = nodeEnd;
+    return tokenEnd;
+}
+
 void Document::load(const char* xmlData)
 {
     clear();
@@ -315,82 +360,42 @@ void Document::load(const char* xmlData)
     DocType* doctype = &docType();
     Buffer buffer(xmlData);
 
-    char* tokenStart = strchr(buffer.data(), '<');
-
-    while (tokenStart != nullptr) {
-        tokenStart++;
-        char* tokenEnd = strpbrk(tokenStart, "\r\n >");
-        if (tokenEnd == nullptr)
+    for (char* nodeStart = strchr(buffer.data(), '<'); nodeStart != nullptr; ) {
+        auto* nameStart = nodeStart + 1;
+        char* nameEnd = strpbrk(nameStart, "\r\n >");
+        if (nameEnd == nullptr)
             break; /// Tag started but not completed
 
-        char ch = *tokenEnd;
-        *tokenEnd = 0;
-        char* nodeName = tokenStart;
+        char* nodeName = nameStart;
         char* nodeEnd;
-        switch (*tokenStart) {
+        switch (*nameStart) {
             case '!':
-                *tokenEnd = ch;
-                tokenEnd = readExclamationTag(nodeName, tokenEnd, nodeEnd, currentNode);
+                nameEnd = readExclamationTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
 
             case '?':
-                *tokenEnd = ch;
-                tokenEnd = readProcessingInstructions(nodeName, tokenStart, tokenEnd, nodeEnd, currentNode);
+                nameEnd = readProcessingInstructions(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
 
             case '/':
-                /// Closing tag
-                if (ch != '>')
-                    throw Exception("Invalid tag (spaces before closing '>')");
-                nodeName++;
-                if (currentNode->name() != nodeName)
-                    throw Exception(
-                            "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() +
-                            ">");
-                currentNode = currentNode->parent();
-                if (currentNode == nullptr)
-                    throw Exception(
-                            "Closing tag <" + string(nodeName) + "> doesn't have corresponding opening tag");
+                nameEnd = readClosingTag(nodeName, nameEnd, currentNode);
                 break;
 
             default:
-                /// Normal tag
-                if (ch == '>') {
-                    if (*(tokenEnd - 1) == '/') {
-                        *(tokenEnd - 1) = 0;
-                        new Element(currentNode, nodeName);
-                    } else
-                        currentNode = new Element(currentNode, nodeName);
-                    break;
-                }
-
-                /// Attributes
-                tokenStart = tokenEnd + 1;
-                nodeEnd = strchr(tokenStart, '>');
-                if (nodeEnd == nullptr)
-                    throw Exception("Invalid tag (started, not closed)");
-                *nodeEnd = 0;
-                Node* anode;
-                if (*(nodeEnd - 1) == '/') {
-                    anode = new Element(currentNode, nodeName);
-                    *(nodeEnd - 1) = 0;
-                } else
-                    anode = currentNode = new Element(currentNode, nodeName);
-                processAttributes(anode, tokenStart);
-                tokenEnd = nodeEnd;
+                nameEnd = readOpenningTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
         }
-        tokenStart = strchr(tokenEnd + 1, '<');
-        if (tokenStart == nullptr) {
+        nodeStart = strchr(nameEnd + 1, '<');
+        if (nodeStart == nullptr) {
             if (currentNode == this)
-                break;
+                continue; // exit the loop
             throw Exception("Tag started but not closed");
         }
-        unsigned char* textStart = (unsigned char*) tokenEnd + 1;
+        unsigned char* textStart = (unsigned char*) nameEnd + 1;
         while (*textStart <= ' ') /// Skip leading spaces
             textStart++;
         if (*textStart != '<')
-            for (unsigned char* textTrail = (unsigned char*) tokenStart - 1; textTrail >= textStart; textTrail--) {
+            for (unsigned char* textTrail = (unsigned char*) nodeStart - 1; textTrail >= textStart; textTrail--) {
                 if (*textTrail > ' ') {
                     textTrail++;
                     *textTrail = 0;

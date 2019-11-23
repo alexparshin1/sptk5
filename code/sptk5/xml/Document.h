@@ -275,8 +275,11 @@ private:
 
     char* readExclamationTag(char* nodeName, char* tokenEnd, char* nodeEnd, Node* currentNode);
 
-    char* readProcessingInstructions(char* nodeName, char* tokenStart, char* tokenEnd, char*& nodeEnd,
-                                     Node* currentNode);
+    char* readProcessingInstructions(char* nodeName, char* tokenEnd, char*& nodeEnd, Node* currentNode);
+
+    char* readClosingTag(char* nodeName, char* tokenEnd, Node*& currentNode);
+
+    char* readOpenningTag(char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode);
 };
 
 } // namespace xml
