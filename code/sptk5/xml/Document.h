@@ -217,7 +217,7 @@ public:
     /**
      * Return indentation in save
      */
-    int indentSpaces()
+    int indentSpaces() const
     {
         return m_indentSpaces;
     }

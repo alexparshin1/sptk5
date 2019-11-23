@@ -419,13 +419,15 @@ void Document::save(Buffer& buffer, int) const
     for (auto* node: *this) {
         if (node->type() == DOM_PI && lowerCase(node->name()) == "xml") {
             xml_pi = node;
-            xml_pi->save(buffer);
+            xml_pi->save(buffer, 0);
             hasXmlPI = true;
             break;
         }
     }
-    if (!hasXmlPI)
-        buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+    if (!hasXmlPI) {
+        buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        if (indentSpaces()) buffer.append('\n');
+    }
 
     if (!docType().name().empty()) {
         buffer.append("<!DOCTYPE " + docType().name());
@@ -442,14 +444,15 @@ void Document::save(Buffer& buffer, int) const
                 buffer.append("<!ENTITY " + it.first + " \"" + it.second + "\">\n");
             buffer.append("]", 1);
         }
-        buffer.append(">\n", 2);
+        buffer.append('>');
+        if (indentSpaces()) buffer.append('\n');
     }
 
     // call save() method of the first (and hopefully only) node in xml document
     for (auto* node: *this) {
         if (node == xml_pi)
             continue;
-        node->save(buffer, 0);
+        node->save(buffer, indentSpaces());
     }
 }
 
@@ -481,14 +484,14 @@ static const char* testXML =
     "<address><married>true</married><employed>false</employed></address>";
 
 static const char* testREST =
-    R"(<?xml version="1.0" encoding="UTF-8" ?>\n)"
-    R"(<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">\n)"
-    R"(<soap:Body>\n)"
-    R"(<ns1:GetRequests>\n)"
-    R"(<vendor_id>1</vendor_id>\n)"
-    R"(</ns1:GetRequests>\n)"
-    R"(</soap:Body>\n)"
-    R"(</soap:Envelope>\n)";
+    R"(<?xml version="1.0" encoding="UTF-8" ?>)"
+    R"(<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">)"
+    R"(<soap:Body>)"
+    R"(<ns1:GetRequests>)"
+    R"(<vendor_id>1</vendor_id>)"
+    R"(</ns1:GetRequests>)"
+    R"(</soap:Body>)"
+    R"(</soap:Envelope>)";
 
 void verifyDocument(xml::Document& document)
 {
@@ -560,7 +563,20 @@ TEST(SPTK_XmlDocument, remove)
     EXPECT_TRUE(document.findFirst("address") == nullptr);
 }
 
-TEST(SPTK_XmlDocument, save)
+TEST(SPTK_XmlDocument, save1)
+{
+    xml::Document document;
+    document.load(testREST);
+
+    Buffer buffer;
+
+    document.indentSpaces(0);
+    document.save(buffer, 0);
+
+    EXPECT_STREQ(testREST, buffer.c_str());
+}
+
+TEST(SPTK_XmlDocument, save2)
 {
     xml::Document document;
     document.load(testXML);
@@ -585,7 +601,7 @@ TEST(SPTK_XmlDocument, parse)
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
     EXPECT_EQ(2, bodyElement->type());
-    EXPECT_EQ(3, (int) bodyElement->size());
+    EXPECT_EQ(1, (int) bodyElement->size());
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 
     xml::Node* methodElement = nullptr;
@@ -596,7 +612,7 @@ TEST(SPTK_XmlDocument, parse)
         }
     }
     EXPECT_EQ(2, methodElement->type());
-    EXPECT_EQ(3, (int) methodElement->size());
+    EXPECT_EQ(1, (int) methodElement->size());
     EXPECT_STREQ("ns1:GetRequests", methodElement->name().c_str());
 }
 

@@ -330,6 +330,7 @@ void Node::text(const String& txt)
 void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
 {
     buffer.append('<');
+    if (type() == DOM_PI) buffer.append('?');
     buffer.append(nodeName);
     if (!this->attributes().empty()) {
         // Output attributes
@@ -343,7 +344,8 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
             buffer.append('>');
         } else {
             only_cdata = false;
-            buffer.append(">\n", 2);
+            buffer.append('>');
+            if (indent) buffer.append('\n');
         }
 
         // output all subnodes
@@ -352,7 +354,7 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
                 np->save(buffer, -1);
             else {
                 np->save(buffer, indent + document()->indentSpaces());
-                if (buffer.data()[buffer.bytes() - 1] != '\n')
+                if (indent && buffer.data()[buffer.bytes() - 1] != '\n')
                     buffer.append(char('\n'));
             }
         }
@@ -364,11 +366,15 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
         // output closing tag
         buffer.append("</", 2);
         buffer.append(name());
-        buffer.append(">\n", 2);
-
+        buffer.append('>');
+        if (indent) buffer.append('\n');
     } else {
         //LEAF
-        buffer.append("/>\n", 3);
+        if (type() == DOM_PI)
+            buffer.append(" ?>", 3);
+        else
+            buffer.append("/>", 2);
+        if (indent) buffer.append('\n');
     }
 }
 
@@ -402,10 +408,6 @@ void Node::save(Buffer& buffer, int indent) const
 
     // depending on the nodetype, do output
     switch (type()) {
-        case DOM_PI:
-            buffer.append("<?" + std::string(name()) + " " + value() + "?>\n");
-            break;
-
         case DOM_TEXT:
             if (value().substr(0, 9) == "<![CDATA[" && value().substr(value().length() - 3) == "]]>")
                 buffer.append(value());
@@ -423,6 +425,7 @@ void Node::save(Buffer& buffer, int indent) const
             buffer.append("<!-- " + value() + " -->\n");
             break;
 
+        case DOM_PI:
         case DOM_ELEMENT:
             saveElement(nodeName, buffer, indent);
             break;

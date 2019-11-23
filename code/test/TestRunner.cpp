@@ -88,7 +88,6 @@ void stub()
 
     Buffer intext(text);
     Buffer outtext;
-    COUT("Encrypt text (" << text.length() << " bytes)." << endl);
     Crypt::encrypt(outtext, intext, key, iv);
 
     Buffer b1;
