@@ -157,7 +157,7 @@ String sptk::escapeSQLString(const String& str, bool tsv)
     if (tsv)
         replaceChars = "\t\n\r";
     const char* start = str.c_str();
-    while (true) {
+    while (*start) {
         const char* end = strpbrk(start, replaceChars);
         if (end != nullptr) {
             output.append(start, end - start);
@@ -170,7 +170,7 @@ String sptk::escapeSQLString(const String& str, bool tsv)
             }
             start = end + 1;
             if (*start == 0)
-                break;
+                continue;
         } else {
             output.append(start);
             break;
