@@ -55,10 +55,10 @@ class SP_EXPORT WSListener : public TCPServer
     mutable SharedMutex m_mutex;                ///< Mutex that protects internal data
     WSRequest&          m_service;              ///< Web Service request processor
     Logger              m_logger;               ///< Logger object
+    WSConnection::Paths m_paths;                ///< Pages and paths
 
 protected:
 
-    WSConnection::Paths m_paths;                ///< Pages and paths
     const bool          m_encrypted;            ///< Connection protocol is encrypted flag
     const String        m_hostname;             ///< This service hostname
 

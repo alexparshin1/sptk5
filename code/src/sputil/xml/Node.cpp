@@ -150,7 +150,7 @@ static void parsePathElement(Document* document, const string& pathElementStr, X
     makeCriteria(document, pathElement, pos);
 }
 
-bool NodeSearchAlgorithms::matchPathElement(Node* thisNode, const XPathElement& pathElement, const string* starPointer, bool& nameMatches)
+bool NodeSearchAlgorithms::matchPathElement(Node* thisNode, const XPathElement& pathElement, const string* starPointer, bool&)
 {
     if (pathElement.elementName != nullptr && pathElement.elementName != starPointer &&
         !thisNode->nameIs(pathElement.elementName))
@@ -347,27 +347,8 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
             buffer.append('>');
             if (indent) buffer.append('\n');
         }
-
-        // output all subnodes
-        for (auto* np: *this) {
-            if (only_cdata)
-                np->save(buffer, -1);
-            else {
-                np->save(buffer, indent + document()->indentSpaces());
-                if (indent && buffer.data()[buffer.bytes() - 1] != '\n')
-                    buffer.append(char('\n'));
-            }
-        }
-
-        // output indendation spaces
-        if (!only_cdata && indent > 0)
-            buffer.append(indentsString.c_str(), size_t(indent));
-
-        // output closing tag
-        buffer.append("</", 2);
-        buffer.append(name());
-        buffer.append('>');
-        if (indent) buffer.append('\n');
+        appendSubNodes(buffer, indent, only_cdata);
+        appendClosingTag(buffer, indent, only_cdata);
     } else {
         //LEAF
         if (type() == DOM_PI)
@@ -376,6 +357,31 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
             buffer.append("/>", 2);
         if (indent) buffer.append('\n');
     }
+}
+
+void Node::appendSubNodes(Buffer& buffer, int indent, bool only_cdata) const
+{
+    for (auto* np: *this) {
+        if (only_cdata)
+            np->save(buffer, -1);
+        else {
+            np->save(buffer, indent + document()->indentSpaces());
+            if (indent && buffer.data()[buffer.bytes() - 1] != '\n')
+                buffer.append('\n');
+        }
+    }
+}
+
+void Node::appendClosingTag(Buffer& buffer, int indent, bool only_cdata) const
+{// output indendation spaces
+    if (!only_cdata && indent > 0)
+        buffer.append(indentsString.c_str(), size_t(indent));
+
+    // output closing tag
+    buffer.append("</", 2);
+    buffer.append(name());
+    buffer.append('>');
+    if (indent) buffer.append('\n');
 }
 
 void Node::saveAttributes(Buffer& buffer) const

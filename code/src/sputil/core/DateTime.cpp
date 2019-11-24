@@ -908,8 +908,6 @@ DateTime DateTime::convertCTime(const time_t tt)
 String DateTime::format(Format dtFormat, size_t arg)
 {
     switch (dtFormat) {
-        case DATE_FORMAT:
-            return _dateFormat;
         case DATE_PARTS_ORDER:
             return _datePartsOrder;
         case FULL_TIME_FORMAT:
@@ -920,7 +918,10 @@ String DateTime::format(Format dtFormat, size_t arg)
             return _monthNames[arg];
         case WEEKDAY_NAME:
             return _weekDayNames[arg];
+        default:
+            return _dateFormat;
     }
+    return "";
 }
 char DateTime::dateSeparator() { return _dateSeparator; }
 char DateTime::timeSeparator() { return _timeSeparator; }

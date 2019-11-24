@@ -354,6 +354,54 @@ public:
     {
         return "";
     }
+
+    /**
+     * Document node, can contain subnodes and attributes
+     */
+    bool isDocument() const
+    {
+        return type() == DOM_DOCUMENT;
+    }
+
+    /**
+     * Normal element node or document, can contain subnodes and attributes
+     */
+    bool isElement() const
+    {
+        return (type() & (DOM_ELEMENT | DOM_DOCUMENT)) != 0;
+    }
+
+    /**
+     * Processing Instruction node
+     */
+    bool isPI() const
+    {
+        return type() == DOM_PI;
+    }
+
+    /**
+     * Cdata where all default entities MUST be escaped.
+     */
+    bool isText() const
+    {
+        return type() == DOM_TEXT;
+    }
+
+    /**
+     * Cdata section, which can contain preformatted char data.
+     */
+    bool isCDataSection() const
+    {
+        return type() == DOM_CDATA_SECTION;
+    }
+
+    /**
+     * Comment node
+     */
+    bool isComment() const
+    {
+        return type() == DOM_COMMENT;
+    }
 };
 
 /**
@@ -606,58 +654,12 @@ public:
         return true;
     }
 
-    /**
-     * Document node, can contain subnodes and attributes
-     */
-    bool isDocument() const
-    {
-        return type() == DOM_DOCUMENT;
-    }
-
-    /**
-     * Normal element node or document, can contain subnodes and attributes
-     */
-    bool isElement() const
-    {
-        return (type() & (DOM_ELEMENT | DOM_DOCUMENT)) != 0;
-    }
-
-    /**
-     * Processing Instruction node
-     */
-    bool isPI() const
-    {
-        return type() == DOM_PI;
-    }
-
-    /**
-     * Cdata where all default entities MUST be escaped.
-     */
-    bool isText() const
-    {
-        return type() == DOM_TEXT;
-    }
-
-    /**
-     * Cdata section, which can contain preformatted char data.
-     */
-    bool isCDataSection() const
-    {
-        return type() == DOM_CDATA_SECTION;
-    }
-
-    /**
-     * Comment node
-     */
-    bool isComment() const
-    {
-        return type() == DOM_COMMENT;
-    }
-
 private:
     void saveAttributes(Buffer& buffer) const;
     void saveAttributes(json::Element* object) const;
     void saveElement(json::Element* object) const;
+    void appendSubNodes(Buffer& buffer, int indent, bool only_cdata) const;
+    void appendClosingTag(Buffer& buffer, int indent, bool only_cdata) const;
 };
 
 /**
