@@ -170,10 +170,6 @@ int th_read(TAR *t)
         for (ptr = t->th_buf.gnu_longname; j > 0;
              j--, ptr += T_BLOCKSIZE)
         {
-#ifdef LIBTAR_DEBUG
-            printf("    th_read(): reading long filename "
-                   "(%d blocks left, ptr == %ld)\n", j, ptr);
-#endif
             i = tar_block_read(t, ptr);
             if (i != T_BLOCKSIZE)
             {
@@ -181,9 +177,6 @@ int th_read(TAR *t)
                     errno = EINVAL;
                 return -1;
             }
-#ifdef LIBTAR_DEBUG
-            printf("    th_read(): read block == \"%s\"\n", ptr);
-#endif
         }
 #ifdef LIBTAR_DEBUG
         printf("    th_read(): t->th_buf.gnu_longname == \"%s\"\n",

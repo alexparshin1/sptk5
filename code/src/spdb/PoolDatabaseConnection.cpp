@@ -30,6 +30,7 @@
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
 #include <list>
+#include <sptk5/StopWatch.h>
 
 using namespace std;
 using namespace sptk;
@@ -356,6 +357,19 @@ TEST(SPTK_BulkInsert, escapeSqlString)
     String sourceString = "Hello, 'World'.\n\rLet's go\n";
     String escapedString = escapeSQLString(sourceString, false);
     EXPECT_STREQ("Hello, ''World''.\\n\\rLet''s go\\n", escapedString.c_str());
+}
+
+TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
+{
+    size_t maxCount = 100000;
+    String sourceString = "Hello, 'World'.\n\rLet's go\n";
+    StopWatch stopWatch;
+    stopWatch.start();
+    for (size_t i = 0; i < maxCount; i++)
+        escapeSQLString(sourceString, false);
+    stopWatch.stop();
+    COUT("Escaped " << maxCount << " SQLs " << " for " << stopWatch.seconds() << " sec, "
+         << fixed << setprecision(2) << maxCount / stopWatch.seconds() / 1E6 << "M op/sec" << endl)
 }
 
 #endif
