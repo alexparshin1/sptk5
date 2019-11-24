@@ -920,8 +920,6 @@ String DateTime::format(Format dtFormat, size_t arg)
             return _monthNames[arg];
         case WEEKDAY_NAME:
             return _weekDayNames[arg];
-        default:
-            return "";
     }
 }
 char DateTime::dateSeparator() { return _dateSeparator; }

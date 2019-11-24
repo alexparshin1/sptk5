@@ -367,7 +367,7 @@ void Document::load(const char* xmlData)
             break; /// Tag started but not completed
 
         char* nodeName = nameStart;
-        char* nodeEnd;
+        char* nodeEnd = nullptr;
         switch (*nameStart) {
             case '!':
                 nameEnd = readExclamationTag(nodeName, nameEnd, nodeEnd, currentNode);

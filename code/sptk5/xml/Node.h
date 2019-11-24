@@ -721,7 +721,7 @@ protected:
      * Returns true if node name pointer (from SST) matches aname pointer
      * @param sstName           Node name pointer to compare with this node name pointer
      */
-    virtual bool nameIs(const std::string* sstName) const
+    bool nameIs(const std::string* sstName) const override
     {
         return sstName == m_name;
     }
