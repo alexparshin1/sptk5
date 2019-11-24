@@ -91,7 +91,7 @@ class SP_EXPORT Document : public SharedStrings, public Element
     void processAttributes(Node* node, char* ptr);
 
     static char* readComment(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
-    char* readCDataSection(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
+    static char* readCDataSection(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
     char* readDocType(char* tokenEnd);
 
     /**
@@ -277,7 +277,7 @@ private:
 
     char* readProcessingInstructions(char* nodeName, char* tokenEnd, char*& nodeEnd, Node* currentNode);
 
-    char* readClosingTag(char* nodeName, char* tokenEnd, Node*& currentNode);
+    static char* readClosingTag(char* nodeName, char* tokenEnd, Node*& currentNode);
 
     char* readOpenningTag(char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode);
 };

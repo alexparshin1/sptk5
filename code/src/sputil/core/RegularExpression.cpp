@@ -28,8 +28,6 @@
 
 #include <sptk5/Exception.h>
 #include <sptk5/RegularExpression.h>
-#include <sptk5/SystemException.h>
-#include <sptk5/cutils>
 
 #if HAVE_PCRE
 

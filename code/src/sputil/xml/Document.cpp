@@ -28,7 +28,6 @@
 
 #include <cstdlib>
 #include <sptk5/Strings.h>
-#include <sptk5/cxml>
 #include <sptk5/json/JsonDocument.h>
 #include <sptk5/xml/Document.h>
 
@@ -106,12 +105,14 @@ void Document::parseEntities(char* entitiesSection)
     while (start != nullptr) {
         start = (unsigned char*) strstr((char*) start, "<!ENTITY ");
         if (start == nullptr)
-            break;
+            continue; // break the loop
         start += 9;
         start = skipSpaces(start);
         auto* end = (unsigned char*) strchr((char*) start, ' ');
-        if (end == nullptr)
-            break;
+        if (end == nullptr) {
+            start = nullptr;
+            continue; // break the loop
+        }
         *end = 0;
         unsigned char* ent_name = start;
         unsigned char* ent_value = end + 1;
@@ -120,18 +121,24 @@ void Document::parseEntities(char* entitiesSection)
         if (delimiter == '\'' || delimiter == '\"') {
             ent_value++;
             end = (unsigned char*) strchr((char*) ent_value, (char) delimiter);
-            if (end == nullptr)
-                break;
+            if (end == nullptr) {
+                start = nullptr;
+                continue; // break the loop
+            }
             *end = 0;
         } else {
             end = (unsigned char*) strpbrk((char*) ent_value, " >");
-            if (end == nullptr)
-                break;
+            if (end == nullptr) {
+                start = nullptr;
+                continue; // break the loop
+            }
             if (*end == ' ') {
                 *end = 0;
                 end = (unsigned char*) strchr((char*) ent_value, '>');
-                if (end == nullptr)
-                    break;
+                if (end == nullptr) {
+                    start = nullptr;
+                    continue; // break the loop
+                }
             }
             *end = 0;
         }
