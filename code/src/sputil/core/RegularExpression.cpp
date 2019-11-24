@@ -260,32 +260,13 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
     return result + text.substr(lastOffset);
 }
 
-size_t RegularExpression::findNextPlaceholder(size_t pos, const String& outputPattern) const
-{
-    size_t placeHolderStart = pos;
-    for (;; placeHolderStart++) {
-        placeHolderStart = outputPattern.find('\\', placeHolderStart);
-        if (placeHolderStart == string::npos || isdigit(outputPattern[placeHolderStart + 1]))
-            break;
-    }
-    return placeHolderStart;
-}
-
-String RegularExpression::replaceAll(const String& text, const map<String, String>& substitutions, bool& replaced) const
+String RegularExpression::s(const String& text, std::function<String(const String&)> replace, bool& replaced) const
 {
     size_t offset = 0;
     size_t lastOffset = 0;
     Match matchOffsets[MAX_MATCHES];
     size_t totalMatches = 0;
     string result;
-
-    // For "i" option, make lowercase match map
-    map<String, String> substitutionsMap;
-    if (m_pcreOptions & PCRE_CASELESS) {
-        for (auto& itor: substitutions)
-            substitutionsMap[lowerCase(itor.first)] = itor.second;
-    } else
-        substitutionsMap = substitutions;
 
     replaced = false;
 
@@ -309,23 +290,37 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
         string currentMatch(text.c_str() + matchOffsets[0].m_start,
                             (unsigned) matchOffsets[0].m_end - (unsigned) matchOffsets[0].m_start);
 
-        map<String, String>::iterator itor;
-        if (m_pcreOptions & PCRE_CASELESS)
-            itor = substitutionsMap.find(lowerCase(currentMatch));
-        else
-            itor = substitutionsMap.find(currentMatch);
-
-        String nextReplacement;
-        if (itor == substitutionsMap.end())
-            nextReplacement = currentMatch;
-        else
-            nextReplacement = itor->second;
+        String nextReplacement = replace(currentMatch);
 
         result += nextReplacement;
 
     } while (offset);
 
     return result + text.substr(lastOffset);
+}
+
+size_t RegularExpression::findNextPlaceholder(size_t pos, const String& outputPattern) const
+{
+    size_t placeHolderStart = pos;
+    for (;; placeHolderStart++) {
+        placeHolderStart = outputPattern.find('\\', placeHolderStart);
+        if (placeHolderStart == string::npos || isdigit(outputPattern[placeHolderStart + 1]))
+            break;
+    }
+    return placeHolderStart;
+}
+
+String RegularExpression::replaceAll(const String& text, const map<String, String>& substitutions, bool& replaced) const
+{
+    // For "i" option, make lowercase match map
+    map<String, String> substitutionsMap;
+    if (m_pcreOptions & PCRE_CASELESS) {
+        for (auto& itor: substitutions)
+            substitutionsMap[lowerCase(itor.first)] = itor.second;
+    } else
+        substitutionsMap = substitutions;
+
+    return s(text, [&substitutionsMap](const String& match) { return substitutionsMap[match]; }, replaced);
 }
 
 String RegularExpression::s(const String& text, const String& outputPattern) const
@@ -371,6 +366,21 @@ TEST(SPTK_RegularExpression, replaceAll)
     String text = "$NAME was in $CITY in $YEAR ";
     bool  replaced(false);
     String result = matchPlaceholders.replaceAll(text, substitutions, replaced);
+    EXPECT_STREQ("John Doe was in London in 2000 ", result.c_str());
+}
+
+TEST(SPTK_RegularExpression, lambdaReplace)
+{
+    map<String,String> substitutions = {
+            { "$NAME", "John Doe" },
+            { "$CITY", "London" },
+            { "$YEAR", "2000" }
+    };
+
+    RegularExpression matchPlaceholders("\\$[A-Z]+", "g");
+    String text = "$NAME was in $CITY in $YEAR ";
+    bool  replaced(false);
+    String result = matchPlaceholders.s(text, [&substitutions](const String& match) { return substitutions[match]; }, replaced);
     EXPECT_STREQ("John Doe was in London in 2000 ", result.c_str());
 }
 

@@ -454,6 +454,7 @@ void Document::save(Buffer& buffer, int) const
             continue;
         node->save(buffer, indentSpaces());
     }
+    buffer[buffer.length()] = 0;
 }
 
 String Document::name() const

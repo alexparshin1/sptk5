@@ -73,7 +73,7 @@ class SP_EXPORT RegularExpression
     /**
      * Match pattern
      */
-    sptk::String     m_pattern;
+    String     m_pattern;
 
     /**
      * Global match (g) or first match only
@@ -83,7 +83,7 @@ class SP_EXPORT RegularExpression
     /**
      * Last pattern error (if any)
      */
-    sptk::String     m_error;
+    String     m_error;
 
 
     /**
@@ -114,7 +114,7 @@ class SP_EXPORT RegularExpression
      * @param matchOffsetsSize  Output match positions array size (in elements)
      * @return number of matches
      */
-    size_t nextMatch(const sptk::String& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const;
+    size_t nextMatch(const String& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const;
 
 public:
     /**
@@ -129,7 +129,7 @@ public:
      * @param pattern           PCRE pattern
      * @param options           Pattern options
      */
-    explicit RegularExpression(String pattern, const sptk::String& options = "");
+    explicit RegularExpression(String pattern, const String& options = "");
 
     /**
      * Copy constructor
@@ -147,21 +147,21 @@ public:
      * @param text              Input text
      * @return true if match found
      */
-    bool operator ==(const sptk::String& text) const;
+    bool operator ==(const String& text) const;
 
     /**
      * Returns true if text doesn't match with regular expression
      * @param text              Input text
      * @return true if match found
      */
-    bool operator !=(const sptk::String& text) const;
+    bool operator !=(const String& text) const;
 
     /**
      * Returns true if text matches with regular expression
      * @param text              Text to process
      * @return true if match found
      */
-    bool matches(const sptk::String& text) const;
+    bool matches(const String& text) const;
 
     /**
      * Returns list of strings matched with regular expression
@@ -169,7 +169,7 @@ public:
      * @param matchedStrings    List of matched strings
      * @return true if match found
      */
-    bool m(const sptk::String& text, sptk::Strings& matchedStrings) const;
+    bool m(const String& text, Strings& matchedStrings) const;
 
     /**
      * Replaces matches with replacement string
@@ -177,7 +177,16 @@ public:
      * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as first match
      * @return processed text
      */
-    sptk::String s(const sptk::String& text, const sptk::String& outputPattern) const;
+    String s(const String& text, const String& outputPattern) const;
+
+    /**
+     * Replaces matches with replacement string
+     * @param text              Text to process
+     * @param replace           Callback function providing replacement s for matches
+     * @param replaced          True if there were any replacements
+     * @return processed text
+     */
+    String s(const String& text, std::function<String(const String&)> replace, bool& replaced) const;
 
     /**
      * Returns list of strings split by regular expression
@@ -185,7 +194,7 @@ public:
      * @param outputStrings     List of matched strings
      * @return true if match found
      */
-    bool split(const sptk::String& text, sptk::Strings& outputStrings) const;
+    bool split(const String& text, Strings& outputStrings) const;
 
     /**
      * Replaces matches with replacement string
@@ -194,7 +203,7 @@ public:
      * @param replaced          Optional flag if replacement was made
      * @return processed text
      */
-    sptk::String replaceAll(const sptk::String& text, const sptk::String& outputPattern, bool& replaced) const;
+    String replaceAll(const String& text, const String& outputPattern, bool& replaced) const;
 
     /**
      * Replaces matches with replacement string from map, using matched string as an index
@@ -203,7 +212,7 @@ public:
      * @param replaced          Optional flag if replacement was made
      * @return processed text
      */
-    sptk::String replaceAll(const sptk::String& text, const std::map<sptk::String,sptk::String>& substitutions, bool& replaced) const;
+    String replaceAll(const String& text, const std::map<String,String>& substitutions, bool& replaced) const;
 
     /**
      * Get regular expression pattern
