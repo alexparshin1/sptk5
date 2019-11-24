@@ -36,6 +36,7 @@
 
 #include <vector>
 #include <pcre.h>
+#include <functional>
 
 namespace sptk {
 
