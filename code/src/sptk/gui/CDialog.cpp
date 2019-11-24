@@ -32,7 +32,6 @@
 #include <FL/fl_draw.H>
 
 #include <sptk5/Exception.h>
-#include <sptk5/Registry.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/gui/CMessageDialog.h>

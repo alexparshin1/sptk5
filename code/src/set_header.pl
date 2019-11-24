@@ -6,10 +6,10 @@ sub printHeader($$)
     printf $output "/*\n";
     printf $output "╔══════════════════════════════════════════════════════════════════════════════╗\n";
     printf $output "║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║\n";
-    printf $output "║                       %-50s     ║\n", "$file - description";
+#    printf $output "║                       %-50s     ║\n", "$file - description";
     printf $output "╟──────────────────────────────────────────────────────────────────────────────╢\n";
     printf $output "║  begin                Thursday May 25 2000                                   ║\n";
-    printf $output "║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║\n";
+    printf $output "║  copyright            (C) 1999-2020 by Alexey Parshin. All rights reserved.  ║\n";
     printf $output "║  email                alexeyp\@gmail.com                                      ║\n";
     printf $output "╚══════════════════════════════════════════════════════════════════════════════╝\n";
     printf $output "┌──────────────────────────────────────────────────────────────────────────────┐\n";
@@ -32,26 +32,42 @@ sub printHeader($$)
     printf $output "*/\n\n";
 }
 
+sub replaceHeader($$)
+{
+    my ($output,$fileName) = @_;
+    open(my $file, '<:encoding(UTF-8)', $fileName);
+
+    my $headerStarted = false;
+    my $codeStarted = true;
+    while (my $row = <$file>) {
+        chomp $row;
+        if ($codeStarted) {
+            printf $output "$row\n";
+            continue;
+        }
+        if ($headerStarted) {
+            if ($row =~ "^\*/") {
+                $codeStarted = true;
+                $printHeader($output, $fileName);
+            }
+            continue;
+        }
+        if ($row =~ "^╔══════") {
+            $headerStarted = true;
+            $codeStarted = false;
+        }
+    }
+
+    close($file);
+}
+
 sub processFile($)
 {
     my ($fileName) = @_;
     my $file;
 
     open(my $output, ">$fileName.new");
-    printHeader($output, $fileName) || die("Can't open $fileName.new");
-
-    open($file, $fileName) || die("Can't open $fileName");
-    my $header = 1;
-    while (<$file>) {
-        my $row = $_;
-        if ($header && $row =~ /^[\s\/\*]/) {
-            next;
-        } else {
-            $header = 0;
-            print $output $row;
-        }
-    }
-    close $file;
+    replaceHeader($output, $fileName) || die("Can't open $fileName.new");
     close($output);
 
     rename "$fileName.new", "$fileName";

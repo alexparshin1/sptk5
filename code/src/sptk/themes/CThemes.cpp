@@ -34,7 +34,7 @@
 #include <sptk5/DirectoryDS.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CTreeControl.h>
-#include <sptk5/Registry.h>
+#include <sptk5/HomeDirectory.h>
 
 #include <sptk5/gui/default_icons.h>
 #include <cmath>
@@ -688,7 +688,7 @@ Strings CThemes::availableThemes()
     /// GTK2 themes
     Strings gtkDirs;
     gtkDirs.push_back("/usr/share/themes");
-    gtkDirs.push_back(Registry::homeDirectory() + ".themes");
+    gtkDirs.push_back(HomeDirectory::location() + ".themes");
     for (unsigned i = 0; i < gtkDirs.size(); i++) {
         try {
             DirectoryDS dir;

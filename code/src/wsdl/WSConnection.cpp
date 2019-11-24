@@ -48,19 +48,21 @@ bool WSConnection::readHttpHeaders(String& protocolName, String& request, String
     String row;
     Buffer data;
     Strings matches;
+    bool   completed {false};
 
     RegularExpression parseProtocol("^(GET|POST) (\\S+)", "i");
     RegularExpression parseHeader("^([^:]+): \"{0,1}(.*)\"{0,1}$", "i");
 
     try {
-        while (!terminated()) {
+        while (!terminated() && !completed) {
             if (socket().readLine(data) == 0)
                 return false;
             row = trim(data.c_str());
             if (protocolName.empty()) {
                 if (row.find("<?xml") == 0) {
                     protocolName = "xml";
-                    break;
+                    completed = true;
+                    continue;
                 }
                 if (parseProtocol.m(row, matches)) {
                     request = row;
@@ -78,7 +80,8 @@ bool WSConnection::readHttpHeaders(String& protocolName, String& request, String
             }
             if (row.empty()) {
                 data.reset();
-                break;
+                completed = true;
+                continue;
             }
         }
     }

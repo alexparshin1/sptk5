@@ -28,7 +28,6 @@
 
 #include <sptk5/cutils>
 #include <sptk5/cgui>
-#include <sptk5/Registry.h>
 
 using namespace std;
 using namespace sptk;
@@ -50,10 +49,11 @@ void exit_cb(Fl_Widget* w, void*)
 
 class CExampleDialog : public CDialog
 {
-    Registry m_registry;  ///< An XML file where we store dialog controls data
+    xml::Document   m_state;
+    String          m_stateFileName { "dialog_test.xml" };
 public:
     CExampleDialog()
-    : CDialog(300, 260, "Example Dialog"), m_registry("dialog_test.xml", "sptk_test", USER_REGISTRY)
+    : CDialog(300, 260, "Example Dialog")
     {
         CInput* inp;
 
@@ -102,10 +102,12 @@ public:
         try {
             /// Try to load the prior values of the dialog controls.
             /// If the XML file doesn't exist yet - this will throw an exception that we trap.
-            m_registry.load();
+            Buffer buffer;
+            buffer.loadFromFile(m_stateFileName);
+            m_state.load(buffer);
 
             /// If the XML file exists, try to load data into the dialog
-            load(&m_registry);
+            load(&m_state);
         } catch (const Exception& e) {
             CERR(e.what() << endl);
         }
@@ -115,10 +117,12 @@ public:
     {
         try {
             /// Save data from dialog controls into XML file
-            save(&m_registry);
+            save(&m_state);
 
             /// Save the XML file.
-            m_registry.save();
+            Buffer buffer;
+            m_state.save(buffer, 0);
+            buffer.saveToFile(m_stateFileName);
         }
         catch (const Exception& e) {
             spError("Can't save dialog data: " + string(e.what()));

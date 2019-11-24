@@ -84,12 +84,12 @@ void Parser::parse(Element& jsonElement, const string& jsonStr)
     const char* pos = json;
     skipSpaces(json, pos);
 
-    if (jsonElement.m_type != JDT_NULL)
+    if (!jsonElement.is(JDT_NULL))
         throwError("Can't execute on non-null JSON element", json, 0);
 
     switch (*pos) {
         case '{':
-            jsonElement.m_type = JDT_OBJECT;
+            jsonElement.setType(JDT_OBJECT);
             jsonElement.m_data.m_object = new ObjectData(jsonElement.getDocument(), &jsonElement);
             readObjectData(&jsonElement, json, pos);
             break;

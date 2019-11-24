@@ -35,120 +35,14 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::json;
 
-Element::Element(Document* document, double value) noexcept
-: m_document(document), m_parent(nullptr), m_type(JDT_NUMBER)
+ElementData::ElementData(Document* document, Type type) noexcept
+: m_document(document), m_parent(nullptr), m_type(type)
 {
-    m_data.m_number = value;
 }
 
-Element::Element(Document* document, int value) noexcept
-: m_document(document), m_parent(nullptr), m_type(JDT_NUMBER)
+void ElementData::clear()
 {
-    m_data.m_number = value;
-}
-
-Element::Element(Document* document, int64_t value) noexcept
-: m_document(document), m_parent(nullptr), m_type(JDT_NUMBER)
-{
-    m_data.m_number = (double) value;
-}
-
-Element::Element(Document* document, const String& value) noexcept
-: m_document(document), m_parent(nullptr), m_type(JDT_STRING)
-{
-    m_data.m_string = m_document->getString(value);
-}
-
-Element::Element(Document* document, const char* value) noexcept
-: m_document(document), m_parent(nullptr), m_type(JDT_STRING)
-{
-    m_data.m_string = m_document->getString(value);
-}
-
-Element::Element(Document* document, bool value) noexcept
-: m_document(document), m_parent(nullptr), m_type(JDT_BOOLEAN)
-{
-    m_data.m_boolean = value;
-}
-
-Element::Element(Document* document, ArrayData* value) noexcept
-: m_document(document), m_parent(nullptr), m_type(JDT_ARRAY)
-{
-    m_data.m_array = value;
-    for (Element* jsonElement: *m_data.m_array)
-        jsonElement->m_parent = this;
-}
-
-Element::Element(Document* document, ObjectData* value) noexcept
-: m_document(document), m_parent(nullptr), m_type(JDT_OBJECT)
-{
-    m_data.m_object = value;
-    for (auto itor: *m_data.m_object)
-        itor.second->m_parent = this;
-}
-
-Element::Element(Document* document) noexcept
-: m_document(document), m_parent(nullptr), m_type(JDT_NULL)
-{
-    m_data.m_boolean = false;
-}
-
-Element::Element(Document* document, const Element& other)
-: m_document(document), m_parent(nullptr), m_type(JDT_NULL)
-{
-    assign(other);
-}
-
-void Element::moveElement(Element&& other) noexcept
-{
-    clear();
-    m_type = other.m_type;
-    m_parent = other.m_parent;
-    memcpy(&m_data, &other.m_data, sizeof(m_data));
-    other.m_type = JDT_NULL;
-}
-
-Element::Element(Document*document, Element&& other) noexcept
-: m_document(document), m_type(JDT_NULL)
-{
-	m_data.m_boolean = false;
-    moveElement(move(other));
-}
-
-void Element::assign(const Element& other)
-{
-    m_type = other.m_type;
-    switch (m_type) {
-        case JDT_STRING:
-            m_data.m_string = new string(*other.m_data.m_string);
-            break;
-
-        case JDT_ARRAY:
-        case JDT_OBJECT:
-            break;
-
-        default:
-            memcpy(&m_data, &other.m_data, sizeof(m_data));
-            break;
-    }
-}
-
-Element& Element::operator=(const Element& other)
-{
-    if (&other != this)
-        assign(other);
-    return *this;
-}
-
-Element& Element::operator=(Element&& other) noexcept
-{
-    moveElement(move(other));
-    return *this;
-}
-
-void Element::clear()
-{
-    switch (m_type) {
+    switch (type()) {
         case JDT_ARRAY:
             delete m_data.m_array;
             break;
@@ -163,172 +57,36 @@ void Element::clear()
     m_type = JDT_NULL;
 }
 
-Element::~Element()
+size_t ElementData::size() const
 {
-    clear();
+    if (m_type == JDT_OBJECT)
+        return m_data.m_object->size();
+    if (m_type == JDT_ARRAY)
+        return m_data.m_array->size();
+    return 0;
 }
 
-Element* Element::add(Element* element)
+const Element* ElementData::find(const String& name) const
 {
-    element->m_document = m_document;
-
-    if (m_type != JDT_ARRAY)
-        throw Exception("Parent element is not JSON array");
-    if (!m_data.m_array)
-        m_data.m_array = new ArrayData(m_document, this);
-    m_data.m_array->add(element);
-    element->m_parent = this;
-
-    return element;
-}
-
-Element* Element::add(const String& name, Element* element)
-{
-    element->m_document = m_document;
-
-    if (m_type != JDT_OBJECT && m_type != JDT_NULL)
-        throw Exception("Parent element is not JSON object");
-
-    if (!m_data.m_object || m_type == JDT_NULL) {
-        m_type = JDT_OBJECT;
-        m_data.m_object = new ObjectData(m_document, this);
-    }
-
-    Element* sameNameExistingElement = m_data.m_object->find(name);
-    if (sameNameExistingElement == nullptr) {
-        m_data.m_object->add(name, element);
-        element->m_parent = this;
-        return element;
-    }
-
-    if (sameNameExistingElement->is(JDT_ARRAY)) {
-        sameNameExistingElement->add(element);
-        return element;
-    }
-
-    m_data.m_object->move(name);
-    auto* arrayData = new ArrayData(m_document);
-    auto* array = new Element(m_document, arrayData);
-    array->add(sameNameExistingElement);
-    array->add(element);
-    add(name, array);
-
-    return element;
-}
-
-const Element* Element::find(const String& name) const
-{
-    if (m_type != JDT_OBJECT)
+    if (!is(JDT_OBJECT))
         throw Exception("Parent element is nether JSON array nor JSON object");
-    if (!m_data.m_object)
+    if (!data().m_object)
         return nullptr;
-    return m_data.m_object->find(name);
+    return data().m_object->find(name);
 }
 
-Element* Element::find(const String& name)
+Element* ElementData::find(const String& name)
 {
-    if (m_type != JDT_OBJECT)
+    if (!is(JDT_OBJECT))
         throw Exception("Parent element is nether JSON array nor JSON object");
-    if (!m_data.m_object)
+    if (!data().m_object)
         return nullptr;
-    return m_data.m_object->find(name);
+    return data().m_object->find(name);
 }
 
-Element& Element::operator[](const char* name)
+Element& ElementData::getChild(const String& name)
 {
-    if (m_type != JDT_OBJECT && m_type != JDT_NULL)
-        throw Exception("Parent element is not JSON object");
-
-    if (m_type == JDT_NULL || !m_data.m_object) {
-        m_data.m_object = new ObjectData(m_document, this);
-        m_type = JDT_OBJECT;
-    }
-
-    return (*m_data.m_object)[name];
-}
-
-const Element& Element::operator[](const char* name) const
-{
-    if (m_type != JDT_OBJECT)
-        return m_document->getEmptyElement();
-
-    const Element* element = find(name);
-    if (!element)
-        return m_document->getEmptyElement();
-    return *element;
-}
-
-Element& Element::operator[](const String& name)
-{
-    if (m_type != JDT_OBJECT && m_type != JDT_NULL)
-        throw Exception("Parent element is not JSON object");
-
-    if (m_type == JDT_NULL || !m_data.m_object) {
-        m_data.m_object = new ObjectData(m_document, this);
-        m_type = JDT_OBJECT;
-    }
-
-    return (*m_data.m_object)[name];
-}
-
-const Element& Element::operator[](const String& name) const
-{
-    if (m_type != JDT_OBJECT)
-        return m_document->getEmptyElement();
-
-    const Element* element = find(name);
-    if (!element)
-        return m_document->getEmptyElement();
-    return *element;
-}
-
-Element& Element::operator[](size_t index)
-{
-    if (m_type != JDT_ARRAY)
-        throw Exception("Parent element is not JSON array");
-
-    if (!m_data.m_array)
-        m_data.m_array = new ArrayData(m_document, this);
-
-    while (index <= m_data.m_array->size())
-        m_data.m_array->add(new Element(m_document, ""));
-
-    return (*m_data.m_array)[index];
-}
-
-const Element& Element::operator[](size_t index) const
-{
-    if (m_type != JDT_ARRAY)
-        throw Exception("Parent element is not JSON array");
-
-    if (!m_data.m_array || index >= m_data.m_array->size())
-        throw Exception("JSON array index out of bound");
-
-    return (*m_data.m_array)[index];
-}
-
-void Element::remove(const String& name)
-{
-    if (m_type != JDT_OBJECT)
-        throw Exception("Parent element is not JSON object");
-    if (!m_data.m_object)
-        return;
-    m_data.m_object->remove(name);
-}
-
-Element* Element::parent()
-{
-    return m_parent;
-}
-
-Type Element::type() const
-{
-    return m_type;
-}
-
-Element& Element::getChild(const String& name)
-{
-    Element* element = this;
+    auto* element = dynamic_cast<Element*>(this);
     if (!name.empty()) {
         element = find(name);
         if (element == nullptr)
@@ -337,9 +95,9 @@ Element& Element::getChild(const String& name)
     return *element;
 }
 
-const Element& Element::getChild(const String& name) const
+const Element& ElementData::getChild(const String& name) const
 {
-    const Element* element = this;
+    auto* element = dynamic_cast<const Element*>(this);
     if (!name.empty()) {
         element = find(name);
         if (element == nullptr)
@@ -348,11 +106,11 @@ const Element& Element::getChild(const String& name) const
     return *element;
 }
 
-double Element::getNumber(const String& name) const
+double ElementData::getNumber(const String& name) const
 {
     auto& element = getChild(name);
-    if (element.m_type == JDT_NUMBER)
-        return element.m_data.m_number;
+    if (element.is(JDT_NUMBER))
+        return element.data().m_number;
     throw Exception("Not a number");
 }
 
@@ -373,22 +131,22 @@ static String JsonNumberToString(double number)
     return String(buffer, (size_t) len);
 }
 
-String Element::getString(const String& name) const
+String ElementData::getString(const String& name) const
 {
     auto& element = getChild(name);
 
-    if (element.m_type == JDT_STRING)
-        return *element.m_data.m_string;
+    if (element.is(JDT_STRING))
+        return *element.data().m_string;
 
-    switch (element.m_type) {
+    switch (element.type()) {
         case JDT_NUMBER:
-            return JsonNumberToString(element.m_data.m_number);
+            return JsonNumberToString(element.data().m_number);
 
         case JDT_STRING:
-            return *element.m_data.m_string;
+            return *element.data().m_string;
 
         case JDT_BOOLEAN:
-            return element.m_data.m_boolean ? string("true", 4) : string("false", 5);
+            return element.data().m_boolean ? string("true", 4) : string("false", 5);
 
         case JDT_NULL:
             return string("null", 4);
@@ -402,93 +160,57 @@ String Element::getString(const String& name) const
     return output.str();
 }
 
-bool Element::getBoolean(const String& name) const
+bool ElementData::getBoolean(const String& name) const
 {
     auto& element = getChild(name);
-    if (element.m_type == JDT_STRING)
-        return *element.m_data.m_string == "true";
-    else if (element.m_type == JDT_BOOLEAN)
-        return element.m_data.m_boolean;
+    if (element.type() == JDT_STRING)
+        return *element.data().m_string == "true";
+    else if (element.type() == JDT_BOOLEAN)
+        return element.data().m_boolean;
     throw Exception("Not a boolean");
 }
 
-json::ArrayData& Element::getArray(const String& name)
+json::ArrayData& ElementData::getArray(const String& name)
 {
     auto& element = getChild(name);
-    if (element.m_type == JDT_ARRAY && element.m_data.m_array)
-        return *element.m_data.m_array;
+    if (element.type() == JDT_ARRAY && element.data().m_array)
+        return *element.data().m_array;
     throw Exception("Not an array");
 }
 
-const json::ArrayData& Element::getArray(const String& name) const
+const json::ArrayData& ElementData::getArray(const String& name) const
 {
     auto& element = getChild(name);
-    if (element.m_type == JDT_ARRAY && element.m_data.m_array)
-        return *element.m_data.m_array;
+    if (element.type() == JDT_ARRAY && element.data().m_array)
+        return *element.data().m_array;
     throw Exception("Not an array");
 }
 
-json::ObjectData& Element::getObject(const String& name)
+json::ObjectData& ElementData::getObject(const String& name)
 {
     auto& element = getChild(name);
-    if (element.m_type == JDT_OBJECT && element.m_data.m_object)
-        return *element.m_data.m_object;
+    if (element.type() == JDT_OBJECT && element.data().m_object)
+        return *element.data().m_object;
     throw Exception("Not an object");
 }
 
-const json::ObjectData& Element::getObject(const String& name) const
+const json::ObjectData& ElementData::getObject(const String& name) const
 {
     auto& element = getChild(name);
-    if (element.m_type == JDT_OBJECT && element.m_data.m_object)
-        return *element.m_data.m_object;
+    if (element.type() == JDT_OBJECT && element.data().m_object)
+        return *element.data().m_object;
     throw Exception("Not an object");
 }
 
-void Element::exportArray(ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
-{
-    stream << "[";
-    if (m_data.m_array) {
-        bool first = true;
-        for (Element* element: *m_data.m_array) {
-            if (first) {
-                first = false;
-                stream << firstElement;
-            } else
-                stream << betweenElements;
-            element->exportValueTo(stream, formatted, indent + 4);
-        }
-    }
-    stream << newLineChar << indentSpaces << "]";
-}
 
-void Element::exportObject(ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
-{
-    stream << "{";
-    if (m_data.m_object) {
-        bool first = true;
-        for (auto& itor: *m_data.m_object) {
-            if (first) {
-                first = false;
-                stream << firstElement;
-            } else
-                stream << betweenElements;
-            stream << "\"" << *itor.first << "\":";
-            if (formatted)
-                stream << " ";
-            itor.second->exportValueTo(stream, formatted, indent + 4);
-        }
-    }
-    stream << newLineChar << indentSpaces << "}";
-}
-
-void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) const
+void ElementData::exportValueTo(ostream& stream, bool formatted, size_t indent) const
 {
     String indentSpaces;
     String newLineChar;
     String firstElement;
     String betweenElements(",");
 
-    if (formatted && m_type & (JDT_ARRAY | JDT_OBJECT)) {
+    if (formatted && type() & (JDT_ARRAY | JDT_OBJECT)) {
         if (indent)
             indentSpaces = string(indent, ' ');
         newLineChar = "\n";
@@ -498,20 +220,20 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
 
     auto saveFlags = stream.flags();
 
-    switch (m_type) {
+    switch (type()) {
         case JDT_NUMBER:
-            if (m_data.m_number == (long) m_data.m_number)
-                stream << fixed << (long) m_data.m_number;
+            if (data().m_number == (long) data().m_number)
+                stream << fixed << (long) data().m_number;
             else
-                stream << fixed << m_data.m_number;
+                stream << fixed << data().m_number;
             break;
 
         case JDT_STRING:
-            stream << "\"" << escape(*m_data.m_string) << "\"";
+            stream << "\"" << escape(*data().m_string) << "\"";
             break;
 
         case JDT_BOOLEAN:
-            stream << (m_data.m_boolean ? "true" : "false");
+            stream << (data().m_boolean ? "true" : "false");
             break;
 
         case JDT_ARRAY:
@@ -529,10 +251,10 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
     stream.flags(saveFlags);
 }
 
-void Element::exportValueTo(const String& name, xml::Element& parentNode) const
+void ElementData::exportValueTo(const String& name, xml::Element& parentNode) const
 {
     auto* node = new xml::Element(parentNode, name);
-    switch (m_type) {
+    switch (type()) {
         case JDT_NUMBER:
         case JDT_BOOLEAN:
         case JDT_STRING:
@@ -540,15 +262,15 @@ void Element::exportValueTo(const String& name, xml::Element& parentNode) const
             break;
 
         case JDT_ARRAY:
-            if (m_data.m_array) {
-                for (Element* element: *m_data.m_array)
+            if (data().m_array) {
+                for (Element* element: *data().m_array)
                     element->exportValueTo("item", *node);
             }
             break;
 
         case JDT_OBJECT:
-            if (m_data.m_object) {
-                for (auto& itor: *m_data.m_object)
+            if (data().m_object) {
+                for (auto& itor: *data().m_object)
                     itor.second->exportValueTo(*itor.first, *node);
             }
             break;
@@ -559,14 +281,298 @@ void Element::exportValueTo(const String& name, xml::Element& parentNode) const
     }
 }
 
-void Element::exportTo(ostream& stream, bool formatted) const
+void ElementData::exportArray(ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
+{
+    stream << "[";
+    if (is (JDT_ARRAY) && data().m_array) {
+        bool first = true;
+        for (Element* element: *data().m_array) {
+            if (first) {
+                first = false;
+                stream << firstElement;
+            } else
+                stream << betweenElements;
+            element->exportValueTo(stream, formatted, indent + 4);
+        }
+    }
+    stream << newLineChar << indentSpaces << "]";
+}
+
+void ElementData::exportObject(ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
+{
+    stream << "{";
+    if (is(JDT_OBJECT) && data().m_object) {
+        bool first = true;
+        for (auto& itor: *data().m_object) {
+            if (first) {
+                first = false;
+                stream << firstElement;
+            } else
+                stream << betweenElements;
+            stream << "\"" << *itor.first << "\":";
+            if (formatted)
+                stream << " ";
+            itor.second->exportValueTo(stream, formatted, indent + 4);
+        }
+    }
+    stream << newLineChar << indentSpaces << "}";
+}
+
+void ElementData::exportTo(ostream& stream, bool formatted) const
 {
     exportValueTo(stream, formatted, 0);
 }
 
-void Element::exportTo(const string& name, xml::Element& parentNode) const
+void ElementData::exportTo(const string& name, xml::Element& parentNode) const
 {
     exportValueTo(name, parentNode);
+}
+
+
+Element::Element(Document* document, double value) noexcept
+: ElementData(document, JDT_NUMBER)
+{
+    data().m_number = value;
+}
+
+Element::Element(Document* document, int value) noexcept
+: ElementData(document, JDT_NUMBER)
+{
+    data().m_number = value;
+}
+
+Element::Element(Document* document, int64_t value) noexcept
+: ElementData(document, JDT_NUMBER)
+{
+    data().m_number = (double) value;
+}
+
+Element::Element(Document* document, const String& value) noexcept
+: ElementData(document, JDT_STRING)
+{
+    data().m_string = ElementData::getDocument()->getString(value);
+}
+
+Element::Element(Document* document, const char* value) noexcept
+: ElementData(document, JDT_STRING)
+{
+    data().m_string = ElementData::getDocument()->getString(value);
+}
+
+Element::Element(Document* document, bool value) noexcept
+: ElementData(document, JDT_BOOLEAN)
+{
+    data().m_boolean = value;
+}
+
+Element::Element(Document* document, ArrayData* value) noexcept
+: ElementData(document, JDT_ARRAY)
+{
+    data().m_array = value;
+    for (Element* jsonElement: *data().m_array)
+        jsonElement->setParent(this);
+}
+
+Element::Element(Document* document, ObjectData* value) noexcept
+: ElementData(document, JDT_OBJECT)
+{
+    data().m_object = value;
+    for (auto itor: *data().m_object)
+        itor.second->setParent(this);
+}
+
+Element::Element(Document* document) noexcept
+: ElementData(document, JDT_NULL)
+{
+    data().m_boolean = false;
+}
+
+Element::Element(Document* document, const Element& other)
+: ElementData(document, JDT_NULL)
+{
+    assign(other);
+}
+
+void Element::moveElement(Element&& other) noexcept
+{
+    clear();
+    setType(other.type());
+    setParent(other.parent());
+    memcpy(&data(), &other.data(), sizeof(data()));
+    other.setType(JDT_NULL);
+}
+
+Element::Element(Document*document, Element&& other) noexcept
+: ElementData(document, JDT_NULL)
+{
+	data().m_boolean = false;
+    moveElement(move(other));
+}
+
+void Element::assign(const Element& other)
+{
+    setType(other.type());
+    switch (type()) {
+        case JDT_STRING:
+            data().m_string = new string(*other.data().m_string);
+            break;
+
+        case JDT_ARRAY:
+        case JDT_OBJECT:
+            break;
+
+        default:
+            memcpy(&data(), &other.data(), sizeof(data()));
+            break;
+    }
+}
+
+Element& Element::operator=(const Element& other)
+{
+    if (&other != this)
+        assign(other);
+    return *this;
+}
+
+Element& Element::operator=(Element&& other) noexcept
+{
+    moveElement(move(other));
+    return *this;
+}
+
+Element::~Element()
+{
+    clear();
+}
+
+Element* Element::add(Element* element)
+{
+    element->setDocument(getDocument());
+
+    if (type() != JDT_ARRAY)
+        throw Exception("Parent element is not JSON array");
+    if (!data().m_array)
+        data().m_array = new ArrayData(getDocument(), this);
+    data().m_array->add(element);
+    element->setParent(this);
+
+    return element;
+}
+
+Element* Element::add(const String& name, Element* element)
+{
+    element->setDocument(getDocument());
+
+    if ((type() & (JDT_OBJECT|JDT_NULL)) == 0)
+        throw Exception("Parent element is not JSON object");
+
+    if (!data().m_object || is(JDT_NULL)) {
+        setType(JDT_OBJECT);
+        data().m_object = new ObjectData(getDocument(), this);
+    }
+
+    Element* sameNameExistingElement = data().m_object->find(name);
+    if (sameNameExistingElement == nullptr) {
+        data().m_object->add(name, element);
+        element->setParent(this);
+        return element;
+    }
+
+    if (sameNameExistingElement->is(JDT_ARRAY)) {
+        sameNameExistingElement->add(element);
+        return element;
+    }
+
+    data().m_object->move(name);
+    auto* arrayData = new ArrayData(getDocument());
+    auto* array = new Element(getDocument(), arrayData);
+    array->add(sameNameExistingElement);
+    array->add(element);
+    add(name, array);
+
+    return element;
+}
+
+Element& Element::operator[](const char* name)
+{
+    if (!is(JDT_OBJECT|JDT_NULL))
+        throw Exception("Parent element is not JSON object");
+
+    if (is(JDT_NULL) || !data().m_object) {
+        data().m_object = new ObjectData(getDocument(), this);
+        setType(JDT_OBJECT);
+    }
+
+    return (*data().m_object)[name];
+}
+
+const Element& Element::operator[](const char* name) const
+{
+    if (type() != JDT_OBJECT)
+        return getDocument()->getEmptyElement();
+
+    const Element* element = find(name);
+    if (!element)
+        return getDocument()->getEmptyElement();
+    return *element;
+}
+
+Element& Element::operator[](const String& name)
+{
+    if (type() != JDT_OBJECT && type() != JDT_NULL)
+        throw Exception("Parent element is not JSON object");
+
+    if (type() == JDT_NULL || !data().m_object) {
+        data().m_object = new ObjectData(getDocument(), this);
+        setType(JDT_OBJECT);
+    }
+
+    return (*data().m_object)[name];
+}
+
+const Element& Element::operator[](const String& name) const
+{
+    if (type() != JDT_OBJECT)
+        return getDocument()->getEmptyElement();
+
+    const Element* element = find(name);
+    if (!element)
+        return getDocument()->getEmptyElement();
+    return *element;
+}
+
+Element& Element::operator[](size_t index)
+{
+    if (type() != JDT_ARRAY)
+        throw Exception("Parent element is not JSON array");
+
+    if (!data().m_array)
+        data().m_array = new ArrayData(getDocument(), this);
+
+    while (index <= data().m_array->size())
+        data().m_array->add(new Element(getDocument(), ""));
+
+    return (*data().m_array)[index];
+}
+
+const Element& Element::operator[](size_t index) const
+{
+    if (type() != JDT_ARRAY)
+        throw Exception("Parent element is not JSON array");
+
+    if (!data().m_array || index >= data().m_array->size())
+        throw Exception("JSON array index out of bound");
+
+    return (*data().m_array)[index];
+}
+
+void Element::remove(const String& name)
+{
+    if (type() != JDT_OBJECT)
+        throw Exception("Parent element is not JSON object");
+    if (!data().m_object)
+        return;
+    data().m_object->remove(name);
 }
 
 string json::escape(const string& text)
@@ -733,8 +739,8 @@ void Element::appendMatchedElement(ElementSet& elements, const Element::XPathEle
 void Element::selectChildElements(ElementSet& elements, const Element::XPath& xpath, bool rootOnly) const
 {
     if (!rootOnly) {
-        for (auto& itor: *m_data.m_object) {
-            if (itor.second->m_type == JDT_OBJECT || itor.second->m_type == JDT_ARRAY)
+        for (auto& itor: *data().m_object) {
+            if (itor.second->is(JDT_OBJECT|JDT_ARRAY))
                 itor.second->selectElements(elements, xpath, 0, false);
         }
     }
@@ -746,12 +752,12 @@ void Element::selectElements(ElementSet& elements, const XPath& xpath, size_t xp
     bool matchAnyElement = xpathElement.name == String("*", 1);
     bool lastPosition = xpath.size() == xpathPosition + 1;
 
-    if (m_type == JDT_ARRAY) {
-        for (Element* element: *m_data.m_array) {
+    if (is(JDT_ARRAY)) {
+        for (Element* element: *data().m_array) {
             // Continue to match children
             element->selectElements(elements, xpath, xpathPosition, false);
         }
-    } else if (m_type == JDT_OBJECT) {
+    } else if (is(JDT_OBJECT)) {
         if (!matchAnyElement) {
             Element* element = find(xpathElement.name);
             if (element) {
@@ -764,7 +770,7 @@ void Element::selectElements(ElementSet& elements, const XPath& xpath, size_t xp
                 }
             }
         } else {
-            for (auto& itor: *m_data.m_object) {
+            for (auto& itor: *data().m_object) {
                 if (lastPosition) {
                     // Full xpath match
                     Element* element = itor.second;
@@ -815,29 +821,20 @@ void Element::select(ElementSet& elements, const String& xPath)
     selectElements(elements, xpath, 0, xpath.rootOnly);
 }
 
-size_t Element::size() const
-{
-    if (m_type == JDT_OBJECT)
-        return m_data.m_object->size();
-    if (m_type == JDT_ARRAY)
-        return m_data.m_array->size();
-    return 0;
-}
-
 void Element::optimizeArrays(const std::string& name)
 {
     if (is(JDT_OBJECT)) {
         if (size() == 1) {
-            auto itor = m_data.m_object->begin();
+            auto itor = data().m_object->begin();
             Element* itemElement = itor->second;
             if ((*itor->first == name || name.empty()) && itemElement->is(JDT_ARRAY)) {
-                m_data.m_object->move(*itor->first);
+                data().m_object->move(*itor->first);
                 *this = ::move(*itemElement);
                 optimizeArrays(name);
                 return;
             }
         }
-        for (auto itor: *m_data.m_object) {
+        for (auto itor: *data().m_object) {
             Element* element = itor.second;
             element->optimizeArrays(name);
         }
@@ -845,7 +842,7 @@ void Element::optimizeArrays(const std::string& name)
     }
 
     if (is(JDT_ARRAY)) {
-        for (auto* element: *m_data.m_array)
+        for (auto* element: *data().m_array)
             element->optimizeArrays(name);
         return;
     }
@@ -853,45 +850,40 @@ void Element::optimizeArrays(const std::string& name)
 
 Element* Element::push_array()
 {
-    auto* arrayElement = new Element(m_document, new ArrayData(m_document));
+    auto* arrayElement = new Element(getDocument(), new ArrayData(getDocument()));
     add(arrayElement);
     return arrayElement;
 }
 
 Element* Element::set_array(const String& name)
 {
-    auto* arrayElement = new Element(m_document, new ArrayData(m_document));
+    auto* arrayElement = new Element(getDocument(), new ArrayData(getDocument()));
     add(name, arrayElement);
     return arrayElement;
 }
 
 Element* Element::push_object()
 {
-    auto* objectElement = new Element(m_document, new ObjectData(m_document));
+    auto* objectElement = new Element(getDocument(), new ObjectData(getDocument()));
     add(objectElement);
     return objectElement;
 }
 
 Element* Element::set_object(const String& name)
 {
-    auto* objectElement = new Element(m_document, new ObjectData(m_document));
+    auto* objectElement = new Element(getDocument(), new ObjectData(getDocument()));
     add(name, objectElement);
     return objectElement;
 }
 
-Document* Element::getDocument() const
-{
-    return m_document;
-}
-
 #if USE_GTEST
-
 static const String testJSON1(R"({ "AAA": { "BBB": "", "CCC": "", "BBB": "", "BBB": "", "DDD": { "BBB": "" }, "CCC": "" } })");
 static const String testJSON2(R"({ "AAA": { "BBB": "", "CCC": "", "BBB": "", "DDD": { "BBB": "" }, "CCC": { "DDD": { "BBB": "", "BBB": "" } } } })");
 static const String testJSON3(R"({ "AAA": { "XXX": { "DDD": { "BBB": "", "BBB": "", "EEE": null, "FFF": null } }, "CCC": { "DDD": { "BBB": null, "BBB": null, "EEE": null, "FFF": null } }, "CCC": { "BBB": { "BBB": { "BBB": null } } } } })");
-static const String testJSON4(R"({ "AAA": { "BBB": "1", "BBB": "2", "BBB": "3", "BBB": "4" } })");
 
+static const String testJSON4(R"({ "AAA": { "BBB": "1", "BBB": "2", "BBB": "3", "BBB": "4" } })");
 static const String testJSON5(R"({"data":{"array":[1,2,3,"test"]}})");
+
 static const String testJSON6(R"({
     "data": {
         "array": [

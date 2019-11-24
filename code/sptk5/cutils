@@ -34,7 +34,7 @@
 #include <sptk5/FileLogEngine.h>
 #include <sptk5/Logger.h>
 #include <sptk5/Printer.h>
-#include <sptk5/Registry.h>
+#include <sptk5/HomeDirectory.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/SysLogEngine.h>
 #include <sptk5/SystemException.h>

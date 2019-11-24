@@ -135,7 +135,7 @@ namespace sptk {
         }
     }
 
-    void CGtkThemeParser::parseImage(const Strings& gtkrc, unsigned& currentRow, xml::Node* parentNode)
+    void CGtkThemeParser::parseImage(const Strings& gtkrc, size_t& currentRow, xml::Node* parentNode)
     {
         if (gtkrc[currentRow] != "image")
             throw Exception("Expecting 'image' in row " + gtkrc[currentRow]);
@@ -152,7 +152,7 @@ namespace sptk {
         }
     }
 
-    void CGtkThemeParser::parseEngine(const Strings& gtkrc, unsigned& currentRow, xml::Node* parentNode)
+    void CGtkThemeParser::parseEngine(const Strings& gtkrc, size_t& currentRow, xml::Node* parentNode)
     {
         if (gtkrc[currentRow].find("engine") != 0)
             throw Exception("Expecting 'engine' in row " + gtkrc[currentRow]);
@@ -176,7 +176,7 @@ namespace sptk {
         }
     }
 
-    void CGtkThemeParser::parseStyle(const Strings& gtkrc, unsigned& currentRow, xml::Node* parentNode)
+    void CGtkThemeParser::parseStyle(const Strings& gtkrc, size_t& currentRow, xml::Node* parentNode)
     {
         //const string& styleRow = gtkrc[currentRow];
         if (gtkrc[currentRow].find("style") != 0)
@@ -205,7 +205,7 @@ namespace sptk {
         m_xml.clear();
         xml::Node* stylesNode = new xml::Element(&m_xml, "styles");
         //Node* paramsNode = new Element(&m_xml,"styles");
-        for (unsigned row = 0; row < gtkrc.size(); row++) {
+        for (size_t row = 0; row < gtkrc.size(); row++) {
             const string& str = gtkrc[row];
             if (str.compare(0, 6, "style ") == 0)
                 parseStyle(gtkrc, row, stylesNode);
@@ -218,7 +218,7 @@ namespace sptk {
 
     void CGtkThemeParser::load(const string& themeName)
     {
-        m_themeFolder = Registry::homeDirectory() + ".themes/" + themeName + "/gtk-2.0/";
+        m_themeFolder = HomeDirectory::location() + ".themes/" + themeName + "/gtk-2.0/";
         string gtkrcFile = m_themeFolder + "gtkrc";
         Strings gtkrcSource;
 
@@ -233,7 +233,7 @@ namespace sptk {
 
         Strings gtkrc;
 
-        for (unsigned i = 0; i < gtkrcSource.size(); i++) {
+        for (size_t i = 0; i < gtkrcSource.size(); i++) {
             String s = trim(gtkrcSource[i]);
 
             size_t pos = 0;

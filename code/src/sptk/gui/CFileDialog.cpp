@@ -26,14 +26,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
-
-#include <sys/stat.h>
-
-#include <FL/fl_ask.H>
-
 #include <sptk5/gui/CFileDialog.h>
-#include <sptk5/Registry.h>
+#include <sptk5/sptk.h>
+#include <sys/stat.h>
+#include <FL/fl_ask.H>
+#include <sptk5/HomeDirectory.h>
 
 #ifdef WIN32
 
@@ -67,7 +64,7 @@ void CFileDialog::new_folder_cb(Fl_Widget* w, void*)
 void CFileDialog::home_cb(Fl_Widget* w, void*)
 {
     auto* fileDialog = (CFileDialog*) w->window();
-    String homeDirectory = Registry::homeDirectory();
+    String homeDirectory = HomeDirectory::location();
     fileDialog->directory(homeDirectory);
     fileDialog->refreshDirectory();
 }
@@ -277,7 +274,7 @@ void CFileDialog::directory(const String& p)
     Strings pathItems(m_directory.directory().c_str(), slashStr);
     string incrementalPath;
 
-    for (unsigned i = 0; i < pathItems.size(); i++) {
+    for (size_t i = 0; i < pathItems.size(); i++) {
         incrementalPath += pathItems[i];
 
         if (i == 0)

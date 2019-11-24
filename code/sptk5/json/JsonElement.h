@@ -61,43 +61,248 @@ enum Type {
 
 class ArrayData;
 
-/**
- * JSON Element
- *
- * May contain any type of JSON object
- */
-class SP_EXPORT Element
+class SP_EXPORT ElementData
 {
     friend class Document;
-    friend class Parser;
     friend class ArrayData;
     friend class ObjectData;
+    friend class Parser;
 
     /**
      * Parent JSON document
      */
-	Document*		m_document{nullptr};
+    Document*		m_document {nullptr};
 
     /**
      * Parent JSON element
      */
-	Element*		m_parent{nullptr};
+    Element*		m_parent {nullptr};
 
     /**
      * JSON element type
      */
-	Type            m_type{JDT_NULL};
+    Type            m_type {JDT_NULL};
 
     /**
      * JSON element data
      */
-    union {
+    union Data {
         double              m_number;
         const std::string*  m_string;
         bool                m_boolean;
         ArrayData*          m_array;
         ObjectData*         m_object;
-	} m_data {};
+    } m_data {};
+
+protected:
+
+    [[nodiscard]] Data& data() { return m_data; }
+    [[nodiscard]] const Data& data() const { return m_data; }
+
+    /**
+     * Parent JSON element
+     */
+    [[nodiscard]] Element* parent() { return m_parent; }
+
+    void setDocument(Document* document) { m_document = document; }
+    void setParent(Element* parent) { m_parent = parent; }
+    void setType(Type type) { m_type = type; }
+
+    /**
+     * Get immediate child element, or return this element if the name is empty.
+     * Throws an exception if child is not found.
+     * @param name              Name of the element in the object element
+     */
+    [[nodiscard]] Element& getChild(const String& name);
+
+    /**
+     * Get immediate child element, or return this element if the name is empty.
+     * Throws an exception if child is not found.
+     * @param name              Name of the element in the object element
+     */
+    [[nodiscard]] const Element& getChild(const String& name) const;
+
+
+    /**
+     * Export JSON element to text format
+     * @param stream            Output stream
+     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
+     * @param indent            Formatting indent
+     */
+    void exportValueTo(std::ostream& stream, bool formatted, size_t indent) const;
+
+    /**
+     * Export JSON element to XML element
+     * @param name              JSON element name
+     * @param element           XML element to export to
+     */
+    void exportValueTo(const String &name, xml::Element &element) const;
+
+    /**
+     * Export JSON array element to text format
+     * @param stream            Output stream
+     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
+     * @param indent            Formatting indent, number of spaces
+     * @param firstElement      First element indent, string of spaces
+     * @param betweenElements   Space between elements, string of spaces
+     * @param newLineChar       New line character(s)
+     * @param indentSpaces      Indent, string of spaces
+     */
+    void exportArray(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+
+    /**
+     * Export JSON object element to text format
+     * @param stream            Output stream
+     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
+     * @param indent            Formatting indent, number of spaces
+     * @param firstElement      First element indent, string of spaces
+     * @param betweenElements   Space between elements, string of spaces
+     * @param newLineChar       New line character(s)
+     * @param indentSpaces      Indent, string of spaces
+     */
+    void exportObject(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+
+
+    /**
+     * Constructor
+     * @param document          Parent document
+     * @param type              Data type
+     */
+    ElementData(Document* document, Type type) noexcept;
+
+public:
+
+    virtual ~ElementData() = default;
+
+    /**
+     * Parent JSON document
+     */
+    [[nodiscard]] Document* getDocument() { return m_document; }
+
+    /**
+     * Parent JSON document
+     */
+    [[nodiscard]] const Document* getDocument() const { return m_document; }
+
+    /**
+     * Clear JSON element.
+     * Releases memory allocated by string, array, or object data,
+     * and sets the type to JDT_NULL.
+     */
+    void clear();
+
+    /**
+     * Get number of elements in array or object.
+     * Returns 0 for not { JDT_ARRAY, JDT_OBJECT }
+     */
+    [[nodiscard]] size_t size() const;
+
+    /**
+     * Element type check
+     * @param type              Type or types bit combination
+     * @return true if element is a number
+     */
+    [[nodiscard]] bool is(size_t type) const { return (m_type & type) != 0; }
+
+    /**
+     * JSON element type
+     */
+    [[nodiscard]] Type type() const { return m_type; }
+
+    /**
+     * Find JSON element in JSON object element
+     * @param name              Name of the element in the object element
+     * @returns Element for the name, or NULL if not found
+     */
+    [[nodiscard]] const Element* find(const String& name) const;
+
+    /**
+     * Find JSON element in JSON object element
+     * @param name              Name of the element in the object element
+     * @returns Element for the name, or NULL if not found
+     */
+    [[nodiscard]] Element* find(const String& name);
+
+    /**
+     * Get value of JSON element
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
+     */
+    [[nodiscard]] double getNumber(const String& name="") const;
+
+    /**
+     * Get value of JSON element
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
+     */
+    [[nodiscard]] String getString(const String& name="") const;
+
+    /**
+     * Get value of JSON element
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
+     */
+    [[nodiscard]] bool getBoolean(const String& name="") const;
+
+    /**
+     * Get value of JSON element.
+     * If you want to modify elements of the array inside
+     * this element, get array element using [name] and then add() or remove() its item(s).
+     * Alternatively, create a new ArrayData object and replace existing one.
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
+     */
+    ArrayData& getArray(const String& name="");
+
+    /**
+     * Get value of JSON element.
+     * If you want to modify elements of the array inside
+     * this element, get array element using [name] and then add() or remove() its item(s).
+     * Alternatively, create a new ArrayData object and replace existing one.
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
+     */
+    [[nodiscard]] const ArrayData& getArray(const String& name="") const;
+
+    /**
+     * Get value of JSON element
+     * If you want to modify elements of the object inside
+     * this element, get object element using [name] and then add() or remove() its item(s).
+     * Alternatively, create a new ObjectData object and replace existing one.
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
+     */
+    ObjectData& getObject(const String& name="");
+
+    /**
+     * Get value of JSON element
+     * If you want to modify elements of the object inside
+     * this element, get object element using [name] and then add() or remove() its item(s).
+     * Alternatively, create a new ObjectData object and replace existing one.
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
+     */
+    [[nodiscard]] const ObjectData& getObject(const String& name="") const;
+
+    /**
+     * Export JSON element (and all children) to stream
+     * @param stream            Stream to export JSON
+     * @param formatted         If true then JSON text is nicely formatted, but takes more space
+     */
+    void exportTo(std::ostream& stream, bool formatted=true) const;
+
+    /**
+     * Export JSON element (and all children) to XML element
+     * @param name              Parent element name
+     * @param parentNode        XML element to export JSON
+     */
+    void exportTo(const std::string& name, xml::Element& parentNode) const;
+
+};
+
+/**
+ * JSON Element
+ *
+ * May contain any type of JSON object
+ */
+class SP_EXPORT Element : public ElementData
+{
+    friend class Document;
+    friend class ArrayData;
+    friend class ObjectData;
 
 protected:
 
@@ -144,13 +349,6 @@ protected:
     static void appendMatchedElement(ElementSet& elements, const Element::XPathElement& xpathElement, Element* element);
 
     /**
-     * Clear JSON element.
-     * Releases memory allocated by string, array, or object data,
-     * and sets the type to JDT_NULL.
-     */
-    void clear();
-
-    /**
      * Assign from another element
      * @param other             Element to assign from
      */
@@ -161,45 +359,6 @@ protected:
      * @param other Element&&, Element to move from
      */
     void moveElement(Element&& other) noexcept;
-
-    /**
-     * Export JSON array element to text format
-     * @param stream            Output stream
-     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
-     * @param indent            Formatting indent, number of spaces
-     * @param firstElement      First element indent, string of spaces
-     * @param betweenElements   Space between elements, string of spaces
-     * @param newLineChar       New line character(s)
-     * @param indentSpaces      Indent, string of spaces
-     */
-    void exportArray(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
-
-    /**
-     * Export JSON object element to text format
-     * @param stream            Output stream
-     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
-     * @param indent            Formatting indent, number of spaces
-     * @param firstElement      First element indent, string of spaces
-     * @param betweenElements   Space between elements, string of spaces
-     * @param newLineChar       New line character(s)
-     * @param indentSpaces      Indent, string of spaces
-     */
-    void exportObject(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
-
-    /**
-     * Export JSON element to text format
-     * @param stream            Output stream
-     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
-     * @param indent            Formatting indent
-     */
-    void exportValueTo(std::ostream& stream, bool formatted, size_t indent) const;
-
-    /**
-     * Export JSON element to XML element
-     * @param name              JSON element name
-     * @param element           XML element to export to
-     */
-    void exportValueTo(const String &name, xml::Element &element) const;
 
     /**
      * Find child elements matching particular xpath element
@@ -220,22 +379,6 @@ public:
      * @param rootOnly          Flag indicating that only root level elements are checked
      */
     void selectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly);
-
-private:
-
-    /**
-     * Get immediate child element, or return this element if the name is empty.
-     * Throws an exception if child is not found.
-     * @param name              Name of the element in the object element
-     */
-    Element& getChild(const String& name);
-
-    /**
-     * Get immediate child element, or return this element if the name is empty.
-     * Throws an exception if child is not found.
-     * @param name              Name of the element in the object element
-     */
-    [[nodiscard]] const Element& getChild(const String& name) const;
 
 public:
 
@@ -347,7 +490,7 @@ public:
      */
     template <typename T> Element& operator = (const T& other)
     {
-        Element element(m_document, other);
+        Element element(getDocument(), other);
         *this = std::move(element);
         return *this;
     }
@@ -397,7 +540,7 @@ public:
      */
     Element* set(const String& name)
     {
-        return add(name, new Element(m_document));
+        return add(name, new Element(getDocument()));
     }
 
     /**
@@ -408,7 +551,7 @@ public:
      */
     template <typename T> Element* set(const String& name, T value)
     {
-        return add(name, new Element(m_document, value));
+        return add(name, new Element(getDocument(), value));
     }
 
     /**
@@ -417,7 +560,7 @@ public:
      */
     Element* push_back()
     {
-        return add(new Element(m_document));
+        return add(new Element(getDocument()));
     }
 
     /**
@@ -427,7 +570,7 @@ public:
      */
     template <typename T> Element* push_back(T value)
     {
-        return add(new Element(m_document, value));
+        return add(new Element(getDocument(), value));
     }
 protected:
 
@@ -455,7 +598,7 @@ protected:
      */
     Element* add(const String& name, int value)
     {
-        return add(name, new Element(m_document, value));
+        return add(name, new Element(getDocument(), value));
     }
 
     /**
@@ -465,7 +608,7 @@ protected:
      */
     Element* add(const String& name, int64_t value)
     {
-        return add(name, new Element(m_document, value));
+        return add(name, new Element(getDocument(), value));
     }
 
     /**
@@ -475,7 +618,7 @@ protected:
      */
     Element* add(const String& name, double value)
     {
-        return add(name, new Element(m_document, value));
+        return add(name, new Element(getDocument(), value));
     }
 
     /**
@@ -485,7 +628,7 @@ protected:
      */
     Element* add(const String& name, const std::string& value)
     {
-        return add(name, new Element(m_document, value));
+        return add(name, new Element(getDocument(), value));
     }
 
     /**
@@ -495,7 +638,7 @@ protected:
      */
     Element* add(const String& name, const char* value)
     {
-        return add(name, new Element(m_document, value));
+        return add(name, new Element(getDocument(), value));
     }
 
     /**
@@ -505,7 +648,7 @@ protected:
      */
     Element* add(const String& name, bool value)
     {
-        return add(name, new Element(m_document, value));
+        return add(name, new Element(getDocument(), value));
     }
 
     /**
@@ -515,7 +658,7 @@ protected:
      */
     Element* add(const String& name, ArrayData* value)
     {
-        return add(name, new Element(m_document, value));
+        return add(name, new Element(getDocument(), value));
     }
 
     /**
@@ -526,23 +669,9 @@ protected:
      */
     Element* add(const String& name, ObjectData* value)
     {
-        return add(name, new Element(m_document, value));
+        return add(name, new Element(getDocument(), value));
     }
 public:
-
-    /**
-     * Find JSON element in JSON object element
-     * @param name              Name of the element in the object element
-     * @returns Element for the name, or NULL if not found
-     */
-    [[nodiscard]] const Element* find(const String& name) const;
-
-    /**
-     * Find JSON element in JSON object element
-     * @param name              Name of the element in the object element
-     * @returns Element for the name, or NULL if not found
-     */
-    Element* find(const String& name);
 
     /**
      * Get JSON element in JSON object element by name.
@@ -602,86 +731,6 @@ public:
      */
     void remove(const String& name);
 
-    /**
-     * Get parent JSON element
-     * @returns Parent JSON Element or NULL (for root element)
-     */
-    Element* parent();
-
-    /**
-     * Get JSON element type
-     * @returns JSON element type
-     */
-    [[nodiscard]] Type type() const;
-
-    /**
-     * Get value of JSON element
-     * @param name              Optional name of the element in the object element. Otherwise, use this element.
-     */
-    [[nodiscard]] double getNumber(const String& name="") const;
-
-    /**
-     * Get value of JSON element
-     * @param name              Optional name of the element in the object element. Otherwise, use this element.
-     */
-    [[nodiscard]] String getString(const String& name="") const;
-
-    /**
-     * Get value of JSON element
-     * @param name              Optional name of the element in the object element. Otherwise, use this element.
-     */
-    [[nodiscard]] bool getBoolean(const String& name="") const;
-
-    /**
-     * Get value of JSON element.
-     * If you want to modify elements of the array inside
-     * this element, get array element using [name] and then add() or remove() its item(s).
-     * Alternatively, create a new ArrayData object and replace existing one.
-     * @param name              Optional name of the element in the object element. Otherwise, use this element.
-     */
-    ArrayData& getArray(const String& name="");
-
-    /**
-     * Get value of JSON element.
-     * If you want to modify elements of the array inside
-     * this element, get array element using [name] and then add() or remove() its item(s).
-     * Alternatively, create a new ArrayData object and replace existing one.
-     * @param name              Optional name of the element in the object element. Otherwise, use this element.
-     */
-    [[nodiscard]] const ArrayData& getArray(const String& name="") const;
-
-    /**
-     * Get value of JSON element
-     * If you want to modify elements of the object inside
-     * this element, get object element using [name] and then add() or remove() its item(s).
-     * Alternatively, create a new ObjectData object and replace existing one.
-     * @param name              Optional name of the element in the object element. Otherwise, use this element.
-     */
-    ObjectData& getObject(const String& name="");
-
-    /**
-     * Get value of JSON element
-     * If you want to modify elements of the object inside
-     * this element, get object element using [name] and then add() or remove() its item(s).
-     * Alternatively, create a new ObjectData object and replace existing one.
-     * @param name              Optional name of the element in the object element. Otherwise, use this element.
-     */
-    [[nodiscard]] const ObjectData& getObject(const String& name="") const;
-
-    /**
-     * Export JSON element (and all children) to stream
-     * @param stream            Stream to export JSON
-     * @param formatted         If true then JSON text is nicely formatted, but takes more space
-     */
-    void exportTo(std::ostream& stream, bool formatted=true) const;
-
-    /**
-     * Export JSON element (and all children) to XML element
-     * @param name              Parent element name
-     * @param parentNode        XML element to export JSON
-     */
-    void exportTo(const std::string& name, xml::Element& parentNode) const;
-
     /** @brief Selects elements as defined by XPath
      *
      * The implementation is just started, so only limited XPath standard part is supported.
@@ -710,30 +759,12 @@ public:
     explicit operator String () const { return getString(); }
 
     /**
-     * Element type check
-     * @return true if element is a number
-     */
-    [[nodiscard]] bool is(Type type) const { return m_type == type; }
-
-    /**
-     * Get number of elements in array or object.
-     * Returns 0 for not { JDT_ARRAY, JDT_OBJECT }
-     */
-    [[nodiscard]] size_t size() const;
-
-    /**
      * Optimize arrays
      * Walks through the JSON document, and convert objects that contain
      * only single array field, to arrays - by removing unnecessary name.
      * @param name              Optional field name, use any name if empty string
      */
     void optimizeArrays(const std::string& name="item");
-
-    /**
-     * Get document this JSON element belongs to.
-     * @return pointer to the owner document
-     */
-    [[nodiscard]] Document* getDocument() const;
 };
 
 /**

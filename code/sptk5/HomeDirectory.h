@@ -1,9 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       JsonArrayData.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 16 2013                                   ║
+║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,57 +25,22 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/json/JsonElement.h>
-#include <sptk5/json/JsonArrayData.h>
+#ifndef SPTK_HOMEDIRECTORY_H
+#define SPTK_HOMEDIRECTORY_H
 
-using namespace std;
-using namespace sptk;
-using namespace sptk::json;
+#include <sptk5/String.h>
 
-ArrayData::ArrayData(const Document* document, Element* parent)
-: m_document(document), m_parent(parent)
+namespace sptk {
+
+/**
+ * Home directory location
+ */
+class HomeDirectory
 {
+public:
+    static String location();
+};
+
 }
 
-ArrayData::~ArrayData()
-{
-    for (Element* element: m_items)
-        delete element;
-}
-
-void ArrayData::setParent(Element* parent)
-{
-    if (m_parent != parent) {
-        m_parent = parent;
-        for (Element *element: m_items)
-            element->setParent(parent);
-    }
-}
-
-void ArrayData::add(Element* element)
-{
-    element->m_parent = m_parent;
-    m_items.push_back(element);
-}
-
-Element& ArrayData::operator[](size_t index)
-{
-    if (index >= m_items.size())
-        throw Exception("Element index out of bound");
-    return *m_items[index];
-}
-
-const Element& ArrayData::operator[](size_t index) const
-{
-    if (index >= m_items.size())
-        throw Exception("Element index out of bound");
-    return *m_items[index];
-}
-
-void ArrayData::remove(size_t index)
-{
-    if (index >= m_items.size())
-        return;
-    delete m_items[index];
-    m_items.erase(m_items.begin() + index);
-}
+#endif
