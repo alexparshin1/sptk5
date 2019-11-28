@@ -66,16 +66,11 @@ class ODBCConnectionBase;
  *
  * Base class for all ODBC classes
  */
-class SP_DRIVER_EXPORT ODBCBase
+class SP_DRIVER_EXPORT ODBCBase : public std::mutex
 {
 	friend class ODBCConnection;
 
 protected:
-
-    /**
-     * Mutex that protects access to data members
-     */
-    mutable std::mutex	m_mutex;
 
     /**
      * Constructor
@@ -234,9 +229,9 @@ public:
     /**
      * Returns true if the connection is active
      */
-    bool isConnected() const
+    bool isConnected()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::lock_guard<std::mutex> lock(*this);
         return m_connected;
     }
 
@@ -248,18 +243,18 @@ public:
     /**
      * Returns the ODBC connection string for the active connection
      */
-    String connectString() const
+    String connectString()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::lock_guard<std::mutex> lock(*this);
         return m_connectString;
     }
 
     /**
      * Returns the ODBC driver description string for the active connection
      */
-    String driverDescription() const
+    String driverDescription()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::lock_guard<std::mutex> lock(*this);
         return m_driverDescription;
     }
 

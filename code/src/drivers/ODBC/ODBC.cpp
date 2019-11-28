@@ -66,7 +66,7 @@ void ODBCEnvironment::allocEnv()
 {
     if (valid())
         return; // Already allocated
-    lock_guard<mutex> lock(m_mutex);
+    lock_guard<mutex> lock(*this);
     if (!Successful(SQLAllocEnv(&m_hEnvironment))) {
         m_hEnvironment = SQL_NULL_HENV;
         exception("Can't allocate ODBC environment", __LINE__);
@@ -77,7 +77,7 @@ void ODBCEnvironment::freeEnv()
 {
     if (!valid())
         return; // Never allocated
-    lock_guard<mutex> lock(m_mutex);
+    lock_guard<mutex> lock(*this);
     SQLFreeEnv(m_hEnvironment);
     m_hEnvironment = SQL_NULL_HENV;
 }
@@ -116,7 +116,7 @@ void ODBCConnectionBase::allocConnect()
     // Allocate environment if not already done
     m_cEnvironment.allocEnv();
 
-    lock_guard<mutex> lock(m_mutex);
+    lock_guard<mutex> lock(*this);
 
     // Create connection handle
     if (!Successful(SQLAllocConnect(m_cEnvironment.handle(), &m_hConnection))) {
@@ -132,7 +132,7 @@ void ODBCConnectionBase::freeConnect()
     if (isConnected())
         disconnect();
 
-    lock_guard<mutex> lock(m_mutex);
+    lock_guard<mutex> lock(*this);
 
     SQLFreeConnect(m_hConnection);
     m_hConnection = SQL_NULL_HDBC;
@@ -153,7 +153,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
     if (isConnected())
         disconnect();
 
-    lock_guard<mutex> lock(m_mutex);
+    lock_guard<mutex> lock(*this);
 
     m_connectString = ConnectionString;
 
@@ -196,7 +196,7 @@ void ODBCConnectionBase::disconnect()
     if (!isConnected())
         return; // Not connected
 
-    lock_guard<mutex> lock(m_mutex);
+    lock_guard<mutex> lock(*this);
 
     SQLDisconnect(m_hConnection);
     m_connected = false;
@@ -208,7 +208,7 @@ void ODBCConnectionBase::setConnectOption(UWORD fOption, UDWORD vParam)
     if (!isConnected())
         exception(errorInformation(cantSetConnectOption), __LINE__);
 
-    lock_guard<mutex> lock(m_mutex);
+    lock_guard<mutex> lock(*this);
 
     if (!Successful(SQLSetConnectOption(m_hConnection, fOption, vParam)))
         exception(errorInformation(cantSetConnectOption), __LINE__);
@@ -218,7 +218,7 @@ void ODBCConnectionBase::execQuery(const char* query)
 {
     SQLHSTMT hstmt = SQL_NULL_HSTMT;
 
-    lock_guard<mutex> lock(m_mutex);
+    lock_guard<mutex> lock(*this);
 
     // Allocate Statement Handle
     if (!Successful(SQLAllocHandle(SQL_HANDLE_STMT, m_hConnection, &hstmt)))

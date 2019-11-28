@@ -191,7 +191,7 @@ String ODBCConnection::queryError(const Query* query) const
 
 void ODBCConnection::queryAllocStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_connect->m_mutex);
+    lock_guard<mutex> lock(*m_connect);
 
     auto* stmt = (SQLHSTMT) query->statement();
     if (stmt != SQL_NULL_HSTMT)
@@ -211,7 +211,7 @@ void ODBCConnection::queryAllocStmt(Query* query)
 
 void ODBCConnection::queryFreeStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_connect->m_mutex);
+    lock_guard<mutex> lock(*m_connect);
 
     SQLFreeStmt(query->statement(), SQL_DROP);
     querySetStmt(query, SQL_NULL_HSTMT);
@@ -220,14 +220,14 @@ void ODBCConnection::queryFreeStmt(Query* query)
 
 void ODBCConnection::queryCloseStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_connect->m_mutex);
+    lock_guard<mutex> lock(*m_connect);
 
     SQLFreeStmt(query->statement(), SQL_CLOSE);
 }
 
 void ODBCConnection::queryPrepare(Query* query)
 {
-    lock_guard<mutex> lock(m_connect->m_mutex);
+    lock_guard<mutex> lock(*m_connect);
 
     query->fields().clear();
 
@@ -244,7 +244,7 @@ void ODBCConnection::queryUnprepare(Query* query)
 
 void ODBCConnection::queryExecute(Query* query)
 {
-    lock_guard<mutex> lock(m_connect->m_mutex);
+    lock_guard<mutex> lock(*m_connect);
 
     int rc = 0;
     if (query->prepared())
@@ -282,7 +282,7 @@ void ODBCConnection::queryExecute(Query* query)
 
 int ODBCConnection::queryColCount(Query* query)
 {
-    lock_guard<mutex> lock(m_connect->m_mutex);
+    lock_guard<mutex> lock(*m_connect);
 
     int16_t count = 0;
     if (!successful(SQLNumResultCols(query->statement(), &count)))
@@ -293,7 +293,7 @@ int ODBCConnection::queryColCount(Query* query)
 
 void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
-    lock_guard<mutex> lock(m_connect->m_mutex);
+    lock_guard<mutex> lock(*m_connect);
     SQLLEN result;
 
     if (!successful(SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr, &result)))
@@ -307,7 +307,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     if (buff == nullptr || len <= 0)
         THROW_QUERY_ERROR(query, "Invalid buffer or buffer len")
 
-    lock_guard<mutex> lock(m_connect->m_mutex);
+    lock_guard<mutex> lock(*m_connect);
 
     if (!successful(SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len, &available, nullptr)))
         THROW_QUERY_ERROR(query, queryError(query))
@@ -335,7 +335,7 @@ void ODBCConnection::queryBindParameters(Query* query)
 {
     static SQLLEN cbNullValue = SQL_NULL_DATA;
 
-    lock_guard<mutex> lock(m_connect->m_mutex);
+    lock_guard<mutex> lock(*m_connect);
     int rc;
 
     for (uint32_t i = 0; i < query->paramCount(); i++) {
@@ -624,7 +624,7 @@ void ODBCConnection::queryFetch(Query* query)
 
     auto* statement = (SQLHSTMT) query->statement();
 
-    lock_guard<mutex> lock(m_connect->m_mutex);
+    lock_guard<mutex> lock(*m_connect);
 
     int rc = SQLFetch(statement);
 
@@ -739,7 +739,7 @@ void ODBCConnection::listDataSources(Strings& dsns)
 
 void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 {
-    lock_guard<mutex> lock(m_connect->m_mutex);
+    lock_guard<mutex> lock(*m_connect);
 
     if (objectType == DOT_DATABASES) {
         listDataSources(objects);
