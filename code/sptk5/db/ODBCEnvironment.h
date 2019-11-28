@@ -73,7 +73,7 @@ class SP_DRIVER_EXPORT ODBCBase
 protected:
 
     /**
-     * Mutex that protects access to data memebers
+     * Mutex that protects access to data members
      */
     mutable std::mutex	m_mutex;
 

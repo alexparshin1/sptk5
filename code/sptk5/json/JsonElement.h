@@ -169,46 +169,6 @@ protected:
      */
     [[nodiscard]] const Element& getChild(const String& name) const;
 
-
-    /**
-     * Export JSON element to text format
-     * @param stream            Output stream
-     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
-     * @param indent            Formatting indent
-     */
-    void exportValueTo(std::ostream& stream, bool formatted, size_t indent) const;
-
-    /**
-     * Export JSON element to XML element
-     * @param name              JSON element name
-     * @param element           XML element to export to
-     */
-    void exportValueTo(const String &name, xml::Element &element) const;
-
-    /**
-     * Export JSON array element to text format
-     * @param stream            Output stream
-     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
-     * @param indent            Formatting indent, number of spaces
-     * @param firstElement      First element indent, string of spaces
-     * @param betweenElements   Space between elements, string of spaces
-     * @param newLineChar       New line character(s)
-     * @param indentSpaces      Indent, string of spaces
-     */
-    void exportArray(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
-
-    /**
-     * Export JSON object element to text format
-     * @param stream            Output stream
-     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
-     * @param indent            Formatting indent, number of spaces
-     * @param firstElement      First element indent, string of spaces
-     * @param betweenElements   Space between elements, string of spaces
-     * @param newLineChar       New line character(s)
-     * @param indentSpaces      Indent, string of spaces
-     */
-    void exportObject(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
-
     /**
      * Find child elements matching particular xpath element
      * @param elements          Elements matching xpath (output)
@@ -243,7 +203,10 @@ protected:
      * @param document          Parent document
      * @param type              Data type
      */
-    ElementData(Document* document, Type type) noexcept;
+    ElementData(Document* document, Type type) noexcept
+    : m_document(document), m_parent(nullptr), m_type(type)
+    {
+    }
 
 public:
 
@@ -285,6 +248,33 @@ public:
     [[nodiscard]] Type type() const { return m_type; }
 
     /**
+     * Find elements matching particular xpath element
+     * @param elements          Elements matching xpath (output)
+     * @param xpath             Xpath elements
+     * @param xpathPosition     Position in xpath currently being checked
+     * @param rootOnly          Flag indicating that only root level elements are checked
+     */
+    void selectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly);
+
+    /**
+     * Remove JSON element by name from this JSON object element
+     * @param name              Name of the element in the object element
+     */
+    void remove(const String& name);
+
+    /** @brief Selects elements as defined by XPath
+     *
+     * The implementation is just started, so only limited XPath standard part is supported.
+     * Currently, examples 1 through 1 from http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
+     * are working fine with the exceptions:
+     * - no functions are supported yet
+     * - no attributes supported, because it isn't XML
+     * @param elements          The resulting list of elements
+     * @param xpath             The xpath for elements
+     */
+    void select(ElementSet& elements, const String& xpath);
+
+    /**
      * Find JSON element in JSON object element
      * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
@@ -297,6 +287,64 @@ public:
      * @returns Element for the name, or NULL if not found
      */
     [[nodiscard]] Element* find(const String& name);
+};
+
+/**
+ * XML Element getters
+ */
+class SP_EXPORT ElementGetMethods : public ElementData
+{
+protected:
+    /**
+     * Constructor
+     * @param document          Parent document
+     * @param type              Data type
+     */
+    ElementGetMethods(Document* document, Type type) noexcept
+    : ElementData(document, type)
+    {
+    }
+
+    /**
+     * Export JSON element to text format
+     * @param stream            Output stream
+     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
+     * @param indent            Formatting indent
+     */
+    void exportValueTo(std::ostream& stream, bool formatted, size_t indent) const;
+
+    /**
+     * Export JSON element to XML element
+     * @param name              JSON element name
+     * @param element           XML element to export to
+     */
+    void exportValueTo(const String &name, xml::Element &element) const;
+
+    /**
+     * Export JSON array element to text format
+     * @param stream            Output stream
+     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
+     * @param indent            Formatting indent, number of spaces
+     * @param firstElement      First element indent, string of spaces
+     * @param betweenElements   Space between elements, string of spaces
+     * @param newLineChar       New line character(s)
+     * @param indentSpaces      Indent, string of spaces
+     */
+    void exportArray(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+
+    /**
+     * Export JSON object element to text format
+     * @param stream            Output stream
+     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
+     * @param indent            Formatting indent, number of spaces
+     * @param firstElement      First element indent, string of spaces
+     * @param betweenElements   Space between elements, string of spaces
+     * @param newLineChar       New line character(s)
+     * @param indentSpaces      Indent, string of spaces
+     */
+    void exportObject(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+
+public:
 
     /**
      * Get value of JSON element
@@ -374,33 +422,6 @@ public:
      */
     void optimizeArrays(const std::string& name="item");
 
-    /**
-     * Find elements matching particular xpath element
-     * @param elements          Elements matching xpath (output)
-     * @param xpath             Xpath elements
-     * @param xpathPosition     Position in xpath currently being checked
-     * @param rootOnly          Flag indicating that only root level elements are checked
-     */
-    void selectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly);
-
-    /**
-     * Remove JSON element by name from this JSON object element
-     * @param name              Name of the element in the object element
-     */
-    void remove(const String& name);
-
-    /** @brief Selects elements as defined by XPath
-     *
-     * The implementation is just started, so only limited XPath standard part is supported.
-     * Currently, examples 1 through 1 from http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
-     * are working fine with the exceptions:
-     * - no functions are supported yet
-     * - no attributes supported, because it isn't XML
-     * @param elements          The resulting list of elements
-     * @param xpath             The xpath for elements
-     */
-    void select(ElementSet& elements, const String& xpath);
-
 };
 
 /**
@@ -408,7 +429,7 @@ public:
  *
  * May contain any type of JSON object
  */
-class SP_EXPORT Element : public ElementData
+class SP_EXPORT Element : public ElementGetMethods
 {
     friend class Document;
     friend class ArrayData;

@@ -35,11 +35,6 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::json;
 
-ElementData::ElementData(Document* document, Type type) noexcept
-: m_document(document), m_parent(nullptr), m_type(type)
-{
-}
-
 void ElementData::clear()
 {
     switch (type()) {
@@ -106,7 +101,7 @@ const Element& ElementData::getChild(const String& name) const
     return *element;
 }
 
-double ElementData::getNumber(const String& name) const
+double ElementGetMethods::getNumber(const String& name) const
 {
     auto& element = getChild(name);
     if (element.is(JDT_NUMBER))
@@ -131,7 +126,7 @@ static String JsonNumberToString(double number)
     return String(buffer, (size_t) len);
 }
 
-String ElementData::getString(const String& name) const
+String ElementGetMethods::getString(const String& name) const
 {
     auto& element = getChild(name);
 
@@ -160,7 +155,7 @@ String ElementData::getString(const String& name) const
     return output.str();
 }
 
-bool ElementData::getBoolean(const String& name) const
+bool ElementGetMethods::getBoolean(const String& name) const
 {
     auto& element = getChild(name);
     if (element.type() == JDT_STRING)
@@ -170,7 +165,7 @@ bool ElementData::getBoolean(const String& name) const
     throw Exception("Not a boolean");
 }
 
-json::ArrayData& ElementData::getArray(const String& name)
+json::ArrayData& ElementGetMethods::getArray(const String& name)
 {
     auto& element = getChild(name);
     if (element.type() == JDT_ARRAY && element.data().get_array())
@@ -178,7 +173,7 @@ json::ArrayData& ElementData::getArray(const String& name)
     throw Exception("Not an array");
 }
 
-const json::ArrayData& ElementData::getArray(const String& name) const
+const json::ArrayData& ElementGetMethods::getArray(const String& name) const
 {
     auto& element = getChild(name);
     if (element.type() == JDT_ARRAY && element.data().get_array())
@@ -186,7 +181,7 @@ const json::ArrayData& ElementData::getArray(const String& name) const
     throw Exception("Not an array");
 }
 
-json::ObjectData& ElementData::getObject(const String& name)
+json::ObjectData& ElementGetMethods::getObject(const String& name)
 {
     auto& element = getChild(name);
     if (element.type() == JDT_OBJECT && element.data().get_object())
@@ -194,7 +189,7 @@ json::ObjectData& ElementData::getObject(const String& name)
     throw Exception("Not an object");
 }
 
-const json::ObjectData& ElementData::getObject(const String& name) const
+const json::ObjectData& ElementGetMethods::getObject(const String& name) const
 {
     auto& element = getChild(name);
     if (element.type() == JDT_OBJECT && element.data().get_object())
@@ -203,7 +198,7 @@ const json::ObjectData& ElementData::getObject(const String& name) const
 }
 
 
-void ElementData::exportValueTo(ostream& stream, bool formatted, size_t indent) const
+void ElementGetMethods::exportValueTo(ostream& stream, bool formatted, size_t indent) const
 {
     String indentSpaces;
     String newLineChar;
@@ -251,7 +246,7 @@ void ElementData::exportValueTo(ostream& stream, bool formatted, size_t indent) 
     stream.flags(saveFlags);
 }
 
-void ElementData::exportValueTo(const String& name, xml::Element& parentNode) const
+void ElementGetMethods::exportValueTo(const String& name, xml::Element& parentNode) const
 {
     auto* node = new xml::Element(parentNode, name);
     switch (type()) {
@@ -281,7 +276,7 @@ void ElementData::exportValueTo(const String& name, xml::Element& parentNode) co
     }
 }
 
-void ElementData::exportArray(ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
+void ElementGetMethods::exportArray(ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
 {
     stream << "[";
     if (is (JDT_ARRAY) && data().get_array()) {
@@ -298,7 +293,7 @@ void ElementData::exportArray(ostream& stream, bool formatted, size_t indent, co
     stream << newLineChar << indentSpaces << "]";
 }
 
-void ElementData::exportObject(ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
+void ElementGetMethods::exportObject(ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
 {
     stream << "{";
     if (is(JDT_OBJECT) && data().get_object()) {
@@ -318,18 +313,18 @@ void ElementData::exportObject(ostream& stream, bool formatted, size_t indent, c
     stream << newLineChar << indentSpaces << "}";
 }
 
-void ElementData::exportTo(ostream& stream, bool formatted) const
+void ElementGetMethods::exportTo(ostream& stream, bool formatted) const
 {
     exportValueTo(stream, formatted, 0);
 }
 
-void ElementData::exportTo(const string& name, xml::Element& parentNode) const
+void ElementGetMethods::exportTo(const string& name, xml::Element& parentNode) const
 {
     exportValueTo(name, parentNode);
 }
 
 
-void ElementData::optimizeArrays(const std::string& name)
+void ElementGetMethods::optimizeArrays(const std::string& name)
 {
     if (is(JDT_OBJECT)) {
         if (size() == 1) {
@@ -478,43 +473,43 @@ void ElementData::select(ElementSet& elements, const String& xPath)
 }
 
 Element::Element(Document* document, double value) noexcept
-: ElementData(document, JDT_NUMBER)
+: ElementGetMethods(document, JDT_NUMBER)
 {
     data().set_number(value);
 }
 
 Element::Element(Document* document, int value) noexcept
-: ElementData(document, JDT_NUMBER)
+: ElementGetMethods(document, JDT_NUMBER)
 {
     data().set_number(value);
 }
 
 Element::Element(Document* document, int64_t value) noexcept
-: ElementData(document, JDT_NUMBER)
+: ElementGetMethods(document, JDT_NUMBER)
 {
     data().set_number((double) value);
 }
 
 Element::Element(Document* document, const String& value) noexcept
-: ElementData(document, JDT_STRING)
+: ElementGetMethods(document, JDT_STRING)
 {
     data().set_string(ElementData::getDocument()->getString(value));
 }
 
 Element::Element(Document* document, const char* value) noexcept
-: ElementData(document, JDT_STRING)
+: ElementGetMethods(document, JDT_STRING)
 {
     data().set_string(ElementData::getDocument()->getString(value));
 }
 
 Element::Element(Document* document, bool value) noexcept
-: ElementData(document, JDT_BOOLEAN)
+: ElementGetMethods(document, JDT_BOOLEAN)
 {
     data().set_boolean(value);
 }
 
 Element::Element(Document* document, ArrayData* value) noexcept
-: ElementData(document, JDT_ARRAY)
+: ElementGetMethods(document, JDT_ARRAY)
 {
     data().set_array(value);
     for (Element* jsonElement: *data().get_array())
@@ -522,7 +517,7 @@ Element::Element(Document* document, ArrayData* value) noexcept
 }
 
 Element::Element(Document* document, ObjectData* value) noexcept
-: ElementData(document, JDT_OBJECT)
+: ElementGetMethods(document, JDT_OBJECT)
 {
     data().set_object(value);
     for (auto itor: *data().get_object())
@@ -530,19 +525,19 @@ Element::Element(Document* document, ObjectData* value) noexcept
 }
 
 Element::Element(Document* document) noexcept
-: ElementData(document, JDT_NULL)
+: ElementGetMethods(document, JDT_NULL)
 {
     data().set_boolean(false);
 }
 
 Element::Element(Document* document, const Element& other)
-: ElementData(document, JDT_NULL)
+: ElementGetMethods(document, JDT_NULL)
 {
     assign(other);
 }
 
 Element::Element(Document*document, Element&& other) noexcept
-: ElementData(document, JDT_NULL)
+: ElementGetMethods(document, JDT_NULL)
 {
 	data().set_boolean(false);
     moveElement(move(other));
