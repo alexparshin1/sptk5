@@ -227,6 +227,18 @@ protected:
     static void appendMatchedElement(ElementSet& elements, const ElementData::XPathElement& xpathElement, Element* element);
 
     /**
+     * Assign from another element
+     * @param other             Element to assign from
+     */
+    void assign(const Element& other);
+
+    /**
+     * Move element
+     * @param other Element&&, Element to move from
+     */
+    void moveElement(Element&& other) noexcept;
+
+    /**
      * Constructor
      * @param document          Parent document
      * @param type              Data type
@@ -401,20 +413,6 @@ class SP_EXPORT Element : public ElementData
     friend class Document;
     friend class ArrayData;
     friend class ObjectData;
-
-protected:
-
-    /**
-     * Assign from another element
-     * @param other             Element to assign from
-     */
-    void assign(const Element& other);
-
-    /**
-     * Move element
-     * @param other Element&&, Element to move from
-     */
-    void moveElement(Element&& other) noexcept;
 
 public:
 

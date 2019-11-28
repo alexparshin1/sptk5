@@ -438,6 +438,33 @@ void ElementData::remove(const String& name)
     data().get_object()->remove(name);
 }
 
+void ElementData::assign(const Element& other)
+{
+    setType(other.type());
+    switch (type()) {
+        case JDT_STRING:
+            m_data.set_string(new string(*other.data().get_string()));
+            break;
+
+        case JDT_ARRAY:
+        case JDT_OBJECT:
+            break;
+
+        default:
+            memcpy(&m_data, &other.m_data, sizeof(m_data));
+            break;
+    }
+}
+
+void ElementData::moveElement(Element&& other) noexcept
+{
+    clear();
+    setType(other.type());
+    setParent(other.parent());
+    memcpy(&m_data, &other.m_data, sizeof(m_data));
+    other.setType(JDT_NULL);
+}
+
 void ElementData::select(ElementSet& elements, const String& xPath)
 {
     XPath xpath(xPath);
@@ -514,38 +541,11 @@ Element::Element(Document* document, const Element& other)
     assign(other);
 }
 
-void Element::moveElement(Element&& other) noexcept
-{
-    clear();
-    setType(other.type());
-    setParent(other.parent());
-    memcpy(&data(), &other.data(), sizeof(data()));
-    other.setType(JDT_NULL);
-}
-
 Element::Element(Document*document, Element&& other) noexcept
 : ElementData(document, JDT_NULL)
 {
 	data().set_boolean(false);
     moveElement(move(other));
-}
-
-void Element::assign(const Element& other)
-{
-    setType(other.type());
-    switch (type()) {
-        case JDT_STRING:
-            data().set_string(new string(*other.data().get_string()));
-            break;
-
-        case JDT_ARRAY:
-        case JDT_OBJECT:
-            break;
-
-        default:
-            memcpy(&data(), &other.data(), sizeof(data()));
-            break;
-    }
 }
 
 Element& Element::operator=(const Element& other)
