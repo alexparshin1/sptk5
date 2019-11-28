@@ -329,6 +329,127 @@ void ElementData::exportTo(const string& name, xml::Element& parentNode) const
 }
 
 
+void ElementData::optimizeArrays(const std::string& name)
+{
+    if (is(JDT_OBJECT)) {
+        if (size() == 1) {
+            auto itor = data().m_object->begin();
+            Element* itemElement = itor->second;
+            if ((*itor->first == name || name.empty()) && itemElement->is(JDT_ARRAY)) {
+                data().m_object->move(*itor->first);
+                *this = ::move(*itemElement);
+                optimizeArrays(name);
+                return;
+            }
+        }
+        for (auto itor: *data().m_object) {
+            Element* element = itor.second;
+            element->optimizeArrays(name);
+        }
+        return;
+    }
+
+    if (is(JDT_ARRAY)) {
+        for (auto* element: *data().m_array)
+            element->optimizeArrays(name);
+        return;
+    }
+}
+
+void ElementData::selectChildElements(ElementSet& elements, const Element::XPath& xpath, bool rootOnly) const
+{
+    if (!rootOnly) {
+        for (auto& itor: *data().m_object) {
+            if (itor.second->is(JDT_OBJECT|JDT_ARRAY))
+                itor.second->selectElements(elements, xpath, 0, false);
+        }
+    }
+}
+
+void ElementData::selectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly)
+{
+    const XPathElement& xpathElement(xpath[xpathPosition]);
+    bool matchAnyElement = xpathElement.name == String("*", 1);
+    bool lastPosition = xpath.size() == xpathPosition + 1;
+
+    if (is(JDT_ARRAY)) {
+        for (Element* element: *data().m_array) {
+            // Continue to match children
+            element->selectElements(elements, xpath, xpathPosition, false);
+        }
+    } else if (is(JDT_OBJECT)) {
+        if (!matchAnyElement) {
+            Element* element = find(xpathElement.name);
+            if (element) {
+                if (lastPosition) {
+                    // Full xpath match
+                    appendMatchedElement(elements, xpathElement, element);
+                } else {
+                    // Continue to match children
+                    element->selectElements(elements, xpath, xpathPosition + 1, false);
+                }
+            }
+        } else {
+            for (auto& itor: *data().m_object) {
+                if (lastPosition) {
+                    // Full xpath match
+                    Element* element = itor.second;
+                    appendMatchedElement(elements, xpathElement, element);
+                } else {
+                    // Continue to match children
+                    itor.second->selectElements(elements, xpath, xpathPosition + 1, false);
+                }
+            }
+        }
+
+        selectChildElements(elements, xpath, rootOnly);
+    }
+}
+
+void ElementData::appendMatchedElement(ElementSet& elements, const ElementData::XPathElement& xpathElement, json::Element* element)
+{
+    if (element->type() == JDT_ARRAY) {
+        ArrayData& arrayData = element->getArray();
+        if (!arrayData.empty()) {
+            switch (xpathElement.index) {
+                case 0:
+                    for (auto* item: arrayData)
+                        elements.push_back(item);
+                    break;
+                case -1:
+                    elements.push_back(&arrayData[arrayData.size() - 1]);
+                    break;
+                default:
+                    elements.push_back(&arrayData[size_t(xpathElement.index) - 1]);
+                    break;
+            }
+        }
+    }
+    else
+        elements.push_back(element);
+}
+
+void ElementData::remove(const String& name)
+{
+    if (type() != JDT_OBJECT)
+        throw Exception("Parent element is not JSON object");
+    if (!data().m_object)
+        return;
+    data().m_object->remove(name);
+}
+
+void ElementData::select(ElementSet& elements, const String& xPath)
+{
+    XPath xpath(xPath);
+    elements.clear();
+    if (xpath.empty()) {
+        elements.push_back((Element*)this);
+        return;
+    }
+
+    selectElements(elements, xpath, 0, xpath.rootOnly);
+}
+
 Element::Element(Document* document, double value) noexcept
 : ElementData(document, JDT_NUMBER)
 {
@@ -566,15 +687,6 @@ const Element& Element::operator[](size_t index) const
     return (*data().m_array)[index];
 }
 
-void Element::remove(const String& name)
-{
-    if (type() != JDT_OBJECT)
-        throw Exception("Parent element is not JSON object");
-    if (!data().m_object)
-        return;
-    data().m_object->remove(name);
-}
-
 string json::escape(const string& text)
 {
     string result;
@@ -713,79 +825,6 @@ string json::decode(const string& text)
     return result;
 }
 
-void Element::appendMatchedElement(ElementSet& elements, const Element::XPathElement& xpathElement, json::Element* element)
-{
-    if (element->type() == JDT_ARRAY) {
-        ArrayData& arrayData = element->getArray();
-        if (!arrayData.empty()) {
-            switch (xpathElement.index) {
-                case 0:
-                    for (auto* item: arrayData)
-                        elements.push_back(item);
-                    break;
-                case -1:
-                    elements.push_back(&arrayData[arrayData.size() - 1]);
-                    break;
-                default:
-                    elements.push_back(&arrayData[size_t(xpathElement.index) - 1]);
-                    break;
-            }
-        }
-    }
-    else
-        elements.push_back(element);
-}
-
-void Element::selectChildElements(ElementSet& elements, const Element::XPath& xpath, bool rootOnly) const
-{
-    if (!rootOnly) {
-        for (auto& itor: *data().m_object) {
-            if (itor.second->is(JDT_OBJECT|JDT_ARRAY))
-                itor.second->selectElements(elements, xpath, 0, false);
-        }
-    }
-}
-
-void Element::selectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly)
-{
-    const XPathElement& xpathElement(xpath[xpathPosition]);
-    bool matchAnyElement = xpathElement.name == String("*", 1);
-    bool lastPosition = xpath.size() == xpathPosition + 1;
-
-    if (is(JDT_ARRAY)) {
-        for (Element* element: *data().m_array) {
-            // Continue to match children
-            element->selectElements(elements, xpath, xpathPosition, false);
-        }
-    } else if (is(JDT_OBJECT)) {
-        if (!matchAnyElement) {
-            Element* element = find(xpathElement.name);
-            if (element) {
-                if (lastPosition) {
-                    // Full xpath match
-                    appendMatchedElement(elements, xpathElement, element);
-                } else {
-                    // Continue to match children
-                    element->selectElements(elements, xpath, xpathPosition + 1, false);
-                }
-            }
-        } else {
-            for (auto& itor: *data().m_object) {
-                if (lastPosition) {
-                    // Full xpath match
-                    Element* element = itor.second;
-                    appendMatchedElement(elements, xpathElement, element);
-                } else {
-                    // Continue to match children
-                    itor.second->selectElements(elements, xpath, xpathPosition + 1, false);
-                }
-            }
-        }
-
-        selectChildElements(elements, xpath, rootOnly);
-    }
-}
-
 Element::XPath::XPath(const sptk::String& _xpath)
 {
     String xpath(_xpath);
@@ -806,45 +845,6 @@ Element::XPath::XPath(const sptk::String& _xpath)
         if (matches.size() > 2)
             index = matches[2] == "last()" ? -1 : string2int(matches[2]);
         emplace_back(matches[0], index);
-    }
-}
-
-void Element::select(ElementSet& elements, const String& xPath)
-{
-    XPath xpath(xPath);
-    elements.clear();
-    if (xpath.empty()) {
-        elements.push_back(this);
-        return;
-    }
-
-    selectElements(elements, xpath, 0, xpath.rootOnly);
-}
-
-void Element::optimizeArrays(const std::string& name)
-{
-    if (is(JDT_OBJECT)) {
-        if (size() == 1) {
-            auto itor = data().m_object->begin();
-            Element* itemElement = itor->second;
-            if ((*itor->first == name || name.empty()) && itemElement->is(JDT_ARRAY)) {
-                data().m_object->move(*itor->first);
-                *this = ::move(*itemElement);
-                optimizeArrays(name);
-                return;
-            }
-        }
-        for (auto itor: *data().m_object) {
-            Element* element = itor.second;
-            element->optimizeArrays(name);
-        }
-        return;
-    }
-
-    if (is(JDT_ARRAY)) {
-        for (auto* element: *data().m_array)
-            element->optimizeArrays(name);
-        return;
     }
 }
 

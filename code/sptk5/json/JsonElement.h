@@ -96,6 +96,40 @@ class SP_EXPORT ElementData
 
 protected:
 
+    /**
+     * XPath element
+     */
+    struct XPathElement
+    {
+        String          name;       ///< Path element name
+        int             index {0};  ///< Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
+        /**
+         * Constructor
+         * @param name          Path element name
+         * @param index         Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
+         */
+        XPathElement(String  name, int index) : name(std::move(name)), index(index) {}
+
+        /**
+         * Copy constructor
+         * @param other         Other object to copy from
+         */
+        XPathElement(const XPathElement& other) = default;
+    };
+
+    /**
+     * XPath
+     */
+    struct XPath : std::vector<XPathElement>
+    {
+        bool rootOnly {false};          ///< XPath starts from root flag
+        /**
+         * Constructor
+         * @param xpath           XPath expression
+         */
+        explicit XPath(const String& xpath);
+    };
+
     [[nodiscard]] Data& data() { return m_data; }
     [[nodiscard]] const Data& data() const { return m_data; }
 
@@ -162,6 +196,22 @@ protected:
      */
     void exportObject(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
 
+    /**
+     * Find child elements matching particular xpath element
+     * @param elements          Elements matching xpath (output)
+     * @param xpath             Xpath elements
+     * @param xpathPosition     Position in xpath currently being checked
+     * @param rootOnly          Flag indicating that only root level elements are checked
+     */
+    void selectChildElements(ElementSet& elements, const XPath& xpath, bool rootOnly) const;
+
+    /**
+     * Append matched element to element set
+     * @param elements          Matched element set
+     * @param xpathElement      Current XPath element
+     * @param element           Current element
+     */
+    static void appendMatchedElement(ElementSet& elements, const ElementData::XPathElement& xpathElement, Element* element);
 
     /**
      * Constructor
@@ -248,7 +298,7 @@ public:
      * Alternatively, create a new ArrayData object and replace existing one.
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    ArrayData& getArray(const String& name="");
+    [[nodiscard]] ArrayData& getArray(const String& name="");
 
     /**
      * Get value of JSON element.
@@ -266,7 +316,7 @@ public:
      * Alternatively, create a new ObjectData object and replace existing one.
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    ObjectData& getObject(const String& name="");
+    [[nodiscard]] ObjectData& getObject(const String& name="");
 
     /**
      * Get value of JSON element
@@ -291,6 +341,41 @@ public:
      */
     void exportTo(const std::string& name, xml::Element& parentNode) const;
 
+    /**
+     * Optimize arrays
+     * Walks through the JSON document, and convert objects that contain
+     * only single array field, to arrays - by removing unnecessary name.
+     * @param name              Optional field name, use any name if empty string
+     */
+    void optimizeArrays(const std::string& name="item");
+
+    /**
+     * Find elements matching particular xpath element
+     * @param elements          Elements matching xpath (output)
+     * @param xpath             Xpath elements
+     * @param xpathPosition     Position in xpath currently being checked
+     * @param rootOnly          Flag indicating that only root level elements are checked
+     */
+    void selectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly);
+
+    /**
+     * Remove JSON element by name from this JSON object element
+     * @param name              Name of the element in the object element
+     */
+    void remove(const String& name);
+
+    /** @brief Selects elements as defined by XPath
+     *
+     * The implementation is just started, so only limited XPath standard part is supported.
+     * Currently, examples 1 through 1 from http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
+     * are working fine with the exceptions:
+     * - no functions are supported yet
+     * - no attributes supported, because it isn't XML
+     * @param elements          The resulting list of elements
+     * @param xpath             The xpath for elements
+     */
+    void select(ElementSet& elements, const String& xpath);
+
 };
 
 /**
@@ -307,48 +392,6 @@ class SP_EXPORT Element : public ElementData
 protected:
 
     /**
-     * XPath element
-     */
-    struct XPathElement
-    {
-        String          name;       ///< Path element name
-        int             index {0};  ///< Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
-        /**
-         * Constructor
-         * @param name          Path element name
-         * @param index         Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
-         */
-        XPathElement(String  name, int index) : name(std::move(name)), index(index) {}
-
-        /**
-         * Copy constructor
-         * @param other         Other object to copy from
-         */
-        XPathElement(const XPathElement& other) = default;
-    };
-
-    /**
-     * XPath
-     */
-    struct XPath : std::vector<XPathElement>
-    {
-        bool rootOnly {false};          ///< XPath starts from root flag
-        /**
-         * Constructor
-         * @param xpath           XPath expression
-         */
-        explicit XPath(const String& xpath);
-    };
-
-    /**
-     * Append matched element to element set
-     * @param elements          Matched element set
-     * @param xpathElement      Current XPath element
-     * @param element           Current element
-     */
-    static void appendMatchedElement(ElementSet& elements, const Element::XPathElement& xpathElement, Element* element);
-
-    /**
      * Assign from another element
      * @param other             Element to assign from
      */
@@ -359,26 +402,6 @@ protected:
      * @param other Element&&, Element to move from
      */
     void moveElement(Element&& other) noexcept;
-
-    /**
-     * Find child elements matching particular xpath element
-     * @param elements          Elements matching xpath (output)
-     * @param xpath             Xpath elements
-     * @param xpathPosition     Position in xpath currently being checked
-     * @param rootOnly          Flag indicating that only root level elements are checked
-     */
-    void selectChildElements(ElementSet& elements, const XPath& xpath, bool rootOnly) const;
-
-public:
-
-    /**
-     * Find elements matching particular xpath element
-     * @param elements          Elements matching xpath (output)
-     * @param xpath             Xpath elements
-     * @param xpathPosition     Position in xpath currently being checked
-     * @param rootOnly          Flag indicating that only root level elements are checked
-     */
-    void selectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly);
 
 public:
 
@@ -596,81 +619,12 @@ protected:
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const String& name, int value)
+    template <typename T>
+    Element* add(const String& name, T value)
     {
         return add(name, new Element(getDocument(), value));
     }
 
-    /**
-     * Add integer field to JSON element
-     * @param name              Field name
-     * @param value             Field value
-     */
-    Element* add(const String& name, int64_t value)
-    {
-        return add(name, new Element(getDocument(), value));
-    }
-
-    /**
-     * Add double field to JSON element
-     * @param name              Field name
-     * @param value             Field value
-     */
-    Element* add(const String& name, double value)
-    {
-        return add(name, new Element(getDocument(), value));
-    }
-
-    /**
-     * Add string field to JSON element
-     * @param name              Field name
-     * @param value             Field value
-     */
-    Element* add(const String& name, const std::string& value)
-    {
-        return add(name, new Element(getDocument(), value));
-    }
-
-    /**
-     * Add string field to JSON element
-     * @param name              Field name
-     * @param value             Field value
-     */
-    Element* add(const String& name, const char* value)
-    {
-        return add(name, new Element(getDocument(), value));
-    }
-
-    /**
-     * Add boolean field to JSON element
-     * @param name              Field name
-     * @param value             Field value
-     */
-    Element* add(const String& name, bool value)
-    {
-        return add(name, new Element(getDocument(), value));
-    }
-
-    /**
-     * Add JSON array field to JSON element
-     * @param name              Field name
-     * @param value             Field value
-     */
-    Element* add(const String& name, ArrayData* value)
-    {
-        return add(name, new Element(getDocument(), value));
-    }
-
-    /**
-     * Add JSON object field to JSON element
-     * @param name              Field name
-     * @param value             Field value
-     *
-     */
-    Element* add(const String& name, ObjectData* value)
-    {
-        return add(name, new Element(getDocument(), value));
-    }
 public:
 
     /**
@@ -726,24 +680,6 @@ public:
     const Element& operator[](size_t index) const;
 
     /**
-     * Remove JSON element by name from this JSON object element
-     * @param name              Name of the element in the object element
-     */
-    void remove(const String& name);
-
-    /** @brief Selects elements as defined by XPath
-     *
-     * The implementation is just started, so only limited XPath standard part is supported.
-     * Currently, examples 1 through 1 from http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
-     * are working fine with the exceptions:
-     * - no functions are supported yet
-     * - no attributes supported, because it isn't XML
-     * @param elements          The resulting list of elements
-     * @param xpath             The xpath for elements
-     */
-    void select(ElementSet& elements, const String& xpath);
-
-    /**
      * Conversion to integer
      */
     explicit operator int () const { return (int) getNumber(); }
@@ -757,14 +693,6 @@ public:
      * Conversion to double
      */
     explicit operator String () const { return getString(); }
-
-    /**
-     * Optimize arrays
-     * Walks through the JSON document, and convert objects that contain
-     * only single array field, to arrays - by removing unnecessary name.
-     * @param name              Optional field name, use any name if empty string
-     */
-    void optimizeArrays(const std::string& name="item");
 };
 
 /**
