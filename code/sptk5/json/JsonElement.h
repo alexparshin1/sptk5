@@ -86,13 +86,26 @@ class SP_EXPORT ElementData
     /**
      * JSON element data
      */
-    union Data {
-        double              m_number;
-        const std::string*  m_string;
-        bool                m_boolean;
-        ArrayData*          m_array;
-        ObjectData*         m_object;
-    } m_data {};
+    class Data
+    {
+        uint64_t    m_storage {0};
+    public:
+        double               get_number()  const { return *(const double*) &m_storage; }
+        bool                 get_boolean() const { return (bool) m_storage; }
+        const std::string*   get_string()  const { return (const std::string*) m_storage; }
+        ArrayData*           get_array()   const { return (ArrayData*) m_storage; }
+        ObjectData*          get_object()  const { return (ObjectData*) m_storage; }
+        ArrayData*           get_array()         { return (ArrayData*) m_storage; }
+        ObjectData*          get_object()        { return (ObjectData*) m_storage; }
+
+        void                 set_number(double number)          { m_storage = *(uint64_t*) &number; }
+        void                 set_boolean(bool boolean)          { m_storage = boolean; }
+        void                 set_string(const std::string* s)   { m_storage = (uint64_t) s; }
+        void                 set_array(ArrayData* a)            { m_storage = (uint64_t) a; }
+        void                 set_object(ObjectData* o)          { m_storage = (uint64_t) o; }
+    };
+
+    Data m_data;
 
 protected:
 
