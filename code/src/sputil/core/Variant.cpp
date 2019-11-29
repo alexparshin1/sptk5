@@ -339,7 +339,7 @@ void Variant_Adaptors::setImagePtr(const void* value)
         dataSize(sizeof(value));
     }
 
-    m_data.setImagePtr((void*) value);
+    m_data.setImagePtr(value);
 }
 
 //---------------------------------------------------------------------------

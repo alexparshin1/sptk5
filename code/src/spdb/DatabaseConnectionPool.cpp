@@ -137,22 +137,15 @@ void DatabaseConnectionPool::load()
     // reset errors
     dlerror();
 
-    // workaround for deficiency of C++ standard
-    union {
-        CreateDriverInstance*  create_func_ptr;
-        DestroyDriverInstance* destroy_func_ptr;
-        void*                   void_ptr;
-    } conv = {};
-
     // load the symbols
-    conv.void_ptr = dlsym(handle, create_connectionFunctionName.c_str());
-    CreateDriverInstance* createConnection = conv.create_func_ptr;
+    void* ptr = dlsym(handle, create_connectionFunctionName.c_str());
+    auto* createConnection = (CreateDriverInstance*) ptr;
 
     DestroyDriverInstance* destroyConnection = nullptr;
     const char* dlsym_error = dlerror();
     if (dlsym_error == nullptr) {
-        conv.void_ptr = dlsym(handle, destroy_connectionFunctionName.c_str());
-        destroyConnection = conv.destroy_func_ptr;
+        ptr = dlsym(handle, destroy_connectionFunctionName.c_str());
+        destroyConnection = (DestroyDriverInstance*) ptr;
         dlsym_error = dlerror();
     }
 

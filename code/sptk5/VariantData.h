@@ -197,9 +197,10 @@ public:
     }
 
     /**
-     * @return image pointer
+     * Set image pointer
+     * @param ptr               Image pointer
      */
-    void setImagePtr(void* ptr)
+    void setImagePtr(const void* ptr)
     {
         size_t ptrSize = sizeof(ptr);
         memcpy(m_data, ptr, ptrSize);
