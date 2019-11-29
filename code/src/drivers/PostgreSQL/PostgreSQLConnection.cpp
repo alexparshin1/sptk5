@@ -846,8 +846,10 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
                 if (isNull)
                     field->setNull(VAR_NONE);
-                else
-                    field->setBuffer("", 0, VAR_STRING, true); // External string
+                else {
+                    static char emptyString[2] = {};
+                    field->setExternalBuffer(emptyString, 0, VAR_STRING); // External string
+                }
             } else {
                 char* data = PQgetvalue(stmt, currentRow, column);
 
@@ -883,7 +885,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     case PG_BYTEA:
-                        field->setBuffer(data, (size_t) dataLength, VAR_BUFFER, true); // External buffer
+                        field->setExternalBuffer(data, (size_t) dataLength, VAR_BUFFER); // External buffer
                         break;
 
                     case PG_DATE:
@@ -910,7 +912,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     default:
-                        field->setBuffer(data, size_t(dataLength), VAR_STRING, true); // External string
+                        field->setExternalBuffer(data, size_t(dataLength), VAR_STRING); // External string
                         break;
                 }
             }

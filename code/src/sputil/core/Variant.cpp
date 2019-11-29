@@ -167,14 +167,14 @@ Variant::Variant(DateTime v)
 Variant::Variant(const void* value, size_t sz)
 {
     m_dataType = VAR_NONE;
-    Variant::setBuffer(value, sz, VAR_BUFFER, false);
+    Variant::setBuffer(value, sz, VAR_BUFFER);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(const Buffer& value)
 {
     m_dataType = VAR_NONE;
-    Variant::setBuffer(value.data(), value.bytes(), VAR_BUFFER, false);
+    Variant::setBuffer(value.data(), value.bytes(), VAR_BUFFER);
 }
 
 //---------------------------------------------------------------------------
@@ -268,7 +268,7 @@ void Variant_Adaptors::setString(const String& value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setBuffer(const void* value, size_t sz, VariantType type, bool externalBuffer)
+void Variant_Adaptors::setBuffer(const void* value, size_t sz, VariantType type)
 {
     if ((type & BUFFER_TYPES) == 0)
         throw Exception("Invalid buffer type");
@@ -277,21 +277,36 @@ void Variant_Adaptors::setBuffer(const void* value, size_t sz, VariantType type,
 
     if (value != nullptr || sz != 0) {
         auto& buffer = m_data.getBuffer();
-        if (externalBuffer) {
-            buffer.size = sz;
-            buffer.data = (char*) value;
-            dataSize(sz);
-            dataType(type | VAR_EXTERNAL_BUFFER);
-        } else {
-            buffer.size = sz + 1;
-            dataSize(sz);
-            buffer.data = new char[sz + 1];
-            if (buffer.data != nullptr && value != nullptr) {
-                memcpy(buffer.data, value, sz);
-                buffer.data[sz] = 0;
-            }
-            dataType(type);
+
+        buffer.size = sz + 1;
+        dataSize(sz);
+        auto* data = new char[sz + 1];
+        if (data != nullptr && value != nullptr) {
+            memcpy(data, value, sz);
+            data[sz] = 0;
         }
+        buffer.data = data;
+
+        dataType(type);
+
+    } else
+        setNull(type);
+}
+
+//---------------------------------------------------------------------------
+void Variant_Adaptors::setExternalBuffer(void* value, size_t sz, VariantType type)
+{
+    if ((type & BUFFER_TYPES) == 0)
+        throw Exception("Invalid buffer type");
+
+    releaseBuffers();
+
+    if (value != nullptr || sz != 0) {
+        auto& buffer = m_data.getBuffer();
+        buffer.size = sz;
+        buffer.data = (char*) value;
+        dataSize(sz);
+        dataType(type | VAR_EXTERNAL_BUFFER);
     } else
         setNull(type);
 }
@@ -491,7 +506,7 @@ Variant& Variant::operator=(const void* value)
 //---------------------------------------------------------------------------
 Variant& Variant::operator=(const Buffer& value)
 {
-    setBuffer(value.data(), value.bytes(), VAR_BUFFER, false);
+    setBuffer(value.data(), value.bytes(), VAR_BUFFER);
     return *this;
 }
 

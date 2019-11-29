@@ -200,7 +200,7 @@ public:
      */
     Field& operator =(const Buffer& value) override
     {
-        setBuffer(value.data(), value.bytes(), VAR_BUFFER, false);
+        setBuffer(value.data(), value.bytes(), VAR_BUFFER);
         return *this;
     }
 

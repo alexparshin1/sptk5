@@ -333,7 +333,12 @@ public:
     /**
      * Assignment method
      */
-    virtual void setBuffer(const void* value, size_t sz, VariantType type=VAR_BUFFER, bool externalBuffer=false);
+    virtual void setBuffer(const void* value, size_t sz, VariantType type=VAR_BUFFER);
+
+    /**
+     * Assignment method
+     */
+    virtual void setExternalBuffer(void* value, size_t sz, VariantType type=VAR_BUFFER);
 
     /**
      * Assignment method
