@@ -71,12 +71,12 @@ int main()
         boxes["address"]["last name"] = "Kruger";
 
         root.exportTo(cout, true);
-        COUT(endl);
+        COUT(endl)
 
         return 0;
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

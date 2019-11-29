@@ -50,7 +50,7 @@ xml::Element* WSRequest::findSoapBody(xml::Element* soapEnvelope, const WSNameSp
 
     xml::Element* soapBody = dynamic_cast<xml::Element*>(soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body"));
     if (soapBody == nullptr)
-        throwException("Can't find SOAP Body node in incoming request");
+        throwException("Can't find SOAP Body node in incoming request")
 
     return soapBody;
 }
@@ -75,7 +75,7 @@ void WSRequest::processRequest(xml::Document* request, HttpAuthentication* authe
     }
 
     if (soapEnvelope == nullptr)
-        throwException("Can't find SOAP Envelope node");
+        throwException("Can't find SOAP Envelope node")
 
     xml::Element* soapBody = findSoapBody(soapEnvelope, soapNamespace);
 
@@ -92,7 +92,7 @@ void WSRequest::processRequest(xml::Document* request, HttpAuthentication* authe
         }
     }
     if (requestNode == nullptr)
-        throwException("Can't find request node in SOAP Body");
+        throwException("Can't find request node in SOAP Body")
 
     requestBroker(requestNode, authentication, requestNameSpace);
 }

@@ -38,33 +38,33 @@ int main() {
 
        client.open();
 
-      COUT("Connected\n");
+      COUT("Connected\n")
 
       String data;
 
       client.readLine(data);
-      COUT("Receiving: " << data.c_str() << "\n");
+      COUT("Receiving: " << data.c_str() << "\n")
 
       data = "Several copies of a single string";
-      COUT("Sending: test data\n");
+      COUT("Sending: test data\n")
       client.write(data + "\n" + data + " " + data + "\n" + data + " " + data + " " + data + " " + data + "\n" + data + " " + data + "\n");
 
-      COUT("Sending: end data\n");
+      COUT("Sending: end data\n")
       client.write("EOD\n");
 
       client.readLine(data);
-      COUT("Receiving: " << data.c_str() << "\n");
+      COUT("Receiving: " << data.c_str() << "\n")
 
-      COUT("Sending: end session\n");
+      COUT("Sending: end session\n")
       client.write("EOS\n");
 
       client.readLine(data);
-      COUT("Receiving: " << data.c_str() << "\n");
+      COUT("Receiving: " << data.c_str() << "\n")
    } catch (const Exception& e) {
-      CERR("Exception was caught:" << e.what() << "\nExiting.\n");
+      CERR("Exception was caught:" << e.what() << "\nExiting.\n")
    }
 
-   COUT("Exiting\n");
+   COUT("Exiting\n")
 
    return 0;
 }

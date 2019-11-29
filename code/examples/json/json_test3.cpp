@@ -47,20 +47,20 @@ int main()
         jsonDocument.root().exportTo(cout);
         jsonDocument.root().select(selected, "//firstName");
 
-        COUT(endl << endl << "Selected " << selected.size() << " element(s):" << endl << endl);
+        COUT(endl << endl << "Selected " << selected.size() << " element(s):" << endl << endl)
 
         int elementIndex = 1;
         for (json::Element* element: selected) {
-            COUT("Element " << elementIndex << ":" << endl);
+            COUT("Element " << elementIndex << ":" << endl)
             element->exportTo(cout);
-            COUT(endl << endl);
+            COUT(endl << endl)
             elementIndex++;
         }
 
         return 0;
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

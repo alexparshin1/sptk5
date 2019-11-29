@@ -30,7 +30,6 @@
 
 #include <FL/Fl.H>
 #include <FL/Fl_Round_Button.H>
-#include <FL/fl_draw.H>
 
 #include <sptk5/cgui>
 

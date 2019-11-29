@@ -50,7 +50,7 @@ public:
     ContentTypes() noexcept
     { if (m_contentTypes.empty()) init(); }
 
-    void init();
+    static void init();
 
     static string type(const string& fileName);
 };

@@ -210,25 +210,6 @@ class SP_EXPORT CThemes :
     static CThemeImageCollection& sizeToButtonImages(CThemeButtonType sz);
 
     /**
-     * Loads and sets the pixmap from the file for the given button size and type
-     * @param sz CThemeButtonType, theme button size
-     * @param bt CThemeImageState, theme button type
-     * @param fileName std::string, PNG file name
-     * @param extenalFile bool, true if the file is not a part of SPTK theme
-     */
-    static void replaceButton(CThemeButtonType sz,CThemeImageState bt,std::string fileName,bool externalFile=false);
-
-    /**
-     * Loads and sets the pixmap from the file for the given button size and type
-     * @param sz CThemeButtonType, theme button size
-     * @param bt CThemeImageState, theme button type
-     * @param fileNameNormal std::string, PNG file name for normal button image
-     * @param fileNameHighlighted std::string, PNG file name for highlighted button image
-     * @param extenalFile bool, true if the file is not a part of SPTK theme
-     */
-    static void replaceButton(CThemeButtonType sz,CThemeImageState btndx,std::string fileNameNormal,std::string fileNameHighlighted,bool externalFile);
-
-    /**
      * Loads and sets the pixmap from the file for the given pixmap array member
      * @param ndx int, image index
      * @param fileName std::string, pixmap file name

@@ -402,21 +402,6 @@ private:
 
 public:
 
-
-    /**
-     * @brief Returns true if string start matches the pattern
-     * @param subject           String to check
-     * @param pattern           String fragment to match
-     */
-    bool startsWith(const String& subject, const String& pattern);
-
-    /**
-     * @brief Returns true if string end matches the pattern
-     * @param subject           String to check
-     * @param pattern           String fragment to match
-     */
-    bool endsWith(const String& subject, const String& pattern);
-
     /**
      * @brief prints a line of characters
      * @param ch                Character to print

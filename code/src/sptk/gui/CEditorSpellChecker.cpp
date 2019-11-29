@@ -28,7 +28,6 @@
 
 #include <sptk5/sptk.h>
 
-#include <FL/fl_ask.H>
 #include <sptk5/gui/CEditorSpellChecker.h>
 #include <aspell.h>
 

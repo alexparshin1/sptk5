@@ -583,7 +583,7 @@ public:
      * @param method            Method name where error has occured
      * @param error             Error text
      */
-    void throwError(const String& method, const String& error);
+    static void throwError(const String& method, const String& error);
 
 private:
     String parseParameters(const String& _sql);

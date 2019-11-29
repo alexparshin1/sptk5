@@ -118,7 +118,7 @@ class SP_EXPORT Tar
     /**
      * @brief Throws an error
      */
-    void throwError(std::string fileName);
+    static void throwError(std::string fileName);
 public:
     /**
      * The last generated tar handle

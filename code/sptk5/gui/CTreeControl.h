@@ -380,16 +380,6 @@ public:
     bool selectPrior();
 
     /**
-     * @brief Selects the last item in the tree
-     */
-    bool selectFirst();
-
-    /**
-     * @brief Selects the first item in the tree
-     */
-    bool selectLast();
-
-    /**
      * @brief Selects the first visible item in the child tree
      */
     CTreeItem* findFirst() const;
@@ -589,7 +579,7 @@ public:
      * @param item              Item to insert
      * @param beforeItem        Item before the insert point. If 0L - it's moved to the very last position in parent item list of items.
      */
-    void moveItem(CTreeItem* item, CTreeItem* beforeItem = nullptr);
+    static void moveItem(CTreeItem* item, CTreeItem* beforeItem = nullptr);
 
     /**
      * @brief Removes all the item and underlying structure from the tree.

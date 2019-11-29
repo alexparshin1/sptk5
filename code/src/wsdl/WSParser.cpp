@@ -61,7 +61,7 @@ WSParser::~WSParser()
         clear();
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 }
 
@@ -114,7 +114,7 @@ void WSParser::parseComplexType(const xml::Element* complexTypeElement)
     }
 
     if (m_complexTypes.find(complexTypeName) != m_complexTypes.end())
-        throwException("Duplicate complexType definition: " << complexTypeName);
+        throwException("Duplicate complexType definition: " << complexTypeName)
 
     WSParserComplexType* complexType = new WSParserComplexType(complexTypeElement, complexTypeName);
     m_complexTypes[complexTypeName] = complexType;
@@ -199,12 +199,12 @@ void WSParser::parse(String wsdlFile)
 
     xml::Element* schemaElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("xsd:schema"));
     if (schemaElement == nullptr)
-        throwException("Can't find xsd:schema element");
+        throwException("Can't find xsd:schema element")
     parseSchema(schemaElement);
 
     xml::Element* portElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("wsdl:portType"));
     if (portElement == nullptr)
-        throwException("Can't find wsdl:portType element");
+        throwException("Can't find wsdl:portType element")
     for (auto* node: *portElement) {
         auto* element = dynamic_cast<xml::Element*>(node);
         if (element != nullptr && element->name() == "wsdl:operation")

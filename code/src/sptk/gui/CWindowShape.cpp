@@ -26,8 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
-
 #include <sptk5/gui/CWindow.h>
 #include <FL/fl_draw.H>
 

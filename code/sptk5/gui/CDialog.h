@@ -94,19 +94,11 @@ enum CDialogModalResult
  */
 class SP_EXPORT CDialogTabs: public CTabs
 {
-    /**
-     * @brief Sets the proper box type for the widget and for the group depending on the number of tabs
-     * @param page              Newly added tab page
-     * @returns same page
-     */
-    Fl_Group *adjustPage(Fl_Group *page);
-
 protected:
     /**
      * Sets default parameters for a new page
      */
     void prepareNewPage(Fl_Group *page, bool autoColor) override;
-
 
 public:
 

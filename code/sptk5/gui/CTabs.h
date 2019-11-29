@@ -127,16 +127,6 @@ public:
     void showTabs(bool show);
 
     /**
-     * @brief Returns currently selected page
-     */
-    Fl_Group *page();
-
-    /**
-     * Selects page
-     */
-    uint32_t page(Fl_Widget *page);
-
-    /**
      * @brief Returns tabs count
      */
     uint32_t pageCount() const;

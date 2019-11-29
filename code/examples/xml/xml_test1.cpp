@@ -26,7 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <FL/fl_ask.H>
 #include <FL/Fl.H>
 
 #include <sptk5/DateTime.h>
@@ -135,7 +134,7 @@ void saveDocument(const shared_ptr<xml::Document>& doc)
             doc->save(savebuffer, true);
             savebuffer.saveToFile("MyXML.xml");
             DateTime end("now");
-            COUT("XML Test - saved for " << diffSeconds(start, end) << " sec" << endl);
+            COUT("XML Test - saved for " << diffSeconds(start, end) << " sec" << endl)
         }
         catch (const Exception& e) {
             Fl::warning(e.what());
@@ -182,13 +181,13 @@ int main(int argc, char **argv)
         stringstream message;
         message << "XML Test - loaded file in " << diffSeconds(start, end) << " sec";
         window->label(message.str());
-        COUT(message.str() << endl);
+        COUT(message.str() << endl)
 
         build_tree(doc.get(), tree, nullptr);
         start = DateTime::Now();
         tree->relayout();
         end = DateTime::Now();
-        COUT("XML Test - relayouted tree in " << diffSeconds(start, end) << " sec" << endl);
+        COUT("XML Test - relayouted tree in " << diffSeconds(start, end) << " sec" << endl)
 
         saveDocument(doc);
 
@@ -196,10 +195,10 @@ int main(int argc, char **argv)
 
         Fl::run();
 
-        COUT("--------------------------------" << endl);
+        COUT("--------------------------------" << endl)
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
     return 0;

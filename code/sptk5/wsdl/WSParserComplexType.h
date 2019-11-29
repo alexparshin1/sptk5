@@ -243,7 +243,7 @@ public:
         if (m_refcount > 0)
             m_refcount--;
         else
-            throwException("Can't decrease complex type refcount: refcount is less than 1");
+            throwException("Can't decrease complex type refcount: refcount is less than 1")
     }
 
     /**

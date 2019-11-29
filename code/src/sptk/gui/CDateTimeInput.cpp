@@ -115,7 +115,7 @@ bool CDateTimeBaseInput::valid() const
             return val >= m_minValue && val <= m_maxValue;
         return true;
     } catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
     return false;
 }

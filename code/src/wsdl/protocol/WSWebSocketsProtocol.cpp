@@ -156,7 +156,7 @@ void WSWebSocketsProtocol::process()
             WSWebSocketsMessage msg;
             msg.decode(message.c_str());
 
-            COUT(msg.payload().c_str() << endl);
+            COUT(msg.payload().c_str() << endl)
 
             WSWebSocketsMessage::encode("Hello", WSWebSocketsMessage::OC_TEXT, true, message);
             socket().write(message);

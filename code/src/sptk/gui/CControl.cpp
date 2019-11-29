@@ -52,7 +52,7 @@ class CControlKindIndex
     static CTypeNameMap m_typeNameMap;
     static CNameTypeMap m_nameTypeMap;
 
-    void registerType(CControlKind type, const char* name);
+    static void registerType(CControlKind type, const char* name);
 
 public:
     CControlKindIndex() noexcept;

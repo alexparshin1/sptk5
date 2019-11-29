@@ -38,7 +38,7 @@ int main()
 {
     try {
         Buffer testData("============================ 1234567890 1234567890 test data 1234567890 1234567890 ============================");
-        COUT("Test data:              " << testData.bytes() << " bytes." << endl);
+        COUT("Test data:              " << testData.bytes() << " bytes." << endl)
 
         Buffer compressedData;
         ZLib::compress(compressedData, testData);
@@ -46,13 +46,13 @@ int main()
         testData.reset(); // Decompressed data will be appended to destination
         ZLib::decompress(testData, compressedData);
 
-        COUT("Compressed test data:   " << compressedData.bytes() << " bytes." << endl);
-        COUT("Decompressed test data: " << testData.bytes() << " bytes." << endl);
+        COUT("Compressed test data:   " << compressedData.bytes() << " bytes." << endl)
+        COUT("Decompressed test data: " << testData.bytes() << " bytes." << endl)
 
-        COUT(testData << endl);
+        COUT(testData << endl)
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
     return 0;

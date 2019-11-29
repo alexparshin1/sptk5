@@ -37,10 +37,10 @@ int main()
     try {
         DatabaseConnectionPool connectionPool("postgresql://theater/protis");
         DatabaseConnection connection = connectionPool.getConnection();
-        COUT(connection->nativeConnectionString() << endl);
+        COUT(connection->nativeConnectionString() << endl)
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
     return 0;
 }

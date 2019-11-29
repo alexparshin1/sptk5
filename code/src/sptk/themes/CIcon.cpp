@@ -101,7 +101,7 @@ void CIconMap::load(Tar& tar, xml::Node* iconsNode)
                 throw Exception("Can't load " + fileName);
         }
         catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
     }
 }
