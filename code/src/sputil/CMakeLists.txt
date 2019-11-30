@@ -13,8 +13,8 @@ SET (SPUTIL_SOURCES
     net/UDPSocket.cpp net/ImapDS.cpp net/Proxy.cpp
     xml/Attributes.cpp xml/Document.cpp xml/DocType.cpp xml/Node.cpp xml/NodeList.cpp
     tar/block.cpp tar/Tar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
-    threads/Flag.cpp threads/Locks.cpp threads/Thread.cpp threads/ThreadPool.cpp threads/Semaphore.cpp threads/Runable.cpp
-    threads/WorkerThread.cpp threads/Timer.cpp
+    threads/Flag.cpp threads/Locks.cpp threads/Thread.cpp threads/ThreadManager.cpp threads/ThreadPool.cpp
+    threads/Semaphore.cpp threads/Runable.cpp threads/WorkerThread.cpp threads/Timer.cpp
 )
 
 IF (ZLIB_FOUND)

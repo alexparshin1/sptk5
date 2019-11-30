@@ -25,78 +25,47 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_THREAD_EVENT_H__
-#define __SPTK_THREAD_EVENT_H__
+#ifndef __SPTK_THREADMANAGER_H__
+#define __SPTK_THREADMANAGER_H__
 
-#include <sptk5/threads/Thread.h>
+#include <sptk5/cthreads>
 
 namespace sptk {
 
-/**
- * @addtogroup threads Thread Classes
- * @{
- */
-
-class Runable;
-
-/**
- * @brief Thread event interface
- */
-class SP_EXPORT ThreadEvent
+class ThreadManager
 {
-public:
-    /**
-     * @brief Thread event type
-     */
-    enum Type {
-        /**
-         * Thread started event
-         */
-        THREAD_STARTED,
-
-        /**
-         * Thread finished event
-         */
-        THREAD_FINISHED,
-
-        /**
-         * Runable started
-         */
-        RUNABLE_STARTED,
-
-        /**
-         * Runable finished
-         */
-        RUNABLE_FINISHED,
-
-        /**
-         * Thread was idle longer than defined idle timeout
-         */
-        IDLE_TIMEOUT
-
+    class Joiner : public Thread
+    {
+        SynchronizedQueue<SThread>  m_terminatedThreads;    ///< Terminated threads scheduled for delete
+    protected:
+        void threadFunction() override;
+        void joinTerminatedThreads();
+    public:
+        explicit Joiner(const String& name);
+        ~Joiner() override;
+        void push(SThread& thread);
+        void stop();
     };
 
-    /**
-     * @brief Thread event callback function
-     *
-     * In order to receive thread events, event receiver
-     * should be derived from this class.
-     * @param thread            Thread where event occured
-     * @param eventType         Thread event type
-     * @param runable           Related runable (if any)
-     */
-    virtual void threadEvent(Thread* thread, Type eventType, Runable* runable) = 0;
+    mutable std::mutex          m_mutex;                ///< Mutex that protects internal data
+    std::map<Thread*, SThread>  m_runningThreads;       ///< Running threads
+    Joiner                      m_joiner;
 
-    /**
-     * @brief Destructor
-     */
-    virtual ~ThreadEvent()
-    {}
+    void terminateRunningThreads();
+
+public:
+    explicit ThreadManager(const String& name);
+    virtual ~ThreadManager();
+
+    void start();
+    void stop();
+
+    void registerThread(SThread thread);
+    void finalizeThread(Thread* thread);
 };
 
-/**
- * @}
- */
+typedef std::shared_ptr<ThreadManager>  SThreadManager;
+
 }
 
 #endif

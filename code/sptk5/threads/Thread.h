@@ -38,11 +38,12 @@
 
 namespace sptk
 {
-
 /**
  * @addtogroup threads Thread Classes
  * @{
  */
+
+class ThreadManager;
 
 /**
  * Base thread object.
@@ -52,11 +53,12 @@ namespace sptk
  */
 class SP_EXPORT Thread
 {
-    SharedMutex                     m_mutex;        ///< Thread synchronization object
-    String                          m_name;         ///< Thread name
-    std::shared_ptr<std::thread>    m_thread;       ///< Thread object
-    bool                            m_terminated;   ///< Flag: is the thread terminated?
-    Semaphore                       m_pause;        ///< Pause object
+    SharedMutex                     m_mutex;            ///< Thread synchronization object
+    String                          m_name;             ///< Thread name
+    std::shared_ptr<std::thread>    m_thread;           ///< Thread object
+    bool                            m_terminated;       ///< Flag: is the thread terminated?
+    Semaphore                       m_pause;            ///< Pause object
+    std::shared_ptr<ThreadManager>  m_threadManager;    ///< Optional thread manager
 
     /**
      * Thread function wrapper
@@ -73,8 +75,9 @@ public:
     /**
      * Constructor
      * @param name              Name of the thread for future references.
+     * @param threadManager     Optional thread manager
      */
-    explicit Thread(const String& name);
+    explicit Thread(const String& name, std::shared_ptr<ThreadManager> threadManager=nullptr);
 
     /**
      * Destructor
@@ -147,6 +150,17 @@ public:
      */
     virtual bool sleep_until(const DateTime& timestamp);
 };
+
+/**
+ * Shared pointer to Thread
+ */
+typedef std::shared_ptr<Thread> SThread;
+
+/**
+ * Unique pointer to Thread
+ */
+typedef std::unique_ptr<Thread> UThread;
+
 /**
  * @}
  */
