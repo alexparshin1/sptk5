@@ -32,11 +32,12 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/RegularExpression.h>
+
 #include <mutex>
 
 namespace sptk {
 
-class SP_EXPORT caseInsensitiveCompare : public std::binary_function<String, String, bool>
+class SP_EXPORT caseInsensitiveCompare 
 {
 public:
 
