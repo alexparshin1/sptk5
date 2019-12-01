@@ -534,14 +534,14 @@ public:
      * @param argv              Command line arguments
      * @return preprocessed command line arguments
      */
-    Strings preprocessArguments(int argc, const char* const* argv);
+    static Strings preprocessArguments(int argc, const char* const* argv);
 
     /**
      * Re-write command line arguments
      * @param arguments         Command line arguments
      * @return re-written command line arguments
      */
-    Strings rewriteArguments(const Strings& arguments);
+    static Strings rewriteArguments(const Strings& arguments);
 };
 
 /**

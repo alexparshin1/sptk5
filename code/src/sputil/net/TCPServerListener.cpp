@@ -38,6 +38,11 @@ TCPServerListener::TCPServerListener(TCPServer* server, uint16_t port)
     m_listenerSocket.host(Host("localhost", port));
 }
 
+TCPServerListener::~TCPServerListener()
+{
+    stop();
+}
+
 void TCPServerListener::acceptConnection()
 {
     try {
@@ -83,4 +88,10 @@ void TCPServerListener::terminate()
     Thread::terminate();
 	lock_guard<mutex> lock(*this);
 	m_listenerSocket.close();
+}
+
+void TCPServerListener::stop()
+{
+    terminate();
+    join();
 }

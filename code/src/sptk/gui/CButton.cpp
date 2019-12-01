@@ -223,7 +223,7 @@ CBaseButton::CBaseButton(const char* l, CLayoutAlign layoutAlign, CThemeButtonTy
 {
     m_default = false;
     m_image = nullptr;
-    label(l);
+    CBaseButton::label(l);
     box(FL_THIN_UP_BOX);
 }
 
