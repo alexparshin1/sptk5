@@ -50,25 +50,11 @@ class TCPServer;
  */
 class TCPServerListener: public Thread, public std::mutex
 {
-    /**
-     * TCP server created connection
-     */
-    TCPServer*      m_server;
+    TCPServer*      m_server;           ///< TCP server created connection
+    TCPSocket       m_listenerSocket;   ///< Listener socket
+    String          m_error;            ///< Last socket error
 
-    /**
-     * Listener socket
-     */
-    TCPSocket       m_listenerSocket;
-
-    /**
-     * Last socket error
-     */
-    String          m_error;
-
-    /**
-     * Accept connection
-     */
-    void acceptConnection();
+    void acceptConnection();            ///< Accept connection
 
 public:
     /**
