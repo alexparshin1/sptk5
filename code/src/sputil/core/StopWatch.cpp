@@ -31,7 +31,7 @@
 using namespace sptk;
 
 StopWatch::StopWatch()
-: m_started("Now")
+: m_started("now")
 {
 }
 

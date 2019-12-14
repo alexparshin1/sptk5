@@ -37,6 +37,7 @@
 #include <sys/epoll.h>
 #endif
 
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -131,9 +132,10 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout)
 
     int eventCount = epoll_wait(m_pool, events, MAXEVENTS, (int) timeout.count());
     if (eventCount < 0)
-        throw SystemException("Error waiting for socket activity");
+        //throw SystemException("Error waiting for socket activity");
+        return;
 
-    for (int i = 0; i < eventCount; i++) {
+    for (int i = 0; i < eventCount && m_pool != INVALID_EPOLL; i++) {
         epoll_event& event = events[i];
         if ((event.events & (EPOLLHUP | EPOLLRDHUP)) != 0)
             m_eventsCallback(event.data.ptr, ET_CONNECTION_CLOSED);

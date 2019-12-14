@@ -49,6 +49,7 @@ SocketEvents::~SocketEvents()
 void SocketEvents::stop()
 {
 	try {
+	    m_socketPool.close();
 		if (running()) {
 			terminate();
 			join();

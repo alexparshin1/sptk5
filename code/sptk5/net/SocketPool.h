@@ -29,11 +29,13 @@
 #ifndef __SPTK_SOCKETPOOL_H__
 #define __SPTK_SOCKETPOOL_H__
 
-#include <map>
-#include <mutex>
 #include <sptk5/Exception.h>
 #include <sptk5/threads/Thread.h>
 #include <sptk5/net/BaseSocket.h>
+
+#include <functional>
+#include <map>
+#include <mutex>
 
 namespace sptk {
 
@@ -41,24 +43,15 @@ namespace sptk {
  * Socket event types
  */
 typedef enum {
-    /**
-     * Event is unknown or undefined
-     */
-    ET_UNKNOWN_EVENT,
-    /**
-     * Socket has data available to read
-     */
-    ET_HAS_DATA,
-    /**
-     * Peer closed connection
-     */
-    ET_CONNECTION_CLOSED
+    ET_UNKNOWN_EVENT,       ///< Event is unknown or undefined
+    ET_HAS_DATA,            ///< Socket has data available to read
+    ET_CONNECTION_CLOSED    ///< Peer closed connection
 } SocketEventType;
 
 /**
  * Type definition of socket event callback function
  */
-typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
+typedef std::function<void(void *userData, SocketEventType eventType)> SocketEventCallback;
 
 #ifdef _WIN32
 #define INVALID_EPOLL nullptr
