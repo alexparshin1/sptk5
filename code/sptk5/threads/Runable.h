@@ -79,7 +79,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~Runable();
+    virtual ~Runable() = default;
 
     /**
      * Executes task' run method
@@ -98,11 +98,6 @@ public:
      * Returns true if terminate request is sent to runable
      */
     bool terminated() const;
-
-    /**
-     * Returns true if runable is running
-     */
-    bool running() const;
 
     /**
      * @return object name

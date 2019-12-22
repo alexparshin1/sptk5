@@ -36,12 +36,6 @@ Runable::Runable(const String& name)
 {
 }
 
-Runable::~Runable()
-{
-    terminate();
-    lock_guard<mutex> lock(m_runMutex);
-}
-
 void Runable::execute()
 {
     setTerminated(false);
