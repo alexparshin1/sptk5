@@ -104,7 +104,6 @@ public:
      */
     String name() const
     {
-        SharedLock(m_mutex);
         return m_name;
     }
 };
