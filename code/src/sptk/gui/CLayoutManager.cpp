@@ -383,7 +383,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     if (layoutManager)
                         layoutManager->loadLayout(widgetNode, xmlMode);
                 } catch (const Exception& e) {
-                    CERR(e.what() << endl);
+                    CERR(e.what() << endl)
                 }
             } else {
                 try {
@@ -391,7 +391,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     if (cwidget)
                         cwidget->load(widgetNode, xmlMode);
                 } catch (const Exception& e) {
-                    CERR(e.what() << endl);
+                    CERR(e.what() << endl)
                 }
             }
             if (widget->parent() != m_group)
@@ -430,7 +430,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     continue;
                 }
             } catch (const Exception& e) {
-                CERR(e.what() << endl);
+                CERR(e.what() << endl)
             }
             try {
                 auto* control = dynamic_cast<CControl*>(widget);
@@ -446,7 +446,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     continue;
                 }
             } catch (const Exception& e) {
-                CERR(e.what() << endl);
+                CERR(e.what() << endl)
             }
         }
     }
@@ -488,7 +488,7 @@ void CLayoutManager::saveLayout(xml::Node* groupNode, CLayoutXMLmode xmlMode) co
                 continue;
             }
         } catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
     }
 }
@@ -504,7 +504,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
             if (client && !client->name().empty())
                 index[client->name()] = widget;
         } catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
 
         if (recursive)
@@ -513,7 +513,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
                 if (group)
                     group->nameIndex(index, true, false);
             } catch (const Exception& e) {
-                CERR(e.what() << endl);
+                CERR(e.what() << endl)
             }
     }
 }

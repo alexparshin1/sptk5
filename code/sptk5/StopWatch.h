@@ -33,16 +33,35 @@
 
 namespace sptk {
 
-class StopWatch
+/**
+ * Simple stopwatch class useful in measuring time intervals
+ */
+class SP_EXPORT StopWatch
 {
-    DateTime    m_started;
-    DateTime    m_ended;
+    DateTime    m_started;	///< Start time
+    DateTime    m_ended;	///< Stop time
 public:
+
+	/**
+	 * Default constructor
+	 */
     StopWatch();
 
+	/**
+	 * Set stopwatch start time
+	 */
     void start();
-    void stop();
-    double seconds() const;
+
+	/**
+	 * Set stopwatch stop time
+	 */
+	void stop();
+
+	/**
+	 * Get difference between stopwatch start and stop times in seconds
+	 * @return interval in seconds
+	 */
+	double seconds() const;
 };
 
 }

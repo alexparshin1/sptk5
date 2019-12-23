@@ -31,8 +31,7 @@
 
 #include <sptk5/Strings.h>
 
-#include <atomic>
-#include "Locks.h"
+#include <mutex>
 
 namespace sptk
 {
@@ -50,9 +49,10 @@ namespace sptk
  */
 class SP_EXPORT Runable
 {
-    mutable SharedMutex m_mutex;        ///< Synchronized object locked while the task running
-    bool                m_terminated;   ///< Flag indicating if task is terminated
-    String              m_name;         ///< Runable object name
+    mutable std::mutex  m_dataMutex;            ///< Synchronized object that protects internal data
+    mutable std::mutex  m_runMutex;             ///< Synchronized object locked while the task running
+    bool                m_terminated {false};   ///< Flag indicating if task is terminated
+    const String        m_name;                 ///< Runable object name
 
     /**
      * Set runable to terminated
@@ -104,7 +104,6 @@ public:
      */
     String name() const
     {
-        SharedLock(m_mutex);
         return m_name;
     }
 };

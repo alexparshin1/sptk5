@@ -49,6 +49,7 @@ SocketEvents::~SocketEvents()
 void SocketEvents::stop()
 {
 	try {
+	    m_socketPool.close();
 		if (running()) {
 			terminate();
 			join();
@@ -99,4 +100,10 @@ void SocketEvents::terminate()
 	Thread::terminate();
 	lock_guard<mutex> lock(m_mutex);
 	m_shutdown = true;
+}
+
+size_t SocketEvents::size() const
+{
+    lock_guard<mutex> lock(m_mutex);
+    return m_watchList.size();
 }

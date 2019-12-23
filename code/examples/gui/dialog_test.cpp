@@ -109,7 +109,7 @@ public:
             /// If the XML file exists, try to load data into the dialog
             load(&m_state);
         } catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
     }
 
@@ -162,7 +162,7 @@ void dialog_cb(Fl_Widget*, void*)
              (String) dialog["company_name"] << ", has " <<
              (int) dialog["company_size"] << " employees (" <<
              (String) dialog["business_type"] << "), established " <<
-             (String) dialog["established"] << endl);
+             (String) dialog["established"] << endl)
     }
 
     /// This saves the last known state of the dialog
@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
         return Fl::run();
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

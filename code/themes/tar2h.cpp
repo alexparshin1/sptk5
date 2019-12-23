@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <sptk5/sptk.h>
 
@@ -45,7 +44,7 @@ int main(int argc, char **argv)
         return 0;
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/cutils>
-#include <sptk5/cnet>
 #include <sptk5/wsdl/WSListener.h>
 
 using namespace std;
@@ -64,9 +63,9 @@ int main()
             this_thread::sleep_for(chrono::milliseconds(1000));
     }
     catch (const Exception& e) {
-        CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl);
+        CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl)
         return 1;
     }
-    COUT("Server session closed" << endl);
+    COUT("Server session closed" << endl)
     return 0;
 }

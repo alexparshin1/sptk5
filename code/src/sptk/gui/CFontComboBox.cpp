@@ -31,7 +31,6 @@
 #include <FL/Fl.H>
 
 #include <sptk5/gui/CLayoutManager.h>
-#include <sptk5/gui/CDBListView.h>
 #include <sptk5/gui/CFontComboBox.h>
 
 using namespace std;

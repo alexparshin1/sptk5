@@ -26,12 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
+#include <sptk5/gui/CPopupWindow.h>
 
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
-
-#include <sptk5/gui/CPopupWindow.h>
 
 using namespace std;
 using namespace sptk;

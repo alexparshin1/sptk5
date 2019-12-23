@@ -26,7 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
+#include <sptk5/gui/CScrollBar.h>
+#include <sptk5/gui/CThemes.h>
 
 #if defined(WIN32)
 #pragma warning (disable: 4786)
@@ -35,8 +36,6 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Group.H>
 #include <FL/fl_draw.H>
-#include <sptk5/gui/CScrollBar.h>
-#include <sptk5/gui/CThemes.h>
 
 #include <cmath>
 

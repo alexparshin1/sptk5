@@ -74,15 +74,8 @@ void TCPServer::listen(uint16_t port)
         run();
 
     UniqueLock(m_mutex);
-    if (m_listenerThread != nullptr) {
-        m_listenerThread->terminate();
-        m_listenerThread->join();
-        delete m_listenerThread;
-    }
-
-    m_listenerThread = new TCPServerListener(this, port);
+    m_listenerThread = make_shared<TCPServerListener>(this, port);
     m_listenerThread->listen();
-    m_listenerThread->run();
 }
 
 bool TCPServer::allowConnection(sockaddr_in*)
@@ -94,13 +87,7 @@ void TCPServer::stop()
 {
     UniqueLock(m_mutex);
     ThreadPool::stop();
-
-    if (m_listenerThread != nullptr) {
-        m_listenerThread->terminate();
-        m_listenerThread->join();
-        delete m_listenerThread;
-        m_listenerThread = nullptr;
-    }
+    m_listenerThread.reset();
 }
 
 void TCPServer::setSSLKeys(shared_ptr<SSLKeys> sslKeys)

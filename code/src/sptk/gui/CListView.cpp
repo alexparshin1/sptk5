@@ -397,7 +397,7 @@ int CListView::item_height(unsigned index) const
             h = 6;
         return h;
     } catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 
     return 0;
@@ -1566,7 +1566,6 @@ int CListView::handle(int event)
     int my;
     unsigned l;
     static char change;
-    static int py;
     switch (event) {
         case FL_MOVE:
             if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight) &&
@@ -1593,7 +1592,7 @@ int CListView::handle(int event)
             }
             if (!m_multipleSelection)
                 m_selection.deselectAll();
-            my = py = Fl::event_y();
+            my = Fl::event_y();
             change = 0;
             l = (unsigned) find_item(my);
             if (m_multipleSelection && (Fl::event_state() & (FL_CTRL | FL_SHIFT)) != 0) {

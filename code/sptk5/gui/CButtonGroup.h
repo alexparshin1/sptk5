@@ -97,11 +97,6 @@ protected:
     void deselectAllButtons();
 
     /**
-     * Selects button by index
-     */
-    void selectButton(int choice);
-
-    /**
      * Creates button. Should be implemented in the derived class.
      */
     virtual Fl_Button *createButton(const char *label,int sz=10,CLayoutAlign layoutAlignment=SP_ALIGN_TOP) = 0;

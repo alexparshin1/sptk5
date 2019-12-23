@@ -159,10 +159,7 @@ int th_read(TAR *t)
     {
         sz = (size_t) th_get_size(t);
         j = (int) ( (sz / T_BLOCKSIZE) + ((sz % T_BLOCKSIZE) ? 1 : 0) );
-#ifdef LIBTAR_DEBUG
-        printf("    th_read(): GNU long filename detected "
-               "(%ld bytes, %d blocks)\n", sz, j);
-#endif
+
         t->th_buf.gnu_longname = new char[size_t(j) * T_BLOCKSIZE];
         if (t->th_buf.gnu_longname == nullptr)
             return -1;
@@ -178,10 +175,6 @@ int th_read(TAR *t)
                 return -1;
             }
         }
-#ifdef LIBTAR_DEBUG
-        printf("    th_read(): t->th_buf.gnu_longname == \"%s\"\n",
-               t->th_buf.gnu_longname);
-#endif
 
         i = th_read_internal(t);
         if (i != T_BLOCKSIZE)

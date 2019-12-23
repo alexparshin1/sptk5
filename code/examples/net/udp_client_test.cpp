@@ -52,10 +52,10 @@ int main()
         data = "EOD";
         client.write(data, &serv);
     } catch (const Exception& e) {
-        CERR("Exception was caught:" << e.what() << endl << "Exiting." << endl);
+        CERR("Exception was caught:" << e.what() << endl << "Exiting." << endl)
         return 1;
     }
 
-    COUT("Exiting" << endl);
+    COUT("Exiting" << endl)
     return 0;
 }

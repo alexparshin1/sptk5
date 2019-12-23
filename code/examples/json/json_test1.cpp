@@ -44,25 +44,25 @@ int main()
         file.close();
 
         jsonDocument.root().exportTo(cout, true);
-        COUT(endl << endl);
+        COUT(endl << endl)
 
         xml::Document doc;
         Buffer buffer;
         jsonDocument.exportTo(doc);
         doc.save(buffer, true);
 
-        COUT(buffer.c_str() << endl << endl);
+        COUT(buffer.c_str() << endl << endl)
 
         json::Document doc2;
         doc.exportTo(doc2.root());
         doc2.root().exportTo(cout, true);
 
-        COUT(endl << endl);
+        COUT(endl << endl)
 
         return 0;
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

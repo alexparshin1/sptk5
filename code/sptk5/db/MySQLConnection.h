@@ -152,10 +152,6 @@ public:
         return m_connection;
     }
 
-    MYSQL_STMT* createStatement(const String& sql);
-
-    MYSQL_STMT* createStatement();
-
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString  The MySQL connection string

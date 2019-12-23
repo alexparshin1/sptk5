@@ -67,9 +67,9 @@ void DatabaseConnectionString::parse()
         m_driverName = connStr.substr(0, pos);
         connStr.erase(0, pos + 3);
         if (driverNames.indexOf(m_driverName) < 0)
-            throwDatabaseException("Driver name is unknown: " + m_connectionString);
+            throwDatabaseException("Driver name is unknown: " + m_connectionString)
     } else
-        throwDatabaseException("Driver name is missing: " + m_connectionString);
+        throwDatabaseException("Driver name is missing: " + m_connectionString)
 
     pos = connStr.find('@');
     if (pos != string::npos) {

@@ -402,21 +402,6 @@ private:
 
 public:
 
-
-    /**
-     * @brief Returns true if string start matches the pattern
-     * @param subject           String to check
-     * @param pattern           String fragment to match
-     */
-    bool startsWith(const String& subject, const String& pattern);
-
-    /**
-     * @brief Returns true if string end matches the pattern
-     * @param subject           String to check
-     * @param pattern           String fragment to match
-     */
-    bool endsWith(const String& subject, const String& pattern);
-
     /**
      * @brief prints a line of characters
      * @param ch                Character to print
@@ -549,14 +534,14 @@ public:
      * @param argv              Command line arguments
      * @return preprocessed command line arguments
      */
-    Strings preprocessArguments(int argc, const char* const* argv);
+    static Strings preprocessArguments(int argc, const char* const* argv);
 
     /**
      * Re-write command line arguments
      * @param arguments         Command line arguments
      * @return re-written command line arguments
      */
-    Strings rewriteArguments(const Strings& arguments);
+    static Strings rewriteArguments(const Strings& arguments);
 };
 
 /**

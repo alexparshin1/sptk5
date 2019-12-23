@@ -49,28 +49,13 @@ namespace sptk {
  */
 class SP_EXPORT SocketEvents : public Thread
 {
-    /**
-     * OS-specific event manager
-     */
-    SocketPool                  m_socketPool;
+    mutable std::mutex          m_mutex;            ///< Mutex that protects map of sockets to corresponding user data
+    SocketPool                  m_socketPool;       ///< OS-specific event manager
+    std::map<int, void*>        m_watchList;        ///< Map of sockets to corresponding user data
+    std::chrono::milliseconds   m_timeout;          ///< Timeout in event monitoring loop
 
-    /**
-     * Map of sockets to corresponding user data
-     */
-    std::map<int, void*>        m_watchList;
-
-    /**
-     * Mutex that protects map of sockets to corresponding user data
-     */
-    std::mutex                  m_mutex;
-
-    /**
-     * Timeout in event monitoring loop
-     */
-    std::chrono::milliseconds   m_timeout;
-
-    Flag                        m_started;
-	bool						m_shutdown {false};
+    Flag                        m_started;          ///< Is watching started?
+	bool						m_shutdown {false}; ///< Is watching shutdown?
 
 protected:
 
@@ -115,6 +100,12 @@ public:
      * Terminate socket events manager and continue.
      */
     void terminate() override;
+
+    /**
+     * Get the size of socket collection
+     * @return number of sockets being watched
+     */
+    size_t size() const;
 };
 
 typedef std::shared_ptr<SocketEvents> SharedSocketEvents;

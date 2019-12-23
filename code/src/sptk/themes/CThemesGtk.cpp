@@ -29,7 +29,6 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/gui/CThemeImageCollection.h>
-#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 #include "ThemeUtils.h"

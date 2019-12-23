@@ -31,7 +31,6 @@
 #pragma hdrstop
 #endif
 
-#include <cstdio>
 #include <FL/Fl.H>
 
 #include <sptk5/cutils>
@@ -51,7 +50,7 @@ void changed_cb(Fl_Widget*, void*)
 {
     CTreeItem* item = tree->selected();
     if (item)
-        COUT(item->label().c_str() << endl);
+        COUT(item->label().c_str() << endl)
 }
 
 void add_item_cb(Fl_Widget*, void*)
@@ -200,7 +199,7 @@ int main(int argc, char* argv[])
         return 0;
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

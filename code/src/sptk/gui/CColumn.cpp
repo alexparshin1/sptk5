@@ -91,7 +91,7 @@ void CColumnList::load(const xml::Node& node)
             CColumn& column = (*this)[columnIndex];
             column.load(columnNode);
         } catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
     }
 }
@@ -108,7 +108,7 @@ void CColumnList::save(xml::Node& node) const
             column.save(columnNode);
             columnNode.setAttribute("index", i);
         } catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
     }
 }

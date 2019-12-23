@@ -55,7 +55,7 @@ class SP_EXPORT DatabaseTests
      * @param table         Database table
      * @return number of rows in table
      */
-    size_t countRowsInTable(DatabaseConnection& db, const String& table);
+    static size_t countRowsInTable(DatabaseConnection& db, const String& table);
 
     /**
      * Test transactions
@@ -68,7 +68,7 @@ class SP_EXPORT DatabaseTests
      * Connect to database and create test table
      * @return
      */
-    void createTestTable(DatabaseConnection db);
+    static void createTestTable(DatabaseConnection db);
 
 public:
     /**
@@ -100,25 +100,25 @@ public:
      * Test database connection
      * @param connectionString Database connection string
      */
-    void testConnect(const DatabaseConnectionString& connectionString);
+    static void testConnect(const DatabaseConnectionString& connectionString);
 
     /**
      * Test SELECT statements
      * @param connectionString Database connection string
      */
-    void testSelect(const DatabaseConnectionString& connectionString);
+    static void testSelect(const DatabaseConnectionString& connectionString);
 
     /**
      * Test basic DDL statements
      * @param connectionString Database connection string
      */
-    void testDDL(const DatabaseConnectionString& connectionString);
+    static void testDDL(const DatabaseConnectionString& connectionString);
 
     /**
      * Test parametrized queries
      * @param connectionString Database connection string
      */
-    void testQueryParameters(const DatabaseConnectionString& connectionString);
+    static void testQueryParameters(const DatabaseConnectionString& connectionString);
 
     /**
      * Test transaction
@@ -130,14 +130,14 @@ public:
      * Test bulk insert operation
      * @param connectionString Database connection string
      */
-    void testBulkInsert(const DatabaseConnectionString& connectionString);
+    static void testBulkInsert(const DatabaseConnectionString& connectionString);
 
     /**
      * Test bulk insert operation performance
      * @param connectionString  Database connection string
      * @param recordCount       Records to insert during test
      */
-    void testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount);
+    static void testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount);
 
 	/**
 	 * Global database tests collection

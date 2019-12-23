@@ -35,9 +35,13 @@ namespace sptk {
 /**
  * Home directory location
  */
-class HomeDirectory
+class SP_EXPORT HomeDirectory
 {
 public:
+	/**
+	 * Get user home directory
+	 * @return user home directory
+	 */
     static String location();
 };
 

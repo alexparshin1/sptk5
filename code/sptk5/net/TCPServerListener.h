@@ -46,55 +46,52 @@ class TCPServer;
  */
 
 /**
- * @brief Internal TCP server listener thread
+ * Internal TCP server listener thread
  */
 class TCPServerListener: public Thread, public std::mutex
 {
-    /**
-     * TCP server created connection
-     */
-    TCPServer*      m_server;
+    TCPServer*      m_server;           ///< TCP server created connection
+    TCPSocket       m_listenerSocket;   ///< Listener socket
+    String          m_error;            ///< Last socket error
 
-    /**
-     * Listener socket
-     */
-    TCPSocket       m_listenerSocket;
-
-    /**
-     * Last socket error
-     */
-    String          m_error;
-
-    void acceptConnection();
+    void acceptConnection();            ///< Accept connection
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param server CTCPServer*, TCP server created connection
      * @param port int, Listener port number
      */
     TCPServerListener(TCPServer* server, uint16_t port);
 
     /**
-     * @brief Thread function
+     * Destructor
+     */
+    virtual ~TCPServerListener();
+
+    /**
+     * Thread function
      */
     void threadFunction() override;
 
     /**
-     * @brief Custom thread terminate method
+     * Custom thread terminate method
      */
     void terminate() override;
 
     /**
-     * @brief Start socket listening
+     * Start socket listening
      */
     void listen()
     {
-        m_listenerSocket.listen();
+        if (!running()) {
+            m_listenerSocket.listen();
+            run();
+        }
     }
 
     /**
-     * @brief Returns listener port number
+     * Returns listener port number
      */
     uint16_t port() const
     {
@@ -102,12 +99,17 @@ public:
     }
 
     /**
-     * @brief Returns latest socket error (if any)
+     * Returns latest socket error (if any)
      */
     String error() const
     {
         return m_error;
     }
+
+    /**
+     * Stop running listener and join its thread
+     */
+    void stop();
 };
 
 /**

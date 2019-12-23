@@ -202,7 +202,7 @@ void WSWebServiceProtocol::process()
     if (startOfMessage != endOfMessage) {
         if (*startOfMessage == '<') {
             if (endOfMessage != nullptr)
-                *(char*) endOfMessage = 0;
+                *endOfMessage = 0;
             message.load(startOfMessage);
             xml::Node* xmlRequest = findRequestNode(message, "API request");
             auto* jsonEnvelope = jsonContent.root().set_object(xmlRequest->name());
@@ -270,13 +270,13 @@ void WSWebServiceProtocol::readMessage(Buffer& data, char*& startOfMessage, char
     size_t socketBytes = socket().socketBytes();
     if (socketBytes == 0) {
         if (!socket().readyToRead(chrono::seconds(30)))
-        throwException("Client disconnected");
+        throwException("Client disconnected")
         socketBytes = socket().socketBytes();
     }
 
     // If socket is signaled but empty - then other side closed connection
     if (socketBytes == 0)
-    throwException("Client disconnected");
+    throwException("Client disconnected")
 
     uint32_t offset = 0;
     const char* endOfMessageMark = ":Envelope>";
@@ -296,7 +296,7 @@ void WSWebServiceProtocol::readMessage(Buffer& data, char*& startOfMessage, char
                         startOfMessage--;
             }
             if (startOfMessage == nullptr)
-            throwException("Message start <?xml> not found");
+            throwException("Message start <?xml> not found")
         }
         endOfMessage = strstr(startOfMessage, endOfMessageMark);
     } while (endOfMessage == nullptr);

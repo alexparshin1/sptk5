@@ -143,22 +143,22 @@ protected:
     /**
      * Sets internal CQuery statement handle
      */
-    void querySetStmt(Query* q, void *stmt);
+    static void querySetStmt(Query* q, void *stmt);
 
     /**
      * Sets internal CQuery m_prepared flag
      */
-    void querySetPrepared(Query* q, bool pf);
+    static void querySetPrepared(Query* q, bool pf);
 
     /**
      * Sets internal CQuery m_active flag
      */
-    void querySetActive(Query* q, bool af);
+    static void querySetActive(Query* q, bool af);
 
     /**
      * Sets internal CQuery m_eof flag
      */
-    void querySetEof(Query* q, bool eof);
+    static void querySetEof(Query* q, bool eof);
 
     // These methods implement the actions requested by CQuery
     /**
@@ -326,7 +326,7 @@ protected:
      * @param method            Method name where error has occured
      * @param error             Error text
      */
-    void logAndThrow(const String& method, const String& error);
+    static void logAndThrow(const String& method, const String& error);
 
     /**
      * Executes bulk inserts of data from memory buffer

@@ -26,8 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdio>
-
 #include <FL/fl_ask.H>
 #include <sptk5/cgui>
 #include <sptk5/gui/CEditorSpellChecker.h>

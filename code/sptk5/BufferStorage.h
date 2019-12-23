@@ -93,7 +93,7 @@ protected:
 
         auto* ptr = new char[size];
         if (ptr == nullptr)
-            throwException("Out of memory");
+            throwException("Out of memory")
 
         if (m_size < size)
             memcpy(ptr, m_buffer, m_size);

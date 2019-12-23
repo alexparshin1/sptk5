@@ -115,7 +115,7 @@ class SP_EXPORT CBaseButton : public Fl_Button, public CLayoutClient
      * @param xe int, x-coordinate for the ending point
      * @param ye int, y-coordinate for the ending point
      */
-    void drawFocusLine(int xs, int ys, int xe, int ye);
+    static void drawFocusLine(int xs, int ys, int xe, int ye);
 
     /**
      * Button kind (for a stock image) or SP_UNDEFINED_BUTTON for user_defined image

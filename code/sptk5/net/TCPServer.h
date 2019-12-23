@@ -58,7 +58,7 @@ class SP_EXPORT TCPServer : public ThreadPool
     friend class ServerConnection;
 
     mutable SharedMutex                     m_mutex;            ///< Mutex protecting internal data
-    TCPServerListener*                      m_listenerThread;   ///< Server listener
+    std::shared_ptr<TCPServerListener>      m_listenerThread;   ///< Server listener
     std::shared_ptr<Logger>                 m_logger;           ///< Optional logger
     std::shared_ptr<SSLKeys>                m_sslKeys;          ///< Optional SSL keys. Only used for SSL server.
     String                                  m_hostname;         ///< This host name

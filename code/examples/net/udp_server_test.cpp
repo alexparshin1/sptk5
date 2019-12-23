@@ -43,7 +43,7 @@ int main()
 
         server.listen();
 
-        COUT("Listening: Test SPTK UDP server 1.00" << endl);
+        COUT("Listening: Test SPTK UDP server 1.00" << endl)
 
         char readBuffer[1024];
 
@@ -52,17 +52,17 @@ int main()
                 size_t bytes = server.read(readBuffer, sizeof(readBuffer),&clientInfo);
 
                 string data(readBuffer, bytes);
-                COUT("Received data: " << data << endl);
+                COUT("Received data: " << data << endl)
 
                 if (data.find("EOD") == 0) {
                     server.close();
-                    COUT("Server session closed" << endl);
+                    COUT("Server session closed" << endl)
                     break;
                 }
             }
         }
     } catch (const Exception& e) {
-        CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl);
+        CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl)
         return 1;
     }
 

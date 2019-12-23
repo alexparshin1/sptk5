@@ -26,7 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdio>
 #include <sptk5/cutils>
 #include <sptk5/cgui>
 
@@ -64,31 +63,31 @@ void combo_cb(Fl_Widget *w, void *)
         return;
     switch (control->eventType()) {
         case CE_FOCUS:
-            COUT("Got focus" << endl);
+            COUT("Got focus" << endl)
             break;
         case CE_UNFOCUS:
-            COUT("Lost focus" << endl);
+            COUT("Lost focus" << endl)
             break;
         case CE_DATA_CHANGED:
-            COUT("Data Changed" << endl);
+            COUT("Data Changed" << endl)
             break;
         case UC_ADD_ITEM:
-            COUT("Add Item Command" << endl);
+            COUT("Add Item Command" << endl)
             break;
         case UC_EDIT_ITEM:
-            COUT("Edit Item Command" << endl);
+            COUT("Edit Item Command" << endl)
             break;
         case UC_DELETE_ITEM:
-            COUT("Delete Item Command" << endl);
+            COUT("Delete Item Command" << endl)
             break;
         case CE_MOUSE_CLICK:
-            COUT("Mouse Click" << endl);
+            COUT("Mouse Click" << endl)
             break;
         case CE_MOUSE_DOUBLE_CLICK:
-            COUT("Mouse Double Click" << endl);
+            COUT("Mouse Double Click" << endl)
             break;
         case CE_KEYBOARD:
-            COUT("Keyboard Key Pressed" << endl);
+            COUT("Keyboard Key Pressed" << endl)
             break;
         default:
             break;
@@ -151,7 +150,7 @@ int main(int argc, char *argv[])
         return Fl::run();
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

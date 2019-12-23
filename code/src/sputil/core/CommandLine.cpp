@@ -267,16 +267,6 @@ CommandLine::CommandLineElement::Type CommandLine::CommandLineParameter::type() 
 }
 //=============================================================================
 
-bool CommandLine::startsWith(const String& str, const String& pattern)
-{
-    return str.startsWith(pattern);
-}
-
-bool CommandLine::endsWith(const String& str, const String& pattern)
-{
-    return str.endsWith(pattern);
-}
-
 CommandLine::CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype)
 : m_programVersion(programVersion), m_description(description), m_commandLinePrototype(commandLinePrototype) { }
 
@@ -349,7 +339,7 @@ Strings CommandLine::preprocessArguments(int argc, const char* const* argv)
     String quotedString;
     for (auto& arg : args) {
         if (quote.empty()) {
-            if (startsWith(arg, "'")) {
+            if (arg.startsWith("'")) {
                 quote = arg.substr(0, 1);
                 quotedString = arg.substr(1);
                 if (quotedString.endsWith(quote)) {
@@ -380,7 +370,7 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
 {
     Strings digestedArgs;
     for (auto& arg : arguments) {
-        if (startsWith(arg, "--")) {
+        if (arg.startsWith("--")) {
             // Full option name
             if (arg.startsWith("--gtest_"))
                 continue; // Ignore googletest arguments
@@ -388,7 +378,7 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
             continue;
         }
 
-        if (startsWith(arg, "-")) {
+        if (arg.startsWith("-")) {
             // Short option name(s)
             for (unsigned j = 1; j < arg.length(); j++) {
                 string opt = "-" + arg.substr(j, j + 1);
@@ -411,9 +401,9 @@ void CommandLine::init(int argc, const char* argv[])
         String arg = digestedArgs[i];
         String value;
 
-        if (startsWith(arg, "-")) {
+        if (arg.startsWith("-")) {
             string optionName;
-            if (startsWith(arg, "--")) {
+            if (arg.startsWith("--")) {
                 // Full option name
                 optionName = arg.substr(2);
             }

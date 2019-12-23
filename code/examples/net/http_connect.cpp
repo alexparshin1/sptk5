@@ -62,27 +62,27 @@ int main()
                 sock.cmd_get("/event/api/0.1/events", httpFields, data, chrono::seconds(30));
             }
             catch (const Exception& e) {
-                CERR(e.what() << endl);
-                CERR(data.c_str() << endl);
+                CERR(e.what() << endl)
+                CERR(data.c_str() << endl)
             }
 
-            COUT("Received " << data.bytes() << endl);
+            COUT("Received " << data.bytes() << endl)
 
             DateTime finished = DateTime::Now();
             long durationMS = chrono::duration_cast<chrono::milliseconds>(finished - started).count();
 
-            COUT("Elapsed " << durationMS << " ms " << endl << endl);
+            COUT("Elapsed " << durationMS << " ms " << endl << endl)
 
             delete socket;
 
         } catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
             return 1;
         }
     }
 
     long totalMS = chrono::duration_cast<chrono::milliseconds>(DateTime::Now() - totalStarted).count();
-    COUT("Total Elapsed " << totalMS << " ms " << endl << endl);
+    COUT("Total Elapsed " << totalMS << " ms " << endl << endl)
 
     return 0;
 }

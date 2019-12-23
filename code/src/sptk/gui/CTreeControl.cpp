@@ -103,7 +103,7 @@ CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Imag
     } else if (par)
         m_body = par->m_tree->m_itemCreator(this);
 
-    label(lbl);
+    CTreeItem::label(lbl);
 }
 
 bool CTreeItem::preferredSize(int& ww, int& hh)

@@ -42,7 +42,7 @@ class CSSLLibraryLoader
 {
     static std::mutex*  m_locks;
 
-    void load_library()
+    static void load_library()
     {
 		OpenSSL_add_all_algorithms();
 		ERR_load_BIO_strings();
