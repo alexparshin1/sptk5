@@ -39,7 +39,6 @@ Runable::Runable(const String& name)
 void Runable::execute()
 {
     setTerminated(false);
-    lock_guard<mutex> lock(m_runMutex);
     run();
 }
 
@@ -58,9 +57,4 @@ void Runable::setTerminated(bool terminated)
 {
     lock_guard<mutex> lock(m_dataMutex);
     m_terminated = terminated;
-}
-
-bool Runable::running() const
-{
-    return !m_runMutex.try_lock();
 }

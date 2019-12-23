@@ -75,7 +75,7 @@ public:
     /**
      * Constructor
      * @param name              Name of the thread for future references.
-     * @param threadManager     Optional thread manager
+     * @param threadManager     Optional thread manager. If provided, then it owns the created thread's memory.
      */
     explicit Thread(const String& name, std::shared_ptr<ThreadManager> threadManager=nullptr);
 
@@ -116,12 +116,12 @@ public:
     /**
      * Returns true if the thread is terminated
      */
-    bool terminated();
+    virtual bool terminated();
 
     /**
      * Waits until thread joins
      */
-    void join();
+    virtual void join();
 
     /**
      * Returns this thread OS id

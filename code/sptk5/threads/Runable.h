@@ -50,7 +50,6 @@ namespace sptk
 class SP_EXPORT Runable
 {
     mutable std::mutex  m_dataMutex;            ///< Synchronized object that protects internal data
-    mutable std::mutex  m_runMutex;             ///< Synchronized object locked while the task running
     bool                m_terminated {false};   ///< Flag indicating if task is terminated
     const String        m_name;                 ///< Runable object name
 

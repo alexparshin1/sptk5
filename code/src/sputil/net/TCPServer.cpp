@@ -70,9 +70,6 @@ uint16_t TCPServer::port() const
 
 void TCPServer::listen(uint16_t port)
 {
-    if (!running())
-        run();
-
     UniqueLock(m_mutex);
     m_listenerThread = make_shared<TCPServerListener>(this, port);
     m_listenerThread->listen();

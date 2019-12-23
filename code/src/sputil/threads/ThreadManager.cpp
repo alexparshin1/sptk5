@@ -33,7 +33,7 @@ using namespace sptk;
 using namespace chrono;
 
 ThreadManager::ThreadManager(const String& name)
-: m_joiner(name + "::joiner")
+: m_joiner(name + ".Joiner")
 {
 }
 
@@ -55,7 +55,7 @@ ThreadManager::Joiner::~Joiner()
 void ThreadManager::Joiner::threadFunction()
 {
     while (!terminated()) {
-        joinTerminatedThreads();
+        joinTerminatedThreads(std::chrono::milliseconds());
     }
 }
 
@@ -66,15 +66,15 @@ void ThreadManager::Joiner::push(SThread& thread)
 
 void ThreadManager::Joiner::stop()
 {
-    joinTerminatedThreads();
     terminate();
     join();
+    joinTerminatedThreads(milliseconds(0));
 }
 
-void ThreadManager::Joiner::joinTerminatedThreads()
+void ThreadManager::Joiner::joinTerminatedThreads(milliseconds timeout)
 {
     SThread thread;
-    while (m_terminatedThreads.pop(thread, milliseconds(100))) {
+    while (m_terminatedThreads.pop(thread, timeout)) {
         thread->terminate();
         thread->join();
     }
@@ -98,20 +98,20 @@ void ThreadManager::terminateRunningThreads()
         m_joiner.push(itor.second);
 }
 
-void ThreadManager::registerThread(SThread thread)
+void ThreadManager::registerThread(Thread* thread)
 {
     if (thread) {
         lock_guard<mutex> lock(m_mutex);
-        auto itor = m_runningThreads.find(thread.get());
+        auto itor = m_runningThreads.find(thread);
         if (itor == m_runningThreads.end()) {
-            m_runningThreads[thread.get()] = thread;
+            m_runningThreads[thread] = shared_ptr<Thread>(thread);
         }
     }
 }
 
-void ThreadManager::finalizeThread(Thread* thread)
+void ThreadManager::destroyThread(Thread* thread)
 {
-    if (thread) {
+    if (thread && thread->running()) {
         lock_guard<mutex> lock(m_mutex);
         auto itor = m_runningThreads.find(thread);
         if (itor != m_runningThreads.end()) {
@@ -122,29 +122,46 @@ void ThreadManager::finalizeThread(Thread* thread)
     }
 }
 
+size_t ThreadManager::threadCount() const
+{
+    lock_guard<mutex> lock(m_mutex);
+    return m_runningThreads.size();
+}
+
+bool ThreadManager::running() const
+{
+    lock_guard<mutex> lock(m_mutex);
+    return m_joiner.running();
+}
+
 #if USE_GTEST
 
 class ThreadManagerTestThread : public Thread
 {
 public:
+    static atomic<size_t>   taskCounter;
+    static atomic<size_t>   joinCounter;
+
     ThreadManagerTestThread(const String& name, const shared_ptr<ThreadManager> threadManager)
     : Thread(name, threadManager)
     {
-        COUT("Thread " << this->name() << " created" << endl);
     }
 
-    ~ThreadManagerTestThread() override
+    void join() override
     {
-        COUT("Thread " << name() << " destroyed" << endl);
+        joinCounter++;
     }
 
 protected:
     void threadFunction() override
     {
-        COUT("Thread " << name() << " running" << endl);
+        taskCounter++;
         sleep_for(milliseconds(10));
     }
 };
+
+atomic<size_t> ThreadManagerTestThread::taskCounter;
+atomic<size_t> ThreadManagerTestThread::joinCounter;
 
 TEST(SPTK_ThreadManager, minimal)
 {
@@ -153,15 +170,16 @@ TEST(SPTK_ThreadManager, minimal)
 
     threadManager->start();
 
-    vector<shared_ptr<ThreadManagerTestThread>> threads;
     for (size_t i = 0; i < maxThreads; i++) {
-        auto thread = make_shared<ThreadManagerTestThread>("thread " + to_string(i), threadManager);
-        threads.push_back(thread);
+        auto thread = new ThreadManagerTestThread("thread " + to_string(i), threadManager);
         thread->run();
     }
 
     this_thread::sleep_for(milliseconds(200));
     threadManager->stop();
+
+    EXPECT_EQ(maxThreads, ThreadManagerTestThread::taskCounter);
+    EXPECT_EQ(maxThreads, ThreadManagerTestThread::joinCounter);
 }
 
 #endif

@@ -32,52 +32,30 @@ using namespace std;
 using namespace sptk;
 
 ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName)
-: Thread(threadName),
+: m_threadManager(make_shared<ThreadManager>(threadName + ".ThreadManager")),
   m_threadLimit(threadLimit),
-  m_threadIdleTime(threadIdleSeconds),
-  m_shutdown(false)
+  m_threadIdleTime(threadIdleSeconds)
 {
-}
-
-ThreadPool::~ThreadPool()
-{
-    ThreadPool::stop();
-}
-
-void ThreadPool::threadFunction()
-{
-    chrono::milliseconds timeout(100);
-    while (!terminated()) {
-        WorkerThread* workerThread = nullptr;
-        if (m_terminatedThreads.pop(workerThread, timeout)) {
-            m_threads.remove(workerThread);
-            workerThread->join();
-            delete workerThread;
-        }
-    }
 }
 
 WorkerThread* ThreadPool::createThread()
 {
-    auto* workerThread = new WorkerThread(m_taskQueue, this, m_threadIdleTime);
-    m_threads.push_back(workerThread);
+    auto* workerThread = new WorkerThread(m_threadManager, m_taskQueue, this, m_threadIdleTime);
+    //m_threads.push_back(workerThread);
     workerThread->run();
     return workerThread;
 }
 
 void ThreadPool::execute(Runable* task)
 {
-    if (terminated())
-        return;
-
-    if (!running())
-        run();
-
     if (m_shutdown)
-        throw Exception("Thread manager is stopped");
+        throw Exception("Thread pool is stopped");
+
+    if (!m_threadManager->running())
+        m_threadManager->start();
 
     if (!m_availableThreads.sleep_for(std::chrono::milliseconds(10)) &&
-        m_threads.size() < m_threadLimit)
+        m_threadManager->threadCount() < m_threadLimit)
             createThread();
 
     m_taskQueue.push(task);
@@ -91,40 +69,20 @@ void ThreadPool::threadEvent(Thread* athread, ThreadEvent::Type eventType, Runab
     case ThreadEvent::RUNABLE_FINISHED:
         m_availableThreads.post();
         break;
-    case ThreadEvent::THREAD_FINISHED:
-        m_terminatedThreads.push((WorkerThread*)athread);
-        break;
     default:
         break;
     }
 }
 
-static bool terminateThread(WorkerThread*& thread, void*)
-{
-    thread->terminate();
-    return true;
-}
-
 void ThreadPool::stop()
 {
     m_shutdown = true;
-    m_threads.each(terminateThread);
-    while (!m_threads.empty())
-        sleep_for(chrono::milliseconds(100));
-    while (!m_terminatedThreads.empty()) {
-        WorkerThread* terminatedThread;
-        if (m_terminatedThreads.pop(terminatedThread, chrono::milliseconds(100))) {
-            terminatedThread->join();
-            delete terminatedThread;
-        }
-    }
-    terminate();
-    join();
+    m_threadManager->stop();
 }
 
 size_t ThreadPool::size() const
 {
-    return m_threads.size();
+    return m_threadManager->threadCount();
 }
 
 #if USE_GTEST
@@ -133,15 +91,16 @@ static SynchronizedQueue<int>  intQueue;
 
 class MyTask : public Runable
 {
-    atomic_int m_count {0};
+    atomic_int      m_count {0};
 public:
     MyTask() : Runable("MyTask") {}
     void run() override
     {
         while (!terminated()) {
             int item;
-            if (intQueue.pop(item, chrono::milliseconds(10)))
+            if (intQueue.pop(item, chrono::milliseconds(10))) {
                 m_count++;
+            }
             this_thread::sleep_for(chrono::milliseconds(1));
         }
     }
@@ -154,14 +113,14 @@ TEST(SPTK_ThreadPool, run)
     vector<MyTask*> tasks;
 
     /// Thread manager controls tasks execution.
-    ThreadPool threadPool(16, std::chrono::milliseconds(60), "test thread pool");
+    auto* threadPool = new ThreadPool(16, std::chrono::milliseconds(60), "test thread pool");
 
     // Creating several tasks
     for (i = 0; i < 5; i++)
         tasks.push_back(new MyTask);
 
     for (i = 0; i < tasks.size(); i++)
-        threadPool.execute(tasks[i]);
+        threadPool->execute(tasks[i]);
 
     for (int value = 0; value < 100; value++)
         intQueue.push(value);
@@ -172,10 +131,12 @@ TEST(SPTK_ThreadPool, run)
     for (auto* task: tasks)
         EXPECT_NEAR(20, task->count(), 10);
 
-    EXPECT_EQ(size_t(5), threadPool.size());
+    EXPECT_EQ(size_t(5), threadPool->size());
 
-    threadPool.stop();
-    EXPECT_EQ(size_t(0), threadPool.size());
+    threadPool->stop();
+    EXPECT_EQ(size_t(0), threadPool->size());
+
+    delete threadPool;
 
     for (auto* task: tasks) {
         task->terminate();

@@ -33,6 +33,7 @@
 #include <sptk5/threads/ThreadEvent.h>
 #include <sptk5/threads/Runable.h>
 #include <sptk5/threads/SynchronizedQueue.h>
+#include "ThreadManager.h"
 
 namespace sptk {
 
@@ -94,11 +95,13 @@ public:
      * Otherwise, external (shared) task queue is used.
      * If maxIdleSec is defined and thread is idle (not executing any tasks)
      * for a period longer than maxIdleSec then it terminates automatically.
+     * @param threadManager     Thread manager
      * @param queue             Task queue
      * @param threadEvent       Optional thread event interface
      * @param maxIdleTime       Maximum time the thread is idle, seconds
      */
-    WorkerThread(SynchronizedQueue<Runable*>& queue,
+    WorkerThread(SThreadManager threadManager,
+                 SynchronizedQueue<Runable*>& queue,
                  ThreadEvent* threadEvent = nullptr,
                  std::chrono::milliseconds maxIdleTime = std::chrono::seconds(3600));
 

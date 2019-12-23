@@ -28,7 +28,8 @@
 #ifndef __SPTK_THREADMANAGER_H__
 #define __SPTK_THREADMANAGER_H__
 
-#include <sptk5/cthreads>
+#include <sptk5/threads/Thread.h>
+#include <sptk5/threads/SynchronizedQueue.h>
 
 namespace sptk {
 
@@ -39,7 +40,7 @@ class ThreadManager
         SynchronizedQueue<SThread>  m_terminatedThreads;    ///< Terminated threads scheduled for delete
     protected:
         void threadFunction() override;
-        void joinTerminatedThreads();
+        void joinTerminatedThreads(std::chrono::milliseconds timeout);
     public:
         explicit Joiner(const String& name);
         ~Joiner() override;
@@ -60,8 +61,11 @@ public:
     void start();
     void stop();
 
-    void registerThread(SThread thread);
-    void finalizeThread(Thread* thread);
+    void registerThread(Thread* thread);
+    void destroyThread(Thread* thread);
+
+    size_t threadCount() const;
+    bool   running() const;
 };
 
 typedef std::shared_ptr<ThreadManager>  SThreadManager;

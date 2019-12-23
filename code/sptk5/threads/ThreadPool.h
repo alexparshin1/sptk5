@@ -29,7 +29,7 @@
 #ifndef __SPTK_THREADPOOL_H__
 #define __SPTK_THREADPOOL_H__
 
-#include <sptk5/threads/Thread.h>
+#include <sptk5/threads/ThreadManager.h>
 #include <sptk5/threads/ThreadEvent.h>
 #include <sptk5/threads/Runable.h>
 #include <sptk5/threads/SynchronizedQueue.h>
@@ -51,43 +51,15 @@ namespace sptk {
  * If a thread is idle for the period longer than defined in constructor,
  * it's automatically terminated.
  */
-class SP_EXPORT ThreadPool : public ThreadEvent, public Thread, public std::mutex
+class SP_EXPORT ThreadPool : public ThreadEvent, public std::mutex
 {
-    /**
-     * Terminated threads scheduled for delete
-     */
-    SynchronizedQueue<WorkerThread*>    m_terminatedThreads;
+    SThreadManager                      m_threadManager;    ///< Pool's thread manager
+    size_t                              m_threadLimit;      ///< Maximum number of threads in this pool
+    SynchronizedQueue<Runable*>         m_taskQueue;        ///< Shared task queue
+    Semaphore                           m_availableThreads; ///< Semaphore indicating available threads
+    std::chrono::milliseconds           m_threadIdleTime;   ///< Maximum thread idle time before thread in this pool is terminated
 
-    /**
-     * All threads created by this pool
-     */
-    SynchronizedList<WorkerThread*>     m_threads;
-
-    /**
-     * Maximum number of threads in this pool
-     */
-    size_t                              m_threadLimit;
-
-    /**
-     * Share task queue
-     */
-    SynchronizedQueue<Runable*>         m_taskQueue;
-
-    /**
-     * Semaphore indicating available threads
-     */
-    Semaphore                           m_availableThreads;
-
-    /**
-     * Maximum thread idle time before thread in this pool is terminated
-     */
-    std::chrono::milliseconds           m_threadIdleTime;
-
-    /**
-     * Flag: true during pool shutdown
-     */
-    std::atomic_bool                    m_shutdown;
-
+    std::atomic_bool                    m_shutdown {false}; ///< Flag: true during pool shutdown
 
     /**
      * Creates a new thread and adds it to thread pool
@@ -95,15 +67,6 @@ class SP_EXPORT ThreadPool : public ThreadEvent, public Thread, public std::mute
      * Create new worker thread
      */
     WorkerThread* createThread();
-
-protected:
-
-    /**
-     * Thread pool control thread function
-     *
-     * Manages terminated threads
-     */
-    void threadFunction() override;
 
 public:
 
@@ -121,7 +84,7 @@ public:
      * All worker threads are sent terminate() message,
      * then thread pool waits while threads are destroyed
      */
-    virtual ~ThreadPool();
+    virtual ~ThreadPool() = default;
 
     /**
      * Executes task

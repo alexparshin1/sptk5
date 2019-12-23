@@ -36,10 +36,12 @@ using namespace sptk;
 void Thread::threadStart()
 {
     try {
+        if (m_threadManager)
+            m_threadManager->registerThread(this);
         threadFunction();
         onThreadExit();
         if (m_threadManager)
-            m_threadManager->finalizeThread(this);
+            m_threadManager->destroyThread(this);
     }
     catch (const Exception& e) {
         CERR("Exception in thread '" << name() << "': " << e.what() << endl)
