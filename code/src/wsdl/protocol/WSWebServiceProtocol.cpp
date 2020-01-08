@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "WSWebServiceProtocol.h"
+#include "sptk5/wsdl/protocol/WSWebServiceProtocol.h"
 
 using namespace std;
 using namespace sptk;

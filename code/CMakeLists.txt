@@ -440,6 +440,9 @@ INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml COMPONENT core)
 FILE (GLOB includeFilesWSDL "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/wsdl/*.h")
 INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/wsdl COMPONENT core)
 
+FILE (GLOB includeFilesWSDL2 "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/wsdl/protocol/*.h")
+INSTALL (FILES ${includeFilesWSDL2} DESTINATION include/sptk5/wsdl/protocol COMPONENT core)
+
 FILE (GLOB includeFilesNet "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/net/*.h")
 INSTALL (FILES ${includeFilesNet} DESTINATION include/sptk5/net COMPONENT core)
 

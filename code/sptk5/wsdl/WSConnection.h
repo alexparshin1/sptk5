@@ -29,9 +29,9 @@
 #ifndef __WS_CONNECTION_H__
 #define __WS_CONNECTION_H__
 
-#include "src/wsdl/protocol/WSStaticHttpProtocol.h"
-#include "src/wsdl/protocol/WSWebServiceProtocol.h"
-#include "src/wsdl/protocol/WSWebSocketsProtocol.h"
+#include <sptk5/wsdl/protocol/WSStaticHttpProtocol.h>
+#include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
+#include <sptk5/wsdl/protocol/WSWebSocketsProtocol.h>
 #include <sptk5/wsdl/WSRequest.h>
 
 namespace sptk {
