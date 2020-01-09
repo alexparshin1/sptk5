@@ -29,7 +29,7 @@
 using namespace std;
 using namespace sptk;
 
-void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuthentication* authentication)
+void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuthentication*)
 {
     if (input.m_first_name.asString() != "John" || input.m_last_name.asString() != "Doe")
         throw Exception("Invalid first or last name: expecting John Doe");
@@ -38,5 +38,29 @@ void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuth
     output.m_hour_rate = 15.6;
     output.m_retired = false;
     output.m_vacation_days = 21;
-    output.m_verified = DateTime("now");
+    output.m_verified = DateTime("2020-01-02 10:00:00+10");
 }
+
+#if USE_GTEST
+
+TEST(SPTK_TestWebService, hello)
+{
+    TestWebService service;
+
+    CHello hello;
+    hello.m_first_name = "John";
+    hello.m_last_name = "Doe";
+
+    CHelloResponse response;
+    service.Hello(hello, response, nullptr);
+
+    if (response.m_date_of_birth.asDate() != DateTime("1981-02-01").date())
+        FAIL() << "m_date_of_birth has invalid value";
+    if (response.m_verified.asDateTime() != DateTime("2020-01-02 10:00:00+10"))
+        FAIL() << "m_verified has invalid value";
+    EXPECT_DOUBLE_EQ(response.m_height, 6.5);
+    EXPECT_DOUBLE_EQ(response.m_hour_rate, 15.6);
+    EXPECT_EQ(response.m_retired.asBool(), false);
+    EXPECT_EQ(response.m_vacation_days.asInteger(), 21);
+}
+#endif

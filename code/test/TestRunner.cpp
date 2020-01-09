@@ -43,6 +43,7 @@
 #include <sptk5/Base64.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/test/TestRunner.h>
+#include <test/wsdl/TestWebService.h>
 
 using namespace std;
 using namespace sptk;
@@ -94,7 +95,8 @@ void stub()
     Buffer b2("xxx");
     Base64::encode(b1, b2);
 
-    DatabaseConnectionPool         connectionPool("");
+    DatabaseConnectionPool  connectionPool("");
+    TestWebService          setvice;
 }
 
 TestRunner::TestRunner(int& argc, char**& argv)

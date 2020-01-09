@@ -7,4 +7,4 @@ ADD_CUSTOM_COMMAND(
 
 ADD_SUBDIRECTORY(Service)
 ADD_LIBRARY(WebServiceUnitTests TestWebService.cpp)
-TARGET_LINK_LIBRARIES(WebServiceUnitTests TestWebService)
+TARGET_LINK_LIBRARIES(WebServiceUnitTests TestWebService spwsdl5)
