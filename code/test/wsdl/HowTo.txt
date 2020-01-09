@@ -1,0 +1,21 @@
+1) Create file Test.wsdl defining service Test in Eclipse or similar tool.
+
+2) Create file CMakeLists.txt with the following content:
+
+ADD_CUSTOM_COMMAND(
+    OUTPUT  TestServiceBase.cpp
+    DEPENDS Test.wsdl
+    COMMAND wsdl2cxx
+    ARGS Test.wsdl Service
+)
+
+ADD_SUBDIRECTORY (Service)
+
+3) Run command:
+
+wsdl2cxx Test.wsdl Service
+
+4) Add our web service library to service executable.
+   In this case it's unit_tests:
+
+TARGET_LINK_LIBRARIES(unit_tests TestWebService)

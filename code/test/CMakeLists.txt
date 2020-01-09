@@ -7,4 +7,8 @@ IF (GTEST_FLAG)
 
     ADD_EXECUTABLE(unit_tests unit_tests.cpp)
     TARGET_LINK_LIBRARIES(unit_tests sputil5 spdb5 sptest gtest)
+
+    TARGET_LINK_LIBRARIES(unit_tests TestWebService)
 ENDIF()
+
+add_subdirectory (wsdl)
