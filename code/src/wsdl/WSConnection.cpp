@@ -122,7 +122,7 @@ void WSConnection::run()
         if (protocolName == "http") {
 
             String contentType = headers["Content-Type"];
-            if (contentType.find("/json") != string::npos)
+            if (contentType.endsWith("/json"))
                 protocolName = "rest";
             else {
 

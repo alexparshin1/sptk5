@@ -60,7 +60,7 @@ class SP_EXPORT WSListener : public TCPServer
 protected:
 
     const bool          m_encrypted;            ///< Connection protocol is encrypted flag
-    const String        m_hostname;             ///< This service hostname
+    String              m_hostname;             ///< This service hostname
 
     /**
      * Creates connection thread derived from CTCPServerConnection
@@ -83,7 +83,7 @@ public:
      * @param threadCount           Max number of simultaneously running requests
      */
     WSListener(WSRequest& service, LogEngine& logger, const WSConnection::Paths& paths,
-               const String& hostname, bool encrypted, size_t threadCount=16);
+               const String& hostname="", bool encrypted=false, size_t threadCount=16);
 
     /**
      * Get host name of the listener

@@ -24,6 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/wsdl/WSConnection.h>
+#include <sptk5/wsdl/WSListener.h>
 #include "TestWebService.h"
 
 using namespace std;
@@ -43,7 +45,7 @@ void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuth
 
 #if USE_GTEST
 
-TEST(SPTK_TestWebService, hello)
+TEST(SPTK_TestWebService, hello_method)
 {
     TestWebService service;
 
@@ -62,5 +64,59 @@ TEST(SPTK_TestWebService, hello)
     EXPECT_DOUBLE_EQ(response.m_hour_rate, 15.6);
     EXPECT_EQ(response.m_retired.asBool(), false);
     EXPECT_EQ(response.m_vacation_days.asInteger(), 21);
+}
+
+static void hello_listener_test(bool gzipEncoding)
+{
+    SysLogEngine        logEngine("TestWebService");
+    TestWebService      service;
+
+    WSConnection::Paths paths("index.html","/test",".");
+    WSListener          listener(service, logEngine, paths);
+
+    uint16_t            servicePort = 10000;
+    try {
+        listener.listen(servicePort);
+
+        json::Document hello;
+        hello.root()["first_name"] = "John";
+        hello.root()["last_name"] = "Doe";
+
+        Buffer helloRequest;
+        hello.exportTo(helloRequest);
+
+        TCPSocket   client;
+        client.host(Host("localhost", servicePort));
+        client.open();
+
+        HttpConnect httpClient(client);
+        Buffer      helloResponse;
+        HttpParams  httpParams;
+        httpClient.requestHeaders()["Content-Type"] = "application/json";
+        httpClient.cmd_post("/Hello", httpParams, helloRequest, gzipEncoding, helloResponse);
+        client.close();
+
+        if (httpClient.statusCode() >= 400)
+            FAIL() << helloResponse.c_str();
+        else {
+            cout << helloResponse.c_str() << endl;
+            json::Document response;
+            response.load(helloResponse.c_str());
+            EXPECT_DOUBLE_EQ(response.root().getNumber("height"), 6.5);
+        }
+    }
+    catch (const Exception& e) {
+        FAIL() << e.what();
+    }
+}
+
+TEST(SPTK_TestWebService, hello_listener)
+{
+    hello_listener_test(false);
+}
+
+TEST(SPTK_TestWebService, hello_listener_gzip)
+{
+    hello_listener_test(true);
 }
 #endif

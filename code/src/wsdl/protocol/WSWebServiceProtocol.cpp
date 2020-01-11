@@ -117,8 +117,8 @@ void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message
 
             // Converting XML response to JSON response
             json::Document jsonOutput;
-            auto* jsonResponse = jsonOutput.root().set_object("response");
-            methodElement->exportTo(*jsonResponse);
+            auto& jsonResponse = jsonOutput.root();
+            methodElement->exportTo(jsonResponse);
             jsonOutput.exportTo(output, false);
             contentType = "application/json";
         }
@@ -162,11 +162,28 @@ static void substituteHostname(Buffer& page, const String& hostname, uint16_t po
 
 void WSWebServiceProtocol::process()
 {
+    Buffer output;
+    size_t httpStatusCode = 200;
+    String httpStatusText = "OK";
+    bool   returnWSDL = false;
+
     String contentType = "text/xml; charset=utf-8";
     auto ctor = headers().find("Content-Type");
     if (ctor != headers().end())
         contentType = ctor->second;
     bool requestIsJSON = contentType.startsWith("application/json");
+
+    bool gzipCompression = false;
+    ctor = headers().find("Content-Encoding");
+    if (ctor != headers().end()) {
+        auto contentEncoding = ctor->second;
+        if (contentEncoding.toLowerCase() == "gzip")
+            gzipCompression = true;
+        else if (!contentEncoding.empty())
+            generateFault(output, httpStatusCode, httpStatusText, contentType,
+                          HTTPException(400, "Unsupported Content-encoding"),
+                          requestIsJSON);
+    }
 
     auto contentLength = getContentLength();
     auto authentication = getAuthentication();
@@ -191,11 +208,6 @@ void WSWebServiceProtocol::process()
     while (startOfMessage != endOfMessage && (unsigned char)*startOfMessage < 33)
         startOfMessage++;
 
-    Buffer output;
-    size_t httpStatusCode = 200;
-    String httpStatusText = "OK";
-    bool   returnWSDL = false;
-
     xml::Document message;
     json::Document jsonContent;
 
@@ -210,8 +222,11 @@ void WSWebServiceProtocol::process()
         } else if (*startOfMessage == '{' || *startOfMessage == '[') {
             Strings url(m_url, "/");
             if (url.size() < 2)
-                throw Exception("Invalid url");
-            RESTtoSOAP(url, startOfMessage, message);
+                generateFault(output, httpStatusCode, httpStatusText, contentType,
+                              HTTPException(404, "Invalid URL"),
+                              requestIsJSON);
+            else
+                RESTtoSOAP(url, startOfMessage, message);
         } else {
             generateFault(output, httpStatusCode, httpStatusText, contentType,
                           HTTPException(400, "Expect JSON content"),

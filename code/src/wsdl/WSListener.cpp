@@ -41,6 +41,12 @@ WSListener::WSListener(WSRequest& service, LogEngine& logger, const WSConnection
   m_encrypted(encrypted),
   m_hostname(hostname)
 {
+    if (m_hostname.empty()) {
+        char buffer[256];
+        gethostname(buffer, sizeof(buffer));
+        m_hostname = buffer;
+    }
+
     if (m_paths.htmlIndexPage.empty())
         m_paths.htmlIndexPage = "index.html";
     if (m_paths.wsRequestPage.empty())
