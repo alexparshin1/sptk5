@@ -44,20 +44,20 @@ HttpConnect::HttpConnect(TCPSocket& socket)
 String HttpConnect::responseHeader(const String& headerName) const
 {
     if (m_reader)
-        return m_reader->responseHeader(headerName);
+        return m_reader->httpHeader(headerName);
     return "";
 }
 
 int HttpConnect::getResponse(Buffer& output, chrono::milliseconds readTimeout)
 {
-    m_reader = make_shared<HttpReader>(output);
+    m_reader = make_shared<HttpReader>(m_socket, output, HttpReader::RESPONSE);
     while (m_reader->getReaderState() < HttpReader::COMPLETED) {
         if (!m_socket.readyToRead(readTimeout)) {
             m_socket.close();
             throw Exception("Response read timeout");
         }
 
-        m_reader->read(m_socket);
+        m_reader->read();
     }
 
     return m_reader->getStatusCode();

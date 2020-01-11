@@ -33,63 +33,13 @@ using namespace sptk;
 
 WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service,
                            Logger& logger, const Paths& paths)
-: ServerConnection(server, connectionSocket, "WSConnection"), m_service(service), m_logger(logger),
-  m_paths(paths)
+        : ServerConnection(server, connectionSocket, "WSConnection"), m_service(service), m_logger(logger),
+          m_paths(paths)
 {
     if (!m_paths.staticFilesDirectory.endsWith("/"))
         m_paths.staticFilesDirectory += "/";
     if (!m_paths.wsRequestPage.startsWith("/"))
         m_paths.wsRequestPage = "/" + m_paths.wsRequestPage;
-}
-
-bool WSConnection::readHttpHeaders(String& protocolName, String& request, String& requestType, String& url,
-                                   HttpHeaders& headers)
-{
-    String row;
-    Buffer data;
-    Strings matches;
-    bool   completed {false};
-
-    RegularExpression parseProtocol("^(GET|POST) (\\S+)", "i");
-    RegularExpression parseHeader("^([^:]+): \"{0,1}(.*)\"{0,1}$", "i");
-
-    try {
-        while (!terminated() && !completed) {
-            if (socket().readLine(data) == 0)
-                return false;
-            row = trim(data.c_str());
-            if (protocolName.empty()) {
-                if (row.find("<?xml") == 0) {
-                    protocolName = "xml";
-                    completed = true;
-                    continue;
-                }
-                if (parseProtocol.m(row, matches)) {
-                    request = row;
-                    protocolName = "http";
-                    requestType = matches[0];
-                    url = matches[1];
-                    continue;
-                }
-            }
-            if (parseHeader.m(row, matches)) {
-                String header = matches[0];
-                String value = matches[1];
-                headers[header] = value;
-                continue;
-            }
-            if (row.empty()) {
-                data.reset();
-                completed = true;
-                continue;
-            }
-        }
-    }
-    catch (const Exception& e) {
-        m_logger.error(e.message());
-        return false;
-    }
-    return true;
 }
 
 void WSConnection::run()
@@ -100,8 +50,6 @@ void WSConnection::run()
     String row;
     Strings matches;
     String protocolName;
-    String url;
-    String requestType;
 
     try {
         if (!socket().readyToRead(chrono::seconds(30))) {
@@ -110,17 +58,23 @@ void WSConnection::run()
             return;
         }
 
-        HttpHeaders headers;
-        String request;
+        Buffer contentBuffer;
+        HttpReader httpReader(socket(), contentBuffer, HttpReader::REQUEST);
 
-        if (!readHttpHeaders(protocolName, request, requestType, url, headers))
+        protocolName = "http";
+        if (!httpReader.readHttpHeaders()) {
+            m_logger.error("Can't read HTTP request");
             return;
+        }
+
+        HttpHeaders headers(httpReader.getHttpHeaders());
+        String      requestType = httpReader.getRequestType();
+        String      url = httpReader.getRequestURL();
 
         if (url == m_paths.wsRequestPage + "?wsdl")
             protocolName = "wsdl";
 
         if (protocolName == "http") {
-
             String contentType = headers["Content-Type"];
             if (contentType.endsWith("/json"))
                 protocolName = "rest";
@@ -152,7 +106,7 @@ void WSConnection::run()
         String contentLength = headers["Content-Length"];
         if (requestType == "GET" && contentLength.empty())
             headers["Content-Length"] = "0";
-        WSWebServiceProtocol protocol(&socket(), url, headers, m_service, server().hostname(), server().port());
+        WSWebServiceProtocol protocol(httpReader, url, m_service, server().hostname(), server().port());
         protocol.process();
     }
     catch (const Exception& e) {
@@ -163,7 +117,7 @@ void WSConnection::run()
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
                                  Logger& logger, const Paths& paths, bool encrypted)
-: WSConnection(server, connectionSocket, addr, service, logger, paths)
+        : WSConnection(server, connectionSocket, addr, service, logger, paths)
 {
     if (encrypted) {
         auto& sslKeys = server.getSSLKeys();

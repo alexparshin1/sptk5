@@ -31,9 +31,14 @@
 using namespace std;
 using namespace sptk;
 
-WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket* socket, const String& url, const HttpHeaders& headers,
-                                           WSRequest& service, const String& hostname, uint16_t port)
-: WSProtocol(socket, headers), m_service(service), m_url(url), m_hostname(hostname), m_port(port)
+WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const String& url, WSRequest& service,
+                                           const String& hostname, uint16_t port)
+: WSProtocol(&httpReader.socket(), httpReader.getHttpHeaders()),
+  m_httpReader(httpReader),
+  m_service(service),
+  m_url(url),
+  m_hostname(hostname),
+  m_port(port)
 {
 }
 
@@ -185,25 +190,12 @@ void WSWebServiceProtocol::process()
                           requestIsJSON);
     }
 
-    auto contentLength = getContentLength();
+    Buffer& contentBuffer = m_httpReader.output();
+    m_httpReader.readAll(chrono::seconds(30));
     auto authentication = getAuthentication();
 
-    char* startOfMessage = nullptr;
-    char* endOfMessage = nullptr;
-
-    Buffer data;
-
-    if (contentLength > 0) {
-        socket().read(data, contentLength);
-        startOfMessage = data.data();
-        endOfMessage = startOfMessage + data.bytes();
-    }
-    else if (contentLength == 0) {
-        startOfMessage = data.data();
-        endOfMessage = startOfMessage;
-    } else {
-        readMessage(data, startOfMessage, endOfMessage);
-    }
+    auto* startOfMessage = contentBuffer.data();
+    auto* endOfMessage = startOfMessage + contentBuffer.bytes();
 
     while (startOfMessage != endOfMessage && (unsigned char)*startOfMessage < 33)
         startOfMessage++;

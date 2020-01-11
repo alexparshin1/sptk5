@@ -55,9 +55,6 @@ public:
         Paths(const Paths& other) = default;
     };
 
-    bool readHttpHeaders(String& protocolName, String& request, String& requestType, String& url,
-                         HttpHeaders& headers);
-
     WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service,
                  Logger& logger, const Paths& paths);
 

@@ -132,7 +132,7 @@ public:
      */
     [[nodiscard]] const HttpHeaders& responseHeaders() const
     {
-        return m_reader->getResponseHeaders();
+        return m_reader->getHttpHeaders();
     }
 
     /**

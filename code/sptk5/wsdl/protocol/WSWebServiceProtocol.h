@@ -43,10 +43,11 @@ namespace sptk {
 /// reply, then closes connection.
 class WSWebServiceProtocol : public WSProtocol
 {
-    WSRequest&      m_service;  ///< Web Service
-    const String    m_url;      ///< Request URL
-    const String    m_hostname; ///< Listener's hostname
-    const uint16_t  m_port;     ///< Listener's port
+    HttpReader&     m_httpReader;   ///< HTTP reader
+    WSRequest&      m_service;      ///< Web service
+    const String    m_url;          ///< Request URL
+    const String    m_hostname;     ///< Listener's hostname
+    const uint16_t  m_port;         ///< Listener's port
 
     /**
      * Process request message, and store response to output
@@ -65,15 +66,15 @@ public:
 
     /**
      * @brief Constructor
-     * @param socket            Connection socket
+     * @param httpReader            Connection socket
      * @param url               Method URL
      * @param headers           Connection HTTP headers
      * @param service           Web service that handles request
      * @param hostname          Listener's hostname
      * @param port              Listener's port
      */
-    WSWebServiceProtocol(TCPSocket* socket, const String& url, const HttpHeaders& headers,
-                         WSRequest& service, const String& hostname, uint16_t port);
+    WSWebServiceProtocol(HttpReader& httpReader, const String& url, WSRequest& service,
+                         const String& hostname, uint16_t port);
 
     /// @brief Process method
     ///

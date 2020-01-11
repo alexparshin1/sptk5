@@ -35,8 +35,10 @@
 using namespace std;
 using namespace sptk;
 
-HttpReader::HttpReader(Buffer& output)
-: m_readerState(READY),
+HttpReader::HttpReader(TCPSocket& socket, Buffer& output, ReadMode readMode)
+: m_socket(socket),
+  m_readMode(readMode),
+  m_readerState(READY),
   m_statusCode(0),
   m_contentLength(0),
   m_contentReceivedLength(0),
@@ -47,13 +49,13 @@ HttpReader::HttpReader(Buffer& output)
     output.reset(128);
 }
 
-bool HttpReader::readStatus(TCPSocket& socket)
+bool HttpReader::readStatus()
 {
     String status;
-    while (socket.readLine(status) < 3) {
+    while (m_socket.readLine(status) < 3) {
         if (status.empty())
             return false;
-        socket.readyToRead(chrono::seconds(1));
+        m_socket.readyToRead(chrono::seconds(1));
     }
 
     Strings matches;
@@ -65,24 +67,57 @@ bool HttpReader::readStatus(TCPSocket& socket)
     if (matches.size() > 2)
         m_statusText = matches[2].trim();
 
+    m_readerState = READING_HEADERS;
+
     return true;
 }
 
-bool HttpReader::readHeaders(TCPSocket& socket)
+bool HttpReader::readHttpRequest()
 {
+    String request;
+    m_socket.readLine(request);
+    if (request.empty())
+        return false;
+
+    RegularExpression parseProtocol("^(GET|POST|DELETE|PUT) (\\S+)", "i");
+    Strings           matches;
+
+    if (parseProtocol.m(request, matches)) {
+        m_requestType = matches[0].toUpperCase();
+        m_requestURL = matches[1];
+        return true;
+    }
+
+    return false;
+}
+
+bool HttpReader::readHttpHeaders()
+{
+    reset();
+
+    switch (m_readMode) {
+        case RESPONSE:
+            if (!readStatus())
+                throw Exception("Can't read server response");
+            break;
+        case REQUEST:
+            if (!readHttpRequest())
+                throw Exception("Can't read server response");
+    }
+
     /// Reading HTTP headers
     Strings matches;
     for (;;) {
         String header;
 
-        socket.readLine(header);
+        m_socket.readLine(header);
 
         if (header.empty())
             return false;
 
         size_t pos = header.find(':');
         if (pos != string::npos) {
-            m_responseHeaders[lowerCase(header.substr(0, pos))] = trim(header.substr(pos + 1));
+            m_httpHeaders[lowerCase(header.substr(0, pos))] = trim(header.substr(pos + 1));
             continue;
         }
 
@@ -93,16 +128,17 @@ bool HttpReader::readHeaders(TCPSocket& socket)
     m_contentLength = 0;
     m_contentIsChunked = false;
 
-    auto itor = m_responseHeaders.find("content-length");
-    if (itor != m_responseHeaders.end())
+    auto itor = m_httpHeaders.find("content-length");
+    if (itor != m_httpHeaders.end())
         m_contentLength = (size_t) string2int(itor->second);
 
-    itor = m_responseHeaders.find("transfer-encoding");
-    if (itor != m_responseHeaders.end())
+    itor = m_httpHeaders.find("transfer-encoding");
+    if (itor != m_httpHeaders.end())
         m_contentIsChunked = itor->second.find("chunked") != string::npos;
 
     m_contentReceivedLength = 0;
 
+    m_readerState = READING_DATA;
     return true;
 }
 
@@ -143,67 +179,56 @@ static size_t readChunk(TCPSocket& socket, Buffer& m_output)
     return readAndAppend(socket, m_output, chunkSize);
 }
 
-bool HttpReader::readData(TCPSocket& socket)
+bool HttpReader::readData()
 {
     int readBytes = 0;
-    while (socket.readyToRead(chrono::seconds(10))) {
+    while (m_socket.readyToRead(chrono::seconds(10))) {
         size_t bytesToRead;
         if (m_contentLength > 0) {
             bytesToRead = m_contentLength - m_contentReceivedLength;
             if (bytesToRead == 0)
                 return true;
         } else
-            bytesToRead = socket.socketBytes();
+            bytesToRead = m_socket.socketBytes();
 
         if (!m_contentIsChunked) {
-            readBytes = (int) readAndAppend(socket, m_output, bytesToRead);
+            readBytes = (int) readAndAppend(m_socket, m_output, bytesToRead);
             m_contentReceivedLength += readBytes;
             if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength) // No more data
                 return true;
         } else {
-            size_t chunkSize = readChunk(socket, m_output);
+            size_t chunkSize = readChunk(m_socket, m_output);
             m_contentReceivedLength += chunkSize;
             return (chunkSize == 0); // 0 means last chunk
         }
-        readBytes = (int) socket.socketBytes();
+        readBytes = (int) m_socket.socketBytes();
         if (readBytes == 0 && m_output.bytes() > 13) {
             size_t tailOffset = m_output.bytes() - 13;
 			String tail(m_output.c_str() + tailOffset);
             if (tail.toLowerCase().find("</html>") != string::npos)
 				break;
-            if (!socket.readyToRead(chrono::seconds(30)))
+            if (!m_socket.readyToRead(chrono::seconds(30)))
                 throw TimeoutException("Read timeout");
         }
     }
     return true;
 }
 
-void HttpReader::read(TCPSocket& socket)
+void HttpReader::read()
 {
     lock_guard<mutex> lock(m_mutex);
 
     if (m_readerState == READY) {
-        m_output.bytes(0);
-        m_responseHeaders.clear();
-        m_statusCode = 0;
-        m_statusText = "";
-        if (!readStatus(socket))
-            throw Exception("Can't read server response");
-        m_readerState = READING_HEADERS;
-        m_contentReceivedLength = 0;
-    }
-
-    if (m_readerState == READING_HEADERS) {
-        if (!readHeaders(socket))
+        if (!readHttpHeaders())
             return;
         m_readerState = READING_DATA;
     }
 
-    if (m_readerState == READING_DATA && !readData(socket))
+    if (m_readerState == READING_DATA && !readData())
         return;
 
-    auto itor = m_responseHeaders.find("content-encoding");
-    if (itor != m_responseHeaders.end() && itor->second == "gzip") {
+    auto itor = m_httpHeaders.find("content-encoding");
+    if (itor != m_httpHeaders.end() && itor->second == "gzip") {
 #if HAVE_ZLIB
         Buffer unzipBuffer;
         ZLib::decompress(unzipBuffer, m_output);
@@ -213,9 +238,9 @@ void HttpReader::read(TCPSocket& socket)
 #endif
     }
 
-    itor = m_responseHeaders.find("Connection");
-    if (itor != m_responseHeaders.end() && itor->second == "close")
-        socket.close();
+    itor = m_httpHeaders.find("Connection");
+    if (itor != m_httpHeaders.end() && itor->second == "close")
+        m_socket.close();
 
     if (m_statusCode >= 400 && m_statusText.empty()) {
         if (m_statusCode >= 500)
@@ -227,10 +252,10 @@ void HttpReader::read(TCPSocket& socket)
     m_readerState = COMPLETED;
 }
 
-const HttpHeaders& HttpReader::getResponseHeaders() const
+const HttpHeaders& HttpReader::getHttpHeaders() const
 {
     lock_guard<mutex> lock(m_mutex);
-    return m_responseHeaders;
+    return m_httpHeaders;
 }
 
 HttpReader::ReaderState HttpReader::getReaderState() const
@@ -251,12 +276,60 @@ const String& HttpReader::getStatusText() const
     return m_statusText;
 }
 
-String HttpReader::responseHeader(const String& headerName) const
+String HttpReader::httpHeader(const String& headerName) const
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto itor = m_responseHeaders.find(lowerCase(headerName));
-    if (itor == m_responseHeaders.end())
+    auto itor = m_httpHeaders.find(lowerCase(headerName));
+    if (itor == m_httpHeaders.end())
         return "";
     return itor->second;
+}
+
+int HttpReader::readAll(std::chrono::milliseconds timeout)
+{
+    while (getReaderState() < HttpReader::COMPLETED) {
+        if (!m_socket.readyToRead(timeout)) {
+            m_socket.close();
+            throw Exception("Response read timeout");
+        }
+
+        read();
+    }
+
+    return getStatusCode();
+}
+
+void HttpReader::reset()
+{
+    m_readerState = READY;
+    m_statusText = "";
+    m_statusCode = 0;
+    m_contentLength = 0;
+    m_contentReceivedLength = 0;
+    m_contentIsChunked = false;
+    m_httpHeaders.clear();
+    m_read_buffer.reset(1024);
+    m_requestType = "";
+    m_requestURL = "";
+}
+
+TCPSocket& HttpReader::socket()
+{
+    return m_socket;
+}
+
+Buffer& HttpReader::output()
+{
+    return m_output;
+}
+
+String HttpReader::getRequestType() const
+{
+    return m_requestType;
+}
+
+String HttpReader::getRequestURL() const
+{
+    return m_requestURL;
 }

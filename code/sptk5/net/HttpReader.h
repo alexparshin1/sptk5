@@ -63,6 +63,7 @@ typedef std::map<String, String, caseInsensitiveCompare> HttpHeaders;
 class SP_EXPORT HttpReader
 {
 public:
+
     /**
      * State of the response reader
      */
@@ -74,12 +75,19 @@ public:
         READ_ERROR = 8          ///< Reading error (transfer terminated prematurely)
     };
 
+    /**
+     * Read mode, defines is it HTTP request (GET, POST, etc) or response.
+     */
+    enum ReadMode {
+        REQUEST,
+        RESPONSE
+    };
+
 private:
 
-    /**
-     * State of the response reader
-     */
-    ReaderState         m_readerState;
+    TCPSocket&          m_socket;       ///< Socket to read from
+    ReadMode            m_readMode;     ///< Read mode
+    ReaderState         m_readerState;  ///< State of the reader
 
 public:
 
@@ -90,102 +98,92 @@ public:
 
 private:
 
-    /**
-     * Mutex that protects internal data
-     */
-    mutable std::mutex  m_mutex;
-
-    /**
-     * HTTP response status text
-     */
-    String              m_statusText;
-
-    /**
-     * HTTP response status code
-     */
-    int                 m_statusCode {0};
-
-    /**
-     * Content length (as defined in responce headers), or 0
-     */
-    size_t              m_contentLength {0};
-
-    /**
-     * Received content length so far
-     */
-    size_t              m_contentReceivedLength {0};
-
-    /**
-     * Chunked content (as defined in responce headers)
-     */
-    bool                m_contentIsChunked {false};
-
-    /**
-     * HTTP response headers
-     */
-    HttpHeaders         m_responseHeaders;
-
-    /**
-     * Regular expression parsing protocol and response code
-     */
-    RegularExpression   m_matchProtocolAndResponseCode;
-
-    /**
-     * Output data buffer
-     */
-    Buffer&             m_output;
-
-    /**
-     * Read buffer
-     */
-    Buffer              m_read_buffer;
-
+    mutable std::mutex  m_mutex;                        ///< Mutex that protects internal data
+    String              m_statusText;                   ///< HTTP response status text
+    int                 m_statusCode {0};               ///< HTTP response status code
+    size_t              m_contentLength {0};            ///< Content length (as defined in responce headers), or 0
+    size_t              m_contentReceivedLength {0};    ///< Received content length so far
+    bool                m_contentIsChunked {false};     ///< Chunked content (as defined in responce headers)
+    HttpHeaders         m_httpHeaders;                  ///< HTTP response headers
+    RegularExpression   m_matchProtocolAndResponseCode; ///< Regular expression parsing protocol and response code
+    Buffer&             m_output;                       ///< Output data buffer
+    Buffer              m_read_buffer;                  ///< Read buffer
+    String              m_requestType;                  ///< Request type (GET, POST, etc)
+    String              m_requestURL;                   ///< Request URL (for REQUEST read mode only)
 public:
 
     /**
      * Read-only access to response headers
      */
-    const HttpHeaders& getResponseHeaders() const;
+    const HttpHeaders& getHttpHeaders() const;
 
     /**
      * Read-only access to response headers by name
      * @param headerName        Header name
      */
-    String responseHeader(const String& headerName) const;
+    String httpHeader(const String& headerName) const;
 
 private:
 
     /**
+     * Clear reader state
+     */
+    void reset();
+
+    /**
      * Read HTTP status
-     * @param socket            Socket to read from
      * @return true if status is read
      */
-    bool readStatus(TCPSocket& socket);
+    bool readStatus();
 
     /**
      * Read headers that can be read completely
-     * @param socket            Socket to read from
      */
-    bool readHeaders(TCPSocket& socket);
-
-    /**
-     * Read headers that can be read completely
-     * @param socket            Socket to read from
-     */
-    bool readData(TCPSocket& socket);
+    bool readData();
 
 public:
+
     /**
      * Constructor
+     * @param socket            Socket to read from
      * @param output            Output data buffer
      */
-    explicit HttpReader(Buffer& output);
+    HttpReader(TCPSocket& socket, Buffer& output, ReadMode readMode);
+
+    /**
+     * Get read socket
+     * @return socket to read from
+     */
+    TCPSocket& socket();
+
+    /**
+     * Get output buffer
+     * @return output buffer
+     */
+    Buffer& output();
 
     /**
      * Read data that can be read completely
-     * @param socket            Socket to read from
      */
-    void read(TCPSocket& socket);
+    void read();
+
+    /**
+     * Read HTTP request string
+     */
+    bool readHttpRequest();
+
+    /**
+     * Read headers that can be read completely
+     */
+    bool readHttpHeaders();
+
+    /**
+     * Read HTTP headers and data after socket is just connected.
+     * For requests, received by server, call readHttpRequest() first
+     * @param timeout           Read timeout
+     * @return HTTP status code
+     */
+    int readAll(std::chrono::milliseconds timeout);
 
     /**
      * Status code getter
@@ -198,6 +196,9 @@ public:
      * @return status text
      */
     const String& getStatusText() const;
+
+    String getRequestType() const;
+    String getRequestURL() const;
 };
 
 } // namespace sptk
