@@ -26,6 +26,7 @@
 
 #include <sptk5/wsdl/WSConnection.h>
 #include <sptk5/wsdl/WSListener.h>
+#include <sptk5/StopWatch.h>
 #include "TestWebService.h"
 
 using namespace std;
@@ -41,6 +42,55 @@ void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuth
     output.m_retired = false;
     output.m_vacation_days = 21;
     output.m_verified = DateTime("2020-01-02 10:00:00+10");
+}
+
+// JWT encryption key
+static const String jwtEncryptionKey256("012345678901234567890123456789XY");
+
+/**
+ * WS method that takes username and password, and returns Java Web Token (JWT).
+ * After calling this method, we use JWT token *instead* of user name and password.
+ */
+void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthentication*)
+{
+    // First, we verify credentials. Usually, we check the username and password against the password database
+    String username = input.m_username;
+    String password = input.m_password;
+    if (username != "johnd" || password != "secret")
+        throw Exception("Invalid username or password");
+
+    JWT jwt;
+    jwt.set_alg(JWT::JWT_ALG_HS256, jwtEncryptionKey256);
+
+    jwt["iat"] = (int) time(nullptr);           // JWT issue time
+    jwt["iss"] = "http://test.com";                   // JWT issuer
+    jwt["exp"] = (int) time(nullptr) + 86400;   // JWT expiration time
+
+    // Add some description information that we may use later
+    auto* info = jwt.grants.root().set_object("info");
+    info->set("username", "johnd");
+    info->set("company", "My Company");
+    info->set("city", "My City");
+
+    // Convert JWT token to string
+    stringstream token;
+    jwt.encode(token);
+
+    // Return JWT token to client
+    output.m_jwt = token.str();
+}
+
+void TestWebService::AccountBalance(const CAccountBalance& input, CAccountBalanceResponse& output,
+                                    sptk::HttpAuthentication* authentication)
+{
+    if (authentication == nullptr)
+        throw Exception("Not authenticated");
+
+    auto& token = authentication->getData();
+    auto& info = token.getObject("info");
+    auto  username = info["username"].getString();
+
+    output.m_account_balance = 12345.67;
 }
 
 #if USE_GTEST
@@ -66,7 +116,8 @@ TEST(SPTK_TestWebService, hello_method)
     EXPECT_EQ(response.m_vacation_days.asInteger(), 21);
 }
 
-static void hello_listener_test(bool gzipEncoding)
+static String jwtString;
+static void request_listener_test(String requestType, bool gzipEncoding)
 {
     SysLogEngine        logEngine("TestWebService");
     TestWebService      service;
@@ -76,34 +127,76 @@ static void hello_listener_test(bool gzipEncoding)
 
     uint16_t            servicePort = 10000;
     try {
+        Buffer          sendRequestBuffer;
+
         listener.listen(servicePort);
 
-        json::Document hello;
-        hello.root()["first_name"] = "John";
-        hello.root()["last_name"] = "Doe";
+        json::Document sendRequestJson;
 
-        Buffer helloRequest;
-        hello.exportTo(helloRequest);
+        bool useJWT = false;
+        if (requestType == "Hello") {
+            sendRequestJson.root()["first_name"] = "John";
+            sendRequestJson.root()["last_name"] = "Doe";
+        }
+        else if (requestType == "Login") {
+            sendRequestJson.root()["username"] = "johnd";
+            sendRequestJson.root()["password"] = "secret";
+        }
+        else if (requestType == "AccountBalance") {
+            sendRequestJson.root()["jwt"] = jwtString;
+            sendRequestJson.root()["account_number"] = "000-123456-7890";
+            useJWT = true;
+        }
+
+        sendRequestJson.exportTo(sendRequestBuffer);
 
         TCPSocket   client;
         client.host(Host("localhost", servicePort));
         client.open();
 
         HttpConnect httpClient(client);
-        Buffer      helloResponse;
-        HttpParams  httpParams;
+        Buffer      requestResponse;
         httpClient.requestHeaders()["Content-Type"] = "application/json";
-        httpClient.cmd_post("/Hello", httpParams, helloRequest, gzipEncoding, helloResponse);
+        if (useJWT)
+            httpClient.requestHeaders()["Authorization"] = "bearer " + jwtString;
+        httpClient.cmd_post("/" + requestType, HttpParams(), sendRequestBuffer, gzipEncoding, requestResponse);
         client.close();
 
         if (httpClient.statusCode() >= 400)
-            FAIL() << helloResponse.c_str();
+            FAIL() << requestResponse.c_str();
         else {
-            cout << helloResponse.c_str() << endl;
             json::Document response;
-            response.load(helloResponse.c_str());
-            EXPECT_DOUBLE_EQ(response.root().getNumber("height"), 6.5);
+            response.load(requestResponse.c_str());
+
+            if (requestType == "Hello") {
+                // Just check some fields
+                EXPECT_DOUBLE_EQ(response.root().getNumber("height"), 6.5);
+                EXPECT_DOUBLE_EQ(response.root().getNumber("vacation_days"), 21);
+            }
+            else if (requestType == "Login") {
+                // Remember JWT for future operations
+                jwtString = response.root().getString("jwt");
+
+                // Decode JWT content
+                JWT jwt;
+                jwt.decode(jwtString.c_str(), jwtEncryptionKey256);
+
+                // Get username from "info" node
+                auto& info = jwt.grants.root().getObject("info");
+                auto username = info["username"].getString();
+
+                EXPECT_STREQ(username.c_str(), "johnd");
+            }
+            else if (requestType == "AccountBalance") {
+                EXPECT_DOUBLE_EQ(response.root().getNumber("account_balance"), 12345.67);
+            }
         }
+
+        StopWatch stopwatch;
+        stopwatch.start();
+        listener.stop();
+        stopwatch.stop();
+        cout << "Stopping took " << stopwatch.seconds() << " seconds" << endl;
     }
     catch (const Exception& e) {
         FAIL() << e.what();
@@ -112,11 +205,43 @@ static void hello_listener_test(bool gzipEncoding)
 
 TEST(SPTK_TestWebService, hello_listener)
 {
-    hello_listener_test(false);
+    request_listener_test("Hello", false);
 }
 
 TEST(SPTK_TestWebService, hello_listener_gzip)
 {
-    hello_listener_test(true);
+    request_listener_test("Hello", true);
 }
+
+TEST(SPTK_TestWebService, login_method)
+{
+    TestWebService service;
+
+    CLogin hello;
+    hello.m_username = "johnd";
+    hello.m_password = "secret";
+
+    CLoginResponse response;
+    service.Login(hello, response, nullptr);
+
+    JWT jwt;
+    jwt.decode(response.m_jwt.getString(), jwtEncryptionKey256);
+
+    auto& info = jwt.grants.root().getObject("info");
+    auto username = info["username"].getString();
+
+    EXPECT_STREQ(username.c_str(), "johnd");
+}
+
+TEST(SPTK_TestWebService, Login)
+{
+    request_listener_test("Login", true);
+}
+
+TEST(SPTK_TestWebService, AccountBalance)
+{
+    request_listener_test("Login", true);
+    request_listener_test("AccountBalance", true);
+}
+
 #endif

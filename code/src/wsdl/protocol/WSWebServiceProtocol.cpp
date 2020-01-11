@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/ZLib.h>
 #include "sptk5/wsdl/protocol/WSWebServiceProtocol.h"
 
 using namespace std;
@@ -178,20 +179,17 @@ void WSWebServiceProtocol::process()
         contentType = ctor->second;
     bool requestIsJSON = contentType.startsWith("application/json");
 
-    bool gzipCompression = false;
-    ctor = headers().find("Content-Encoding");
+    String acceptEncoding;
+    ctor = headers().find("accept-encoding");
     if (ctor != headers().end()) {
-        auto contentEncoding = ctor->second;
-        if (contentEncoding.toLowerCase() == "gzip")
-            gzipCompression = true;
-        else if (!contentEncoding.empty())
-            generateFault(output, httpStatusCode, httpStatusText, contentType,
-                          HTTPException(400, "Unsupported Content-encoding"),
-                          requestIsJSON);
+        acceptEncoding = ctor->second;
+        if (!acceptEncoding.empty() && acceptEncoding.find("gzip") != string::npos)
+            acceptEncoding = "gzip";
     }
 
     Buffer& contentBuffer = m_httpReader.output();
     m_httpReader.readAll(chrono::seconds(30));
+
     auto authentication = getAuthentication();
 
     auto* startOfMessage = contentBuffer.data();
@@ -241,12 +239,24 @@ void WSWebServiceProtocol::process()
     if (!returnWSDL && httpStatusCode < 400)
         processMessage(output, message, authentication, requestIsJSON, httpStatusCode, httpStatusText, contentType);
 
+    Buffer outputData;
+    bool   gzipped = false;
+    if (output.bytes() > 128 && acceptEncoding == "gzip") {
+        ZLib::compress(outputData, output);
+        gzipped = true;
+        output.reset(1024);
+    } else
+        outputData = move(output);
+
     stringstream response;
     response << "HTTP/1.1 " << httpStatusCode << " " << httpStatusText << "\r\n"
              << "Content-Type: " << contentType << "\r\n"
-             << "Content-Length: " << output.bytes() << "\r\n\r\n";
+             << "Content-Length: " << outputData.bytes() << "\r\n";
+    if (gzipped)
+        response << "Content-Encoding: gzip\r\n";
+    response << "\r\n";
     socket().write(response.str());
-    socket().write(output);
+    socket().write(outputData);
 }
 
 shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()

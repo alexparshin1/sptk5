@@ -35,6 +35,11 @@ class TestWebService : public CTestServiceBase
 {
 public:
     void Hello(const CHello& input, CHelloResponse& output, sptk::HttpAuthentication* authentication) override;
+
+    void AccountBalance(const CAccountBalance& input, CAccountBalanceResponse& output,
+                        sptk::HttpAuthentication* authentication) override;
+
+    void Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthentication* authentication) override;
 };
 
 }

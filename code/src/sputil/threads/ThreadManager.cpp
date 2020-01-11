@@ -94,8 +94,10 @@ void ThreadManager::stop()
 void ThreadManager::terminateRunningThreads()
 {
     lock_guard<mutex> lock(m_mutex);
-    for (auto& itor: m_runningThreads)
+    for (auto& itor: m_runningThreads) {
         m_joiner.push(itor.second);
+        itor.second->terminate();
+    }
 }
 
 void ThreadManager::registerThread(Thread* thread)
