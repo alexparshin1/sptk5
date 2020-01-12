@@ -205,7 +205,6 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
         stopwatch.start();
         listener.stop();
         stopwatch.stop();
-        cout << "Stopping took " << stopwatch.seconds() << " seconds" << endl;
     }
     catch (const Exception& e) {
         FAIL() << e.what();
