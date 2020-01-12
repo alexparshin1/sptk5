@@ -95,6 +95,9 @@ void TestWebService::AccountBalance(const CAccountBalance& input, CAccountBalanc
 
 #if USE_GTEST
 
+/**
+ * Test Hello WS method input and output
+ */
 TEST(SPTK_TestWebService, hello_method)
 {
     TestWebService service;
@@ -117,7 +120,15 @@ TEST(SPTK_TestWebService, hello_method)
 }
 
 static String jwtString;
-static void request_listener_test(String requestType, bool gzipEncoding)
+
+/**
+ * Test execution of { Hello, Login, AccountBalance } methods.
+ * Calling AccountBalance method requires calling Login method first.
+ * If gzip-encoding is allowed, it is used for messages bigger than 255 bytes.
+ * @param methodNames           WS methods to be executed
+ * @param allowGzipEncoding     Allow content optionally use gzip-encoding?
+ */
+static void request_listener_test(const Strings& methodNames, bool allowGzipEncoding)
 {
     SysLogEngine        logEngine("TestWebService");
     TestWebService      service;
@@ -125,70 +136,68 @@ static void request_listener_test(String requestType, bool gzipEncoding)
     WSConnection::Paths paths("index.html","/test",".");
     WSListener          listener(service, logEngine, paths);
 
-    uint16_t            servicePort = 10000;
+    const uint16_t      servicePort = 10000;
     try {
-        Buffer          sendRequestBuffer;
 
         listener.listen(servicePort);
 
-        json::Document sendRequestJson;
+        for (auto& methodName: methodNames) {
+            Buffer sendRequestBuffer;
+            json::Document sendRequestJson;
 
-        bool useJWT = false;
-        if (requestType == "Hello") {
-            sendRequestJson.root()["first_name"] = "John";
-            sendRequestJson.root()["last_name"] = "Doe";
-        }
-        else if (requestType == "Login") {
-            sendRequestJson.root()["username"] = "johnd";
-            sendRequestJson.root()["password"] = "secret";
-        }
-        else if (requestType == "AccountBalance") {
-            sendRequestJson.root()["jwt"] = jwtString;
-            sendRequestJson.root()["account_number"] = "000-123456-7890";
-            useJWT = true;
-        }
-
-        sendRequestJson.exportTo(sendRequestBuffer);
-
-        TCPSocket   client;
-        client.host(Host("localhost", servicePort));
-        client.open();
-
-        HttpConnect httpClient(client);
-        Buffer      requestResponse;
-        httpClient.requestHeaders()["Content-Type"] = "application/json";
-        if (useJWT)
-            httpClient.requestHeaders()["Authorization"] = "bearer " + jwtString;
-        httpClient.cmd_post("/" + requestType, HttpParams(), sendRequestBuffer, gzipEncoding, requestResponse);
-        client.close();
-
-        if (httpClient.statusCode() >= 400)
-            FAIL() << requestResponse.c_str();
-        else {
-            json::Document response;
-            response.load(requestResponse.c_str());
-
-            if (requestType == "Hello") {
-                // Just check some fields
-                EXPECT_DOUBLE_EQ(response.root().getNumber("height"), 6.5);
-                EXPECT_DOUBLE_EQ(response.root().getNumber("vacation_days"), 21);
+            bool useJWT = false;
+            if (methodName == "Hello") {
+                sendRequestJson.root()["first_name"] = "John";
+                sendRequestJson.root()["last_name"] = "Doe";
+            } else if (methodName == "Login") {
+                sendRequestJson.root()["username"] = "johnd";
+                sendRequestJson.root()["password"] = "secret";
+            } else if (methodName == "AccountBalance") {
+                sendRequestJson.root()["jwt"] = jwtString;
+                sendRequestJson.root()["account_number"] = "000-123456-7890";
+                useJWT = true;
             }
-            else if (requestType == "Login") {
-                // Remember JWT for future operations
-                jwtString = response.root().getString("jwt");
 
-                // Decode JWT content
-                JWT jwt;
-                jwt.decode(jwtString.c_str(), jwtEncryptionKey256);
+            sendRequestJson.exportTo(sendRequestBuffer);
 
-                // Get username from "info" node
-                auto& info = jwt.grants.root().getObject("info");
-                auto username = info["username"].getString();
+            TCPSocket client;
+            client.host(Host("localhost", servicePort));
+            client.open();
 
-                EXPECT_STREQ(username.c_str(), "johnd");
-            }
-            else if (requestType == "AccountBalance") {
-                EXPECT_DOUBLE_EQ(response.root().getNumber("account_balance"), 12345.67);
+            HttpConnect httpClient(client);
+            Buffer requestResponse;
+            httpClient.requestHeaders()["Content-Type"] = "application/json";
+            if (useJWT)
+                httpClient.requestHeaders()["Authorization"] = "bearer " + jwtString;
+            httpClient.cmd_post("/" + methodName, HttpParams(), sendRequestBuffer, allowGzipEncoding, requestResponse);
+            client.close();
+
+            if (httpClient.statusCode() >= 400)
+                FAIL() << requestResponse.c_str();
+            else {
+                json::Document response;
+                response.load(requestResponse.c_str());
+
+                if (methodName == "Hello") {
+                    // Just check some fields
+                    EXPECT_DOUBLE_EQ(response.root().getNumber("height"), 6.5);
+                    EXPECT_DOUBLE_EQ(response.root().getNumber("vacation_days"), 21);
+                } else if (methodName == "Login") {
+                    // Remember JWT for future operations
+                    jwtString = response.root().getString("jwt");
+
+                    // Decode JWT content
+                    JWT jwt;
+                    jwt.decode(jwtString.c_str(), jwtEncryptionKey256);
+
+                    // Get username from "info" node
+                    auto& info = jwt.grants.root().getObject("info");
+                    auto username = info["username"].getString();
+
+                    EXPECT_STREQ(username.c_str(), "johnd");
+                } else if (methodName == "AccountBalance") {
+                    EXPECT_DOUBLE_EQ(response.root().getNumber("account_balance"), 12345.67);
+                }
             }
         }
 
@@ -203,16 +212,17 @@ static void request_listener_test(String requestType, bool gzipEncoding)
     }
 }
 
-TEST(SPTK_TestWebService, hello_listener)
+/**
+ * Test Hello method working through the service
+ */
+TEST(SPTK_TestWebService, hello_service)
 {
-    request_listener_test("Hello", false);
+    request_listener_test(Strings("Hello",","), true);
 }
 
-TEST(SPTK_TestWebService, hello_listener_gzip)
-{
-    request_listener_test("Hello", true);
-}
-
+/**
+ * Test Login method input and output
+ */
 TEST(SPTK_TestWebService, login_method)
 {
     TestWebService service;
@@ -233,15 +243,12 @@ TEST(SPTK_TestWebService, login_method)
     EXPECT_STREQ(username.c_str(), "johnd");
 }
 
-TEST(SPTK_TestWebService, Login)
+/**
+ * Test Login and AccountBalance methods working through the service
+ */
+TEST(SPTK_TestWebService, LoginAndAccountBalance)
 {
-    request_listener_test("Login", true);
-}
-
-TEST(SPTK_TestWebService, AccountBalance)
-{
-    request_listener_test("Login", true);
-    request_listener_test("AccountBalance", true);
+    request_listener_test(Strings("Login|AccountBalance", "|"), true);
 }
 
 #endif

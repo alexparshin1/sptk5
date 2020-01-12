@@ -89,4 +89,5 @@ void WorkerThread::terminate()
     if (m_currentRunable != nullptr)
         m_currentRunable->terminate();
     Thread::terminate();
+    m_queue.wakeup();
 }

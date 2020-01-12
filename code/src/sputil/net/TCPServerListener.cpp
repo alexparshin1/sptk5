@@ -74,7 +74,7 @@ void TCPServerListener::threadFunction()
     try {
         while (!terminated()) {
             lock_guard<mutex> lock(*this);
-            if (m_listenerSocket.readyToRead(chrono::milliseconds(1000)))
+            if (m_listenerSocket.readyToRead(chrono::milliseconds(100)))
                 acceptConnection();
         }
     }
