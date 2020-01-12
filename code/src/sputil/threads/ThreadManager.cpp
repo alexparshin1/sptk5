@@ -26,7 +26,6 @@
 */
 
 #include "sptk5/threads/ThreadManager.h"
-#include "sptk5/cutils"
 
 using namespace std;
 using namespace sptk;
