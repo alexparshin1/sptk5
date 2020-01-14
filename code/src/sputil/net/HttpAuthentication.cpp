@@ -34,18 +34,18 @@
 using namespace std;
 using namespace sptk;
 
-sptk::HttpAuthentication::HttpAuthentication(String authenticationHeader)
+HttpAuthentication::HttpAuthentication(String authenticationHeader)
 : m_authenticationHeader(std::move(authenticationHeader))
 {
 }
 
-sptk::HttpAuthentication::~HttpAuthentication()
+HttpAuthentication::~HttpAuthentication()
 {
     delete m_userData;
     delete m_jwtData;
 }
 
-const sptk::json::Element& sptk::HttpAuthentication::getData()
+const json::Element& HttpAuthentication::getData()
 {
     parse();
 

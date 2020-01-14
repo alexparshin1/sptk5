@@ -73,7 +73,7 @@ public:
      * Constructor
      * @param authenticationHeader  Authentication HTTP header content
      */
-    explicit HttpAuthentication(String  authenticationHeader);
+    explicit HttpAuthentication(String authenticationHeader);
 
     /**
      * Destructor
@@ -92,6 +92,6 @@ public:
     Type type();
 };
 
-} // namespace sptk
+}
 
 #endif

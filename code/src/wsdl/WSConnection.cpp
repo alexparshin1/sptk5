@@ -126,5 +126,5 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, soc
         setSocket(socket);
     } else
         setSocket(new TCPSocket);
-    socket().attach(connectionSocket, false);
+    socket().attach(connectionSocket, true);
 }

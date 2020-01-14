@@ -103,6 +103,14 @@ protected:
 
 public:
 
+    class Authorization
+    {
+    public:
+        Authorization(const String& username, const String& password);
+        Authorization(const String& jwtToken);
+        String toString() const;
+    };
+
     /**
      * @brief Constructor
      *

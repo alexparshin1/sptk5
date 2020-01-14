@@ -98,7 +98,7 @@ void TestWebService::AccountBalance(const CAccountBalance& input, CAccountBalanc
 /**
  * Test Hello WS method input and output
  */
-TEST(SPTK_TestWebService, hello_method)
+TEST(SPTK_TestWebService, Hello)
 {
     TestWebService service;
 
@@ -128,16 +128,22 @@ static String jwtString;
  * @param methodNames           WS methods to be executed
  * @param allowGzipEncoding     Allow content optionally use gzip-encoding?
  */
-static void request_listener_test(const Strings& methodNames, bool allowGzipEncoding)
+static void request_listener_test(const Strings& methodNames, bool allowGzipEncoding, bool encrypted=false)
 {
     SysLogEngine        logEngine("TestWebService");
     TestWebService      service;
 
     WSConnection::Paths paths("index.html","/test",".");
-    WSListener          listener(service, logEngine, paths);
+    WSListener          listener(service, logEngine, paths, "localhost", encrypted);
 
-    const uint16_t      servicePort = 10000;
+    const uint16_t      servicePort = 11000;
+    shared_ptr<SSLKeys> sslKeys;
     try {
+
+        if (encrypted) {
+            sslKeys = make_shared<SSLKeys>("keys/test.key", "keys/test.cert");
+            listener.setSSLKeys(sslKeys);
+        }
 
         listener.listen(servicePort);
 
@@ -160,17 +166,23 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
 
             sendRequestJson.exportTo(sendRequestBuffer);
 
-            TCPSocket client;
-            client.host(Host("localhost", servicePort));
-            client.open();
+            TCPSocket* client {nullptr};
+            if (encrypted) {
+                auto* sslClient = new SSLSocket;
+                sslClient->loadKeys(*sslKeys);
+                client = sslClient;
+            } else
+                client = new TCPSocket;
+            client->host(Host("localhost", servicePort));
+            client->open();
 
-            HttpConnect httpClient(client);
+            HttpConnect httpClient(*client);
             Buffer requestResponse;
             httpClient.requestHeaders()["Content-Type"] = "application/json";
             if (useJWT)
                 httpClient.requestHeaders()["Authorization"] = "bearer " + jwtString;
             httpClient.cmd_post("/" + methodName, HttpParams(), sendRequestBuffer, allowGzipEncoding, requestResponse);
-            client.close();
+            client->close();
 
             if (httpClient.statusCode() >= 400)
                 FAIL() << requestResponse.c_str();
@@ -214,7 +226,7 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
 /**
  * Test Hello method working through the service
  */
-TEST(SPTK_TestWebService, hello_service)
+TEST(SPTK_TestWebService, Hello_HTTP)
 {
     request_listener_test(Strings("Hello",","), true);
 }
@@ -222,7 +234,7 @@ TEST(SPTK_TestWebService, hello_service)
 /**
  * Test Login method input and output
  */
-TEST(SPTK_TestWebService, login_method)
+TEST(SPTK_TestWebService, Login)
 {
     TestWebService service;
 
@@ -245,9 +257,17 @@ TEST(SPTK_TestWebService, login_method)
 /**
  * Test Login and AccountBalance methods working through the service
  */
-TEST(SPTK_TestWebService, LoginAndAccountBalance)
+TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
 {
     request_listener_test(Strings("Login|AccountBalance", "|"), true);
+}
+
+/**
+ * Test Login and AccountBalance methods working through the service
+ */
+TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
+{
+    request_listener_test(Strings("Login|AccountBalance", "|"), true, true);
 }
 
 #endif
