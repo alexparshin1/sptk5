@@ -59,7 +59,7 @@ int main()
 
             Buffer data;
             try {
-                sock.cmd_get("/event/api/0.1/events", httpFields, data, chrono::seconds(30));
+                sock.cmd_get("/event/api/0.1/events", httpFields, data, nullptr, chrono::seconds(30));
             }
             catch (const Exception& e) {
                 CERR(e.what() << endl)

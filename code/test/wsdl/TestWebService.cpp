@@ -119,7 +119,7 @@ TEST(SPTK_TestWebService, Hello)
     EXPECT_EQ(response.m_vacation_days.asInteger(), 21);
 }
 
-static String jwtString;
+static shared_ptr<HttpConnect::Authorization> jwtAuthorization;
 
 /**
  * Test execution of { Hello, Login, AccountBalance } methods.
@@ -151,17 +151,16 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
             Buffer sendRequestBuffer;
             json::Document sendRequestJson;
 
-            bool useJWT = false;
             if (methodName == "Hello") {
                 sendRequestJson.root()["first_name"] = "John";
                 sendRequestJson.root()["last_name"] = "Doe";
+                jwtAuthorization.reset();
             } else if (methodName == "Login") {
                 sendRequestJson.root()["username"] = "johnd";
                 sendRequestJson.root()["password"] = "secret";
+                jwtAuthorization.reset();
             } else if (methodName == "AccountBalance") {
-                sendRequestJson.root()["jwt"] = jwtString;
                 sendRequestJson.root()["account_number"] = "000-123456-7890";
-                useJWT = true;
             }
 
             sendRequestJson.exportTo(sendRequestBuffer);
@@ -179,9 +178,7 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
             HttpConnect httpClient(*client);
             Buffer requestResponse;
             httpClient.requestHeaders()["Content-Type"] = "application/json";
-            if (useJWT)
-                httpClient.requestHeaders()["Authorization"] = "bearer " + jwtString;
-            httpClient.cmd_post("/" + methodName, HttpParams(), sendRequestBuffer, allowGzipEncoding, requestResponse);
+            httpClient.cmd_post("/" + methodName, HttpParams(), sendRequestBuffer, allowGzipEncoding, requestResponse, jwtAuthorization.get());
             client->close();
 
             if (httpClient.statusCode() >= 400)
@@ -195,12 +192,12 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
                     EXPECT_DOUBLE_EQ(response.root().getNumber("height"), 6.5);
                     EXPECT_DOUBLE_EQ(response.root().getNumber("vacation_days"), 21);
                 } else if (methodName == "Login") {
-                    // Remember JWT for future operations
-                    jwtString = response.root().getString("jwt");
+                    // Set JWT authorization for future operations
+                    jwtAuthorization = make_shared<HttpConnect::Authorization>(response.root().getString("jwt"));
 
                     // Decode JWT content
                     JWT jwt;
-                    jwt.decode(jwtString.c_str(), jwtEncryptionKey256);
+                    jwt.decode(jwtAuthorization->value().c_str(), jwtEncryptionKey256);
 
                     // Get username from "info" node
                     auto& info = jwt.grants.root().getObject("info");

@@ -52,6 +52,60 @@ namespace sptk
  */
 class SP_EXPORT HttpConnect
 {
+public:
+
+    /**
+     * HTTP authorization
+     */
+    class Authorization
+    {
+        String  m_method;       ///< Authorization method name
+        String  m_value;        ///< Authorization data
+    public:
+        /**
+         * Default constructor
+         */
+        Authorization() {}
+
+        /**
+         * Basic authorization
+         * @param username      Username
+         * @param password      Password
+         */
+        explicit Authorization(const String& username, const String& password);
+
+        /**
+         * Bearer authorization
+         * @param jwtToken      JWT token
+         */
+        explicit Authorization(const String& jwtToken);
+
+        /**
+         * Copy constructor
+         * @param other         Other object
+         */
+        Authorization(const Authorization& other) = default;
+
+        /**
+         * Copy assignment
+         * @param other         Other object
+         */
+        Authorization& operator = (const Authorization& other) = default;
+
+        /**
+         * Get authorization method name
+         * @return authorization method name
+         */
+        String method() const { return m_method; }
+
+        /**
+         * Get authorization metod value
+         * @return authorization metod value
+         */
+        String value() const { return m_value; }
+    };
+
+private:
     /**
      * HTTP reader
      */
@@ -72,8 +126,8 @@ protected:
     /**
      * Create default headers for HTTP request
      */
-    Strings makeHeaders(const String& httpCommand, const String& pageName,
-                              const HttpParams& requestParameters);
+    Strings makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
+                        const Authorization* authorization);
 
     /**
      * @brief Sends a single command to HTTP server
@@ -102,14 +156,6 @@ protected:
     int getResponse(Buffer& output, std::chrono::milliseconds timeout);
 
 public:
-
-    class Authorization
-    {
-    public:
-        Authorization(const String& username, const String& password);
-        Authorization(const String& jwtToken);
-        String toString() const;
-    };
 
     /**
      * @brief Constructor
@@ -150,11 +196,13 @@ public:
      * @param pageName          Page URL without the server name.
      * @param parameters        HTTP request parameters
      * @param output            Output data
+     * @param authorization     Optional authorization
      * @param timeout           Response timeout
      * @return HTTP result code
      */
     int cmd_get(const String& pageName, const HttpParams& parameters, Buffer& output,
-                std::chrono::milliseconds timeout=std::chrono::seconds(60));
+                const Authorization* authorization = nullptr,
+                std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**
      * @brief Sends the POST command to the server
@@ -165,11 +213,13 @@ public:
      * @param content           The data to post to the server
      * @param gzipContent       If true then compress buffer and set HTTP header Content-Encoding
      * @param output            Output data
+     * @param authorization     Optional authorization
      * @param timeout           Response timeout
      * @return HTTP result code
      */
     int cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& content, bool gzipContent,
-                 Buffer& output, std::chrono::milliseconds timeout = std::chrono::seconds(60));
+                 Buffer& output, const Authorization* authorization = nullptr,
+                 std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**
      * @brief Sends the PUT command to the server
@@ -179,10 +229,12 @@ public:
      * @param parameters        HTTP request parameters
      * @param content           The data to post to the server
      * @param output            Output data
-     * @param timeout           Response timeout
+     * @param authorization     Optional authorization
+     * @param timeout           Optional response timeout
      * @return HTTP result code
      */
     int cmd_put(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
+                const Authorization* authorization = nullptr,
                 std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
    /**
@@ -192,11 +244,13 @@ public:
      * @param pageName          Page URL without the server name.
      * @param parameters        HTTP request parameters
      * @param output            Output data
+     * @param authorization     Optional authorization
      * @param timeout           Request timeout
      * @return HTTP result code
      */
    int cmd_delete(const String& pageName, const HttpParams& parameters, Buffer& output,
-                 std::chrono::milliseconds timeout = std::chrono::seconds(60));
+                  const Authorization* authorization = nullptr,
+                  std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**
      * @brief Get value of response header

@@ -30,6 +30,7 @@
 #include <sptk5/net/HttpConnect.h>
 
 #include <sptk5/ZLib.h>
+#include <sptk5/md5.h>
 
 using namespace std;
 using namespace sptk;
@@ -82,7 +83,8 @@ void HttpConnect::sendCommand(const Buffer& cmd)
     m_socket.write(cmd.c_str(), (uint32_t) cmd.bytes());
 }
 
-Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters)
+Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
+                                 const Authorization* authorization)
 {
     Strings headers;
 
@@ -100,13 +102,16 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
     for (auto& itor: m_requestHeaders)
         headers.push_back(itor.first + ": " + itor.second);
 
+    if (authorization && !authorization->method().empty())
+        headers.push_back("Authorization: " + authorization->method() + " " + authorization->value());
+
     return headers;
 }
 
 int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParameters, Buffer& output,
-                         chrono::milliseconds timeout)
+                         const Authorization* authorization, chrono::milliseconds timeout)
 {
-    Strings headers = makeHeaders("GET", pageName, requestParameters);
+    Strings headers = makeHeaders("GET", pageName, requestParameters, authorization);
 
     string command = headers.join("\r\n") + "\r\n\r\n";
     sendCommand(command);
@@ -115,9 +120,9 @@ int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParame
 }
 
 int HttpConnect::cmd_post(const sptk::String& pageName, const HttpParams& parameters, const Buffer& postData, bool gzipContent,
-                          Buffer& output, std::chrono::milliseconds timeout)
+                          Buffer& output, const Authorization* authorization, chrono::milliseconds timeout)
 {
-    Strings headers = makeHeaders("POST", pageName, parameters);
+    Strings headers = makeHeaders("POST", pageName, parameters, authorization);
 
 #if HAVE_ZLIB
     headers.push_back("Accept-Encoding: gzip");
@@ -145,9 +150,9 @@ int HttpConnect::cmd_post(const sptk::String& pageName, const HttpParams& parame
 }
 
 int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& requestParameters, const Buffer& putData,
-                         Buffer& output, std::chrono::milliseconds timeout)
+                         Buffer& output, const Authorization* authorization, chrono::milliseconds timeout)
 {
-    Strings headers = makeHeaders("PUT", pageName, requestParameters);
+    Strings headers = makeHeaders("PUT", pageName, requestParameters, authorization);
 
 #if HAVE_ZLIB
     headers.push_back("Accept-Encoding: gzip");
@@ -167,9 +172,9 @@ int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& request
 }
 
 int HttpConnect::cmd_delete(const sptk::String& pageName, const HttpParams& requestParameters, Buffer& output,
-                            std::chrono::milliseconds timeout)
+                            const Authorization* authorization, chrono::milliseconds timeout)
 {
-    Strings headers = makeHeaders("DELETE", pageName, requestParameters);
+    Strings headers = makeHeaders("DELETE", pageName, requestParameters, authorization);
     string  command = headers.join("\r\n") + "\r\n\r\n";
 
     sendCommand(command);
@@ -186,6 +191,16 @@ String HttpConnect::statusText() const
 {
     return m_reader->getStatusText();
 }
+
+HttpConnect::Authorization::Authorization(const String& username, const String& password)
+: m_method("basic"),
+  m_value(md5(username + ":" + password))
+{}
+
+HttpConnect::Authorization::Authorization(const String& jwtToken)
+: m_method("bearer"),
+  m_value(jwtToken)
+{}
 
 #if USE_GTEST
 
