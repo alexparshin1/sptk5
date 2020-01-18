@@ -173,19 +173,14 @@ void WSWebServiceProtocol::process()
     String httpStatusText = "OK";
     bool   returnWSDL = false;
 
-    String contentType = "text/xml; charset=utf-8";
-    auto ctor = headers().find("Content-Type");
-    if (ctor != headers().end())
-        contentType = ctor->second;
+    String contentType = header("Content-Type");
+    if (contentType.empty())
+        contentType = "text/xml; charset=utf-8";
     bool requestIsJSON = contentType.startsWith("application/json");
 
-    String acceptEncoding;
-    ctor = headers().find("accept-encoding");
-    if (ctor != headers().end()) {
-        acceptEncoding = ctor->second;
-        if (!acceptEncoding.empty() && acceptEncoding.find("gzip") != string::npos)
-            acceptEncoding = "gzip";
-    }
+    String acceptEncoding = header("accept-encoding");
+    if (acceptEncoding.find("gzip") != string::npos)
+        acceptEncoding = "gzip";
 
     Buffer& contentBuffer = m_httpReader.output();
     m_httpReader.readAll(chrono::seconds(30));
@@ -248,15 +243,16 @@ void WSWebServiceProtocol::process()
     } else
         outputData = move(output);
 
-    stringstream response;
-    response << "HTTP/1.1 " << httpStatusCode << " " << httpStatusText << "\r\n"
-             << "Content-Type: " << contentType << "\r\n"
-             << "Content-Length: " << outputData.bytes() << "\r\n";
+    Buffer response;
+    response.append("HTTP/1.1 ");
+    response.append(to_string(httpStatusCode) + " " + httpStatusText + "\r\n");
+    response.append("Content-Type: " + contentType + "\r\n");
+    response.append("Content-Length: " + to_string(outputData.bytes()) + "\r\n");
     if (gzipped)
-        response << "Content-Encoding: gzip\r\n";
-    response << "\r\n";
-    socket().write(response.str());
-    socket().write(outputData);
+        response.append("Content-Encoding: gzip\r\n");
+    response.append("\r\n", 2);
+    response.append(outputData);
+    socket().write(response);
 }
 
 shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()

@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSProtocol.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Saturday Jul 30 2016                                   ║
 ║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,66 +24,15 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __WSPROTOCOL_H__
-#define __WSPROTOCOL_H__
+#include <sptk5/wsdl/protocol/WSProtocol.h>
 
-#include <sptk5/cnet>
-#include <sptk5/wsdl/WSRequest.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-/// @addtogroup wsdl WSDL-related Classes
-/// @{
-
-/// @brief Abstract base class for different protocols used in Web Service servers
-class WSProtocol
+String WSProtocol::header(const String& name)
 {
-    TCPSocket&      m_socket;   ///< Connection socket
-    HttpHeaders     m_headers;  ///< Connection HTTP headers
-
-protected:
-    /**
-     * Connection socket
-     * @return Connection socket
-     */
-    TCPSocket& socket() { return m_socket; }
-
-    /**
-     * Connection HTTP headers
-     * @return Connection HTTP headers
-     */
-    HttpHeaders& headers() { return m_headers; }
-
-    /**
-     * Connection HTTP headers
-     * @return Connection HTTP headers
-     */
-    String header(const sptk::String& name);
-
-public:
-
-    /// @brief Constructor
-    /// @param socket           Connection socket
-    /// @param headers          Connection HTTP headers
-    WSProtocol(TCPSocket* socket, const HttpHeaders& headers)
-    : m_socket(*socket), m_headers(headers)
-    {
-    }
-
-    /// @brief Destructor
-    ///
-    /// Closes connection
-    virtual ~WSProtocol()
-    {
-        m_socket.close();
-    }
-
-    /// @brief Process virtual method - to be implemented in derived classes
-    virtual void process() = 0;
-};
-
-/// @}
-
+    auto itor = m_headers.find(name);
+    if (itor == m_headers.end())
+        return "";
+    return itor->second;
 }
-
-#endif
