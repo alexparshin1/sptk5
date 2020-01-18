@@ -37,8 +37,6 @@
 #include <sys/epoll.h>
 #endif
 
-#include <sptk5/cutils>
-
 using namespace std;
 using namespace sptk;
 
