@@ -252,7 +252,7 @@ void HttpReader::read()
     m_readerState = COMPLETED;
 }
 
-const HttpHeaders& HttpReader::getHttpHeaders() const
+HttpHeaders& HttpReader::getHttpHeaders()
 {
     lock_guard<mutex> lock(m_mutex);
     return m_httpHeaders;
@@ -332,4 +332,9 @@ String HttpReader::getRequestType() const
 String HttpReader::getRequestURL() const
 {
     return m_requestURL;
+}
+
+void HttpReader::close()
+{
+    m_socket.close();
 }

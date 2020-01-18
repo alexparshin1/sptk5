@@ -67,17 +67,19 @@ void WSConnection::run()
             return;
         }
 
-        HttpHeaders headers(httpReader.getHttpHeaders());
-        String      requestType = httpReader.getRequestType();
-        String      url = httpReader.getRequestURL();
+        auto&   headers = httpReader.getHttpHeaders();
+        String  requestType = httpReader.getRequestType();
+        String  url = httpReader.getRequestURL();
 
         if (url == m_paths.wsRequestPage + "?wsdl")
             protocolName = "wsdl";
 
         if (protocolName == "http") {
             String contentType = headers["Content-Type"];
-            if (contentType.endsWith("/json"))
+            if (contentType.find("/json") != string::npos)
                 protocolName = "rest";
+            else if (contentType.find("/xml") != string::npos)
+                protocolName = "WS";
             else {
 
                 if (headers["Upgrade"] == "websocket") {
@@ -106,8 +108,16 @@ void WSConnection::run()
         String contentLength = headers["Content-Length"];
         if (requestType == "GET" && contentLength.empty())
             headers["Content-Length"] = "0";
+
+        bool closeConnection = headers["Connection"].toLowerCase() == "close";
+        if (closeConnection)
+            headers.erase("Connection");
+
         WSWebServiceProtocol protocol(httpReader, url, m_service, server().hostname(), server().port());
         protocol.process();
+
+        if (closeConnection)
+            httpReader.close();
     }
     catch (const Exception& e) {
         if (!terminated())
@@ -117,7 +127,7 @@ void WSConnection::run()
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
                                  Logger& logger, const Paths& paths, bool encrypted)
-        : WSConnection(server, connectionSocket, addr, service, logger, paths)
+: WSConnection(server, connectionSocket, addr, service, logger, paths)
 {
     if (encrypted) {
         auto& sslKeys = server.getSSLKeys();

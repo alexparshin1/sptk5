@@ -113,9 +113,9 @@ private:
 public:
 
     /**
-     * Read-only access to response headers
+     * Access to response headers
      */
-    const HttpHeaders& getHttpHeaders() const;
+    HttpHeaders& getHttpHeaders();
 
     /**
      * Read-only access to response headers by name
@@ -199,6 +199,8 @@ public:
 
     String getRequestType() const;
     String getRequestURL() const;
+
+    void close();
 };
 
 } // namespace sptk
