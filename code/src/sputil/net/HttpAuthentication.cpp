@@ -78,17 +78,20 @@ void HttpAuthentication::parse()
             xuserData->root()["password"] = usernameAndPassword[1];
             m_userData = xuserData;
             m_type = BASIC;
-        } else if (m_authenticationHeader.toLowerCase().startsWith("bearer ")) {
-            auto* xjwtData = new JWT;
-            try {
-                xjwtData->decode(m_authenticationHeader.substr(7).c_str());
+        } else {
+            String authMethod = m_authenticationHeader.substr(0, 6);
+            if (authMethod.toLowerCase() == "bearer") {
+                auto* xjwtData = new JWT;
+                try {
+                    xjwtData->decode(m_authenticationHeader.substr(7).c_str());
+                }
+                catch (const Exception&) {
+                    delete xjwtData;
+                    throw;
+                }
+                m_jwtData = xjwtData;
+                m_type = BEARER;
             }
-            catch (const Exception&) {
-                delete xjwtData;
-                throw;
-            }
-            m_jwtData = xjwtData;
-            m_type = BEARER;
         }
     }
 }
