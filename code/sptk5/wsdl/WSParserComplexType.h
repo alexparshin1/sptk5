@@ -192,13 +192,13 @@ protected:
      * Generate C++ class declaration
      * @param classDeclaration std::ostream&, Output header file stream
      */
-    void generateDefinition(std::ostream& classDeclaration);
+    void generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames);
 
     /**
      * Generate C++ class implementation
      * @param classImplementation std::ostream&, Output implementation file stream
      */
-    void generateImplementation(std::ostream& classImplementation);
+    void generateImplementation(std::ostream& classImplementation, const sptk::Strings& fieldNames);
 
 public:
     /**

@@ -32,7 +32,7 @@ using namespace std;
 using namespace sptk;
 
 WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElement)
-: m_typeName(typeName)
+: m_wsdlTypeName(typeName)
 {
     xml::NodeVector enumerationNodes;
     simpleTypeElement->select(enumerationNodes, "xsd:restriction/xsd:enumeration");
@@ -41,23 +41,162 @@ WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElemen
         if (enumerationNode != nullptr)
             m_enumerations.push_back((String) enumerationNode->getAttribute("value"));
     }
+
+    if (!m_enumerations.empty()) {
+        m_type = Enumeration;
+    } else {
+        xml::NodeVector patternNodes;
+        simpleTypeElement->select(patternNodes, "xsd:restriction/xsd:pattern");
+        if (!patternNodes.empty()) {
+            auto* patternNode = dynamic_cast<xml::Element*>(*patternNodes.begin());
+            m_pattern = (String) patternNode->getAttribute("value");
+            if (!m_pattern.empty())
+                m_type = Pattern;
+            if (!m_pattern.startsWith("^"))
+                m_pattern = "^" + m_pattern;
+            if (!m_pattern.endsWith("$"))
+                m_pattern += "$";
+        }
+    }
 }
 
-WSRestriction::WSRestriction(const string& typeName, const string& enumerations, const char* delimiter)
-: m_typeName(typeName), m_enumerations(enumerations, delimiter)
+WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const String& enumerationsOrPattern,
+                             const char* delimiter)
+: m_type(type), m_wsdlTypeName(wsdlTypeName)
 {
+    if (enumerationsOrPattern.empty()) {
+        m_type = Unknown;
+        return;
+    }
+
+    if (type == Enumeration) {
+        Strings enumerations(enumerationsOrPattern, delimiter);
+        m_enumerations = move(enumerations);
+    }
+    else if (type == Pattern) {
+        m_pattern = enumerationsOrPattern;
+    }
 }
 
-void WSRestriction::check(const std::string& typeName, const std::string& value) const
+void WSRestriction::check(const String& typeName, const String& value) const
 {
-    if (!m_enumerations.empty() && m_enumerations.indexOf(value) == -1)
-        throw Exception("value '" + value + "' is invalid for restriction on " + m_typeName + " for type " + typeName);
+    switch (m_type) {
+        case Enumeration:
+            if (m_enumerations.indexOf(value) >= 0)
+                return;
+            break;
+
+        case Pattern:
+            {
+                RegularExpression regex(m_pattern);
+                if (regex.matches(value))
+                    return;
+            }
+            break;
+
+        default:
+            return;
+    }
+    throw Exception("value '" + value + "' is invalid for restriction on " + m_wsdlTypeName + " for type " + typeName);
 }
 
-string sptk::WSRestriction::generateConstructor(const string& variableName) const
+String sptk::WSRestriction::generateConstructor(const String& variableName) const
 {
     stringstream str;
-    str << "WSRestriction " << variableName << "(\"" << m_typeName << "\", "
-        << "\"" << m_enumerations.join("|") << "\", \"|\")";
+
+    switch (m_type) {
+        case Enumeration:
+            str << "WSRestriction " << variableName << "(WSRestriction::Enumeration, \"" << m_wsdlTypeName << "\", "
+                << "\"" << m_enumerations.join("|") << "\", \"|\")";
+            break;
+        case Pattern:
+            str << "WSRestriction " << variableName << "(WSRestriction::Pattern, \"" << m_wsdlTypeName << "\", "
+                << "\"" << m_pattern << "\")";
+            break;
+        default:
+            break;
+    }
+
     return str.str();
 }
+
+WSRestriction::Type WSRestriction::type() const
+{
+    return m_type;
+}
+
+#if USE_GTEST
+
+static const String coloursXML {
+    "<xsd:element name=\"Colours\">"
+        "<xsd:simpleType>"
+            "<xsd:restriction base=\"xsd:string\">"
+                "<xsd:enumeration value=\"Red\"/>"
+                "<xsd:enumeration value=\"Green\"/>"
+                "<xsd:enumeration value=\"Blue\"/>"
+            "</xsd:restriction>"
+        "</xsd:simpleType>"
+    "</xsd:element>"
+};
+
+static const String initialsXML {
+    "<xsd:element name=\"Initials\">"
+        "<xsd:simpleType>"
+            "<xsd:restriction base=\"xsd:string\">"
+                "<xsd:pattern value=\"[A-Z][A-Z]\"/>"
+            "</xsd:restriction>"
+        "</xsd:simpleType>"
+    "</xsd:element>"
+};
+
+TEST(SPTK_WSRestriction, parseEnumeration)
+{
+    xml::Document document;
+    document.load(coloursXML);
+
+    auto* simpleTypeElement = document.findFirst("xsd:simpleType");
+
+    WSRestriction restrictions("Colours", simpleTypeElement);
+
+    try {
+        restrictions.check("Colour", "Green");
+    }
+    catch (const Exception&) {
+        FAIL() << "Green is allowed colour!";
+    }
+
+    try {
+        restrictions.check("Colour", "Yellow");
+        FAIL() << "Yellow is not allowed colour!";
+    }
+    catch (const Exception&) {
+        // Correctly detected not allowed colour
+    }
+}
+
+TEST(SPTK_WSRestriction, parseInitials)
+{
+    xml::Document document;
+    document.load(initialsXML);
+
+    auto* simpleTypeElement = document.findFirst("xsd:simpleType");
+
+    WSRestriction restrictions("Initials", simpleTypeElement);
+
+    try {
+        restrictions.check("Initials", "AL");
+    }
+    catch (const Exception&) {
+        FAIL() << "AL is correct initials!";
+    }
+
+    try {
+        restrictions.check("Initials", "xY");
+        FAIL() << "xY is incorrect initials!";
+    }
+    catch (const Exception&) {
+        // Correctly detected incorrect initials
+    }
+}
+
+#endif
