@@ -340,6 +340,43 @@ void Query::throwError(const String& method, const String& error)
     throw DatabaseException(errorText);
 }
 
+String Query::makeQuery(Type type, const String& tableName, const Strings& columns, const String& pkColumn)
+{
+    Strings columnsWithoutPK(columns);
+
+    auto pos = columnsWithoutPK.indexOf(pkColumn);
+    if (pos > -1)
+        columnsWithoutPK.remove(pos);
+
+    stringstream query;
+    bool first = true;
+    switch (type) {
+        case SELECT:
+            query << "SELECT t." << pkColumn << ", t." << columns.join(", t.") << "\n  FROM " << tableName << " t";
+            break;
+        case INSERT:
+            query << "INSERT INTO " << tableName << "(" << columnsWithoutPK.join(", ") << ") VALUES ("
+                  << ":" << columnsWithoutPK.join(", :") << ")";
+            break;
+        case UPDATE:
+            query << "UPDATE " << tableName << "\n   SET ";
+            for (auto& columnName: columnsWithoutPK) {
+                if (first)
+                    first = false;
+                else
+                    query << ", ";
+                query << columnName << " = :" << columnName;
+            }
+            query << "\n WHERE " << pkColumn << " = :" << pkColumn;
+            break;
+        case DELETE:
+            query << "DELETE FROM " << tableName;
+            query << "\n WHERE " << pkColumn << " = :" << pkColumn;
+            break;
+    }
+    return query.str();
+}
+
 void Query_StatementManagement::setBulkMode(bool bulkMode)
 {
     m_bulkMode = bulkMode;
