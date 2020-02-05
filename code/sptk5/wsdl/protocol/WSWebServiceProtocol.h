@@ -48,6 +48,7 @@ class WSWebServiceProtocol : public WSProtocol
     const String    m_url;          ///< Request URL
     const String    m_hostname;     ///< Listener's hostname
     const uint16_t  m_port;         ///< Listener's port
+    bool            m_allowCORS;    ///< Allow CORS?
 
     /**
      * Process request message, and store response to output
@@ -72,9 +73,10 @@ public:
      * @param service           Web service that handles request
      * @param hostname          Listener's hostname
      * @param port              Listener's port
+     * @param allowCORS         Allow CORS
      */
     WSWebServiceProtocol(HttpReader& httpReader, const String& url, WSRequest& service,
-                         const String& hostname, uint16_t port);
+                         const String& hostname, uint16_t port, bool allowCORS);
 
     /// @brief Process method
     ///

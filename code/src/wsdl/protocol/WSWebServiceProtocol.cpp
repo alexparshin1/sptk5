@@ -33,13 +33,14 @@ using namespace std;
 using namespace sptk;
 
 WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const String& url, WSRequest& service,
-                                           const String& hostname, uint16_t port)
+                                           const String& hostname, uint16_t port, bool allowCORS)
 : WSProtocol(&httpReader.socket(), httpReader.getHttpHeaders()),
   m_httpReader(httpReader),
   m_service(service),
   m_url(url),
   m_hostname(hostname),
-  m_port(port)
+  m_port(port),
+  m_allowCORS(allowCORS)
 {
 }
 
@@ -173,17 +174,26 @@ void WSWebServiceProtocol::process()
     String httpStatusText = "OK";
     bool   returnWSDL = false;
 
-    String contentType = header("Content-Type");
-    if (contentType.empty())
-        contentType = "text/xml; charset=utf-8";
-    bool requestIsJSON = contentType.startsWith("application/json");
-
     String acceptEncoding = header("accept-encoding");
     if (acceptEncoding.find("gzip") != string::npos)
         acceptEncoding = "gzip";
 
     Buffer& contentBuffer = m_httpReader.output();
     m_httpReader.readAll(chrono::seconds(30));
+
+    String contentType;
+    bool requestIsJSON = false;
+    switch (contentBuffer[0]) {
+        case '<':
+            contentType = "text/xml; charset=utf-8";
+            break;
+        case '{':
+            contentType = "text/json; charset=utf-8";
+            requestIsJSON = true;
+            break;
+        default:
+            throw Exception("Message content is not JSON or XML");
+    }
 
     auto authentication = getAuthentication();
 
@@ -248,6 +258,8 @@ void WSWebServiceProtocol::process()
     response.append(to_string(httpStatusCode) + " " + httpStatusText + "\r\n");
     response.append("Content-Type: " + contentType + "\r\n");
     response.append("Content-Length: " + to_string(outputData.bytes()) + "\r\n");
+    if (m_allowCORS)
+        response.append("Access-Control-Allow-Origin: *\r\n");
     if (gzipped)
         response.append("Content-Encoding: gzip\r\n");
     response.append("\r\n", 2);

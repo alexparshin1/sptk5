@@ -60,6 +60,11 @@ const json::Element& HttpAuthentication::getData()
     }
 }
 
+String HttpAuthentication::getHeader()
+{
+    return m_authenticationHeader;
+}
+
 void HttpAuthentication::parse()
 {
     if (m_type == UNDEFINED) {

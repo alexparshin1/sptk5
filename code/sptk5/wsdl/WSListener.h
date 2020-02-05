@@ -61,6 +61,7 @@ protected:
 
     const bool          m_encrypted;            ///< Connection protocol is encrypted flag
     String              m_hostname;             ///< This service hostname
+    bool                m_allowCORS;            ///< Allow CORS
 
     /**
      * Creates connection thread derived from CTCPServerConnection
@@ -81,9 +82,10 @@ public:
      * @param hostname              This service hostname
      * @param encrypted             True if communication is encrypted
      * @param threadCount           Max number of simultaneously running requests
+     * @param allowCORS             Allow CORS (Cross Origin Resourse Sharing)
      */
     WSListener(WSRequest& service, LogEngine& logger, const WSConnection::Paths& paths,
-               const String& hostname="", bool encrypted=false, size_t threadCount=16);
+               const String& hostname="", bool encrypted=false, size_t threadCount=16, bool allowCORS=false);
 
     /**
      * Get host name of the listener

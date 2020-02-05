@@ -55,8 +55,8 @@ public:
         Paths(const Paths& other) = default;
     };
 
-    WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service,
-                 Logger& logger, const Paths& paths);
+    WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
+                 const Paths& paths, bool allowCORS);
 
     /**
      * Destructor
@@ -73,6 +73,7 @@ private:
     WSRequest&  m_service;
     Logger&     m_logger;
     Paths       m_paths;
+    bool        m_allowCORS;
 };
 
 /**
@@ -86,7 +87,7 @@ public:
      * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
      */
     WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
-                    Logger& logger, const Paths& paths, bool encrypted);
+                    Logger& logger, const Paths& paths, bool encrypted, bool allowCORS);
 
     /**
      * Destructor

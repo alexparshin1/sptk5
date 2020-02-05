@@ -84,6 +84,12 @@ public:
      * Get decoded authentication data (username and password, or JWT)
      * @return authentication data
      */
+    String getHeader();
+
+    /**
+     * Get decoded authentication data (username and password, or JWT)
+     * @return authentication data
+     */
     const json::Element& getData();
 
     /**

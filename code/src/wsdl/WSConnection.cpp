@@ -31,10 +31,10 @@
 using namespace std;
 using namespace sptk;
 
-WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service,
-                           Logger& logger, const Paths& paths)
-        : ServerConnection(server, connectionSocket, "WSConnection"), m_service(service), m_logger(logger),
-          m_paths(paths)
+WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
+                           const Paths& paths, bool allowCORS)
+: ServerConnection(server, connectionSocket, "WSConnection"), m_service(service), m_logger(logger),
+  m_paths(paths), m_allowCORS(allowCORS)
 {
     if (!m_paths.staticFilesDirectory.endsWith("/"))
         m_paths.staticFilesDirectory += "/";
@@ -44,90 +44,115 @@ WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_
 
 void WSConnection::run()
 {
-    Buffer data;
+    Buffer  data;
 
     // Read request data
-    String row;
+    String  row;
     Strings matches;
-    String protocolName;
+    String  protocolName;
+    bool    done {false};
 
-    try {
-        if (!socket().readyToRead(chrono::seconds(30))) {
-            socket().close();
-            m_logger.debug("Client closed connection");
-            return;
-        }
+    while (!done) {
+        try {
+            if (!socket().readyToRead(chrono::seconds(30))) {
+                socket().close();
+                m_logger.debug("Client closed connection");
+                return;
+            }
 
-        Buffer contentBuffer;
-        HttpReader httpReader(socket(), contentBuffer, HttpReader::REQUEST);
+            Buffer contentBuffer;
+            HttpReader httpReader(socket(), contentBuffer, HttpReader::REQUEST);
 
-        protocolName = "http";
-        if (!httpReader.readHttpHeaders()) {
-            m_logger.error("Can't read HTTP request");
-            return;
-        }
+            protocolName = "http";
+            if (!httpReader.readHttpHeaders()) {
+                m_logger.error("Can't read HTTP request");
+                return;
+            }
 
-        auto&   headers = httpReader.getHttpHeaders();
-        String  requestType = httpReader.getRequestType();
-        String  url = httpReader.getRequestURL();
+            auto& headers = httpReader.getHttpHeaders();
+            String requestType = httpReader.getRequestType();
+            String url = httpReader.getRequestURL();
 
-        if (url == m_paths.wsRequestPage + "?wsdl")
-            protocolName = "wsdl";
-
-        if (protocolName == "http") {
-            String contentType = headers["Content-Type"];
-            if (contentType.find("/json") != string::npos)
-                protocolName = "rest";
-            else if (contentType.find("/xml") != string::npos)
-                protocolName = "WS";
-            else {
-
-                if (headers["Upgrade"] == "websocket") {
-                    WSWebSocketsProtocol protocol(&socket(), headers);
-                    protocol.process();
-                    return;
+            if (requestType == "OPTIONS") {
+                String origin = headers["origin"];
+                Buffer response;
+                response.append("HTTP/1.1 204 No Content\r\n");
+                response.append("Connection: keep-alive\r\n");
+                if (m_allowCORS) {
+                    response.append("Access-Control-Allow-Origin: *\r\n");
+                    response.append("Access-Control-Allow-Methods: POST, GET, OPTIONS\r\n");
+                    response.append("Access-Control-Allow-Headers: Content-Type, Content-Length, Content-Encoding, Access-Control-Allow-Origin\r\n");
+                } else {
+                    response.append("Access-Control-Allow-Origin: null\r\n");
                 }
+                //response.append("Access-Control-Max-Age: 86400\r\n");
+                response.append("\r\n", 2);
+                socket().write(response);
+                continue;
+            }
 
-                if (url != m_paths.wsRequestPage) {
-                    if (url == "/")
-                        url = m_paths.htmlIndexPage;
+            if (url == m_paths.wsRequestPage + "?wsdl")
+                protocolName = "wsdl";
 
-                    WSStaticHttpProtocol protocol(&socket(), url, headers, m_paths.staticFilesDirectory);
-                    protocol.process();
-                    return;
+            if (protocolName == "http") {
+                String contentType = headers["Content-Type"];
+                if (contentType.find("/json") != string::npos)
+                    protocolName = "rest";
+                else if (contentType.find("/xml") != string::npos)
+                    protocolName = "WS";
+                else if (requestType == "POST")
+                    protocolName = "rest";
+                else {
+
+                    if (headers["Upgrade"] == "websocket") {
+                        WSWebSocketsProtocol protocol(&socket(), headers);
+                        protocol.process();
+                        return;
+                    }
+
+                    if (url != m_paths.wsRequestPage) {
+                        if (url == "/")
+                            url = m_paths.htmlIndexPage;
+
+                        WSStaticHttpProtocol protocol(&socket(), url, headers, m_paths.staticFilesDirectory);
+                        protocol.process();
+                        return;
+                    }
                 }
             }
-        }
 
-        if (protocolName == "websocket") {
-            WSWebSocketsProtocol protocol(&socket(), headers);
+            if (protocolName == "websocket") {
+                WSWebSocketsProtocol protocol(&socket(), headers);
+                protocol.process();
+                return;
+            }
+
+            String contentLength = headers["Content-Length"];
+            if (requestType == "GET" && contentLength.empty())
+                headers["Content-Length"] = "0";
+
+            bool closeConnection = headers["Connection"].toLowerCase() == "close";
+            if (closeConnection)
+                headers.erase("Connection");
+
+            WSWebServiceProtocol protocol(httpReader, url, m_service, server().hostname(), server().port(), m_allowCORS);
             protocol.process();
-            return;
+
+            if (closeConnection)
+                httpReader.close();
+
+            done = true;
         }
-
-        String contentLength = headers["Content-Length"];
-        if (requestType == "GET" && contentLength.empty())
-            headers["Content-Length"] = "0";
-
-        bool closeConnection = headers["Connection"].toLowerCase() == "close";
-        if (closeConnection)
-            headers.erase("Connection");
-
-        WSWebServiceProtocol protocol(httpReader, url, m_service, server().hostname(), server().port());
-        protocol.process();
-
-        if (closeConnection)
-            httpReader.close();
-    }
-    catch (const Exception& e) {
-        if (!terminated())
-            m_logger.error("Error in thread " + name() + ": " + String(e.what()));
+        catch (const Exception& e) {
+            if (!terminated())
+                m_logger.error("Error in thread " + name() + ": " + String(e.what()));
+        }
     }
 }
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
-                                 Logger& logger, const Paths& paths, bool encrypted)
-: WSConnection(server, connectionSocket, addr, service, logger, paths)
+                                 Logger& logger, const Paths& paths, bool encrypted, bool allowCORS)
+: WSConnection(server, connectionSocket, addr, service, logger, paths, allowCORS)
 {
     if (encrypted) {
         auto& sslKeys = server.getSSLKeys();

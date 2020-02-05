@@ -79,7 +79,7 @@ bool HttpReader::readHttpRequest()
     if (request.empty())
         return false;
 
-    RegularExpression parseProtocol("^(GET|POST|DELETE|PUT) (\\S+)", "i");
+    RegularExpression parseProtocol("^(GET|POST|DELETE|PUT|OPTIONS) (\\S+)", "i");
     Strings           matches;
 
     if (parseProtocol.m(request, matches)) {

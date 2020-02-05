@@ -33,13 +33,14 @@ using namespace std;
 using namespace sptk;
 
 WSListener::WSListener(WSRequest& service, LogEngine& logger, const WSConnection::Paths& paths, const String& hostname,
-                       bool encrypted, size_t threadCount)
+                       bool encrypted, size_t threadCount, bool allowCORS)
 : TCPServer(service.title(), threadCount, nullptr),
   m_service(service),
   m_logger(logger),
   m_paths(paths),
   m_encrypted(encrypted),
-  m_hostname(hostname)
+  m_hostname(hostname),
+  m_allowCORS(allowCORS)
 {
     if (m_hostname.empty()) {
         char buffer[256];
@@ -55,7 +56,7 @@ WSListener::WSListener(WSRequest& service, LogEngine& logger, const WSConnection
 
 ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_paths, m_encrypted);
+    return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_paths, m_encrypted, m_allowCORS);
 }
 
 String WSListener::hostname() const
