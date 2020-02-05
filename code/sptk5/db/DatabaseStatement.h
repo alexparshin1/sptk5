@@ -47,7 +47,7 @@ template <class Connection, class Statement> class DatabaseStatement
     /**
      * Statement
      */
-    Statement*      m_statement;
+    Statement*      m_statement {nullptr};
 
 public:
 
@@ -103,7 +103,7 @@ private:
     /**
      * State flags
      */
-    State m_state;
+    State m_state {};
 
 protected:
 
@@ -118,7 +118,7 @@ public:
      * @param connection Connection*, DB connection
      */
     explicit DatabaseStatement(Connection* connection)
-    : m_connection(connection), m_statement(nullptr), m_state({})
+    : m_connection(connection)
     {}
 
     /**

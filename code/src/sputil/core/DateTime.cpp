@@ -921,8 +921,8 @@ String DateTime::format(Format dtFormat, size_t arg)
         default:
             return _dateFormat;
     }
-    return "";
 }
+
 char DateTime::dateSeparator() { return _dateSeparator; }
 char DateTime::timeSeparator() { return _timeSeparator; }
 String TimeZone::name() { return _timeZoneName; }

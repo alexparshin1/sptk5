@@ -62,26 +62,24 @@ class SP_EXPORT MemoryDS : public DataSource
     /**
      * Current record in the dataset.
      */
-    FieldList*              m_current;
+    FieldList*              m_current {nullptr};
 
     /**
      * The index of the current record.
      */
-    uint32_t                m_currentIndex;
+    uint32_t                m_currentIndex {0};
 
     /**
      * EOF flag for sequentual reading first(),next()..next().
      */
-    bool                    m_eof;
+    bool                    m_eof {false};
 
 protected:
 
     /**
      * Default constructor is protected, to prevent creating of the instance of that class
      */
-    MemoryDS()
-    : DataSource(), m_current(nullptr), m_currentIndex(0), m_eof(false)
-    {}
+    MemoryDS() : DataSource() {}
 
     /**
      * Move constructor is protected, to prevent creating of the instance of that class

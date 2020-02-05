@@ -73,7 +73,7 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
 
 bool HttpProxy::readResponse(shared_ptr<TCPSocket>& socket) const
 {
-    bool proxyConnected;
+    bool proxyConnected {false};
     Buffer buffer;
     socket->readLine(buffer);
 
@@ -105,6 +105,7 @@ bool HttpProxy::readResponse(shared_ptr<TCPSocket>& socket) const
         while (socket->readyToRead(milliseconds(100)))
             socket->read(buffer, socket->socketBytes());
     }
+
     return proxyConnected;
 }
 

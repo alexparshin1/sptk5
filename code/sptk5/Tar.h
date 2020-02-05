@@ -45,30 +45,27 @@ public:
     /**
      * Memory buffer position
      */
-    size_t      position;
+    size_t      position {0};
 
     /**
      * Memory buffer
      */
-    char*       sourceBuffer;
+    char*       sourceBuffer {nullptr};
 
     /**
      * Memory buffer len
      */
-    size_t      sourceBufferLen;
+    size_t      sourceBufferLen {0};
 
     /**
      * @brief Constructor
      * @param buffer CBuffer*, source data
      */
-    explicit MemoryTarHandle(Buffer* buffer=0) {
-        position = 0;
+    explicit MemoryTarHandle(Buffer* buffer=0)
+    {
         if (buffer) {
             sourceBuffer = buffer->data();
             sourceBufferLen = buffer->bytes();
-        } else {
-            sourceBuffer = 0;
-            sourceBufferLen = 0;
         }
     }
 };

@@ -62,7 +62,7 @@ class SynchronizedList
     /**
      * List
      */
-    std::list<T>*           m_list;
+    std::list<T>*           m_list {new std::list<T>};
 
 public:
 
@@ -78,9 +78,7 @@ public:
     /**
      * @brief Default constructor
      */
-    SynchronizedList()
-    : m_list(new std::list<T>)
-    {}
+    SynchronizedList() = default;
 
     /**
      * @brief Destructor

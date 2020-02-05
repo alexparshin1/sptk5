@@ -62,7 +62,7 @@ class SynchronizedQueue
     /**
      * Queue
      */
-    std::queue<T>*          m_queue;
+    std::queue<T>*          m_queue { new std::queue<T> };
 
 public:
 
@@ -78,9 +78,7 @@ public:
     /**
      * @brief Default constructor
      */
-    SynchronizedQueue() noexcept
-    : m_queue(new std::queue<T>)
-    {}
+    SynchronizedQueue() = default;
 
     /**
      * @brief Destructor
