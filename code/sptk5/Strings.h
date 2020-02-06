@@ -142,6 +142,14 @@ public:
     {
     }
 
+    Strings(std::initializer_list<std::string> list)
+    {
+        for (auto& str: list) {
+            m_strings.push_back(str);
+        }
+    }
+
+
     /**
      * Constructor from a string with elements separated by a delimiter string
      * @param src               Source string
@@ -223,6 +231,17 @@ public:
     void remove(size_t i)
     {
         m_strings.erase(m_strings.begin() + i);
+    }
+
+    /**
+     * Removes a string from this object
+     * @param str               String to remove from the string vector
+     */
+    void remove(const String& str)
+    {
+        auto itor = find(m_strings.begin(), m_strings.end(), str);
+        if (itor != m_strings.end())
+            m_strings.erase(itor);
     }
 
     /**

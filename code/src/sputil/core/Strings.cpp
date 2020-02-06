@@ -230,6 +230,10 @@ TEST(SPTK_Strings, ctor)
     strings.fromString(testString, "\n", Strings::SM_DELIMITER);
     EXPECT_EQ(size_t(3), strings.size());
     EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
+
+    Strings strings3({"1", "2", "3"});
+    EXPECT_EQ(size_t(3), strings3.size());
+    EXPECT_STREQ("1,2,3", strings3.join(",").c_str());
 }
 
 TEST(SPTK_Strings, sort)
@@ -237,6 +241,13 @@ TEST(SPTK_Strings, sort)
     Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
     strings.sort();
     EXPECT_STREQ("This is a test\nexample rows\ntext that contains several", strings.join("\n").c_str());
+}
+
+TEST(SPTK_Strings, remove)
+{
+    Strings strings({"1", "2", "3"});
+    strings.remove("2");
+    EXPECT_STREQ("1,3", strings.join(",").c_str());
 }
 
 TEST(SPTK_Strings, indexOf)

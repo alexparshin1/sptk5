@@ -344,9 +344,7 @@ String Query::makeQuery(Type type, const String& tableName, const Strings& colum
 {
     Strings columnsWithoutPK(columns);
 
-    auto pos = columnsWithoutPK.indexOf(pkColumn);
-    if (pos > -1)
-        columnsWithoutPK.remove(pos);
+    columnsWithoutPK.remove(pkColumn);
 
     stringstream query;
     bool first = true;
