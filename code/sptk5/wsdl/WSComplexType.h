@@ -62,12 +62,12 @@ class WSComplexType : public WSTypeName
     /**
      * Element optionality flag
      */
-    bool         m_optional;
+    bool         m_optional {false};
 
     /**
      * Is data loaded flag
      */
-    bool         m_loaded;
+    bool         m_loaded {false};
 
 protected:
 
@@ -103,7 +103,7 @@ public:
      * @param optional          Element optionality flag
      */
     WSComplexType(const char* name, bool optional=false)
-    : m_name(name), m_optional(optional), m_loaded(false)
+    : m_name(name), m_optional(optional)
     {}
 
     /**

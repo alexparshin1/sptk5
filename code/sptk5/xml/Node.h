@@ -103,7 +103,7 @@ public:
     /**
      * Attribute name (optional)
      */
-    const std::string* attributeName{ nullptr };
+    const std::string* attributeName {nullptr};
 
     /**
      * Attribute value (optional)
@@ -113,7 +113,7 @@ public:
     /**
      * true if attribute value was defined
      */
-    bool attributeValueDefined {0};
+    bool attributeValueDefined {false};
 
     /**
      * 0 (not required), -1 (last), or node position
@@ -123,25 +123,21 @@ public:
     /**
      * Default constructor
      */
-    XPathElement()
-    {
-        axis = XPA_CHILD;
-        attributeValueDefined = false;
-    }
+    XPathElement() = default;
 
     /**
      * Copy constructor
      * @param xpe CXPathElement object to copy from
      */
     XPathElement(const XPathElement& xpe)
+    : elementName(xpe.elementName),
+      criteria(xpe.criteria),
+      axis(xpe.axis),
+      attributeName(xpe.attributeName),
+      attributeValue(xpe.attributeValue),
+      attributeValueDefined(xpe.attributeValueDefined),
+      nodePosition(xpe.nodePosition)
     {
-        elementName = xpe.elementName;
-        criteria = xpe.criteria;
-        axis = xpe.axis;
-        attributeName = xpe.attributeName;
-        attributeValue = xpe.attributeValue;
-        nodePosition = xpe.nodePosition;
-        attributeValueDefined = xpe.attributeValueDefined;
     }
 };
 
