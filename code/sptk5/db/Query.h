@@ -340,6 +340,7 @@ public:
 
     enum Type
     {
+        UNKNOWN,
         SELECT,
         INSERT,
         UPDATE,

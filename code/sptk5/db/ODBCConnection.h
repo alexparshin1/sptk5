@@ -56,7 +56,7 @@ class SP_DRIVER_EXPORT ODBCConnection: public PoolDatabaseConnection
     /**
      * The ODBC connection object
      */
-    ODBCConnectionBase *m_connect;
+    ODBCConnectionBase *m_connect {new ODBCConnectionBase};
 
 
     /**

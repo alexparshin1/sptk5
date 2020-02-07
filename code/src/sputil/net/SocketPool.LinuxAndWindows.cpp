@@ -41,7 +41,7 @@ using namespace std;
 using namespace sptk;
 
 SocketPool::SocketPool(SocketEventCallback eventsCallback)
-: m_pool(INVALID_EPOLL), m_eventsCallback(eventsCallback)
+: m_eventsCallback(eventsCallback)
 {
 }
 
@@ -130,7 +130,6 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout)
 
     int eventCount = epoll_wait(m_pool, events, MAXEVENTS, (int) timeout.count());
     if (eventCount < 0)
-        //throw SystemException("Error waiting for socket activity");
         return;
 
     for (int i = 0; i < eventCount && m_pool != INVALID_EPOLL; i++) {

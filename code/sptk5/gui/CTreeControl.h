@@ -69,57 +69,47 @@ class SP_EXPORT CTreeItem : public CGroup
     /**
      * Returns the height of the item text
      */
-    int m_itemHeight;
+    int m_itemHeight {0};
 
     /**
      * The width of the indent zone
      */
-    int m_indent;
-
-    /**
-     * The width of the label computed by fl_measure
-     */
-    int m_labelWidth;
-
-    /**
-     * The height of the label computed by fl_measure
-     */
-    int m_labelHeight;
+    int m_indent {0};
 
     /**
      * Is the item selected (controlled by parent tree control)
      */
-    bool m_selected;
+    bool m_selected {false};
 
     /**
      * Item colors (text,bg) before selection
      */
-    Fl_Color m_itemColor[2];
+    Fl_Color m_itemColor[2] {};
 
     /**
      * The widget that represents the item without a child
      */
-    CLayoutClient* m_body;
+    CLayoutClient* m_body {nullptr};
 
     /**
      * The image for the open state
      */
-    const Fl_Image* m_openedImage;
+    const Fl_Image* m_openedImage {nullptr};
 
     /**
      * The image for the closed state
      */
-    const Fl_Image* m_closedImage;
+    const Fl_Image* m_closedImage {nullptr};
 
     /**
      * The item's state
      */
-    bool m_opened;
+    bool m_opened {false};
 
     /**
      * The tree control
      */
-    CTreeControl* m_tree;
+    CTreeControl* m_tree {nullptr};
 
 protected:
 

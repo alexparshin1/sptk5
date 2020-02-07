@@ -104,8 +104,6 @@ void QueryParameterList::remove(uint32_t i)
 
 void QueryParameterList::enumerate(CParamVector& params)
 {
-    CParamVector::iterator ptor;
-    IntList::iterator btor;
     params.resize(m_items.size() * 2);
 
     if (m_items.empty())
@@ -116,9 +114,7 @@ void QueryParameterList::enumerate(CParamVector& params)
     for (auto* param: m_items) {
         IntList& bindIndex = param->m_bindParamIndexes;
 
-        for (btor = bindIndex.begin(); btor != bindIndex.end(); ++btor) {
-            size_t index = *btor;
-
+        for (auto index: bindIndex) {
             if (index >= params.size())
                 params.resize(index + 1);
 

@@ -85,9 +85,9 @@ public:
 
 private:
 
-    TCPSocket&          m_socket;       ///< Socket to read from
-    ReadMode            m_readMode;     ///< Read mode
-    ReaderState         m_readerState;  ///< State of the reader
+    TCPSocket&          m_socket;                 ///< Socket to read from
+    ReadMode            m_readMode;               ///< Read mode
+    ReaderState         m_readerState {READY};    ///< State of the reader
 
 public:
 
@@ -105,7 +105,7 @@ private:
     size_t              m_contentReceivedLength {0};    ///< Received content length so far
     bool                m_contentIsChunked {false};     ///< Chunked content (as defined in responce headers)
     HttpHeaders         m_httpHeaders;                  ///< HTTP response headers
-    RegularExpression   m_matchProtocolAndResponseCode; ///< Regular expression parsing protocol and response code
+    RegularExpression   m_matchProtocolAndResponseCode {"^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"}; ///< Regular expression parsing protocol and response code
     Buffer&             m_output;                       ///< Output data buffer
     Buffer              m_read_buffer;                  ///< Read buffer
     String              m_requestType;                  ///< Request type (GET, POST, etc)

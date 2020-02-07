@@ -33,9 +33,8 @@ using namespace std;
 using namespace sptk;
 
 Transaction::Transaction(const DatabaseConnection& db)
+: m_db(db->connection())
 {
-    m_active = false;
-    m_db = db->connection();
 }
 
 Transaction::~Transaction()

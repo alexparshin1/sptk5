@@ -166,7 +166,7 @@ public:
     /**
      * Returns user_data associated with the datasource.
      */
-    virtual void* user_data() const
+    void* user_data() const override
     {
         return m_current->user_data();
     }
@@ -175,32 +175,32 @@ public:
      * Returns field count in the datasource.
      * @returns field count
      */
-    virtual uint32_t fieldCount() const;
+    uint32_t fieldCount() const override;
 
     /**
      * Returns record count in the datasource.
      * @returns record count
      */
-    virtual uint32_t recordCount() const;
+    uint32_t recordCount() const override;
 
     /**
      * Reads the field by name from the datasource.
      * @param fieldName const char *, field name
      * @param fieldValue CVariant, field value
      */
-    virtual bool readField(const char* fieldName, Variant& fieldValue);
+    bool readField(const char* fieldName, Variant& fieldValue) override;
 
     /**
      * Writes the field by name from the datasource.
      * @param fieldName const char *, field name
      * @param fieldValue CVariant, field value
      */
-    virtual bool writeField(const char* fieldName, const Variant& fieldValue);
+    bool writeField(const char* fieldName, const Variant& fieldValue) override;
 
     /**
      * Opens the datasource. Implemented in derved class.
      */
-    virtual bool open()
+    bool open() override
     {
         throw Exception("Not implemented yet");
     }
@@ -208,37 +208,37 @@ public:
     /**
      * Closes the datasource.
      */
-    virtual bool close();
+    bool close() override;
 
     /**
      * Moves to the first record of the datasource.
      */
-    virtual bool first();
+    bool first() override;
 
     /**
      * Moves to the next record of the datasource.
      */
-    virtual bool next();
+    bool next() override;
 
     /**
      * Moves to the prior record of the datasource.
      */
-    virtual bool prior();
+    bool prior() override;
 
     /**
      * Moves to the last record of the datasource.
      */
-    virtual bool last();
+    bool last() override;
 
     /**
      * Finds the record by the record position (defined by record's user_data or key).
      */
-    virtual bool find(Variant position);
+    bool find(Variant position) override;
 
     /**
      * Returns true if there are no more records in the datasource. Implemented in derved class.
      */
-    virtual bool eof() const
+    bool eof() const override
     {
         SharedLock(m_mutex);
         return m_eof;

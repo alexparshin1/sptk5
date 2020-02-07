@@ -67,9 +67,9 @@ public:
      */
     struct Message
     {
-        DateTime    timestamp;      ///< Message timestamp
-        LogPriority priority;       ///< Message priority
-        String      message;        ///< Message text
+        DateTime    timestamp {DateTime::Now()};    ///< Message timestamp
+        LogPriority priority;                       ///< Message priority
+        String      message;                        ///< Message text
         /**
          * Constructor
          * @param priority       Message priority

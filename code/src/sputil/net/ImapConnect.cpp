@@ -36,7 +36,6 @@ using namespace sptk;
 // http://www.course.molina.com.br/RFC/Orig/rfc2060.txt
 
 ImapConnect::ImapConnect()
-: m_ident(1)
 {}
 
 ImapConnect::~ImapConnect()

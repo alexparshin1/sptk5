@@ -44,7 +44,7 @@ namespace sptk
  */
 
 /**
- * @brief IMAP socket
+ * IMAP socket
  *
  * Class CImapConnect is used to communicate with IMAP 4 servers.
  * It implements the most popular commands of IMAP protocol to build
@@ -52,25 +52,14 @@ namespace sptk
  */
 class SP_EXPORT ImapConnect: public TCPSocket
 {
-    /**
-     * Internal response buffer
-     */
-    sptk::Strings               m_response;
-
-    /**
-     * Message id
-     */
-    int32_t                     m_ident;
-
-    /**
-     * Empty quotes string
-     */
-    static const String    empty_quotes;
+    Strings                m_response;     ///< Internal response buffer
+    int32_t                m_ident {1};    ///< Message id
+    static const String    empty_quotes;   ///< Empty quotes string
 
 protected:
 
     /**
-     * @brief Sends a command to the server, but doesn't retrieve the server response
+     * Sends a command to the server, but doesn't retrieve the server response
      *
      * The new line characters (CRLF) are added to the end of every command.
      * @param cmd std::string, the complete text of IMAP4 command
@@ -79,26 +68,26 @@ protected:
     String sendCommand(const String& cmd);
 
     /**
-     * @brief Gets a response from the server for a previously sent command, identified by the ident
+     * Gets a response from the server for a previously sent command, identified by the ident
      * @param ident std::string, the command identifier returned by prior sendCommand().
      */
     bool getResponse(const String& ident);
 
     /**
-     * @brief Parses the result of SEARCH command in response. Returns results in result parameter
+     * Parses the result of SEARCH command in response. Returns results in result parameter
      * @param result std::string, returns the search results.
      */
     void parseSearch(String& result);
 
     /**
-     * @brief Parses server response as a message data (after the appropriate command) to the set of fields
+     * Parses server response as a message data (after the appropriate command) to the set of fields
      * @param result CFieldList, the set of fields with the message information.
      * @param headersOnly bool, true if we don't want to retrieve message body.
      */
     void parseMessage(FieldList& result, bool headersOnly);
 
     /**
-     * @brief Parses server response as a folder list (after the appropriate command), and converts the response to it
+     * Parses server response as a folder list (after the appropriate command), and converts the response to it
      *
      * As a result, the response contains the plain list of folders.
      */
@@ -127,7 +116,7 @@ public:
     /**
      * Returns reference to a last command response.
      */
-    const sptk::Strings& response() const
+    const Strings& response() const
     {
         return m_response;
     }

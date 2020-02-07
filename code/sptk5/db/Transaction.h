@@ -49,15 +49,8 @@ namespace sptk {
  */
 class SP_EXPORT Transaction
 {
-    /**
-     * Transaction activity
-     */
-    bool                    m_active;
-
-    /**
-     * Database to work with
-     */
-    PoolDatabaseConnection*     m_db;
+    bool                        m_active {false};   ///< Transaction activity
+    PoolDatabaseConnection*     m_db;               ///< Database to work with
 
 public:
     /**

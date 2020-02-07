@@ -45,10 +45,9 @@ const Fl_Image* CTreeItem::folderOpened;
 const Fl_Image* CTreeItem::document;
 
 CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Image* closedImage, void* data)
-: CGroup("", 10, SP_ALIGN_TOP), m_labelWidth(0), m_labelHeight(0), m_body(nullptr)
+: CGroup("", 10, SP_ALIGN_TOP)
 {
     drawClipped(false);
-    m_selected = false;
     m_tree = dynamic_cast<CTreeControl*> (parent());
     auto* par = dynamic_cast<CTreeItem*> (parent());
     layoutSpacing(0);

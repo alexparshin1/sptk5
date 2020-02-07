@@ -32,7 +32,7 @@ using namespace std;
 using namespace sptk;
 
 Logger::Message::Message(LogPriority priority, String message)
-: timestamp(DateTime::Now()), priority(priority), message(move(message))
+: priority(priority), message(move(message))
 {}
 
 Logger::Logger(LogEngine& destination, String prefix)

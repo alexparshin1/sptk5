@@ -38,12 +38,6 @@ using namespace sptk;
 HttpReader::HttpReader(TCPSocket& socket, Buffer& output, ReadMode readMode)
 : m_socket(socket),
   m_readMode(readMode),
-  m_readerState(READY),
-  m_statusCode(0),
-  m_contentLength(0),
-  m_contentReceivedLength(0),
-  m_contentIsChunked(false),
-  m_matchProtocolAndResponseCode("^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"),
   m_output(output)
 {
     output.reset(128);
@@ -95,14 +89,12 @@ bool HttpReader::readHttpHeaders()
 {
     reset();
 
-    switch (m_readMode) {
-        case RESPONSE:
-            if (!readStatus())
-                throw Exception("Can't read server response");
-            break;
-        case REQUEST:
-            if (!readHttpRequest())
-                throw Exception("Can't read server response");
+    if (m_readMode == RESPONSE) {
+        if (!readStatus())
+            throw Exception("Can't read server response");
+    } else {
+        if (!readHttpRequest())
+            throw Exception("Can't read server response");
     }
 
     /// Reading HTTP headers
