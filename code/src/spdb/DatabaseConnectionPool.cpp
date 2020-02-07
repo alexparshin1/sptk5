@@ -216,7 +216,7 @@ TEST(SPTK_PostgreSQLConnection, connect)
     if (connectionString.empty())
         FAIL() << "PostgreSQL connection is not defined";
     try {
-        DatabaseTests::tests().testConnect(connectionString);
+        DatabaseTests::testConnect(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -229,7 +229,7 @@ TEST(SPTK_PostgreSQLConnection, DDL)
     if (connectionString.empty())
         FAIL() << "PostgreSQL connection is not defined";
     try {
-        DatabaseTests::tests().testDDL(connectionString);
+        DatabaseTests::testDDL(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -242,7 +242,7 @@ TEST(SPTK_PostgreSQLConnection, bulkInsert)
     if (connectionString.empty())
         FAIL() << "PostgreSQL connection is not defined";
     try {
-        DatabaseTests::tests().testBulkInsert(connectionString);
+        DatabaseTests::testBulkInsert(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();

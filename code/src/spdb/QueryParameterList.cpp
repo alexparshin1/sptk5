@@ -49,12 +49,8 @@ QueryParameterList::~QueryParameterList()
 
 void QueryParameterList::clear()
 {
-    unsigned sz = size();
-
-    for (unsigned i = 0; i < sz; i++) {
-        auto* item = (QueryParameter*) m_items[i];
+    for (auto* item: m_items)
         delete item;
-    }
 
     m_items.clear();
     m_index.clear();
@@ -67,10 +63,9 @@ void QueryParameterList::add(QueryParameter* item)
     item->m_paramList = this;
 }
 
-QueryParameter* QueryParameterList::find(const char* paramName)
+QueryParameter* QueryParameterList::find(const String& paramName)
 {
-    string pname(paramName);
-    auto itor = m_index.find(pname);
+    auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
         return nullptr;
@@ -78,20 +73,14 @@ QueryParameter* QueryParameterList::find(const char* paramName)
     return itor->second;
 }
 
-QueryParameter& QueryParameterList::operator[](const char* paramName) const
+QueryParameter& QueryParameterList::operator[](const String& paramName) const
 {
-    string pname(paramName);
-    auto itor = m_index.find(pname);
+    auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
-        throwException("Invalid parameter name: " << pname)
+        throwException("Invalid parameter name: " << paramName)
 
     return *itor->second;
-}
-
-QueryParameter& QueryParameterList::operator[](const std::string& paramName) const
-{
-    return operator[](paramName.c_str());
 }
 
 QueryParameter& QueryParameterList::operator[](int32_t index) const
@@ -124,8 +113,7 @@ void QueryParameterList::enumerate(CParamVector& params)
 
     size_t maxIndex = 0;
 
-    for (ptor = m_items.begin(); ptor != m_items.end(); ++ptor) {
-        QueryParameter* param = *ptor;
+    for (auto* param: m_items) {
         IntList& bindIndex = param->m_bindParamIndexes;
 
         for (btor = bindIndex.begin(); btor != bindIndex.end(); ++btor) {

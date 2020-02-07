@@ -54,53 +54,18 @@ class SP_EXPORT RegularExpression
      * Match position information
      */
     typedef struct {
-        /**
-         * Match start
-         */
-        int         m_start;
-
-        /**
-         * Match end
-         */
-        int         m_end;
-
+        int         m_start;                ///< Match start
+        int         m_end;                  ///< Match end
     } Match;
 
-    /**
-     * Vector of match positions
-     */
-    typedef std::vector<Match> Matches;
+    typedef std::vector<Match> Matches;     ///< Vector of match positions
 
-    /**
-     * Match pattern
-     */
-    String     m_pattern;
-
-    /**
-     * Global match (g) or first match only
-     */
-    bool            m_global;
-
-    /**
-     * Last pattern error (if any)
-     */
-    String     m_error;
-
-
-    /**
-     * Compiled PCRE expression handle
-     */
-    pcre*           m_pcre;
-
-    /**
-     * Compiled PCRE expression optimization (for faster execution)
-     */
-    pcre_extra*     m_pcreExtra;
-
-    /**
-     * PCRE pattern options
-     */
-    int32_t         m_pcreOptions;
+    String          m_pattern;              ///< Match pattern
+    bool            m_global {false};       ///< Global match (g) or first match only
+    String          m_error;                ///< Last pattern error (if any)
+    pcre*           m_pcre {nullptr};       ///< Compiled PCRE expression handle
+    pcre_extra*     m_pcreExtra {nullptr};  ///< Compiled PCRE expression optimization (for faster execution)
+    int32_t         m_pcreOptions {0};      ///< PCRE pattern options
 
     /**
      * Initialize PCRE expression

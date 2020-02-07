@@ -53,16 +53,12 @@ uint32_t QueryParameter::bindIndex(uint32_t ind)
 
 QueryParameter::QueryParameter(const char *name, bool isOutput)
 : m_name(lowerCase(name)),
-  m_timeData(new char[80]),
-  m_callbackLength(0),
-  m_paramList(nullptr),
   m_binding(isOutput)
 {
 }
 
 QueryParameter::~QueryParameter()
 {
-    delete [] m_timeData;
 }
 
 String QueryParameter::name() const

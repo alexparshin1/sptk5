@@ -258,11 +258,11 @@ class SP_EXPORT PoolDatabaseConnection : public PoolDatabaseConnection_QueryMeth
     friend class Query;
     friend class Query_StatementManagement;
 
-    std::set<Query*>            m_queryList;            ///< The list of queries that use this database
-    DatabaseConnectionString    m_connString;           ///< The connection string
-    DatabaseConnectionType      m_connType;             ///< The connection type
-    String                      m_driverDescription;    ///< Driver description is filled by the particular driver.
-    bool                        m_inTransaction;        ///< The in-transaction flag
+    std::set<Query*>            m_queryList;                ///< The list of queries that use this database
+    DatabaseConnectionString    m_connString;               ///< The connection string
+    DatabaseConnectionType      m_connType;                 ///< The connection type
+    String                      m_driverDescription;        ///< Driver description is filled by the particular driver.
+    bool                        m_inTransaction {false};    ///< The in-transaction flag
 
 protected:
 

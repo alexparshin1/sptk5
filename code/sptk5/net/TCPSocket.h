@@ -84,7 +84,7 @@ class SP_EXPORT TCPSocketReader: public Buffer
     /**
      * Current offset in the read buffer
      */
-    uint32_t        m_readOffset;
+    uint32_t        m_readOffset {0};
 
     int32_t readFromSocket(sockaddr_in* from);
 

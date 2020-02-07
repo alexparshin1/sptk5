@@ -43,9 +43,7 @@ using namespace sptk;
 TCPSocketReader::TCPSocketReader(BaseSocket& socket, size_t buffer_size)
 : Buffer(buffer_size),
   m_socket(socket)
-{
-    m_readOffset = 0;
-}
+{}
 
 void TCPSocketReader::open()
 {

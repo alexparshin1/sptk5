@@ -40,9 +40,7 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
   m_fldSize(fieldLength),
   m_fldScale(fieldScale)
 {
-    visible = true;
     displayName = fName;
-    alignment = ALIGN_LEFT;
 
     m_data.getBuffer().size = 0;
 

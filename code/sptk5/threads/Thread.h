@@ -53,12 +53,12 @@ class ThreadManager;
  */
 class SP_EXPORT Thread
 {
-    SharedMutex                     m_mutex;            ///< Thread synchronization object
-    String                          m_name;             ///< Thread name
-    std::shared_ptr<std::thread>    m_thread;           ///< Thread object
-    bool                            m_terminated;       ///< Flag: is the thread terminated?
-    Semaphore                       m_pause;            ///< Pause object
-    std::shared_ptr<ThreadManager>  m_threadManager;    ///< Optional thread manager
+    SharedMutex                     m_mutex;                ///< Thread synchronization object
+    String                          m_name;                 ///< Thread name
+    std::shared_ptr<std::thread>    m_thread;               ///< Thread object
+    bool                            m_terminated {false};   ///< Flag: is the thread terminated?
+    Semaphore                       m_pause;                ///< Pause object
+    std::shared_ptr<ThreadManager>  m_threadManager;        ///< Optional thread manager
 
     /**
      * Thread function wrapper

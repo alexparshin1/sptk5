@@ -117,12 +117,12 @@ void Query::execute()
 
 //==============================================================================
 Query::Query() noexcept
-: Query_StatementManagement(true), m_fields(true)
+: Query_StatementManagement(true)
 {
 }
 
 Query::Query(DatabaseConnection db, const String& sql, bool autoPrepare)
-: Query_StatementManagement(autoPrepare), m_fields(true)
+: Query_StatementManagement(autoPrepare)
 {
     if (db) {
         setDatabase(db->connection());
@@ -132,7 +132,7 @@ Query::Query(DatabaseConnection db, const String& sql, bool autoPrepare)
 }
 
 Query::Query(PoolDatabaseConnection* db, const String& sql, bool autoPrepare)
-: Query_StatementManagement(autoPrepare), m_fields(true)
+: Query_StatementManagement(autoPrepare)
 {
     if (db != nullptr) {
         setDatabase(db);
@@ -370,6 +370,8 @@ String Query::makeQuery(Type type, const String& tableName, const Strings& colum
         case DELETE:
             query << "DELETE FROM " << tableName;
             query << "\n WHERE " << pkColumn << " = :" << pkColumn;
+            break;
+        default:
             break;
     }
     return query.str();

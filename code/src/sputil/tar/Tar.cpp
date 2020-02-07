@@ -102,9 +102,7 @@ int Tar::mem_write(int, const void*, size_t)
 }
 
 Tar::Tar()
-: m_memoryRead(false)
 {
-    m_tar = nullptr;
     if (tarHandleMap == nullptr) {
         memtype.openfunc = (CMemOpenCallback) mem_open;
         memtype.closefunc = (CMemCloseCallback) mem_close;

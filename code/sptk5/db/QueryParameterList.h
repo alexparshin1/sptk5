@@ -43,7 +43,7 @@ namespace sptk
  */
 
 /**
- * @brief A vector of CParam*
+ * A vector of CParam*
  *
  * Doesn't mantain CParam memory.
  * Used to return a list of pointers on existing parameters.
@@ -51,7 +51,7 @@ namespace sptk
 typedef std::vector<QueryParameter*> CParamVector;
 
 /**
- * @brief Query parameters list.
+ * Query parameters list.
  *
  * Has internal index to speed up the parameter search by name.
  * @see CQuery
@@ -61,24 +61,13 @@ class SP_EXPORT QueryParameterList
 {
     friend class Query;
 
-    /**
-     * The list of parameters
-     */
-    CParamVector                            m_items;
-
-    /**
-     * The parameters index
-     */
-    std::map<std::string, QueryParameter*>  m_index;
-
-    /**
-     * Indicates that one of the parameters binding type has changed since prepare()
-     */
-    bool                            m_bindingTypeChanged;
+    CParamVector                        m_items;                        ///< The list of parameters
+    std::map<String, QueryParameter*>   m_index;                        ///< The parameters index
+    bool                                m_bindingTypeChanged {true};    ///< Indicates that one of the parameters binding type has changed since prepare()
 
 protected:
     /**
-     * @brief Adds a parameter to the list
+     * Adds a parameter to the list
      */
     void add(QueryParameter* item);
 
@@ -94,62 +83,56 @@ public:
     typedef CParamVector::const_iterator    const_iterator;
 
     /**
-     * @brief Default constructor
+     * Default constructor
      */
     QueryParameterList();
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     ~QueryParameterList();
 
     /**
-     * @brief Removes all the parameters from the list
+     * Removes all the parameters from the list
      *
      * Releases any allocated resources
      */
     void clear();
 
     /**
-     * @brief Returns parameter by name
+     * Returns parameter by name
      *
      * If the parameter isn't found, returns 0
      * @param paramName const char *, parameter name
      * @returns parameter pointer, or 0 if not found
      */
-    QueryParameter* find(const char* paramName);
+    QueryParameter* find(const String& paramName);
 
     /**
-     * @brief Removes a parameter from the list and from the memory.
+     * Removes a parameter from the list and from the memory.
      * @param ndx uint32_t, parameter index in the list
      */
     void remove(uint32_t ndx);
 
     /**
-     * @brief Parameter access by index
+     * Parameter access by index
      * @param index int32_t, parameter index
      */
     QueryParameter& operator[](int32_t index) const;
 
     /**
-     * @brief Parameter access by name
-     * @param paramName const char *, parameter name
-     */
-    QueryParameter& operator[](const char* paramName) const;
-
-    /**
-     * @brief Parameter access by name
+     * Parameter access by name
      * @param paramName const std::string&, parameter name
      */
-    QueryParameter& operator[](const std::string& paramName) const;
+    QueryParameter& operator[](const String& paramName) const;
 
     /**
-     * @brief Returns parameter count
+     * Returns parameter count
      */
     uint32_t size() const;
 
     /**
-     * @brief Returns the parameter pointers
+     * Returns the parameter pointers
      *
      * A parameter is included for every parameter position in the query.
      * @param params CParamVector&, parameters vector

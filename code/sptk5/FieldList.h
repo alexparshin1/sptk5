@@ -74,27 +74,10 @@ private:
      */
     typedef std::map<String, Field *, CaseInsensitiveCompare>   Map;
 
-
-    /**
-     * User data - any data you want to associate with that field list
-     */
-    void*                   m_userData;
-
-    /**
-     * The list of fields
-     */
-    Vector                  m_list;
-
-    /**
-     * The optional field index by name. 0L if field list isn't indexed.
-     */
-    Map*                    m_index;
-
-    /**
-     * The compact XML mode flag
-     */
-    bool                    m_compactXmlMode;
-
+    void*                   m_userData {nullptr};       ///< User data - any data you want to associate with that field list
+    Vector                  m_list;                     ///< The list of fields
+    Map*                    m_index {nullptr};          ///< The optional field index by name. 0L if field list isn't indexed.
+    bool                    m_compactXmlMode {false};   ///< The compact XML mode flag
 
 public:
 
@@ -211,7 +194,7 @@ public:
      * @param fname             Field name
      * @returns CField pointer, or throw exception not found
      */
-    Field* fieldByName(const char * fname) const
+    Field* fieldByName(const String& fname) const
     {
         Field* field = findField(fname);
         if (field == nullptr)
@@ -225,60 +208,20 @@ public:
      * @param index             Field index
      * @returns field reference
      */
-    Field& operator [](uint32_t index)
+    Field& operator [](size_t index)
     {
         return *(Field *) m_list[index];
     }
 
     /**
-     * Field access by field index, non-const version
+     * Field access by field index, const version
      *
      * @param index             Field index
      * @returns field reference
      */
-    Field& operator [](int32_t index)
+    const Field& operator [](size_t index) const
     {
-        return *(Field *) m_list[size_t(index)];
-    }
-
-    /**
-     * Field access by field index, const version
-     * @param index             Field index
-     * @returns field reference
-     */
-    const Field& operator [](uint32_t index) const
-    {
-        return *(Field *) m_list[size_t(index)];
-    }
-
-    /**
-     * Field access by field index, const version
-     * @param index             Field index
-     * @returns field reference
-     */
-    const Field& operator [](int32_t index) const
-    {
-        return *(Field *) m_list[size_t(index)];
-    }
-
-    /**
-     * Field access by field name, non-const version
-     * @param fname             Field name
-     * @returns field reference
-     */
-    Field& operator [](const char *fname)
-    {
-        return *fieldByName(fname);
-    }
-
-    /**
-     * Field access by field name, const version
-     * @param fname             Field name
-     * @returns field reference
-     */
-    const Field& operator [](const char *fname) const
-    {
-        return *fieldByName(fname);
+        return *(Field *) m_list[index];
     }
 
     /**
@@ -288,7 +231,7 @@ public:
      */
     Field& operator [](const String& fname)
     {
-        return *fieldByName(fname.c_str());
+        return *fieldByName(fname);
     }
 
     /**

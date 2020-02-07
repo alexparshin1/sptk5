@@ -32,9 +32,7 @@ using namespace std;
 using namespace sptk;
 
 LogEngine::LogEngine(const String& logEngineName)
-: Thread(logEngineName),
-  m_minPriority(LP_INFO),
-  m_options(LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY)
+: Thread(logEngineName)
 {
 }
 

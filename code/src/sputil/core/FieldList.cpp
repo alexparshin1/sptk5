@@ -37,15 +37,12 @@ using namespace sptk;
 FieldList::FieldList(bool indexed, bool compactXmlMode)
 : m_compactXmlMode(compactXmlMode)
 {
-    m_userData = nullptr;
     if (indexed)
         m_index = new Map;
-    else
-        m_index = nullptr;
 }
 
 FieldList::FieldList(const FieldList& other)
-: m_userData(other.m_userData), m_compactXmlMode(false)
+: m_userData(other.m_userData)
 {
     if (other.m_index != nullptr)
         m_index = new Map;

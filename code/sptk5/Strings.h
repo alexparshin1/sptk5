@@ -47,8 +47,10 @@ class Exception;
  * General string list. Based on vector<idstring>. Stores strings with (optional) integer Ids.
  * Includes several extra methods to construct it from string or load/save from/to file.
  */
-class SP_EXPORT Strings
+class SP_EXPORT Strings : public std::vector<String>
 {
+    typedef std::vector<String> StringVector;
+
 public:
     /**
      * Sort order enumeration
@@ -59,31 +61,7 @@ public:
         DESCENDING
     };
 
-    /**
-     * Regular forward iterator type
-     */
-    typedef std::vector<String>::iterator               iterator;
-
-    /**
-     * Const forward iterator type
-     */
-    typedef std::vector<String>::const_iterator         const_iterator;
-
-    /**
-     * Regular reverse iterator type
-     */
-    typedef std::vector<String>::reverse_iterator       reverse_iterator;
-
-    /**
-     * Const reverse iterator type
-     */
-    typedef std::vector<String>::const_reverse_iterator const_reverse_iterator;
-
 private:
-    /**
-     * Actual strings
-     */
-    std::vector<String> m_strings;
 
     /**
      * User-specified data
@@ -128,8 +106,8 @@ public:
      * Copy constructor
      * @param src               Other object
      */
-    Strings(const Strings &src) noexcept
-    : m_strings(src.m_strings), m_userData(src.m_userData)
+    Strings(const Strings& src) noexcept
+    : StringVector(src), m_userData(src.m_userData)
     {
     }
 
@@ -139,9 +117,7 @@ public:
      */
     Strings(std::initializer_list<std::string> list)
     {
-        for (auto& str: list) {
-            m_strings.push_back(str);
-        }
+        std::copy(list.begin(), list.end(), back_inserter(*this));
     }
 
     /**
@@ -149,7 +125,7 @@ public:
      * @param src               Other object
      */
     Strings(Strings&& src) noexcept
-    : m_strings(std::move(src.m_strings)), m_userData(src.m_userData)
+    : StringVector(std::move(src)), m_userData(src.m_userData)
     {
     }
 
@@ -177,7 +153,7 @@ public:
     {
         if (&other != this) {
             m_userData = other.m_userData;
-            m_strings.assign(other.m_strings.begin(), other.m_strings.end());
+            assign(other.begin(), other.end());
         }
         return *this;
     }
@@ -232,20 +208,21 @@ public:
      * Removes a string from this object
      * @param i                 String index in the string vector
      */
-    void remove(size_t i)
+    iterator remove(size_t i)
     {
-        m_strings.erase(m_strings.begin() + i);
+        return StringVector::erase(begin() + i);
     }
 
     /**
      * Removes a string from this object
      * @param str               String to remove from the string vector
      */
-    void remove(const String& str)
+    iterator remove(const String& str)
     {
-        auto itor = find(m_strings.begin(), m_strings.end(), str);
-        if (itor != m_strings.end())
-            m_strings.erase(itor);
+        auto itor = std::find(begin(), end(), str);
+        if (itor != end())
+            return StringVector::erase(itor);
+        return end();
     }
 
     /**
@@ -271,26 +248,8 @@ public:
     void clear()
     {
         m_sorted = UNSORTED;
-        m_strings.clear();
+        StringVector::clear();
         m_userData = 0;
-    }
-
-    /**
-     * Get size of the collection
-     * @return number of strings in the collection
-     */
-    size_t size() const noexcept
-    {
-        return m_strings.size();
-    }
-
-    /**
-     * Is the collection empty?
-     * @return true if the collection is empty
-     */
-    bool empty() const noexcept
-    {
-        return m_strings.empty();
     }
 
     /**
@@ -299,18 +258,9 @@ public:
      */
     void resize(size_t size)
     {
-        if (size > m_strings.size())
+        if (size > this->size())
             m_sorted = UNSORTED;
-        m_strings.resize(size);
-    }
-
-    /**
-     * Pre-allocate size of the collection
-     * @param size              New number of strings in the collection
-     */
-    void reserve(size_t size)
-    {
-        m_strings.reserve(size);
+        StringVector::resize(size);
     }
 
     /**
@@ -319,7 +269,7 @@ public:
     void push_back(const String& str)
     {
         m_sorted = UNSORTED;
-        m_strings.push_back(str);
+        StringVector::push_back(str);
     }
 
     /**
@@ -328,7 +278,7 @@ public:
     void push_back(String&& str)
     {
         m_sorted = UNSORTED;
-        m_strings.push_back(str);
+        StringVector::push_back(str);
     }
 
     /**
@@ -337,79 +287,8 @@ public:
     template<typename... Args>
     void emplace_back(Args&&... args)
     {
-        m_strings.emplace_back(args...);
-    }
-
-    /**
-     * Get the collection start
-     * @return begin iterator
-     */
-    iterator begin() noexcept
-    {
-        return m_strings.begin();
-    }
-
-    /**
-     * Get the collection start
-     * @return begin iterator
-     */
-    const_iterator begin() const noexcept
-    {
-        return m_strings.begin();
-    }
-
-    /**
-     * Get the collection end
-     * @return end iterator
-     */
-    iterator end() noexcept
-    {
-        return m_strings.end();
-    }
-
-    /**
-     * Get the collection end
-     * @return end iterator
-     */
-    const_iterator end() const noexcept
-    {
-        return m_strings.end();
-    }
-
-    /**
-     * Get the collection reverse start
-     * @return rbegin iterator
-     */
-    reverse_iterator rbegin() noexcept
-    {
-        return m_strings.rbegin();
-    }
-
-    /**
-     * Get the collection reverse start
-     * @return rbegin iterator
-     */
-    const_reverse_iterator rbegin() const noexcept
-    {
-        return m_strings.rbegin();
-    }
-
-    /**
-     * Get the collection reverse end
-     * @return rend iterator
-     */
-    reverse_iterator rend() noexcept
-    {
-        return m_strings.rend();
-    }
-
-    /**
-     * Get the collection reverse end
-     * @return rend iterator
-     */
-    const_reverse_iterator rend() const noexcept
-    {
-        return m_strings.rend();
+        m_sorted = UNSORTED;
+        StringVector::emplace_back(args...);
     }
 
     /**
@@ -419,7 +298,8 @@ public:
      */
     String& operator[] (size_t index)
     {
-        return m_strings[index];
+        m_sorted = UNSORTED;
+        return StringVector::operator[](index);
     }
 
     /**
@@ -429,32 +309,7 @@ public:
      */
     const String& operator[] (size_t index) const
     {
-        return m_strings[index];
-    }
-
-    /**
-     * Insert a string
-     * @param where             Insert position
-     * @param str               String to insert
-     * @return                  Iterator to inserted item
-     */
-    iterator insert(iterator where, const String& str)
-    {
-        return m_strings.insert(where, str);
-    }
-
-    /**
-     * Erase strings between the iterator positions
-     * @param from              Iterator of the from position
-     * @param to                Iterator of the to position
-     * @return iterator to the next item after removed
-     */
-    iterator erase(iterator from, iterator to)
-    {
-        if (from == to)
-            return m_strings.erase(from);
-        else
-            return m_strings.erase(from, to);
+        return StringVector::operator[](index);
     }
 };
 

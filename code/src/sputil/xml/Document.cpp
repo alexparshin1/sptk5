@@ -37,28 +37,22 @@ using namespace sptk;
 
 namespace sptk::xml {
 
-static const char* MATCH_NUMBER = R"(^[+\-]?(\d|[1-9]\d*)(\.\d+)?(e-?\d+)?$)";
+const String Document::MATCH_NUMBER(R"(^[+\-]?(\d|[1-9]\d*)(\.\d+)?(e-?\d+)?$)");
 
 Document::Document()
-: Element(*this),
-  m_indentSpaces(2),
-  m_matchNumber(MATCH_NUMBER, "i")
+: Element(*this)
 {
 }
 
 Document::Document(const String& xml)
-: Element(*this),
-  m_indentSpaces(2),
-  m_matchNumber(MATCH_NUMBER, "i")
+: Element(*this)
 {
     Document::load(xml);
 }
 
 Document::Document(const char* aname, const char* public_id, const char* system_id)
 : Element(*this),
-  m_doctype(aname, public_id, system_id),
-  m_indentSpaces(2),
-  m_matchNumber(MATCH_NUMBER, "i")
+  m_doctype(aname, public_id, system_id)
 {
 }
 

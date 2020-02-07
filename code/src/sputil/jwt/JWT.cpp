@@ -37,12 +37,11 @@ using namespace std;
 using namespace sptk;
 
 JWT::JWT()
-: alg(JWT_ALG_NONE), grants(true)
 {
 }
 
 JWT::JWT(const JWT& other)
-: alg(other.alg), key(other.key), grants(true)
+: alg(other.alg), key(other.key)
 {
     Buffer tempBuffer;
     other.grants.exportTo(tempBuffer, false);

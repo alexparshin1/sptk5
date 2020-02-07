@@ -296,7 +296,7 @@ class SP_EXPORT Query: public Query_StatementManagement
     /**
      * List of query fields - makes sense after fetch
      */
-    FieldList               m_fields;
+    FieldList               m_fields {true};
 
     /**
      * Parse query parameter during assigning SQL to query
@@ -393,7 +393,7 @@ public:
      * Field index should be inside 0..fieldCount()-1
      * @param fieldIndex int, field index
      */
-    const Field& operator [](uint32_t fieldIndex) const override
+    Field& operator [](size_t fieldIndex) override
     {
         return m_fields[fieldIndex];
     }
@@ -404,11 +404,10 @@ public:
      * Field index should be inside 0..fieldCount()-1
      * @param fieldIndex int, field index
      */
-    Field& operator [](uint32_t fieldIndex) override
+    const Field& operator [](size_t fieldIndex) const override
     {
         return m_fields[fieldIndex];
     }
-
     /**
      * Field access by field name, const version
      */

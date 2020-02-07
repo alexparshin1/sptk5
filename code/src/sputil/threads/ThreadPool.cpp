@@ -41,7 +41,6 @@ ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdl
 WorkerThread* ThreadPool::createThread()
 {
     auto* workerThread = new WorkerThread(m_threadManager, m_taskQueue, this, m_threadIdleTime);
-    //m_threads.push_back(workerThread);
     workerThread->run();
     return workerThread;
 }

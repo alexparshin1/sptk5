@@ -88,7 +88,7 @@ public:
      * @param fieldIndex        Field index
      * @returns field reference
      */
-    virtual const Field& operator [] (uint32_t fieldIndex) const = 0;
+    virtual const Field& operator [] (size_t fieldIndex) const = 0;
 
     /**
      * Field access by the field index, non-const version
@@ -97,7 +97,7 @@ public:
      * @param fieldIndex        Field index
      * @returns field reference
      */
-    virtual Field&       operator [] (uint32_t fieldIndex) = 0;
+    virtual Field&       operator [] (size_t fieldIndex) = 0;
 
     /**
      * Field access by the field name, const version.

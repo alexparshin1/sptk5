@@ -84,7 +84,7 @@ class SP_EXPORT Tar
     /**
      * Tar file header
      */
-    void*                 m_tar;
+    void*                 m_tar {nullptr};
 
     /**
      * File name to the file data map
@@ -99,7 +99,7 @@ class SP_EXPORT Tar
     /**
      * Flag to indicate if tar data is red from the memory buffer
      */
-    bool                  m_memoryRead;
+    bool                  m_memoryRead {false};
 
     /**
      * Tar file name

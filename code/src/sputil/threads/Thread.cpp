@@ -50,7 +50,6 @@ void Thread::threadStart()
 
 Thread::Thread(const String& name, std::shared_ptr<ThreadManager> threadManager)
 : m_name(name),
-  m_terminated(false),
   m_threadManager(threadManager)
 {
 }
@@ -118,11 +117,11 @@ bool Thread::running() const
 
 class ThreadTestThread: public Thread
 {
-    atomic_int  m_counter;
+    atomic_int  m_counter {0};
     int         m_maxCounter;
 public:
     explicit ThreadTestThread(const String& threadName, int maxCounter)
-    : Thread(threadName), m_counter(0), m_maxCounter(maxCounter)
+    : Thread(threadName), m_maxCounter(maxCounter)
     {}
 
     void threadFunction() override

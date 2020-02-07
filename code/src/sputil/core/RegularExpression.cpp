@@ -54,7 +54,7 @@ void RegularExpression::initPCRE()
 }
 
 RegularExpression::RegularExpression(String pattern, const String& options)
-: m_pattern(move(pattern)), m_global(false), m_pcre(nullptr), m_pcreExtra(nullptr), m_pcreOptions()
+: m_pattern(move(pattern))
 {
     for (auto ch: options) {
         switch (ch) {
@@ -82,7 +82,7 @@ RegularExpression::RegularExpression(String pattern, const String& options)
 }
 
 RegularExpression::RegularExpression(const RegularExpression& other)
-: m_pattern(other.m_pattern), m_global(other.m_global), m_pcre(nullptr), m_pcreExtra(nullptr), m_pcreOptions(other.m_pcreOptions)
+: m_pattern(other.m_pattern), m_pcreOptions(other.m_pcreOptions)
 {
     initPCRE();
 }

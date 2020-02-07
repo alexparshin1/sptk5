@@ -63,12 +63,12 @@ class SP_EXPORT LogEngine : public Thread
     /**
      * Min message priority, should be defined for every message
      */
-    std::atomic<LogPriority>            m_minPriority;
+    std::atomic<LogPriority>            m_minPriority {LP_INFO};
 
     /**
      * Log options, a bit combination of Option
      */
-    std::atomic<int32_t>                m_options;
+    std::atomic<int32_t>                m_options {LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY};
 
     /**
      * Message queue

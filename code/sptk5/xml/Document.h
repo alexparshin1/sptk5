@@ -60,20 +60,12 @@ class SP_EXPORT Document : public SharedStrings, public Element
 {
     friend class Node;
 
-    /**
-     * Document type
-     */
-    DocType m_doctype;
+    static const String MATCH_NUMBER;                               ///< Regex string for matching a number
 
-    /**
-     * Indent spaces
-     */
-    int m_indentSpaces;
-
-    /**
-     * Buffer to encode entities
-     */
-    Buffer m_encodeBuffer;
+    DocType             m_doctype;                                  ///< Document type
+    int                 m_indentSpaces {2};                         ///< Indent spaces
+    Buffer              m_encodeBuffer;                             ///< Buffer to encode entities
+    RegularExpression   m_matchNumber {MATCH_NUMBER, "i"};   ///< Regular expression to match a number
 
     /**
      * Internal entities parser
@@ -89,15 +81,10 @@ class SP_EXPORT Document : public SharedStrings, public Element
      * Internal attributes parser
      */
     void processAttributes(Node* node, char* ptr);
-
     static char* readComment(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
     static char* readCDataSection(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
-    char* readDocType(char* tokenEnd);
 
-    /**
-     * Regular expression to match a number
-     */
-    RegularExpression m_matchNumber;
+    char* readDocType(char* tokenEnd);
 
     /**
      * Decode and encode buffer

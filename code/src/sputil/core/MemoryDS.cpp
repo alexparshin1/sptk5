@@ -68,16 +68,17 @@ uint32_t MemoryDS::fieldCount() const
 }
 
 // access to the field by number, 0..field.size()-1
-const Field& MemoryDS::operator[](uint32_t index) const
+Field& MemoryDS::operator[](size_t index)
 {
     SharedLock(m_mutex);
     checkDSopen(m_current);
     return (*m_current)[index];
 }
 
-Field& MemoryDS::operator[](uint32_t index)
+// access to the field by number, 0..field.size()-1
+const Field& MemoryDS::operator[](size_t index) const
 {
-    UniqueLock(m_mutex);
+    SharedLock(m_mutex);
     checkDSopen(m_current);
     return (*m_current)[index];
 }

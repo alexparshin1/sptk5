@@ -38,8 +38,8 @@ namespace sptk {
  */
 class SP_EXPORT StopWatch
 {
-    DateTime    m_started;	///< Start time
-    DateTime    m_ended;	///< Stop time
+    DateTime    m_started {"now"};	///< Start time
+    DateTime    m_ended;	                ///< Stop time
 public:
 
 	/**

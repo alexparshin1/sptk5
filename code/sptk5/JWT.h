@@ -61,9 +61,9 @@ public:
 
 #define JWT_ALG_INVAL JWT_ALG_TERM
 
-    jwt_alg_t       alg;        ///< Signature encryption algorithm
-    String          key;        ///< Signature encryption key
-    json::Document  grants;     ///< Token content
+    jwt_alg_t       alg {JWT_ALG_NONE};     ///< Signature encryption algorithm
+    String          key;                    ///< Signature encryption key
+    json::Document  grants {true};   ///< Token content
 
     /**
      * Constructor

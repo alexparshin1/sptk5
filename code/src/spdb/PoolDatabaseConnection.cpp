@@ -37,9 +37,7 @@ using namespace sptk;
 
 PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType)
 : m_connString(connectionString), m_connType(connectionType)
-{
-    m_inTransaction = false;
-}
+{}
 
 PoolDatabaseConnection::~PoolDatabaseConnection()
 {

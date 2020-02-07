@@ -95,20 +95,9 @@ public:
     DatabaseField(const String& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength,
 				  int fieldScale = 4);
 
-    /**
-     * Column display format
-     */
-    String          displayFormat;
-
-    /**
-     * Column alignment
-     */
-    int             alignment;
-
-    /**
-     * Is column visible?
-     */
-    bool            visible;
+    String          displayFormat;          ///< Column display format
+    int             alignment {ALIGN_LEFT}; ///< Column alignment
+    bool            visible {true};         ///< Is column visible?
 
 
     /**

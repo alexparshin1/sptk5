@@ -140,28 +140,28 @@ public:
      * @param fieldIndex int, field index
      * @returns field reference
      */
-    virtual const Field& operator[](uint32_t fieldIndex) const;
+    Field& operator[](size_t fieldIndex) override;
 
     /**
-     * Field access by the field index, non-const version.
+     * Field access by the field index, const version.
      * @param fieldIndex int, field index
      * @returns field reference
      */
-    virtual Field& operator[](uint32_t fieldIndex);
+    const Field& operator[](size_t fieldIndex) const override;
 
     /**
      * Field access by the field name, const version.
      * @param fieldName const char *, field name
      * @returns field reference
      */
-    virtual const Field& operator[](const String& fieldName) const;
+    const Field& operator[](const String& fieldName) const override;
 
     /**
      * Field access by the field name, non-const version.
      * @param fieldName const char *, field name
      * @returns field reference
      */
-    virtual Field& operator[](const String& fieldName);
+    virtual Field& operator[](const String& fieldName) override;
 
     /**
      * Returns user_data associated with the datasource.
