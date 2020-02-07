@@ -50,41 +50,17 @@ class OracleConnection;
 class OracleStatement : public DatabaseStatement<OracleConnection,oracle::occi::Statement>
 {
 public:
-    /**
-     * Oracle connection type
-     */
-    typedef oracle::occi::Connection    Connection;
 
-    /**
-     * Oracle statement type
-     */
-    typedef oracle::occi::Statement     Statement;
-
-    /**
-     * Oracle result set type
-     */
-    typedef oracle::occi::ResultSet     ResultSet;
-
-    /**
-     * Oracle result set metdata type
-     */
-    typedef oracle::occi::MetaData      MetaData;
+    typedef oracle::occi::Connection    Connection;         ///< Oracle connection type
+    typedef oracle::occi::Statement     Statement;          ///< Oracle statement type
+    typedef oracle::occi::ResultSet     ResultSet;          ///< Oracle result set type
+    typedef oracle::occi::MetaData      MetaData;           ///< Oracle result set metdata type
 
 private:
-    /**
-     * Statement for creating CLOBs
-     */
-    Statement*          m_createClobStatement;
 
-    /**
-     * Statement for creating BLOBs
-     */
-    Statement*          m_createBlobStatement;
-
-    /**
-     * Result set (if returned by statement)
-     */
-    ResultSet*          m_resultSet;
+    Statement*          m_createClobStatement {nullptr};    ///< Statement for creating CLOBs
+    Statement*          m_createBlobStatement {nullptr};    ///< Statement for creating BLOBs
+    ResultSet*          m_resultSet {nullptr};              ///< Result set (if returned by statement)
 
     /*
      * Index of output parameters

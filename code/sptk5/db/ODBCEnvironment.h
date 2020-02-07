@@ -114,14 +114,14 @@ class SP_DRIVER_EXPORT ODBCEnvironment : public ODBCBase
     /**
      * ODBC environment handle
      */
-    SQLHENV m_hEnvironment;
+    SQLHENV m_hEnvironment {SQL_NULL_HENV};
 
 protected:
 
     /**
      * Constructor
      */
-    ODBCEnvironment();
+    ODBCEnvironment() = default;
 
     /**
      * Allocates enviromment handle
@@ -164,11 +164,11 @@ public:
  */
 class SP_DRIVER_EXPORT ODBCConnectionBase : public ODBCBase
 {
-    ODBCEnvironment&    m_cEnvironment;     ///< ODBC environment
-    SQLHDBC             m_hConnection;      ///< ODBC connection handle
-    bool                m_connected;        ///< Is connection active?
-    String              m_connectString;    ///< ODBC connection string
-    String              m_driverDescription;///< Driver description, filled in during the connection to the DSN
+    ODBCEnvironment&    m_cEnvironment;                     ///< ODBC environment
+    SQLHDBC             m_hConnection {SQL_NULL_HDBC};      ///< ODBC connection handle
+    bool                m_connected {false};                ///< Is connection active?
+    String              m_connectString;                    ///< ODBC connection string
+    String              m_driverDescription;                ///< Driver description, filled in during the connection to the DSN
 
 protected:
     /**

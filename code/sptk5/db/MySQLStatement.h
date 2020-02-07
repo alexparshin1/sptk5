@@ -72,12 +72,12 @@ class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
     /**
      * Statement handle
      */
-    MYSQL_RES*                      m_result;
+    MYSQL_RES*                      m_result {nullptr};
 
     /**
      * Fetch data row
      */
-    MYSQL_ROW                       m_row;
+    MYSQL_ROW                       m_row {};
 
 
     /**

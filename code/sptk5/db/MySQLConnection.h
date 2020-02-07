@@ -52,7 +52,7 @@ class SP_EXPORT MySQLConnection: public PoolDatabaseConnection
     friend class Query;
     friend class MySQLStatement;
 
-    MYSQL*                      m_connection;           ///< MySQL database connection
+    MYSQL*                      m_connection {nullptr}; ///< MySQL database connection
     mutable std::mutex          m_mutex;                ///< Mutex that protects access to data members
 
     /**

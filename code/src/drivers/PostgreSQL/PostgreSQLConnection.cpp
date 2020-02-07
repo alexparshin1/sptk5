@@ -44,17 +44,17 @@ namespace sptk {
 
     class PostgreSQLStatement
     {
-        PGresult* m_stmt;
-        char m_stmtName[20];
-        static unsigned index;
-        int m_rows;
-        int m_cols;
-        int m_currentRow;
+        PGresult*           m_stmt {nullptr};
+        char                m_stmtName[20] {};
+        static unsigned     index;
+        int                 m_rows {0};
+        int                 m_cols {0};
+        int                 m_currentRow {0};
     public:
         PostgreSQLParamValues m_paramValues;
 
         PostgreSQLStatement(bool int64timestamps, bool prepared)
-            : m_stmt(nullptr), m_stmtName(), m_rows(0), m_cols(0), m_currentRow(0), m_paramValues(int64timestamps)
+            : m_stmt(nullptr), m_paramValues(int64timestamps)
         {
             if (prepared)
                 snprintf(m_stmtName, sizeof(m_stmtName), "S%04u", ++index);

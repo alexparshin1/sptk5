@@ -60,9 +60,9 @@ public:
 } // namespace sptk
 
 ODBCConnection::ODBCConnection(const String& connectionString)
-: PoolDatabaseConnection(connectionString, DCT_GENERIC_ODBC)
+: PoolDatabaseConnection(connectionString, DCT_GENERIC_ODBC),
+  m_connect(new ODBCConnectionBase)
 {
-    m_connect = new ODBCConnectionBase;
 }
 
 ODBCConnection::~ODBCConnection()
@@ -690,7 +690,7 @@ void ODBCConnection::queryFetch(Query* query)
             else
                 field->dataSize((size_t)dataLength);
         } catch (Exception& e) {
-            query->throwError("CODBCConnection::queryFetch",
+            Query::throwError("CODBCConnection::queryFetch",
                               "Can't read field " + field->fieldName() + "\n" + string(e.what()));
         }
 }

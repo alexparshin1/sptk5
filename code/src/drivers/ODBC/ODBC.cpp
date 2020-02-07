@@ -51,10 +51,6 @@ void ODBCBase::exception(const String& text, int line) const
 //---------------------------------------------------------------------------
 // ODBC Environment class
 //---------------------------------------------------------------------------
-ODBCEnvironment::ODBCEnvironment()
-: m_hEnvironment(SQL_NULL_HENV)
-{
-}
 
 ODBCEnvironment::~ODBCEnvironment()
 {
@@ -87,9 +83,7 @@ void ODBCEnvironment::freeEnv()
 //--------------------------------------------------------------------------------------------
 
 ODBCConnectionBase::ODBCConnectionBase()
-: m_cEnvironment(getEnvironment()),
-  m_hConnection(SQL_NULL_HDBC),
-  m_connected(false)
+: m_cEnvironment(getEnvironment())
 {
 }
 

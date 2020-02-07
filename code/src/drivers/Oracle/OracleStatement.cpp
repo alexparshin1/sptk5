@@ -33,11 +33,7 @@ using namespace sptk;
 using namespace oracle::occi;
 
 OracleStatement::OracleStatement(OracleConnection* connection, const string& sql)
-        :
-        DatabaseStatement<OracleConnection, oracle::occi::Statement>(connection),
-        m_createClobStatement(nullptr),
-        m_createBlobStatement(nullptr),
-        m_resultSet(nullptr)
+: DatabaseStatement<OracleConnection, oracle::occi::Statement>(connection)
 {
     statement(connection->createStatement(sql));
     state().columnCount = 0;

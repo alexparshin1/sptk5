@@ -134,19 +134,23 @@ public:
     }
 
     /**
+     * Initializer list constructor
+     * @param list              Initializer list
+     */
+    Strings(std::initializer_list<std::string> list)
+    {
+        for (auto& str: list) {
+            m_strings.push_back(str);
+        }
+    }
+
+    /**
      * Move constructor
      * @param src               Other object
      */
     Strings(Strings&& src) noexcept
     : m_strings(std::move(src.m_strings)), m_userData(src.m_userData)
     {
-    }
-
-    Strings(std::initializer_list<std::string> list)
-    {
-        for (auto& str: list) {
-            m_strings.push_back(str);
-        }
     }
 
 

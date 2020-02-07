@@ -255,7 +255,7 @@ TEST(SPTK_PostgreSQLConnection, bulkInsertPerformance)
     if (connectionString.empty())
         FAIL() << "PostgreSQL connection is not defined";
     try {
-        DatabaseTests::tests().testBulkInsertPerformance(connectionString, 1024);
+        DatabaseTests::testBulkInsertPerformance(connectionString, 1024);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -268,7 +268,7 @@ TEST(SPTK_PostgreSQLConnection, queryParameters)
     if (connectionString.empty())
         FAIL() << "PostgreSQL connection is not defined";
     try {
-        DatabaseTests::tests().testQueryParameters(connectionString);
+        DatabaseTests::testQueryParameters(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -281,7 +281,7 @@ TEST(SPTK_PostgreSQLConnection, transaction)
     if (connectionString.empty())
         FAIL() << "PostgreSQL connection is not defined";
     try {
-        DatabaseTests::tests().testTransaction(connectionString);
+        DatabaseTests::testTransaction(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -294,7 +294,7 @@ TEST(SPTK_PostgreSQLConnection, select)
     if (connectionString.empty())
         FAIL() << "PostgreSQL connection is not defined";
     try {
-        DatabaseTests::tests().testSelect(connectionString);
+        DatabaseTests::testSelect(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -312,7 +312,7 @@ TEST(SPTK_MySQLConnection, connect)
     if (connectionString.empty())
         FAIL() << "MySQL connection is not defined";
     try {
-        DatabaseTests::tests().testConnect(connectionString);
+        DatabaseTests::testConnect(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -325,7 +325,7 @@ TEST(SPTK_MySQLConnection, DDL)
     if (connectionString.empty())
         FAIL() << "MySQL connection is not defined";
     try {
-        DatabaseTests::tests().testDDL(connectionString);
+        DatabaseTests::testDDL(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -338,7 +338,7 @@ TEST(SPTK_MySQLConnection, bulkInsert)
     if (connectionString.empty())
         FAIL() << "MySQL connection is not defined";
     try {
-        DatabaseTests::tests().testBulkInsert(connectionString);
+        DatabaseTests::testBulkInsert(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -351,7 +351,7 @@ TEST(SPTK_MySQLConnection, bulkInsertPerformance)
     if (connectionString.empty())
         FAIL() << "MySQL connection is not defined";
     try {
-        DatabaseTests::tests().testBulkInsertPerformance(connectionString, 1024);
+        DatabaseTests::testBulkInsertPerformance(connectionString, 1024);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -364,7 +364,7 @@ TEST(SPTK_MySQLConnection, queryParameters)
     if (connectionString.empty())
         FAIL() << "MySQL connection is not defined";
     try {
-        DatabaseTests::tests().testQueryParameters(connectionString);
+        DatabaseTests::testQueryParameters(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -377,7 +377,7 @@ TEST(SPTK_MySQLConnection, transaction)
     if (connectionString.empty())
         FAIL() << "MySQL connection is not defined";
     try {
-        DatabaseTests::tests().testTransaction(connectionString);
+        DatabaseTests::testTransaction(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -390,7 +390,7 @@ TEST(SPTK_MySQLConnection, select)
     if (connectionString.empty())
         FAIL() << "MySQL connection is not defined";
     try {
-        DatabaseTests::tests().testSelect(connectionString);
+        DatabaseTests::testSelect(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -408,7 +408,7 @@ TEST(SPTK_OracleConnection, connect)
     if (connectionString.empty())
         FAIL() << "Oracle connection is not defined";
     try {
-        DatabaseTests::tests().testConnect(connectionString);
+        DatabaseTests::testConnect(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -421,7 +421,7 @@ TEST(SPTK_OracleConnection, DDL)
     if (connectionString.empty())
         FAIL() << "Oracle connection is not defined";
     try {
-        DatabaseTests::tests().testDDL(connectionString);
+        DatabaseTests::testDDL(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -434,7 +434,7 @@ TEST(SPTK_OracleConnection, bulkInsert)
     if (connectionString.empty())
         FAIL() << "Oracle connection is not defined";
     try {
-        DatabaseTests::tests().testBulkInsert(connectionString);
+        DatabaseTests::testBulkInsert(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -447,7 +447,7 @@ TEST(SPTK_OracleConnection, bulkInsertPerformance)
     if (connectionString.empty())
         FAIL() << "Oracle connection is not defined";
     try {
-        DatabaseTests::tests().testBulkInsertPerformance(connectionString, 1024);
+        DatabaseTests::testBulkInsertPerformance(connectionString, 1024);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -460,7 +460,7 @@ TEST(SPTK_OracleConnection, queryParameters)
     if (connectionString.empty())
         FAIL() << "Oracle connection is not defined";
     try {
-        DatabaseTests::tests().testQueryParameters(connectionString);
+        DatabaseTests::testQueryParameters(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -473,7 +473,7 @@ TEST(SPTK_OracleConnection, transaction)
     if (connectionString.empty())
         FAIL() << "Oracle connection is not defined";
     try {
-        DatabaseTests::tests().testTransaction(connectionString);
+        DatabaseTests::testTransaction(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -486,7 +486,7 @@ TEST(SPTK_OracleConnection, select)
     if (connectionString.empty())
         FAIL() << "Oralce connection is not defined";
     try {
-        DatabaseTests::tests().testSelect(connectionString);
+        DatabaseTests::testSelect(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -504,7 +504,7 @@ TEST(SPTK_MSSQLConnection, connect)
     if (connectionString.empty())
         FAIL() << "MSSQL connection is not defined";
     try {
-        DatabaseTests::tests().testConnect(connectionString);
+        DatabaseTests::testConnect(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -517,7 +517,7 @@ TEST(SPTK_MSSQLConnection, DDL)
     if (connectionString.empty())
         FAIL() << "MSSQL connection is not defined";
     try {
-        DatabaseTests::tests().testDDL(connectionString);
+        DatabaseTests::testDDL(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -530,7 +530,7 @@ TEST(SPTK_MSSQLConnection, bulkInsert)
     if (connectionString.empty())
         FAIL() << "MSSQL connection is not defined";
     try {
-        DatabaseTests::tests().testBulkInsert(connectionString);
+        DatabaseTests::testBulkInsert(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -543,7 +543,7 @@ TEST(SPTK_MSSQLConnection, bulkInsertPerformance)
     if (connectionString.empty())
         FAIL() << "MSSQL connection is not defined";
     try {
-        DatabaseTests::tests().testBulkInsertPerformance(connectionString, 1024);
+        DatabaseTests::testBulkInsertPerformance(connectionString, 1024);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -556,7 +556,7 @@ TEST(SPTK_MSSQLConnection, queryParameters)
     if (connectionString.empty())
         FAIL() << "MSSQL connection is not defined";
     try {
-        DatabaseTests::tests().testQueryParameters(connectionString);
+        DatabaseTests::testQueryParameters(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -569,7 +569,7 @@ TEST(SPTK_MSSQLConnection, transaction)
     if (connectionString.empty())
         FAIL() << "MSSQL connection is not defined";
     try {
-        DatabaseTests::tests().testTransaction(connectionString);
+        DatabaseTests::testTransaction(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -582,7 +582,7 @@ TEST(SPTK_MSSQLConnection, select)
     if (connectionString.empty())
         FAIL() << "MSSQL connection is not defined";
     try {
-        DatabaseTests::tests().testSelect(connectionString);
+        DatabaseTests::testSelect(connectionString);
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();

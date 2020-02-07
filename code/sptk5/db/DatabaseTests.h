@@ -62,7 +62,7 @@ class SP_EXPORT DatabaseTests
      * @param db            Database connection
      * @param commit        If true then commit the transaction
      */
-    void testTransaction(DatabaseConnection db, bool commit);
+    static void testTransaction(DatabaseConnection db, bool commit);
 
     /**
      * Connect to database and create test table
@@ -124,7 +124,7 @@ public:
      * Test transaction
      * @param connectionString Database connection string
      */
-    void testTransaction(const DatabaseConnectionString& connectionString);
+    static void testTransaction(const DatabaseConnectionString& connectionString);
 
     /**
      * Test bulk insert operation

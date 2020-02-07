@@ -35,8 +35,7 @@ using namespace std;
 using namespace sptk;
 
 MySQLConnection::MySQLConnection(const String& connectionString)
-: PoolDatabaseConnection(connectionString, DCT_MYSQL),
-  m_connection(nullptr)
+: PoolDatabaseConnection(connectionString, DCT_MYSQL)
 {
 }
 
@@ -305,7 +304,7 @@ void MySQLConnection::queryFetch(Query* query)
         statement->readResultRow(query->fields());
     }
     catch (const Exception& e) {
-        query->throwError("CMySQLConnection::queryFetch", e.what());
+        Query::throwError("CMySQLConnection::queryFetch", e.what());
     }
 }
 

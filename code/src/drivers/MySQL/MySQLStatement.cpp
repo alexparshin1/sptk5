@@ -39,16 +39,15 @@ class CMySQLStatementField: public DatabaseField
 {
 public:
     // Callback variables
-    unsigned long   m_cbLength;
-    my_bool         m_cbNull;
-    my_bool         m_cbError;
+    unsigned long   m_cbLength {0};
+    my_bool         m_cbNull {0};
+    my_bool         m_cbError {0};
     // MySQL time conversion buffer
     MYSQL_TIME      m_timeBuffer {};
-    char*           m_tempBuffer;
+    char*           m_tempBuffer {nullptr};
 
     CMySQLStatementField(const string& fieldName, int fieldColumn, enum_field_types fieldType, VariantType dataType, int fieldSize) :
-        DatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize),
-        m_cbLength(0), m_cbNull(0), m_cbError(0)
+        DatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize)
     {
         memset(&m_timeBuffer, 0, sizeof(MYSQL_TIME));
         if (fieldType == MYSQL_TYPE_NEWDECIMAL)
@@ -82,7 +81,7 @@ public:
 
 
 MySQLStatement::MySQLStatement(MySQLConnection* connection, String sql, bool autoPrepare)
-: DatabaseStatement<MySQLConnection,MYSQL_STMT>(connection), m_sql(move(sql)), m_result(nullptr), m_row{}
+: DatabaseStatement<MySQLConnection,MYSQL_STMT>(connection), m_sql(move(sql))
 {
     if (autoPrepare)
         statement(mysql_stmt_init((MYSQL*)connection->handle()));
