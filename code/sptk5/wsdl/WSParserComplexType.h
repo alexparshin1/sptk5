@@ -112,7 +112,7 @@ public:
     /**
      * Generates attribute presentation in C++ skeleton
      */
-    String generate() const;
+    String generate(bool initialize) const;
 
     /**
      * Returns attribute C++ type name
@@ -140,53 +140,17 @@ class WSParserComplexType
      */
     typedef std::list<WSParserComplexType*>            ElementList;
 
-    /**
-     * Element name
-     */
-    String                  m_name;
-
-    /**
-     * WSDL type name
-     */
-    String                  m_typeName;
-
-    /**
-     * XML element for that WSDL element
-     */
-    const xml::Element*     m_element;
-
-    /**
-     * Element attributes
-     */
-    AttributeMap            m_attributes;
-
-    /**
-     * Child element sequence
-     */
-    ElementList             m_sequence;
-
-    /**
-     * Multiplicity flag
-     */
-    WSMultiplicity          m_multiplicity;
-
-    /**
-     * Object reference count
-     */
-    int                     m_refcount;
-
-    /**
-     * Element restriction (if any) or NULL
-     */
-    WSRestriction*          m_restriction;
-
-    /**
-     * Optional documentation
-     */
-    String                  m_documentation;
+    String                  m_name;                 ///< Element name
+    String                  m_typeName;             ///< WSDL type name
+    const xml::Element*     m_element;              ///< XML element for that WSDL element
+    AttributeMap            m_attributes;           ///< Element attributes
+    ElementList             m_sequence;             ///< Child element sequence
+    WSMultiplicity          m_multiplicity;         ///< Multiplicity flag
+    int                     m_refcount {0};         ///< Object reference count
+    WSRestriction*          m_restriction {nullptr};///< Element restriction (if any) or NULL
+    String                  m_documentation;        ///< Optional documentation
 
 protected:
-
 
     /**
      * Generate C++ class declaration

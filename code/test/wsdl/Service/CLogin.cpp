@@ -4,6 +4,8 @@
 using namespace std;
 using namespace sptk;
 
+const Strings CLogin::m_fieldNames { "username|password", "|"};
+
 CLogin::~CLogin()
 {
     WSComplexType::clear();

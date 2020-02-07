@@ -32,11 +32,6 @@
 using namespace std;
 using namespace sptk;
 
-WSWebSocketsMessage::WSWebSocketsMessage()
-: m_opcode(0), m_finalMessage(true)
-{
-}
-
 const Buffer& WSWebSocketsMessage::payload()
 {
     return m_payload;

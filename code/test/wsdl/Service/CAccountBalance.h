@@ -15,12 +15,15 @@
  */
 class CAccountBalance : public sptk::WSComplexType
 {
-    mutable sptk::SharedMutex m_mutex; ///< Mutext that protects access to internal data
+    mutable sptk::SharedMutex m_mutex; ///< Mutex that protects access to internal data
 
 public:
 
    // Elements
-   sptk::WSString       m_account_number;
+   sptk::WSString       m_account_number {"account_number"};
+
+   // Field names of simple types, that can be used to build SQL queries
+   static const sptk::Strings m_fieldNames;
 
 protected:
 
@@ -37,8 +40,7 @@ public:
     * @param optional bool, Is element optional flag
     */
    explicit CAccountBalance(const char* elementName="account_balance", bool optional=false) noexcept
-   : sptk::WSComplexType(elementName, optional),
-     m_account_number("account_number")
+   : sptk::WSComplexType(elementName, optional)
    {}
 
    /**
@@ -133,6 +135,13 @@ public:
     * @param output             Query parameters
     */
    void unload(sptk::QueryParameterList& output) const override;
+
+   /**
+    * Get simple field names that can be used to build SQL queries.
+    * Return list of fields doesn't include fields of complex type.
+    * @return list of fields as string vector
+    */
+   static const sptk::Strings& fieldNames() { return m_fieldNames; }
 };
 
 #endif

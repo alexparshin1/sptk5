@@ -42,9 +42,9 @@ namespace sptk {
 /// Provides WebSockets message encode and decode methods
 class WSWebSocketsMessage
 {
-    uint32_t    m_opcode;       ///< WebSockets operation code
-    Buffer      m_payload;      ///< Message payload
-    bool        m_finalMessage; ///< 'message is final' flag
+    uint32_t    m_opcode {0};           ///< WebSockets operation code
+    Buffer      m_payload;              ///< Message payload
+    bool        m_finalMessage {true};  ///< 'message is final' flag
 
 public:
     enum OpCode {
@@ -57,7 +57,7 @@ public:
     };
 
     /// Default constructor
-    WSWebSocketsMessage();
+    WSWebSocketsMessage() = default;
 
     /// Return message payload buffer
     const Buffer& payload();

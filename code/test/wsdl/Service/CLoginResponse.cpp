@@ -4,6 +4,8 @@
 using namespace std;
 using namespace sptk;
 
+const Strings CLoginResponse::m_fieldNames { "jwt", "|"};
+
 CLoginResponse::~CLoginResponse()
 {
     WSComplexType::clear();

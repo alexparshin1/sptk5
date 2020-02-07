@@ -15,17 +15,20 @@
  */
 class CHelloResponse : public sptk::WSComplexType
 {
-    mutable sptk::SharedMutex m_mutex; ///< Mutext that protects access to internal data
+    mutable sptk::SharedMutex m_mutex; ///< Mutex that protects access to internal data
 
 public:
 
    // Elements
-   sptk::WSDate         m_date_of_birth;
-   sptk::WSDateTime     m_verified;
-   sptk::WSBool         m_retired;
-   sptk::WSDouble       m_hour_rate;
-   sptk::WSInteger      m_vacation_days;
-   sptk::WSDouble       m_height;
+   sptk::WSDate         m_date_of_birth {"date_of_birth"};
+   sptk::WSDateTime     m_verified {"verified"};
+   sptk::WSBool         m_retired {"retired"};
+   sptk::WSDouble       m_hour_rate {"hour_rate"};
+   sptk::WSInteger      m_vacation_days {"vacation_days"};
+   sptk::WSDouble       m_height {"height"};
+
+   // Field names of simple types, that can be used to build SQL queries
+   static const sptk::Strings m_fieldNames;
 
 protected:
 
@@ -42,13 +45,7 @@ public:
     * @param optional bool, Is element optional flag
     */
    explicit CHelloResponse(const char* elementName="hello_response", bool optional=false) noexcept
-   : sptk::WSComplexType(elementName, optional),
-     m_date_of_birth("date_of_birth"),
-     m_verified("verified"),
-     m_retired("retired"),
-     m_hour_rate("hour_rate"),
-     m_vacation_days("vacation_days"),
-     m_height("height")
+   : sptk::WSComplexType(elementName, optional)
    {}
 
    /**
@@ -153,6 +150,13 @@ public:
     * @param output             Query parameters
     */
    void unload(sptk::QueryParameterList& output) const override;
+
+   /**
+    * Get simple field names that can be used to build SQL queries.
+    * Return list of fields doesn't include fields of complex type.
+    * @return list of fields as string vector
+    */
+   static const sptk::Strings& fieldNames() { return m_fieldNames; }
 };
 
 #endif

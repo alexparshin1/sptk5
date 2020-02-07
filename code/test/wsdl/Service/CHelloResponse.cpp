@@ -4,6 +4,8 @@
 using namespace std;
 using namespace sptk;
 
+const Strings CHelloResponse::m_fieldNames { "date_of_birth|verified|retired|hour_rate|vacation_days|height", "|"};
+
 CHelloResponse::~CHelloResponse()
 {
     WSComplexType::clear();

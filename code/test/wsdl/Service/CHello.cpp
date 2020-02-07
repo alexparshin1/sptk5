@@ -4,6 +4,8 @@
 using namespace std;
 using namespace sptk;
 
+const Strings CHello::m_fieldNames { "first_name|last_name", "|"};
+
 CHello::~CHello()
 {
     WSComplexType::clear();

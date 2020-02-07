@@ -15,13 +15,16 @@
  */
 class CHello : public sptk::WSComplexType
 {
-    mutable sptk::SharedMutex m_mutex; ///< Mutext that protects access to internal data
+    mutable sptk::SharedMutex m_mutex; ///< Mutex that protects access to internal data
 
 public:
 
    // Elements
-   sptk::WSString       m_first_name;
-   sptk::WSString       m_last_name;
+   sptk::WSString       m_first_name {"first_name"};
+   sptk::WSString       m_last_name {"last_name"};
+
+   // Field names of simple types, that can be used to build SQL queries
+   static const sptk::Strings m_fieldNames;
 
 protected:
 
@@ -38,9 +41,7 @@ public:
     * @param optional bool, Is element optional flag
     */
    explicit CHello(const char* elementName="hello", bool optional=false) noexcept
-   : sptk::WSComplexType(elementName, optional),
-     m_first_name("first_name"),
-     m_last_name("last_name")
+   : sptk::WSComplexType(elementName, optional)
    {}
 
    /**
@@ -137,6 +138,13 @@ public:
     * @param output             Query parameters
     */
    void unload(sptk::QueryParameterList& output) const override;
+
+   /**
+    * Get simple field names that can be used to build SQL queries.
+    * Return list of fields doesn't include fields of complex type.
+    * @return list of fields as string vector
+    */
+   static const sptk::Strings& fieldNames() { return m_fieldNames; }
 };
 
 #endif

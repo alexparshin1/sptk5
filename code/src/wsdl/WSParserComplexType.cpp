@@ -41,20 +41,21 @@ WSParserAttribute::WSParserAttribute(const String& name, const String& typeName)
     m_cxxTypeName = wsTypeTranslator.toCxxType(typeName);
 }
 
-String WSParserAttribute::generate() const
+String WSParserAttribute::generate(bool initialize) const
 {
     stringstream str;
     str << left << setw(20) << m_cxxTypeName << " m_" << m_name;
+    if (initialize)
+        str << " {\"" << m_name << "\"}";
     return str.str();
 }
 
 WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement, const String& name,
                                          const String& typeName)
-: m_element(complexTypeElement), m_refcount(0), m_restriction(nullptr)
+: m_name(name.empty() ? (String) complexTypeElement->getAttribute("name") : name),
+  m_typeName(typeName.empty() ? (String) complexTypeElement->getAttribute("type") : typeName),
+  m_element(complexTypeElement)
 {
-    m_name = name.empty() ? (String) complexTypeElement->getAttribute("name") : name;
-    m_typeName = typeName.empty() ? (String) complexTypeElement->getAttribute("type") : typeName;
-
     if (m_typeName.empty() && complexTypeElement->name() == "xsd:element") {
         xml::Node* restrictionElement = complexTypeElement->findFirst("xsd:restriction");
         if (restrictionElement != nullptr) {
@@ -224,13 +225,16 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
                 cxxType = "sptk::WSArray<" + cxxType + "*>";
             else {
                 string optional = (complexType->multiplicity() & WSM_OPTIONAL) != 0 ? ", true" : "";
-                ctorInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\"" + optional + ")");
                 copyInitializer.push_back("m_" + complexType->name() + "(other.m_" + complexType->name() + ")");
                 moveInitializer.push_back("m_" + complexType->name() + "(std::move(other.m_" + complexType->name() + "))");
                 fieldNames.push_back(complexType->name());
             }
 
-            classDeclaration << "   " << left << setw(20) << cxxType << " m_" << complexType->name() << ";" << endl;
+            classDeclaration << "   " << left << setw(20) << cxxType << " m_" << complexType->name();
+            if (!complexType->isArray())
+                classDeclaration
+                    << " {\"" << complexType->name() << "\"}";
+            classDeclaration << ";" << endl;
         }
     }
 
@@ -238,8 +242,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
         classDeclaration << "   // Attributes" << endl;
         for (auto& itor: m_attributes) {
             WSParserAttribute& attr = *itor.second;
-            classDeclaration << "   " << attr.generate() << ";" << endl;
-            ctorInitializer.push_back("m_" + attr.name() + "(\"" + attr.name() + "\")");
+            classDeclaration << "   " << attr.generate(true) << ";" << endl;
             copyInitializer.push_back("m_" + attr.name() + "(other.m_" + attr.name() + ")");
             moveInitializer.push_back("m_" + attr.name() + "(std::move(other.m_" + attr.name() + "))");
             fieldNames.push_back(attr.name());

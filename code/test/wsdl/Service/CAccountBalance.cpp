@@ -4,6 +4,8 @@
 using namespace std;
 using namespace sptk;
 
+const Strings CAccountBalance::m_fieldNames { "account_number", "|"};
+
 CAccountBalance::~CAccountBalance()
 {
     WSComplexType::clear();
