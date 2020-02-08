@@ -4,7 +4,7 @@
 ║                       WSWebServiceProtocol.cpp - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Saturday Jul 30 2016                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐

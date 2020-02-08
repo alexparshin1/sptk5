@@ -4,7 +4,7 @@
 ║                        Query.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -338,15 +338,6 @@ protected:
 
 public:
 
-    enum Type
-    {
-        UNKNOWN,
-        SELECT,
-        INSERT,
-        UPDATE,
-        DELETE
-    };
-
     /**
      * Default constructor
      */
@@ -593,16 +584,6 @@ public:
      * @param error             Error text
      */
     static void throwError(const String& method, const String& error);
-
-    /**
-     * Generate SQL query for table and column list
-     * @param type              Query type
-     * @param tableName         Table name
-     * @param columns           Column list
-     * @param pkColumn          Primary key column
-     * @return SQL query
-     */
-    static String makeQuery(Type type, const String& tableName, const Strings& columns, const String& pkColumn);
 
 private:
     String parseParameters(const String& _sql);

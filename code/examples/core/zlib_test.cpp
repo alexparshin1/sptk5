@@ -4,7 +4,7 @@
 ║                       zlib_test.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday June 24 2018                                    ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐

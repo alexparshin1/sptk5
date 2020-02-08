@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CQuery.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -338,43 +336,6 @@ void Query::throwError(const String& method, const String& error)
 {
     String errorText("Exception in " + method + ": " + error);
     throw DatabaseException(errorText);
-}
-
-String Query::makeQuery(Type type, const String& tableName, const Strings& columns, const String& pkColumn)
-{
-    Strings columnsWithoutPK(columns);
-
-    columnsWithoutPK.remove(pkColumn);
-
-    stringstream query;
-    bool first = true;
-    switch (type) {
-        case SELECT:
-            query << "SELECT t." << pkColumn << ", t." << columns.join(", t.") << "\n  FROM " << tableName << " t";
-            break;
-        case INSERT:
-            query << "INSERT INTO " << tableName << "(" << columnsWithoutPK.join(", ") << ") VALUES ("
-                  << ":" << columnsWithoutPK.join(", :") << ")";
-            break;
-        case UPDATE:
-            query << "UPDATE " << tableName << "\n   SET ";
-            for (auto& columnName: columnsWithoutPK) {
-                if (first)
-                    first = false;
-                else
-                    query << ", ";
-                query << columnName << " = :" << columnName;
-            }
-            query << "\n WHERE " << pkColumn << " = :" << pkColumn;
-            break;
-        case DELETE:
-            query << "DELETE FROM " << tableName;
-            query << "\n WHERE " << pkColumn << " = :" << pkColumn;
-            break;
-        default:
-            break;
-    }
-    return query.str();
 }
 
 void Query_StatementManagement::setBulkMode(bool bulkMode)

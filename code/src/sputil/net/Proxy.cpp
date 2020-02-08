@@ -4,7 +4,7 @@
 ║                       Proxy.cpp - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday June 19 2019                                 ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐

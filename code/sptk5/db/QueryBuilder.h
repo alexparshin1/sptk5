@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CParamBinding.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,44 +24,42 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/QueryParameterBinding.h>
-//#include <sptk5/string_ext.h>
+#ifndef SPTK_QUERYBUILDER_H
+#define SPTK_QUERYBUILDER_H
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/Strings.h>
+#include <memory>
 
-void QueryParameterBinding::reset(bool isOutput)
+namespace sptk {
+
+class QueryBuilder
 {
-    m_stmt = nullptr;
-    m_dataType = VAR_NONE;
-    m_size = 0;
-    m_buffer = nullptr;
-    m_output = isOutput;
+public:
+
+    class Join
+    {
+    public:
+        Join(String tableAlias, Strings columns, String join);
+
+        const String  tableAlias;
+        const Strings columns;
+        const String  joinDefinition;
+    };
+
+    QueryBuilder(String tableName, String pkColumn, Strings columns={}, const std::vector<Join>& joins={});
+
+    String selectSQL(const Strings& filter= {}, const Strings& columns= {}, bool pretty= false);
+    String insertSQL(const Strings& columns= {}, bool pretty= false);
+    String updateSQL(const Strings& filter= {}, const Strings& columns= {}, bool pretty= false);
+    String deleteSQL(const Strings& filter= {}, bool pretty= false);
+
+private:
+    String              m_tableName;
+    String              m_pkColumn;
+    Strings             m_columns;
+    std::vector<Join>   m_joins;
+};
+
 }
 
-bool QueryParameterBinding::check(void* stmt, VariantType type, uint32_t size, void* buffer)
-{
-    bool changed = true;
-
-    if (m_stmt != stmt) {
-        m_stmt = stmt;
-        changed = false;
-    }
-
-    if (m_dataType != type) {
-        m_dataType = type;
-        changed = false;
-    }
-
-    if (m_size != size) {
-        m_size = size;
-        changed = false;
-    }
-
-    if (m_buffer != buffer) {
-        m_buffer = buffer;
-        changed = false;
-    }
-
-    return changed;
-}
+#endif
