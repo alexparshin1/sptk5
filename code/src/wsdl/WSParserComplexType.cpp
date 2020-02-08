@@ -774,8 +774,8 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 
     printImplementationIncludes(classImplementation, className);
 
-    classImplementation << "const Strings " << className << "::m_fieldNames { \"" << fieldNames.join("|")
-                        << R"(", "|"};)"
+    classImplementation << "const Strings " << className << "::m_fieldNames { \"" << fieldNames.join("\", \"")
+                        << "\"};"
                         << endl << endl;
 
     printImplementationDestructor(classImplementation, className);

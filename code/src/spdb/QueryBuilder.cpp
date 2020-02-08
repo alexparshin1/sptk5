@@ -43,10 +43,21 @@ QueryBuilder::QueryBuilder(String tableName, String pkColumn, Strings columns,
   m_columns(move(columns)),
   m_joins(joins)
 {
-    m_columns.remove(pkColumn);
-    for (auto& join: m_joins)
-        for (auto& column: join.columns)
-            m_columns.remove(column);
+    m_columns.remove(m_pkColumn);
+    for (auto& join: m_joins) {
+        auto tableAlias = join.tableAlias;
+        for (auto& column: join.columns) {
+            Strings nameAndAlias(column, " ");
+            if (nameAndAlias.size() == 2)
+                m_columns.remove(nameAndAlias[1]);
+            else {
+                if (!tableAlias.empty() && column.startsWith(tableAlias + "."))
+                    m_columns.remove(column.substr(tableAlias.length() + 1));
+                else
+                    m_columns.remove(column);
+            }
+        }
+    }
 }
 
 String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bool pretty) const
@@ -182,7 +193,7 @@ TEST(SPTK_QueryBuilder, selectJoinsSQL)
 
     QueryBuilder queryBuilder(
             "employee", "id",
-            {"first_name", "last_name", "position", "department_id"},
+            {"id", "first_name", "last_name", "position", "department_id"},
             joins);
 
     auto selectSQL = queryBuilder.selectSQL({"c.name = 'Australia'"});
@@ -199,7 +210,7 @@ TEST(SPTK_QueryBuilder, insertSQL)
 {
     QueryBuilder queryBuilder(
             "employee", "id",
-            {"first_name", "last_name", "position", "department_id"});
+            {"id", "first_name", "last_name", "position", "department_id"});
 
     auto insertSQL = queryBuilder.insertSQL();
     EXPECT_STREQ(
@@ -216,7 +227,7 @@ TEST(SPTK_QueryBuilder, updateSQL)
 {
     QueryBuilder queryBuilder(
             "employee", "id",
-            {"first_name", "last_name", "position", "department_id"});
+            {"id", "first_name", "last_name", "position", "department_id"});
 
     auto updateSQL = queryBuilder.updateSQL();
     EXPECT_STREQ(
@@ -238,7 +249,7 @@ TEST(SPTK_QueryBuilder, deleteSQL)
 {
     QueryBuilder queryBuilder(
             "employee", "id",
-            {"first_name", "last_name", "position", "department_id"});
+            {"id", "first_name", "last_name", "position", "department_id"});
 
     auto deleteSQL = queryBuilder.deleteSQL();
     EXPECT_STREQ(
