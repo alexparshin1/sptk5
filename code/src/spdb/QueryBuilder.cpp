@@ -33,7 +33,6 @@ using namespace sptk;
 QueryBuilder::Join::Join(String tableAlias, Strings columns, String join)
 : tableAlias(move(tableAlias)), columns(move(columns)), joinDefinition(move(join))
 {
-
 }
 
 QueryBuilder::QueryBuilder(String tableName, String pkColumn, Strings columns,
