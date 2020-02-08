@@ -160,6 +160,11 @@ String QueryBuilder::deleteSQL(const Strings& filter, bool pretty) const
     return queryStr;
 }
 
+String QueryBuilder::tableName() const
+{
+    return m_tableName;
+}
+
 #if USE_GTEST
 
 TEST(SPTK_QueryBuilder, selectSQL)
