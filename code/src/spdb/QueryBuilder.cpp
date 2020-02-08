@@ -49,7 +49,7 @@ QueryBuilder::QueryBuilder(String tableName, String pkColumn, Strings columns,
             m_columns.remove(column);
 }
 
-String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bool pretty)
+String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bool pretty) const
 {
     stringstream query;
 
@@ -81,7 +81,7 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
     return queryStr;
 }
 
-String QueryBuilder::insertSQL(const Strings& columns, bool pretty)
+String QueryBuilder::insertSQL(const Strings& columns, bool pretty) const
 {
     stringstream query;
 
@@ -99,7 +99,7 @@ String QueryBuilder::insertSQL(const Strings& columns, bool pretty)
     return queryStr;
 }
 
-String QueryBuilder::updateSQL(const Strings& filter, const Strings& columns, bool pretty)
+String QueryBuilder::updateSQL(const Strings& filter, const Strings& columns, bool pretty) const
 {
     stringstream query;
 
@@ -131,7 +131,7 @@ String QueryBuilder::updateSQL(const Strings& filter, const Strings& columns, bo
     return queryStr;
 }
 
-String QueryBuilder::deleteSQL(const Strings& filter, bool pretty)
+String QueryBuilder::deleteSQL(const Strings& filter, bool pretty) const
 {
     stringstream query;
 
@@ -174,6 +174,27 @@ TEST(SPTK_QueryBuilder, selectSQL)
             selectSQL.c_str());
 }
 
+TEST(SPTK_QueryBuilder, selectJoinsSQL)
+{
+    vector<QueryBuilder::Join>  joins;
+    joins.emplace_back("d", Strings({"name department_name"}), "JOIN department d ON d.id = t.department_id");
+    joins.emplace_back("c", Strings({"name country_name"}), "JOIN country c ON c.id = d.country_id");
+
+    QueryBuilder queryBuilder(
+            "employee", "id",
+            {"first_name", "last_name", "position", "department_id"},
+            joins);
+
+    auto selectSQL = queryBuilder.selectSQL({"c.name = 'Australia'"});
+    EXPECT_STREQ(
+            "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id, d.name department_name, c.name country_name "
+            "FROM employee AS t "
+            "JOIN department d ON d.id = t.department_id "
+            "JOIN country c ON c.id = d.country_id "
+            "WHERE c.name = 'Australia'",
+            selectSQL.c_str());
+}
+
 TEST(SPTK_QueryBuilder, insertSQL)
 {
     QueryBuilder queryBuilder(
@@ -206,7 +227,6 @@ TEST(SPTK_QueryBuilder, updateSQL)
     EXPECT_STREQ(
             "UPDATE employee SET first_name = :first_name, last_name = :last_name, position = :position, department_id = :department_id WHERE id = 1 AND last_name = 'Doe'",
             updateSQL.c_str());
-    COUT(updateSQL << endl)
 
     updateSQL = queryBuilder.updateSQL({}, {"first_name", "last_name"});
     EXPECT_STREQ(

@@ -48,10 +48,10 @@ public:
 
     QueryBuilder(String tableName, String pkColumn, Strings columns={}, const std::vector<Join>& joins={});
 
-    String selectSQL(const Strings& filter= {}, const Strings& columns= {}, bool pretty= false);
-    String insertSQL(const Strings& columns= {}, bool pretty= false);
-    String updateSQL(const Strings& filter= {}, const Strings& columns= {}, bool pretty= false);
-    String deleteSQL(const Strings& filter= {}, bool pretty= false);
+    String selectSQL(const Strings& filter= {}, const Strings& columns= {}, bool pretty= false) const;
+    String insertSQL(const Strings& columns= {}, bool pretty= false) const;
+    String updateSQL(const Strings& filter= {}, const Strings& columns= {}, bool pretty= false) const;
+    String deleteSQL(const Strings& filter= {}, bool pretty= false) const;
 
 private:
     String              m_tableName;
