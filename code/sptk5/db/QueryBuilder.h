@@ -52,7 +52,7 @@ public:
     virtual String selectSQL(const Strings& filter={}, const Strings& columns={}, bool pretty=false) const;
     virtual String insertSQL(const Strings& columns={}, bool pretty= false) const;
     virtual String updateSQL(const Strings& filter={}, const Strings& columns={}, bool pretty=false) const;
-    virtual String deleteSQL(const Strings& filter={}, bool pretty= false) const;
+    virtual String deleteSQL(const Strings& filter={}, bool pretty=false) const;
 
     String tableName() const;
 
