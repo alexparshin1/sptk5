@@ -46,13 +46,13 @@ public:
         const String  joinDefinition;
     };
 
-    QueryBuilder(String tableName, String pkColumn, Strings columns={}, const std::vector<Join>& joins={});
+    QueryBuilder(String tableName, String pkColumn, Strings columns={}, std::vector<Join>  joins={});
     virtual ~QueryBuilder() = default;
 
-    virtual String selectSQL(const Strings& filter={}, const Strings& columns={}, bool pretty=false) const;
-    virtual String insertSQL(const Strings& columns={}, bool pretty= false) const;
-    virtual String updateSQL(const Strings& filter={}, const Strings& columns={}, bool pretty=false) const;
-    virtual String deleteSQL(const Strings& filter={}, bool pretty=false) const;
+    virtual String selectSQL(const Strings& filter, const Strings& columns, bool pretty) const;
+    virtual String insertSQL(const Strings& columns, bool pretty) const;
+    virtual String updateSQL(const Strings& filter, const Strings& columns, bool pretty) const;
+    virtual String deleteSQL(const Strings& filter, bool pretty) const;
 
     String tableName() const;
 

@@ -24,8 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <utility>
+
+
 #include "sptk5/db/QueryBuilder.h"
-#include "sptk5/cutils"
 
 using namespace std;
 using namespace sptk;
@@ -36,11 +38,11 @@ QueryBuilder::Join::Join(String tableAlias, Strings columns, String join)
 }
 
 QueryBuilder::QueryBuilder(String tableName, String pkColumn, Strings columns,
-                           const std::vector<Join>& joins)
+                           std::vector<Join>  joins)
 : m_tableName(move(tableName)),
   m_pkColumn(move(pkColumn)),
   m_columns(move(columns)),
-  m_joins(joins)
+  m_joins(std::move(joins))
 {
     m_columns.remove(m_pkColumn);
     for (auto& join: m_joins) {
@@ -173,17 +175,17 @@ TEST(SPTK_QueryBuilder, selectSQL)
             "employee", "id",
             {"first_name", "last_name", "position", "department_id"});
 
-    auto selectSQL = queryBuilder.selectSQL();
+    auto selectSQL = queryBuilder.selectSQL({},{},false);
     EXPECT_STREQ(
             "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee AS t",
             selectSQL.c_str());
 
-    selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"});
+    selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"},{},false);
     EXPECT_STREQ(
             "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee AS t WHERE id=1 AND name <> ''",
             selectSQL.c_str());
 
-    selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"}, {"first_name", "id"});
+    selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"}, {"first_name", "id"},false);
     EXPECT_STREQ(
             "SELECT first_name, id FROM employee AS t WHERE id=1 AND name <> ''",
             selectSQL.c_str());
@@ -200,7 +202,7 @@ TEST(SPTK_QueryBuilder, selectJoinsSQL)
             {"id", "first_name", "last_name", "position", "department_id"},
             joins);
 
-    auto selectSQL = queryBuilder.selectSQL({"c.name = 'Australia'"});
+    auto selectSQL = queryBuilder.selectSQL({"c.name = 'Australia'"}, {}, false);
     EXPECT_STREQ(
             "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id, d.name department_name, c.name country_name "
             "FROM employee AS t "
@@ -216,12 +218,12 @@ TEST(SPTK_QueryBuilder, insertSQL)
             "employee", "id",
             {"id", "first_name", "last_name", "position", "department_id"});
 
-    auto insertSQL = queryBuilder.insertSQL();
+    auto insertSQL = queryBuilder.insertSQL({}, false);
     EXPECT_STREQ(
             "INSERT INTO employee(first_name, last_name, position, department_id) VALUES (:first_name, :last_name, :position, :department_id)",
             insertSQL.c_str());
 
-    insertSQL = queryBuilder.insertSQL({"first_name", "last_name"});
+    insertSQL = queryBuilder.insertSQL({"first_name", "last_name"}, false);
     EXPECT_STREQ(
             "INSERT INTO employee(first_name, last_name) VALUES (:first_name, :last_name)",
             insertSQL.c_str());
@@ -233,17 +235,17 @@ TEST(SPTK_QueryBuilder, updateSQL)
             "employee", "id",
             {"id", "first_name", "last_name", "position", "department_id"});
 
-    auto updateSQL = queryBuilder.updateSQL();
+    auto updateSQL = queryBuilder.updateSQL({}, {}, false);
     EXPECT_STREQ(
             "UPDATE employee SET first_name = :first_name, last_name = :last_name, position = :position, department_id = :department_id WHERE id = :id",
             updateSQL.c_str());
 
-    updateSQL = queryBuilder.updateSQL({"id = 1", "last_name = 'Doe'"});
+    updateSQL = queryBuilder.updateSQL({"id = 1", "last_name = 'Doe'"}, {}, false);
     EXPECT_STREQ(
             "UPDATE employee SET first_name = :first_name, last_name = :last_name, position = :position, department_id = :department_id WHERE id = 1 AND last_name = 'Doe'",
             updateSQL.c_str());
 
-    updateSQL = queryBuilder.updateSQL({}, {"first_name", "last_name"});
+    updateSQL = queryBuilder.updateSQL({}, {"first_name", "last_name"}, false);
     EXPECT_STREQ(
             "UPDATE employee SET first_name = :first_name, last_name = :last_name WHERE id = :id",
             updateSQL.c_str());
@@ -255,12 +257,12 @@ TEST(SPTK_QueryBuilder, deleteSQL)
             "employee", "id",
             {"id", "first_name", "last_name", "position", "department_id"});
 
-    auto deleteSQL = queryBuilder.deleteSQL();
+    auto deleteSQL = queryBuilder.deleteSQL({}, false);
     EXPECT_STREQ(
             "DELETE employee WHERE id = :id",
             deleteSQL.c_str());
 
-    deleteSQL = queryBuilder.deleteSQL({"id = 1", "last_name = 'Doe'"});
+    deleteSQL = queryBuilder.deleteSQL({"id = 1", "last_name = 'Doe'"}, false);
     EXPECT_STREQ(
             "DELETE employee WHERE id = 1 AND last_name = 'Doe'",
             deleteSQL.c_str());
