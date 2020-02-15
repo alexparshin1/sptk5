@@ -147,7 +147,7 @@ String QueryBuilder::deleteSQL(const Strings& filter, bool pretty) const
 {
     stringstream query;
 
-    query << "DELETE " << m_tableName << endl;
+    query << "DELETE FROM " << m_tableName << endl;
 
     query << " WHERE ";
     if (filter.empty())
