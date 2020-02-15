@@ -264,12 +264,12 @@ TEST(SPTK_QueryBuilder, deleteSQL)
 
     auto deleteSQL = queryBuilder.deleteSQL({}, false);
     EXPECT_STREQ(
-            "DELETE employee WHERE id = :id",
+            "DELETE FROM employee WHERE id = :id",
             deleteSQL.c_str());
 
     deleteSQL = queryBuilder.deleteSQL({"id = 1", "last_name = 'Doe'"}, false);
     EXPECT_STREQ(
-            "DELETE employee WHERE id = 1 AND last_name = 'Doe'",
+            "DELETE FROM employee WHERE id = 1 AND last_name = 'Doe'",
             deleteSQL.c_str());
 }
 
