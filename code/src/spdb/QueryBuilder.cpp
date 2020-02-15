@@ -167,6 +167,11 @@ String QueryBuilder::tableName() const
     return m_tableName;
 }
 
+String QueryBuilder::pkColumnName() const
+{
+    return m_pkColumn;
+}
+
 #if USE_GTEST
 
 TEST(SPTK_QueryBuilder, selectSQL)

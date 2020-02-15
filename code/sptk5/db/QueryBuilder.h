@@ -55,6 +55,7 @@ public:
     virtual String deleteSQL(const Strings& filter, bool pretty) const;
 
     String tableName() const;
+    String pkColumnName() const;
 
 private:
     String              m_tableName;

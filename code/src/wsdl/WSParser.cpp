@@ -433,11 +433,13 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile)
     stringstream cmakeLists;
     cmakeLists << "# The following list of files is generated automatically." << endl;
     cmakeLists << "# Please don't edit it, or your changes may be overwritten." << endl << endl;
-    cmakeLists << "ADD_LIBRARY (" << capitalize(m_serviceName) << "WebService STATIC" << endl;
-    cmakeLists << "  " << serviceClassName << ".cpp " << serviceClassName << ".h" << endl;
+    cmakeLists << "SET (" << m_serviceName << "_files" << endl;
+    cmakeLists << "  " << sourceDirectory << "/" << serviceClassName << ".cpp "
+                       << sourceDirectory << "/" << serviceClassName << ".h" << endl;
 
     String wsdlFileName = "C" + capitalize(m_serviceName) + "WSDL";
-    cmakeLists << "  " << wsdlFileName << ".cpp " << wsdlFileName << ".h" << endl;
+    cmakeLists << "  " << sourceDirectory << "/" << wsdlFileName << ".cpp "
+                       << sourceDirectory << "/" << wsdlFileName << ".h" << endl;
 
     Strings usedClasses;
     for (auto& itor: m_complexTypes) {
@@ -446,7 +448,8 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile)
         module.open();
         complexType->generate(module.header(), module.source(), externalHeader.c_str());
         usedClasses.push_back("C" + complexType->name());
-        cmakeLists << "  C" << complexType->name() << ".cpp C" << complexType->name() << ".h" << endl;
+        cmakeLists << "  " << sourceDirectory << "/C" << complexType->name() << ".cpp "
+                           << sourceDirectory << "/C" << complexType->name() << ".h" << endl;
     }
 
     // Generate Service class definition
@@ -463,7 +466,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile)
 
     cmakeLists << ")" << endl;
 
-    replaceFile(sourceDirectory + "/CMakeLists.txt", cmakeLists);
+    replaceFile(m_serviceName + ".inc", cmakeLists);
 }
 
 void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& _wsdlFileName)
