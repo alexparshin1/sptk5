@@ -4,7 +4,7 @@
 using namespace std;
 using namespace sptk;
 
-const Strings CAccountBalanceResponse::m_fieldNames { "account_balance", "|"};
+const Strings CAccountBalanceResponse::m_fieldNames { "account_balance"};
 
 CAccountBalanceResponse::~CAccountBalanceResponse()
 {

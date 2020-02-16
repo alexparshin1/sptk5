@@ -5,6 +5,7 @@
       <xsd:element name="Hello">
         <xsd:complexType>
           <xsd:sequence>
+            <xsd:element name="action" type="xsd:string" />
             <xsd:element name="first_name" type="xsd:string" />
             <xsd:element name="last_name" type="xsd:string"></xsd:element>
           </xsd:sequence>

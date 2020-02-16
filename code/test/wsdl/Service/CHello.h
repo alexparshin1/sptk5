@@ -20,6 +20,7 @@ class CHello : public sptk::WSComplexType
 public:
 
    // Elements
+   sptk::WSString       m_action {"action"};
    sptk::WSString       m_first_name {"first_name"};
    sptk::WSString       m_last_name {"last_name"};
 
@@ -50,6 +51,7 @@ public:
     */
    CHello(const CHello& other) noexcept
    : sptk::WSComplexType(other),
+     m_action(other.m_action),
      m_first_name(other.m_first_name),
      m_last_name(other.m_last_name)
    {
@@ -61,6 +63,7 @@ public:
     */
    CHello(CHello&& other) noexcept
    : sptk::WSComplexType(std::move(other)),
+     m_action(std::move(other.m_action)),
      m_first_name(std::move(other.m_first_name)),
      m_last_name(std::move(other.m_last_name))
    {

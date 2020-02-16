@@ -49,7 +49,7 @@ namespace sptk {
 typedef std::map<sptk::String, sptk::String, CaseInsensitiveCompare> StringHttpFieldMap;
 
 /**
- * @brief HTTP params map
+ * HTTP params map
  *
  * Designed to hold HTTP parametrs in
  * CHttpConnect and CCgiApplication. It is, basically, a string-to-string
@@ -58,44 +58,56 @@ typedef std::map<sptk::String, sptk::String, CaseInsensitiveCompare> StringHttpF
 class HttpParams: public StringHttpFieldMap
 {
     /**
-     * @brief Encodes a string into HTML parameters
+     * Encodes a string into HTML parameters
      */
     static String encodeString(const String& str);
 
     /**
-     * @brief Decodes a string from HTML parameters
+     * Decodes a string from HTML parameters
      */
     static sptk::String decodeString(const String& str);
 public:
     /**
-     * @brief Default constructor.
+     * Default constructor.
      */
     HttpParams() = default;
 
     /**
-     * @brief Initialization constructor.
+     * Copy constructor.
+     */
+    HttpParams(const HttpParams& other) = default;
+
+    /**
+     * Initialization constructor.
      */
     HttpParams(std::initializer_list<std::pair<String,String>> lst);
 
     /**
-     * @brief Encodes HTTP parameters for sending to the server.
+     * Encodes HTTP parameters for sending to the server.
      * @param result            Output - encoded parameters string (if any) as the buffer.
      */
     void encode(Buffer& result) const;
 
     /**
-     * @brief Decodes HTTP parameters that came from the server as a string into parameters map.
+     * Decodes HTTP parameters that came from the server as a string into parameters map.
      * @param paramString       Parameters string from HTTP server
      * @param lowerCaseNames    True if you want to lower-case the parameter names
      */
     void decode(const Buffer& paramString, bool lowerCaseNames = false);
 
     /**
-     * @brief Returns parameter value, or empty string if not found
+     * Returns parameter value, or empty string if not found
      * @param paramName         Parameter name
      * @return parameter value
      */
     [[nodiscard]] String get(const String& paramName) const;
+
+    /**
+     * Returns true if parameter exists
+     * @param paramName         Parameter name
+     * @return true if parameter exists
+     */
+    [[nodiscard]] bool has(const String& paramName) const;
 };
 /**
  * @}

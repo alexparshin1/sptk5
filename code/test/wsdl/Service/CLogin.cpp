@@ -4,7 +4,7 @@
 using namespace std;
 using namespace sptk;
 
-const Strings CLogin::m_fieldNames { "username|password", "|"};
+const Strings CLogin::m_fieldNames { "username", "password"};
 
 CLogin::~CLogin()
 {

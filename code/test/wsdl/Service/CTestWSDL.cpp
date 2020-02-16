@@ -10,6 +10,7 @@ const char* Test_wsdl[] = {
     R"(      <xsd:element name="Hello">)",
     R"(        <xsd:complexType>)",
     R"(          <xsd:sequence>)",
+    R"(            <xsd:element name="action" type="xsd:string" />)",
     R"(            <xsd:element name="first_name" type="xsd:string" />)",
     R"(            <xsd:element name="last_name" type="xsd:string"></xsd:element>)",
     R"(          </xsd:sequence>)",

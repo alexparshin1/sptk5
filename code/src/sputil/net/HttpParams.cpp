@@ -112,10 +112,12 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
     Strings sl(cb.data(),"&");
     for (auto& s: sl) {
         size_t pos = s.find('=');
-        if (pos != STRING_NPOS) {
+        if (pos != string::npos) {
             string key = s.substr(0, pos);
             string value = s.substr(pos+1);
             (*this)[key] = decodeString(value);
+        } else {
+            (*this)[s] = "";
         }
     }
 }
@@ -139,6 +141,12 @@ String HttpParams::get(const String& paramName) const
     if (itor == end())
         return "";
     return itor->second;
+}
+
+bool HttpParams::has(const String& paramName) const
+{
+    auto itor = find(paramName);
+    return itor != end();
 }
 
 #if USE_GTEST

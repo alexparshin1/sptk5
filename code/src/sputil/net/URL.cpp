@@ -32,7 +32,7 @@ using namespace sptk;
 
 URL::URL(const String& url)
 {
-    RegularExpression matchUrl(R"(^(([a-z]+)://)?([\w\.\:]+)(/[\w\.\:/]+)(\?.*)?$)");
+    RegularExpression matchUrl(R"(^(([a-z]+)://)?([\w\.\:]+)?(/[\w\.\:/]+)(\?.*)?$)");
     Strings matches;
     if (matchUrl.m(url.trim(), matches)) {
         m_protocol = matches[1];
@@ -74,13 +74,15 @@ String URL::toString() const
 
 #if USE_GTEST
 
-static const char* testURL = "http://www.test.com:8080/daily/report?action=view&id=1";
+static const char* testURL = "http://johnd:secret@www.test.com:8080/daily/report?action=view&id=1";
 
 TEST(SPTK_URL, all)
 {
     URL url(testURL);
     EXPECT_STREQ(url.protocol().c_str(), "http");
     EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
+    EXPECT_STREQ(url.username().c_str(), "johnd");
+    EXPECT_STREQ(url.password().c_str(), "secret");
     EXPECT_STREQ(url.path().c_str(), "/daily/report");
 
     EXPECT_EQ(url.params().size(), size_t(2));

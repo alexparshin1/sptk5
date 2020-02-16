@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/net/URL.h>
 #include "sptk5/wsdl/WSConnection.h"
 
 using namespace std;
@@ -71,7 +72,7 @@ void WSConnection::run()
 
             auto& headers = httpReader.getHttpHeaders();
             String requestType = httpReader.getRequestType();
-            String url = httpReader.getRequestURL();
+            URL url(httpReader.getRequestURL());
 
             if (requestType == "OPTIONS") {
                 String origin = headers["origin"];
@@ -91,7 +92,7 @@ void WSConnection::run()
                 continue;
             }
 
-            if (url == m_paths.wsRequestPage + "?wsdl")
+            if (url.params().has("wsdl"))
                 protocolName = "wsdl";
 
             if (protocolName == "http") {
@@ -110,9 +111,9 @@ void WSConnection::run()
                         return;
                     }
 
-                    if (url != m_paths.wsRequestPage) {
-                        if (url == "/")
-                            url = m_paths.htmlIndexPage;
+                    if (url.path() != m_paths.wsRequestPage) {
+                        if (url.path() == "/")
+                            url.path(m_paths.htmlIndexPage);
 
                         WSStaticHttpProtocol protocol(&socket(), url, headers, m_paths.staticFilesDirectory);
                         protocol.process();

@@ -31,6 +31,7 @@
 
 #include "WSProtocol.h"
 #include <sptk5/cnet>
+#include <sptk5/net/URL.h>
 
 namespace sptk {
 
@@ -45,7 +46,7 @@ class WSWebServiceProtocol : public WSProtocol
 {
     HttpReader&     m_httpReader;   ///< HTTP reader
     WSRequest&      m_service;      ///< Web service
-    const String    m_url;          ///< Request URL
+    const URL       m_url;          ///< Request URL
     const String    m_hostname;     ///< Listener's hostname
     const uint16_t  m_port;         ///< Listener's port
     bool            m_allowCORS;    ///< Allow CORS?
@@ -67,7 +68,7 @@ public:
 
     /**
      * @brief Constructor
-     * @param httpReader            Connection socket
+     * @param httpReader        Connection socket
      * @param url               Method URL
      * @param headers           Connection HTTP headers
      * @param service           Web service that handles request
@@ -75,7 +76,7 @@ public:
      * @param port              Listener's port
      * @param allowCORS         Allow CORS
      */
-    WSWebServiceProtocol(HttpReader& httpReader, const String& url, WSRequest& service,
+    WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
                          const String& hostname, uint16_t port, bool allowCORS);
 
     /// @brief Process method
@@ -92,7 +93,7 @@ private:
     void generateFault(Buffer& output, size_t& httpStatusCode, String& httpStatusText, String& contentType,
                        const HTTPException& e, bool jsonOutput);
 
-    void RESTtoSOAP(Strings& url, const char* startOfMessage, xml::Document& message) const;
+    void RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) const;
 
     int getContentLength();
 

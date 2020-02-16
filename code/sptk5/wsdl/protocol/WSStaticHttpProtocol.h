@@ -31,6 +31,7 @@
 
 #include "WSProtocol.h"
 #include <sptk5/cnet>
+#include <sptk5/net/URL.h>
 
 namespace sptk {
 
@@ -42,16 +43,16 @@ namespace sptk {
 /// Session disconnects as soon as file is served.
 class WSStaticHttpProtocol : public WSProtocol
 {
-    String  m_url;                      ///< File URL
+    URL     m_url;                      ///< File URL
     String  m_staticFilesDirectory;     ///< Directory where static files reside on the server
 public:
 
     /// @brief Constructor
     /// @param socket           Connection socket
-    /// @param url              File URL
+    /// @param url              Resource URL
     /// @param headers          Connection HTTP headers
     /// @param staticFilesDirectory String, Directory where static files reside on the server
-    WSStaticHttpProtocol(TCPSocket* socket, const String& url, const HttpHeaders& headers, const String& staticFilesDirectory);
+    WSStaticHttpProtocol(TCPSocket* socket, const URL& url, const HttpHeaders& headers, const String& staticFilesDirectory);
 
     /// @brief Process method
     ///

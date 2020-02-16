@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const String& url, WSRequest& service,
+WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
                                            const String& hostname, uint16_t port, bool allowCORS)
 : WSProtocol(&httpReader.socket(), httpReader.getHttpHeaders()),
   m_httpReader(httpReader),
@@ -137,15 +137,18 @@ void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message
     }
 }
 
-void WSWebServiceProtocol::RESTtoSOAP(Strings& url, const char* startOfMessage, xml::Document& message) const
+void WSWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) const
 {
     // Converting JSON request to XML request
     json::Document jsonContent;
-    String method(*url.rbegin());
+    Strings pathElements(url.path(), "/");
+    String method(*pathElements.rbegin());
     auto* xmlEnvelope = new xml::Element(message, "soap:Envelope");
     xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
     auto* xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
     jsonContent.load(startOfMessage);
+    for (auto& itor: url.params())
+        jsonContent.root()[itor.first] = itor.second;
     jsonContent.root().exportTo("ns1:" + method, *xmlBody);
 }
 
@@ -213,31 +216,35 @@ void WSWebServiceProtocol::process()
             message.load(startOfMessage);
             xml::Node* xmlRequest = findRequestNode(message, "API request");
             auto* jsonEnvelope = jsonContent.root().set_object(xmlRequest->name());
+            for (auto& itor: m_url.params()) {
+                auto* paramNode = new xml::Element(xmlRequest, itor.second.c_str());
+                paramNode->text(itor.second);
+            }
             xmlRequest->exportTo(*jsonEnvelope);
-        } else if (*startOfMessage == '{' || *startOfMessage == '[') {
-            Strings url(m_url, "/");
-            if (url.size() < 2)
+        }
+        else if (*startOfMessage == '{' || *startOfMessage == '[') {
+            if (m_url.path().length() < 2)
                 generateFault(output, httpStatusCode, httpStatusText, contentType,
-                              HTTPException(404, "Invalid URL"),
+                              HTTPException(404, "Invalid resource path"),
                               requestIsJSON);
             else
-                RESTtoSOAP(url, startOfMessage, message);
-        } else {
+                RESTtoSOAP(m_url, startOfMessage, message);
+        }
+        else {
             generateFault(output, httpStatusCode, httpStatusText, contentType,
                           HTTPException(400, "Expect JSON content"),
                           requestIsJSON);
         }
     } else {
         // Empty request content
-        if (m_url.endsWith("?wsdl")) {
+        if (m_url.params().has("wsdl")) {
             // Requested WSDL content
             returnWSDL = true;
             output.set(m_service.wsdl());
             substituteHostname(output, m_hostname, m_port);
         } else {
             // Regular request w/o content
-            Strings url(m_url, "/");
-            RESTtoSOAP(url, "", message);
+            RESTtoSOAP(m_url, "", message);
         }
     }
 
@@ -281,7 +288,7 @@ shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()
 int WSWebServiceProtocol::getContentLength()
 {
     int contentLength = -1; // Undefined
-    if (m_url.endsWith("?wsdl"))
+    if (m_url.params().has("wsdl"))
         contentLength = 0;
 
     auto itor = headers().find("Content-Length");

@@ -42,6 +42,7 @@ class URL
 public:
     explicit URL(const String& url);
     URL(String protocol, String path, const HttpParams& params);
+    URL(const URL& other) = default;
 
     HttpParams& params() { return m_params; }
     const HttpParams& params() const { return m_params; }
@@ -51,6 +52,8 @@ public:
     String hostAndPort() const { return m_hostAndPort; }
     String path() const { return m_path; }
     String toString () const;
+
+    void path(const String& path) { m_path = path; }
 };
 
 }

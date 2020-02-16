@@ -34,8 +34,12 @@ using namespace sptk;
 
 void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuthentication*)
 {
+    if (input.m_action.asString() != "view")
+        throw Exception("Invalid action: expecting 'view'");
+
     if (input.m_first_name.asString() != "John" || input.m_last_name.asString() != "Doe")
         throw Exception("Invalid first or last name: expecting John Doe");
+
     output.m_date_of_birth = DateTime("1981-02-01");
     output.m_height = 6.5;
     output.m_hour_rate = 15.6;
@@ -103,6 +107,7 @@ TEST(SPTK_TestWebService, Hello)
     TestWebService service;
 
     CHello hello;
+    hello.m_action = "view";
     hello.m_first_name = "John";
     hello.m_last_name = "Doe";
 
@@ -178,7 +183,7 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
             client->open();
 
             HttpConnect httpClient(*client);
-            HttpParams httpParams { {"action", "test"} };
+            HttpParams httpParams { {"action", "view"} };
             Buffer requestResponse;
             httpClient.requestHeaders()["Content-Type"] = "application/json";
             httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer, allowGzipEncoding, requestResponse, jwtAuthorization.get());
