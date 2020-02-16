@@ -37,10 +37,12 @@ URL::URL(const String& url)
     if (matchUrl.m(url.trim(), matches)) {
         m_protocol = matches[1];
         m_hostAndPort = matches[2];
-        m_path = matches[3].empty() ? "" : matches[3];
-        if (matches[4].length() > 1) {
-            Buffer buffer(matches[4].substr(1));
-            m_params.decode(buffer);
+        if (matches.size() > 3) {
+            m_path = matches[3].empty() ? "" : matches[3];
+            if (matches.size() > 4) {
+                Buffer buffer(matches[4].substr(1));
+                m_params.decode(buffer);
+            }
         }
     }
 }
