@@ -133,6 +133,7 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
     SysLogEngine        logEngine("TestWebService");
     TestWebService      service;
 
+    // Define Web Service listener
     WSConnection::Paths paths("index.html","/test",".");
     WSListener          listener(service, logEngine, paths, "localhost", encrypted);
 
@@ -145,6 +146,7 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
             listener.setSSLKeys(sslKeys);
         }
 
+        // Start Web Service listener
         listener.listen(servicePort);
 
         for (auto& methodName: methodNames) {
@@ -176,9 +178,10 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
             client->open();
 
             HttpConnect httpClient(*client);
+            HttpParams httpParams { {"action", "test"} };
             Buffer requestResponse;
             httpClient.requestHeaders()["Content-Type"] = "application/json";
-            httpClient.cmd_post("/" + methodName, HttpParams(), sendRequestBuffer, allowGzipEncoding, requestResponse, jwtAuthorization.get());
+            httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer, allowGzipEncoding, requestResponse, jwtAuthorization.get());
             client->close();
 
             if (httpClient.statusCode() >= 400)
