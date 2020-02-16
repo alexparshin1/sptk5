@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       HttpParams.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,79 +24,35 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __HTTP_PARAMS_H__
-#define __HTTP_PARAMS_H__
+#ifndef __URL_H__
+#define __URL_H__
 
-#include <sptk5/sptk.h>
-#include <sptk5/Buffer.h>
-#include <sptk5/CaseInsensitiveCompare.h>
-
-#include <string>
-#include <map>
+#include <sptk5/net/HttpParams.h>
 
 namespace sptk {
 
-/**
- * @addtogroup utility Utility Classes
- * @{
- */
-
-/**
- * HTTP fields are implemented as case-insensitive map
- */
-typedef std::map<sptk::String, sptk::String, CaseInsensitiveCompare> StringHttpFieldMap;
-
-/**
- * @brief HTTP params map
- *
- * Designed to hold HTTP parametrs in
- * CHttpConnect and CCgiApplication. It is, basically, a string-to-string
- * map with an addition of encode and decode functions for HTTP Mime.
- */
-class HttpParams: public StringHttpFieldMap
+class URL
 {
-    /**
-     * @brief Encodes a string into HTML parameters
-     */
-    static String encodeString(const String& str);
-
-    /**
-     * @brief Decodes a string from HTML parameters
-     */
-    static sptk::String decodeString(const String& str);
+    String      m_protocol;
+    String      m_username;
+    String      m_password;
+    String      m_hostAndPort;
+    String      m_path;
+    HttpParams  m_params;
 public:
-    /**
-     * @brief Default constructor.
-     */
-    HttpParams() = default;
+    explicit URL(const String& url);
+    URL(String protocol, String path, const HttpParams& params);
 
-    /**
-     * @brief Initialization constructor.
-     */
-    HttpParams(std::initializer_list<std::pair<String,String>> lst);
-
-    /**
-     * @brief Encodes HTTP parameters for sending to the server.
-     * @param result            Output - encoded parameters string (if any) as the buffer.
-     */
-    void encode(Buffer& result) const;
-
-    /**
-     * @brief Decodes HTTP parameters that came from the server as a string into parameters map.
-     * @param paramString       Parameters string from HTTP server
-     * @param lowerCaseNames    True if you want to lower-case the parameter names
-     */
-    void decode(const Buffer& paramString, bool lowerCaseNames = false);
-
-    /**
-     * @brief Returns parameter value, or empty string if not found
-     * @param paramName         Parameter name
-     * @return parameter value
-     */
-    [[nodiscard]] String get(const String& paramName) const;
+    HttpParams& params() { return m_params; }
+    const HttpParams& params() const { return m_params; }
+    String protocol() const { return m_protocol; }
+    String username() const { return m_username; }
+    String password() const { return m_password; }
+    String hostAndPort() const { return m_hostAndPort; }
+    String path() const { return m_path; }
+    String toString () const;
 };
-/**
- * @}
- */
+
 }
+
 #endif

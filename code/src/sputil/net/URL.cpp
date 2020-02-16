@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       HttpParams.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,79 +24,70 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __HTTP_PARAMS_H__
-#define __HTTP_PARAMS_H__
+#include <sptk5/RegularExpression.h>
+#include <sptk5/net/URL.h>
 
-#include <sptk5/sptk.h>
-#include <sptk5/Buffer.h>
-#include <sptk5/CaseInsensitiveCompare.h>
+using namespace std;
+using namespace sptk;
 
-#include <string>
-#include <map>
-
-namespace sptk {
-
-/**
- * @addtogroup utility Utility Classes
- * @{
- */
-
-/**
- * HTTP fields are implemented as case-insensitive map
- */
-typedef std::map<sptk::String, sptk::String, CaseInsensitiveCompare> StringHttpFieldMap;
-
-/**
- * @brief HTTP params map
- *
- * Designed to hold HTTP parametrs in
- * CHttpConnect and CCgiApplication. It is, basically, a string-to-string
- * map with an addition of encode and decode functions for HTTP Mime.
- */
-class HttpParams: public StringHttpFieldMap
+URL::URL(const String& url)
 {
-    /**
-     * @brief Encodes a string into HTML parameters
-     */
-    static String encodeString(const String& str);
-
-    /**
-     * @brief Decodes a string from HTML parameters
-     */
-    static sptk::String decodeString(const String& str);
-public:
-    /**
-     * @brief Default constructor.
-     */
-    HttpParams() = default;
-
-    /**
-     * @brief Initialization constructor.
-     */
-    HttpParams(std::initializer_list<std::pair<String,String>> lst);
-
-    /**
-     * @brief Encodes HTTP parameters for sending to the server.
-     * @param result            Output - encoded parameters string (if any) as the buffer.
-     */
-    void encode(Buffer& result) const;
-
-    /**
-     * @brief Decodes HTTP parameters that came from the server as a string into parameters map.
-     * @param paramString       Parameters string from HTTP server
-     * @param lowerCaseNames    True if you want to lower-case the parameter names
-     */
-    void decode(const Buffer& paramString, bool lowerCaseNames = false);
-
-    /**
-     * @brief Returns parameter value, or empty string if not found
-     * @param paramName         Parameter name
-     * @return parameter value
-     */
-    [[nodiscard]] String get(const String& paramName) const;
-};
-/**
- * @}
- */
+    RegularExpression matchUrl(R"(^(([a-z]+)://)?([\w\.\:]+)(/[\w\.\:/]+)(\?.*)?$)");
+    Strings matches;
+    if (matchUrl.m(url.trim(), matches)) {
+        m_protocol = matches[1];
+        m_hostAndPort = matches[2];
+        m_path = matches[3].empty() ? "" : matches[3];
+        if (matches[4].length() > 1) {
+            Buffer buffer(matches[4].substr(1));
+            m_params.decode(buffer);
+        }
+    }
 }
+
+String URL::toString() const
+{
+    stringstream str;
+
+    if (!m_protocol.empty())
+        str << m_protocol << "://";
+
+    if (!m_username.empty())
+        str << m_username << ":" << m_password << "@";
+
+    if (m_hostAndPort.empty())
+        str << "localhost";
+    else
+        str << m_hostAndPort;
+
+    if (!m_path.empty())
+        str << m_path;
+
+    if (!m_params.empty()) {
+        Buffer buffer;
+        m_params.encode(buffer);
+        str << "?" << buffer.c_str();
+    }
+
+    return str.str();
+}
+
+#if USE_GTEST
+
+static const char* testURL = "http://www.test.com:8080/daily/report?action=view&id=1";
+
+TEST(SPTK_URL, all)
+{
+    URL url(testURL);
+    EXPECT_STREQ(url.protocol().c_str(), "http");
+    EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
+    EXPECT_STREQ(url.path().c_str(), "/daily/report");
+
+    EXPECT_EQ(url.params().size(), size_t(2));
+    EXPECT_STREQ(url.params().get("action").c_str(), "view");
+    EXPECT_STREQ(url.params().get("id").c_str(), "1");
+
+    EXPECT_STREQ(url.toString().c_str(), testURL);
+}
+
 #endif

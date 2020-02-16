@@ -32,6 +32,13 @@
 using namespace std;
 using namespace sptk;
 
+HttpParams::HttpParams(std::initializer_list<std::pair<String, String>> lst)
+{
+    for (auto& itor: lst) {
+        operator[](itor.first) = itor.second;
+    }
+}
+
 String HttpParams::encodeString(const String& str)
 {
     auto cnt = (uint32_t) str.length();
