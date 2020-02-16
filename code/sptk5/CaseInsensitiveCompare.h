@@ -56,7 +56,7 @@ public:
 #ifdef WIN32
         return stricmp(s1.c_str(), s2.c_str()) > 0;
 #else
-        return strcasecmp(s1.c_str(), s2.c_str()) > 0;
+        return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 #endif
     }
 };
