@@ -142,12 +142,12 @@ class WSParserComplexType
 
     String                  m_name;                 ///< Element name
     String                  m_typeName;             ///< WSDL type name
-    const xml::Element*     m_element;              ///< XML element for that WSDL element
+    const xml::Element*     m_element {nullptr};    ///< XML element for that WSDL element
     AttributeMap            m_attributes;           ///< Element attributes
     ElementList             m_sequence;             ///< Child element sequence
     WSMultiplicity          m_multiplicity;         ///< Multiplicity flag
     int                     m_refcount {0};         ///< Object reference count
-    WSRestriction*          m_restriction {nullptr};///< Element restriction (if any) or NULL
+    SharedWSRestriction     m_restriction;          ///< Element restriction (if any) or NULL
     String                  m_documentation;        ///< Optional documentation
 
 protected:
@@ -261,6 +261,9 @@ public:
      * Generates C++ class declaration and implementation
      */
     void generate(std::ostream& classDeclaration, std::ostream& classImplementation, const String& externalHeader);
+
+    static std::map<String, const xml::Element*> SimpleTypeElements;
+    static const xml::Element* findSimpleType(const String& typeName);
 
 private:
     /**

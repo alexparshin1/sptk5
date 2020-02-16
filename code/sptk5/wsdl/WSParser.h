@@ -126,6 +126,12 @@ protected:
     void parseElement(const xml::Element* element);
 
     /**
+     * Parses xsd:simpleType nodes directly under xsd:schema
+     * @param simpleTypeElement Schema simple type
+     */
+    void parseSimpleType(const xml::Element* simpleTypeElement);
+
+    /**
      * Parses xsd:complexType nodes directly under xsd:schema
      * @param complexTypeElement Schema complex type
      */

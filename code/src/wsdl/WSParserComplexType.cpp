@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSParserComplexType.cpp - description                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -34,6 +32,8 @@
 using namespace std;
 using namespace sptk;
 
+std::map<String, const xml::Element*> WSParserComplexType::SimpleTypeElements;
+
 WSParserAttribute::WSParserAttribute(const String& name, const String& typeName)
 : m_name(name),
   m_wsTypeName(typeName)
@@ -56,11 +56,17 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
   m_typeName(typeName.empty() ? (String) complexTypeElement->getAttribute("type") : typeName),
   m_element(complexTypeElement)
 {
-    if (m_typeName.empty() && complexTypeElement->name() == "xsd:element") {
-        xml::Node* restrictionElement = complexTypeElement->findFirst("xsd:restriction");
+    const xml::Element* simpleTypeElement = nullptr;
+    if (!m_typeName.empty())
+        simpleTypeElement = findSimpleType(m_typeName);
+    else if (complexTypeElement->name() == "xsd:element")
+        simpleTypeElement = m_element;
+
+    if (simpleTypeElement) {
+        xml::Node* restrictionElement = simpleTypeElement->findFirst("xsd:restriction");
         if (restrictionElement != nullptr) {
             m_typeName = (String) restrictionElement->getAttribute("base");
-            m_restriction = new WSRestriction(m_typeName, (xml::Element*) restrictionElement->parent());
+            m_restriction = make_shared<WSRestriction>(m_typeName, (xml::Element*) restrictionElement->parent());
         }
     }
 
@@ -99,7 +105,6 @@ WSParserComplexType::~WSParserComplexType()
             delete element;
         for (auto& itor: m_attributes)
             delete itor.second;
-        delete m_restriction;
     }
 }
 
@@ -802,4 +807,12 @@ void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImpl
     Strings fieldList;
     generateDefinition(classDeclaration, fieldList);
     generateImplementation(classImplementation, fieldList);
+}
+
+const xml::Element* WSParserComplexType::findSimpleType(const String& typeName)
+{
+    auto itor = SimpleTypeElements.find(typeName);
+    if (itor == SimpleTypeElements.end())
+        return nullptr;
+    return itor->second;
 }

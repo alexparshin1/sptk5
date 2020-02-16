@@ -102,6 +102,20 @@ void WSParser::parseElement(const xml::Element* elementNode)
     m_elements[elementName] = complexType;
 }
 
+void WSParser::parseSimpleType(const xml::Element* simpleTypeElement)
+{
+    String simpleTypeName = (String) simpleTypeElement->getAttribute("name");
+    if (simpleTypeName.empty())
+        return;
+
+    simpleTypeName = "tns:" + simpleTypeName;
+
+    if (WSParserComplexType::findSimpleType(simpleTypeName))
+        throwException("Duplicate simpleType definition: " << simpleTypeName)
+
+    WSParserComplexType::SimpleTypeElements[simpleTypeName] = simpleTypeElement;
+}
+
 void WSParser::parseComplexType(const xml::Element* complexTypeElement)
 {
     String complexTypeName = (String) complexTypeElement->getAttribute("name");
@@ -171,6 +185,15 @@ void WSParser::parseOperation(xml::Element* operationNode)
 
 void WSParser::parseSchema(xml::Element* schemaElement)
 {
+    xml::NodeVector simpleTypeNodes;
+    schemaElement->select(simpleTypeNodes, "//xsd:simpleType");
+
+    for (auto* node: simpleTypeNodes) {
+        auto* element = dynamic_cast<const xml::Element*>(node);
+        if (element != nullptr && element->name() == "xsd:simpleType")
+            parseSimpleType(element);
+    }
+
     xml::NodeVector complexTypeNodes;
     schemaElement->select(complexTypeNodes, "//xsd:complexType");
 
