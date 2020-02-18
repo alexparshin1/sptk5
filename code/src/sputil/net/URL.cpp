@@ -33,14 +33,14 @@ using namespace sptk;
 URL::URL(const String& url)
 {
     RegularExpression matchUrl(R"(^(([a-z]+)://)?([\w\.\:]+)?(/[\w\.\:/]+)(\?.*)?$)");
-    Strings matches;
-    if (matchUrl.m(url.trim(), matches)) {
-        m_protocol = matches[1];
-        m_hostAndPort = matches[2];
-        if (matches.size() > 3) {
-            m_path = matches[3].empty() ? "" : matches[3];
-            if (matches.size() > 4) {
-                Buffer buffer(matches[4].substr(1));
+    auto matches = matchUrl.m(url.trim());
+    if (matches) {
+        m_protocol = matches[1].value;
+        m_hostAndPort = matches[2].value;
+        if (matches.groups().size() > 3) {
+            m_path = matches[3].value.empty() ? "" : matches[3].value;
+            if (matches.groups().size() > 4) {
+                Buffer buffer(matches[4].value.substr(1));
                 m_params.decode(buffer);
             }
         }

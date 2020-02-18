@@ -79,16 +79,15 @@ Node* Document::createElement(const char* tagname)
 
 void Document::processAttributes(Node* node, char* ptr)
 {
-    Strings matches;
-    m_parseAttributes.m(ptr, matches);
+    auto matches = m_parseAttributes.m(ptr);
 
-    for (auto itor = matches.begin(); itor != matches.end(); ++itor) {
-        auto& attributeName = *itor;
+    for (auto itor = matches.groups().begin(); itor != matches.groups().end(); ++itor) {
+        auto& attributeName = itor->value;
         ++itor;
-        if (itor == matches.end())
+        if (itor == matches.groups().end())
             break;
         m_encodeBuffer.bytes(0);
-        m_doctype.decodeEntities(itor->c_str(), itor->length(), m_encodeBuffer);
+        m_doctype.decodeEntities(itor->value.c_str(), itor->value.length(), m_encodeBuffer);
         node->setAttribute(attributeName, m_encodeBuffer.c_str());
     }
 }
@@ -295,8 +294,7 @@ char* Document::readProcessingInstructions(char* nodeName, char* tokenEnd, char*
         throw Exception("Invalid PI section: no closing tag");
     *nodeEnd = 0;
 
-    Strings matches;
-    m_parseAttributes.m(tokenEnd, matches);
+    auto matches = m_parseAttributes.m(tokenEnd);
 
     *tokenEnd = 0;
     auto* pi = new PI(*currentNode, nodeName + 1, "");

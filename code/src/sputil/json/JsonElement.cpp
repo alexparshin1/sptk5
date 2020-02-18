@@ -833,13 +833,13 @@ Element::XPath::XPath(const sptk::String& _xpath)
     Strings pathElements(xpath, "/");
     RegularExpression parsePathElement(R"(([^\[]+)(\[(\d+|last\(\))\])?)");
     for (auto& pathElement: pathElements) {
-        Strings matches;
-        if (!parsePathElement.m(pathElement, matches))
+        auto matches = parsePathElement.m(pathElement);
+        if (!matches)
             throw Exception("Unsupported XPath element");
         int index = 0;
-        if (matches.size() > 2)
-            index = matches[2] == "last()" ? -1 : string2int(matches[2]);
-        emplace_back(matches[0], index);
+        if (matches.groups().size() > 2)
+            index = matches[2].value == "last()" ? -1 : string2int(matches[2].value);
+        emplace_back(matches[0].value, index);
     }
 }
 

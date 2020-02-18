@@ -75,7 +75,7 @@ static void splitByRegExp(Strings& dest, const String& src, const char* pattern)
     RegularExpression regularExpression(pattern);
 
     dest.clear();
-    regularExpression.split(src, dest);
+    dest = regularExpression.split(src);
 }
 
 Strings::Strings(const String& src, const char *delimiter, SplitMode mode) noexcept

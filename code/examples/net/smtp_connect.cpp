@@ -56,12 +56,12 @@ int main(int argc, char* argv[])
 
         if (argc == 3) {
             RegularExpression parser("^((\\S+):(\\S+)@){0,1}([\\w_\\-\\.]+)(:\\d+){0,1}$", "i");
-            Strings matches;
-            if (parser.m(argv[1], matches)) {
-                user = matches[1];
-                password = matches[2];
-                host = matches[3];
-                portStr = matches[4];
+            auto matches = parser.m(argv[1]);
+            if (matches) {
+                user = matches[1].value;
+                password = matches[2].value;
+                host = matches[3].value;
+                portStr = matches[4].value;
                 if (!portStr.empty())
                     portStr.erase(0, 1);
                 else

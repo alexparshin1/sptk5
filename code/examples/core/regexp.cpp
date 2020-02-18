@@ -76,12 +76,12 @@ int main()
         COUT("\nParsing the text: " << text << endl)
         RegularExpression connectionParser("(user|password|host)='([\\S]+)'", "g");
         RegularExpression parameterParser("(\\S+)=['\"]([\\S]+)['\"]");
-        Strings matches;
-        if (connectionParser.m(text, matches)) {
-            for (unsigned i = 0; i < matches.size(); i++) {
-                COUT(matches[i] << " : ")
+        auto matches = connectionParser.m(text);
+        if (matches) {
+            for (unsigned i = 0; i < matches.groups().size(); i++) {
+                COUT(matches[i].value << " : ")
                 i++;
-                COUT(matches[i] << endl)
+                COUT(matches[i].value << endl)
             }
             COUT(endl)
         } else

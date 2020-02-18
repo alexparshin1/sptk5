@@ -1065,7 +1065,7 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch) const
     RegularExpression matchCommentRow(R"(^\s*--)");
 
     Strings statements;
-    Strings matches;
+    RegularExpression::Groups matches;
     String  delimiter;
     stringstream statement;
 
@@ -1078,16 +1078,16 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch) const
                 continue;
         }
 
-        if (!functionHeader && matchFunction.m(row, matches)) {
+        if (!functionHeader && matchFunction.matches(row)) {
             functionHeader = true;
             statement << row << "\n";
             continue;
         }
 
-        if (functionHeader && !functionBody && matchFunctionBodyStart.m(row, matches)) {
+        if (functionHeader && !functionBody && matchFunctionBodyStart.matches(row)) {
             functionBody = true;
             functionHeader = false;
-            delimiter = matches[0];
+            delimiter = matches[0].value;
             statement << row << "\n";
             continue;
         }
@@ -1097,7 +1097,7 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch) const
             functionBody = false;
         }
 
-        if (!functionBody && matchStatementEnd.m(row, matches)) {
+        if (!functionBody && matchStatementEnd.matches(row)) {
             statement << row;
             statements.push_back(statement.str());
             statement.str("");

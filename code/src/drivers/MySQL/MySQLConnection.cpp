@@ -367,21 +367,21 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
-    Strings matches;
     String statement;
     String delimiter = ";";
     for (auto row: sqlBatch) {
         row = row.trim();
         if (row.empty() || matchCommentRow.matches(row))
             continue;
-        if (matchDelimiterChange.m(row, matches)) {
-            delimiter = matches[0];
+        auto matches = matchDelimiterChange.m(row);
+        if (matches) {
+            delimiter = matches[0].value;
             delimiter = matchEscapeChars.s(delimiter, "\\\\1");
             matchStatementEnd = make_shared<RegularExpression>("(" + delimiter + ")(\\s*|-- .*)$");
             statement = "";
             continue;
         }
-        if (matchStatementEnd->m(row, matches)) {
+        if (matchStatementEnd->matches(row)) {
             row = matchStatementEnd->s(row, "");
             statement += row;
             statements.push_back(statement);

@@ -52,14 +52,14 @@ bool HttpReader::readStatus()
         m_socket.readyToRead(chrono::seconds(1));
     }
 
-    Strings matches;
-    if (!m_matchProtocolAndResponseCode.m(status, matches)) {
+    auto matches = m_matchProtocolAndResponseCode.m(status);
+    if (!matches) {
         m_readerState = READ_ERROR;
         throw Exception("Broken HTTP version header: [" + status + "]");
     }
-    m_statusCode = string2int(matches[1]);
-    if (matches.size() > 2)
-        m_statusText = matches[2].trim();
+    m_statusCode = string2int(matches[1].value);
+    if (matches.groups().size() > 2)
+        m_statusText = matches[2].value.trim();
 
     m_readerState = READING_HEADERS;
 
@@ -74,11 +74,10 @@ bool HttpReader::readHttpRequest()
         return false;
 
     RegularExpression parseProtocol("^(GET|POST|DELETE|PUT|OPTIONS) (\\S+)", "i");
-    Strings           matches;
-
-    if (parseProtocol.m(request, matches)) {
-        m_requestType = matches[0].toUpperCase();
-        m_requestURL = matches[1];
+    auto matches = parseProtocol.m(request);
+    if (matches) {
+        m_requestType = matches[0].value.toUpperCase();
+        m_requestURL = matches[1].value;
         return true;
     }
 

@@ -58,11 +58,11 @@ Host::Host(String hostname, uint16_t port)
 Host::Host(const String& hostAndPort)
 {
     RegularExpression matchHost(R"(^(\[.*\]|[^\[\]:]*)(:\d+)?)");
-    Strings matches;
-    if (matchHost.m(hostAndPort, matches)) {
-        m_hostname = matches[0];
-        if (matches.size() > 1)
-            m_port = (uint16_t) string2int(matches[1].substr(1));
+    auto matches = matchHost.m(hostAndPort);
+    if (matches) {
+        m_hostname = matches[0].value;
+        if (matches.groups().size() > 1)
+            m_port = (uint16_t) string2int(matches[1].value.substr(1));
         getHostAddress();
         setPort(m_port);
     } else {

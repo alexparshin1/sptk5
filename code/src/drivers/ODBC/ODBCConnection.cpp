@@ -813,7 +813,6 @@ void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     RegularExpression   matchCommentRow("^\\s*--");
 
     Strings statements;
-    Strings matches;
     string statement;
     bool routineStarted = false;
     for (String row: sqlBatch) {
@@ -827,10 +826,10 @@ void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
                 continue;
         }
 
-        if (matchRoutineStart.m(row, matches))
+        if (matchRoutineStart.matches(row))
             routineStarted = true;
 
-        if (!routineStarted && matchStatementEnd.m(row, matches)) {
+        if (!routineStarted && matchStatementEnd.matches(row)) {
             row = matchStatementEnd.s(row, "");
             statement += row;
             statements.push_back(trim(statement));
@@ -838,7 +837,7 @@ void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
             continue;
         }
 
-        if (matchGo.m(row, matches)) {
+        if (matchGo.matches(row)) {
             routineStarted = false;
             statements.push_back(trim(statement));
             statement = "";

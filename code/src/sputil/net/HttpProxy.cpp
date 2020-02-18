@@ -78,22 +78,22 @@ bool HttpProxy::readResponse(shared_ptr<TCPSocket>& socket) const
     socket->readLine(buffer);
 
     RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
-    Strings responseMatches;
-    if (matchProxyResponse.m(buffer.c_str(), responseMatches)) {
-        int rc = responseMatches[0].toInt();
+    auto responseMatches = matchProxyResponse.m(buffer.c_str());
+    if (responseMatches) {
+        int rc = responseMatches[0].value.toInt();
         if (rc < 400)
             proxyConnected = true;
     }
 
     // Read all headers
-    Strings matches;
     RegularExpression matchResponseHeader(R"(^(\S+): (.*)$)");
     int contentLength = -1;
     while (buffer.bytes() > 1) {
         socket->readLine(buffer);
-        if (matchResponseHeader.m(buffer.c_str(), matches)) {
-            if (matches[0].toLowerCase() == "content-length")
-                contentLength = matches[1].toInt();
+        auto matches = matchResponseHeader.m(buffer.c_str());
+        if (matches) {
+            if (matches[0].value.toLowerCase() == "content-length")
+                contentLength = matches[1].value.toInt();
         } else
             break;
     }
@@ -198,11 +198,11 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
     if (proxyEnv == nullptr)
         return false;
 
-    Strings parts;
-    if (matchProxy.m(proxyEnv, parts)) {
-        proxyUser = parts[2];
-        proxyPassword = parts[3].empty() ? "" : parts[3].substr(1);
-        proxyHost = Host(parts[4]);
+    auto parts = matchProxy.m(proxyEnv);
+    if (parts) {
+        proxyUser = parts[2].value;
+        proxyPassword = parts[3].value.empty() ? "" : parts[3].value.substr(1);
+        proxyHost = Host(parts[4].value);
         return true;
     }
 
@@ -224,15 +224,15 @@ TEST(SPTK_HttpProxy, connect)
         return; // No proxy defined, don't test
 
     RegularExpression matchProxy(R"(^((.*):(.*)@)?(\d+\.\d+\.\d+\.\d+:\d+)$)");
-    Strings matches;
-    if (!matchProxy.m(proxy, matches)) {
+    auto matches = matchProxy.m(proxy);
+    if (!matches) {
         CERR("Can't parse proxy from environment variable" << endl)
         return;
     }
 
-    String  proxyUser(matches[1]);
-    String  proxyPassword(matches[2]);
-    Host    proxyHost(matches[3]);
+    String  proxyUser(matches[1].value);
+    String  proxyPassword(matches[2].value);
+    Host    proxyHost(matches[3].value);
 
     auto httpProxy = make_shared<HttpProxy>(proxyHost, proxyUser, proxyPassword);
     String error;

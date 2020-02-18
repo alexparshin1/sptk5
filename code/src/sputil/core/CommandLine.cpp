@@ -70,8 +70,7 @@ bool CommandLine::Visibility::any() const
 
 bool CommandLine::Visibility::matches(const String& command) const
 {
-    Strings matches;
-    return m_inverted == !m_regexp->m(command, matches);
+    return m_inverted == !m_regexp->matches(command);
 }
 //=============================================================================
 
@@ -165,9 +164,8 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
     }
 
     if (!optionDefaultValue.empty()) {
-        Strings matches;
         String printDefaultValue = optionDefaultValue;
-        if (!doesntNeedQuotes.m(printDefaultValue, matches))
+        if (!doesntNeedQuotes.matches(printDefaultValue))
             printDefaultValue = "'" + optionDefaultValue + "'";
         string defaultValueStr = "The default value is " + printDefaultValue + ".";
         snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", defaultValueStr.c_str());
@@ -251,8 +249,7 @@ void CommandLine::CommandLineParameter::validate(const String& value) const
 {
     if (m_validateValue == nullptr)
         return;
-    Strings matches;
-    if (!m_validateValue->m(value, matches))
+    if (!m_validateValue->matches(value))
         throw Exception("Parameter " + name() + " has invalid value");
 }
 

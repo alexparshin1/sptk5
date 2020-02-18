@@ -186,11 +186,14 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 
     printDeclarationIncludes(classDeclaration, usedClasses);
 
-    Strings words;
     String  tagName = lowerCase(className.substr(1));
     RegularExpression matchWords("([A-Z]+[a-z]+)", "g");
-    if (matchWords.m(className.substr(1), words)) {
-        tagName = words.join("_").toLowerCase();
+    auto words = matchWords.m(className.substr(1));
+    if (words) {
+        Strings wordList;
+        for (auto& word: words.groups())
+            wordList.push_back(word.value);
+        tagName = wordList.join("_").toLowerCase();
     }
 
     classDeclaration << "/**" << endl;

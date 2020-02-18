@@ -37,10 +37,10 @@ Exception::Exception(const String& text, const String& file, int line, const Str
 {
     if (m_line != 0 && !m_file.empty()) {
         RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
-        Strings matches;
         String fname(file);
-        if (matchFileName.m(file, matches))
-            fname = matches[0];
+        auto matches = matchFileName.m(file);
+        if (!matches.empty())
+            fname = matches[0].value;
 		m_fullMessage += " in " + fname + "(" + int2string(uint32_t(m_line)) + ")";
     }
 

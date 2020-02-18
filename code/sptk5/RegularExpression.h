@@ -30,12 +30,34 @@
 #define __SPTK_REGULAR_EXPRESSION_H__
 
 #include <sptk5/sptk.h>
+#include <sptk5/sptk-config.h>
 #include <sptk5/Strings.h>
 
+#if HAVE_PCRE2
+#define PCRE2_STATIC
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
+#define SPRE_CASELESS   PCRE2_CASELESS
+#define SPRE_MULTILINE  PCRE2_MULTILINE
+#define SPRE_DOTALL     PCRE2_DOTALL
+#define SPRE_EXTENDED   PCRE2_EXTENDED
+#define pcre_offset_t   long
+#endif
+
+#include <pcre.h>
+
 #if HAVE_PCRE
+#include <pcre.h>
+#define SPRE_CASELESS   PCRE_CASELESS
+#define SPRE_MULTILINE  PCRE_MULTILINE
+#define SPRE_DOTALL     PCRE_DOTALL
+#define SPRE_EXTENDED   PCRE_EXTENDED
+#define pcre_offset_t   int
+#endif
+
+#if (HAVE_PCRE2 | HAVE_PCRE)
 
 #include <vector>
-#include <pcre.h>
 #include <functional>
 
 namespace sptk {
@@ -50,27 +72,77 @@ namespace sptk {
  */
 class SP_EXPORT RegularExpression
 {
+public:
+
+    class Group
+    {
+    public:
+        Group(String value, size_t start_position, size_t end_position)
+        : value(move(value)), start_position(start_position), end_position(end_position)
+        {}
+
+        Group() = default;
+        Group(const Group& other) = default;
+
+        String        value;
+        pcre_offset_t start_position {0};
+        pcre_offset_t end_position {0};
+    };
+
+    class Groups
+    {
+    public:
+        Groups() = default;
+        Groups(const Groups& other) = default;
+        Groups(Groups&& other);
+
+        const Group& operator[] (size_t index) const;
+        const Group& operator[] (const String& name) const;
+
+        const std::vector<Group>&      groups() const { return m_groups; }
+        const std::map<String, Group>& namedGroups() const { return m_namedGroups; }
+
+        void add(const Group& group) { m_groups.push_back(group); }
+        void add(const String& name, const Group& group) { m_namedGroups[name] = group; }
+
+        bool empty() const { return m_groups.empty(); }
+        operator bool () const { return !m_groups.empty(); }
+
+    private:
+        std::vector<Group>      m_groups;
+        std::map<String, Group> m_namedGroups;
+        static const Group emptyGroup;
+    };
+
+private:
     /**
      * Match position information
      */
     typedef struct {
-        int         m_start;                ///< Match start
-        int         m_end;                  ///< Match end
+        pcre_offset_t   m_start;                ///< Match start
+        pcre_offset_t   m_end;                  ///< Match end
     } Match;
 
     typedef std::vector<Match> Matches;     ///< Vector of match positions
 
-    String          m_pattern;              ///< Match pattern
-    bool            m_global {false};       ///< Global match (g) or first match only
-    String          m_error;                ///< Last pattern error (if any)
-    pcre*           m_pcre {nullptr};       ///< Compiled PCRE expression handle
-    pcre_extra*     m_pcreExtra {nullptr};  ///< Compiled PCRE expression optimization (for faster execution)
-    int32_t         m_pcreOptions {0};      ///< PCRE pattern options
+    String                  m_pattern;              ///< Match pattern
+    bool                    m_global {false};       ///< Global match (g) or first match only
+    String                  m_error;                ///< Last pattern error (if any)
+
+#if HAVE_PCRE2
+    pcre2_code*             m_pcre {nullptr};
+    pcre2_match_data*       m_match_data {nullptr};
+#else
+    pcre*                   m_pcre {nullptr};       ///< Compiled PCRE expression handle
+    pcre_extra*             m_pcreExtra {nullptr};  ///< Compiled PCRE expression optimization (for faster execution)
+#endif
+
+    int32_t                 m_options {0};          ///< PCRE pattern options
 
     /**
      * Initialize PCRE expression
      */
-    void initPCRE();
+    void compile();
 
     /**
      * Computes match positions and lengths
@@ -132,10 +204,9 @@ public:
     /**
      * Returns list of strings matched with regular expression
      * @param text              Text to process
-     * @param matchedStrings    List of matched strings
-     * @return true if match found
+     * @return matched groups
      */
-    bool m(const String& text, Strings& matchedStrings) const;
+    Groups m(const String& text) const;
 
     /**
      * Replaces matches with replacement string
@@ -157,10 +228,9 @@ public:
     /**
      * Returns list of strings split by regular expression
      * @param text              Text to process
-     * @param outputStrings     List of matched strings
-     * @return true if match found
+     * @return List of strings
      */
-    bool split(const String& text, Strings& outputStrings) const;
+    Strings split(const String& text) const;
 
     /**
      * Replaces matches with replacement string
@@ -195,6 +265,10 @@ private:
      * @return placeholder position
      */
     size_t findNextPlaceholder(size_t pos, const String& outputPattern) const;
+
+    int getNamedGroupCount() const;
+
+    void getNameTable(const char*& nameTable, int& nameEntrySize) const;
 };
 
 /**

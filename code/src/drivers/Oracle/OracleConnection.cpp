@@ -628,7 +628,6 @@ void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors
     RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
-    Strings matches;
     string statement;
     bool routineStarted = false;
     for (auto& arow: sqlBatch) {
@@ -640,14 +639,14 @@ void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors
             row = trim(row);
             if (row.empty())
                 continue;
-            if (matchShowErrors.m(row, matches))
+            if (matchShowErrors.matches(row))
                 continue;
         }
 
-        if (matchRoutineStart.m(row, matches))
+        if (matchRoutineStart.matches(row))
             routineStarted = true;
 
-        if (!routineStarted && matchStatementEnd.m(row, matches)) {
+        if (!routineStarted && matchStatementEnd.matches(row)) {
             row = matchStatementEnd.s(row, "");
             statement += row;
             statements.push_back(trim(statement));
@@ -655,7 +654,7 @@ void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors
             continue;
         }
 
-        if (matchGo.m(row, matches)) {
+        if (matchGo.matches(row)) {
             routineStarted = false;
             statements.push_back(trim(statement));
             statement = "";
