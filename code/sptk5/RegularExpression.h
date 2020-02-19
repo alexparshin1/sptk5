@@ -131,7 +131,6 @@ private:
 
 #if HAVE_PCRE2
     pcre2_code*             m_pcre {nullptr};
-    pcre2_match_data*       m_match_data {nullptr};
 #else
     pcre*                   m_pcre {nullptr};       ///< Compiled PCRE expression handle
     pcre_extra*             m_pcreExtra {nullptr};  ///< Compiled PCRE expression optimization (for faster execution)
@@ -144,9 +143,23 @@ private:
     class MatchData
     {
     public:
-        MatchData() : matches(128) {}
+#if HAVE_PCRE2
+        MatchData(pcre2_code* pcre)
+        : matches(128),
+          match_data(pcre2_match_data_create_from_pattern(pcre, nullptr))
+        {}
 
-        Matches     matches;
+        ~MatchData()
+        {
+            if (match_data)
+                pcre2_match_data_free(match_data);
+        }
+#else
+        MatchData() : matches(128) {}
+#endif
+
+        Matches             matches;
+        pcre2_match_data*   match_data {nullptr};
     };
 
 

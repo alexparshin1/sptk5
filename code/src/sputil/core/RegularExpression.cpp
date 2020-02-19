@@ -77,10 +77,6 @@ void RegularExpression::compile()
         pcre2_get_error_message(errornumber, buffer, sizeof(buffer));
         throw Exception((const char*) buffer);
     }
-
-    /* Ensures that the block is exactly the right size for
-    the number of capturing parentheses in the pattern. */
-    m_match_data = pcre2_match_data_create_from_pattern(m_pcre, nullptr);
 #else
     const char* error;
     int errorOffset;
@@ -136,8 +132,6 @@ RegularExpression::RegularExpression(const RegularExpression& other)
 RegularExpression::~RegularExpression()
 {
 #if HAVE_PCRE2
-    if (m_match_data)
-        pcre2_match_data_free(m_match_data);
     if (m_pcre)
         pcre2_code_free(m_pcre);
 #else
@@ -155,7 +149,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
     if (!m_pcre) throwException(m_error)
 
 #if HAVE_PCRE2
-    auto ovector = pcre2_get_ovector_pointer(m_match_data);
+    auto ovector = pcre2_get_ovector_pointer(matchData.match_data);
 
     auto rc = pcre2_match(
             m_pcre,                     // the compiled pattern
@@ -163,7 +157,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
             text.length(),              // the length of the subject
             offset,                     // start at offset in the subject
             0,                          // default options
-            m_match_data,               // block for storing the result
+            matchData.match_data,       // block for storing the result
             nullptr);                   // use default match context
 
     if (rc >= 0) {
@@ -215,21 +209,21 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 bool RegularExpression::operator==(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData;
+    MatchData matchData(m_pcre);
     return nextMatch(text, offset, matchData) > 0;
 }
 
 bool RegularExpression::operator!=(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData;
+    MatchData matchData(m_pcre);
     return nextMatch(text, offset, matchData) == 0;
 }
 
 bool RegularExpression::matches(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData;
+    MatchData matchData(m_pcre);
     size_t matchCount = nextMatch(text, offset, matchData);
     return matchCount > 0;
 }
@@ -239,7 +233,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
     Groups matchedStrings;
 
     size_t offset = 0;
-    MatchData matchData;
+    MatchData matchData(m_pcre);
     size_t totalMatches = 0;
 
     bool first {true};
@@ -317,7 +311,7 @@ Strings RegularExpression::split(const String& text) const
     Strings matchedStrings;
 
     size_t offset = 0;
-    MatchData matchData;
+    MatchData matchData(m_pcre);
     size_t totalMatches = 0;
 
     int lastMatchEnd = 0;
@@ -345,7 +339,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    MatchData matchData;
+    MatchData matchData(m_pcre);
     size_t totalMatches = 0;
     string result;
 
@@ -404,7 +398,7 @@ String RegularExpression::s(const String& text, std::function<String(const Strin
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    MatchData matchData;
+    MatchData matchData(m_pcre);
     size_t totalMatches = 0;
     string result;
 
