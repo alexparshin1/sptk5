@@ -150,10 +150,7 @@ RegularExpression::~RegularExpression()
 #endif
 }
 
-#define MAX_MATCHES 128
-
-size_t RegularExpression::nextMatch(const String& text, size_t& offset, Match matchOffsets[],
-                                    size_t matchOffsetsSize) const
+size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchData& matchData) const
 {
     if (!m_pcre) throwException(m_error)
 
@@ -172,7 +169,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, Match ma
     if (rc >= 0) {
         int ovectorOfsset = 0;
         for (int i = 0; i <= rc; i++) {
-            Match& match = matchOffsets[i];
+            Match& match = matchData.matches[i];
             match.m_start = ovector[ovectorOfsset];
             match.m_end = ovector[ovectorOfsset + 1];
             ovectorOfsset += 2;
@@ -218,22 +215,22 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, Match ma
 bool RegularExpression::operator==(const String& text) const
 {
     size_t offset = 0;
-    Match matchOffsets[MAX_MATCHES];
-    return nextMatch(text, offset, matchOffsets, MAX_MATCHES) > 0;
+    MatchData matchData;
+    return nextMatch(text, offset, matchData) > 0;
 }
 
 bool RegularExpression::operator!=(const String& text) const
 {
     size_t offset = 0;
-    Match matchOffsets[MAX_MATCHES];
-    return nextMatch(text, offset, matchOffsets, MAX_MATCHES) == 0;
+    MatchData matchData;
+    return nextMatch(text, offset, matchData) == 0;
 }
 
 bool RegularExpression::matches(const String& text) const
 {
     size_t offset = 0;
-    Match matchOffsets[MAX_MATCHES];
-    size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
+    MatchData matchData;
+    size_t matchCount = nextMatch(text, offset, matchData);
     return matchCount > 0;
 }
 
@@ -242,18 +239,18 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
     Groups matchedStrings;
 
     size_t offset = 0;
-    Match matchOffsets[MAX_MATCHES];
+    MatchData matchData;
     size_t totalMatches = 0;
 
     bool first {true};
     do {
-        size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
+        size_t matchCount = nextMatch(text, offset, matchData);
         if (matchCount == 0) // No matches
             break;
         totalMatches += matchCount;
 
         for (size_t matchIndex = 1; matchIndex < matchCount; matchIndex++) {
-            Match& match = matchOffsets[matchIndex];
+            Match& match = matchData.matches[matchIndex];
             matchedStrings.add(
                     Group(
                         string(text.c_str() + match.m_start,
@@ -271,7 +268,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
                 for (int i = 0; i < nameCount; i++) {
                     int n = (tabptr[0] << 8) | tabptr[1];
                     String name((const char*) (tabptr + 2), nameEntrySize - 3);
-                    auto& match = matchOffsets[n];
+                    auto& match = matchData.matches[n];
                     String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
 
                     matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
@@ -320,19 +317,19 @@ Strings RegularExpression::split(const String& text) const
     Strings matchedStrings;
 
     size_t offset = 0;
-    Match matchOffsets[MAX_MATCHES];
+    MatchData matchData;
     size_t totalMatches = 0;
 
     int lastMatchEnd = 0;
     do {
-        size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
+        size_t matchCount = nextMatch(text, offset, matchData);
         if (matchCount == 0) // No matches
             break;
 
         totalMatches += matchCount;
 
         for (size_t matchIndex = 0; matchIndex < matchCount; matchIndex++) {
-            Match& match = matchOffsets[matchIndex];
+            Match& match = matchData.matches[matchIndex];
             matchedStrings.push_back(string(text.c_str() + lastMatchEnd, size_t(match.m_start - lastMatchEnd)));
             lastMatchEnd = match.m_end;
         }
@@ -348,7 +345,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    Match matchOffsets[MAX_MATCHES];
+    MatchData matchData;
     size_t totalMatches = 0;
     string result;
 
@@ -356,7 +353,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
 
     do {
         size_t fragmentOffset = offset;
-        size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
+        size_t matchCount = nextMatch(text, offset, matchData);
         if (matchCount == 0) // No matches
             break;
         if (offset)
@@ -380,7 +377,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
             auto placeHolderIndex = (size_t) string2int(outputPattern.c_str() + placeHolderStart);
             size_t placeHolderEnd = outputPattern.find_first_not_of("0123456789", placeHolderStart);
             if (placeHolderIndex < matchCount) {
-                Match& match = matchOffsets[placeHolderIndex];
+                Match& match = matchData.matches[placeHolderIndex];
                 const char* matchPtr = text.c_str() + match.m_start;
                 nextReplacement += string(matchPtr, size_t(match.m_end) - size_t(match.m_start));
             }
@@ -388,7 +385,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
         }
 
         // Append text from fragment start to match start
-        size_t fragmentStartLength = size_t(matchOffsets[0].m_start) - size_t(fragmentOffset);
+        size_t fragmentStartLength = size_t(matchData.matches[0].m_start) - size_t(fragmentOffset);
         if (fragmentStartLength)
             result += text.substr(fragmentOffset, fragmentStartLength);
 
@@ -407,7 +404,7 @@ String RegularExpression::s(const String& text, std::function<String(const Strin
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    Match matchOffsets[MAX_MATCHES];
+    MatchData matchData;
     size_t totalMatches = 0;
     string result;
 
@@ -415,7 +412,7 @@ String RegularExpression::s(const String& text, std::function<String(const Strin
 
     do {
         size_t fragmentOffset = offset;
-        size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
+        size_t matchCount = nextMatch(text, offset, matchData);
         if (matchCount == 0) // No matches
             break;
         if (offset)
@@ -425,13 +422,13 @@ String RegularExpression::s(const String& text, std::function<String(const Strin
         replaced = true;
 
         // Append text from fragment start to match start
-        size_t fragmentStartLength = size_t(matchOffsets[0].m_start) - size_t(fragmentOffset);
+        size_t fragmentStartLength = size_t(matchData.matches[0].m_start) - size_t(fragmentOffset);
         if (fragmentStartLength)
             result += text.substr(fragmentOffset, fragmentStartLength);
 
         // Append replacement
-        String currentMatch(text.c_str() + matchOffsets[0].m_start,
-                            (unsigned) matchOffsets[0].m_end - (unsigned) matchOffsets[0].m_start);
+        String currentMatch(text.c_str() + matchData.matches[0].m_start,
+                            (unsigned) matchData.matches[0].m_end - (unsigned) matchData.matches[0].m_start);
 
         String nextReplacement = replace(currentMatch);
 

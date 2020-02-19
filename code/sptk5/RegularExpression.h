@@ -119,11 +119,11 @@ private:
      * Match position information
      */
     typedef struct {
-        pcre_offset_t   m_start;                ///< Match start
-        pcre_offset_t   m_end;                  ///< Match end
+        pcre_offset_t   m_start;                    ///< Match start
+        pcre_offset_t   m_end;                      ///< Match end
     } Match;
 
-    typedef std::vector<Match> Matches;     ///< Vector of match positions
+    typedef std::vector<Match> Matches;             ///< Vector of match positions
 
     String                  m_pattern;              ///< Match pattern
     bool                    m_global {false};       ///< Global match (g) or first match only
@@ -139,6 +139,17 @@ private:
 
     int32_t                 m_options {0};          ///< PCRE pattern options
 
+    static constexpr int MAX_MATCHES = 128;
+
+    class MatchData
+    {
+    public:
+        MatchData() : matches(128) {}
+
+        Matches     matches;
+    };
+
+
     /**
      * Initialize PCRE expression
      */
@@ -148,11 +159,10 @@ private:
      * Computes match positions and lengths
      * @param text              Input text
      * @param offset            Starting match offset, advanced with every successful match
-     * @param matchOffsets      Output match positions array
-     * @param matchOffsetsSize  Output match positions array size (in elements)
+     * @param matchDdata        Output match positions array
      * @return number of matches
      */
-    size_t nextMatch(const String& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const;
+    size_t nextMatch(const String& text, size_t& offset, MatchData& matchData) const;
 
 public:
     /**
