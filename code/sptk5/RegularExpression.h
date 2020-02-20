@@ -130,7 +130,8 @@ private:
     String                  m_error;                ///< Last pattern error (if any)
 
 #if HAVE_PCRE2
-    pcre2_code*             m_pcre {nullptr};
+    pcre2_code*             m_pcre {nullptr};       ///< Compiled PCRE expression handle
+    void*                   m_pcreExtra {nullptr};  ///< Dummy
 #else
     pcre*                   m_pcre {nullptr};       ///< Compiled PCRE expression handle
     pcre_extra*             m_pcreExtra {nullptr};  ///< Compiled PCRE expression optimization (for faster execution)
@@ -142,11 +143,17 @@ private:
 
     class MatchData
     {
+#if HAVE_PCRE2
+        static int getCaptureCount(pcre2_code* pcre);
+#else
+        static int getCaptureCount(pcre* _pcre, pcre_extra* _pcre_extra);
+#endif
     public:
 #if HAVE_PCRE2
-        MatchData(pcre2_code* pcre)
-        : matches(128),
-          match_data(pcre2_match_data_create_from_pattern(pcre, nullptr))
+        pcre2_match_data*   match_data {nullptr};
+        MatchData(pcre2_code* pcre, void*)
+        : match_data(pcre2_match_data_create_from_pattern(pcre, nullptr)),
+          matches(getCaptureCount(pcre))
         {}
 
         ~MatchData()
@@ -155,11 +162,11 @@ private:
                 pcre2_match_data_free(match_data);
         }
 #else
-        MatchData() : matches(128) {}
+        MatchData(pcre* _pcre, pcre_extra* _pcre_extra)
+        : matches(128) //getCaptureCount(_pcre, _pcre_extra) + 1)
+        {}
 #endif
-
         Matches             matches;
-        pcre2_match_data*   match_data {nullptr};
     };
 
 

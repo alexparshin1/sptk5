@@ -30,11 +30,32 @@
 #include <sptk5/RegularExpression.h>
 #include <future>
 #include <queue>
+#include <sptk5/StopWatch.h>
+#include <regex>
 
 #if (HAVE_PCRE|HAVE_PCRE2)
 
 using namespace std;
 using namespace sptk;
+
+#if HAVE_PCRE2
+int RegularExpression::MatchData::getCaptureCount(pcre2_code* pcre)
+#else
+int RegularExpression::MatchData::getCaptureCount(pcre* _pcre, pcre_extra* _pcre_extra)
+#endif
+{
+    int captureCount = 0;
+
+#if HAVE_PCRE2
+    int rc = pcre2_pattern_info(pcre, PCRE2_INFO_CAPTURECOUNT, &captureCount);
+#else
+    int rc = pcre_fullinfo(_pcre, _pcre_extra, PCRE_INFO_CAPTURECOUNT, &captureCount);
+#endif
+    if (rc != 0)
+        captureCount = 0;
+
+    return captureCount;
+}
 
 const RegularExpression::Group RegularExpression::Groups::emptyGroup;
 
@@ -161,13 +182,8 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
             nullptr);                   // use default match context
 
     if (rc >= 0) {
-        int ovectorOfsset = 0;
-        for (int i = 0; i <= rc; i++) {
-            Match& match = matchData.matches[i];
-            match.m_start = ovector[ovectorOfsset];
-            match.m_end = ovector[ovectorOfsset + 1];
-            ovectorOfsset += 2;
-        }
+        matchData.matches.resize(rc);
+        memcpy(matchData.matches.data(), ovector, sizeof(pcre_offset_t) * 2 * (rc));
         offset = ovector[1];
         return rc; // match count
     }
@@ -183,8 +199,10 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
         return false;
     return true;
 #else
-    int rc = pcre_exec(m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0, (int*) matchOffsets,
-                       (int) matchOffsetsSize * 2);
+    int rc = pcre_exec(
+            m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0,
+            (pcre_offset_t*) matchData.matches.data(),
+            (int) matchData.matches.size() * 2);
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
 
@@ -201,7 +219,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 
     int matchCount = rc ? rc : MAX_MATCHES; // If match count is zero - there are too many matches
 
-    offset = (size_t) matchOffsets[0].m_end;
+    offset = (size_t) matchData.matches[0].m_end;
     return (size_t) matchCount;
 #endif
 }
@@ -209,21 +227,21 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 bool RegularExpression::operator==(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre);
+    MatchData matchData(m_pcre, m_pcreExtra);
     return nextMatch(text, offset, matchData) > 0;
 }
 
 bool RegularExpression::operator!=(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre);
+    MatchData matchData(m_pcre, m_pcreExtra);
     return nextMatch(text, offset, matchData) == 0;
 }
 
 bool RegularExpression::matches(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre);
+    MatchData matchData(m_pcre, m_pcreExtra);
     size_t matchCount = nextMatch(text, offset, matchData);
     return matchCount > 0;
 }
@@ -233,7 +251,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
     Groups matchedStrings;
 
     size_t offset = 0;
-    MatchData matchData(m_pcre);
+    MatchData matchData(m_pcre, m_pcreExtra);
     size_t totalMatches = 0;
 
     bool first {true};
@@ -311,7 +329,7 @@ Strings RegularExpression::split(const String& text) const
     Strings matchedStrings;
 
     size_t offset = 0;
-    MatchData matchData(m_pcre);
+    MatchData matchData(m_pcre, m_pcreExtra);
     size_t totalMatches = 0;
 
     int lastMatchEnd = 0;
@@ -339,7 +357,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    MatchData matchData(m_pcre);
+    MatchData matchData(m_pcre, m_pcreExtra);
     size_t totalMatches = 0;
     string result;
 
@@ -398,7 +416,7 @@ String RegularExpression::s(const String& text, std::function<String(const Strin
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    MatchData matchData(m_pcre);
+    MatchData matchData(m_pcre, m_pcreExtra);
     size_t totalMatches = 0;
     string result;
 
@@ -471,6 +489,15 @@ const String& RegularExpression::pattern() const
 #if USE_GTEST
 
 static const char* testPhrase = "This is a test text to verify rexec text data group";
+
+TEST(SPTK_RegularExpression, match_many)
+{
+    RegularExpression match("(\\w+)+", "g");
+    auto matches = match.m(testPhrase);
+    for (auto& match: matches.groups())
+        cout << match.value << "_";
+    cout << endl;
+}
 
 TEST(SPTK_RegularExpression, match)
 {
@@ -561,6 +588,41 @@ TEST(SPTK_RegularExpression, split)
     EXPECT_STREQ("text", matchedStrings[8].c_str());
 }
 
+TEST(SPTK_RegularExpression, match_performance)
+{
+    RegularExpression match("^(\\w+)=(\\w+)$");
+    size_t maxIterations = 10000;
+    size_t groupCount = 0;
+    StopWatch stopWatch;
+    stopWatch.start();
+    for (size_t i = 0; i < maxIterations; i++) {
+        auto matches = match.m("name=value");
+        groupCount += matches.groups().size();
+    }
+    stopWatch.stop();
+    cout << maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
+         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl;
+}
+
+TEST(SPTK_RegularExpression, std_match_performance)
+{
+    const std::string s = "name=value";
+    std::regex match("^(\\w+)=(\\w+)$");
+    size_t maxIterations = 100000;
+    size_t groupCount = 0;
+    StopWatch stopWatch;
+    stopWatch.start();
+    for (size_t i = 0; i < maxIterations; i++) {
+        std::smatch color_match;
+        std::regex_search(s, color_match, match);
+        for (size_t i = 0; i < color_match.size(); ++i)
+            groupCount++;
+    }
+    stopWatch.stop();
+    cout << maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
+         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl;
+}
+
 TEST(SPTK_RegularExpression, asyncExec)
 {
     RegularExpression match("[\\s]+");
@@ -569,7 +631,7 @@ TEST(SPTK_RegularExpression, asyncExec)
     queue< future<size_t> >     states;
 
     size_t maxThreads = 10;
-    size_t maxIterations = 100;
+    size_t maxIterations = 10000;
 
     for (size_t n = 0; n < maxThreads; n++) {
         future<size_t> f = async(launch::async,[&match, maxIterations]() {
