@@ -95,22 +95,23 @@ public:
         Groups() = default;
         Groups(const Groups& other) = default;
         Groups(Groups&& other);
+        ~Groups();
 
         const Group& operator[] (size_t index) const;
         const Group& operator[] (const String& name) const;
 
-        const std::vector<Group>&      groups() const { return m_groups; }
-        const std::map<String, Group>& namedGroups() const { return m_namedGroups; }
+        const std::vector<const Group*>& groups() const { return m_groups; }
+        const std::map<String, const Group*>& namedGroups() const { return m_namedGroups; }
 
-        void add(const Group& group) { m_groups.push_back(group); }
-        void add(const String& name, const Group& group) { m_namedGroups[name] = group; }
+        void add(const Group* group) { m_groups.push_back(group); }
+        void add(const String& name, const Group* group) { m_namedGroups[name] = group; }
 
         bool empty() const { return m_groups.empty(); }
         operator bool () const { return !m_groups.empty(); }
 
     private:
-        std::vector<Group>      m_groups;
-        std::map<String, Group> m_namedGroups;
+        std::vector<const Group*>      m_groups;
+        std::map<String, const Group*> m_namedGroups;
         static const Group emptyGroup;
     };
 
@@ -122,8 +123,6 @@ private:
         pcre_offset_t   m_start;                    ///< Match start
         pcre_offset_t   m_end;                      ///< Match end
     } Match;
-
-    typedef std::vector<Match> Matches;             ///< Vector of match positions
 
     String                  m_pattern;              ///< Match pattern
     bool                    m_global {false};       ///< Global match (g) or first match only
@@ -163,10 +162,9 @@ private:
         }
 #else
         MatchData(pcre* _pcre, pcre_extra* _pcre_extra)
-        : matches(128) //getCaptureCount(_pcre, _pcre_extra) + 1)
         {}
 #endif
-        Matches             matches;
+        Match matches[MAX_MATCHES];
     };
 
 

@@ -82,12 +82,12 @@ void Document::processAttributes(Node* node, char* ptr)
     auto matches = m_parseAttributes.m(ptr);
 
     for (auto itor = matches.groups().begin(); itor != matches.groups().end(); ++itor) {
-        auto& attributeName = itor->value;
+        auto& attributeName = (*itor)->value;
         ++itor;
         if (itor == matches.groups().end())
             break;
         m_encodeBuffer.bytes(0);
-        m_doctype.decodeEntities(itor->value.c_str(), itor->value.length(), m_encodeBuffer);
+        m_doctype.decodeEntities((*itor)->value.c_str(), (*itor)->value.length(), m_encodeBuffer);
         node->setAttribute(attributeName, m_encodeBuffer.c_str());
     }
 }

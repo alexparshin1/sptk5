@@ -67,7 +67,7 @@ const RegularExpression::Group& RegularExpression::Groups::operator[](size_t ind
 {
     if (index >= m_groups.size())
         return emptyGroup;
-    return m_groups[index];
+    return *m_groups[index];
 }
 
 const RegularExpression::Group& RegularExpression::Groups::operator[](const String& name) const
@@ -75,7 +75,15 @@ const RegularExpression::Group& RegularExpression::Groups::operator[](const Stri
     auto itor = m_namedGroups.find(name);
     if (itor == m_namedGroups.end())
         return emptyGroup;
-    return itor->second;
+    return *itor->second;
+}
+
+RegularExpression::Groups::~Groups()
+{
+    for (auto* group: m_groups)
+        delete group;
+    for (auto itor: m_namedGroups)
+        delete itor.second;
 }
 
 void RegularExpression::compile()
@@ -201,8 +209,8 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 #else
     int rc = pcre_exec(
             m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0,
-            (pcre_offset_t*) matchData.matches.data(),
-            (int) matchData.matches.size() * 2);
+            (pcre_offset_t*) matchData.matches,
+            (int) MAX_MATCHES * 2);
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
 
@@ -264,7 +272,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
         for (size_t matchIndex = 1; matchIndex < matchCount; matchIndex++) {
             Match& match = matchData.matches[matchIndex];
             matchedStrings.add(
-                    Group(
+                    new Group(
                         string(text.c_str() + match.m_start,
                         size_t(match.m_end - match.m_start)),
                         match.m_start, match.m_end));
@@ -283,7 +291,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
                     auto& match = matchData.matches[n];
                     String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
 
-                    matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
+                    matchedStrings.add(name.c_str(), new Group(value, match.m_start, match.m_end));
 
                     tabptr += nameEntrySize;
                 }
@@ -495,7 +503,7 @@ TEST(SPTK_RegularExpression, match_many)
     RegularExpression match("(\\w+)+", "g");
     auto matches = match.m(testPhrase);
     for (auto& match: matches.groups())
-        cout << match.value << "_";
+        cout << match->value << "_";
     cout << endl;
 }
 
@@ -591,7 +599,7 @@ TEST(SPTK_RegularExpression, split)
 TEST(SPTK_RegularExpression, match_performance)
 {
     RegularExpression match("^(\\w+)=(\\w+)$");
-    size_t maxIterations = 10000;
+    size_t maxIterations = 100000;
     size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();

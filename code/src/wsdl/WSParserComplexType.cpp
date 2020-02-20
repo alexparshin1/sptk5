@@ -192,7 +192,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     if (words) {
         Strings wordList;
         for (auto& word: words.groups())
-            wordList.push_back(word.value);
+            wordList.push_back(word->value);
         tagName = wordList.join("_").toLowerCase();
     }
 
