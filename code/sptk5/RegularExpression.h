@@ -59,6 +59,7 @@
 
 #include <vector>
 #include <functional>
+#include <atomic>
 
 namespace sptk {
 
@@ -137,34 +138,36 @@ private:
 #endif
 
     int32_t                 m_options {0};          ///< PCRE pattern options
-
-    static constexpr int MAX_MATCHES = 128;
+    std::atomic<int>        m_captureCount {0};     ///< RE' capture count
 
     class MatchData
     {
-#if HAVE_PCRE2
-        static int getCaptureCount(pcre2_code* pcre);
-#else
-        static int getCaptureCount(pcre* _pcre, pcre_extra* _pcre_extra);
-#endif
     public:
 #if HAVE_PCRE2
         pcre2_match_data*   match_data {nullptr};
-        MatchData(pcre2_code* pcre, void*)
+        MatchData(pcre2_code* pcre, size_t maxMatches)
         : match_data(pcre2_match_data_create_from_pattern(pcre, nullptr)),
-          matches(getCaptureCount(pcre))
+          maxMatches(maxMatches),
+          matches(new Match[maxMatches])
         {}
+#else
+        MatchData(pcre* _pcre, size_t maxMatches)
+        : maxMatches(maxMatches),
+          matches(new Match[maxMatches])
+        {}
+#endif
 
         ~MatchData()
         {
+#if HAVE_PCRE2
             if (match_data)
                 pcre2_match_data_free(match_data);
-        }
-#else
-        MatchData(pcre* _pcre, pcre_extra* _pcre_extra)
-        {}
 #endif
-        Match matches[MAX_MATCHES];
+            delete matches;
+        }
+
+        size_t maxMatches {0};
+        Match* matches {nullptr};
     };
 
 
@@ -181,6 +184,8 @@ private:
      * @return number of matches
      */
     size_t nextMatch(const String& text, size_t& offset, MatchData& matchData) const;
+
+    int getCaptureCount() const;
 
 public:
     /**

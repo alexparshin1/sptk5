@@ -38,18 +38,14 @@
 using namespace std;
 using namespace sptk;
 
-#if HAVE_PCRE2
-int RegularExpression::MatchData::getCaptureCount(pcre2_code* pcre)
-#else
-int RegularExpression::MatchData::getCaptureCount(pcre* _pcre, pcre_extra* _pcre_extra)
-#endif
+int RegularExpression::getCaptureCount() const
 {
     int captureCount = 0;
 
 #if HAVE_PCRE2
-    int rc = pcre2_pattern_info(pcre, PCRE2_INFO_CAPTURECOUNT, &captureCount);
+    int rc = pcre2_pattern_info(m_pcre, PCRE2_INFO_CAPTURECOUNT, &captureCount);
 #else
-    int rc = pcre_fullinfo(_pcre, _pcre_extra, PCRE_INFO_CAPTURECOUNT, &captureCount);
+    int rc = pcre_fullinfo(m_pcre, m_pcreExtra, PCRE_INFO_CAPTURECOUNT, &captureCount);
 #endif
     if (rc != 0)
         captureCount = 0;
@@ -123,6 +119,7 @@ void RegularExpression::compile()
     }
 #endif
 #endif
+    m_captureCount = getCaptureCount();
 }
 
 RegularExpression::RegularExpression(String pattern, const String& options)
@@ -190,8 +187,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
             nullptr);                   // use default match context
 
     if (rc >= 0) {
-        matchData.matches.resize(rc);
-        memcpy(matchData.matches.data(), ovector, sizeof(pcre_offset_t) * 2 * (rc));
+        memcpy(matchData.matches, ovector, sizeof(pcre_offset_t) * 2 * (rc));
         offset = ovector[1];
         return rc; // match count
     }
@@ -210,7 +206,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
     int rc = pcre_exec(
             m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0,
             (pcre_offset_t*) matchData.matches,
-            (int) MAX_MATCHES * 2);
+            matchData.maxMatches * 2);
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
 
@@ -225,7 +221,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
         }
     }
 
-    int matchCount = rc ? rc : MAX_MATCHES; // If match count is zero - there are too many matches
+    int matchCount = rc ? rc : -1; // If match count is zero - there are too many matches
 
     offset = (size_t) matchData.matches[0].m_end;
     return (size_t) matchCount;
@@ -235,21 +231,21 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 bool RegularExpression::operator==(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_pcreExtra);
+    MatchData matchData(m_pcre, m_captureCount + 2);
     return nextMatch(text, offset, matchData) > 0;
 }
 
 bool RegularExpression::operator!=(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_pcreExtra);
+    MatchData matchData(m_pcre, m_captureCount + 2);
     return nextMatch(text, offset, matchData) == 0;
 }
 
 bool RegularExpression::matches(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_pcreExtra);
+    MatchData matchData(m_pcre, m_captureCount + 2);
     size_t matchCount = nextMatch(text, offset, matchData);
     return matchCount > 0;
 }
@@ -259,7 +255,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
     Groups matchedStrings;
 
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_pcreExtra);
+    MatchData matchData(m_pcre, m_captureCount + 2);
     size_t totalMatches = 0;
 
     bool first {true};
@@ -337,7 +333,7 @@ Strings RegularExpression::split(const String& text) const
     Strings matchedStrings;
 
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_pcreExtra);
+    MatchData matchData(m_pcre, m_captureCount + 2);
     size_t totalMatches = 0;
 
     int lastMatchEnd = 0;
@@ -365,7 +361,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    MatchData matchData(m_pcre, m_pcreExtra);
+    MatchData matchData(m_pcre, m_captureCount + 2);
     size_t totalMatches = 0;
     string result;
 
@@ -424,7 +420,7 @@ String RegularExpression::s(const String& text, std::function<String(const Strin
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    MatchData matchData(m_pcre, m_pcreExtra);
+    MatchData matchData(m_pcre, m_captureCount + 2);
     size_t totalMatches = 0;
     string result;
 
