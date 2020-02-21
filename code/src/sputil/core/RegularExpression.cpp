@@ -38,6 +38,47 @@
 using namespace std;
 using namespace sptk;
 
+namespace sptk {
+
+typedef struct
+{
+    pcre_offset_t m_start;                    ///< Match start
+    pcre_offset_t m_end;                      ///< Match end
+} Match;
+
+class MatchData
+{
+public:
+#if HAVE_PCRE2
+    pcre2_match_data*   match_data {nullptr};
+        MatchData(pcre2_code* pcre, size_t maxMatches)
+        : match_data(pcre2_match_data_create_from_pattern(pcre, nullptr)),
+          maxMatches(maxMatches + 2),
+          matches(new Match[maxMatches + 2])
+        {}
+#else
+    MatchData(pcre* _pcre, size_t maxMatches)
+            : maxMatches(maxMatches + 4),
+              matches(new Match[maxMatches + 8])
+    {
+    }
+#endif
+
+    ~MatchData()
+    {
+#if HAVE_PCRE2
+        if (match_data)
+                pcre2_match_data_free(match_data);
+#endif
+        delete matches;
+    }
+
+    size_t maxMatches{0};
+    Match* matches{nullptr};
+};
+
+}
+
 int RegularExpression::getCaptureCount() const
 {
     int captureCount = 0;
@@ -80,6 +121,11 @@ RegularExpression::Groups::~Groups()
         delete group;
     for (auto itor: m_namedGroups)
         delete itor.second;
+}
+
+void RegularExpression::Groups::grow(size_t groupCount)
+{
+    m_groups.reserve(m_groups.size() + groupCount);
 }
 
 void RegularExpression::compile()
@@ -221,7 +267,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
         }
     }
 
-    int matchCount = rc ? rc : -1; // If match count is zero - there are too many matches
+    int matchCount = rc; // If match count is zero - there are too many matches
 
     offset = (size_t) matchData.matches[0].m_end;
     return (size_t) matchCount;
@@ -231,21 +277,21 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 bool RegularExpression::operator==(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_captureCount + 2);
+    MatchData matchData(m_pcre, m_captureCount);
     return nextMatch(text, offset, matchData) > 0;
 }
 
 bool RegularExpression::operator!=(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_captureCount + 2);
+    MatchData matchData(m_pcre, m_captureCount);
     return nextMatch(text, offset, matchData) == 0;
 }
 
 bool RegularExpression::matches(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_captureCount + 2);
+    MatchData matchData(m_pcre, m_captureCount);
     size_t matchCount = nextMatch(text, offset, matchData);
     return matchCount > 0;
 }
@@ -255,7 +301,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
     Groups matchedStrings;
 
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_captureCount + 2);
+    MatchData matchData(m_pcre, m_captureCount);
     size_t totalMatches = 0;
 
     bool first {true};
@@ -264,6 +310,8 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
         if (matchCount == 0) // No matches
             break;
         totalMatches += matchCount;
+
+        matchedStrings.grow(matchCount - 1);
 
         for (size_t matchIndex = 1; matchIndex < matchCount; matchIndex++) {
             Match& match = matchData.matches[matchIndex];
@@ -333,7 +381,7 @@ Strings RegularExpression::split(const String& text) const
     Strings matchedStrings;
 
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_captureCount + 2);
+    MatchData matchData(m_pcre, m_captureCount);
     size_t totalMatches = 0;
 
     int lastMatchEnd = 0;
@@ -361,7 +409,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    MatchData matchData(m_pcre, m_captureCount + 2);
+    MatchData matchData(m_pcre, m_captureCount);
     size_t totalMatches = 0;
     string result;
 
@@ -420,7 +468,7 @@ String RegularExpression::s(const String& text, std::function<String(const Strin
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    MatchData matchData(m_pcre, m_captureCount + 2);
+    MatchData matchData(m_pcre, m_captureCount);
     size_t totalMatches = 0;
     string result;
 
@@ -595,7 +643,7 @@ TEST(SPTK_RegularExpression, split)
 TEST(SPTK_RegularExpression, match_performance)
 {
     RegularExpression match("^(\\w+)=(\\w+)$");
-    size_t maxIterations = 100000;
+    size_t maxIterations = 1000000;
     size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();
@@ -612,7 +660,7 @@ TEST(SPTK_RegularExpression, std_match_performance)
 {
     const std::string s = "name=value";
     std::regex match("^(\\w+)=(\\w+)$");
-    size_t maxIterations = 100000;
+    size_t maxIterations = 1000000;
     size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();

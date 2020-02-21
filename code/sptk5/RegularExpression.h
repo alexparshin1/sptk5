@@ -68,6 +68,8 @@ namespace sptk {
  * @{
  */
 
+class MatchData;
+
 /**
  * PCRE-type regular expressions
  */
@@ -104,6 +106,7 @@ public:
         const std::vector<const Group*>& groups() const { return m_groups; }
         const std::map<String, const Group*>& namedGroups() const { return m_namedGroups; }
 
+        void grow(size_t groupCount);
         void add(const Group* group) { m_groups.push_back(group); }
         void add(const String& name, const Group* group) { m_namedGroups[name] = group; }
 
@@ -117,13 +120,6 @@ public:
     };
 
 private:
-    /**
-     * Match position information
-     */
-    typedef struct {
-        pcre_offset_t   m_start;                    ///< Match start
-        pcre_offset_t   m_end;                      ///< Match end
-    } Match;
 
     String                  m_pattern;              ///< Match pattern
     bool                    m_global {false};       ///< Global match (g) or first match only
@@ -139,37 +135,6 @@ private:
 
     int32_t                 m_options {0};          ///< PCRE pattern options
     std::atomic<int>        m_captureCount {0};     ///< RE' capture count
-
-    class MatchData
-    {
-    public:
-#if HAVE_PCRE2
-        pcre2_match_data*   match_data {nullptr};
-        MatchData(pcre2_code* pcre, size_t maxMatches)
-        : match_data(pcre2_match_data_create_from_pattern(pcre, nullptr)),
-          maxMatches(maxMatches),
-          matches(new Match[maxMatches])
-        {}
-#else
-        MatchData(pcre* _pcre, size_t maxMatches)
-        : maxMatches(maxMatches),
-          matches(new Match[maxMatches])
-        {}
-#endif
-
-        ~MatchData()
-        {
-#if HAVE_PCRE2
-            if (match_data)
-                pcre2_match_data_free(match_data);
-#endif
-            delete matches;
-        }
-
-        size_t maxMatches {0};
-        Match* matches {nullptr};
-    };
-
 
     /**
      * Initialize PCRE expression
