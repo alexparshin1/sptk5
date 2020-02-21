@@ -98,24 +98,27 @@ public:
         Groups() = default;
         Groups(const Groups& other) = default;
         Groups(Groups&& other);
-        ~Groups();
+
+        Groups& operator = (const Groups& other) = default;
 
         const Group& operator[] (size_t index) const;
         const Group& operator[] (const String& name) const;
 
-        const std::vector<const Group*>& groups() const { return m_groups; }
-        const std::map<String, const Group*>& namedGroups() const { return m_namedGroups; }
+        const std::vector<Group>& groups() const { return m_groups; }
+        const std::map<String, Group>& namedGroups() const { return m_namedGroups; }
 
         void grow(size_t groupCount);
-        void add(const Group* group) { m_groups.push_back(group); }
-        void add(const String& name, const Group* group) { m_namedGroups[name] = group; }
+        void add(Group&& group) { m_groups.push_back(std::move(group)); }
+        void add(const String& name, Group&& group) { m_namedGroups[name] = std::move(group); }
 
         bool empty() const { return m_groups.empty(); }
         operator bool () const { return !m_groups.empty(); }
 
     private:
-        std::vector<const Group*>      m_groups;
-        std::map<String, const Group*> m_namedGroups;
+        void clear();
+
+        std::vector<Group>      m_groups;
+        std::map<String, Group> m_namedGroups;
         static const Group emptyGroup;
     };
 

@@ -104,7 +104,7 @@ const RegularExpression::Group& RegularExpression::Groups::operator[](size_t ind
 {
     if (index >= m_groups.size())
         return emptyGroup;
-    return *m_groups[index];
+    return m_groups[index];
 }
 
 const RegularExpression::Group& RegularExpression::Groups::operator[](const String& name) const
@@ -112,15 +112,7 @@ const RegularExpression::Group& RegularExpression::Groups::operator[](const Stri
     auto itor = m_namedGroups.find(name);
     if (itor == m_namedGroups.end())
         return emptyGroup;
-    return *itor->second;
-}
-
-RegularExpression::Groups::~Groups()
-{
-    for (auto* group: m_groups)
-        delete group;
-    for (auto itor: m_namedGroups)
-        delete itor.second;
+    return itor->second;
 }
 
 void RegularExpression::Groups::grow(size_t groupCount)
@@ -316,7 +308,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
         for (size_t matchIndex = 1; matchIndex < matchCount; matchIndex++) {
             Match& match = matchData.matches[matchIndex];
             matchedStrings.add(
-                    new Group(
+                    Group(
                         string(text.c_str() + match.m_start,
                         size_t(match.m_end - match.m_start)),
                         match.m_start, match.m_end));
@@ -335,7 +327,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
                     auto& match = matchData.matches[n];
                     String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
 
-                    matchedStrings.add(name.c_str(), new Group(value, match.m_start, match.m_end));
+                    matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
 
                     tabptr += nameEntrySize;
                 }
@@ -547,7 +539,7 @@ TEST(SPTK_RegularExpression, match_many)
     RegularExpression match("(\\w+)+", "g");
     auto matches = match.m(testPhrase);
     for (auto& match: matches.groups())
-        cout << match->value << "_";
+        cout << match.value << "_";
     cout << endl;
 }
 
