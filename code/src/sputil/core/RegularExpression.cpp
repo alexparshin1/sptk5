@@ -26,11 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Exception.h>
-#include <sptk5/RegularExpression.h>
+#include <sptk5/cutils>
 #include <future>
 #include <queue>
-#include <sptk5/StopWatch.h>
 #include <regex>
 
 #if (HAVE_PCRE|HAVE_PCRE2)
@@ -51,15 +49,16 @@ class MatchData
 public:
 #if HAVE_PCRE2
     pcre2_match_data*   match_data {nullptr};
-        MatchData(pcre2_code* pcre, size_t maxMatches)
-        : match_data(pcre2_match_data_create_from_pattern(pcre, nullptr)),
-          maxMatches(maxMatches + 2),
-          matches(new Match[maxMatches + 2])
-        {}
+
+    MatchData(pcre2_code* pcre, size_t maxMatches)
+    : match_data(pcre2_match_data_create_from_pattern(pcre, nullptr)),
+      maxMatches(maxMatches + 2),
+      matches(new Match[maxMatches + 2])
+    {}
 #else
-    MatchData(pcre* _pcre, size_t maxMatches)
-            : maxMatches(maxMatches + 4),
-              matches(new Match[maxMatches + 8])
+    MatchData(pcre*, size_t maxMatches)
+    : maxMatches(maxMatches + 4),
+      matches(new Match[maxMatches + 8])
     {
     }
 #endif
@@ -92,6 +91,21 @@ int RegularExpression::getCaptureCount() const
         captureCount = 0;
 
     return captureCount;
+}
+
+RegularExpression::Group::Group(RegularExpression::Group&& other)
+: value(move(other.value)), start(other.start), end(other.end)
+{
+    other.start = other.end = 0;
+}
+
+RegularExpression::Group& RegularExpression::Group::operator = (RegularExpression::Group&& other)
+{
+    value = move(other.value);
+    start = other.start;
+    end = other.end;
+    other.start = other.end = 0;
+    return *this;
 }
 
 const RegularExpression::Group RegularExpression::Groups::emptyGroup;
@@ -536,11 +550,12 @@ static const char* testPhrase = "This is a test text to verify rexec text data g
 
 TEST(SPTK_RegularExpression, match_many)
 {
-    RegularExpression match("(\\w+)+", "g");
-    auto matches = match.m(testPhrase);
+    RegularExpression matchWord("(\\w+)+", "g");
+    auto matches = matchWord.m(testPhrase);
+    Strings words;
     for (auto& match: matches.groups())
-        cout << match.value << "_";
-    cout << endl;
+        words.push_back(match.value);
+    EXPECT_STREQ(words.join("_").c_str(), "This_is_a_test_text_to_verify_rexec_text_data_group");
 }
 
 TEST(SPTK_RegularExpression, match)
@@ -644,8 +659,8 @@ TEST(SPTK_RegularExpression, match_performance)
         groupCount += matches.groups().size();
     }
     stopWatch.stop();
-    cout << maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl;
+    COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
+         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl);
 }
 
 TEST(SPTK_RegularExpression, std_match_performance)
@@ -659,12 +674,12 @@ TEST(SPTK_RegularExpression, std_match_performance)
     for (size_t i = 0; i < maxIterations; i++) {
         std::smatch color_match;
         std::regex_search(s, color_match, match);
-        for (size_t i = 0; i < color_match.size(); ++i)
+        for (size_t j = 0; j < color_match.size(); ++j)
             groupCount++;
     }
     stopWatch.stop();
-    cout << maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl;
+    COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
+         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl);
 }
 
 TEST(SPTK_RegularExpression, asyncExec)

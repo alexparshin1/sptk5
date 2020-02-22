@@ -77,49 +77,155 @@ class SP_EXPORT RegularExpression
 {
 public:
 
+    /**
+     * Matched group that includes string value, as well as start and end positions of the value in the subject string
+     */
     class Group
     {
     public:
-        Group(String value, size_t start_position, size_t end_position)
-        : value(move(value)), start_position(start_position), end_position(end_position)
+        /**
+         * Constructor
+         * @param value         Matched string
+         * @param start         String start position in subject
+         * @param end           String end position in subject
+         */
+        Group(String value, size_t start, size_t end)
+        : value(move(value)), start(start), end(end)
         {}
 
+        /**
+         * Default constructor
+         */
         Group() = default;
+
+        /**
+         * Copy constructor
+         * @param other         Object to copy from
+         */
         Group(const Group& other) = default;
 
-        String        value;
-        pcre_offset_t start_position {0};
-        pcre_offset_t end_position {0};
+        /**
+         * Move constructor
+         * @param other         Object to copy from
+         */
+        Group(Group&& other);
+
+        /**
+         * Move assignment
+         * @param other         Object to copy from
+         */
+        Group& operator = (Group&& other);
+
+        String        value;        ///< Matched fragment of subject
+        pcre_offset_t start {0};    ///< Start position of the matched fragment in subject
+        pcre_offset_t end {0};      ///< End position of the matched fragment in subject
     };
 
+    /**
+     * Matched groups, including unnamed and named groups (if any).
+     * For named groups in global match, only the first match is considered.
+     */
     class Groups
     {
+        friend class RegularExpression;
     public:
+        /**
+         * Default constructor
+         */
         Groups() = default;
+
+        /**
+         * Copy constructor
+         * @param other         Other object to copy from
+         */
         Groups(const Groups& other) = default;
+
+        /**
+         * Move constructor
+         * @param other         Other object to move from
+         */
         Groups(Groups&& other);
 
+        /**
+         * Copy assignment
+         * @param other         Other object to move from
+         */
         Groups& operator = (const Groups& other) = default;
 
+        /**
+         * Move assignment
+         * @param other         Other object to move from
+         */
+        Groups& operator = (Groups&& other) = default;
+
+        /**
+         * Get unnamed group by index.
+         * If group doesn't exist, return reference to empty group.
+         * @param index         Group index, 0-based
+         * @return const reference to a group
+         */
         const Group& operator[] (size_t index) const;
+
+        /**
+         * Get named group by capture group name.
+         * If group doesn't exist, return reference to empty group.
+         * @param name          Group name
+         * @return const reference to a group
+         */
         const Group& operator[] (const String& name) const;
 
+        /**
+         * Get unnamed groups.
+         * @return const reference to unnamed groups object
+         */
         const std::vector<Group>& groups() const { return m_groups; }
+
+        /**
+         * Get named groups.
+         * @return const reference to named groups object
+         */
         const std::map<String, Group>& namedGroups() const { return m_namedGroups; }
 
-        void grow(size_t groupCount);
-        void add(Group&& group) { m_groups.push_back(std::move(group)); }
-        void add(const String& name, Group&& group) { m_namedGroups[name] = std::move(group); }
-
+        /**
+         * @return true if there are no matched groups
+         */
         bool empty() const { return m_groups.empty(); }
+
+        /**
+         * @return false if there are no matched groups
+         */
         operator bool () const { return !m_groups.empty(); }
 
+    protected:
+        /**
+         * Reserve more groups memory
+         * @param groupCount    Number of groups to reserve more memory for
+         */
+        void grow(size_t groupCount);
+
+        /**
+         * Add new group by moving it to unnamed groups
+         * @param group         Group to add
+         */
+        void add(Group&& group) { m_groups.push_back(std::move(group)); }
+
+        /**
+         * Add new group by moving it to named groups
+         * @param name          Group name
+         * @param group         Group to add
+         */
+        void add(const String& name, Group&& group) { m_namedGroups[name] = std::move(group); }
+
     private:
+
+        /**
+         * Clear groups
+         */
         void clear();
 
-        std::vector<Group>      m_groups;
-        std::map<String, Group> m_namedGroups;
-        static const Group emptyGroup;
+        std::vector<Group>      m_groups;           ///< Unnamed groups
+        std::map<String, Group> m_namedGroups;      ///< Named groups
+        static const Group      emptyGroup;         ///< Empty group to return if group can't be found
     };
 
 private:
@@ -153,7 +259,23 @@ private:
      */
     size_t nextMatch(const String& text, size_t& offset, MatchData& matchData) const;
 
+    /**
+     * Get capture group count from the compiled pattern
+     * @return capture group count
+     */
     int getCaptureCount() const;
+
+    /**
+     * Get named capture group count from the compiled pattern
+     * @return named capture group count
+     */
+    int getNamedGroupCount() const;
+
+    /**
+     * Get captur group name table from the compiled pattern
+     * @return named capture group count
+     */
+    void getNameTable(const char*& nameTable, int& nameEntrySize) const;
 
 public:
     /**
@@ -267,9 +389,6 @@ private:
      */
     size_t findNextPlaceholder(size_t pos, const String& outputPattern) const;
 
-    int getNamedGroupCount() const;
-
-    void getNameTable(const char*& nameTable, int& nameEntrySize) const;
 };
 
 /**

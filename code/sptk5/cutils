@@ -32,10 +32,11 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/DataSource.h>
 #include <sptk5/FileLogEngine.h>
+#include <sptk5/HomeDirectory.h>
 #include <sptk5/Logger.h>
 #include <sptk5/Printer.h>
-#include <sptk5/HomeDirectory.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/StopWatch.h>
 #include <sptk5/SysLogEngine.h>
 #include <sptk5/SystemException.h>
 #include <sptk5/UniqueInstance.h>
