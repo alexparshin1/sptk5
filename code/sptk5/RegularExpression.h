@@ -243,7 +243,7 @@ private:
 #endif
 
     int32_t                 m_options {0};          ///< PCRE pattern options
-    std::atomic<int>        m_captureCount {0};     ///< RE' capture count
+    std::atomic<size_t>     m_captureCount {0};     ///< RE' capture count
 
     /**
      * Initialize PCRE expression
@@ -263,13 +263,13 @@ private:
      * Get capture group count from the compiled pattern
      * @return capture group count
      */
-    int getCaptureCount() const;
+    size_t getCaptureCount() const;
 
     /**
      * Get named capture group count from the compiled pattern
      * @return named capture group count
      */
-    int getNamedGroupCount() const;
+    size_t getNamedGroupCount() const;
 
     /**
      * Get captur group name table from the compiled pattern
