@@ -25,7 +25,7 @@
 */
 
 #include <utility>
-
+#include <stringstream>
 
 #include "sptk5/db/QueryBuilder.h"
 
