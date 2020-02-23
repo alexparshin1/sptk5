@@ -78,7 +78,7 @@ public:
 
 }
 
-int RegularExpression::getCaptureCount() const
+size_t RegularExpression::getCaptureCount() const
 {
     int captureCount = 0;
 
@@ -90,7 +90,7 @@ int RegularExpression::getCaptureCount() const
     if (rc != 0)
         captureCount = 0;
 
-    return captureCount;
+    return (size_t) captureCount;
 }
 
 RegularExpression::Group::Group(RegularExpression::Group&& other)
@@ -325,7 +325,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
                     Group(
                         string(text.c_str() + match.m_start,
                         size_t(match.m_end - match.m_start)),
-                        match.m_start, match.m_end));
+                        (size_t) match.m_start, (size_t) match.m_end));
         }
 
         if (first) {
@@ -337,7 +337,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
                 auto* tabptr = nameTable;
                 for (int i = 0; i < nameCount; i++) {
                     int n = (tabptr[0] << 8) | tabptr[1];
-                    String name((const char*) (tabptr + 2), nameEntrySize - 3);
+                    String name(tabptr + 2, nameEntrySize - 3);
                     auto& match = matchData.matches[n];
                     String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
 
@@ -367,7 +367,7 @@ void RegularExpression::getNameTable(const char*& nameTable, int& nameEntrySize)
 #endif
 }
 
-int RegularExpression::getNamedGroupCount() const
+size_t RegularExpression::getNamedGroupCount() const
 {
     int nameCount = 0;
 
@@ -379,7 +379,7 @@ int RegularExpression::getNamedGroupCount() const
     if (rc != 0)
         nameCount = 0;
 
-    return nameCount;
+    return (size_t) nameCount;
 }
 
 Strings RegularExpression::split(const String& text) const
@@ -660,7 +660,7 @@ TEST(SPTK_RegularExpression, match_performance)
     }
     stopWatch.stop();
     COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl);
+         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl)
 }
 
 TEST(SPTK_RegularExpression, std_match_performance)
@@ -679,7 +679,7 @@ TEST(SPTK_RegularExpression, std_match_performance)
     }
     stopWatch.stop();
     COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl);
+         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl)
 }
 
 TEST(SPTK_RegularExpression, asyncExec)
