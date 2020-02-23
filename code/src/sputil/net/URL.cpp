@@ -32,17 +32,19 @@ using namespace sptk;
 
 URL::URL(const String& url)
 {
-    RegularExpression matchUrl(R"(^(([a-z]+)://)?([\w\.\:]+)?(/[\w\.\:/]+)(\?.*)?$)");
+    RegularExpression matchUrl(R"(^((?<protocol>[a-z]+)://)?((?<username>[\w\.\-@]+):(?<password>[^@]*)@)?(?<host>[\w\.\:]+)?(?<path>/[\w\.\:/]+)?(?<parameters>\?.*)?$)");
+    //RegularExpression matchUrl(R"(^((?<protocol>[a-z]+)://)?(?<host>[\w\.\:]+)?(?<path>/[\w\.\:/]+))");
     auto matches = matchUrl.m(url.trim());
     if (matches) {
-        m_protocol = matches[1].value;
-        m_hostAndPort = matches[2].value;
-        if (matches.groups().size() > 3) {
-            m_path = matches[3].value.empty() ? "" : matches[3].value;
-            if (matches.groups().size() > 4) {
-                Buffer buffer(matches[4].value.substr(1));
-                m_params.decode(buffer);
-            }
+        m_protocol = matches[String("protocol")].value;
+        m_hostAndPort = matches[String("host")].value;
+        m_username = matches[String("username")].value;
+        m_password = matches[String("password")].value;
+        m_path = matches[String("path")].value;
+
+        if (!matches[String("parameters")].value.empty()) {
+            Buffer buffer(matches[String("parameters")].value.substr(1));
+            m_params.decode(buffer);
         }
     }
 }
@@ -57,10 +59,7 @@ String URL::toString() const
     if (!m_username.empty())
         str << m_username << ":" << m_password << "@";
 
-    if (m_hostAndPort.empty())
-        str << "localhost";
-    else
-        str << m_hostAndPort;
+    str << m_hostAndPort;
 
     if (!m_path.empty())
         str << m_path;
@@ -76,11 +75,43 @@ String URL::toString() const
 
 #if USE_GTEST
 
-static const char* testURL = "http://johnd:secret@www.test.com:8080/daily/report?action=view&id=1";
+static const char* testURL0 = "http://www.test.com:8080/daily/report";
+static const char* testURL1 = "/daily/report?action=view&id=1";
+static const char* testURL2 = "http://johnd:secret@www.test.com:8080/daily/report?action=view&id=1";
+
+TEST(SPTK_URL, minimal)
+{
+    URL url(testURL0);
+    EXPECT_STREQ(url.protocol().c_str(), "http");
+    EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
+    EXPECT_STREQ(url.username().c_str(), "");
+    EXPECT_STREQ(url.password().c_str(), "");
+    EXPECT_STREQ(url.path().c_str(), "/daily/report");
+
+    EXPECT_EQ(url.params().size(), size_t(0));
+
+    EXPECT_STREQ(url.toString().c_str(), testURL0);
+}
+
+TEST(SPTK_URL, local)
+{
+    URL url(testURL1);
+    EXPECT_STREQ(url.protocol().c_str(), "");
+    EXPECT_STREQ(url.hostAndPort().c_str(), "");
+    EXPECT_STREQ(url.username().c_str(), "");
+    EXPECT_STREQ(url.password().c_str(), "");
+    EXPECT_STREQ(url.path().c_str(), "/daily/report");
+
+    EXPECT_EQ(url.params().size(), size_t(2));
+    EXPECT_STREQ(url.params().get("action").c_str(), "view");
+    EXPECT_STREQ(url.params().get("id").c_str(), "1");
+
+    EXPECT_STREQ(url.toString().c_str(), testURL1);
+}
 
 TEST(SPTK_URL, all)
 {
-    URL url(testURL);
+    URL url(testURL2);
     EXPECT_STREQ(url.protocol().c_str(), "http");
     EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
     EXPECT_STREQ(url.username().c_str(), "johnd");
@@ -91,7 +122,7 @@ TEST(SPTK_URL, all)
     EXPECT_STREQ(url.params().get("action").c_str(), "view");
     EXPECT_STREQ(url.params().get("id").c_str(), "1");
 
-    EXPECT_STREQ(url.toString().c_str(), testURL);
+    EXPECT_STREQ(url.toString().c_str(), testURL2);
 }
 
 #endif

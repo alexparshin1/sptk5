@@ -151,7 +151,7 @@ bool HttpParams::has(const String& paramName) const
 
 #if USE_GTEST
 
-static const char* gtestURLencoded = "name=John+Doe&items=%5B%22book%22%2C%22pen%22%5D&id=1234";
+static const char* gtestURLencoded = "id=1234&items=%5B%22book%22%2C%22pen%22%5D&name=John+Doe";
 
 TEST(SPTK_HttpParams, encode)
 {
