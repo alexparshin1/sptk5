@@ -30,7 +30,6 @@
 #include <future>
 #include <queue>
 #include <regex>
-#include <stringstream>
 
 #if (HAVE_PCRE|HAVE_PCRE2)
 
