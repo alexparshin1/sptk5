@@ -69,7 +69,7 @@ public:
         if (match_data)
                 pcre2_match_data_free(match_data);
 #endif
-        delete matches;
+        delete [] matches;
     }
 
     size_t maxMatches{0};
