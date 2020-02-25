@@ -32,8 +32,8 @@ using namespace sptk;
 
 URL::URL(const String& url)
 {
-    RegularExpression matchUrl(R"(^((?<protocol>[a-z]+)://)?((?<username>[\w\.\-@]+):(?<password>[^@]*)@)?(?<host>[\w\.\:]+)?(?<path>/[\w\.\:/]+)?(?<parameters>\?.*)?$)");
-    //RegularExpression matchUrl(R"(^((?<protocol>[a-z]+)://)?(?<host>[\w\.\:]+)?(?<path>/[\w\.\:/]+))");
+    static const RegularExpression matchUrl(R"(^((?<protocol>[a-z]+)://)?((?<username>[\w\.\-@]+):(?<password>[^@]*)@)?(?<host>[\w\.\:]+)?(?<path>/[\w\.\:/]+)?(?<parameters>\?.*)?$)");
+
     auto matches = matchUrl.m(url.trim());
     if (matches) {
         m_protocol = matches[String("protocol")].value;
@@ -123,6 +123,13 @@ TEST(SPTK_URL, all)
     EXPECT_STREQ(url.params().get("id").c_str(), "1");
 
     EXPECT_STREQ(url.toString().c_str(), testURL2);
+}
+
+TEST(SPTK_URL, loop)
+{
+    size_t numIterations = 100;
+    for (size_t i = 0; i < numIterations; i++)
+        URL url(testURL0);
 }
 
 #endif

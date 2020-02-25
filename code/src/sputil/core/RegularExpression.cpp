@@ -317,15 +317,18 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
             break;
         totalMatches += matchCount;
 
-        matchedStrings.grow(matchCount - 1);
+        matchedStrings.grow(matchCount);
 
         for (size_t matchIndex = 1; matchIndex < matchCount; matchIndex++) {
             Match& match = matchData.matches[matchIndex];
-            matchedStrings.add(
-                    Group(
-                        string(text.c_str() + match.m_start,
-                        size_t(match.m_end - match.m_start)),
-                        (size_t) match.m_start, (size_t) match.m_end));
+            if (match.m_start >= 0)
+                matchedStrings.add(
+                        Group(
+                            string(text.c_str() + match.m_start,
+                            size_t(match.m_end - match.m_start)),
+                            (size_t) match.m_start, (size_t) match.m_end));
+            else
+                matchedStrings.add(Group());
         }
 
         if (first) {
@@ -336,13 +339,15 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
                 getNameTable(nameTable, nameEntrySize);
                 auto* tabptr = nameTable;
                 for (int i = 0; i < nameCount; i++) {
-                    int n = (tabptr[0] << 8) | tabptr[1];
+                    size_t n = size_t( (tabptr[0] << 8) | tabptr[1] );
                     String name(tabptr + 2, nameEntrySize - 3);
                     auto& match = matchData.matches[n];
-                    String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
-
-                    matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
-
+                    if (match.m_start >= 0 && n < matchCount) {
+                        String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
+                        matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
+                    } else {
+                        matchedStrings.add(name.c_str(), Group());
+                    }
                     tabptr += nameEntrySize;
                 }
             }
@@ -684,22 +689,17 @@ TEST(SPTK_RegularExpression, std_match_performance)
 
 TEST(SPTK_RegularExpression, asyncExec)
 {
-    RegularExpression match("[\\s]+");
+    RegularExpression match("(?<aname>[xyz]+) (?<avalue>\\d+) (?<description>\\w+)");
 
     mutex                       amutex;
     queue< future<size_t> >     states;
 
     size_t maxThreads = 10;
-    size_t maxIterations = 10000;
-
     for (size_t n = 0; n < maxThreads; n++) {
-        future<size_t> f = async(launch::async,[&match, maxIterations]() {
-            size_t sum = 0;
-            for (unsigned i = 0; i < maxIterations; i++) {
-                auto matchedStrings = match.split(testPhrase);
-                sum += matchedStrings.size();
-            }
-            return sum;
+        future<size_t> f = async(launch::async,[&match]() {
+            RegularExpression::Groups matchedStrings;
+            auto matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
+            return matchedNamedGroups.namedGroups().size();
         });
         lock_guard<mutex> lock(amutex);
         states.push(move(f));
@@ -718,9 +718,8 @@ TEST(SPTK_RegularExpression, asyncExec)
             }
         }
 
-        if (gotOne) {
-            EXPECT_EQ(f.get(), maxIterations * 11); // 11 words in test phrase
-        }
+        if (gotOne)
+            f.wait();
         else
             this_thread::sleep_for(chrono::milliseconds(10));
     }
