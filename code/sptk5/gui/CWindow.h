@@ -29,6 +29,11 @@
 #ifndef __CWINDOW_H__
 #define __CWINDOW_H__
 
+#ifdef _WIN32
+#include <WinSock2.h>
+#include <Windows.h>
+#endif
+
 #include <FL/Fl_Double_Window.H>
 #include <sptk5/gui/CLayoutManager.h>
 #include <sptk5/Strings.h>

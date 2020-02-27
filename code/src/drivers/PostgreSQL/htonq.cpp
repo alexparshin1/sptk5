@@ -28,6 +28,9 @@
 
 #ifndef WIN32
 #include <arpa/inet.h>
+#else
+#include <windows.h>
+#include <cstdint>
 #endif
 
 namespace sptk {

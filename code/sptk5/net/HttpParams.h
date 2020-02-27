@@ -55,7 +55,7 @@ typedef std::map<sptk::String, sptk::String, CaseInsensitiveCompare> StringHttpF
  * CHttpConnect and CCgiApplication. It is, basically, a string-to-string
  * map with an addition of encode and decode functions for HTTP Mime.
  */
-class HttpParams: public StringHttpFieldMap
+class SP_EXPORT HttpParams: public StringHttpFieldMap
 {
     /**
      * Encodes a string into HTML parameters

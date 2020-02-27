@@ -31,7 +31,7 @@
 
 namespace sptk {
 
-class URL
+class SP_EXPORT URL
 {
     String      m_protocol;
     String      m_username;

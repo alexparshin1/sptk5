@@ -80,7 +80,7 @@ public:
     /**
      * Matched group that includes string value, as well as start and end positions of the value in the subject string
      */
-    class Group
+    class SP_EXPORT Group
     {
     public:
         /**
@@ -90,7 +90,7 @@ public:
          * @param end           String end position in subject
          */
         Group(String value, size_t start, size_t end)
-        : value(move(value)), start(start), end(end)
+        : value(move(value)), start((pcre_offset_t)start), end((pcre_offset_t)end)
         {}
 
         /**
@@ -111,6 +111,12 @@ public:
         Group(Group&& other);
 
         /**
+         * Copy assignment
+         * @param other         Object to copy from
+         */
+        Group& operator = (const Group& other);
+
+        /**
          * Move assignment
          * @param other         Object to copy from
          */
@@ -125,7 +131,7 @@ public:
      * Matched groups, including unnamed and named groups (if any).
      * For named groups in global match, only the first match is considered.
      */
-    class Groups
+    class SP_EXPORT Groups
     {
         friend class RegularExpression;
     public:

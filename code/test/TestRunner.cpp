@@ -43,7 +43,10 @@
 #include <sptk5/Base64.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/test/TestRunner.h>
+
+#ifndef _WIN32
 #include <test/wsdl/TestWebService.h>
+#endif
 
 using namespace std;
 using namespace sptk;
@@ -80,8 +83,8 @@ void stub()
     SharedStrings        sharedStrings;
     Variant              v;
 
-	SSLSocket            socket;
-	HttpConnect          connect(socket);
+    SSLSocket            socket;
+    HttpConnect          connect(socket);
 
     string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     string key("01234567890123456789012345678901");
@@ -96,7 +99,10 @@ void stub()
     Base64::encode(b1, b2);
 
     DatabaseConnectionPool  connectionPool("");
+
+#ifndef _WIN32
     TestWebService          setvice;
+#endif
 }
 
 TestRunner::TestRunner(int& argc, char**& argv)

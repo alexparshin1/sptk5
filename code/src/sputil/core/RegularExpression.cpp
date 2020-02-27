@@ -99,6 +99,14 @@ RegularExpression::Group::Group(RegularExpression::Group&& other)
     other.start = other.end = 0;
 }
 
+RegularExpression::Group& RegularExpression::Group::operator = (const RegularExpression::Group& other)
+{
+    value = other.value;
+    start = other.start;
+    end = other.end;
+    return *this;
+}
+
 RegularExpression::Group& RegularExpression::Group::operator = (RegularExpression::Group&& other)
 {
     value = move(other.value);
@@ -258,7 +266,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
     int rc = pcre_exec(
             m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0,
             (pcre_offset_t*) matchData.matches,
-            matchData.maxMatches * 2);
+            (pcre_offset_t) matchData.maxMatches * 2);
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
 
@@ -332,7 +340,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
         }
 
         if (first) {
-            int nameCount = getNamedGroupCount();
+            int nameCount = (int) getNamedGroupCount();
             if (nameCount > 0) {
                 const char* nameTable;
                 int nameEntrySize;
