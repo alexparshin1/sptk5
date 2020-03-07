@@ -33,6 +33,8 @@ documentation and/or software.
 /* interface header */
 #include <sptk5/md5.h>
 #include <cstring>
+#include <sptk5/StopWatch.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -351,8 +353,15 @@ sptk::String MD5::hexdigest() const
         return "";
 
     char buf[34];
-    for (int i = 0; i < 16; i++)
-        snprintf(buf + i * 2, sizeof(buf) - i * 2 - 1, "%02x", digest[i]);
+    auto* ptr = buf;
+    auto* digestPtr = digest;
+    for (int i = 0; i < 16; i++) {
+        auto high = *digestPtr >> 4;
+        auto low = *digestPtr & 0xF;
+        *ptr++ = high > 9? high - 10  + 'a': high + '0';
+        *ptr++ = low > 9? low - 10 + 'a': low + '0';
+        digestPtr++;
+    }
     buf[32] = 0;
 
     return std::string(buf);
@@ -386,10 +395,33 @@ String sptk::md5(const String& data)
 
 static const char* testPhrase = "This is a test text to verify MD5 algorithm";
 
+static const char* testSQL =
+        "SELECT * FROM schema1.employee "
+        "JOIN schema1.department ON employee.department_id = department.id "
+        "JOIN schema1.city ON employee.city_id = city_id "
+        "WHERE employee.id in (1,2,3,4) "
+        "AND employee.name LIKE 'John%' "
+        "AND department.name = 'Information Technologies' "
+        "LIMIT 1024";
+
 TEST(SPTK_MD5, md5)
 {
     String testMD5 = md5(Buffer(testPhrase));
     EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
+}
+
+TEST(SPTK_MD5, performance)
+{
+    StopWatch stopWatch;
+    size_t iterations = 200000;
+
+    stopWatch.start();
+    for (size_t i = 0; i < iterations; i++) {
+        auto testMD5 = md5(Buffer(testSQL));
+    }
+    stopWatch.stop();
+
+    COUT("Computed " << iterations << " MD5s for " << fixed << setprecision(1) << stopWatch.seconds() << " seconds, " << iterations / stopWatch.seconds() << " per second" << endl)
 }
 
 #endif
