@@ -85,13 +85,11 @@ protected:
      * Move constructor is protected, to prevent creating of the instance of that class
      */
     MemoryDS(MemoryDS&& other) noexcept
-    : m_list(std::move(other.m_list)), m_current(other.m_current), m_currentIndex(other.m_currentIndex),
-      m_eof(other.m_eof)
-    {
-        other.m_current = 0;
-        other.m_currentIndex = 0;
-        other.m_eof = false;
-    }
+    : m_list(std::move(other.m_list)),
+      m_current(std::exchange(other.m_current,nullptr)),
+      m_currentIndex(std::exchange(other.m_currentIndex,0)),
+      m_eof(std::exchange(other.m_eof,false))
+    {}
 
     std::vector<FieldList*>& rows()
     {

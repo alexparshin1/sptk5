@@ -94,10 +94,10 @@ size_t RegularExpression::getCaptureCount() const
 }
 
 RegularExpression::Group::Group(RegularExpression::Group&& other)
-: value(move(other.value)), start(other.start), end(other.end)
-{
-    other.start = other.end = 0;
-}
+: value(move(other.value)),
+  start(exchange(other.start,0)),
+  end(exchange(other.end, 0))
+{}
 
 RegularExpression::Group& RegularExpression::Group::operator = (const RegularExpression::Group& other)
 {
@@ -110,9 +110,8 @@ RegularExpression::Group& RegularExpression::Group::operator = (const RegularExp
 RegularExpression::Group& RegularExpression::Group::operator = (RegularExpression::Group&& other)
 {
     value = move(other.value);
-    start = other.start;
-    end = other.end;
-    other.start = other.end = 0;
+    start = exchange(other.start,0);
+    end = exchange(other.end, 0);
     return *this;
 }
 

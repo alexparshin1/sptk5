@@ -119,11 +119,10 @@ public:
      * @param other             Other object
      */
     WSComplexType(WSComplexType&& other) noexcept
-    : m_name(std::move(other.m_name)), m_optional(other.m_optional), m_loaded(other.m_loaded)
-    {
-        other.m_optional = false;
-        other.m_loaded = false;
-    }
+    : m_name(std::move(other.m_name)),
+      m_optional(std::exchange(other.m_optional,false)),
+      m_loaded(std::exchange(other.m_loaded, false))
+    {}
 
     /**
      * Destructor

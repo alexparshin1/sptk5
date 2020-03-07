@@ -88,21 +88,27 @@ class SP_EXPORT ElementData
      */
     class Data
     {
-        uint64_t    m_storage {0};
+        union {
+            bool                m_bool;
+            double              m_number;
+            const std::string*  m_string;
+            ArrayData*          m_array;
+            ObjectData*         m_object;
+        } m_storage {};
     public:
-        double               get_number()  const { return *(const double*) &m_storage; }
-        bool                 get_boolean() const { return (bool) m_storage; }
-        const std::string*   get_string()  const { return (const std::string*) m_storage; }
-        ArrayData*           get_array()   const { return (ArrayData*) m_storage; }
-        ObjectData*          get_object()  const { return (ObjectData*) m_storage; }
-        ArrayData*           get_array()         { return (ArrayData*) m_storage; }
-        ObjectData*          get_object()        { return (ObjectData*) m_storage; }
+        double               get_number()  const { return m_storage.m_number; }
+        bool                 get_boolean() const { return m_storage.m_bool; }
+        const std::string*   get_string()  const { return m_storage.m_string; }
+        ArrayData*           get_array()   const { return m_storage.m_array; }
+        ObjectData*          get_object()  const { return m_storage.m_object; }
+        ArrayData*           get_array()         { return m_storage.m_array; }
+        ObjectData*          get_object()        { return m_storage.m_object; }
 
-        void                 set_number(double number)          { m_storage = *(uint64_t*) &number; }
-        void                 set_boolean(bool boolean)          { m_storage = boolean; }
-        void                 set_string(const std::string* s)   { m_storage = (uint64_t) s; }
-        void                 set_array(ArrayData* a)            { m_storage = (uint64_t) a; }
-        void                 set_object(ObjectData* o)          { m_storage = (uint64_t) o; }
+        void                 set_number(double number)          { m_storage.m_number = number; }
+        void                 set_boolean(bool boolean)          { m_storage.m_bool = boolean; }
+        void                 set_string(const std::string* s)   { m_storage.m_string = s; }
+        void                 set_array(ArrayData* a)            { m_storage.m_array = a; }
+        void                 set_object(ObjectData* o)          { m_storage.m_object = o; }
     };
 
     Data m_data;

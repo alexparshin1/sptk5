@@ -39,13 +39,17 @@ const Buffer& WSWebSocketsMessage::payload()
 
 static uint64_t ntoh64(uint64_t data)
 {
-    auto*    input = (uint32_t*)&data;
-    uint32_t output[2] {};
+    union {
+        uint64_t    m_uint64;
+        uint32_t    m_uint32[2];
+    } input, output;
 
-    output[0] = ntohl(input[1]);
-    output[1] = ntohl(input[0]);
+    input.m_uint64 = data;
 
-    return *(uint64_t*) &output;
+    output.m_uint32[0] = ntohl(input.m_uint32[1]);
+    output.m_uint32[1] = ntohl(input.m_uint32[0]);
+
+    return output.m_uint64;
 }
 
 void WSWebSocketsMessage::decode(const char* incomingData)

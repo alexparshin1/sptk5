@@ -75,10 +75,9 @@ public:
      * @param src                Other object
      */
     String(String&& src) noexcept
-    : std::string(std::move(src)), m_id(src.m_id)
-    {
-        src.m_id = 0;
-    }
+    : std::string(std::move(src)),
+      m_id(std::exchange(src.m_id,0))
+    {}
 
     /**
      * Move constructor

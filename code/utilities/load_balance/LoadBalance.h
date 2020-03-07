@@ -41,8 +41,8 @@ class LoadBalance : public Thread
     uint16_t              m_listenerPort;
     Loop<Host>&           m_destinations;
     Loop<String>&         m_interfaces;
-    SocketEvents          m_sourceEvents;
-    SocketEvents          m_destinationEvents;
+    SocketEvents          m_sourceEvents      { "Source Events", sourceEventCallback };
+    SocketEvents          m_destinationEvents { "Destination Events", destinationEventCallback };
 
     TCPSocket             m_listener;
 

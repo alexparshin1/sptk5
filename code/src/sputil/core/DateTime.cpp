@@ -188,7 +188,7 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
                 break;
         }
         if (pattern != nullptr) {
-            strncat(format, pattern, 4);
+            strncat(format, pattern, 5);
             strncat(format, separator, 2);
         }
         ptr = strtok_r(nullptr, separator, &save_ptr);
