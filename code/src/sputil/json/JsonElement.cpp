@@ -248,7 +248,9 @@ void ElementGetMethods::exportValueTo(ostream& stream, bool formatted, size_t in
 
 void ElementGetMethods::exportValueTo(const String& name, xml::Element& parentNode) const
 {
-    auto* node = new xml::Element(parentNode, name);
+    xml::Element* node {nullptr};
+    if (type() != JDT_ARRAY)
+        node = new xml::Element(parentNode, name);
     switch (type()) {
         case JDT_NUMBER:
         case JDT_BOOLEAN:
@@ -259,7 +261,7 @@ void ElementGetMethods::exportValueTo(const String& name, xml::Element& parentNo
         case JDT_ARRAY:
             if (data().get_array()) {
                 for (Element* element: *data().get_array())
-                    element->exportValueTo("item", *node);
+                    element->exportValueTo(name, parentNode);
             }
             break;
 

@@ -70,8 +70,12 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
     Strings outputColumns(columns);
     if (outputColumns.empty()) {
         outputColumns.push_back("t." + m_pkColumn);
-        for (auto& column: m_columns)
-            outputColumns.push_back("t." + column);
+        for (auto& column: m_columns) {
+            if (column.find(' ') == string::npos)
+                outputColumns.push_back("t." + column);
+            else
+                outputColumns.push_back(column);
+        }
         for (auto& join: m_joins)
             for (auto& column: join.columns)
                 outputColumns.push_back(join.tableAlias + "." + column);
