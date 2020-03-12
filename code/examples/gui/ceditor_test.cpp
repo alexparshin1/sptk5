@@ -478,7 +478,7 @@ void load_file(const char *newfile, int ipos)
         fl_alert("Error reading from file \'%s\':\n%s.", newfile, strerror(errno));
     else
         if (!insert)
-            strncpy(filename, newfile, strlen(newfile) + 1);
+            strncpy(filename, newfile, sizeof(filename) - 1);
     loading = 0;
     textbuf->call_modify_callbacks();
 }
@@ -488,7 +488,7 @@ void save_file(const char *newfile)
     if (textbuf->savefile(newfile))
         fl_alert("Error writing to file \'%s\':\n%s.", newfile, strerror(errno));
     else
-        strncpy(filename, newfile, strlen(newfile) + 1);
+        strncpy(filename, newfile, sizeof(filename) - 1);
     changed = 0;
     textbuf->call_modify_callbacks();
 }
@@ -566,7 +566,7 @@ void set_title(Fl_Window* w)
         if (slash != nullptr)
             strncpy(title, slash + 1, strlen(slash));
         else
-            strncpy(title, filename, strlen(filename) + 1);
+            strncpy(title, filename, sizeof(title));
     }
 
     if (changed)
