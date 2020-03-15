@@ -87,7 +87,7 @@ void Document::processAttributes(Node* node, char* ptr)
         if (itor == matches.groups().end())
             break;
         m_encodeBuffer.bytes(0);
-        m_doctype.decodeEntities(itor->value.c_str(), itor->value.length(), m_encodeBuffer);
+        m_doctype.decodeEntities(itor->value.c_str(), (uint32_t) itor->value.length(), m_encodeBuffer);
         node->setAttribute(attributeName, m_encodeBuffer.c_str());
     }
 }

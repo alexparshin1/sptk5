@@ -291,7 +291,7 @@ void MySQLStatement::setParameterValues()
 
 void MySQLStatement::MySQLStatement::prepare(const string& sql)
 {
-    if (mysql_stmt_prepare(statement(), sql.c_str(), sql.length()) != 0)
+    if (mysql_stmt_prepare(statement(), sql.c_str(), (unsigned long) sql.length()) != 0)
         throwMySQLError();
 }
 

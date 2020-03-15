@@ -539,7 +539,7 @@ void CBaseListBox::addRows(string columnName, Strings strings)
         String& str = strings[i];
         cpchar strs[2] = {str.c_str(), nullptr};
         auto* psl = new CPackedStrings(1, strs);
-        int id = str.ident();
+        int32_t id = (int32_t) str.ident();
         psl->argument(id);
         m_list->addRow(psl);
     }

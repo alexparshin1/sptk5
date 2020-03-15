@@ -89,7 +89,7 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 
     lock_guard<mutex> lock(*this);
 
-    int socketFD = socket.fd();
+    int socketFD = (int) socket.fd();
 
     auto* event = new epoll_event;
     event->data.ptr = userData;
