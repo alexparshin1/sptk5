@@ -76,6 +76,7 @@ namespace sptk {
         }
 
         void setParameterValue(unsigned paramIndex, QueryParameter* param);
+        void setFloatParameterValue(unsigned paramIndex, QueryParameter *param);
 
         unsigned size() const               { return (unsigned) m_count;   }
         const char* const* values() const   { return &m_values[0]; }

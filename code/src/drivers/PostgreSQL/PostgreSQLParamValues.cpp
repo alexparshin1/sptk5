@@ -81,6 +81,18 @@ void PostgreSQLParamValues::setParameters(QueryParameterList& params)
 static const char* booleanTrue = "t";
 static const char* booleanFalse = "f";
 
+void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, QueryParameter *param)
+{
+    union {
+        double      m_double;
+        uint64_t    m_uint64;
+    } convert;
+    convert.m_double = param->asFloat();
+    uint64_t* uptrBuffer64 = (uint64_t*) param->conversionBuffer();
+    *uptrBuffer64 = htonq(convert.m_uint64);
+    setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
+}
+
 void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParameter* param)
 {
     VariantType ptype = param->dataType();
@@ -88,7 +100,6 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
     uint64_t*   uptrBuffer64;
     long        days;
     int64_t     mcs;
-    double      value;
 
     if (param->isNull())
         setParameterValue(paramIndex, nullptr, 0, 0, PG_VARCHAR);
@@ -137,10 +148,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
                 break;
 
             case VAR_MONEY:
-                value = param->asFloat();
-                uptrBuffer64 = (uint64_t*) param->conversionBuffer();
-                *uptrBuffer64 = htonq(*(uint64_t*) (void*) &value);
-                setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
+                setFloatParameterValue(paramIndex, param);
                 break;
 
             case VAR_FLOAT:
