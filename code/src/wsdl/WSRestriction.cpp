@@ -80,23 +80,18 @@ WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const String
 
 void WSRestriction::check(const String& typeName, const String& value) const
 {
-    switch (m_type) {
-        case Enumeration:
-            if (m_enumerations.indexOf(value) >= 0)
-                return;
-            break;
-
-        case Pattern:
-            {
-                RegularExpression regex(m_pattern);
-                if (regex.matches(value))
-                    return;
-            }
-            break;
-
-        default:
+    if (m_type == Enumeration) {
+        if (m_enumerations.indexOf(value) >= 0)
             return;
     }
+    else if (m_type == Pattern) {
+        RegularExpression regex(m_pattern);
+        if (regex.matches(value))
+            return;
+    }
+    else
+        return;
+
     throw Exception("value '" + value + "' is invalid for restriction on " + m_wsdlTypeName + " for type " + typeName);
 }
 

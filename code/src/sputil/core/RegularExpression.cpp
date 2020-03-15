@@ -713,9 +713,10 @@ TEST(SPTK_RegularExpression, asyncExec)
     }
 
     future<size_t> f;
+    auto statesCount = states.size();
     for (size_t n = 0; n < maxThreads;) {
         bool gotOne {false};
-        {
+        if (statesCount > 0) {
             lock_guard<mutex> lock(amutex);
             if (!states.empty()) {
                 f = move(states.front());

@@ -102,7 +102,8 @@ public:
 
 static mutex                timerThreadMutex;
 static TimerThread*         timerThread;
-static atomic<uint64_t>     nextSerial;
+
+atomic<uint64_t>            Timer::nextSerial;
 
 int                         eventAllocations;
 

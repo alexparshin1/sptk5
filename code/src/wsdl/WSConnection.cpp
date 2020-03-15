@@ -75,52 +75,15 @@ void WSConnection::run()
             URL url(httpReader.getRequestURL());
 
             if (requestType == "OPTIONS") {
-                String origin = headers["origin"];
-                Buffer response;
-                response.append("HTTP/1.1 204 No Content\r\n");
-                response.append("Connection: keep-alive\r\n");
-                if (m_allowCORS) {
-                    response.append("Access-Control-Allow-Origin: *\r\n");
-                    response.append("Access-Control-Allow-Methods: POST, GET, OPTIONS\r\n");
-                    response.append("Access-Control-Allow-Headers: Content-Type, Content-Length, Content-Encoding, Access-Control-Allow-Origin\r\n");
-                } else {
-                    response.append("Access-Control-Allow-Origin: null\r\n");
-                }
-                //response.append("Access-Control-Max-Age: 86400\r\n");
-                response.append("\r\n", 2);
-                socket().write(response);
+                respondToOptions(headers);
                 continue;
             }
 
             if (url.params().has("wsdl"))
                 protocolName = "wsdl";
 
-            if (protocolName == "http") {
-                String contentType = headers["Content-Type"];
-                if (contentType.find("/json") != string::npos)
-                    protocolName = "rest";
-                else if (contentType.find("/xml") != string::npos)
-                    protocolName = "WS";
-                else if (requestType == "POST")
-                    protocolName = "rest";
-                else {
-
-                    if (headers["Upgrade"] == "websocket") {
-                        WSWebSocketsProtocol protocol(&socket(), headers);
-                        protocol.process();
-                        return;
-                    }
-
-                    if (url.path() != m_paths.wsRequestPage) {
-                        if (url.path() == "/")
-                            url.path(m_paths.htmlIndexPage);
-
-                        WSStaticHttpProtocol protocol(&socket(), url, headers, m_paths.staticFilesDirectory);
-                        protocol.process();
-                        return;
-                    }
-                }
-            }
+            if (protocolName == "http" && handleHttpProtocol(requestType, url, protocolName, headers))
+                return;
 
             if (protocolName == "websocket") {
                 WSWebSocketsProtocol protocol(&socket(), headers);
@@ -149,6 +112,56 @@ void WSConnection::run()
                 m_logger.error("Error in thread " + name() + ": " + String(e.what()));
         }
     }
+}
+
+bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, String& protocolName,
+                                      HttpHeaders& headers) const
+{
+    String contentType = headers["Content-Type"];
+    bool processed= false;
+    if (contentType.find("/json") != string::npos)
+        protocolName = "rest";
+    else if (contentType.find("/xml") != string::npos)
+        protocolName = "WS";
+    else if (requestType == "POST")
+        protocolName = "rest";
+    else {
+        if (headers["Upgrade"] == "websocket") {
+            WSWebSocketsProtocol protocol(&socket(), headers);
+            protocol.process();
+            processed = true;
+        }
+        else if (url.path() != m_paths.wsRequestPage) {
+            if (url.path() == "/")
+                url.path(m_paths.htmlIndexPage);
+
+            WSStaticHttpProtocol protocol(&socket(), url, headers, m_paths.staticFilesDirectory);
+            protocol.process();
+            processed = true;
+        }
+    }
+    return processed;
+}
+
+void WSConnection::respondToOptions(const HttpHeaders& headers)
+{
+    auto itor = headers.find("origin");
+    auto origin = itor->second;
+    Buffer response;
+    response.append("HTTP/1.1 204 No Content\r\n");
+    response.append("Connection: keep-alive\r\n");
+    if (m_allowCORS) {
+        response.append("Access-Control-Allow-Origin: *\r\n");
+        response.append("Access-Control-Allow-Methods: POST, GET, OPTIONS\r\n");
+        response.append("Access-Control-Allow-Headers: Content-Type, Content-Length, Content-Encoding, Access-Control-Allow-Origin\r\n");
+    } else {
+        response.append("Access-Control-Allow-Origin: null\r\n");
+    }
+
+    response.append("Access-Control-Max-Age: 86400\r\n");
+
+    response.append("\r\n", 2);
+    socket().write(response);
 }
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,

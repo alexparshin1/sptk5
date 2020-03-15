@@ -22,8 +22,8 @@ namespace sptk {
          */
         struct EventId
         {
-            uint64_t    serial;     ///< Serial number
-            DateTime    when;       ///< Execution date and time
+            uint64_t    serial {Timer::nextSerial++};  ///< Serial number
+            DateTime    when;                   ///< Execution date and time
             /**
              * Constructor
              * @param when      Event execution time
@@ -144,8 +144,9 @@ namespace sptk {
 
     private:
 
-        mutable std::mutex          m_mutex;        ///< Mutex protecting events set
-        std::set<Event>             m_events;       ///< Events scheduled by this timer
+        mutable std::mutex              m_mutex;        ///< Mutex protecting events set
+        std::set<Event>                 m_events;       ///< Events scheduled by this timer
+        static std::atomic<uint64_t>    nextSerial;     ///< Event id serial
 
         std::set<Timer::Event> moveOutEvents();
 

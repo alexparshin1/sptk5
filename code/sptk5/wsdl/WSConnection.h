@@ -72,6 +72,10 @@ private:
     Logger&     m_logger;
     Paths       m_paths;
     bool        m_allowCORS;
+
+    void respondToOptions(const HttpHeaders& headers);
+
+    bool handleHttpProtocol(const String& requestType, URL& url, String& protocolName, HttpHeaders& headers) const;
 };
 
 /**
