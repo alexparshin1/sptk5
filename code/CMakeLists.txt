@@ -5,7 +5,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 # to the root binary directory of the project as ${SPTK_BINARY_DIR}.
 PROJECT (SPTK)
 
-cmake_policy(SET CMP0046 NEW)
+cmake_policy(SET CMP0046 OLD)
 
 #SET (CMAKE_BUILD_TYPE Release)
 SET (CMAKE_BUILD_TYPE Debug)
