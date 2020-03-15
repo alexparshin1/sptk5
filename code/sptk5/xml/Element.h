@@ -319,17 +319,6 @@ public:
     }
 
     /**
-     * Constructor
-     *
-     * @param parent            Parent node
-     * @param target            Target tag name
-     */
-    PI(Node& parent, String target, const String& data)
-    : Element(parent, target)
-    {
-    }
-
-    /**
      * Returns node type
      */
     virtual NodeType type() const

@@ -170,7 +170,7 @@ TEST(SPTK_WSRestriction, parseEnumeration)
         FAIL() << "Yellow is not allowed colour!";
     }
     catch (const Exception&) {
-        // Correctly detected not allowed colour
+        SUCCEED() << "Correctly detected not allowed colour";
     }
 }
 
@@ -195,7 +195,7 @@ TEST(SPTK_WSRestriction, parseInitials)
         FAIL() << "xY is incorrect initials!";
     }
     catch (const Exception&) {
-        // Correctly detected incorrect initials
+        SUCCEED() << "Correctly detected incorrect initials";
     }
 }
 

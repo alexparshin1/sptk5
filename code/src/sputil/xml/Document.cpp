@@ -297,7 +297,7 @@ char* Document::readProcessingInstructions(char* nodeName, char* tokenEnd, char*
     auto matches = m_parseAttributes.m(tokenEnd);
 
     *tokenEnd = 0;
-    auto* pi = new PI(*currentNode, nodeName + 1, "");
+    auto* pi = new PI(*currentNode, nodeName + 1);
     processAttributes(pi, tokenEnd + 1);
 
     tokenEnd = nodeEnd + 1;

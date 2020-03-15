@@ -288,7 +288,7 @@ void Node::copy(const Node& node)
                 element->copy(*childNode);
                 break;
             case DOM_PI:
-                new PI(*this, childNode->name(), childNode->value());
+                new PI(*this, childNode->name());
                 break;
             case DOM_TEXT:
                 new Text(*this, childNode->value());
