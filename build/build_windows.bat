@@ -48,4 +48,4 @@ if errorlevel 1 (
 
 rmdir /S /Q SPTK-SetupFiles SPTK-cache 2>&1 >> build.log
 
-scp -i ssh\id_rsa Downloads\SPTK-%VERSION%.exe alexeyp@protis-demo.com:/var/www/sites/sptk/download/%VERSION%/SPTK-%VERSION%.exe
+scp -i ssh\id_rsa Downloads\SPTK-%VERSION%.exe alexeyp@www.sptk.net:/var/www/sites/sptk/download/%VERSION%/SPTK-%VERSION%.exe
