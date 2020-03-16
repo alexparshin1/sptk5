@@ -88,27 +88,37 @@ class SP_EXPORT ElementData
      */
     class Data
     {
-        union {
-            bool                m_bool;
-            double              m_number;
-            const std::string*  m_string;
-            ArrayData*          m_array;
-            ObjectData*         m_object;
-        } m_storage {};
-    public:
-        double               get_number()  const { return m_storage.m_number; }
-        bool                 get_boolean() const { return m_storage.m_bool; }
-        const std::string*   get_string()  const { return m_storage.m_string; }
-        ArrayData*           get_array()   const { return m_storage.m_array; }
-        ObjectData*          get_object()  const { return m_storage.m_object; }
-        ArrayData*           get_array()         { return m_storage.m_array; }
-        ObjectData*          get_object()        { return m_storage.m_object; }
+        uint64_t m_storage {0};
 
-        void                 set_number(double number)          { m_storage.m_number = number; }
-        void                 set_boolean(bool boolean)          { m_storage.m_bool = boolean; }
-        void                 set_string(const std::string* s)   { m_storage.m_string = s; }
-        void                 set_array(ArrayData* a)            { m_storage.m_array = a; }
-        void                 set_object(ObjectData* o)          { m_storage.m_object = o; }
+        template <typename T> T& as() {
+            auto* ptr = (void*) &m_storage;
+            return *(T*) ptr;
+        }
+
+        template <typename T> const T& as() const {
+            auto* ptr = (void*) &m_storage;
+            return *(const T*) ptr;
+        }
+
+        template <typename T> void set(T& value) const {
+            auto* ptr = (void*) &m_storage;
+            *(T*) ptr = value;
+        }
+
+    public:
+        double               get_number()  const { return as<double>(); }
+        bool                 get_boolean() const { return as<bool>(); }
+        const std::string*   get_string()  const { return as<std::string*>(); }
+        ArrayData*           get_array()   const { return as<ArrayData*>(); }
+        ObjectData*          get_object()  const { return as<ObjectData*>(); }
+        ArrayData*           get_array()         { return as<ArrayData*>(); }
+        ObjectData*          get_object()        { return as<ObjectData*>(); }
+
+        void                 set_number(double number)          { set(number); }
+        void                 set_boolean(bool boolean)          { set(boolean); }
+        void                 set_string(const std::string* s)   { set(s); }
+        void                 set_array(ArrayData* array)        { set(array); }
+        void                 set_object(ObjectData* object)     { set(object); }
     };
 
     Data m_data;
