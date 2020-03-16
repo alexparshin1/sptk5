@@ -120,9 +120,9 @@ String WSParserComplexType::className() const
 void WSParserComplexType::parseSequence(xml::Element* sequence)
 {
     for (auto* node: *sequence) {
-        auto* element = dynamic_cast<xml::Element*>(node);
-        if (element == nullptr)
+        if (node->type() != xml::Node::DOM_ELEMENT)
             throw Exception("The node " + node->name() + " is not an XML element");
+        auto* element = dynamic_cast<xml::Element*>(node);
         string elementName = element->name();
         if (elementName == "xsd:element")
             m_sequence.push_back(new WSParserComplexType(element));

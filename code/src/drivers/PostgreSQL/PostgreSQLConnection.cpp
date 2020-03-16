@@ -630,22 +630,16 @@ static inline int64_t readInt8(const char* data)
 
 static inline float readFloat4(const char* data)
 {
-    union {
-        uint32_t    m_uint32;
-        float       m_float;
-    } convert;
-    convert.m_uint32 = ntohl(*(const uint32_t*) data);
-    return convert.m_float;
+    uint32_t value = ntohl(*(const uint32_t*) data);
+    void* ptr = &value;
+    return *(float*) ptr;
 }
 
 static inline double readFloat8(const char* data)
 {
-    union {
-        uint64_t    m_uint64;
-        double      m_double;
-    } convert;
-    convert.m_uint64 = ntohq(*(const uint64_t*) data);
-    return convert.m_double;
+    uint64_t value = ntohq(*(const uint64_t*) data);
+    void* ptr = &value;
+    return *(double*) ptr;
 }
 
 static inline DateTime readDate(const char* data)
@@ -656,19 +650,15 @@ static inline DateTime readDate(const char* data)
 
 static inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 {
-    union {
-        uint64_t    m_uint64;
-        double      m_double;
-    } convert;
-
-    convert.m_uint64 = ntohq(*(const uint64_t*) data);
+    uint64_t value = ntohq(*(const uint64_t*) data);
 
     if (integerTimestamps) {
         // time is in usecs
-        return epochDate + chrono::microseconds(convert.m_uint64);
+        return epochDate + chrono::microseconds(value);
     }
 
-    double seconds = convert.m_double;
+    void* ptr = &value;
+    double seconds = *(double*) ptr;
     DateTime ts = epochDate + chrono::microseconds((int64_t) seconds * 1000000);
     return ts;
 }

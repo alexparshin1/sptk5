@@ -91,13 +91,7 @@ void WSConnection::run()
                 return;
             }
 
-            String contentLength = headers["Content-Length"];
-            if (requestType == "GET" && contentLength.empty())
-                headers["Content-Length"] = "0";
-
-            bool closeConnection = headers["Connection"].toLowerCase() == "close";
-            if (closeConnection)
-                headers.erase("Connection");
+            bool closeConnection = reviewHeaders(requestType, headers);
 
             WSWebServiceProtocol protocol(httpReader, url, m_service, server().hostname(), server().port(), m_allowCORS);
             protocol.process();
@@ -112,6 +106,19 @@ void WSConnection::run()
                 m_logger.error("Error in thread " + name() + ": " + String(e.what()));
         }
     }
+}
+
+bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers) const
+{
+    String contentLength = headers["Content-Length"];
+    if (requestType == "GET" && contentLength.empty())
+        headers["Content-Length"] = "0";
+
+    bool closeConnection = headers["Connection"].toLowerCase() == "close";
+    if (closeConnection)
+        headers.erase("Connection");
+
+    return closeConnection;
 }
 
 bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, String& protocolName,

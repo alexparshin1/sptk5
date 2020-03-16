@@ -76,6 +76,8 @@ private:
     void respondToOptions(const HttpHeaders& headers);
 
     bool handleHttpProtocol(const String& requestType, URL& url, String& protocolName, HttpHeaders& headers) const;
+
+    bool reviewHeaders(const String& requestType, HttpHeaders& headers) const;
 };
 
 /**

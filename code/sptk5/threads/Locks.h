@@ -67,7 +67,7 @@ typedef std::unique_lock<SharedMutex>       WriteLockType;
 class SP_EXPORT UniqueLockInt
 {
     SharedMutex&    mutex;              ///< Shared mutex that controls lock
-    bool            locked {false};     ///< True if lock is acquired
+    bool            locked {true};      ///< True if lock is acquired
 
 public:
 
@@ -108,7 +108,7 @@ public:
 class SP_EXPORT SharedLockInt
 {
     SharedMutex&    mutex;              ///< Shared mutex that controls lock
-    bool            locked {false};     ///< True if lock is acquired
+    bool            locked {true};      ///< True if lock is acquired
 
 public:
 

@@ -142,9 +142,9 @@ void WSParser::parseOperation(xml::Element* operationNode)
 
     map<String, String> messageToElementMap;
     for (auto* node: messageNodes) {
-        auto* message = dynamic_cast<xml::Element*>(node);
-        if (message == nullptr)
+        if (node->type() != xml::Node::DOM_ELEMENT)
             throw Exception("The node " + node->name() + " is not an XML element");
+        auto* message = dynamic_cast<xml::Element*>(node);
         xml::Node* part = message->findFirst("wsdl:part");
         String messageName = (String) message->getAttribute("name");
         String elementName = strip_namespace((String) part->getAttribute("element"));
@@ -157,9 +157,9 @@ void WSParser::parseOperation(xml::Element* operationNode)
     WSOperation operation = {};
     bool found = false;
     for (auto* node: *operationNode) {
-        auto* element = dynamic_cast<const xml::Element*>(node);
-        if (element == nullptr)
+        if (node->type() != xml::Node::DOM_ELEMENT)
             throw Exception("The node " + node->name() + " is not an XML element");
+        auto* element = dynamic_cast<const xml::Element*>(node);
         String message = (String) element->getAttribute("message");
         size_t pos = message.find(':');
         if (pos != string::npos)

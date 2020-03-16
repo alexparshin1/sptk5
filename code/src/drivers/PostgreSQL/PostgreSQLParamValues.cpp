@@ -83,13 +83,10 @@ static const char* booleanFalse = "f";
 
 void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, QueryParameter *param)
 {
-    union {
-        double      m_double;
-        uint64_t    m_uint64;
-    } convert;
-    convert.m_double = param->asFloat();
+    double value = param->asFloat();
+    void* ptr = &value;
     uint64_t* uptrBuffer64 = (uint64_t*) param->conversionBuffer();
-    *uptrBuffer64 = htonq(convert.m_uint64);
+    *uptrBuffer64 = htonq(*(uint64_t*)ptr);
     setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
 }
 

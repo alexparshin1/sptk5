@@ -341,11 +341,17 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 
     DateTime started2("now");
     size_t i = 1;
+
+    auto& idParam = insertData.param("id");
+    auto& nameParam = insertData.param("name");
+    auto& positionParam = insertData.param("position");
+    auto& hiredParam = insertData.param("hired");
+
     for (auto& row: data) {
-        insertData.param(uint32_t(0)) = row[0].asInteger();
-        insertData.param(1) = row[1].asString();
-        insertData.param(2) = row[2].asString();
-        insertData.param(3) = row[3].asString();
+        idParam = row[0].asInteger();
+        nameParam = row[1].asString();
+        positionParam = row[2].asString();
+        hiredParam = row[3].asString();
         insertData.exec();
         i++;
     }

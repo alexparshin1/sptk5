@@ -40,19 +40,17 @@ UniqueLockInt::UniqueLockInt(SharedMutex& mutex)
 : mutex(mutex)
 {
     mutex.lock();
-    locked = true;
 }
 
 UniqueLockInt::UniqueLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line)
 : mutex(mutex)
 {
     if (!mutex.try_lock_for(timeout)) {
+        locked = false;
         std::stringstream error;
         error << "Can't lock for write, " << file << "(" << line << ")";
         throw TimeoutException(error.str());
     }
-    else
-        locked = true;
 }
 
 SharedLockInt::SharedLockInt(SharedMutex& mutex)
@@ -63,7 +61,6 @@ SharedLockInt::SharedLockInt(SharedMutex& mutex)
 #else
     mutex.lock();
 #endif
-    locked = true;
 }
 
 SharedLockInt::SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line)
@@ -74,12 +71,11 @@ SharedLockInt::SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeo
 #else
     if (!mutex.try_lock_for(timeout)) {
 #endif
+        locked = false;
         std::stringstream error;
         error << "Can't lock for write, " << file << "(" << line << ")";
         throw TimeoutException(error.str());
     }
-    else
-        locked = true;
 }
 
 CopyLockInt::CopyLockInt(SharedMutex& destinationMutex, SharedMutex& sourceMutex)
