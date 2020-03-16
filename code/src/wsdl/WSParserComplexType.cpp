@@ -135,9 +135,9 @@ void WSParserComplexType::parse()
     if (m_element == nullptr)
         return;
     for (auto* node: *m_element) {
-        auto* element = dynamic_cast<xml::Element*>(node);
-        if (element == nullptr)
+        if (node->type() != xml::Node::DOM_ELEMENT)
             throw Exception("The node " + node->name() + " is not an XML element");
+        auto* element = dynamic_cast<xml::Element*>(node);
         if (element->name() == "xsd:attribute") {
             String attrName = (String) element->getAttribute("name");
             m_attributes[attrName] = new WSParserAttribute(attrName, (String) element->getAttribute("type"));
@@ -218,17 +218,9 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     if (!m_sequence.empty()) {
         classDeclaration << "   // Elements" << endl;
         for (auto* complexType: m_sequence) {
-            String cxxType = complexType->className();
-            if (!complexType->documentation().empty()) {
-                classDeclaration << endl;
-                classDeclaration << "   /**" << endl;
-                Strings rows(complexType->documentation(), "[\n\r]+", Strings::SM_REGEXP);
-                for (const String& row: rows) {
-                    classDeclaration << "    * " << trim(row) << endl;
-                }
-                classDeclaration << "    */" << endl;
-            }
+            appendMemberDocumentation(classDeclaration, complexType);
 
+            String cxxType = complexType->className();
             if (complexType->isArray())
                 cxxType = "sptk::WSArray<" + cxxType + "*>";
             else {
@@ -246,16 +238,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
         }
     }
 
-    if (!m_attributes.empty()) {
-        classDeclaration << "   // Attributes" << endl;
-        for (auto& itor: m_attributes) {
-            WSParserAttribute& attr = *itor.second;
-            classDeclaration << "   " << attr.generate(true) << ";" << endl;
-            copyInitializer.push_back("m_" + attr.name() + "(other.m_" + attr.name() + ")");
-            moveInitializer.push_back("m_" + attr.name() + "(std::move(other.m_" + attr.name() + "))");
-            fieldNames.push_back(attr.name());
-        }
-    }
+    appendClassAttributes(classDeclaration, fieldNames, copyInitializer, moveInitializer);
 
     classDeclaration << endl;
     classDeclaration << "   // Field names of simple types, that can be used to build SQL queries" << endl;
@@ -379,6 +362,35 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "};" << endl;
     classDeclaration << endl;
     classDeclaration << "#endif" << endl;
+}
+
+void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strings& fieldNames,
+                                                Strings& copyInitializer, Strings& moveInitializer) const
+{
+    if (!m_attributes.empty()) {
+        classDeclaration << "   // Attributes" << endl;
+        for (auto& itor: m_attributes) {
+            WSParserAttribute& attr = *itor.second;
+            classDeclaration << "   " << attr.generate(true) << ";" << endl;
+            copyInitializer.push_back("m_" + attr.name() + "(other.m_" + attr.name() + ")");
+            moveInitializer.push_back("m_" + attr.name() + "(std::move(other.m_" + attr.name() + "))");
+            fieldNames.push_back(attr.name());
+        }
+    }
+}
+
+void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
+                                                    const WSParserComplexType* complexType) const
+{
+    if (!complexType->documentation().empty()) {
+        classDeclaration << endl;
+        classDeclaration << "   /**" << endl;
+        Strings rows(complexType->documentation(), "[\n\r]+", Strings::SM_REGEXP);
+        for (const String& row: rows) {
+            classDeclaration << "    * " << trim(row) << endl;
+        }
+        classDeclaration << "    */" << endl;
+    }
 }
 
 set<String> WSParserComplexType::getUsedClasses() const

@@ -56,7 +56,12 @@ WSListener::WSListener(WSRequest& service, LogEngine& logger, const WSConnection
 
 ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_paths, m_encrypted, m_allowCORS);
+    int options = 0;
+    if (m_encrypted)
+        options |= WSConnection::ENCRYPTED;
+    if (m_allowCORS)
+        options |= WSConnection::ALLOW_CORS;
+    return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_paths, options);
 }
 
 String WSListener::hostname() const

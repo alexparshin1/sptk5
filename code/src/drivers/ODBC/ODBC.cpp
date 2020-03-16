@@ -82,11 +82,6 @@ void ODBCEnvironment::freeEnv()
 // ODBC Connection class
 //--------------------------------------------------------------------------------------------
 
-ODBCConnectionBase::ODBCConnectionBase()
-: m_cEnvironment(getEnvironment())
-{
-}
-
 ODBCConnectionBase::~ODBCConnectionBase()
 {
     if (isConnected())

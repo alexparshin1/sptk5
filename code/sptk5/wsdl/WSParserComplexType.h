@@ -344,6 +344,12 @@ private:
     void printImplementationLoadXMLAttributes(std::ostream& classImplementation) const;
 
     void printImplementationLoadXMLFields(std::ostream& classImplementation) const;
+
+    void appendMemberDocumentation(std::ostream& classDeclaration,
+                                   const WSParserComplexType* complexType) const;
+
+    void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames, Strings& copyInitializer,
+                               Strings& moveInitializer) const;
 };
 
 /**

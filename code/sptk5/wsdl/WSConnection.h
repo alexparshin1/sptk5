@@ -37,6 +37,10 @@ namespace sptk {
 class WSConnection : public ServerConnection
 {
 public:
+    enum Options {
+        ENCRYPTED = 1,
+        ALLOW_CORS = 2
+    };
 
     class Paths
     {
@@ -91,7 +95,7 @@ public:
      * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
      */
     WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
-                    Logger& logger, const Paths& paths, bool encrypted, bool allowCORS);
+                    Logger& logger, const Paths& paths, int options);
 
     /**
      * Destructor

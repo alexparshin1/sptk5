@@ -172,10 +172,10 @@ void WSConnection::respondToOptions(const HttpHeaders& headers)
 }
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
-                                 Logger& logger, const Paths& paths, bool encrypted, bool allowCORS)
-: WSConnection(server, connectionSocket, addr, service, logger, paths, allowCORS)
+                                 Logger& logger, const Paths& paths, int options)
+: WSConnection(server, connectionSocket, addr, service, logger, paths, options & ALLOW_CORS)
 {
-    if (encrypted) {
+    if (options & ENCRYPTED) {
         auto& sslKeys = server.getSSLKeys();
         auto* socket = new SSLSocket;
         socket->loadKeys(sslKeys);

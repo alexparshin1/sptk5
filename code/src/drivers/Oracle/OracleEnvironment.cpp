@@ -32,18 +32,11 @@ using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
-OracleEnvironment::OracleEnvironment()
-: m_handle(Environment::createEnvironment("UTF8", "UTF8", Environment::THREADED_MUTEXED))
-{
-}
-
-/// @brief Destructor
 OracleEnvironment::~OracleEnvironment()
 {
     Environment::terminateEnvironment(m_handle);
 }
 
-/// @brief Returns client version
 std::string OracleEnvironment::clientVersion() const
 {
     int major;

@@ -164,7 +164,7 @@ public:
  */
 class SP_DRIVER_EXPORT ODBCConnectionBase : public ODBCBase
 {
-    ODBCEnvironment&    m_cEnvironment;                     ///< ODBC environment
+    ODBCEnvironment&    m_cEnvironment {getEnvironment()};  ///< ODBC environment
     SQLHDBC             m_hConnection {SQL_NULL_HDBC};      ///< ODBC connection handle
     bool                m_connected {false};                ///< Is connection active?
     String              m_connectString;                    ///< ODBC connection string
@@ -190,7 +190,7 @@ public:
     /**
      * Default constructor
      */
-    ODBCConnectionBase();
+    ODBCConnectionBase() = default;
 
     /**
      * Default destructor

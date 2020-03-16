@@ -50,12 +50,12 @@ namespace sptk
  */
 class OracleEnvironment
 {
-    oracle::occi::Environment* m_handle;
+    oracle::occi::Environment* m_handle { oracle::occi::Environment::createEnvironment("UTF8", "UTF8", oracle::occi::Environment::THREADED_MUTEXED)};
 public:
     /**
      * @brief Constructor
      */
-    OracleEnvironment();
+    OracleEnvironment() = default;
 
     /**
      * @brief Destructor
