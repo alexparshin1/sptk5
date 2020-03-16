@@ -98,16 +98,6 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
         m_multiplicity = maxOccurs == "1" ? WSM_REQUIRED : WSM_ONE_OR_MORE;
 }
 
-WSParserComplexType::~WSParserComplexType()
-{
-    if (m_refcount == 0) {
-        for (auto* element: m_sequence)
-            delete element;
-        for (auto& itor: m_attributes)
-            delete itor.second;
-    }
-}
-
 String WSParserComplexType::className() const
 {
     String cxxType = wsTypeTranslator.toCxxType(m_typeName, "");
@@ -125,7 +115,7 @@ void WSParserComplexType::parseSequence(xml::Element* sequence)
         auto* element = dynamic_cast<xml::Element*>(node);
         string elementName = element->name();
         if (elementName == "xsd:element")
-            m_sequence.push_back(new WSParserComplexType(element));
+            m_sequence.push_back(make_shared<WSParserComplexType>(element));
     }
 }
 
@@ -217,7 +207,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     moveInitializer.push_back(string("sptk::WSComplexType(std::move(other))"));
     if (!m_sequence.empty()) {
         classDeclaration << "   // Elements" << endl;
-        for (auto* complexType: m_sequence) {
+        for (auto& complexType: m_sequence) {
             appendMemberDocumentation(classDeclaration, complexType);
 
             String cxxType = complexType->className();
@@ -380,7 +370,7 @@ void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strin
 }
 
 void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
-                                                    const WSParserComplexType* complexType) const
+                                                    const SWSParserComplexType& complexType) const
 {
     if (!complexType->documentation().empty()) {
         classDeclaration << endl;
@@ -397,7 +387,7 @@ set<String> WSParserComplexType::getUsedClasses() const
 {
     set<String> usedClasses;
     // determine the list of used classes
-    for (auto* complexType: m_sequence) {
+    for (auto& complexType: m_sequence) {
         String cxxType = complexType->className();
         if (cxxType[0] == 'C') {
             usedClasses.insert(cxxType);
@@ -427,7 +417,7 @@ void WSParserComplexType::printImplementationClear(ostream& classImplementation,
     classImplementation << "void " << className << "::_clear()" << endl;
     classImplementation << "{" << endl;
     classImplementation << "    // Clear elements" << endl;
-    for (auto* complexType: m_sequence) {
+    for (auto& complexType: m_sequence) {
         if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
             classImplementation << "    for (auto* element: m_" << complexType->name() << ")" << endl;
             classImplementation << "        delete element;" << endl;
@@ -491,7 +481,7 @@ void WSParserComplexType::printImplementationLoadXMLFields(ostream& classImpleme
         classImplementation << "            continue;" << endl;
         classImplementation << "        }" << endl;
         Strings requiredElements;
-        for (auto* complexType: m_sequence) {
+        for (auto& complexType: m_sequence) {
             classImplementation << endl;
             classImplementation << "        if (element->name() == \"" << complexType->name() << "\") {" << endl;
             bool restrictionExists = false;
@@ -543,7 +533,7 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
         classImplementation << "        auto& elementName = *itor.first;" << endl;
         classImplementation << "        auto* element = itor.second;" << endl;
         Strings requiredElements;
-        for (auto* complexType: m_sequence) {
+        for (auto& complexType: m_sequence) {
             classImplementation << endl;
             classImplementation << "        if (elementName == \"" << complexType->name() << "\") {" << endl;
             bool restrictionExists = false;
@@ -633,7 +623,7 @@ void WSParserComplexType::makeImplementationLoadFields(stringstream& fieldLoads,
 
     if (!m_sequence.empty()) {
         fieldLoads << endl << "    // Load elements" << endl;
-        for (auto* complexType: m_sequence) {
+        for (auto& complexType: m_sequence) {
             if ((complexType->multiplicity() & WSM_REQUIRED) != 0)
                 requiredElements.push_back(complexType->name());
             if (!matchStandardType.matches(complexType->m_typeName))
@@ -697,7 +687,7 @@ void WSParserComplexType::printImplementationUnloadXML(ostream& classImplementat
 
     if (!m_sequence.empty()) {
         classImplementation << endl << "    // Unload elements" << endl;
-        for (auto* complexType: m_sequence) {
+        for (auto& complexType: m_sequence) {
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
                 classImplementation << "    for (auto* element: m_" << complexType->name() << ")" << endl;
                 classImplementation << "        element->addElement(output, \"" << complexType->name() <<  "\");" << endl;
@@ -739,7 +729,7 @@ void WSParserComplexType::printImplementationUnloadJSON(ostream& classImplementa
 
     if (!m_sequence.empty()) {
         classImplementation << endl << "    // Unload elements" << endl;
-        for (auto* complexType: m_sequence) {
+        for (auto& complexType: m_sequence) {
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
                 String outputArrayName = complexType->name() + "_array";
                 classImplementation
@@ -770,7 +760,7 @@ void WSParserComplexType::printImplementationUnloadParamList(ostream& classImple
 
     if (!m_sequence.empty()) {
         unloadList << endl << "    // Unload attributes" << endl;
-        for (auto* complexType: m_sequence) {
+        for (auto& complexType: m_sequence) {
             if (!complexType->isArray()) {
                 unloadList << "    WSComplexType::unload(output, \"" << complexType->name()
                            << "\", dynamic_cast<const WSBasicType*>(&m_" << complexType->name() << "));" << endl;

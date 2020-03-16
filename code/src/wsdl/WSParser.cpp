@@ -67,15 +67,6 @@ WSParser::~WSParser()
 
 void WSParser::clear()
 {
-    for (auto& itor: m_complexTypes) {
-        WSParserComplexType* complexType = itor.second;
-        if (complexType->refCount() != 0)
-            complexType->decreaseRefCount();
-        else
-            delete complexType;
-    }
-    for (auto& itor: m_elements)
-        delete itor.second;
     m_complexTypes.clear();
     m_elements.clear();
 }
@@ -89,17 +80,15 @@ void WSParser::parseElement(const xml::Element* elementNode)
     if (namespacePos != string::npos)
         elementType = elementType.substr(namespacePos + 1);
 
-    WSParserComplexType* complexType;
+    SWSParserComplexType complexType;
     if (!elementType.empty()) {
         complexType = m_complexTypes[elementType];
-        complexType->increaseRefCount();
     } else {
         // Element defines type inline
         complexType = m_complexTypes[elementName];
-        complexType->increaseRefCount();
     }
     m_complexTypes[elementName] = complexType;
-    m_elements[elementName] = complexType;
+    m_elements[elementName] = complexType.get();
 }
 
 void WSParser::parseSimpleType(const xml::Element* simpleTypeElement)
@@ -130,7 +119,7 @@ void WSParser::parseComplexType(const xml::Element* complexTypeElement)
     if (m_complexTypes.find(complexTypeName) != m_complexTypes.end())
         throwException("Duplicate complexType definition: " << complexTypeName)
 
-    WSParserComplexType* complexType = new WSParserComplexType(complexTypeElement, complexTypeName);
+    auto complexType = make_shared<WSParserComplexType>(complexTypeElement, complexTypeName);
     m_complexTypes[complexTypeName] = complexType;
     complexType->parse();
 }
@@ -466,7 +455,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile)
 
     Strings usedClasses;
     for (auto& itor: m_complexTypes) {
-        WSParserComplexType* complexType = itor.second;
+        SWSParserComplexType complexType = itor.second;
         SourceModule module("C" + complexType->name(), sourceDirectory);
         module.open();
         complexType->generate(module.header(), module.source(), externalHeader.c_str());

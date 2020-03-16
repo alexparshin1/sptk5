@@ -125,6 +125,9 @@ public:
     String wsTypeName() const { return m_wsTypeName; }
 };
 
+class WSParserComplexType;
+typedef std::shared_ptr<WSParserComplexType>    SWSParserComplexType;
+
 /**
  * Parses WSDL complexType element
  */
@@ -133,12 +136,12 @@ class WSParserComplexType
     /**
      * Map of attribute names to attribute objects
      */
-    typedef std::map<std::string,WSParserAttribute*>   AttributeMap;
+    typedef std::map<std::string, WSParserAttribute*>   AttributeMap;
 
     /**
      * List of complex type elements
      */
-    typedef std::list<WSParserComplexType*>            ElementList;
+    typedef std::list<SWSParserComplexType>             ElementList;
 
     String                  m_name;                 ///< Element name
     String                  m_typeName;             ///< WSDL type name
@@ -146,7 +149,6 @@ class WSParserComplexType
     AttributeMap            m_attributes;           ///< Element attributes
     ElementList             m_sequence;             ///< Child element sequence
     WSMultiplicity          m_multiplicity;         ///< Multiplicity flag
-    int                     m_refcount {0};         ///< Object reference count
     SharedWSRestriction     m_restriction;          ///< Element restriction (if any) or NULL
     String                  m_documentation;        ///< Optional documentation
 
@@ -181,34 +183,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~WSParserComplexType();
-
-    /**
-     * Returns element reference count
-     */
-    int refCount()
-    {
-        return m_refcount;
-    }
-
-    /**
-     * Increases element reference count
-     */
-    void increaseRefCount()
-    {
-        m_refcount++;
-    }
-
-    /**
-     * Decreases element reference count
-     */
-    void decreaseRefCount()
-    {
-        if (m_refcount > 0)
-            m_refcount--;
-        else
-            throwException("Can't decrease complex type refcount: refcount is less than 1")
-    }
+    virtual ~WSParserComplexType() = default;
 
     /**
      * WSDL element name
@@ -346,7 +321,7 @@ private:
     void printImplementationLoadXMLFields(std::ostream& classImplementation) const;
 
     void appendMemberDocumentation(std::ostream& classDeclaration,
-                                   const WSParserComplexType* complexType) const;
+                                   const SWSParserComplexType& complexType) const;
 
     void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames, Strings& copyInitializer,
                                Strings& moveInitializer) const;

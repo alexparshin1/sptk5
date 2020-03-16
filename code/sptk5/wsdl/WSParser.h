@@ -47,12 +47,12 @@ struct WSOperation
     /**
      * WSDL operation input
      */
-    WSParserComplexType*   m_input;
+    SWSParserComplexType   m_input;
 
     /**
      * WSDL operation output
      */
-    WSParserComplexType*   m_output;
+    SWSParserComplexType   m_output;
 
 };
 
@@ -74,7 +74,7 @@ public:
     /**
      * Map of complex type names to complex type objects
      */
-    typedef std::map<String,WSParserComplexType*>   ComplexTypeMap;
+    typedef std::map<String, SWSParserComplexType>  ComplexTypeMap;
 
     /**
      * Map of element names to corresponding WSDL (XML) elements
