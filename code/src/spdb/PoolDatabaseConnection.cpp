@@ -207,6 +207,9 @@ static void insertRecords(
                 case VAR_TEXT:
                     sql << "'" << escapeSQLString(value.asString(), false) << "'";
                     break;
+                case VAR_DATE_TIME:
+                    sql << "'" << value.asDateTime().dateString(DateTime::PF_RFC_DATE) << " " << value.asDateTime().timeString(0, DateTime::PA_MILLISECONDS) << "'";
+                    break;
                 default:
                     sql << "'" << value.asString() << "'";
                     break;

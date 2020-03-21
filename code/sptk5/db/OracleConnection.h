@@ -190,11 +190,11 @@ public:
      * Data is inserted the fastest possible way. The server-specific format definition provides extra information
      * about data. If format is empty than default server-specific data format is used.
      * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName         Table name to insert into
+     * @param fullTableName     Table name to insert into, with or without schema name
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
      */
-    void _bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data) override;
+    void _bulkInsert(const String& fullTableName, const Strings& columnNames, const std::vector<VariantVector>& data) override;
 
     /**
      * @brief Executes SQL batch file
