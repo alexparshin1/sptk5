@@ -551,14 +551,36 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     query.close();
 }
 
-void OracleConnection::_bulkInsert(const String& tableName, const Strings& columnNames,
+void OracleConnection::_bulkInsert(const String& fullTableName, const Strings& columnNames,
                                    const vector<VariantVector>& data)
 {
-    Query tableColumnsQuery(this,
-                            "SELECT column_name, data_type, data_length "
-                            "FROM user_tab_columns "
-                            "WHERE table_name = :table_name");
+    RegularExpression matchTableAndSchema(R"(^(\S+\.)?(\S+)$)");
+
+    String schema;
+    String tableName;
+    auto matches = matchTableAndSchema.m(fullTableName.toUpperCase());
+    if (!matches[0].value.empty()) {
+        schema = matches[0].value;
+        schema = schema.substr(0, schema.length() - 1);
+    }
+    tableName = matches[1].value;
+
+    stringstream columnsInfoSQL;
+    columnsInfoSQL << "SELECT column_name, data_type, data_length FROM ";
+    if (schema.empty()) {
+        // User' database table
+        columnsInfoSQL << "user_tab_columns WHERE table_name = :table_name";
+    } else {
+        columnsInfoSQL << "all_tab_columns WHERE owner = :schema AND table_name = :table_name";
+    }
+
+    if (tableName == "PROTIS_EVENT_HANDLER")
+        cout << "";
+
+    Query tableColumnsQuery(this, columnsInfoSQL.str());
     tableColumnsQuery.param("table_name") = upperCase(tableName);
+    if (!schema.empty())
+        tableColumnsQuery.param("schema") = schema;
     tableColumnsQuery.open();
     Field& column_name = tableColumnsQuery["column_name"];
     Field& data_type = tableColumnsQuery["data_type"];
@@ -575,8 +597,10 @@ void OracleConnection::_bulkInsert(const String& tableName, const Strings& colum
             columnTypeSize.type = VAR_TEXT;
             columnTypeSize.length = 65536;
         }
-        if (columnType.find("CHAR") != string::npos)
+        else if (columnType.find("CHAR") != string::npos)
             columnTypeSize.length = maxDataLength;
+        else if (columnType.find("TIMESTAMP") != string::npos)
+            columnTypeSize.type = VAR_DATE_TIME;
         columnTypeSizeMap[columnName] = columnTypeSize;
         tableColumnsQuery.fetch();
     }
@@ -591,17 +615,27 @@ void OracleConnection::_bulkInsert(const String& tableName, const Strings& colum
     }
 
     OracleBulkInsertQuery insertQuery(this,
-                                      "INSERT INTO " + tableName + "(" + columnNames.join(",") +
+                                      "INSERT INTO " + fullTableName + "(" + columnNames.join(",") +
                                       ") VALUES (:" + columnNames.join(",:") + ")",
                                       data.size(),
                                       columnTypeSizeMap);
     for (auto& row: data) {
         for (size_t i = 0; i < columnNames.size(); i++) {
             auto& value = row[i];
-            if (columnTypeSizeVector[i].type == VAR_TEXT) {
-                insertQuery.param(i).setBuffer(value.getText(), value.dataSize(), VAR_TEXT);
-            } else
-                insertQuery.param(i).setString(value.asString());
+            switch (columnTypeSizeVector[i].type) {
+                case VAR_TEXT:
+                    if (value.dataSize())
+                        insertQuery.param(i).setBuffer(value.getText(), value.dataSize(), VAR_TEXT);
+                    else
+                        insertQuery.param(i).setNull(VAR_TEXT);
+                    break;
+                case VAR_DATE_TIME:
+                    insertQuery.param(i).setDateTime(value.getDateTime());
+                    break;
+                default:
+                    insertQuery.param(i).setString(value.asString());
+                    break;
+            }
         }
         insertQuery.execNext();
     }

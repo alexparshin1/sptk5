@@ -334,10 +334,14 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
         data.push_back(move(arow));
     }
 
+    Transaction transaction(db);
+
+    transaction.begin();
     DateTime started1("now");
     Strings columnNames("id,name,position_name,hire_date", ",");
     db->bulkInsert("gtest_temp_table", columnNames, data);
     DateTime ended1("now");
+    transaction.commit();
 
     DateTime started2("now");
     size_t i = 1;
@@ -347,6 +351,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     auto& positionParam = insertData.param("position");
     auto& hiredParam = insertData.param("hired");
 
+    transaction.begin();
     for (auto& row: data) {
         idParam = row[0].asInteger();
         nameParam = row[1].asString();
@@ -355,6 +360,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
         insertData.exec();
         i++;
     }
+    transaction.commit();
     DateTime ended2("now");
 
     auto durationMS1 = duration_cast<milliseconds>(ended1 - started1).count();
