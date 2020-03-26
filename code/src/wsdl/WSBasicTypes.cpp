@@ -34,7 +34,7 @@ using namespace sptk;
 xml::Element* WSBasicType::addElement(xml::Element* parent, const char* _name) const
 {
     String elementName = _name == nullptr? name() : _name;
-    String text(asString());
+    String text(isNull()? "": asString());
     if (m_optional && (isNull() || text.empty()))
         return nullptr;
     auto* element = new xml::Element(*parent, elementName);
@@ -44,7 +44,7 @@ xml::Element* WSBasicType::addElement(xml::Element* parent, const char* _name) c
 
 json::Element* WSBasicType::addElement(json::Element* parent) const
 {
-    String text(asString());
+    String text(isNull()? "": asString());
     if (m_optional && (isNull() || text.empty()))
         return nullptr;
     json::Element* element;
