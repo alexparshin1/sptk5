@@ -369,6 +369,10 @@ void Variant_Adaptors::setMoney(const MoneyData& value)
 //---------------------------------------------------------------------------
 void Variant_Adaptors::setData(const BaseVariant& C)
 {
+    if (C.isNull()) {
+        setNull(C.dataType());
+        return;
+    }
     switch (C.dataType()) {
         case VAR_BOOL:
             setInteger(C.getBool() ? 1 : 0);
