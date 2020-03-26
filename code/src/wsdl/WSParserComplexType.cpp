@@ -629,7 +629,7 @@ void WSParserComplexType::makeImplementationLoadFields(stringstream& fieldLoads,
             if (!matchStandardType.matches(complexType->m_typeName))
                 continue;
             fieldLoadCount++;
-            fieldLoads << "    if ((field = input.fieldByName(\"" << complexType->name() << "\")) != nullptr) {" << endl;
+            fieldLoads << "    if ((field = input.findField(\"" << complexType->name() << "\")) != nullptr) {" << endl;
             bool restrictionExists = false;
             if (complexType->m_restriction != nullptr) {
                 auto restrictionCtor = complexType->m_restriction->generateConstructor("restriction");
@@ -661,7 +661,7 @@ void WSParserComplexType::makeImplementationLoadAttributes(stringstream& fieldLo
         fieldLoads << endl << "    // Load attributes" << endl;
         for (auto& itor: m_attributes) {
             WSParserAttribute& attr = *itor.second;
-            fieldLoads << "    if ((field = input.fieldByName(\"" << attr.name() << "\")) != nullptr) {" << endl;
+            fieldLoads << "    if ((field = input.findField(\"" << attr.name() << "\")) != nullptr) {" << endl;
             fieldLoads << "        m_" << attr.name() << ".load(*field);" << endl;
             fieldLoads << "    }" << endl << endl;
             fieldLoadCount++;

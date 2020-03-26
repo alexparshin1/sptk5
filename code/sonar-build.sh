@@ -2,6 +2,9 @@
 
 export PATH=/opt/sonar-scanner/bin:$PATH
 
+CORES=$(grep 'cpu MHz' /proc/cpuinfo | wc -l)
+sed -i "s/sonar.cfamily.threads=.*$/sonar.cfamily.threads=$CORES/" sonar-project.properties
+
 build-wrapper-linux-x86-64 --out-dir bw-output make clean all
 
 # Project options
