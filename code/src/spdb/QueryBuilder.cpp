@@ -26,6 +26,7 @@
 
 #include <utility>
 #include <sstream>
+#include <sptk5/RegularExpression.h>
 
 #include "sptk5/db/QueryBuilder.h"
 
@@ -44,14 +45,16 @@ QueryBuilder::QueryBuilder(String tableName, String pkColumn, Strings columns,
   m_columns(move(columns)),
   m_joins(std::move(joins))
 {
+    static const RegularExpression matchEpressionAndAlias(R"(^.*\s(\S+))");
     m_columns.remove(m_pkColumn);
     for (auto& join: m_joins) {
         auto tableAlias = join.tableAlias;
         for (auto& column: join.columns) {
-            Strings nameAndAlias(column, " ");
-            if (nameAndAlias.size() == 2)
-                m_columns.remove(nameAndAlias[1]);
-            else {
+            auto matches = matchEpressionAndAlias.m(column);
+            if (matches) {
+                auto alias = matches[0].value;
+                m_columns.remove(alias);
+            } else {
                 if (!tableAlias.empty() && column.startsWith(tableAlias + "."))
                     m_columns.remove(column.substr(tableAlias.length() + 1));
                 else
@@ -63,6 +66,7 @@ QueryBuilder::QueryBuilder(String tableName, String pkColumn, Strings columns,
 
 String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bool pretty) const
 {
+    static const RegularExpression matchExpression(R"([\+\-*/~\(\)])");
     stringstream query;
 
     query << "SELECT ";
@@ -77,8 +81,14 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
                 outputColumns.push_back(column);
         }
         for (auto& join: m_joins)
-            for (auto& column: join.columns)
-                outputColumns.push_back(join.tableAlias + "." + column);
+            for (auto& column: join.columns) {
+                if (matchExpression.matches(column)) {
+                    // if column contains expression and alias, don't add table alias prefix
+                    outputColumns.push_back(column);
+                }
+                else
+                    outputColumns.push_back(join.tableAlias + "." + column);
+            }
     }
     query << outputColumns.join(", ") << endl;
 
