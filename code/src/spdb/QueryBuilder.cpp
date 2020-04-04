@@ -115,8 +115,15 @@ String QueryBuilder::insertSQL(const Strings& columns, bool pretty) const
     if (columns.empty())
         insertColumns = &m_columns;
 
-    query << "INSERT INTO " << m_tableName << "(" << insertColumns->join(", ") << ")" << endl
-          << "VALUES (" << ":" << insertColumns->join(", :") << ")";
+    Strings filteredColumns;
+    for (auto& columnName: *insertColumns) {
+        if (columnName.find(' ') != string::npos)
+            continue;
+        filteredColumns.push_back(columnName);
+    }
+
+    query << "INSERT INTO " << m_tableName << "(" << filteredColumns.join(", ") << ")" << endl
+          << "VALUES (" << ":" << filteredColumns.join(", :") << ")";
 
     String queryStr = query.str();
     if (!pretty)
@@ -138,6 +145,8 @@ String QueryBuilder::updateSQL(const Strings& filter, const Strings& columns, bo
 
     bool first {true};
     for (auto& columnName: *updateColumns) {
+        if (columnName.find(' ') != string::npos)
+            continue;
         if (first)
             first = false;
         else
