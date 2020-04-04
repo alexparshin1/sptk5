@@ -351,6 +351,8 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "   static const sptk::Strings& fieldNames() { return m_fieldNames; }" << endl;
     classDeclaration << "};" << endl;
     classDeclaration << endl;
+    classDeclaration << "typedef std::shared_ptr<" << className << "> " << "S" << wsClassName(m_name) << ";" << endl;
+    classDeclaration << endl;
     classDeclaration << "#endif" << endl;
 }
 
