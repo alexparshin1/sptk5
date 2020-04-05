@@ -220,7 +220,7 @@ TEST(SPTK_QueryBuilder, selectSQL)
 
     selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"},{},false);
     EXPECT_STREQ(
-            "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee AS t WHERE (id=1) AND name <> ''",
+            "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee AS t WHERE (id=1) AND (name <> '')",
             selectSQL.c_str());
 
     selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"}, {"first_name", "id"},false);
@@ -246,7 +246,7 @@ TEST(SPTK_QueryBuilder, selectJoinsSQL)
             "FROM employee AS t "
             "JOIN department d ON d.id = t.department_id "
             "JOIN country c ON c.id = d.country_id "
-            "WHERE c.name = 'Australia'",
+            "WHERE (c.name = 'Australia')",
             selectSQL.c_str());
 }
 
