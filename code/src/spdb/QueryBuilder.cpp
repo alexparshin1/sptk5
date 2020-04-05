@@ -97,8 +97,18 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
     for (auto& join: m_joins)
         query << join.joinDefinition << endl;
 
-    if (!filter.empty())
-        query << " WHERE " << filter.join("\n   AND ");
+    if (!filter.empty()) {
+        bool first = true;
+        for (auto& condition: filter) {
+            if (condition.trim().empty())
+                continue;
+            if (first) {
+                first = false;
+                query << " WHERE (" << condition << ")";
+            } else
+                query << " AND (" << condition << ")";
+        }
+    }
 
     String queryStr = query.str();
     if (!pretty)
