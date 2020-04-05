@@ -191,6 +191,7 @@ void WSWebServiceProtocol::process()
             contentType = "text/xml; charset=utf-8";
             break;
         case '{':
+        case '[':
             contentType = "text/json; charset=utf-8";
             requestIsJSON = true;
             break;
