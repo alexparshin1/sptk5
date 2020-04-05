@@ -212,7 +212,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 
             String cxxType = complexType->className();
             if (complexType->isArray())
-                cxxType = "sptk::WSArray<" + cxxType + "*>";
+                cxxType = "sptk::WSArray<" + cxxType + ">";
             else {
                 string optional = (complexType->multiplicity() & WSM_OPTIONAL) != 0 ? ", true" : "";
                 copyInitializer.push_back("m_" + complexType->name() + "(other.m_" + complexType->name() + ")");

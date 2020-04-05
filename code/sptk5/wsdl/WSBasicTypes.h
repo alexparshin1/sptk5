@@ -627,9 +627,22 @@ public:
  * Wrapper for WSDL int type
  */
 template<class T>
-class WSArray : public std::vector<T>, public WSTypeName
+class WSArray : public std::vector<T*>, public WSTypeName
 {
 public:
+    WSArray() {}
+
+    WSArray(const WSArray<T>& other)
+    {
+        for (auto* item: other)
+            push_back(new T(*item));
+    }
+
+    WSArray(WSArray<T>&& other)
+    : std::vector<T*>(move(other))
+    {
+    }
+
     /**
      * Return class name
      */
