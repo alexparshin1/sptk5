@@ -634,13 +634,34 @@ public:
 
     WSArray(const WSArray<T>& other)
     {
-        for (auto* item: other)
-            push_back(new T(*item));
+        for (auto* item: other) {
+            auto* newItem = new T(*item);
+            std::vector<T*>::push_back(newItem);
+        }
     }
 
     WSArray(WSArray<T>&& other)
     : std::vector<T*>(move(other))
     {
+    }
+
+    WSArray& operator=(const WSArray<T>& other)
+    {
+        if (this != &other) {
+            for (auto* item: other)
+                push_back(new T(*item));
+        }
+        return *this;
+    }
+
+    WSArray& operator=(WSArray<T>&& other)
+    {
+        if (this != &other) {
+            for (auto* item: other)
+                push_back(new T(*item));
+            other.clear();
+        }
+        return *this;
     }
 
     /**
