@@ -281,9 +281,8 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
                      << "    */" << endl
                      << "   " << className << "& operator = (const " << className << "& other)" << endl
                      << "   {" << endl
-                     << "       if (&other == this)" << endl
-                     << "           return *this;" << endl
-                     << "       copyFrom(other);" << endl
+                     << "       if (&other != this)" << endl
+                     << "           copyFrom(other);" << endl
                      << "       return *this;" << endl
                      << "   }" << endl << endl;
 

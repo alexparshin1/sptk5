@@ -57,11 +57,11 @@ class SP_EXPORT WSListener : public TCPServer
     Logger              m_logger;               ///< Logger object
     WSConnection::Paths m_paths;                ///< Pages and paths
 
-protected:
-
-    const bool          m_encrypted;            ///< Connection protocol is encrypted flag
     String              m_hostname;             ///< This service hostname
     bool                m_allowCORS;            ///< Allow CORS
+
+protected:
+    const bool          m_encrypted;            ///< Connection protocol is encrypted flag
 
     /**
      * Creates connection thread derived from CTCPServerConnection

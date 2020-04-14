@@ -574,9 +574,6 @@ void OracleConnection::_bulkInsert(const String& fullTableName, const Strings& c
         columnsInfoSQL << "all_tab_columns WHERE owner = :schema AND table_name = :table_name";
     }
 
-    if (tableName == "PROTIS_EVENT_HANDLER")
-        cout << "";
-
     Query tableColumnsQuery(this, columnsInfoSQL.str());
     tableColumnsQuery.param("table_name") = upperCase(tableName);
     if (!schema.empty())

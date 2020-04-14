@@ -82,11 +82,11 @@ void CLogin::load(const FieldList& input)
     Field* field;
 
     // Load elements
-    if ((field = input.fieldByName("username")) != nullptr) {
+    if ((field = input.findField("username")) != nullptr) {
         m_username.load(*field);
     }
 
-    if ((field = input.fieldByName("password")) != nullptr) {
+    if ((field = input.findField("password")) != nullptr) {
         m_password.load(*field);
     }
 

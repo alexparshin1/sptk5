@@ -69,7 +69,7 @@ void CLoginResponse::load(const FieldList& input)
     Field* field;
 
     // Load elements
-    if ((field = input.fieldByName("jwt")) != nullptr) {
+    if ((field = input.findField("jwt")) != nullptr) {
         m_jwt.load(*field);
     }
 

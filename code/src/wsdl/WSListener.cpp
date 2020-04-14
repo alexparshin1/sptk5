@@ -38,9 +38,9 @@ WSListener::WSListener(WSRequest& service, LogEngine& logger, const WSConnection
   m_service(service),
   m_logger(logger),
   m_paths(paths),
-  m_encrypted(encrypted),
   m_hostname(hostname),
-  m_allowCORS(allowCORS)
+  m_allowCORS(allowCORS),
+  m_encrypted(encrypted)
 {
     if (m_hostname.empty()) {
         char buffer[256];

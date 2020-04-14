@@ -95,15 +95,15 @@ void CHello::load(const FieldList& input)
     Field* field;
 
     // Load elements
-    if ((field = input.fieldByName("action")) != nullptr) {
+    if ((field = input.findField("action")) != nullptr) {
         m_action.load(*field);
     }
 
-    if ((field = input.fieldByName("first_name")) != nullptr) {
+    if ((field = input.findField("first_name")) != nullptr) {
         m_first_name.load(*field);
     }
 
-    if ((field = input.fieldByName("last_name")) != nullptr) {
+    if ((field = input.findField("last_name")) != nullptr) {
         m_last_name.load(*field);
     }
 

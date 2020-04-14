@@ -134,27 +134,27 @@ void CHelloResponse::load(const FieldList& input)
     Field* field;
 
     // Load elements
-    if ((field = input.fieldByName("date_of_birth")) != nullptr) {
+    if ((field = input.findField("date_of_birth")) != nullptr) {
         m_date_of_birth.load(*field);
     }
 
-    if ((field = input.fieldByName("verified")) != nullptr) {
+    if ((field = input.findField("verified")) != nullptr) {
         m_verified.load(*field);
     }
 
-    if ((field = input.fieldByName("retired")) != nullptr) {
+    if ((field = input.findField("retired")) != nullptr) {
         m_retired.load(*field);
     }
 
-    if ((field = input.fieldByName("hour_rate")) != nullptr) {
+    if ((field = input.findField("hour_rate")) != nullptr) {
         m_hour_rate.load(*field);
     }
 
-    if ((field = input.fieldByName("vacation_days")) != nullptr) {
+    if ((field = input.findField("vacation_days")) != nullptr) {
         m_vacation_days.load(*field);
     }
 
-    if ((field = input.fieldByName("height")) != nullptr) {
+    if ((field = input.findField("height")) != nullptr) {
         m_height.load(*field);
     }
 

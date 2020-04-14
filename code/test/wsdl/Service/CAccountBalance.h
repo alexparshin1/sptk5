@@ -75,9 +75,8 @@ public:
     */
    CAccountBalance& operator = (const CAccountBalance& other)
    {
-       if (&other == this)
-           return *this;
-       copyFrom(other);
+       if (&other != this)
+           copyFrom(other);
        return *this;
    }
 
@@ -143,5 +142,7 @@ public:
     */
    static const sptk::Strings& fieldNames() { return m_fieldNames; }
 };
+
+typedef std::shared_ptr<CAccountBalance> SAccountBalance;
 
 #endif

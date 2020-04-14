@@ -69,7 +69,7 @@ void CAccountBalance::load(const FieldList& input)
     Field* field;
 
     // Load elements
-    if ((field = input.fieldByName("account_number")) != nullptr) {
+    if ((field = input.findField("account_number")) != nullptr) {
         m_account_number.load(*field);
     }
 
