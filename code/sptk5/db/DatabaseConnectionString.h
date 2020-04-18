@@ -31,6 +31,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
+#include <sptk5/RegularExpression.h>
 
 namespace sptk
 {
@@ -67,6 +68,7 @@ public:
 
 private:
 
+    static const RegularExpression parseConnectionString;
     /**
      * Database connection string
      */
@@ -96,6 +98,11 @@ private:
      * Database name
      */
     String     m_databaseName;
+
+    /**
+     * Database schema
+     */
+    String     m_schema;
 
     /**
      * Optional parameters
@@ -181,6 +188,14 @@ public:
     const String& databaseName() const
     {
         return m_databaseName;
+    }
+
+    /**
+     * Returns schema name
+     */
+    const String& schema() const
+    {
+        return m_schema;
     }
 
     /**

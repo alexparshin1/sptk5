@@ -28,11 +28,18 @@
 
 #include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/Exception.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
 
-static const Strings driverNames("sqlite3|postgres|postgresql|oracle|mysql|firebird|odbc|mssql", "|");
+const RegularExpression DatabaseConnectionString::parseConnectionString(
+        "^(?<driver>sqlite3|postgres|postgresql|oracle|mysql|firebird|odbc|mssql)://"
+        "((?<username>\\S+):(?<password>\\S+)@)?"
+        "(?<host>[^:/]+)(:(?<port>\\d+))?"
+        "(/(?<database>[^/]+))?"
+        "(/(?<schema>[^/]+))?$"
+        );
 
 void DatabaseConnectionString::parse()
 {
@@ -42,6 +49,7 @@ void DatabaseConnectionString::parse()
     m_userName = "";
     m_password = "";
     m_databaseName = "";
+    m_schema = "";
     m_parameters.clear();
 
     if (m_connectionString.empty())
@@ -62,36 +70,23 @@ void DatabaseConnectionString::parse()
         connStr.erase(pos);
     }
 
-    pos = connStr.find("://");
-    if (pos != string::npos) {
-        m_driverName = connStr.substr(0, pos);
-        connStr.erase(0, pos + 3);
-        if (driverNames.indexOf(m_driverName) < 0)
-            throwDatabaseException("Driver name is unknown: " + m_connectionString)
-    } else
-        throwDatabaseException("Driver name is missing: " + m_connectionString)
+    auto matches = parseConnectionString.m(connStr);
+    if (!matches)
+        throwDatabaseException("Database connection string is invalid: " + m_connectionString)
 
-    pos = connStr.find('@');
-    if (pos != string::npos) {
-        Strings usernameAndPassword(connStr.substr(0, pos),":");
-        m_userName = usernameAndPassword[0];
-        if (usernameAndPassword.size() > 1)
-            m_password = usernameAndPassword[1];
-        connStr.erase(0, pos + 1);
-    }
+    m_driverName = matches[String("driver")].value;
+    if (m_driverName == "postgres")
+        m_driverName = "postgresql";
 
-    pos = connStr.find('/');
-    if (pos != string::npos) {
-        m_databaseName = connStr.substr(pos + 1);
-        connStr.erase(pos);
-        if (m_databaseName.find('/') != string::npos)
-            m_databaseName = "/" + m_databaseName;
-    }
+    m_userName = matches[String("username")].value;
+    m_password = matches[String("password")].value;
+    m_databaseName = matches[String("database")].value;
+    m_schema = matches[String("schema")].value;
+    m_hostName = matches[String("host")].value;
 
-    Strings hostAndPort(connStr, ":");
-    m_hostName = hostAndPort[0];
-    if (hostAndPort.size() > 1)
-        m_portNumber = (uint16_t) strtol(hostAndPort[1].c_str(), nullptr, 10);
+    String port = matches[String("port")].value;
+    if (!port.empty())
+        m_portNumber = (uint16_t) strtol(port.c_str(), nullptr, 10);
 }
 
 String DatabaseConnectionString::toString() const
@@ -143,9 +138,18 @@ bool DatabaseConnectionString::empty() const
 TEST(SPTK_DatabaseConnectionString, ctorSimple)
 {
     DatabaseConnectionString simple("postgres://localhost/dbname");
-    EXPECT_STREQ("postgres", simple.driverName().c_str());
+    EXPECT_STREQ("postgresql", simple.driverName().c_str());
     EXPECT_STREQ("localhost", simple.hostName().c_str());
     EXPECT_STREQ("dbname", simple.databaseName().c_str());
+}
+
+TEST(SPTK_DatabaseConnectionString, ctorAdvanced)
+{
+    DatabaseConnectionString simple("postgresql://localhost/dbname/schema");
+    EXPECT_STREQ("postgresql", simple.driverName().c_str());
+    EXPECT_STREQ("localhost", simple.hostName().c_str());
+    EXPECT_STREQ("dbname", simple.databaseName().c_str());
+    EXPECT_STREQ("schema", simple.schema().c_str());
 }
 
 TEST(SPTK_DatabaseConnectionString, ctorFull)
