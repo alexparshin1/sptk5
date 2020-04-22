@@ -76,6 +76,58 @@ public:
      */
     typedef std::map<String, SWSParserComplexType>  ComplexTypeMap;
 
+    class ComplexTypeIndex
+    {
+    public:
+        void addType(const sptk::String& elementName, SWSParserComplexType& complexType)
+        {
+            m_complexTypes[elementName] = complexType;
+        }
+
+        void add(const sptk::String& elementName, SWSParserComplexType& complexType)
+        {
+            m_complexTypes[elementName] = complexType;
+            m_elements[elementName] = complexType.get();
+        }
+
+        void clear()
+        {
+            m_complexTypes.clear();
+            m_elements.clear();
+        }
+
+        const WSParserElement* element(const sptk::String& elementName, const sptk::String& context) const
+        {
+            auto itor = m_elements.find(elementName);
+            if (itor == m_elements.end())
+                throw Exception(context + ": Element '" + elementName + "' not found");
+            return itor->second;
+        }
+
+        const ElementMap& elements() const { return m_elements; }
+
+        const SWSParserComplexType complexType(const sptk::String& elementName, const sptk::String& context) const
+        {
+            auto itor = m_complexTypes.find(elementName);
+            if (itor == m_complexTypes.end())
+                throw Exception(context + ": Complex type '" + elementName + "' not found");
+            return itor->second;
+        }
+
+        const ComplexTypeMap& complexTypes() const { return m_complexTypes; }
+
+    private:
+        /**
+         * Map of all elements
+         */
+        ElementMap          m_elements;
+
+        /**
+         * Map of all parsed complex types
+         */
+        ComplexTypeMap      m_complexTypes;
+    };
+
     /**
      * Map of element names to corresponding WSDL (XML) elements
      */
@@ -98,14 +150,9 @@ private:
     String              m_serviceName;
 
     /**
-     * Map of all elements
+     * Index of all parsed complex types and elements
      */
-    ElementMap          m_elements;
-
-    /**
-     * Map of all parsed complex types
-     */
-    ComplexTypeMap      m_complexTypes;
+    ComplexTypeIndex    m_complexTypeIndex;
 
     /**
      * Map of all operations

@@ -67,8 +67,7 @@ WSParser::~WSParser()
 
 void WSParser::clear()
 {
-    m_complexTypes.clear();
-    m_elements.clear();
+    m_complexTypeIndex.clear();
 }
 
 void WSParser::parseElement(const xml::Element* elementNode)
@@ -82,13 +81,14 @@ void WSParser::parseElement(const xml::Element* elementNode)
 
     SWSParserComplexType complexType;
     if (!elementType.empty()) {
-        complexType = m_complexTypes[elementType];
+        complexType = m_complexTypeIndex.complexType(elementType, "Element " + elementName);
     } else {
         // Element defines type inline
-        complexType = m_complexTypes[elementName];
+        complexType = m_complexTypeIndex.complexType(elementName, "Element " + elementName);
     }
-    m_complexTypes[elementName] = complexType;
-    m_elements[elementName] = complexType.get();
+    if (complexType) {
+        m_complexTypeIndex.add(elementName, complexType);
+    }
 }
 
 void WSParser::parseSimpleType(const xml::Element* simpleTypeElement)
@@ -116,11 +116,12 @@ void WSParser::parseComplexType(const xml::Element* complexTypeElement)
         complexTypeName = (String) parent->getAttribute("name");
     }
 
-    if (m_complexTypes.find(complexTypeName) != m_complexTypes.end())
+    auto& complexTypes = m_complexTypeIndex.complexTypes();
+    if (complexTypes.find(complexTypeName) != complexTypes.end())
         throwException("Duplicate complexType definition: " << complexTypeName)
 
     auto complexType = make_shared<WSParserComplexType>(complexTypeElement, complexTypeName);
-    m_complexTypes[complexTypeName] = complexType;
+    m_complexTypeIndex.addType(complexTypeName, complexType);
     complexType->parse();
 }
 
@@ -155,12 +156,12 @@ void WSParser::parseOperation(xml::Element* operationNode)
             message = message.substr(pos+1);
         string elementName = messageToElementMap[message];
         if (element->name() == "wsdl:input") {
-            operation.m_input = m_complexTypes[elementName];
+            operation.m_input = m_complexTypeIndex.complexType(elementName, "Message " + message);
             found = true;
             continue;
         }
         if (element->name() == "wsdl:output") {
-            operation.m_output = m_complexTypes[message];
+            operation.m_output = m_complexTypeIndex.complexType(message, "Message " + message);
             found = true;
             continue;
         }
@@ -454,7 +455,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile)
                        << sourceDirectory << "/" << wsdlFileName << ".h" << endl;
 
     Strings usedClasses;
-    for (auto& itor: m_complexTypes) {
+    for (auto& itor: m_complexTypeIndex.complexTypes()) {
         SWSParserComplexType complexType = itor.second;
         SourceModule module("C" + complexType->name(), sourceDirectory);
         module.open();
