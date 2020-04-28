@@ -362,7 +362,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
 
         first = false;
 
-    } while (offset < text.length());
+    } while (m_global && offset < text.length());
 
     return matchedStrings;
 }
@@ -661,14 +661,18 @@ TEST(SPTK_RegularExpression, split)
 
 TEST(SPTK_RegularExpression, match_performance)
 {
-    RegularExpression match("^(\\w+)=(\\w+)$");
+    String data("red=#FF0000, green=#00FF00, blue=#0000FF");
+    RegularExpression match("((\\w+)=(#\\w+))");
     size_t maxIterations = 1000000;
     size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();
     for (size_t i = 0; i < maxIterations; i++) {
-        auto matches = match.m("name=value");
-        groupCount += matches.groups().size();
+        String s(data);
+        while (auto matches = match.m(s)) {
+            s = s.substr(matches[0].value.length());
+            groupCount += matches.groups().size();
+        }
     }
     stopWatch.stop();
     COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
@@ -677,17 +681,19 @@ TEST(SPTK_RegularExpression, match_performance)
 
 TEST(SPTK_RegularExpression, std_match_performance)
 {
-    const std::string s = "name=value";
-    std::regex match("^(\\w+)=(\\w+)$");
+    String data("red=#FF0000, green=#00FF00, blue=#0000FF");
+    std::regex match("(\\w+)=(#\\w+)");
     size_t maxIterations = 1000000;
     size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();
     for (size_t i = 0; i < maxIterations; i++) {
-        std::smatch color_match;
-        std::regex_search(s, color_match, match);
-        for (size_t j = 0; j < color_match.size(); ++j)
-            groupCount++;
+        string s(data);
+        std::smatch color_matches;
+        while (std::regex_search(s, color_matches, match)) {
+            s = color_matches.suffix().str();
+            groupCount += color_matches.size();
+        }
     }
     stopWatch.stop();
     COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
