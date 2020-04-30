@@ -63,7 +63,7 @@ int main(int argc, const char* argv[])
         if (argc > 2)
             outputDirectory = argv[2];
         else
-            outputDirectory = ".";
+            outputDirectory = "Service";
 
         string headerFile;
         if (argc > 3)
