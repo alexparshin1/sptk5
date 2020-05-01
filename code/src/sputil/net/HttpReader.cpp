@@ -172,9 +172,11 @@ static size_t readChunk(TCPSocket& socket, Buffer& m_output)
 
 bool HttpReader::readData()
 {
-    int readBytes = 0;
     while (m_socket.readyToRead(chrono::seconds(10))) {
-        size_t bytesToRead;
+        size_t bytesToRead = m_socket.socketBytes();
+        if (bytesToRead == 0)
+            break;
+
         if (m_contentLength > 0) {
             bytesToRead = m_contentLength - m_contentReceivedLength;
             if (bytesToRead == 0)
@@ -182,6 +184,7 @@ bool HttpReader::readData()
         } else
             bytesToRead = m_socket.socketBytes();
 
+        int readBytes;
         if (!m_contentIsChunked) {
             readBytes = (int) readAndAppend(m_socket, m_output, bytesToRead);
             m_contentReceivedLength += readBytes;
