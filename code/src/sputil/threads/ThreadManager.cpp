@@ -54,7 +54,7 @@ ThreadManager::Joiner::~Joiner()
 void ThreadManager::Joiner::threadFunction()
 {
     while (!terminated()) {
-        joinTerminatedThreads(std::chrono::milliseconds());
+        joinTerminatedThreads(std::chrono::milliseconds(1000));
     }
 }
 
