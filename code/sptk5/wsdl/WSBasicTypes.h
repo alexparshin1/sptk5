@@ -645,6 +645,18 @@ public:
     {
     }
 
+    ~WSArray()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        for (auto* item: *this)
+            delete item;
+        std::vector<T*>::clear();
+    }
+
     WSArray& operator=(const WSArray<T>& other)
     {
         if (this != &other) {
