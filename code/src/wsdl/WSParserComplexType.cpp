@@ -419,10 +419,6 @@ void WSParserComplexType::printImplementationClear(ostream& classImplementation,
     classImplementation << "{" << endl;
     classImplementation << "    // Clear elements" << endl;
     for (auto& complexType: m_sequence) {
-        if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
-            classImplementation << "    for (auto* element: m_" << complexType->name() << ")" << endl;
-            classImplementation << "        delete element;" << endl;
-        }
         classImplementation << "    m_" << complexType->name() << ".clear();" << endl;
     }
     if (!m_attributes.empty()) {
