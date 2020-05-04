@@ -99,6 +99,15 @@ const SSLKeys& TCPServer::getSSLKeys() const
     return *m_sslKeys;
 }
 
+void TCPServer::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable)
+{
+    if (eventType == RUNABLE_FINISHED) {
+        delete runable;
+        runable = nullptr;
+    }
+    ThreadPool::threadEvent(thread, eventType, runable);
+}
+
 #if USE_GTEST
 
 /**
@@ -158,15 +167,6 @@ protected:
     sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override
     {
         return new EchoConnection(*this, connectionSocket, peer);
-    }
-
-    void threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable) override
-    {
-        if (eventType == RUNABLE_FINISHED) {
-            delete runable;
-            runable = nullptr;
-        }
-        ThreadPool::threadEvent(thread, eventType, runable);
     }
 
 public:

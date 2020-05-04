@@ -83,6 +83,16 @@ protected:
      */
     virtual ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
 
+    /**
+     * Thread event callback function
+     *
+     * Receives events that occur in the threads
+     * @param thread            Thread where event occured
+     * @param eventType         Thread event type
+     * @param runable           Related runable (if any)
+     */
+    void threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable) override;
+
 public:
     /**
      * Constructor

@@ -28,6 +28,7 @@
 
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -52,7 +53,7 @@ void TCPServerListener::acceptConnection()
         if ((int)connectionFD == -1)
             return;
         if (m_server->allowConnection(&connectionInfo)) {
-            ServerConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
+            auto* connection = m_server->createConnection(connectionFD, &connectionInfo);
             m_server->execute(connection);
         }
         else {
