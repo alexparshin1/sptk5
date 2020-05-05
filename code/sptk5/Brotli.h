@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       ReadBuffer.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday Jan 9 2018                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,118 +24,45 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __READ_BUFFER_H__
-#define __READ_BUFFER_H__
+#ifndef __SPTK_BROTLI_H__
+#define __SPTK_BROTLI_H__
+
+#include <sptk5/sptk.h>
+
+#if HAVE_BROTLI
 
 #include <sptk5/Buffer.h>
 
-namespace sptk {
+namespace sptk
+{
 
 /**
- * Generic read buffer.
- *
- * Data is added to the buffer the usual way, using ctors and/or append operations.
- * Any read operations copy data into external buffer, then advance internal read offset.
+ * Simple wrapper for Brotli functions
  */
-class ReadBuffer : public Buffer
+class SP_EXPORT Brotli
 {
-    size_t  m_readOffset {0};   ///< read offset
-
-    /**
-     * Shift the buffer content to the beginning of the buffer, if read offset past 3/4 of the content size
-     */
-    void compact()
-    {
-        if (m_readOffset >= bytes() * 3 / 4) {
-            erase(0, m_readOffset);
-            m_readOffset = 0;
-        }
-    }
-
 public:
     /**
-     * Default constructor
+     * Compress data using br format.
+     * 
+     * Compressed data is appended to destination buffer
+     * @param dest Buffer&, Destination buffer
+     * @param src const Buffer&, Source buffer
      */
-    explicit ReadBuffer(size_t size=64) : Buffer(size) {}
+    static void compress(Buffer& dest, const Buffer& src);
 
     /**
-     * Constructor
-     * @param data              Data
-     * @param size              Data size
+     * Uncompress data in br format
+     * 
+     * Uncompressed data is appended to destination buffer
+     * @param dest Buffer&, Destination buffer
+     * @param src const Buffer&, Source buffer
      */
-    ReadBuffer(const char* data, size_t size) : Buffer(data, size) {}
-
-    /**
-     * Read into data of primitive type (int, double, etc).
-     * @param data              Data
-     * @return true if read was successful
-     */
-    template <typename T>
-    bool read(T& data)
-    {
-        return read(&data, sizeof(T));
-    }
-
-    /**
-     * Read data. Internal read offset is advanced by length.
-     * @param data              Data
-     * @param size              Data size
-     * @return true if read was successful
-     */
-    bool read(void* data, size_t size);
-
-    /**
-     * Read into string
-     * @param data              Data
-     * @param length            Data size
-     * @return true if read was successful
-     */
-    bool read(String& data, size_t length);
-
-    /**
-     * Read into buffer
-     * @param data              Data
-     * @param length            Data size
-     * @return true if read was successful
-     */
-    bool read(Buffer& data, size_t length);
-
-    /**
-     * The start of un-read data
-     * @return
-     */
-    char* head() const
-    {
-        return data() + m_readOffset;
-    }
-
-    /**
-     * Get number of bytes, available for read
-     * @return number of bytes, available for read
-     */
-    size_t available() const
-    {
-        return bytes() - readOffset();
-    }
-
-    /**
-     * @return true if there are no available bytes to read
-     */
-    bool eof() const
-    {
-        return readOffset() >= bytes();
-    }
-
-    /**
-     * Get internal read offset
-     * @return internal read offset
-     */
-    size_t readOffset() const
-    {
-        return m_readOffset;
-    }
+    static void decompress(Buffer& dest, const Buffer& src);
 };
 
 }
+
+#endif
 
 #endif

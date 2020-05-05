@@ -1,3 +1,12 @@
+#include <sptk5/cthreads>
+#include <sptk5/net/HttpConnect.h>
+
+#include <sptk5/ZLib.h>
+#include <sptk5/md5.h>
+
+using namespace std;
+using namespace sptk;
+
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
@@ -25,15 +34,6 @@
 │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 └──────────────────────────────────────────────────────────────────────────────┘
 */
-
-#include <sptk5/cthreads>
-#include <sptk5/net/HttpConnect.h>
-
-#include <sptk5/ZLib.h>
-#include <sptk5/md5.h>
-
-using namespace std;
-using namespace sptk;
 
 HttpConnect::HttpConnect(TCPSocket& socket)
 : m_socket(socket)
@@ -119,9 +119,20 @@ int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParame
     return getResponse(output, timeout);
 }
 
-int HttpConnect::cmd_post(const sptk::String& pageName, const HttpParams& parameters, const Buffer& postData, bool gzipContent,
-                          Buffer& output, const Authorization* authorization, chrono::milliseconds timeout)
+int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& postData, Buffer& output,
+                          const set<ContentEncodings>& clientAcceptsEncoding, const Authorization* authorization,
+                          chrono::milliseconds timeout)
 {
+    static const vector<ContentEncodings> availableContentEncodings {
+#if HAVE_ZLIB
+            ContentEncodings::BR,
+#endif
+#if HAVE_ZLIB
+            ContentEncodings::DEFLATE,
+            ContentEncodings::GZIP,
+#endif
+    };
+
     Strings headers = makeHeaders("POST", pageName, parameters, authorization);
 
 #if HAVE_ZLIB
@@ -130,7 +141,10 @@ int HttpConnect::cmd_post(const sptk::String& pageName, const HttpParams& parame
 
     const Buffer* data = &postData;
     Buffer compressedData;
-    if (gzipContent) {
+    if (!clientAcceptsEncoding.empty()) {
+        for (auto& contentEncoding: availableContentEncodings) {
+
+        }
 #if HAVE_ZLIB
         ZLib::compress(compressedData, postData);
         headers.push_back("Content-Encoding: gzip");

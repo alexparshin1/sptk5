@@ -184,9 +184,10 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
 
             HttpConnect httpClient(*client);
             HttpParams httpParams { {"action", "view"} };
+            set<HttpConnect::ContentEncodings> compressionMethods {HttpConnect::GZIP};
             Buffer requestResponse;
             httpClient.requestHeaders()["Content-Type"] = "application/json";
-            httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer, allowGzipEncoding, requestResponse, jwtAuthorization.get());
+            httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer, requestResponse, compressionMethods, jwtAuthorization.get());
             client->close();
 
             if (httpClient.statusCode() >= 400)

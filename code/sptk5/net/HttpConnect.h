@@ -54,6 +54,13 @@ class SP_EXPORT HttpConnect
 {
 public:
 
+    enum ContentEncodings
+    {
+        GZIP        = 1,
+        DEFLATE     = 2,
+        BR          = 4
+    };
+
     /**
      * HTTP authorization
      */
@@ -217,8 +224,9 @@ public:
      * @param timeout           Response timeout
      * @return HTTP result code
      */
-    int cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& content, bool gzipContent,
-                 Buffer& output, const Authorization* authorization = nullptr,
+    int cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
+                 const std::set<ContentEncodings>& clientAcceptsEncoding = {GZIP},
+                 const Authorization* authorization = nullptr,
                  std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**

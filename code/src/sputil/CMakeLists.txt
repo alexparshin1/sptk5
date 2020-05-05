@@ -21,6 +21,10 @@ IF (ZLIB_FOUND)
     SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/ZLib.cpp)
 ENDIF ()
 
+IF (BROTLI_FOUND)
+    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/Brotli.cpp)
+ENDIF ()
+
 IF (EPOLL_FLAG)
     IF (LINUX)
         MESSAGE ("Socket events:      epoll (Linux)")
