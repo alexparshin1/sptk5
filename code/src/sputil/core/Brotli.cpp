@@ -45,7 +45,7 @@ using namespace sptk;
 #define BROTLI_WINDOW_GAP 16
 #define BROTLI_MAX_BACKWARD_LIMIT(W) (((size_t)1 << (W)) - BROTLI_WINDOW_GAP)
 
-static const size_t kFileBufferSize = 1 << 19;
+static const size_t kBufferSize = 1 << 16;
 
 class Context
 {
@@ -57,7 +57,7 @@ public:
 
         available_in = 0;
         next_in = nullptr;
-        available_out = kFileBufferSize;
+        available_out = kBufferSize;
         next_out = output;
     }
 
@@ -74,9 +74,9 @@ public:
     int lgwin = DEFAULT_LGWIN;
     BROTLI_BOOL decompress = BROTLI_FALSE;
 
-    uint8_t* buffer = new uint8_t[kFileBufferSize * 2];
+    uint8_t* buffer = new uint8_t[kBufferSize * 2];
     uint8_t* input = buffer;
-    uint8_t* output = buffer + kFileBufferSize;
+    uint8_t* output = buffer + kBufferSize;
 
     ReadBuffer& inputData;
     Buffer& outputData;
@@ -97,8 +97,8 @@ private:
     void ProvideInput()
     {
         available_in = inputData.available();
-        if (available_in > kFileBufferSize)
-            available_in = kFileBufferSize;
+        if (available_in > kBufferSize)
+            available_in = kBufferSize;
         inputData.read(input, available_in);
         next_in = input;
     }
@@ -113,7 +113,7 @@ private:
     void ProvideOutput()
     {
         WriteOutput();
-        available_out = kFileBufferSize;
+        available_out = kBufferSize;
         next_out = output;
     }
 

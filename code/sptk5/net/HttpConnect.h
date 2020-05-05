@@ -54,13 +54,6 @@ class SP_EXPORT HttpConnect
 {
 public:
 
-    enum ContentEncodings
-    {
-        GZIP        = 1,
-        DEFLATE     = 2,
-        BR          = 4
-    };
-
     /**
      * HTTP authorization
      */
@@ -207,7 +200,7 @@ public:
      * @param timeout           Response timeout
      * @return HTTP result code
      */
-    int cmd_get(const String& pageName, const HttpParams& parameters, Buffer& output,
+    [[nodiscard]] int cmd_get(const String& pageName, const HttpParams& parameters, Buffer& output,
                 const Authorization* authorization = nullptr,
                 std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
@@ -224,9 +217,8 @@ public:
      * @param timeout           Response timeout
      * @return HTTP result code
      */
-    int cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
-                 const std::set<ContentEncodings>& clientAcceptsEncoding = {GZIP},
-                 const Authorization* authorization = nullptr,
+    [[nodiscard]] int cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
+                 const sptk::Strings& possibleContentEncodings, const Authorization* authorization = nullptr,
                  std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**
@@ -241,7 +233,7 @@ public:
      * @param timeout           Optional response timeout
      * @return HTTP result code
      */
-    int cmd_put(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
+    [[nodiscard]] int cmd_put(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
                 const Authorization* authorization = nullptr,
                 std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
@@ -256,7 +248,7 @@ public:
      * @param timeout           Request timeout
      * @return HTTP result code
      */
-   int cmd_delete(const String& pageName, const HttpParams& parameters, Buffer& output,
+   [[nodiscard]] int cmd_delete(const String& pageName, const HttpParams& parameters, Buffer& output,
                   const Authorization* authorization = nullptr,
                   std::chrono::milliseconds timeout = std::chrono::seconds(60));
 

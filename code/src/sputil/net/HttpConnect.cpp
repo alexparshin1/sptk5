@@ -3,6 +3,7 @@
 
 #include <sptk5/ZLib.h>
 #include <sptk5/md5.h>
+#include <sptk5/Brotli.h>
 
 using namespace std;
 using namespace sptk;
@@ -120,16 +121,15 @@ int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParame
 }
 
 int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& postData, Buffer& output,
-                          const set<ContentEncodings>& clientAcceptsEncoding, const Authorization* authorization,
+                          const sptk::Strings& possibleContentEncodings, const Authorization* authorization,
                           chrono::milliseconds timeout)
 {
-    static const vector<ContentEncodings> availableContentEncodings {
-#if HAVE_ZLIB
-            ContentEncodings::BR,
+    static const sptk::Strings& availableContentEncodings {
+#if HAVE_BROTLI
+            "br",
 #endif
 #if HAVE_ZLIB
-            ContentEncodings::DEFLATE,
-            ContentEncodings::GZIP,
+            "gzip",
 #endif
     };
 
@@ -140,19 +140,32 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
 #endif
 
     const Buffer* data = &postData;
-    Buffer compressedData;
-    if (!clientAcceptsEncoding.empty()) {
-        for (auto& contentEncoding: availableContentEncodings) {
 
-        }
-#if HAVE_ZLIB
-        ZLib::compress(compressedData, postData);
-        headers.push_back("Content-Encoding: gzip");
-        data = &compressedData;
-#else
-        throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
+    Buffer compressedData;
+    if (!possibleContentEncodings.empty()) {
+        // Select best available content encoding
+        for (auto& contentEncoding: availableContentEncodings) {
+            if (possibleContentEncodings.indexOf(contentEncoding) != -1) {
+#if HAVE_BROTLI
+                if (contentEncoding == "br") {
+                    Brotli::compress(compressedData, postData);
+                    headers.push_back("Content-Encoding: br");
+                    data = &compressedData;
+                    break;
+                }
 #endif
+#if HAVE_ZLIB
+                if (contentEncoding == "gzip") {
+                    ZLib::compress(compressedData, postData);
+                    headers.push_back("Content-Encoding: gzip");
+                    data = &compressedData;
+                    break;
+                }
+#endif
+            }
+        }
     }
+
     headers.push_back("Content-Length: " + int2string((uint32_t) data->bytes()));
 
     Buffer command(headers.join("\r\n") + "\r\n\r\n");
