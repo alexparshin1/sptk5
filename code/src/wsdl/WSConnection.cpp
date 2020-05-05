@@ -71,6 +71,7 @@ void WSConnection::run()
             }
 
             auto& headers = httpReader.getHttpHeaders();
+
             String requestType = httpReader.getRequestType();
             URL url(httpReader.getRequestURL());
 

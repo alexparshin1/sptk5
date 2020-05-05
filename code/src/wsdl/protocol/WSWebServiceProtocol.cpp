@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Brotli.h>
 #include <sptk5/ZLib.h>
 #include "sptk5/wsdl/protocol/WSWebServiceProtocol.h"
 
@@ -177,10 +178,6 @@ void WSWebServiceProtocol::process()
     String httpStatusText = "OK";
     bool   returnWSDL = false;
 
-    String acceptEncoding = header("accept-encoding");
-    if (acceptEncoding.find("gzip") != string::npos)
-        acceptEncoding = "gzip";
-
     Buffer& contentBuffer = m_httpReader.output();
     m_httpReader.readAll(chrono::seconds(30));
 
@@ -253,12 +250,26 @@ void WSWebServiceProtocol::process()
         processMessage(output, message, authentication, requestIsJSON, httpStatusCode, httpStatusText, contentType);
 
     Buffer outputData;
-    bool   gzipped = false;
-    if (output.bytes() > 128 && acceptEncoding == "gzip") {
-        ZLib::compress(outputData, output);
-        gzipped = true;
-        output.reset(1024);
-    } else
+
+    String contentEncoding;
+    Strings clientAcceptEncoding(header("accept-encoding"), "[,\\s]+", Strings::SM_REGEXP);
+
+    if (output.bytes() > 128 && !clientAcceptEncoding.empty()) {
+#if HAVE_BROTLI
+        if (clientAcceptEncoding.indexOf("br") >= 0) {
+            contentEncoding = "br";
+            Brotli::compress(outputData, output);
+        }
+#endif
+#if HAVE_ZLIB
+        if (contentEncoding.empty() && clientAcceptEncoding.indexOf("gzip") >= 0) {
+            contentEncoding = "gzip";
+            ZLib::compress(outputData, output);
+        }
+#endif
+    }
+
+    if (contentEncoding.empty())
         outputData = move(output);
 
     Buffer response;
@@ -268,8 +279,8 @@ void WSWebServiceProtocol::process()
     response.append("Content-Length: " + to_string(outputData.bytes()) + "\r\n");
     if (m_allowCORS)
         response.append("Access-Control-Allow-Origin: *\r\n");
-    if (gzipped)
-        response.append("Content-Encoding: gzip\r\n");
+    if (!contentEncoding.empty())
+        response.append("Content-Encoding: " + contentEncoding + "\r\n");
     response.append("\r\n", 2);
     response.append(outputData);
     socket().write(response);
