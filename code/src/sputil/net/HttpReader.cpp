@@ -30,6 +30,7 @@
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/ZLib.h>
 #include <thread>
+#include <sptk5/Brotli.h>
 #include "sptk5/net/HttpReader.h"
 
 using namespace std;
@@ -222,7 +223,8 @@ void HttpReader::read()
         return;
 
     auto itor = m_httpHeaders.find("content-encoding");
-    if (itor != m_httpHeaders.end() && itor->second == "gzip") {
+    if (itor != m_httpHeaders.end()) {
+        if (itor->second == "gzip") {
 #if HAVE_ZLIB
         Buffer unzipBuffer;
         ZLib::decompress(unzipBuffer, m_output);
@@ -230,6 +232,16 @@ void HttpReader::read()
 #else
         throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
 #endif
+        }
+        if (itor->second == "br") {
+#if HAVE_BROTLI
+            Buffer unzipBuffer;
+            Brotli::decompress(unzipBuffer, m_output);
+            m_output = move(unzipBuffer);
+#else
+            throw Exception("Content-Encoding is 'br', but libbrotli support is not enabled in SPTK");
+#endif
+        }
     }
 
     itor = m_httpHeaders.find("Connection");

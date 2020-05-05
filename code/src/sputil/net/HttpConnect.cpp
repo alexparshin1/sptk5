@@ -1,19 +1,7 @@
-#include <sptk5/cthreads>
-#include <sptk5/net/HttpConnect.h>
-
-#include <sptk5/ZLib.h>
-#include <sptk5/md5.h>
-#include <sptk5/Brotli.h>
-
-using namespace std;
-using namespace sptk;
-
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       HttpConnect.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -35,6 +23,16 @@ using namespace sptk;
 │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 └──────────────────────────────────────────────────────────────────────────────┘
 */
+
+#include <sptk5/cthreads>
+#include <sptk5/net/HttpConnect.h>
+
+#include <sptk5/ZLib.h>
+#include <sptk5/md5.h>
+#include <sptk5/Brotli.h>
+
+using namespace std;
+using namespace sptk;
 
 HttpConnect::HttpConnect(TCPSocket& socket)
 : m_socket(socket)
@@ -243,13 +241,14 @@ TEST(SPTK_HttpConnect, get)
     HttpConnect http(*socket);
     Buffer      output;
 
+    int statusCode {0};
     try {
-        http.cmd_get("/", HttpParams(), output);
+        statusCode = http.cmd_get("/", HttpParams(), output);
     }
     catch (const Exception& e) {
         FAIL() << e.what();
     }
-    EXPECT_EQ(200, http.statusCode());
+    EXPECT_EQ(200, statusCode);
     EXPECT_STREQ("OK", http.statusText().c_str());
 
     String data(output.c_str(), output.bytes());
