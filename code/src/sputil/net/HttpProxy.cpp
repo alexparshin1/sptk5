@@ -251,7 +251,9 @@ TEST(SPTK_HttpProxy, connect)
         HttpConnect http(*socket);
 
         Buffer output;
-        http.cmd_get("/", HttpParams(), output);
+        auto statusCode = http.cmd_get("/", HttpParams(), output);
+        if (statusCode >= 400)
+            throw Exception(http.statusText());
         COUT(output.c_str() << endl)
     }
     catch (const Exception& e) {
