@@ -33,9 +33,9 @@ using namespace std;
 using namespace sptk;
 
 WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
-                           const Paths& paths, bool allowCORS)
+                           const Paths& paths, bool allowCORS, std::set<LogDetails> logDetails)
 : ServerConnection(server, connectionSocket, "WSConnection"), m_service(service), m_logger(logger),
-  m_paths(paths), m_allowCORS(allowCORS)
+  m_paths(paths), m_allowCORS(allowCORS), m_logDetails(move(logDetails))
 {
     if (!m_paths.staticFilesDirectory.endsWith("/"))
         m_paths.staticFilesDirectory += "/";
@@ -174,7 +174,7 @@ void WSConnection::respondToOptions(const HttpHeaders& headers)
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
                                  Logger& logger, const Paths& paths, int options)
-: WSConnection(server, connectionSocket, addr, service, logger, paths, options & ALLOW_CORS)
+: WSConnection(server, connectionSocket, addr, service, logger, paths, options & ALLOW_CORS, std::set<LogDetails>())
 {
     if (options & ENCRYPTED) {
         auto& sslKeys = server.getSSLKeys();

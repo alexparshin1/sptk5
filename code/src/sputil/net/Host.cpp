@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       cnet - description                                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday September 13 2017                            ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -34,6 +32,8 @@
 #include <netinet/in.h>
 
 #include <utility>
+#include <sptk5/net/Host.h>
+
 #endif
 
 using namespace std;
@@ -68,6 +68,26 @@ Host::Host(const String& hostAndPort)
     } else {
         memset(&m_address, 0, sizeof(m_address));
     }
+}
+
+Host::Host(const sockaddr_in* addressAndPort)
+{
+    socklen_t addressLen = 0;
+    switch (addressAndPort->sin_family) {
+        case AF_INET:
+            addressLen = sizeof(sockaddr_in);
+            memcpy(m_address, addressAndPort, addressLen);
+            m_port = htons(ip_v4().sin_port);
+            break;
+        case AF_INET6:
+            addressLen = sizeof(sockaddr_in6);
+            memcpy(m_address, addressAndPort, addressLen);
+            m_port = htons(ip_v6().sin6_port);
+            break;
+    }
+
+    auto* host = gethostbyaddr(m_address, addressLen, addressAndPort->sin_family);
+    m_hostname = host->h_name;
 }
 
 Host::Host(const Host& other)
@@ -133,6 +153,7 @@ void Host::setPort(uint16_t p)
     }
 }
 
+
 static struct addrinfo* safeGetAddrInfo(const String& hostname)
 {
     static SharedMutex getaddrinfoMutex;
@@ -153,7 +174,6 @@ static struct addrinfo* safeGetAddrInfo(const String& hostname)
     return result;
 }
 
-
 void Host::getHostAddress()
 {
 #ifdef _WIN32
@@ -173,9 +193,7 @@ void Host::getHostAddress()
         memcpy(&ip_v6().sin6_addr, host_info->h_addr, size_t(host_info->h_length));
         break;
     }
-
 #else
-
     struct addrinfo* result = safeGetAddrInfo(m_hostname);
 
     UniqueLock(m_mutex);
@@ -242,6 +260,19 @@ TEST(SPTK_Host, ctorAddress)
     Host host("11.22.33.44", 22);
     EXPECT_STREQ("11.22.33.44", host.hostname().c_str());
     EXPECT_EQ(22, host.port());
+}
+
+TEST(SPTK_Host, ctorAddressStruct)
+{
+    Host google1(testHost);
+
+    sockaddr_in address;
+    google1.getAddress(address);
+    Host google2(&address);
+
+    cout << google2.toString(true) << " " << google2.hostname() << endl;
+    EXPECT_STREQ(google1.toString(true).c_str(), google2.toString(true).c_str());
+    EXPECT_EQ(google1.port(), google2.port());
 }
 
 #endif

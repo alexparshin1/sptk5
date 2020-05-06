@@ -59,7 +59,9 @@ int main()
 
             Buffer data;
             try {
-                sock.cmd_get("/event/api/0.1/events", httpFields, data, nullptr, chrono::seconds(30));
+                auto statusCode = sock.cmd_get("/event/api/0.1/events", httpFields, data, nullptr, chrono::seconds(30));
+                if (statusCode >= 400)
+                    throw Exception(sock.statusText());
             }
             catch (const Exception& e) {
                 CERR(e.what() << endl)

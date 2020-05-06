@@ -41,6 +41,11 @@ public:
         ENCRYPTED = 1,
         ALLOW_CORS = 2
     };
+    enum LogDetails {
+        REQUEST_NAME,
+        REQUEST_DATA,
+        RESPONSE_DATA
+    };
 
     class Paths
     {
@@ -57,8 +62,18 @@ public:
         Paths(const Paths& other) = default;
     };
 
+    /**
+     * Constructor
+     * @param server            Server object
+     * @param connectionSocket  Incoming connection socket
+     * @param service           Web service object
+     * @param logger            Logger instance
+     * @param paths             Web site paths
+     * @param allowCORS         Allow CORS
+     * @param logDetails        Log messages details
+     */
     WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
-                 const Paths& paths, bool allowCORS);
+                 const Paths& paths, bool allowCORS, std::set<LogDetails> logDetails);
 
     /**
      * Destructor
@@ -72,10 +87,11 @@ public:
 
 private:
 
-    WSRequest&  m_service;
-    Logger&     m_logger;
-    Paths       m_paths;
-    bool        m_allowCORS;
+    WSRequest&              m_service;
+    Logger&                 m_logger;
+    Paths                   m_paths;
+    bool                    m_allowCORS;
+    std::set<LogDetails>    m_logDetails;
 
     void respondToOptions(const HttpHeaders& headers);
 

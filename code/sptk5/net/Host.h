@@ -148,6 +148,12 @@ public:
     explicit Host(const String& hostAndPort);
 
     /**
+     * Constructor
+     * @param addressAndPort    The host and port, ether IPv4 or IPv6
+     */
+    explicit Host(const sockaddr_in* addressAndPort);
+
+    /**
      * Copy constructor
      * @param other             The other object
      */
