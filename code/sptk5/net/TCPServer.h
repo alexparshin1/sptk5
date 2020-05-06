@@ -47,6 +47,47 @@ class TCPServerListener;
  * @{
  */
 
+class LogDetails
+{
+public:
+    enum Details {
+        CONNECTION,
+        DISCONNECTION,
+        REQUEST_NAME,
+        REQUEST_DATA,
+        RESPONSE_DATA
+    };
+
+    LogDetails() = default;
+
+    explicit LogDetails(const std::set<Details>& details)
+    : m_details(details)
+    {}
+
+    explicit LogDetails(std::initializer_list<Details> details)
+    {
+        for (auto detail: details)
+            m_details.insert(detail);
+    }
+
+    explicit LogDetails(const LogDetails& other)
+    : m_details(other.m_details)
+    {}
+
+    explicit LogDetails(LogDetails&& other)
+    : m_details(std::move(other.m_details))
+    {}
+
+    bool has(Details detail)
+    {
+        auto itor = m_details.find(detail);
+        return itor != m_details.end();
+    }
+
+private:
+    std::set<Details>    m_details;
+};
+
 /**
  * TCP server
  *
@@ -62,6 +103,7 @@ class SP_EXPORT TCPServer : public ThreadPool
     std::shared_ptr<Logger>                 m_logger;           ///< Optional logger
     std::shared_ptr<SSLKeys>                m_sslKeys;          ///< Optional SSL keys. Only used for SSL server.
     String                                  m_hostname;         ///< This host name
+    LogDetails                              m_logDetails;       ///< Log details
 
 protected:
     /**
@@ -100,7 +142,8 @@ public:
      * @param threadLimit       Number of worker threads in thread pool
      * @param logEngine         Optional log engine
      */
-    explicit TCPServer(const String& listenerName, size_t threadLimit=16, LogEngine* logEngine=nullptr);
+    explicit TCPServer(const String& listenerName, size_t threadLimit = 16, LogEngine* logEngine = nullptr,
+                       const LogDetails& logDetails = LogDetails());
 
     /**
      * Destructor
@@ -146,6 +189,11 @@ public:
     {
         if (m_logger)
             m_logger->log(priority, message);
+    }
+
+    const LogDetails& logDetails() const
+    {
+        return m_logDetails;
     }
 
     /**

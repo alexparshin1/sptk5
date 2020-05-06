@@ -41,11 +41,6 @@ public:
         ENCRYPTED = 1,
         ALLOW_CORS = 2
     };
-    enum LogDetails {
-        REQUEST_NAME,
-        REQUEST_DATA,
-        RESPONSE_DATA
-    };
 
     class Paths
     {
@@ -73,7 +68,7 @@ public:
      * @param logDetails        Log messages details
      */
     WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
-                 const Paths& paths, bool allowCORS, std::set<LogDetails> logDetails);
+                 const Paths& paths, bool allowCORS, const LogDetails& logDetails);
 
     /**
      * Destructor
@@ -87,11 +82,11 @@ public:
 
 private:
 
-    WSRequest&              m_service;
-    Logger&                 m_logger;
-    Paths                   m_paths;
-    bool                    m_allowCORS;
-    std::set<LogDetails>    m_logDetails;
+    WSRequest&      m_service;
+    Logger&         m_logger;
+    Paths           m_paths;
+    bool            m_allowCORS;
+    LogDetails      m_logDetails;
 
     void respondToOptions(const HttpHeaders& headers);
 
@@ -111,7 +106,7 @@ public:
      * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
      */
     WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
-                    Logger& logger, const Paths& paths, int options);
+                    Logger& logger, const Paths& paths, int options, LogDetails logDetails);
 
     /**
      * Destructor

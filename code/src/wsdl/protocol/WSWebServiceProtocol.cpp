@@ -34,14 +34,15 @@ using namespace std;
 using namespace sptk;
 
 WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
-                                           const String& hostname, uint16_t port, bool allowCORS)
+                                           const String& hostname, uint16_t port, bool allowCORS, const LogDetails& logDetails)
 : WSProtocol(&httpReader.socket(), httpReader.getHttpHeaders()),
   m_httpReader(httpReader),
   m_service(service),
   m_url(url),
   m_hostname(hostname),
   m_port(port),
-  m_allowCORS(allowCORS)
+  m_allowCORS(allowCORS),
+  m_logDetails(logDetails)
 {
 }
 

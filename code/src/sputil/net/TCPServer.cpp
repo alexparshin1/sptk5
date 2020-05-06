@@ -36,8 +36,9 @@
 using namespace std;
 using namespace sptk;
 
-TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine)
-: ThreadPool((uint32_t)threadLimit, std::chrono::seconds(60), listenerName)
+TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
+: ThreadPool((uint32_t)threadLimit, std::chrono::seconds(60), listenerName),
+  m_logDetails(logDetails)
 {
     if (logEngine != nullptr)
         m_logger = make_shared<Logger>(*logEngine);
@@ -171,7 +172,8 @@ protected:
 
 public:
 
-    EchoServer() : TCPServer("EchoServer", 16) {}
+    EchoServer() : TCPServer("EchoServer")
+    {}
 
 };
 

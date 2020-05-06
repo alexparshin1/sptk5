@@ -62,7 +62,8 @@ protected:
         return nullptr;
     }
 public:
-    StubServer() : TCPServer("test", 1) {}
+    StubServer() : TCPServer("test", 1)
+    {}
 };
 
 // Hints to linker that we need other modules.

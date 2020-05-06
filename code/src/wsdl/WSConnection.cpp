@@ -33,9 +33,9 @@ using namespace std;
 using namespace sptk;
 
 WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
-                           const Paths& paths, bool allowCORS, std::set<LogDetails> logDetails)
+                           const Paths& paths, bool allowCORS, const LogDetails& logDetails)
 : ServerConnection(server, connectionSocket, "WSConnection"), m_service(service), m_logger(logger),
-  m_paths(paths), m_allowCORS(allowCORS), m_logDetails(move(logDetails))
+  m_paths(paths), m_allowCORS(allowCORS), m_logDetails(logDetails)
 {
     if (!m_paths.staticFilesDirectory.endsWith("/"))
         m_paths.staticFilesDirectory += "/";
@@ -94,7 +94,7 @@ void WSConnection::run()
 
             bool closeConnection = reviewHeaders(requestType, headers);
 
-            WSWebServiceProtocol protocol(httpReader, url, m_service, server().hostname(), server().port(), m_allowCORS);
+            WSWebServiceProtocol protocol(httpReader, url, m_service, server().hostname(), server().port(), m_allowCORS, m_logDetails);
             protocol.process();
 
             if (closeConnection)
@@ -173,8 +173,8 @@ void WSConnection::respondToOptions(const HttpHeaders& headers)
 }
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
-                                 Logger& logger, const Paths& paths, int options)
-: WSConnection(server, connectionSocket, addr, service, logger, paths, options & ALLOW_CORS, std::set<LogDetails>())
+                                 Logger& logger, const Paths& paths, int options, LogDetails logDetails)
+: WSConnection(server, connectionSocket, addr, service, logger, paths, options & ALLOW_CORS, logDetails)
 {
     if (options & ENCRYPTED) {
         auto& sslKeys = server.getSSLKeys();

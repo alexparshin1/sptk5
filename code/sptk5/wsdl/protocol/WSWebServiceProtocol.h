@@ -44,12 +44,13 @@ namespace sptk {
 /// reply, then closes connection.
 class WSWebServiceProtocol : public WSProtocol
 {
-    HttpReader&     m_httpReader;   ///< HTTP reader
-    WSRequest&      m_service;      ///< Web service
-    const URL       m_url;          ///< Request URL
-    const String    m_hostname;     ///< Listener's hostname
-    const uint16_t  m_port;         ///< Listener's port
-    bool            m_allowCORS;    ///< Allow CORS?
+    HttpReader&         m_httpReader;   ///< HTTP reader
+    WSRequest&          m_service;      ///< Web service
+    const URL           m_url;          ///< Request URL
+    const String        m_hostname;     ///< Listener's hostname
+    const uint16_t      m_port;         ///< Listener's port
+    bool                m_allowCORS;    ///< Allow CORS?
+    LogDetails          m_logDetails;   ///< Log details
 
     /**
      * Process request message, and store response to output
@@ -77,7 +78,7 @@ public:
      * @param allowCORS         Allow CORS
      */
     WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
-                         const String& hostname, uint16_t port, bool allowCORS);
+                         const String& hostname, uint16_t port, bool allowCORS, const LogDetails& logDetails);
 
     /// @brief Process method
     ///

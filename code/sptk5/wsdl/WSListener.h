@@ -85,7 +85,8 @@ public:
      * @param allowCORS             Allow CORS (Cross Origin Resourse Sharing)
      */
     WSListener(WSRequest& service, LogEngine& logger, const WSConnection::Paths& paths,
-               const String& hostname="", bool encrypted=false, size_t threadCount=16, bool allowCORS=false);
+               const String& hostname, bool encrypted, size_t threadCount, bool allowCORS,
+               const LogDetails& logDetails = LogDetails());
 
     /**
      * Get host name of the listener
