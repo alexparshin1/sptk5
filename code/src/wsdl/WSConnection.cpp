@@ -138,7 +138,7 @@ void WSConnection::run()
                     if (listStarted)
                         logMessage << ", ";
                     listStarted = true;
-                    logMessage << "duration " << int(requestStopWatch.seconds() * 1000) << " ms";
+                    logMessage << "duration " << fixed << setprecision(1) << requestStopWatch.seconds() * 1000 << " ms";
                 }
 
                 if (m_logDetails.has(LogDetails::REQUEST_DATA)) {
@@ -162,7 +162,7 @@ void WSConnection::run()
         }
         catch (const Exception& e) {
             if (!terminated())
-                m_logger.error("Error in thread " + name() + ": " + String(e.what()));
+                m_logger.error("Error in incoming connection: " + String(e.what()));
         }
     }
 }
