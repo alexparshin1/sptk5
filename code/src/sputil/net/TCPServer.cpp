@@ -36,6 +36,35 @@
 using namespace std;
 using namespace sptk;
 
+const map<String,LogDetails::MessageDetails> LogDetails::detailNames {
+    { "source_ip", SOURCE_IP },
+    { "request_name", REQUEST_NAME },
+    { "request_duration", REQUEST_DURATION },
+    { "request_data", REQUEST_DATA },
+    { "response_data", RESPONSE_DATA }
+};
+
+LogDetails::LogDetails(const Strings& details)
+{
+    for (auto& detailName: details) {
+        auto itor = detailNames.find(detailName);
+        if (itor == detailNames.end())
+            continue;
+        m_details.insert(itor->second);
+    }
+}
+
+String LogDetails::toString(const String& delimiter) const
+{
+    Strings names;
+    for (auto& itor: detailNames) {
+        if (m_details.find(itor.second) != m_details.end())
+            names.push_back(itor.first);
+    }
+    return names.join(delimiter.c_str());
+}
+
+
 TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
 : ThreadPool((uint32_t)threadLimit, std::chrono::seconds(60), listenerName),
   m_logDetails(logDetails)

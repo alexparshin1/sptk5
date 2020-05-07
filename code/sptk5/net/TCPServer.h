@@ -56,9 +56,7 @@ public:
     /**
      * Log details constants
      */
-    enum Details {
-        CONNECTION,
-        DISCONNECTION,
+    enum MessageDetails {
         SOURCE_IP,
         REQUEST_NAME,
         REQUEST_DURATION,
@@ -75,15 +73,21 @@ public:
      * Constructor
      * @param details           Log details
      */
-    explicit LogDetails(const std::set<Details>& details)
+    explicit LogDetails(const std::set<MessageDetails>& details)
     : m_details(details)
     {}
 
     /**
      * Constructor
+     * @param details           Log details as lower case strings
+     */
+    explicit LogDetails(const Strings& details);
+
+    /**
+     * Constructor
      * @param details           Log details
      */
-    explicit LogDetails(std::initializer_list<Details> details)
+    explicit LogDetails(std::initializer_list<MessageDetails> details)
     {
         for (auto detail: details)
             m_details.insert(detail);
@@ -105,12 +109,21 @@ public:
     : m_details(std::move(other.m_details))
     {}
 
+    LogDetails& operator=(const LogDetails& other)
+    {
+        if (&other != this)
+            m_details = other.m_details;
+        return *this;
+    }
+
+    String toString(const String& delimiter=",") const;
+
     /**
      * Query log details
      * @param detail            Log detail
      * @return true if log detail is set
      */
-    bool has(Details detail) const
+    bool has(MessageDetails detail) const
     {
         auto itor = m_details.find(detail);
         return itor != m_details.end();
@@ -122,7 +135,8 @@ public:
     }
 
 private:
-    std::set<Details>    m_details;     ///< Log details set
+    std::set<MessageDetails>    m_details;     ///< Log details set
+    static const std::map<String,MessageDetails> detailNames;
 };
 
 /**

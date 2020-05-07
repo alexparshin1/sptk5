@@ -45,10 +45,13 @@ WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_
 
 static void printMessage(stringstream& logMessage, const String& prefix, const RequestInfo::Message& message)
 {
-    constexpr size_t maxContentLength = 256;
+    constexpr size_t maxContentLength = 512;
 
-    logMessage << prefix << message.content().length() << "/" << message.compressedLength()
+    logMessage << prefix;
+    logMessage << message.content().length() << "/" << message.compressedLength()
                << " bytes ";
+    if (!message.contentEncoding().empty())
+        logMessage << "(" << message.contentEncoding() << ") ";
     String content(message.content().c_str());
     if (content.length() > maxContentLength)
         logMessage << content.substr(0, maxContentLength) << "..";
