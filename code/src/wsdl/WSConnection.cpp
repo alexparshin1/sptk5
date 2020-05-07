@@ -32,15 +32,28 @@
 using namespace std;
 using namespace sptk;
 
-WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
+WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* connectionAddress, WSRequest& service, Logger& logger,
                            const Paths& paths, bool allowCORS, const LogDetails& logDetails)
-: ServerConnection(server, connectionSocket, "WSConnection"), m_service(service), m_logger(logger),
+: ServerConnection(server, connectionSocket, connectionAddress, "WSConnection"), m_service(service), m_logger(logger),
   m_paths(paths), m_allowCORS(allowCORS), m_logDetails(logDetails)
 {
     if (!m_paths.staticFilesDirectory.endsWith("/"))
         m_paths.staticFilesDirectory += "/";
     if (!m_paths.wsRequestPage.startsWith("/"))
         m_paths.wsRequestPage = "/" + m_paths.wsRequestPage;
+}
+
+static void printMessage(stringstream& logMessage, const String& prefix, const RequestInfo::Message& message)
+{
+    constexpr size_t maxContentLength = 256;
+
+    logMessage << prefix << message.content().length() << "/" << message.compressedLength()
+               << " bytes ";
+    String content(message.content().c_str());
+    if (content.length() > maxContentLength)
+        logMessage << content.substr(0, maxContentLength) << "..";
+    else
+        logMessage << content;
 }
 
 void WSConnection::run()
@@ -60,6 +73,9 @@ void WSConnection::run()
                 m_logger.debug("Client closed connection");
                 return;
             }
+
+            StopWatch requestStopWatch;
+            requestStopWatch.start();
 
             Buffer contentBuffer;
             HttpReader httpReader(socket(), contentBuffer, HttpReader::REQUEST);
@@ -94,11 +110,50 @@ void WSConnection::run()
 
             bool closeConnection = reviewHeaders(requestType, headers);
 
-            WSWebServiceProtocol protocol(httpReader, url, m_service, server().hostname(), server().port(), m_allowCORS, m_logDetails);
-            protocol.process();
+            WSWebServiceProtocol protocol(httpReader, url, m_service, server().hostname(), server().port(),
+                                          m_allowCORS);
+            auto requestInfo = protocol.process();
 
             if (closeConnection)
                 httpReader.close();
+
+            requestStopWatch.stop();
+
+            if (!m_logDetails.empty()) {
+                stringstream logMessage;
+                bool listStarted = false;
+
+                if (m_logDetails.has(LogDetails::SOURCE_IP)) {
+                    logMessage << "[" << address() << "] ";
+                }
+
+                if (m_logDetails.has(LogDetails::REQUEST_NAME)) {
+                    logMessage << "(" << requestInfo.name() << ") ";
+                }
+
+                if (m_logDetails.has(LogDetails::REQUEST_DURATION)) {
+                    if (listStarted)
+                        logMessage << ", ";
+                    listStarted = true;
+                    logMessage << "duration " << int(requestStopWatch.seconds() * 1000) << " ms";
+                }
+
+                if (m_logDetails.has(LogDetails::REQUEST_DATA)) {
+                    if (listStarted)
+                        logMessage << ", ";
+                    listStarted = true;
+                    printMessage(logMessage, "IN ", requestInfo.request);
+                }
+
+                if (m_logDetails.has(LogDetails::RESPONSE_DATA)) {
+                    if (listStarted)
+                        logMessage << ", ";
+                    listStarted = true;
+                    printMessage(logMessage, "OUT ", requestInfo.response);
+                }
+
+                m_logger.debug(logMessage.str());
+            }
 
             done = true;
         }
@@ -173,7 +228,7 @@ void WSConnection::respondToOptions(const HttpHeaders& headers)
 }
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
-                                 Logger& logger, const Paths& paths, int options, LogDetails logDetails)
+                                 Logger& logger, const Paths& paths, int options, const LogDetails& logDetails)
 : WSConnection(server, connectionSocket, addr, service, logger, paths, options & ALLOW_CORS, logDetails)
 {
     if (options & ENCRYPTED) {

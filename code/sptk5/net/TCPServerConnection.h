@@ -52,9 +52,10 @@ public:
      * @brief Constructor
      * @param server            TCP server
      * @param connectionSocket  Already accepted by accept() function incoming connection socket
+     * @param connectionAddress Incoming connection address
      */
-    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket)
-    : ServerConnection(server, connectionSocket, "TCPServerConnection")
+    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
+    : ServerConnection(server, connectionSocket, connectionAddress, "TCPServerConnection")
     {
         setSocket(new TCPSocket);
         socket().attach(connectionSocket, false);

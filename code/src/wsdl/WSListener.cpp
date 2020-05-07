@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSListener.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -62,8 +60,7 @@ ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr
         options |= WSConnection::ENCRYPTED;
     if (m_allowCORS)
         options |= WSConnection::ALLOW_CORS;
-    return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_paths, options,
-                               LogDetails({}));
+    return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_paths, options, logDetails());
 }
 
 String WSListener::hostname() const

@@ -34,15 +34,15 @@ using namespace std;
 using namespace sptk;
 
 WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
-                                           const String& hostname, uint16_t port, bool allowCORS, const LogDetails& logDetails)
+                                           const String& hostname,
+                                           uint16_t port, bool allowCORS)
 : WSProtocol(&httpReader.socket(), httpReader.getHttpHeaders()),
   m_httpReader(httpReader),
   m_service(service),
   m_url(url),
   m_hostname(hostname),
   m_port(port),
-  m_allowCORS(allowCORS),
-  m_logDetails(logDetails)
+  m_allowCORS(allowCORS)
 {
 }
 
@@ -112,15 +112,16 @@ void WSWebServiceProtocol::generateFault(Buffer& output, size_t& httpStatusCode,
     }
 }
 
-void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message,
-                                          shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
-                                          size_t& httpStatusCode, String& httpStatusText, String& contentType)
+String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message,
+                                            shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
+                                            size_t& httpStatusCode, String& httpStatusText, String& contentType)
 {
+    String requestName;
     httpStatusCode = 200;
     httpStatusText = "OK";
     contentType = "text/xml; charset=utf-8";
     try {
-        m_service.processRequest(&message, authentication.get());
+        requestName = m_service.processRequest(&message, authentication.get());
         if (requestIsJSON) {
             xml::Node* methodElement = findRequestNode(message, "service response");
 
@@ -136,7 +137,9 @@ void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message
     }
     catch (const HTTPException& e) {
         generateFault(output, httpStatusCode, httpStatusText, contentType, e, false);
+        requestName = "Error";
     }
+    return requestName;
 }
 
 void WSWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) const
@@ -172,9 +175,8 @@ static void substituteHostname(Buffer& page, const String& hostname, uint16_t po
     wsdl.save(page, 2);
 }
 
-void WSWebServiceProtocol::process()
+RequestInfo WSWebServiceProtocol::process()
 {
-    Buffer output;
     size_t httpStatusCode = 200;
     String httpStatusText = "OK";
     bool   returnWSDL = false;
@@ -182,9 +184,14 @@ void WSWebServiceProtocol::process()
     Buffer& contentBuffer = m_httpReader.output();
     m_httpReader.readAll(chrono::seconds(30));
 
+    RequestInfo requestInfo;
+
+    auto contentEncoding = m_httpReader.httpHeader("Content-Encoding");
+    requestInfo.request.input(contentBuffer, contentEncoding);
+
     String contentType;
     bool requestIsJSON = false;
-    switch (contentBuffer[0]) {
+    switch (requestInfo.request.content()[0]) {
         case '<':
             contentType = "text/xml; charset=utf-8";
             break;
@@ -199,8 +206,8 @@ void WSWebServiceProtocol::process()
 
     auto authentication = getAuthentication();
 
-    auto* startOfMessage = contentBuffer.data();
-    auto* endOfMessage = startOfMessage + contentBuffer.bytes();
+    auto* startOfMessage = requestInfo.request.content().data();
+    auto* endOfMessage = startOfMessage + requestInfo.request.content().bytes();
 
     while (startOfMessage != endOfMessage && (unsigned char)*startOfMessage < 33)
         startOfMessage++;
@@ -223,14 +230,14 @@ void WSWebServiceProtocol::process()
         }
         else if (*startOfMessage == '{' || *startOfMessage == '[') {
             if (m_url.path().length() < 2)
-                generateFault(output, httpStatusCode, httpStatusText, contentType,
+                generateFault(requestInfo.response.content(), httpStatusCode, httpStatusText, contentType,
                               HTTPException(404, "Invalid resource path"),
                               requestIsJSON);
             else
                 RESTtoSOAP(m_url, startOfMessage, message);
         }
         else {
-            generateFault(output, httpStatusCode, httpStatusText, contentType,
+            generateFault(requestInfo.response.content(), httpStatusCode, httpStatusText, contentType,
                           HTTPException(400, "Expect JSON content"),
                           requestIsJSON);
         }
@@ -239,39 +246,24 @@ void WSWebServiceProtocol::process()
         if (m_url.params().has("wsdl")) {
             // Requested WSDL content
             returnWSDL = true;
-            output.set(m_service.wsdl());
-            substituteHostname(output, m_hostname, m_port);
+            requestInfo.response.content().set(m_service.wsdl());
+            substituteHostname(requestInfo.response.content(), m_hostname, m_port);
+            requestInfo.name("wsdl");
         } else {
             // Regular request w/o content
             RESTtoSOAP(m_url, "", message);
         }
     }
 
-    if (!returnWSDL && httpStatusCode < 400)
-        processMessage(output, message, authentication, requestIsJSON, httpStatusCode, httpStatusText, contentType);
-
-    Buffer outputData;
-
-    String contentEncoding;
-    Strings clientAcceptEncoding(header("accept-encoding"), "[,\\s]+", Strings::SM_REGEXP);
-
-    if (output.bytes() > 128 && !clientAcceptEncoding.empty()) {
-#if HAVE_BROTLI
-        if (clientAcceptEncoding.indexOf("br") >= 0) {
-            contentEncoding = "br";
-            Brotli::compress(outputData, output);
-        }
-#endif
-#if HAVE_ZLIB
-        if (contentEncoding.empty() && clientAcceptEncoding.indexOf("gzip") >= 0) {
-            contentEncoding = "gzip";
-            ZLib::compress(outputData, output);
-        }
-#endif
+    if (!returnWSDL && httpStatusCode < 400) {
+        auto requestName = processMessage(requestInfo.response.content(), message, authentication, requestIsJSON,
+                                          httpStatusCode, httpStatusText, contentType);
+        requestInfo.name(requestName);
     }
 
-    if (contentEncoding.empty())
-        outputData = move(output);
+    Strings clientAcceptEncoding(header("accept-encoding"), "[,\\s]+", Strings::SM_REGEXP);
+    Buffer outputData = requestInfo.response.output(clientAcceptEncoding);
+    contentEncoding = requestInfo.response.contentEncoding();
 
     Buffer response;
     response.append("HTTP/1.1 ");
@@ -285,6 +277,8 @@ void WSWebServiceProtocol::process()
     response.append("\r\n", 2);
     response.append(outputData);
     socket().write(response);
+
+    return requestInfo;
 }
 
 shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()

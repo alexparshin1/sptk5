@@ -147,7 +147,7 @@ public:
      * The processing results are stored in the same request XML
      * @param request           Incoming request and outgoing response
      */
-    void processRequest(xml::Document* request, HttpAuthentication* authentication);
+    [[nodiscard]] String processRequest(xml::Document* request, HttpAuthentication* authentication);
 
     /**
      * @brief Returns service title (for service handshake)

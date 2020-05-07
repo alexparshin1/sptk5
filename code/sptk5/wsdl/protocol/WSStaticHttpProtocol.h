@@ -57,7 +57,7 @@ public:
     /// @brief Process method
     ///
     /// Writes HTTP response and file content to the connection
-    void process() override;
+    RequestInfo process() override;
 };
 
 /// @}

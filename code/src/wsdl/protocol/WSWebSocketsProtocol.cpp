@@ -118,8 +118,9 @@ WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders&
 
 }
 
-void WSWebSocketsProtocol::process()
+RequestInfo WSWebSocketsProtocol::process()
 {
+    RequestInfo requestInfo;
     try {
         String clientKey = headers()["Sec-WebSocket-Key"];
         String socketVersion = headers()["Sec-WebSocket-Version"];
@@ -172,4 +173,6 @@ void WSWebSocketsProtocol::process()
         socket().write(text);
         socket().close();
     }
+
+    return requestInfo;
 }

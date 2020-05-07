@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TCPServer.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -47,45 +45,84 @@ class TCPServerListener;
  * @{
  */
 
-class LogDetails
+/**
+ * Log details
+ *
+ * Defines information about server activities that should be logged.
+ */
+class SP_EXPORT LogDetails
 {
 public:
+    /**
+     * Log details constants
+     */
     enum Details {
         CONNECTION,
         DISCONNECTION,
+        SOURCE_IP,
         REQUEST_NAME,
+        REQUEST_DURATION,
         REQUEST_DATA,
         RESPONSE_DATA
     };
 
+    /**
+     * Default constructor
+     */
     LogDetails() = default;
 
+    /**
+     * Constructor
+     * @param details           Log details
+     */
     explicit LogDetails(const std::set<Details>& details)
     : m_details(details)
     {}
 
+    /**
+     * Constructor
+     * @param details           Log details
+     */
     explicit LogDetails(std::initializer_list<Details> details)
     {
         for (auto detail: details)
             m_details.insert(detail);
     }
 
+    /**
+     * Copy constructor
+     * @param other             Other log details object
+     */
     explicit LogDetails(const LogDetails& other)
     : m_details(other.m_details)
     {}
 
+    /**
+     * Move constructor
+     * @param other             Other log details object
+     */
     explicit LogDetails(LogDetails&& other)
     : m_details(std::move(other.m_details))
     {}
 
-    bool has(Details detail)
+    /**
+     * Query log details
+     * @param detail            Log detail
+     * @return true if log detail is set
+     */
+    bool has(Details detail) const
     {
         auto itor = m_details.find(detail);
         return itor != m_details.end();
     }
 
+    bool empty() const
+    {
+        return m_details.empty();
+    }
+
 private:
-    std::set<Details>    m_details;
+    std::set<Details>    m_details;     ///< Log details set
 };
 
 /**

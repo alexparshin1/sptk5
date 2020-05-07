@@ -33,6 +33,10 @@
 #include <sptk5/threads/Thread.h>
 #include <sptk5/threads/Runable.h>
 
+#ifndef _WIN32
+#include <netinet/in.h>
+#endif
+
 namespace sptk
 {
 
@@ -52,17 +56,10 @@ class SP_EXPORT ServerConnection: public Runable
 {
     friend class TCPServer;
 
-    mutable std::mutex          m_mutex;
-
-    /**
-     * Parent server object
-     */
-    TCPServer&     m_server;
-
-    /**
-     * Connection socket
-     */
-    TCPSocket*     m_socket {nullptr};
+    mutable std::mutex  m_mutex;
+    TCPServer&          m_server;            ///< Parent server object
+    TCPSocket*          m_socket {nullptr};  ///< Connection socket
+    String              m_address;           ///< Incoming connection IP address
 
 protected:
 
@@ -72,6 +69,8 @@ protected:
      */
     void setSocket(TCPSocket* socket);
 
+    void parseAddress(const sockaddr_in* connectionAddress);
+
 public:
 
     /**
@@ -80,7 +79,7 @@ public:
      * @param connectionSocket  Already accepted by accept() function incoming connection socket
      * @param taskName          Task name
      */
-    ServerConnection(TCPServer& server, SOCKET connectionSocket, const String& taskName);
+    ServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, const String& taskName);
 
     /**
      * Destructor
@@ -98,6 +97,11 @@ public:
      * @return
      */
     TCPServer& server() const;
+
+    /**
+     * Get incoming connection address
+     */
+    String address() const { return m_address; }
 };
 
 /**

@@ -28,6 +28,13 @@
 
 #include <sptk5/cutils>
 #include <sptk5/net/TCPServer.h>
+#include <sptk5/net/ServerConnection.h>
+
+#ifndef _WIN32
+#include <arpa/inet.h>
+#else
+#include <ws2tcpip.h>
+#endif
 
 using namespace std;
 using namespace sptk;
@@ -50,13 +57,28 @@ TCPServer& ServerConnection::server() const
     return m_server;
 }
 
-ServerConnection::ServerConnection(TCPServer& server, SOCKET, const String& taskName)
+ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in* connectionAddress, const String& taskName)
 : Runable(taskName), m_server(server), m_socket(nullptr)
 {
+    parseAddress(connectionAddress);
 }
 
 ServerConnection::~ServerConnection()
 {
     lock_guard<mutex>   lock(m_mutex);
     delete m_socket;
+}
+
+void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
+{
+    char address[128] { "127.0.0.1" };
+    if (connectionAddress) {
+        if (connectionAddress->sin_family == AF_INET) {
+            inet_ntop(AF_INET, &connectionAddress->sin_addr, address, sizeof(address));
+        } else if (connectionAddress->sin_family == AF_INET6) {
+            auto* connectionAddress6 = (sockaddr_in6*) connectionAddress;
+            inet_ntop(AF_INET6, &connectionAddress6->sin6_addr, address, sizeof(address));
+        }
+    }
+    m_address = address;
 }

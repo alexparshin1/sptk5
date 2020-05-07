@@ -24,96 +24,74 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __WS_CONNECTION_H__
-#define __WS_CONNECTION_H__
+#ifndef SPTK_REQUESTINFO_H
+#define SPTK_REQUESTINFO_H
 
-#include <sptk5/wsdl/protocol/WSStaticHttpProtocol.h>
-#include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
-#include <sptk5/wsdl/protocol/WSWebSocketsProtocol.h>
-#include <sptk5/wsdl/WSRequest.h>
+#include <sptk5/Buffer.h>
 
-namespace sptk {
+namespace sptk
+{
 
-class WSConnection : public ServerConnection
+/**
+ * @addtogroup net Networking Classes
+ * @{
+ */
+
+/**
+ * Request information
+ */
+class SP_EXPORT RequestInfo
 {
 public:
-    enum Options {
-        ENCRYPTED = 1,
-        ALLOW_CORS = 2
-    };
-
-    class Paths
+    /**
+     * Message information
+     */
+    class Message
     {
     public:
-        String  htmlIndexPage;
-        String  wsRequestPage;
-        String  staticFilesDirectory;
-        Paths(String htmlIndexPage, String wsRequestPage, String staticFilesDirectory)
-        : htmlIndexPage(std::move(htmlIndexPage)),
-          wsRequestPage(std::move(wsRequestPage)),
-          staticFilesDirectory(std::move(staticFilesDirectory))
-        {
-        }
-        Paths(const Paths& other) = default;
+        void input(const Buffer& content, const String& contentEncoding);
+        Buffer output(const Strings& contentEncodings);
+
+        Buffer& content() { return m_content; }
+        const Buffer& content() const { return m_content; }
+
+        String contentEncoding() const { return m_contentEncoding; }
+        size_t compressedLength() const { return m_compressedLength; }
+
+    private:
+        Buffer  m_content;              ///< Message content (decompressed)
+        String  m_contentEncoding;      ///< Content encoding, i.e. gzip, br, etc
+        size_t  m_compressedLength {0}; ///< Compressed length if contentEncoding isn't empty
     };
 
     /**
      * Constructor
-     * @param server            Server object
-     * @param connectionSocket  Incoming connection socket
-     * @param service           Web service object
-     * @param logger            Logger instance
-     * @param paths             Web site paths
-     * @param allowCORS         Allow CORS
-     * @param logDetails        Log messages details
+     * @param name              Request name
      */
-    WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
-                 const Paths& paths, bool allowCORS, const LogDetails& logDetails);
+    RequestInfo(const String& name="") : m_name(name) {}
 
     /**
-     * Destructor
+     * Get request name
+     * @return request name
      */
-    ~WSConnection() override = default;
+    String name() const { return m_name; }
 
     /**
-     * Thread function
+     * Set request name
+     * @return request name
      */
-    void run() override;
+    void name(const String& aname) { m_name = aname; }
+
+    Message     request;                ///< Request data
+    Message     response;               ///< Response data
 
 private:
-
-    WSRequest&      m_service;
-    Logger&         m_logger;
-    Paths           m_paths;
-    bool            m_allowCORS;
-    LogDetails      m_logDetails;
-
-    void respondToOptions(const HttpHeaders& headers);
-
-    bool handleHttpProtocol(const String& requestType, URL& url, String& protocolName, HttpHeaders& headers) const;
-
-    bool reviewHeaders(const String& requestType, HttpHeaders& headers) const;
+    String      m_name;                 ///< Request name
 };
 
 /**
- * WS server connection
+ * @}
  */
-class WSSSLConnection : public WSConnection
-{
-public:
-    /**
-     * Constructor
-     * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
-     */
-    WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
-                    Logger& logger, const Paths& paths, int options, const LogDetails& logDetails);
-
-    /**
-     * Destructor
-     */
-    ~WSSSLConnection() override = default;
-};
-
 }
 
 #endif

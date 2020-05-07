@@ -90,7 +90,7 @@ public:
     /// Process method
     ///
     /// Implements WebSockets session
-    void process() override;
+    RequestInfo process() override;
 };
 
 class WSNotification

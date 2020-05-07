@@ -117,8 +117,8 @@ void TCPServer::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable
 class EchoConnection : public TCPServerConnection
 {
 public:
-    EchoConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*)
-    : TCPServerConnection(server, connectionSocket)
+    EchoConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* connectionAddress)
+    : TCPServerConnection(server, connectionSocket, connectionAddress)
     {
     }
 

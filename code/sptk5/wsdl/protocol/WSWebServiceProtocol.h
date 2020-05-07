@@ -62,7 +62,7 @@ class WSWebServiceProtocol : public WSProtocol
      * @param httpStatusText    Output HTTP status text
      * @param contentType       Output content type
      */
-    void processMessage(Buffer& output, xml::Document& message,
+    String processMessage(Buffer& output, xml::Document& message,
                         std::shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
                         size_t& httpStatusCode, String& httpStatusText, String& contentType);
 public:
@@ -77,13 +77,13 @@ public:
      * @param port              Listener's port
      * @param allowCORS         Allow CORS
      */
-    WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
-                         const String& hostname, uint16_t port, bool allowCORS, const LogDetails& logDetails);
+    WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service, const String& hostname,
+                         uint16_t port, bool allowCORS);
 
     /// @brief Process method
     ///
     /// Calls WebService request through service object
-    void process() override;
+    RequestInfo process() override;
 
 private:
 

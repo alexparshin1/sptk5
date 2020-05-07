@@ -24,96 +24,64 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __WS_CONNECTION_H__
-#define __WS_CONNECTION_H__
+#include <sptk5/net/RequestInfo.h>
+#include <sptk5/Buffer.h>
+#include <sptk5/Brotli.h>
+#include <sptk5/ZLib.h>
 
-#include <sptk5/wsdl/protocol/WSStaticHttpProtocol.h>
-#include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
-#include <sptk5/wsdl/protocol/WSWebSocketsProtocol.h>
-#include <sptk5/wsdl/WSRequest.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-class WSConnection : public ServerConnection
+void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
 {
-public:
-    enum Options {
-        ENCRYPTED = 1,
-        ALLOW_CORS = 2
-    };
+    m_compressedLength = content.length();
+    m_contentEncoding = contentEncoding;
+    if (contentEncoding.empty()) {
+        m_content = content;
+        return;
+    }
 
-    class Paths
-    {
-    public:
-        String  htmlIndexPage;
-        String  wsRequestPage;
-        String  staticFilesDirectory;
-        Paths(String htmlIndexPage, String wsRequestPage, String staticFilesDirectory)
-        : htmlIndexPage(std::move(htmlIndexPage)),
-          wsRequestPage(std::move(wsRequestPage)),
-          staticFilesDirectory(std::move(staticFilesDirectory))
-        {
-        }
-        Paths(const Paths& other) = default;
-    };
+#if HAVE_BROTLI
+    if (contentEncoding == "br") {
+        Brotli::decompress(m_content, content);
+        return;
+    }
+#endif
 
-    /**
-     * Constructor
-     * @param server            Server object
-     * @param connectionSocket  Incoming connection socket
-     * @param service           Web service object
-     * @param logger            Logger instance
-     * @param paths             Web site paths
-     * @param allowCORS         Allow CORS
-     * @param logDetails        Log messages details
-     */
-    WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
-                 const Paths& paths, bool allowCORS, const LogDetails& logDetails);
+#if HAVE_ZLIB
+    if (contentEncoding == "gzip") {
+        ZLib::decompress(m_content, content);
+        return;
+    }
+#endif
 
-    /**
-     * Destructor
-     */
-    ~WSConnection() override = default;
-
-    /**
-     * Thread function
-     */
-    void run() override;
-
-private:
-
-    WSRequest&      m_service;
-    Logger&         m_logger;
-    Paths           m_paths;
-    bool            m_allowCORS;
-    LogDetails      m_logDetails;
-
-    void respondToOptions(const HttpHeaders& headers);
-
-    bool handleHttpProtocol(const String& requestType, URL& url, String& protocolName, HttpHeaders& headers) const;
-
-    bool reviewHeaders(const String& requestType, HttpHeaders& headers) const;
-};
-
-/**
- * WS server connection
- */
-class WSSSLConnection : public WSConnection
-{
-public:
-    /**
-     * Constructor
-     * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
-     */
-    WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
-                    Logger& logger, const Paths& paths, int options, const LogDetails& logDetails);
-
-    /**
-     * Destructor
-     */
-    ~WSSSLConnection() override = default;
-};
-
+    throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
 }
 
+Buffer RequestInfo::Message::output(const Strings& contentEncodings)
+{
+    m_contentEncoding = "";
+    if (m_content.bytes() > 64 && !contentEncodings.empty()) {
+        Buffer outputData;
+#if HAVE_BROTLI
+        if (contentEncodings.indexOf("br") >= 0) {
+            m_contentEncoding = "br";
+            Brotli::compress(outputData, m_content);
+            m_compressedLength = outputData.length();
+            return outputData;
+        }
 #endif
+#if HAVE_ZLIB
+        if (contentEncodings.indexOf("gzip") >= 0) {
+            m_contentEncoding = "gzip";
+            ZLib::compress(outputData, m_content);
+            m_compressedLength = outputData.length();
+            return outputData;
+        }
+#endif
+    }
+
+    m_compressedLength = m_content.length();
+
+    return m_content;
+}

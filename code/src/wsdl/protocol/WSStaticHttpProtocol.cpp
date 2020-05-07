@@ -36,22 +36,40 @@ WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket* socket, const URL& url, co
 {
 }
 
-void WSStaticHttpProtocol::process()
+RequestInfo WSStaticHttpProtocol::process()
 {
-    Buffer page;
+    static RegularExpression matchImageFiles(R"(\.(png|gif|jpg|jpeg|pcx)$)", "i");
+
+    RequestInfo requestInfo("HTTP GET");
+
+    String fullPath(m_staticFilesDirectory + m_url.path());
+
+    requestInfo.request.input(Buffer(fullPath), "");
+
+    Strings contentEncodings;
+    if (!matchImageFiles.matches(m_url.path()))
+        contentEncodings.push_back("gzip");
     try {
-        page.loadFromFile(m_staticFilesDirectory + m_url.path());
+        requestInfo.response.content().loadFromFile(fullPath);
+        Buffer output = requestInfo.response.output(contentEncodings);
         socket().write("HTTP/1.1 200 OK\n");
         socket().write("Content-Type: text/html; charset=utf-8\n");
-        socket().write("Content-Length: " + int2string(page.bytes()) + "\n\n");
-        socket().write(page);
+        if (!requestInfo.response.contentEncoding().empty())
+            socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
+        socket().write("Content-Length: " + int2string(output.length()) + "\n\n");
+        socket().write(output);
     }
     catch (const Exception&) {
-        string text("<html><head><title>Not Found</title></head><body>Resource " + m_staticFilesDirectory + m_url.path() + " was not found.</body></html>\n");
+        String text("<html><head><title>Not Found</title></head><body>Resource " + m_staticFilesDirectory + m_url.path() + " was not found.</body></html>\n");
+        Buffer output = requestInfo.response.output(contentEncodings);
+        requestInfo.response.content() = text;
         socket().write("HTTP/1.1 404 Not Found\n");
         socket().write("Content-Type: text/html; charset=utf-8\n");
+        if (!requestInfo.response.contentEncoding().empty())
+            socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
         socket().write("Content-length: " + int2string(text.length()) + "\n\n");
         socket().write(text);
     }
+    return requestInfo;
 }
 

@@ -28,6 +28,7 @@
 
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSRequest.h>
+#include <sptk5/wsdl/WSParser.h>
 
 using namespace std;
 using namespace sptk;
@@ -55,7 +56,7 @@ xml::Element* WSRequest::findSoapBody(xml::Element* soapEnvelope, const WSNameSp
     return soapBody;
 }
 
-void WSRequest::processRequest(xml::Document* request, HttpAuthentication* authentication)
+String WSRequest::processRequest(xml::Document* request, HttpAuthentication* authentication)
 {
     WSNameSpace             soapNamespace;
     WSNameSpace             requestNameSpace;
@@ -94,5 +95,9 @@ void WSRequest::processRequest(xml::Document* request, HttpAuthentication* authe
     if (requestNode == nullptr)
         throwException("Can't find request node in SOAP Body")
 
+    String requestName = WSParser::strip_namespace(requestNode->name());
+
     requestBroker(requestNode, authentication, requestNameSpace);
+
+    return requestName;
 }

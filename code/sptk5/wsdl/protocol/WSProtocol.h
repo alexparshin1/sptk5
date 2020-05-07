@@ -31,6 +31,7 @@
 
 #include <sptk5/cnet>
 #include <sptk5/wsdl/WSRequest.h>
+#include <sptk5/net/RequestInfo.h>
 
 namespace sptk {
 
@@ -81,7 +82,7 @@ public:
     }
 
     /// @brief Process virtual method - to be implemented in derived classes
-    virtual void process() = 0;
+    virtual RequestInfo process() = 0;
 };
 
 /// @}
