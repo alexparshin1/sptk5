@@ -30,6 +30,7 @@
 #include <sptk5/cxml>
 
 #include <sptk5/json/JsonDocument.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -689,6 +690,24 @@ TEST(SPTK_XmlElement, select4)
     document.select(elementSet, "/AAA/BBB[last()]");
     EXPECT_EQ(size_t(1), elementSet.size());
     EXPECT_STREQ("4", elementSet[0]->text().c_str());
+}
+
+TEST(SPTK_XmlElement, select5)
+{
+    xml::NodeVector elementSet;
+    xml::Document   document;
+
+    Buffer buffer;
+    buffer.loadFromFile("data/styles.xml");
+    document.load(buffer);
+
+    String xpath = "/office:document-styles/office:styles/style:default-style";
+    document.select(elementSet, xpath);
+    EXPECT_EQ(size_t(4), elementSet.size());
+
+    xpath = "/office:document-styles/office:styles/style:style";
+    document.select(elementSet, xpath);
+    EXPECT_EQ(size_t(7), elementSet.size());
 }
 
 #endif
