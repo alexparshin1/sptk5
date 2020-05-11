@@ -127,7 +127,11 @@ void WSConnection::run()
                 bool listStarted = false;
 
                 if (m_logDetails.has(LogDetails::SOURCE_IP)) {
-                    logMessage << "[" << address() << "] ";
+                    auto remoteIp = address();
+                    auto remoteIpHeader = httpReader.httpHeader("Remote-Ip");
+                    if (remoteIp == "127.0.0.1" && !remoteIpHeader.empty())
+                        remoteIp = remoteIpHeader;
+                    logMessage << "[" << remoteIp << "] ";
                 }
 
                 if (m_logDetails.has(LogDetails::REQUEST_NAME)) {
