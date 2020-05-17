@@ -48,22 +48,42 @@ json::Element* WSBasicType::addElement(json::Element* parent) const
     if (m_optional && (isNull() || text.empty()))
         return nullptr;
     json::Element* element;
-    switch (dataType()) {
-        case VAR_BOOL:
-            element = parent->set(name(), asBool());
-            break;
-        case VAR_INT:
-            element = parent->set(name(), asInteger());
-            break;
-        case VAR_INT64:
-            element = parent->set(name(), asInt64());
-            break;
-        case VAR_FLOAT:
-            element = parent->set(name(), asFloat());
-            break;
-        default:
-            element = parent->set(name(), asString());
-            break;
+    if (!parent->is(json::JDT_ARRAY)) {
+        switch (dataType()) {
+            case VAR_BOOL:
+                element = parent->set(name(), asBool());
+                break;
+            case VAR_INT:
+                element = parent->set(name(), asInteger());
+                break;
+            case VAR_INT64:
+                element = parent->set(name(), asInt64());
+                break;
+            case VAR_FLOAT:
+                element = parent->set(name(), asFloat());
+                break;
+            default:
+                element = parent->set(name(), asString());
+                break;
+        }
+    } else {
+        switch (dataType()) {
+            case VAR_BOOL:
+                element = parent->push_back(asBool());
+                break;
+            case VAR_INT:
+                element = parent->push_back(asInteger());
+                break;
+            case VAR_INT64:
+                element = parent->push_back(asInt64());
+                break;
+            case VAR_FLOAT:
+                element = parent->push_back(asFloat());
+                break;
+            default:
+                element = parent->push_back(asString());
+                break;
+        }
     }
 
     return element;

@@ -52,18 +52,22 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
 
 void WSComplexType::addElement(xml::Element* parent, const char* name) const
 {
-    const char *elementName = name == nullptr? m_name.c_str() : name;
-    unload(new xml::Element(parent, elementName));
+    if (m_exportable) {
+        const char* elementName = name == nullptr ? m_name.c_str() : name;
+        unload(new xml::Element(parent, elementName));
+    }
 }
 
 void WSComplexType::addElement(json::Element* parent) const
 {
-    json::Element* element;
-    if (parent->is(json::JDT_ARRAY))
-        element = parent->push_back();
-    else
-        element = parent->set(m_name);
-    unload(element);
+    if (m_exportable) {
+        json::Element* element;
+        if (parent->is(json::JDT_ARRAY))
+            element = parent->push_back();
+        else
+            element = parent->set(m_name);
+        unload(element);
+    }
 }
 
 String WSComplexType::toString(bool asJSON) const

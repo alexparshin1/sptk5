@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSComplexType.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -68,6 +66,11 @@ class WSComplexType : public WSTypeName
      * Is data loaded flag
      */
     bool         m_loaded {false};
+
+    /**
+     * Is this object exportable?
+     */
+    bool         m_exportable {true};
 
 protected:
 
@@ -283,6 +286,12 @@ public:
      * @param parentTypeName    Parent object type name
      */
     void throwIfNull(const String& parentTypeName) const;
+
+    /**
+     * If object is exportable, it's included during export to JSON or XML
+     * @param flag              Exportable flag
+     */
+    void exportable(bool flag) { m_exportable = flag; }
 };
 
 /**
