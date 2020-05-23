@@ -77,7 +77,7 @@ void SysLogEngine::saveMessage(const Logger::Message* message)
             openlog(programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
             m_logOpened = true;
         }
-        syslog(int(facilities | message->priority), "[%s] %s", priorityName(message->priority).c_str(), message->message.c_str());
+        syslog(message->priority, "[%s] %s", priorityName(message->priority).c_str(), message->message.c_str());
 #else
         if (m_logHandle.load() == nullptr) {
             OSVERSIONINFO version;
