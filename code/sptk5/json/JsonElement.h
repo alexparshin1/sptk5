@@ -626,7 +626,7 @@ public:
     }
 
     /**
-     * Push null element to JSON array
+     * Add new empty element in JSON array
      * @return                  Created element
      */
     Element* push_back()
