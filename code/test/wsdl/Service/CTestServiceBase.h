@@ -30,7 +30,7 @@ class CTestServiceBase : public sptk::WSRequest
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_AccountBalance(sptk::xml::Element* requestNode, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+    void process_AccountBalance(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
     /**
      * Internal Web Service Hello processing
@@ -38,7 +38,7 @@ class CTestServiceBase : public sptk::WSRequest
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_Hello(sptk::xml::Element* requestNode, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+    void process_Hello(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
     /**
      * Internal Web Service Login processing
@@ -46,18 +46,19 @@ class CTestServiceBase : public sptk::WSRequest
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_Login(sptk::xml::Element* requestNode, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+    void process_Login(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
 protected:
     /**
-     * Internal SOAP body processor
+     * Internal request processor
      *
-     * Receive incoming SOAP body of Web Service requests, and returns
-     * application response.
-     * @param requestNode      Incoming and outgoing SOAP element
+     * Receive incoming requests, and return application response.
+     * @param requestName      Incoming request name
+     * @param xmlContent       Incoming and outgoing XML data
+     * @param jsonContent      Incoming and outgoing JSON data
      * @param requestNameSpace Request SOAP element namespace
      */
-    void requestBroker(sptk::xml::Element* requestNode, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace) override;
+    void requestBroker(const sptk::String& requestName, sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace) override;
 
 public:
     /**

@@ -35,7 +35,8 @@ using namespace sptk;
 class StubRequest : public WSRequest
 {
 protected:
-    void requestBroker(xml::Element* /*requestNode*/, HttpAuthentication* /*authentication*/, const WSNameSpace& /*requestNameSpace*/) override
+    void requestBroker(const String& requestName, xml::Element*, json::Element* jsonNode, HttpAuthentication*,
+                       const WSNameSpace&) override
     {
         // Not used in this test
     }

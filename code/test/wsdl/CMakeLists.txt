@@ -2,7 +2,7 @@ IF (UNIX)
 
 ADD_CUSTOM_COMMAND(
     OUTPUT  Service/TestServiceBase.cpp
-    DEPENDS Test.wsdl
+    DEPENDS Test.wsdl wsdl2cxx
     COMMAND wsdl2cxx
     ARGS Test.wsdl Service
 )

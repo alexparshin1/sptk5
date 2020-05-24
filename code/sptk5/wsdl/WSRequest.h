@@ -121,7 +121,8 @@ protected:
      * @param authentication    Optional HTTP authentication
      * @param requestNameSpace  Request SOAP element namespace
      */
-    virtual void requestBroker(xml::Element* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace) = 0;
+    virtual void requestBroker(const String& requestName, xml::Element* requestNode, json::Element* jsonNode,
+                               HttpAuthentication* authentication, const WSNameSpace& requestNameSpace) = 0;
 
     /**
      * Find SOAP body node
@@ -145,9 +146,10 @@ public:
      * @brief Processes incoming requests
      *
      * The processing results are stored in the same request XML
-     * @param request           Incoming request and outgoing response
+     * @param xmlContent           Incoming request and outgoing response
      */
-    [[nodiscard]] String processRequest(xml::Document* request, HttpAuthentication* authentication);
+    [[nodiscard]] String processRequest(xml::Document* xmlContent, json::Document* jsonContent,
+                                        HttpAuthentication* authentication);
 
     /**
      * @brief Returns service title (for service handshake)

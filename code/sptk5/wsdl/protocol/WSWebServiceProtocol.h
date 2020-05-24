@@ -55,16 +55,16 @@ class WSWebServiceProtocol : public WSProtocol
     /**
      * Process request message, and store response to output
      * @param output            Output buffer
-     * @param message           Input message
+     * @param xmlContent           Input message
      * @param authentication    Authentication
      * @param requestIsJSON     Request is in JSON format
      * @param httpStatusCode    Output HTTP status code
      * @param httpStatusText    Output HTTP status text
      * @param contentType       Output content type
      */
-    String processMessage(Buffer& output, xml::Document& message,
-                        std::shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
-                        size_t& httpStatusCode, String& httpStatusText, String& contentType);
+    String processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
+                          std::shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
+                          size_t& httpStatusCode, String& httpStatusText, String& contentType);
 public:
 
     /**

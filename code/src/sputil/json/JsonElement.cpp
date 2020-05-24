@@ -106,6 +106,8 @@ double ElementGetMethods::getNumber(const String& name) const
     auto& element = getChild(name);
     if (element.is(JDT_NUMBER))
         return element.data().get_number();
+    else if (element.is(JDT_STRING))
+        return string2double(*element.data().get_string());
     throw Exception("Not a number");
 }
 

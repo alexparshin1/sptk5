@@ -56,48 +56,54 @@ xml::Element* WSRequest::findSoapBody(xml::Element* soapEnvelope, const WSNameSp
     return soapBody;
 }
 
-String WSRequest::processRequest(xml::Document* request, HttpAuthentication* authentication)
+String WSRequest::processRequest(xml::Document* xmlContent, json::Document* jsonContent,
+                                 HttpAuthentication* authentication)
 {
-    WSNameSpace             soapNamespace;
-    WSNameSpace             requestNameSpace;
-    xml::Element*           soapEnvelope = nullptr;
-    map<String,WSNameSpace> allNamespaces;
-    for (auto* anode: *request) {
-        auto* node = dynamic_cast<xml::Element*>(anode);
-        if (node == nullptr)
-            continue;
-        if (node->tagname() == "Envelope") {
-            soapEnvelope = node;
-            String nameSpaceAlias = node->nameSpace();
-            extractNameSpaces(soapEnvelope, allNamespaces);
-            soapNamespace = allNamespaces[nameSpaceAlias];
-            break;
+    String      requestName;
+    WSNameSpace requestNameSpace;
+
+    if (xmlContent) {
+        WSNameSpace soapNamespace;
+        xml::Element* soapEnvelope = nullptr;
+        map<String, WSNameSpace> allNamespaces;
+        for (auto* anode: *xmlContent) {
+            auto* node = dynamic_cast<xml::Element*>(anode);
+            if (node == nullptr)
+                continue;
+            if (node->tagname() == "Envelope") {
+                soapEnvelope = node;
+                String nameSpaceAlias = node->nameSpace();
+                extractNameSpaces(soapEnvelope, allNamespaces);
+                soapNamespace = allNamespaces[nameSpaceAlias];
+                break;
+            }
         }
+
+        if (soapEnvelope == nullptr) throwException("Can't find SOAP Envelope node")
+
+        xml::Element* soapBody = findSoapBody(soapEnvelope, soapNamespace);
+
+        xml::Element* requestNode = nullptr;
+        for (auto* anode: *soapBody) {
+            auto* node = dynamic_cast<xml::Element*>(anode);
+            if (node != nullptr) {
+                std::lock_guard<std::mutex> lock(*this);
+                requestNode = node;
+                String nameSpaceAlias = requestNode->nameSpace();
+                extractNameSpaces(requestNode, allNamespaces);
+                requestNameSpace = allNamespaces[nameSpaceAlias];
+                break;
+            }
+        }
+        if (requestNode == nullptr) throwException("Can't find request node in SOAP Body")
+
+        requestName = WSParser::strip_namespace(requestNode->name());
+    } else {
+        requestName = (String) jsonContent->root()["rest_method_name"];
     }
 
-    if (soapEnvelope == nullptr)
-        throwException("Can't find SOAP Envelope node")
-
-    xml::Element* soapBody = findSoapBody(soapEnvelope, soapNamespace);
-
-    xml::Element* requestNode = nullptr;
-    for (auto* anode: *soapBody) {
-        auto* node = dynamic_cast<xml::Element*>(anode);
-        if (node != nullptr) {
-            std::lock_guard<std::mutex> lock(*this);
-            requestNode = node;
-            String nameSpaceAlias = requestNode->nameSpace();
-            extractNameSpaces(requestNode, allNamespaces);
-            requestNameSpace = allNamespaces[nameSpaceAlias];
-            break;
-        }
-    }
-    if (requestNode == nullptr)
-        throwException("Can't find request node in SOAP Body")
-
-    String requestName = WSParser::strip_namespace(requestNode->name());
-
-    requestBroker(requestNode, authentication, requestNameSpace);
+    json::Element* jsonNode = jsonContent? &jsonContent->root(): nullptr;
+    requestBroker(requestName, xmlContent, jsonNode, authentication, requestNameSpace);
 
     return requestName;
 }

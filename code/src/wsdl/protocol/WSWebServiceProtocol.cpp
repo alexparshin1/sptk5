@@ -112,7 +112,7 @@ void WSWebServiceProtocol::generateFault(Buffer& output, size_t& httpStatusCode,
     }
 }
 
-String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message,
+String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
                                             shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
                                             size_t& httpStatusCode, String& httpStatusText, String& contentType)
 {
@@ -121,19 +121,17 @@ String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& messa
     httpStatusText = "OK";
     contentType = "text/xml; charset=utf-8";
     try {
-        requestName = m_service.processRequest(&message, authentication.get());
-        if (requestIsJSON) {
-            xml::Node* methodElement = findRequestNode(message, "service response");
-
-            // Converting XML response to JSON response
-            json::Document jsonOutput;
-            auto& jsonResponse = jsonOutput.root();
-            methodElement->exportTo(jsonResponse);
-            jsonOutput.exportTo(output, false);
+        auto* pXmlContent = requestIsJSON? nullptr: &xmlContent;
+        auto* pJsonContent = requestIsJSON? &jsonContent: nullptr;
+        requestName = m_service.processRequest(pXmlContent, pJsonContent, authentication.get());
+        if (pJsonContent) {
+            pJsonContent->exportTo(output, false);
             contentType = "application/json";
         }
-        else
-            message.save(output, 2);
+        else {
+            xmlContent.save(output, 2);
+            contentType = "application/xml";
+        }
     }
     catch (const HTTPException& e) {
         generateFault(output, httpStatusCode, httpStatusText, contentType, e, false);
@@ -212,15 +210,15 @@ RequestInfo WSWebServiceProtocol::process()
     while (startOfMessage != endOfMessage && (unsigned char)*startOfMessage < 33)
         startOfMessage++;
 
-    xml::Document message;
+    xml::Document xmlContent;
     json::Document jsonContent;
 
     if (startOfMessage != endOfMessage) {
         if (*startOfMessage == '<') {
             if (endOfMessage != nullptr)
                 *endOfMessage = 0;
-            message.load(startOfMessage);
-            xml::Node* xmlRequest = findRequestNode(message, "API request");
+            xmlContent.load(startOfMessage);
+            xml::Node* xmlRequest = findRequestNode(xmlContent, "API request");
             auto* jsonEnvelope = jsonContent.root().set_object(xmlRequest->name());
             for (auto& itor: m_url.params()) {
                 auto* paramNode = new xml::Element(xmlRequest, itor.second.c_str());
@@ -233,8 +231,14 @@ RequestInfo WSWebServiceProtocol::process()
                 generateFault(requestInfo.response.content(), httpStatusCode, httpStatusText, contentType,
                               HTTPException(404, "Invalid resource path"),
                               requestIsJSON);
-            else
-                RESTtoSOAP(m_url, startOfMessage, message);
+            else {
+                Strings pathElements(m_url.path(), "/");
+                String method(*pathElements.rbegin());
+                jsonContent.load(startOfMessage);
+                jsonContent.root()["rest_method_name"] = method;
+                for (auto& itor: m_url.params())
+                    jsonContent.root()[itor.first] = itor.second;
+            }
         }
         else {
             generateFault(requestInfo.response.content(), httpStatusCode, httpStatusText, contentType,
@@ -251,12 +255,13 @@ RequestInfo WSWebServiceProtocol::process()
             requestInfo.name("wsdl");
         } else {
             // Regular request w/o content
-            RESTtoSOAP(m_url, "", message);
+            RESTtoSOAP(m_url, "", xmlContent);
         }
     }
 
     if (!returnWSDL && httpStatusCode < 400) {
-        auto requestName = processMessage(requestInfo.response.content(), message, authentication, requestIsJSON,
+        auto requestName = processMessage(requestInfo.response.content(), xmlContent, jsonContent, authentication,
+                                          requestIsJSON,
                                           httpStatusCode, httpStatusText, contentType);
         requestInfo.name(requestName);
     }
