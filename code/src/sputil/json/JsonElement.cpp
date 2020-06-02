@@ -211,8 +211,8 @@ void ElementGetMethods::exportValueTo(ostream& stream, bool formatted, size_t in
         if (indent)
             indentSpaces = string(indent, ' ');
         newLineChar = "\n";
-        firstElement = "\n    " + indentSpaces;
-        betweenElements = ",\n    " + indentSpaces;
+        firstElement = "\n  " + indentSpaces;
+        betweenElements = ",\n  " + indentSpaces;
     }
 
     auto saveFlags = stream.flags();
@@ -291,7 +291,7 @@ void ElementGetMethods::exportArray(ostream& stream, bool formatted, size_t inde
                 stream << firstElement;
             } else
                 stream << betweenElements;
-            element->exportValueTo(stream, formatted, indent + 4);
+            element->exportValueTo(stream, formatted, indent + 2);
         }
     }
     stream << newLineChar << indentSpaces << "]";
@@ -311,7 +311,7 @@ void ElementGetMethods::exportObject(ostream& stream, bool formatted, size_t ind
             stream << "\"" << *itor.first << "\":";
             if (formatted)
                 stream << " ";
-            itor.second->exportValueTo(stream, formatted, indent + 4);
+            itor.second->exportValueTo(stream, formatted, indent + 2);
         }
     }
     stream << newLineChar << indentSpaces << "}";
@@ -693,7 +693,7 @@ string json::escape(const string& text)
     size_t position = 0;
 
     for (;;) {
-        size_t pos = text.find_first_of("\"\\/\b\f\n\r\t", position);
+        size_t pos = text.find_first_of("\"\\\b\f\n\r\t", position);
         if (pos == string::npos) {
             if (position == 0)
                 return text;
@@ -854,7 +854,7 @@ Element* Element::push_array()
     return arrayElement;
 }
 
-Element* Element::set_array(const String& name)
+Element* Element::add_array(const String& name)
 {
     auto* arrayElement = new Element(getDocument(), new ArrayData(getDocument()));
     add(name, arrayElement);
@@ -868,7 +868,7 @@ Element* Element::push_object()
     return objectElement;
 }
 
-Element* Element::set_object(const String& name)
+Element* Element::add_object(const String& name)
 {
     auto* objectElement = new Element(getDocument(), new ObjectData(getDocument()));
     add(name, objectElement);

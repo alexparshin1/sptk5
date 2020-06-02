@@ -57,6 +57,16 @@ struct WSOperation
 };
 
 /**
+ * Map of operation names to operation objects
+ */
+typedef std::map<String,WSOperation>            WSOperationMap;
+
+/**
+ * Map of complex type names to complex type objects
+ */
+typedef std::map<String, SWSParserComplexType>  WSComplexTypeMap;
+
+/**
  * Parser of WSDL files
  *
  * Loads a WSDL file and converts it to a set of abstract classes that can be saved
@@ -70,11 +80,6 @@ public:
      * Map of element names to element objects
      */
     typedef std::map<String, WSParserElement*>      ElementMap;
-
-    /**
-     * Map of complex type names to complex type objects
-     */
-    typedef std::map<String, SWSParserComplexType>  ComplexTypeMap;
 
     class ComplexTypeIndex
     {
@@ -114,7 +119,7 @@ public:
             return itor->second;
         }
 
-        const ComplexTypeMap& complexTypes() const { return m_complexTypes; }
+        const WSComplexTypeMap& complexTypes() const { return m_complexTypes; }
 
     private:
         /**
@@ -125,7 +130,7 @@ public:
         /**
          * Map of all parsed complex types
          */
-        ComplexTypeMap      m_complexTypes;
+        WSComplexTypeMap      m_complexTypes;
     };
 
     /**
@@ -136,34 +141,20 @@ public:
     /**
      * Map of operation names to operation objects
      */
-    typedef std::map<String,WSOperation>            OperationMap;
-
-    /**
-     * Map of operation names to operation objects
-     */
     typedef std::map<String,String>                 DocumentationMap;
 
 private:
-    /**
-     * Service name, defining service class name and source file names
-     */
-    String              m_serviceName;
 
-    /**
-     * Index of all parsed complex types and elements
-     */
-    ComplexTypeIndex    m_complexTypeIndex;
-
-    /**
-     * Map of all operations
-     */
-    OperationMap        m_operations;
-
-    /**
-     * Map of all operation documentation if any
-     */
+    String              m_serviceName;      ///< Service name, defining service class name and source file names
+    String              m_description;      ///< Service description
+    String              m_location;         ///< Service location
+    ComplexTypeIndex    m_complexTypeIndex; ///< Index of all parsed complex types and elements
+    WSOperationMap      m_operations;       ///< Map of all operations
     DocumentationMap    m_documentation;
 
+public:
+    const String& description() const;
+    ///< Map of all operation documentation if any
 
 protected:
     /**

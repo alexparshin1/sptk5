@@ -95,7 +95,7 @@ namespace sptk {
 
     };
 
-    typedef std::shared_ptr<WSRestriction> SharedWSRestriction;
+    typedef std::shared_ptr<WSRestriction> SWSRestriction;
 }
 #endif
 

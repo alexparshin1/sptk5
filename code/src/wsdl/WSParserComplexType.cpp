@@ -707,7 +707,7 @@ void WSParserComplexType::printImplementationUnloadJSON(ostream& classImplementa
     if (!m_attributes.empty()) {
         classImplementation << endl << "    // Unload attributes" << endl;
 
-        classImplementation << "    auto* attributes = output->set_object(\"attributes\");" << endl;
+        classImplementation << "    auto* attributes = output->add_object(\"attributes\");" << endl;
 
         for (auto& itor: m_attributes) {
             WSParserAttribute& attr = *itor.second;
@@ -730,7 +730,7 @@ void WSParserComplexType::printImplementationUnloadJSON(ostream& classImplementa
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
                 String outputArrayName = complexType->name() + "_array";
                 classImplementation
-                    << "    auto " << outputArrayName << " = output->set_array(\"" << complexType->name() << "\");" << endl
+                    << "    auto " << outputArrayName << " = output->add_array(\"" << complexType->name() << "\");" << endl
                     << "    for (auto* element: m_" << complexType->name() << ")" << endl
                     << "        element->addElement(" << outputArrayName << ");" << endl;
             }

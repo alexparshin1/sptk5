@@ -127,6 +127,7 @@ public:
 
 class WSParserComplexType;
 typedef std::shared_ptr<WSParserComplexType>    SWSParserComplexType;
+typedef std::list<SWSParserComplexType>         WSParserComplexTypeList;
 
 /**
  * Parses WSDL complexType element
@@ -138,18 +139,13 @@ class WSParserComplexType
      */
     typedef std::map<std::string, WSParserAttribute*>   AttributeMap;
 
-    /**
-     * List of complex type elements
-     */
-    typedef std::list<SWSParserComplexType>             ElementList;
-
     String                  m_name;                 ///< Element name
     String                  m_typeName;             ///< WSDL type name
     const xml::Element*     m_element {nullptr};    ///< XML element for that WSDL element
     AttributeMap            m_attributes;           ///< Element attributes
-    ElementList             m_sequence;             ///< Child element sequence
+    WSParserComplexTypeList m_sequence;             ///< Child element sequence
     WSMultiplicity          m_multiplicity;         ///< Multiplicity flag
-    SharedWSRestriction     m_restriction;          ///< Element restriction (if any) or NULL
+    SWSRestriction          m_restriction;          ///< Element restriction (if any) or NULL
     String                  m_documentation;        ///< Optional documentation
 
 protected:
@@ -221,6 +217,12 @@ public:
     {
         return m_documentation;
     }
+
+    /**
+     * Get child elements sequence
+     * @return Child elements sequence
+     */
+    const WSParserComplexTypeList sequence() const { return m_sequence; }
 
     /**
      * Parses WSDL complexType element

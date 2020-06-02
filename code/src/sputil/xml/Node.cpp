@@ -456,7 +456,7 @@ void Node::save(json::Element& json, string& text) const
         return;
     }
 
-    auto* object = json.set_object(nodeName);
+    auto* object = json.add_object(nodeName);
     if (isElement())
         saveAttributes(object);
 
@@ -515,7 +515,7 @@ void Node::saveAttributes(json::Element* object) const
 {
     const Attributes& attributes = this->attributes();
     if (!attributes.empty()) {
-        auto* attrs = object->set_object("attributes");
+        auto* attrs = object->add_object("attributes");
         for (auto* attributeNode: attributes)
             attrs->set(attributeNode->name(), attributeNode->value());
     }

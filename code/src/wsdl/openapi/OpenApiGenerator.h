@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       json_test2.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 16 2013                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,57 +24,26 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
-#include <sptk5/json/JsonDocument.h>
+#ifndef SPTK_OPENAPIGENERATOR_H
+#define SPTK_OPENAPIGENERATOR_H
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/Strings.h>
+#include <sptk5/wsdl/WSParser.h>
 
-int main()
+namespace sptk {
+
+class OpenApiGenerator
 {
-    try {
-        json::Document jsonDocument;
+    String                  m_title;
+    String                  m_description;
+    String                  m_version;
+    Strings                 m_servers;
+public:
+    OpenApiGenerator(const String& title, const String& description, const String& version,
+                     const Strings& servers);
+    void generate(std::ostream& output, const WSOperationMap& operations, const WSComplexTypeMap& complexTypes);
+};
 
-        // Get document root element
-        json::Element& root = jsonDocument.root();
-
-        // Fastest way to insert or replace element
-        root.set("boolean", true);
-        root.set("empty");
-        root.set("string", "test1");
-
-        // Convenient way to insert or replace element.
-        // Recognised types: bool, integers, floats, const char*, std::string, json::ArrayData*, json::ObjectData*
-        root["number"] = 124.0;
-        root["number2"] = 124.0;
-        root["string"] = "test";
-        root["boolean"] = true;
-
-        auto* array = root.add_object("array");
-        array->push_back(100.0);
-        array->push_back("101.0");
-        array->push_back(102.0);
-
-        // Create JSON object and insert it into JSON element (root)
-        // JSON element (root) takes ownership of objectData
-        auto* objectData = root.add_object("boxes");
-        (*objectData)["colour"] = "black";
-        (*objectData)["shape"] = "cube";
-
-        // Get existing JSON object and add some data to it
-        json::Element& boxes = root["boxes"];
-        boxes["size"] = 10;
-        boxes["address"]["street"] = "17 Elm street";
-        boxes["address"]["first name"] = "Freddy";
-        boxes["address"]["last name"] = "Kruger";
-
-        root.exportTo(cout, true);
-        COUT(endl)
-
-        return 0;
-    }
-    catch (const Exception& e) {
-        CERR(e.what() << endl)
-        return 1;
-    }
 }
+
+#endif

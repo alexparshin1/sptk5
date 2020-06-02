@@ -219,7 +219,7 @@ RequestInfo WSWebServiceProtocol::process()
                 *endOfMessage = 0;
             xmlContent.load(startOfMessage);
             xml::Node* xmlRequest = findRequestNode(xmlContent, "API request");
-            auto* jsonEnvelope = jsonContent.root().set_object(xmlRequest->name());
+            auto* jsonEnvelope = jsonContent.root().add_object(xmlRequest->name());
             for (auto& itor: m_url.params()) {
                 auto* paramNode = new xml::Element(xmlRequest, itor.second.c_str());
                 paramNode->text(itor.second);

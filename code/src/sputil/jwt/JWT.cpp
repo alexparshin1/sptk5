@@ -655,7 +655,7 @@ TEST(SPTK_JWT, encode_hs256_decode)
     jwt["iss"] = "http://test.com";
     jwt["exp"] = (int) time(nullptr) + 86400;
 
-    auto* info = jwt.grants.root().set_object("info");
+    auto* info = jwt.grants.root().add_object("info");
     info->set("company", "Linotex");
     info->set("city", "Melbourne");
 

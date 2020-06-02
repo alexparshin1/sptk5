@@ -195,12 +195,12 @@ TEST(SPTK_JsonDocument, add)
     root["bool1"] = true;
     root["bool2"] = false;
 
-    auto* arrayData = root.set_array("array");
+    auto* arrayData = root.add_array("array");
     arrayData->push_back("C++");
     arrayData->push_back("Java");
     arrayData->push_back("Python");
 
-    auto* objectData = root.set_object("object");
+    auto* objectData = root.add_object("object");
     (*objectData)["height"] = 178;
     (*objectData)["weight"] = 85.5;
 

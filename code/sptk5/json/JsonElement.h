@@ -589,7 +589,7 @@ public:
      * @param name              Array element name
      * @return Array element
      */
-    Element* set_array(const String& name);
+    Element* add_array(const String& name);
 
     /**
      * Add object element to JSON array
@@ -602,7 +602,7 @@ public:
      * @param name              Object element name
      * @return Object element
      */
-    Element* set_object(const String& name);
+    Element* add_object(const String& name);
 
     /**
      * Set null element in JSON object

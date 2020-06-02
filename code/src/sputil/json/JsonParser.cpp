@@ -289,12 +289,12 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
                 break;
 
             case '[':
-                element = parent->set_array(elementName);
+                element = parent->add_array(elementName);
                 readArrayData(element, json, readPosition);
                 break;
 
             case '{':
-                element = parent->set_object(elementName);
+                element = parent->add_object(elementName);
                 readObjectData(element, json, readPosition);
                 break;
 

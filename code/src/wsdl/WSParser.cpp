@@ -31,6 +31,7 @@
 #include <sptk5/wsdl/SourceModule.h>
 #include <sptk5/wsdl/WSParser.h>
 #include <sptk5/wsdl/WSMessageIndex.h>
+#include <src/wsdl/openapi/OpenApiGenerator.h>
 
 using namespace std;
 using namespace sptk;
@@ -207,17 +208,26 @@ void WSParser::parse(String wsdlFile)
     buffer.loadFromFile(wsdlFile);
     wsdlXML.load(buffer);
 
-    xml::Element* service = (xml::Element*) wsdlXML.findFirst("wsdl:service");
+    auto* service = (xml::Element*) wsdlXML.findFirst("wsdl:service");
     m_serviceName = (String) service->getAttribute("name");
 
-    xml::Element* schemaElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("xsd:schema"));
+    auto* address = service->findFirst("soap:address");
+    if (address)
+        m_location = (String) address->getAttribute("location");
+
+    auto* schemaElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("xsd:schema"));
     if (schemaElement == nullptr)
         throwException("Can't find xsd:schema element")
     parseSchema(schemaElement);
 
-    xml::Element* portElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("wsdl:portType"));
+    auto* portElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("wsdl:portType"));
     if (portElement == nullptr)
         throwException("Can't find wsdl:portType element")
+
+    auto* descriptionElement = portElement->findFirst("wsdl:documentation");
+    if (descriptionElement)
+        m_description = descriptionElement->text();
+
     for (auto* node: *portElement) {
         auto* element = dynamic_cast<xml::Element*>(node);
         if (element != nullptr && element->name() == "wsdl:operation")
@@ -511,6 +521,9 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile)
     cmakeLists << ")" << endl;
 
     replaceFile(m_serviceName + ".inc", cmakeLists);
+
+    OpenApiGenerator openApiGenerator(m_serviceName, m_description, "1.0.0", {m_location});
+    openApiGenerator.generate(cout, m_operations, m_complexTypeIndex.complexTypes());
 }
 
 void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& _wsdlFileName)
@@ -544,5 +557,10 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
 
     replaceFile(wsdlFileName + ".h", wsdlHeader);
     replaceFile(wsdlFileName + ".cpp", wsdlCxx);
+}
+
+const String& WSParser::description() const
+{
+    return m_description;
 }
 

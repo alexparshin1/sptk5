@@ -71,7 +71,7 @@ void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::Ht
     jwt["exp"] = (int) time(nullptr) + 86400;   // JWT expiration time
 
     // Add some description information that we may use later
-    auto* info = jwt.grants.root().set_object("info");
+    auto* info = jwt.grants.root().add_object("info");
     info->set("username", "johnd");
     info->set("company", "My Company");
     info->set("city", "My City");
