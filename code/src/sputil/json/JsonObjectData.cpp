@@ -60,7 +60,7 @@ void ObjectData::add(const string& name, Element* element)
     auto itor = m_items.find(sharedName);
     if (itor != m_items.end())
         throw Exception("Element " + name + " conflicts with same name object");
-    m_items.insert(sharedName, element);
+    m_items.set(sharedName, element);
 }
 
 Element* ObjectData::find(const string& name)
@@ -80,7 +80,7 @@ Element& ObjectData::operator[](const string& name)
     if (itor == m_items.end()) {
         element = new Element(m_document);
         element->m_parent = m_parent;
-        m_items.insert(sharedName, element);
+        m_items.set(sharedName, element);
     } else
         element = itor->element();
 

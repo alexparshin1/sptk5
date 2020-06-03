@@ -881,10 +881,11 @@ static const String testJSON2(R"({ "AAA": { "BBB": "", "CCC": "", "BBB": "", "DD
 static const String testJSON3(R"({ "AAA": { "XXX": { "DDD": { "BBB": "", "BBB": "", "EEE": null, "FFF": null } }, "CCC": { "DDD": { "BBB": null, "BBB": null, "EEE": null, "FFF": null } }, "CCC": { "BBB": { "BBB": { "BBB": null } } } } })");
 
 static const String testJSON4(R"({ "AAA": { "BBB": "1", "BBB": "2", "BBB": "3", "BBB": "4" } })");
-static const String testJSON5(R"({"data":{"array":[1,2,3,"test"]}})");
+static const String testJSON5(R"({"data":{"type":1,"array":[1,2,3,"test"]}})");
 
 static const String testJSON6(R"({
   "data": {
+    "type": 1,
     "array": [
       1,
       2,

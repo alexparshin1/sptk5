@@ -43,15 +43,29 @@ namespace sptk::json {
 class Element;
 class Document;
 
-class SP_EXPORT ElementMap
+/**
+ * Internal map of JSON object property names to JSON elements.
+ *
+ * Implementation keeps the creation/load order of properties,
+ * and uses shared strings to increase property index performance.
+ */
+class SP_EXPORT PropertyMap
 {
 
 public:
-    class Item
+    /**
+     * Map item
+     */
+    class Property
     {
-        friend class ElementMap;
+        friend class PropertyMap;
     public:
-        Item(const std::string* name, Element* element) : m_name(name), m_element(element) {}
+        /**
+         * Constructor
+         * @param name          Property name
+         * @param element       Property element
+         */
+        Property(const std::string* name, Element* element) : m_name(name), m_element(element) {}
         std::string name() const { return *m_name; }
         Element* element() { return m_element; }
         const Element* element() const { return m_element; }
@@ -60,60 +74,60 @@ public:
         Element*            m_element;
     };
 
-    typedef std::list<Item>::iterator       iterator;
-    typedef std::list<Item>::const_iterator const_iterator;
+    typedef std::list<Property>::iterator       iterator;
+    typedef std::list<Property>::const_iterator const_iterator;
 
     Element* get(const std::string* name)
     {
-        for (auto& itor: m_items) {
+        for (auto& itor: m_properties) {
             if (itor.m_name == name)
                 return itor.element();
         }
         return nullptr;
     }
 
-    void insert(const std::string* name, Element* element)
+    void set(const std::string* name, Element* element)
     {
-        for (auto& itor: m_items) {
+        for (auto& itor: m_properties) {
             if (itor.m_name == name) {
                 itor.m_element = element;
                 return;
             }
         }
-        m_items.emplace_back(name, element);
+        m_properties.emplace_back(name, element);
     }
 
-    iterator begin() { return m_items.begin(); }
-    const_iterator begin() const { return m_items.begin(); }
-    iterator end() { return m_items.end(); }
-    const_iterator end() const { return m_items.end(); }
-    size_t size() const { return m_items.size(); }
+    iterator begin() { return m_properties.begin(); }
+    const_iterator begin() const { return m_properties.begin(); }
+    iterator end() { return m_properties.end(); }
+    const_iterator end() const { return m_properties.end(); }
+    size_t size() const { return m_properties.size(); }
 
     iterator find(const std::string* name)
     {
-        for (auto itor = m_items.begin(); itor != m_items.end(); ++itor) {
+        for (auto itor = m_properties.begin(); itor != m_properties.end(); ++itor) {
             if (itor->m_name == name)
                 return itor;
         }
-        return m_items.end();
+        return m_properties.end();
     }
 
     const_iterator find(const std::string* name) const
     {
-        for (auto itor = m_items.begin(); itor != m_items.end(); ++itor) {
+        for (auto itor = m_properties.begin(); itor != m_properties.end(); ++itor) {
             if (itor->m_name == name)
                 return itor;
         }
-        return m_items.end();
+        return m_properties.end();
     }
 
     iterator erase(iterator itor)
     {
-        return m_items.erase(itor);
+        return m_properties.erase(itor);
     }
 
 private:
-    std::list<Item> m_items;
+    std::list<Property> m_properties;
 };
 
 /**
@@ -128,12 +142,12 @@ public:
     /**
      * Type definition: map of element names to elements iterator
      */
-    typedef ElementMap::iterator                       iterator;
+    typedef PropertyMap::iterator               iterator;
 
     /**
      * Type definition: map of element names to elements const iterator
      */
-    typedef ElementMap::const_iterator                 const_iterator;
+    typedef PropertyMap::const_iterator         const_iterator;
 
 private:
 
@@ -147,7 +161,7 @@ private:
     /**
      * Child JSON elements
      */
-    ElementMap                                  m_items;
+    PropertyMap                                  m_items;
 
 protected:
 
