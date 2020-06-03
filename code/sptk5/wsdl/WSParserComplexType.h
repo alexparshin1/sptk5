@@ -225,6 +225,12 @@ public:
     const WSParserComplexTypeList sequence() const { return m_sequence; }
 
     /**
+     * Get optional restriction
+     * @return restriction
+     */
+    SWSRestriction restriction() const { return m_restriction; }
+
+    /**
      * Parses WSDL complexType element
      */
     virtual void parse();

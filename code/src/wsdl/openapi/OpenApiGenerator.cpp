@@ -100,6 +100,8 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
         auto& properties = *complexType.add_object("properties");
         Strings requiredProperties;
         for (auto ctypeProperty: complexTypeInfo->sequence()) {
+            if (ctypeProperty->name() == "type")
+                cout << "";
             auto& property = *properties.add_object(ctypeProperty->name());
             auto className = ctypeProperty->className();
             if (className.startsWith("sptk::WS")) {
@@ -109,16 +111,26 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
                     property["type"] = ttor->second.type;
                     if (!ttor->second.format.empty())
                         property["format"] = ttor->second.format;
-                    if (ctypeProperty->multiplicity() != WSM_OPTIONAL)
-                        requiredProperties.push_back(ctypeProperty->name());
-                    continue;
                 }
             }
-            if (className.startsWith("C"))
+            else if (className.startsWith("C")) {
                 className = "#/components/schemas/" + className.substr(1);
-            property["type"] = className;
+                property["$ref"] = className;
+            }
+
             if (ctypeProperty->multiplicity() != WSM_OPTIONAL)
                 requiredProperties.push_back(ctypeProperty->name());
+
+            auto restriction = ctypeProperty->restriction();
+            if (restriction) {
+                if (!restriction->pattern().empty())
+                    property["pattern"] = restriction->pattern();
+                else if (!restriction->enumeration().empty()) {
+                    auto& enumArray = *property.add_array("enum");
+                    for (auto& str: restriction->enumeration())
+                        enumArray.push_back(str);
+                }
+            }
         }
         if (!requiredProperties.empty()) {
             auto& required = *complexType.add_array("required");

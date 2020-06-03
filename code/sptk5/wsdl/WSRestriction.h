@@ -86,11 +86,23 @@ namespace sptk {
          */
         String generateConstructor(const String& variableName) const;
 
+        /**
+         * Optional regular expression to match
+         * @return regular expression string
+         */
+        String pattern() const { return m_pattern; }
+
+        /**
+         * Optional enumeration to match
+         * @return enumeration
+         */
+        Strings enumeration() const { return m_enumeration; }
+
     private:
 
         Type        m_type { Unknown }; ///< Restriction type
         String      m_wsdlTypeName;     ///< WSDL type name
-        Strings     m_enumerations;     ///< List of enumerations if any
+        Strings     m_enumeration;      ///< List of enumerations if any
         String      m_pattern;          ///< Pattern, or empy string
 
     };

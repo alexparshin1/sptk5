@@ -39,10 +39,10 @@ WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElemen
     for (auto* node: enumerationNodes) {
         auto* enumerationNode = dynamic_cast<xml::Element*>(node);
         if (enumerationNode != nullptr)
-            m_enumerations.push_back((String) enumerationNode->getAttribute("value"));
+            m_enumeration.push_back((String) enumerationNode->getAttribute("value"));
     }
 
-    if (!m_enumerations.empty()) {
+    if (!m_enumeration.empty()) {
         m_type = Enumeration;
     } else {
         xml::NodeVector patternNodes;
@@ -71,7 +71,7 @@ WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const String
 
     if (type == Enumeration) {
         Strings enumerations(enumerationsOrPattern, delimiter);
-        m_enumerations = move(enumerations);
+        m_enumeration = move(enumerations);
     }
     else if (type == Pattern) {
         m_pattern = enumerationsOrPattern;
@@ -81,7 +81,7 @@ WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const String
 void WSRestriction::check(const String& typeName, const String& value) const
 {
     if (m_type == Enumeration) {
-        if (m_enumerations.indexOf(value) >= 0)
+        if (m_enumeration.indexOf(value) >= 0)
             return;
     }
     else if (m_type == Pattern) {
@@ -102,7 +102,7 @@ String sptk::WSRestriction::generateConstructor(const String& variableName) cons
     switch (m_type) {
         case Enumeration:
             str << "WSRestriction " << variableName << "(WSRestriction::Enumeration, \"" << m_wsdlTypeName << "\", "
-                << "\"" << m_enumerations.join("|") << "\", \"|\")";
+                << "\"" << m_enumeration.join("|") << "\", \"|\")";
             break;
         case Pattern:
             str << "WSRestriction " << variableName << "(WSRestriction::Pattern, \"" << m_wsdlTypeName << "\", "
