@@ -54,7 +54,7 @@ void ThreadPool::execute(Runable* task)
         m_threadManager->start();
 
     if (!m_availableThreads.sleep_for(std::chrono::milliseconds(10)) &&
-        m_threadManager->threadCount() < m_threadLimit)
+        (m_threadLimit == 0 || m_threadManager->threadCount() < m_threadLimit))
             createThread();
 
     m_taskQueue.push(task);

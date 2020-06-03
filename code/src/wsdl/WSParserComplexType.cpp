@@ -527,8 +527,8 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
     if (!m_sequence.empty()) {
         classImplementation << endl << "    // Load elements" << endl;
         classImplementation << "    for (auto& itor: input->getObject()) {" << endl;
-        classImplementation << "        auto& elementName = *itor.first;" << endl;
-        classImplementation << "        auto* element = itor.second;" << endl;
+        classImplementation << "        auto  elementName = itor.name();" << endl;
+        classImplementation << "        auto* element = itor.element();" << endl;
         Strings requiredElements;
         for (auto& complexType: m_sequence) {
             classImplementation << endl;

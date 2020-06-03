@@ -33,6 +33,7 @@
 #include <sptk5/Exception.h>
 #include <set>
 #include <unordered_map>
+#include <list>
 
 namespace sptk::json {
 
@@ -42,6 +43,79 @@ namespace sptk::json {
 class Element;
 class Document;
 
+class SP_EXPORT ElementMap
+{
+
+public:
+    class Item
+    {
+        friend class ElementMap;
+    public:
+        Item(const std::string* name, Element* element) : m_name(name), m_element(element) {}
+        std::string name() const { return *m_name; }
+        Element* element() { return m_element; }
+        const Element* element() const { return m_element; }
+    protected:
+        const std::string*  m_name;
+        Element*            m_element;
+    };
+
+    typedef std::list<Item>::iterator       iterator;
+    typedef std::list<Item>::const_iterator const_iterator;
+
+    Element* get(const std::string* name)
+    {
+        for (auto& itor: m_items) {
+            if (itor.m_name == name)
+                return itor.element();
+        }
+        return nullptr;
+    }
+
+    void insert(const std::string* name, Element* element)
+    {
+        for (auto& itor: m_items) {
+            if (itor.m_name == name) {
+                itor.m_element = element;
+                return;
+            }
+        }
+        m_items.emplace_back(name, element);
+    }
+
+    iterator begin() { return m_items.begin(); }
+    const_iterator begin() const { return m_items.begin(); }
+    iterator end() { return m_items.end(); }
+    const_iterator end() const { return m_items.end(); }
+    size_t size() const { return m_items.size(); }
+
+    iterator find(const std::string* name)
+    {
+        for (auto itor = m_items.begin(); itor != m_items.end(); ++itor) {
+            if (itor->m_name == name)
+                return itor;
+        }
+        return m_items.end();
+    }
+
+    const_iterator find(const std::string* name) const
+    {
+        for (auto itor = m_items.begin(); itor != m_items.end(); ++itor) {
+            if (itor->m_name == name)
+                return itor;
+        }
+        return m_items.end();
+    }
+
+    iterator erase(iterator itor)
+    {
+        return m_items.erase(itor);
+    }
+
+private:
+    std::list<Item> m_items;
+};
+
 /**
  * Map of names to JSON Element objects
  */
@@ -49,30 +123,17 @@ class SP_EXPORT ObjectData
 {
     friend class Element;
 
-    class CompareStringPtrs
-    {
-    public:
-        bool operator() (const std::string* lhs, const std::string* rhs) const
-        {
-            return *lhs < *rhs;
-        }
-    };
-
 public:
-    /**
-     * Type definition: map of element names to elements
-     */
-    typedef std::map< const std::string*, Element*, CompareStringPtrs > Map;
 
     /**
      * Type definition: map of element names to elements iterator
      */
-    typedef Map::iterator                       iterator;
+    typedef ElementMap::iterator                       iterator;
 
     /**
      * Type definition: map of element names to elements const iterator
      */
-    typedef Map::const_iterator                 const_iterator;
+    typedef ElementMap::const_iterator                 const_iterator;
 
 private:
 
@@ -86,7 +147,7 @@ private:
     /**
      * Child JSON elements
      */
-    Map                                         m_items;
+    ElementMap                                  m_items;
 
 protected:
 

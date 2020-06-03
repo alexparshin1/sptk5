@@ -41,7 +41,7 @@ ObjectData::ObjectData(Document* document, Element* parent)
 ObjectData::~ObjectData()
 {
     for (auto& itor: m_items)
-        delete itor.second;
+        delete itor.element();
 }
 
 void ObjectData::setParent(Element* parent)
@@ -49,7 +49,7 @@ void ObjectData::setParent(Element* parent)
     if (m_parent != parent) {
         m_parent = parent;
         for (auto& itor: m_items)
-            itor.second->m_parent = parent;
+            itor.element()->m_parent = parent;
     }
 }
 
@@ -60,7 +60,7 @@ void ObjectData::add(const string& name, Element* element)
     auto itor = m_items.find(sharedName);
     if (itor != m_items.end())
         throw Exception("Element " + name + " conflicts with same name object");
-    m_items[sharedName] = element;
+    m_items.insert(sharedName, element);
 }
 
 Element* ObjectData::find(const string& name)
@@ -69,7 +69,7 @@ Element* ObjectData::find(const string& name)
     auto itor = m_items.find(sharedName);
     if (itor == m_items.end())
         return nullptr;
-    return itor->second;
+    return itor->element();
 }
 
 Element& ObjectData::operator[](const string& name)
@@ -80,9 +80,9 @@ Element& ObjectData::operator[](const string& name)
     if (itor == m_items.end()) {
         element = new Element(m_document);
         element->m_parent = m_parent;
-        m_items[sharedName] = element;
+        m_items.insert(sharedName, element);
     } else
-        element = itor->second;
+        element = itor->element();
 
     return *element;
 }
@@ -93,7 +93,7 @@ const Element* ObjectData::find(const string& name) const
     auto itor = m_items.find(sharedName);
     if (itor == m_items.end())
         throw Exception("Element name isn't found");
-    return itor->second;
+    return itor->element();
 }
 
 const Element& ObjectData::operator[](const string& name) const
@@ -107,7 +107,7 @@ void ObjectData::remove(const string& name)
     auto itor = m_items.find(sharedName);
     if (itor == m_items.end())
         return;
-    delete itor->second;
+    delete itor->element();
     m_items.erase(itor);
 }
 
@@ -117,7 +117,7 @@ Element* ObjectData::move(const string& name)
     auto itor = m_items.find(sharedName);
     if (itor == m_items.end())
         return nullptr;
-    Element* data = itor->second;
+    auto* data = itor->element();
     m_items.erase(itor);
     return data;
 }

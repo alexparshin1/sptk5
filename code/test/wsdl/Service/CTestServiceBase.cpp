@@ -61,7 +61,7 @@ void processAnyRequest(xml::Element* requestNode, const String& requestName, con
    auto* soapBody = (xml::Element*) requestNode->parent();
    soapBody->clearChildren();
    method(inputData, outputData, authentication);
-   auto* response = new xml::Element(soapBody, (ns + ":ClientResponse").c_str());
+   auto* response = new xml::Element(soapBody, (ns + ":" + responseName).c_str());
    response->setAttribute("xmlns:" + ns, requestNameSpace.getLocation());
    outputData.unload(response);
 }

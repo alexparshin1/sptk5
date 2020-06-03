@@ -270,7 +270,7 @@ void ElementGetMethods::exportValueTo(const String& name, xml::Element& parentNo
         case JDT_OBJECT:
             if (data().get_object()) {
                 for (auto& itor: *data().get_object())
-                    itor.second->exportValueTo(*itor.first, *node);
+                    itor.element()->exportValueTo(itor.name(), *node);
             }
             break;
 
@@ -308,10 +308,10 @@ void ElementGetMethods::exportObject(ostream& stream, bool formatted, size_t ind
                 stream << firstElement;
             } else
                 stream << betweenElements;
-            stream << "\"" << *itor.first << "\":";
+            stream << "\"" << itor.name() << "\":";
             if (formatted)
                 stream << " ";
-            itor.second->exportValueTo(stream, formatted, indent + 2);
+            itor.element()->exportValueTo(stream, formatted, indent + 2);
         }
     }
     stream << newLineChar << indentSpaces << "}";
@@ -333,16 +333,16 @@ void ElementGetMethods::optimizeArrays(const std::string& name)
     if (is(JDT_OBJECT)) {
         if (size() == 1) {
             auto itor = data().get_object()->begin();
-            Element* itemElement = itor->second;
-            if ((*itor->first == name || name.empty()) && itemElement->is(JDT_ARRAY)) {
-                data().get_object()->move(*itor->first);
+            Element* itemElement = itor->element();
+            if ((itor->name() == name || name.empty()) && itemElement->is(JDT_ARRAY)) {
+                data().get_object()->move(itor->name());
                 *this = ::move(*itemElement);
                 optimizeArrays(name);
                 return;
             }
         }
         for (auto itor: *data().get_object()) {
-            Element* element = itor.second;
+            Element* element = itor.element();
             element->optimizeArrays(name);
         }
         return;
@@ -359,8 +359,8 @@ void ElementData::selectChildElements(ElementSet& elements, const Element::XPath
 {
     if (!rootOnly) {
         for (auto& itor: *data().get_object()) {
-            if (itor.second->is(JDT_OBJECT|JDT_ARRAY))
-                itor.second->selectElements(elements, xpath, 0, false);
+            if (itor.element()->is(JDT_OBJECT|JDT_ARRAY))
+                itor.element()->selectElements(elements, xpath, 0, false);
         }
     }
 }
@@ -392,11 +392,11 @@ void ElementData::selectElements(ElementSet& elements, const XPath& xpath, size_
             for (auto& itor: *data().get_object()) {
                 if (lastPosition) {
                     // Full xpath match
-                    Element* element = itor.second;
+                    auto* element = itor.element();
                     appendMatchedElement(elements, xpathElement, element);
                 } else {
                     // Continue to match children
-                    itor.second->selectElements(elements, xpath, xpathPosition + 1, false);
+                    itor.element()->selectElements(elements, xpath, xpathPosition + 1, false);
                 }
             }
         }
@@ -525,7 +525,7 @@ Element::Element(Document* document, ObjectData* value) noexcept
 {
     data().set_object(value);
     for (auto itor: *data().get_object())
-        itor.second->setParent(this);
+        itor.element()->setParent(this);
 }
 
 Element::Element(Document* document) noexcept
@@ -884,14 +884,14 @@ static const String testJSON4(R"({ "AAA": { "BBB": "1", "BBB": "2", "BBB": "3", 
 static const String testJSON5(R"({"data":{"array":[1,2,3,"test"]}})");
 
 static const String testJSON6(R"({
-    "data": {
-        "array": [
-            1,
-            2,
-            3,
-            "test"
-        ]
-    }
+  "data": {
+    "array": [
+      1,
+      2,
+      3,
+      "test"
+    ]
+  }
 })");
 
 TEST(SPTK_JsonElement, select)

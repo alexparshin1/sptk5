@@ -133,10 +133,6 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
 
     Strings headers = makeHeaders("POST", pageName, parameters, authorization);
 
-#if HAVE_ZLIB
-    headers.push_back("Accept-Encoding: gzip");
-#endif
-
     const Buffer* data = &postData;
 
     Buffer compressedData;
@@ -147,16 +143,20 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
 #if HAVE_BROTLI
                 if (contentEncoding == "br") {
                     Brotli::compress(compressedData, postData);
-                    headers.push_back("Content-Encoding: br");
-                    data = &compressedData;
+                    if (compressedData.length() < postData.length()) {
+                        headers.push_back("Content-Encoding: br");
+                        data = &compressedData;
+                    }
                     break;
                 }
 #endif
 #if HAVE_ZLIB
                 if (contentEncoding == "gzip") {
                     ZLib::compress(compressedData, postData);
-                    headers.push_back("Content-Encoding: gzip");
-                    data = &compressedData;
+                    if (compressedData.length() < postData.length()) {
+                        headers.push_back("Content-Encoding: gzip");
+                        data = &compressedData;
+                    }
                     break;
                 }
 #endif

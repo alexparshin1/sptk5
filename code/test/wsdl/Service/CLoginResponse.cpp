@@ -48,8 +48,8 @@ void CLoginResponse::load(const json::Element* input)
 
     // Load elements
     for (auto& itor: input->getObject()) {
-        auto& elementName = *itor.first;
-        auto* element = itor.second;
+        auto  elementName = itor.name();
+        auto* element = itor.element();
 
         if (elementName == "jwt") {
             m_jwt.load(element);
