@@ -85,6 +85,14 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
         if (dtor != documentation.end())
             postElement["summary"] = dtor->second;
 
+        postElement["operationId"] = itor.first;
+
+        auto& requestBody = *postElement.add_object("requestBody");
+        auto& content = *requestBody.add_object("content");
+        auto& data = *content.add_object("application/json");
+        auto& schema = *data.add_object("schema");
+        schema["$ref"] = "#/components/schemas/" + operation.m_input->name();
+
         auto& responsesElement = *postElement.add_object("responses");
         for (auto& itor: possibleResponses) {
             auto& response = *responsesElement.add_object(itor.first);
