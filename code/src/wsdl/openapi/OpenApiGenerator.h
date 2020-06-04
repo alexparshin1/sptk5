@@ -34,14 +34,14 @@ namespace sptk {
 
 class OpenApiGenerator
 {
-    String                  m_title;
-    String                  m_description;
-    String                  m_version;
-    Strings                 m_servers;
+    String                          m_title;
+    String                          m_description;
+    String                          m_version;
+    Strings                         m_servers;
 public:
     OpenApiGenerator(const String& title, const String& description, const String& version,
                      const Strings& servers);
-    void generate(std::ostream& output, const WSOperationMap& operations, const WSComplexTypeMap& complexTypes);
+    void generate(std::ostream& output, const WSOperationMap& operations, const WSComplexTypeMap& complexTypes, const std::map<String,String>& documentation);
 };
 
 }

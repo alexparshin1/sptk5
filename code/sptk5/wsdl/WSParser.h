@@ -148,9 +148,10 @@ private:
     String              m_serviceName;      ///< Service name, defining service class name and source file names
     String              m_description;      ///< Service description
     String              m_location;         ///< Service location
+    String              m_wsdlFile;         ///< WSDL source file name
     ComplexTypeIndex    m_complexTypeIndex; ///< Index of all parsed complex types and elements
     WSOperationMap      m_operations;       ///< Map of all operations
-    DocumentationMap    m_documentation;
+    DocumentationMap    m_documentation;    ///< Map of documentation
 
 public:
     const String& description() const;

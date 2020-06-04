@@ -37,7 +37,7 @@ OpenApiGenerator::OpenApiGenerator(const String& title, const String& descriptio
 }
 
 void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& operations,
-                                const WSComplexTypeMap& complexTypes)
+                                const WSComplexTypeMap& complexTypes, const std::map<String,String>& documentation)
 {
     static const map<String,String> possibleResponses = {
         {"200", "Ok"},
@@ -81,7 +81,9 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
         auto& operationElement = *paths.add_object("/" + itor.first);
         auto& postElement = *operationElement.add_object("post");
 
-        postElement["summary"] = operation.m_input->documentation();
+        auto dtor = documentation.find(operation.m_input->name());
+        if (dtor != documentation.end())
+            postElement["summary"] = dtor->second;
 
         auto& responsesElement = *postElement.add_object("responses");
         for (auto& itor: possibleResponses) {

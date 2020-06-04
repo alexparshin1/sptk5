@@ -203,6 +203,8 @@ void WSParser::parseSchema(xml::Element* schemaElement)
 
 void WSParser::parse(String wsdlFile)
 {
+    m_wsdlFile = wsdlFile;
+
     xml::Document wsdlXML;
     Buffer buffer;
     buffer.loadFromFile(wsdlFile);
@@ -523,7 +525,10 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile)
     replaceFile(m_serviceName + ".inc", cmakeLists);
 
     OpenApiGenerator openApiGenerator(m_serviceName, m_description, "1.0.0", {m_location});
-    openApiGenerator.generate(cout, m_operations, m_complexTypeIndex.complexTypes());
+    auto openApiFileName = m_wsdlFile.replace(".wsdl", ".json");
+    ofstream openApiFile(openApiFileName);
+    openApiGenerator.generate(openApiFile, m_operations, m_complexTypeIndex.complexTypes(), m_documentation);
+    openApiFile.close();
 }
 
 void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& _wsdlFileName)
