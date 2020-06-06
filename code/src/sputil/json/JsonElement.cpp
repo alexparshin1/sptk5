@@ -283,9 +283,14 @@ void ElementGetMethods::exportValueTo(const String& name, xml::Element& parentNo
 void ElementGetMethods::exportArray(ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
 {
     stream << "[";
-    if (is (JDT_ARRAY) && data().get_array()) {
+    if (is(JDT_ARRAY) && data().get_array()) {
         bool first = true;
-        for (Element* element: *data().get_array()) {
+        auto& array = *data().get_array();
+        if (array.empty()) {
+            stream << "]";
+            return;
+        }
+        for (Element* element: array) {
             if (first) {
                 first = false;
                 stream << firstElement;
