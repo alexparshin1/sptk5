@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSParser.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -30,6 +28,8 @@
 #define __SPTK_WSPARSER_H__
 
 #include <sptk5/wsdl/WSParserComplexType.h>
+#include <sptk5/wsdl/WSOperation.h>
+#include <sptk5/wsdl/OpenApiGenerator.h>
 
 namespace sptk
 {
@@ -38,33 +38,6 @@ namespace sptk
  * @addtogroup wsdl WSDL-related Classes
  * @{
  */
-
-/**
- * WSDL operation
- */
-struct WSOperation
-{
-    /**
-     * WSDL operation input
-     */
-    SWSParserComplexType   m_input;
-
-    /**
-     * WSDL operation output
-     */
-    SWSParserComplexType   m_output;
-
-};
-
-/**
- * Map of operation names to operation objects
- */
-typedef std::map<String,WSOperation>            WSOperationMap;
-
-/**
- * Map of complex type names to complex type objects
- */
-typedef std::map<String, SWSParserComplexType>  WSComplexTypeMap;
 
 /**
  * Parser of WSDL files
@@ -229,7 +202,8 @@ public:
      * @param sourceDirectory   Directory to store output classes
      * @param headerFile        Optional header file to insert at the start of each generated file
      */
-    void generate(const String& sourceDirectory = ".", const String& headerFile = "");
+    void generate(const String& sourceDirectory = ".", const String& headerFile = "",
+                  const OpenApiGenerator::Options& options = OpenApiGenerator::Options(), bool verbose=false);
 
     /**
      * Stores WSDL to C++ file
@@ -251,6 +225,10 @@ public:
      */
     static std::string get_namespace(const std::string& name);
 };
+
+/**
+ * @}
+ */
 
 }
 #endif

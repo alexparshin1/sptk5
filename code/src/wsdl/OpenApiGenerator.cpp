@@ -25,37 +25,26 @@
 */
 
 #include <sptk5/cutils>
-#include "OpenApiGenerator.h"
+#include <sptk5/wsdl/WSParser.h>
+#include <sptk5/wsdl/OpenApiGenerator.h>
 
 using namespace std;
 using namespace sptk;
 
 OpenApiGenerator::OpenApiGenerator(const String& title, const String& description, const String& version,
-                                   const Strings& servers)
-: m_title(title), m_description(description), m_version(version), m_servers(servers)
+                                   const Strings& servers, const Options& options)
+: m_title(title), m_description(description), m_version(version), m_servers(servers), m_options(options)
 {
 }
 
 void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& operations,
                                 const WSComplexTypeMap& complexTypes, const std::map<String,String>& documentation)
 {
-    static const map<String,String> possibleResponses = {
-        {"200", "Ok"},
-        {"404", "Not found"},
-        {"500", "Server error"},
-    };
-
-    struct OpenApiType {
-        String type;
-        String format;
-    };
-    static const map<String,OpenApiType> wsTypesToOpenApiTypes = {
-        { "string", { "string", "" } },
-        { "datetime", { "string", "date-time" } },
-        { "bool", {"boolean", ""} },
-        { "integer", { "integer", "int64" } },
-        { "double", { "number", "double" } }
-    };
+    // Validate options
+    for (auto& itor: m_options.operationsAuth) {
+        if (operations.find(itor.first) == operations.end())
+            throw Exception("Alternative Auth operation '" + itor.first + "' is not a part of this service");
+    }
 
     json::Document document;
 
@@ -67,19 +56,54 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
     info["description"] = m_description;
     info["version"] = m_version;
 
+    createServers(document);
+    createPaths(document, operations, documentation);
+    createComponents(document, complexTypes);
+
+    document.exportTo(output);
+}
+
+void OpenApiGenerator::createServers(json::Document& document) const
+{
     // Create servers object
     auto& servers = *document.root().add_array("servers");
     for (auto& url: m_servers) {
         auto& server = *servers.push_object();
         server["url"] = url;
     }
+}
+
+void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMap& operations,
+                                   const map<String, String>& documentation) const
+{
+    static const map<String,String> possibleResponses = {
+            {"200", "Ok"},
+            {"401", "Unauthorized"},
+            {"404", "Not found"},
+            {"500", "Server error"},
+    };
 
     // Create paths object
     auto& paths = *document.root().add_object("paths");
     for (auto& itor: operations) {
         auto& operation = itor.second;
-        auto& operationElement = *paths.add_object("/" + itor.first);
+        String operationName = itor.first;
+
+        auto& operationElement = *paths.add_object("/" + itor.second.m_input->name());
         auto& postElement = *operationElement.add_object("post");
+
+        // Define operation security
+        AuthMethod authMethod;
+        auto ator = m_options.operationsAuth.find(operationName);
+        if (ator != m_options.operationsAuth.end())
+            authMethod = ator->second;
+        else
+            authMethod = m_options.defaultAuthMethod;
+        if (authMethod != AM_NONE) {
+            auto& securityObject = *postElement.add_array("security");
+            auto& securityMechanism = *securityObject.push_object();
+            securityMechanism.add_array(authMethodName(authMethod));
+        }
 
         auto dtor = documentation.find(operation.m_input->name());
         if (dtor != documentation.end())
@@ -99,6 +123,22 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
             response["description"] = itor.second;
         }
     }
+}
+
+void OpenApiGenerator::createComponents(json::Document & document, const WSComplexTypeMap& complexTypes) const
+{
+    struct OpenApiType {
+        String type;
+        String format;
+    };
+
+    static const map<String,OpenApiType> wsTypesToOpenApiTypes = {
+            { "string", { "string", "" } },
+            { "datetime", { "string", "date-time" } },
+            { "bool", {"boolean", ""} },
+            { "integer", { "integer", "int64" } },
+            { "double", { "number", "double" } }
+    };
 
     // Create components object
     auto& components = *document.root().add_object("components");
@@ -125,7 +165,12 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
             }
             else if (className.startsWith("C")) {
                 className = "#/components/schemas/" + className.substr(1);
-                property["$ref"] = className;
+                if (ctypeProperty->multiplicity() & (WSM_ZERO_OR_MORE|WSM_ONE_OR_MORE)) { //array
+                    property["type"] = "array";
+                    auto& items = *property.add_object("items");
+                    items["$ref"] = className;
+                } else
+                    property["$ref"] = className;
             }
 
             if (ctypeProperty->multiplicity() != WSM_OPTIONAL)
@@ -149,5 +194,34 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
         }
     }
 
-    document.exportTo(output);
+    auto& securitySchemas = *components.add_object("securitySchemes");
+
+    auto& basicAuth = *securitySchemas.add_object("basicAuth"); // arbitrary name for the security scheme
+    basicAuth["type"] = "http";
+    basicAuth["scheme"] = "basic";
+
+    auto& bearerAuth = *securitySchemas.add_object("bearerAuth"); // arbitrary name for the security scheme
+    bearerAuth["type"] = "http";
+    bearerAuth["scheme"] = "bearer";
+    bearerAuth["bearerFormat"] = "JWT"; // optional, arbitrary value for documentation purposes
+}
+
+OpenApiGenerator::AuthMethod OpenApiGenerator::authMethod(const String& auth)
+{
+    if (auth == "none")
+        return AM_NONE;
+    if (auth == "basic")
+        return AM_BASIC;
+    if (auth == "bearer")
+        return AM_BEARER;
+    throw Exception("Auth method '" + auth + "' is not supported");
+}
+
+String OpenApiGenerator::authMethodName(AuthMethod auth)
+{
+    switch (auth) {
+        case AM_BASIC: return "basic";
+        case AM_BEARER: return "bearer";
+        default: return "none";
+    }
 }

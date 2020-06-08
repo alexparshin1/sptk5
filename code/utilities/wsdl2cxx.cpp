@@ -27,6 +27,8 @@
 
 #include <sptk5/cutils>
 #include <sptk5/wsdl/WSParser.h>
+#include <sptk5/CommandLine.h>
+
 #ifdef _WIN32
 #include <io.h>
 #endif
@@ -50,26 +52,102 @@ void help()
 #define access _access
 #endif
 
+class AppCommandLine : public CommandLine
+{
+public:
+    AppCommandLine()
+    : CommandLine("wsdl2cxx v 1.1",
+                  "Generate C++ skeleton classes from WSDL file",
+                  "wsdl2cxx <wsdl file> [options]")
+    {
+        defineArgument("wsdl", "Input WSDL file to process");
+
+        defineParameter("cxx-directory", "d", "directory",
+                        ".*",
+                        CommandLine::Visibility(""), "Service",
+                        "Directory where C++ files are generated");
+
+        defineParameter("cxx-header", "h", "filename",
+                        ".*",
+                        CommandLine::Visibility(""), "",
+                        "Header file the content of which is added to every generated C++ file");
+
+        defineParameter("openapi-json", "j", "filename", ".*",
+                        CommandLine::Visibility(""), "",
+                        "Create openapi service description file. The default file name is the same as WSDL file, only with .json extention.");
+
+        defineParameter("openapi-default-auth", "a", "auth method",
+                        "^(none|basic|bearer)$",
+                        CommandLine::Visibility(""), "none",
+                        "Default auth method for OpenAPI operations, one of {none, basic, bearer}");
+
+        defineParameter("openapi-operation-auth", "o", "operation:auth list",
+                        R"(([\w_]+:(none|basic|bearer),?)+$)",
+                        CommandLine::Visibility(""), "",
+                        "Comma-separated list of operation:auth_method for OpenAPI operations, like <operation>:{none, basic, bearer}. "
+                        "Defined for operations that have auth method different from default.");
+
+        defineOption("help", "h", CommandLine::Visibility(""), "Block all messages but errors");
+        defineOption("quiet", "q", CommandLine::Visibility(""), "Block all messages but errors");
+        defineOption("verbose", "v", CommandLine::Visibility(""), "Verbose messages");
+    }
+};
+
+auto parseOperationsAuth(const String& operationsAuth)
+{
+    map<String, OpenApiGenerator::AuthMethod> output;
+    for (auto& operationAuthStr: Strings(operationsAuth, "[,; ]+", Strings::SM_REGEXP)) {
+        operationAuthStr = operationAuthStr.trim();
+        if (operationAuthStr.empty())
+            continue;
+        Strings parts(operationAuthStr, ":");
+        if (parts.size() != 2)
+            throw Exception("Invalid operation auth definition: '" + operationAuthStr + "'");
+        output[parts[0]] = OpenApiGenerator::authMethod(parts[1]);
+    }
+    return output;
+}
+
 int main(int argc, const char* argv[])
 {
+    AppCommandLine commandLine;
+
     try {
+        size_t screenColumns = 80;
+        auto* colsStr = getenv("COLS");
+        if (colsStr != nullptr)
+            screenColumns = string2int(colsStr);
+
+        commandLine.init(argc, argv);
+
+        if (argc == 1 || commandLine.hasOption("help")) {
+            commandLine.printHelp(screenColumns);
+            return 1;
+        }
+
+        auto quiet = commandLine.hasOption("quiet");
+        auto verbose = commandLine.hasOption("verbose");
+
+        if (commandLine.arguments().size() != 1) {
+            CERR("Please provide single WSDL file name");
+            commandLine.printHelp(screenColumns);
+            return 1;
+        }
+        auto wsdlFile = commandLine.arguments().front();
+
         WSParser   wsParser;
         if (argc < 2) {
             help();
             return 1;
         }
 
-        string outputDirectory;
-        if (argc > 2)
-            outputDirectory = argv[2];
-        else
-            outputDirectory = "Service";
+        string outputDirectory = commandLine.getOptionValue("cxx-directory").trim();
+        if (outputDirectory.empty())
+            outputDirectory = ".";
 
-        string headerFile;
-        if (argc > 3)
-            headerFile = argv[3];
+        string headerFile = commandLine.getOptionValue("cxx-directory").trim();
 
-        if (access(outputDirectory.c_str(), 0) < 0) {
+        if (outputDirectory != "." && access(outputDirectory.c_str(), 0) < 0) {
             int rc = system(("mkdir " + outputDirectory).c_str());
             if (rc != 0) {
                 CERR("Can't open or create output directory '" << outputDirectory << "'." << endl)
@@ -77,9 +155,21 @@ int main(int argc, const char* argv[])
             }
         }
 
-        wsParser.parse(argv[1]);
-        wsParser.generate(outputDirectory, headerFile);
-        wsParser.generateWsdlCxx(outputDirectory, headerFile, argv[1]);
+        if (!quiet && verbose) {
+            COUT("Input WSDL file:             " << wsdlFile << endl);
+            COUT("Generate files to directory: " << wsdlFile << endl);
+            if (!headerFile.empty())
+                COUT("Using C++ header file:       " << headerFile << endl);
+        }
+
+        OpenApiGenerator::Options options;
+        options.defaultAuthMethod = OpenApiGenerator::authMethod(commandLine.getOptionValue("openapi-default-auth"));
+        options.operationsAuth = parseOperationsAuth(commandLine.getOptionValue("openapi-operation-auth"));
+        options.openApiFile = commandLine.getOptionValue("openapi-json");
+
+        wsParser.parse(wsdlFile);
+        wsParser.generate(outputDirectory, headerFile, options, verbose);
+        wsParser.generateWsdlCxx(outputDirectory, headerFile, wsdlFile);
 
         return 0;
     }

@@ -24,25 +24,43 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_OPENAPIGENERATOR_H
-#define SPTK_OPENAPIGENERATOR_H
+#ifndef SPTK_WSOPERATION_H
+#define SPTK_WSOPERATION_H
 
-#include <sptk5/Strings.h>
-#include <sptk5/wsdl/WSParser.h>
+#include <sptk5/wsdl/WSParserComplexType.h>
 
 namespace sptk {
 
-class OpenApiGenerator
+/**
+ * @addtogroup wsdl WSDL-related Classes
+ * @{
+ */
+
+/**
+ * WSDL operation
+ */
+struct WSOperation
 {
-    String                          m_title;
-    String                          m_description;
-    String                          m_version;
-    Strings                         m_servers;
-public:
-    OpenApiGenerator(const String& title, const String& description, const String& version,
-                     const Strings& servers);
-    void generate(std::ostream& output, const WSOperationMap& operations, const WSComplexTypeMap& complexTypes, const std::map<String,String>& documentation);
+    /**
+     * WSDL operation input
+     */
+    SWSParserComplexType   m_input;
+
+    /**
+     * WSDL operation output
+     */
+    SWSParserComplexType   m_output;
+
 };
+
+/**
+ * Map of operation names to operation objects
+ */
+typedef std::map<String,WSOperation>            WSOperationMap;
+
+/**
+ * @}
+ */
 
 }
 

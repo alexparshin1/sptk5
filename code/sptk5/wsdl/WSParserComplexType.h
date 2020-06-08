@@ -341,6 +341,11 @@ private:
 typedef WSParserComplexType WSParserElement;
 
 /**
+ * Map of complex type names to complex type objects
+ */
+typedef std::map<String, SWSParserComplexType>  WSComplexTypeMap;
+
+/**
  * @}
  */
 

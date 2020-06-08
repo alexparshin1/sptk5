@@ -229,7 +229,7 @@ RequestInfo WSWebServiceProtocol::process()
         else if (*startOfMessage == '{' || *startOfMessage == '[') {
             if (m_url.path().length() < 2)
                 generateFault(requestInfo.response.content(), httpStatusCode, httpStatusText, contentType,
-                              HTTPException(404, "Invalid resource path"),
+                              HTTPException(404, "Not Found"),
                               requestIsJSON);
             else {
                 Strings pathElements(m_url.path(), "/");

@@ -18,7 +18,7 @@ ADD_LIBRARY (spwsdl5 ${LIBRARY_TYPE}
     protocol/WSStaticHttpProtocol.cpp
     protocol/WSWebServiceProtocol.cpp
     protocol/WSWebSocketsProtocol.cpp
-    openapi/OpenApiGenerator.cpp
+    OpenApiGenerator.cpp
 )
 SET_TARGET_PROPERTIES(spwsdl5 PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
 

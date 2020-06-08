@@ -31,7 +31,7 @@
 #include <sptk5/wsdl/SourceModule.h>
 #include <sptk5/wsdl/WSParser.h>
 #include <sptk5/wsdl/WSMessageIndex.h>
-#include <src/wsdl/openapi/OpenApiGenerator.h>
+#include <sptk5/wsdl/OpenApiGenerator.h>
 
 using namespace std;
 using namespace sptk;
@@ -407,6 +407,13 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "        }" << endl;
     serviceImplementation << "        else throw;" << endl;
     serviceImplementation << "    }" << endl;
+    serviceImplementation << "    catch (const HTTPException& e) {" << endl;
+    serviceImplementation << "        if (m_logEngine != nullptr) {" << endl;
+    serviceImplementation << "            Logger logger(*m_logEngine);" << endl;
+    serviceImplementation << "            logger.error(String(\"WS request error: \") + e.what());" << endl;
+    serviceImplementation << "        }" << endl;
+    serviceImplementation << "        throw;" << endl;
+    serviceImplementation << "    }" << endl;
     serviceImplementation << "    catch (const Exception& e) {" << endl;
     serviceImplementation << "        if (m_logEngine != nullptr) {" << endl;
     serviceImplementation << "            Logger logger(*m_logEngine);" << endl;
@@ -422,7 +429,13 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
         "   String ns(requestNameSpace.getAlias());\n"
         "   InputData inputData((ns + \":\" + requestName).c_str());\n"
         "   OutputData outputData((ns + \":\" + responseName).c_str());\n"
-        "   inputData.load(requestNode);\n"
+        "   try {\n"
+        "      inputData.load(requestNode);\n"
+        "   }"
+        "   catch (const Exception& e) {\n"
+        "      // Can't parse input data\n"
+        "      throw HTTPException(400, e.what());\n"
+        "   }\n"
         "   auto* soapBody = (xml::Element*) requestNode->parent();\n"
         "   soapBody->clearChildren();\n"
         "   method(inputData, outputData, authentication);\n"
@@ -437,7 +450,13 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
         "{\n"
         "   InputData inputData;\n"
         "   OutputData outputData;\n"
-        "   inputData.load(request);\n"
+        "   try {\n"
+        "      inputData.load(request);\n"
+        "   }\n"
+        "   catch (const Exception& e) {\n"
+        "      // Can't parse input data\n"
+        "      throw HTTPException(400, e.what());\n"
+        "   }\n"
         "   method(inputData, outputData, authentication);\n"
         "   request->clear();\n"
         "   outputData.unload(request);\n"
@@ -476,7 +495,9 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "    }" << endl;
 }
 
-void WSParser::generate(const String& sourceDirectory, const String& headerFile)
+void WSParser::generate(const String& sourceDirectory, const String& headerFile,
+                        const OpenApiGenerator::Options& options,
+                        bool verbose)
 {
     Buffer externalHeader;
     if (!headerFile.empty())
@@ -524,8 +545,10 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile)
 
     replaceFile(m_serviceName + ".inc", cmakeLists);
 
-    OpenApiGenerator openApiGenerator(m_serviceName, m_description, "1.0.0", {m_location});
-    auto openApiFileName = m_wsdlFile.replace(".wsdl", ".json");
+    OpenApiGenerator openApiGenerator(m_serviceName, m_description, "1.0.0", {m_location}, options);
+    auto openApiFileName = options.openApiFile;
+    if (openApiFileName.empty())
+        openApiFileName = m_wsdlFile.replace("\\.wsdl$", "") + ".json";
     ofstream openApiFile(openApiFileName);
     openApiGenerator.generate(openApiFile, m_operations, m_complexTypeIndex.complexTypes(), m_documentation);
     openApiFile.close();
