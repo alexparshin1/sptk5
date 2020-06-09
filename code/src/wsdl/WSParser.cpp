@@ -424,8 +424,10 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
 
     serviceImplementation << endl <<
         "template <class InputData, class OutputData>\n"
-        "void processAnyRequest(xml::Element* requestNode, const String& requestName, const String& responseName, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
+        "void processAnyRequest(xml::Element* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
         "{\n"
+        "   const String& requestName = InputData::typeName();\n"
+        "   const String& responseName = OutputData::typeName();\n"
         "   String ns(requestNameSpace.getAlias());\n"
         "   InputData inputData((ns + \":\" + requestName).c_str());\n"
         "   OutputData outputData((ns + \":\" + responseName).c_str());\n"
@@ -480,7 +482,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
                               << "  function<void(const "  << inputType << "&, " << outputType << "&, HttpAuthentication*)>"
                               << " method = bind(&" + serviceClassName + "::" << operationName << ", this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);\n"
                               << "  if (xmlNode)\n"
-                              << "     processAnyRequest<" << inputType << "," << outputType << ">(xmlNode, \"" + operation.m_input->name() + "\", \"" + operation.m_output->name() + "\", authentication, requestNameSpace, method);\n"
+                              << "     processAnyRequest<" << inputType << "," << outputType << ">(xmlNode, authentication, requestNameSpace, method);\n"
                               << "  else\n"
                               << "     processAnyRequest<" << inputType << "," << outputType << ">(jsonNode, authentication, method);\n"
                               << "}\n";

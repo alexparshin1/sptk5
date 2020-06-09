@@ -300,6 +300,11 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
                      << "   }" << endl << endl;
 
     classDeclaration << "   /**" << endl;
+    classDeclaration << "    * Type name" << endl;
+    classDeclaration << "    */" << endl;
+    classDeclaration << "    static sptk::String typeName() { return \"" << className.substr(1) << "\"; }" << endl << endl;
+
+    classDeclaration << "   /**" << endl;
     classDeclaration << "    * Load " << className << " from XML node" << endl;
     classDeclaration << "    *" << endl;
     classDeclaration << "    * Complex WSDL type members are loaded recursively." << endl;
