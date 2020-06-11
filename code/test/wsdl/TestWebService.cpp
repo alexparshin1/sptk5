@@ -140,7 +140,7 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
 
     // Define Web Service listener
     WSConnection::Paths paths("index.html","/test",".");
-    WSListener listener(service, logEngine, paths, "localhost", encrypted, 0, false);
+    WSListener listener(service, logEngine, paths, "localhost", encrypted, 0, false, false);
 
     const uint16_t      servicePort = 11000;
     shared_ptr<SSLKeys> sslKeys;

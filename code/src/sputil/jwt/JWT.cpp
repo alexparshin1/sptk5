@@ -443,7 +443,7 @@ void JWT::decode(const char *token, const String& _key)
     }
 
     if (parts[1].data == nullptr)
-        throw Exception("Invalid number of token parts");
+        throw Exception("Invalid JWT data");
 
     Buffer head(parts[0].data, parts[0].length);
     Buffer body(parts[1].data, parts[1].length);

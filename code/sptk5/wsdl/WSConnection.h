@@ -38,8 +38,9 @@ class WSConnection : public ServerConnection
 {
 public:
     enum Options {
-        ENCRYPTED = 1,
-        ALLOW_CORS = 2
+        ENCRYPTED  = 1,
+        ALLOW_CORS = 2,
+        KEEP_ALIVE = 4
     };
 
     class Paths
@@ -65,10 +66,11 @@ public:
      * @param logger            Logger instance
      * @param paths             Web site paths
      * @param allowCORS         Allow CORS
+     * @param keepAlive         Suggest clients to keep-alive connections
      * @param logDetails        Log messages details
      */
     WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
-                 const Paths& paths, bool allowCORS, const LogDetails& logDetails);
+                 const Paths& paths, bool allowCORS, bool keepAlive, const LogDetails& logDetails);
 
     /**
      * Destructor
@@ -86,6 +88,7 @@ private:
     Logger&         m_logger;
     Paths           m_paths;
     bool            m_allowCORS;
+    bool            m_keepAlive;
     LogDetails      m_logDetails;
 
     void respondToOptions(const HttpHeaders& headers);

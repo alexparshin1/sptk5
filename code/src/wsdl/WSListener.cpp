@@ -31,7 +31,7 @@ using namespace std;
 using namespace sptk;
 
 WSListener::WSListener(WSRequest& service, LogEngine& logger, const WSConnection::Paths& paths,
-                       const String& hostname, bool encrypted, size_t threadCount, bool allowCORS,
+                       const String& hostname, bool encrypted, size_t threadCount, bool allowCORS, bool keepAlive,
                        const LogDetails& logDetails)
 : TCPServer(service.title(), threadCount, nullptr, logDetails),
   m_service(service),
@@ -39,6 +39,7 @@ WSListener::WSListener(WSRequest& service, LogEngine& logger, const WSConnection
   m_paths(paths),
   m_hostname(hostname),
   m_allowCORS(allowCORS),
+  m_keepAlive(keepAlive),
   m_encrypted(encrypted)
 {
     if (m_hostname.empty()) {
@@ -60,6 +61,8 @@ ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr
         options |= WSConnection::ENCRYPTED;
     if (m_allowCORS)
         options |= WSConnection::ALLOW_CORS;
+    if (m_keepAlive)
+        options |= WSConnection::KEEP_ALIVE;
     return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_paths, options, logDetails());
 }
 

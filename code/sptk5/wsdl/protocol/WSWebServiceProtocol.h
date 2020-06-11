@@ -50,6 +50,7 @@ class WSWebServiceProtocol : public WSProtocol
     const String        m_hostname;     ///< Listener's hostname
     const uint16_t      m_port;         ///< Listener's port
     bool                m_allowCORS;    ///< Allow CORS?
+    bool                m_keepAlive;    ///< Allow keep-alive connections
     LogDetails          m_logDetails;   ///< Log details
 
     /**
@@ -76,9 +77,10 @@ public:
      * @param hostname          Listener's hostname
      * @param port              Listener's port
      * @param allowCORS         Allow CORS
+     * @param keepAlive         Keep alive
      */
     WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service, const String& hostname,
-                         uint16_t port, bool allowCORS);
+                         uint16_t port, bool allowCORS, bool keepAlive);
 
     /// @brief Process method
     ///

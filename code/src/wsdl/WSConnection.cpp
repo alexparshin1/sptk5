@@ -33,9 +33,9 @@ using namespace std;
 using namespace sptk;
 
 WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* connectionAddress, WSRequest& service, Logger& logger,
-                           const Paths& paths, bool allowCORS, const LogDetails& logDetails)
+                           const Paths& paths, bool allowCORS, bool keepAlive, const LogDetails& logDetails)
 : ServerConnection(server, connectionSocket, connectionAddress, "WSConnection"), m_service(service), m_logger(logger),
-  m_paths(paths), m_allowCORS(allowCORS), m_logDetails(logDetails)
+  m_paths(paths), m_allowCORS(allowCORS), m_keepAlive(keepAlive), m_logDetails(logDetails)
 {
     if (!m_paths.staticFilesDirectory.endsWith("/"))
         m_paths.staticFilesDirectory += "/";
@@ -71,10 +71,20 @@ void WSConnection::run()
 
     while (!done) {
         try {
+            if (!socket().active()) {
+                // We closed connection
+                break;
+            }
+
             if (!socket().readyToRead(chrono::seconds(30))) {
                 socket().close();
-                m_logger.debug("Client closed connection");
-                return;
+                // Client communication timeout
+                break;
+            }
+
+            if (socket().socketBytes() == 0) {
+                // Client closed connection
+                break;
             }
 
             StopWatch requestStopWatch;
@@ -96,6 +106,10 @@ void WSConnection::run()
 
             if (requestType == "OPTIONS") {
                 respondToOptions(headers);
+                if (headers["Connection"].toLowerCase() == "close") {
+                    httpReader.close();
+                    done = true;
+                }
                 continue;
             }
 
@@ -114,11 +128,13 @@ void WSConnection::run()
             bool closeConnection = reviewHeaders(requestType, headers);
 
             WSWebServiceProtocol protocol(httpReader, url, m_service, server().hostname(), server().port(),
-                                          m_allowCORS);
+                                          m_allowCORS, m_keepAlive);
             auto requestInfo = protocol.process();
 
-            if (closeConnection)
+            if (closeConnection) {
                 httpReader.close();
+                done = true;
+            }
 
             requestStopWatch.stop();
 
@@ -161,8 +177,6 @@ void WSConnection::run()
 
                 m_logger.debug(logMessage.str());
             }
-
-            done = true;
         }
         catch (const Exception& e) {
             if (!terminated())
@@ -218,12 +232,16 @@ void WSConnection::respondToOptions(const HttpHeaders& headers)
     auto itor = headers.find("origin");
     auto origin = itor->second;
     Buffer response;
+
     response.append("HTTP/1.1 204 No Content\r\n");
-    response.append("Connection: keep-alive\r\n");
+
+    if (m_keepAlive)
+        response.append("Connection: keep-alive\r\n");
+
     if (m_allowCORS) {
         response.append("Access-Control-Allow-Origin: *\r\n");
         response.append("Access-Control-Allow-Methods: POST, GET, OPTIONS\r\n");
-        response.append("Access-Control-Allow-Headers: Content-Type, Content-Length, Content-Encoding, Access-Control-Allow-Origin\r\n");
+        response.append("Access-Control-Allow-Headers: Content-Type, Content-Length, Content-Encoding, Access-Control-Allow-Origin, Authorization\r\n");
     } else {
         response.append("Access-Control-Allow-Origin: null\r\n");
     }
@@ -236,7 +254,7 @@ void WSConnection::respondToOptions(const HttpHeaders& headers)
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
                                  Logger& logger, const Paths& paths, int options, const LogDetails& logDetails)
-: WSConnection(server, connectionSocket, addr, service, logger, paths, options & ALLOW_CORS, logDetails)
+: WSConnection(server, connectionSocket, addr, service, logger, paths, options & ALLOW_CORS, options & KEEP_ALIVE, logDetails)
 {
     if (options & ENCRYPTED) {
         auto& sslKeys = server.getSSLKeys();

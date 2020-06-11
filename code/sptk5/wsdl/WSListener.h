@@ -57,6 +57,7 @@ class SP_EXPORT WSListener : public TCPServer
 
     String              m_hostname;             ///< This service hostname
     bool                m_allowCORS;            ///< Allow CORS
+    bool                m_keepAlive;            ///< Allow keep-alive connections
 
 protected:
     const bool          m_encrypted;            ///< Connection protocol is encrypted flag
@@ -81,9 +82,11 @@ public:
      * @param encrypted             True if communication is encrypted
      * @param threadCount           Max number of simultaneously running requests
      * @param allowCORS             Allow CORS (Cross Origin Resourse Sharing)
+     * @param keepAlive             Allow keep-alive connections
+     * @param logDetails            Log details
      */
     WSListener(WSRequest& service, LogEngine& logger, const WSConnection::Paths& paths,
-               const String& hostname, bool encrypted, size_t threadCount, bool allowCORS,
+               const String& hostname, bool encrypted, size_t threadCount, bool allowCORS, bool keepAlive,
                const LogDetails& logDetails = LogDetails());
 
     /**

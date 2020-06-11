@@ -34,15 +34,15 @@ using namespace std;
 using namespace sptk;
 
 WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
-                                           const String& hostname,
-                                           uint16_t port, bool allowCORS)
+                                           const String& hostname, uint16_t port, bool allowCORS, bool keepAlive)
 : WSProtocol(&httpReader.socket(), httpReader.getHttpHeaders()),
   m_httpReader(httpReader),
   m_service(service),
   m_url(url),
   m_hostname(hostname),
   m_port(port),
-  m_allowCORS(allowCORS)
+  m_allowCORS(allowCORS),
+  m_keepAlive(keepAlive)
 {
 }
 
@@ -275,6 +275,8 @@ RequestInfo WSWebServiceProtocol::process()
     response.append(to_string(httpStatusCode) + " " + httpStatusText + "\r\n");
     response.append("Content-Type: " + contentType + "\r\n");
     response.append("Content-Length: " + to_string(outputData.bytes()) + "\r\n");
+    if (m_keepAlive)
+        response.append("Connection: keep-alive\r\n");
     if (m_allowCORS)
         response.append("Access-Control-Allow-Origin: *\r\n");
     if (!contentEncoding.empty())
