@@ -211,19 +211,19 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
             appendMemberDocumentation(classDeclaration, complexType);
 
             String cxxType = complexType->className();
+            string optional = (complexType->multiplicity() & WSM_OPTIONAL) != 0 ? ", true" : "";
             if (complexType->isArray())
                 cxxType = "sptk::WSArray<" + cxxType + ">";
-            else {
-                string optional = (complexType->multiplicity() & WSM_OPTIONAL) != 0 ? ", true" : "";
+            else
                 fieldNames.push_back(complexType->name());
-            }
+
             copyInitializer.push_back("m_" + complexType->name() + "(other.m_" + complexType->name() + ")");
             moveInitializer.push_back("m_" + complexType->name() + "(std::move(other.m_" + complexType->name() + "))");
 
             classDeclaration << "   " << left << setw(20) << cxxType << " m_" << complexType->name();
             if (!complexType->isArray())
                 classDeclaration
-                    << " {\"" << complexType->name() << "\"}";
+                    << " {\"" << complexType->name() << "\"" << optional << "}";
             classDeclaration << ";" << endl;
         }
     }

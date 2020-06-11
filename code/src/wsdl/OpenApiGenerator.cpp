@@ -220,8 +220,8 @@ OpenApiGenerator::AuthMethod OpenApiGenerator::authMethod(const String& auth)
 String OpenApiGenerator::authMethodName(AuthMethod auth)
 {
     switch (auth) {
-        case AM_BASIC: return "basic";
-        case AM_BEARER: return "bearer";
+        case AM_BASIC: return "basicAuth";
+        case AM_BEARER: return "bearerAuth";
         default: return "none";
     }
 }
