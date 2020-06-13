@@ -559,8 +559,8 @@ void OracleConnection::_bulkInsert(const String& fullTableName, const Strings& c
     String schema;
     String tableName;
     auto matches = matchTableAndSchema.m(fullTableName.toUpperCase());
-    if (!matches[0].value.empty()) {
-        schema = matches[0].value;
+    if (!matches[(size_t)0].value.empty()) {
+        schema = matches[(size_t)0].value;
         schema = schema.substr(0, schema.length() - 1);
     }
     tableName = matches[1].value;

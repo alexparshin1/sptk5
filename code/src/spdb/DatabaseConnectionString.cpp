@@ -16,7 +16,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.                                   │
+│   General Public License for more details.  OpenAPI generation development                                 │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -74,17 +74,17 @@ void DatabaseConnectionString::parse()
     if (!matches)
         throwDatabaseException("Database connection string is invalid: " + m_connectionString)
 
-    m_driverName = matches[String("driver")].value;
+    m_driverName = matches["driver"].value;
     if (m_driverName == "postgres")
         m_driverName = "postgresql";
 
-    m_userName = matches[String("username")].value;
-    m_password = matches[String("password")].value;
-    m_databaseName = matches[String("database")].value;
-    m_schema = matches[String("schema")].value;
-    m_hostName = matches[String("host")].value;
+    m_userName = matches["username"].value;
+    m_password = matches["password"].value;
+    m_databaseName = matches["database"].value;
+    m_schema = matches["schema"].value;
+    m_hostName = matches["host"].value;
 
-    String port = matches[String("port")].value;
+    String port = matches["port"].value;
     if (!port.empty())
         m_portNumber = (uint16_t) strtol(port.c_str(), nullptr, 10);
 }

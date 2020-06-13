@@ -36,14 +36,14 @@ URL::URL(const String& url)
 
     auto matches = matchUrl.m(url.trim());
     if (matches) {
-        m_protocol = matches[String("protocol")].value;
-        m_hostAndPort = matches[String("host")].value;
-        m_username = matches[String("username")].value;
-        m_password = matches[String("password")].value;
-        m_path = matches[String("path")].value;
+        m_protocol = matches["protocol"].value;
+        m_hostAndPort = matches["host"].value;
+        m_username = matches["username"].value;
+        m_password = matches["password"].value;
+        m_path = matches["path"].value;
 
-        if (!matches[String("parameters")].value.empty()) {
-            Buffer buffer(matches[String("parameters")].value.substr(1));
+        if (!matches["parameters"].value.empty()) {
+            Buffer buffer(matches["parameters"].value.substr(1));
             m_params.decode(buffer);
         }
     }

@@ -495,11 +495,11 @@ void WSParserComplexType::printImplementationLoadXMLFields(ostream& classImpleme
                 }
             }
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
-                classImplementation << "            auto* item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
-                classImplementation << "            item->load(element);" << endl;
+                classImplementation << "            " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
+                classImplementation << "            item.load(element);" << endl;
                 if (complexType->m_restriction != nullptr)
                     classImplementation << "            restriction.check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
-                classImplementation << "            m_" << complexType->name() << ".push_back(item);" << endl;
+                classImplementation << "            m_" << complexType->name() << ".push_back(move(item));" << endl;
             }
             else {
                 classImplementation << "            m_" << complexType->name() << ".load(element);" << endl;
@@ -548,11 +548,11 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
             }
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
                 classImplementation << "            for (auto* arrayElement: element->getArray()) {" << endl;
-                classImplementation << "                auto* item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
-                classImplementation << "                item->load(arrayElement);" << endl;
+                classImplementation << "                " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
+                classImplementation << "                item.load(arrayElement);" << endl;
                 if (restrictionExists)
                     classImplementation << "                restriction.check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
-                classImplementation << "                m_" << complexType->name() << ".push_back(item);" << endl;
+                classImplementation << "                m_" << complexType->name() << ".push_back(move(item));" << endl;
                 classImplementation << "            }" << endl;
             }
             else {
@@ -641,11 +641,11 @@ void WSParserComplexType::makeImplementationLoadFields(stringstream& fieldLoads,
                 }
             }
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
-                fieldLoads << "        auto* item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
-                fieldLoads << "        item->load(*field);" << endl;
+                fieldLoads << "        " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
+                fieldLoads << "        item.load(*field);" << endl;
                 if (restrictionExists)
                     fieldLoads << "        restriction.check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
-                fieldLoads << "        m_" << complexType->name() << ".push_back(item);" << endl;
+                fieldLoads << "        m_" << complexType->name() << ".push_back(move(item));" << endl;
             }
             else {
                 fieldLoads << "        m_" << complexType->name() << ".load(*field);" << endl;
@@ -691,8 +691,8 @@ void WSParserComplexType::printImplementationUnloadXML(ostream& classImplementat
         classImplementation << endl << "    // Unload elements" << endl;
         for (auto& complexType: m_sequence) {
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
-                classImplementation << "    for (auto* element: m_" << complexType->name() << ")" << endl;
-                classImplementation << "        element->addElement(output, \"" << complexType->name() <<  "\");" << endl;
+                classImplementation << "    for (auto& element: m_" << complexType->name() << ")" << endl;
+                classImplementation << "        element.addElement(output, \"" << complexType->name() <<  "\");" << endl;
             }
             else
                 classImplementation << "    m_" << complexType->name() << ".addElement(output);" << endl;
@@ -736,8 +736,8 @@ void WSParserComplexType::printImplementationUnloadJSON(ostream& classImplementa
                 String outputArrayName = complexType->name() + "_array";
                 classImplementation
                     << "    auto " << outputArrayName << " = output->add_array(\"" << complexType->name() << "\");" << endl
-                    << "    for (auto* element: m_" << complexType->name() << ")" << endl
-                    << "        element->addElement(" << outputArrayName << ");" << endl;
+                    << "    for (auto& element: m_" << complexType->name() << ")" << endl
+                    << "        element.addElement(" << outputArrayName << ");" << endl;
             }
             else
                 classImplementation << "    m_" << complexType->name() << ".addElement(output);" << endl;

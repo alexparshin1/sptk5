@@ -178,7 +178,7 @@ public:
          * @param name          Group name
          * @return const reference to a group
          */
-        const Group& operator[] (const String& name) const;
+        const Group& operator[] (const char* name) const;
 
         /**
          * Get unnamed groups.

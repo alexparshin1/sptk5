@@ -128,7 +128,7 @@ const RegularExpression::Group& RegularExpression::Groups::operator[](size_t ind
     return m_groups[index];
 }
 
-const RegularExpression::Group& RegularExpression::Groups::operator[](const String& name) const
+const RegularExpression::Group& RegularExpression::Groups::operator[](const char* name) const
 {
     auto itor = m_namedGroups.find(name);
     if (itor == m_namedGroups.end())
@@ -588,7 +588,7 @@ TEST(SPTK_RegularExpression, match_global)
 
     auto matchedStrings = match.m(testPhrase);
 
-    EXPECT_STREQ(matchedStrings[0].value.c_str(), "text");
+    EXPECT_STREQ(matchedStrings[(size_t)0].value.c_str(), "text");
     EXPECT_EQ(matchedStrings.groups().size(), size_t(4));
 }
 
@@ -599,9 +599,9 @@ TEST(SPTK_RegularExpression, named_groups)
     RegularExpression::Groups matchedStrings;
     auto matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
 
-    EXPECT_STREQ(matchedNamedGroups[String("aname")].value.c_str(), "xyz");
-    EXPECT_STREQ(matchedNamedGroups[String("avalue")].value.c_str(), "1234");
-    EXPECT_STREQ(matchedNamedGroups[String("description")].value.c_str(), "test1");
+    EXPECT_STREQ(matchedNamedGroups["aname"].value.c_str(), "xyz");
+    EXPECT_STREQ(matchedNamedGroups["avalue"].value.c_str(), "1234");
+    EXPECT_STREQ(matchedNamedGroups["description"].value.c_str(), "test1");
 }
 
 TEST(SPTK_RegularExpression, replace)
@@ -646,7 +646,7 @@ TEST(SPTK_RegularExpression, extract)
     auto matchedStrings = match1.m(testPhrase);
     EXPECT_TRUE(matchedStrings);
     EXPECT_EQ(size_t(4), matchedStrings.groups().size());
-    EXPECT_STREQ("This is a test ", matchedStrings[0].value.c_str());
+    EXPECT_STREQ("This is a test ", matchedStrings[(size_t)0].value.c_str());
     EXPECT_STREQ(" rexec text data group", matchedStrings[3].value.c_str());
 }
 
@@ -670,7 +670,7 @@ TEST(SPTK_RegularExpression, match_performance)
     for (size_t i = 0; i < maxIterations; i++) {
         String s(data);
         while (auto matches = match.m(s)) {
-            s = s.substr(matches[0].value.length());
+            s = s.substr(matches[(size_t)0].value.length());
             groupCount += matches.groups().size();
         }
     }

@@ -52,7 +52,7 @@ QueryBuilder::QueryBuilder(String tableName, String pkColumn, Strings columns,
         for (auto& column: join.columns) {
             auto matches = matchEpressionAndAlias.m(column);
             if (matches) {
-                auto alias = matches[0].value;
+                auto alias = matches[(size_t)0].value;
                 m_columns.remove(alias);
             } else {
                 if (!tableAlias.empty() && column.startsWith(tableAlias + "."))

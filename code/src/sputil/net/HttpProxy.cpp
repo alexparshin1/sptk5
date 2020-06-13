@@ -80,7 +80,7 @@ bool HttpProxy::readResponse(shared_ptr<TCPSocket>& socket) const
     RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
     auto responseMatches = matchProxyResponse.m(buffer.c_str());
     if (responseMatches) {
-        int rc = responseMatches[0].value.toInt();
+        int rc = responseMatches[size_t(0)].value.toInt();
         if (rc < 400)
             proxyConnected = true;
     }
@@ -92,7 +92,7 @@ bool HttpProxy::readResponse(shared_ptr<TCPSocket>& socket) const
         socket->readLine(buffer);
         auto matches = matchResponseHeader.m(buffer.c_str());
         if (matches) {
-            if (matches[0].value.toLowerCase() == "content-length")
+            if (matches[size_t(0)].value.toLowerCase() == "content-length")
                 contentLength = matches[1].value.toInt();
         } else
             break;

@@ -60,7 +60,7 @@ Host::Host(const String& hostAndPort)
     RegularExpression matchHost(R"(^(\[.*\]|[^\[\]:]*)(:\d+)?)");
     auto matches = matchHost.m(hostAndPort);
     if (matches) {
-        m_hostname = matches[0].value;
+        m_hostname = matches[size_t(0)].value;
         if (matches.groups().size() > 1)
             m_port = (uint16_t) string2int(matches[1].value.substr(1));
         getHostAddress();

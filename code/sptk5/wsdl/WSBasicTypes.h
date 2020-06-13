@@ -627,51 +627,55 @@ public:
  * Wrapper for WSDL int type
  */
 template<class T>
-class WSArray : public std::vector<T*>, public WSTypeName
+class WSArray : public std::vector<T>, public WSTypeName
 {
 public:
+    /**
+     * Default constructor
+     */
     WSArray() {}
 
+    /**
+     * Copy constructor
+     * @param other             Other object
+     */
     WSArray(const WSArray<T>& other)
+    : std::vector<T>(other)
     {
-        for (auto* item: other) {
-            auto* newItem = new T(*item);
-            std::vector<T*>::push_back(newItem);
-        }
     }
 
+    /**
+     * Move constructor
+     * @param other             Other object
+     */
     WSArray(WSArray<T>&& other)
-    : std::vector<T*>(move(other))
+    : std::vector<T>(move(other))
     {
     }
 
-    ~WSArray()
-    {
-        clear();
-    }
-
-    void clear()
-    {
-        for (auto* item: *this)
-            delete item;
-        std::vector<T*>::clear();
-    }
-
+    /**
+     * Copy assignment
+     * @param other             Other object
+     * @return this object
+     */
     WSArray& operator=(const WSArray<T>& other)
     {
         if (this != &other) {
-            for (auto* item: other)
-                push_back(new T(*item));
+            std::vector<T>::assign(other.begin(), other.end());
         }
         return *this;
     }
 
+    /**
+     * Move assignment
+     * @param other             Other object
+     * @return this object
+     */
     WSArray& operator=(WSArray<T>&& other)
     {
         if (this != &other) {
-            for (auto* item: other)
-                push_back(new T(*item));
-            other.clear();
+            std::vector<T>::clear();
+            std::vector<T>::swap(other);
         }
         return *this;
     }
