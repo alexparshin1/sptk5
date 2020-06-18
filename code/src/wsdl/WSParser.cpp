@@ -508,6 +508,8 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
         externalHeader.set("");
 
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
+    if (verbose)
+        COUT("Creating service class " << serviceClassName)
 
     stringstream cmakeLists;
     cmakeLists << "# The following list of files is generated automatically." << endl;
@@ -551,6 +553,10 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     auto openApiFileName = options.openApiFile;
     if (openApiFileName.empty())
         openApiFileName = m_wsdlFile.replace("\\.wsdl$", "") + ".json";
+
+    if (verbose)
+        COUT("Creating OpenAPI file " << openApiFileName)
+
     ofstream openApiFile(openApiFileName);
     openApiGenerator.generate(openApiFile, m_operations, m_complexTypeIndex.complexTypes(), m_documentation);
     openApiFile.close();

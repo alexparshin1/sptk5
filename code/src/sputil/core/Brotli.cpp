@@ -51,12 +51,8 @@ class Context
 {
 public:
     Context(ReadBuffer& inputBuffer, Buffer& outputBuffer)
-    : inputData(inputBuffer), outputData(outputBuffer)
+    : inputData(inputBuffer), outputData(outputBuffer), input_file_length(inputBuffer.length())
     {
-        input_file_length = inputBuffer.bytes();
-
-        available_in = 0;
-        next_in = nullptr;
         available_out = kBufferSize;
         next_out = output;
     }
@@ -68,7 +64,6 @@ public:
 
     BrotliEncoderState* createEncoderInstance();
 
-public:
     /* Parameters */
     int quality = 9;
     int lgwin = DEFAULT_LGWIN;
@@ -80,9 +75,9 @@ public:
 
     ReadBuffer& inputData;
     Buffer& outputData;
-    int64_t input_file_length = 0;  /* -1, if impossible to calculate */
+    int64_t input_file_length {0};  /* -1, if impossible to calculate */
 
-    size_t available_in;
+    size_t available_in {0};
     const uint8_t* next_in = nullptr;
     size_t available_out;
     uint8_t* next_out = nullptr;
@@ -195,7 +190,7 @@ BrotliEncoderState* Context::createEncoderInstance()
 
     if (input_file_length > 0) {
         uint32_t size_hint = input_file_length < (1 << 30) ?
-                             (uint32_t)input_file_length : (1u << 30);
+                             (uint32_t)input_file_length : (1U << 30);
         BrotliEncoderSetParameter(instance, BROTLI_PARAM_SIZE_HINT, size_hint);
     }
 
@@ -222,7 +217,7 @@ void Brotli::decompress(Buffer& dest, const Buffer& src)
     if (!s)
         throw Exception("out of memory");
 
-    BrotliDecoderSetParameter(s, BROTLI_DECODER_PARAM_LARGE_WINDOW, 1u);
+    BrotliDecoderSetParameter(s, BROTLI_DECODER_PARAM_LARGE_WINDOW, 1U);
     context->DecompressFile(s);
     BrotliDecoderDestroyInstance(s);
 }

@@ -24,8 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/RegularExpression.h>
 #include <sptk5/net/BaseSocket.h>
+#include <sptk5/Printer.h>
+#include <sptk5/RegularExpression.h>
 #include <sptk5/SystemException.h>
 
 #ifndef _WIN32
@@ -83,6 +84,8 @@ Host::Host(const sockaddr_in* addressAndPort)
             addressLen = sizeof(sockaddr_in6);
             memcpy(m_address, addressAndPort, addressLen);
             m_port = htons(ip_v6().sin6_port);
+            break;
+        default:
             break;
     }
 
@@ -270,7 +273,7 @@ TEST(SPTK_Host, ctorAddressStruct)
     google1.getAddress(address);
     Host google2(&address);
 
-    cout << google2.toString(true) << " " << google2.hostname() << endl;
+    COUT(google2.toString(true) << " " << google2.hostname() << endl)
     EXPECT_STREQ(google1.toString(true).c_str(), google2.toString(true).c_str());
     EXPECT_EQ(google1.port(), google2.port());
 }

@@ -477,8 +477,8 @@ void WSParserComplexType::printImplementationLoadXMLFields(ostream& classImpleme
 {
     if (!m_sequence.empty()) {
         classImplementation << endl << "    // Load elements" << endl;
-        classImplementation << "    for (auto* node: *input) {" << endl;
-        classImplementation << "        auto* element = dynamic_cast<xml::Element*>(node);" << endl;
+        classImplementation << "    for (const auto* node: *input) {" << endl;
+        classImplementation << "        const auto* element = dynamic_cast<const xml::Element*>(node);" << endl;
         classImplementation << "        if (element == nullptr) {" << endl;
         classImplementation << "            continue;" << endl;
         classImplementation << "        }" << endl;
@@ -532,8 +532,8 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
     if (!m_sequence.empty()) {
         classImplementation << endl << "    // Load elements" << endl;
         classImplementation << "    for (auto& itor: input->getObject()) {" << endl;
-        classImplementation << "        auto  elementName = itor.name();" << endl;
-        classImplementation << "        auto* element = itor.element();" << endl;
+        classImplementation << "        const auto& elementName = itor.name();" << endl;
+        classImplementation << "        const auto* element = itor.element();" << endl;
         Strings requiredElements;
         for (auto& complexType: m_sequence) {
             classImplementation << endl;
@@ -547,7 +547,7 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
                 }
             }
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
-                classImplementation << "            for (auto* arrayElement: element->getArray()) {" << endl;
+                classImplementation << "            for (const auto* arrayElement: element->getArray()) {" << endl;
                 classImplementation << "                " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
                 classImplementation << "                item.load(arrayElement);" << endl;
                 if (restrictionExists)

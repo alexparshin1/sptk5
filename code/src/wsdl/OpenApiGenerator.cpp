@@ -118,9 +118,9 @@ void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMa
         schema["$ref"] = "#/components/schemas/" + operation.m_input->name();
 
         auto& responsesElement = *postElement.add_object("responses");
-        for (auto& itor: possibleResponses) {
-            auto& response = *responsesElement.add_object(itor.first);
-            response["description"] = itor.second;
+        for (auto& rtor: possibleResponses) {
+            auto& response = *responsesElement.add_object(rtor.first);
+            response["description"] = rtor.second;
         }
     }
 }
@@ -150,8 +150,6 @@ void OpenApiGenerator::createComponents(json::Document & document, const WSCompl
         auto& properties = *complexType.add_object("properties");
         Strings requiredProperties;
         for (auto ctypeProperty: complexTypeInfo->sequence()) {
-            if (ctypeProperty->name() == "type")
-                cout << "";
             auto& property = *properties.add_object(ctypeProperty->name());
             auto className = ctypeProperty->className();
             if (className.startsWith("sptk::WS")) {
