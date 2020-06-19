@@ -75,7 +75,7 @@ public:
      * @brief Copy constructor
      * @param other              Other field object
      */
-    Field(const Field& other);
+    Field(const Field& other) = default;
 
     /**
      * @brief Combination of field view attributes

@@ -194,7 +194,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "class " << className << " : public sptk::WSComplexType" << endl;
     classDeclaration << "{" << endl;
 
-    classDeclaration << "    mutable sptk::SharedMutex m_mutex; ///< Mutex that protects access to internal data" << endl << endl;
+    //classDeclaration << "    mutable sptk::SharedMutex m_mutex; ///< Mutex that protects access to internal data" << endl << endl;
 
     if (!m_attributes.empty() || !m_sequence.empty())
         classDeclaration << "public:" << endl << endl;
@@ -251,53 +251,6 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "    */" << endl;
     classDeclaration << "   explicit " << className << "(const char* elementName=\"" << tagName << "\", bool optional=false) noexcept" << endl
                      << "   : " << ctorInitializer.join(",\n     ") << endl << "   {}" << endl << endl;
-
-    classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Copy constructor" << endl;
-    classDeclaration << "    * @param other              Other element to copy from" << endl;
-    classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "(const " << className << "& other) noexcept" << endl
-                     << "   : " << copyInitializer.join(",\n     ") << endl
-                     << "   {" << endl
-                     << "   }" << endl << endl;
-
-    classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Move constructor" << endl;
-    classDeclaration << "    * @param other              Other element to move from" << endl;
-    classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "(" << className << "&& other) noexcept" << endl
-                     << "   : " << moveInitializer.join(",\n     ") << endl
-                     << "   {" << endl
-                     << "       other.clear();" << endl
-                     << "   }" << endl << endl;
-
-    classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Destructor" << endl;
-    classDeclaration << "    */" << endl;
-    classDeclaration << "   ~" << className << "() override;" << endl << endl
-                     << "   /**" << endl
-                     << "    * Copy assignment" << endl
-                     << "    * @param other              Other element to copy from" << endl
-                     << "    */" << endl
-                     << "   " << className << "& operator = (const " << className << "& other)" << endl
-                     << "   {" << endl
-                     << "       if (&other != this)" << endl
-                     << "           copyFrom(other);" << endl
-                     << "       return *this;" << endl
-                     << "   }" << endl << endl;
-
-    classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Move assignment" << endl;
-    classDeclaration << "    * @param other              Other element to move from" << endl;
-    classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "& operator = (" << className << "&& other) noexcept" << endl
-                     << "   {" << endl
-                     << "       if (&other == this)" << endl
-                     << "           return *this;" << endl
-                     << "       copyFrom(other);" << endl
-                     << "       other.clear();" << endl
-                     << "       return *this;" << endl
-                     << "   }" << endl << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Type name" << endl;
@@ -410,14 +363,6 @@ void WSParserComplexType::printImplementationIncludes(ostream& classImplementati
     classImplementation << "using namespace sptk;" << endl << endl;
 }
 
-void WSParserComplexType::printImplementationDestructor(ostream& classImplementation, const String& className) const
-{
-    classImplementation << className << "::~" << className << "()" << endl;
-    classImplementation << "{" << endl;
-    classImplementation << "    WSComplexType::clear();" << endl;
-    classImplementation << "}" << endl << endl;
-}
-
 void WSParserComplexType::printImplementationClear(ostream& classImplementation, const String& className) const
 {
     classImplementation << "void " << className << "::_clear()" << endl;
@@ -452,7 +397,7 @@ void WSParserComplexType::printImplementationLoadXML(ostream& classImplementatio
     classImplementation << "void " << className << "::load(const xml::Element*"
                         << (hideInputParameterName? "": " input") << ")" << endl
                         << "{" << endl
-                        << "    UniqueLock(m_mutex);" << endl
+                        //<< "    UniqueLock(m_mutex);" << endl
                         << "    _clear();" << endl
                         << "    setLoaded(true);" << endl;
 
@@ -523,7 +468,7 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
     classImplementation << "void " << className << "::load(const json::Element*"
                         << (hideInputParameterName? "": " input") << ")" << endl
                         << "{" << endl
-                        << "    UniqueLock(m_mutex);" << endl
+                        //<< "    UniqueLock(m_mutex);" << endl
                         << "    _clear();" << endl
                         << "    setLoaded(true);" << endl;
 
@@ -602,14 +547,14 @@ void WSParserComplexType::printImplementationLoadFields(ostream& classImplementa
     classImplementation << "void " << className << "::load(const FieldList&"
                         << (hideInputParameter? "" : " input") << ")" << endl
                         << "{" << endl
-                        << "    UniqueLock(m_mutex);" << endl
+                        //<< "    UniqueLock(m_mutex);" << endl
                         << "    _clear();" << endl
                         << "    setLoaded(true);" << endl;
 
 
 
     if (fieldLoadCount != 0) {
-        classImplementation << "    Field* field;" << endl;
+        classImplementation << "    const Field* field;" << endl;
         classImplementation << fieldLoads.str();
     }
 
@@ -676,8 +621,8 @@ void WSParserComplexType::printImplementationUnloadXML(ostream& classImplementat
     bool hideOutputParameterName = m_attributes.empty() && m_sequence.empty();
     classImplementation << "void " << className << "::unload(xml::Element*"
                         << (hideOutputParameterName? "": " output") << ") const" << endl
-                        << "{" << endl
-                        << "    SharedLock(m_mutex);" << endl;
+                        << "{" << endl;
+                        //<< "    SharedLock(m_mutex);" << endl;
 
     if (!m_attributes.empty()) {
         classImplementation << endl << "    // Unload attributes" << endl;
@@ -706,8 +651,8 @@ void WSParserComplexType::printImplementationUnloadJSON(ostream& classImplementa
     bool hideOutputParameterName = m_attributes.empty() && m_sequence.empty();
     classImplementation << "void " << className << "::unload(json::Element*"
                         << (hideOutputParameterName? "": " output") << ") const" << endl
-                        << "{" << endl
-                        << "    SharedLock(m_mutex);" << endl;
+                        << "{" << endl;
+                        //<< "    SharedLock(m_mutex);" << endl;
 
     if (!m_attributes.empty()) {
         classImplementation << endl << "    // Unload attributes" << endl;
@@ -774,8 +719,8 @@ void WSParserComplexType::printImplementationUnloadParamList(ostream& classImple
     bool hideOutputParameterName = unloadListCount == 0;
     classImplementation << "void " << className << "::unload(QueryParameterList&"
                         << (hideOutputParameterName? "": " output") << ") const" << endl
-                        << "{" << endl
-                        << "    SharedLock(m_mutex);" << endl;
+                        << "{" << endl;
+                        //<< "    SharedLock(m_mutex);" << endl;
     classImplementation << unloadList.str();
     classImplementation << "}" << endl;
 }
@@ -790,7 +735,6 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
                         << "\"};"
                         << endl << endl;
 
-    printImplementationDestructor(classImplementation, className);
     printImplementationClear(classImplementation, className);
     printImplementationLoadXML(classImplementation, className);
     printImplementationLoadJSON(classImplementation, className);

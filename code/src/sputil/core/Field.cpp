@@ -41,15 +41,6 @@ Field::Field(const String& name)
     dataSize(0);
 }
 
-Field::Field(const Field& other)
-: Variant(other), m_name(other.m_name), displayName(other.m_name)
-{
-    view.width = -1;
-    view.flags = 4; // FL_ALIGN_LEFT
-    view.visible = true;
-    view.precision = 3; // default precision, only affects floating point fields
-}
-
 void Field::setNull(VariantType vtype)
 {
     switch (dataType()) {

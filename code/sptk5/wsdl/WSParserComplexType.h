@@ -257,13 +257,6 @@ private:
     void printImplementationIncludes(std::ostream& classImplementation, const String& className) const;
 
     /**
-     * Generate C++ class destructor
-     * @param classImplementation   Output stream
-     * @param className             Class name
-     */
-    void printImplementationDestructor(std::ostream& classImplementation, const String& className) const;
-
-    /**
      * Generate C++ class clear() method
      * @param classImplementation   Output stream
      * @param className             Class name
