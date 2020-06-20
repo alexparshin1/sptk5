@@ -91,7 +91,7 @@ public:
 
     WSBasicType& operator = (WSBasicType&& other)
     {
-        Field::operator=(std::move(other));
+        *(Field*)this = std::move(other);
         m_optional = other.m_optional;
         return *this;
     }

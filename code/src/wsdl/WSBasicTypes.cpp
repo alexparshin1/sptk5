@@ -302,7 +302,7 @@ TEST(SPTK_WSInteger, move_ctor_assign)
     EXPECT_EQ(integer1.isNull(), true);
 
     WSInteger   integer3("I3");
-    integer3 = move(integer3);
+    integer3 = move(integer2);
     EXPECT_EQ(integer3.asInteger(), 5);
     EXPECT_EQ(integer3.isNull(), false);
     EXPECT_EQ(integer2.isNull(), true);
