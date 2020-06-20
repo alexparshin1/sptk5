@@ -75,7 +75,21 @@ public:
      * @brief Copy constructor
      * @param other              Other field object
      */
-    Field(const Field& other) = default;
+    Field(const Field& other)
+    : Variant(other), m_name(other.m_name), displayName(other.displayName)
+    {
+    }
+
+    /**
+     * @brief Move constructor
+     * @param other              Other field object
+     */
+    Field(Field&& other) noexcept
+    : Variant(std::move(other)),
+      m_name(std::move(other.m_name)),
+      displayName(std::move(other.displayName))
+    {
+    }
 
     /**
      * @brief Combination of field view attributes
@@ -119,6 +133,36 @@ public:
      * @param vtype              Optional variant type to enforce
      */
     void setNull(VariantType vtype) override;
+
+    /**
+     * @brief Copy assignment operation
+     */
+    Field& operator = (const Field& other)
+    {
+        if (this == &other)
+            return *this;
+
+        setData(other);
+        m_name = other.m_name;
+        displayName = other.displayName;
+
+        return *this;
+    }
+
+    /**
+     * @brief Move assignment operation
+     */
+    Field& operator = (Field&& other)
+    {
+        if (this == &other)
+            return *this;
+
+        *(Variant*)this = std::move(other);
+        m_name = std::move(other.m_name);
+        displayName = std::move(other.displayName);
+
+        return *this;
+    }
 
     /**
      * @brief Assignment operation

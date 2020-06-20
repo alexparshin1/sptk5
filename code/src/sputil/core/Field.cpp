@@ -185,3 +185,19 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
         }
     }
 }
+
+TEST(SPTK_Field, move_ctor_assign)
+{
+    Field   field1("f1");
+    field1 = 10;
+
+    Field   field2(move(field1));
+    EXPECT_EQ(field2.asInteger(), 10);
+    EXPECT_EQ(field1.isNull(), true);
+
+    Field   field3("f3");
+    field3 = move(field2);
+    EXPECT_EQ(field3.asInteger(), 10);
+    EXPECT_EQ(field2.isNull(), true);
+}
+

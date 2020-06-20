@@ -47,30 +47,10 @@ namespace sptk {
  */
 class WSComplexType : public WSTypeName
 {
-    /**
-     * Mutex that protects internal data
-     */
-    mutable SharedMutex m_mutex;
-
-    /**
-    * WSDL element name
-    */
-    String       m_name;
-
-    /**
-     * Element optionality flag
-     */
-    bool         m_optional {false};
-
-    /**
-     * Is data loaded flag
-     */
-    bool         m_loaded {false};
-
-    /**
-     * Is this object exportable?
-     */
-    bool         m_exportable {true};
+    String       m_name;                ///< WSDL element name
+    bool         m_optional {false};    ///< Element optionality flag
+    bool         m_loaded {false};      ///< Is data loaded flag
+    bool         m_exportable {true};   ///< Is this object exportable?
 
 protected:
 
@@ -122,7 +102,7 @@ public:
      * @param other             Other object
      */
     WSComplexType(WSComplexType&& other) noexcept
-    : m_name(std::move(other.m_name)),
+    : m_name(other.m_name),
       m_optional(std::exchange(other.m_optional,false)),
       m_loaded(std::exchange(other.m_loaded, false))
     {}
@@ -154,11 +134,10 @@ public:
     WSComplexType& operator = (WSComplexType&& other) noexcept
     {
         if (&other != this) {
-            m_name = std::move(other.m_name);
-            m_optional = other.m_optional;
-            m_loaded = other.m_loaded;
-            other.m_optional = false;
-            other.m_loaded = false;
+            _clear();
+            m_name = other.m_name;
+            m_optional = std::exchange(other.m_optional,false);
+            m_loaded = std::exchange(other.m_loaded, false);
         }
         return *this;
     }
@@ -168,7 +147,6 @@ public:
      */
     String className() const override
     {
-        SharedLock(m_mutex);
         return "WSComplexType";
     }
 
@@ -177,7 +155,6 @@ public:
      */
     virtual void clear()
     {
-        UniqueLock(m_mutex);
         _clear();
     }
 
@@ -252,7 +229,6 @@ public:
      */
     virtual bool isNull() const
     {
-        SharedLock(m_mutex);
         return !m_loaded;
     }
 
@@ -261,7 +237,6 @@ public:
      */
     std::string complexTypeName() const
     {
-        SharedLock(m_mutex);
         return m_name;
     }
 
@@ -270,7 +245,6 @@ public:
      */
     virtual bool isOptional() const
     {
-        SharedLock(m_mutex);
         return m_optional;
     }
 

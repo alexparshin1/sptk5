@@ -74,6 +74,28 @@ public:
     : Field(name), m_optional(optional)
     {}
 
+    WSBasicType(const WSBasicType& other)
+    : Field(other), m_optional(other.m_optional)
+    {}
+
+    WSBasicType(WSBasicType&& other) noexcept
+    : Field(std::move(other)), m_optional(std::exchange(other.m_optional, 0))
+    {}
+
+    WSBasicType& operator = (const WSBasicType& other)
+    {
+        Field::operator=(other);
+        m_optional = other.m_optional;
+        return *this;
+    }
+
+    WSBasicType& operator = (WSBasicType&& other)
+    {
+        Field::operator=(std::move(other));
+        m_optional = other.m_optional;
+        return *this;
+    }
+
     /**
      * Sets optionality flag
      * @param opt               Element optionality flag

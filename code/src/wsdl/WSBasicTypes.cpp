@@ -49,6 +49,8 @@ json::Element* WSBasicType::addElement(json::Element* parent) const
         return nullptr;
     json::Element* element;
     if (!parent->is(json::JDT_ARRAY)) {
+        if (name().empty())
+            return nullptr;
         switch (dataType()) {
             case VAR_BOOL:
                 element = parent->set(name(), asBool());
@@ -286,3 +288,23 @@ void WSInteger::load(const Field& field)
     else
         setInt64(field.asInt64());
 }
+
+TEST(SPTK_WSInteger, move_ctor_assign)
+{
+    WSInteger   integer1("I1");
+    integer1 = 5;
+    EXPECT_EQ(integer1.asInteger(), 5);
+    EXPECT_EQ(integer1.isNull(), false);
+
+    WSInteger   integer2(move(integer1));
+    EXPECT_EQ(integer2.asInteger(), 5);
+    EXPECT_EQ(integer2.isNull(), false);
+    EXPECT_EQ(integer1.isNull(), true);
+
+    WSInteger   integer3("I3");
+    integer3 = move(integer3);
+    EXPECT_EQ(integer3.asInteger(), 5);
+    EXPECT_EQ(integer3.isNull(), false);
+    EXPECT_EQ(integer2.isNull(), true);
+}
+

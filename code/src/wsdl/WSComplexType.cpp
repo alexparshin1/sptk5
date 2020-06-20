@@ -91,7 +91,6 @@ String WSComplexType::toString(bool asJSON) const
 
 void WSComplexType::throwIfNull(const String& parentTypeName) const
 {
-    SharedLock(m_mutex);
     if (!m_loaded)
         throw SOAPException("Element '" + m_name + "' is required in '" + parentTypeName + "'.");
 }
