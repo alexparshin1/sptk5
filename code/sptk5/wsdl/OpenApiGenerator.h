@@ -121,6 +121,9 @@ private:
     const String      m_version;        ///< Service version
     const Strings     m_servers;        ///< Service servers
     const Options     m_options;        ///< Service options
+
+    void parseClassName(const SWSParserComplexType& ctypeProperty, json::Element& property) const;
+    void parseRestriction(const SWSParserComplexType& ctypeProperty, json::Element& property) const;
 };
 
 }

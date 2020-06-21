@@ -151,39 +151,12 @@ void OpenApiGenerator::createComponents(json::Document & document, const WSCompl
         Strings requiredProperties;
         for (auto ctypeProperty: complexTypeInfo->sequence()) {
             auto& property = *properties.add_object(ctypeProperty->name());
-            auto className = ctypeProperty->className();
-            if (className.startsWith("sptk::WS")) {
-                className = className.replace("sptk::WS", "").toLowerCase();
-                auto ttor = wsTypesToOpenApiTypes.find(className);
-                if (ttor != wsTypesToOpenApiTypes.end()) {
-                    property["type"] = ttor->second.type;
-                    if (!ttor->second.format.empty())
-                        property["format"] = ttor->second.format;
-                }
-            }
-            else if (className.startsWith("C")) {
-                className = "#/components/schemas/" + className.substr(1);
-                if (ctypeProperty->multiplicity() & (WSM_ZERO_OR_MORE|WSM_ONE_OR_MORE)) { //array
-                    property["type"] = "array";
-                    auto& items = *property.add_object("items");
-                    items["$ref"] = className;
-                } else
-                    property["$ref"] = className;
-            }
+            parseClassName(ctypeProperty, property);
 
             if (ctypeProperty->multiplicity() != WSM_OPTIONAL)
                 requiredProperties.push_back(ctypeProperty->name());
 
-            auto restriction = ctypeProperty->restriction();
-            if (restriction) {
-                if (!restriction->pattern().empty())
-                    property["pattern"] = restriction->pattern();
-                else if (!restriction->enumeration().empty()) {
-                    auto& enumArray = *property.add_array("enum");
-                    for (auto& str: restriction->enumeration())
-                        enumArray.push_back(str);
-                }
-            }
+            parseRestriction(ctypeProperty, property);
         }
         if (!requiredProperties.empty()) {
             auto& required = *complexType.add_array("required");
@@ -202,6 +175,56 @@ void OpenApiGenerator::createComponents(json::Document & document, const WSCompl
     bearerAuth["type"] = "http";
     bearerAuth["scheme"] = "bearer";
     bearerAuth["bearerFormat"] = "JWT"; // optional, arbitrary value for documentation purposes
+}
+
+void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty, json::Element& property) const
+{
+    struct OpenApiType {
+        String type;
+        String format;
+    };
+
+    static const map<String,OpenApiType> wsTypesToOpenApiTypes = {
+            { "string", { "string", "" } },
+            { "datetime", { "string", "date-time" } },
+            { "bool", {"boolean", ""} },
+            { "integer", { "integer", "int64" } },
+            { "double", { "number", "double" } }
+    };
+
+    auto className = ctypeProperty->className();
+    if (className.startsWith("sptk::WS")) {
+        className = className.replace("sptk::WS", "").toLowerCase();
+        auto ttor = wsTypesToOpenApiTypes.find(className);
+        if (ttor != wsTypesToOpenApiTypes.end()) {
+            property["type"] = ttor->second.type;
+            if (!ttor->second.format.empty())
+                property["format"] = ttor->second.format;
+        }
+    }
+    else if (className.startsWith("C")) {
+        className = "#/components/schemas/" + className.substr(1);
+        if (ctypeProperty->multiplicity() & (WSM_ZERO_OR_MORE|WSM_ONE_OR_MORE)) { //array
+            property["type"] = "array";
+            auto& items = *property.add_object("items");
+            items["$ref"] = className;
+        } else
+            property["$ref"] = className;
+    }
+}
+
+void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypeProperty, json::Element& property) const
+{
+    auto restriction = ctypeProperty->restriction();
+    if (restriction) {
+        if (!restriction->pattern().empty())
+            property["pattern"] = restriction->pattern();
+        else if (!restriction->enumeration().empty()) {
+            auto& enumArray = *property.add_array("enum");
+            for (auto& str: restriction->enumeration())
+                enumArray.push_back(str);
+        }
+    }
 }
 
 OpenApiGenerator::AuthMethod OpenApiGenerator::authMethod(const String& auth)

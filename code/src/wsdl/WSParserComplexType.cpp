@@ -238,7 +238,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "protected:" << endl << endl;
 
     classDeclaration << "   /**" << endl
-                     << "    * Clear content and releases allocated memory (internal)" << endl
+                     << "    * Clear content and release allocated memory (internal)" << endl
                      << "    */" << endl
                      << "   void _clear() override;" << endl << endl;
 
@@ -253,12 +253,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
                      << "   : " << ctorInitializer.join(",\n     ") << endl << "   {}" << endl << endl;
 
     classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Type name" << endl;
-    classDeclaration << "    */" << endl;
-    classDeclaration << "    static sptk::String typeName() { return \"" << className.substr(1) << "\"; }" << endl << endl;
-
-    classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Load " << className << " from XML node" << endl;
+    classDeclaration << "    * Load content from XML node" << endl;
     classDeclaration << "    *" << endl;
     classDeclaration << "    * Complex WSDL type members are loaded recursively." << endl;
     classDeclaration << "    * @param input              XML node containing " << className << " data" << endl;
@@ -266,7 +261,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "   void load(const sptk::xml::Element* input) override;" << endl << endl;
 
     classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Load " << className << " from JSON element" << endl;
+    classDeclaration << "    * Load content from JSON element" << endl;
     classDeclaration << "    *" << endl;
     classDeclaration << "    * Complex WSDL type members are loaded recursively." << endl;
     classDeclaration << "    * @param input              JSON element containing " << className << " data" << endl;
@@ -274,7 +269,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "   void load(const sptk::json::Element* input) override;" << endl << endl;
 
     classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Load " << className << " from FieldList" << endl;
+    classDeclaration << "    * Load content from FieldList" << endl;
     classDeclaration << "    *" << endl;
     classDeclaration << "    * Only simple WSDL type members are loaded." << endl;
     classDeclaration << "    * @param input              Query field list containing " << className << " data" << endl;
@@ -282,19 +277,19 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "   void load(const sptk::FieldList& input) override;" << endl << endl;
 
     classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Unload " << className << " to existing XML node" << endl;
+    classDeclaration << "    * Unload content to existing XML node" << endl;
     classDeclaration << "    * @param output             Existing XML node" << endl;
     classDeclaration << "    */" << endl;
     classDeclaration << "   void unload(sptk::xml::Element* output) const override;" << endl << endl;
 
     classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Unload " << className << " to existing JSON node" << endl;
+    classDeclaration << "    * Unload content to existing JSON node" << endl;
     classDeclaration << "    * @param output             Existing JSON node" << endl;
     classDeclaration << "    */" << endl;
     classDeclaration << "   void unload(sptk::json::Element* output) const override;" << endl << endl;
 
     classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Unload " << className << " to Query's parameters" << endl;
+    classDeclaration << "    * Unload content to Query's parameters" << endl;
     classDeclaration << "    * @param output             Query parameters" << endl;
     classDeclaration << "    */" << endl;
     classDeclaration << "   void unload(sptk::QueryParameterList& output) const override;" << endl << endl;

@@ -62,6 +62,8 @@ private:
     String              m_pkColumn;
     Strings             m_columns;
     std::vector<Join>   m_joins;
+
+    Strings makeSelectColumns(const Strings& columns) const;
 };
 
 }

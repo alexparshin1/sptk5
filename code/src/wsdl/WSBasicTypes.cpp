@@ -289,6 +289,17 @@ void WSInteger::load(const Field& field)
         setInt64(field.asInt64());
 }
 
+String sptk::wsTypeIdToName(const String& typeIdName)
+{
+    static const RegularExpression matchClassName("^\\d+C([A-Z]\\S+)$");
+
+    auto matches = matchClassName.m(typeIdName);
+    if (matches)
+        return matches.groups()[0].value;
+
+    return "Unknown";
+}
+
 TEST(SPTK_WSInteger, move_ctor_assign)
 {
     WSInteger   integer1("I1");
@@ -307,4 +318,3 @@ TEST(SPTK_WSInteger, move_ctor_assign)
     EXPECT_EQ(integer3.isNull(), false);
     EXPECT_EQ(integer2.isNull(), true);
 }
-

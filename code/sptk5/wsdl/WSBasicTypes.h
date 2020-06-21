@@ -51,7 +51,7 @@ public:
      * Get WS type name
      * @return WS type name
      */
-    virtual String className() const = 0;
+    virtual String className() const { return ""; }
 };
 
 /**
@@ -84,15 +84,19 @@ public:
 
     WSBasicType& operator = (const WSBasicType& other)
     {
-        Field::operator=(other);
-        m_optional = other.m_optional;
+        if (&other != this) {
+            Field::operator=(other);
+            m_optional = other.m_optional;
+        }
         return *this;
     }
 
     WSBasicType& operator = (WSBasicType&& other)
     {
-        *(Field*)this = std::move(other);
-        m_optional = other.m_optional;
+        if (&other != this) {
+            *(Field*) this = std::move(other);
+            m_optional = other.m_optional;
+        }
         return *this;
     }
 
@@ -710,6 +714,13 @@ public:
         return "WSArray";
     }
 };
+
+/**
+ * Converts type id name to WS type name
+ * @param typeId                Type id name, returned by typeid(<type>).name()
+ * @return WS type name without leading 'C' character
+ */
+String wsTypeIdToName(const String& typeIdName);
 
 /**
  * @}

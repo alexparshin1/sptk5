@@ -66,30 +66,11 @@ QueryBuilder::QueryBuilder(String tableName, String pkColumn, Strings columns,
 
 String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bool pretty) const
 {
-    static const RegularExpression matchExpression(R"([\+\-*/~\(\)])");
     stringstream query;
 
     query << "SELECT ";
 
-    Strings outputColumns(columns);
-    if (outputColumns.empty()) {
-        outputColumns.push_back("t." + m_pkColumn);
-        for (auto& column: m_columns) {
-            if (column.find(' ') == string::npos)
-                outputColumns.push_back("t." + column);
-            else
-                outputColumns.push_back(column);
-        }
-        for (auto& join: m_joins)
-            for (auto& column: join.columns) {
-                if (matchExpression.matches(column)) {
-                    // if column contains expression and alias, don't add table alias prefix
-                    outputColumns.push_back(column);
-                }
-                else
-                    outputColumns.push_back(join.tableAlias + "." + column);
-            }
-    }
+    Strings outputColumns = makeSelectColumns(columns);
     query << outputColumns.join(", ") << endl;
 
     query << "  FROM " << m_tableName << " AS t" << endl;
@@ -115,6 +96,32 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
         queryStr = queryStr.replace("[\\n\\r\\s]+", " ").trim();
 
     return queryStr;
+}
+
+Strings QueryBuilder::makeSelectColumns(const Strings& columns) const
+{
+    static const RegularExpression matchExpression(R"([\+\-*/~\(\)])");
+
+    Strings outputColumns(columns);
+    if (outputColumns.empty()) {
+        outputColumns.push_back("t." + m_pkColumn);
+        for (auto& column: m_columns) {
+            if (column.find(' ') == string::npos)
+                outputColumns.push_back("t." + column);
+            else
+                outputColumns.push_back(column);
+        }
+        for (auto& join: m_joins)
+            for (auto& column: join.columns) {
+                if (matchExpression.matches(column)) {
+                    // if column contains expression and alias, don't add table alias prefix
+                    outputColumns.push_back(column);
+                }
+                else
+                    outputColumns.push_back(join.tableAlias + "." + column);
+            }
+    }
+    return outputColumns;
 }
 
 String QueryBuilder::insertSQL(const Strings& columns, bool pretty) const

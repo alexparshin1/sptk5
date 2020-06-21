@@ -176,17 +176,16 @@ BrotliEncoderState* Context::createEncoderInstance()
     BrotliEncoderSetParameter(instance, BROTLI_PARAM_QUALITY, (uint32_t) quality);
 
     /* 0, or not specified by user; could be chosen by compressor. */
-    uint32_t lgwin = DEFAULT_LGWIN;
+    uint32_t _lgwin = DEFAULT_LGWIN;
     /* Use file size to limit lgwin. */
     if (input_file_length >= 0) {
-        lgwin = BROTLI_MIN_WINDOW_BITS;
-        while (BROTLI_MAX_BACKWARD_LIMIT(lgwin) <
-               (uint64_t) input_file_length) {
-            lgwin++;
-            if (lgwin == BROTLI_MAX_WINDOW_BITS) break;
+        _lgwin = BROTLI_MIN_WINDOW_BITS;
+        while (BROTLI_MAX_BACKWARD_LIMIT(_lgwin) < (uint64_t) input_file_length) {
+            _lgwin++;
+            if (_lgwin == BROTLI_MAX_WINDOW_BITS) break;
         }
     }
-    BrotliEncoderSetParameter(instance, BROTLI_PARAM_LGWIN, lgwin);
+    BrotliEncoderSetParameter(instance, BROTLI_PARAM_LGWIN, _lgwin);
 
     if (input_file_length > 0) {
         uint32_t size_hint = input_file_length < (1 << 30) ?

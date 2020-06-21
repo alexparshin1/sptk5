@@ -76,7 +76,7 @@ void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
         if (connectionAddress->sin_family == AF_INET) {
             inet_ntop(AF_INET, &connectionAddress->sin_addr, address, sizeof(address));
         } else if (connectionAddress->sin_family == AF_INET6) {
-            auto* connectionAddress6 = (sockaddr_in6*) connectionAddress;
+            auto* connectionAddress6 = (const sockaddr_in6*) connectionAddress;
             inet_ntop(AF_INET6, &connectionAddress6->sin6_addr, address, sizeof(address));
         }
     }

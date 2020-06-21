@@ -31,6 +31,7 @@
 
 #ifndef _WIN32
 #include <netinet/in.h>
+#include <netdb.h>
 
 #include <utility>
 #include <sptk5/net/Host.h>
@@ -74,6 +75,8 @@ Host::Host(const String& hostAndPort)
 Host::Host(const sockaddr_in* addressAndPort)
 {
     socklen_t addressLen = 0;
+    const sockaddr_in6* addressAndPort6;
+
     switch (addressAndPort->sin_family) {
         case AF_INET:
             addressLen = sizeof(sockaddr_in);
@@ -81,16 +84,24 @@ Host::Host(const sockaddr_in* addressAndPort)
             m_port = htons(ip_v4().sin_port);
             break;
         case AF_INET6:
+            addressAndPort6 = (const sockaddr_in6*) addressAndPort;
             addressLen = sizeof(sockaddr_in6);
-            memcpy(m_address, addressAndPort, addressLen);
+            memcpy(m_address, addressAndPort6, addressLen);
             m_port = htons(ip_v6().sin6_port);
             break;
         default:
             break;
     }
 
+#ifdef _WIN32
     auto* host = gethostbyaddr(m_address, addressLen, addressAndPort->sin_family);
     m_hostname = host->h_name;
+#else
+    char hbuf[NI_MAXHOST];
+    char sbuf[NI_MAXSERV];
+    if (getnameinfo((const sockaddr*) m_address, addressLen, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), 0) == 0)
+        m_hostname = hbuf;
+#endif
 }
 
 Host::Host(const Host& other)
@@ -267,15 +278,16 @@ TEST(SPTK_Host, ctorAddress)
 
 TEST(SPTK_Host, ctorAddressStruct)
 {
-    Host google1(testHost);
+    String gentooHostAndPort { "www.gentoo.org:80" };
+    Host gentoo1(gentooHostAndPort);
 
     sockaddr_in address;
-    google1.getAddress(address);
-    Host google2(&address);
+    gentoo1.getAddress(address);
+    Host gentoo2(&address);
 
-    COUT(google2.toString(true) << " " << google2.hostname() << endl)
-    EXPECT_STREQ(google1.toString(true).c_str(), google2.toString(true).c_str());
-    EXPECT_EQ(google1.port(), google2.port());
+    EXPECT_STREQ(gentoo1.toString(true).c_str(), gentoo2.toString(true).c_str());
+    EXPECT_STREQ(gentooHostAndPort.c_str(), gentoo2.toString(false).c_str());
+    EXPECT_EQ(gentoo1.port(), gentoo2.port());
 }
 
 #endif
