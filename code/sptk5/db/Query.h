@@ -354,7 +354,7 @@ public:
      * @param sql               The SQL query text to use, optional
      * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
      */
-    explicit Query(DatabaseConnection db, const String& sql = "", bool autoPrepare = true);
+    explicit Query(const DatabaseConnection& db, const String& sql = "", bool autoPrepare = true);
 
     /**
      * Constructor
