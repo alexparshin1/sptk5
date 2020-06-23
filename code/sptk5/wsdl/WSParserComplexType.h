@@ -134,6 +134,18 @@ typedef std::list<SWSParserComplexType>         WSParserComplexTypeList;
  */
 class WSParserComplexType
 {
+    class ImplementationParts
+    {
+    public:
+        std::stringstream   declarations;
+        std::stringstream   body;
+        std::stringstream   checks;
+
+        size_t              restrictionNumber {0};
+
+        void print(std::ostream& output);
+    };
+
     /**
      * Map of attribute names to attribute objects
      */
@@ -154,13 +166,15 @@ protected:
      * Generate C++ class declaration
      * @param classDeclaration std::ostream&, Output header file stream
      */
-    void generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames);
+    void generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames,
+                            sptk::Strings& elementNames, sptk::Strings& attributeNames);
 
     /**
      * Generate C++ class implementation
      * @param classImplementation std::ostream&, Output implementation file stream
      */
-    void generateImplementation(std::ostream& classImplementation, const sptk::Strings& fieldNames);
+    void generateImplementation(std::ostream& classImplementation, const sptk::Strings& fieldNames,
+                                const Strings& elementNames, const Strings& attributeNames);
 
 public:
     /**
@@ -311,21 +325,21 @@ private:
 
     std::set<String> getUsedClasses() const;
 
-    void printImplementationLoadJSONAttributes(std::ostream& classImplementation) const;
+    void printImplementationLoadJSONAttributes(ImplementationParts& implementationParts) const;
 
     void makeImplementationLoadAttributes(std::stringstream& fieldLoads, int& fieldLoadCount) const;
 
     void makeImplementationLoadFields(std::stringstream& fieldLoads, int& fieldLoadCount, Strings& requiredElements) const;
 
-    void printImplementationLoadXMLAttributes(std::ostream& classImplementation) const;
+    void printImplementationLoadXMLAttributes(ImplementationParts& implementationParts) const;
 
-    void printImplementationLoadXMLFields(std::ostream& classImplementation) const;
+    void printImplementationLoadXMLFields(ImplementationParts& implementationParts) const;
 
     void appendMemberDocumentation(std::ostream& classDeclaration,
                                    const SWSParserComplexType& complexType) const;
 
-    void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames, Strings& copyInitializer,
-                               Strings& moveInitializer) const;
+    void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames, Strings& attributeNames,
+                               Strings& copyInitializer, Strings& moveInitializer) const;
 };
 
 /**

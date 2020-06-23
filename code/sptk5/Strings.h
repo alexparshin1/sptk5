@@ -115,7 +115,7 @@ public:
      * Initializer list constructor
      * @param list              Initializer list
      */
-    Strings(std::initializer_list<std::string> list)
+    Strings(std::initializer_list<String> list)
     {
         std::copy(list.begin(), list.end(), back_inserter(*this));
     }
@@ -128,7 +128,6 @@ public:
     : StringVector(std::move(src)), m_userData(src.m_userData)
     {
     }
-
 
     /**
      * Constructor from a string with elements separated by a delimiter string
@@ -173,7 +172,7 @@ public:
      * @param s                 String to find
      * @returns                 String index, or -1
      */
-    int indexOf(const String& s) const;
+    virtual int indexOf(const String& s) const;
 
     /**
      * Saves strings to file. String ids are discarded.

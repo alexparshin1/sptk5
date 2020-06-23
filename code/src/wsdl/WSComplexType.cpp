@@ -94,3 +94,32 @@ void WSComplexType::throwIfNull(const String& parentTypeName) const
     if (!m_loaded)
         throw SOAPException("Element '" + m_name + "' is required in '" + parentTypeName + "'.");
 }
+
+WSComplexType::FieldNameIndex::FieldNameIndex(initializer_list<const char*> list)
+{
+    int id = 0;
+    for (const auto* item: list) {
+        emplace_back(item, strlen(item), id);
+        m_index.emplace(item, strlen(item), id);
+        id++;
+    }
+}
+
+int WSComplexType::FieldNameIndex::indexOf(const String& name) const
+{
+    auto itor = m_index.find(name);
+    if (itor == m_index.end())
+        return -1;
+    return itor->ident();
+}
+
+#if USE_GTEST
+
+TEST(SPTK_WSComplexType, FieldNameIndex)
+{
+    WSComplexType::FieldNameIndex fields = { "zero", "one", "two", "three" };
+    EXPECT_STREQ("zero,one,two,three", fields.join(",").c_str());
+    EXPECT_EQ(1, fields.indexOf("one"));
+}
+
+#endif

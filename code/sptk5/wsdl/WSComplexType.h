@@ -47,39 +47,18 @@ namespace sptk {
  */
 class WSComplexType : public WSTypeName
 {
-    String       m_name;                ///< WSDL element name
-    bool         m_optional {false};    ///< Element optionality flag
-    bool         m_loaded {false};      ///< Is data loaded flag
-    bool         m_exportable {true};   ///< Is this object exportable?
-
-protected:
-
-    /**
-     * @return true if object is loaded
-     */
-    const bool loaded() const
-    {
-        return m_loaded;
-    }
-
-    /**
-     * Set loaded flag
-     * @param flag              If true then object is loaded
-     */
-    void setLoaded(bool flag)
-    {
-        m_loaded = flag;
-    }
-
-    /**
-     * Internal clear data
-     */
-    virtual void _clear()
-    {
-        // Implemented in derived classes
-    }
-
 public:
+
+    class FieldNameIndex : public sptk::Strings
+    {
+    public:
+        FieldNameIndex() = default;
+        FieldNameIndex(std::initializer_list<const char*> list);
+        int indexOf(const String& name) const override;
+    private:
+        std::set<String> m_index;
+    };
+
     /**
      * Default constructor
      * @param name              Element name
@@ -266,6 +245,38 @@ public:
      * @param flag              Exportable flag
      */
     void exportable(bool flag) { m_exportable = flag; }
+
+protected:
+
+    /**
+     * @return true if object is loaded
+     */
+    const bool loaded() const
+    {
+        return m_loaded;
+    }
+
+    /**
+     * Set loaded flag
+     * @param flag              If true then object is loaded
+     */
+    void setLoaded(bool flag)
+    {
+        m_loaded = flag;
+    }
+
+    /**
+     * Internal clear data
+     */
+    virtual void _clear()
+    {
+        // Implemented in derived classes
+    }
+
+    String       m_name;                ///< WSDL element name
+    bool         m_optional {false};    ///< Element optionality flag
+    bool         m_loaded {false};      ///< Is data loaded flag
+    bool         m_exportable {true};   ///< Is this object exportable?
 };
 
 /**
