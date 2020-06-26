@@ -52,6 +52,8 @@ public:
      * @return WS type name
      */
     virtual String className() const { return ""; }
+
+    virtual void owaspCheck(const String& value);
 };
 
 /**

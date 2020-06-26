@@ -383,7 +383,7 @@ static short splitDateString(char* bdat, short* datePart, char& actualDateSepara
         errno = 0;
         datePart[partNumber] = (short) strtol(ptr, &end, 10);
         if (errno)
-            throw Exception("Invalid date string (1) " + String(bdat));
+            throw Exception("Invalid date string");
 
         if (*end == char(0))
             break;
@@ -391,7 +391,7 @@ static short splitDateString(char* bdat, short* datePart, char& actualDateSepara
         if (actualDateSeparator == char(0))
             actualDateSeparator = *end;
         else if (actualDateSeparator != *end)
-            throw Exception("Invalid date string (2) " + String(bdat));
+            throw Exception("Invalid date string");
 
         ptr = end + 1;
     }
@@ -402,22 +402,20 @@ static short splitDateString(char* bdat, short* datePart, char& actualDateSepara
 
 static short splitTimeString(char* bdat, short* timePart)
 {
-    const char* ptr = bdat;
-    char* end = nullptr;
+    static const RegularExpression matchTime("^([0-2]\\d?):([0-5]\\d):([0-5]\\d)(\\.\\d+)?");
+    auto matches = matchTime.m(bdat);
+    if (!matches)
+        throw Exception("Invalid time string");
 
     size_t partNumber = 0;
     for (; partNumber < 4; partNumber++) {
-        errno = 0;
-        timePart[partNumber] = (short) strtol(ptr, &end, 10);
-        if (errno)
-            throw Exception("Invalid time string (1) " + String(bdat));
-
-        if (*end == ':' || *end == '.')
-            ptr = end + 1;
-        else if (*end == char(0))
+        auto& part = matches[partNumber].value;
+        if (part.empty())
             break;
-        else
-            throw Exception("Invalid time string (1) " + String(bdat));
+        const auto* value = part.c_str();
+        if (partNumber == 3)
+            value++; // Skip dot character
+        timePart[partNumber] = (short) strtol(value, nullptr, 10);
     }
 
     return (short) partNumber;

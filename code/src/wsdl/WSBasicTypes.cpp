@@ -31,6 +31,12 @@
 using namespace std;
 using namespace sptk;
 
+void WSTypeName::owaspCheck(const String& value)
+{
+    if (value.find("<script") != string::npos || value.find("</script>") != string::npos)
+        throw Exception("Invalid value: constains a script");
+}
+
 xml::Element* WSBasicType::addElement(xml::Element* parent, const char* _name) const
 {
     String elementName = _name == nullptr? name() : _name;
@@ -99,6 +105,7 @@ void WSBasicType::throwIfNull(const String& parentTypeName) const
 
 void WSString::load(const xml::Node* attr)
 {
+    owaspCheck(attr->text());
     setString(attr->text());
 }
 
@@ -106,12 +113,15 @@ void WSString::load(const json::Element* attr)
 {
     if (attr->is(json::JDT_NULL))
         setNull(VAR_STRING);
-    else
+    else {
+        owaspCheck(attr->getString());
         setString(attr->getString());
+    }
 }
 
 void WSString::load(const String& attr)
 {
+    owaspCheck(attr);
     setString(attr);
 }
 
@@ -119,8 +129,10 @@ void WSString::load(const Field& field)
 {
     if (field.isNull())
         setNull(VAR_STRING);
-    else
+    else {
+        owaspCheck(field.asString());
         setString(field.asString());
+    }
 }
 
 void WSBool::load(const xml::Node* attr)
@@ -128,8 +140,14 @@ void WSBool::load(const xml::Node* attr)
     String text = attr->text();
     if (text.empty())
         setNull(VAR_BOOL);
-    else
-        setBool(text == "true");
+    else {
+        if (text == "true")
+            setBool(true);
+        else if (text == "false")
+            setBool(false);
+        else
+            throw Exception("Invalid data: not true or false");
+    }
 }
 
 void WSBool::load(const json::Element* attr)
@@ -144,8 +162,14 @@ void WSBool::load(const String& attr)
 {
     if (attr.empty())
         setNull(VAR_BOOL);
-    else
-        setBool(attr == "true");
+    else {
+        if (attr == "true")
+            setBool(true);
+        else if (attr == "false")
+            setBool(false);
+        else
+            throw Exception("Invalid data: not true or false");
+    }
 }
 
 void WSBool::load(const Field& field)
@@ -178,8 +202,10 @@ void WSDate::load(const String& attr)
 {
     if (attr.empty())
         setNull(VAR_DATE);
-    else
-        setDateTime(DateTime(attr.c_str()), true);
+    else {
+        DateTime dt(attr.c_str());
+        setDateTime(dt, true);
+    }
 }
 
 void WSDate::load(const Field& field)
@@ -195,8 +221,10 @@ void WSDateTime::load(const xml::Node* attr)
     String text = attr->text();
     if (text.empty())
         setNull(VAR_DATE_TIME);
-    else
-        setDateTime(DateTime(text.c_str()));
+    else {
+        DateTime dt(text.c_str());
+        setDateTime(dt);
+    }
 }
 
 void WSDateTime::load(const json::Element* attr)
@@ -204,16 +232,20 @@ void WSDateTime::load(const json::Element* attr)
     String text = attr->getString();
     if (text.empty())
         setNull(VAR_DATE_TIME);
-    else
-        setDateTime(DateTime(text.c_str()));
+    else {
+        DateTime dt(text.c_str());
+        setDateTime(dt);
+    }
 }
 
 void WSDateTime::load(const String& attr)
 {
     if (attr.empty())
         setNull(VAR_DATE_TIME);
-    else
+    else {
+        DateTime dt(attr.c_str());
         setDateTime(DateTime(attr.c_str()));
+    }
 }
 
 void WSDateTime::load(const Field& field)
@@ -317,4 +349,29 @@ TEST(SPTK_WSInteger, move_ctor_assign)
     EXPECT_EQ(integer3.asInteger(), 5);
     EXPECT_EQ(integer3.isNull(), false);
     EXPECT_EQ(integer2.isNull(), true);
+}
+
+template <class T>
+void loadScriptAttackData()
+{
+    T  type("type");
+    try {
+        type.load("Hello, <script>alert(1);</script>");
+        if (type.asString().find("<script>") != string::npos)
+            FAIL() << type.className() << ": Script attack is accepted";
+    }
+    catch (const Exception& e) {
+        if (String(e.what()).find("<script>") != string::npos)
+            FAIL() << type.className() << ": Script attack is reflected back";
+    }
+}
+
+TEST(SPTK_WSBasicTypes, scriptAttack)
+{
+    loadScriptAttackData<WSDate>();
+    loadScriptAttackData<WSBool>();
+    loadScriptAttackData<WSDateTime>();
+    loadScriptAttackData<WSDouble>();
+    loadScriptAttackData<WSInteger>();
+    loadScriptAttackData<WSString>();
 }

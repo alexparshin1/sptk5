@@ -281,6 +281,10 @@ RequestInfo WSWebServiceProtocol::process()
         response.append("Access-Control-Allow-Origin: *\r\n");
     if (!contentEncoding.empty())
         response.append("Content-Encoding: " + contentEncoding + "\r\n");
+
+    // OWASP-suggested headers
+    response.append("X-Content-Type-Options: nosniff\r\n");
+
     response.append("\r\n", 2);
     response.append(outputData);
     socket().write(response);

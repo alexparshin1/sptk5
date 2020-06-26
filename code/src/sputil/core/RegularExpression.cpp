@@ -54,7 +54,9 @@ public:
     : match_data(pcre2_match_data_create_from_pattern(pcre, nullptr)),
       maxMatches(maxMatches + 2),
       matches(new Match[maxMatches + 2])
-    {}
+    {
+        memset(matches, 0, sizeof(Match) * (maxMatches + 2));
+    }
 #else
     MatchData(pcre*, size_t maxMatches)
     : maxMatches(maxMatches + 4),
