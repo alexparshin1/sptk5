@@ -45,11 +45,11 @@ namespace sptk {
 /**
  * Base type for all user WSDL types
  */
-class WSComplexType : public WSTypeName
+class SP_EXPORT WSComplexType : public WSTypeName
 {
 public:
 
-    class FieldNameIndex : public sptk::Strings
+    class SP_EXPORT FieldNameIndex : public sptk::Strings
     {
     public:
         FieldNameIndex() = default;
