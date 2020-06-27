@@ -195,8 +195,6 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "class " << className << " : public sptk::WSComplexType" << endl;
     classDeclaration << "{" << endl;
 
-    //classDeclaration << "    mutable sptk::SharedMutex m_mutex; ///< Mutex that protects access to internal data" << endl << endl;
-
     if (!m_attributes.empty() || !m_sequence.empty())
         classDeclaration << "public:" << endl << endl;
 
@@ -557,11 +555,8 @@ void WSParserComplexType::printImplementationLoadFields(ostream& classImplementa
     classImplementation << "void " << className << "::load(const FieldList&"
                         << (hideInputParameter? "" : " input") << ")" << endl
                         << "{" << endl
-                        //<< "    UniqueLock(m_mutex);" << endl
                         << "    _clear();" << endl
                         << "    setLoaded(true);" << endl;
-
-
 
     if (fieldLoadCount != 0) {
         classImplementation << "    const Field* field;" << endl;
@@ -632,7 +627,6 @@ void WSParserComplexType::printImplementationUnloadXML(ostream& classImplementat
     classImplementation << "void " << className << "::unload(xml::Element*"
                         << (hideOutputParameterName? "": " output") << ") const" << endl
                         << "{" << endl;
-                        //<< "    SharedLock(m_mutex);" << endl;
 
     if (!m_attributes.empty()) {
         classImplementation << endl << "    // Unload attributes" << endl;
@@ -662,7 +656,6 @@ void WSParserComplexType::printImplementationUnloadJSON(ostream& classImplementa
     classImplementation << "void " << className << "::unload(json::Element*"
                         << (hideOutputParameterName? "": " output") << ") const" << endl
                         << "{" << endl;
-                        //<< "    SharedLock(m_mutex);" << endl;
 
     if (!m_attributes.empty()) {
         classImplementation << endl << "    // Unload attributes" << endl;
@@ -730,7 +723,6 @@ void WSParserComplexType::printImplementationUnloadParamList(ostream& classImple
     classImplementation << "void " << className << "::unload(QueryParameterList&"
                         << (hideOutputParameterName? "": " output") << ") const" << endl
                         << "{" << endl;
-                        //<< "    SharedLock(m_mutex);" << endl;
     classImplementation << unloadList.str();
     classImplementation << "}" << endl;
 }
