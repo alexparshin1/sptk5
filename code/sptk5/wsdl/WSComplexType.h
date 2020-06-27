@@ -273,6 +273,7 @@ protected:
         // Implemented in derived classes
     }
 
+private:
     String       m_name;                ///< WSDL element name
     bool         m_optional {false};    ///< Element optionality flag
     bool         m_loaded {false};      ///< Is data loaded flag

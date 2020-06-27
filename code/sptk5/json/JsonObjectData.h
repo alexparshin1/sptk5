@@ -69,7 +69,7 @@ public:
         std::string name() const { return *m_name; }
         Element* element() { return m_element; }
         const Element* element() const { return m_element; }
-    protected:
+    private:
         const std::string*  m_name;
         Element*            m_element;
     };
