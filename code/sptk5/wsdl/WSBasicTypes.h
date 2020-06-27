@@ -44,7 +44,7 @@ namespace sptk {
 /**
  * Class name support for WS-classes
  */
-class WSTypeName
+class SP_EXPORT WSTypeName
 {
 public:
     /**
@@ -59,7 +59,7 @@ public:
 /**
  * Base type for all standard WSDL types
  */
-class WSBasicType : public Field, public WSTypeName
+class SP_EXPORT WSBasicType : public Field, public WSTypeName
 {
     /**
      * Element optionality flag
@@ -194,7 +194,7 @@ public:
 /**
  * Base type for all standard WSDL types
  */
-class WSString : public WSBasicType
+class SP_EXPORT WSString : public WSBasicType
 {
 public:
     /**
@@ -297,7 +297,7 @@ public:
 /**
  * Wrapper for WSDL bool type
  */
-class WSBool : public WSBasicType
+class SP_EXPORT WSBool : public WSBasicType
 {
 public:
     /**
@@ -356,7 +356,7 @@ public:
 /**
  * Wrapper for WSDL date type
  */
-class WSDate : public WSBasicType
+class SP_EXPORT WSDate : public WSBasicType
 {
 public:
     /**
@@ -423,7 +423,7 @@ public:
 /**
  * Wrapper for WSDL dateTime type
  */
-class WSDateTime : public WSBasicType
+class SP_EXPORT WSDateTime : public WSBasicType
 {
 public:
     /**
@@ -495,7 +495,7 @@ public:
 /**
  * Wrapper for WSDL double type
  */
-class WSDouble : public WSBasicType
+class SP_EXPORT WSDouble : public WSBasicType
 {
 public:
     /**
@@ -562,7 +562,7 @@ public:
 /**
  * Wrapper for WSDL int type
  */
-class WSInteger : public WSBasicType
+class SP_EXPORT WSInteger : public WSBasicType
 {
 public:
     /**
@@ -655,7 +655,7 @@ public:
  * Wrapper for WSDL int type
  */
 template<class T>
-class WSArray : public std::vector<T>, public WSTypeName
+class SP_EXPORT WSArray : public std::vector<T>, public WSTypeName
 {
 public:
     /**
@@ -722,7 +722,7 @@ public:
  * @param typeId                Type id name, returned by typeid(<type>).name()
  * @return WS type name without leading 'C' character
  */
-String wsTypeIdToName(const String& typeIdName);
+String SP_EXPORT wsTypeIdToName(const String& typeIdName);
 
 /**
  * @}

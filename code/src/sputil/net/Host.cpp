@@ -94,7 +94,7 @@ Host::Host(const sockaddr_in* addressAndPort)
     }
 
 #ifdef _WIN32
-    auto* host = gethostbyaddr(m_address, addressLen, addressAndPort->sin_family);
+    auto* host = gethostbyaddr((const char*)m_address, addressLen, addressAndPort->sin_family);
     m_hostname = host->h_name;
 #else
     char hbuf[NI_MAXHOST];

@@ -41,6 +41,7 @@
 #include <sptk5/net/HttpConnect.h>
 #include <sptk5/Crypt.h>
 #include <sptk5/Base64.h>
+#include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/test/TestRunner.h>
 

@@ -34,7 +34,7 @@ namespace sptk {
 /**
  * Generator of OpenAPI service description
  */
-class OpenApiGenerator
+class SP_EXPORT OpenApiGenerator
 {
 public:
 

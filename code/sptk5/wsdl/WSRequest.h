@@ -44,7 +44,7 @@ namespace sptk
 /**
  * @brief Namespace defined within WSDL document
  */
-class WSNameSpace
+class SP_EXPORT WSNameSpace
 {
     mutable std::mutex  m_mutex;        ///< Mutex to protect internal data
     String              m_alias;        ///< Namespace alias
@@ -108,7 +108,7 @@ public:
 /**
  * @brief Parser of WSDL requests
  */
-class WSRequest : public std::mutex
+class SP_EXPORT WSRequest : public std::mutex
 {
 protected:
     /**

@@ -46,7 +46,7 @@ public:
     /**
      * Message information
      */
-    class Message
+    class SP_EXPORT Message
     {
     public:
         void input(const Buffer& content, const String& contentEncoding);
