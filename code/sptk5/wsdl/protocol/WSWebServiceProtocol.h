@@ -64,7 +64,7 @@ class WSWebServiceProtocol : public WSProtocol
      * @param contentType       Output content type
      */
     String processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
-                          std::shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
+                          SHttpAuthentication& authentication, bool requestIsJSON,
                           size_t& httpStatusCode, String& httpStatusText, String& contentType);
 public:
 

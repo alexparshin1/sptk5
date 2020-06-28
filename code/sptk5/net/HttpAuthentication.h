@@ -98,6 +98,8 @@ public:
     Type type();
 };
 
+typedef std::shared_ptr<HttpAuthentication> SHttpAuthentication;
+
 }
 
 #endif

@@ -113,7 +113,7 @@ void WSWebServiceProtocol::generateFault(Buffer& output, size_t& httpStatusCode,
 }
 
 String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
-                                            shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
+                                            SHttpAuthentication& authentication, bool requestIsJSON,
                                             size_t& httpStatusCode, String& httpStatusText, String& contentType)
 {
     String requestName;
