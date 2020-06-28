@@ -49,7 +49,7 @@ WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElemen
         simpleTypeElement->select(patternNodes, "xsd:restriction/xsd:pattern");
         if (!patternNodes.empty()) {
             auto* patternNode = dynamic_cast<xml::Element*>(*patternNodes.begin());
-            m_pattern = (String) patternNode->getAttribute("value");
+            m_pattern = patternNode->getAttribute("value").asString().replace(R"(\\)", R"(\\)");
             if (!m_pattern.empty())
                 m_type = Pattern;
             if (!m_pattern.startsWith("^"))
