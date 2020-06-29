@@ -134,7 +134,7 @@ String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& xmlCo
         }
     }
     catch (const HTTPException& e) {
-        generateFault(output, httpStatusCode, httpStatusText, contentType, e, false);
+        generateFault(output, httpStatusCode, httpStatusText, contentType, e, requestIsJSON);
         requestName = "Error";
     }
     return requestName;
