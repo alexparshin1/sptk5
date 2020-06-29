@@ -47,34 +47,30 @@ WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElemen
     } else {
         xml::NodeVector patternNodes;
         simpleTypeElement->select(patternNodes, "xsd:restriction/xsd:pattern");
-        if (!patternNodes.empty()) {
-            auto* patternNode = dynamic_cast<xml::Element*>(*patternNodes.begin());
-            m_pattern = patternNode->getAttribute("value").asString().replace(R"(\\)", R"(\\)");
-            if (!m_pattern.empty())
+        for (auto* patternNode: patternNodes) {
+            patternNode = dynamic_cast<xml::Element*>(patternNode);
+            String pattern = patternNode->getAttribute("value").asString().replace(R"(\\)", R"(\\)");
+            if (!pattern.empty())
                 m_type = Pattern;
-            if (!m_pattern.startsWith("^"))
-                m_pattern = "^" + m_pattern;
-            if (!m_pattern.endsWith("$"))
-                m_pattern += "$";
+            m_patterns.emplace_back(pattern);
         }
     }
 }
 
-WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const String& enumerationsOrPattern,
-                             const char* delimiter)
+WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const Strings& enumerationsOrPatterns)
 : m_type(type), m_wsdlTypeName(wsdlTypeName)
 {
-    if (enumerationsOrPattern.empty()) {
+    if (enumerationsOrPatterns.empty()) {
         m_type = Unknown;
         return;
     }
 
     if (type == Enumeration) {
-        Strings enumerations(enumerationsOrPattern, delimiter);
-        m_enumeration = move(enumerations);
+        m_enumeration = enumerationsOrPatterns;
     }
     else if (type == Pattern) {
-        m_pattern = enumerationsOrPattern;
+        for (auto& pattern: enumerationsOrPatterns)
+            m_patterns.emplace_back(pattern);
     }
 }
 
@@ -85,28 +81,33 @@ void WSRestriction::check(const String& typeName, const String& value) const
             return;
     }
     else if (m_type == Pattern) {
-        RegularExpression regex(m_pattern);
-        if (regex.matches(value))
-            return;
+        for (auto& pattern: m_patterns) {
+            RegularExpression regex(pattern);
+            if (regex.matches(value))
+                return;
+        }
     }
     else
         return;
 
-    throw Exception("value '" + value + "' is invalid for restriction on " + m_wsdlTypeName + " for type " + typeName);
+    throw Exception("value '" + value + "' is invalid for restriction on element " + typeName);
 }
 
 String sptk::WSRestriction::generateConstructor(const String& variableName) const
 {
     stringstream str;
+    Strings      patterns;
 
     switch (m_type) {
         case Enumeration:
             str << "WSRestriction " << variableName << "(WSRestriction::Enumeration, \"" << m_wsdlTypeName << "\", "
-                << "\"" << m_enumeration.join("|") << "\", \"|\")";
+                << "{ \"" << m_enumeration.join("\", \"") << "\" })";
             break;
         case Pattern:
+            for (auto& regex: m_patterns)
+                patterns.push_back(regex.pattern());
             str << "WSRestriction " << variableName << "(WSRestriction::Pattern, \"" << m_wsdlTypeName << "\", "
-                << "\"" << m_pattern << "\")";
+                << "{ \"" << patterns.join("\", \"") << "\" })";
             break;
         default:
             break;

@@ -50,20 +50,18 @@ namespace sptk {
 
         /**
          * Constructor from WSDL (XML) definition
-         * @param typeName      WSDL type name
-         * @param simpleTypeElement Simple type XML node
+         * @param typeName                  WSDL type name
+         * @param simpleTypeElement         Simple type XML node
          */
         WSRestriction(const std::string& typeName, xml::Node* simpleTypeElement);
 
         /**
          * Constructor from WSDL (XML) definition
-         * @param type          Restriction type
-         * @param wsdlTypeName  WSDL type name
-         * @param enumerationsOrPattern  Enumerations or empty string
-         * @param delimiter     Enumerations delimiter
+         * @param type                      Restriction type
+         * @param wsdlTypeName              WSDL type name
+         * @param enumerationsOrPatternss   Enumerations or patterns
          */
-        WSRestriction(Type type, const String& wsdlTypeName, const String& enumerationsOrPattern,
-                      const char* delimiter = "|");
+        WSRestriction(Type type, const String& wsdlTypeName, const Strings& enumerationsOrPattern);
 
         /**
          * Get restriction type
@@ -90,7 +88,7 @@ namespace sptk {
          * Optional regular expression to match
          * @return regular expression string
          */
-        String pattern() const { return m_pattern; }
+        const std::vector<RegularExpression>& patterns() const { return m_patterns; }
 
         /**
          * Optional enumeration to match
@@ -100,11 +98,10 @@ namespace sptk {
 
     private:
 
-        Type        m_type { Unknown }; ///< Restriction type
-        String      m_wsdlTypeName;     ///< WSDL type name
-        Strings     m_enumeration;      ///< List of enumerations if any
-        String      m_pattern;          ///< Pattern, or empy string
-
+        Type                            m_type { Unknown }; ///< Restriction type
+        String                          m_wsdlTypeName;     ///< WSDL type name
+        Strings                         m_enumeration;      ///< List of enumerations if any
+        std::vector<RegularExpression>  m_patterns;         ///< Patterns
     };
 
     typedef std::shared_ptr<WSRestriction> SWSRestriction;

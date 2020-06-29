@@ -102,10 +102,10 @@ void WSWebServiceProtocol::generateFault(Buffer& output, size_t& httpStatusCode,
         auto* xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
         auto* faultNode = new xml::Element(xmlBody, "soap:Fault");
 
-        auto* faultcodeNode = new xml::Element(faultNode, "faultcode");
+        auto* faultcodeNode = new xml::Element(faultNode, "faultCode");
         faultcodeNode->text("soap:Client");
 
-        auto* faultstringNode = new xml::Element(faultNode, "faultcode");
+        auto* faultstringNode = new xml::Element(faultNode, "faultString");
         faultstringNode->text(e.what());
 
         error.save(output, 2);
