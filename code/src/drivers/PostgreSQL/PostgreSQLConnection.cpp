@@ -210,8 +210,10 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
 void PostgreSQLConnection::closeDatabase()
 {
     disconnectAllQueries();
-    PQfinish(m_connect);
-    m_connect = nullptr;
+    if (m_connect) {
+        PQfinish(m_connect);
+        m_connect = nullptr;
+    }
 }
 
 void* PostgreSQLConnection::handle() const
@@ -817,6 +819,8 @@ void PostgreSQLConnection::queryFetch(Query* query)
     lock_guard<mutex> lock(m_mutex);
 
     auto* statement = (PostgreSQLStatement*) query->statement();
+    if (statement == nullptr)
+        THROW_QUERY_ERROR(query, "Statement isn't open")
 
     statement->fetch();
 

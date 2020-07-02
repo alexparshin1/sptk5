@@ -30,9 +30,9 @@
 #define __SYNCHRONIZED_QUEUE_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/threads/Locks.h>
 #include <sptk5/threads/Semaphore.h>
 #include <queue>
+#include <mutex>
 
 namespace sptk {
 
@@ -52,7 +52,7 @@ class SynchronizedQueue
     /**
      * Lock to synchronize queue operations
      */
-    mutable SharedMutex     m_mutex;
+    mutable std::mutex      m_mutex;
 
     /**
      * Semaphore to waiting for an item if queue is empty
@@ -85,8 +85,9 @@ public:
      */
     virtual ~SynchronizedQueue()
     {
-        UniqueLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         delete m_queue;
+        m_queue = nullptr;
     }
 
     /**
@@ -99,7 +100,7 @@ public:
      */
     void push(T&& data)
     {
-        UniqueLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_queue->push(std::move(data));
         m_semaphore.post();
     }
@@ -113,7 +114,7 @@ public:
      */
     void push(const T& data)
     {
-        UniqueLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_queue->push(data);
         m_semaphore.post();
     }
@@ -129,7 +130,7 @@ public:
     bool pop(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.sleep_for(timeout)) {
-            UniqueLock(m_mutex);
+            std::lock_guard<std::mutex> lock(m_mutex);
             if (!m_queue->empty()) {
                 item = std::move(m_queue->front());
                 m_queue->pop();
@@ -154,7 +155,7 @@ public:
      */
     bool empty() const
     {
-        SharedLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_queue->empty();
     }
 
@@ -163,7 +164,7 @@ public:
      */
     size_t size() const
     {
-        SharedLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_queue->size();
     }
 
@@ -172,7 +173,7 @@ public:
      */
     void clear()
     {
-        UniqueLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         delete m_queue;
         m_queue = new std::queue<T>;
     }
@@ -188,7 +189,7 @@ public:
      */
     bool each(CallbackFunction* callbackFunction, void* data=NULL)
     {
-        UniqueLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
 
         std::queue<T>* newQueue = new std::queue<T>;
 

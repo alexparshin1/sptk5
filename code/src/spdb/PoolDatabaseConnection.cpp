@@ -48,6 +48,8 @@ void PoolDatabaseConnection::disconnectAllQueries()
 {
     for (auto* query: m_queryList) {
         try {
+            if (query->active())
+                cout << "";
             query->closeQuery(true);
         }
         catch (const Exception& e) {

@@ -373,6 +373,11 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 void DatabaseTests::testSelect(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
+    testSelect(connectionPool);
+}
+
+void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
+{
     DatabaseConnection db = connectionPool.getConnection();
     createTestTable(db);
 

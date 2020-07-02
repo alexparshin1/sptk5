@@ -48,6 +48,20 @@ namespace sptk {
  */
 typedef std::map<sptk::String, sptk::String, CaseInsensitiveCompare> StringHttpFieldMap;
 
+class SP_EXPORT Url
+{
+public:
+    /**
+     * Encodes a string into HTML parameters
+     */
+    static String encode(const String& str);
+
+    /**
+     * Decodes a string from HTML parameters
+     */
+    static sptk::String decode(const String& str);
+};
+
 /**
  * HTTP params map
  *
@@ -57,15 +71,6 @@ typedef std::map<sptk::String, sptk::String, CaseInsensitiveCompare> StringHttpF
  */
 class SP_EXPORT HttpParams: public StringHttpFieldMap
 {
-    /**
-     * Encodes a string into HTML parameters
-     */
-    static String encodeString(const String& str);
-
-    /**
-     * Decodes a string from HTML parameters
-     */
-    static sptk::String decodeString(const String& str);
 public:
     /**
      * Default constructor.

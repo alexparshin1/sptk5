@@ -109,6 +109,12 @@ public:
     static void testSelect(const DatabaseConnectionString& connectionString);
 
     /**
+     * Test SELECT statements
+     * @param connectionString Database connection string
+     */
+    static void testSelect(DatabaseConnectionPool& connectionPool);
+
+    /**
      * Test basic DDL statements
      * @param connectionString Database connection string
      */

@@ -28,6 +28,7 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/Brotli.h>
 #include <sptk5/ZLib.h>
+#include <sptk5/cnet>
 
 using namespace std;
 using namespace sptk;
@@ -54,6 +55,11 @@ void RequestInfo::Message::input(const Buffer& content, const String& contentEnc
         return;
     }
 #endif
+
+    if (contentEncoding == "x-www-form-urlencoded") {
+        m_content = Url::decode(content.c_str());
+        return;
+    }
 
     throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
 }

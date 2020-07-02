@@ -35,6 +35,9 @@
 
 #if USE_GTEST
 #include <sptk5/db/DatabaseTests.h>
+#include <future>
+#include <sptk5/db/Query.h>
+
 #endif
 
 using namespace std;
@@ -295,6 +298,66 @@ TEST(SPTK_PostgreSQLConnection, select)
         FAIL() << "PostgreSQL connection is not defined";
     try {
         DatabaseTests::testSelect(connectionString);
+    }
+    catch (const Exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_PostgreSQLConnection, multiThreading)
+{
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    if (connectionString.empty())
+        FAIL() << "PostgreSQL connection is not defined";
+    DatabaseConnectionPool pool(connectionString.toString());
+
+    auto db = pool.getConnection();
+
+    try {
+        Query createTable(db,"CREATE TABLE numbers(id int, value varchar(40), created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+        createTable.exec();
+        Query insertNumber(db, "INSERT INTO numbers(id,value) VALUES(:id,:value)");
+        for (int i = 0; i < 100000; i++) {
+            insertNumber.param("id") = i;
+            insertNumber.param("value") = to_string(i);
+            insertNumber.exec();
+        }
+    }
+    catch (const Exception&) {
+    }
+
+    struct Output {
+        int     count {0};
+        double  msec {0};
+    };
+
+    try {
+        vector<future<Output>> futures;
+        for (int i = 0; i < 10; i++) {
+            auto f = async(launch::async, [&pool]() {
+                StopWatch sw;
+                sw.start();
+                auto db = pool.getConnection();
+                Query selectNumbers(db, "SELECT * FROM numbers ORDER BY 1");
+                selectNumbers.open();
+                int id = 0;
+                while (!selectNumbers.eof()) {
+                    auto idr = selectNumbers[0].asInteger();
+                    if (idr != id)
+                        COUT(idr << " != " << id << endl)
+                    selectNumbers.next();
+                    id ++;
+                }
+                selectNumbers.close();
+                sw.stop();
+                return Output { id, sw.seconds() * 1000 };
+            });
+            futures.push_back(move(f));
+        }
+        for (auto& f: futures) {
+            auto output = f.get();
+            COUT(output.count << " : " << output.msec << "ms" << endl);
+        }
     }
     catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();

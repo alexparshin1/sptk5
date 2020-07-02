@@ -32,7 +32,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/threads/Semaphore.h>
 #include <list>
-#include "Locks.h"
+#include <mutex>
 
 namespace sptk {
 
@@ -52,7 +52,7 @@ class SynchronizedList
     /**
      * Lock to synchronize list operations
      */
-    mutable SharedMutex     m_sync;
+    mutable std::mutex      m_mutex;
 
     /**
      * Semaphore to waiting for an item if list is empty
@@ -85,7 +85,9 @@ public:
      */
     virtual ~SynchronizedList()
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         delete m_list;
+        m_list = nullptr;
     }
 
     /**
@@ -97,7 +99,7 @@ public:
      */
     virtual void push_front(const T& data)
     {
-        UniqueLock(m_sync);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_list->push_front(data);
         m_semaphore.post();
     }
@@ -113,7 +115,7 @@ public:
     virtual bool pop_front(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.sleep_for(timeout)) {
-            UniqueLock(m_sync);
+            std::lock_guard<std::mutex> lock(m_mutex);
             if (!m_list->empty()) {
                 item = m_list->front();
                 m_list->pop_front();
@@ -132,7 +134,7 @@ public:
      */
     virtual void push_back(const T& data)
     {
-        UniqueLock(m_sync);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_list->push_back(data);
         m_semaphore.post();
     }
@@ -148,7 +150,7 @@ public:
     virtual bool pop_back(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.sleep_for(timeout)) {
-            UniqueLock(m_sync);
+            std::lock_guard<std::mutex> lock(m_mutex);
             if (!m_list->empty()) {
                 item = m_list->back();
                 m_list->pop_back();
@@ -163,7 +165,7 @@ public:
      */
     virtual void remove(T& item) const
     {
-        UniqueLock(m_sync);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_list->remove(item);
     }
 
@@ -182,7 +184,7 @@ public:
      */
     bool empty() const
     {
-        SharedLock(m_sync);
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_list->empty();
     }
 
@@ -191,7 +193,7 @@ public:
      */
     size_t size() const
     {
-        SharedLock(m_sync);
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_list->size();
     }
 
@@ -200,7 +202,7 @@ public:
      */
     void clear()
     {
-        UniqueLock(m_sync);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_list->clear();
     }
 
@@ -212,7 +214,7 @@ public:
      */
     bool each(CallbackFunction* callbackFunction, void* data=NULL)
     {
-        UniqueLock(m_sync);
+        std::lock_guard<std::mutex> lock(m_mutex);
         typename std::list<T>::iterator itor;
         for (itor = m_list->begin(); itor != m_list->end(); ++itor) {
             if (!callbackFunction(*itor, data))

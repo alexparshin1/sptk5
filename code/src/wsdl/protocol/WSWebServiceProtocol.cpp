@@ -184,23 +184,15 @@ RequestInfo WSWebServiceProtocol::process()
 
     RequestInfo requestInfo;
 
-    auto contentEncoding = m_httpReader.httpHeader("Content-Encoding");
+    String contentEncoding;
+    String contentType(m_httpReader.httpHeader("Content-Type"));
+    bool urlEncoded = contentType.find("x-www-form-urlencoded") != string::npos;
+    bool requestIsJSON = true;
+    if (urlEncoded)
+        contentEncoding = "x-www-form-urlencoded";
+    else
+        contentEncoding = m_httpReader.httpHeader("Content-Encoding");
     requestInfo.request.input(contentBuffer, contentEncoding);
-
-    String contentType;
-    bool requestIsJSON = false;
-    switch (requestInfo.request.content()[0]) {
-        case '<':
-            contentType = "text/xml; charset=utf-8";
-            break;
-        case '{':
-        case '[':
-            contentType = "text/json; charset=utf-8";
-            requestIsJSON = true;
-            break;
-        default:
-            throw Exception("Message content is not JSON or XML");
-    }
 
     auto authentication = getAuthentication();
 
@@ -215,9 +207,18 @@ RequestInfo WSWebServiceProtocol::process()
 
     if (startOfMessage != endOfMessage) {
         if (*startOfMessage == '<') {
+            contentType = "application/xml; charset=utf-8";
+            requestIsJSON = false;
             if (endOfMessage != nullptr)
                 *endOfMessage = 0;
-            xmlContent.load(startOfMessage);
+
+            try {
+                xmlContent.load(startOfMessage);
+            }
+            catch (const Exception& e) {
+                throw HTTPException(406, "Invalid XML content: " + String(e.what()));
+            }
+
             xml::Node* xmlRequest = findRequestNode(xmlContent, "API request");
             auto* jsonEnvelope = jsonContent.root().add_object(xmlRequest->name());
             for (auto& itor: m_url.params()) {
@@ -227,6 +228,7 @@ RequestInfo WSWebServiceProtocol::process()
             xmlRequest->exportTo(*jsonEnvelope);
         }
         else if (*startOfMessage == '{' || *startOfMessage == '[') {
+            contentType = "application/json; charset=utf-8";
             if (m_url.path().length() < 2)
                 generateFault(requestInfo.response.content(), httpStatusCode, httpStatusText, contentType,
                               HTTPException(404, "Not Found"),
@@ -234,7 +236,14 @@ RequestInfo WSWebServiceProtocol::process()
             else {
                 Strings pathElements(m_url.path(), "/");
                 String method(*pathElements.rbegin());
-                jsonContent.load(startOfMessage);
+
+                try {
+                    jsonContent.load(startOfMessage);
+                }
+                catch (const Exception& e) {
+                    throw HTTPException(406, "Invalid JSON content: " + String(e.what()));
+                }
+
                 jsonContent.root()["rest_method_name"] = method;
                 for (auto& itor: m_url.params())
                     jsonContent.root()[itor.first] = itor.second;
@@ -242,7 +251,7 @@ RequestInfo WSWebServiceProtocol::process()
         }
         else {
             generateFault(requestInfo.response.content(), httpStatusCode, httpStatusText, contentType,
-                          HTTPException(400, "Expect JSON content"),
+                          HTTPException(400, "Expect JSON or XML content"),
                           requestIsJSON);
         }
     } else {
