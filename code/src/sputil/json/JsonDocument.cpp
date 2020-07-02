@@ -265,4 +265,17 @@ TEST(SPTK_JsonDocument, truncated)
     }
 }
 
+TEST(SPTK_JsonDocument, junkTail)
+{
+    json::Document document;
+    String junkTailJSON = String(testJSON) + "=";
+    try {
+        document.load(junkTailJSON);
+        FAIL() << "Incorrect: MUST fail";
+    }
+    catch (const Exception& e) {
+        SUCCEED() << "Correct: " << e.what();
+    }
+}
+
 #endif

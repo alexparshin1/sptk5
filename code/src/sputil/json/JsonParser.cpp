@@ -108,6 +108,9 @@ void Parser::parse(Element& jsonElement, const string& jsonStr)
             throwUnexpectedCharacterError(*pos, 0, json, pos - json);
             break;
     }
+    skipSpaces(json, pos);
+    if (*pos != 0)
+        throwError("Invalid data after JSON", json, pos - json);
 }
 
 namespace sptk { namespace json {
