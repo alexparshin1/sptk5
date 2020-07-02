@@ -252,4 +252,17 @@ TEST(SPTK_JsonDocument, save)
     verifyDocument(document);
 }
 
+TEST(SPTK_JsonDocument, truncated)
+{
+    json::Document document;
+    String truncatedJSON = String(testJSON, strlen(testJSON) - 3);
+    try {
+        document.load(truncatedJSON);
+        FAIL() << "Incorrect: MUST fail";
+    }
+    catch (const Exception& e) {
+        SUCCEED() << "Correct: " << e.what();
+    }
+}
+
 #endif

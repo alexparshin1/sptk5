@@ -51,6 +51,7 @@ void throwError(const string& message, const char* json, size_t position)
 {
     stringstream error;
     error << message;
+    int jsonLength = strlen(json);
     if (position > 0) {
         error << ", in position " << position;
         char context[ERROR_CONTEXT_CHARS];
@@ -61,8 +62,13 @@ void throwError(const string& message, const char* json, size_t position)
         strncpy(context, contextStart, pretextLen);
         context[pretextLen] = 0;
         error << " in context: '" << context << ">" << json[position] << "<";
-        strncpy(context, json + position + 1, ERROR_CONTEXT_CHARS / 2);
-        error << context << "'";
+        int afterTextLength = ERROR_CONTEXT_CHARS / 2;
+        if (int(position) + afterTextLength > jsonLength)
+            afterTextLength = jsonLength - position;
+        if (afterTextLength > 0) {
+            strncpy(context, json + position + 1, afterTextLength);
+            error << context << "'";
+        }
     }
     else if ((int)position < 0)
         error << ", after position " << -int(position);
@@ -110,7 +116,7 @@ inline void skipSpaces(const char* json, const char*& readPosition)
 {
     while ((unsigned char) *readPosition <= 32) {
         if (*readPosition == 0)
-            throwError("Premature end of data", json, readPosition - json);
+            throwError("Premature end of data", json, strlen(json));
         readPosition++;
     }
 }
