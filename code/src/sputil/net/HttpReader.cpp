@@ -128,6 +128,11 @@ bool HttpReader::readHttpHeaders()
     if (itor != m_httpHeaders.end())
         m_contentIsChunked = itor->second.find("chunked") != string::npos;
 
+    bool expectingContent = m_requestType == "POST" || m_requestType == "PUT";
+    bool contentLengthDefined = m_contentLength > 0 || m_contentIsChunked;
+    if (expectingContent && !contentLengthDefined)
+        throw HTTPException(411, "Length required");
+
     m_contentReceivedLength = 0;
 
     m_readerState = READING_DATA;
