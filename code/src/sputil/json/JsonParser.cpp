@@ -61,14 +61,15 @@ void throwError(const string& message, const char* json, size_t position)
         size_t pretextLen = json + position - contextStart;
         strncpy(context, contextStart, pretextLen);
         context[pretextLen] = 0;
-        error << " in context: '" << context << ">" << json[position] << "<";
+        error << " in context: '.." << context << ">" << json[position] << "<";
         int afterTextLength = ERROR_CONTEXT_CHARS / 2;
         if (int(position) + afterTextLength > jsonLength)
             afterTextLength = jsonLength - position;
         if (afterTextLength > 0) {
             strncpy(context, json + position + 1, afterTextLength);
-            error << context << "'";
+            error << context;
         }
+        error << "'";
     }
     else if ((int)position < 0)
         error << ", after position " << -int(position);
@@ -108,10 +109,12 @@ void Parser::parse(Element& jsonElement, const string& jsonStr)
             throwUnexpectedCharacterError(*pos, 0, json, pos - json);
             break;
     }
-    if (*pos != 0) {
-        skipSpaces(json, pos);
-        if (*pos != 0)
-            throwError("Invalid data after JSON", json, pos - json);
+
+    // Check if there is trailing junk data
+    while (*pos) {
+        if ((unsigned char) *pos > 32)
+            throwError("Invalid character(s) after JSON data", json, strlen(json));
+        pos++;
     }
 }
 

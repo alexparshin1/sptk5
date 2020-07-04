@@ -49,7 +49,7 @@ WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElemen
         simpleTypeElement->select(patternNodes, "xsd:restriction/xsd:pattern");
         for (auto* patternNode: patternNodes) {
             patternNode = dynamic_cast<xml::Element*>(patternNode);
-            String pattern = patternNode->getAttribute("value").asString().replace(R"(\\)", R"(\\)");
+            String pattern = patternNode->getAttribute("value").asString().replace(R"(\\)", R"(\)");
             if (!pattern.empty())
                 m_type = Pattern;
             m_patterns.emplace_back(pattern);
@@ -107,7 +107,7 @@ String sptk::WSRestriction::generateConstructor(const String& variableName) cons
             for (auto& regex: m_patterns)
                 patterns.push_back(regex.pattern());
             str << "WSRestriction " << variableName << "(WSRestriction::Pattern, \"" << m_wsdlTypeName << "\", "
-                << "{ \"" << patterns.join("\", \"") << "\" })";
+                << "{ R\"(" << patterns.join(")\", R\"(") << ")\" })";
             break;
         default:
             break;

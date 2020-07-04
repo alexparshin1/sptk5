@@ -44,14 +44,15 @@ namespace sptk {
 /// reply, then closes connection.
 class WSWebServiceProtocol : public WSProtocol
 {
-    HttpReader&         m_httpReader;   ///< HTTP reader
-    WSRequest&          m_service;      ///< Web service
-    const URL           m_url;          ///< Request URL
-    const String        m_hostname;     ///< Listener's hostname
-    const uint16_t      m_port;         ///< Listener's port
-    bool                m_allowCORS;    ///< Allow CORS?
-    bool                m_keepAlive;    ///< Allow keep-alive connections
-    LogDetails          m_logDetails;   ///< Log details
+    HttpReader&         m_httpReader;           ///< HTTP reader
+    WSRequest&          m_service;              ///< Web service
+    const URL           m_url;                  ///< Request URL
+    const String        m_hostname;             ///< Listener's hostname
+    const uint16_t      m_port;                 ///< Listener's port
+    bool                m_allowCORS;            ///< Allow CORS?
+    bool                m_keepAlive;            ///< Allow keep-alive connections
+    bool                m_suppressHttpStatus;   ///< If true, then HTTP status is 202 Accepted even if HttpException raised
+    LogDetails          m_logDetails;           ///< Log details
 
     /**
      * Process request message, and store response to output
@@ -79,8 +80,9 @@ public:
      * @param allowCORS         Allow CORS
      * @param keepAlive         Keep alive
      */
-    WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service, const String& hostname,
-                         uint16_t port, bool allowCORS, bool keepAlive);
+    WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
+                         const String& hostname, uint16_t port, bool allowCORS, bool keepAlive,
+                         bool suppressHttpStatus);
 
     /// @brief Process method
     ///

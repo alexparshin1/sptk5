@@ -410,15 +410,16 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "    catch (const HTTPException& e) {" << endl;
     serviceImplementation << "        if (m_logEngine != nullptr) {" << endl;
     serviceImplementation << "            Logger logger(*m_logEngine);" << endl;
-    serviceImplementation << "            logger.error(String(\"WS request error: \") + e.what());" << endl;
+    serviceImplementation << "            logger.error(requestName + \": \"  + String(\"HTTP exception: \") + e.what());" << endl;
     serviceImplementation << "        }" << endl;
     serviceImplementation << "        throw;" << endl;
     serviceImplementation << "    }" << endl;
     serviceImplementation << "    catch (const Exception& e) {" << endl;
     serviceImplementation << "        if (m_logEngine != nullptr) {" << endl;
     serviceImplementation << "            Logger logger(*m_logEngine);" << endl;
-    serviceImplementation << "            logger.error(String(\"WS request error: \") + e.what());" << endl;
+    serviceImplementation << "            logger.error(requestName + \": \" + String(\"Request error: \") + e.what());" << endl;
     serviceImplementation << "        }" << endl;
+    serviceImplementation << "        throw;" << endl;
     serviceImplementation << "    }" << endl;
     serviceImplementation << "}" << endl;
 

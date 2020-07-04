@@ -56,10 +56,9 @@ xml::Element* WSRequest::findSoapBody(xml::Element* soapEnvelope, const WSNameSp
     return soapBody;
 }
 
-String WSRequest::processRequest(xml::Document* xmlContent, json::Document* jsonContent,
-                                 HttpAuthentication* authentication)
+void WSRequest::processRequest(xml::Document* xmlContent, json::Document* jsonContent,
+                               HttpAuthentication* authentication, String& requestName)
 {
-    String      requestName;
     WSNameSpace requestNameSpace;
 
     if (xmlContent) {
@@ -104,6 +103,4 @@ String WSRequest::processRequest(xml::Document* xmlContent, json::Document* json
 
     json::Element* jsonNode = jsonContent? &jsonContent->root(): nullptr;
     requestBroker(requestName, xmlContent, jsonNode, authentication, requestNameSpace);
-
-    return requestName;
 }

@@ -148,15 +148,15 @@ public:
      * The processing results are stored in the same request XML
      * @param xmlContent           Incoming request and outgoing response
      */
-    [[nodiscard]] String processRequest(xml::Document* xmlContent, json::Document* jsonContent,
-                                        HttpAuthentication* authentication);
+    void processRequest(xml::Document* xmlContent, json::Document* jsonContent,
+                                      HttpAuthentication* authentication, String& requestName);
 
     /**
      * @brief Returns service title (for service handshake)
      *
      * Application should overwrite this method to return mor appropriate text
      */
-    virtual String title() const
+    [[nodiscard]] virtual String title() const
     {
         return "Generic SPTK WS Request Broker";
     }
@@ -166,7 +166,7 @@ public:
      *
      * Application should overwrite this method to return mor appropriate text
      */
-    virtual String defaultPage() const
+    [[nodiscard]] virtual String defaultPage() const
     {
         return "index.html";
     }

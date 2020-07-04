@@ -58,7 +58,7 @@ int main()
             throw SystemException("Can't get hostname");
         WSListener server(request, log,
                           WSConnection::Paths("index.html", "request", "/var/lib/pgman/webapp"),
-                          hostname, false, 0, false, false);
+                          hostname, false, 0, false, false, false);
         server.listen(8000);
         while (true)
             this_thread::sleep_for(chrono::milliseconds(1000));
