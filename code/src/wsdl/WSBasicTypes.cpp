@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/wsdl/WSBasicTypes.h>
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
