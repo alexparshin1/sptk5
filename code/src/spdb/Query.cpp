@@ -31,17 +31,17 @@
 using namespace std;
 using namespace sptk;
 
-void Query_StatementManagement::setDatabase(PoolDatabaseConnection* db)
+void QueryStatementManagement::setDatabase(PoolDatabaseConnection* db)
 {
     m_db = db;
 }
 
-bool Query_StatementManagement::bulkMode() const
+bool QueryStatementManagement::bulkMode() const
 {
     return m_bulkMode;
 }
 
-void Query_StatementManagement::closeStmt(bool freeStatement)
+void QueryStatementManagement::closeStmt(bool freeStatement)
 {
     if (database() != nullptr && statement() !=nullptr) {
         if (freeStatement)
@@ -53,14 +53,14 @@ void Query_StatementManagement::closeStmt(bool freeStatement)
     }
 }
 
-void Query_StatementManagement::closeQuery(bool releaseStatement)
+void QueryStatementManagement::closeQuery(bool releaseStatement)
 {
     setEof(true);
     if (statement() !=nullptr)
         closeStmt(releaseStatement);
 }
 
-void Query_StatementManagement::prepare()
+void QueryStatementManagement::prepare()
 {
     if (!autoPrepare())
         throw DatabaseException("Can't prepare this statement");
@@ -72,7 +72,7 @@ void Query_StatementManagement::prepare()
     }
 }
 
-void Query_StatementManagement::unprepare()
+void QueryStatementManagement::unprepare()
 {
     if (!prepared())
         return;
@@ -83,12 +83,12 @@ void Query_StatementManagement::unprepare()
     }
 }
 
-void Query_StatementManagement::notImplemented(const String& functionName) const
+void QueryStatementManagement::notImplemented(const String& functionName) const
 {
     throw DatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, getSQL());
 }
 
-void Query_StatementManagement::connect(PoolDatabaseConnection* _db)
+void QueryStatementManagement::connect(PoolDatabaseConnection* _db)
 {
     if (database() == _db)
         return;
@@ -97,7 +97,7 @@ void Query_StatementManagement::connect(PoolDatabaseConnection* _db)
     database()->linkQuery((Query*)this);
 }
 
-void Query_StatementManagement::disconnect()
+void QueryStatementManagement::disconnect()
 {
     closeQuery(true);
     if (database() != nullptr)
@@ -115,12 +115,12 @@ void Query::execute()
 
 //==============================================================================
 Query::Query() noexcept
-: Query_StatementManagement(true)
+: QueryStatementManagement(true)
 {
 }
 
 Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
-: Query_StatementManagement(autoPrepare)
+: QueryStatementManagement(autoPrepare)
 {
     if (db) {
         setDatabase(db->connection());
@@ -130,7 +130,7 @@ Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
 }
 
 Query::Query(PoolDatabaseConnection* db, const String& sql, bool autoPrepare)
-: Query_StatementManagement(autoPrepare)
+: QueryStatementManagement(autoPrepare)
 {
     if (db != nullptr) {
         setDatabase(db);
@@ -338,7 +338,7 @@ void Query::throwError(const String& method, const String& error)
     throw DatabaseException(errorText);
 }
 
-void Query_StatementManagement::setBulkMode(bool bulkMode)
+void QueryStatementManagement::setBulkMode(bool bulkMode)
 {
     m_bulkMode = bulkMode;
 }

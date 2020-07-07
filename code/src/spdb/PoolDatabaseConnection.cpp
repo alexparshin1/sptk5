@@ -251,104 +251,104 @@ void PoolDatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Stri
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }
 
-void PoolDatabaseConnection_QueryMethods::querySetStmt(Query *q, void *stmt)
+void PoolDatabaseConnectionQueryMethods::querySetStmt(Query *q, void *stmt)
 {
     q->setStatement(stmt);
 }
 
-void PoolDatabaseConnection_QueryMethods::querySetPrepared(Query *q, bool pf)
+void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query *q, bool pf)
 {
     q->setPrepared(pf);
 }
 
-void PoolDatabaseConnection_QueryMethods::querySetActive(Query *q, bool af)
+void PoolDatabaseConnectionQueryMethods::querySetActive(Query *q, bool af)
 {
     q->setActive(af);
 }
 
-void PoolDatabaseConnection_QueryMethods::querySetEof(Query *q, bool eof)
+void PoolDatabaseConnectionQueryMethods::querySetEof(Query *q, bool eof)
 {
     q->setEof(eof);
 }
 
-String PoolDatabaseConnection_QueryMethods::queryError(const Query*) const
+String PoolDatabaseConnectionQueryMethods::queryError(const Query*) const
 {
     notImplemented("queryError");
     return String();
 }
 
-void PoolDatabaseConnection_QueryMethods::queryAllocStmt(Query*)
+void PoolDatabaseConnectionQueryMethods::queryAllocStmt(Query*)
 {
     notImplemented("queryAllocStmt");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryFreeStmt(Query*)
+void PoolDatabaseConnectionQueryMethods::queryFreeStmt(Query*)
 {
     notImplemented("queryFreeStmt");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryCloseStmt(Query*)
+void PoolDatabaseConnectionQueryMethods::queryCloseStmt(Query*)
 {
     notImplemented("queryCloseStmt");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryPrepare(Query*)
+void PoolDatabaseConnectionQueryMethods::queryPrepare(Query*)
 {
     notImplemented("queryPrepare");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryUnprepare(Query *query)
+void PoolDatabaseConnectionQueryMethods::queryUnprepare(Query *query)
 {
     queryFreeStmt(query);
 }
 
-void PoolDatabaseConnection_QueryMethods::queryExecute(Query*)
+void PoolDatabaseConnectionQueryMethods::queryExecute(Query*)
 {
     notImplemented("queryExecute");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryExecDirect(Query*)
+void PoolDatabaseConnectionQueryMethods::queryExecDirect(Query*)
 {
     notImplemented("queryExecDirect");
 }
 
-int PoolDatabaseConnection_QueryMethods::queryColCount(Query*)
+int PoolDatabaseConnectionQueryMethods::queryColCount(Query*)
 {
     notImplemented("queryColCount");
     return 0;
 }
 
-void PoolDatabaseConnection_QueryMethods::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
+void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryColAttributes(Query*, int16_t, int16_t, char *, int32_t)
+void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int16_t, char *, int32_t)
 {
     notImplemented("queryColAttributes");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryBindParameters(Query*)
+void PoolDatabaseConnectionQueryMethods::queryBindParameters(Query*)
 {
     notImplemented("queryBindParameters");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryOpen(Query*)
+void PoolDatabaseConnectionQueryMethods::queryOpen(Query*)
 {
     notImplemented("queryOpen");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryFetch(Query*)
+void PoolDatabaseConnectionQueryMethods::queryFetch(Query*)
 {
     notImplemented("queryFetch");
 }
 
-void PoolDatabaseConnection_QueryMethods::notImplemented(const String& methodName) const
+void PoolDatabaseConnectionQueryMethods::notImplemented(const String& methodName) const
 {
     throw DatabaseException("Method '" + methodName + "' is not supported by this database driver.");
 }
 
-String PoolDatabaseConnection_QueryMethods::paramMark(unsigned /*paramIndex*/)
+String PoolDatabaseConnectionQueryMethods::paramMark(unsigned /*paramIndex*/)
 {
     return String("?");
 }

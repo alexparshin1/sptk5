@@ -56,34 +56,6 @@ public:
     typedef oracle::occi::ResultSet     ResultSet;          ///< Oracle result set type
     typedef oracle::occi::MetaData      MetaData;           ///< Oracle result set metdata type
 
-private:
-
-    Statement*          m_createClobStatement {nullptr};    ///< Statement for creating CLOBs
-    Statement*          m_createBlobStatement {nullptr};    ///< Statement for creating BLOBs
-    ResultSet*          m_resultSet {nullptr};              ///< Result set (if returned by statement)
-
-    /*
-     * Index of output parameters
-     */
-    std::vector<unsigned> m_outputParamIndex;
-
-    /**
-     * @brief Sets character data to a CLOB parameter
-     * @param parameterIndex uint32_t, Parameter index
-     * @param data unsigned char*, Character data buffer
-     * @param dataSize uint32_t, Character data size
-     */
-    void setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
-
-    /**
-     * @brief Sets binary data to a BLOB parameter
-     * @param parameterIndex uint32_t, Parameter index
-     * @param data unsigned char*, Binary data buffer
-     * @param dataSize uint32_t, Binary data size
-     */
-    void setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
-
-public:
     /**
      * @brief Constructor
      * @param connection Connection*, Oracle connection
@@ -139,6 +111,31 @@ public:
     void getOutputParameters(FieldList& fields);
 
 private:
+
+    Statement*          m_createClobStatement {nullptr};    ///< Statement for creating CLOBs
+    Statement*          m_createBlobStatement {nullptr};    ///< Statement for creating BLOBs
+    ResultSet*          m_resultSet {nullptr};              ///< Result set (if returned by statement)
+
+    /*
+     * Index of output parameters
+     */
+    std::vector<unsigned> m_outputParamIndex;
+
+    /**
+     * @brief Sets character data to a CLOB parameter
+     * @param parameterIndex uint32_t, Parameter index
+     * @param data unsigned char*, Character data buffer
+     * @param dataSize uint32_t, Character data size
+     */
+    void setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
+
+    /**
+     * @brief Sets binary data to a BLOB parameter
+     * @param parameterIndex uint32_t, Parameter index
+     * @param data unsigned char*, Binary data buffer
+     * @param dataSize uint32_t, Binary data size
+     */
+    void setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
 
     /**
      * Read BLOB field

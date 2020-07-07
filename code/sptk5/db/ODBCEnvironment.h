@@ -70,13 +70,6 @@ class SP_DRIVER_EXPORT ODBCBase : public std::mutex
 {
 	friend class ODBCConnection;
 
-protected:
-
-    /**
-     * Constructor
-     */
-    ODBCBase() = default;
-
 public:
 
     /**
@@ -88,6 +81,13 @@ public:
      * Throws the exception
      */
     void exception(const String& text, int line) const;
+
+protected:
+
+    /**
+     * Constructor
+     */
+    ODBCBase() = default;
 
 private:
 
@@ -111,10 +111,20 @@ class SP_DRIVER_EXPORT ODBCEnvironment : public ODBCBase
 {
     friend class ODBCConnectionBase;
 
+public:
+
     /**
-     * ODBC environment handle
+     * Returns enviromment handle
      */
-    SQLHENV m_hEnvironment {SQL_NULL_HENV};
+    SQLHENV handle() const
+    {
+        return m_hEnvironment;
+    }
+
+    /**
+     * Destructor
+     */
+    ~ODBCEnvironment();
 
 protected:
 
@@ -141,20 +151,11 @@ protected:
         return m_hEnvironment != SQL_NULL_HENV;
     }
 
-public:
-
+private:
     /**
-     * Returns enviromment handle
+     * ODBC environment handle
      */
-    SQLHENV handle() const
-    {
-        return m_hEnvironment;
-    }
-
-    /**
-     * Destructor
-     */
-    ~ODBCEnvironment();
+    SQLHENV m_hEnvironment {SQL_NULL_HENV};
 };
 
 /**
@@ -164,27 +165,6 @@ public:
  */
 class SP_DRIVER_EXPORT ODBCConnectionBase : public ODBCBase
 {
-    ODBCEnvironment&    m_cEnvironment {getEnvironment()};  ///< ODBC environment
-    SQLHDBC             m_hConnection {SQL_NULL_HDBC};      ///< ODBC connection handle
-    bool                m_connected {false};                ///< Is connection active?
-    String              m_connectString;                    ///< ODBC connection string
-    String              m_driverDescription;                ///< Driver description, filled in during the connection to the DSN
-
-protected:
-    /**
-     * Is connection active?
-     */
-    bool valid() const
-    {
-        return m_hConnection != SQL_NULL_HDBC;
-    }
-
-    /**
-     * Execute query in current connection
-     * @param query             Query to execute
-     */
-    void execQuery(const char* query);
-
 public:
 
     /**
@@ -294,6 +274,29 @@ public:
      * @returns ODBC driver error message with the user action
      */
     String errorInformation(const char* action);
+
+protected:
+    /**
+     * Is connection active?
+     */
+    bool valid() const
+    {
+        return m_hConnection != SQL_NULL_HDBC;
+    }
+
+    /**
+     * Execute query in current connection
+     * @param query             Query to execute
+     */
+    void execQuery(const char* query);
+
+private:
+
+    ODBCEnvironment&    m_cEnvironment {getEnvironment()};  ///< ODBC environment
+    SQLHDBC             m_hConnection {SQL_NULL_HDBC};      ///< ODBC connection handle
+    bool                m_connected {false};                ///< Is connection active?
+    String              m_connectString;                    ///< ODBC connection string
+    String              m_driverDescription;                ///< Driver description, filled in during the connection to the DSN
 };
 
 /**

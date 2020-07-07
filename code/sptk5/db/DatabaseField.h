@@ -52,35 +52,6 @@ class SP_EXPORT DatabaseField : public Field
 {
     friend class Query;
 
-    /**
-     * Native database data type
-     */
-    int     m_fldType;
-
-    /**
-     * Field column number in recordset
-     */
-    int     m_fldColumn;
-
-    /**
-     * Field size
-     */
-    int     m_fldSize;
-
-    /**
-     * Field scale, optional, for floating point fields
-     */
-    int     m_fldScale;
-
-protected:
-
-    void setFieldType(int fieldType, int fieldLength, int fieldScale)
-    {
-        m_fldType = fieldType;
-        m_fldSize = fieldLength;
-        m_fldScale = fieldScale;
-    }
-
 public:
 
     /**
@@ -146,6 +117,28 @@ public:
     {
         return (uint32_t) m_fldSize;
     }
+
+protected:
+
+    /**
+     * Set field type
+     * @param fieldType         Field type
+     * @param fieldLength       Field length
+     * @param fieldScale        Field scale
+     */
+    void setFieldType(int fieldType, int fieldLength, int fieldScale)
+    {
+        m_fldType = fieldType;
+        m_fldSize = fieldLength;
+        m_fldScale = fieldScale;
+    }
+
+private:
+
+    int     m_fldType;      ///< Native database data type
+    int     m_fldColumn;    ///< Field column number in recordset
+    int     m_fldSize;      ///< Field size
+    int     m_fldScale;     ///< Field scale, optional, for floating point fields
 };
 /**
  * @}

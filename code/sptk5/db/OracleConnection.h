@@ -66,92 +66,6 @@ public:
     typedef oracle::occi::Clob          Clob;
     typedef oracle::occi::Blob          Blob;
 
-private:
-
-    mutable std::mutex          m_mutex;                ///< Mutex that protects access to data members
-    OracleEnvironment           m_environment;          ///< Oracle connection environment
-    Connection*                 m_connection {nullptr}; ///< Oracle database connection
-    std::string                 m_lastError;            ///< Last error in this connection or query
-
-protected:
-
-    /**
-     * @brief Begins the transaction
-     */
-    void driverBeginTransaction() override;
-
-    /**
-     * @brief Ends the transaction
-     * @param commit            commit if true, rollback if false
-     */
-    void driverEndTransaction(bool commit) override;
-
-    // These methods implement the actions requested by CQuery
-    /**
-     * Retrieves an error (if any) after executing a statement
-     */
-    String queryError(const Query *query) const override;
-
-    /**
-     * Allocates an Oracle statement
-     */
-    void queryAllocStmt(Query *query) override;
-
-    /**
-     * Deallocates an Oracle statement
-     */
-    void queryFreeStmt(Query *query) override;
-
-    /**
-     * Closes an Oracle statement
-     */
-    void queryCloseStmt(Query *query) override;
-
-    /**
-     * Prepares a query if supported by database
-     */
-    void queryPrepare(Query *query) override;
-
-    /**
-     * Unprepares a query if supported by database
-     */
-    void queryUnprepare(Query *query) override;
-
-    /**
-     * Executes a statement
-     */
-    void queryExecute(Query *query) override;
-
-    /**
-     * Counts columns of the dataset (if any) returned by query
-     */
-    int  queryColCount(Query *query) override;
-
-    /**
-     * Binds the parameters to the query
-     */
-    void queryBindParameters(Query *query) override;
-
-    /**
-     * Opens the query for reading data from the query' recordset
-     */
-    void queryOpen(Query *query) override;
-
-    /**
-     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
-     */
-    void queryFetch(Query *query) override;
-
-
-    /**
-     * @brief Returns parameter mark
-     *
-     * Parameter mark is generated from the parameterIndex.
-     * @param paramIndex        parameter index in SQL starting from 0
-     */
-    String paramMark(unsigned paramIndex) override;
-
-public:
     /**
      * @brief Returns the Oracle connection object
      */
@@ -249,7 +163,90 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
+protected:
+
+    /**
+     * @brief Begins the transaction
+     */
+    void driverBeginTransaction() override;
+
+    /**
+     * @brief Ends the transaction
+     * @param commit            commit if true, rollback if false
+     */
+    void driverEndTransaction(bool commit) override;
+
+    // These methods implement the actions requested by CQuery
+    /**
+     * Retrieves an error (if any) after executing a statement
+     */
+    String queryError(const Query *query) const override;
+
+    /**
+     * Allocates an Oracle statement
+     */
+    void queryAllocStmt(Query *query) override;
+
+    /**
+     * Deallocates an Oracle statement
+     */
+    void queryFreeStmt(Query *query) override;
+
+    /**
+     * Closes an Oracle statement
+     */
+    void queryCloseStmt(Query *query) override;
+
+    /**
+     * Prepares a query if supported by database
+     */
+    void queryPrepare(Query *query) override;
+
+    /**
+     * Unprepares a query if supported by database
+     */
+    void queryUnprepare(Query *query) override;
+
+    /**
+     * Executes a statement
+     */
+    void queryExecute(Query *query) override;
+
+    /**
+     * Counts columns of the dataset (if any) returned by query
+     */
+    int  queryColCount(Query *query) override;
+
+    /**
+     * Binds the parameters to the query
+     */
+    void queryBindParameters(Query *query) override;
+
+    /**
+     * Opens the query for reading data from the query' recordset
+     */
+    void queryOpen(Query *query) override;
+
+    /**
+     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     */
+    void queryFetch(Query *query) override;
+
+
+    /**
+     * @brief Returns parameter mark
+     *
+     * Parameter mark is generated from the parameterIndex.
+     * @param paramIndex        parameter index in SQL starting from 0
+     */
+    String paramMark(unsigned paramIndex) override;
+
 private:
+
+    mutable std::mutex          m_mutex;                ///< Mutex that protects access to data members
+    OracleEnvironment           m_environment;          ///< Oracle connection environment
+    Connection*                 m_connection {nullptr}; ///< Oracle database connection
+    std::string                 m_lastError;            ///< Last error in this connection or query
 
     void executeMultipleStatements(const Strings& statements, Strings* errors);
 

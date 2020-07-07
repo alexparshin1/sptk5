@@ -134,10 +134,10 @@ typedef std::vector<QueryColumnTypeSize> QueryColumnTypeSizeVector;
  */
 typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
 
-class SP_EXPORT PoolDatabaseConnection_QueryMethods
+class SP_EXPORT PoolDatabaseConnectionQueryMethods
 {
     friend class Query;
-    friend class Query_StatementManagement;
+    friend class QueryStatementManagement;
 
 protected:
     /**
@@ -253,10 +253,10 @@ protected:
  * Implements a thread-safe connection to general database. It is used
  * as a base class for actual database driver classes.
  */
-class SP_EXPORT PoolDatabaseConnection : public PoolDatabaseConnection_QueryMethods
+class SP_EXPORT PoolDatabaseConnection : public PoolDatabaseConnectionQueryMethods
 {
     friend class Query;
-    friend class Query_StatementManagement;
+    friend class QueryStatementManagement;
 
     std::set<Query*>            m_queryList;                ///< The list of queries that use this database
     DatabaseConnectionString    m_connString;               ///< The connection string

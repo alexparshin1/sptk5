@@ -53,17 +53,55 @@ class SP_DRIVER_EXPORT ODBCConnection: public PoolDatabaseConnection
 {
     friend class Query;
 
-    /**
-     * The ODBC connection object
-     */
-    ODBCConnectionBase *m_connect {new ODBCConnectionBase};
-
+public:
 
     /**
-     * @brief Retrieves an error (if any) after statement was executed
-     * @param stmt SQLHSTMT, the statement that had an error
+     * @brief Constructor
+     * @param connectionString  The ODBC connection string
      */
-    String queryError(SQLHSTMT stmt) const;
+    explicit ODBCConnection(const String& connectionString = "");
+
+    /**
+     * @brief Destructor
+     */
+    ~ODBCConnection() override;
+
+    /**
+     * @brief Returns driver-specific connection string
+     */
+    String nativeConnectionString() const override;
+
+    /**
+     * @brief Closes the database connection. If unsuccessful throws an exception.
+     */
+    void closeDatabase() override;
+
+    /**
+     * @brief Returns true if database is opened
+     */
+    bool active() const override;
+
+    /**
+     * @brief Returns the database connection handle
+     */
+    void* handle() const override;
+
+    /**
+     * @brief Returns the ODBC connection string for the active connection
+     */
+    virtual String connectString() const;
+
+    /**
+     * @brief Returns the ODBC driver description for the active connection
+     */
+    String driverDescription() const override;
+
+    /**
+     * @brief Lists database objects
+     * @param objectType        Object type to list
+     * @param objects           Object list (output)
+     */
+    void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
 protected:
 
@@ -179,57 +217,18 @@ protected:
      */
     void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
-public:
-
-    /**
-     * @brief Constructor
-     * @param connectionString  The ODBC connection string
-     */
-    explicit ODBCConnection(const String& connectionString = "");
-
-    /**
-     * @brief Destructor
-     */
-    ~ODBCConnection() override;
-
-    /**
-     * @brief Returns driver-specific connection string
-     */
-    String nativeConnectionString() const override;
-
-    /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
-     */
-    void closeDatabase() override;
-
-    /**
-     * @brief Returns true if database is opened
-     */
-    bool active() const override;
-
-    /**
-     * @brief Returns the database connection handle
-     */
-    void* handle() const override;
-
-    /**
-     * @brief Returns the ODBC connection string for the active connection
-     */
-    virtual String connectString() const;
-
-    /**
-     * @brief Returns the ODBC driver description for the active connection
-     */
-    String driverDescription() const override;
-
-    /**
-     * @brief Lists database objects
-     * @param objectType        Object type to list
-     * @param objects           Object list (output)
-     */
-    void objectList(DatabaseObjectType objectType, Strings& objects) override;
-
 private:
+    /**
+     * The ODBC connection object
+     */
+    ODBCConnectionBase *m_connect {new ODBCConnectionBase};
+
+
+    /**
+     * @brief Retrieves an error (if any) after statement was executed
+     * @param stmt SQLHSTMT, the statement that had an error
+     */
+    String queryError(SQLHSTMT stmt) const;
 
     /**
      * Parse columns information, returned by opened statement

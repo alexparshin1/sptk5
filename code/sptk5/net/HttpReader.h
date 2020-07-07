@@ -32,28 +32,16 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/CaseInsensitiveCompare.h>
 
 #include <mutex>
 
 namespace sptk {
 
-class SP_EXPORT caseInsensitiveCompare 
-{
-public:
-
-    bool operator()(const String &lhs, const String &rhs) const
-    {
-#ifdef _WIN32
-        return _stricmp(lhs.c_str(), rhs.c_str()) < 0;
-#else
-        return strcasecmp(lhs.c_str(), rhs.c_str()) < 0;
-#endif
-    }
-};
 /**
  * @brief A map of HTTP headers and their values (string to string)
  */
-typedef std::map<String, String, caseInsensitiveCompare> HttpHeaders;
+typedef std::map<String, String, CaseInsensitiveCompare> HttpHeaders;
 
 /**
  * HTTP response reader

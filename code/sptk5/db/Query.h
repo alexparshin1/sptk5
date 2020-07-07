@@ -48,7 +48,7 @@ namespace sptk {
  * @{
  */
 
-class SP_EXPORT Query_StatementManagement: public DataSource
+class SP_EXPORT QueryStatementManagement: public DataSource
 {
     /**
      * Prepare the query automatically, on thedynamic_cast<COracleBulkInsertQuery*>( first call
@@ -189,11 +189,11 @@ public:
      * Constructor
      * @param autoPrepare       If true the auto-prepare statement
      */
-    explicit Query_StatementManagement(bool autoPrepare)
+    explicit QueryStatementManagement(bool autoPrepare)
     : m_autoPrepare(autoPrepare)
     {}
 
-    Query_StatementManagement(const Query_StatementManagement& other)
+    QueryStatementManagement(const QueryStatementManagement& other)
     : m_autoPrepare(other.m_autoPrepare)
     {}
 
@@ -283,10 +283,10 @@ public:
  * execute a database queries. The type of the database
  * depends on the DatabaseConnection object query is connected to.
  */
-class SP_EXPORT Query: public Query_StatementManagement
+class SP_EXPORT Query: public QueryStatementManagement
 {
     friend class PoolDatabaseConnection;
-    friend class PoolDatabaseConnection_QueryMethods;
+    friend class PoolDatabaseConnectionQueryMethods;
 
     /**
      * List of query parameters
