@@ -53,23 +53,6 @@ class SP_EXPORT DataSource
 {
     friend class Fl_Group;
 
-protected:
-    /**
-     * Loads datasource data. Should be implemented in derived class
-     */
-    virtual bool loadData()
-    {
-        return true;
-    }
-
-    /**
-     * Saves data from datasource. Should be implemented in derived class
-     */
-    virtual bool saveData()
-    {
-        return true;
-    }
-
 public:
     /**
      * Default constructor
@@ -255,6 +238,23 @@ public:
      * @param compactXmlMode    Compact XML flag
      */
     virtual void toXML(xml::Node& parentNode, const std::string& nodeName, bool compactXmlMode);
+
+protected:
+    /**
+     * Loads datasource data. Should be implemented in derived class
+     */
+    virtual bool loadData()
+    {
+        return true;
+    }
+
+    /**
+     * Saves data from datasource. Should be implemented in derived class
+     */
+    virtual bool saveData()
+    {
+        return true;
+    }
 };
 
 /**

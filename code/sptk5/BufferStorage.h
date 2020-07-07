@@ -46,89 +46,6 @@ namespace sptk
  */
 class SP_EXPORT BufferStorage
 {
-    char*       m_buffer {nullptr};     ///< Actual storage
-    size_t      m_size {0};             ///< Alocated storage size
-    size_t      m_bytes {0};            ///< Actual size of the data in buffer
-
-protected:
-
-    /**
-     * Resizes current buffer
-     * @param sz                Required memory size
-     */
-    void adjustSize(size_t sz);
-
-    /**
-     * Allocate memory
-     * @param size              Number of bytes for new buffer
-     */
-    void allocate(size_t size)
-    {
-        m_bytes = 0;
-        m_size = size;
-        m_buffer = new char[m_size];
-        memset(m_buffer, 0, size);
-    }
-
-    /**
-     * Allocate memory
-     * @param size              Number of bytes for new buffer
-     */
-    void allocate(const String& str)
-    {
-        m_bytes = str.length();
-        m_size = m_bytes + 1;
-        m_buffer = new char[m_size];
-        memcpy(m_buffer, str.c_str(), m_size);
-    }
-
-    /**
-     * Reallocate memory
-     * @param size              Number of bytes for new buffer
-     */
-    void reallocate(size_t size)
-    {
-        if (size == m_size)
-            return;
-
-        auto* ptr = new char[size + 1];
-        if (ptr == nullptr)
-            throwException("Out of memory")
-
-        if (m_size < size)
-            memcpy(ptr, m_buffer, m_size);
-        else
-            memcpy(ptr, m_buffer, size);
-
-        delete [] m_buffer;
-
-        m_buffer = ptr;
-        m_size = size;
-        if (m_bytes >= m_size) {
-            m_bytes = m_size;
-            if (m_bytes > 0)
-                m_bytes--;
-        }
-    }
-
-    /**
-     * Free memory
-     */
-    void deallocate()
-    {
-        delete [] m_buffer;
-        m_buffer = nullptr;
-        m_bytes = 0;
-        m_size = 0;
-    }
-
-    void init(char* data, size_t size, size_t bytes)
-    {
-        m_buffer = data;
-        m_size = size;
-        m_bytes = bytes;
-    }
-
 public:
 
     /**
@@ -312,6 +229,90 @@ public:
      */
     void erase(size_t offset, size_t length);
 
+protected:
+
+    /**
+     * Resizes current buffer
+     * @param sz                Required memory size
+     */
+    void adjustSize(size_t sz);
+
+    /**
+     * Allocate memory
+     * @param size              Number of bytes for new buffer
+     */
+    void allocate(size_t size)
+    {
+        m_bytes = 0;
+        m_size = size;
+        m_buffer = new char[m_size];
+        memset(m_buffer, 0, size);
+    }
+
+    /**
+     * Allocate memory
+     * @param size              Number of bytes for new buffer
+     */
+    void allocate(const String& str)
+    {
+        m_bytes = str.length();
+        m_size = m_bytes + 1;
+        m_buffer = new char[m_size];
+        memcpy(m_buffer, str.c_str(), m_size);
+    }
+
+    /**
+     * Reallocate memory
+     * @param size              Number of bytes for new buffer
+     */
+    void reallocate(size_t size)
+    {
+        if (size == m_size)
+            return;
+
+        auto* ptr = new char[size + 1];
+        if (ptr == nullptr)
+        throwException("Out of memory")
+
+        if (m_size < size)
+            memcpy(ptr, m_buffer, m_size);
+        else
+            memcpy(ptr, m_buffer, size);
+
+        delete [] m_buffer;
+
+        m_buffer = ptr;
+        m_size = size;
+        if (m_bytes >= m_size) {
+            m_bytes = m_size;
+            if (m_bytes > 0)
+                m_bytes--;
+        }
+    }
+
+    /**
+     * Free memory
+     */
+    void deallocate()
+    {
+        delete [] m_buffer;
+        m_buffer = nullptr;
+        m_bytes = 0;
+        m_size = 0;
+    }
+
+    void init(char* data, size_t size, size_t bytes)
+    {
+        m_buffer = data;
+        m_size = size;
+        m_bytes = bytes;
+    }
+
+private:
+
+    char*       m_buffer {nullptr};     ///< Actual storage
+    size_t      m_size {0};             ///< Alocated storage size
+    size_t      m_bytes {0};            ///< Actual size of the data in buffer
 };
 
 /**

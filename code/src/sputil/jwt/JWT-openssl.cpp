@@ -174,7 +174,7 @@ static void SIGN_ERROR(int __err)
         throw Exception("Can't allocate memory");
 }
 
-static const EVP_MD* signAlgorithm(const JWT::jwt_alg_t alg, int& type)
+static const EVP_MD* signAlgorithm(const JWT::Algorithm alg, int& type)
 {
     const EVP_MD* algorithm {nullptr};
     switch (alg) {
@@ -337,7 +337,7 @@ static void VERIFY_ERROR(int __err)
         throw Exception("Can't allocate memory");
 }
 
-static const EVP_MD* getAlgorithm(JWT::jwt_alg_t alg, int& type)
+static const EVP_MD* getAlgorithm(JWT::Algorithm alg, int& type)
 {
     const EVP_MD* algorithm;
 

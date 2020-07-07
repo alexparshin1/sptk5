@@ -84,39 +84,6 @@ enum DirectoryDSpolicies {
  */
 class SP_EXPORT DirectoryDS: public MemoryDS
 {
-protected:
-    /**
-     * Sets up an appropriate image and a name for the file type
-     * @param st                The file type information
-     * @param image             The image type
-     * @param fname             The file name
-     * @returns the file type name
-     */
-    std::string getFileType(const struct stat& st, CSmallPixmapType& image, const char *fname) const;
-
-private:
-    /**
-     * Current directory
-     */
-    String          m_directory;
-
-    /**
-     * Current file pattern
-     */
-    std::vector< std::shared_ptr<RegularExpression> > m_patterns;
-
-    /**
-     * Show policy, see CDirectoryDSpolicies for more information
-     */
-    int             m_showPolicy;
-
-    /**
-     * Returns absolute path to directory or file
-     * @param path              Relative path
-     * @return absolute path
-     */
-    String absolutePath(const String& path) const;
-
 public:
     /**
      * Default Constructor
@@ -199,7 +166,39 @@ public:
      */
     static std::shared_ptr<RegularExpression> wildcardToRegexp(const String& wildcard);
 
+protected:
+    /**
+     * Sets up an appropriate image and a name for the file type
+     * @param st                The file type information
+     * @param image             The image type
+     * @param fname             The file name
+     * @returns the file type name
+     */
+    std::string getFileType(const struct stat& st, CSmallPixmapType& image, const char *fname) const;
+
 private:
+    /**
+     * Current directory
+     */
+    String          m_directory;
+
+    /**
+     * Current file pattern
+     */
+    std::vector< std::shared_ptr<RegularExpression> > m_patterns;
+
+    /**
+     * Show policy, see CDirectoryDSpolicies for more information
+     */
+    int             m_showPolicy;
+
+    /**
+     * Returns absolute path to directory or file
+     * @param path              Relative path
+     * @return absolute path
+     */
+    String absolutePath(const String& path) const;
+
     /**
      * Re-read directory content
      * @return file names

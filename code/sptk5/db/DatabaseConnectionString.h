@@ -66,63 +66,6 @@ public:
      */
     typedef std::map<String,String> Parameters;
 
-private:
-
-    static const RegularExpression parseConnectionString;
-    /**
-     * Database connection string
-     */
-    String     m_connectionString;
-
-    /**
-     * Database server host name
-     */
-    String     m_hostName;
-
-    /**
-     * Database server port number
-     */
-    uint16_t   m_portNumber {0};
-
-    /**
-     * Database user name
-     */
-    String     m_userName;
-
-    /**
-     * Database user password
-     */
-    String     m_password;
-
-    /**
-     * Database name
-     */
-    String     m_databaseName;
-
-    /**
-     * Database schema
-     */
-    String     m_schema;
-
-    /**
-     * Optional parameters
-     */
-    Parameters m_parameters;
-
-    /**
-     * Database driver name
-     */
-    String     m_driverName;
-
-protected:
-
-    /**
-     * Parses connection string
-     */
-    void parse();
-
-
-public:
     /**
      * Constructor
      * @param connectionString  Database connection string
@@ -235,6 +178,61 @@ public:
      * Is connection string empty?
      */
     bool empty() const;
+
+protected:
+
+    /**
+     * Parses connection string
+     */
+    void parse();
+
+private:
+
+    static const RegularExpression parseConnectionString;
+    /**
+     * Database connection string
+     */
+    String     m_connectionString;
+
+    /**
+     * Database server host name
+     */
+    String     m_hostName;
+
+    /**
+     * Database server port number
+     */
+    uint16_t   m_portNumber {0};
+
+    /**
+     * Database user name
+     */
+    String     m_userName;
+
+    /**
+     * Database user password
+     */
+    String     m_password;
+
+    /**
+     * Database name
+     */
+    String     m_databaseName;
+
+    /**
+     * Database schema
+     */
+    String     m_schema;
+
+    /**
+     * Optional parameters
+     */
+    Parameters m_parameters;
+
+    /**
+     * Database driver name
+     */
+    String     m_driverName;
 };
 /**
  * @}

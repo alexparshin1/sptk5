@@ -38,12 +38,12 @@
 namespace sptk
 {
 
-class CSQLite3Field : public DatabaseField
+class SQLite3Field : public DatabaseField
 {
     friend class SQLite3Connection;
 
 public:
-    CSQLite3Field(const std::string& fieldName, int fieldColumn)
+    SQLite3Field(const std::string& fieldName, int fieldColumn)
     : DatabaseField(fieldName, fieldColumn, 0, VAR_NONE, 0, 0)
     {
     }
@@ -361,7 +361,7 @@ void SQLite3Connection::queryOpen(Query* query)
         if (columnName[0] == 0)
             snprintf(columnName, sizeof(columnName), "column%02i", column);
 
-        auto* field = new CSQLite3Field(columnName, column);
+        auto* field = new SQLite3Field(columnName, column);
         query->fields().push_back(field);
     }
 
@@ -416,11 +416,11 @@ void SQLite3Connection::queryFetch(Query* query)
     if (fieldCount == 0)
         return;
 
-    CSQLite3Field* field = nullptr;
+    SQLite3Field* field = nullptr;
 
     for (uint32_t column = 0; column < fieldCount; column++) {
         try {
-            field = (CSQLite3Field*) &(*query)[(uint32_t) column];
+            field = (SQLite3Field*) &(*query)[(uint32_t) column];
 
             auto fieldType = (short) field->fieldType();
             if (fieldType == 0) {

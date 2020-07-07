@@ -142,30 +142,6 @@ class SP_EXPORT BaseVariant
 {
     friend class Variant_Adaptors;
 
-protected:
-
-    VariantData             m_data;             ///< Internal variant data storage
-    size_t                  m_dataSize {0};     ///< Data size
-	uint16_t                m_dataType {0};     ///< Data type
-
-    /**
-     * Releases allocated buffer (if any)
-     */
-    void releaseBuffers();
-
-    /**
-     * Sets the data type
-     */
-    void dataType(uint32_t dt);
-
-    /**
-     * @return True if current data type is external buffer
-     */
-    bool isExternalBuffer() const
-    {
-        return (m_dataType & VAR_EXTERNAL_BUFFER) != 0;
-    }
-
 public:
 
     /**
@@ -211,18 +187,6 @@ public:
      * @param name              Variant type name
      */
     static VariantType nameType(const char* name);
-
-protected:
-
-    /**
-     * Return money data as string
-     * @param printBuffer      Internal print buffer
-     * @param printBufferSize   Internal print buffer size
-     * @return
-     */
-    String getMoneyString(char* printBuffer, size_t printBufferSize) const;
-
-public:
 
     /**
      * Directly reads the internal data
@@ -283,6 +247,38 @@ public:
      * Directly reads the internal data
      */
     virtual uint32_t getImageNdx() const;
+
+protected:
+
+    VariantData             m_data;             ///< Internal variant data storage
+    size_t                  m_dataSize {0};     ///< Data size
+    uint16_t                m_dataType {0};     ///< Data type
+
+    /**
+     * Releases allocated buffer (if any)
+     */
+    void releaseBuffers();
+
+    /**
+     * Sets the data type
+     */
+    void dataType(uint32_t dt);
+
+    /**
+     * @return True if current data type is external buffer
+     */
+    bool isExternalBuffer() const
+    {
+        return (m_dataType & VAR_EXTERNAL_BUFFER) != 0;
+    }
+
+    /**
+     * Return money data as string
+     * @param printBuffer      Internal print buffer
+     * @param printBufferSize   Internal print buffer size
+     * @return
+     */
+    String getMoneyString(char* printBuffer, size_t printBufferSize) const;
 };
 
 /**
@@ -291,13 +287,6 @@ public:
  */
 class SP_EXPORT Variant_Adaptors : public BaseVariant
 {
-protected:
-
-    /**
-     * Copies data from another CVariant
-     */
-    void setData(const BaseVariant& C);
-
 public:
 
     /**
@@ -437,6 +426,13 @@ public:
      * For incompatible types throws an exception.
      */
     const void *asImagePtr() const;
+
+protected:
+
+    /**
+     * Copies data from another CVariant
+     */
+    void setData(const BaseVariant& C);
 };
 
 /**

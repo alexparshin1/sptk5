@@ -52,62 +52,6 @@ namespace sptk {
  */
 class SP_EXPORT MemoryDS : public DataSource
 {
-    mutable SharedMutex     m_mutex;
-
-    /**
-     * Internal list of the dataset records
-     */
-    std::vector<FieldList*> m_list;
-
-    /**
-     * Current record in the dataset.
-     */
-    FieldList*              m_current {nullptr};
-
-    /**
-     * The index of the current record.
-     */
-    uint32_t                m_currentIndex {0};
-
-    /**
-     * EOF flag for sequentual reading first(),next()..next().
-     */
-    bool                    m_eof {false};
-
-protected:
-
-    /**
-     * Default constructor is protected, to prevent creating of the instance of that class
-     */
-    MemoryDS() : DataSource() {}
-
-    /**
-     * Move constructor is protected, to prevent creating of the instance of that class
-     */
-    MemoryDS(MemoryDS&& other) noexcept
-    : m_list(std::move(other.m_list)),
-      m_current(std::exchange(other.m_current,nullptr)),
-      m_currentIndex(std::exchange(other.m_currentIndex,0)),
-      m_eof(std::exchange(other.m_eof,false))
-    {}
-
-    std::vector<FieldList*>& rows()
-    {
-        return m_list;
-    }
-
-    const std::vector<FieldList*>& rows() const
-    {
-        return m_list;
-    }
-
-    /**
-     * Push back field list.
-     * Memory DS takes ownership of the data
-     * @param fieldList         Field list
-     */
-    void push_back(FieldList* fieldList);
-
 public:
 
     /**
@@ -243,6 +187,64 @@ public:
     }
 
     bool empty() const;
+
+protected:
+
+    /**
+     * Default constructor is protected, to prevent creating of the instance of that class
+     */
+    MemoryDS() : DataSource() {}
+
+    /**
+     * Move constructor is protected, to prevent creating of the instance of that class
+     */
+    MemoryDS(MemoryDS&& other) noexcept
+            : m_list(std::move(other.m_list)),
+              m_current(std::exchange(other.m_current,nullptr)),
+              m_currentIndex(std::exchange(other.m_currentIndex,0)),
+              m_eof(std::exchange(other.m_eof,false))
+    {}
+
+    std::vector<FieldList*>& rows()
+    {
+        return m_list;
+    }
+
+    const std::vector<FieldList*>& rows() const
+    {
+        return m_list;
+    }
+
+    /**
+     * Push back field list.
+     * Memory DS takes ownership of the data
+     * @param fieldList         Field list
+     */
+    void push_back(FieldList* fieldList);
+
+private:
+
+    mutable SharedMutex     m_mutex;
+
+    /**
+     * Internal list of the dataset records
+     */
+    std::vector<FieldList*> m_list;
+
+    /**
+     * Current record in the dataset.
+     */
+    FieldList*              m_current {nullptr};
+
+    /**
+     * The index of the current record.
+     */
+    uint32_t                m_currentIndex {0};
+
+    /**
+     * EOF flag for sequentual reading first(),next()..next().
+     */
+    bool                    m_eof {false};
 };
 /**
  * @}

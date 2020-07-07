@@ -48,12 +48,12 @@ JWT::JWT(const JWT& other)
     grants.load(tempBuffer.c_str());
 }
 
-JWT::jwt_alg_t JWT::get_alg() const
+JWT::Algorithm JWT::get_alg() const
 {
     return alg;
 }
 
-void JWT::set_alg(jwt_alg_t _alg, const String &_key)
+void JWT::set_alg(Algorithm _alg, const String &_key)
 {
     if (_alg == JWT_ALG_NONE) {
         if (!_key.empty())
@@ -67,7 +67,7 @@ void JWT::set_alg(jwt_alg_t _alg, const String &_key)
     alg = _alg;
 }
 
-const char * JWT::alg_str(jwt_alg_t _alg)
+const char * JWT::alg_str(Algorithm _alg)
 {
     switch (_alg) {
         case JWT_ALG_NONE:
@@ -95,7 +95,7 @@ const char * JWT::alg_str(jwt_alg_t _alg)
     }
 }
 
-JWT::jwt_alg_t JWT::str_alg(const char *alg)
+JWT::Algorithm JWT::str_alg(const char *alg)
 {
     if (alg == nullptr)
         return JWT_ALG_INVAL;
@@ -514,7 +514,7 @@ TEST(SPTK_JWT, decode)
     const char token[] =
             "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
             "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
-    JWT::jwt_alg_t alg;
+    JWT::Algorithm alg;
 
     auto jwt = make_shared<JWT>();
 

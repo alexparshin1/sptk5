@@ -97,7 +97,7 @@ bool test_decode()
     const char token[] =
             "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
             "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
-    JWT::jwt_alg_t alg;
+    JWT::Algorithm alg;
 
     auto jwt = make_shared<JWT>();
     try {

@@ -63,24 +63,6 @@ public:
     typedef std::vector<Field*>::const_iterator                        const_iterator;
 
 
-private:
-    /**
-     * Field vector
-     */
-    typedef std::vector<Field*>                                 Vector;
-
-    /**
-     * Field name to field case-insensitive map
-     */
-    typedef std::map<String, Field *, CaseInsensitiveCompare>   Map;
-
-    void*                   m_userData {nullptr};       ///< User data - any data you want to associate with that field list
-    Vector                  m_list;                     ///< The list of fields
-    Map*                    m_index {nullptr};          ///< The optional field index by name. 0L if field list isn't indexed.
-    bool                    m_compactXmlMode {false};   ///< The compact XML mode flag
-
-public:
-
     /**
      * Default constructor
      *
@@ -272,6 +254,22 @@ public:
      * @param xml               XML node to store fields into
      */
     void toXML(xml::Node& xml) const;
+
+private:
+    /**
+     * Field vector
+     */
+    typedef std::vector<Field*>                                 Vector;
+
+    /**
+     * Field name to field case-insensitive map
+     */
+    typedef std::map<String, Field *, CaseInsensitiveCompare>   Map;
+
+    void*                   m_userData {nullptr};       ///< User data - any data you want to associate with that field list
+    Vector                  m_list;                     ///< The list of fields
+    Map*                    m_index {nullptr};          ///< The optional field index by name. 0L if field list isn't indexed.
+    bool                    m_compactXmlMode {false};   ///< The compact XML mode flag
 };
 }
 

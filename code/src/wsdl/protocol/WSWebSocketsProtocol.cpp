@@ -83,14 +83,14 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         m_payload.set((const char*)ptr, payloadLength);
 }
 
-void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool final, Buffer& output)
+void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool finalMessage, Buffer& output)
 {
     output.reset(payload.length() + 10);
 
     auto*  ptr = (uint8_t*) output.data();
 
     *ptr = opcode & 0xF;
-    if (final)
+    if (finalMessage)
         *ptr |= 0x80;
 
     ptr++;

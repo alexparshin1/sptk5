@@ -42,10 +42,6 @@ namespace sptk {
 /// Provides WebSockets message encode and decode methods
 class WSWebSocketsMessage
 {
-    uint32_t    m_opcode {0};           ///< WebSockets operation code
-    Buffer      m_payload;              ///< Message payload
-    bool        m_finalMessage {true};  ///< 'message is final' flag
-
 public:
     enum OpCode {
         OC_CONTINUATION     = 0,
@@ -63,15 +59,21 @@ public:
     const Buffer& payload();
 
     /// Decode incoming data into message payload
-    /// @param incomingData const char*, Incoming data received from WebSockets
+    /// @param incomingData     Incoming data received from WebSockets
     void decode(const char* incomingData);
 
     /// Encode a payload into WebSockets frame
-    /// @param payload String, Message to encode
-    /// @param opcode OpCode, WebSockets operation code
-    /// @param final bool, 'message is final' flag
-    /// @param output Buffer, WebSockets frame, ready to send
-    static void encode(String payload, OpCode opcode, bool final, Buffer& output);
+    /// @param payload          Message to encode
+    /// @param opcode           WebSockets operation code
+    /// @param finalMessage     'message is final' flag
+    /// @param output           WebSockets frame, ready to send
+    static void encode(String payload, OpCode opcode, bool finalMessage, Buffer& output);
+
+private:
+
+    uint32_t    m_opcode {0};           ///< WebSockets operation code
+    Buffer      m_payload;              ///< Message payload
+    bool        m_finalMessage {true};  ///< 'message is final' flag
 };
 
 /// WebSockets connection handler
@@ -95,15 +97,18 @@ public:
 
 class WSNotification
 {
+public:
     const std::map<String,String>   m_headers;
     String                          m_data;
 };
 
 class WSNotificationManager
 {
-    Strings  m_queues;
 public:
     WSNotificationManager() = default;
+
+private:
+    Strings  m_queues;
 };
 
 } // namespace sptk

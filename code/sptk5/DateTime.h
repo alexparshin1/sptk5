@@ -126,55 +126,6 @@ public:
         PF_GMT = 16
     };
 
-private:
-
-    /**
-     * Actual date and time value
-     */
-    time_point                  m_dateTime;
-
-    /**
-     * System's date format
-     */
-    static char _dateFormat[32];
-
-    /**
-     * System's time format
-     */
-    static char _fullTimeFormat[32];
-
-    /**
-     * System's time format
-     */
-    static char _shortTimeFormat[32];
-
-    /**
-     * System's date parts order
-     */
-    static char _datePartsOrder[4];
-
-    /**
-     * System's date separator
-     */
-    static char _dateSeparator;
-
-    /**
-     * System's time separator
-     */
-    static char _timeSeparator;
-
-    /**
-     * The locale-defined weekday names
-     */
-    static Strings _weekDayNames;
-
-    /**
-     * The locale-defined weekday names
-     */
-    static Strings _monthNames;
-
-public:
-
     enum Format {
         DATE_FORMAT,
         DATE_PARTS_ORDER,
@@ -382,6 +333,52 @@ public:
         return m_dateTime.time_since_epoch().count() == 0;
     }
 
+private:
+
+    /**
+     * Actual date and time value
+     */
+    time_point                  m_dateTime;
+
+    /**
+     * System's date format
+     */
+    static char _dateFormat[32];
+
+    /**
+     * System's time format
+     */
+    static char _fullTimeFormat[32];
+
+    /**
+     * System's time format
+     */
+    static char _shortTimeFormat[32];
+
+    /**
+     * System's date parts order
+     */
+    static char _datePartsOrder[4];
+
+    /**
+     * System's date separator
+     */
+    static char _dateSeparator;
+
+    /**
+     * System's time separator
+     */
+    static char _timeSeparator;
+
+    /**
+     * The locale-defined weekday names
+     */
+    static Strings _weekDayNames;
+
+    /**
+     * The locale-defined weekday names
+     */
+    static Strings _monthNames;
 };
 
 

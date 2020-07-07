@@ -43,29 +43,14 @@ namespace sptk {
  */
 
 /**
- * @brief Command line parser
+ * Command line parser
  */
 class SP_EXPORT CommandLine
 {
-    /**
-     * Program version and copyright message (forhelp only).
-     */
-    String                                      m_programVersion;
-
-    /**
-     * Program description (forhelp only).
-     */
-    String                                      m_description;
-
-    /**
-     * Command line prototype (forhelp only).
-     */
-    String                                      m_commandLinePrototype;
-
 public:
 
     /**
-     * @brief Option visibility for an argument or command.
+     * Option visibility for an argument or command.
      *
      * Argument(s) are defined with regular expression,
      * that ether should match or should not match depending
@@ -73,6 +58,37 @@ public:
      */
     class SP_EXPORT Visibility
     {
+    public:
+
+        /**
+         * Constructor
+         * @param pattern       Regular expression to match or do not match command line argument. If empty then it matches any argument.
+         * @param mustMatch     If true then regular expression should match, otherwiseit shouldn't match.
+         */
+        Visibility(const String& pattern, bool mustMatch = true);
+
+        /**
+         * Copy constructor
+         * @param other const Visibility&, The object to copy from
+         */
+        Visibility(const Visibility& other);
+
+        /**
+         * Destructor
+         */
+        ~Visibility();
+
+        /**
+         * Returns true if there is no regular expression to match, and matches any argument.
+         */
+        bool any() const;
+
+        /**
+         * Returns true if matches given argument or command.
+         */
+        bool matches(const String& command) const;
+
+    private:
         /**
          * If true then expression shoul not match
          */
@@ -87,323 +103,10 @@ public:
          * Regular expression pattern
          */
         String              m_pattern;
-
-
-    public:
-
-        /**
-         * @brief Constructor
-         * @param pattern       Regular expression to match or do not match command line argument. If empty then it matches any argument.
-         * @param mustMatch     If true then regular expression should match, otherwiseit shouldn't match.
-         */
-        Visibility(const String& pattern, bool mustMatch = true);
-
-        /**
-         * @brief Copy constructor
-         * @param other const Visibility&, The object to copy from
-         */
-        Visibility(const Visibility& other);
-
-        /**
-         * @brief Destructor
-         */
-        ~Visibility();
-
-        /**
-         * @brief Returns true if there is no regular expression to match, and matches any argument.
-         */
-        bool any() const;
-
-        /**
-         * @brief Returns true if matches given argument or command.
-         */
-        bool matches(const String& command) const;
-    };
-
-protected:
-
-    /**
-     * @brief Command line element that could be argument/command, option, or option with value
-     */
-    class SP_EXPORT CommandLineElement
-    {
-        /**
-         * Element name
-         */
-        String      m_name;
-
-        /**
-         * Short element name (single character, options only)
-         */
-        String      m_shortName;
-
-        /**
-         * Help (description) for the element
-         */
-        String      m_help;
-
-        /**
-         * Element visibility for a command (options only)
-         */
-        Visibility  m_useWithCommands;
-
-    protected:
-
-
-        /**
-         * @brief Command line element type
-         */
-        enum Type
-        {
-            /**
-             * Type is unknown or undefined
-             */
-            IS_UNKNOWN,
-
-            /**
-             * Element is a command, not starting from '-' character
-             */
-            IS_COMMAND,
-
-            /**
-             * Element is an option that doesn't expect value
-             */
-            IS_OPTION,
-
-            /**
-             * Element is an option that expects value
-             */
-            IS_VALUE_OPTION
-
-        };
-
-    public:
-
-        /**
-         * @brief Constructor
-         * @param name              Element name
-         * @param shortName         Short element name (single character, options only)
-         * @param help              Help (description) for the element
-         * @param useWithCommands   Element visibility for a command (options only)
-         */
-        CommandLineElement(const String& name, const String& shortName, const String& help,
-                           const Visibility& useWithCommands);
-
-        /**
-         * @brief Destructor
-         */
-        virtual ~CommandLineElement() = default;
-
-        /**
-         * @brief Returns element type
-         */
-        virtual Type type() const;
-
-        /**
-         * @brief Returns element name
-         */
-        virtual String name() const;
-
-        /**
-         * @brief Returns element short name
-         */
-        virtual String shortName() const;
-
-        /**
-         * @brief Returns true if element expects value
-         */
-        virtual bool hasValue() const;
-
-        /**
-         * @brief Validates given value (for elements that provide validation)
-         *
-         * Throws an exception if the value is invalid
-         * @param value             Value to validate
-         */
-        virtual void validate(const String& value) const;
-
-        /**
-         * @brief Returns element name in help print format
-         */
-        virtual String printableName() const;
-
-        /**
-         * @brief Returns true if element may be used with command (options only)
-         */
-        bool useWithCommand(const String& command) const;
-
-        /**
-         * @brief Formats element help for printout
-         * @param textWidth         Help text width
-         * @param formattedText     Formatted help text
-         */
-        void formatHelp(size_t textWidth, Strings& formattedText) const;
-
-        /**
-         * @brief Prints element help
-         * @param nameWidth         Option name width
-         * @param textWidth         Help text width
-         * @param optionDefaultValue Option default value (if any)
-         */
-        void printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue) const;
     };
 
     /**
-     * @brief Command line argument
-     *
-     * Command line argument that doesn't start from '-' character and doesn't expect a value,
-     * AKA command.
-     */
-    class SP_EXPORT CommandLineArgument: public CommandLineElement
-    {
-    public:
-        /**
-         * @brief Constructor
-         * @param name          Element name
-         * @param help          Help (description) for the element
-         */
-        CommandLineArgument(const String& name, const String& help);
-
-        /**
-         * @brief Destructor
-         */
-        virtual ~CommandLineArgument() = default;
-    };
-
-    /**
-     * @brief Command line option
-     *
-     * Command line argument that starts from '-' character and doesn't expect a value.
-     * It may have a long name that starts from '--', and/or a short name, that starts from '-'.
-     */
-    class SP_EXPORT CommandLineOption: public CommandLineElement
-    {
-    public:
-        /**
-         * @brief Constructor
-         * @param name              Element name
-         * @param shortName         Short element name (single character, options only)
-         * @param useWithCommands   Element visibility for a command (options only)
-         * @param help              Help (description) for the element
-         */
-        CommandLineOption(const String& name, const String& shortName, const Visibility& useWithCommands,
-                          const String& help);
-
-        /**
-         * @brief Destructor
-         */
-        virtual ~CommandLineOption() = default;
-
-        /**
-         * @brief Returns true if element expects value
-         */
-        bool hasValue() const override;
-
-        /**
-         * @brief Returns element type
-         */
-        CommandLineElement::Type type() const override;
-
-        /**
-         * @brief Returns element name in help print format
-         */
-        String printableName() const override;
-    };
-
-    /**
-     * @brief Command line parameter
-     *
-     * Command line argument that starts from '-' character and expects a value.
-     * It may have a long name that starts from '--', and/or a short name, that starts from '-'.
-     * Value has human readable name, such as 'file name', 'text', 'number', etc.. and optional
-     * validation pattern that can be regular expression or empty string.
-     */
-    class SP_EXPORT CommandLineParameter: public CommandLineElement
-    {
-        /**
-         * Value name, for using in help
-         */
-        String                  m_valueInfo;
-
-        /**
-         * Value validation regular expression
-         */
-        RegularExpression*      m_validateValue;
-
-
-    public:
-
-        /**
-         * @brief Constructor
-         * @param name          Element name
-         * @param shortName     Short element name (single character, options only)
-         * @param valueName     Value name
-         * @param validateValue Value validation regular expression
-         * @param useWithCommands Element visibility for a command (options only)
-         * @param help          Help (description) for the element
-         */
-        CommandLineParameter(const String& name, const String& shortName, const String& valueName,
-                             const String& validateValue,
-                             const Visibility& useWithCommands, const String& help);
-
-        /**
-         * @brief Destructor
-         */
-        virtual ~CommandLineParameter();
-
-        /**
-         * @brief Returns element name in help print format
-         */
-        String printableName() const override;
-
-        /**
-         * @brief Validates parameter value
-         * @param value         Value to validate
-         */
-        void validate(const String& value) const override;
-
-        /**
-         * @brief Returns true if element expects value
-         */
-        bool hasValue() const override;
-
-        /**
-         * @brief Returns element type
-         */
-        Type type() const override;
-    };
-
-private:
-
-    /**
-     * All the defined options.
-     */
-    std::map<String, CommandLineElement*>       m_optionTemplates;
-
-    /**
-     * All the defined arguments.
-     */
-    std::map<String, CommandLineArgument*>      m_argumentTemplates;
-
-    /**
-     * Received option values.
-     */
-    std::map<String, String>                    m_values;
-
-    /**
-     * Received arguments.
-     */
-    Strings                                     m_arguments;
-
-    /**
-     * All defined elements.
-     */
-    std::list<CommandLineElement*>              m_allElements;
-
-public:
-
-    /**
-     * @brief prints a line of characters
+     * prints a line of characters
      * @param ch                Character to print
      * @param count             Number of characters to print
      */
@@ -432,7 +135,7 @@ public:
                       size_t helpTextColumns) const;
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param programVersion        Program version and copyright message (forhelp only).
      * @param description           Program description (forhelp only).
      * @param commandLinePrototype  Command line prototype (forhelp only).
@@ -440,12 +143,12 @@ public:
     CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype);
 
     /**
-     * @brief destructor
+     * destructor
      */
     virtual ~CommandLine();
 
     /**
-     * @brief Defines command line option
+     * Defines command line option
      *
      * An option doesn't expect a value. If it is present in command line, it assumes value 'yes'.
      * Otherwise it has value 'no'.
@@ -457,7 +160,7 @@ public:
     void defineOption(const String& fullName, const String& shortName, Visibility useForCommands, const String& help);
 
     /**
-     * @brief Defines command line parameter
+     * Defines command line parameter
      * @param fullName          Element name
      * @param shortName         Short element name (single character, options only)
      * @param valueName         Value name
@@ -471,14 +174,14 @@ public:
                          Visibility useForCommands, const String& defaultValue, const String& help);
 
     /**
-     * @brief Defines command line argument/command.
+     * Defines command line argument/command.
      * @param fullName          Argument/command name
      * @param helpText          Help (description) for the element
      */
     void defineArgument(const String& fullName, const String& helpText);
 
     /**
-     * @brief Parses actual command line arguments.
+     * Parses actual command line arguments.
      *
      * Should be executed after any define* methods of this class.
      * @param argc              Number of command line arguments (from main(argc,argv)).
@@ -487,44 +190,44 @@ public:
     void init(int argc, const char* argv[]);
 
     /**
-     * @brief Returns actual option value
+     * Returns actual option value
      * @param name              Option name
      */
     String getOptionValue(const String& name) const;
 
     /**
-     * @brief Returns true if actual command line contains option
+     * Returns true if actual command line contains option
      * @param name              Option name
      */
     bool hasOption(const String& name) const;
 
     /**
-     * @brief Re-defines actual option value
+     * Re-defines actual option value
      * @param name              Option name
      * @param value             Option value
      */
     void setOptionValue(const String& name, const String& value = "yes");
 
     /**
-     * @brief Returns list of command line arguments
+     * Returns list of command line arguments
      */
     const Strings& arguments() const;
 
     /**
-     * @brief Prints full help
+     * Prints full help
      * @param screenColumns     Screen width in columns
      */
     void printHelp(size_t screenColumns) const;
 
     /**
-     * @brief Prints help for a given command/argument
+     * Prints help for a given command/argument
      * @param command           Command to print help for
      * @param screenColumns     Screen width in columns
      */
     void printHelp(const String& command, size_t screenColumns) const;
 
     /**
-     * @brief Prints program version
+     * Prints program version
      */
     void printVersion() const;
 
@@ -542,6 +245,282 @@ public:
      * @return re-written command line arguments
      */
     static Strings rewriteArguments(const Strings& arguments);
+
+protected:
+
+    /**
+     * Command line element that could be argument/command, option, or option with value
+     */
+    class SP_EXPORT CommandLineElement
+    {
+    public:
+        /**
+         * Command line element type
+         */
+        enum Type
+        {
+            IS_UNKNOWN,         ///< Type is unknown or undefined
+            IS_COMMAND,         ///< Element is a command, not starting from '-' character
+            IS_OPTION,          ///< Element is an option that doesn't expect value
+            IS_VALUE_OPTION     ///< Element is an option that expects value
+        };
+
+        /**
+         * Constructor
+         * @param name              Element name
+         * @param shortName         Short element name (single character, options only)
+         * @param help              Help (description) for the element
+         * @param useWithCommands   Element visibility for a command (options only)
+         */
+        CommandLineElement(const String& name, const String& shortName, const String& help,
+                           const Visibility& useWithCommands);
+
+        /**
+         * Destructor
+         */
+        virtual ~CommandLineElement() = default;
+
+        /**
+         * Returns element type
+         */
+        virtual Type type() const;
+
+        /**
+         * Returns element name
+         */
+        virtual String name() const;
+
+        /**
+         * Returns element short name
+         */
+        virtual String shortName() const;
+
+        /**
+         * Returns true if element expects value
+         */
+        virtual bool hasValue() const;
+
+        /**
+         * Validates given value (for elements that provide validation)
+         *
+         * Throws an exception if the value is invalid
+         * @param value             Value to validate
+         */
+        virtual void validate(const String& value) const;
+
+        /**
+         * Returns element name in help print format
+         */
+        virtual String printableName() const;
+
+        /**
+         * Returns true if element may be used with command (options only)
+         */
+        bool useWithCommand(const String& command) const;
+
+        /**
+         * Formats element help for printout
+         * @param textWidth         Help text width
+         * @param formattedText     Formatted help text
+         */
+        void formatHelp(size_t textWidth, Strings& formattedText) const;
+
+        /**
+         * Prints element help
+         * @param nameWidth         Optional name width
+         * @param textWidth         Help text width
+         * @param optionDefaultValue Option default value (if any)
+         */
+        void printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue) const;
+
+    private:
+        /**
+         * Element name
+         */
+        String      m_name;
+
+        /**
+         * Short element name (single character, options only)
+         */
+        String      m_shortName;
+
+        /**
+         * Help (description) for the element
+         */
+        String      m_help;
+
+        /**
+         * Element visibility for a command (options only)
+         */
+        Visibility  m_useWithCommands;
+    };
+
+    /**
+     * Command line argument
+     *
+     * Command line argument that doesn't start from '-' character and doesn't expect a value,
+     * AKA command.
+     */
+    class SP_EXPORT CommandLineArgument: public CommandLineElement
+    {
+    public:
+        /**
+         * Constructor
+         * @param name          Element name
+         * @param help          Help (description) for the element
+         */
+        CommandLineArgument(const String& name, const String& help);
+
+        /**
+         * Destructor
+         */
+        virtual ~CommandLineArgument() = default;
+    };
+
+    /**
+     * Command line option
+     *
+     * Command line argument that starts from '-' character and doesn't expect a value.
+     * It may have a long name that starts from '--', and/or a short name, that starts from '-'.
+     */
+    class SP_EXPORT CommandLineOption: public CommandLineElement
+    {
+    public:
+        /**
+         * Constructor
+         * @param name              Element name
+         * @param shortName         Short element name (single character, options only)
+         * @param useWithCommands   Element visibility for a command (options only)
+         * @param help              Help (description) for the element
+         */
+        CommandLineOption(const String& name, const String& shortName, const Visibility& useWithCommands,
+                          const String& help);
+
+        /**
+         * Destructor
+         */
+        virtual ~CommandLineOption() = default;
+
+        /**
+         * Returns true if element expects value
+         */
+        bool hasValue() const override;
+
+        /**
+         * Returns element type
+         */
+        CommandLineElement::Type type() const override;
+
+        /**
+         * Returns element name in help print format
+         */
+        String printableName() const override;
+    };
+
+    /**
+     * Command line parameter
+     *
+     * Command line argument that starts from '-' character and expects a value.
+     * It may have a long name that starts from '--', and/or a short name, that starts from '-'.
+     * Value has human readable name, such as 'file name', 'text', 'number', etc.. and optional
+     * validation pattern that can be regular expression or empty string.
+     */
+    class SP_EXPORT CommandLineParameter: public CommandLineElement
+    {
+        /**
+         * Value name, for using in help
+         */
+        String                  m_valueInfo;
+
+        /**
+         * Value validation regular expression
+         */
+        RegularExpression*      m_validateValue;
+
+
+    public:
+
+        /**
+         * Constructor
+         * @param name          Element name
+         * @param shortName     Short element name (single character, options only)
+         * @param valueName     Value name
+         * @param validateValue Value validation regular expression
+         * @param useWithCommands Element visibility for a command (options only)
+         * @param help          Help (description) for the element
+         */
+        CommandLineParameter(const String& name, const String& shortName, const String& valueName,
+                             const String& validateValue,
+                             const Visibility& useWithCommands, const String& help);
+
+        /**
+         * Destructor
+         */
+        virtual ~CommandLineParameter();
+
+        /**
+         * Returns element name in help print format
+         */
+        String printableName() const override;
+
+        /**
+         * Validates parameter value
+         * @param value         Value to validate
+         */
+        void validate(const String& value) const override;
+
+        /**
+         * Returns true if element expects value
+         */
+        bool hasValue() const override;
+
+        /**
+         * Returns element type
+         */
+        Type type() const override;
+    };
+
+private:
+
+    /**
+     * Program version and copyright message (forhelp only).
+     */
+    String                                      m_programVersion;
+
+    /**
+     * Program description (forhelp only).
+     */
+    String                                      m_description;
+
+    /**
+     * Command line prototype (forhelp only).
+     */
+    String                                      m_commandLinePrototype;
+
+    /**
+     * All the defined options.
+     */
+    std::map<String, CommandLineElement*>       m_optionTemplates;
+
+    /**
+     * All the defined arguments.
+     */
+    std::map<String, CommandLineArgument*>      m_argumentTemplates;
+
+    /**
+     * Received option values.
+     */
+    std::map<String, String>                    m_values;
+
+    /**
+     * Received arguments.
+     */
+    Strings                                     m_arguments;
+
+    /**
+     * All defined elements.
+     */
+    std::list<CommandLineElement*>              m_allElements;
 };
 
 /**

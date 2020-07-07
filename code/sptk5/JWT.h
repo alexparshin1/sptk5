@@ -45,7 +45,7 @@ class SP_EXPORT JWT
 {
 public:
     /** JWT algorithm types. */
-    enum jwt_alg_t {
+    enum Algorithm {
         JWT_ALG_NONE = 0,
         JWT_ALG_HS256,
         JWT_ALG_HS384,
@@ -61,7 +61,7 @@ public:
 
 #define JWT_ALG_INVAL JWT_ALG_TERM
 
-    jwt_alg_t       alg {JWT_ALG_NONE};     ///< Signature encryption algorithm
+    Algorithm       alg {JWT_ALG_NONE};     ///< Signature encryption algorithm
     String          key;                    ///< Signature encryption key
     json::Document  grants {true};   ///< Token content
 
@@ -104,28 +104,28 @@ public:
      * Get signature encryption algorithm
      * @return signature encryption algorithm
      */
-    jwt_alg_t get_alg() const;
+    Algorithm get_alg() const;
 
     /**
      * Set signature encryption algorithm
      * @param _alg               Signature encryption algorithm
      * @param _key               Signature encryption key
      */
-    void set_alg(jwt_alg_t _alg, const String &_key);
+    void set_alg(Algorithm _alg, const String &_key);
 
     /**
      * Get signature encryption algorithm name
      * @param _alg               Signature encryption algorithm
      * @return
      */
-    static const char * alg_str(jwt_alg_t _alg);
+    static const char * alg_str(Algorithm _alg);
 
     /**
      * Get signature encryption algorithm from name
      * @param alg               Signature encryption algorithm name
      * @return
      */
-    static jwt_alg_t str_alg(const char *alg);
+    static Algorithm str_alg(const char *alg);
 
     /**
      * Sign token
@@ -153,18 +153,6 @@ public:
      * @param pretty            If true, produce formatted output
      */
     void exportTo(std::ostream& output, bool pretty) const;
-
-private:
-
-    /**
-     * Find grant in token content
-     * @param js                Parent JSON element
-     * @param key               Grant name
-     * @return JSON element, or nullptr if not found
-     */
-    static const json::Element* find_grant(const json::Element *js, const String& key);
-
-public:
 
     /**
      * Find string grant value by name
@@ -241,6 +229,16 @@ public:
      * @param sig_b64           Signature
      */
     void verify_sha_pem(const char* head, const char* sig_b64);
+
+private:
+
+    /**
+     * Find grant in token content
+     * @param js                Parent JSON element
+     * @param key               Grant name
+     * @return JSON element, or nullptr if not found
+     */
+    static const json::Element* find_grant(const json::Element *js, const String& key);
 };
 
 /**

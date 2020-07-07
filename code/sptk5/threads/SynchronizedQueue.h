@@ -42,7 +42,7 @@ namespace sptk {
  */
 
 /**
- * @brief Synchronized template queue
+ * Synchronized template queue
  *
  * Simple thread-safe queue
  */
@@ -67,7 +67,7 @@ class SynchronizedQueue
 public:
 
     /**
-     * @brief Queue callback function used in each() method.
+     * Queue callback function used in each() method.
      *
      * Iterates through queue until false is returned.
      * @param item T&, List item
@@ -76,12 +76,12 @@ public:
     typedef bool (CallbackFunction)(T& item, void* data);
 
     /**
-     * @brief Default constructor
+     * Default constructor
      */
     SynchronizedQueue() = default;
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~SynchronizedQueue()
     {
@@ -91,7 +91,7 @@ public:
     }
 
     /**
-     * @brief Pushes a data item to the queue
+     * Pushes a data item to the queue
      *
      * Item is moved inside the queue.
      * Automatically posts internal semaphore to indicate
@@ -106,7 +106,7 @@ public:
     }
 
     /**
-     * @brief Pushes a data item to the queue
+     * Pushes a data item to the queue
      *
      * Automatically posts internal semaphore to indicate
      * queue item availability.
@@ -120,7 +120,7 @@ public:
     }
 
     /**
-     * @brief Pops a data item from the queue
+     * Pops a data item from the queue
      *
      * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
@@ -141,7 +141,7 @@ public:
     }
 
     /**
-     * @brief Wakes up queue semaphore to interrupt waiting
+     * Wakes up queue semaphore to interrupt waiting
      *
      * Any waiting pop() operation immediately returns false.
      */
@@ -151,7 +151,7 @@ public:
     }
 
     /**
-     * @brief Returns true if the queue is empty
+     * Returns true if the queue is empty
      */
     bool empty() const
     {
@@ -160,7 +160,7 @@ public:
     }
 
     /**
-     * @brief Returns number of items in the queue
+     * Returns number of items in the queue
      */
     size_t size() const
     {
@@ -169,7 +169,7 @@ public:
     }
 
     /**
-     * @brief Removes all items from the queue
+     * Removes all items from the queue
      */
     void clear()
     {
@@ -179,15 +179,15 @@ public:
     }
 
     /**
-     * @brief Calls callbackFunction() for every list until false is returned
+     * Calls callbackFunction() for every list until false is returned
      *
      * Current implementation does the job but isn't too efficient due to
      * std::queue class limitations.
-     * @param callbackFunction CallbackFunction*, Callback function that is executed for list items
-     * @param data void*, Function-specific data
+     * @param callbackFunction  Callback function that is executed for list items
+     * @param data              Function-specific data
      * @returns true if every list item was processed
      */
-    bool each(CallbackFunction* callbackFunction, void* data=NULL)
+    bool each(CallbackFunction* callbackFunction, void* data=nullptr)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
 

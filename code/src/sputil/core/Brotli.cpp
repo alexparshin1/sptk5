@@ -139,7 +139,7 @@ public:
             }
 
             result = BrotliDecoderDecompressStream(s, &available_in,
-                                                   &next_in, &available_out, &next_out, 0);
+                                                   &next_in, &available_out, &next_out, nullptr);
         }
     }
 

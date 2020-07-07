@@ -234,56 +234,6 @@ public:
         static const Group      emptyGroup;         ///< Empty group to return if group can't be found
     };
 
-private:
-
-    String                  m_pattern;              ///< Match pattern
-    bool                    m_global {false};       ///< Global match (g) or first match only
-    String                  m_error;                ///< Last pattern error (if any)
-
-#if HAVE_PCRE2
-    pcre2_code*             m_pcre {nullptr};       ///< Compiled PCRE expression handle
-    void*                   m_pcreExtra {nullptr};  ///< Dummy
-#else
-    pcre*                   m_pcre {nullptr};       ///< Compiled PCRE expression handle
-    pcre_extra*             m_pcreExtra {nullptr};  ///< Compiled PCRE expression optimization (for faster execution)
-#endif
-
-    int32_t                 m_options {0};          ///< PCRE pattern options
-    std::atomic<size_t>     m_captureCount {0};     ///< RE' capture count
-
-    /**
-     * Initialize PCRE expression
-     */
-    void compile();
-
-    /**
-     * Computes match positions and lengths
-     * @param text              Input text
-     * @param offset            Starting match offset, advanced with every successful match
-     * @param matchDdata        Output match positions array
-     * @return number of matches
-     */
-    size_t nextMatch(const String& text, size_t& offset, MatchData& matchData) const;
-
-    /**
-     * Get capture group count from the compiled pattern
-     * @return capture group count
-     */
-    size_t getCaptureCount() const;
-
-    /**
-     * Get named capture group count from the compiled pattern
-     * @return named capture group count
-     */
-    size_t getNamedGroupCount() const;
-
-    /**
-     * Get captur group name table from the compiled pattern
-     * @return named capture group count
-     */
-    void getNameTable(const char*& nameTable, int& nameEntrySize) const;
-
-public:
     /**
      * Constructor
      *
@@ -386,6 +336,53 @@ public:
     const String& pattern() const;
 
 private:
+
+    String                  m_pattern;              ///< Match pattern
+    bool                    m_global {false};       ///< Global match (g) or first match only
+    String                  m_error;                ///< Last pattern error (if any)
+
+#if HAVE_PCRE2
+    pcre2_code*             m_pcre {nullptr};       ///< Compiled PCRE expression handle
+    void*                   m_pcreExtra {nullptr};  ///< Dummy
+#else
+    pcre*                   m_pcre {nullptr};       ///< Compiled PCRE expression handle
+    pcre_extra*             m_pcreExtra {nullptr};  ///< Compiled PCRE expression optimization (for faster execution)
+#endif
+
+    int32_t                 m_options {0};          ///< PCRE pattern options
+    std::atomic<size_t>     m_captureCount {0};     ///< RE' capture count
+
+    /**
+     * Initialize PCRE expression
+     */
+    void compile();
+
+    /**
+     * Computes match positions and lengths
+     * @param text              Input text
+     * @param offset            Starting match offset, advanced with every successful match
+     * @param matchDdata        Output match positions array
+     * @return number of matches
+     */
+    size_t nextMatch(const String& text, size_t& offset, MatchData& matchData) const;
+
+    /**
+     * Get capture group count from the compiled pattern
+     * @return capture group count
+     */
+    size_t getCaptureCount() const;
+
+    /**
+     * Get named capture group count from the compiled pattern
+     * @return named capture group count
+     */
+    size_t getNamedGroupCount() const;
+
+    /**
+     * Get captur group name table from the compiled pattern
+     * @return named capture group count
+     */
+    void getNameTable(const char*& nameTable, int& nameEntrySize) const;
 
     /**
      * Find next placeholder

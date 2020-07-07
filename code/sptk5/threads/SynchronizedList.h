@@ -42,7 +42,7 @@ namespace sptk {
  */
 
 /**
- * @brief Synchronized template list
+ * Synchronized template list
  *
  * Simple thread-safe list
  */
@@ -67,7 +67,7 @@ class SynchronizedList
 public:
 
     /**
-     * @brief List callback function used in each() method.
+     * List callback function used in each() method.
      *
      * Iterates through list until false is returned.
      * @param item T&, List item
@@ -76,12 +76,12 @@ public:
     typedef bool (CallbackFunction)(T& item, void* data);
 
     /**
-     * @brief Default constructor
+     * Default constructor
      */
     SynchronizedList() = default;
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~SynchronizedList()
     {
@@ -91,7 +91,7 @@ public:
     }
 
     /**
-     * @brief Pushes a data item to the list front
+     * Pushes a data item to the list front
      *
      * Automatically posts internal semaphore to indicate
      * list item availability.
@@ -105,7 +105,7 @@ public:
     }
 
     /**
-     * @brief Pops a data item from the list front
+     * Pops a data item from the list front
      *
      * If list is empty then waits until timeout milliseconds occurs.
      * Returns false if timeout occurs.
@@ -126,7 +126,7 @@ public:
     }
 
     /**
-     * @brief Pushes a data item to the list back
+     * Pushes a data item to the list back
      *
      * Automatically posts internal semaphore to indicate
      * list item availability.
@@ -140,7 +140,7 @@ public:
     }
 
     /**
-     * @brief Pops a data item from the list back
+     * Pops a data item from the list back
      *
      * If list is empty then waits until timeout occurs.
      * Returns false if timeout occurs.
@@ -161,7 +161,7 @@ public:
     }
 
     /**
-     * @brief Removes all elements with the specific value from the list
+     * Removes all elements with the specific value from the list
      */
     virtual void remove(T& item) const
     {
@@ -170,7 +170,7 @@ public:
     }
 
     /**
-     * @brief Wakes up list semaphore to interrupt waiting
+     * Wakes up list semaphore to interrupt waiting
      *
      * Any waiting pop() operation immediately returns false.
      */
@@ -180,7 +180,7 @@ public:
     }
 
     /**
-     * @brief Returns true if the list is empty
+     * Returns true if the list is empty
      */
     bool empty() const
     {
@@ -189,7 +189,7 @@ public:
     }
 
     /**
-     * @brief Returns number of items in the list
+     * Returns number of items in the list
      */
     size_t size() const
     {
@@ -198,7 +198,7 @@ public:
     }
 
     /**
-     * @brief Removes all items from the list
+     * Removes all items from the list
      */
     void clear()
     {
@@ -207,12 +207,12 @@ public:
     }
 
     /**
-     * @brief Calls callbackFunction() for every list until false is returned
-     * @param callbackFunction CallbackFunction*, Callback function that is executed for list items
-     * @param data void*, Function-specific data
+     * Calls for every list until false is returned
+     * @param callbackFunction  Callback function that is executed for list items
+     * @param data              Function-specific data
      * @returns true if every list item was processed
      */
-    bool each(CallbackFunction* callbackFunction, void* data=NULL)
+    bool each(CallbackFunction* callbackFunction, void* data=nullptr)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         typename std::list<T>::iterator itor;

@@ -49,8 +49,6 @@ class Exception;
  */
 class SP_EXPORT Strings : public std::vector<String>
 {
-    typedef std::vector<String> StringVector;
-
 public:
     /**
      * Sort order enumeration
@@ -60,20 +58,6 @@ public:
         ASCENDING,
         DESCENDING
     };
-
-private:
-
-    /**
-     * User-specified data
-     */
-    int64_t             m_userData {0};
-
-    /**
-     * Is sorted flag
-     */
-    SortOrder           m_sorted {UNSORTED};
-
-public:
 
     /**
      * String split mode
@@ -310,6 +294,20 @@ public:
     {
         return StringVector::operator[](index);
     }
+
+private:
+
+    typedef std::vector<String> StringVector;
+
+    /**
+     * User-specified data
+     */
+    int64_t             m_userData {0};
+
+    /**
+     * Is sorted flag
+     */
+    SortOrder           m_sorted {UNSORTED};
 };
 
 /**
