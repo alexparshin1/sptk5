@@ -140,7 +140,7 @@ class Field;
 
 class SP_EXPORT BaseVariant
 {
-    friend class Variant_Adaptors;
+    friend class VariantAdaptors;
 
 public:
 
@@ -285,7 +285,7 @@ protected:
  * Variant set methods and adaptors
  * 22 methods
  */
-class SP_EXPORT Variant_Adaptors : public BaseVariant
+class SP_EXPORT VariantAdaptors : public BaseVariant
 {
 public:
 
@@ -441,7 +441,7 @@ protected:
  * Reasonably compact an fast class what allows storing data of different
  * types. It also allows conversions to and from supported types.
  */
-class SP_EXPORT Variant : public Variant_Adaptors
+class SP_EXPORT Variant : public VariantAdaptors
 {
 public:
 

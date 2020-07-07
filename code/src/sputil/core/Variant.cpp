@@ -201,7 +201,7 @@ Variant::~Variant()
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setBool(bool value)
+void VariantAdaptors::setBool(bool value)
 {
     if (m_dataType != VAR_BOOL) {
         releaseBuffers();
@@ -213,7 +213,7 @@ void Variant_Adaptors::setBool(bool value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setInteger(int32_t value)
+void VariantAdaptors::setInteger(int32_t value)
 {
     if (m_dataType != VAR_INT) {
         releaseBuffers();
@@ -225,7 +225,7 @@ void Variant_Adaptors::setInteger(int32_t value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setInt64(int64_t value)
+void VariantAdaptors::setInt64(int64_t value)
 {
     if (m_dataType != VAR_INT64) {
         releaseBuffers();
@@ -237,7 +237,7 @@ void Variant_Adaptors::setInt64(int64_t value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setFloat(double value)
+void VariantAdaptors::setFloat(double value)
 {
     if (m_dataType != VAR_FLOAT) {
         releaseBuffers();
@@ -249,7 +249,7 @@ void Variant_Adaptors::setFloat(double value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setMoney(int64_t value, unsigned scale)
+void VariantAdaptors::setMoney(int64_t value, unsigned scale)
 {
     if (m_dataType != VAR_MONEY) {
         releaseBuffers();
@@ -262,13 +262,13 @@ void Variant_Adaptors::setMoney(int64_t value, unsigned scale)
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setString(const String& value)
+void VariantAdaptors::setString(const String& value)
 {
     setBuffer(value.c_str(), value.length(), VAR_STRING);
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setBuffer(const void* value, size_t sz, VariantType type)
+void VariantAdaptors::setBuffer(const void* value, size_t sz, VariantType type)
 {
     if ((type & BUFFER_TYPES) == 0)
         throw Exception("Invalid buffer type");
@@ -294,7 +294,7 @@ void Variant_Adaptors::setBuffer(const void* value, size_t sz, VariantType type)
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setExternalBuffer(void* value, size_t sz, VariantType type)
+void VariantAdaptors::setExternalBuffer(void* value, size_t sz, VariantType type)
 {
     if ((type & BUFFER_TYPES) == 0)
         throw Exception("Invalid buffer type");
@@ -312,7 +312,7 @@ void Variant_Adaptors::setExternalBuffer(void* value, size_t sz, VariantType typ
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setDateTime(DateTime value, bool dateOnly)
+void VariantAdaptors::setDateTime(DateTime value, bool dateOnly)
 {
     if ((m_dataType & (VAR_DATE|VAR_DATE_TIME)) == 0) {
         releaseBuffers();
@@ -331,7 +331,7 @@ void Variant_Adaptors::setDateTime(DateTime value, bool dateOnly)
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setImagePtr(const void* value)
+void VariantAdaptors::setImagePtr(const void* value)
 {
     if (m_dataType != VAR_IMAGE_PTR) {
         releaseBuffers();
@@ -343,7 +343,7 @@ void Variant_Adaptors::setImagePtr(const void* value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setImageNdx(uint32_t value)
+void VariantAdaptors::setImageNdx(uint32_t value)
 {
     if (dataType() != VAR_IMAGE_NDX) {
         releaseBuffers();
@@ -355,7 +355,7 @@ void Variant_Adaptors::setImageNdx(uint32_t value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setMoney(const MoneyData& value)
+void VariantAdaptors::setMoney(const MoneyData& value)
 {
     if (dataType() != VAR_MONEY) {
         releaseBuffers();
@@ -367,7 +367,7 @@ void Variant_Adaptors::setMoney(const MoneyData& value)
 }
 
 //---------------------------------------------------------------------------
-void Variant_Adaptors::setData(const BaseVariant& C)
+void VariantAdaptors::setData(const BaseVariant& C)
 {
     if (C.isNull()) {
         setNull(C.dataType());
@@ -655,7 +655,7 @@ Variant::operator DateTime() const
 
 //---------------------------------------------------------------------------
 // convertors
-int32_t Variant_Adaptors::asInteger() const
+int32_t VariantAdaptors::asInteger() const
 {
     if (isNull())
         return 0;
@@ -692,7 +692,7 @@ int32_t Variant_Adaptors::asInteger() const
     }
 }
 
-int64_t Variant_Adaptors::asInt64() const
+int64_t VariantAdaptors::asInt64() const
 {
     if (isNull())
         return 0;
@@ -739,7 +739,7 @@ int64_t Variant_Adaptors::asInt64() const
     }
 }
 
-bool Variant_Adaptors::asBool() const
+bool VariantAdaptors::asBool() const
 {
     char ch;
 
@@ -783,7 +783,7 @@ bool Variant_Adaptors::asBool() const
     }
 }
 
-double Variant_Adaptors::asFloat() const
+double VariantAdaptors::asFloat() const
 {
     if (isNull())
         return 0;
@@ -820,7 +820,7 @@ double Variant_Adaptors::asFloat() const
     }
 }
 
-String Variant_Adaptors::asString() const
+String VariantAdaptors::asString() const
 {
     if (isNull())
         return "";
@@ -892,7 +892,7 @@ String BaseVariant::getMoneyString(char* printBuffer, size_t printBufferSize) co
     return String(printBuffer, (size_t) len);
 }
 
-DateTime Variant_Adaptors::asDate() const
+DateTime VariantAdaptors::asDate() const
 {
     if (isNull())
         return DateTime();
@@ -923,7 +923,7 @@ DateTime Variant_Adaptors::asDate() const
     }
 }
 
-DateTime Variant_Adaptors::asDateTime() const
+DateTime VariantAdaptors::asDateTime() const
 {
     if (isNull())
         return DateTime();
@@ -954,7 +954,7 @@ DateTime Variant_Adaptors::asDateTime() const
     }
 }
 
-const void* Variant_Adaptors::asImagePtr() const
+const void* VariantAdaptors::asImagePtr() const
 {
     if (isNull())
         return nullptr;
@@ -965,7 +965,7 @@ const void* Variant_Adaptors::asImagePtr() const
     throw Exception("Can't convert field for that type");
 }
 
-void Variant_Adaptors::setNull(VariantType vtype)
+void VariantAdaptors::setNull(VariantType vtype)
 {
     releaseBuffers();
     dataType(vtype | VAR_NULL);

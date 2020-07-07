@@ -39,16 +39,6 @@ namespace sptk
  */
 template <class Connection, class Statement> class DatabaseStatement
 {
-    /**
-     * DB connection
-     */
-    Connection*     m_connection;
-
-    /**
-     * Statement
-     */
-    Statement*      m_statement {nullptr};
-
 public:
 
     Connection* connection() const
@@ -71,48 +61,6 @@ public:
      */
     CParamVector    m_enumeratedParams;
 
-protected:
-
-    /**
-     * Statement state type definition
-     */
-    typedef struct {
-        /**
-         * Number of columns is result set
-         */
-        unsigned    columnCount:12;
-
-        /**
-         * EOF (end of file) flag
-         */
-        bool        eof:1;
-
-        /**
-         * Transaction in progress flag
-         */
-        bool        transaction:1;
-
-        /**
-         * Output parameter count
-         */
-        unsigned    outputParameterCount:1;
-    } State;
-
-private:
-
-    /**
-     * State flags
-     */
-    State m_state {};
-
-protected:
-
-    State& state()
-    {
-        return m_state;
-    }
-
-public:
     /**
      * @brief Constructor
      * @param connection Connection*, DB connection
@@ -202,6 +150,54 @@ public:
     {
         return m_state.columnCount;
     }
+
+protected:
+
+    /**
+     * Statement state type definition
+     */
+    typedef struct {
+        /**
+         * Number of columns is result set
+         */
+        unsigned    columnCount:12;
+
+        /**
+         * EOF (end of file) flag
+         */
+        bool        eof:1;
+
+        /**
+         * Transaction in progress flag
+         */
+        bool        transaction:1;
+
+        /**
+         * Output parameter count
+         */
+        unsigned    outputParameterCount:1;
+    } State;
+
+    State& state()
+    {
+        return m_state;
+    }
+
+private:
+    /**
+     * DB connection
+     */
+    Connection*     m_connection;
+
+    /**
+     * Statement
+     */
+    Statement*      m_statement {nullptr};
+
+    /**
+     * State flags
+     */
+    State m_state {};
 };
 
 }
