@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Proxy.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday June 19 2019                                 ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -38,15 +36,17 @@ class TCPSocket;
 
 class SP_EXPORT Proxy
 {
-protected:
-    const Host                  m_host;
-    const String                m_username;
-    const String                m_password;
 public:
+
     explicit Proxy(Host host, String username="", String password="");
     virtual ~Proxy() = default;
     virtual SOCKET connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) = 0;
 
+protected:
+
+    const Host                  m_host;
+    const String                m_username;
+    const String                m_password;
 };
 
 }

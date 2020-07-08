@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       HttpConnect.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -59,8 +57,6 @@ public:
      */
     class Authorization
     {
-        String  m_method;       ///< Authorization method name
-        String  m_value;        ///< Authorization data
     public:
         /**
          * Default constructor
@@ -103,57 +99,11 @@ public:
          * @return authorization metod value
          */
         String value() const { return m_value; }
+
+    private:
+        String  m_method;       ///< Authorization method name
+        String  m_value;        ///< Authorization data
     };
-
-private:
-    /**
-     * HTTP reader
-     */
-    std::shared_ptr<HttpReader> m_reader;
-
-    /**
-     * External socket
-     */
-    TCPSocket&      m_socket;
-
-    /**
-     * HTTP request headers
-     */
-    HttpHeaders     m_requestHeaders;
-
-protected:
-
-    /**
-     * Create default headers for HTTP request
-     */
-    Strings makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
-                        const Authorization* authorization);
-
-    /**
-     * @brief Sends a single command to HTTP server
-     *
-     * CRLF characters are automatically appended to the command.
-     * @param cmd               HTTP command
-     */
-    void sendCommand(const String& cmd);
-
-    /**
-     * @brief Sends a single command to HTTP server
-     *
-     * CRLF characters are automatically appended to the command.
-     * @param cmd               HTTP command
-     */
-    void sendCommand(const Buffer& cmd);
-
-    /**
-     * @brief Retrieves the server response on the command
-     *
-     * Stops when HTTP server closes the connection. The server response can then be
-     * accessed through the htmlData() method.
-     * @param timeout           Response timeout
-     * @return HTTP result code
-     */
-    int getResponse(Buffer& output, std::chrono::milliseconds timeout);
 
 public:
 
@@ -201,8 +151,8 @@ public:
      * @return HTTP result code
      */
     [[nodiscard]] int cmd_get(const String& pageName, const HttpParams& parameters, Buffer& output,
-                const Authorization* authorization = nullptr,
-                std::chrono::milliseconds timeout = std::chrono::seconds(60));
+                              const Authorization* authorization = nullptr,
+                              std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**
      * @brief Sends the POST command to the server
@@ -218,8 +168,8 @@ public:
      * @return HTTP result code
      */
     [[nodiscard]] int cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
-                 const sptk::Strings& possibleContentEncodings, const Authorization* authorization = nullptr,
-                 std::chrono::milliseconds timeout = std::chrono::seconds(60));
+                               const sptk::Strings& possibleContentEncodings, const Authorization* authorization = nullptr,
+                               std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**
      * @brief Sends the PUT command to the server
@@ -234,23 +184,23 @@ public:
      * @return HTTP result code
      */
     [[nodiscard]] int cmd_put(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
-                const Authorization* authorization = nullptr,
-                std::chrono::milliseconds timeout = std::chrono::seconds(60));
+                              const Authorization* authorization = nullptr,
+                              std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
-   /**
-     * @brief Sends the DELETE command to the server
-     *
-     * Retrieves the server response into internal read buffer.
-     * @param pageName          Page URL without the server name.
-     * @param parameters        HTTP request parameters
-     * @param output            Output data
-     * @param authorization     Optional authorization
-     * @param timeout           Request timeout
-     * @return HTTP result code
-     */
-   [[nodiscard]] int cmd_delete(const String& pageName, const HttpParams& parameters, Buffer& output,
-                  const Authorization* authorization = nullptr,
-                  std::chrono::milliseconds timeout = std::chrono::seconds(60));
+    /**
+      * @brief Sends the DELETE command to the server
+      *
+      * Retrieves the server response into internal read buffer.
+      * @param pageName          Page URL without the server name.
+      * @param parameters        HTTP request parameters
+      * @param output            Output data
+      * @param authorization     Optional authorization
+      * @param timeout           Request timeout
+      * @return HTTP result code
+      */
+    [[nodiscard]] int cmd_delete(const String& pageName, const HttpParams& parameters, Buffer& output,
+                                 const Authorization* authorization = nullptr,
+                                 std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**
      * @brief Get value of response header
@@ -270,6 +220,56 @@ public:
      * @return request execution status text
      */
     [[nodiscard]] String statusText() const;
+
+protected:
+
+    /**
+     * Create default headers for HTTP request
+     */
+    Strings makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
+                        const Authorization* authorization);
+
+    /**
+     * @brief Sends a single command to HTTP server
+     *
+     * CRLF characters are automatically appended to the command.
+     * @param cmd               HTTP command
+     */
+    void sendCommand(const String& cmd);
+
+    /**
+     * @brief Sends a single command to HTTP server
+     *
+     * CRLF characters are automatically appended to the command.
+     * @param cmd               HTTP command
+     */
+    void sendCommand(const Buffer& cmd);
+
+    /**
+     * @brief Retrieves the server response on the command
+     *
+     * Stops when HTTP server closes the connection. The server response can then be
+     * accessed through the htmlData() method.
+     * @param timeout           Response timeout
+     * @return HTTP result code
+     */
+    int getResponse(Buffer& output, std::chrono::milliseconds timeout);
+
+private:
+    /**
+     * HTTP reader
+     */
+    std::shared_ptr<HttpReader> m_reader;
+
+    /**
+     * External socket
+     */
+    TCPSocket&      m_socket;
+
+    /**
+     * HTTP request headers
+     */
+    HttpHeaders     m_requestHeaders;
 };
 
 /**

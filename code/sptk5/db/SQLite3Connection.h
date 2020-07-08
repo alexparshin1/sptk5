@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        SQLite3Connection.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -52,12 +50,50 @@ class SP_EXPORT SQLite3Connection: public PoolDatabaseConnection
 {
     friend class Query;
 
-    typedef sqlite3_stmt * SQLHSTMT;
-    typedef sqlite3 * SQLHDBC;
+public:
 
-    mutable std::mutex  m_mutex;                ///< Mutex that protects access to data members
-    sqlite3*            m_connect {nullptr};    ///< Database connection
+    /**
+     * @brief Constructor
+     * @param connectionString  The SQLite3 connection string
+     */
+    explicit SQLite3Connection(const String& connectionString = "");
 
+    /**
+     * @brief Destructor
+     */
+    ~SQLite3Connection() override;
+
+    /**
+     * @brief Returns driver-specific connection string
+     */
+    String nativeConnectionString() const override;
+
+    /**
+     * @brief Closes the database connection. If unsuccessful throws an exception.
+     */
+    void closeDatabase() override;
+
+    /**
+     * @brief Returns true if database is opened
+     */
+    bool active() const override;
+
+    /**
+     * @brief Returns the database connection handle
+     */
+    void* handle() const override;
+
+    /**
+     * @brief Returns the SQLite3 driver description for the active connection
+     */
+    String driverDescription() const override;
+
+    /**
+     * @brief Lists database objects
+     * @param objectType        Object type to list
+     * @param objects           Object list (output)
+     */
+    void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
 protected:
 
@@ -128,7 +164,6 @@ protected:
      */
     void queryFetch(Query *query) override;
 
-
     /**
      * @brief Returns the SQLite3 connection object
      */
@@ -148,51 +183,13 @@ protected:
      */
     void _openDatabase(const String& connectionString = "") override;
 
-public:
+private:
 
-    /**
-     * @brief Constructor
-     * @param connectionString  The SQLite3 connection string
-     */
-    explicit SQLite3Connection(const String& connectionString = "");
+    typedef sqlite3_stmt * SQLHSTMT;
+    typedef sqlite3 * SQLHDBC;
 
-    /**
-     * @brief Destructor
-     */
-    ~SQLite3Connection() override;
-
-    /**
-     * @brief Returns driver-specific connection string
-     */
-    String nativeConnectionString() const override;
-
-    /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
-     */
-    void closeDatabase() override;
-
-    /**
-     * @brief Returns true if database is opened
-     */
-    bool active() const override;
-
-    /**
-     * @brief Returns the database connection handle
-     */
-    void* handle() const override;
-
-    /**
-     * @brief Returns the SQLite3 driver description for the active connection
-     */
-    String driverDescription() const override;
-
-    /**
-     * @brief Lists database objects
-     * @param objectType        Object type to list
-     * @param objects           Object list (output)
-     */
-    void objectList(DatabaseObjectType objectType, Strings& objects) override;
-
+    mutable std::mutex  m_mutex;                ///< Mutex that protects access to data members
+    sqlite3*            m_connect {nullptr};    ///< Database connection
 };
 
 /**

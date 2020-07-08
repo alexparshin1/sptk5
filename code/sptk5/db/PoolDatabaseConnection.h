@@ -243,7 +243,7 @@ protected:
      * Stub function to throw an exception in case if the
      * called method isn't implemented in the derived class
      */
-    void notImplemented(const String& methodName) const;
+    [[noreturn]] void notImplemented(const String& methodName) const;
 
 };
 
@@ -257,117 +257,6 @@ class SP_EXPORT PoolDatabaseConnection : public PoolDatabaseConnectionQueryMetho
 {
     friend class Query;
     friend class QueryStatementManagement;
-
-    std::set<Query*>            m_queryList;                ///< The list of queries that use this database
-    DatabaseConnectionString    m_connString;               ///< The connection string
-    DatabaseConnectionType      m_connType;                 ///< The connection type
-    String                      m_driverDescription;        ///< Driver description is filled by the particular driver.
-    bool                        m_inTransaction {false};    ///< The in-transaction flag
-
-protected:
-
-    bool   getInTransaction() const;
-    void   setInTransaction(bool inTransaction);
-
-    /**
-     * Attaches (links) query to the database
-     */
-    bool linkQuery(Query* q);
-
-    /**
-     * Unlinks query from the database
-     */
-    bool unlinkQuery(Query* q);
-
-    /**
-     * Constructor
-     *
-     * Protected constructor prevents creating an instance of the
-     * DatabaseConnection. Instead, it is possible to create an instance of derived
-     * classes.
-     * @param connectionString  The connection string
-     */
-    explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType);
-
-    /**
-     * Opens the database connection.
-     *
-     * This method should be overwritten in derived classes
-     * @param connectionString  The ODBC connection string
-     */
-    virtual void _openDatabase(const String& connectionString);
-
-    /**
-     * Closes the database connection.
-     *
-     * This method should be overwritten in derived classes
-     */
-    virtual void closeDatabase();
-
-    /**
-     * Begins the transaction
-     *
-     * This method should be implemented in derived driver
-     */
-    virtual void driverBeginTransaction();
-
-    /**
-     * Ends the transaction
-     *
-     * This method should be implemented in derived driver
-     * @param commit            Commit if true, rollback if false
-     */
-    virtual void driverEndTransaction(bool commit);
-
-    /**
-     * Throws an exception
-     *
-     * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
-     * @param method            Method name where error has occured
-     * @param error             Error text
-     */
-    static void logAndThrow(const String& method, const String& error);
-
-    /**
-     * Executes bulk inserts of data from memory buffer
-     *
-     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
-     * about data. If format is empty than default server-specific data format is used.
-     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
-     */
-    virtual void _bulkInsert(const String& tableName, const Strings& columnNames,
-                             const std::vector<VariantVector>& data);
-
-    /**
-     * Executes SQL batch file
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchFileName     SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
-     */
-    virtual void _executeBatchFile(const String& batchFileName, Strings* errors);
-
-    /**
-     * Executes SQL batch queries
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
-     */
-    virtual void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
-
-    /**
-     * Set the connection type
-     */
-    virtual void connectionType(DatabaseConnectionType connType)
-    {
-        m_connType = connType;
-    }
 
 public:
 
@@ -520,6 +409,119 @@ public:
      * list.
      */
     void disconnectAllQueries();
+
+protected:
+
+    bool   getInTransaction() const;
+    void   setInTransaction(bool inTransaction);
+
+    /**
+     * Attaches (links) query to the database
+     */
+    bool linkQuery(Query* q);
+
+    /**
+     * Unlinks query from the database
+     */
+    bool unlinkQuery(Query* q);
+
+    /**
+     * Constructor
+     *
+     * Protected constructor prevents creating an instance of the
+     * DatabaseConnection. Instead, it is possible to create an instance of derived
+     * classes.
+     * @param connectionString  The connection string
+     */
+    explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType);
+
+    /**
+     * Opens the database connection.
+     *
+     * This method should be overwritten in derived classes
+     * @param connectionString  The ODBC connection string
+     */
+    virtual void _openDatabase(const String& connectionString);
+
+    /**
+     * Closes the database connection.
+     *
+     * This method should be overwritten in derived classes
+     */
+    virtual void closeDatabase();
+
+    /**
+     * Begins the transaction
+     *
+     * This method should be implemented in derived driver
+     */
+    virtual void driverBeginTransaction();
+
+    /**
+     * Ends the transaction
+     *
+     * This method should be implemented in derived driver
+     * @param commit            Commit if true, rollback if false
+     */
+    virtual void driverEndTransaction(bool commit);
+
+    /**
+     * Throws an exception
+     *
+     * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
+     * @param method            Method name where error has occured
+     * @param error             Error text
+     */
+    [[noreturn]] static void logAndThrow(const String& method, const String& error);
+
+    /**
+     * Executes bulk inserts of data from memory buffer
+     *
+     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
+     * about data. If format is empty than default server-specific data format is used.
+     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
+     * @param tableName         Table name to insert into
+     * @param columnNames       List of table columns to populate
+     * @param data              Data for bulk insert
+     */
+    virtual void _bulkInsert(const String& tableName, const Strings& columnNames,
+                             const std::vector<VariantVector>& data);
+
+    /**
+     * Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchFileName     SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     */
+    virtual void _executeBatchFile(const String& batchFileName, Strings* errors);
+
+    /**
+     * Executes SQL batch queries
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL          SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     */
+    virtual void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
+
+    /**
+     * Set the connection type
+     */
+    virtual void connectionType(DatabaseConnectionType connType)
+    {
+        m_connType = connType;
+    }
+
+private:
+
+    std::set<Query*>            m_queryList;                ///< The list of queries that use this database
+    DatabaseConnectionString    m_connString;               ///< The connection string
+    DatabaseConnectionType      m_connType;                 ///< The connection type
+    String                      m_driverDescription;        ///< Driver description is filled by the particular driver.
+    bool                        m_inTransaction {false};    ///< The in-transaction flag
 };
 
 /**

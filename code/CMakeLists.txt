@@ -79,7 +79,6 @@ ELSE ()
         -Wno-c++98-compat
         -Wno-c++98-compat-pedantic
         -Wno-cast-align
-        -Wcovered-switch-default
         -Wno-exit-time-destructors
         -Wno-float-equal
         -Wno-format-nonliteral
@@ -92,9 +91,10 @@ ELSE ()
         -Wno-shadow
         -Wno-switch-enum
         -Wno-unused-parameter
+        #-fprofile-arcs -ftest-coverage
     )
   ELSE()
-    ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long -fPIC)
+    ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long -fPIC --coverage)
   ENDIF()
 
   IF (USE_NEW_ABI)
@@ -115,7 +115,7 @@ ELSE ()
   ENDIF()
 
   IF (UNIX)
-    LINK_LIBRARIES(pthread rt dl)
+    LINK_LIBRARIES(pthread rt dl gcov)
   ELSE ()
     LINK_LIBRARIES(pthread rt)
   ENDIF ()

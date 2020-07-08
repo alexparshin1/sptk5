@@ -71,34 +71,10 @@ public:
         RESPONSE
     };
 
-private:
-
-    TCPSocket&          m_socket;                 ///< Socket to read from
-    ReadMode            m_readMode;               ///< Read mode
-    ReaderState         m_readerState {READY};    ///< State of the reader
-
-public:
-
     /**
      * Returns current reader state
      */
     ReaderState getReaderState() const;
-
-private:
-
-    mutable std::mutex  m_mutex;                        ///< Mutex that protects internal data
-    String              m_statusText;                   ///< HTTP response status text
-    int                 m_statusCode {0};               ///< HTTP response status code
-    size_t              m_contentLength {0};            ///< Content length (as defined in responce headers), or 0
-    size_t              m_contentReceivedLength {0};    ///< Received content length so far
-    bool                m_contentIsChunked {false};     ///< Chunked content (as defined in responce headers)
-    HttpHeaders         m_httpHeaders;                  ///< HTTP response headers
-    RegularExpression   m_matchProtocolAndResponseCode {"^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"}; ///< Regular expression parsing protocol and response code
-    Buffer&             m_output;                       ///< Output data buffer
-    Buffer              m_read_buffer;                  ///< Read buffer
-    String              m_requestType;                  ///< Request type (GET, POST, etc)
-    String              m_requestURL;                   ///< Request URL (for REQUEST read mode only)
-public:
 
     /**
      * Access to response headers
@@ -110,26 +86,6 @@ public:
      * @param headerName        Header name
      */
     String httpHeader(const String& headerName) const;
-
-private:
-
-    /**
-     * Clear reader state
-     */
-    void reset();
-
-    /**
-     * Read HTTP status
-     * @return true if status is read
-     */
-    bool readStatus();
-
-    /**
-     * Read headers that can be read completely
-     */
-    bool readData();
-
-public:
 
     /**
      * Constructor
@@ -189,6 +145,40 @@ public:
     String getRequestURL() const;
 
     void close();
+
+private:
+
+    TCPSocket&          m_socket;                       ///< Socket to read from
+    ReadMode            m_readMode;                     ///< Read mode
+    ReaderState         m_readerState {READY};          ///< State of the reader
+    mutable std::mutex  m_mutex;                        ///< Mutex that protects internal data
+    String              m_statusText;                   ///< HTTP response status text
+    int                 m_statusCode {0};               ///< HTTP response status code
+    size_t              m_contentLength {0};            ///< Content length (as defined in responce headers), or 0
+    size_t              m_contentReceivedLength {0};    ///< Received content length so far
+    bool                m_contentIsChunked {false};     ///< Chunked content (as defined in responce headers)
+    HttpHeaders         m_httpHeaders;                  ///< HTTP response headers
+    RegularExpression   m_matchProtocolAndResponseCode {"^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"}; ///< Regular expression parsing protocol and response code
+    Buffer&             m_output;                       ///< Output data buffer
+    Buffer              m_read_buffer;                  ///< Read buffer
+    String              m_requestType;                  ///< Request type (GET, POST, etc)
+    String              m_requestURL;                   ///< Request URL (for REQUEST read mode only)
+
+    /**
+     * Clear reader state
+     */
+    void reset();
+
+    /**
+     * Read HTTP status
+     * @return true if status is read
+     */
+    bool readStatus();
+
+    /**
+     * Read headers that can be read completely
+     */
+    bool readData();
 };
 
 } // namespace sptk

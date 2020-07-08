@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        ParameterList.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -60,16 +58,6 @@ typedef std::vector<QueryParameter*> CParamVector;
 class SP_EXPORT QueryParameterList
 {
     friend class Query;
-
-    CParamVector                        m_items;                        ///< The list of parameters
-    std::map<String, QueryParameter*>   m_index;                        ///< The parameters index
-    bool                                m_bindingTypeChanged {true};    ///< Indicates that one of the parameters binding type has changed since prepare()
-
-protected:
-    /**
-     * Adds a parameter to the list
-     */
-    void add(QueryParameter* item);
 
 public:
     /**
@@ -170,6 +158,18 @@ public:
     {
         return m_items.end();
     }
+
+protected:
+    /**
+     * Adds a parameter to the list
+     */
+    void add(QueryParameter* item);
+
+private:
+
+    CParamVector                        m_items;                        ///< The list of parameters
+    std::map<String, QueryParameter*>   m_index;                        ///< The parameters index
+    bool                                m_bindingTypeChanged {true};    ///< Indicates that one of the parameters binding type has changed since prepare()
 };
 
 /**

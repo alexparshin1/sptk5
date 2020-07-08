@@ -50,139 +50,6 @@ namespace sptk {
 
 class SP_EXPORT QueryStatementManagement: public DataSource
 {
-    /**
-     * Prepare the query automatically, on thedynamic_cast<COracleBulkInsertQuery*>( first call
-     */
-    bool                    m_autoPrepare {true};
-
-    /**
-     * ODBC statement handle
-     */
-    void*                   m_statement {nullptr};
-
-    /**
-     * True if the statement is prepared
-     */
-    bool                    m_prepared {false};
-
-    /**
-     * True if query is active (opened)
-     */
-    bool                    m_active {false};
-
-    /**
-     * True if there is no more records to fetch
-     */
-    bool                    m_eof {true};
-
-    /**
-     * Bulk mode flag
-     */
-    bool                    m_bulkMode {false};
-
-    /**
-     * SQL statement string
-     */
-    String                  m_sql;
-
-    /**
-     * Optional diagnostic messages populated after exec() or open()
-     */
-    Strings                 m_messages;
-
-    /**
-     * Database connection
-     */
-    PoolDatabaseConnection* m_db {nullptr};
-
-protected:
-
-    /**
-     * Set database (internal)
-     */
-    void setDatabase(PoolDatabaseConnection* db);
-
-    /**
-     * Returns query statement handle
-     */
-    void setStatement(void *statement)
-    {
-        m_statement = statement;
-    }
-
-    void setPrepared(bool prepared)
-    {
-        m_prepared = prepared;
-    }
-
-    void setActive(bool active)
-    {
-        m_active = active;
-    }
-
-    void setEof(bool eof)
-    {
-        m_eof = eof;
-    }
-
-    /**
-     * Set bulk mode flag
-     * @param _bulkMode        True for bulk mode
-     */
-    void setBulkMode(bool _bulkMode);
-
-    /**
-     * Closes a statement. Prepared statement stay prepared but closed.
-     * @param freeStatement     If true then statement is freed.
-     */
-    void closeStmt(bool freeStatement=false);
-
-    /**
-     * Closes query by closing the statement.
-     *
-     * If the statement isn't released it may be re-used later.
-     * @param releaseStatement  True if we need to release the query's ODBC statement
-     */
-    void closeQuery(bool releaseStatement = false);
-
-    /**
-     * Prepares query for the fast execution
-     */
-    virtual void prepare();
-
-    /**
-     * Unprepares query releasing previously prepared statement
-     */
-    virtual void unprepare();
-
-    /**
-     * Optional diagnostic messages populated after exec() or open()
-     */
-    Strings& messages()
-    {
-        return m_messages;
-    }
-
-    String& getSQL()
-    {
-        return m_sql;
-    }
-
-    const String& getSQL() const
-    {
-        return m_sql;
-    }
-
-    void setSQL(const String& sql)
-    {
-        m_sql = sql;
-    }
-
-    /**
-     * Internal function to throw 'Not implemented' exception
-     */
-    void notImplemented(const String& functionName) const;
-
 public:
 
     /**
@@ -274,6 +141,139 @@ public:
         connect(db);
     }
 
+protected:
+
+    /**
+     * Set database (internal)
+     */
+    void setDatabase(PoolDatabaseConnection* db);
+
+    /**
+     * Returns query statement handle
+     */
+    void setStatement(void *statement)
+    {
+        m_statement = statement;
+    }
+
+    void setPrepared(bool prepared)
+    {
+        m_prepared = prepared;
+    }
+
+    void setActive(bool active)
+    {
+        m_active = active;
+    }
+
+    void setEof(bool eof)
+    {
+        m_eof = eof;
+    }
+
+    /**
+     * Set bulk mode flag
+     * @param _bulkMode        True for bulk mode
+     */
+    void setBulkMode(bool _bulkMode);
+
+    /**
+     * Closes a statement. Prepared statement stay prepared but closed.
+     * @param freeStatement     If true then statement is freed.
+     */
+    void closeStmt(bool freeStatement=false);
+
+    /**
+     * Closes query by closing the statement.
+     *
+     * If the statement isn't released it may be re-used later.
+     * @param releaseStatement  True if we need to release the query's ODBC statement
+     */
+    void closeQuery(bool releaseStatement = false);
+
+    /**
+     * Prepares query for the fast execution
+     */
+    virtual void prepare();
+
+    /**
+     * Unprepares query releasing previously prepared statement
+     */
+    virtual void unprepare();
+
+    /**
+     * Optional diagnostic messages populated after exec() or open()
+     */
+    Strings& messages()
+    {
+        return m_messages;
+    }
+
+    String& getSQL()
+    {
+        return m_sql;
+    }
+
+    const String& getSQL() const
+    {
+        return m_sql;
+    }
+
+    void setSQL(const String& sql)
+    {
+        m_sql = sql;
+    }
+
+    /**
+     * Internal function to throw 'Not implemented' exception
+     */
+    [[noreturn]] void notImplemented(const String& functionName) const;
+
+private:
+    /**
+     * Prepare the query automatically, on thedynamic_cast<COracleBulkInsertQuery*>( first call
+     */
+    bool                    m_autoPrepare {true};
+
+    /**
+     * ODBC statement handle
+     */
+    void*                   m_statement {nullptr};
+
+    /**
+     * True if the statement is prepared
+     */
+    bool                    m_prepared {false};
+
+    /**
+     * True if query is active (opened)
+     */
+    bool                    m_active {false};
+
+    /**
+     * True if there is no more records to fetch
+     */
+    bool                    m_eof {true};
+
+    /**
+     * Bulk mode flag
+     */
+    bool                    m_bulkMode {false};
+
+    /**
+     * SQL statement string
+     */
+    String                  m_sql;
+
+    /**
+     * Optional diagnostic messages populated after exec() or open()
+     */
+    Strings                 m_messages;
+
+    /**
+     * Database connection
+     */
+    PoolDatabaseConnection* m_db {nullptr};
 };
 
 /**
@@ -287,54 +287,6 @@ class SP_EXPORT Query: public QueryStatementManagement
 {
     friend class PoolDatabaseConnection;
     friend class PoolDatabaseConnectionQueryMethods;
-
-    /**
-     * List of query parameters
-     */
-    QueryParameterList      m_params;
-
-    /**
-     * List of query fields - makes sense after fetch
-     */
-    FieldList               m_fields {true};
-
-    /**
-     * Parse query parameter during assigning SQL to query
-     * @param paramStart        Start of parameter
-     * @param paramEnd          End of parameter
-     * @param paramNumber       Current parameter (placeholder) number
-     * @param sql               Current SQL (output)
-     */
-    void sqlParseParameter(const char* paramStart, const char* paramEnd, int& paramNumber, String& sql);
-
-protected:
-
-    /**
-     * Executes a statement
-     */
-    void execute();
-
-    /**
-     * In CDataset it should load data into the dataset.
-     *
-     * Since the query loads all the data by open() or fetch(),
-     * in Query this method does exactly nothing
-     */
-    bool loadData() override
-    {
-        return false;
-    }
-
-    /**
-     * In CDataset it should save data into the dataset.
-     *
-     * Since the query saves all the data by execute,
-     * in Query this method does exactly nothing
-     */
-    bool saveData() override
-    {
-        return false;
-    }
 
 public:
 
@@ -583,9 +535,58 @@ public:
      * @param method            Method name where error has occured
      * @param error             Error text
      */
-    static void throwError(const String& method, const String& error);
+    [[noreturn]] static void throwError(const String& method, const String& error);
+
+protected:
+
+    /**
+     * Executes a statement
+     */
+    void execute();
+
+    /**
+     * In CDataset it should load data into the dataset.
+     *
+     * Since the query loads all the data by open() or fetch(),
+     * in Query this method does exactly nothing
+     */
+    bool loadData() override
+    {
+        return false;
+    }
+
+    /**
+     * In CDataset it should save data into the dataset.
+     *
+     * Since the query saves all the data by execute,
+     * in Query this method does exactly nothing
+     */
+    bool saveData() override
+    {
+        return false;
+    }
 
 private:
+
+    /**
+     * List of query parameters
+     */
+    QueryParameterList      m_params;
+
+    /**
+     * List of query fields - makes sense after fetch
+     */
+    FieldList               m_fields {true};
+
+    /**
+     * Parse query parameter during assigning SQL to query
+     * @param paramStart        Start of parameter
+     * @param paramEnd          End of parameter
+     * @param paramNumber       Current parameter (placeholder) number
+     * @param sql               Current SQL (output)
+     */
+    void sqlParseParameter(const char* paramStart, const char* paramEnd, int& paramNumber, String& sql);
+
     String parseParameters(const String& _sql);
     const char* readParamater(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd);
 };

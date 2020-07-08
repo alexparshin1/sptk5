@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        PostgreSQLConnection.h - description                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -59,96 +57,6 @@ class PostgreSQLStatement;
 class SP_EXPORT PostgreSQLConnection: public PoolDatabaseConnection
 {
     friend class Query;
-
-    mutable std::mutex      m_mutex;                ///< Mutex that protects access to data members
-    PGconn*                 m_connect {nullptr};    ///< PostgreSQL database connection
-
-protected:
-
-    /**
-     * @brief Begins the transaction
-     */
-    void driverBeginTransaction() override;
-
-    /**
-     * @brief Ends the transaction
-     * @param commit            Rollback if false
-     */
-    void driverEndTransaction(bool commit) override;
-
-    // These methods implement the actions requested by Query
-
-    /**
-     * Retrieves an error (if any) after executing a statement
-     */
-    String queryError(const Query *query) const override;
-
-    /**
-     * Allocates an PostgreSQL statement
-     */
-    void queryAllocStmt(Query *query) override;
-
-    /**
-     * Deallocates an PostgreSQL statement
-     */
-    void queryFreeStmt(Query *query) override;
-
-    /**
-     * Closes an PostgreSQL statement
-     */
-    void queryCloseStmt(Query *query) override;
-
-    /**
-     * Prepares a query if supported by database
-     */
-    void queryPrepare(Query *query) override;
-
-    /**
-     * Unprepares a query if supported by database
-     */
-    void queryUnprepare(Query *query) override;
-
-    /**
-     * Executes a statement
-     */
-    void queryExecute(Query *query) override 
-    {
-        // Not needed for PG driver
-    }
-
-    /**
-     * Executes unprepared statement
-     */
-    void queryExecDirect(Query *query) override;
-
-    /**
-     * Counts columns of the dataset (if any) returned by query
-     */
-    int  queryColCount(Query *query) override;
-
-    /**
-     * Binds the parameters to the query
-     */
-    void queryBindParameters(Query *query) override;
-
-    /**
-     * Opens the query for reading data from the query' recordset
-     */
-    void queryOpen(Query *query) override;
-
-    /**
-     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
-     */
-    void queryFetch(Query *query) override;
-
-
-    /**
-     * @brief Returns parameter mark
-     *
-     * Parameter mark is generated from the parameterIndex.
-     * @param paramIndex        Parameter index in SQL starting from 0
-     */
-    String paramMark(unsigned paramIndex) override;
 
 public:
     /**
@@ -246,6 +154,97 @@ public:
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
     Strings extractStatements(const Strings& sqlBatch) const;
+
+protected:
+
+    /**
+     * @brief Begins the transaction
+     */
+    void driverBeginTransaction() override;
+
+    /**
+     * @brief Ends the transaction
+     * @param commit            Rollback if false
+     */
+    void driverEndTransaction(bool commit) override;
+
+    // These methods implement the actions requested by Query
+
+    /**
+     * Retrieves an error (if any) after executing a statement
+     */
+    String queryError(const Query *query) const override;
+
+    /**
+     * Allocates an PostgreSQL statement
+     */
+    void queryAllocStmt(Query *query) override;
+
+    /**
+     * Deallocates an PostgreSQL statement
+     */
+    void queryFreeStmt(Query *query) override;
+
+    /**
+     * Closes an PostgreSQL statement
+     */
+    void queryCloseStmt(Query *query) override;
+
+    /**
+     * Prepares a query if supported by database
+     */
+    void queryPrepare(Query *query) override;
+
+    /**
+     * Unprepares a query if supported by database
+     */
+    void queryUnprepare(Query *query) override;
+
+    /**
+     * Executes a statement
+     */
+    void queryExecute(Query *query) override
+    {
+        // Not needed for PG driver
+    }
+
+    /**
+     * Executes unprepared statement
+     */
+    void queryExecDirect(Query *query) override;
+
+    /**
+     * Counts columns of the dataset (if any) returned by query
+     */
+    int  queryColCount(Query *query) override;
+
+    /**
+     * Binds the parameters to the query
+     */
+    void queryBindParameters(Query *query) override;
+
+    /**
+     * Opens the query for reading data from the query' recordset
+     */
+    void queryOpen(Query *query) override;
+
+    /**
+     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     */
+    void queryFetch(Query *query) override;
+
+    /**
+     * @brief Returns parameter mark
+     *
+     * Parameter mark is generated from the parameterIndex.
+     * @param paramIndex        Parameter index in SQL starting from 0
+     */
+    String paramMark(unsigned paramIndex) override;
+
+private:
+
+    mutable std::mutex      m_mutex;                ///< Mutex that protects access to data members
+    PGconn*                 m_connect {nullptr};    ///< PostgreSQL database connection
 };
 
 /**

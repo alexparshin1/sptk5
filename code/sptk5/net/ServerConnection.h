@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       ServerConnection.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -56,21 +54,6 @@ class SP_EXPORT ServerConnection: public Runable
 {
     friend class TCPServer;
 
-    mutable std::mutex  m_mutex;
-    TCPServer&          m_server;            ///< Parent server object
-    TCPSocket*          m_socket {nullptr};  ///< Connection socket
-    String              m_address;           ///< Incoming connection IP address
-
-protected:
-
-    /**
-     * Assign new socket
-     * @param socket            Socket to assign
-     */
-    void setSocket(TCPSocket* socket);
-
-    void parseAddress(const sockaddr_in* connectionAddress);
-
 public:
 
     /**
@@ -102,6 +85,23 @@ public:
      * Get incoming connection address
      */
     String address() const { return m_address; }
+
+protected:
+
+    /**
+     * Assign new socket
+     * @param socket            Socket to assign
+     */
+    void setSocket(TCPSocket* socket);
+
+    void parseAddress(const sockaddr_in* connectionAddress);
+
+private:
+
+    mutable std::mutex  m_mutex;
+    TCPServer&          m_server;            ///< Parent server object
+    TCPSocket*          m_socket {nullptr};  ///< Connection socket
+    String              m_address;           ///< Incoming connection IP address
 };
 
 /**

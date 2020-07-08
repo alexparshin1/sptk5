@@ -671,16 +671,7 @@ TEST(SPTK_JWT, encode_hs256_decode)
     stringstream copiedJSON;
     jwt2.exportTo(copiedJSON, false);
 
-    json::Document original;
-    json::Document copied;
-    Buffer originalBuffer;
-    Buffer copiedBuffer;
-
-    original.load(originalJSON.str());
-    original.exportTo(originalBuffer);
-    copied.load(copiedJSON.str());
-    copied.exportTo(copiedBuffer);
-    EXPECT_STREQ(originalBuffer.c_str(), copiedBuffer.c_str()) << "Decoded JSON payload doesn't match the original";
+    EXPECT_STREQ(originalJSON.str().c_str(), copiedJSON.str().c_str()) << "Decoded JSON payload doesn't match the original";
 }
 
 #endif

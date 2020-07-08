@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       JsonArrayData.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 16 2013                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -77,16 +75,6 @@ public:
      * Array of elements
      */
     Vector                  m_items;
-
-protected:
-
-    /**
-     * Set parent JSON element for this array
-     * @param parent            Parent JSON element
-     */
-    void setParent(Element* parent);
-
-public:
 
     /**
      * Constructor
@@ -164,6 +152,14 @@ public:
      * Is array empty?
      */
     [[nodiscard]] bool empty() const { return m_items.empty(); }
+
+protected:
+
+    /**
+     * Set parent JSON element for this array
+     * @param parent            Parent JSON element
+     */
+    void setParent(Element* parent);
 };
 
 }}

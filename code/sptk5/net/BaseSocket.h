@@ -87,65 +87,6 @@ namespace sptk
  */
 class SP_EXPORT BaseSocket
 {
-    /**
-     * Socket internal (OS) handle
-     */
-    SOCKET      m_sockfd {INVALID_SOCKET};
-
-    /**
-     * Socket domain type
-     */
-    int32_t     m_domain;
-
-    /**
-     * Socket type
-     */
-    int32_t     m_type;
-
-    /**
-     * Socket protocol
-     */
-    int32_t     m_protocol;
-
-    /**
-     * Host
-     */
-    Host        m_host;
-
-protected:
-
-    /**
-     * Set socket internal (OS) handle
-     */
-    void setSocketFD(SOCKET fd)
-    {
-        m_sockfd = fd;
-    }
-
-    /**
-     * Get socket domain type
-     */
-    int32_t domain() const
-    {
-        return m_domain;
-    }
-
-    /**
-     * Get socket type
-     */
-    int32_t type() const
-    {
-        return m_type;
-    }
-
-    /**
-     * Get socket protocol
-     */
-    int32_t protocol() const
-    {
-        return m_protocol;
-    }
-
 public:
     /**
     * A mode to open a socket, one of
@@ -169,52 +110,15 @@ public:
 
     };
 
-protected:
-
-#ifdef _WIN32
     /**
-     * WinSock initialization
+     * Get socket internal (OS) handle
      */
-    static void init() noexcept;
-
-    /**
-     * WinSock cleanup
-     */
-    static void cleanup() noexcept;
-#endif
-
-    /**
-     * Opens the client socket connection by host and port
-     * @param host              The host
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
-     */
-    virtual void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS);
-
-    /**
-     * Opens the client socket connection by host and port
-     * @param address           Address and port
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
-     */
-    virtual void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
+    SOCKET fd() const
     {
-        // Implement in derived class
+        return m_sockfd;
     }
 
-public:
-
-	/**
-	 * Get socket internal (OS) handle
-	 */
-	SOCKET fd() const
-	{
-		return m_sockfd;
-	}
-
-	/**
+    /**
      * Opens the socket connection by address.
      * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
      * @param addr              Defines socket address/port information
@@ -429,6 +333,99 @@ public:
      * @param timeout           Write timeout
      */
     virtual bool readyToWrite(std::chrono::milliseconds timeout);
+
+protected:
+
+    /**
+     * Set socket internal (OS) handle
+     */
+    void setSocketFD(SOCKET fd)
+    {
+        m_sockfd = fd;
+    }
+
+    /**
+     * Get socket domain type
+     */
+    int32_t domain() const
+    {
+        return m_domain;
+    }
+
+    /**
+     * Get socket type
+     */
+    int32_t type() const
+    {
+        return m_type;
+    }
+
+    /**
+     * Get socket protocol
+     */
+    int32_t protocol() const
+    {
+        return m_protocol;
+    }
+
+#ifdef _WIN32
+    /**
+     * WinSock initialization
+     */
+    static void init() noexcept;
+
+    /**
+     * WinSock cleanup
+     */
+    static void cleanup() noexcept;
+#endif
+
+    /**
+     * Opens the client socket connection by host and port
+     * @param host              The host
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
+     */
+    virtual void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS);
+
+    /**
+     * Opens the client socket connection by host and port
+     * @param address           Address and port
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
+     */
+    virtual void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
+    {
+        // Implement in derived class
+    }
+
+private:
+    /**
+     * Socket internal (OS) handle
+     */
+    SOCKET      m_sockfd {INVALID_SOCKET};
+
+    /**
+     * Socket domain type
+     */
+    int32_t     m_domain;
+
+    /**
+     * Socket type
+     */
+    int32_t     m_type;
+
+    /**
+     * Socket protocol
+     */
+    int32_t     m_protocol;
+
+    /**
+     * Host
+     */
+    Host        m_host;
 };
 
 /**

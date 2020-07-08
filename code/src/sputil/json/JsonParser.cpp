@@ -85,7 +85,7 @@ void throwUnexpectedCharacterError(char character, char expected, const char* js
     throwError(msg.str(), json, position);
 }
 
-void Parser::parse(Element& jsonElement, const string& jsonStr)
+void Parser::parse(Element& jsonElement, const String& jsonStr)
 {
     const char* json = jsonStr.c_str();
     const char* pos = json;

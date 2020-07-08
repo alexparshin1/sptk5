@@ -82,42 +82,6 @@ public:
     size_t available_out;
     uint8_t* next_out = nullptr;
 
-private:
-
-    BROTLI_BOOL HasMoreInput()
-    {
-        return inputData.eof() ? BROTLI_FALSE : BROTLI_TRUE;
-    }
-
-    void ProvideInput()
-    {
-        available_in = inputData.available();
-        if (available_in > kBufferSize)
-            available_in = kBufferSize;
-        inputData.read(input, available_in);
-        next_in = input;
-    }
-
-    void WriteOutput()
-    {
-        auto out_size = (size_t) (next_out - output);
-        if (out_size > 0)
-            outputData.append((const char*) output, out_size);
-    }
-
-    void ProvideOutput()
-    {
-        WriteOutput();
-        available_out = kBufferSize;
-        next_out = output;
-    }
-
-    void FlushOutput()
-    {
-        WriteOutput();
-        available_out = 0;
-    }
-
 public:
     void DecompressFile(BrotliDecoderState* s)
     {
@@ -167,6 +131,42 @@ public:
                 return;
             }
         }
+    }
+
+private:
+
+    BROTLI_BOOL HasMoreInput()
+    {
+        return inputData.eof() ? BROTLI_FALSE : BROTLI_TRUE;
+    }
+
+    void ProvideInput()
+    {
+        available_in = inputData.available();
+        if (available_in > kBufferSize)
+            available_in = kBufferSize;
+        inputData.read(input, available_in);
+        next_in = input;
+    }
+
+    void WriteOutput()
+    {
+        auto out_size = (size_t) (next_out - output);
+        if (out_size > 0)
+            outputData.append((const char*) output, out_size);
+    }
+
+    void ProvideOutput()
+    {
+        WriteOutput();
+        available_out = kBufferSize;
+        next_out = output;
+    }
+
+    void FlushOutput()
+    {
+        WriteOutput();
+        available_out = 0;
     }
 };
 

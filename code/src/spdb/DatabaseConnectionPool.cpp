@@ -317,13 +317,14 @@ TEST(SPTK_PostgreSQLConnection, multiThreading)
         Query createTable(db,"CREATE TABLE numbers(id int, value varchar(40), created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
         createTable.exec();
         Query insertNumber(db, "INSERT INTO numbers(id,value) VALUES(:id,:value)");
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 1000; i++) {
             insertNumber.param("id") = i;
             insertNumber.param("value") = to_string(i);
             insertNumber.exec();
         }
     }
     catch (const Exception&) {
+        COUT("")
     }
 
     struct Output {
@@ -337,8 +338,8 @@ TEST(SPTK_PostgreSQLConnection, multiThreading)
             auto f = async(launch::async, [&pool]() {
                 StopWatch sw;
                 sw.start();
-                auto db = pool.getConnection();
-                Query selectNumbers(db, "SELECT * FROM numbers ORDER BY 1");
+                auto conn = pool.getConnection();
+                Query selectNumbers(conn, "SELECT * FROM numbers ORDER BY 1");
                 selectNumbers.open();
                 int id = 0;
                 while (!selectNumbers.eof()) {

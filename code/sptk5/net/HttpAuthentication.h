@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       HttpAuthentication.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday April 8 2018                                    ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -57,18 +55,6 @@ public:
         AWS4_HMAC_SHA256
     };
 
-private:
-    Type                    m_type { UNDEFINED };       ///< Authentication data type
-    const String            m_authenticationHeader;     ///< Authentication data
-    const JWT*              m_jwtData = { nullptr };    ///< JWT token, if type is BEARER
-    const json::Document*   m_userData = { nullptr };   ///< Decoded user data
-
-    /**
-     * Decode authentication data (username and password, or JWT)
-     */
-    void parse();
-
-public:
     /**
      * Constructor
      * @param authenticationHeader  Authentication HTTP header content
@@ -96,6 +82,18 @@ public:
      * Get authentication data type
      */
     Type type();
+
+private:
+
+    Type                    m_type { UNDEFINED };       ///< Authentication data type
+    const String            m_authenticationHeader;     ///< Authentication data
+    const JWT*              m_jwtData = { nullptr };    ///< JWT token, if type is BEARER
+    const json::Document*   m_userData = { nullptr };   ///< Decoded user data
+
+    /**
+     * Decode authentication data (username and password, or JWT)
+     */
+    void parse();
 };
 
 typedef std::shared_ptr<HttpAuthentication> SHttpAuthentication;

@@ -29,7 +29,7 @@
 #ifndef __POSTGRESQL_PARAM_VALUES_H__
 #define __POSTGRESQL_PARAM_VALUES_H__
 
-#include "pgtypes.h"
+#include "PostgreSQLDataType.h"
 #include <sptk5/db/PostgreSQLConnection.h>
 #include <sptk5/db/QueryParameterList.h>
 
@@ -67,7 +67,7 @@ namespace sptk {
 
         void setParameters(QueryParameterList& params);
 
-        void setParameterValue(unsigned paramIndex, const void* value, unsigned sz, int32_t format, PG_DATA_TYPE dataType)
+        void setParameterValue(unsigned paramIndex, const void* value, unsigned sz, int32_t format, PostgreSQLDataType dataType)
         {
             m_values[paramIndex] = (const char*) value;
             m_lengths[paramIndex] = (int) sz;

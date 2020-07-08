@@ -149,29 +149,6 @@ public:
      */
     typedef PropertyMap::const_iterator         const_iterator;
 
-private:
-
-    Document*                                   m_document;
-
-    /**
-     * Parent JSON element
-     */
-    Element*                                    m_parent;
-
-    /**
-     * Child JSON elements
-     */
-    PropertyMap                                  m_items;
-
-protected:
-
-    /**
-     * Set parent JSON element
-     */
-    void setParent(Element *parent);
-
-public:
-
     /**
      * Constructor
      * @param document          Document this object belongs to
@@ -262,6 +239,27 @@ public:
      * @return number of child elements
      */
     [[nodiscard]] size_t size() const { return m_items.size(); }
+
+protected:
+
+    /**
+     * Set parent JSON element
+     */
+    void setParent(Element *parent);
+
+private:
+
+    Document*                                   m_document;
+
+    /**
+     * Parent JSON element
+     */
+    Element*                                    m_parent;
+
+    /**
+     * Child JSON elements
+     */
+    PropertyMap                                  m_items;
 };
 
 /// @}

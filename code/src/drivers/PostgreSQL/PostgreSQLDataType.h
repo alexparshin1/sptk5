@@ -30,7 +30,7 @@
 #define __PGTYPES_H__
 
 /// @brief PostgreSQL native data types
-enum PG_DATA_TYPE {
+enum PostgreSQLDataType {
     PG_BOOL = 16,               ///< Boolean
     PG_BYTEA = 17,              ///< Byte array
     PG_BYTE = 18,               ///< Single byte

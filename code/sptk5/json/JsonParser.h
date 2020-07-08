@@ -55,10 +55,10 @@ public:
     /**
      * Parse JSON text
      * Root element should have JDT_NULL type (empty element) before calling this method.
-     * @param jsonElement Element&, JSON element
-     * @param json const std::string&, JSON text
+     * @param jsonElement       JSON element
+     * @param jsonStr           JSON text
      */
-    static void parse(Element& jsonElement, const std::string& json);
+    static void parse(Element& jsonElement, const sptk::String& jsonStr);
 };
 
 }

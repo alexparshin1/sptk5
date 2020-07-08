@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       COracleBulkInsertQuery.h - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -45,11 +43,13 @@ class SP_EXPORT OracleBulkInsertQuery : public Query
 {
     friend class OracleConnection;
 
-    size_t                  m_recordCount {0};          ///< Inserted record count
-    size_t                  m_recordNumber {0};         ///< Current record number
-    size_t                  m_batchSize {2};            ///< Batch size
-    bool                    m_lastIteration {false};    ///< Last iteration
-    QueryColumnTypeSizeMap  m_columnTypeSizes;          ///< Column type sizes
+public:
+    /// @brief Executes next iteration of bulk insert
+    void execNext();
+
+    size_t batchSize() const { return m_batchSize; }
+    bool lastIteration() const { return m_lastIteration; }
+    QueryColumnTypeSizeMap columnTypeSizes() const { return m_columnTypeSizes; }
 
 protected:
     /// @brief Constructor
@@ -61,13 +61,12 @@ protected:
     /// @brief Destructor
     ~OracleBulkInsertQuery() override = default;
 
-public:
-    /// @brief Executes next iteration of bulk insert
-    void execNext();
-
-    size_t batchSize() const { return m_batchSize; }
-    bool lastIteration() const { return m_lastIteration; }
-    QueryColumnTypeSizeMap columnTypeSizes() const { return m_columnTypeSizes; }
+private:
+    size_t                  m_recordCount {0};          ///< Inserted record count
+    size_t                  m_recordNumber {0};         ///< Current record number
+    size_t                  m_batchSize {2};            ///< Batch size
+    bool                    m_lastIteration {false};    ///< Last iteration
+    QueryColumnTypeSizeMap  m_columnTypeSizes;          ///< Column type sizes
 };
 /// @}
 }

@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SmtpConnect.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -53,51 +51,7 @@ namespace sptk
  */
 class SP_EXPORT SmtpConnect: public BaseMailConnect, public TCPSocket
 {
-    Logger*    m_log;
-    Strings    m_response;
-
-protected:
-
-    /**
-     * @brief Sends command using SMTP protocol
-     *
-     * The CRLF characters after the command are added automatically.
-     * @param cmd               SMTP protocol command
-     * @param encode            Encode the arguments to Base64 or not
-     */
-    void sendCommand(String cmd, bool encode = false);
-
-    /**
-     * @brief Retrieves the server response after the command into internal Strings buffer
-     *
-     * The response can be read then with response() method.
-     * @param decode            Decode the response from Base64 or not
-     */
-    int getResponse(bool decode = false);
-
-    /**
-     * @brief Mime-encodes the buffer
-     * @param buffer            Source data
-     * @return MIME-encoded data
-     */
-    static String mime(const Buffer& buffer);
-
-    /**
-     * @brief Mime-encodes the string
-     * @param s                 Source data
-     * @return MIME-encoded data
-     */
-    static String mime(const String& s);
-
-    /**
-     * @brief Mime-decodes the string
-     * @param s                 Source data
-     * @return Decoded data
-     */
-    static std::string unmime(const std::string& s);
-
 public:
-
     /**
      * @brief Default constructor
      * @param log               Optional log object
@@ -154,6 +108,51 @@ public:
      * CBaseMailConnect, and retrieves the server output.
      */
     void sendMessage() override;
+
+protected:
+
+    /**
+     * @brief Sends command using SMTP protocol
+     *
+     * The CRLF characters after the command are added automatically.
+     * @param cmd               SMTP protocol command
+     * @param encode            Encode the arguments to Base64 or not
+     */
+    void sendCommand(String cmd, bool encode = false);
+
+    /**
+     * @brief Retrieves the server response after the command into internal Strings buffer
+     *
+     * The response can be read then with response() method.
+     * @param decode            Decode the response from Base64 or not
+     */
+    int getResponse(bool decode = false);
+
+    /**
+     * @brief Mime-encodes the buffer
+     * @param buffer            Source data
+     * @return MIME-encoded data
+     */
+    static String mime(const Buffer& buffer);
+
+    /**
+     * @brief Mime-encodes the string
+     * @param s                 Source data
+     * @return MIME-encoded data
+     */
+    static String mime(const String& s);
+
+    /**
+     * @brief Mime-decodes the string
+     * @param s                 Source data
+     * @return Decoded data
+     */
+    static std::string unmime(const std::string& s);
+
+private:
+
+    Logger*    m_log;
+    Strings    m_response;
 };
 /**
  * @}
