@@ -105,8 +105,6 @@ public:
         String  m_value;        ///< Authorization data
     };
 
-public:
-
     /**
      * @brief Constructor
      *

@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday Sep 17 2015                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -49,21 +47,6 @@ namespace sptk {
  */
 class SP_EXPORT SocketEvents : public Thread
 {
-    mutable std::mutex          m_mutex;            ///< Mutex that protects map of sockets to corresponding user data
-    SocketPool                  m_socketPool;       ///< OS-specific event manager
-    std::map<int, void*>        m_watchList;        ///< Map of sockets to corresponding user data
-    std::chrono::milliseconds   m_timeout;          ///< Timeout in event monitoring loop
-
-    Flag                        m_started;          ///< Is watching started?
-	bool						m_shutdown {false}; ///< Is watching shutdown?
-
-protected:
-
-    /**
-     * Event monitoring thread
-     */
-    void threadFunction() override;
-
 public:
     /**
      * Constructor
@@ -106,6 +89,23 @@ public:
      * @return number of sockets being watched
      */
     size_t size() const;
+
+protected:
+
+    /**
+     * Event monitoring thread
+     */
+    void threadFunction() override;
+
+private:
+
+    mutable std::mutex          m_mutex;            ///< Mutex that protects map of sockets to corresponding user data
+    SocketPool                  m_socketPool;       ///< OS-specific event manager
+    std::map<int, void*>        m_watchList;        ///< Map of sockets to corresponding user data
+    std::chrono::milliseconds   m_timeout;          ///< Timeout in event monitoring loop
+
+    Flag                        m_started;          ///< Is watching started?
+    bool						m_shutdown {false}; ///< Is watching shutdown?
 };
 
 typedef std::shared_ptr<SocketEvents> SharedSocketEvents;

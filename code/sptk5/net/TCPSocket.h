@@ -76,31 +76,6 @@ namespace sptk
  */
 class SP_EXPORT TCPSocketReader: public Buffer
 {
-    /**
-     * Socket to read from
-     */
-    BaseSocket&     m_socket;
-
-    /**
-     * Current offset in the read buffer
-     */
-    uint32_t        m_readOffset {0};
-
-    int32_t readFromSocket(sockaddr_in* from);
-
-    /**
-     * @brief Performs buffered read
-     *
-     * Data is read from the opened socket into a character buffer of limited size
-     * @param destination       Destination buffer
-     * @param sz                Size of the destination buffer
-     * @param delimiter         Line delimiter
-     * @param readLine          True if we want to read one line (ended with CRLF) only
-     * @param from              An optional structure for source address
-     * @returns number of bytes read
-     */
-    int32_t bufferedRead(char *destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = nullptr);
-
 public:
 
     /**
@@ -149,6 +124,32 @@ public:
      * @param availableBytes    Number of bytes already available in buffer
      */
     void readMoreFromSocket(int availableBytes);
+
+private:
+    /**
+     * Socket to read from
+     */
+    BaseSocket&     m_socket;
+
+    /**
+     * Current offset in the read buffer
+     */
+    uint32_t        m_readOffset {0};
+
+    int32_t readFromSocket(sockaddr_in* from);
+
+    /**
+     * @brief Performs buffered read
+     *
+     * Data is read from the opened socket into a character buffer of limited size
+     * @param destination       Destination buffer
+     * @param sz                Size of the destination buffer
+     * @param delimiter         Line delimiter
+     * @param readLine          True if we want to read one line (ended with CRLF) only
+     * @param from              An optional structure for source address
+     * @returns number of bytes read
+     */
+    int32_t bufferedRead(char *destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = nullptr);
 };
 
 /**

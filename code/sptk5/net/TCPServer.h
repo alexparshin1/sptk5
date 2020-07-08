@@ -149,43 +149,6 @@ class SP_EXPORT TCPServer : public ThreadPool
     friend class TCPServerListener;
     friend class ServerConnection;
 
-    mutable SharedMutex                     m_mutex;            ///< Mutex protecting internal data
-    std::shared_ptr<TCPServerListener>      m_listenerThread;   ///< Server listener
-    std::shared_ptr<Logger>                 m_logger;           ///< Optional logger
-    std::shared_ptr<SSLKeys>                m_sslKeys;          ///< Optional SSL keys. Only used for SSL server.
-    String                                  m_hostname;         ///< This host name
-    LogDetails                              m_logDetails;       ///< Log details
-
-protected:
-    /**
-     * Screens incoming connection request
-     *
-     * Method is called right after connection request is accepted,
-     * and allows ignoring unwanted connections. By default simply returns true (allow).
-     * @param connectionRequest Incoming connection information
-     */
-    virtual bool allowConnection(sockaddr_in* connectionRequest);
-
-    /**
-     * Creates connection thread derived from TCPServerConnection or SSLServerConnection
-     *
-     * Application should override this method to create concrete connection object.
-     * Created connection object is maintained by CTCPServer.
-     * @param connectionSocket  Already accepted incoming connection socket
-     * @param peer              Incoming connection information
-     */
-    virtual ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
-
-    /**
-     * Thread event callback function
-     *
-     * Receives events that occur in the threads
-     * @param thread            Thread where event occured
-     * @param eventType         Thread event type
-     * @param runable           Related runable (if any)
-     */
-    void threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable) override;
-
 public:
     /**
      * Constructor
@@ -258,6 +221,45 @@ public:
      * @return SSL keys info
      */
     const SSLKeys& getSSLKeys() const;
+
+protected:
+    /**
+     * Screens incoming connection request
+     *
+     * Method is called right after connection request is accepted,
+     * and allows ignoring unwanted connections. By default simply returns true (allow).
+     * @param connectionRequest Incoming connection information
+     */
+    virtual bool allowConnection(sockaddr_in* connectionRequest);
+
+    /**
+     * Creates connection thread derived from TCPServerConnection or SSLServerConnection
+     *
+     * Application should override this method to create concrete connection object.
+     * Created connection object is maintained by CTCPServer.
+     * @param connectionSocket  Already accepted incoming connection socket
+     * @param peer              Incoming connection information
+     */
+    virtual ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
+
+    /**
+     * Thread event callback function
+     *
+     * Receives events that occur in the threads
+     * @param thread            Thread where event occured
+     * @param eventType         Thread event type
+     * @param runable           Related runable (if any)
+     */
+    void threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable) override;
+
+private:
+
+    mutable SharedMutex                     m_mutex;            ///< Mutex protecting internal data
+    std::shared_ptr<TCPServerListener>      m_listenerThread;   ///< Server listener
+    std::shared_ptr<Logger>                 m_logger;           ///< Optional logger
+    std::shared_ptr<SSLKeys>                m_sslKeys;          ///< Optional SSL keys. Only used for SSL server.
+    String                                  m_hostname;         ///< This host name
+    LogDetails                              m_logDetails;       ///< Log details
 };
 
 /**
