@@ -46,15 +46,6 @@ namespace sptk {
              */
             typedef std::function<void()> Callback;
 
-        private:
-
-            EventId                     m_id;                ///< Event serial and when the event has to fire next time.
-            Callback                    m_callback;          ///< Event callback function, defined when event is scheduled.
-            std::chrono::milliseconds   m_repeatInterval;    ///< Event repeat interval.
-            int                         m_repeatCount {0};   ///< Number of event repeats, -1 means no limit.
-
-        public:
-
             /**
              * Disabled event copy constructor
              * @param other                 Other event
@@ -135,6 +126,13 @@ namespace sptk {
              */
             bool fire();
 
+        private:
+
+            EventId                     m_id;                ///< Event serial and when the event has to fire next time.
+            Callback                    m_callback;          ///< Event callback function, defined when event is scheduled.
+            std::chrono::milliseconds   m_repeatInterval;    ///< Event repeat interval.
+            int                         m_repeatCount {0};   ///< Number of event repeats, -1 means no limit.
+
         };
 
         /**
@@ -142,19 +140,6 @@ namespace sptk {
          */
         typedef std::shared_ptr<EventData> Event;
 
-    private:
-
-        mutable std::mutex              m_mutex;        ///< Mutex protecting events set
-        std::set<Event>                 m_events;       ///< Events scheduled by this timer
-        static std::atomic<uint64_t>    nextSerial;     ///< Event id serial
-
-        std::set<Timer::Event> moveOutEvents();
-
-    protected:
-
-        void unlink(Event event);                   ///< Remove event from this timer
-
-    public:
         /**
          * Constructor
          */
@@ -200,6 +185,18 @@ namespace sptk {
          * Cancel all events
          */
         void  cancel();
+
+    protected:
+
+        void unlink(Event event);                   ///< Remove event from this timer
+
+    private:
+
+        mutable std::mutex              m_mutex;        ///< Mutex protecting events set
+        std::set<Event>                 m_events;       ///< Events scheduled by this timer
+        static std::atomic<uint64_t>    nextSerial;     ///< Event id serial
+
+        std::set<Timer::Event> moveOutEvents();
     };
 
 } // namespace sptk

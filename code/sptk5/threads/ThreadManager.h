@@ -2,7 +2,6 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -35,25 +34,6 @@ namespace sptk {
 
 class ThreadManager
 {
-    class Joiner : public Thread
-    {
-        SynchronizedQueue<SThread>  m_terminatedThreads;    ///< Terminated threads scheduled for delete
-    protected:
-        void threadFunction() override;
-        void joinTerminatedThreads(std::chrono::milliseconds timeout);
-    public:
-        explicit Joiner(const String& name);
-        ~Joiner() override;
-        void push(SThread& thread);
-        void stop();
-    };
-
-    mutable std::mutex          m_mutex;                ///< Mutex that protects internal data
-    std::map<Thread*, SThread>  m_runningThreads;       ///< Running threads
-    Joiner                      m_joiner;
-
-    void terminateRunningThreads();
-
 public:
     explicit ThreadManager(const String& name);
     virtual ~ThreadManager();
@@ -66,6 +46,28 @@ public:
 
     size_t threadCount() const;
     bool   running() const;
+
+private:
+
+    class Joiner : public Thread
+    {
+    public:
+        explicit Joiner(const String& name);
+        ~Joiner() override;
+        void push(SThread& thread);
+        void stop();
+    protected:
+        void threadFunction() override;
+        void joinTerminatedThreads(std::chrono::milliseconds timeout);
+    private:
+        SynchronizedQueue<SThread>  m_terminatedThreads;    ///< Terminated threads scheduled for delete
+    };
+
+    mutable std::mutex          m_mutex;                ///< Mutex that protects internal data
+    std::map<Thread*, SThread>  m_runningThreads;       ///< Running threads
+    Joiner                      m_joiner;
+
+    void terminateRunningThreads();
 };
 
 typedef std::shared_ptr<ThreadManager>  SThreadManager;

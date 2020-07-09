@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TCPSocket.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -160,45 +158,6 @@ private:
  */
 class SP_EXPORT TCPSocket: public BaseSocket
 {
-    TCPSocketReader         m_reader;          ///< Buffered socket reader
-    std::shared_ptr<Proxy>  m_proxy;           ///< Optional proxy
-    Buffer                  m_stringBuffer;    ///< Buffer to read a line
-
-protected:
-
-    /**
-     * Access to internal socket reader for derived classes
-     * @return internal socket reader
-     */
-    TCPSocketReader& reader()
-    {
-        return m_reader;
-    }
-
-    /**
-     * @brief Opens the client socket connection by host and port
-     * @param host              The host
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeout           Connection timeout. The default is 0 (wait forever)
-     */
-    void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
-
-    /**
-     * @brief Opens the client socket connection by host and port
-     * @param address           Address and port
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeout           Connection timeout. The default is 0 (wait forever)
-     */
-    void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
-
-    /**
-     * Get proxy information
-     * @return
-     */
-    Proxy* proxy() { return m_proxy.get(); }
-
 public:
     /**
     * @brief Constructor
@@ -303,6 +262,47 @@ public:
      * @returns the number of bytes read from the socket
      */
     size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr) override;
+
+protected:
+
+    /**
+     * Access to internal socket reader for derived classes
+     * @return internal socket reader
+     */
+    TCPSocketReader& reader()
+    {
+        return m_reader;
+    }
+
+    /**
+     * @brief Opens the client socket connection by host and port
+     * @param host              The host
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeout           Connection timeout. The default is 0 (wait forever)
+     */
+    void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+
+    /**
+     * @brief Opens the client socket connection by host and port
+     * @param address           Address and port
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeout           Connection timeout. The default is 0 (wait forever)
+     */
+    void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+
+    /**
+     * Get proxy information
+     * @return
+     */
+    Proxy* proxy() { return m_proxy.get(); }
+
+private:
+
+    TCPSocketReader         m_reader;          ///< Buffered socket reader
+    std::shared_ptr<Proxy>  m_proxy;           ///< Optional proxy
+    Buffer                  m_stringBuffer;    ///< Buffer to read a line
 };
 
 /**
