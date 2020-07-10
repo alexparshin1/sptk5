@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WorkerThread.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -43,7 +41,7 @@ namespace sptk {
  */
 
 /**
- * @brief Worker thread for thread manager
+ * Worker thread for thread manager
  *
  * Worker threads are created by thread manager.
  * They are designed to read tasks from internal or external
@@ -55,6 +53,45 @@ namespace sptk {
  */
 class SP_EXPORT WorkerThread : public Thread
 {
+public:
+    /**
+     * Constructor
+     *
+     * If queue is NULL then worker thread uses internal task queue.
+     * Otherwise, external (shared) task queue is used.
+     * If maxIdleSec is defined and thread is idle (not executing any tasks)
+     * for a period longer than maxIdleSec then it terminates automatically.
+     * @param threadManager     Thread manager
+     * @param queue             Task queue
+     * @param threadEvent       Optional thread event interface
+     * @param maxIdleTime       Maximum time the thread is idle, seconds
+     */
+    WorkerThread(SThreadManager threadManager,
+                 SynchronizedQueue<Runable*>& queue,
+                 ThreadEvent* threadEvent = nullptr,
+                 std::chrono::milliseconds maxIdleTime = std::chrono::seconds(3600));
+
+    /**
+     * Destructor
+     */
+    ~WorkerThread() = default;
+
+    /**
+     * Execute runable task
+     * @param task              Task to execute in the worker thread
+     */
+    void execute(Runable* task);
+
+    void terminate() override;
+
+protected:
+
+    /**
+     * Thread function
+     */
+    void threadFunction() override;
+
+private:
     /**
      * Mutex protecting internal data
      */
@@ -78,45 +115,6 @@ class SP_EXPORT WorkerThread : public Thread
     Runable*                        m_currentRunable {nullptr};
 
     void setRunable(Runable* runable);
-
-protected:
-
-    /**
-     * @brief Thread function
-     */
-    void threadFunction() override;
-
-public:
-
-    /**
-     * @brief Constructor
-     *
-     * If queue is NULL then worker thread uses internal task queue.
-     * Otherwise, external (shared) task queue is used.
-     * If maxIdleSec is defined and thread is idle (not executing any tasks)
-     * for a period longer than maxIdleSec then it terminates automatically.
-     * @param threadManager     Thread manager
-     * @param queue             Task queue
-     * @param threadEvent       Optional thread event interface
-     * @param maxIdleTime       Maximum time the thread is idle, seconds
-     */
-    WorkerThread(SThreadManager threadManager,
-                 SynchronizedQueue<Runable*>& queue,
-                 ThreadEvent* threadEvent = nullptr,
-                 std::chrono::milliseconds maxIdleTime = std::chrono::seconds(3600));
-
-    /**
-     * @brief Destructor
-     */
-    ~WorkerThread() = default;
-
-    /**
-     * @brief Execute runable task
-     * @param task              Task to execute in the worker thread
-     */
-    void execute(Runable* task);
-
-    void terminate() override;
 };
 
 /**

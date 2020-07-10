@@ -80,7 +80,7 @@ public:
     /**
      * Throws the exception
      */
-    void exception(const String& text, int line) const;
+    [[noreturn]] void exception(const String& text, int line) const;
 
 protected:
 

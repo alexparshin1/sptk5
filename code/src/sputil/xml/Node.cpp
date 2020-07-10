@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Node.cpp - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -43,29 +41,29 @@ static const String indentsString(1024, ' ');
 /// An empty nodes set to emulate a set of stub iterators
 static NodeList emptyNodes;
 
-Node::iterator Node_Iterators::begin()
+Node::iterator NodeIterators::begin()
 {
     return emptyNodes.end();
 }
 
-Node::const_iterator Node_Iterators::begin() const
+Node::const_iterator NodeIterators::begin() const
 {
     return emptyNodes.end();
 }
 
-Node::iterator Node_Iterators::end()
+Node::iterator NodeIterators::end()
 {
     return emptyNodes.end();
 }
 
-Node::const_iterator Node_Iterators::end() const
+Node::const_iterator NodeIterators::end() const
 {
     return emptyNodes.end();
 }
 
 //──────────────────────────────────────────────────────────────────────────────
 
-void Node_Base::setParent(Node* p, bool minimal)
+void NodeBase::setParent(Node* p, bool minimal)
 {
     if (m_parent == p)
         return;

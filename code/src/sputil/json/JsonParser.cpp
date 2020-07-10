@@ -47,7 +47,7 @@ namespace sptk {
 
 #define ERROR_CONTEXT_CHARS 65
 
-void throwError(const string& message, const char* json, size_t position)
+[[noreturn]] void throwError(const string& message, const char* json, size_t position)
 {
     stringstream error;
     error << message;
@@ -76,7 +76,7 @@ void throwError(const string& message, const char* json, size_t position)
     throw Exception(error.str());
 }
 
-void throwUnexpectedCharacterError(char character, char expected, const char* json, size_t position)
+[[noreturn]] void throwUnexpectedCharacterError(char character, char expected, const char* json, size_t position)
 {
     stringstream msg;
     msg << "Unexpected character '" << character << "'";

@@ -1,3 +1,31 @@
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       Node.h - description                                   ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  begin                Thursday May 25 2000                                   ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
+
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
@@ -16,7 +44,6 @@ namespace sptk {
     class SP_EXPORT Timer
     {
     public:
-
         /**
          * Timer Event Id
          */
@@ -45,15 +72,6 @@ namespace sptk {
              * Events call that function when there is time for them to fire.
              */
             typedef std::function<void()> Callback;
-
-        private:
-
-            EventId                     m_id;                ///< Event serial and when the event has to fire next time.
-            Callback                    m_callback;          ///< Event callback function, defined when event is scheduled.
-            std::chrono::milliseconds   m_repeatInterval;    ///< Event repeat interval.
-            int                         m_repeatCount {0};   ///< Number of event repeats, -1 means no limit.
-
-        public:
 
             /**
              * Disabled event copy constructor
@@ -135,6 +153,12 @@ namespace sptk {
              */
             bool fire();
 
+        private:
+
+            EventId                     m_id;                ///< Event serial and when the event has to fire next time.
+            Callback                    m_callback;          ///< Event callback function, defined when event is scheduled.
+            std::chrono::milliseconds   m_repeatInterval;    ///< Event repeat interval.
+            int                         m_repeatCount {0};   ///< Number of event repeats, -1 means no limit.
         };
 
         /**
@@ -142,19 +166,6 @@ namespace sptk {
          */
         typedef std::shared_ptr<EventData> Event;
 
-    private:
-
-        mutable std::mutex              m_mutex;        ///< Mutex protecting events set
-        std::set<Event>                 m_events;       ///< Events scheduled by this timer
-        static std::atomic<uint64_t>    nextSerial;     ///< Event id serial
-
-        std::set<Timer::Event> moveOutEvents();
-
-    protected:
-
-        void unlink(Event event);                   ///< Remove event from this timer
-
-    public:
         /**
          * Constructor
          */
@@ -200,6 +211,18 @@ namespace sptk {
          * Cancel all events
          */
         void  cancel();
+
+    protected:
+
+        void unlink(Event event);                       ///< Remove event from this timer
+
+    private:
+
+        mutable std::mutex              m_mutex;        ///< Mutex protecting events set
+        std::set<Event>                 m_events;       ///< Events scheduled by this timer
+        static std::atomic<uint64_t>    nextSerial;     ///< Event id serial
+
+        std::set<Timer::Event> moveOutEvents();
     };
 
 } // namespace sptk

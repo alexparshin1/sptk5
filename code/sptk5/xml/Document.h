@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Document.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -59,61 +57,6 @@ namespace xml {
 class SP_EXPORT Document : public SharedStrings, public Element
 {
     friend class Node;
-
-    static const String MATCH_NUMBER;                               ///< Regex string for matching a number
-
-    DocType             m_doctype;                                  ///< Document type
-    int                 m_indentSpaces {2};                         ///< Indent spaces
-    Buffer              m_encodeBuffer;                             ///< Buffer to encode entities
-    RegularExpression   m_matchNumber {MATCH_NUMBER, "i"};   ///< Regular expression to match a number
-
-    /**
-     * Internal entities parser
-     */
-    void parseEntities(char* entitiesSection);
-
-    /**
-     * Internal doctype parser
-     */
-    void parseDocType(char* docTypeSection);
-
-    /**
-     * Internal attributes parser
-     */
-    void processAttributes(Node* node, char* ptr);
-    static char* readComment(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
-    static char* readCDataSection(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
-
-    char* readDocType(char* tokenEnd);
-
-    /**
-     * Decode and encode buffer
-     */
-    Buffer m_decodeBuffer;
-
-protected:
-
-    /**
-     * Creates new named node of type xml::Node::DOM_ELEMENT.
-     * It can be added to document DOM tree.
-     * @param tagname           Name of the element
-     * @see xml::Node
-     */
-    Node* createElement(const char* tagname);
-
-    /**
-     * Does string match a number?
-     * @return true if string constains a number
-     */
-    bool isNumber(const String& str);
-
-    /**
-     * Extract entities
-     * @param docTypeSection    Document type section
-     */
-    void extractEntities(char* docTypeSection);
-
-    unsigned char* skipSpaces(unsigned char* start) const;
 
 public:
 
@@ -256,7 +199,59 @@ public:
      */
     void exportTo(json::Element& json) const override;
 
+protected:
+
+    /**
+     * Creates new named node of type xml::Node::DOM_ELEMENT.
+     * It can be added to document DOM tree.
+     * @param tagname           Name of the element
+     * @see xml::Node
+     */
+    Node* createElement(const char* tagname);
+
+    /**
+     * Does string match a number?
+     * @return true if string constains a number
+     */
+    bool isNumber(const String& str);
+
+    /**
+     * Extract entities
+     * @param docTypeSection    Document type section
+     */
+    void extractEntities(char* docTypeSection);
+
+    unsigned char* skipSpaces(unsigned char* start) const;
+
 private:
+
+    static const String MATCH_NUMBER;                               ///< Regex string for matching a number
+
+    DocType             m_doctype;                                  ///< Document type
+    int                 m_indentSpaces {2};                         ///< Indent spaces
+    Buffer              m_encodeBuffer;                             ///< Buffer to encode entities
+    RegularExpression   m_matchNumber {MATCH_NUMBER, "i"};          ///< Regular expression to match a number
+    Buffer              m_decodeBuffer;                             ///< Decode and encode buffer
+
+
+    /**
+     * Internal entities parser
+     */
+    void parseEntities(char* entitiesSection);
+
+    /**
+     * Internal doctype parser
+     */
+    void parseDocType(char* docTypeSection);
+
+    /**
+     * Internal attributes parser
+     */
+    void processAttributes(Node* node, char* ptr);
+    static char* readComment(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
+    static char* readCDataSection(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
+
+    char* readDocType(char* tokenEnd);
 
     RegularExpression   m_parseAttributes { R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])","g" };
 

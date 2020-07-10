@@ -134,48 +134,6 @@ typedef std::list<SWSParserComplexType>         WSParserComplexTypeList;
  */
 class WSParserComplexType
 {
-    class ImplementationParts
-    {
-    public:
-        std::stringstream   declarations;
-        std::stringstream   body;
-        std::stringstream   checks;
-
-        size_t              restrictionNumber {0};
-
-        void print(std::ostream& output);
-    };
-
-    /**
-     * Map of attribute names to attribute objects
-     */
-    typedef std::map<std::string, WSParserAttribute*>   AttributeMap;
-
-    String                  m_name;                 ///< Element name
-    String                  m_typeName;             ///< WSDL type name
-    const xml::Element*     m_element {nullptr};    ///< XML element for that WSDL element
-    AttributeMap            m_attributes;           ///< Element attributes
-    WSParserComplexTypeList m_sequence;             ///< Child element sequence
-    WSMultiplicity          m_multiplicity;         ///< Multiplicity flag
-    SWSRestriction          m_restriction;          ///< Element restriction (if any) or NULL
-    String                  m_documentation;        ///< Optional documentation
-
-protected:
-
-    /**
-     * Generate C++ class declaration
-     * @param classDeclaration std::ostream&, Output header file stream
-     */
-    void generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames,
-                            sptk::Strings& elementNames, sptk::Strings& attributeNames);
-
-    /**
-     * Generate C++ class implementation
-     * @param classImplementation std::ostream&, Output implementation file stream
-     */
-    void generateImplementation(std::ostream& classImplementation, const sptk::Strings& fieldNames,
-                                const Strings& elementNames, const Strings& attributeNames);
-
 public:
     /**
      * WSDL class name
@@ -262,7 +220,50 @@ public:
     static std::map<String, const xml::Element*> SimpleTypeElements;
     static const xml::Element* findSimpleType(const String& typeName);
 
+protected:
+
+    /**
+     * Generate C++ class declaration
+     * @param classDeclaration std::ostream&, Output header file stream
+     */
+    void generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames,
+                            sptk::Strings& elementNames, sptk::Strings& attributeNames);
+
+    /**
+     * Generate C++ class implementation
+     * @param classImplementation std::ostream&, Output implementation file stream
+     */
+    void generateImplementation(std::ostream& classImplementation, const sptk::Strings& fieldNames,
+                                const Strings& elementNames, const Strings& attributeNames);
+
 private:
+
+    class ImplementationParts
+    {
+    public:
+        std::stringstream   declarations;
+        std::stringstream   body;
+        std::stringstream   checks;
+
+        size_t              restrictionNumber {0};
+
+        void print(std::ostream& output);
+    };
+
+    /**
+     * Map of attribute names to attribute objects
+     */
+    typedef std::map<std::string, WSParserAttribute*>   AttributeMap;
+
+    String                  m_name;                 ///< Element name
+    String                  m_typeName;             ///< WSDL type name
+    const xml::Element*     m_element {nullptr};    ///< XML element for that WSDL element
+    AttributeMap            m_attributes;           ///< Element attributes
+    WSParserComplexTypeList m_sequence;             ///< Child element sequence
+    WSMultiplicity          m_multiplicity;         ///< Multiplicity flag
+    SWSRestriction          m_restriction;          ///< Element restriction (if any) or NULL
+    String                  m_documentation;        ///< Optional documentation
+
     /**
      * Generate includes for C++ class
      * @param classImplementation   Output stream
@@ -355,6 +356,5 @@ typedef std::map<String, SWSParserComplexType>  WSComplexTypeMap;
 /**
  * @}
  */
-
 }
 #endif

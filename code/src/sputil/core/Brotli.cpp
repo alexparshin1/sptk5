@@ -82,7 +82,6 @@ public:
     size_t available_out;
     uint8_t* next_out = nullptr;
 
-public:
     void DecompressFile(BrotliDecoderState* s)
     {
         BrotliDecoderResult result = BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT;

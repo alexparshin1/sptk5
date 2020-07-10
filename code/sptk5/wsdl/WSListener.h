@@ -50,29 +50,6 @@ namespace sptk {
  */
 class SP_EXPORT WSListener : public TCPServer
 {
-    mutable SharedMutex m_mutex;                ///< Mutex that protects internal data
-    WSRequest&          m_service;              ///< Web Service request processor
-    Logger              m_logger;               ///< Logger object
-    WSConnection::Paths m_paths;                ///< Pages and paths
-
-    String              m_hostname;             ///< This service hostname
-    bool                m_allowCORS;            ///< Allow CORS
-    bool                m_keepAlive;            ///< Allow keep-alive connections
-    bool                m_suppressHttpStatus;   ///< Response HTTP status is always 200 OK, errors are reported in the response content
-
-protected:
-    const bool          m_encrypted;            ///< Connection protocol is encrypted flag
-
-    /**
-     * Creates connection thread derived from CTCPServerConnection
-     *
-     * Application should override this method to create concrete connection object.
-     * Created connection object is maintained by CTCPServer.
-     * @param connectionSocket      Already accepted incoming connection socket
-     * @param peer                  Incoming connection information
-     */
-    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
-
 public:
     /**
      * Constructor
@@ -96,6 +73,28 @@ public:
      * @return host name of the listener
      */
     String hostname() const override;
+
+protected:
+    /**
+     * Creates connection thread derived from CTCPServerConnection
+     *
+     * Application should override this method to create concrete connection object.
+     * Created connection object is maintained by CTCPServer.
+     * @param connectionSocket      Already accepted incoming connection socket
+     * @param peer                  Incoming connection information
+     */
+    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
+
+private:
+    mutable SharedMutex m_mutex;                ///< Mutex that protects internal data
+    WSRequest&          m_service;              ///< Web Service request processor
+    Logger              m_logger;               ///< Logger object
+    WSConnection::Paths m_paths;                ///< Pages and paths
+    String              m_hostname;             ///< This service hostname
+    bool                m_allowCORS;            ///< Allow CORS
+    bool                m_keepAlive;            ///< Allow keep-alive connections
+    bool                m_suppressHttpStatus;   ///< Response HTTP status is always 200 OK, errors are reported in the response content
+    const bool          m_encrypted;            ///< Connection protocol is encrypted flag
 };
 
 /**

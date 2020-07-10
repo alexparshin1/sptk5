@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CODBCConnection.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -45,16 +43,16 @@ class CODBCField : public DatabaseField
 {
     friend class ODBCConnection;
 
-protected:
-    char* getData()
-    {
-        return (char*) &m_data;
-    }
-
 public:
     CODBCField(const string& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale)
     : DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
     {
+    }
+
+protected:
+    char* getData()
+    {
+        return (char*) &m_data;
     }
 };
 } // namespace sptk

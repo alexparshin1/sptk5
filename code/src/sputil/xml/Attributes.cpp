@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Attributes.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -61,9 +59,6 @@ void Attribute::value(const String& new_value)
     m_value = new_value;
 }
 
-/// @brief Sets new value to node
-/// @param new_value const char *, value to set
-/// @see value()
 void Attribute::value(const char* new_value)
 {
     m_value = new_value;

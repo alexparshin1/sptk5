@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSRequest.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -42,18 +40,14 @@ namespace sptk
  */
 
 /**
- * @brief Namespace defined within WSDL document
+ * Namespace defined within WSDL document
  */
 class SP_EXPORT WSNameSpace
 {
-    mutable std::mutex  m_mutex;        ///< Mutex to protect internal data
-    String              m_alias;        ///< Namespace alias
-    String              m_location;     ///< Namespace location
-
 public:
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param alias             Namespace alias
      * @param location          Namespace location
      */
@@ -62,7 +56,7 @@ public:
     {}
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param other             Other namespace
      */
     WSNameSpace(const WSNameSpace& other)
@@ -70,7 +64,7 @@ public:
     {}
 
     /**
-     * @brief Assignment
+     * Assignment
      * @param other             Other namespace
      * @return
      */
@@ -85,7 +79,7 @@ public:
     }
 
     /**
-     * @brief Get namespace alias
+     * Get namespace alias
      * @return Namespace alias
      */
     String getAlias() const
@@ -95,7 +89,7 @@ public:
     }
 
     /**
-     * @brief Get namespace location
+     * Get namespace location
      * @return Namespace location
      */
     String getLocation() const
@@ -103,16 +97,70 @@ public:
         std::lock_guard<std::mutex> lock(m_mutex);
         return m_location; 
     }
+
+private:
+
+    mutable std::mutex  m_mutex;        ///< Mutex to protect internal data
+    String              m_alias;        ///< Namespace alias
+    String              m_location;     ///< Namespace location
 };
 
 /**
- * @brief Parser of WSDL requests
+ * Parser of WSDL requests
  */
 class SP_EXPORT WSRequest : public std::mutex
 {
+public:
+    /**
+     * Constructor
+     */
+    WSRequest() {}
+
+    /**
+     * Destructor
+     */
+    virtual ~WSRequest() {}
+
+    /**
+     * Processes incoming requests
+     *
+     * The processing results are stored in the same request XML
+     * @param xmlContent           Incoming request and outgoing response
+     */
+    void processRequest(xml::Document* xmlContent, json::Document* jsonContent,
+                                      HttpAuthentication* authentication, String& requestName);
+
+    /**
+     * Returns service title (for service handshake)
+     *
+     * Application should overwrite this method to return mor appropriate text
+     */
+    [[nodiscard]] virtual String title() const
+    {
+        return "Generic SPTK WS Request Broker";
+    }
+
+    /**
+     * Returns service default HTML page
+     *
+     * Application should overwrite this method to return mor appropriate text
+     */
+    [[nodiscard]] virtual String defaultPage() const
+    {
+        return "index.html";
+    }
+
+    /**
+     * @return service WSDL
+     */
+    virtual String wsdl() const
+    {
+        return String("Not defined");
+    }
+
 protected:
     /**
-     * @brief Internal SOAP body processor
+     * Internal SOAP body processor
      *
      * Receives incoming SOAP body of Web Service requests, and returns
      * application response.
@@ -130,54 +178,6 @@ protected:
      * @return
      */
     xml::Element* findSoapBody(xml::Element* soapEnvelope, const WSNameSpace& soapNamespace);
-
-public:
-    /**
-     * @brief Constructor
-     */
-    WSRequest() {}
-
-    /**
-     * @brief Destructor
-     */
-    virtual ~WSRequest() {}
-
-    /**
-     * @brief Processes incoming requests
-     *
-     * The processing results are stored in the same request XML
-     * @param xmlContent           Incoming request and outgoing response
-     */
-    void processRequest(xml::Document* xmlContent, json::Document* jsonContent,
-                                      HttpAuthentication* authentication, String& requestName);
-
-    /**
-     * @brief Returns service title (for service handshake)
-     *
-     * Application should overwrite this method to return mor appropriate text
-     */
-    [[nodiscard]] virtual String title() const
-    {
-        return "Generic SPTK WS Request Broker";
-    }
-
-    /**
-     * @brief Returns service default HTML page
-     *
-     * Application should overwrite this method to return mor appropriate text
-     */
-    [[nodiscard]] virtual String defaultPage() const
-    {
-        return "index.html";
-    }
-
-    /**
-     * @return service WSDL
-     */
-    virtual String wsdl() const
-    {
-        return String("Not defined");
-    }
 };
 
 }

@@ -116,66 +116,6 @@ public:
      */
     typedef std::map<String,String>                 DocumentationMap;
 
-private:
-
-    String              m_serviceName;      ///< Service name, defining service class name and source file names
-    String              m_description;      ///< Service description
-    String              m_location;         ///< Service location
-    String              m_wsdlFile;         ///< WSDL source file name
-    ComplexTypeIndex    m_complexTypeIndex; ///< Index of all parsed complex types and elements
-    WSOperationMap      m_operations;       ///< Map of all operations
-    DocumentationMap    m_documentation;    ///< Map of documentation
-
-public:
-    const String& description() const;
-    ///< Map of all operation documentation if any
-
-protected:
-    /**
-     * Parses xsd:element nodes directly under xsd:schema
-     * @param element           Schema element
-     */
-    void parseElement(const xml::Element* element);
-
-    /**
-     * Parses xsd:simpleType nodes directly under xsd:schema
-     * @param simpleTypeElement Schema simple type
-     */
-    void parseSimpleType(const xml::Element* simpleTypeElement);
-
-    /**
-     * Parses xsd:complexType nodes directly under xsd:schema
-     * @param complexTypeElement Schema complex type
-     */
-    void parseComplexType(const xml::Element* complexTypeElement);
-
-    /**
-     * Parses wsdl:operation nodes directly under xsd:schema
-     * @param operation         Schema complex type
-     */
-    void parseOperation(xml::Element* operation);
-
-    /**
-     * Parses xsd:schema
-     * @param schemaElement     Schema element
-     */
-    void parseSchema(xml::Element* schemaElement);
-
-    /**
-     * Generates service definition to output stream
-     * @param usedClasses       List of this service complex types (classes)
-     * @param output            Output stream
-     */
-    void generateDefinition(const Strings& usedClasses, std::ostream& output);
-
-    /**
-     * Generates service implementation to output stream
-     * @param output            Output stream
-     */
-    void generateImplementation(std::ostream& output);
-
-public:
-
     /**
      * Constructor
      */
@@ -224,6 +164,62 @@ public:
      * @param name              Element name
      */
     static std::string get_namespace(const std::string& name);
+
+    const String& description() const;
+
+protected:
+    /**
+     * Parses xsd:element nodes directly under xsd:schema
+     * @param element           Schema element
+     */
+    void parseElement(const xml::Element* element);
+
+    /**
+     * Parses xsd:simpleType nodes directly under xsd:schema
+     * @param simpleTypeElement Schema simple type
+     */
+    void parseSimpleType(const xml::Element* simpleTypeElement);
+
+    /**
+     * Parses xsd:complexType nodes directly under xsd:schema
+     * @param complexTypeElement Schema complex type
+     */
+    void parseComplexType(const xml::Element* complexTypeElement);
+
+    /**
+     * Parses wsdl:operation nodes directly under xsd:schema
+     * @param operation         Schema complex type
+     */
+    void parseOperation(xml::Element* operation);
+
+    /**
+     * Parses xsd:schema
+     * @param schemaElement     Schema element
+     */
+    void parseSchema(xml::Element* schemaElement);
+
+    /**
+     * Generates service definition to output stream
+     * @param usedClasses       List of this service complex types (classes)
+     * @param output            Output stream
+     */
+    void generateDefinition(const Strings& usedClasses, std::ostream& output);
+
+    /**
+     * Generates service implementation to output stream
+     * @param output            Output stream
+     */
+    void generateImplementation(std::ostream& output);
+
+private:
+
+    String              m_serviceName;      ///< Service name, defining service class name and source file names
+    String              m_description;      ///< Service description
+    String              m_location;         ///< Service location
+    String              m_wsdlFile;         ///< WSDL source file name
+    ComplexTypeIndex    m_complexTypeIndex; ///< Index of all parsed complex types and elements
+    WSOperationMap      m_operations;       ///< Map of all operations
+    DocumentationMap    m_documentation;    ///< Map of documentation
 };
 
 /**

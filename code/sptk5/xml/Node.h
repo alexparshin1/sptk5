@@ -62,21 +62,9 @@ class Attributes;
  */
 enum XPathAxis
 {
-    /**
-     * Child axis
-     */
-            XPA_CHILD,
-
-    /**
-     * Descendant axis
-     */
-            XPA_DESCENDANT,
-
-    /**
-     * Parent Axis
-     */
-            XPA_PARENT
-
+    XPA_CHILD,      ///< Child axis
+    XPA_DESCENDANT, ///< Descendant axis
+    XPA_PARENT      ///< Parent Axis
 };
 
 /**
@@ -144,7 +132,7 @@ public:
 /**
  * XML Node iterators
  */
-class SP_EXPORT Node_Iterators
+class SP_EXPORT NodeIterators
 {
 public:
     /**
@@ -183,27 +171,9 @@ class Node;
 /**
  * Base XML Node class
  */
-class SP_EXPORT Node_Base: public Node_Iterators
+class SP_EXPORT NodeBase: public NodeIterators
 {
-    /**
-     * Parent document pointer
-     */
-    Document* m_document;
-
-    /**
-     * Parent node pointer
-     */
-    Node* m_parent {nullptr};
-
-protected:
-
-    /**
-     * Sets parent node - for XMLParser
-     */
-    void setParent(Node* p, bool minimal);
-
 public:
-
     /**
      * Node type enumeration
      */
@@ -223,7 +193,7 @@ public:
      * Constructor
      * @param document          Parent XML document
      */
-    explicit Node_Base(Document* document)
+    explicit NodeBase(Document* document)
     : m_document(document)
     {}
 
@@ -398,6 +368,24 @@ public:
     {
         return type() == DOM_COMMENT;
     }
+
+protected:
+
+    /**
+     * Sets parent node - for XMLParser
+     */
+    void setParent(Node* p, bool minimal);
+
+private:
+    /**
+     * Parent document pointer
+     */
+    Document* m_document;
+
+    /**
+     * Parent node pointer
+     */
+    Node* m_parent {nullptr};
 };
 
 /**
@@ -405,7 +393,7 @@ public:
  *
  * Basic class for any XML node
  */
-class SP_EXPORT Node: public Node_Base
+class SP_EXPORT Node: public NodeBase
 {
     friend class NodeList;
     friend class Document;
@@ -414,44 +402,6 @@ class SP_EXPORT Node: public Node_Base
     friend class Attributes;
 
     friend class NodeSearchAlgorithms;
-
-    /**
-     * Save node to JSON object.
-     * @param json              JSON element
-     * @param text              Temporary text buffer
-     */
-    virtual void save(json::Element& json, std::string& text) const;
-
-    void saveElement(const String& nodeName, Buffer& buffer, int indent) const;
-
-protected:
-
-    /**
-     * Protected constructor - for derived classes
-     *
-     * @param doc               Node document
-     */
-    explicit Node(Document& doc)
-    : Node_Base(&doc)
-    {}
-
-    /**
-     * Protected constructor - for derived classes
-     *
-     * @param parent            Node document
-     */
-    explicit Node(Node& parent)
-    : Node_Base(parent.document())
-    {
-        parent.push_back(this);
-    }
-
-    /**
-     * Destructor
-     */
-    virtual ~Node()
-    {
-    }
 
 public:
 
@@ -650,7 +600,44 @@ public:
         return true;
     }
 
+protected:
+
+    /**
+     * Protected constructor - for derived classes
+     *
+     * @param doc               Node document
+     */
+    explicit Node(Document& doc)
+    : NodeBase(&doc)
+    {}
+
+    /**
+     * Protected constructor - for derived classes
+     *
+     * @param parent            Node document
+     */
+    explicit Node(Node& parent)
+    : NodeBase(parent.document())
+    {
+        parent.push_back(this);
+    }
+
+    /**
+     * Destructor
+     */
+    virtual ~Node()
+    {
+    }
+
 private:
+    /**
+     * Save node to JSON object.
+     * @param json              JSON element
+     * @param text              Temporary text buffer
+     */
+    virtual void save(json::Element& json, std::string& text) const;
+
+    void saveElement(const String& nodeName, Buffer& buffer, int indent) const;
     void saveAttributes(Buffer& buffer) const;
     void saveAttributes(json::Element* object) const;
     void saveElement(json::Element* object) const;
@@ -697,32 +684,6 @@ class SP_EXPORT NamedItem : public Node
 {
     friend class Document;
     friend class Attribute;
-
-    /**
-     * Node name, stored in the parent document SST
-     */
-    const std::string* m_name {nullptr};
-
-
-protected:
-    /**
-     * Protected constructor for creating Doc only
-     *
-     * @param doc a document.
-     */
-    explicit NamedItem(Document& doc)
-    : Node(doc)
-    {
-    }
-
-    /**
-     * Returns true if node name pointer (from SST) matches aname pointer
-     * @param sstName           Node name pointer to compare with this node name pointer
-     */
-    bool nameIs(const std::string* sstName) const override
-    {
-        return sstName == m_name;
-    }
 
 public:
     /**
@@ -810,6 +771,32 @@ public:
     {
         return DOM_ATTRIBUTE;
     }
+
+protected:
+    /**
+     * Protected constructor for creating Doc only
+     *
+     * @param doc a document.
+     */
+    explicit NamedItem(Document& doc)
+            : Node(doc)
+    {
+    }
+
+    /**
+     * Returns true if node name pointer (from SST) matches aname pointer
+     * @param sstName           Node name pointer to compare with this node name pointer
+     */
+    bool nameIs(const std::string* sstName) const override
+    {
+        return sstName == m_name;
+    }
+
+private:
+    /**
+     * Node name, stored in the parent document SST
+     */
+    const std::string* m_name {nullptr};
 };
 
 /**
@@ -817,17 +804,6 @@ public:
  */
 class SP_EXPORT BaseTextNode : public Node
 {
-    /**
-     * Node value
-     */
-    String m_value;
-
-protected:
-    /**
-     * returns node name
-     */
-    virtual String nodeName() const;
-
 public:
     /**
      * Constructor
@@ -899,6 +875,15 @@ public:
         // Text node con't have name
     }
 
+protected:
+    /**
+     * returns node name
+     */
+    virtual String nodeName() const;
+
+private:
+
+    String m_value;     ///< Node value
 };
 
 /**
@@ -906,12 +891,6 @@ public:
  */
 class SP_EXPORT Text : public BaseTextNode
 {
-protected:
-    /**
-     * returns node name
-     */
-    virtual String nodeName() const;
-
 public:
     /**
      * Constructor
@@ -953,6 +932,12 @@ public:
     {
         return DOM_TEXT;
     }
+
+protected:
+    /**
+     * returns node name
+     */
+    virtual String nodeName() const;
 };
 
 /**
@@ -960,12 +945,6 @@ public:
  */
 class SP_EXPORT Comment : public BaseTextNode
 {
-protected:
-    /**
-     * returns node name
-     */
-    virtual String nodeName() const;
-
 public:
     /**
      * Constructor
@@ -1007,6 +986,12 @@ public:
     {
         return DOM_COMMENT;
     }
+
+protected:
+    /**
+     * returns node name
+     */
+    virtual String nodeName() const;
 };
 
 /**
@@ -1014,12 +999,6 @@ public:
  */
 class SP_EXPORT CDataSection : public BaseTextNode
 {
-protected:
-    /**
-     * returns node name
-     */
-    String nodeName() const override;
-
 public:
     /**
      * Constructor
@@ -1061,6 +1040,12 @@ public:
     {
         return DOM_CDATA_SECTION;
     }
+
+protected:
+    /**
+     * returns node name
+     */
+    String nodeName() const override;
 };
 
 /**

@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Element.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -54,27 +52,6 @@ class Document;
 class SP_EXPORT Element : public NamedItem
 {
     friend class Document;
-
-    /**
-     * The list of subnodes
-     */
-    NodeList       m_nodes;
-
-    /**
-     * Node attributes
-     */
-    Attributes     m_attributes;
-
-protected:
-
-    /**
-     * @brief Protected constructor for creating Doc only
-     *
-     * @param doc               XML document.
-     */
-    explicit Element(Document& doc)
-    : NamedItem(doc), m_attributes(this)
-    {}
 
 public:
     /**
@@ -288,6 +265,28 @@ public:
     {
         m_attributes.setAttribute(attr.c_str(),value,defaultValue);
     }
+
+protected:
+
+    /**
+     * @brief Protected constructor for creating Doc only
+     *
+     * @param doc               XML document.
+     */
+    explicit Element(Document& doc)
+    : NamedItem(doc), m_attributes(this)
+    {}
+
+private:
+    /**
+     * The list of subnodes
+     */
+    NodeList       m_nodes;
+
+    /**
+     * Node attributes
+     */
+    Attributes     m_attributes;
 };
 
 /**
