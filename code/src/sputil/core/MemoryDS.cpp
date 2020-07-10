@@ -169,7 +169,7 @@ bool MemoryDS::prior()
     return false;
 }
 
-bool MemoryDS::find(Variant position)
+bool MemoryDS::find(const Variant& position)
 {
     SharedLock(m_mutex);
 

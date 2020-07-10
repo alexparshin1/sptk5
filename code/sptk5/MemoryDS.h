@@ -173,7 +173,7 @@ public:
     /**
      * Finds the record by the record position (defined by record's user_data or key).
      */
-    bool find(Variant position) override;
+    bool find(const Variant& position) override;
 
     /**
      * Returns true if there are no more records in the datasource. Implemented in derved class.

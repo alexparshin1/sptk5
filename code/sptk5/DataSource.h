@@ -191,7 +191,7 @@ public:
     /**
      * Moves to the specified record position of the datasource. Implemented in derved class.
      */
-    virtual bool find(Variant /*position*/)
+    virtual bool find(const Variant& /*position*/)
     {
         return false;
     }

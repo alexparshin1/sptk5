@@ -91,8 +91,7 @@ public:
      *
      */
     DirectoryDS(const String& _directory="", const String& _pattern="", int _showPolicy=0)
-    : MemoryDS(),
-      m_showPolicy(_showPolicy)
+    : MemoryDS(), m_showPolicy(_showPolicy)
     {
         if (!_directory.empty())
             directory(_directory);
@@ -103,7 +102,7 @@ public:
     /**
      * Destructor
      */
-    ~DirectoryDS()
+    ~DirectoryDS() override
     {
         MemoryDS::close();
     }

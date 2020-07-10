@@ -190,7 +190,7 @@ public:
      */
     Field& operator [](size_t index)
     {
-        return *(Field *) m_list[index];
+        return *m_list[index];
     }
 
     /**
@@ -201,7 +201,7 @@ public:
      */
     const Field& operator [](size_t index) const
     {
-        return *(Field *) m_list[index];
+        return *m_list[index];
     }
 
     /**

@@ -55,7 +55,7 @@ public:
         std::lock_guard<std::mutex> lock(m_mutex);
         m_list.push_back(data);
         m_position = m_list.end();
-        m_position--;
+        --m_position;
     }
 
     T& get()
