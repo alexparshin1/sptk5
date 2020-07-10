@@ -164,7 +164,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig)
         throw Exception("Signature doesn't match");
 }
 
-static void SIGN_ERROR(int __err)
+[[noreturn]] static void SIGN_ERROR(int __err)
 {
     if ((__err) == EINVAL)
         throw Exception("Invalid value");
@@ -327,7 +327,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str)
         throw Exception("Sign error: " + string(error));
 }
 
-static void VERIFY_ERROR(int __err)
+[[noreturn]] static void VERIFY_ERROR(int __err)
 {
     if ((__err) == EINVAL)
         throw Exception("Invalid value");

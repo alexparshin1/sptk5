@@ -105,7 +105,6 @@ void Parser::parse(Element& jsonElement, const String& jsonStr)
             break;
         default:
             throwUnexpectedCharacterError(*pos, 0, json, pos - json);
-            break;
     }
 
     // Check if there is trailing junk data
@@ -265,7 +264,6 @@ void readArrayData(Element* parent, const char* json, const char*& readPosition)
 
             default:
                 throwUnexpectedCharacterError(*readPosition, 0, json, readPosition - json);
-                break;
         }
     }
     readPosition++;
@@ -335,7 +333,6 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
 
             default:
                 throwUnexpectedCharacterError(*readPosition, 0, json, readPosition - json);
-                break;
         }
     }
     readPosition++;

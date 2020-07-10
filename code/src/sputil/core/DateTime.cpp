@@ -44,7 +44,7 @@ public:
 
     void init() noexcept;
 
-    static char parseDateOrTime(char* format, const char* dateOrTime);
+    static char parseDateOrTime(String& format, const String& dateOrTime);
 };
 
 } // namespace sptk
@@ -57,10 +57,10 @@ static const short _monthDays[2][13] =
 
 static bool _time24Mode;
 
-char     DateTime::_dateFormat[32];
-char     DateTime::_datePartsOrder[4];
-char     DateTime::_fullTimeFormat[32];
-char     DateTime::_shortTimeFormat[32];
+String   DateTime::_dateFormat;
+String   DateTime::_datePartsOrder;
+String   DateTime::_fullTimeFormat;
+String   DateTime::_shortTimeFormat;
 char     DateTime::_dateSeparator;
 char     DateTime::_timeSeparator;
 Strings  DateTime::_weekDayNames;
@@ -120,13 +120,13 @@ static int trimRight(char* s)
     return len;
 }
 
-char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
+char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
 {
     char separator[] = " ";
     char dt[32];
 
-    strncpy(dt, dateOrTime, sizeof(dt));
-	dt[31] = 0;
+    strncpy(dt, dateOrTime.c_str(), sizeof(dt));
+	dt[sizeof(dt) - 1] = 0;
 
     // Cut-off trailing non-digit characters
     auto len = (int) strlen(dt);
@@ -145,7 +145,7 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     char* save_ptr = nullptr;
     ptr = strtok_r(dt, separator, &save_ptr);
 
-    strncpy(format, "", 2);
+    format.clear();
 
     const char* pattern;
     while (ptr != nullptr) {
@@ -167,33 +167,28 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
                 break;
             case 17:
                 pattern = "39";   // day
-                if (strlen(DateTime::_datePartsOrder) < sizeof(DateTime::_datePartsOrder) - 2)
-                    strncat(DateTime::_datePartsOrder, "D", 2);
+                DateTime::_datePartsOrder += "D";
                 break;
             case 6:
                 pattern = "19";   // month
-                if (strlen(DateTime::_datePartsOrder) < sizeof(DateTime::_datePartsOrder) - 2)
-                    strncat(DateTime::_datePartsOrder, "M", 2);
+                DateTime::_datePartsOrder += "M";
                 break;
             case 2000:
             case 0:
                 pattern = "2999"; // year
-                if (strlen(DateTime::_datePartsOrder) < sizeof(DateTime::_datePartsOrder) - 2)
-                    strncat(DateTime::_datePartsOrder, "Y", 2);
+                DateTime::_datePartsOrder += "Y";
                 break;
             default:
                 pattern = nullptr;
                 break;
         }
         if (pattern != nullptr) {
-            strncat(format, pattern, 5);
-            strncat(format, separator, 2);
+            format += pattern;
+            format += separator;
         }
         ptr = strtok_r(nullptr, separator, &save_ptr);
     }
-    len = (int) strlen(format);
-    if (len != 0)
-        format[len - 1] = 0;
+    format.resize(format.length() - 1);
 
     return separator[0];
 }
@@ -579,17 +574,14 @@ void DateTime::time24Mode(bool t24mode)
 
     _time24Mode = t24mode;
     DateTime::_timeSeparator = DateTimeFormat::parseDateOrTime(DateTime::_fullTimeFormat, timeBuffer);
-    strncpy(DateTime::_shortTimeFormat, DateTime::_fullTimeFormat, sizeof(DateTime::_shortTimeFormat));
-	DateTime::_shortTimeFormat[sizeof(DateTime::_shortTimeFormat) - 1] = 0;
-	char* p = strchr(DateTime::_shortTimeFormat, DateTime::_timeSeparator);
-    if (p != nullptr) {
-        p = strchr(p + 1, DateTime::_timeSeparator);
-        if (p != nullptr)
-            *p = 0;
+    DateTime::_shortTimeFormat = DateTime::_fullTimeFormat;
+	auto pos = DateTime::_fullTimeFormat.find_last_of(DateTime::_timeSeparator);
+    if (pos != string::npos) {
+        DateTime::_shortTimeFormat = DateTime::_fullTimeFormat.substr(0, pos);
     }
     if (!_time24Mode) {
-        strncat(DateTime::_fullTimeFormat, "TM", sizeof(DateTime::_fullTimeFormat) - strlen(_fullTimeFormat) - 1);
-        strncat(DateTime::_shortTimeFormat, "TM", sizeof(DateTime::_shortTimeFormat) - strlen(_shortTimeFormat) - 1);
+        DateTime::_fullTimeFormat += "TM";
+        DateTime::_shortTimeFormat += "TM";
     }
 }
 

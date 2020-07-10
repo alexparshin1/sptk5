@@ -66,7 +66,7 @@ class SSLContext : public SharedMutex
      * Throw SSL error
      * @param humanDescription  Human-readable error description
      */
-    static void throwError(const String& humanDescription);
+    [[noreturn]] static void throwError(const String& humanDescription);
 
 public:
 

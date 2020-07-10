@@ -341,22 +341,22 @@ private:
     /**
      * System's date format
      */
-    static char _dateFormat[32];
+    static String _dateFormat;
 
     /**
      * System's time format
      */
-    static char _fullTimeFormat[32];
+    static String _fullTimeFormat;
 
     /**
      * System's time format
      */
-    static char _shortTimeFormat[32];
+    static String _shortTimeFormat;
 
     /**
      * System's date parts order
      */
-    static char _datePartsOrder[4];
+    static String _datePartsOrder;
 
     /**
      * System's date separator

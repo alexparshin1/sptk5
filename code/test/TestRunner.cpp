@@ -55,14 +55,17 @@ using namespace sptk;
  */
 class StubServer : public TCPServer
 {
+public:
+
+    StubServer() : TCPServer("test", 1)
+    {}
+
 protected:
+
     ServerConnection* createConnection(SOCKET, sockaddr_in*) override
     {
         return nullptr;
     }
-public:
-    StubServer() : TCPServer("test", 1)
-    {}
 };
 
 // Hints to linker that we need other modules.

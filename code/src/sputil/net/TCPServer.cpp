@@ -190,18 +190,17 @@ public:
 
 class EchoServer : public sptk::TCPServer
 {
+public:
+
+    EchoServer() : TCPServer("EchoServer")
+    {}
+
 protected:
 
     sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override
     {
         return new EchoConnection(*this, connectionSocket, peer);
     }
-
-public:
-
-    EchoServer() : TCPServer("EchoServer")
-    {}
-
 };
 
 TEST(SPTK_TCPServer, minimal)
