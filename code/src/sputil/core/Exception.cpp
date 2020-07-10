@@ -46,11 +46,6 @@ Exception::Exception(const String& text, const String& file, int line, const Str
         m_fullMessage += ". " + m_description + ".";
 }
 
-Exception::Exception(const Exception& other) DOESNT_THROW
-: m_file(other.m_file), m_line(other.m_line), m_text(other.m_text), m_description(other.m_description), m_fullMessage(other.m_fullMessage)
-{
-}
-
 const char* Exception::what() const DOESNT_THROW
 {
     return m_fullMessage.c_str();

@@ -66,17 +66,6 @@ public:
         Visibility(const String& pattern, bool mustMatch = true);
 
         /**
-         * Copy constructor
-         * @param other const Visibility&, The object to copy from
-         */
-        Visibility(const Visibility& other);
-
-        /**
-         * Destructor
-         */
-        ~Visibility();
-
-        /**
          * Returns true if there is no regular expression to match, and matches any argument.
          */
         bool any() const;
@@ -87,20 +76,9 @@ public:
         bool matches(const String& command) const;
 
     private:
-        /**
-         * If true then expression shoul not match
-         */
-        bool                m_inverted;
 
-        /**
-         * Regular expression for matching an argument(s)
-         */
-        RegularExpression*  m_regexp;
-
-        /**
-         * Regular expression pattern
-         */
-        String              m_pattern;
+        bool                                m_inverted; ///< If true then expression shoul not match
+        std::shared_ptr<RegularExpression>  m_regexp;   ///< Regular expression for matching an argument(s)
     };
 
     /**
@@ -139,11 +117,6 @@ public:
      * @param commandLinePrototype  Command line prototype (forhelp only).
      */
     CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype);
-
-    /**
-     * destructor
-     */
-    virtual ~CommandLine();
 
     /**
      * Defines command line option
@@ -425,17 +398,6 @@ protected:
      */
     class SP_EXPORT CommandLineParameter: public CommandLineElement
     {
-        /**
-         * Value name, for using in help
-         */
-        String                  m_valueInfo;
-
-        /**
-         * Value validation regular expression
-         */
-        RegularExpression*      m_validateValue;
-
-
     public:
 
         /**
@@ -450,11 +412,6 @@ protected:
         CommandLineParameter(const String& name, const String& shortName, const String& valueName,
                              const String& validateValue,
                              const Visibility& useWithCommands, const String& help);
-
-        /**
-         * Destructor
-         */
-        virtual ~CommandLineParameter();
 
         /**
          * Returns element name in help print format
@@ -476,49 +433,27 @@ protected:
          * Returns element type
          */
         Type type() const override;
+
+    private:
+
+        String                                              m_valueInfo;            ///< Value name, for using in help
+        std::shared_ptr<RegularExpression>                  m_validateValue;        ///< Value validation regular expression
     };
 
 private:
 
-    /**
-     * Program version and copyright message (forhelp only).
-     */
-    String                                      m_programVersion;
-
-    /**
-     * Program description (forhelp only).
-     */
-    String                                      m_description;
-
-    /**
-     * Command line prototype (forhelp only).
-     */
-    String                                      m_commandLinePrototype;
-
-    /**
-     * All the defined options.
-     */
-    std::map<String, CommandLineElement*>       m_optionTemplates;
+    String                                                  m_programVersion;       ///< Program version and copyright message (for help only).
+    String                                                  m_description;          ///< Program description (for help only).
+    String                                                  m_commandLinePrototype; ///< Command line prototype (for help only).
+    std::map<String, std::shared_ptr<CommandLineElement>>   m_optionTemplates;      ///< All the defined options.
 
     /**
      * All the defined arguments.
      */
-    std::map<String, CommandLineArgument*>      m_argumentTemplates;
-
-    /**
-     * Received option values.
-     */
-    std::map<String, String>                    m_values;
-
-    /**
-     * Received arguments.
-     */
-    Strings                                     m_arguments;
-
-    /**
-     * All defined elements.
-     */
-    std::list<CommandLineElement*>              m_allElements;
+    std::map<String, std::shared_ptr<CommandLineArgument>>  m_argumentTemplates;
+    std::map<String, String>                                m_values;               ///< Received option values.
+    Strings                                                 m_arguments;            ///< Received arguments.
+    std::list<std::shared_ptr<CommandLineElement>>          m_allElements;          ///< All defined elements.
 };
 
 /**

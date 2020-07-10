@@ -39,26 +39,10 @@ static const char* singleLine("─");
 #endif
 
 CommandLine::Visibility::Visibility(const String& pattern, bool _mustMatch)
-: m_inverted(!_mustMatch), m_pattern(pattern)
+: m_inverted(!_mustMatch)
 {
-    if (m_pattern.empty())
-        m_regexp = nullptr;
-    else
-        m_regexp = new RegularExpression(m_pattern);
-}
-
-CommandLine::Visibility::Visibility(const Visibility& other)
-: m_inverted(other.m_inverted), m_pattern(other.m_pattern)
-{
-    if (m_pattern.empty())
-        m_regexp = nullptr;
-    else
-        m_regexp = new RegularExpression(m_pattern);
-}
-
-CommandLine::Visibility::~Visibility()
-{
-    delete m_regexp;
+    if (!pattern.empty())
+        m_regexp = make_shared<RegularExpression>(pattern);
 }
 
 bool CommandLine::Visibility::any() const
@@ -213,17 +197,10 @@ CommandLine::CommandLineParameter::CommandLineParameter(const String& name, cons
                                                         const String& help)
 : CommandLineElement(name, shortName, help, useWithCommands), m_valueInfo(valueInfo)
 {
-    if (validateValue.empty())
-        m_validateValue = nullptr;
-    else
-        m_validateValue = new RegularExpression(validateValue);
+    if (!validateValue.empty())
+        m_validateValue = make_shared<RegularExpression>(validateValue);
     if (m_valueInfo.empty())
         throw Exception("Command line parameters must have a value info");
-}
-
-CommandLine::CommandLineParameter::~CommandLineParameter()
-{
-    delete m_validateValue;
 }
 
 String CommandLine::CommandLineParameter::printableName() const
@@ -265,19 +242,13 @@ CommandLine::CommandLineElement::Type CommandLine::CommandLineParameter::type() 
 CommandLine::CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype)
 : m_programVersion(programVersion), m_description(description), m_commandLinePrototype(commandLinePrototype) { }
 
-CommandLine::~CommandLine()
-{
-    for (CommandLineElement* element : m_allElements)
-        delete element;
-}
-
 void CommandLine::defineOption(const String& fullName, const String& shortName, Visibility useForCommands,
                                const String& help)
 {
     if (fullName.empty() && shortName.empty())
         return;
 
-    auto* optionTemplate = new CommandLineOption(fullName, shortName, useForCommands, help);
+    auto optionTemplate = make_shared<CommandLineOption>(fullName, shortName, useForCommands, help);
     m_allElements.push_back(optionTemplate);
     if (!fullName.empty())
         m_optionTemplates[fullName] = optionTemplate;
@@ -292,8 +263,7 @@ void CommandLine::defineParameter(const String& fullName, const String& shortNam
     if (fullName.empty() && shortName.empty())
         return;
 
-    auto* argumentTemplate = new CommandLineParameter(fullName, shortName, valueName, validateValue,
-        useForCommands, help);
+    auto argumentTemplate = make_shared<CommandLineParameter>(fullName, shortName, valueName, validateValue, useForCommands, help);
     m_allElements.push_back(argumentTemplate);
 
     String name;
@@ -316,7 +286,7 @@ void CommandLine::defineParameter(const String& fullName, const String& shortNam
 void CommandLine::defineArgument(const String& fullName, const String& helpText)
 {
     if (!fullName.empty()) {
-        auto* argumentTemplate = new CommandLineArgument(fullName, helpText);
+        auto argumentTemplate = make_shared<CommandLineArgument>(fullName, helpText);
         m_allElements.push_back(argumentTemplate);
         m_argumentTemplates[fullName] = argumentTemplate;
     }
@@ -406,8 +376,8 @@ void CommandLine::init(int argc, const char* argv[])
                 // Short option name
                 optionName = arg.substr(1);
             }
-            CommandLineElement* element = m_optionTemplates[optionName];
-            if (element == nullptr)
+            auto element = m_optionTemplates[optionName];
+            if (!element)
                 throw Exception("Command line option or parameter " + arg + " is not supported");
             if (element->hasValue()) {
                 i++;
@@ -441,8 +411,8 @@ bool CommandLine::hasOption(const String& name) const
 
 void CommandLine::setOptionValue(const String& name, const String& value)
 {
-    CommandLineElement* element = m_optionTemplates[name];
-    if (element == nullptr)
+    auto element = m_optionTemplates[name];
+    if (!element)
         throw Exception("Invalid option or parameter name: " + name);
     element->validate(value);
     m_values[name] = value;
@@ -510,10 +480,8 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         auto itor = m_optionTemplates.find(optionName);
         if (itor == m_optionTemplates.end())
             continue;
-        const CommandLineElement* optionTemplate = itor->second;
-        if (optionTemplate == nullptr)
-            continue;
-        if (!optionTemplate->useWithCommand(onlyForCommand))
+        const auto optionTemplate = itor->second;
+        if (!optionTemplate || !optionTemplate->useWithCommand(onlyForCommand))
             continue;
         size_t width = optionTemplate->printableName().length();
         if (nameColumns < width)
@@ -538,10 +506,8 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
         printLine(singleLine, screenColumns);
         for (const String& optionName : sortedOptions) {
             auto itor = m_optionTemplates.find(optionName);
-            const CommandLineElement* optionTemplate = itor->second;
-            if (optionTemplate == nullptr)
-                continue;
-            if (!optionTemplate->useWithCommand(onlyForCommand))
+            const auto optionTemplate = itor->second;
+            if (!optionTemplate || !optionTemplate->useWithCommand(onlyForCommand))
                 continue;
             String defaultValue;
             auto vtor = m_values.find(optionTemplate->name());
@@ -560,9 +526,10 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
         printLine(singleLine, screenColumns);
         for (const String& commandName : sortedCommands) {
             auto ator = m_argumentTemplates.find(commandName);
-            const CommandLineArgument* commandTemplate = ator->second;
-            if (!onlyForCommand.empty() && commandName != onlyForCommand)
+            if (!onlyForCommand.empty() && commandName != onlyForCommand) {
                 continue;
+            }
+            const auto commandTemplate = ator->second;
             commandTemplate->printHelp(nameColumns, helpTextColumns, "");
         }
     }

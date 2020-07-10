@@ -146,7 +146,7 @@ public:
     {
         Strings patterns(wildcards, ";", Strings::SM_DELIMITER);
         m_patterns.clear();
-        for (auto& pattern: patterns) {
+        for (const auto& pattern: patterns) {
             auto matchPattern = wildcardToRegexp(pattern);
             m_patterns.push_back(matchPattern);
         }
