@@ -51,22 +51,6 @@ class SP_EXPORT IntList : public std::vector<uint32_t>
 {
 public:
     /**
-     * Constructor
-     */
-    IntList() = default;
-
-    /**
-     * Assigns another IntList
-     * @param other             Other list to assign
-     */
-    IntList& operator = (const IntList& other)
-    {
-        if (&other != this)
-            assign(other.begin(), other.end());
-        return *this;
-    }
-
-    /**
      * Converts to string as a list of values, separated with user-defined character
      * (comma, by default)
      */

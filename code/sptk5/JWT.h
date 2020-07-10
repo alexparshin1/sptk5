@@ -69,12 +69,6 @@ public:
     JWT();
 
     /**
-     * Copy constructor
-     * @param other             Other JWT object
-     */
-    JWT(const JWT& other);
-
-    /**
      * Get JSON element in JSON object element by name.
      * If element doesn't exist in JSON object yet, it's created as JSON null element.
      * If this element is not JSON object, an exception is thrown.

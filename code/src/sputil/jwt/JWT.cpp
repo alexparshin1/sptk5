@@ -38,14 +38,6 @@ JWT::JWT()
 {
 }
 
-JWT::JWT(const JWT& other)
-: alg(other.alg), key(other.key)
-{
-    Buffer tempBuffer;
-    other.grants.exportTo(tempBuffer, false);
-    grants.load(tempBuffer.c_str());
-}
-
 JWT::Algorithm JWT::get_alg() const
 {
     return alg;

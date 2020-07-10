@@ -122,7 +122,7 @@ void FieldList::toXML(xml::Node& node) const
 
 #if USE_GTEST
 
-TEST(SPTK_FieldList, copy)
+TEST(SPTK_FieldList, copyCtor)
 {
     FieldList fieldList(true);
 
@@ -135,6 +135,10 @@ TEST(SPTK_FieldList, copy)
 
     EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
     EXPECT_EQ(12345, (int32_t) fieldList2["value"]);
+
+    fieldList2["name"] = "id2";
+    EXPECT_STREQ("id", fieldList["name"].asString().c_str());
+    EXPECT_STREQ("id2", fieldList2["name"].asString().c_str());
 }
 
 TEST(SPTK_FieldList, push_back)

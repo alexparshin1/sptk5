@@ -93,7 +93,7 @@ size_t RegularExpression::getCaptureCount() const
     return (size_t) captureCount;
 }
 
-RegularExpression::Group::Group(RegularExpression::Group&& other)
+RegularExpression::Group::Group(RegularExpression::Group&& other) noexcept
 : value(move(other.value)),
   start(exchange(other.start,0)),
   end(exchange(other.end, 0))

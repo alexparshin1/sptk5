@@ -52,10 +52,6 @@ class FieldList;
 class SP_EXPORT Field : public Variant
 {
     friend class FieldList;
-    /**
-     * Field name
-     */
-    String m_name;
 
 public:
     /**
@@ -74,7 +70,7 @@ public:
      * @param other              Other field object
      */
     Field(const Field& other)
-    : Variant(other), m_name(other.m_name), displayName(other.displayName)
+    : Variant(other), displayName(other.displayName), m_name(other.m_name)
     {
     }
 
@@ -83,11 +79,11 @@ public:
      * @param other              Other field object
      */
     Field(Field&& other) noexcept
-    : Variant(std::move(other)),
-      m_name(std::move(other.m_name)),
-      displayName(std::move(other.displayName))
+    : Variant(std::move(other)), displayName(std::move(other.displayName)), m_name(std::move(other.m_name))
     {
     }
+
+    ~Field() noexcept override = default;
 
     /**
      * @brief Combination of field view attributes
@@ -150,7 +146,7 @@ public:
     /**
      * @brief Move assignment operation
      */
-    Field& operator = (Field&& other)
+    Field& operator = (Field&& other) noexcept
     {
         if (this == &other)
             return *this;
@@ -263,6 +259,10 @@ public:
     void toXML(xml::Node& node, bool compactXmlMode) const;
 
 private:
+    /**
+     * Field name
+     */
+    String m_name;
 
     String doubleDataToString(char* printBuffer, size_t printBufferSize) const;
     String moneyDataToString(char* printBuffer, size_t printBufferSize) const;

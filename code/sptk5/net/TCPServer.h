@@ -105,7 +105,7 @@ public:
      * Move constructor
      * @param other             Other log details object
      */
-    explicit LogDetails(LogDetails&& other)
+    explicit LogDetails(LogDetails&& other) noexcept
     : m_details(std::move(other.m_details))
     {}
 

@@ -62,10 +62,13 @@ void Document::parse(const String& json)
 Document::Document(bool isObject)
 : m_emptyElement(this, "")
 {
-    if (isObject)
-        m_root = new Element(this, new ObjectData(this));
-    else
-        m_root = new Element(this, new ArrayData(this));
+    if (isObject) {
+        auto* objectData = new ObjectData(this);
+        m_root = new Element(this, objectData);
+    } else {
+        auto* arrayData = new ArrayData(this);
+        m_root = new Element(this, arrayData);
+    }
 }
 
 Document::Document(const Document& other)
@@ -79,10 +82,13 @@ Document::Document(const Document& other)
 Document::Document(Document&& other) noexcept
 : m_root(other.m_root), m_emptyElement(this, "")
 {
-    if (m_root->type() == JDT_OBJECT)
-        other.m_root = new Element(this, new ObjectData(this));
-    else
-        other.m_root = new Element(this, new ArrayData(this));
+    if (m_root->type() == JDT_OBJECT) {
+        auto* objectData = new ObjectData(this);
+        other.m_root = new Element(this, objectData);
+    } else {
+        auto* arrayData = new ArrayData(this);
+        other.m_root = new Element(this, arrayData);
+    }
 }
 
 Document::~Document()

@@ -229,8 +229,6 @@ Buffer* ptr;
 TEST(SPTK_Buffer, assign)
 {
     Buffer  buffer1(testPhrase);
-    ptr = &buffer1;
-
     Buffer  buffer2;
 
     buffer2 = buffer1;

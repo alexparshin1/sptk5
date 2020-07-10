@@ -106,7 +106,7 @@ public:
          * Move constructor
          * @param other         Object to copy from
          */
-        Group(Group&& other);
+        Group(Group&& other) noexcept;
 
         /**
          * Copy assignment

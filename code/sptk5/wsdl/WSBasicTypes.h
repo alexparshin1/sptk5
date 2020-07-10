@@ -91,7 +91,7 @@ public:
         return *this;
     }
 
-    WSBasicType& operator = (WSBasicType&& other)
+    WSBasicType& operator = (WSBasicType&& other) noexcept
     {
         if (&other != this) {
             *(Field*) this = std::move(other);
@@ -674,7 +674,7 @@ public:
      * Move constructor
      * @param other             Other object
      */
-    WSArray(WSArray<T>&& other)
+    WSArray(WSArray<T>&& other) noexcept
     : std::vector<T>(move(other))
     {
     }
@@ -697,7 +697,7 @@ public:
      * @param other             Other object
      * @return this object
      */
-    WSArray& operator=(WSArray<T>&& other)
+    WSArray& operator=(WSArray<T>&& other) noexcept
     {
         if (this != &other) {
             std::vector<T>::clear();
