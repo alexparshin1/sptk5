@@ -52,12 +52,6 @@ class LogEngine;
  */
 class SP_EXPORT Logger
 {
-    /**
-     * The actual log to store messages to (destination log)
-     */
-    LogEngine&      m_destination;
-    String          m_prefix;
-
 public:
 
     /**
@@ -68,6 +62,7 @@ public:
         DateTime    timestamp {DateTime::Now()};    ///< Message timestamp
         LogPriority priority;                       ///< Message priority
         String      message;                        ///< Message text
+
         /**
          * Constructor
          * @param priority       Message priority
@@ -133,6 +128,13 @@ public:
      * @param message           Message text
      */
     void critical(const String& message);
+
+private:
+    /**
+     * The actual log to store messages to (destination log)
+     */
+    LogEngine&      m_destination;
+    String          m_prefix;
 };
 
 /**

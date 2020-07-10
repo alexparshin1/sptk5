@@ -87,6 +87,11 @@ public:
     SSLKeys& operator = (const SSLKeys& other);
 
     /**
+     * Destructor
+     */
+    ~SSLKeys() noexcept = default;
+
+    /**
      * Unique SSL keys identifier, for SSL keys index
      * @return SSL keys identifier
      */

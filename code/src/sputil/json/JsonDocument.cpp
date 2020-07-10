@@ -34,27 +34,27 @@ using namespace sptk::json;
 void Document::clear()
 {
     json::Type elementType = JDT_NULL;
-    if (m_root != nullptr) {
+    if (m_root != nullptr)
         elementType = m_root->type();
-        delete m_root;
-    }
 
-    if (elementType == JDT_ARRAY)
-        m_root = new Element(this, new ArrayData(this));
-    else
-        m_root = new Element(this, new ObjectData(this));
+    if (elementType == JDT_ARRAY) {
+        auto* arrayData = new ArrayData(this);
+        m_root = make_shared<Element>(this, arrayData);
+    } else {
+        auto* objectData = new ObjectData(this);
+        m_root = make_shared<Element>(this, objectData);
+    }
 }
 
 void Document::parse(const String& json)
 {
-    delete m_root;
-
     if (json.empty()) {
-        m_root = new Element(this, new ObjectData(this));
+        auto* objectData = new ObjectData(this);
+        m_root = make_shared<Element>(this, objectData);
         return;
     }
 
-    m_root = new Element(this);
+    m_root = make_shared<Element>(this);
 
     Parser::parse(*m_root, json);
 }
@@ -64,10 +64,10 @@ Document::Document(bool isObject)
 {
     if (isObject) {
         auto* objectData = new ObjectData(this);
-        m_root = new Element(this, objectData);
+        m_root = make_shared<Element>(this, objectData);
     } else {
         auto* arrayData = new ArrayData(this);
-        m_root = new Element(this, arrayData);
+        m_root = make_shared<Element>(this, arrayData);
     }
 }
 
@@ -84,16 +84,11 @@ Document::Document(Document&& other) noexcept
 {
     if (m_root->type() == JDT_OBJECT) {
         auto* objectData = new ObjectData(this);
-        other.m_root = new Element(this, objectData);
+        other.m_root = make_shared<Element>(this, objectData);
     } else {
         auto* arrayData = new ArrayData(this);
-        other.m_root = new Element(this, arrayData);
+        other.m_root = make_shared<Element>(this, arrayData);
     }
-}
-
-Document::~Document()
-{
-    delete m_root;
 }
 
 void Document::load(const String& json)

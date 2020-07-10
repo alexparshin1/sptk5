@@ -100,13 +100,6 @@ public:
     explicit LogEngine(const String& logEngineName);
 
     /**
-     * Destructor
-     *
-     * Destructs the log object, releases all the allocated resources
-     */
-    virtual ~LogEngine();
-
-    /**
      * Restarts the log
      *
      * The current log content is cleared.

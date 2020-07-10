@@ -49,7 +49,6 @@ namespace sptk {
 class SP_EXPORT QueryStatementManagement: public DataSource
 {
 public:
-
     /**
      * Constructor
      * @param autoPrepare       If true the auto-prepare statement
@@ -58,9 +57,7 @@ public:
     : m_autoPrepare(autoPrepare)
     {}
 
-    QueryStatementManagement(const QueryStatementManagement& other)
-    : m_autoPrepare(other.m_autoPrepare)
-    {}
+    QueryStatementManagement(const QueryStatementManagement& other) = delete;
 
     /**
      * Returns query statement handle

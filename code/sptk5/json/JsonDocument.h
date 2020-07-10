@@ -45,9 +45,9 @@ class SP_EXPORT Document
     friend class ObjectData;
     friend class Element;
 
-    Element*        m_root;             ///< Root element of the document
-    SharedStrings   m_sharedStrings;    ///< Shared string table for element names
-    const Element   m_emptyElement;     ///< Empty element
+    std::shared_ptr<Element>    m_root;             ///< Root element of the document
+    SharedStrings               m_sharedStrings;    ///< Shared string table for element names
+    const Element               m_emptyElement;     ///< Empty element
 
     /**
      * Parse JSON text, replacing current document content
@@ -78,11 +78,6 @@ public:
      * @param other             Object to move
      */
     Document(Document&& other) noexcept;
-
-    /**
-     * Destructor
-     */
-    ~Document();
 
     /**
      * Disable copy assignment

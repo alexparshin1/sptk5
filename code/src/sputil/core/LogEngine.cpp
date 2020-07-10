@@ -34,12 +34,6 @@ LogEngine::LogEngine(const String& logEngineName)
 {
 }
 
-LogEngine::~LogEngine()
-{
-    Thread::terminate();
-    Thread::join();
-}
-
 void LogEngine::option(Option option, bool flag)
 {
     if (flag)

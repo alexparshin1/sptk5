@@ -122,17 +122,17 @@ enum VariantType : uint32_t {
 /**
  * FLAG: External const memory buffer, memory isn't managed
  */
-#define VAR_EXTERNAL_BUFFER 16384
+constexpr int VAR_EXTERNAL_BUFFER = 16384;
 
 /**
  * FLAG: Data is NULL
  */
-#define VAR_NULL            32768
+constexpr int VAR_NULL = 32768;
 
 /**
  * MASK: All the known field types w/o flags
  */
-#define VAR_TYPES           16383
+constexpr int VAR_TYPES = 16383;
 
 class Field;
 

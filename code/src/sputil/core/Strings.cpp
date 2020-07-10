@@ -25,7 +25,6 @@
 */
 
 #include <sstream>
-#include <cstring>
 #include <sptk5/Strings.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/RegularExpression.h>

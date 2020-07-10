@@ -28,7 +28,6 @@
 #include <cmath>
 #include <cstring>
 #include <sptk5/cutils>
-#include <iomanip>
 
 using namespace std;
 using namespace chrono;

@@ -176,7 +176,7 @@ String sptk::escapeSQLString(const String& str, bool tsv)
 // Note: end row is not included
 static void insertRecords(
         PoolDatabaseConnection* db, const String& tableName, const Strings& columnNames,
-        vector<VariantVector>::const_iterator& begin, vector<VariantVector>::const_iterator& end)
+        const vector<VariantVector>::const_iterator& begin, const vector<VariantVector>::const_iterator& end)
 {
     stringstream sql;
     sql << "INSERT INTO " << tableName << " (" << columnNames.join(",") << ") VALUES ";

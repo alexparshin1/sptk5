@@ -82,6 +82,8 @@ public:
     : Field(std::move(other)), m_optional(std::exchange(other.m_optional, 0))
     {}
 
+    ~WSBasicType() noexcept = default;
+
     WSBasicType& operator = (const WSBasicType& other)
     {
         if (&other != this) {

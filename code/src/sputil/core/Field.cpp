@@ -163,7 +163,7 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
     String value = asString();
 
     if (!value.empty()) {
-        xml::Element* element = nullptr;
+        xml::Element* element;
 
         if (dataType() == VAR_TEXT) {
             element = new xml::Element(node, fieldName());

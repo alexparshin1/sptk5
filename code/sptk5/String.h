@@ -81,7 +81,7 @@ public:
      * Move constructor
      * @param src                Other object
      */
-    String(std::string&& src) noexcept
+    explicit String(std::string&& src) noexcept
     : std::string(std::move(src))
     {}
 

@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/SystemException.h>
-#include <cstring>
 
 using namespace std;
 using namespace sptk;

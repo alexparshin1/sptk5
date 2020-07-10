@@ -37,12 +37,7 @@ SmtpConnect::SmtpConnect(Logger* log)
 {
 }
 
-SmtpConnect::~SmtpConnect()
-{
-    TCPSocket::close();
-}
-
-#define RSP_BLOCK_SIZE 1024
+constexpr int RSP_BLOCK_SIZE = 1024;
 
 int SmtpConnect::getResponse(bool decode)
 {

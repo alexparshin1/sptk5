@@ -26,7 +26,6 @@
 
 #include <sptk5/cutils>
 #include <future>
-#include <queue>
 #include <regex>
 
 #if (HAVE_PCRE|HAVE_PCRE2)
@@ -62,6 +61,9 @@ public:
     {
     }
 #endif
+
+    MatchData(const MatchData&) = delete;
+    MatchData& operator=(const MatchData&) = delete;
 
     ~MatchData()
     {
@@ -107,7 +109,7 @@ RegularExpression::Group& RegularExpression::Group::operator = (const RegularExp
     return *this;
 }
 
-RegularExpression::Group& RegularExpression::Group::operator = (RegularExpression::Group&& other)
+RegularExpression::Group& RegularExpression::Group::operator = (RegularExpression::Group&& other) noexcept
 {
     value = move(other.value);
     start = exchange(other.start,0);
@@ -117,7 +119,7 @@ RegularExpression::Group& RegularExpression::Group::operator = (RegularExpressio
 
 const RegularExpression::Group RegularExpression::Groups::emptyGroup;
 
-RegularExpression::Groups::Groups(RegularExpression::Groups&& other)
+RegularExpression::Groups::Groups(RegularExpression::Groups&& other) noexcept
 : m_groups(move(other.m_groups)), m_namedGroups(move(other.m_namedGroups))
 {}
 
@@ -258,9 +260,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
         offset++;              /* Advance one code unit */
     }
 
-    if (rc < 0)
-        return false;
-    return true;
+    return rc >= 0;
 #else
     int rc = pcre_exec(
             m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0,
@@ -400,15 +400,12 @@ Strings RegularExpression::split(const String& text) const
 
     size_t offset = 0;
     MatchData matchData(m_pcre, m_captureCount);
-    size_t totalMatches = 0;
 
     int lastMatchEnd = 0;
     do {
         size_t matchCount = nextMatch(text, offset, matchData);
         if (matchCount == 0) // No matches
             break;
-
-        totalMatches += matchCount;
 
         for (size_t matchIndex = 0; matchIndex < matchCount; matchIndex++) {
             Match& match = matchData.matches[matchIndex];
@@ -428,7 +425,6 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
     size_t offset = 0;
     size_t lastOffset = 0;
     MatchData matchData(m_pcre, m_captureCount);
-    size_t totalMatches = 0;
     string result;
 
     replaced = false;
@@ -440,7 +436,6 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
             break;
         if (offset)
             lastOffset = offset;
-        totalMatches += matchCount;
 
         // Create next replacement
         size_t pos = 0;
@@ -487,7 +482,6 @@ String RegularExpression::s(const String& text, std::function<String(const Strin
     size_t offset = 0;
     size_t lastOffset = 0;
     MatchData matchData(m_pcre, m_captureCount);
-    size_t totalMatches = 0;
     string result;
 
     replaced = false;
@@ -499,7 +493,6 @@ String RegularExpression::s(const String& text, std::function<String(const Strin
             break;
         if (offset)
             lastOffset = offset;
-        totalMatches += matchCount;
 
         replaced = true;
 
@@ -742,4 +735,3 @@ TEST(SPTK_RegularExpression, asyncExec)
 #endif
 
 #endif
-

@@ -109,6 +109,11 @@ public:
     : m_details(std::move(other.m_details))
     {}
 
+    /**
+     * Destructor
+     */
+    ~LogDetails() noexcept = default;
+
     LogDetails& operator=(const LogDetails& other)
     {
         if (&other != this)

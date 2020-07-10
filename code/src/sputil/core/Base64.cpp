@@ -141,7 +141,7 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
     }
 
     if (i != 0) {
-        int j = 0;
+        int j;
         for (j = i; j < 4; j++)
             char_array_4[j] = 0;
 

@@ -66,25 +66,6 @@ typedef std::function<void(void *userData, SocketEventType eventType)> SocketEve
  */
 class SP_EXPORT SocketPool : public std::mutex
 {
-    /**
-     * Socket that controls other sockets events
-     */
-#ifdef _WIN32
-    HANDLE                      m_pool { INVALID_EPOLL };
-#else
-    SOCKET                      m_pool { INVALID_EPOLL };
-#endif // _WIN32
-
-    /**
-     * Callback function executed upon socket events
-     */
-    SocketEventCallback         m_eventsCallback;
-
-    /**
-     * Map of sockets to corresponding user data
-     */
-	std::map<BaseSocket*,void*> m_socketData;
-
 public:
     /**
      * Constructor
@@ -93,14 +74,24 @@ public:
     explicit SocketPool(SocketEventCallback eventCallback);
 
     /**
-     * Destructor
+     * Deleted copy constructor
      */
-    ~SocketPool();
+    SocketPool(const SocketPool&) noexcept = delete;
+
+    /**
+     * Deleted copy assignment
+     */
+    SocketPool& operator = (const SocketPool&) = delete;
 
     /**
      * Initialize socket pool
      */
     void open();
+
+    /**
+     * Destructor
+     */
+    ~SocketPool();
 
     /**
      * Wait until one or more sockets are signaled.
@@ -131,6 +122,26 @@ public:
      * @return true if socket pool is active
      */
     [[nodiscard]] bool active() const;
+
+private:
+    /**
+     * Socket that controls other sockets events
+     */
+#ifdef _WIN32
+    HANDLE                      m_pool { INVALID_EPOLL };
+#else
+    SOCKET                      m_pool { INVALID_EPOLL };
+#endif // _WIN32
+
+    /**
+     * Callback function executed upon socket events
+     */
+    SocketEventCallback         m_eventsCallback;
+
+    /**
+     * Map of sockets to corresponding user data
+     */
+    std::map<BaseSocket*,void*> m_socketData;
 };
 
 }

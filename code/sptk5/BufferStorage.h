@@ -270,7 +270,7 @@ protected:
 
         auto* ptr = new char[size + 1];
         if (ptr == nullptr)
-        throwException("Out of memory")
+            throwException("Out of memory")
 
         if (m_size < size)
             memcpy(ptr, m_buffer, m_size);
@@ -284,7 +284,7 @@ protected:
         if (m_bytes >= m_size) {
             m_bytes = m_size;
             if (m_bytes > 0)
-                m_bytes--;
+                --m_bytes;
         }
     }
 

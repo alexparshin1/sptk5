@@ -148,7 +148,6 @@ TEST(SPTK_FieldList, push_back)
     fieldList.push_back("name", true);
     fieldList.push_back("value", true);
     fieldList["name"] = "id";
-    fieldList["value"] = 1234;
     fieldList["value"] = 12345;
 
     EXPECT_STREQ("id", fieldList["name"].asString().c_str());

@@ -118,7 +118,7 @@ public:
          * Move assignment
          * @param other         Object to copy from
          */
-        Group& operator = (Group&& other);
+        Group& operator = (Group&& other) noexcept;
 
         String        value;        ///< Matched fragment of subject
         pcre_offset_t start {0};    ///< Start position of the matched fragment in subject
@@ -148,7 +148,7 @@ public:
          * Move constructor
          * @param other         Other object to move from
          */
-        Groups(Groups&& other);
+        Groups(Groups&& other) noexcept;
 
         /**
          * Copy assignment

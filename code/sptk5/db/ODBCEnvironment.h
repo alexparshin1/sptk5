@@ -119,6 +119,8 @@ public:
         return m_hEnvironment;
     }
 
+    ODBCEnvironment(const ODBCEnvironment&) = delete;
+
     /**
      * Destructor
      */

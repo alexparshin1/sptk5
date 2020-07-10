@@ -59,11 +59,6 @@ public:
     explicit SmtpConnect(Logger* log=nullptr);
 
     /**
-     * Destructor
-     */
-    ~SmtpConnect() override;
-
-    /**
      * Sends command using SMTP protocol and retrieve the server response.
      * The response can be read then with response() method.
      * The CRLF characters after the command are added automatically.
