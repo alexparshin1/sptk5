@@ -119,12 +119,20 @@ public:
         return m_hEnvironment;
     }
 
+    /**
+     * Deleted copy constructor
+     */
     ODBCEnvironment(const ODBCEnvironment&) = delete;
 
     /**
      * Destructor
      */
     ~ODBCEnvironment();
+
+    /**
+     * Deleted copy assignment
+     */
+    ODBCEnvironment& operator = (const ODBCEnvironment&) = delete;
 
 protected:
 

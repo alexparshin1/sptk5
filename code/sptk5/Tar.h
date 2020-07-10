@@ -78,7 +78,7 @@ typedef std::map<int, MemoryTarHandle*> TarHandleMap;
  */
 class SP_EXPORT Tar
 {
-    typedef std::map<std::string,Buffer*>  FileCollection;
+    typedef std::map<String,Buffer>  FileCollection;
     /**
      * Tar file header
      */

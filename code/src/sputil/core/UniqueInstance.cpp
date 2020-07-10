@@ -66,10 +66,8 @@ UniqueInstance::~UniqueInstance()
 #ifndef _WIN32
         unlink(m_fileName.c_str());
 #else
-
         CloseHandle(m_mutex);
 #endif
-
     }
 }
 

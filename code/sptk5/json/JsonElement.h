@@ -48,13 +48,14 @@ typedef std::vector<Element*> ElementSet;
 /**
  * JSON Element type
  */
-enum Type {
-    JDT_NUMBER  = 1,
-    JDT_STRING  = 2,
+enum Type
+{
+    JDT_NUMBER = 1,
+    JDT_STRING = 2,
     JDT_BOOLEAN = 4,
-    JDT_ARRAY   = 8,
-    JDT_OBJECT  = 16,
-    JDT_NULL    = 32
+    JDT_ARRAY = 8,
+    JDT_OBJECT = 16,
+    JDT_NULL = 32
 };
 
 class ArrayData;
@@ -62,8 +63,11 @@ class ArrayData;
 class SP_EXPORT ElementData
 {
     friend class Document;
+
     friend class ArrayData;
+
     friend class ObjectData;
+
     friend class Parser;
 
 public:
@@ -73,12 +77,18 @@ public:
     /**
      * Parent JSON document
      */
-    [[nodiscard]] Document* getDocument() { return m_document; }
+    [[nodiscard]] Document* getDocument()
+    {
+        return m_document;
+    }
 
     /**
      * Parent JSON document
      */
-    [[nodiscard]] const Document* getDocument() const { return m_document; }
+    [[nodiscard]] const Document* getDocument() const
+    {
+        return m_document;
+    }
 
     /**
      * Clear JSON element.
@@ -98,12 +108,18 @@ public:
      * @param type              Type or types bit combination
      * @return true if element is a number
      */
-    [[nodiscard]] bool is(size_t type) const { return (m_type & type) != 0; }
+    [[nodiscard]] bool is(size_t type) const
+    {
+        return (m_type & type) != 0;
+    }
 
     /**
      * JSON element type
      */
-    [[nodiscard]] Type type() const { return m_type; }
+    [[nodiscard]] Type type() const
+    {
+        return m_type;
+    }
 
     /**
      * Remove JSON element by name from this JSON object element
@@ -144,15 +160,18 @@ protected:
      */
     struct XPathElement
     {
-        String          name;       ///< Path element name
-        int             index {0};  ///< Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
+        String name;       ///< Path element name
+        int index{0};      ///< Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
 
         /**
          * Constructor
          * @param name          Path element name
          * @param index         Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
          */
-        XPathElement(String  name, int index) : name(std::move(name)), index(index) {}
+        XPathElement(String name, int index)
+                : name(std::move(name)), index(index)
+        {
+        }
 
         /**
          * Copy constructor
@@ -181,35 +200,87 @@ protected:
     {
     public:
 
-        double               get_number()  const { return as<double>(); }
-        bool                 get_boolean() const { return as<bool>(); }
-        const std::string*   get_string()  const { return as<std::string*>(); }
-        ArrayData*           get_array()   const { return as<ArrayData*>(); }
-        ObjectData*          get_object()  const { return as<ObjectData*>(); }
-        ArrayData*           get_array()         { return as<ArrayData*>(); }
-        ObjectData*          get_object()        { return as<ObjectData*>(); }
+        double get_number() const
+        {
+            return as<double>();
+        }
 
-        void                 set_number(double number)          { set(number); }
-        void                 set_boolean(bool boolean)          { set(boolean); }
-        void                 set_string(const std::string* s)   { set(s); }
-        void                 set_array(ArrayData* array)        { set(array); }
-        void                 set_object(ObjectData* object)     { set(object); }
+        bool get_boolean() const
+        {
+            return as<bool>();
+        }
+
+        const std::string* get_string() const
+        {
+            return as<std::string*>();
+        }
+
+        ArrayData* get_array() const
+        {
+            return as<ArrayData*>();
+        }
+
+        ObjectData* get_object() const
+        {
+            return as<ObjectData*>();
+        }
+
+        ArrayData* get_array()
+        {
+            return as<ArrayData*>();
+        }
+
+        ObjectData* get_object()
+        {
+            return as<ObjectData*>();
+        }
+
+        void set_number(double number)
+        {
+            set(number);
+        }
+
+        void set_boolean(bool boolean)
+        {
+            set(boolean);
+        }
+
+        void set_string(const std::string* s)
+        {
+            set(s);
+        }
+
+        void set_array(ArrayData* array)
+        {
+            set(array);
+        }
+
+        void set_object(ObjectData* object)
+        {
+            set(object);
+        }
 
     private:
 
         uint64_t m_storage {0};
 
-        template <typename T> T& as() {
+        template<typename T>
+        T& as()
+        {
             auto* ptr = (void*) &m_storage;
             return *(T*) ptr;
         }
 
-        template <typename T> const T& as() const {
-            auto* ptr = (void*) &m_storage;
+        template<typename T>
+        const T& as() const
+        {
+            const auto* ptr = (void*) &m_storage;
             return *(const T*) ptr;
         }
 
-        template <typename T> void set(T& value) const {
+        template<typename T>
+        void set(T& value)
+        {
             auto* ptr = (void*) &m_storage;
             *(T*) ptr = value;
         }
@@ -224,17 +295,38 @@ protected:
      */
     void selectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly);
 
-    [[nodiscard]] Data& data() { return m_data; }
-    [[nodiscard]] const Data& data() const { return m_data; }
+    [[nodiscard]] Data& data()
+    {
+        return m_data;
+    }
+
+    [[nodiscard]] const Data& data() const
+    {
+        return m_data;
+    }
 
     /**
      * Parent JSON element
      */
-    [[nodiscard]] Element* parent() { return m_parent; }
+    [[nodiscard]] Element* parent()
+    {
+        return m_parent;
+    }
 
-    void setDocument(Document* document) { m_document = document; }
-    void setParent(Element* parent) { m_parent = parent; }
-    void setType(Type type) { m_type = type; }
+    void setDocument(Document* document)
+    {
+        m_document = document;
+    }
+
+    void setParent(Element* parent)
+    {
+        m_parent = parent;
+    }
+
+    void setType(Type type)
+    {
+        m_type = type;
+    }
 
     /**
      * Get immediate child element, or return this element if the name is empty.
@@ -265,7 +357,8 @@ protected:
      * @param xpathElement      Current XPath element
      * @param element           Current element
      */
-    static void appendMatchedElement(ElementSet& elements, const ElementData::XPathElement& xpathElement, Element* element);
+    static void appendMatchedElement(ElementSet& elements, const ElementData::XPathElement& xpathElement,
+                                     Element* element);
 
     /**
      * Assign from another element
@@ -285,33 +378,23 @@ protected:
      * @param type              Data type
      */
     ElementData(Document* document, Type type) noexcept
-    : m_document(document), m_parent(nullptr), m_type(type)
+            : m_document(document), m_parent(nullptr), m_type(type)
     {
     }
 
 private:
-    /**
-     * Parent JSON document
-     */
-    Document*		m_document {nullptr};
 
-    /**
-     * Parent JSON element
-     */
-    Element*		m_parent {nullptr};
-
-    /**
-     * JSON element type
-     */
-    Type            m_type {JDT_NULL};
-
-    Data            m_data;
+    Document*   m_document {nullptr};   ///< Parent JSON document
+    Element*    m_parent {nullptr};     ///< Parent JSON element
+    Type        m_type {JDT_NULL};      ///< JSON element type
+    Data        m_data;                 ///< JSON element data
 };
 
 /**
  * XML Element getters
  */
-class SP_EXPORT ElementGetMethods : public ElementData
+class SP_EXPORT ElementGetMethods
+        : public ElementData
 {
 public:
 
@@ -319,19 +402,19 @@ public:
      * Get value of JSON element
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    [[nodiscard]] double getNumber(const String& name="") const;
+    [[nodiscard]] double getNumber(const String& name = "") const;
 
     /**
      * Get value of JSON element
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    [[nodiscard]] String getString(const String& name="") const;
+    [[nodiscard]] String getString(const String& name = "") const;
 
     /**
      * Get value of JSON element
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    [[nodiscard]] bool getBoolean(const String& name="") const;
+    [[nodiscard]] bool getBoolean(const String& name = "") const;
 
     /**
      * Get value of JSON element.
@@ -340,7 +423,7 @@ public:
      * Alternatively, create a new ArrayData object and replace existing one.
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    [[nodiscard]] ArrayData& getArray(const String& name="");
+    [[nodiscard]] ArrayData& getArray(const String& name = "");
 
     /**
      * Get value of JSON element.
@@ -349,7 +432,7 @@ public:
      * Alternatively, create a new ArrayData object and replace existing one.
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    [[nodiscard]] const ArrayData& getArray(const String& name="") const;
+    [[nodiscard]] const ArrayData& getArray(const String& name = "") const;
 
     /**
      * Get value of JSON element
@@ -358,7 +441,7 @@ public:
      * Alternatively, create a new ObjectData object and replace existing one.
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    [[nodiscard]] ObjectData& getObject(const String& name="");
+    [[nodiscard]] ObjectData& getObject(const String& name = "");
 
     /**
      * Get value of JSON element
@@ -367,14 +450,14 @@ public:
      * Alternatively, create a new ObjectData object and replace existing one.
      * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    [[nodiscard]] const ObjectData& getObject(const String& name="") const;
+    [[nodiscard]] const ObjectData& getObject(const String& name = "") const;
 
     /**
      * Export JSON element (and all children) to stream
      * @param stream            Stream to export JSON
      * @param formatted         If true then JSON text is nicely formatted, but takes more space
      */
-    void exportTo(std::ostream& stream, bool formatted=true) const;
+    void exportTo(std::ostream& stream, bool formatted = true) const;
 
     /**
      * Export JSON element (and all children) to XML element
@@ -389,7 +472,7 @@ public:
      * only single array field, to arrays - by removing unnecessary name.
      * @param name              Optional field name, use any name if empty string
      */
-    void optimizeArrays(const std::string& name="item");
+    void optimizeArrays(const std::string& name = "item");
 
 protected:
     /**
@@ -415,7 +498,7 @@ protected:
      * @param name              JSON element name
      * @param element           XML element to export to
      */
-    void exportValueTo(const String &name, xml::Element &element) const;
+    void exportValueTo(const String& name, xml::Element& element) const;
 
     /**
      * Export JSON array element to text format
@@ -427,7 +510,8 @@ protected:
      * @param newLineChar       New line character(s)
      * @param indentSpaces      Indent, string of spaces
      */
-    void exportArray(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+    void exportArray(std::ostream& stream, bool formatted, size_t indent, const String& firstElement,
+                     const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
 
     /**
      * Export JSON object element to text format
@@ -439,7 +523,8 @@ protected:
      * @param newLineChar       New line character(s)
      * @param indentSpaces      Indent, string of spaces
      */
-    void exportObject(std::ostream& stream, bool formatted, size_t indent, const String& firstElement, const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+    void exportObject(std::ostream& stream, bool formatted, size_t indent, const String& firstElement,
+                      const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
 };
 
 /**
@@ -447,7 +532,8 @@ protected:
  *
  * May contain any type of JSON object
  */
-class SP_EXPORT Element : public ElementGetMethods
+class SP_EXPORT Element
+        : public ElementGetMethods
 {
     friend class Document;
     friend class ArrayData;
@@ -481,14 +567,14 @@ public:
      * @param document          Parent document
      * @param value             String value
      */
-    Element(Document* document,const String& value) noexcept;
+    Element(Document* document, const String& value) noexcept;
 
     /**
      * Constructor
      * @param document          Parent document
      * @param value             String value
      */
-    Element(Document* document,const char* value) noexcept;
+    Element(Document* document, const char* value) noexcept;
 
     /**
      * Constructor
@@ -561,7 +647,8 @@ public:
      * @param other             Data to assign
      * @return Reference to self
      */
-    template <typename T> Element& operator = (const T& other)
+    template<typename T>
+    Element& operator=(const T& other)
     {
         Element element(getDocument(), other);
         *this = std::move(element);
@@ -572,13 +659,13 @@ public:
      * Assignment operator
      * @param other             Element to assign from
      */
-    Element& operator = (const Element& other);
+    Element& operator=(const Element& other);
 
     /**
      * Assignment operator
      * @param other             Element to assign from
      */
-    Element& operator = (Element&& other) noexcept;
+    Element& operator=(Element&& other) noexcept;
 
     /**
      * Add array element to JSON array
@@ -622,7 +709,8 @@ public:
      * @param value             Element value
      * @return                  Created element
      */
-    template <typename T> Element* set(const String& name, T value)
+    template<typename T>
+    Element* set(const String& name, T value)
     {
         return add(name, new Element(getDocument(), value));
     }
@@ -641,7 +729,8 @@ public:
      * @param value             Element value
      * @return                  Created element
      */
-    template <typename T> Element* push_back(T value)
+    template<typename T>
+    Element* push_back(T value)
     {
         return add(new Element(getDocument(), value));
     }
@@ -671,7 +760,7 @@ public:
      * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
-    Element& operator[](const String &name);
+    Element& operator[](const String& name);
 
     /**
      * Get JSON element in JSON object element by name.
@@ -701,17 +790,26 @@ public:
     /**
      * Conversion to integer
      */
-    explicit operator int () const { return (int) getNumber(); }
+    explicit operator int() const
+    {
+        return (int) getNumber();
+    }
 
     /**
      * Conversion to double
      */
-    explicit operator double () const { return getNumber(); }
+    explicit operator double() const
+    {
+        return getNumber();
+    }
 
     /**
      * Conversion to double
      */
-    explicit operator String () const { return getString(); }
+    explicit operator String() const
+    {
+        return getString();
+    }
 
 protected:
 
@@ -737,7 +835,7 @@ protected:
      * @param name              Field name
      * @param value             Field value
      */
-    template <typename T>
+    template<typename T>
     Element* add(const String& name, T value)
     {
         return add(name, new Element(getDocument(), value));

@@ -73,11 +73,14 @@ public:
 
     /**
      * Move constructor
-     * Creates empty JSON document.
-     * Use one of the load() methods to populate it, or use add(), remove() methods of the root element to modify it.
      * @param other             Object to move
      */
     Document(Document&& other) noexcept;
+
+    /**
+     * Destructor
+     */
+    ~Document() noexcept = default;
 
     /**
      * Disable copy assignment

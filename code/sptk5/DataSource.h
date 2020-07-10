@@ -115,14 +115,6 @@ public:
     virtual uint32_t recordCount() const = 0;
 
     /**
-     * Returns user_data associated with the datasource.
-     */
-    virtual void* user_data() const 
-    {
-        return nullptr;
-    }
-
-    /**
      * Reads the field by name from the datasource.
      *
      * Purely virtual. Should be implemented in derived class

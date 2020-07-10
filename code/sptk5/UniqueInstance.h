@@ -51,55 +51,37 @@ namespace sptk {
  */
 class SP_EXPORT UniqueInstance
 {
-    /**
-     * Instance name
-     */
-    String      m_instanceName;
-
-    /**
-     * Lock is created
-     */
-    bool         m_lockCreated {false};
-
-
-#ifdef _WIN32
-
-    /**
-     * The named mutex object
-     */
-    HANDLE       m_mutex;
-
-#else
-
-    /**
-     * The lock file name
-     */
-    String      m_fileName;
-
-
-    /**
-     * Gets the process ID
-     */
-    int      read_pid();
-
-    /**
-     * Writes the process ID into the lock file
-     */
-    int      write_pid();
-
-#endif
-
 public:
     /**
      * Constructor
      * @param instanceName      Instance name
      */
-    explicit UniqueInstance(String  instanceName);
+    explicit UniqueInstance(String instanceName);
+
+    /**
+     * Deleted copy constructor
+     */
+    UniqueInstance(const UniqueInstance&) = delete;
+
+    /**
+     * Move constructor
+     */
+    UniqueInstance(UniqueInstance&&) = default;
 
     /**
      * Destructor
      */
     ~UniqueInstance();
+
+    /**
+     * Deleted copy assignment
+     */
+    UniqueInstance& operator = (const UniqueInstance&) = delete;
+
+    /**
+     * Move assignment
+     */
+    UniqueInstance& operator = (UniqueInstance&&) = default;
 
 #ifndef _WIN32
     /**
@@ -113,8 +95,20 @@ public:
      * Reports true if the instance is unique
      */
     bool isUnique();
-}
-;
+
+private:
+
+    String  m_instanceName;         ///< Instance name
+    bool    m_lockCreated {false};  ///< Lock is created
+#ifdef _WIN32
+    HANDLE       m_mutex;           ///< The named mutex object
+#else
+    String  m_fileName;             ///< The lock file name
+    int     read_pid();             ///< Gets the process ID
+    int     write_pid();            ///< Writes the process ID into the lock file
+#endif
+
+};
 /**
  * @}
  */

@@ -126,20 +126,19 @@ bool Tar::loadFile()
     auto fileSize = (uint32_t) th_get_size(tar);
 
     if (fileSize != 0) {
-        auto* buffer = new Buffer(size_t(fileSize) + 1);
-        char* buf = buffer->data();
+        Buffer buffer(size_t(fileSize) + 1);
+        char* buf = buffer.data();
 
         uint32_t offset = 0;
         while (offset != fileSize) {
             int k = tar->type->readfunc((int) tar->fd, buf + offset, unsigned(fileSize - offset));
             if (k < 0) {
-                delete buffer;
                 throw Exception("Error reading file '" + fileName + "' from tar archive");
             }
             offset += unsigned(k);
         }
         buf[fileSize] = '\0';
-        buffer->bytes(fileSize);
+        buffer.bytes(fileSize);
 
         m_fileNames.push_back(fileName);
         m_files[fileName] = buffer;
@@ -198,8 +197,6 @@ void Tar::read(const Buffer& tarData)
 
 void Tar::clear()
 {
-    for (auto m_file : m_files)
-        delete m_file.second;
     m_fileName = "";
     m_files.clear();
     m_fileNames.clear();
@@ -210,7 +207,7 @@ const Buffer& Tar::file(std::string fileName) const
     auto itor = m_files.find(fileName);
     if (itor == m_files.end())
         throw Exception("File '" + fileName + "' isn't found", __FILE__, __LINE__);
-    return *(itor->second);
+    return itor->second;
 }
 
 #if USE_GTEST

@@ -55,42 +55,62 @@ public:
     typedef oracle::occi::MetaData      MetaData;           ///< Oracle result set metdata type
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param connection Connection*, Oracle connection
      * @param sql std::string, SQL statement
      */
     OracleStatement(OracleConnection* connection, const std::string& sql);
 
     /**
-     * @brief Destructor
+     * Deleted copy constructor
+     */
+    OracleStatement(const OracleStatement&) = delete;
+
+    /**
+     * Move constructor
+     */
+    OracleStatement(OracleStatement&&) = default;
+
+    /**
+     * Destructor
      */
     ~OracleStatement() override;
 
     /**
-     * @brief Sets actual parameter values for the statement execution
+     * Deleted copy assignment
+     */
+    OracleStatement& operator = (const OracleStatement&) = delete;
+
+    /**
+     * Move assignment
+     */
+    OracleStatement& operator = (OracleStatement&&) = default;
+
+    /**
+     * Sets actual parameter values for the statement execution
      */
     void setParameterValues() override;
 
     /**
-     * @brief Executes statement
+     * Executes statement
      * @param inTransaction bool, True if statement is executed from transaction
      */
     void execute(bool inTransaction) override;
 
     /**
-     * @brief Executes statement in bulk mode
+     * Executes statement in bulk mode
      * @param inTransaction bool, True if statement is executed from transaction
      * @param lastIteration bool, True if bulk operation is completed (all iterations added)
      */
     void execBulk(bool inTransaction, bool lastIteration);
 
     /**
-     * @brief Closes statement and releases allocated resources
+     * Closes statement and releases allocated resources
      */
     void close() override;
 
     /**
-     * @brief Fetches next record
+     * Fetches next record
      */
     void fetch() override
     {
@@ -99,7 +119,7 @@ public:
     }
 
     /**
-     * @brief Returns result set (if returned by a statement)
+     * Returns result set (if returned by a statement)
      */
     ResultSet* resultSet()
     {
@@ -120,7 +140,7 @@ private:
     std::vector<unsigned> m_outputParamIndex;
 
     /**
-     * @brief Sets character data to a CLOB parameter
+     * Sets character data to a CLOB parameter
      * @param parameterIndex uint32_t, Parameter index
      * @param data unsigned char*, Character data buffer
      * @param dataSize uint32_t, Character data size
@@ -128,7 +148,7 @@ private:
     void setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
 
     /**
-     * @brief Sets binary data to a BLOB parameter
+     * Sets binary data to a BLOB parameter
      * @param parameterIndex uint32_t, Parameter index
      * @param data unsigned char*, Binary data buffer
      * @param dataSize uint32_t, Binary data size

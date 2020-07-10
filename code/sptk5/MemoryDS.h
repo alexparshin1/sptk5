@@ -104,14 +104,6 @@ public:
     virtual Field& operator[](const String& fieldName) override;
 
     /**
-     * Returns user_data associated with the datasource.
-     */
-    void* user_data() const override
-    {
-        return m_current->user_data();
-    }
-
-    /**
      * Returns field count in the datasource.
      * @returns field count
      */

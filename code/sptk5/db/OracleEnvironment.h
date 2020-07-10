@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_ORACLEENVIRONMENT_H__
-#define __SPTK_ORACLEENVIRONMENT_H__
+#ifndef __SPTK_ORACLE_ENVIRONMENT_H__
+#define __SPTK_ORACLE_ENVIRONMENT_H__
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 
@@ -42,26 +42,45 @@ namespace sptk
  */
 
 /**
- * @brief Oracle Environment
+ * Oracle Environment
  *
  * Allows creating and terminating connections
  */
 class OracleEnvironment
 {
-    oracle::occi::Environment* m_handle { oracle::occi::Environment::createEnvironment("UTF8", "UTF8", oracle::occi::Environment::THREADED_MUTEXED)};
 public:
     /**
-     * @brief Constructor
+     * Constructor
      */
     OracleEnvironment() = default;
 
     /**
-     * @brief Destructor
+     * Deleted copy constructor
+     */
+    OracleEnvironment(const OracleEnvironment&) = delete;
+
+    /**
+     * Move constructor
+     */
+    OracleEnvironment(OracleEnvironment&&) = default;
+
+    /**
+     * Destructor
      */
     ~OracleEnvironment();
 
     /**
-     * @brief Returns environment handle
+     * Deleted copy assignment
+     */
+    OracleEnvironment& operator = (const OracleEnvironment&) = delete;
+
+    /**
+     * Move assignment
+     */
+    OracleEnvironment& operator = (OracleEnvironment&&) = default;
+
+    /**
+     * Returns environment handle
      */
     oracle::occi::Environment* handle() const
     {
@@ -69,21 +88,24 @@ public:
     }
 
     /**
-     * @brief Returns client version
+     * Returns client version
      */
     std::string clientVersion() const;
 
     /**
-     * @brief Creates new database connection
+     * Creates new database connection
      * @param connectionString DatabaseConnectionString&, Connection parameters
      */
     oracle::occi::Connection* createConnection(const DatabaseConnectionString& connectionString);
 
     /**
-     * @brief Terminates database connection
+     * Terminates database connection
      * @param connection oracle::occi::Connection*, Oracle connection
      */
     void terminateConnection(oracle::occi::Connection* connection);
+
+private:
+    oracle::occi::Environment* m_handle { oracle::occi::Environment::createEnvironment("UTF8", "UTF8", oracle::occi::Environment::THREADED_MUTEXED)};
 };
 
 /**
