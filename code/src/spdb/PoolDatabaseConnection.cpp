@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       PoolDatabaseConnection.cpp - description               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday October 28 2018                                 ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -106,13 +104,11 @@ void PoolDatabaseConnection::close()
 void* PoolDatabaseConnection::handle() const
 {
     notImplemented("handle");
-    return nullptr;
 }
 
 bool PoolDatabaseConnection::active() const
 {
     notImplemented("active");
-    return true;
 }
 
 void PoolDatabaseConnection::beginTransaction()
@@ -272,7 +268,6 @@ void PoolDatabaseConnectionQueryMethods::querySetEof(Query *q, bool eof)
 String PoolDatabaseConnectionQueryMethods::queryError(const Query*) const
 {
     notImplemented("queryError");
-    return String();
 }
 
 void PoolDatabaseConnectionQueryMethods::queryAllocStmt(Query*)
@@ -313,7 +308,6 @@ void PoolDatabaseConnectionQueryMethods::queryExecDirect(Query*)
 int PoolDatabaseConnectionQueryMethods::queryColCount(Query*)
 {
     notImplemented("queryColCount");
-    return 0;
 }
 
 void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int16_t, int32_t&)

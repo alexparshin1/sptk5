@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        PoolDatabaseConnection.h - description                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday October 28 2018                                 ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -51,47 +49,16 @@ class Query;
 /**
  * Database connection type
  */
-enum DatabaseConnectionType : uint16_t {
-    /**
-     * Unknown
-     */
-    DCT_UNKNOWN=0,
-
-    /**
-     * MySQL
-     */
-    DCT_MYSQL=1,
-
-    /**
-     * Oracle
-     */
-    DCT_ORACLE=2,
-
-    /**
-     * PostgreSQL
-     */
-    DCT_POSTGRES=4,
-
-    /**
-     * SQLite3
-     */
-    DCT_SQLITE3=8,
-
-    /**
-     * Firebird
-     */
-    DCT_FIREBIRD=16,
-
-    /**
-     * Generic ODBC
-     */
-    DCT_GENERIC_ODBC=32,
-
-    /**
-     * MS SQL ODBC
-     */
-    DCT_MSSQL_ODBC=64
-
+enum DatabaseConnectionType : uint16_t
+{
+    DCT_UNKNOWN=0,          ///< Unknown
+    DCT_MYSQL=1,            ///< MySQL
+    DCT_ORACLE=2,           ///< Oracle
+    DCT_POSTGRES=4,         ///< PostgreSQL
+    DCT_SQLITE3=8,          ///< SQLite3
+    DCT_FIREBIRD=16,        ///< Firebird
+    DCT_GENERIC_ODBC=32,    ///< Generic ODBC
+    DCT_MSSQL_ODBC=64       ///< MS SQL ODBC
 };
 
 /**
@@ -99,12 +66,12 @@ enum DatabaseConnectionType : uint16_t {
  */
 enum DatabaseObjectType : uint8_t
 {
-    DOT_UNDEFINED,      ///< Undefined
-    DOT_TABLES,         ///< Tables
-    DOT_VIEWS,          ///< Views
-    DOT_PROCEDURES,     ///< Stored procedures
-    DOT_FUNCTIONS,      ///< Stored functions
-    DOT_DATABASES       ///< Available databases
+    DOT_UNDEFINED,          ///< Undefined
+    DOT_TABLES,             ///< Tables
+    DOT_VIEWS,              ///< Views
+    DOT_PROCEDURES,         ///< Stored procedures
+    DOT_FUNCTIONS,          ///< Stored functions
+    DOT_DATABASES           ///< Available databases
 };
 
 /**
@@ -112,16 +79,8 @@ enum DatabaseObjectType : uint8_t
  */
 struct QueryColumnTypeSize
 {
-    /**
-     * Column type
-     */
-    VariantType     type;
-
-    /**
-     * Column data size
-     */
-    size_t          length;
-
+    VariantType     type;   ///< Column type
+    size_t          length; ///< Column data size
 };
 
 /**

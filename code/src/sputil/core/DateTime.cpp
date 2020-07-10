@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DateTime.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -590,8 +588,8 @@ void DateTime::time24Mode(bool t24mode)
             *p = 0;
     }
     if (!_time24Mode) {
-        strncat(DateTime::_fullTimeFormat, "TM", sizeof(DateTime::_fullTimeFormat) - 1);
-        strncat(DateTime::_shortTimeFormat, "TM", sizeof(DateTime::_shortTimeFormat) - 1);
+        strncat(DateTime::_fullTimeFormat, "TM", sizeof(DateTime::_fullTimeFormat) - strlen(_fullTimeFormat) - 1);
+        strncat(DateTime::_shortTimeFormat, "TM", sizeof(DateTime::_shortTimeFormat) - strlen(_shortTimeFormat) - 1);
     }
 }
 
