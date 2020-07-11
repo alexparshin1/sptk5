@@ -93,7 +93,7 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const std::string& key, con
     dest.bytes(0);
     dest.checkSize(src.bytes());
     for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK) {
-        unsigned char* intext = (unsigned char*) src.data() + position;
+        const unsigned char* intext = (unsigned char*) src.data() + position;
         size_t inlen = src.bytes() - position;
         if (inlen > TEXT_BLOCK)
             inlen = TEXT_BLOCK;

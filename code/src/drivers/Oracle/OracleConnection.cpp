@@ -67,7 +67,7 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
                     "CREATE GLOBAL TEMPORARY TABLE sptk_lobs (sptk_clob CLOB, sptk_blob BLOB) ON COMMIT DELETE ROWS");
             createLOBtable->executeUpdate();
         }
-        catch (SQLException& e) {
+        catch (const SQLException& e) {
             if (strstr(e.what(), "already used") == nullptr) {
                 if (m_connection) {
                     m_connection->terminateStatement(createLOBtable);
@@ -89,7 +89,7 @@ void OracleConnection::closeDatabase()
         m_environment.terminateConnection(m_connection);
         m_connection = nullptr;
     }
-    catch (SQLException& e) {
+    catch (const SQLException& e) {
         throwOracleException(string("Can't close connection: ") + e.what())
     }
 }
@@ -141,7 +141,7 @@ void OracleConnection::driverEndTransaction(bool commit)
             m_connection->rollback();
         }
     }
-    catch (SQLException& e) {
+    catch (const SQLException& e) {
         throwOracleException((action + " failed: ") + e.what())
     }
 
@@ -197,7 +197,7 @@ void OracleConnection::queryPrepare(Query* query)
         if (bulkInsertQuery == nullptr)
             throw Exception("Not a bulk query");
         const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
-        for (auto itor = enumeratedParams.begin(); itor != enumeratedParams.end(); ++itor, paramIndex++) {
+        for (auto itor = enumeratedParams.begin(); itor != enumeratedParams.end(); ++itor, ++paramIndex) {
             QueryParameter* param = *itor;
             auto xtor = columnTypeSizes.find(upperCase(param->name()));
             if (xtor != columnTypeSizes.end()) {
@@ -350,7 +350,7 @@ void OracleConnection::queryOpen(Query* query)
             auto itor = resultSetMetaData.begin();
             auto iend = resultSetMetaData.end();
             unsigned columnIndex = 0;
-            for (; itor != iend; ++itor, columnIndex++) {
+            for (; itor != iend; ++itor, ++columnIndex) {
                 MetaData& metaData = *itor;
                 auto columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
                 int columnScale = metaData.getInt(MetaData::ATTR_SCALE);
@@ -423,7 +423,7 @@ void OracleConnection::queryFetch(Query* query)
 
     ResultSet* resultSet = statement->resultSet();
     DatabaseField* field = nullptr;
-    for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
+    for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
         try {
             field = (DatabaseField*) &(*query)[fieldIndex];
 
@@ -615,7 +615,7 @@ void OracleConnection::_bulkInsert(const String& fullTableName, const Strings& c
                                       data.size(),
                                       columnTypeSizeMap);
     for (auto& row: data) {
-        for (size_t i = 0; i < columnNames.size(); i++) {
+        for (size_t i = 0; i < columnNames.size(); ++i) {
             auto& value = row[i];
             switch (columnTypeSizeVector[i].type) {
                 case VAR_TEXT:

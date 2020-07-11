@@ -881,7 +881,7 @@ Variant CListView::data() const
     }
 }
 
-void CListView::data(const Variant vv)
+void CListView::data(const Variant& vv)
 {
     unsigned cnt = m_rows.size();
     void* dataValue = nullptr;
@@ -1097,7 +1097,7 @@ void CListView::setSelections(const IntList& sel)
 {
     size_t scnt = sel.size();
     if (scnt)
-        data(sel[0]);
+        data((int)sel[0]);
     else
         data(-1);
 
@@ -1998,7 +1998,7 @@ void CListView::saveList(xml::Node* node) const
                 xml::Node* cellNode = new xml::Element(*rowNode, "cell");
                 new xml::Text(*cellNode, cell);
                 if (index != c) {
-                    cellNode->setAttribute("index", c);
+                    cellNode->setAttribute("index", (int) c);
                     index = c;
                 }
                 index++;

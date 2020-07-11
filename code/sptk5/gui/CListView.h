@@ -702,7 +702,7 @@ public:
      * The universal data connector, selects row with user data
      * @param v const CVariant, user data value to find and select
      */
-    void data(const Variant v) override;
+    void data(const Variant& v) override;
 
     /**
      * Returns row pointer

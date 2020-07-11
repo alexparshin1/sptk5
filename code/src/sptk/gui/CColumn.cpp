@@ -58,8 +58,8 @@ void CColumn::save(xml::Node& node) const
     node.clear();
     node.name("column");
     node.setAttribute("caption", m_name);
-    node.setAttribute("type", m_type);
-    node.setAttribute("width", m_width);
+    node.setAttribute("type", (int) m_type);
+    node.setAttribute("width", (int) m_width);
     node.setAttribute("visible", m_visible);
     node.setAttribute("auto_width", m_autoWidth);
 }
@@ -104,7 +104,7 @@ void CColumnList::save(xml::Node& node) const
             const CColumn& column = (*this)[i];
             xml::Node& columnNode = *(new xml::Element(node, "column"));
             column.save(columnNode);
-            columnNode.setAttribute("index", i);
+            columnNode.setAttribute("index", (int) i);
         } catch (const Exception& e) {
             CERR(e.what() << endl)
         }

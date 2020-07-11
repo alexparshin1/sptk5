@@ -476,20 +476,20 @@ public:
     /**
      * Constructor
      */
-    explicit Variant(DateTime v);
+    Variant(const DateTime& v);
 
     /**
      * Constructor
      * @param value             Buffer to copy from
      * @param sz                Buffer size
      */
-    explicit Variant(const void * value, size_t sz);
+    Variant(const void * value, size_t sz);
 
     /**
      * Constructor
      * @param value             Buffer to copy from
      */
-    explicit Variant(const Buffer& value);
+    Variant(const Buffer& value);
 
     /**
      * Copy constructor

@@ -210,7 +210,7 @@ void MySQLConnection::queryUnprepare(Query* query)
 int MySQLConnection::queryColCount(Query* query)
 {
     int colCount = 0;
-    auto* statement = (MySQLStatement*) query->statement();
+    const auto* statement = (MySQLStatement*) query->statement();
     try {
         if (statement == nullptr) throwDatabaseException("Query not opened")
         colCount = (int) statement->colCount();
@@ -392,7 +392,7 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     if (!trim(statement).empty())
         statements.push_back(statement);
 
-    for (auto& stmt: statements) {
+    for (const auto& stmt: statements) {
         Query query(this, stmt, false);
         try {
             query.exec();

@@ -100,7 +100,7 @@ void OracleStatement::setParameterValues()
     auto itor = m_enumeratedParams.begin();
     auto iend = m_enumeratedParams.end();
 
-    for (unsigned parameterIndex = 1; itor != iend; ++itor, parameterIndex++) {
+    for (unsigned parameterIndex = 1; itor != iend; ++itor, ++parameterIndex) {
         QueryParameter& parameter = *(*itor);
         VariantType& priorDataType = parameter.m_binding.m_dataType;
 
@@ -313,7 +313,7 @@ void OracleStatement::execute(bool inTransaction)
         state().columnCount = (unsigned) resultSetMetaData.size();
 
         unsigned columnIndex = 1;
-        for (; itor != iend; ++itor, columnIndex++) {
+        for (; itor != iend; ++itor, ++columnIndex) {
             const MetaData& metaData = *itor;
             // If resultSet contains cursor, use that cursor as resultSet
             if (metaData.getInt(MetaData::ATTR_DATA_TYPE) == SQLT_RSET) {
@@ -406,7 +406,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
         } catch (const SQLException& e) {
             throw DatabaseException("Can't read parameter " + parameter->name() + ": " + string(e.what()));
         }
-        columnIndex++;
+        ++columnIndex;
     }
 }
 

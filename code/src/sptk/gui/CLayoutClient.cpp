@@ -128,9 +128,9 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
         if (!m_label.empty())
             node->setAttribute("label", label());
         if (!m_widget->visible())
-            node->setAttribute("visible", m_widget->visible());
+            node->setAttribute("visible", (int) m_widget->visible());
         if (!m_widget->active())
-            node->setAttribute("enable", m_widget->active());
+            node->setAttribute("enable", (int) m_widget->active());
 
         String layoutAlignStr;
         switch (m_layoutAlign) {

@@ -37,7 +37,7 @@ OracleBulkInsertQuery::OracleBulkInsertQuery(PoolDatabaseConnection *db, String 
 
 void OracleBulkInsertQuery::execNext()
 {
-    m_recordNumber++;
+    ++m_recordNumber;
     m_lastIteration = (m_recordNumber == m_recordCount || (m_recordNumber % m_batchSize) == 0);
     exec();
 }

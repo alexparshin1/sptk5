@@ -234,7 +234,7 @@ public:
     /**
      * @brief Universal data connection, sets data to date control
      */
-    virtual void data(const Variant v) override;
+    void data(const Variant& v) override;
 
     /**
      * @brief Resizes the control and inside widgets.

@@ -128,7 +128,7 @@ Variant CTreeView::data() const
     return int32_t(0);
 }
 
-void CTreeView::data(const Variant v)
+void CTreeView::data(const Variant& v)
 {
     CTreeItem* node = m_treeControl->findData((void*) (uint64_t) v.asInteger());
     if (node != nullptr)

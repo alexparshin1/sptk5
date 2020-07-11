@@ -115,7 +115,7 @@ public:
     /**
      * @brief Universal data connection, sets data from control
      */
-    virtual void data(const Variant v);
+    void data(const Variant& v) override;
 
     /**
      * @brief Returns the input text font type

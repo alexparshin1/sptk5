@@ -107,7 +107,7 @@ namespace sptk {
 
         void fetch()
         {
-            m_currentRow++;
+            ++m_currentRow;
         }
 
         bool eof()
@@ -383,7 +383,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
-    for (auto ptor = params.begin(); ptor != params.end(); ++ptor, paramNumber++) {
+    for (auto ptor = params.begin(); ptor != params.end(); ++ptor, ++paramNumber) {
         QueryParameter* param = *ptor;
         paramValues.setParameterValue(paramNumber, param);
     }
@@ -435,7 +435,7 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
-    for (auto ptor = params.begin(); ptor != params.end(); ++ptor, paramNumber++) {
+    for (auto ptor = params.begin(); ptor != params.end(); ++ptor, ++paramNumber) {
         QueryParameter* param = *ptor;
         paramValues.setParameterValue(paramNumber, param);
     }
@@ -588,7 +588,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
 
         stringstream columnName;
         columnName.fill('0');
-        for (short column = 0; column < count; column++) {
+        for (short column = 0; column < count; ++column) {
             columnName.str(PQfname(stmt, column));
 
             if (columnName.str().empty())
@@ -676,12 +676,12 @@ static inline MoneyData readNumericToScaledInteger(const char* v)
 
     int scale = 0;
     if (weight < 0) {
-        for (int i = 0; i < -(weight + 1); i++)
+        for (int i = 0; i < -(weight + 1); ++i)
             scale += 4;
     }
 
     int16_t digitWeight = weight;
-    for (int i = 0; i < ndigits; i++, v += 2, digitWeight--) {
+    for (int i = 0; i < ndigits; ++i, v += 2, --digitWeight) {
         auto digit = (int16_t) ntohs(*(const uint16_t*) v);
 
         value = value * 10000 + digit;
@@ -751,12 +751,12 @@ static void decodeArray(char* data, DatabaseField* field)
     data += arrayHeader->dimensionNumber * sizeof(PGArrayDimension);
 
     stringstream output;
-    for (size_t dim = 0; dim < arrayHeader->dimensionNumber; dim++) {
+    for (size_t dim = 0; dim < arrayHeader->dimensionNumber; ++dim) {
         PGArrayDimension* dimension = dimensions + dim;
         dimension->elementCount = htonl(dimension->elementCount);
         dimension->lowerBound = htonl(dimension->lowerBound);
         output << "{";
-        for (size_t element = 0; element < dimension->elementCount; element++) {
+        for (size_t element = 0; element < dimension->elementCount; ++element) {
             if (element != 0)
                 output << ",";
 
@@ -837,7 +837,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
     const PGresult* stmt = statement->stmt();
     int currentRow = (int) statement->currentRow();
 
-    for (int column = 0; column < fieldCount; column++) {
+    for (int column = 0; column < fieldCount; ++column) {
         try {
             field = (DatabaseField*) &(*query)[column];
             auto fieldType = (short) field->fieldType();

@@ -41,7 +41,7 @@ Transaction::~Transaction()
         if (m_active)
             m_db->rollbackTransaction();
     }
-    catch (Exception& e) {
+    catch (const Exception& e) {
         CERR(e.what() << endl)
     }
 }

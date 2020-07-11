@@ -288,7 +288,7 @@ public:
     /**
      * Universal data connection. Operates with selected list view item's ID.
      */
-    void data(const Variant v) override;
+    void data(const Variant& v) override;
 
     /**
      * Sets data mode for the data() methods.

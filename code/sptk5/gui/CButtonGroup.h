@@ -153,7 +153,7 @@ public:
      * If the button group allows only one button to be selected at a time
      * (like radio buttons), only the first item of the string will be used.
      */
-    virtual void data(const Variant v);
+    void data(const Variant& v) override;
 
     /**
      * @brief Loads the the currently selected button(s)

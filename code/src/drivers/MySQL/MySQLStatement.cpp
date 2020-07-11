@@ -145,7 +145,7 @@ void MySQLStatement::enumerateParams(QueryParameterList& queryParams)
     MYSQL_BIND* paramBuffers = &m_paramBuffers[0];
     if (paramCount != 0) {
         memset(paramBuffers, 0, sizeof(MYSQL_BIND) * paramCount);
-        for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++)
+        for (unsigned paramIndex = 0; paramIndex < paramCount; ++paramIndex)
             m_paramBuffers[paramIndex].length = &m_paramLengths[paramIndex];
     }
 }
@@ -234,7 +234,7 @@ void MySQLStatement::setParameterValues()
     static my_bool nullValue = true;
 
     auto paramCount = (unsigned) m_enumeratedParams.size();
-    for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++) {
+    for (unsigned paramIndex = 0; paramIndex < paramCount; ++paramIndex) {
         QueryParameter*     param = m_enumeratedParams[paramIndex];
         bool                setNull = param->isNull();
         MYSQL_BIND& bind = m_paramBuffers[paramIndex];
@@ -325,7 +325,7 @@ void MySQLStatement::bindResult(FieldList& fields)
         return;
 
     char columnName[256];
-    for (unsigned columnIndex = 0; columnIndex < state().columnCount; columnIndex++) {
+    for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex) {
         MYSQL_FIELD *fieldMetadata = mysql_fetch_field(m_result);
         if (fieldMetadata == nullptr)
             throwMySQLError();
@@ -343,7 +343,7 @@ void MySQLStatement::bindResult(FieldList& fields)
     if (statement() != nullptr) {
         // Bind initialized fields to MySQL bind buffers
         m_fieldBuffers.resize(state().columnCount);
-        for (unsigned columnIndex = 0; columnIndex < state().columnCount; columnIndex++) {
+        for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex) {
             auto*        field = (CMySQLStatementField*) &fields[columnIndex];
             MYSQL_BIND& bind = m_fieldBuffers[columnIndex];
 
@@ -414,7 +414,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
 {
     uint32_t        fieldCount = fields.size();
     unsigned long*  lengths = mysql_fetch_lengths(m_result);
-    for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
+    for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
 
         auto* field = (CMySQLStatementField*) &fields[fieldIndex];
 
@@ -504,7 +504,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
 {
     uint32_t    fieldCount = fields.size();
     bool        fieldSizeChanged = false;
-    for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
+    for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
         auto*        field = (CMySQLStatementField*) &fields[fieldIndex];
         MYSQL_BIND& bind = m_fieldBuffers[fieldIndex];
 

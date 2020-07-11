@@ -140,7 +140,7 @@ Variant::Variant(const String& v)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(DateTime v)
+Variant::Variant(const DateTime& v)
 {
     m_dataType = VAR_DATE_TIME;
     DateTime::duration sinceEpoch = v.timePoint().time_since_epoch();

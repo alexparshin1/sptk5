@@ -481,7 +481,7 @@ void CLayoutManager::saveLayout(xml::Node* groupNode, CLayoutXMLmode xmlMode) co
                     groupNode->remove(node);
                 else {
                     if (widget->label() == nullptr || widget->label()[0] == 0)
-                        node->setAttribute("nn_index", i);
+                        node->setAttribute("nn_index", (int) i);
                 }
                 continue;
             }

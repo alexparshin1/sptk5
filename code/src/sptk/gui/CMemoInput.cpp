@@ -70,7 +70,7 @@ Variant CMemoInput::data() const
     return ((CEditor*) m_control)->textBuffer()->text();
 }
 
-void CMemoInput::data(const Variant s)
+void CMemoInput::data(const Variant& s)
 {
     String strValue = s.asString().replace("\\r", "");
     ((CEditor*) m_control)->textBuffer()->text(strValue.c_str());

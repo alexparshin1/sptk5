@@ -151,7 +151,7 @@ Variant CDateIntervalInput::data() const
     return result;
 }
 
-void CDateIntervalInput::data(const Variant s)
+void CDateIntervalInput::data(const Variant& s)
 {
     string firstStringData(s.asString().c_str());
     string secondStringData;

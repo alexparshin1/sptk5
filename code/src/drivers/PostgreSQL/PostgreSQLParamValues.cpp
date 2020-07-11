@@ -35,7 +35,7 @@ void PostgreSQLParamValues::setParameters(QueryParameterList& params)
     params.enumerate(m_params);
     m_count = m_params.size();
     resize(m_count);
-    for (size_t i = 0; i < m_count; i++) {
+    for (size_t i = 0; i < m_count; ++i) {
         QueryParameter* param = m_params[i];
         VariantType ptype = param->dataType();
         PostgreSQLConnection::CTypeToPostgreType(ptype, m_types[i], param->name());

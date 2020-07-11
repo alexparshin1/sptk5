@@ -680,7 +680,7 @@ public:
     /**
      * @brief The universal data connector, sets control data
      */
-    virtual void data(const Variant v)
+    virtual void data(const Variant& v)
     {
         // Implemented in derived classes
     }
@@ -751,7 +751,7 @@ public:
      */
     CControl& operator =(uint32_t v)
     {
-        data(v);
+        data((int)v);
         return *this;
     }
 
@@ -759,15 +759,6 @@ public:
      * @brief Control data assignment
      */
     CControl& operator =(int64_t v)
-    {
-        data(v);
-        return *this;
-    }
-
-    /**
-     * @brief Control data assignment
-     */
-    CControl& operator =(uint64_t v)
     {
         data(v);
         return *this;
@@ -794,16 +785,16 @@ public:
     /**
      * @brief Control data assignment
      */
-    CControl& operator =(DateTime dt)
+    CControl& operator =(const DateTime& dt)
     {
-        data(dt);
+        data(Variant(dt));
         return *this;
     }
 
     /**
      * @brief Control data assignment
      */
-    CControl& operator =(Field& fld)
+    CControl& operator =(const Field& fld)
     {
         data(fld);
         return *this;

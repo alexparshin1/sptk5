@@ -262,7 +262,7 @@ void ODBCConnection::queryExecute(Query* query)
                              &textLength);
         if (successful(rc)) {
             Strings errors;
-            for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; recordNumber++) {
+            for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; ++recordNumber) {
                 rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state, &nativeError, text, sizeof(text),
                                    &textLength);
                 if (!successful(rc))
@@ -335,11 +335,11 @@ void ODBCConnection::queryBindParameters(Query* query)
     lock_guard<mutex> lock(*m_connect);
     int rc;
 
-    for (uint32_t i = 0; i < query->paramCount(); i++) {
+    for (uint32_t i = 0; i < query->paramCount(); ++i) {
         QueryParameter* param = &query->param(i);
         VariantType ptype = param->dataType();
         auto cblen = (SQLLEN&) param->callbackLength();
-        for (unsigned j = 0; j < param->bindCount(); j++) {
+        for (unsigned j = 0; j < param->bindCount(); ++j) {
             int16_t paramType = 0;
             int16_t sqlType = 0;
             int16_t scale = 0;
@@ -497,7 +497,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
     stringstream columnNameStr;
     columnNameStr.fill('0');
 
-    for (int16_t column = 1; column <= int16_t(count); column++) {
+    for (int16_t column = 1; column <= int16_t(count); ++column) {
         queryColAttributes(query, column, SQL_COLUMN_NAME, columnName, 255);
         queryColAttributes(query, column, SQL_COLUMN_TYPE, columnType);
         queryColAttributes(query, column, SQL_COLUMN_LENGTH, columnLength);
@@ -647,7 +647,7 @@ void ODBCConnection::queryFetch(Query* query)
             auto fieldType = (int16_t) field->fieldType();
             char* buffer = field->getData();
 
-            column++;
+            ++column;
 
             rc = SQL_SUCCESS;
             switch (fieldType) {
@@ -686,7 +686,8 @@ void ODBCConnection::queryFetch(Query* query)
                 field->setNull(VAR_NONE);
             else
                 field->dataSize((size_t)dataLength);
-        } catch (Exception& e) {
+        }
+        catch (const Exception& e) {
             Query::throwError("CODBCConnection::queryFetch",
                               "Can't read field " + field->fieldName() + "\n" + string(e.what()));
         }
@@ -848,7 +849,7 @@ void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     if (!trim(statement).empty())
         statements.push_back(statement);
 
-    for (auto& stmt: statements) {
+    for (const auto& stmt: statements) {
         try {
             Query query(this, stmt, false);
             query.exec();

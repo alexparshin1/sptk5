@@ -198,7 +198,7 @@ Variant CDateInput::data() const
     return rc;
 }
 
-void CDateInput::data(const Variant s)
+void CDateInput::data(const Variant& s)
 {
     DateTime dt = s.asDateTime();
     m_dateInput->input()->value(dt.dateString().c_str());

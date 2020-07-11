@@ -110,7 +110,7 @@ void QueryParameterList::enumerate(CParamVector& params)
     size_t maxIndex = 0;
 
     for (auto* param: m_items) {
-        IntList& bindIndex = param->m_bindParamIndexes;
+        const IntList& bindIndex = param->m_bindParamIndexes;
 
         for (auto index: bindIndex) {
             if (index >= params.size())

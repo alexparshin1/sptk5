@@ -202,7 +202,7 @@ public:
     /**
      * @brief Selects the item with matching ID (or user_data)
      */
-    void data(const Variant v) override;
+    void data(const Variant& v) override;
 
     /**
      * @brief Data connection isn't implemented yet

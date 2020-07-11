@@ -47,7 +47,7 @@ QueryBuilder::QueryBuilder(String tableName, String pkColumn, Strings columns,
 {
     static const RegularExpression matchEpressionAndAlias(R"(^.*\s(\S+))");
     m_columns.remove(m_pkColumn);
-    for (auto& join: m_joins) {
+    for (const auto& join: m_joins) {
         auto tableAlias = join.tableAlias;
         for (auto& column: join.columns) {
             auto matches = matchEpressionAndAlias.m(column);

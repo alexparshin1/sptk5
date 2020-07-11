@@ -147,7 +147,7 @@ void CButtonGroup::deselectAllButtons()
     }
 }
 
-void CButtonGroup::data(const Variant d)
+void CButtonGroup::data(const Variant& d)
 {
     deselectAllButtons();
     int ndx = buttonIndex(d.getString());
