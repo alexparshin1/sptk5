@@ -198,7 +198,7 @@ void OracleConnection::queryPrepare(Query* query)
             throw Exception("Not a bulk query");
         const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
         for (auto itor = enumeratedParams.begin(); itor != enumeratedParams.end(); ++itor, ++paramIndex) {
-            QueryParameter* param = *itor;
+            const QueryParameter* param = *itor;
             auto xtor = columnTypeSizes.find(upperCase(param->name()));
             if (xtor != columnTypeSizes.end()) {
                 if (xtor->second.length)
@@ -220,7 +220,7 @@ void OracleConnection::queryUnprepare(Query* query)
 
 int OracleConnection::queryColCount(Query* query)
 {
-    auto* statement = (OracleStatement*) query->statement();
+    const auto* statement = (OracleStatement*) query->statement();
     if (statement == nullptr) {
         throwOracleException("Query not opened")
     } else
@@ -351,7 +351,7 @@ void OracleConnection::queryOpen(Query* query)
             auto iend = resultSetMetaData.end();
             unsigned columnIndex = 0;
             for (; itor != iend; ++itor, ++columnIndex) {
-                MetaData& metaData = *itor;
+                const MetaData& metaData = *itor;
                 auto columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
                 int columnScale = metaData.getInt(MetaData::ATTR_SCALE);
                 string columnName = metaData.getString(MetaData::ATTR_NAME);
@@ -577,13 +577,13 @@ void OracleConnection::_bulkInsert(const String& fullTableName, const Strings& c
     if (!schema.empty())
         tableColumnsQuery.param("schema") = schema;
     tableColumnsQuery.open();
-    Field& column_name = tableColumnsQuery["column_name"];
-    Field& data_type = tableColumnsQuery["data_type"];
-    Field& data_length = tableColumnsQuery["data_length"];
+    const Field& column_name = tableColumnsQuery["column_name"];
+    const Field& data_type = tableColumnsQuery["data_type"];
+    const Field& data_length = tableColumnsQuery["data_length"];
     QueryColumnTypeSizeMap columnTypeSizeMap;
     while (!tableColumnsQuery.eof()) {
-        String columnName = column_name.asString();
-        String columnType = data_type.asString();
+        auto columnName = column_name.asString();
+        auto columnType = data_type.asString();
         auto maxDataLength = (size_t) data_length.asInteger();
         QueryColumnTypeSize columnTypeSize = {};
         columnTypeSize.type = VAR_STRING;

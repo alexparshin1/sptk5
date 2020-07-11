@@ -260,7 +260,7 @@ String sptk::removeDriverIdentification(const char* error)
         p = p1 + 8;
         len = (int) strlen(p);
         if (p[len - 1] == ')')
-            len--;
+            --len;
     }
 
     return String(p, size_t(len));
@@ -279,7 +279,7 @@ string extract_error(
 
     string error;
     for (;;) {
-        i++;
+        ++i;
         ret = SQLGetDiagRec(type, handle, i, state, &native, text, sizeof(text), &len);
         if (ret != SQL_SUCCESS)
             break;

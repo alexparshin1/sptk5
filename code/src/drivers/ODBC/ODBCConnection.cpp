@@ -794,7 +794,8 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
         }
 
         SQLFreeStmt(stmt, SQL_DROP);
-    } catch (Exception& e) {
+    }
+    catch (const Exception& e) {
         String error;
         if (stmt != nullptr) {
             error = queryError(stmt);
