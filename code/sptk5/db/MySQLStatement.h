@@ -46,73 +46,7 @@ class MySQLConnection;
  */
 class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
 {
-    /**
-     * Statement SQL
-     */
-    String                          m_sql;
-
-    /**
-     * Parameter binding buffers
-     */
-    std::vector<MYSQL_BIND>         m_paramBuffers;
-
-    /**
-     * Parameter data lengths
-     */
-    std::vector<unsigned long>      m_paramLengths;
-
-    /**
-     * Fetch data buffers
-     */
-    std::vector<MYSQL_BIND>         m_fieldBuffers;
-
-
-    /**
-     * Statement handle
-     */
-    MYSQL_RES*                      m_result {nullptr};
-
-    /**
-     * Fetch data row
-     */
-    MYSQL_ROW                       m_row {};
-
-
-    /**
-     * Reads not prepared statement result row to query fields
-     * @param fields CFieldList&, query fields (if any)
-     */
-    void readUnpreparedResultRow(FieldList& fields);
-
-    /**
-     * Reads prepared statement result row to query fields
-     * @param fields CFieldList&, query fields (if any)
-     */
-    void readPreparedResultRow(FieldList& fields);
-
-    /**
-     * Convert MySQL time data to field
-     * @param field             Output field
-     * @param mysqlTime         MySQL time
-     * @param fieldType         Field type (date or datetime)
-     */
-    static void decodeMySQLTime(Field* field, MYSQL_TIME& mysqlTime, VariantType fieldType);
-
-    /**
-     * Convert MySQL float data to field
-     * @param _field             Output field
-     * @param bind         MySQL field bind
-     * @param fieldType         Field type (date or datetime)
-     */
-    static void decodeMySQLFloat(Field* _field, MYSQL_BIND& bind);
-
-    [[noreturn]] void throwMySQLError() const
-    {
-        throw DatabaseException(mysql_stmt_error(statement()));
-    }
-
 public:
-
     /**
      * Translates MySQL native type to CVariant type
      * @param mysqlType enum_field_types, MySQL native type
@@ -151,9 +85,29 @@ public:
     MySQLStatement(MySQLConnection* connection, String sql, bool autoPrepare);
 
     /**
+     * Deleted copy constructor
+     */
+    MySQLStatement(const MySQLStatement&) = delete;
+
+    /**
+     * Move constructor
+     */
+    MySQLStatement(MySQLStatement&) = default;
+
+    /**
      * Destructor
      */
     ~MySQLStatement() override;
+
+    /**
+     * Deleted copy assignment
+     */
+    MySQLStatement& operator = (const MySQLStatement&) = delete;
+
+    /**
+     * Move assignment
+     */
+    MySQLStatement& operator = (MySQLStatement&) = default;
 
     /**
      * Generates normalized list of parameters
@@ -198,6 +152,48 @@ public:
      * Fetches next record
      */
     void fetch() override;
+
+private:
+
+    String                          m_sql;              ///< Statement SQL
+    std::vector<MYSQL_BIND>         m_paramBuffers;     ///< Parameter binding buffers
+    std::vector<unsigned long>      m_paramLengths;     ///< Parameter data lengths
+    std::vector<MYSQL_BIND>         m_fieldBuffers;     ///< Fetch data buffers
+    MYSQL_RES*                      m_result {nullptr}; ///< Statement handle
+    MYSQL_ROW                       m_row {};           ///< Fetch data row
+
+    /**
+     * Reads not prepared statement result row to query fields
+     * @param fields CFieldList&, query fields (if any)
+     */
+    void readUnpreparedResultRow(FieldList& fields);
+
+    /**
+     * Reads prepared statement result row to query fields
+     * @param fields CFieldList&, query fields (if any)
+     */
+    void readPreparedResultRow(FieldList& fields);
+
+    /**
+     * Convert MySQL time data to field
+     * @param field             Output field
+     * @param mysqlTime         MySQL time
+     * @param fieldType         Field type (date or datetime)
+     */
+    static void decodeMySQLTime(Field* field, MYSQL_TIME& mysqlTime, VariantType fieldType);
+
+    /**
+     * Convert MySQL float data to field
+     * @param _field             Output field
+     * @param bind         MySQL field bind
+     * @param fieldType         Field type (date or datetime)
+     */
+    static void decodeMySQLFloat(Field* _field, MYSQL_BIND& bind);
+
+    [[noreturn]] void throwMySQLError() const
+    {
+        throw DatabaseException(mysql_stmt_error(statement()));
+    }
 };
 
 }

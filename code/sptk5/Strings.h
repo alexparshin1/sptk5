@@ -127,6 +127,11 @@ public:
     Strings(int argc, const char *argv[]) noexcept;
 
     /**
+     * Destructor
+     */
+    ~Strings() noexcept = default;
+
+    /**
      * Assignment operator
      * @param other             Other object
      */

@@ -320,6 +320,7 @@ public:
      * Deleted copy constructor
      */
     Query(const Query&) = delete;
+    Query& operator = (const Query&) = delete;
 
     /**
      * Destructor

@@ -327,7 +327,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     vector<VariantVector> data;
     VariantVector arow;
     for (size_t i = 1; i <= recordCount; i++) {
-        arow.emplace_back(i);
+        arow.emplace_back(int(i));
         arow.emplace_back("Alex,'Doe'");
         arow.emplace_back("Programmer");
         arow.emplace_back("01-JAN-2014");

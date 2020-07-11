@@ -82,7 +82,7 @@ protected:
      * @param name              Attribute name
      * @param value             Attribute value
      */
-    Attribute(Element* parent, const String& name, Variant value);
+    Attribute(Element* parent, const String& name, const Variant& value);
 
     /**
      * Protected constructor (internal)
@@ -93,7 +93,7 @@ protected:
      * @param name              Attribute name
      * @param value             Attribute value
      */
-    Attribute(Element* parent, const char* name, Variant value);
+    Attribute(Element* parent, const char* name, const Variant& value);
 
 private:
 
@@ -166,7 +166,7 @@ public:
      * @param value             Attribute value
      * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    void setAttribute(const String& attr, Variant value, const char* defaultValue = "");
+    void setAttribute(const String& attr, const Variant& value, const char* defaultValue = "");
 
     /**
      * Returns an attribute node

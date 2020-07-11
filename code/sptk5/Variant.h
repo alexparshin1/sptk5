@@ -248,9 +248,9 @@ public:
 
 protected:
 
-    VariantData             m_data;             ///< Internal variant data storage
-    size_t                  m_dataSize {0};     ///< Data size
-    uint16_t                m_dataType {0};     ///< Data type
+    VariantData             m_data;                 ///< Internal variant data storage
+    size_t                  m_dataSize {0};         ///< Data size
+    uint16_t                m_dataType {VAR_NONE};  ///< Data type
 
     /**
      * Releases allocated buffer (if any)
@@ -456,17 +456,7 @@ public:
     /**
      * Constructor
      */
-    Variant(uint32_t value);
-
-    /**
-     * Constructor
-     */
     Variant(int64_t value, unsigned scale = 1);
-
-    /**
-     * Constructor
-     */
-    Variant(uint64_t value);
 
     /**
      * Constructor
@@ -486,26 +476,26 @@ public:
     /**
      * Constructor
      */
-    Variant(DateTime v);
+    explicit Variant(DateTime v);
 
     /**
      * Constructor
      * @param value             Buffer to copy from
      * @param sz                Buffer size
      */
-    Variant(const void * value, size_t sz);
+    explicit Variant(const void * value, size_t sz);
 
     /**
      * Constructor
      * @param value             Buffer to copy from
      */
-    Variant(const Buffer& value);
+    explicit Variant(const Buffer& value);
 
     /**
      * Copy constructor
      * @param other             Other object
      */
-    Variant(const Variant& other);
+    explicit Variant(const Variant& other);
 
     /**
      * Move constructor

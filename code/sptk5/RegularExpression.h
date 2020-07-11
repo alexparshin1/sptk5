@@ -154,6 +154,11 @@ public:
         Groups(Groups&& other) noexcept;
 
         /**
+         * Destructor
+         */
+        ~Groups() noexcept = default;
+
+        /**
          * Copy assignment
          * @param other         Other object to move from
          */

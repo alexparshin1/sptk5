@@ -394,6 +394,11 @@ protected:
      */
     explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType);
 
+    PoolDatabaseConnection(const PoolDatabaseConnection&) = delete;
+    PoolDatabaseConnection(PoolDatabaseConnection&&) noexcept = default;
+    PoolDatabaseConnection& operator = (const PoolDatabaseConnection&) = delete;
+    PoolDatabaseConnection& operator = (PoolDatabaseConnection&&) noexcept = default;
+
     /**
      * Opens the database connection.
      *

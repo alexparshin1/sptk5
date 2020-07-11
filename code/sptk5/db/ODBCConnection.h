@@ -59,10 +59,16 @@ public:
      */
     explicit ODBCConnection(const String& connectionString = "");
 
+    ODBCConnection(const ODBCConnection&) = delete;
+    ODBCConnection(ODBCConnection&&) noexcept = default;
+
     /**
      * @brief Destructor
      */
     ~ODBCConnection() override;
+
+    ODBCConnection& operator = (const ODBCConnection&) = delete;
+    ODBCConnection& operator = (ODBCConnection&&) noexcept = default;
 
     /**
      * @brief Returns driver-specific connection string

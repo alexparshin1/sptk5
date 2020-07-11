@@ -148,7 +148,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
 
             case VAR_FLOAT:
                 uptrBuffer64 = (uint64_t*) param->conversionBuffer();
-                *uptrBuffer64 = htonq(*(uint64_t*)param->dataBuffer());
+                *uptrBuffer64 = htonq(*(uint64_t*)&param->getFloat());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
                 break;
 

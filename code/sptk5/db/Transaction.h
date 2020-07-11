@@ -47,9 +47,6 @@ namespace sptk {
  */
 class SP_EXPORT Transaction
 {
-    bool                        m_active {false};   ///< Transaction activity
-    PoolDatabaseConnection*     m_db;               ///< Database to work with
-
 public:
     /**
      * Constructor
@@ -84,6 +81,11 @@ public:
     {
         return m_active;
     }
+
+private:
+
+    bool                        m_active {false};   ///< Transaction activity
+    PoolDatabaseConnection*     m_db;               ///< Database to work with
 };
 /**
  * @}

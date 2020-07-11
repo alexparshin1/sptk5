@@ -29,7 +29,7 @@
 using namespace sptk;
 using namespace sptk::xml;
 
-Attribute::Attribute(Element* parent, const char* tagname, Variant avalue)
+Attribute::Attribute(Element* parent, const char* tagname, const Variant& avalue)
 : NamedItem(*parent->document())
 {
     NamedItem::name(tagname);
@@ -37,7 +37,7 @@ Attribute::Attribute(Element* parent, const char* tagname, Variant avalue)
     parent->attributes().push_back(this);
 }
 
-Attribute::Attribute(Element* parent, const String& tagname, Variant avalue)
+Attribute::Attribute(Element* parent, const String& tagname, const Variant& avalue)
 : NamedItem(*parent->document())
 {
     NamedItem::name(tagname);
@@ -101,7 +101,7 @@ Variant Attributes::getAttribute(const String& attr, const char* defaultValue) c
     return rc;
 }
 
-void Attributes::setAttribute(const String& attr, Variant value, const char* defaultValue)
+void Attributes::setAttribute(const String& attr, const Variant& value, const char* defaultValue)
 {
     const auto itor = findFirst(attr);
     if (defaultValue != nullptr && value.asString() == defaultValue) {

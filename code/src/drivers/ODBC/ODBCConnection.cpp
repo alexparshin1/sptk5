@@ -52,7 +52,7 @@ public:
 protected:
     char* getData()
     {
-        return (char*) &m_data;
+        return m_data.getData();
     }
 };
 } // namespace sptk
@@ -343,7 +343,7 @@ void ODBCConnection::queryBindParameters(Query* query)
             int16_t paramType = 0;
             int16_t sqlType = 0;
             int16_t scale = 0;
-            void* buff = param->dataBuffer();
+            void* buff = (void*)&param->getInt64();
             long len = 0;
             auto paramNumber = int16_t(param->bindIndex(j) + 1);
 

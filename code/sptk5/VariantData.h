@@ -92,8 +92,6 @@ class SP_EXPORT VariantData
 {
     friend class Variant_SetMethods;
 
-	uint8_t     m_data[32]{};         ///< Variant data BLOB
-
 public:
 
     /**
@@ -121,6 +119,8 @@ public:
         memcpy(m_data, other.m_data, sizeof(m_data));
         memset(other.m_data, 0, sizeof(m_data));
     }
+
+    virtual ~VariantData() noexcept = default;
 
     /**
      * Copy assigment
@@ -276,6 +276,18 @@ public:
     {
         return *(const MoneyData*) m_data;
     }
+
+    /**
+     * @return data pointer
+     */
+    char* getData()
+    {
+        return (char*) m_data;
+    }
+
+private:
+
+    uint8_t     m_data[32]{};         ///< Variant data BLOB
 };
 
 /**

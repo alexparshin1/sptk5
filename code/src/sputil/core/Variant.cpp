@@ -27,6 +27,8 @@
 #include <cmath>
 #include <sptk5/Field.h>
 #include <sptk5/json/JsonElement.h>
+#include <sptk5/Variant.h>
+
 
 using namespace std;
 using namespace sptk;
@@ -106,13 +108,6 @@ Variant::Variant(int32_t value)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(uint32_t value)
-{
-    m_dataType = VAR_INT;
-    m_data.getInteger() = (int32_t) value;
-}
-
-//---------------------------------------------------------------------------
 Variant::Variant(int64_t value, unsigned scale)
 {
     if (scale > 1) {
@@ -126,13 +121,6 @@ Variant::Variant(int64_t value, unsigned scale)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(uint64_t value)
-{
-    m_dataType = VAR_INT64;
-    m_data.getInt64() = (int64_t) value;
-}
-
-//---------------------------------------------------------------------------
 Variant::Variant(double value)
 {
     m_dataType = VAR_FLOAT;
@@ -142,14 +130,12 @@ Variant::Variant(double value)
 //---------------------------------------------------------------------------
 Variant::Variant(const char* value)
 {
-    m_dataType = VAR_NONE;
     Variant::setString(value);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(const String& v)
 {
-    m_dataType = VAR_NONE;
     Variant::setBuffer(v.c_str(), v.length(), VAR_STRING);
 }
 
@@ -164,7 +150,6 @@ Variant::Variant(DateTime v)
 //---------------------------------------------------------------------------
 Variant::Variant(const void* value, size_t sz)
 {
-    m_dataType = VAR_NONE;
     Variant::setBuffer(value, sz, VAR_BUFFER);
 }
 

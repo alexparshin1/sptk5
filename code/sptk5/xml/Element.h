@@ -248,22 +248,9 @@ public:
      * @param value             Attribute value
      * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    void setAttribute(const char *attr, Variant value, const char *defaultValue="") override
+    void setAttribute(const String& attr, const Variant& value, const char *defaultValue="") override
     {
-        m_attributes.setAttribute(attr,value,defaultValue);
-    }
-
-    /**
-     * @brief Sets new value to attribute 'attr'.
-     *
-     * If attribute is not found, it's added to map.
-     * @param attr              Attribute name
-     * @param value             Attribute value
-     * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
-     */
-    void setAttribute(const String& attr, Variant value, const char *defaultValue="") override
-    {
-        m_attributes.setAttribute(attr.c_str(),value,defaultValue);
+        m_attributes.setAttribute(attr, value, defaultValue);
     }
 
 protected:

@@ -551,20 +551,7 @@ public:
      * @param value             Attribute value
      * @param defaultValue      A default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    virtual void setAttribute(const char* attr, Variant value, const char* defaultValue = "")
-    {
-        // Implement in derived classes
-    }
-
-    /**
-     * Sets new value to attribute 'attr'.
-     *
-     * If attribute is not found, it's added to map.
-     * @param attr              Attribute name
-     * @param value             Attribute value
-     * @param defaultValue      A default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
-     */
-    virtual void setAttribute(const String& attr, Variant value, const char* defaultValue = "")
+    virtual void setAttribute(const String& attr, const Variant& value, const char* defaultValue = "")
     {
         // Implement in derived classes
     }

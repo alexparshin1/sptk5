@@ -108,20 +108,10 @@ public:
     /**
      * Constructor
      * @param str                Source string
-     * @param len                Optional string id
-     */
-    String(const char* str, size_t len) noexcept
-    : std::string(str, len), m_id(0)
-    {
-    }
-
-    /**
-     * Constructor
-     * @param str                Source string
      * @param len                String length
      * @param id                 String id
      */
-    String(const char* str, size_t len, int64_t id) noexcept
+    String(const char* str, size_t len, int64_t id=0) noexcept
     : std::string(str, len), m_id(id)
     {
     }
@@ -132,7 +122,7 @@ public:
      * @param ch                Fill character
      * @param id                Optional string id
      */
-    String(size_t len, char ch, int64_t id = 0) noexcept
+    String(size_t len, char ch, int64_t id=0) noexcept
     : std::string(len, ch), m_id(id)
     {
     }

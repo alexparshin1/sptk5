@@ -63,11 +63,17 @@ public:
      */
     explicit AutoDatabaseConnection(DatabaseConnectionPool& connectionPool);
 
+    AutoDatabaseConnection(const AutoDatabaseConnection&) = delete;
+    AutoDatabaseConnection(AutoDatabaseConnection&&) = default;
+
     /**
      * Destructor
      * Releases connection to connection pool
      */
     ~AutoDatabaseConnection();
+
+    AutoDatabaseConnection& operator = (const AutoDatabaseConnection&) = delete;
+    AutoDatabaseConnection& operator = (AutoDatabaseConnection&&) = default;
 
     /**
      * Returns database connection acquired from the connection pool

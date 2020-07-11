@@ -50,8 +50,7 @@ uint32_t QueryParameter::bindIndex(uint32_t ind)
 }
 
 QueryParameter::QueryParameter(const char *name, bool isOutput)
-: m_name(lowerCase(name)),
-  m_binding(isOutput)
+: m_binding(isOutput), m_name(lowerCase(name))
 {
 }
 
