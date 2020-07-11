@@ -53,7 +53,7 @@ class SP_EXPORT DatabaseTests
      * @param table         Database table
      * @return number of rows in table
      */
-    static size_t countRowsInTable(DatabaseConnection& db, const String& table);
+    static size_t countRowsInTable(const DatabaseConnection& db, const String& table);
 
     /**
      * Test transactions
