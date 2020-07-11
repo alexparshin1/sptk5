@@ -104,7 +104,7 @@ public:
     /**
      * @brief Returns the message body type
      */
-    MailMessageType type()
+    MailMessageType type() const
     {
         return m_type;
     }

@@ -306,7 +306,7 @@ public:
     /**
      * Reports true if in transaction
      */
-    int inTransaction()
+    bool inTransaction() const
     {
         return m_inTransaction;
     }

@@ -46,12 +46,6 @@ class SP_EXPORT QueryParameter : public Variant
     friend class Query;
     friend class QueryParameterList;
 
-    String              m_name;                 ///< Parameter name
-    IntList             m_bindParamIndexes;     ///< The list of SQL query parameter numbers with this name
-    char                m_timeData[80] {};      ///< Special memory allocated for time structures
-    int32_t             m_callbackLength {0};   ///< An integer reserved to callback parameter data length
-    QueryParameterList* m_paramList {nullptr};  ///< Parent param list used for notifications
-
 public:
 
     QueryParameterBinding m_binding;            ///< The last successfull binding information
@@ -267,6 +261,14 @@ public:
     }
 
     void reallocateBuffer(const char* value, size_t maxlen, size_t valueLength);
+
+private:
+
+    String              m_name;                 ///< Parameter name
+    IntList             m_bindParamIndexes;     ///< The list of SQL query parameter numbers with this name
+    char                m_timeData[80] {};      ///< Special memory allocated for time structures
+    int32_t             m_callbackLength {0};   ///< An integer reserved to callback parameter data length
+    QueryParameterList* m_paramList {nullptr};  ///< Parent param list used for notifications
 };
 
 /**

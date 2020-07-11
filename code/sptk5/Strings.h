@@ -259,7 +259,7 @@ public:
     void push_back(String&& str)
     {
         m_sorted = UNSORTED;
-        StringVector::push_back(str);
+        StringVector::push_back(std::move(str));
     }
 
     /**

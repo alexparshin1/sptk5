@@ -121,7 +121,7 @@ namespace sptk {
 
                 if (m_repeatCount > 0) {
                     m_id.when = m_id.when + interval;
-                    m_repeatCount--;
+                    --m_repeatCount;
                     return true;
                 }
 

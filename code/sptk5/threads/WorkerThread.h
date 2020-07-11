@@ -74,7 +74,7 @@ public:
     /**
      * Destructor
      */
-    ~WorkerThread() = default;
+    ~WorkerThread() noexcept override = default;
 
     /**
      * Execute runable task

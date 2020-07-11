@@ -92,7 +92,7 @@ public:
 
         for (auto parameter: m_enumeratedParams) {
             if (parameter->isOutput())
-                m_state.outputParameterCount++;
+                ++m_state.outputParameterCount;
         }
     }
 

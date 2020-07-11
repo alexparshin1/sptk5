@@ -52,17 +52,17 @@ public:
     /**
      * Map of element names to element objects
      */
-    typedef std::map<String, WSParserElement*>      ElementMap;
+    typedef std::map<String, const WSParserElement*>      ElementMap;
 
     class ComplexTypeIndex
     {
     public:
-        void addType(const sptk::String& elementName, SWSParserComplexType& complexType)
+        void addType(const sptk::String& elementName, const SWSParserComplexType& complexType)
         {
             m_complexTypes[elementName] = complexType;
         }
 
-        void add(const sptk::String& elementName, SWSParserComplexType& complexType)
+        void add(const sptk::String& elementName, const SWSParserComplexType& complexType)
         {
             m_complexTypes[elementName] = complexType;
             m_elements[elementName] = complexType.get();

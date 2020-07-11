@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::json;
 
-void ElementData::clear()
+void ElementData::clear() noexcept
 {
     switch (type()) {
         case JDT_ARRAY:

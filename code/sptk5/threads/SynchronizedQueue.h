@@ -71,7 +71,7 @@ public:
      * @param item T&, List item
      * @param data void*, Optional function-specific data
      */
-    typedef bool (CallbackFunction)(T& item, void* data);
+    typedef std::function<bool(T& item, void* data)> CallbackFunction;
 
     /**
      * Default constructor
@@ -185,7 +185,7 @@ public:
      * @param data              Function-specific data
      * @returns true if every list item was processed
      */
-    bool each(CallbackFunction* callbackFunction, void* data=nullptr)
+    bool each(const CallbackFunction& callbackFunction, void* data=nullptr)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
 

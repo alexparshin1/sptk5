@@ -51,8 +51,6 @@ bool ImapDS::open()
         for (long msg_id = first_message; msg_id <= total_messages; msg_id++) {
             auto* df = new FieldList(false);
 
-            df->user_data((void*) (size_t) msg_id);
-
             if (m_fetchbody)
                 m_imap.cmd_fetch_message((int32_t) msg_id, *df);
             else m_imap.cmd_fetch_headers((int32_t) msg_id, *df);

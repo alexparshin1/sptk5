@@ -42,7 +42,7 @@ namespace sptk
 /**
  * Progression callback function prototype
  */
-typedef void (*ProgressCallback)(int total, int progress);
+typedef std::function<void(int total, int progress)> ProgressCallback;
 
 /**
  * @brief IMAP datasource
@@ -213,7 +213,7 @@ public:
      * Optional callback for the open() method progression.
      * @param cb CProgressCallback, a callback function
      */
-    void callback(ProgressCallback cb)
+    void callback(const ProgressCallback& cb)
     {
         m_callback = cb;
     }

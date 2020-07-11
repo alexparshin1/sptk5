@@ -106,7 +106,7 @@ class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
      */
     static void decodeMySQLFloat(Field* _field, MYSQL_BIND& bind);
 
-    void throwMySQLError()
+    [[noreturn]] void throwMySQLError() const
     {
         throw DatabaseException(mysql_stmt_error(statement()));
     }

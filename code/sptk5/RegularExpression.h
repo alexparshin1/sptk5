@@ -31,6 +31,10 @@
 #include <sptk5/sptk-config.h>
 #include <sptk5/Strings.h>
 
+#include <vector>
+#include <functional>
+#include <atomic>
+
 #if HAVE_PCRE2
 #define PCRE2_STATIC
 #define PCRE2_CODE_UNIT_WIDTH 8
@@ -39,10 +43,8 @@
 #define SPRE_MULTILINE  PCRE2_MULTILINE
 #define SPRE_DOTALL     PCRE2_DOTALL
 #define SPRE_EXTENDED   PCRE2_EXTENDED
-#define pcre_offset_t   long
+typedef long pcre_offset_t;
 #endif
-
-#include <pcre.h>
 
 #if HAVE_PCRE
 #include <pcre.h>
@@ -50,14 +52,10 @@
 #define SPRE_MULTILINE  PCRE_MULTILINE
 #define SPRE_DOTALL     PCRE_DOTALL
 #define SPRE_EXTENDED   PCRE_EXTENDED
-#define pcre_offset_t   int
+typedef int pcre_offset_t;
 #endif
 
 #if (HAVE_PCRE2 | HAVE_PCRE)
-
-#include <vector>
-#include <functional>
-#include <atomic>
 
 namespace sptk {
 
@@ -107,6 +105,11 @@ public:
          * @param other         Object to copy from
          */
         Group(Group&& other) noexcept;
+
+        /**
+         * Default destructor
+         */
+        ~Group() = default;
 
         /**
          * Copy assignment

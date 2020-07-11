@@ -82,6 +82,13 @@ public:
     ~FieldList();
 
     /**
+     * Copy assignment
+     *
+     * @param other             Other field list
+     */
+    FieldList& operator = (const FieldList& other);
+
+    /**
      * Clears the field list
      */
     void clear();
@@ -225,27 +232,6 @@ public:
     }
 
     /**
-     * Sets user data
-     *
-     * User data is usually a pointer to some outside memory object,
-     * or an index (id) of some object. CFieldList doesn't maintain this pointer, just keeps it
-     * as a tag.
-     * @param data              User-defined data
-     */
-    void user_data(void *data)
-    {
-        m_userData = data;
-    }
-
-    /**
-     * Returns user data
-     */
-    void* user_data() const
-    {
-        return m_userData;
-    }
-
-    /**
      * Exports data into XML node
      *
      * @see setXmlMode() for details.
@@ -264,11 +250,16 @@ private:
      */
     typedef std::map<String, Field *, CaseInsensitiveCompare>   Map;
 
-    void*                   m_userData {nullptr};       ///< User data - any data you want to associate with that field list
     Vector                  m_list;                     ///< The list of fields
     Map*                    m_index {nullptr};          ///< The optional field index by name. 0L if field list isn't indexed.
     bool                    m_compactXmlMode {false};   ///< The compact XML mode flag
-};
+
+    /**
+     * Copy assignment
+     *
+     * @param other             Other field list
+     */
+    void assign(const FieldList& other);};
 }
 
 /**

@@ -40,8 +40,8 @@ FieldList::FieldList(bool indexed, bool compactXmlMode)
 }
 
 FieldList::FieldList(const FieldList& other)
-: m_userData(other.m_userData)
 {
+    assign(other);
     if (other.m_index != nullptr)
         m_index = new Map;
     else
@@ -61,6 +61,21 @@ FieldList::~FieldList()
     delete m_index;
 }
 
+void FieldList::assign(const FieldList& other)
+{
+    if (other.m_index != nullptr)
+        m_index = new Map;
+    else
+        m_index = nullptr;
+
+    for (auto* otherField: other) {
+        auto* field = new Field(*otherField);
+        m_list.push_back(field);
+        if (m_index)
+            (*m_index)[field->fieldName()] = field;
+    }
+}
+
 void FieldList::clear()
 {
     for (auto* field: *this)
@@ -68,6 +83,13 @@ void FieldList::clear()
     m_list.clear();
     if (m_index)
         m_index->clear();
+}
+
+FieldList& FieldList::operator=(const FieldList &other)
+{
+    if (&other != this)
+        assign(other);
+    return *this;
 }
 
 Field& FieldList::push_back(const String& fname, bool checkDuplicates)

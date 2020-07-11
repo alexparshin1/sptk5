@@ -138,6 +138,11 @@ public:
     }
 
     /**
+     * Destructor
+     */
+    ~String() noexcept = default;
+
+    /**
      * Assignment operator
      * @param si                 Source string
      */

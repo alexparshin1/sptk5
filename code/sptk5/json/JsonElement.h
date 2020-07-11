@@ -95,7 +95,7 @@ public:
      * Releases memory allocated by string, array, or object data,
      * and sets the type to JDT_NULL.
      */
-    void clear();
+    void clear() noexcept;
 
     /**
      * Get number of elements in array or object.
@@ -639,7 +639,7 @@ public:
     /**
      * Destructor
      */
-    ~Element();
+    ~Element() noexcept override;
 
     /**
      * Assignment operator (template)
