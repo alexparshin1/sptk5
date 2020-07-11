@@ -260,7 +260,7 @@ void MySQLStatement::setParameterValues()
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            m_paramLengths[paramIndex] = (unsigned long) param->dataSize();
+            m_paramLengths[paramIndex] = param->dataSize();
             break;
 
         case VAR_DATE:
@@ -287,9 +287,9 @@ void MySQLStatement::setParameterValues()
         throwMySQLError();
 }
 
-void MySQLStatement::MySQLStatement::prepare(const string& sql)
+void MySQLStatement::MySQLStatement::prepare(const String& sql)
 {
-    if (mysql_stmt_prepare(statement(), sql.c_str(), (unsigned long) sql.length()) != 0)
+    if (mysql_stmt_prepare(statement(), sql.c_str(), sql.length()) != 0)
         throwMySQLError();
 }
 
@@ -326,7 +326,7 @@ void MySQLStatement::bindResult(FieldList& fields)
 
     char columnName[256];
     for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex) {
-        MYSQL_FIELD *fieldMetadata = mysql_fetch_field(m_result);
+        const MYSQL_FIELD *fieldMetadata = mysql_fetch_field(m_result);
         if (fieldMetadata == nullptr)
             throwMySQLError();
         strncpy(columnName, fieldMetadata->name, sizeof(columnName));
@@ -412,8 +412,9 @@ void MySQLStatement::readResultRow(FieldList& fields)
 
 void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
 {
-    uint32_t        fieldCount = fields.size();
-    unsigned long*  lengths = mysql_fetch_lengths(m_result);
+    uint32_t    fieldCount = fields.size();
+    const auto* lengths = mysql_fetch_lengths(m_result);
+
     for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
 
         auto* field = (CMySQLStatementField*) &fields[fieldIndex];
@@ -470,7 +471,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
     }
 }
 
-void MySQLStatement::decodeMySQLTime(Field* _field, MYSQL_TIME& mysqlTime, VariantType fieldType)
+void MySQLStatement::decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime, VariantType fieldType)
 {
     auto* field = dynamic_cast<CMySQLStatementField*>(_field);
     if (mysqlTime.day == 0 && mysqlTime.month == 0) {
@@ -552,7 +553,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
                     bind.buffer_length = remainingBytes;
                     if (mysql_stmt_fetch_column(statement(), &bind, fieldIndex, offset) != 0)
                         throwMySQLError();
-                    bind.buffer_length = (unsigned long) field->bufferSize();
+                    bind.buffer_length = field->bufferSize();
                     bind.buffer = (void*) field->getBuffer();
                     fieldSizeChanged = true;
                 }

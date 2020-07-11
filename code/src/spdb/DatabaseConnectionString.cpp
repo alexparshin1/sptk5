@@ -60,7 +60,7 @@ void DatabaseConnectionString::parse()
     pos = connStr.find_first_of('?');
     if (pos != string::npos) {
         Strings parameters(connStr.substr(pos + 1),"&");
-        for (auto& item: parameters) {
+        for (const auto& item: parameters) {
             Strings pair(item, "='", Strings::SM_ANYCHAR);
             if (pair.size() == 2)
                 m_parameters[ pair[0] ] = pair[1];

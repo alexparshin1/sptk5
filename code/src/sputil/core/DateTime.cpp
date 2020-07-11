@@ -85,10 +85,10 @@ static int decodeTZOffset(const char* tzOffset)
         case 'z':
             return 0;
         case '+':
-            p++;
+            ++p;
             break;
         case '-':
-            p++;
+            ++p;
             sign = -1;
             break;
         default:
@@ -109,9 +109,9 @@ static int trimRight(char* s)
     auto len = (int) strlen(s);
 
     while (len > 0) {
-        len--;
+        --len;
         if ((unsigned char) s[len] > 32) {
-            len++;
+            ++len;
             s[len] = 0;
             break;
         }
@@ -129,7 +129,7 @@ char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
 
     // Cut-off trailing non-digit characters
     auto len = (int) strlen(dt);
-    for (int index = len - 1; index >= 0; index--) {
+    for (int index = len - 1; index >= 0; --index) {
         if (isdigit(dt[index]) != 0) {
             dt[index + 1] = 0;
             break;
@@ -138,7 +138,7 @@ char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
     char* ptr = dt;
     // find a separator char
     while (isalnum(*ptr) != 0 || *ptr == ' ')
-        ptr++;
+        ++ptr;
     separator[0] = *ptr;
 
     char* save_ptr = nullptr;
@@ -236,7 +236,7 @@ void DateTimeFormat::init() noexcept
     t.tm_min = 0;
     t.tm_sec = 0;
     DateTime::_weekDayNames.clear();
-    for (int wday = 0; wday < 7; wday++) {
+    for (int wday = 0; wday < 7; ++wday) {
         t.tm_wday = wday;
         strftime(dateBuffer, 32, "%A", &t);
         DateTime::_weekDayNames.push_back(dateBuffer);
@@ -252,7 +252,7 @@ void DateTimeFormat::init() noexcept
     t.tm_sec = 0;
     t.tm_wday = 3;
     DateTime::_monthNames.clear();
-    for (int month = 0; month < 12; month++) {
+    for (int month = 0; month < 12; ++month) {
         t.tm_mon = month;
         strftime(dateBuffer, 32, "%B", &t);
         DateTime::_monthNames.push_back(dateBuffer);
@@ -371,7 +371,7 @@ static short splitDateString(char* bdat, short* datePart, char& actualDateSepara
     const char* ptr = bdat;
     char* end = nullptr;
     size_t partNumber = 0;
-    for (; partNumber < 3; partNumber++) {
+    for (; partNumber < 3; ++partNumber) {
         errno = 0;
         datePart[partNumber] = (short) strtol(ptr, &end, 10);
         if (errno)
@@ -400,13 +400,13 @@ static short splitTimeString(char* bdat, short* timePart)
         throw Exception("Invalid time string");
 
     size_t partNumber = 0;
-    for (; partNumber < 4; partNumber++) {
+    for (; partNumber < 4; ++partNumber) {
         auto& part = matches[partNumber].value;
         if (part.empty())
             break;
         const auto* value = part.c_str();
         if (partNumber == 3)
-            value++; // Skip dot character
+            ++value; // Skip dot character
         timePart[partNumber] = (short) strtol(value, nullptr, 10);
     }
 
@@ -496,7 +496,7 @@ static void encodeDate(DateTime::time_point& dt, const char* dat)
     char *timePtr = strpbrk(bdat, " T");
     if (timePtr != nullptr) {
         *timePtr = 0;
-        timePtr++;
+        ++timePtr;
     }
 
     char actualDateSeparator;
@@ -513,7 +513,7 @@ static void encodeDate(DateTime::time_point& dt, const char* dat)
             day = datePart[2];
         } else {
             auto datePartsOrder(DateTime::format(DateTime::DATE_PARTS_ORDER, 0));
-            for (int ii = 0; ii < 3; ii++) {
+            for (int ii = 0; ii < 3; ++ii) {
                 switch (datePartsOrder[ii]) {
                     case 'M':
                         month = datePart[ii];
@@ -610,7 +610,7 @@ DateTime::DateTime(const char* dat) noexcept
         return;
     }
 
-    while (*dat == ' ') dat++;
+    while (*dat == ' ') ++dat;
     if (*dat == char(0)) {
         m_dateTime = time_point();
         return;
@@ -620,7 +620,7 @@ DateTime::DateTime(const char* dat) noexcept
     char* s2 = strpbrk(s1.data(), " T");
     if (s2 != nullptr) {
         *s2 = 0;
-        s2++;
+        ++s2;
     }
 
     try {
@@ -1032,7 +1032,7 @@ TEST(SPTK_DateTime, parsePerformance)
 
     DateTime dateTime("2018-08-07 11:22:33.444Z");
     size_t count = 100000;
-    for (size_t i = 0; i < count; i++)
+    for (size_t i = 0; i < count; ++i)
         dateTime = DateTime("2018-08-07 11:22:33.444Z");
 
     DateTime ended("now");

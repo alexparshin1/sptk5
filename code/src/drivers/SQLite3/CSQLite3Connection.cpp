@@ -229,11 +229,11 @@ void SQLite3Connection::queryBindParameters(Query* query)
 
     auto* stmt = (SQLHSTMT) query->statement();
 
-    for (uint32_t i = 0; i < query->paramCount(); i++) {
+    for (uint32_t i = 0; i < query->paramCount(); ++i) {
         QueryParameter* param = &query->param(i);
         VariantType ptype = param->dataType();
 
-        for (unsigned j = 0; j < param->bindCount(); j++) {
+        for (unsigned j = 0; j < param->bindCount(); ++j) {
 
             int rc;
             auto paramNumber = short(param->bindIndex(j) + 1);
@@ -352,7 +352,7 @@ void SQLite3Connection::queryOpen(Query* query)
     // Reading the column attributes
     char columnName[256];
 
-    for (short column = 1; column <= count; column++) {
+    for (short column = 1; column <= count; ++column) {
         strncpy(columnName, sqlite3_column_name(stmt, column - 1), 255);
         columnName[255] = 0;
 
@@ -416,9 +416,9 @@ void SQLite3Connection::queryFetch(Query* query)
 
     SQLite3Field* field = nullptr;
 
-    for (uint32_t column = 0; column < fieldCount; column++) {
+    for (uint32_t column = 0; column < fieldCount; ++column) {
         try {
-            field = (SQLite3Field*) &(*query)[(uint32_t) column];
+            field = (SQLite3Field*) &(*query)[column];
 
             auto fieldType = (short) field->fieldType();
             if (fieldType == 0) {

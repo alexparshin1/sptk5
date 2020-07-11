@@ -124,7 +124,7 @@ public:
      * Prepares MySQL statement
      * @param sql const std::string, statement SQL
      */
-    void prepare(const std::string& sql);
+    void prepare(const String& sql);
 
     /**
      * Executes statement
@@ -176,11 +176,11 @@ private:
 
     /**
      * Convert MySQL time data to field
-     * @param field             Output field
+     * @param _field             Output field
      * @param mysqlTime         MySQL time
      * @param fieldType         Field type (date or datetime)
      */
-    static void decodeMySQLTime(Field* field, MYSQL_TIME& mysqlTime, VariantType fieldType);
+    static void decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime, VariantType fieldType);
 
     /**
      * Convert MySQL float data to field

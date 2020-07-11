@@ -369,7 +369,7 @@ void PostgreSQLConnection::queryUnprepare(Query* query)
 
 int PostgreSQLConnection::queryColCount(Query* query)
 {
-    auto* statement = (PostgreSQLStatement*) query->statement();
+    const auto* statement = (PostgreSQLStatement*) query->statement();
 
     return (int) statement->colCount();
 }
@@ -1048,7 +1048,7 @@ void PostgreSQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* er
 {
     Strings statements = extractStatements(sqlBatch);
 
-    for (auto& stmt : statements) {
+    for (const auto& stmt : statements) {
         try {
             Query query(this, stmt);
             query.exec();

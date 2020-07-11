@@ -44,7 +44,7 @@ bool DataSource::save()
 void DataSource::rowToXML(xml::Node& node, bool compactXmlMode) const
 {
     uint32_t cnt = fieldCount();
-    for (uint32_t i = 0; i < cnt; i++) {
+    for (uint32_t i = 0; i < cnt; ++i) {
         const Field& field = operator[](i);
         field.toXML(node, compactXmlMode);
     }

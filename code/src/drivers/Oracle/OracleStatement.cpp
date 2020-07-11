@@ -362,7 +362,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
 {
     size_t columnIndex = 0;
     for (unsigned index: m_outputParamIndex) {
-        QueryParameter* parameter;
+        const QueryParameter* parameter;
         try {
             parameter = m_enumeratedParams[index - 1];
 

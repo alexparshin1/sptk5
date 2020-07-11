@@ -315,7 +315,7 @@ TEST(SPTK_PostgreSQLConnection, multiThreading)
         Query createTable(db,"CREATE TABLE numbers(id int, value varchar(40), created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
         createTable.exec();
         Query insertNumber(db, "INSERT INTO numbers(id,value) VALUES(:id,:value)");
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1000; ++i) {
             insertNumber.param("id") = i;
             insertNumber.param("value") = to_string(i);
             insertNumber.exec();
@@ -332,7 +332,7 @@ TEST(SPTK_PostgreSQLConnection, multiThreading)
 
     try {
         vector<future<Output>> futures;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; ++i) {
             auto f = async(launch::async, [&pool]() {
                 StopWatch sw;
                 sw.start();

@@ -176,7 +176,7 @@ void DatabaseTests::testTransaction(DatabaseConnection db, bool commit)
 
     size_t maxRecords = 100;
 
-    for (unsigned i = 0; i < maxRecords; i++)
+    for (unsigned i = 0; i < maxRecords; ++i)
         insert.exec();
 
     auto count = countRowsInTable(db, "gtest_temp_table");
@@ -217,7 +217,7 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
     createTable.exec();
 
     testTransaction(db, false);
-    for (unsigned i = 0; i < 3; i++)
+    for (unsigned i = 0; i < 3; ++i)
         testTransaction(db, true);
 
     dropTable.exec();
@@ -299,7 +299,7 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     Strings printRows;
     while (!selectData.eof()) {
         Strings row;
-        for (auto* field: selectData.fields())
+        for (const auto* field: selectData.fields())
             row.push_back(field->asString().trim());
         printRows.push_back(row.join("|"));
         selectData.next();
@@ -326,7 +326,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 
     vector<VariantVector> data;
     VariantVector arow;
-    for (size_t i = 1; i <= recordCount; i++) {
+    for (size_t i = 1; i <= recordCount; ++i) {
         arow.emplace_back(int(i));
         arow.emplace_back("Alex,'Doe'");
         arow.emplace_back("Programmer");
@@ -358,7 +358,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
         positionParam = row[2].asString();
         hiredParam = row[3].asString();
         insertData.exec();
-        i++;
+        ++i;
     }
     transaction.commit();
     DateTime ended2("now");
@@ -389,7 +389,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     data.push_back(string("2\tDavid\tCEO\t01-JAN-2015"));
     data.push_back(string("3\tRoger\tBunny\t01-JAN-2016"));
 
-    for (auto& row: data) {
+    for (const auto& row: data) {
         // Insert all nulls
         insertData.param("id").setNull(VAR_INT);
         insertData.param("name").setNull(VAR_STRING);
@@ -411,7 +411,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     while (!selectData.eof()) {
         // Check if all fields are NULLs
         int column = 0;
-        for (auto* field: selectData.fields()) {
+        for (const auto* field: selectData.fields()) {
             if (!field->isNull())
                 throw Exception("Field " + field->fieldName() + " = [" + field->asString() + "] but null is expected");
             VariantType expectedType = VAR_INT;
@@ -419,12 +419,12 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
                 expectedType = VAR_STRING;
             if (field->dataType() != expectedType)
                 throw Exception("Field " + field->fieldName() + " has data type " + to_string(field->dataType()) + " but expected " + to_string(expectedType));
-            column++;
+            ++column;
         }
         selectData.next();
 
         Strings row;
-        for (auto* field: selectData.fields())
+        for (const auto* field: selectData.fields())
             row.push_back(field->asString().trim());
         printRows.push_back(row.join("|"));
         selectData.next();

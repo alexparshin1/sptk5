@@ -153,7 +153,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 
         size_t printed = 0;
         size_t rowOffset = offset;
-        for (; rowOffset < buffer.bytes() && printed < 16; rowOffset++, printed++) {
+        for (; rowOffset < buffer.bytes() && printed < 16; ++rowOffset, ++printed) {
             if (printed == 8)
                 stream << " ";
             unsigned printChar = (uint8_t) buffer[rowOffset];
@@ -162,14 +162,14 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 
         while (printed < 16) {
             stream << "   ";
-            printed++;
+            ++printed;
         }
 
         stream << " ";
 
         printed = 0;
         rowOffset = offset;
-        for (; rowOffset < buffer.bytes() && printed < 16; rowOffset++, printed++) {
+        for (; rowOffset < buffer.bytes() && printed < 16; ++rowOffset, ++printed) {
             if (printed == 8)
                 stream << " ";
             auto testChar = (uint8_t) buffer[rowOffset];

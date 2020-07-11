@@ -225,7 +225,7 @@ void Query::sqlParseParameter(const char* paramStart, const char* paramEnd, int&
     }
     param->bindAdd(uint32_t(paramNumber));
     sql += database()->paramMark(uint32_t(paramNumber));
-    paramNumber++;
+    ++paramNumber;
 }
 
 void Query::sql(const String& _sql)
@@ -235,7 +235,7 @@ void Query::sql(const String& _sql)
 
     String sql = parseParameters(_sql);
 
-    for (int i = (int) m_params.size() - 1; i >= 0; i--)
+    for (int i = (int) m_params.size() - 1; i >= 0; --i)
         if (m_params[i].bindCount() == 0)
             m_params.remove(uint32_t(i));
 
@@ -250,7 +250,7 @@ void Query::sql(const String& _sql)
 
 const char* Query::readParamater(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd)
 {
-    for (; ; paramEnd++) {
+    for (; ; ++paramEnd) {
 
         if (isalnum(*paramEnd) != 0)
             continue;
@@ -261,7 +261,7 @@ const char* Query::readParamater(String& sql, int& paramNumber, const char* para
         if (*paramEnd == '.') {
             // Oracle ':new.' or ':old.'
             sql += string(paramStart, paramEnd - paramStart + 1);
-            paramEnd++;
+            ++paramEnd;
             return paramEnd;
         }
 
