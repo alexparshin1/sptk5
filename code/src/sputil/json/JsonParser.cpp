@@ -111,7 +111,7 @@ void Parser::parse(Element& jsonElement, const String& jsonStr)
     while (*pos) {
         if ((unsigned char) *pos > 32)
             throwError("Invalid character(s) after JSON data", json, strlen(json));
-        pos++;
+        ++pos;
     }
 }
 
@@ -122,7 +122,7 @@ inline void skipSpaces(const char* json, const char*& readPosition)
     while ((unsigned char) *readPosition <= 32) {
         if (*readPosition == 0)
             throwError("Premature end of data", json, strlen(json));
-        readPosition++;
+        ++readPosition;
     }
 }
 
@@ -138,8 +138,8 @@ string readJsonString(const char* json, const char*& readPosition)
             if (ch == '"')
                 break;
             if (ch == '\\')
-                pos++;
-            pos++;
+                ++pos;
+            ++pos;
         }
     }
     string str = json::decode(string(readPosition + 1, pos - readPosition - 1));
@@ -158,7 +158,7 @@ string readJsonName(const char* json, const char*& readPosition)
     string name = readJsonString(json, readPosition);
     if (*readPosition != ':')
         throwUnexpectedCharacterError(*readPosition, ':', json, readPosition - json);
-    readPosition++;
+    ++readPosition;
     skipSpaces(json, readPosition);
     return name;
 }
@@ -180,7 +180,7 @@ bool readJsonBoolean(const char* json, const char*& readPosition)
     const char* pos = strchr(readPosition + 1, 'e');
     if (pos == nullptr)
         throwError("Premature end of data, expecting boolean value", json, readPosition - json);
-    pos++;
+    ++pos;
     bool result = false;
     if (strncmp(readPosition, "true", 4) == 0)
         result = true;
@@ -199,7 +199,7 @@ void readJsonNull(const char* json, const char*& readPosition)
         throwError("Unexpected value, expecting 'null'", json, readPosition - json);
     readPosition += 4;
     if (*readPosition == ',')
-        readPosition++;
+        ++readPosition;
     skipSpaces(json, readPosition);
 }
 
@@ -210,7 +210,7 @@ void readArrayData(Element* parent, const char* json, const char*& readPosition)
     if (*readPosition != '[')
         throwUnexpectedCharacterError(*readPosition, '[', json, readPosition - json);
 
-    readPosition++;
+    ++readPosition;
 
     while (*readPosition != ']') {
         skipSpaces(json, readPosition);
@@ -258,7 +258,7 @@ void readArrayData(Element* parent, const char* json, const char*& readPosition)
                 break;
 
             case ',':
-                readPosition++;
+                ++readPosition;
                 skipSpaces(json, readPosition);
                 break;
 
@@ -266,7 +266,7 @@ void readArrayData(Element* parent, const char* json, const char*& readPosition)
                 throwUnexpectedCharacterError(*readPosition, 0, json, readPosition - json);
         }
     }
-    readPosition++;
+    ++readPosition;
 }
 
 void readObjectData(Element* parent, const char* json, const char*& readPosition)
@@ -274,12 +274,12 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
     if (*readPosition != '{')
         throwUnexpectedCharacterError(*readPosition, '{', json, readPosition - json);
 
-    readPosition++;
+    ++readPosition;
 
     while (*readPosition != '}') {
         skipSpaces(json, readPosition);
         if (*readPosition == ',') {
-            readPosition++;
+            ++readPosition;
             continue;
         }
 
@@ -335,7 +335,7 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
                 throwUnexpectedCharacterError(*readPosition, 0, json, readPosition - json);
         }
     }
-    readPosition++;
+    ++readPosition;
 }
 
 }}

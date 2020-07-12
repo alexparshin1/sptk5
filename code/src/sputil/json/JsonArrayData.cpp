@@ -42,15 +42,6 @@ ArrayData::~ArrayData()
         delete element;
 }
 
-void ArrayData::setParent(Element* parent)
-{
-    if (m_parent != parent) {
-        m_parent = parent;
-        for (Element *element: m_items)
-            element->setParent(parent);
-    }
-}
-
 void ArrayData::add(Element* element)
 {
     element->m_parent = m_parent;

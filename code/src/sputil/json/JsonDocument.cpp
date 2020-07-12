@@ -158,6 +158,8 @@ const Element& Document::root() const
 const char* testJSON =
         R"({ "name": "John", "age": 33, "temperature": 33.6, "timestamp": 1519005758000 )"
         R"("skills": [ "C++", "Java", "Motorbike" ],)"
+        R"("location": null,)"
+        R"("title": "\"Mouse\"",)"
         R"("address": { "married": true, "employed": false } })";
 
 void verifyDocument(json::Document& document)
@@ -267,6 +269,7 @@ TEST(SPTK_JsonDocument, clear)
     json::Element& root = document.root();
     EXPECT_TRUE(root.is(JDT_OBJECT));
     EXPECT_FALSE(root.find("address"));
+    EXPECT_EQ(root.size(), size_t(0));
 }
 
 TEST(SPTK_JsonDocument, exportToBuffer)
@@ -352,17 +355,47 @@ TEST(SPTK_JsonDocument, truncated)
     }
 }
 
-TEST(SPTK_JsonDocument, junkTail)
+TEST(SPTK_JsonDocument, errors)
 {
     json::Document document;
+    size_t errorCount = 0;
+
     String junkTailJSON = String(testJSON) + "=";
     try {
         document.load(junkTailJSON);
         FAIL() << "Incorrect: MUST fail";
     }
     catch (const Exception& e) {
-        SUCCEED() << "Correct: " << e.what();
+        ++errorCount;
     }
+
+    String junkInsideJSON = testJSON;
+    junkInsideJSON[0] = '?';
+    try {
+        document.load(junkInsideJSON);
+        FAIL() << "Incorrect: MUST fail";
+    }
+    catch (const Exception& e) {
+        ++errorCount;
+    }
+
+    try {
+        document.load(testJSON);
+        const auto* element = document.root().find("nothing");
+        if (element != nullptr)
+            FAIL() << "Incorrect: MUST return null";
+        const auto& root = document.root();
+        element = root.find("name");
+        element = element->find("nothing");
+        if (element != nullptr)
+            FAIL() << "Incorrect: MUST fail";
+        FAIL() << "Incorrect: MUST fail";
+    }
+    catch (const Exception& e) {
+        ++errorCount;
+    }
+
+    SUCCEED() << "Detected " << errorCount << " errors";
 }
 
 #endif

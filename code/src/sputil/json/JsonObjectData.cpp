@@ -42,16 +42,7 @@ ObjectData::~ObjectData()
         delete itor.element();
 }
 
-void ObjectData::setParent(Element* parent)
-{
-    if (m_parent != parent) {
-        m_parent = parent;
-        for (auto& itor: m_items)
-            itor.element()->m_parent = parent;
-    }
-}
-
-void ObjectData::add(const string& name, Element* element)
+void ObjectData::add(const String& name, Element* element)
 {
     element->m_parent = m_parent;
     const string* sharedName = m_document->getString(name);
@@ -61,7 +52,7 @@ void ObjectData::add(const string& name, Element* element)
     m_items.set(sharedName, element);
 }
 
-Element* ObjectData::find(const string& name)
+Element* ObjectData::find(const String& name)
 {
     const string* sharedName = m_document->getString(name);
     auto itor = m_items.find(sharedName);
@@ -70,7 +61,7 @@ Element* ObjectData::find(const string& name)
     return itor->element();
 }
 
-Element& ObjectData::operator[](const string& name)
+Element& ObjectData::operator[](const String& name)
 {
     const string* sharedName = m_document->getString(name);
     auto itor = m_items.find(sharedName);
@@ -85,7 +76,7 @@ Element& ObjectData::operator[](const string& name)
     return *element;
 }
 
-const Element* ObjectData::find(const string& name) const
+const Element* ObjectData::find(const String& name) const
 {
     const string* sharedName = m_document->getString(name);
     auto itor = m_items.find(sharedName);
@@ -94,12 +85,12 @@ const Element* ObjectData::find(const string& name) const
     return itor->element();
 }
 
-const Element& ObjectData::operator[](const string& name) const
+const Element& ObjectData::operator[](const String& name) const
 {
     return *find(name);
 }
 
-void ObjectData::remove(const string& name)
+void ObjectData::remove(const String& name)
 {
     const string* sharedName = m_document->getString(name);
     auto itor = m_items.find(sharedName);
@@ -109,7 +100,7 @@ void ObjectData::remove(const string& name)
     m_items.erase(itor);
 }
 
-Element* ObjectData::move(const string& name)
+Element* ObjectData::move(const String& name)
 {
     const string* sharedName = m_document->getString(name);
     auto itor = m_items.find(sharedName);

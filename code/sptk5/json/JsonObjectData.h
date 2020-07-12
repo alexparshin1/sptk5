@@ -64,7 +64,7 @@ public:
          * @param element       Property element
          */
         Property(const std::string* name, Element* element) : m_name(name), m_element(element) {}
-        std::string name() const { return *m_name; }
+        String name() const { return *m_name; }
         Element* element() { return m_element; }
         const Element* element() const { return m_element; }
     private:
@@ -164,7 +164,7 @@ public:
      * @param name              Child element name
      * @param element           Child element
      */
-    void add(const std::string& name, Element *element);
+    void add(const String& name, Element *element);
 
     /**
      * Reference child element by name. If child element is not found,
@@ -172,41 +172,41 @@ public:
      * @param name              Child element name
      * @returns Child element reference
      */
-    Element& operator[](const std::string& name);
+    Element& operator[](const String& name);
 
     /**
      * Find child element by name
      * @param name              Child element name
      * @returns Child element pointer, or NULL if not found
      */
-    Element *find(const std::string& name);
+    Element *find(const String& name);
 
     /**
      * Const reference child element by name
      * @param name              Child element name
      * @returns Const child element reference, or throws exception if not found
      */
-    const Element& operator[](const std::string& name) const;
+    const Element& operator[](const String& name) const;
 
     /**
      * Find child element by name
      * @param name              Child element name
      * @returns Child element const pointer, or NULL if not found
      */
-    [[nodiscard]] const Element* find(const std::string& name) const;
+    [[nodiscard]] const Element* find(const String& name) const;
 
     /**
      * Remove child element by name (and release its memory)
      * @param name              Child element name
      */
-    void remove(const std::string& name);
+    void remove(const String& name);
 
     /**
      * Remove child element by name from object, without destroying it
      * @param name              Child element name
      * @return Element pointer
      */
-    Element* move(const std::string& name);
+    Element* move(const String& name);
 
     /**
      * Get begin iterator of child elements
@@ -237,13 +237,6 @@ public:
      * @return number of child elements
      */
     [[nodiscard]] size_t size() const { return m_items.size(); }
-
-protected:
-
-    /**
-     * Set parent JSON element
-     */
-    void setParent(Element *parent);
 
 private:
 

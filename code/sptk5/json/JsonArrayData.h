@@ -109,13 +109,13 @@ public:
      * Get JSON element from this array by index
      * @param index             Element index
      */
-    Element& operator[](size_t index);
+    [[nodiscard]] Element& operator[](size_t index);
 
     /**
      * Get JSON element from this array by index (const version)
      * @param index             Element index
      */
-    const Element& operator[](size_t index) const;
+    [[nodiscard]] const Element& operator[](size_t index) const;
 
     /**
      * Remove JSON element from this array by index (const version)
@@ -126,12 +126,12 @@ public:
     /**
      * Get array begin iterator
      */
-    iterator begin() { return m_items.begin(); }
+    [[nodiscard]] iterator begin() { return m_items.begin(); }
 
     /**
      * Get array end iterator
      */
-    iterator end() { return m_items.end(); }
+    [[nodiscard]] iterator end() { return m_items.end(); }
 
     /**
      * Get array const begin iterator
@@ -152,14 +152,6 @@ public:
      * Is array empty?
      */
     [[nodiscard]] bool empty() const { return m_items.empty(); }
-
-protected:
-
-    /**
-     * Set parent JSON element for this array
-     * @param parent            Parent JSON element
-     */
-    void setParent(Element* parent);
 };
 
 }}
