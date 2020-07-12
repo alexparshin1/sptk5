@@ -169,7 +169,7 @@ public:
     /**
      * Reports true if in transaction
      */
-    int inTransaction()
+    int inTransaction() const
     {
         return m_connection->inTransaction();
     }

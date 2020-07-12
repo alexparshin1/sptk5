@@ -130,7 +130,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
                 if (m_int64timestamps) {
                     htonq_inplace((uint64_t*) &mcs,(uint64_t*) param->conversionBuffer());
                 } else {
-                    double dt = mcs / 1E6;
+                    double dt = double(mcs) / 1E6;
                     htonq_inplace((uint64_t*) (void*) &dt,(uint64_t*) param->conversionBuffer());
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_TIMESTAMP);

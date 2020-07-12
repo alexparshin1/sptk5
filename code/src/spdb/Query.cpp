@@ -165,11 +165,12 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
         // Started string constant
         const char* nextQuote = strchr(paramStart + 1, '\'');
         if (nextQuote == nullptr) {
+            // Quote opened but never closed?
             paramEnd = nullptr;
-            return false;  // Quote opened but never closed?
+        } else {
+            sql += string(paramEnd, nextQuote - paramEnd + 1);
+            paramEnd = nextQuote + 1;
         }
-        sql += string(paramEnd, nextQuote - paramEnd + 1);
-        paramEnd = nextQuote + 1;
         return false;
     }
 
@@ -177,11 +178,12 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
         // Started inline comment '--comment text', jump to the end of comment
         const char* endOfRow = strchr(paramStart + 1, '\n');
         if (endOfRow == nullptr) {
+            // Comment at the end of last row
             paramEnd = nullptr;
-            return false;  // Comment at the end of last row
+        } else {
+            sql += string(paramEnd, endOfRow - paramEnd + 1);
+            paramEnd = endOfRow + 1;
         }
-        sql += string(paramEnd, endOfRow - paramEnd + 1);
-        paramEnd = endOfRow + 1;
         return false;
     }
 
@@ -189,11 +191,12 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
         // Started C-style block comment, jump to the end of comment
         const char* endOfRow = strstr(paramStart + 1, "*/");
         if (endOfRow == nullptr) {
+            // Comment never closed
             paramEnd = nullptr;
-            return false;  // Comment never closed
+        } else {
+            sql += string(paramEnd, endOfRow - paramEnd + 2);
+            paramEnd = endOfRow + 2;
         }
-        sql += string(paramEnd, endOfRow - paramEnd + 2);
-        paramEnd = endOfRow + 2;
         return false;
     }
 

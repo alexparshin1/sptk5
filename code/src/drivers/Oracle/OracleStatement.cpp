@@ -328,7 +328,7 @@ void OracleStatement::execute(bool inTransaction)
     }
 }
 
-void OracleStatement::getBLOBOutputParameter(unsigned int index, DatabaseField* field)
+void OracleStatement::getBLOBOutputParameter(unsigned int index, DatabaseField* field) const
 {
     Blob blob = statement()->getBlob(index);
     blob.open(OCCI_LOB_READONLY);
@@ -342,7 +342,7 @@ void OracleStatement::getBLOBOutputParameter(unsigned int index, DatabaseField* 
     field->setDataSize(bytes);
 }
 
-void OracleStatement::getCLOBOutputParameter(unsigned int index, DatabaseField* field)
+void OracleStatement::getCLOBOutputParameter(unsigned int index, DatabaseField* field) const
 {
     Clob clob = statement()->getClob(index);
     clob.open(OCCI_LOB_READONLY);
@@ -410,7 +410,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
     }
 }
 
-void OracleStatement::getDateTimeOutputParameter(unsigned int index, DatabaseField* field)
+void OracleStatement::getDateTimeOutputParameter(unsigned int index, DatabaseField* field) const
 {
     int      year;
     unsigned month;
@@ -426,7 +426,7 @@ void OracleStatement::getDateTimeOutputParameter(unsigned int index, DatabaseFie
     field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));
 }
 
-void OracleStatement::getDateOutputParameter(unsigned int index, DatabaseField* field)
+void OracleStatement::getDateOutputParameter(unsigned int index, DatabaseField* field) const
 {
     int year;
     unsigned month;

@@ -110,7 +110,7 @@ namespace sptk {
             ++m_currentRow;
         }
 
-        bool eof()
+        [[nodiscard]] bool eof() const
         {
             return m_currentRow >= m_rows;
         }

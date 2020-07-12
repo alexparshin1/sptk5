@@ -72,7 +72,7 @@ void BufferStorage::append(char ch)
 void BufferStorage::append(const char* data, size_t sz)
 {
     if (sz == 0)
-        sz = (size_t) strlen(data);
+        sz = strlen(data);
 
     checkSize(m_bytes + sz + 1);
     if (data != nullptr) {

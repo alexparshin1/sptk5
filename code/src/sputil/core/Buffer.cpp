@@ -122,7 +122,7 @@ Buffer& Buffer::operator = (const String& other)
 
 Buffer& Buffer::operator = (const char* str)
 {
-    set(str, (size_t) strlen(str));
+    set(str, strlen(str));
 
     return *this;
 }

@@ -287,7 +287,7 @@ void MySQLStatement::setParameterValues()
         throwMySQLError();
 }
 
-void MySQLStatement::MySQLStatement::prepare(const String& sql)
+void MySQLStatement::MySQLStatement::prepare(const String& sql) const
 {
     if (mysql_stmt_prepare(statement(), sql.c_str(), sql.length()) != 0)
         throwMySQLError();

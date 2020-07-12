@@ -124,7 +124,7 @@ public:
      * Prepares MySQL statement
      * @param sql const std::string, statement SQL
      */
-    void prepare(const String& sql);
+    void prepare(const String& sql) const;
 
     /**
      * Executes statement

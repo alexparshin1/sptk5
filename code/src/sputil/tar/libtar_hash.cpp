@@ -51,7 +51,7 @@ libtar_str_hashfunc(const char* key, unsigned int num_buckets)
     if (key == NULL)
         return 0;
 
-    for (i = 0; *key != '\0' && i < 32; i++)
+    for (i = 0; *key != '\0' && i < 32; ++i)
         result = result * 33U + *key++;
 
     return (result % num_buckets);
@@ -133,7 +133,7 @@ libtar_hash_next(libtar_hash_t *h,
            hp->bucket);
 #endif
 
-    for (hp->bucket++; hp->bucket < h->numbuckets; hp->bucket++)
+    for (hp->bucket++; hp->bucket < h->numbuckets; ++hp->bucket)
     {
 #ifdef LIBTAR_DEBUG2
         printf("    libtar_hash_next(): "
@@ -191,7 +191,7 @@ libtar_hash_del(libtar_hash_t *h,
     }
 
     libtar_list_del(h->table[hp->bucket], &(hp->node));
-    h->nents--;
+    --h->nents;
     return 0;
 }
 
@@ -204,7 +204,7 @@ libtar_hash_empty(libtar_hash_t *h, libtar_freefunc_t freefunc)
 {
     int i;
 
-    for (i = 0; i < h->numbuckets; i++)
+    for (i = 0; i < h->numbuckets; ++i)
         if (h->table[i] != nullptr)
             libtar_list_empty(h->table[i], freefunc);
 
@@ -220,7 +220,7 @@ libtar_hash_free(libtar_hash_t *h, libtar_freefunc_t freefunc)
 {
     int i;
 
-    for (i = 0; i < h->numbuckets; i++)
+    for (i = 0; i < h->numbuckets; ++i)
         if (h->table[i] != nullptr)
             libtar_list_free(h->table[i], freefunc);
 
@@ -329,7 +329,7 @@ libtar_hash_add(libtar_hash_t *h, void *data)
 #endif
     i = libtar_list_add(h->table[bucket], data);
     if (i == 0)
-        h->nents++;
+        ++h->nents;
     return i;
 }
 

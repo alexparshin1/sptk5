@@ -512,9 +512,9 @@ public:
      * @returns parameter
      * @see CParamList
      */
-    QueryParameter& param(uint32_t paramIndex) const
+    QueryParameter& param(size_t paramIndex) const
     {
-        return m_params[int32_t(paramIndex)];
+        return m_params[paramIndex];
     }
 
     /**

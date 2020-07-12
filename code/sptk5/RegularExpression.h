@@ -357,7 +357,7 @@ private:
 #endif
 
     int32_t                 m_options {0};          ///< PCRE pattern options
-    std::atomic<size_t>     m_captureCount {0};     ///< RE' capture count
+    std::atomic<size_t>     m_captureCount {0};   ///< RE' capture count
 
     /**
      * Initialize PCRE expression

@@ -39,7 +39,7 @@ namespace sptk {
  */
 
 /**
- * @brief XML exception
+ * XML exception
  *
  * XML extension throws XMLException type exceptions.
  * You should catch always at least these type of exceptions, when processing XML.
@@ -60,7 +60,7 @@ public:
     {}
 
     /**
-     * @brief Copy constructor
+     * Copy constructor
      * @param other             Other exception object
      */
     explicit XMLException(const TimeoutException& other)
@@ -68,9 +68,9 @@ public:
     {}
 
     /**
-     * @brief Destructor
+     * Destructor
      */
-    ~XMLException() noexcept
+    ~XMLException() noexcept override
     {}
 };
 /**

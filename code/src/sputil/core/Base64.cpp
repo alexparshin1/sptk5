@@ -124,8 +124,10 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 
     dest.reset();
 
-    while (in_len-- && (encoded_string[in_] != '=') && is_base64((uint8_t) encoded_string[in_])) {
-        char_array_4[i++] = (uint8_t) encoded_string[in_];
+    while (in_len && (encoded_string[in_] != '=') && is_base64((uint8_t) encoded_string[in_])) {
+        --in_len;
+        char_array_4[i] = (uint8_t) encoded_string[in_];
+        ++i;
         ++in_;
         if (i == 4) {
             for (i = 0; i < 4; ++i)

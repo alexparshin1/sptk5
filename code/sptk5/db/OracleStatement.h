@@ -160,14 +160,14 @@ private:
      * @param index             Column number
      * @param field             Field
      */
-    void getBLOBOutputParameter(unsigned int index, DatabaseField* field);
+    void getBLOBOutputParameter(unsigned int index, DatabaseField* field) const;
 
     /**
      * Read CLOB field
      * @param index             Column number
      * @param field             Field
      */
-    void getCLOBOutputParameter(unsigned int index, sptk::DatabaseField* field);
+    void getCLOBOutputParameter(unsigned int index, sptk::DatabaseField* field) const;
 
     /**
      * Set CLOB parameter value
@@ -232,9 +232,9 @@ private:
      */
     void setIntParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
 
-    void getDateOutputParameter(unsigned int index, DatabaseField* field);
+    void getDateOutputParameter(unsigned int index, DatabaseField* field) const;
 
-    void getDateTimeOutputParameter(unsigned int index, DatabaseField* field);
+    void getDateTimeOutputParameter(unsigned int index, DatabaseField* field) const;
 };
 
 }

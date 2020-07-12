@@ -271,7 +271,7 @@ void MD5::update(const unsigned char input[], size_type length)
 
     // Update number of bits
     if ((count[0] += (length << 3)) < (length << 3))
-        count[1]++;
+        ++count[1];
     count[1] += (length >> 29);
 
     // number of bytes we need to fill in buffer
