@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/SystemException.h>
+#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
@@ -56,4 +57,17 @@ string SystemException::osError()
     string osError = strerror(errno);
     return osError;
 #endif
+}
+
+TEST(SPTK_SystemException, openFile)
+{
+    Buffer buffer;
+    try {
+        buffer.loadFromFile("/xx.xx");
+        FAIL() << "MUST FAIL";
+    }
+    catch (const Exception& e) {
+        if (String(e.what()).find("xx.xx") == string::npos)
+            FAIL() << e.what();
+    }
 }

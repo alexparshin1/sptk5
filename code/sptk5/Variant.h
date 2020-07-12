@@ -627,6 +627,11 @@ public:
      */
     void save(xml::Node* node) const;
 
+    /**
+     * Saves the data into JSON element
+     * @param node              JSON element to save data into
+     */
+    void save(json::Element* node) const;
 };
 
 /**

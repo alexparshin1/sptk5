@@ -26,9 +26,8 @@
 
 #include <cmath>
 #include <sptk5/Field.h>
-#include <sptk5/json/JsonElement.h>
+#include <sptk5/json/JsonDocument.h>
 #include <sptk5/Variant.h>
-
 
 using namespace std;
 using namespace sptk;
@@ -1088,6 +1087,8 @@ void Variant::load(const json::Element* element)
 void Variant::save(xml::Node* node) const
 {
     String stringValue(asString());
+
+    node->clear();
     node->setAttribute("type", typeName(dataType()));
 
     if (!stringValue.empty()) {
@@ -1113,6 +1114,11 @@ void Variant::save(xml::Node* node) const
                 break;
         }
     }
+}
+
+void Variant::save(json::Element* node) const
+{
+    *node = asString();
 }
 
 #if USE_GTEST
@@ -1312,4 +1318,46 @@ TEST(SPTK_Variant, toString)
     EXPECT_STREQ(dtStr.c_str(), v5.asString().c_str());
 }
 
+TEST(SPTK_Variant, money)
+{
+    Variant money(10001234,4);
+    EXPECT_EQ((int) money.getMoney(), 1000);
+    EXPECT_STREQ(money.asString().c_str(), "1000.1234");
+    money.setMoney(200055,2);
+    EXPECT_STREQ(money.asString().c_str(), "2000.55");
+    EXPECT_EQ(VAR_MONEY, Variant::nameType("money"));
+    EXPECT_STREQ("money", Variant::typeName(VAR_MONEY).c_str());
+}
+
+TEST(SPTK_Variant, json)
+{
+    const char* json = R"({ "value": 12345 })";
+    json::Document document;
+    document.load(json);
+    auto& node = document.root()["value"];
+
+    Variant v;
+    v.load(&node);
+    EXPECT_EQ(v.asInteger(), 12345);
+
+    v = 123456;
+    v.save(&node);
+    EXPECT_STREQ(node.getString().c_str(), "123456");
+}
+
+TEST(SPTK_Variant, xml)
+{
+    const char* xml = "<value>12345</value>";
+    xml::Document document;
+    document.load(xml);
+    auto* node = document.findFirst("value");
+
+    Variant v;
+    v.load(node);
+    EXPECT_EQ(v.asInteger(), 12345);
+
+    v = 123456;
+    v.save(node);
+    EXPECT_STREQ(node->text().c_str(), "123456");
+}
 #endif
