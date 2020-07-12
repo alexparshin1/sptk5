@@ -65,7 +65,7 @@ bool ImapConnect::getResponse(const String& ident)
             return true;
         if (longLine.find(ident) == 0) {
             auto p = (uint32_t) ident.length();
-            while (longLine[p] == ' ') p++;
+            while (longLine[p] == ' ') ++p;
             switch (longLine[p]) {
                 case 'O': // OK
                     return true;
@@ -91,7 +91,7 @@ String ImapConnect::sendCommand(const String& cmd)
 {
     String command(cmd);
     char id_str[10];
-	int len = snprintf(id_str, sizeof(id_str), "a%03i ", m_ident++);
+	int len = snprintf(id_str, sizeof(id_str), "a%03i ", ++m_ident);
     String ident(id_str, (size_t) len);
     command = ident + cmd + "\n";
     if (!active())
@@ -150,7 +150,7 @@ void ImapConnect::cmd_select(const String& mail_box, int32_t& total_msgs)
 void ImapConnect::parseSearch(String& result)
 {
     result = "";
-    for (auto& st: m_response) {
+    for (const auto& st: m_response) {
         if (st.find("* SEARCH") == 0)
             result += st.substr(8, st.length());
     }
@@ -273,7 +273,7 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
 {
     results.clear();
     size_t i;
-    for (i = 0; required_headers[i] != nullptr; i++) {
+    for (i = 0; required_headers[i] != nullptr; ++i) {
         String headerName = required_headers[i];
         auto *fld = new Field(lowerCase(headerName).c_str());
         if (i == 0)
@@ -285,8 +285,8 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
 
     // parse headers
     i = 1;
-    for (; i < m_response.size() - 1; i++) {
-        String &st = m_response[i];
+    for (; i < m_response.size() - 1; ++i) {
+        const String &st = m_response[i];
         if (st.empty())
             break;
         String header_name;
@@ -305,7 +305,7 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
         }
     }
 
-    for (i = 0; i < results.size(); i++) {
+    for (i = 0; i < results.size(); ++i) {
         Field &field = results[int(i)];
         if (field.dataType() == VAR_NONE)
             field.setString("");
@@ -314,7 +314,7 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
     if (headers_only) return;
 
     String body;
-    for (; i < m_response.size() - 1; i++)
+    for (; i < m_response.size() - 1; ++i)
         body += m_response[i] + "\n";
 
     Field &bodyField = results.push_back(new Field("body"));
@@ -340,7 +340,7 @@ String ImapConnect::cmd_fetch_flags(int32_t msg_id)
     size_t count = m_response.size() - 1;
     if (count > 0) {
         size_t i = 0;
-        String &st = m_response[i];
+        const String &st = m_response[i];
         const char *fpos = strstr(st.c_str(), "(\\");
         if (fpos == nullptr)
             return "";
@@ -369,7 +369,7 @@ void ImapConnect::parseFolderList()
 {
     Strings folder_names;
     String prefix = "* LIST ";
-    for (auto& st: m_response) {
+    for (const auto& st: m_response) {
         if (st.find(prefix) == 0) {
             // passing the attribute(s)
             const char *p = strstr(st.c_str() + prefix.length(), ") ");
@@ -377,7 +377,7 @@ void ImapConnect::parseFolderList()
             // passing the reference
             p = strchr(p + 2, ' ');
             if (p == nullptr) continue;
-            p++;
+            ++p;
             // Ok, we found the path
             folder_names.push_back(strip_framing_quotes(p));
         }

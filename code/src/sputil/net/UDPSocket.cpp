@@ -116,13 +116,13 @@ TEST(SPTK_UDPSocket, minimal)
     UDPSocket socket;
 
     int rowCount = 0;
-    for (auto& row: rows) {
+    for (const auto& row: rows) {
         socket.write(row.c_str(), row.length(), &serverAddr);
         buffer.bytes(0);
         if (socket.readyToRead(chrono::seconds(3)))
             socket.read(buffer.data(), 2048);
         EXPECT_STREQ(row.c_str(), buffer.c_str());
-        rowCount++;
+        ++rowCount;
     }
     EXPECT_EQ(4, rowCount);
 

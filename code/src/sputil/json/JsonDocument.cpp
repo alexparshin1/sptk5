@@ -365,7 +365,7 @@ TEST(SPTK_JsonDocument, errors)
         document.load(junkTailJSON);
         FAIL() << "Incorrect: MUST fail";
     }
-    catch (const Exception& e) {
+    catch (const Exception&) {
         ++errorCount;
     }
 
@@ -375,7 +375,7 @@ TEST(SPTK_JsonDocument, errors)
         document.load(junkInsideJSON);
         FAIL() << "Incorrect: MUST fail";
     }
-    catch (const Exception& e) {
+    catch (const Exception&) {
         ++errorCount;
     }
 
@@ -391,7 +391,7 @@ TEST(SPTK_JsonDocument, errors)
             FAIL() << "Incorrect: MUST fail";
         FAIL() << "Incorrect: MUST fail";
     }
-    catch (const Exception& e) {
+    catch (const Exception&) {
         ++errorCount;
     }
 

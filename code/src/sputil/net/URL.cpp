@@ -128,7 +128,7 @@ TEST(SPTK_URL, all)
 TEST(SPTK_URL, loop)
 {
     size_t numIterations = 100;
-    for (size_t i = 0; i < numIterations; i++)
+    for (size_t i = 0; i < numIterations; ++i)
         URL url(testURL0);
 }
 

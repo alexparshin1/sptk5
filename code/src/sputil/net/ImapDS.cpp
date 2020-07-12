@@ -48,7 +48,7 @@ bool ImapDS::open()
     if (total_messages != 0) {
         if (m_callback != nullptr)
             m_callback(total_messages, 0);
-        for (long msg_id = first_message; msg_id <= total_messages; msg_id++) {
+        for (long msg_id = first_message; msg_id <= total_messages; ++msg_id) {
             auto* df = new FieldList(false);
 
             if (m_fetchbody)

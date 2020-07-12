@@ -77,7 +77,7 @@ string ContentTypes::type(const string& fileName)
 {
     const char* extension = strrchr(fileName.c_str(), '.');
     if (extension != nullptr) {
-        extension++;
+        ++extension;
         if (strlen(extension) > 4)
             return "application/octet-stream";
         const auto itor = m_contentTypes.find(extension);
@@ -207,7 +207,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     }
 
     Strings sl(m_attachments, ";");
-    for (auto& attachment: sl) {
+    for (const auto& attachment: sl) {
         String attachmentAlias(attachment);
         const char* separator = "\\";
         if (attachment.find('/') != STRING_NPOS)

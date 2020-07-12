@@ -230,7 +230,7 @@ String Host::toString(bool forceAddress) const
     if (forceAddress) {
         char buffer[128];
 
-        void *addr;
+        const void *addr;
         // Get the pointer to the address itself, different fields in IPv4 and IPv6
         if (any().sa_family == AF_INET) {
             addr = (void*) &(ip_v4().sin_addr);

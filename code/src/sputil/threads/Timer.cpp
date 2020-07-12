@@ -47,40 +47,6 @@ public:
 
 class TimerThread : public Thread
 {
-    typedef map<Timer::EventId, Timer::Event, EventIdComparator> EventMap;
-
-    mutex       m_scheduledMutex;
-    EventMap    m_scheduledEvents;
-    Semaphore   m_semaphore;
-
-    DateTime nextWakeUp()
-    {
-        lock_guard<mutex> lock(m_scheduledMutex);
-        if (m_scheduledEvents.empty())
-            return DateTime::Now() + seconds(1);
-        else {
-            auto itor = m_scheduledEvents.begin();
-            return itor->first.when;
-        }
-    }
-
-    bool popFrontEvent(Timer::Event& event)
-    {
-        lock_guard<mutex> lock(m_scheduledMutex);
-        if (m_scheduledEvents.empty())
-            return false;
-        else {
-            auto itor = m_scheduledEvents.begin();
-            event = itor->second;
-            m_scheduledEvents.erase(itor);
-            return true;
-        }
-    }
-
-protected:
-
-    void threadFunction() override;
-
 public:
     void terminate() override;
 
@@ -117,11 +83,47 @@ public:
         m_scheduledEvents.erase(event->getId());
     }
 
-    void forget(set<Timer::Event>& events)
+    void forget(const set<Timer::Event>& events)
     {
         lock_guard<mutex> lock(m_scheduledMutex);
         for (auto event: events)
             m_scheduledEvents.erase(event->getId());
+    }
+
+protected:
+
+    void threadFunction() override;
+
+private:
+
+    typedef map<Timer::EventId, Timer::Event, EventIdComparator> EventMap;
+
+    mutex       m_scheduledMutex;
+    EventMap    m_scheduledEvents;
+    Semaphore   m_semaphore;
+
+    DateTime nextWakeUp()
+    {
+        lock_guard<mutex> lock(m_scheduledMutex);
+        if (m_scheduledEvents.empty())
+            return DateTime::Now() + seconds(1);
+        else {
+            auto itor = m_scheduledEvents.begin();
+            return itor->first.when;
+        }
+    }
+
+    bool popFrontEvent(Timer::Event& event)
+    {
+        lock_guard<mutex> lock(m_scheduledMutex);
+        if (m_scheduledEvents.empty())
+            return false;
+        else {
+            auto itor = m_scheduledEvents.begin();
+            event = itor->second;
+            m_scheduledEvents.erase(itor);
+            return true;
+        }
     }
 };
 
@@ -133,19 +135,19 @@ atomic<uint64_t>            Timer::nextSerial;
 int                         eventAllocations;
 
 Timer::EventId::EventId(const DateTime& when)
-: serial(nextSerial++), when(when)
+: serial(++nextSerial), when(when)
 {
 }
 
 Timer::EventData::EventData(const DateTime& timestamp, Callback& eventCallback, milliseconds repeatEvery, int repeatCount)
 : m_id(timestamp), m_callback(eventCallback), m_repeatInterval(repeatEvery), m_repeatCount(repeatCount)
 {
-    eventAllocations++;
+    ++eventAllocations;
 }
 
 Timer::EventData::~EventData()
 {
-    eventAllocations--;
+    --eventAllocations;
 }
 
 const Timer::EventId& Timer::EventData::getId() const
@@ -166,7 +168,7 @@ bool Timer::EventData::fire()
         return false;
 
     if (m_repeatCount > 0) {
-        m_repeatCount--;
+        --m_repeatCount;
         if (m_repeatCount == 0)
             return false;
     }
@@ -272,7 +274,7 @@ void Timer::cancel()
 static void gtestTimerCallback(void* eventData)
 {
     int& eventSet = *(int *) eventData;
-    eventSet++;
+    ++eventSet;
 }
 
 TEST(SPTK_Timer, repeat)
@@ -317,7 +319,7 @@ TEST(SPTK_Timer, fireOnce)
         DateTime::Now() + milliseconds(10),
         [&counter, &counterMutex]() {
             lock_guard<mutex> lock(counterMutex);
-            counter++;
+            ++counter;
         }
     );
 
@@ -337,7 +339,7 @@ TEST(SPTK_Timer, repeatTwice)
             milliseconds(10),
             [&counter, &counterMutex]() {
                 lock_guard<mutex> lock(counterMutex);
-                counter++;
+                ++counter;
             },
             2
     );
@@ -355,7 +357,7 @@ TEST(SPTK_Timer, repeatMultipleEvents)
         Timer timer;
 
         vector<Timer::Event> createdEvents;
-        for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
+        for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex) {
             eventData[eventIndex] = eventIndex;
             function<void()> callback = bind(gtestTimerCallback2, (void*)eventIndex);
             Timer::Event event = timer.repeat(milliseconds(20), callback);
@@ -364,7 +366,7 @@ TEST(SPTK_Timer, repeatMultipleEvents)
 
         this_thread::sleep_for(milliseconds(110));
 
-        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
+        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex) {
             Timer::Event event = createdEvents[eventIndex];
             timer.cancel(event);
         }
@@ -372,7 +374,7 @@ TEST(SPTK_Timer, repeatMultipleEvents)
         this_thread::sleep_for(milliseconds(20));
 
         int totalEvents(0);
-        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
+        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex) {
             lock_guard<mutex> lock(eventCounterMutex);
             totalEvents += eventCounter[eventIndex];
         }
@@ -394,7 +396,7 @@ TEST(SPTK_Timer, repeatMultipleTimers)
     }
 
     for (auto& timer: timers) {
-        for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
+        for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex) {
             function<void()> callback = bind(gtestTimerCallback2, (void*)eventIndex);
             timer.repeat(
                     milliseconds(10),
@@ -466,7 +468,7 @@ TEST(SPTK_Timer, scheduleEventsPerformance)
     when = when + hours(1);
 
     stopwatch.start();
-    for (size_t eventIndex = 0; eventIndex < maxEvents; eventIndex++) {
+    for (size_t eventIndex = 0; eventIndex < maxEvents; ++eventIndex) {
         function<void()> callback = bind(gtestTimerCallback2, (void*)eventIndex);
         Timer::Event event = timer.fireAt(when, callback);
         createdEvents.push_back(event);

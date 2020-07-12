@@ -141,7 +141,7 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
             eol = true;
             bytesToRead = (int) len;
             if (delimiter == 0)
-                bytesToRead++;
+                ++bytesToRead;
             if (cr != nullptr)
                 *cr = 0;
         }

@@ -130,7 +130,7 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout)
     if (eventCount < 0)
         return;
 
-    for (int i = 0; i < eventCount && m_pool != INVALID_EPOLL; i++) {
+    for (int i = 0; i < eventCount && m_pool != INVALID_EPOLL; ++i) {
         epoll_event& event = events[i];
         if ((event.events & (EPOLLHUP | EPOLLRDHUP)) != 0)
             m_eventsCallback(event.data.ptr, ET_CONNECTION_CLOSED);

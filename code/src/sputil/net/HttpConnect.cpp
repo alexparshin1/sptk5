@@ -98,7 +98,7 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
     headers.push_back(command + " HTTP/1.1");
     headers.push_back("HOST: " + m_socket.host().toString(false));
 
-    for (auto& itor: m_requestHeaders)
+    for (const auto& itor: m_requestHeaders)
         headers.push_back(itor.first + ": " + itor.second);
 
     if (authorization && !authorization->method().empty())

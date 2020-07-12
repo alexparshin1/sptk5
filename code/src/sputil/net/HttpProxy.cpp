@@ -46,7 +46,7 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
 
     Strings methods("CONNECT|GET", "|");
     bool proxyConnected = false;
-    for (auto& method: methods) {
+    for (const auto& method: methods) {
         try {
             socket->open(m_host, BaseSocket::SOM_CONNECT, blockingMode, timeout);
             sendRequest(destination, socket, method);
@@ -69,7 +69,7 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
     return handle;
 }
 
-bool HttpProxy::readResponse(shared_ptr<TCPSocket>& socket) const
+bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket) const
 {
     bool proxyConnected {false};
     Buffer buffer;
@@ -107,7 +107,7 @@ bool HttpProxy::readResponse(shared_ptr<TCPSocket>& socket) const
     return proxyConnected;
 }
 
-void HttpProxy::sendRequest(const Host& destination, shared_ptr<TCPSocket>& socket, const String& method) const
+void HttpProxy::sendRequest(const Host& destination, const shared_ptr<TCPSocket>& socket, const String& method) const
 {
     socket->write(method + " " + destination.toString() + " HTTP/1.1\r\n");
     socket->write("Proxy-Connection: keep-alive\r\n");
@@ -190,7 +190,7 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
     return windowsGetDefaultProxy(proxyHost, proxyUser, proxyPassword);
 #else
     RegularExpression matchProxy(R"(^(http://)?((\S+)(:\S+)@)?(\S+:\d+)$)");
-    char* proxyEnv = getenv("http_proxy");
+    const char* proxyEnv = getenv("http_proxy");
     if (proxyEnv == nullptr)
         proxyEnv = getenv("HTTP_PROXY");
     if (proxyEnv == nullptr)

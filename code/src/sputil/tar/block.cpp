@@ -33,7 +33,7 @@ int th_read_internal(TAR *t)
         /* two all-zero blocks mark EOF */
         if (t->th_buf.name[0] == '\0')
         {
-            num_zero_blocks++;
+            ++num_zero_blocks;
             if (!BIT_ISSET(t->options, TAR_IGNORE_EOT)
                 && num_zero_blocks >= 2)
                 return 0;    /* EOF */
@@ -123,7 +123,7 @@ int th_read(TAR *t)
             return -1;
 
         for (ptr = t->th_buf.gnu_longlink; j > 0;
-             j--, ptr += T_BLOCKSIZE)
+             --j, ptr += T_BLOCKSIZE)
         {
 #ifdef LIBTAR_DEBUG
             printf("    th_read(): reading long linkname "
@@ -165,7 +165,7 @@ int th_read(TAR *t)
             return -1;
 
         for (ptr = t->th_buf.gnu_longname; j > 0;
-             j--, ptr += T_BLOCKSIZE)
+             --j, ptr += T_BLOCKSIZE)
         {
             i = tar_block_read(t, ptr);
             if (i != T_BLOCKSIZE)

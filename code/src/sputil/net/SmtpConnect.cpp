@@ -224,7 +224,7 @@ void SmtpConnect::sendMessage()
     rcpts = rcpts.replace("[, ]+", ";");
     Strings recepients(rcpts, ";");
     auto cnt = (uint32_t) recepients.size();
-    for (uint32_t i = 0; i < cnt; i++) {
+    for (uint32_t i = 0; i < cnt; ++i) {
         String address = trim(recepients[i]);
         if (address[0] == 0) continue;
         rc = command("RCPT TO:<" + parseAddress(recepients[i]) + ">");

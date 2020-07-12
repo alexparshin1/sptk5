@@ -58,7 +58,7 @@ void Semaphore::post()
 {
     lock_guard<mutex>  lock(m_lockMutex);
     if (m_maxValue == 0 || m_value < m_maxValue) {
-        m_value++;
+        ++m_value;
         m_condition.notify_one();
     }
 }
@@ -82,7 +82,7 @@ bool Semaphore::sleep_until(DateTime timeoutAt)
 {
     unique_lock<mutex>  lock(m_lockMutex);
 
-    m_waiters++;
+    ++m_waiters;
 
     // Wait until semaphore value is greater than 0
     while (!m_terminated) {
@@ -91,15 +91,15 @@ bool Semaphore::sleep_until(DateTime timeoutAt)
                                     [this]() { return m_value > 0; }))
         {
             if (timeoutAt < DateTime::Now()) {
-                m_waiters--;
+                --m_waiters;
                 return false;
             }
         } else
             break;
     }
 
-    m_value--;
-    m_waiters--;
+    --m_value;
+    --m_waiters;
 
     return true;
 }

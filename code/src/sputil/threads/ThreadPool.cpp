@@ -96,7 +96,7 @@ public:
         while (!terminated()) {
             int item;
             if (intQueue.pop(item, chrono::milliseconds(10))) {
-                m_count++;
+                ++m_count;
             }
             this_thread::sleep_for(chrono::milliseconds(1));
         }
@@ -113,19 +113,19 @@ TEST(SPTK_ThreadPool, run)
     auto* threadPool = new ThreadPool(16, std::chrono::milliseconds(60), "test thread pool");
 
     // Creating several tasks
-    for (i = 0; i < 5; i++)
+    for (i = 0; i < 5; ++i)
         tasks.push_back(new MyTask);
 
-    for (i = 0; i < tasks.size(); i++)
+    for (i = 0; i < tasks.size(); ++i)
         threadPool->execute(tasks[i]);
 
-    for (int value = 0; value < 100; value++)
+    for (int value = 0; value < 100; ++value)
         intQueue.push(value);
 
     this_thread::sleep_for(chrono::milliseconds(300));
 
     EXPECT_EQ(size_t(5), tasks.size());
-    for (auto* task: tasks)
+    for (const auto* task: tasks)
         EXPECT_NEAR(20, task->count(), 10);
 
     EXPECT_EQ(size_t(5), threadPool->size());

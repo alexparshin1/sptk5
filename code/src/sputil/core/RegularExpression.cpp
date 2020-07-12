@@ -348,7 +348,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
                 for (int i = 0; i < nameCount; ++i) {
                     size_t n = size_t( (tabptr[0] << 8) | tabptr[1] );
                     String name(tabptr + 2, nameEntrySize - 3);
-                    auto& match = matchData.matches[n];
+                    const auto& match = matchData.matches[n];
                     if (match.m_start >= 0 && n < matchCount) {
                         String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
                         matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
@@ -408,7 +408,7 @@ Strings RegularExpression::split(const String& text) const
             break;
 
         for (size_t matchIndex = 0; matchIndex < matchCount; ++matchIndex) {
-            Match& match = matchData.matches[matchIndex];
+            const Match& match = matchData.matches[matchIndex];
             matchedStrings.push_back(string(text.c_str() + lastMatchEnd, size_t(match.m_start - lastMatchEnd)));
             lastMatchEnd = match.m_end;
         }
@@ -454,7 +454,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
             auto placeHolderIndex = (size_t) string2int(outputPattern.c_str() + placeHolderStart);
             size_t placeHolderEnd = outputPattern.find_first_not_of("0123456789", placeHolderStart);
             if (placeHolderIndex < matchCount) {
-                Match& match = matchData.matches[placeHolderIndex];
+                const Match& match = matchData.matches[placeHolderIndex];
                 const char* matchPtr = text.c_str() + match.m_start;
                 nextReplacement += string(matchPtr, size_t(match.m_end) - size_t(match.m_start));
             }

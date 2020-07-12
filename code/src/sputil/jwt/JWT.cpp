@@ -295,7 +295,7 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
     Buffer newData_buffer(len + 4);
     newData = newData_buffer.data();
 
-    for (i = 0; i < len; i++) {
+    for (i = 0; i < len; ++i) {
         switch (src[i]) {
             case '-':
                 newData[i] = '+';
@@ -309,7 +309,7 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
     }
     z = 4 - (i % 4);
     if (z < 4) {
-        while (z--)
+        while (--z)
             newData[i++] = '=';
     }
     newData[i] = '\0';
@@ -333,7 +333,7 @@ void sptk::jwt_base64uri_encode(Buffer& buffer)
     size_t i;
     size_t t;
 
-    for (i = t = 0; i < len; i++) {
+    for (i = t = 0; i < len; ++i) {
         switch (str[i]) {
             case '+':
                 str[t++] = '-';
@@ -389,7 +389,7 @@ static void jwt_verify_head(JWT *jwt, const Buffer& head)
 {
     json::Document jsdoc;
     jwt_b64_decode_json(jsdoc, head);
-    json::Element* js = &jsdoc.root();
+    const json::Element* js = &jsdoc.root();
 
     String val = JWT::get_js_string(js, "alg");
     jwt->alg = JWT::str_alg(val.c_str());
@@ -421,7 +421,7 @@ void JWT::decode(const char *token, const String& _key)
     } parts[3] = {};
 
     size_t index = 0;
-    for (const char* data = token; data != nullptr && index < 3; index++) {
+    for (const char* data = token; data != nullptr && index < 3; ++index) {
         parts[index].data = data;
         const char* end = strchr(data, '.');
         if (end == nullptr) {

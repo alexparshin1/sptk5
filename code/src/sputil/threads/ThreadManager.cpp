@@ -149,13 +149,13 @@ public:
 
     void join() override
     {
-        joinCounter++;
+        ++joinCounter;
     }
 
 protected:
     void threadFunction() override
     {
-        taskCounter++;
+        ++taskCounter;
         sleep_for(milliseconds(10));
     }
 };
@@ -170,7 +170,7 @@ TEST(SPTK_ThreadManager, minimal)
 
     threadManager->start();
 
-    for (size_t i = 0; i < maxThreads; i++) {
+    for (size_t i = 0; i < maxThreads; ++i) {
         auto thread = new ThreadManagerTestThread("thread " + to_string(i), threadManager);
         thread->run();
     }

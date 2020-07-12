@@ -35,7 +35,7 @@ String MailMessageBody::stripHtml(const String& origHtml)
     Strings html(origHtml, "<");
 
     // Remove comments and scripts
-    for (size_t i = 0; i < html.size(); i++) {
+    for (size_t i = 0; i < html.size(); ++i) {
         string& str = html[i];
         size_t pos = str.find('>');
         if (pos == STRING_NPOS)
@@ -43,7 +43,7 @@ String MailMessageBody::stripHtml(const String& origHtml)
         str = str.substr(pos + 1);
         if (str.empty()) {
             html.erase(html.begin() + i, html.begin() + i);
-            i--;
+            --i;
         }
     }
 

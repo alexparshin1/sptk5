@@ -44,9 +44,9 @@ public:
 
     static bool getDefaultProxy(Host& proxyHost, String& proxyUser, String& proxyPassword);
 
-    void sendRequest(const Host& destination, std::shared_ptr<TCPSocket>& socket, const String& method) const;
+    void sendRequest(const Host& destination, const std::shared_ptr<TCPSocket>& socket, const String& method) const;
 
-    bool readResponse(std::shared_ptr<TCPSocket>& socket) const;
+    bool readResponse(const std::shared_ptr<TCPSocket>& socket) const;
 };
 
 }

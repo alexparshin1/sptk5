@@ -182,17 +182,17 @@ bool MemoryDS::find(const Variant& position)
         case VAR_INT:
             if (position.asInteger() < (int) cnt) {
                 m_currentIndex = position.asInteger();
-                m_current = (FieldList*) m_list[m_currentIndex];
+                m_current = m_list[m_currentIndex];
                 return true;
             }
             break;
         case VAR_STRING:
             name = position.asString();
             for (i = 0; i < cnt; ++i) {
-                FieldList& entry = *(FieldList*) m_list[i];
+                FieldList& entry = *m_list[i];
                 if (entry["Name"].asString() == name) {
                     m_currentIndex = i;
-                    m_current = (FieldList*) m_list[m_currentIndex];
+                    m_current = m_list[m_currentIndex];
                     return true;
                 }
             }

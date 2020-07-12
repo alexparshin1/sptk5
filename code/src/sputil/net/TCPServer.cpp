@@ -144,7 +144,7 @@ void TCPServer::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable
 class EchoConnection : public TCPServerConnection
 {
 public:
-    EchoConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* connectionAddress)
+    EchoConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
     : TCPServerConnection(server, connectionSocket, connectionAddress)
     {
     }
@@ -219,13 +219,13 @@ TEST(SPTK_TCPServer, minimal)
                   "The session is terminated when this row is received", "\n");
 
     int rowCount = 0;
-    for (auto& row: rows) {
+    for (const auto& row: rows) {
         socket.write(row + "\n");
         buffer.bytes(0);
         if (socket.readyToRead(chrono::seconds(3)))
             socket.readLine(buffer);
         EXPECT_STREQ(row.c_str(), buffer.c_str());
-        rowCount++;
+        ++rowCount;
     }
     EXPECT_EQ(4, rowCount);
 

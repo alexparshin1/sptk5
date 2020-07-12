@@ -63,7 +63,7 @@ String Url::encode(const String& str)
                     break;
             }
         }
-        src++;
+        ++src;
     }
     return String(buffer.c_str(), buffer.bytes());
 }
@@ -77,11 +77,11 @@ String Url::decode(const String& str)
         switch (*src) {
             case '+':
                 buffer.append(' ');
-                src++;
+                ++src;
                 break;
 
             case '%':
-                src++;
+                ++src;
                 dest = char(hexCharToInt((unsigned char)*src) * 16 + hexCharToInt((unsigned char)src[1]));
                 buffer.append(dest);
                 src += 2;
@@ -89,7 +89,7 @@ String Url::decode(const String& str)
 
             default:
                 buffer.append(*src);
-                src++;
+                ++src;
                 break;
         }
     }
@@ -98,7 +98,7 @@ String Url::decode(const String& str)
 
 HttpParams::HttpParams(std::initializer_list<std::pair<String, String>> lst)
 {
-    for (auto& itor: lst) {
+    for (const auto& itor: lst) {
         operator[](itor.first) = itor.second;
     }
 }
@@ -108,7 +108,7 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
     clear();
 
     Strings sl(cb.data(),"&");
-    for (auto& s: sl) {
+    for (const auto& s: sl) {
         size_t pos = s.find('=');
         if (pos != string::npos) {
             string key = s.substr(0, pos);
@@ -129,7 +129,7 @@ void HttpParams::encode(Buffer& result) const
         if (cnt != 0)
             result.append('&');
         result.append(param);
-        cnt++;
+        ++cnt;
     }
 }
 

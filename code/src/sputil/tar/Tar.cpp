@@ -67,7 +67,7 @@ MemoryTarHandle* Tar::tarMemoryHandle(int handle)
 
 int Tar::mem_open(const char*, int, ...)
 {
-    lastTarHandle++;
+    ++lastTarHandle;
     auto* memHandle = new MemoryTarHandle;
     (*tarHandleMap)[lastTarHandle] = memHandle;
     return lastTarHandle;
@@ -157,7 +157,7 @@ bool Tar::loadFile()
 
 void Tar::throwError(string fileName)
 {
-    char* ptr = strerror(errno);
+    const char* ptr = strerror(errno);
     if (fileName.empty())
         throw Exception(ptr);
     throw Exception(fileName + ": " + string(ptr));
@@ -223,14 +223,14 @@ TEST(SPTK_Tar, read)
     ASSERT_EQ(0, system(("mkdir " + gtestTempDirectory).c_str()));
 
     Buffer file1;
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 1000; ++i) {
         file1.append((const char*)&i, sizeof(i));
     }
     file1.saveToFile(gtestTempDirectory + "/file1.txt");
     EXPECT_STREQ(file1_md5.c_str(), md5(file1).c_str());
 
     Buffer file2;
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 1000; ++i) {
         file2.append("ABCDEFG HIJKLMN OPQRSTUV\n");
     }
     file2.saveToFile(gtestTempDirectory + "/file2.txt");
