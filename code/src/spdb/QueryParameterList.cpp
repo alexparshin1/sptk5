@@ -100,7 +100,7 @@ void QueryParameterList::remove(uint32_t i)
     delete item;
 }
 
-void QueryParameterList::enumerate(CParamVector& params)
+void QueryParameterList::enumerate(CParamVector& params) const
 {
     params.resize(m_items.size() * 2);
 

@@ -105,9 +105,9 @@ int main()
 
         // Here is the example of using parameters by index.
         // This is the even faster than stream
-        step2Query.param(uint32_t(0)) = 3;
-        step2Query.param(uint32_t(1)) = "Anonymous";
-        step2Query.param(uint32_t(2)) = "Manager";
+        step2Query.param(size_t(0)) = 3;
+        step2Query.param(1) = "Anonymous";
+        step2Query.param(2) = "Manager";
         step2Query.exec();
 
         // And, finally - the fastest method: using CParam& variables.

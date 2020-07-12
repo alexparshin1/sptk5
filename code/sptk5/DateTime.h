@@ -209,16 +209,6 @@ public:
     DateTime& operator=(const DateTime& date) = default;
 
     /**
-     * Addition, a duration of time
-     */
-    DateTime operator+(const duration& dt);
-
-    /**
-     * Substruction, a duration of time
-     */
-    DateTime operator-(const duration& dt);
-
-    /**
      * Print the date into stream
      * @param str               Output stream
      * @param printFlags        Print flags, recognised { PF_GMT, PF_RFC_DATE }

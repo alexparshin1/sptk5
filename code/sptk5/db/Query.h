@@ -499,8 +499,7 @@ public:
      *
      * If the parameter name isn't found, throws an exception
      * @param paramName         Parameter name
-     * @returns parameter
-     * @see CParamList
+     * @returns parameter reference
      */
     QueryParameter& param(const String& paramName) const
     {
@@ -509,8 +508,8 @@ public:
 
     /**
      * Returns the parameter by the index.
-     * @returns parameter
-     * @see CParamList
+     * @param paramIndex        Parameter index
+     * @returns parameter reference
      */
     QueryParameter& param(size_t paramIndex) const
     {

@@ -39,7 +39,7 @@ void QueryParameter::bindAdd(uint32_t bindIndex)
     m_bindParamIndexes.push_back(bindIndex);
 }
 
-uint32_t QueryParameter::bindCount()
+uint32_t QueryParameter::bindCount() const
 {
     return (uint32_t) m_bindParamIndexes.size();
 }

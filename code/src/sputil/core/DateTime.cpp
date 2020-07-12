@@ -41,7 +41,7 @@ class SP_EXPORT DateTimeFormat
 public:
     DateTimeFormat() noexcept;
 
-    void init() noexcept;
+    void init() const noexcept;
 
     static char parseDateOrTime(String& format, const String& dateOrTime);
 };
@@ -197,7 +197,7 @@ DateTimeFormat::DateTimeFormat() noexcept
     init();
 }
 
-void DateTimeFormat::init() noexcept
+void DateTimeFormat::init() const noexcept
 {
     char dateBuffer[32];
     char timeBuffer[32];
@@ -643,19 +643,6 @@ DateTime::DateTime(const time_point& dt) noexcept
 DateTime::DateTime(const duration& dt) noexcept
 : m_dateTime(dt)
 {
-}
-
-//----------------------------------------------------------------
-// Date Arithmetic
-//----------------------------------------------------------------
-DateTime DateTime::operator+(const duration& dt)
-{
-    return DateTime(m_dateTime + dt);
-}
-
-DateTime DateTime::operator-(const duration& dt)
-{
-    return DateTime(m_dateTime - dt);
 }
 
 namespace sptk {

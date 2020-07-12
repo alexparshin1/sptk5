@@ -134,7 +134,7 @@ public:
 
 private:
 
-    BROTLI_BOOL HasMoreInput()
+    BROTLI_BOOL HasMoreInput() const
     {
         return inputData.eof() ? BROTLI_FALSE : BROTLI_TRUE;
     }

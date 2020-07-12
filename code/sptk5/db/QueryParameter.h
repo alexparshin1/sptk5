@@ -30,20 +30,21 @@
 #include <sptk5/db/QueryParameterBinding.h>
 #include <sptk5/IntList.h>
 
-namespace sptk
-{
+namespace sptk {
 
 class QueryParameterList;
 
 /**
- * @brief SQL query parameter.
+ * SQL query parameter.
  *
  * Simplifies the ODBC parameter binding.
  * Automatically handles most of the data conversions on assignments.
  */
-class SP_EXPORT QueryParameter : public Variant
+class SP_EXPORT QueryParameter
+        : public Variant
 {
     friend class Query;
+
     friend class QueryParameterList;
 
 public:
@@ -52,188 +53,202 @@ public:
 
 
     /**
-     * @brief Clears internal parameter binding index
+     * Clears internal parameter binding index
      */
     void bindClear();
 
     /**
-     * @brief Adds internal parameter binding index
+     * Adds internal parameter binding index
      */
     void bindAdd(uint32_t bindIndex);
 
     /**
-     * @brief Returns internal parameter binding count
+     * Returns internal parameter binding count
      */
-    uint32_t bindCount();
+    uint32_t bindCount() const;
 
     /**
-     * @brief Returns the parameter bing position by index in the binding list
+     * Returns the parameter bing position by index in the binding list
      */
     uint32_t bindIndex(uint32_t ind);
 
     /**
-     * @brief Returns the internal small conversion buffer used to convert the date structure to SPTK.
+     * Returns the internal small conversion buffer used to convert the date structure to SPTK.
      *
      * Please, don't use it directly.
      */
-    char* conversionBuffer() {
+    char* conversionBuffer()
+    {
         return m_timeData;
     }
 
     /**
-     * @brief An integer reserved to callback parameter data length
+     * An integer reserved to callback parameter data length
      */
-    int32_t& callbackLength() {
+    int32_t& callbackLength()
+    {
         return m_callbackLength;
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param name char *, parameter name
      * @param isOutput bool, parameter binding type: input or output
      */
-    explicit QueryParameter(const char* name, bool isOutput=false);
+    explicit QueryParameter(const char* name, bool isOutput = false);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     ~QueryParameter() override;
 
     /**
-     * @brief Returns parameter name
+     * Returns parameter name
      */
     String name() const;
 
     /**
-     * @brief Set parameter type to output
+     * Set parameter type to output
      */
     void setOutput();
 
     /**
-     * @brief Assign operator
+     * Assign operator
      */
-    QueryParameter& operator = (const Variant& param);
+    QueryParameter& operator=(const Variant& param);
 
     /**
-     * @brief Assign operator
+     * Assign operator
      */
-    QueryParameter& operator = (int16_t v) {
-        setInteger(v);
-        return *this;
-    }
-
-    /**
-     * @brief Assign operator
-     */
-    QueryParameter& operator = (uint16_t v) {
-        setInteger(v);
-        return *this;
-    }
-
-    /**
-     * @brief Assign operator
-     */
-    QueryParameter& operator = (int32_t v)  override
+    QueryParameter& operator=(int16_t v)
     {
         setInteger(v);
         return *this;
     }
 
     /**
-     * @brief Assign operator
+     * Assign operator
      */
-    QueryParameter& operator = (uint32_t v) {
-        setInteger((int32_t)v);
+    QueryParameter& operator=(uint16_t v)
+    {
+        setInteger(v);
         return *this;
     }
 
     /**
-     * @brief Assign operator
+     * Assign operator
      */
-    QueryParameter& operator = (int64_t v) override
+    QueryParameter& operator=(int32_t v) override
+    {
+        setInteger(v);
+        return *this;
+    }
+
+    /**
+     * Assign operator
+     */
+    QueryParameter& operator=(uint32_t v)
+    {
+        setInteger((int32_t) v);
+        return *this;
+    }
+
+    /**
+     * Assign operator
+     */
+    QueryParameter& operator=(int64_t v) override
     {
         setInt64(v);
         return *this;
     }
 
     /**
-     * @brief Assign operator
+     * Assign operator
      */
-    QueryParameter& operator = (uint64_t v)
+    QueryParameter& operator=(uint64_t v)
     {
-        setInt64((int64_t)v);
+        setInt64((int64_t) v);
         return *this;
     }
 
     /**
-     * @brief Assign operator
+     * Assign operator
      */
-    QueryParameter& operator = (float v) {
-        setFloat(v);
-        return *this;
-    }
-
-    /**
-     * @brief Assign operator
-     */
-    QueryParameter& operator = (double v) override
+    QueryParameter& operator=(float v)
     {
         setFloat(v);
         return *this;
     }
 
     /**
-     * @brief Assign operator
+     * Assign operator
      */
-    QueryParameter& operator = (const char* s) override {
+    QueryParameter& operator=(double v) override
+    {
+        setFloat(v);
+        return *this;
+    }
+
+    /**
+     * Assign operator
+     */
+    QueryParameter& operator=(const char* s) override
+    {
         setString(s, 0);
         return *this;
     }
 
     /**
-     * @brief Assign operator
+     * Assign operator
      */
-    QueryParameter& operator = (const std::string& s) {
+    QueryParameter& operator=(const std::string& s)
+    {
         setString(s.c_str(), s.length());
         return *this;
     }
 
     /**
-     * @brief Assign operator
+     * Assign operator
      */
-    QueryParameter& operator = (DateTime dt) override {
+    QueryParameter& operator=(DateTime dt) override
+    {
         setDateTime(dt);
         return *this;
     }
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
-    virtual QueryParameter& operator = (const void* value) override {
+    virtual QueryParameter& operator=(const void* value) override
+    {
         setImagePtr(value);
         return *this;
     }
 
     /**
-     * @brief Assign operator
+     * Assign operator
      * @param buffer             Data buffer
      */
-    QueryParameter& operator = (const Buffer& buffer) override {
+    QueryParameter& operator=(const Buffer& buffer) override
+    {
         setBuffer(buffer.c_str(), buffer.bytes());
         return *this;
     }
 
     /**
-     * @brief String assignment method
+     * String assignment method
      *
      * In contrast to CVariant::setString() method, this method
      * tries not to decrease the allocated buffer.
      * @param value const char*, string to assign
      */
-    virtual void setString(const char* value) { setString(value, 0); }
+    virtual void setString(const char* value)
+    {
+        setString(value, 0);
+    }
 
     /**
-     * @brief String assignment method
+     * String assignment method
      *
      * In contrast to CVariant::setString() method, this method
      * tries not to decrease the allocated buffer.
@@ -243,20 +258,22 @@ public:
     virtual void setString(const char* value, size_t maxlen);
 
     /**
-     * @brief String assignment method
+     * String assignment method
      *
      * In contrast to CVariant::setString() method, this method
      * tries not to decrease the allocated buffer.
      * @param value const string&, string to assign
      */
-    virtual void setString(const String& value) override {
-        setString(value.c_str(), (uint32_t)value.length());
+    virtual void setString(const String& value) override
+    {
+        setString(value.c_str(), (uint32_t) value.length());
     }
 
     /**
-     * @brief Returns true if parameter is output parameter
+     * Returns true if parameter is output parameter
      */
-    bool isOutput() const {
+    bool isOutput() const
+    {
         return m_binding.m_output;
     }
 
@@ -264,11 +281,11 @@ public:
 
 private:
 
-    String              m_name;                 ///< Parameter name
-    IntList             m_bindParamIndexes;     ///< The list of SQL query parameter numbers with this name
-    char                m_timeData[80] {};      ///< Special memory allocated for time structures
-    int32_t             m_callbackLength {0};   ///< An integer reserved to callback parameter data length
-    QueryParameterList* m_paramList {nullptr};  ///< Parent param list used for notifications
+    String m_name;                 ///< Parameter name
+    IntList m_bindParamIndexes;     ///< The list of SQL query parameter numbers with this name
+    char m_timeData[80]{};      ///< Special memory allocated for time structures
+    int32_t m_callbackLength{0};   ///< An integer reserved to callback parameter data length
+    QueryParameterList* m_paramList{nullptr};  ///< Parent param list used for notifications
 };
 
 /**

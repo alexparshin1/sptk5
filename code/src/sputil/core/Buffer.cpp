@@ -127,14 +127,14 @@ Buffer& Buffer::operator = (const char* str)
     return *this;
 }
 
-bool Buffer::operator==(const Buffer& other)
+bool Buffer::operator==(const Buffer& other) const
 {
     if (bytes() != other.bytes())
         return false;
     return memcmp(data(), other.data(), bytes()) == 0;
 }
 
-bool Buffer::operator!=(const Buffer& other)
+bool Buffer::operator!=(const Buffer& other) const
 {
     if (bytes() != other.bytes())
         return true;

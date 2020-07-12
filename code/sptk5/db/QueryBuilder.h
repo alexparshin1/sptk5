@@ -39,14 +39,14 @@ public:
     class Join
     {
     public:
-        Join(String tableAlias, Strings columns, String join);
+        Join(const String& tableAlias, const Strings& columns, const String& join);
 
         const String  tableAlias;
         const Strings columns;
         const String  joinDefinition;
     };
 
-    QueryBuilder(String tableName, String pkColumn, Strings columns={}, std::vector<Join>  joins={});
+    QueryBuilder(const String& tableName, const String& pkColumn, const Strings& columns={}, const std::vector<Join>& joins={});
     virtual ~QueryBuilder() = default;
 
     virtual String selectSQL(const Strings& filter, const Strings& columns, bool pretty) const;

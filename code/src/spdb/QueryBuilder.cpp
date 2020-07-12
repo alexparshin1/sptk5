@@ -33,17 +33,17 @@
 using namespace std;
 using namespace sptk;
 
-QueryBuilder::Join::Join(String tableAlias, Strings columns, String join)
-: tableAlias(move(tableAlias)), columns(move(columns)), joinDefinition(move(join))
+QueryBuilder::Join::Join(const String& tableAlias, const Strings& columns, const String& join)
+: tableAlias(tableAlias), columns(columns), joinDefinition(join)
 {
 }
 
-QueryBuilder::QueryBuilder(String tableName, String pkColumn, Strings columns,
-                           std::vector<Join>  joins)
-: m_tableName(move(tableName)),
-  m_pkColumn(move(pkColumn)),
-  m_columns(move(columns)),
-  m_joins(std::move(joins))
+QueryBuilder::QueryBuilder(const String& tableName, const String& pkColumn, const Strings& columns,
+                           const vector<Join>& joins)
+: m_tableName(tableName),
+  m_pkColumn(pkColumn),
+  m_columns(columns),
+  m_joins(joins)
 {
     static const RegularExpression matchEpressionAndAlias(R"(^.*\s(\S+))");
     m_columns.remove(m_pkColumn);

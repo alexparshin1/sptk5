@@ -54,7 +54,7 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
 
         size_t count = 1000;
         for (size_t i = 0; i < count; i++) {
-            insertQuery.param((uint32_t) 0) = i;
+            insertQuery.param((std::size_t) 0) = i;
             insertQuery.param("person_name") = "John Doe";
             insertQuery.param("position_name") = "lead engineer";
             insertQuery.exec();
@@ -189,9 +189,9 @@ int main(int argc, const char* argv[])
         // Params should come in the exact order as they are defined in the query
         // Here is the example of using parameters by index.
         // This is the even faster than stream
-        step2Query.param(uint32_t(0)) = 3;
-        step2Query.param(uint32_t(1)) = "Anonymous";
-        step2Query.param(uint32_t(2)) = "Manager";
+        step2Query.param(size_t(0)) = 3;
+        step2Query.param(1) = "Anonymous";
+        step2Query.param(2) = "Manager";
         step2Query.exec();
 
         // And, finally - the fastest method: using CParam& variables.

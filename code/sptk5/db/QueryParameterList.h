@@ -125,7 +125,7 @@ public:
      * A parameter is included for every parameter position in the query.
      * @param params CParamVector&, parameters vector
      */
-    void enumerate(CParamVector& params);
+    void enumerate(CParamVector& params) const;
 
     /**
      * First parameter iterator
