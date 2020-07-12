@@ -34,6 +34,7 @@
 #include <vector>
 #include <functional>
 #include <atomic>
+#include <memory>
 
 #if HAVE_PCRE2
 #define PCRE2_STATIC
@@ -399,6 +400,8 @@ private:
     size_t findNextPlaceholder(size_t pos, const String& outputPattern) const;
 
 };
+
+typedef std::shared_ptr<RegularExpression> SRegularExpression;
 
 /**
  * @}

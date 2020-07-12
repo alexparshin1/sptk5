@@ -87,7 +87,8 @@ bool MemoryDS::readField(const char* fname, Variant& fvalue)
     SharedLock(m_mutex);
     try {
         fvalue = *(Variant*) &(*this)[fname];
-    } catch (Exception&) {
+    }
+    catch (const Exception&) {
         return false;
     }
     return true;
@@ -99,7 +100,8 @@ bool MemoryDS::writeField(const char* fname, const Variant& fvalue)
     UniqueLock(m_mutex);
     try {
         (*this)[fname] = fvalue;
-    } catch (Exception&) {
+    }
+    catch (const Exception&) {
         return false;
     }
     return true;
@@ -117,7 +119,7 @@ bool MemoryDS::first()
 
     if (!m_list.empty()) {
         m_currentIndex = 0;
-        m_current = (FieldList*) m_list[m_currentIndex];
+        m_current = m_list[m_currentIndex];
         m_eof = false;
         return true;
     }
@@ -132,7 +134,7 @@ bool MemoryDS::last()
     auto cnt = (uint32_t) m_list.size();
     if (cnt != 0) {
         m_currentIndex = cnt - 1;
-        m_current = (FieldList*) m_list[m_currentIndex];
+        m_current = m_list[m_currentIndex];
         m_eof = false;
         return true;
     }
@@ -146,8 +148,8 @@ bool MemoryDS::next()
 
     auto cnt = (uint32_t) m_list.size();
     if (m_currentIndex + 1 < cnt) {
-        m_currentIndex++;
-        m_current = (FieldList*) m_list[m_currentIndex];
+        ++m_currentIndex;
+        m_current = m_list[m_currentIndex];
         m_eof = false;
         return true;
     }
@@ -160,8 +162,8 @@ bool MemoryDS::prior()
     UniqueLock(m_mutex);
 
     if (m_currentIndex > 0) {
-        m_currentIndex--;
-        m_current = (FieldList*) m_list[m_currentIndex];
+        --m_currentIndex;
+        m_current = m_list[m_currentIndex];
         m_eof = false;
         return true;
     }
@@ -186,7 +188,7 @@ bool MemoryDS::find(const Variant& position)
             break;
         case VAR_STRING:
             name = position.asString();
-            for (i = 0; i < cnt; i++) {
+            for (i = 0; i < cnt; ++i) {
                 FieldList& entry = *(FieldList*) m_list[i];
                 if (entry["Name"].asString() == name) {
                     m_currentIndex = i;
@@ -206,8 +208,8 @@ void MemoryDS::clear()
     UniqueLock(m_mutex);
 
     auto cnt = (uint32_t) m_list.size();
-    for (uint32_t i = 0; i < cnt; i++)
-        delete (FieldList*) m_list[i];
+    for (uint32_t i = 0; i < cnt; ++i)
+        delete m_list[i];
     m_list.clear();
     m_current = nullptr;
     m_currentIndex = 0;

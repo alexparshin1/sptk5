@@ -66,7 +66,7 @@ void BufferStorage::append(char ch)
 {
     checkSize(m_bytes + 1);
     m_buffer[m_bytes] = ch;
-    m_bytes++;
+    ++m_bytes;
 }
 
 void BufferStorage::append(const char* data, size_t sz)

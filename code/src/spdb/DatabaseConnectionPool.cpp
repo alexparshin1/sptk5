@@ -345,7 +345,7 @@ TEST(SPTK_PostgreSQLConnection, multiThreading)
                     if (idr != id)
                         COUT(idr << " != " << id << endl)
                     selectNumbers.next();
-                    id ++;
+                    ++id;
                 }
                 selectNumbers.close();
                 sw.stop();

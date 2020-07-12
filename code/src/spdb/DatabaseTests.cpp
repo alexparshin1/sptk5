@@ -440,7 +440,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         throw Exception("Expected result doesn't match inserted data");
 }
 
-size_t DatabaseTests::countRowsInTable(const DatabaseConnection& db, const String& table)
+size_t DatabaseTests::countRowsInTable(DatabaseConnection& db, const String& table)
 {
     Query select(db, "SELECT count(*) cnt FROM " + table);
     select.open();

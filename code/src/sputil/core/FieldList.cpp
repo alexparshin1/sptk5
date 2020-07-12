@@ -47,7 +47,7 @@ FieldList::FieldList(const FieldList& other)
     else
         m_index = nullptr;
 
-    for (auto* otherField: other) {
+    for (const auto* otherField: other) {
         auto* field = new Field(*otherField);
         m_list.push_back(field);
         if (m_index)
@@ -68,7 +68,7 @@ void FieldList::assign(const FieldList& other)
     else
         m_index = nullptr;
 
-    for (auto* otherField: other) {
+    for (const auto* otherField: other) {
         auto* field = new Field(*otherField);
         m_list.push_back(field);
         if (m_index)
@@ -95,7 +95,7 @@ FieldList& FieldList::operator=(const FieldList &other)
 Field& FieldList::push_back(const String& fname, bool checkDuplicates)
 {
     if (checkDuplicates) {
-        Field *pfld = findField(fname);
+        const Field *pfld = findField(fname);
         if (pfld != nullptr)
             throw Exception("Attempt to duplicate field name");
     }
@@ -138,7 +138,7 @@ Field *FieldList::findField(const String& fname) const
 
 void FieldList::toXML(xml::Node& node) const
 {
-    for (auto* field: *this)
+    for (const auto* field: *this)
         field->toXML(node, m_compactXmlMode);
 }
 

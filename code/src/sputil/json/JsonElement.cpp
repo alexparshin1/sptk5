@@ -120,7 +120,7 @@ static String JsonNumberToString(double number)
         len = snprintf(buffer, sizeof(buffer) - 1, "%1.8f", number);
         const char* ptr = buffer + len - 1;
         while (*ptr == '0')
-            ptr--;
+            --ptr;
         len = long(ptr - buffer + 1);
     }
     return String(buffer, (size_t) len);
@@ -260,7 +260,7 @@ void ElementGetMethods::exportValueTo(const String& name, xml::Element& parentNo
 
         case JDT_ARRAY:
             if (data().get_array()) {
-                for (Element* element: *data().get_array())
+                for (const auto* element: *data().get_array())
                     element->exportValueTo(name, parentNode);
             }
             break;
@@ -283,12 +283,12 @@ void ElementGetMethods::exportArray(ostream& stream, bool formatted, size_t inde
     stream << "[";
     if (is(JDT_ARRAY) && data().get_array()) {
         bool first = true;
-        auto& array = *data().get_array();
+        const auto& array = *data().get_array();
         if (array.empty()) {
             stream << "]";
             return;
         }
-        for (Element* element: array) {
+        for (const auto* element: array) {
             if (first) {
                 first = false;
                 stream << firstElement;
@@ -785,7 +785,7 @@ string json::decode(const string& text)
         }
         if (pos != position)
             result += text.substr(position, pos - position);
-        pos++;
+        ++pos;
         switch (text[pos]) {
             case '"':
                 result += '"';
@@ -812,7 +812,7 @@ string json::decode(const string& text)
                 result += '\t';
                 break;
             case 'u':
-                pos++;
+                ++pos;
                 ucharCode = (unsigned) strtol(text.substr(pos, 4).c_str(), nullptr, 16);
                 pos += 3;
                 result += codePointToUTF8(ucharCode);
@@ -839,7 +839,7 @@ Element::XPath::XPath(const sptk::String& _xpath)
     }
     Strings pathElements(xpath, "/");
     RegularExpression parsePathElement(R"(([^\[]+)(\[(\d+|last\(\))\])?)");
-    for (auto& pathElement: pathElements) {
+    for (const auto& pathElement: pathElements) {
         auto matches = parsePathElement.m(pathElement);
         if (!matches)
             throw Exception("Unsupported XPath element");
@@ -970,6 +970,29 @@ TEST(SPTK_JsonElement, export)
     EXPECT_STREQ(testJSON5.c_str(), buffer.c_str());
     document.exportTo(buffer, true);
     EXPECT_STREQ(testJSON6.c_str(), buffer.c_str());
+}
+
+TEST(SPTK_JsonElement, array)
+{
+    json::Document   document;
+
+    document.load(R"([1,2,3,4])");
+
+    auto& array = document.root().getArray();
+    EXPECT_EQ(size_t(4), array.size());
+    EXPECT_EQ(2, (int)array[1].getNumber());
+
+    array.remove(1);
+    EXPECT_EQ(size_t(3), array.size());
+    EXPECT_EQ(3, (int)array[1].getNumber());
+
+    try {
+        auto val = array[3].getNumber();
+        FAIL() << "Got value " << val << ", but expecting out of bound";
+    }
+    catch (const Exception&) {
+        SUCCEED() << "Ok: index out of bound";
+    }
 }
 
 #endif

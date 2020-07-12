@@ -38,9 +38,9 @@ String IntList::toString(const char* separator) const
 
     if (cnt == 0) return s;
 
-    s = int2string((uint32_t) (*this)[0]);
+    s = int2string((*this)[0]);
 
-    for (uint32_t i = 1; i < cnt; i++)
+    for (uint32_t i = 1; i < cnt; ++i)
         s += separator + int2string((int32_t) (*this)[i]);
 
     return s;
@@ -53,6 +53,6 @@ void IntList::fromString(const char* s, const char* separator)
     clear();
     auto cnt = (uint32_t) sl.size();
 
-    for (uint32_t i = 0; i < cnt; i++)
+    for (uint32_t i = 0; i < cnt; ++i)
         push_back((uint32_t) string2int(sl[i]));
 }

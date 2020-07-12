@@ -360,7 +360,7 @@ TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
     String sourceString = "Hello, 'World'.\n\rLet's go\n";
     StopWatch stopWatch;
     stopWatch.start();
-    for (size_t i = 0; i < maxCount; i++)
+    for (size_t i = 0; i < maxCount; ++i)
         escapeSQLString(sourceString, false);
     stopWatch.stop();
     COUT("Escaped " << maxCount << " SQLs " << " for " << stopWatch.seconds() << " sec, "

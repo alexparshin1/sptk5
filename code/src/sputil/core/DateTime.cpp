@@ -135,7 +135,7 @@ char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
             break;
         }
     }
-    char* ptr = dt;
+    const char* ptr = dt;
     // find a separator char
     while (isalnum(*ptr) != 0 || *ptr == ' ')
         ++ptr;
@@ -364,7 +364,7 @@ static void encodeDate(DateTime::time_point& dt, short year, short month, short 
     dt = DateTime::clock::from_time_t(t);
 }
 
-static short splitDateString(char* bdat, short* datePart, char& actualDateSeparator)
+static short splitDateString(const char* bdat, short* datePart, char& actualDateSeparator)
 {
     actualDateSeparator = 0;
 
@@ -392,7 +392,7 @@ static short splitDateString(char* bdat, short* datePart, char& actualDateSepara
 }
 
 
-static short splitTimeString(char* bdat, short* timePart)
+static short splitTimeString(const char* bdat, short* timePart)
 {
     static const RegularExpression matchTime("^([0-2]\\d?):([0-5]\\d):([0-5]\\d)(\\.\\d+)?");
     auto matches = matchTime.m(bdat);
@@ -447,7 +447,7 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
     int tzOffsetMin = 0;
     char* p = strpbrk(bdat, "apzAPZ+-"); // Looking for AM, PM, or timezone
     if (p != nullptr) {
-        char* p1;
+        const char* p1;
         switch (*p) {
             case 'P':
             case 'p':
@@ -648,12 +648,12 @@ DateTime::DateTime(const duration& dt) noexcept
 //----------------------------------------------------------------
 // Date Arithmetic
 //----------------------------------------------------------------
-DateTime DateTime::operator+(duration& dt)
+DateTime DateTime::operator+(const duration& dt)
 {
     return DateTime(m_dateTime + dt);
 }
 
-DateTime DateTime::operator-(duration& dt)
+DateTime DateTime::operator-(const duration& dt)
 {
     return DateTime(m_dateTime - dt);
 }

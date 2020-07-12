@@ -211,12 +211,12 @@ public:
     /**
      * Addition, a duration of time
      */
-    DateTime operator+(duration& dt);
+    DateTime operator+(const duration& dt);
 
     /**
      * Substruction, a duration of time
      */
-    DateTime operator-(duration& dt);
+    DateTime operator-(const duration& dt);
 
     /**
      * Print the date into stream

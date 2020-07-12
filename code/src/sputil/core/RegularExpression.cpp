@@ -257,7 +257,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
     {
         if (m_options == 0)
             return false;      /* All matches found */
-        offset++;              /* Advance one code unit */
+        ++offset;              /* Advance one code unit */
     }
 
     return rc >= 0;
@@ -326,8 +326,8 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
 
         matchedStrings.grow(matchCount);
 
-        for (size_t matchIndex = 1; matchIndex < matchCount; matchIndex++) {
-            Match& match = matchData.matches[matchIndex];
+        for (size_t matchIndex = 1; matchIndex < matchCount; ++matchIndex) {
+            const Match& match = matchData.matches[matchIndex];
             if (match.m_start >= 0)
                 matchedStrings.add(
                         Group(
@@ -345,7 +345,7 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
                 int nameEntrySize;
                 getNameTable(nameTable, nameEntrySize);
                 auto* tabptr = nameTable;
-                for (int i = 0; i < nameCount; i++) {
+                for (int i = 0; i < nameCount; ++i) {
                     size_t n = size_t( (tabptr[0] << 8) | tabptr[1] );
                     String name(tabptr + 2, nameEntrySize - 3);
                     auto& match = matchData.matches[n];
@@ -407,7 +407,7 @@ Strings RegularExpression::split(const String& text) const
         if (matchCount == 0) // No matches
             break;
 
-        for (size_t matchIndex = 0; matchIndex < matchCount; matchIndex++) {
+        for (size_t matchIndex = 0; matchIndex < matchCount; ++matchIndex) {
             Match& match = matchData.matches[matchIndex];
             matchedStrings.push_back(string(text.c_str() + lastMatchEnd, size_t(match.m_start - lastMatchEnd)));
             lastMatchEnd = match.m_end;
@@ -450,7 +450,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
             }
 
             nextReplacement += outputPattern.substr(pos, placeHolderStart - pos);
-            placeHolderStart++;
+            ++placeHolderStart;
             auto placeHolderIndex = (size_t) string2int(outputPattern.c_str() + placeHolderStart);
             size_t placeHolderEnd = outputPattern.find_first_not_of("0123456789", placeHolderStart);
             if (placeHolderIndex < matchCount) {
@@ -517,7 +517,7 @@ String RegularExpression::s(const String& text, std::function<String(const Strin
 size_t RegularExpression::findNextPlaceholder(size_t pos, const String& outputPattern) const
 {
     size_t placeHolderStart = pos;
-    for (;; placeHolderStart++) {
+    for (;; ++placeHolderStart) {
         placeHolderStart = outputPattern.find('\\', placeHolderStart);
         if (placeHolderStart == string::npos || isdigit(outputPattern[placeHolderStart + 1]))
             break;
@@ -660,7 +660,7 @@ TEST(SPTK_RegularExpression, match_performance)
     size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();
-    for (size_t i = 0; i < maxIterations; i++) {
+    for (size_t i = 0; i < maxIterations; ++i) {
         String s(data);
         while (auto matches = match.m(s)) {
             s = s.substr(matches[(size_t)0].value.length());
@@ -680,7 +680,7 @@ TEST(SPTK_RegularExpression, std_match_performance)
     size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();
-    for (size_t i = 0; i < maxIterations; i++) {
+    for (size_t i = 0; i < maxIterations; ++i) {
         string s(data);
         std::smatch color_matches;
         while (std::regex_search(s, color_matches, match)) {
@@ -701,7 +701,7 @@ TEST(SPTK_RegularExpression, asyncExec)
     queue< future<size_t> >     states;
 
     size_t maxThreads = 10;
-    for (size_t n = 0; n < maxThreads; n++) {
+    for (size_t n = 0; n < maxThreads; ++n) {
         future<size_t> f = async(launch::async,[&match]() {
             RegularExpression::Groups matchedStrings;
             auto matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
@@ -720,7 +720,7 @@ TEST(SPTK_RegularExpression, asyncExec)
             if (!states.empty()) {
                 f = move(states.front());
                 states.pop();
-                n++;
+                ++n;
                 gotOne = true;
             }
         }

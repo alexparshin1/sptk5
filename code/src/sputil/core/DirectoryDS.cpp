@@ -73,7 +73,7 @@ string DirectoryDS::getFileType(const struct stat& st, CSmallPixmapType& image, 
             const char* ext = strrchr(fname, '.');
             const char* sep = strrchr(fname, slash);
             if (ext && ext > sep) {
-                ext++;
+                ++ext;
                 image = imageTypeFromExtention(ext);
             }
         }
@@ -129,18 +129,18 @@ String DirectoryDS::absolutePath(const String& _path) const
 #endif
 
     Strings pathItems(fullPath, slashStr);
-    for (unsigned i = 0; i < pathItems.size(); i++) {
+    for (unsigned i = 0; i < pathItems.size(); ++i) {
         if (pathItems[i] == "..") {
             pathItems.remove(i);
-            i--;
+            --i;
             if (i > 0) {
                 pathItems.remove(i);
-                i--;
+                --i;
             }
         }
         if (pathItems[i] == ".") {
             pathItems.remove(i);
-            i--;
+            --i;
         }
     }
 #ifdef _WIN32
@@ -158,9 +158,9 @@ void DirectoryDS::directory(const String& d)
     m_directory = absolutePath(d);
 }
 
-static bool fileMatchesPattern(const String& fileName, vector< shared_ptr<RegularExpression> >& matchPatterns)
+static bool fileMatchesPattern(const String& fileName, const vector<SRegularExpression>& matchPatterns)
 {
-    for (auto& matchPattern: matchPatterns) {
+    for (const auto& matchPattern: matchPatterns) {
         if (matchPattern->matches(fileName))
             return true;
     }
@@ -295,7 +295,7 @@ FieldList* DirectoryDS::makeFileListEntry(const struct stat& st, unsigned& index
     df->push_back("Type", false) = modeName;
     df->push_back("Modified", false) = DateTime::convertCTime(st.st_mtime);
     df->push_back("", false) = (int32_t) index; // Fake key value
-    index++;
+    ++index;
 
     if (access(fullName.c_str(), R_OK) != 0) {
         (*df)[uint32_t(0)].view.flags = FL_ALIGN_LEFT;
@@ -309,7 +309,7 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
     String regexpStr("^");
     bool groupStarted = false;
     bool charClassStarted = false;
-    for (size_t pos = 0; pos < wildcard.length(); pos++) {
+    for (size_t pos = 0; pos < wildcard.length(); ++pos) {
         char ch = wildcard[pos];
 
         if (charClassStarted) {
@@ -344,7 +344,7 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
                 break;
             case '\\':
                 regexpStr += ch;
-                pos++;
+                ++pos;
                 if (pos < wildcard.length())
                     regexpStr += wildcard[pos];
                 break;

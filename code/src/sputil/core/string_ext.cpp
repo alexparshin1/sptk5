@@ -41,7 +41,7 @@ String sptk::upperCase(const String& str)
     string result;
     result.resize(len);
 
-    for (uint32_t i = 0; i < len; i++)
+    for (uint32_t i = 0; i < len; ++i)
         result[i] = (char) toupper(str[i]);
 
     return result;
@@ -53,7 +53,7 @@ String sptk::lowerCase(const String& str)
     string result;
     result.resize(len);
 
-    for (uint32_t i = 0; i < len; i++)
+    for (uint32_t i = 0; i < len; ++i)
         result[i] = (char) tolower(str[i]);
 
     return result;
@@ -70,7 +70,7 @@ String sptk::trim(const String& str)
     int   endpos = int(len - 1);
     bool  found = false;
 
-    for (int i = endpos; i >= 0; i--) {
+    for (int i = endpos; i >= 0; --i) {
         if (s[i] > 32) {
             endpos = i;
             found = true;
@@ -82,7 +82,7 @@ String sptk::trim(const String& str)
         return "";
 
     int startpos = 0;
-    for (int i = 0; i <= endpos; i++) {
+    for (int i = 0; i <= endpos; ++i) {
         if (s[i] > 32) {
             startpos = i;
             break;
@@ -156,7 +156,7 @@ String sptk::double2string(double value)
 {
     char buffer[128];
     int len = snprintf(buffer, sizeof(buffer) - 1, "%f", value);
-    for (int i = len - 1; i > 0; i--) {
+    for (int i = len - 1; i > 0; --i) {
         if (buffer[i] != '0') {
             if (buffer[i] == '.')
                 len = i + 2;
@@ -199,14 +199,14 @@ static void capitalizeWord(char* current, char* wordStart)
     else
         wordStart = current;
 
-    for (char* ptr = wordStart + 1; ptr < current; ptr++)
+    for (char* ptr = wordStart + 1; ptr < current; ++ptr)
         *ptr = (char) tolower(*ptr);
 }
 
 static void lowerCaseWord(char* current, char* wordStart)
 {
     if (wordStart != nullptr) {
-        for (char* ptr = wordStart; ptr < current; ptr++)
+        for (char* ptr = wordStart; ptr < current; ++ptr)
             *ptr = (char) tolower(*ptr);
     }
 }
@@ -233,7 +233,7 @@ String sptk::capitalizeWords(const String& s)
             if (*current == char(0))
                 break;
 
-            current++;
+            ++current;
         }
     }
 

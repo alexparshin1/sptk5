@@ -1,5 +1,5 @@
 /* MD5
- converted to C++ class by Frank Thilo (thilo@unix-ag.org)
+ converted to ++C class by Frank Thilo (thilo@unix-ag.org)
  for bzflag (http://www.bzflag.org)
 
    based on:
@@ -147,7 +147,7 @@ void MD5::init()
 // decodes input (unsigned char) into output (uint4). Assumes len is a multiple of 4.
 void MD5::decode(uint4 output[], const uint1 input[], size_type len)
 {
-    for (unsigned int i = 0, j = 0; j < len; i++, j += 4)
+    for (unsigned int i = 0, j = 0; j < len; ++i, j += 4)
         output[i] = ((uint4) input[j]) | (((uint4) input[j + 1]) << 8) |
                     (((uint4) input[j + 2]) << 16) | (((uint4) input[j + 3]) << 24);
 }
@@ -158,7 +158,7 @@ void MD5::decode(uint4 output[], const uint1 input[], size_type len)
 // a multiple of 4.
 void MD5::encode(uint1 output[], const uint4 input[], size_type len)
 {
-    for (size_type i = 0, j = 0; j < len; i++, j += 4) {
+    for (size_type i = 0, j = 0; j < len; ++i, j += 4) {
         output[j] = input[i] & 0xff;
         output[j + 1] = (input[i] >> 8) & 0xff;
         output[j + 2] = (input[i] >> 16) & 0xff;
@@ -355,12 +355,12 @@ sptk::String MD5::hexdigest() const
     char buf[34];
     auto* ptr = buf;
     auto* digestPtr = digest;
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; ++i) {
         auto high = *digestPtr >> 4;
         auto low = *digestPtr & 0xF;
         *ptr++ = high > 9? high - 10  + 'a': high + '0';
         *ptr++ = low > 9? low - 10 + 'a': low + '0';
-        digestPtr++;
+        ++digestPtr;
     }
     buf[32] = 0;
 
@@ -416,7 +416,7 @@ TEST(SPTK_MD5, performance)
     size_t iterations = 200000;
 
     stopWatch.start();
-    for (size_t i = 0; i < iterations; i++) {
+    for (size_t i = 0; i < iterations; ++i) {
         auto testMD5 = md5(Buffer(testSQL));
     }
     stopWatch.stop();

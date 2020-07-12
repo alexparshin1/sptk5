@@ -295,7 +295,7 @@ void CommandLine::defineArgument(const String& fullName, const String& helpText)
 Strings CommandLine::preprocessArguments(int argc, const char* const* argv)
 {
     Strings args;
-    for (int i = 1; i < argc; i++)
+    for (int i = 1; i < argc; ++i)
         args.push_back(string(argv[i]));
 
     // Pre-process command line arguments
@@ -345,7 +345,7 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
 
         if (arg.startsWith("-")) {
             // Short option name(s)
-            for (unsigned j = 1; j < arg.length(); j++) {
+            for (unsigned j = 1; j < arg.length(); ++j) {
                 string opt = "-" + arg.substr(j, j + 1);
                 digestedArgs.push_back(opt);
             }
@@ -362,7 +362,7 @@ void CommandLine::init(int argc, const char* argv[])
     Strings arguments = preprocessArguments(argc, argv);
     Strings digestedArgs = rewriteArguments(arguments);
 
-    for (unsigned i = 0; i < digestedArgs.size(); i++) {
+    for (unsigned i = 0; i < digestedArgs.size(); ++i) {
         String arg = digestedArgs[i];
         String value;
 
@@ -380,7 +380,7 @@ void CommandLine::init(int argc, const char* argv[])
             if (!element)
                 throw Exception("Command line option or parameter " + arg + " is not supported");
             if (element->hasValue()) {
-                i++;
+                ++i;
                 if (i >= digestedArgs.size())
                     throw Exception("Command line parameter " + arg + " should have value");
                 value = digestedArgs[i];
@@ -426,7 +426,7 @@ const Strings& CommandLine::arguments() const
 void CommandLine::printLine(const String& ch, size_t count)
 {
     stringstream line;
-    for (size_t i = 0; i < count; i++)
+    for (size_t i = 0; i < count; ++i)
         line << ch;
     COUT(line.str() << endl)
 }

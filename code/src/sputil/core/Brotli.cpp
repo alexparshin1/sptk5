@@ -180,7 +180,7 @@ BrotliEncoderState* Context::createEncoderInstance()
     if (input_file_length >= 0) {
         _lgwin = BROTLI_MIN_WINDOW_BITS;
         while (BROTLI_MAX_BACKWARD_LIMIT(_lgwin) < (uint64_t) input_file_length) {
-            _lgwin++;
+            ++_lgwin;
             if (_lgwin == BROTLI_MAX_WINDOW_BITS) break;
         }
     }

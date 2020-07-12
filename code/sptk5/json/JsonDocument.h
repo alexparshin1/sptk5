@@ -85,7 +85,7 @@ public:
     /**
      * Disable copy assignment
      */
-    Document& operator = (const Document&) = delete;
+    Document& operator = (const Document& other);
 
     /**
      * Load document from JSON text, replacing existing document

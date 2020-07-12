@@ -138,7 +138,7 @@ String Field::moneyDataToString(char* printBuffer, size_t printBufferSize) const
 
     if (m_data.getMoneyData().quantity < 0) {
         *formatPtr = '-';
-        formatPtr++;
+        ++formatPtr;
         absValue = -m_data.getMoneyData().quantity;
     } else
         absValue = m_data.getMoneyData().quantity;
