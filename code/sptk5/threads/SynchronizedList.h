@@ -31,6 +31,7 @@
 #include <sptk5/threads/Semaphore.h>
 #include <list>
 #include <mutex>
+#include <functional>
 
 namespace sptk {
 

@@ -92,7 +92,7 @@ public:
     /**
      * Move constructor
      */
-    MySQLStatement(MySQLStatement&) = default;
+    MySQLStatement(MySQLStatement&&) = default;
 
     /**
      * Destructor
@@ -107,7 +107,7 @@ public:
     /**
      * Move assignment
      */
-    MySQLStatement& operator = (MySQLStatement&) = default;
+    MySQLStatement& operator = (MySQLStatement&&) = default;
 
     /**
      * Generates normalized list of parameters
