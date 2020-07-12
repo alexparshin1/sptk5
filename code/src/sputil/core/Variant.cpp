@@ -661,7 +661,7 @@ int32_t VariantAdaptors::asInteger() const
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            return (int32_t) string2int(m_data.getBuffer().data);
+            return string2int(m_data.getBuffer().data);
 
         case VAR_DATE:
         case VAR_DATE_TIME:
@@ -837,7 +837,7 @@ String VariantAdaptors::asString() const
                 return "";
 
         case VAR_DATE:
-            return (String) DateTime(chrono::microseconds(m_data.getInt64())).dateString();
+            return DateTime(chrono::microseconds(m_data.getInt64())).dateString();
 
         case VAR_DATE_TIME:
             return (String) DateTime(chrono::microseconds(m_data.getInt64()));
@@ -862,7 +862,7 @@ String BaseVariant::getMoneyString(char* printBuffer, size_t printBufferSize) co
 
     if (m_data.getMoneyData().quantity < 0) {
         *formatPtr = '-';
-        formatPtr++;
+        ++formatPtr;
         absValue = -m_data.getMoneyData().quantity;
     } else
         absValue = m_data.getMoneyData().quantity;

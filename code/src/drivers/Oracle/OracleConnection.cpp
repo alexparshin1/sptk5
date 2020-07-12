@@ -193,7 +193,7 @@ void OracleConnection::queryPrepare(Query* query)
         CParamVector& enumeratedParams = statement->enumeratedParams();
         unsigned paramIndex = 1;
         Statement* stmt = statement->stmt();
-        auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
+        const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
         if (bulkInsertQuery == nullptr)
             throw Exception("Not a bulk query");
         const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
@@ -278,21 +278,21 @@ Type sptk::VariantTypeToOracleType(VariantType dataType)
         case VAR_INT:
             return (Type) SQLT_INT;
         case VAR_FLOAT:
-            return (Type) OCCIBDOUBLE;
+            return OCCIBDOUBLE;
         case VAR_STRING:
-            return (Type) OCCICHAR;
+            return OCCICHAR;
         case VAR_TEXT:
-            return (Type) OCCICLOB;
+            return OCCICLOB;
         case VAR_BUFFER:
-            return (Type) OCCIBLOB;
+            return OCCIBLOB;
         case VAR_DATE:
-            return (Type) OCCIDATE;
+            return OCCIDATE;
         case VAR_DATE_TIME:
-            return (Type) OCCITIMESTAMP;
+            return OCCITIMESTAMP;
         case VAR_INT64:
-            return (Type) OCCIINT;
+            return OCCIINT;
         case VAR_BOOL:
-            return (Type) OCCIINT;
+            return OCCIINT;
         default: throwException("Unsupported SPTK data type: " << dataType)
     }
 }
@@ -304,7 +304,7 @@ void OracleConnection::queryExecute(Query* query)
         if (!statement)
             throw Exception("Query is not prepared");
         if (query->bulkMode()) {
-            auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
+            const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
             if (bulkInsertQuery == nullptr)
                 throw Exception("Query is not COracleBulkInsertQuery");
             statement->execBulk(getInTransaction(), bulkInsertQuery->lastIteration());
