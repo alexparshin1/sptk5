@@ -148,7 +148,7 @@ Variant CCheckButtons::data() const
     return result;
 }
 
-void CCheckButtons::data(const Variant s)
+void CCheckButtons::data(const Variant& s)
 {
     deselectAllButtons();
     if (m_otherButton)

@@ -563,7 +563,7 @@ Element& Element::operator=(Element&& other) noexcept
     return *this;
 }
 
-Element::~Element()
+Element::~Element() noexcept
 {
     clear();
 }

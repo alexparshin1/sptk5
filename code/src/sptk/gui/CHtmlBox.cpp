@@ -72,7 +72,7 @@ Variant CHtmlBox::data() const
     return ((Fl_Help_View*) m_control)->value();
 }
 
-void CHtmlBox::data(const Variant v)
+void CHtmlBox::data(const Variant& v)
 {
     ((Fl_Help_View*) m_control)->value(v.getString());
 }

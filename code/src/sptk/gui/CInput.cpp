@@ -416,7 +416,7 @@ Variant CInput::data() const
     return ((CInput_*) m_control)->value();
 }
 
-void CInput::data(const Variant s)
+void CInput::data(const Variant& s)
 {
     String strValue = s.asString();
     ((CInput_*) m_control)->value(strValue.c_str());

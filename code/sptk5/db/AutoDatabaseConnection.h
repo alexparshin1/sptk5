@@ -73,7 +73,7 @@ public:
     ~AutoDatabaseConnection();
 
     AutoDatabaseConnection& operator = (const AutoDatabaseConnection&) = delete;
-    AutoDatabaseConnection& operator = (AutoDatabaseConnection&&) = default;
+    AutoDatabaseConnection& operator = (AutoDatabaseConnection&&) = delete;
 
     /**
      * Returns database connection acquired from the connection pool

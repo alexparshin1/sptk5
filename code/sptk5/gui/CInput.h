@@ -43,7 +43,7 @@ namespace sptk {
  */
 
 /**
- * @brief Base input widget
+ * Base input widget
  *
  * Extends the standard Fl_Input with the extra
  * input types for the date, time, and phone input masks. It also
@@ -51,12 +51,14 @@ namespace sptk {
  * In is used mainly as the internal widget in different CControl-derived
  * widgets.
  */
-class SP_EXPORT CInput_ : public Fl_Input, public CLayoutClient {
+class SP_EXPORT CInput_
+        : public Fl_Input, public CLayoutClient
+{
 
     /**
      * Maximum input length
      */
-    int         m_maxLength;
+    int m_maxLength;
 
     /**
      * Full input mask
@@ -77,12 +79,12 @@ class SP_EXPORT CInput_ : public Fl_Input, public CLayoutClient {
     /**
      * Internal check for the character for matching the mask
      */
-    bool checkCharacterAtPos(int pos,char key);
+    bool checkCharacterAtPos(int pos, char key);
 
     /**
      * Internal check for the character for matching the mask
      */
-    bool checkCharacter(int pos,char& key);
+    bool checkCharacter(int pos, char& key);
 
 protected:
 
@@ -100,7 +102,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CInput_(const char * label=0,int layoutSize=20,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CInput_(const char* label = 0, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -119,46 +121,53 @@ public:
      * @param event int, FLTK event
      * @returns true if the event was processed
      */
-    int     handle(int event);
+    int handle(int event);
 
     /**
      * Returns the font size for the input text
      */
-    uchar   textSize() const      {
-        return (uchar)textsize();
+    uchar textSize() const
+    {
+        return (uchar) textsize();
     }
 
     /**
      * Sets the font size for the input text
      */
-    void    textSize(uchar sz)    {
+    void textSize(uchar sz)
+    {
         textsize(sz);
     }
 
     /**
      * Returns the font type for the input text
      */
-    Fl_Font textFont() const      {
+    Fl_Font textFont() const
+    {
         return textfont();
     }
+
     /**
      * Sets the font type for the input text
      */
-    void    textFont(Fl_Font fnt) {
+    void textFont(Fl_Font fnt)
+    {
         textfont(fnt);
     }
 
     /**
      * Returns the maximum length for the input text
      */
-    int     maxLength() const     {
+    int maxLength() const
+    {
         return m_maxLength;
     }
 
     /**
      * Sets the maximum length for the input text
      */
-    void    maxLength(int ml)     {
+    void maxLength(int ml)
+    {
         m_maxLength = ml;
     }
 
@@ -168,24 +177,25 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w,int& h);
+    virtual bool preferredSize(int& w, int& h);
 
     /**
      * Sets the optional mask to the input widget. Passing an empty string as the maskString clears the mask.
      * @param maskString const char *, the mask string.
      */
-    void mask(const char *maskString);
+    void mask(const char* maskString);
 };
 
 /**
- * @brief Text input widget.
+ * Text input widget.
  *
  * Implements the simple single-line input box.
  * While it can be used by itself, it's also a base class for
  * several other SPTK widgets. As CControl descendant it's a
  * layout client.
  */
-class SP_EXPORT CInput : public CControl {
+class SP_EXPORT CInput : public CControl
+{
 
     /**
      * Constructor initializer
@@ -195,65 +205,70 @@ class SP_EXPORT CInput : public CControl {
 protected:
 
     /**
-     * @brief Loads data from query
+     * Loads data from query
      */
-    virtual void load(Query *);
+    void load(Query*) override;
 
     /**
-     * @brief Saves data to query
+     * Saves data to query
      */
-    virtual void save(Query *);
+    void save(Query*) override;
 
     /**
-     * @brief Loads control data from XML
+     * Loads control data from XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void     load(const xml::Node* node,CLayoutXMLmode xmlMode) {
-        CControl::load(node,xmlMode);
+    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override
+    {
+        CControl::load(node, xmlMode);
     }
 
     /**
-     * @brief Saves control data to XML
+     * Saves control data to XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void save(xml::Node* node,CLayoutXMLmode xmlMode) const {
-        CControl::save(node,xmlMode);
+    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override
+    {
+        CControl::save(node, xmlMode);
     }
 
     /**
-     * @brief Returns true if the input data is valid
+     * Returns true if the input data is valid
      */
-    virtual bool valid() const {
+    bool valid() const override
+    {
         return true;
     }
 
     /**
-     * @brief Special internal constructor for derived classes
+     * Special internal constructor for derived classes
      * @param label const char *, label
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      * @param autoCreate bool, if true CControl will create CInput_ widget and make it the main internal widget.
      */
-    CInput(const char *label,int layoutSize,CLayoutAlign layoutAlign,bool autoCreate);
+    CInput(const char* label, int layoutSize, CLayoutAlign layoutAlign, bool autoCreate);
+
 public:
     /**
-     * @brief Constructor in SPTK style
+     * Constructor in SPTK style
      * @param label const char *, label
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CInput(const char *label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CInput(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+
 #ifdef __COMPATIBILITY_MODE__
     /**
-     * @brief Constructor in FLTK style
+     * Constructor in FLTK style
      * @param x int, x-position
      * @param y int, y-position
      * @param w int, width
@@ -262,100 +277,103 @@ public:
      */
     CInput(int,int,int,int,const char * = 0,bool autoCreate=true);
 #endif
+
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~CInput();
 
     /**
-     * @brief Returns input widget input type
+     * Returns input widget input type
      */
     int controlType() const;
 
     /**
-     * @brief Sets input widget input type
+     * Sets input widget input type
      */
     void controlType(int type);
 
     /**
-     * @brief Universal data connection, returns data from control
+     * Universal data connection, returns data from control
      */
-    virtual Variant data() const;
+    Variant data() const override;
 
     /**
-     * @brief Universal data connection, sets data from control
+     * Universal data connection, sets data from control
      */
-    virtual void     data(const Variant v);
+    void data(const Variant& v) override;
 
     /**
-     * @brief Returns the control kind, SPTK-style RTTI
+     * Returns the control kind, SPTK-style RTTI
      * @see CControlKind for more information
      */
-    virtual CControlKind kind() const {
+    CControlKind kind() const override
+    {
         return DCV_STRING;
     }
 
     /**
-     * @brief Returns the control class name, SPTK-style RTTI
+     * Returns the control class name, SPTK-style RTTI
      */
-    virtual String className() const {
+    String className() const override
+    {
         return "input";
     }
 
     /**
-     * @brief Returns the input text font type
+     * Returns the input text font type
      */
-    virtual Fl_Font  textFont() const;
+    Fl_Font textFont() const override;
 
     /**
-     * @brief Sets the input text font type
+     * Sets the input text font type
      */
-    virtual void     textFont(Fl_Font f);
+    void textFont(Fl_Font f) override;
 
     /**
-     * @brief Returns the input text font size
+     * Returns the input text font size
      */
-    virtual uchar    textSize() const;
+    uchar textSize() const override;
 
     /**
-     * @brief Sets the input text font size
+     * Sets the input text font size
      */
-    virtual void     textSize(uchar s);
+    void textSize(uchar s) override;
 
     /**
-     * @brief Returns the input text maximum length, 0 - unlimited
+     * Returns the input text maximum length, 0 - unlimited
      */
-    virtual int      maxLength() const;
+    int maxLength() const override;
 
     /**
-     * @brief Sets the input text maximum length, 0 - unlimited
+     * Sets the input text maximum length, 0 - unlimited
      */
-    virtual void     maxLength(int);
+    void maxLength(int) override;
 
     /**
-     * @brief Computes the optimal widget width
+     * Computes the optimal widget width
      * @param w int&, input - width offered by the program, output - width required by widget
      */
     virtual void preferredWidth(int& w) const;
 
     /**
-     * @brief Computes the optimal widget height
+     * Computes the optimal widget height
      * @param h int&, input - height offered by the program, output - height required by widget
      */
     virtual void preferredHeight(int& h) const;
 
     /**
-     * @brief Computes the optimal widget size
+     * Computes the optimal widget size
      * @param w int&, input - width offered by the program, output - width required by widget
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w,int& h);
+    bool preferredSize(int& w, int& h) override;
 
     /**
-     * @brief Creates a widget based on the XML node information
+     * Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node *node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 /**
  * @}

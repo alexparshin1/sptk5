@@ -86,7 +86,7 @@ public:
     /**
      * @brief Universal data connection, sets data from control
      */
-    void data(const Variant v) override;
+    void data(const Variant& v) override;
 
     /**
      * @brief Returns the control kind, SPTK-style RTTI

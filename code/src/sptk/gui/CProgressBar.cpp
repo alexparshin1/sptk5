@@ -150,7 +150,7 @@ Variant CProgressBar::data() const
     return pb->m_value;
 }
 
-void CProgressBar::data(const Variant v)
+void CProgressBar::data(const Variant& v)
 {
     auto* pb = (CProgressBox*) m_control;
     pb->m_value = (float) v.asFloat();

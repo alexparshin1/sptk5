@@ -68,7 +68,7 @@ Variant CPhoneNumberInput::data() const
     return CInput::data();
 }
 
-void CPhoneNumberInput::data(const Variant ss)
+void CPhoneNumberInput::data(const Variant& ss)
 {
     char* s1 = strdup(ss.asString().c_str());
     auto* p1 = new char[15];

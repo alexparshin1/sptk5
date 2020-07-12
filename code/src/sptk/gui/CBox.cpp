@@ -89,7 +89,7 @@ Variant CBox::data() const
     return m_label.c_str();
 }
 
-void CBox::data(const Variant v)
+void CBox::data(const Variant& v)
 {
     String text = v.asString();
     m_label.resize(text.length());

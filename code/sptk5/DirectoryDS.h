@@ -154,7 +154,7 @@ public:
     /**
      * Opens the directory and fills in the dataset
      */
-    virtual bool open();
+    bool open() override;
 
     /**
      * Creates regular expression from wildcard

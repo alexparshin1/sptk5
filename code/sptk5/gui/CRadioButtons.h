@@ -44,16 +44,20 @@ namespace sptk {
  * A group of radio buttons with an optional
  * edit entry for the 'Other' choice.
  */
-class SP_EXPORT CRadioButtons : public CButtonGroup {
+class SP_EXPORT CRadioButtons
+        : public CButtonGroup
+{
     /**
      * Internal callback function
      */
-    static void radioButtonsCallback(Fl_Widget *,void *);
+    static void radioButtonsCallback(Fl_Widget*, void*);
+
 protected:
     /**
      * Creates a radio button and adds it to the group
      */
-    virtual Fl_Button *createButton(const char *label,int sz=10,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
+    Fl_Button* createButton(const char* label, int sz = 10, CLayoutAlign layoutAlignment = SP_ALIGN_TOP) override;
+
 public:
     /**
      * SPTK-style constructor
@@ -61,7 +65,8 @@ public:
      * @param layoutSize int, the size of widget in layout
      * @param layoutAlignment CLayoutAlign, widget align in the layout
      */
-    CRadioButtons(const char * label=0,int layoutSize=20,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
+    CRadioButtons(const char* label = 0, int layoutSize = 20, CLayoutAlign layoutAlignment = SP_ALIGN_TOP);
+
 #ifdef __COMPATIBILITY_MODE__
     /**
      * FLTK-style constructor
@@ -73,17 +78,20 @@ public:
      */
     CRadioButtons(int,int,int,int,const char * = 0);
 #endif
+
     /**
      * SPTK internal control type
      */
-    virtual CControlKind kind() const {
+    CControlKind kind() const override
+    {
         return DCV_RADIOBUTTONS;
     }
 
     /**
      * SPTK internal class name
      */
-    virtual String className() const {
+    String className() const override
+    {
         return "radio_buttons";
     }
 

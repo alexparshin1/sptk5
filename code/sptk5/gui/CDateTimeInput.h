@@ -229,7 +229,7 @@ public:
      * @brief Universal data connection, returns data from date control.
      * Data is returned as VAR_DATE.
      */
-    virtual Variant data() const override;
+    Variant data() const override;
 
     /**
      * @brief Universal data connection, sets data to date control
@@ -394,7 +394,7 @@ public:
     /**
      * @brief Universal data connection, sets data from control
      */
-    void data(const Variant v) override;
+    void data(const Variant& v) override;
 
     /**
      * @brief Creates a widget based on the XML node information

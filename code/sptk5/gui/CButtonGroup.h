@@ -44,15 +44,17 @@ namespace sptk {
  */
 
 /**
- * @brief Base class for CCheckButtons and CRadioButtons.
+ * Base class for CCheckButtons and CRadioButtons.
  *
  * Implements the most important data communication methods for these button groups.
  */
-class SP_EXPORT CButtonGroup : public CControl {
+class SP_EXPORT CButtonGroup
+        : public CControl
+{
     /**
      * Required group height
      */
-    int         m_maxHeight;
+    int m_maxHeight;
 
     /**
      * Last value of the group (last list of choices)
@@ -62,19 +64,19 @@ class SP_EXPORT CButtonGroup : public CControl {
     /**
      * Button labels for the buttons inside
      */
-    Strings     m_buttonLabels;
+    Strings m_buttonLabels;
 
 protected:
 
     /**
      * The 'Other' Button if requested (add '*' in the button list)
      */
-    Fl_Button  *m_otherButton;
+    Fl_Button* m_otherButton;
 
     /**
      * The 'Other' Input if requested (add '*' in the button list)
      */
-    CInput_    *m_otherInput;
+    CInput_* m_otherInput;
 
 
     /**
@@ -87,7 +89,7 @@ protected:
      * @param buttonLabel const char *, button label
      * @returns button index, or -1 if not found
      */
-    int  buttonIndex(const char *buttonLabel);
+    int buttonIndex(const char* buttonLabel);
 
     /**
      * Deselects all buttons
@@ -97,7 +99,7 @@ protected:
     /**
      * Creates button. Should be implemented in the derived class.
      */
-    virtual Fl_Button *createButton(const char *label,int sz=10,CLayoutAlign layoutAlignment=SP_ALIGN_TOP) = 0;
+    virtual Fl_Button* createButton(const char* label, int sz = 10, CLayoutAlign layoutAlignment = SP_ALIGN_TOP) = 0;
 
     /**
      * Constructor initializer
@@ -110,7 +112,7 @@ protected:
      * @param layoutSize int, the size of widget in layout
      * @param layoutAlignment CLayoutAlign, widget align in the layout
      */
-    CButtonGroup(const char * label=nullptr,int layoutSize=20,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
+    CButtonGroup(const char* label = nullptr, int layoutSize = 20, CLayoutAlign layoutAlignment = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -126,28 +128,31 @@ protected:
 
 public:
     /**
-     * @brief Sets the list of the buttons.
+     * Sets the list of the buttons.
      * @param buttonList Strings, list of the buttons
      */
     void buttons(const Strings& buttonList);
 
     /**
-     * @brief Returns the list of the buttons.
+     * Returns the list of the buttons.
      */
-    const Strings& buttons() const { return m_buttonLabels; }
+    const Strings& buttons() const
+    {
+        return m_buttonLabels;
+    }
 
     /**
-     * @brief Clears the list of buttons.
+     * Clears the list of buttons.
      */
     virtual void clearButtons();
 
     /**
-     * @brief Returns the currently selected button(s) as pipe ('|') separated string
+     * Returns the currently selected button(s) as pipe ('|') separated string
      */
-    virtual Variant data() const;
+    Variant data() const override;
 
     /**
-     * @brief Sets the currently selected button(s)
+     * Sets the currently selected button(s)
      *
      * Buttons are presented as pipe ('|') separated string.
      * If the button group allows only one button to be selected at a time
@@ -156,55 +161,56 @@ public:
     void data(const Variant& v) override;
 
     /**
-     * @brief Loads the the currently selected button(s)
+     * Loads the the currently selected button(s)
      *
      * Buttons should be presented as pipe ('|') separated string.
      */
-    virtual void load(Query *);
+    void load(Query*) override;
 
     /**
-     * @brief Saves the the currently selected button(s)
+     * Saves the the currently selected button(s)
      *
      * Buttons are presented as pipe ('|') separated string
      */
-    virtual void save(Query *);
+    void save(Query*) override;
 
     /**
-     * @brief Loads control data from XML
+     * Loads control data from XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void     load(const xml::Node* node,CLayoutXMLmode xmlMode);
+    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
 
     /**
-     * @brief Saves control data to XML
+     * Saves control data to XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void save(xml::Node* node,CLayoutXMLmode xmlMode) const;
+    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
 
     /**
-     * @brief Tells if the the current data content is valid
+     * Tells if the the current data content is valid
      *
      * Always true for this widget.
      */
-    virtual bool valid() const {
+    bool valid() const override
+    {
         return true;
     }
 
     /**
-     * @brief Computes the preferred size of the button group based on its contents
+     * Computes the preferred size of the button group based on its contents
      * @param w int&, the optimal width 
      * @param h int&, the optimal height 
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w,int& h);
+    bool preferredSize(int& w, int& h) override;
 };
 /**
  * @}

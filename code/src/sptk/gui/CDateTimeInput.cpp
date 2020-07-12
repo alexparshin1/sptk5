@@ -318,7 +318,7 @@ Variant CDateTimeInput::data() const
     return String(dateStr + " " + timeStr);
 }
 
-void CDateTimeInput::data(const Variant s)
+void CDateTimeInput::data(const Variant& s)
 {
     dateTimeValue(s.asDateTime());
 }

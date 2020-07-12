@@ -169,10 +169,10 @@ String ODBCConnection::queryError(SQLHSTMT stmt) const
     *errorDescription = 0;
     *errorState = 0;
 
-    int rc = SQLError(SQL_NULL_HENV, (SQLHDBC) handle(), stmt, errorState, &nativeError, errorDescription,
+    int rc = SQLError(SQL_NULL_HENV, handle(), stmt, errorState, &nativeError, errorDescription,
                       sizeof(errorDescription), &pcnmsg);
     if (rc != SQL_SUCCESS) {
-        rc = SQLError(SQL_NULL_HENV, (SQLHDBC) handle(), nullptr, errorState, &nativeError, errorDescription,
+        rc = SQLError(SQL_NULL_HENV, handle(), nullptr, errorState, &nativeError, errorDescription,
                       sizeof(errorDescription), &pcnmsg);
         if (rc != SQL_SUCCESS && *errorDescription != char(0))
             strncpy((char*) errorDescription, "Unknown error", sizeof(errorDescription));
@@ -190,11 +190,11 @@ void ODBCConnection::queryAllocStmt(Query* query)
 {
     lock_guard<mutex> lock(*m_connect);
 
-    auto* stmt = (SQLHSTMT) query->statement();
+    auto* stmt = query->statement();
     if (stmt != SQL_NULL_HSTMT)
         SQLFreeStmt(stmt, SQL_DROP);
 
-    auto* hdb = (SQLHDBC) handle();
+    auto* hdb = handle();
     int rc = SQLAllocStmt(hdb, &stmt);
 
     if (rc != SQL_SUCCESS) {
@@ -381,7 +381,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                     buff = (void*) param->getString();
                     len = (long) param->dataSize();
                     cblen = len;
-                    rc = SQLBindParameter((SQLHSTMT) query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, SQL_C_BINARY,
+                    rc = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, SQL_C_BINARY,
                                           SQL_LONGVARBINARY, (SQLULEN) len, scale, buff, SQLINTEGER(len), &cblen);
                     if (rc != 0) {
                         param->m_binding.reset(false);
@@ -422,7 +422,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                 len = 0;
             }
 
-            rc = SQLBindParameter((SQLHSTMT) query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, paramType, sqlType, (SQLULEN) len, scale,
+            rc = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, paramType, sqlType, (SQLULEN) len, scale,
                                   buff, SQLINTEGER(len), cbValue);
             if (rc != 0) {
                 param->m_binding.reset(false);
@@ -517,7 +517,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
         if (dataType == VAR_FLOAT && (columnScale < 0 || columnScale > 20))
             columnScale = 0;
 
-        Field* field = new CODBCField(columnNameStr.str(), column, cType, dataType, (int) columnLength, (int) columnScale);
+        Field* field = new CODBCField(columnNameStr.str(), column, cType, dataType, columnLength, columnScale);
         query->fields().push_back(field);
     }
 }
@@ -591,13 +591,13 @@ SQLRETURN ODBCConnection::readStringObBlobField(SQLHSTMT statement, DatabaseFiel
 {
     size_t readSize = field->bufferSize();
     auto* buffer = field->getBuffer();
-    SQLRETURN rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
+    SQLRETURN rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
     if (dataLength > SQLINTEGER(readSize)) { // continue to fetch BLOB data
         field->checkSize(uint32_t(dataLength + 1));
         buffer = field->getBuffer();
         char* offset = buffer + readSize - 1;
         readSize = dataLength - readSize + 2;
-        rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, offset, SQLINTEGER(readSize), nullptr);
+        rc = SQLGetData(statement, column, fieldType, offset, SQLINTEGER(readSize), nullptr);
     }
     return rc;
 }
@@ -606,7 +606,7 @@ SQLRETURN ODBCConnection::readTimestampField(SQLHSTMT statement, DatabaseField* 
                                              int16_t fieldType, SQLLEN& dataLength)
 {
     TIMESTAMP_STRUCT t = {};
-    SQLRETURN rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, (SQLPOINTER) &t, 0, &dataLength);
+    SQLRETURN rc = SQLGetData(statement, column, fieldType, (SQLPOINTER) &t, 0, &dataLength);
     if (dataLength > 0) {
         DateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
         field->setDateTime(dt, field->dataType() == VAR_DATE);
@@ -619,7 +619,7 @@ void ODBCConnection::queryFetch(Query* query)
     if (!query->active())
         THROW_QUERY_ERROR(query, "Dataset isn't open")
 
-    auto* statement = (SQLHSTMT) query->statement();
+    auto* statement = query->statement();
 
     lock_guard<mutex> lock(*m_connect);
 
@@ -747,7 +747,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     SQLHSTMT stmt = nullptr;
     try {
         SQLRETURN rc;
-        auto* hdb = (SQLHDBC) handle();
+        auto* hdb = handle();
         if (SQLAllocStmt(hdb, &stmt) != SQL_SUCCESS)
             throw DatabaseException("CODBCConnection::SQLAllocStmt");
 
