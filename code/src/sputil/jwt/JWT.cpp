@@ -309,8 +309,10 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
     }
     z = 4 - (i % 4);
     if (z < 4) {
-        while (--z)
-            newData[i++] = '=';
+        while (--z) {
+            newData[i] = '=';
+            ++i;
+        }
     }
     newData[i] = '\0';
 
@@ -336,15 +338,19 @@ void sptk::jwt_base64uri_encode(Buffer& buffer)
     for (i = t = 0; i < len; ++i) {
         switch (str[i]) {
             case '+':
-                str[t++] = '-';
+                str[t] = '-';
+                ++t;
                 break;
             case '/':
-                str[t++] = '_';
+                str[t] = '_';
+                ++t;
                 break;
             case '=':
                 break;
             default:
-                str[t++] = str[i];
+                str[t] = str[i];
+                ++t;
+                break;
         }
     }
 
