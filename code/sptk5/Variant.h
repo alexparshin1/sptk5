@@ -352,19 +352,10 @@ public:
      *
      * Useful for the database operations.
      * Releases the memory allocated for string/text/blob types.
-     * Retains the data type. Sets the data to zero(s).
-     */
-    virtual void setNull() { setNull(VAR_NONE); }
-
-    /**
-     * Sets the NULL state
-     *
-     * Useful for the database operations.
-     * Releases the memory allocated for string/text/blob types.
      * Sets the data to zero(s).
      * @param vtype             Optional variant type to enforce
      */
-    virtual void setNull(VariantType vtype);
+    virtual void setNull(VariantType vtype=VAR_NONE);
 
     /**
      * Conversion method

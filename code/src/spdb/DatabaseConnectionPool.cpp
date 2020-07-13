@@ -169,7 +169,7 @@ void DatabaseConnectionPool::load()
     m_loadedDrivers.add(driverNameLC, driver);
 }
 
-DatabaseConnection DatabaseConnectionPool::getConnection()
+[[nodiscard]] DatabaseConnection DatabaseConnectionPool::getConnection()
 {
     return make_shared<AutoDatabaseConnection>(*this);
 }
@@ -207,6 +207,26 @@ void DatabaseConnectionPool::destroyConnection(PoolDatabaseConnection* connectio
 }
 
 #if USE_GTEST
+
+TEST(SPTK_DatabaseConnectionPool, connectString)
+{
+    try {
+        DatabaseConnectionPool connectionPool("xsql://server1/db1");
+        CERR(connectionPool.toString() << endl);
+        FAIL() << "MUST FAIL, incorrect server type";
+    }
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
+
+    try {
+        DatabaseConnectionPool connectionPool("mysql://server1/db1");
+        COUT(connectionPool.toString() << endl);
+    }
+    catch (const Exception& e) {
+        FAIL() << e.what();
+    }
+}
 
 //───────────────────────────────── PostgreSQL ───────────────────────────────────────────
 #if HAVE_POSTGRESQL
@@ -366,6 +386,7 @@ TEST(SPTK_PostgreSQLConnection, multiThreading)
 #endif
 
 //───────────────────────────────── MySQL ────────────────────────────────────────────────
+
 #if HAVE_MYSQL
 
 TEST(SPTK_MySQLConnection, connect)

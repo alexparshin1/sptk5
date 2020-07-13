@@ -116,7 +116,7 @@ public:
      */
     ~DatabaseConnectionPool();
 
-    DatabaseConnection getConnection();
+    [[nodiscard]] DatabaseConnection getConnection();
 
 protected:
 
