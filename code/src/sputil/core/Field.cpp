@@ -66,22 +66,22 @@ void Field::setNull(VariantType vtype)
 
 String Field::asString() const
 {
+    String result;
     char print_buffer[64];
     int len;
 
     if (isNull())
-        return "";
+        return result;
 
     switch (dataType()) {
         case VAR_BOOL:
-            if (m_data.getInteger() != 0)
-                return "true";
-            else
-                return "false";
+            result = m_data.getInteger() != 0 ? "true" : "false";
+            break;
 
         case VAR_INT:
             len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.getInteger());
-            return String(print_buffer, len);
+            result.assign(print_buffer, len);
+            break;
 
         case VAR_INT64:
 #ifndef _WIN32
@@ -89,39 +89,46 @@ String Field::asString() const
 #else
             len = snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.getInt64());
 #endif
-            return String(print_buffer, len);
+            result.assign(print_buffer, len);
+            break;
 
         case VAR_FLOAT:
-            return doubleDataToString(print_buffer, sizeof(print_buffer));
+            result = doubleDataToString(print_buffer, sizeof(print_buffer));
+            break;
 
         case VAR_MONEY:
-            return moneyDataToString(print_buffer, sizeof(print_buffer));
+            result = moneyDataToString(print_buffer, sizeof(print_buffer));
+            break;
 
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            if (m_data.getBuffer().data == nullptr)
-                return "";
-
-            return m_data.getBuffer().data;
+            if (m_data.getBuffer().data != nullptr)
+                result = m_data.getBuffer().data;
+            break;
 
         case VAR_DATE:
-            return DateTime(chrono::microseconds(m_data.getInt64())).dateString();
+            result = DateTime(chrono::microseconds(m_data.getInt64())).dateString();
+            break;
 
         case VAR_DATE_TIME:
-            return epochDataToDateTimeString();
+            result = epochDataToDateTimeString();
+            break;
 
         case VAR_IMAGE_PTR:
             len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.getImagePtr());
-            return String(print_buffer, len);
+            result.assign(print_buffer, len);
+            break;
 
         case VAR_IMAGE_NDX:
             len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.getInteger());
-            return String(print_buffer, len);
+            result.assign(print_buffer, len);
+            break;
 
         default:
             throw Exception("Can't convert field " + fieldName() + " to type String");
     }
+    return result;
 }
 
 String Field::epochDataToDateTimeString() const

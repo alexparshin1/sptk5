@@ -270,7 +270,7 @@ protected:
      * Parses the result of SEARCH command in response. Returns results in result parameter
      * @param result std::string, returns the search results.
      */
-    void parseSearch(String& result);
+    void parseSearch(String& result) const;
 
     /**
      * Parses server response as a message data (after the appropriate command) to the set of fields

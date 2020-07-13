@@ -40,7 +40,7 @@ int64_t MoneyData::dividers[16] = {1, 10, 100, 1000, 10000, 100000, 1000000L, 10
 
 MoneyData::operator double() const
 {
-    return double(quantity) / dividers[scale];
+    return double(quantity) / double(dividers[scale]);
 }
 
 MoneyData::operator int64_t() const
@@ -795,7 +795,7 @@ double VariantAdaptors::asFloat() const
         case VAR_DATE_TIME:
             // Time is in microseconds since epoch
             // - returning seconds since epoch
-            return m_data.getInt64() / 1000000.0;
+            return double(m_data.getInt64()) / 1000000.0;
 
         default:
             throw Exception("Can't convert field for that type");

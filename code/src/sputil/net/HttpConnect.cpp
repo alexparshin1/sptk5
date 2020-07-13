@@ -83,7 +83,7 @@ void HttpConnect::sendCommand(const Buffer& cmd)
 }
 
 Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
-                                 const Authorization* authorization)
+                                 const Authorization* authorization) const
 {
     Strings headers;
 

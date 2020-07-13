@@ -95,7 +95,7 @@ namespace sptk {
              * @param repeatEvery           Event repeate interval
              * @param repeatCount           Repeat count, -1 means no limit
              */
-            EventData(const DateTime& timestamp, Callback& eventCallback, std::chrono::milliseconds repeatEvery, int repeatCount=-1);
+            EventData(const DateTime& timestamp, const Callback& eventCallback, std::chrono::milliseconds repeatEvery, int repeatCount=-1);
 
             /**
              * Destructor

@@ -38,7 +38,7 @@ OpenApiGenerator::OpenApiGenerator(const String& title, const String& descriptio
 }
 
 void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& operations,
-                                const WSComplexTypeMap& complexTypes, const std::map<String,String>& documentation)
+                                const WSComplexTypeMap& complexTypes, const std::map<String,String>& documentation) const
 {
     // Validate options
     for (auto& itor: m_options.operationsAuth) {

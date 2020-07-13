@@ -225,7 +225,7 @@ protected:
      * Create default headers for HTTP request
      */
     Strings makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
-                        const Authorization* authorization);
+                        const Authorization* authorization) const;
 
     /**
      * @brief Sends a single command to HTTP server

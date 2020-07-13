@@ -49,7 +49,7 @@ namespace sptk {
 {
     stringstream error;
     error << message;
-    int jsonLength = strlen(json);
+    auto jsonLength = strlen(json);
     if (position > 0) {
         error << ", in position " << position;
         char context[ERROR_CONTEXT_CHARS];
@@ -60,7 +60,7 @@ namespace sptk {
         strncpy(context, contextStart, pretextLen);
         context[pretextLen] = 0;
         error << " in context: '.." << context << ">" << json[position] << "<";
-        int afterTextLength = ERROR_CONTEXT_CHARS / 2;
+        size_t afterTextLength = ERROR_CONTEXT_CHARS / 2;
         if (int(position) + afterTextLength > jsonLength)
             afterTextLength = jsonLength - position;
         if (afterTextLength > 0) {

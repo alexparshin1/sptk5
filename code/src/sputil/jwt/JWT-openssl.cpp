@@ -71,7 +71,7 @@ static int ECDSA_SIG_set0(ECDSA_SIG *sig, BIGNUM *r, BIGNUM *s)
 
 namespace sptk {
 
-void JWT::sign_sha_hmac(Buffer& out, const char* str)
+void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 {
     const EVP_MD* algorithm;
 
@@ -99,7 +99,7 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str)
     out.bytes(len);
 }
 
-void JWT::verify_sha_hmac(const char* head, const char* sig)
+void JWT::verify_sha_hmac(const char* head, const char* sig) const
 {
     unsigned char res[EVP_MAX_MD_SIZE];
     BIO* bmem = nullptr;
@@ -211,7 +211,7 @@ static const EVP_MD* signAlgorithm(const JWT::Algorithm alg, int& type)
     return algorithm;
 }
 
-void JWT::sign_sha_pem(Buffer& out, const char* str)
+void JWT::sign_sha_pem(Buffer& out, const char* str) const
 {
     EVP_MD_CTX* mdctx = nullptr;
     ECDSA_SIG* ec_sig = nullptr;
@@ -375,7 +375,7 @@ static const EVP_MD* getAlgorithm(JWT::Algorithm alg, int& type)
     return algorithm;
 }
 
-void JWT::verify_sha_pem(const char* head, const char* sig_b64)
+void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
 {
     EVP_MD_CTX* mdctx = nullptr;
     ECDSA_SIG* ec_sig = nullptr;

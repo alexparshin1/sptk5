@@ -75,7 +75,7 @@ Node* Document::createElement(const char* tagname)
     return node;
 }
 
-void Document::processAttributes(Node* node, char* ptr)
+void Document::processAttributes(Node* node, const char* ptr)
 {
     auto matches = m_parseAttributes.m(ptr);
 

@@ -84,14 +84,20 @@ string DirectoryDS::getFileType(const struct stat& st, CSmallPixmapType& image, 
 
 CSmallPixmapType DirectoryDS::imageTypeFromExtention(const char* ext) const
 {
-    if (strcasecmp(ext, "doc") == 0)
-        return SXPM_DOC_DOCUMENT;
-    else if (strcasecmp(ext, "txt") == 0)
-        return SXPM_TXT_DOCUMENT;
-    else if (strcasecmp(ext, "xls") == 0)
-        return SXPM_XLS_DOCUMENT;
-    else if (strcasecmp(ext, "csv") == 0)
-        return SXPM_XLS_DOCUMENT;
+    static const map<String,CSmallPixmapType> imageTypes
+    {
+        { "doc", SXPM_DOC_DOCUMENT },
+        { "docx", SXPM_DOC_DOCUMENT },
+        { "odt", SXPM_DOC_DOCUMENT },
+        { "txt", SXPM_TXT_DOCUMENT },
+        { "xls", SXPM_XLS_DOCUMENT },
+        { "csv", SXPM_XLS_DOCUMENT }
+    };
+
+    const auto itor = imageTypes.find(ext);
+    if (itor != imageTypes.end())
+        return itor->second;
+
     return SXPM_DOCUMENT;
 }
 
