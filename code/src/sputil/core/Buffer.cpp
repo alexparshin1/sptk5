@@ -213,15 +213,24 @@ TEST(SPTK_Buffer, copyCtor)
     EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
 }
 
-TEST(SPTK_Buffer, moveCtor)
+TEST(SPTK_Buffer, move)
 {
-    auto buffer1 = make_shared<Buffer>(testPhrase);
-    Buffer  buffer2(move(*buffer1));
+    Buffer  buffer1(testPhrase);
+    Buffer  buffer2(move(buffer1));
     buffer1.reset();
 
     EXPECT_STREQ(testPhrase, buffer2.c_str());
     EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
     EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
+
+    buffer1 = "Test 1";
+    buffer2 = testPhrase;
+    buffer1 = move(buffer2);
+
+    EXPECT_STREQ(testPhrase, buffer1.c_str());
+    EXPECT_EQ(strlen(testPhrase), buffer1.bytes());
+    EXPECT_TRUE(buffer2.empty());
+    EXPECT_TRUE(buffer2.bytes() == 0);
 }
 
 Buffer* ptr;
@@ -236,6 +245,12 @@ TEST(SPTK_Buffer, assign)
     EXPECT_STREQ(testPhrase, buffer2.c_str());
     EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
     EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
+
+    buffer1 = "Test 1";
+    EXPECT_STREQ("Test 1", buffer1.c_str());
+
+    buffer1 = String("Test 2");
+    EXPECT_STREQ("Test 2", buffer1.c_str());
 }
 
 TEST(SPTK_Buffer, append)
@@ -290,6 +305,36 @@ TEST(SPTK_Buffer, erase)
     buffer1.erase(4, 5);
 
     EXPECT_STREQ("This test", buffer1.c_str());
+}
+
+TEST(SPTK_Buffer, compare)
+{
+    Buffer  buffer1(testPhrase);
+    Buffer  buffer2(testPhrase);
+    Buffer  buffer3("something else");
+
+    EXPECT_TRUE(buffer1 == buffer2);
+    EXPECT_FALSE(buffer1 != buffer2);
+
+    EXPECT_FALSE(buffer1 == buffer3);
+    EXPECT_TRUE(buffer1 != buffer3);
+}
+
+TEST(SPTK_Buffer, hexDump)
+{
+    const Strings expected {
+        "00000000  54 68 69 73 20 69 73 20  61 20 74 65 73 74 54 68  This is  a testTh",
+        "00000010  69 73 20 69 73 20 61 20  74 65 73 74              is is a  test"
+    };
+
+    Buffer  buffer(testPhrase);
+    buffer.append(testPhrase);
+
+    stringstream stream;
+    stream << buffer;
+
+    Strings output(stream.str(), "\n\r", Strings::SM_ANYCHAR);
+    EXPECT_TRUE(output == expected);
 }
 
 #endif

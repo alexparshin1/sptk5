@@ -55,9 +55,29 @@ public:
     explicit Transaction(const DatabaseConnection& db);
 
     /**
+     * Deleted copy constructor
+     */
+    Transaction(const Transaction&) = delete;
+
+    /**
+     * Move constructor
+     */
+    Transaction(Transaction&&) = default;
+
+    /**
      * Destructor
      */
     ~Transaction();
+
+    /**
+     * Deleted copy assignment
+     */
+    Transaction& operator = (const Transaction&) = delete;
+
+    /**
+     * Move assignment
+     */
+    Transaction& operator = (Transaction&&) = default;
 
     /**
      * Begins the transaction

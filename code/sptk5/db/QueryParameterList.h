@@ -76,9 +76,29 @@ public:
     QueryParameterList();
 
     /**
+     * Deleted copy constructor
+     */
+    QueryParameterList(const QueryParameterList&) = delete;
+
+    /**
+     * Move constructor
+     */
+    QueryParameterList(QueryParameterList&&) = default;
+
+    /**
      * Destructor
      */
     ~QueryParameterList();
+
+    /**
+     * Deleted copy assignment
+     */
+    QueryParameterList& operator = (const QueryParameterList&) = delete;
+
+    /**
+     * Move assignment
+     */
+    QueryParameterList& operator = (QueryParameterList&&) = default;
 
     /**
      * Removes all the parameters from the list

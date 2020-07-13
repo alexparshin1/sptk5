@@ -304,9 +304,16 @@ Strings CommandLine::preprocessArguments(int argc, const char* const* argv)
     String quotedString;
     for (auto& arg : args) {
         if (quote.empty()) {
-            if (arg.startsWith("'")) {
+            if (arg.startsWith("'") || arg.startsWith("\"")) {
                 quote = arg.substr(0, 1);
                 quotedString = arg.substr(1);
+                if (arg.endsWith(quote)) {
+                    quote.clear();
+                    quotedString.resize(quotedString.length() - 1);
+                    arguments.push_back(quotedString);
+                    continue;
+                }
+
                 if (quotedString.endsWith(quote)) {
                     quotedString = quotedString.substr(0, arg.length() - 1);
                     arguments.push_back(quotedString);
@@ -542,7 +549,7 @@ void CommandLine::printVersion() const
 
 #if USE_GTEST
 
-static const char* testCommandLineArgs[] = { "testapp", "connect", "--host", "ahostname", "-p", "12345", "--verbose",
+static const char* testCommandLineArgs[] = { "testapp", "connect", "--host", "'ahostname'", "-p", "12345", "--verbose",
                                              nullptr };
 
 static const char* testCommandLineArgs2[] = { "testapp", "connect", "--host", "host name", "-p", "12345", "--verbose",
@@ -589,6 +596,24 @@ TEST(SPTK_CommandLine, wrongOption)
             commandLine->init(7, testCommandLineArgs3),
             Exception
     );
+}
+
+TEST(SPTK_CommandLine, setOption)
+{
+    shared_ptr<CommandLine> commandLine(createTestCommandLine());
+
+    commandLine->init(7, testCommandLineArgs);
+    EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "ahostname");
+    commandLine->setOptionValue("host", "www.x.com");
+    EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "www.x.com");
+}
+
+TEST(SPTK_CommandLine, printHelp)
+{
+    shared_ptr<CommandLine> commandLine(createTestCommandLine());
+
+    commandLine->init(7, testCommandLineArgs);
+    commandLine->printHelp(80);
 }
 
 #endif

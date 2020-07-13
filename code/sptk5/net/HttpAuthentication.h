@@ -62,11 +62,6 @@ public:
     explicit HttpAuthentication(String authenticationHeader);
 
     /**
-     * Destructor
-     */
-    ~HttpAuthentication();
-
-    /**
      * Get decoded authentication data (username and password, or JWT)
      * @return authentication data
      */
@@ -85,10 +80,10 @@ public:
 
 private:
 
-    Type                    m_type { UNDEFINED };       ///< Authentication data type
-    const String            m_authenticationHeader;     ///< Authentication data
-    const JWT*              m_jwtData = { nullptr };    ///< JWT token, if type is BEARER
-    const json::Document*   m_userData = { nullptr };   ///< Decoded user data
+    Type                                m_type { UNDEFINED };     ///< Authentication data type
+    const String                        m_authenticationHeader;   ///< Authentication data
+    std::shared_ptr<JWT>                m_jwtData;                ///< JWT token, if type is BEARER
+    std::shared_ptr<json::Document>     m_userData;               ///< Decoded user data
 
     /**
      * Decode authentication data (username and password, or JWT)

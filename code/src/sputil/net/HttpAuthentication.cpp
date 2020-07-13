@@ -37,12 +37,6 @@ HttpAuthentication::HttpAuthentication(String authenticationHeader)
 {
 }
 
-HttpAuthentication::~HttpAuthentication()
-{
-    delete m_userData;
-    delete m_jwtData;
-}
-
 const json::Element& HttpAuthentication::getData()
 {
     parse();
@@ -67,7 +61,7 @@ void HttpAuthentication::parse()
 {
     if (m_type == UNDEFINED) {
         if (m_authenticationHeader.empty()) {
-            m_userData = new json::Document;
+            m_userData = make_shared<json::Document>();
             m_type = EMPTY;
         } else if (m_authenticationHeader.toLowerCase().startsWith("basic ")) {
             Buffer encoded(m_authenticationHeader.substr(6));
@@ -76,7 +70,7 @@ void HttpAuthentication::parse()
             Strings usernameAndPassword(decoded.c_str(), ":");
             if (usernameAndPassword.size() != 2)
                 throw Exception("Invalid or unsupported 'Authentication' header format");
-            auto* xuserData = new json::Document;
+            auto xuserData = make_shared<json::Document>();
             xuserData->root()["username"] = usernameAndPassword[0];
             xuserData->root()["password"] = usernameAndPassword[1];
             m_userData = xuserData;
@@ -84,12 +78,11 @@ void HttpAuthentication::parse()
         } else {
             String authMethod = m_authenticationHeader.substr(0, 6);
             if (authMethod.toLowerCase() == "bearer") {
-                auto* xjwtData = new JWT;
+                auto xjwtData = make_shared<JWT>();
                 try {
                     xjwtData->decode(m_authenticationHeader.substr(7).c_str());
                 }
                 catch (const Exception&) {
-                    delete xjwtData;
                     throw;
                 }
                 m_jwtData = xjwtData;
