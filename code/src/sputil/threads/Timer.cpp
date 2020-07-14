@@ -139,7 +139,7 @@ Timer::EventId::EventId(const DateTime& when)
 {
 }
 
-Timer::EventData::EventData(const DateTime& timestamp, Callback& eventCallback, milliseconds repeatEvery, int repeatCount)
+Timer::EventData::EventData(const DateTime& timestamp, const Callback& eventCallback, milliseconds repeatEvery, int repeatCount)
 : m_id(timestamp), m_callback(eventCallback), m_repeatInterval(repeatEvery), m_repeatCount(repeatCount)
 {
     ++eventAllocations;
@@ -306,7 +306,7 @@ static void gtestTimerCallback2(void* theEventData)
 {
     lock_guard<mutex> lock(eventCounterMutex);
     size_t eventIndex = size_t(theEventData);
-    eventCounter[eventIndex]++;
+    ++eventCounter[eventIndex];
 }
 
 TEST(SPTK_Timer, fireOnce)
@@ -478,13 +478,12 @@ TEST(SPTK_Timer, scheduleEventsPerformance)
     COUT(maxEvents << " events scheduled, " << maxEvents / stopwatch.seconds() << " events/s" << endl)
 
     stopwatch.start();
-    for (auto& event: createdEvents) {
+    for (const auto& event: createdEvents) {
         timer.cancel(event);
     }
     stopwatch.stop();
 
     COUT(maxEvents << " events canceled, " << maxEvents / stopwatch.seconds() << " events/s" << endl)
-
 }
 
 #endif

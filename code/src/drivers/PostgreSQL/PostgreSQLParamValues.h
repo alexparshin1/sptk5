@@ -65,7 +65,7 @@ namespace sptk {
             m_types.resize(sz);
         }
 
-        void setParameters(QueryParameterList& params);
+        void setParameters(const QueryParameterList& params);
 
         void setParameterValue(unsigned paramIndex, const void* value, unsigned sz, int32_t format, PostgreSQLDataType dataType)
         {

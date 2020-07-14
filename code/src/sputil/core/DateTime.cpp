@@ -907,7 +907,7 @@ bool DateTime::time24Mode()
 
 double sptk::duration2seconds(const DateTime::duration& duration)
 {
-    return chrono::duration_cast<milliseconds>(duration).count() / 1000.0;
+    return double(chrono::duration_cast<milliseconds>(duration).count()) / 1000.0;
 }
 
 #if USE_GTEST
@@ -1043,7 +1043,7 @@ TEST(SPTK_DateTime, parsePerformance)
         dateTime = DateTime("2018-08-07 11:22:33.444Z");
 
     DateTime ended("now");
-    double durationSec = duration_cast<milliseconds>(ended - started).count() / 1000.0;
+    double durationSec = double(duration_cast<milliseconds>(ended - started).count()) / 1000.0;
 
     COUT("Performed " << size_t (count / 1E3 / durationSec)  << "K parses/sec" << endl)
 }

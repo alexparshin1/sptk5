@@ -309,7 +309,7 @@ public:
      * @param replaced          True if there were any replacements
      * @return processed text
      */
-    String s(const String& text, std::function<String(const String&)> replace, bool& replaced) const;
+    String s(const String& text, const std::function<String(const String&)>& replace, bool& replaced) const;
 
     /**
      * Returns list of strings split by regular expression

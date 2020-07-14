@@ -287,7 +287,7 @@ void MD5::update(const unsigned char input[], size_type length)
 
         // transform chunks of blocksize (64 bytes)
         for (i = firstpart; i + blocksize <= length; i += blocksize)
-            transform((const uint1*) &input[i]);
+            transform(&input[i]);
 
         index = 0;
     } else
@@ -358,23 +358,16 @@ sptk::String MD5::hexdigest() const
     for (int i = 0; i < 16; ++i) {
         auto high = *digestPtr >> 4;
         auto low = *digestPtr & 0xF;
-        *ptr++ = high > 9? high - 10  + 'a': high + '0';
-        *ptr++ = low > 9? low - 10 + 'a': low + '0';
+        *ptr = high > 9? high - 10  + 'a': high + '0';
+        ++ptr;
+        *ptr = low > 9? low - 10 + 'a': low + '0';
+        ++ptr;
         ++digestPtr;
     }
     buf[32] = 0;
 
     return std::string(buf);
 }
-
-//////////////////////////////
-
-std::ostream& operator<<(std::ostream& out, MD5 md5)
-{
-    return out << md5.hexdigest();
-}
-
-//////////////////////////////
 
 String sptk::md5(const Buffer& data)
 {

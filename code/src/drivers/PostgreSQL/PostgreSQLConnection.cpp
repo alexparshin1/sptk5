@@ -573,7 +573,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
     } else
         queryExecDirect(query);
 
-    auto* statement = (PostgreSQLStatement*) query->statement();
+    const auto* statement = (const PostgreSQLStatement*) query->statement();
 
     auto count = (short) queryColCount(query);
     if (count < 1)

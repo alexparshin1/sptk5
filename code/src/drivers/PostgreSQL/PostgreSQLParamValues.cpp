@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-void PostgreSQLParamValues::setParameters(QueryParameterList& params) 
+void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
 {
     params.enumerate(m_params);
     m_count = m_params.size();
@@ -76,9 +76,6 @@ void PostgreSQLParamValues::setParameters(QueryParameterList& params)
     }
 }
 
-static const char* booleanTrue = "t";
-static const char* booleanFalse = "f";
-
 void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, QueryParameter *param)
 {
     double value = param->asFloat();
@@ -102,9 +99,9 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
         switch (ptype) {
             case VAR_BOOL:
                 if (param->asBool())
-                    setParameterValue(paramIndex, booleanTrue, 1, 0, PG_VARCHAR);
+                    setParameterValue(paramIndex, "t", 1, 0, PG_VARCHAR);
                 else
-                    setParameterValue(paramIndex, booleanFalse, 1, 0, PG_VARCHAR);
+                    setParameterValue(paramIndex, "f", 1, 0, PG_VARCHAR);
                 break;
 
             case VAR_INT:
@@ -148,7 +145,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
 
             case VAR_FLOAT:
                 uptrBuffer64 = (uint64_t*) param->conversionBuffer();
-                *uptrBuffer64 = htonq(*(uint64_t*)&param->getFloat());
+                *uptrBuffer64 = htonq(*(const uint64_t*)&param->getFloat());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
                 break;
 

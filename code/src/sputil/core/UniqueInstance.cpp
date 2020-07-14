@@ -73,7 +73,7 @@ UniqueInstance::~UniqueInstance()
 
 #ifndef _WIN32
 // Get the existing process id (if any) from the file
-int UniqueInstance::read_pid()
+int UniqueInstance::read_pid() const
 {
     // Try to read process id from the file
     int pid = 0;
@@ -109,7 +109,7 @@ const String& UniqueInstance::lockFileName() const
 }
 #endif
 
-bool UniqueInstance::isUnique()
+bool UniqueInstance::isUnique() const
 {
     return m_lockCreated;
 }

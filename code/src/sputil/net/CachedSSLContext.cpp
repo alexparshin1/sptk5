@@ -40,26 +40,32 @@ SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipher
 
     UniqueLock(m_mutex);
 
-	SharedSSLContext context = m_contexts[ident];
-	if (!context) {
-		context = make_shared<SSLContext>(cipherList);
-		m_contexts[ident] = context;
-	}
+    SharedSSLContext context = m_contexts[ident];
+    if (!context) {
+        context = make_shared<SSLContext>(cipherList);
+        m_contexts[ident] = context;
+    }
     if (!keys.privateKeyFileName().empty() || !keys.certificateFileName().empty())
         context->loadKeys(keys);
 
     return context;
 }
 
-String CachedSSLContext::makeIdent(const String& keyFileName, const String& certificateFileName, const String& /*private key password*/,
-                             const String& caFileName, int verifyMode, int verifyDepth, const String& cipherList)
+String CachedSSLContext::makeIdent(const String& keyFileName, const String& certificateFileName,
+                                   const String& /*private key password*/,
+                                   const String& caFileName, int verifyMode, int verifyDepth, const String& cipherList)
 {
     Buffer buffer;
-    buffer.append(keyFileName); buffer.append('~');
-    buffer.append(certificateFileName); buffer.append('~');
-    buffer.append(caFileName); buffer.append('~');
-    buffer.append(int2string(verifyMode)); buffer.append('~');
+    buffer.append(keyFileName);
+    buffer.append('~');
+    buffer.append(certificateFileName);
+    buffer.append('~');
+    buffer.append(caFileName);
+    buffer.append('~');
+    buffer.append(int2string(verifyMode));
+    buffer.append('~');
     buffer.append(int2string(verifyDepth));
-	buffer.append(cipherList); buffer.append('~');
-	return String(buffer.c_str(), buffer.length());
+    buffer.append(cipherList);
+    buffer.append('~');
+    return String(buffer.c_str(), buffer.length());
 }

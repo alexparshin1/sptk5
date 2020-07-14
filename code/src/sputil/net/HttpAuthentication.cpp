@@ -52,7 +52,7 @@ const json::Element& HttpAuthentication::getData()
     }
 }
 
-String HttpAuthentication::getHeader()
+String HttpAuthentication::getHeader() const
 {
     return m_authenticationHeader;
 }
@@ -79,12 +79,7 @@ void HttpAuthentication::parse()
             String authMethod = m_authenticationHeader.substr(0, 6);
             if (authMethod.toLowerCase() == "bearer") {
                 auto xjwtData = make_shared<JWT>();
-                try {
-                    xjwtData->decode(m_authenticationHeader.substr(7).c_str());
-                }
-                catch (const Exception&) {
-                    throw;
-                }
+                xjwtData->decode(m_authenticationHeader.substr(7).c_str());
                 m_jwtData = xjwtData;
                 m_type = BEARER;
             }
@@ -97,3 +92,49 @@ HttpAuthentication::Type HttpAuthentication::type()
     parse();
     return m_type;
 }
+
+#if USE_GTEST
+
+static String makeJWT()
+{
+    String key256("012345678901234567890123456789XY");
+
+    JWT jwt;
+    jwt.set_alg(JWT::JWT_ALG_HS256, key256);
+
+    jwt["iat"] = 1594642696;
+    jwt["iss"] = "http://test.com";
+    jwt["exp"] = 1594642697;
+
+    auto* info = jwt.grants.root().add_object("info");
+    info->set("company", "Linotex");
+    info->set("city", "Melbourne");
+
+    stringstream originalToken;
+    jwt.encode(originalToken);
+
+    return originalToken.str();
+}
+
+TEST(SPTK_HttpAuthentication, basic)
+{
+    HttpAuthentication test("Basic QWxhZGRpbjpPcGVuU2VzYW1l");
+    const auto& auth = test.getData();
+    EXPECT_STREQ(auth["username"].getString().c_str(), "Aladdin");
+    EXPECT_STREQ(auth["password"].getString().c_str(), "OpenSesame");
+    EXPECT_EQ(test.type(), HttpAuthentication::BASIC);
+}
+
+TEST(SPTK_HttpAuthentication, bearer)
+{
+    auto token = makeJWT();
+    HttpAuthentication test("Bearer " + token);
+    const auto& auth = test.getData();
+
+    EXPECT_STREQ(auth["iat"].getString().c_str(), "1594642696");
+    EXPECT_STREQ(auth["iss"].getString().c_str(), "http://test.com");
+    EXPECT_STREQ(auth["exp"].getString().c_str(), "1594642697");
+    EXPECT_EQ(test.type(), HttpAuthentication::BEARER);
+}
+
+#endif

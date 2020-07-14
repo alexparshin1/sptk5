@@ -72,7 +72,6 @@ enum CSmallPixmapType {
      * Small pixmap - Word document
      */
     SXPM_DOC_DOCUMENT
-
 };
 
 /**

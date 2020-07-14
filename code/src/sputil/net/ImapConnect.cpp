@@ -147,7 +147,7 @@ void ImapConnect::cmd_select(const String& mail_box, int32_t& total_msgs)
     }
 }
 
-void ImapConnect::parseSearch(String& result)
+void ImapConnect::parseSearch(String& result) const
 {
     result = "";
     for (const auto& st: m_response) {

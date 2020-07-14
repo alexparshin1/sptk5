@@ -199,28 +199,28 @@ public:
      * @param out               Output data
      * @param str               Input data
      */
-    void sign_sha_hmac(Buffer& out, const char* str);
+    void sign_sha_hmac(Buffer& out, const char* str) const;
 
     /**
      * Verify using SHA algorithm in HMAC format
      * @param head              Token head
      * @param sig               Signature
      */
-    void verify_sha_hmac(const char* head, const char* sig);
+    void verify_sha_hmac(const char* head, const char* sig) const;
 
     /**
      * Sign using SHA algorithm to PEM format
      * @param out               Output data
      * @param str               Input data
      */
-    void sign_sha_pem(Buffer& out, const char* str);
+    void sign_sha_pem(Buffer& out, const char* str) const;
 
     /**
      * Verify using SHA algorithm in PEM format
      * @param head              Token head
      * @param sig_b64           Signature
      */
-    void verify_sha_pem(const char* head, const char* sig_b64);
+    void verify_sha_pem(const char* head, const char* sig_b64) const;
 
 private:
 

@@ -401,7 +401,7 @@ Strings RegularExpression::split(const String& text) const
     size_t offset = 0;
     MatchData matchData(m_pcre, m_captureCount);
 
-    int lastMatchEnd = 0;
+    pcre_offset_t lastMatchEnd = 0;
     do {
         size_t matchCount = nextMatch(text, offset, matchData);
         if (matchCount == 0) // No matches
@@ -477,7 +477,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
         return result;
 }
 
-String RegularExpression::s(const String& text, std::function<String(const String&)> replace, bool& replaced) const
+String RegularExpression::s(const String& text, const std::function<String(const String&)>& replace, bool& replaced) const
 {
     size_t offset = 0;
     size_t lastOffset = 0;

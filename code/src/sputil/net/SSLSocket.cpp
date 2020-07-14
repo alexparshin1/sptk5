@@ -64,7 +64,7 @@ class CSSLLibraryLoader
 #ifdef _WIN32
         ret = GetCurrentThreadId();
 #else
-        ret=(unsigned long)pthread_self();
+        ret = pthread_self();
 #endif
         return(ret);
     }

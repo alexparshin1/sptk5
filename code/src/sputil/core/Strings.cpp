@@ -109,26 +109,28 @@ void Strings::fromString(const String& src, const char* delimitter, SplitMode mo
 
 int Strings::indexOf(const String& s) const
 {
-    const_iterator itor;
-    const_reverse_iterator xtor;
+    int                     result = -1;
+    const_iterator          itor;
+    const_reverse_iterator  xtor;
+
     switch (m_sorted) {
         case DESCENDING:
             xtor = lower_bound(rbegin(), rend(), s);
-            if (xtor == rend() || *xtor != s)
-                return -1;
-            return (int) distance(rbegin(), xtor);
+            if (xtor != rend() && *xtor == s)
+                result = (int) distance(rbegin(), xtor);
+            break;
         case ASCENDING:
             itor = lower_bound(begin(), end(), s);
-            if (itor == end() || *itor != s)
-                return -1;
+            if (itor != end() && *itor == s)
+                result = (int) distance(begin(), itor);
             break;
         default:
             itor = find(begin(), end(), s);
-            if (itor == end())
-                return -1;
+            if (itor != end() && *itor == s)
+                result = (int) distance(begin(), itor);
             break;
     }
-    return (int) distance(begin(), itor);
+    return result;
 }
 
 void Strings::saveToFile(const String& fileName) const

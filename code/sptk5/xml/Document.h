@@ -247,7 +247,7 @@ private:
     /**
      * Internal attributes parser
      */
-    void processAttributes(Node* node, char* ptr);
+    void processAttributes(Node* node, const char* ptr);
     static char* readComment(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
     static char* readCDataSection(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
 

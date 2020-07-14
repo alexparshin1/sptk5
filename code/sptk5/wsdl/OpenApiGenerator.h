@@ -87,7 +87,7 @@ public:
      * @param documentation     Service documentation (by operation)
      */
     void generate(std::ostream& output, const WSOperationMap& operations, const WSComplexTypeMap& complexTypes,
-                  const std::map<String,String>& documentation);
+                  const std::map<String,String>& documentation) const;
 
     static AuthMethod authMethod(const String& auth);
     static String authMethodName(AuthMethod auth);

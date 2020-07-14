@@ -35,8 +35,9 @@ using namespace sptk;
 SSLKeys::SSLKeys(String privateKeyFileName, String certificateFileName,
                  String password, String caFileName, int verifyMode,
                  int verifyDepth)
-: m_privateKeyFileName(std::move(privateKeyFileName)), m_certificateFileName(std::move(certificateFileName)),
-  m_password(std::move(password)), m_caFileName(std::move(caFileName)), m_verifyMode(verifyMode), m_verifyDepth(verifyDepth)
+        : m_privateKeyFileName(std::move(privateKeyFileName)), m_certificateFileName(std::move(certificateFileName)),
+          m_password(std::move(password)), m_caFileName(std::move(caFileName)), m_verifyMode(verifyMode),
+          m_verifyDepth(verifyDepth)
 {
 }
 
@@ -104,10 +105,14 @@ int SSLKeys::verifyDepth() const
 String SSLKeys::ident() const
 {
     Buffer buffer;
-    buffer.append(m_privateKeyFileName); buffer.append('~');
-    buffer.append(m_certificateFileName); buffer.append('~');
-    buffer.append(m_caFileName); buffer.append('~');
-    buffer.append(to_string(m_verifyMode)); buffer.append('~');
+    buffer.append(m_privateKeyFileName);
+    buffer.append('~');
+    buffer.append(m_certificateFileName);
+    buffer.append('~');
+    buffer.append(m_caFileName);
+    buffer.append('~');
+    buffer.append(to_string(m_verifyMode));
+    buffer.append('~');
     buffer.append(to_string(m_verifyDepth));
     return String(buffer.c_str(), buffer.length());
 }

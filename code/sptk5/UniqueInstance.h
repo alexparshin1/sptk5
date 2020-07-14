@@ -94,7 +94,7 @@ public:
     /**
      * Reports true if the instance is unique
      */
-    bool isUnique();
+    bool isUnique() const;
 
 private:
 
@@ -104,7 +104,7 @@ private:
     HANDLE       m_mutex;           ///< The named mutex object
 #else
     String  m_fileName;             ///< The lock file name
-    int     read_pid();             ///< Gets the process ID
+    int     read_pid() const;       ///< Gets the process ID
     int     write_pid();            ///< Writes the process ID into the lock file
 #endif
 

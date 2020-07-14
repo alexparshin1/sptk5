@@ -38,7 +38,7 @@ class SP_EXPORT Proxy
 {
 public:
 
-    explicit Proxy(Host host, String username="", String password="");
+    explicit Proxy(const Host& host, const String& username="", const String& password="");
     virtual ~Proxy() = default;
     virtual SOCKET connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) = 0;
 

@@ -65,7 +65,7 @@ public:
      * Get decoded authentication data (username and password, or JWT)
      * @return authentication data
      */
-    String getHeader();
+    String getHeader() const;
 
     /**
      * Get decoded authentication data (username and password, or JWT)
