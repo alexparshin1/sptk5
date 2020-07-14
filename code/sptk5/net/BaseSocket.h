@@ -91,21 +91,9 @@ public:
     */
     enum CSocketOpenMode : uint8_t
     {
-        /**
-        * Only create (Typical UDP connectionless socket)
-        */
-        SOM_CREATE,
-
-        /**
-        * Connect
-        */
-        SOM_CONNECT,
-
-        /**
-        * Bind (listen)
-        */
-        SOM_BIND
-
+        SOM_CREATE,     ///< Only create (Typical UDP connectionless socket)
+        SOM_CONNECT,    ///< Connect (Typical TCP connection socket)
+        SOM_BIND        ///< Bind (TCP listener)
     };
 
     /**
@@ -133,9 +121,34 @@ public:
     explicit BaseSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
     /**
+     * Deleted copy constructor
+     * @param other             Other socket
+     */
+    BaseSocket(const BaseSocket& other) = delete;
+
+    /**
+     * Move constructor
+     * @param other             Other socket
+     */
+    BaseSocket(BaseSocket&& other) noexcept = default;
+
+    /**
      * Destructor
      */
     virtual ~BaseSocket();
+
+
+    /**
+     * Deleted copy assignment
+     * @param other             Other socket
+     */
+    BaseSocket& operator = (const BaseSocket& other) = delete;
+
+    /**
+     * Move assignment
+     * @param other             Other socket
+     */
+    BaseSocket& operator = (BaseSocket&& other) noexcept = default;
 
     /**
      * Set blocking mode
@@ -146,7 +159,7 @@ public:
     /**
      * Returns number of bytes available in socket
      */
-    virtual size_t socketBytes();
+    [[nodiscard]] virtual size_t socketBytes();
 
     /**
      * Attaches socket handle
@@ -170,7 +183,7 @@ public:
     /**
      * Returns the host
      */
-    const Host& host() const
+    [[nodiscard]] const Host& host() const
     {
         return m_host;
     }
@@ -223,7 +236,7 @@ public:
      * Returns the current socket state
      * @returns true if socket is opened
      */
-    bool active() const
+    [[nodiscard]] bool active() const
     {
         return m_sockfd != INVALID_SOCKET;
     }
@@ -252,7 +265,7 @@ public:
      * @param size              The destination buffer size
      * @returns the number of bytes read from the socket
      */
-    virtual size_t recv(void* buffer, size_t size);
+    [[nodiscard]] virtual size_t recv(void* buffer, size_t size);
 
     /**
      * Reads data from the socket in regular or TLS mode
@@ -260,7 +273,7 @@ public:
      * @param size              The send data length
      * @returns the number of bytes sent the socket
      */
-    virtual size_t send(const void* buffer, size_t size);
+    [[nodiscard]] virtual size_t send(const void* buffer, size_t size);
 
     /**
      * Reads data from the socket
@@ -269,7 +282,7 @@ public:
      * @param from              Optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(char *buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * Reads data from the socket into memory buffer
@@ -280,7 +293,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * Reads data from the socket into memory buffer
@@ -291,7 +304,7 @@ public:
      * @param from              Optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * Writes data to the socket
@@ -302,7 +315,7 @@ public:
      * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const char *buffer, size_t size = size_t(-1), const sockaddr_in* peer = nullptr);
+    [[nodiscard]] virtual size_t write(const char *buffer, size_t size = size_t(-1), const sockaddr_in* peer = nullptr);
 
     /**
      * Writes data to the socket
@@ -310,7 +323,7 @@ public:
      * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = nullptr);
+    [[nodiscard]] virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = nullptr);
 
     /**
      * Writes data to the socket
@@ -318,19 +331,19 @@ public:
      * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const String& buffer, const sockaddr_in* peer = nullptr);
+    [[nodiscard]] virtual size_t write(const String& buffer, const sockaddr_in* peer = nullptr);
 
     /**
      * Reports true if socket is ready for reading from it
      * @param timeout           Read timeout
      */
-    virtual bool readyToRead(std::chrono::milliseconds timeout);
+    [[nodiscard]] virtual bool readyToRead(std::chrono::milliseconds timeout);
 
     /**
      * Reports true if socket is ready for writing to it
      * @param timeout           Write timeout
      */
-    virtual bool readyToWrite(std::chrono::milliseconds timeout);
+    [[nodiscard]] virtual bool readyToWrite(std::chrono::milliseconds timeout);
 
 protected:
 
@@ -345,7 +358,7 @@ protected:
     /**
      * Get socket domain type
      */
-    int32_t domain() const
+    [[nodiscard]] int32_t domain() const
     {
         return m_domain;
     }
@@ -353,7 +366,7 @@ protected:
     /**
      * Get socket type
      */
-    int32_t type() const
+    [[nodiscard]] int32_t type() const
     {
         return m_type;
     }
@@ -361,7 +374,7 @@ protected:
     /**
      * Get socket protocol
      */
-    int32_t protocol() const
+    [[nodiscard]] int32_t protocol() const
     {
         return m_protocol;
     }
@@ -400,30 +413,12 @@ protected:
     }
 
 private:
-    /**
-     * Socket internal (OS) handle
-     */
-    SOCKET      m_sockfd {INVALID_SOCKET};
 
-    /**
-     * Socket domain type
-     */
-    int32_t     m_domain;
-
-    /**
-     * Socket type
-     */
-    int32_t     m_type;
-
-    /**
-     * Socket protocol
-     */
-    int32_t     m_protocol;
-
-    /**
-     * Host
-     */
-    Host        m_host;
+    SOCKET      m_sockfd {INVALID_SOCKET};  ///< Socket internal (OS) handle
+    int32_t     m_domain;                   ///< Socket domain type
+    int32_t     m_type;                     ///< Socket type
+    int32_t     m_protocol;                 ///< Socket protocol
+    Host        m_host;                     ///< Host
 };
 
 /**

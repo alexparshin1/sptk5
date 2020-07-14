@@ -331,6 +331,8 @@ String sptk::wsTypeIdToName(const String& typeIdName)
     return "Unknown";
 }
 
+#if USE_GTEST
+
 TEST(SPTK_WSInteger, move_ctor_assign)
 {
     WSInteger   integer1("I1");
@@ -365,6 +367,30 @@ void loadScriptAttackData()
     }
 }
 
+TEST(SPTK_WSBasicTypes, array)
+{
+    WSArray<WSInteger> array;
+    array.emplace_back(1);
+    array.emplace_back(2);
+    array.emplace_back(3);
+    EXPECT_EQ(array.size(), size_t(3));
+
+    WSArray<WSInteger> array2(array);
+    EXPECT_EQ(array2.size(), size_t(3));
+    EXPECT_EQ(array2[1].asInteger(), 2);
+
+    WSArray<WSInteger> array3;
+    array3 = array;
+    EXPECT_EQ(array3.size(), size_t(3));
+    EXPECT_EQ(array3[1].asInteger(), 2);
+
+    WSArray<WSInteger> array4;
+    array4 = move(array);
+    EXPECT_EQ(array4.size(), size_t(3));
+    EXPECT_EQ(array4[1].asInteger(), 2);
+    EXPECT_TRUE(array.empty());
+}
+
 TEST(SPTK_WSBasicTypes, scriptAttack)
 {
     loadScriptAttackData<WSDate>();
@@ -374,3 +400,5 @@ TEST(SPTK_WSBasicTypes, scriptAttack)
     loadScriptAttackData<WSInteger>();
     loadScriptAttackData<WSString>();
 }
+
+#endif

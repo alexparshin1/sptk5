@@ -228,14 +228,11 @@ TEST(SPTK_DatabaseConnectionPool, connectString)
     }
 }
 
-//───────────────────────────────── PostgreSQL ───────────────────────────────────────────
-#if HAVE_POSTGRESQL
-
-TEST(SPTK_PostgreSQLConnection, connect)
+static void testConnect(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
-        FAIL() << "PostgreSQL connection is not defined";
+        FAIL() << dbName << " connection is not defined";
     try {
         DatabaseTests::testConnect(connectionString);
     }
@@ -244,11 +241,11 @@ TEST(SPTK_PostgreSQLConnection, connect)
     }
 }
 
-TEST(SPTK_PostgreSQLConnection, DDL)
+static void testDDL(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
-        FAIL() << "PostgreSQL connection is not defined";
+        FAIL() << dbName << " connection is not defined";
     try {
         DatabaseTests::testDDL(connectionString);
     }
@@ -257,11 +254,11 @@ TEST(SPTK_PostgreSQLConnection, DDL)
     }
 }
 
-TEST(SPTK_PostgreSQLConnection, bulkInsert)
+static void testBulkInsert(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
-        FAIL() << "PostgreSQL connection is not defined";
+        FAIL() << dbName <<" connection is not defined";
     try {
         DatabaseTests::testBulkInsert(connectionString);
     }
@@ -270,11 +267,11 @@ TEST(SPTK_PostgreSQLConnection, bulkInsert)
     }
 }
 
-TEST(SPTK_PostgreSQLConnection, bulkInsertPerformance)
+static void testBulkInsertPerformance(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
-        FAIL() << "PostgreSQL connection is not defined";
+        FAIL() << dbName << " connection is not defined";
     try {
         DatabaseTests::testBulkInsertPerformance(connectionString, 1024);
     }
@@ -283,11 +280,11 @@ TEST(SPTK_PostgreSQLConnection, bulkInsertPerformance)
     }
 }
 
-TEST(SPTK_PostgreSQLConnection, queryParameters)
+static void testQueryParameters(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
-        FAIL() << "PostgreSQL connection is not defined";
+        FAIL() << dbName << " connection is not defined";
     try {
         DatabaseTests::testQueryParameters(connectionString);
     }
@@ -296,11 +293,24 @@ TEST(SPTK_PostgreSQLConnection, queryParameters)
     }
 }
 
-TEST(SPTK_PostgreSQLConnection, transaction)
+static void testQueryDates(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
-        FAIL() << "PostgreSQL connection is not defined";
+        FAIL() << dbName << " connection is not defined";
+    try {
+        DatabaseTests::testQueryInsertDate(connectionString);
+    }
+    catch (const Exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+static void testTransaction(const String& dbName)
+{
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    if (connectionString.empty())
+        FAIL() << dbName << " connection is not defined";
     try {
         DatabaseTests::testTransaction(connectionString);
     }
@@ -309,11 +319,11 @@ TEST(SPTK_PostgreSQLConnection, transaction)
     }
 }
 
-TEST(SPTK_PostgreSQLConnection, select)
+static void testSelect(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
-        FAIL() << "PostgreSQL connection is not defined";
+        FAIL() << dbName << " connection is not defined";
     try {
         DatabaseTests::testSelect(connectionString);
     }
@@ -322,65 +332,47 @@ TEST(SPTK_PostgreSQLConnection, select)
     }
 }
 
-TEST(SPTK_PostgreSQLConnection, multiThreading)
+//───────────────────────────────── PostgreSQL ───────────────────────────────────────────
+#if HAVE_POSTGRESQL
+
+TEST(SPTK_PostgreSQLConnection, connect)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
-    if (connectionString.empty())
-        FAIL() << "PostgreSQL connection is not defined";
-    DatabaseConnectionPool pool(connectionString.toString());
+    testConnect("PostgreSQL");
+}
 
-    auto db = pool.getConnection();
+TEST(SPTK_PostgreSQLConnection, DDL)
+{
+    testDDL("PostgreSQL");
+}
 
-    try {
-        Query createTable(db,"CREATE TABLE numbers(id int, value varchar(40), created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-        createTable.exec();
-        Query insertNumber(db, "INSERT INTO numbers(id,value) VALUES(:id,:value)");
-        for (int i = 0; i < 1000; ++i) {
-            insertNumber.param("id") = i;
-            insertNumber.param("value") = to_string(i);
-            insertNumber.exec();
-        }
-    }
-    catch (const Exception&) {
-        COUT("")
-    }
+TEST(SPTK_PostgreSQLConnection, bulkInsert)
+{
+    testBulkInsert("PostgreSQL");
+}
 
-    struct Output {
-        int     count {0};
-        double  msec {0};
-    };
+TEST(SPTK_PostgreSQLConnection, bulkInsertPerformance)
+{
+    testBulkInsertPerformance("PostgreSQL");
+}
 
-    try {
-        vector<future<Output>> futures;
-        for (int i = 0; i < 10; ++i) {
-            auto f = async(launch::async, [&pool]() {
-                StopWatch sw;
-                sw.start();
-                auto conn = pool.getConnection();
-                Query selectNumbers(conn, "SELECT * FROM numbers ORDER BY 1");
-                selectNumbers.open();
-                int id = 0;
-                while (!selectNumbers.eof()) {
-                    auto idr = selectNumbers[0].asInteger();
-                    if (idr != id)
-                        COUT(idr << " != " << id << endl)
-                    selectNumbers.next();
-                    ++id;
-                }
-                selectNumbers.close();
-                sw.stop();
-                return Output { id, sw.seconds() * 1000 };
-            });
-            futures.push_back(move(f));
-        }
-        for (auto& f: futures) {
-            auto output = f.get();
-            COUT(output.count << " : " << output.msec << "ms" << endl);
-        }
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+TEST(SPTK_PostgreSQLConnection, queryParameters)
+{
+    testQueryParameters("PostgreSQL");
+}
+
+TEST(SPTK_PostgreSQLConnection, dates)
+{
+    testQueryDates("PostgreSQL");
+}
+
+TEST(SPTK_PostgreSQLConnection, transaction)
+{
+    testTransaction("PostgreSQL");
+}
+
+TEST(SPTK_PostgreSQLConnection, select)
+{
+    testSelect("PostgreSQL");
 }
 
 #endif
@@ -391,93 +383,42 @@ TEST(SPTK_PostgreSQLConnection, multiThreading)
 
 TEST(SPTK_MySQLConnection, connect)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mysql");
-    if (connectionString.empty())
-        FAIL() << "MySQL connection is not defined";
-    try {
-        DatabaseTests::testConnect(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testConnect("MySQL");
 }
 
 TEST(SPTK_MySQLConnection, DDL)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mysql");
-    if (connectionString.empty())
-        FAIL() << "MySQL connection is not defined";
-    try {
-        DatabaseTests::testDDL(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testDDL("MySQL");
 }
 
 TEST(SPTK_MySQLConnection, bulkInsert)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mysql");
-    if (connectionString.empty())
-        FAIL() << "MySQL connection is not defined";
-    try {
-        DatabaseTests::testBulkInsert(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testBulkInsert("MySQL");
 }
 
 TEST(SPTK_MySQLConnection, bulkInsertPerformance)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mysql");
-    if (connectionString.empty())
-        FAIL() << "MySQL connection is not defined";
-    try {
-        DatabaseTests::testBulkInsertPerformance(connectionString, 1024);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testBulkInsertPerformance("MySQL");
 }
 
 TEST(SPTK_MySQLConnection, queryParameters)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mysql");
-    if (connectionString.empty())
-        FAIL() << "MySQL connection is not defined";
-    try {
-        DatabaseTests::testQueryParameters(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testQueryParameters("MySQL");
+}
+
+TEST(SPTK_MySQLConnection, dates)
+{
+    testQueryDates("MySQL");
 }
 
 TEST(SPTK_MySQLConnection, transaction)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mysql");
-    if (connectionString.empty())
-        FAIL() << "MySQL connection is not defined";
-    try {
-        DatabaseTests::testTransaction(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testTransaction("MySQL");
 }
 
 TEST(SPTK_MySQLConnection, select)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mysql");
-    if (connectionString.empty())
-        FAIL() << "MySQL connection is not defined";
-    try {
-        DatabaseTests::testSelect(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testSelect("MySQL");
 }
 
 #endif

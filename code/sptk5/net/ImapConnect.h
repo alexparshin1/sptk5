@@ -51,11 +51,15 @@ namespace sptk
 class SP_EXPORT ImapConnect: public TCPSocket
 {
 public:
-
     /**
      * Default constructor
      */
     ImapConnect();
+
+    /**
+     * Deleted copy constructor
+     */
+    ImapConnect(const ImapConnect&) = delete;
 
     /**
      * Destructor, closes the connection if it's open.

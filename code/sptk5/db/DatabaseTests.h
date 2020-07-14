@@ -118,6 +118,8 @@ public:
      */
     static void testDDL(const DatabaseConnectionString& connectionString);
 
+    static void testQueryInsertDate(const DatabaseConnectionString& connectionString);
+
     /**
      * Test parametrized queries
      * @param connectionString Database connection string

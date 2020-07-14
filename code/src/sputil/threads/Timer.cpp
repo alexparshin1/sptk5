@@ -287,7 +287,7 @@ TEST(SPTK_Timer, repeat)
 
         function<void()> eventCallback = bind(gtestTimerCallback, &eventSet);
         Timer::Event handle = timer.repeat(milliseconds(20), eventCallback);
-        this_thread::sleep_for(milliseconds(110));
+        this_thread::sleep_for(milliseconds(105));
         timer.cancel(handle);
 
         EXPECT_NEAR(5, eventSet, 1);
@@ -405,7 +405,7 @@ TEST(SPTK_Timer, repeatMultipleTimers)
         }
     }
 
-    this_thread::sleep_for(milliseconds(200));
+    this_thread::sleep_for(milliseconds(300));
 
     int totalEvents(0);
     if (!timers.empty()) {

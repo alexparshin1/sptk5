@@ -53,11 +53,6 @@ public:
 
 
     /**
-     * Clears internal parameter binding index
-     */
-    void bindClear();
-
-    /**
      * Adds internal parameter binding index
      */
     void bindAdd(uint32_t bindIndex);
@@ -147,36 +142,9 @@ public:
     /**
      * Assign operator
      */
-    QueryParameter& operator=(uint32_t v)
-    {
-        setInteger((int32_t) v);
-        return *this;
-    }
-
-    /**
-     * Assign operator
-     */
     QueryParameter& operator=(int64_t v) override
     {
         setInt64(v);
-        return *this;
-    }
-
-    /**
-     * Assign operator
-     */
-    QueryParameter& operator=(uint64_t v)
-    {
-        setInt64((int64_t) v);
-        return *this;
-    }
-
-    /**
-     * Assign operator
-     */
-    QueryParameter& operator=(float v)
-    {
-        setFloat(v);
         return *this;
     }
 

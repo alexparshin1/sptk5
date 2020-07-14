@@ -29,11 +29,6 @@
 using namespace std;
 using namespace sptk;
 
-void QueryParameter::bindClear()
-{
-    m_bindParamIndexes.clear();
-}
-
 void QueryParameter::bindAdd(uint32_t bindIndex)
 {
     m_bindParamIndexes.push_back(bindIndex);
@@ -89,8 +84,8 @@ void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t v
             m_data.getBuffer().data[maxlen] = 0;
         }
     } else {
-        m_data.getBuffer().size = m_dataSize + 1;
-        strncpy(m_data.getBuffer().data, value, m_data.getBuffer().size);
+        if (value != nullptr)
+            strncpy(m_data.getBuffer().data, value, m_data.getBuffer().size);
     }
 }
 
@@ -118,12 +113,61 @@ void QueryParameter::setString(const char * value, size_t maxlen)
             m_dataSize = 0;
         }
     } else {
-        if (value != nullptr)
-            reallocateBuffer(value, maxlen, valueLength);
-        else {
+        reallocateBuffer(value, maxlen, valueLength);
+        if (value == nullptr) {
             m_dataSize = 0;
             dtype |= VAR_NULL;
         }
     }
     dataType((VariantType) dtype);
 }
+
+#if USE_GTEST
+
+TEST(SPTK_QueryParameter, minimal)
+{
+    QueryParameter param1("param1");
+
+    EXPECT_STREQ(param1.name().c_str(), "param1");
+}
+
+TEST(SPTK_QueryParameter, setString)
+{
+    QueryParameter param1("param1");
+
+    param1.setString("String 1");
+    EXPECT_STREQ(param1.getString(), "String 1");
+
+    param1.setString("String 1 + String 2");
+    EXPECT_STREQ(param1.getString(), "String 1 + String 2");
+
+    param1.setString("String 1 + String 2 + String 3", 22);
+    EXPECT_STREQ(param1.getString(), "String 1 + String 2 + ");
+
+    param1.setString(nullptr);
+    EXPECT_TRUE(param1.isNull());
+}
+
+TEST(SPTK_QueryParameter, assign)
+{
+    QueryParameter param1("param1");
+
+    param1 = "String 1";
+    EXPECT_STREQ(param1.getString(), "String 1");
+
+    param1 = 123;
+    EXPECT_EQ(param1.getInteger(), 123);
+
+    param1 = 123.0;
+    EXPECT_FLOAT_EQ(param1.getFloat(), 123.0);
+
+    param1.setString(nullptr);
+    EXPECT_TRUE(param1.isNull());
+
+    DateTime dt("2020-03-01 10:11:12");
+    Variant  v1(dt);
+    param1 = v1;
+    EXPECT_TRUE(param1.asDateTime() == dt);
+}
+
+#endif

@@ -54,7 +54,7 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
 
         size_t count = 1000;
         for (size_t i = 0; i < count; i++) {
-            insertQuery.param((std::size_t) 0) = i;
+            insertQuery.param((std::size_t) 0) = int(i);
             insertQuery.param("person_name") = "John Doe";
             insertQuery.param("position_name") = "lead engineer";
             insertQuery.exec();

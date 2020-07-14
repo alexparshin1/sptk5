@@ -577,6 +577,15 @@ public:
     }
 
     /**
+     * Constructor
+     */
+    explicit WSInteger(int value)
+    : WSBasicType("", true)
+    {
+        Field::setInteger(value);
+    }
+
+    /**
      * Return class name
      */
     String className() const override
@@ -661,25 +670,24 @@ public:
     /**
      * Default constructor
      */
-    WSArray() {}
+    WSArray() = default;
 
     /**
      * Copy constructor
      * @param other             Other object
      */
-    WSArray(const WSArray<T>& other)
-    : std::vector<T>(other)
-    {
-    }
+    WSArray(const WSArray<T>& other) = default;
 
     /**
      * Move constructor
      * @param other             Other object
      */
-    WSArray(WSArray<T>&& other) noexcept
-    : std::vector<T>(move(other))
-    {
-    }
+    WSArray(WSArray<T>&& other) noexcept = default;
+
+    /**
+     * Destructor
+     */
+    ~WSArray() = default;
 
     /**
      * Copy assignment

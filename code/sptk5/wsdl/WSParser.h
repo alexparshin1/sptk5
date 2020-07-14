@@ -121,10 +121,16 @@ public:
      */
     WSParser() = default;
 
+    WSParser(const WSParser& other) = delete;
+    WSParser(WSParser&& other) = delete;
+
     /**
      * Destructor
      */
     virtual ~WSParser();
+
+    WSParser& operator = (const WSParser& other) = delete;
+    WSParser& operator = (WSParser&& other) = delete;
 
     /**
      * Clears parsed data

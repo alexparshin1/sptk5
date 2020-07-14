@@ -302,10 +302,9 @@ static void decodeDate(const DateTime::time_point& dt, short& year, short& month
     else
         localtime_s(&time, &tt);
 #else
-    if (gmt)
-        gmtime_r(&tt, &time);
-    else
-        localtime_r(&tt, &time);
+    if (!gmt)
+        tt += _timeZoneOffset * 60;
+    gmtime_r(&tt, &time);
 #endif
 
     year = (short) (time.tm_year + 1900);
@@ -328,11 +327,9 @@ static void decodeTime(const DateTime::time_point& dt, short& h, short& m, short
     else
         localtime_s(&time, &tt);
 #else
-    if (gmt) {
-        gmtime_r(&tt, &time);
-    } else {
-        localtime_r(&tt, &time);
-    }
+    if (!gmt)
+        tt += _timeZoneOffset * 60;
+    gmtime_r(&tt, &time);
 #endif
 
     h = (short) time.tm_hour;
@@ -929,6 +926,29 @@ TEST(SPTK_DateTime, ctor2)
     chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
     chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
+}
+
+TEST(SPTK_DateTime, isoTimeString)
+{
+    tm tt {};
+    tt.tm_year = 118;
+    tt.tm_mon = 0;
+    tt.tm_mday = 1;
+    tt.tm_hour = 11;
+    tt.tm_min = 22;
+    tt.tm_sec = 33;
+    tt.tm_isdst = -1;
+
+    auto t = mktime(&tt);
+
+    auto* st = localtime(&t);
+    COUT(asctime(st) << endl)
+
+    String input("2018-01-01T11:22:33");
+    DateTime dateTime1(input.c_str());
+    COUT((String)dateTime1 << endl)
+    String output(dateTime1.isoDateTimeString(sptk::DateTime::PA_MILLISECONDS));
+    EXPECT_TRUE(output.startsWith(input));
 }
 
 TEST(SPTK_DateTime, timeZones)
