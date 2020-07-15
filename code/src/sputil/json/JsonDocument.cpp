@@ -26,6 +26,8 @@
 
 #include <sptk5/json/JsonParser.h>
 #include <sptk5/json/JsonDocument.h>
+#include <sptk5/StopWatch.h>
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -396,6 +398,55 @@ TEST(SPTK_JsonDocument, errors)
     }
 
     SUCCEED() << "Detected " << errorCount << " errors";
+}
+
+TEST(SPTK_JsonDocument, performance)
+{
+    int objectCount = 50000;
+
+    json::Document document;
+
+    auto* arrayElement = document.root().add_array("items");
+    for (int i = 0; i < objectCount; i++) {
+        auto& object = *arrayElement->push_object();
+        object.set("id", i);
+        object.set("name", "Name " + to_string(i));
+        object.set("exists", true);
+
+        auto& address = *object.add_object("address");
+        address["number"] = i;
+        address["street"] = String("Street " + to_string(i));
+
+        auto& list = *address.add_array("list");
+        list.push_back(1);
+        list.push_back("two");
+        list.push_back(3);
+    }
+
+    // Verify data
+    auto& arrayData = arrayElement->getArray();
+    auto& object = arrayData[100];
+    EXPECT_FLOAT_EQ(object.getNumber("id"), 100.0);
+    EXPECT_STREQ(object.getString("name").c_str(), "Name 100");
+
+    auto& address = object["address"];
+    EXPECT_FLOAT_EQ(address.getNumber("number"), 100.0);
+    EXPECT_STREQ(address.getString("street").c_str(), "Street 100");
+    auto& list = address.getArray("list");
+    EXPECT_STREQ(list[1].getString().c_str(), "two");
+
+    Buffer buffer;
+    document.exportTo(buffer, true);
+
+    StopWatch stopWatch;
+    stopWatch.start();
+
+    json::Document document1;
+    document1.load(buffer.c_str());
+
+    stopWatch.stop();
+
+    COUT("Parsed JSON document (" << objectCount << ") objects for " << stopWatch.seconds() << " seconds" << endl);
 }
 
 #endif

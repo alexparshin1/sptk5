@@ -124,7 +124,7 @@ void CommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& form
         formattedText.push_back(row);
 }
 
-void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue) const
+void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue, std::ostream& output) const
 {
     static const RegularExpression doesntNeedQuotes("[\\d\\.\\-\\+:,_]+");
 

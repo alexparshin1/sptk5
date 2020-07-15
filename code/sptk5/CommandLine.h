@@ -301,8 +301,9 @@ protected:
          * @param nameWidth         Optional name width
          * @param textWidth         Help text width
          * @param optionDefaultValue Option default value (if any)
+         * @param output            Optinal output stream
          */
-        void printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue) const;
+        void printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue, std::ostream& output=std::cout) const;
 
     private:
         /**
