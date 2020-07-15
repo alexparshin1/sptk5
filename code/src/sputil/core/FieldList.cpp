@@ -210,8 +210,8 @@ TEST(SPTK_FieldList, dataTypes)
     fieldList.push_back("long_value", true);
     fieldList["name"] = "id";
     fieldList["value"] = 12345;
-    fieldList["online"] = true;
-    fieldList["visible"] = false;
+    fieldList["online"].setBool(true);
+    fieldList["visible"].setBool(false);
     fieldList["date"] = testDate;
     fieldList["null"].setNull(VAR_STRING);
     fieldList["text"].setBuffer("1234", 5);
@@ -225,7 +225,9 @@ TEST(SPTK_FieldList, dataTypes)
     EXPECT_STREQ("12345", fieldList["value"].asString().c_str());
 
     EXPECT_TRUE(fieldList["online"].asBool());
+    EXPECT_STREQ("true", fieldList["online"].asString().c_str());
     EXPECT_FALSE(fieldList["visible"].asBool());
+    EXPECT_STREQ("false", fieldList["visible"].asString().c_str());
 
     EXPECT_TRUE(fieldList["date"].asDateTime() == testDate);
     EXPECT_STREQ("2020-02-01T11:22:33Z", fieldList["date"].asDateTime().isoDateTimeString(sptk::DateTime::PA_SECONDS, true).c_str());
@@ -241,6 +243,7 @@ TEST(SPTK_FieldList, dataTypes)
 
     EXPECT_EQ(int64_t(12345678901234567), fieldList["long_value"].asInt64());
     EXPECT_STREQ("12345678901234567", fieldList["long_value"].asString().c_str());
+    EXPECT_FLOAT_EQ(double(12345678901234567), fieldList["long_value"].asFloat());
 }
 
 TEST(SPTK_FieldList, toXml)
