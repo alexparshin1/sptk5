@@ -29,7 +29,6 @@
 
 #include <sptk5/Variant.h>
 #include <sptk5/PackedStrings.h>
-#include <sptk5/IntList.h>
 #include <sptk5/Variant.h>
 
 #include <vector>

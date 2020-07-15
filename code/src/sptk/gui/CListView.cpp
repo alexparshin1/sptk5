@@ -1078,7 +1078,7 @@ int CListView::find_id(int id) const
     return -1;
 }
 
-void CListView::getSelections(IntList& sel) const
+void CListView::getSelections(vector<uint64_t>& sel) const
 {
     sel.clear();
     if (!m_multipleSelection) {
@@ -1093,7 +1093,7 @@ void CListView::getSelections(IntList& sel) const
     }
 }
 
-void CListView::setSelections(const IntList& sel)
+void CListView::setSelections(const vector<uint64_t>& sel)
 {
     size_t scnt = sel.size();
     if (scnt)

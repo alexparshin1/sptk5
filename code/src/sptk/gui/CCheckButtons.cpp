@@ -171,7 +171,7 @@ void CCheckButtons::data(const Variant& s)
     }
 }
 
-void CCheckButtons::getSelections(IntList& selection) const
+void CCheckButtons::getSelections(vector<uint64_t>& selection) const
 {
     selection.clear();
     auto* group = (CScroll*) m_control;
@@ -187,7 +187,7 @@ void CCheckButtons::getSelections(IntList& selection) const
     }
 }
 
-void CCheckButtons::setSelections(const IntList& selection)
+void CCheckButtons::setSelections(const vector<uint64_t>& selection)
 {
     deselectAllButtons();
     auto* group = (CScroll*) m_control;

@@ -31,7 +31,6 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Input_.H>
 #include <FL/Fl_Button.H>
-#include <sptk5/IntList.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CInput.h>
 #include <sptk5/Strings.h>

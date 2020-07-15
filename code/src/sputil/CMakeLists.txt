@@ -1,6 +1,6 @@
 SET (SPUTIL_SOURCES
     core/Base64.cpp core/Crypt.cpp core/Buffer.cpp core/CommandLine.cpp core/DataSource.cpp core/DateTime.cpp core/Exception.cpp
-    core/Field.cpp core/FieldList.cpp core/FileLogEngine.cpp core/IntList.cpp core/LogEngine.cpp
+    core/Field.cpp core/FieldList.cpp core/FileLogEngine.cpp core/LogEngine.cpp
     core/SharedStrings.cpp core/String.cpp core/Strings.cpp core/SysLogEngine.cpp core/UniqueInstance.cpp core/Variant.cpp
     core/string_ext.cpp core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/ReadBuffer.cpp core/StopWatch.cpp
     core/SystemException.cpp core/md5.cpp core/BufferStorage.cpp core/HomeDirectory.cpp

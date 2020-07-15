@@ -123,12 +123,12 @@ public:
     /**
      * Gets the currently selected buttons argument()s
      */
-    void getSelections(IntList& selection) const;
+    void getSelections(std::vector<uint64_t>& selection) const;
 
     /**
      * Sets the currently selected buttons matching with argument()s
      */
-    void setSelections(const IntList& selection);
+    void setSelections(const std::vector<uint64_t>& selection);
 
     /**
      * Universal data connection reader.

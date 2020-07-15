@@ -29,7 +29,6 @@
 
 #include <FL/Fl_Group.H>
 
-#include <sptk5/IntList.h>
 #include <sptk5/DataSource.h>
 #include <sptk5/CSmallPixmapIDs.h>
 
@@ -1072,12 +1071,12 @@ public:
     /**
      * @brief Returns a selected rows ID list
      */
-    void getSelections(IntList& selection) const;
+    void getSelections(std::vector<uint64_t>& selection) const;
 
     /**
      * @brief Sets a selected rows ID list
      */
-    void setSelections(const IntList& selection);
+    void setSelections(const std::vector<uint64_t>& selection);
 
     /**
      * @brief Finds an item with the caption (a string in the first column).
