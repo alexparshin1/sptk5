@@ -114,6 +114,36 @@ static const map<String, String> dateTimeFieldTypes = {
         {"oracle",     "TIMESTAMP"}
 };
 
+static const map<String, String> boolFieldTypes = {
+        {"mysql",      "BOOL"},
+        {"postgresql", "BOOL"},
+        {"mssql",      "BIT"},
+        {"oracle",     "NUMBER(1)"}
+};
+
+static const map<String, String> textFieldTypes = {
+        {"mysql",      "TEXT"},
+        {"postgresql", "TEXT"},
+        {"mssql",      "NVARCHAR(MAX)"},
+        {"oracle",     "CLOB"}
+};
+
+static String fieldType(const String& fieldType, const String& driverName)
+{
+    const map<String, String>* fieldTypes = nullptr;
+    if (fieldType == "DATETIME")
+        fieldTypes = &dateTimeFieldTypes;
+    else if (fieldType == "BOOL")
+        fieldTypes = &boolFieldTypes;
+    else
+        fieldTypes = &textFieldTypes;
+
+    auto itor = fieldTypes->find(driverName);
+    if (itor == fieldTypes->end())
+        throw Exception("Data type mapping is not defined for the test");
+    return itor->second;
+}
+
 void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
@@ -159,16 +189,13 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     DatabaseConnectionPool connectionPool(connectionString.toString());
     DatabaseConnection db = connectionPool.getConnection();
 
-    auto itor = dateTimeFieldTypes.find(connectionString.driverName());
-    if (itor == dateTimeFieldTypes.end())
-        throw Exception("DateTime data type mapping is not defined for the test");
-    String dateTimeType = itor->second;
-
     stringstream createTableSQL;
     createTableSQL << "CREATE TABLE gtest_temp_table( -- Create a test temp table" << endl;
     createTableSQL << "id INT, /* This is the unique id column */";
     createTableSQL << "name VARCHAR(20), price DECIMAL(10,2), ";
-    createTableSQL << "ts " << dateTimeType << " NULL";
+    createTableSQL << "ts " << fieldType("DATETIME", connectionString.driverName()) << " NULL, ";
+    createTableSQL << "enabled " << fieldType("BOOL", connectionString.driverName()) << " NULL, ";
+    createTableSQL << "txt " << fieldType("TEXT", connectionString.driverName()) << " NULL ";
     createTableSQL << ")";
 
     db->open();
@@ -184,12 +211,14 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
 
     createTable.exec();
 
-    Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :name, :price, :ts)");
+    Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :name, :price, :ts, :enabled, :txt)");
     for (auto& row: rows) {
         insert.param("id") = row.id;
         insert.param("name") = row.name;
         insert.param("price") = row.price;
         insert.param("ts").setNull(VAR_DATE_TIME);
+        insert.param("enabled").setBool(true);
+        insert.param("txt").setBuffer("A text", 6, VAR_TEXT);
         insert.exec();
     }
 
@@ -198,13 +227,12 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     for (auto& row: rows) {
         if (select.eof())
             break;
-        if (row.id != select["id"].asInteger())
-            throw Exception("row.id != table data");
-        if (row.name != select["name"].asString())
-            throw Exception("row.name != table data");
 
-        if (std::round(row.price * 100) != round(select["price"].asFloat() * 100))
-            throw Exception("row.price is " + select["price"].asString());
+        EXPECT_EQ(row.id, select["id"].asInteger());
+        EXPECT_STREQ(row.name.c_str(), select["name"].asString().c_str());
+        EXPECT_FLOAT_EQ(row.price, select["price"].asFloat());
+        EXPECT_STREQ("A text", select["txt"].asString().c_str());
+
         select.next();
     }
     select.close();
