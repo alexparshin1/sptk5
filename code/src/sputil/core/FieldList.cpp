@@ -28,6 +28,7 @@
 
 #include <sptk5/Exception.h>
 #include <sptk5/FieldList.h>
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -144,7 +145,7 @@ void FieldList::toXML(xml::Node& node) const
 
 #if USE_GTEST
 
-TEST(SPTK_FieldList, copyCtor)
+TEST(SPTK_FieldList, ctors)
 {
     FieldList fieldList(true);
 
@@ -175,4 +176,90 @@ TEST(SPTK_FieldList, push_back)
     EXPECT_STREQ("id", fieldList["name"].asString().c_str());
     EXPECT_EQ(12345, (int32_t) fieldList["value"]);
 }
+
+TEST(SPTK_FieldList, assign)
+{
+    FieldList fieldList(true);
+
+    fieldList.push_back("name", true);
+    fieldList.push_back("value", true);
+    fieldList["name"] = "id";
+    fieldList["value"] = 12345;
+
+    FieldList fieldList2 = fieldList;
+
+    EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
+    EXPECT_EQ(12345, (int32_t) fieldList2["value"]);
+}
+
+TEST(SPTK_FieldList, dataTypes)
+{
+    FieldList fieldList(true);
+
+    DateTime testDate("2020-02-01 11:22:33Z");
+
+    fieldList.push_back("name", true);
+    fieldList.push_back("value", true);
+    fieldList.push_back("online", true);
+    fieldList.push_back("visible", true);
+    fieldList.push_back("date", true);
+    fieldList.push_back("null", true);
+    fieldList.push_back("text", true);
+    fieldList.push_back("float_value", true);
+    fieldList.push_back("money_value", true);
+    fieldList.push_back("long_value", true);
+    fieldList["name"] = "id";
+    fieldList["value"] = 12345;
+    fieldList["online"] = true;
+    fieldList["visible"] = false;
+    fieldList["date"] = testDate;
+    fieldList["null"].setNull(VAR_STRING);
+    fieldList["text"].setBuffer("1234", 5);
+    fieldList["float_value"] = 12345.0;
+    fieldList["money_value"].setMoney(1234567,2);
+    fieldList["long_value"] = int64_t(12345678901234567);
+
+    EXPECT_STREQ("id", fieldList["name"].asString().c_str());
+
+    EXPECT_EQ(12345, (int32_t) fieldList["value"]);
+    EXPECT_STREQ("12345", fieldList["value"].asString().c_str());
+
+    EXPECT_TRUE(fieldList["online"].asBool());
+    EXPECT_FALSE(fieldList["visible"].asBool());
+
+    EXPECT_TRUE(fieldList["date"].asDateTime() == testDate);
+    EXPECT_STREQ("2020-02-01T11:22:33Z", fieldList["date"].asDateTime().isoDateTimeString(sptk::DateTime::PA_SECONDS, true).c_str());
+
+    EXPECT_TRUE(fieldList["null"].isNull());
+    EXPECT_STREQ("1234", fieldList["text"].asString().c_str());
+
+    EXPECT_FLOAT_EQ(12345.0, fieldList["float_value"].asFloat());
+    EXPECT_STREQ("12345.000", fieldList["float_value"].asString().c_str());
+
+    EXPECT_FLOAT_EQ(12345.67, fieldList["money_value"].asFloat());
+    EXPECT_STREQ("12345.67", fieldList["money_value"].asString().c_str());
+
+    EXPECT_EQ(int64_t(12345678901234567), fieldList["long_value"].asInt64());
+    EXPECT_STREQ("12345678901234567", fieldList["long_value"].asString().c_str());
+}
+
+TEST(SPTK_FieldList, toXml)
+{
+    FieldList fieldList(true);
+
+    fieldList.push_back("name", true);
+    fieldList.push_back("value", true);
+    fieldList["name"] = "id";
+    fieldList["value"] = 12345;
+
+    xml::Document xml;
+    auto* fieldsElement = new xml::Element(xml, "fields");
+    fieldList.toXML(*fieldsElement);
+
+    Buffer buffer;
+    fieldsElement->save(buffer);
+
+    EXPECT_STREQ(buffer.c_str(), R"(<fields name="id" value="12345"/>)");
+}
+
 #endif

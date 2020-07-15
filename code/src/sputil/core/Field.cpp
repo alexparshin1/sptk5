@@ -192,6 +192,8 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
     }
 }
 
+#if USE_GTEST
+
 TEST(SPTK_Field, move_ctor_assign)
 {
     Field   field1("f1");
@@ -207,3 +209,4 @@ TEST(SPTK_Field, move_ctor_assign)
     EXPECT_EQ(field2.isNull(), true);
 }
 
+#endif
