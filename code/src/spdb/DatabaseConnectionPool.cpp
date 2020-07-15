@@ -43,30 +43,23 @@ using namespace sptk;
 
 class DriverLoaders
 {
-    map<string, DatabaseDriver*, CaseInsensitiveCompare> drivers;
 public:
-    DriverLoaders() = default;
-    ~DriverLoaders()
-    {
-        for (auto& itor: drivers)
-            delete itor.second;
-    }
-
     DatabaseDriver* get(const String& driverName)
     {
         auto itor = drivers.find(driverName);
         if (itor == drivers.end())
             return nullptr;
-        return itor->second;
+        return itor->second.get();
     }
 
-    void add(const String& driverName, DatabaseDriver* driver)
+    void add(const String& driverName, shared_ptr<DatabaseDriver> driver)
     {
-        auto itor = drivers.find(driverName);
-        if (itor != drivers.end())
-            delete itor->second;
         drivers[driverName] = driver;
     }
+
+private:
+
+    map<string, shared_ptr<DatabaseDriver>, CaseInsensitiveCompare> drivers;
 };
 
 static DriverLoaders m_loadedDrivers;
@@ -157,7 +150,7 @@ void DatabaseConnectionPool::load()
     }
 
 #endif
-    auto* driver = new DatabaseDriver;
+    auto driver = make_shared<DatabaseDriver>();
     driver->m_handle = handle;
     driver->m_createConnection = createConnection;
     driver->m_destroyConnection = destroyConnection;
