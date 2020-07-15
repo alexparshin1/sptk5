@@ -41,7 +41,7 @@ bool DataSource::save()
     return saveData();
 }
 
-void DataSource::rowToXML(xml::Node& node, bool compactXmlMode) const
+void DataSource::rowToXML(xml::Node& node, bool compactXmlMode)
 {
     uint32_t cnt = fieldCount();
     for (uint32_t i = 0; i < cnt; ++i) {

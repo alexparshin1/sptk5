@@ -63,15 +63,6 @@ public:
     virtual ~DataSource() = default;
 
     /**
-     * Field access by the field index, const version.
-     *
-     * Purely virtual. Should be implemented in derived class
-     * @param fieldIndex        Field index
-     * @returns field reference
-     */
-    virtual const Field& operator [] (size_t fieldIndex) const = 0;
-
-    /**
      * Field access by the field index, non-const version
      *
      * Purely virtual. Should be implemented in derived class
@@ -79,15 +70,6 @@ public:
      * @returns field reference
      */
     virtual Field&       operator [] (size_t fieldIndex) = 0;
-
-    /**
-     * Field access by the field name, const version.
-     *
-     * Purely virtual. Should be implemented in derived class
-     * @param fieldName         Field name
-     * @returns field reference
-     */
-    virtual const Field& operator [] (const String& fieldName) const = 0;
 
     /**
      * Field access by the field name, const version.
@@ -104,7 +86,7 @@ public:
      * Purely virtual. Should be implemented in derived class
      * @returns field count
      */
-    virtual uint32_t fieldCount() const = 0;
+    virtual size_t fieldCount() const = 0;
 
     /**
      * Returns record count in the datasource.
@@ -112,7 +94,7 @@ public:
      * Purely virtual. Should be implemented in derived class
      * @returns record count
      */
-    virtual uint32_t recordCount() const = 0;
+    virtual size_t recordCount() const = 0;
 
     /**
      * Reads the field by name from the datasource.
@@ -183,7 +165,7 @@ public:
     /**
      * Moves to the specified record position of the datasource. Implemented in derved class.
      */
-    virtual bool find(const Variant& /*position*/)
+    virtual bool find(const String& /*fieldName*/, const Variant& /*position*/)
     {
         return false;
     }
@@ -214,7 +196,7 @@ public:
      * @param node              XML node to fill in
      * @param compactXmlMode    Compact XML flag
      */
-    void rowToXML(xml::Node& node, bool compactXmlMode) const;
+    void rowToXML(xml::Node& node, bool compactXmlMode);
 
     /**
      * Saves data into XML

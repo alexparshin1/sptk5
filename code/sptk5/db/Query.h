@@ -339,24 +339,6 @@ public:
     }
 
     /**
-     * Field access by number, const version
-     *
-     * Field index should be inside 0..fieldCount()-1
-     * @param fieldIndex int, field index
-     */
-    const Field& operator [](size_t fieldIndex) const override
-    {
-        return m_fields[fieldIndex];
-    }
-    /**
-     * Field access by field name, const version
-     */
-    const Field& operator [](const String& fieldName) const override
-    {
-        return m_fields[fieldName.c_str()];
-    }
-
-    /**
      * Field access by field name.
      */
     Field& operator [](const String& fieldName) override
@@ -368,7 +350,7 @@ public:
      * Returns field count in the recordset
      * @returns field count
      */
-    uint32_t fieldCount() const override
+    size_t fieldCount() const override
     {
         return m_fields.size();
     }
@@ -378,7 +360,7 @@ public:
      *
      * Currently is NOT implemented.
      */
-    uint32_t recordCount() const override
+    size_t recordCount() const override
     {
         notImplemented("recordCount");
         return 0;

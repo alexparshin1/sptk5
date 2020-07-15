@@ -53,6 +53,20 @@ class SP_EXPORT MemoryDS : public DataSource
 public:
 
     /**
+     * Default constructor
+     */
+    MemoryDS() : DataSource() {}
+
+    /**
+     * Move constructor
+     * @param other
+     */
+    MemoryDS(MemoryDS&& other) noexcept
+    : m_current(m_list.end())
+    {
+    }
+
+    /**
      * Destructor
      */
     virtual ~MemoryDS()
@@ -72,7 +86,7 @@ public:
     virtual FieldList& current()
     {
         UniqueLock(m_mutex);
-        return *m_current;
+        return *(*m_current);
     }
 
     /**
@@ -81,20 +95,6 @@ public:
      * @returns field reference
      */
     Field& operator[](size_t fieldIndex) override;
-
-    /**
-     * Field access by the field index, const version.
-     * @param fieldIndex int, field index
-     * @returns field reference
-     */
-    const Field& operator[](size_t fieldIndex) const override;
-
-    /**
-     * Field access by the field name, const version.
-     * @param fieldName const char *, field name
-     * @returns field reference
-     */
-    const Field& operator[](const String& fieldName) const override;
 
     /**
      * Field access by the field name, non-const version.
@@ -107,13 +107,13 @@ public:
      * Returns field count in the datasource.
      * @returns field count
      */
-    uint32_t fieldCount() const override;
+    size_t fieldCount() const override;
 
     /**
      * Returns record count in the datasource.
      * @returns record count
      */
-    uint32_t recordCount() const override;
+    size_t recordCount() const override;
 
     /**
      * Reads the field by name from the datasource.
@@ -132,10 +132,7 @@ public:
     /**
      * Opens the datasource. Implemented in derved class.
      */
-    bool open() override
-    {
-        throw Exception("Not implemented yet");
-    }
+    bool open() override;
 
     /**
      * Closes the datasource.
@@ -165,7 +162,7 @@ public:
     /**
      * Finds the record by the record position (defined by record's user_data or key).
      */
-    bool find(const Variant& position) override;
+    bool find(const String& fieldName, const Variant& position) override;
 
     /**
      * Returns true if there are no more records in the datasource. Implemented in derved class.
@@ -173,27 +170,10 @@ public:
     bool eof() const override
     {
         SharedLock(m_mutex);
-        return m_eof;
+        return m_current == m_list.end();
     }
 
     bool empty() const;
-
-protected:
-
-    /**
-     * Default constructor is protected, to prevent creating of the instance of that class
-     */
-    MemoryDS() : DataSource() {}
-
-    /**
-     * Move constructor is protected, to prevent creating of the instance of that class
-     */
-    MemoryDS(MemoryDS&& other) noexcept
-            : m_list(std::move(other.m_list)),
-              m_current(std::exchange(other.m_current,nullptr)),
-              m_currentIndex(std::exchange(other.m_currentIndex,0)),
-              m_eof(std::exchange(other.m_eof,false))
-    {}
 
     std::vector<FieldList*>& rows()
     {
@@ -214,27 +194,9 @@ protected:
 
 private:
 
-    mutable SharedMutex     m_mutex;
-
-    /**
-     * Internal list of the dataset records
-     */
-    std::vector<FieldList*> m_list;
-
-    /**
-     * Current record in the dataset.
-     */
-    FieldList*              m_current {nullptr};
-
-    /**
-     * The index of the current record.
-     */
-    uint32_t                m_currentIndex {0};
-
-    /**
-     * EOF flag for sequentual reading first(),next()..next().
-     */
-    bool                    m_eof {false};
+    mutable SharedMutex                 m_mutex;
+    std::vector<FieldList*>             m_list;     // List of the dataset records
+    std::vector<FieldList*>::iterator   m_current;  // DS iterator
 };
 /**
  * @}

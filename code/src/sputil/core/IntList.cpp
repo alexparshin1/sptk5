@@ -34,14 +34,8 @@ using namespace sptk;
 String IntList::toString(const char* separator) const
 {
     String s;
-    auto cnt = (uint32_t) size();
-
-    if (cnt == 0) return s;
-
-    s = int2string((*this)[0]);
-
-    for (uint32_t i = 1; i < cnt; ++i)
-        s += separator + int2string((int32_t) (*this)[i]);
+    for (auto item: *this)
+        s += separator + int2string((int32_t) item);
 
     return s;
 }

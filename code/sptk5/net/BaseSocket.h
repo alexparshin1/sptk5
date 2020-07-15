@@ -315,7 +315,7 @@ public:
      * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    [[nodiscard]] virtual size_t write(const char *buffer, size_t size = size_t(-1), const sockaddr_in* peer = nullptr);
+    virtual size_t write(const char *buffer, size_t size = size_t(-1), const sockaddr_in* peer = nullptr);
 
     /**
      * Writes data to the socket
@@ -323,7 +323,7 @@ public:
      * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    [[nodiscard]] virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = nullptr);
+    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = nullptr);
 
     /**
      * Writes data to the socket
@@ -331,7 +331,7 @@ public:
      * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    [[nodiscard]] virtual size_t write(const String& buffer, const sockaddr_in* peer = nullptr);
+    virtual size_t write(const String& buffer, const sockaddr_in* peer = nullptr);
 
     /**
      * Reports true if socket is ready for reading from it

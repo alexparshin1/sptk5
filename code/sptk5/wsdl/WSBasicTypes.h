@@ -667,56 +667,7 @@ template<class T>
 class SP_EXPORT WSArray : public std::vector<T>, public WSTypeName
 {
 public:
-    /**
-     * Default constructor
-     */
-    WSArray() = default;
-
-    /**
-     * Copy constructor
-     * @param other             Other object
-     */
-    WSArray(const WSArray<T>& other) = default;
-
-    /**
-     * Move constructor
-     * @param other             Other object
-     */
-    WSArray(WSArray<T>&& other) noexcept = default;
-
-    /**
-     * Destructor
-     */
-    ~WSArray() = default;
-
-    /**
-     * Copy assignment
-     * @param other             Other object
-     * @return this object
-     */
-    WSArray& operator=(const WSArray<T>& other)
-    {
-        if (this != &other) {
-            std::vector<T>::assign(other.begin(), other.end());
-        }
-        return *this;
-    }
-
-    /**
-     * Move assignment
-     * @param other             Other object
-     * @return this object
-     */
-    WSArray& operator=(WSArray<T>&& other) noexcept
-    {
-        if (this != &other) {
-            std::vector<T>::clear();
-            std::vector<T>::swap(other);
-        }
-        return *this;
-    }
-
-    /**
+   /**
      * Return class name
      */
     String className() const override
