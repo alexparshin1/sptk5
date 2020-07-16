@@ -249,6 +249,13 @@ public:
      * @return HTTP status text
      */
     String statusText() const { return m_statusText; }
+
+    /**
+     * Return standard HTTP response status text for status code
+     * @param statusCode
+     * @return
+     */
+    static String httpResponseStatus(size_t statusCode);
 };
 
 /**
