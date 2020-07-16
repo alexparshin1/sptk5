@@ -696,7 +696,7 @@ string json::escape(const string& text)
     size_t position = 0;
 
     for (;;) {
-        size_t pos = text.find_first_of("\"\\\b\f\n\r\t", position);
+        size_t pos = text.find_first_of("\"\\\b\f\n\r\t/", position);
         if (pos == string::npos) {
             if (position == 0)
                 return text;
@@ -749,7 +749,6 @@ static std::string codePointToUTF8(unsigned cp)
         result[0] = static_cast<char>(cp);
     } else if (cp <= 0x7FF) {
         result.resize(2);
-
         result[1] = static_cast<char>(0x80 | (0x3f & cp));
         result[0] = static_cast<char>(0xC0 | (0x1f & (cp >> 6)));
     } else if (cp <= 0xFFFF) {
@@ -974,25 +973,51 @@ TEST(SPTK_JsonElement, export)
 
 TEST(SPTK_JsonElement, array)
 {
-    json::Document   document;
+    json::Document   document1;
+    document1.load(R"([1,2,3,4])");
 
-    document.load(R"([1,2,3,4])");
+    json::Document   document2;
+    document2.load(R"({"items":[1,2,3,4]})");
 
-    auto& array = document.root().getArray();
-    EXPECT_EQ(size_t(4), array.size());
-    EXPECT_EQ(2, (int)array[1].getNumber());
+    vector<json::Document> documents;
+    documents.push_back(move(document1));
+    documents.push_back(move(document2));
 
-    array.remove(1);
-    EXPECT_EQ(size_t(3), array.size());
-    EXPECT_EQ(3, (int)array[1].getNumber());
+    int i = 0;
+    for (auto& document: documents) {
+        String name;
+        if (i == 1)
+            name = "items";
+        auto& array = document.root().getArray(name);
+        EXPECT_EQ(size_t(4), array.size());
+        EXPECT_EQ(2, (int) array[1].getNumber());
 
-    try {
-        auto val = array[3].getNumber();
-        FAIL() << "Got value " << val << ", but expecting out of bound";
+        array.remove(1);
+        EXPECT_EQ(size_t(3), array.size());
+        EXPECT_EQ(3, (int) array[1].getNumber());
+
+        try {
+            auto val = array[3].getNumber();
+            FAIL() << "Got value " << val << ", but expecting out of bound";
+        }
+        catch (const Exception&) {
+            SUCCEED() << "Ok: index out of bound";
+        }
+        ++i;
     }
-    catch (const Exception&) {
-        SUCCEED() << "Ok: index out of bound";
-    }
+}
+
+TEST(SPTK_JsonElement, encodeDecode)
+{
+    String testString("\n\r\t\b\f\"\\/");
+    String escapedString = escape(testString);
+    EXPECT_STREQ(escapedString.c_str(), R"(\n\r\t\b\f\"\\\/)");
+    String decodedString = decode(escapedString);
+    EXPECT_EQ(decodedString, testString);
+
+    escapedString = R"(\u004015\u00b0C 3\u1C87)";
+    decodedString = decode(escapedString);
+    EXPECT_STREQ(decodedString.c_str(), "@15°C 3ᲇ");
 }
 
 #endif
