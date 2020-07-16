@@ -67,7 +67,7 @@ public:
     explicit CEntityCache(struct entity entities[]) noexcept
     {
         struct entity *ent = entities;
-        for (; ent->name != nullptr; ent++) {
+        for (; ent->name != nullptr; ++ent) {
             m_hash[ent->name] = ent;
             m_replacementMaps[ent->replacement_len][ent->replacement] = ent;
         }
@@ -125,9 +125,9 @@ void xml::DocType::decodeEntities(const char* str, uint32_t sz, Buffer& ret)
                     start = ptr;
                     ret.append(rep, replacementLength);
                 } else
-                    ptr++;
+                    ++ptr;
             } else {
-                ptr++;
+                ++ptr;
             }
         } else {
             sz = (uint32_t) strlen(start);
@@ -139,7 +139,7 @@ void xml::DocType::decodeEntities(const char* str, uint32_t sz, Buffer& ret)
 
 bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
 {
-    entity* table = builtin_ent_xml;
+    const entity* table = builtin_ent_xml;
 
     bool replaced = false;
 
@@ -151,7 +151,7 @@ bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
         const char* pos = strpbrk(ptr, xml_shortcut);
         if (pos != nullptr) {
             auto index = uint32_t(strchr(xml_shortcut, *pos) - xml_shortcut);
-            entity* ent = table + index;
+            const entity* ent = table + index;
             auto tailBytes = uint32_t(pos - ptr);
             if (tailBytes != 0)
                 dst->append(ptr, tailBytes);
@@ -176,7 +176,7 @@ bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
     if (!m_entities.empty()) {
         auto it = m_entities.begin();
         for (; it != m_entities.end(); ++it) {
-            std::string& val = it->second;
+            const string& val = it->second;
             auto len = (uint32_t) val.length();
             const char* pos = strstr(ptr, val.c_str());
             while (pos != nullptr) {

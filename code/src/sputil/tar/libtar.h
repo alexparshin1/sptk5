@@ -150,14 +150,14 @@ void th_get_pathname(TAR *t, char* path, size_t sz);
 /***** util.c *************************************************************/
 
 /* hashing function for pathnames */
-int path_hashfunc(char *key, int numbuckets);
+int path_hashfunc(const char *key, int numbuckets);
 
 /* calculate header checksum */
 int th_crc_calc(TAR *t);
 #define th_crc_ok(t) (th_get_crc(t) == th_crc_calc(t))
 
 /* string-octal to integer conversion */
-int oct_to_int(char *oct);
+int oct_to_int(const char *oct);
 
 
 #ifdef __cplusplus

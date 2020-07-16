@@ -25,10 +25,10 @@
 #define basename(s) (strrchr(s,'\\')==NULL?(basename2(s)):(strrchr(s,'\\')+1))
 
 /* hashing function for pathnames */
-int path_hashfunc(char *key, int numbuckets)
+int path_hashfunc(const char *key, int numbuckets)
 {
     char buf[MAXPATHLEN+1];
-    char *p;
+    const char *p;
 
     strncpy(buf, key, sizeof(buf));
     buf[MAXPATHLEN] = 0;
@@ -42,16 +42,17 @@ int th_crc_calc(TAR *t)
     int i;
     int sum = 0;
 
-    for (i = 0; i < T_BLOCKSIZE; i++)
+    for (i = 0; i < T_BLOCKSIZE; ++i)
         sum += ((unsigned char *) (&(t->th_buf)))[i];
-    for (i = 0; i < 8; i++)
+
+    for (i = 0; i < 8; ++i)
         sum += (' ' - (unsigned char) t->th_buf.chksum[i]);
 
     return sum;
 }
 
 /* string-octal to integer conversion */
-int oct_to_int(char *oct)
+int oct_to_int(const char *oct)
 {
     unsigned i;
 

@@ -111,13 +111,13 @@ int libtar_list_search(libtar_list_t *,
 				  libtar_matchfunc_t);
 
 /* return number of elements from list */
-unsigned int libtar_list_nents(libtar_list_t *);
+unsigned int libtar_list_nents(const libtar_list_t *);
 
 /* adds elements from a string delimited by delim */
-int libtar_list_add_str(libtar_list_t *, char *, char *);
+int libtar_list_add_str(libtar_list_t *, const char *, const char *);
 
 /* string matching function */
-int libtar_str_match(char *, char *);
+int libtar_str_match(const char *, const char *);
 
 /*
 ** Hashing function (determines which bucket the given key hashes into)

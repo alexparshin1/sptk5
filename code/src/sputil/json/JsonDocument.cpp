@@ -407,7 +407,7 @@ TEST(SPTK_JsonDocument, performance)
     json::Document document;
 
     auto* arrayElement = document.root().add_array("items");
-    for (int i = 0; i < objectCount; i++) {
+    for (int i = 0; i < objectCount; ++i) {
         auto& object = *arrayElement->push_object();
         object.set("id", i);
         object.set("name", "Name " + to_string(i));

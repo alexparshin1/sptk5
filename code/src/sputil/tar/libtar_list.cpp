@@ -118,7 +118,7 @@ void libtar_list_free(libtar_list_t* l, libtar_freefunc_t freefunc)
 /*
 ** libtar_list_nents() - return number of elements in the list
 */
-unsigned int libtar_list_nents(libtar_list_t* l)
+unsigned int libtar_list_nents(const libtar_list_t* l)
 {
     return l->nents;
 }
@@ -143,7 +143,7 @@ int libtar_list_add(libtar_list_t* l, void* data)
     if (n == nullptr)
         return -1;
     n->data = data;
-    l->nents++;
+    ++l->nents;
 
 #ifdef LIBTAR_DEBUG2
     printf("    libtar_list_add(): allocated data\n");
@@ -251,7 +251,7 @@ void libtar_list_del(libtar_list_t* l, libtar_listptr_t* n)
     printf("==> libtar_list_del()\n");
 #endif
 
-    l->nents--;
+    --l->nents;
 
     m = (*n)->next;
 
@@ -311,7 +311,7 @@ int libtar_list_prev(libtar_list_t* l,
 **    1            match
 **    0            no match
 */
-int libtar_str_match(char* check, char* data)
+int libtar_str_match(const char* check, const char* data)
 {
     return !strcmp(check, data);
 }
@@ -326,10 +326,10 @@ char* libtar_strsep(char** stringp, const char* delim);
 **    0            success
 **    -1 (and sets errno)    failure
 */
-int libtar_list_add_str(libtar_list_t* l, char* str, char* delim)
+int libtar_list_add_str(libtar_list_t* l, const char* str, const char* delim)
 {
     char tmp[10241];
-    char* tokp;
+    const char* tokp;
     char* nextp = tmp;
 
     strncpy(tmp, str, sizeof(tmp));

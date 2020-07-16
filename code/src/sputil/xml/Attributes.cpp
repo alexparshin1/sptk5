@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/cxml>
+#include <gtest/gtest.h>
 
 using namespace sptk;
 using namespace sptk::xml;
@@ -45,15 +46,11 @@ Attribute::Attribute(Element* parent, const String& tagname, const Variant& aval
     parent->attributes().push_back(this);
 }
 
-/// @brief Returns the value of the node
 const String& Attribute::value() const noexcept
 {
     return m_value;
 }
 
-/// @brief Sets new value to node.
-/// @param new_value const std::string &, new value
-/// @see value()
 void Attribute::value(const String& new_value)
 {
     m_value = new_value;
@@ -68,9 +65,12 @@ Attributes& Attributes::operator=(const Attributes& s)
 {
     if (&s == this)
         return *this;
+
     clear();
-    for (auto* node: s)
+
+    for (const auto* node: s)
         new Attribute(m_parent, node->name(), node->value());
+
     return *this;
 }
 
@@ -122,3 +122,27 @@ bool Attributes::hasAttribute(const String& attr) const
     const auto itor = findFirst(attr.c_str());
     return itor != end();
 }
+
+#if USE_GTEST
+
+TEST(SPTK_XmlDocument, attributes)
+{
+    DateTime testDate("2020-01-02 10:00:00");
+    xml::Document doc;
+    auto* element = new Element(doc, "item");
+    element->setAttribute("name", "John");
+    element->setAttribute("age", 30);
+    element->setAttribute("when", testDate);
+    element->setAttribute("how", "directly", "directly");
+
+    EXPECT_STREQ(element->getAttribute("name").asString().c_str(), "John");
+    EXPECT_EQ(element->getAttribute("age").asInteger(), 30);
+    EXPECT_EQ(element->getAttribute("when").asDateTime(), testDate);
+    EXPECT_EQ(element->getAttribute("how").asString(), String(""));
+
+    auto* node = element->attributes().getAttributeNode("name");
+    node->value("Jane");
+    EXPECT_STREQ(element->getAttribute("name").asString().c_str(), "Jane");
+}
+
+#endif

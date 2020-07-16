@@ -136,12 +136,12 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
     for (const string& helpRow : helpText) {
         if (firstRow) {
             snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), printableName().c_str(), helpRow.c_str());
-            COUT(rowBuffer << endl)
+            output<< rowBuffer << endl;
             firstRow = false;
         }
         else {
             snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", helpRow.c_str());
-            COUT(rowBuffer << endl)
+            output << rowBuffer << endl;
         }
     }
 
@@ -151,7 +151,7 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
             printDefaultValue = "'" + optionDefaultValue + "'";
         string defaultValueStr = "The default value is " + printDefaultValue + ".";
         snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", defaultValueStr.c_str());
-        COUT(rowBuffer << endl)
+        output <<rowBuffer << endl;
     }
 }
 //=============================================================================
@@ -430,37 +430,36 @@ const Strings& CommandLine::arguments() const
     return m_arguments;
 }
 
-void CommandLine::printLine(const String& ch, size_t count)
+void CommandLine::printLine(const String& ch, size_t count, ostream& output)
 {
-    stringstream line;
     for (size_t i = 0; i < count; ++i)
-        line << ch;
-    COUT(line.str() << endl)
+        output << ch;
+    output << endl;
 }
 
-void CommandLine::printHelp(size_t screenColumns) const
+void CommandLine::printHelp(size_t screenColumns, ostream& output) const
 {
-    printHelp("", screenColumns);
+    printHelp("", screenColumns, output);
 }
 
-void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) const
+void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns, ostream& output) const
 {
     if (!onlyForCommand.empty() && m_argumentTemplates.find(onlyForCommand) == m_argumentTemplates.end()) {
         CERR("Command '" << onlyForCommand << "' is not defined" << endl)
         return;
     }
 
-    COUT(m_programVersion << endl)
-    printLine(doubleLine, screenColumns);
-    COUT(m_description << endl)
+    output << m_programVersion << endl;
+    printLine(doubleLine, screenColumns, output);
+    output << m_description << endl;
 
-    COUT("\nSyntax:" << endl)
-    printLine(singleLine, screenColumns);
+    output << endl << "Syntax:" << endl;
+    printLine(singleLine, screenColumns, output);
 
     String commandLinePrototype = m_commandLinePrototype;
     if (!onlyForCommand.empty())
         commandLinePrototype = commandLinePrototype.replace("<command>", onlyForCommand);
-    COUT(commandLinePrototype << endl)
+    output << commandLinePrototype << endl;
 
     // Find out space needed for command and option names
     size_t nameColumns = 10;
@@ -501,16 +500,16 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         return;
     }
 
-    printCommands(onlyForCommand, screenColumns, nameColumns, sortedCommands, helpTextColumns);
-    printOptions(onlyForCommand, screenColumns, nameColumns, sortedOptions, helpTextColumns);
+    printCommands(onlyForCommand, screenColumns, nameColumns, sortedCommands, helpTextColumns, output);
+    printOptions(onlyForCommand, screenColumns, nameColumns, sortedOptions, helpTextColumns, output);
 }
 
 void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
-                               const Strings& sortedOptions, size_t helpTextColumns) const
+                               const Strings& sortedOptions, size_t helpTextColumns, ostream& output) const
 {
     if (!m_optionTemplates.empty()) {
-        COUT("\nOptions:" << endl)
-        printLine(singleLine, screenColumns);
+        output << endl << "Options:" << endl;
+        printLine(singleLine, screenColumns, output);
         for (const String& optionName : sortedOptions) {
             auto itor = m_optionTemplates.find(optionName);
             const auto optionTemplate = itor->second;
@@ -520,31 +519,31 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
             auto vtor = m_values.find(optionTemplate->name());
             if (vtor != m_values.end())
                 defaultValue = vtor->second;
-            optionTemplate->printHelp(nameColumns, helpTextColumns, defaultValue);
+            optionTemplate->printHelp(nameColumns, helpTextColumns, defaultValue, output);
         }
     }
 }
 
 void CommandLine::printCommands(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
-                                const Strings& sortedCommands, size_t helpTextColumns) const
+                                const Strings& sortedCommands, size_t helpTextColumns, ostream& output) const
 {
     if (onlyForCommand.empty() && !m_argumentTemplates.empty()) {
-        COUT("\nCommands:" << endl)
-        printLine(singleLine, screenColumns);
+        output << endl << "Commands:" << endl;
+        printLine(singleLine, screenColumns, output);
         for (const String& commandName : sortedCommands) {
             auto ator = m_argumentTemplates.find(commandName);
             if (!onlyForCommand.empty() && commandName != onlyForCommand) {
                 continue;
             }
             const auto commandTemplate = ator->second;
-            commandTemplate->printHelp(nameColumns, helpTextColumns, "");
+            commandTemplate->printHelp(nameColumns, helpTextColumns, "", output);
         }
     }
 }
 
-void CommandLine::printVersion() const
+void CommandLine::printVersion(ostream& output) const
 {
-    COUT(m_programVersion << endl)
+    output << m_programVersion << endl;
 }
 
 #if USE_GTEST
@@ -612,8 +611,9 @@ TEST(SPTK_CommandLine, printHelp)
 {
     shared_ptr<CommandLine> commandLine(createTestCommandLine());
 
+    stringstream output;
     commandLine->init(7, testCommandLineArgs);
-    commandLine->printHelp(80);
+    commandLine->printHelp(80, output);
 }
 
 #endif

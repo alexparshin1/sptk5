@@ -941,7 +941,7 @@ TEST(SPTK_DateTime, isoTimeString)
 
     auto t = mktime(&tt);
 
-    auto* st = localtime(&t);
+    const auto* st = localtime(&t);
     COUT(asctime(st) << endl)
 
     String input("2018-01-01T11:22:33");

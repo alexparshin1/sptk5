@@ -54,7 +54,7 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; ++i) {
         DatabaseConnection db = connectionPool.getConnection();
         db->open();
 

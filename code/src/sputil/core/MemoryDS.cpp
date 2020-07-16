@@ -196,10 +196,14 @@ bool MemoryDS::empty() const
 
 #if USE_GTEST
 
-static struct {
+struct Person
+{
     String  name;
     int     age {0};
-} people[] = {
+};
+
+static const vector<Person> people
+{
     { "John", 30 },
     { "Jane", 28 },
     { "Bob", 6 }
@@ -211,15 +215,15 @@ TEST(SPTK_MemoryDS, createAndVerify)
 
     EXPECT_TRUE(ds.empty());
 
-    for (int i = 0; i < 3; i++) {
+    for (const auto& person: people) {
         auto* row = new FieldList;
 
         auto* name = new Field("name");
-        *name = people[i].name;
+        *name = person.name;
         row->push_back(name);
 
         auto* age = new Field("age");
-        *age = people[i].age;
+        *age = person.age;
         row->push_back(age);
 
         ds.push_back(row);
@@ -239,7 +243,6 @@ TEST(SPTK_MemoryDS, createAndVerify)
     }
 
     EXPECT_FALSE(ds.find("age", 31));
-
     EXPECT_TRUE(ds.find("age", 28));
     EXPECT_STREQ(ds["name"].asString().c_str(), "Jane");
     EXPECT_EQ(ds[1].asInteger(), 28);

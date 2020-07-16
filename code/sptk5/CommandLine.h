@@ -86,7 +86,7 @@ public:
      * @param ch                Character to print
      * @param count             Number of characters to print
      */
-    static void printLine(const String& ch, size_t count);
+    static void printLine(const String& ch, size_t count, std::ostream& output);
 
     /**
      * Print help on commands
@@ -97,7 +97,7 @@ public:
      * @param helpTextColumns   Number of columns for help text
      */
     void printCommands(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
-                       const Strings& sortedCommands, size_t helpTextColumns) const;
+                       const Strings& sortedCommands, size_t helpTextColumns, std::ostream& output) const;
 
     /**
      * Print help on options
@@ -107,8 +107,8 @@ public:
      * @param sortedOptions     Sorted option list
      * @param helpTextColumns   Number of columns for help text
      */
-    void printOptions(const String& onlyForCommand, size_t screenColumns, size_t nameColumns, const Strings& sortedOptions,
-                      size_t helpTextColumns) const;
+    void printOptions(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
+                      const Strings& sortedOptions, size_t helpTextColumns, std::ostream& output) const;
 
     /**
      * Constructor
@@ -188,19 +188,19 @@ public:
      * Prints full help
      * @param screenColumns     Screen width in columns
      */
-    void printHelp(size_t screenColumns) const;
+    void printHelp(size_t screenColumns, std::ostream& output=std::cout) const;
 
     /**
      * Prints help for a given command/argument
-     * @param command           Command to print help for
+     * @param onlyForCommand           Command to print help for
      * @param screenColumns     Screen width in columns
      */
-    void printHelp(const String& command, size_t screenColumns) const;
+    void printHelp(const String& onlyForCommand, size_t screenColumns, std::ostream& output=std::cout) const;
 
     /**
      * Prints program version
      */
-    void printVersion() const;
+    void printVersion(std::ostream& output=std::cout) const;
 
     /**
      * Preprocess command line arguments
