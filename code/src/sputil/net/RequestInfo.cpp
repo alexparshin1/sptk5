@@ -95,21 +95,52 @@ Buffer RequestInfo::Message::output(const Strings& contentEncodings)
 
 #if USE_GTEST
 
+static Buffer decode(const Buffer& data, const String& encoding)
+{
+    Buffer decoded;
+    if (encoding == "br") {
+#if HAVE_BROTLI
+        Buffer brotliData;
+        Brotli::decompress(decoded, data);
+        return decoded;
+#endif
+    }
+    if (encoding == "gzip") {
+#if HAVE_ZLIB
+        Buffer brotliData;
+        ZLib::decompress(decoded, data);
+        return decoded;
+#endif
+    }
+    throw Exception("Unsupported encoding: " + encoding);
+}
+
 TEST(SPTK_RequestInfo, Message)
 {
     Buffer testData;
     for (size_t i = 0; i < 16; ++i)
-        testData.append("0123456789ABCDEF");
+        testData.append("<0123456789=ABCDEF>");
 
-    Strings outputEncodings;
+    Strings outputEncodings { "br", "gzip" };
     RequestInfo::Message message;
+
+    message.input(testData, "");
+    auto output = message.output(outputEncodings);
+    auto decoded = decode(output, message.contentEncoding());
+
+    Buffer urlEncoded(Url::encode(testData.c_str()));
+    message.input(urlEncoded, "x-www-form-urlencoded");
+    output = message.output(outputEncodings);
+    decoded = decode(output, message.contentEncoding());
+    EXPECT_STREQ(testData.c_str(), decoded.c_str());
 
 #if HAVE_BROTLI
     Buffer brotliData;
     Brotli::compress(brotliData, testData);
     EXPECT_TRUE(testData.length() > brotliData.length());
     message.input(brotliData, "br");
-    auto decoded = message.output(outputEncodings);
+    output = message.output(outputEncodings);
+    decoded = decode(output, message.contentEncoding());
     EXPECT_STREQ(testData.c_str(), decoded.c_str());
 
     try {
@@ -122,11 +153,13 @@ TEST(SPTK_RequestInfo, Message)
 #endif
 
 #if HAVE_ZLIB
+    outputEncodings.remove("br");
     Buffer gzipData;
     ZLib::compress(gzipData, testData);
     EXPECT_TRUE(testData.length() > gzipData.length());
     message.input(gzipData, "gzip");
-    decoded = message.output(outputEncodings);
+    output = message.output(outputEncodings);
+    decoded = decode(output, message.contentEncoding());
     EXPECT_STREQ(testData.c_str(), decoded.c_str());
 
     try {
