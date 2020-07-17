@@ -64,9 +64,6 @@ typedef std::unique_lock<SharedMutex>       WriteLockType;
  */
 class SP_EXPORT UniqueLockInt
 {
-    SharedMutex&    mutex;              ///< Shared mutex that controls lock
-    bool            locked {true};      ///< True if lock is acquired
-
 public:
 
     /**
@@ -75,6 +72,8 @@ public:
      * @param mutex             Shared mutex that controls lock
      */
     explicit UniqueLockInt(SharedMutex& mutex);
+
+    UniqueLockInt(const UniqueLockInt&) = delete;
 
     /**
      * Constructor
@@ -95,6 +94,11 @@ public:
         if (locked)
             mutex.unlock();
     }
+
+private:
+
+    SharedMutex&    mutex;              ///< Shared mutex that controls lock
+    bool            locked {true};      ///< True if lock is acquired
 };
 
 /**
@@ -105,9 +109,6 @@ public:
  */
 class SP_EXPORT SharedLockInt
 {
-    SharedMutex&    mutex;              ///< Shared mutex that controls lock
-    bool            locked {true};      ///< True if lock is acquired
-
 public:
 
     /**
@@ -126,6 +127,8 @@ public:
      */
     SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line);
 
+    SharedLockInt(const SharedLockInt&) = delete;
+
     /**
      * Destructor
      * Unlocks lock if it was acquired.
@@ -139,6 +142,11 @@ public:
             mutex.unlock();
 #endif
     }
+
+private:
+
+    SharedMutex&    mutex;              ///< Shared mutex that controls lock
+    bool            locked {true};      ///< True if lock is acquired
 };
 
 /**

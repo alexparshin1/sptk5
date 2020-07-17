@@ -48,21 +48,6 @@ namespace sptk {
 template <class T>
 class SynchronizedList
 {
-    /**
-     * Lock to synchronize list operations
-     */
-    mutable std::mutex      m_mutex;
-
-    /**
-     * Semaphore to waiting for an item if list is empty
-     */
-    Semaphore               m_semaphore;
-
-    /**
-     * List
-     */
-    std::list<T>*           m_list {new std::list<T>};
-
 public:
 
     /**
@@ -78,6 +63,11 @@ public:
      * Default constructor
      */
     SynchronizedList() = default;
+
+    SynchronizedList(const SynchronizedList&) = delete;
+    SynchronizedList(SynchronizedList&&) noexcept = default;
+    SynchronizedList& operator = (const SynchronizedList&) = delete;
+    SynchronizedList& operator = (SynchronizedList&&) noexcept = default;
 
     /**
      * Destructor
@@ -221,6 +211,12 @@ public:
         }
         return true;
     }
+
+private:
+
+    mutable std::mutex      m_mutex;                    ///< Lock to synchronize list operations
+    Semaphore               m_semaphore;                ///< Semaphore to waiting for an item if list is empty
+    std::list<T>*           m_list {new std::list<T>};  ///< List
 };
 
 /**

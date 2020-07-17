@@ -83,6 +83,11 @@ public:
      */
     explicit ArrayData(const Document* document, Element* parent = nullptr);
 
+    ArrayData(const ArrayData&) = delete;
+    ArrayData(ArrayData&&) = default;
+    ArrayData& operator = (const ArrayData&) = delete;
+    ArrayData& operator = (ArrayData&&) = default;
+
     /**
      * Destructor
      */

@@ -114,7 +114,7 @@ int main(int argc, const char* argv[])
 
     try {
         size_t screenColumns = 80;
-        auto* colsStr = getenv("COLS");
+        const auto* colsStr = getenv("COLS");
         if (colsStr != nullptr)
             screenColumns = string2int(colsStr);
 

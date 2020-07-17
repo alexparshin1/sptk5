@@ -79,6 +79,11 @@ public:
      */
     SynchronizedQueue() = default;
 
+    SynchronizedQueue(const SynchronizedQueue&) = delete;
+    SynchronizedQueue(SynchronizedQueue&&) noexcept = default;
+    SynchronizedQueue& operator = (const SynchronizedQueue&) = delete;
+    SynchronizedQueue& operator = (SynchronizedQueue&&) noexcept = default;
+
     /**
      * Destructor
      */

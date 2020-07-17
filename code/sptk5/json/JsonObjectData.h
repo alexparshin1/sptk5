@@ -154,6 +154,11 @@ public:
      */
     explicit ObjectData(Document* document, Element* parent = nullptr);
 
+    ObjectData(const ObjectData&) = delete;
+    ObjectData(ObjectData&&) = default;
+    ObjectData& operator = (const ObjectData&) = delete;
+    ObjectData& operator = (ObjectData&&) = default;
+
     /**
      * Destructor
      */

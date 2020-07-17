@@ -61,7 +61,7 @@ void Channel::close()
     }
 }
 
-int Channel::copyData(TCPSocket& source, TCPSocket& destination)
+int Channel::copyData(const TCPSocket& source, const TCPSocket& destination)
 {
     lock_guard<mutex>   lock(m_mutex);
 
