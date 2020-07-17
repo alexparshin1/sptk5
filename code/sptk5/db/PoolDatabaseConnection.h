@@ -270,7 +270,10 @@ public:
     /**
      * Returns driver-specific connection string
      */
-    virtual String nativeConnectionString() const = 0;
+    virtual String nativeConnectionString() const
+    {
+        return "";
+    }
 
     /**
      * Returns the connection type

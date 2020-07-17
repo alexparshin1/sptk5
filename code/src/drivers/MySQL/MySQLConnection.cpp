@@ -109,18 +109,6 @@ bool MySQLConnection::active() const
     return m_connection != nullptr;
 }
 
-String MySQLConnection::nativeConnectionString() const
-{
-    const DatabaseConnectionString& connString = connectionString();
-    // Connection string in format: host[:port][/instance]
-    stringstream connectionString(connString.hostName());
-    if (connString.portNumber() != 0)
-        connectionString << ":" << int2string(connString.portNumber());
-    if (!connString.databaseName().empty())
-        connectionString << "/" << connString.databaseName();
-    return connectionString.str();
-}
-
 void MySQLConnection::executeCommand(const String& command)
 {
     if (m_connection == nullptr)

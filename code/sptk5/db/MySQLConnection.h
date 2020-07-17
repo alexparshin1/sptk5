@@ -107,11 +107,6 @@ public:
     void* handle() const override;
 
     /**
-     * @brief Returns driver-specific connection string
-     */
-    String nativeConnectionString() const override;
-
-    /**
      * @brief Returns the MySQL driver description for the active connection
      */
     String driverDescription() const override;

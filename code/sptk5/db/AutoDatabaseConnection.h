@@ -119,14 +119,6 @@ public:
     }
 
     /**
-     * Returns driver-specific connection string
-     */
-    String nativeConnectionString() const
-    {
-        return m_connection->nativeConnectionString();
-    }
-
-    /**
      * Returns the connection type
      */
     DatabaseConnectionType connectionType() const
