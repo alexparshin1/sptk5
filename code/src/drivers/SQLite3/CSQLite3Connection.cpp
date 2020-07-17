@@ -408,7 +408,7 @@ void SQLite3Connection::queryFetch(Query* query)
             throw DatabaseException(queryError(query), __FILE__, __LINE__, query->sql());
     }
 
-    uint32_t fieldCount = query->fieldCount();
+    auto fieldCount = query->fieldCount();
     uint32_t dataLength = 0;
 
     if (fieldCount == 0)

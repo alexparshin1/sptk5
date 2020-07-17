@@ -634,7 +634,7 @@ void ODBCConnection::queryFetch(Query* query)
         }
     }
 
-    uint32_t fieldCount = query->fieldCount();
+    auto   fieldCount = query->fieldCount();
     SQLLEN dataLength = 0;
 
     if (fieldCount == 0)

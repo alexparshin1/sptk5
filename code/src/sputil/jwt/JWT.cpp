@@ -207,7 +207,7 @@ void JWT::write_body(std::ostream& output, bool pretty) const
     grants.exportTo(output, pretty);
 }
 
-void JWT::sign(Buffer& out, const char* str)
+void JWT::sign(Buffer& out, const char* str) const
 {
     switch (alg) {
         /* HMAC */
@@ -358,7 +358,7 @@ void sptk::jwt_base64uri_encode(Buffer& buffer)
     buffer.bytes(t);
 }
 
-void JWT::verify(const Buffer& head, const Buffer& sig)
+void JWT::verify(const Buffer& head, const Buffer& sig) const
 {
     switch (alg) {
         /* HMAC */

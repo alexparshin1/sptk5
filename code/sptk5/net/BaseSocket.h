@@ -154,7 +154,7 @@ public:
      * Set blocking mode
      * @param blocking          Socket blocking mode flag
      */
-    void blockingMode(bool blocking);
+    void blockingMode(bool blocking) const;
 
     /**
      * Returns number of bytes available in socket
@@ -244,20 +244,20 @@ public:
     /**
      * Calls Unix fcntl() or Windows ioctlsocket()
      */
-    int32_t control(int flag, const uint32_t* check);
+    int32_t control(int flag, const uint32_t* check) const;
 
     /**
      * Sets socket option value
      * Throws an error if not succeeded
      */
-    void setOption(int level, int option, int value);
+    void setOption(int level, int option, int value) const;
 
     /**
      * Gets socket option value
      *
      * Throws an error if not succeeded
      */
-    void getOption(int level, int option, int& value);
+    void getOption(int level, int option, int& value) const;
 
     /**
      * Reads data from the socket in regular or TLS mode

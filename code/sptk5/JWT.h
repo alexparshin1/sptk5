@@ -124,7 +124,7 @@ public:
      * @param token             Output token data
      * @param str               Data to sign
      */
-    void sign(Buffer& token, const char* str);
+    void sign(Buffer& token, const char* str) const;
 
     /**
      * Encode token to stream
@@ -192,7 +192,7 @@ public:
      * @param head              Token head
      * @param sig               Signature
      */
-    void verify(const Buffer& head, const Buffer& sig);
+    void verify(const Buffer& head, const Buffer& sig) const;
 
     /**
      * Sign using SHA algorithm to HMAC format

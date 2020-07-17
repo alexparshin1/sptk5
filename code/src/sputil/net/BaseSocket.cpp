@@ -99,7 +99,7 @@ BaseSocket::~BaseSocket()
 #endif
 }
 
-void BaseSocket::blockingMode(bool blocking)
+void BaseSocket::blockingMode(bool blocking) const
 {
 #ifdef _WIN32
     uint32_t arg = blocking ? 0 : 1;
@@ -142,7 +142,7 @@ size_t BaseSocket::send(const void* buffer, size_t len)
     return (size_t) ::send(m_sockfd, (const char*) buffer, (int32_t) len, 0);
 }
 
-int32_t BaseSocket::control(int flag, const uint32_t* check)
+int32_t BaseSocket::control(int flag, const uint32_t* check) const
 {
 #ifdef _WIN32
     return ioctlsocket (m_sockfd, flag, (u_long *) check);
@@ -447,14 +447,14 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 # define VALUE_TYPE(val) (void*)(val)
 #endif
 
-void BaseSocket::setOption(int level, int option, int value)
+void BaseSocket::setOption(int level, int option, int value) const
 {
     const socklen_t len = sizeof(int);
     if (setsockopt(m_sockfd, level, option, VALUE_TYPE (&value), len) != 0)
         THROW_SOCKET_ERROR("Can't set socket option");
 }
 
-void BaseSocket::getOption(int level, int option, int& value)
+void BaseSocket::getOption(int level, int option, int& value) const
 {
     socklen_t len = sizeof(int);
     if (getsockopt(m_sockfd, level, option, VALUE_TYPE (&value), &len) != 0)

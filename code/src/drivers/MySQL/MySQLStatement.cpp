@@ -412,10 +412,10 @@ void MySQLStatement::readResultRow(FieldList& fields)
 
 void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
 {
-    uint32_t    fieldCount = fields.size();
+    auto        fieldCount = fields.size();
     const auto* lengths = mysql_fetch_lengths(m_result);
 
-    for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
+    for (std::size_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
 
         auto* field = (CMySQLStatementField*) &fields[fieldIndex];
 
@@ -503,9 +503,9 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
 
 void MySQLStatement::readPreparedResultRow(FieldList& fields)
 {
-    uint32_t    fieldCount = fields.size();
-    bool        fieldSizeChanged = false;
-    for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
+    auto    fieldCount = fields.size();
+    bool    fieldSizeChanged = false;
+    for (size_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
         auto*        field = (CMySQLStatementField*) &fields[fieldIndex];
         MYSQL_BIND& bind = m_fieldBuffers[fieldIndex];
 
@@ -551,7 +551,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
                     field->checkSize(dataLength+1);
                     bind.buffer = field->getBuffer() + offset;
                     bind.buffer_length = remainingBytes;
-                    if (mysql_stmt_fetch_column(statement(), &bind, fieldIndex, offset) != 0)
+                    if (mysql_stmt_fetch_column(statement(), &bind, (unsigned) fieldIndex, offset) != 0)
                         throwMySQLError();
                     bind.buffer_length = field->bufferSize();
                     bind.buffer = (void*) field->getBuffer();

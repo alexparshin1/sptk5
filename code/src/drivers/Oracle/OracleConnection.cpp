@@ -417,18 +417,18 @@ void OracleConnection::queryFetch(Query* query)
         return;
     }
 
-    uint32_t fieldCount = query->fieldCount();
+    auto fieldCount = query->fieldCount();
     if (!fieldCount)
         return;
 
     ResultSet* resultSet = statement->resultSet();
     DatabaseField* field = nullptr;
-    for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
+    for (unsigned fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
         try {
             field = (DatabaseField*) &(*query)[fieldIndex];
 
             // Result set column index starts from 1
-            unsigned columnIndex = fieldIndex + 1;
+            size_t columnIndex = fieldIndex + 1;
 
             if (resultSet->isNull(columnIndex)) {
                 field->setNull(VAR_NONE);

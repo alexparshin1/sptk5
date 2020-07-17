@@ -123,7 +123,7 @@ bool MemoryDS::last()
     UniqueLock(m_mutex);
 
     if (!m_list.empty()) {
-        int index = m_list.size() - 1;
+        size_t index = m_list.size() - 1;
         m_current = m_list.begin() + index;
         return true;
     }
