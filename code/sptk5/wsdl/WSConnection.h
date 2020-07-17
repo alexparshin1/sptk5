@@ -70,7 +70,7 @@ public:
      * @param keepAlive         Suggest clients to keep-alive connections
      * @param logDetails        Log messages details
      */
-    WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger,
+    WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, WSRequest& service, Logger& logger,
                  const Paths& paths, bool allowCORS, bool keepAlive, bool suppressHttpStatus, const LogDetails& logDetails);
 
     /**
@@ -110,7 +110,7 @@ public:
      * Constructor
      * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
      */
-    WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
+    WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSRequest& service,
                     Logger& logger, const Paths& paths, int options, const LogDetails& logDetails);
 
     /**

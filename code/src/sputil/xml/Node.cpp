@@ -157,7 +157,7 @@ bool NodeSearchAlgorithms::matchPathElement(Node* thisNode, const XPathElement& 
 
     // Node criteria is attribute
     if (pathElement.attributeName != nullptr && thisNode->type() == Node::DOM_ELEMENT) {
-        Attributes& attributes = thisNode->attributes();
+        const Attributes& attributes = thisNode->attributes();
         bool attributeMatch = false;
         if (pathElement.attributeValueDefined) {
             if (pathElement.attributeName == starPointer) {
@@ -181,7 +181,7 @@ bool NodeSearchAlgorithms::matchPathElement(Node* thisNode, const XPathElement& 
     return true;
 }
 
-void NodeSearchAlgorithms::matchNodesThisLevel(Node* thisNode, NodeVector& nodes, const vector<XPathElement>& pathElements, int pathPosition,
+void NodeSearchAlgorithms::matchNodesThisLevel(const Node* thisNode, NodeVector& nodes, const vector<XPathElement>& pathElements, int pathPosition,
                                                const std::string* starPointer, NodeVector& matchedNodes, bool descendants)
 {
     const XPathElement& pathElement = pathElements[size_t(pathPosition)];
@@ -220,7 +220,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(Node* thisNode, NodeVector& nodes
         matchNode(node, nodes, pathElements, pathPosition, starPointer);
 }
 
-void NodeSearchAlgorithms::scanDescendents(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+void NodeSearchAlgorithms::scanDescendents(const Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
                                            const std::string* starPointer)
 {
     NodeVector matchedNodes;
@@ -230,7 +230,7 @@ void NodeSearchAlgorithms::scanDescendents(Node* thisNode, NodeVector& nodes, co
 void NodeSearchAlgorithms::matchNode(Node* thisNode, NodeVector& nodes, const vector<XPathElement>& pathElements, int pathPosition,
                                      const std::string* starPointer)
 {
-    pathPosition++;
+    ++pathPosition;
     if (pathPosition == (int) pathElements.size()) {
         const XPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
         if (pathElement.elementName != nullptr)
@@ -264,7 +264,7 @@ void Node::select(NodeVector& nodes, String xpath)
 
     Strings pathElementStrs(ptr, "/");
     vector<XPathElement> pathElements(pathElementStrs.size());
-    for (size_t i = 0; i < pathElements.size(); i++)
+    for (size_t i = 0; i < pathElements.size(); ++i)
         parsePathElement(document(), pathElementStrs[i], pathElements[i]);
 
     const string* starPointer = &document()->shareString("*");
@@ -279,7 +279,7 @@ void Node::copy(const Node& node)
         attributes() = node.attributes();
     }
 
-    for (auto* childNode: node) {
+    for (const auto* childNode: node) {
         Node* element;
         switch (childNode->type()) {
             case DOM_ELEMENT:
@@ -311,7 +311,7 @@ String Node::text() const
     if ((type() & (DOM_TEXT | DOM_CDATA_SECTION)) != 0)
         ret += value();
     else {
-        for (auto* np: *this) {
+        for (const auto* np: *this) {
             if ((np->type() & (DOM_TEXT | DOM_CDATA_SECTION)) != 0)
                 ret += np->value();
         }
@@ -337,7 +337,7 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
     }
     if (!empty()) {
         bool only_cdata;
-        Node* nd = *begin();
+        const Node* nd = *begin();
         if (size() == 1 && nd->type() == DOM_TEXT) {
             only_cdata = true;
             buffer.append('>');
@@ -360,7 +360,7 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
 
 void Node::appendSubNodes(Buffer& buffer, int indent, bool only_cdata) const
 {
-    for (auto* np: *this) {
+    for (const auto* np: *this) {
         if (only_cdata)
             np->save(buffer, -1);
         else {
@@ -387,7 +387,7 @@ void Node::saveAttributes(Buffer& buffer) const
 {
     Buffer real_id;
     Buffer real_val;
-    for (auto* attributeNode: attributes()) {
+    for (const auto* attributeNode: attributes()) {
         real_id.bytes(0);
         real_val.bytes(0);
         if (!document()->docType().encodeEntities(attributeNode->name().c_str(), real_id))
@@ -488,7 +488,7 @@ void Node::saveElement(json::Element* object) const
     } else {
         bool done = false;
         if (size() == 1) {
-            for (auto* np: *this)
+            for (const auto* np: *this)
                 if (np->name() == "null") {
                     done = true;
                 }
@@ -496,7 +496,7 @@ void Node::saveElement(json::Element* object) const
         if (!done) {
             // output all subnodes
             String nodeText;
-            for (auto* np: *this)
+            for (const auto* np: *this)
                 np->save(*object, nodeText);
             if (object->is(json::JDT_OBJECT) && object->size() == 0) {
                 if (document()->m_matchNumber.matches(nodeText)) {
@@ -514,7 +514,7 @@ void Node::saveAttributes(json::Element* object) const
     const Attributes& attributes = this->attributes();
     if (!attributes.empty()) {
         auto* attrs = object->add_object("attributes");
-        for (auto* attributeNode: attributes)
+        for (const auto* attributeNode: attributes)
             attrs->set(attributeNode->name(), attributeNode->value());
     }
 }
@@ -522,7 +522,7 @@ void Node::saveAttributes(json::Element* object) const
 void Node::exportTo(json::Element& element) const
 {
     string text;
-    for (auto* np: *this)
+    for (const auto* np: *this)
         np->save(element, text);
 }
 

@@ -15,8 +15,6 @@
  */
 class CHelloResponse : public sptk::WSComplexType
 {
-    mutable sptk::SharedMutex m_mutex; ///< Mutex that protects access to internal data
-
 public:
 
    // Elements
@@ -29,16 +27,8 @@ public:
 
    // Field names of simple types, that can be used to build SQL queries
    static const sptk::Strings m_fieldNames;
-
-protected:
-
-   /**
-    * Clear content and releases allocated memory (internal)
-    */
-   void _clear() override;
-
-public:
-
+   static const sptk::Strings m_elementNames;
+   static const sptk::Strings m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
@@ -49,67 +39,7 @@ public:
    {}
 
    /**
-    * Copy constructor
-    * @param other              Other element to copy from
-    */
-   CHelloResponse(const CHelloResponse& other) noexcept
-   : sptk::WSComplexType(other),
-     m_date_of_birth(other.m_date_of_birth),
-     m_verified(other.m_verified),
-     m_retired(other.m_retired),
-     m_hour_rate(other.m_hour_rate),
-     m_vacation_days(other.m_vacation_days),
-     m_height(other.m_height)
-   {
-   }
-
-   /**
-    * Move constructor
-    * @param other              Other element to move from
-    */
-   CHelloResponse(CHelloResponse&& other) noexcept
-   : sptk::WSComplexType(std::move(other)),
-     m_date_of_birth(std::move(other.m_date_of_birth)),
-     m_verified(std::move(other.m_verified)),
-     m_retired(std::move(other.m_retired)),
-     m_hour_rate(std::move(other.m_hour_rate)),
-     m_vacation_days(std::move(other.m_vacation_days)),
-     m_height(std::move(other.m_height))
-   {
-       other.clear();
-   }
-
-   /**
-    * Destructor
-    */
-   ~CHelloResponse() override;
-
-   /**
-    * Copy assignment
-    * @param other              Other element to copy from
-    */
-   CHelloResponse& operator = (const CHelloResponse& other)
-   {
-       if (&other != this)
-           copyFrom(other);
-       return *this;
-   }
-
-   /**
-    * Move assignment
-    * @param other              Other element to move from
-    */
-   CHelloResponse& operator = (CHelloResponse&& other) noexcept
-   {
-       if (&other == this)
-           return *this;
-       copyFrom(other);
-       other.clear();
-       return *this;
-   }
-
-   /**
-    * Load CHelloResponse from XML node
+    * Load content from XML node
     *
     * Complex WSDL type members are loaded recursively.
     * @param input              XML node containing CHelloResponse data
@@ -117,7 +47,7 @@ public:
    void load(const sptk::xml::Element* input) override;
 
    /**
-    * Load CHelloResponse from JSON element
+    * Load content from JSON element
     *
     * Complex WSDL type members are loaded recursively.
     * @param input              JSON element containing CHelloResponse data
@@ -125,7 +55,7 @@ public:
    void load(const sptk::json::Element* input) override;
 
    /**
-    * Load CHelloResponse from FieldList
+    * Load content from FieldList
     *
     * Only simple WSDL type members are loaded.
     * @param input              Query field list containing CHelloResponse data
@@ -133,19 +63,19 @@ public:
    void load(const sptk::FieldList& input) override;
 
    /**
-    * Unload CHelloResponse to existing XML node
+    * Unload content to existing XML node
     * @param output             Existing XML node
     */
    void unload(sptk::xml::Element* output) const override;
 
    /**
-    * Unload CHelloResponse to existing JSON node
+    * Unload content to existing JSON node
     * @param output             Existing JSON node
     */
    void unload(sptk::json::Element* output) const override;
 
    /**
-    * Unload CHelloResponse to Query's parameters
+    * Unload content to Query's parameters
     * @param output             Query parameters
     */
    void unload(sptk::QueryParameterList& output) const override;
@@ -156,6 +86,13 @@ public:
     * @return list of fields as string vector
     */
    static const sptk::Strings& fieldNames() { return m_fieldNames; }
+
+protected:
+
+   /**
+    * Clear content and release allocated memory (internal)
+    */
+   void _clear() override;
 };
 
 typedef std::shared_ptr<CHelloResponse> SHelloResponse;

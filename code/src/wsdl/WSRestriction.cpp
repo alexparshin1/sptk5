@@ -34,8 +34,8 @@ WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElemen
 {
     xml::NodeVector enumerationNodes;
     simpleTypeElement->select(enumerationNodes, "xsd:restriction/xsd:enumeration");
-    for (auto* node: enumerationNodes) {
-        auto* enumerationNode = dynamic_cast<xml::Element*>(node);
+    for (const auto* node: enumerationNodes) {
+        const auto* enumerationNode = dynamic_cast<const xml::Element*>(node);
         if (enumerationNode != nullptr)
             m_enumeration.push_back((String) enumerationNode->getAttribute("value"));
     }

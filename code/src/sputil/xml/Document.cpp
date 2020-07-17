@@ -110,7 +110,7 @@ void Document::parseEntities(char* entitiesSection)
         ent_value = skipSpaces(ent_value);
         unsigned char delimiter = *ent_value;
         if (delimiter == '\'' || delimiter == '\"') {
-            ent_value++;
+            ++ent_value;
             end = (unsigned char*) strchr((char*) ent_value, (char) delimiter);
             if (end == nullptr) {
                 start = nullptr;
@@ -141,7 +141,7 @@ void Document::parseEntities(char* entitiesSection)
 unsigned char* Document::skipSpaces(unsigned char* start) const
 {
     while (*start <= ' ')
-        start++;
+        ++start;
     return start;
 }
 
@@ -160,7 +160,7 @@ void Document::parseDocType(char* docTypeSection)
     char delimiter = ' ';
     while (start != nullptr) {
         while (*start == ' ' || *start == delimiter)
-            start++;
+            ++start;
         char* end = strchr(start, delimiter);
         if (end != nullptr)
             *end = 0;
@@ -200,7 +200,7 @@ void Document::parseDocType(char* docTypeSection)
         if (end == nullptr)
             break;
         start = end + 1;
-        index++;
+        ++index;
     }
 }
 
@@ -209,7 +209,7 @@ void Document::extractEntities(char* docTypeSection)
     char* entitiesSection = strchr(docTypeSection, '[');
     if (entitiesSection != nullptr) {
         *entitiesSection = 0;
-        entitiesSection++;
+        ++entitiesSection;
         char* end = strchr(entitiesSection, ']');
         if (end != nullptr) {
             *end = 0;
@@ -245,7 +245,7 @@ char* Document::readDocType(char* tokenEnd)
     auto* nodeEnd = strstr(tokenEnd + 1, "]>");
 
     if (nodeEnd != nullptr) { /// ENTITIES
-        nodeEnd++;
+        ++nodeEnd;
         *nodeEnd = 0;
     } else {
         nodeEnd = strchr(tokenEnd + 1, '>');
@@ -280,11 +280,11 @@ char* Document::readExclamationTag(char* nodeName, char* tokenEnd, char* nodeEnd
     return tokenEnd;
 }
 
-char* Document::readProcessingInstructions(char* nodeName, char* tokenEnd, char*& nodeEnd, Node* currentNode)
+char* Document::readProcessingInstructions(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node* currentNode)
 {
     nodeEnd = strstr(tokenEnd, ">");
     if (nodeEnd != nullptr) {
-        nodeEnd--;
+        --nodeEnd;
         if (*nodeEnd != '?')
             nodeEnd = nullptr;
     }
@@ -302,13 +302,13 @@ char* Document::readProcessingInstructions(char* nodeName, char* tokenEnd, char*
     return tokenEnd;
 }
 
-char* Document::readClosingTag(char* nodeName, char* tokenEnd, Node*& currentNode)
+char* Document::readClosingTag(const char* nodeName, char* tokenEnd, Node*& currentNode)
 {
     char ch = *tokenEnd;
     *tokenEnd = 0;
     if (ch != '>')
         throw Exception("Invalid tag (spaces before closing '>')");
-    nodeName++;
+    ++nodeName;
     if (currentNode->name() != nodeName)
         throw Exception(
                 "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() +
@@ -320,7 +320,7 @@ char* Document::readClosingTag(char* nodeName, char* tokenEnd, Node*& currentNod
     return tokenEnd;
 }
 
-char* Document::readOpenningTag(char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode)
+char* Document::readOpenningTag(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode)
 {
     char ch = *tokenEnd;
     *tokenEnd = 0;
@@ -390,11 +390,11 @@ void Document::load(const char* xmlData)
         }
         unsigned char* textStart = (unsigned char*) nameEnd + 1;
         while (*textStart <= ' ') /// Skip leading spaces
-            textStart++;
+            ++textStart;
         if (*textStart != '<')
-            for (unsigned char* textTrail = (unsigned char*) nodeStart - 1; textTrail >= textStart; textTrail--) {
+            for (unsigned char* textTrail = (unsigned char*) nodeStart - 1; textTrail >= textStart; --textTrail) {
                 if (*textTrail > ' ') {
-                    textTrail++;
+                    ++textTrail;
                     *textTrail = 0;
                     Buffer& decoded = m_decodeBuffer;
                     doctype->decodeEntities((char*) textStart, uint32_t(textTrail - textStart), decoded);
@@ -407,13 +407,13 @@ void Document::load(const char* xmlData)
 
 void Document::save(Buffer& buffer, int) const
 {
-    Node* xml_pi = nullptr;
+    const Node* xml_pi = nullptr;
 
     buffer.reset();
 
     // Write XML PI
     bool hasXmlPI = false;
-    for (auto* node: *this) {
+    for (const auto* node: *this) {
         if (node->type() == DOM_PI && lowerCase(node->name()) == "xml") {
             xml_pi = node;
             xml_pi->save(buffer, 0);
@@ -446,7 +446,7 @@ void Document::save(Buffer& buffer, int) const
     }
 
     // call save() method of the first (and hopefully only) node in xml document
-    for (auto* node: *this) {
+    for (const auto* node: *this) {
         if (node == xml_pi)
             continue;
         node->save(buffer, indentSpaces());
@@ -462,7 +462,7 @@ String Document::name() const
 
 void Document::exportTo(json::Element& json) const
 {
-    Node* rootNode = *begin();
+    const Node* rootNode = *begin();
     rootNode->exportTo(json);
     json.optimizeArrays("item");
 }
@@ -493,7 +493,7 @@ static const char* testREST =
 
 void verifyDocument(xml::Document& document)
 {
-    xml::Node* nameNode = document.findOrCreate("name");
+    const xml::Node* nameNode = document.findOrCreate("name");
     EXPECT_STREQ("John", nameNode->text().c_str());
     EXPECT_STREQ("president", nameNode->getAttribute("position").asString().c_str());
 
@@ -502,7 +502,7 @@ void verifyDocument(xml::Document& document)
     EXPECT_DOUBLE_EQ(1519005758, int(string2int64(document.findOrCreate("timestamp")->text())/1000));
 
     Strings skills;
-    for (auto* node: *document.findOrCreate("skills")) {
+    for (const auto* node: *document.findOrCreate("skills")) {
         skills.push_back(node->text());
     }
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
@@ -591,19 +591,19 @@ TEST(SPTK_XmlDocument, parse)
     xml::Document document;
     document.load(testREST);
 
-    auto* xmlElement = document.findFirst("xml");
+    const auto* xmlElement = document.findFirst("xml");
     EXPECT_STREQ(xmlElement->getAttribute("version").asString().c_str(), "1.0");
     EXPECT_STREQ(xmlElement->getAttribute("encoding").asString().c_str(), "UTF-8");
 
-    auto* bodyElement = document.findFirst("soap:Body");
+    const auto* bodyElement = document.findFirst("soap:Body");
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
     EXPECT_EQ(2, bodyElement->type());
     EXPECT_EQ(1, (int) bodyElement->size());
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 
-    xml::Node* methodElement = nullptr;
-    for (auto* node: *bodyElement) {
+    const xml::Node* methodElement = nullptr;
+    for (const auto* node: *bodyElement) {
         if (node->isElement()) {
             methodElement = node;
             break;

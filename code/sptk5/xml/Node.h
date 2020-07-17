@@ -639,7 +639,7 @@ public:
     /**
      * Scan descendents nodes
      */
-    static void scanDescendents(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+    static void scanDescendents(const Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
                                 const std::string* starPointer);
 
     /**
@@ -651,7 +651,7 @@ public:
     /**
      * Match nodes only this level
      */
-    static void matchNodesThisLevel(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+    static void matchNodesThisLevel(const Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
                                     const std::string* starPointer, NodeVector& matchedNodes, bool descendants);
 
     /**

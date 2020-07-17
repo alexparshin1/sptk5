@@ -4,12 +4,9 @@
 using namespace std;
 using namespace sptk;
 
-const Strings CHelloResponse::m_fieldNames { "date_of_birth", "verified", "retired", "hour_rate", "vacation_days", "height"};
-
-CHelloResponse::~CHelloResponse()
-{
-    WSComplexType::clear();
-}
+const Strings CHelloResponse::m_fieldNames { "date_of_birth", "verified", "retired", "hour_rate", "vacation_days", "height" };
+const Strings CHelloResponse::m_elementNames { "date_of_birth", "verified", "retired", "hour_rate", "vacation_days", "height" };
+const Strings CHelloResponse::m_attributeNames { "" };
 
 void CHelloResponse::_clear()
 {
@@ -24,16 +21,13 @@ void CHelloResponse::_clear()
 
 void CHelloResponse::load(const xml::Element* input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
 
     // Load elements
-    for (auto* node: *input) {
-        auto* element = dynamic_cast<xml::Element*>(node);
-        if (element == nullptr) {
-            continue;
-        }
+    for (const auto* node: *input) {
+        const auto* element = dynamic_cast<const xml::Element*>(node);
+        if (element == nullptr) continue;
 
         if (element->name() == "date_of_birth") {
             m_date_of_birth.load(element);
@@ -66,6 +60,7 @@ void CHelloResponse::load(const xml::Element* input)
         }
     }
 
+
     // Check 'required' restrictions
     m_date_of_birth.throwIfNull("HelloResponse");
     m_verified.throwIfNull("HelloResponse");
@@ -77,14 +72,13 @@ void CHelloResponse::load(const xml::Element* input)
 
 void CHelloResponse::load(const json::Element* input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
 
     // Load elements
     for (auto& itor: input->getObject()) {
-        auto  elementName = itor.name();
-        auto* element = itor.element();
+        const auto& elementName = itor.name();
+        const auto* element = itor.element();
 
         if (elementName == "date_of_birth") {
             m_date_of_birth.load(element);
@@ -117,6 +111,7 @@ void CHelloResponse::load(const json::Element* input)
         }
     }
 
+
     // Check 'required' restrictions
     m_date_of_birth.throwIfNull("HelloResponse");
     m_verified.throwIfNull("HelloResponse");
@@ -128,10 +123,9 @@ void CHelloResponse::load(const json::Element* input)
 
 void CHelloResponse::load(const FieldList& input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
-    Field* field;
+    const Field* field;
 
     // Load elements
     if ((field = input.findField("date_of_birth")) != nullptr) {
@@ -170,7 +164,6 @@ void CHelloResponse::load(const FieldList& input)
 
 void CHelloResponse::unload(xml::Element* output) const
 {
-    SharedLock(m_mutex);
 
     // Unload elements
     m_date_of_birth.addElement(output);
@@ -183,7 +176,6 @@ void CHelloResponse::unload(xml::Element* output) const
 
 void CHelloResponse::unload(json::Element* output) const
 {
-    SharedLock(m_mutex);
 
     // Unload elements
     m_date_of_birth.addElement(output);
@@ -196,7 +188,6 @@ void CHelloResponse::unload(json::Element* output) const
 
 void CHelloResponse::unload(QueryParameterList& output) const
 {
-    SharedLock(m_mutex);
 
     // Unload attributes
     WSComplexType::unload(output, "date_of_birth", dynamic_cast<const WSBasicType*>(&m_date_of_birth));

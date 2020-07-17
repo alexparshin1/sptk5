@@ -33,8 +33,8 @@ using namespace sptk;
 
 static void extractNameSpaces(xml::Node* node, map<String,WSNameSpace>& nameSpaces)
 {
-    for (auto* attributeNode: node->attributes()) {
-        auto* attribute = dynamic_cast<xml::Attribute*>(attributeNode);
+    for (const auto* attributeNode: node->attributes()) {
+        const auto* attribute = dynamic_cast<const xml::Attribute*>(attributeNode);
         if (attribute == nullptr)
             continue;
         if (attribute->nameSpace() != "xmlns")
@@ -43,7 +43,7 @@ static void extractNameSpaces(xml::Node* node, map<String,WSNameSpace>& nameSpac
     }
 }
 
-xml::Element* WSRequest::findSoapBody(xml::Element* soapEnvelope, const WSNameSpace& soapNamespace)
+xml::Element* WSRequest::findSoapBody(const xml::Element* soapEnvelope, const WSNameSpace& soapNamespace)
 {
     lock_guard<mutex> lock(*this);
 
@@ -78,7 +78,7 @@ void WSRequest::processRequest(xml::Document* xmlContent, json::Document* jsonCo
 
         if (soapEnvelope == nullptr) throwException("Can't find SOAP Envelope node")
 
-        xml::Element* soapBody = findSoapBody(soapEnvelope, soapNamespace);
+        const xml::Element* soapBody = findSoapBody(soapEnvelope, soapNamespace);
 
         xml::Element* requestNode = nullptr;
         for (auto* anode: *soapBody) {

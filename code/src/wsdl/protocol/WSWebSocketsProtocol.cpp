@@ -57,13 +57,13 @@ void WSWebSocketsMessage::decode(const char* incomingData)
     m_finalMessage = (*ptr & 0x80) != 0;
     m_opcode = uint32_t(*ptr & 0xF);
 
-    ptr++;
+    ++ptr;
     bool masked = (*ptr & 0x80) != 0;
     auto payloadLength = uint64_t((*ptr) & 0x7F);
     switch (payloadLength) {
-        case 126:   ptr++; payloadLength = ntohs(*(const uint16_t*)ptr); ptr += 2; break;
-        case 127:   ptr++; payloadLength = ntoh64(*(const uint64_t*)ptr); ptr += 8; break;
-        default:    ptr++; break;
+        case 126:   ++ptr; payloadLength = ntohs(*(const uint16_t*)ptr); ptr += 2; break;
+        case 127:   ++ptr; payloadLength = ntoh64(*(const uint64_t*)ptr); ptr += 8; break;
+        default:    ++ptr; break;
     }
 
     m_payload.checkSize(payloadLength);
@@ -74,7 +74,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         *(uint32_t *)mask = *(const uint32_t*)ptr;
         ptr += 4;
         char* dest = m_payload.data();
-        for (uint64_t i = 0; i < payloadLength; i++) {
+        for (uint64_t i = 0; i < payloadLength; ++i) {
             dest[i] = ptr[i] ^ mask[i % 4];
         }
     } else
@@ -91,11 +91,11 @@ void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool finalMessag
     if (finalMessage)
         *ptr |= 0x80;
 
-    ptr++;
+    ++ptr;
 
     if (payload.length() < 126) {
         *ptr = (uint8_t) payload.length();
-        ptr++;
+        ++ptr;
     }
     else if (payload.length() <= 32767) {
         *(uint16_t*)ptr = htons((uint16_t)payload.length());

@@ -160,7 +160,7 @@ void OpenApiGenerator::createComponents(json::Document & document, const WSCompl
         }
         if (!requiredProperties.empty()) {
             auto& required = *complexType.add_array("required");
-            for (auto& property: requiredProperties)
+            for (const auto& property: requiredProperties)
                 required.push_back(property);
         }
     }
@@ -230,7 +230,7 @@ void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypePropert
         }
         else if (!restriction->enumeration().empty()) {
             auto& enumArray = *property.add_array("enum");
-            for (auto& str: restriction->enumeration())
+            for (const auto& str: restriction->enumeration())
                 enumArray.push_back(str);
         }
     }

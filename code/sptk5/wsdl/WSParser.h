@@ -194,9 +194,9 @@ protected:
 
     /**
      * Parses wsdl:operation nodes directly under xsd:schema
-     * @param operation         Schema complex type
+     * @param operationNode         Schema complex type
      */
-    void parseOperation(xml::Element* operation);
+    void parseOperation(const xml::Element* operationNode);
 
     /**
      * Parses xsd:schema

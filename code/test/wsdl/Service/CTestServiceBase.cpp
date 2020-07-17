@@ -43,21 +43,36 @@ void CTestServiceBase::requestBroker(const String& requestName, xml::Element* xm
         }
         else throw;
     }
+    catch (const HTTPException& e) {
+        if (m_logEngine != nullptr) {
+            Logger logger(*m_logEngine);
+            logger.error(requestName + ": "  + String("HTTP exception: ") + e.what());
+        }
+        throw;
+    }
     catch (const Exception& e) {
         if (m_logEngine != nullptr) {
             Logger logger(*m_logEngine);
-            logger.error(String("WS request error: ") + e.what());
+            logger.error(requestName + ": " + String("Request error: ") + e.what());
         }
+        throw;
     }
 }
 
 template <class InputData, class OutputData>
-void processAnyRequest(xml::Element* requestNode, const String& requestName, const String& responseName, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)
+void processAnyRequest(xml::Element* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)
 {
+   const String requestName = wsTypeIdToName(typeid(InputData).name());
+   const String responseName = wsTypeIdToName(typeid(OutputData).name());
    String ns(requestNameSpace.getAlias());
    InputData inputData((ns + ":" + requestName).c_str());
    OutputData outputData((ns + ":" + responseName).c_str());
-   inputData.load(requestNode);
+   try {
+      inputData.load(requestNode);
+   }   catch (const Exception& e) {
+      // Can't parse input data
+      throw HTTPException(400, e.what());
+   }
    auto* soapBody = (xml::Element*) requestNode->parent();
    soapBody->clearChildren();
    method(inputData, outputData, authentication);
@@ -72,7 +87,13 @@ void processAnyRequest(json::Element* request, HttpAuthentication* authenticatio
 {
    InputData inputData;
    OutputData outputData;
-   inputData.load(request);
+   try {
+      inputData.load(request);
+   }
+   catch (const Exception& e) {
+      // Can't parse input data
+      throw HTTPException(400, e.what());
+   }
    method(inputData, outputData, authentication);
    request->clear();
    outputData.unload(request);
@@ -83,7 +104,7 @@ void CTestServiceBase::process_AccountBalance(xml::Element* xmlNode, json::Eleme
 {
   function<void(const CAccountBalance&, CAccountBalanceResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::AccountBalance, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
   if (xmlNode)
-     processAnyRequest<CAccountBalance,CAccountBalanceResponse>(xmlNode, "AccountBalance", "AccountBalanceResponse", authentication, requestNameSpace, method);
+     processAnyRequest<CAccountBalance,CAccountBalanceResponse>(xmlNode, authentication, requestNameSpace, method);
   else
      processAnyRequest<CAccountBalance,CAccountBalanceResponse>(jsonNode, authentication, method);
 }
@@ -92,7 +113,7 @@ void CTestServiceBase::process_Hello(xml::Element* xmlNode, json::Element* jsonN
 {
   function<void(const CHello&, CHelloResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::Hello, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
   if (xmlNode)
-     processAnyRequest<CHello,CHelloResponse>(xmlNode, "Hello", "HelloResponse", authentication, requestNameSpace, method);
+     processAnyRequest<CHello,CHelloResponse>(xmlNode, authentication, requestNameSpace, method);
   else
      processAnyRequest<CHello,CHelloResponse>(jsonNode, authentication, method);
 }
@@ -101,7 +122,7 @@ void CTestServiceBase::process_Login(xml::Element* xmlNode, json::Element* jsonN
 {
   function<void(const CLogin&, CLoginResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::Login, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
   if (xmlNode)
-     processAnyRequest<CLogin,CLoginResponse>(xmlNode, "Login", "LoginResponse", authentication, requestNameSpace, method);
+     processAnyRequest<CLogin,CLoginResponse>(xmlNode, authentication, requestNameSpace, method);
   else
      processAnyRequest<CLogin,CLoginResponse>(jsonNode, authentication, method);
 }

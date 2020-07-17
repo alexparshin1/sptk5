@@ -34,7 +34,7 @@ WSMessageIndex::WSMessageIndex(const Strings& messages)
     int i = 0;
     for (auto& message: messages) {
         m_messageIndex[message] = i;
-        i++;
+        ++i;
     }
 }
 

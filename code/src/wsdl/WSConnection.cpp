@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* connectionAddress, WSRequest& service, Logger& logger,
+WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, WSRequest& service, Logger& logger,
                            const Paths& paths, bool allowCORS, bool keepAlive, bool suppressHttpStatus, const LogDetails& logDetails)
 : ServerConnection(server, connectionSocket, connectionAddress, "WSConnection"), m_service(service), m_logger(logger),
   m_paths(paths), m_allowCORS(allowCORS), m_keepAlive(keepAlive), m_suppressHttpStatus(suppressHttpStatus), m_logDetails(logDetails)
@@ -250,7 +250,7 @@ void WSConnection::respondToOptions(const HttpHeaders& headers)
     socket().write(response);
 }
 
-WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service,
+WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSRequest& service,
                                  Logger& logger, const Paths& paths, int options, const LogDetails& logDetails)
 : WSConnection(server, connectionSocket, addr, service, logger, paths,
                options & ALLOW_CORS, options & KEEP_ALIVE, options & SUPPRESS_HTTP_STATUS,

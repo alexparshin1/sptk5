@@ -148,7 +148,7 @@ int TestRunner::runAllTests()
     String excludeDBDriverPatterns = excludeDatabasePatterns(DatabaseTests::tests().connectionStrings());
 
     size_t filterArgumentIndex = 0;
-    for (int i = 1; i < m_argc; i++) {
+    for (int i = 1; i < m_argc; ++i) {
         if (strstr(m_argv[i], "--gtest_filter=")) {
             filterArgumentIndex = i;
             break;
@@ -169,7 +169,7 @@ int TestRunner::runAllTests()
 
         if (filterArgumentIndex == 0) {
             argv.push_back(&filter[0]);
-            m_argc++;
+            ++m_argc;
         }
         else
             argv[filterArgumentIndex] = &filter[0];

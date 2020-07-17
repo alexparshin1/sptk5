@@ -15,8 +15,6 @@
  */
 class CLoginResponse : public sptk::WSComplexType
 {
-    mutable sptk::SharedMutex m_mutex; ///< Mutex that protects access to internal data
-
 public:
 
    // Elements
@@ -24,16 +22,8 @@ public:
 
    // Field names of simple types, that can be used to build SQL queries
    static const sptk::Strings m_fieldNames;
-
-protected:
-
-   /**
-    * Clear content and releases allocated memory (internal)
-    */
-   void _clear() override;
-
-public:
-
+   static const sptk::Strings m_elementNames;
+   static const sptk::Strings m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
@@ -44,57 +34,7 @@ public:
    {}
 
    /**
-    * Copy constructor
-    * @param other              Other element to copy from
-    */
-   CLoginResponse(const CLoginResponse& other) noexcept
-   : sptk::WSComplexType(other),
-     m_jwt(other.m_jwt)
-   {
-   }
-
-   /**
-    * Move constructor
-    * @param other              Other element to move from
-    */
-   CLoginResponse(CLoginResponse&& other) noexcept
-   : sptk::WSComplexType(std::move(other)),
-     m_jwt(std::move(other.m_jwt))
-   {
-       other.clear();
-   }
-
-   /**
-    * Destructor
-    */
-   ~CLoginResponse() override;
-
-   /**
-    * Copy assignment
-    * @param other              Other element to copy from
-    */
-   CLoginResponse& operator = (const CLoginResponse& other)
-   {
-       if (&other != this)
-           copyFrom(other);
-       return *this;
-   }
-
-   /**
-    * Move assignment
-    * @param other              Other element to move from
-    */
-   CLoginResponse& operator = (CLoginResponse&& other) noexcept
-   {
-       if (&other == this)
-           return *this;
-       copyFrom(other);
-       other.clear();
-       return *this;
-   }
-
-   /**
-    * Load CLoginResponse from XML node
+    * Load content from XML node
     *
     * Complex WSDL type members are loaded recursively.
     * @param input              XML node containing CLoginResponse data
@@ -102,7 +42,7 @@ public:
    void load(const sptk::xml::Element* input) override;
 
    /**
-    * Load CLoginResponse from JSON element
+    * Load content from JSON element
     *
     * Complex WSDL type members are loaded recursively.
     * @param input              JSON element containing CLoginResponse data
@@ -110,7 +50,7 @@ public:
    void load(const sptk::json::Element* input) override;
 
    /**
-    * Load CLoginResponse from FieldList
+    * Load content from FieldList
     *
     * Only simple WSDL type members are loaded.
     * @param input              Query field list containing CLoginResponse data
@@ -118,19 +58,19 @@ public:
    void load(const sptk::FieldList& input) override;
 
    /**
-    * Unload CLoginResponse to existing XML node
+    * Unload content to existing XML node
     * @param output             Existing XML node
     */
    void unload(sptk::xml::Element* output) const override;
 
    /**
-    * Unload CLoginResponse to existing JSON node
+    * Unload content to existing JSON node
     * @param output             Existing JSON node
     */
    void unload(sptk::json::Element* output) const override;
 
    /**
-    * Unload CLoginResponse to Query's parameters
+    * Unload content to Query's parameters
     * @param output             Query parameters
     */
    void unload(sptk::QueryParameterList& output) const override;
@@ -141,6 +81,13 @@ public:
     * @return list of fields as string vector
     */
    static const sptk::Strings& fieldNames() { return m_fieldNames; }
+
+protected:
+
+   /**
+    * Clear content and release allocated memory (internal)
+    */
+   void _clear() override;
 };
 
 typedef std::shared_ptr<CLoginResponse> SLoginResponse;

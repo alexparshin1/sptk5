@@ -61,16 +61,17 @@ xml::Node* WSWebServiceProtocol::getFirstChildElement(const xml::Node* element) 
 xml::Node* WSWebServiceProtocol::findRequestNode(const xml::Document& message, const String& messageType) const
 {
     String ns = "soap";
-    for (auto* node: message) {
+    for (const auto* node: message) {
         if (lowerCase(node->name()).endsWith(":envelope")) {
             size_t pos = node->name().find(':');
             ns = node->name().substr(0, pos);
         }
     }
 
-    xml::Node* xmlBody = message.findFirst(ns + ":Body", true);
+    const xml::Node* xmlBody = message.findFirst(ns + ":Body", true);
     if (xmlBody == nullptr)
         throw HTTPException(400, "Can't find " + ns + ":Body in " + messageType);
+
     xml::Node* xmlRequest = getFirstChildElement(xmlBody);
     if (xmlRequest == nullptr)
         throw HTTPException(400, "Can't find request data in " + messageType);
@@ -118,7 +119,7 @@ void WSWebServiceProtocol::generateFault(Buffer& output, size_t& httpStatusCode,
 }
 
 String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
-                                            SHttpAuthentication& authentication, bool requestIsJSON,
+                                            const SHttpAuthentication& authentication, bool requestIsJSON,
                                             size_t& httpStatusCode, String& httpStatusText, String& contentType)
 {
     String requestName("Error");
@@ -186,7 +187,7 @@ RequestInfo WSWebServiceProtocol::process()
     if (m_httpReader.getRequestType() != "POST")
         throw HTTPException(405, "Only POST method is supported");
 
-    Buffer& contentBuffer = m_httpReader.output();
+    const Buffer& contentBuffer = m_httpReader.output();
     m_httpReader.readAll(chrono::seconds(30));
 
     RequestInfo requestInfo;
@@ -207,7 +208,7 @@ RequestInfo WSWebServiceProtocol::process()
     auto* endOfMessage = startOfMessage + requestInfo.request.content().bytes();
 
     while (startOfMessage != endOfMessage && (unsigned char)*startOfMessage < 33)
-        startOfMessage++;
+        ++startOfMessage;
 
     xml::Document xmlContent;
     json::Document jsonContent;
@@ -372,7 +373,7 @@ void WSWebServiceProtocol::readMessage(Buffer& data, char*& startOfMessage, char
                 startOfMessage = strstr(data.data(), "Envelope");
                 if (startOfMessage != nullptr && startOfMessage < endOfData)
                     while (*startOfMessage != '<' && startOfMessage > data.c_str())
-                        startOfMessage--;
+                        --startOfMessage;
             }
             if (startOfMessage == nullptr)
             throwException("Message start <?xml> not found")

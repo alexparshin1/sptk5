@@ -4,12 +4,9 @@
 using namespace std;
 using namespace sptk;
 
-const Strings CLogin::m_fieldNames { "username", "password"};
-
-CLogin::~CLogin()
-{
-    WSComplexType::clear();
-}
+const Strings CLogin::m_fieldNames { "username", "password" };
+const Strings CLogin::m_elementNames { "username", "password" };
+const Strings CLogin::m_attributeNames { "" };
 
 void CLogin::_clear()
 {
@@ -20,16 +17,13 @@ void CLogin::_clear()
 
 void CLogin::load(const xml::Element* input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
 
     // Load elements
-    for (auto* node: *input) {
-        auto* element = dynamic_cast<xml::Element*>(node);
-        if (element == nullptr) {
-            continue;
-        }
+    for (const auto* node: *input) {
+        const auto* element = dynamic_cast<const xml::Element*>(node);
+        if (element == nullptr) continue;
 
         if (element->name() == "username") {
             m_username.load(element);
@@ -42,6 +36,7 @@ void CLogin::load(const xml::Element* input)
         }
     }
 
+
     // Check 'required' restrictions
     m_username.throwIfNull("Login");
     m_password.throwIfNull("Login");
@@ -49,14 +44,13 @@ void CLogin::load(const xml::Element* input)
 
 void CLogin::load(const json::Element* input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
 
     // Load elements
     for (auto& itor: input->getObject()) {
-        auto  elementName = itor.name();
-        auto* element = itor.element();
+        const auto& elementName = itor.name();
+        const auto* element = itor.element();
 
         if (elementName == "username") {
             m_username.load(element);
@@ -69,6 +63,7 @@ void CLogin::load(const json::Element* input)
         }
     }
 
+
     // Check 'required' restrictions
     m_username.throwIfNull("Login");
     m_password.throwIfNull("Login");
@@ -76,10 +71,9 @@ void CLogin::load(const json::Element* input)
 
 void CLogin::load(const FieldList& input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
-    Field* field;
+    const Field* field;
 
     // Load elements
     if ((field = input.findField("username")) != nullptr) {
@@ -98,7 +92,6 @@ void CLogin::load(const FieldList& input)
 
 void CLogin::unload(xml::Element* output) const
 {
-    SharedLock(m_mutex);
 
     // Unload elements
     m_username.addElement(output);
@@ -107,7 +100,6 @@ void CLogin::unload(xml::Element* output) const
 
 void CLogin::unload(json::Element* output) const
 {
-    SharedLock(m_mutex);
 
     // Unload elements
     m_username.addElement(output);
@@ -116,7 +108,6 @@ void CLogin::unload(json::Element* output) const
 
 void CLogin::unload(QueryParameterList& output) const
 {
-    SharedLock(m_mutex);
 
     // Unload attributes
     WSComplexType::unload(output, "username", dynamic_cast<const WSBasicType*>(&m_username));

@@ -177,7 +177,7 @@ protected:
      * @param soapEnvelope
      * @return
      */
-    xml::Element* findSoapBody(xml::Element* soapEnvelope, const WSNameSpace& soapNamespace);
+    xml::Element* findSoapBody(const xml::Element* soapEnvelope, const WSNameSpace& soapNamespace);
 };
 
 }

@@ -208,7 +208,7 @@ public:
     /**
      * Parses WSDL child sequence
      */
-    void parseSequence(xml::Element* sequence);
+    void parseSequence(const xml::Element* sequence);
 
     /**
      * Generates C++ class declaration and implementation
@@ -337,7 +337,7 @@ private:
     void appendMemberDocumentation(std::ostream& classDeclaration,
                                    const SWSParserComplexType& complexType) const;
 
-    void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames, Strings& attributeNames,
+    void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames, const Strings& attributeNames,
                                Strings& copyInitializer, Strings& moveInitializer) const;
 };
 

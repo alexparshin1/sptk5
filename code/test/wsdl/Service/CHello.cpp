@@ -4,12 +4,9 @@
 using namespace std;
 using namespace sptk;
 
-const Strings CHello::m_fieldNames { "action", "first_name", "last_name"};
-
-CHello::~CHello()
-{
-    WSComplexType::clear();
-}
+const Strings CHello::m_fieldNames { "action", "first_name", "last_name" };
+const Strings CHello::m_elementNames { "action", "first_name", "last_name" };
+const Strings CHello::m_attributeNames { "" };
 
 void CHello::_clear()
 {
@@ -21,16 +18,13 @@ void CHello::_clear()
 
 void CHello::load(const xml::Element* input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
 
     // Load elements
-    for (auto* node: *input) {
-        auto* element = dynamic_cast<xml::Element*>(node);
-        if (element == nullptr) {
-            continue;
-        }
+    for (const auto* node: *input) {
+        const auto* element = dynamic_cast<const xml::Element*>(node);
+        if (element == nullptr) continue;
 
         if (element->name() == "action") {
             m_action.load(element);
@@ -48,6 +42,7 @@ void CHello::load(const xml::Element* input)
         }
     }
 
+
     // Check 'required' restrictions
     m_action.throwIfNull("Hello");
     m_first_name.throwIfNull("Hello");
@@ -56,14 +51,13 @@ void CHello::load(const xml::Element* input)
 
 void CHello::load(const json::Element* input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
 
     // Load elements
     for (auto& itor: input->getObject()) {
-        auto  elementName = itor.name();
-        auto* element = itor.element();
+        const auto& elementName = itor.name();
+        const auto* element = itor.element();
 
         if (elementName == "action") {
             m_action.load(element);
@@ -81,6 +75,7 @@ void CHello::load(const json::Element* input)
         }
     }
 
+
     // Check 'required' restrictions
     m_action.throwIfNull("Hello");
     m_first_name.throwIfNull("Hello");
@@ -89,10 +84,9 @@ void CHello::load(const json::Element* input)
 
 void CHello::load(const FieldList& input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
-    Field* field;
+    const Field* field;
 
     // Load elements
     if ((field = input.findField("action")) != nullptr) {
@@ -116,7 +110,6 @@ void CHello::load(const FieldList& input)
 
 void CHello::unload(xml::Element* output) const
 {
-    SharedLock(m_mutex);
 
     // Unload elements
     m_action.addElement(output);
@@ -126,7 +119,6 @@ void CHello::unload(xml::Element* output) const
 
 void CHello::unload(json::Element* output) const
 {
-    SharedLock(m_mutex);
 
     // Unload elements
     m_action.addElement(output);
@@ -136,7 +128,6 @@ void CHello::unload(json::Element* output) const
 
 void CHello::unload(QueryParameterList& output) const
 {
-    SharedLock(m_mutex);
 
     // Unload attributes
     WSComplexType::unload(output, "action", dynamic_cast<const WSBasicType*>(&m_action));

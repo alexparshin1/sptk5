@@ -45,7 +45,7 @@ NodeList::iterator NodeList::findFirst(const char* nodeName)
     if (_begin == _end)
         return _end;
 
-    Node* anode = *_begin;
+    const Node* anode = *_begin;
     const string* sharedName = &anode->document()->shareString(nodeName);
 
     iterator itor;

@@ -99,7 +99,7 @@ WSComplexType::FieldNameIndex::FieldNameIndex(initializer_list<const char*> list
     for (const auto* item: list) {
         emplace_back(item, strlen(item), id);
         m_index.emplace(item, strlen(item), id);
-        id++;
+        ++id;
     }
 }
 

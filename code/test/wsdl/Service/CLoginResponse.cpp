@@ -4,12 +4,9 @@
 using namespace std;
 using namespace sptk;
 
-const Strings CLoginResponse::m_fieldNames { "jwt"};
-
-CLoginResponse::~CLoginResponse()
-{
-    WSComplexType::clear();
-}
+const Strings CLoginResponse::m_fieldNames { "jwt" };
+const Strings CLoginResponse::m_elementNames { "jwt" };
+const Strings CLoginResponse::m_attributeNames { "" };
 
 void CLoginResponse::_clear()
 {
@@ -19,16 +16,13 @@ void CLoginResponse::_clear()
 
 void CLoginResponse::load(const xml::Element* input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
 
     // Load elements
-    for (auto* node: *input) {
-        auto* element = dynamic_cast<xml::Element*>(node);
-        if (element == nullptr) {
-            continue;
-        }
+    for (const auto* node: *input) {
+        const auto* element = dynamic_cast<const xml::Element*>(node);
+        if (element == nullptr) continue;
 
         if (element->name() == "jwt") {
             m_jwt.load(element);
@@ -36,20 +30,20 @@ void CLoginResponse::load(const xml::Element* input)
         }
     }
 
+
     // Check 'required' restrictions
     m_jwt.throwIfNull("LoginResponse");
 }
 
 void CLoginResponse::load(const json::Element* input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
 
     // Load elements
     for (auto& itor: input->getObject()) {
-        auto  elementName = itor.name();
-        auto* element = itor.element();
+        const auto& elementName = itor.name();
+        const auto* element = itor.element();
 
         if (elementName == "jwt") {
             m_jwt.load(element);
@@ -57,16 +51,16 @@ void CLoginResponse::load(const json::Element* input)
         }
     }
 
+
     // Check 'required' restrictions
     m_jwt.throwIfNull("LoginResponse");
 }
 
 void CLoginResponse::load(const FieldList& input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
-    Field* field;
+    const Field* field;
 
     // Load elements
     if ((field = input.findField("jwt")) != nullptr) {
@@ -80,7 +74,6 @@ void CLoginResponse::load(const FieldList& input)
 
 void CLoginResponse::unload(xml::Element* output) const
 {
-    SharedLock(m_mutex);
 
     // Unload elements
     m_jwt.addElement(output);
@@ -88,7 +81,6 @@ void CLoginResponse::unload(xml::Element* output) const
 
 void CLoginResponse::unload(json::Element* output) const
 {
-    SharedLock(m_mutex);
 
     // Unload elements
     m_jwt.addElement(output);
@@ -96,7 +88,6 @@ void CLoginResponse::unload(json::Element* output) const
 
 void CLoginResponse::unload(QueryParameterList& output) const
 {
-    SharedLock(m_mutex);
 
     // Unload attributes
     WSComplexType::unload(output, "jwt", dynamic_cast<const WSBasicType*>(&m_jwt));

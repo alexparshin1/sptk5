@@ -4,12 +4,9 @@
 using namespace std;
 using namespace sptk;
 
-const Strings CAccountBalance::m_fieldNames { "account_number"};
-
-CAccountBalance::~CAccountBalance()
-{
-    WSComplexType::clear();
-}
+const Strings CAccountBalance::m_fieldNames { "account_number" };
+const Strings CAccountBalance::m_elementNames { "account_number" };
+const Strings CAccountBalance::m_attributeNames { "" };
 
 void CAccountBalance::_clear()
 {
@@ -19,16 +16,13 @@ void CAccountBalance::_clear()
 
 void CAccountBalance::load(const xml::Element* input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
 
     // Load elements
-    for (auto* node: *input) {
-        auto* element = dynamic_cast<xml::Element*>(node);
-        if (element == nullptr) {
-            continue;
-        }
+    for (const auto* node: *input) {
+        const auto* element = dynamic_cast<const xml::Element*>(node);
+        if (element == nullptr) continue;
 
         if (element->name() == "account_number") {
             m_account_number.load(element);
@@ -36,20 +30,20 @@ void CAccountBalance::load(const xml::Element* input)
         }
     }
 
+
     // Check 'required' restrictions
     m_account_number.throwIfNull("AccountBalance");
 }
 
 void CAccountBalance::load(const json::Element* input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
 
     // Load elements
     for (auto& itor: input->getObject()) {
-        auto  elementName = itor.name();
-        auto* element = itor.element();
+        const auto& elementName = itor.name();
+        const auto* element = itor.element();
 
         if (elementName == "account_number") {
             m_account_number.load(element);
@@ -57,16 +51,16 @@ void CAccountBalance::load(const json::Element* input)
         }
     }
 
+
     // Check 'required' restrictions
     m_account_number.throwIfNull("AccountBalance");
 }
 
 void CAccountBalance::load(const FieldList& input)
 {
-    UniqueLock(m_mutex);
     _clear();
     setLoaded(true);
-    Field* field;
+    const Field* field;
 
     // Load elements
     if ((field = input.findField("account_number")) != nullptr) {
@@ -80,7 +74,6 @@ void CAccountBalance::load(const FieldList& input)
 
 void CAccountBalance::unload(xml::Element* output) const
 {
-    SharedLock(m_mutex);
 
     // Unload elements
     m_account_number.addElement(output);
@@ -88,7 +81,6 @@ void CAccountBalance::unload(xml::Element* output) const
 
 void CAccountBalance::unload(json::Element* output) const
 {
-    SharedLock(m_mutex);
 
     // Unload elements
     m_account_number.addElement(output);
@@ -96,7 +88,6 @@ void CAccountBalance::unload(json::Element* output) const
 
 void CAccountBalance::unload(QueryParameterList& output) const
 {
-    SharedLock(m_mutex);
 
     // Unload attributes
     WSComplexType::unload(output, "account_number", dynamic_cast<const WSBasicType*>(&m_account_number));
