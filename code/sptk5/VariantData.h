@@ -74,11 +74,6 @@ public:
     /**
      * Convert to integer value
      */
-    explicit operator size_t () const;
-
-    /**
-     * Convert to integer value
-     */
     explicit operator int32_t () const;
 
     /**

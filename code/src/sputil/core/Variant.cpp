@@ -16,7 +16,7 @@
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
 │   General Public License for more details.                                   │
 │                                                                              │
-│   You should have received a copy of the GNU Library General Public License  │
+│   You shouldint have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
 │   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
 │                                                                              │
@@ -46,11 +46,6 @@ MoneyData::operator double() const
 MoneyData::operator int64_t() const
 {
     return quantity / dividers[scale];
-}
-
-MoneyData::operator size_t() const
-{
-    return size_t(quantity / dividers[scale]);
 }
 
 MoneyData::operator int() const
@@ -813,8 +808,8 @@ String VariantAdaptors::asString() const
     switch (dataType()) {
         case VAR_BOOL:
             if (m_data.getBool())
-                return "t";
-            return "f";
+                return "true";
+            return "false";
 
         case VAR_INT:
             return int2string(m_data.getInteger());
@@ -1148,6 +1143,8 @@ TEST(SPTK_Variant, copy_ctors)
     Variant v3("Test");
     Variant v4(testDate);
     Variant v5;
+    Variant v6(Buffer("A test", 6));
+    Variant v7(int64_t(1));
 
     v5.setNull(VAR_STRING);
 
@@ -1156,6 +1153,8 @@ TEST(SPTK_Variant, copy_ctors)
     Variant v3c(v3);
     Variant v4c(v4);
     Variant v5c(v5);
+    Variant v6c(v6);
+    Variant v7c(v7);
 
     EXPECT_EQ(1, v1c.asInteger());
     EXPECT_DOUBLE_EQ(2.22, v2c.asFloat());
@@ -1164,6 +1163,9 @@ TEST(SPTK_Variant, copy_ctors)
                  v4c.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
     EXPECT_EQ(v5c.isNull(), true);
     EXPECT_EQ(v5c.dataType(), VAR_STRING);
+    EXPECT_STREQ(v6c.asString().c_str(), "A test");
+    EXPECT_EQ(v6c.dataType(), VAR_BUFFER);
+    EXPECT_EQ(int64_t(1), v1c.asInt64());
 }
 
 TEST(SPTK_Variant, move_ctors)
@@ -1175,6 +1177,7 @@ TEST(SPTK_Variant, move_ctors)
     Variant v3("Test");
     Variant v4(testDate);
     Variant v5;
+    Variant v6(Buffer("A test", 6));
 
     v5.setNull(VAR_STRING);
 
@@ -1183,18 +1186,34 @@ TEST(SPTK_Variant, move_ctors)
     Variant v3m(move(v3));
     Variant v4m(move(v4));
     Variant v5m(move(v5));
+    Variant v6m(move(v6));
 
+    EXPECT_EQ(VAR_NONE, v1.dataType());
+    EXPECT_EQ(v1.isNull(), true);
     EXPECT_EQ(1, v1m.asInteger());
+
+    EXPECT_EQ(VAR_NONE, v2.dataType());
+    EXPECT_EQ(v2.isNull(), true);
     EXPECT_DOUBLE_EQ(2.22, v2m.asFloat());
+
+    EXPECT_EQ(VAR_NONE, v3.dataType());
+    EXPECT_EQ(v3.isNull(), true);
     EXPECT_STREQ("Test", v3m.asString().c_str());
+
+    EXPECT_EQ(VAR_NONE, v4.dataType());
+    EXPECT_EQ(v4.isNull(), true);
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  v4m.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
 
-    EXPECT_EQ(true, v1.isNull());
-    EXPECT_EQ(VAR_NONE, v1.dataType());
-
+    EXPECT_EQ(VAR_NONE, v5.dataType());
+    EXPECT_EQ(v5.isNull(), true);
     EXPECT_EQ(v5m.isNull(), true);
     EXPECT_EQ(v5m.dataType(), VAR_STRING);
+
+    EXPECT_EQ(VAR_NONE, v6.dataType());
+    EXPECT_EQ(v6.isNull(), true);
+    EXPECT_STREQ(v6m.asString().c_str(), "A test");
+    EXPECT_EQ(v6m.dataType(), VAR_BUFFER);
 }
 
 TEST(SPTK_Variant, assigns)
@@ -1321,12 +1340,35 @@ TEST(SPTK_Variant, toString)
 TEST(SPTK_Variant, money)
 {
     Variant money(10001234,4);
+    EXPECT_FLOAT_EQ((double) money.getMoney(), 1000.1234);
     EXPECT_EQ((int) money.getMoney(), 1000);
+    EXPECT_EQ((int64_t) money.getMoney(), 1000);
+    EXPECT_TRUE((bool) money.getMoney());
     EXPECT_STREQ(money.asString().c_str(), "1000.1234");
+
     money.setMoney(200055,2);
     EXPECT_STREQ(money.asString().c_str(), "2000.55");
     EXPECT_EQ(VAR_MONEY, Variant::nameType("money"));
     EXPECT_STREQ("money", Variant::typeName(VAR_MONEY).c_str());
+
+    MoneyData value { 12345678, 4 };
+    money.setMoney(value);
+    EXPECT_FLOAT_EQ((double) money, 1234.5678);
+    EXPECT_TRUE(money.dataType() == VAR_MONEY);
+
+    Variant s("test", 4);
+    s.setMoney(1234567, 4);
+    EXPECT_FLOAT_EQ((double) s.getMoney(), 123.4567);
+}
+
+TEST(SPTK_Variant, externalBuffer)
+{
+    Buffer externalBuffer("External Data");
+    Variant v;
+    v.setExternalBuffer((void*)externalBuffer.c_str(), externalBuffer.length());
+    EXPECT_STREQ(externalBuffer.c_str(), v.asString().c_str());
+    externalBuffer[1] = 'X';
+    EXPECT_STREQ(externalBuffer.c_str(), v.asString().c_str());
 }
 
 TEST(SPTK_Variant, json)
@@ -1343,6 +1385,13 @@ TEST(SPTK_Variant, json)
     v = 123456;
     v.save(&node);
     EXPECT_STREQ(node.getString().c_str(), "123456");
+}
+
+TEST(SPTK_Variant, bool)
+{
+    Variant v("test", 4);
+    v.setBool(true);
+    EXPECT_TRUE(v);
 }
 
 TEST(SPTK_Variant, xml)

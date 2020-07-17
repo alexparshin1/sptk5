@@ -35,6 +35,7 @@ using namespace sptk;
 
 void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
 {
+    m_content.reset(128);
     m_compressedLength = content.length();
     m_contentEncoding = contentEncoding;
     if (contentEncoding.empty()) {
@@ -91,3 +92,51 @@ Buffer RequestInfo::Message::output(const Strings& contentEncodings)
 
     return m_content;
 }
+
+#if USE_GTEST
+
+TEST(SPTK_RequestInfo, Message)
+{
+    Buffer testData;
+    for (size_t i = 0; i < 16; ++i)
+        testData.append("0123456789ABCDEF");
+
+    Strings outputEncodings;
+    RequestInfo::Message message;
+
+#if HAVE_BROTLI
+    Buffer brotliData;
+    Brotli::compress(brotliData, testData);
+    EXPECT_TRUE(testData.length() > brotliData.length());
+    message.input(brotliData, "br");
+    auto decoded = message.output(outputEncodings);
+    EXPECT_STREQ(testData.c_str(), decoded.c_str());
+
+    try {
+        message.input(brotliData, "gzip");
+        FAIL() << "MUST FAIL: wrong encoding";
+    }
+    catch (const Exception&) {
+        SUCCEED() << "Correct: wrong encoding";
+    }
+#endif
+
+#if HAVE_ZLIB
+    Buffer gzipData;
+    ZLib::compress(gzipData, testData);
+    EXPECT_TRUE(testData.length() > gzipData.length());
+    message.input(gzipData, "gzip");
+    decoded = message.output(outputEncodings);
+    EXPECT_STREQ(testData.c_str(), decoded.c_str());
+
+    try {
+        message.input(gzipData, "br");
+        FAIL() << "MUST FAIL: wrong encoding";
+    }
+    catch (const Exception&) {
+        SUCCEED() << "Correct: wrong encoding";
+    }
+#endif
+}
+
+#endif
