@@ -109,10 +109,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~Buffer()
-    {
-        deallocate();
-    }
+    virtual ~Buffer() noexcept = default;
 
     /**
      * Appends a single char to the current buffer.

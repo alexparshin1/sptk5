@@ -67,6 +67,7 @@ void BufferStorage::append(char ch)
     checkSize(m_bytes + 1);
     m_buffer[m_bytes] = ch;
     ++m_bytes;
+    m_buffer[m_bytes] = 0;
 }
 
 void BufferStorage::append(const char* data, size_t sz)
@@ -99,12 +100,48 @@ void BufferStorage::fill(char c, size_t count)
 
 void BufferStorage::erase(size_t offset, size_t length)
 {
-    if (offset >= m_bytes || length == 0)
+    if (offset + length >= m_bytes)
+        m_bytes = offset;
+
+    if (length == 0)
         return; // Nothing to do
+
+    size_t moveOffset = offset + length;
+    size_t moveLength = m_bytes - moveOffset;
+
     if (offset + length > m_bytes)
         length = m_bytes - offset;
+
     if (length > 0)
-        memmove(m_buffer + offset, m_buffer + offset + length, length);
+        memmove(m_buffer + offset, m_buffer + offset + length, moveLength);
+
     m_bytes -= length;
     m_buffer[m_bytes] = 0;
 }
+
+#if USE_GTEST
+
+TEST(SPTK_BufferStorage, appendChar)
+{
+    String testString("0123456789ABCDEF");
+    BufferStorage testStorage;
+
+    for (auto ch: testString)
+        testStorage.append(ch);
+
+    EXPECT_EQ(testStorage.length(), size_t(16));
+    EXPECT_STREQ(testStorage.c_str(), "0123456789ABCDEF");
+}
+
+TEST(SPTK_BufferStorage, erase)
+{
+    BufferStorage testStorage(32);
+    testStorage.fill(0, 32);
+    testStorage.set("0123456789ABCDEF");
+    EXPECT_EQ(testStorage.length(), size_t(16));
+    EXPECT_STREQ(testStorage.c_str(), "0123456789ABCDEF");
+    testStorage.erase(0,4);
+    EXPECT_STREQ(testStorage.c_str(), "456789ABCDEF");
+}
+
+#endif

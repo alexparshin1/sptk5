@@ -74,6 +74,14 @@ public:
     BufferStorage(const void* data, size_t sz);
 
     /**
+     * Destructor
+     */
+    virtual ~BufferStorage() noexcept
+    {
+        deallocate();
+    }
+
+    /**
      * Returns pointer on the data buffer.
      */
     char* data() const
@@ -291,7 +299,7 @@ protected:
     /**
      * Free memory
      */
-    void deallocate()
+    void deallocate() noexcept
     {
         delete [] m_buffer;
         m_buffer = nullptr;

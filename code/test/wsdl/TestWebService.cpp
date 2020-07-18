@@ -172,13 +172,13 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
 
             sendRequestJson.exportTo(sendRequestBuffer);
 
-            TCPSocket* client {nullptr};
+            shared_ptr<TCPSocket> client;
             if (encrypted) {
-                auto* sslClient = new SSLSocket;
+                auto sslClient = make_shared<SSLSocket>();
                 sslClient->loadKeys(*sslKeys);
                 client = sslClient;
             } else
-                client = new TCPSocket;
+                client = make_shared<TCPSocket>();
             client->host(Host("localhost", servicePort));
             client->open();
 

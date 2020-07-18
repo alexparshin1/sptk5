@@ -251,7 +251,7 @@ private:
     typedef std::map<String, Field *, CaseInsensitiveCompare>   Map;
 
     Vector                  m_list;                     ///< The list of fields
-    Map*                    m_index {nullptr};          ///< The optional field index by name. 0L if field list isn't indexed.
+    std::shared_ptr<Map>    m_index;                    ///< The optional field index by name. 0L if field list isn't indexed.
     bool                    m_compactXmlMode {false};   ///< The compact XML mode flag
 
     /**

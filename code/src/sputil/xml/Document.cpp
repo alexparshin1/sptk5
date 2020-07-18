@@ -620,7 +620,7 @@ TEST(SPTK_XmlDocument, parse1)
 {
     xml::Document   document;
     Buffer          buffer;
-    buffer.loadFromFile("/tmp/styles.xml");
+    buffer.loadFromFile("/tmp/styles1.xml");
     document.load(buffer);
 }
 

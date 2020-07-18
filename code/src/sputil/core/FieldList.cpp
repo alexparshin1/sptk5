@@ -37,16 +37,16 @@ FieldList::FieldList(bool indexed, bool compactXmlMode)
 : m_compactXmlMode(compactXmlMode)
 {
     if (indexed)
-        m_index = new Map;
+        m_index = make_shared<Map>();
 }
 
 FieldList::FieldList(const FieldList& other)
 {
     assign(other);
     if (other.m_index != nullptr)
-        m_index = new Map;
+        m_index = make_shared<Map>();
     else
-        m_index = nullptr;
+        m_index.reset();
 
     for (const auto* otherField: other) {
         auto* field = new Field(*otherField);
@@ -59,15 +59,16 @@ FieldList::FieldList(const FieldList& other)
 FieldList::~FieldList()
 {
     clear();
-    delete m_index;
 }
 
 void FieldList::assign(const FieldList& other)
 {
+    clear();
+
     if (other.m_index != nullptr)
-        m_index = new Map;
+        m_index = make_shared<Map>();
     else
-        m_index = nullptr;
+        m_index.reset();
 
     for (const auto* otherField: other) {
         auto* field = new Field(*otherField);
