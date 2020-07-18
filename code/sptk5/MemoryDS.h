@@ -51,16 +51,26 @@ namespace sptk {
 class SP_EXPORT MemoryDS : public DataSource
 {
 public:
-
     /**
      * Default constructor
      */
     MemoryDS() : DataSource() {}
 
     MemoryDS(const MemoryDS& other) = delete;
-    MemoryDS(MemoryDS&&) noexcept = default;
+
+    MemoryDS(MemoryDS&& other) noexcept
+    : m_list(std::move(other.m_list)), m_current(std::move(other.m_current))
+    {
+    }
+
     MemoryDS& operator = (const MemoryDS& other) = delete;
-    MemoryDS& operator = (MemoryDS&&) noexcept = default;
+
+    MemoryDS& operator = (MemoryDS&& other) noexcept
+    {
+        m_list = std::move(other.m_list);
+        m_current = std::move(other.m_current);
+        return *this;
+    }
 
     /**
      * Destructor
