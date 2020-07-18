@@ -377,8 +377,8 @@ void Document::load(const char* xmlData)
                 break;
 
             default:
-                if (strstr(nodeName, "style:text-properties") != nullptr)
-                    cout << String(nameEnd + 1,128) << endl << endl;
+                //if (strstr(nodeName, "style:text-properties") != nullptr)
+                //    cout << String(nameEnd + 1,128) << endl << endl;
                 nameEnd = readOpenningTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
         }
