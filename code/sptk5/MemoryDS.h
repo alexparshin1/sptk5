@@ -57,14 +57,10 @@ public:
      */
     MemoryDS() : DataSource() {}
 
-    /**
-     * Move constructor
-     * @param other
-     */
-    MemoryDS(MemoryDS&& other) noexcept
-    : m_current(m_list.end())
-    {
-    }
+    MemoryDS(const MemoryDS& other) = delete;
+    MemoryDS(MemoryDS&&) noexcept = default;
+    MemoryDS& operator = (const MemoryDS& other) = delete;
+    MemoryDS& operator = (MemoryDS&&) noexcept = default;
 
     /**
      * Destructor

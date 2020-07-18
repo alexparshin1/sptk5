@@ -34,7 +34,7 @@ using namespace sptk;
 using namespace oracle::occi;
 
 OracleConnection::OracleConnection(const String& connectionString)
-: PoolDatabaseConnection(connectionString, DCT_ORACLE)
+        : PoolDatabaseConnection(connectionString, DCT_ORACLE)
 {
 }
 
@@ -197,8 +197,7 @@ void OracleConnection::queryPrepare(Query* query)
         if (bulkInsertQuery == nullptr)
             throw Exception("Not a bulk query");
         const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
-        for (auto itor = enumeratedParams.begin(); itor != enumeratedParams.end(); ++itor, ++paramIndex) {
-            const QueryParameter* param = *itor;
+        for (auto* param: enumeratedParams) {
             auto xtor = columnTypeSizes.find(upperCase(param->name()));
             if (xtor != columnTypeSizes.end()) {
                 if (xtor->second.length)
@@ -206,6 +205,7 @@ void OracleConnection::queryPrepare(Query* query)
                 else
                     stmt->setMaxParamSize(paramIndex, 32);
             }
+            ++paramIndex;
         }
         stmt->setMaxIterations((unsigned) bulkInsertQuery->batchSize());
     }
@@ -347,11 +347,8 @@ void OracleConnection::queryOpen(Query* query)
 
             ResultSet* resultSet = statement->resultSet();
             vector<MetaData> resultSetMetaData = resultSet->getColumnListMetaData();
-            auto itor = resultSetMetaData.begin();
-            auto iend = resultSetMetaData.end();
             unsigned columnIndex = 0;
-            for (; itor != iend; ++itor, ++columnIndex) {
-                const MetaData& metaData = *itor;
+            for (const MetaData& metaData: resultSetMetaData) {
                 auto columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
                 int columnScale = metaData.getInt(MetaData::ATTR_SCALE);
                 string columnName = metaData.getString(MetaData::ATTR_NAME);
@@ -365,8 +362,10 @@ void OracleConnection::queryOpen(Query* query)
                     resultSet->setMaxColumnSize(columnIndex + 1, 16384);
                 VariantType dataType = OracleTypeToVariantType(columnType, columnScale);
                 auto* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize,
-                                                         columnScale);
+                                                columnScale);
                 query->fields().push_back(field);
+
+                ++columnIndex;
             }
         }
     }
@@ -428,7 +427,7 @@ void OracleConnection::queryFetch(Query* query)
             field = (DatabaseField*) &(*query)[fieldIndex];
 
             // Result set column index starts from 1
-            size_t columnIndex = fieldIndex + 1;
+            auto columnIndex = fieldIndex + 1;
 
             if (resultSet->isNull(columnIndex)) {
                 field->setNull(VAR_NONE);
@@ -482,9 +481,11 @@ void OracleConnection::queryFetch(Query* query)
                     break;
             }
 
-        } catch (const Exception& e) {
+        }
+        catch (const Exception& e) {
             THROW_QUERY_ERROR(query, "Can't read field " << field->fieldName() << ": " << e.what())
-        } catch (const SQLException& e) {
+        }
+        catch (const SQLException& e) {
             THROW_QUERY_ERROR(query, "Can't read field " << field->fieldName() << ": " << e.what())
         }
     }
@@ -557,8 +558,8 @@ void OracleConnection::_bulkInsert(const String& fullTableName, const Strings& c
     String schema;
     String tableName;
     auto matches = matchTableAndSchema.m(fullTableName.toUpperCase());
-    if (!matches[(size_t)0].value.empty()) {
-        schema = matches[(size_t)0].value;
+    if (!matches[(size_t) 0].value.empty()) {
+        schema = matches[(size_t) 0].value;
         schema = schema.substr(0, schema.length() - 1);
     }
     tableName = matches[1].value;
@@ -591,8 +592,7 @@ void OracleConnection::_bulkInsert(const String& fullTableName, const Strings& c
         if (columnType.find("LOB") != string::npos) {
             columnTypeSize.type = VAR_TEXT;
             columnTypeSize.length = 65536;
-        }
-        else if (columnType.find("CHAR") != string::npos)
+        } else if (columnType.find("CHAR") != string::npos)
             columnTypeSize.length = maxDataLength;
         else if (columnType.find("TIMESTAMP") != string::npos)
             columnTypeSize.type = VAR_DATE_TIME;

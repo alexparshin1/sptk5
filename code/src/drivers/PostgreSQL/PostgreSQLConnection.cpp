@@ -381,11 +381,11 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     auto* statement = (PostgreSQLStatement*) query->statement();
     PostgreSQLParamValues& paramValues = statement->m_paramValues;
     const CParamVector& params = paramValues.params();
-    uint32_t paramNumber = 0;
 
-    for (auto ptor = params.begin(); ptor != params.end(); ++ptor, ++paramNumber) {
-        QueryParameter* param = *ptor;
+    uint32_t paramNumber = 0;
+    for (auto* param: params) {
         paramValues.setParameterValue(paramNumber, param);
+        ++paramNumber;
     }
 
     int resultFormat = 1;   // Results are presented in binary format
@@ -435,9 +435,9 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
-    for (auto ptor = params.begin(); ptor != params.end(); ++ptor, ++paramNumber) {
-        QueryParameter* param = *ptor;
+    for (auto* param: params) {
         paramValues.setParameterValue(paramNumber, param);
+        ++paramNumber;
     }
 
     int resultFormat = 1;   // Results are presented in binary format
@@ -681,12 +681,15 @@ static inline MoneyData readNumericToScaledInteger(const char* v)
     }
 
     int16_t digitWeight = weight;
-    for (int i = 0; i < ndigits; ++i, v += 2, --digitWeight) {
+    for (int i = 0; i < ndigits; ++i) {
         auto digit = (int16_t) ntohs(*(const uint16_t*) v);
 
         value = value * 10000 + digit;
         if (digitWeight < 0)
             scale += 4;
+
+        --digitWeight;
+        v += 2;
     }
 
     while (scale < dscale - 4) {

@@ -97,11 +97,9 @@ void OracleStatement::setParameterValues()
 {
     m_outputParamIndex.clear();
 
-    auto itor = m_enumeratedParams.begin();
-    auto iend = m_enumeratedParams.end();
-
-    for (unsigned parameterIndex = 1; itor != iend; ++itor, ++parameterIndex) {
-        QueryParameter& parameter = *(*itor);
+    unsigned parameterIndex = 1;
+    for (auto* parameterPtr: m_enumeratedParams) {
+        QueryParameter& parameter = *parameterPtr;
         VariantType& priorDataType = parameter.m_binding.m_dataType;
 
         if (priorDataType == VAR_NONE)
@@ -112,6 +110,7 @@ void OracleStatement::setParameterValues()
                 priorDataType = VAR_STRING;
             Type nativeType = VariantTypeToOracleType(parameter.m_binding.m_dataType);
             statement()->setNull(parameterIndex, nativeType);
+            ++parameterIndex;
             continue;
         }
 
@@ -158,6 +157,7 @@ void OracleStatement::setParameterValues()
 
             default: throwDatabaseException("Unsupported data type for parameter " + parameter.name())
         }
+        ++parameterIndex;
     }
 }
 
@@ -307,14 +307,11 @@ void OracleStatement::execute(bool inTransaction)
         m_resultSet = statement()->getResultSet();
 
         vector<MetaData> resultSetMetaData = m_resultSet->getColumnListMetaData();
-        auto itor = resultSetMetaData.begin();
-        auto iend = resultSetMetaData.end();
 
         state().columnCount = (unsigned) resultSetMetaData.size();
 
         unsigned columnIndex = 1;
-        for (; itor != iend; ++itor, ++columnIndex) {
-            const MetaData& metaData = *itor;
+        for (const MetaData& metaData: resultSetMetaData) {
             // If resultSet contains cursor, use that cursor as resultSet
             if (metaData.getInt(MetaData::ATTR_DATA_TYPE) == SQLT_RSET) {
                 m_resultSet->next();
@@ -324,6 +321,7 @@ void OracleStatement::execute(bool inTransaction)
                 state().columnCount = (unsigned) m_resultSet->getColumnListMetaData().size();
                 break;
             }
+            ++columnIndex;
         }
     }
 }
