@@ -216,8 +216,14 @@ void Brotli::decompress(Buffer& dest, const Buffer& src)
         throw Exception("out of memory");
 
     BrotliDecoderSetParameter(s, BROTLI_DECODER_PARAM_LARGE_WINDOW, 1U);
-    context->DecompressFile(s);
-    BrotliDecoderDestroyInstance(s);
+    try {
+        context->DecompressFile(s);
+        BrotliDecoderDestroyInstance(s);
+    }
+    catch (const Exception&) {
+        BrotliDecoderDestroyInstance(s);
+        throw;
+    }
 }
 
 #if USE_GTEST
