@@ -49,6 +49,8 @@ public:
     {
     }
 
+    WSProtocol(const WSProtocol&) = delete;
+
     /// Destructor
     ///
     /// Closes connection

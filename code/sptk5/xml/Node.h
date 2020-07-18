@@ -105,26 +105,6 @@ public:
      * 0 (not required), -1 (last), or node position
      */
     int nodePosition {0};
-
-    /**
-     * Default constructor
-     */
-    XPathElement() = default;
-
-    /**
-     * Copy constructor
-     * @param xpe CXPathElement object to copy from
-     */
-    XPathElement(const XPathElement& xpe)
-    : elementName(xpe.elementName),
-      criteria(xpe.criteria),
-      axis(xpe.axis),
-      attributeName(xpe.attributeName),
-      attributeValue(xpe.attributeValue),
-      attributeValueDefined(xpe.attributeValueDefined),
-      nodePosition(xpe.nodePosition)
-    {
-    }
 };
 
 /**
@@ -584,6 +564,8 @@ public:
     {
         return true;
     }
+
+    Node& operator = (const Node&) = delete;
 
 protected:
 

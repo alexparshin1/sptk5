@@ -112,7 +112,7 @@ Host::Host(const Host& other)
 }
 
 Host::Host(Host&& other) noexcept
-: m_hostname(move(other.m_hostname)), m_port(other.m_port)
+: m_hostname(move(other.m_hostname)), m_port(exchange(other.m_port,0))
 {
     SharedLock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
@@ -288,6 +288,59 @@ TEST(SPTK_Host, ctorAddressStruct)
     EXPECT_STREQ(gentoo1.toString(true).c_str(), gentoo2.toString(true).c_str());
     EXPECT_STREQ(gentooHostAndPort.c_str(), gentoo2.toString(false).c_str());
     EXPECT_EQ(gentoo1.port(), gentoo2.port());
+}
+
+TEST(SPTK_Host, ctorCopy)
+{
+    Host host1("11.22.33.44", 22);
+    Host host2(host1);
+    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
+    EXPECT_EQ(22, host2.port());
+}
+
+TEST(SPTK_Host, ctorMove)
+{
+    Host host1("11.22.33.44", 22);
+    Host host2(move(host1));
+    EXPECT_STREQ("", host1.hostname().c_str());
+    EXPECT_EQ(0, host1.port());
+    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
+    EXPECT_EQ(22, host2.port());
+}
+
+TEST(SPTK_Host, assign)
+{
+    Host host1("11.22.33.44", 22);
+    Host host2 = host1;
+    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
+    EXPECT_EQ(22, host2.port());
+}
+
+TEST(SPTK_Host, move)
+{
+    Host host1("11.22.33.44", 22);
+    Host host2 = move(host1);
+    EXPECT_STREQ("", host1.hostname().c_str());
+    EXPECT_EQ(0, host1.port());
+    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
+    EXPECT_EQ(22, host2.port());
+}
+
+TEST(SPTK_Host, compare)
+{
+    Host host1("11.22.33.44", 22);
+    Host host2(host1);
+    Host host3("11.22.33.45", 22);
+    Host host4("11.22.33.44", 23);
+
+    EXPECT_TRUE(host1 == host2);
+    EXPECT_FALSE(host1 != host2);
+
+    EXPECT_FALSE(host1 == host3);
+    EXPECT_TRUE(host1 != host3);
+
+    EXPECT_FALSE(host1 == host4);
+    EXPECT_TRUE(host1 != host4);
 }
 
 #endif

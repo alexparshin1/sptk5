@@ -47,7 +47,7 @@ namespace xml {
 class Document;
 
 /**
- * @brief XML Element is a named item that may optionally have sub-nodes and attributes
+ * XML Element is a named item that may optionally have sub-nodes and attributes
  */
 class SP_EXPORT Element : public NamedItem
 {
@@ -55,7 +55,7 @@ class SP_EXPORT Element : public NamedItem
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
@@ -65,7 +65,7 @@ public:
     {}
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
@@ -75,7 +75,7 @@ public:
     {}
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
@@ -83,6 +83,20 @@ public:
     Element(Node& parent, const String& tagname)
     : NamedItem(parent,tagname), m_attributes(this)
     {}
+
+    /**
+     * Copy constructor
+     *
+     * @param other             Other object
+     */
+    Element(const Element&) = delete;
+
+    /**
+     * Move constructor
+     *
+     * @param other             Other object
+     */
+    Element(Element&&) noexcept = default;
 
     /**
      * Destructor
@@ -93,7 +107,21 @@ public:
     }
 
     /**
-     * @brief Returns node type
+     * Copy assignment
+     *
+     * @param other             Other object
+     */
+    Element& operator = (const Element&) = delete;
+
+    /**
+     * Move assignment
+     *
+     * @param other             Other object
+     */
+    Element& operator = (Element&&) noexcept = default;
+
+    /**
+     * Returns node type
      */
     NodeType type() const override
     {
@@ -101,7 +129,7 @@ public:
     }
 
     /**
-     * @brief Returns the first subnode iterator
+     * Returns the first subnode iterator
      */
     iterator begin() override
     {
@@ -109,7 +137,7 @@ public:
     }
 
     /**
-     * @brief Returns the first subnode const iterator
+     * Returns the first subnode const iterator
      */
     const_iterator begin() const override
     {
@@ -117,7 +145,7 @@ public:
     }
 
     /**
-     * @brief Returns the end subnode iterator
+     * Returns the end subnode iterator
      */
     iterator end() override
     {
@@ -125,7 +153,7 @@ public:
     }
 
     /**
-     * @brief Returns the end subnode const iterator
+     * Returns the end subnode const iterator
      */
     const_iterator end() const override
     {
@@ -133,7 +161,7 @@ public:
     }
 
     /**
-     * @brief Returns a number of subnodes
+     * Returns a number of subnodes
      */
     uint32_t size() const override
     {
@@ -141,7 +169,7 @@ public:
     }
 
     /**
-     * @brief Returns true if node has no subnodes of subnodes
+     * Returns true if node has no subnodes of subnodes
      */
     bool empty() const override
     {
@@ -149,14 +177,14 @@ public:
     }
 
     /**
-     * @brief Appends a subnode
+     * Appends a subnode
      *
      * @param node              Node to append
      */
     void push_back(Node* node) override;
 
     /**
-     * @brief Inserts a subnode
+     * Inserts a subnode
      *
      * @param pos               Insert position with the list of subnodes
      * @param node              Node to insert
@@ -164,7 +192,7 @@ public:
     void insert(iterator pos, Node* node) override;
 
     /**
-     * @brief Removes a subnode
+     * Removes a subnode
      *
      * Any memory allocated for subnode is released and subnode is
      * removed from its parent
@@ -173,21 +201,21 @@ public:
     void remove(Node* node) override;
 
     /**
-     * @brief Removes a subnode
+     * Removes a subnode
      *
      * Disconnects subnode from parent (this node)
      */
     void unlink(Node* node) override;
 
     /**
-     * @brief Deletes all child nodes
+     * Deletes all child nodes
      *
      * Any memory, associated with child nodes, is released.
      */
     void clearChildren() override;
 
     /**
-     * @brief Deletes all children and clears all the attributes
+     * Deletes all children and clears all the attributes
      *
      * Any memory, associated with children or attributes,
      * is released.
@@ -195,7 +223,7 @@ public:
     void clear() override;
 
     /**
-     * @brief Returns referrence to node attributes
+     * Returns referrence to node attributes
      */
     Attributes& attributes() override
     {
@@ -203,7 +231,7 @@ public:
     }
 
     /**
-     * @brief Returns referrence to node attributes (const version)
+     * Returns referrence to node attributes (const version)
      */
     const Attributes& attributes() const override
     {
@@ -211,7 +239,7 @@ public:
     }
 
     /**
-     * @brief Returns true, if node has any attributes
+     * Returns true, if node has any attributes
      */
     bool hasAttributes() const override
     {
@@ -219,7 +247,7 @@ public:
     }
 
     /**
-     * @brief Returns true, if given attribute is found
+     * Returns true, if given attribute is found
      * @param attr              Attribute to search
      */
     bool hasAttribute(const char *attr) const override
@@ -228,7 +256,7 @@ public:
     }
 
     /**
-     * @brief Returns attribute value for given attribute.
+     * Returns attribute value for given attribute.
      *
      * HTML tags can have empty attributes, for those you should use has_attribute() method.
      * @param attr              Name of attribute
@@ -241,7 +269,7 @@ public:
     }
 
     /**
-     * @brief Sets new value to attribute 'attr'.
+     * Sets new value to attribute 'attr'.
      *
      * If attribute is not found, it's added to map.
      * @param attr              Attribute name
@@ -256,7 +284,7 @@ public:
 protected:
 
     /**
-     * @brief Protected constructor for creating Doc only
+     * Protected constructor for creating Doc only
      *
      * @param doc               XML document.
      */
@@ -265,15 +293,9 @@ protected:
     {}
 
 private:
-    /**
-     * The list of subnodes
-     */
-    NodeList       m_nodes;
 
-    /**
-     * Node attributes
-     */
-    Attributes     m_attributes;
+    NodeList       m_nodes;         ///< The list of subnodes
+    Attributes     m_attributes;    ///< Node attributes
 };
 
 /**

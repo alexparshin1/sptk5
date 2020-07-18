@@ -64,6 +64,11 @@ public:
     {}
 
     /**
+     * Destructor
+     */
+    ~WSNameSpace() noexcept = default;
+
+    /**
      * Assignment
      * @param other             Other namespace
      * @return

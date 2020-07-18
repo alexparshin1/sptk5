@@ -29,6 +29,7 @@
 #include <sptk5/Exception.h>
 #include <sptk5/FieldList.h>
 #include <sptk5/Printer.h>
+#include <sptk5/StopWatch.h>
 
 using namespace std;
 using namespace sptk;

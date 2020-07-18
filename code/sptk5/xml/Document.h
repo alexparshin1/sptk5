@@ -65,6 +65,8 @@ public:
      */
     Document();
 
+    Document(const Document&) = delete;
+
     /**
      * Constructs a document from XML string
      * @param xml               XML string
@@ -224,8 +226,6 @@ protected:
     unsigned char* skipSpaces(unsigned char* start) const;
 
 private:
-
-    static const String MATCH_NUMBER;                               ///< Regex string for matching a number
 
     DocType             m_doctype;                                  ///< Document type
     int                 m_indentSpaces {2};                         ///< Indent spaces

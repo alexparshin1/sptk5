@@ -133,14 +133,6 @@ public:
     }
 
     /**
-     * Assign operator
-     *
-     * Makes copy of an attribute set to another.
-     * @param src as copy source
-     */
-    Attributes& operator=(const Attributes& src);
-
-    /**
      * Searches for named attribute
      *
      * Returns true, if given attribute is found.

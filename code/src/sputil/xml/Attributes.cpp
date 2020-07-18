@@ -61,19 +61,6 @@ void Attribute::value(const char* new_value)
     m_value = new_value;
 }
 
-Attributes& Attributes::operator=(const Attributes& s)
-{
-    if (&s == this)
-        return *this;
-
-    clear();
-
-    for (const auto* node: s)
-        new Attribute(m_parent, node->name(), node->value());
-
-    return *this;
-}
-
 Attribute* Attributes::getAttributeNode(const String& attr)
 {
     const auto itor = findFirst(attr.c_str());
