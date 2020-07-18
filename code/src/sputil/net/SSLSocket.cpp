@@ -113,7 +113,7 @@ mutex* CSSLLibraryLoader::m_locks;
 
 static CSSLLibraryLoader loader;
 
-void SSLSocket::throwSSLError(const String& function, int rc)
+void SSLSocket::throwSSLError(const String& function, int rc) const
 {
     int errorCode = SSL_get_error(m_ssl, rc);
     string error = getSSLError(function.c_str(), errorCode);
@@ -310,7 +310,6 @@ size_t SSLSocket::recv(void* buffer, size_t size)
         default:
             close();
             throwSSLError("SSL_read", rc);
-            break;
         }
     }
     return (size_t) rc;

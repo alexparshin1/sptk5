@@ -38,7 +38,7 @@
 using namespace std;
 using namespace sptk;
 
-SocketPool::SocketPool(SocketEventCallback eventsCallback)
+SocketPool::SocketPool(const SocketEventCallback& eventsCallback)
 : m_eventsCallback(eventsCallback)
 {
 }
@@ -122,7 +122,7 @@ void SocketPool::forgetSocket(BaseSocket& socket)
 
 #define MAXEVENTS 16
 
-void SocketPool::waitForEvents(chrono::milliseconds timeout)
+void SocketPool::waitForEvents(chrono::milliseconds timeout) const
 {
     epoll_event events[MAXEVENTS];
 

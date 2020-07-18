@@ -33,7 +33,7 @@ using namespace chrono;
 
 #define MAXEVENTS 128
 
-SocketEvents::SocketEvents(const String& name, SocketEventCallback eventsCallback, milliseconds timeout)
+SocketEvents::SocketEvents(const String& name, const SocketEventCallback& eventsCallback, milliseconds timeout)
 : Thread(name), m_socketPool(eventsCallback), m_timeout(timeout)
 {
     m_socketPool.open();

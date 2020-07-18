@@ -69,9 +69,9 @@ class SP_EXPORT SocketPool : public std::mutex
 public:
     /**
      * Constructor
-     * @param eventCallback SocketEventCallback, Callback function executed upon socket events
+     * @param eventsCallback SocketEventCallback, Callback function executed upon socket events
      */
-    explicit SocketPool(SocketEventCallback eventCallback);
+    explicit SocketPool(const SocketEventCallback& eventsCallback);
 
     /**
      * Deleted copy constructor
@@ -98,7 +98,7 @@ public:
      *
      * Execute callback function for each signaled socket.
      */
-    void waitForEvents(std::chrono::milliseconds timeout);
+    void waitForEvents(std::chrono::milliseconds timeout) const;
 
     /**
      * Shutdown socket pool.

@@ -54,7 +54,8 @@ public:
      * @param eventsCallback        Callback function called for socket events
      * @param timeout	            Timeout in event monitoring loop
      */
-    SocketEvents(const String& name, SocketEventCallback eventsCallback, std::chrono::milliseconds timeout = std::chrono::milliseconds(100));
+    SocketEvents(const String& name, const SocketEventCallback& eventsCallback, std::chrono::milliseconds timeout = std::chrono::milliseconds(
+            100));
 
     /**
      * Destructor

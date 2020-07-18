@@ -235,7 +235,7 @@ void JWT::sign(Buffer& out, const char* str) const
     }
 }
 
-void JWT::encode(ostream& out)
+void JWT::encode(ostream& out) const
 {
     /* First the header. */
     stringstream header;
@@ -332,10 +332,9 @@ void sptk::jwt_base64uri_encode(Buffer& buffer)
 {
     char* str = buffer.data();
     size_t len = strlen(str);
-    size_t i;
-    size_t t;
+    size_t t = 0;
 
-    for (i = t = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
         switch (str[i]) {
             case '+':
                 str[t] = '-';

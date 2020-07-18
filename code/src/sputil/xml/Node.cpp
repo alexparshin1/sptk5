@@ -499,7 +499,7 @@ void Node::saveElement(json::Element* object) const
             for (const auto* np: *this)
                 np->save(*object, nodeText);
             if (object->is(json::JDT_OBJECT) && object->size() == 0) {
-                if (document()->m_matchNumber.matches(nodeText)) {
+                if (Document::isNumber(nodeText)) {
                     double value = string2double(nodeText);
                     *object = value;
                 } else

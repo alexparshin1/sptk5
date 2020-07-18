@@ -35,8 +35,6 @@ using namespace sptk;
 
 namespace sptk::xml {
 
-const String Document::MATCH_NUMBER(R"(^[+\-]?(\d|[1-9]\d*)(\.\d+)?(e-?\d+)?$)");
-
 Document::Document()
 : Element(*this)
 {
@@ -379,6 +377,8 @@ void Document::load(const char* xmlData)
                 break;
 
             default:
+                if (strstr(nodeName, "style:text-properties") != nullptr)
+                    cout << String(nameEnd + 1,128) << endl << endl;
                 nameEnd = readOpenningTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
         }
@@ -469,7 +469,9 @@ void Document::exportTo(json::Element& json) const
 
 bool Document::isNumber(const String& str)
 {
-    return m_matchNumber.matches(str);
+    static const RegularExpression matchNumber {R"(^[+\-]?(0|[1-9]\d*)(\.\d+)?(e-?\d+)?$)", "i"};
+
+    return matchNumber.matches(str);
 }
 
 } // namespace sptk

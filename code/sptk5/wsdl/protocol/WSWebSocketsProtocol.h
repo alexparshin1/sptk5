@@ -54,7 +54,7 @@ public:
     WSWebSocketsMessage() = default;
 
     /// Return message payload buffer
-    const Buffer& payload();
+    const Buffer& payload() const;
 
     /// Decode incoming data into message payload
     /// @param incomingData     Incoming data received from WebSockets

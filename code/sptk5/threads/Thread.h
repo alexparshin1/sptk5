@@ -124,7 +124,7 @@ public:
     /**
      * Returns this thread OS id
      */
-    Id id();
+    Id id() const;
 
     /**
      * Returns the name of the thread

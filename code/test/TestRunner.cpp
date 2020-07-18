@@ -114,7 +114,7 @@ TestRunner::TestRunner(int& argc, char**& argv)
 {
 }
 
-void TestRunner::addDatabaseConnection(const DatabaseConnectionString& connectionString)
+void TestRunner::addDatabaseConnection(const DatabaseConnectionString& connectionString) const
 {
     DatabaseTests::tests().addDatabaseConnection(connectionString);
 }

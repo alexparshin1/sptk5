@@ -56,15 +56,31 @@ public:
      */
     MemoryDS() : DataSource() {}
 
+    /**
+     * Deleted copy constructor
+     * @param other             Other object
+     */
     MemoryDS(const MemoryDS& other) = delete;
 
+    /**
+     * Move constructor
+     * @param other             Other object
+     */
     MemoryDS(MemoryDS&& other) noexcept
     : m_list(std::move(other.m_list)), m_current(std::move(other.m_current))
     {
     }
 
+    /**
+     * Deleted copy assignment
+     * @param other             Other object
+     */
     MemoryDS& operator = (const MemoryDS& other) = delete;
 
+    /**
+     * Move assignment
+     * @param other             Other object
+     */
     MemoryDS& operator = (MemoryDS&& other) noexcept
     {
         m_list = std::move(other.m_list);

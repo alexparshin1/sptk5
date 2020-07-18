@@ -199,6 +199,12 @@ public:
      */
     void exportTo(json::Element& json) const override;
 
+    /**
+     * Does string match a number?
+     * @return true if string constains a number
+     */
+    static bool isNumber(const String& str);
+
 protected:
 
     /**
@@ -208,12 +214,6 @@ protected:
      * @see xml::Node
      */
     Node* createElement(const char* tagname);
-
-    /**
-     * Does string match a number?
-     * @return true if string constains a number
-     */
-    bool isNumber(const String& str);
 
     /**
      * Extract entities
@@ -230,9 +230,7 @@ private:
     DocType             m_doctype;                                  ///< Document type
     int                 m_indentSpaces {2};                         ///< Indent spaces
     Buffer              m_encodeBuffer;                             ///< Buffer to encode entities
-    RegularExpression   m_matchNumber {MATCH_NUMBER, "i"};          ///< Regular expression to match a number
     Buffer              m_decodeBuffer;                             ///< Decode and encode buffer
-
 
     /**
      * Internal entities parser

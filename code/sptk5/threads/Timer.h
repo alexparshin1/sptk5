@@ -187,7 +187,7 @@ namespace sptk {
          * @param eventCallback             Event callback.
          * @return event handle, that may be used to cancel this event.
          */
-        Event fireAt(const DateTime& timestamp, EventData::Callback eventCallback);
+        Event fireAt(const DateTime& timestamp, const EventData::Callback& eventCallback);
 
         /**
          * Schedule repeatable event.
@@ -197,7 +197,7 @@ namespace sptk {
          * @param repeatCount               Repeat count, -1 means no limit
          * @return event handle, that may be used to cancel this event.
          */
-        Event repeat(std::chrono::milliseconds interval, EventData::Callback eventCallback, int repeatCount=-1);
+        Event repeat(std::chrono::milliseconds interval, const EventData::Callback& eventCallback, int repeatCount=-1);
 
         /**
          * Cancel event

@@ -214,7 +214,7 @@ static void checkTimerThreadRunning()
     }
 }
 
-Timer::Event Timer::fireAt(const DateTime& timestamp, EventData::Callback eventCallback)
+Timer::Event Timer::fireAt(const DateTime& timestamp, const EventData::Callback& eventCallback)
 {
     checkTimerThreadRunning();
 
@@ -227,7 +227,7 @@ Timer::Event Timer::fireAt(const DateTime& timestamp, EventData::Callback eventC
     return event;
 }
 
-Timer::Event Timer::repeat(milliseconds interval, EventData::Callback eventCallback, int repeatCount)
+Timer::Event Timer::repeat(milliseconds interval, const EventData::Callback& eventCallback, int repeatCount)
 {
     checkTimerThreadRunning();
 

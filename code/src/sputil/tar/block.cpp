@@ -122,13 +122,8 @@ int th_read(TAR *t)
         if (t->th_buf.gnu_longlink == nullptr)
             return -1;
 
-        for (ptr = t->th_buf.gnu_longlink; j > 0;
-             --j, ptr += T_BLOCKSIZE)
+        for (ptr = t->th_buf.gnu_longlink; j > 0 && ptr != nullptr; --j, ptr += T_BLOCKSIZE)
         {
-#ifdef LIBTAR_DEBUG
-            printf("    th_read(): reading long linkname "
-                   "(%d blocks left, ptr == %ld)\n", j, ptr);
-#endif
             i = tar_block_read(t, ptr);
             if (i != T_BLOCKSIZE)
             {
@@ -136,9 +131,6 @@ int th_read(TAR *t)
                     errno = EINVAL;
                 return -1;
             }
-#ifdef LIBTAR_DEBUG
-            printf("    th_read(): read block == \"%s\"\n", ptr);
-#endif
         }
 #ifdef LIBTAR_DEBUG
         printf("    th_read(): t->th_buf.gnu_longlink == \"%s\"\n",
@@ -164,8 +156,7 @@ int th_read(TAR *t)
         if (t->th_buf.gnu_longname == nullptr)
             return -1;
 
-        for (ptr = t->th_buf.gnu_longname; j > 0;
-             --j, ptr += T_BLOCKSIZE)
+        for (ptr = t->th_buf.gnu_longname; j > 0 && ptr != nullptr; --j, ptr += T_BLOCKSIZE)
         {
             i = tar_block_read(t, ptr);
             if (i != T_BLOCKSIZE)

@@ -130,7 +130,7 @@ public:
      * Encode token to stream
      * @param out               Output stream
      */
-    void encode(std::ostream& out);
+    void encode(std::ostream& out) const;
 
     /**
      * Decode token

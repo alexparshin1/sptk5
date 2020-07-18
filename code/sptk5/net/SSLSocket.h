@@ -56,7 +56,7 @@ public:
      * @param function          SSL function name
      * @param rc                SSL function return code
      */
-    [[noreturn]] void throwSSLError(const String& function, int rc);
+    [[noreturn]] void throwSSLError(const String& function, int rc) const;
 
     /**
      * Constructor

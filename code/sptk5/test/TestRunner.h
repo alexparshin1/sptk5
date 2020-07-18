@@ -50,7 +50,7 @@ public:
      * Define database connection for DB module that should be tested
      * @param connectionString
      */
-    void addDatabaseConnection(const DatabaseConnectionString& connectionString);
+    void addDatabaseConnection(const DatabaseConnectionString& connectionString) const;
 
     /**
      * Actually run tests

@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-const Buffer& WSWebSocketsMessage::payload()
+const Buffer& WSWebSocketsMessage::payload() const
 {
     return m_payload;
 }
@@ -61,9 +61,19 @@ void WSWebSocketsMessage::decode(const char* incomingData)
     bool masked = (*ptr & 0x80) != 0;
     auto payloadLength = uint64_t((*ptr) & 0x7F);
     switch (payloadLength) {
-        case 126:   ++ptr; payloadLength = ntohs(*(const uint16_t*)ptr); ptr += 2; break;
-        case 127:   ++ptr; payloadLength = ntoh64(*(const uint64_t*)ptr); ptr += 8; break;
-        default:    ++ptr; break;
+        case 126:
+            ++ptr;
+            payloadLength = ntohs(*(const uint16_t*)ptr);
+            ptr += 2;
+            break;
+        case 127:
+            ++ptr;
+            payloadLength = ntoh64(*(const uint64_t*)ptr);
+            ptr += 8;
+            break;
+        default:
+            ++ptr;
+            break;
     }
 
     m_payload.checkSize(payloadLength);

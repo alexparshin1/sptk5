@@ -72,7 +72,7 @@ bool Thread::terminated()
     return m_terminated;
 }
 
-Thread::Id Thread::id()
+Thread::Id Thread::id() const
 {
     if (m_thread)
         return m_thread->get_id();
