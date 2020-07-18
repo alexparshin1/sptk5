@@ -616,4 +616,12 @@ TEST(SPTK_XmlDocument, parse)
     EXPECT_STREQ("ns1:GetRequests", methodElement->name().c_str());
 }
 
+TEST(SPTK_XmlDocument, parse1)
+{
+    xml::Document   document;
+    Buffer          buffer;
+    buffer.loadFromFile("/tmp/styles.xml");
+    document.load(buffer);
+}
+
 #endif

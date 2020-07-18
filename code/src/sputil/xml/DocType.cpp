@@ -130,11 +130,10 @@ void xml::DocType::decodeEntities(const char* str, uint32_t sz, Buffer& ret)
                 ++ptr;
             }
         } else {
-            sz = (uint32_t) strlen(start);
             break;
         }
     }
-    ret.append(start, sz);
+    ret.append(start, strlen(start));
 }
 
 bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
@@ -249,3 +248,28 @@ bool xml::DocType::hasEntity(const char *name)
     const char* tmp = getReplacement(name, len);
     return tmp != nullptr;
 }
+
+#if USE_GTEST
+
+TEST(SPTK_XmlDocType, decodeEncodeEntities)
+{
+    String testString1("'test1'");
+    String testString2(R"(<v a='test1'/> value)");
+
+    Buffer encoded;
+    Buffer decoded;
+    xml::DocType docType("x");
+
+    docType.encodeEntities(testString1.c_str(), encoded);
+    docType.decodeEntities(encoded.c_str(), encoded.length(), decoded);
+    EXPECT_STREQ(testString1.c_str(), decoded.c_str());
+
+    encoded.reset();
+    decoded.reset();
+
+    docType.encodeEntities(testString2.c_str(), encoded);
+    docType.decodeEntities(encoded.c_str(), encoded.length(), decoded);
+    EXPECT_STREQ(testString2.c_str(), decoded.c_str());
+}
+
+#endif
