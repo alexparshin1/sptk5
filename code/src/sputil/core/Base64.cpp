@@ -174,21 +174,21 @@ size_t Base64::decode(Buffer &bufDest, const String& strSource)
 
 #if USE_GTEST
 
-static const char* testPhrase = "This is a test";
-static const char* testPhraseBase64 = "VGhpcyBpcyBhIHRlc3Q=";
+static const String testPhrase("This is a test");
+static const String testPhraseBase64("VGhpcyBpcyBhIHRlc3Q=");
 
 TEST(SPTK_Base64, decode)
 {
     Buffer decoded;
     Base64::decode(decoded, testPhraseBase64);
-    EXPECT_STREQ(testPhrase, decoded.c_str());
+    EXPECT_STREQ(testPhrase.c_str(), decoded.c_str());
 }
 
 TEST(SPTK_Base64, encode)
 {
     String encoded;
     Base64::encode(encoded, Buffer(testPhrase));
-    EXPECT_STREQ(testPhraseBase64, encoded.c_str());
+    EXPECT_STREQ(testPhraseBase64.c_str(), encoded.c_str());
 }
 
 #endif

@@ -80,7 +80,7 @@ xml::Node* WSWebServiceProtocol::findRequestNode(const xml::Document& message, c
 }
 
 void WSWebServiceProtocol::generateFault(Buffer& output, size_t& httpStatusCode, String& httpStatusText,
-                                         String& contentType, const HTTPException& e, bool jsonOutput)
+                                         String& contentType, const HTTPException& e, bool jsonOutput) const
 {
     httpStatusCode = e.statusCode();
     httpStatusText = e.statusText();

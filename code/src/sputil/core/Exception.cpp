@@ -205,13 +205,16 @@ String HTTPException::httpResponseStatus(size_t statusCode)
         case 511:
             statusText = "Network Authentication Required";
             break;
+        default:
+            statusText = "Unknown";
+            break;
     }
     return statusText;
 }
 
 #if USE_GTEST
 
-TEST(SPTK_Exception, throw)
+TEST(SPTK_Exception, throwException)
 {
     try {
         throw Exception("Test exception");

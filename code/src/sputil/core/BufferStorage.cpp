@@ -14,8 +14,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more d    BufferStorage(BufferStorage&& other) noexcept = default;
-etails.                                   │
+│   General Public License for more details.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -165,34 +164,32 @@ static const String testString("0123456789ABCDEF");
 
 TEST(SPTK_BufferStorage, constructors)
 {
-    String testString("0123456789ABCDEF");
     BufferStorage testStorage1(testString.c_str(), testString.length());
 
     BufferStorage testStorage2(testStorage1);
     EXPECT_EQ(testStorage2.length(), size_t(16));
-    EXPECT_STREQ(testStorage2.c_str(), "0123456789ABCDEF");
+    EXPECT_STREQ(testStorage2.c_str(), testString.c_str());
 
     BufferStorage testStorage3(move(testStorage1));
     EXPECT_EQ(testStorage3.length(), size_t(16));
-    EXPECT_STREQ(testStorage3.c_str(), "0123456789ABCDEF");
+    EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
     EXPECT_EQ(testStorage1.length(), size_t(0));
     EXPECT_STREQ(testStorage1.c_str(), nullptr);
 }
 
 TEST(SPTK_BufferStorage, assignments)
 {
-    String testString("0123456789ABCDEF");
     BufferStorage testStorage1(testString.c_str(), testString.length());
 
     BufferStorage testStorage2;
     testStorage2 = testStorage1;
     EXPECT_EQ(testStorage2.length(), size_t(16));
-    EXPECT_STREQ(testStorage2.c_str(), "0123456789ABCDEF");
+    EXPECT_STREQ(testStorage2.c_str(), testString.c_str());
 
     BufferStorage testStorage3;
     testStorage3 = move(testStorage1);
     EXPECT_EQ(testStorage3.length(), size_t(16));
-    EXPECT_STREQ(testStorage3.c_str(), "0123456789ABCDEF");
+    EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
     EXPECT_EQ(testStorage1.length(), size_t(0));
     EXPECT_STREQ(testStorage1.c_str(), nullptr);
 }
@@ -215,7 +212,7 @@ TEST(SPTK_BufferStorage, erase)
     testStorage.fill(0, 32);
     testStorage.set("0123456789ABCDEF");
     EXPECT_EQ(testStorage.length(), size_t(16));
-    EXPECT_STREQ(testStorage.c_str(), "0123456789ABCDEF");
+    EXPECT_STREQ(testStorage.c_str(), testString.c_str());
     testStorage.erase(0,4);
     EXPECT_STREQ(testStorage.c_str(), "456789ABCDEF");
 }
@@ -223,7 +220,7 @@ TEST(SPTK_BufferStorage, erase)
 TEST(SPTK_BufferStorage, reset)
 {
     BufferStorage testStorage(32);
-    testStorage.set("0123456789ABCDEF");
+    testStorage.set(testString.c_str());
 
     testStorage.reset();
     EXPECT_EQ(testStorage.length(), size_t(0));

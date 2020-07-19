@@ -94,7 +94,7 @@ private:
     xml::Node* findRequestNode(const xml::Document& message, const String& messageType) const;
 
     void generateFault(Buffer& output, size_t& httpStatusCode, String& httpStatusText, String& contentType,
-                       const HTTPException& e, bool jsonOutput);
+                       const HTTPException& e, bool jsonOutput) const;
 
     void RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) const;
 

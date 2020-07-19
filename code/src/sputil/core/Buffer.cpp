@@ -191,15 +191,15 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 
 #if USE_GTEST
 
-static const char* testPhrase = "This is a test";
-static const char* tempFileName = "./gtest_sptk5_buffer.tmp";
+static const String testPhrase("This is a test");
+static const String tempFileName("./gtest_sptk5_buffer.tmp");
 
 TEST(SPTK_Buffer, create)
 {
     Buffer  buffer1(testPhrase);
-    EXPECT_STREQ(testPhrase, buffer1.c_str());
-    EXPECT_EQ(strlen(testPhrase), buffer1.bytes());
-    EXPECT_TRUE(strlen(testPhrase) < buffer1.capacity());
+    EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer1.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer1.capacity());
 }
 
 TEST(SPTK_Buffer, copyCtor)
@@ -208,9 +208,9 @@ TEST(SPTK_Buffer, copyCtor)
     Buffer  buffer2(*buffer1);
     buffer1.reset();
 
-    EXPECT_STREQ(testPhrase, buffer2.c_str());
-    EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
-    EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
+    EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer2.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer2.capacity());
 }
 
 TEST(SPTK_Buffer, move)
@@ -219,16 +219,18 @@ TEST(SPTK_Buffer, move)
     Buffer  buffer2(move(buffer1));
     buffer1.reset();
 
-    EXPECT_STREQ(testPhrase, buffer2.c_str());
-    EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
-    EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
+    EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer2.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer2.capacity());
 
     buffer1 = "Test 1";
+    EXPECT_STREQ("Test 1", buffer1.c_str());
+
     buffer2 = testPhrase;
     buffer1 = move(buffer2);
 
-    EXPECT_STREQ(testPhrase, buffer1.c_str());
-    EXPECT_EQ(strlen(testPhrase), buffer1.bytes());
+    EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer1.bytes());
     EXPECT_TRUE(buffer2.empty());
     EXPECT_TRUE(buffer2.bytes() == 0);
 }
@@ -242,9 +244,9 @@ TEST(SPTK_Buffer, assign)
 
     buffer2 = buffer1;
 
-    EXPECT_STREQ(testPhrase, buffer2.c_str());
-    EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
-    EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
+    EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer2.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer2.capacity());
 
     buffer1 = "Test 1";
     EXPECT_STREQ("Test 1", buffer1.c_str());
@@ -259,9 +261,9 @@ TEST(SPTK_Buffer, append)
 
     buffer1.append(testPhrase);
 
-    EXPECT_STREQ(testPhrase, buffer1.c_str());
-    EXPECT_EQ(strlen(testPhrase), buffer1.bytes());
-    EXPECT_TRUE(strlen(testPhrase) < buffer1.capacity());
+    EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer1.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer1.capacity());
 }
 
 TEST(SPTK_Buffer, saveLoadFile)
@@ -272,9 +274,9 @@ TEST(SPTK_Buffer, saveLoadFile)
     buffer1.saveToFile(tempFileName);
     buffer2.loadFromFile(tempFileName);
 
-    EXPECT_STREQ(testPhrase, buffer2.c_str());
-    EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
-    EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
+    EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer2.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer2.capacity());
 }
 
 TEST(SPTK_Buffer, fill)

@@ -391,16 +391,16 @@ String sptk::md5(const String& data)
 
 #if USE_GTEST
 
-static const char* testPhrase = "This is a test text to verify MD5 algorithm";
+static const String testPhrase("This is a test text to verify MD5 algorithm");
 
-static const char* testSQL =
+static const String testSQL(
         "SELECT * FROM schema1.employee "
         "JOIN schema1.department ON employee.department_id = department.id "
         "JOIN schema1.city ON employee.city_id = city_id "
         "WHERE employee.id in (1,2,3,4) "
         "AND employee.name LIKE 'John%' "
         "AND department.name = 'Information Technologies' "
-        "LIMIT 1024";
+        "LIMIT 1024");
 
 TEST(SPTK_MD5, md5)
 {

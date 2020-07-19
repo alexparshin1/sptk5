@@ -224,15 +224,15 @@ protected:
      * Generate C++ class declaration
      * @param classDeclaration std::ostream&, Output header file stream
      */
-    void generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames,
-                            sptk::Strings& elementNames, sptk::Strings& attributeNames);
+    void generateDefinition(std::ostream& classDeclaration, Strings& fieldNames,
+                            Strings& elementNames, const Strings& attributeNames) const;
 
     /**
      * Generate C++ class implementation
      * @param classImplementation std::ostream&, Output implementation file stream
      */
-    void generateImplementation(std::ostream& classImplementation, const sptk::Strings& fieldNames,
-                                const Strings& elementNames, const Strings& attributeNames);
+    void generateImplementation(std::ostream& classImplementation, const Strings& fieldNames,
+                                const Strings& elementNames, const Strings& attributeNames) const;
 
 private:
 
@@ -245,7 +245,7 @@ private:
 
         size_t              restrictionNumber {0};
 
-        void print(std::ostream& output);
+        void print(std::ostream& output) const;
     };
 
     /**

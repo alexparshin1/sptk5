@@ -190,14 +190,14 @@ void OracleConnection::queryPrepare(Query* query)
         statement = new OracleStatement(this, query->sql());
     statement->enumerateParams(query->params());
     if (query->bulkMode()) {
-        CParamVector& enumeratedParams = statement->enumeratedParams();
+        const CParamVector& enumeratedParams = statement->enumeratedParams();
         unsigned paramIndex = 1;
         Statement* stmt = statement->stmt();
         const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
         if (bulkInsertQuery == nullptr)
             throw Exception("Not a bulk query");
         const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
-        for (auto* param: enumeratedParams) {
+        for (const auto* param: enumeratedParams) {
             auto xtor = columnTypeSizes.find(upperCase(param->name()));
             if (xtor != columnTypeSizes.end()) {
                 if (xtor->second.length)

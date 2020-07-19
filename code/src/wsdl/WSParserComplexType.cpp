@@ -163,8 +163,8 @@ void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, co
     classDeclaration << includeFiles.join("\n") << endl << endl;
 }
 
-void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames,
-                                             sptk::Strings& elementNames, sptk::Strings& attributeNames)
+void WSParserComplexType::generateDefinition(ostream& classDeclaration, Strings& fieldNames,
+                                             Strings& elementNames, const Strings& attributeNames) const
 {
     String className = "C" + wsClassName(m_name);
 
@@ -727,7 +727,7 @@ void WSParserComplexType::printImplementationUnloadParamList(ostream& classImple
 }
 
 void WSParserComplexType::generateImplementation(std::ostream& classImplementation, const sptk::Strings& fieldNames,
-                                                 const Strings& elementNames, const Strings& attributeNames)
+                                                 const Strings& elementNames, const Strings& attributeNames) const
 {
     String className = "C" + wsClassName(m_name);
 
@@ -775,7 +775,7 @@ const xml::Element* WSParserComplexType::findSimpleType(const String& typeName)
     return itor->second;
 }
 
-void WSParserComplexType::ImplementationParts::print(ostream& output)
+void WSParserComplexType::ImplementationParts::print(ostream& output) const
 {
     if (!declarations.str().empty())
         output << declarations.str() << endl;

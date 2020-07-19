@@ -476,12 +476,12 @@ bool Document::isNumber(const String& str)
 
 #if USE_GTEST
 
-static const char* testXML =
+static const String testXML(
     "<name position='president'>John</name><age>33</age><temperature>36.6</temperature><timestamp>1519005758000</timestamp>"
     "<skills><skill>C++</skill><skill>Java</skill><skill>Motorbike</skill></skills>"
-    "<address><married>true</married><employed>false</employed></address>";
+    "<address><married>true</married><employed>false</employed></address>");
 
-static const char* testREST =
+static const String testREST(
     R"(<?xml version="1.0" encoding="UTF-8" ?>)"
     R"(<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">)"
     R"(<soap:Body>)"
@@ -489,7 +489,7 @@ static const char* testREST =
     R"(<vendor_id>1</vendor_id>)"
     R"(</ns1:GetRequests>)"
     R"(</soap:Body>)"
-    R"(</soap:Envelope>)";
+    R"(</soap:Envelope>)");
 
 void verifyDocument(xml::Document& document)
 {
@@ -571,7 +571,7 @@ TEST(SPTK_XmlDocument, save1)
     document.indentSpaces(0);
     document.save(buffer, 0);
 
-    EXPECT_STREQ(testREST, buffer.c_str());
+    EXPECT_STREQ(testREST.c_str(), buffer.c_str());
 }
 
 TEST(SPTK_XmlDocument, save2)

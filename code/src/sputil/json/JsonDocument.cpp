@@ -157,12 +157,12 @@ const Element& Document::root() const
 
 #if USE_GTEST
 
-const char* testJSON =
+const String testJSON(
         R"({ "name": "John", "age": 33, "temperature": 33.6, "timestamp": 1519005758000 )"
         R"("skills": [ "C++", "Java", "Motorbike" ],)"
         R"("location": null,)"
         R"("title": "\"Mouse\"",)"
-        R"("address": { "married": true, "employed": false } })";
+        R"("address": { "married": true, "employed": false } })");
 
 void verifyDocument(json::Document& document)
 {
@@ -347,7 +347,7 @@ TEST(SPTK_JsonDocument, moveAssign)
 TEST(SPTK_JsonDocument, truncated)
 {
     json::Document document;
-    String truncatedJSON = String(testJSON, strlen(testJSON) - 3);
+    String truncatedJSON = testJSON.substr(0, testJSON.length() - 3);
     try {
         document.load(truncatedJSON);
         FAIL() << "Incorrect: MUST fail";

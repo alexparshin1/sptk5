@@ -286,7 +286,7 @@ void DateTimeFormat::init() const noexcept
     _timeZoneOffset = hours * 60 + minutes;
 }
 
-static DateTimeFormat dateTimeFormatInitializer;
+static const DateTimeFormat dateTimeFormatInitializer;
 
 namespace sptk {
 

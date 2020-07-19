@@ -117,10 +117,10 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const std::string& key, con
 
 #if USE_GTEST
 
-static const char* testText = "The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static const char* testKey = "01234567890123456789012345678901";
-static const char* testIV = "0123456789012345";
-static const char* encryptedB64 = "4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=";
+static const String testText("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+static const String testKey("01234567890123456789012345678901");
+static const String testIV("0123456789012345");
+static const String encryptedB64("4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=");
 
 TEST(SPTK_Crypt, encrypt)
 {
@@ -130,7 +130,7 @@ TEST(SPTK_Crypt, encrypt)
     Crypt::encrypt(encrypted, Buffer(testText), testKey, testIV);
     Base64::encode(encryptedStr, encrypted);
 
-    EXPECT_STREQ(encryptedB64, encryptedStr.c_str());
+    EXPECT_STREQ(encryptedB64.c_str(), encryptedStr.c_str());
 }
 
 TEST(SPTK_Crypt, decrypt)
@@ -141,7 +141,7 @@ TEST(SPTK_Crypt, decrypt)
     Base64::decode(encrypted, encryptedB64);
     Crypt::decrypt(decrypted, encrypted, testKey, testIV);
 
-    EXPECT_STREQ(testText, decrypted.c_str());
+    EXPECT_STREQ(testText.c_str(), decrypted.c_str());
 }
 
 #endif

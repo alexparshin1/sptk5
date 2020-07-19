@@ -168,7 +168,7 @@ void ImapConnect::cmd_search_new(String& result)
     parseSearch(result);
 }
 
-static const char *required_headers[] = {
+static const Strings required_headers {
     "Date",
     "From",
     "Subject",
@@ -176,8 +176,7 @@ static const char *required_headers[] = {
     "CC",
     "Content-Type",
     "Reply-To",
-    "Return-Path",
-    nullptr
+    "Return-Path"
 };
 
 static void parse_header(const String& header, String& header_name, String& header_value)
@@ -272,19 +271,19 @@ static DateTime decodeDate(const String& dt)
 void ImapConnect::parseMessage(FieldList &results, bool headers_only)
 {
     results.clear();
-    size_t i;
-    for (i = 0; required_headers[i] != nullptr; ++i) {
-        String headerName = required_headers[i];
+    bool first = true;
+    for (auto& headerName: required_headers) {
         auto *fld = new Field(lowerCase(headerName).c_str());
-        if (i == 0)
+        if (first) {
             fld->view.width = 16;
-        else
+            first = false;
+        } else
             fld->view.width = 32;
         results.push_back(fld);
     }
 
     // parse headers
-    i = 1;
+    size_t i = 1;
     for (; i < m_response.size() - 1; ++i) {
         const String &st = m_response[i];
         if (st.empty())

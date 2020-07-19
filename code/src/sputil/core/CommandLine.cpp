@@ -131,27 +131,22 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
     Strings helpText;
     formatHelp(textWidth, helpText);
     bool firstRow = true;
-    string printFormat = "%-" + int2string(nameWidth) + "s  %s";
-    char rowBuffer[1024];
     for (const string& helpRow : helpText) {
         if (firstRow) {
-            snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), printableName().c_str(), helpRow.c_str());
-            output<< rowBuffer << endl;
+            output << left << setw((int)nameWidth) << printableName();
             firstRow = false;
         }
         else {
-            snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", helpRow.c_str());
-            output << rowBuffer << endl;
+            output << left << setw((int)nameWidth) << "";
         }
+        output << "  " << helpRow << endl;
     }
 
     if (!optionDefaultValue.empty()) {
         String printDefaultValue = optionDefaultValue;
         if (!doesntNeedQuotes.matches(printDefaultValue))
             printDefaultValue = "'" + optionDefaultValue + "'";
-        string defaultValueStr = "The default value is " + printDefaultValue + ".";
-        snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", defaultValueStr.c_str());
-        output <<rowBuffer << endl;
+        output << left << setw((int)nameWidth) << "" << "  The default value is " + printDefaultValue + "." << endl;
     }
 }
 //=============================================================================

@@ -30,11 +30,11 @@ int main(int argc, char **argv)
         COUT("static size_t " << argv[2] << "_len = " << dataSize << ";" << endl)
         COUT("static unsigned char " << argv[2] << "[" << dataSize << "] = {" << endl)
 
-        auto* x = (unsigned char *)data.data();
+        const auto* x = (unsigned char *)data.c_str();
 
         stringstream str;
         str.fill('0');
-        for (unsigned i = 0; i < dataSize; i++) {
+        for (unsigned i = 0; i < dataSize; ++i) {
             str << "0x" << hex << setw(2) << ", " << (unsigned) x[i];
             if (!(i & 0xf)) str << endl;
         }

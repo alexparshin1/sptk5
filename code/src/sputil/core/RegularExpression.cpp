@@ -551,7 +551,7 @@ const String& RegularExpression::pattern() const
 
 #if USE_GTEST
 
-static const char* testPhrase = "This is a test text to verify rexec text data group";
+static const String testPhrase("This is a test text to verify rexec text data group");
 
 TEST(SPTK_RegularExpression, match_many)
 {

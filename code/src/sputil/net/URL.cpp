@@ -75,9 +75,9 @@ String URL::toString() const
 
 #if USE_GTEST
 
-static const char* testURL0 = "http://www.test.com:8080/daily/report";
-static const char* testURL1 = "/daily/report?action=view&id=1";
-static const char* testURL2 = "http://johnd:secret@www.test.com:8080/daily/report?action=view&id=1";
+static const String testURL0 = "http://www.test.com:8080/daily/report";
+static const String testURL1 = "/daily/report?action=view&id=1";
+static const String testURL2 = "http://johnd:secret@www.test.com:8080/daily/report?action=view&id=1";
 
 TEST(SPTK_URL, minimal)
 {
@@ -90,7 +90,7 @@ TEST(SPTK_URL, minimal)
 
     EXPECT_EQ(url.params().size(), size_t(0));
 
-    EXPECT_STREQ(url.toString().c_str(), testURL0);
+    EXPECT_STREQ(url.toString().c_str(), testURL0.c_str());
 }
 
 TEST(SPTK_URL, local)
@@ -106,7 +106,7 @@ TEST(SPTK_URL, local)
     EXPECT_STREQ(url.params().get("action").c_str(), "view");
     EXPECT_STREQ(url.params().get("id").c_str(), "1");
 
-    EXPECT_STREQ(url.toString().c_str(), testURL1);
+    EXPECT_STREQ(url.toString().c_str(), testURL1.c_str());
 }
 
 TEST(SPTK_URL, all)
@@ -122,7 +122,7 @@ TEST(SPTK_URL, all)
     EXPECT_STREQ(url.params().get("action").c_str(), "view");
     EXPECT_STREQ(url.params().get("id").c_str(), "1");
 
-    EXPECT_STREQ(url.toString().c_str(), testURL2);
+    EXPECT_STREQ(url.toString().c_str(), testURL2.c_str());
 }
 
 TEST(SPTK_URL, loop)

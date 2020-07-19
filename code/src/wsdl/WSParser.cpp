@@ -490,7 +490,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "    String " << serviceClassName << "::wsdl() const" << endl;
     serviceImplementation << "    {" << endl;
     serviceImplementation << "        stringstream output;" << endl;
-    serviceImplementation << "        for (int i = 0; " << m_serviceName << "_wsdl[i] != nullptr; i++)" << endl;
+    serviceImplementation << "        for (int i = 0; " << m_serviceName << "_wsdl[i] != nullptr; ++i)" << endl;
     serviceImplementation << "            output << " << m_serviceName << "_wsdl[i] << endl;" << endl;
     serviceImplementation << "        return output.str();" << endl;
     serviceImplementation << "    }" << endl;

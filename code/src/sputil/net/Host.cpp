@@ -256,12 +256,12 @@ String Host::toString(bool forceAddress) const
 
 #if USE_GTEST
 
-const char* testHost = "www.google.com:80";
+const String testHost("www.google.com:80");
 
 TEST(SPTK_Host, ctorHostname)
 {
     Host google1(testHost);
-    EXPECT_STREQ(testHost, google1.toString(false).c_str());
+    EXPECT_STREQ(testHost.c_str(), google1.toString(false).c_str());
     EXPECT_STREQ("www.google.com", google1.hostname().c_str());
     EXPECT_EQ(80, google1.port());
 

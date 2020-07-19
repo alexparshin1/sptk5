@@ -131,12 +131,6 @@ namespace sptk {
 
 } // namespace sptk
 
-enum PostgreSQLTimestampFormat
-{
-    PG_UNKNOWN_TIMESTAMPS, PG_DOUBLE_TIMESTAMPS, PG_INT64_TIMESTAMPS
-};
-static PostgreSQLTimestampFormat timestampsFormat;
-
 PostgreSQLConnection::PostgreSQLConnection(const String& connectionString)
 : PoolDatabaseConnection(connectionString, DCT_POSTGRES)
 {
@@ -195,12 +189,12 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
             throw DatabaseException(error);
         }
 
-        if (timestampsFormat == PG_UNKNOWN_TIMESTAMPS) {
+        if (m_timestampsFormat == PG_UNKNOWN_TIMESTAMPS) {
             const char* val = PQparameterStatus(m_connect, "integer_datetimes");
             if (upperCase(val) == "ON")
-                timestampsFormat = PG_INT64_TIMESTAMPS;
+                m_timestampsFormat = PG_INT64_TIMESTAMPS;
             else
-                timestampsFormat = PG_DOUBLE_TIMESTAMPS;
+                m_timestampsFormat = PG_DOUBLE_TIMESTAMPS;
         }
     }
 }
@@ -284,7 +278,8 @@ String PostgreSQLConnection::queryError(const Query*) const
 void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new PostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
+    querySetStmt(query,
+                 new PostgreSQLStatement(m_timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
 }
 
 void PostgreSQLConnection::queryFreeStmt(Query* query)
@@ -329,7 +324,8 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 
     lock_guard<mutex> lock(m_mutex);
 
-    querySetStmt(query, new PostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
+    querySetStmt(query,
+                 new PostgreSQLStatement(m_timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
 
     auto* statement = (PostgreSQLStatement*) query->statement();
 
@@ -729,7 +725,7 @@ static inline MoneyData readNumericToScaledInteger(const char* v)
 }
 
 
-static void decodeArray(char* data, DatabaseField* field)
+static void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::TimestampFormat timestampFormat)
 {
     struct PGArrayHeader
     {
@@ -799,7 +795,7 @@ static void decodeArray(char* data, DatabaseField* field)
 
                 case PG_TIMESTAMPTZ:
                 case PG_TIMESTAMP:
-                    output << readTimestamp(data, timestampsFormat == PG_INT64_TIMESTAMPS).dateString();
+                    output << readTimestamp(data, timestampFormat == PostgreSQLConnection::PG_INT64_TIMESTAMPS).dateString();
                     break;
 
                 default:
@@ -902,7 +898,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
                     case PG_TIMESTAMPTZ:
                     case PG_TIMESTAMP:
-                        field->setDateTime(readTimestamp(data, timestampsFormat == PG_INT64_TIMESTAMPS));
+                        field->setDateTime(readTimestamp(data, m_timestampsFormat == PG_INT64_TIMESTAMPS));
                         break;
 
                     case PG_CHAR_ARRAY:
@@ -916,7 +912,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                     case PG_FLOAT8_ARRAY:
                     case PG_TIMESTAMP_ARRAY:
                     case PG_TIMESTAMPTZ_ARRAY:
-                        decodeArray(data, field);
+                        decodeArray(data, field, m_timestampsFormat);
                         break;
 
                     default:

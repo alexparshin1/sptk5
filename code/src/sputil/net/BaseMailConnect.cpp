@@ -43,35 +43,29 @@ using namespace sptk;
 
 class ContentTypes
 {
-    static map<string, string> m_contentTypes;
 public:
-    ContentTypes() noexcept
-    { if (m_contentTypes.empty()) init(); }
-
-    static void init();
-
     static string type(const string& fileName);
+
+private:
+    static const map<string, string> m_contentTypes;
 };
 
-map<string, string> ContentTypes::m_contentTypes;
-static ContentTypes contentTypes;
-
-void ContentTypes::init()
+const map<string, string> ContentTypes::m_contentTypes
 {
-    m_contentTypes["txt"] = "text/plain";
-    m_contentTypes["htm"] = "text/html";
-    m_contentTypes["html"] = "text/html";
-    m_contentTypes["gif"] = "image/gif";
-    m_contentTypes["png"] = "image/png";
-    m_contentTypes["bmp"] = "image/bmp";
-    m_contentTypes["jpg"] = "image/jpeg";
-    m_contentTypes["tif"] = "image/tiff";
-    m_contentTypes["pdf"] = "application/pdf";
-    m_contentTypes["xls"] = "application/vnd.ms-excel";
-    m_contentTypes["csv"] = "text/plain";
-    m_contentTypes["doc"] = "application/msword";
-    m_contentTypes["wav"] = "application/data";
-}
+    { "txt", "text/plain" },
+    { "htm", "text/html" },
+    { "html", "text/html" },
+    { "gif", "image/gif" },
+    { "png", "image/png" },
+    { "bmp", "image/bmp" },
+    { "jpg", "image/jpeg" },
+    { "tif", "image/tiff" },
+    { "pdf", "application/pdf" },
+    { "xls", "application/vnd.ms-excel" },
+    { "csv", "text/plain" },
+    { "doc", "application/msword" },
+    { "wav", "application/data" }
+};
 
 string ContentTypes::type(const string& fileName)
 {
@@ -94,7 +88,7 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
 
     bufSource.loadFromFile(fileName);
 
-    String ctype = contentTypes.type(trim(fileName));
+    String ctype = ContentTypes::type(trim(fileName));
 
     message << "Content-Type: " << ctype << "; name=\"" << fileAlias << "\"" << endl;
     message << "Content-Transfer-Encoding: base64" << endl;

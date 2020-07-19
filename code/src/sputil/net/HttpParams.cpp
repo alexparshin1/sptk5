@@ -149,7 +149,7 @@ bool HttpParams::has(const String& paramName) const
 
 #if USE_GTEST
 
-static const char* gtestURLencoded = "id=1234&items=%5B%22book%22%2C%22pen%22%5D&name=John+Doe";
+static const String gtestURLencoded("id=1234&items=%5B%22book%22%2C%22pen%22%5D&name=John+Doe");
 
 TEST(SPTK_HttpParams, encode)
 {
@@ -160,7 +160,7 @@ TEST(SPTK_HttpParams, encode)
 
     Buffer encoded;
     httpParams.encode(encoded);
-    EXPECT_STREQ(gtestURLencoded, encoded.c_str());
+    EXPECT_STREQ(gtestURLencoded.c_str(), encoded.c_str());
 }
 
 TEST(SPTK_HttpParams, decode)
