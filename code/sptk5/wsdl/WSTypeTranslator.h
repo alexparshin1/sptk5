@@ -46,7 +46,7 @@ class WSTypeTranslator
     /**
      * WSDL to C++ type map
      */
-    std::map<std::string,std::string> wsTypeToCxxTypeMap;
+    std::map<String, String> wsTypeToCxxTypeMap;
 
 public:
     /**
@@ -65,7 +65,7 @@ public:
 /**
  * @brief Global WSDL translation object
  */
-extern WSTypeTranslator wsTypeTranslator;
+extern const WSTypeTranslator wsTypeTranslator;
 
 /**
  * @}

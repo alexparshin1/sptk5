@@ -324,15 +324,16 @@ void MySQLStatement::bindResult(FieldList& fields)
     if (m_result == nullptr)
         return;
 
-    char columnName[256];
+    String columnName;
     for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex) {
         const MYSQL_FIELD *fieldMetadata = mysql_fetch_field(m_result);
         if (fieldMetadata == nullptr)
             throwMySQLError();
-        strncpy(columnName, fieldMetadata->name, sizeof(columnName));
-        columnName[sizeof(columnName)-1] = 0;
-        if (columnName[0] == 0)
-            snprintf(columnName, sizeof(columnName), "column_%02u", columnIndex + 1);
+
+        columnName = fieldMetadata->name;
+        if (columnName.empty())
+            columnName = "column_" + to_string(columnIndex + 1);
+
         VariantType fieldType = mySQLTypeToVariantType(fieldMetadata->type);
         auto fieldLength = (unsigned) fieldMetadata->length;
         if (fieldLength > FETCH_BUFFER)

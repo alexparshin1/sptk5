@@ -350,14 +350,10 @@ void SQLite3Connection::queryOpen(Query* query)
     querySetActive(query, true);
 
     // Reading the column attributes
-    char columnName[256];
-
     for (short column = 1; column <= count; ++column) {
-        strncpy(columnName, sqlite3_column_name(stmt, column - 1), 255);
-        columnName[255] = 0;
-
-        if (columnName[0] == 0)
-            snprintf(columnName, sizeof(columnName), "column%02i", column);
+        String columnName(sqlite3_column_name(stmt, column - 1));
+        if (columnName.empty())
+            columnName = "column_" + to_string(column);
 
         auto* field = new SQLite3Field(columnName, column);
         query->fields().push_back(field);

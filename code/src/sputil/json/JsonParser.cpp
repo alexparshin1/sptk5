@@ -52,20 +52,16 @@ namespace sptk {
     auto jsonLength = strlen(json);
     if (position > 0) {
         error << ", in position " << position;
-        char context[ERROR_CONTEXT_CHARS];
         const char* contextStart = json + position - ERROR_CONTEXT_CHARS / 2;
         if (contextStart < json)
             contextStart = json;
         size_t pretextLen = json + position - contextStart;
-        strncpy(context, contextStart, pretextLen);
-        context[pretextLen] = 0;
-        error << " in context: '.." << context << ">" << json[position] << "<";
+        error << " in context: '.." << String(contextStart, pretextLen) << ">" << json[position] << "<";
         size_t afterTextLength = ERROR_CONTEXT_CHARS / 2;
         if (int(position) + afterTextLength > jsonLength)
             afterTextLength = jsonLength - position;
         if (afterTextLength > 0) {
-            strncpy(context, json + position + 1, afterTextLength);
-            error << context;
+            error << String(position + 1, afterTextLength);
         }
         error << "'";
     }

@@ -23,43 +23,6 @@
  */
 class CTestServiceBase : public sptk::WSRequest
 {
-    sptk::LogEngine*  m_logEngine;    ///< Optional logger, or nullptr
-    /**
-     * Internal Web Service AccountBalance processing
-     * @param requestNode      Operation input/output XML data
-     * @param authentication   Optional HTTP authentication
-     * @param requestNameSpace Request SOAP element namespace
-     */
-    void process_AccountBalance(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
-
-    /**
-     * Internal Web Service Hello processing
-     * @param requestNode      Operation input/output XML data
-     * @param authentication   Optional HTTP authentication
-     * @param requestNameSpace Request SOAP element namespace
-     */
-    void process_Hello(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
-
-    /**
-     * Internal Web Service Login processing
-     * @param requestNode      Operation input/output XML data
-     * @param authentication   Optional HTTP authentication
-     * @param requestNameSpace Request SOAP element namespace
-     */
-    void process_Login(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
-
-protected:
-    /**
-     * Internal request processor
-     *
-     * Receive incoming requests, and return application response.
-     * @param requestName      Incoming request name
-     * @param xmlContent       Incoming and outgoing XML data
-     * @param jsonContent      Incoming and outgoing JSON data
-     * @param requestNameSpace Request SOAP element namespace
-     */
-    void requestBroker(const sptk::String& requestName, sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace) override;
-
 public:
     /**
      * Constructor
@@ -109,6 +72,47 @@ public:
      * @return original WSDL file content
      */
     sptk::String wsdl() const override;
+
+protected:
+    /**
+     * Internal request processor
+     *
+     * Receive incoming requests, and return application response.
+     * @param requestName      Incoming request name
+     * @param xmlContent       Incoming and outgoing XML data
+     * @param jsonContent      Incoming and outgoing JSON data
+     * @param requestNameSpace Request SOAP element namespace
+     */
+    void requestBroker(const sptk::String& requestName, sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace) override;
+
+private:
+
+    sptk::LogEngine*  m_logEngine;    ///< Optional logger, or nullptr
+
+    /**
+     * Internal Web Service AccountBalance processing
+     * @param requestNode      Operation input/output XML data
+     * @param authentication   Optional HTTP authentication
+     * @param requestNameSpace Request SOAP element namespace
+     */
+    void process_AccountBalance(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+
+    /**
+     * Internal Web Service Hello processing
+     * @param requestNode      Operation input/output XML data
+     * @param authentication   Optional HTTP authentication
+     * @param requestNameSpace Request SOAP element namespace
+     */
+    void process_Hello(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+
+    /**
+     * Internal Web Service Login processing
+     * @param requestNode      Operation input/output XML data
+     * @param authentication   Optional HTTP authentication
+     * @param requestNameSpace Request SOAP element namespace
+     */
+    void process_Login(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+
 };
 
 #endif

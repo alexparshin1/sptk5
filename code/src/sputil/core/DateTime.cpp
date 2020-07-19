@@ -74,11 +74,7 @@ static int      _isDaylightSavingsTime;
 // "[+-]HH24:MM - TZ offset
 static int decodeTZOffset(const char* tzOffset)
 {
-    char tzo[10];
-    strncpy(tzo, tzOffset, sizeof(tzo) - 1);
-    tzo[9] = 0;
-
-    char* p = tzo;
+    const char* p = tzOffset;
     int sign = 1;
     switch (*p) {
         case 'Z':
@@ -94,55 +90,24 @@ static int decodeTZOffset(const char* tzOffset)
         default:
             break;
     }
-    char* p1 = strchr(p, ':');
+    const char* p1 = strchr(p, ':');
     int minutes = 0;
-    if (p1 != nullptr) {
-        *p1 = 0;
+    if (p1 != nullptr)
         minutes = string2int(p1 + 1);
-    }
     int hours = string2int(p);
     return sign * (hours * 60 + minutes);
 }
 
-static int trimRight(char* s)
-{
-    auto len = (int) strlen(s);
-
-    while (len > 0) {
-        --len;
-        if ((unsigned char) s[len] > 32) {
-            ++len;
-            s[len] = 0;
-            break;
-        }
-    }
-    return len;
-}
-
 char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
 {
-    char separator[] = " ";
-    char dt[32];
+    char separator = ' ';
 
-    strncpy(dt, dateOrTime.c_str(), sizeof(dt));
-	dt[sizeof(dt) - 1] = 0;
-
-    // Cut-off trailing non-digit characters
-    auto len = (int) strlen(dt);
-    for (int index = len - 1; index >= 0; --index) {
-        if (isdigit(dt[index]) != 0) {
-            dt[index + 1] = 0;
-            break;
-        }
-    }
-    const char* ptr = dt;
+    const char* ptr = dateOrTime.c_str();
     // find a separator char
-    while (isalnum(*ptr) != 0 || *ptr == ' ')
-        ++ptr;
-    separator[0] = *ptr;
+    size_t separatorPos = dateOrTime.find_first_not_of("0123456789 ");
+    separator = dateOrTime[separatorPos];
 
-    char* save_ptr = nullptr;
-    ptr = strtok_r(dt, separator, &save_ptr);
+    ptr = dateOrTime.c_str();
 
     format.clear();
 
@@ -185,11 +150,14 @@ char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
             format += pattern;
             format += separator;
         }
-        ptr = strtok_r(nullptr, separator, &save_ptr);
+        if (separatorPos == string::npos)
+            break;
+        ptr = dateOrTime.c_str() + separatorPos + 1;
+        separatorPos = dateOrTime.find(separator, separatorPos + 1);
     }
     format.resize(format.length() - 1);
 
-    return separator[0];
+    return separator;
 }
 
 DateTimeFormat::DateTimeFormat() noexcept
@@ -430,43 +398,34 @@ static void encodeTime(DateTime::time_point& dt, short h, short m, short s, shor
 
 static void encodeTime(DateTime::time_point& dt, const char* tim)
 {
-    char bdat[32];
-
-    strncpy(bdat, tim, sizeof(bdat) - 1);
-
-    if (trimRight(bdat) == 0) {
-        dt = DateTime::time_point();
-        return;
-    }
-
     bool afternoon = false;
     short timePart[4] = {0, 0, 0, 0};
     int tzOffsetMin = 0;
-    char* p = strpbrk(bdat, "apzAPZ+-"); // Looking for AM, PM, or timezone
+    const char* p = strpbrk(tim, "apAPZ+-");
     if (p != nullptr) {
-        const char* p1;
-        switch (*p) {
-            case 'P':
-            case 'p':
-                afternoon = true;
-                break;
-            case 'A':
-            case 'a':
-                p1 = strpbrk(bdat, "zZ+-");
-                if (p1 != nullptr) {
-                    tzOffsetMin = -decodeTZOffset(p1);
-                }
-                break;
-            default:
-                tzOffsetMin = -decodeTZOffset(p);
-                break;
+        // Looking for AM, PM, or timezone
+        while (p != nullptr) {
+            switch (*p) {
+                case 'P':
+                case 'p':
+                    afternoon = true;
+                    break;
+                case 'A':
+                case 'a':
+                    break;
+                case '+':
+                case '-':
+                    tzOffsetMin = -decodeTZOffset(p);
+                    break;
+                default:
+                    break;
+            }
+            p = strpbrk(p + 1, "Z+-");;
         }
-        *p = 0;
         tzOffsetMin += TimeZone::offset();
     }
-    trimRight(bdat);
 
-    short partNumber = splitTimeString(bdat, timePart);
+    short partNumber = splitTimeString(tim, timePart);
     if (partNumber == 0) {
         dt = DateTime::time_point();
         return;
@@ -483,21 +442,12 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
 
 static void encodeDate(DateTime::time_point& dt, const char* dat)
 {
-    char bdat[64];
-    short datePart[7];
+    short datePart[7] {};
 
-    memset(datePart, 0, sizeof(datePart));
-    strncpy(bdat, dat, sizeof(bdat));
-	bdat[sizeof(bdat) - 1] = 0;
-
-    char *timePtr = strpbrk(bdat, " T");
-    if (timePtr != nullptr) {
-        *timePtr = 0;
-        ++timePtr;
-    }
+    const char *timePtr = strpbrk(dat, " T");
 
     char actualDateSeparator;
-    short partNumber = splitDateString(bdat, datePart, actualDateSeparator);
+    short partNumber = splitDateString(dat, datePart, actualDateSeparator);
 
     if (partNumber != 0) {
         short month = 0;
@@ -532,7 +482,7 @@ static void encodeDate(DateTime::time_point& dt, const char* dat)
         encodeDate(dt, year, month, day);
     } else {
         dt = DateTime::time_point();
-        timePtr = bdat;
+        timePtr = dat;
     }
 
     if (timePtr != nullptr) {// Time part included into string
@@ -953,12 +903,12 @@ TEST(SPTK_DateTime, isoTimeString)
 
 TEST(SPTK_DateTime, timeZones)
 {
-    DateTime dateTime1("2018-01-01 11:22:33.444+10");
-    DateTime dateTime2("2018-01-01 10:22:33.444+09");
+    DateTime dateTime1("2018-01-01 09:22:33.444PM+10:00");
+    DateTime dateTime2("2018-01-01 20:22:33.444+09");
     chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
     chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
-    EXPECT_EQ(1514769753444, msSinceEpoch1.count());
-    EXPECT_EQ(1514769753444, msSinceEpoch2.count());
+    EXPECT_EQ(1514805753444, msSinceEpoch1.count());
+    EXPECT_EQ(1514805753444, msSinceEpoch2.count());
 }
 
 TEST(SPTK_DateTime, add)

@@ -169,16 +169,23 @@ String ODBCConnection::queryError(SQLHSTMT stmt) const
     *errorDescription = 0;
     *errorState = 0;
 
+    String error;
     int rc = SQLError(SQL_NULL_HENV, handle(), stmt, errorState, &nativeError, errorDescription,
                       sizeof(errorDescription), &pcnmsg);
-    if (rc != SQL_SUCCESS) {
+
+    if (rc == SQL_SUCCESS) {
+        error = (const char*) errorDescription;
+    } else {
         rc = SQLError(SQL_NULL_HENV, handle(), nullptr, errorState, &nativeError, errorDescription,
                       sizeof(errorDescription), &pcnmsg);
-        if (rc != SQL_SUCCESS && *errorDescription != char(0))
-            strncpy((char*) errorDescription, "Unknown error", sizeof(errorDescription));
+        if (rc == SQL_SUCCESS)
+            error = (const char*) errorDescription;
     }
 
-    return removeDriverIdentification((char*) errorDescription);
+    if (error.empty())
+        error = "Unknown error";
+
+    return removeDriverIdentification(error.c_str());
 }
 
 String ODBCConnection::queryError(const Query* query) const

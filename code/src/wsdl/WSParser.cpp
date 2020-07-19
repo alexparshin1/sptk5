@@ -284,28 +284,6 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << " */" << endl;
     serviceDefinition << "class " << serviceClassName << " : public sptk::WSRequest" << endl;
     serviceDefinition << "{" << endl;
-    serviceDefinition << "    sptk::LogEngine*  m_logEngine;    ///< Optional logger, or nullptr" << endl;
-    for (const auto& itor: m_operations) {
-        string requestName = strip_namespace(itor.second.m_input->name());
-        serviceDefinition << "    /**" << endl;
-        serviceDefinition << "     * Internal Web Service " << requestName << " processing" << endl;
-        serviceDefinition << "     * @param requestNode      Operation input/output XML data" << endl;
-        serviceDefinition << "     * @param authentication   Optional HTTP authentication" << endl;
-        serviceDefinition << "     * @param requestNameSpace Request SOAP element namespace" << endl;
-        serviceDefinition << "     */" << endl;
-        serviceDefinition << "    void process_" << requestName << "(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);" << endl << endl;
-    }
-    serviceDefinition << "protected:" << endl;
-    serviceDefinition << "    /**" << endl;
-    serviceDefinition << "     * Internal request processor" << endl;
-    serviceDefinition << "     *" << endl;
-    serviceDefinition << "     * Receive incoming requests, and return application response." << endl;
-    serviceDefinition << "     * @param requestName      Incoming request name" << endl;
-    serviceDefinition << "     * @param xmlContent       Incoming and outgoing XML data" << endl;
-    serviceDefinition << "     * @param jsonContent      Incoming and outgoing JSON data" << endl;
-    serviceDefinition << "     * @param requestNameSpace Request SOAP element namespace" << endl;
-    serviceDefinition << "     */" << endl;
-    serviceDefinition << "    void requestBroker(const sptk::String& requestName, sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace) override;" << endl << endl;
     serviceDefinition << "public:" << endl;
     serviceDefinition << "    /**" << endl;
     serviceDefinition << "     * Constructor" << endl;
@@ -346,7 +324,32 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "    /**" << endl;
     serviceDefinition << "     * @return original WSDL file content" << endl;
     serviceDefinition << "     */" << endl;
-    serviceDefinition << "    sptk::String wsdl() const override;" << endl;
+    serviceDefinition << "    sptk::String wsdl() const override;" << endl << endl;
+
+    serviceDefinition << "protected:" << endl;
+    serviceDefinition << "    /**" << endl;
+    serviceDefinition << "     * Internal request processor" << endl;
+    serviceDefinition << "     *" << endl;
+    serviceDefinition << "     * Receive incoming requests, and return application response." << endl;
+    serviceDefinition << "     * @param requestName      Incoming request name" << endl;
+    serviceDefinition << "     * @param xmlContent       Incoming and outgoing XML data" << endl;
+    serviceDefinition << "     * @param jsonContent      Incoming and outgoing JSON data" << endl;
+    serviceDefinition << "     * @param requestNameSpace Request SOAP element namespace" << endl;
+    serviceDefinition << "     */" << endl;
+    serviceDefinition << "    void requestBroker(const sptk::String& requestName, sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace) override;" << endl << endl;
+
+    serviceDefinition << "private:" << endl << endl;
+    serviceDefinition << "    sptk::LogEngine*  m_logEngine;    ///< Optional logger, or nullptr" << endl << endl;
+    for (const auto& itor: m_operations) {
+        string requestName = strip_namespace(itor.second.m_input->name());
+        serviceDefinition << "    /**" << endl;
+        serviceDefinition << "     * Internal Web Service " << requestName << " processing" << endl;
+        serviceDefinition << "     * @param requestNode      Operation input/output XML data" << endl;
+        serviceDefinition << "     * @param authentication   Optional HTTP authentication" << endl;
+        serviceDefinition << "     * @param requestNameSpace Request SOAP element namespace" << endl;
+        serviceDefinition << "     */" << endl;
+        serviceDefinition << "    void process_" << requestName << "(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);" << endl << endl;
+    }
     serviceDefinition << "};" << endl << endl;
     serviceDefinition << "#endif" << endl;
 }
