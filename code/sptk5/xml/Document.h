@@ -30,7 +30,6 @@
 #include <sptk5/xml/Node.h>
 #include <sptk5/xml/DocType.h>
 #include <sptk5/xml/Element.h>
-#include <sptk5/SharedStrings.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/RegularExpression.h>
 
@@ -54,7 +53,7 @@ namespace xml {
  * Represents the entire XML document.
  * It provides access to document root node, which includes all nodes in XML document tree.
  */
-class SP_EXPORT Document : public SharedStrings, public Element
+class SP_EXPORT Document : public Element
 {
     friend class Node;
 
@@ -98,11 +97,6 @@ public:
     }
 
     /**
-     * Destroys all nodes in document
-     */
-    void clear() override;
-
-    /**
      * Returns the node name.
      */
     String name() const override;
@@ -112,15 +106,6 @@ public:
      * @param name              New node name
      */
     void name(const String& name) override
-    {
-        // Document has no node name
-    }
-
-    /**
-     * Sets new name for node
-     * @param name              New node name
-     */
-    void name(const char* name) override
     {
         // Document has no node name
     }

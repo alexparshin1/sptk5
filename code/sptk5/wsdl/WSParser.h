@@ -157,7 +157,7 @@ public:
      * @param headerFile        Optional header file to insert at the start of each generated file
      * @param wsdlFileName              WSDL content
      */
-    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& wsdlFileName);
+    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& wsdlFileName) const;
 
     /**
      * Utility function that removes namespace from the element name
@@ -184,7 +184,7 @@ protected:
      * Parses xsd:simpleType nodes directly under xsd:schema
      * @param simpleTypeElement Schema simple type
      */
-    void parseSimpleType(const xml::Element* simpleTypeElement);
+    void parseSimpleType(const xml::Element* simpleTypeElement) const;
 
     /**
      * Parses xsd:complexType nodes directly under xsd:schema
@@ -215,7 +215,7 @@ protected:
      * Generates service implementation to output stream
      * @param output            Output stream
      */
-    void generateImplementation(std::ostream& output);
+    void generateImplementation(std::ostream& output) const;
 
 private:
 

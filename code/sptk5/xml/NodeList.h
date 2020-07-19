@@ -42,12 +42,12 @@ namespace xml {
 class Node;
 
 /**
- * @brief The vector of xml::Node *
+ * The vector of xml::Node *
  */
 typedef std::vector<Node*> NodeVector;
 
 /**
- * @brief XML node list
+ * XML node list
  *
  * The xml::NodeList interface provides the an ordered collection of nodes,
  * The items in the NodeList are accessible via an integral index, starting from 0.
@@ -56,13 +56,13 @@ class SP_EXPORT NodeList : public NodeVector
 {
 public:
     /**
-     * @brief Constructor
+     * Constructor
      */
     NodeList() noexcept
     {}
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     ~NodeList() noexcept
     {
@@ -70,37 +70,23 @@ public:
     }
 
     /**
-     * @brief Clears the list of XML nodes and releases all the allocated memory
+     * Clears the list of XML nodes and releases all the allocated memory
      */
     void clear();
 
     /**
-     * @brief Finds the first node in the list with the matching name
-     * @param nodeName const char*, a node name
-     * @returns node iterator, or end()
-     */
-    iterator findFirst(const char* nodeName);
-
-    /**
-     * @brief Finds the first node in the list with the matching name
+     * Finds the first node in the list with the matching name
      * @param nodeName const std::string&, a node name
      * @returns node iterator, or end()
      */
-    iterator findFirst(const std::string& nodeName);
+    iterator findFirst(const String& nodeName);
 
     /**
-     * @brief Finds the first node in the list with the matching name
-     * @param nodeName const char*, a node name
-     * @returns node iterator, or end()
-     */
-    const_iterator findFirst(const char* nodeName) const;
-
-    /**
-     * @brief Finds the first node node in the list with the matching name
+     * Finds the first node node in the list with the matching name
      * @param nodeName const std::string&, a node name
      * @returns node iterator, or end()
      */
-    const_iterator findFirst(const std::string& nodeName) const;
+    const_iterator findFirst(const String& nodeName) const;
 };
 /**
  * @}

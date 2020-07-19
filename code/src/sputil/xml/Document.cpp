@@ -61,12 +61,6 @@ Node* Document::rootNode()
     return nullptr;
 }
 
-void Document::clear()
-{
-    Element::clear();
-    SharedStrings::clear();
-}
-
 Node* Document::createElement(const char* tagname)
 {
     Node* node = new Element(this, tagname);

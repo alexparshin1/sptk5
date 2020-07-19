@@ -90,7 +90,7 @@ void WSParser::parseElement(const xml::Element* elementNode)
     }
 }
 
-void WSParser::parseSimpleType(const xml::Element* simpleTypeElement)
+void WSParser::parseSimpleType(const xml::Element* simpleTypeElement) const
 {
     String simpleTypeName = (String) simpleTypeElement->getAttribute("name");
     if (simpleTypeName.empty())
@@ -351,7 +351,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "#endif" << endl;
 }
 
-void WSParser::generateImplementation(ostream& serviceImplementation)
+void WSParser::generateImplementation(ostream& serviceImplementation) const
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
@@ -561,7 +561,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     openApiFile.close();
 }
 
-void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& _wsdlFileName)
+void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& _wsdlFileName) const
 {
     Strings wsdl;
     wsdl.loadFromFile(_wsdlFileName);

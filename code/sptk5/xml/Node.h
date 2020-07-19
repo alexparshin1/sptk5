@@ -71,40 +71,13 @@ enum XPathAxis
 class SP_EXPORT XPathElement
 {
 public:
-    /**
-     * Node name, or '*'
-     */
-    const std::string* elementName{ nullptr };
-
-    /**
-     * Criteria
-     */
-    std::string criteria;
-
-    /**
-     * Axis
-     */
-    XPathAxis axis {XPA_CHILD};
-
-    /**
-     * Attribute name (optional)
-     */
-    const std::string* attributeName {nullptr};
-
-    /**
-     * Attribute value (optional)
-     */
-    std::string attributeValue;
-
-    /**
-     * true if attribute value was defined
-     */
-    bool attributeValueDefined {false};
-
-    /**
-     * 0 (not required), -1 (last), or node position
-     */
-    int nodePosition {0};
+    String      elementName;                   ///< Node name, or '*'
+    String      criteria;                      ///< Criteria
+    XPathAxis   axis {XPA_CHILD};              ///< Axis
+    String      attributeName;                 ///< Attribute name (optional)
+    String      attributeValue;                ///< Attribute value (optional)
+    bool        attributeValueDefined {false}; ///< true if attribute value was defined
+    int         nodePosition {0};              ///< 0 (not required), -1 (last), or node position
 };
 
 /**
@@ -256,7 +229,7 @@ public:
     /**
      * Always returns false for xml::Node since it has no name
      */
-    virtual bool nameIs(const std::string* /*sstName*/) const
+    virtual bool nameIs(const String& /*sstName*/) const
     {
         return false;
     }
@@ -271,12 +244,6 @@ public:
      * @param name              New node name
      */
     virtual void name(const String& name) = 0;
-
-    /**
-     * Sets new name for node
-     * @param name              New node name
-     */
-    virtual void name(const char* name) = 0;
 
     /**
      * Returns node type
@@ -565,8 +532,6 @@ public:
         return true;
     }
 
-    Node& operator = (const Node&) = delete;
-
 protected:
 
     /**
@@ -588,6 +553,11 @@ protected:
     {
         parent.push_back(this);
     }
+
+    Node(const Node&) = default;
+    Node(Node&&) noexcept = default;
+    Node& operator = (const Node&) = default;
+    Node& operator = (Node&&) noexcept = default;
 
     /**
      * Destructor
@@ -622,24 +592,24 @@ public:
      * Scan descendents nodes
      */
     static void scanDescendents(const Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
-                                const std::string* starPointer);
+                                const String& starPointer);
 
     /**
      * Match nodes
      */
     static void matchNode(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
-                          const std::string* starPointer);
+                          const String& starPointer);
 
     /**
      * Match nodes only this level
      */
     static void matchNodesThisLevel(const Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
-                                    const std::string* starPointer, NodeVector& matchedNodes, bool descendants);
+                                    const String& starPointer, NodeVector& matchedNodes, bool descendants);
 
     /**
      * Match path element
      */
-    static bool matchPathElement(Node* thisNode, const XPathElement& pathElement, const std::string* starPointer, bool& nameMatches);
+    static bool matchPathElement(Node* thisNode, const XPathElement& pathElement, const String& starPointer, bool&);
 };
 
 /**
@@ -665,17 +635,10 @@ public:
         NamedItem::name(tagname);
     }
 
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node.
-     * @param tagname           Name of XML tag
-     */
-    NamedItem(Node* parent, const char* tagname)
-    : Node(*parent)
-    {
-        NamedItem::name(tagname);
-    }
+    NamedItem(const NamedItem&) = default;
+    NamedItem(NamedItem&&) noexcept = default;
+    NamedItem& operator = (const NamedItem&) = default;
+    NamedItem& operator = (NamedItem&&) noexcept = default;
 
     /**
      * Constructor
@@ -694,7 +657,7 @@ public:
      */
     String name() const override
     {
-        return *m_name;
+        return m_name;
     }
 
     /**
@@ -702,10 +665,10 @@ public:
      */
     String nameSpace() const override
     {
-        size_t pos = m_name->find(":");
+        size_t pos = m_name.find(":");
         if (pos == std::string::npos)
             return "";
-        return m_name->substr(0, pos);
+        return m_name.substr(0, pos);
     }
 
     /**
@@ -713,10 +676,10 @@ public:
      */
     String tagname() const override
     {
-        size_t pos = m_name->find(":");
+        size_t pos = m_name.find(":");
         if (pos == std::string::npos)
-            return *m_name;
-        return m_name->substr(pos + 1);
+            return m_name;
+        return m_name.substr(pos + 1);
     }
 
     /**
@@ -724,12 +687,6 @@ public:
      * @param name              New node name
      */
     void name(const String& name) override;
-
-    /**
-     * Sets new name for node
-     * @param name              New node name
-     */
-    void name(const char* name) override;
 
     /**
      * Returns node type
@@ -745,25 +702,22 @@ protected:
      *
      * @param doc a document.
      */
-    explicit NamedItem(Document& doc)
-            : Node(doc)
+    explicit NamedItem(Document& doc) : Node(doc)
     {
     }
 
     /**
      * Returns true if node name pointer (from SST) matches aname pointer
-     * @param sstName           Node name pointer to compare with this node name pointer
+     * @param name           Node name pointer to compare with this node name pointer
      */
-    bool nameIs(const std::string* sstName) const override
+    bool nameIs(const String& name) const override
     {
-        return sstName == m_name;
+        return name == m_name;
     }
 
 private:
-    /**
-     * Node name, stored in the parent document SST
-     */
-    const std::string* m_name {nullptr};
+
+    String  m_name;    ///< Node name
 };
 
 /**
@@ -829,15 +783,6 @@ public:
      * @param name              New node name
      */
     void name(const String& name) override
-    {
-        // Text node con't have name
-    }
-
-    /**
-     * Sets new name for node
-     * @param name              New node name
-     */
-    void name(const char* name) override
     {
         // Text node con't have name
     }

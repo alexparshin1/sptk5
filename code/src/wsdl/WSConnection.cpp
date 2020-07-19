@@ -169,7 +169,6 @@ void WSConnection::run()
                 if (m_logDetails.has(LogDetails::RESPONSE_DATA)) {
                     if (listStarted)
                         logMessage << ", ";
-                    listStarted = true;
                     printMessage(logMessage, "OUT ", requestInfo.response);
                 }
 
@@ -225,7 +224,7 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
     return processed;
 }
 
-void WSConnection::respondToOptions(const HttpHeaders& headers)
+void WSConnection::respondToOptions(const HttpHeaders& headers) const
 {
     auto itor = headers.find("origin");
     auto origin = itor->second;

@@ -93,7 +93,7 @@ private:
     bool            m_suppressHttpStatus;
     LogDetails      m_logDetails;
 
-    void respondToOptions(const HttpHeaders& headers);
+    void respondToOptions(const HttpHeaders& headers) const;
 
     bool handleHttpProtocol(const String& requestType, URL& url, String& protocolName, HttpHeaders& headers) const;
 

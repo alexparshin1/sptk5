@@ -127,7 +127,7 @@ void WSParserComplexType::parse()
     for (auto* node: *m_element) {
         if (node->type() != xml::Node::DOM_ELEMENT)
             throw Exception("The node " + node->name() + " is not an XML element");
-        auto* element = dynamic_cast<xml::Element*>(node);
+        const auto* element = dynamic_cast<xml::Element*>(node);
         if (element->name() == "xsd:attribute") {
             String attrName = (String) element->getAttribute("name");
             m_attributes[attrName] = new WSParserAttribute(attrName, (String) element->getAttribute("type"));
@@ -753,7 +753,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 }
 
 void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation,
-                                   const String& externalHeader)
+                                   const String& externalHeader) const
 {
     if (!externalHeader.empty()) {
         classDeclaration << externalHeader << endl;

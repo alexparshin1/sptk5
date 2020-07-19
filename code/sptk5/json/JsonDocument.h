@@ -31,6 +31,7 @@
 #include "JsonArrayData.h"
 #include <istream>
 #include <sptk5/Buffer.h>
+#include <sptk5/SharedStrings.h>
 
 namespace sptk::json {
 

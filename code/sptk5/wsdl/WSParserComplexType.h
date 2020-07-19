@@ -213,7 +213,7 @@ public:
     /**
      * Generates C++ class declaration and implementation
      */
-    void generate(std::ostream& classDeclaration, std::ostream& classImplementation, const String& externalHeader);
+    void generate(std::ostream& classDeclaration, std::ostream& classImplementation, const String& externalHeader) const;
 
     static std::map<String, const xml::Element*> SimpleTypeElements;
     static const xml::Element* findSimpleType(const String& typeName);

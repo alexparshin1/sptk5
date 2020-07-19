@@ -38,50 +38,24 @@ void NodeList::clear()
     NodeVector::clear();
 }
 
-NodeList::iterator NodeList::findFirst(const char* nodeName)
+NodeList::iterator NodeList::findFirst(const String& nodeName)
 {
-    auto _begin = begin();
-    auto _end = end();
-    if (_begin == _end)
-        return _end;
-
-    const Node* anode = *_begin;
-    const string* sharedName = &anode->document()->shareString(nodeName);
-
     iterator itor;
-    for (itor = _begin; itor != _end; ++itor) {
-        anode = *itor;
-        if (anode->nameIs(sharedName))
+    for (itor = begin(); itor != end(); ++itor) {
+        auto* anode = *itor;
+        if (anode->nameIs(nodeName))
             break;
     }
     return itor;
 }
 
-NodeList::iterator NodeList::findFirst(const string& nodeName)
+NodeList::const_iterator NodeList::findFirst(const String& nodeName) const
 {
-    return findFirst(nodeName.c_str());
-}
-
-NodeList::const_iterator NodeList::findFirst(const char* nodeName) const
-{
-    auto _begin = begin();
-    auto _end = end();
-    if (_begin == _end)
-        return _end;
-
-    const Node* anode = *_begin;
-    const string* sharedName = anode->document()->findString(nodeName);
-
     const_iterator itor;
-    for (itor = _begin; itor != _end; ++itor) {
-        anode = *itor;
-        if (anode->nameIs(sharedName))
+    for (itor = begin(); itor != end(); ++itor) {
+        auto* anode = *itor;
+        if (anode->nameIs(nodeName))
             break;
     }
     return itor;
-}
-
-NodeList::const_iterator NodeList::findFirst(const string& nodeName) const
-{
-    return findFirst(nodeName.c_str());
 }
