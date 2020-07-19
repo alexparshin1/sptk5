@@ -237,15 +237,15 @@ TEST(SPTK_FieldList, dataTypes)
     EXPECT_TRUE(fieldList["null"].isNull());
     EXPECT_STREQ("1234", fieldList["text"].asString().c_str());
 
-    EXPECT_FLOAT_EQ(12345.0, fieldList["float_value"].asFloat());
+    EXPECT_DOUBLE_EQ(12345.0, fieldList["float_value"].asFloat());
     EXPECT_STREQ("12345.000", fieldList["float_value"].asString().c_str());
 
-    EXPECT_FLOAT_EQ(12345.67, fieldList["money_value"].asFloat());
+    EXPECT_DOUBLE_EQ(12345.67, fieldList["money_value"].asFloat());
     EXPECT_STREQ("12345.67", fieldList["money_value"].asString().c_str());
 
     EXPECT_EQ(int64_t(12345678901234567), fieldList["long_value"].asInt64());
     EXPECT_STREQ("12345678901234567", fieldList["long_value"].asString().c_str());
-    EXPECT_FLOAT_EQ(double(12345678901234567), fieldList["long_value"].asFloat());
+    EXPECT_DOUBLE_EQ(double(12345678901234567), fieldList["long_value"].asFloat());
 }
 
 TEST(SPTK_FieldList, toXml)

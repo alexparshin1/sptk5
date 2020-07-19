@@ -1340,7 +1340,7 @@ TEST(SPTK_Variant, toString)
 TEST(SPTK_Variant, money)
 {
     Variant money(10001234,4);
-    EXPECT_FLOAT_EQ((double) money.getMoney(), 1000.1234);
+    EXPECT_DOUBLE_EQ((double) money.getMoney(), 1000.1234);
     EXPECT_EQ((int) money.getMoney(), 1000);
     EXPECT_EQ((int64_t) money.getMoney(), 1000);
     EXPECT_TRUE((bool) money.getMoney());
@@ -1353,12 +1353,12 @@ TEST(SPTK_Variant, money)
 
     MoneyData value { 12345678, 4 };
     money.setMoney(value);
-    EXPECT_FLOAT_EQ((double) money, 1234.5678);
+    EXPECT_DOUBLE_EQ((double) money, 1234.5678);
     EXPECT_TRUE(money.dataType() == VAR_MONEY);
 
     Variant s("test", 4);
     s.setMoney(1234567, 4);
-    EXPECT_FLOAT_EQ((double) s.getMoney(), 123.4567);
+    EXPECT_DOUBLE_EQ((double) s.getMoney(), 123.4567);
 }
 
 TEST(SPTK_Variant, externalBuffer)

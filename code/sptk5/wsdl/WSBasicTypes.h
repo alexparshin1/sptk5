@@ -70,7 +70,7 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSBasicType(const char* name, bool optional)
+    WSBasicType(const char* name = "", bool optional = false)
     : Field(name), m_optional(optional)
     {}
 
@@ -202,7 +202,7 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSString(const char* name, bool optional = false)
+    WSString(const char* name = "", bool optional = false)
             : WSBasicType(name, optional)
     {
         Field::setNull(VAR_STRING);
@@ -305,7 +305,7 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    explicit WSBool(const char* name, bool optional = false)
+    explicit WSBool(const char* name = "", bool optional = false)
     : WSBasicType(name, optional)
     {
         Field::setNull(VAR_BOOL);
@@ -364,7 +364,7 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    explicit WSDate(const char* name, bool optional = false)
+    explicit WSDate(const char* name = "", bool optional = false)
     : WSBasicType(name, optional)
     {
         Field::setNull(VAR_DATE);
@@ -431,7 +431,7 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    explicit WSDateTime(const char* name, bool optional = false)
+    explicit WSDateTime(const char* name = "", bool optional = false)
     : WSBasicType(name, optional)
     {
         Field::setNull(VAR_DATE_TIME);
@@ -503,7 +503,7 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    explicit WSDouble(const char* name, bool optional = false)
+    explicit WSDouble(const char* name = "", bool optional = false)
             : WSBasicType(name, optional)
     {
         Field::setNull(VAR_FLOAT);
@@ -570,7 +570,7 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    explicit WSInteger(const char* name, bool optional = false)
+    explicit WSInteger(const char* name = "", bool optional = false)
     : WSBasicType(name, optional)
     {
         Field::setNull(VAR_INT);
