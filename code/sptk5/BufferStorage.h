@@ -54,6 +54,34 @@ public:
     BufferStorage() = default;
 
     /**
+     * Copy constructor
+     *
+     * Creates an empty buffer.
+     */
+    BufferStorage(const BufferStorage& other);
+
+    /**
+     * Move constructor
+     *
+     * Creates an empty buffer.
+     */
+    BufferStorage(BufferStorage&& other) noexcept;
+
+    /**
+     * Copy assignment
+     *
+     * Creates an empty buffer.
+     */
+    BufferStorage& operator = (const BufferStorage& other);
+
+    /**
+     * Move assignment
+     *
+     * Creates an empty buffer.
+     */
+    BufferStorage& operator = (BufferStorage&& other) noexcept;
+
+    /**
      * Constructor
      *
      * Creates an empty buffer.

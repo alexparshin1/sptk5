@@ -377,8 +377,6 @@ void Document::load(const char* xmlData)
                 break;
 
             default:
-                //if (strstr(nodeName, "style:text-properties") != nullptr)
-                //    cout << String(nameEnd + 1,128) << endl << endl;
                 nameEnd = readOpenningTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
         }
@@ -614,14 +612,6 @@ TEST(SPTK_XmlDocument, parse)
     EXPECT_EQ(2, methodElement->type());
     EXPECT_EQ(1, (int) methodElement->size());
     EXPECT_STREQ("ns1:GetRequests", methodElement->name().c_str());
-}
-
-TEST(SPTK_XmlDocument, parse1)
-{
-    xml::Document   document;
-    Buffer          buffer;
-    buffer.loadFromFile("/tmp/styles1.xml");
-    document.load(buffer);
 }
 
 #endif

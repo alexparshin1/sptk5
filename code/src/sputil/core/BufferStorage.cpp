@@ -14,7 +14,8 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.                                   │
+│   General Public License for more d    BufferStorage(BufferStorage&& other) noexcept = default;
+etails.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -31,6 +32,21 @@
 using namespace std;
 using namespace sptk;
 
+BufferStorage::BufferStorage(const BufferStorage& other)
+{
+    allocate(other.m_bytes + 1);
+    m_bytes = other.m_bytes;
+    if (m_bytes > 0)
+        memcpy(m_buffer, other.m_buffer, other.m_bytes + 1);
+}
+
+BufferStorage::BufferStorage(BufferStorage&& other) noexcept
+: m_buffer(exchange(other.m_buffer, nullptr)),
+  m_size(exchange(other.m_size, 0)),
+  m_bytes(exchange(other.m_bytes,0))
+{
+}
+
 BufferStorage::BufferStorage(size_t sz)
 {
     allocate(sz + 1);
@@ -43,6 +59,30 @@ BufferStorage::BufferStorage(const void* data, size_t sz)
         memcpy(m_buffer, data, sz);
         m_bytes = sz;
     }
+}
+
+BufferStorage& BufferStorage::operator=(const BufferStorage& other)
+{
+    if (&other != this) {
+        if (m_size < other.m_size) {
+            delete m_buffer;
+            allocate(other.m_bytes + 1);
+        }
+        m_bytes = other.m_bytes;
+        if (m_bytes > 0)
+            memcpy(m_buffer, other.m_buffer, other.m_bytes + 1);
+    }
+    return *this;
+}
+
+BufferStorage& BufferStorage::operator=(BufferStorage&& other) noexcept
+{
+    if (&other != this) {
+        m_buffer = exchange(other.m_buffer, nullptr);
+        m_size = exchange(other.m_size, 0);
+        m_bytes = exchange(other.m_bytes, 0);
+    }
+    return *this;
 }
 
 void BufferStorage::adjustSize(size_t sz)
@@ -64,7 +104,7 @@ void BufferStorage::set(const char* data, size_t sz)
 
 void BufferStorage::append(char ch)
 {
-    checkSize(m_bytes + 1);
+    checkSize(m_bytes + 2);
     m_buffer[m_bytes] = ch;
     ++m_bytes;
     m_buffer[m_bytes] = 0;
@@ -121,16 +161,52 @@ void BufferStorage::erase(size_t offset, size_t length)
 
 #if USE_GTEST
 
-TEST(SPTK_BufferStorage, appendChar)
+static const String testString("0123456789ABCDEF");
+
+TEST(SPTK_BufferStorage, constructors)
 {
     String testString("0123456789ABCDEF");
+    BufferStorage testStorage1(testString.c_str(), testString.length());
+
+    BufferStorage testStorage2(testStorage1);
+    EXPECT_EQ(testStorage2.length(), size_t(16));
+    EXPECT_STREQ(testStorage2.c_str(), "0123456789ABCDEF");
+
+    BufferStorage testStorage3(move(testStorage1));
+    EXPECT_EQ(testStorage3.length(), size_t(16));
+    EXPECT_STREQ(testStorage3.c_str(), "0123456789ABCDEF");
+    EXPECT_EQ(testStorage1.length(), size_t(0));
+    EXPECT_STREQ(testStorage1.c_str(), nullptr);
+}
+
+TEST(SPTK_BufferStorage, assignments)
+{
+    String testString("0123456789ABCDEF");
+    BufferStorage testStorage1(testString.c_str(), testString.length());
+
+    BufferStorage testStorage2;
+    testStorage2 = testStorage1;
+    EXPECT_EQ(testStorage2.length(), size_t(16));
+    EXPECT_STREQ(testStorage2.c_str(), "0123456789ABCDEF");
+
+    BufferStorage testStorage3;
+    testStorage3 = move(testStorage1);
+    EXPECT_EQ(testStorage3.length(), size_t(16));
+    EXPECT_STREQ(testStorage3.c_str(), "0123456789ABCDEF");
+    EXPECT_EQ(testStorage1.length(), size_t(0));
+    EXPECT_STREQ(testStorage1.c_str(), nullptr);
+}
+
+TEST(SPTK_BufferStorage, append)
+{
     BufferStorage testStorage;
 
     for (auto ch: testString)
         testStorage.append(ch);
+    testStorage.append(testString.c_str(), testString.length());
 
-    EXPECT_EQ(testStorage.length(), size_t(16));
-    EXPECT_STREQ(testStorage.c_str(), "0123456789ABCDEF");
+    EXPECT_EQ(testStorage.length(), size_t(32));
+    EXPECT_STREQ(testStorage.c_str(), "0123456789ABCDEF0123456789ABCDEF");
 }
 
 TEST(SPTK_BufferStorage, erase)
@@ -142,6 +218,20 @@ TEST(SPTK_BufferStorage, erase)
     EXPECT_STREQ(testStorage.c_str(), "0123456789ABCDEF");
     testStorage.erase(0,4);
     EXPECT_STREQ(testStorage.c_str(), "456789ABCDEF");
+}
+
+TEST(SPTK_BufferStorage, reset)
+{
+    BufferStorage testStorage(32);
+    testStorage.set("0123456789ABCDEF");
+
+    testStorage.reset();
+    EXPECT_EQ(testStorage.length(), size_t(0));
+
+    testStorage.append(testString.c_str(), testString.length());
+
+    EXPECT_EQ(testStorage.length(), testString.length());
+    EXPECT_STREQ(testStorage.c_str(), testString.c_str());
 }
 
 #endif

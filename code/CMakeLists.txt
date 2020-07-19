@@ -41,7 +41,7 @@ OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
 OPTION (USE_GTEST      "Build Google Test unit tests" ON)
 
 OPTION (USE_PCRE       "Use PCRE library" ON)
-OPTION (USE_BROTLI     "Use Brotli library" OFF)
+OPTION (USE_BROTLI     "Use Brotli library" ON)
 
 OPTION (BUILD_EXAMPLES "Build usage examples" ON)
 OPTION (BUILD_UTILS    "Build utitlity programs" ON)
