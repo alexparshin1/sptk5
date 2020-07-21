@@ -30,7 +30,7 @@ int path_hashfunc(const char *key, int numbuckets)
     char buf[MAXPATHLEN+1];
     const char *p;
 
-    strncpy(buf, key, sizeof(buf));
+    snprintf(buf, sizeof(buf), "%s", key);
     buf[MAXPATHLEN] = 0;
     p = basename(buf);
 

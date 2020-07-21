@@ -276,7 +276,10 @@ void Node::copy(const Node& node)
     name(node.name());
     value(node.value());
     if (isElement() && node.isElement()) {
-        attributes() = node.attributes();
+        auto& nodeAttributes = attributes();
+        nodeAttributes.clear();
+        for (auto *attrNode: node.attributes())
+            setAttribute(attrNode->name(), attrNode->value());
     }
 
     for (const auto* childNode: node) {

@@ -332,8 +332,8 @@ int libtar_list_add_str(libtar_list_t* l, const char* str, const char* delim)
     const char* tokp;
     char* nextp = tmp;
 
-    strncpy(tmp, str, sizeof(tmp));
-    tmp[10240] = '\0';
+    snprintf(tmp, sizeof(tmp), "%s", str);
+
     while ((tokp = libtar_strsep(&nextp, delim)) != nullptr) {
         if (*tokp == '\0')
             continue;

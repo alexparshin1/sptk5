@@ -409,20 +409,26 @@ public:
         if (rc < 0)
             throw SystemException("Can't create temp directory " + m_path + "/dir1");
 #endif
-
         Buffer buffer;
         buffer.fill('X', 10);
         buffer.saveToFile(m_path + "/file1");
         buffer.saveToFile(m_path + "/file2");
     }
 
+    TempDirectory(const TempDirectory&) = delete;
+    TempDirectory(TempDirectory&&) = default;
+    TempDirectory& operator = (const TempDirectory&) = delete;
+    TempDirectory& operator = (TempDirectory&&) noexcept = default;
+
     ~TempDirectory()
     {
+        if (!trim(m_path).empty()) {
 #ifdef _WIN32
-        system(("rmdir /s /q " + m_path).c_str());
+            system(("rmdir /s /q " + m_path).c_str());
 #else
-        system(("rm -rf " + m_path).c_str());
+            system(("rm -rf " + m_path).c_str());
 #endif
+        }
     }
 };
 

@@ -90,6 +90,11 @@ public:
         init_locks();
     }
 
+    CSSLLibraryLoader(const CSSLLibraryLoader&) = delete;
+    CSSLLibraryLoader(CSSLLibraryLoader&&) noexcept = delete;
+    CSSLLibraryLoader& operator = (const CSSLLibraryLoader&) = delete;
+    CSSLLibraryLoader& operator = (CSSLLibraryLoader&&) noexcept = delete;
+
     ~CSSLLibraryLoader() noexcept
     {
 		CRYPTO_set_locking_callback(NULL);

@@ -25,7 +25,7 @@
 void th_get_pathname(TAR *t, char* path, size_t sz)
 {
     if (t->th_buf.gnu_longname != nullptr) {
-        strncpy(path, t->th_buf.gnu_longname, sz - 1);
+        snprintf(path, sz, "%s", t->th_buf.gnu_longname);
         return;
     }
 

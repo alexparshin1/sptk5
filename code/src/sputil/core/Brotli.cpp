@@ -57,6 +57,11 @@ public:
         next_out = output;
     }
 
+    Context(const Context&) = delete;
+    Context(Context&&) noexcept = delete;
+    Context& operator = (const Context&) = delete;
+    Context& operator = (Context&&) noexcept = delete;
+
     ~Context()
     {
         delete[] buffer;

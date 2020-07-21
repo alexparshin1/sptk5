@@ -889,7 +889,9 @@ TEST(SPTK_DateTime, isoTimeString)
     tt.tm_sec = 33;
     tt.tm_isdst = -1;
 
-    auto t = mktime(&tt);
+    time_t t = mktime(&tt);
+
+    localtime_r(&t, &tt);
 
     const auto* st = localtime(&t);
     COUT(asctime(st) << endl)

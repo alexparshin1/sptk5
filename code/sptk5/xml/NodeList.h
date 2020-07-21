@@ -61,6 +61,11 @@ public:
     NodeList() noexcept
     {}
 
+    NodeList(const NodeList&) = delete;
+    NodeList(NodeList&&) noexcept = default;
+    NodeList& operator = (const NodeList&) = delete;
+    NodeList& operator = (NodeList&&) noexcept = default;
+
     /**
      * Destructor
      */

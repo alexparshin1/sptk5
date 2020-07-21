@@ -196,8 +196,7 @@ static void parse_header(const String& header, String& header_name, String& head
 static DateTime decodeDate(const String& dt)
 {
     char temp[40];
-    strncpy(temp, dt.c_str() + 5, sizeof(temp));
-	temp[sizeof(temp) - 1] = 0;
+    snprintf(temp, sizeof(temp), "%s", dt.c_str() + 5);
 
     // 1. get the day of the month
     char *p1 = temp;

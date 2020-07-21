@@ -258,26 +258,27 @@ void ODBCConnection::queryExecute(Query* query)
         rc = SQLExecDirect(query->statement(), (SQLCHAR*) sql, SQL_NTS);
     }
 
-    if (!successful(rc)) {
-        SQLCHAR state[16];
-        SQLCHAR text[1024];
-        SQLINTEGER nativeError = 0;
-        SQLSMALLINT recordCount = 0;
-        SQLSMALLINT textLength = 0;
+    if (successful(rc))
+        return;
 
-        rc = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
-                             &textLength);
-        if (successful(rc)) {
-            Strings errors;
-            for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; ++recordNumber) {
-                rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state, &nativeError, text, sizeof(text),
-                                   &textLength);
-                if (!successful(rc))
-                    break;
-                errors.push_back(removeDriverIdentification((const char*) text));
-            }
-            THROW_QUERY_ERROR(query, errors.join("; "))
+    SQLCHAR state[16];
+    SQLCHAR text[1024];
+    SQLINTEGER nativeError = 0;
+    SQLSMALLINT recordCount = 0;
+    SQLSMALLINT textLength = 0;
+
+    rc = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
+                         &textLength);
+    if (successful(rc)) {
+        Strings errors;
+        for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; ++recordNumber) {
+            rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state, &nativeError, text, sizeof(text),
+                               &textLength);
+            if (!successful(rc))
+                break;
+            errors.push_back(removeDriverIdentification((const char*) text));
         }
+        THROW_QUERY_ERROR(query, errors.join("; "))
     }
 
     if (!successful(rc))
@@ -334,108 +335,112 @@ static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
     return false;
 }
 
+void ODBCConnection::queryBindParameter(Query* query, QueryParameter* param)
+{
+    static SQLLEN cbNullValue = SQL_NULL_DATA;
+    int rc;
+
+    VariantType ptype = param->dataType();
+    auto cblen = (SQLLEN&) param->callbackLength();
+    for (unsigned j = 0; j < param->bindCount(); ++j) {
+        int16_t paramType = 0;
+        int16_t sqlType = 0;
+        int16_t scale = 0;
+        void* buff = (void*)&param->getInt64();
+        long len = 0;
+        auto paramNumber = int16_t(param->bindIndex(j) + 1);
+
+        int16_t parameterMode = SQL_PARAM_INPUT;
+        switch (ptype) {
+            case VAR_BOOL:
+                paramType = SQL_C_BIT;
+                sqlType = SQL_BIT;
+                break;
+            case VAR_INT:
+                paramType = SQL_C_SLONG;
+                sqlType = SQL_INTEGER;
+                break;
+            case VAR_INT64:
+                paramType = SQL_C_SBIGINT;
+                sqlType = SQL_BIGINT;
+                break;
+            case VAR_FLOAT:
+                paramType = SQL_C_DOUBLE;
+                sqlType = SQL_DOUBLE;
+                break;
+            case VAR_STRING:
+                buff = (void*) param->getString();
+                len = (long) param->dataSize();
+                paramType = SQL_C_CHAR;
+                sqlType = SQL_WVARCHAR;
+                break;
+            case VAR_TEXT:
+                buff = (void*) param->getString();
+                len = (long) param->dataSize();
+                paramType = SQL_C_CHAR;
+                sqlType = SQL_WLONGVARCHAR;
+                break;
+            case VAR_BUFFER:
+                buff = (void*) param->getString();
+                len = (long) param->dataSize();
+                cblen = len;
+                rc = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, SQL_C_BINARY,
+                                      SQL_LONGVARBINARY, (SQLULEN) len, scale, buff, SQLINTEGER(len), &cblen);
+                if (rc != 0) {
+                    param->binding().reset(false);
+                    THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber << ", value: '" << param->asString() << "'")
+                }
+                continue;
+
+            case VAR_DATE:
+                paramType = SQL_C_TIMESTAMP;
+                sqlType = SQL_TIMESTAMP;
+                len = sizeof(TIMESTAMP_STRUCT);
+                buff = param->conversionBuffer();
+                if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*)param->conversionBuffer(), param->getDateTime(), true)) {
+                    paramType = SQL_C_CHAR;
+                    sqlType = SQL_CHAR;
+                    *(char*) buff = 0;
+                }
+                break;
+
+            case VAR_DATE_TIME:
+                paramType = SQL_C_TIMESTAMP;
+                sqlType = SQL_TIMESTAMP;
+                len = sizeof(TIMESTAMP_STRUCT);
+                buff = param->conversionBuffer();
+                if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*)param->conversionBuffer(), param->getDateTime(), false)) {
+                    paramType = SQL_C_CHAR;
+                    sqlType = SQL_CHAR;
+                    *(char*) buff = 0;
+                }
+                break;
+
+            default:
+            THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'")
+        }
+        SQLLEN* cbValue = nullptr;
+        if (param->isNull()) {
+            cbValue = &cbNullValue;
+            len = 0;
+        }
+
+        rc = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, paramType, sqlType, (SQLULEN) len, scale,
+                              buff, SQLINTEGER(len), cbValue);
+        if (rc != 0) {
+            param->binding().reset(false);
+            THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber)
+        }
+    }
+}
 
 void ODBCConnection::queryBindParameters(Query* query)
 {
-    static SQLLEN cbNullValue = SQL_NULL_DATA;
-
     lock_guard<mutex> lock(*m_connect);
-    int rc;
 
     for (uint32_t i = 0; i < query->paramCount(); ++i) {
         QueryParameter* param = &query->param(i);
-        VariantType ptype = param->dataType();
-        auto cblen = (SQLLEN&) param->callbackLength();
-        for (unsigned j = 0; j < param->bindCount(); ++j) {
-            int16_t paramType = 0;
-            int16_t sqlType = 0;
-            int16_t scale = 0;
-            void* buff = (void*)&param->getInt64();
-            long len = 0;
-            auto paramNumber = int16_t(param->bindIndex(j) + 1);
-
-            int16_t parameterMode = SQL_PARAM_INPUT;
-            switch (ptype) {
-                case VAR_BOOL:
-                    paramType = SQL_C_BIT;
-                    sqlType = SQL_BIT;
-                    break;
-                case VAR_INT:
-                    paramType = SQL_C_SLONG;
-                    sqlType = SQL_INTEGER;
-                    break;
-                case VAR_INT64:
-                    paramType = SQL_C_SBIGINT;
-                    sqlType = SQL_BIGINT;
-                    break;
-                case VAR_FLOAT:
-                    paramType = SQL_C_DOUBLE;
-                    sqlType = SQL_DOUBLE;
-                    break;
-                case VAR_STRING:
-                    buff = (void*) param->getString();
-                    len = (long) param->dataSize();
-                    paramType = SQL_C_CHAR;
-                    sqlType = SQL_WVARCHAR;
-                    break;
-                case VAR_TEXT:
-                    buff = (void*) param->getString();
-                    len = (long) param->dataSize();
-                    paramType = SQL_C_CHAR;
-                    sqlType = SQL_WLONGVARCHAR;
-                    break;
-                case VAR_BUFFER:
-                    buff = (void*) param->getString();
-                    len = (long) param->dataSize();
-                    cblen = len;
-                    rc = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, SQL_C_BINARY,
-                                          SQL_LONGVARBINARY, (SQLULEN) len, scale, buff, SQLINTEGER(len), &cblen);
-                    if (rc != 0) {
-                        param->m_binding.reset(false);
-                        THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber << ", value: '" << param->asString() << "'")
-                    }
-                    continue;
-
-                case VAR_DATE:
-                    paramType = SQL_C_TIMESTAMP;
-                    sqlType = SQL_TIMESTAMP;
-                    len = sizeof(TIMESTAMP_STRUCT);
-                    buff = param->conversionBuffer();
-                    if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*)param->conversionBuffer(), param->getDateTime(), true)) {
-                        paramType = SQL_C_CHAR;
-                        sqlType = SQL_CHAR;
-                        *(char*) buff = 0;
-                    }
-                    break;
-
-                case VAR_DATE_TIME:
-                    paramType = SQL_C_TIMESTAMP;
-                    sqlType = SQL_TIMESTAMP;
-                    len = sizeof(TIMESTAMP_STRUCT);
-                    buff = param->conversionBuffer();
-                    if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*)param->conversionBuffer(), param->getDateTime(), false)) {
-                        paramType = SQL_C_CHAR;
-                        sqlType = SQL_CHAR;
-                        *(char*) buff = 0;
-                    }
-                    break;
-
-                default:
-                    THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'")
-            }
-            SQLLEN* cbValue = nullptr;
-            if (param->isNull()) {
-                cbValue = &cbNullValue;
-                len = 0;
-            }
-
-            rc = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, paramType, sqlType, (SQLULEN) len, scale,
-                                  buff, SQLINTEGER(len), cbValue);
-            if (rc != 0) {
-                param->m_binding.reset(false);
-                THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber)
-            }
-        }
+        queryBindParameter(query, param);
     }
 }
 

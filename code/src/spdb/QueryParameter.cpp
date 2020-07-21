@@ -65,28 +65,19 @@ void QueryParameter::setOutput()
 
 QueryParameter& QueryParameter::operator = (const Variant& param)
 {
-    if (this == &param)
-        return *this;
-    setData(param);
+    if (this != &param)
+        setData(param);
     return *this;
 }
 
 void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t valueLength)
 {
-    m_dataSize = valueLength;
-    m_data.getBuffer().size = valueLength + 1;
+    m_dataSize = maxlen > 0? min(valueLength,maxlen) : valueLength;
+    m_data.getBuffer().size = m_dataSize + 1;
     if ((dataType() & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0)
         delete[] m_data.getBuffer().data;
-    m_data.getBuffer().data = new char[m_data.getBuffer().size];
-    if (maxlen != 0) {
-        if (m_data.getBuffer().data != nullptr) {
-            strncpy(m_data.getBuffer().data, value, maxlen);
-            m_data.getBuffer().data[maxlen] = 0;
-        }
-    } else {
-        if (value != nullptr)
-            strncpy(m_data.getBuffer().data, value, m_data.getBuffer().size);
-    }
+    m_data.getBuffer().data = new char[m_dataSize + 1];
+    snprintf(m_data.getBuffer().data, m_dataSize + 1, "%s", value);
 }
 
 void QueryParameter::setString(const char * value, size_t maxlen)
@@ -138,8 +129,14 @@ TEST(SPTK_QueryParameter, setString)
     param1.setString("String 1");
     EXPECT_STREQ(param1.getString(), "String 1");
 
+    param1.setString("String 1", 3);
+    EXPECT_STREQ(param1.getString(), "Str");
+
     param1.setString("String 1 + String 2");
     EXPECT_STREQ(param1.getString(), "String 1 + String 2");
+
+    param1.setString("String 1");
+    EXPECT_STREQ(param1.getString(), "String 1");
 
     param1.setString("String 1 + String 2 + String 3", 22);
     EXPECT_STREQ(param1.getString(), "String 1 + String 2 + ");
@@ -154,6 +151,9 @@ TEST(SPTK_QueryParameter, assign)
 
     param1 = "String 1";
     EXPECT_STREQ(param1.getString(), "String 1");
+
+    param1 = "String 1, String 2";
+    EXPECT_STREQ(param1.getString(), "String 1, String 2");
 
     param1 = 123;
     EXPECT_EQ(param1.getInteger(), 123);

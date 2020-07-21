@@ -66,7 +66,7 @@ SSL_CTX* SSLContext::handle()
 
 int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwflag*/, void* userdata)
 {
-    strncpy(replyBuffer, (const char*) userdata, (size_t) replySize);
+    snprintf(replyBuffer, replySize, "%s", (const char*) userdata);
     replyBuffer[replySize - 1] = '\0';
     return (int) strlen(replyBuffer);
 }

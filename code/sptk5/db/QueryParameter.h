@@ -47,9 +47,6 @@ class SP_EXPORT QueryParameter : public Variant
 
 public:
 
-    QueryParameterBinding m_binding;            ///< The last successfull binding information
-
-
     /**
      * Adds internal parameter binding index
      */
@@ -243,15 +240,25 @@ public:
         return m_binding.m_output;
     }
 
+    /**
+     * The last successfull binding information
+     * @return binding information
+     */
+    QueryParameterBinding& binding()
+    {
+        return m_binding;
+    }
+
     void reallocateBuffer(const char* value, size_t maxlen, size_t valueLength);
 
 private:
 
-    String                  m_name;                 ///< Parameter name
-    std::vector<uint32_t>   m_bindParamIndexes;     ///< The list of SQL query parameter numbers with this name
-    char                    m_timeData[80]{};       ///< Special memory allocated for time structures
-    int32_t                 m_callbackLength{0};    ///< An integer reserved to callback parameter data length
-    QueryParameterList*     m_paramList{nullptr};   ///< Parent param list used for notifications
+    QueryParameterBinding   m_binding;               ///< The last successfull binding information
+    String                  m_name;                  ///< Parameter name
+    std::vector<uint32_t>   m_bindParamIndexes;      ///< The list of SQL query parameter numbers with this name
+    char                    m_timeData[80] {};       ///< Special memory allocated for time structures
+    int32_t                 m_callbackLength {0};    ///< An integer reserved to callback parameter data length
+    QueryParameterList*     m_paramList {nullptr};   ///< Parent param list used for notifications
 };
 
 /**

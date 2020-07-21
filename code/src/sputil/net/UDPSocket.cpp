@@ -46,6 +46,28 @@ size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from)
     return (size_t) bytes;
 }
 
+size_t UDPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
+{
+    buffer.checkSize(size);
+    socklen_t addrLength = sizeof(sockaddr_in);
+    auto bytes = recvfrom(fd(), buffer.data(), (int) size, 0, (sockaddr*) from, &addrLength);
+    if (bytes == -1)
+        THROW_SOCKET_ERROR("Can't read to socket");
+    buffer.bytes(bytes);
+    return (size_t) bytes;
+}
+
+size_t UDPSocket::read(String& buffer, size_t size, sockaddr_in* from)
+{
+    buffer.resize(size);
+    socklen_t addrLength = sizeof(sockaddr_in);
+    auto bytes = recvfrom(fd(), buffer.data(), (int) size, 0, (sockaddr*) from, &addrLength);
+    if (bytes == -1)
+        THROW_SOCKET_ERROR("Can't read to socket");
+    buffer.resize(bytes);
+    return (size_t) bytes;
+}
+
 #if USE_GTEST
 
 class UDPEchoServer : public UDPSocket, public Thread
@@ -119,8 +141,10 @@ TEST(SPTK_UDPSocket, minimal)
     for (const auto& row: rows) {
         socket.write(row.c_str(), row.length(), &serverAddr);
         buffer.bytes(0);
-        if (socket.readyToRead(chrono::seconds(3)))
-            socket.read(buffer.data(), 2048);
+        if (socket.readyToRead(chrono::seconds(3))) {
+            auto bytes = socket.read(buffer.data(), 2048);
+            buffer.bytes(bytes);
+        }
         EXPECT_STREQ(row.c_str(), buffer.c_str());
         ++rowCount;
     }

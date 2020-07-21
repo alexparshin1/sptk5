@@ -58,6 +58,11 @@ namespace sptk {
                 snprintf(m_stmtName, sizeof(m_stmtName), "S%04u", ++index);
         }
 
+        PostgreSQLStatement(const PostgreSQLStatement&) = delete;
+        PostgreSQLStatement(PostgreSQLStatement&&) noexcept = default;
+        PostgreSQLStatement& operator = (const PostgreSQLStatement&) = delete;
+        PostgreSQLStatement& operator = (PostgreSQLStatement&&) noexcept = default;
+
         ~PostgreSQLStatement()
         {
             if (m_stmt != nullptr)

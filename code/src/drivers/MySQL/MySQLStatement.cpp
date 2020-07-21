@@ -33,7 +33,7 @@ using namespace sptk;
 // When TEXT field is large, fetch in chunks:
 #define FETCH_BUFFER 256
 
-class CMySQLStatementField: public DatabaseField
+class MySQLStatementField: public DatabaseField
 {
 public:
     // Callback variables
@@ -42,21 +42,11 @@ public:
     my_bool         m_cbError {0};
     // MySQL time conversion buffer
     MYSQL_TIME      m_timeBuffer {};
-    char*           m_tempBuffer {nullptr};
+    char            m_tempBuffer[16] {};
 
-    CMySQLStatementField(const string& fieldName, int fieldColumn, enum_field_types fieldType, VariantType dataType, int fieldSize) :
-        DatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize)
+    MySQLStatementField(const string& fieldName, int fieldColumn, enum_field_types fieldType, VariantType dataType, int fieldSize)
+    : DatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize)
     {
-        memset(&m_timeBuffer, 0, sizeof(MYSQL_TIME));
-        if (fieldType == MYSQL_TYPE_NEWDECIMAL)
-            m_tempBuffer = new char[fieldSize];
-        else
-            m_tempBuffer = nullptr;
-    }
-
-    ~CMySQLStatementField() override
-    {
-        delete [] m_tempBuffer;
     }
 
     void bindCallbacks(MYSQL_BIND* bind)
@@ -338,14 +328,14 @@ void MySQLStatement::bindResult(FieldList& fields)
         auto fieldLength = (unsigned) fieldMetadata->length;
         if (fieldLength > FETCH_BUFFER)
             fieldLength = FETCH_BUFFER;
-        fields.push_back(new CMySQLStatementField(columnName, (int) columnIndex, fieldMetadata->type, fieldType, (int) fieldLength));
+        fields.push_back(new MySQLStatementField(columnName, (int) columnIndex, fieldMetadata->type, fieldType, (int) fieldLength));
     }
 
     if (statement() != nullptr) {
         // Bind initialized fields to MySQL bind buffers
         m_fieldBuffers.resize(state().columnCount);
         for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex) {
-            auto*        field = (CMySQLStatementField*) &fields[columnIndex];
+            auto*        field = (MySQLStatementField*) &fields[columnIndex];
             MYSQL_BIND& bind = m_fieldBuffers[columnIndex];
 
             bind.buffer_type = (enum_field_types) field->fieldType();
@@ -418,7 +408,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
 
     for (std::size_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
 
-        auto* field = (CMySQLStatementField*) &fields[fieldIndex];
+        auto* field = (MySQLStatementField*) &fields[fieldIndex];
 
         VariantType fieldType = field->dataType();
 
@@ -474,7 +464,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
 
 void MySQLStatement::decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime, VariantType fieldType)
 {
-    auto* field = dynamic_cast<CMySQLStatementField*>(_field);
+    auto* field = dynamic_cast<MySQLStatementField*>(_field);
     if (mysqlTime.day == 0 && mysqlTime.month == 0) {
         // Date returned as 0000-00-00
         field->setNull(fieldType);
@@ -488,7 +478,7 @@ void MySQLStatement::decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime,
 
 void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
 {
-    auto* field = dynamic_cast<CMySQLStatementField*>(_field);
+    auto* field = dynamic_cast<MySQLStatementField*>(_field);
     if (bind.buffer_type == MYSQL_TYPE_NEWDECIMAL) {
         double value = string2double((char*)bind.buffer);
         field->setFloat(value);
@@ -507,7 +497,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
     auto    fieldCount = fields.size();
     bool    fieldSizeChanged = false;
     for (size_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
-        auto*        field = (CMySQLStatementField*) &fields[fieldIndex];
+        auto*        field = (MySQLStatementField*) &fields[fieldIndex];
         MYSQL_BIND& bind = m_fieldBuffers[fieldIndex];
 
         VariantType fieldType = field->dataType();

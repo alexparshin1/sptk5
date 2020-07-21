@@ -100,7 +100,7 @@ void OracleStatement::setParameterValues()
     unsigned parameterIndex = 1;
     for (auto* parameterPtr: m_enumeratedParams) {
         QueryParameter& parameter = *parameterPtr;
-        VariantType& priorDataType = parameter.m_binding.m_dataType;
+        VariantType& priorDataType = parameter.binding().m_dataType;
 
         if (priorDataType == VAR_NONE)
             priorDataType = parameter.dataType();
@@ -108,7 +108,7 @@ void OracleStatement::setParameterValues()
         if (!parameter.isOutput() && parameter.isNull()) {
             if (priorDataType == VAR_NONE)
                 priorDataType = VAR_STRING;
-            Type nativeType = VariantTypeToOracleType(parameter.m_binding.m_dataType);
+            Type nativeType = VariantTypeToOracleType(parameter.binding().m_dataType);
             statement()->setNull(parameterIndex, nativeType);
             ++parameterIndex;
             continue;

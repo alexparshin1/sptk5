@@ -38,7 +38,7 @@ namespace sptk {
  */
 
 /**
- * @brief UDP Socket
+ * UDP Socket
  *
  * Sends and receives data using UDP protocol.
  * Not buffered. Doesn't use CSocket timeout settings in read and write operations by default.
@@ -47,24 +47,42 @@ class SP_EXPORT UDPSocket : public BaseSocket
 {
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param domain SOCKET_ADDRESS_FAMILY, socket domain type
      */
     explicit UDPSocket(SOCKET_ADDRESS_FAMILY domain=AF_INET);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     ~UDPSocket() override = default;
 
     /**
-     * @brief Reads data from the socket
-     * @param buffer char *, the memory buffer
-     * @param size size_t, the number of bytes to read
-     * @param from sockaddr_in*, an optional structure for source address
+     * Reads data from the socket
+     * @param buffer            The memory buffer
+     * @param size              The number of bytes to read
+     * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    size_t read(char *buffer,size_t size,sockaddr_in* from=nullptr) override;
+    [[nodiscard]] size_t read(char *buffer, size_t size, sockaddr_in* from=nullptr) override;
+
+    /**
+     * Reads data from the socket
+     * @param buffer            The memory buffer
+     * @param size              The number of bytes to read
+     * @param from              An optional structure for source address
+     * @returns the number of bytes read from the socket
+     */
+    [[nodiscard]] size_t read(Buffer& buffer, size_t size, sockaddr_in* from=nullptr) override;
+
+    /**
+     * Reads data from the socket
+     * @param buffer            The memory buffer
+     * @param size              The number of bytes to read
+     * @param from              An optional structure for source address
+     * @returns the number of bytes read from the socket
+     */
+    [[nodiscard]] size_t read(String& buffer, size_t size,sockaddr_in* from=nullptr) override;
 };
 
 /**
