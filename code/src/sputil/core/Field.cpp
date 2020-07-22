@@ -31,7 +31,7 @@ using namespace std;
 using namespace sptk;
 
 Field::Field(const String& name)
-: displayName(name), m_name(name)
+: m_name(name), m_displayName(name)
 {
     view.width = -1;
     view.flags = 4; // FL_ALIGN_LEFT

@@ -33,7 +33,7 @@ using namespace sptk;
 // When TEXT field is large, fetch in chunks:
 #define FETCH_BUFFER 256
 
-class MySQLStatementField: public DatabaseField
+class sptk::MySQLStatementField: public DatabaseField
 {
 public:
     // Callback variables
@@ -497,7 +497,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
     auto    fieldCount = fields.size();
     bool    fieldSizeChanged = false;
     for (size_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
-        auto*        field = (MySQLStatementField*) &fields[fieldIndex];
+        auto*       field = (MySQLStatementField*) &fields[fieldIndex];
         MYSQL_BIND& bind = m_fieldBuffers[fieldIndex];
 
         VariantType fieldType = field->dataType();
@@ -529,28 +529,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            if (dataLength == 0) {
-                // Empty string
-                auto* data = field->getBuffer();
-                *data = 0;
-                field->setDataSize(0);
-            } else {
-                if (bind.buffer_length < dataLength) {
-                    /// Fetch truncated, enlarge buffer and fetch remaining part
-                    auto remainingBytes = uint32_t(dataLength - bind.buffer_length);
-                    auto offset = (uint32_t) bind.buffer_length;
-                    field->checkSize(dataLength+1);
-                    bind.buffer = field->getBuffer() + offset;
-                    bind.buffer_length = remainingBytes;
-                    if (mysql_stmt_fetch_column(statement(), &bind, (unsigned) fieldIndex, offset) != 0)
-                        throwMySQLError();
-                    bind.buffer_length = field->bufferSize();
-                    bind.buffer = (void*) field->getBuffer();
-                    fieldSizeChanged = true;
-                }
-                ((char *)bind.buffer)[dataLength] = 0;
-                field->setDataSize(dataLength);
-            }
+            fieldSizeChanged = bindVarCharField(bind, field, fieldIndex, dataLength);
             break;
 
         case VAR_INT64:
@@ -563,6 +542,29 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
     }
     if (fieldSizeChanged && mysql_stmt_bind_result(statement(), &m_fieldBuffers[0]) != 0)
         throwMySQLError();
+}
+
+bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* field, size_t fieldIndex, uint32_t dataLength)
+{
+    bool fieldSizeChanged = false;
+    if (bind.buffer_length < dataLength) {
+        /// Fetch truncated, enlarge buffer and fetch remaining part
+        auto remainingBytes = uint32_t(dataLength - bind.buffer_length);
+        auto offset = (uint32_t) bind.buffer_length;
+        field->checkSize(dataLength+1);
+        bind.buffer = field->getBuffer() + offset;
+        bind.buffer_length = remainingBytes;
+        if (mysql_stmt_fetch_column(statement(), &bind, (unsigned) fieldIndex, offset) != 0)
+            throwMySQLError();
+        bind.buffer_length = field->bufferSize();
+        bind.buffer = (void*) field->getBuffer();
+        fieldSizeChanged = true;
+    }
+
+    ((char *)bind.buffer)[dataLength] = 0;
+    field->setDataSize(dataLength);
+
+    return fieldSizeChanged;
 }
 
 void MySQLStatement::close()

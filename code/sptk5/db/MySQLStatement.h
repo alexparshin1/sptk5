@@ -40,6 +40,7 @@ namespace sptk
 {
 
 class MySQLConnection;
+class MySQLStatementField;
 
 /**
  * MySQL statement wrapper
@@ -194,6 +195,8 @@ private:
     {
         throw DatabaseException(mysql_stmt_error(statement()));
     }
+
+    [[nodiscard]] bool bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* field, size_t fieldIndex, uint32_t dataLength);
 };
 
 }

@@ -26,7 +26,7 @@
 
 #include <sptk5/CSmallPixmapIDs.h>
 
-const char* sptk::smallPixmapIDs[7] = {
+const sptk::Strings sptk::smallPixmapIDs = {
     "document_exec",
     "folder_closed",
     "folder_opened",

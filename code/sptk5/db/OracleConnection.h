@@ -34,6 +34,7 @@
 
 #include <sptk5/db/OracleStatement.h>
 #include <sptk5/db/OracleEnvironment.h>
+#include <src/drivers/Oracle/OracleBulkInsertQuery.h>
 #include "DatabaseField.h"
 
 namespace sptk
@@ -45,6 +46,7 @@ namespace sptk
  */
 
 class OracleStatement;
+class OracleBulkInsertQuery;
 
 /**
  * @brief Oracle database
@@ -255,6 +257,14 @@ private:
     static void readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
 
     static void readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+
+    void setMaxParamSizes(const CParamVector& enumeratedParams, Statement* stmt,
+                          const QueryColumnTypeSizeMap& columnTypeSizes) const;
+
+    void createQueryFieldsFromMetadata(Query* query, oracle::occi::ResultSet* resultSet) const;
+
+    void bulkInsertSingleRow(const Strings& columnNames, const QueryColumnTypeSizeVector& columnTypeSizeVector,
+                             sptk::OracleBulkInsertQuery& insertQuery, const VariantVector& row) const;
 };
 
 /**

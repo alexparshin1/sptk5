@@ -656,7 +656,7 @@ TEST(SPTK_RegularExpression, match_performance)
 {
     String data("red=#FF0000, green=#00FF00, blue=#0000FF");
     RegularExpression match("((\\w+)=(#\\w+))");
-    size_t maxIterations = 1000000;
+    size_t maxIterations = 100000;
     size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();
@@ -676,7 +676,7 @@ TEST(SPTK_RegularExpression, std_match_performance)
 {
     String data("red=#FF0000, green=#00FF00, blue=#0000FF");
     std::regex match("(\\w+)=(#\\w+)");
-    size_t maxIterations = 1000000;
+    size_t maxIterations = 100000;
     size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();

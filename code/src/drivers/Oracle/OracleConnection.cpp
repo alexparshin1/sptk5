@@ -191,26 +191,32 @@ void OracleConnection::queryPrepare(Query* query)
     statement->enumerateParams(query->params());
     if (query->bulkMode()) {
         const CParamVector& enumeratedParams = statement->enumeratedParams();
-        unsigned paramIndex = 1;
         Statement* stmt = statement->stmt();
         const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
         if (bulkInsertQuery == nullptr)
             throw Exception("Not a bulk query");
         const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
-        for (const auto* param: enumeratedParams) {
-            auto xtor = columnTypeSizes.find(upperCase(param->name()));
-            if (xtor != columnTypeSizes.end()) {
-                if (xtor->second.length)
-                    stmt->setMaxParamSize(paramIndex, (unsigned) xtor->second.length);
-                else
-                    stmt->setMaxParamSize(paramIndex, 32);
-            }
-            ++paramIndex;
-        }
+        setMaxParamSizes(enumeratedParams, stmt, columnTypeSizes);
         stmt->setMaxIterations((unsigned) bulkInsertQuery->batchSize());
     }
     querySetStmt(query, statement);
     querySetPrepared(query, true);
+}
+
+void OracleConnection::setMaxParamSizes(const CParamVector& enumeratedParams, Statement* stmt,
+                                        const QueryColumnTypeSizeMap& columnTypeSizes) const
+{
+    unsigned paramIndex = 1;
+    for (const auto* param: enumeratedParams) {
+        auto xtor = columnTypeSizes.find(upperCase(param->name()));
+        if (xtor != columnTypeSizes.end()) {
+            if (xtor->second.length)
+                stmt->setMaxParamSize(paramIndex, (unsigned) xtor->second.length);
+            else
+                stmt->setMaxParamSize(paramIndex, 32);
+        }
+        ++paramIndex;
+    }
 }
 
 void OracleConnection::queryUnprepare(Query* query)
@@ -344,35 +350,39 @@ void OracleConnection::queryOpen(Query* query)
         querySetActive(query, true);
         if (query->fieldCount() == 0) {
             lock_guard<mutex> lock(m_mutex);
-
             ResultSet* resultSet = statement->resultSet();
-            vector<MetaData> resultSetMetaData = resultSet->getColumnListMetaData();
-            unsigned columnIndex = 0;
-            for (const MetaData& metaData: resultSetMetaData) {
-                auto columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
-                int columnScale = metaData.getInt(MetaData::ATTR_SCALE);
-                string columnName = metaData.getString(MetaData::ATTR_NAME);
-                int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
-                if (columnName.empty()) {
-                    char alias[32];
-                    snprintf(alias, sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
-                    columnName = alias;
-                }
-                if (columnType == Type::OCCI_SQLT_LNG && columnDataSize == 0)
-                    resultSet->setMaxColumnSize(columnIndex + 1, 16384);
-                VariantType dataType = OracleTypeToVariantType(columnType, columnScale);
-                auto* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize,
-                                                columnScale);
-                query->fields().push_back(field);
-
-                ++columnIndex;
-            }
+            createQueryFieldsFromMetadata(query, resultSet);
         }
     }
 
     querySetEof(query, statement->eof());
 
     queryFetch(query);
+}
+
+void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* resultSet) const
+{
+    vector<MetaData> resultSetMetaData = resultSet->getColumnListMetaData();
+    unsigned columnIndex = 0;
+    for (const MetaData& metaData: resultSetMetaData) {
+        auto columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
+        int columnScale = metaData.getInt(MetaData::ATTR_SCALE);
+        string columnName = metaData.getString(MetaData::ATTR_NAME);
+        int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
+        if (columnName.empty()) {
+            char alias[32];
+            snprintf(alias, sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
+            columnName = alias;
+        }
+        if (columnType == OCCI_SQLT_LNG && columnDataSize == 0)
+            resultSet->setMaxColumnSize(columnIndex + 1, 16384);
+        VariantType dataType = OracleTypeToVariantType(columnType, columnScale);
+        auto* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize,
+                                        columnScale);
+        query->fields().push_back(field);
+
+        ++columnIndex;
+    }
 }
 
 void OracleConnection::readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
@@ -615,25 +625,32 @@ void OracleConnection::_bulkInsert(const String& fullTableName, const Strings& c
                                       data.size(),
                                       columnTypeSizeMap);
     for (auto& row: data) {
-        for (size_t i = 0; i < columnNames.size(); ++i) {
-            auto& value = row[i];
-            switch (columnTypeSizeVector[i].type) {
-                case VAR_TEXT:
-                    if (value.dataSize())
-                        insertQuery.param(i).setBuffer(value.getText(), value.dataSize(), VAR_TEXT);
-                    else
-                        insertQuery.param(i).setNull(VAR_TEXT);
-                    break;
-                case VAR_DATE_TIME:
-                    insertQuery.param(i).setDateTime(value.getDateTime());
-                    break;
-                default:
-                    insertQuery.param(i).setString(value.asString());
-                    break;
-            }
-        }
-        insertQuery.execNext();
+        bulkInsertSingleRow(columnNames, columnTypeSizeVector, insertQuery, row);
     }
+}
+
+void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
+                                           const QueryColumnTypeSizeVector& columnTypeSizeVector,
+                                           OracleBulkInsertQuery& insertQuery, const VariantVector& row) const
+{
+    for (size_t i = 0; i < columnNames.size(); ++i) {
+        auto& value = row[i];
+        switch (columnTypeSizeVector[i].type) {
+            case VAR_TEXT:
+                if (value.dataSize())
+                    insertQuery.param(i).setBuffer(value.getText(), value.dataSize(), VAR_TEXT);
+                else
+                    insertQuery.param(i).setNull(VAR_TEXT);
+                break;
+            case VAR_DATE_TIME:
+                insertQuery.param(i).setDateTime(value.getDateTime());
+                break;
+            default:
+                insertQuery.param(i).setString(value.asString());
+                break;
+        }
+    }
+    insertQuery.execNext();
 }
 
 String OracleConnection::driverDescription() const

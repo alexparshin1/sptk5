@@ -125,8 +125,7 @@ void CListView::ctor_init()
     m_textColor = FL_FOREGROUND_COLOR;
     m_currentTextFont = m_textFont;
     m_currentTextSize = m_textSize;
-    for (auto* smallPixmapID : smallPixmapIDs)
-        m_iconNames.push_back(smallPixmapID);
+    m_iconNames = smallPixmapIDs;
 }
 
 CListView::CListView(const char* label, int layoutSize, CLayoutAlign layoutAlignment)

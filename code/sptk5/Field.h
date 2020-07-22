@@ -45,7 +45,7 @@ class Query;
 class FieldList;
 
 /**
- * @brief Data field for CDataSource.
+ * Data field for CDataSource.
  *
  * Contains field name, field type, field data and field format information.
  */
@@ -55,38 +55,27 @@ class SP_EXPORT Field : public Variant
 
 public:
     /**
-     * Optional display field name
-     */
-    String displayName;
-
-    /**
-     * @brief Constructor
+     * Constructor
      * @param name               Field name
      */
     explicit Field(const String& name);
 
     /**
-     * @brief Copy constructor
+     * Copy constructor
      * @param other              Other field object
      */
-    Field(const Field& other)
-    : Variant(other), displayName(other.displayName), m_name(other.m_name)
-    {
-    }
+    Field(const Field& other) = default;
 
     /**
-     * @brief Move constructor
+     * Move constructor
      * @param other              Other field object
      */
-    Field(Field&& other) noexcept
-    : Variant(std::move(other)), displayName(std::move(other.displayName)), m_name(std::move(other.m_name))
-    {
-    }
+    Field(Field&& other) noexcept = default;
 
     ~Field() noexcept override = default;
 
     /**
-     * @brief Combination of field view attributes
+     * Combination of field view attributes
      */
     struct {
         /**
@@ -112,7 +101,7 @@ public:
     } view {};
 
     /**
-     * @brief Returns field name
+     * Returns field name
      */
     const String& fieldName() const
     {
@@ -120,7 +109,7 @@ public:
     }
 
     /**
-     * @brief Sets the NULL state
+     * Sets the NULL state
      *
      * Useful for the database operations.
      * Retains the data type. Sets the data to zero(s).
@@ -129,7 +118,7 @@ public:
     void setNull(VariantType vtype) override;
 
     /**
-     * @brief Copy assignment operation
+     * Copy assignment operation
      */
     Field& operator = (const Field& other)
     {
@@ -138,13 +127,13 @@ public:
 
         setData(other);
         m_name = other.m_name;
-        displayName = other.displayName;
+        m_displayName = other.m_displayName;
 
         return *this;
     }
 
     /**
-     * @brief Move assignment operation
+     * Move assignment operation
      */
     Field& operator = (Field&& other) noexcept
     {
@@ -153,13 +142,13 @@ public:
 
         *(Variant*)this = std::move(other);
         m_name = std::move(other.m_name);
-        displayName = std::move(other.displayName);
+        m_displayName = std::move(other.m_displayName);
 
         return *this;
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator = (const Variant &C)
     {
@@ -171,7 +160,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(int64_t value) override
     {
@@ -180,7 +169,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(int32_t value) override
     {
@@ -189,7 +178,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(double value) override
     {
@@ -198,7 +187,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(const char * value) override
     {
@@ -207,7 +196,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(const sptk::String& value) override
     {
@@ -216,7 +205,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(DateTime value) override
     {
@@ -225,7 +214,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(const void *value) override
     {
@@ -234,7 +223,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(const Buffer& value) override
     {
@@ -243,12 +232,12 @@ public:
     }
 
     /**
-     * @brief Better (than in base class) conversion method
+     * Better (than in base class) conversion method
      */
     String asString() const override;
 
     /**
-     * @brief Exports the field data into XML node
+     * Exports the field data into XML node
      *
      * If the compactXmlMode flag is true, the field is exported as an attribute.
      * Otherwise, the field is exported as subnodes.
@@ -258,11 +247,20 @@ public:
      */
     void toXML(xml::Node& node, bool compactXmlMode) const;
 
+    String displayName() const
+    {
+        return m_displayName;
+    }
+
+    void displayName(const String& name)
+    {
+        m_displayName = name;
+    }
+
 private:
-    /**
-     * Field name
-     */
-    String m_name;
+
+    String m_name;          ///< Field name
+    String m_displayName;   ///< Optional display field name
 
     String doubleDataToString(char* printBuffer, size_t printBufferSize) const;
     String moneyDataToString(char* printBuffer, size_t printBufferSize) const;

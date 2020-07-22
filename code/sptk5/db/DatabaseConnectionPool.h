@@ -138,7 +138,7 @@ protected:
     /**
      * @brief Creates database connection
      */
-    PoolDatabaseConnection* createConnection();
+    [[nodiscard]] PoolDatabaseConnection* createConnection();
 
     /**
      * @brief Returns used database connection back to the pool

@@ -27,6 +27,8 @@
 #ifndef __CSMALLPIXMAPIDS_H__
 #define __CSMALLPIXMAPIDS_H__
 
+#include <sptk5/Strings.h>
+
 namespace sptk {
 
 /**
@@ -77,7 +79,7 @@ enum CSmallPixmapType {
 /**
  * @brief A list of predefined icon names used by ListView, primarily
  */
-extern const char* smallPixmapIDs[7];
+extern const Strings smallPixmapIDs;
 
 /**
  * @}

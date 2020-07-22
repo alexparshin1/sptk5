@@ -38,7 +38,7 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
   m_fldSize(fieldLength),
   m_fldScale(fieldScale)
 {
-    displayName = fName;
+    displayName(fName);
 
     m_data.getBuffer().size = 0;
 

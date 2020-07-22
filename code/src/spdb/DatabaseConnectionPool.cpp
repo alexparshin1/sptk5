@@ -57,12 +57,14 @@ public:
         drivers[driverName] = driver;
     }
 
+    static DriverLoaders loadedDrivers;
+
 private:
 
     map<string, shared_ptr<DatabaseDriver>, CaseInsensitiveCompare> drivers;
 };
 
-static DriverLoaders m_loadedDrivers;
+DriverLoaders DriverLoaders::loadedDrivers;
 
 DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections) :
     DatabaseConnectionString(connectionString),
@@ -94,7 +96,7 @@ void DatabaseConnectionPool::load()
     if (driverNameLC == "mssql")
         driverNameLC = "odbc";
 
-    DatabaseDriver* loadedDriver = m_loadedDrivers.get(driverNameLC);
+    DatabaseDriver* loadedDriver = DriverLoaders::loadedDrivers.get(driverNameLC);
     if (loadedDriver != nullptr) {
         m_driver = loadedDriver;
         m_createConnection = loadedDriver->m_createConnection;
@@ -159,7 +161,7 @@ void DatabaseConnectionPool::load()
     m_destroyConnection = destroyConnection;
 
     // Registering loaded driver in the map
-    m_loadedDrivers.add(driverNameLC, driver);
+    DriverLoaders::loadedDrivers.add(driverNameLC, driver);
 }
 
 [[nodiscard]] DatabaseConnection DatabaseConnectionPool::getConnection()

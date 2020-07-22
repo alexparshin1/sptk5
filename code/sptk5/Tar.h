@@ -59,7 +59,7 @@ public:
      * Constructor
      * @param buffer CBuffer*, source data
      */
-    explicit MemoryTarHandle(Buffer* buffer=nullptr)
+    explicit MemoryTarHandle(const Buffer* buffer=nullptr)
     {
         if (buffer) {
             sourceBuffer = buffer->data();
