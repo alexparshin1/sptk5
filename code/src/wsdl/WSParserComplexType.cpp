@@ -473,7 +473,9 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
 
     implementationParts.body
                         << "    _clear();" << endl
-                        << "    setLoaded(true);" << endl;
+                        << "    setLoaded(true);" << endl
+                        << "    if (!input->is(json::JDT_OBJECT))" << endl
+                        << "        return;" << endl;
 
     printImplementationLoadJSONAttributes(implementationParts);
 

@@ -31,11 +31,11 @@ using namespace std;
 using namespace sptk;
 
 #ifdef _WIN32
-static const char* doubleLine("=");
-static const char* singleLine("-");
+static const String doubleLine("=");
+static const String singleLine("-");
 #else
-static const char* doubleLine("═");
-static const char* singleLine("─");
+static const String doubleLine("═");
+static const String singleLine("─");
 #endif
 
 CommandLine::Visibility::Visibility(const String& pattern, bool _mustMatch)
@@ -290,7 +290,7 @@ void CommandLine::defineArgument(const String& fullName, const String& helpText)
 Strings CommandLine::preprocessArguments(int argc, const char* const* argv)
 {
     Strings args;
-    for (int i = 1; i < argc; ++i)
+    for (int i = 1; i < argc && argv[i] != nullptr; ++i)
         args.push_back(string(argv[i]));
 
     // Pre-process command line arguments
@@ -298,39 +298,40 @@ Strings CommandLine::preprocessArguments(int argc, const char* const* argv)
     String quote;
     String quotedString;
     for (auto& arg : args) {
-        if (quote.empty()) {
-            if (arg.startsWith("'") || arg.startsWith("\"")) {
-                quote = arg.substr(0, 1);
-                quotedString = arg.substr(1);
-                if (arg.endsWith(quote)) {
-                    quote.clear();
-                    quotedString.resize(quotedString.length() - 1);
-                    arguments.push_back(quotedString);
-                    continue;
-                }
-
-                if (quotedString.endsWith(quote)) {
-                    quotedString = quotedString.substr(0, arg.length() - 1);
-                    arguments.push_back(quotedString);
-                    quote = "";
-                    quotedString = "";
-                }
-            }
-            else
-                arguments.push_back(arg);
-        }
-        else {
-            if (arg.endsWith(quote)) {
-                arg = arg.substr(0, arg.length() - 1);
-                quote = "";
-                quotedString += " " + arg;
-                arguments.push_back(quotedString);
-            }
-            else
-                quotedString += " " + arg;
-        }
+        String digestedArg = preprocessArgument(arg, quote, quotedString);
+        if (!digestedArg.empty())
+            arguments.push_back(digestedArg);
     }
     return arguments;
+}
+
+String CommandLine::preprocessArgument(String& arg, String& quote, String& quotedString)
+{
+    String output;
+    if (quote.empty()) {
+        if (arg.startsWith("'") || arg.startsWith("\"")) {
+            quote = arg.substr(0, 1);
+            quotedString = arg.substr(1);
+            if (arg.length() > 1 && arg.endsWith(quote)) {
+                quote.clear();
+                quotedString.resize(quotedString.length() - 1);
+                output = quotedString;
+            }
+        }
+        else
+            output = arg;
+    }
+    else {
+        if (arg.endsWith(quote)) {
+            arg = arg.substr(0, arg.length() - 1);
+            quote = "";
+            quotedString += " " + arg;
+            output = quotedString;
+        }
+        else
+            quotedString += " " + arg;
+    }
+    return output;
 }
 
 Strings CommandLine::rewriteArguments(const Strings& arguments)
@@ -359,42 +360,44 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
     return digestedArgs;
 }
 
+void CommandLine::readOption(const Strings& digestedArgs, size_t i)
+{
+    String arg = digestedArgs[i];
+    String value;
+    if (arg.startsWith("-")) {
+        String optionName;
+        if (arg.startsWith("--")) {
+            // Full option name
+            optionName = arg.substr(2);
+        }
+        else {
+            // Short option name
+            optionName = arg.substr(1);
+        }
+        auto element = m_optionTemplates[optionName];
+        if (!element)
+            throw Exception("Command line option or parameter " + arg + " is not supported");
+        if (element->hasValue()) {
+            ++i;
+            if (i >= digestedArgs.size())
+                throw Exception("Command line parameter " + arg + " should have value");
+            value = digestedArgs[i];
+            element->validate(value);
+            m_values[element->name()] = value;
+        }
+        else
+            m_values[element->name()] = "true";
+    } else
+        m_arguments.push_back(arg);
+}
+
 void CommandLine::init(int argc, const char* argv[])
 {
     Strings arguments = preprocessArguments(argc, argv);
     Strings digestedArgs = rewriteArguments(arguments);
 
-    for (unsigned i = 0; i < digestedArgs.size(); ++i) {
-        String arg = digestedArgs[i];
-        String value;
-
-        if (arg.startsWith("-")) {
-            string optionName;
-            if (arg.startsWith("--")) {
-                // Full option name
-                optionName = arg.substr(2);
-            }
-            else {
-                // Short option name
-                optionName = arg.substr(1);
-            }
-            auto element = m_optionTemplates[optionName];
-            if (!element)
-                throw Exception("Command line option or parameter " + arg + " is not supported");
-            if (element->hasValue()) {
-                ++i;
-                if (i >= digestedArgs.size())
-                    throw Exception("Command line parameter " + arg + " should have value");
-                value = digestedArgs[i];
-                element->validate(value);
-                m_values[element->name()] = value;
-            }
-            else
-                m_values[element->name()] = "true";
-            continue;
-        }
-
-        m_arguments.push_back(arg);
+    for (size_t i = 0; i < digestedArgs.size(); ++i) {
+        readOption(digestedArgs, i);
     }
 }
 
@@ -543,14 +546,27 @@ void CommandLine::printVersion(ostream& output) const
 
 #if USE_GTEST
 
-static const char* testCommandLineArgs[] = { "testapp", "connect", "--host", "'ahostname'", "-p", "12345", "--verbose",
-                                             nullptr };
+class CommandLineTestData
+{
+public:
+    static const char* testCommandLineArgs[14];
 
-static const char* testCommandLineArgs2[] = { "testapp", "connect", "--host", "host name", "-p", "12345", "--verbose",
-                                             nullptr };
+    static const char* testCommandLineArgs2[8];
 
-static const char* testCommandLineArgs3[] = { "testapp", "connect", "--host", "ahostname", "-p", "12345", "--verbotten",
-                                              nullptr };
+    static const char* testCommandLineArgs3[8];
+};
+
+const char* CommandLineTestData::testCommandLineArgs[14] = {"testapp", "connect", "--host", "'ahostname'", "-p", "12345",
+                                              "--verbose",
+                                              "--description", "'This", "is", "a", "quoted", "argument'", nullptr};
+
+const char* CommandLineTestData::testCommandLineArgs2[8] = {"testapp", "connect", "--host", "host name", "-p", "12345",
+                                              "--verbose",
+                                              nullptr};
+
+const char* CommandLineTestData::testCommandLineArgs3[8] = {"testapp", "connect", "--host", "ahostname", "-p", "12345",
+                                              "--verbotten",
+                                              nullptr};
 
 CommandLine* createTestCommandLine()
 {
@@ -558,6 +574,7 @@ CommandLine* createTestCommandLine()
     commandLine->defineArgument("action", "Action to perform");
     commandLine->defineParameter("host", "h", "hostname", "^[\\S]+$", CommandLine::Visibility(""), "", "Hostname to connect");
     commandLine->defineParameter("port", "p", "port #", "^\\d{2,5}$", CommandLine::Visibility(""), "", "Port to connect");
+    commandLine->defineParameter("description", "d", "text", "", CommandLine::Visibility(""), "", "Operation description");
     commandLine->defineOption("verbose", "v", CommandLine::Visibility(""), "Verbose messages");
     return commandLine;
 }
@@ -565,11 +582,15 @@ CommandLine* createTestCommandLine()
 TEST(SPTK_CommandLine, ctor)
 {
     shared_ptr<CommandLine> commandLine(createTestCommandLine());
-    commandLine->init(7, testCommandLineArgs);
+    commandLine->init(13, CommandLineTestData::testCommandLineArgs);
 
     EXPECT_STREQ("ahostname", commandLine->getOptionValue("host").c_str());
     EXPECT_STREQ("12345", commandLine->getOptionValue("port").c_str());
     EXPECT_STREQ("true", commandLine->getOptionValue("verbose").c_str());
+    EXPECT_STREQ("", commandLine->getOptionValue("bad").c_str());
+    EXPECT_STREQ("This is a quoted argument", commandLine->getOptionValue("description").c_str());
+    EXPECT_STREQ("connect", commandLine->arguments()[0].c_str());
+    EXPECT_TRUE(commandLine->hasOption("verbose"));
 }
 
 TEST(SPTK_CommandLine, wrongArgumentValue)
@@ -577,7 +598,7 @@ TEST(SPTK_CommandLine, wrongArgumentValue)
     shared_ptr<CommandLine> commandLine(createTestCommandLine());
 
     EXPECT_THROW(
-        commandLine->init(7, testCommandLineArgs2),
+        commandLine->init(7, CommandLineTestData::testCommandLineArgs2),
         Exception
     );
 }
@@ -587,7 +608,7 @@ TEST(SPTK_CommandLine, wrongOption)
     shared_ptr<CommandLine> commandLine(createTestCommandLine());
 
     EXPECT_THROW(
-            commandLine->init(7, testCommandLineArgs3),
+            commandLine->init(7, CommandLineTestData::testCommandLineArgs3),
             Exception
     );
 }
@@ -596,7 +617,7 @@ TEST(SPTK_CommandLine, setOption)
 {
     shared_ptr<CommandLine> commandLine(createTestCommandLine());
 
-    commandLine->init(7, testCommandLineArgs);
+    commandLine->init(7, CommandLineTestData::testCommandLineArgs);
     EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "ahostname");
     commandLine->setOptionValue("host", "www.x.com");
     EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "www.x.com");
@@ -607,7 +628,7 @@ TEST(SPTK_CommandLine, printHelp)
     shared_ptr<CommandLine> commandLine(createTestCommandLine());
 
     stringstream output;
-    commandLine->init(7, testCommandLineArgs);
+    commandLine->init(7, CommandLineTestData::testCommandLineArgs);
     commandLine->printHelp(80, output);
 }
 

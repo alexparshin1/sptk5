@@ -45,21 +45,26 @@ QueryBuilder::QueryBuilder(const String& tableName, const String& pkColumn, cons
   m_columns(columns),
   m_joins(joins)
 {
-    static const RegularExpression matchEpressionAndAlias(R"(^.*\s(\S+))");
     m_columns.remove(m_pkColumn);
     for (const auto& join: m_joins) {
         auto tableAlias = join.tableAlias;
-        for (auto& column: join.columns) {
-            auto matches = matchEpressionAndAlias.m(column);
-            if (matches) {
-                auto alias = matches[(size_t)0].value;
-                m_columns.remove(alias);
-            } else {
-                if (!tableAlias.empty() && column.startsWith(tableAlias + "."))
-                    m_columns.remove(column.substr(tableAlias.length() + 1));
-                else
-                    m_columns.remove(column);
-            }
+        removeUnNeededColumns(join, tableAlias);
+    }
+}
+
+void QueryBuilder::removeUnNeededColumns(const Join& join, const String& tableAlias)
+{
+    static const RegularExpression matchExpressionAndAlias(R"(^.*\s(\S+))");
+    for (auto& column: join.columns) {
+        auto matches = matchExpressionAndAlias.m(column);
+        if (matches) {
+            auto alias = matches[(size_t)0].value;
+            m_columns.remove(alias);
+        } else {
+            if (!tableAlias.empty() && column.startsWith(tableAlias + "."))
+                m_columns.remove(column.substr(tableAlias.length() + 1));
+            else
+                m_columns.remove(column);
         }
     }
 }
@@ -103,24 +108,26 @@ Strings QueryBuilder::makeSelectColumns(const Strings& columns) const
     static const RegularExpression matchExpression(R"([\+\-*/~\(\)])");
 
     Strings outputColumns(columns);
-    if (outputColumns.empty()) {
-        outputColumns.push_back("t." + m_pkColumn);
-        for (auto& column: m_columns) {
-            if (column.find(' ') == string::npos)
-                outputColumns.push_back("t." + column);
-            else
-                outputColumns.push_back(column);
-        }
-        for (auto& join: m_joins)
-            for (auto& column: join.columns) {
-                if (matchExpression.matches(column)) {
-                    // if column contains expression and alias, don't add table alias prefix
-                    outputColumns.push_back(column);
-                }
-                else
-                    outputColumns.push_back(join.tableAlias + "." + column);
-            }
+    if (!outputColumns.empty())
+        return outputColumns;
+
+    outputColumns.push_back("t." + m_pkColumn);
+    for (auto& column: m_columns) {
+        if (column.find(' ') == string::npos)
+            outputColumns.push_back("t." + column);
+        else
+            outputColumns.push_back(column);
     }
+    for (auto& join: m_joins) {
+        for (auto& column: join.columns) {
+            if (matchExpression.matches(column)) {
+                // if column contains expression and alias, don't add table alias prefix
+                outputColumns.push_back(column);
+            } else
+                outputColumns.push_back(join.tableAlias + "." + column);
+        }
+    }
+
     return outputColumns;
 }
 

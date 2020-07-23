@@ -64,6 +64,8 @@ private:
     std::vector<Join>   m_joins;
 
     Strings makeSelectColumns(const Strings& columns) const;
+
+    void removeUnNeededColumns(const Join& join, const String& tableAlias);
 };
 
 }

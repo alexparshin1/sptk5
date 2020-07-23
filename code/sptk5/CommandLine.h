@@ -455,6 +455,10 @@ private:
     std::map<String, String>                                m_values;               ///< Received option values.
     Strings                                                 m_arguments;            ///< Received arguments.
     std::list<std::shared_ptr<CommandLineElement>>          m_allElements;          ///< All defined elements.
+
+    static String preprocessArgument(String& arg, String& quote, String& quotedString);
+
+    void readOption(const Strings& digestedArgs, size_t i);
 };
 
 /**

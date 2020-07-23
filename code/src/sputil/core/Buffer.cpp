@@ -235,8 +235,6 @@ TEST(SPTK_Buffer, move)
     EXPECT_TRUE(buffer2.bytes() == 0);
 }
 
-Buffer* ptr;
-
 TEST(SPTK_Buffer, assign)
 {
     Buffer  buffer1(testPhrase);
