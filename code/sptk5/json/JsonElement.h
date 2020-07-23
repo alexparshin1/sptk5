@@ -532,8 +532,7 @@ protected:
  *
  * May contain any type of JSON object
  */
-class SP_EXPORT Element
-        : public ElementGetMethods
+class SP_EXPORT Element : public ElementGetMethods
 {
     friend class Document;
     friend class ArrayData;

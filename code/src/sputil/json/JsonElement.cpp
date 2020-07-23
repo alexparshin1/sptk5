@@ -667,12 +667,12 @@ const Element& Element::operator[](const String& name) const
 Element& Element::operator[](size_t index)
 {
     if (type() != JDT_ARRAY)
-        throw Exception("Parent element is not JSON array");
+        throw Exception("Element is not JSON array");
 
     if (!data().get_array())
         data().set_array(new ArrayData(getDocument(), this));
 
-    while (index <= data().get_array()->size())
+    while (index >= data().get_array()->size())
         data().get_array()->add(new Element(getDocument(), ""));
 
     return (*data().get_array())[index];
@@ -681,7 +681,7 @@ Element& Element::operator[](size_t index)
 const Element& Element::operator[](size_t index) const
 {
     if (type() != JDT_ARRAY)
-        throw Exception("Parent element is not JSON array");
+        throw Exception("Element is not JSON array");
 
     if (!data().get_array() || index >= data().get_array()->size())
         throw Exception("JSON array index out of bound");
@@ -1003,6 +1003,24 @@ TEST(SPTK_JsonElement, array)
         catch (const Exception&) {
             SUCCEED() << "Ok: index out of bound";
         }
+
+        const auto& constArray = document.root().getArray(name);
+        EXPECT_EQ(3, (int) constArray[1].getNumber());
+
+        json::Element* embeddedArrayElement;
+        if (name.empty())
+            embeddedArrayElement = document.root().push_array();
+        else
+            embeddedArrayElement = document.root()[name].push_array();
+        auto& embeddedArrayData = embeddedArrayElement->getArray();
+        embeddedArrayData.add(new json::Element(&document, 123));
+        embeddedArrayData.add(new json::Element(&document, "Test"));
+        EXPECT_EQ(size_t(4), array.size());
+        EXPECT_EQ(size_t(2), embeddedArrayData.size());
+
+        EXPECT_DOUBLE_EQ(123.0, (*embeddedArrayElement)[size_t(0)].getNumber());
+        EXPECT_STREQ("Test", (*embeddedArrayElement)[1].getString().c_str());
+
         ++i;
     }
 }
