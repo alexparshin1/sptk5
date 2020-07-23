@@ -288,6 +288,33 @@ public:
     String isoDateTimeString(PrintAccuracy printAccuracy = PA_SECONDS, bool gmt = false) const;
 
     /**
+     * Returns timezone offset in minutes
+     * @return timezone offset in minutes
+     */
+    static int timeZoneOffset()
+    {
+        return _timeZoneOffset;
+    }
+
+    /**
+     * Returns timezone name
+     * @return timezone name
+     */
+    static String timeZoneName()
+    {
+        return _timeZoneName;
+    }
+
+    /**
+     * Returns true if daylight savings time
+     * @return true if daylight savings time
+     */
+    static bool isDaylightSavingsTime()
+    {
+        return _isDaylightSavingsTime;
+    }
+
+    /**
      * Returns date and time as a string
      */
     explicit operator String() const
@@ -323,50 +350,21 @@ public:
 
 private:
 
-    /**
-     * Actual date and time value
-     */
-    time_point                  m_dateTime;
+    time_point      m_dateTime;             ///< Actual date and time value
 
-    /**
-     * System's date format
-     */
-    static String _dateFormat;
+    static String   _dateFormat;            ///< System's date format
+    static String   _fullTimeFormat;        ///< System's time format
+    static String   _shortTimeFormat;       ///< System's time format
+    static String   _datePartsOrder;        ///< System's date parts order
+    static char     _dateSeparator;         ///< System's date separator
+    static char     _timeSeparator;         ///< System's time separator
+    static Strings  _weekDayNames;          ///< The locale-defined weekday names
+    static Strings  _monthNames;            ///< The locale-defined weekday names
 
-    /**
-     * System's time format
-     */
-    static String _fullTimeFormat;
-
-    /**
-     * System's time format
-     */
-    static String _shortTimeFormat;
-
-    /**
-     * System's date parts order
-     */
-    static String _datePartsOrder;
-
-    /**
-     * System's date separator
-     */
-    static char _dateSeparator;
-
-    /**
-     * System's time separator
-     */
-    static char _timeSeparator;
-
-    /**
-     * The locale-defined weekday names
-     */
-    static Strings _weekDayNames;
-
-    /**
-     * The locale-defined weekday names
-     */
-    static Strings _monthNames;
+    static bool     _time24Mode;
+    static String   _timeZoneName;
+    static int      _timeZoneOffset;
+    static int      _isDaylightSavingsTime;
 };
 
 

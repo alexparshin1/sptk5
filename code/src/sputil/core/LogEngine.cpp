@@ -105,29 +105,31 @@ void LogEngine::threadFunction()
 {
     chrono::seconds timeout(1);
     while (!terminated()) {
+
         Logger::Message* message;
-        if (m_messages.pop(message, timeout)) {
-            saveMessage(message);
+        if (!m_messages.pop(message, timeout))
+            continue;
 
-            if (m_options & LO_STDOUT) {
-                string messagePrefix;
-                if (m_options & LO_DATE)
-                    messagePrefix += message->timestamp.dateString() + " ";
+        saveMessage(message);
 
-                if (m_options & LO_TIME)
-                    messagePrefix += message->timestamp.timeString(true) + " ";
+        if (m_options & LO_STDOUT) {
+            string messagePrefix;
+            if (m_options & LO_DATE)
+                messagePrefix += message->timestamp.dateString() + " ";
 
-                if (m_options & LO_PRIORITY)
-                    messagePrefix += "[" + priorityName(message->priority) + "] ";
+            if (m_options & LO_TIME)
+                messagePrefix += message->timestamp.timeString(true) + " ";
 
-                FILE* dest = stdout;
-                if (message->priority <= LP_ERROR)
-                    dest = stderr;
-                fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
-				fflush(dest);
-            }
+            if (m_options & LO_PRIORITY)
+                messagePrefix += "[" + priorityName(message->priority) + "] ";
 
-            delete message;
+            FILE* dest = stdout;
+            if (message->priority <= LP_ERROR)
+                dest = stderr;
+            fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
+            fflush(dest);
         }
+
+        delete message;
     }
 }

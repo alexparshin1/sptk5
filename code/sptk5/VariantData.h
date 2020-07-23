@@ -62,6 +62,15 @@ public:
     uint8_t      scale:4;               ///< Scale (1..15)
 
     /**
+     * Constructor
+     * @param quantity          Money value
+     * @param scale             Money value scale (signs after decimal point)
+     */
+    MoneyData(int64_t quantity, uint8_t scale)
+    : quantity(quantity), scale(scale)
+    {}
+
+    /**
      * Convert to double value
      */
     explicit operator double () const;

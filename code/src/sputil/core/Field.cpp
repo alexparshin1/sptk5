@@ -139,30 +139,17 @@ String Field::epochDataToDateTimeString() const
 
 String Field::moneyDataToString(char* printBuffer, size_t printBufferSize) const
 {
-    char    format[32];
-    int64_t absValue;
-    char* formatPtr = format;
-
-    if (m_data.getMoneyData().quantity < 0) {
-        *formatPtr = '-';
-        ++formatPtr;
-        absValue = -m_data.getMoneyData().quantity;
-    } else
-        absValue = m_data.getMoneyData().quantity;
-
-    snprintf(formatPtr, sizeof(format) - 2, "%%Ld.%%0%dLd", m_data.getMoneyData().scale);
-    int64_t intValue = absValue / MoneyData::dividers[m_data.getMoneyData().scale];
-    int64_t fraction = absValue % MoneyData::dividers[m_data.getMoneyData().scale];
-    int len = snprintf(printBuffer, printBufferSize - 1, format, intValue, fraction);
-    return String(printBuffer, len);
+    stringstream output;
+    long double divider = MoneyData::dividers[m_data.getMoneyData().scale];
+    output << fixed << setprecision(m_data.getMoneyData().scale) << ((long double)m_data.getMoneyData().quantity) / divider;
+    return output.str();
 }
 
 String Field::doubleDataToString(char* printBuffer, size_t printBufferSize) const
 {
-    char formatString[10];
-    snprintf(formatString, sizeof(formatString), "%%0.%if", view.precision);
-    int len = snprintf(printBuffer, printBufferSize, formatString, m_data.getFloat());
-    return String(printBuffer, len);
+    stringstream output;
+    output << fixed << setprecision(view.precision) << m_data.getFloat();
+    return output.str();
 }
 
 void Field::toXML(xml::Node& node, bool compactXmlMode) const
@@ -207,6 +194,28 @@ TEST(SPTK_Field, move_ctor_assign)
     field3 = move(field2);
     EXPECT_EQ(field3.asInteger(), 10);
     EXPECT_EQ(field2.isNull(), true);
+}
+
+TEST(SPTK_Field, double)
+{
+    Field   field1("f1");
+
+    field1 = double(12345678.123456);
+    field1.view.precision = 3;
+
+    EXPECT_DOUBLE_EQ(field1.asFloat(), 12345678.123456);
+    EXPECT_STREQ(field1.asString().c_str(), "12345678.123");
+}
+
+TEST(SPTK_Field, money)
+{
+    MoneyData money(1234567890123456789L, 8);
+    Field   field1("f1");
+
+    field1.setMoney(money);
+
+    EXPECT_EQ(field1.asInt64(), 12345678901);
+    EXPECT_STREQ(field1.asString().c_str(), "12345678901.23456789");
 }
 
 #endif
