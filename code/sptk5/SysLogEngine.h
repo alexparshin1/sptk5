@@ -54,23 +54,6 @@ namespace sptk
  */
 class SP_EXPORT SysLogEngine: public LogEngine
 {
-#ifdef _WIN32
-    /**
-     * (Windows) The handle of the log file
-     */
-    std::atomic<HANDLE> m_logHandle {0};
-
-#endif
-
-    /**
-     * List of facilities allows to define one or more system logs where messages would be sent
-     */
-    uint32_t            m_facilities;
-
-    std::string         m_programName;
-
-    void programName(const std::string& progName);
-    void setupEventSource();
 public:
     /**
      * Stores or sends log message to actual destination
@@ -108,6 +91,22 @@ public:
      * @param facilities        Log engine facilities
      */
     void getOptions(uint32_t& options, String& programName, uint32_t& facilities) const;
+
+private:
+
+#ifdef _WIN32
+    std::atomic<HANDLE>     m_logHandle {0};        ///< The handle of the log file
+    static bool             m_registrySet;          ///< Is registry set?
+#endif
+
+    static SharedMutex      syslogMutex;
+    static std::atomic_bool m_logOpened;
+
+    uint32_t            m_facilities;               ///< List of facilities allows to define one or more system logs where messages would be sent
+    std::string         m_programName;              ///< Application name
+
+    void programName(const std::string& progName);
+    void setupEventSource();
 };
 /**
  * @}

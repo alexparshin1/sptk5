@@ -137,14 +137,6 @@ String Field::epochDataToDateTimeString() const
     return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PA_SECONDS);
 }
 
-String Field::moneyDataToString(char* printBuffer, size_t printBufferSize) const
-{
-    stringstream output;
-    long double divider = MoneyData::dividers[m_data.getMoneyData().scale];
-    output << fixed << setprecision(m_data.getMoneyData().scale) << ((long double)m_data.getMoneyData().quantity) / divider;
-    return output.str();
-}
-
 String Field::doubleDataToString(char* printBuffer, size_t printBufferSize) const
 {
     stringstream output;

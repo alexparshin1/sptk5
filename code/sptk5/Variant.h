@@ -276,7 +276,7 @@ protected:
      * @param printBufferSize   Internal print buffer size
      * @return
      */
-    String getMoneyString(char* printBuffer, size_t printBufferSize) const;
+    virtual String moneyDataToString(char* printBuffer, size_t printBufferSize) const;
 };
 
 /**

@@ -263,7 +263,6 @@ private:
     String m_displayName;   ///< Optional display field name
 
     String doubleDataToString(char* printBuffer, size_t printBufferSize) const;
-    String moneyDataToString(char* printBuffer, size_t printBufferSize) const;
     String epochDataToDateTimeString() const;
 };
 /**

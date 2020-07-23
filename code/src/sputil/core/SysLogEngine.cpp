@@ -25,37 +25,22 @@
 */
 
 #include <sptk5/SysLogEngine.h>
+#ifdef _WIN32
+#include <events.w32/event_provider.h>
+#endif
 
 using namespace std;
 using namespace sptk;
 
-static SharedMutex      syslogMutex;
-static atomic_bool      m_logOpened(false);
+SharedMutex      SysLogEngine::syslogMutex;
+atomic_bool      SysLogEngine::m_logOpened(false);
 
 #ifdef _WIN32
-#include <events.w32/event_provider.h>
-//static string   m_moduleFileName;
-static bool     m_registrySet(false);
+bool             SysLogEngine::m_registrySet(false);
 #endif
 
-/* Unix facilities
- { "auth", LOG_AUTH },
- { "authpriv", LOG_AUTHPRIV },
- { "cron", LOG_CRON },
- { "daemon", LOG_DAEMON },
- { "ftp", LOG_FTP },
- { "kern", LOG_KERN },
- { "lpr", LOG_LPR },
- { "mail", LOG_MAIL },
- { "news", LOG_NEWS },
- { "syslog", LOG_SYSLOG },
- { "user", LOG_USER },
- { "uucp", LOG_UUCP },
- */
-
 SysLogEngine::SysLogEngine(const string& _programName, uint32_t facilities)
-: LogEngine("SysLogEngine"),
-  m_facilities(facilities)
+: LogEngine("SysLogEngine"), m_facilities(facilities)
 {
     programName(_programName);
 }

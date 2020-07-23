@@ -818,7 +818,7 @@ String VariantAdaptors::asString() const
             return int2string(m_data.getInt64());
 
         case VAR_MONEY:
-            return getMoneyString(print_buffer, sizeof(print_buffer));
+            return moneyDataToString(print_buffer, sizeof(print_buffer));
 
         case VAR_FLOAT:
             return double2string(m_data.getFloat());
@@ -849,24 +849,12 @@ String VariantAdaptors::asString() const
     }
 }
 
-String BaseVariant::getMoneyString(char* printBuffer, size_t printBufferSize) const
+String BaseVariant::moneyDataToString(char* printBuffer, size_t printBufferSize) const
 {
-    char format[64];
-    int64_t absValue;
-    char* formatPtr = format;
-
-    if (m_data.getMoneyData().quantity < 0) {
-        *formatPtr = '-';
-        ++formatPtr;
-        absValue = -m_data.getMoneyData().quantity;
-    } else
-        absValue = m_data.getMoneyData().quantity;
-
-    snprintf(formatPtr, sizeof(format) - 2, "%%Ld.%%0%dLd", m_data.getMoneyData().scale);
-    int64_t intValue = absValue / MoneyData::dividers[m_data.getMoneyData().scale];
-    int64_t fraction = absValue % MoneyData::dividers[m_data.getMoneyData().scale];
-    int len = snprintf(printBuffer, printBufferSize, format, intValue, fraction);
-    return String(printBuffer, (size_t) len);
+    stringstream output;
+    long double divider = MoneyData::dividers[m_data.getMoneyData().scale];
+    output << fixed << setprecision(m_data.getMoneyData().scale) << ((long double)m_data.getMoneyData().quantity) / divider;
+    return output.str();
 }
 
 DateTime VariantAdaptors::asDate() const
