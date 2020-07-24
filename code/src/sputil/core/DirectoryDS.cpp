@@ -183,7 +183,7 @@ Strings DirectoryDS::getFileNames()
         m_directory = m_directory.substr(0, m_directory.length() - 1);
 
     for (const auto &file : directory_iterator(m_directory.c_str())) {
-        fileNames.push_back(file.path().filename().c_str());
+        fileNames.push_back(file.path().filename().string());
     }
 
 #ifdef _WIN32

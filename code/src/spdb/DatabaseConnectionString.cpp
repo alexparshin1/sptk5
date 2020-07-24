@@ -27,64 +27,39 @@
 #include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/Exception.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/net/URL.h>
 
 using namespace std;
 using namespace sptk;
 
-const RegularExpression DatabaseConnectionString::parseConnectionString(
-        "^(?<driver>sqlite3|postgres|postgresql|oracle|mysql|firebird|odbc|mssql)://"
-        "((?<username>\\S+):(?<password>\\S+)@)?"
-        "(?<host>[^:/]+)(:(?<port>\\d+))?"
-        "(/(?<database>[^/]+))?"
-        "(/(?<schema>[^/]+))?$"
-        );
-
 void DatabaseConnectionString::parse()
 {
-    m_driverName = "";
-    m_hostName = "";
-    m_portNumber = 0;
-    m_userName = "";
-    m_password = "";
-    m_databaseName = "";
-    m_schema = "";
-    m_parameters.clear();
+    static const set<string> supportedDrivers{ "sqlite3", "postgres", "postgresql", "oracle", "mysql", "firebird", "odbc", "mssql" };
 
-    if (m_connectionString.empty())
-        return;
+    URL url(m_connectionString);
 
-    size_t pos;
-    String connStr(m_connectionString);
+    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
+        throwDatabaseException("Unsupported driver: " + url.protocol());
 
-    // Find extra parameters
-    pos = connStr.find_first_of('?');
-    if (pos != string::npos) {
-        Strings parameters(connStr.substr(pos + 1),"&");
-        for (const auto& item: parameters) {
-            Strings pair(item, "='", Strings::SM_ANYCHAR);
-            if (pair.size() == 2)
-                m_parameters[ pair[0] ] = pair[1];
-        }
-        connStr.erase(pos);
-    }
-
-    auto matches = parseConnectionString.m(connStr);
-    if (!matches)
-        throwDatabaseException("Database connection string is invalid: " + m_connectionString)
-
-    m_driverName = matches["driver"].value;
-    if (m_driverName == "postgres")
+    m_driverName = url.protocol();
+    if (m_driverName == "postgres" || m_driverName == "pg")
         m_driverName = "postgresql";
 
-    m_userName = matches["username"].value;
-    m_password = matches["password"].value;
-    m_databaseName = matches["database"].value;
-    m_schema = matches["schema"].value;
-    m_hostName = matches["host"].value;
+    Strings hostAndPort(url.hostAndPort(), ":");
+    while (hostAndPort.size() < 2)
+        hostAndPort.push_back("");
+    m_hostName = hostAndPort[0];
+    m_portNumber = string2int(hostAndPort[1], 0);
+    m_userName = url.username();
+    m_password = url.password();
 
-    String port = matches["port"].value;
-    if (!port.empty())
-        m_portNumber = (uint16_t) strtol(port.c_str(), nullptr, 10);
+    Strings databaseAndSchema(url.path().c_str() + 1, "/");
+    while (databaseAndSchema.size() < 2)
+        databaseAndSchema.push_back("");
+    m_databaseName = databaseAndSchema[0];
+    m_schema = databaseAndSchema[1];
+
+    m_parameters = url.params();
 }
 
 String DatabaseConnectionString::toString() const

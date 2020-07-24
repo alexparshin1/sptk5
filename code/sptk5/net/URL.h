@@ -33,12 +33,6 @@ namespace sptk {
 
 class SP_EXPORT URL
 {
-    String      m_protocol;
-    String      m_username;
-    String      m_password;
-    String      m_hostAndPort;
-    String      m_path;
-    HttpParams  m_params;
 public:
     explicit URL(const String& url);
     URL(String protocol, String path, const HttpParams& params);
@@ -54,6 +48,14 @@ public:
     String toString () const;
 
     void path(const String& path) { m_path = path; }
+
+private:
+    String      m_protocol;
+    String      m_username;
+    String      m_password;
+    String      m_hostAndPort;
+    String      m_path;
+    HttpParams  m_params;
 };
 
 }

@@ -287,14 +287,11 @@ static void decodeTime(const DateTime::time_point& dt, short& h, short& m, short
 
     tm time = {};
 
-#ifdef _WIN32
-    if (gmt)
-        gmtime_s(&time, &tt);
-    else
-        localtime_s(&time, &tt);
-#else
     if (!gmt)
         tt += DateTime::timeZoneOffset() * 60;
+#ifdef _WIN32
+    gmtime_s(&time, &tt);
+#else
     gmtime_r(&tt, &time);
 #endif
 
@@ -508,7 +505,7 @@ static int isLeapYear(const int16_t year)
 void TimeZone::set(const String& timeZoneName)
 {
 #ifdef _WIN32
-    _putenv_s("TZ", _timeZoneName.c_str());
+    _putenv_s("TZ", timeZoneName.c_str());
 #else
     setenv("TZ", timeZoneName.c_str(), 1);
 #endif
@@ -858,6 +855,29 @@ int TimeZone::isDaylightSavingsTime() { return DateTime::isDaylightSavingsTime()
 bool DateTime::time24Mode()
 {
     return _time24Mode;
+}
+
+int DateTime::timeZoneOffset()
+{
+    return _timeZoneOffset;
+}
+
+/**
+ * Returns timezone name
+ * @return timezone name
+ */
+String DateTime::timeZoneName()
+{
+    return _timeZoneName;
+}
+
+/**
+ * Returns true if daylight savings time
+ * @return true if daylight savings time
+ */
+bool DateTime::isDaylightSavingsTime()
+{
+    return _isDaylightSavingsTime;
 }
 
 double sptk::duration2seconds(const DateTime::duration& duration)

@@ -818,7 +818,7 @@ String VariantAdaptors::asString() const
             return int2string(m_data.getInt64());
 
         case VAR_MONEY:
-            return moneyDataToString(print_buffer, sizeof(print_buffer));
+            return moneyDataToString();
 
         case VAR_FLOAT:
             return double2string(m_data.getFloat());
@@ -849,11 +849,14 @@ String VariantAdaptors::asString() const
     }
 }
 
-String BaseVariant::moneyDataToString(char* printBuffer, size_t printBufferSize) const
+String BaseVariant::moneyDataToString() const
 {
     stringstream output;
-    long double divider = MoneyData::dividers[m_data.getMoneyData().scale];
-    output << fixed << setprecision(m_data.getMoneyData().scale) << ((long double)m_data.getMoneyData().quantity) / divider;
+    auto scale = m_data.getMoneyData().scale;
+    auto divider = MoneyData::dividers[scale];
+    auto value = m_data.getMoneyData().quantity / divider;
+    auto decimal = abs(m_data.getMoneyData().quantity) % divider;
+    output << fixed << value << "." << setfill('0') << setw(scale) << decimal;
     return output.str();
 }
 

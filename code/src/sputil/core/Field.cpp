@@ -97,7 +97,7 @@ String Field::asString() const
             break;
 
         case VAR_MONEY:
-            result = moneyDataToString(print_buffer, sizeof(print_buffer));
+            result = moneyDataToString();
             break;
 
         case VAR_STRING:
@@ -201,13 +201,17 @@ TEST(SPTK_Field, double)
 
 TEST(SPTK_Field, money)
 {
-    MoneyData money(1234567890123456789L, 8);
+    MoneyData money1(1234567890123456789L, 8);
+    MoneyData money2(-1234567890100456789L, 8);
     Field   field1("f1");
 
-    field1.setMoney(money);
-
+    field1.setMoney(money1);
     EXPECT_EQ(field1.asInt64(), 12345678901);
     EXPECT_STREQ(field1.asString().c_str(), "12345678901.23456789");
+
+    field1.setMoney(money2);
+    EXPECT_EQ(field1.asInt64(), -12345678901);
+    EXPECT_STREQ(field1.asString().c_str(), "-12345678901.00456789");
 }
 
 #endif

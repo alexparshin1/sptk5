@@ -272,11 +272,9 @@ protected:
 
     /**
      * Return money data as string
-     * @param printBuffer      Internal print buffer
-     * @param printBufferSize   Internal print buffer size
      * @return
      */
-    virtual String moneyDataToString(char* printBuffer, size_t printBufferSize) const;
+    virtual String moneyDataToString() const;
 };
 
 /**

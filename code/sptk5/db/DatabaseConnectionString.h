@@ -29,7 +29,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
-#include <sptk5/RegularExpression.h>
+#include <sptk5/net/HttpParams.h>
 
 namespace sptk
 {
@@ -60,18 +60,14 @@ class SP_EXPORT DatabaseConnectionString
 public:
 
     /**
-     * Connection string parameters
-     */
-    typedef std::map<String,String> Parameters;
-
-    /**
      * Constructor
      * @param connectionString  Database connection string
      */
-    explicit DatabaseConnectionString(const String& connectionString = "") :
-        m_connectionString(connectionString)
+    explicit DatabaseConnectionString(const String& connectionString = "") 
+    : m_connectionString(connectionString)
     {
-        parse();
+        if (!m_connectionString.empty())
+            parse();
     }
 
     /**
@@ -186,7 +182,6 @@ protected:
 
 private:
 
-    static const RegularExpression parseConnectionString;
     /**
      * Database connection string
      */
@@ -225,7 +220,7 @@ private:
     /**
      * Optional parameters
      */
-    Parameters m_parameters;
+    HttpParams m_parameters;
 
     /**
      * Database driver name

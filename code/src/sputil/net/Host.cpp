@@ -94,8 +94,10 @@ Host::Host(const sockaddr_in* addressAndPort)
     }
 
 #ifdef _WIN32
-    auto* host = gethostbyaddr((const char*)m_address, addressLen, addressAndPort->sin_family);
-    m_hostname = host->h_name;
+    char hbuf[NI_MAXHOST];
+    char sbuf[NI_MAXSERV];
+    if (getnameinfo((const sockaddr*)m_address, addressLen, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), 0) == 0)
+        m_hostname = hbuf;
 #else
     char hbuf[NI_MAXHOST];
     char sbuf[NI_MAXSERV];
@@ -112,7 +114,7 @@ Host::Host(const Host& other)
 }
 
 Host::Host(Host&& other) noexcept
-: m_hostname(move(other.m_hostname)), m_port(exchange(other.m_port,0))
+: m_hostname(exchange(other.m_hostname,"")), m_port(exchange(other.m_port,0))
 {
     SharedLock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
@@ -278,16 +280,16 @@ TEST(SPTK_Host, ctorAddress)
 
 TEST(SPTK_Host, ctorAddressStruct)
 {
-    String gentooHostAndPort { "www.gentoo.org:80" };
-    Host gentoo1(gentooHostAndPort);
+    String testHostAndPort { "bitbucket.com:80" };
+    Host host1(testHostAndPort);
 
     sockaddr_in address;
-    gentoo1.getAddress(address);
-    Host gentoo2(&address);
+    host1.getAddress(address);
+    Host host2(&address);
 
-    EXPECT_STREQ(gentoo1.toString(true).c_str(), gentoo2.toString(true).c_str());
-    EXPECT_STREQ(gentooHostAndPort.c_str(), gentoo2.toString(false).c_str());
-    EXPECT_EQ(gentoo1.port(), gentoo2.port());
+    EXPECT_STREQ(host1.toString(true).c_str(), host2.toString(true).c_str());
+    EXPECT_STREQ(testHostAndPort.c_str(), host2.toString(false).c_str());
+    EXPECT_EQ(host1.port(), host2.port());
 }
 
 TEST(SPTK_Host, ctorCopy)

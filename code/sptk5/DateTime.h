@@ -291,28 +291,19 @@ public:
      * Returns timezone offset in minutes
      * @return timezone offset in minutes
      */
-    static int timeZoneOffset()
-    {
-        return _timeZoneOffset;
-    }
+    static int timeZoneOffset();
 
     /**
      * Returns timezone name
      * @return timezone name
      */
-    static String timeZoneName()
-    {
-        return _timeZoneName;
-    }
+    static String timeZoneName();
 
     /**
      * Returns true if daylight savings time
      * @return true if daylight savings time
      */
-    static bool isDaylightSavingsTime()
-    {
-        return _isDaylightSavingsTime;
-    }
+    static bool isDaylightSavingsTime();
 
     /**
      * Returns date and time as a string

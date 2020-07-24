@@ -548,13 +548,13 @@ protected:
      *
      * @param parent            Node document
      */
-    explicit Node(Node& parent)
+    explicit Node(Node& parent, bool)
     : NodeBase(parent.document())
     {
         parent.push_back(this);
     }
 
-    Node(const Node&) = default;
+    Node(const Node&) = delete;
     Node(Node&&) noexcept = default;
     Node& operator = (const Node&) = default;
     Node& operator = (Node&&) noexcept = default;
@@ -630,7 +630,7 @@ public:
      * @param tagname           Name of XML tag
      */
     NamedItem(Node& parent, const char* tagname)
-    : Node(parent)
+    : Node(parent, true)
     {
         NamedItem::name(tagname);
     }
@@ -647,7 +647,7 @@ public:
      * @param tagname           Name of XML tag
      */
     NamedItem(Node& parent, const String& tagname)
-    : Node(parent)
+    : Node(parent, true)
     {
         NamedItem::name(tagname);
     }
@@ -730,7 +730,7 @@ public:
      * Constructor
      */
     BaseTextNode(Node* parent, const char* data)
-    : Node(*parent)
+    : Node(*parent, true)
     {
         BaseTextNode::value(data);
     }

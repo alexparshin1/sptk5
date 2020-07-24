@@ -30,21 +30,52 @@
 using namespace std;
 using namespace sptk;
 
+static bool nextToken(const String& url, size_t& start, size_t end, const String& delimiter, String& value)
+{
+    value = "";
+    end = url.find(delimiter, start);
+    if (end != string::npos) {
+        value = url.substr(start, end - start);
+        start = end + delimiter.length();
+        return true;
+    }
+    return false;
+}
+
 URL::URL(const String& url)
 {
-    static const RegularExpression matchUrl(R"(^((?<protocol>[a-z]+)://)?((?<username>[\w\.\-@]+):(?<password>[^@]*)@)?(?<host>[\w\.\:]+)?(?<path>/[\w\.\:/]+)?(?<parameters>\?.*)?$)");
+    //static const RegularExpression matchUrl(R"(^((?<protocol>[a-z]+)://)?((?<username>[\w\.\-@]+):(?<password>[^@]*)@)?(?<host>[\w\.\:]+)?(?<path>/[\w\.\:/]+)?(?<parameters>\?.*)?$)");
 
-    auto matches = matchUrl.m(url.trim());
-    if (matches) {
-        m_protocol = matches["protocol"].value;
-        m_hostAndPort = matches["host"].value;
-        m_username = matches["username"].value;
-        m_password = matches["password"].value;
-        m_path = matches["path"].value;
+    size_t start = 0;
+    size_t end = 0;
+    nextToken(url, start, end, "://", m_protocol);
 
-        if (!matches["parameters"].value.empty()) {
-            Buffer buffer(matches["parameters"].value.substr(1));
+    String credentials;
+    m_username = "";
+    m_password = "";
+    m_params.clear();
+    nextToken(url, start, end, "@", credentials);
+    if (!credentials.empty()) {
+        auto pos = credentials.find(":");
+        if (pos == string::npos)
+            m_username = credentials;
+        else {
+            m_username = credentials.substr(0, pos);
+            m_password = credentials.substr(pos + 1);
+        }
+    }
+
+    Buffer buffer;
+    if (!nextToken(url, start, end, "/", m_hostAndPort))
+        m_hostAndPort = url.substr(start);
+    else {
+        --start;
+        if (nextToken(url, start, end, "?", m_path)) {
+            buffer.set(url.substr(start));
             m_params.decode(buffer);
+        }
+        else {
+            m_path = url.substr(start);
         }
     }
 }
