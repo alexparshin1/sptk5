@@ -93,7 +93,7 @@ String Field::asString() const
             break;
 
         case VAR_FLOAT:
-            result = doubleDataToString(print_buffer, sizeof(print_buffer));
+            result = doubleDataToString();
             break;
 
         case VAR_MONEY:
@@ -137,7 +137,7 @@ String Field::epochDataToDateTimeString() const
     return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PA_SECONDS);
 }
 
-String Field::doubleDataToString(char* printBuffer, size_t printBufferSize) const
+String Field::doubleDataToString() const
 {
     stringstream output;
     output << fixed << setprecision(view.precision) << m_data.getFloat();

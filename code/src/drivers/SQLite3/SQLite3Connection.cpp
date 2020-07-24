@@ -241,33 +241,33 @@ void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber) const
     for (unsigned j = 0; j < param->bindCount(); ++j) {
 
         int rc;
-        auto paramNumber = short(param->bindIndex(j) + 1);
+        auto paramBindNumber = short(param->bindIndex(j) + 1);
 
         if (param->isNull())
-            rc = sqlite3_bind_null(stmt, paramNumber);
+            rc = sqlite3_bind_null(stmt, paramBindNumber);
         else {
             switch (ptype) {
                 case VAR_BOOL:
                 case VAR_INT:
-                    rc = sqlite3_bind_int(stmt, paramNumber, param->getInteger());
+                    rc = sqlite3_bind_int(stmt, paramBindNumber, param->getInteger());
                     break;
 
                 case VAR_INT64:
-                    rc = sqlite3_bind_int64(stmt, paramNumber, param->getInt64());
+                    rc = sqlite3_bind_int64(stmt, paramBindNumber, param->getInt64());
                     break;
 
                 case VAR_FLOAT:
-                    rc = sqlite3_bind_double(stmt, paramNumber, param->getFloat());
+                    rc = sqlite3_bind_double(stmt, paramBindNumber, param->getFloat());
                     break;
 
                 case VAR_STRING:
                 case VAR_TEXT:
-                    rc = sqlite3_bind_text(stmt, paramNumber, param->getString(), int(param->dataSize()),
+                    rc = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
                                            (sqlite3cb) SQLITE_STATIC);
                     break;
 
                 case VAR_BUFFER:
-                    rc = sqlite3_bind_blob(stmt, paramNumber, param->getString(), int(param->dataSize()),
+                    rc = sqlite3_bind_blob(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
                                            (sqlite3cb) SQLITE_STATIC);
                     break;
 
@@ -276,7 +276,7 @@ void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber) const
 
                 default:
                     throw DatabaseException(
-                            "Unsupported type of parameter " + int2string(paramNumber), __FILE__, __LINE__,
+                            "Unsupported type of parameter " + int2string(paramBindNumber), __FILE__, __LINE__,
                             query->sql());
             }
         }
@@ -284,7 +284,7 @@ void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber) const
         if (rc != SQLITE_OK) {
             string error = sqlite3_errmsg(m_connect);
             throw DatabaseException(
-                    error + ", in binding parameter " + int2string(paramNumber), __FILE__, __LINE__,
+                    error + ", in binding parameter " + int2string(paramBindNumber), __FILE__, __LINE__,
                     query->sql());
         }
     }

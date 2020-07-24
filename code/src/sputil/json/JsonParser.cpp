@@ -61,7 +61,7 @@ namespace sptk {
         if (int(position) + afterTextLength > jsonLength)
             afterTextLength = jsonLength - position;
         if (afterTextLength > 0) {
-            error << String(position + 1, afterTextLength);
+            error << String(json + position + 1, afterTextLength);
         }
         error << "'";
     }

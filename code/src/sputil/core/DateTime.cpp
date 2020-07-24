@@ -101,12 +101,11 @@ char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
 {
     char separator = ' ';
 
-    const char* ptr = dateOrTime.c_str();
     // find a separator char
     size_t separatorPos = dateOrTime.find_first_not_of("0123456789 ");
     separator = dateOrTime[separatorPos];
 
-    ptr = dateOrTime.c_str();
+    const auto* ptr = dateOrTime.c_str();
 
     format.clear();
 
@@ -419,7 +418,7 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
                 default:
                     break;
             }
-            p = strpbrk(p + 1, "Z+-");;
+            p = strpbrk(p + 1, "Z+-");
         }
         tzOffsetMin += TimeZone::offset();
     }
@@ -886,22 +885,6 @@ TEST(SPTK_DateTime, ctor2)
 
 TEST(SPTK_DateTime, isoTimeString)
 {
-    tm tt {};
-    tt.tm_year = 118;
-    tt.tm_mon = 0;
-    tt.tm_mday = 1;
-    tt.tm_hour = 11;
-    tt.tm_min = 22;
-    tt.tm_sec = 33;
-    tt.tm_isdst = -1;
-
-    time_t t = mktime(&tt);
-
-    localtime_r(&t, &tt);
-
-    const auto* st = localtime(&t);
-    COUT(asctime(st) << endl)
-
     String input("2018-01-01T11:22:33");
     DateTime dateTime1(input.c_str());
     COUT((String)dateTime1 << endl)

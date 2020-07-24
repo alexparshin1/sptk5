@@ -26,6 +26,7 @@
 
 #include <string>
 #include <sys/stat.h>
+#include <filesystem>
 
 #include <sptk5/DirectoryDS.h>
 #include <sptk5/filedefs.h>
@@ -46,6 +47,7 @@ const char slash = '/';
 
 using namespace std;
 using namespace sptk;
+using namespace filesystem;
 
 string DirectoryDS::getFileType(const struct stat& st, CSmallPixmapType& image, const char* fname) const
 {
@@ -179,6 +181,10 @@ Strings DirectoryDS::getFileNames()
 
     if (m_directory.endsWith("\\") || m_directory.endsWith("/"))
         m_directory = m_directory.substr(0, m_directory.length() - 1);
+
+    for (const auto &file : directory_iterator(m_directory.c_str())) {
+        fileNames.push_back(file.path().filename().c_str());
+    }
 
 #ifdef _WIN32
     //open a directory the WIN32 way

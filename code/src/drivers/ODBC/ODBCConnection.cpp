@@ -335,7 +335,7 @@ static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
     return false;
 }
 
-void ODBCConnection::queryBindParameter(Query* query, QueryParameter* param)
+void ODBCConnection::queryBindParameter(Query* query, QueryParameter* param) const
 {
     static SQLLEN cbNullValue = SQL_NULL_DATA;
     int rc;

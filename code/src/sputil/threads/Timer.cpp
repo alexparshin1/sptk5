@@ -295,18 +295,26 @@ TEST(SPTK_Timer, repeat)
     EXPECT_EQ(0, eventAllocations);
 }
 
+const int MAX_EVENT_COUNTER = 10;
+const int MAX_TIMERS = 10;
 
-#define MAX_EVENT_COUNTER (10)
-#define MAX_TIMERS        (10)
-static mutex            eventCounterMutex;
-static vector<size_t>   eventCounter(MAX_EVENT_COUNTER);
-static vector<size_t>   eventData(MAX_EVENT_COUNTER);
+class TimerTestData
+{
+public:
+    static mutex            eventCounterMutex;
+    static vector<size_t>   eventCounter;
+    static vector<size_t>   eventData;
+};
+
+mutex          TimerTestData::eventCounterMutex;
+vector<size_t> TimerTestData::eventCounter(MAX_EVENT_COUNTER);
+vector<size_t> TimerTestData::eventData(MAX_EVENT_COUNTER);
 
 static void gtestTimerCallback2(void* theEventData)
 {
-    lock_guard<mutex> lock(eventCounterMutex);
+    lock_guard<mutex> lock(TimerTestData::eventCounterMutex);
     size_t eventIndex = size_t(theEventData);
-    ++eventCounter[eventIndex];
+    ++TimerTestData::eventCounter[eventIndex];
 }
 
 TEST(SPTK_Timer, fireOnce)
@@ -358,7 +366,7 @@ TEST(SPTK_Timer, repeatMultipleEvents)
 
         vector<Timer::Event> createdEvents;
         for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex) {
-            eventData[eventIndex] = eventIndex;
+            TimerTestData::eventData[eventIndex] = eventIndex;
             function<void()> callback = bind(gtestTimerCallback2, (void*)eventIndex);
             Timer::Event event = timer.repeat(milliseconds(20), callback);
             createdEvents.push_back(event);
@@ -375,8 +383,8 @@ TEST(SPTK_Timer, repeatMultipleEvents)
 
         int totalEvents(0);
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex) {
-            lock_guard<mutex> lock(eventCounterMutex);
-            totalEvents += eventCounter[eventIndex];
+            lock_guard<mutex> lock(TimerTestData::eventCounterMutex);
+            totalEvents += TimerTestData::eventCounter[eventIndex];
         }
 
         EXPECT_NEAR(MAX_EVENT_COUNTER * 5, totalEvents, 10);
@@ -390,9 +398,9 @@ TEST(SPTK_Timer, repeatMultipleTimers)
     vector<Timer> timers(MAX_TIMERS);
 
     if (!timers.empty()) {
-        lock_guard<mutex> lock(eventCounterMutex);
-        eventCounter.clear();
-        eventCounter.resize(MAX_EVENT_COUNTER);
+        lock_guard<mutex> lock(TimerTestData::eventCounterMutex);
+        TimerTestData::eventCounter.clear();
+        TimerTestData::eventCounter.resize(MAX_EVENT_COUNTER);
     }
 
     for (auto& timer: timers) {
@@ -409,8 +417,8 @@ TEST(SPTK_Timer, repeatMultipleTimers)
 
     int totalEvents(0);
     if (!timers.empty()) {
-        lock_guard<mutex> lock(eventCounterMutex);
-        for (auto counter: eventCounter)
+        lock_guard<mutex> lock(TimerTestData::eventCounterMutex);
+        for (auto counter: TimerTestData::eventCounter)
             totalEvents += counter;
     }
 

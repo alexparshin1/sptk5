@@ -544,7 +544,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
         throwMySQLError();
 }
 
-bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* field, size_t fieldIndex, uint32_t dataLength)
+bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* field, size_t fieldIndex, uint32_t dataLength) const
 {
     bool fieldSizeChanged = false;
     if (bind.buffer_length < dataLength) {

@@ -262,7 +262,7 @@ private:
     String m_name;          ///< Field name
     String m_displayName;   ///< Optional display field name
 
-    String doubleDataToString(char* printBuffer, size_t printBufferSize) const;
+    String doubleDataToString() const;
     String epochDataToDateTimeString() const;
 };
 /**
