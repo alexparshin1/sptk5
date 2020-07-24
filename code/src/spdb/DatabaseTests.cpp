@@ -437,11 +437,15 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     transaction.commit();
     DateTime ended2("now");
 
-    auto durationMS1 = duration_cast<milliseconds>(ended1 - started1).count();
-    COUT("Bulk Insert:    " << setw(10) << durationMS1 << " ms, " << setprecision(1) << fixed << data.size() * 1000.0 / durationMS1 << " rec/sec" << endl)
-
     auto durationMS2 = duration_cast<milliseconds>(ended2 - started2).count();
-    COUT("Regular Insert: " << setw(10) << durationMS2 << " ms, " << setprecision(1) << fixed << data.size() * 1000.0 / durationMS2 << " rec/sec" << endl)
+    COUT(left << setw(25) << connectionString.driverName() + " insert:"
+        << right << setw(4) << durationMS2 << " ms, "
+        << setprecision(1) << fixed << setw(8) << data.size() * 1000.0 / durationMS2 << " rec/sec" << endl)
+
+    auto durationMS1 = duration_cast<milliseconds>(ended1 - started1).count();
+    COUT(left << setw(25) << connectionString.driverName() + " bulk insert:"
+        << right << setw(4) << durationMS1 << " ms, "
+        << setprecision(1) << fixed << setw(8) << data.size() * 1000.0 / durationMS1 << " rec/sec" << endl)
 }
 
 void DatabaseTests::testSelect(const DatabaseConnectionString& connectionString)

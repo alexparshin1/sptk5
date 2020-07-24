@@ -423,93 +423,37 @@ TEST(SPTK_MySQLConnection, select)
 
 TEST(SPTK_OracleConnection, connect)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("oracle");
-    if (connectionString.empty())
-        FAIL() << "Oracle connection is not defined";
-    try {
-        DatabaseTests::testConnect(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testConnect("Oracle");
 }
 
 TEST(SPTK_OracleConnection, DDL)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("oracle");
-    if (connectionString.empty())
-        FAIL() << "Oracle connection is not defined";
-    try {
-        DatabaseTests::testDDL(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testDDL("Oracle");
 }
 
 TEST(SPTK_OracleConnection, bulkInsert)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("oracle");
-    if (connectionString.empty())
-        FAIL() << "Oracle connection is not defined";
-    try {
-        DatabaseTests::testBulkInsert(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testBulkInsert("Oracle");
 }
 
 TEST(SPTK_OracleConnection, bulkInsertPerformance)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("oracle");
-    if (connectionString.empty())
-        FAIL() << "Oracle connection is not defined";
-    try {
-        DatabaseTests::testBulkInsertPerformance(connectionString, 1024);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testBulkInsertPerformance("Oracle");
 }
 
 TEST(SPTK_OracleConnection, queryParameters)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("oracle");
-    if (connectionString.empty())
-        FAIL() << "Oracle connection is not defined";
-    try {
-        DatabaseTests::testQueryParameters(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testQueryParameters("Oracle");
 }
 
 TEST(SPTK_OracleConnection, transaction)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("oracle");
-    if (connectionString.empty())
-        FAIL() << "Oracle connection is not defined";
-    try {
-        DatabaseTests::testTransaction(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testTransaction("Oracle");
 }
 
 TEST(SPTK_OracleConnection, select)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("oracle");
-    if (connectionString.empty())
-        FAIL() << "Oralce connection is not defined";
-    try {
-        DatabaseTests::testSelect(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testSelect("Oracle");
 }
 
 #endif
@@ -519,93 +463,37 @@ TEST(SPTK_OracleConnection, select)
 
 TEST(SPTK_MSSQLConnection, connect)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mssql");
-    if (connectionString.empty())
-        FAIL() << "MSSQL connection is not defined";
-    try {
-        DatabaseTests::testConnect(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testConnect("MSSQL");
 }
 
 TEST(SPTK_MSSQLConnection, DDL)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mssql");
-    if (connectionString.empty())
-        FAIL() << "MSSQL connection is not defined";
-    try {
-        DatabaseTests::testDDL(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testDDL("MSSQL");
 }
 
 TEST(SPTK_MSSQLConnection, bulkInsert)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mssql");
-    if (connectionString.empty())
-        FAIL() << "MSSQL connection is not defined";
-    try {
-        DatabaseTests::testBulkInsert(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testBulkInsert("MSSQL");
 }
 
 TEST(SPTK_MSSQLConnection, bulkInsertPerformance)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mssql");
-    if (connectionString.empty())
-        FAIL() << "MSSQL connection is not defined";
-    try {
-        DatabaseTests::testBulkInsertPerformance(connectionString, 1024);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testBulkInsertPerformance("MSSQL");
 }
 
 TEST(SPTK_MSSQLConnection, queryParameters)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mssql");
-    if (connectionString.empty())
-        FAIL() << "MSSQL connection is not defined";
-    try {
-        DatabaseTests::testQueryParameters(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testQueryParameters("MSSQL");
 }
 
 TEST(SPTK_MSSQLConnection, transaction)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mssql");
-    if (connectionString.empty())
-        FAIL() << "MSSQL connection is not defined";
-    try {
-        DatabaseTests::testTransaction(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testTransaction("MSSQL");
 }
 
 TEST(SPTK_MSSQLConnection, select)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mssql");
-    if (connectionString.empty())
-        FAIL() << "MSSQL connection is not defined";
-    try {
-        DatabaseTests::testSelect(connectionString);
-    }
-    catch (const Exception& e) {
-        FAIL() << connectionString.toString() << ": " << e.what();
-    }
+    testSelect("MSSQL");
 }
 
 #endif
