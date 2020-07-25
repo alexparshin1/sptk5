@@ -55,7 +55,7 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
 {
     struct stat st;
 
-    stat(file.path().c_str(), &st);
+    stat(file.path().string().c_str(), &st);
 
     String ext = file.path().extension().string();
     modificationTime = DateTime::convertCTime(st.st_mtime);
