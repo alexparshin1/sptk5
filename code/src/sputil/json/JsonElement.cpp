@@ -421,8 +421,10 @@ void ElementData::selectObjectElements(ElementSet& elements, const ElementData::
 
 void ElementData::appendMatchedElement(ElementSet& elements, const ElementData::XPathElement& xpathElement, json::Element* element)
 {
-    if (element->type() != JDT_ARRAY)
+    if (element->type() != JDT_ARRAY) {
         elements.push_back(element);
+        return;
+    }
 
     ArrayData& arrayData = element->getArray();
     if (!arrayData.empty()) {
