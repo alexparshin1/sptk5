@@ -38,7 +38,8 @@ using namespace chrono;
 // OpenSSL library initialization
 class CSSLLibraryLoader
 {
-    static std::mutex*  m_locks;
+    static std::mutex*          m_locks;
+    static CSSLLibraryLoader    m_loader;
 
     static void load_library()
     {
@@ -114,9 +115,8 @@ public:
     }
 };
 
-mutex* CSSLLibraryLoader::m_locks;
-
-static CSSLLibraryLoader loader;
+mutex*              CSSLLibraryLoader::m_locks;
+CSSLLibraryLoader   CSSLLibraryLoader::m_loader;
 
 void SSLSocket::throwSSLError(const String& function, int rc) const
 {

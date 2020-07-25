@@ -374,61 +374,71 @@ void ElementData::selectElements(ElementSet& elements, const XPath& xpath, size_
     bool matchAnyElement = xpathElement.name == String("*", 1);
     bool lastPosition = xpath.size() == xpathPosition + 1;
 
-    if (is(JDT_ARRAY)) {
-        for (Element* element: *data().get_array()) {
-            // Continue to match children
-            element->selectElements(elements, xpath, xpathPosition, false);
-        }
-    } else if (is(JDT_OBJECT)) {
-        if (!matchAnyElement) {
-            Element* element = find(xpathElement.name);
-            if (element) {
-                if (lastPosition) {
-                    // Full xpath match
-                    appendMatchedElement(elements, xpathElement, element);
-                } else {
-                    // Continue to match children
-                    element->selectElements(elements, xpath, xpathPosition + 1, false);
-                }
-            }
-        } else {
-            for (auto& itor: *data().get_object()) {
-                if (lastPosition) {
-                    // Full xpath match
-                    auto* element = itor.element();
-                    appendMatchedElement(elements, xpathElement, element);
-                } else {
-                    // Continue to match children
-                    itor.element()->selectElements(elements, xpath, xpathPosition + 1, false);
-                }
-            }
-        }
+    if (is(JDT_ARRAY))
+        selectArrayElements(elements, xpath, xpathPosition);
+    else if (is(JDT_OBJECT))
+        selectObjectElements(elements, xpath, xpathPosition, rootOnly, xpathElement, matchAnyElement, lastPosition);
+}
 
-        selectChildElements(elements, xpath, rootOnly);
+void ElementData::selectArrayElements(ElementSet& elements, const ElementData::XPath& xpath, size_t xpathPosition)
+{
+    for (Element* element: *data().get_array()) {
+        // Continue to match children
+        element->selectElements(elements, xpath, xpathPosition, false);
     }
+}
+
+void ElementData::selectObjectElements(ElementSet& elements, const ElementData::XPath& xpath, size_t xpathPosition,
+                                       bool rootOnly, const ElementData::XPathElement& xpathElement,
+                                       bool matchAnyElement, bool lastPosition)
+{
+    if (!matchAnyElement) {
+        Element* element = find(xpathElement.name);
+        if (element) {
+            if (lastPosition) {
+                // Full xpath match
+                appendMatchedElement(elements, xpathElement, element);
+            } else {
+                // Continue to match children
+                element->selectElements(elements, xpath, xpathPosition + 1, false);
+            }
+        }
+    } else {
+        for (auto& itor: *data().get_object()) {
+            if (lastPosition) {
+                // Full xpath match
+                auto* element = itor.element();
+                appendMatchedElement(elements, xpathElement, element);
+            } else {
+                // Continue to match children
+                itor.element()->selectElements(elements, xpath, xpathPosition + 1, false);
+            }
+        }
+    }
+
+    selectChildElements(elements, xpath, rootOnly);
 }
 
 void ElementData::appendMatchedElement(ElementSet& elements, const ElementData::XPathElement& xpathElement, json::Element* element)
 {
-    if (element->type() == JDT_ARRAY) {
-        ArrayData& arrayData = element->getArray();
-        if (!arrayData.empty()) {
-            switch (xpathElement.index) {
-                case 0:
-                    for (auto* item: arrayData)
-                        elements.push_back(item);
-                    break;
-                case -1:
-                    elements.push_back(&arrayData[arrayData.size() - 1]);
-                    break;
-                default:
-                    elements.push_back(&arrayData[size_t(xpathElement.index) - 1]);
-                    break;
-            }
+    if (element->type() != JDT_ARRAY)
+        elements.push_back(element);
+
+    ArrayData& arrayData = element->getArray();
+    if (!arrayData.empty()) {
+        switch (xpathElement.index) {
+            case 0:
+                for (auto* item: arrayData)
+                    elements.push_back(item);
+                break;
+            case -1:
+                elements.push_back(&arrayData[arrayData.size() - 1]);
+                break;
+            default:
+                elements.push_back(&arrayData[size_t(xpathElement.index) - 1]);
+                break;
         }
     }
-    else
-        elements.push_back(element);
 }
 
 void ElementData::remove(const String& name)

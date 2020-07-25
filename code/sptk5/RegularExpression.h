@@ -399,6 +399,8 @@ private:
      */
     size_t findNextPlaceholder(size_t pos, const String& outputPattern) const;
 
+    void extractNamedMatches(const String& text, Groups& matchedStrings, const MatchData& matchData,
+                             size_t matchCount) const;
 };
 
 typedef std::shared_ptr<RegularExpression> SRegularExpression;

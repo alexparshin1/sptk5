@@ -388,6 +388,10 @@ private:
     Element*    m_parent {nullptr};     ///< Parent JSON element
     Type        m_type {JDT_NULL};      ///< JSON element type
     Data        m_data;                 ///< JSON element data
+    void selectArrayElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition);
+
+    void selectObjectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly,
+                              const XPathElement& xpathElement, bool matchAnyElement, bool lastPosition);
 };
 
 /**

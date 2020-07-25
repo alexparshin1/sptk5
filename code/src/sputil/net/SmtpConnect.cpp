@@ -52,14 +52,10 @@ int SmtpConnect::getResponse(bool decode)
     while (!readCompleted) {
         size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
         longLine = readBuffer;
-        if (m_log != nullptr)
-            m_log->debug("[RECV] " + string(readBuffer));
         if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n') {
             do {
                 len = readLine(readBuffer, RSP_BLOCK_SIZE);
                 longLine += readBuffer;
-                if (m_log != nullptr)
-                    m_log->debug("[RECV] " + string(readBuffer));
             }
             while (len == RSP_BLOCK_SIZE);
         }

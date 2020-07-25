@@ -34,7 +34,7 @@
 using namespace std;
 using namespace sptk;
 
-static int s_server_session_id_context = 1;
+int SSLContext::s_server_session_id_context = 1;
 
 void SSLContext::throwError(const String& humanDescription)
 {

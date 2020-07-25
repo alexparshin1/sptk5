@@ -61,6 +61,15 @@ void TCPSocketReader::close() noexcept
 	}
 }
 
+void TCPSocketReader::handleReadFromSocketError(int error)
+{
+    if (error == EAGAIN) {
+        if (!m_socket.readyToRead(chrono::seconds(1)))
+            throw TimeoutException("Can't read from socket: timeout");
+    } else
+        throw SystemException("Can't read from socket");
+}
+
 int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
 {
     m_readOffset = 0;
@@ -81,13 +90,9 @@ int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
         if (receivedBytes == -1) {
             bytes(0);
             error = errno;
-            if (error == EAGAIN) {
-                if (!m_socket.readyToRead(chrono::seconds(1)))
-                    throw TimeoutException("Can't read from socket: timeout");
-            } else
-                throw SystemException("Can't read from socket");
-        }
-        bytes((size_t)receivedBytes);
+            handleReadFromSocketError(error);
+        } else
+            bytes((size_t)receivedBytes);
     } while (error == EAGAIN);
 
     data()[bytes()] = 0;

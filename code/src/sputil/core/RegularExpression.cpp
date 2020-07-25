@@ -338,33 +338,38 @@ RegularExpression::Groups RegularExpression::m(const String& text) const
                 matchedStrings.add(Group());
         }
 
-        if (first) {
-            int nameCount = (int) getNamedGroupCount();
-            if (nameCount > 0) {
-                const char* nameTable;
-                int nameEntrySize;
-                getNameTable(nameTable, nameEntrySize);
-                auto* tabptr = nameTable;
-                for (int i = 0; i < nameCount; ++i) {
-                    size_t n = size_t( (tabptr[0] << 8) | tabptr[1] );
-                    String name(tabptr + 2, nameEntrySize - 3);
-                    const auto& match = matchData.matches[n];
-                    if (match.m_start >= 0 && n < matchCount) {
-                        String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
-                        matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
-                    } else {
-                        matchedStrings.add(name.c_str(), Group());
-                    }
-                    tabptr += nameEntrySize;
-                }
-            }
-        }
+        if (first)
+            extractNamedMatches(text, matchedStrings, matchData, matchCount);
 
         first = false;
 
     } while (m_global && offset < text.length());
 
     return matchedStrings;
+}
+
+void RegularExpression::extractNamedMatches(const String& text, RegularExpression::Groups& matchedStrings,
+                                            const MatchData& matchData, size_t matchCount) const
+{
+    int nameCount = (int) getNamedGroupCount();
+    if (nameCount > 0) {
+        const char* nameTable;
+        int nameEntrySize;
+        getNameTable(nameTable, nameEntrySize);
+        auto* tabptr = nameTable;
+        for (int i = 0; i < nameCount; ++i) {
+            size_t n = size_t( (tabptr[0] << 8) | tabptr[1] );
+            String name(tabptr + 2, nameEntrySize - 3);
+            const auto& match = matchData.matches[n];
+            if (match.m_start >= 0 && n < matchCount) {
+                String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
+                matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
+            } else {
+                matchedStrings.add(name.c_str(), Group());
+            }
+            tabptr += nameEntrySize;
+        }
+    }
 }
 
 void RegularExpression::getNameTable(const char*& nameTable, int& nameEntrySize) const

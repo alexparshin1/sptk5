@@ -47,15 +47,9 @@ namespace sptk {
  */
 class SSLContext : public SharedMutex
 {
-    /**
-     * SSL connection context
-     */
-    SSL_CTX*        m_ctx;
-
-    /**
-     * Password for auto-answer in callback function
-     */
-    String          m_password;
+    SSL_CTX*        m_ctx;                          ///< SSL connection context
+    String          m_password;                     ///< Password for auto-answer in callback function
+    static int      s_server_session_id_context;
 
     /**
      * Password auto-reply callback function

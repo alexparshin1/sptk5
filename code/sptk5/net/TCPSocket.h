@@ -134,7 +134,7 @@ private:
      */
     uint32_t        m_readOffset {0};
 
-    int32_t readFromSocket(sockaddr_in* from);
+    [[nodiscard]] int32_t readFromSocket(sockaddr_in* from);
 
     /**
      * Performs buffered read
@@ -147,7 +147,9 @@ private:
      * @param from              An optional structure for source address
      * @returns number of bytes read
      */
-    int32_t bufferedRead(char *destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = nullptr);
+    [[nodiscard]] int32_t bufferedRead(char *destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = nullptr);
+
+    void handleReadFromSocketError(int error);
 };
 
 /**

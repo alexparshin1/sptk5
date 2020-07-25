@@ -29,8 +29,10 @@
 #include <filesystem>
 
 #include <sptk5/DirectoryDS.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/filedefs.h>
 #include <sptk5/SystemException.h>
+#include <sptk5/Printer.h>
 
 #define CASE_INSENSITIVE 1
 
@@ -49,17 +51,28 @@ using namespace std;
 using namespace sptk;
 using namespace filesystem;
 
-string DirectoryDS::getFileType(const struct stat& st, CSmallPixmapType& image, const char* fname) const
+String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime) const
 {
+    struct stat st;
+
+    stat(file.path().c_str(), &st);
+
+    String ext = file.path().extension().string();
+    modificationTime = DateTime::convertCTime(st.st_mtime);
+#ifndef _WIN32
     bool executable = S_ISEXEC(st.st_mode);
-    bool directory = false;
+#else
+    ext = ext.toLowerCase();
+    bool executable = ext == "exe" || ext == "bat";
+#endif
+
+    bool directory = file.is_directory();
     image = SXPM_DOCUMENT;
 
     string modeName;
-    if (S_ISDIR(st.st_mode)) {
+    if (directory) {
         modeName = "Directory";
         executable = false;
-        directory = true;
         image = SXPM_FOLDER;
     } else if (S_ISREG(st.st_mode)) {
         if (executable)
@@ -72,19 +85,15 @@ string DirectoryDS::getFileType(const struct stat& st, CSmallPixmapType& image, 
         image = SXPM_EXECUTABLE;
     } else {
         if (!directory) {
-            const char* ext = strrchr(fname, '.');
-            const char* sep = strrchr(fname, slash);
-            if (ext && ext > sep) {
-                ++ext;
+            if (!ext.empty())
                 image = imageTypeFromExtention(ext);
-            }
         }
     }
 
     return modeName;
 }
 
-CSmallPixmapType DirectoryDS::imageTypeFromExtention(const char* ext) const
+CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext) const
 {
     static const map<String,CSmallPixmapType> imageTypes
     {
@@ -175,57 +184,35 @@ static bool fileMatchesPattern(const String& fileName, const vector<SRegularExpr
     return false;
 }
 
-void DirectoryDS::getFilesInfo()
+bool DirectoryDS::open()
 {
+    size_t index = 0;
+
     if (m_directory.endsWith("\\") || m_directory.endsWith("/"))
         m_directory = m_directory.substr(0, m_directory.length() - 1);
 
     clear();
+
+    if ((showPolicy() & DDS_HIDE_DOT_FILES) == 0) {
+        for (String dirName: { ".", ".." }) {
+            auto* df = new FieldList(false);
+            df->push_back(" ", false).setImageNdx(SXPM_FOLDER);
+            df->push_back("Name", false) = dirName;
+            df->push_back("Size", false) = "";
+            df->push_back("Type", false) = "Directory";
+            push_back(df);
+            index++;
+        }
+    }
+
     for (const auto &file : directory_iterator(m_directory.c_str())) {
-        FieldList* row = makeFileListEntry(file);
 
-        push_back(row);
-    }
-}
-
-static void getFileInfo(const String& filename, struct stat& st, bool& is_link)
-{
-    if (lstat(filename.c_str(), &st) != 0)
-        throw SystemException("Can't access file '" + filename + "'");
-
-#ifndef _WIN32
-    if ((st.st_mode & S_IFLNK) == S_IFLNK) {
-        is_link = true;
-        if (stat(filename.c_str(), &st) != 0)
-            throw SystemException("Can't get file info");
-    }
-#endif
-}
-
-bool DirectoryDS::open()
-{
-    clear();
-
-    vector<FieldList*>  fileList;
-    Strings             fileNames = getFilesInfo();
-    unsigned            index = 0;
-
-    for (auto& fileName: fileNames) {
-
-        if (fileName.endsWith("\\") || fileName.endsWith("/"))
-            fileName = fileName.substr(0, fileName.length() - 1);
+        String fileName = file.path().filename().string();
 
         if ((showPolicy() & DDS_HIDE_DOT_FILES) && fileName[0] == '.')
             continue;
 
-        struct stat st = {};
-        bool is_link = false;
-
-        String fullName = m_directory + "/" + fileName;
-        getFileInfo(fullName, st, is_link);
-
-        bool is_dir = S_ISDIR(st.st_mode);
-        if (!is_dir) {
+        if (!file.is_directory()) {
             if ((showPolicy() & DDS_HIDE_FILES) == DDS_HIDE_FILES)
                 continue;
             if (!m_patterns.empty() && !fileMatchesPattern(fileName, m_patterns))
@@ -235,47 +222,37 @@ bool DirectoryDS::open()
                 continue;
         }
 
-        FieldList* df = makeFileListEntry(st, index, fileName, fullName, is_link);
-
-        if (is_dir)
-            push_back(df);
-        else
-            fileList.push_back(df);
-
+        push_back(makeFileListEntry(file, index));
     }
-
-    for (auto* df: fileList)
-        push_back(df);
-    fileList.clear();
 
     first();
 
     return !empty();
 }
 
-FieldList* DirectoryDS::makeFileListEntry(const directory_entry& file) const
+FieldList* DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index) const
 {
     CSmallPixmapType pixmapType;
-    String modeName = getFileType(st, pixmapType, fileName.c_str());
+    DateTime         modificationTime;
+    String           modeName = getFileType(file, pixmapType, modificationTime);
 
-    if (file.is_symlink()) {
-        modeName += ' ';
-        modeName += "symlink";
-    }
+    if (file.is_symlink())
+        modeName += " symlink";
 
     auto* df = new FieldList(false);
     df->push_back(" ", false).setImageNdx(pixmapType);
-    df->push_back("Name", false) = fileName;
+    df->push_back("Name", false) = file.path().filename().string();
     if (modeName == "Directory")
         df->push_back("Size", false) = "";
     else
-        df->push_back("Size", false) = (int32_t) st.st_size;
+        df->push_back("Size", false) = (int64_t) file.file_size();
     df->push_back("Type", false) = modeName;
-    df->push_back("Modified", false) = DateTime::convertCTime(st.st_mtime);
+
+    df->push_back("Modified", false) = modificationTime;
     df->push_back("", false) = (int32_t) index; // Fake key value
     ++index;
 
-    if (access(fullName.c_str(), R_OK) != 0) {
+    if (access(file.path().filename().string().c_str(), R_OK) != 0) {
         (*df)[uint32_t(0)].view.flags = FL_ALIGN_LEFT;
         (*df)[uint32_t(1)].view.flags = FL_ALIGN_LEFT;
     }

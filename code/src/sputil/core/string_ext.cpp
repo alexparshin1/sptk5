@@ -213,27 +213,25 @@ static void lowerCaseWord(const char* current, char* wordStart)
 
 String sptk::capitalizeWords(const String& s)
 {
+    if (s.empty())
+        return s;
+
     Buffer buffer(s);
-    auto* current = buffer.data();
+    ;
     char* wordStart = nullptr;
 
-    if (*current != char(0)) {
-        for (;;) {
-            if (isalnum(*current) != 0) {
-                if (wordStart == nullptr)
-                    wordStart = current;
-            } else {
-                if (current - wordStart > 3)
-                    capitalizeWord(current, wordStart);
-                else
-                    lowerCaseWord(current, wordStart);
-                wordStart = nullptr;
-            }
-
+    for (auto* current = buffer.data(); ; ++current) {
+        if (isalnum(*current) != 0) {
+            if (wordStart == nullptr)
+                wordStart = current;
+        } else {
+            if (current - wordStart > 3)
+                capitalizeWord(current, wordStart);
+            else
+                lowerCaseWord(current, wordStart);
+            wordStart = nullptr;
             if (*current == char(0))
                 break;
-
-            ++current;
         }
     }
 
@@ -248,6 +246,12 @@ TEST(SPTK_string_ext, to_string)
     EXPECT_DOUBLE_EQ(2.22, string2double("2.22"));
     EXPECT_STREQ("2.22", double2string(2.22).c_str());
     EXPECT_STREQ("This is a Short Text", capitalizeWords("THIS IS a short text").c_str());
+}
+
+TEST(SPTK_string_ext, capitalizeWords)
+{
+    auto capitalized = capitalizeWords("tHis is  :-  a STrinG");
+    EXPECT_STREQ("This is  :-  a String", capitalized.c_str());
 }
 
 #endif
