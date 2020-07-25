@@ -145,6 +145,20 @@ TEST(SPTK_DatabaseConnectionString, ctorFull)
     EXPECT_STREQ("free", simple.parameter("mode").c_str());
 }
 
+TEST(SPTK_DatabaseConnectionString, ctorCopy)
+{
+    DatabaseConnectionString source("postgres://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
+    DatabaseConnectionString simple(source);
+    EXPECT_STREQ("auser", simple.userName().c_str());
+    EXPECT_STREQ("apassword", simple.password().c_str());
+    EXPECT_STREQ("localhost", simple.hostName().c_str());
+    EXPECT_EQ(5432, simple.portNumber());
+    EXPECT_STREQ("dbname", simple.databaseName().c_str());
+    EXPECT_STREQ("main", simple.schema().c_str());
+    EXPECT_STREQ("UTF8", simple.parameter("encoding").c_str());
+    EXPECT_STREQ("free", simple.parameter("mode").c_str());
+}
+
 TEST(SPTK_DatabaseConnectionString, toString)
 {
     String connectionString("postgresql://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");

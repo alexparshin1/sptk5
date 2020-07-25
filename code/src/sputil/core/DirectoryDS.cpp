@@ -175,50 +175,17 @@ static bool fileMatchesPattern(const String& fileName, const vector<SRegularExpr
     return false;
 }
 
-Strings DirectoryDS::getFileNames()
+void DirectoryDS::getFilesInfo()
 {
-    Strings fileNames;
-
     if (m_directory.endsWith("\\") || m_directory.endsWith("/"))
         m_directory = m_directory.substr(0, m_directory.length() - 1);
 
+    clear();
     for (const auto &file : directory_iterator(m_directory.c_str())) {
-        fileNames.push_back(file.path().filename().string());
+        FieldList* row = makeFileListEntry(file);
+
+        push_back(row);
     }
-
-#ifdef _WIN32
-    //open a directory the WIN32 way
-	HANDLE hFind = INVALID_HANDLE_VALUE;
-	WIN32_FIND_DATA fdata;
-
-	hFind = FindFirstFile((m_directory + "\\*").c_str(), &fdata);
-	if (hFind != INVALID_HANDLE_VALUE) {
-		do {
-			fileNames.push_back(fdata.cFileName);
-		} while (FindNextFile(hFind, &fdata) != 0);
-	}
-
-	if (GetLastError() != ERROR_NO_MORE_FILES)
-	{
-		FindClose(hFind);
-		throw Exception("Error opening directory '" + m_directory + "'");
-	}
-
-	FindClose(hFind);
-#else
-    DIR* dp = opendir(m_directory.c_str());
-
-    if (dp != nullptr) {
-        struct dirent *ep;
-        while ((ep = readdir(dp))) {
-            fileNames.push_back(ep->d_name);
-        }
-        closedir(dp);
-    }
-    else
-        throw Exception("Error opening directory '" + m_directory + "'");
-#endif
-    return fileNames;
 }
 
 static void getFileInfo(const String& filename, struct stat& st, bool& is_link)
@@ -240,7 +207,7 @@ bool DirectoryDS::open()
     clear();
 
     vector<FieldList*>  fileList;
-    Strings             fileNames = getFileNames();
+    Strings             fileNames = getFilesInfo();
     unsigned            index = 0;
 
     for (auto& fileName: fileNames) {
@@ -286,15 +253,14 @@ bool DirectoryDS::open()
     return !empty();
 }
 
-FieldList* DirectoryDS::makeFileListEntry(const struct stat& st, unsigned& index, const String& fileName,
-                                          const String& fullName, bool is_link) const
+FieldList* DirectoryDS::makeFileListEntry(const directory_entry& file) const
 {
     CSmallPixmapType pixmapType;
     String modeName = getFileType(st, pixmapType, fileName.c_str());
 
-    if (is_link) {
+    if (file.is_symlink()) {
         modeName += ' ';
-        modeName += "link";
+        modeName += "symlink";
     }
 
     auto* df = new FieldList(false);

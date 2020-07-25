@@ -76,8 +76,10 @@ void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t v
     m_data.getBuffer().size = m_dataSize + 1;
     if ((dataType() & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0)
         delete[] m_data.getBuffer().data;
-    m_data.getBuffer().data = new char[m_dataSize + 1];
-    snprintf(m_data.getBuffer().data, m_dataSize + 1, "%s", value);
+    char* data = new char[m_dataSize + 1];
+    m_data.getBuffer().data = data;
+    memcpy(data, value, m_dataSize);
+    data[m_dataSize] = 0;
 }
 
 void QueryParameter::setString(const char * value, size_t maxlen)

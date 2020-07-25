@@ -32,6 +32,7 @@
 #include <sptk5/MemoryDS.h>
 #include <sptk5/Strings.h>
 #include <sptk5/CSmallPixmapIDs.h>
+#include <filesystem>
 
 namespace sptk {
 
@@ -166,12 +167,10 @@ public:
 protected:
     /**
      * Sets up an appropriate image and a name for the file type
-     * @param st                The file type information
-     * @param image             The image type
-     * @param fname             The file name
+     * @param file              File information
      * @returns the file type name
      */
-    std::string getFileType(const struct stat& st, CSmallPixmapType& image, const char *fname) const;
+    String getFileType(const std::filesystem::directory_entry& file) const;
 
 private:
     /**
@@ -198,21 +197,15 @@ private:
 
     /**
      * Re-read directory content
-     * @return file names
      */
-    Strings getFileNames();
+    void getFilesInfo();
 
     /**
      * Create a row in the data source
-     * @param st                File information
-     * @param index             Incremental index
-     * @param fileName          File name
-     * @param fullName          Full file name
-     * @param is_link           Is file a link?
+     * @param file              File information
      * @return data source row
      */
-    FieldList* makeFileListEntry(const struct stat& st, unsigned& index, const String& fileName,
-                                     const String& fullName, bool is_link) const;
+    FieldList* makeFileListEntry(const std::filesystem::directory_entry& file) const;
     CSmallPixmapType imageTypeFromExtention(const char* ext) const;
 };
 /**

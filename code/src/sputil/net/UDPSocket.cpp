@@ -39,10 +39,14 @@ UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY _domain)
 
 size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from)
 {
+    sockaddr_in6 addr;
+    if (from == nullptr)
+        from = (sockaddr_in*)&addr;
+
     socklen_t addrLength = sizeof(sockaddr_in);
     auto bytes = recvfrom(fd(), buffer, (int) size, 0, (sockaddr*) from, &addrLength);
     if (bytes == -1)
-        THROW_SOCKET_ERROR("Can't read to socket");
+        THROW_SOCKET_ERROR("Can't read from socket");
     return (size_t) bytes;
 }
 
@@ -52,7 +56,7 @@ size_t UDPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
     socklen_t addrLength = sizeof(sockaddr_in);
     auto bytes = recvfrom(fd(), buffer.data(), (int) size, 0, (sockaddr*) from, &addrLength);
     if (bytes == -1)
-        THROW_SOCKET_ERROR("Can't read to socket");
+        THROW_SOCKET_ERROR("Can't read from socket");
     buffer.bytes(bytes);
     return (size_t) bytes;
 }
@@ -63,7 +67,7 @@ size_t UDPSocket::read(String& buffer, size_t size, sockaddr_in* from)
     socklen_t addrLength = sizeof(sockaddr_in);
     auto bytes = recvfrom(fd(), buffer.data(), (int) size, 0, (sockaddr*) from, &addrLength);
     if (bytes == -1)
-        THROW_SOCKET_ERROR("Can't read to socket");
+        THROW_SOCKET_ERROR("Can't read from socket");
     buffer.resize(bytes);
     return (size_t) bytes;
 }
@@ -94,7 +98,7 @@ public:
     }
 
     /**
-     * Connection thread function
+     * Session thread function
      */
     void threadFunction() override
     {
@@ -120,7 +124,7 @@ public:
 
 TEST(SPTK_UDPSocket, minimal)
 {
-    Buffer buffer(2048);
+    Buffer buffer(4096);
 
     UDPEchoServer echoServer;
     echoServer.run();
@@ -143,7 +147,8 @@ TEST(SPTK_UDPSocket, minimal)
         buffer.bytes(0);
         if (socket.readyToRead(chrono::seconds(3))) {
             auto bytes = socket.read(buffer.data(), 2048);
-            buffer.bytes(bytes);
+            if (bytes > 0)
+                buffer.bytes(bytes);
         }
         EXPECT_STREQ(row.c_str(), buffer.c_str());
         ++rowCount;
