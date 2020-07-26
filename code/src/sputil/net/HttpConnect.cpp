@@ -118,9 +118,7 @@ int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParame
     return getResponse(output, timeout);
 }
 
-int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& postData, Buffer& output,
-                          const sptk::Strings& possibleContentEncodings, const Authorization* authorization,
-                          chrono::milliseconds timeout)
+static bool compressPostData(const sptk::Strings& possibleContentEncodings, Strings& headers, const Buffer& postData, Buffer& compressedData)
 {
     static const sptk::Strings& availableContentEncodings {
 #if HAVE_BROTLI
@@ -131,37 +129,52 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
 #endif
     };
 
+    Strings encodings;
+    for (auto& contentEncoding: availableContentEncodings) {
+        if (possibleContentEncodings.indexOf(contentEncoding) != -1) {
+            encodings.push_back(contentEncoding);
+        }
+    }
+
+    String usedEncoding;
+    for (const auto& contentEncoding: encodings) {
+#if HAVE_BROTLI
+        if (contentEncoding == "br") {
+            Brotli::compress(compressedData, postData);
+            usedEncoding = contentEncoding;
+        }
+#endif
+#if HAVE_ZLIB
+        if (contentEncoding == "gzip") {
+            ZLib::compress(compressedData, postData);
+            usedEncoding = contentEncoding;
+        }
+#endif
+        if (!usedEncoding.empty())
+            break;
+    }
+
+    if (!usedEncoding.empty() && compressedData.length() < postData.length()) {
+        headers.push_back("Content-Encoding: " + usedEncoding);
+        return true;
+    }
+
+    return false;
+}
+
+int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& postData, Buffer& output,
+                          const sptk::Strings& possibleContentEncodings, const Authorization* authorization,
+                          chrono::milliseconds timeout)
+{
     Strings headers = makeHeaders("POST", pageName, parameters, authorization);
 
     const Buffer* data = &postData;
 
-    Buffer compressedData;
-    if (!possibleContentEncodings.empty()) {
-        // Select best available content encoding
-        for (auto& contentEncoding: availableContentEncodings) {
-            if (possibleContentEncodings.indexOf(contentEncoding) != -1) {
-#if HAVE_BROTLI
-                if (contentEncoding == "br") {
-                    Brotli::compress(compressedData, postData);
-                    if (compressedData.length() < postData.length()) {
-                        headers.push_back("Content-Encoding: br");
-                        data = &compressedData;
-                    }
-                    break;
-                }
-#endif
-#if HAVE_ZLIB
-                if (contentEncoding == "gzip") {
-                    ZLib::compress(compressedData, postData);
-                    if (compressedData.length() < postData.length()) {
-                        headers.push_back("Content-Encoding: gzip");
-                        data = &compressedData;
-                    }
-                    break;
-                }
-#endif
-            }
-        }
+    Buffer compressBuffer;
+    if (!possibleContentEncodings.empty()
+        && compressPostData(possibleContentEncodings, headers, postData, compressBuffer))
+    {
+        data = &compressBuffer;
     }
 
     headers.push_back("Content-Length: " + int2string((uint32_t) data->bytes()));

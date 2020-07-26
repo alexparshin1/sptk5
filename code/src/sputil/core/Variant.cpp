@@ -762,39 +762,50 @@ bool VariantAdaptors::asBool() const
 
 double VariantAdaptors::asFloat() const
 {
+    double result = 0;
+
     if (isNull())
-        return 0;
+        return result;
 
     switch (dataType()) {
         case VAR_BOOL:
-            return m_data.getBool() ? 1 : 0;
+            result = m_data.getBool() ? 1 : 0;
+            break;
 
         case VAR_INT:
-            return m_data.getInteger();
+            result = m_data.getInteger();
+            break;
 
         case VAR_INT64:
-            return (double) m_data.getInt64();
+            result = (double) m_data.getInt64();
+            break;
 
         case VAR_MONEY:
-            return (double) m_data.getMoneyData();
+            result = (double) m_data.getMoneyData();
+            break;
 
         case VAR_FLOAT:
-            return m_data.getFloat();
+            result = m_data.getFloat();
+            break;
 
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            return strtod(m_data.getBuffer().data, nullptr);
+            result = strtod(m_data.getBuffer().data, nullptr);
+            break;
 
         case VAR_DATE:
         case VAR_DATE_TIME:
             // Time is in microseconds since epoch
             // - returning seconds since epoch
-            return double(m_data.getInt64()) / 1000000.0;
+            result = double(m_data.getInt64()) / 1000000.0;
+            break;
 
         default:
             throw Exception("Can't convert field for that type");
     }
+
+    return result;
 }
 
 String VariantAdaptors::asString() const

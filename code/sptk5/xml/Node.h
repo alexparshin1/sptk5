@@ -554,7 +554,7 @@ protected:
         parent.push_back(this);
     }
 
-    Node(const Node&) = delete;
+    Node(const Node&) = default;
     Node(Node&&) noexcept = default;
     Node& operator = (const Node&) = default;
     Node& operator = (Node&&) noexcept = default;

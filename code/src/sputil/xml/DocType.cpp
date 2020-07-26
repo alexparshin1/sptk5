@@ -45,15 +45,15 @@ struct entity
     const char *replacement;
 };
 
-typedef map<std::string, struct entity *> CEntityMap;
+typedef map<std::string, const struct entity *> CEntityMap;
 
-static struct entity builtin_ent_xml[] = {
-        { "amp", 1, "&" },
-        { "lt", 1, "<" },
-        { "gt", 1, ">" },
-        { "apos", 1, "'" },
-        { "quot", 1, "\"" },
-        {nullptr, 1, "\"" }
+static const struct entity builtin_ent_xml[] = {
+    { "amp", 1, "&" },
+    { "lt", 1, "<" },
+    { "gt", 1, ">" },
+    { "apos", 1, "'" },
+    { "quot", 1, "\"" },
+    {nullptr, 1, "\"" }
 };
 
 const char xml_shortcut[] = "&<>'\"";
@@ -64,9 +64,9 @@ class CEntityCache
     map<int, CEntityMap>    m_replacementMaps;
 public:
 
-    explicit CEntityCache(struct entity entities[]) noexcept
+    explicit CEntityCache(const struct entity entities[]) noexcept
     {
-        struct entity *ent = entities;
+        const struct entity *ent = entities;
         for (; ent->name != nullptr; ++ent) {
             m_hash[ent->name] = ent;
             m_replacementMaps[ent->replacement_len][ent->replacement] = ent;

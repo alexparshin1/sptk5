@@ -44,16 +44,11 @@ static bool nextToken(const String& url, size_t& start, size_t end, const String
 
 URL::URL(const String& url)
 {
-    //static const RegularExpression matchUrl(R"(^((?<protocol>[a-z]+)://)?((?<username>[\w\.\-@]+):(?<password>[^@]*)@)?(?<host>[\w\.\:]+)?(?<path>/[\w\.\:/]+)?(?<parameters>\?.*)?$)");
-
     size_t start = 0;
     size_t end = 0;
     nextToken(url, start, end, "://", m_protocol);
 
     String credentials;
-    m_username = "";
-    m_password = "";
-    m_params.clear();
     nextToken(url, start, end, "@", credentials);
     if (!credentials.empty()) {
         auto pos = credentials.find(":");

@@ -87,32 +87,26 @@ const char * JWT::alg_str(Algorithm _alg)
 
 JWT::Algorithm JWT::str_alg(const char *alg)
 {
+    static const map<String, Algorithm> algorithmInfo = {
+        { "NONE",  JWT_ALG_NONE  },
+        { "HS256", JWT_ALG_HS256 },
+        { "HS384", JWT_ALG_HS384 },
+        { "HS512", JWT_ALG_HS512 },
+        { "RS256", JWT_ALG_RS256 },
+        { "RS384", JWT_ALG_RS384 },
+        { "RS512", JWT_ALG_RS512 },
+        { "ES256", JWT_ALG_ES256 },
+        { "ES384", JWT_ALG_ES384 },
+        { "ES512", JWT_ALG_ES512 }
+    };
+
     if (alg == nullptr)
         return JWT_ALG_INVAL;
 
-    String algUC = upperCase(alg);
-    if (algUC == "NONE")
-        return JWT_ALG_NONE;
-    else if (algUC == "HS256")
-        return JWT_ALG_HS256;
-    else if (algUC == "HS384")
-        return JWT_ALG_HS384;
-    else if (algUC == "HS512")
-        return JWT_ALG_HS512;
-    else if (algUC == "RS256")
-        return JWT_ALG_RS256;
-    else if (algUC == "RS384")
-        return JWT_ALG_RS384;
-    else if (algUC == "RS512")
-        return JWT_ALG_RS512;
-    else if (algUC == "ES256")
-        return JWT_ALG_ES256;
-    else if (algUC == "ES384")
-        return JWT_ALG_ES384;
-    else if (algUC == "ES512")
-        return JWT_ALG_ES512;
-
-    return JWT_ALG_INVAL;
+    auto itor = algorithmInfo.find(upperCase(alg));
+    if (itor == algorithmInfo.end())
+        return JWT_ALG_INVAL;
+    return itor->second;
 }
 
 const json::Element* JWT::find_grant(const json::Element *js, const String& key)

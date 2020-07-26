@@ -84,10 +84,8 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
     if (executable) {
         image = SXPM_EXECUTABLE;
     } else {
-        if (!directory) {
-            if (!ext.empty())
-                image = imageTypeFromExtention(ext);
-        }
+        if (!directory && !ext.empty())
+            image = imageTypeFromExtention(ext);
     }
 
     return modeName;
@@ -201,7 +199,7 @@ bool DirectoryDS::open()
             df->push_back("Size", false) = "";
             df->push_back("Type", false) = "Directory";
             push_back(df);
-            index++;
+            ++index;
         }
     }
 

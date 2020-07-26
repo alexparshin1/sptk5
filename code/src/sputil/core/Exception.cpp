@@ -99,117 +99,47 @@ HTTPException::HTTPException(size_t statusCode, const String& text, const String
 
 String HTTPException::httpResponseStatus(size_t statusCode)
 {
-    String statusText("");
+    static const map<size_t, const char*> statusCodeInfo{
+        { 400, "Bad Request" },
+        { 401, "Unauthorized" },
+        { 402, "Payment Required" },
+        { 403, "Forbidden" },
+        { 404, "Not Found" },
+        { 405, "Method Not Allowed" },
+        { 406, "Not Acceptable" },
+        { 407, "Proxy Authentication Required" },
+        { 408, "Request Timeout" },
+        { 409, "Conflict" },
+        { 410, "Gone" },
+        { 411, "Length Required" },
+        { 412, "Precondition Failed" },
+        { 413, "Payload Too Large" },
+        { 414, "URI Too Long" },
+        { 415, "Unsupported Media Type" },
+        { 416, "Range Not Satisfiable" },
+        { 417, "Expectation Failed" },
+        { 418, "I'm a teapot" },
+        { 421, "Misdirected Request" },
+        { 424, "Failed Dependency" },
+        { 426, "Upgrade Required" },
+        { 428, "Precondition Required" },
+        { 429, "Too Many Requests" },
+        { 431, "Request Header Fields Too Large" },
+        { 451, "Unavailable For Legal Reasons" },
+        { 500, "Internal Server Error" },
+        { 501, "Not Implemented" },
+        { 502, "Bad Gateway" },
+        { 503, "Service Unavailable" },
+        { 504, "Gateway Timeout" },
+        { 505, "HTTP Version Not Supported" },
+        { 510, "Not Extended" },
+        { 511, "Network Authentication Required" }
+    };
 
-    switch (statusCode) {
-        case 400:
-            statusText = "Bad Request";
-            break;
-        case 401:
-            statusText = "Unauthorized";
-            break;
-        case 402:
-            statusText = "Payment Required";
-            break;
-        case 403:
-            statusText = "Forbidden";
-            break;
-        case 404:
-            statusText = "Not Found";
-            break;
-        case 405:
-            statusText = "Method Not Allowed";
-            break;
-        case 406:
-            statusText = "Not Acceptable";
-            break;
-        case 407:
-            statusText = "Proxy Authentication Required";
-            break;
-        case 408:
-            statusText = "Request Timeout";
-            break;
-        case 409:
-            statusText = "Conflict";
-            break;
-        case 410:
-            statusText = "Gone";
-            break;
-        case 411:
-            statusText = "Length Required";
-            break;
-        case 412:
-            statusText = "Precondition Failed";
-            break;
-        case 413:
-            statusText = "Payload Too Large";
-            break;
-        case 414:
-            statusText = "URI Too Long";
-            break;
-        case 415:
-            statusText = "Unsupported Media Type";
-            break;
-        case 416:
-            statusText = "Range Not Satisfiable";
-            break;
-        case 417:
-            statusText = "Expectation Failed";
-            break;
-        case 418:
-            statusText = "I'm a teapot";
-            break;
-        case 421:
-            statusText = "Misdirected Request";
-            break;
-        case 424:
-            statusText = "Failed Dependency";
-            break;
-        case 426:
-            statusText = "Upgrade Required";
-            break;
-        case 428:
-            statusText = "Precondition Required";
-            break;
-        case 429:
-            statusText = "Too Many Requests";
-            break;
-        case 431:
-            statusText = "Request Header Fields Too Large";
-            break;
-        case 451:
-            statusText = "Unavailable For Legal Reasons";
-            break;
-
-        case 500:
-            statusText = "Internal Server Error";
-            break;
-        case 501:
-            statusText = "Not Implemented";
-            break;
-        case 502:
-            statusText = "Bad Gateway";
-            break;
-        case 503:
-            statusText = "Service Unavailable";
-            break;
-        case 504:
-            statusText = "Gateway Timeout";
-            break;
-        case 505:
-            statusText = "HTTP Version Not Supported";
-            break;
-        case 510:
-            statusText = "Not Extended";
-            break;
-        case 511:
-            statusText = "Network Authentication Required";
-            break;
-        default:
-            statusText = "Unknown";
-            break;
-    }
-    return statusText;
+    auto itor = statusCodeInfo.find(statusCode);
+    if (itor == statusCodeInfo.end())
+        return"Unknown";
+    return itor->second;
 }
 
 #if USE_GTEST
