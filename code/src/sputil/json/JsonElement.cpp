@@ -28,6 +28,7 @@
 #include <sptk5/json/JsonArrayData.h>
 #include <sptk5/json/JsonDocument.h>
 #include <cstring>
+#include <cmath>
 
 using namespace std;
 using namespace sptk;
@@ -114,7 +115,7 @@ static String JsonNumberToString(double number)
     long len;
     char buffer[64];
 
-    if (number == (int64_t) number)
+    if (number == round(number))
         len = snprintf(buffer, sizeof(buffer) - 1, "%lld", (long long) number);
     else {
         len = snprintf(buffer, sizeof(buffer) - 1, "%1.8f", number);
@@ -217,7 +218,7 @@ void ElementGetMethods::exportValueTo(ostream& stream, bool formatted, size_t in
 
     switch (type()) {
         case JDT_NUMBER:
-            if (data().get_number() == (long) data().get_number())
+            if (data().get_number() == round(data().get_number()))
                 stream << fixed << (long) data().get_number();
             else
                 stream << fixed << data().get_number();

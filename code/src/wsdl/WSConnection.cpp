@@ -149,7 +149,7 @@ void WSConnection::run()
                 }
 
                 if (m_logDetails.has(LogDetails::REQUEST_NAME)) {
-                    logMessage << "(" << requestInfo.name() << ") ";
+                    logMessage << "(" << requestInfo.name << ") ";
                 }
 
                 if (m_logDetails.has(LogDetails::REQUEST_DURATION)) {

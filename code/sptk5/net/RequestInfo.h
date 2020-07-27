@@ -68,25 +68,11 @@ public:
      * Constructor
      * @param name              Request name
      */
-    RequestInfo(const String& name="") : m_name(name) {}
-
-    /**
-     * Get request name
-     * @return request name
-     */
-    String name() const { return m_name; }
-
-    /**
-     * Set request name
-     * @return request name
-     */
-    void name(const String& aname) { m_name = aname; }
+    RequestInfo(const String& name="") : name(name) {}
 
     Message     request;                ///< Request data
     Message     response;               ///< Response data
-
-private:
-    String      m_name;                 ///< Request name
+    String      name;                   ///< Request name
 };
 
 /**

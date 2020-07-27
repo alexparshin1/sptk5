@@ -271,7 +271,7 @@ RequestInfo WSWebServiceProtocol::process()
             returnWSDL = true;
             requestInfo.response.content().set(m_service.wsdl());
             substituteHostname(requestInfo.response.content(), m_hostname, m_port);
-            requestInfo.name("wsdl");
+            requestInfo.name = "wsdl";
         } else {
             // Regular request w/o content
             RESTtoSOAP(m_url, "", xmlContent);
@@ -279,10 +279,9 @@ RequestInfo WSWebServiceProtocol::process()
     }
 
     if (!returnWSDL && httpStatusCode < 400) {
-        auto requestName = processMessage(requestInfo.response.content(), xmlContent, jsonContent, authentication,
+        requestInfo.name = processMessage(requestInfo.response.content(), xmlContent, jsonContent, authentication,
                                           requestIsJSON,
                                           httpStatusCode, httpStatusText, contentType);
-        requestInfo.name(requestName);
     }
 
     Strings clientAcceptEncoding(header("accept-encoding"), "[,\\s]+", Strings::SM_REGEXP);
