@@ -25,6 +25,8 @@
 */
 
 #include <cmath>
+#include <iomanip>
+
 #include <sptk5/Field.h>
 #include <sptk5/json/JsonDocument.h>
 #include <sptk5/Variant.h>
