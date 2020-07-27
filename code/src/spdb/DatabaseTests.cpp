@@ -29,7 +29,9 @@
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/db/Transaction.h>
+
 #include <cmath>
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;

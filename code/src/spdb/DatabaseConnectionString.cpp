@@ -29,6 +29,8 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/net/URL.h>
 
+#include <set>
+
 using namespace std;
 using namespace sptk;
 
