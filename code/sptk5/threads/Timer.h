@@ -35,6 +35,8 @@
 
 namespace sptk {
 
+    class TimerThread;
+
     /**
      * Generic timer class.
      * Can fire one time off and repeatable events
@@ -218,9 +220,14 @@ namespace sptk {
 
         mutable std::mutex              m_mutex;        ///< Mutex protecting events set
         std::set<Event>                 m_events;       ///< Events scheduled by this timer
+
         static std::atomic<uint64_t>    nextSerial;     ///< Event id serial
+        static std::mutex               timerThreadMutex;
+        static TimerThread*             timerThread;
 
         std::set<Timer::Event> moveOutEvents();
+
+        static void checkTimerThreadRunning();
     };
 
 } // namespace sptk

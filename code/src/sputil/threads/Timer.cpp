@@ -45,7 +45,7 @@ public:
     }
 };
 
-class TimerThread : public Thread
+class sptk::TimerThread : public Thread
 {
 public:
     void terminate() override;
@@ -127,8 +127,8 @@ private:
     }
 };
 
-static mutex                timerThreadMutex;
-static TimerThread*         timerThread;
+mutex           Timer::timerThreadMutex;
+TimerThread*    Timer::timerThread;
 
 atomic<uint64_t>            Timer::nextSerial;
 
@@ -205,7 +205,7 @@ void Timer::unlink(Timer::Event event)
     m_events.erase(event);
 }
 
-static void checkTimerThreadRunning()
+void Timer::checkTimerThreadRunning()
 {
     lock_guard<mutex> lock(timerThreadMutex);
     if (timerThread == nullptr) {

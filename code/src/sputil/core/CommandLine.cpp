@@ -360,7 +360,7 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
     return digestedArgs;
 }
 
-void CommandLine::readOption(const Strings& digestedArgs, size_t i)
+void CommandLine::readOption(const Strings& digestedArgs, size_t& i)
 {
     String arg = digestedArgs[i];
     String value;
@@ -584,6 +584,7 @@ TEST(SPTK_CommandLine, ctor)
     shared_ptr<CommandLine> commandLine(createTestCommandLine());
     commandLine->init(13, CommandLineTestData::testCommandLineArgs);
 
+    EXPECT_EQ(size_t(1), commandLine->arguments().size());
     EXPECT_STREQ("ahostname", commandLine->getOptionValue("host").c_str());
     EXPECT_STREQ("12345", commandLine->getOptionValue("port").c_str());
     EXPECT_STREQ("true", commandLine->getOptionValue("verbose").c_str());

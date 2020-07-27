@@ -339,6 +339,10 @@ private:
 
     void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames, const Strings& attributeNames,
                                Strings& copyInitializer, Strings& moveInitializer) const;
+
+    sptk::String appendRestrictionIfDefined(
+            WSParserComplexType::ImplementationParts& implementationParts,
+            const SWSParserComplexType& complexType) const;
 };
 
 /**

@@ -458,7 +458,7 @@ private:
 
     static String preprocessArgument(String& arg, String& quote, String& quotedString);
 
-    void readOption(const Strings& digestedArgs, size_t i);
+    void readOption(const Strings& digestedArgs, size_t& i);
 };
 
 /**

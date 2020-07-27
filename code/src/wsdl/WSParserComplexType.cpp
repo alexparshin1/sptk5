@@ -426,20 +426,10 @@ void WSParserComplexType::printImplementationLoadXMLFields(ImplementationParts& 
         implementationParts.body << "        const auto* element = dynamic_cast<const xml::Element*>(node);" << endl;
         implementationParts.body << "        if (element == nullptr) continue;" << endl;
         Strings requiredElements;
-        string restrictionName;
         for (auto& complexType: m_sequence) {
             implementationParts.body << endl;
             implementationParts.body << "        if (element->name() == \"" << complexType->name() << "\") {" << endl;
-            bool restrictionExists = false;
-            if (complexType->m_restriction != nullptr) {
-                restrictionName = "restriction_" + to_string(implementationParts.restrictionNumber);
-                auto restrictionCtor = complexType->m_restriction->generateConstructor(restrictionName);
-                if (!restrictionCtor.empty()) {
-                    ++implementationParts.restrictionNumber;
-                    implementationParts.declarations << "    static const " << restrictionCtor << ";" << endl;
-                    restrictionExists = true;
-                }
-            }
+            auto restrictionName = appendRestrictionIfDefined(implementationParts, complexType);
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
                 implementationParts.body << "            " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
                 implementationParts.body << "            item.load(element);" << endl;
@@ -449,7 +439,7 @@ void WSParserComplexType::printImplementationLoadXMLFields(ImplementationParts& 
             }
             else {
                 implementationParts.body << "            m_" << complexType->name() << ".load(element);" << endl;
-                if (restrictionExists)
+                if (!restrictionName.empty())
                     implementationParts.checks << "    " << restrictionName << ".check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
                 implementationParts.body << "            continue;" << endl;
                 if ((complexType->multiplicity() & WSM_REQUIRED) != 0)
@@ -461,6 +451,22 @@ void WSParserComplexType::printImplementationLoadXMLFields(ImplementationParts& 
 
         printImplementationRestrictions(implementationParts.checks, requiredElements);
     }
+}
+
+sptk::String WSParserComplexType::appendRestrictionIfDefined(
+        WSParserComplexType::ImplementationParts& implementationParts, const SWSParserComplexType& complexType) const
+{
+    String restrictionName;
+    if (complexType->m_restriction != nullptr) {
+        restrictionName = "restriction_" + to_string(implementationParts.restrictionNumber);
+        auto restrictionCtor = complexType->m_restriction->generateConstructor(restrictionName);
+        if (!restrictionCtor.empty()) {
+            ++implementationParts.restrictionNumber;
+            implementationParts.declarations << "    static const " << restrictionCtor << ";" << endl;
+        } else
+            restrictionName = "";
+    }
+    return restrictionName;
 }
 
 void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementation, const String& className) const
