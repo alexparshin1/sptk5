@@ -57,7 +57,7 @@ void ThreadManager::Joiner::threadFunction()
     }
 }
 
-void ThreadManager::Joiner::push(SThread& thread)
+void ThreadManager::Joiner::push(const SThread& thread)
 {
     m_terminatedThreads.push(thread);
 }
@@ -92,7 +92,7 @@ void ThreadManager::stop()
 void ThreadManager::terminateRunningThreads()
 {
     lock_guard<mutex> lock(m_mutex);
-    for (auto& itor: m_runningThreads) {
+    for (const auto& itor: m_runningThreads) {
         m_joiner.push(itor.second);
         itor.second->terminate();
     }

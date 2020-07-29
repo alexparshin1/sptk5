@@ -54,7 +54,7 @@ private:
     public:
         explicit Joiner(const String& name);
         ~Joiner() override;
-        void push(SThread& thread);
+        void push(const SThread& thread);
         void stop();
     protected:
         void threadFunction() override;

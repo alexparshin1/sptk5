@@ -115,6 +115,11 @@ public:
      * Returns the end subnode const iterator
      */
     virtual const_iterator end() const;
+
+private:
+
+    static NodeList emptyNodes;
+
 };
 
 class Node;
@@ -580,6 +585,8 @@ private:
     void saveElement(json::Element* object) const;
     void appendSubNodes(Buffer& buffer, int indent, bool only_cdata) const;
     void appendClosingTag(Buffer& buffer, int indent, bool only_cdata) const;
+
+    void saveTextOrCDATASection(json::Element* object) const;
 };
 
 /**
@@ -609,7 +616,10 @@ public:
     /**
      * Match path element
      */
-    static bool matchPathElement(Node* thisNode, const XPathElement& pathElement, const String& starPointer, bool&);
+    static bool matchPathElement(Node* thisNode, const XPathElement& pathElement,
+                                 const String& starPointer);
+
+    static bool matchPathElementAttribute(Node* thisNode, const XPathElement& pathElement, const String& starPointer);
 };
 
 /**

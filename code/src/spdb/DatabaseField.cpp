@@ -46,54 +46,54 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
     {
     case VAR_BOOL:
         Variant::setBool(false);
-        view.width = 6;
+        view().width = 6;
         break;
 
     case VAR_INT:
         Variant::setInteger(0);
-        view.width = 10;
+        view().width = 10;
         break;
 
     case VAR_FLOAT:
         Variant::setFloat(0);
-        view.width = 16;
-        view.precision = fieldScale;
+        view().width = 16;
+        view().precision = fieldScale;
         break;
 
     case VAR_STRING:
         Variant::setString("");
         checkSize((size_t)fieldLength + 1);
-        view.width = fieldLength;
+        view().width = fieldLength;
         break;
 
     case VAR_TEXT:
         Variant::setBuffer("", 1, VAR_TEXT);
         checkSize((size_t)fieldLength + 1);
-        view.width = fieldLength;
+        view().width = fieldLength;
         break;
 
     case VAR_BUFFER:
         Variant::setBuffer("", 1, VAR_BUFFER);
         checkSize((size_t)fieldLength);
-        view.width = 1;
+        view().width = 1;
         break;
 
     case VAR_DATE:
     case VAR_DATE_TIME:
         Variant::setDateTime(DateTime());
         Field::dataType(dataType);
-        view.width = 10;
+        view().width = 10;
         break;
 
     case VAR_INT64:
         Variant::setInt64(0);
-        view.width = 16;
+        view().width = 16;
         break;
 
     default:
         Variant::setString("");
         checkSize((size_t)fieldLength + 1);
-        view.width = fieldLength;
+        view().width = fieldLength;
         break;
     }
 }

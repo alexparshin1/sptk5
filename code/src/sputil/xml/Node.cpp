@@ -38,8 +38,8 @@ using namespace sptk::xml;
 static const String emptyString;
 static const String indentsString(1024, ' ');
 
-/// An empty nodes set to emulate a set of stub iterators
-static NodeList emptyNodes;
+/// An empty nodes list to return end() iterator
+NodeList NodeIterators::emptyNodes;
 
 Node::iterator NodeIterators::begin()
 {
@@ -84,9 +84,26 @@ const String& Node::value() const
     return emptyString;
 }
 
-static void makeCriteria(Document* document, XPathElement& pathElement, size_t pos)
+static void makeAttributeCriteria(XPathElement& pathElement, size_t pos, const string& criteria, int nodePosition)
 {
-    string& criteria = pathElement.criteria;
+    if (nodePosition == 0 && criteria[0] == '@') {
+        pos = criteria.find('=');
+        if (pos == STRING_NPOS)
+            pathElement.attributeName = criteria.c_str() + 1;
+        else {
+            pathElement.attributeName = criteria.substr(1, pos - 1);
+            if (criteria[pos + 1] == '\'' || criteria[pos + 1] == '"')
+                pathElement.attributeValue = criteria.substr(pos + 2, criteria.length() - (pos + 3));
+            else
+                pathElement.attributeValue = criteria.substr(pos + 1, criteria.length() - (pos + 1));
+            pathElement.attributeValueDefined = true;
+        }
+    }
+}
+
+static void makeCriteria(const Document* document, XPathElement& pathElement, size_t pos)
+{
+    const String& criteria = pathElement.criteria;
 
     if (!criteria.empty()) {
         int& nodePosition = pathElement.nodePosition;
@@ -94,23 +111,11 @@ static void makeCriteria(Document* document, XPathElement& pathElement, size_t p
         if (nodePosition == 0 && criteria == "last()")
             nodePosition = -1;
 
-        if (nodePosition == 0 && criteria[0] == '@') {
-            pos = criteria.find('=');
-            if (pos == STRING_NPOS)
-                pathElement.attributeName = criteria.c_str() + 1;
-            else {
-                pathElement.attributeName = criteria.substr(1, pos - 1);
-                if (criteria[pos + 1] == '\'' || criteria[pos + 1] == '"')
-                    pathElement.attributeValue = criteria.substr(pos + 2, criteria.length() - (pos + 3));
-                else
-                    pathElement.attributeValue = criteria.substr(pos + 1, criteria.length() - (pos + 1));
-                pathElement.attributeValueDefined = true;
-            }
-        }
+        makeAttributeCriteria(pathElement, pos, criteria, nodePosition);
     }
 }
 
-static void parsePathElement(Document* document, const string& pathElementStr, XPathElement& pathElement)
+static void parsePathElement(const Document* document, const string& pathElementStr, XPathElement& pathElement)
 {
     pathElement.elementName = "";
     pathElement.attributeName = "";
@@ -149,7 +154,32 @@ static void parsePathElement(Document* document, const string& pathElementStr, X
     makeCriteria(document, pathElement, pos);
 }
 
-bool NodeSearchAlgorithms::matchPathElement(Node* thisNode, const XPathElement& pathElement, const String& starPointer, bool&)
+bool NodeSearchAlgorithms::matchPathElementAttribute(Node* thisNode, const XPathElement& pathElement,
+                                                     const String& starPointer)
+{
+    const Attributes& attributes = thisNode->attributes();
+    bool attributeMatch = false;
+    if (pathElement.attributeValueDefined) {
+        if (pathElement.attributeName == starPointer) {
+            for (auto a: attributes) {
+                if (a->name() == pathElement.attributeValue) {
+                    attributeMatch = true;
+                    break;
+                }
+            }
+        } else
+            attributeMatch =
+                    attributes.getAttribute(pathElement.attributeName).asString() == pathElement.attributeValue;
+    } else {
+        if (pathElement.attributeName == starPointer)
+            attributeMatch = thisNode->hasAttributes();
+        else
+            attributeMatch = thisNode->hasAttribute(pathElement.attributeName.c_str());
+    }
+    return attributeMatch;
+}
+
+bool NodeSearchAlgorithms::matchPathElement(Node* thisNode, const XPathElement& pathElement, const String& starPointer)
 {
     if (!pathElement.elementName.empty() && pathElement.elementName != starPointer &&
         !thisNode->nameIs(pathElement.elementName))
@@ -157,26 +187,7 @@ bool NodeSearchAlgorithms::matchPathElement(Node* thisNode, const XPathElement& 
 
     // Node criteria is attribute
     if (!pathElement.attributeName.empty() && thisNode->type() == Node::DOM_ELEMENT) {
-        const Attributes& attributes = thisNode->attributes();
-        bool attributeMatch = false;
-        if (pathElement.attributeValueDefined) {
-            if (pathElement.attributeName == starPointer) {
-                for (auto a: attributes) {
-                    if (a->name() == pathElement.attributeValue) {
-                        attributeMatch = true;
-                        break;
-                    }
-                }
-            } else
-                attributeMatch =
-                        attributes.getAttribute(pathElement.attributeName).asString() == pathElement.attributeValue;
-        } else {
-            if (pathElement.attributeName == starPointer)
-                attributeMatch = thisNode->hasAttributes();
-            else
-                attributeMatch = thisNode->hasAttribute(pathElement.attributeName.c_str());
-        }
-        return attributeMatch;
+        return matchPathElementAttribute(thisNode, pathElement, starPointer);
     }
     return true;
 }
@@ -187,8 +198,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const Node* thisNode, NodeVector&
     const XPathElement& pathElement = pathElements[size_t(pathPosition)];
 
     for (auto* node: *thisNode) {
-        bool nameMatches;
-        if (matchPathElement(node, pathElement, starPointer, nameMatches)) {
+        if (matchPathElement(node, pathElement, starPointer)) {
             matchedNodes.push_back(node);
         }
         if (descendants) {
@@ -278,7 +288,7 @@ void Node::copy(const Node& node)
     if (isElement() && node.isElement()) {
         auto& nodeAttributes = attributes();
         nodeAttributes.clear();
-        for (auto *attrNode: node.attributes())
+        for (const auto *attrNode: node.attributes())
             setAttribute(attrNode->name(), attrNode->value());
     }
 
@@ -443,6 +453,14 @@ void Node::save(Buffer& buffer, int indent) const
     }
 }
 
+void Node::saveTextOrCDATASection(json::Element* object) const
+{
+    if (value().substr(0, 9) == "<![CDATA[" && value().substr(value().length() - 3) == "]]>")
+        *object = value().substr(9, value().length() - 12);
+    else
+        *object = value();
+}
+
 void Node::save(json::Element& json, string& text) const
 {
     const string& nodeName = name();
@@ -464,10 +482,7 @@ void Node::save(json::Element& json, string& text) const
     switch (type()) {
         case DOM_TEXT:
         case DOM_CDATA_SECTION:
-            if (value().substr(0, 9) == "<![CDATA[" && value().substr(value().length() - 3) == "]]>")
-                *object = value().substr(9, value().length() - 12);
-            else
-                *object = value();
+            saveTextOrCDATASection(object);
             break;
 
         case DOM_COMMENT:
@@ -488,26 +503,29 @@ void Node::saveElement(json::Element* object) const
 {
     if (empty()) {
         *object = "";
-    } else {
-        bool done = false;
-        if (size() == 1) {
-            for (const auto* np: *this)
-                if (np->name() == "null") {
-                    done = true;
-                }
-        }
-        if (!done) {
-            // output all subnodes
-            String nodeText;
-            for (const auto* np: *this)
-                np->save(*object, nodeText);
-            if (object->is(json::JDT_OBJECT) && object->size() == 0) {
-                if (Document::isNumber(nodeText)) {
-                    double value = string2double(nodeText);
-                    *object = value;
-                } else
-                    *object = nodeText;
+        return;
+    }
+
+    bool done = false;
+    if (size() == 1) {
+        for (const auto* np: *this) {
+            if (np->name() == "null") {
+                done = true;
             }
+        }
+    }
+
+    if (!done) {
+        // output all subnodes
+        String nodeText;
+        for (const auto* np: *this)
+            np->save(*object, nodeText);
+        if (object->is(json::JDT_OBJECT) && object->size() == 0) {
+            if (Document::isNumber(nodeText)) {
+                double value = string2double(nodeText);
+                *object = value;
+            } else
+                *object = nodeText;
         }
     }
 }

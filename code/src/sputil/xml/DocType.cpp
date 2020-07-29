@@ -261,7 +261,7 @@ TEST(SPTK_XmlDocType, decodeEncodeEntities)
     xml::DocType docType("x");
 
     docType.encodeEntities(testString1.c_str(), encoded);
-    docType.decodeEntities(encoded.c_str(), encoded.length(), decoded);
+    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.length(), decoded);
     EXPECT_STREQ(testString1.c_str(), decoded.c_str());
 
     encoded.reset();

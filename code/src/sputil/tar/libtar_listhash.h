@@ -137,10 +137,10 @@ typedef struct libtar_hashptr libtar_hashptr_t;
 
 struct libtar_hash
 {
-	int numbuckets;
-	libtar_list_t **table;
+	int numbuckets {0};
+	libtar_list_t **table {nullptr};
 	libtar_hashfunc_t hashfunc;
-	unsigned int nents;
+	unsigned int nents {0};
 };
 typedef struct libtar_hash libtar_hash_t;
 
@@ -155,7 +155,7 @@ void *libtar_hashptr_data(libtar_hashptr_t *);
 unsigned int libtar_str_hashfunc(const char*, unsigned int);
 
 /* return number of elements from hash */
-unsigned int libtar_hash_nents(libtar_hash_t *);
+unsigned int libtar_hash_nents(const libtar_hash_t *);
 
 /* create a new hash */
 libtar_hash_t *libtar_hash_new(int, libtar_hashfunc_t);
@@ -169,18 +169,13 @@ void libtar_hash_free(libtar_hash_t *,
 				 libtar_freefunc_t);
 
 /* returns 1 when valid data is returned, or 0 at end of list */
-int libtar_hash_next(libtar_hash_t *,
-				libtar_hashptr_t *);
+int libtar_hash_next(const libtar_hash_t *, libtar_hashptr_t *);
 
 /* return 1 if the data matches a list entry, 0 otherwise */
-int libtar_hash_search(libtar_hash_t *,
-				  libtar_hashptr_t *, void *,
-				  libtar_matchfunc_t);
+int libtar_hash_search(const libtar_hash_t *, libtar_hashptr_t *, void *, libtar_matchfunc_t);
 
 /* return 1 if the key matches a list entry, 0 otherwise */
-int libtar_hash_getkey(libtar_hash_t *,
-				  libtar_hashptr_t *, void *,
-				  libtar_matchfunc_t);
+int libtar_hash_getkey(const libtar_hash_t *, libtar_hashptr_t *, void *, libtar_matchfunc_t);
 
 /* inserting data */
 int libtar_hash_add(libtar_hash_t *, void *);

@@ -82,10 +82,11 @@ char* libtar_strsep(char **stringp, const char *delim)
     if ((s = *stringp) == nullptr)
         return nullptr;
     for (tok = s;;) {
-        int c = *s++;
+        int c = *s;
+        ++s;
         const char *spanp = delim;
         do {
-            if ((sc = *spanp++) == c) {
+            if ((sc = *spanp) == c) {
                 if (c == 0)
                     s = nullptr;
                 else
@@ -93,6 +94,7 @@ char* libtar_strsep(char **stringp, const char *delim)
                 *stringp = s;
                 return (tok);
             }
+            ++spanp;
         } while (sc != 0);
     }
 }

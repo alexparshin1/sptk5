@@ -92,12 +92,11 @@ CompareLockInt::CompareLockInt(SharedMutex& mutex1, SharedMutex& mutex2)
 
 #if USE_GTEST
 
-static SharedMutex  amutex;
-
 class LockTestThread : public Thread
 {
 public:
-    String       aresult;
+    static SharedMutex  amutex;
+    String              aresult;
 
     LockTestThread()
     : Thread("test")
@@ -116,9 +115,11 @@ public:
     }
 };
 
+SharedMutex  LockTestThread::amutex;
+
 TEST(SPTK_Locks, writeLockAndWait)
 {
-    UniqueLock(amutex);
+    UniqueLock(LockTestThread::amutex);
     LockTestThread th;
     th.run();
     this_thread::sleep_for(chrono::seconds(1));

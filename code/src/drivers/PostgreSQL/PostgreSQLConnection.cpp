@@ -42,14 +42,7 @@ namespace sptk {
 
     class PostgreSQLStatement
     {
-        PGresult*           m_stmt {nullptr};
-        char                m_stmtName[20] {};
-        static unsigned     index;
-        int                 m_rows {0};
-        int                 m_cols {0};
-        int                 m_currentRow {0};
     public:
-        PostgreSQLParamValues m_paramValues;
 
         PostgreSQLStatement(bool int64timestamps, bool prepared)
             : m_stmt(nullptr), m_paramValues(int64timestamps)
@@ -130,6 +123,17 @@ namespace sptk {
             return (unsigned) m_cols;
         }
 
+        PostgreSQLParamValues& paramValues() { return m_paramValues; }
+
+    private:
+
+        PGresult*               m_stmt {nullptr};
+        char                    m_stmtName[20] {};
+        static unsigned         index;
+        int                     m_rows {0};
+        int                     m_cols {0};
+        int                     m_currentRow {0};
+        PostgreSQLParamValues   m_paramValues;
     };
 
     unsigned PostgreSQLStatement::index;
@@ -334,7 +338,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 
     auto* statement = (PostgreSQLStatement*) query->statement();
 
-    PostgreSQLParamValues& params = statement->m_paramValues;
+    PostgreSQLParamValues& params = statement->paramValues();
     params.setParameters(query->params());
 
     const Oid* paramTypes = params.types();
@@ -380,7 +384,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     lock_guard<mutex> lock(m_mutex);
 
     auto* statement = (PostgreSQLStatement*) query->statement();
-    PostgreSQLParamValues& paramValues = statement->m_paramValues;
+    PostgreSQLParamValues& paramValues = statement->paramValues();
     const CParamVector& params = paramValues.params();
 
     uint32_t paramNumber = 0;
@@ -432,7 +436,7 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
     lock_guard<mutex> lock(m_mutex);
 
     auto* statement = (PostgreSQLStatement*) query->statement();
-    PostgreSQLParamValues& paramValues = statement->m_paramValues;
+    PostgreSQLParamValues& paramValues = statement->paramValues();
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 

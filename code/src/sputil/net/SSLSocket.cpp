@@ -51,7 +51,7 @@ class CSSLLibraryLoader
 		SSL_library_init();
 	}
 
-    static void lock_callback(int mode, int type, char* /*file*/, int /*line*/)
+    static void lock_callback(int mode, int type, const char* /*file*/, int /*line*/)
     {
         if ((mode & CRYPTO_LOCK) == CRYPTO_LOCK)
             m_locks[type].lock();
@@ -180,6 +180,27 @@ void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
     openSocketFD(_blockingMode, timeout);
 }
 
+bool SSLSocket::tryConnect(const DateTime& timeoutAt)
+{
+    int rc = SSL_connect(m_ssl);
+    if (rc == 1)
+        return true; // connected
+    if (rc <= 0) {
+        chrono::milliseconds nextTimeout = chrono::duration_cast<chrono::milliseconds>(timeoutAt - DateTime("now"));
+        int errorCode = SSL_get_error(m_ssl, rc);
+        if (errorCode == SSL_ERROR_WANT_READ) {
+            if (!readyToRead(nextTimeout))
+                throw Exception("SSL handshake read timeout");
+            return false; // continue attempts
+        } else if (errorCode == SSL_ERROR_WANT_WRITE) {
+            if (!readyToWrite(nextTimeout))
+                throw Exception("SSL handshake write timeout");
+            return false; // continue attempts
+        }
+    }
+    throwSSLError("SSL_connect", rc);
+}
+
 void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& timeout)
 {
     DateTime started = DateTime::Now();
@@ -197,25 +218,7 @@ void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& tim
     }
 
     blockingMode(false);
-    while (true) {
-        int rc = SSL_connect(m_ssl);
-        if (rc == 1)
-            break;
-        if (rc <= 0) {
-            chrono::milliseconds nextTimeout = chrono::duration_cast<chrono::milliseconds>(timeoutAt - DateTime("now"));
-            int errorCode = SSL_get_error(m_ssl, rc);
-            if (errorCode == SSL_ERROR_WANT_READ) {
-                if (!readyToRead(nextTimeout))
-                    throw Exception("SSL handshake read timeout");
-                continue;
-            } else if (errorCode == SSL_ERROR_WANT_WRITE) {
-                if (!readyToWrite(nextTimeout))
-                    throw Exception("SSL handshake write timeout");
-                continue;
-            }
-        }
-        throwSSLError("SSL_connect", rc);
-    }
+    while (tryConnect(timeoutAt) == false) {}
     blockingMode(_blockingMode);
 }
 
@@ -354,7 +357,7 @@ TEST(SPTK_SSLSocket, connect)
     SSLSocket   sslSocket;
 
     try {
-        sslSocket.loadKeys(keys); // Optional test - not required for Google connect
+        sslSocket.loadKeys(keys); // Optional step - not required for Google connect
         sslSocket.open(Host("www.google.com:443"));
         sslSocket.close();
     }

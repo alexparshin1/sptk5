@@ -68,7 +68,7 @@ libtar_str_hashfunc(const char* key, unsigned int num_buckets)
 ** libtar_hash_nents() - return number of elements from hash
 */
 unsigned int
-libtar_hash_nents(libtar_hash_t *h)
+libtar_hash_nents(const libtar_hash_t *h)
 {
     return h->nents;
 }
@@ -108,9 +108,7 @@ libtar_hash_t* libtar_hash_new(int num, libtar_hashfunc_t hashfunc)
 **    1            data found
 **    0            end of list
 */
-int
-libtar_hash_next(libtar_hash_t *h,
-                libtar_hashptr_t *hp)
+int libtar_hash_next(const libtar_hash_t *h, libtar_hashptr_t *hp)
 {
 #ifdef LIBTAR_DEBUG2
     printf("==> libtar_hash_next(h=0x%lx, hp={%d,0x%lx})\n",
@@ -132,8 +130,7 @@ libtar_hash_next(libtar_hash_t *h,
     printf("    libtar_hash_next(): done with bucket %d\n",
            hp->bucket);
 #endif
-
-    for (hp->bucket++; hp->bucket < h->numbuckets; ++hp->bucket)
+    for (++hp->bucket; hp->bucket < h->numbuckets; ++hp->bucket)
     {
 #ifdef LIBTAR_DEBUG2
         printf("    libtar_hash_next(): "
@@ -235,10 +232,7 @@ libtar_hash_free(libtar_hash_t *h, libtar_freefunc_t freefunc)
 **    1            match found
 **    0            no match
 */
-int
-libtar_hash_search(libtar_hash_t *h,
-                  libtar_hashptr_t *hp, void *data,
-                  libtar_matchfunc_t matchfunc)
+int libtar_hash_search(const libtar_hash_t *h, libtar_hashptr_t *hp, void *data, libtar_matchfunc_t matchfunc)
 {
     while (libtar_hash_next(h, hp) != 0)
         if ((*matchfunc)(data, libtar_listptr_data(&(hp->node))) != 0)
@@ -254,10 +248,7 @@ libtar_hash_search(libtar_hash_t *h,
 **    1            match found
 **    0            no match
 */
-int
-libtar_hash_getkey(libtar_hash_t *h,
-                  libtar_hashptr_t *hp, void *key,
-                  libtar_matchfunc_t matchfunc)
+int libtar_hash_getkey(const libtar_hash_t *h, libtar_hashptr_t *hp, void *key, libtar_matchfunc_t matchfunc)
 {
 #ifdef LIBTAR_DEBUG2
     printf("==> libtar_hash_getkey(h=0x%lx, hp={%d,0x%lx}, "
@@ -288,8 +279,7 @@ libtar_hash_getkey(libtar_hash_t *h,
     printf("<== libtar_hash_getkey(): "
            "returning libtar_list_search()\n");
 #endif
-    return libtar_list_search(h->table[hp->bucket], &(hp->node),
-                         key, matchfunc);
+    return libtar_list_search(h->table[hp->bucket], &(hp->node), key, matchfunc);
 }
 
 

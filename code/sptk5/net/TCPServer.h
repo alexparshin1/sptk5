@@ -204,7 +204,7 @@ public:
      * @param priority          Log message priority
      * @param message           Log message
      */
-    void log(LogPriority priority, const String& message)
+    void log(LogPriority priority, const String& message) const
     {
         if (m_logger)
             m_logger->log(priority, message);

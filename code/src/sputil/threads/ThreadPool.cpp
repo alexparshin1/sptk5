@@ -84,12 +84,11 @@ size_t ThreadPool::size() const
 
 #if USE_GTEST
 
-static SynchronizedQueue<int>  intQueue;
-
 class MyTask : public Runable
 {
-    atomic_int      m_count {0};
 public:
+    static SynchronizedQueue<int>  intQueue;
+
     MyTask() : Runable("MyTask") {}
     void run() override
     {
@@ -102,7 +101,11 @@ public:
         }
     }
     int count() const { return m_count; }
+private:
+    atomic_int      m_count {0};
 };
+
+SynchronizedQueue<int> MyTask::intQueue;
 
 TEST(SPTK_ThreadPool, run)
 {
@@ -120,7 +123,7 @@ TEST(SPTK_ThreadPool, run)
         threadPool->execute(tasks[i]);
 
     for (int value = 0; value < 100; ++value)
-        intQueue.push(value);
+        MyTask::intQueue.push(value);
 
     this_thread::sleep_for(chrono::milliseconds(300));
 

@@ -51,7 +51,7 @@ void DatabaseConnectionString::parse()
     while (hostAndPort.size() < 2)
         hostAndPort.push_back("");
     m_hostName = hostAndPort[0];
-    m_portNumber = string2int(hostAndPort[1], 0);
+    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
     m_userName = url.username();
     m_password = url.password();
 

@@ -1219,7 +1219,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
                 columnName = columnName.replace("_", " ");
                 if (m_capitalizeColumnNames)
                     columnName = capitalizeWords(columnName);
-                auto cwidth = short(field.view.width + 1);
+                auto cwidth = short(field.view().width + 1);
                 VariantType ctype = field.dataType();
                 switch (ctype) {
                     case VAR_BOOL:

@@ -136,49 +136,55 @@ void WSConnection::run()
 
             requestStopWatch.stop();
 
-            if (!m_logDetails.empty()) {
-                stringstream logMessage;
-                bool listStarted = false;
-
-                if (m_logDetails.has(LogDetails::SOURCE_IP)) {
-                    auto remoteIp = address();
-                    auto remoteIpHeader = httpReader.httpHeader("Remote-Ip");
-                    if (remoteIp == "127.0.0.1" && !remoteIpHeader.empty())
-                        remoteIp = remoteIpHeader;
-                    logMessage << "[" << remoteIp << "] ";
-                }
-
-                if (m_logDetails.has(LogDetails::REQUEST_NAME)) {
-                    logMessage << "(" << requestInfo.name << ") ";
-                }
-
-                if (m_logDetails.has(LogDetails::REQUEST_DURATION)) {
-                    if (listStarted)
-                        logMessage << ", ";
-                    listStarted = true;
-                    logMessage << "duration " << fixed << setprecision(1) << requestStopWatch.seconds() * 1000 << " ms";
-                }
-
-                if (m_logDetails.has(LogDetails::REQUEST_DATA)) {
-                    if (listStarted)
-                        logMessage << ", ";
-                    listStarted = true;
-                    printMessage(logMessage, "IN ", requestInfo.request);
-                }
-
-                if (m_logDetails.has(LogDetails::RESPONSE_DATA)) {
-                    if (listStarted)
-                        logMessage << ", ";
-                    printMessage(logMessage, "OUT ", requestInfo.response);
-                }
-
-                m_logger.debug(logMessage.str());
-            }
+            logConnectionDetails(requestStopWatch, httpReader, requestInfo);
         }
         catch (const Exception& e) {
             if (!terminated())
                 m_logger.error("Error in incoming connection: " + String(e.what()));
         }
+    }
+}
+
+void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
+                                        const RequestInfo& requestInfo) const
+{
+    if (!m_logDetails.empty()) {
+        stringstream logMessage;
+        bool listStarted = false;
+
+        if (m_logDetails.has(LogDetails::SOURCE_IP)) {
+            auto remoteIp = address();
+            auto remoteIpHeader = httpReader.httpHeader("Remote-Ip");
+            if (remoteIp == "127.0.0.1" && !remoteIpHeader.empty())
+                remoteIp = remoteIpHeader;
+            logMessage << "[" << remoteIp << "] ";
+        }
+
+                if (m_logDetails.has(LogDetails::REQUEST_NAME)) {
+                    logMessage << "(" << requestInfo.name << ") ";
+                }
+
+        if (m_logDetails.has(LogDetails::REQUEST_DURATION)) {
+            if (listStarted)
+                logMessage << ", ";
+            listStarted = true;
+            logMessage << "duration " << fixed << setprecision(1) << requestStopWatch.seconds() * 1000 << " ms";
+        }
+
+        if (m_logDetails.has(LogDetails::REQUEST_DATA)) {
+            if (listStarted)
+                logMessage << ", ";
+            listStarted = true;
+            printMessage(logMessage, "IN ", requestInfo.request);
+        }
+
+        if (m_logDetails.has(LogDetails::RESPONSE_DATA)) {
+            if (listStarted)
+                logMessage << ", ";
+            printMessage(logMessage, "OUT ", requestInfo.response);
+        }
+
+        m_logger.debug(logMessage.str());
     }
 }
 

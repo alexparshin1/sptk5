@@ -39,23 +39,18 @@ namespace sptk
  */
 
 /**
- * @brief Translates WSDL type names to C++ type names
+ * Translates WSDL type names to C++ type names
  */
 class WSTypeTranslator
 {
     /**
      * WSDL to C++ type map
      */
-    std::map<String, String> wsTypeToCxxTypeMap;
+    static const std::map<String, String> wsTypeToCxxTypeMap;
 
 public:
     /**
-     * @brief Constructor
-     */
-    WSTypeTranslator() noexcept;
-
-    /**
-     * @brief Translates WSDL type names to C++ type names
+     * Translates WSDL type names to C++ type names
      * @param wsType            WSDL type name
      * @param defaultType       C++ type name returned when match is not found
      */
@@ -63,7 +58,7 @@ public:
 };
 
 /**
- * @brief Global WSDL translation object
+ * Global WSDL translation object
  */
 extern const WSTypeTranslator wsTypeTranslator;
 

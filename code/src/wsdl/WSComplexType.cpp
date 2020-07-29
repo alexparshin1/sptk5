@@ -107,7 +107,7 @@ int WSComplexType::FieldNameIndex::indexOf(const String& name) const
     auto itor = m_index.find(name);
     if (itor == m_index.end())
         return -1;
-    return itor->ident();
+    return (int) itor->ident();
 }
 
 #if USE_GTEST

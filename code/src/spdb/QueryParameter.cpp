@@ -78,7 +78,10 @@ void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t v
         delete[] m_data.getBuffer().data;
     char* data = new char[m_dataSize + 1];
     m_data.getBuffer().data = data;
-    memcpy(data, value, m_dataSize);
+    if (value == nullptr)
+        memset(data, 0, m_dataSize);
+    else
+        memcpy(data, value, m_dataSize);
     data[m_dataSize] = 0;
 }
 

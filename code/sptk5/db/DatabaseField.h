@@ -66,7 +66,6 @@ public:
 
     String          displayFormat;          ///< Column display format
     int             alignment {ALIGN_LEFT}; ///< Column alignment
-    bool            visible {true};         ///< Is column visible?
 
 
     /**

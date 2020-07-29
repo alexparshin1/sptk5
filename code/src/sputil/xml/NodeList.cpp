@@ -44,7 +44,7 @@ NodeList::iterator NodeList::findFirst(const String& nodeName)
 {
     iterator itor;
     for (itor = begin(); itor != end(); ++itor) {
-        auto* anode = *itor;
+        const auto* anode = *itor;
         if (anode->nameIs(nodeName))
             break;
     }
@@ -55,7 +55,7 @@ NodeList::const_iterator NodeList::findFirst(const String& nodeName) const
 {
     const_iterator itor;
     for (itor = begin(); itor != end(); ++itor) {
-        auto* anode = *itor;
+        const auto* anode = *itor;
         if (anode->nameIs(nodeName))
             break;
     }

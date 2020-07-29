@@ -815,51 +815,61 @@ String VariantAdaptors::asString() const
     if (isNull())
         return "";
 
-    char print_buffer[64];
-    int len;
+    String output;
 
     switch (dataType()) {
         case VAR_BOOL:
-            if (m_data.getBool())
-                return "true";
-            return "false";
+            output = m_data.getBool() ? "true" : "false";
+            break;
 
         case VAR_INT:
-            return int2string(m_data.getInteger());
+            output = int2string(m_data.getInteger());
+            break;
 
         case VAR_INT64:
-            return int2string(m_data.getInt64());
+            output = int2string(m_data.getInt64());
+            break;
 
         case VAR_MONEY:
-            return moneyDataToString();
+            output = moneyDataToString();
+            break;
 
         case VAR_FLOAT:
-            return double2string(m_data.getFloat());
+            output = double2string(m_data.getFloat());
+            break;
 
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            if (m_data.getBuffer().data != nullptr)
-                return m_data.getBuffer().data;
-            else
-                return "";
+            output = m_data.getBuffer().data != nullptr ? m_data.getBuffer().data : "";
+            break;
 
         case VAR_DATE:
-            return DateTime(chrono::microseconds(m_data.getInt64())).dateString();
+            output = DateTime(chrono::microseconds(m_data.getInt64())).dateString();
+            break;
 
         case VAR_DATE_TIME:
-            return (String) DateTime(chrono::microseconds(m_data.getInt64()));
+            output = (String) DateTime(chrono::microseconds(m_data.getInt64()));
+            break;
 
         case VAR_IMAGE_PTR:
-            len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.getImagePtr());
-            return String(print_buffer, (size_t) len);
+            if (m_data.getImagePtr() != nullptr) {
+                stringstream str;
+                str << hex << m_data.getImagePtr();
+                output = str.str();
+            } else
+                output = "null";
+            break;
 
         case VAR_IMAGE_NDX:
-            return int2string(m_data.getInteger());
+            output = int2string(m_data.getInteger());
+            break;
 
         default:
-            return "";
+            break;
     }
+
+    return output;
 }
 
 String BaseVariant::moneyDataToString() const

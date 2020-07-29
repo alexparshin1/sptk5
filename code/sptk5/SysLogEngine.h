@@ -106,7 +106,7 @@ private:
     std::string         m_programName;              ///< Application name
 
     void programName(const std::string& progName);
-    void setupEventSource();
+    void setupEventSource() const;
 };
 /**
  * @}

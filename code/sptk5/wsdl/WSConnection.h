@@ -98,6 +98,9 @@ private:
     bool handleHttpProtocol(const String& requestType, URL& url, String& protocolName, HttpHeaders& headers) const;
 
     bool reviewHeaders(const String& requestType, HttpHeaders& headers) const;
+
+    void logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
+                              const RequestInfo& requestInfo) const;
 };
 
 /**

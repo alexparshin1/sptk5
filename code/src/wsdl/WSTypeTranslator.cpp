@@ -31,8 +31,8 @@ using namespace sptk;
 
 const WSTypeTranslator sptk::wsTypeTranslator;
 
-WSTypeTranslator::WSTypeTranslator() noexcept
-: wsTypeToCxxTypeMap {
+const std::map<String, String> WSTypeTranslator::wsTypeToCxxTypeMap
+{
     { "xsd:boolean",  "sptk::WSBool" },
     { "xsd:date",     "sptk::WSDate" },
     { "xsd:dateTime", "sptk::WSDateTime" },
@@ -41,8 +41,7 @@ WSTypeTranslator::WSTypeTranslator() noexcept
     { "xsd:int",      "sptk::WSInteger" },
     { "xsd:string",   "sptk::WSString" },
     { "xsd:time",     "sptk::WSTime" }
-}
-{}
+};
 
 String WSTypeTranslator::toCxxType(const String& wsType, const String& defaultType) const
 {

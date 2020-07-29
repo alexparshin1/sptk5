@@ -33,10 +33,10 @@ using namespace sptk;
 Field::Field(const String& name)
 : m_name(name), m_displayName(name)
 {
-    view.width = -1;
-    view.flags = 4; // FL_ALIGN_LEFT
-    view.visible = true;
-    view.precision = 3; // default precision, only affects floating point fields
+    m_view.width = -1;
+    m_view.flags = 4;       // FL_ALIGN_LEFT
+    m_view.visible = true;
+    m_view.precision = 3;   // default precision, only affects floating point fields
     dataSize(0);
 }
 
@@ -140,7 +140,7 @@ String Field::epochDataToDateTimeString() const
 String Field::doubleDataToString() const
 {
     stringstream output;
-    output << fixed << setprecision(view.precision) << m_data.getFloat();
+    output << fixed << setprecision(m_view.precision) << m_data.getFloat();
     return output.str();
 }
 
@@ -193,7 +193,7 @@ TEST(SPTK_Field, double)
     Field   field1("f1");
 
     field1 = double(12345678.123456);
-    field1.view.precision = 3;
+    field1.view().precision = 3;
 
     EXPECT_DOUBLE_EQ(field1.asFloat(), 12345678.123456);
     EXPECT_STREQ(field1.asString().c_str(), "12345678.123");

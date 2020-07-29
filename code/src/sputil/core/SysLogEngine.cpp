@@ -127,7 +127,7 @@ SysLogEngine::~SysLogEngine()
 #endif
 }
 
-void SysLogEngine::setupEventSource()
+void SysLogEngine::setupEventSource() const
 {
     UniqueLock(syslogMutex);
 #ifndef _WIN32

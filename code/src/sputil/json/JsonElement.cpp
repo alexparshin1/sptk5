@@ -474,10 +474,9 @@ void ElementData::assign(const Element& other)
 void ElementData::moveElement(Element&& other) noexcept
 {
     clear();
-    setType(other.type());
+    m_type = exchange(other.m_type, JDT_NULL);
     setParent(other.parent());
     memcpy(&m_data, &other.m_data, sizeof(m_data));
-    other.setType(JDT_NULL);
 }
 
 void ElementData::select(ElementSet& elements, const String& xPath)

@@ -274,10 +274,10 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
     for (auto& headerName: required_headers) {
         auto *fld = new Field(lowerCase(headerName).c_str());
         if (first) {
-            fld->view.width = 16;
+            fld->view().width = 16;
             first = false;
         } else
-            fld->view.width = 32;
+            fld->view().width = 32;
         results.push_back(fld);
     }
 

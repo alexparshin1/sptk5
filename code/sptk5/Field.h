@@ -55,6 +55,16 @@ class SP_EXPORT Field : public Variant
 
 public:
     /**
+     * Combination of field view attributes
+     */
+    struct View {
+        signed int  width:10;       ///< Field width
+        unsigned    precision:5;    ///< Field precision
+        unsigned    flags:16;       ///< Field flags like alignment, etc
+        bool        visible:1;      ///< Is field visible?
+    };
+
+    /**
      * Constructor
      * @param name               Field name
      */
@@ -77,28 +87,7 @@ public:
     /**
      * Combination of field view attributes
      */
-    struct {
-        /**
-         * Field width
-         */
-        signed int  width:10;
-
-        /**
-         * Field precision
-         */
-        unsigned    precision:5;
-
-        /**
-         * Field flags like alignment, etc
-         */
-        unsigned    flags:16;
-
-        /**
-         * Is field visible?
-         */
-        bool        visible:1;
-
-    } view {};
+    View& view() { return m_view; };
 
     /**
      * Returns field name
@@ -259,8 +248,9 @@ public:
 
 private:
 
-    String m_name;          ///< Field name
-    String m_displayName;   ///< Optional display field name
+    String  m_name;          ///< Field name
+    View    m_view {};       ///< Combination of field view attributes
+    String  m_displayName;   ///< Optional display field name
 
     String doubleDataToString() const;
     String epochDataToDateTimeString() const;

@@ -175,6 +175,8 @@ private:
     String				m_cipherList;				///< Cipher List, the default is "ALL"
 
     void openSocketFD(bool blockingMode, const std::chrono::milliseconds& timeout);
+
+    bool tryConnect(const DateTime& timeoutAt);
 };
 
 /**
