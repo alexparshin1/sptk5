@@ -183,8 +183,8 @@ bool HttpReader::readData()
 
         if (m_contentLength > 0) {
             bytesToRead = m_contentLength - m_contentReceivedLength;
-            if (bytesToRead == 0)
-                return true;
+            if (bytesToRead == 0) // received all content bytes
+                break;
         } else
             bytesToRead = m_socket.socketBytes();
 
@@ -193,7 +193,7 @@ bool HttpReader::readData()
             readBytes = (int) readAndAppend(m_socket, m_output, bytesToRead);
             m_contentReceivedLength += readBytes;
             if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength) // No more data
-                return true;
+                break;
         } else {
             size_t chunkSize = readChunk(m_socket, m_output);
             m_contentReceivedLength += chunkSize;

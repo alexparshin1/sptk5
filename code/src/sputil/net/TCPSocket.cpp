@@ -159,10 +159,7 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
         destination[bytesToRead] = 0;
 
     m_readOffset += uint32_t(bytesToRead);
-    if (eol) // Indicate, that we have a complete string
-        return -bytesToRead;
-
-    return bytesToRead;
+    return eol ? -bytesToRead : bytesToRead;
 }
 
 size_t TCPSocketReader::read(char* destination, size_t sz, char delimiter, bool read_line, sockaddr_in* from)

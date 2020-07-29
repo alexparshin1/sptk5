@@ -218,7 +218,10 @@ void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& tim
     }
 
     blockingMode(false);
-    while (tryConnect(timeoutAt) == false) {}
+    while (tryConnect(timeoutAt) == false) {
+        // Repeat operation until connected,
+        // or throws an exception
+    }
     blockingMode(_blockingMode);
 }
 
