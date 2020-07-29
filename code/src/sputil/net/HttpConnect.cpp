@@ -230,14 +230,9 @@ String HttpConnect::statusText() const
     return m_reader->getStatusText();
 }
 
-HttpConnect::Authorization::Authorization(const String& username, const String& password)
-: m_method("basic"),
-  m_value(md5(username + ":" + password))
-{}
-
-HttpConnect::Authorization::Authorization(const String& jwtToken)
-: m_method("bearer"),
-  m_value(jwtToken)
+HttpConnect::Authorization::Authorization(const String& method, const String& username, const String& password, const String& jwtToken)
+: m_method(method),
+  m_value(method == "basic" ? md5(username + ":" + password) : jwtToken)
 {}
 
 #if USE_GTEST

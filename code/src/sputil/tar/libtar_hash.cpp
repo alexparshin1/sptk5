@@ -82,7 +82,6 @@ libtar_hash_t* libtar_hash_new(int num, libtar_hashfunc_t hashfunc)
     auto* hash = new libtar_hash_t;
     if (hash == nullptr)
         return nullptr;
-    memset(hash, 0, sizeof(libtar_hash_t));
 
     hash->numbuckets = num;
     if (hashfunc != nullptr)
@@ -258,7 +257,7 @@ int libtar_hash_getkey(const libtar_hash_t *h, libtar_hashptr_t *hp, void *key, 
 
     if (hp->bucket == -1)
     {
-        hp->bucket = (int) (*(h->hashfunc))(key, unsigned(h->numbuckets));
+        hp->bucket = (int) h->hashfunc((const char*)key, unsigned(h->numbuckets));
 #ifdef LIBTAR_DEBUG2
         printf("    libtar_hash_getkey(): hp->bucket "
                "set to %d\n", hp->bucket);
@@ -300,7 +299,7 @@ libtar_hash_add(libtar_hash_t *h, void *data)
            h, data);
 #endif
 
-    bucket = (int) (*(h->hashfunc))(data, (unsigned) h->numbuckets);
+    bucket = (int) h->hashfunc((const char*)data, (unsigned) h->numbuckets);
 #ifdef LIBTAR_DEBUG2
     printf("    libtar_hash_add(): inserting in bucket %d\n",
            bucket);

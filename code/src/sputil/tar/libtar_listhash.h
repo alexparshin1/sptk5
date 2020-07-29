@@ -18,6 +18,8 @@
 
 /***** list.c **********************************************************/
 
+#include <functional>
+
 /*
 ** Comparison function (used to determine order of elements in a list)
 ** returns less than, equal to, or greater than 0
@@ -28,12 +30,12 @@ typedef int (*libtar_cmpfunc_t)(void *, void *);
 /*
 ** Free function (for freeing allocated memory in each element)
 */
-typedef void (*libtar_freefunc_t)(void *);
+typedef std::function<void(void *)> libtar_freefunc_t;
 
 /*
 ** Plugin function for libtar_list_iterate()
 */
-typedef int (*libtar_iterate_func_t)(void *, void *);
+typedef std::function<int(void *, void *)> libtar_iterate_func_t;
 
 /*
 ** Matching function (used to find elements in a list)
@@ -79,36 +81,28 @@ void *libtar_listptr_data(libtar_listptr_t *);
 libtar_list_t *libtar_list_new(int, libtar_cmpfunc_t);
 
 /* call a function for every element in a list */
-int libtar_list_iterate(libtar_list_t *,
-				   libtar_iterate_func_t, void *);
+int libtar_list_iterate(libtar_list_t *, libtar_iterate_func_t, void *);
 
 /* empty the list */
-void libtar_list_empty(libtar_list_t *,
-				  libtar_freefunc_t);
+void libtar_list_empty(libtar_list_t *, libtar_freefunc_t);
 
 /* remove and free() the entire list */
-void libtar_list_free(libtar_list_t *,
-				 libtar_freefunc_t);
+void libtar_list_free(libtar_list_t *, libtar_freefunc_t);
 
 /* add elements */
 int libtar_list_add(libtar_list_t *, void *);
 
 /* removes an element from the list - returns -1 on error */
-void libtar_list_del(libtar_list_t *,
-				libtar_listptr_t *);
+void libtar_list_del(libtar_list_t *, libtar_listptr_t *);
 
 /* returns 1 when valid data is returned, or 0 at end of list */
-int libtar_list_next(libtar_list_t *,
-				libtar_listptr_t *);
+int libtar_list_next(libtar_list_t *, libtar_listptr_t *);
 
 /* returns 1 when valid data is returned, or 0 at end of list */
-int libtar_list_prev(libtar_list_t *,
-				libtar_listptr_t *);
+int libtar_list_prev(libtar_list_t *, libtar_listptr_t *);
 
 /* return 1 if the data matches a list entry, 0 otherwise */
-int libtar_list_search(libtar_list_t *,
-				  libtar_listptr_t *, void *,
-				  libtar_matchfunc_t);
+int libtar_list_search(libtar_list_t *, libtar_listptr_t *, void *, libtar_matchfunc_t);
 
 /* return number of elements from list */
 unsigned int libtar_list_nents(const libtar_list_t *);
@@ -125,7 +119,7 @@ int libtar_str_match(const char *, const char *);
 ** second argument is the total number of buckets
 ** returns the bucket number
 */
-typedef unsigned int (*libtar_hashfunc_t)(void *, unsigned int);
+typedef std::function<unsigned(const char *, unsigned int)> libtar_hashfunc_t;
 
 
 struct libtar_hashptr
@@ -161,12 +155,10 @@ unsigned int libtar_hash_nents(const libtar_hash_t *);
 libtar_hash_t *libtar_hash_new(int, libtar_hashfunc_t);
 
 /* empty the hash */
-void libtar_hash_empty(libtar_hash_t *,
-				  libtar_freefunc_t);
+void libtar_hash_empty(libtar_hash_t *, libtar_freefunc_t);
 
 /* delete all the libtar_nodes of the hash and clean up */
-void libtar_hash_free(libtar_hash_t *,
-				 libtar_freefunc_t);
+void libtar_hash_free(libtar_hash_t *, libtar_freefunc_t);
 
 /* returns 1 when valid data is returned, or 0 at end of list */
 int libtar_hash_next(const libtar_hash_t *, libtar_hashptr_t *);

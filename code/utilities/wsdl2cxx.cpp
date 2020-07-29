@@ -110,6 +110,7 @@ auto parseOperationsAuth(const String& operationsAuth)
 int main(int argc, const char* argv[])
 {
     AppCommandLine commandLine;
+    int rc = 0;
 
     try {
         size_t screenColumns = 80;
@@ -119,26 +120,16 @@ int main(int argc, const char* argv[])
 
         commandLine.init(argc, argv);
 
-        if (argc == 1 || commandLine.hasOption("help")) {
+        if (argc < 2 || commandLine.hasOption("help") || commandLine.arguments().size() != 1) {
             commandLine.printHelp(screenColumns);
             return 1;
         }
 
+        auto wsdlFile = commandLine.arguments().front();
         auto quiet = commandLine.hasOption("quiet");
         auto verbose = commandLine.hasOption("verbose");
 
-        if (commandLine.arguments().size() != 1) {
-            CERR("Please provide single WSDL file name\n");
-            commandLine.printHelp(screenColumns);
-            return 1;
-        }
-        auto wsdlFile = commandLine.arguments().front();
-
         WSParser   wsParser;
-        if (argc < 2) {
-            help();
-            return 1;
-        }
 
         string outputDirectory = commandLine.getOptionValue("cxx-directory").trim();
         if (outputDirectory.empty())
@@ -147,7 +138,7 @@ int main(int argc, const char* argv[])
         string headerFile = commandLine.getOptionValue("cxx-directory").trim();
 
         if (outputDirectory != "." && access(outputDirectory.c_str(), 0) < 0) {
-            int rc = system(("mkdir " + outputDirectory).c_str());
+            rc = system(("mkdir " + outputDirectory).c_str());
             if (rc != 0) {
                 CERR("Can't open or create output directory '" << outputDirectory << "'." << endl)
                 return 1;
@@ -169,11 +160,11 @@ int main(int argc, const char* argv[])
         wsParser.parse(wsdlFile);
         wsParser.generate(outputDirectory, headerFile, options, verbose);
         wsParser.generateWsdlCxx(outputDirectory, headerFile, wsdlFile);
-
-        return 0;
     }
     catch (const Exception& e) {
         CERR(e.what() << endl)
-        return 1;
+        rc = 1;
     }
+
+    return rc;
 }

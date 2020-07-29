@@ -59,24 +59,6 @@ public:
     {
     public:
         /**
-         * Default constructor
-         */
-        Authorization() {}
-
-        /**
-         * Basic authorization
-         * @param username      Username
-         * @param password      Password
-         */
-        explicit Authorization(const String& username, const String& password);
-
-        /**
-         * Bearer authorization
-         * @param jwtToken      JWT token
-         */
-        explicit Authorization(const String& jwtToken);
-
-        /**
          * Copy constructor
          * @param other         Other object
          */
@@ -100,9 +82,50 @@ public:
          */
         String value() const { return m_value; }
 
+    protected:
+
+        /**
+         * Constructor
+         */
+        Authorization() = delete;
+
+        /**
+         * Basic or Bearer authorization
+         * @param method        Auth method, 'basic' or 'bearer'
+         * @param username      Username, basic authorization only
+         * @param password      Password, basic authorization only
+         * @param jwtToken      JWT token, bearer authorization only
+         */
+        explicit Authorization(const String& method, const String& username, const String& password, const String& jwtToken);
+
     private:
         String  m_method;       ///< Authorization method name
         String  m_value;        ///< Authorization data
+    };
+
+    class BasicAuthorization: public Authorization
+    {
+    public:
+        /**
+         * Basic authorization
+         * @param username      Username
+         * @param password      Password
+         */
+        BasicAuthorization(const String& username, const String& password)
+        : Authorization("basic", username, password, "")
+        {}
+    };
+
+    class BearerAuthorization: public Authorization
+    {
+    public:
+        /**
+         * Bearer authorization
+         * @param jwtToken      JWT token
+         */
+        explicit BearerAuthorization(const String& jwtToken)
+        : Authorization("bearer", "", "", jwtToken)
+        {}
     };
 
     /**

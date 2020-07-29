@@ -131,9 +131,8 @@ static shared_ptr<HttpConnect::Authorization> jwtAuthorization;
  * Calling AccountBalance method requires calling Login method first.
  * If gzip-encoding is allowed, it is used for messages bigger than 255 bytes.
  * @param methodNames           WS methods to be executed
- * @param allowGzipEncoding     Allow content optionally use gzip-encoding?
  */
-static void request_listener_test(const Strings& methodNames, bool allowGzipEncoding, bool encrypted=false)
+static void request_listener_test(const Strings& methodNames, bool encrypted = false)
 {
     SysLogEngine        logEngine("TestWebService");
     TestWebService      service;
@@ -201,7 +200,7 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
                     EXPECT_DOUBLE_EQ(response.root().getNumber("vacation_days"), 21);
                 } else if (methodName == "Login") {
                     // Set JWT authorization for future operations
-                    jwtAuthorization = make_shared<HttpConnect::Authorization>(response.root().getString("jwt"));
+                    jwtAuthorization = make_shared<HttpConnect::BearerAuthorization>(response.root().getString("jwt"));
 
                     // Decode JWT content
                     JWT jwt;
@@ -233,7 +232,7 @@ static void request_listener_test(const Strings& methodNames, bool allowGzipEnco
  */
 TEST(SPTK_TestWebService, Hello_HTTP)
 {
-    request_listener_test(Strings("Hello",","), true);
+    request_listener_test(Strings("Hello", ","), false);
 }
 
 /**
@@ -264,7 +263,7 @@ TEST(SPTK_TestWebService, Login)
  */
 TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
 {
-    request_listener_test(Strings("Login|AccountBalance", "|"), true);
+    request_listener_test(Strings("Login|AccountBalance", "|"), false);
 }
 
 /**
@@ -272,7 +271,7 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
  */
 TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
 {
-    request_listener_test(Strings("Login|AccountBalance", "|"), true, true);
+    request_listener_test(Strings("Login|AccountBalance", "|"), true);
 }
 
 #endif

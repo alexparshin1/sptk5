@@ -79,7 +79,7 @@ int libtar_list_iterate(libtar_list_t* l, libtar_iterate_func_t plugin, void* st
         return -1;
 
     for (n = l->first; n != nullptr; n = n->next) {
-        if ((*plugin)(n->data, state) == -1)
+        if (plugin(n->data, state) == -1)
             return -1;
     }
 
@@ -97,7 +97,7 @@ void libtar_list_empty(libtar_list_t* l, libtar_freefunc_t freefunc)
     for (n = l->first; n != nullptr; n = l->first) {
         l->first = n->next;
         if (freefunc != nullptr)
-            (*freefunc)(n->data);
+            freefunc(n->data);
         delete n;
     }
 
