@@ -57,7 +57,7 @@ void RequestInfo::Message::input(const Buffer& content, const String& contentEnc
     if (contentEncoding == "x-www-form-urlencoded") {
         m_content = Url::decode(content.c_str());
         return;
-    }
+    } else
 
     throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
 }
