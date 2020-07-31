@@ -77,7 +77,7 @@ libtar_hash_nents(const libtar_hash_t *h)
 /*
 ** libtar_hash_new() - create a new hash
 */
-libtar_hash_t* libtar_hash_new(int num, libtar_hashfunc_t hashfunc)
+libtar_hash_t* libtar_hash_new(int num, const libtar_hashfunc_t& hashfunc)
 {
     auto* hash = new libtar_hash_t;
     if (hash == nullptr)
@@ -196,7 +196,7 @@ libtar_hash_del(libtar_hash_t *h,
 ** libtar_hash_empty() - empty the hash
 */
 void
-libtar_hash_empty(libtar_hash_t *h, libtar_freefunc_t freefunc)
+libtar_hash_empty(libtar_hash_t *h, const libtar_freefunc_t& freefunc)
 {
     int i;
 
@@ -212,7 +212,7 @@ libtar_hash_empty(libtar_hash_t *h, libtar_freefunc_t freefunc)
 ** libtar_hash_free() - delete all of the nodes in the hash
 */
 void
-libtar_hash_free(libtar_hash_t *h, libtar_freefunc_t freefunc)
+libtar_hash_free(libtar_hash_t *h, const libtar_freefunc_t& freefunc)
 {
     int i;
 
@@ -231,10 +231,10 @@ libtar_hash_free(libtar_hash_t *h, libtar_freefunc_t freefunc)
 **    1            match found
 **    0            no match
 */
-int libtar_hash_search(const libtar_hash_t *h, libtar_hashptr_t *hp, void *data, libtar_matchfunc_t matchfunc)
+int libtar_hash_search(const libtar_hash_t *h, libtar_hashptr_t *hp, void *data, const libtar_matchfunc_t& matchfunc)
 {
     while (libtar_hash_next(h, hp) != 0)
-        if ((*matchfunc)(data, libtar_listptr_data(&(hp->node))) != 0)
+        if (matchfunc(data, libtar_listptr_data(&(hp->node))) != 0)
             return 1;
 
     return 0;
@@ -247,29 +247,15 @@ int libtar_hash_search(const libtar_hash_t *h, libtar_hashptr_t *hp, void *data,
 **    1            match found
 **    0            no match
 */
-int libtar_hash_getkey(const libtar_hash_t *h, libtar_hashptr_t *hp, void *key, libtar_matchfunc_t matchfunc)
+int libtar_hash_getkey(const libtar_hash_t *h, libtar_hashptr_t *hp, void *key, const libtar_matchfunc_t& matchfunc)
 {
-#ifdef LIBTAR_DEBUG2
-    printf("==> libtar_hash_getkey(h=0x%lx, hp={%d,0x%lx}, "
-           "key=0x%lx, matchfunc=0x%lx)\n",
-           h, hp->bucket, hp->node, key, matchfunc);
-#endif
-
     if (hp->bucket == -1)
     {
         hp->bucket = (int) h->hashfunc((const char*)key, unsigned(h->numbuckets));
-#ifdef LIBTAR_DEBUG2
-        printf("    libtar_hash_getkey(): hp->bucket "
-               "set to %d\n", hp->bucket);
-#endif
     }
 
     if (h->table[hp->bucket] == nullptr)
     {
-#ifdef LIBTAR_DEBUG2
-        printf("    libtar_hash_getkey(): no list "
-               "for bucket %d, returning 0\n", hp->bucket);
-#endif
         hp->bucket = -1;
         return 0;
     }

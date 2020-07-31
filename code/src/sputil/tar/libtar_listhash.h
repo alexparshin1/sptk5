@@ -43,7 +43,7 @@ typedef std::function<int(void *, void *)> libtar_iterate_func_t;
 ** second argument is the list element it's being compared to
 ** returns 0 if no match is found, non-zero otherwise
 */
-typedef int (*libtar_matchfunc_t)(void *, void *);
+typedef std::function<int(void *, void *)> libtar_matchfunc_t;
 
 
 struct libtar_node
@@ -102,7 +102,7 @@ int libtar_list_next(libtar_list_t *, libtar_listptr_t *);
 int libtar_list_prev(libtar_list_t *, libtar_listptr_t *);
 
 /* return 1 if the data matches a list entry, 0 otherwise */
-int libtar_list_search(libtar_list_t *, libtar_listptr_t *, void *, libtar_matchfunc_t);
+int libtar_list_search(libtar_list_t *, libtar_listptr_t *, void *, const libtar_matchfunc_t&);
 
 /* return number of elements from list */
 unsigned int libtar_list_nents(const libtar_list_t *);
@@ -152,22 +152,22 @@ unsigned int libtar_str_hashfunc(const char*, unsigned int);
 unsigned int libtar_hash_nents(const libtar_hash_t *);
 
 /* create a new hash */
-libtar_hash_t *libtar_hash_new(int, libtar_hashfunc_t);
+libtar_hash_t *libtar_hash_new(int, const libtar_hashfunc_t&);
 
 /* empty the hash */
-void libtar_hash_empty(libtar_hash_t *, libtar_freefunc_t);
+void libtar_hash_empty(libtar_hash_t *, const libtar_freefunc_t&);
 
 /* delete all the libtar_nodes of the hash and clean up */
-void libtar_hash_free(libtar_hash_t *, libtar_freefunc_t);
+void libtar_hash_free(libtar_hash_t *, const libtar_freefunc_t&);
 
 /* returns 1 when valid data is returned, or 0 at end of list */
 int libtar_hash_next(const libtar_hash_t *, libtar_hashptr_t *);
 
 /* return 1 if the data matches a list entry, 0 otherwise */
-int libtar_hash_search(const libtar_hash_t *, libtar_hashptr_t *, void *, libtar_matchfunc_t);
+int libtar_hash_search(const libtar_hash_t *, libtar_hashptr_t *, void *, const libtar_matchfunc_t&);
 
 /* return 1 if the key matches a list entry, 0 otherwise */
-int libtar_hash_getkey(const libtar_hash_t *, libtar_hashptr_t *, void *, libtar_matchfunc_t);
+int libtar_hash_getkey(const libtar_hash_t *, libtar_hashptr_t *, void *, const libtar_matchfunc_t&);
 
 /* inserting data */
 int libtar_hash_add(libtar_hash_t *, void *);

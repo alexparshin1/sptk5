@@ -212,6 +212,8 @@ namespace sptk {
          */
         void  cancel();
 
+        static int allocatedEvents() { return eventAllocations; }
+
     protected:
 
         void unlink(Event event);                       ///< Remove event from this timer
@@ -224,9 +226,9 @@ namespace sptk {
         static std::atomic<uint64_t>    nextSerial;     ///< Event id serial
         static std::mutex               timerThreadMutex;
         static TimerThread*             timerThread;
+        static int                      eventAllocations;
 
         std::set<Timer::Event> moveOutEvents();
-
         static void checkTimerThreadRunning();
     };
 

@@ -103,8 +103,7 @@ TAR;
 #define TAR_IGNORE_MAGIC	0
 
 /* open a new tarfile handle */
-int tar_open(TAR **t, const char *pathname, tartype_t *type,
-	     int oflags, int mode, int options);
+TAR* tar_open(const char *pathname, tartype_t *type, int oflags, int mode, int options);
 
 /* close tarfile handle */
 int tar_close(TAR *t);

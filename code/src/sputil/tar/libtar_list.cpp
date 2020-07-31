@@ -354,15 +354,12 @@ int libtar_list_add_str(libtar_list_t* l, const char* str, const char* delim)
 int
 libtar_list_search(libtar_list_t* l,
                    libtar_listptr_t* n, void* data,
-                   libtar_matchfunc_t matchfunc)
+                   const libtar_matchfunc_t& matchfunc)
 {
 #ifdef LIBTAR_DEBUG2
     printf("==> libtar_list_search(l=0x%lx, n=0x%lx, \"%s\")\n",
            l, n, (char *)data);
 #endif
-
-    if (matchfunc == nullptr)
-        matchfunc = (libtar_matchfunc_t) libtar_str_match;
 
     if (*n == nullptr)
         *n = l->first;
@@ -370,10 +367,11 @@ libtar_list_search(libtar_list_t* l,
         *n = (*n)->next;
 
     for (; *n != nullptr; *n = (*n)->next) {
-#ifdef LIBTAR_DEBUG2
-        printf("checking against \"%s\"\n", (char *)(*n)->data);
-#endif
-        if ((*(matchfunc))(data, (*n)->data) != 0)
+        if (matchfunc) {
+            if (matchfunc(data, (*n)->data) != 0)
+                return 1;
+        }
+        else if (libtar_str_match((const char*) data, (const char*) (*n)->data) != 0)
             return 1;
     }
 

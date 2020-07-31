@@ -127,12 +127,11 @@ private:
     }
 };
 
-mutex           Timer::timerThreadMutex;
-TimerThread*    Timer::timerThread;
+mutex               Timer::timerThreadMutex;
+TimerThread*        Timer::timerThread;
 
-atomic<uint64_t>            Timer::nextSerial;
-
-int                         eventAllocations;
+atomic<uint64_t>    Timer::nextSerial;
+int                 Timer::eventAllocations;
 
 Timer::EventId::EventId(const DateTime& when)
 : serial(++nextSerial), when(when)
@@ -292,7 +291,7 @@ TEST(SPTK_Timer, repeat)
 
         EXPECT_NEAR(5, eventSet, 1);
     }
-    EXPECT_EQ(0, eventAllocations);
+    EXPECT_EQ(0, Timer::allocatedEvents());
 }
 
 const int MAX_EVENT_COUNTER = 10;
@@ -389,7 +388,7 @@ TEST(SPTK_Timer, repeatMultipleEvents)
 
         EXPECT_NEAR(MAX_EVENT_COUNTER * 5, totalEvents, 10);
     }
-    EXPECT_EQ(0, eventAllocations);
+    EXPECT_EQ(0, Timer::allocatedEvents());
 }
 
 TEST(SPTK_Timer, repeatMultipleTimers)

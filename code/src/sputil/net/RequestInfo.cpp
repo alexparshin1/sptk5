@@ -40,21 +40,18 @@ void RequestInfo::Message::input(const Buffer& content, const String& contentEnc
     m_contentEncoding = contentEncoding;
     if (contentEncoding.empty()) {
         m_content = content;
-        return;
-    }
+    } else
 
 #if HAVE_BROTLI
     if (contentEncoding == "br") {
         Brotli::decompress(m_content, content);
-        return;
-    }
+    } else
 #endif
 
 #if HAVE_ZLIB
     if (contentEncoding == "gzip") {
         ZLib::decompress(m_content, content);
-        return;
-    }
+    } else
 #endif
 
     if (contentEncoding == "x-www-form-urlencoded") {
