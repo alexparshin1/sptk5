@@ -37,16 +37,13 @@ WSListener::WSListener(WSRequest& service, LogEngine& logger, const WSConnection
   m_service(service),
   m_logger(logger),
   m_paths(paths),
-  m_hostname(hostname),
   m_allowCORS(allowCORS),
   m_keepAlive(keepAlive),
   m_suppressHttpStatus(suppressHttpStatus),
   m_encrypted(encrypted)
 {
-    if (m_hostname.empty()) {
-        char buffer[256];
-        gethostname(buffer, sizeof(buffer));
-        m_hostname = buffer;
+    if (!hostname.empty()) {
+        host(Host(hostname));
     }
 
     if (m_paths.htmlIndexPage.empty())
@@ -67,10 +64,4 @@ ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr
     if (m_suppressHttpStatus)
         options |= WSConnection::SUPPRESS_HTTP_STATUS;
     return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_paths, options, logDetails());
-}
-
-String WSListener::hostname() const
-{
-    SharedLock(m_mutex);
-    return m_hostname;
 }

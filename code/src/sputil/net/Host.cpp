@@ -50,8 +50,8 @@ Host::Host() noexcept
     memset(&m_address, 0, sizeof(m_address));
 }
 
-Host::Host(String hostname, uint16_t port)
-: m_hostname(std::move(hostname)), m_port(port)
+Host::Host(const String& hostname, uint16_t port)
+: m_hostname(hostname), m_port(port)
 {
     getHostAddress();
     setPort(m_port);

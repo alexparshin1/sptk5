@@ -68,12 +68,6 @@ public:
                const String& hostname, bool encrypted, size_t threadCount, bool allowCORS, bool keepAlive,
                bool suppressHttpStatus, const LogDetails& logDetails = LogDetails());
 
-    /**
-     * Get host name of the listener
-     * @return host name of the listener
-     */
-    String hostname() const override;
-
 protected:
     /**
      * Creates connection thread derived from CTCPServerConnection
@@ -90,7 +84,6 @@ private:
     WSRequest&          m_service;              ///< Web Service request processor
     Logger              m_logger;               ///< Logger object
     WSConnection::Paths m_paths;                ///< Pages and paths
-    String              m_hostname;             ///< This service hostname
     bool                m_allowCORS;            ///< Allow CORS
     bool                m_keepAlive;            ///< Allow keep-alive connections
     bool                m_suppressHttpStatus;   ///< Response HTTP status is always 200 OK, errors are reported in the response content

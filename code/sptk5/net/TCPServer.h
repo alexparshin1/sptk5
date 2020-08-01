@@ -170,15 +170,10 @@ public:
     ~TCPServer() override;
 
     /**
-     * Get current hostname of the server
+     * Get current host of the server
      * @return
      */
-    virtual String hostname() const;
-
-    /**
-     * Returns listener port number
-     */
-    uint16_t port() const;
+    const Host& host() const;
 
     /**
      * Starts listener
@@ -229,6 +224,13 @@ public:
 
 protected:
     /**
+     * Modify server host.
+     * If listener is already active, don't modify exiting server host.
+     * @param host              Server host
+     */
+    void host(const Host& host);
+
+    /**
      * Screens incoming connection request
      *
      * Method is called right after connection request is accepted,
@@ -263,7 +265,7 @@ private:
     std::shared_ptr<TCPServerListener>      m_listenerThread;   ///< Server listener
     std::shared_ptr<Logger>                 m_logger;           ///< Optional logger
     std::shared_ptr<SSLKeys>                m_sslKeys;          ///< Optional SSL keys. Only used for SSL server.
-    String                                  m_hostname;         ///< This host name
+    Host                                    m_host;             ///< This host
     LogDetails                              m_logDetails;       ///< Log details
 };
 

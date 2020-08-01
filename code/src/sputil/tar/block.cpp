@@ -72,21 +72,59 @@ void clearTarHeader(struct tar_header* th)
     memset(th, 0, sizeof(struct tar_header));
 }
 
+static void th_read_long_link(TAR *t)
+{
+    auto sz = (size_t) th_get_size(t);
+    auto j = (int) ( (sz / T_BLOCKSIZE) + ((sz % T_BLOCKSIZE) ? 1 : 0) );
+    t->th_buf.gnu_longlink = new char[size_t(j) * T_BLOCKSIZE];
+    if (t->th_buf.gnu_longlink == nullptr)
+        throw Exception("Can't allocate " + to_string(size_t(j) * T_BLOCKSIZE) + " bytes");
+
+    int i;
+    for (char* ptr = t->th_buf.gnu_longlink; j > 0 && ptr != nullptr; --j, ptr += T_BLOCKSIZE)
+    {
+        i = tar_block_read(t, ptr);
+        if (i != T_BLOCKSIZE)
+        {
+            throw Exception("Can't read block from tar");
+        }
+    }
+
+    i = th_read_internal(t);
+    if (i != T_BLOCKSIZE)
+    {
+        throw Exception("Can't read from tar");
+    }
+}
+
+static void th_read_long_filename(TAR *t)
+{
+    auto sz = (size_t) th_get_size(t);
+    auto j = (int) ( (sz / T_BLOCKSIZE) + ((sz % T_BLOCKSIZE) ? 1 : 0) );
+
+    t->th_buf.gnu_longname = new char[size_t(j) * T_BLOCKSIZE];
+    if (t->th_buf.gnu_longname == nullptr)
+        throw Exception("Can't allocate " + to_string(size_t(j) * T_BLOCKSIZE) + " bytes");
+
+    int i;
+    for (char *ptr = t->th_buf.gnu_longname; j > 0 && ptr != nullptr; --j, ptr += T_BLOCKSIZE)
+    {
+        i = tar_block_read(t, ptr);
+        if (i != T_BLOCKSIZE)
+            throw Exception("Can't read block from tar");
+    }
+
+    i = th_read_internal(t);
+    if (i != T_BLOCKSIZE)
+        throw Exception("Can't read from tar");
+}
+
 /* wrapper function for th_read_internal() to handle GNU extensions */
 int th_read(TAR *t)
 {
-    int i;
-    int j;
-    size_t sz;
-    char *ptr;
-
-#ifdef LIBTAR_DEBUG
-    printf("==> th_read(t=0x%lx)\n", t);
-#endif
-
     clearTarHeader(&(t->th_buf));
 
-    i = th_read_internal(t);
+    int i = th_read_internal(t);
     if (i == 0)
         return 1;
     if (i != T_BLOCKSIZE)
@@ -98,54 +136,11 @@ int th_read(TAR *t)
 
     /* check for GNU long link extention */
     if TH_ISLONGLINK(t)
-    {
-        sz = (size_t) th_get_size(t);
-        j = (int) ( (sz / T_BLOCKSIZE) + ((sz % T_BLOCKSIZE) ? 1 : 0) );
-        t->th_buf.gnu_longlink = new char[size_t(j) * T_BLOCKSIZE];
-        if (t->th_buf.gnu_longlink == nullptr)
-            throw Exception("Can't allocate " + to_string(size_t(j) * T_BLOCKSIZE) + " bytes");
-
-        for (ptr = t->th_buf.gnu_longlink; j > 0 && ptr != nullptr; --j, ptr += T_BLOCKSIZE)
-        {
-            i = tar_block_read(t, ptr);
-            if (i != T_BLOCKSIZE)
-            {
-                throw Exception("Can't read block from tar");
-            }
-        }
-
-        i = th_read_internal(t);
-        if (i != T_BLOCKSIZE)
-        {
-            throw Exception("Can't read from tar");
-        }
-    }
+        th_read_long_link(t);
 
     /* check for GNU long name extention */
     if TH_ISLONGNAME(t)
-    {
-        sz = (size_t) th_get_size(t);
-        j = (int) ( (sz / T_BLOCKSIZE) + ((sz % T_BLOCKSIZE) ? 1 : 0) );
-
-        t->th_buf.gnu_longname = new char[size_t(j) * T_BLOCKSIZE];
-        if (t->th_buf.gnu_longname == nullptr)
-            throw Exception("Can't allocate " + to_string(size_t(j) * T_BLOCKSIZE) + " bytes");
-
-        for (ptr = t->th_buf.gnu_longname; j > 0 && ptr != nullptr; --j, ptr += T_BLOCKSIZE)
-        {
-            i = tar_block_read(t, ptr);
-            if (i != T_BLOCKSIZE)
-            {
-                throw Exception("Can't read block from tar");
-            }
-        }
-
-        i = th_read_internal(t);
-        if (i != T_BLOCKSIZE)
-        {
-            throw Exception("Can't read from tar");
-        }
-    }
+        th_read_long_filename(t);
 
     return 0;
 }

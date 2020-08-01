@@ -45,8 +45,7 @@ class WSWebServiceProtocol : public WSProtocol
     HttpReader&         m_httpReader;           ///< HTTP reader
     WSRequest&          m_service;              ///< Web service
     const URL           m_url;                  ///< Request URL
-    const String        m_hostname;             ///< Listener's hostname
-    const uint16_t      m_port;                 ///< Listener's port
+    Host                m_host;                 ///< Listener's host
     bool                m_allowCORS;            ///< Allow CORS?
     bool                m_keepAlive;            ///< Allow keep-alive connections
     bool                m_suppressHttpStatus;   ///< If true, then HTTP status is 202 Accepted even if HttpException raised
@@ -73,13 +72,13 @@ public:
      * @param url               Method URL
      * @param headers           Connection HTTP headers
      * @param service           Web service that handles request
-     * @param hostname          Listener's hostname
+     * @param host          Listener's hostname
      * @param port              Listener's port
      * @param allowCORS         Allow CORS
      * @param keepAlive         Keep alive
      */
     WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
-                         const String& hostname, uint16_t port, bool allowCORS, bool keepAlive,
+                         const Host& host, bool allowCORS, bool keepAlive,
                          bool suppressHttpStatus);
 
     /// @brief Process method

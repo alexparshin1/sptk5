@@ -125,7 +125,7 @@ void WSConnection::run()
 
             bool closeConnection = reviewHeaders(requestType, headers);
 
-            WSWebServiceProtocol protocol(httpReader, url, m_service, server().hostname(), server().port(),
+            WSWebServiceProtocol protocol(httpReader, url, m_service, server().host(),
                                           m_allowCORS, m_keepAlive, m_suppressHttpStatus);
             auto requestInfo = protocol.process();
 

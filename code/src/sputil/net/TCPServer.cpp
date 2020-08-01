@@ -70,12 +70,10 @@ TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* 
     if (logEngine != nullptr)
         m_logger = make_shared<Logger>(*logEngine);
 
-    char hostname[128];
+    char hostname[128] = { "localhost" };
     int rc = gethostname(hostname, sizeof(hostname));
-    if (rc != 0)
-        m_hostname = "localhost";
-    else
-        m_hostname = hostname;
+    if (rc == 0)
+        m_host = Host(hostname);
 }
 
 TCPServer::~TCPServer()
@@ -83,22 +81,23 @@ TCPServer::~TCPServer()
     TCPServer::stop();
 }
 
-String TCPServer::hostname() const
+const Host& TCPServer::host() const
 {
     SharedLock(m_mutex);
-    return m_hostname;
+    return m_host;
 }
 
-uint16_t TCPServer::port() const
+void TCPServer::host(const Host& host)
 {
+    SharedLock(m_mutex);
     if (!m_listenerThread)
-        return 0;
-    return m_listenerThread->port();
+        m_host = host;
 }
 
 void TCPServer::listen(uint16_t port)
 {
     UniqueLock(m_mutex);
+    m_host.port(port);
     m_listenerThread = make_shared<TCPServerListener>(this, port);
     m_listenerThread->listen();
 }

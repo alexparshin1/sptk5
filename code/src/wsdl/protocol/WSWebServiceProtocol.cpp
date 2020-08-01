@@ -32,14 +32,13 @@ using namespace std;
 using namespace sptk;
 
 WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
-                                           const String& hostname, uint16_t port, bool allowCORS, bool keepAlive,
+                                           const Host& host, bool allowCORS, bool keepAlive,
                                            bool suppressHttpStatus)
 : WSProtocol(&httpReader.socket(), httpReader.getHttpHeaders()),
   m_httpReader(httpReader),
   m_service(service),
   m_url(url),
-  m_hostname(hostname),
-  m_port(port),
+  m_host(host),
   m_allowCORS(allowCORS),
   m_keepAlive(keepAlive),
   m_suppressHttpStatus(suppressHttpStatus)
@@ -160,7 +159,7 @@ void WSWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessage
     jsonContent.root().exportTo("ns1:" + method, *xmlBody);
 }
 
-static void substituteHostname(Buffer& page, const String& hostname, uint16_t port)
+static void substituteHostname(Buffer& page, const Host& host)
 {
     xml::Document wsdl;
     wsdl.load(page);
@@ -172,7 +171,7 @@ static void substituteHostname(Buffer& page, const String& hostname, uint16_t po
     if (location.empty())
         throw Exception("Can't find location attribute of <soap:address> in WSDL file");
     stringstream listener;
-    listener << "http://" << hostname << ":" << to_string(port) << "/";
+    listener << "http://" << host.toString() << "/";
     location = location.replace("http://([^\\/]+)/", listener.str());
     node->setAttribute("location", location);
     wsdl.save(page, 2);
@@ -270,7 +269,7 @@ RequestInfo WSWebServiceProtocol::process()
             // Requested WSDL content
             returnWSDL = true;
             requestInfo.response.content().set(m_service.wsdl());
-            substituteHostname(requestInfo.response.content(), m_hostname, m_port);
+            substituteHostname(requestInfo.response.content(), m_host);
             requestInfo.name = "wsdl";
         } else {
             // Regular request w/o content

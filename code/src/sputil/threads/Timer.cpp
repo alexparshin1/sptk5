@@ -463,8 +463,17 @@ TEST(SPTK_Timer, notifyObjects)
     EXPECT_EQ(object2.getValue(), -1);
 }
 
+int fibonacci(int n) {
+    if (n < 2)
+        return n;
+    return fibonacci(n - 1) +
+           fibonacci(n - 2);
+}
+
 TEST(SPTK_Timer, scheduleEventsPerformance)
 {
+    int z = fibonacci(4);
+
     Timer   timer;
     size_t  maxEvents = 100000;
     vector<Timer::Event> createdEvents;
