@@ -27,6 +27,7 @@
 #include <sptk5/cutils>
 #include <sptk5/wsdl/WSParser.h>
 #include <sptk5/CommandLine.h>
+#include <filesystem>
 
 #ifdef _WIN32
 #include <io.h>
@@ -116,7 +117,7 @@ int main(int argc, const char* argv[])
         size_t screenColumns = 80;
         const auto* colsStr = getenv("COLS");
         if (colsStr != nullptr)
-            screenColumns = string2int(colsStr);
+            screenColumns = (size_t) string2int(colsStr);
 
         commandLine.init(argc, argv);
 
@@ -138,9 +139,11 @@ int main(int argc, const char* argv[])
         string headerFile = commandLine.getOptionValue("cxx-directory").trim();
 
         if (outputDirectory != "." && access(outputDirectory.c_str(), 0) < 0) {
-            rc = system(("mkdir " + outputDirectory).c_str());
-            if (rc != 0) {
-                CERR("Can't open or create output directory '" << outputDirectory << "'." << endl)
+            try {
+                filesystem::create_directory(outputDirectory.c_str());
+            }
+            catch (const filesystem::filesystem_error& e) {
+                CERR("Can't create output directory '" << outputDirectory << "': " << e.what() << endl)
                 return 1;
             }
         }

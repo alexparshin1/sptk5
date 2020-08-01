@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <FL/fl_ask.H>
 #include <sptk5/HomeDirectory.h>
+#include <filesystem>
 
 #ifdef WIN32
 
@@ -219,16 +220,12 @@ void CFileDialog::createFolder()
     if (dialog.showModal()) {
         String folderName = m_directory.directory() + slashStr + folderNameInput.data().asString();
         folderName = folderName.replace("[\\/\\\\]{2}", slashStr);
-#ifdef WIN32
-        int rc = mkdir(folderName.c_str());
-#else
-        int rc = mkdir(folderName.c_str(), S_IRWXU);
-#endif
-
-        if (rc == 0) {
+        try {
+            filesystem::create_directories(folderName.c_str());
             directory(folderName);
             refreshDirectory();
-        } else {
+        }
+        catch (const filesystem::filesystem_error& e) {
             fl_alert("%s", ("Can't create directory " + folderName).c_str());
         }
     }

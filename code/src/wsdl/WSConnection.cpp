@@ -258,7 +258,9 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSRequest& service,
                                  Logger& logger, const Paths& paths, int options, const LogDetails& logDetails)
 : WSConnection(server, connectionSocket, addr, service, logger, paths,
-               options & ALLOW_CORS, options & KEEP_ALIVE, options & SUPPRESS_HTTP_STATUS,
+               (options & ALLOW_CORS) != 0,
+               (options & KEEP_ALIVE) != 0,
+               (options & SUPPRESS_HTTP_STATUS) != 0,
                logDetails)
 {
     if (options & ENCRYPTED) {

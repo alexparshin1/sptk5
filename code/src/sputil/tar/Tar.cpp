@@ -37,6 +37,8 @@
 
 #if USE_GTEST
 #include <sptk5/md5.h>
+#include <filesystem>
+
 #endif
 
 using namespace std;
@@ -216,7 +218,7 @@ TEST(SPTK_Tar, read)
 {
     Tar tar;
 
-    ASSERT_EQ(0, system(("mkdir " + gtestTempDirectory).c_str()));
+    filesystem::create_directories(gtestTempDirectory.c_str());
 
     Buffer file1;
     for (int i = 0; i < 1000; ++i) {

@@ -36,13 +36,6 @@
 
 #define CASE_INSENSITIVE 1
 
-#ifdef _WIN32
-const char slash = '\\';
-#else
-#include <dirent.h>
-const char slash = '/';
-#endif
-
 #ifndef FL_ALIGN_LEFT
 #define FL_ALIGN_LEFT 4
 #endif
@@ -119,53 +112,9 @@ CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext) const
 
 String DirectoryDS::absolutePath(const String& _path) const
 {
-    String path(_path);
-    char slashStr[] = {slash, 0};
-    char currentDir[256];
-    String fullPath;
-    if (getcwd(currentDir, 255) == nullptr)
-        currentDir[0] = 0;
-
-#ifdef _WIN32
-    path = path.replace("\\/", "\\");
-    if (path[1] == ':')
-        fullPath = path;
-    else if (path[0] == '\\') {
-        fullPath = string(currentDir).substr(0, 2) + path;
-    } else
-        fullPath = string(currentDir) + slashStr + path;
-#else
-
-    path = path.replace("\\\\", "/");
-    if (path[0] == slash)
-        fullPath = path;
-    else
-        fullPath = string(currentDir) + slashStr + path;
-#endif
-
-    Strings pathItems(fullPath, slashStr);
-    for (unsigned i = 0; i < pathItems.size(); ++i) {
-        if (pathItems[i] == "..") {
-            pathItems.remove(i);
-            --i;
-            if (i > 0) {
-                pathItems.remove(i);
-                --i;
-            }
-        }
-        if (pathItems[i] == ".") {
-            pathItems.remove(i);
-            --i;
-        }
-    }
-#ifdef _WIN32
-    path = pathItems.join(slashStr);
-#else
-    path = "/" + pathItems.join(slashStr);
-#endif
-    if (!path.length())
-        path = slashStr;
-    return path;
+    path p = _path.c_str();
+    String fullPath = absolute(p).string();
+    return fullPath;
 }
 
 void DirectoryDS::directory(const String& d)
@@ -338,24 +287,18 @@ class TempDirectory
 public:
     String m_path;
 
-    explicit TempDirectory(String path)
-    : m_path(move(path))
+    explicit TempDirectory(String _path)
+    : m_path(move(_path))
     {
-#ifdef _WIN32
-        int rc = system(("mkdir " + m_path).c_str());
-        if (rc < 0)
-            throw SystemException(("Can't create temp directory " + m_path).c_str());
-        rc = system(("mkdir " + m_path + "\\dir1").c_str());
-        if (rc < 0)
-            throw SystemException(("Can't create temp directory " + m_path + "/dir1").c_str());
-#else
-        int rc = mkdir(m_path.c_str(), 0777);
-        if (rc < 0)
-            throw SystemException("Can't create temp directory " + m_path);
-        rc = mkdir((m_path + "/dir1").c_str(), 0777);
-        if (rc < 0)
-            throw SystemException("Can't create temp directory " + m_path + "/dir1");
-#endif
+        path dir = path(m_path.c_str()) / "dir1";
+        try {
+            create_directories(dir);
+        }
+        catch (const filesystem_error& e) {
+            CERR("Can't create temp directory " << dir.filename().string() << ": " << e.what() << endl);
+            return;
+        }
+
         Buffer buffer;
         buffer.fill('X', 10);
         buffer.saveToFile(m_path + "/file1");

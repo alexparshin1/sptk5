@@ -29,14 +29,15 @@
 #include <FL/Fl.H>
 #include <sptk5/cutils>
 #include <sptk5/cnet>
+#include <filesystem>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    system("rm -rf /tmp/logs");
-    system("mkdir /tmp/logs");
+    filesystem::remove_all("/tmp/logs");
+    filesystem::create_directories("/tmp/logs");
 
     DateTime totalStarted = DateTime::Now();
 
