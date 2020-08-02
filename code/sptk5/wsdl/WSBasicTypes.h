@@ -674,6 +674,8 @@ public:
     {
         return "WSArray";
     }
+
+    bool isNull() const { return std::vector<T>::empty(); }
 };
 
 /**

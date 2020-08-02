@@ -215,7 +215,7 @@ public:
      * Returns concatenated string
      * @param delimiter         Delimiter
      */
-    String join(const char* delimiter) const;
+    String join(const String& delimiter) const;
 
     /**
      * Returns strings matching regex pattern

@@ -59,6 +59,8 @@ void WSComplexType::addElement(xml::Element* parent, const char* name) const
 void WSComplexType::addElement(json::Element* parent) const
 {
     if (m_exportable) {
+        if (isOptional() && isNull())
+            return;
         json::Element* element;
         if (parent->is(json::JDT_ARRAY))
             element = parent->push_back();

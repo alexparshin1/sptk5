@@ -287,6 +287,11 @@ void WSParserComplexType::generateDefinition(ostream& classDeclaration, Strings&
     classDeclaration << "    */" << endl;
     classDeclaration << "   void unload(sptk::QueryParameterList& output) const override;" << endl << endl;
 
+    classDeclaration << "   /**" << endl;
+    classDeclaration << "    * Check if null" << endl;
+    classDeclaration << "    * @return true if all elements and attributes are null" << endl;
+    classDeclaration << "    */" << endl;
+    classDeclaration << "   bool isNull() const override;" << endl << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Get simple field names that can be used to build SQL queries." << endl;
@@ -701,6 +706,40 @@ void WSParserComplexType::printImplementationUnloadJSON(ostream& classImplementa
     classImplementation << "}" << endl << endl;
 }
 
+void WSParserComplexType::printImplementationIsNull(ostream& classImplementation, const String& className) const
+{
+    classImplementation << "bool " << className << "::isNull() const" << endl
+                        << "{" << endl;
+
+    String indent = "\n        ";
+    if (!m_attributes.empty()) {
+        classImplementation << "    // Check attributes" << endl;
+        classImplementation << "    bool attributesAreNull = ";
+
+        Strings attributeChecks;
+        for (auto& itor: m_attributes) {
+            const WSParserAttribute& attr = *itor.second;
+            attributeChecks.push_back("m_" + attr.name() + ".isNull()");
+        }
+        classImplementation << indent << attributeChecks.join(indent + "&& ") << ";";
+        classImplementation << "    if (!attributesAreNull)" << endl
+                            << "        return false;" << endl;
+        classImplementation << endl;
+    }
+
+    if (!m_sequence.empty()) {
+        classImplementation << "    // Check elements" << endl;
+        classImplementation << "    bool elementsAreNull = ";
+        Strings elementChecks;
+        for (auto& complexType: m_sequence) {
+            elementChecks.push_back("m_" + complexType->name() + ".isNull()");
+        }
+        classImplementation << indent << elementChecks.join(indent + "&& ") << ";" << endl << endl;
+    }
+    classImplementation << "    return elementsAreNull;" << endl;
+    classImplementation << "}" << endl << endl;
+}
+
 void WSParserComplexType::printImplementationUnloadParamList(ostream& classImplementation, const String& className) const
 {
     stringstream    unloadList;
@@ -757,6 +796,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 
     printImplementationUnloadXML(classImplementation, className);
     printImplementationUnloadJSON(classImplementation, className);
+    printImplementationIsNull(classImplementation, className);
     printImplementationUnloadParamList(classImplementation, className);
 }
 

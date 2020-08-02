@@ -73,21 +73,6 @@ enum WSMultiplicity {
  */
 class WSParserAttribute
 {
-    /**
-     * Attribute name
-     */
-    String          m_name;
-
-    /**
-     * Attribute type name
-     */
-    String          m_wsTypeName;
-
-    /**
-     * C++ type name
-     */
-    String          m_cxxTypeName;
-
 public:
     /**
      * Constructor
@@ -121,6 +106,12 @@ public:
      * Returns attribute WSDL type name
      */
     String wsTypeName() const { return m_wsTypeName; }
+
+private:
+
+    String          m_name;         ///< Attribute name
+    String          m_wsTypeName;   ///< Attribute type name
+    String          m_cxxTypeName;  ///< C++ type name
 };
 
 class WSParserComplexType;
@@ -333,6 +324,8 @@ private:
     void printImplementationLoadXMLAttributes(ImplementationParts& implementationParts) const;
 
     void printImplementationLoadXMLFields(ImplementationParts& implementationParts) const;
+
+    void printImplementationIsNull(std::ostream& classImplementation, const String& className) const;
 
     void appendMemberDocumentation(std::ostream& classDeclaration,
                                    const SWSParserComplexType& complexType) const;

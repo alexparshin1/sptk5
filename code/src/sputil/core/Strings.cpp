@@ -165,7 +165,7 @@ void Strings::loadFromFile(const String& fileName)
     splitByDelimiter(*this, text, delimiter.c_str());
 }
 
-String Strings::join(const char* delimitter) const
+String Strings::join(const String& delimitter) const
 {
     stringstream result;
     bool first = true;
