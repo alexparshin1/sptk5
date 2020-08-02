@@ -38,6 +38,7 @@ void RequestInfo::Message::input(const Buffer& content, const String& contentEnc
     m_content.reset(128);
     m_compressedLength = content.length();
     m_contentEncoding = contentEncoding;
+
     if (contentEncoding.empty()) {
         m_content = content;
     } else
