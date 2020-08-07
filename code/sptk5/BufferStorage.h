@@ -303,10 +303,11 @@ protected:
      */
     void reallocate(size_t size)
     {
-        if (size == m_size)
+        size_t newSize = size + 1;
+        if (newSize == m_size)
             return;
 
-        auto* ptr = new char[size + 1];
+        auto* ptr = new char[newSize];
         if (ptr == nullptr)
             throwException("Out of memory")
 
@@ -318,12 +319,11 @@ protected:
         delete [] m_buffer;
 
         m_buffer = ptr;
-        m_size = size;
-        if (m_bytes >= m_size) {
-            m_bytes = m_size;
-            if (m_bytes > 0)
-                --m_bytes;
-        }
+        m_size = newSize;
+        if (m_bytes > size)
+            m_bytes = size;
+
+        m_buffer[size] = 0;
     }
 
     /**

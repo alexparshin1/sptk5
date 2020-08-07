@@ -333,10 +333,10 @@ void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strin
 void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
                                                     const SWSParserComplexType& complexType) const
 {
-    if (!complexType->documentation().empty()) {
+    if (!complexType->m_documentation.empty()) {
         classDeclaration << endl;
         classDeclaration << "   /**" << endl;
-        Strings rows(complexType->documentation(), "[\n\r]+", Strings::SM_REGEXP);
+        Strings rows(complexType->m_documentation, "[\n\r]+", Strings::SM_REGEXP);
         for (const String& row: rows) {
             classDeclaration << "    * " << trim(row) << endl;
         }

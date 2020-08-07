@@ -172,14 +172,6 @@ public:
     }
 
     /**
-     * Documentation
-     */
-    String documentation() const
-    {
-        return m_documentation;
-    }
-
-    /**
      * Get child elements sequence
      * @return Child elements sequence
      */

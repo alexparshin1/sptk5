@@ -88,7 +88,8 @@ void BufferStorage::set(const char* data, size_t sz)
 {
     checkSize(sz);
     if (data != nullptr) {
-        memcpy(this->data(), data, sz + 1);
+        memcpy(m_buffer, data, sz);
+        m_buffer[sz] = 0;
         m_bytes = sz;
     } else
         m_bytes = 0;
