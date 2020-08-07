@@ -117,7 +117,7 @@ public:
     /**
      * Read headers that can be read completely
      */
-    bool readHttpHeaders();
+    void readHttpHeaders();
 
     /**
      * Read HTTP headers and data after socket is just connected.

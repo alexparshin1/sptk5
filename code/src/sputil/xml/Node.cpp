@@ -101,7 +101,7 @@ static void makeAttributeCriteria(XPathElement& pathElement, size_t pos, const s
     }
 }
 
-static void makeCriteria(const Document* document, XPathElement& pathElement, size_t pos)
+static void makeCriteria(XPathElement& pathElement, size_t pos)
 {
     const String& criteria = pathElement.criteria;
 
@@ -151,7 +151,7 @@ static void parsePathElement(const Document* document, const string& pathElement
     else
         pathElement.elementName = pathElementName.c_str();
 
-    makeCriteria(document, pathElement, pos);
+    makeCriteria(pathElement, pos);
 }
 
 bool NodeSearchAlgorithms::matchPathElementAttribute(Node* thisNode, const XPathElement& pathElement,

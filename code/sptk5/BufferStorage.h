@@ -287,12 +287,14 @@ protected:
      * Allocate memory
      * @param size              Number of bytes for new buffer
      */
-    void allocate(const String& str)
+    void allocate(const void* data, size_t size)
     {
-        m_bytes = str.length();
+        m_bytes = size;
         m_size = m_bytes + 1;
         m_buffer = new char[m_size];
-        memcpy(m_buffer, str.c_str(), m_size);
+        if (data != nullptr && size != 0)
+            memcpy(m_buffer, data, size);
+        m_buffer[size] = 0;
     }
 
     /**
@@ -308,7 +310,7 @@ protected:
         if (ptr == nullptr)
             throwException("Out of memory")
 
-        if (m_size < size)
+        if (m_size < size && size > 0)
             memcpy(ptr, m_buffer, m_size);
         else
             memcpy(ptr, m_buffer, size);

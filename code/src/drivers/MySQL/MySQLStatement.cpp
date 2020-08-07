@@ -129,7 +129,7 @@ void MySQLStatement::mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& 
 void MySQLStatement::enumerateParams(QueryParameterList& queryParams)
 {
     DatabaseStatement<MySQLConnection,MYSQL_STMT>::enumerateParams(queryParams);
-    auto paramCount = (uint32_t) m_enumeratedParams.size();
+    auto paramCount = enumeratedParams().size();
     m_paramBuffers.resize(paramCount);
     m_paramLengths.resize(paramCount);
     MYSQL_BIND* paramBuffers = &m_paramBuffers[0];
@@ -223,9 +223,9 @@ void MySQLStatement::setParameterValues()
 {
     static my_bool nullValue = true;
 
-    auto paramCount = (unsigned) m_enumeratedParams.size();
+    auto paramCount = enumeratedParams().size();
     for (unsigned paramIndex = 0; paramIndex < paramCount; ++paramIndex) {
-        QueryParameter*     param = m_enumeratedParams[paramIndex];
+        QueryParameter*     param = enumeratedParams()[paramIndex];
         bool                setNull = param->isNull();
         MYSQL_BIND& bind = m_paramBuffers[paramIndex];
 

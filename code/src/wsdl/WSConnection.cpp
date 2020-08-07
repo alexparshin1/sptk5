@@ -67,13 +67,8 @@ void WSConnection::run()
     String  protocolName;
     bool    done {false};
 
-    while (!done) {
+    while (!done && socket().active()) {
         try {
-            if (!socket().active()) {
-                // We closed connection
-                break;
-            }
-
             if (!socket().readyToRead(chrono::seconds(30))) {
                 socket().close();
                 // Client communication timeout
@@ -92,11 +87,7 @@ void WSConnection::run()
             HttpReader httpReader(socket(), contentBuffer, HttpReader::REQUEST);
 
             protocolName = "http";
-            if (!httpReader.readHttpHeaders()) {
-                m_logger.error("Can't read HTTP request");
-                return;
-            }
-
+            httpReader.readHttpHeaders();
             auto& headers = httpReader.getHttpHeaders();
 
             String requestType = httpReader.getRequestType();

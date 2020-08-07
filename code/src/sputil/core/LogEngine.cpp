@@ -34,6 +34,10 @@ LogEngine::LogEngine(const String& logEngineName)
 {
 }
 
+LogEngine::~LogEngine()
+{
+}
+
 void LogEngine::option(Option option, bool flag)
 {
     if (flag)

@@ -99,6 +99,8 @@ public:
      */
     explicit LogEngine(const String& logEngineName);
 
+    ~LogEngine() override;
+
     /**
      * Restarts the log
      *

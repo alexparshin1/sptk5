@@ -33,7 +33,7 @@ namespace sptk
 {
 
 /**
- * @brief Template class for database statements for different database drivers
+ * Template class for database statements for different database drivers
  */
 template <class Connection, class Statement> class DatabaseStatement
 {
@@ -55,12 +55,7 @@ public:
     }
 
     /**
-     * Enumerated parameters
-     */
-    CParamVector    m_enumeratedParams;
-
-    /**
-     * @brief Constructor
+     * Constructor
      * @param connection Connection*, DB connection
      */
     explicit DatabaseStatement(Connection* connection)
@@ -68,13 +63,13 @@ public:
     {}
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~DatabaseStatement()
     {}
 
     /**
-     * @brief Returns current DB statement handle
+     * Returns current DB statement handle
      */
     Statement* stmt() const
     {
@@ -82,7 +77,7 @@ public:
     }
 
     /**
-     * @brief Generates normalized list of parameters
+     * Generates normalized list of parameters
      * @param queryParams CParamList&, Standard query parameters
      */
     virtual void enumerateParams(QueryParameterList& queryParams)
@@ -97,7 +92,7 @@ public:
     }
 
     /**
-     * @brief Returns normalized list of parameters
+     * Returns normalized list of parameters
      */
     CParamVector& enumeratedParams()
     {
@@ -105,7 +100,7 @@ public:
     }
 
     /**
-     * @brief Returns true if statement uses output parameters
+     * Returns true if statement uses output parameters
      */
     size_t outputParameterCount() const
     {
@@ -113,28 +108,28 @@ public:
     }
 
     /**
-     * @brief Sets actual parameter values for the statement execution
+     * Sets actual parameter values for the statement execution
      */
     virtual void setParameterValues() = 0;
 
     /**
-     * @brief Executes statement
+     * Executes statement
      * @param inTransaction bool, True if statement is executed from transaction
      */
     virtual void execute(bool inTransaction) = 0;
 
     /**
-     * @brief Closes statement and releases allocated resources
+     * Closes statement and releases allocated resources
      */
     virtual void close() = 0;
 
     /**
-     * @brief Fetches next record
+     * Fetches next record
      */
     virtual void fetch() = 0;
 
     /**
-     * @brief Returns true if recordset is in EOF state
+     * Returns true if recordset is in EOF state
      */
     bool eof() const
     {
@@ -142,7 +137,7 @@ public:
     }
 
     /**
-     * @brief Returns recordset number of columns
+     * Returns recordset number of columns
      */
     unsigned colCount() const
     {
@@ -182,20 +177,11 @@ protected:
     }
 
 private:
-    /**
-     * DB connection
-     */
-    Connection*     m_connection;
 
-    /**
-     * Statement
-     */
-    Statement*      m_statement {nullptr};
-
-    /**
-     * State flags
-     */
-    State m_state {};
+    Connection*     m_connection {nullptr}; ///< DB connection
+    Statement*      m_statement {nullptr};  ///< Statement
+    State           m_state {};             ///< State flags
+    CParamVector    m_enumeratedParams;     ///< Enumerated parameters
 };
 
 }

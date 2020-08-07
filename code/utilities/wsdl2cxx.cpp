@@ -108,6 +108,18 @@ auto parseOperationsAuth(const String& operationsAuth)
     return output;
 }
 
+static bool createDirectory(const String& directory)
+{
+    try {
+        filesystem::create_directory(directory.c_str());
+    }
+    catch (const filesystem::filesystem_error& e) {
+        CERR("Can't create output directory '" << directory << "': " << e.what() << endl)
+        return false;
+    }
+    return true;
+}
+
 int main(int argc, const char* argv[])
 {
     AppCommandLine commandLine;
@@ -138,15 +150,8 @@ int main(int argc, const char* argv[])
 
         string headerFile = commandLine.getOptionValue("cxx-directory").trim();
 
-        if (outputDirectory != "." && access(outputDirectory.c_str(), 0) < 0) {
-            try {
-                filesystem::create_directory(outputDirectory.c_str());
-            }
-            catch (const filesystem::filesystem_error& e) {
-                CERR("Can't create output directory '" << outputDirectory << "': " << e.what() << endl)
-                return 1;
-            }
-        }
+        if (outputDirectory != "." && access(outputDirectory.c_str(), 0) < 0 && !createDirectory(outputDirectory))
+            return 1;
 
         if (!quiet && verbose) {
             COUT("Input WSDL file:             " << wsdlFile << endl);

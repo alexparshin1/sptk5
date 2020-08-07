@@ -38,7 +38,10 @@ using namespace chrono;
 // OpenSSL library initialization
 class CSSLLibraryLoader
 {
+#if OPENSSL_API_COMPAT >= 0x10100000L
     static std::mutex*          m_locks;
+#endif
+
     static CSSLLibraryLoader    m_loader;
 
     static void load_library()
@@ -51,6 +54,7 @@ class CSSLLibraryLoader
 		SSL_library_init();
 	}
 
+#if OPENSSL_API_COMPAT >= 0x10100000L
     static void lock_callback(int mode, int type, const char* /*file*/, int /*line*/)
     {
         if ((mode & CRYPTO_LOCK) == CRYPTO_LOCK)
@@ -82,13 +86,16 @@ class CSSLLibraryLoader
 		CRYPTO_set_locking_callback(NULL);
         delete [] m_locks;
     }
+#endif
 
 public:
 
     CSSLLibraryLoader() noexcept
     {
         load_library();
+#if OPENSSL_API_COMPAT >= 0x10100000L
         init_locks();
+#endif
     }
 
     CSSLLibraryLoader(const CSSLLibraryLoader&) = delete;
@@ -108,14 +115,19 @@ public:
         ERR_free_strings();
         EVP_cleanup();
         CRYPTO_cleanup_all_ex_data();
+#if OPENSSL_API_COMPAT >= 0x10100000L
         kill_locks();
+#endif
         ERR_free_strings();
         EVP_cleanup();
         CRYPTO_cleanup_all_ex_data();
     }
 };
 
+#if OPENSSL_API_COMPAT >= 0x10100000L
 mutex*              CSSLLibraryLoader::m_locks;
+#endif
+
 CSSLLibraryLoader   CSSLLibraryLoader::m_loader;
 
 void SSLSocket::throwSSLError(const String& function, int rc) const

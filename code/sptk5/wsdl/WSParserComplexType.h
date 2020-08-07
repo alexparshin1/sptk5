@@ -327,15 +327,19 @@ private:
 
     void printImplementationIsNull(std::ostream& classImplementation, const String& className) const;
 
-    void appendMemberDocumentation(std::ostream& classDeclaration,
-                                   const SWSParserComplexType& complexType) const;
+    void appendMemberDocumentation(std::ostream& classDeclaration, const SWSParserComplexType& complexType) const;
 
-    void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames, const Strings& attributeNames,
+    void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames,
                                Strings& copyInitializer, Strings& moveInitializer) const;
 
-    sptk::String appendRestrictionIfDefined(
-            WSParserComplexType::ImplementationParts& implementationParts,
-            const SWSParserComplexType& complexType) const;
+    sptk::String appendRestrictionIfDefined(WSParserComplexType::ImplementationParts& implementationParts,
+                                            const SWSParserComplexType& complexType) const;
+
+    void printImplementationLoadArray(ImplementationParts& implementationParts,
+                                      const SWSParserComplexType& complexType, const String& restrictionName) const;
+
+    void printImplementationLoadField(ImplementationParts& implementationParts, Strings& requiredElements,
+                                      const SWSParserComplexType& complexType, const String& restrictionName) const;
 };
 
 /**

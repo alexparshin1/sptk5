@@ -186,15 +186,13 @@ bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
                 replaced = true;
                 ptr = pos + len;
                 pos = strstr(ptr, val.c_str());
-                if (pos == nullptr) {
-                    dst->append(ptr);
-                    ptr = dst->data();
-                    Buffer* tmp = dst;
-                    dst = src;
-                    src = tmp;
-                    dst->bytes(0);
-                }
             }
+            dst->append(ptr);
+            ptr = dst->data();
+            Buffer* tmp = dst;
+            dst = src;
+            src = tmp;
+            dst->bytes(0);
         }
     }
 
@@ -268,7 +266,7 @@ TEST(SPTK_XmlDocType, decodeEncodeEntities)
     decoded.reset();
 
     docType.encodeEntities(testString2.c_str(), encoded);
-    docType.decodeEntities(encoded.c_str(), encoded.length(), decoded);
+    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.length(), decoded);
     EXPECT_STREQ(testString2.c_str(), decoded.c_str());
 }
 

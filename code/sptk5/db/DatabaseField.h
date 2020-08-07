@@ -64,10 +64,6 @@ public:
     DatabaseField(const String& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength,
 				  int fieldScale = 4);
 
-    String          displayFormat;          ///< Column display format
-    int             alignment {ALIGN_LEFT}; ///< Column alignment
-
-
     /**
      * @brief Checks the internal buffer size
      *
@@ -115,6 +111,28 @@ public:
         return (uint32_t) m_fldSize;
     }
 
+    /**
+     * Column display format
+     * @return Column display format
+     */
+    String displayFormat() const { return m_displayFormat; }
+
+    /**
+     * Set column display format
+     */
+    void displayFormat(const String& format) { m_displayFormat = format; }
+
+    /**
+     * Column alignment
+     * @return Column alignment
+     */
+    int alignment() const { return m_alignment; }
+
+    /**
+     * Set column alignment
+     */
+    void alignment(int al) { m_alignment = al; }
+
 protected:
 
     /**
@@ -132,10 +150,14 @@ protected:
 
 private:
 
-    int     m_fldType;      ///< Native database data type
-    int     m_fldColumn;    ///< Field column number in recordset
-    int     m_fldSize;      ///< Field size
-    int     m_fldScale;     ///< Field scale, optional, for floating point fields
+    int     m_fldType;                  ///< Native database data type
+    int     m_fldColumn;                ///< Field column number in recordset
+    int     m_fldSize;                  ///< Field size
+    int     m_fldScale;                 ///< Field scale, optional, for floating point fields
+    String  m_displayFormat;            ///< Column display format
+    int     m_alignment {ALIGN_LEFT};   ///< Column alignment
+
+
 };
 /**
  * @}

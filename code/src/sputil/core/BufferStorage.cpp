@@ -33,10 +33,7 @@ using namespace sptk;
 
 BufferStorage::BufferStorage(const BufferStorage& other)
 {
-    allocate(other.m_bytes + 1);
-    m_bytes = other.m_bytes;
-    if (m_bytes > 0)
-        memcpy(m_buffer, other.m_buffer, other.m_bytes + 1);
+    allocate(other.m_buffer, other.m_bytes);
 }
 
 BufferStorage::BufferStorage(BufferStorage&& other) noexcept
@@ -53,11 +50,7 @@ BufferStorage::BufferStorage(size_t sz)
 
 BufferStorage::BufferStorage(const void* data, size_t sz)
 {
-    allocate(sz + 1);
-    if (data != nullptr) {
-        memcpy(m_buffer, data, sz);
-        m_bytes = sz;
-    }
+    allocate(data, sz);
 }
 
 BufferStorage& BufferStorage::operator=(const BufferStorage& other)

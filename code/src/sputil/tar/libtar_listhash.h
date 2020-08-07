@@ -81,13 +81,13 @@ void *libtar_listptr_data(libtar_listptr_t *);
 libtar_list_t *libtar_list_new(int, libtar_cmpfunc_t);
 
 /* call a function for every element in a list */
-int libtar_list_iterate(libtar_list_t *, libtar_iterate_func_t, void *);
+int libtar_list_iterate(libtar_list_t *, const libtar_iterate_func_t&, void *);
 
 /* empty the list */
-void libtar_list_empty(libtar_list_t *, libtar_freefunc_t);
+void libtar_list_empty(libtar_list_t *, const libtar_freefunc_t&);
 
 /* remove and free() the entire list */
-void libtar_list_free(libtar_list_t *, libtar_freefunc_t);
+void libtar_list_free(libtar_list_t *, const libtar_freefunc_t&);
 
 /* add elements */
 int libtar_list_add(libtar_list_t *, void *);

@@ -83,7 +83,7 @@ bool HttpReader::readHttpRequest()
     return false;
 }
 
-bool HttpReader::readHttpHeaders()
+void HttpReader::readHttpHeaders()
 {
     reset();
 
@@ -103,7 +103,7 @@ bool HttpReader::readHttpHeaders()
         m_socket.readLine(header);
 
         if (header.empty())
-            return false;
+            throw Exception("Empty HTTP header");
 
         size_t pos = header.find(':');
         if (pos != string::npos) {
@@ -134,7 +134,6 @@ bool HttpReader::readHttpHeaders()
     m_contentReceivedLength = 0;
 
     m_readerState = READING_DATA;
-    return true;
 }
 
 static size_t readAndAppend(TCPSocket& socket, Buffer& output, size_t bytesToRead)
@@ -217,8 +216,7 @@ void HttpReader::read()
     lock_guard<mutex> lock(m_mutex);
 
     if (m_readerState == READY) {
-        if (!readHttpHeaders())
-            return;
+        readHttpHeaders();
         m_readerState = READING_DATA;
     }
 

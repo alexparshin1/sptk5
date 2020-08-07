@@ -71,7 +71,7 @@ libtar_list_t* libtar_list_new(int flags, libtar_cmpfunc_t cmpfunc)
 ** libtar_list_iterate() - call a function for every element
 **                      in a list
 */
-int libtar_list_iterate(libtar_list_t* l, libtar_iterate_func_t plugin, void* state)
+int libtar_list_iterate(libtar_list_t* l, const libtar_iterate_func_t& plugin, void* state)
 {
     libtar_listptr_t n;
 
@@ -90,7 +90,7 @@ int libtar_list_iterate(libtar_list_t* l, libtar_iterate_func_t plugin, void* st
 /*
 ** libtar_list_empty() - empty the list
 */
-void libtar_list_empty(libtar_list_t* l, libtar_freefunc_t freefunc)
+void libtar_list_empty(libtar_list_t* l, const libtar_freefunc_t& freefunc)
 {
     libtar_listptr_t n;
 
@@ -108,7 +108,7 @@ void libtar_list_empty(libtar_list_t* l, libtar_freefunc_t freefunc)
 /*
 ** libtar_list_free() - remove and free() the whole list
 */
-void libtar_list_free(libtar_list_t* l, libtar_freefunc_t freefunc)
+void libtar_list_free(libtar_list_t* l, const libtar_freefunc_t& freefunc)
 {
     libtar_list_empty(l, freefunc);
     delete l;
