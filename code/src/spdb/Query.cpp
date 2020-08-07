@@ -161,6 +161,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
     if (paramStart == nullptr)
         return false;      // No more parameters
 
+    bool rc = false;
     if (*paramStart == '\'') {
         // Started string constant
         const char* nextQuote = strchr(paramStart + 1, '\'');
@@ -171,10 +172,8 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
             sql += string(paramEnd, nextQuote - paramEnd + 1);
             paramEnd = nextQuote + 1;
         }
-        return false;
     }
-
-    if (*paramStart == '-' && paramStart[1] == '-') {
+    else if (*paramStart == '-' && paramStart[1] == '-') {
         // Started inline comment '--comment text', jump to the end of comment
         const char* endOfRow = strchr(paramStart + 1, '\n');
         if (endOfRow == nullptr) {
@@ -184,10 +183,8 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
             sql += string(paramEnd, endOfRow - paramEnd + 1);
             paramEnd = endOfRow + 1;
         }
-        return false;
     }
-
-    if (*paramStart == '/' && paramStart[1] == '*') {
+    else if (*paramStart == '/' && paramStart[1] == '*') {
         // Started C-style block comment, jump to the end of comment
         const char* endOfRow = strstr(paramStart + 1, "*/");
         if (endOfRow == nullptr) {
@@ -197,25 +194,27 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
             sql += string(paramEnd, endOfRow - paramEnd + 2);
             paramEnd = endOfRow + 2;
         }
-        return false;
     }
-
-    if (*paramStart == '/' || paramStart[1] == ':' || paramStart[1] == '=') {
+    else if (*paramStart == '/' || paramStart[1] == ':' || paramStart[1] == '=') {
         // Started PostgreSQL type qualifier '::' or assignment ':='
         sql += string(paramEnd, paramStart - paramEnd + 2);
         paramEnd = paramStart + 2;
-        return false;
+    }
+    else {
+        sql += string(paramEnd, paramStart - paramEnd);
+        rc = true;
     }
 
-    sql += string(paramEnd, paramStart - paramEnd);
+    if (!rc)
+        return false;
 
     paramEnd = paramStart + 1;
     if (*paramStart != ':') {
         sql += *paramStart;
-        return false;
+        rc = false;
     }
 
-    return true;
+    return rc;
 }
 
 void Query::sqlParseParameter(const char* paramStart, const char* paramEnd, int& paramNumber, String& sql)
