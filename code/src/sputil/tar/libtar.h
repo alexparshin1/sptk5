@@ -19,8 +19,6 @@
 #include <cstddef>
 #include <string>
 
-#include "libtar_listhash.h"
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -78,7 +76,7 @@ typedef struct
 }
 tartype_t;
 
-typedef struct
+struct TAR
 {
 	tartype_t *type;
 	const char *pathname;
@@ -86,9 +84,7 @@ typedef struct
 	int oflags;
 	int options;
 	struct tar_header th_buf;
-	libtar_hash_t *h;
-}
-TAR;
+};
 
 /* constant values for the TAR options field */
 #define TAR_GNU			 1	/* use GNU extensions */

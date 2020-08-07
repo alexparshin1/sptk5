@@ -42,13 +42,6 @@ static TAR* tar_init(const char *pathname, tartype_t *type,int oflags, int /*mod
     t->type = (type ? type : &default_type);
     t->oflags = oflags;
 
-    t->h = libtar_hash_new(256, (libtar_hashfunc_t)path_hashfunc);
-    if (t->h == nullptr)
-    {
-        delete t;
-        throw Exception("Can't allocate memory for tar hash");
-    }
-
     return t;
 }
 
@@ -83,8 +76,6 @@ int tar_close(TAR *t)
 
     i = (*(t->type->closefunc))((int)t->fd);
 
-    if (t->h != nullptr)
-        libtar_hash_free(t->h, &free);
     delete t;
 
     return i;

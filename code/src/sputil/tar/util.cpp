@@ -62,39 +62,3 @@ int oct_to_int(const char *oct)
     return int(i);
 }
 
-/*
- * Get next token from string *stringp, where tokens are possibly-empty
- * strings separated by characters from delim.  
- *
- * Writes NULs into the string at *stringp to end tokens.
- * delim need not remain constant from call to call.
- * On return, *stringp points past the last NUL written (if there might
- * be further tokens), or is NULL (if there are definitely no more tokens).
- *
- * If *stringp is NULL, strsep returns NULL.
- */
-char* libtar_strsep(char **stringp, const char *delim)
-{
-    char *s;
-    int sc;
-    char *tok;
-
-    if ((s = *stringp) == nullptr)
-        return nullptr;
-    for (tok = s;;) {
-        int c = *s;
-        ++s;
-        const char *spanp = delim;
-        do {
-            if ((sc = *spanp) == c) {
-                if (c == 0)
-                    s = nullptr;
-                else
-                    s[-1] = 0;
-                *stringp = s;
-                return (tok);
-            }
-            ++spanp;
-        } while (sc != 0);
-    }
-}
