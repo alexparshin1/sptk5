@@ -218,20 +218,25 @@ void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypePropert
     auto restriction = ctypeProperty->restriction();
     if (restriction) {
         if (!restriction->patterns().empty()) {
-            if (restriction->patterns().size() == 1)
-                property["pattern"] = restriction->patterns()[0].pattern();
-            else {
-                auto& oneOf = *property.add_array("oneOf");
-                for (const auto& regex: restriction->patterns()) {
-                    auto& patternElement = *oneOf.push_object();
-                    patternElement["pattern"] = regex.pattern();
-                }
-            }
+            parseRestrictionPatterns(property, restriction);
         }
         else if (!restriction->enumeration().empty()) {
             auto& enumArray = *property.add_array("enum");
             for (const auto& str: restriction->enumeration())
                 enumArray.push_back(str);
+        }
+    }
+}
+
+void OpenApiGenerator::parseRestrictionPatterns(json::Element& property, const SWSRestriction& restriction) const
+{
+    if (restriction->patterns().size() == 1)
+        property["pattern"] = restriction->patterns()[0].pattern();
+    else {
+        auto& oneOf = *property.add_array("oneOf");
+        for (const auto& regex: restriction->patterns()) {
+            auto& patternElement = *oneOf.push_object();
+            patternElement["pattern"] = regex.pattern();
         }
     }
 }

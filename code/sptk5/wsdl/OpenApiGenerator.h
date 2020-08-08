@@ -124,6 +124,8 @@ private:
 
     void parseClassName(const SWSParserComplexType& ctypeProperty, json::Element& property) const;
     void parseRestriction(const SWSParserComplexType& ctypeProperty, json::Element& property) const;
+
+    void parseRestrictionPatterns(json::Element& property, const SWSRestriction& restriction) const;
 };
 
 }
