@@ -450,7 +450,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
 
         "template <class InputData, class OutputData>\n"
         "void processAnyRequest(json::Element* request, HttpAuthentication* authentication,\n"
-        "                       function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)\n"
+        "                       const function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)\n"
         "{\n"
         "   InputData inputData;\n"
         "   OutputData outputData;\n"

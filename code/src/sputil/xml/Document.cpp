@@ -298,8 +298,7 @@ char* Document::readClosingTag(const char* nodeName, char* tokenEnd, Node*& curr
     ++nodeName;
     if (currentNode->name() != nodeName)
         throw Exception(
-                "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() +
-                ">");
+                "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() + ">");
     currentNode = currentNode->parent();
     if (currentNode == nullptr)
         throw Exception(
@@ -371,7 +370,7 @@ void Document::load(const char* xmlData)
 
             case '/':
                 nameEnd = readClosingTag(nodeName, nameEnd, currentNode);
-                nodeEnd = nameEnd + 1;
+                nodeEnd = nameEnd;
                 break;
 
             default:
@@ -379,30 +378,23 @@ void Document::load(const char* xmlData)
                 break;
         }
 
-        nodeStart = strchr(nameEnd + 1, '<');
+        nodeStart = strchr(nodeEnd + 1, '<');
         if (nodeStart == nullptr) {
             if (currentNode == this)
                 continue; // exit the loop
             throw Exception("Tag started but not closed");
         }
-        unsigned char* textStart = (unsigned char*) nodeEnd + 1;
-        while (*textStart <= ' ') /// Skip leading spaces
-            ++textStart;
-        if (*textStart != '<')
-            for (unsigned char* textTrail = (unsigned char*) nodeStart - 1; textTrail >= textStart; --textTrail) {
-                if (*textTrail > ' ') {
-                    ++textTrail;
-                    *textTrail = 0;
-                    Buffer& decoded = m_decodeBuffer;
-                    doctype->decodeEntities((char*) textStart, uint32_t(textTrail - textStart), decoded);
-                    new Text(currentNode, decoded.c_str());
-                    break;
-                }
-            }
+        auto* textStart = nodeEnd + 1;
+        if (*textStart != '<') {
+            auto* textTrail = nodeStart;
+            Buffer& decoded = m_decodeBuffer;
+            doctype->decodeEntities((char*) textStart, uint32_t(textTrail - textStart), decoded);
+            new Text(currentNode, decoded.c_str());
+        }
     }
 }
 
-void Document::save(Buffer& buffer, int) const
+void Document::save(Buffer& buffer, int indent) const
 {
     const Node* xml_pi = nullptr;
 
@@ -420,7 +412,7 @@ void Document::save(Buffer& buffer, int) const
     }
     if (!hasXmlPI) {
         buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-        if (indentSpaces()) buffer.append('\n');
+        if (indent) buffer.append('\n');
     }
 
     if (!docType().name().empty()) {
@@ -439,14 +431,14 @@ void Document::save(Buffer& buffer, int) const
             buffer.append("]", 1);
         }
         buffer.append('>');
-        if (indentSpaces()) buffer.append('\n');
+        if (indent) buffer.append('\n');
     }
 
     // call save() method of the first (and hopefully only) node in xml document
     for (const auto* node: *this) {
         if (node == xml_pi)
             continue;
-        node->save(buffer, indentSpaces());
+        node->save(buffer, indent);
     }
     buffer[buffer.length()] = 0;
 }
@@ -642,6 +634,22 @@ TEST(SPTK_XmlDocument, brokenXML)
     }
     catch (const Exception& e) {
         SUCCEED() << "Correct exception: " << e.what();
+    }
+}
+
+TEST(SPTK_XmlDocument, unicodeXML)
+{
+    xml::Document document;
+
+    try {
+        const String unicodeXML(R"(<?xml version="1.0" encoding="UTF-8" ?><p>“Add”</p>)");
+        document.load(unicodeXML);
+        Buffer buffer;
+        document.save(buffer, 0);
+        EXPECT_STREQ(unicodeXML.c_str(), buffer.c_str());
+    }
+    catch (const Exception& e) {
+        FAIL() << e.what();
     }
 }
 
