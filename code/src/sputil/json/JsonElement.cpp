@@ -707,7 +707,7 @@ string json::escape(const string& text)
     size_t position = 0;
 
     for (;;) {
-        size_t pos = text.find_first_of("\"\\\b\f\n\r\t/", position);
+        size_t pos = text.find_first_of("\"\\\b\f\n\r\t", position);
         if (pos == string::npos) {
             if (position == 0)
                 return text;
