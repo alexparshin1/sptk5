@@ -683,6 +683,9 @@ TEST(SPTK_XmlElement, select3)
 
     document.load(testXML3);
 
+    Buffer buff;
+    document.save(buff, 0);
+
     document.select(elementSet, "/AAA/CCC/DDD/*");
     EXPECT_EQ(size_t(4), elementSet.size());
 

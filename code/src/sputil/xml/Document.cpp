@@ -29,7 +29,6 @@
 #include <sptk5/json/JsonDocument.h>
 #include <sptk5/xml/Document.h>
 
-
 using namespace std;
 using namespace sptk;
 
@@ -274,12 +273,7 @@ char* Document::readExclamationTag(char* nodeName, char* tokenEnd, char* nodeEnd
 
 char* Document::readProcessingInstructions(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node* currentNode)
 {
-    nodeEnd = strstr(tokenEnd, ">");
-    if (nodeEnd != nullptr) {
-        --nodeEnd;
-        if (*nodeEnd != '?')
-            nodeEnd = nullptr;
-    }
+    nodeEnd = strstr(tokenEnd, "?>");
     if (nodeEnd == nullptr)
         throw Exception("Invalid PI section: no closing tag");
     *nodeEnd = 0;
@@ -290,7 +284,8 @@ char* Document::readProcessingInstructions(const char* nodeName, char* tokenEnd,
     auto* pi = new PI(*currentNode, nodeName + 1);
     processAttributes(pi, tokenEnd + 1);
 
-    tokenEnd = nodeEnd + 1;
+    ++nodeEnd;
+    tokenEnd = nodeEnd;
     return tokenEnd;
 }
 
@@ -316,27 +311,35 @@ char* Document::readOpenningTag(const char* nodeName, char* tokenEnd, char*& nod
 {
     char ch = *tokenEnd;
     *tokenEnd = 0;
-    if (ch == '>') {
-        if (*(tokenEnd - 1) == '/') {
-            *(tokenEnd - 1) = 0;
+    if (ch == '>' || ch == '/') {
+        if (ch == '/') {
             new Element(currentNode, nodeName);
-        } else
+            nodeEnd = tokenEnd + 1;
+        } else {
             currentNode = new Element(currentNode, nodeName);
+            nodeEnd = tokenEnd;
+        }
         return tokenEnd;
     }
 
-    /// Attributes
     auto* tokenStart = tokenEnd + 1;
     nodeEnd = strchr(tokenStart, '>');
     if (nodeEnd == nullptr)
         throw Exception("Invalid tag (started, not closed)");
-    *nodeEnd = 0;
+    auto len = nodeEnd - tokenStart;
+    if (tokenStart[len - 1] == '/')
+        nodeEnd = tokenStart + len -1;
+
+    /// Attributes
     Node* anode;
-    if (*(nodeEnd - 1) == '/') {
+    if (*nodeEnd == '/') {
         anode = new Element(currentNode, nodeName);
-        *(nodeEnd - 1) = 0;
-    } else
+        *nodeEnd = 0;
+        ++nodeEnd;
+    } else {
         anode = currentNode = new Element(currentNode, nodeName);
+        *nodeEnd = 0;
+    }
     processAttributes(anode, tokenStart);
     tokenEnd = nodeEnd;
     return tokenEnd;
@@ -351,12 +354,12 @@ void Document::load(const char* xmlData)
 
     for (char* nodeStart = strchr(buffer.data(), '<'); nodeStart != nullptr; ) {
         auto* nameStart = nodeStart + 1;
-        char* nameEnd = strpbrk(nameStart, "\r\n >");
-        if (nameEnd == nullptr)
-            break; /// Tag started but not completed
+        char* nameEnd = strpbrk(nameStart + 1, "?/\r\n <>");
+        if (nameEnd == nullptr || *nameEnd == '<')
+            throw Exception("Tag started but not closed");
 
         char* nodeName = nameStart;
-        char* nodeEnd = nullptr;
+        char* nodeEnd = nameStart;
         switch (*nameStart) {
             case '!':
                 nameEnd = readExclamationTag(nodeName, nameEnd, nodeEnd, currentNode);
@@ -368,19 +371,21 @@ void Document::load(const char* xmlData)
 
             case '/':
                 nameEnd = readClosingTag(nodeName, nameEnd, currentNode);
+                nodeEnd = nameEnd + 1;
                 break;
 
             default:
                 nameEnd = readOpenningTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
         }
+
         nodeStart = strchr(nameEnd + 1, '<');
         if (nodeStart == nullptr) {
             if (currentNode == this)
                 continue; // exit the loop
             throw Exception("Tag started but not closed");
         }
-        unsigned char* textStart = (unsigned char*) nameEnd + 1;
+        unsigned char* textStart = (unsigned char*) nodeEnd + 1;
         while (*textStart <= ' ') /// Skip leading spaces
             ++textStart;
         if (*textStart != '<')
@@ -480,7 +485,7 @@ static const String testREST(
     R"(<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">)"
     R"(<soap:Body>)"
     R"(<ns1:GetRequests>)"
-    R"(<vendor_id>1</vendor_id>)"
+    R"(<vendor_id>1</vendor_id><address state="VIC"/>)"
     R"(</ns1:GetRequests>)"
     R"(</soap:Body>)"
     R"(</soap:Envelope>)");
@@ -604,8 +609,40 @@ TEST(SPTK_XmlDocument, parse)
         }
     }
     EXPECT_EQ(2, methodElement->type());
-    EXPECT_EQ(1, (int) methodElement->size());
+    EXPECT_EQ(2, (int) methodElement->size());
     EXPECT_STREQ("ns1:GetRequests", methodElement->name().c_str());
+}
+
+TEST(SPTK_XmlDocument, brokenXML)
+{
+    xml::Document document;
+
+    try {
+        const String brokenXML1("<xml></html>");
+        document.load(brokenXML1);
+        FAIL() << "Must throw exception";
+    }
+    catch (const exception& e) {
+        SUCCEED() << "Correct exception: " << e.what();
+    }
+
+    try {
+        const String brokenXML1("<xml><html></xml></html>");
+        document.load(brokenXML1);
+        FAIL() << "Must throw exception";
+    }
+    catch (const exception& e) {
+        SUCCEED() << "Correct exception: " << e.what();
+    }
+
+    try {
+        const String brokenXML1("<xml</html>");
+        document.load(brokenXML1);
+        FAIL() << "Must throw exception";
+    }
+    catch (const exception& e) {
+        SUCCEED() << "Correct exception: " << e.what();
+    }
 }
 
 #endif
