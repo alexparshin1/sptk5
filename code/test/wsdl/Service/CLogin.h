@@ -77,6 +77,12 @@ public:
    void unload(sptk::QueryParameterList& output) const override;
 
    /**
+    * Check if null
+    * @return true if all elements and attributes are null
+    */
+   bool isNull() const override;
+
+   /**
     * Get simple field names that can be used to build SQL queries.
     * Return list of fields doesn't include fields of complex type.
     * @return list of fields as string vector

@@ -39,6 +39,8 @@ void CLoginResponse::load(const json::Element* input)
 {
     _clear();
     setLoaded(true);
+    if (!input->is(json::JDT_OBJECT))
+        return;
 
     // Load elements
     for (auto& itor: input->getObject()) {
@@ -84,6 +86,15 @@ void CLoginResponse::unload(json::Element* output) const
 
     // Unload elements
     m_jwt.addElement(output);
+}
+
+bool CLoginResponse::isNull() const
+{
+    // Check elements
+    bool elementsAreNull = 
+        m_jwt.isNull();
+
+    return elementsAreNull;
 }
 
 void CLoginResponse::unload(QueryParameterList& output) const

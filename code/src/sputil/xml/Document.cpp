@@ -622,7 +622,7 @@ TEST(SPTK_XmlDocument, brokenXML)
         document.load(brokenXML1);
         FAIL() << "Must throw exception";
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         SUCCEED() << "Correct exception: " << e.what();
     }
 
@@ -631,7 +631,7 @@ TEST(SPTK_XmlDocument, brokenXML)
         document.load(brokenXML1);
         FAIL() << "Must throw exception";
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         SUCCEED() << "Correct exception: " << e.what();
     }
 
@@ -640,7 +640,7 @@ TEST(SPTK_XmlDocument, brokenXML)
         document.load(brokenXML1);
         FAIL() << "Must throw exception";
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         SUCCEED() << "Correct exception: " << e.what();
     }
 }

@@ -1,7 +1,7 @@
 
 #include "CTestWSDL.h"
 
-const char* Test_wsdl[] = {
+const sptk::Strings Test_wsdl {
     R"(<?xml version="1.0" encoding="UTF-8" standalone="no"?>)",
     R"(<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.example.org/Test/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="Test" targetNamespace="http://www.example.org/Test/">)",
     R"(  <wsdl:types>)",
@@ -109,6 +109,5 @@ const char* Test_wsdl[] = {
     R"(      <soap:address location="http://www.example.org/"/>)",
     R"(    </wsdl:port>)",
     R"(  </wsdl:service>)",
-    R"(</wsdl:definitions>)",
-    nullptr
+    R"(</wsdl:definitions>)"
 };

@@ -74,6 +74,8 @@ void CHelloResponse::load(const json::Element* input)
 {
     _clear();
     setLoaded(true);
+    if (!input->is(json::JDT_OBJECT))
+        return;
 
     // Load elements
     for (auto& itor: input->getObject()) {
@@ -184,6 +186,20 @@ void CHelloResponse::unload(json::Element* output) const
     m_hour_rate.addElement(output);
     m_vacation_days.addElement(output);
     m_height.addElement(output);
+}
+
+bool CHelloResponse::isNull() const
+{
+    // Check elements
+    bool elementsAreNull = 
+        m_date_of_birth.isNull()
+        && m_verified.isNull()
+        && m_retired.isNull()
+        && m_hour_rate.isNull()
+        && m_vacation_days.isNull()
+        && m_height.isNull();
+
+    return elementsAreNull;
 }
 
 void CHelloResponse::unload(QueryParameterList& output) const

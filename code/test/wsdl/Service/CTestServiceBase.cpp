@@ -127,10 +127,10 @@ void CTestServiceBase::process_Login(xml::Element* xmlNode, json::Element* jsonN
      processAnyRequest<CLogin,CLoginResponse>(jsonNode, authentication, method);
 }
 
-    String CTestServiceBase::wsdl() const
-    {
-        stringstream output;
-        for (int i = 0; Test_wsdl[i] != nullptr; ++i)
-            output << Test_wsdl[i] << endl;
-        return output.str();
-    }
+String CTestServiceBase::wsdl() const
+{
+    stringstream output;
+    for (auto& row: Test_wsdl)
+        output << row << endl;
+    return output.str();
+}

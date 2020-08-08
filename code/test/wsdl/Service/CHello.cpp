@@ -53,6 +53,8 @@ void CHello::load(const json::Element* input)
 {
     _clear();
     setLoaded(true);
+    if (!input->is(json::JDT_OBJECT))
+        return;
 
     // Load elements
     for (auto& itor: input->getObject()) {
@@ -124,6 +126,17 @@ void CHello::unload(json::Element* output) const
     m_action.addElement(output);
     m_first_name.addElement(output);
     m_last_name.addElement(output);
+}
+
+bool CHello::isNull() const
+{
+    // Check elements
+    bool elementsAreNull = 
+        m_action.isNull()
+        && m_first_name.isNull()
+        && m_last_name.isNull();
+
+    return elementsAreNull;
 }
 
 void CHello::unload(QueryParameterList& output) const

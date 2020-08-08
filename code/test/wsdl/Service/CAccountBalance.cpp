@@ -39,6 +39,8 @@ void CAccountBalance::load(const json::Element* input)
 {
     _clear();
     setLoaded(true);
+    if (!input->is(json::JDT_OBJECT))
+        return;
 
     // Load elements
     for (auto& itor: input->getObject()) {
@@ -84,6 +86,15 @@ void CAccountBalance::unload(json::Element* output) const
 
     // Unload elements
     m_account_number.addElement(output);
+}
+
+bool CAccountBalance::isNull() const
+{
+    // Check elements
+    bool elementsAreNull = 
+        m_account_number.isNull();
+
+    return elementsAreNull;
 }
 
 void CAccountBalance::unload(QueryParameterList& output) const

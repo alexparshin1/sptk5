@@ -2,6 +2,8 @@
 #ifndef __TEST_WSDL__
 #define __TEST_WSDL__
 
-extern const char* Test_wsdl[];
+#include <sptk5/Strings.h>
+
+extern const sptk::Strings Test_wsdl;
 
 #endif

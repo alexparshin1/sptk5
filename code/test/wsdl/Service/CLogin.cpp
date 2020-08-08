@@ -46,6 +46,8 @@ void CLogin::load(const json::Element* input)
 {
     _clear();
     setLoaded(true);
+    if (!input->is(json::JDT_OBJECT))
+        return;
 
     // Load elements
     for (auto& itor: input->getObject()) {
@@ -104,6 +106,16 @@ void CLogin::unload(json::Element* output) const
     // Unload elements
     m_username.addElement(output);
     m_password.addElement(output);
+}
+
+bool CLogin::isNull() const
+{
+    // Check elements
+    bool elementsAreNull = 
+        m_username.isNull()
+        && m_password.isNull();
+
+    return elementsAreNull;
 }
 
 void CLogin::unload(QueryParameterList& output) const

@@ -490,13 +490,13 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
                               << "}\n";
     }
     serviceImplementation << endl;
-    serviceImplementation << "    String " << serviceClassName << "::wsdl() const" << endl;
-    serviceImplementation << "    {" << endl;
-    serviceImplementation << "        stringstream output;" << endl;
-    serviceImplementation << "        for (int i = 0; " << m_serviceName << "_wsdl[i] != nullptr; ++i)" << endl;
-    serviceImplementation << "            output << " << m_serviceName << "_wsdl[i] << endl;" << endl;
-    serviceImplementation << "        return output.str();" << endl;
-    serviceImplementation << "    }" << endl;
+    serviceImplementation << "String " << serviceClassName << "::wsdl() const" << endl;
+    serviceImplementation << "{" << endl;
+    serviceImplementation << "    stringstream output;" << endl;
+    serviceImplementation << "    for (auto& row: " << m_serviceName << "_wsdl)" << endl;
+    serviceImplementation << "        output << row << endl;" << endl;
+    serviceImplementation << "    return output.str();" << endl;
+    serviceImplementation << "}" << endl;
 }
 
 void WSParser::generate(const String& sourceDirectory, const String& headerFile,
@@ -580,17 +580,22 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
     wsdlHeader << externalHeader.c_str() << endl;
     wsdlHeader << "#ifndef __" << m_serviceName.toUpperCase() << "_WSDL__" << endl;
     wsdlHeader << "#define __" << m_serviceName.toUpperCase() << "_WSDL__" << endl;
-    wsdlHeader << endl << "extern const char* " << m_serviceName << "_wsdl[];" << endl << endl;
+    wsdlHeader << endl << "#include <sptk5/Strings.h>" << endl;
+    wsdlHeader << endl << "extern const sptk::Strings " << m_serviceName << "_wsdl;" << endl << endl;
     wsdlHeader << "#endif" << endl;
 
     stringstream wsdlCxx;
     wsdlCxx << externalHeader.c_str() << endl;
     wsdlCxx << "#include \"" << baseFileName << ".h\"" << endl << endl;
-    wsdlCxx << "const char* " << m_serviceName << "_wsdl[] = {" << endl;
+    wsdlCxx << "const sptk::Strings " << m_serviceName << "_wsdl {" << endl;
 
-    for (const auto& row: wsdl)
-        wsdlCxx << "    R\"(" << row << ")\"," << endl;
-    wsdlCxx << "    nullptr" << endl;
+    for (auto row = wsdl.begin(); row != wsdl.end(); ++row) {
+        wsdlCxx << "    R\"(" << *row << ")\"";
+        if (row + 1 != wsdl.end())
+            wsdlCxx << ",";
+        wsdlCxx << endl;
+    }
+
     wsdlCxx << "};" << endl;
 
     replaceFile(wsdlFileName + ".h", wsdlHeader);

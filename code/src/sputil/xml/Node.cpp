@@ -115,7 +115,7 @@ static void makeCriteria(XPathElement& pathElement, size_t pos)
     }
 }
 
-static void parsePathElement(const Document* document, const string& pathElementStr, XPathElement& pathElement)
+static void parsePathElement(const string& pathElementStr, XPathElement& pathElement)
 {
     pathElement.elementName = "";
     pathElement.attributeName = "";
@@ -275,7 +275,7 @@ void Node::select(NodeVector& nodes, String xpath)
     Strings pathElementStrs(ptr, "/");
     vector<XPathElement> pathElements(pathElementStrs.size());
     for (size_t i = 0; i < pathElements.size(); ++i)
-        parsePathElement(document(), pathElementStrs[i], pathElements[i]);
+        parsePathElement(pathElementStrs[i], pathElements[i]);
 
     const String starPointer("*");
     NodeSearchAlgorithms::matchNode(this, nodes, pathElements, -1, starPointer);
