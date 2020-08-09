@@ -389,7 +389,9 @@ void Document::load(const char* xmlData)
             auto* textTrail = nodeStart;
             Buffer& decoded = m_decodeBuffer;
             doctype->decodeEntities((char*) textStart, uint32_t(textTrail - textStart), decoded);
-            new Text(currentNode, decoded.c_str());
+            String decodedStr(String(decoded.c_str(), decoded.length()).trim());
+            if (!decodedStr.empty())
+                new Text(currentNode, decodedStr.c_str());
         }
     }
 }

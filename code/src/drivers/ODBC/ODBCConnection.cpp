@@ -598,19 +598,39 @@ static uint32_t trimField(char* s, uint32_t sz)
     return uint32_t(p - s);
 }
 
-SQLRETURN ODBCConnection::readStringObBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
+SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
                                                 int16_t fieldType, SQLLEN& dataLength)
 {
+    field->checkSize(uint32_t(128));
     size_t readSize = field->bufferSize();
     auto* buffer = field->getBuffer();
     SQLRETURN rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
-    if (dataLength > SQLINTEGER(readSize)) { // continue to fetch BLOB data
+
+    size_t offset = readSize - 1;
+    if (dataLength > SQLINTEGER(readSize)) { // continue to fetch BLOB data in one go
         field->checkSize(uint32_t(dataLength + 1));
         buffer = field->getBuffer();
-        char* offset = buffer + readSize - 1;
         readSize = dataLength - readSize + 2;
-        rc = SQLGetData(statement, column, fieldType, offset, SQLINTEGER(readSize), nullptr);
+        rc = SQLGetData(statement, column, fieldType, buffer + offset, SQLINTEGER(readSize), nullptr);
     }
+    else if (dataLength == SQL_NO_TOTAL) {
+        size_t bufferSize = field->bufferSize();
+        SQLLEN remainingSize = 0;
+
+        dataLength = readSize;
+        readSize = 16384;
+        while (rc != SQL_SUCCESS) {
+            bufferSize += readSize;
+            field->checkSize(uint32_t(bufferSize));
+            buffer = field->getBuffer();
+            rc = SQLGetData(statement, column, fieldType, buffer + offset, SQLINTEGER(readSize), &remainingSize);
+            if (remainingSize > 0)
+                readSize = remainingSize; // Last chunk received
+            offset += readSize - 1;
+            dataLength += readSize - 1;
+        }
+    }
+
     return rc;
 }
 
@@ -675,7 +695,7 @@ void ODBCConnection::queryFetch(Query* query)
 
                 case SQL_C_BINARY:
                 case SQL_C_CHAR:
-                    rc = readStringObBlobField(statement, field, column, fieldType, dataLength);
+                    rc = readStringOrBlobField(statement, field, column, fieldType, dataLength);
                     buffer = field->getBuffer();
                     break;
 

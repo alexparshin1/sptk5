@@ -152,7 +152,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
             case VAR_STRING:
             case VAR_TEXT:
             case VAR_BUFFER:
-                setParameterValue(paramIndex, param->getString(), (unsigned) param->dataSize(), 1, PG_BYTEA);
+                setParameterValue(paramIndex, param->getString(), (unsigned) param->dataSize(), 0, PG_VARCHAR);
                 break;
 
             default:

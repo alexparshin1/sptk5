@@ -124,7 +124,7 @@ static const map<String, String> boolFieldTypes = {
 };
 
 static const map<String, String> textFieldTypes = {
-        {"mysql",      "TEXT"},
+        {"mysql",      "LONGTEXT"},
         {"postgresql", "TEXT"},
         {"mssql",      "NVARCHAR(MAX)"},
         {"oracle",     "CLOB"}
@@ -213,6 +213,10 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
 
     createTable.exec();
 
+    Buffer clob;
+    while (clob.length() < 65 * 1024) // A size of the CLOB that is bigger than 64K
+        clob.append("A text");
+
     Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :name, :price, :ts, :enabled, :txt)");
     for (auto& row: rows) {
         insert.param("id") = row.id;
@@ -220,11 +224,11 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         insert.param("price") = row.price;
         insert.param("ts").setNull(VAR_DATE_TIME);
         insert.param("enabled").setBool(true);
-        insert.param("txt").setBuffer("A text", 6, VAR_TEXT);
+        insert.param("txt").setBuffer(clob.c_str(), clob.length(), VAR_TEXT);
         insert.exec();
     }
 
-    Query select(db, "SELECT * FROM gtest_temp_table");
+    Query select(db, "SELECT * FROM gtest_temp_table ORDER BY id");
     select.open();
     for (auto& row: rows) {
         if (select.eof())
@@ -233,7 +237,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         EXPECT_EQ(row.id, select["id"].asInteger());
         EXPECT_STREQ(row.name.c_str(), select["name"].asString().c_str());
         EXPECT_FLOAT_EQ(row.price, select["price"].asFloat());
-        EXPECT_STREQ("A text", select["txt"].asString().c_str());
+        EXPECT_STREQ(clob.c_str(), select["txt"].asString().c_str());
 
         select.next();
     }

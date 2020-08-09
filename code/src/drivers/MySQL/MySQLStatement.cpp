@@ -336,7 +336,7 @@ void MySQLStatement::bindResult(FieldList& fields)
         m_fieldBuffers.resize(state().columnCount);
         for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex) {
             auto*        field = (MySQLStatementField*) &fields[columnIndex];
-            MYSQL_BIND& bind = m_fieldBuffers[columnIndex];
+            MYSQL_BIND&  bind = m_fieldBuffers[columnIndex];
 
             bind.buffer_type = (enum_field_types) field->fieldType();
 
@@ -540,7 +540,8 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             throwDatabaseException("Unsupported Variant type: " + int2string(fieldType))
         }
     }
-    if (fieldSizeChanged && mysql_stmt_bind_result(statement(), &m_fieldBuffers[0]) != 0)
+
+    if (fieldSizeChanged && mysql_stmt_bind_result(statement(), m_fieldBuffers.data()) != 0)
         throwMySQLError();
 }
 
@@ -548,16 +549,12 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
 {
     bool fieldSizeChanged = false;
     if (bind.buffer_length < dataLength) {
-        /// Fetch truncated, enlarge buffer and fetch remaining part
-        auto remainingBytes = uint32_t(dataLength - bind.buffer_length);
-        auto offset = (uint32_t) bind.buffer_length;
-        field->checkSize(dataLength+1);
-        bind.buffer = field->getBuffer() + offset;
-        bind.buffer_length = remainingBytes;
-        if (mysql_stmt_fetch_column(statement(), &bind, (unsigned) fieldIndex, offset) != 0)
-            throwMySQLError();
+        /// Fetch truncated, enlarge buffer and fetch again
+        field->checkSize(dataLength);
+        bind.buffer = field->getBuffer();
         bind.buffer_length = field->bufferSize();
-        bind.buffer = (void*) field->getBuffer();
+        if (mysql_stmt_fetch_column(statement(), &bind, (unsigned) fieldIndex, 0) != 0)
+            throwMySQLError();
         fieldSizeChanged = true;
     }
 

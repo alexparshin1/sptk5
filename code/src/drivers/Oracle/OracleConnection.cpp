@@ -515,6 +515,7 @@ void OracleConnection::readCLOB(ResultSet* resultSet, DatabaseField* field, unsi
                                1);
     clob.close();
     field->setDataSize(bytes);
+    field->getBuffer()[bytes] = 0;
 }
 
 void OracleConnection::readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)

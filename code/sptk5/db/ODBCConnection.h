@@ -250,8 +250,8 @@ private:
      * @param dataLength        Output data length
      * @return operation result
      */
-    static SQLRETURN readStringObBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
-                                    SQLLEN& dataLength);
+    static SQLRETURN readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
+                                           SQLLEN& dataLength);
 
     /**
      * Read timestamp field
