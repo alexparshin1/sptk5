@@ -27,8 +27,6 @@
 #include <sptk5/cutils>
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
-#include <list>
-#include <sptk5/StopWatch.h>
 
 using namespace std;
 using namespace sptk;

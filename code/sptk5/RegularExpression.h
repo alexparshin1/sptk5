@@ -356,7 +356,7 @@ private:
     pcre_extra*             m_pcreExtra {nullptr};  ///< Compiled PCRE expression optimization (for faster execution)
 #endif
 
-    int32_t                 m_options {0};          ///< PCRE pattern options
+    uint32_t                m_options {0};          ///< PCRE pattern options
     std::atomic<size_t>     m_captureCount {0};   ///< RE' capture count
 
     /**

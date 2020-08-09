@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <utility>
 #include <sstream>
 #include <sptk5/RegularExpression.h>
 

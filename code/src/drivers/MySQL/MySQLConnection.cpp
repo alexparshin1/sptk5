@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/cutils>
-#include <sptk5/RegularExpression.h>
 #include <sptk5/db/MySQLConnection.h>
 #include <sptk5/db/Query.h>
 
@@ -197,10 +196,11 @@ void MySQLConnection::queryUnprepare(Query* query)
 
 int MySQLConnection::queryColCount(Query* query)
 {
-    int colCount = 0;
+    int colCount;
     const auto* statement = (MySQLStatement*) query->statement();
     try {
-        if (statement == nullptr) throwDatabaseException("Query not opened")
+        if (statement == nullptr)
+            throw DatabaseException("Query not opened");
         colCount = (int) statement->colCount();
     }
     catch (const Exception& e) {
@@ -216,7 +216,7 @@ void MySQLConnection::queryBindParameters(Query* query)
     auto* statement = (MySQLStatement*) query->statement();
     try {
         if (statement == nullptr)
-            throwDatabaseException("Query not prepared")
+            throw DatabaseException("Query not prepared");
         statement->setParameterValues();
     }
     catch (const Exception& e) {
@@ -228,7 +228,8 @@ void MySQLConnection::queryExecute(Query* query)
 {
     auto* statement = (MySQLStatement*) query->statement();
     try {
-        if (statement == nullptr) throwDatabaseException("Query is not prepared")
+        if (statement == nullptr)
+            throw DatabaseException("Query is not prepared");
         statement->execute(getInTransaction());
     }
     catch (const Exception& e) {
@@ -354,14 +355,13 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 
     Strings statements;
     String statement;
-    String delimiter = ";";
     for (auto row: sqlBatch) {
         row = row.trim();
         if (row.empty() || matchCommentRow.matches(row))
             continue;
         auto matches = matchDelimiterChange.m(row);
         if (matches) {
-            delimiter = matches[(size_t)0].value;
+            auto delimiter = matches[(size_t)0].value;
             delimiter = matchEscapeChars.s(delimiter, "\\\\1");
             matchStatementEnd = make_shared<RegularExpression>("(" + delimiter + ")(\\s*|-- .*)$");
             statement = "";

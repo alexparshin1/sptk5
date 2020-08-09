@@ -27,7 +27,6 @@
 #include <sptk5/json/JsonElement.h>
 #include <sptk5/json/JsonArrayData.h>
 #include <sptk5/json/JsonDocument.h>
-#include <cstring>
 #include <cmath>
 
 using namespace std;
@@ -1040,7 +1039,7 @@ TEST(SPTK_JsonElement, encodeDecode)
 {
     String testString("\n\r\t\b\f\"\\/");
     String escapedString = escape(testString);
-    EXPECT_STREQ(escapedString.c_str(), R"(\n\r\t\b\f\"\\\/)");
+    EXPECT_STREQ(escapedString.c_str(), R"(\n\r\t\b\f\"\\/)");
     String decodedString = decode(escapedString);
     EXPECT_EQ(decodedString, testString);
 

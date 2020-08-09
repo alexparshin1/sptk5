@@ -26,7 +26,6 @@
 
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
-#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;

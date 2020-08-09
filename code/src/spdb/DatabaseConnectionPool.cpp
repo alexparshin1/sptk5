@@ -34,7 +34,6 @@
 #if USE_GTEST
 #include <sptk5/db/DatabaseTests.h>
 #include <future>
-#include <sptk5/db/Query.h>
 
 #endif
 
@@ -137,7 +136,7 @@ void DatabaseConnectionPool::load()
     void* ptr = dlsym(handle, create_connectionFunctionName.c_str());
     auto* createConnection = (CreateDriverInstance*) ptr;
 
-    DestroyDriverInstance* destroyConnection = nullptr;
+    DestroyDriverInstance* destroyConnection;
     const char* dlsym_error = dlerror();
     if (dlsym_error == nullptr) {
         ptr = dlsym(handle, destroy_connectionFunctionName.c_str());
@@ -207,16 +206,16 @@ TEST(SPTK_DatabaseConnectionPool, connectString)
 {
     try {
         DatabaseConnectionPool connectionPool("xsql://server1/db1");
-        CERR(connectionPool.toString() << endl);
+        CERR(connectionPool.toString() << endl)
         FAIL() << "MUST FAIL, incorrect server type";
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 
     try {
         DatabaseConnectionPool connectionPool("mysql://server1/db1");
-        COUT(connectionPool.toString() << endl);
+        COUT(connectionPool.toString() << endl)
     }
     catch (const Exception& e) {
         FAIL() << e.what();

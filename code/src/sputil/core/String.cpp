@@ -27,7 +27,6 @@
 #include <fstream>
 #include <sptk5/Strings.h>
 #include <sptk5/RegularExpression.h>
-#include <sptk5/String.h>
 
 using namespace std;
 using namespace sptk;

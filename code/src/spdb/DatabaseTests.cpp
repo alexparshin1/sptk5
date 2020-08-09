@@ -132,7 +132,7 @@ static const map<String, String> textFieldTypes = {
 
 static String fieldType(const String& fieldType, const String& driverName)
 {
-    const map<String, String>* fieldTypes = nullptr;
+    const map<String, String>* fieldTypes;
     if (fieldType == "DATETIME")
         fieldTypes = &dateTimeFieldTypes;
     else if (fieldType == "BOOL")

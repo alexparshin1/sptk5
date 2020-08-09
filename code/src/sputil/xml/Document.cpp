@@ -27,7 +27,6 @@
 #include <cstdlib>
 #include <sptk5/Strings.h>
 #include <sptk5/json/JsonDocument.h>
-#include <sptk5/xml/Document.h>
 
 using namespace std;
 using namespace sptk;
@@ -277,9 +276,6 @@ char* Document::readProcessingInstructions(const char* nodeName, char* tokenEnd,
     if (nodeEnd == nullptr)
         throw Exception("Invalid PI section: no closing tag");
     *nodeEnd = 0;
-
-    auto matches = m_parseAttributes.m(tokenEnd);
-
     *tokenEnd = 0;
     auto* pi = new PI(*currentNode, nodeName + 1);
     processAttributes(pi, tokenEnd + 1);
@@ -361,20 +357,19 @@ void Document::load(const char* xmlData)
         char* nodeEnd = nameStart;
         switch (*nameStart) {
             case '!':
-                nameEnd = readExclamationTag(nodeName, nameEnd, nodeEnd, currentNode);
+                readExclamationTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
 
             case '?':
-                nameEnd = readProcessingInstructions(nodeName, nameEnd, nodeEnd, currentNode);
+                readProcessingInstructions(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
 
             case '/':
-                nameEnd = readClosingTag(nodeName, nameEnd, currentNode);
-                nodeEnd = nameEnd;
+                nodeEnd = readClosingTag(nodeName, nameEnd, currentNode);
                 break;
 
             default:
-                nameEnd = readOpenningTag(nodeName, nameEnd, nodeEnd, currentNode);
+                readOpenningTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
         }
 
@@ -384,11 +379,11 @@ void Document::load(const char* xmlData)
                 continue; // exit the loop
             throw Exception("Tag started but not closed");
         }
-        auto* textStart = nodeEnd + 1;
+        const auto* textStart = nodeEnd + 1;
         if (*textStart != '<') {
-            auto* textTrail = nodeStart;
+            const auto* textTrail = nodeStart;
             Buffer& decoded = m_decodeBuffer;
-            doctype->decodeEntities((char*) textStart, uint32_t(textTrail - textStart), decoded);
+            doctype->decodeEntities(textStart, textTrail - textStart, decoded);
             String decodedStr(String(decoded.c_str(), decoded.length()).trim());
             if (!decodedStr.empty())
                 new Text(currentNode, decodedStr.c_str());

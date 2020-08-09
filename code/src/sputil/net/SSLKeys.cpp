@@ -25,8 +25,6 @@
 */
 
 #include <sptk5/Buffer.h>
-
-#include <utility>
 #include "sptk5/net/SSLKeys.h"
 
 using namespace std;

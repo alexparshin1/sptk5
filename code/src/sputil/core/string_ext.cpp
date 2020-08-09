@@ -25,7 +25,6 @@
 */
 
 #include <cstdlib>
-#include <cstring>
 #include <fstream>
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
@@ -165,7 +164,7 @@ String sptk::double2string(double value)
             break;
         }
     }
-    return String(buffer, len, 0);
+    return String(buffer, size_t(len), 0);
 }
 
 double sptk::string2double(const String& str)

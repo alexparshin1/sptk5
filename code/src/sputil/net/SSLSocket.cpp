@@ -105,8 +105,10 @@ public:
 
     ~CSSLLibraryLoader() noexcept
     {
+#if OPENSSL_API_COMPAT >= 0x10100000L
 		CRYPTO_set_locking_callback(NULL);
 		CRYPTO_set_id_callback(NULL);
+#endif
 #if OPENSSL_VERSION_NUMBER > 0x1000114fL
 #if OPENSSL_VERSION_NUMBER > 0x20000000L
         SSL_COMP_free_compression_methods();
@@ -230,7 +232,7 @@ void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& tim
     }
 
     blockingMode(false);
-    while (tryConnect(timeoutAt) == false) {
+    while (!tryConnect(timeoutAt)) {
         // Repeat operation until connected,
         // or throws an exception
     }

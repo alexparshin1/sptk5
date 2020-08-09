@@ -15,7 +15,6 @@
 #if defined(__GNUC__) || defined(__SUNPRO_C)
 #include <sys/param.h>
 #endif
-#include <cstring>
 
 #ifndef MAXPATHLEN
 #define MAXPATHLEN 255

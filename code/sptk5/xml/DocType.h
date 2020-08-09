@@ -142,7 +142,7 @@ public:
      * @param sz uint32_t, text length
      * @param ret CBuffer&, converted text is stored here
      */
-    void decodeEntities(const char* str, uint32_t sz, Buffer& ret);
+    void decodeEntities(const char* str, size_t sz, Buffer& ret);
 
     /**
      * Searches for entity with given name

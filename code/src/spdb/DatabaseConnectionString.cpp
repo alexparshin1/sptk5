@@ -25,11 +25,7 @@
 */
 
 #include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/Exception.h>
-#include <sptk5/RegularExpression.h>
 #include <sptk5/net/URL.h>
-
-#include <set>
 
 using namespace std;
 using namespace sptk;
@@ -41,7 +37,7 @@ void DatabaseConnectionString::parse()
     URL url(m_connectionString);
 
     if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
-        throwDatabaseException("Unsupported driver: " + url.protocol());
+        throw DatabaseException("Unsupported driver: " + url.protocol());
 
     m_driverName = url.protocol();
     if (m_driverName == "postgres" || m_driverName == "pg")

@@ -177,7 +177,7 @@ bool readJsonBoolean(const char* json, const char*& readPosition)
     if (pos == nullptr)
         throwError("Premature end of data, expecting boolean value", json, readPosition - json);
     ++pos;
-    bool result = false;
+    bool result;
     if (strncmp(readPosition, "true", 4) == 0)
         result = true;
     else if (strncmp(readPosition, "false", 4) == 0)

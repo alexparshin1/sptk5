@@ -125,7 +125,7 @@ public:
      * Returns log options
      * @returns a bit combination of Option
      */
-    int options() const
+    size_t options() const
     {
         return m_options;
     }
@@ -199,7 +199,7 @@ private:
     /**
      * Log options, a bit combination of Option
      */
-    std::atomic<int32_t>                m_options {LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY};
+    std::atomic<uint32_t>               m_options {LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY};
 
     /**
      * Message queue

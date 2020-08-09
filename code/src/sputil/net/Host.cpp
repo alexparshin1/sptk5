@@ -25,16 +25,10 @@
 */
 
 #include <sptk5/net/BaseSocket.h>
-#include <sptk5/Printer.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/SystemException.h>
 
 #ifndef _WIN32
-#include <netinet/in.h>
-#include <netdb.h>
-
-#include <utility>
-#include <sptk5/net/Host.h>
 
 #endif
 

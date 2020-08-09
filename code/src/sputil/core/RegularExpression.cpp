@@ -250,7 +250,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
     if (rc >= 0) {
         memcpy(matchData.matches, ovector, sizeof(pcre_offset_t) * 2 * (rc));
         offset = ovector[1];
-        return rc; // match count
+        return size_t(rc); // match count
     }
 
     if (rc == PCRE2_ERROR_NOMATCH)
