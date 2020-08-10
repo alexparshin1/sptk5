@@ -78,7 +78,7 @@ tartype_t;
 
 struct TAR
 {
-	tartype_t *type;
+	const tartype_t *type;
 	const char *pathname;
 	long fd;
 	int oflags;
@@ -99,7 +99,7 @@ struct TAR
 #define TAR_IGNORE_MAGIC	0
 
 /* open a new tarfile handle */
-TAR* tar_open(const char *pathname, tartype_t *type, int oflags, int mode, int options);
+TAR* tar_open(const char *pathname, const tartype_t *type, int oflags, int mode, int options);
 
 /* close tarfile handle */
 int tar_close(TAR *t);

@@ -22,9 +22,14 @@
 using namespace std;
 using namespace sptk;
 
-static tartype_t default_type = { (openfunc_t)open, (closefunc_t)close, (readfunc_t)read, (writefunc_t)write };
+static const tartype_t default_type {
+    (openfunc_t)open,
+    (closefunc_t)close,
+    (readfunc_t)read,
+    (writefunc_t)write
+};
 
-static TAR* tar_init(const char *pathname, tartype_t *type,int oflags, int /*mode*/, int options)
+static TAR* tar_init(const char *pathname, const tartype_t *type, int oflags, int /*mode*/, int options)
 {
     if ((oflags & (O_RDWR|O_RDONLY|O_WRONLY)) == O_RDWR)
     {
@@ -44,7 +49,7 @@ static TAR* tar_init(const char *pathname, tartype_t *type,int oflags, int /*mod
 
 
 /* open a new tarfile handle */
-TAR* tar_open(const char *pathname, tartype_t *type, int oflags, int mode, int options)
+TAR* tar_open(const char *pathname, const tartype_t *type, int oflags, int mode, int options)
 {
     auto* t = tar_init(pathname, type, oflags, mode, options);
 

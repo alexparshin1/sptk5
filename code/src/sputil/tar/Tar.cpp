@@ -55,14 +55,21 @@ extern "C" {
 #define lseek _lseek
 #endif
 
-static tartype_t memtype;
+static const tartype_t memtype
+{
+    (CMemOpenCallback) Tar::mem_open,
+    (CMemCloseCallback) Tar::mem_close,
+    (CMemReadCallback) Tar::mem_read,
+    (CMemWriteCallback) Tar::mem_write
+};
+
 int            Tar::lastTarHandle;
-TarHandleMap* Tar::tarHandleMap;
+TarHandleMap   Tar::tarHandleMap;
 
 MemoryTarHandle* Tar::tarMemoryHandle(int handle)
 {
-    auto itor = tarHandleMap->find(handle);
-    if (itor == tarHandleMap->end())
+    auto itor = tarHandleMap.find(handle);
+    if (itor == tarHandleMap.end())
         return nullptr;
     return itor->second;
 }
@@ -71,18 +78,18 @@ int Tar::mem_open(const char*, int, ...)
 {
     ++lastTarHandle;
     auto* memHandle = new MemoryTarHandle;
-    (*tarHandleMap)[lastTarHandle] = memHandle;
+    tarHandleMap[lastTarHandle] = memHandle;
     return lastTarHandle;
 }
 
 int Tar::mem_close(int handle)
 {
-    auto itor = tarHandleMap->find(handle);
-    if (itor == tarHandleMap->end())
+    auto itor = tarHandleMap.find(handle);
+    if (itor == tarHandleMap.end())
         return -1;
     MemoryTarHandle* memHandle = itor->second;
     delete memHandle;
-    tarHandleMap->erase(itor);
+    tarHandleMap.erase(itor);
     return 0;
 }
 
@@ -105,13 +112,6 @@ int Tar::mem_write(int, const void*, size_t)
 
 Tar::Tar()
 {
-    if (tarHandleMap == nullptr) {
-        memtype.openfunc = (CMemOpenCallback) mem_open;
-        memtype.closefunc = (CMemCloseCallback) mem_close;
-        memtype.readfunc = (CMemReadCallback) mem_read;
-        memtype.writefunc = (CMemWriteCallback) mem_write;
-        tarHandleMap = new TarHandleMap;
-    }
 }
 
 bool Tar::loadFile()

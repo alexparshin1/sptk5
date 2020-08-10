@@ -89,7 +89,7 @@ public:
     /**
      * The map of tar handles
      */
-    static TarHandleMap*  tarHandleMap;
+    static TarHandleMap   tarHandleMap;
 
     /**
      * Returns memory handle
