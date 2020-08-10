@@ -207,15 +207,15 @@ bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
 const char* xml::DocType::getReplacement(const char *name, uint32_t& replacementLength)
 {
     // &#123; style entity..
-    if (name[0] == '#') {
-        if (isdigit(name[1]) != 0) {
-            m_replacementBuffer[0] = (char) strtol(name + 1, nullptr, 10);
-            m_replacementBuffer[1] = '\0';
-            replacementLength = 1;
-            return m_replacementBuffer;
-        }
-        if (name[1] == 'x' || name[1] == 'X') {
-            m_replacementBuffer[0] = (char) strtol(name + 2, nullptr, 16);
+    if (*name == '#') {
+        const char *ptr = name;
+        ptr++;
+
+        if (*ptr == 'x' || *ptr == 'X')
+            ptr++;
+
+        if (isdigit(*ptr) != 0) {
+            m_replacementBuffer[0] = (char) strtol(ptr, nullptr, 10);
             m_replacementBuffer[1] = '\0';
             replacementLength = 1;
             return m_replacementBuffer;
