@@ -242,7 +242,7 @@ private:
 
     char* readProcessingInstructions(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node* currentNode);
 
-    static char* readClosingTag(const char* nodeName, char* tokenEnd, Node*& currentNode);
+    static char* readClosingTag(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode);
 
     char* readOpenningTag(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode);
 };

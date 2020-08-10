@@ -32,6 +32,7 @@
 #include <list>
 #include <sptk5/cutils>
 #include <sptk5/RegularExpression.h>
+#include <iostream>
 
 namespace sptk {
 
@@ -86,7 +87,7 @@ public:
      * @param ch                Character to print
      * @param count             Number of characters to print
      */
-    static void printLine(const String& ch, size_t count, std::ostream& output);
+    void printLine(const String& ch, size_t count) const;
 
     /**
      * Print help on commands
@@ -97,7 +98,7 @@ public:
      * @param helpTextColumns   Number of columns for help text
      */
     void printCommands(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
-                       const Strings& sortedCommands, size_t helpTextColumns, std::ostream& output) const;
+                       const Strings& sortedCommands, size_t helpTextColumns) const;
 
     /**
      * Print help on options
@@ -108,7 +109,7 @@ public:
      * @param helpTextColumns   Number of columns for help text
      */
     void printOptions(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
-                      const Strings& sortedOptions, size_t helpTextColumns, std::ostream& output) const;
+                      const Strings& sortedOptions, size_t helpTextColumns) const;
 
     /**
      * Constructor
@@ -188,19 +189,19 @@ public:
      * Prints full help
      * @param screenColumns     Screen width in columns
      */
-    void printHelp(size_t screenColumns, std::ostream& output=std::cout) const;
+    void printHelp(size_t screenColumns) const;
 
     /**
      * Prints help for a given command/argument
      * @param onlyForCommand           Command to print help for
      * @param screenColumns     Screen width in columns
      */
-    void printHelp(const String& onlyForCommand, size_t screenColumns, std::ostream& output=std::cout) const;
+    void printHelp(const String& onlyForCommand, size_t screenColumns) const;
 
     /**
      * Prints program version
      */
-    void printVersion(std::ostream& output=std::cout) const;
+    void printVersion() const;
 
     /**
      * Preprocess command line arguments
@@ -216,6 +217,13 @@ public:
      * @return re-written command line arguments
      */
     static Strings rewriteArguments(const Strings& arguments);
+
+    /**
+     * Redirect output from screen to streams
+     * @param out               Standard output redirection, default is cout
+     * @param error             Errors redirection, default is cerr
+     */
+    void redirectPrint(std::ostream& out, std::ostream& error);
 
 protected:
 
@@ -455,6 +463,9 @@ private:
     std::map<String, String>                                m_values;               ///< Received option values.
     Strings                                                 m_arguments;            ///< Received arguments.
     std::list<std::shared_ptr<CommandLineElement>>          m_allElements;          ///< All defined elements.
+
+    std::ostream*                                           m_outputStream { &std::cout };
+    std::ostream*                                           m_errorStream { &std::cerr };
 
     static String preprocessArgument(String& arg, String& quote, String& quotedString);
 

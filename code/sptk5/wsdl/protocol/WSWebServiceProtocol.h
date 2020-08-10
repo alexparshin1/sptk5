@@ -100,8 +100,6 @@ private:
     int getContentLength();
 
     std::shared_ptr<HttpAuthentication> getAuthentication();
-
-    void readMessage(Buffer& data, char*& startOfMessage, char*& endOfMessage);
 };
 
 /// @}

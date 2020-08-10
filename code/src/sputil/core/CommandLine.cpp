@@ -428,36 +428,42 @@ const Strings& CommandLine::arguments() const
     return m_arguments;
 }
 
-void CommandLine::printLine(const String& ch, size_t count, ostream& output)
+void CommandLine::redirectPrint(ostream& out, ostream& error)
+{
+    m_outputStream = &out;
+    m_errorStream = &error;
+}
+
+void CommandLine::printLine(const String& ch, size_t count) const
 {
     for (size_t i = 0; i < count; ++i)
-        output << ch;
-    output << endl;
+        *m_outputStream << ch;
+    *m_outputStream << endl;
 }
 
-void CommandLine::printHelp(size_t screenColumns, ostream& output) const
+void CommandLine::printHelp(size_t screenColumns) const
 {
-    printHelp("", screenColumns, output);
+    printHelp("", screenColumns);
 }
 
-void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns, ostream& output) const
+void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) const
 {
     if (!onlyForCommand.empty() && m_argumentTemplates.find(onlyForCommand) == m_argumentTemplates.end()) {
         CERR("Command '" << onlyForCommand << "' is not defined" << endl)
         return;
     }
 
-    output << m_programVersion << endl;
-    printLine(doubleLine, screenColumns, output);
-    output << m_description << endl;
+    *m_outputStream << m_programVersion << endl;
+    printLine(doubleLine, screenColumns);
+    *m_outputStream << m_description << endl;
 
-    output << endl << "Syntax:" << endl;
-    printLine(singleLine, screenColumns, output);
+    *m_outputStream << endl << "Syntax:" << endl;
+    printLine(singleLine, screenColumns);
 
     String commandLinePrototype = m_commandLinePrototype;
     if (!onlyForCommand.empty())
         commandLinePrototype = commandLinePrototype.replace("<command>", onlyForCommand);
-    output << commandLinePrototype << endl;
+    *m_outputStream << commandLinePrototype << endl;
 
     // Find out space needed for command and option names
     size_t nameColumns = 10;
@@ -498,16 +504,16 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns, 
         return;
     }
 
-    printCommands(onlyForCommand, screenColumns, nameColumns, sortedCommands, helpTextColumns, output);
-    printOptions(onlyForCommand, screenColumns, nameColumns, sortedOptions, helpTextColumns, output);
+    printCommands(onlyForCommand, screenColumns, nameColumns, sortedCommands, helpTextColumns);
+    printOptions(onlyForCommand, screenColumns, nameColumns, sortedOptions, helpTextColumns);
 }
 
 void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
-                               const Strings& sortedOptions, size_t helpTextColumns, ostream& output) const
+                               const Strings& sortedOptions, size_t helpTextColumns) const
 {
     if (!m_optionTemplates.empty()) {
-        output << endl << "Options:" << endl;
-        printLine(singleLine, screenColumns, output);
+        *m_outputStream << endl << "Options:" << endl;
+        printLine(singleLine, screenColumns);
         for (const String& optionName : sortedOptions) {
             auto itor = m_optionTemplates.find(optionName);
             const auto optionTemplate = itor->second;
@@ -517,31 +523,31 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
             auto vtor = m_values.find(optionTemplate->name());
             if (vtor != m_values.end())
                 defaultValue = vtor->second;
-            optionTemplate->printHelp(nameColumns, helpTextColumns, defaultValue, output);
+            optionTemplate->printHelp(nameColumns, helpTextColumns, defaultValue, *m_outputStream);
         }
     }
 }
 
 void CommandLine::printCommands(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
-                                const Strings& sortedCommands, size_t helpTextColumns, ostream& output) const
+                                const Strings& sortedCommands, size_t helpTextColumns) const
 {
     if (onlyForCommand.empty() && !m_argumentTemplates.empty()) {
-        output << endl << "Commands:" << endl;
-        printLine(singleLine, screenColumns, output);
+        *m_outputStream << endl << "Commands:" << endl;
+        printLine(singleLine, screenColumns);
         for (const String& commandName : sortedCommands) {
             auto ator = m_argumentTemplates.find(commandName);
             if (!onlyForCommand.empty() && commandName != onlyForCommand) {
                 continue;
             }
             const auto commandTemplate = ator->second;
-            commandTemplate->printHelp(nameColumns, helpTextColumns, "", output);
+            commandTemplate->printHelp(nameColumns, helpTextColumns, "", *m_outputStream);
         }
     }
 }
 
-void CommandLine::printVersion(ostream& output) const
+void CommandLine::printVersion() const
 {
-    output << m_programVersion << endl;
+    *m_outputStream << m_programVersion << endl;
 }
 
 #if USE_GTEST
@@ -630,7 +636,8 @@ TEST(SPTK_CommandLine, printHelp)
 
     stringstream output;
     commandLine->init(7, CommandLineTestData::testCommandLineArgs);
-    commandLine->printHelp(80, output);
+    commandLine->redirectPrint(output, output);
+    commandLine->printHelp(80);
 }
 
 #endif

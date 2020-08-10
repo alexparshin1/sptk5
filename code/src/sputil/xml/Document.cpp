@@ -289,7 +289,7 @@ char* Document::readProcessingInstructions(const char* nodeName, char* tokenEnd,
     return tokenEnd;
 }
 
-char* Document::readClosingTag(const char* nodeName, char* tokenEnd, Node*& currentNode)
+char* Document::readClosingTag(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode)
 {
     char ch = *tokenEnd;
     *tokenEnd = 0;
@@ -303,6 +303,7 @@ char* Document::readClosingTag(const char* nodeName, char* tokenEnd, Node*& curr
     if (currentNode == nullptr)
         throw Exception(
                 "Closing tag <" + string(nodeName) + "> doesn't have corresponding opening tag");
+    nodeEnd = tokenEnd;
     return tokenEnd;
 }
 
@@ -361,20 +362,19 @@ void Document::load(const char* xmlData)
         char* nodeEnd = nameStart;
         switch (*nameStart) {
             case '!':
-                nameEnd = readExclamationTag(nodeName, nameEnd, nodeEnd, currentNode);
+                readExclamationTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
 
             case '?':
-                nameEnd = readProcessingInstructions(nodeName, nameEnd, nodeEnd, currentNode);
+                readProcessingInstructions(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
 
             case '/':
-                nameEnd = readClosingTag(nodeName, nameEnd, currentNode);
-                nodeEnd = nameEnd;
+                readClosingTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
 
             default:
-                nameEnd = readOpenningTag(nodeName, nameEnd, nodeEnd, currentNode);
+                readOpenningTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
         }
 
@@ -384,11 +384,11 @@ void Document::load(const char* xmlData)
                 continue; // exit the loop
             throw Exception("Tag started but not closed");
         }
-        auto* textStart = nodeEnd + 1;
+        const auto* textStart = nodeEnd + 1;
         if (*textStart != '<') {
-            auto* textTrail = nodeStart;
+            const auto* textTrail = nodeStart;
             Buffer& decoded = m_decodeBuffer;
-            doctype->decodeEntities((char*) textStart, uint32_t(textTrail - textStart), decoded);
+            doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
             String decodedStr(String(decoded.c_str(), decoded.length()).trim());
             if (!decodedStr.empty())
                 new Text(currentNode, decodedStr.c_str());
