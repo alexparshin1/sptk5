@@ -29,7 +29,6 @@
 #include "htonq.h"
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/Query.h>
-#include <list>
 
 using namespace std;
 using namespace sptk;
@@ -826,7 +825,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
     auto* statement = (PostgreSQLStatement*) query->statement();
     if (statement == nullptr)
-        THROW_QUERY_ERROR(query, "Statement isn't open")
+        throw DatabaseException("Statement isn't open");
 
     statement->fetch();
 

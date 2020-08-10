@@ -58,7 +58,7 @@ void ThreadPool::execute(Runable* task)
     m_taskQueue.push(task);
 }
 
-void ThreadPool::threadEvent(Thread* athread, ThreadEvent::Type eventType, Runable*)
+void ThreadPool::threadEvent(Thread*, ThreadEvent::Type eventType, Runable*)
 {
     switch (eventType) {
     case ThreadEvent::RUNABLE_STARTED:

@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/RegularExpression.h>
 #include <sptk5/net/URL.h>
 
 using namespace std;

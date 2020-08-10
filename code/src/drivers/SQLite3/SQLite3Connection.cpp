@@ -409,8 +409,6 @@ void SQLite3Connection::queryFetch(Query* query)
     }
 
     auto fieldCount = query->fieldCount();
-    uint32_t dataLength = 0;
-
     if (fieldCount == 0)
         return;
 
@@ -426,7 +424,7 @@ void SQLite3Connection::queryFetch(Query* query)
                 field->setFieldType(fieldType, 0, 0);
             }
 
-            dataLength = (uint32_t) sqlite3_column_bytes(statement, int(column));
+            auto dataLength = (uint32_t) sqlite3_column_bytes(statement, int(column));
 
             if (dataLength != 0) {
                 switch (fieldType) {

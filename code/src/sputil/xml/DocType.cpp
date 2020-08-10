@@ -100,7 +100,7 @@ const struct entity *CEntityCache::encode(const char* str) const
 
 static const CEntityCache xml_entities(builtin_ent_xml);
 
-void xml::DocType::decodeEntities(const char* str, uint32_t sz, Buffer& ret)
+void xml::DocType::decodeEntities(const char* str, size_t sz, Buffer& ret)
 {
     Buffer buffer(str, sz);
     ret.bytes(0);

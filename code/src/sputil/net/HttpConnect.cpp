@@ -249,7 +249,7 @@ TEST(SPTK_HttpConnect, get)
     HttpConnect http(*socket);
     Buffer      output;
 
-    int statusCode {0};
+    int statusCode;
     try {
         statusCode = http.cmd_get("/", HttpParams(), output);
     }

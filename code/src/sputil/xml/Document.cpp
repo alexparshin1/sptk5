@@ -27,7 +27,6 @@
 #include <cstdlib>
 #include <sptk5/Strings.h>
 #include <sptk5/json/JsonDocument.h>
-#include <sptk5/xml/Document.h>
 
 using namespace std;
 using namespace sptk;
@@ -277,9 +276,6 @@ char* Document::readProcessingInstructions(const char* nodeName, char* tokenEnd,
     if (nodeEnd == nullptr)
         throw Exception("Invalid PI section: no closing tag");
     *nodeEnd = 0;
-
-    auto matches = m_parseAttributes.m(tokenEnd);
-
     *tokenEnd = 0;
     auto* pi = new PI(*currentNode, nodeName + 1);
     processAttributes(pi, tokenEnd + 1);

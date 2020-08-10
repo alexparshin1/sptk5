@@ -877,7 +877,7 @@ String DateTime::timeZoneName()
  */
 bool DateTime::isDaylightSavingsTime()
 {
-    return _isDaylightSavingsTime;
+    return _isDaylightSavingsTime > 0;
 }
 
 double sptk::duration2seconds(const DateTime::duration& duration)

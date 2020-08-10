@@ -29,7 +29,6 @@
 
 #include <sptk5/Field.h>
 #include <sptk5/json/JsonDocument.h>
-#include <sptk5/Variant.h>
 
 using namespace std;
 using namespace sptk;

@@ -26,8 +26,6 @@
 
 #include <sptk5/net/Proxy.h>
 
-#include <utility>
-
 using namespace std;
 using namespace sptk;
 

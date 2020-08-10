@@ -28,9 +28,7 @@
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/ServerConnection.h>
 
-#ifndef _WIN32
-#include <arpa/inet.h>
-#else
+#ifdef _WIN32
 #include <ws2tcpip.h>
 #endif
 

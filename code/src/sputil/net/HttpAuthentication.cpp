@@ -27,8 +27,6 @@
 #include <sptk5/Base64.h>
 #include <sptk5/net/HttpAuthentication.h>
 
-#include <utility>
-
 using namespace std;
 using namespace sptk;
 

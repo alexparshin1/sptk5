@@ -26,7 +26,6 @@
 
 #include <sptk5/threads/Timer.h>
 #include <sptk5/cutils>
-#include <sptk5/StopWatch.h>
 
 using namespace std;
 using namespace sptk;

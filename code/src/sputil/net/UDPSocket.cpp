@@ -68,7 +68,7 @@ size_t UDPSocket::read(String& buffer, size_t size, sockaddr_in* from)
     auto bytes = recvfrom(fd(), buffer.data(), (int) size, 0, (sockaddr*) from, &addrLength);
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read from socket");
-    buffer.resize(bytes);
+    buffer.resize((size_t) bytes);
     return (size_t) bytes;
 }
 

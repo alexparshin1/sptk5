@@ -13,7 +13,6 @@
 #include <sptk5/Exception.h>
 #include "libtar.h"
 
-#include <string.h>
 #include <fcntl.h>
 
 #ifdef _WIN32
@@ -33,8 +32,6 @@ static TAR* tar_init(const char *pathname, tartype_t *type,int oflags, int /*mod
     }
 
     auto* t = new TAR;
-    if (t == nullptr)
-        throw Exception("Can't allocate memory for tar");
     memset(t, 0, sizeof(TAR));
 
     t->pathname = pathname;

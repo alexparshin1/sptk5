@@ -170,7 +170,7 @@ TEST(SPTK_Exception, throwException)
 
 TEST(SPTK_HttpException, throw)
 {
-    for (int code = 400; code < 512; ++code) {
+    for (size_t code = 400; code < 512; ++code) {
         auto expectedStatus = HTTPException::httpResponseStatus(code);
         if (expectedStatus.empty())
             continue;

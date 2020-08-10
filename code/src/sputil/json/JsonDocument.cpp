@@ -446,7 +446,7 @@ TEST(SPTK_JsonDocument, performance)
 
     stopWatch.stop();
 
-    COUT("Parsed JSON document (" << objectCount << ") objects for " << stopWatch.seconds() << " seconds" << endl);
+    COUT("Parsed JSON document (" << objectCount << ") objects for " << stopWatch.seconds() << " seconds" << endl)
 }
 
 #endif

@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/net/RequestInfo.h>
-#include <sptk5/Buffer.h>
 #include <sptk5/Brotli.h>
 #include <sptk5/ZLib.h>
 #include <sptk5/cnet>

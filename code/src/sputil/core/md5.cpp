@@ -30,9 +30,7 @@ documentation and/or software.
 
 */
 
-/* interface header */
 #include <sptk5/md5.h>
-#include <cstring>
 #include <sptk5/StopWatch.h>
 #include <sptk5/cutils>
 

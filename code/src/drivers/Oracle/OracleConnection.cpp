@@ -26,8 +26,6 @@
 
 #include <sptk5/cutils>
 #include <sptk5/db/OracleConnection.h>
-#include <sptk5/db/Query.h>
-#include "OracleBulkInsertQuery.h"
 
 using namespace std;
 using namespace sptk;
@@ -238,12 +236,13 @@ void OracleConnection::queryBindParameters(Query* query)
     lock_guard<mutex> lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
-    if (!statement) throwDatabaseException("Query not prepared")
+    if (!statement)
+        throw DatabaseException("Query not prepared");
     try {
         statement->setParameterValues();
     }
     catch (const SQLException& e) {
-        throwOracleException(e.what())
+        throw DatabaseException(e.what());
     }
 }
 

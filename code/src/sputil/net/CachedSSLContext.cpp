@@ -26,7 +26,6 @@
 
 #include <sptk5/Buffer.h>
 #include "sptk5/net/CachedSSLContext.h"
-#include "sptk5/net/SSLKeys.h"
 
 using namespace std;
 using namespace sptk;

@@ -57,7 +57,7 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
     case VAR_FLOAT:
         Variant::setFloat(0);
         view().width = 16;
-        view().precision = fieldScale;
+        view().precision = (unsigned) fieldScale;
         break;
 
     case VAR_STRING:
@@ -103,8 +103,6 @@ void DatabaseField::checkSize(size_t sz)
     if (sz > m_data.getBuffer().size) {
         size_t newSize = (sz / 16 + 1) * 16;
         auto* p = new char[newSize + 1];
-        if (p == nullptr)
-            throw DatabaseException("Can't reallocate a buffer");
         if (m_data.getBuffer().data != nullptr) {
             memcpy(p, m_data.getBuffer().data, m_data.getBuffer().size);
             delete[] m_data.getBuffer().data;

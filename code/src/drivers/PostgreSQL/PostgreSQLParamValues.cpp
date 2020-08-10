@@ -88,14 +88,14 @@ void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, QueryPar
 void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParameter* param)
 {
     VariantType ptype = param->dataType();
-    uint32_t*   uptrBuffer;
-    uint64_t*   uptrBuffer64;
-    long        days;
-    int64_t     mcs;
 
     if (param->isNull())
         setParameterValue(paramIndex, nullptr, 0, 0, PG_VARCHAR);
     else {
+        uint32_t*   uptrBuffer;
+        uint64_t*   uptrBuffer64;
+        long        days;
+        int64_t     mcs;
         switch (ptype) {
             case VAR_BOOL:
                 if (param->asBool())

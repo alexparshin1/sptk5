@@ -28,7 +28,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
-#include <utility>
 
 #include <sptk5/Exception.h>
 #include <sptk5/UniqueInstance.h>

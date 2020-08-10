@@ -29,12 +29,9 @@
 #include <filesystem>
 
 #include <sptk5/DirectoryDS.h>
-#include <sptk5/DateTime.h>
+//#include <sptk5/DateTime.h>
 #include <sptk5/filedefs.h>
-#include <sptk5/SystemException.h>
 #include <sptk5/Printer.h>
-
-#define CASE_INSENSITIVE 1
 
 #ifndef FL_ALIGN_LEFT
 #define FL_ALIGN_LEFT 4
@@ -295,7 +292,7 @@ public:
             create_directories(dir);
         }
         catch (const filesystem_error& e) {
-            CERR("Can't create temp directory " << dir.filename().string() << ": " << e.what() << endl);
+            CERR("Can't create temp directory " << dir.filename().string() << ": " << e.what() << endl)
             return;
         }
 

@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
 #include <sptk5/cxml>
 #include <sptk5/xml/NodeList.h>
 
