@@ -28,6 +28,39 @@
 
 using namespace std;
 using namespace sptk;
+using namespace xml;
+
+void Entity::parse(const String& entityTag)
+{
+    static const RegularExpression matchEntity(R"(^<!ENTITY\s*(?<percent>\%)? (?<name>\S+)(?<type> SYSTEM| PUBLIC \w+)? (?<resource>[\w\._]+|".*"))");
+
+    name = "";
+    type = SYSTEM;
+    id = "";
+    resource = "";
+
+    auto matches = matchEntity.m(entityTag);
+    if (matches) {
+        auto pc = matches["percent"].value;
+        name = matches["name"].value;
+        if (!pc.empty())
+            name = "%" + name;
+
+        auto typeAndId = matches["type"].value;
+        if (typeAndId == " SYSTEM") {
+            type = SYSTEM;
+            id = "";
+        }
+        else if (typeAndId.startsWith(" PUBLIC ")) {
+            type = PUBLIC;
+            id = typeAndId.substr(8);
+        }
+
+        resource = matches["resource"].value;
+        if (resource[0] == '"')
+            resource = resource.substr(1, resource.length() - 2);
+    }
+}
 
 xml::DocType::DocType(const char *name, const char *public_id, const char *system_id)
 : m_name(name)
@@ -109,31 +142,34 @@ void xml::DocType::decodeEntities(const char* str, size_t sz, Buffer& ret)
     char* ptr = start;
     while (*ptr != char(0)) {
         char* ent_start = strchr(ptr, '&');
-        if (ent_start != nullptr) {
-            auto* ent_end = strchr(ent_start + 1, ';');
-            if (ent_end != nullptr) {
-                char ch = *ent_end;
-                *ent_end = 0;
-                uint32_t replacementLength = 0;
-                const char* rep = getReplacement(ent_start + 1, replacementLength);
-                *ent_end = ch;
-                if (rep != nullptr) {
-                    auto len = uint32_t(ent_start - start);
-                    if (len != 0)
-                        ret.append(start, len);
-                    ptr = ent_end + size_t(1);
-                    start = ptr;
-                    ret.append(rep, replacementLength);
-                } else
-                    ++ptr;
-            } else {
-                ++ptr;
-            }
-        } else {
+        if (ent_start == nullptr)
             break;
-        }
+
+        auto* ent_end = strchr(ent_start + 1, ';');
+        if (ent_end != nullptr) {
+            auto len = uint32_t(ent_start - start);
+            if (len != 0)
+                ret.append(start, len);
+            ptr = appendDecodedEntity(ret, ent_start, ent_end);
+            start = ptr;
+        } else
+            ++ptr;
     }
     ret.append(start, strlen(start));
+}
+
+char* xml::DocType::appendDecodedEntity(Buffer& ret, const char* ent_start, char* ent_end)
+{
+    char ch = *ent_end;
+    *ent_end = 0;
+    uint32_t replacementLength = 0;
+    const char* rep = this->getReplacement(ent_start + 1, replacementLength);
+    *ent_end = ch;
+    if (rep != nullptr)
+        ret.append(rep, replacementLength);
+    else
+        ret.append(ent_start, ent_end - ent_start);
+    return ent_end + 1;
 }
 
 bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
@@ -249,10 +285,31 @@ bool xml::DocType::hasEntity(const char *name)
 
 #if USE_GTEST
 
+TEST(SPTK_XmlDocType, parseEntity)
+{
+    Entity entity;
+
+    entity.parse(R"(<!ENTITY file_pic SYSTEM "file.jpg" NDATA jpg>)");
+    EXPECT_STREQ(entity.name.c_str(), "file_pic");
+    EXPECT_EQ(entity.type, Entity::SYSTEM);
+    EXPECT_STREQ(entity.resource.c_str(), "file.jpg");
+
+    entity.parse(R"(<!ENTITY % lists "ul | ol")");
+    EXPECT_STREQ(entity.name.c_str(), "%lists");
+    EXPECT_EQ(entity.type, Entity::SYSTEM);
+    EXPECT_STREQ(entity.resource.c_str(), "ul | ol");
+
+    entity.parse(R"(<!ENTITY % lists PUBLIC list_id "ul | ol")");
+    EXPECT_STREQ(entity.name.c_str(), "%lists");
+    EXPECT_EQ(entity.type, Entity::PUBLIC);
+    EXPECT_STREQ(entity.id.c_str(), "list_id");
+    EXPECT_STREQ(entity.resource.c_str(), "ul | ol");
+}
+
 TEST(SPTK_XmlDocType, decodeEncodeEntities)
 {
-    String testString1("'test1'");
-    String testString2(R"(<v a='test1'/> value)");
+    String testString1("<'test1'> value");
+    String testString2(R"(<v a='test1'>value</v>)");
 
     Buffer encoded;
     Buffer decoded;

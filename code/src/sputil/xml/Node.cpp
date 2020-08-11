@@ -159,16 +159,12 @@ bool NodeSearchAlgorithms::matchPathElementAttribute(Node* thisNode, const XPath
     const Attributes& attributes = thisNode->attributes();
     bool attributeMatch = false;
     if (pathElement.attributeValueDefined) {
-        if (pathElement.attributeName == starPointer) {
-            for (auto a: attributes) {
-                if (a->name() == pathElement.attributeValue) {
-                    attributeMatch = true;
-                    break;
-                }
-            }
-        } else
+        if (pathElement.attributeValue == starPointer) {
+            attributeMatch = attributes.hasAttribute(pathElement.attributeName);
+        } else {
             attributeMatch =
                     attributes.getAttribute(pathElement.attributeName).asString() == pathElement.attributeValue;
+        }
     } else {
         if (pathElement.attributeName == starPointer)
             attributeMatch = thisNode->hasAttributes();

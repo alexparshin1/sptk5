@@ -205,6 +205,7 @@ private:
      */
     std::string m_system_id;
 
+    char* appendDecodedEntity(Buffer& ret, const char* ent_start, char* ent_end);
 };
 
 /**

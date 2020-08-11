@@ -593,29 +593,37 @@ void WSParserComplexType::makeImplementationLoadFields(stringstream& fieldLoads,
                 continue;
             ++fieldLoadCount;
             fieldLoads << "    if ((field = input.findField(\"" << complexType->name() << "\")) != nullptr) {" << endl;
-            bool restrictionExists = false;
-            if (complexType->m_restriction != nullptr) {
-                auto restrictionCtor = complexType->m_restriction->generateConstructor("restriction");
-                if (!restrictionCtor.empty()) {
-                    fieldLoads << "        static const " << restrictionCtor << ";" << endl;
-                    restrictionExists = true;
-                }
-            }
+            String restrictionCheck = addOptionalRestriction(fieldLoads, complexType);
+
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
                 fieldLoads << "        " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
                 fieldLoads << "        item.load(*field);" << endl;
-                if (restrictionExists)
-                    fieldLoads << "        restriction.check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
                 fieldLoads << "        m_" << complexType->name() << ".push_back(move(item));" << endl;
             }
             else {
                 fieldLoads << "        m_" << complexType->name() << ".load(*field);" << endl;
-                if (restrictionExists)
-                    fieldLoads << "        restriction.check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
             }
+
+            if (restrictionCheck.empty())
+                fieldLoads << restrictionCheck << endl;
+
             fieldLoads << "    }" << endl << endl;
         }
     }
+}
+
+sptk::String WSParserComplexType::addOptionalRestriction(stringstream& fieldLoads,
+                                                         const SWSParserComplexType& complexType) const
+{
+    String restrictionCheck;
+    if (complexType->m_restriction != nullptr) {
+        auto restrictionCtor = complexType->m_restriction->generateConstructor("restriction");
+        if (!restrictionCtor.empty()) {
+            fieldLoads << "        static const " << restrictionCtor << ";" << endl;
+            restrictionCheck = "        restriction.check(\"" + complexType->name() + "\", m_" + complexType->name() + ".asString());";
+        }
+    }
+    return restrictionCheck;
 }
 
 void WSParserComplexType::makeImplementationLoadAttributes(stringstream& fieldLoads, int& fieldLoadCount) const

@@ -332,6 +332,8 @@ private:
 
     void printImplementationLoadField(ImplementationParts& implementationParts, Strings& requiredElements,
                                       const SWSParserComplexType& complexType, const String& restrictionName) const;
+
+    sptk::String addOptionalRestriction(std::stringstream& fieldLoads, const SWSParserComplexType& complexType) const;
 };
 
 /**

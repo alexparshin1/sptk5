@@ -23,10 +23,10 @@ using namespace std;
 using namespace sptk;
 
 static const tartype_t default_type {
-    (openfunc_t)open,
-    (closefunc_t)close,
-    (readfunc_t)read,
-    (writefunc_t)write
+    (openfunc_t) open,
+    (closefunc_t) close,
+    (readfunc_t) read,
+    (writefunc_t) write
 };
 
 static TAR* tar_init(const char *pathname, const tartype_t *type, int oflags, int /*mode*/, int options)

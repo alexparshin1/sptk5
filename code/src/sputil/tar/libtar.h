@@ -69,9 +69,9 @@ typedef int (*writefunc_t)(int, const void *, size_t);
 
 typedef struct
 {
-	openfunc_t openfunc;
+	openfunc_t  openfunc;
 	closefunc_t closefunc;
-	readfunc_t readfunc;
+	readfunc_t  readfunc;
 	writefunc_t writefunc;
 }
 tartype_t;

@@ -29,6 +29,7 @@
 
 #include <string>
 #include <map>
+#include <sptk5/RegularExpression.h>
 
 namespace sptk {
 namespace xml {
@@ -39,7 +40,21 @@ namespace xml {
  */
 
 /**
- * @brief XML entities
+ * XML document type entity
+ */
+class Entity
+{
+public:
+    enum Type { SYSTEM, PUBLIC };
+    String  name;
+    Type    type;
+    String  id;
+    String  resource;
+    void parse(const String& entityTag);
+};
+
+/**
+ * XML entities
  *
  * Maps an XML entity string to a presentation string.
  */
@@ -48,12 +63,12 @@ class Entities : public std::map<std::string, std::string>
 public:
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Entities() = default;
 
     /**
-     * @brief Removes named entity
+     * Removes named entity
      * @param name const char *, entity name to remove
      */
     void removeEntity(const char* name)
@@ -62,7 +77,7 @@ public:
     }
 
     /**
-     * @brief Adds entity to map
+     * Adds entity to map
      *
      * If entity named 'name' exists already in map, its value is replaced with 'replacement'
      * @param name const char *, entity to add/change
