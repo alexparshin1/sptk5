@@ -132,6 +132,11 @@ TimerThread*        Timer::timerThread;
 atomic<uint64_t>    Timer::nextSerial;
 int                 Timer::eventAllocations;
 
+int Timer::allocatedEvents()
+{
+    return eventAllocations; 
+}
+
 Timer::EventId::EventId(const DateTime& when)
 : serial(++nextSerial), when(when)
 {

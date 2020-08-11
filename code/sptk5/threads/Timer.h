@@ -212,7 +212,7 @@ namespace sptk {
          */
         void  cancel();
 
-        static int allocatedEvents() { return eventAllocations; }
+        static int allocatedEvents();
 
     protected:
 
