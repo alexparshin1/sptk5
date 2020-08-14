@@ -380,14 +380,15 @@ void Document::load(const char* xmlData)
                 continue; // exit the loop
             throw Exception("Tag started but not closed");
         }
+
         const auto* textStart = nodeEnd + 1;
         if (*textStart != '<') {
             const auto* textTrail = nodeStart;
             Buffer& decoded = m_decodeBuffer;
             doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
-            String decodedStr(String(decoded.c_str(), decoded.length()).trim());
-            if (!decodedStr.empty())
-                new Text(currentNode, decodedStr.c_str());
+            String decodedText(decoded.c_str(), decoded.length());
+            if (decodedText.find_first_not_of("\n\r\t ") != string::npos)
+                new Text(currentNode, decodedText.c_str());
         }
     }
 }
@@ -640,7 +641,7 @@ TEST(SPTK_XmlDocument, unicodeXML)
     xml::Document document;
 
     try {
-        const String unicodeXML(R"(<?xml version="1.0" encoding="UTF-8" ?><p>“Add”</p>)");
+        const String unicodeXML(R"(<?xml version="1.0" encoding="UTF-8" ?><p> “Add” </p>)");
         document.load(unicodeXML);
         Buffer buffer;
         document.save(buffer, 0);
