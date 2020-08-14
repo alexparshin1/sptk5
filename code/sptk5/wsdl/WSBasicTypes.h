@@ -504,9 +504,15 @@ public:
      * @param optional          Element optionality flag
      */
     explicit WSDouble(const char* name = "", bool optional = false)
-            : WSBasicType(name, optional)
+    : WSBasicType(name, optional)
     {
         Field::setNull(VAR_FLOAT);
+    }
+
+    explicit WSDouble(double value)
+    : WSBasicType("", true)
+    {
+        Field::setFloat(value);
     }
 
     /**
