@@ -34,6 +34,7 @@
 #include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/threads/ThreadPool.h>
 #include <sptk5/net/SSLKeys.h>
+#include <c++/10/bitset>
 
 namespace sptk
 {
@@ -56,13 +57,16 @@ public:
     /**
      * Log details constants
      */
-    enum MessageDetails {
+    enum MessageDetail {
         SOURCE_IP,
         REQUEST_NAME,
         REQUEST_DURATION,
         REQUEST_DATA,
-        RESPONSE_DATA
+        RESPONSE_DATA,
+        MAX_MESSAGE_DETAIL
     };
+
+    typedef std::bitset<MAX_MESSAGE_DETAIL> MessageDetails;
 
     /**
      * Default constructor
@@ -73,7 +77,7 @@ public:
      * Constructor
      * @param details           Log details
      */
-    explicit LogDetails(const std::set<MessageDetails>& details)
+    explicit LogDetails(const MessageDetails& details)
     : m_details(details)
     {}
 
@@ -87,10 +91,10 @@ public:
      * Constructor
      * @param details           Log details
      */
-    explicit LogDetails(std::initializer_list<MessageDetails> details)
+    explicit LogDetails(std::initializer_list<MessageDetail> details)
     {
         for (auto detail: details)
-            m_details.insert(detail);
+            m_details.set(detail);
     }
 
     /**
@@ -128,20 +132,19 @@ public:
      * @param detail            Log detail
      * @return true if log detail is set
      */
-    bool has(MessageDetails detail) const
+    bool has(MessageDetail detail) const
     {
-        auto itor = m_details.find(detail);
-        return itor != m_details.end();
+        return m_details.test(detail);
     }
 
     bool empty() const
     {
-        return m_details.empty();
+        return m_details.none();
     }
 
 private:
-    std::set<MessageDetails>    m_details;     ///< Log details set
-    static const std::map<String,MessageDetails> detailNames;
+    MessageDetails                              m_details;     ///< Log details set
+    static const std::map<String,MessageDetail> detailNames;
 };
 
 /**

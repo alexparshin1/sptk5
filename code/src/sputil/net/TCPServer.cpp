@@ -34,7 +34,7 @@
 using namespace std;
 using namespace sptk;
 
-const map<String,LogDetails::MessageDetails> LogDetails::detailNames {
+const map<String,LogDetails::MessageDetail> LogDetails::detailNames {
     { "source_ip", SOURCE_IP },
     { "request_name", REQUEST_NAME },
     { "request_duration", REQUEST_DURATION },
@@ -48,7 +48,7 @@ LogDetails::LogDetails(const Strings& details)
         auto itor = detailNames.find(detailName);
         if (itor == detailNames.end())
             continue;
-        m_details.insert(itor->second);
+        m_details.set(itor->second);
     }
 }
 
@@ -56,7 +56,7 @@ String LogDetails::toString(const String& delimiter) const
 {
     Strings names;
     for (auto& itor: detailNames) {
-        if (m_details.find(itor.second) != m_details.end())
+        if (m_details.test(itor.second))
             names.push_back(itor.first);
     }
     return names.join(delimiter.c_str());
