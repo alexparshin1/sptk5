@@ -72,7 +72,7 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
 
     const xml::Node* documentationElement = complexTypeElement->findFirst("xsd:documentation");
     if (documentationElement != nullptr)
-        m_documentation = documentationElement->text();
+        m_documentation = documentationElement->text().trim();
 
     if (m_typeName.empty())
         m_typeName = m_name;
@@ -434,12 +434,12 @@ void WSParserComplexType::printImplementationLoadXMLFields(ImplementationParts& 
         for (auto& complexType: m_sequence) {
             implementationParts.body << endl;
             implementationParts.body << "        if (element->name() == \"" << complexType->name() << "\") {" << endl;
-            auto restrictionName = appendRestrictionIfDefined(implementationParts, complexType);
+            auto restrictionName = implementationParts.appendRestrictionIfDefined(complexType);
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
-                printImplementationLoadArray(implementationParts, complexType, restrictionName);
+                implementationParts.printImplementationLoadArray(complexType, restrictionName);
             }
             else {
-                printImplementationLoadField(implementationParts, requiredElements, complexType, restrictionName);
+                implementationParts.printImplementationLoadField(requiredElements, complexType, restrictionName);
             }
             implementationParts.body << "        }" << endl;
         }
@@ -447,45 +447,6 @@ void WSParserComplexType::printImplementationLoadXMLFields(ImplementationParts& 
 
         printImplementationRestrictions(implementationParts.checks, requiredElements);
     }
-}
-
-void WSParserComplexType::printImplementationLoadField(
-        ImplementationParts& implementationParts, Strings& requiredElements,
-        const SWSParserComplexType& complexType, const String& restrictionName) const
-{
-    implementationParts.body << "            m_" << complexType->name() << ".load(element);" << endl;
-    if (!restrictionName.empty())
-        implementationParts.checks << "    " << restrictionName << ".check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
-    implementationParts.body << "            continue;" << endl;
-    if ((complexType->multiplicity() & WSM_REQUIRED) != 0)
-        requiredElements.push_back(complexType->name());
-}
-
-void WSParserComplexType::printImplementationLoadArray(
-        ImplementationParts& implementationParts, const SWSParserComplexType& complexType,
-        const String& restrictionName) const
-{
-    implementationParts.body << "            " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
-    implementationParts.body << "            item.load(element);" << endl;
-    if (complexType->m_restriction != nullptr)
-        implementationParts.checks << "    " << restrictionName << ".check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
-    implementationParts.body << "            m_" << complexType->name() << ".push_back(move(item));" << endl;
-}
-
-sptk::String WSParserComplexType::appendRestrictionIfDefined(
-        WSParserComplexType::ImplementationParts& implementationParts, const SWSParserComplexType& complexType) const
-{
-    String restrictionName;
-    if (complexType->m_restriction != nullptr) {
-        restrictionName = "restriction_" + to_string(implementationParts.restrictionNumber);
-        auto restrictionCtor = complexType->m_restriction->generateConstructor(restrictionName);
-        if (!restrictionCtor.empty()) {
-            ++implementationParts.restrictionNumber;
-            implementationParts.declarations << "    static const " << restrictionCtor << ";" << endl;
-        } else
-            restrictionName = "";
-    }
-    return restrictionName;
 }
 
 void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementation, const String& className) const
@@ -513,7 +474,7 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
         for (auto& complexType: m_sequence) {
             implementationParts.body << endl;
             implementationParts.body << "        if (elementName == \"" << complexType->name() << "\") {" << endl;
-            auto restrictionName = appendRestrictionIfDefined(implementationParts, complexType);
+            auto restrictionName = implementationParts.appendRestrictionIfDefined(complexType);
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
                 implementationParts.body << "            for (const auto* arrayElement: element->getArray()) {" << endl;
                 implementationParts.body << "                " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
@@ -522,7 +483,7 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
                 implementationParts.body << "            }" << endl;
             }
             else {
-                printImplementationLoadField(implementationParts, requiredElements, complexType, restrictionName);
+                implementationParts.printImplementationLoadField(requiredElements, complexType, restrictionName);
             }
             implementationParts.body << "        }" << endl;
         }
@@ -837,4 +798,41 @@ void WSParserComplexType::ImplementationParts::print(ostream& output) const
     output << body.str();
     if (!checks.str().empty())
         output << endl << checks.str();
+}
+
+void WSParserComplexType::ImplementationParts::printImplementationLoadArray(const SWSParserComplexType& complexType,
+                                                                            const String& restrictionName)
+{
+    body << "            " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
+    body << "            item.load(element);" << endl;
+    if (complexType->m_restriction != nullptr)
+        checks << "    " << restrictionName << ".check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
+    body << "            m_" << complexType->name() << ".push_back(move(item));" << endl;
+}
+
+sptk::String WSParserComplexType::ImplementationParts::appendRestrictionIfDefined(const SWSParserComplexType& complexType)
+{
+    String restrictionName;
+    if (complexType->m_restriction != nullptr) {
+        restrictionName = "restriction_" + to_string(restrictionNumber);
+        auto restrictionCtor = complexType->m_restriction->generateConstructor(restrictionName);
+        if (!restrictionCtor.empty()) {
+            ++restrictionNumber;
+            declarations << "    static const " << restrictionCtor << ";" << endl;
+        } else
+            restrictionName = "";
+    }
+    return restrictionName;
+}
+
+void WSParserComplexType::ImplementationParts::printImplementationLoadField(
+        Strings& requiredElements,
+        const SWSParserComplexType& complexType, const String& restrictionName)
+{
+    body << "            m_" << complexType->name() << ".load(element);" << endl;
+    if (!restrictionName.empty())
+        checks << "    " << restrictionName << ".check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
+    body << "            continue;" << endl;
+    if ((complexType->multiplicity() & WSM_REQUIRED) != 0)
+        requiredElements.push_back(complexType->name());
 }

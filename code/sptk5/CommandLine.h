@@ -220,7 +220,7 @@ public:
 
     /**
      * Redirect output from screen to streams
-     * @param out               Standard output redirection, default is cout
+     * @param out               Standard output redirection
      * @param error             Errors redirection, default is cerr
      */
     void redirectPrint(std::ostream& out, std::ostream& error);
@@ -311,7 +311,7 @@ protected:
          * @param optionDefaultValue Option default value (if any)
          * @param output            Optinal output stream
          */
-        void printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue, std::ostream& output=std::cout) const;
+        void printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue, std::ostream& output) const;
 
     private:
         /**

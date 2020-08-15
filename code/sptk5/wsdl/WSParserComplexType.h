@@ -127,7 +127,7 @@ public:
     /**
      * WSDL class name
      */
-    static String wsClassName(const String&);
+    static String wsClassName(const String& className);
 
     /**
      * Constructor
@@ -229,6 +229,10 @@ private:
         size_t              restrictionNumber {0};
 
         void print(std::ostream& output) const;
+        void printImplementationLoadArray(const SWSParserComplexType& complexType, const String& restrictionName);
+        String appendRestrictionIfDefined(const SWSParserComplexType& complexType);
+        void printImplementationLoadField(Strings& requiredElements, const SWSParserComplexType& complexType,
+                                          const String& restrictionName);
     };
 
     /**
@@ -323,15 +327,6 @@ private:
 
     void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames,
                                Strings& copyInitializer, Strings& moveInitializer) const;
-
-    sptk::String appendRestrictionIfDefined(WSParserComplexType::ImplementationParts& implementationParts,
-                                            const SWSParserComplexType& complexType) const;
-
-    void printImplementationLoadArray(ImplementationParts& implementationParts,
-                                      const SWSParserComplexType& complexType, const String& restrictionName) const;
-
-    void printImplementationLoadField(ImplementationParts& implementationParts, Strings& requiredElements,
-                                      const SWSParserComplexType& complexType, const String& restrictionName) const;
 
     sptk::String addOptionalRestriction(std::stringstream& fieldLoads, const SWSParserComplexType& complexType) const;
 };

@@ -245,10 +245,10 @@ const char* xml::DocType::getReplacement(const char *name, uint32_t& replacement
     // &#123; style entity..
     if (*name == '#') {
         const char *ptr = name;
-        ptr++;
+        ++ptr;
 
         if (*ptr == 'x' || *ptr == 'X')
-            ptr++;
+            ++ptr;
 
         if (isdigit(*ptr) != 0) {
             m_replacementBuffer[0] = (char) strtol(ptr, nullptr, 10);
@@ -258,22 +258,24 @@ const char* xml::DocType::getReplacement(const char *name, uint32_t& replacement
         }
     }
 
+    const char* result {nullptr};
+
     // Find in built-ins, see entities.h
     const struct entity *entity = xml_entities.find(name);
     if (entity != nullptr) {
         replacementLength = uint32_t(entity->replacement_len);
-        return entity->replacement;
+        result = entity->replacement;
+    } else {
+        // Find in custom attributes
+        auto itor = m_entities.find(name);
+        if (itor != m_entities.end()) {
+            const string& rep = itor->second;
+            replacementLength = (uint32_t) rep.length();
+            result = rep.c_str();
+        }
     }
 
-    // Find in custom attributes
-    auto itor = m_entities.find(name);
-    if (itor != m_entities.end()) {
-        const string& rep = itor->second;
-        replacementLength = (uint32_t) rep.length();
-        return rep.c_str();
-    }
-
-    return nullptr;
+    return result;
 }
 
 bool xml::DocType::hasEntity(const char *name)

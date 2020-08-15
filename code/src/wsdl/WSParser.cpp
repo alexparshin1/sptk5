@@ -140,7 +140,7 @@ void WSParser::parseOperation(const xml::Element* operationNode)
         messageToElementMap[messageName] = elementName;
         const auto* documentationNode = part->findFirst("wsdl:documentation");
         if (documentationNode != nullptr)
-            m_documentation[elementName] = documentationNode->text();
+            m_documentation[elementName] = documentationNode->text().trim();
     }
 
     WSOperation operation = {};
