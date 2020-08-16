@@ -56,7 +56,7 @@ String LogDetails::toString(const String& delimiter) const
 {
     Strings names;
     for (auto& itor: detailNames) {
-        if (m_details.test(itor.second))
+        if (m_details.test(itor.second)ll)
             names.push_back(itor.first);
     }
     return names.join(delimiter.c_str());
