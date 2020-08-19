@@ -55,18 +55,12 @@ public:
      * Constructor
      * @param service               Web Service request processor
      * @param logger                Logger
-     * @param paths                 Web Service paths
      * @param hostname              This service hostname
-     * @param encrypted             True if communication is encrypted
      * @param threadCount           Max number of simultaneously running requests
-     * @param allowCORS             Allow CORS (Cross Origin Resourse Sharing)
-     * @param keepAlive             Allow keep-alive connections
-     * @param suppressHttpStatus    Response HTTP status is always 200 OK, errors are reported in the response content
-     * @param logDetails            Log details
+     * @param options               Client connection options
      */
-    WSListener(WSRequest& service, LogEngine& logger, const WSConnection::Paths& paths,
-               const String& hostname, bool encrypted, size_t threadCount, bool allowCORS, bool keepAlive,
-               bool suppressHttpStatus, const LogDetails& logDetails = LogDetails());
+    WSListener(WSRequest& service, LogEngine& logger, const String& hostname, size_t threadCount,
+               const WSConnection::Options& options);
 
 protected:
     /**
@@ -80,14 +74,10 @@ protected:
     ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
 
 private:
-    mutable SharedMutex m_mutex;                ///< Mutex that protects internal data
-    WSRequest&          m_service;              ///< Web Service request processor
-    Logger              m_logger;               ///< Logger object
-    WSConnection::Paths m_paths;                ///< Pages and paths
-    bool                m_allowCORS;            ///< Allow CORS
-    bool                m_keepAlive;            ///< Allow keep-alive connections
-    bool                m_suppressHttpStatus;   ///< Response HTTP status is always 200 OK, errors are reported in the response content
-    const bool          m_encrypted;            ///< Connection protocol is encrypted flag
+    mutable SharedMutex     m_mutex;                ///< Mutex that protects internal data
+    WSRequest&              m_service;              ///< Web Service request processor
+    Logger                  m_logger;               ///< Logger object
+    WSConnection::Options   m_options;              ///< Client connection options
 };
 
 /**

@@ -37,13 +37,6 @@ namespace sptk {
 class WSConnection : public ServerConnection
 {
 public:
-    enum Options {
-        ENCRYPTED               = 1,
-        ALLOW_CORS              = 2,
-        KEEP_ALIVE              = 4,
-        SUPPRESS_HTTP_STATUS    = 8
-    };
-
     class Paths
     {
     public:
@@ -59,19 +52,27 @@ public:
         Paths(const Paths& other) = default;
     };
 
+    struct Options {
+        Paths       paths;
+        bool        encrypted          {false};
+        bool        allowCors          {false};
+        bool        keepAlive          {false};
+        bool        suppressHttpStatus {false};
+        LogDetails  logDetails;
+        Options(const Options& paths) = default;
+        Options(const Paths& paths, bool encrypted=false) : paths(paths), encrypted(encrypted) {}
+    };
+
     /**
      * Constructor
      * @param server            Server object
      * @param connectionSocket  Incoming connection socket
      * @param service           Web service object
      * @param logger            Logger instance
-     * @param paths             Web site paths
-     * @param allowCORS         Allow CORS
-     * @param keepAlive         Suggest clients to keep-alive connections
-     * @param logDetails        Log messages details
+     * @param options           Connection options
      */
-    WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, WSRequest& service, Logger& logger,
-                 const Paths& paths, bool allowCORS, bool keepAlive, bool suppressHttpStatus, const LogDetails& logDetails);
+    WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, WSRequest& service,
+                 Logger& logger, const Options& options);
 
     /**
      * Destructor
@@ -87,11 +88,7 @@ private:
 
     WSRequest&      m_service;
     Logger&         m_logger;
-    Paths           m_paths;
-    bool            m_allowCORS;
-    bool            m_keepAlive;
-    bool            m_suppressHttpStatus;
-    LogDetails      m_logDetails;
+    Options         m_options;
 
     void respondToOptions(const HttpHeaders& headers) const;
 
@@ -114,7 +111,7 @@ public:
      * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
      */
     WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSRequest& service,
-                    Logger& logger, const Paths& paths, int options, const LogDetails& logDetails);
+                    Logger& logger, const Options& options);
 
     /**
      * Destructor

@@ -30,15 +30,17 @@
 using namespace std;
 using namespace sptk;
 
-WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, WSRequest& service, Logger& logger,
-                           const Paths& paths, bool allowCORS, bool keepAlive, bool suppressHttpStatus, const LogDetails& logDetails)
-: ServerConnection(server, connectionSocket, connectionAddress, "WSConnection"), m_service(service), m_logger(logger),
-  m_paths(paths), m_allowCORS(allowCORS), m_keepAlive(keepAlive), m_suppressHttpStatus(suppressHttpStatus), m_logDetails(logDetails)
+WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress,
+                           WSRequest& service, Logger& logger, const Options& options)
+: ServerConnection(server, connectionSocket, connectionAddress, "WSConnection"),
+  m_service(service),
+  m_logger(logger),
+  m_options(options)
 {
-    if (!m_paths.staticFilesDirectory.endsWith("/"))
-        m_paths.staticFilesDirectory += "/";
-    if (!m_paths.wsRequestPage.startsWith("/"))
-        m_paths.wsRequestPage = "/" + m_paths.wsRequestPage;
+    if (!m_options.paths.staticFilesDirectory.endsWith("/"))
+        m_options.paths.staticFilesDirectory += "/";
+    if (!m_options.paths.wsRequestPage.startsWith("/"))
+        m_options.paths.wsRequestPage = "/" + m_options.paths.wsRequestPage;
 }
 
 static void printMessage(stringstream& logMessage, const String& prefix, const RequestInfo::Message& message)
@@ -117,7 +119,7 @@ void WSConnection::run()
             bool closeConnection = reviewHeaders(requestType, headers);
 
             WSWebServiceProtocol protocol(httpReader, url, m_service, server().host(),
-                                          m_allowCORS, m_keepAlive, m_suppressHttpStatus);
+                                          m_options.allowCors, m_options.keepAlive, m_options.suppressHttpStatus);
             auto requestInfo = protocol.process();
 
             if (closeConnection) {
@@ -139,11 +141,11 @@ void WSConnection::run()
 void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
                                         const RequestInfo& requestInfo) const
 {
-    if (!m_logDetails.empty()) {
+    if (!m_options.logDetails.empty()) {
         stringstream logMessage;
         bool listStarted = false;
 
-        if (m_logDetails.has(LogDetails::SOURCE_IP)) {
+        if (m_options.logDetails.has(LogDetails::SOURCE_IP)) {
             auto remoteIp = address();
             auto remoteIpHeader = httpReader.httpHeader("Remote-Ip");
             if (remoteIp == "127.0.0.1" && !remoteIpHeader.empty())
@@ -151,25 +153,25 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
             logMessage << "[" << remoteIp << "] ";
         }
 
-                if (m_logDetails.has(LogDetails::REQUEST_NAME)) {
-                    logMessage << "(" << requestInfo.name << ") ";
-                }
+        if (m_options.logDetails.has(LogDetails::REQUEST_NAME)) {
+            logMessage << "(" << requestInfo.name << ") ";
+        }
 
-        if (m_logDetails.has(LogDetails::REQUEST_DURATION)) {
+        if (m_options.logDetails.has(LogDetails::REQUEST_DURATION)) {
             if (listStarted)
                 logMessage << ", ";
             listStarted = true;
             logMessage << "duration " << fixed << setprecision(1) << requestStopWatch.seconds() * 1000 << " ms";
         }
 
-        if (m_logDetails.has(LogDetails::REQUEST_DATA)) {
+        if (m_options.logDetails.has(LogDetails::REQUEST_DATA)) {
             if (listStarted)
                 logMessage << ", ";
             listStarted = true;
             printMessage(logMessage, "IN ", requestInfo.request);
         }
 
-        if (m_logDetails.has(LogDetails::RESPONSE_DATA)) {
+        if (m_options.logDetails.has(LogDetails::RESPONSE_DATA)) {
             if (listStarted)
                 logMessage << ", ";
             printMessage(logMessage, "OUT ", requestInfo.response);
@@ -209,11 +211,11 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
             protocol.process();
             processed = true;
         }
-        else if (url.path() != m_paths.wsRequestPage) {
+        else if (url.path() != m_options.paths.wsRequestPage) {
             if (url.path() == "/")
-                url.path(m_paths.htmlIndexPage);
+                url.path(m_options.paths.htmlIndexPage);
 
-            WSStaticHttpProtocol protocol(&socket(), url, headers, m_paths.staticFilesDirectory);
+            WSStaticHttpProtocol protocol(&socket(), url, headers, m_options.paths.staticFilesDirectory);
             protocol.process();
             processed = true;
         }
@@ -229,10 +231,10 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
 
     response.append("HTTP/1.1 204 No Content\r\n");
 
-    if (m_keepAlive)
+    if (m_options.keepAlive)
         response.append("Connection: keep-alive\r\n");
 
-    if (m_allowCORS) {
+    if (m_options.allowCors) {
         response.append("Access-Control-Allow-Origin: *\r\n");
         response.append("Access-Control-Allow-Methods: POST, GET, OPTIONS\r\n");
         response.append("Access-Control-Allow-Headers: Content-Type, Content-Length, Content-Encoding, Access-Control-Allow-Origin, Authorization\r\n");
@@ -247,14 +249,10 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
 }
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSRequest& service,
-                                 Logger& logger, const Paths& paths, int options, const LogDetails& logDetails)
-: WSConnection(server, connectionSocket, addr, service, logger, paths,
-               (options & ALLOW_CORS) != 0,
-               (options & KEEP_ALIVE) != 0,
-               (options & SUPPRESS_HTTP_STATUS) != 0,
-               logDetails)
+                                 Logger& logger, const Options& options)
+: WSConnection(server, connectionSocket, addr, service, logger, options)
 {
-    if (options & ENCRYPTED) {
+    if (options.encrypted) {
         auto& sslKeys = server.getSSLKeys();
         auto* socket = new SSLSocket;
         socket->loadKeys(sslKeys);

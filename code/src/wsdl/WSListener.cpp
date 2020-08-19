@@ -30,38 +30,24 @@
 using namespace std;
 using namespace sptk;
 
-WSListener::WSListener(WSRequest& service, LogEngine& logger, const WSConnection::Paths& paths,
-                       const String& hostname, bool encrypted, size_t threadCount, bool allowCORS, bool keepAlive,
-                       bool suppressHttpStatus, const LogDetails& logDetails)
-: TCPServer(service.title(), threadCount, nullptr, logDetails),
+WSListener::WSListener(WSRequest& service, LogEngine& logger, const String& hostname, size_t threadCount,
+                       const WSConnection::Options& options)
+: TCPServer(service.title(), threadCount, nullptr, options.logDetails),
   m_service(service),
   m_logger(logger),
-  m_paths(paths),
-  m_allowCORS(allowCORS),
-  m_keepAlive(keepAlive),
-  m_suppressHttpStatus(suppressHttpStatus),
-  m_encrypted(encrypted)
+  m_options(options)
 {
     if (!hostname.empty()) {
         host(Host(hostname));
     }
 
-    if (m_paths.htmlIndexPage.empty())
-        m_paths.htmlIndexPage = "index.html";
-    if (m_paths.wsRequestPage.empty())
-        m_paths.wsRequestPage = "request";
+    if (m_options.paths.htmlIndexPage.empty())
+        m_options.paths.htmlIndexPage = "index.html";
+    if (m_options.paths.wsRequestPage.empty())
+        m_options.paths.wsRequestPage = "request";
 }
 
 ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    int options = 0;
-    if (m_encrypted)
-        options |= WSConnection::ENCRYPTED;
-    if (m_allowCORS)
-        options |= WSConnection::ALLOW_CORS;
-    if (m_keepAlive)
-        options |= WSConnection::KEEP_ALIVE;
-    if (m_suppressHttpStatus)
-        options |= WSConnection::SUPPRESS_HTTP_STATUS;
-    return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_paths, options, logDetails());
+    return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_options);
 }

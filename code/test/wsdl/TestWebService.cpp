@@ -138,8 +138,10 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
     TestWebService      service;
 
     // Define Web Service listener
-    WSConnection::Paths paths("index.html","/test",".");
-    WSListener listener(service, logEngine, paths, "localhost", encrypted, 0, false, false, false);
+    WSConnection::Paths     paths("index.html","/test",".");
+    WSConnection::Options   options(paths);
+    options.encrypted = encrypted;
+    WSListener listener(service, logEngine, "localhost", 16, options);
 
     const uint16_t      servicePort = 11000;
     shared_ptr<SSLKeys> sslKeys;
