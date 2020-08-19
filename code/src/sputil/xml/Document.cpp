@@ -341,12 +341,12 @@ char* Document::readOpenningTag(const char* nodeName, char* tokenEnd, char*& nod
     return tokenEnd;
 }
 
-void Document::load(const char* xmlData)
+void Document::load(const char* _buffer, bool keepSpaces)
 {
     clear();
     Node* currentNode = this;
     DocType* doctype = &docType();
-    Buffer buffer(xmlData);
+    Buffer buffer(_buffer);
 
     for (char* nodeStart = strchr(buffer.data(), '<'); nodeStart != nullptr; ) {
         auto* nameStart = nodeStart + 1;
@@ -384,11 +384,13 @@ void Document::load(const char* xmlData)
         const auto* textStart = nodeEnd + 1;
         if (*textStart != '<') {
             const auto* textTrail = nodeStart;
-            Buffer& decoded = m_decodeBuffer;
-            doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
-            String decodedText(decoded.c_str(), decoded.length());
-            if (decodedText.find_first_not_of("\n\r\t ") != string::npos)
-                new Text(currentNode, decodedText.c_str());
+            if (textStart != textTrail && nodeStart[1] == '/') {
+                Buffer& decoded = m_decodeBuffer;
+                doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
+                String decodedText(decoded.c_str(), decoded.length());
+                if (keepSpaces || decodedText.find_first_not_of("\n\r\t ") != string::npos)
+                    new Text(currentNode, decodedText.c_str());
+            }
         }
     }
 }
@@ -636,13 +638,13 @@ TEST(SPTK_XmlDocument, brokenXML)
     }
 }
 
-TEST(SPTK_XmlDocument, unicodeXML)
+TEST(SPTK_XmlDocument, unicodeAndSpacesXML)
 {
     xml::Document document;
 
     try {
-        const String unicodeXML(R"(<?xml version="1.0" encoding="UTF-8" ?><p> “Add” </p>)");
-        document.load(unicodeXML);
+        const String unicodeXML(R"(<?xml version="1.0" encoding="UTF-8" ?><p> “Add” </p><span> </span>)");
+        document.load(unicodeXML, true);
         Buffer buffer;
         document.save(buffer, 0);
         EXPECT_STREQ(unicodeXML.c_str(), buffer.c_str());

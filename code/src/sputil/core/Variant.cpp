@@ -1411,7 +1411,7 @@ TEST(SPTK_Variant, xml)
 {
     const char* xml = "<value>12345</value>";
     xml::Document document;
-    document.load(xml);
+    document.load(xml, false);
     auto* node = document.findFirst("value");
 
     Variant v;

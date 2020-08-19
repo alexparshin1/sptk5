@@ -153,24 +153,24 @@ public:
      * Load document from buffer.
      * @param buffer            Source buffer
      */
-    virtual void load(const char* buffer);
+    virtual void load(const char* buffer, bool keepSpaces=false);
 
     /**
      * Load document from std::string.
      * @param str               Source string
      */
-    virtual void load(const std::string& str)
+    virtual void load(const sptk::String& str, bool keepSpaces=false)
     {
-        load(str.c_str());
+        load(str.c_str(), keepSpaces);
     }
 
     /**
      * Load document from buffer.
      * @param buffer            Source buffer
      */
-    virtual void load(const Buffer& buffer)
+    virtual void load(const Buffer& buffer, bool keepSpaces=false)
     {
-        load(buffer.c_str());
+        load(buffer.c_str(), keepSpaces);
     }
 
     /**

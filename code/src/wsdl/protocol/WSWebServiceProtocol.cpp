@@ -220,7 +220,7 @@ RequestInfo WSWebServiceProtocol::process()
                 *endOfMessage = 0;
 
             try {
-                xmlContent.load(startOfMessage);
+                xmlContent.load(startOfMessage, false);
             }
             catch (const Exception& e) {
                 throw HTTPException(406, "Invalid XML content: " + String(e.what()));
