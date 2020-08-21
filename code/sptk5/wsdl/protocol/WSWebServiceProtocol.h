@@ -30,44 +30,23 @@
 #include "WSProtocol.h"
 #include <sptk5/cnet>
 #include <sptk5/net/URL.h>
+#include <sptk5/net/HttpResponseStatus.h>
 
 namespace sptk {
 
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 
-/// @brief WebService connection handler
+/// WebService connection handler
 ///
 /// Uses WSRequest service object to parse WS request and
 /// reply, then closes connection.
 class WSWebServiceProtocol : public WSProtocol
 {
-    HttpReader&         m_httpReader;           ///< HTTP reader
-    WSRequest&          m_service;              ///< Web service
-    const URL           m_url;                  ///< Request URL
-    Host                m_host;                 ///< Listener's host
-    bool                m_allowCORS;            ///< Allow CORS?
-    bool                m_keepAlive;            ///< Allow keep-alive connections
-    bool                m_suppressHttpStatus;   ///< If true, then HTTP status is 202 Accepted even if HttpException raised
-    LogDetails          m_logDetails;           ///< Log details
-
-    /**
-     * Process request message, and store response to output
-     * @param output            Output buffer
-     * @param xmlContent           Input message
-     * @param authentication    Authentication
-     * @param requestIsJSON     Request is in JSON format
-     * @param httpStatusCode    Output HTTP status code
-     * @param httpStatusText    Output HTTP status text
-     * @param contentType       Output content type
-     */
-    String processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
-                          const SHttpAuthentication& authentication, bool requestIsJSON,
-                          size_t& httpStatusCode, String& httpStatusText, String& contentType);
 public:
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param httpReader        Connection socket
      * @param url               Method URL
      * @param headers           Connection HTTP headers
@@ -81,19 +60,43 @@ public:
                          const Host& host, bool allowCORS, bool keepAlive,
                          bool suppressHttpStatus);
 
-    /// @brief Process method
-    ///
-    /// Calls WebService request through service object
+    /*
+     * Process method
+     *
+     * Calls WebService request through service object
+     */
     RequestInfo process() override;
 
 private:
+    HttpReader&         m_httpReader;           ///< HTTP reader
+    WSRequest&          m_service;              ///< Web service
+    const URL           m_url;                  ///< Request URL
+    Host                m_host;                 ///< Listener's host
+    bool                m_allowCORS;            ///< Allow CORS?
+    bool                m_keepAlive;            ///< Allow keep-alive connections
+    bool                m_suppressHttpStatus;   ///< If true, then HTTP status is 202 Accepted even if HttpException raised
+    LogDetails          m_logDetails;           ///< Log details
+
+    /**
+     * Process request message, and store response to output
+     * @param output                Output buffer
+     * @param xmlContent            Input message
+     * @param authentication        Authentication
+     * @param requestIsJSON         Request is in JSON format
+     * @param httpResponseStatus    Output HTTP response status
+     * @param contentType           Output content type
+     */
+    String processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
+                          const SHttpAuthentication& authentication, bool requestIsJSON,
+                          HttpResponseStatus& httpResponseStatus, String& contentType);
 
     xml::Node* getFirstChildElement(const xml::Node* element) const;
 
     xml::Node* findRequestNode(const xml::Document& message, const String& messageType) const;
 
-    void generateFault(Buffer& output, size_t& httpStatusCode, String& httpStatusText, String& contentType,
-                       const HTTPException& e, bool jsonOutput) const;
+    void generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
+                       const HTTPException& e,
+                       bool jsonOutput) const;
 
     void RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) const;
 

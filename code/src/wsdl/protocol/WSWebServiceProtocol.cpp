@@ -78,11 +78,12 @@ xml::Node* WSWebServiceProtocol::findRequestNode(const xml::Document& message, c
     return xmlRequest;
 }
 
-void WSWebServiceProtocol::generateFault(Buffer& output, size_t& httpStatusCode, String& httpStatusText,
-                                         String& contentType, const HTTPException& e, bool jsonOutput) const
+void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
+                                         const HTTPException& e,
+                                         bool jsonOutput) const
 {
-    httpStatusCode = e.statusCode();
-    httpStatusText = e.statusText();
+    httpStatus.code = e.statusCode();
+    httpStatus.description = e.statusText();
 
     String errorText(e.what());
 
@@ -119,11 +120,11 @@ void WSWebServiceProtocol::generateFault(Buffer& output, size_t& httpStatusCode,
 
 String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
                                             const SHttpAuthentication& authentication, bool requestIsJSON,
-                                            size_t& httpStatusCode, String& httpStatusText, String& contentType)
+                                            HttpResponseStatus& httpResponseStatus, String& contentType)
 {
     String requestName("Error");
-    httpStatusCode = 200;
-    httpStatusText = "OK";
+    httpResponseStatus.code = 200;
+    httpResponseStatus.description = "OK";
     contentType = "text/xml; charset=utf-8";
     try {
         auto* pXmlContent = requestIsJSON? nullptr: &xmlContent;
@@ -139,7 +140,7 @@ String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& xmlCo
         }
     }
     catch (const HTTPException& e) {
-        generateFault(output, httpStatusCode, httpStatusText, contentType, e, requestIsJSON);
+        generateFault(output, httpResponseStatus, contentType, e, requestIsJSON);
     }
     return requestName;
 }
@@ -179,9 +180,8 @@ static void substituteHostname(Buffer& page, const Host& host)
 
 RequestInfo WSWebServiceProtocol::process()
 {
-    size_t httpStatusCode = 200;
-    String httpStatusText = "OK";
-    bool   returnWSDL = false;
+    HttpResponseStatus  httpStatus { 200, "OK" };
+    bool                returnWSDL = false;
 
     if (m_httpReader.getRequestType() != "POST")
         throw HTTPException(405, "Only POST method is supported");
@@ -237,7 +237,7 @@ RequestInfo WSWebServiceProtocol::process()
         else if (*startOfMessage == '{' || *startOfMessage == '[') {
             contentType = "application/json; charset=utf-8";
             if (m_url.path().length() < 2)
-                generateFault(requestInfo.response.content(), httpStatusCode, httpStatusText, contentType,
+                generateFault(requestInfo.response.content(), httpStatus, contentType,
                               HTTPException(404, "Not Found"),
                               requestIsJSON);
             else {
@@ -248,7 +248,7 @@ RequestInfo WSWebServiceProtocol::process()
                     jsonContent.load(startOfMessage);
                 }
                 catch (const Exception& e) {
-                    generateFault(requestInfo.response.content(), httpStatusCode, httpStatusText, contentType,
+                    generateFault(requestInfo.response.content(), httpStatus, contentType,
                                   HTTPException(406, "Invalid JSON content: " + String(e.what())),
                                   requestIsJSON);
                 }
@@ -259,7 +259,7 @@ RequestInfo WSWebServiceProtocol::process()
             }
         }
         else {
-            generateFault(requestInfo.response.content(), httpStatusCode, httpStatusText, contentType,
+            generateFault(requestInfo.response.content(), httpStatus, contentType,
                           HTTPException(406, "Expect JSON or XML content"),
                           requestIsJSON);
         }
@@ -277,19 +277,19 @@ RequestInfo WSWebServiceProtocol::process()
         }
     }
 
-    if (!returnWSDL && httpStatusCode < 400) {
+    if (!returnWSDL && httpStatus.code < 400) {
         requestInfo.name = processMessage(requestInfo.response.content(), xmlContent, jsonContent, authentication,
                                           requestIsJSON,
-                                          httpStatusCode, httpStatusText, contentType);
+                                          httpStatus, contentType);
     }
 
     Strings clientAcceptEncoding(header("accept-encoding"), "[,\\s]+", Strings::SM_REGEXP);
 
     // For errors, always return uncompressed content
-    if (httpStatusCode >= 400)
+    if (httpStatus.code >= 400)
         clientAcceptEncoding.clear();
 
-    if (httpStatusCode == 500)
+    if (httpStatus.code == 500)
         clientAcceptEncoding.clear();
 
     Buffer outputData = requestInfo.response.output(clientAcceptEncoding);
@@ -297,10 +297,10 @@ RequestInfo WSWebServiceProtocol::process()
 
     Buffer response;
     response.append("HTTP/1.1 ");
-    if (m_suppressHttpStatus && httpStatusCode >= 400)
+    if (m_suppressHttpStatus && httpStatus.code >= 400)
         response.append("202 Accepted\r\n");
     else
-        response.append(to_string(httpStatusCode) + " " + httpStatusText + "\r\n");
+        response.append(to_string(httpStatus.code) + " " + httpStatus.description + "\r\n");
     response.append("Content-Type: " + contentType + "\r\n");
     response.append("Content-Length: " + to_string(outputData.bytes()) + "\r\n");
     if (m_keepAlive)

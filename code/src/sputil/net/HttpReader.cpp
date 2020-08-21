@@ -173,40 +173,53 @@ static size_t readChunk(TCPSocket& socket, Buffer& m_output)
     return readAndAppend(socket, m_output, chunkSize);
 }
 
-bool HttpReader::readData()
+void HttpReader::readDataChunk(bool& done)
 {
-    while (m_socket.readyToRead(chrono::seconds(10))) {
-        size_t bytesToRead = m_socket.socketBytes();
-        if (bytesToRead == 0)
-            break;
+    size_t bytesToRead = m_socket.socketBytes();
+    if (bytesToRead == 0) {
+        done = true;
+        return;
+    }
 
-        if (m_contentLength > 0) {
-            bytesToRead = m_contentLength - m_contentReceivedLength;
-            if (bytesToRead == 0) // received all content bytes
-                break;
-        } else
-            bytesToRead = m_socket.socketBytes();
-
-        int readBytes;
-        if (!m_contentIsChunked) {
-            readBytes = (int) readAndAppend(m_socket, m_output, bytesToRead);
-            m_contentReceivedLength += readBytes;
-            if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength) // No more data
-                break;
-        } else {
-            size_t chunkSize = readChunk(m_socket, m_output);
-            m_contentReceivedLength += chunkSize;
-            return (chunkSize == 0); // 0 means last chunk
+    if (m_contentLength > 0) {
+        bytesToRead = m_contentLength - m_contentReceivedLength;
+        if (bytesToRead == 0) { // received all content bytes
+            done = true;
+            return;
         }
+    } else
+        bytesToRead = m_socket.socketBytes();
+
+    int readBytes;
+    if (!m_contentIsChunked) {
+        readBytes = (int) readAndAppend(m_socket, m_output, bytesToRead);
+        m_contentReceivedLength += readBytes;
+        if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength) // No more data
+            done = true;
+    } else {
+        size_t chunkSize = readChunk(m_socket, m_output);
+        m_contentReceivedLength += chunkSize;
+        done = (chunkSize == 0); // 0 means last chunk
+    }
+
+    if (!done) {
         readBytes = (int) m_socket.socketBytes();
         if (readBytes == 0 && m_output.bytes() > 13) {
             size_t tailOffset = m_output.bytes() - 13;
-			String tail(m_output.c_str() + tailOffset);
+            String tail(m_output.c_str() + tailOffset);
             if (tail.toLowerCase().find("</html>") != string::npos)
-				break;
-            if (!m_socket.readyToRead(chrono::seconds(30)))
+                done = true;
+            else if (!m_socket.readyToRead(chrono::seconds(30)))
                 throw TimeoutException("Read timeout");
         }
+    }
+}
+
+bool HttpReader::readData()
+{
+    bool done {false};
+    while (!done && m_socket.readyToRead(chrono::seconds(10))) {
+        readDataChunk(done);
     }
     return true;
 }

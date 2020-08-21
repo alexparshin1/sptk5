@@ -207,8 +207,7 @@ protected:
      * Generate C++ class declaration
      * @param classDeclaration std::ostream&, Output header file stream
      */
-    void generateDefinition(std::ostream& classDeclaration, Strings& fieldNames,
-                            Strings& elementNames, const Strings& attributeNames) const;
+    void generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames, sptk::Strings& elementNames) const;
 
     /**
      * Generate C++ class implementation

@@ -98,6 +98,8 @@ private:
 
     void logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
                               const RequestInfo& requestInfo) const;
+
+    void processSingleConnection(bool& done);
 };
 
 /**

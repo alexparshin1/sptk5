@@ -177,6 +177,8 @@ private:
      * Read headers that can be read completely
      */
     bool readData();
+
+    void readDataChunk(bool& done);
 };
 
 } // namespace sptk

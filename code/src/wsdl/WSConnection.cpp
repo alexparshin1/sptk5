@@ -59,6 +59,72 @@ static void printMessage(stringstream& logMessage, const String& prefix, const R
         logMessage << content;
 }
 
+void WSConnection::processSingleConnection(bool& done)
+{
+    if (!socket().readyToRead(chrono::seconds(30))  // Client communication timeout
+        ||
+        socket().socketBytes() == 0)                        // Client closed connection
+    {
+        socket().close();
+        done = true;
+        return;
+    }
+
+    StopWatch requestStopWatch;
+    requestStopWatch.start();
+
+    Buffer contentBuffer;
+    HttpReader httpReader(socket(), contentBuffer, HttpReader::REQUEST);
+
+    String protocolName = "http";
+    httpReader.readHttpHeaders();
+    auto& headers = httpReader.getHttpHeaders();
+
+    String requestType = httpReader.getRequestType();
+    URL url(httpReader.getRequestURL());
+
+    if (requestType == "OPTIONS") {
+        respondToOptions(headers);
+        if (headers["Connection"].toLowerCase() == "close") {
+            httpReader.close();
+            done = true;
+        }
+        return;
+    }
+
+    if (url.params().has("wsdl"))
+        protocolName = "wsdl";
+
+    bool processed = false;
+
+    if (protocolName == "http")
+        processed = handleHttpProtocol(requestType, url, protocolName, headers);
+
+    if (protocolName == "websocket") {
+        WSWebSocketsProtocol protocol(&socket(), headers);
+        protocol.process();
+        processed = true;
+    }
+
+    if (processed)
+        return;
+
+    bool closeConnection = reviewHeaders(requestType, headers);
+
+    WSWebServiceProtocol protocol(httpReader, url, m_service, server().host(),
+                                  m_options.allowCors, m_options.keepAlive, m_options.suppressHttpStatus);
+    auto requestInfo = protocol.process();
+
+    if (closeConnection) {
+        httpReader.close();
+        done = true;
+    }
+
+    requestStopWatch.stop();
+
+    logConnectionDetails(requestStopWatch, httpReader, requestInfo);
+}
+
 void WSConnection::run()
 {
     Buffer  data;
@@ -71,65 +137,7 @@ void WSConnection::run()
 
     while (!done && socket().active()) {
         try {
-            if (!socket().readyToRead(chrono::seconds(30))) {
-                socket().close();
-                // Client communication timeout
-                break;
-            }
-
-            if (socket().socketBytes() == 0) {
-                // Client closed connection
-                break;
-            }
-
-            StopWatch requestStopWatch;
-            requestStopWatch.start();
-
-            Buffer contentBuffer;
-            HttpReader httpReader(socket(), contentBuffer, HttpReader::REQUEST);
-
-            protocolName = "http";
-            httpReader.readHttpHeaders();
-            auto& headers = httpReader.getHttpHeaders();
-
-            String requestType = httpReader.getRequestType();
-            URL url(httpReader.getRequestURL());
-
-            if (requestType == "OPTIONS") {
-                respondToOptions(headers);
-                if (headers["Connection"].toLowerCase() == "close") {
-                    httpReader.close();
-                    done = true;
-                }
-                continue;
-            }
-
-            if (url.params().has("wsdl"))
-                protocolName = "wsdl";
-
-            if (protocolName == "http" && handleHttpProtocol(requestType, url, protocolName, headers))
-                return;
-
-            if (protocolName == "websocket") {
-                WSWebSocketsProtocol protocol(&socket(), headers);
-                protocol.process();
-                return;
-            }
-
-            bool closeConnection = reviewHeaders(requestType, headers);
-
-            WSWebServiceProtocol protocol(httpReader, url, m_service, server().host(),
-                                          m_options.allowCors, m_options.keepAlive, m_options.suppressHttpStatus);
-            auto requestInfo = protocol.process();
-
-            if (closeConnection) {
-                httpReader.close();
-                done = true;
-            }
-
-            requestStopWatch.stop();
-
-            logConnectionDetails(requestStopWatch, httpReader, requestInfo);
+            processSingleConnection(done);
         }
         catch (const Exception& e) {
             if (!terminated())
@@ -198,7 +206,7 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
                                       HttpHeaders& headers) const
 {
     String contentType = headers["Content-Type"];
-    bool processed= false;
+    bool processed = false;
     if (contentType.find("/json") != string::npos)
         protocolName = "rest";
     else if (contentType.find("/xml") != string::npos)

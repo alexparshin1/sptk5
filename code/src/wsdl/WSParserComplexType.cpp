@@ -164,7 +164,7 @@ void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, co
 }
 
 void WSParserComplexType::generateDefinition(ostream& classDeclaration, Strings& fieldNames,
-                                             Strings& elementNames, const Strings& attributeNames) const
+                                             Strings& elementNames) const
 {
     String className = "C" + wsClassName(m_name);
 
@@ -779,7 +779,7 @@ void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImpl
     Strings fieldNames;
     Strings elementNames;
     Strings attributeNames;
-    generateDefinition(classDeclaration, fieldNames, elementNames, attributeNames);
+    generateDefinition(classDeclaration, fieldNames, elementNames);
     generateImplementation(classImplementation, fieldNames, elementNames, attributeNames);
 }
 
