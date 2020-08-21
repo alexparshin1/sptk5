@@ -33,6 +33,8 @@ using namespace sptk;
 
 namespace sptk::xml {
 
+const RegularExpression Document::parseAttributes { R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])","g" };
+
 Document::Document()
 : Element(*this)
 {
@@ -67,7 +69,7 @@ Node* Document::createElement(const char* tagname)
 
 void Document::processAttributes(Node* node, const char* ptr)
 {
-    auto matches = m_parseAttributes.m(ptr);
+    auto matches = parseAttributes.m(ptr);
 
     for (auto itor = matches.groups().begin(); itor != matches.groups().end(); ++itor) {
         auto& attributeName = itor->value;
@@ -82,49 +84,22 @@ void Document::processAttributes(Node* node, const char* ptr)
 
 void Document::parseEntities(char* entitiesSection)
 {
-    auto* start = (unsigned char*) entitiesSection;
+    static const RegularExpression matchEntity(R"( (?<name>[\w_\-]+)\s+["'](?<value>.*)["'])");
+    auto* start = entitiesSection;
     while (start != nullptr) {
-        start = (unsigned char*) strstr((char*) start, "<!ENTITY ");
+        start = strstr((char*) start, "<!ENTITY ");
         if (start == nullptr)
-            continue; // break the loop
-        start += 9;
-        start = skipSpaces(start);
-        auto* end = (unsigned char*) strchr((char*) start, ' ');
-        if (end == nullptr) {
-            start = nullptr;
-            continue; // break the loop
-        }
-        *end = 0;
-        unsigned char* ent_name = start;
-        unsigned char* ent_value = end + 1;
-        ent_value = skipSpaces(ent_value);
-        unsigned char delimiter = *ent_value;
-        if (delimiter == '\'' || delimiter == '\"') {
-            ++ent_value;
-            end = (unsigned char*) strchr((char*) ent_value, (char) delimiter);
-            if (end == nullptr) {
-                start = nullptr;
-                continue; // break the loop
-            }
+            break;
+        start += 8;
+        auto* end = strchr((char*) start, '>');
+        if (end) {
             *end = 0;
-        } else {
-            end = (unsigned char*) strpbrk((char*) ent_value, " >");
-            if (end == nullptr) {
-                start = nullptr;
-                continue; // break the loop
-            }
-            if (*end == ' ') {
-                *end = 0;
-                end = (unsigned char*) strchr((char*) ent_value, '>');
-                if (end == nullptr) {
-                    start = nullptr;
-                    continue; // break the loop
-                }
-            }
-            *end = 0;
-        }
-        m_doctype.m_entities.setEntity((char*) ent_name, (char*) ent_value);
-        start = end + 1;
+            auto matches = matchEntity.m(start);
+            if (matches)
+                m_doctype.m_entities.setEntity(matches["name"].value, matches["value"].value);
+            start = end + 1;
+        } else
+            break;
     }
 }
 
@@ -358,7 +333,7 @@ void Document::load(const char* _buffer, bool keepSpaces)
         char* nodeEnd = nameStart;
         switch (*nameStart) {
             case '!':
-                readExclamationTag(nodeName, nameEnd, nodeEnd, currentNode);
+                nodeEnd = readExclamationTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
 
             case '?':
@@ -383,15 +358,20 @@ void Document::load(const char* _buffer, bool keepSpaces)
 
         const auto* textStart = nodeEnd + 1;
         if (*textStart != '<') {
-            const auto* textTrail = nodeStart;
-            if (textStart != textTrail && nodeStart[1] == '/') {
-                Buffer& decoded = m_decodeBuffer;
-                doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
-                String decodedText(decoded.c_str(), decoded.length());
-                if (keepSpaces || decodedText.find_first_not_of("\n\r\t ") != string::npos)
-                    new Text(currentNode, decodedText.c_str());
-            }
+            readText(keepSpaces, currentNode, doctype, nodeStart, textStart);
         }
+    }
+}
+
+void Document::readText(bool keepSpaces, Node* currentNode, DocType* doctype, const char* nodeStart, const char* textStart)
+{
+    const auto* textTrail = nodeStart;
+    if (textStart != textTrail && nodeStart[1] == '/') {
+        Buffer& decoded = m_decodeBuffer;
+        doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
+        String decodedText(decoded.c_str(), decoded.length());
+        if (keepSpaces || decodedText.find_first_not_of("\n\r\t ") != string::npos)
+            new Text(currentNode, decodedText.c_str());
     }
 }
 
@@ -471,7 +451,7 @@ bool Document::isNumber(const String& str)
 static const String testXML(
     "<name position='president'>John</name><age>33</age><temperature>36.6</temperature><timestamp>1519005758000</timestamp>"
     "<skills><skill>C++</skill><skill>Java</skill><skill>Motorbike</skill></skills>"
-    "<address><married>true</married><employed>false</employed></address>");
+    "<address><married>true</married><employed>false</employed></address><data><![CDATA[hello, /\\>]]></data>");
 
 static const String testREST(
     R"(<?xml version="1.0" encoding="UTF-8" ?>)"
@@ -506,6 +486,16 @@ void verifyDocument(xml::Document& document)
     xml::Element& address = *ptr2;
     EXPECT_STREQ("true", address.findOrCreate("married")->text().c_str());
     EXPECT_STREQ("false", address.findOrCreate("employed")->text().c_str());
+
+    xml::Node* dataNode = document.findOrCreate("data");
+    xml::Node* cdataNode = nullptr;
+
+    for (auto* node: *dataNode) {
+        cdataNode = node;
+        EXPECT_TRUE(cdataNode->isCDataSection());
+        EXPECT_STREQ("hello, /\\>", cdataNode->value().c_str());
+    }
+    EXPECT_TRUE(cdataNode != nullptr);
 }
 
 TEST(SPTK_XmlDocument, load)

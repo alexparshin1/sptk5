@@ -58,7 +58,7 @@ public:
  *
  * Maps an XML entity string to a presentation string.
  */
-class Entities : public std::map<std::string, std::string>
+class Entities : public std::map<String, String>
 {
 public:
 
@@ -69,9 +69,9 @@ public:
 
     /**
      * Removes named entity
-     * @param name const char *, entity name to remove
+     * @param name              entity name to remove
      */
-    void removeEntity(const char* name)
+    void removeEntity(const String& name)
     {
         erase(name);
     }
@@ -80,10 +80,10 @@ public:
      * Adds entity to map
      *
      * If entity named 'name' exists already in map, its value is replaced with 'replacement'
-     * @param name const char *, entity to add/change
-     * @param replacement const char *, value that represents entity
+     * @param name              entity to add/change
+     * @param replacement       value that represents entity
      */
-    void setEntity(const char* name, const char* replacement)
+    void setEntity(const String& name, const String& replacement)
     {
         (*this)[name] = replacement;
     }

@@ -236,7 +236,7 @@ private:
 
     char* readDocType(char* tokenEnd);
 
-    RegularExpression   m_parseAttributes { R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])","g" };
+    static const RegularExpression parseAttributes;
 
     char* readExclamationTag(char* nodeName, char* tokenEnd, char* nodeEnd, Node* currentNode);
 
@@ -245,6 +245,8 @@ private:
     static char* readClosingTag(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode);
 
     char* readOpenningTag(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode);
+
+    void readText(bool keepSpaces, Node* currentNode, DocType* doctype, const char* nodeStart, const char* textStart);
 };
 
 } // namespace xml
