@@ -80,7 +80,7 @@ Host::Host(const sockaddr_in* addressAndPort)
         case AF_INET6:
             addressAndPort6 = (const sockaddr_in6*) addressAndPort;
             addressLen = sizeof(sockaddr_in6);
-            memcpy(m_address, addressAndPort6, addressLen);
+            memcpy((sockaddr_in6*) m_address, addressAndPort6, addressLen);
             m_port = htons(ip_v6().sin6_port);
             break;
         default:

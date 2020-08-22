@@ -242,11 +242,13 @@ private:
 
     char* readProcessingInstructions(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node* currentNode);
 
-    static char* readClosingTag(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode);
-
     char* readOpenningTag(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode);
 
+    static char* readClosingTag(const char* nodeName, char* tokenEnd, char*& nodeEnd, Node*& currentNode);
+
     void readText(bool keepSpaces, Node* currentNode, DocType* doctype, const char* nodeStart, const char* textStart);
+
+    char* parseEntity(char* start);
 };
 
 } // namespace xml

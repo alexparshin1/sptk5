@@ -32,6 +32,8 @@
 using namespace std;
 using namespace sptk;
 
+shared_ptr<HttpConnect::Authorization> TestWebService::jwtAuthorization;
+
 void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuthentication*)
 {
     if (input.m_action.asString() != "view")
@@ -124,8 +126,6 @@ TEST(SPTK_TestWebService, Hello)
     EXPECT_EQ(response.m_vacation_days.asInteger(), 21);
 }
 
-static shared_ptr<HttpConnect::Authorization> jwtAuthorization;
-
 /**
  * Test execution of { Hello, Login, AccountBalance } methods.
  * Calling AccountBalance method requires calling Login method first.
@@ -162,11 +162,11 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
             if (methodName == "Hello") {
                 sendRequestJson.root()["first_name"] = "John";
                 sendRequestJson.root()["last_name"] = "Doe";
-                jwtAuthorization.reset();
+                TestWebService::jwtAuthorization.reset();
             } else if (methodName == "Login") {
                 sendRequestJson.root()["username"] = "johnd";
                 sendRequestJson.root()["password"] = "secret";
-                jwtAuthorization.reset();
+                TestWebService::jwtAuthorization.reset();
             } else if (methodName == "AccountBalance") {
                 sendRequestJson.root()["account_number"] = "000-123456-7890";
             }
@@ -187,7 +187,7 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
             HttpParams httpParams { {"action", "view"} };
             Buffer requestResponse;
             httpClient.requestHeaders()["Content-Type"] = "application/json";
-            int statusCode = httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer, requestResponse, {"gzip"}, jwtAuthorization.get());
+            int statusCode = httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer, requestResponse, {"gzip"}, TestWebService::jwtAuthorization.get());
             client->close();
 
             if (statusCode >= 400)
@@ -202,11 +202,11 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
                     EXPECT_DOUBLE_EQ(response.root().getNumber("vacation_days"), 21);
                 } else if (methodName == "Login") {
                     // Set JWT authorization for future operations
-                    jwtAuthorization = make_shared<HttpConnect::BearerAuthorization>(response.root().getString("jwt"));
+                    TestWebService::jwtAuthorization = make_shared<HttpConnect::BearerAuthorization>(response.root().getString("jwt"));
 
                     // Decode JWT content
                     JWT jwt;
-                    jwt.decode(jwtAuthorization->value().c_str(), jwtEncryptionKey256);
+                    jwt.decode(TestWebService::jwtAuthorization->value().c_str(), jwtEncryptionKey256);
 
                     // Get username from "info" node
                     auto& info = jwt.grants.root().getObject("info");

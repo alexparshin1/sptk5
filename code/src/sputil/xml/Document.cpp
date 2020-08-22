@@ -82,24 +82,31 @@ void Document::processAttributes(Node* node, const char* ptr)
     }
 }
 
-void Document::parseEntities(char* entitiesSection)
+char* Document::parseEntity(char* start)
 {
     static const RegularExpression matchEntity(R"( (?<name>[\w_\-]+)\s+["'](?<value>.*)["'])");
+
+    start = strstr(start, "<!ENTITY ");
+    if (start == nullptr)
+        return start;
+    start += 8;
+
+    auto* end = strchr(start, '>');
+    if (end == nullptr)
+        return end;
+
+    *end = 0;
+    auto matches = matchEntity.m(start);
+    if (matches)
+        m_doctype.m_entities.setEntity(matches["name"].value, matches["value"].value);
+    return end + 1;
+}
+
+void Document::parseEntities(char* entitiesSection)
+{
     auto* start = entitiesSection;
     while (start != nullptr) {
-        start = strstr((char*) start, "<!ENTITY ");
-        if (start == nullptr)
-            break;
-        start += 8;
-        auto* end = strchr((char*) start, '>');
-        if (end) {
-            *end = 0;
-            auto matches = matchEntity.m(start);
-            if (matches)
-                m_doctype.m_entities.setEntity(matches["name"].value, matches["value"].value);
-            start = end + 1;
-        } else
-            break;
+        start = parseEntity(start);
     }
 }
 
@@ -487,10 +494,10 @@ void verifyDocument(xml::Document& document)
     EXPECT_STREQ("true", address.findOrCreate("married")->text().c_str());
     EXPECT_STREQ("false", address.findOrCreate("employed")->text().c_str());
 
-    xml::Node* dataNode = document.findOrCreate("data");
-    xml::Node* cdataNode = nullptr;
+    const xml::Node* dataNode = document.findOrCreate("data");
+    const xml::Node* cdataNode = nullptr;
 
-    for (auto* node: *dataNode) {
+    for (const auto* node: *dataNode) {
         cdataNode = node;
         EXPECT_TRUE(cdataNode->isCDataSection());
         EXPECT_STREQ("hello, /\\>", cdataNode->value().c_str());

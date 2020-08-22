@@ -103,6 +103,13 @@ private:
     int getContentLength();
 
     std::shared_ptr<HttpAuthentication> getAuthentication();
+
+    void processXmlContent(const char* startOfMessage, xml::Document& xmlContent,
+                           json::Document& jsonContent) const;
+
+    void processJsonContent(const char* startOfMessage, json::Document& jsonContent,
+                            RequestInfo& requestInfo, HttpResponseStatus& httpStatus,
+                            String& contentType) const;
 };
 
 /// @}

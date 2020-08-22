@@ -47,14 +47,11 @@ WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& ur
 
 xml::Node* WSWebServiceProtocol::getFirstChildElement(const xml::Node* element) const
 {
-    xml::Node* methodElement = nullptr;
     for (auto* node: *element) {
-        if (node->isElement()) {
-            methodElement = node;
-            break;
-        }
+        if (node->isElement())
+            return node;
     }
-    return methodElement;
+    return nullptr;
 }
 
 xml::Node* WSWebServiceProtocol::findRequestNode(const xml::Document& message, const String& messageType) const
@@ -178,6 +175,52 @@ static void substituteHostname(Buffer& page, const Host& host)
     wsdl.save(page, 2);
 }
 
+void WSWebServiceProtocol::processXmlContent(const char* startOfMessage, xml::Document& xmlContent,
+                                             json::Document& jsonContent) const
+{
+    try {
+        xmlContent.load(startOfMessage, false);
+    }
+    catch (const Exception& e) {
+        throw HTTPException(406, "Invalid XML content: " + String(e.what()));
+    }
+
+    xml::Node* xmlRequest = findRequestNode(xmlContent, "API request");
+    auto* jsonEnvelope = jsonContent.root().add_object(xmlRequest->name());
+    for (auto& itor: m_url.params()) {
+        auto* paramNode = new xml::Element(xmlRequest, itor.second.c_str());
+        paramNode->text(itor.second);
+    }
+    xmlRequest->exportTo(*jsonEnvelope);
+}
+
+void WSWebServiceProtocol::processJsonContent(const char* startOfMessage, json::Document& jsonContent,
+                                              RequestInfo& requestInfo, HttpResponseStatus& httpStatus,
+                                              String& contentType) const
+{
+    if (m_url.path().length() < 2)
+        generateFault(requestInfo.response.content(), httpStatus, contentType,
+                      HTTPException(404, "Not Found"),
+                      true);
+    else {
+        Strings pathElements(m_url.path(), "/");
+        String method(*pathElements.rbegin());
+
+        try {
+            jsonContent.load(startOfMessage);
+        }
+        catch (const Exception& e) {
+            generateFault(requestInfo.response.content(), httpStatus, contentType,
+                          HTTPException(406, "Invalid JSON content: " + String(e.what())),
+                          true);
+        }
+
+        jsonContent.root()["rest_method_name"] = method;
+        for (auto& itor: m_url.params())
+            jsonContent.root()[itor.first] = itor.second;
+    }
+}
+
 RequestInfo WSWebServiceProtocol::process()
 {
     HttpResponseStatus  httpStatus { 200, "OK" };
@@ -213,50 +256,16 @@ RequestInfo WSWebServiceProtocol::process()
     json::Document jsonContent;
 
     if (startOfMessage != endOfMessage) {
+        *endOfMessage = 0;
         if (*startOfMessage == '<') {
             contentType = "application/xml; charset=utf-8";
             requestIsJSON = false;
-            if (endOfMessage != nullptr)
-                *endOfMessage = 0;
-
-            try {
-                xmlContent.load(startOfMessage, false);
-            }
-            catch (const Exception& e) {
-                throw HTTPException(406, "Invalid XML content: " + String(e.what()));
-            }
-
-            xml::Node* xmlRequest = findRequestNode(xmlContent, "API request");
-            auto* jsonEnvelope = jsonContent.root().add_object(xmlRequest->name());
-            for (auto& itor: m_url.params()) {
-                auto* paramNode = new xml::Element(xmlRequest, itor.second.c_str());
-                paramNode->text(itor.second);
-            }
-            xmlRequest->exportTo(*jsonEnvelope);
+            processXmlContent(startOfMessage, xmlContent, jsonContent);
         }
         else if (*startOfMessage == '{' || *startOfMessage == '[') {
             contentType = "application/json; charset=utf-8";
-            if (m_url.path().length() < 2)
-                generateFault(requestInfo.response.content(), httpStatus, contentType,
-                              HTTPException(404, "Not Found"),
-                              requestIsJSON);
-            else {
-                Strings pathElements(m_url.path(), "/");
-                String method(*pathElements.rbegin());
-
-                try {
-                    jsonContent.load(startOfMessage);
-                }
-                catch (const Exception& e) {
-                    generateFault(requestInfo.response.content(), httpStatus, contentType,
-                                  HTTPException(406, "Invalid JSON content: " + String(e.what())),
-                                  requestIsJSON);
-                }
-
-                jsonContent.root()["rest_method_name"] = method;
-                for (auto& itor: m_url.params())
-                    jsonContent.root()[itor.first] = itor.second;
-            }
+            processJsonContent(startOfMessage, jsonContent, requestInfo, httpStatus,
+                               contentType);
         }
         else {
             generateFault(requestInfo.response.content(), httpStatus, contentType,

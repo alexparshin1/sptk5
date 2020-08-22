@@ -43,12 +43,12 @@ namespace sptk
  */
 
 /**
- * @brief Create driver instance function type
+ * Create driver instance function type
  */
 typedef PoolDatabaseConnection* CreateDriverInstance(const char*);
 
 /**
- * @brief Destroy driver instance function type
+ * Destroy driver instance function type
  */
 typedef void DestroyDriverInstance(PoolDatabaseConnection*);
 
@@ -67,7 +67,7 @@ typedef void DestroyDriverInstance(PoolDatabaseConnection*);
 #endif
 
 /**
- * @brief Information about loaded database driver
+ * Information about loaded database driver
  */
 struct SP_EXPORT DatabaseDriver
 {
@@ -89,7 +89,7 @@ struct SP_EXPORT DatabaseDriver
 };
 
 /**
- * @brief Database driver loader
+ * Database driver loader
  *
  * Loads and initializes SPTK database driver by request.
  * Already loaded drivers are cached.
@@ -100,7 +100,7 @@ class SP_EXPORT DatabaseConnectionPool : public DatabaseConnectionString, public
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Database connection string is the same for all connections,
      * created with this object.
@@ -110,7 +110,7 @@ public:
     DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100);
 
     /**
-     * @brief Destructor
+     * Destructor
      *
      * Closes and destroys all created connections
      */
@@ -121,7 +121,7 @@ public:
 protected:
 
     /**
-     * @brief Loads database driver
+     * Loads database driver
      *
      * First successfull driver load places driver into driver cache.
      */
@@ -136,18 +136,18 @@ protected:
     static bool closeConnectionCB(PoolDatabaseConnection*& item, void* data);
 
     /**
-     * @brief Creates database connection
+     * Creates database connection
      */
     [[nodiscard]] PoolDatabaseConnection* createConnection();
 
     /**
-     * @brief Returns used database connection back to the pool
+     * Returns used database connection back to the pool
      * @param connection        Database that is no longer in use and may be returned to the pool
      */
     void releaseConnection(PoolDatabaseConnection* connection);
 
     /**
-     * @brief Destroys connection
+     * Destroys connection
      * @param connection DatabaseConnection*, destroys the driver instance
      * @param unlink            Should always be true for any external use
      */

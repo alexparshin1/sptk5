@@ -152,7 +152,7 @@ public:
     /**
      * Removes all elements with the specific value from the list
      */
-    virtual void remove(T& item) const
+    virtual void remove(T& item)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         m_list->remove(item);

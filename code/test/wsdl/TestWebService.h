@@ -34,6 +34,8 @@ namespace sptk {
 class TestWebService : public CTestServiceBase
 {
 public:
+    static std::shared_ptr<sptk::HttpConnect::Authorization> jwtAuthorization;
+
     void Hello(const CHello& input, CHelloResponse& output, sptk::HttpAuthentication* authentication) override;
 
     void AccountBalance(const CAccountBalance& input, CAccountBalanceResponse& output,
