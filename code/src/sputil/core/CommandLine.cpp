@@ -124,7 +124,7 @@ void CommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& form
         formattedText.push_back(row);
 }
 
-void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue, std::ostream& output) const
+void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue) const
 {
     static const RegularExpression doesntNeedQuotes("[\\d\\.\\-\\+:,_]+");
 
@@ -133,20 +133,20 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
     bool firstRow = true;
     for (const string& helpRow : helpText) {
         if (firstRow) {
-            output << left << setw((int)nameWidth) << printableName();
+            COUT(left << setw((int)nameWidth) << printableName())
             firstRow = false;
         }
         else {
-            output << left << setw((int)nameWidth) << "";
+            COUT(left << setw((int)nameWidth) << "")
         }
-        output << "  " << helpRow << endl;
+        COUT("  " << helpRow << endl)
     }
 
     if (!optionDefaultValue.empty()) {
         String printDefaultValue = optionDefaultValue;
         if (!doesntNeedQuotes.matches(printDefaultValue))
             printDefaultValue = "'" + optionDefaultValue + "'";
-        output << left << setw((int)nameWidth) << "" << "  The default value is " + printDefaultValue + "." << endl;
+        COUT(left << setw((int)nameWidth) << "" << "  The default value is " + printDefaultValue + "." << endl)
     }
 }
 //=============================================================================
@@ -428,17 +428,12 @@ const Strings& CommandLine::arguments() const
     return m_arguments;
 }
 
-void CommandLine::redirectPrint(ostream& out, ostream& error)
-{
-    m_outputStream = &out;
-    m_errorStream = &error;
-}
-
 void CommandLine::printLine(const String& ch, size_t count) const
 {
+    stringstream temp;
     for (size_t i = 0; i < count; ++i)
-        *m_outputStream << ch;
-    *m_outputStream << endl;
+        temp << ch;
+    COUT(temp.str() << endl)
 }
 
 void CommandLine::printHelp(size_t screenColumns) const
@@ -453,17 +448,17 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         return;
     }
 
-    *m_outputStream << m_programVersion << endl;
+    COUT(m_programVersion << endl)
     printLine(doubleLine, screenColumns);
-    *m_outputStream << m_description << endl;
+    COUT(m_description << endl)
 
-    *m_outputStream << endl << "Syntax:" << endl;
+    COUT(endl << "Syntax:" << endl)
     printLine(singleLine, screenColumns);
 
     String commandLinePrototype = m_commandLinePrototype;
     if (!onlyForCommand.empty())
         commandLinePrototype = commandLinePrototype.replace("<command>", onlyForCommand);
-    *m_outputStream << commandLinePrototype << endl;
+    COUT(commandLinePrototype << endl)
 
     // Find out space needed for command and option names
     size_t nameColumns = 10;
@@ -512,7 +507,7 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
                                const Strings& sortedOptions, size_t helpTextColumns) const
 {
     if (!m_optionTemplates.empty()) {
-        *m_outputStream << endl << "Options:" << endl;
+        COUT(endl << "Options:" << endl)
         printLine(singleLine, screenColumns);
         for (const String& optionName : sortedOptions) {
             auto itor = m_optionTemplates.find(optionName);
@@ -523,7 +518,7 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
             auto vtor = m_values.find(optionTemplate->name());
             if (vtor != m_values.end())
                 defaultValue = vtor->second;
-            optionTemplate->printHelp(nameColumns, helpTextColumns, defaultValue, *m_outputStream);
+            optionTemplate->printHelp(nameColumns, helpTextColumns, defaultValue);
         }
     }
 }
@@ -532,7 +527,7 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
                                 const Strings& sortedCommands, size_t helpTextColumns) const
 {
     if (onlyForCommand.empty() && !m_argumentTemplates.empty()) {
-        *m_outputStream << endl << "Commands:" << endl;
+        COUT(endl << "Commands:" << endl)
         printLine(singleLine, screenColumns);
         for (const String& commandName : sortedCommands) {
             auto ator = m_argumentTemplates.find(commandName);
@@ -540,14 +535,14 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
                 continue;
             }
             const auto commandTemplate = ator->second;
-            commandTemplate->printHelp(nameColumns, helpTextColumns, "", *m_outputStream);
+            commandTemplate->printHelp(nameColumns, helpTextColumns, "");
         }
     }
 }
 
 void CommandLine::printVersion() const
 {
-    *m_outputStream << m_programVersion << endl;
+    COUT(m_programVersion << endl)
 }
 
 #if USE_GTEST
@@ -576,7 +571,7 @@ const char* CommandLineTestData::testCommandLineArgs3[8] = {"testapp", "connect"
 
 CommandLine* createTestCommandLine()
 {
-    CommandLine* commandLine = new CommandLine("test 1.00", "", "testapp <action> [options]");
+    CommandLine* commandLine = new CommandLine("test 1.00", "This is test command line description.", "testapp <action> [options]");
     commandLine->defineArgument("action", "Action to perform");
     commandLine->defineParameter("host", "h", "hostname", "^[\\S]+$", CommandLine::Visibility(""), "", "Hostname to connect");
     commandLine->defineParameter("port", "p", "port #", "^\\d{2,5}$", CommandLine::Visibility(""), "", "Port to connect");
@@ -636,7 +631,6 @@ TEST(SPTK_CommandLine, printHelp)
 
     stringstream output;
     commandLine->init(7, CommandLineTestData::testCommandLineArgs);
-    commandLine->redirectPrint(output, output);
     commandLine->printHelp(80);
 }
 

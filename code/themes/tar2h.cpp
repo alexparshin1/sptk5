@@ -30,7 +30,7 @@ int main(int argc, char **argv)
         COUT("static size_t " << argv[2] << "_len = " << dataSize << ";" << endl)
         COUT("static unsigned char " << argv[2] << "[" << dataSize << "] = {" << endl)
 
-        const auto* x = (unsigned char *)data.c_str();
+        const auto* x = (const unsigned char *)data.c_str();
 
         stringstream str;
         str.fill('0');
