@@ -352,17 +352,19 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
         } else {
             only_cdata = false;
             buffer.append('>');
-            if (indent) buffer.append('\n');
+            if (indent)
+                buffer.append('\n');
         }
         appendSubNodes(buffer, indent, only_cdata);
         appendClosingTag(buffer, indent, only_cdata);
     } else {
         //LEAF
         if (type() == DOM_PI)
-            buffer.append(" ?>", 3);
+            buffer.append("?>", 2);
         else
             buffer.append("/>", 2);
-        if (indent) buffer.append('\n');
+        if (indent)
+            buffer.append('\n');
     }
 }
 
@@ -372,7 +374,10 @@ void Node::appendSubNodes(Buffer& buffer, int indent, bool only_cdata) const
         if (only_cdata)
             np->save(buffer, -1);
         else {
-            np->save(buffer, indent + document()->indentSpaces());
+            int newIndent = 0;
+            if (indent)
+                newIndent = indent + document()->indentSpaces();
+            np->save(buffer, newIndent);
             if (indent && buffer.data()[buffer.bytes() - 1] != '\n')
                 buffer.append('\n');
         }
@@ -388,7 +393,8 @@ void Node::appendClosingTag(Buffer& buffer, int indent, bool only_cdata) const
     buffer.append("</", 2);
     buffer.append(name());
     buffer.append('>');
-    if (indent) buffer.append('\n');
+    if (indent)
+        buffer.append('\n');
 }
 
 void Node::saveAttributes(Buffer& buffer) const
@@ -430,12 +436,16 @@ void Node::save(Buffer& buffer, int indent) const
 
         case DOM_CDATA_SECTION:
             // output all subnodes
-            buffer.append("<![CDATA[" + value() + "]]>\n");
+            buffer.append("<![CDATA[" + value() + "]]>");
+            if (indent)
+                buffer.append("\n", 1);
             break;
 
         case DOM_COMMENT:
             // output all subnodes
-            buffer.append("<!-- " + value() + " -->\n");
+            buffer.append("<!-- " + value() + " -->");
+            if (indent)
+                buffer.append("\n", 1);
             break;
 
         case DOM_PI:

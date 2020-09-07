@@ -218,13 +218,6 @@ public:
      */
     static Strings rewriteArguments(const Strings& arguments);
 
-    /**
-     * Redirect output from screen to streams
-     * @param out               Standard output redirection
-     * @param error             Errors redirection, default is cerr
-     */
-    void redirectPrint(std::ostream& out, std::ostream& error);
-
 protected:
 
     /**
@@ -311,7 +304,7 @@ protected:
          * @param optionDefaultValue Option default value (if any)
          * @param output            Optinal output stream
          */
-        void printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue, std::ostream& output) const;
+        void printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue) const;
 
     private:
         /**
@@ -463,9 +456,6 @@ private:
     std::map<String, String>                                m_values;               ///< Received option values.
     Strings                                                 m_arguments;            ///< Received arguments.
     std::list<std::shared_ptr<CommandLineElement>>          m_allElements;          ///< All defined elements.
-
-    std::ostream*                                           m_outputStream { &std::cout };
-    std::ostream*                                           m_errorStream { &std::cerr };
 
     static String preprocessArgument(String& arg, String& quote, String& quotedString);
 
