@@ -373,7 +373,7 @@ void Document::load(const char* _buffer, bool keepSpaces)
 void Document::readText(bool keepSpaces, Node* currentNode, DocType* doctype, const char* nodeStart, const char* textStart)
 {
     const auto* textTrail = nodeStart;
-    if (textStart != textTrail && nodeStart[1] == '/') {
+    if (textStart != textTrail) { // && nodeStart[1] == '/)') {
         Buffer& decoded = m_decodeBuffer;
         doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
         String decodedText(decoded.c_str(), decoded.length());
@@ -398,9 +398,11 @@ void Document::save(Buffer& buffer, int indent) const
             break;
         }
     }
+
     if (!hasXmlPI) {
-        buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-        if (indent) buffer.append('\n');
+        buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        if (indent)
+            buffer.append('\n');
     }
 
     if (!docType().name().empty()) {
@@ -461,7 +463,7 @@ static const String testXML(
     "<address><married>true</married><employed>false</employed></address><data><![CDATA[hello, /\\>]]></data>");
 
 static const String testREST(
-    R"(<?xml version="1.0" encoding="UTF-8" ?>)"
+    R"(<?xml version="1.0" encoding="UTF-8"?>)"
     R"(<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">)"
     R"(<soap:Body>)"
     R"(<ns1:GetRequests>)"
@@ -640,7 +642,7 @@ TEST(SPTK_XmlDocument, unicodeAndSpacesXML)
     xml::Document document;
 
     try {
-        const String unicodeXML(R"(<?xml version="1.0" encoding="UTF-8" ?><p> “Add” </p><span> </span>)");
+        const String unicodeXML(R"(<?xml version="1.0" encoding="UTF-8"?><p> “Add” </p><span> </span>)");
         document.load(unicodeXML, true);
         Buffer buffer;
         document.save(buffer, 0);
@@ -649,6 +651,22 @@ TEST(SPTK_XmlDocument, unicodeAndSpacesXML)
     catch (const Exception& e) {
         FAIL() << e.what();
     }
+}
+
+TEST(SPTK_XmlDocument, ooDocumentContent)
+{
+    Buffer data;
+    Buffer data2;
+
+    // Using uncompressed mplayer manual as test data
+    data.loadFromFile(TEST_DIRECTORY "/data/content2.xml");
+
+    xml::Document document;
+    document.load(data, true);
+
+    document.save(data2, 0);
+
+    EXPECT_TRUE(data == data2);
 }
 
 #endif
