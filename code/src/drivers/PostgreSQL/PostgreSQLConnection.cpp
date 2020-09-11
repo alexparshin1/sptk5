@@ -226,6 +226,17 @@ bool PostgreSQLConnection::active() const
     return m_connect != nullptr;
 }
 
+static void checkError(PGconn* conn, PGresult* res, const String& command, ExecStatusType expectedResult=PGRES_COMMAND_OK)
+{
+    auto rc = PQresultStatus(res);
+    if (rc != expectedResult) {
+        String error = command + " command failed: ";
+        error += PQerrorMessage(conn);
+        PQclear(res);
+        throw DatabaseException(error);
+    }
+}
+
 void PostgreSQLConnection::driverBeginTransaction()
 {
     if (m_connect == nullptr)
@@ -235,14 +246,7 @@ void PostgreSQLConnection::driverBeginTransaction()
         throw DatabaseException("Transaction already started.");
 
     PGresult* res = PQexec(m_connect, "BEGIN");
-
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        string error = "BEGIN command failed: ";
-        error += PQerrorMessage(m_connect);
-        PQclear(res);
-        throw DatabaseException(error);
-    }
-
+    checkError(m_connect, res, "BEGIN");
     PQclear(res);
 
     setInTransaction(true);
@@ -261,14 +265,7 @@ void PostgreSQLConnection::driverEndTransaction(bool commit)
         action = "ROLLBACK";
 
     PGresult* res = PQexec(m_connect, action.c_str());
-
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        string error = action + " command failed: ";
-        error += PQerrorMessage(m_connect);
-        PQclear(res);
-        throw DatabaseException(error);
-    }
-
+    checkError(m_connect, res, action);
     PQclear(res);
 
     setInTransaction(false);
@@ -300,16 +297,9 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
         if (statement->stmt() != nullptr && !statement->name().empty()) {
             String deallocateCommand = "DEALLOCATE \"" + statement->name() + "\"";
             PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
-            ExecStatusType rc = PQresultStatus(res);
-            if (rc >= PGRES_BAD_RESPONSE) {
-                String error = "DEALLOCATE command failed: ";
-                error += PQerrorMessage(m_connect);
-                PQclear(res);
-                THROW_QUERY_ERROR(query, error)
-            }
+            checkError(m_connect, res, "DEALLOCATE");
             PQclear(res);
         }
-
         delete statement;
     }
 
@@ -345,13 +335,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 
     PGresult* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), (int) paramCount,
                                paramTypes);
-
-    if (PQresultStatus(stmt) != PGRES_COMMAND_OK) {
-        string error = "PREPARE command failed: ";
-        error += PQerrorMessage(m_connect);
-        PQclear(stmt);
-        THROW_QUERY_ERROR(query, error)
-    }
+    checkError(m_connect, stmt, "PREPARE");
 
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
     auto fieldCount = (unsigned) PQnfields(stmt2);
@@ -1023,14 +1007,7 @@ void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& c
     sql << "COPY " << tableName << "(" << columnNames.join(",") << ") FROM STDIN ";
 
     PGresult* res = PQexec(m_connect, sql.str().c_str());
-
-    ExecStatusType rc = PQresultStatus(res);
-    if (rc >= PGRES_BAD_RESPONSE) {
-        string error = "COPY command failed: ";
-        error += PQerrorMessage(m_connect);
-        PQclear(res);
-        throw DatabaseException(error);
-    }
+    checkError(m_connect, res, "COPY", PGRES_COPY_IN);
     PQclear(res);
 
     Buffer buffer;
@@ -1039,16 +1016,20 @@ void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& c
     }
 
     if (PQputCopyData(m_connect, buffer.c_str(), (int) buffer.bytes()) != 1) {
-        string error = "COPY command send data failed: ";
+        String error = "COPY command send data failed: ";
         error += PQerrorMessage(m_connect);
         throw DatabaseException(error);
     }
 
     if (PQputCopyEnd(m_connect, nullptr) != 1) {
-        string error = "COPY command end copy failed: ";
+        String error = "COPY command end copy failed: ";
         error += PQerrorMessage(m_connect);
         throw DatabaseException(error);
     }
+
+    res = PQgetResult(m_connect);
+    checkError(m_connect, res, "COPY");
+    PQclear(res);
 }
 
 void PostgreSQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
