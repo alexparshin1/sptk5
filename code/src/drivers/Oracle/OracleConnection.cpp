@@ -26,6 +26,7 @@
 
 #include <sptk5/cutils>
 #include <sptk5/db/OracleConnection.h>
+#include <sptk5/db/Transaction.h>
 
 using namespace std;
 using namespace sptk;
@@ -668,7 +669,7 @@ String OracleConnection::paramMark(unsigned paramIndex)
 void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     RegularExpression matchStatementEnd("(;\\s*)$");
-    RegularExpression matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
+    RegularExpression matchRoutineStart("^CREATE (OR REPLACE )?(FUNCTION|TRIGGER)", "i");
     RegularExpression matchGo("^/\\s*$");
     RegularExpression matchShowErrors("^SHOW\\s+ERRORS", "i");
     RegularExpression matchCommentRow("^\\s*--");
@@ -725,13 +726,13 @@ void OracleConnection::executeMultipleStatements(const Strings& statements, Stri
         }
         catch (const Exception& e) {
             if (errors)
-                errors->push_back(e.what());
+                errors->push_back(e.what() + String(": ") + stmt);
             else
                 throw;
         }
         catch (const SQLException& e) {
             if (errors)
-                errors->push_back(e.what());
+                errors->push_back(e.what() + String(": ") + stmt);
             else
                 throw;
         }
