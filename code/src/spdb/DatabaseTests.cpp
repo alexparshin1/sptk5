@@ -465,6 +465,14 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     DatabaseConnection db = connectionPool.getConnection();
     createTestTable(db);
 
+    if (db->connectionType() == DCT_POSTGRES) {
+        Query testNumeric(db, "SELECT (20/1000000.0)::numeric(8,6)");
+        testNumeric.open();
+        String numeric = testNumeric[size_t(0)].asString();
+        EXPECT_STREQ(numeric.c_str(), "0.000020");
+        testNumeric.close();
+    }
+
     Query selectData(db, "SELECT * FROM gtest_temp_table");
     Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
 

@@ -659,6 +659,9 @@ static inline MoneyData readNumericToScaledInteger(const char* v)
     auto sign = (int16_t) ntohs(*(const uint16_t*) (v + 4));
     uint16_t dscale = ntohs(*(const uint16_t*) (v + 6));
 
+    if (dscale > 16)
+        dscale = 16;
+
     v += 8;
     int64_t value = 0;
 
@@ -686,6 +689,15 @@ static inline MoneyData readNumericToScaledInteger(const char* v)
     }
 
     switch (scale - dscale) {
+        case -6:
+            value *= 1000000;
+            break;
+        case -5:
+            value *= 100000;
+            break;
+        case -4:
+            value *= 10000;
+            break;
         case -3:
             value *= 1000;
             break;

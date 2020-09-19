@@ -59,7 +59,7 @@ public:
 
     static int64_t dividers[16];        ///< Dividers that help formatting money data
     int64_t      quantity;              ///< Integer value
-    uint8_t      scale:4;               ///< Scale (1..15)
+    uint8_t      scale;                 ///< Scale
 
     /**
      * Constructor
