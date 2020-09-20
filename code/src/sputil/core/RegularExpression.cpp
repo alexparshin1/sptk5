@@ -534,13 +534,19 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
 {
     // For "i" option, make lowercase match map
     map<String, String> substitutionsMap;
-    if (m_options & SPRE_CASELESS) {
+    bool ignoreCase = m_options & SPRE_CASELESS;
+    if (ignoreCase) {
         for (auto& itor: substitutions)
             substitutionsMap[lowerCase(itor.first)] = itor.second;
     } else
         substitutionsMap = substitutions;
 
-    return s(text, [&substitutionsMap](const String& match) { return substitutionsMap[match]; }, replaced);
+    return s(text, [&substitutionsMap, ignoreCase](const String& needle) {
+            auto itor = substitutionsMap.find(ignoreCase ? needle.toLowerCase() : needle);
+            if (itor == substitutionsMap.end())
+                return needle;
+            return itor->second;
+        }, replaced);
 }
 
 String RegularExpression::s(const String& text, const String& outputPattern) const
