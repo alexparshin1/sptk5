@@ -292,7 +292,19 @@ public:
      * @param text              Text to process
      * @return matched groups
      */
-    Groups m(const String& text) const;
+    Groups m(const String& text) const
+    {
+        size_t offset = 0;
+        return m(text, offset);
+    }
+
+    /**
+     * Returns list of strings matched with regular expression
+     * @param text              Text to process
+     * @param offset            Search offset, updated after method execution
+     * @return matched groups
+     */
+    Groups m(const String& text, size_t& offset) const;
 
     /**
      * Replaces matches with replacement string

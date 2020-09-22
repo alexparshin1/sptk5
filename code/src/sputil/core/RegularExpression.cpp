@@ -309,11 +309,10 @@ bool RegularExpression::matches(const String& text) const
     return matchCount > 0;
 }
 
-RegularExpression::Groups RegularExpression::m(const String& text) const
+RegularExpression::Groups RegularExpression::m(const String& text, size_t& offset) const
 {
     Groups matchedStrings;
 
-    size_t offset = 0;
     MatchData matchData(m_pcre, m_captureCount);
     size_t totalMatches = 0;
 
