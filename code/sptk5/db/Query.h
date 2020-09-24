@@ -369,10 +369,17 @@ public:
     /**
      * Returns the text of current SQL query as String
      */
-    String& sql()
+    [[nodiscard]] virtual String sql() const
     {
         return getSQL();
     }
+
+    /**
+     * Sets SQL Query text.
+     * If the Query text is not the same and the db statement was prepared earlier
+     * then the db statement is released and new one is created.
+     */
+    virtual void sql(const String& _sql);
 
     /**
      * Returns the query fields list
@@ -497,13 +504,6 @@ public:
     {
         return m_params[paramIndex];
     }
-
-    /**
-     * Sets SQL Query text.
-     * If the Query text is not the same and the db statement was prepared earlier
-     * then the db statement is released and new one is created.
-     */
-    virtual void sql(const String& _sql);
 
     /**
      * Throws an exception
