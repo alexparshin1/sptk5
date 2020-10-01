@@ -226,7 +226,7 @@ void CFileDialog::createFolder()
             refreshDirectory();
         }
         catch (const filesystem::filesystem_error& e) {
-            fl_alert("%s", ("Can't create directory " + folderName).c_str());
+            fl_alert("%s", ("Can't create directory " + folderName + ": " + String(e.what())).c_str());
         }
     }
 }
