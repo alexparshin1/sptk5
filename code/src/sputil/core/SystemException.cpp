@@ -26,7 +26,6 @@
 
 #include <sptk5/SystemException.h>
 #include <sptk5/Buffer.h>
-#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
