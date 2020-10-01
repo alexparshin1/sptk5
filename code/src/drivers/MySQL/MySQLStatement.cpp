@@ -250,7 +250,7 @@ void MySQLStatement::setParameterValues()
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            m_paramLengths[paramIndex] = param->dataSize();
+            m_paramLengths[paramIndex] = (unsigned long) param->dataSize();
             break;
 
         case VAR_DATE:
