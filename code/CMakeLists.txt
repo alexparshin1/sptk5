@@ -116,7 +116,7 @@ ELSE ()
   ENDIF()
 
   IF (UNIX)
-    LINK_LIBRARIES(pthread rt dl gcov)
+    LINK_LIBRARIES(pthread rt dl gcov stdc++fs)
   ELSE ()
     LINK_LIBRARIES(pthread rt)
   ENDIF ()
