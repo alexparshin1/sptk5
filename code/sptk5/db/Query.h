@@ -465,7 +465,7 @@ public:
      *
      * Makes sense after the SQL query text is set.
      */
-    uint32_t paramCount() const
+    size_t paramCount() const
     {
         return m_params.size();
     }
