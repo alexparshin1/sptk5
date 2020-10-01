@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/cxml>
-#include <gtest/gtest.h>
 
 using namespace sptk;
 using namespace sptk::xml;
