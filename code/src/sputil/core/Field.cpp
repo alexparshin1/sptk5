@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/Field.h>
+#include <iomanip>
 
 using namespace std;
 using namespace sptk;
