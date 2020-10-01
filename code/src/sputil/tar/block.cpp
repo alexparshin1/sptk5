@@ -12,6 +12,7 @@
 
 #include "libtar.h"
 #include <cerrno> // BSD
+#include <cstring> // Fedora
 #include <sptk5/String.h>
 #include <sptk5/Exception.h>
 
