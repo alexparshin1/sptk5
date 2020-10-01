@@ -80,7 +80,7 @@ CPackedStrings::CPackedStrings(const Strings& strings)
 
 CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
 {
-    int cnt = fields.size();
+    auto cnt = (int) fields.size();
     int rcnt = cnt;
     if (keyField >= 0 && keyField < cnt) // if keyField is used - do not store it as string
         rcnt -= 1;

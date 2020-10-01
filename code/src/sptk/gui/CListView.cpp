@@ -1104,7 +1104,7 @@ void CListView::setSelections(const vector<uint64_t>& sel)
         return;
 
     for (size_t si = 1; si < scnt; si++) {
-        int selectedKey = sel[si];
+        auto selectedKey = (int) sel[si];
         size_t cnt = m_rows.size();
         for (size_t i = 0; i < cnt; i++) {
             CPackedStrings* r = m_rows[(uint32_t) i];
@@ -1187,7 +1187,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
         try {
             ds.open();
 
-            unsigned fieldCount = ds.fieldCount();
+            auto fieldCount = (unsigned) ds.fieldCount();
             unsigned keyField = 9999;
 
             for (unsigned i = 0; i < fieldCount; i++) {
