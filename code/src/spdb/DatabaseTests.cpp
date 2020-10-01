@@ -229,20 +229,20 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         insert.exec();
     }
 
+#if USE_GTEST
     Query select(db, "SELECT * FROM gtest_temp_table ORDER BY id");
     select.open();
     for (auto& row: rows) {
         if (select.eof())
             break;
-#if USE_GTEST
         EXPECT_EQ(row.id, select["id"].asInteger());
         EXPECT_STREQ(row.name.c_str(), select["name"].asString().c_str());
         EXPECT_FLOAT_EQ(row.price, select["price"].asFloat());
         EXPECT_STREQ(clob.c_str(), select["txt"].asString().c_str());
-#endif
         select.next();
     }
     select.close();
+#endif
 }
 
 void DatabaseTests::testTransaction(DatabaseConnection db, bool commit)
