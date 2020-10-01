@@ -59,6 +59,8 @@ string SystemException::osError()
 #endif
 }
 
+#if USE_GTEST
+
 TEST(SPTK_SystemException, openFile)
 {
     Buffer buffer;
@@ -71,3 +73,5 @@ TEST(SPTK_SystemException, openFile)
             FAIL() << e.what();
     }
 }
+
+#endif
