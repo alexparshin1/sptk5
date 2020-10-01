@@ -14,6 +14,7 @@
 #include "libtar.h"
 
 #include <fcntl.h>
+#include <cstring> // Fedora
 
 #ifdef _WIN32
 #include <io.h>
