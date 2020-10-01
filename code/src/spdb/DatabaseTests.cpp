@@ -177,12 +177,14 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
     insert2.param("dt") = DateTime("2015-06-01T11:22:33");
     insert2.exec();
 
+#if USE_GTEST
     Query select(db, "SELECT ts FROM gtest_temp_table");
     select.open();
     EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01T11:22:33"));
     select.next();
     EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01T11:22:33"));
     select.close();
+#endif
 }
 
 void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connectionString)
@@ -232,12 +234,12 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     for (auto& row: rows) {
         if (select.eof())
             break;
-
+#if USE_GTEST
         EXPECT_EQ(row.id, select["id"].asInteger());
         EXPECT_STREQ(row.name.c_str(), select["name"].asString().c_str());
         EXPECT_FLOAT_EQ(row.price, select["price"].asFloat());
         EXPECT_STREQ(clob.c_str(), select["txt"].asString().c_str());
-
+#endif
         select.next();
     }
     select.close();
@@ -468,7 +470,9 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         Query testNumeric(db, "SELECT (20/1000000.0)::numeric(8,6)");
         testNumeric.open();
         String numeric = testNumeric[size_t(0)].asString();
+#if USE_GTEST
         EXPECT_STREQ(numeric.c_str(), "0.000020");
+#endif
         testNumeric.close();
     }
 
