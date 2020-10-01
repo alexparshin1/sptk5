@@ -26,6 +26,7 @@
 
 #include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/net/URL.h>
+#include <set> // Fedora
 
 using namespace std;
 using namespace sptk;
