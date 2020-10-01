@@ -26,6 +26,8 @@
 
 #include <sptk5/Buffer.h>
 #include <sptk5/SystemException.h>
+#include <sys/stat.h>
+#include <iomanip>
 
 using namespace std;
 using namespace sptk;
