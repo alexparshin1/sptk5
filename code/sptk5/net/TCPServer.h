@@ -34,7 +34,6 @@
 #include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/threads/ThreadPool.h>
 #include <sptk5/net/SSLKeys.h>
-#include <c++/10/bitset>
 
 namespace sptk
 {
