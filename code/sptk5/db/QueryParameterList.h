@@ -111,39 +111,39 @@ public:
      * Returns parameter by name
      *
      * If the parameter isn't found, returns 0
-     * @param paramName const char *, parameter name
+     * @param paramName         parameter name
      * @returns parameter pointer, or 0 if not found
      */
     QueryParameter* find(const String& paramName);
 
     /**
      * Removes a parameter from the list and from the memory.
-     * @param ndx uint32_t, parameter index in the list
+     * @param ndx               parameter index in the list
      */
-    void remove(uint32_t ndx);
+    void remove(size_t ndx);
 
     /**
      * Parameter access by index
-     * @param index int32_t, parameter index
+     * @param index             parameter index
      */
-    QueryParameter& operator[](int32_t index) const;
+    QueryParameter& operator[](size_t index) const;
 
     /**
      * Parameter access by name
-     * @param paramName const std::string&, parameter name
+     * @param paramName         parameter name
      */
     QueryParameter& operator[](const String& paramName) const;
 
     /**
      * Returns parameter count
      */
-    uint32_t size() const;
+    size_t size() const;
 
     /**
      * Returns the parameter pointers
      *
      * A parameter is included for every parameter position in the query.
-     * @param params CParamVector&, parameters vector
+     * @param params            parameters vector
      */
     void enumerate(CParamVector& params) const;
 

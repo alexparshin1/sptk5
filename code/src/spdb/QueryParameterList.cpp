@@ -81,17 +81,17 @@ QueryParameter& QueryParameterList::operator[](const String& paramName) const
     return *itor->second;
 }
 
-QueryParameter& QueryParameterList::operator[](int32_t index) const
+QueryParameter& QueryParameterList::operator[](size_t index) const
 {
-    return *m_items[size_t(index)];
+    return *m_items[index];
 }
 
-uint32_t QueryParameterList::size() const
+size_t QueryParameterList::size() const
 {
-    return (uint32_t) m_items.size();
+    return m_items.size();
 }
 
-void QueryParameterList::remove(uint32_t i)
+void QueryParameterList::remove(size_t i)
 {
     auto itor = m_items.begin() + i;
     QueryParameter* item = *itor;
