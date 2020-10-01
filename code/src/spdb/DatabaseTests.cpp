@@ -31,7 +31,6 @@
 #include <sptk5/db/Transaction.h>
 
 #include <cmath>
-#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
@@ -549,5 +548,5 @@ DatabaseTests::DatabaseTests()
 
 DatabaseTests& DatabaseTests::tests()
 {
-	return _databaseTests;
+    return _databaseTests;
 }
