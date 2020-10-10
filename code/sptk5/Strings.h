@@ -29,6 +29,10 @@
 
 #include <sptk5/String.h>
 
+#ifdef _WIN32
+#include <iterator>
+#endif
+
 namespace sptk
 {
 
