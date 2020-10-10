@@ -47,17 +47,18 @@ void sptk::throwSocketError(const String& operation, const char* file, int line)
 #ifdef _WIN32
     LPCTSTR lpMsgBuf = nullptr;
     const DWORD dw = GetLastError();
-    if (dw == 0)
-        return; // No error
-    FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
-        nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr );
-    if (lpMsgBuf)
-        errorStr = lpMsgBuf;
+    if (dw != 0) {
+        FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr );
+        if (lpMsgBuf)
+            errorStr = lpMsgBuf;
+    }
 #else
     errorStr = strerror(errno);
 #endif
-    throw Exception(operation + ": " + errorStr, file, line);
+    if (!errorStr.empty())
+        throw Exception(operation + ": " + errorStr, file, line);
 }
 
 #ifdef _WIN32
