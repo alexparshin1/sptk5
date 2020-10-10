@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        OracleStatement.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -50,101 +48,69 @@ class OracleConnection;
 class OracleStatement : public DatabaseStatement<OracleConnection,oracle::occi::Statement>
 {
 public:
-    /**
-     * Oracle connection type
-     */
-    typedef oracle::occi::Connection    Connection;
+
+    typedef oracle::occi::Connection    Connection;         ///< Oracle connection type
+    typedef oracle::occi::Statement     Statement;          ///< Oracle statement type
+    typedef oracle::occi::ResultSet     ResultSet;          ///< Oracle result set type
+    typedef oracle::occi::MetaData      MetaData;           ///< Oracle result set metdata type
 
     /**
-     * Oracle statement type
-     */
-    typedef oracle::occi::Statement     Statement;
-
-    /**
-     * Oracle result set type
-     */
-    typedef oracle::occi::ResultSet     ResultSet;
-
-    /**
-     * Oracle result set metdata type
-     */
-    typedef oracle::occi::MetaData      MetaData;
-
-private:
-    /**
-     * Statement for creating CLOBs
-     */
-    Statement*          m_createClobStatement;
-
-    /**
-     * Statement for creating BLOBs
-     */
-    Statement*          m_createBlobStatement;
-
-    /**
-     * Result set (if returned by statement)
-     */
-    ResultSet*          m_resultSet;
-
-    /*
-     * Index of output parameters
-     */
-    std::vector<unsigned> m_outputParamIndex;
-
-    /**
-     * @brief Sets character data to a CLOB parameter
-     * @param parameterIndex uint32_t, Parameter index
-     * @param data unsigned char*, Character data buffer
-     * @param dataSize uint32_t, Character data size
-     */
-    void setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
-
-    /**
-     * @brief Sets binary data to a BLOB parameter
-     * @param parameterIndex uint32_t, Parameter index
-     * @param data unsigned char*, Binary data buffer
-     * @param dataSize uint32_t, Binary data size
-     */
-    void setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
-
-public:
-    /**
-     * @brief Constructor
+     * Constructor
      * @param connection Connection*, Oracle connection
      * @param sql std::string, SQL statement
      */
     OracleStatement(OracleConnection* connection, const std::string& sql);
 
     /**
-     * @brief Destructor
+     * Deleted copy constructor
+     */
+    OracleStatement(const OracleStatement&) = delete;
+
+    /**
+     * Move constructor
+     */
+    OracleStatement(OracleStatement&&) = default;
+
+    /**
+     * Destructor
      */
     ~OracleStatement() override;
 
     /**
-     * @brief Sets actual parameter values for the statement execution
+     * Deleted copy assignment
+     */
+    OracleStatement& operator = (const OracleStatement&) = delete;
+
+    /**
+     * Move assignment
+     */
+    OracleStatement& operator = (OracleStatement&&) = default;
+
+    /**
+     * Sets actual parameter values for the statement execution
      */
     void setParameterValues() override;
 
     /**
-     * @brief Executes statement
+     * Executes statement
      * @param inTransaction bool, True if statement is executed from transaction
      */
     void execute(bool inTransaction) override;
 
     /**
-     * @brief Executes statement in bulk mode
+     * Executes statement in bulk mode
      * @param inTransaction bool, True if statement is executed from transaction
      * @param lastIteration bool, True if bulk operation is completed (all iterations added)
      */
     void execBulk(bool inTransaction, bool lastIteration);
 
     /**
-     * @brief Closes statement and releases allocated resources
+     * Closes statement and releases allocated resources
      */
     void close() override;
 
     /**
-     * @brief Fetches next record
+     * Fetches next record
      */
     void fetch() override
     {
@@ -153,7 +119,7 @@ public:
     }
 
     /**
-     * @brief Returns result set (if returned by a statement)
+     * Returns result set (if returned by a statement)
      */
     ResultSet* resultSet()
     {
@@ -164,19 +130,44 @@ public:
 
 private:
 
+    Statement*          m_createClobStatement {nullptr};    ///< Statement for creating CLOBs
+    Statement*          m_createBlobStatement {nullptr};    ///< Statement for creating BLOBs
+    ResultSet*          m_resultSet {nullptr};              ///< Result set (if returned by statement)
+
+    /*
+     * Index of output parameters
+     */
+    std::vector<unsigned> m_outputParamIndex;
+
+    /**
+     * Sets character data to a CLOB parameter
+     * @param parameterIndex uint32_t, Parameter index
+     * @param data unsigned char*, Character data buffer
+     * @param dataSize uint32_t, Character data size
+     */
+    void setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
+
+    /**
+     * Sets binary data to a BLOB parameter
+     * @param parameterIndex uint32_t, Parameter index
+     * @param data unsigned char*, Binary data buffer
+     * @param dataSize uint32_t, Binary data size
+     */
+    void setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
+
     /**
      * Read BLOB field
      * @param index             Column number
      * @param field             Field
      */
-    void getBLOBOutputParameter(unsigned int index, DatabaseField* field);
+    void getBLOBOutputParameter(unsigned int index, DatabaseField* field) const;
 
     /**
      * Read CLOB field
      * @param index             Column number
      * @param field             Field
      */
-    void getCLOBOutputParameter(unsigned int index, sptk::DatabaseField* field);
+    void getCLOBOutputParameter(unsigned int index, sptk::DatabaseField* field) const;
 
     /**
      * Set CLOB parameter value
@@ -241,9 +232,9 @@ private:
      */
     void setIntParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
 
-    void getDateOutputParameter(unsigned int index, DatabaseField* field);
+    void getDateOutputParameter(unsigned int index, DatabaseField* field) const;
 
-    void getDateTimeOutputParameter(unsigned int index, DatabaseField* field);
+    void getDateTimeOutputParameter(unsigned int index, DatabaseField* field) const;
 };
 
 }

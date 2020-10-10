@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       ImapDS.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,7 +42,7 @@ namespace sptk
 /**
  * Progression callback function prototype
  */
-typedef void (*ProgressCallback)(int total, int progress);
+typedef std::function<void(int total, int progress)> ProgressCallback;
 
 /**
  * @brief IMAP datasource
@@ -52,7 +50,7 @@ typedef void (*ProgressCallback)(int total, int progress);
  * Allows to browse the list of messages and folders on IMAP server.
  * It returns a dataset with message headers.
  */
-class ImapDS: public MemoryDS
+class SP_EXPORT ImapDS: public MemoryDS
 {
     /**
      * IMAP socket connector
@@ -209,13 +207,13 @@ public:
      * Opens the IMAP server connection with user name and password defined with user() and password().
      * Scans the IMAP folder defined with folder(), than closes the IMAP server connection.
      */
-    virtual bool open();
+    bool open() override;
 
     /**
      * Optional callback for the open() method progression.
      * @param cb CProgressCallback, a callback function
      */
-    void callback(ProgressCallback cb)
+    void callback(const ProgressCallback& cb)
     {
         m_callback = cb;
     }

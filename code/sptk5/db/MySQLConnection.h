@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        MySQLConnection.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -52,18 +50,73 @@ class SP_EXPORT MySQLConnection: public PoolDatabaseConnection
     friend class Query;
     friend class MySQLStatement;
 
-    MYSQL*                      m_connection;           ///< MySQL database connection
-    mutable std::mutex          m_mutex;                ///< Mutex that protects access to data members
+public:
+    /**
+     * @brief Returns the MySQL connection object
+     */
+    MYSQL* connection() const
+    {
+        return m_connection;
+    }
 
     /**
-     * @brief Init connection to MySQL server
+     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @param connectionString  The MySQL connection string
      */
-    void initConnection();
+    void _openDatabase(const String& connectionString) override;
 
     /**
-     * @brief Execute MySQL command
+     * @brief Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL          SQL batch file
+     * @param errors            If not nullptr, store errors here instead of exceptions
      */
-    void executeCommand(const String& command);
+    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+
+    /**
+     * @brief Constructor
+     *
+     * Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
+     * For more information please refer to:
+     * http://www.postgresql.org/docs/current/interactive/libpq-connect.html
+     * If the connection string is empty then default database with the name equal to user name is used.
+     * @param connectionString  The MySQL connection string
+     */
+    explicit MySQLConnection(const String& connectionString = "");
+
+    /**
+     * @brief Destructor
+     */
+    ~MySQLConnection() override;
+
+    /**
+     * @brief Closes the database connection. If unsuccessful throws an exception.
+     */
+    void closeDatabase() override;
+
+    /**
+     * @brief Returns true if database is opened
+     */
+    bool active() const override;
+
+    /**
+     * @brief Returns the database connection handle
+     */
+    void* handle() const override;
+
+    /**
+     * @brief Returns the MySQL driver description for the active connection
+     */
+    String driverDescription() const override;
+
+    /**
+     * @brief Lists database objects
+     * @param objectType        Object type to list
+     * @param objects           Object list (output)
+     */
+    void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
 protected:
 
@@ -143,96 +196,20 @@ protected:
      */
     String paramMark(unsigned paramIndex) override;
 
-public:
-    /**
-     * @brief Returns the MySQL connection object
-     */
-    MYSQL* connection() const
-    {
-        return m_connection;
-    }
+private:
 
-    MYSQL_STMT* createStatement(const String& sql);
-
-    MYSQL_STMT* createStatement();
+    MYSQL*                      m_connection {nullptr}; ///< MySQL database connection
+    mutable std::mutex          m_mutex;                ///< Mutex that protects access to data members
 
     /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The MySQL connection string
+     * @brief Init connection to MySQL server
      */
-    void _openDatabase(const String& connectionString) override;
+    void initConnection();
 
     /**
-     * @brief Executes bulk inserts of data from memory buffer
-     *
-     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
-     * about data. If format is empty than default server-specific data format is used.
-     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
-     * @param format            MySQL-specific data format options
+     * @brief Execute MySQL command
      */
-    void _bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                     const String& format) override;
-
-    /**
-     * @brief Executes SQL batch file
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            If not nullptr, store errors here instead of exceptions
-     */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
-
-    /**
-     * @brief Constructor
-     *
-     * Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
-     * For more information please refer to:
-     * http://www.postgresql.org/docs/current/interactive/libpq-connect.html
-     * If the connection string is empty then default database with the name equal to user name is used.
-     * @param connectionString  The MySQL connection string
-     */
-    explicit MySQLConnection(const String& connectionString = "");
-
-    /**
-     * @brief Destructor
-     */
-    ~MySQLConnection() override;
-
-    /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
-     */
-    void closeDatabase() override;
-
-    /**
-     * @brief Returns true if database is opened
-     */
-    bool active() const override;
-
-    /**
-     * @brief Returns the database connection handle
-     */
-    void* handle() const override;
-
-    /**
-     * @brief Returns driver-specific connection string
-     */
-    String nativeConnectionString() const override;
-
-    /**
-     * @brief Returns the MySQL driver description for the active connection
-     */
-    String driverDescription() const override;
-
-    /**
-     * @brief Lists database objects
-     * @param objectType        Object type to list
-     * @param objects           Object list (output)
-     */
-    void objectList(DatabaseObjectType objectType, Strings& objects) override;
+    void executeCommand(const String& command);
 };
 
 #define throwMySQLException(info) throw DatabaseException(string(info) + ":" + string(mysql_error(m_connection)))

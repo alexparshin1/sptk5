@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       LogEngine.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -46,7 +44,7 @@ namespace sptk {
  */
 
 /**
- * @brief Base class for various log engines.
+ * Base class for various log engines.
  *
  * This class is abstract. Derived classes have to implement
  * at least saveMessage() method.
@@ -55,45 +53,15 @@ class SP_EXPORT LogEngine : public Thread
 {
     friend class Logger;
 
-    /**
-     * Mutex that protects internal data access
-     */
-    mutable SharedMutex                 m_mutex;
-
-    /**
-     * Min message priority, should be defined for every message
-     */
-    std::atomic<LogPriority>            m_minPriority;
-
-    /**
-     * Log options, a bit combination of Option
-     */
-    std::atomic<int32_t>                m_options;
-
-    /**
-     * Message queue
-     */
-    SynchronizedQueue<Logger::Message*> m_messages;
-
-protected:
-
-    void threadFunction() override;
-
-    /**
-     * Log a message
-     * @param message           Message
-     */
-    void log(Logger::Message* message);
-
 public:
     /**
-     * @brief Stores or sends log message to actual destination
+     * Stores or sends log message to actual destination
      * @param message           Log message
      */
     virtual void saveMessage(const Logger::Message* message) = 0;
 
     /**
-     * @brief Log options
+     * Log options
      */
     enum Option : unsigned
     {
@@ -125,21 +93,16 @@ public:
     };
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates a new log object.
      */
     explicit LogEngine(const String& logEngineName);
 
-    /**
-     * @brief Destructor
-     *
-     * Destructs the log object, releases all the allocated resources
-     */
-    virtual ~LogEngine();
+    ~LogEngine() override;
 
     /**
-     * @brief Restarts the log
+     * Restarts the log
      *
      * The current log content is cleared.
      * Actual result depends on derived log engine.
@@ -150,7 +113,7 @@ public:
     }
 
     /**
-     * @brief Sets log options
+     * Sets log options
      * @param ops int, a bit combination of Option
      */
     void options(int ops)
@@ -159,21 +122,21 @@ public:
     }
 
     /**
-     * @brief Returns log options
+     * Returns log options
      * @returns a bit combination of Option
      */
-    int options() const
+    size_t options() const
     {
         return m_options;
     }
 
     /**
-     * @brief Sets an option to true or false
+     * Sets an option to true or false
      */
     void option(Option option, bool flag);
 
     /**
-     * @brief Sets current message priority
+     * Sets current message priority
      * @param prt LogPriority, current message priority
      */
     void priority(LogPriority prt)
@@ -182,7 +145,7 @@ public:
     }
 
     /**
-     * @brief Sets min message priority
+     * Sets min message priority
      *
      * Messages with priority less than requested are ignored
      * @param prt LogPriority, min message priority
@@ -193,7 +156,7 @@ public:
     }
 
     /**
-     * @brief Returns the min priority
+     * Returns the min priority
      *
      * Messages with priority less than requested are ignored
      */
@@ -203,14 +166,45 @@ public:
     }
 
     /**
-     * @brief String representation of priority
+     * String representation of priority
      */
     static String priorityName(LogPriority prt);
 
     /**
-     * @brief Priotrity from string representation
+     * Priotrity from string representation
      */
     static LogPriority priorityFromName(const String& prt);
+
+protected:
+
+    void threadFunction() override;
+
+    /**
+     * Log a message
+     * @param message           Message
+     */
+    void log(Logger::Message* message);
+
+private:
+    /**
+     * Mutex that protects internal data access
+     */
+    mutable SharedMutex                 m_mutex;
+
+    /**
+     * Min message priority, should be defined for every message
+     */
+    std::atomic<LogPriority>            m_minPriority {LP_INFO};
+
+    /**
+     * Log options, a bit combination of Option
+     */
+    std::atomic<uint32_t>               m_options {LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY};
+
+    /**
+     * Message queue
+     */
+    SynchronizedQueue<Logger::Message*> m_messages;
 };
 
 /**

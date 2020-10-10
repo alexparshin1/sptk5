@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       HttpReader.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Saturday November 18 2017                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,60 +28,86 @@
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/ZLib.h>
 #include <thread>
+#include <sptk5/Brotli.h>
 #include "sptk5/net/HttpReader.h"
 
 using namespace std;
 using namespace sptk;
 
-HttpReader::HttpReader(Buffer& output)
-: m_readerState(READY),
-  m_statusCode(0),
-  m_contentLength(0),
-  m_contentReceivedLength(0),
-  m_currentChunkSize(0),
-  m_contentIsChunked(false),
-  m_matchProtocolAndResponseCode("^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"),
+HttpReader::HttpReader(TCPSocket& socket, Buffer& output, ReadMode readMode)
+: m_socket(socket),
+  m_readMode(readMode),
   m_output(output)
 {
     output.reset(128);
 }
 
-bool HttpReader::readStatus(TCPSocket& socket)
+bool HttpReader::readStatus()
 {
     String status;
-    while (socket.readLine(status) < 3) {
+    while (m_socket.readLine(status) < 3) {
         if (status.empty())
             return false;
-        socket.readyToRead(chrono::seconds(1));
+        m_socket.readyToRead(chrono::seconds(1));
     }
 
-    Strings matches;
-    if (!m_matchProtocolAndResponseCode.m(status, matches)) {
+    auto matches = m_matchProtocolAndResponseCode.m(status);
+    if (!matches) {
         m_readerState = READ_ERROR;
         throw Exception("Broken HTTP version header: [" + status + "]");
     }
-    m_statusCode = string2int(matches[1]);
-    if (matches.size() > 2)
-        m_statusText = matches[2].trim();
+    m_statusCode = string2int(matches[1].value);
+    if (matches.groups().size() > 2)
+        m_statusText = matches[2].value.trim();
+
+    m_readerState = READING_HEADERS;
 
     return true;
 }
 
-bool HttpReader::readHeaders(TCPSocket& socket)
+bool HttpReader::readHttpRequest()
 {
+    String request;
+    m_socket.readLine(request);
+    if (request.empty())
+        return false;
+
+    RegularExpression parseProtocol("^(GET|POST|DELETE|PUT|OPTIONS) (\\S+)", "i");
+    auto matches = parseProtocol.m(request);
+    if (matches) {
+        m_requestType = matches[size_t(0)].value.toUpperCase();
+        m_requestURL = matches[1].value;
+        return true;
+    }
+
+    return false;
+}
+
+void HttpReader::readHttpHeaders()
+{
+    reset();
+
+    if (m_readMode == RESPONSE) {
+        if (!readStatus())
+            throw Exception("Can't read server response");
+    } else {
+        if (!readHttpRequest())
+            throw Exception("Can't read server response");
+    }
+
     /// Reading HTTP headers
     Strings matches;
     for (;;) {
         String header;
 
-        socket.readLine(header);
+        m_socket.readLine(header);
 
         if (header.empty())
-            return false;
+            throw Exception("Empty HTTP header");
 
         size_t pos = header.find(':');
         if (pos != string::npos) {
-            m_responseHeaders[lowerCase(header.substr(0, pos))] = trim(header.substr(pos + 1));
+            m_httpHeaders[lowerCase(header.substr(0, pos))] = trim(header.substr(pos + 1));
             continue;
         }
 
@@ -94,126 +118,149 @@ bool HttpReader::readHeaders(TCPSocket& socket)
     m_contentLength = 0;
     m_contentIsChunked = false;
 
-    auto itor = m_responseHeaders.find("content-length");
-    if (itor != m_responseHeaders.end())
+    auto itor = m_httpHeaders.find("content-length");
+    if (itor != m_httpHeaders.end())
         m_contentLength = (size_t) string2int(itor->second);
 
-    itor = m_responseHeaders.find("transfer-encoding");
-    if (itor != m_responseHeaders.end())
+    itor = m_httpHeaders.find("transfer-encoding");
+    if (itor != m_httpHeaders.end())
         m_contentIsChunked = itor->second.find("chunked") != string::npos;
 
-    m_contentReceivedLength = 0;
-    m_currentChunkSize = 0;
+    bool expectingContent = m_requestType == "POST" || m_requestType == "PUT";
+    bool contentLengthDefined = m_contentLength > 0 || m_contentIsChunked;
+    if (expectingContent && !contentLengthDefined)
+        throw HTTPException(411, "Length required");
 
-    return true;
+    m_contentReceivedLength = 0;
+
+    m_readerState = READING_DATA;
 }
 
-bool HttpReader::readData(TCPSocket& socket)
+static size_t readAndAppend(TCPSocket& socket, Buffer& output, size_t bytesToRead)
 {
-    int readBytes = 0;
-    while (socket.readyToRead(chrono::seconds(10))) {
-        size_t bytesToRead;
-        if (m_contentLength > 0) {
-            bytesToRead = m_contentLength - m_contentReceivedLength;
-            if (bytesToRead == 0)
-                return true;
-        } else
-            bytesToRead = socket.socketBytes();
+    Buffer buffer(bytesToRead);
 
-        if (!m_contentIsChunked) {
-            readBytes = (int) socket.read(m_read_buffer, bytesToRead);
-            if (readBytes == 0) // 0 bytes case is a workaround for OpenSSL
-                readBytes = (int) socket.read(m_read_buffer, bytesToRead);
-            m_output.append(m_read_buffer);
-            m_contentReceivedLength += readBytes;
-            if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength) // No more data
-                return true;
-        } else {
-            if (m_currentChunkSize == 0) {
-                // Starting next chunk
-                String chunkSizeStr;
-                while (chunkSizeStr.empty()) {
-                    if (socket.readLine(chunkSizeStr) == 0) {
-                        this_thread::sleep_for(chrono::milliseconds(10));
-                        continue;
-                    }
-                    chunkSizeStr = trim(chunkSizeStr);
-                }
+    if (!socket.readyToRead(chrono::seconds(30)))
+        throw TimeoutException("Timeout reading from connection");
 
-                errno = 0;
-                m_currentChunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
-                if (errno != 0)
-                    throw Exception("Strange chunk size: '" + chunkSizeStr + "'");
+    size_t readBytes = socket.read(buffer, bytesToRead);
+    if (readBytes == 0) // 0 bytes case is a workaround for OpenSSL
+        readBytes = (int) socket.read(buffer, bytesToRead);
 
-                if (m_currentChunkSize == 0)
-                    return true; // Last chunk
-            }
+    output.append(buffer);
+    return readBytes;
+}
 
-            m_output.checkSize(m_output.bytes() + m_currentChunkSize + 16384);
-            char* appendPtr = m_output.data() + m_output.bytes();
-            if (!socket.readyToRead(chrono::seconds(30)))
-                throw TimeoutException("Read timeout");
-            readBytes = (int) socket.read(appendPtr, m_currentChunkSize, nullptr);
-            if (readBytes > 0) {
-                m_contentReceivedLength += readBytes;
-                appendPtr[readBytes] = 0;
-                m_currentChunkSize = 0;
-                m_output.bytes(m_output.bytes() + readBytes);
-                return false; // Not the last chunk
-            }
+static size_t readChunk(TCPSocket& socket, Buffer& m_output)
+{
+    // Starting next chunk
+    String chunkSizeStr;
+    while (chunkSizeStr.empty()) {
+        if (!socket.readyToRead(chrono::seconds(30)))
+            throw TimeoutException("Timeout reading next chunk");
+        if (socket.readLine(chunkSizeStr) > 0)
+            chunkSizeStr = trim(chunkSizeStr);
+    }
+
+    errno = 0;
+    auto chunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
+    if (errno != 0)
+        throw Exception("Strange chunk size: '" + chunkSizeStr + "'");
+
+    if (chunkSize == 0)
+        return 0; // Last chunk
+
+    return readAndAppend(socket, m_output, chunkSize);
+}
+
+void HttpReader::readDataChunk(bool& done)
+{
+    size_t bytesToRead = m_socket.socketBytes();
+    if (bytesToRead == 0) {
+        done = true;
+        return;
+    }
+
+    if (m_contentLength > 0) {
+        bytesToRead = m_contentLength - m_contentReceivedLength;
+        if (bytesToRead == 0) { // received all content bytes
+            done = true;
+            return;
         }
-        readBytes = (int) socket.socketBytes();
+    } else
+        bytesToRead = m_socket.socketBytes();
+
+    int readBytes;
+    if (!m_contentIsChunked) {
+        readBytes = (int) readAndAppend(m_socket, m_output, bytesToRead);
+        m_contentReceivedLength += readBytes;
+        if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength) // No more data
+            done = true;
+    } else {
+        size_t chunkSize = readChunk(m_socket, m_output);
+        m_contentReceivedLength += chunkSize;
+        done = (chunkSize == 0); // 0 means last chunk
+    }
+
+    if (!done) {
+        readBytes = (int) m_socket.socketBytes();
         if (readBytes == 0 && m_output.bytes() > 13) {
             size_t tailOffset = m_output.bytes() - 13;
-			String tail(m_output.c_str() + tailOffset);
+            String tail(m_output.c_str() + tailOffset);
             if (tail.toLowerCase().find("</html>") != string::npos)
-				break;
-            if (!socket.readyToRead(chrono::seconds(30)))
+                done = true;
+            else if (!m_socket.readyToRead(chrono::seconds(30)))
                 throw TimeoutException("Read timeout");
-            readBytes = (int) socket.socketBytes();
         }
+    }
+}
+
+bool HttpReader::readData()
+{
+    bool done {false};
+    while (!done && m_socket.readyToRead(chrono::seconds(10))) {
+        readDataChunk(done);
     }
     return true;
 }
 
-void HttpReader::read(TCPSocket& socket)
+void HttpReader::read()
 {
     lock_guard<mutex> lock(m_mutex);
 
     if (m_readerState == READY) {
-        m_output.bytes(0);
-        m_responseHeaders.clear();
-        m_statusCode = 0;
-        m_statusText = "";
-        if (!readStatus(socket))
-            throw Exception("Can't read server response");
-        m_readerState = READING_HEADERS;
-        m_contentReceivedLength = 0;
-    }
-
-    if (m_readerState == READING_HEADERS) {
-        if (!readHeaders(socket))
-            return;
+        readHttpHeaders();
         m_readerState = READING_DATA;
     }
 
-    if (m_readerState == READING_DATA && !readData(socket))
+    if (m_readerState == READING_DATA && !readData())
         return;
 
-    auto itor = m_responseHeaders.find("content-encoding");
-    if (itor != m_responseHeaders.end() && itor->second == "gzip") {
+    auto itor = m_httpHeaders.find("content-encoding");
+    if (itor != m_httpHeaders.end()) {
+        if (itor->second == "gzip") {
 #if HAVE_ZLIB
         Buffer unzipBuffer;
         ZLib::decompress(unzipBuffer, m_output);
-        *(Buffer*)this = move(unzipBuffer);
+        m_output = move(unzipBuffer);
 #else
         throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
 #endif
+        }
+        if (itor->second == "br") {
+#if HAVE_BROTLI
+            Buffer unzipBuffer;
+            Brotli::decompress(unzipBuffer, m_output);
+            m_output = move(unzipBuffer);
+#else
+            throw Exception("Content-Encoding is 'br', but libbrotli support is not enabled in SPTK");
+#endif
+        }
     }
 
-    itor = m_responseHeaders.find("Connection");
-    if (itor != m_responseHeaders.end() && itor->second == "close")
-        socket.close();
+    itor = m_httpHeaders.find("Connection");
+    if (itor != m_httpHeaders.end() && itor->second == "close")
+        m_socket.close();
 
     if (m_statusCode >= 400 && m_statusText.empty()) {
         if (m_statusCode >= 500)
@@ -225,10 +272,10 @@ void HttpReader::read(TCPSocket& socket)
     m_readerState = COMPLETED;
 }
 
-const HttpHeaders& HttpReader::getResponseHeaders() const
+HttpHeaders& HttpReader::getHttpHeaders()
 {
     lock_guard<mutex> lock(m_mutex);
-    return m_responseHeaders;
+    return m_httpHeaders;
 }
 
 HttpReader::ReaderState HttpReader::getReaderState() const
@@ -249,12 +296,65 @@ const String& HttpReader::getStatusText() const
     return m_statusText;
 }
 
-String HttpReader::responseHeader(const String& headerName) const
+String HttpReader::httpHeader(const String& headerName) const
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto itor = m_responseHeaders.find(lowerCase(headerName));
-    if (itor == m_responseHeaders.end())
+    auto itor = m_httpHeaders.find(lowerCase(headerName));
+    if (itor == m_httpHeaders.end())
         return "";
     return itor->second;
+}
+
+int HttpReader::readAll(std::chrono::milliseconds timeout)
+{
+    while (getReaderState() < HttpReader::COMPLETED) {
+        if (!m_socket.readyToRead(timeout)) {
+            m_socket.close();
+            throw Exception("Response read timeout");
+        }
+
+        read();
+    }
+
+    return getStatusCode();
+}
+
+void HttpReader::reset()
+{
+    m_readerState = READY;
+    m_statusText = "";
+    m_statusCode = 0;
+    m_contentLength = 0;
+    m_contentReceivedLength = 0;
+    m_contentIsChunked = false;
+    m_httpHeaders.clear();
+    m_read_buffer.reset(1024);
+    m_requestType = "";
+    m_requestURL = "";
+}
+
+TCPSocket& HttpReader::socket()
+{
+    return m_socket;
+}
+
+Buffer& HttpReader::output()
+{
+    return m_output;
+}
+
+String HttpReader::getRequestType() const
+{
+    return m_requestType;
+}
+
+String HttpReader::getRequestURL() const
+{
+    return m_requestURL;
+}
+
+void HttpReader::close()
+{
+    m_socket.close();
 }

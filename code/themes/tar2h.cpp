@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <sptk5/sptk.h>
 
@@ -28,21 +27,24 @@ int main(int argc, char **argv)
 
         size_t dataSize = data.bytes();
 
-        printf("static size_t %s_len = %ld;\n", argv[2], dataSize);
-        printf("static unsigned char %s[%ld] = {\n", argv[2], dataSize);
+        COUT("static size_t " << argv[2] << "_len = " << dataSize << ";" << endl)
+        COUT("static unsigned char " << argv[2] << "[" << dataSize << "] = {" << endl)
 
-        auto* x = (unsigned char *)data.data();
+        const auto* x = (const unsigned char *)data.c_str();
 
-        for (unsigned i = 0; i < dataSize; i++) {
-            printf("0x%02x, ", (unsigned) x[i]);
-            if (!(i & 0xf)) printf("\n");
+        stringstream str;
+        str.fill('0');
+        for (unsigned i = 0; i < dataSize; ++i) {
+            str << "0x" << hex << setw(2) << ", " << (unsigned) x[i];
+            if (!(i & 0xf)) str << endl;
         }
-        printf("};\n");
+        str << "};" << endl;
+        COUT(str.str())
 
         return 0;
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

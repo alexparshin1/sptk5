@@ -1,27 +1,56 @@
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
+
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
 #include "Thread.h"
 #include "Semaphore.h"
+
+#include <functional>
 #include <set>
 
 namespace sptk {
+
+    class TimerThread;
 
     /**
      * Generic timer class.
      * Can fire one time off and repeatable events
      */
-    class Timer
+    class SP_EXPORT Timer
     {
     public:
-
         /**
          * Timer Event Id
          */
         struct EventId
         {
-            uint64_t    serial;     ///< Serial number
-            DateTime    when;       ///< Execution date and time
+            uint64_t    serial {Timer::nextSerial++};  ///< Serial number
+            DateTime    when;                   ///< Execution date and time
             /**
              * Constructor
              * @param when      Event execution time
@@ -42,16 +71,7 @@ namespace sptk {
              * Event callback definition.
              * Events call that function when there is time for them to fire.
              */
-            typedef void(*Callback) (void* eventData);
-
-        private:
-
-            EventId                     m_id;                ///< Event serial and when the event has to fire next time.
-            void*                       m_data {nullptr};    ///< Opaque event data, defined when event is scheduled. Passed by event to callback function.
-            std::chrono::milliseconds   m_repeatEvery;       ///< Event repeat interval.
-            Timer*                      m_timer {nullptr};   ///< Parent timer
-
-        public:
+            typedef std::function<void()> Callback;
 
             /**
              * Disabled event copy constructor
@@ -68,16 +88,16 @@ namespace sptk {
              * Disabled event assignment
              * @param other                 Other event
              */
-            EventData& operator = (const EventData&) = delete;
+            EventData& operator = (const EventData& other) = delete;
 
             /**
              * Constructor
-             * @param timer                 Parent timer
              * @param timestamp             Fire at timestamp
-             * @param eventData             Event data that will be passed to timer callback
+             * @param eventCallback         Event callback function
              * @param repeatEvery           Event repeate interval
+             * @param repeatCount           Repeat count, -1 means no limit
              */
-            EventData(Timer& timer, const DateTime& timestamp, void* eventData, std::chrono::milliseconds repeatEvery);
+            EventData(const DateTime& timestamp, const Callback& eventCallback, std::chrono::milliseconds repeatEvery, int repeatCount=-1);
 
             /**
              * Destructor
@@ -96,25 +116,20 @@ namespace sptk {
              * Add interval to event fire at timestamp
              * @param interval              Shift interval
              */
-            void shift(std::chrono::milliseconds interval)
+            bool shift(std::chrono::milliseconds interval)
             {
+                if (m_repeatCount == 0)
+                    return false;
+
+                if (m_repeatCount > 0) {
+                    m_id.when = m_id.when + interval;
+                    --m_repeatCount;
+                    return true;
+                }
+
+                // Repeat count < 0 - infinite repeats
                 m_id.when = m_id.when + interval;
-            }
-
-            /**
-             * @return event data
-             */
-            void* getData() const
-            {
-                return m_data;
-            }
-
-            /**
-             * @return parent timer
-             */
-            Timer& getTimer() const
-            {
-                return *m_timer;
+                return true;
             }
 
             /**
@@ -122,16 +137,28 @@ namespace sptk {
              */
             const std::chrono::milliseconds& getInterval() const
             {
-                return m_repeatEvery;
+                return m_repeatInterval;
             }
 
             /**
-             * Disconnect event from timer (internal)
+             * @return event repeat count
              */
-            void unlinkFromTimer()
+            int getRepeatCount() const
             {
-                m_timer = nullptr;
+                return m_repeatCount;
             }
+
+            /**
+             * Fire event by calling its callback function..
+             */
+            bool fire();
+
+        private:
+
+            EventId                     m_id;                ///< Event serial and when the event has to fire next time.
+            Callback                    m_callback;          ///< Event callback function, defined when event is scheduled.
+            std::chrono::milliseconds   m_repeatInterval;    ///< Event repeat interval.
+            int                         m_repeatCount {0};   ///< Number of event repeats, -1 means no limit.
         };
 
         /**
@@ -139,26 +166,10 @@ namespace sptk {
          */
         typedef std::shared_ptr<EventData> Event;
 
-    private:
-
-        mutable std::mutex          m_mutex;        ///< Mutex protecting events set
-        std::set<Event>             m_events;       ///< Events scheduled by this timer
-        EventData::Callback         m_callback;     ///< Event callback function.
-
-        std::set<Timer::Event> moveOutEvents();
-
-    protected:
-
-        void unlink(Event event);                   ///< Remove event from this timer
-
-    public:
         /**
          * Constructor
-         * @param callback                  Timer callback function, called when event is up
          */
-        explicit Timer(EventData::Callback callback)
-        : m_callback(callback)
-        {}
+        Timer() = default;
 
         /**
          * Copy constructor
@@ -173,27 +184,22 @@ namespace sptk {
         virtual ~Timer();
 
         /**
-         * Fire single event.
-         * @param event                     User data that will be passed to timer callback function.
-         */
-        void fire(Event event);
-
-        /**
          * Schedule single event.
          * @param timestamp                 Fire at timestamp
-         * @param eventData                 User data that will be passed to timer callback function.
+         * @param eventCallback             Event callback.
          * @return event handle, that may be used to cancel this event.
          */
-        Event fireAt(const DateTime& timestamp, void* eventData);
+        Event fireAt(const DateTime& timestamp, const EventData::Callback& eventCallback);
 
         /**
          * Schedule repeatable event.
          * The first event is scheduled at current time + interval.
          * @param interval                  Event repeat interval.
-         * @param eventData                 User data that will be passed to timer callback function.
+         * @param eventCallback             Event callback.
+         * @param repeatCount               Repeat count, -1 means no limit
          * @return event handle, that may be used to cancel this event.
          */
-        Event repeat(std::chrono::milliseconds interval, void* eventData);
+        Event repeat(std::chrono::milliseconds interval, const EventData::Callback& eventCallback, int repeatCount=-1);
 
         /**
          * Cancel event
@@ -205,6 +211,25 @@ namespace sptk {
          * Cancel all events
          */
         void  cancel();
+
+        static int allocatedEvents();
+
+    protected:
+
+        void unlink(Event event);                       ///< Remove event from this timer
+
+    private:
+
+        mutable std::mutex              m_mutex;        ///< Mutex protecting events set
+        std::set<Event>                 m_events;       ///< Events scheduled by this timer
+
+        static std::atomic<uint64_t>    nextSerial;     ///< Event id serial
+        static std::mutex               timerThreadMutex;
+        static TimerThread*             timerThread;
+        static int                      eventAllocations;
+
+        std::set<Timer::Event> moveOutEvents();
+        static void checkTimerThreadRunning();
     };
 
 } // namespace sptk

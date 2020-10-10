@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        MySQLStatement.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -42,71 +40,14 @@ namespace sptk
 {
 
 class MySQLConnection;
+class MySQLStatementField;
 
 /**
  * MySQL statement wrapper
  */
 class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
 {
-    /**
-     * Statement SQL
-     */
-    std::string                     m_sql;
-
-    /**
-     * Parameter binding buffers
-     */
-    std::vector<MYSQL_BIND>         m_paramBuffers;
-
-    /**
-     * Parameter data lengths
-     */
-    std::vector<unsigned long>      m_paramLengths;
-
-    /**
-     * Fetch data buffers
-     */
-    std::vector<MYSQL_BIND>         m_fieldBuffers;
-
-
-    /**
-     * Statement handle
-     */
-    MYSQL_RES*                      m_result;
-
-    /**
-     * Fetch data row
-     */
-    MYSQL_ROW                       m_row;
-
-
-    /**
-     * Reads not prepared statement result row to query fields
-     * @param fields CFieldList&, query fields (if any)
-     */
-    void readUnpreparedResultRow(FieldList& fields);
-
-    /**
-     * Reads prepared statement result row to query fields
-     * @param fields CFieldList&, query fields (if any)
-     */
-    void readPreparedResultRow(FieldList& fields);
-
-    /**
-     * Convert MySQL time data to field
-     * @param field             Output field
-     * @param mysqlTime         MySQL time
-     * @param fieldType         Field type (date or datetime)
-     */
-    void decodeMySQLTime(Field* field, MYSQL_TIME& mysqlTime, VariantType fieldType);
-
-    void throwMySQLError()
-    {
-        throw DatabaseException(mysql_stmt_error(statement()));
-    }
-
 public:
-
     /**
      * Translates MySQL native type to CVariant type
      * @param mysqlType enum_field_types, MySQL native type
@@ -142,34 +83,54 @@ public:
      * @param sql std::string, SQL statement
      * @param autoPrepare bool, If true then statement is executed as prepared.
      */
-    MySQLStatement(MySQLConnection* connection, const std::string& sql, bool autoPrepare);
+    MySQLStatement(MySQLConnection* connection, String sql, bool autoPrepare);
+
+    /**
+     * Deleted copy constructor
+     */
+    MySQLStatement(const MySQLStatement&) = delete;
+
+    /**
+     * Move constructor
+     */
+    MySQLStatement(MySQLStatement&&) = default;
 
     /**
      * Destructor
      */
-    virtual ~MySQLStatement();
+    ~MySQLStatement() override;
+
+    /**
+     * Deleted copy assignment
+     */
+    MySQLStatement& operator = (const MySQLStatement&) = delete;
+
+    /**
+     * Move assignment
+     */
+    MySQLStatement& operator = (MySQLStatement&&) = default;
 
     /**
      * Generates normalized list of parameters
      * @param queryParams CParamList&, Standard query parameters
      */
-    void enumerateParams(QueryParameterList& queryParams);
+    void enumerateParams(QueryParameterList& queryParams) override;
 
     /**
      * Sets actual parameter values for the statement execution
      */
-    void setParameterValues();
+    void setParameterValues() override;
 
     /**
      * Prepares MySQL statement
      * @param sql const std::string, statement SQL
      */
-    void prepare(const std::string& sql);
+    void prepare(const String& sql) const;
 
     /**
      * Executes statement
      */
-    void execute(bool);
+    void execute(bool) override;
 
     /**
      * Binds statement result metadata to query fields
@@ -186,12 +147,56 @@ public:
     /**
      * Closes statement and releases allocated resources
      */
-    void close();
+    void close() override;
 
     /**
      * Fetches next record
      */
-    void fetch();
+    void fetch() override;
+
+private:
+
+    String                          m_sql;              ///< Statement SQL
+    std::vector<MYSQL_BIND>         m_paramBuffers;     ///< Parameter binding buffers
+    std::vector<unsigned long>      m_paramLengths;     ///< Parameter data lengths
+    std::vector<MYSQL_BIND>         m_fieldBuffers;     ///< Fetch data buffers
+    MYSQL_RES*                      m_result {nullptr}; ///< Statement handle
+    MYSQL_ROW                       m_row {};           ///< Fetch data row
+
+    /**
+     * Reads not prepared statement result row to query fields
+     * @param fields CFieldList&, query fields (if any)
+     */
+    void readUnpreparedResultRow(FieldList& fields);
+
+    /**
+     * Reads prepared statement result row to query fields
+     * @param fields CFieldList&, query fields (if any)
+     */
+    void readPreparedResultRow(FieldList& fields);
+
+    /**
+     * Convert MySQL time data to field
+     * @param _field             Output field
+     * @param mysqlTime         MySQL time
+     * @param fieldType         Field type (date or datetime)
+     */
+    static void decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime, VariantType fieldType);
+
+    /**
+     * Convert MySQL float data to field
+     * @param _field             Output field
+     * @param bind         MySQL field bind
+     * @param fieldType         Field type (date or datetime)
+     */
+    static void decodeMySQLFloat(Field* _field, MYSQL_BIND& bind);
+
+    [[noreturn]] void throwMySQLError() const
+    {
+        throw DatabaseException(mysql_stmt_error(statement()));
+    }
+
+    [[nodiscard]] bool bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* field, size_t fieldIndex, uint32_t dataLength) const;
 };
 
 }

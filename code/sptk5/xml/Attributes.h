@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Attributes.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -54,36 +52,6 @@ class Attribute : public NamedItem
 {
     friend class Attributes;
 
-    /**
-     * Attribute value
-     */
-    String m_value;
-
-protected:
-
-
-    /**
-     * Protected constructor (internal)
-     *
-     * Creates a new attribute. 
-     * Doesn't verify if the attribute name already exists in parent element
-     * @param parent            Parent element (can't be NULL)
-     * @param name              Attribute name
-     * @param value             Attribute value
-     */
-    Attribute(Element* parent, const String& name, Variant value);
-
-    /**
-     * Protected constructor (internal)
-     *
-     * Creates a new attribute. 
-     * Doesn't verify if the attribute name already exists in parent element
-     * @param parent            Parent element (can't be NULL)
-     * @param name              Attribute name
-     * @param value             Attribute value
-     */
-    Attribute(Element* parent, const char* name, Variant value);
-
 public:
     /**
      * Returns the value of the node
@@ -103,6 +71,33 @@ public:
      * @see value()
      */
     void value(const char* new_value) override;
+
+protected:
+    /**
+     * Protected constructor (internal)
+     *
+     * Creates a new attribute.
+     * Doesn't verify if the attribute name already exists in parent element
+     * @param parent            Parent element (can't be NULL)
+     * @param name              Attribute name
+     * @param value             Attribute value
+     */
+    Attribute(Element* parent, const String& name, const Variant& value);
+
+    /**
+     * Protected constructor (internal)
+     *
+     * Creates a new attribute.
+     * Doesn't verify if the attribute name already exists in parent element
+     * @param parent            Parent element (can't be NULL)
+     * @param name              Attribute name
+     * @param value             Attribute value
+     */
+    Attribute(Element* parent, const char* name, const Variant& value);
+
+private:
+
+    String m_value;     ///< Attribute value
 };
 
 class Node;
@@ -138,14 +133,6 @@ public:
     }
 
     /**
-     * Assign operator
-     *
-     * Makes copy of an attribute set to another.
-     * @param src as copy source
-     */
-    Attributes& operator=(const Attributes& src);
-
-    /**
      * Searches for named attribute
      *
      * Returns true, if given attribute is found.
@@ -171,7 +158,7 @@ public:
      * @param value             Attribute value
      * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    void setAttribute(const String& attr, Variant value, const char* defaultValue = "");
+    void setAttribute(const String& attr, const Variant& value, const char* defaultValue = "");
 
     /**
      * Returns an attribute node

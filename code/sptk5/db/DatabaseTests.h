@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DatabaseTests.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,9 +35,14 @@ namespace sptk {
 /**
  * Common operations used by database-related unit tests
  */
-class DatabaseTests
+class SP_EXPORT DatabaseTests
 {
-    /**
+	/**
+	 * Global database tests collection
+	 */
+	static DatabaseTests _databaseTests;
+
+	/**
      * Connection strings for which tests will be executed
      */
     std::map<String, DatabaseConnectionString> m_connectionStrings;
@@ -50,15 +53,26 @@ class DatabaseTests
      * @param table         Database table
      * @return number of rows in table
      */
-    size_t countRowsInTable(DatabaseConnection& db, const String& table);
+    static size_t countRowsInTable(const DatabaseConnection& db, const String& table);
 
-    void testTransaction(DatabaseConnection db, bool commit);
+    /**
+     * Test transactions
+     * @param db            Database connection
+     * @param commit        If true then commit the transaction
+     */
+    static void testTransaction(DatabaseConnection db, bool commit);
+
+    /**
+     * Connect to database and create test table
+     * @return
+     */
+    static void createTestTable(DatabaseConnection db);
 
 public:
     /**
      * Constructor
      */
-    DatabaseTests() = default;
+    DatabaseTests();
 
     /**
      * Add database connection to future tests.
@@ -84,43 +98,58 @@ public:
      * Test database connection
      * @param connectionString Database connection string
      */
-    void testConnect(const DatabaseConnectionString& connectionString);
+    static void testConnect(const DatabaseConnectionString& connectionString);
 
     /**
      * Test SELECT statements
      * @param connectionString Database connection string
      */
-    void testSelect(const DatabaseConnectionString& connectionString);
+    static void testSelect(const DatabaseConnectionString& connectionString);
+
+    /**
+     * Test SELECT statements
+     * @param connectionString Database connection string
+     */
+    static void testSelect(DatabaseConnectionPool& connectionPool);
 
     /**
      * Test basic DDL statements
      * @param connectionString Database connection string
      */
-    void testDDL(const DatabaseConnectionString& connectionString);
+    static void testDDL(const DatabaseConnectionString& connectionString);
+
+    static void testQueryInsertDate(const DatabaseConnectionString& connectionString);
 
     /**
      * Test parametrized queries
      * @param connectionString Database connection string
      */
-    void testQueryParameters(const DatabaseConnectionString& connectionString);
+    static void testQueryParameters(const DatabaseConnectionString& connectionString);
 
     /**
      * Test transaction
      * @param connectionString Database connection string
      */
-    void testTransaction(const DatabaseConnectionString& connectionString);
+    static void testTransaction(const DatabaseConnectionString& connectionString);
 
     /**
      * Test bulk insert operation
      * @param connectionString Database connection string
      */
-    void testBulkInsert(const DatabaseConnectionString& connectionString);
-};
+    static void testBulkInsert(const DatabaseConnectionString& connectionString);
 
-/**
- * Global database tests collection
- */
-extern DatabaseTests databaseTests;
+    /**
+     * Test bulk insert operation performance
+     * @param connectionString  Database connection string
+     * @param recordCount       Records to insert during test
+     */
+    static void testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount);
+
+	/**
+	 * Global database tests collection
+	 */
+	static DatabaseTests& tests();
+};
 
 }
 

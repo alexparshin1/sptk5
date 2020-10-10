@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CTransaction.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,10 +30,9 @@
 using namespace std;
 using namespace sptk;
 
-Transaction::Transaction(DatabaseConnection db)
+Transaction::Transaction(const DatabaseConnection& db)
+: m_db(db->connection())
 {
-    m_active = false;
-    m_db = db->connection();
 }
 
 Transaction::~Transaction()
@@ -44,8 +41,8 @@ Transaction::~Transaction()
         if (m_active)
             m_db->rollbackTransaction();
     }
-    catch (Exception& e) {
-        CERR(e.what() << endl);
+    catch (const Exception& e) {
+        CERR(e.what() << endl)
     }
 }
 

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       BaseSocket.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -82,7 +80,7 @@ void BaseSocket::cleanup() noexcept
 
 // Constructor
 BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-: m_domain(domain), m_type(type), m_protocol(protocol)
+: m_sockfd(INVALID_SOCKET), m_domain(domain), m_type(type), m_protocol(protocol)
 {
 #ifdef _WIN32
     init();
@@ -101,7 +99,7 @@ BaseSocket::~BaseSocket()
 #endif
 }
 
-void BaseSocket::blockingMode(bool blocking)
+void BaseSocket::blockingMode(bool blocking) const
 {
 #ifdef _WIN32
     uint32_t arg = blocking ? 0 : 1;
@@ -141,10 +139,10 @@ size_t BaseSocket::recv(void* buffer, size_t len)
 
 size_t BaseSocket::send(const void* buffer, size_t len)
 {
-    return (size_t) ::send(m_sockfd, (char*) buffer, (int32_t) len, 0);
+    return (size_t) ::send(m_sockfd, (const char*) buffer, (int32_t) len, 0);
 }
 
-int32_t BaseSocket::control(int flag, const uint32_t* check)
+int32_t BaseSocket::control(int flag, const uint32_t* check) const
 {
 #ifdef _WIN32
     return ioctlsocket (m_sockfd, flag, (u_long *) check);
@@ -179,7 +177,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
             currentOperation = "connect";
             if (timeoutMS != 0) {
                 blockingMode(false);
-                rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
+                rc = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
                 switch (rc) {
                     case ENETUNREACH:
                         throw Exception("Network unreachable");
@@ -192,14 +190,14 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
                     if (!readyToWrite(timeout))
                         throw Exception("Connection timeout");
                 }
-                catch (const Exception& e) {
+                catch (const Exception&) {
                     close();
                     throw;
                 }
                 rc = 0;
                 blockingMode(true);
             } else
-                rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
+                rc = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
             break;
 
         case SOM_BIND:
@@ -211,7 +209,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
 #endif
             }
             currentOperation = "bind";
-            rc = ::bind(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
+            rc = ::bind(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
             if (rc == 0 && m_type != SOCK_DGRAM) {
                 rc = ::listen(m_sockfd, SOMAXCONN);
                 currentOperation = "listen";
@@ -288,10 +286,18 @@ void BaseSocket::close() noexcept
     }
 }
 
-void BaseSocket::attach(SOCKET socketHandle)
+void BaseSocket::attach(SOCKET socketHandle, bool)
 {
     close();
     m_sockfd = socketHandle;
+}
+
+SOCKET BaseSocket::detach()
+{
+    SOCKET sockfd = m_sockfd;
+    m_sockfd = INVALID_SOCKET;
+    close();
+    return sockfd;
 }
 
 size_t BaseSocket::read(char* buffer, size_t size, sockaddr_in* from)
@@ -320,10 +326,9 @@ size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 
 size_t BaseSocket::read(String& buffer, size_t size, sockaddr_in* from)
 {
-    buffer.resize(size);
-    size_t bytes = read((char*)buffer.c_str(), size, from);
-    if (bytes != size)
-        buffer.resize(bytes);
+    Buffer buff(size);
+    size_t bytes = read(buff.data(), size, from);
+    buffer.assign(buff.c_str(), bytes);
     return bytes;
 }
 
@@ -339,7 +344,7 @@ size_t BaseSocket::write(const char* buffer, size_t size, const sockaddr_in* pee
     auto remaining = (int) size;
     while (remaining > 0) {
         if (peer != nullptr)
-            bytes = (int) sendto(m_sockfd, p, (int32_t) size, 0, (sockaddr*) peer, sizeof(sockaddr_in));
+            bytes = (int) sendto(m_sockfd, p, (int32_t) size, 0, (const sockaddr*) peer, sizeof(sockaddr_in));
         else
             bytes = (int) send(p, (int32_t) size);
         if (bytes == -1)
@@ -442,14 +447,14 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 # define VALUE_TYPE(val) (void*)(val)
 #endif
 
-void BaseSocket::setOption(int level, int option, int value)
+void BaseSocket::setOption(int level, int option, int value) const
 {
     const socklen_t len = sizeof(int);
     if (setsockopt(m_sockfd, level, option, VALUE_TYPE (&value), len) != 0)
         THROW_SOCKET_ERROR("Can't set socket option");
 }
 
-void BaseSocket::getOption(int level, int option, int& value)
+void BaseSocket::getOption(int level, int option, int& value) const
 {
     socklen_t len = sizeof(int);
     if (getsockopt(m_sockfd, level, option, VALUE_TYPE (&value), &len) != 0)

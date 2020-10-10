@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       JsonArrayData.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 16 2013                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -43,7 +41,7 @@ class Element;
 /**
  * Array of JSON Element objects
  */
-class ArrayData
+class SP_EXPORT ArrayData
 {
     friend class Element;
 
@@ -78,22 +76,17 @@ public:
      */
     Vector                  m_items;
 
-protected:
-
-    /**
-     * Set parent JSON element for this array
-     * @param parent            Parent JSON element
-     */
-    void setParent(Element* parent);
-
-public:
-
     /**
      * Constructor
      * @param document          Document this object belongs to
      * @param parent            Parent JSON element
      */
     explicit ArrayData(const Document* document, Element* parent = nullptr);
+
+    ArrayData(const ArrayData&) = delete;
+    ArrayData(ArrayData&&) = default;
+    ArrayData& operator = (const ArrayData&) = delete;
+    ArrayData& operator = (ArrayData&&) = default;
 
     /**
      * Destructor
@@ -121,13 +114,13 @@ public:
      * Get JSON element from this array by index
      * @param index             Element index
      */
-    Element& operator[](size_t index);
+    [[nodiscard]] Element& operator[](size_t index);
 
     /**
      * Get JSON element from this array by index (const version)
      * @param index             Element index
      */
-    const Element& operator[](size_t index) const;
+    [[nodiscard]] const Element& operator[](size_t index) const;
 
     /**
      * Remove JSON element from this array by index (const version)
@@ -138,32 +131,32 @@ public:
     /**
      * Get array begin iterator
      */
-    iterator begin() { return m_items.begin(); }
+    [[nodiscard]] iterator begin() { return m_items.begin(); }
 
     /**
      * Get array end iterator
      */
-    iterator end() { return m_items.end(); }
+    [[nodiscard]] iterator end() { return m_items.end(); }
 
     /**
      * Get array const begin iterator
      */
-    const_iterator begin() const { return m_items.begin(); }
+    [[nodiscard]] const_iterator begin() const { return m_items.begin(); }
 
     /**
      * Get array const end iterator
      */
-    const_iterator end() const { return m_items.end(); }
+    [[nodiscard]] const_iterator end() const { return m_items.end(); }
 
     /**
      * Get array size
      */
-    size_t size() const { return m_items.size(); }
+    [[nodiscard]] size_t size() const { return m_items.size(); }
 
     /**
      * Is array empty?
      */
-    bool empty() const { return m_items.empty(); }
+    [[nodiscard]] bool empty() const { return m_items.empty(); }
 };
 
 }}

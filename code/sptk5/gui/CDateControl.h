@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDateControl.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -47,7 +45,7 @@ class CInput_;
  * A masked date input with a small drop-down button inside.
  * Clicking on the button displays the calendar window.
  */
-class CDateControl : public Fl_Group {
+class SP_EXPORT CDateControl : public Fl_Group {
 
     /**
      * Drop-down button

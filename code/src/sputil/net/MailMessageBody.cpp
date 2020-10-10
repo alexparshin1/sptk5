@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       MailMessageBody.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,29 +26,16 @@
 
 #include <sptk5/Strings.h>
 #include <sptk5/net/MailMessageBody.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
 
 String MailMessageBody::stripHtml(const String& origHtml)
 {
-    Strings html(origHtml, "<");
-    unsigned i = 0;
-
-    // Remove comments and scripts
-    for (i = 0; i < html.size(); i++) {
-        string& str = html[i];
-        size_t pos = str.find('>');
-        if (pos == STRING_NPOS)
-            continue;
-        str = str.substr(pos + 1);
-        if (str.empty()) {
-            html.erase(html.begin() + i, html.begin() + i);
-            i--;
-        }
-    }
-
-    return trim(html.join(" ").replace(" +", " "));
+    static const RegularExpression matchHtmlTag(R"(<\S[^>]*>)", "g");
+    auto step1 = matchHtmlTag.s(origHtml, " ");
+    return trim(step1.replace(" +", " "));
 }
 
 void MailMessageBody::text(const string& messageText, bool smtp)
@@ -73,3 +58,18 @@ void MailMessageBody::text(const string& messageText, bool smtp)
         m_htmlText = msg;
     }
 }
+
+#if USE_GTEST
+
+TEST(SPTK_MailMessageBody, minimal)
+{
+    MailMessageBody message;
+
+    message.text("<html><b>Hello,</b><i>World!</i></html>", false);
+    EXPECT_EQ(message.text(), "Hello, World!");
+
+    message.text("<html><b>Hello,</b><i>World!</i></html>\n.\n", true);
+    EXPECT_EQ(message.text(), "Hello, World!");
+}
+
+#endif

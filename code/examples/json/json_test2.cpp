@@ -4,7 +4,7 @@
 ║                       json_test2.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 16 2013                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -52,14 +52,14 @@ int main()
         root["string"] = "test";
         root["boolean"] = true;
 
-        auto* array = root.set_object("array");
+        auto* array = root.add_object("array");
         array->push_back(100.0);
         array->push_back("101.0");
         array->push_back(102.0);
 
         // Create JSON object and insert it into JSON element (root)
         // JSON element (root) takes ownership of objectData
-        auto* objectData = root.set_object("boxes");
+        auto* objectData = root.add_object("boxes");
         (*objectData)["colour"] = "black";
         (*objectData)["shape"] = "cube";
 
@@ -71,12 +71,12 @@ int main()
         boxes["address"]["last name"] = "Kruger";
 
         root.exportTo(cout, true);
-        COUT(endl);
+        COUT(endl)
 
         return 0;
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

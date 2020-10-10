@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CComboBox.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -160,7 +158,7 @@ void CBaseListBox::comboButtonPressed(Fl_Widget* btn, void* data)
     auto* combo = (CBaseListBox*) btn->parent();
     if (!combo)
         return;
-    combo->button_handle((uint32_t) (long) data);
+    combo->button_handle((uint32_t) (uint64_t) data);
 }
 
 void CBaseListBox::ctor_init(const char* label, int _mode)
@@ -178,7 +176,7 @@ void CBaseListBox::ctor_init(const char* label, int _mode)
     m_control->align(FL_ALIGN_LEFT);
     m_buttonSpace = 0;
     for (int i = 0; i < 5; i++) {
-        long kind = buttonKind[i];
+		uint64_t kind = buttonKind[i];
         auto* btn = new CSmallButton(SP_UNDEFINED_BUTTON, SP_ALIGN_NONE);
         btn->buttonImage(buttonKind[i], IS_COMBO_ICON);
         btn->callback(comboButtonPressed);
@@ -474,7 +472,7 @@ Variant CBaseListBox::data() const
     return m_list->data();
 }
 
-void CBaseListBox::data(const Variant newData)
+void CBaseListBox::data(const Variant& newData)
 {
     CPackedStrings* oldSelection = m_list->selectedRow();
 
@@ -539,7 +537,7 @@ void CBaseListBox::addRows(string columnName, Strings strings)
         String& str = strings[i];
         cpchar strs[2] = {str.c_str(), nullptr};
         auto* psl = new CPackedStrings(1, strs);
-        int id = str.ident();
+        int32_t id = (int32_t) str.ident();
         psl->argument(id);
         m_list->addRow(psl);
     }

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Field.cpp - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,27 +25,19 @@
 */
 
 #include <sptk5/Field.h>
+#include <iomanip>
 
 using namespace std;
 using namespace sptk;
 
 Field::Field(const String& name)
-: m_name(name), displayName(name)
+: m_name(name), m_displayName(name)
 {
-    view.width = -1;
-    view.flags = 4; // FL_ALIGN_LEFT
-    view.visible = true;
-    view.precision = 3; // default precision, only affects floating point fields
+    m_view.width = -1;
+    m_view.flags = 4;       // FL_ALIGN_LEFT
+    m_view.visible = true;
+    m_view.precision = 3;   // default precision, only affects floating point fields
     dataSize(0);
-}
-
-Field::Field(const Field& other)
-: Variant(other), m_name(other.m_name), displayName(other.m_name)
-{
-    view.width = -1;
-    view.flags = 4; // FL_ALIGN_LEFT
-    view.visible = true;
-    view.precision = 3; // default precision, only affects floating point fields
 }
 
 void Field::setNull(VariantType vtype)
@@ -76,22 +66,22 @@ void Field::setNull(VariantType vtype)
 
 String Field::asString() const
 {
+    String result;
     char print_buffer[64];
     int len;
 
     if (isNull())
-        return "";
+        return result;
 
     switch (dataType()) {
         case VAR_BOOL:
-            if (m_data.getInteger() != 0)
-                return "true";
-            else
-                return "false";
+            result = m_data.getInteger() != 0 ? "true" : "false";
+            break;
 
         case VAR_INT:
             len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.getInteger());
-            return String(print_buffer, len);
+            result.assign(print_buffer, len);
+            break;
 
         case VAR_INT64:
 #ifndef _WIN32
@@ -99,39 +89,46 @@ String Field::asString() const
 #else
             len = snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.getInt64());
 #endif
-            return String(print_buffer, len);
+            result.assign(print_buffer, len);
+            break;
 
         case VAR_FLOAT:
-            return doubleDataToString(print_buffer, sizeof(print_buffer));
+            result = doubleDataToString();
+            break;
 
         case VAR_MONEY:
-            return moneyDataToString(print_buffer, sizeof(print_buffer));
+            result = moneyDataToString();
+            break;
 
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            if (m_data.getBuffer().data == nullptr)
-                return "";
-
-            return m_data.getBuffer().data;
+            if (m_data.getBuffer().data != nullptr)
+                result = m_data.getBuffer().data;
+            break;
 
         case VAR_DATE:
-            return DateTime(chrono::microseconds(m_data.getInt64())).dateString();
+            result = DateTime(chrono::microseconds(m_data.getInt64())).dateString();
+            break;
 
         case VAR_DATE_TIME:
-            return epochDataToDateTimeString();
+            result = epochDataToDateTimeString();
+            break;
 
         case VAR_IMAGE_PTR:
             len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.getImagePtr());
-            return String(print_buffer, len);
+            result.assign(print_buffer, len);
+            break;
 
         case VAR_IMAGE_NDX:
             len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.getInteger());
-            return String(print_buffer, len);
+            result.assign(print_buffer, len);
+            break;
 
         default:
             throw Exception("Can't convert field " + fieldName() + " to type String");
     }
+    return result;
 }
 
 String Field::epochDataToDateTimeString() const
@@ -140,32 +137,11 @@ String Field::epochDataToDateTimeString() const
     return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PA_SECONDS);
 }
 
-String Field::moneyDataToString(char* printBuffer, size_t printBufferSize) const
+String Field::doubleDataToString() const
 {
-    char    format[32];
-    int64_t absValue;
-    char* formatPtr = format;
-
-    if (m_data.getMoneyData().quantity < 0) {
-        *formatPtr = '-';
-        formatPtr++;
-        absValue = -m_data.getMoneyData().quantity;
-    } else
-        absValue = m_data.getMoneyData().quantity;
-
-    snprintf(formatPtr, sizeof(format) - 2, "%%Ld.%%0%dLd", m_data.getMoneyData().scale);
-    int64_t intValue = absValue / MoneyData::dividers[m_data.getMoneyData().scale];
-    int64_t fraction = absValue % MoneyData::dividers[m_data.getMoneyData().scale];
-    int len = snprintf(printBuffer, printBufferSize - 1, format, intValue, fraction);
-    return String(printBuffer, len);
-}
-
-String Field::doubleDataToString(char* printBuffer, size_t printBufferSize) const
-{
-    char formatString[10];
-    snprintf(formatString, sizeof(formatString), "%%0.%if", view.precision);
-    int len = snprintf(printBuffer, printBufferSize, formatString, m_data.getFloat());
-    return String(printBuffer, len);
+    stringstream output;
+    output << fixed << setprecision(m_view.precision) << m_data.getFloat();
+    return output.str();
 }
 
 void Field::toXML(xml::Node& node, bool compactXmlMode) const
@@ -173,7 +149,7 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
     String value = asString();
 
     if (!value.empty()) {
-        xml::Element* element = nullptr;
+        xml::Element* element;
 
         if (dataType() == VAR_TEXT) {
             element = new xml::Element(node, fieldName());
@@ -194,3 +170,48 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
         }
     }
 }
+
+#if USE_GTEST
+
+TEST(SPTK_Field, move_ctor_assign)
+{
+    Field   field1("f1");
+    field1 = 10;
+
+    Field   field2(move(field1));
+    EXPECT_EQ(field2.asInteger(), 10);
+    EXPECT_EQ(field1.isNull(), true);
+
+    Field   field3("f3");
+    field3 = move(field2);
+    EXPECT_EQ(field3.asInteger(), 10);
+    EXPECT_EQ(field2.isNull(), true);
+}
+
+TEST(SPTK_Field, double)
+{
+    Field   field1("f1");
+
+    field1 = double(12345678.123456);
+    field1.view().precision = 3;
+
+    EXPECT_DOUBLE_EQ(field1.asFloat(), 12345678.123456);
+    EXPECT_STREQ(field1.asString().c_str(), "12345678.123");
+}
+
+TEST(SPTK_Field, money)
+{
+    MoneyData money1(1234567890123456789L, 8);
+    MoneyData money2(-1234567890100456789L, 8);
+    Field   field1("f1");
+
+    field1.setMoney(money1);
+    EXPECT_EQ(field1.asInt64(), 12345678901);
+    EXPECT_STREQ(field1.asString().c_str(), "12345678901.23456789");
+
+    field1.setMoney(money2);
+    EXPECT_EQ(field1.asInt64(), -12345678901);
+    EXPECT_STREQ(field1.asString().c_str(), "-12345678901.00456789");
+}
+
+#endif

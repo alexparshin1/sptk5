@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       FieldList.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -63,48 +61,13 @@ public:
     typedef std::vector<Field*>::const_iterator                        const_iterator;
 
 
-private:
-    /**
-     * Field vector
-     */
-    typedef std::vector<Field*>                                 Vector;
-
-    /**
-     * Field name to field case-insensitive map
-     */
-    typedef std::map<String, Field *, CaseInsensitiveCompare>   Map;
-
-
-    /**
-     * User data - any data you want to associate with that field list
-     */
-    void*                   m_userData;
-
-    /**
-     * The list of fields
-     */
-    Vector                  m_list;
-
-    /**
-     * The optional field index by name. 0L if field list isn't indexed.
-     */
-    Map*                    m_index;
-
-    /**
-     * The compact XML mode flag
-     */
-    bool                    m_compactXmlMode;
-
-
-public:
-
     /**
      * Default constructor
      *
      * @param indexed           If you want to have a field index by name added. Such index speeds up the search of the field by name, but increases the occupied memory.
      * @param compactXmlMode    Compact XML export flag, @see xmlMode for details
      */
-    explicit FieldList(bool indexed, bool compactXmlMode=true);
+    explicit FieldList(bool indexed=false, bool compactXmlMode=true);
 
     /**
      * Copy constructor
@@ -119,6 +82,13 @@ public:
     ~FieldList();
 
     /**
+     * Copy assignment
+     *
+     * @param other             Other field list
+     */
+    FieldList& operator = (const FieldList& other);
+
+    /**
      * Clears the field list
      */
     void clear();
@@ -126,9 +96,9 @@ public:
     /**
      * Returns the nummber of fields in the list
      */
-    uint32_t size() const
+    size_t size() const
     {
-        return (uint32_t) m_list.size();
+        return m_list.size();
     }
 
     /**
@@ -211,7 +181,7 @@ public:
      * @param fname             Field name
      * @returns CField pointer, or throw exception not found
      */
-    Field* fieldByName(const char * fname) const
+    Field* fieldByName(const String& fname) const
     {
         Field* field = findField(fname);
         if (field == nullptr)
@@ -225,60 +195,20 @@ public:
      * @param index             Field index
      * @returns field reference
      */
-    Field& operator [](uint32_t index)
+    Field& operator [](size_t index)
     {
-        return *(Field *) m_list[index];
+        return *m_list[index];
     }
 
     /**
-     * Field access by field index, non-const version
+     * Field access by field index, const version
      *
      * @param index             Field index
      * @returns field reference
      */
-    Field& operator [](int32_t index)
+    const Field& operator [](size_t index) const
     {
-        return *(Field *) m_list[size_t(index)];
-    }
-
-    /**
-     * Field access by field index, const version
-     * @param index             Field index
-     * @returns field reference
-     */
-    const Field& operator [](uint32_t index) const
-    {
-        return *(Field *) m_list[size_t(index)];
-    }
-
-    /**
-     * Field access by field index, const version
-     * @param index             Field index
-     * @returns field reference
-     */
-    const Field& operator [](int32_t index) const
-    {
-        return *(Field *) m_list[size_t(index)];
-    }
-
-    /**
-     * Field access by field name, non-const version
-     * @param fname             Field name
-     * @returns field reference
-     */
-    Field& operator [](const char *fname)
-    {
-        return *fieldByName(fname);
-    }
-
-    /**
-     * Field access by field name, const version
-     * @param fname             Field name
-     * @returns field reference
-     */
-    const Field& operator [](const char *fname) const
-    {
-        return *fieldByName(fname);
+        return *m_list[index];
     }
 
     /**
@@ -288,7 +218,7 @@ public:
      */
     Field& operator [](const String& fname)
     {
-        return *fieldByName(fname.c_str());
+        return *fieldByName(fname);
     }
 
     /**
@@ -302,34 +232,34 @@ public:
     }
 
     /**
-     * Sets user data
-     *
-     * User data is usually a pointer to some outside memory object,
-     * or an index (id) of some object. CFieldList doesn't maintain this pointer, just keeps it
-     * as a tag.
-     * @param data              User-defined data
-     */
-    void user_data(void *data)
-    {
-        m_userData = data;
-    }
-
-    /**
-     * Returns user data
-     */
-    void* user_data() const
-    {
-        return m_userData;
-    }
-
-    /**
      * Exports data into XML node
      *
      * @see setXmlMode() for details.
      * @param xml               XML node to store fields into
      */
     void toXML(xml::Node& xml) const;
-};
+
+private:
+    /**
+     * Field vector
+     */
+    typedef std::vector<Field*>                                 Vector;
+
+    /**
+     * Field name to field case-insensitive map
+     */
+    typedef std::map<String, Field *, CaseInsensitiveCompare>   Map;
+
+    Vector                  m_list;                     ///< The list of fields
+    std::shared_ptr<Map>    m_index;                    ///< The optional field index by name. 0L if field list isn't indexed.
+    bool                    m_compactXmlMode {false};   ///< The compact XML mode flag
+
+    /**
+     * Copy assignment
+     *
+     * @param other             Other field list
+     */
+    void assign(const FieldList& other);};
 }
 
 /**

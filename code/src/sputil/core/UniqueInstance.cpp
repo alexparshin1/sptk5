@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       UniqueInstance.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,11 +42,11 @@ using namespace std;
 using namespace sptk;
 
 // Constructor
-UniqueInstance::UniqueInstance(const String& instanceName)
-: m_instanceName(instanceName)
+UniqueInstance::UniqueInstance(String  instanceName)
+: m_instanceName(move(instanceName))
 {
 #ifndef _WIN32
-    std::string home = getenv("HOME");
+    String home = getenv("HOME");
     m_fileName = home + "/" + m_instanceName + ".lock";
     if (read_pid() == 0)
         write_pid();
@@ -67,16 +65,14 @@ UniqueInstance::~UniqueInstance()
 #ifndef _WIN32
         unlink(m_fileName.c_str());
 #else
-
         CloseHandle(m_mutex);
 #endif
-
     }
 }
 
 #ifndef _WIN32
 // Get the existing process id (if any) from the file
-int UniqueInstance::read_pid()
+int UniqueInstance::read_pid() const
 {
     // Try to read process id from the file
     int pid = 0;
@@ -108,16 +104,16 @@ int UniqueInstance::write_pid()
 
 const String& UniqueInstance::lockFileName() const
 {
-	return m_fileName;
+    return m_fileName;
 }
 #endif
 
-bool UniqueInstance::isUnique()
+bool UniqueInstance::isUnique() const
 {
     return m_lockCreated;
 }
 
-#ifdef USE_GTEST
+#if USE_GTEST
 
 #ifndef _WIN32
 TEST(SPTK_UniqueInstance, create)

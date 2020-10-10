@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       jwt_test.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Monday Feb 12 2017                                     ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin.                       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -30,7 +28,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdlib>
 #include <cstring>
 #include <cerrno>
 
@@ -74,7 +71,7 @@ static int ECDSA_SIG_set0(ECDSA_SIG *sig, BIGNUM *r, BIGNUM *s)
 
 namespace sptk {
 
-void JWT::sign_sha_hmac(Buffer& out, const char* str)
+void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 {
     const EVP_MD* algorithm;
 
@@ -102,11 +99,9 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str)
     out.bytes(len);
 }
 
-void JWT::verify_sha_hmac(const char* head, const char* sig)
+void JWT::verify_sha_hmac(const char* head, const char* sig) const
 {
     unsigned char res[EVP_MAX_MD_SIZE];
-    BIO* bmem = nullptr;
-    BIO* b64 = nullptr;
     unsigned int res_len;
     const EVP_MD* algorithm;
     int len;
@@ -128,11 +123,11 @@ void JWT::verify_sha_hmac(const char* head, const char* sig)
 
     bool matches = false;
 
-    b64 = BIO_new(BIO_f_base64());
+    auto* b64 = BIO_new(BIO_f_base64());
     if (b64 == nullptr)
         throw Exception("Can't allocate memory");
 
-    bmem = BIO_new(BIO_s_mem());
+    auto* bmem = BIO_new(BIO_s_mem());
     if (bmem == nullptr) {
         BIO_free(b64);
         throw Exception("Can't allocate memory");
@@ -167,7 +162,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig)
         throw Exception("Signature doesn't match");
 }
 
-static void SIGN_ERROR(int __err)
+[[noreturn]] static void SIGN_ERROR(int __err)
 {
     if ((__err) == EINVAL)
         throw Exception("Invalid value");
@@ -175,9 +170,9 @@ static void SIGN_ERROR(int __err)
         throw Exception("Can't allocate memory");
 }
 
-static const EVP_MD* signAlgorithm(const JWT::jwt_alg_t alg, int& type)
+static const EVP_MD* signAlgorithm(const JWT::Algorithm alg, int& type)
 {
-    const EVP_MD* algorithm {nullptr};
+    const EVP_MD* algorithm;
     switch (alg) {
         /* RSA */
         case JWT::JWT_ALG_RS256:
@@ -214,7 +209,7 @@ static const EVP_MD* signAlgorithm(const JWT::jwt_alg_t alg, int& type)
     return algorithm;
 }
 
-void JWT::sign_sha_pem(Buffer& out, const char* str)
+void JWT::sign_sha_pem(Buffer& out, const char* str) const
 {
     EVP_MD_CTX* mdctx = nullptr;
     ECDSA_SIG* ec_sig = nullptr;
@@ -330,7 +325,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str)
         throw Exception("Sign error: " + string(error));
 }
 
-static void VERIFY_ERROR(int __err)
+[[noreturn]] static void VERIFY_ERROR(int __err)
 {
     if ((__err) == EINVAL)
         throw Exception("Invalid value");
@@ -338,19 +333,11 @@ static void VERIFY_ERROR(int __err)
         throw Exception("Can't allocate memory");
 }
 
-void JWT::verify_sha_pem(const char* head, const char* sig_b64)
+static const EVP_MD* getAlgorithm(JWT::Algorithm alg, int& type)
 {
-    EVP_MD_CTX* mdctx = nullptr;
-    ECDSA_SIG* ec_sig = nullptr;
-    BIGNUM* ec_sig_r = nullptr;
-    BIGNUM* ec_sig_s = nullptr;
-    EVP_PKEY* pkey = nullptr;
     const EVP_MD* algorithm;
-    int type;
-    BIO* bufkey = nullptr;
-    int slen;
 
-    switch (this->alg) {
+    switch (alg) {
         /* RSA */
         case JWT::JWT_ALG_RS256:
             algorithm = EVP_sha256();
@@ -383,10 +370,23 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
             throw Exception("Invalid verify algorythm");
     }
 
+    return algorithm;
+}
+
+void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
+{
+    EVP_MD_CTX* mdctx = nullptr;
+    ECDSA_SIG* ec_sig = nullptr;
+    EVP_PKEY* pkey = nullptr;
+    int type;
+    BIO* bufkey = nullptr;
+
+    const auto* algorithm = getAlgorithm(this->alg, type);
+
     Buffer sig_buffer;
     jwt_b64_decode(sig_buffer, sig_b64);
     auto* sig_ptr = (unsigned char*) sig_buffer.data();
-    slen = (int) sig_buffer.bytes();
+    auto slen = (int) sig_buffer.bytes();
 
     string error;
     try {
@@ -423,14 +423,14 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
             bn_len = (degree + 7) / 8;
             if ((bn_len * 2) != (unsigned) slen) VERIFY_ERROR(EINVAL);
 
-            ec_sig_r = BN_bin2bn(sig_ptr, bn_len, nullptr);
-            ec_sig_s = BN_bin2bn(sig_ptr + bn_len, bn_len, nullptr);
+            auto* ec_sig_r = BN_bin2bn(sig_ptr, bn_len, nullptr);
+            auto* ec_sig_s = BN_bin2bn(sig_ptr + bn_len, bn_len, nullptr);
             if (ec_sig_r == nullptr || ec_sig_s == nullptr) VERIFY_ERROR(EINVAL);
 
             ECDSA_SIG_set0(ec_sig, ec_sig_r, ec_sig_s);
 
             slen = i2d_ECDSA_SIG(ec_sig, nullptr);
-            sig_buffer.checkSize(slen);
+            sig_buffer.checkSize((size_t)slen);
             sig_ptr = (unsigned char*) sig_buffer.data();
 
             p = sig_ptr;

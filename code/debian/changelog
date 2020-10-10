@@ -1,0 +1,5 @@
+sptk (5.2.19) stable; urgency=medium
+
+  * Initial release. (Closes: #000001)
+
+ -- Alexey Parshin <alexeyp@gmail.com>  Fri, 21 Apr 2017 09:48:24 +1000

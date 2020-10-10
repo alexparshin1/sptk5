@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.example.org/Test/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="Test" targetNamespace="http://www.example.org/Test/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://www.example.org/Test/">
+      <xsd:element name="Hello">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="action" type="xsd:string" />
+            <xsd:element name="first_name" type="xsd:string" />
+            <xsd:element name="last_name" type="xsd:string"></xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="HelloResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="date_of_birth" type="xsd:date" />
+            <xsd:element name="verified" type="xsd:dateTime"></xsd:element>
+            <xsd:element name="retired" type="xsd:boolean"></xsd:element>
+            <xsd:element name="hour_rate" type="xsd:double"></xsd:element>
+            <xsd:element name="vacation_days" type="xsd:int"></xsd:element>
+            <xsd:element name="height" type="xsd:float"></xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="Login">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="username" type="xsd:string"></xsd:element>
+            <xsd:element name="password" type="xsd:string"></xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="LoginResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="jwt" type="xsd:string"></xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="AccountBalance">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="account_number" type="xsd:string"></xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="AccountBalanceResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="account_balance" type="xsd:double"></xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="HelloRequest">
+    <wsdl:part element="tns:Hello" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="HelloResponse">
+    <wsdl:part element="tns:HelloResponse" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="LoginRequest">
+    <wsdl:part name="parameters" element="tns:Login"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="LoginResponse">
+    <wsdl:part name="parameters" element="tns:LoginResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="AccountBalanceRequest">
+    <wsdl:part name="parameters" element="tns:AccountBalance"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="AccountBalanceResponse">
+    <wsdl:part name="parameters" element="tns:AccountBalanceResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="Test">
+    <wsdl:operation name="Hello">
+      <wsdl:input message="tns:HelloRequest"/>
+      <wsdl:output message="tns:HelloResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="Login">
+      <wsdl:input message="tns:LoginRequest"></wsdl:input>
+      <wsdl:output message="tns:LoginResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AccountBalance">
+      <wsdl:input message="tns:AccountBalanceRequest"></wsdl:input>
+      <wsdl:output message="tns:AccountBalanceResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="TestSOAP" type="tns:Test">
+    <soap:binding style="document"
+      transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Hello">
+      <soap:operation
+        soapAction="http://www.example.org/Test/Hello" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Test">
+    <wsdl:port binding="tns:TestSOAP" name="TestSOAP">
+      <soap:address location="http://www.example.org/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

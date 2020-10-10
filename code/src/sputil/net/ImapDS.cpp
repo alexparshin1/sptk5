@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       ImapDS.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -50,17 +48,15 @@ bool ImapDS::open()
     if (total_messages != 0) {
         if (m_callback != nullptr)
             m_callback(total_messages, 0);
-        for (long msg_id = first_message; msg_id <= total_messages; msg_id++) {
+        for (long msg_id = first_message; msg_id <= total_messages; ++msg_id) {
             auto* df = new FieldList(false);
-
-            df->user_data((void*) (size_t) msg_id);
 
             if (m_fetchbody)
                 m_imap.cmd_fetch_message((int32_t) msg_id, *df);
             else m_imap.cmd_fetch_headers((int32_t) msg_id, *df);
 
             auto* fld = new Field("msg_id");
-            fld->view.width = 0;
+            fld->view().width = 0;
             fld->setInteger((int32_t) msg_id);
             df->push_back(fld);
 

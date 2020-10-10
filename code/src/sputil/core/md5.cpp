@@ -1,5 +1,5 @@
 /* MD5
- converted to C++ class by Frank Thilo (thilo@unix-ag.org)
+ converted to ++C class by Frank Thilo (thilo@unix-ag.org)
  for bzflag (http://www.bzflag.org)
 
    based on:
@@ -30,9 +30,9 @@ documentation and/or software.
 
 */
 
-/* interface header */
 #include <sptk5/md5.h>
-#include <cstring>
+#include <sptk5/StopWatch.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -145,9 +145,12 @@ void MD5::init()
 // decodes input (unsigned char) into output (uint4). Assumes len is a multiple of 4.
 void MD5::decode(uint4 output[], const uint1 input[], size_type len)
 {
-    for (unsigned int i = 0, j = 0; j < len; i++, j += 4)
+    size_t i = 0;
+    for (size_t j = 0; j < len; j += 4) {
         output[i] = ((uint4) input[j]) | (((uint4) input[j + 1]) << 8) |
                     (((uint4) input[j + 2]) << 16) | (((uint4) input[j + 3]) << 24);
+        ++i;
+    }
 }
 
 //////////////////////////////
@@ -156,11 +159,13 @@ void MD5::decode(uint4 output[], const uint1 input[], size_type len)
 // a multiple of 4.
 void MD5::encode(uint1 output[], const uint4 input[], size_type len)
 {
-    for (size_type i = 0, j = 0; j < len; i++, j += 4) {
+    size_type i = 0;
+    for (size_type j = 0; j < len; j += 4) {
         output[j] = input[i] & 0xff;
         output[j + 1] = (input[i] >> 8) & 0xff;
         output[j + 2] = (input[i] >> 16) & 0xff;
         output[j + 3] = (input[i] >> 24) & 0xff;
+        ++i;
     }
 }
 
@@ -269,7 +274,7 @@ void MD5::update(const unsigned char input[], size_type length)
 
     // Update number of bits
     if ((count[0] += (length << 3)) < (length << 3))
-        count[1]++;
+        ++count[1];
     count[1] += (length >> 29);
 
     // number of bytes we need to fill in buffer
@@ -285,7 +290,7 @@ void MD5::update(const unsigned char input[], size_type length)
 
         // transform chunks of blocksize (64 bytes)
         for (i = firstpart; i + blocksize <= length; i += blocksize)
-            transform((const uint1*) &input[i]);
+            transform(&input[i]);
 
         index = 0;
     } else
@@ -351,21 +356,21 @@ sptk::String MD5::hexdigest() const
         return "";
 
     char buf[34];
-    for (int i = 0; i < 16; i++)
-        snprintf(buf + i * 2, sizeof(buf) - i * 2 - 1, "%02x", digest[i]);
+    auto* ptr = buf;
+    auto* digestPtr = digest;
+    for (int i = 0; i < 16; ++i) {
+        auto high = *digestPtr >> 4;
+        auto low = *digestPtr & 0xF;
+        *ptr = char(high > 9? high - 10  + 'a': high + '0');
+        ++ptr;
+        *ptr = char(low > 9? low - 10 + 'a': low + '0');
+        ++ptr;
+        ++digestPtr;
+    }
     buf[32] = 0;
 
     return std::string(buf);
 }
-
-//////////////////////////////
-
-std::ostream& operator<<(std::ostream& out, MD5 md5)
-{
-    return out << md5.hexdigest();
-}
-
-//////////////////////////////
 
 String sptk::md5(const Buffer& data)
 {
@@ -384,12 +389,35 @@ String sptk::md5(const String& data)
 
 #if USE_GTEST
 
-static const char* testPhrase = "This is a test text to verify MD5 algorithm";
+static const String testPhrase("This is a test text to verify MD5 algorithm");
+
+static const String testSQL(
+        "SELECT * FROM schema1.employee "
+        "JOIN schema1.department ON employee.department_id = department.id "
+        "JOIN schema1.city ON employee.city_id = city_id "
+        "WHERE employee.id in (1,2,3,4) "
+        "AND employee.name LIKE 'John%' "
+        "AND department.name = 'Information Technologies' "
+        "LIMIT 1024");
 
 TEST(SPTK_MD5, md5)
 {
     String testMD5 = md5(Buffer(testPhrase));
     EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
+}
+
+TEST(SPTK_MD5, performance)
+{
+    StopWatch stopWatch;
+    size_t iterations = 200000;
+
+    stopWatch.start();
+    for (size_t i = 0; i < iterations; ++i) {
+        auto testMD5 = md5(Buffer(testSQL));
+    }
+    stopWatch.stop();
+
+    COUT("Computed " << iterations << " MD5s for " << fixed << setprecision(1) << stopWatch.seconds() << " seconds, " << iterations / stopWatch.seconds() << " per second" << endl)
 }
 
 #endif

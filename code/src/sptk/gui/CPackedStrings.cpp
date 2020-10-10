@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CPackedStrings.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -82,7 +80,7 @@ CPackedStrings::CPackedStrings(const Strings& strings)
 
 CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
 {
-    int cnt = fields.size();
+    auto cnt = (int) fields.size();
     int rcnt = cnt;
     if (keyField >= 0 && keyField < cnt) // if keyField is used - do not store it as string
         rcnt -= 1;
@@ -99,7 +97,7 @@ CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
     m_data = nullptr;
 
     int j = 0;
-    long keyValue = 0;
+    uint64_t keyValue = 0;
     Strings strings;
     {
         for (int i = 0; i < cnt; i++) {
@@ -172,7 +170,7 @@ CPackedStrings& CPackedStrings::operator=(const Strings& strings)
 
     flags = 0;
     height = 0;
-    m_data = (void*) (long) strings.argument();
+    m_data = (void*) (uint64_t) strings.argument();
 
     int sz = offsetsSpace + sizeof(uint16_t);
 

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DataSource.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -43,10 +41,10 @@ bool DataSource::save()
     return saveData();
 }
 
-void DataSource::rowToXML(xml::Node& node, bool compactXmlMode) const
+void DataSource::rowToXML(xml::Node& node, bool compactXmlMode)
 {
-    uint32_t cnt = fieldCount();
-    for (uint32_t i = 0; i < cnt; i++) {
+    auto cnt = fieldCount();
+    for (size_t i = 0; i < cnt; ++i) {
         const Field& field = operator[](i);
         field.toXML(node, compactXmlMode);
     }

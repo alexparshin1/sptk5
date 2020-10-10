@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SSLSocket.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,21 +33,29 @@
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
 // OpenSSL library initialization
 class CSSLLibraryLoader
 {
-    static std::mutex*  m_locks;
+#if OPENSSL_API_COMPAT >= 0x10100000L
+    static std::mutex*          m_locks;
+#endif
 
-    void load_library()
+    static CSSLLibraryLoader    m_loader;
+
+    static void load_library()
     {
-        SSL_library_init();
-        SSL_load_error_strings();
-        ERR_load_BIO_strings();
-        OpenSSL_add_all_algorithms();
-    }
+		OpenSSL_add_all_algorithms();
+		ERR_load_BIO_strings();
+		ERR_load_crypto_strings();
+		SSL_load_error_strings();
 
-    static void lock_callback(int mode, int type, char* /*file*/, int /*line*/)
+		SSL_library_init();
+	}
+
+#if OPENSSL_API_COMPAT >= 0x10100000L
+    static void lock_callback(int mode, int type, const char* /*file*/, int /*line*/)
     {
         if ((mode & CRYPTO_LOCK) == CRYPTO_LOCK)
             m_locks[type].lock();
@@ -63,7 +69,7 @@ class CSSLLibraryLoader
 #ifdef _WIN32
         ret = GetCurrentThreadId();
 #else
-        ret=(unsigned long)pthread_self();
+        ret = pthread_self();
 #endif
         return(ret);
     }
@@ -71,28 +77,38 @@ class CSSLLibraryLoader
     static void init_locks()
     {
         m_locks = new mutex[CRYPTO_num_locks()];
-        CRYPTO_set_id_callback(thread_id);
-        CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback);
+		CRYPTO_set_id_callback(thread_id);
+		CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback);
     }
 
     static void kill_locks()
     {
-        CRYPTO_set_locking_callback(NULL);
+		CRYPTO_set_locking_callback(NULL);
         delete [] m_locks;
     }
+#endif
 
 public:
 
     CSSLLibraryLoader() noexcept
     {
         load_library();
+#if OPENSSL_API_COMPAT >= 0x10100000L
         init_locks();
+#endif
     }
+
+    CSSLLibraryLoader(const CSSLLibraryLoader&) = delete;
+    CSSLLibraryLoader(CSSLLibraryLoader&&) noexcept = delete;
+    CSSLLibraryLoader& operator = (const CSSLLibraryLoader&) = delete;
+    CSSLLibraryLoader& operator = (CSSLLibraryLoader&&) noexcept = delete;
 
     ~CSSLLibraryLoader() noexcept
     {
-        CRYPTO_set_locking_callback(NULL);
-        CRYPTO_set_id_callback(NULL);
+#if OPENSSL_API_COMPAT >= 0x10100000L
+		CRYPTO_set_locking_callback(NULL);
+		CRYPTO_set_id_callback(NULL);
+#endif
 #if OPENSSL_VERSION_NUMBER > 0x1000114fL
 #if OPENSSL_VERSION_NUMBER > 0x20000000L
         SSL_COMP_free_compression_methods();
@@ -101,38 +117,42 @@ public:
         ERR_free_strings();
         EVP_cleanup();
         CRYPTO_cleanup_all_ex_data();
+#if OPENSSL_API_COMPAT >= 0x10100000L
         kill_locks();
+#endif
         ERR_free_strings();
         EVP_cleanup();
         CRYPTO_cleanup_all_ex_data();
     }
 };
 
-mutex* CSSLLibraryLoader::m_locks;
+#if OPENSSL_API_COMPAT >= 0x10100000L
+mutex*              CSSLLibraryLoader::m_locks;
+#endif
 
-static CSSLLibraryLoader loader;
+CSSLLibraryLoader   CSSLLibraryLoader::m_loader;
 
-void SSLSocket::throwSSLError(const String& function, int rc)
+void SSLSocket::throwSSLError(const String& function, int rc) const
 {
     int errorCode = SSL_get_error(m_ssl, rc);
     string error = getSSLError(function.c_str(), errorCode);
     throw Exception(error, __FILE__, __LINE__);
 }
 
-SSLSocket::SSLSocket()
-: m_ssl(nullptr)
+SSLSocket::SSLSocket(const String& cipherList)
+: m_cipherList(cipherList)
 {
 }
 
 SSLSocket::~SSLSocket()
 {
-    if (m_ssl != nullptr)
-        SSL_free(m_ssl);
+	if (m_ssl != nullptr)
+		SSL_free(m_ssl);
 }
 
 void SSLSocket::loadKeys(const SSLKeys& keys)
 {
-    if (socketFD() > 0)
+    if (fd() != INVALID_SOCKET)
         throw Exception("Can't set keys on opened socket");
     m_keys = keys;
 }
@@ -144,7 +164,7 @@ void SSLSocket::setSNIHostName(const String& sniHostName)
 
 void SSLSocket::initContextAndSocket()
 {
-    m_sslContext = CachedSSLContext::get(m_keys);
+    m_sslContext = CachedSSLContext::get(m_keys, m_cipherList);
 
     if (m_ssl != nullptr)
         SSL_free(m_ssl);
@@ -162,26 +182,45 @@ void SSLSocket::_open(const Host& _host, CSocketOpenMode openMode, bool _blockin
 {
     initContextAndSocket();
 
-    if (!_host.hostname().empty())
-        host(_host);
-    if (host().hostname().empty())
-        throw Exception("Please, define the host name", __FILE__, __LINE__);
-
-    sockaddr_in addr = {};
-    host().getAddress(addr);
-
-    _open(addr, openMode, _blockingMode, timeout);
+    TCPSocket::_open(_host, openMode, _blockingMode, timeout);
 }
 
 void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
-    DateTime started = DateTime::Now();
-    DateTime timeoutAt(started + timeout);
     TCPSocket::_open(address, openMode, _blockingMode, timeout);
 
     lock_guard<mutex> lock(*this);
 
-    SSL_set_fd(m_ssl, (int) socketFD());
+    openSocketFD(_blockingMode, timeout);
+}
+
+bool SSLSocket::tryConnect(const DateTime& timeoutAt)
+{
+    int rc = SSL_connect(m_ssl);
+    if (rc == 1)
+        return true; // connected
+    if (rc <= 0) {
+        chrono::milliseconds nextTimeout = chrono::duration_cast<chrono::milliseconds>(timeoutAt - DateTime("now"));
+        int errorCode = SSL_get_error(m_ssl, rc);
+        if (errorCode == SSL_ERROR_WANT_READ) {
+            if (!readyToRead(nextTimeout))
+                throw Exception("SSL handshake read timeout");
+            return false; // continue attempts
+        } else if (errorCode == SSL_ERROR_WANT_WRITE) {
+            if (!readyToWrite(nextTimeout))
+                throw Exception("SSL handshake write timeout");
+            return false; // continue attempts
+        }
+    }
+    throwSSLError("SSL_connect", rc);
+}
+
+void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& timeout)
+{
+    DateTime started = DateTime::Now();
+    DateTime timeoutAt(started + timeout);
+
+    SSL_set_fd(m_ssl, fd());
 
     if (timeout == chrono::milliseconds(0)) {
         int rc = SSL_connect(m_ssl);
@@ -193,25 +232,9 @@ void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
     }
 
     blockingMode(false);
-    while (true) {
-        int rc = SSL_connect(m_ssl);
-        if (rc == 1)
-            break;
-        if (rc <= 0) {
-            chrono::milliseconds nextTimeout = chrono::duration_cast<chrono::milliseconds>(timeoutAt - DateTime("now"));
-            int errorCode = SSL_get_error(m_ssl, rc);
-            if (errorCode == SSL_ERROR_WANT_READ) {
-                if (!readyToRead(nextTimeout))
-                    throw Exception("SSL handshake read timeout");
-                continue;
-            }
-            else if (errorCode == SSL_ERROR_WANT_WRITE) {
-                if (!readyToWrite(nextTimeout))
-                    throw Exception("SSL handshake write timeout");
-                continue;
-            }
-        }
-        throwSSLError("SSL_connect", rc);
+    while (!tryConnect(timeoutAt)) {
+        // Repeat operation until connected,
+        // or throws an exception
     }
     blockingMode(_blockingMode);
 }
@@ -222,21 +245,28 @@ void SSLSocket::close() noexcept
     TCPSocket::close();
 }
 
-void SSLSocket::attach(SOCKET socketHandle)
+void SSLSocket::attach(SOCKET socketHandle, bool accept)
 {
     lock_guard<mutex> lock(*this);
 
     initContextAndSocket();
 
-    int rc = 1;
-    if (socketFD() != socketHandle) {
-        TCPSocket::attach(socketHandle);
-        rc = SSL_set_fd(m_ssl, (int) socketHandle);
+    if (fd() != socketHandle) {
+        TCPSocket::attach(socketHandle, false);
+        int rc = SSL_set_fd(m_ssl, socketHandle);
+        if (rc <= 0) {
+            int32_t errorCode = SSL_get_error(m_ssl, rc);
+            string error = getSSLError("SSL_accept", errorCode);
+            throw ConnectionException(error);
+        }
     }
 
-    if (rc > 0)
-        rc = SSL_accept(m_ssl);
+    if (!accept) {
+        openSocketFD(false, seconds(10));
+        return;
+    }
 
+    int rc = SSL_accept(m_ssl);
     if (rc <= 0) {
         int32_t errorCode = SSL_get_error(m_ssl, rc);
         string error = getSSLError("SSL_accept", errorCode);
@@ -305,7 +335,6 @@ size_t SSLSocket::recv(void* buffer, size_t size)
         default:
             close();
             throwSSLError("SSL_read", rc);
-            break;
         }
     }
     return (size_t) rc;
@@ -336,3 +365,22 @@ size_t SSLSocket::send(const void* buffer, size_t len)
         this_thread::sleep_for(chrono::milliseconds(10));
     }
 }
+
+#if USE_GTEST
+
+TEST(SPTK_SSLSocket, connect)
+{
+    SSLKeys     keys(TEST_DIRECTORY "/keys/test.key", TEST_DIRECTORY "/keys/test.cert");
+    SSLSocket   sslSocket;
+
+    try {
+        sslSocket.loadKeys(keys); // Optional step - not required for Google connect
+        sslSocket.open(Host("www.google.com:443"));
+        sslSocket.close();
+    }
+    catch (const Exception& e) {
+        FAIL() << e.what();
+    }
+}
+
+#endif

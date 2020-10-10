@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TCPSocket.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,10 +39,9 @@ using namespace sptk;
 #endif
 
 TCPSocketReader::TCPSocketReader(BaseSocket& socket, size_t buffer_size)
-    : Buffer(buffer_size), m_socket(socket)
-{
-    m_readOffset = 0;
-}
+: Buffer(buffer_size),
+  m_socket(socket)
+{}
 
 void TCPSocketReader::open()
 {
@@ -60,8 +57,17 @@ void TCPSocketReader::close() noexcept
 		bytes(0);
 	}
 	catch (const Exception& e) {
-	    CERR(e.what() << endl);
+	    CERR(e.what() << endl)
 	}
+}
+
+void TCPSocketReader::handleReadFromSocketError(int error)
+{
+    if (error == EAGAIN) {
+        if (!m_socket.readyToRead(chrono::seconds(1)))
+            throw TimeoutException("Can't read from socket: timeout");
+    } else
+        throw SystemException("Can't read from socket");
 }
 
 int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
@@ -77,25 +83,21 @@ int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
 #else
             socklen_t flen = sizeof(sockaddr_in);
 #endif
-            receivedBytes = (int) recvfrom(m_socket.handle(), data(), capacity() - 2, 0, (sockaddr*) from, &flen);
+            receivedBytes = (int) recvfrom(m_socket.fd(), data(), (int) capacity() - 2, 0, (sockaddr*) from, &flen);
         } else
             receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
 
         if (receivedBytes == -1) {
             bytes(0);
             error = errno;
-            if (error == EAGAIN) {
-                if (!m_socket.readyToRead(chrono::seconds(1)))
-                    throw TimeoutException("Can't read from socket: timeout");
-            } else
-                throw SystemException("Can't read from socket");
-        }
-        bytes((size_t)receivedBytes);
+            handleReadFromSocketError(error);
+        } else
+            bytes((size_t)receivedBytes);
     } while (error == EAGAIN);
 
     data()[bytes()] = 0;
 
-    return bytes();
+    return (int32_t) bytes();
 }
 
 void TCPSocketReader::readMoreFromSocket(int availableBytes)
@@ -144,7 +146,7 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
             eol = true;
             bytesToRead = (int) len;
             if (delimiter == 0)
-                bytesToRead++;
+                ++bytesToRead;
             if (cr != nullptr)
                 *cr = 0;
         }
@@ -157,10 +159,7 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
         destination[bytesToRead] = 0;
 
     m_readOffset += uint32_t(bytesToRead);
-    if (eol) // Indicate, that we have a complete string
-        return -bytesToRead;
-
-    return bytesToRead;
+    return eol ? -bytesToRead : bytesToRead;
 }
 
 size_t TCPSocketReader::read(char* destination, size_t sz, char delimiter, bool read_line, sockaddr_in* from)
@@ -168,7 +167,7 @@ size_t TCPSocketReader::read(char* destination, size_t sz, char delimiter, bool 
     int total = 0;
     int eol = 0;
 
-    if (m_socket.handle() <= 0)
+    if (m_socket.fd() <= 0)
         throw Exception("Can't read from closed socket", __FILE__, __LINE__);
 
     while (eol == 0) {
@@ -202,7 +201,7 @@ size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
     size_t total = 0;
     int eol = 0;
 
-    if (m_socket.handle() <= 0)
+    if (m_socket.fd() <= 0)
         throw Exception("Can't read from closed socket", __FILE__, __LINE__);
 
     while (eol == 0) {
@@ -232,7 +231,8 @@ size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
 
 // Constructor
 TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-: BaseSocket(domain, type, protocol), m_reader(*this, 16384)
+: BaseSocket(domain, type, protocol),
+  m_reader(*this, 16384)
 {
 }
 
@@ -248,10 +248,15 @@ void TCPSocket::_open(const Host& _host, CSocketOpenMode openMode, bool _blockin
     if (host().hostname().empty())
         throw Exception("Please, define the host name", __FILE__, __LINE__);
 
-    sockaddr_in address = {};
-    host().getAddress(address);
+    if (proxy() != nullptr) {
+        SOCKET fd = proxy()->connect(host(), _blockingMode, timeout);
+        attach(fd, false);
+    } else {
+        sockaddr_in addr = {};
+        host().getAddress(addr);
 
-    _open(address, openMode, _blockingMode, timeout);
+        _open(addr, openMode, _blockingMode, timeout);
+    }
 }
 
 void TCPSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode,
@@ -273,8 +278,8 @@ void TCPSocket::close() noexcept
 void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
 {
     socklen_t len = sizeof(clientInfo);
-    clientSocketFD = ::accept(socketFD(), (struct sockaddr *) & clientInfo, &len);
-    if (clientSocketFD < 0)
+    clientSocketFD = ::accept(fd(), (struct sockaddr *) & clientInfo, &len);
+    if (clientSocketFD == INVALID_SOCKET)
         THROW_SOCKET_ERROR("Error on accept(). ");
 }
 
@@ -326,7 +331,12 @@ size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 size_t TCPSocket::read(String& buffer, size_t size, sockaddr_in* from)
 {
     buffer.resize(size);
-    size_t rc = m_reader.read((char*)buffer.c_str(), size, 0, false, from);
+    size_t rc = m_reader.read(&buffer[0], size, 0, false, from);
     buffer.resize(rc);
     return rc;
+}
+
+void TCPSocket::setProxy(shared_ptr<Proxy> proxy)
+{
+    m_proxy = move(proxy);
 }

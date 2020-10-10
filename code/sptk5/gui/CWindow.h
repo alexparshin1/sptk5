@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWindow.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,6 +27,11 @@
 #ifndef __CWINDOW_H__
 #define __CWINDOW_H__
 
+#ifdef _WIN32
+#include <WinSock2.h>
+#include <Windows.h>
+#endif
+
 #include <FL/Fl_Double_Window.H>
 #include <sptk5/gui/CLayoutManager.h>
 #include <sptk5/Strings.h>
@@ -47,7 +50,7 @@ namespace sptk {
  * Extended version of FLTK's standard Fl_Double_Window, with added
  * CLayoutManager capabilities
  */
-class CWindow : public Fl_Double_Window, public CLayoutManager, public CWindowShape
+class SP_EXPORT CWindow : public Fl_Double_Window, public CLayoutManager, public CWindowShape
 {
 public:
 

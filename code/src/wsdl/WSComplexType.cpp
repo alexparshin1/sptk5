@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSComplexType.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -50,26 +48,77 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
         *param = *elementOrAttribute;
 }
 
-void WSComplexType::addElement(xml::Element* parent) const
+void WSComplexType::addElement(xml::Element* parent, const char* name) const
 {
-    unload(new xml::Element(parent, m_name.c_str()));
+    if (m_exportable) {
+        const char* elementName = name == nullptr ? m_name.c_str() : name;
+        unload(new xml::Element(parent, elementName));
+    }
+}
+
+void WSComplexType::addElement(json::Element* parent) const
+{
+    if (m_exportable) {
+        if (isOptional() && isNull())
+            return;
+        json::Element* element;
+        if (parent->is(json::JDT_ARRAY))
+            element = parent->push_back();
+        else
+            element = parent->set(m_name);
+        unload(element);
+    }
 }
 
 String WSComplexType::toString(bool asJSON) const
 {
-    xml::Document   outputXML;
-    json::Document  outputJSON;
     Buffer          output;
 
-    auto element = new xml::Element(outputXML, "type");
-    unload(element);
-
     if (asJSON) {
-        outputXML.exportTo(outputJSON.root());
-        outputJSON.exportTo(output, false);
-    }
-    else
+        json::Document  outputJSON;
+        unload(&outputJSON.root());
+        outputJSON.exportTo(output);
+    } else {
+        xml::Document outputXML;
+        auto element = new xml::Element(outputXML, "type");
+        unload(element);
         outputXML.save(output, 2);
+    }
 
     return String(output.c_str(), output.bytes());
 }
+
+void WSComplexType::throwIfNull(const String& parentTypeName) const
+{
+    if (!m_loaded)
+        throw SOAPException("Element '" + m_name + "' is required in '" + parentTypeName + "'.");
+}
+
+WSComplexType::FieldNameIndex::FieldNameIndex(initializer_list<const char*> list)
+{
+    int id = 0;
+    for (const auto* item: list) {
+        emplace_back(item, strlen(item), id);
+        m_index.emplace(item, strlen(item), id);
+        ++id;
+    }
+}
+
+int WSComplexType::FieldNameIndex::indexOf(const String& name) const
+{
+    auto itor = m_index.find(name);
+    if (itor == m_index.end())
+        return -1;
+    return (int) itor->ident();
+}
+
+#if USE_GTEST
+
+TEST(SPTK_WSComplexType, FieldNameIndex)
+{
+    WSComplexType::FieldNameIndex fields = { "zero", "one", "two", "three" };
+    EXPECT_STREQ("zero,one,two,three", fields.join(",").c_str());
+    EXPECT_EQ(1, fields.indexOf("one"));
+}
+
+#endif

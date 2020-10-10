@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CListView.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,7 +29,6 @@
 
 #include <FL/Fl_Group.H>
 
-#include <sptk5/IntList.h>
 #include <sptk5/DataSource.h>
 #include <sptk5/CSmallPixmapIDs.h>
 
@@ -344,20 +341,12 @@ protected:
      * @brief Changes the default scrollbar width for the class
      * @param b int, new scrollbar width
      */
-
-    static void scrollbar_width(int b)
-    {
-        m_scrollbarWidth = b;
-    }
+	static void scrollbar_width(int b);
 
     /**
      * @brief Returns the default scrollbar width for the class
      */
-
-    static int scrollbar_width()
-    {
-        return m_scrollbarWidth;
-    }
+	static int scrollbar_width();
 
     /**
      * @brief Finds item with ID
@@ -712,7 +701,7 @@ public:
      * The universal data connector, selects row with user data
      * @param v const CVariant, user data value to find and select
      */
-    void data(const Variant v) override;
+    void data(const Variant& v) override;
 
     /**
      * Returns row pointer
@@ -1082,12 +1071,12 @@ public:
     /**
      * @brief Returns a selected rows ID list
      */
-    void getSelections(IntList& selection) const;
+    void getSelections(std::vector<uint64_t>& selection) const;
 
     /**
      * @brief Sets a selected rows ID list
      */
-    void setSelections(const IntList& selection);
+    void setSelections(const std::vector<uint64_t>& selection);
 
     /**
      * @brief Finds an item with the caption (a string in the first column).

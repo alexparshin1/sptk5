@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSTypeTranslator.cpp - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,19 +29,19 @@
 using namespace std;
 using namespace sptk;
 
-WSTypeTranslator sptk::wsTypeTranslator;
+const WSTypeTranslator sptk::wsTypeTranslator;
 
-WSTypeTranslator::WSTypeTranslator() noexcept
+const std::map<String, String> WSTypeTranslator::wsTypeToCxxTypeMap
 {
-    wsTypeToCxxTypeMap["xsd:boolean"]   = "sptk::WSBool";
-    wsTypeToCxxTypeMap["xsd:date"]      = "sptk::WSDate";
-    wsTypeToCxxTypeMap["xsd:dateTime"]  = "sptk::WSDateTime";
-    wsTypeToCxxTypeMap["xsd:double"]    = "sptk::WSDouble";
-    wsTypeToCxxTypeMap["xsd:float"]     = "sptk::WSDouble";
-    wsTypeToCxxTypeMap["xsd:int"]       = "sptk::WSInteger";
-    wsTypeToCxxTypeMap["xsd:string"]    = "sptk::WSString";
-    wsTypeToCxxTypeMap["xsd:time"]      = "sptk::WSTime";
-}
+    { "xsd:boolean",  "sptk::WSBool" },
+    { "xsd:date",     "sptk::WSDate" },
+    { "xsd:dateTime", "sptk::WSDateTime" },
+    { "xsd:double",   "sptk::WSDouble" },
+    { "xsd:float",    "sptk::WSDouble" },
+    { "xsd:int",      "sptk::WSInteger" },
+    { "xsd:string",   "sptk::WSString" },
+    { "xsd:time",     "sptk::WSTime" }
+};
 
 String WSTypeTranslator::toCxxType(const String& wsType, const String& defaultType) const
 {

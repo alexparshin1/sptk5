@@ -4,7 +4,7 @@
 ║                       themes_test.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,17 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
+#include <sptk5/cutils>
+#include <sptk5/cgui>
 
 #include <FL/Fl.H>
 #include <FL/Fl_XPM_Image.H>
 #include <FL/Fl_Group.H>
-
-#include <sptk5/cutils>
-#include <sptk5/cgui>
 
 using namespace std;
 using namespace sptk;
@@ -138,7 +133,7 @@ int main(int argc, char** argv)
         return Fl::run();
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

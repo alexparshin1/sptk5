@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CTreeControl.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -45,10 +43,9 @@ const Fl_Image* CTreeItem::folderOpened;
 const Fl_Image* CTreeItem::document;
 
 CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Image* closedImage, void* data)
-: CGroup("", 10, SP_ALIGN_TOP), m_labelWidth(0), m_labelHeight(0), m_body(nullptr)
+: CGroup("", 10, SP_ALIGN_TOP)
 {
     drawClipped(false);
-    m_selected = false;
     m_tree = dynamic_cast<CTreeControl*> (parent());
     auto* par = dynamic_cast<CTreeItem*> (parent());
     layoutSpacing(0);
@@ -103,7 +100,7 @@ CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Imag
     } else if (par)
         m_body = par->m_tree->m_itemCreator(this);
 
-    label(lbl);
+    CTreeItem::label(lbl);
 }
 
 bool CTreeItem::preferredSize(int& ww, int& hh)
@@ -846,4 +843,63 @@ void CTreeControl::save(xml::Node& groupNode) const
 
     if (!active())
         groupNode.setAttribute("enable", "N");
+}
+
+const Fl_Image* CTreeItem::getTreeOpened()
+{
+	return treeOpened;
+}
+
+/**
+ * Default image of the opened tree
+ */
+void CTreeItem::setTreeOpened(const Fl_Image* image)
+{
+	treeOpened = image;
+}
+
+/**
+ * Default image of the closed tree
+ */
+const Fl_Image* CTreeItem::getTreeClosed()
+{
+	return treeClosed;
+}
+
+/**
+ * Default image of the closed tree
+ */
+void CTreeItem::setTreeClosed(const Fl_Image* image)
+{
+	treeClosed = image;
+}
+
+const Fl_Image* CTreeItem::getFolderOpened()
+{
+	return folderOpened;
+}
+
+void CTreeItem::setFolderOpened(const Fl_Image* image)
+{
+	folderOpened = image;
+}
+
+const Fl_Image* CTreeItem::getFolderClosed()
+{
+	return folderClosed;
+}
+
+void CTreeItem::setFolderClosed(const Fl_Image* image)
+{
+	folderClosed = image;
+}
+
+const Fl_Image* CTreeItem::getDocument()
+{
+	return document;
+}
+
+void CTreeItem::setDocument(const Fl_Image* image)
+{
+	document = image;
 }

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CMenuBar.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -45,7 +43,7 @@ namespace sptk {
  * Extended version of FLTK's standard Fl_Menu_Bar.
  * Added the CLayoutClient interface and preferred size computations.
  */
-class CMenuBar : public Fl_Menu_Bar, public CLayoutClient {
+class SP_EXPORT CMenuBar : public Fl_Menu_Bar, public CLayoutClient {
 public:
 
     /**

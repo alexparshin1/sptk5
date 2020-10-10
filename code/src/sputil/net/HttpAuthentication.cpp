@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       HttpAuthentication.cpp - description                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday April 8 2018                                    ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,18 +30,12 @@
 using namespace std;
 using namespace sptk;
 
-sptk::HttpAuthentication::HttpAuthentication(const sptk::String& authenticationHeader)
-: m_authenticationHeader(authenticationHeader)
+HttpAuthentication::HttpAuthentication(String authenticationHeader)
+: m_authenticationHeader(std::move(authenticationHeader))
 {
 }
 
-sptk::HttpAuthentication::~HttpAuthentication()
-{
-    delete m_userData;
-    delete m_jwtData;
-}
-
-const sptk::json::Element& sptk::HttpAuthentication::getData()
+const json::Element& HttpAuthentication::getData()
 {
     parse();
 
@@ -58,11 +50,16 @@ const sptk::json::Element& sptk::HttpAuthentication::getData()
     }
 }
 
+String HttpAuthentication::getHeader() const
+{
+    return m_authenticationHeader;
+}
+
 void HttpAuthentication::parse()
 {
     if (m_type == UNDEFINED) {
         if (m_authenticationHeader.empty()) {
-            m_userData = new json::Document;
+            m_userData = make_shared<json::Document>();
             m_type = EMPTY;
         } else if (m_authenticationHeader.toLowerCase().startsWith("basic ")) {
             Buffer encoded(m_authenticationHeader.substr(6));
@@ -71,22 +68,19 @@ void HttpAuthentication::parse()
             Strings usernameAndPassword(decoded.c_str(), ":");
             if (usernameAndPassword.size() != 2)
                 throw Exception("Invalid or unsupported 'Authentication' header format");
-            auto* xuserData = new json::Document;
+            auto xuserData = make_shared<json::Document>();
             xuserData->root()["username"] = usernameAndPassword[0];
             xuserData->root()["password"] = usernameAndPassword[1];
             m_userData = xuserData;
             m_type = BASIC;
-        } else if (m_authenticationHeader.toLowerCase().startsWith("bearer ")) {
-            auto* xjwtData = new JWT;
-            try {
+        } else {
+            String authMethod = m_authenticationHeader.substr(0, 6);
+            if (authMethod.toLowerCase() == "bearer") {
+                auto xjwtData = make_shared<JWT>();
                 xjwtData->decode(m_authenticationHeader.substr(7).c_str());
+                m_jwtData = xjwtData;
+                m_type = BEARER;
             }
-            catch (const Exception&) {
-                delete xjwtData;
-                throw;
-            }
-            m_jwtData = xjwtData;
-            m_type = BEARER;
         }
     }
 }
@@ -96,3 +90,49 @@ HttpAuthentication::Type HttpAuthentication::type()
     parse();
     return m_type;
 }
+
+#if USE_GTEST
+
+static String makeJWT()
+{
+    String key256("012345678901234567890123456789XY");
+
+    JWT jwt;
+    jwt.set_alg(JWT::JWT_ALG_HS256, key256);
+
+    jwt["iat"] = 1594642696;
+    jwt["iss"] = "http://test.com";
+    jwt["exp"] = 1594642697;
+
+    auto* info = jwt.grants.root().add_object("info");
+    info->set("company", "Linotex");
+    info->set("city", "Melbourne");
+
+    stringstream originalToken;
+    jwt.encode(originalToken);
+
+    return originalToken.str();
+}
+
+TEST(SPTK_HttpAuthentication, basic)
+{
+    HttpAuthentication test("Basic QWxhZGRpbjpPcGVuU2VzYW1l");
+    const auto& auth = test.getData();
+    EXPECT_STREQ(auth["username"].getString().c_str(), "Aladdin");
+    EXPECT_STREQ(auth["password"].getString().c_str(), "OpenSesame");
+    EXPECT_EQ(test.type(), HttpAuthentication::BASIC);
+}
+
+TEST(SPTK_HttpAuthentication, bearer)
+{
+    auto token = makeJWT();
+    HttpAuthentication test("Bearer " + token);
+    const auto& auth = test.getData();
+
+    EXPECT_STREQ(auth["iat"].getString().c_str(), "1594642696");
+    EXPECT_STREQ(auth["iss"].getString().c_str(), "http://test.com");
+    EXPECT_STREQ(auth["exp"].getString().c_str(), "1594642697");
+    EXPECT_EQ(test.type(), HttpAuthentication::BEARER);
+}
+
+#endif

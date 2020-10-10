@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       JWT.h - description                                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Monday Feb 12 2017                                     ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin.                       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -41,11 +39,11 @@ namespace sptk {
 /**
  * Java Web Token encoding and decoding
  */
-class JWT
+class SP_EXPORT JWT
 {
 public:
     /** JWT algorithm types. */
-    enum jwt_alg_t {
+    enum Algorithm {
         JWT_ALG_NONE = 0,
         JWT_ALG_HS256,
         JWT_ALG_HS384,
@@ -61,20 +59,14 @@ public:
 
 #define JWT_ALG_INVAL JWT_ALG_TERM
 
-    jwt_alg_t       alg;        ///< Signature encryption algorithm
-    String          key;        ///< Signature encryption key
-    json::Document  grants;     ///< Token content
+    Algorithm       alg {JWT_ALG_NONE};     ///< Signature encryption algorithm
+    String          key;                    ///< Signature encryption key
+    json::Document  grants {true};   ///< Token content
 
     /**
      * Constructor
      */
     JWT();
-
-    /**
-     * Copy constructor
-     * @param other             Other JWT object
-     */
-    JWT(const JWT& other);
 
     /**
      * Get JSON element in JSON object element by name.
@@ -104,41 +96,41 @@ public:
      * Get signature encryption algorithm
      * @return signature encryption algorithm
      */
-    jwt_alg_t get_alg() const;
+    Algorithm get_alg() const;
 
     /**
      * Set signature encryption algorithm
      * @param _alg               Signature encryption algorithm
      * @param _key               Signature encryption key
      */
-    void set_alg(jwt_alg_t _alg, const String &_key);
+    void set_alg(Algorithm _alg, const String &_key);
 
     /**
      * Get signature encryption algorithm name
      * @param _alg               Signature encryption algorithm
      * @return
      */
-    static const char * alg_str(jwt_alg_t _alg);
+    static const char * alg_str(Algorithm _alg);
 
     /**
      * Get signature encryption algorithm from name
      * @param alg               Signature encryption algorithm name
      * @return
      */
-    static jwt_alg_t str_alg(const char *alg);
+    static Algorithm str_alg(const char *alg);
 
     /**
      * Sign token
      * @param token             Output token data
      * @param str               Data to sign
      */
-    void sign(Buffer& token, const char* str);
+    void sign(Buffer& token, const char* str) const;
 
     /**
      * Encode token to stream
      * @param out               Output stream
      */
-    void encode(std::ostream& out);
+    void encode(std::ostream& out) const;
 
     /**
      * Decode token
@@ -153,18 +145,6 @@ public:
      * @param pretty            If true, produce formatted output
      */
     void exportTo(std::ostream& output, bool pretty) const;
-
-private:
-
-    /**
-     * Find grant in token content
-     * @param js                Parent JSON element
-     * @param key               Grant name
-     * @return JSON element, or nullptr if not found
-     */
-    static const json::Element* find_grant(const json::Element *js, const String& key);
-
-public:
 
     /**
      * Find string grant value by name
@@ -212,35 +192,45 @@ public:
      * @param head              Token head
      * @param sig               Signature
      */
-    void verify(const Buffer& head, const Buffer& sig);
+    void verify(const Buffer& head, const Buffer& sig) const;
 
     /**
      * Sign using SHA algorithm to HMAC format
      * @param out               Output data
      * @param str               Input data
      */
-    void sign_sha_hmac(Buffer& out, const char* str);
+    void sign_sha_hmac(Buffer& out, const char* str) const;
 
     /**
      * Verify using SHA algorithm in HMAC format
      * @param head              Token head
      * @param sig               Signature
      */
-    void verify_sha_hmac(const char* head, const char* sig);
+    void verify_sha_hmac(const char* head, const char* sig) const;
 
     /**
      * Sign using SHA algorithm to PEM format
      * @param out               Output data
      * @param str               Input data
      */
-    void sign_sha_pem(Buffer& out, const char* str);
+    void sign_sha_pem(Buffer& out, const char* str) const;
 
     /**
      * Verify using SHA algorithm in PEM format
      * @param head              Token head
      * @param sig_b64           Signature
      */
-    void verify_sha_pem(const char* head, const char* sig_b64);
+    void verify_sha_pem(const char* head, const char* sig_b64) const;
+
+private:
+
+    /**
+     * Find grant in token content
+     * @param js                Parent JSON element
+     * @param key               Grant name
+     * @return JSON element, or nullptr if not found
+     */
+    static const json::Element* find_grant(const json::Element *js, const String& key);
 };
 
 /**

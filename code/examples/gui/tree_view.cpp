@@ -4,7 +4,7 @@
 ║                       tree_view.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,7 +31,6 @@
 #pragma hdrstop
 #endif
 
-#include <cstdio>
 #include <FL/Fl.H>
 
 #include <sptk5/cutils>
@@ -51,7 +50,7 @@ void changed_cb(Fl_Widget*, void*)
 {
     CTreeItem* item = tree->selected();
     if (item)
-        COUT(item->label().c_str() << endl);
+        COUT(item->label().c_str() << endl)
 }
 
 void add_item_cb(Fl_Widget*, void*)
@@ -88,19 +87,18 @@ void add_item_cb(Fl_Widget*, void*)
         int mode = int(typeCombo.data()) + int(modeCombo.data()) * 2;
         switch (mode) {
             case 3: // add folder to the root
-                node = tree->addItem(inp.data().asString(), CTreeItem::folderOpened, CTreeItem::folderClosed);
+                node = tree->addItem(inp.data().asString(), CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
                 break;
             case 4: // add item to the root
-                node = tree->addItem(inp.data().asString(), CTreeItem::document);
+                node = tree->addItem(inp.data().asString(), CTreeItem::getDocument());
                 break;
             case 5: // add folder to the current
                 if (selectedItem)
-                    node = selectedItem->addItem(inp.data().asString().c_str(), CTreeItem::folderOpened,
-                                                 CTreeItem::folderClosed);
+                    node = selectedItem->addItem(inp.data().asString().c_str(), CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
                 break;
             case 6: // add item to the current
                 if (selectedItem)
-                    node = selectedItem->addItem(inp.data().asString().c_str(), CTreeItem::document);
+                    node = selectedItem->addItem(inp.data().asString().c_str(), CTreeItem::getDocument());
                 break;
             default:
                 break;
@@ -133,46 +131,46 @@ int main(int argc, char* argv[])
 
         // Add some nodes with icons -- some open, some closed.
 
-        node = tree->addItem("aaa", CTreeItem::folderOpened, CTreeItem::folderClosed);
-        node->addItem("bbb 1", CTreeItem::folderOpened, CTreeItem::folderClosed);
+        node = tree->addItem("aaa", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
+        node->addItem("bbb 1", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
         node->open();
 
-        node = tree->addItem("bbb 2", CTreeItem::folderOpened, CTreeItem::folderClosed);
+        node = tree->addItem("bbb 2", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
         node->close();
-        node = node->addItem("ccc", CTreeItem::folderOpened, CTreeItem::folderClosed);
-        node->addItem("ddd", CTreeItem::document);
+        node = node->addItem("ccc", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
+        node->addItem("ddd", CTreeItem::getDocument());
 
-        node = tree->addItem("eee", CTreeItem::folderOpened, CTreeItem::folderClosed);
-        node->addItem("fff", CTreeItem::document);
+        node = tree->addItem("eee", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
+        node->addItem("fff", CTreeItem::getDocument());
 
-        node = tree->addItem("ggg", CTreeItem::folderOpened, CTreeItem::folderClosed);
-        node = node->addItem("hhh", CTreeItem::document);
+        node = tree->addItem("ggg", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
+        node = node->addItem("hhh", CTreeItem::getDocument());
         node->close();
-        node->addItem("iii", CTreeItem::document);
+        node->addItem("iii", CTreeItem::getDocument());
 
-        node = tree->addItem("jjj", CTreeItem::folderOpened, CTreeItem::folderClosed);
-        node->addItem("kkk", CTreeItem::document);
+        node = tree->addItem("jjj", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
+        node->addItem("kkk", CTreeItem::getDocument());
 
-        tree->addItem("lll", CTreeItem::document);
-        node = tree->addItem("mmm", CTreeItem::folderOpened, CTreeItem::folderClosed);
+        tree->addItem("lll", CTreeItem::getDocument());
+        node = tree->addItem("mmm", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
         node->close();
-        node = node->addItem("nnn", CTreeItem::folderOpened, CTreeItem::folderClosed);
-        node->addItem("ooo", CTreeItem::document);
+        node = node->addItem("nnn", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
+        node->addItem("ooo", CTreeItem::getDocument());
 
-        node = tree->addItem("ppp", CTreeItem::folderOpened, CTreeItem::folderClosed);
-        node->addItem("qqq", CTreeItem::document);
+        node = tree->addItem("ppp", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
+        node->addItem("qqq", CTreeItem::getDocument());
 
-        node = tree->addItem("rrr", CTreeItem::folderOpened, CTreeItem::folderClosed);
-        node = node->addItem("sss", CTreeItem::folderOpened, CTreeItem::folderClosed);
-        node->addItem("ttt", CTreeItem::folderOpened, CTreeItem::folderClosed);
+        node = tree->addItem("rrr", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
+        node = node->addItem("sss", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
+        node->addItem("ttt", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
 
-        node = tree->addItem("uuu", CTreeItem::folderOpened, CTreeItem::folderClosed);
-        node->addItem("vvv", CTreeItem::document);
+        node = tree->addItem("uuu", CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
+        node->addItem("vvv", CTreeItem::getDocument());
 
-        node = tree->addItem("www", CTreeItem::document);
-        node = node->addItem("xxx", CTreeItem::document);
-        node = node->addItem("yyy", CTreeItem::document);
-        node->addItem("zzz", CTreeItem::document);
+        node = tree->addItem("www", CTreeItem::getDocument());
+        node = node->addItem("xxx", CTreeItem::getDocument());
+        node = node->addItem("yyy", CTreeItem::getDocument());
+        node->addItem("zzz", CTreeItem::getDocument());
 
         tree->callback(changed_cb);
 
@@ -194,15 +192,14 @@ int main(int argc, char* argv[])
 
         window.show(argc, argv);
 
-        CThemes::set
-                ("OSX");
+        CThemes::set("OSX");
 
         Fl::run();
 
         return 0;
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

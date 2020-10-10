@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CColorSchema.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,6 +27,7 @@
 #ifndef __CCOLORSCHEMA_H__
 #define	__CCOLORSCHEMA_H__
 
+#include <sptk5/sptk.h>
 #include <FL/Fl.H>
 #include <map>
 
@@ -44,7 +43,7 @@ namespace sptk {
 /**
  * @brief Stores and restores the color schema
  */
-class CColorSchema {
+class SP_EXPORT CColorSchema {
     /**
      * Color map index
      */

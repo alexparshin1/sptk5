@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Variant.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -39,6 +37,10 @@ namespace sptk {
 
 namespace xml {
     class Node;
+}
+
+namespace json {
+    class Element;
 }
 
 /**
@@ -120,63 +122,23 @@ enum VariantType : uint32_t {
 /**
  * FLAG: External const memory buffer, memory isn't managed
  */
-#define VAR_EXTERNAL_BUFFER 16384
+constexpr int VAR_EXTERNAL_BUFFER = 16384;
 
 /**
  * FLAG: Data is NULL
  */
-#define VAR_NULL            32768
+constexpr int VAR_NULL = 32768;
 
 /**
  * MASK: All the known field types w/o flags
  */
-#define VAR_TYPES           16383
+constexpr int VAR_TYPES = 16383;
 
 class Field;
 
 class SP_EXPORT BaseVariant
 {
-    friend class Variant_SetMethods;
-
-protected:
-
-    /**
-     * Internal variant data storage
-     */
-    VariantData             m_data;
-
-    /**
-     * Data size
-     */
-    size_t                  m_dataSize {0};
-
-    /**
-     * Data type
-     */
-    uint16_t                m_dataType;
-
-    /**
-     * Releases allocated buffer (if any)
-     */
-    void releaseBuffers();
-
-    /**
-     * Sets the data type
-     */
-    void dataType(uint32_t dt);
-
-    /**
-     * @return True if current data type is external buffer
-     */
-    bool isExternalBuffer() const
-    {
-        return (m_dataType & VAR_EXTERNAL_BUFFER) != 0;
-    }
-
-    /**
-     * Clear null flag
-     */
-    void setNotNull();
+    friend class VariantAdaptors;
 
 public:
 
@@ -224,18 +186,6 @@ public:
      */
     static VariantType nameType(const char* name);
 
-protected:
-
-    /**
-     * Return money data as string
-     * @param printBuffer      Internal print buffer
-     * @param printBufferSize   Internal print buffer size
-     * @return
-     */
-    String getMoneyString(char* printBuffer, size_t printBufferSize) const;
-
-public:
-
     /**
      * Directly reads the internal data
      */
@@ -269,7 +219,7 @@ public:
     /**
      * Directly reads the internal data
      */
-    virtual const char* getBuffer() const;
+    virtual char* getBuffer() const;
 
     /**
      * Directly reads the internal data
@@ -295,21 +245,44 @@ public:
      * Directly reads the internal data
      */
     virtual uint32_t getImageNdx() const;
+
+protected:
+
+    VariantData             m_data;                 ///< Internal variant data storage
+    size_t                  m_dataSize {0};         ///< Data size
+    uint16_t                m_dataType {VAR_NONE};  ///< Data type
+
+    /**
+     * Releases allocated buffer (if any)
+     */
+    void releaseBuffers();
+
+    /**
+     * Sets the data type
+     */
+    void dataType(uint32_t dt);
+
+    /**
+     * @return True if current data type is external buffer
+     */
+    bool isExternalBuffer() const
+    {
+        return (m_dataType & VAR_EXTERNAL_BUFFER) != 0;
+    }
+
+    /**
+     * Return money data as string
+     * @return
+     */
+    virtual String moneyDataToString() const;
 };
 
 /**
- * Variant set methods collection
- * 13 methods
+ * Variant set methods and adaptors
+ * 22 methods
  */
-class SP_EXPORT Variant_SetMethods : public BaseVariant
+class SP_EXPORT VariantAdaptors : public BaseVariant
 {
-protected:
-
-    /**
-     * Copies data from another CVariant
-     */
-    void setData(const BaseVariant& C);
-
 public:
 
     /**
@@ -345,7 +318,12 @@ public:
     /**
      * Assignment method
      */
-    virtual void setBuffer(const void* value, size_t sz, VariantType type=VAR_BUFFER, bool externalBuffer=false);
+    virtual void setBuffer(const void* value, size_t sz, VariantType type=VAR_BUFFER);
+
+    /**
+     * Assignment method
+     */
+    virtual void setExternalBuffer(void* value, size_t sz, VariantType type=VAR_BUFFER);
 
     /**
      * Assignment method
@@ -372,24 +350,11 @@ public:
      *
      * Useful for the database operations.
      * Releases the memory allocated for string/text/blob types.
-     * Retains the data type. Sets the data to zero(s).
-     */
-    virtual void setNull() { setNull(VAR_NONE); }
-
-    /**
-     * Sets the NULL state
-     *
-     * Useful for the database operations.
-     * Releases the memory allocated for string/text/blob types.
      * Sets the data to zero(s).
      * @param vtype             Optional variant type to enforce
      */
-    virtual void setNull(VariantType vtype);
-};
+    virtual void setNull(VariantType vtype=VAR_NONE);
 
-class SP_EXPORT Variant_Adaptors : public Variant_SetMethods
-{
-public:
     /**
      * Conversion method
      *
@@ -448,6 +413,13 @@ public:
      * For incompatible types throws an exception.
      */
     const void *asImagePtr() const;
+
+protected:
+
+    /**
+     * Copies data from another CVariant
+     */
+    void setData(const BaseVariant& C);
 };
 
 /**
@@ -456,7 +428,7 @@ public:
  * Reasonably compact an fast class what allows storing data of different
  * types. It also allows conversions to and from supported types.
  */
-class SP_EXPORT Variant : public Variant_Adaptors
+class SP_EXPORT Variant : public VariantAdaptors
 {
 public:
 
@@ -473,17 +445,7 @@ public:
     /**
      * Constructor
      */
-    Variant(uint32_t value);
-
-    /**
-     * Constructor
-     */
     Variant(int64_t value, unsigned scale = 1);
-
-    /**
-     * Constructor
-     */
-    Variant(uint64_t value);
 
     /**
      * Constructor
@@ -503,7 +465,7 @@ public:
     /**
      * Constructor
      */
-    Variant(DateTime v);
+    Variant(const DateTime& v);
 
     /**
      * Constructor
@@ -522,13 +484,13 @@ public:
      * Copy constructor
      * @param other             Other object
      */
-    Variant(const Variant& other);
+    explicit Variant(const Variant& other);
 
     /**
      * Move constructor
      * @param other             Other object
      */
-    Variant(Variant&& other);
+    Variant(Variant&& other) noexcept;
 
     /**
      * Destructor
@@ -545,7 +507,7 @@ public:
      * Assignment operator
      * @param other             Other object
      */
-    Variant& operator =(Variant&& other);
+    Variant& operator =(Variant&& other) noexcept;
 
     /**
      * Assignment operator
@@ -614,11 +576,6 @@ public:
     /**
      * Conversion operator
      */
-    virtual explicit operator unsigned() const;
-
-    /**
-     * Conversion operator
-     */
     virtual explicit operator int64_t() const;
 
     /**
@@ -645,19 +602,13 @@ public:
      * Loads the data from XML node
      * @param node              XML node to load data from
      */
-    virtual void load(const xml::Node& node);
-
-    /**
-     * Loads the data from XML node
-     * @param node              XML node to load data from
-     */
     virtual void load(const xml::Node* node);
 
     /**
-     * Saves the data into XML node
-     * @param node              XML node to save data into
+     * Loads the data from JSON element
+     * @param node              JSON element to load data from
      */
-    void save(xml::Node& node) const;
+    virtual void load(const json::Element* node);
 
     /**
      * Saves the data into XML node
@@ -665,7 +616,18 @@ public:
      */
     void save(xml::Node* node) const;
 
+    /**
+     * Saves the data into JSON element
+     * @param node              JSON element to save data into
+     */
+    void save(json::Element* node) const;
 };
+
+/**
+ * Vector of Variant objects
+ */
+typedef std::vector<Variant>    VariantVector;
+
 /**
  * @}
  */

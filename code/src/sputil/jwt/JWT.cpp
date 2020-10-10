@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       JWT.cpp - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Monday Feb 12 2017                                     ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin.                       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -37,24 +35,15 @@ using namespace std;
 using namespace sptk;
 
 JWT::JWT()
-: alg(JWT_ALG_NONE), grants(true)
 {
 }
 
-JWT::JWT(const JWT& other)
-: alg(other.alg), key(other.key), grants(true)
-{
-    Buffer tempBuffer;
-    other.grants.exportTo(tempBuffer, false);
-    grants.load(tempBuffer.c_str());
-}
-
-JWT::jwt_alg_t JWT::get_alg() const
+JWT::Algorithm JWT::get_alg() const
 {
     return alg;
 }
 
-void JWT::set_alg(jwt_alg_t _alg, const String &_key)
+void JWT::set_alg(Algorithm _alg, const String &_key)
 {
     if (_alg == JWT_ALG_NONE) {
         if (!_key.empty())
@@ -68,7 +57,7 @@ void JWT::set_alg(jwt_alg_t _alg, const String &_key)
     alg = _alg;
 }
 
-const char * JWT::alg_str(jwt_alg_t _alg)
+const char * JWT::alg_str(Algorithm _alg)
 {
     switch (_alg) {
         case JWT_ALG_NONE:
@@ -96,39 +85,33 @@ const char * JWT::alg_str(jwt_alg_t _alg)
     }
 }
 
-JWT::jwt_alg_t JWT::str_alg(const char *alg)
+JWT::Algorithm JWT::str_alg(const char *alg)
 {
+    static const map<String, Algorithm> algorithmInfo = {
+        { "NONE",  JWT_ALG_NONE  },
+        { "HS256", JWT_ALG_HS256 },
+        { "HS384", JWT_ALG_HS384 },
+        { "HS512", JWT_ALG_HS512 },
+        { "RS256", JWT_ALG_RS256 },
+        { "RS384", JWT_ALG_RS384 },
+        { "RS512", JWT_ALG_RS512 },
+        { "ES256", JWT_ALG_ES256 },
+        { "ES384", JWT_ALG_ES384 },
+        { "ES512", JWT_ALG_ES512 }
+    };
+
     if (alg == nullptr)
         return JWT_ALG_INVAL;
 
-    String algUC = upperCase(alg);
-    if (algUC == "NONE")
-        return JWT_ALG_NONE;
-    else if (algUC == "HS256")
-        return JWT_ALG_HS256;
-    else if (algUC == "HS384")
-        return JWT_ALG_HS384;
-    else if (algUC == "HS512")
-        return JWT_ALG_HS512;
-    else if (algUC == "RS256")
-        return JWT_ALG_RS256;
-    else if (algUC == "RS384")
-        return JWT_ALG_RS384;
-    else if (algUC == "RS512")
-        return JWT_ALG_RS512;
-    else if (algUC == "ES256")
-        return JWT_ALG_ES256;
-    else if (algUC == "ES384")
-        return JWT_ALG_ES384;
-    else if (algUC == "ES512")
-        return JWT_ALG_ES512;
-
-    return JWT_ALG_INVAL;
+    auto itor = algorithmInfo.find(upperCase(alg));
+    if (itor == algorithmInfo.end())
+        return JWT_ALG_INVAL;
+    return itor->second;
 }
 
 const json::Element* JWT::find_grant(const json::Element *js, const String& key)
 {
-    if (js->isObject()) {
+    if (js->is(json::JDT_OBJECT)) {
         auto* element = js->find(key);
         return element;
     }
@@ -140,7 +123,7 @@ String JWT::get_js_string(const json::Element *js, const String& key, bool* foun
     if (found)
         *found = false;
     const json::Element *element = find_grant(js, key);
-    if (element != nullptr && element->isString()) {
+    if (element != nullptr && element->is(json::JDT_STRING)) {
         if (found)
             *found = true;
         return element->getString();
@@ -153,7 +136,7 @@ long JWT::get_js_int(const json::Element *js, const String& key, bool* found)
     if (found)
         *found = false;
     const json::Element *element = find_grant(js, key);
-    if (element != nullptr && element->isNumber()) {
+    if (element != nullptr && element->is(json::JDT_NUMBER)) {
         if (found)
             *found = true;
         return (long) element->getNumber();
@@ -166,7 +149,7 @@ bool JWT::get_js_bool(const json::Element *js, const String& key, bool* found)
     if (found)
         *found = false;
     const json::Element *element = find_grant(js, key);
-    if (element != nullptr && element->isBoolean()) {
+    if (element != nullptr && element->is(json::JDT_BOOLEAN)) {
         if (found)
             *found = true;
         return element->getBoolean();
@@ -218,7 +201,7 @@ void JWT::write_body(std::ostream& output, bool pretty) const
     grants.exportTo(output, pretty);
 }
 
-void JWT::sign(Buffer& out, const char* str)
+void JWT::sign(Buffer& out, const char* str) const
 {
     switch (alg) {
         /* HMAC */
@@ -246,7 +229,7 @@ void JWT::sign(Buffer& out, const char* str)
     }
 }
 
-void JWT::encode(ostream& out)
+void JWT::encode(ostream& out) const
 {
     /* First the header. */
     stringstream header;
@@ -306,7 +289,7 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
     Buffer newData_buffer(len + 4);
     newData = newData_buffer.data();
 
-    for (i = 0; i < len; i++) {
+    for (i = 0; i < len; ++i) {
         switch (src[i]) {
             case '-':
                 newData[i] = '+';
@@ -320,8 +303,10 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
     }
     z = 4 - (i % 4);
     if (z < 4) {
-        while (z--)
-            newData[i++] = '=';
+        while (--z) {
+            newData[i] = '=';
+            ++i;
+        }
     }
     newData[i] = '\0';
 
@@ -341,21 +326,24 @@ void sptk::jwt_base64uri_encode(Buffer& buffer)
 {
     char* str = buffer.data();
     size_t len = strlen(str);
-    size_t i;
-    size_t t;
+    size_t t = 0;
 
-    for (i = t = 0; i < len; i++) {
+    for (size_t i = 0; i < len; ++i) {
         switch (str[i]) {
             case '+':
-                str[t++] = '-';
+                str[t] = '-';
+                ++t;
                 break;
             case '/':
-                str[t++] = '_';
+                str[t] = '_';
+                ++t;
                 break;
             case '=':
                 break;
             default:
-                str[t++] = str[i];
+                str[t] = str[i];
+                ++t;
+                break;
         }
     }
 
@@ -363,7 +351,7 @@ void sptk::jwt_base64uri_encode(Buffer& buffer)
     buffer.bytes(t);
 }
 
-void JWT::verify(const Buffer& head, const Buffer& sig)
+void JWT::verify(const Buffer& head, const Buffer& sig) const
 {
     switch (alg) {
         /* HMAC */
@@ -400,7 +388,7 @@ static void jwt_verify_head(JWT *jwt, const Buffer& head)
 {
     json::Document jsdoc;
     jwt_b64_decode_json(jsdoc, head);
-    json::Element* js = &jsdoc.root();
+    const json::Element* js = &jsdoc.root();
 
     String val = JWT::get_js_string(js, "alg");
     jwt->alg = JWT::str_alg(val.c_str());
@@ -432,7 +420,7 @@ void JWT::decode(const char *token, const String& _key)
     } parts[3] = {};
 
     size_t index = 0;
-    for (const char* data = token; data != nullptr && index < 3; index++) {
+    for (const char* data = token; data != nullptr && index < 3; ++index) {
         parts[index].data = data;
         const char* end = strchr(data, '.');
         if (end == nullptr) {
@@ -444,7 +432,7 @@ void JWT::decode(const char *token, const String& _key)
     }
 
     if (parts[1].data == nullptr)
-        throw Exception("Invalid number of token parts");
+        throw Exception("Invalid JWT data");
 
     Buffer head(parts[0].data, parts[0].length);
     Buffer body(parts[1].data, parts[1].length);
@@ -515,15 +503,13 @@ TEST(SPTK_JWT, decode)
     const char token[] =
             "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
             "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
-    JWT::jwt_alg_t alg;
+    JWT::Algorithm alg;
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
 
     EXPECT_NO_THROW(jwt->decode(token)) << "Failed jwt_decode()";
     alg = jwt->get_alg();
     EXPECT_EQ(JWT::JWT_ALG_NONE, alg) << "Failed jwt_get_alg()";
-
-    delete jwt;
 }
 
 
@@ -533,10 +519,8 @@ TEST(SPTK_JWT, decode_invalid_final_dot)
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                          "3ViIjoidXNlcjAifQ";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token)) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -546,10 +530,8 @@ TEST(SPTK_JWT, decode_invalid_alg)
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                          "3ViIjoidXNlcjAifQ.";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -559,10 +541,8 @@ TEST(SPTK_JWT, decode_invalid_typ)
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                          "3ViIjoidXNlcjAifQ.";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -573,10 +553,8 @@ TEST(SPTK_JWT, decode_invalid_head)
             "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
             "3ViIjoidXNlcjAifQ.";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -587,10 +565,8 @@ TEST(SPTK_JWT, decode_alg_none_with_key)
             "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
             "3ViIjoidXNlcjAifQ.";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token)) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -601,10 +577,8 @@ TEST(SPTK_JWT, decode_invalid_body)
             "eyJpc3MiOiJmaWxlcy5jeBocmUuY29tIiwic"
             "3ViIjoidXNlcjAifQ.";
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -616,10 +590,8 @@ TEST(SPTK_JWT, decode_hs256)
             "Q.dLFbrHVViu1e3VD1yeCd9aaLNed-bfXhSsF0Gh56fBg";
     String key256("012345678901234567890123456789XY");
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token, key256)) << "Failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -635,10 +607,8 @@ TEST(SPTK_JWT, decode_hs384)
             "aaaabbbbccccddddeeeeffffg"
             "ggghhhhiiiijjjjkkkkllll");
 
-    auto* jwt = new JWT;
+    auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token, key384)) << "Failed jwt_decode()";
-
-    delete jwt;
 }
 
 
@@ -653,10 +623,14 @@ TEST(SPTK_JWT, decode_hs512)
             "012345678901234567890123456789XY"
             "012345678901234567890123456789XY");
 
-    auto* jwt = new JWT;
-    EXPECT_NO_THROW(jwt->decode(token, key512)) << "Failed jwt_decode()";
+    auto jwt = make_shared<JWT>();
 
-    delete jwt;
+    try {
+        jwt->decode(token, key512);
+    }
+    catch (const Exception& e) {
+        FAIL() << e.what();
+    }
 }
 
 TEST(SPTK_JWT, encode_hs256_decode)
@@ -670,7 +644,7 @@ TEST(SPTK_JWT, encode_hs256_decode)
     jwt["iss"] = "http://test.com";
     jwt["exp"] = (int) time(nullptr) + 86400;
 
-    auto* info = jwt.grants.root().set_object("info");
+    auto* info = jwt.grants.root().add_object("info");
     info->set("company", "Linotex");
     info->set("city", "Melbourne");
 
@@ -686,16 +660,7 @@ TEST(SPTK_JWT, encode_hs256_decode)
     stringstream copiedJSON;
     jwt2.exportTo(copiedJSON, false);
 
-    json::Document original;
-    json::Document copied;
-    Buffer originalBuffer;
-    Buffer copiedBuffer;
-
-    original.load(originalJSON.str());
-    original.exportTo(originalBuffer);
-    copied.load(copiedJSON.str());
-    copied.exportTo(copiedBuffer);
-    EXPECT_STREQ(originalBuffer.c_str(), copiedBuffer.c_str()) << "Decoded JSON payload doesn't match the original";
+    EXPECT_STREQ(originalJSON.str().c_str(), copiedJSON.str().c_str()) << "Decoded JSON payload doesn't match the original";
 }
 
 #endif

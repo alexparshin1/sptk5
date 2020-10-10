@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       ReadBuffer.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday Jan 9 2018                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -45,7 +43,7 @@ bool ReadBuffer::read(void* data, size_t length)
 bool ReadBuffer::read(String& data, size_t length)
 {
     data.resize(length);
-    return read((char*)data.c_str(), length);
+    return read(&data[0], length);
 }
 
 bool ReadBuffer::read(Buffer& data, size_t length)
@@ -60,19 +58,19 @@ TEST(SPTK_ReadBuffer, read)
 {
     ReadBuffer  buffer;
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; ++i)
         buffer.append(i);
 
     String test1(":test1:");
     buffer.append(test1);
 
-    for (int i = 3; i < 5; i++)
+    for (int i = 3; i < 5; ++i)
         buffer.append(i);
 
     EXPECT_EQ(size_t(27), buffer.available());
     EXPECT_EQ(size_t(0), buffer.readOffset());
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; ++i) {
         int x;
         buffer.read(x);
         EXPECT_EQ(i, x);

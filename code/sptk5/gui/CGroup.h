@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CGroup.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -47,15 +45,23 @@ namespace sptk {
  * Extended version of FLTK Fl_Group that can be a layout manager and layout client
  * at the same time.
  */
-class CGroup : public Fl_Group, public CLayoutManager
+class SP_EXPORT CGroup : public Fl_Group, public CLayoutManager
 {
     /**
-     * Draw the contens of the group clipped inside the group
+     * Draw the contents of the group clipped inside the group
      */
     bool m_drawClipped;
 public:
+
+    /**
+     * @returns true if contents of the group is drawn clipped inside the group
+     */
     bool drawClipped() const;
 
+    /**
+     * Set that contents of the group is drawn clipped or not inside the group
+     * @param drawClipped        True if contents of the group is drawn clipped inside the group
+     */
     void drawClipped(bool drawClipped);
 
 protected:

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Buffer.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,110 +26,36 @@
 
 #include <sptk5/Buffer.h>
 #include <sptk5/SystemException.h>
-#include <sptk5/filedefs.h>
+#include <sys/stat.h>
 #include <iomanip>
 
 using namespace std;
 using namespace sptk;
 
 Buffer::Buffer(size_t sz)
-: m_storage(sz + 1)
+: BufferStorage(sz)
 {
-    m_buffer = &*m_storage.begin();
-    m_buffer[sz] = 0;
 }
 
 Buffer::Buffer(const void* data, size_t sz)
-: m_storage(sz + 1)
+: BufferStorage(data, sz)
 {
-    m_buffer = &*m_storage.begin();
-
-    if (data != nullptr)
-    {
-        memcpy(m_buffer, data, sz);
-        m_bytes = sz;
-        m_buffer[sz] = 0;
-    }
-    else
-        m_buffer[0] = 0;
 }
 
 Buffer::Buffer(const String& str)
-: m_storage(str.length() + 1)
+: BufferStorage(str.c_str(), str.length())
 {
-    m_buffer = &*m_storage.begin();
-    auto sz = str.length();
-
-    if (!str.empty()) {
-        memcpy(m_buffer, str.c_str(), sz);
-        m_bytes = sz;
-    }
-    m_buffer[sz] = 0;
 }
 
 Buffer::Buffer(const Buffer& other)
-: m_storage(other.m_storage), m_bytes(other.m_bytes)
+: BufferStorage(other.data(), other.length())
 {
-    m_buffer = &*m_storage.begin();
 }
 
 Buffer::Buffer(Buffer&& other) noexcept
-: m_storage(move(other.m_storage)), m_bytes(other.m_bytes)
 {
-    m_buffer = &*m_storage.begin();
-
-	other.m_storage.resize(1);
-	other.m_storage[0] = 0;
-	other.m_buffer = &*other.m_storage.begin();
-	other.m_bytes = 0;
-}
-
-void Buffer::adjustSize(size_t sz)
-{
-    m_storage.resize(sz + 1);
-    m_buffer = &*m_storage.begin();
-    m_buffer[sz] = 0;
-}
-
-void Buffer::set(const char* data, size_t sz)
-{
-    checkSize(sz);
-    memcpy(m_buffer, data, sz);
-    m_bytes = sz;
-}
-
-void Buffer::append(char ch)
-{
-    checkSize(m_bytes + 1);
-    m_buffer[m_bytes] = ch;
-    m_bytes++;
-}
-
-void Buffer::append(const char* data, size_t sz)
-{
-    if (sz == 0)
-        sz = (size_t) strlen(data);
-
-    checkSize(m_bytes + sz + 1);
-    memcpy(m_buffer + m_bytes, data, sz);
-    m_bytes += sz;
-    m_buffer[m_bytes] = 0;
-}
-
-void Buffer::fill(char c, size_t count)
-{
-    checkSize(count + 1);
-    memset(m_buffer, c, count);
-    m_bytes = count;
-    m_buffer[m_bytes] = 0;
-}
-
-void Buffer::reset(size_t sz)
-{
-    checkSize(sz + 1);
-    m_buffer = &*m_storage.begin();
-    m_buffer[0] = 0;
-    m_bytes = 0;
+    init(other.data(), other.capacity(), other.bytes());
+    other.init(nullptr, 0, 0);
 }
 
 void Buffer::loadFromFile(const String& fileName)
@@ -150,8 +74,7 @@ void Buffer::loadFromFile(const String& fileName)
     auto size = (size_t) st.st_size;
 
     reset(size + 1);
-    m_buffer[size] = 0;
-    m_bytes = fread(m_buffer, 1, size, f);
+    bytes(fread(data(), 1, size, f));
     fclose(f);
 }
 
@@ -162,17 +85,20 @@ void Buffer::saveToFile(const String& fileName) const
     if (f == nullptr)
         throw SystemException("Can't open file " + fileName + " for writing");
 
-    fwrite(m_buffer, bytes(), 1, f);
+    fwrite(data(), bytes(), 1, f);
     fclose(f);
 }
 
 Buffer& Buffer::operator = (Buffer&& other) DOESNT_THROW
 {
-    m_storage = move(other.m_storage);
-    m_buffer = &m_storage[0];
+    if (this == &other)
+        return *this;
 
-    m_bytes = other.m_bytes;
-    other.m_bytes = 0;
+    if (data() != nullptr)
+        deallocate();
+
+    init(other.data(), other.capacity(), other.bytes());
+    other.init(nullptr, 0, 0);
 
     return *this;
 }
@@ -182,47 +108,37 @@ Buffer& Buffer::operator = (const Buffer& other)
     if (&other == this)
         return *this;
 
-    m_storage.assign(other.m_storage.begin(), other.m_storage.end());
-    m_buffer = &m_storage[0];
-    m_bytes = other.m_bytes;
+    set(other.data(), other.length());
 
     return *this;
 }
 
-Buffer& Buffer::operator = (const String& str)
+Buffer& Buffer::operator = (const String& other)
 {
-    auto sz = (size_t) str.length();
-    checkSize(sz);
+    set(other.c_str(), other.length());
 
-    if (sz != 0)
-        memcpy(m_buffer, str.c_str(), sz + 1);
-
-    m_bytes = sz;
     return *this;
 }
 
 Buffer& Buffer::operator = (const char* str)
 {
-    auto sz = (size_t) strlen(str);
-    checkSize(sz + 1);
+    set(str, strlen(str));
 
-    if (sz != 0)
-        memcpy(m_buffer, str, sz + 1);
-
-    m_bytes = sz;
     return *this;
 }
 
-void Buffer::erase(size_t offset, size_t length)
+bool Buffer::operator==(const Buffer& other) const
 {
-    if (offset >= m_bytes || length == 0)
-        return; // Nothing to do
-    if (offset + length > m_bytes)
-        length = m_bytes - offset;
-    if (length > 0)
-        memmove(m_buffer + offset, m_buffer + offset + length, length);
-    m_bytes -= length;
-    m_buffer[m_bytes] = 0;
+    if (bytes() != other.bytes())
+        return false;
+    return memcmp(data(), other.data(), bytes()) == 0;
+}
+
+bool Buffer::operator!=(const Buffer& other) const
+{
+    if (bytes() != other.bytes())
+        return true;
+    return memcmp(data(), other.data(), bytes()) != 0;
 }
 
 ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
@@ -237,7 +153,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 
         size_t printed = 0;
         size_t rowOffset = offset;
-        for (; rowOffset < buffer.bytes() && printed < 16; rowOffset++, printed++) {
+        for (; rowOffset < buffer.bytes() && printed < 16; ++rowOffset, ++printed) {
             if (printed == 8)
                 stream << " ";
             unsigned printChar = (uint8_t) buffer[rowOffset];
@@ -246,14 +162,14 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 
         while (printed < 16) {
             stream << "   ";
-            printed++;
+            ++printed;
         }
 
         stream << " ";
 
         printed = 0;
         rowOffset = offset;
-        for (; rowOffset < buffer.bytes() && printed < 16; rowOffset++, printed++) {
+        for (; rowOffset < buffer.bytes() && printed < 16; ++rowOffset, ++printed) {
             if (printed == 8)
                 stream << " ";
             auto testChar = (uint8_t) buffer[rowOffset];
@@ -275,31 +191,66 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 
 #if USE_GTEST
 
-static const char* testPhrase = "This is a test";
-static const char* tempFileName = "./gtest_sptk5_buffer.tmp";
+static const String testPhrase("This is a test");
+static const String tempFileName("./gtest_sptk5_buffer.tmp");
 
 TEST(SPTK_Buffer, create)
 {
     Buffer  buffer1(testPhrase);
-    EXPECT_STREQ(testPhrase, buffer1.c_str());
-    EXPECT_EQ(strlen(testPhrase), buffer1.bytes());
-    EXPECT_TRUE(strlen(testPhrase) < buffer1.capacity());
+    EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer1.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer1.capacity());
 }
 
-Buffer* ptr;
+TEST(SPTK_Buffer, copyCtor)
+{
+    auto buffer1 = make_shared<Buffer>(testPhrase);
+    Buffer  buffer2(*buffer1);
+    buffer1.reset();
+
+    EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer2.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer2.capacity());
+}
+
+TEST(SPTK_Buffer, move)
+{
+    Buffer  buffer1(testPhrase);
+    Buffer  buffer2(move(buffer1));
+    buffer1.reset();
+
+    EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer2.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer2.capacity());
+
+    buffer1 = "Test 1";
+    EXPECT_STREQ("Test 1", buffer1.c_str());
+
+    buffer2 = testPhrase;
+    buffer1 = move(buffer2);
+
+    EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer1.bytes());
+    EXPECT_TRUE(buffer2.empty());
+    EXPECT_TRUE(buffer2.bytes() == 0);
+}
 
 TEST(SPTK_Buffer, assign)
 {
     Buffer  buffer1(testPhrase);
-    ptr = &buffer1;
-
     Buffer  buffer2;
 
     buffer2 = buffer1;
 
-    EXPECT_STREQ(testPhrase, buffer2.c_str());
-    EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
-    EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
+    EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer2.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer2.capacity());
+
+    buffer1 = "Test 1";
+    EXPECT_STREQ("Test 1", buffer1.c_str());
+
+    buffer1 = String("Test 2");
+    EXPECT_STREQ("Test 2", buffer1.c_str());
 }
 
 TEST(SPTK_Buffer, append)
@@ -308,9 +259,9 @@ TEST(SPTK_Buffer, append)
 
     buffer1.append(testPhrase);
 
-    EXPECT_STREQ(testPhrase, buffer1.c_str());
-    EXPECT_EQ(strlen(testPhrase), buffer1.bytes());
-    EXPECT_TRUE(strlen(testPhrase) < buffer1.capacity());
+    EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer1.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer1.capacity());
 }
 
 TEST(SPTK_Buffer, saveLoadFile)
@@ -321,9 +272,9 @@ TEST(SPTK_Buffer, saveLoadFile)
     buffer1.saveToFile(tempFileName);
     buffer2.loadFromFile(tempFileName);
 
-    EXPECT_STREQ(testPhrase, buffer2.c_str());
-    EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
-    EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
+    EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
+    EXPECT_EQ(testPhrase.length(), buffer2.bytes());
+    EXPECT_TRUE(testPhrase.length() < buffer2.capacity());
 }
 
 TEST(SPTK_Buffer, fill)
@@ -354,6 +305,36 @@ TEST(SPTK_Buffer, erase)
     buffer1.erase(4, 5);
 
     EXPECT_STREQ("This test", buffer1.c_str());
+}
+
+TEST(SPTK_Buffer, compare)
+{
+    Buffer  buffer1(testPhrase);
+    Buffer  buffer2(testPhrase);
+    Buffer  buffer3("something else");
+
+    EXPECT_TRUE(buffer1 == buffer2);
+    EXPECT_FALSE(buffer1 != buffer2);
+
+    EXPECT_FALSE(buffer1 == buffer3);
+    EXPECT_TRUE(buffer1 != buffer3);
+}
+
+TEST(SPTK_Buffer, hexDump)
+{
+    const Strings expected {
+        "00000000  54 68 69 73 20 69 73 20  61 20 74 65 73 74 54 68  This is  a testTh",
+        "00000010  69 73 20 69 73 20 61 20  74 65 73 74              is is a  test"
+    };
+
+    Buffer  buffer(testPhrase);
+    buffer.append(testPhrase);
+
+    stringstream stream;
+    stream << buffer;
+
+    Strings output(stream.str(), "\n\r", Strings::SM_ANYCHAR);
+    EXPECT_TRUE(output == expected);
 }
 
 #endif

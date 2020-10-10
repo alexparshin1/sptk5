@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSMessageIndex.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Monday September 17 2018                               ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,7 +34,7 @@ WSMessageIndex::WSMessageIndex(const Strings& messages)
     int i = 0;
     for (auto& message: messages) {
         m_messageIndex[message] = i;
-        i++;
+        ++i;
     }
 }
 

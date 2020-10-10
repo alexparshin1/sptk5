@@ -4,7 +4,7 @@
 ║                       tcp_server_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,22 +35,22 @@ using namespace sptk;
 void processConnection(TCPSocket& server, SOCKET clientSocketFD)
 {
     TCPSocket new_sock;
-    new_sock.attach(clientSocketFD);
+    new_sock.attach(clientSocketFD, false);
 
     try {
         String data;
 
-        COUT("Sending: Test SPTK server 1.00\n");
+        COUT("Sending: Test SPTK server 1.00\n")
         new_sock.write("Test SPTK server 1.00\n");
 
-        COUT("Receving (strings): ");
+        COUT("Receving (strings): ")
 
         do {
             new_sock.readLine(data);
-            COUT(data.c_str() << "\n");
+            COUT(data.c_str() << "\n")
         } while (data != "EOD");
 
-        COUT("Sending: confirmation\n");
+        COUT("Sending: confirmation\n")
         new_sock.write("Data accepted\n");
 
         // End of session
@@ -59,7 +59,7 @@ void processConnection(TCPSocket& server, SOCKET clientSocketFD)
         server.close();
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 }
 
@@ -75,15 +75,15 @@ int main()
 
         server.listen();
 
-        COUT("Listening on port 3000\n");
+        COUT("Listening on port 3000\n")
 
         server.accept(clientSocketFD, clientInfo);
 
         processConnection(server, clientSocketFD);
     }
     catch (const Exception& e) {
-        COUT("Exception was caught: " << e.what() << "\nExiting.\n");
+        COUT("Exception was caught: " << e.what() << "\nExiting.\n")
     }
-    COUT("Server session closed\n");
+    COUT("Server session closed\n")
     return 0;
 }

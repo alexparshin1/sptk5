@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CEditor.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -47,7 +45,7 @@ namespace sptk {
  * It has a modified handle() function to track the current cursor position.
  * It also allocates the text buffer in constructor and destroys it in destructor.
  */
-class CEditor : public Fl_Text_Editor, public CLayoutClient {
+class SP_EXPORT CEditor : public Fl_Text_Editor, public CLayoutClient {
 
     /**
      * Constructor initializer

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CFrame.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -46,7 +44,7 @@ namespace sptk {
  * Contains the frame image and frame width
  */
 
-class CFrame : public CPngImage
+class SP_EXPORT CFrame : public CPngImage
 {
 public:
     /**
@@ -150,7 +148,7 @@ public:
  * @brief Frame images collection
  */
 
-class CFrames
+class SP_EXPORT CFrames
 {
     /**
      * String (frame name) to frame map

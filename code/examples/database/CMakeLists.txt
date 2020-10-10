@@ -15,7 +15,8 @@ IF (SQLITE3_LIBRARY)
   ADD_EXECUTABLE (sqlite3_test sqlite3_test.cpp)
   TARGET_LINK_LIBRARIES (sqlite3_test sputil5 spdb5)
 
-  INSTALL(TARGETS sqlite3_test
+  INSTALL(
+    TARGETS sqlite3_test
     RUNTIME DESTINATION share/sptk5/bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -23,8 +24,7 @@ IF (SQLITE3_LIBRARY)
 ENDIF (SQLITE3_LIBRARY)
 
 IF (ODBC_LIBRARY)
-  #SET (ODBC_TESTS odbc_test odbc_test2 odbc_test3)
-  SET (ODBC_TESTS driver_load_test odbc_test)
+  SET (ODBC_TESTS odbc_test)
   LINK_LIBRARIES (spdb5)
   FOREACH (ODBC_TEST ${ODBC_TESTS})
     ADD_EXECUTABLE (${ODBC_TEST} ${ODBC_TEST}.cpp)

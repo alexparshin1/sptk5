@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Runable.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,8 +29,7 @@
 
 #include <sptk5/Strings.h>
 
-#include <atomic>
-#include "Locks.h"
+#include <mutex>
 
 namespace sptk
 {
@@ -50,25 +47,6 @@ namespace sptk
  */
 class SP_EXPORT Runable
 {
-    mutable SharedMutex m_mutex;        ///< Synchronized object locked while the task running
-    bool                m_terminated;   ///< Flag indicating if task is terminated
-    String              m_name;         ///< Runable object name
-
-    /**
-     * Set runable to terminated
-     * @param terminated        Is terminated flag
-     */
-    void setTerminated(bool terminated);
-
-protected:
-
-    /**
-     * Method that is executed by worker thread
-     *
-     * Should be overwritten by derived class.
-     */
-    virtual void run() = 0;
-
 public:
 
     /**
@@ -104,9 +82,29 @@ public:
      */
     String name() const
     {
-        SharedLock(m_mutex);
         return m_name;
     }
+
+protected:
+
+    /**
+     * Method that is executed by worker thread
+     *
+     * Should be overwritten by derived class.
+     */
+    virtual void run() = 0;
+
+private:
+
+    mutable std::mutex  m_dataMutex;            ///< Synchronized object that protects internal data
+    bool                m_terminated {false};   ///< Flag indicating if task is terminated
+    const String        m_name;                 ///< Runable object name
+
+    /**
+     * Set runable to terminated
+     * @param terminated        Is terminated flag
+     */
+    void setTerminated(bool terminated);
 };
 /**
  * @}

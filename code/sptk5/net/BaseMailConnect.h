@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       BaseMailConnect.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -50,53 +48,6 @@ namespace sptk
  */
 class SP_EXPORT BaseMailConnect
 {
-    /**
-     * Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
-     */
-    String              m_from;
-
-    /**
-     * Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-     */
-    String              m_to;
-
-    /**
-     * Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-     */
-    String              m_cc;
-
-    /**
-     * Mail BCC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-     */
-    String              m_bcc;
-
-    /**
-     * Mail SUBJECT:
-     */
-    String              m_subject;
-
-    /**
-     * Mail text (plain-text and html parts of the message)
-     */
-    MailMessageBody     m_body;
-
-    /**
-     * The list of attachment files separated with ';'
-     */
-    String              m_attachments;
-
-    /**
-     * Internal message buffer
-     */
-    Buffer             m_messageBuffer;
-
-protected:
-
-    /**
-     * Encoding the message into internal message buffer
-     */
-    void mimeFile(const String& fileName, const String& fileAlias, std::stringstream& message);
-
 public:
     /**
      * Default constructor
@@ -262,6 +213,24 @@ public:
      * and sends it. Should be implemented in derived classes.
      */
     virtual void sendMessage() = 0;
+
+protected:
+
+    /**
+     * Encoding the message into internal message buffer
+     */
+    static void mimeFile(const String& fileName, const String& fileAlias, std::stringstream& message);
+
+private:
+
+    String              m_from;     ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
+    String              m_to;       ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+    String              m_cc;       ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+    String              m_bcc;      ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+    String              m_subject;  ///< Mail SUBJECT:
+    MailMessageBody     m_body;     ///< Mail text (plain-text and html parts of the message)
+    String              m_attachments; ///< The list of attachment files separated with ';'
+    Buffer             m_messageBuffer; ///< Internal message buffer
 };
 /**
  * @}

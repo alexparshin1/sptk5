@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       XMLException.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,7 +39,7 @@ namespace sptk {
  */
 
 /**
- * @brief XML exception
+ * XML exception
  *
  * XML extension throws XMLException type exceptions.
  * You should catch always at least these type of exceptions, when processing XML.
@@ -62,7 +60,7 @@ public:
     {}
 
     /**
-     * @brief Copy constructor
+     * Copy constructor
      * @param other             Other exception object
      */
     explicit XMLException(const TimeoutException& other)
@@ -70,9 +68,9 @@ public:
     {}
 
     /**
-     * @brief Destructor
+     * Destructor
      */
-    ~XMLException() noexcept
+    ~XMLException() noexcept override
     {}
 };
 /**

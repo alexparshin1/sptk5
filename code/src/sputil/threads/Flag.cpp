@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Flag.cpp - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday January 25 2019                                 ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -83,7 +81,7 @@ bool Flag::wait_until(bool value, DateTime timeoutAt)
 {
     unique_lock<mutex>  lock(m_lockMutex);
 
-    m_waiters++;
+    ++m_waiters;
 
     // Wait until semaphore value is greater than 0
     while (!m_terminated) {
@@ -92,14 +90,14 @@ bool Flag::wait_until(bool value, DateTime timeoutAt)
                                     [this,value]() { return m_value == value; }))
         {
             if (timeoutAt < DateTime::Now()) {
-                m_waiters--;
+                --m_waiters;
                 return false;
             }
         } else
             break;
     }
 
-    m_waiters--;
+    --m_waiters;
 
     return true;
 }

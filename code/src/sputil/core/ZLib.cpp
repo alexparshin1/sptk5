@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                          ZLib.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,8 +27,11 @@
 #include <sptk5/Exception.h>
 #include <sptk5/ZLib.h>
 #include "zlib.h"
+
 #if USE_GTEST
 #include <sptk5/Base64.h>
+#include <sptk5/StopWatch.h>
+#include <sptk5/cutils>
 #endif
 
 using namespace std;
@@ -182,6 +183,35 @@ TEST(SPTK_ZLib, decompress)
     ZLib::decompress(decompressed, compressed);
 
     EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
+}
+
+TEST(SPTK_ZLib, performance)
+{
+    Buffer data;
+    Buffer compressed;
+    Buffer decompressed;
+
+    // Using uncompressed mplayer manual as test data
+    data.loadFromFile(TEST_DIRECTORY "/data/mplayer.1");
+    EXPECT_EQ(data.bytes(), size_t(345517));
+
+    StopWatch stopWatch;
+    stopWatch.start();
+    ZLib::compress(compressed, data);
+    stopWatch.stop();
+
+    COUT("ZLib compressor:" << endl)
+    COUT("Compressed " << data.bytes() << " bytes to " << compressed.bytes() << " bytes for "
+                       << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / 1E6 << " Mb/s)" << endl)
+
+    stopWatch.start();
+    ZLib::decompress(decompressed, compressed);
+    stopWatch.stop();
+
+    COUT("Decompressed " << compressed.bytes() << " bytes to " << decompressed.bytes() << " bytes for "
+                         << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / 1E6 << " Mb/s)" << endl)
+
+    EXPECT_STREQ(data.c_str(), decompressed.c_str());
 }
 
 #endif

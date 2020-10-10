@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       COracleBulkInsertQuery.cpp - description               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,15 +29,15 @@
 using namespace std;
 using namespace sptk;
 
-OracleBulkInsertQuery::OracleBulkInsertQuery(PoolDatabaseConnection *db, const std::string& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes)
-: Query(db, sql), m_recordCount(recordCount), m_recordNumber(0), m_batchSize(2), m_lastIteration(false), m_columnTypeSizes(columnTypeSizes)
+OracleBulkInsertQuery::OracleBulkInsertQuery(PoolDatabaseConnection *db, String sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes)
+: Query(db, sql), m_recordCount(recordCount), m_columnTypeSizes(columnTypeSizes)
 {
     setBulkMode(true);
 }
 
 void OracleBulkInsertQuery::execNext()
 {
-    m_recordNumber++;
+    ++m_recordNumber;
     m_lastIteration = (m_recordNumber == m_recordCount || (m_recordNumber % m_batchSize) == 0);
     exec();
 }

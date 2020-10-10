@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       HttpConnect.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,6 +28,8 @@
 #include <sptk5/net/HttpConnect.h>
 
 #include <sptk5/ZLib.h>
+#include <sptk5/md5.h>
+#include <sptk5/Brotli.h>
 
 using namespace std;
 using namespace sptk;
@@ -44,20 +44,20 @@ HttpConnect::HttpConnect(TCPSocket& socket)
 String HttpConnect::responseHeader(const String& headerName) const
 {
     if (m_reader)
-        return m_reader->responseHeader(headerName);
+        return m_reader->httpHeader(headerName);
     return "";
 }
 
 int HttpConnect::getResponse(Buffer& output, chrono::milliseconds readTimeout)
 {
-    m_reader = make_unique<HttpReader>(output);
+    m_reader = make_shared<HttpReader>(m_socket, output, HttpReader::RESPONSE);
     while (m_reader->getReaderState() < HttpReader::COMPLETED) {
         if (!m_socket.readyToRead(readTimeout)) {
             m_socket.close();
             throw Exception("Response read timeout");
         }
 
-        m_reader->read(m_socket);
+        m_reader->read();
     }
 
     return m_reader->getStatusCode();
@@ -82,7 +82,8 @@ void HttpConnect::sendCommand(const Buffer& cmd)
     m_socket.write(cmd.c_str(), (uint32_t) cmd.bytes());
 }
 
-Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters)
+Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
+                                 const Authorization* authorization) const
 {
     Strings headers;
 
@@ -97,16 +98,19 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
     headers.push_back(command + " HTTP/1.1");
     headers.push_back("HOST: " + m_socket.host().toString(false));
 
-    for (auto& itor: m_requestHeaders)
+    for (const auto& itor: m_requestHeaders)
         headers.push_back(itor.first + ": " + itor.second);
+
+    if (authorization && !authorization->method().empty())
+        headers.push_back("Authorization: " + authorization->method() + " " + authorization->value());
 
     return headers;
 }
 
 int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParameters, Buffer& output,
-                         chrono::milliseconds timeout)
+                         const Authorization* authorization, chrono::milliseconds timeout)
 {
-    Strings headers = makeHeaders("GET", pageName, requestParameters);
+    Strings headers = makeHeaders("GET", pageName, requestParameters, authorization);
 
     string command = headers.join("\r\n") + "\r\n\r\n";
     sendCommand(command);
@@ -114,26 +118,65 @@ int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParame
     return getResponse(output, timeout);
 }
 
-int HttpConnect::cmd_post(const sptk::String& pageName, const HttpParams& parameters, const Buffer& postData, bool gzipContent,
-                          Buffer& output, std::chrono::milliseconds timeout)
+static bool compressPostData(const sptk::Strings& possibleContentEncodings, Strings& headers, const Buffer& postData, Buffer& compressedData)
 {
-    Strings headers = makeHeaders("POST", pageName, parameters);
-
-#if HAVE_ZLIB
-    headers.push_back("Accept-Encoding: gzip");
+    static const sptk::Strings& availableContentEncodings {
+#if HAVE_BROTLI
+            "br",
 #endif
+#if HAVE_ZLIB
+            "gzip",
+#endif
+    };
+
+    Strings encodings;
+    for (auto& contentEncoding: availableContentEncodings) {
+        if (possibleContentEncodings.indexOf(contentEncoding) != -1) {
+            encodings.push_back(contentEncoding);
+        }
+    }
+
+    String usedEncoding;
+    for (const auto& contentEncoding: encodings) {
+#if HAVE_BROTLI
+        if (contentEncoding == "br") {
+            Brotli::compress(compressedData, postData);
+            usedEncoding = contentEncoding;
+        }
+#endif
+#if HAVE_ZLIB
+        if (contentEncoding == "gzip") {
+            ZLib::compress(compressedData, postData);
+            usedEncoding = contentEncoding;
+        }
+#endif
+        if (!usedEncoding.empty())
+            break;
+    }
+
+    if (!usedEncoding.empty() && compressedData.length() < postData.length()) {
+        headers.push_back("Content-Encoding: " + usedEncoding);
+        return true;
+    }
+
+    return false;
+}
+
+int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& postData, Buffer& output,
+                          const sptk::Strings& possibleContentEncodings, const Authorization* authorization,
+                          chrono::milliseconds timeout)
+{
+    Strings headers = makeHeaders("POST", pageName, parameters, authorization);
 
     const Buffer* data = &postData;
-    Buffer compressedData;
-    if (gzipContent) {
-#if HAVE_ZLIB
-        ZLib::compress(compressedData, postData);
-        headers.push_back("Content-Encoding: gzip");
-        data = &compressedData;
-#else
-        throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
-#endif
+
+    Buffer compressBuffer;
+    if (!possibleContentEncodings.empty()
+        && compressPostData(possibleContentEncodings, headers, postData, compressBuffer))
+    {
+        data = &compressBuffer;
     }
+
     headers.push_back("Content-Length: " + int2string((uint32_t) data->bytes()));
 
     Buffer command(headers.join("\r\n") + "\r\n\r\n");
@@ -145,9 +188,9 @@ int HttpConnect::cmd_post(const sptk::String& pageName, const HttpParams& parame
 }
 
 int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& requestParameters, const Buffer& putData,
-                         Buffer& output, std::chrono::milliseconds timeout)
+                         Buffer& output, const Authorization* authorization, chrono::milliseconds timeout)
 {
-    Strings headers = makeHeaders("PUT", pageName, requestParameters);
+    Strings headers = makeHeaders("PUT", pageName, requestParameters, authorization);
 
 #if HAVE_ZLIB
     headers.push_back("Accept-Encoding: gzip");
@@ -167,9 +210,9 @@ int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& request
 }
 
 int HttpConnect::cmd_delete(const sptk::String& pageName, const HttpParams& requestParameters, Buffer& output,
-                            std::chrono::milliseconds timeout)
+                            const Authorization* authorization, chrono::milliseconds timeout)
 {
-    Strings headers = makeHeaders("DELETE", pageName, requestParameters);
+    Strings headers = makeHeaders("DELETE", pageName, requestParameters, authorization);
     string  command = headers.join("\r\n") + "\r\n\r\n";
 
     sendCommand(command);
@@ -187,6 +230,11 @@ String HttpConnect::statusText() const
     return m_reader->getStatusText();
 }
 
+HttpConnect::Authorization::Authorization(const String& method, const String& username, const String& password, const String& jwtToken)
+: m_method(method),
+  m_value(method == "basic" ? md5(username + ":" + password) : jwtToken)
+{}
+
 #if USE_GTEST
 
 TEST(SPTK_HttpConnect, get)
@@ -201,13 +249,14 @@ TEST(SPTK_HttpConnect, get)
     HttpConnect http(*socket);
     Buffer      output;
 
+    int statusCode;
     try {
-        http.cmd_get("/", HttpParams(), output);
+        statusCode = http.cmd_get("/", HttpParams(), output);
     }
     catch (const Exception& e) {
         FAIL() << e.what();
     }
-    EXPECT_EQ(200, http.statusCode());
+    EXPECT_EQ(200, statusCode);
     EXPECT_STREQ("OK", http.statusText().c_str());
 
     String data(output.c_str(), output.bytes());

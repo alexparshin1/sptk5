@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CInput.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -402,7 +400,7 @@ void CInput::load(Query* loadQuery)
     if (!m_fieldName.length())
         return;
     Field& fld = (*loadQuery)[m_fieldName.c_str()];
-    data(*(Variant*)&fld);
+    data(Variant(fld));
 }
 
 void CInput::save(Query* updateQuery)
@@ -418,7 +416,7 @@ Variant CInput::data() const
     return ((CInput_*) m_control)->value();
 }
 
-void CInput::data(const Variant s)
+void CInput::data(const Variant& s)
 {
     String strValue = s.asString();
     ((CInput_*) m_control)->value(strValue.c_str());

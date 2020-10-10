@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        DatabaseStatement.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,20 +33,10 @@ namespace sptk
 {
 
 /**
- * @brief Template class for database statements for different database drivers
+ * Template class for database statements for different database drivers
  */
 template <class Connection, class Statement> class DatabaseStatement
 {
-    /**
-     * DB connection
-     */
-    Connection*     m_connection;
-
-    /**
-     * Statement
-     */
-    Statement*      m_statement;
-
 public:
 
     Connection* connection() const
@@ -67,9 +55,94 @@ public:
     }
 
     /**
-     * Enumerated parameters
+     * Constructor
+     * @param connection Connection*, DB connection
      */
-    CParamVector    m_enumeratedParams;
+    explicit DatabaseStatement(Connection* connection)
+    : m_connection(connection)
+    {}
+
+    /**
+     * Destructor
+     */
+    virtual ~DatabaseStatement()
+    {}
+
+    /**
+     * Returns current DB statement handle
+     */
+    Statement* stmt() const
+    {
+        return m_statement;
+    }
+
+    /**
+     * Generates normalized list of parameters
+     * @param queryParams CParamList&, Standard query parameters
+     */
+    virtual void enumerateParams(QueryParameterList& queryParams)
+    {
+        queryParams.enumerate(m_enumeratedParams);
+        m_state.outputParameterCount = 0;
+
+        for (auto parameter: m_enumeratedParams) {
+            if (parameter->isOutput())
+                ++m_state.outputParameterCount;
+        }
+    }
+
+    /**
+     * Returns normalized list of parameters
+     */
+    CParamVector& enumeratedParams()
+    {
+        return m_enumeratedParams;
+    }
+
+    /**
+     * Returns true if statement uses output parameters
+     */
+    size_t outputParameterCount() const
+    {
+        return m_state.outputParameterCount;
+    }
+
+    /**
+     * Sets actual parameter values for the statement execution
+     */
+    virtual void setParameterValues() = 0;
+
+    /**
+     * Executes statement
+     * @param inTransaction bool, True if statement is executed from transaction
+     */
+    virtual void execute(bool inTransaction) = 0;
+
+    /**
+     * Closes statement and releases allocated resources
+     */
+    virtual void close() = 0;
+
+    /**
+     * Fetches next record
+     */
+    virtual void fetch() = 0;
+
+    /**
+     * Returns true if recordset is in EOF state
+     */
+    bool eof() const
+    {
+        return m_state.eof;
+    }
+
+    /**
+     * Returns recordset number of columns
+     */
+    unsigned colCount() const
+    {
+        return m_state.columnCount;
+    }
 
 protected:
 
@@ -98,110 +171,17 @@ protected:
         unsigned    outputParameterCount:1;
     } State;
 
-private:
-
-    /**
-     * State flags
-     */
-    State m_state;
-
-protected:
-
     State& state()
     {
         return m_state;
     }
 
-public:
-    /**
-     * @brief Constructor
-     * @param connection Connection*, DB connection
-     */
-    explicit DatabaseStatement(Connection* connection)
-    : m_connection(connection), m_statement(nullptr), m_state({})
-    {}
+private:
 
-    /**
-     * @brief Destructor
-     */
-    virtual ~DatabaseStatement()
-    {}
-
-    /**
-     * @brief Returns current DB statement handle
-     */
-    Statement* stmt() const
-    {
-        return m_statement;
-    }
-
-    /**
-     * @brief Generates normalized list of parameters
-     * @param queryParams CParamList&, Standard query parameters
-     */
-    virtual void enumerateParams(QueryParameterList& queryParams)
-    {
-        queryParams.enumerate(m_enumeratedParams);
-        m_state.outputParameterCount = 0;
-
-        for (auto parameter: m_enumeratedParams) {
-            if (parameter->isOutput())
-                m_state.outputParameterCount++;
-        }
-    }
-
-    /**
-     * @brief Returns normalized list of parameters
-     */
-    CParamVector& enumeratedParams()
-    {
-        return m_enumeratedParams;
-    }
-
-    /**
-     * @brief Returns true if statement uses output parameters
-     */
-    size_t outputParameterCount() const
-    {
-        return m_state.outputParameterCount;
-    }
-
-    /**
-     * @brief Sets actual parameter values for the statement execution
-     */
-    virtual void setParameterValues() = 0;
-
-    /**
-     * @brief Executes statement
-     * @param inTransaction bool, True if statement is executed from transaction
-     */
-    virtual void execute(bool inTransaction) = 0;
-
-    /**
-     * @brief Closes statement and releases allocated resources
-     */
-    virtual void close() = 0;
-
-    /**
-     * @brief Fetches next record
-     */
-    virtual void fetch() = 0;
-
-    /**
-     * @brief Returns true if recordset is in EOF state
-     */
-    bool eof() const
-    {
-        return m_state.eof;
-    }
-
-    /**
-     * @brief Returns recordset number of columns
-     */
-    unsigned colCount() const
-    {
-        return m_state.columnCount;
-    }
+    Connection*     m_connection {nullptr}; ///< DB connection
+    Statement*      m_statement {nullptr};  ///< Statement
+    State           m_state {};             ///< State flags
+    CParamVector    m_enumeratedParams;     ///< Enumerated parameters
 };
 
 }

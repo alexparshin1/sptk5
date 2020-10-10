@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CommandLine.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,27 +30,19 @@
 using namespace std;
 using namespace sptk;
 
+#ifdef _WIN32
+static const String doubleLine("=");
+static const String singleLine("-");
+#else
+static const String doubleLine("═");
+static const String singleLine("─");
+#endif
+
 CommandLine::Visibility::Visibility(const String& pattern, bool _mustMatch)
-: m_inverted(!_mustMatch), m_pattern(pattern)
+: m_inverted(!_mustMatch)
 {
-    if (m_pattern.empty())
-        m_regexp = nullptr;
-    else
-        m_regexp = new RegularExpression(m_pattern);
-}
-
-CommandLine::Visibility::Visibility(const Visibility& other)
-: m_inverted(other.m_inverted), m_pattern(other.m_pattern)
-{
-    if (m_pattern.empty())
-        m_regexp = nullptr;
-    else
-        m_regexp = new RegularExpression(m_pattern);
-}
-
-CommandLine::Visibility::~Visibility()
-{
-    delete m_regexp;
+    if (!pattern.empty())
+        m_regexp = make_shared<RegularExpression>(pattern);
 }
 
 bool CommandLine::Visibility::any() const
@@ -62,8 +52,7 @@ bool CommandLine::Visibility::any() const
 
 bool CommandLine::Visibility::matches(const String& command) const
 {
-    Strings matches;
-    return m_inverted == !m_regexp->m(command, matches);
+    return m_inverted == !m_regexp->matches(command);
 }
 //=============================================================================
 
@@ -142,28 +131,22 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
     Strings helpText;
     formatHelp(textWidth, helpText);
     bool firstRow = true;
-    string printFormat = "%-" + int2string(nameWidth) + "s  %s";
-    char rowBuffer[1024];
     for (const string& helpRow : helpText) {
         if (firstRow) {
-            snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), printableName().c_str(), helpRow.c_str());
-            COUT(rowBuffer << endl);
+            COUT(left << setw((int)nameWidth) << printableName())
             firstRow = false;
         }
         else {
-            snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", helpRow.c_str());
-            COUT(rowBuffer << endl);
+            COUT(left << setw((int)nameWidth) << "")
         }
+        COUT("  " << helpRow << endl)
     }
 
     if (!optionDefaultValue.empty()) {
-        Strings matches;
         String printDefaultValue = optionDefaultValue;
-        if (!doesntNeedQuotes.m(printDefaultValue, matches))
+        if (!doesntNeedQuotes.matches(printDefaultValue))
             printDefaultValue = "'" + optionDefaultValue + "'";
-        string defaultValueStr = "The default value is " + printDefaultValue + ".";
-        snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", defaultValueStr.c_str());
-        COUT(rowBuffer << endl);
+        COUT(left << setw((int)nameWidth) << "" << "  The default value is " + printDefaultValue + "." << endl)
     }
 }
 //=============================================================================
@@ -209,17 +192,10 @@ CommandLine::CommandLineParameter::CommandLineParameter(const String& name, cons
                                                         const String& help)
 : CommandLineElement(name, shortName, help, useWithCommands), m_valueInfo(valueInfo)
 {
-    if (validateValue.empty())
-        m_validateValue = nullptr;
-    else
-        m_validateValue = new RegularExpression(validateValue);
+    if (!validateValue.empty())
+        m_validateValue = make_shared<RegularExpression>(validateValue);
     if (m_valueInfo.empty())
         throw Exception("Command line parameters must have a value info");
-}
-
-CommandLine::CommandLineParameter::~CommandLineParameter()
-{
-    delete m_validateValue;
 }
 
 String CommandLine::CommandLineParameter::printableName() const
@@ -243,8 +219,7 @@ void CommandLine::CommandLineParameter::validate(const String& value) const
 {
     if (m_validateValue == nullptr)
         return;
-    Strings matches;
-    if (!m_validateValue->m(value, matches))
+    if (!m_validateValue->matches(value))
         throw Exception("Parameter " + name() + " has invalid value");
 }
 
@@ -259,24 +234,8 @@ CommandLine::CommandLineElement::Type CommandLine::CommandLineParameter::type() 
 }
 //=============================================================================
 
-bool CommandLine::startsWith(const String& str, const String& pattern)
-{
-    return str.startsWith(pattern);
-}
-
-bool CommandLine::endsWith(const String& str, const String& pattern)
-{
-    return str.endsWith(pattern);
-}
-
 CommandLine::CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype)
 : m_programVersion(programVersion), m_description(description), m_commandLinePrototype(commandLinePrototype) { }
-
-CommandLine::~CommandLine()
-{
-    for (CommandLineElement* element : m_allElements)
-        delete element;
-}
 
 void CommandLine::defineOption(const String& fullName, const String& shortName, Visibility useForCommands,
                                const String& help)
@@ -284,7 +243,7 @@ void CommandLine::defineOption(const String& fullName, const String& shortName, 
     if (fullName.empty() && shortName.empty())
         return;
 
-    auto* optionTemplate = new CommandLineOption(fullName, shortName, useForCommands, help);
+    auto optionTemplate = make_shared<CommandLineOption>(fullName, shortName, useForCommands, help);
     m_allElements.push_back(optionTemplate);
     if (!fullName.empty())
         m_optionTemplates[fullName] = optionTemplate;
@@ -299,8 +258,7 @@ void CommandLine::defineParameter(const String& fullName, const String& shortNam
     if (fullName.empty() && shortName.empty())
         return;
 
-    auto* argumentTemplate = new CommandLineParameter(fullName, shortName, valueName, validateValue,
-        useForCommands, help);
+    auto argumentTemplate = make_shared<CommandLineParameter>(fullName, shortName, valueName, validateValue, useForCommands, help);
     m_allElements.push_back(argumentTemplate);
 
     String name;
@@ -323,7 +281,7 @@ void CommandLine::defineParameter(const String& fullName, const String& shortNam
 void CommandLine::defineArgument(const String& fullName, const String& helpText)
 {
     if (!fullName.empty()) {
-        auto* argumentTemplate = new CommandLineArgument(fullName, helpText);
+        auto argumentTemplate = make_shared<CommandLineArgument>(fullName, helpText);
         m_allElements.push_back(argumentTemplate);
         m_argumentTemplates[fullName] = argumentTemplate;
     }
@@ -332,7 +290,7 @@ void CommandLine::defineArgument(const String& fullName, const String& helpText)
 Strings CommandLine::preprocessArguments(int argc, const char* const* argv)
 {
     Strings args;
-    for (int i = 1; i < argc; i++)
+    for (int i = 1; i < argc && argv[i] != nullptr; ++i)
         args.push_back(string(argv[i]));
 
     // Pre-process command line arguments
@@ -340,39 +298,47 @@ Strings CommandLine::preprocessArguments(int argc, const char* const* argv)
     String quote;
     String quotedString;
     for (auto& arg : args) {
-        if (quote.empty()) {
-            if (startsWith(arg, "'")) {
-                quote = arg.substr(0, 1);
-                quotedString = arg.substr(1);
-                if (quotedString.endsWith(quote)) {
-                    quotedString = quotedString.substr(0, arg.length() - 1);
-                    arguments.push_back(quotedString);
-                    quote = "";
-                    quotedString = "";
-                }
-            }
-            else
-                arguments.push_back(arg);
-        }
-        else {
-            if (arg.endsWith(quote)) {
-                arg = arg.substr(0, arg.length() - 1);
-                quote = "";
-                quotedString += " " + arg;
-                arguments.push_back(quotedString);
-            }
-            else
-                quotedString += " " + arg;
-        }
+        String digestedArg = preprocessArgument(arg, quote, quotedString);
+        if (!digestedArg.empty())
+            arguments.push_back(digestedArg);
     }
     return arguments;
+}
+
+String CommandLine::preprocessArgument(String& arg, String& quote, String& quotedString)
+{
+    String output;
+    if (quote.empty()) {
+        if (arg.startsWith("'") || arg.startsWith("\"")) {
+            quote = arg.substr(0, 1);
+            quotedString = arg.substr(1);
+            if (arg.length() > 1 && arg.endsWith(quote)) {
+                quote.clear();
+                quotedString.resize(quotedString.length() - 1);
+                output = quotedString;
+            }
+        }
+        else
+            output = arg;
+    }
+    else {
+        if (arg.endsWith(quote)) {
+            arg = arg.substr(0, arg.length() - 1);
+            quote = "";
+            quotedString += " " + arg;
+            output = quotedString;
+        }
+        else
+            quotedString += " " + arg;
+    }
+    return output;
 }
 
 Strings CommandLine::rewriteArguments(const Strings& arguments)
 {
     Strings digestedArgs;
     for (auto& arg : arguments) {
-        if (startsWith(arg, "--")) {
+        if (arg.startsWith("--")) {
             // Full option name
             if (arg.startsWith("--gtest_"))
                 continue; // Ignore googletest arguments
@@ -380,9 +346,9 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
             continue;
         }
 
-        if (startsWith(arg, "-")) {
+        if (arg.startsWith("-")) {
             // Short option name(s)
-            for (unsigned j = 1; j < arg.length(); j++) {
+            for (unsigned j = 1; j < arg.length(); ++j) {
                 string opt = "-" + arg.substr(j, j + 1);
                 digestedArgs.push_back(opt);
             }
@@ -394,42 +360,44 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
     return digestedArgs;
 }
 
+void CommandLine::readOption(const Strings& digestedArgs, size_t& i)
+{
+    String arg = digestedArgs[i];
+    String value;
+    if (arg.startsWith("-")) {
+        String optionName;
+        if (arg.startsWith("--")) {
+            // Full option name
+            optionName = arg.substr(2);
+        }
+        else {
+            // Short option name
+            optionName = arg.substr(1);
+        }
+        auto element = m_optionTemplates[optionName];
+        if (!element)
+            throw Exception("Command line option or parameter " + arg + " is not supported");
+        if (element->hasValue()) {
+            ++i;
+            if (i >= digestedArgs.size())
+                throw Exception("Command line parameter " + arg + " should have value");
+            value = digestedArgs[i];
+            element->validate(value);
+            m_values[element->name()] = value;
+        }
+        else
+            m_values[element->name()] = "true";
+    } else
+        m_arguments.push_back(arg);
+}
+
 void CommandLine::init(int argc, const char* argv[])
 {
     Strings arguments = preprocessArguments(argc, argv);
     Strings digestedArgs = rewriteArguments(arguments);
 
-    for (unsigned i = 0; i < digestedArgs.size(); i++) {
-        String arg = digestedArgs[i];
-        String value;
-
-        if (startsWith(arg, "-")) {
-            string optionName;
-            if (startsWith(arg, "--")) {
-                // Full option name
-                optionName = arg.substr(2);
-            }
-            else {
-                // Short option name
-                optionName = arg.substr(1);
-            }
-            CommandLineElement* element = m_optionTemplates[optionName];
-            if (element == nullptr)
-                throw Exception("Command line option or parameter " + arg + " is not supported");
-            if (element->hasValue()) {
-                i++;
-                if (i >= digestedArgs.size())
-                    throw Exception("Command line parameter " + arg + " should have value");
-                value = digestedArgs[i];
-                element->validate(value);
-                m_values[element->name()] = value;
-            }
-            else
-                m_values[element->name()] = "true";
-            continue;
-        }
-
-        m_arguments.push_back(arg);
+    for (size_t i = 0; i < digestedArgs.size(); ++i) {
+        readOption(digestedArgs, i);
     }
 }
 
@@ -448,8 +416,8 @@ bool CommandLine::hasOption(const String& name) const
 
 void CommandLine::setOptionValue(const String& name, const String& value)
 {
-    CommandLineElement* element = m_optionTemplates[name];
-    if (element == nullptr)
+    auto element = m_optionTemplates[name];
+    if (!element)
         throw Exception("Invalid option or parameter name: " + name);
     element->validate(value);
     m_values[name] = value;
@@ -460,12 +428,12 @@ const Strings& CommandLine::arguments() const
     return m_arguments;
 }
 
-void CommandLine::printLine(const String& ch, size_t count)
+void CommandLine::printLine(const String& ch, size_t count) const
 {
-    stringstream line;
-    for (size_t i = 0; i < count; i++)
-        line << ch;
-    COUT(line.str() << endl);
+    stringstream temp;
+    for (size_t i = 0; i < count; ++i)
+        temp << ch;
+    COUT(temp.str() << endl)
 }
 
 void CommandLine::printHelp(size_t screenColumns) const
@@ -476,25 +444,26 @@ void CommandLine::printHelp(size_t screenColumns) const
 void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) const
 {
     if (!onlyForCommand.empty() && m_argumentTemplates.find(onlyForCommand) == m_argumentTemplates.end()) {
-        CERR("Command '" << onlyForCommand << "' is not defined" << endl);
+        CERR("Command '" << onlyForCommand << "' is not defined" << endl)
         return;
     }
 
-    COUT(m_programVersion << endl);
-    printLine("═", screenColumns);
-    COUT(m_description << endl);
+    COUT(m_programVersion << endl)
+    printLine(doubleLine, screenColumns);
+    COUT(m_description << endl)
 
-    COUT("\nSyntax:" << endl);
-    printLine("─", screenColumns);
+    COUT(endl << "Syntax:" << endl)
+    printLine(singleLine, screenColumns);
 
     String commandLinePrototype = m_commandLinePrototype;
     if (!onlyForCommand.empty())
         commandLinePrototype = commandLinePrototype.replace("<command>", onlyForCommand);
-    COUT(commandLinePrototype << endl);
+    COUT(commandLinePrototype << endl)
 
     // Find out space needed for command and option names
     size_t nameColumns = 10;
     Strings sortedCommands;
+
     for (auto& itor : m_argumentTemplates)
         sortedCommands.push_back(itor.first);
 
@@ -516,10 +485,8 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         auto itor = m_optionTemplates.find(optionName);
         if (itor == m_optionTemplates.end())
             continue;
-        const CommandLineElement* optionTemplate = itor->second;
-        if (optionTemplate == nullptr)
-            continue;
-        if (!optionTemplate->useWithCommand(onlyForCommand))
+        const auto optionTemplate = itor->second;
+        if (!optionTemplate || !optionTemplate->useWithCommand(onlyForCommand))
             continue;
         size_t width = optionTemplate->printableName().length();
         if (nameColumns < width)
@@ -528,7 +495,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
 
     size_t helpTextColumns = screenColumns - (nameColumns + 2);
     if ((int)helpTextColumns < 10) {
-        CERR("Can't print help information - the screen width is too small" << endl);
+        CERR("Can't print help information - the screen width is too small" << endl)
         return;
     }
 
@@ -540,14 +507,12 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
                                const Strings& sortedOptions, size_t helpTextColumns) const
 {
     if (!m_optionTemplates.empty()) {
-        COUT("\nOptions:" << endl);
-        printLine("─", screenColumns);
+        COUT(endl << "Options:" << endl)
+        printLine(singleLine, screenColumns);
         for (const String& optionName : sortedOptions) {
             auto itor = m_optionTemplates.find(optionName);
-            const CommandLineElement* optionTemplate = itor->second;
-            if (optionTemplate == nullptr)
-                continue;
-            if (!optionTemplate->useWithCommand(onlyForCommand))
+            const auto optionTemplate = itor->second;
+            if (!optionTemplate || !optionTemplate->useWithCommand(onlyForCommand))
                 continue;
             String defaultValue;
             auto vtor = m_values.find(optionTemplate->name());
@@ -562,13 +527,14 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
                                 const Strings& sortedCommands, size_t helpTextColumns) const
 {
     if (onlyForCommand.empty() && !m_argumentTemplates.empty()) {
-        COUT("\nCommands:" << endl);
-        printLine("─", screenColumns);
+        COUT(endl << "Commands:" << endl)
+        printLine(singleLine, screenColumns);
         for (const String& commandName : sortedCommands) {
             auto ator = m_argumentTemplates.find(commandName);
-            const CommandLineArgument* commandTemplate = ator->second;
-            if (!onlyForCommand.empty() && commandName != onlyForCommand)
+            if (!onlyForCommand.empty() && commandName != onlyForCommand) {
                 continue;
+            }
+            const auto commandTemplate = ator->second;
             commandTemplate->printHelp(nameColumns, helpTextColumns, "");
         }
     }
@@ -576,58 +542,96 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
 
 void CommandLine::printVersion() const
 {
-    COUT(m_programVersion << endl);
+    COUT(m_programVersion << endl)
 }
 
 #if USE_GTEST
 
-static const char* testCommandLineArgs[] = { "testapp", "connect", "--host", "ahostname", "-p", "12345", "--verbose",
-                                             nullptr };
+class CommandLineTestData
+{
+public:
+    static const char* testCommandLineArgs[14];
 
-static const char* testCommandLineArgs2[] = { "testapp", "connect", "--host", "host name", "-p", "12345", "--verbose",
-                                             nullptr };
+    static const char* testCommandLineArgs2[8];
 
-static const char* testCommandLineArgs3[] = { "testapp", "connect", "--host", "ahostname", "-p", "12345", "--verbotten",
-                                              nullptr };
+    static const char* testCommandLineArgs3[8];
+};
+
+const char* CommandLineTestData::testCommandLineArgs[14] = {"testapp", "connect", "--host", "'ahostname'", "-p", "12345",
+                                              "--verbose",
+                                              "--description", "'This", "is", "a", "quoted", "argument'", nullptr};
+
+const char* CommandLineTestData::testCommandLineArgs2[8] = {"testapp", "connect", "--host", "host name", "-p", "12345",
+                                              "--verbose",
+                                              nullptr};
+
+const char* CommandLineTestData::testCommandLineArgs3[8] = {"testapp", "connect", "--host", "ahostname", "-p", "12345",
+                                              "--verbotten",
+                                              nullptr};
 
 CommandLine* createTestCommandLine()
 {
-    CommandLine* commandLine = new CommandLine("test 1.00", "", "testapp <action> [options]");
+    CommandLine* commandLine = new CommandLine("test 1.00", "This is test command line description.", "testapp <action> [options]");
     commandLine->defineArgument("action", "Action to perform");
     commandLine->defineParameter("host", "h", "hostname", "^[\\S]+$", CommandLine::Visibility(""), "", "Hostname to connect");
     commandLine->defineParameter("port", "p", "port #", "^\\d{2,5}$", CommandLine::Visibility(""), "", "Port to connect");
+    commandLine->defineParameter("description", "d", "text", "", CommandLine::Visibility(""), "", "Operation description");
     commandLine->defineOption("verbose", "v", CommandLine::Visibility(""), "Verbose messages");
     return commandLine;
 }
 
 TEST(SPTK_CommandLine, ctor)
 {
-    unique_ptr<CommandLine> commandLine(createTestCommandLine());
-    commandLine->init(7, testCommandLineArgs);
+    shared_ptr<CommandLine> commandLine(createTestCommandLine());
+    commandLine->init(13, CommandLineTestData::testCommandLineArgs);
 
+    EXPECT_EQ(size_t(1), commandLine->arguments().size());
     EXPECT_STREQ("ahostname", commandLine->getOptionValue("host").c_str());
     EXPECT_STREQ("12345", commandLine->getOptionValue("port").c_str());
     EXPECT_STREQ("true", commandLine->getOptionValue("verbose").c_str());
+    EXPECT_STREQ("", commandLine->getOptionValue("bad").c_str());
+    EXPECT_STREQ("This is a quoted argument", commandLine->getOptionValue("description").c_str());
+    EXPECT_STREQ("connect", commandLine->arguments()[0].c_str());
+    EXPECT_TRUE(commandLine->hasOption("verbose"));
 }
 
 TEST(SPTK_CommandLine, wrongArgumentValue)
 {
-    unique_ptr<CommandLine> commandLine(createTestCommandLine());
+    shared_ptr<CommandLine> commandLine(createTestCommandLine());
 
     EXPECT_THROW(
-        commandLine->init(7, testCommandLineArgs2),
+        commandLine->init(7, CommandLineTestData::testCommandLineArgs2),
         Exception
     );
 }
 
 TEST(SPTK_CommandLine, wrongOption)
 {
-    unique_ptr<CommandLine> commandLine(createTestCommandLine());
+    shared_ptr<CommandLine> commandLine(createTestCommandLine());
 
     EXPECT_THROW(
-            commandLine->init(7, testCommandLineArgs3),
+            commandLine->init(7, CommandLineTestData::testCommandLineArgs3),
             Exception
     );
+}
+
+TEST(SPTK_CommandLine, setOption)
+{
+    shared_ptr<CommandLine> commandLine(createTestCommandLine());
+
+    commandLine->init(7, CommandLineTestData::testCommandLineArgs);
+    EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "ahostname");
+    commandLine->setOptionValue("host", "www.x.com");
+    EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "www.x.com");
+}
+
+TEST(SPTK_CommandLine, printHelp)
+{
+    shared_ptr<CommandLine> commandLine(createTestCommandLine());
+
+    stringstream output;
+    commandLine->init(7, CommandLineTestData::testCommandLineArgs);
+    commandLine->printHelp(80);
 }
 
 #endif

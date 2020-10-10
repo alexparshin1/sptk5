@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CFont.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019   by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2020   by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -43,7 +41,7 @@ namespace sptk {
 /**
  * @brief Font information
  */
-class CFont
+class SP_EXPORT CFont
 {
     /**
      * Font name
@@ -149,7 +147,7 @@ public:
  *
  * The map contains just pointers to the fonts stored in outside list.
  */
-class CFontsMap : public std::map<std::string, CFont*>
+class SP_EXPORT CFontsMap : public std::map<std::string, CFont*>
 {
 public:
     /**

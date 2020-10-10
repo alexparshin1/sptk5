@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CColumn.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -60,8 +58,8 @@ void CColumn::save(xml::Node& node) const
     node.clear();
     node.name("column");
     node.setAttribute("caption", m_name);
-    node.setAttribute("type", m_type);
-    node.setAttribute("width", m_width);
+    node.setAttribute("type", (int) m_type);
+    node.setAttribute("width", (int) m_width);
     node.setAttribute("visible", m_visible);
     node.setAttribute("auto_width", m_autoWidth);
 }
@@ -91,7 +89,7 @@ void CColumnList::load(const xml::Node& node)
             CColumn& column = (*this)[columnIndex];
             column.load(columnNode);
         } catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
     }
 }
@@ -106,9 +104,9 @@ void CColumnList::save(xml::Node& node) const
             const CColumn& column = (*this)[i];
             xml::Node& columnNode = *(new xml::Element(node, "column"));
             column.save(columnNode);
-            columnNode.setAttribute("index", i);
+            columnNode.setAttribute("index", (int) i);
         } catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
     }
 }

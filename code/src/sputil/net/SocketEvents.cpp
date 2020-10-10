@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday Sep 17 2015                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,7 +33,7 @@ using namespace chrono;
 
 #define MAXEVENTS 128
 
-SocketEvents::SocketEvents(const String& name, SocketEventCallback eventsCallback, milliseconds timeout)
+SocketEvents::SocketEvents(const String& name, const SocketEventCallback& eventsCallback, milliseconds timeout)
 : Thread(name), m_socketPool(eventsCallback), m_timeout(timeout)
 {
     m_socketPool.open();
@@ -49,13 +47,14 @@ SocketEvents::~SocketEvents()
 void SocketEvents::stop()
 {
 	try {
+	    m_socketPool.close();
 		if (running()) {
 			terminate();
 			join();
 		}
 	}
 	catch (const Exception& e) {
-		CERR(e.message() << endl);
+		CERR(e.message() << endl)
 	}
 }
 
@@ -86,7 +85,7 @@ void SocketEvents::threadFunction()
         }
         catch (const Exception& e) {
         	if (m_socketPool.active()) {
-				CERR(e.message() << endl);
+				CERR(e.message() << endl)
 			} else
         		break;
         }
@@ -99,4 +98,10 @@ void SocketEvents::terminate()
 	Thread::terminate();
 	lock_guard<mutex> lock(m_mutex);
 	m_shutdown = true;
+}
+
+size_t SocketEvents::size() const
+{
+    lock_guard<mutex> lock(m_mutex);
+    return m_watchList.size();
 }

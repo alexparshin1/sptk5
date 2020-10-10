@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TCPServerConnection.h - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -52,12 +50,13 @@ public:
      * @brief Constructor
      * @param server            TCP server
      * @param connectionSocket  Already accepted by accept() function incoming connection socket
+     * @param connectionAddress Incoming connection address
      */
-    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket)
-    : ServerConnection(server, connectionSocket, "TCPServerConnection")
+    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
+    : ServerConnection(server, connectionSocket, connectionAddress, "TCPServerConnection")
     {
         setSocket(new TCPSocket);
-        socket().attach(connectionSocket);
+        socket().attach(connectionSocket, false);
     }
 };
 

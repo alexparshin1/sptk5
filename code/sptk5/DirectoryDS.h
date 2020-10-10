@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DirectoryDS.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -34,6 +32,7 @@
 #include <sptk5/MemoryDS.h>
 #include <sptk5/Strings.h>
 #include <sptk5/CSmallPixmapIDs.h>
+#include <filesystem>
 
 namespace sptk {
 
@@ -82,41 +81,8 @@ enum DirectoryDSpolicies {
  * and may use the list. Method close() should be called aftewards
  * to release any allocated resourses.
  */
-class DirectoryDS: public MemoryDS
+class SP_EXPORT DirectoryDS: public MemoryDS
 {
-protected:
-    /**
-     * Sets up an appropriate image and a name for the file type
-     * @param st                The file type information
-     * @param image             The image type
-     * @param fname             The file name
-     * @returns the file type name
-     */
-    std::string getFileType(const struct stat& st, CSmallPixmapType& image, const char *fname) const;
-
-private:
-    /**
-     * Current directory
-     */
-    String          m_directory;
-
-    /**
-     * Current file pattern
-     */
-    std::vector< std::shared_ptr<RegularExpression> > m_patterns;
-
-    /**
-     * Show policy, see CDirectoryDSpolicies for more information
-     */
-    int             m_showPolicy;
-
-    /**
-     * Returns absolute path to directory or file
-     * @param path              Relative path
-     * @return absolute path
-     */
-    String absolutePath(const String& path) const;
-
 public:
     /**
      * Default Constructor
@@ -126,8 +92,7 @@ public:
      *
      */
     DirectoryDS(const String& _directory="", const String& _pattern="", int _showPolicy=0)
-    : MemoryDS(),
-      m_showPolicy(_showPolicy)
+    : MemoryDS(), m_showPolicy(_showPolicy)
     {
         if (!_directory.empty())
             directory(_directory);
@@ -138,7 +103,7 @@ public:
     /**
      * Destructor
      */
-    ~DirectoryDS()
+    ~DirectoryDS() override
     {
         MemoryDS::close();
     }
@@ -181,7 +146,7 @@ public:
     {
         Strings patterns(wildcards, ";", Strings::SM_DELIMITER);
         m_patterns.clear();
-        for (auto& pattern: patterns) {
+        for (const auto& pattern: patterns) {
             auto matchPattern = wildcardToRegexp(pattern);
             m_patterns.push_back(matchPattern);
         }
@@ -190,7 +155,7 @@ public:
     /**
      * Opens the directory and fills in the dataset
      */
-    virtual bool open();
+    bool open() override;
 
     /**
      * Creates regular expression from wildcard
@@ -199,11 +164,44 @@ public:
      */
     static std::shared_ptr<RegularExpression> wildcardToRegexp(const String& wildcard);
 
+protected:
+    /**
+     * Sets up an appropriate image and a name for the file type
+     * @param file              File information
+     * @returns the file type name
+     */
+    String getFileType(const std::filesystem::directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime) const;
+
 private:
-    Strings getFileNames();
-    FieldList* makeFileListEntry(const struct stat& st, unsigned& index, const String& fileName,
-                                     const String& fullName, bool is_link) const;
-    CSmallPixmapType imageTypeFromExtention(const char* ext) const;
+    /**
+     * Current directory
+     */
+    String          m_directory;
+
+    /**
+     * Current file pattern
+     */
+    std::vector< std::shared_ptr<RegularExpression> > m_patterns;
+
+    /**
+     * Show policy, see CDirectoryDSpolicies for more information
+     */
+    int             m_showPolicy;
+
+    /**
+     * Returns absolute path to directory or file
+     * @param path              Relative path
+     * @return absolute path
+     */
+    String absolutePath(const String& path) const;
+
+    /**
+     * Create a row in the data source
+     * @param file              File information
+     * @return data source row
+     */
+    FieldList* makeFileListEntry(const std::filesystem::directory_entry& file, size_t& index) const;
+    CSmallPixmapType imageTypeFromExtention(const String& ext) const;
 };
 /**
  * @}

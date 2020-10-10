@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CLayoutManager.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -102,6 +100,13 @@ CLayoutManager::CLayoutManager(Fl_Group* group, int layoutSize, CLayoutAlign ca)
 void CLayoutManager::clear()
 {
     m_group->clear();
+}
+
+const std::map<std::string, Fl_Boxtype>& CLayoutManager::boxTypeNames() { return m_boxTypeNames; }
+
+void CLayoutManager::registerControl(std::string typeName, createControlCallback creator) noexcept 
+{
+	controlCreator[typeName] = creator;
 }
 
 void CLayoutManager::relayout()
@@ -376,7 +381,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     if (layoutManager)
                         layoutManager->loadLayout(widgetNode, xmlMode);
                 } catch (const Exception& e) {
-                    CERR(e.what() << endl);
+                    CERR(e.what() << endl)
                 }
             } else {
                 try {
@@ -384,7 +389,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     if (cwidget)
                         cwidget->load(widgetNode, xmlMode);
                 } catch (const Exception& e) {
-                    CERR(e.what() << endl);
+                    CERR(e.what() << endl)
                 }
             }
             if (widget->parent() != m_group)
@@ -423,7 +428,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     continue;
                 }
             } catch (const Exception& e) {
-                CERR(e.what() << endl);
+                CERR(e.what() << endl)
             }
             try {
                 auto* control = dynamic_cast<CControl*>(widget);
@@ -439,7 +444,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     continue;
                 }
             } catch (const Exception& e) {
-                CERR(e.what() << endl);
+                CERR(e.what() << endl)
             }
         }
     }
@@ -476,12 +481,12 @@ void CLayoutManager::saveLayout(xml::Node* groupNode, CLayoutXMLmode xmlMode) co
                     groupNode->remove(node);
                 else {
                     if (widget->label() == nullptr || widget->label()[0] == 0)
-                        node->setAttribute("nn_index", i);
+                        node->setAttribute("nn_index", (int) i);
                 }
                 continue;
             }
         } catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
     }
 }
@@ -497,7 +502,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
             if (client && !client->name().empty())
                 index[client->name()] = widget;
         } catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
 
         if (recursive)
@@ -506,7 +511,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
                 if (group)
                     group->nameIndex(index, true, false);
             } catch (const Exception& e) {
-                CERR(e.what() << endl);
+                CERR(e.what() << endl)
             }
     }
 }

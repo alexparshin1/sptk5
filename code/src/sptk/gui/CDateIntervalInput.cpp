@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDateIntervalInput.cpp - description                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -153,7 +151,7 @@ Variant CDateIntervalInput::data() const
     return result;
 }
 
-void CDateIntervalInput::data(const Variant s)
+void CDateIntervalInput::data(const Variant& s)
 {
     string firstStringData(s.asString().c_str());
     string secondStringData;

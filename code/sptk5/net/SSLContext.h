@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SSLContext.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,10 +29,11 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/String.h>
-#include <openssl/ssl.h>
-#include <mutex>
 #include <sptk5/threads/Locks.h>
 #include <sptk5/net/SSLKeys.h>
+#include <openssl/ssl.h>
+#include <mutex>
+#include <memory>
 
 namespace sptk {
 
@@ -48,15 +47,9 @@ namespace sptk {
  */
 class SSLContext : public SharedMutex
 {
-    /**
-     * SSL connection context
-     */
-    SSL_CTX*        m_ctx;
-
-    /**
-     * Password for auto-answer in callback function
-     */
-    String          m_password;
+    SSL_CTX*        m_ctx;                          ///< SSL connection context
+    String          m_password;                     ///< Password for auto-answer in callback function
+    static int      s_server_session_id_context;
 
     /**
      * Password auto-reply callback function
@@ -67,14 +60,15 @@ class SSLContext : public SharedMutex
      * Throw SSL error
      * @param humanDescription  Human-readable error description
      */
-    void throwError(const String& humanDescription);
+    [[noreturn]] static void throwError(const String& humanDescription);
 
 public:
 
     /**
-     * Default constructor
+     * Constructor
+	 * @param cipherList		Cipher list. Use "ALL" if not known.
      */
-    SSLContext();
+    explicit SSLContext(const String& cipherList);
 
     /**
      * Destructor
@@ -88,12 +82,7 @@ public:
      * A single file containing private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
      * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keys           Private key file name
-     * @param certificateFileName   Certificate file name
-     * @param password              Key file password
-     * @param caFileName            Optional CA (root certificate) file name
-     * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
-     * @param verifyDepth           Connection verify depth
+     * @param keys                  Keys and certificates
      */
     void loadKeys(const SSLKeys& keys);
 
@@ -102,6 +91,8 @@ public:
      */
     SSL_CTX* handle();
 };
+
+typedef std::shared_ptr<SSLContext> SharedSSLContext;
 
 /**
  * @}

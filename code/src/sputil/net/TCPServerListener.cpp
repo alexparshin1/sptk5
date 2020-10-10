@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TCPServerListener.cpp - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -38,16 +36,21 @@ TCPServerListener::TCPServerListener(TCPServer* server, uint16_t port)
     m_listenerSocket.host(Host("localhost", port));
 }
 
+TCPServerListener::~TCPServerListener()
+{
+    stop();
+}
+
 void TCPServerListener::acceptConnection()
 {
     try {
         SOCKET connectionFD;
         sockaddr_in connectionInfo = {};
         m_listenerSocket.accept(connectionFD, connectionInfo);
-        if ((int)connectionFD == -1)
+        if (connectionFD == -1)
             return;
         if (m_server->allowConnection(&connectionInfo)) {
-            ServerConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
+            auto* connection = m_server->createConnection(connectionFD, &connectionInfo);
             m_server->execute(connection);
         }
         else {
@@ -69,7 +72,7 @@ void TCPServerListener::threadFunction()
     try {
         while (!terminated()) {
             lock_guard<mutex> lock(*this);
-            if (m_listenerSocket.readyToRead(chrono::milliseconds(1000)))
+            if (m_listenerSocket.readyToRead(chrono::milliseconds(100)))
                 acceptConnection();
         }
     }
@@ -83,4 +86,10 @@ void TCPServerListener::terminate()
     Thread::terminate();
 	lock_guard<mutex> lock(*this);
 	m_listenerSocket.close();
+}
+
+void TCPServerListener::stop()
+{
+    terminate();
+    join();
 }

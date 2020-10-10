@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       MailMessageBody.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -58,44 +56,23 @@ enum MailMessageType
 };
 
 /**
- * @brief Mail message body text
+ * Mail message body text
  *
  * Contains the message text as plain text, or as an HTML text and stripped HTML text (where HTML tags removed)
  */
 class SP_EXPORT MailMessageBody
 {
-    /**
-     * Message type
-     */
-    MailMessageType     m_type;
-
-    /**
-     * Plain text part of the message
-     */
-    String              m_plainText;
-
-    /**
-     * Optional HTML part of the message
-     */
-    String              m_htmlText;
-
-
-    /**
-     * Builds a plain text string from HTML text
-     */
-    String stripHtml(const String& origHtml);
-
 public:
+
     /**
-     * @brief Default constructor
+     * Default constructor
      */
     MailMessageBody()
     {
         m_type = MMT_PLAIN_TEXT_MESSAGE;
     }
-
     /**
-     * @brief Sets the message text.
+     * Sets the message text.
      *
      * Tries to detect the HTML messages by searching HTML tag in the first 100 bytes of the message
      * @param messageText const std::string& messageText, the text of the message
@@ -104,15 +81,15 @@ public:
     void text(const std::string& messageText, bool smtp);
 
     /**
-     * @brief Returns the message body type
+     * Returns the message body type
      */
-    MailMessageType type()
+    MailMessageType type() const
     {
         return m_type;
     }
 
     /**
-     * @brief Returns the plain text version of the message
+     * Returns the plain text version of the message
      */
     const std::string& text() const
     {
@@ -120,12 +97,23 @@ public:
     }
 
     /**
-     * @brief Returns the html version of the message (if presented)
+     * Returns the html version of the message (if presented)
      */
     const std::string& html() const
     {
         return m_htmlText;
     }
+
+private:
+
+    MailMessageType     m_type;         ///< Message type
+    String              m_plainText;    ///< Plain text part of the message
+    String              m_htmlText;     ///< Optional HTML part of the message
+
+    /**
+     * Builds a plain text string from HTML text
+     */
+    static String stripHtml(const String& origHtml);
 };
 /**
  * @}

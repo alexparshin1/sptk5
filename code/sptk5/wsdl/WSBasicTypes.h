@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSBasicTypes.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,6 +30,7 @@
 #include <sptk5/cxml>
 #include <sptk5/Field.h>
 #include <sptk5/xml/Element.h>
+#include <sptk5/json/JsonElement.h>
 
 namespace sptk {
 
@@ -43,20 +42,22 @@ namespace sptk {
 /**
  * Class name support for WS-classes
  */
-class WSTypeName
+class SP_EXPORT WSTypeName
 {
 public:
     /**
      * Get WS type name
      * @return WS type name
      */
-    virtual sptk::String className() const = 0;
+    virtual String className() const { return ""; }
+
+    virtual void owaspCheck(const String& value);
 };
 
 /**
  * Base type for all standard WSDL types
  */
-class WSBasicType : public Field, public WSTypeName
+class SP_EXPORT WSBasicType : public Field, public WSTypeName
 {
     /**
      * Element optionality flag
@@ -69,9 +70,37 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSBasicType(const char* name, bool optional)
-            : Field(name), m_optional(optional)
+    WSBasicType(const char* name = "", bool optional = false)
+    : Field(name), m_optional(optional)
     {}
+
+    WSBasicType(const WSBasicType& other)
+    : Field(other), m_optional(other.m_optional)
+    {}
+
+    WSBasicType(WSBasicType&& other) noexcept
+    : Field(std::move(other)), m_optional(std::exchange(other.m_optional, 0))
+    {}
+
+    ~WSBasicType() noexcept override = default;
+
+    WSBasicType& operator = (const WSBasicType& other)
+    {
+        if (&other != this) {
+            Field::operator=(other);
+            m_optional = other.m_optional;
+        }
+        return *this;
+    }
+
+    WSBasicType& operator = (WSBasicType&& other) noexcept
+    {
+        if (&other != this) {
+            *(Field*) this = std::move(other);
+            m_optional = other.m_optional;
+        }
+        return *this;
+    }
 
     /**
      * Sets optionality flag
@@ -94,16 +123,16 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    void load(const xml::Node& attr) override
+    void load(const xml::Node* attr) override
     {
         Variant::load(attr);
     }
 
     /**
-     * Loads type data from request XML node
-     * @param attr              XML node
+     * Loads type data from request JSON element
+     * @param attr              JSON element
      */
-    void load(const xml::Node* attr) override
+    void load(const json::Element* attr) override
     {
         Variant::load(attr);
     }
@@ -129,22 +158,43 @@ public:
     /**
      * Adds an element to response XML with this object data
      * @param parent            Parent XML element
+     * @param name              Optional name for child element
      */
-    xml::Element* addElement(xml::Element* parent) const;
+    xml::Element* addElement(xml::Element* parent, const char* name=nullptr) const;
+
+    /**
+     * Adds an element to response JSON with this object data
+     * @param parent            Parent JSON element
+     */
+    json::Element* addElement(json::Element* parent) const;
 
     /**
      * Returns element name
      */
-    sptk::String name() const
+    String name() const
     {
         return fieldName();
     }
+
+    /**
+     * Conversion operator
+     */
+    operator String() const override
+    {
+        return asString();
+    }
+
+    /**
+     * Throw SOAPException is the object is null
+     * @param parentTypeName    Parent object type name
+     */
+    void throwIfNull(const String& parentTypeName) const;
 };
 
 /**
  * Base type for all standard WSDL types
  */
-class WSString : public WSBasicType
+class SP_EXPORT WSString : public WSBasicType
 {
 public:
     /**
@@ -152,7 +202,7 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSString(const char* name, bool optional = false)
+    WSString(const char* name = "", bool optional = false)
             : WSBasicType(name, optional)
     {
         Field::setNull(VAR_STRING);
@@ -161,31 +211,39 @@ public:
     /**
      * Return class name
      */
-    sptk::String className() const override
-    { return "WSString"; }
+    String className() const override
+    {
+        return "WSString";
+    }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) override;
+    void load(const xml::Node* attr) override;
+
+    /**
+     * Load data from JSON element
+     * @param attr              JSON element
+     */
+    void load(const json::Element* attr) override;
 
     /**
      * Loads type data from string
      * @param attr              A string
      */
-    virtual void load(const String& attr) override;
+    void load(const String& attr) override;
 
     /**
      * Loads type data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) override;
+    void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSString& operator=(const char* value) override
+    WSString& operator=(const char* value) override
     {
         setString(value);
         return *this;
@@ -194,7 +252,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator=(const sptk::String& value) override
+    WSString& operator=(const String& value) override
     {
         setBuffer(value.c_str(), value.length(), VAR_STRING);
         return *this;
@@ -203,16 +261,16 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator=(const Buffer& value) override
+    WSString& operator=(const Buffer& value) override
     {
-        setBuffer(value.data(), value.bytes(), VAR_BUFFER, false);
+        setBuffer(value.data(), value.bytes(), VAR_BUFFER);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    virtual WSString& operator=(int32_t value) override
+    WSString& operator=(int32_t value) override
     {
         setInteger(value);
         return *this;
@@ -221,7 +279,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator=(int64_t value) override
+    WSString& operator=(int64_t value) override
     {
         setInt64(value);
         return *this;
@@ -239,7 +297,7 @@ public:
 /**
  * Wrapper for WSDL bool type
  */
-class WSBool : public WSBasicType
+class SP_EXPORT WSBool : public WSBasicType
 {
 public:
     /**
@@ -247,8 +305,8 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSBool(const char* name, bool optional = false)
-            : WSBasicType(name, optional)
+    explicit WSBool(const char* name = "", bool optional = false)
+    : WSBasicType(name, optional)
     {
         Field::setNull(VAR_BOOL);
     }
@@ -256,26 +314,34 @@ public:
     /**
      * Return class name
      */
-    sptk::String className() const override
-    { return "WSBool"; }
+    String className() const override
+    {
+        return "WSBool";
+    }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) override;
+    void load(const xml::Node* attr) override;
 
     /**
-     * Loads type data from string
+     * Load data from JSON element
+     * @param attr              JSON element
+     */
+    void load(const json::Element* attr) override;
+
+    /**
+     * Load data from string
      * @param attr              A string
      */
-    virtual void load(const String& attr) override;
+    void load(const String& attr) override;
 
     /**
      * Loads type data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) override;
+    void load(const Field& field) override;
 
     /**
      * Assignment operation
@@ -285,20 +351,12 @@ public:
         setBool(value);
         return *this;
     }
-
-    /**
-     * Conversion operator
-     */
-    operator sptk::String() const override
-    {
-        return asString();
-    }
 };
 
 /**
  * Wrapper for WSDL date type
  */
-class WSDate : public WSBasicType
+class SP_EXPORT WSDate : public WSBasicType
 {
 public:
     /**
@@ -306,8 +364,8 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSDate(const char* name, bool optional = false)
-            : WSBasicType(name, optional)
+    explicit WSDate(const char* name = "", bool optional = false)
+    : WSBasicType(name, optional)
     {
         Field::setNull(VAR_DATE);
     }
@@ -315,31 +373,39 @@ public:
     /**
      * Return class name
      */
-    sptk::String className() const override
-    { return "WSDate"; }
+    String className() const override
+    {
+        return "WSDate";
+    }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) override;
+    void load(const xml::Node* attr) override;
 
     /**
-     * Loads type data from string
+     * Load data from JSON element
+     * @param attr              JSON element
+     */
+    void load(const json::Element* attr) override;
+
+    /**
+     * Load data from string
      * @param attr              A string
      */
-    virtual void load(const String& attr) override;
+    void load(const String& attr) override;
 
     /**
-     * Loads type data from database field
+     * Load data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) override;
+    void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSDate& operator=(DateTime value) override
+    WSDate& operator=(DateTime value) override
     {
         setDateTime(value, true);
         return *this;
@@ -352,20 +418,12 @@ public:
     {
         return asDate();
     }
-
-    /**
-     * Conversion operator
-     */
-    operator sptk::String() const override
-    {
-        return asString();
-    }
 };
 
 /**
  * Wrapper for WSDL dateTime type
  */
-class WSDateTime : public WSBasicType
+class SP_EXPORT WSDateTime : public WSBasicType
 {
 public:
     /**
@@ -373,8 +431,8 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSDateTime(const char* name, bool optional = false)
-            : WSBasicType(name, optional)
+    explicit WSDateTime(const char* name = "", bool optional = false)
+    : WSBasicType(name, optional)
     {
         Field::setNull(VAR_DATE_TIME);
     }
@@ -382,36 +440,44 @@ public:
     /**
      * Return class name
      */
-    sptk::String className() const override
-    { return "WSDateTime"; }
+    String className() const override
+    {
+        return "WSDateTime";
+    }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) override;
+    void load(const xml::Node* attr) override;
 
     /**
-     * Loads type data from string
+     * Load data from JSON element
+     * @param attr              JSON element
+     */
+    void load(const json::Element* attr) override;
+
+    /**
+     * Load data from string
      * @param attr              A string
      */
-    virtual void load(const sptk::String& attr) override;
+    void load(const String& attr) override;
 
     /**
-     * Loads type data from database field
+     * Load data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) override;
+    void load(const Field& field) override;
 
     /**
      * Better (than in base class) conversion method
      */
-    virtual sptk::String asString() const override;
+    String asString() const override;
 
     /**
      * Assignment operation
      */
-    virtual WSDateTime& operator=(DateTime value) override
+    WSDateTime& operator=(DateTime value) override
     {
         setDateTime(value);
         return *this;
@@ -424,20 +490,12 @@ public:
     {
         return asDateTime();
     }
-
-    /**
-     * Conversion operator
-     */
-    operator sptk::String() const override
-    {
-        return asString();
-    }
 };
 
 /**
  * Wrapper for WSDL double type
  */
-class WSDouble : public WSBasicType
+class SP_EXPORT WSDouble : public WSBasicType
 {
 public:
     /**
@@ -445,40 +503,54 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSDouble(const char* name, bool optional = false)
-            : WSBasicType(name, optional)
+    explicit WSDouble(const char* name = "", bool optional = false)
+    : WSBasicType(name, optional)
     {
         Field::setNull(VAR_FLOAT);
+    }
+
+    explicit WSDouble(double value)
+    : WSBasicType("", true)
+    {
+        Field::setFloat(value);
     }
 
     /**
      * Return class name
      */
-    sptk::String className() const override
-    { return "WSDouble"; }
+    String className() const override
+    { 
+        return "WSDouble"; 
+    }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) override;
+    void load(const xml::Node* attr) override;
 
     /**
-     * Loads type data from string
+     * Load data from JSON element
+     * @param attr              JSON element
+     */
+    void load(const json::Element* attr) override;
+
+    /**
+     * Load data from string
      * @param attr              A string
      */
-    virtual void load(const sptk::String& attr) override;
+    void load(const String& attr) override;
 
     /**
-     * Loads type data from database field
+     * Load data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) override;
+    void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSDouble& operator=(double value) override
+    WSDouble& operator=(double value) override
     {
         setFloat(value);
         return *this;
@@ -491,20 +563,12 @@ public:
     {
         return asFloat();
     }
-
-    /**
-     * Conversion operator
-     */
-    operator sptk::String() const override
-    {
-        return asString();
-    }
 };
 
 /**
  * Wrapper for WSDL int type
  */
-class WSInteger : public WSBasicType
+class SP_EXPORT WSInteger : public WSBasicType
 {
 public:
     /**
@@ -512,42 +576,57 @@ public:
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSInteger(const char* name, bool optional = false)
-            : WSBasicType(name, optional)
+    explicit WSInteger(const char* name = "", bool optional = false)
+    : WSBasicType(name, optional)
     {
         Field::setNull(VAR_INT);
     }
 
     /**
+     * Constructor
+     */
+    explicit WSInteger(int value)
+    : WSBasicType("", true)
+    {
+        Field::setInteger(value);
+    }
+
+    /**
      * Return class name
      */
-    sptk::String className() const override
+    String className() const override
     {
         return "WSInteger";
     }
 
     /**
-     * Loads type data from request XML node
+     * Load data from XML node
      * @param attr              XML node
      */
-    virtual void load(const xml::Node* attr) override;
+    void load(const xml::Node* attr) override;
 
     /**
-     * Loads type data from string
+     * Load data from JSON node
+     * @param attr              JSON node
+     */
+    void load(const json::Element* attr) override;
+
+    /**
+     * Load data from string
      * @param attr              A string
      */
-    virtual void load(const sptk::String& attr) override;
+    void load(const String& attr) override;
 
     /**
-     * Loads type data from database field
+     * Load data from database field
      * @param field             Database field
      */
-    virtual void load(const Field& field) override;
+    void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator=(int64_t value) override
+    WSInteger& operator=(int64_t value) override
     {
         setInt64(value);
         return *this;
@@ -556,7 +635,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator=(int32_t value) override
+    WSInteger& operator=(int32_t value) override
     {
         setInteger(value);
         return *this;
@@ -568,14 +647,6 @@ public:
     operator int32_t() const override
     {
         return asInteger();
-    }
-
-    /**
-     * Conversion operator
-     */
-    operator uint32_t() const override
-    {
-        return (uint32_t) asInteger();
     }
 
     /**
@@ -593,31 +664,32 @@ public:
     {
         return (uint64_t) asInt64();
     }
-
-    /**
-     * Conversion operator
-     */
-    operator sptk::String() const override
-    {
-        return asString();
-    }
 };
 
 /**
  * Wrapper for WSDL int type
  */
 template<class T>
-class WSArray : public std::vector<T>, public WSTypeName
+class SP_EXPORT WSArray : public std::vector<T>, public WSTypeName
 {
 public:
-    /**
+   /**
      * Return class name
      */
-    sptk::String className() const override
+    String className() const override
     {
         return "WSArray";
     }
+
+    bool isNull() const { return std::vector<T>::empty(); }
 };
+
+/**
+ * Converts type id name to WS type name
+ * @param typeId                Type id name, returned by typeid(<type>).name()
+ * @return WS type name without leading 'C' character
+ */
+String SP_EXPORT wsTypeIdToName(const String& typeIdName);
 
 /**
  * @}

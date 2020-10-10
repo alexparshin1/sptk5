@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Locks.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Saturday September 22 2018                             ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,14 +29,32 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
+
+#if CXX_STANDARD == 17
+#define USE_SHARED_MUTEX 1
 #include <shared_mutex>
+#else
+#define USE_SHARED_MUTEX 0
+#include <mutex>
+#endif
 
 namespace sptk {
 
+#if USE_SHARED_MUTEX
 /**
  * Shared timed mutex
  */
 typedef std::shared_timed_mutex             SharedMutex;
+typedef std::shared_lock<SharedMutex>       ReadLockType;
+typedef std::unique_lock<SharedMutex>       WriteLockType;
+#else
+/**
+ * Regular timed mutex, since c++ 14 doesn't support shared mutex
+ */
+typedef std::timed_mutex                    SharedMutex;
+typedef std::unique_lock<SharedMutex>       ReadLockType;
+typedef std::unique_lock<SharedMutex>       WriteLockType;
+#endif
 
 /**
  * Unique lock
@@ -46,11 +62,8 @@ typedef std::shared_timed_mutex             SharedMutex;
  * Lock is acquired by constructor.
  * For timed lock, waiting for longer than timeout, throws an exception.
  */
-class UniqueLockInt
+class SP_EXPORT UniqueLockInt
 {
-    SharedMutex&    mutex;              ///< Shared mutex that controls lock
-    bool            locked {false};     ///< True if lock is acquired
-
 public:
 
     /**
@@ -59,6 +72,8 @@ public:
      * @param mutex             Shared mutex that controls lock
      */
     explicit UniqueLockInt(SharedMutex& mutex);
+
+    UniqueLockInt(const UniqueLockInt&) = delete;
 
     /**
      * Constructor
@@ -79,6 +94,11 @@ public:
         if (locked)
             mutex.unlock();
     }
+
+private:
+
+    SharedMutex&    mutex;              ///< Shared mutex that controls lock
+    bool            locked {true};      ///< True if lock is acquired
 };
 
 /**
@@ -87,11 +107,8 @@ public:
  * Lock is acquired by constructor.
  * For timed lock, waiting for longer than timeout, throws an exception.
  */
-class SharedLockInt
+class SP_EXPORT SharedLockInt
 {
-    SharedMutex&    mutex;              ///< Shared mutex that controls lock
-    bool            locked {false};     ///< True if lock is acquired
-
 public:
 
     /**
@@ -110,6 +127,8 @@ public:
      */
     SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line);
 
+    SharedLockInt(const SharedLockInt&) = delete;
+
     /**
      * Destructor
      * Unlocks lock if it was acquired.
@@ -117,8 +136,17 @@ public:
     virtual ~SharedLockInt()
     {
         if (locked)
+#if USE_SHARED_MUTEX
             mutex.unlock_shared();
+#else
+            mutex.unlock();
+#endif
     }
+
+private:
+
+    SharedMutex&    mutex;              ///< Shared mutex that controls lock
+    bool            locked {true};      ///< True if lock is acquired
 };
 
 /**
@@ -129,15 +157,9 @@ public:
  */
 class CopyLockInt
 {
-    /**
-     * Unique lock that belongs to destination object
-     */
-    std::unique_lock<SharedMutex>   destinationLock;
+    WriteLockType   destinationLock;    ///< Unique lock that belongs to destination object
+    ReadLockType    sourceLock;         ///< Shared lock that belongs to source object
 
-    /**
-     * Shared lock that belongs to source object
-     */
-    std::shared_lock<SharedMutex>   sourceLock;
 
 public:
 
@@ -157,15 +179,8 @@ public:
  */
 class CompareLockInt
 {
-    /**
-     * Shared lock that belongs to first object
-     */
-    std::shared_lock<SharedMutex>   lock1;
-
-    /**
-     * Shared lock that belongs to second object
-     */
-    std::shared_lock<SharedMutex>   lock2;
+    ReadLockType   lock1;   ///< Shared lock that belongs to first object
+    ReadLockType   lock2;   ///< Shared lock that belongs to second object
 
 public:
 

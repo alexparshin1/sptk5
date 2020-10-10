@@ -4,7 +4,7 @@
 ║                       exceptions.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -33,22 +33,22 @@ using namespace sptk;
 
 int main()
 {
-    COUT("Let's try to throw the exception and catch it:" << endl);
+    COUT("Let's try to throw the exception and catch it:" << endl)
 
     try {
         // If something goes wrong, we can throw an exception here
         throw Exception("Error in something", __FILE__, __LINE__, "The full description is here.");
     } catch (const Exception& e) {
-        CERR("Caught exception: " << e.what() << endl);
+        CERR("Caught exception: " << e.what() << endl)
     }
 
-    COUT(endl << "Now let's try to load non-existing file and catch the exception:" << endl);
+    COUT(endl << "Now let's try to load non-existing file and catch the exception:" << endl)
 
     try {
         Buffer buffer;
         buffer.loadFromFile("/this/file/does/not/exist");
     } catch (const Exception& e) {
-        CERR("Caught exception: " << e.what() << endl);
+        CERR("Caught exception: " << e.what() << endl)
     }
 
     return 0;

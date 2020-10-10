@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CachedSSLContext.cpp - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday September 26 2018                            ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,7 +26,6 @@
 
 #include <sptk5/Buffer.h>
 #include "sptk5/net/CachedSSLContext.h"
-#include "sptk5/net/SSLKeys.h"
 
 using namespace std;
 using namespace sptk;
@@ -36,31 +33,38 @@ using namespace sptk;
 SharedMutex                             CachedSSLContext::m_mutex;
 CachedSSLContext::CachedSSLContextMap   CachedSSLContext::m_contexts;
 
-SSLContext* CachedSSLContext::get(const SSLKeys& keys)
+SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipherList)
 {
     String ident = keys.ident();
 
     UniqueLock(m_mutex);
 
-    auto itor = m_contexts.find(ident);
-    if (itor != m_contexts.end())
-        return &itor->second;
-
-    SSLContext& newContext = m_contexts[ident];
+    SharedSSLContext context = m_contexts[ident];
+    if (!context) {
+        context = make_shared<SSLContext>(cipherList);
+        m_contexts[ident] = context;
+    }
     if (!keys.privateKeyFileName().empty() || !keys.certificateFileName().empty())
-        newContext.loadKeys(keys);
+        context->loadKeys(keys);
 
-    return &newContext;
+    return context;
 }
 
-String CachedSSLContext::makeIdent(const String& keyFileName, const String& certificateFileName, const String& /*password*/,
-                             const String& caFileName, int verifyMode, int verifyDepth)
+String CachedSSLContext::makeIdent(const String& keyFileName, const String& certificateFileName,
+                                   const String& /*private key password*/,
+                                   const String& caFileName, int verifyMode, int verifyDepth, const String& cipherList)
 {
     Buffer buffer;
-    buffer.append(keyFileName); buffer.append('~');
-    buffer.append(certificateFileName); buffer.append('~');
-    buffer.append(caFileName); buffer.append('~');
-    buffer.append(int2string(verifyMode)); buffer.append('~');
+    buffer.append(keyFileName);
+    buffer.append('~');
+    buffer.append(certificateFileName);
+    buffer.append('~');
+    buffer.append(caFileName);
+    buffer.append('~');
+    buffer.append(int2string(verifyMode));
+    buffer.append('~');
     buffer.append(int2string(verifyDepth));
+    buffer.append(cipherList);
+    buffer.append('~');
     return String(buffer.c_str(), buffer.length());
 }

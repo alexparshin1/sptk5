@@ -4,7 +4,7 @@
 ║                       syslog_test.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -40,20 +40,20 @@ int main()
    COUT("in Windows registry." << endl << endl);
 #endif
    try {
-      COUT("Defining a log attributes: " << endl);
+      COUT("Defining a log attributes: " << endl)
       SysLogEngine   logger1("syslog_test", LOG_USER);
       Logger sysLog(logger1);
 
       SysLogEngine   logger2("syslog_test", LOG_AUTH);
       Logger authLog(logger2);
 
-      COUT("Sending 'Hello, World!' to the log.." << endl);
+      COUT("Sending 'Hello, World!' to the log.." << endl)
       sysLog.info("Hello, World! Welcome to SPTK.");
       authLog.log(LP_ALERT, "This is SPTK test message");
       sysLog.log(LP_WARNING, "Eating too much nuts will turn you into HappySquirrel!");
    }
    catch (const Exception& e) {
-      CERR(e.what() << endl);
+      CERR(e.what() << endl)
       return 1;
    }
 

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CThemes.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -60,7 +58,7 @@ enum CThemeButtonType { THM_BUTTON_COMBO, THM_BUTTON_CHECK, THM_BUTTON_RADIO, TH
  * Class CThemes is a static loader for the themes. Only one one instance of the class should exist, and it's created automatically.
  * The class allows to load a set of routines to draw the particular elements of the interface, and the images for these routines.
  */
-class CThemes :
+class SP_EXPORT CThemes :
     public CThemeScrollBar
 {
     friend class CBaseButton;
@@ -208,25 +206,6 @@ class CThemes :
      * @param sz CThemeButtonType, the general type of the button. @see CThemeButtonType for possible button types.
      */
     static CThemeImageCollection& sizeToButtonImages(CThemeButtonType sz);
-
-    /**
-     * Loads and sets the pixmap from the file for the given button size and type
-     * @param sz CThemeButtonType, theme button size
-     * @param bt CThemeImageState, theme button type
-     * @param fileName std::string, PNG file name
-     * @param extenalFile bool, true if the file is not a part of SPTK theme
-     */
-    static void replaceButton(CThemeButtonType sz,CThemeImageState bt,std::string fileName,bool externalFile=false);
-
-    /**
-     * Loads and sets the pixmap from the file for the given button size and type
-     * @param sz CThemeButtonType, theme button size
-     * @param bt CThemeImageState, theme button type
-     * @param fileNameNormal std::string, PNG file name for normal button image
-     * @param fileNameHighlighted std::string, PNG file name for highlighted button image
-     * @param extenalFile bool, true if the file is not a part of SPTK theme
-     */
-    static void replaceButton(CThemeButtonType sz,CThemeImageState btndx,std::string fileNameNormal,std::string fileNameHighlighted,bool externalFile);
 
     /**
      * Loads and sets the pixmap from the file for the given pixmap array member
@@ -453,9 +432,7 @@ public:
     /**
      * Returns the button focuse corner radius
      */
-    static int  buttonFocusRadius() {
-        return m_buttonFocusRadius;
-    }
+    static int  buttonFocusRadius();
 
     /**
      * Draws a check button image
@@ -535,12 +512,12 @@ public:
     /**
      * @brief Returns theme name
      */
-    static std::string name() { return m_name; }
+	static std::string name();
 
     /**
      * @brief Returns path to the theme folder
      */
-    static std::string themeFolder() { return m_themeFolder; }
+	static std::string themeFolder();
 
     /**
      * @brief Theme tar archive. Contains all the theme data

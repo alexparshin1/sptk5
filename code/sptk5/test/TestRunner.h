@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TestRunner.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,7 +34,7 @@ namespace sptk {
 /**
  * GTest run test wrapper
  */
-class TestRunner
+class SP_EXPORT TestRunner
 {
     int&        m_argc;     ///< Reference to command line arguments number
     char**&     m_argv;     ///< Reference to command line arguments array
@@ -52,13 +50,13 @@ public:
      * Define database connection for DB module that should be tested
      * @param connectionString
      */
-    void addDatabaseConnection(const DatabaseConnectionString& connectionString);
+    void addDatabaseConnection(const DatabaseConnectionString& connectionString) const;
 
     /**
      * Actually run tests
      * @return 0 if tests were successful
      */
-    int runAllTests();
+    [[nodiscard]] int runAllTests();
 };
 
 } // namespace sptk

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       LogEngine.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,16 +30,14 @@ using namespace std;
 using namespace sptk;
 
 LogEngine::LogEngine(const String& logEngineName)
-: Thread(logEngineName),
-  m_minPriority(LP_INFO),
-  m_options(LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY)
+: Thread(logEngineName)
 {
 }
 
 LogEngine::~LogEngine()
 {
-    Thread::terminate();
-    Thread::join();
+    terminate();
+    join();
 }
 
 void LogEngine::option(Option option, bool flag)
@@ -78,7 +74,7 @@ LogPriority LogEngine::priorityFromName(const String& prt)
 {
     static const Strings priorityNames("DEBUG|INFO|NOTICE|WARNING|ERROR|CRITICAL|ALERT|PANIC", "|");
 
-    switch (priorityNames.indexOf(prt)) {
+    switch (priorityNames.indexOf(prt.toUpperCase())) {
         case 0:
             return LP_DEBUG;
         case 1:
@@ -115,28 +111,31 @@ void LogEngine::threadFunction()
 {
     chrono::seconds timeout(1);
     while (!terminated()) {
+
         Logger::Message* message;
-        if (m_messages.pop(message, timeout)) {
-            saveMessage(message);
+        if (!m_messages.pop(message, timeout))
+            continue;
 
-            if (m_options & LO_STDOUT) {
-                string messagePrefix;
-                if (m_options & LO_DATE)
-                    messagePrefix += message->timestamp.dateString() + " ";
+        saveMessage(message);
 
-                if (m_options & LO_TIME)
-                    messagePrefix += message->timestamp.timeString(true) + " ";
+        if (m_options & LO_STDOUT) {
+            string messagePrefix;
+            if (m_options & LO_DATE)
+                messagePrefix += message->timestamp.dateString() + " ";
 
-                if (m_options & LO_PRIORITY)
-                    messagePrefix += "[" + priorityName(message->priority) + "] ";
+            if (m_options & LO_TIME)
+                messagePrefix += message->timestamp.timeString(true) + " ";
 
-                FILE* dest = stdout;
-                if (message->priority <= LP_ERROR)
-                    dest = stderr;
-                fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
-            }
+            if (m_options & LO_PRIORITY)
+                messagePrefix += "[" + priorityName(message->priority) + "] ";
 
-            delete message;
+            FILE* dest = stdout;
+            if (message->priority <= LP_ERROR)
+                dest = stderr;
+            fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
+            fflush(dest);
         }
+
+        delete message;
     }
 }

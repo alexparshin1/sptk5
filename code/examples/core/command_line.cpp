@@ -4,7 +4,7 @@
 ║                       command_line.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -49,9 +49,9 @@ int main(int argc, const char* argv[])
         commandLine.init(argc, argv);
     }
     catch (const Exception& e) {
-        CERR("Error in command line arguments:" << endl);
-        CERR(e.what() << endl);
-        COUT(endl);
+        CERR("Error in command line arguments:" << endl)
+        CERR(e.what() << endl)
+        COUT(endl)
         commandLine.printHelp(80);
         return 1;
     }
@@ -71,14 +71,14 @@ int main(int argc, const char* argv[])
             // Print help on command (if any) or full help
             commandLine.printHelp(command, 80);
         } else {
-            COUT("Archive mode: " << commandLine.getOptionValue("archive-mode") << endl);
-            COUT("Archive date: " << commandLine.getOptionValue("archive-date") << endl);
+            COUT("Archive mode: " << commandLine.getOptionValue("archive-mode") << endl)
+            COUT("Archive date: " << commandLine.getOptionValue("archive-date") << endl)
         }
 
         return 0;
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
 }

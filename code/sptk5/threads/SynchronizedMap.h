@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SynchronizedMap.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,6 +29,7 @@
 
 #include <sptk5/sptk.h>
 #include <map>
+#include <functional>
 
 namespace sptk {
 
@@ -40,7 +39,7 @@ namespace sptk {
  */
 
 /**
- * @brief Synchronized map
+ * Synchronized map
  *
  * Simple thread-safe map
  */
@@ -61,57 +60,60 @@ class SynchronizedMap
 public:
 
     /**
-     * @brief Map callback function used in each() method.
+     * Map callback function used in each() method.
      *
      * Iterates through list until false is returned.
      * @param key const K&, Map item key
      * @param item T&, Map item
      * @param data void*, Optional function-specific data
      */
-    typedef bool (CallbackFunction)(const K& key, T& item, void* data);
+    typedef std::function<bool(const K& key, T& item)>  CallbackFunction;
 
     /**
-     * @brief Default constructor
+     * Default constructor
      */
     SynchronizedMap()
     {}
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~SynchronizedMap()
     {}
 
     /**
-     * @brief Inserts data item to the map
+     * Inserts data item to the map
      * @param key const K&, A data key
      * @param data const T&, A data item
      */
     virtual void insert(const K& key, const T& data)
     {
         std::lock_guard<std::mutex> lock(m_sync);
-        m_map[key] = data;
+        m_map.emplace(key, data);
     }
 
     /**
-     * @brief Finds a data item from the list front
+     * Finds a data item from the list front
      *
      * Returns true if key exists and data populated.
-     * @param key const K&, A data key
-     * @param item T&, A list item (output)
+     * @param key               A data key
+     * @param item              A list item (output)
+     * @param remove            If true, then item is removed from map
      */
-    virtual bool get(const K& key, T& item)
+    virtual bool get(const K& key, T& item, bool remove=false)
     {
         std::lock_guard<std::mutex> lock(m_sync);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
             return false;
         item = itor->second;
+        if (remove)
+            m_map.erase(itor);
         return true;
     }
 
     /**
-     * @brief Removes data with matching key
+     * Removes data with matching key
      *
      * Returns true if key existed.
      * @param key const K&, A data key
@@ -127,7 +129,7 @@ public:
     }
 
     /**
-     * @brief Returns true if the list is empty
+     * Returns true if the list is empty
      */
     bool empty() const
     {
@@ -136,16 +138,16 @@ public:
     }
 
     /**
-     * @brief Returns number of items in the list
+     * Returns number of items in the list
      */
-    uint32_t size() const
+    size_t size() const
     {
         std::lock_guard<std::mutex> lock(m_sync);
         return m_map.size();
     }
 
     /**
-     * @brief Removes all items from the list
+     * Removes all items from the list
      */
     void clear()
     {
@@ -154,17 +156,15 @@ public:
     }
 
     /**
-     * @brief Calls callbackFunction() for every list until false is returned
-     * @param callbackFunction CallbackFunction*, Callback function that is executed for list items
-     * @param data void*, Function-specific data
-     * @returns true if every list item was processed
+     * Calls callbackFunction() for every list until false is returned
+     * @param callbackFunction  Callback function that is executed for list items
+     * @returns true  if every list item was processed
      */
-    bool each(CallbackFunction* callbackFunction, void* data=NULL)
+    bool for_each(CallbackFunction callbackFunction)
     {
         std::lock_guard<std::mutex> lock(m_sync);
-        typename Map::iterator itor;
-        for (itor = m_map.begin(); itor != m_map.end(); itor++) {
-            if (!callbackFunction(itor->first, itor->second, data))
+        for (auto itor: m_map) {
+            if (!callbackFunction(itor.first, itor.second))
                 return false;
         }
         return true;

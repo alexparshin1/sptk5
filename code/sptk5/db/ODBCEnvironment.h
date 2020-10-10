@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        ODBCEnvironment.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -66,21 +64,9 @@ class ODBCConnectionBase;
  *
  * Base class for all ODBC classes
  */
-class SP_DRIVER_EXPORT ODBCBase
+class SP_DRIVER_EXPORT ODBCBase : public std::mutex
 {
 	friend class ODBCConnection;
-
-protected:
-
-    /**
-     * Mutex that protects access to data memebers
-     */
-    mutable std::mutex	m_mutex;
-
-    /**
-     * Constructor
-     */
-    ODBCBase() = default;
 
 public:
 
@@ -92,7 +78,14 @@ public:
     /**
      * Throws the exception
      */
-    void exception(const String& text, int line) const;
+    [[noreturn]] void exception(const String& text, int line) const;
+
+protected:
+
+    /**
+     * Constructor
+     */
+    ODBCBase() = default;
 
 private:
 
@@ -116,17 +109,37 @@ class SP_DRIVER_EXPORT ODBCEnvironment : public ODBCBase
 {
     friend class ODBCConnectionBase;
 
+public:
+
     /**
-     * ODBC environment handle
+     * Returns enviromment handle
      */
-    SQLHENV m_hEnvironment;
+    SQLHENV handle() const
+    {
+        return m_hEnvironment;
+    }
+
+    /**
+     * Deleted copy constructor
+     */
+    ODBCEnvironment(const ODBCEnvironment&) = delete;
+
+    /**
+     * Destructor
+     */
+    ~ODBCEnvironment();
+
+    /**
+     * Deleted copy assignment
+     */
+    ODBCEnvironment& operator = (const ODBCEnvironment&) = delete;
 
 protected:
 
     /**
      * Constructor
      */
-    ODBCEnvironment();
+    ODBCEnvironment() = default;
 
     /**
      * Allocates enviromment handle
@@ -146,20 +159,11 @@ protected:
         return m_hEnvironment != SQL_NULL_HENV;
     }
 
-public:
-
+private:
     /**
-     * Returns enviromment handle
+     * ODBC environment handle
      */
-    SQLHENV handle() const
-    {
-        return m_hEnvironment;
-    }
-
-    /**
-     * Destructor
-     */
-    ~ODBCEnvironment();
+    SQLHENV m_hEnvironment {SQL_NULL_HENV};
 };
 
 /**
@@ -169,33 +173,12 @@ public:
  */
 class SP_DRIVER_EXPORT ODBCConnectionBase : public ODBCBase
 {
-    ODBCEnvironment&    m_cEnvironment;     ///< ODBC environment
-    SQLHDBC             m_hConnection;      ///< ODBC connection handle
-    bool                m_connected;        ///< Is connection active?
-    String              m_connectString;    ///< ODBC connection string
-    String              m_driverDescription;///< Driver description, filled in during the connection to the DSN
-
-protected:
-    /**
-     * Is connection active?
-     */
-    bool valid() const
-    {
-        return m_hConnection != SQL_NULL_HDBC;
-    }
-
-    /**
-     * Execute query in current connection
-     * @param query             Query to execute
-     */
-    void execQuery(const char* query);
-
 public:
 
     /**
      * Default constructor
      */
-    ODBCConnectionBase();
+    ODBCConnectionBase() = default;
 
     /**
      * Default destructor
@@ -234,9 +217,9 @@ public:
     /**
      * Returns true if the connection is active
      */
-    bool isConnected() const
+    bool isConnected()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::lock_guard<std::mutex> lock(*this);
         return m_connected;
     }
 
@@ -248,18 +231,18 @@ public:
     /**
      * Returns the ODBC connection string for the active connection
      */
-    String connectString() const
+    String connectString()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::lock_guard<std::mutex> lock(*this);
         return m_connectString;
     }
 
     /**
      * Returns the ODBC driver description string for the active connection
      */
-    String driverDescription() const
+    String driverDescription()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::lock_guard<std::mutex> lock(*this);
         return m_driverDescription;
     }
 
@@ -299,6 +282,29 @@ public:
      * @returns ODBC driver error message with the user action
      */
     String errorInformation(const char* action);
+
+protected:
+    /**
+     * Is connection active?
+     */
+    bool valid() const
+    {
+        return m_hConnection != SQL_NULL_HDBC;
+    }
+
+    /**
+     * Execute query in current connection
+     * @param query             Query to execute
+     */
+    void execQuery(const char* query);
+
+private:
+
+    ODBCEnvironment&    m_cEnvironment {getEnvironment()};  ///< ODBC environment
+    SQLHDBC             m_hConnection {SQL_NULL_HDBC};      ///< ODBC connection handle
+    bool                m_connected {false};                ///< Is connection active?
+    String              m_connectString;                    ///< ODBC connection string
+    String              m_driverDescription;                ///< Driver description, filled in during the connection to the DSN
 };
 
 /**

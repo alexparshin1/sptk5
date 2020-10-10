@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CButton.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -115,7 +113,7 @@ class SP_EXPORT CBaseButton : public Fl_Button, public CLayoutClient
      * @param xe int, x-coordinate for the ending point
      * @param ye int, y-coordinate for the ending point
      */
-    void drawFocusLine(int xs, int ys, int xe, int ye);
+    static void drawFocusLine(int xs, int ys, int xe, int ye);
 
     /**
      * Button kind (for a stock image) or SP_UNDEFINED_BUTTON for user_defined image
@@ -297,7 +295,7 @@ public:
      * @param label const char * label
      * @param tbt CThemeButtonType, the size type of the button
      */
-    CButton(CButtonKind kind, CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, const char* label = 0,
+    CButton(CButtonKind kind, CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, const char* label = "",
             CThemeButtonType tbt = THM_BUTTON_NORMAL)
             : CBaseButton(kind, layoutAlign, false, label, tbt)
     {}
@@ -308,7 +306,7 @@ public:
      * @param layoutAlign CLayoutAlign widget align in layout
      * @param tbt CThemeButtonType, the button type (size)
      */
-    CButton(const char* label = 0, CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, CThemeButtonType tbt = THM_BUTTON_NORMAL)
+    CButton(const char* label = "", CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, CThemeButtonType tbt = THM_BUTTON_NORMAL)
             : CBaseButton(label, layoutAlign, tbt)
     {}
 

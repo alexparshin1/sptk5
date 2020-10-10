@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CRadioButtons.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -33,7 +31,6 @@
 #include <FL/fl_draw.H>
 
 #include <sptk5/gui/CScroll.h>
-#include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CRadioButtons.h>
 #include <sptk5/gui/CThemes.h>
 
@@ -164,7 +161,7 @@ int32_t CRadioButtons::intValue() const
         if (!b)
             continue;
         if (b->value())
-            return (int32_t) (long) b->user_data();
+            return (int32_t) (uint64_t) b->user_data();
     }
     return 0;
 }
@@ -178,7 +175,7 @@ void CRadioButtons::intValue(int32_t v)
         auto* btn = dynamic_cast<Fl_Button*>(group->child(i));
         if (!btn)
             continue;
-        if (long(btn->user_data()) == v) {
+        if (int64_t(btn->user_data()) == v) {
             btn->value(1);
             break;
         }

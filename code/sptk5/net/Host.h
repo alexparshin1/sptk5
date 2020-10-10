@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       cnet - description                                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday September 13 2017                            ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -54,12 +52,12 @@ namespace sptk {
 /**
  * Network host information
  */
-class Host
+class SP_EXPORT Host
 {
     mutable SharedMutex m_mutex;                            ///< Mutex to protect internal class data
     String              m_hostname;                         ///< Host name or IP address
     uint16_t            m_port {0};                         ///< Port number
-    uint8_t             m_address[sizeof(sockaddr_in6)];    ///< Storage for IPv4 and IPv6 addresses
+    uint8_t             m_address[sizeof(sockaddr_in6)] {}; ///< Storage for IPv4 and IPv6 addresses
 
     /**
      * Get address presentation as generic IP address
@@ -76,7 +74,7 @@ class Host
      */
     const sockaddr& any() const
     {
-        return *(sockaddr*) m_address;
+        return *(const sockaddr*) m_address;
     }
 
     /**
@@ -94,7 +92,7 @@ class Host
      */
     const sockaddr_in& ip_v4() const
     {
-        return *(sockaddr_in*) m_address;
+        return *(const sockaddr_in*) m_address;
     }
 
     /**
@@ -112,7 +110,7 @@ class Host
      */
     const sockaddr_in6& ip_v6() const
     {
-        return *(sockaddr_in6*) m_address;
+        return *(const sockaddr_in6*) m_address;
     }
 
     /**
@@ -148,6 +146,12 @@ public:
     explicit Host(const String& hostAndPort);
 
     /**
+     * Constructor
+     * @param addressAndPort    The host and port, ether IPv4 or IPv6
+     */
+    explicit Host(const sockaddr_in* addressAndPort);
+
+    /**
      * Copy constructor
      * @param other             The other object
      */
@@ -162,8 +166,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~Host()
-    {}
+    virtual ~Host() = default;
 
     /**
      * Assign from another host

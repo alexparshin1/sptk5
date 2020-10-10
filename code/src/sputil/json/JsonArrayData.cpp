@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       JsonArrayData.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 16 2013                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -42,15 +40,6 @@ ArrayData::~ArrayData()
 {
     for (Element* element: m_items)
         delete element;
-}
-
-void ArrayData::setParent(Element* parent)
-{
-    if (m_parent != parent) {
-        m_parent = parent;
-        for (Element *element: m_items)
-            element->m_parent = parent;
-    }
 }
 
 void ArrayData::add(Element* element)

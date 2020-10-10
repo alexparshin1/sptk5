@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SSLKeys.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday Feb 8 2019                                      ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,23 +30,19 @@
 using namespace std;
 using namespace sptk;
 
-SSLKeys::SSLKeys(const String& privateKeyFileName, const String& certificateFileName,
-                 const String& password, const String& caFileName, int verifyMode,
+SSLKeys::SSLKeys(String privateKeyFileName, String certificateFileName,
+                 String password, String caFileName, int verifyMode,
                  int verifyDepth)
-: m_privateKeyFileName(privateKeyFileName), m_certificateFileName(certificateFileName),
-  m_password(password), m_caFileName(caFileName), m_verifyMode(verifyMode), m_verifyDepth(verifyDepth)
+        : m_privateKeyFileName(std::move(privateKeyFileName)), m_certificateFileName(std::move(certificateFileName)),
+          m_password(std::move(password)), m_caFileName(std::move(caFileName)), m_verifyMode(verifyMode),
+          m_verifyDepth(verifyDepth)
 {
 }
 
 SSLKeys::SSLKeys(const SSLKeys& other)
 {
     SharedLock(other.m_mutex);
-    m_privateKeyFileName = other.m_privateKeyFileName;
-    m_certificateFileName = other.m_certificateFileName;
-    m_password = other.m_password;
-    m_caFileName = other.m_caFileName;
-    m_verifyMode = other.m_verifyMode;
-    m_verifyDepth = other.m_verifyDepth;
+    assign(other);
 }
 
 SSLKeys& SSLKeys::operator=(const SSLKeys& other)
@@ -56,13 +50,18 @@ SSLKeys& SSLKeys::operator=(const SSLKeys& other)
     CopyLock(m_mutex, other.m_mutex);
     if (&other == this)
         return *this;
+    assign(other);
+    return *this;
+}
+
+void SSLKeys::assign(const SSLKeys& other)
+{
     m_privateKeyFileName = other.m_privateKeyFileName;
     m_certificateFileName = other.m_certificateFileName;
     m_password = other.m_password;
     m_caFileName = other.m_caFileName;
     m_verifyMode = other.m_verifyMode;
     m_verifyDepth = other.m_verifyDepth;
-    return *this;
 }
 
 String SSLKeys::privateKeyFileName() const
@@ -104,10 +103,14 @@ int SSLKeys::verifyDepth() const
 String SSLKeys::ident() const
 {
     Buffer buffer;
-    buffer.append(m_privateKeyFileName); buffer.append('~');
-    buffer.append(m_certificateFileName); buffer.append('~');
-    buffer.append(m_caFileName); buffer.append('~');
-    buffer.append(to_string(m_verifyMode)); buffer.append('~');
+    buffer.append(m_privateKeyFileName);
+    buffer.append('~');
+    buffer.append(m_certificateFileName);
+    buffer.append('~');
+    buffer.append(m_caFileName);
+    buffer.append('~');
+    buffer.append(to_string(m_verifyMode));
+    buffer.append('~');
     buffer.append(to_string(m_verifyDepth));
     return String(buffer.c_str(), buffer.length());
 }

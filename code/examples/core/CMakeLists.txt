@@ -10,7 +10,7 @@ ENDIF (UNIX)
 
 SET (CONSOLE_TESTS
      command_line datetime exceptions logfile_test syslog_test
-     unique_instance registry string2md5 encrypt_decrypt timer
+     unique_instance string2md5 encrypt_decrypt timer
      zlib_test
     )
 
@@ -32,7 +32,7 @@ FOREACH (CONSOLE_TEST ${CONSOLE_TESTS})
 ENDFOREACH (CONSOLE_TEST)
 
 INSTALL(TARGETS ${CONSOLE_TESTS}
-    RUNTIME DESTINATION lib/sptk5/bin
+    RUNTIME DESTINATION share/sptk5/bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )

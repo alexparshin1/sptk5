@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday Sep 17 2015                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -38,11 +36,11 @@ namespace sptk {
 
 class LoadBalance : public Thread
 {
-    int                   m_listenerPort;
+    uint16_t              m_listenerPort;
     Loop<Host>&           m_destinations;
     Loop<String>&         m_interfaces;
-    SocketEvents          m_sourceEvents;
-    SocketEvents          m_destinationEvents;
+    SocketEvents          m_sourceEvents      { "Source Events", sourceEventCallback };
+    SocketEvents          m_destinationEvents { "Destination Events", destinationEventCallback };
 
     TCPSocket             m_listener;
 
@@ -51,8 +49,8 @@ class LoadBalance : public Thread
     static void sourceEventCallback(void *userData, SocketEventType eventType);
     static void destinationEventCallback(void *userData, SocketEventType eventType);
 public:
-    LoadBalance(int listenerPort, Loop<Host>& destinations, Loop<String>& interfaces);
-    ~LoadBalance();
+    LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces);
+    ~LoadBalance() override = default;
 };
 
 }

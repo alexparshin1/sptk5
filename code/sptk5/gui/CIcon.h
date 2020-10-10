@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CIcon.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -147,7 +145,7 @@ public:
 /**
  * @brief A map of theme icon names to theme icons
  */
-class CIconMap: public std::map<std::string, CIcon*, CaseInsensitiveCompare>
+class SP_EXPORT CIconMap: public std::map<std::string, CIcon*, CaseInsensitiveCompare>
 {
     bool m_shared;
 public:

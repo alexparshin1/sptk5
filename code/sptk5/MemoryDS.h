@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       MemoryDS.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -50,69 +48,45 @@ namespace sptk {
  * can be loaded all at once, in the datasource open() operation. It's a base class
  * for several actual datasources.
  */
-class MemoryDS : public DataSource
+class SP_EXPORT MemoryDS : public DataSource
 {
-    mutable SharedMutex     m_mutex;
-
+public:
     /**
-     * Internal list of the dataset records
+     * Default constructor
      */
-    std::vector<FieldList*> m_list;
+    MemoryDS() : DataSource() {}
 
     /**
-     * Current record in the dataset.
+     * Deleted copy constructor
+     * @param other             Other object
      */
-    FieldList*              m_current;
+    MemoryDS(const MemoryDS& other) = delete;
 
     /**
-     * The index of the current record.
-     */
-    uint32_t                m_currentIndex;
-
-    /**
-     * EOF flag for sequentual reading first(),next()..next().
-     */
-    bool                    m_eof;
-
-protected:
-
-    /**
-     * Default constructor is protected, to prevent creating of the instance of that class
-     */
-    MemoryDS()
-    : DataSource(), m_current(nullptr), m_currentIndex(0), m_eof(false)
-    {}
-
-    /**
-     * Move constructor is protected, to prevent creating of the instance of that class
+     * Move constructor
+     * @param other             Other object
      */
     MemoryDS(MemoryDS&& other) noexcept
-    : m_list(std::move(other.m_list)), m_current(other.m_current), m_currentIndex(other.m_currentIndex),
-      m_eof(other.m_eof)
+    : m_list(std::move(other.m_list)), m_current(std::move(other.m_current))
     {
-        other.m_current = 0;
-        other.m_currentIndex = 0;
-        other.m_eof = false;
-    }
-
-    std::vector<FieldList*>& rows()
-    {
-        return m_list;
-    }
-
-    const std::vector<FieldList*>& rows() const
-    {
-        return m_list;
     }
 
     /**
-     * Push back field list.
-     * Memory DS takes ownership of the data
-     * @param fieldList         Field list
+     * Deleted copy assignment
+     * @param other             Other object
      */
-    void push_back(FieldList* fieldList);
+    MemoryDS& operator = (const MemoryDS& other) = delete;
 
-public:
+    /**
+     * Move assignment
+     * @param other             Other object
+     */
+    MemoryDS& operator = (MemoryDS&& other) noexcept
+    {
+        m_list = std::move(other.m_list);
+        m_current = std::move(other.m_current);
+        return *this;
+    }
 
     /**
      * Destructor
@@ -134,7 +108,7 @@ public:
     virtual FieldList& current()
     {
         UniqueLock(m_mutex);
-        return *m_current;
+        return *(*m_current);
     }
 
     /**
@@ -142,111 +116,109 @@ public:
      * @param fieldIndex int, field index
      * @returns field reference
      */
-    virtual const Field& operator[](uint32_t fieldIndex) const;
-
-    /**
-     * Field access by the field index, non-const version.
-     * @param fieldIndex int, field index
-     * @returns field reference
-     */
-    virtual Field& operator[](uint32_t fieldIndex);
-
-    /**
-     * Field access by the field name, const version.
-     * @param fieldName const char *, field name
-     * @returns field reference
-     */
-    virtual const Field& operator[](const String& fieldName) const;
+    Field& operator[](size_t fieldIndex) override;
 
     /**
      * Field access by the field name, non-const version.
      * @param fieldName const char *, field name
      * @returns field reference
      */
-    virtual Field& operator[](const String& fieldName);
-
-    /**
-     * Returns user_data associated with the datasource.
-     */
-    virtual void* user_data() const
-    {
-        return m_current->user_data();
-    }
+    virtual Field& operator[](const String& fieldName) override;
 
     /**
      * Returns field count in the datasource.
      * @returns field count
      */
-    virtual uint32_t fieldCount() const;
+    size_t fieldCount() const override;
 
     /**
      * Returns record count in the datasource.
      * @returns record count
      */
-    virtual uint32_t recordCount() const;
+    size_t recordCount() const override;
 
     /**
      * Reads the field by name from the datasource.
      * @param fieldName const char *, field name
      * @param fieldValue CVariant, field value
      */
-    virtual bool readField(const char* fieldName, Variant& fieldValue);
+    bool readField(const char* fieldName, Variant& fieldValue) override;
 
     /**
      * Writes the field by name from the datasource.
      * @param fieldName const char *, field name
      * @param fieldValue CVariant, field value
      */
-    virtual bool writeField(const char* fieldName, const Variant& fieldValue);
+    bool writeField(const char* fieldName, const Variant& fieldValue) override;
 
     /**
      * Opens the datasource. Implemented in derved class.
      */
-    virtual bool open()
-    {
-        throw Exception("Not implemented yet");
-    }
+    bool open() override;
 
     /**
      * Closes the datasource.
      */
-    virtual bool close();
+    bool close() override;
 
     /**
      * Moves to the first record of the datasource.
      */
-    virtual bool first();
+    bool first() override;
 
     /**
      * Moves to the next record of the datasource.
      */
-    virtual bool next();
+    bool next() override;
 
     /**
      * Moves to the prior record of the datasource.
      */
-    virtual bool prior();
+    bool prior() override;
 
     /**
      * Moves to the last record of the datasource.
      */
-    virtual bool last();
+    bool last() override;
 
     /**
      * Finds the record by the record position (defined by record's user_data or key).
      */
-    virtual bool find(Variant position);
+    bool find(const String& fieldName, const Variant& position) override;
 
     /**
      * Returns true if there are no more records in the datasource. Implemented in derved class.
      */
-    virtual bool eof() const
+    bool eof() const override
     {
         SharedLock(m_mutex);
-        return m_eof;
+        return m_current == m_list.end();
     }
 
     bool empty() const;
+
+    std::vector<FieldList*>& rows()
+    {
+        return m_list;
+    }
+
+    const std::vector<FieldList*>& rows() const
+    {
+        return m_list;
+    }
+
+    /**
+     * Push back field list.
+     * Memory DS takes ownership of the data
+     * @param fieldList         Field list
+     */
+    void push_back(FieldList* fieldList);
+
+private:
+
+    mutable SharedMutex                 m_mutex;
+    std::vector<FieldList*>             m_list;     // List of the dataset records
+    std::vector<FieldList*>::iterator   m_current;  // DS iterator
 };
 /**
  * @}

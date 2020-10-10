@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CParamList.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -43,18 +41,14 @@ QueryParameterList::~QueryParameterList()
     try {
         clear();
     } catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 }
 
 void QueryParameterList::clear()
 {
-    unsigned sz = size();
-
-    for (unsigned i = 0; i < sz; i++) {
-        auto* item = (QueryParameter*) m_items[i];
+    for (auto* item: m_items)
         delete item;
-    }
 
     m_items.clear();
     m_index.clear();
@@ -67,10 +61,9 @@ void QueryParameterList::add(QueryParameter* item)
     item->m_paramList = this;
 }
 
-QueryParameter* QueryParameterList::find(const char* paramName)
+QueryParameter* QueryParameterList::find(const String& paramName)
 {
-    string pname(paramName);
-    auto itor = m_index.find(pname);
+    auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
         return nullptr;
@@ -78,33 +71,27 @@ QueryParameter* QueryParameterList::find(const char* paramName)
     return itor->second;
 }
 
-QueryParameter& QueryParameterList::operator[](const char* paramName) const
+QueryParameter& QueryParameterList::operator[](const String& paramName) const
 {
-    string pname(paramName);
-    auto itor = m_index.find(pname);
+    auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
-        throwException("Invalid parameter name: " << pname);
+        throwException("Invalid parameter name: " << paramName)
 
     return *itor->second;
 }
 
-QueryParameter& QueryParameterList::operator[](const std::string& paramName) const
+QueryParameter& QueryParameterList::operator[](size_t index) const
 {
-    return operator[](paramName.c_str());
+    return *m_items[index];
 }
 
-QueryParameter& QueryParameterList::operator[](int32_t index) const
+size_t QueryParameterList::size() const
 {
-    return *m_items[size_t(index)];
+    return m_items.size();
 }
 
-uint32_t QueryParameterList::size() const
-{
-    return (uint32_t) m_items.size();
-}
-
-void QueryParameterList::remove(uint32_t i)
+void QueryParameterList::remove(size_t i)
 {
     auto itor = m_items.begin() + i;
     QueryParameter* item = *itor;
@@ -113,10 +100,8 @@ void QueryParameterList::remove(uint32_t i)
     delete item;
 }
 
-void QueryParameterList::enumerate(CParamVector& params)
+void QueryParameterList::enumerate(CParamVector& params) const
 {
-    CParamVector::iterator ptor;
-    IntList::iterator btor;
     params.resize(m_items.size() * 2);
 
     if (m_items.empty())
@@ -124,13 +109,10 @@ void QueryParameterList::enumerate(CParamVector& params)
 
     size_t maxIndex = 0;
 
-    for (ptor = m_items.begin(); ptor != m_items.end(); ++ptor) {
-        QueryParameter* param = *ptor;
-        IntList& bindIndex = param->m_bindParamIndexes;
+    for (auto* param: m_items) {
+        const auto& bindIndex = param->m_bindParamIndexes;
 
-        for (btor = bindIndex.begin(); btor != bindIndex.end(); ++btor) {
-            size_t index = *btor;
-
+        for (auto index: bindIndex) {
             if (index >= params.size())
                 params.resize(index + 1);
 

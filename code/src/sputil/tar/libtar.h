@@ -19,8 +19,6 @@
 #include <cstddef>
 #include <string>
 
-#include "libtar_listhash.h"
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -71,24 +69,22 @@ typedef int (*writefunc_t)(int, const void *, size_t);
 
 typedef struct
 {
-	openfunc_t openfunc;
+	openfunc_t  openfunc;
 	closefunc_t closefunc;
-	readfunc_t readfunc;
+	readfunc_t  readfunc;
 	writefunc_t writefunc;
 }
 tartype_t;
 
-typedef struct
+struct TAR
 {
-	tartype_t *type;
-	char *pathname;
+	const tartype_t *type;
+	const char *pathname;
 	long fd;
 	int oflags;
 	int options;
 	struct tar_header th_buf;
-	libtar_hash_t *h;
-}
-TAR;
+};
 
 /* constant values for the TAR options field */
 #define TAR_GNU			 1	/* use GNU extensions */
@@ -103,8 +99,7 @@ TAR;
 #define TAR_IGNORE_MAGIC	0
 
 /* open a new tarfile handle */
-int tar_open(TAR **t, char *pathname, tartype_t *type,
-	     int oflags, int mode, int options);
+TAR* tar_open(const char *pathname, const tartype_t *type, int oflags, int mode, int options);
 
 /* close tarfile handle */
 int tar_close(TAR *t);
@@ -150,14 +145,14 @@ void th_get_pathname(TAR *t, char* path, size_t sz);
 /***** util.c *************************************************************/
 
 /* hashing function for pathnames */
-int path_hashfunc(char *key, int numbuckets);
+int path_hashfunc(const char *key, int numbuckets);
 
 /* calculate header checksum */
 int th_crc_calc(TAR *t);
 #define th_crc_ok(t) (th_get_crc(t) == th_crc_calc(t))
 
 /* string-octal to integer conversion */
-int oct_to_int(char *oct);
+int oct_to_int(const char *oct);
 
 
 #ifdef __cplusplus

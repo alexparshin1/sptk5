@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       unit_tests.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,8 +25,6 @@
 */
 
 #include <sptk5/test/TestRunner.h>
-#include <sptk5/threads/Locks.h>
-#include <sptk5/DateTime.h>
 
 using namespace std;
 using namespace sptk;
@@ -40,7 +36,7 @@ int main(int argc, char* argv[])
     tests.addDatabaseConnection(DatabaseConnectionString("postgresql://gtest:test#123@dbhost_pg:5432/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("mssql://gtest:test#123@dsn_mssql/gtest"));
-    tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/XE"));
+    tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/xe"));
 
     return tests.runAllTests();
 }

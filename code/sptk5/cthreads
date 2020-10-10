@@ -35,6 +35,7 @@
 #include <sptk5/threads/SynchronizedList.h>
 #include <sptk5/threads/SynchronizedMap.h>
 #include <sptk5/threads/SynchronizedQueue.h>
+#include <sptk5/threads/Timer.h>
 #include <sptk5/threads/ThreadPool.h>
 
 #endif

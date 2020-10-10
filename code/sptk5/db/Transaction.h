@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        Transaction.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -49,27 +47,37 @@ namespace sptk {
  */
 class SP_EXPORT Transaction
 {
-    /**
-     * Transaction activity
-     */
-    bool                    m_active;
-
-    /**
-     * Database to work with
-     */
-    PoolDatabaseConnection*     m_db;
-
 public:
     /**
      * Constructor
      * @param db DatabaseConnection&, the database to work with
      */
-    explicit Transaction(DatabaseConnection db);
+    explicit Transaction(const DatabaseConnection& db);
+
+    /**
+     * Deleted copy constructor
+     */
+    Transaction(const Transaction&) = delete;
+
+    /**
+     * Move constructor
+     */
+    Transaction(Transaction&&) = default;
 
     /**
      * Destructor
      */
     ~Transaction();
+
+    /**
+     * Deleted copy assignment
+     */
+    Transaction& operator = (const Transaction&) = delete;
+
+    /**
+     * Move assignment
+     */
+    Transaction& operator = (Transaction&&) = default;
 
     /**
      * Begins the transaction
@@ -93,6 +101,11 @@ public:
     {
         return m_active;
     }
+
+private:
+
+    bool                        m_active {false};   ///< Transaction activity
+    PoolDatabaseConnection*     m_db;               ///< Database to work with
 };
 /**
  * @}

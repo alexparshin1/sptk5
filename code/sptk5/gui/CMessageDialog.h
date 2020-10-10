@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CMessageDialog.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -48,7 +46,7 @@ namespace sptk {
  *
  * Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
  */
-class CAskDialog : public CDialog {
+class SP_EXPORT CAskDialog : public CDialog {
     /**
      * The icon box
      */
@@ -94,7 +92,7 @@ public:
  *
  * Creates a dialog with the text or HTML text of message and one button (Ok)
  */
-class CMessageDialog : public CAskDialog {
+class SP_EXPORT CMessageDialog : public CAskDialog {
 public:
     /**
      * Constructor
@@ -111,7 +109,7 @@ public:
  *
  * Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
  */
-class CInputDialog : public CAskDialog {
+class SP_EXPORT CInputDialog : public CAskDialog {
 public:
     /**
      * Constructor
@@ -135,28 +133,28 @@ public:
  *
  * Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
  */
-int spAsk(const String& message);
+SP_EXPORT int spAsk(const String& message);
 
 /**
  * @brief A warning information dialog box warning function
  *
  * Creates a dialog with the text or HTML text of message and one button (Ok)
  */
-int spWarning(const String& message);
+SP_EXPORT int spWarning(const String& message);
 
 /**
  * @brief An error information dialog box function
  *
  * Creates a dialog with the text or HTML text of message and one button (Ok)
  */
-int spError(const String& message);
+SP_EXPORT int spError(const String& message);
 
 /**
  * @brief An information dialog box function
  *
  * Creates a dialog with the text or HTML text of message and one button (Ok)
  */
-int spInformation(const String& message);
+int SP_EXPORT spInformation(const String& message);
 
 /**
  * @brief A single input Yes/No dialog box
@@ -164,7 +162,7 @@ int spInformation(const String& message);
  * Creates a dialog with the text or HTML text of question (message),
  * two buttons (Ok/Cancel), and input box
  */
-int spInput(const String& message, String& inputText);
+int SP_EXPORT spInput(const String& message, String& inputText);
 
 /**
  * @}

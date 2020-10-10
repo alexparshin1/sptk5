@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SystemException.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,12 +25,12 @@
 */
 
 #include <sptk5/SystemException.h>
-#include <cstring>
+#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
 
-SystemException::SystemException(string context, std::string file, int line) DOESNT_THROW
+SystemException::SystemException(const String& context, const String& file, int line) DOESNT_THROW
 : Exception(context + ": " + osError(), file, line)
 {
 }
@@ -60,3 +58,20 @@ string SystemException::osError()
     return osError;
 #endif
 }
+
+#if USE_GTEST
+
+TEST(SPTK_SystemException, openFile)
+{
+    Buffer buffer;
+    try {
+        buffer.loadFromFile("/xx.xx");
+        FAIL() << "MUST FAIL";
+    }
+    catch (const Exception& e) {
+        if (String(e.what()).find("xx.xx") == string::npos)
+            FAIL() << e.what();
+    }
+}
+
+#endif

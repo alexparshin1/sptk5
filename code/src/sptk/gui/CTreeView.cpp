@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CTreeView.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -126,13 +124,13 @@ void CTreeView::save(xml::Node* node) const
 Variant CTreeView::data() const
 {
     CTreeItem* node = m_treeControl->selected();
-    if (node != nullptr) return (int32_t) (long) node->user_data();
+    if (node != nullptr) return (int32_t) (uint64_t) node->user_data();
     return int32_t(0);
 }
 
-void CTreeView::data(const Variant v)
+void CTreeView::data(const Variant& v)
 {
-    CTreeItem* node = m_treeControl->findData((void*) (long) v.asInteger());
+    CTreeItem* node = m_treeControl->findData((void*) (uint64_t) v.asInteger());
     if (node != nullptr)
         m_treeControl->makeVisible(node);
 }

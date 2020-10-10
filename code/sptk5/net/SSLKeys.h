@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SSLKeys.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Friday Feb 8 2019                                      ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,7 +34,7 @@
 
 namespace sptk {
 
-class SSLKeys
+class SP_EXPORT SSLKeys
 {
     mutable SharedMutex m_mutex;
     String              m_privateKeyFileName;
@@ -45,6 +43,12 @@ class SSLKeys
     String              m_caFileName;
     int                 m_verifyMode {SSL_VERIFY_NONE};
     int                 m_verifyDepth {0};
+
+    /**
+     * Assign keys from another object
+     * @param other
+     */
+    void assign(const SSLKeys& other);
 
 public:
 
@@ -60,33 +64,68 @@ public:
      * A single file containing private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
      * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keyFileName           Private key file name
+     * @param privateKeyFileName    Private key file name
      * @param certificateFileName   Certificate file name
      * @param password              Key file password
      * @param caFileName            Optional CA (root certificate) file name
      * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
      * @param verifyDepth           Connection verify depth
      */
-    SSLKeys(const String& privateKeyFileName, const String& certificateFileName, const String& password="",
-            const String& caFileName="", int verifyMode=SSL_VERIFY_NONE, int verifyDepth=0);
+    SSLKeys(String privateKeyFileName, String certificateFileName, String password="",
+            String caFileName="", int verifyMode=SSL_VERIFY_NONE, int verifyDepth=0);
+
+    /**
+     * Copy constructor
+     * @param other             The other object
+     */
     SSLKeys(const SSLKeys& other);
 
+    /**
+     * Copy assignment
+     * @param other             The other object
+     */
     SSLKeys& operator = (const SSLKeys& other);
 
+    /**
+     * Destructor
+     */
+    ~SSLKeys() noexcept = default;
+
+    /**
+     * Unique SSL keys identifier, for SSL keys index
+     * @return SSL keys identifier
+     */
     String ident() const;
 
+    /**
+     * @return private key file name
+     */
     String privateKeyFileName() const;
 
+    /**
+     * @return certificate file name
+     */
     String certificateFileName() const;
 
+    /**
+     * @return private key password
+     */
     String password() const;
 
+    /**
+     * @return certificate authority file name
+     */
     String caFileName() const;
 
+    /**
+     * @return verify mode
+     */
     int verifyMode() const;
 
+    /**
+     * @return number of certificates to verify
+     */
     int verifyDepth() const;
-
 };
 
 }

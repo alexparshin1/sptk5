@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        AutoDatabaseConnection.h - description                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -65,11 +63,17 @@ public:
      */
     explicit AutoDatabaseConnection(DatabaseConnectionPool& connectionPool);
 
+    AutoDatabaseConnection(const AutoDatabaseConnection&) = delete;
+    AutoDatabaseConnection(AutoDatabaseConnection&&) = default;
+
     /**
      * Destructor
      * Releases connection to connection pool
      */
     ~AutoDatabaseConnection();
+
+    AutoDatabaseConnection& operator = (const AutoDatabaseConnection&) = delete;
+    AutoDatabaseConnection& operator = (AutoDatabaseConnection&&) = delete;
 
     /**
      * Returns database connection acquired from the connection pool
@@ -115,14 +119,6 @@ public:
     }
 
     /**
-     * Returns driver-specific connection string
-     */
-    String nativeConnectionString() const
-    {
-        return m_connection->nativeConnectionString();
-    }
-
-    /**
      * Returns the connection type
      */
     DatabaseConnectionType connectionType() const
@@ -165,7 +161,7 @@ public:
     /**
      * Reports true if in transaction
      */
-    int inTransaction()
+    int inTransaction() const
     {
         return m_connection->inTransaction();
     }
@@ -192,11 +188,10 @@ public:
      * @param tableName         Table name to insert into
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
-     * @param format            Data format (may be database-specific). The default is TAB-delimited data.
      */
-    void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "")
+    void bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data)
     {
-        m_connection->bulkInsert(tableName, columnNames, data, format);
+        m_connection->bulkInsert(tableName, columnNames, data);
     }
 
     /**

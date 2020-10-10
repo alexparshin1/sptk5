@@ -30,8 +30,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdio>
-#include <cstdlib>
 #include <ctime>
 
 #include <sptk5/cutils>
@@ -99,7 +97,7 @@ bool test_decode()
     const char token[] =
             "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
             "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
-    JWT::jwt_alg_t alg;
+    JWT::Algorithm alg;
 
     auto jwt = make_shared<JWT>();
     try {
@@ -128,7 +126,7 @@ bool test_decode_invalid_final_dot()
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (const Exception& e) {
+    catch (const Exception&) {
         // We must get here
         return true;
     }
@@ -317,7 +315,7 @@ bool test_encode_hs256_decode()
     jwt["iss"] = "http://test.com";
     jwt["exp"] = (int) time(nullptr) + 86400;
 
-    auto* info = jwt.grants.root().set_object("info");
+    auto* info = jwt.grants.root().add_object("info");
     info->set("company", "Linotex");
     info->set("city", "Melbourne");
 
@@ -350,25 +348,25 @@ bool test_encode_hs256_decode()
 int main()
 {
     try {
-        run_test(test_dup);
-        run_test(test_dup_signed);
-        run_test(test_decode);
-        run_test(test_decode_invalid_alg);
-        run_test(test_decode_invalid_typ);
-        run_test(test_decode_invalid_head);
-        run_test(test_decode_alg_none_with_key);
-        run_test(test_decode_invalid_body);
-        run_test(test_decode_invalid_final_dot);
-        run_test(test_decode_hs256);
-        run_test(test_decode_hs384);
-        run_test(test_decode_hs512);
-        run_test(test_encode_hs256_decode);
+        run_test(test_dup)
+        run_test(test_dup_signed)
+        run_test(test_decode)
+        run_test(test_decode_invalid_alg)
+        run_test(test_decode_invalid_typ)
+        run_test(test_decode_invalid_head)
+        run_test(test_decode_alg_none_with_key)
+        run_test(test_decode_invalid_body)
+        run_test(test_decode_invalid_final_dot)
+        run_test(test_decode_hs256)
+        run_test(test_decode_hs384)
+        run_test(test_decode_hs512)
+        run_test(test_encode_hs256_decode)
     }
     catch (const Exception& e) {
-        CERR("ERROR:" << e.what() << endl);
+        CERR("ERROR:" << e.what() << endl)
         return 1;
     }
 
-    COUT("All tests passed." << endl);
+    COUT("All tests passed." << endl)
     return 0;
 }

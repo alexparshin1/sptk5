@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CMemoInput.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,7 +33,6 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Input_.H>
 #include <FL/Fl_Button.H>
-#include <sptk5/IntList.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
@@ -57,7 +54,7 @@ class CDateControl;
 class CToggleTree;
 
 /**
- * @brief Simple text editor
+ * Simple text editor
  *
  * Multiple line input box
  */
@@ -66,14 +63,14 @@ class SP_EXPORT CMemoInput: public CInput
     typedef class CInput inherited;
 
     /**
-     * @brief Constructor initializer
+     * Constructor initializer
      */
     void ctor_init();
 
 public:
 
     /**
-     * @brief Constructor in SPTK style
+     * Constructor in SPTK style
      * @param label const char *, label
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
@@ -82,7 +79,7 @@ public:
 
 #ifdef __COMPATIBILITY_MODE__
     /**
-     * @brief Constructor in FLTK style
+     * Constructor in FLTK style
      * @param x int, x-position
      * @param y int, y-position
      * @param w int, width
@@ -93,67 +90,67 @@ public:
 #endif
 
     /**
-     * @brief Returns the control kind, SPTK-style RTTI
+     * Returns the control kind, SPTK-style RTTI
      * @see CControlKind for more information
      */
-    virtual CControlKind kind() const
+    CControlKind kind() const override
     {
         return DCV_MEMO;
     }
 
     /**
-     * @brief Returns the control class name, SPTK-style RTTI
+     * Returns the control class name, SPTK-style RTTI
      */
-    virtual String className() const
+    String className() const override
     {
         return "memo";
     }
 
     /**
-     * @brief Universal data connection, returns data from control
+     * Universal data connection, returns data from control
      */
-    virtual Variant data() const;
+    Variant data() const override;
 
     /**
-     * @brief Universal data connection, sets data from control
+     * Universal data connection, sets data from control
      */
-    virtual void data(const Variant v);
+    void data(const Variant& v) override;
 
     /**
-     * @brief Returns the input text font type
+     * Returns the input text font type
      */
-    virtual Fl_Font textFont() const;
+    Fl_Font textFont() const override;
 
     /**
-     * @brief Sets the input text font type
+     * Sets the input text font type
      */
-    virtual void textFont(Fl_Font f);
+    void textFont(Fl_Font f) override;
 
     /**
-     * @brief Returns the input text font size
+     * Returns the input text font size
      */
-    virtual uchar textSize() const;
+    uchar textSize() const override;
 
     /**
-     * @brief Sets the input text font size
+     * Sets the input text font size
      */
-    virtual void textSize(uchar s);
+    void textSize(uchar s) override;
 
     /**
-     * @brief Saves data to query
+     * Saves data to query
      */
-    virtual void save(Query *);
+    void save(Query *) override;
 
     /**
-     * @brief Computes the optimal widget size
+     * Computes the optimal widget size
      * @param w int&, input - width offered by the program, output - width required by widget
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w, int& h);
+    bool preferredSize(int& w, int& h) override;
 
     /**
-     * @brief Creates a widget based on the XML node information
+     * Creates a widget based on the XML node information
      */
     static CLayoutClient* creator(xml::Node *node);
 };

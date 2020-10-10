@@ -51,7 +51,7 @@ namespace sptk {
      *
      * assumes that char is 8 bit and int is 32 bit
      */
-    class MD5
+    class SP_EXPORT MD5
     {
     public:
         /**
@@ -146,27 +146,27 @@ namespace sptk {
         /**
          * MD5 finalized flag
          */
-        bool finalized;
+		bool finalized {false};
 
         /**
          * bytes that didn't fit in last 64 byte chunk
          */
-        uint1 buffer[blocksize];
+		uint1 buffer[blocksize] {};
 
         /**
          * 64bit counter for number of bits (lo, hi)
          */
-        uint4 count[2];
+		uint4 count[2] {};
 
         /**
          * digest so far
          */
-        uint4 state[4];
+		uint4 state[4] {};
 
         /**
          * the result
          */
-        uint1 digest[16];
+		uint1 digest[16] {};
 
 
         // low level logic operations
@@ -192,12 +192,12 @@ namespace sptk {
     /**
      * Single data-to-MD5 function
      */
-    String md5(const Buffer& data);
+	SP_EXPORT String md5(const Buffer& data);
 
     /**
      * Single data-to-MD5 function
      */
-    String md5(const String& data);
+	SP_EXPORT String md5(const String& data);
 
 }
 

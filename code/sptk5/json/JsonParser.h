@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       JsonParser.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 16 2013                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,7 +30,7 @@
 #include <sptk5/json/JsonElement.h>
 #include <sptk5/json/JsonArrayData.h>
 
-namespace sptk { namespace json {
+namespace sptk::json {
 
 /// @addtogroup JSON
 /// @{
@@ -42,7 +40,7 @@ namespace sptk { namespace json {
  *
  * Loads JSON text into JSON element
  */
-class Parser
+class SP_EXPORT Parser
 {
     friend class Element;
 
@@ -55,12 +53,12 @@ public:
     /**
      * Parse JSON text
      * Root element should have JDT_NULL type (empty element) before calling this method.
-     * @param jsonElement Element&, JSON element
-     * @param json const std::string&, JSON text
+     * @param jsonElement       JSON element
+     * @param jsonStr           JSON text
      */
-    void parse(Element& jsonElement, const std::string& json);
+    static void parse(Element& jsonElement, const sptk::String& jsonStr);
 };
 
-}}
+}
 
 #endif

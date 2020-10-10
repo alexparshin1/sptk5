@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDateTimeInput.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -231,12 +229,12 @@ public:
      * @brief Universal data connection, returns data from date control.
      * Data is returned as VAR_DATE.
      */
-    virtual Variant data() const override;
+    Variant data() const override;
 
     /**
      * @brief Universal data connection, sets data to date control
      */
-    virtual void data(const Variant v) override;
+    void data(const Variant& v) override;
 
     /**
      * @brief Resizes the control and inside widgets.
@@ -396,7 +394,7 @@ public:
     /**
      * @brief Universal data connection, sets data from control
      */
-    void data(const Variant v) override;
+    void data(const Variant& v) override;
 
     /**
      * @brief Creates a widget based on the XML node information

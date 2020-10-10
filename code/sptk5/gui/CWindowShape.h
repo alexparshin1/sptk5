@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWindowShape.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,7 +28,7 @@
 #define __CWINDOWSHAPE_H__
 
 #include <vector>
-
+#include <sptk5/gui/sptk_fltk_version.h>
 #include <sptk5/gui/CShapePoint.h>
 
 namespace sptk {
@@ -49,7 +47,7 @@ class CWindow;
  * The derived window should modify the shape points array by ovewriting shapeResize() method.
  * The window resize support is activated only if window resizable() is true.
  */
-class CWindowShape
+class SP_EXPORT CWindowShape
 {
     /**
      * Window to change shape

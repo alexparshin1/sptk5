@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WorkerThread.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,18 +30,12 @@
 using namespace std;
 using namespace sptk;
 
-WorkerThread::WorkerThread(SynchronizedQueue<Runable*>& queue, ThreadEvent* threadEvent, chrono::milliseconds maxIdleTime)
-: Thread("worker"),
+WorkerThread::WorkerThread(SThreadManager threadManager, SynchronizedQueue<Runable*>& queue, ThreadEvent* threadEvent, chrono::milliseconds maxIdleTime)
+: Thread("worker", threadManager),
   m_queue(queue),
   m_threadEvent(threadEvent),
   m_maxIdleSeconds(maxIdleTime)
 {}
-
-void WorkerThread::setCurrentRunable(Runable* runable)
-{
-	lock_guard<mutex> lock(m_mutex);
-	m_currentRunnable = runable;
-}
 
 void WorkerThread::threadFunction()
 {
@@ -58,7 +50,7 @@ void WorkerThread::threadFunction()
 
         Runable* runable = nullptr;
         if (m_queue.pop(runable, chrono::milliseconds(1000))) {
-			setCurrentRunable(runable);
+            setRunable(runable);
             idleSeconds = chrono::milliseconds(0);
             if (m_threadEvent != nullptr)
                 m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_STARTED, runable);
@@ -66,9 +58,9 @@ void WorkerThread::threadFunction()
                 runable->execute();
             }
             catch (const Exception& e) {
-                CERR("Runable::execute() : " << e.what() << endl);
+                CERR("Runable::execute() : " << e.what() << endl)
             }
-			setCurrentRunable(nullptr);
+            setRunable(nullptr);
             if (m_threadEvent != nullptr)
                 m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_FINISHED, runable);
         } else
@@ -83,10 +75,17 @@ void WorkerThread::execute(Runable* task)
     m_queue.push(task);
 }
 
+void WorkerThread::setRunable(Runable* runable)
+{
+    lock_guard<mutex> lock(m_mutex);
+    m_currentRunable = runable;
+}
+
 void WorkerThread::terminate()
 {
-	lock_guard<mutex> lock(m_mutex);
-	if (m_currentRunnable != nullptr)
-		m_currentRunnable->terminate();
-	Thread::terminate();
+    lock_guard<mutex> lock(m_mutex);
+    if (m_currentRunable != nullptr)
+        m_currentRunable->terminate();
+    Thread::terminate();
+    m_queue.wakeup();
 }

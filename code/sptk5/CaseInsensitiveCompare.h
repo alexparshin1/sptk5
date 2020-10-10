@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CaseInsensitiveCompare.h - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -54,9 +52,9 @@ public:
     bool operator()(const String& s1, const String& s2) const
     {
 #ifdef WIN32
-        return stricmp(s1.c_str(), s2.c_str()) > 0;
+        return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 #else
-        return strcasecmp(s1.c_str(), s2.c_str()) > 0;
+        return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 #endif
     }
 };

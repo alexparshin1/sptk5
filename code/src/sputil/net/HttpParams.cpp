@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       HttpParams.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,7 +30,14 @@
 using namespace std;
 using namespace sptk;
 
-String HttpParams::encodeString(const String& str)
+int hexCharToInt(unsigned char ch)
+{
+    if (ch > '@')
+        return ch - 'A' + 10;
+    return ch - '0';
+}
+
+String Url::encode(const String& str)
 {
     auto cnt = (uint32_t) str.length();
     const char *src = str.c_str();
@@ -45,57 +50,57 @@ String HttpParams::encodeString(const String& str)
             buffer.append(*src);
         } else {
             switch (*src) {
-            case ' ':
-                buffer.append('+');
-                break;
-            case '.':
-            case '-':
-                buffer.append(*src);
-                break;
-            default:
-                len = snprintf(hexBuffer, sizeof(hexBuffer), "%%%02X", (unsigned char)*src);
-                buffer.append(hexBuffer, len);
-                break;
+                case ' ':
+                    buffer.append('+');
+                    break;
+                case '.':
+                case '-':
+                    buffer.append(*src);
+                    break;
+                default:
+                    len = snprintf(hexBuffer, sizeof(hexBuffer), "%%%02X", (unsigned char)*src);
+                    buffer.append(hexBuffer, (size_t) len);
+                    break;
             }
         }
-        src++;
+        ++src;
     }
     return String(buffer.c_str(), buffer.bytes());
 }
 
-int hexCharToInt(unsigned char ch)
-{
-    if (ch > '@')
-        return ch - 'A' + 10;
-    return ch - '0';
-}
-
-String HttpParams::decodeString(const String& str)
+String Url::decode(const String& str)
 {
     const char *src = str.c_str();
     char dest;
     Buffer buffer;
     while (*src != 0) {
         switch (*src) {
-        case '+':
-            buffer.append(' ');
-            src++;
-            break;
+            case '+':
+                buffer.append(' ');
+                ++src;
+                break;
 
-        case '%':
-            src++;
-            dest = char(hexCharToInt((unsigned char)*src) * 16 + hexCharToInt((unsigned char)src[1]));
-            buffer.append(dest);
-            src += 2;
-            break;
+            case '%':
+                ++src;
+                dest = char(hexCharToInt((unsigned char)*src) * 16 + hexCharToInt((unsigned char)src[1]));
+                buffer.append(dest);
+                src += 2;
+                break;
 
-        default:
-            buffer.append(*src);
-            src++;
-            break;
+            default:
+                buffer.append(*src);
+                ++src;
+                break;
         }
     }
     return String(buffer.c_str(), buffer.length());
+}
+
+HttpParams::HttpParams(std::initializer_list<std::pair<String, String>> lst)
+{
+    for (const auto& itor: lst) {
+        operator[](itor.first) = itor.second;
+    }
 }
 
 void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
@@ -103,12 +108,14 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
     clear();
 
     Strings sl(cb.data(),"&");
-    for (auto& s: sl) {
+    for (const auto& s: sl) {
         size_t pos = s.find('=');
-        if (pos != STRING_NPOS) {
+        if (pos != string::npos) {
             string key = s.substr(0, pos);
             string value = s.substr(pos+1);
-            (*this)[key] = decodeString(value);
+            (*this)[key] = Url::decode(value);
+        } else {
+            (*this)[s] = "";
         }
     }
 }
@@ -118,11 +125,11 @@ void HttpParams::encode(Buffer& result) const
     unsigned cnt = 0;
     for (auto& itor: *this) {
         String param;
-        param = itor.first + "=" + encodeString(itor.second);
+        param = itor.first + "=" + Url::encode(itor.second);
         if (cnt != 0)
             result.append('&');
         result.append(param);
-        cnt++;
+        ++cnt;
     }
 }
 
@@ -134,9 +141,15 @@ String HttpParams::get(const String& paramName) const
     return itor->second;
 }
 
+bool HttpParams::has(const String& paramName) const
+{
+    auto itor = find(paramName);
+    return itor != end();
+}
+
 #if USE_GTEST
 
-static const char* gtestURLencoded = "name=John+Doe&items=%5B%22book%22%2C%22pen%22%5D&id=1234";
+static const String gtestURLencoded("id=1234&items=%5B%22book%22%2C%22pen%22%5D&name=John+Doe");
 
 TEST(SPTK_HttpParams, encode)
 {
@@ -147,7 +160,7 @@ TEST(SPTK_HttpParams, encode)
 
     Buffer encoded;
     httpParams.encode(encoded);
-    EXPECT_STREQ(gtestURLencoded, encoded.c_str());
+    EXPECT_STREQ(gtestURLencoded.c_str(), encoded.c_str());
 }
 
 TEST(SPTK_HttpParams, decode)

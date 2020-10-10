@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CButtonGroup.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,7 +28,6 @@
 
 #include <FL/Fl.H>
 #include <FL/Fl_Round_Button.H>
-#include <FL/fl_draw.H>
 
 #include <sptk5/cgui>
 
@@ -92,13 +89,13 @@ void CButtonGroup::buttons(const Strings& sl)
             otherLabel = &m_buttonLabels[i];
         } else {
             Fl_Button* btn = createButton(si.c_str());
-            btn->argument(si.ident());
+            btn->argument((long)si.ident());
             btn->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT | FL_ALIGN_WRAP);
         }
     }
     if (otherLabel) {
         Fl_Button* btn = createButton("", 16, SP_ALIGN_LEFT);
-        btn->argument(otherLabel->ident());
+        btn->argument((long)otherLabel->ident());
         m_otherButton = btn;
         m_otherInput = new CInput_("");
         m_otherInput->color(FL_LIGHT3);
@@ -150,7 +147,7 @@ void CButtonGroup::deselectAllButtons()
     }
 }
 
-void CButtonGroup::data(const Variant d)
+void CButtonGroup::data(const Variant& d)
 {
     deselectAllButtons();
     int ndx = buttonIndex(d.getString());

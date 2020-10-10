@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       MemoryDS.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,55 +29,39 @@
 using namespace std;
 using namespace sptk;
 
-#define checkDSopen(ds) if (!(ds)) throw Exception("Dataset isn't open")
-
-// access to the field by name
-const Field& MemoryDS::operator[](const String& field_name) const
-{
-    SharedLock(m_mutex);
-    checkDSopen(m_current);
-    return (*m_current)[field_name];
-}
-
 Field& MemoryDS::operator[](const String& field_name)
 {
     UniqueLock(m_mutex);
-    checkDSopen(m_current);
-    return (*m_current)[field_name];
+    if (m_current == m_list.end())
+        throw Exception("At the end of the data");
+    auto& row = *(*m_current);
+    return row[field_name];
 }
 
-uint32_t MemoryDS::recordCount() const
+size_t MemoryDS::recordCount() const
 {
     SharedLock(m_mutex);
-    checkDSopen(m_current);
-    return (uint32_t) m_list.size();
+    return m_list.size();
 }
 
 // how many fields do we have in the current record?
 
-uint32_t MemoryDS::fieldCount() const
+size_t MemoryDS::fieldCount() const
 {
     SharedLock(m_mutex);
-    checkDSopen(m_current);
-    if (m_current == nullptr) {
-        return 0;
-    }
-    return m_current->size();
+    if (m_current == m_list.end())
+        throw Exception("At the end of the data");
+    return (*m_current)->size();
 }
 
 // access to the field by number, 0..field.size()-1
-const Field& MemoryDS::operator[](uint32_t index) const
+Field& MemoryDS::operator[](size_t index)
 {
     SharedLock(m_mutex);
-    checkDSopen(m_current);
-    return (*m_current)[index];
-}
-
-Field& MemoryDS::operator[](uint32_t index)
-{
-    UniqueLock(m_mutex);
-    checkDSopen(m_current);
-    return (*m_current)[index];
+    if (m_current == m_list.end())
+        throw Exception("At the end of the data");
+    auto& row = *(*m_current);
+    return row[index];
 }
 
 // read this field data into external value
@@ -88,7 +70,8 @@ bool MemoryDS::readField(const char* fname, Variant& fvalue)
     SharedLock(m_mutex);
     try {
         fvalue = *(Variant*) &(*this)[fname];
-    } catch (Exception&) {
+    }
+    catch (const Exception&) {
         return false;
     }
     return true;
@@ -100,15 +83,26 @@ bool MemoryDS::writeField(const char* fname, const Variant& fvalue)
     UniqueLock(m_mutex);
     try {
         (*this)[fname] = fvalue;
-    } catch (Exception&) {
+    }
+    catch (const Exception&) {
         return false;
     }
+    return true;
+}
+
+bool MemoryDS::open()
+{
+    if (m_list.empty())
+        m_current = m_list.end();
+    else
+        m_current = m_list.begin();
     return true;
 }
 
 bool MemoryDS::close()
 {
     MemoryDS::clear();
+    m_current = m_list.end();
     return true;
 }
 
@@ -117,12 +111,10 @@ bool MemoryDS::first()
     UniqueLock(m_mutex);
 
     if (!m_list.empty()) {
-        m_currentIndex = 0;
-        m_current = (FieldList*) m_list[m_currentIndex];
-        m_eof = false;
+        m_current = m_list.begin();
         return true;
     }
-    m_eof = true;
+    m_current = m_list.end();
     return false;
 }
 
@@ -130,14 +122,12 @@ bool MemoryDS::last()
 {
     UniqueLock(m_mutex);
 
-    auto cnt = (uint32_t) m_list.size();
-    if (cnt != 0) {
-        m_currentIndex = cnt - 1;
-        m_current = (FieldList*) m_list[m_currentIndex];
-        m_eof = false;
+    if (!m_list.empty()) {
+        size_t index = m_list.size() - 1;
+        m_current = m_list.begin() + index;
         return true;
     }
-    m_eof = true;
+    m_current = m_list.end();
     return false;
 }
 
@@ -145,14 +135,10 @@ bool MemoryDS::next()
 {
     UniqueLock(m_mutex);
 
-    auto cnt = (uint32_t) m_list.size();
-    if (m_currentIndex + 1 < cnt) {
-        m_currentIndex++;
-        m_current = (FieldList*) m_list[m_currentIndex];
-        m_eof = false;
+    if (m_current != m_list.end()) {
+        ++m_current;
         return true;
     }
-    m_eof = true;
     return false;
 }
 
@@ -160,45 +146,26 @@ bool MemoryDS::prior()
 {
     UniqueLock(m_mutex);
 
-    if (m_currentIndex > 0) {
-        m_currentIndex--;
-        m_current = (FieldList*) m_list[m_currentIndex];
-        m_eof = false;
+    if (m_current != m_list.begin()) {
+        --m_current;
         return true;
     }
-    m_eof = true;
     return false;
 }
 
-bool MemoryDS::find(Variant position)
+bool MemoryDS::find(const String& fieldName, const Variant& position)
 {
     SharedLock(m_mutex);
 
-    auto cnt = (uint32_t) m_list.size();
-    String name;
-    uint32_t i;
-    switch (position.dataType()) {
-        case VAR_INT:
-            if (position.asInteger() < (int) cnt) {
-                m_currentIndex = position.asInteger();
-                m_current = (FieldList*) m_list[m_currentIndex];
-                return true;
-            }
-            break;
-        case VAR_STRING:
-            name = position.asString();
-            for (i = 0; i < cnt; i++) {
-                FieldList& entry = *(FieldList*) m_list[i];
-                if (entry["Name"].asString() == name) {
-                    m_currentIndex = i;
-                    m_current = (FieldList*) m_list[m_currentIndex];
-                    return true;
-                }
-            }
-            break;
-        default:
-            break;
+    String value = position.asString();
+    for (auto itor = m_list.begin(); itor != m_list.end(); ++itor) {
+        FieldList& entry = *(*itor);
+        if (entry[fieldName].asString() == value) {
+            m_current = itor;
+            return true;
+        }
     }
+
     return false;
 }
 
@@ -206,20 +173,19 @@ void MemoryDS::clear()
 {
     UniqueLock(m_mutex);
 
-    auto cnt = (uint32_t) m_list.size();
-    for (uint32_t i = 0; i < cnt; i++)
-        delete (FieldList*) m_list[i];
+    for (auto* row: m_list)
+        delete row;
     m_list.clear();
-    m_current = nullptr;
-    m_currentIndex = 0;
-    m_eof = true;
+
+    m_current = m_list.end();
 }
 
 void MemoryDS::push_back(FieldList* fieldList)
 {
     UniqueLock(m_mutex);
     m_list.push_back(fieldList);
-    m_eof = false;
+    if (m_list.size() == 1)
+        m_current = m_list.begin();
 }
 
 bool MemoryDS::empty() const
@@ -227,3 +193,73 @@ bool MemoryDS::empty() const
     SharedLock(m_mutex);
     return m_list.empty();
 }
+
+#if USE_GTEST
+
+struct Person
+{
+    String  name;
+    int     age {0};
+};
+
+static const vector<Person> people
+{
+    { "John", 30 },
+    { "Jane", 28 },
+    { "Bob", 6 }
+};
+
+TEST(SPTK_MemoryDS, createAndVerify)
+{
+    MemoryDS ds;
+
+    EXPECT_TRUE(ds.empty());
+
+    for (const auto& person: people) {
+        auto* row = new FieldList;
+
+        auto* name = new Field("name");
+        *name = person.name;
+        row->push_back(name);
+
+        auto* age = new Field("age");
+        *age = person.age;
+        row->push_back(age);
+
+        ds.push_back(row);
+    }
+
+    EXPECT_EQ(ds.recordCount(), size_t(3));
+
+    ds.open();
+
+    int i = 0;
+    while (!ds.eof()) {
+        EXPECT_EQ(ds.fieldCount(), size_t(2));
+        EXPECT_STREQ(ds["name"].asString().c_str(), people[i].name.c_str());
+        EXPECT_EQ(ds["age"].asInteger(), people[i].age);
+        ++i;
+        ds.next();
+    }
+
+    EXPECT_FALSE(ds.find("age", 31));
+    EXPECT_TRUE(ds.find("age", 28));
+    EXPECT_STREQ(ds["name"].asString().c_str(), "Jane");
+    EXPECT_EQ(ds[1].asInteger(), 28);
+
+    ds.prior();
+    EXPECT_STREQ(ds["name"].asString().c_str(), "John");
+
+    ds.last();
+    EXPECT_STREQ(ds["name"].asString().c_str(), "Bob");
+
+    ds.first();
+    EXPECT_STREQ(ds["name"].asString().c_str(), "John");
+
+    ds.close();
+
+    ds.clear();
+    EXPECT_TRUE(ds.empty());
+}
+
+#endif

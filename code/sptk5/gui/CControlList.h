@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CControlList.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -50,7 +48,7 @@ typedef std::map<std::string, CControl *, CaseInsensitiveCompare> CStringControl
 /**
  * @brief List of CControl object pointers in Fl_Group
  */
-class CControlList: public CStringControlMap
+class SP_EXPORT CControlList: public CStringControlMap
 {
 protected:
 

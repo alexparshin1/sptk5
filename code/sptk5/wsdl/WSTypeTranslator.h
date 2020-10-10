@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSTypeTranslator.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,23 +39,18 @@ namespace sptk
  */
 
 /**
- * @brief Translates WSDL type names to C++ type names
+ * Translates WSDL type names to C++ type names
  */
 class WSTypeTranslator
 {
     /**
      * WSDL to C++ type map
      */
-    std::map<std::string,std::string> wsTypeToCxxTypeMap;
+    static const std::map<String, String> wsTypeToCxxTypeMap;
 
 public:
     /**
-     * @brief Constructor
-     */
-    WSTypeTranslator() noexcept;
-
-    /**
-     * @brief Translates WSDL type names to C++ type names
+     * Translates WSDL type names to C++ type names
      * @param wsType            WSDL type name
      * @param defaultType       C++ type name returned when match is not found
      */
@@ -65,9 +58,9 @@ public:
 };
 
 /**
- * @brief Global WSDL translation object
+ * Global WSDL translation object
  */
-extern WSTypeTranslator wsTypeTranslator;
+extern const WSTypeTranslator wsTypeTranslator;
 
 /**
  * @}

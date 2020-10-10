@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       BaseMailConnect.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -45,41 +43,35 @@ using namespace sptk;
 
 class ContentTypes
 {
-    static map<string, string> m_contentTypes;
 public:
-    ContentTypes() noexcept
-    { if (m_contentTypes.empty()) init(); }
-
-    void init();
-
     static string type(const string& fileName);
+
+private:
+    static const map<string, string> m_contentTypes;
 };
 
-map<string, string> ContentTypes::m_contentTypes;
-static ContentTypes contentTypes;
-
-void ContentTypes::init()
+const map<string, string> ContentTypes::m_contentTypes
 {
-    m_contentTypes["txt"] = "text/plain";
-    m_contentTypes["htm"] = "text/html";
-    m_contentTypes["html"] = "text/html";
-    m_contentTypes["gif"] = "image/gif";
-    m_contentTypes["png"] = "image/png";
-    m_contentTypes["bmp"] = "image/bmp";
-    m_contentTypes["jpg"] = "image/jpeg";
-    m_contentTypes["tif"] = "image/tiff";
-    m_contentTypes["pdf"] = "application/pdf";
-    m_contentTypes["xls"] = "application/vnd.ms-excel";
-    m_contentTypes["csv"] = "text/plain";
-    m_contentTypes["doc"] = "application/msword";
-    m_contentTypes["wav"] = "application/data";
-}
+    { "txt", "text/plain" },
+    { "htm", "text/html" },
+    { "html", "text/html" },
+    { "gif", "image/gif" },
+    { "png", "image/png" },
+    { "bmp", "image/bmp" },
+    { "jpg", "image/jpeg" },
+    { "tif", "image/tiff" },
+    { "pdf", "application/pdf" },
+    { "xls", "application/vnd.ms-excel" },
+    { "csv", "text/plain" },
+    { "doc", "application/msword" },
+    { "wav", "application/data" }
+};
 
 string ContentTypes::type(const string& fileName)
 {
     const char* extension = strrchr(fileName.c_str(), '.');
     if (extension != nullptr) {
-        extension++;
+        ++extension;
         if (strlen(extension) > 4)
             return "application/octet-stream";
         const auto itor = m_contentTypes.find(extension);
@@ -96,7 +88,7 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
 
     bufSource.loadFromFile(fileName);
 
-    String ctype = contentTypes.type(trim(fileName));
+    String ctype = ContentTypes::type(trim(fileName));
 
     message << "Content-Type: " << ctype << "; name=\"" << fileAlias << "\"" << endl;
     message << "Content-Transfer-Encoding: base64" << endl;
@@ -111,7 +103,7 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
     buffer.checkSize(dataLen + dataLen / LINE_CHARS);
 
     const char* ptr = strDest.c_str();
-    for (uint32_t pos = 0; pos < dataLen; pos += LINE_CHARS) {
+    for (size_t pos = 0; pos < dataLen; pos += LINE_CHARS) {
         size_t lineLen = dataLen - pos;
         if (lineLen > LINE_CHARS)
             lineLen = LINE_CHARS;
@@ -158,7 +150,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
 
     char dateBuffer[128] = {};
     const char* sign = "-";
-    int offset = DateTime::timeZoneOffset;
+    int offset = TimeZone::offset();
     if (offset >= 0)
         sign = "";
     else {
@@ -169,12 +161,12 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
             "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
             date.dayOfWeekName().substr(0, 3).c_str(),
             dd,
-            DateTime::monthNames[dm - 1].substr(0, 3).c_str(),
+            DateTime::format(DateTime::MONTH_NAME, size_t(dm) - 1).substr(0, 3).c_str(),
             dy,
             th, tm, ts,
             sign,
             offset * 100,
-            DateTime::timeZoneName.c_str()
+            TimeZone::name().c_str()
     );
 
     message << string(dateBuffer, (size_t) len) << endl;
@@ -209,7 +201,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     }
 
     Strings sl(m_attachments, ";");
-    for (auto& attachment: sl) {
+    for (const auto& attachment: sl) {
         String attachmentAlias(attachment);
         const char* separator = "\\";
         if (attachment.find('/') != STRING_NPOS)

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       RegularExpression.h - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,12 +28,35 @@
 #define __SPTK_REGULAR_EXPRESSION_H__
 
 #include <sptk5/sptk.h>
+#include <sptk5/sptk-config.h>
 #include <sptk5/Strings.h>
 
-#if HAVE_PCRE
-
 #include <vector>
+#include <functional>
+#include <atomic>
+#include <memory>
+
+#if HAVE_PCRE2
+#define PCRE2_STATIC
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
+#define SPRE_CASELESS   PCRE2_CASELESS
+#define SPRE_MULTILINE  PCRE2_MULTILINE
+#define SPRE_DOTALL     PCRE2_DOTALL
+#define SPRE_EXTENDED   PCRE2_EXTENDED
+typedef long pcre_offset_t;
+#endif
+
+#if HAVE_PCRE
 #include <pcre.h>
+#define SPRE_CASELESS   PCRE_CASELESS
+#define SPRE_MULTILINE  PCRE_MULTILINE
+#define SPRE_DOTALL     PCRE_DOTALL
+#define SPRE_EXTENDED   PCRE_EXTENDED
+typedef int pcre_offset_t;
+#endif
+
+#if (HAVE_PCRE2 | HAVE_PCRE)
 
 namespace sptk {
 
@@ -44,79 +65,182 @@ namespace sptk {
  * @{
  */
 
+class MatchData;
+
 /**
  * PCRE-type regular expressions
  */
 class SP_EXPORT RegularExpression
 {
-    /**
-     * Match position information
-     */
-    typedef struct {
-        /**
-         * Match start
-         */
-        int         m_start;
-
-        /**
-         * Match end
-         */
-        int         m_end;
-
-    } Match;
-
-    /**
-     * Vector of match positions
-     */
-    typedef std::vector<Match> Matches;
-
-    /**
-     * Match pattern
-     */
-    sptk::String     m_pattern;
-
-    /**
-     * Global match (g) or first match only
-     */
-    bool            m_global;
-
-    /**
-     * Last pattern error (if any)
-     */
-    sptk::String     m_error;
-
-
-    /**
-     * Compiled PCRE expression handle
-     */
-    pcre*           m_pcre;
-
-    /**
-     * Compiled PCRE expression optimization (for faster execution)
-     */
-    pcre_extra*     m_pcreExtra;
-
-    /**
-     * PCRE pattern options
-     */
-    int32_t         m_pcreOptions;
-
-    /**
-     * Initialize PCRE expression
-     */
-    void initPCRE();
-
-    /**
-     * Computes match positions and lengths
-     * @param text              Input text
-     * @param offset            Starting match offset, advanced with every successful match
-     * @param matchOffsets      Output match positions array
-     * @param matchOffsetsSize  Output match positions array size (in elements)
-     * @return number of matches
-     */
-    size_t nextMatch(const sptk::String& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const;
-
 public:
+
+    /**
+     * Matched group that includes string value, as well as start and end positions of the value in the subject string
+     */
+    class SP_EXPORT Group
+    {
+    public:
+        /**
+         * Constructor
+         * @param value         Matched string
+         * @param start         String start position in subject
+         * @param end           String end position in subject
+         */
+        Group(String value, size_t start, size_t end)
+        : value(move(value)), start((pcre_offset_t)start), end((pcre_offset_t)end)
+        {}
+
+        /**
+         * Default constructor
+         */
+        Group() = default;
+
+        /**
+         * Copy constructor
+         * @param other         Object to copy from
+         */
+        Group(const Group& other) = default;
+
+        /**
+         * Move constructor
+         * @param other         Object to copy from
+         */
+        Group(Group&& other) noexcept;
+
+        /**
+         * Default destructor
+         */
+        ~Group() = default;
+
+        /**
+         * Copy assignment
+         * @param other         Object to copy from
+         */
+        Group& operator = (const Group& other);
+
+        /**
+         * Move assignment
+         * @param other         Object to copy from
+         */
+        Group& operator = (Group&& other) noexcept;
+
+        String        value;        ///< Matched fragment of subject
+        pcre_offset_t start {0};    ///< Start position of the matched fragment in subject
+        pcre_offset_t end {0};      ///< End position of the matched fragment in subject
+    };
+
+    /**
+     * Matched groups, including unnamed and named groups (if any).
+     * For named groups in global match, only the first match is considered.
+     */
+    class SP_EXPORT Groups
+    {
+        friend class RegularExpression;
+    public:
+        /**
+         * Default constructor
+         */
+        Groups() = default;
+
+        /**
+         * Copy constructor
+         * @param other         Other object to copy from
+         */
+        Groups(const Groups& other) = default;
+
+        /**
+         * Move constructor
+         * @param other         Other object to move from
+         */
+        Groups(Groups&& other) noexcept;
+
+        /**
+         * Destructor
+         */
+        ~Groups() noexcept = default;
+
+        /**
+         * Copy assignment
+         * @param other         Other object to move from
+         */
+        Groups& operator = (const Groups& other) = default;
+
+        /**
+         * Move assignment
+         * @param other         Other object to move from
+         */
+        Groups& operator = (Groups&& other) = default;
+
+        /**
+         * Get unnamed group by index.
+         * If group doesn't exist, return reference to empty group.
+         * @param index         Group index, 0-based
+         * @return const reference to a group
+         */
+        const Group& operator[] (size_t index) const;
+
+        /**
+         * Get named group by capture group name.
+         * If group doesn't exist, return reference to empty group.
+         * @param name          Group name
+         * @return const reference to a group
+         */
+        const Group& operator[] (const char* name) const;
+
+        /**
+         * Get unnamed groups.
+         * @return const reference to unnamed groups object
+         */
+        const std::vector<Group>& groups() const { return m_groups; }
+
+        /**
+         * Get named groups.
+         * @return const reference to named groups object
+         */
+        const std::map<String, Group>& namedGroups() const { return m_namedGroups; }
+
+        /**
+         * @return true if there are no matched groups
+         */
+        bool empty() const { return m_groups.empty(); }
+
+        /**
+         * @return false if there are no matched groups
+         */
+        operator bool () const { return !m_groups.empty(); }
+
+    protected:
+        /**
+         * Reserve more groups memory
+         * @param groupCount    Number of groups to reserve more memory for
+         */
+        void grow(size_t groupCount);
+
+        /**
+         * Add new group by moving it to unnamed groups
+         * @param group         Group to add
+         */
+        void add(Group&& group) { m_groups.push_back(std::move(group)); }
+
+        /**
+         * Add new group by moving it to named groups
+         * @param name          Group name
+         * @param group         Group to add
+         */
+        void add(const String& name, Group&& group) { m_namedGroups[name] = std::move(group); }
+
+    private:
+
+        /**
+         * Clear groups
+         */
+        void clear();
+
+        std::vector<Group>      m_groups;           ///< Unnamed groups
+        std::map<String, Group> m_namedGroups;      ///< Named groups
+        static const Group      emptyGroup;         ///< Empty group to return if group can't be found
+    };
+
     /**
      * Constructor
      *
@@ -129,7 +253,7 @@ public:
      * @param pattern           PCRE pattern
      * @param options           Pattern options
      */
-    explicit RegularExpression(const sptk::String& pattern, const sptk::String& options = "");
+    explicit RegularExpression(String pattern, const String& options = "");
 
     /**
      * Copy constructor
@@ -147,29 +271,40 @@ public:
      * @param text              Input text
      * @return true if match found
      */
-    bool operator ==(const sptk::String& text) const;
+    bool operator ==(const String& text) const;
 
     /**
      * Returns true if text doesn't match with regular expression
      * @param text              Input text
      * @return true if match found
      */
-    bool operator !=(const sptk::String& text) const;
+    bool operator !=(const String& text) const;
 
     /**
      * Returns true if text matches with regular expression
      * @param text              Text to process
      * @return true if match found
      */
-    bool matches(const sptk::String& text) const;
+    bool matches(const String& text) const;
 
     /**
      * Returns list of strings matched with regular expression
      * @param text              Text to process
-     * @param matchedStrings    List of matched strings
-     * @return true if match found
+     * @return matched groups
      */
-    bool m(const sptk::String& text, sptk::Strings& matchedStrings) const;
+    Groups m(const String& text) const
+    {
+        size_t offset = 0;
+        return m(text, offset);
+    }
+
+    /**
+     * Returns list of strings matched with regular expression
+     * @param text              Text to process
+     * @param offset            Search offset, updated after method execution
+     * @return matched groups
+     */
+    Groups m(const String& text, size_t& offset) const;
 
     /**
      * Replaces matches with replacement string
@@ -177,15 +312,23 @@ public:
      * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as first match
      * @return processed text
      */
-    sptk::String s(const sptk::String& text, const sptk::String& outputPattern) const;
+    String s(const String& text, const String& outputPattern) const;
+
+    /**
+     * Replaces matches with replacement string
+     * @param text              Text to process
+     * @param replace           Callback function providing replacement s for matches
+     * @param replaced          True if there were any replacements
+     * @return processed text
+     */
+    String s(const String& text, const std::function<String(const String&)>& replace, bool& replaced) const;
 
     /**
      * Returns list of strings split by regular expression
      * @param text              Text to process
-     * @param outputStrings     List of matched strings
-     * @return true if match found
+     * @return List of strings
      */
-    bool split(const sptk::String& text, sptk::Strings& outputStrings) const;
+    Strings split(const String& text) const;
 
     /**
      * Replaces matches with replacement string
@@ -194,7 +337,7 @@ public:
      * @param replaced          Optional flag if replacement was made
      * @return processed text
      */
-    sptk::String replaceAll(const sptk::String& text, const sptk::String& outputPattern, bool& replaced) const;
+    String replaceAll(const String& text, const String& outputPattern, bool& replaced) const;
 
     /**
      * Replaces matches with replacement string from map, using matched string as an index
@@ -203,7 +346,7 @@ public:
      * @param replaced          Optional flag if replacement was made
      * @return processed text
      */
-    sptk::String replaceAll(const sptk::String& text, const std::map<sptk::String,sptk::String>& substitutions, bool& replaced) const;
+    String replaceAll(const String& text, const std::map<String,String>& substitutions, bool& replaced) const;
 
     /**
      * Get regular expression pattern
@@ -213,6 +356,53 @@ public:
 
 private:
 
+    String                  m_pattern;              ///< Match pattern
+    bool                    m_global {false};       ///< Global match (g) or first match only
+    String                  m_error;                ///< Last pattern error (if any)
+
+#if HAVE_PCRE2
+    pcre2_code*             m_pcre {nullptr};       ///< Compiled PCRE expression handle
+    void*                   m_pcreExtra {nullptr};  ///< Dummy
+#else
+    pcre*                   m_pcre {nullptr};       ///< Compiled PCRE expression handle
+    pcre_extra*             m_pcreExtra {nullptr};  ///< Compiled PCRE expression optimization (for faster execution)
+#endif
+
+    uint32_t                m_options {0};          ///< PCRE pattern options
+    std::atomic<size_t>     m_captureCount {0};   ///< RE' capture count
+
+    /**
+     * Initialize PCRE expression
+     */
+    void compile();
+
+    /**
+     * Computes match positions and lengths
+     * @param text              Input text
+     * @param offset            Starting match offset, advanced with every successful match
+     * @param matchDdata        Output match positions array
+     * @return number of matches
+     */
+    size_t nextMatch(const String& text, size_t& offset, MatchData& matchData) const;
+
+    /**
+     * Get capture group count from the compiled pattern
+     * @return capture group count
+     */
+    size_t getCaptureCount() const;
+
+    /**
+     * Get named capture group count from the compiled pattern
+     * @return named capture group count
+     */
+    size_t getNamedGroupCount() const;
+
+    /**
+     * Get captur group name table from the compiled pattern
+     * @return named capture group count
+     */
+    void getNameTable(const char*& nameTable, int& nameEntrySize) const;
+
     /**
      * Find next placeholder
      * @param pos               Start position
@@ -220,7 +410,12 @@ private:
      * @return placeholder position
      */
     size_t findNextPlaceholder(size_t pos, const String& outputPattern) const;
+
+    void extractNamedMatches(const String& text, Groups& matchedStrings, const MatchData& matchData,
+                             size_t matchCount) const;
 };
+
+typedef std::shared_ptr<RegularExpression> SRegularExpression;
 
 /**
  * @}

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CFontComboBox.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019   by Alexey Parshin. All rights reserved.  ║
+║  copyright            © 1999-2020   by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,7 +42,7 @@ namespace sptk {
  *
  * A combobox filled with the system fonts names
  */
-class CFontComboBox : public CComboBox
+class SP_EXPORT CFontComboBox : public CComboBox
 {
 public:
     /**

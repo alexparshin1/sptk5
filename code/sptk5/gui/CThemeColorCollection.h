@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CThemeColorCollection.h - description                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -112,7 +110,7 @@ enum CThemeColorState
 
 typedef Fl_Color (*gtk_color_function)(const String& expression);
 
-class CThemeColorCollection 
+class SP_EXPORT CThemeColorCollection
 {
     static std::map<String,gtk_color_function>* m_gtkColorFunctionMap;
     static std::map<String,Fl_Color> m_colorMap;

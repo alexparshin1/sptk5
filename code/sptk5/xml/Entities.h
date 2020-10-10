@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Entities.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,6 +29,7 @@
 
 #include <string>
 #include <map>
+#include <sptk5/RegularExpression.h>
 
 namespace sptk {
 namespace xml {
@@ -41,36 +40,50 @@ namespace xml {
  */
 
 /**
- * @brief XML entities
+ * XML document type entity
+ */
+class Entity
+{
+public:
+    enum Type { SYSTEM, PUBLIC };
+    String  name;
+    Type    type;
+    String  id;
+    String  resource;
+    void parse(const String& entityTag);
+};
+
+/**
+ * XML entities
  *
  * Maps an XML entity string to a presentation string.
  */
-class Entities : public std::map<std::string, std::string>
+class Entities : public std::map<String, String>
 {
 public:
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Entities() = default;
 
     /**
-     * @brief Removes named entity
-     * @param name const char *, entity name to remove
+     * Removes named entity
+     * @param name              entity name to remove
      */
-    void removeEntity(const char* name)
+    void removeEntity(const String& name)
     {
         erase(name);
     }
 
     /**
-     * @brief Adds entity to map
+     * Adds entity to map
      *
      * If entity named 'name' exists already in map, its value is replaced with 'replacement'
-     * @param name const char *, entity to add/change
-     * @param replacement const char *, value that represents entity
+     * @param name              entity to add/change
+     * @param replacement       value that represents entity
      */
-    void setEntity(const char* name, const char* replacement)
+    void setEntity(const String& name, const String& replacement)
     {
         (*this)[name] = replacement;
     }

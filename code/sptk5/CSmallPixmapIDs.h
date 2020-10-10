@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSmallPixmapIDs.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,6 +26,8 @@
 
 #ifndef __CSMALLPIXMAPIDS_H__
 #define __CSMALLPIXMAPIDS_H__
+
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
@@ -74,13 +74,12 @@ enum CSmallPixmapType {
      * Small pixmap - Word document
      */
     SXPM_DOC_DOCUMENT
-
 };
 
 /**
  * @brief A list of predefined icon names used by ListView, primarily
  */
-extern const char* smallPixmapIDs[7];
+extern const Strings smallPixmapIDs;
 
 /**
  * @}

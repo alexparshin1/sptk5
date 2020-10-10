@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       BaseSocket.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,6 +26,13 @@
 
 #ifndef __BASESOCKET_H__
 #define __BASESOCKET_H__
+
+#include <chrono>
+#include <sptk5/DateTime.h>
+#include <sptk5/Exception.h>
+#include <sptk5/net/Host.h>
+#include <sptk5/Strings.h>
+#include <sptk5/Buffer.h>
 
 #ifndef _WIN32
     #include <sys/types.h>
@@ -64,13 +69,6 @@
     typedef unsigned short SOCKET_ADDRESS_FAMILY;
 #endif
 
-#include <chrono>
-#include <sptk5/DateTime.h>
-#include <sptk5/Exception.h>
-#include <sptk5/net/Host.h>
-#include <sptk5/Strings.h>
-#include <sptk5/Buffer.h>
-
 namespace sptk
 {
 
@@ -87,136 +85,26 @@ namespace sptk
  */
 class SP_EXPORT BaseSocket
 {
-    /**
-     * Socket internal (OS) handle
-     */
-    SOCKET      m_sockfd {INVALID_SOCKET};
-
-    /**
-     * Socket domain type
-     */
-    int32_t     m_domain;
-
-    /**
-     * Socket type
-     */
-    int32_t     m_type;
-
-    /**
-     * Socket protocol
-     */
-    int32_t     m_protocol;
-
-    /**
-     * Host
-     */
-    Host        m_host;
-
-protected:
-
-    /**
-     * Set socket internal (OS) handle
-     */
-    void setSocketFD(SOCKET fd)
-    {
-        m_sockfd = fd;
-    }
-
-    /**
-     * Get socket domain type
-     */
-    int32_t domain() const
-    {
-        return m_domain;
-    }
-
-    /**
-     * Get socket type
-     */
-    int32_t type() const
-    {
-        return m_type;
-    }
-
-    /**
-     * Get socket protocol
-     */
-    int32_t protocol() const
-    {
-        return m_protocol;
-    }
-
 public:
     /**
     * A mode to open a socket, one of
     */
     enum CSocketOpenMode : uint8_t
     {
-        /**
-        * Only create (Typical UDP connectionless socket)
-        */
-        SOM_CREATE,
-
-        /**
-        * Connect
-        */
-        SOM_CONNECT,
-
-        /**
-        * Bind (listen)
-        */
-        SOM_BIND
-
+        SOM_CREATE,     ///< Only create (Typical UDP connectionless socket)
+        SOM_CONNECT,    ///< Connect (Typical TCP connection socket)
+        SOM_BIND        ///< Bind (TCP listener)
     };
 
-
-protected:
-
-#ifdef _WIN32
     /**
-     * WinSock initialization
+     * Get socket internal (OS) handle
      */
-    static void init() noexcept;
-
-    /**
-     * WinSock cleanup
-     */
-    static void cleanup() noexcept;
-
-#endif
-
-    /**
-     * Opens the client socket connection by host and port
-     * @param host              The host
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
-     */
-    virtual void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS);
-
-    /**
-     * Opens the client socket connection by host and port
-     * @param address           Address and port
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
-     */
-    virtual void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
+    SOCKET fd() const
     {
-        // Implement in derived class
+        return m_sockfd;
     }
 
-public:
-
-	/**
-	 * Get socket internal (OS) handle
-	 */
-	SOCKET socketFD() const
-	{
-		return m_sockfd;
-	}
-
-	/**
+    /**
      * Opens the socket connection by address.
      * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
      * @param addr              Defines socket address/port information
@@ -233,34 +121,58 @@ public:
     explicit BaseSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
     /**
+     * Deleted copy constructor
+     * @param other             Other socket
+     */
+    BaseSocket(const BaseSocket& other) = delete;
+
+    /**
+     * Move constructor
+     * @param other             Other socket
+     */
+    BaseSocket(BaseSocket&& other) noexcept = default;
+
+    /**
      * Destructor
      */
     virtual ~BaseSocket();
+
+
+    /**
+     * Deleted copy assignment
+     * @param other             Other socket
+     */
+    BaseSocket& operator = (const BaseSocket& other) = delete;
+
+    /**
+     * Move assignment
+     * @param other             Other socket
+     */
+    BaseSocket& operator = (BaseSocket&& other) noexcept = default;
 
     /**
      * Set blocking mode
      * @param blocking          Socket blocking mode flag
      */
-    void blockingMode(bool blocking);
+    void blockingMode(bool blocking) const;
 
     /**
      * Returns number of bytes available in socket
      */
-    virtual size_t socketBytes();
-
-    /**
-     * Returns socket handle
-     */
-    int handle() const
-    {
-        return (int) m_sockfd;
-    }
+    [[nodiscard]] virtual size_t socketBytes();
 
     /**
      * Attaches socket handle
      * @param socketHandle      Existing socket handle
      */
-    virtual void attach(SOCKET socketHandle);
+    virtual void attach(SOCKET socketHandle, bool accept);
+
+    /**
+     * Detaches socket handle, setting it to INVALID_SOCKET.
+     * Closes the socket without affecting socket handle.
+     * @return Existing socket handle
+     */
+    virtual SOCKET detach();
 
     /**
      * Sets the host name
@@ -271,7 +183,7 @@ public:
     /**
      * Returns the host
      */
-    const Host& host() const
+    [[nodiscard]] const Host& host() const
     {
         return m_host;
     }
@@ -324,7 +236,7 @@ public:
      * Returns the current socket state
      * @returns true if socket is opened
      */
-    bool active() const
+    [[nodiscard]] bool active() const
     {
         return m_sockfd != INVALID_SOCKET;
     }
@@ -332,20 +244,20 @@ public:
     /**
      * Calls Unix fcntl() or Windows ioctlsocket()
      */
-    int32_t control(int flag, const uint32_t* check);
+    int32_t control(int flag, const uint32_t* check) const;
 
     /**
      * Sets socket option value
      * Throws an error if not succeeded
      */
-    void setOption(int level, int option, int value);
+    void setOption(int level, int option, int value) const;
 
     /**
      * Gets socket option value
      *
      * Throws an error if not succeeded
      */
-    void getOption(int level, int option, int& value);
+    void getOption(int level, int option, int& value) const;
 
     /**
      * Reads data from the socket in regular or TLS mode
@@ -353,7 +265,7 @@ public:
      * @param size              The destination buffer size
      * @returns the number of bytes read from the socket
      */
-    virtual size_t recv(void* buffer, size_t size);
+    [[nodiscard]] virtual size_t recv(void* buffer, size_t size);
 
     /**
      * Reads data from the socket in regular or TLS mode
@@ -361,7 +273,7 @@ public:
      * @param size              The send data length
      * @returns the number of bytes sent the socket
      */
-    virtual size_t send(const void* buffer, size_t size);
+    [[nodiscard]] virtual size_t send(const void* buffer, size_t size);
 
     /**
      * Reads data from the socket
@@ -370,7 +282,7 @@ public:
      * @param from              Optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(char *buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * Reads data from the socket into memory buffer
@@ -381,7 +293,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * Reads data from the socket into memory buffer
@@ -392,7 +304,7 @@ public:
      * @param from              Optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * Writes data to the socket
@@ -425,13 +337,88 @@ public:
      * Reports true if socket is ready for reading from it
      * @param timeout           Read timeout
      */
-    virtual bool readyToRead(std::chrono::milliseconds timeout);
+    [[nodiscard]] virtual bool readyToRead(std::chrono::milliseconds timeout);
 
     /**
      * Reports true if socket is ready for writing to it
      * @param timeout           Write timeout
      */
-    virtual bool readyToWrite(std::chrono::milliseconds timeout);
+    [[nodiscard]] virtual bool readyToWrite(std::chrono::milliseconds timeout);
+
+protected:
+
+    /**
+     * Set socket internal (OS) handle
+     */
+    void setSocketFD(SOCKET fd)
+    {
+        m_sockfd = fd;
+    }
+
+    /**
+     * Get socket domain type
+     */
+    [[nodiscard]] int32_t domain() const
+    {
+        return m_domain;
+    }
+
+    /**
+     * Get socket type
+     */
+    [[nodiscard]] int32_t type() const
+    {
+        return m_type;
+    }
+
+    /**
+     * Get socket protocol
+     */
+    [[nodiscard]] int32_t protocol() const
+    {
+        return m_protocol;
+    }
+
+#ifdef _WIN32
+    /**
+     * WinSock initialization
+     */
+    static void init() noexcept;
+
+    /**
+     * WinSock cleanup
+     */
+    static void cleanup() noexcept;
+#endif
+
+    /**
+     * Opens the client socket connection by host and port
+     * @param host              The host
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
+     */
+    virtual void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS);
+
+    /**
+     * Opens the client socket connection by host and port
+     * @param address           Address and port
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
+     */
+    virtual void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
+    {
+        // Implement in derived class
+    }
+
+private:
+
+    SOCKET      m_sockfd {INVALID_SOCKET};  ///< Socket internal (OS) handle
+    int32_t     m_domain;                   ///< Socket domain type
+    int32_t     m_type;                     ///< Socket type
+    int32_t     m_protocol;                 ///< Socket protocol
+    Host        m_host;                     ///< Host
 };
 
 /**
@@ -440,7 +427,7 @@ public:
  * @param file              Source file name
  * @param line              Source file line number
  */
-void throwSocketError(const String& message, const char* file, int line);
+[[noreturn]] void throwSocketError(const String& message, const char* file, int line);
 
 #define THROW_SOCKET_ERROR(msg) sptk::throwSocketError(msg,__FILE__,__LINE__)
 

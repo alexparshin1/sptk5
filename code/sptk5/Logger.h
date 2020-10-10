@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Logger.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -54,12 +52,6 @@ class LogEngine;
  */
 class SP_EXPORT Logger
 {
-    /**
-     * The actual log to store messages to (destination log)
-     */
-    LogEngine&      m_destination;
-    String          m_prefix;
-
 public:
 
     /**
@@ -67,15 +59,16 @@ public:
      */
     struct Message
     {
-        DateTime    timestamp;      ///< Message timestamp
-        LogPriority priority;       ///< Message priority
-        String      message;        ///< Message text
+        DateTime    timestamp {DateTime::Now()};    ///< Message timestamp
+        LogPriority priority;                       ///< Message priority
+        String      message;                        ///< Message text
+
         /**
          * Constructor
          * @param priority       Message priority
          * @param message        Message text
          */
-        Message(LogPriority priority, const String& message);
+        Message(LogPriority priority, String message);
     };
 
     /**
@@ -83,7 +76,7 @@ public:
      * @param destination       Destination logger
      * @param prefix            Optional log message prefix
      */
-    Logger(LogEngine& destination, const String& prefix = "");
+    Logger(LogEngine& destination, String prefix = "");
 
     /**
      * @brief Returns log engine (destination logger)
@@ -135,6 +128,13 @@ public:
      * @param message           Message text
      */
     void critical(const String& message);
+
+private:
+    /**
+     * The actual log to store messages to (destination log)
+     */
+    LogEngine&      m_destination;
+    String          m_prefix;
 };
 
 /**

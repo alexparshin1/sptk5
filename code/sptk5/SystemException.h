@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SystemException.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -52,7 +50,7 @@ public:
      * @param file std::string, the file name where exception occurs
      * @param line int, the line number in the file where exception occurs
      */
-    SystemException(std::string context, std::string file="", int line=0) DOESNT_THROW;
+    SystemException(const String& context, const String& file="", int line=0) DOESNT_THROW;
 
     /**
      * @brief Copy constructor

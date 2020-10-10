@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       FirebirdStatement.cpp - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -67,11 +65,6 @@ public:
                 break;
         }
         m_sqlvar.sqlind = &m_cbNull;
-    }
-
-    void clearNull()
-    {
-        setNotNull();
     }
 };
 
@@ -171,7 +164,7 @@ VariantType FirebirdStatement::firebirdTypeToVariantType(int firebirdType, int f
         if (firebirdSubtype == 1)
             return VAR_BUFFER;
         return VAR_STRING;
-        
+
     // Anything we don't know about - treat as string
     default:
         return VAR_STRING;
@@ -180,11 +173,11 @@ VariantType FirebirdStatement::firebirdTypeToVariantType(int firebirdType, int f
 
 void FirebirdStatement::setParameterValues()
 {
-    auto            paramCount = (unsigned) m_enumeratedParams.size();
+    auto            paramCount = (unsigned) enumeratedParams().size();
     struct tm       firebirdDateTime = {};
     ISC_TIMESTAMP*  pts;
     for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++) {
-        QueryParameter*     param = m_enumeratedParams[paramIndex];
+        QueryParameter*     param = enumeratedParams()[paramIndex];
         XSQLVAR&    sqlvar = m_paramBuffers[paramIndex];
 
         if (param->isNull())
@@ -431,9 +424,9 @@ void FirebirdStatement::fetchResult(FieldList& fields)
             field->setNull(VAR_STRING);
             continue;
         }
-        field->clearNull();
         switch (sqlvar.sqltype & 0xFFFE) {
             case SQL_BLOB:
+                field->setBuffer("", 0);
                 fetchBLOB((ISC_QUAD*)sqlvar.sqldata, field);
                 break;
 
@@ -493,6 +486,7 @@ void FirebirdStatement::fetchResult(FieldList& fields)
                     pos--;
                 pos++;
                 sqlvar.sqldata[pos] = 0;
+                field->setBuffer(sqlvar.sqldata + 2, pos, VAR_TEXT);
                 break;
 
             case SQL_VARYING:

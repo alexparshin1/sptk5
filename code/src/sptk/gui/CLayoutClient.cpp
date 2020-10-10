@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CLayoutClient.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -130,9 +128,9 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
         if (!m_label.empty())
             node->setAttribute("label", label());
         if (!m_widget->visible())
-            node->setAttribute("visible", m_widget->visible());
+            node->setAttribute("visible", (int) m_widget->visible());
         if (!m_widget->active())
-            node->setAttribute("enable", m_widget->active());
+            node->setAttribute("enable", (int) m_widget->active());
 
         String layoutAlignStr;
         switch (m_layoutAlign) {

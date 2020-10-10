@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSListener.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,6 +30,7 @@
 #include <sptk5/cutils>
 #include <sptk5/cnet>
 #include <sptk5/wsdl/WSRequest.h>
+#include <sptk5/wsdl/WSConnection.h>
 
 namespace sptk {
 
@@ -49,20 +48,21 @@ namespace sptk {
  * As a bonus, WSListener also serves static files, located in staticFilesDirectory.
  * That may be used to implement a web application.
  */
-class WSListener : public TCPServer
+class SP_EXPORT WSListener : public TCPServer
 {
-    mutable SharedMutex m_mutex;                ///< Mutex that protects internal data
-    WSRequest&          m_service;              ///< Web Service request processor
-    Logger              m_logger;               ///< Logger object
+public:
+    /**
+     * Constructor
+     * @param service               Web Service request processor
+     * @param logger                Logger
+     * @param hostname              This service hostname
+     * @param threadCount           Max number of simultaneously running requests
+     * @param options               Client connection options
+     */
+    WSListener(WSRequest& service, LogEngine& logger, const String& hostname, size_t threadCount,
+               const WSConnection::Options& options);
 
 protected:
-
-    const String        m_staticFilesDirectory; ///< Web Service static files directory
-    const String        m_indexPage;            ///< Default index page. If empty then it's index.html
-    const String        m_wsRequestPage;        ///< Page name that is used for WS requests
-    const bool          m_encrypted;            ///< Connection protocol is encrypted flag
-    const String        m_hostname;             ///< This service hostname
-
     /**
      * Creates connection thread derived from CTCPServerConnection
      *
@@ -71,29 +71,13 @@ protected:
      * @param connectionSocket      Already accepted incoming connection socket
      * @param peer                  Incoming connection information
      */
-    virtual ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer);
+    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
 
-public:
-    /**
-     * Constructor
-     * @param service               Web Service request processor
-     * @param logger                Logger
-     * @param staticFilesDirectory  Web Service static files directory
-     * @param indexPage             Index page name
-     * @param wsRequestPage         WSDL request page name
-     * @param hostname              This service hostname
-     * @param encrypted             True if communication is encrypted
-     * @param threadCount           Max number of simultaneously running requests
-     */
-    WSListener(WSRequest& service, LogEngine& logger, const String& staticFilesDirectory,
-               const String& indexPage, const String& wsRequestPage, const String& hostname, bool encrypted,
-               size_t threadCount=16);
-
-    /**
-     * Get host name of the listener
-     * @return host name of the listener
-     */
-    String hostname() const override;
+private:
+    mutable SharedMutex     m_mutex;                ///< Mutex that protects internal data
+    WSRequest&              m_service;              ///< Web Service request processor
+    Logger                  m_logger;               ///< Logger object
+    WSConnection::Options   m_options;              ///< Client connection options
 };
 
 /**

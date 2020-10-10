@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       HttpParams.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -48,52 +46,71 @@ namespace sptk {
  */
 typedef std::map<sptk::String, sptk::String, CaseInsensitiveCompare> StringHttpFieldMap;
 
+class SP_EXPORT Url
+{
+public:
+    /**
+     * Encodes a string into HTML parameters
+     */
+    static String encode(const String& str);
+
+    /**
+     * Decodes a string from HTML parameters
+     */
+    static sptk::String decode(const String& str);
+};
+
 /**
- * @brief HTTP params map
+ * HTTP params map
  *
  * Designed to hold HTTP parametrs in
  * CHttpConnect and CCgiApplication. It is, basically, a string-to-string
  * map with an addition of encode and decode functions for HTTP Mime.
  */
-class HttpParams: public StringHttpFieldMap
+class SP_EXPORT HttpParams: public StringHttpFieldMap
 {
-    /**
-     * @brief Encodes a string into HTML parameters
-     */
-    static String encodeString(const String& str);
-
-    /**
-     * @brief Decodes a string from HTML parameters
-     */
-    static sptk::String decodeString(const String& str);
 public:
     /**
-     * @brief Default constructor.
+     * Default constructor.
      */
-    HttpParams()
-    : StringHttpFieldMap()
-    {
-    }
+    HttpParams() = default;
 
     /**
-     * @brief Encodes HTTP parameters for sending to the server.
+     * Copy constructor.
+     */
+    HttpParams(const HttpParams& other) = default;
+
+    /**
+     * Initialization constructor.
+     */
+    HttpParams(std::initializer_list<std::pair<String,String>> lst);
+
+    /**
+     * Encodes HTTP parameters for sending to the server.
      * @param result            Output - encoded parameters string (if any) as the buffer.
      */
     void encode(Buffer& result) const;
 
     /**
-     * @brief Decodes HTTP parameters that came from the server as a string into parameters map.
+     * Decodes HTTP parameters that came from the server as a string into parameters map.
      * @param paramString       Parameters string from HTTP server
      * @param lowerCaseNames    True if you want to lower-case the parameter names
      */
     void decode(const Buffer& paramString, bool lowerCaseNames = false);
 
     /**
-     * @brief Returns parameter value, or empty string if not found
+     * Returns parameter value, or empty string if not found
      * @param paramName         Parameter name
      * @return parameter value
      */
-    String get(const String& paramName) const;
+    [[nodiscard]] String get(const String& paramName) const;
+
+    /**
+     * Returns true if parameter exists
+     * @param paramName         Parameter name
+     * @return true if parameter exists
+     */
+    [[nodiscard]] bool has(const String& paramName) const;
 };
 /**
  * @}

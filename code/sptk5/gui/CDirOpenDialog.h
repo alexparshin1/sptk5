@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDirOpenDialog.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,7 +42,7 @@ namespace sptk {
  * Implements the dialog to select a directory.
  * @see CDialog, CFileDialog, CFileOpenDialog, CFileSaveDialog
  */
-class CDirOpenDialog : public CFileDialog {
+class SP_EXPORT CDirOpenDialog : public CFileDialog {
 protected:
     /**
      * @brief 'Ok' reaction

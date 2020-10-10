@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Node.h - description                                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -62,21 +60,9 @@ class Attributes;
  */
 enum XPathAxis
 {
-    /**
-     * Child axis
-     */
-            XPA_CHILD,
-
-    /**
-     * Descendant axis
-     */
-            XPA_DESCENDANT,
-
-    /**
-     * Parent Axis
-     */
-            XPA_PARENT
-
+    XPA_CHILD,      ///< Child axis
+    XPA_DESCENDANT, ///< Descendant axis
+    XPA_PARENT      ///< Parent Axis
 };
 
 /**
@@ -85,70 +71,19 @@ enum XPathAxis
 class SP_EXPORT XPathElement
 {
 public:
-    /**
-     * Node name, or '*'
-     */
-    const std::string* elementName{ nullptr };
-
-    /**
-     * Criteria
-     */
-    std::string criteria;
-
-    /**
-     * Axis
-     */
-    XPathAxis axis {XPA_CHILD};
-
-    /**
-     * Attribute name (optional)
-     */
-    const std::string* attributeName{ nullptr };
-
-    /**
-     * Attribute value (optional)
-     */
-    std::string attributeValue;
-
-    /**
-     * true if attribute value was defined
-     */
-    bool attributeValueDefined {0};
-
-    /**
-     * 0 (not required), -1 (last), or node position
-     */
-    int nodePosition {0};
-
-    /**
-     * Default constructor
-     */
-    XPathElement()
-    {
-        axis = XPA_CHILD;
-        attributeValueDefined = false;
-    }
-
-    /**
-     * Copy constructor
-     * @param xpe CXPathElement object to copy from
-     */
-    XPathElement(const XPathElement& xpe)
-    {
-        elementName = xpe.elementName;
-        criteria = xpe.criteria;
-        axis = xpe.axis;
-        attributeName = xpe.attributeName;
-        attributeValue = xpe.attributeValue;
-        nodePosition = xpe.nodePosition;
-        attributeValueDefined = xpe.attributeValueDefined;
-    }
+    String      elementName;                   ///< Node name, or '*'
+    String      criteria;                      ///< Criteria
+    XPathAxis   axis {XPA_CHILD};              ///< Axis
+    String      attributeName;                 ///< Attribute name (optional)
+    String      attributeValue;                ///< Attribute value (optional)
+    bool        attributeValueDefined {false}; ///< true if attribute value was defined
+    int         nodePosition {0};              ///< 0 (not required), -1 (last), or node position
 };
 
 /**
  * XML Node iterators
  */
-class SP_EXPORT Node_Iterators
+class SP_EXPORT NodeIterators
 {
 public:
     /**
@@ -180,6 +115,11 @@ public:
      * Returns the end subnode const iterator
      */
     virtual const_iterator end() const;
+
+private:
+
+    static NodeList emptyNodes;
+
 };
 
 class Node;
@@ -187,27 +127,9 @@ class Node;
 /**
  * Base XML Node class
  */
-class SP_EXPORT Node_Base: public Node_Iterators
+class SP_EXPORT NodeBase: public NodeIterators
 {
-    /**
-     * Parent document pointer
-     */
-    Document* m_document;
-
-    /**
-     * Parent node pointer
-     */
-    Node* m_parent {nullptr};
-
-protected:
-
-    /**
-     * Sets parent node - for XMLParser
-     */
-    void setParent(Node* p, bool minimal);
-
 public:
-
     /**
      * Node type enumeration
      */
@@ -227,7 +149,7 @@ public:
      * Constructor
      * @param document          Parent XML document
      */
-    explicit Node_Base(Document* document)
+    explicit NodeBase(Document* document)
     : m_document(document)
     {}
 
@@ -312,7 +234,7 @@ public:
     /**
      * Always returns false for xml::Node since it has no name
      */
-    virtual bool nameIs(const std::string* /*sstName*/) const
+    virtual bool nameIs(const String& /*sstName*/) const
     {
         return false;
     }
@@ -320,24 +242,100 @@ public:
     /**
      * Returns the node name.
      */
-    virtual const std::string& name() const = 0;
+    virtual String name() const = 0;
 
     /**
      * Sets the new name for the node
      * @param name              New node name
      */
-    virtual void name(const std::string& name) = 0;
-
-    /**
-     * Sets new name for node
-     * @param name              New node name
-     */
-    virtual void name(const char* name) = 0;
+    virtual void name(const String& name) = 0;
 
     /**
      * Returns node type
      */
     virtual NodeType type() const = 0;
+
+    /**
+     * Returns the node namespace.
+     */
+    virtual String nameSpace() const
+    {
+        return "";
+    }
+
+    /**
+     * Returns the node tagname (without namespace).
+     */
+    virtual String tagname() const
+    {
+        return "";
+    }
+
+    /**
+     * Document node, can contain subnodes and attributes
+     */
+    bool isDocument() const
+    {
+        return type() == DOM_DOCUMENT;
+    }
+
+    /**
+     * Normal element node or document, can contain subnodes and attributes
+     */
+    bool isElement() const
+    {
+        return (type() & (DOM_ELEMENT | DOM_DOCUMENT)) != 0;
+    }
+
+    /**
+     * Processing Instruction node
+     */
+    bool isPI() const
+    {
+        return type() == DOM_PI;
+    }
+
+    /**
+     * Cdata where all default entities MUST be escaped.
+     */
+    bool isText() const
+    {
+        return type() == DOM_TEXT;
+    }
+
+    /**
+     * Cdata section, which can contain preformatted char data.
+     */
+    bool isCDataSection() const
+    {
+        return type() == DOM_CDATA_SECTION;
+    }
+
+    /**
+     * Comment node
+     */
+    bool isComment() const
+    {
+        return type() == DOM_COMMENT;
+    }
+
+protected:
+
+    /**
+     * Sets parent node - for XMLParser
+     */
+    void setParent(Node* p, bool minimal);
+
+private:
+    /**
+     * Parent document pointer
+     */
+    Document* m_document;
+
+    /**
+     * Parent node pointer
+     */
+    Node* m_parent {nullptr};
 };
 
 /**
@@ -345,7 +343,7 @@ public:
  *
  * Basic class for any XML node
  */
-class SP_EXPORT Node: public Node_Base
+class SP_EXPORT Node: public NodeBase
 {
     friend class NodeList;
     friend class Document;
@@ -354,42 +352,6 @@ class SP_EXPORT Node: public Node_Base
     friend class Attributes;
 
     friend class NodeSearchAlgorithms;
-
-    /**
-     * Save node to JSON object.
-     * @param json              JSON element
-     * @param text              Temporary text buffer
-     */
-    virtual void save(json::Element& json, std::string& text) const;
-
-protected:
-
-    /**
-     * Protected constructor - for derived classes
-     *
-     * @param doc               Node document
-     */
-    explicit Node(Document& doc)
-    : Node_Base(&doc)
-    {}
-
-    /**
-     * Protected constructor - for derived classes
-     *
-     * @param parent            Node document
-     */
-    explicit Node(Node& parent)
-    : Node_Base(parent.document())
-    {
-        parent.push_back(this);
-    }
-
-    /**
-     * Destructor
-     */
-    virtual ~Node()
-    {
-    }
 
 public:
 
@@ -400,7 +362,7 @@ public:
      * @param name              The name to find
      * @param recursively       If true, also search in all subnodes
      */
-    Node* findFirst(const std::string& name, bool recursively = true) const;
+    Node* findFirst(const String& name, bool recursively = true) const;
 
     /**
      * Finds the first subnode with the given name, or creates a new one.
@@ -410,7 +372,7 @@ public:
      * @param name              The name to find
      * @param recursively       If true, also search in all subnodes
      */
-    Node* findOrCreate(const std::string& name, bool recursively = true);
+    Node* findOrCreate(const String& name, bool recursively = true);
 
     /**
      * Finds the first subnode with the given name, or creates a new one.
@@ -419,7 +381,7 @@ public:
      * node is created.
      * @param name              The name to find
      */
-    Node& operator[](const std::string& name)
+    Node& operator[](const String& name)
     {
         return *findOrCreate(name, false);
     }
@@ -442,22 +404,6 @@ public:
      * @param node              Node to copy from
      */
     virtual void copy(const Node& node);
-
-    /**
-     * Returns the node namespace.
-     */
-    virtual std::string nameSpace() const
-    {
-        return "";
-    }
-
-    /**
-     * Returns the node tagname (without namespace).
-     */
-    virtual std::string tagname() const
-    {
-        return "";
-    }
 
     /**
      * Returns the value of the node
@@ -544,7 +490,7 @@ public:
      * @param defaultValue      A default value. If attribute doesn't exist then default value is returned.
      * @returns attribute value
      */
-    virtual Variant getAttribute(const std::string& attr, const char* defaultValue = "") const
+    virtual Variant getAttribute(const String& attr, const char* defaultValue = "") const
     {
         return Variant(defaultValue);
     }
@@ -557,20 +503,7 @@ public:
      * @param value             Attribute value
      * @param defaultValue      A default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    virtual void setAttribute(const char* attr, Variant value, const char* defaultValue = "")
-    {
-        // Implement in derived classes
-    }
-
-    /**
-     * Sets new value to attribute 'attr'.
-     *
-     * If attribute is not found, it's added to map.
-     * @param attr              Attribute name
-     * @param value             Attribute value
-     * @param defaultValue      A default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
-     */
-    virtual void setAttribute(const std::string& attr, Variant value, const char* defaultValue = "")
+    virtual void setAttribute(const String& attr, const Variant& value, const char* defaultValue = "")
     {
         // Implement in derived classes
     }
@@ -604,53 +537,56 @@ public:
         return true;
     }
 
-    /**
-     * Document node, can contain subnodes and attributes
-     */
-    bool isDocument() const
-    {
-        return type() == DOM_DOCUMENT;
-    }
+protected:
 
     /**
-     * Normal element node or document, can contain subnodes and attributes
+     * Protected constructor - for derived classes
+     *
+     * @param doc               Node document
      */
-    bool isElement() const
-    {
-        return (type() & (DOM_ELEMENT | DOM_DOCUMENT)) != 0;
-    }
+    explicit Node(Document& doc)
+    : NodeBase(&doc)
+    {}
 
     /**
-     * Processing Instruction node
+     * Protected constructor - for derived classes
+     *
+     * @param parent            Node document
      */
-    bool isPI() const
+    explicit Node(Node& parent, bool)
+    : NodeBase(parent.document())
     {
-        return type() == DOM_PI;
+        parent.push_back(this);
     }
 
-    /**
-     * Cdata where all default entities MUST be escaped.
-     */
-    bool isText() const
-    {
-        return type() == DOM_TEXT;
-    }
+    Node(const Node&) = default;
+    Node(Node&&) noexcept = default;
+    Node& operator = (const Node&) = default;
+    Node& operator = (Node&&) noexcept = default;
 
     /**
-     * Cdata section, which can contain preformatted char data.
+     * Destructor
      */
-    bool isCDataSection() const
+    virtual ~Node()
     {
-        return type() == DOM_CDATA_SECTION;
     }
 
+private:
     /**
-     * Comment node
+     * Save node to JSON object.
+     * @param json              JSON element
+     * @param text              Temporary text buffer
      */
-    bool isComment() const
-    {
-        return type() == DOM_COMMENT;
-    }
+    virtual void save(json::Element& json, std::string& text) const;
+
+    void saveElement(const String& nodeName, Buffer& buffer, int indent) const;
+    void saveAttributes(Buffer& buffer) const;
+    void saveAttributes(json::Element* object) const;
+    void saveElement(json::Element* object) const;
+    void appendSubNodes(Buffer& buffer, int indent, bool only_cdata) const;
+    void appendClosingTag(Buffer& buffer, int indent, bool only_cdata) const;
+
+    void saveTextOrCDATASection(json::Element* object) const;
 };
 
 /**
@@ -662,25 +598,28 @@ public:
     /**
      * Scan descendents nodes
      */
-    static void scanDescendents(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
-                                const std::string* starPointer);
+    static void scanDescendents(const Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+                                const String& starPointer);
 
     /**
      * Match nodes
      */
     static void matchNode(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
-                          const std::string* starPointer);
+                          const String& starPointer);
 
     /**
      * Match nodes only this level
      */
-    static void matchNodesThisLevel(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
-                                    const std::string* starPointer, NodeVector& matchedNodes, bool descendants);
+    static void matchNodesThisLevel(const Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+                                    const String& starPointer, NodeVector& matchedNodes, bool descendants);
 
     /**
      * Match path element
      */
-    static bool matchPathElement(Node* thisNode, const XPathElement& pathElement, const std::string* starPointer, bool& nameMatches);
+    static bool matchPathElement(Node* thisNode, const XPathElement& pathElement,
+                                 const String& starPointer);
+
+    static bool matchPathElementAttribute(Node* thisNode, const XPathElement& pathElement, const String& starPointer);
 };
 
 /**
@@ -693,32 +632,6 @@ class SP_EXPORT NamedItem : public Node
     friend class Document;
     friend class Attribute;
 
-    /**
-     * Node name, stored in the parent document SST
-     */
-    const std::string* m_name {nullptr};
-
-
-protected:
-    /**
-     * Protected constructor for creating Doc only
-     *
-     * @param doc a document.
-     */
-    explicit NamedItem(Document& doc)
-    : Node(doc)
-    {
-    }
-
-    /**
-     * Returns true if node name pointer (from SST) matches aname pointer
-     * @param sstName           Node name pointer to compare with this node name pointer
-     */
-    virtual bool nameIs(const std::string* sstName) const
-    {
-        return sstName == m_name;
-    }
-
 public:
     /**
      * Constructor
@@ -727,10 +640,15 @@ public:
      * @param tagname           Name of XML tag
      */
     NamedItem(Node& parent, const char* tagname)
-    : Node(parent)
+    : Node(parent, true)
     {
         NamedItem::name(tagname);
     }
+
+    NamedItem(const NamedItem&) = default;
+    NamedItem(NamedItem&&) noexcept = default;
+    NamedItem& operator = (const NamedItem&) = default;
+    NamedItem& operator = (NamedItem&&) noexcept = default;
 
     /**
      * Constructor
@@ -738,20 +656,8 @@ public:
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
      */
-    NamedItem(Node* parent, const char* tagname)
-    : Node(*parent)
-    {
-        NamedItem::name(tagname);
-    }
-
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node.
-     * @param tagname           Name of XML tag
-     */
-    NamedItem(Node& parent, const std::string& tagname)
-    : Node(parent)
+    NamedItem(Node& parent, const String& tagname)
+    : Node(parent, true)
     {
         NamedItem::name(tagname);
     }
@@ -759,52 +665,69 @@ public:
     /**
      * Returns the node name.
      */
-    virtual const std::string& name() const
+    String name() const override
     {
-        return *m_name;
+        return m_name;
     }
 
     /**
      * Returns the node name space.
      */
-    virtual std::string nameSpace() const
+    String nameSpace() const override
     {
-        size_t pos = m_name->find(":");
+        size_t pos = m_name.find(":");
         if (pos == std::string::npos)
             return "";
-        return m_name->substr(0, pos);
+        return m_name.substr(0, pos);
     }
 
     /**
      * Returns the node tagname without namespace.
      */
-    virtual std::string tagname() const
+    String tagname() const override
     {
-        size_t pos = m_name->find(":");
+        size_t pos = m_name.find(":");
         if (pos == std::string::npos)
-            return *m_name;
-        return m_name->substr(pos + 1);
+            return m_name;
+        return m_name.substr(pos + 1);
     }
 
     /**
      * Sets the new name for the node
      * @param name              New node name
      */
-    virtual void name(const std::string& name);
-
-    /**
-     * Sets new name for node
-     * @param name              New node name
-     */
-    virtual void name(const char* name);
+    void name(const String& name) override;
 
     /**
      * Returns node type
      */
-    virtual NodeType type() const
+    NodeType type() const override
     {
         return DOM_ATTRIBUTE;
     }
+
+protected:
+    /**
+     * Protected constructor for creating Doc only
+     *
+     * @param doc a document.
+     */
+    explicit NamedItem(Document& doc) : Node(doc)
+    {
+    }
+
+    /**
+     * Returns true if node name pointer (from SST) matches aname pointer
+     * @param name           Node name pointer to compare with this node name pointer
+     */
+    bool nameIs(const String& name) const override
+    {
+        return name == m_name;
+    }
+
+private:
+
+    String  m_name;    ///< Node name
 };
 
 /**
@@ -812,23 +735,12 @@ public:
  */
 class SP_EXPORT BaseTextNode : public Node
 {
-    /**
-     * Node value
-     */
-    String m_value;
-
-protected:
-    /**
-     * returns node name
-     */
-    virtual const std::string& nodeName() const;
-
 public:
     /**
      * Constructor
      */
     BaseTextNode(Node* parent, const char* data)
-    : Node(*parent)
+    : Node(*parent, true)
     {
         BaseTextNode::value(data);
     }
@@ -871,7 +783,7 @@ public:
      *
      * The meaning of the value depends on the node type
      */
-    const std::string& name() const override
+    String name() const override
     {
         return nodeName();
     }
@@ -880,20 +792,20 @@ public:
      * Sets the new name for the node
      * @param name              New node name
      */
-    void name(const std::string& name) override
+    void name(const String& name) override
     {
         // Text node con't have name
     }
 
+protected:
     /**
-     * Sets new name for node
-     * @param name              New node name
+     * returns node name
      */
-    void name(const char* name) override
-    {
-        // Text node con't have name
-    }
+    virtual String nodeName() const;
 
+private:
+
+    String m_value;     ///< Node value
 };
 
 /**
@@ -901,12 +813,6 @@ public:
  */
 class SP_EXPORT Text : public BaseTextNode
 {
-protected:
-    /**
-     * returns node name
-     */
-    virtual const std::string& nodeName() const;
-
 public:
     /**
      * Constructor
@@ -915,7 +821,7 @@ public:
      * @param data              Text
      */
     Text(Node& parent, const char* data)
-            : BaseTextNode(&parent, data)
+    : BaseTextNode(&parent, data)
     {
     }
 
@@ -926,7 +832,7 @@ public:
      * @param data              Text
      */
     Text(Node* parent, const char* data)
-            : BaseTextNode(parent, data)
+    : BaseTextNode(parent, data)
     {
     }
 
@@ -936,8 +842,8 @@ public:
      * @param parent            Parent node.
      * @param data              Text
      */
-    Text(Node& parent, const std::string& data)
-            : BaseTextNode(&parent, data.c_str())
+    Text(Node& parent, const String& data)
+    : BaseTextNode(&parent, data.c_str())
     {
     }
 
@@ -948,6 +854,12 @@ public:
     {
         return DOM_TEXT;
     }
+
+protected:
+    /**
+     * returns node name
+     */
+    virtual String nodeName() const;
 };
 
 /**
@@ -955,12 +867,6 @@ public:
  */
 class SP_EXPORT Comment : public BaseTextNode
 {
-protected:
-    /**
-     * returns node name
-     */
-    virtual const std::string& nodeName() const;
-
 public:
     /**
      * Constructor
@@ -969,7 +875,7 @@ public:
      * @param data              Comment
      */
     Comment(Node& parent, const char* data)
-            : BaseTextNode(&parent, data)
+    : BaseTextNode(&parent, data)
     {
     }
 
@@ -980,7 +886,7 @@ public:
      * @param data              Comment
      */
     Comment(Node* parent, const char* data)
-            : BaseTextNode(parent, data)
+    : BaseTextNode(parent, data)
     {
     }
 
@@ -990,8 +896,8 @@ public:
      * @param parent            Parent node.
      * @param data              Comment
      */
-    Comment(Node& parent, const std::string& data)
-            : BaseTextNode(&parent, data.c_str())
+    Comment(Node& parent, const String& data)
+    : BaseTextNode(&parent, data.c_str())
     {
     }
 
@@ -1002,6 +908,12 @@ public:
     {
         return DOM_COMMENT;
     }
+
+protected:
+    /**
+     * returns node name
+     */
+    virtual String nodeName() const;
 };
 
 /**
@@ -1009,12 +921,6 @@ public:
  */
 class SP_EXPORT CDataSection : public BaseTextNode
 {
-protected:
-    /**
-     * returns node name
-     */
-    virtual const std::string& nodeName() const;
-
 public:
     /**
      * Constructor
@@ -1023,7 +929,7 @@ public:
      * @param data              Data
      */
     CDataSection(Node& parent, const char* data)
-            : BaseTextNode(&parent, data)
+    : BaseTextNode(&parent, data)
     {
     }
 
@@ -1034,7 +940,7 @@ public:
      * @param data              Data
      */
     CDataSection(Node* parent, const char* data)
-            : BaseTextNode(parent, data)
+    : BaseTextNode(parent, data)
     {
     }
 
@@ -1044,99 +950,24 @@ public:
      * @param parent            Parent node.
      * @param data              Data
      */
-    CDataSection(Node& parent, const std::string& data)
-            : BaseTextNode(&parent, data.c_str())
+    CDataSection(Node& parent, const String& data)
+    : BaseTextNode(&parent, data.c_str())
     {
     }
 
     /**
      * Returns node type
      */
-    virtual NodeType type() const
+    NodeType type() const override
     {
         return DOM_CDATA_SECTION;
     }
-};
 
-/**
- * XML processing instructions (PI)
- */
-class SP_EXPORT PI : public BaseTextNode
-{
+protected:
     /**
-     * Node name, stored in the parent document SST
+     * returns node name
      */
-    const std::string* m_name {nullptr};
-
-public:
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node. Make sure it's a pointer to the existing node.
-     * @param target            Target tag name
-     * @param data              Data
-     */
-    PI(Node& parent, std::string target, const char* data)
-    : BaseTextNode(&parent, data)
-    {
-        PI::name(target);
-    }
-
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node. Make sure it's a pointer to the existing node.
-     * @param target            Target tag name
-     * @param data              Data
-     */
-    PI(Node* parent, std::string target, const char* data)
-    : BaseTextNode(parent, data)
-    {
-        PI::name(target);
-    }
-
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node
-     * @param target            Target tag name
-     * @param data              Data
-     */
-    PI(Node& parent, std::string target, const std::string& data)
-    : BaseTextNode(&parent, data.c_str())
-    {
-        PI::name(target);
-    }
-
-    /**
-     * Returns the node name.
-     *
-     * The meaning of the value depends on the node type
-     */
-    virtual const std::string& name() const
-    {
-        return *m_name;
-    }
-
-    /**
-     * Sets the new name for the node
-     * @param name              New node name
-     */
-    virtual void name(const std::string& name);
-
-    /**
-     * Sets new name for node
-     * @param name              New node name
-     */
-    virtual void name(const char* name);
-
-    /**
-     * Returns node type
-     */
-    virtual NodeType type() const
-    {
-        return DOM_PI;
-    }
+    String nodeName() const override;
 };
 
 /**

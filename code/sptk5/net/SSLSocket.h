@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SSLSocket.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -45,14 +43,8 @@ namespace sptk {
 /**
  * Encrypted TCP Socket
  */
-class SSLSocket: public TCPSocket, public std::mutex
+class SP_EXPORT SSLSocket: public TCPSocket, public std::mutex
 {
-    SSLContext* m_sslContext;                           ///< SSL context
-    SSL*        m_ssl;                                  ///< SSL socket
-    SSLKeys     m_keys;                                 ///< SSL keys info
-
-    String      m_sniHostName;                          ///< SNI host name (optional)
-
 public:
     /**
      * Returns number of bytes available for read
@@ -64,41 +56,13 @@ public:
      * @param function          SSL function name
      * @param rc                SSL function return code
      */
-    void throwSSLError(const String& function, int rc);
-
-protected:
-
-    /**
-     * Reads data from SSL socket
-     * @param buffer            Destination buffer
-     * @param size              Destination buffer size
-     * @return the number of bytes read from the socket
-     */
-    size_t recv(void* buffer, size_t size) override;
-
-    /**
-     * Sends data through SSL socket
-     * @param buffer            Send buffer
-     * @param len               Send data length
-     * @return the number of bytes sent the socket
-     */
-
-    size_t send(const void* buffer, size_t len) override;
-
-    /**
-     * Get error description for SSL error code
-     * @param function          SSL function
-     * @param SSLError          Error code returned by SSL_get_error() result
-     * @return Error description
-     */
-    virtual std::string getSSLError(const std::string& function, int32_t SSLError) const;
-
-public:
+    [[noreturn]] void throwSSLError(const String& function, int rc) const;
 
     /**
      * Constructor
+	 * @param cipherList		Optional cipher list
      */
-    SSLSocket();
+    explicit SSLSocket(const String& cipherList="ALL");
 
     /**
      * Destructor
@@ -114,12 +78,7 @@ public:
      * A single file containing private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
      * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keys           Private key file name
-     * @param certificateFileName   Certificate file name
-     * @param password              Key file password
-     * @param caFileName            Optional CA (root certificate) file name
-     * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
-     * @param verifyDepth           Connection verify depth
+     * @param keys                  SSL keys
      */
     void loadKeys(const SSLKeys& keys);
 
@@ -129,6 +88,29 @@ public:
      * @param sniHostName           SNI host name
      */
     void setSNIHostName(const String& sniHostName);
+
+    /**
+     * Attaches socket handle
+     *
+     * This method is designed to only attach socket handles obtained with accept().
+     * @param socketHandle          External socket handle.
+     */
+    void attach(SOCKET socketHandle, bool accept) override;
+
+    /**
+     * Closes the socket connection
+     *
+     * This method is not thread-safe.
+     */
+    void close() noexcept override;
+
+    /**
+     * Returns SSL handle
+     */
+    SSL* handle()
+    {
+        return m_ssl;
+    }
 
 protected:
 
@@ -158,30 +140,43 @@ protected:
      */
     void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
-public:
+    /**
+     * Reads data from SSL socket
+     * @param buffer            Destination buffer
+     * @param size              Destination buffer size
+     * @return the number of bytes read from the socket
+     */
+    size_t recv(void* buffer, size_t size) override;
 
     /**
-     * Attaches socket handle
-     *
-     * This method is designed to only attach socket handles obtained with accept().
-     * @param socketHandle          External socket handle.
+     * Sends data through SSL socket
+     * @param buffer            Send buffer
+     * @param len               Send data length
+     * @return the number of bytes sent the socket
      */
-    void attach(SOCKET socketHandle) override;
+
+    size_t send(const void* buffer, size_t len) override;
 
     /**
-     * Closes the socket connection
-     *
-     * This method is not thread-safe.
+     * Get error description for SSL error code
+     * @param function          SSL function
+     * @param SSLError          Error code returned by SSL_get_error() result
+     * @return Error description
      */
-    void close() noexcept override;
+    virtual std::string getSSLError(const std::string& function, int32_t SSLError) const;
 
-    /**
-     * Returns SSL handle
-     */
-    SSL* handle()
-    {
-        return m_ssl;
-    }
+private:
+
+    SharedSSLContext	m_sslContext {nullptr};     ///< SSL context
+    SSL*				m_ssl {nullptr};            ///< SSL socket
+    SSLKeys				m_keys;                     ///< SSL keys info
+
+    String				m_sniHostName;              ///< SNI host name (optional)
+    String				m_cipherList;				///< Cipher List, the default is "ALL"
+
+    void openSocketFD(bool blockingMode, const std::chrono::milliseconds& timeout);
+
+    bool tryConnect(const DateTime& timeoutAt);
 };
 
 /**

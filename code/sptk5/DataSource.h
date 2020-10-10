@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DataSource.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -53,23 +51,6 @@ class SP_EXPORT DataSource
 {
     friend class Fl_Group;
 
-protected:
-    /**
-     * Loads datasource data. Should be implemented in derived class
-     */
-    virtual bool loadData()
-    {
-        return true;
-    }
-
-    /**
-     * Saves data from datasource. Should be implemented in derived class
-     */
-    virtual bool saveData()
-    {
-        return true;
-    }
-
 public:
     /**
      * Default constructor
@@ -82,31 +63,13 @@ public:
     virtual ~DataSource() = default;
 
     /**
-     * Field access by the field index, const version.
-     *
-     * Purely virtual. Should be implemented in derived class
-     * @param fieldIndex        Field index
-     * @returns field reference
-     */
-    virtual const Field& operator [] (uint32_t fieldIndex) const = 0;
-
-    /**
      * Field access by the field index, non-const version
      *
      * Purely virtual. Should be implemented in derived class
      * @param fieldIndex        Field index
      * @returns field reference
      */
-    virtual Field&       operator [] (uint32_t fieldIndex) = 0;
-
-    /**
-     * Field access by the field name, const version.
-     *
-     * Purely virtual. Should be implemented in derived class
-     * @param fieldName         Field name
-     * @returns field reference
-     */
-    virtual const Field& operator [] (const String& fieldName) const = 0;
+    virtual Field&       operator [] (size_t fieldIndex) = 0;
 
     /**
      * Field access by the field name, const version.
@@ -123,7 +86,7 @@ public:
      * Purely virtual. Should be implemented in derived class
      * @returns field count
      */
-    virtual uint32_t fieldCount() const = 0;
+    virtual size_t fieldCount() const = 0;
 
     /**
      * Returns record count in the datasource.
@@ -131,15 +94,7 @@ public:
      * Purely virtual. Should be implemented in derived class
      * @returns record count
      */
-    virtual uint32_t recordCount() const = 0;
-
-    /**
-     * Returns user_data associated with the datasource.
-     */
-    virtual void* user_data() const 
-    {
-        return nullptr;
-    }
+    virtual size_t recordCount() const = 0;
 
     /**
      * Reads the field by name from the datasource.
@@ -210,7 +165,7 @@ public:
     /**
      * Moves to the specified record position of the datasource. Implemented in derved class.
      */
-    virtual bool find(Variant /*position*/)
+    virtual bool find(const String& /*fieldName*/, const Variant& /*position*/)
     {
         return false;
     }
@@ -241,7 +196,7 @@ public:
      * @param node              XML node to fill in
      * @param compactXmlMode    Compact XML flag
      */
-    void rowToXML(xml::Node& node, bool compactXmlMode) const;
+    void rowToXML(xml::Node& node, bool compactXmlMode);
 
     /**
      * Saves data into XML
@@ -255,6 +210,23 @@ public:
      * @param compactXmlMode    Compact XML flag
      */
     virtual void toXML(xml::Node& parentNode, const std::string& nodeName, bool compactXmlMode);
+
+protected:
+    /**
+     * Loads datasource data. Should be implemented in derived class
+     */
+    virtual bool loadData()
+    {
+        return true;
+    }
+
+    /**
+     * Saves data from datasource. Should be implemented in derived class
+     */
+    virtual bool saveData()
+    {
+        return true;
+    }
 };
 
 /**

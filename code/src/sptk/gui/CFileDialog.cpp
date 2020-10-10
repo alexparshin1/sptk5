@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CFileDialog.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,14 +24,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
-
-#include <sys/stat.h>
-
-#include <FL/fl_ask.H>
-
 #include <sptk5/gui/CFileDialog.h>
-#include <sptk5/Registry.h>
+#include <sptk5/sptk.h>
+#include <sys/stat.h>
+#include <FL/fl_ask.H>
+#include <sptk5/HomeDirectory.h>
+#include <filesystem>
 
 #ifdef WIN32
 
@@ -67,7 +63,7 @@ void CFileDialog::new_folder_cb(Fl_Widget* w, void*)
 void CFileDialog::home_cb(Fl_Widget* w, void*)
 {
     auto* fileDialog = (CFileDialog*) w->window();
-    String homeDirectory = Registry::homeDirectory();
+    String homeDirectory = HomeDirectory::location();
     fileDialog->directory(homeDirectory);
     fileDialog->refreshDirectory();
 }
@@ -224,17 +220,13 @@ void CFileDialog::createFolder()
     if (dialog.showModal()) {
         String folderName = m_directory.directory() + slashStr + folderNameInput.data().asString();
         folderName = folderName.replace("[\\/\\\\]{2}", slashStr);
-#ifdef WIN32
-        int rc = mkdir(folderName.c_str());
-#else
-        int rc = mkdir(folderName.c_str(), S_IRWXU);
-#endif
-
-        if (rc == 0) {
+        try {
+            filesystem::create_directories(folderName.c_str());
             directory(folderName);
             refreshDirectory();
-        } else {
-            fl_alert("%s", ("Can't create directory " + folderName).c_str());
+        }
+        catch (const filesystem::filesystem_error& e) {
+            fl_alert("%s", ("Can't create directory " + folderName + ": " + String(e.what())).c_str());
         }
     }
 }
@@ -268,9 +260,8 @@ void CFileDialog::directory(const String& p)
 
     for (unsigned d = 0; d < driveList.size(); d++) {
         pseudoID++;
-        m_lookInCombo->addRow(Strings(driveList[d], "|"), pseudoID);
+        m_lookInCombo->addRow(pseudoID, Strings(driveList[d], "|"));
     }
-
 #endif
 
     m_directory.directory(p);
@@ -278,14 +269,13 @@ void CFileDialog::directory(const String& p)
     Strings pathItems(m_directory.directory().c_str(), slashStr);
     string incrementalPath;
 
-    for (unsigned i = 0; i < pathItems.size(); i++) {
+    for (size_t i = 0; i < pathItems.size(); i++) {
         incrementalPath += pathItems[i];
 
         if (i == 0)
             incrementalPath += slashStr;
 
 #ifdef WIN32
-
         if (i)
 #endif
         {

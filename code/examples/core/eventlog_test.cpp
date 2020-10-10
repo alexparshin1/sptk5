@@ -4,7 +4,7 @@
 ║                       logfile_test.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -34,7 +34,7 @@ using namespace sptk;
 int main()
 {
    try {
-      COUT("Creating a log file ./logfile_test.log: " << endl);
+      COUT("Creating a log file ./logfile_test.log: " << endl)
       FileLogEngine fileLog("logfile_test.log");
       Logger  log(fileLog);
 
@@ -48,7 +48,7 @@ int main()
       /// would make it to the log.
       fileLog.minPriority(LP_INFO);
 
-      COUT("Sending 'Hello, World!' to this file.." << endl);
+      COUT("Sending 'Hello, World!' to this file.." << endl)
       log.info("Hello, World!");
       log.info("Welcome to SPTK.");
       log.warning("Eating too much nuts will turn you into HappySquirrel!");
@@ -56,7 +56,7 @@ int main()
       log.info("This is the end of the log.");
    }
    catch (const Exception& e) {
-      CERR(e.what() << endl);
+      CERR(e.what() << endl)
    }
 
    return 0;

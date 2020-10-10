@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       FieldList.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,22 +35,19 @@ using namespace sptk;
 FieldList::FieldList(bool indexed, bool compactXmlMode)
 : m_compactXmlMode(compactXmlMode)
 {
-    m_userData = nullptr;
     if (indexed)
-        m_index = new Map;
-    else
-        m_index = nullptr;
+        m_index = make_shared<Map>();
 }
 
 FieldList::FieldList(const FieldList& other)
-: m_userData(other.m_userData), m_compactXmlMode(false)
 {
+    assign(other);
     if (other.m_index != nullptr)
-        m_index = new Map;
+        m_index = make_shared<Map>();
     else
-        m_index = nullptr;
+        m_index.reset();
 
-    for (auto* otherField: other) {
+    for (const auto* otherField: other) {
         auto* field = new Field(*otherField);
         m_list.push_back(field);
         if (m_index)
@@ -63,7 +58,23 @@ FieldList::FieldList(const FieldList& other)
 FieldList::~FieldList()
 {
     clear();
-    delete m_index;
+}
+
+void FieldList::assign(const FieldList& other)
+{
+    clear();
+
+    if (other.m_index != nullptr)
+        m_index = make_shared<Map>();
+    else
+        m_index.reset();
+
+    for (const auto* otherField: other) {
+        auto* field = new Field(*otherField);
+        m_list.push_back(field);
+        if (m_index)
+            (*m_index)[field->fieldName()] = field;
+    }
 }
 
 void FieldList::clear()
@@ -75,10 +86,17 @@ void FieldList::clear()
         m_index->clear();
 }
 
+FieldList& FieldList::operator=(const FieldList &other)
+{
+    if (&other != this)
+        assign(other);
+    return *this;
+}
+
 Field& FieldList::push_back(const String& fname, bool checkDuplicates)
 {
     if (checkDuplicates) {
-        Field *pfld = findField(fname);
+        const Field *pfld = findField(fname);
         if (pfld != nullptr)
             throw Exception("Attempt to duplicate field name");
     }
@@ -121,13 +139,13 @@ Field *FieldList::findField(const String& fname) const
 
 void FieldList::toXML(xml::Node& node) const
 {
-    for (auto* field: *this)
+    for (const auto* field: *this)
         field->toXML(node, m_compactXmlMode);
 }
 
 #if USE_GTEST
 
-TEST(SPTK_FieldList, copy)
+TEST(SPTK_FieldList, ctors)
 {
     FieldList fieldList(true);
 
@@ -140,6 +158,10 @@ TEST(SPTK_FieldList, copy)
 
     EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
     EXPECT_EQ(12345, (int32_t) fieldList2["value"]);
+
+    fieldList2["name"] = "id2";
+    EXPECT_STREQ("id", fieldList["name"].asString().c_str());
+    EXPECT_STREQ("id2", fieldList2["name"].asString().c_str());
 }
 
 TEST(SPTK_FieldList, push_back)
@@ -149,10 +171,98 @@ TEST(SPTK_FieldList, push_back)
     fieldList.push_back("name", true);
     fieldList.push_back("value", true);
     fieldList["name"] = "id";
-    fieldList["value"] = 1234;
     fieldList["value"] = 12345;
 
     EXPECT_STREQ("id", fieldList["name"].asString().c_str());
     EXPECT_EQ(12345, (int32_t) fieldList["value"]);
 }
+
+TEST(SPTK_FieldList, assign)
+{
+    FieldList fieldList(true);
+
+    fieldList.push_back("name", true);
+    fieldList.push_back("value", true);
+    fieldList["name"] = "id";
+    fieldList["value"] = 12345;
+
+    FieldList fieldList2 = fieldList;
+
+    EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
+    EXPECT_EQ(12345, (int32_t) fieldList2["value"]);
+}
+
+TEST(SPTK_FieldList, dataTypes)
+{
+    FieldList fieldList(true);
+
+    DateTime testDate("2020-02-01 11:22:33Z");
+
+    fieldList.push_back("name", true);
+    fieldList.push_back("value", true);
+    fieldList.push_back("online", true);
+    fieldList.push_back("visible", true);
+    fieldList.push_back("date", true);
+    fieldList.push_back("null", true);
+    fieldList.push_back("text", true);
+    fieldList.push_back("float_value", true);
+    fieldList.push_back("money_value", true);
+    fieldList.push_back("long_value", true);
+    fieldList["name"] = "id";
+    fieldList["value"] = 12345;
+    fieldList["online"].setBool(true);
+    fieldList["visible"].setBool(false);
+    fieldList["date"] = testDate;
+    fieldList["null"].setNull(VAR_STRING);
+    fieldList["text"].setBuffer("1234", 5);
+    fieldList["float_value"] = 12345.0;
+    fieldList["money_value"].setMoney(1234567,2);
+    fieldList["long_value"] = int64_t(12345678901234567);
+
+    EXPECT_STREQ("id", fieldList["name"].asString().c_str());
+
+    EXPECT_EQ(12345, (int32_t) fieldList["value"]);
+    EXPECT_STREQ("12345", fieldList["value"].asString().c_str());
+
+    EXPECT_TRUE(fieldList["online"].asBool());
+    EXPECT_STREQ("true", fieldList["online"].asString().c_str());
+    EXPECT_FALSE(fieldList["visible"].asBool());
+    EXPECT_STREQ("false", fieldList["visible"].asString().c_str());
+
+    EXPECT_TRUE(fieldList["date"].asDateTime() == testDate);
+    EXPECT_STREQ("2020-02-01T11:22:33Z", fieldList["date"].asDateTime().isoDateTimeString(sptk::DateTime::PA_SECONDS, true).c_str());
+
+    EXPECT_TRUE(fieldList["null"].isNull());
+    EXPECT_STREQ("1234", fieldList["text"].asString().c_str());
+
+    EXPECT_DOUBLE_EQ(12345.0, fieldList["float_value"].asFloat());
+    EXPECT_STREQ("12345.000", fieldList["float_value"].asString().c_str());
+
+    EXPECT_DOUBLE_EQ(12345.67, fieldList["money_value"].asFloat());
+    EXPECT_STREQ("12345.67", fieldList["money_value"].asString().c_str());
+
+    EXPECT_EQ(int64_t(12345678901234567), fieldList["long_value"].asInt64());
+    EXPECT_STREQ("12345678901234567", fieldList["long_value"].asString().c_str());
+    EXPECT_DOUBLE_EQ(double(12345678901234567), fieldList["long_value"].asFloat());
+}
+
+TEST(SPTK_FieldList, toXml)
+{
+    FieldList fieldList(true);
+
+    fieldList.push_back("name", true);
+    fieldList.push_back("value", true);
+    fieldList["name"] = "id";
+    fieldList["value"] = 12345;
+
+    xml::Document xml;
+    auto* fieldsElement = new xml::Element(xml, "fields");
+    fieldList.toXML(*fieldsElement);
+
+    Buffer buffer;
+    fieldsElement->save(buffer);
+
+    EXPECT_STREQ(buffer.c_str(), R"(<fields name="id" value="12345"/>)");
+}
+
 #endif

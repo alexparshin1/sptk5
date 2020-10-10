@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        PoolDatabaseConnection.h - description                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday October 28 2018                                 ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,6 +34,8 @@
 #include <sptk5/Logger.h>
 
 #include <vector>
+#include <list>
+#include <set>
 
 namespace sptk {
 
@@ -49,47 +49,16 @@ class Query;
 /**
  * Database connection type
  */
-enum DatabaseConnectionType : uint16_t {
-    /**
-     * Unknown
-     */
-    DCT_UNKNOWN=0,
-
-    /**
-     * MySQL
-     */
-    DCT_MYSQL=1,
-
-    /**
-     * Oracle
-     */
-    DCT_ORACLE=2,
-
-    /**
-     * PostgreSQL
-     */
-    DCT_POSTGRES=4,
-
-    /**
-     * SQLite3
-     */
-    DCT_SQLITE3=8,
-
-    /**
-     * Firebird
-     */
-    DCT_FIREBIRD=16,
-
-    /**
-     * Generic ODBC
-     */
-    DCT_GENERIC_ODBC=32,
-
-    /**
-     * MS SQL ODBC
-     */
-    DCT_MSSQL_ODBC=64
-
+enum DatabaseConnectionType : uint16_t
+{
+    DCT_UNKNOWN=0,          ///< Unknown
+    DCT_MYSQL=1,            ///< MySQL
+    DCT_ORACLE=2,           ///< Oracle
+    DCT_POSTGRES=4,         ///< PostgreSQL
+    DCT_SQLITE3=8,          ///< SQLite3
+    DCT_FIREBIRD=16,        ///< Firebird
+    DCT_GENERIC_ODBC=32,    ///< Generic ODBC
+    DCT_MSSQL_ODBC=64       ///< MS SQL ODBC
 };
 
 /**
@@ -97,12 +66,12 @@ enum DatabaseConnectionType : uint16_t {
  */
 enum DatabaseObjectType : uint8_t
 {
-    DOT_UNDEFINED,      ///< Undefined
-    DOT_TABLES,         ///< Tables
-    DOT_VIEWS,          ///< Views
-    DOT_PROCEDURES,     ///< Stored procedures
-    DOT_FUNCTIONS,      ///< Stored functions
-    DOT_DATABASES       ///< Available databases
+    DOT_UNDEFINED,          ///< Undefined
+    DOT_TABLES,             ///< Tables
+    DOT_VIEWS,              ///< Views
+    DOT_PROCEDURES,         ///< Stored procedures
+    DOT_FUNCTIONS,          ///< Stored functions
+    DOT_DATABASES           ///< Available databases
 };
 
 /**
@@ -110,16 +79,8 @@ enum DatabaseObjectType : uint8_t
  */
 struct QueryColumnTypeSize
 {
-    /**
-     * Column type
-     */
-    VariantType     type;
-
-    /**
-     * Column data size
-     */
-    size_t          length;
-
+    VariantType     type;   ///< Column type
+    size_t          length; ///< Column data size
 };
 
 /**
@@ -132,31 +93,31 @@ typedef std::vector<QueryColumnTypeSize> QueryColumnTypeSizeVector;
  */
 typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
 
-class SP_EXPORT PoolDatabaseConnection_QueryMethods
+class SP_EXPORT PoolDatabaseConnectionQueryMethods
 {
     friend class Query;
-    friend class Query_StatementManagement;
+    friend class QueryStatementManagement;
 
 protected:
     /**
      * Sets internal CQuery statement handle
      */
-    void querySetStmt(Query* q, void *stmt);
+    static void querySetStmt(Query* q, void *stmt);
 
     /**
      * Sets internal CQuery m_prepared flag
      */
-    void querySetPrepared(Query* q, bool pf);
+    static void querySetPrepared(Query* q, bool pf);
 
     /**
      * Sets internal CQuery m_active flag
      */
-    void querySetActive(Query* q, bool af);
+    static void querySetActive(Query* q, bool af);
 
     /**
      * Sets internal CQuery m_eof flag
      */
-    void querySetEof(Query* q, bool eof);
+    static void querySetEof(Query* q, bool eof);
 
     // These methods implement the actions requested by CQuery
     /**
@@ -241,7 +202,7 @@ protected:
      * Stub function to throw an exception in case if the
      * called method isn't implemented in the derived class
      */
-    void notImplemented(const String& methodName) const;
+    [[noreturn]] void notImplemented(const String& methodName) const;
 
 };
 
@@ -251,122 +212,10 @@ protected:
  * Implements a thread-safe connection to general database. It is used
  * as a base class for actual database driver classes.
  */
-class SP_EXPORT PoolDatabaseConnection : public PoolDatabaseConnection_QueryMethods
+class SP_EXPORT PoolDatabaseConnection : public PoolDatabaseConnectionQueryMethods
 {
     friend class Query;
-    friend class Query_StatementManagement;
-
-    std::set<Query*>            m_queryList;            ///< The list of queries that use this database
-    DatabaseConnectionString    m_connString;           ///< The connection string
-    DatabaseConnectionType      m_connType;             ///< The connection type
-    String                      m_driverDescription;    ///< Driver description is filled by the particular driver.
-    bool                        m_inTransaction;        ///< The in-transaction flag
-
-protected:
-
-    bool   getInTransaction() const;
-    void   setInTransaction(bool inTransaction);
-
-    /**
-     * Attaches (links) query to the database
-     */
-    bool linkQuery(Query* q);
-
-    /**
-     * Unlinks query from the database
-     */
-    bool unlinkQuery(Query* q);
-
-    /**
-     * Constructor
-     *
-     * Protected constructor prevents creating an instance of the
-     * DatabaseConnection. Instead, it is possible to create an instance of derived
-     * classes.
-     * @param connectionString  The connection string
-     */
-    explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType);
-
-    /**
-     * Opens the database connection.
-     *
-     * This method should be overwritten in derived classes
-     * @param connectionString  The ODBC connection string
-     */
-    virtual void _openDatabase(const String& connectionString);
-
-    /**
-     * Closes the database connection.
-     *
-     * This method should be overwritten in derived classes
-     */
-    virtual void closeDatabase();
-
-    /**
-     * Begins the transaction
-     *
-     * This method should be implemented in derived driver
-     */
-    virtual void driverBeginTransaction();
-
-    /**
-     * Ends the transaction
-     *
-     * This method should be implemented in derived driver
-     * @param commit            Commit if true, rollback if false
-     */
-    virtual void driverEndTransaction(bool commit);
-
-    /**
-     * Throws an exception
-     *
-     * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
-     * @param method            Method name where error has occured
-     * @param error             Error text
-     */
-    void logAndThrow(const String& method, const String& error);
-
-    /**
-     * Executes bulk inserts of data from memory buffer
-     *
-     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
-     * about data. If format is empty than default server-specific data format is used.
-     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
-     * @param format            Data format (may be database-specific). The default is TAB-delimited data.
-     */
-    virtual void _bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                             const String& format);
-
-    /**
-     * Executes SQL batch file
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchFileName     SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
-     */
-    virtual void _executeBatchFile(const String& batchFileName, Strings* errors);
-
-    /**
-     * Executes SQL batch queries
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
-     */
-    virtual void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
-
-    /**
-     * Set the connection type
-     */
-    virtual void connectionType(DatabaseConnectionType connType)
-    {
-        m_connType = connType;
-    }
+    friend class QueryStatementManagement;
 
 public:
 
@@ -421,7 +270,10 @@ public:
     /**
      * Returns driver-specific connection string
      */
-    virtual String nativeConnectionString() const = 0;
+    virtual String nativeConnectionString() const
+    {
+        return "";
+    }
 
     /**
      * Returns the connection type
@@ -457,7 +309,7 @@ public:
     /**
      * Reports true if in transaction
      */
-    int inTransaction()
+    bool inTransaction() const
     {
         return m_inTransaction;
     }
@@ -481,11 +333,10 @@ public:
      * @param tableName         Table name to insert into
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
-     * @param format            Data format (may be database-specific). The default is TAB-delimited data.
      */
-    void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "")
+    void bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data)
     {
-        _bulkInsert(tableName, columnNames, data, format);
+        _bulkInsert(tableName, columnNames, data);
     }
 
     /**
@@ -520,7 +371,134 @@ public:
      * list.
      */
     void disconnectAllQueries();
+
+protected:
+
+    bool   getInTransaction() const;
+    void   setInTransaction(bool inTransaction);
+
+    /**
+     * Attaches (links) query to the database
+     */
+    bool linkQuery(Query* q);
+
+    /**
+     * Unlinks query from the database
+     */
+    bool unlinkQuery(Query* q);
+
+    /**
+     * Constructor
+     *
+     * Protected constructor prevents creating an instance of the
+     * DatabaseConnection. Instead, it is possible to create an instance of derived
+     * classes.
+     * @param connectionString  The connection string
+     */
+    explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType);
+
+    PoolDatabaseConnection(const PoolDatabaseConnection&) = delete;
+    PoolDatabaseConnection(PoolDatabaseConnection&&) noexcept = default;
+    PoolDatabaseConnection& operator = (const PoolDatabaseConnection&) = delete;
+    PoolDatabaseConnection& operator = (PoolDatabaseConnection&&) noexcept = default;
+
+    /**
+     * Opens the database connection.
+     *
+     * This method should be overwritten in derived classes
+     * @param connectionString  The ODBC connection string
+     */
+    virtual void _openDatabase(const String& connectionString);
+
+    /**
+     * Closes the database connection.
+     *
+     * This method should be overwritten in derived classes
+     */
+    virtual void closeDatabase();
+
+    /**
+     * Begins the transaction
+     *
+     * This method should be implemented in derived driver
+     */
+    virtual void driverBeginTransaction();
+
+    /**
+     * Ends the transaction
+     *
+     * This method should be implemented in derived driver
+     * @param commit            Commit if true, rollback if false
+     */
+    virtual void driverEndTransaction(bool commit);
+
+    /**
+     * Throws an exception
+     *
+     * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
+     * @param method            Method name where error has occured
+     * @param error             Error text
+     */
+    [[noreturn]] static void logAndThrow(const String& method, const String& error);
+
+    /**
+     * Executes bulk inserts of data from memory buffer
+     *
+     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
+     * about data. If format is empty than default server-specific data format is used.
+     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
+     * @param tableName         Table name to insert into
+     * @param columnNames       List of table columns to populate
+     * @param data              Data for bulk insert
+     */
+    virtual void _bulkInsert(const String& tableName, const Strings& columnNames,
+                             const std::vector<VariantVector>& data);
+
+    /**
+     * Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchFileName     SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     */
+    virtual void _executeBatchFile(const String& batchFileName, Strings* errors);
+
+    /**
+     * Executes SQL batch queries
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL          SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     */
+    virtual void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
+
+    /**
+     * Set the connection type
+     */
+    virtual void connectionType(DatabaseConnectionType connType)
+    {
+        m_connType = connType;
+    }
+
+private:
+
+    std::set<Query*>            m_queryList;                ///< The list of queries that use this database
+    DatabaseConnectionString    m_connString;               ///< The connection string
+    DatabaseConnectionType      m_connType;                 ///< The connection type
+    String                      m_driverDescription;        ///< Driver description is filled by the particular driver.
+    bool                        m_inTransaction {false};    ///< The in-transaction flag
 };
+
+/**
+ * Escape SQL string for bulk insert
+ * @param str                   String to escape
+ * @param tsv                   True if output data is TSV (tab-separated values)
+ * @return                      Escaped string
+ */
+SP_EXPORT String escapeSQLString(const String& str, bool tsv=false);
+
 /**
  * @}
  */

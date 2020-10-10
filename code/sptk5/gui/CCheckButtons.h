@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CCheckButtons.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -46,7 +44,9 @@ namespace sptk {
  * Implements the SPTK check button that understands and reports
  * its size requirements, and can be a layout client.
  */
-class SP_EXPORT CCheckButton : public Fl_Check_Button, public CLayoutClient {
+class SP_EXPORT CCheckButton
+        : public Fl_Check_Button, public CLayoutClient
+{
 
 protected:
 
@@ -63,8 +63,10 @@ public:
      * @param layoutSize int, the size of widget in layout
      * @param layoutAlignment CLayoutAlign, widget align in the layout
      */
-    CCheckButton(const char *label,int layoutSize,CLayoutAlign layoutAlignment)
-            : Fl_Check_Button(0,0,10,10,label), CLayoutClient(this,layoutSize,layoutAlignment) {}
+    CCheckButton(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+            : Fl_Check_Button(0, 0, 10, 10, label), CLayoutClient(this, layoutSize, layoutAlignment)
+    {
+    }
 
     /**
      * A special handle method. See FLTK Fl_Widget::handle() for more information.
@@ -79,7 +81,7 @@ public:
      * @param h int, input/output desirable widget heigth
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    bool preferredSize(int& w,int& h) override;
+    bool preferredSize(int& w, int& h) override;
 };
 
 /**
@@ -88,10 +90,14 @@ public:
  * Implements a group of check buttons with an optional CInput for the 'Other' choice.
  * Data connector returns the current state as a string with selected buttons names separated with '|' character.
  */
-class SP_EXPORT CCheckButtons : public CRadioButtons {
-    static void checkButtonsCallback(Fl_Widget *,void *);
+class SP_EXPORT CCheckButtons
+        : public CRadioButtons
+{
+    static void checkButtonsCallback(Fl_Widget*, void*);
+
 protected:
-    virtual Fl_Button *createButton(const char *label,int sz=10,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
+    Fl_Button* createButton(const char* label, int sz = 10, CLayoutAlign layoutAlignment = SP_ALIGN_TOP) override;
+
 public:
 
     /**
@@ -100,7 +106,7 @@ public:
      * @param layoutSize int, the size of widget in layout
      * @param layoutAlignment CLayoutAlign, widget align in the layout
      */
-    CCheckButtons(const char * label=0,int layoutSize=20,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
+    CCheckButtons(const char* label = 0, int layoutSize = 20, CLayoutAlign layoutAlignment = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -117,43 +123,45 @@ public:
     /**
      * Gets the currently selected buttons argument()s
      */
-    void getSelections(IntList& selection) const;
+    void getSelections(std::vector<uint64_t>& selection) const;
 
     /**
      * Sets the currently selected buttons matching with argument()s
      */
-    void setSelections(const IntList& selection);
+    void setSelections(const std::vector<uint64_t>& selection);
 
     /**
      * Universal data connection reader.
      * @returns the list of selected button labels as pipe ('|') separated strings
      */
-    virtual Variant data() const;
+    Variant data() const override;
 
     /**
      * Universal data connection writer.
      * @param v CVariant, sets the selection from the list of labels as pipe ('|') separated strings
      */
-    virtual void     data(const Variant v);
+    void data(const Variant& v) override;
 
     /**
      * Returns an internal SPTK control type information
      */
-    virtual CControlKind kind() const {
+    CControlKind kind() const override
+    {
         return DCV_CHECKBUTTONS;
     }
 
     /**
      * Returns an internal SPTK control class name information
      */
-    virtual String className() const {
+    String className() const override
+    {
         return "check_buttons";
     }
-    
+
     /**
      * @brief Creates chack buttons group based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node *node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 /**
  * @}

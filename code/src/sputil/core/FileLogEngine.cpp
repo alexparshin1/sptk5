@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       FileLogEngine.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -34,7 +32,7 @@ using namespace sptk;
 void FileLogEngine::saveMessage(const Logger::Message* message)
 {
     UniqueLock(m_mutex);
-    int32_t _options = options();
+    auto _options = (uint32_t) options();
     if ((_options & LO_ENABLE) == LO_ENABLE) {
         if (!m_fileStream.is_open()) {
             m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);

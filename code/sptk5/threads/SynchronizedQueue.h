@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SynchronizedQueue.h - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,9 +28,10 @@
 #define __SYNCHRONIZED_QUEUE_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/threads/Locks.h>
 #include <sptk5/threads/Semaphore.h>
 #include <queue>
+#include <mutex>
+#include <functional>
 
 namespace sptk {
 
@@ -42,7 +41,7 @@ namespace sptk {
  */
 
 /**
- * @brief Synchronized template queue
+ * Synchronized template queue
  *
  * Simple thread-safe queue
  */
@@ -52,7 +51,7 @@ class SynchronizedQueue
     /**
      * Lock to synchronize queue operations
      */
-    mutable SharedMutex     m_mutex;
+    mutable std::mutex      m_mutex;
 
     /**
      * Semaphore to waiting for an item if queue is empty
@@ -62,37 +61,41 @@ class SynchronizedQueue
     /**
      * Queue
      */
-    std::queue<T>*          m_queue;
+    std::queue<T>*          m_queue { new std::queue<T> };
 
 public:
 
     /**
-     * @brief Queue callback function used in each() method.
+     * Queue callback function used in each() method.
      *
      * Iterates through queue until false is returned.
      * @param item T&, List item
      * @param data void*, Optional function-specific data
      */
-    typedef bool (CallbackFunction)(T& item, void* data);
+    typedef std::function<bool(T& item, void* data)> CallbackFunction;
 
     /**
-     * @brief Default constructor
+     * Default constructor
      */
-    SynchronizedQueue() noexcept
-    : m_queue(new std::queue<T>)
-    {}
+    SynchronizedQueue() = default;
+
+    SynchronizedQueue(const SynchronizedQueue&) = delete;
+    SynchronizedQueue(SynchronizedQueue&&) noexcept = default;
+    SynchronizedQueue& operator = (const SynchronizedQueue&) = delete;
+    SynchronizedQueue& operator = (SynchronizedQueue&&) noexcept = default;
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~SynchronizedQueue()
     {
-        UniqueLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         delete m_queue;
+        m_queue = nullptr;
     }
 
     /**
-     * @brief Pushes a data item to the queue
+     * Pushes a data item to the queue
      *
      * Item is moved inside the queue.
      * Automatically posts internal semaphore to indicate
@@ -101,13 +104,13 @@ public:
      */
     void push(T&& data)
     {
-        UniqueLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_queue->push(std::move(data));
         m_semaphore.post();
     }
 
     /**
-     * @brief Pushes a data item to the queue
+     * Pushes a data item to the queue
      *
      * Automatically posts internal semaphore to indicate
      * queue item availability.
@@ -115,13 +118,13 @@ public:
      */
     void push(const T& data)
     {
-        UniqueLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_queue->push(data);
         m_semaphore.post();
     }
 
     /**
-     * @brief Pops a data item from the queue
+     * Pops a data item from the queue
      *
      * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
@@ -131,7 +134,7 @@ public:
     bool pop(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.sleep_for(timeout)) {
-            UniqueLock(m_mutex);
+            std::lock_guard<std::mutex> lock(m_mutex);
             if (!m_queue->empty()) {
                 item = std::move(m_queue->front());
                 m_queue->pop();
@@ -142,7 +145,7 @@ public:
     }
 
     /**
-     * @brief Wakes up queue semaphore to interrupt waiting
+     * Wakes up queue semaphore to interrupt waiting
      *
      * Any waiting pop() operation immediately returns false.
      */
@@ -152,47 +155,47 @@ public:
     }
 
     /**
-     * @brief Returns true if the queue is empty
+     * Returns true if the queue is empty
      */
     bool empty() const
     {
-        SharedLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_queue->empty();
     }
 
     /**
-     * @brief Returns number of items in the queue
+     * Returns number of items in the queue
      */
     size_t size() const
     {
-        SharedLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_queue->size();
     }
 
     /**
-     * @brief Removes all items from the queue
+     * Removes all items from the queue
      */
     void clear()
     {
-        UniqueLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         delete m_queue;
         m_queue = new std::queue<T>;
     }
 
     /**
-     * @brief Calls callbackFunction() for every list until false is returned
+     * Calls callbackFunction() for every list until false is returned
      *
      * Current implementation does the job but isn't too efficient due to
      * std::queue class limitations.
-     * @param callbackFunction CallbackFunction*, Callback function that is executed for list items
-     * @param data void*, Function-specific data
+     * @param callbackFunction  Callback function that is executed for list items
+     * @param data              Function-specific data
      * @returns true if every list item was processed
      */
-    bool each(CallbackFunction* callbackFunction, void* data=NULL)
+    bool each(const CallbackFunction& callbackFunction, void* data=nullptr)
     {
-        UniqueLock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
 
-        std::queue<T> newQueue = new std::queue<T>;
+        std::queue<T>* newQueue = new std::queue<T>;
 
         // Iterating through queue until callback returns false
         bool rc = true;

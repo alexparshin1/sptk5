@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CFileOpenDialog.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,7 +42,7 @@ namespace sptk {
  * Implements the dialog to open an existing file.
  * @see CDialog, CFileDialog, CFileSaveDialog
  */
-class CFileOpenDialog : public CFileDialog
+class SP_EXPORT CFileOpenDialog : public CFileDialog
 {
 protected:
     /**

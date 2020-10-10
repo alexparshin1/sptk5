@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       JsonDocument.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 16 2013                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -33,8 +31,9 @@
 #include "JsonArrayData.h"
 #include <istream>
 #include <sptk5/Buffer.h>
+#include <sptk5/SharedStrings.h>
 
-namespace sptk { namespace json {
+namespace sptk::json {
 
 /// @addtogroup JSON
 /// @{
@@ -42,26 +41,20 @@ namespace sptk { namespace json {
 /**
  * JSON document
  */
-class Document
+class SP_EXPORT Document
 {
     friend class ObjectData;
     friend class Element;
 
-    /**
-     * Root element of the document
-     */
-    Element*        m_root;
-
-    SharedStrings   m_sharedStrings;
-
-    const Element   m_emptyElement;
+    std::shared_ptr<Element>    m_root;             ///< Root element of the document
+    SharedStrings               m_sharedStrings;    ///< Shared string table for element names
+    const Element               m_emptyElement;     ///< Empty element
 
     /**
      * Parse JSON text, replacing current document content
-     * @param json const std::string&, JSON text
-     * @throw Exception if there is a problem parsing JSON document
+     * @param json              JSON text
      */
-    void parse(const std::string& json);
+    void parse(const String& json);
 
 public:
 
@@ -69,74 +62,70 @@ public:
     * Constructor
     * Creates empty JSON document.
     * Use one of the load() methods to populate it, or use add(), remove() methods of the root element to modify it.
-    * @param isObject bool, If true then document root is JSON object. Otherwise, document root is JSON array.
+    * @param isObject           If true then document root is JSON object. Otherwise, document root is JSON array.
     */
     explicit Document(bool isObject=true);
 
     /**
-     * Disable copy constructor
+     * Copy constructor
+     * @param other             Object to copy from
      */
-    Document(const Document&) = delete;
+    Document(const Document& other);
 
     /**
      * Move constructor
-     * Creates empty JSON document.
-     * Use one of the load() methods to populate it, or use add(), remove() methods of the root element to modify it.
-     * @param other Document&&, Object to move
+     * @param other             Object to move
      */
     Document(Document&& other) noexcept;
 
     /**
      * Destructor
      */
-    ~Document();
+    ~Document() noexcept = default;
 
     /**
      * Disable copy assignment
      */
-    Document& operator = (const Document&) = delete;
+    Document& operator = (const Document& other);
 
     /**
      * Load document from JSON text, replacing existing document
-     * @param json const std::string&, JSON text
-     * @throw Exception if there is a problem parsing JSON document
+     * @param json              JSON text
      */
-    void load(const std::string& json);
+    void load(const String& json);
 
     /**
      * Load document from JSON text, replacing existing document
-     * @param json const char*, JSON text
-     * @throw Exception if there is a problem parsing JSON document
+     * @param json              JSON text
      */
     void load(const char* json);
 
     /**
      * Load document from JSON text, replacing existing document
-     * @param json std::istream&, JSON text
-     * @throw Exception if there is a problem parsing JSON document
+     * @param json              JSON text
      */
     void load(std::istream& json);
 
     /**
      * Export JSON element (and all children) to stream
-     * @param stream std::ostream&, Stream to export JSON
-     * @param formatted bool, If true then JSON text is nicely formatted, but takes more space
+     * @param stream            Stream to export JSON
+     * @param formatted         If true then JSON text is nicely formatted, but takes more space
      */
     void exportTo(std::ostream& stream, bool formatted=true) const;
 
     /**
      * Export JSON element (and all children) to buffer
-     * @param buffer sptk::Buffer&, Buffer to export JSON
-     * @param formatted bool, If true then JSON text is nicely formatted, but takes more space
+     * @param buffer            Buffer to export JSON
+     * @param formatted         If true then JSON text is nicely formatted, but takes more space
      */
     void exportTo(Buffer& buffer, bool formatted=true) const;
 
     /**
      * Export JSON element (and all children) to XML document
-     * @param document sptk::xml::Document&, XML document to export JSON
-     * @param rootNodeName const std::string&, XML document root node name
+     * @param document          XML document to export JSON
+     * @param rootNodeName      XML document root node name
      */
-    void exportTo(xml::Document& document, const std::string& rootNodeName="data") const;
+    void exportTo(xml::Document& document, const String& rootNodeName = "data") const;
 
     /**
      * Get document root element
@@ -146,7 +135,7 @@ public:
     /**
      * Get document root element
      */
-    const Element& root() const;
+    [[nodiscard]] const Element& root() const;
 
     /**
      * Clear document content
@@ -157,9 +146,9 @@ protected:
 
     /**
      * Return empty const JSON element
-     * @return empty const JSON element reference
+     * @return                  Empty const JSON element reference
      */
-    const Element& getEmptyElement() const
+    [[nodiscard]] const Element& getEmptyElement() const
     {
         return m_emptyElement;
     }
@@ -167,7 +156,7 @@ protected:
     /**
      * Get shared string matching passed string
      * @param str               String
-     * @return shared string
+     * @return                  Shared string
      */
     const std::string* getString(const std::string& str)
     {
@@ -177,7 +166,7 @@ protected:
     /**
      * Get shared string matching passed string
      * @param str               String
-     * @return shared string
+     * @return                  Shared string
      */
     const std::string* getString(const char* str)
     {
@@ -185,6 +174,6 @@ protected:
     }
 };
 
-}}
+}
 
 #endif

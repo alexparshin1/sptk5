@@ -4,7 +4,7 @@
 ║                       tcp_server_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/cutils>
-#include <sptk5/cnet>
 #include <sptk5/wsdl/WSListener.h>
 
 using namespace std;
@@ -36,7 +35,8 @@ using namespace sptk;
 class StubRequest : public WSRequest
 {
 protected:
-    void requestBroker(xml::Element* /*requestNode*/, HttpAuthentication* /*authentication*/, const WSNameSpace& /*requestNameSpace*/) override
+    void requestBroker(const String& requestName, xml::Element*, json::Element* jsonNode, HttpAuthentication*,
+                       const WSNameSpace&) override
     {
         // Not used in this test
     }
@@ -56,15 +56,17 @@ int main()
         int rc = gethostname(hostname, sizeof(hostname));
         if (rc != 0)
             throw SystemException("Can't get hostname");
-        WSListener server(request, log, "/var/lib/pgman/webapp", "index.html", "request", hostname, false, 0);
+        WSConnection::Paths   paths("index.html", "request", "/var/lib/pgman/webapp");
+        WSConnection::Options options(paths);
+        WSListener server(request, log, hostname, 32, options);
         server.listen(8000);
         while (true)
             this_thread::sleep_for(chrono::milliseconds(1000));
     }
     catch (const Exception& e) {
-        CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl);
+        CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl)
         return 1;
     }
-    COUT("Server session closed" << endl);
+    COUT("Server session closed" << endl)
     return 0;
 }

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSParser.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,6 +28,8 @@
 #define __SPTK_WSPARSER_H__
 
 #include <sptk5/wsdl/WSParserComplexType.h>
+#include <sptk5/wsdl/WSOperation.h>
+#include <sptk5/wsdl/OpenApiGenerator.h>
 
 namespace sptk
 {
@@ -38,23 +38,6 @@ namespace sptk
  * @addtogroup wsdl WSDL-related Classes
  * @{
  */
-
-/**
- * WSDL operation
- */
-struct WSOperation
-{
-    /**
-     * WSDL operation input
-     */
-    WSParserComplexType*   m_input;
-
-    /**
-     * WSDL operation output
-     */
-    WSParserComplexType*   m_output;
-
-};
 
 /**
  * Parser of WSDL files
@@ -69,12 +52,59 @@ public:
     /**
      * Map of element names to element objects
      */
-    typedef std::map<String, WSParserElement*>      ElementMap;
+    typedef std::map<String, const WSParserElement*>      ElementMap;
 
-    /**
-     * Map of complex type names to complex type objects
-     */
-    typedef std::map<String,WSParserComplexType*>   ComplexTypeMap;
+    class ComplexTypeIndex
+    {
+    public:
+        void addType(const sptk::String& elementName, const SWSParserComplexType& complexType)
+        {
+            m_complexTypes[elementName] = complexType;
+        }
+
+        void add(const sptk::String& elementName, const SWSParserComplexType& complexType)
+        {
+            m_complexTypes[elementName] = complexType;
+            m_elements[elementName] = complexType.get();
+        }
+
+        void clear()
+        {
+            m_complexTypes.clear();
+            m_elements.clear();
+        }
+
+        const WSParserElement* element(const sptk::String& elementName, const sptk::String& context) const
+        {
+            auto itor = m_elements.find(elementName);
+            if (itor == m_elements.end())
+                throw Exception(context + ": Element '" + elementName + "' not found");
+            return itor->second;
+        }
+
+        const ElementMap& elements() const { return m_elements; }
+
+        const SWSParserComplexType complexType(const sptk::String& elementName, const sptk::String& context) const
+        {
+            auto itor = m_complexTypes.find(elementName);
+            if (itor == m_complexTypes.end())
+                throw Exception(context + ": Complex type '" + elementName + "' not found");
+            return itor->second;
+        }
+
+        const WSComplexTypeMap& complexTypes() const { return m_complexTypes; }
+
+    private:
+        /**
+         * Map of all elements
+         */
+        ElementMap          m_elements;
+
+        /**
+         * Map of all parsed complex types
+         */
+        WSComplexTypeMap      m_complexTypes;
+    };
 
     /**
      * Map of element names to corresponding WSDL (XML) elements
@@ -84,39 +114,64 @@ public:
     /**
      * Map of operation names to operation objects
      */
-    typedef std::map<String,WSOperation>            OperationMap;
-
-    /**
-     * Map of operation names to operation objects
-     */
     typedef std::map<String,String>                 DocumentationMap;
 
-private:
     /**
-     * Service name, defining service class name and source file names
+     * Constructor
      */
-    String              m_serviceName;
+    WSParser() = default;
+
+    WSParser(const WSParser& other) = delete;
+    WSParser(WSParser&& other) = delete;
 
     /**
-     * Map of all elements
+     * Destructor
      */
-    ElementMap          m_elements;
+    virtual ~WSParser();
+
+    WSParser& operator = (const WSParser& other) = delete;
+    WSParser& operator = (WSParser&& other) = delete;
 
     /**
-     * Map of all parsed complex types
+     * Clears parsed data
      */
-    ComplexTypeMap      m_complexTypes;
+    void clear();
 
     /**
-     * Map of all operations
+     * Loads WSDL-file and parses it to output classes
+     * @param wsdlFile          WSDL file name
      */
-    OperationMap        m_operations;
+    void parse(String wsdlFile);
 
     /**
-     * Map of all operation documentation if any
+     * Stores parsed classes to files in source directory
+     * @param sourceDirectory   Directory to store output classes
+     * @param headerFile        Optional header file to insert at the start of each generated file
      */
-    DocumentationMap    m_documentation;
+    void generate(const String& sourceDirectory = ".", const String& headerFile = "",
+                  const OpenApiGenerator::Options& options = OpenApiGenerator::Options(), bool verbose=false);
 
+    /**
+     * Stores WSDL to C++ file
+     * @param sourceDirectory   Directory to store output files
+     * @param headerFile        Optional header file to insert at the start of each generated file
+     * @param wsdlFileName              WSDL content
+     */
+    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& wsdlFileName) const;
+
+    /**
+     * Utility function that removes namespace from the element name
+     * @param name              Element name
+     */
+    static std::string strip_namespace(const std::string& name);
+
+    /**
+     * Utility function that returns namespace from the element name
+     * @param name              Element name
+     */
+    static std::string get_namespace(const std::string& name);
+
+    const String& description() const;
 
 protected:
     /**
@@ -126,6 +181,12 @@ protected:
     void parseElement(const xml::Element* element);
 
     /**
+     * Parses xsd:simpleType nodes directly under xsd:schema
+     * @param simpleTypeElement Schema simple type
+     */
+    void parseSimpleType(const xml::Element* simpleTypeElement) const;
+
+    /**
      * Parses xsd:complexType nodes directly under xsd:schema
      * @param complexTypeElement Schema complex type
      */
@@ -133,9 +194,9 @@ protected:
 
     /**
      * Parses wsdl:operation nodes directly under xsd:schema
-     * @param operation         Schema complex type
+     * @param operationNode         Schema complex type
      */
-    void parseOperation(xml::Element* operation);
+    void parseOperation(const xml::Element* operationNode);
 
     /**
      * Parses xsd:schema
@@ -154,58 +215,22 @@ protected:
      * Generates service implementation to output stream
      * @param output            Output stream
      */
-    void generateImplementation(std::ostream& output);
+    void generateImplementation(std::ostream& output) const;
 
-public:
+private:
 
-    /**
-     * Constructor
-     */
-    WSParser() = default;
-
-    /**
-     * Destructor
-     */
-    virtual ~WSParser();
-
-    /**
-     * Clears parsed data
-     */
-    void clear();
-
-    /**
-     * Loads WSDL-file and parses it to output classes
-     * @param wsdlFile          WSDL file name
-     */
-    void parse(String wsdlFile);
-
-    /**
-     * Stores parsed classes to files in source directory
-     * @param sourceDirectory   Directory to store output classes
-     * @param headerFile        Optional header file to insert at the start of each generated file
-     */
-    void generate(const String& sourceDirectory = ".", const String& headerFile = "");
-
-    /**
-     * Stores WSDL to C++ file
-     * @param sourceDirectory   Directory to store output files
-     * @param headerFile        Optional header file to insert at the start of each generated file
-     * @param wsdlFileName              WSDL content
-     */
-    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& wsdlFileName);
-
-    /**
-     * Utility function that removes namespace from the element name
-     * @param name              Element name
-     */
-    static std::string strip_namespace(const std::string& name);
-
-    /**
-     * Utility function that returns namespace from the element name
-     * @param name              Element name
-     */
-    static std::string get_namespace(const std::string& name);
+    String              m_serviceName;      ///< Service name, defining service class name and source file names
+    String              m_description;      ///< Service description
+    String              m_location;         ///< Service location
+    String              m_wsdlFile;         ///< WSDL source file name
+    ComplexTypeIndex    m_complexTypeIndex; ///< Index of all parsed complex types and elements
+    WSOperationMap      m_operations;       ///< Map of all operations
+    DocumentationMap    m_documentation;    ///< Map of documentation
 };
+
+/**
+ * @}
+ */
 
 }
 #endif

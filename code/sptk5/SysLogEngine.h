@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SysLogEngine.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -47,7 +45,7 @@ namespace sptk
  */
 
 /**
- * @brief A log stored in the system log.
+ * A log stored in the system log.
  *
  * On *nix , the log is sent to *nix syslog daemon.
  * On Windows NT/2000+/XP the log is sent to Event Log (Application).
@@ -56,26 +54,9 @@ namespace sptk
  */
 class SP_EXPORT SysLogEngine: public LogEngine
 {
-#ifdef _WIN32
-    /**
-     * (Windows) The handle of the log file
-     */
-    std::atomic<HANDLE> m_logHandle;
-
-#endif
-
-    /**
-     * List of facilities allows to define one or more system logs where messages would be sent
-     */
-    uint32_t            m_facilities;
-
-    std::string         m_programName;
-
-    void programName(const std::string& progName);
-    void setupEventSource();
 public:
     /**
-     * @brief Stores or sends log message to actual destination
+     * Stores or sends log message to actual destination
      *
      * This method should be overwritten by the actual log implementation
      * @param message           Log message
@@ -83,7 +64,7 @@ public:
     virtual void saveMessage(const Logger::Message* message) override;
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates a new log object based on the syslog facility (or facilities).
      * For Windows, parameter facilities is ignored and messages are stored
@@ -97,15 +78,35 @@ public:
     SysLogEngine(const std::string& programName, uint32_t facilities = LOG_USER);
 
     /**
-     * @brief Destructor
+     * Destructor
      *
      * Destructs the log object, closes the log descriptor, releases all the allocated resources
      */
     virtual ~SysLogEngine();
 
-    bool unregisterInstance() const;
+    /**
+     * Get log engine options
+     * @param options           Log engine output options
+     * @param programName       Log engine program name
+     * @param facilities        Log engine facilities
+     */
+    void getOptions(uint32_t& options, String& programName, uint32_t& facilities) const;
 
-    void getOptions(uint32_t& options, std::string& programName, uint32_t& facilities) const;
+private:
+
+#ifdef _WIN32
+    std::atomic<HANDLE>     m_logHandle {0};        ///< The handle of the log file
+    static bool             m_registrySet;          ///< Is registry set?
+#endif
+
+    static SharedMutex      syslogMutex;
+    static std::atomic_bool m_logOpened;
+
+    uint32_t            m_facilities;               ///< List of facilities allows to define one or more system logs where messages would be sent
+    std::string         m_programName;              ///< Application name
+
+    void programName(const std::string& progName);
+    void setupEventSource() const;
 };
 /**
  * @}

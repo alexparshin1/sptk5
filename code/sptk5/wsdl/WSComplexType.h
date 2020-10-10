@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSComplexType.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,6 +28,7 @@
 #define __SPTK_WSCOMPLEXTYPE_H__
 
 #include <sptk5/cxml>
+#include <sptk5/json/JsonElement.h>
 #include <sptk5/Variant.h>
 #include <sptk5/FieldList.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
@@ -46,56 +45,27 @@ namespace sptk {
 /**
  * Base type for all user WSDL types
  */
-class WSComplexType : public WSTypeName
+class SP_EXPORT WSComplexType : public WSTypeName
 {
-    /**
-     * Mutex that protects internal data
-     */
-    mutable SharedMutex m_mutex;
-
-    /**
-    * WSDL element name
-    */
-    String       m_name;
-
-    /**
-     * Element optionality flag
-     */
-    bool         m_optional;
-
-    /**
-     * Is data loaded flag
-     */
-    bool         m_loaded;
-
-protected:
-
-    const bool loaded() const
-    {
-        return m_loaded;
-    }
-
-    void setLoaded(bool flag)
-    {
-        m_loaded = flag;
-    }
-
-    /**
-     * Internal clear data
-     */
-    virtual void _clear()
-    {
-        // Implemented in derived classes
-    }
-
 public:
+
+    class SP_EXPORT FieldNameIndex : public sptk::Strings
+    {
+    public:
+        FieldNameIndex() = default;
+        FieldNameIndex(std::initializer_list<const char*> list);
+        int indexOf(const String& name) const override;
+    private:
+        std::set<String> m_index;
+    };
+
     /**
      * Default constructor
      * @param name              Element name
      * @param optional          Element optionality flag
      */
     WSComplexType(const char* name, bool optional=false)
-    : m_name(name), m_optional(optional), m_loaded(false)
+    : m_name(name), m_optional(optional)
     {}
 
     /**
@@ -110,12 +80,11 @@ public:
      * Move constructor
      * @param other             Other object
      */
-    WSComplexType(WSComplexType&& other)
-    : m_name(std::move(other.m_name)), m_optional(other.m_optional), m_loaded(other.m_loaded)
-    {
-        other.m_optional = false;
-        other.m_loaded = false;
-    }
+    WSComplexType(WSComplexType&& other) noexcept
+    : m_name(other.m_name),
+      m_optional(std::exchange(other.m_optional,false)),
+      m_loaded(std::exchange(other.m_loaded, false))
+    {}
 
     /**
      * Destructor
@@ -141,14 +110,13 @@ public:
      * Move assignment
      * @param other             Other object
      */
-    WSComplexType& operator = (WSComplexType&& other)
+    WSComplexType& operator = (WSComplexType&& other) noexcept
     {
         if (&other != this) {
-            m_name = std::move(other.m_name);
-            m_optional = other.m_optional;
-            m_loaded = other.m_loaded;
-            other.m_optional = false;
-            other.m_loaded = false;
+            _clear();
+            m_name = other.m_name;
+            m_optional = std::exchange(other.m_optional,false);
+            m_loaded = std::exchange(other.m_loaded, false);
         }
         return *this;
     }
@@ -158,7 +126,6 @@ public:
      */
     String className() const override
     {
-        SharedLock(m_mutex);
         return "WSComplexType";
     }
 
@@ -167,7 +134,6 @@ public:
      */
     virtual void clear()
     {
-        UniqueLock(m_mutex);
         _clear();
     }
 
@@ -184,6 +150,12 @@ public:
     virtual void load(const xml::Element* input) = 0;
 
     /**
+     * Load data from JSON element
+     * @param input             XML node containing CAddHandler data
+     */
+    virtual void load(const json::Element* input) = 0;
+
+    /**
      * Load data from FieldList
      *
      * Only simple WSDL type members are loaded.
@@ -197,6 +169,12 @@ public:
      * @param output            Existing XML node
      */
     virtual void unload(xml::Element* output) const = 0;
+
+    /**
+     * Unload data to existing JSON node
+     * @param output            Existing JSON node
+     */
+    virtual void unload(json::Element* output) const = 0;
 
     /**
      * Unload data to Query's parameters
@@ -215,15 +193,21 @@ public:
     /**
      * Unload data to new XML node
      * @param parent            Parent XML node where new node is created
+     * @param name              Optional name for the child element
      */
-    virtual void addElement(xml::Element* parent) const;
+    virtual void addElement(xml::Element* parent, const char* name=nullptr) const;
+
+    /**
+     * Unload data to new JSON node
+     * @param parent            Parent JSON node where new node is created
+     */
+    virtual void addElement(json::Element* parent) const;
 
     /**
      * True is data was loaded
      */
     virtual bool isNull() const
     {
-        SharedLock(m_mutex);
         return !m_loaded;
     }
 
@@ -232,7 +216,6 @@ public:
      */
     std::string complexTypeName() const
     {
-        SharedLock(m_mutex);
         return m_name;
     }
 
@@ -241,14 +224,60 @@ public:
      */
     virtual bool isOptional() const
     {
-        SharedLock(m_mutex);
         return m_optional;
     }
 
-    /*
+    /**
      * Print element as XML text
+     * @param asJSON            Output is JSON (true) or XML (false)
+     * @return object presentation as JSON or XML string
      */
     String toString(bool asJSON=true) const;
+
+    /**
+     * Throw SOAPException is the object is null
+     * @param parentTypeName    Parent object type name
+     */
+    void throwIfNull(const String& parentTypeName) const;
+
+    /**
+     * If object is exportable, it's included during export to JSON or XML
+     * @param flag              Exportable flag
+     */
+    void exportable(bool flag) { m_exportable = flag; }
+
+protected:
+
+    /**
+     * @return true if object is loaded
+     */
+    const bool loaded() const
+    {
+        return m_loaded;
+    }
+
+    /**
+     * Set loaded flag
+     * @param flag              If true then object is loaded
+     */
+    void setLoaded(bool flag)
+    {
+        m_loaded = flag;
+    }
+
+    /**
+     * Internal clear data
+     */
+    virtual void _clear()
+    {
+        // Implemented in derived classes
+    }
+
+private:
+    String       m_name;                ///< WSDL element name
+    bool         m_optional {false};    ///< Element optionality flag
+    bool         m_loaded {false};      ///< Is data loaded flag
+    bool         m_exportable {true};   ///< Is this object exportable?
 };
 
 /**

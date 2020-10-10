@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       ReadBuffer.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday Jan 9 2018                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -84,7 +82,7 @@ public:
      * @param size              Data size
      * @return true if read was successful
      */
-    bool read(void* data, size_t length);
+    bool read(void* data, size_t size);
 
     /**
      * Read into string
@@ -118,6 +116,14 @@ public:
     size_t available() const
     {
         return bytes() - readOffset();
+    }
+
+    /**
+     * @return true if there are no available bytes to read
+     */
+    bool eof() const
+    {
+        return readOffset() >= bytes();
     }
 
     /**

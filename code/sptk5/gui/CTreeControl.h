@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CTreeControl.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -64,62 +62,52 @@ typedef CLayoutClient* (* CTreeItemCreator)(CTreeItem* item);
  * A group widget with the extra information about item pixmaps
  * and current state.
  */
-class CTreeItem : public CGroup
+class SP_EXPORT CTreeItem : public CGroup
 {
     /**
      * Returns the height of the item text
      */
-    int m_itemHeight;
+    int m_itemHeight {0};
 
     /**
      * The width of the indent zone
      */
-    int m_indent;
-
-    /**
-     * The width of the label computed by fl_measure
-     */
-    int m_labelWidth;
-
-    /**
-     * The height of the label computed by fl_measure
-     */
-    int m_labelHeight;
+    int m_indent {0};
 
     /**
      * Is the item selected (controlled by parent tree control)
      */
-    bool m_selected;
+    bool m_selected {false};
 
     /**
      * Item colors (text,bg) before selection
      */
-    Fl_Color m_itemColor[2];
+    Fl_Color m_itemColor[2] {};
 
     /**
      * The widget that represents the item without a child
      */
-    CLayoutClient* m_body;
+    CLayoutClient* m_body {nullptr};
 
     /**
      * The image for the open state
      */
-    const Fl_Image* m_openedImage;
+    const Fl_Image* m_openedImage {nullptr};
 
     /**
      * The image for the closed state
      */
-    const Fl_Image* m_closedImage;
+    const Fl_Image* m_closedImage {nullptr};
 
     /**
      * The item's state
      */
-    bool m_opened;
+    bool m_opened {false};
 
     /**
      * The tree control
      */
-    CTreeControl* m_tree;
+    CTreeControl* m_tree {nullptr};
 
 protected:
 
@@ -137,31 +125,32 @@ protected:
     CTreeItem* addPathOffset(const std::vector<String>& pathFolders, uint32_t offset, const Fl_Image* openedImage,
                              const Fl_Image* closedImage, const Fl_Image* itemImage = 0L, void* data = 0L);
 
+	/**
+	 * Default image of the opened tree
+	 */
+	static const Fl_Image* treeOpened;
+
+	/**
+	 * Default image of the closed tree
+	 */
+	static const Fl_Image* treeClosed;
+
+	/**
+	 * Default image of the opened floder
+	 */
+	static const Fl_Image* folderOpened;
+
+	/**
+	 * Default image of the closed floder
+	 */
+	static const Fl_Image* folderClosed;
+
+	/**
+	 * Default image of the document
+	 */
+	static const Fl_Image* document;
+
 public:
-    /**
-     * Default image of the opened tree
-     */
-    static const Fl_Image* treeOpened;
-
-    /**
-     * Default image of the closed tree
-     */
-    static const Fl_Image* treeClosed;
-
-    /**
-     * Default image of the opened floder
-     */
-    static const Fl_Image* folderOpened;
-
-    /**
-     * Default image of the closed floder
-     */
-    static const Fl_Image* folderClosed;
-
-    /**
-     * Default image of the document
-     */
-    static const Fl_Image* document;
 
     /** Constructor. If the closedImage parameter is omitted the openedImage is used instead.
      * @param label             The item label
@@ -379,16 +368,6 @@ public:
     bool selectPrior();
 
     /**
-     * @brief Selects the last item in the tree
-     */
-    bool selectFirst();
-
-    /**
-     * @brief Selects the first item in the tree
-     */
-    bool selectLast();
-
-    /**
      * @brief Selects the first visible item in the child tree
      */
     CTreeItem* findFirst() const;
@@ -418,6 +397,56 @@ public:
     {
         return "treeitem";
     }
+
+	/**
+	 * Default image of the opened tree
+	 */
+	static const Fl_Image* getTreeOpened();
+
+	/**
+	 * Default image of the opened tree
+	 */
+	static void setTreeOpened(const Fl_Image* image);
+
+	/**
+	 * Default image of the closed tree
+	 */
+	static const Fl_Image* getTreeClosed();
+
+	/**
+	 * Default image of the closed tree
+	 */
+	static void setTreeClosed(const Fl_Image* image);
+
+	/**
+	 * Default image of the opened floder
+	 */
+	static const Fl_Image* getFolderOpened();
+
+	/**
+	 * Default image of the opened floder
+	 */
+	static void setFolderOpened(const Fl_Image* image);
+
+	/**
+	 * Default image of the closed floder
+	 */
+	static const Fl_Image* getFolderClosed();
+
+	/**
+	 * Default image of the closed floder
+	 */
+	static void setFolderClosed(const Fl_Image* image);
+
+	/**
+	 * Default image of the document
+	 */
+	static const Fl_Image* getDocument();
+
+	/**
+	 * Default image of the document
+	 */
+	static void setDocument(const Fl_Image* image);
 };
 
 /**
@@ -432,7 +461,7 @@ typedef std::vector<CTreeItem*> CTreeItemVector;
  * CTreeView widget, but also can be used by itself. It's missing for data connection
  * support of CTreeView, though.
  */
-class CTreeControl : public CScroll
+class SP_EXPORT CTreeControl : public CScroll
 {
     friend class CTreeItem;
 
@@ -538,7 +567,7 @@ public:
      * @param item              Item to insert
      * @param beforeItem        Item before the insert point. If 0L - it's moved to the very last position in parent item list of items.
      */
-    void moveItem(CTreeItem* item, CTreeItem* beforeItem = nullptr);
+    static void moveItem(CTreeItem* item, CTreeItem* beforeItem = nullptr);
 
     /**
      * @brief Removes all the item and underlying structure from the tree.

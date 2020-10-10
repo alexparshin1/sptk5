@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Attributes.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,7 +29,7 @@
 using namespace sptk;
 using namespace sptk::xml;
 
-Attribute::Attribute(Element* parent, const char* tagname, Variant avalue)
+Attribute::Attribute(Element* parent, const char* tagname, const Variant& avalue)
 : NamedItem(*parent->document())
 {
     NamedItem::name(tagname);
@@ -39,7 +37,7 @@ Attribute::Attribute(Element* parent, const char* tagname, Variant avalue)
     parent->attributes().push_back(this);
 }
 
-Attribute::Attribute(Element* parent, const String& tagname, Variant avalue)
+Attribute::Attribute(Element* parent, const String& tagname, const Variant& avalue)
 : NamedItem(*parent->document())
 {
     NamedItem::name(tagname);
@@ -47,36 +45,19 @@ Attribute::Attribute(Element* parent, const String& tagname, Variant avalue)
     parent->attributes().push_back(this);
 }
 
-/// @brief Returns the value of the node
 const String& Attribute::value() const noexcept
 {
     return m_value;
 }
 
-/// @brief Sets new value to node.
-/// @param new_value const std::string &, new value
-/// @see value()
 void Attribute::value(const String& new_value)
 {
     m_value = new_value;
 }
 
-/// @brief Sets new value to node
-/// @param new_value const char *, value to set
-/// @see value()
 void Attribute::value(const char* new_value)
 {
     m_value = new_value;
-}
-
-Attributes& Attributes::operator=(const Attributes& s)
-{
-    if (&s == this)
-        return *this;
-    clear();
-    for (auto* node: s)
-        new Attribute(m_parent, node->name(), node->value());
-    return *this;
 }
 
 Attribute* Attributes::getAttributeNode(const String& attr)
@@ -106,7 +87,7 @@ Variant Attributes::getAttribute(const String& attr, const char* defaultValue) c
     return rc;
 }
 
-void Attributes::setAttribute(const String& attr, Variant value, const char* defaultValue)
+void Attributes::setAttribute(const String& attr, const Variant& value, const char* defaultValue)
 {
     const auto itor = findFirst(attr);
     if (defaultValue != nullptr && value.asString() == defaultValue) {
@@ -127,3 +108,27 @@ bool Attributes::hasAttribute(const String& attr) const
     const auto itor = findFirst(attr.c_str());
     return itor != end();
 }
+
+#if USE_GTEST
+
+TEST(SPTK_XmlDocument, attributes)
+{
+    DateTime testDate("2020-01-02 10:00:00");
+    xml::Document doc;
+    auto* element = new Element(doc, "item");
+    element->setAttribute("name", "John");
+    element->setAttribute("age", 30);
+    element->setAttribute("when", testDate);
+    element->setAttribute("how", "directly", "directly");
+
+    EXPECT_STREQ(element->getAttribute("name").asString().c_str(), "John");
+    EXPECT_EQ(element->getAttribute("age").asInteger(), 30);
+    EXPECT_EQ(element->getAttribute("when").asDateTime(), testDate);
+    EXPECT_EQ(element->getAttribute("how").asString(), String(""));
+
+    auto* node = element->attributes().getAttributeNode("name");
+    node->value("Jane");
+    EXPECT_STREQ(element->getAttribute("name").asString().c_str(), "Jane");
+}
+
+#endif

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CTar.h - description                                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,7 +35,7 @@
 namespace sptk {
 
 /**
- * @brief Tar memory handle
+ * Tar memory handle
  */
 class MemoryTarHandle 
 {
@@ -45,30 +43,27 @@ public:
     /**
      * Memory buffer position
      */
-    size_t      position;
+    size_t      position {0};
 
     /**
      * Memory buffer
      */
-    char*       sourceBuffer;
+    char*       sourceBuffer {nullptr};
 
     /**
      * Memory buffer len
      */
-    size_t      sourceBufferLen;
+    size_t      sourceBufferLen {0};
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param buffer CBuffer*, source data
      */
-    explicit MemoryTarHandle(Buffer* buffer=0) {
-        position = 0;
+    explicit MemoryTarHandle(const Buffer* buffer=nullptr)
+    {
         if (buffer) {
             sourceBuffer = buffer->data();
             sourceBufferLen = buffer->bytes();
-        } else {
-            sourceBuffer = 0;
-            sourceBufferLen = 0;
         }
     }
 };
@@ -76,49 +71,15 @@ public:
 typedef std::map<int, MemoryTarHandle*> TarHandleMap;
 
 /**
- * @brief A wrapper for libtar functions
+ * A wrapper for libtar functions
  *
  * Allows reading tar archive files into memory buffers.
  * The main usage currently is to read an SPTK theme from tar-archive.
  */
-class Tar
+class SP_EXPORT Tar
 {
-    typedef std::map<std::string,Buffer*>  FileCollection;
-    /**
-     * Tar file header
-     */
-    void*                 m_tar;
+    typedef std::map<String,Buffer>  FileCollection;
 
-    /**
-     * File name to the file data map
-     */
-    FileCollection       m_files;
-
-    /**
-     * List of files in archive
-     */
-    Strings               m_fileNames;
-
-    /**
-     * Flag to indicate if tar data is red from the memory buffer
-     */
-    bool                  m_memoryRead;
-
-    /**
-     * Tar file name
-     */
-    std::string           m_fileName;
-
-
-    /**
-     * @brief Loads tar file into memory
-     */
-    bool loadFile();
-
-    /**
-     * @brief Throws an error
-     */
-    void throwError(std::string fileName);
 public:
     /**
      * The last generated tar handle
@@ -128,28 +89,27 @@ public:
     /**
      * The map of tar handles
      */
-    static TarHandleMap*  tarHandleMap;
+    static TarHandleMap   tarHandleMap;
 
-
-        /**
-         * @brief Returns memory handle
+    /**
+     * Returns memory handle
      * @param handle int, tar handle
-         */
+     */
     static MemoryTarHandle* tarMemoryHandle(int handle);
 
     /**
-     * @brief Overwrites standard tar open
+     * Overwrites standard tar open
      */
     static int mem_open(const char *name, int x, ...);
 
     /**
-     * @brief Overwrites standard tar close
+     * Overwrites standard tar close
      * @param handle int, tar handle
      */
     static int mem_close(int handle);
 
     /**
-     * @brief Overwrites standard tar read
+     * Overwrites standard tar read
      * @param handle int, tar handle
      * @param buf void*, data buffer
      * @param len size_t, read size
@@ -157,7 +117,7 @@ public:
     static int mem_read(int handle, void *buf, size_t len);
 
     /**
-     * @brief Overwrites standard tar write
+     * Overwrites standard tar write
      *@param handle int, tar handle
      * @param buf void*, data buffer
      * @param len size_t, write size
@@ -165,17 +125,22 @@ public:
     static int mem_write(int handle, const void *buf, size_t len);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Tar();
 
+    Tar(const Tar&) = delete;
+    Tar(Tar&&) noexcept = default;
+    Tar& operator = (const Tar&) = delete;
+    Tar& operator = (Tar&&) noexcept = default;
+
     /**
-     * @brief Destructor
+     * Destructor
      */
     ~Tar() { clear(); }
 
     /**
-     * @brief Reads tar archive from file
+     * Reads tar archive from file
      *
      * The archive content is red into the internal set of buffers
      * @param fileName std::string, file name to open
@@ -186,7 +151,7 @@ public:
     }
 
     /**
-     * @brief Reads tar archive from file
+     * Reads tar archive from file
      *
      * The archive content is red into the internal set of buffers
      * @param fileName std::string, file name to open
@@ -194,7 +159,7 @@ public:
     void read(const char* fileName);
 
     /**
-     * @brief Reads tar archive from buffer
+     * Reads tar archive from buffer
      *
      * The archive content is red into the internal set of buffers
      * @param tarData const CBuffer&, tar file buffer
@@ -202,20 +167,38 @@ public:
     void read(const Buffer& tarData);
 
     /**
-     * @brief returns a list of files in tar archive
+     * returns a list of files in tar archive
      */
     const Strings& fileList() const { return m_fileNames; }
 
     /**
-     * @brief Returns file data by file name
+     * Returns file data by file name
      * @param fileName std::string, file name
      */
     const Buffer& file(std::string fileName) const;
 
     /**
-     * @brief Clears the allocated memory
+     * Clears the allocated memory
      */
     void clear();
+
+private:
+
+    void*           m_tar {nullptr};      ///< Tar file header
+    FileCollection  m_files;              ///< File name to the file data map
+    Strings         m_fileNames;          ///< List of files in archive
+    bool            m_memoryRead {false}; ///< Flag to indicate if tar data is red from the memory buffer
+    String          m_fileName;           ///< Tar file name
+
+    /**
+     * Loads tar file into memory
+     */
+    bool loadFile();
+
+    /**
+     * Throws an error
+     */
+    [[noreturn]] static void throwError(std::string fileName);
 };
 
 }

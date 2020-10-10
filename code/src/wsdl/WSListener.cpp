@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSListener.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,34 +24,30 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "WSConnection.h"
+#include "sptk5/wsdl/WSConnection.h"
 #include <sptk5/wsdl/WSListener.h>
 
 using namespace std;
 using namespace sptk;
 
-WSListener::WSListener(WSRequest& service, LogEngine& logger, const String& staticFilesDirectory,
-                       const String& indexPage, const String& wsRequestPage, const String& hostname, bool encrypted,
-                       size_t threadCount)
-: TCPServer(service.title(), threadCount, nullptr),
+WSListener::WSListener(WSRequest& service, LogEngine& logger, const String& hostname, size_t threadCount,
+                       const WSConnection::Options& options)
+: TCPServer(service.title(), threadCount, nullptr, options.logDetails),
   m_service(service),
   m_logger(logger),
-  m_staticFilesDirectory(staticFilesDirectory),
-  m_indexPage(indexPage.empty() ? "index.html" : indexPage),
-  m_wsRequestPage(wsRequestPage.empty() ? "request" : wsRequestPage),
-  m_encrypted(encrypted),
-  m_hostname(hostname)
+  m_options(options)
 {
+    if (!hostname.empty()) {
+        host(Host(hostname));
+    }
+
+    if (m_options.paths.htmlIndexPage.empty())
+        m_options.paths.htmlIndexPage = "index.html";
+    if (m_options.paths.wsRequestPage.empty())
+        m_options.paths.wsRequestPage = "request";
 }
 
 ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_staticFilesDirectory,
-                               m_indexPage, m_wsRequestPage, m_encrypted);
-}
-
-String WSListener::hostname() const
-{
-    SharedLock(m_mutex);
-    return m_hostname;
+    return new WSSSLConnection(*this, connectionSocket, peer, m_service, m_logger, m_options);
 }

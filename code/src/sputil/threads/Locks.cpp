@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Locks.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Saturday September 22 2018                             ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,7 +28,6 @@
 #include <mutex>
 
 #if USE_GTEST
-#include <atomic>
 #include <sptk5/threads/Thread.h>
 #endif
 
@@ -41,38 +38,42 @@ UniqueLockInt::UniqueLockInt(SharedMutex& mutex)
 : mutex(mutex)
 {
     mutex.lock();
-    locked = true;
 }
 
 UniqueLockInt::UniqueLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line)
 : mutex(mutex)
 {
     if (!mutex.try_lock_for(timeout)) {
+        locked = false;
         std::stringstream error;
         error << "Can't lock for write, " << file << "(" << line << ")";
         throw TimeoutException(error.str());
     }
-    else
-        locked = true;
 }
 
 SharedLockInt::SharedLockInt(SharedMutex& mutex)
 : mutex(mutex)
 {
+#if USE_SHARED_MUTEX
     mutex.lock_shared();
-    locked = true;
+#else
+    mutex.lock();
+#endif
 }
 
 SharedLockInt::SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line)
 : mutex(mutex)
 {
+#if USE_SHARED_MUTEX
     if (!mutex.try_lock_shared_for(timeout)) {
+#else
+    if (!mutex.try_lock_for(timeout)) {
+#endif
+        locked = false;
         std::stringstream error;
         error << "Can't lock for write, " << file << "(" << line << ")";
         throw TimeoutException(error.str());
     }
-    else
-        locked = true;
 }
 
 CopyLockInt::CopyLockInt(SharedMutex& destinationMutex, SharedMutex& sourceMutex)
@@ -91,12 +92,11 @@ CompareLockInt::CompareLockInt(SharedMutex& mutex1, SharedMutex& mutex2)
 
 #if USE_GTEST
 
-static SharedMutex  amutex;
-
 class LockTestThread : public Thread
 {
 public:
-    String       aresult;
+    static SharedMutex  amutex;
+    String              aresult;
 
     LockTestThread()
     : Thread("test")
@@ -110,14 +110,16 @@ public:
             aresult = "locked";
         }
         catch (const Exception& e) {
-            aresult = "lock timeout";
+            aresult = "lock timeout: " + String(e.what());
         }
     }
 };
 
+SharedMutex  LockTestThread::amutex;
+
 TEST(SPTK_Locks, writeLockAndWait)
 {
-    UniqueLock(amutex);
+    UniqueLock(LockTestThread::amutex);
     LockTestThread th;
     th.run();
     this_thread::sleep_for(chrono::seconds(1));

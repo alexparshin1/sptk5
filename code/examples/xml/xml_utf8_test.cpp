@@ -4,7 +4,7 @@
 ║                       xml_utf8_test.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -38,7 +38,7 @@ using namespace sptk;
 
 int main(int argc,char *argv[]) {
     try {
-        COUT("The XML UTF8 test started." << endl << endl);
+        COUT("The XML UTF8 test started." << endl << endl)
 
         CBuffer buf;
         XMLDoc doc;
@@ -49,12 +49,12 @@ int main(int argc,char *argv[]) {
         doc.save(buf);
         buf.saveToFile("test_utf8_out.xml");
 
-        COUT(buf.data() << endl);
+        COUT(buf.data() << endl)
 
-        COUT("The XML UTF8 test completed" << endl);
+        COUT("The XML UTF8 test completed" << endl)
 
     } catch (const Exception& e) {
-        COUT(e.what() << endl);
+        COUT(e.what() << endl)
         return 1;
     }
     return 0;

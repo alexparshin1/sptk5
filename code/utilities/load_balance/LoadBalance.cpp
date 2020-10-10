@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday Sep 17 2015                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,7 +33,7 @@ using namespace sptk;
 
 void LoadBalance::sourceEventCallback(void *userData, SocketEventType eventType)
 {
-    Channel* channel = (Channel*) userData;
+    auto* channel = (Channel*) userData;
 
     if (eventType == ET_CONNECTION_CLOSED) {
         channel->close();
@@ -48,7 +46,7 @@ void LoadBalance::sourceEventCallback(void *userData, SocketEventType eventType)
 
 void LoadBalance::destinationEventCallback(void *userData, SocketEventType eventType)
 {
-    Channel* channel = (Channel*) userData;
+    auto* channel = (Channel*) userData;
 
     if (eventType == ET_CONNECTION_CLOSED) {
         channel->close();
@@ -59,19 +57,14 @@ void LoadBalance::destinationEventCallback(void *userData, SocketEventType event
     channel->copyData(channel->destination(), channel->source());
 }
 
-LoadBalance::LoadBalance(int listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
-: Thread("load balance"), m_listenerPort(listenerPort), m_destinations(destinations), m_interfaces(interfaces),
-  m_sourceEvents("Source Events", sourceEventCallback), m_destinationEvents("Destination Events", destinationEventCallback)
-{
-}
-
-LoadBalance::~LoadBalance()
+LoadBalance::LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
+: Thread("load balance"), m_listenerPort(listenerPort), m_destinations(destinations), m_interfaces(interfaces)
 {
 }
 
 void LoadBalance::threadFunction()
 {
-    struct sockaddr_in addr;
+    struct sockaddr_in addr {};
 
     m_sourceEvents.run();
     m_destinationEvents.run();
@@ -80,7 +73,7 @@ void LoadBalance::threadFunction()
     while (!terminated()) {
         SOCKET sourceFD;
         m_listener.accept(sourceFD, addr);
-        Channel* channel = new Channel(m_sourceEvents, m_destinationEvents);
+        auto* channel = new Channel(m_sourceEvents, m_destinationEvents);
         const Host& destination = m_destinations.loop();
         const String& interfaceAddress = m_interfaces.loop();
         try {
@@ -88,7 +81,7 @@ void LoadBalance::threadFunction()
         }
         catch (const Exception& e) {
             delete channel;
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
     }
 

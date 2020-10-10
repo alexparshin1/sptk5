@@ -4,7 +4,7 @@
 ║                       CPostgreSQLParamValues.h - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,7 +29,7 @@
 #ifndef __POSTGRESQL_PARAM_VALUES_H__
 #define __POSTGRESQL_PARAM_VALUES_H__
 
-#include "pgtypes.h"
+#include "PostgreSQLDataType.h"
 #include <sptk5/db/PostgreSQLConnection.h>
 #include <sptk5/db/QueryParameterList.h>
 
@@ -65,9 +65,9 @@ namespace sptk {
             m_types.resize(sz);
         }
 
-        void setParameters(QueryParameterList& params);
+        void setParameters(const QueryParameterList& params);
 
-        void setParameterValue(unsigned paramIndex, const void* value, unsigned sz, int32_t format, PG_DATA_TYPE dataType)
+        void setParameterValue(unsigned paramIndex, const void* value, unsigned sz, int32_t format, PostgreSQLDataType dataType)
         {
             m_values[paramIndex] = (const char*) value;
             m_lengths[paramIndex] = (int) sz;
@@ -76,6 +76,7 @@ namespace sptk {
         }
 
         void setParameterValue(unsigned paramIndex, QueryParameter* param);
+        void setFloatParameterValue(unsigned paramIndex, QueryParameter *param);
 
         unsigned size() const               { return (unsigned) m_count;   }
         const char* const* values() const   { return &m_values[0]; }

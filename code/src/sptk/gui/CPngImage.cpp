@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CPngImage.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,8 +27,12 @@
 #include <sptk5/cutils>
 
 #include <FL/fl_draw.H>
-#include <sptk5/gui/CPngImage.h>
+#ifdef _WIN32
+#include <FL/images/png.h>
+#else
 #include <png.h>
+#endif
+#include <sptk5/gui/CPngImage.h>
 
 using namespace sptk;
 using namespace std;
@@ -159,7 +161,7 @@ CPngImage::CPngImage(const String& fileName)
         imageData.loadFromFile(fileName);
         load(imageData);
     } catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 }
 

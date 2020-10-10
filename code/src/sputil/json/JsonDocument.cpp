@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       JsonDocument.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 16 2013                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/json/JsonParser.h>
+#include <sptk5/json/JsonDocument.h>
+#include <sptk5/StopWatch.h>
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -36,54 +36,74 @@ using namespace sptk::json;
 void Document::clear()
 {
     json::Type elementType = JDT_NULL;
-    if (m_root != nullptr) {
+    if (m_root != nullptr)
         elementType = m_root->type();
-        delete m_root;
-    }
 
-    if (elementType == JDT_ARRAY)
-        m_root = new Element(this, (ArrayData*)nullptr);
-    else
-        m_root = new Element(this, (ObjectData*)nullptr);
+    if (elementType == JDT_ARRAY) {
+        auto* arrayData = new ArrayData(this);
+        m_root = make_shared<Element>(this, arrayData);
+    } else {
+        auto* objectData = new ObjectData(this);
+        m_root = make_shared<Element>(this, objectData);
+    }
 }
 
-void Document::parse(const string& json)
+void Document::parse(const String& json)
 {
-    delete m_root;
-
-    m_root = new Element(this);
-
-    if (json.empty())
+    if (json.empty()) {
+        auto* objectData = new ObjectData(this);
+        m_root = make_shared<Element>(this, objectData);
         return;
+    }
 
-    Parser parser;
-    parser.parse(*m_root, json);
+    m_root = make_shared<Element>(this);
+
+    Parser::parse(*m_root, json);
 }
 
 Document::Document(bool isObject)
 : m_emptyElement(this, "")
 {
-    if (isObject)
-        m_root = new Element(this, new ObjectData(this));
-    else
-        m_root = new Element(this, new ArrayData(this));
+    if (isObject) {
+        auto* objectData = new ObjectData(this);
+        m_root = make_shared<Element>(this, objectData);
+    } else {
+        auto* arrayData = new ArrayData(this);
+        m_root = make_shared<Element>(this, arrayData);
+    }
+}
+
+Document::Document(const Document& other)
+: m_emptyElement(this, "")
+{
+    Buffer buffer;
+    other.exportTo(buffer);
+    load(buffer.c_str());
+}
+
+Document& Document::operator = (const Document& other)
+{
+    if (&other != this) {
+        Buffer buffer;
+        other.exportTo(buffer);
+        load(buffer.c_str());
+    }
+    return *this;
 }
 
 Document::Document(Document&& other) noexcept
 : m_root(other.m_root), m_emptyElement(this, "")
 {
-    if (m_root->type() == JDT_OBJECT)
-        other.m_root = new Element(this, new ObjectData(this));
-    else
-        other.m_root = new Element(this, new ArrayData(this));
+    if (m_root->type() == JDT_OBJECT) {
+        auto* objectData = new ObjectData(this);
+        other.m_root = make_shared<Element>(this, objectData);
+    } else {
+        auto* arrayData = new ArrayData(this);
+        other.m_root = make_shared<Element>(this, arrayData);
+    }
 }
 
-Document::~Document()
-{
-    delete m_root;
-}
-
-void Document::load(const string& json)
+void Document::load(const String& json)
 {
     parse(json);
 }
@@ -120,7 +140,7 @@ void Document::exportTo(Buffer& buffer, bool formatted) const
     buffer.set(stream.str());
 }
 
-void Document::exportTo(xml::Document& document, const string& rootNodeName) const
+void Document::exportTo(xml::Document& document, const String& rootNodeName) const
 {
     m_root->exportTo(rootNodeName, document);
 }
@@ -137,10 +157,12 @@ const Element& Document::root() const
 
 #if USE_GTEST
 
-const char* testJSON =
+const String testJSON(
         R"({ "name": "John", "age": 33, "temperature": 33.6, "timestamp": 1519005758000 )"
         R"("skills": [ "C++", "Java", "Motorbike" ],)"
-        R"("address": { "married": true, "employed": false } })";
+        R"("location": null,)"
+        R"("title": "\"Mouse\"",)"
+        R"("address": { "married": true, "employed": false } })");
 
 void verifyDocument(json::Document& document)
 {
@@ -158,18 +180,27 @@ void verifyDocument(json::Document& document)
               [](const json::Element* skill) { return skill->getString(); });
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
 
-    json::Element* ptr = root.find("address");
+    const json::Element* ptr = root.find("address");
     EXPECT_TRUE(ptr != nullptr);
 
-    json::Element& address = *ptr;
+    const json::Element& address = *ptr;
     EXPECT_TRUE(address.getBoolean("married"));
     EXPECT_FALSE(address.getBoolean("employed"));
 }
 
-TEST(SPTK_JsonDocument, load)
+TEST(SPTK_JsonDocument, loadString)
 {
     json::Document document;
     document.load(testJSON);
+    verifyDocument(document);
+}
+
+TEST(SPTK_JsonDocument, loadStream)
+{
+    json::Document document;
+    stringstream   data;
+    data << testJSON;
+    document.load(data);
     verifyDocument(document);
 }
 
@@ -186,12 +217,12 @@ TEST(SPTK_JsonDocument, add)
     root["bool1"] = true;
     root["bool2"] = false;
 
-    auto* arrayData = root.set_array("array");
+    auto* arrayData = root.add_array("array");
     arrayData->push_back("C++");
     arrayData->push_back("Java");
     arrayData->push_back("Python");
 
-    auto* objectData = root.set_object("object");
+    auto* objectData = root.add_object("object");
     (*objectData)["height"] = 178;
     (*objectData)["weight"] = 85.5;
 
@@ -205,10 +236,10 @@ TEST(SPTK_JsonDocument, add)
     Strings skills;
     skills.resize(array.size());
     transform(array.begin(), array.end(), skills.begin(),
-              [](json::Element* skill) { return skill->getString(); });
+              [](const json::Element* skill) { return skill->getString(); });
     EXPECT_STREQ("C++,Java,Python", skills.join(",").c_str());
 
-    json::Element* object = root.find("object");
+    const json::Element* object = root.find("object");
     EXPECT_TRUE(object != nullptr);
     EXPECT_EQ(178, object->getNumber("height"));
     EXPECT_DOUBLE_EQ(85.5, object->getNumber("weight"));
@@ -231,7 +262,19 @@ TEST(SPTK_JsonDocument, remove)
     EXPECT_FALSE(root.find("address"));
 }
 
-TEST(SPTK_JsonDocument, save)
+TEST(SPTK_JsonDocument, clear)
+{
+    json::Document document;
+    document.load(testJSON);
+
+    document.clear();
+    json::Element& root = document.root();
+    EXPECT_TRUE(root.is(JDT_OBJECT));
+    EXPECT_FALSE(root.find("address"));
+    EXPECT_EQ(root.size(), size_t(0));
+}
+
+TEST(SPTK_JsonDocument, exportToBuffer)
 {
     json::Document document;
     document.load(testJSON);
@@ -241,6 +284,169 @@ TEST(SPTK_JsonDocument, save)
 
     document.load(testJSON);
     verifyDocument(document);
+}
+
+TEST(SPTK_JsonDocument, exportToStream)
+{
+    json::Document document;
+    document.load(testJSON);
+
+    stringstream stream;
+    document.exportTo(stream, false);
+
+    document.load(stream);
+    verifyDocument(document);
+}
+
+TEST(SPTK_JsonDocument, copyCtor)
+{
+    json::Document document;
+    document.load(testJSON);
+
+    json::Document document2(document);
+
+    verifyDocument(document);
+    verifyDocument(document2);
+}
+
+TEST(SPTK_JsonDocument, moveCtor)
+{
+    json::Document document;
+    document.load(testJSON);
+
+    json::Document document2(move(document));
+
+    verifyDocument(document2);
+}
+
+TEST(SPTK_JsonDocument, copyAssign)
+{
+    json::Document document;
+    document.load(testJSON);
+
+    json::Document document2;
+
+    document2 = document;
+
+    verifyDocument(document);
+    verifyDocument(document2);
+}
+
+TEST(SPTK_JsonDocument, moveAssign)
+{
+    json::Document document;
+    document.load(testJSON);
+
+    json::Document document2;
+
+    document2 = move(document);
+
+    verifyDocument(document2);
+}
+
+TEST(SPTK_JsonDocument, truncated)
+{
+    json::Document document;
+    String truncatedJSON = testJSON.substr(0, testJSON.length() - 3);
+    try {
+        document.load(truncatedJSON);
+        FAIL() << "Incorrect: MUST fail";
+    }
+    catch (const Exception& e) {
+        SUCCEED() << "Correct: " << e.what();
+    }
+}
+
+TEST(SPTK_JsonDocument, errors)
+{
+    json::Document document;
+    size_t errorCount = 0;
+
+    String junkTailJSON = String(testJSON) + "=";
+    try {
+        document.load(junkTailJSON);
+        FAIL() << "Incorrect: MUST fail";
+    }
+    catch (const Exception&) {
+        ++errorCount;
+    }
+
+    String junkInsideJSON = testJSON;
+    junkInsideJSON[0] = '?';
+    try {
+        document.load(junkInsideJSON);
+        FAIL() << "Incorrect: MUST fail";
+    }
+    catch (const Exception&) {
+        ++errorCount;
+    }
+
+    try {
+        document.load(testJSON);
+        const auto* element = document.root().find("nothing");
+        if (element != nullptr)
+            FAIL() << "Incorrect: MUST return null";
+        const auto& root = document.root();
+        element = root.find("name");
+        element = element->find("nothing");
+        if (element != nullptr)
+            FAIL() << "Incorrect: MUST fail";
+        FAIL() << "Incorrect: MUST fail";
+    }
+    catch (const Exception&) {
+        ++errorCount;
+    }
+
+    SUCCEED() << "Detected " << errorCount << " errors";
+}
+
+TEST(SPTK_JsonDocument, performance)
+{
+    int objectCount = 50000;
+
+    json::Document document;
+
+    auto* arrayElement = document.root().add_array("items");
+    for (int i = 0; i < objectCount; ++i) {
+        auto& object = *arrayElement->push_object();
+        object.set("id", i);
+        object.set("name", "Name " + to_string(i));
+        object.set("exists", true);
+
+        auto& address = *object.add_object("address");
+        address["number"] = i;
+        address["street"] = String("Street " + to_string(i));
+
+        auto& list = *address.add_array("list");
+        list.push_back(1);
+        list.push_back("two");
+        list.push_back(3);
+    }
+
+    // Verify data
+    auto& arrayData = arrayElement->getArray();
+    auto& object = arrayData[100];
+    EXPECT_FLOAT_EQ(object.getNumber("id"), 100.0);
+    EXPECT_STREQ(object.getString("name").c_str(), "Name 100");
+
+    auto& address = object["address"];
+    EXPECT_FLOAT_EQ(address.getNumber("number"), 100.0);
+    EXPECT_STREQ(address.getString("street").c_str(), "Street 100");
+    auto& list = address.getArray("list");
+    EXPECT_STREQ(list[1].getString().c_str(), "two");
+
+    Buffer buffer;
+    document.exportTo(buffer, true);
+
+    StopWatch stopWatch;
+    stopWatch.start();
+
+    json::Document document1;
+    document1.load(buffer.c_str());
+
+    stopWatch.stop();
+
+    COUT("Parsed JSON document (" << objectCount << ") objects for " << stopWatch.seconds() << " seconds" << endl)
 }
 
 #endif

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        DatabaseConnectionString.h - description              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,6 +29,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
+#include <sptk5/net/HttpParams.h>
 
 namespace sptk
 {
@@ -61,69 +60,14 @@ class SP_EXPORT DatabaseConnectionString
 public:
 
     /**
-     * Connection string parameters
-     */
-    typedef std::map<String,String> Parameters;
-
-private:
-
-    /**
-     * Database connection string
-     */
-    String     m_connectionString;
-
-    /**
-     * Database server host name
-     */
-    String     m_hostName;
-
-    /**
-     * Database server port number
-     */
-    uint16_t   m_portNumber {0};
-
-    /**
-     * Database user name
-     */
-    String     m_userName;
-
-    /**
-     * Database user password
-     */
-    String     m_password;
-
-    /**
-     * Database name
-     */
-    String     m_databaseName;
-
-    /**
-     * Optional parameters
-     */
-    Parameters m_parameters;
-
-    /**
-     * Database driver name
-     */
-    String     m_driverName;
-
-protected:
-
-    /**
-     * Parses connection string
-     */
-    void parse();
-
-
-public:
-    /**
      * Constructor
      * @param connectionString  Database connection string
      */
-    explicit DatabaseConnectionString(const String& connectionString = "") :
-        m_connectionString(connectionString)
+    explicit DatabaseConnectionString(const String& connectionString = "") 
+    : m_connectionString(connectionString)
     {
-        parse();
+        if (!m_connectionString.empty())
+            parse();
     }
 
     /**
@@ -184,6 +128,14 @@ public:
     }
 
     /**
+     * Returns schema name
+     */
+    const String& schema() const
+    {
+        return m_schema;
+    }
+
+    /**
      * Returns server port number
      */
     uint16_t portNumber() const
@@ -220,6 +172,60 @@ public:
      * Is connection string empty?
      */
     bool empty() const;
+
+protected:
+
+    /**
+     * Parses connection string
+     */
+    void parse();
+
+private:
+
+    /**
+     * Database connection string
+     */
+    String     m_connectionString;
+
+    /**
+     * Database server host name
+     */
+    String     m_hostName;
+
+    /**
+     * Database server port number
+     */
+    uint16_t   m_portNumber {0};
+
+    /**
+     * Database user name
+     */
+    String     m_userName;
+
+    /**
+     * Database user password
+     */
+    String     m_password;
+
+    /**
+     * Database name
+     */
+    String     m_databaseName;
+
+    /**
+     * Database schema
+     */
+    String     m_schema;
+
+    /**
+     * Optional parameters
+     */
+    HttpParams m_parameters;
+
+    /**
+     * Database driver name
+     */
+    String     m_driverName;
 };
 /**
  * @}

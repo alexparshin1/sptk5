@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       string_ext.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -34,6 +32,7 @@
 namespace sptk {
 
 class String;
+class Strings;
 
 /**
  * @addtogroup utility Utility Classes
@@ -110,16 +109,6 @@ double SP_EXPORT string2double(const sptk::String& str, double defaultValue);
  * Capitalizes all the words in string
  */
 String SP_EXPORT capitalizeWords(const sptk::String& str);
-
-/**
- * Converts a string vector into CSV string
- */
-void SP_EXPORT join(std::string& dest, const std::vector<std::string>& src, const std::string& separator);
-
-/**
- * Converts a CSV string into string vector
- */
-void SP_EXPORT split(std::vector<std::string>& dest, const std::string& src, const std::string& separator);
 
 /**
  * @}

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CHtmlBox.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -74,7 +72,7 @@ Variant CHtmlBox::data() const
     return ((Fl_Help_View*) m_control)->value();
 }
 
-void CHtmlBox::data(const Variant v)
+void CHtmlBox::data(const Variant& v)
 {
     ((Fl_Help_View*) m_control)->value(v.getString());
 }

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CProgressBar.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -38,7 +36,7 @@
 using namespace std;
 using namespace sptk;
 
-class CProgressBox : public Fl_Box
+class SP_EXPORT CProgressBox : public Fl_Box
 {
 public:
     float m_value;
@@ -152,10 +150,10 @@ Variant CProgressBar::data() const
     return pb->m_value;
 }
 
-void CProgressBar::data(const Variant v)
+void CProgressBar::data(const Variant& v)
 {
     auto* pb = (CProgressBox*) m_control;
-    pb->m_value = v.asFloat();
+    pb->m_value = (float) v.asFloat();
 }
 
 void CProgressBar::units(const char* un)

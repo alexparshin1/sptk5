@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DocType.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,7 +42,7 @@ namespace xml {
  */
 
 /**
- * @brief XML document type.
+ * XML document type.
  *
  * Represents tag <DOCTYPE ...> in XML document.
  * It can return a map of all entities().
@@ -67,19 +65,19 @@ class DocType
 public:
 
     /**
-     * @brief Default constructor
+     * Default constructor
      */
     DocType()
     {
     }
 
     /**
-     * @brief Constructor
+     * Constructor
      */
-    DocType(const char* name, const char* public_id = nullptr, const char* system_id = nullptr);
+    explicit DocType(const char* name, const char* public_id = nullptr, const char* system_id = nullptr);
 
     /**
-     * @brief Returns the name of the document type as specified in the <!DOCTYPE name> tag
+     * Returns the name of the document type as specified in the <!DOCTYPE name> tag
      */
     const std::string& name() const
     {
@@ -87,7 +85,7 @@ public:
     }
 
     /**
-     * @brief Returns the public identifier of the external DTD subset
+     * Returns the public identifier of the external DTD subset
      *
      * Returns empty string if there is no public identifier
      */
@@ -97,7 +95,7 @@ public:
     }
 
     /**
-     * @brief Returns the system identifier of the external DTD subset.
+     * Returns the system identifier of the external DTD subset.
      *
      * Returns empty string if there is no system identifier
      */
@@ -107,7 +105,7 @@ public:
     }
 
     /**
-     * @brief Returns a map of all entities described in the DTD
+     * Returns a map of all entities described in the DTD
      *
      * NOTE: Map doesn't hold default entities.
      */
@@ -117,7 +115,7 @@ public:
     }
 
     /**
-     * @brief Returns a map of all entities described in the DTD
+     * Returns a map of all entities described in the DTD
      *
      * NOTE: Map doesn't hold default entities.
      */
@@ -127,7 +125,7 @@ public:
     }
 
     /**
-     * @brief Encodes string to XML representation.
+     * Encodes string to XML representation.
      *
      * Converts "<test>" to "&lt;test&gt;"
      * @returns true, any entities replaced.
@@ -137,17 +135,17 @@ public:
     bool encodeEntities(const char* str, Buffer& ret);
 
     /**
-     * @brief Decodes entities in string to their actual values.
+     * Decodes entities in string to their actual values.
      *
      * Converts "&lt;test&gt;" to "<test>"
      * @param str const char*, text to convert
      * @param sz uint32_t, text length
      * @param ret CBuffer&, converted text is stored here
      */
-    void decodeEntities(const char* str, uint32_t sz, Buffer& ret);
+    void decodeEntities(const char* str, size_t sz, Buffer& ret);
 
     /**
-     * @brief Searches for entity with given name
+     * Searches for entity with given name
      *
      * @returns true, if attribute is found.
      * @param name const char *, entity to search
@@ -155,7 +153,7 @@ public:
     bool hasEntity(const char* name);
 
     /**
-     * @brief Removes named entity from entity map
+     * Removes named entity from entity map
      * @param name entity to remove
      */
     void removeEntity(const char* name)
@@ -164,7 +162,7 @@ public:
     }
 
     /**
-     * @brief Returnes replacement value for named entity.
+     * Returnes replacement value for named entity.
      *
      * If entity is not found, empty string is returned.
      * @param name const char *, entity name
@@ -173,7 +171,7 @@ public:
     const char* getReplacement(const char* name, uint32_t& replacementLength);
 
     /**
-     * @brief Adds an entity to the map
+     * Adds an entity to the map
      *
      * If entity named 'name' exists already in map,
      * its value is replaced with 'replacement'
@@ -207,6 +205,7 @@ private:
      */
     std::string m_system_id;
 
+    char* appendDecodedEntity(Buffer& ret, const char* ent_start, char* ent_end);
 };
 
 /**

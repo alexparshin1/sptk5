@@ -4,7 +4,7 @@
 ║                       xml_test1.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,7 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <FL/fl_ask.H>
 #include <FL/Fl.H>
 
 #include <sptk5/DateTime.h>
@@ -122,14 +121,12 @@ xml::Document *build_doc()
     return doc;
 }
 
-extern int autoLayoutCounter;
-
 double diffSeconds(DateTime start, DateTime end)
 {
     return chrono::duration_cast<chrono::milliseconds>(end-start).count() / 1000.0;
 }
 
-void saveDocument(const unique_ptr<xml::Document>& doc)
+void saveDocument(const shared_ptr<xml::Document>& doc)
 {
     try {
             DateTime start("now");
@@ -137,7 +134,7 @@ void saveDocument(const unique_ptr<xml::Document>& doc)
             doc->save(savebuffer, true);
             savebuffer.saveToFile("MyXML.xml");
             DateTime end("now");
-            COUT("XML Test - saved for " << diffSeconds(start, end) << " sec" << endl);
+            COUT("XML Test - saved for " << diffSeconds(start, end) << " sec" << endl)
         }
         catch (const Exception& e) {
             Fl::warning(e.what());
@@ -177,20 +174,20 @@ int main(int argc, char **argv)
         window->end();
 
         DateTime start = DateTime::Now();
-        unique_ptr<xml::Document> doc(new xml::Document);
+        shared_ptr<xml::Document> doc(new xml::Document);
         doc->load(buffer);
         DateTime end = DateTime::Now();
 
         stringstream message;
         message << "XML Test - loaded file in " << diffSeconds(start, end) << " sec";
         window->label(message.str());
-        COUT(message.str() << endl);
+        COUT(message.str() << endl)
 
         build_tree(doc.get(), tree, nullptr);
         start = DateTime::Now();
         tree->relayout();
         end = DateTime::Now();
-        COUT("XML Test - relayouted tree in " << diffSeconds(start, end) << " sec" << endl);
+        COUT("XML Test - relayouted tree in " << diffSeconds(start, end) << " sec" << endl)
 
         saveDocument(doc);
 
@@ -198,11 +195,10 @@ int main(int argc, char **argv)
 
         Fl::run();
 
-        COUT("--------------------------------" << endl);
-        COUT("There were " << autoLayoutCounter << " calls to autoLayout()" << endl);
+        COUT("--------------------------------" << endl)
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
     return 0;

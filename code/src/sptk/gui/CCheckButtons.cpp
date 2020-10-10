@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CCheckButtons.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,7 +30,6 @@
 #include <FL/Fl_Round_Button.H>
 #include <FL/fl_draw.H>
 
-#include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CCheckButtons.h>
 #include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CScroll.h>
@@ -151,7 +148,7 @@ Variant CCheckButtons::data() const
     return result;
 }
 
-void CCheckButtons::data(const Variant s)
+void CCheckButtons::data(const Variant& s)
 {
     deselectAllButtons();
     if (m_otherButton)
@@ -174,7 +171,7 @@ void CCheckButtons::data(const Variant s)
     }
 }
 
-void CCheckButtons::getSelections(IntList& selection) const
+void CCheckButtons::getSelections(vector<uint64_t>& selection) const
 {
     selection.clear();
     auto* group = (CScroll*) m_control;
@@ -184,13 +181,13 @@ void CCheckButtons::getSelections(IntList& selection) const
         if (!b)
             continue;
         if (b->value()) {
-            auto id = (uint32_t) (long) b->user_data();
+            auto id = (uint32_t) (uint64_t) b->user_data();
             selection.push_back(id);
         }
     }
 }
 
-void CCheckButtons::setSelections(const IntList& selection)
+void CCheckButtons::setSelections(const vector<uint64_t>& selection)
 {
     deselectAllButtons();
     auto* group = (CScroll*) m_control;
@@ -199,7 +196,7 @@ void CCheckButtons::setSelections(const IntList& selection)
         auto* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
             continue;
-        auto id = (uint32_t) (long) b->user_data();
+        auto id = (uint32_t) (uint64_t) b->user_data();
         auto itor = std::find(selection.begin(), selection.end(), id);
         if (itor != selection.end())
             b->value(1);

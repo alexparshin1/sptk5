@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CControl.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -52,7 +50,7 @@ class CControlKindIndex
     static CTypeNameMap m_typeNameMap;
     static CNameTypeMap m_nameTypeMap;
 
-    void registerType(CControlKind type, const char* name);
+    static void registerType(CControlKind type, const char* name);
 
 public:
     CControlKindIndex() noexcept;
@@ -560,7 +558,7 @@ void CControl::internalCallback(Fl_Widget* internalWidget, void* data)
          parentWidget != nullptr; parentWidget = parentWidget->parent()) {
         auto* control = dynamic_cast<CControl*>(parentWidget);
         if (control != nullptr) {
-            control->fireEvent(CE_DATA_CHANGED, (int32_t)(long)(data));
+            control->fireEvent(CE_DATA_CHANGED, (int32_t)(uint64_t)(data));
             break;
         }
     }

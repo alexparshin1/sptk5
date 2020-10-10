@@ -4,7 +4,7 @@
 ║                     encrypt_decrypt.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Tuesday July 18 2017                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,15 +41,15 @@ int main()
     Buffer intext(text);
     Buffer outtext;
 
-    COUT("Encrypt text (" << text.length() << " bytes)." << endl);
+    COUT("Encrypt text (" << text.length() << " bytes)." << endl)
     try {
         Crypt::encrypt(outtext, intext, key, iv);
-        COUT(outtext << endl);
+        COUT(outtext << endl)
         Crypt::decrypt(intext, outtext, key, iv);
-        COUT(intext << endl);
+        COUT(intext << endl)
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 
     return 0;

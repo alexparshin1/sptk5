@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CLayoutManager.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -100,7 +98,8 @@ enum CLayoutGrowMode {
  * the widget's size and position.
  * @see CLayoutClient
  */
-class CLayoutManager : public CLayoutClient {
+class SP_EXPORT CLayoutManager : public CLayoutClient 
+{
     friend class CLayoutManagerInitializer;
 protected:
     /**
@@ -297,16 +296,12 @@ public:
      * @param typeName std::string, the type of the (control) widget
      * @param creator createControlCallback, a callback that creates the required widget
      */
-    static void registerControl(std::string typeName,createControlCallback creator) noexcept {
-        controlCreator[typeName] = creator;
-    }
+	static void registerControl(std::string typeName, createControlCallback creator) noexcept;
 
     /**
      * @brief Returns a read-only map of box type names and corresponding constants
      */
-    static const std::map<std::string,Fl_Boxtype>& boxTypeNames() {
-        return m_boxTypeNames;
-    }
+	static const std::map<std::string, Fl_Boxtype>& boxTypeNames();
 };
 /**
  * @}

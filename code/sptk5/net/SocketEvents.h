@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday Sep 17 2015                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -47,38 +45,8 @@ namespace sptk {
  * such as data available for read or peer closed connection,
  * to its sockets.
  */
-class SocketEvents : public Thread
+class SP_EXPORT SocketEvents : public Thread
 {
-    /**
-     * OS-specific event manager
-     */
-    SocketPool                  m_socketPool;
-
-    /**
-     * Map of sockets to corresponding user data
-     */
-    std::map<int, void*>        m_watchList;
-
-    /**
-     * Mutex that protects map of sockets to corresponding user data
-     */
-    std::mutex                  m_mutex;
-
-    /**
-     * Timeout in event monitoring loop
-     */
-    std::chrono::milliseconds   m_timeout;
-
-    Flag                        m_started;
-	bool						m_shutdown {false};
-
-protected:
-
-    /**
-     * Event monitoring thread
-     */
-    void threadFunction() override;
-
 public:
     /**
      * Constructor
@@ -86,7 +54,8 @@ public:
      * @param eventsCallback        Callback function called for socket events
      * @param timeout	            Timeout in event monitoring loop
      */
-    SocketEvents(const String& name, SocketEventCallback eventsCallback, std::chrono::milliseconds timeout = std::chrono::milliseconds(100));
+    SocketEvents(const String& name, const SocketEventCallback& eventsCallback, std::chrono::milliseconds timeout = std::chrono::milliseconds(
+            100));
 
     /**
      * Destructor
@@ -106,8 +75,38 @@ public:
      */
     void remove(BaseSocket& socket);
 
-	void stop();
-	void terminate() override;
+    /**
+     * Stop socket events manager and wait until it joins.
+     */
+    void stop();
+
+    /**
+     * Terminate socket events manager and continue.
+     */
+    void terminate() override;
+
+    /**
+     * Get the size of socket collection
+     * @return number of sockets being watched
+     */
+    size_t size() const;
+
+protected:
+
+    /**
+     * Event monitoring thread
+     */
+    void threadFunction() override;
+
+private:
+
+    mutable std::mutex          m_mutex;            ///< Mutex that protects map of sockets to corresponding user data
+    SocketPool                  m_socketPool;       ///< OS-specific event manager
+    std::map<int, void*>        m_watchList;        ///< Map of sockets to corresponding user data
+    std::chrono::milliseconds   m_timeout;          ///< Timeout in event monitoring loop
+
+    Flag                        m_started;          ///< Is watching started?
+    bool						m_shutdown {false}; ///< Is watching shutdown?
 };
 
 typedef std::shared_ptr<SocketEvents> SharedSocketEvents;

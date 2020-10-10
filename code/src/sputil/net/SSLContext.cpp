@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SSLContext.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,24 +30,24 @@
 
 // This include must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
-#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
 
-static int s_server_session_id_context = 1;
+int SSLContext::s_server_session_id_context = 1;
 
 void SSLContext::throwError(const String& humanDescription)
 {
     unsigned long error = ERR_get_error();
     string errorStr = ERR_func_error_string(error) + string("(): ") + ERR_reason_error_string(error);
-    throwException(humanDescription + "\n" + errorStr);
+    throwException(humanDescription + "\n" + errorStr)
 }
 
-SSLContext::SSLContext()
+SSLContext::SSLContext(const String& cipherList)
 {
     m_ctx = SSL_CTX_new(SSLv23_method());
-    SSL_CTX_set_cipher_list(m_ctx, "ALL");
+	if (!cipherList.empty())
+		SSL_CTX_set_cipher_list(m_ctx, cipherList.c_str());
     SSL_CTX_set_mode(m_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
     SSL_CTX_set_session_id_context(m_ctx, (const unsigned char*) &s_server_session_id_context, sizeof s_server_session_id_context);
 }
@@ -68,7 +66,7 @@ SSL_CTX* SSLContext::handle()
 
 int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwflag*/, void* userdata)
 {
-    strncpy(replyBuffer, (const char*) userdata, (size_t) replySize);
+    snprintf(replyBuffer, size_t(replySize), "%s", (char*) userdata);
     replyBuffer[replySize - 1] = '\0';
     return (int) strlen(replyBuffer);
 }

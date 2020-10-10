@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                           Crypt.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Tusday July 18 2017                                    ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,7 +35,7 @@ namespace sptk
 /**
  * Simple wrapper for OpenSSL encryption functions
  */
-class Crypt
+class SP_EXPORT Crypt
 {
 public:
     /**

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSStaticHttpProtocol.cpp - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Saturday Jul 30 2016                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,32 +24,50 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "WSStaticHttpProtocol.h"
+#include "sptk5/wsdl/protocol/WSStaticHttpProtocol.h"
 
 using namespace std;
 using namespace sptk;
 
-WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket* socket, const String& url, const HttpHeaders& headers, const String& staticFilesDirectory)
+WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket* socket, const URL& url, const HttpHeaders& headers, const String& staticFilesDirectory)
 : WSProtocol(socket, headers), m_url(url), m_staticFilesDirectory(staticFilesDirectory)
 {
 }
 
-void WSStaticHttpProtocol::process()
+RequestInfo WSStaticHttpProtocol::process()
 {
-    Buffer page;
+    static RegularExpression matchImageFiles(R"(\.(png|gif|jpg|jpeg|pcx)$)", "i");
+
+    RequestInfo requestInfo("HTTP GET");
+
+    String fullPath(m_staticFilesDirectory + m_url.path());
+
+    requestInfo.request.input(Buffer(fullPath), "");
+
+    Strings contentEncodings;
+    if (!matchImageFiles.matches(m_url.path()))
+        contentEncodings.push_back("gzip");
     try {
-        page.loadFromFile(m_staticFilesDirectory + m_url);
-        m_socket.write("HTTP/1.1 200 OK\n");
-        m_socket.write("Content-Type: text/html; charset=utf-8\n");
-        m_socket.write("Content-Length: " + int2string(page.bytes()) + "\n\n");
-        m_socket.write(page);
+        requestInfo.response.content().loadFromFile(fullPath);
+        Buffer output = requestInfo.response.output(contentEncodings);
+        socket().write("HTTP/1.1 200 OK\n");
+        socket().write("Content-Type: text/html; charset=utf-8\n");
+        if (!requestInfo.response.contentEncoding().empty())
+            socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
+        socket().write("Content-Length: " + int2string(output.length()) + "\n\n");
+        socket().write(output);
     }
     catch (const Exception&) {
-        string text("<html><head><title>Not Found</title></head><body>Sorry, the page " + m_staticFilesDirectory + m_url + " was not found.</body></html>\n");
-        m_socket.write("HTTP/1.1 404 Not Found\n");
-        m_socket.write("Content-Type: text/html; charset=utf-8\n");
-        m_socket.write("Content-length: " + int2string(text.length()) + "\n\n");
-        m_socket.write(text);
+        String text("<html><head><title>Not Found</title></head><body>Resource " + m_staticFilesDirectory + m_url.path() + " was not found.</body></html>\n");
+        Buffer output = requestInfo.response.output(contentEncodings);
+        requestInfo.response.content() = text;
+        socket().write("HTTP/1.1 404 Not Found\n");
+        socket().write("Content-Type: text/html; charset=utf-8\n");
+        if (!requestInfo.response.contentEncoding().empty())
+            socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
+        socket().write("Content-length: " + int2string(text.length()) + "\n\n");
+        socket().write(text);
     }
+    return requestInfo;
 }
 

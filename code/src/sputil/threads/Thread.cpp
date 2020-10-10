@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Thread.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,7 +25,7 @@
 */
 
 #include <sptk5/cutils>
-#include <sptk5/threads/Thread.h>
+#include <sptk5/threads/ThreadManager.h>
 
 using namespace std;
 using namespace sptk;
@@ -35,17 +33,21 @@ using namespace sptk;
 void Thread::threadStart()
 {
     try {
+        if (m_threadManager)
+            m_threadManager->registerThread(this);
         threadFunction();
         onThreadExit();
+        if (m_threadManager)
+            m_threadManager->destroyThread(this);
     }
     catch (const Exception& e) {
-        CERR("Exception in thread '" << name() << "': " << e.what() << endl);
+        CERR("Exception in thread '" << name() << "': " << e.what() << endl)
     }
 }
 
-Thread::Thread(const String& name)
+Thread::Thread(const String& name, std::shared_ptr<ThreadManager> threadManager)
 : m_name(name),
-  m_terminated(false)
+  m_threadManager(threadManager)
 {
 }
 
@@ -69,7 +71,7 @@ bool Thread::terminated()
     return m_terminated;
 }
 
-Thread::Id Thread::id()
+Thread::Id Thread::id() const
 {
     if (m_thread)
         return m_thread->get_id();
@@ -112,11 +114,11 @@ bool Thread::running() const
 
 class ThreadTestThread: public Thread
 {
-    atomic_int  m_counter;
+    atomic_int  m_counter {0};
     int         m_maxCounter;
 public:
     explicit ThreadTestThread(const String& threadName, int maxCounter)
-    : Thread(threadName), m_counter(0), m_maxCounter(maxCounter)
+    : Thread(threadName), m_maxCounter(maxCounter)
     {}
 
     void threadFunction() override

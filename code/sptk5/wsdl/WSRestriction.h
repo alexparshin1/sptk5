@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSRestriction.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,52 +34,75 @@
 namespace sptk {
 
     /**
-     * @brief WSDL Restriction
+     * WSDL Restriction
      */
     class WSRestriction
     {
-        /**
-         * WSDL type name
-         */
-        std::string m_typeName;
-
-        /**
-         * List of enumerations if any
-         */
-        Strings     m_enumerations;
-
     public:
+
+        enum Type {
+            Unknown,
+            Enumeration,
+            Pattern
+        };
+
         /**
-         * @brief Constructor from WSDL (XML) definition
-         * @param typeName      WSDL type name
-         * @param simpleTypeElement Simple type XML node
+         * Constructor from WSDL (XML) definition
+         * @param typeName                  WSDL type name
+         * @param simpleTypeElement         Simple type XML node
          */
         WSRestriction(const std::string& typeName, xml::Node* simpleTypeElement);
 
         /**
-         * @brief Constructor from WSDL (XML) definition
-         * @param typeName      WSDL type name
-         * @param enumerations  Enumerations or empty string
-         * @param delimiter     Enumerations delimiter
+         * Constructor from WSDL (XML) definition
+         * @param type                      Restriction type
+         * @param wsdlTypeName              WSDL type name
+         * @param enumerationsOrPatternss   Enumerations or patterns
          */
-        WSRestriction(const std::string& typeName, const std::string& enumerations, const char* delimiter = "|");
+        WSRestriction(Type type, const String& wsdlTypeName, const Strings& enumerationsOrPattern);
 
         /**
-         * @brief Restriction check
+         * Get restriction type
+         * @return restriction type
+         */
+        Type type() const;
+
+        /**
+         * Restriction check
          *
          * Checks value to satisfy restriction.
          * If value violates restriction, throws exception.
          * @param typeName      Name of the checked type (for error messages)
          * @param value         Value to check
          */
-        void check(const std::string& typeName, const std::string& value) const;
+        void check(const String& typeName, const String& value) const;
 
         /**
-         * @brief Generates restriction constructor for C++ skeleton
+         * Generates restriction constructor for C++ skeleton
          */
-        std::string generateConstructor(const std::string& variableName) const;
+        String generateConstructor(const String& variableName) const;
+
+        /**
+         * Optional regular expression to match
+         * @return regular expression string
+         */
+        const std::vector<RegularExpression>& patterns() const { return m_patterns; }
+
+        /**
+         * Optional enumeration to match
+         * @return enumeration
+         */
+        Strings enumeration() const { return m_enumeration; }
+
+    private:
+
+        Type                            m_type { Unknown }; ///< Restriction type
+        String                          m_wsdlTypeName;     ///< WSDL type name
+        Strings                         m_enumeration;      ///< List of enumerations if any
+        std::vector<RegularExpression>  m_patterns;         ///< Patterns
     };
 
+    typedef std::shared_ptr<WSRestriction> SWSRestriction;
 }
 #endif
 

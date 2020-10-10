@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SmtpConnect.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -39,12 +37,7 @@ SmtpConnect::SmtpConnect(Logger* log)
 {
 }
 
-SmtpConnect::~SmtpConnect()
-{
-    TCPSocket::close();
-}
-
-#define RSP_BLOCK_SIZE 1024
+constexpr int RSP_BLOCK_SIZE = 1024;
 
 int SmtpConnect::getResponse(bool decode)
 {
@@ -59,14 +52,10 @@ int SmtpConnect::getResponse(bool decode)
     while (!readCompleted) {
         size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
         longLine = readBuffer;
-        if (m_log != nullptr)
-            m_log->debug("[RECV] " + string(readBuffer));
         if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n') {
             do {
                 len = readLine(readBuffer, RSP_BLOCK_SIZE);
                 longLine += readBuffer;
-                if (m_log != nullptr)
-                    m_log->debug("[RECV] " + string(readBuffer));
             }
             while (len == RSP_BLOCK_SIZE);
         }
@@ -101,7 +90,7 @@ void SmtpConnect::sendCommand(String cmd, bool encode)
     if (encode)
         cmd = mime(cmd);
     if (m_log != nullptr)
-        m_log->debug("[SEND] " + string(cmd));
+        m_log->debug("[SEND] " + cmd);
     cmd += "\r\n";
     write(cmd.c_str(), (uint32_t) cmd.length());
 }
@@ -231,7 +220,7 @@ void SmtpConnect::sendMessage()
     rcpts = rcpts.replace("[, ]+", ";");
     Strings recepients(rcpts, ";");
     auto cnt = (uint32_t) recepients.size();
-    for (uint32_t i = 0; i < cnt; i++) {
+    for (uint32_t i = 0; i < cnt; ++i) {
         String address = trim(recepients[i]);
         if (address[0] == 0) continue;
         rc = command("RCPT TO:<" + parseAddress(recepients[i]) + ">");

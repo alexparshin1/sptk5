@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSWebSocketsProtocol.cpp - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Saturday Jul 30 2016                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,18 +24,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "WSWebSocketsProtocol.h"
+#include "sptk5/wsdl/protocol/WSWebSocketsProtocol.h"
 #include <sptk5/Base64.h>
 
 using namespace std;
 using namespace sptk;
 
-WSWebSocketsMessage::WSWebSocketsMessage()
-: m_opcode(0), m_finalMessage(true)
-{
-}
-
-const Buffer& WSWebSocketsMessage::payload()
+const Buffer& WSWebSocketsMessage::payload() const
 {
     return m_payload;
 }
@@ -45,15 +38,16 @@ const Buffer& WSWebSocketsMessage::payload()
 static uint64_t ntoh64(uint64_t data)
 {
     union {
-        uint64_t    u64;
-        uint32_t    u32[2];
-    } transform = {}, output = {};
+        uint64_t    m_uint64;
+        uint32_t    m_uint32[2];
+    } input, output;
 
-    transform.u64 = data;
-    output.u32[0] = ntohl(transform.u32[1]);
-    output.u32[1] = ntohl(transform.u32[0]);
+    input.m_uint64 = data;
 
-    return output.u64;
+    output.m_uint32[0] = ntohl(input.m_uint32[1]);
+    output.m_uint32[1] = ntohl(input.m_uint32[0]);
+
+    return output.m_uint64;
 }
 
 void WSWebSocketsMessage::decode(const char* incomingData)
@@ -63,13 +57,23 @@ void WSWebSocketsMessage::decode(const char* incomingData)
     m_finalMessage = (*ptr & 0x80) != 0;
     m_opcode = uint32_t(*ptr & 0xF);
 
-    ptr++;
+    ++ptr;
     bool masked = (*ptr & 0x80) != 0;
     auto payloadLength = uint64_t((*ptr) & 0x7F);
     switch (payloadLength) {
-        case 126:   ptr++; payloadLength = ntohs(*(const uint16_t*)ptr); ptr += 2; break;
-        case 127:   ptr++; payloadLength = ntoh64(*(const uint64_t*)ptr); ptr += 8; break;
-        default:    ptr++; break;
+        case 126:
+            ++ptr;
+            payloadLength = ntohs(*(const uint16_t*)ptr);
+            ptr += 2;
+            break;
+        case 127:
+            ++ptr;
+            payloadLength = ntoh64(*(const uint64_t*)ptr);
+            ptr += 8;
+            break;
+        default:
+            ++ptr;
+            break;
     }
 
     m_payload.checkSize(payloadLength);
@@ -77,31 +81,31 @@ void WSWebSocketsMessage::decode(const char* incomingData)
 
     if (masked) {
         uint8_t mask[4];
-        *(uint32_t *)mask = *(const uint32_t*)ptr;
+        memcpy(mask, ptr, sizeof(mask));
         ptr += 4;
         char* dest = m_payload.data();
-        for (uint64_t i = 0; i < payloadLength; i++) {
+        for (uint64_t i = 0; i < payloadLength; ++i) {
             dest[i] = ptr[i] ^ mask[i % 4];
         }
     } else
         m_payload.set((const char*)ptr, payloadLength);
 }
 
-void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool final, Buffer& output)
+void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool finalMessage, Buffer& output)
 {
     output.reset(payload.length() + 10);
 
     auto*  ptr = (uint8_t*) output.data();
 
     *ptr = opcode & 0xF;
-    if (final)
+    if (finalMessage)
         *ptr |= 0x80;
 
-    ptr++;
+    ++ptr;
 
     if (payload.length() < 126) {
         *ptr = (uint8_t) payload.length();
-        ptr++;
+        ++ptr;
     }
     else if (payload.length() <= 32767) {
         *(uint16_t*)ptr = htons((uint16_t)payload.length());
@@ -112,7 +116,7 @@ void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool final, Buff
         ptr += 8;
     }
 
-    output.bytes(ptr - (uint8_t*) output.c_str());
+    output.bytes(ptr - (uint8_t*) output.data());
     output.append(payload);
 }
 
@@ -122,15 +126,16 @@ WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders&
 
 }
 
-void WSWebSocketsProtocol::process()
+RequestInfo WSWebSocketsProtocol::process()
 {
+    RequestInfo requestInfo;
     try {
-        String clientKey = m_headers["Sec-WebSocket-Key"];
-        String socketVersion = m_headers["Sec-WebSocket-Version"];
+        String clientKey = headers()["Sec-WebSocket-Key"];
+        String socketVersion = headers()["Sec-WebSocket-Version"];
         if (clientKey.empty() || socketVersion != "13")
             throw Exception("WebSocket protocol is missing or has invalid Sec-WebSocket-Key or Sec-WebSocket-Version headers");
 
-        String websocketProtocol = m_headers["Sec-WebSocket-Protocol"];
+        String websocketProtocol = headers()["Sec-WebSocket-Protocol"];
 
         // Generate server response key from client key
         String responseKey = clientKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -141,39 +146,41 @@ void WSWebSocketsProtocol::process()
         Base64::encode(responseKeyEncoded, responseKeySHA);
         responseKey = responseKeyEncoded.c_str();
 
-        m_socket.write("HTTP/1.1 101 Switching Protocols\r\n");
-        m_socket.write("Upgrade: websocket\r\n");
-        m_socket.write("Connection: Upgrade\r\n");
-        m_socket.write("Sec-WebSocket-Accept: " + responseKey + "\r\n");
-        m_socket.write("Sec-WebSocket-Protocol: " + websocketProtocol + "\r\n");
-        m_socket.write("\r\n");
+        socket().write("HTTP/1.1 101 Switching Protocols\r\n");
+        socket().write("Upgrade: websocket\r\n");
+        socket().write("Connection: Upgrade\r\n");
+        socket().write("Sec-WebSocket-Accept: " + responseKey + "\r\n");
+        socket().write("Sec-WebSocket-Protocol: " + websocketProtocol + "\r\n");
+        socket().write("\r\n");
 
-        if (m_socket.readyToRead(chrono::seconds(30))) {
+        if (socket().readyToRead(chrono::seconds(30))) {
             Buffer message;
 
-            while (m_socket.socketBytes() == 0)
+            while (socket().socketBytes() == 0)
                 this_thread::sleep_for(chrono::milliseconds(100));
 
-            size_t available = m_socket.socketBytes();
-            m_socket.read(message, available);
+            size_t available = socket().socketBytes();
+            socket().read(message, available);
             WSWebSocketsMessage msg;
             msg.decode(message.c_str());
 
-            COUT(msg.payload().c_str() << endl);
+            COUT(msg.payload().c_str() << endl)
 
             WSWebSocketsMessage::encode("Hello", WSWebSocketsMessage::OC_TEXT, true, message);
-            m_socket.write(message);
+            socket().write(message);
 
             WSWebSocketsMessage::encode("World", WSWebSocketsMessage::OC_TEXT, true, message);
-            m_socket.write(message);
+            socket().write(message);
         }
     }
     catch (const Exception& e) {
         string text("<html><head><title>Error processing request</title></head><body>" + e.message() + "</body></html>\n");
-        m_socket.write("HTTP/1.1 400 Bad Request\n");
-        m_socket.write("Content-Type: text/html; charset=utf-8\n");
-        m_socket.write("Content-length: " + int2string(text.length()) + "\n\n");
-        m_socket.write(text);
-        m_socket.close();
+        socket().write("HTTP/1.1 400 Bad Request\n");
+        socket().write("Content-Type: text/html; charset=utf-8\n");
+        socket().write("Content-length: " + int2string(text.length()) + "\n\n");
+        socket().write(text);
+        socket().close();
     }
+
+    return requestInfo;
 }

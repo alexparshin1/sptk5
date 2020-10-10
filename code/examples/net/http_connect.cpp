@@ -4,7 +4,7 @@
 ║                       http_connect.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,14 +29,15 @@
 #include <FL/Fl.H>
 #include <sptk5/cutils>
 #include <sptk5/cnet>
+#include <filesystem>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    system("rm -rf /tmp/logs");
-    system("mkdir /tmp/logs");
+    filesystem::remove_all("/tmp/logs");
+    filesystem::create_directories("/tmp/logs");
 
     DateTime totalStarted = DateTime::Now();
 
@@ -59,30 +60,32 @@ int main()
 
             Buffer data;
             try {
-                sock.cmd_get("/event/api/0.1/events", httpFields, data, chrono::seconds(30));
+                auto statusCode = sock.cmd_get("/event/api/0.1/events", httpFields, data, nullptr, chrono::seconds(30));
+                if (statusCode >= 400)
+                    throw Exception(sock.statusText());
             }
             catch (const Exception& e) {
-                CERR(e.what() << endl);
-                CERR(data.c_str() << endl);
+                CERR(e.what() << endl)
+                CERR(data.c_str() << endl)
             }
 
-            COUT("Received " << data.bytes() << endl);
+            COUT("Received " << data.bytes() << endl)
 
             DateTime finished = DateTime::Now();
             long durationMS = chrono::duration_cast<chrono::milliseconds>(finished - started).count();
 
-            COUT("Elapsed " << durationMS << " ms " << endl << endl);
+            COUT("Elapsed " << durationMS << " ms " << endl << endl)
 
             delete socket;
 
         } catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
             return 1;
         }
     }
 
     long totalMS = chrono::duration_cast<chrono::milliseconds>(DateTime::Now() - totalStarted).count();
-    COUT("Total Elapsed " << totalMS << " ms " << endl << endl);
+    COUT("Total Elapsed " << totalMS << " ms " << endl << endl)
 
     return 0;
 }

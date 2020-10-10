@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -42,7 +40,39 @@ namespace sptk {
  * @{
  */
 
-    class DateTimeFormat;
+class DateTimeFormat;
+class DateTime;
+
+/**
+ * Timezone-related information (global, static)
+ */
+class SP_EXPORT TimeZone
+{
+public:
+    /**
+     * Time zone abbbreviastion
+     */
+    static String name();
+
+    /**
+    * Get timezone offset
+    * @return timezone offset, seconds
+    */
+    static int offset();
+
+    /**
+    * Get timezone offset
+    * @return timezone offset
+    */
+    static int isDaylightSavingsTime();
+
+    /**
+    * Set timezone for the application
+    * @param timeZoneName       Time zone name, such as "UTC", ":US/Pacific", etc
+    */
+    static void set(const sptk::String& timeZoneName);
+};
+
 
 /**
  * Date and Time value.
@@ -94,82 +124,41 @@ public:
         PF_GMT = 16
     };
 
-private:
+    enum Format {
+        DATE_FORMAT,
+        DATE_PARTS_ORDER,
+        FULL_TIME_FORMAT,
+        SHORT_TIME_FORMAT,
+        MONTH_NAME,
+        WEEKDAY_NAME
+    };
 
-    /**
-     * Actual date and time value
-     */
-    time_point                  m_dateTime;
+	/**
+	 * System's format info
+	 * @param dtFormat          Format type
+	 * @param arg               Optional format argument, for MONTH_NAME and WEEKDAY_NAME
+	 */
+	static String format(Format dtFormat, size_t arg=0);
 
-public:
+	/**
+	 * System's date separator
+	 */
+	static char dateSeparator();
 
-    /**
-     * System's date format
-     */
-    static char dateFormat[32];
+	/**
+	 * System's time separator
+	 */
+	static char timeSeparator();
 
-    /**
-     * System's time format
-     */
-    static char fullTimeFormat[32];
+	/**
+	 * Returns system's time mode.
+	 */
+	static bool time24Mode();
 
-    /**
-     * System's time format
-     */
-    static char shortTimeFormat[32];
-
-    /**
-     * System's date parts order
-     */
-    static char datePartsOrder[4];
-
-    /**
-     * System's date separator
-     */
-    static char dateSeparator;
-
-    /**
-     * System's time separator
-     */
-    static char timeSeparator;
-
-    /**
-     * The locale-defined weekday names
-     */
-    static String weekDayNames[7];
-
-    /**
-     * The locale-defined weekday names
-     */
-    static String monthNames[12];
-
-    /**
-     * Time zone abbbreviastion
-     */
-    static String timeZoneName;
-
-    /**
-    * Time zone offset from GMT in minutes
-    */
-    static int timeZoneOffset;
-
-
-    /**
-    * Daylight savings time 0 or 1
-    */
-    static int isDaylightSavingsTime;
-
-    /**
-    * Set timezone for the application
-    * @param timeZoneName       Time zone name, such as "UTC", ":US/Pacific", etc
-    */
-    static void setTimeZone(const sptk::String& timeZoneName);
-
-    /**
-    * Default constructor
-    */
-    DateTime() noexcept
-    {}
+	/**
+	 * Sets system's time mode
+	 */
+	static void time24Mode(bool t24mode);
 
     /**
     * Constructor
@@ -187,7 +176,7 @@ public:
      * Constructor
      * @param dateStr           Date string
      */
-    explicit DateTime(const char* dateStr) noexcept;
+    explicit DateTime(const char* dateStr=nullptr) noexcept;
 
     /**
      * Copy constructor
@@ -207,12 +196,6 @@ public:
     explicit DateTime(const duration& dt) noexcept;
 
     /**
-     * Constructor
-     * @param sinceEpochMS      Time since epoch, milliseconds
-     */
-    explicit DateTime(int64_t sinceEpochMS) noexcept;
-
-    /**
      * Returns time_point presentation of the date and time
      */
     const time_point& timePoint() const
@@ -224,21 +207,6 @@ public:
      * Assignment
      */
     DateTime& operator=(const DateTime& date) = default;
-
-    /**
-     * Assignment
-     */
-    DateTime& operator=(const char* dat);
-
-    /**
-     * Addition, a duration of time
-     */
-    DateTime operator+(duration& dt);
-
-    /**
-     * Substruction, a duration of time
-     */
-    DateTime operator-(duration& dt);
 
     /**
      * Print the date into stream
@@ -320,6 +288,24 @@ public:
     String isoDateTimeString(PrintAccuracy printAccuracy = PA_SECONDS, bool gmt = false) const;
 
     /**
+     * Returns timezone offset in minutes
+     * @return timezone offset in minutes
+     */
+    static int timeZoneOffset();
+
+    /**
+     * Returns timezone name
+     * @return timezone name
+     */
+    static String timeZoneName();
+
+    /**
+     * Returns true if daylight savings time
+     * @return true if daylight savings time
+     */
+    static bool isDaylightSavingsTime();
+
+    /**
      * Returns date and time as a string
      */
     explicit operator String() const
@@ -353,68 +339,75 @@ public:
         return m_dateTime.time_since_epoch().count() == 0;
     }
 
+private:
+
+    time_point      m_dateTime;             ///< Actual date and time value
+
+    static String   _dateFormat;            ///< System's date format
+    static String   _fullTimeFormat;        ///< System's time format
+    static String   _shortTimeFormat;       ///< System's time format
+    static String   _datePartsOrder;        ///< System's date parts order
+    static char     _dateSeparator;         ///< System's date separator
+    static char     _timeSeparator;         ///< System's time separator
+    static Strings  _weekDayNames;          ///< The locale-defined weekday names
+    static Strings  _monthNames;            ///< The locale-defined weekday names
+
+    static bool     _time24Mode;
+    static String   _timeZoneName;
+    static int      _timeZoneOffset;
+    static int      _isDaylightSavingsTime;
 };
 
 
 /**
- * Returns system's time mode.
+ * Compares DateTime values
  */
-bool time24Mode();
-
-/**
- * Sets system's time mode
- */
-void time24Mode(bool t24mode);
+SP_EXPORT bool operator<(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
  * Compares DateTime values
  */
-bool operator<(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+SP_EXPORT bool operator<=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
  * Compares DateTime values
  */
-bool operator<=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+SP_EXPORT bool operator>(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
  * Compares DateTime values
  */
-bool operator>(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+SP_EXPORT bool operator>=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
  * Compares DateTime values
  */
-bool operator>=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+SP_EXPORT bool operator==(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
  * Compares DateTime values
  */
-bool operator==(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-
-/**
- * Compares DateTime values
- */
-bool operator!=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+SP_EXPORT bool operator!=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
  * Adds two DateTime values
  */
-sptk::DateTime operator+(const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
+SP_EXPORT sptk::DateTime operator+(const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
 
 /**
  * Adds two DateTime values
  */
-sptk::DateTime operator-(const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
+SP_EXPORT sptk::DateTime operator-(const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
 
 /**
  * Subtracts two DateTime values
  */
-sptk::DateTime::duration operator-(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+SP_EXPORT sptk::DateTime::duration operator-(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
  * Convert duration into seconds, with 1 msec accuracy
  */
-double duration2seconds(const sptk::DateTime::duration& duration);
+SP_EXPORT double duration2seconds(const sptk::DateTime::duration& duration);
 
 /**
  * @}

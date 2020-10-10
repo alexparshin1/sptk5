@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Buffer.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,13 +27,13 @@
 #ifndef __SPTK_BUFFER_H__
 #define __SPTK_BUFFER_H__
 
-#include <sptk5/sptk.h>
-#include <sptk5/Exception.h>
+#include <sptk5/BufferStorage.h>
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <string>
 #include <iostream>
+#include <memory>
 
 namespace sptk
 {
@@ -50,28 +48,8 @@ namespace sptk
  *
  * Generic buffer with a special memory-allocation strategy for effective append() operation
  */
-class SP_EXPORT Buffer
+class SP_EXPORT Buffer : public BufferStorage
 {
-    /**
-     * Actual storage
-     */
-    std::vector<char>   m_storage;
-
-    /**
-     * Actual size of the data in buffer
-     */
-    size_t              m_bytes {0};
-
-    /**
-     * The pointer to beginning of the storage
-     */
-    char*               m_buffer;
-
-    /**
-     * Resizes current buffer
-     * @param sz                Required memory size
-     */
-    void adjustSize(size_t sz);
 
 public:
 
@@ -79,10 +57,17 @@ public:
      * Default constructor
      *
      * Creates an empty buffer.
+     */
+    Buffer() = default;
+
+    /**
+     * Constructor
+     *
+     * Creates an empty buffer.
      * The return of the bytes() method will be 0.
      * @param sz                Buffer size to be pre-allocated
      */
-    explicit Buffer(size_t sz = 16);
+    explicit Buffer(size_t sz);
 
     /**
      * Constructor
@@ -124,74 +109,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~Buffer() = default;
-
-    /**
-     * Returns pointer on the data buffer.
-     */
-    char* data() const
-    {
-        return m_buffer;
-    }
-
-    /**
-     * Returns const char pointer on the data buffer.
-     */
-    const char* c_str() const
-    {
-        return m_buffer;
-    }
-
-    /**
-     * Returns true if number of bytes in buffer is zero.
-     */
-    bool empty() const
-    {
-        return m_bytes == 0;
-    }
-
-    /**
-     * Checks if the current buffer size is enough
-     *
-     * Allocates memory if needed.
-     * @param sz                Required memory size
-     */
-    virtual void checkSize(size_t sz)
-    {
-        if (sz >= m_storage.size())
-            adjustSize(sz);
-    }
-
-    /**
-     * Copies the external data of size sz into the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param data              External data buffer
-     * @param sz                Required memory size
-     */
-    void set(const char* data, size_t sz);
-
-    /**
-     * Copies the external data of size sz into the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param data              External data buffer
-     */
-    void set(const Buffer& data)
-    {
-        set(data.m_buffer, data.m_bytes);
-    }
-
-    /**
-     * Copies the external data of size sz into the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param data              External data
-     */
-    void set(const String& data)
-    {
-        set(data.c_str(), data.length());
-    }
+    virtual ~Buffer() noexcept = default;
 
     /**
      * Appends a single char to the current buffer.
@@ -199,19 +117,9 @@ public:
      * Allocates memory if needed.
      * @param ch                Single character
      */
-    void append(char ch);
-
-    /**
-     * Append a value of primitive type or structure to the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param val               Primitive type or structure
-     */
-    template <class T> void append(T val)
+    void append(char ch) override
     {
-        checkSize(m_bytes + sizeof(val));
-        memcpy(m_buffer + m_bytes, &val, sizeof(val));
-        m_bytes += sizeof(val);
+        BufferStorage::append(ch);
     }
 
     /**
@@ -221,7 +129,21 @@ public:
      * @param data              External data buffer
      * @param sz                Required memory size
      */
-    void append(const char* data, size_t sz = 0);
+    void append(const char* data, size_t sz = 0) override
+    {
+        BufferStorage::append(data, sz);
+    }
+
+    /**
+     * Append a value of primitive type or structure to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param val               Primitive type or structure
+     */
+    template <class T> void append(T val)
+    {
+        append((char*)&val, sizeof(val));
+    }
 
     /**
      * Appends the string to the current buffer.
@@ -257,77 +179,12 @@ public:
     }
 
     /**
-     * Remove fragment from buffer's content
-     * @param offset            Fragment start offset
-     * @param length            Fragment length
-     */
-    void erase(size_t offset, size_t length);
-
-    /**
-     * Truncates the current buffer to the size sz.
-     *
-     * Deallocates unused memory if needed.
-     * @param sz                Required data size in bytes
-     */
-    void reset(size_t sz = 0);
-
-    /**
-     * Fills the bytes() characters in buffer with character ch.
-     * @param ch                The character to fill the buffer
-     * @param count             How many characters are to be filled. If counter is greater than capacity, then buffer is extended.
-     */
-    void fill(char ch, size_t count);
-
-    /**
-     * Returns the size of memory allocated for the data buffer
-     * @returns buffer size
-     */
-    size_t capacity()  const
-    {
-        return m_storage.size();
-    }
-
-    /**
-     * Returns the size of data in the data buffer
-     * @returns data size
-     */
-    size_t length() const
-    {
-        return m_bytes;
-    }
-
-    /**
-     * Returns the size of data in the data buffer
-     * @returns data size
-     */
-    size_t bytes() const
-    {
-        return m_bytes;
-    }
-
-    /**
-     * Sets the size of the data stored
-     *
-     * Doesn't check anything so use it this caution.
-     * @param b                 New size of the buffer
-     */
-    void bytes(size_t b)
-    {
-        if (b < m_storage.size()) {
-            m_bytes = b;
-            m_storage[b] = 0;
-            return;
-        }
-        throw Exception("Attempt to set buffer size outside storage");
-    }
-
-    /**
      * Access the chars by index
      * @param index             Character index
      */
     char& operator[](size_t index)
     {
-        return m_buffer[index];
+        return data()[index];
     }
 
     /**
@@ -336,8 +193,22 @@ public:
      */
     const char& operator[](size_t index) const
     {
-        return m_buffer[index];
+        return data()[index];
     }
+
+    /**
+     * Compare operator
+     * @param other             Other buffer
+     * @return                  True if buffer contents are identical
+     */
+    bool operator == (const Buffer& other) const;
+
+    /**
+     * Compare operator
+     * @param other             Other buffer
+     * @return                  True if buffer contents are not matching
+     */
+    bool operator != (const Buffer& other) const;
 
     /**
      * Loads the buffer from file fileName.
@@ -384,14 +255,16 @@ public:
      */
     explicit operator String() const
     {
-        return String(m_buffer, m_bytes);
+        return String(data(), bytes());
     }
 };
 
+typedef std::shared_ptr<Buffer> SBuffer;
+
 /**
  * Print buffer to ostream as hexadecimal dump
-  */
-  std::ostream& operator<<(std::ostream&, const Buffer& buffer);
+*/
+SP_EXPORT std::ostream& operator<<(std::ostream&, const Buffer& buffer);
 
 /**
  * @}

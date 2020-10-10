@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSWebServiceProtocol.cpp - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Saturday Jul 30 2016                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,42 +24,50 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "WSWebServiceProtocol.h"
+#include <sptk5/Brotli.h>
+#include <sptk5/ZLib.h>
+#include "sptk5/wsdl/protocol/WSWebServiceProtocol.h"
 
 using namespace std;
 using namespace sptk;
 
-WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket* socket, const String& url, const HttpHeaders& headers,
-                                           WSRequest& service, const String& hostname, uint16_t port)
-: WSProtocol(socket, headers), m_service(service), m_url(url), m_hostname(hostname), m_port(port)
+WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
+                                           const Host& host, bool allowCORS, bool keepAlive,
+                                           bool suppressHttpStatus)
+: WSProtocol(&httpReader.socket(), httpReader.getHttpHeaders()),
+  m_httpReader(httpReader),
+  m_service(service),
+  m_url(url),
+  m_host(host),
+  m_allowCORS(allowCORS),
+  m_keepAlive(keepAlive),
+  m_suppressHttpStatus(suppressHttpStatus)
 {
 }
 
 xml::Node* WSWebServiceProtocol::getFirstChildElement(const xml::Node* element) const
 {
-    xml::Node* methodElement = nullptr;
     for (auto* node: *element) {
-        if (node->isElement()) {
-            methodElement = node;
-            break;
-        }
+        if (node->isElement())
+            return node;
     }
-    return methodElement;
+    return nullptr;
 }
 
 xml::Node* WSWebServiceProtocol::findRequestNode(const xml::Document& message, const String& messageType) const
 {
     String ns = "soap";
-    for (auto* node: message) {
+    for (const auto* node: message) {
         if (lowerCase(node->name()).endsWith(":envelope")) {
             size_t pos = node->name().find(':');
             ns = node->name().substr(0, pos);
         }
     }
 
-    xml::Node* xmlBody = message.findFirst(ns + ":Body", true);
+    const xml::Node* xmlBody = message.findFirst(ns + ":Body", true);
     if (xmlBody == nullptr)
         throw HTTPException(400, "Can't find " + ns + ":Body in " + messageType);
+
     xml::Node* xmlRequest = getFirstChildElement(xmlBody);
     if (xmlRequest == nullptr)
         throw HTTPException(400, "Can't find request data in " + messageType);
@@ -69,17 +75,23 @@ xml::Node* WSWebServiceProtocol::findRequestNode(const xml::Document& message, c
     return xmlRequest;
 }
 
-void WSWebServiceProtocol::generateFault(Buffer& output, size_t& httpStatusCode, String& httpStatusText,
-                                         String& contentType, const HTTPException& e, bool jsonOutput)
+void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
+                                         const HTTPException& e,
+                                         bool jsonOutput) const
 {
-    httpStatusCode = e.statusCode();
-    httpStatusText = e.statusText();
+    httpStatus.code = e.statusCode();
+    httpStatus.description = e.statusText();
+
+    String errorText(e.what());
+
+    // Remove possibly injected scripts
+    errorText = errorText.replace("<script.*</script>", "");
 
     if (jsonOutput) {
         contentType = "application/json";
 
         json::Document error;
-        error.root().set("error", e.what());
+        error.root().set("error", errorText);
         error.root().set("status_code", (int) e.statusCode());
         error.root().set("status_text", e.statusText());
         error.exportTo(output, true);
@@ -93,56 +105,59 @@ void WSWebServiceProtocol::generateFault(Buffer& output, size_t& httpStatusCode,
         auto* xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
         auto* faultNode = new xml::Element(xmlBody, "soap:Fault");
 
-        auto* faultcodeNode = new xml::Element(faultNode, "faultcode");
+        auto* faultcodeNode = new xml::Element(faultNode, "faultCode");
         faultcodeNode->text("soap:Client");
 
-        auto* faultstringNode = new xml::Element(faultNode, "faultcode");
+        auto* faultstringNode = new xml::Element(faultNode, "faultString");
         faultstringNode->text(e.what());
 
         error.save(output, 2);
     }
 }
 
-void WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& message,
-                                          shared_ptr<HttpAuthentication> authentication, bool requestIsJSON,
-                                          size_t& httpStatusCode, String& httpStatusText, String& contentType)
+String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
+                                            const SHttpAuthentication& authentication, bool requestIsJSON,
+                                            HttpResponseStatus& httpResponseStatus, String& contentType)
 {
-    httpStatusCode = 200;
-    httpStatusText = "OK";
+    String requestName("Error");
+    httpResponseStatus.code = 200;
+    httpResponseStatus.description = "OK";
     contentType = "text/xml; charset=utf-8";
     try {
-        m_service.processRequest(&message, authentication.get());
-        if (requestIsJSON) {
-            xml::Node* methodElement = findRequestNode(message, "service response");
-
-            // Converting XML response to JSON response
-            json::Document jsonOutput;
-            auto* jsonResponse = jsonOutput.root().set_object("response");
-            methodElement->exportTo(*jsonResponse);
-            jsonOutput.exportTo(output, false);
+        auto* pXmlContent = requestIsJSON? nullptr: &xmlContent;
+        auto* pJsonContent = requestIsJSON? &jsonContent: nullptr;
+        m_service.processRequest(pXmlContent, pJsonContent, authentication.get(), requestName);
+        if (pJsonContent) {
+            pJsonContent->exportTo(output, false);
             contentType = "application/json";
         }
-        else
-            message.save(output, 2);
+        else {
+            xmlContent.save(output, 2);
+            contentType = "application/xml";
+        }
     }
     catch (const HTTPException& e) {
-        generateFault(output, httpStatusCode, httpStatusText, contentType, e, false);
+        generateFault(output, httpResponseStatus, contentType, e, requestIsJSON);
     }
+    return requestName;
 }
 
-void WSWebServiceProtocol::RESTtoSOAP(Strings& url, const char* startOfMessage, xml::Document& message) const
+void WSWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) const
 {
     // Converting JSON request to XML request
     json::Document jsonContent;
-    String method(*url.rbegin());
+    Strings pathElements(url.path(), "/");
+    String method(*pathElements.rbegin());
     auto* xmlEnvelope = new xml::Element(message, "soap:Envelope");
     xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
     auto* xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
     jsonContent.load(startOfMessage);
+    for (auto& itor: url.params())
+        jsonContent.root()[itor.first] = itor.second;
     jsonContent.root().exportTo("ns1:" + method, *xmlBody);
 }
 
-static void substituteHostname(Buffer& page, const String& hostname, uint16_t port)
+static void substituteHostname(Buffer& page, const Host& host)
 {
     xml::Document wsdl;
     wsdl.load(page);
@@ -154,137 +169,186 @@ static void substituteHostname(Buffer& page, const String& hostname, uint16_t po
     if (location.empty())
         throw Exception("Can't find location attribute of <soap:address> in WSDL file");
     stringstream listener;
-    listener << "http://" << hostname << ":" << to_string(port) << "/";
+    listener << "http://" << host.toString() << "/";
     location = location.replace("http://([^\\/]+)/", listener.str());
     node->setAttribute("location", location);
     wsdl.save(page, 2);
 }
 
-void WSWebServiceProtocol::process()
+void WSWebServiceProtocol::processXmlContent(const char* startOfMessage, xml::Document& xmlContent,
+                                             json::Document& jsonContent) const
 {
-    String contentType = "text/xml; charset=utf-8";
-    auto ctor = m_headers.find("Content-Type");
-    if (ctor != m_headers.end())
-        contentType = ctor->second;
-    bool requestIsJSON = contentType.startsWith("application/json");
-
-    int contentLength = -1; // Undefined
-    if (m_url.endsWith("?wsdl"))
-        contentLength = 0;
-
-    auto itor = m_headers.find("Content-Length");
-    if (itor != m_headers.end())
-        contentLength = string2int(itor->second);
-
-    shared_ptr<HttpAuthentication> authentication;
-    itor = m_headers.find("authorization");
-    if (itor != m_headers.end()) {
-        String value(itor->second);
-        authentication = make_shared<HttpAuthentication>(value);
+    try {
+        xmlContent.load(startOfMessage, false);
+    }
+    catch (const Exception& e) {
+        throw HTTPException(406, "Invalid XML content: " + String(e.what()));
     }
 
-    const char* startOfMessage = nullptr;
-    const char* endOfMessage = nullptr;
-
-    Buffer data;
-
-    if (contentLength > 0) {
-        m_socket.read(data, contentLength);
-        startOfMessage = data.c_str();
-        endOfMessage = startOfMessage + data.bytes();
+    xml::Node* xmlRequest = findRequestNode(xmlContent, "API request");
+    auto* jsonEnvelope = jsonContent.root().add_object(xmlRequest->name());
+    for (auto& itor: m_url.params()) {
+        auto* paramNode = new xml::Element(xmlRequest, itor.second.c_str());
+        paramNode->text(itor.second);
     }
-    else if (contentLength == 0) {
-        startOfMessage = data.c_str();
-        endOfMessage = startOfMessage;
-    } else {
-        size_t socketBytes = m_socket.socketBytes();
-        if (socketBytes == 0) {
-            if (!m_socket.readyToRead(chrono::seconds(30)))
-                throwException("Client disconnected");
-            socketBytes = m_socket.socketBytes();
+    xmlRequest->exportTo(*jsonEnvelope);
+}
+
+void WSWebServiceProtocol::processJsonContent(const char* startOfMessage, json::Document& jsonContent,
+                                              RequestInfo& requestInfo, HttpResponseStatus& httpStatus,
+                                              String& contentType) const
+{
+    if (m_url.path().length() < 2)
+        generateFault(requestInfo.response.content(), httpStatus, contentType,
+                      HTTPException(404, "Not Found"),
+                      true);
+    else {
+        Strings pathElements(m_url.path(), "/");
+        String method(*pathElements.rbegin());
+
+        try {
+            jsonContent.load(startOfMessage);
+        }
+        catch (const Exception& e) {
+            generateFault(requestInfo.response.content(), httpStatus, contentType,
+                          HTTPException(406, "Invalid JSON content: " + String(e.what())),
+                          true);
         }
 
-        // If socket is signaled but empty - then other side closed connection
-        if (socketBytes == 0)
-            throwException("Client disconnected");
-
-        uint32_t offset = 0;
-        const char* endOfMessageMark = ":Envelope>";
-        do {
-            // Read all available data (appending to data buffer)
-            data.checkSize(offset + socketBytes);
-            socketBytes = (uint32_t) m_socket.read(data.data() + offset, (uint32_t) socketBytes);
-            data.bytes(offset + socketBytes);
-
-            const char* endOfData = data.c_str() + data.bytes();
-            if (startOfMessage == nullptr) {
-                startOfMessage = strstr(data.c_str(), "<?xml");
-                if (startOfMessage == nullptr) {
-                    startOfMessage = strstr(data.c_str(), "Envelope");
-                    if (startOfMessage != nullptr && startOfMessage < endOfData)
-                        while (*startOfMessage != '<' && startOfMessage > data.c_str())
-                            startOfMessage--;
-                }
-                if (startOfMessage == nullptr)
-                    throwException("Message start <?xml> not found");
-            }
-            endOfMessage = strstr(startOfMessage, endOfMessageMark);
-        } while (endOfMessage == nullptr);
-
-        // Message received, processing it
-        endOfMessage += strlen(endOfMessageMark);
+        jsonContent.root()["rest_method_name"] = method;
+        for (auto& itor: m_url.params())
+            jsonContent.root()[itor.first] = itor.second;
     }
+}
+
+RequestInfo WSWebServiceProtocol::process()
+{
+    HttpResponseStatus  httpStatus { 200, "OK" };
+    bool                returnWSDL = false;
+
+    if (m_httpReader.getRequestType() != "POST")
+        throw HTTPException(405, "Only POST method is supported");
+
+    const Buffer& contentBuffer = m_httpReader.output();
+    m_httpReader.readAll(chrono::seconds(30));
+
+    RequestInfo requestInfo;
+
+    String contentEncoding;
+    String contentType(m_httpReader.httpHeader("Content-Type"));
+    bool urlEncoded = contentType.find("x-www-form-urlencoded") != string::npos;
+    bool requestIsJSON = true;
+    if (urlEncoded)
+        contentEncoding = "x-www-form-urlencoded";
+    else
+        contentEncoding = m_httpReader.httpHeader("Content-Encoding");
+    requestInfo.request.input(contentBuffer, contentEncoding);
+
+    auto authentication = getAuthentication();
+
+    auto* startOfMessage = requestInfo.request.content().data();
+    auto* endOfMessage = startOfMessage + requestInfo.request.content().bytes();
 
     while (startOfMessage != endOfMessage && (unsigned char)*startOfMessage < 33)
-        startOfMessage++;
+        ++startOfMessage;
 
-    Buffer output;
-    size_t httpStatusCode = 200;
-    String httpStatusText = "OK";
-    bool   returnWSDL = false;
-
-    xml::Document message;
+    xml::Document xmlContent;
     json::Document jsonContent;
 
     if (startOfMessage != endOfMessage) {
+        *endOfMessage = 0;
         if (*startOfMessage == '<') {
-            if (endOfMessage != nullptr)
-                *(char*) endOfMessage = 0;
-            message.load(startOfMessage);
-            xml::Node* xmlRequest = findRequestNode(message, "API request");
-            auto* jsonEnvelope = jsonContent.root().set_object(xmlRequest->name());
-            xmlRequest->exportTo(*jsonEnvelope);
-        } else if (*startOfMessage == '{' || *startOfMessage == '[') {
-            Strings url(m_url, "/");
-            if (url.size() < 2)
-                throw Exception("Invalid url");
-            RESTtoSOAP(url, startOfMessage, message);
-        } else {
-            generateFault(output, httpStatusCode, httpStatusText, contentType,
-                          HTTPException(400, "Expect JSON content"),
+            contentType = "application/xml; charset=utf-8";
+            requestIsJSON = false;
+            processXmlContent(startOfMessage, xmlContent, jsonContent);
+        }
+        else if (*startOfMessage == '{' || *startOfMessage == '[') {
+            contentType = "application/json; charset=utf-8";
+            processJsonContent(startOfMessage, jsonContent, requestInfo, httpStatus,
+                               contentType);
+        }
+        else {
+            generateFault(requestInfo.response.content(), httpStatus, contentType,
+                          HTTPException(406, "Expect JSON or XML content"),
                           requestIsJSON);
         }
     } else {
         // Empty request content
-        if (m_url.endsWith("?wsdl")) {
+        if (m_url.params().has("wsdl")) {
             // Requested WSDL content
             returnWSDL = true;
-            output.set(m_service.wsdl());
-            substituteHostname(output, m_hostname, m_port);
+            requestInfo.response.content().set(m_service.wsdl());
+            substituteHostname(requestInfo.response.content(), m_host);
+            requestInfo.name = "wsdl";
         } else {
             // Regular request w/o content
-            Strings url(m_url, "/");
-            RESTtoSOAP(url, "", message);
+            RESTtoSOAP(m_url, "", xmlContent);
         }
     }
 
-    if (!returnWSDL && httpStatusCode < 400)
-        processMessage(output, message, authentication, requestIsJSON, httpStatusCode, httpStatusText, contentType);
+    if (!returnWSDL && httpStatus.code < 400) {
+        requestInfo.name = processMessage(requestInfo.response.content(), xmlContent, jsonContent, authentication,
+                                          requestIsJSON,
+                                          httpStatus, contentType);
+    }
 
-    stringstream response;
-    response << "HTTP/1.1 " << httpStatusCode << " " << httpStatusText << "\r\n"
-             << "Content-Type: " << contentType << "\r\n"
-             << "Content-Length: " << output.bytes() << "\r\n\r\n";
-    m_socket.write(response.str());
-    m_socket.write(output);
+    Strings clientAcceptEncoding(header("accept-encoding"), "[,\\s]+", Strings::SM_REGEXP);
+
+    // For errors, always return uncompressed content
+    if (httpStatus.code >= 400)
+        clientAcceptEncoding.clear();
+
+    if (httpStatus.code == 500)
+        clientAcceptEncoding.clear();
+
+    Buffer outputData = requestInfo.response.output(clientAcceptEncoding);
+    contentEncoding = requestInfo.response.contentEncoding();
+
+    Buffer response;
+    response.append("HTTP/1.1 ");
+    if (m_suppressHttpStatus && httpStatus.code >= 400)
+        response.append("202 Accepted\r\n");
+    else
+        response.append(to_string(httpStatus.code) + " " + httpStatus.description + "\r\n");
+    response.append("Content-Type: " + contentType + "\r\n");
+    response.append("Content-Length: " + to_string(outputData.bytes()) + "\r\n");
+    if (m_keepAlive)
+        response.append("Connection: keep-alive\r\n");
+    if (m_allowCORS)
+        response.append("Access-Control-Allow-Origin: *\r\n");
+    if (!contentEncoding.empty())
+        response.append("Content-Encoding: " + contentEncoding + "\r\n");
+
+    // OWASP-suggested headers
+    response.append("X-Content-Type-Options: nosniff\r\n");
+
+    response.append("\r\n", 2);
+    response.append(outputData);
+    socket().write(response);
+
+    return requestInfo;
 }
+
+shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()
+{
+    shared_ptr<HttpAuthentication> authentication;
+    auto itor = headers().find("authorization");
+    if (itor != headers().end()) {
+        String value(itor->second);
+        authentication = make_shared<HttpAuthentication>(value);
+    }
+    return authentication;
+}
+
+int WSWebServiceProtocol::getContentLength()
+{
+    int contentLength = -1; // Undefined
+    if (m_url.params().has("wsdl"))
+        contentLength = 0;
+
+    auto itor = headers().find("Content-Length");
+    if (itor != headers().end())
+        contentLength = string2int(itor->second);
+    return contentLength;
+}
+

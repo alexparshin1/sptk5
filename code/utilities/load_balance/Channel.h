@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday Sep 17 2015                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -56,12 +54,12 @@ public:
             close();
         }
         catch (const Exception& e) {
-            CERR(e.what() << std::endl);
+            CERR(e.what() << std::endl)
         }
     }
 
     void open(SOCKET sourceFD, const String& interfaceAddess, const Host& destination);
-    int  copyData(TCPSocket& source, TCPSocket& destination);
+    int  copyData(const TCPSocket& source, const TCPSocket& destination);
     void close();
 
     TCPSocket& source()      { return m_source; }

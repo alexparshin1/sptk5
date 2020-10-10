@@ -1,0 +1,262 @@
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
+
+#include <sptk5/cutils>
+#include <sptk5/wsdl/WSParser.h>
+#include <sptk5/wsdl/OpenApiGenerator.h>
+
+using namespace std;
+using namespace sptk;
+
+OpenApiGenerator::OpenApiGenerator(const String& title, const String& description, const String& version,
+                                   const Strings& servers, const Options& options)
+: m_title(title), m_description(description), m_version(version), m_servers(servers), m_options(options)
+{
+}
+
+void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& operations,
+                                const WSComplexTypeMap& complexTypes, const std::map<String,String>& documentation) const
+{
+    // Validate options
+    for (auto& itor: m_options.operationsAuth) {
+        if (operations.find(itor.first) == operations.end())
+            throw Exception("Alternative Auth operation '" + itor.first + "' is not a part of this service");
+    }
+
+    json::Document document;
+
+    document.root()["openapi"] = "3.0.0";
+
+    // Create info object
+    auto& info = *document.root().add_object("info");
+    info["title"] = m_title;
+    info["description"] = m_description;
+    info["version"] = m_version;
+
+    createServers(document);
+    createPaths(document, operations, documentation);
+    createComponents(document, complexTypes);
+
+    document.exportTo(output);
+}
+
+void OpenApiGenerator::createServers(json::Document& document) const
+{
+    // Create servers object
+    auto& servers = *document.root().add_array("servers");
+    for (auto& url: m_servers) {
+        auto& server = *servers.push_object();
+        server["url"] = url;
+    }
+}
+
+void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMap& operations,
+                                   const map<String, String>& documentation) const
+{
+    static const map<String,String> possibleResponses = {
+            {"200", "Ok"},
+            {"401", "Unauthorized"},
+            {"404", "Not found"},
+            {"500", "Server error"},
+    };
+
+    // Create paths object
+    auto& paths = *document.root().add_object("paths");
+    for (auto& itor: operations) {
+        auto& operation = itor.second;
+        String operationName = itor.first;
+
+        auto& operationElement = *paths.add_object("/" + itor.second.m_input->name());
+        auto& postElement = *operationElement.add_object("post");
+
+        // Define operation security
+        AuthMethod authMethod;
+        auto ator = m_options.operationsAuth.find(operationName);
+        if (ator != m_options.operationsAuth.end())
+            authMethod = ator->second;
+        else
+            authMethod = m_options.defaultAuthMethod;
+        if (authMethod != AM_NONE) {
+            auto& securityObject = *postElement.add_array("security");
+            auto& securityMechanism = *securityObject.push_object();
+            securityMechanism.add_array(authMethodName(authMethod));
+        }
+
+        auto dtor = documentation.find(operation.m_input->name());
+        if (dtor != documentation.end())
+            postElement["summary"] = dtor->second;
+
+        postElement["operationId"] = itor.first;
+
+        auto& requestBody = *postElement.add_object("requestBody");
+        auto& content = *requestBody.add_object("content");
+        auto& data = *content.add_object("application/json");
+        auto& schema = *data.add_object("schema");
+        schema["$ref"] = "#/components/schemas/" + operation.m_input->name();
+
+        auto& responsesElement = *postElement.add_object("responses");
+        for (auto& rtor: possibleResponses) {
+            auto& response = *responsesElement.add_object(rtor.first);
+            response["description"] = rtor.second;
+        }
+    }
+}
+
+void OpenApiGenerator::createComponents(json::Document & document, const WSComplexTypeMap& complexTypes) const
+{
+    struct OpenApiType {
+        String type;
+        String format;
+    };
+
+    static const map<String,OpenApiType> wsTypesToOpenApiTypes = {
+            { "string", { "string", "" } },
+            { "datetime", { "string", "date-time" } },
+            { "bool", {"boolean", ""} },
+            { "integer", { "integer", "int64" } },
+            { "double", { "number", "double" } }
+    };
+
+    // Create components object
+    auto& components = *document.root().add_object("components");
+    auto& schemas = *components.add_object("schemas");
+    for (auto& itor: complexTypes) {
+        auto& complexTypeInfo = itor.second;
+        auto& complexType = *schemas.add_object(complexTypeInfo->name());
+        complexType["type"] = "object";
+        auto& properties = *complexType.add_object("properties");
+        Strings requiredProperties;
+        for (auto ctypeProperty: complexTypeInfo->sequence()) {
+            auto& property = *properties.add_object(ctypeProperty->name());
+            parseClassName(ctypeProperty, property);
+
+            if (ctypeProperty->multiplicity() != WSM_OPTIONAL)
+                requiredProperties.push_back(ctypeProperty->name());
+
+            parseRestriction(ctypeProperty, property);
+        }
+        if (!requiredProperties.empty()) {
+            auto& required = *complexType.add_array("required");
+            for (const auto& property: requiredProperties)
+                required.push_back(property);
+        }
+    }
+
+    auto& securitySchemas = *components.add_object("securitySchemes");
+
+    auto& basicAuth = *securitySchemas.add_object("basicAuth"); // arbitrary name for the security scheme
+    basicAuth["type"] = "http";
+    basicAuth["scheme"] = "basic";
+
+    auto& bearerAuth = *securitySchemas.add_object("bearerAuth"); // arbitrary name for the security scheme
+    bearerAuth["type"] = "http";
+    bearerAuth["scheme"] = "bearer";
+    bearerAuth["bearerFormat"] = "JWT"; // optional, arbitrary value for documentation purposes
+}
+
+void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty, json::Element& property) const
+{
+    struct OpenApiType {
+        String type;
+        String format;
+    };
+
+    static const map<String,OpenApiType> wsTypesToOpenApiTypes = {
+            { "string", { "string", "" } },
+            { "datetime", { "string", "date-time" } },
+            { "bool", {"boolean", ""} },
+            { "integer", { "integer", "int64" } },
+            { "double", { "number", "double" } }
+    };
+
+    auto className = ctypeProperty->className();
+    if (className.startsWith("sptk::WS")) {
+        className = className.replace("sptk::WS", "").toLowerCase();
+        auto ttor = wsTypesToOpenApiTypes.find(className);
+        if (ttor != wsTypesToOpenApiTypes.end()) {
+            property["type"] = ttor->second.type;
+            if (!ttor->second.format.empty())
+                property["format"] = ttor->second.format;
+        }
+    }
+    else if (className.startsWith("C")) {
+        className = "#/components/schemas/" + className.substr(1);
+        if (ctypeProperty->multiplicity() & (WSM_ZERO_OR_MORE|WSM_ONE_OR_MORE)) { //array
+            property["type"] = "array";
+            auto& items = *property.add_object("items");
+            items["$ref"] = className;
+        } else
+            property["$ref"] = className;
+    }
+}
+
+void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypeProperty, json::Element& property) const
+{
+    auto restriction = ctypeProperty->restriction();
+    if (restriction) {
+        if (!restriction->patterns().empty()) {
+            parseRestrictionPatterns(property, restriction);
+        }
+        else if (!restriction->enumeration().empty()) {
+            auto& enumArray = *property.add_array("enum");
+            for (const auto& str: restriction->enumeration())
+                enumArray.push_back(str);
+        }
+    }
+}
+
+void OpenApiGenerator::parseRestrictionPatterns(json::Element& property, const SWSRestriction& restriction) const
+{
+    if (restriction->patterns().size() == 1)
+        property["pattern"] = restriction->patterns()[0].pattern();
+    else {
+        auto& oneOf = *property.add_array("oneOf");
+        for (const auto& regex: restriction->patterns()) {
+            auto& patternElement = *oneOf.push_object();
+            patternElement["pattern"] = regex.pattern();
+        }
+    }
+}
+
+OpenApiGenerator::AuthMethod OpenApiGenerator::authMethod(const String& auth)
+{
+    if (auth == "none")
+        return AM_NONE;
+    if (auth == "basic")
+        return AM_BASIC;
+    if (auth == "bearer")
+        return AM_BEARER;
+    throw Exception("Auth method '" + auth + "' is not supported");
+}
+
+String OpenApiGenerator::authMethodName(AuthMethod auth)
+{
+    switch (auth) {
+        case AM_BASIC: return "basicAuth";
+        case AM_BEARER: return "bearerAuth";
+        default: return "none";
+    }
+}

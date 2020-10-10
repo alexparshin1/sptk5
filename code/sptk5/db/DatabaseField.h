@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        DatabaseField.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -52,35 +50,6 @@ class SP_EXPORT DatabaseField : public Field
 {
     friend class Query;
 
-    /**
-     * Native database data type
-     */
-    int     m_fldType;
-
-    /**
-     * Field column number in recordset
-     */
-    int     m_fldColumn;
-
-    /**
-     * Field size
-     */
-    int     m_fldSize;
-
-    /**
-     * Field scale, optional, for floating point fields
-     */
-    int     m_fldScale;
-
-protected:
-
-    void setFieldType(int fieldType, int fieldLength, int fieldScale)
-    {
-        m_fldType = fieldType;
-        m_fldSize = fieldLength;
-        m_fldScale = fieldScale;
-    }
-
 public:
 
     /**
@@ -94,22 +63,6 @@ public:
      */
     DatabaseField(const String& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength,
 				  int fieldScale = 4);
-
-    /**
-     * Column display format
-     */
-    String          displayFormat;
-
-    /**
-     * Column alignment
-     */
-    int             alignment;
-
-    /**
-     * Is column visible?
-     */
-    bool            visible;
-
 
     /**
      * @brief Checks the internal buffer size
@@ -157,6 +110,54 @@ public:
     {
         return (uint32_t) m_fldSize;
     }
+
+    /**
+     * Column display format
+     * @return Column display format
+     */
+    String displayFormat() const { return m_displayFormat; }
+
+    /**
+     * Set column display format
+     */
+    void displayFormat(const String& format) { m_displayFormat = format; }
+
+    /**
+     * Column alignment
+     * @return Column alignment
+     */
+    int alignment() const { return m_alignment; }
+
+    /**
+     * Set column alignment
+     */
+    void alignment(int al) { m_alignment = al; }
+
+protected:
+
+    /**
+     * Set field type
+     * @param fieldType         Field type
+     * @param fieldLength       Field length
+     * @param fieldScale        Field scale
+     */
+    void setFieldType(int fieldType, int fieldLength, int fieldScale)
+    {
+        m_fldType = fieldType;
+        m_fldSize = fieldLength;
+        m_fldScale = fieldScale;
+    }
+
+private:
+
+    int     m_fldType;                  ///< Native database data type
+    int     m_fldColumn;                ///< Field column number in recordset
+    int     m_fldSize;                  ///< Field size
+    int     m_fldScale;                 ///< Field scale, optional, for floating point fields
+    String  m_displayFormat;            ///< Column display format
+    int     m_alignment {ALIGN_LEFT};   ///< Column alignment
+
+
 };
 /**
  * @}

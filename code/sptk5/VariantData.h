@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       VariantData.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday December 2 2018                                 ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -61,7 +59,16 @@ public:
 
     static int64_t dividers[16];        ///< Dividers that help formatting money data
     int64_t      quantity;              ///< Integer value
-    uint8_t      scale:4;               ///< Scale (1..15)
+    uint8_t      scale;                 ///< Scale
+
+    /**
+     * Constructor
+     * @param quantity          Money value
+     * @param scale             Money value scale (signs after decimal point)
+     */
+    MoneyData(int64_t quantity, uint8_t scale)
+    : quantity(quantity), scale(scale)
+    {}
 
     /**
      * Convert to double value
@@ -72,11 +79,6 @@ public:
      * Convert to integer value
      */
     explicit operator int64_t () const;
-
-    /**
-     * Convert to integer value
-     */
-    explicit operator size_t () const;
 
     /**
      * Convert to integer value
@@ -93,8 +95,6 @@ public:
 class SP_EXPORT VariantData
 {
     friend class Variant_SetMethods;
-
-    uint8_t     m_data[32];         ///< Variant data BLOB
 
 public:
 
@@ -118,11 +118,13 @@ public:
      * Move constructor
      * @param other             Other object
      */
-    VariantData(VariantData&& other)
+    VariantData(VariantData&& other) noexcept
     {
         memcpy(m_data, other.m_data, sizeof(m_data));
         memset(other.m_data, 0, sizeof(m_data));
     }
+
+    virtual ~VariantData() noexcept = default;
 
     /**
      * Copy assigment
@@ -139,7 +141,7 @@ public:
      * Move assignment
      * @param other             Other object
      */
-    VariantData& operator = (VariantData&& other)
+    VariantData& operator = (VariantData&& other) noexcept
     {
         if (&other != this) {
             memcpy(m_data, other.m_data, sizeof(m_data));
@@ -197,9 +199,10 @@ public:
     }
 
     /**
-     * @return image pointer
+     * Set image pointer
+     * @param ptr               Image pointer
      */
-    void setImagePtr(void* ptr)
+    void setImagePtr(const void* ptr)
     {
         size_t ptrSize = sizeof(ptr);
         memcpy(m_data, ptr, ptrSize);
@@ -219,7 +222,7 @@ public:
      */
     const bool& getBool() const
     {
-        return *(bool*) m_data;
+        return *(const bool*) m_data;
     }
 
     /**
@@ -227,7 +230,7 @@ public:
      */
     const int32_t& getInteger() const
     {
-        return *(int32_t*) m_data;
+        return *(const int32_t*) m_data;
     }
 
     /**
@@ -235,7 +238,7 @@ public:
      */
     const int64_t& getInt64() const
     {
-        return *(int64_t*) m_data;
+        return *(const int64_t*) m_data;
     }
 
     /**
@@ -243,7 +246,7 @@ public:
      */
     const double& getFloat() const
     {
-        return *(double*) m_data;
+        return *(const double*) m_data;
     }
 
     /**
@@ -251,7 +254,7 @@ public:
      */
     const int64_t getTime() const
     {
-        return *(int64_t*) m_data;
+        return *(const int64_t*) m_data;
     }
 
     /**
@@ -259,7 +262,7 @@ public:
      */
     const VariantDataBuffer& getBuffer() const
     {
-        return *(VariantDataBuffer*) m_data;
+        return *(const VariantDataBuffer*) m_data;
     }
 
     /**
@@ -267,7 +270,7 @@ public:
      */
     const void* getImagePtr() const
     {
-        return (void*) m_data;
+        return (const void*) m_data;
     }
 
     /**
@@ -275,8 +278,20 @@ public:
      */
     const MoneyData& getMoneyData() const
     {
-        return *(MoneyData*) m_data;
+        return *(const MoneyData*) m_data;
     }
+
+    /**
+     * @return data pointer
+     */
+    char* getData()
+    {
+        return (char*) m_data;
+    }
+
+private:
+
+    uint8_t     m_data[32]{};         ///< Variant data BLOB
 };
 
 /**

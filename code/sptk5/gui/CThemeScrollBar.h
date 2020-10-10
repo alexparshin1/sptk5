@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CThemeScrollBar.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -56,7 +54,7 @@ enum CThemeScrollBarType
  * @brief The complete set of four images to draw a scroll bar
  */
 
-class CScrollBarImages
+class SP_EXPORT CScrollBarImages
 {
 public:
 
@@ -114,7 +112,7 @@ public:
     void clear();
 };
 
-class CThemeScrollBar
+class SP_EXPORT CThemeScrollBar
 {
 public:
     /**

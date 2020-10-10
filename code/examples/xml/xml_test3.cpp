@@ -4,7 +4,7 @@
 ║                       xml_test3.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,9 +41,9 @@ void testXPath(const string& fileName, const string& xpath, int expectedNodeCoun
     xml::Document doc;
     Buffer buf;
 
-    COUT("Test file: " << fileName << endl);
-    COUT("XPath is : " << xpath << endl);
-    COUT("Selected Nodes are:" << endl);
+    COUT("Test file: " << fileName << endl)
+    COUT("XPath is : " << xpath << endl)
+    COUT("Selected Nodes are:" << endl)
 
     buf.loadFromFile(fileName);
     doc.load(buf);
@@ -51,14 +51,14 @@ void testXPath(const string& fileName, const string& xpath, int expectedNodeCoun
     xml::NodeVector selectedNodes;
     doc.select(selectedNodes, xpath);
     for (auto* node: selectedNodes) {
-        COUT(node->name());
+        COUT(node->name())
         if (node->hasAttribute("N"))
-            COUT(", N=" << node->getAttribute("N").asString());
+            COUT(", N=" << node->getAttribute("N").asString())
         if (!node->value().empty())
-            COUT(", value=" << node->value());
-        COUT(endl);
+            COUT(", value=" << node->value())
+        COUT(endl)
     }
-    COUT(endl);
+    COUT(endl)
     if (expectedNodeCount != -1 && expectedNodeCount != (int) selectedNodes.size()) {
         stringstream st;
         st << "ERROR: expected " << expectedNodeCount << " node(s) in selection, got " << selectedNodes.size() << " node(s)" << endl;
@@ -69,7 +69,7 @@ void testXPath(const string& fileName, const string& xpath, int expectedNodeCoun
 int main(int, char *argv[])
 {
     try {
-        COUT("The XPath selection test started." << endl << endl);
+        COUT("The XPath selection test started." << endl << endl)
 
         Strings path(argv[0], "[\\\\\\/]+", Strings::SM_REGEXP);
         String workDirectory(path[0]);
@@ -109,11 +109,11 @@ int main(int, char *argv[])
         testXPath("xpath_test6.xml", "//BBB[@id='b1']", 1);
         testXPath("xpath_test6.xml", "//BBB[@name='bbb']", 1);
 
-        COUT("The XPath selection test completed" << endl);
+        COUT("The XPath selection test completed" << endl)
 
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
     return 0;

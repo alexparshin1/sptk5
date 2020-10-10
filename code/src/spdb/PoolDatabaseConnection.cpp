@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       PoolDatabaseConnection.cpp - description               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday October 28 2018                                 ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,9 +33,7 @@ using namespace sptk;
 
 PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType)
 : m_connString(connectionString), m_connType(connectionType)
-{
-    m_inTransaction = false;
-}
+{}
 
 PoolDatabaseConnection::~PoolDatabaseConnection()
 {
@@ -51,7 +47,7 @@ void PoolDatabaseConnection::disconnectAllQueries()
             query->closeQuery(true);
         }
         catch (const Exception& e) {
-            CERR(e.what() << endl);
+            CERR(e.what() << endl)
         }
     }
     m_queryList.clear();
@@ -106,13 +102,11 @@ void PoolDatabaseConnection::close()
 void* PoolDatabaseConnection::handle() const
 {
     notImplemented("handle");
-    return nullptr;
 }
 
 bool PoolDatabaseConnection::active() const
 {
     notImplemented("active");
-    return true;
 }
 
 void PoolDatabaseConnection::beginTransaction()
@@ -148,18 +142,93 @@ void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
     notImplemented("driverEndTransaction");
 }
 
-void PoolDatabaseConnection::_bulkInsert(
-        const String& tableName, const Strings& columnNames, const Strings& data, const String& /*format*/)
+String sptk::escapeSQLString(const String& str, bool tsv)
 {
-    Query insertQuery(this,
-                      "INSERT INTO " + tableName + "(" + columnNames.join(",") +
-                      ") VALUES (:" + columnNames.join(",:") + ")");
-    for (auto& row: data) {
-        Strings rowData(row,"\t");
-        for (unsigned i = 0; i < columnNames.size(); i++)
-            insertQuery.param(i).setString(rowData[i]);
-        insertQuery.exec();
+    String output;
+    const char* replaceChars = "'\t\n\r";
+    if (tsv)
+        replaceChars = "\t\n\r";
+    const char* start = str.c_str();
+    while (*start) {
+        const char* end = strpbrk(start, replaceChars);
+        if (end != nullptr) {
+            output.append(start, end - start);
+            switch (*end) {
+                case '\'': output += "''"; break;
+                case '\t': output += "\\t"; break;
+                case '\r': output += "\\r"; break;
+                case '\n': output += "\\n"; break;
+                default: break;
+            }
+            start = end + 1;
+            if (*start == 0)
+                continue;
+        } else {
+            output.append(start);
+            break;
+        }
     }
+    return output;
+}
+
+// Note: end row is not included
+static void insertRecords(
+        PoolDatabaseConnection* db, const String& tableName, const Strings& columnNames,
+        const vector<VariantVector>::const_iterator& begin, const vector<VariantVector>::const_iterator& end)
+{
+    stringstream sql;
+    sql << "INSERT INTO " << tableName << " (" << columnNames.join(",") << ") VALUES ";
+    for (auto itor = begin; itor != end; ++itor) {
+        const VariantVector& row = *itor;
+        if (itor != begin)
+            sql << ", ";
+        sql << "(";
+        bool firstValue = true;
+        for (auto& value: row) {
+            if (firstValue)
+                firstValue = false;
+            else
+                sql << ", ";
+            if (value.isNull()) {
+                sql << "NULL";
+                continue;
+            }
+            switch (value.dataType()) {
+                case VAR_BOOL:
+                    sql << "true";
+                    break;
+                case VAR_STRING:
+                case VAR_TEXT:
+                    sql << "'" << escapeSQLString(value.asString(), false) << "'";
+                    break;
+                case VAR_DATE_TIME:
+                    sql << "'" << value.asDateTime().dateString(DateTime::PF_RFC_DATE) << " " << value.asDateTime().timeString(0, DateTime::PA_MILLISECONDS) << "'";
+                    break;
+                default:
+                    sql << "'" << value.asString() << "'";
+                    break;
+            }
+        }
+        sql << ")";
+    }
+    Query insertRows(db, sql.str());
+    insertRows.exec();
+}
+
+void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings& columnNames,
+                                         const vector<VariantVector>& data)
+{
+    auto begin = data.begin();
+    auto end = data.begin();
+    for (; end != data.end(); ++end) {
+        if (end - begin > 256) {
+            insertRecords(this, tableName, columnNames, begin, end);
+            begin = end;
+        }
+    }
+
+    if (begin != end)
+        insertRecords(this, tableName, columnNames, begin, end);
 }
 
 void PoolDatabaseConnection::_executeBatchFile(const String& batchFileName, Strings* errors)
@@ -174,105 +243,126 @@ void PoolDatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Stri
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }
 
-void PoolDatabaseConnection_QueryMethods::querySetStmt(Query *q, void *stmt)
+void PoolDatabaseConnectionQueryMethods::querySetStmt(Query *q, void *stmt)
 {
     q->setStatement(stmt);
 }
 
-void PoolDatabaseConnection_QueryMethods::querySetPrepared(Query *q, bool pf)
+void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query *q, bool pf)
 {
     q->setPrepared(pf);
 }
 
-void PoolDatabaseConnection_QueryMethods::querySetActive(Query *q, bool af)
+void PoolDatabaseConnectionQueryMethods::querySetActive(Query *q, bool af)
 {
     q->setActive(af);
 }
 
-void PoolDatabaseConnection_QueryMethods::querySetEof(Query *q, bool eof)
+void PoolDatabaseConnectionQueryMethods::querySetEof(Query *q, bool eof)
 {
     q->setEof(eof);
 }
 
-String PoolDatabaseConnection_QueryMethods::queryError(const Query*) const
+String PoolDatabaseConnectionQueryMethods::queryError(const Query*) const
 {
     notImplemented("queryError");
-    return String();
 }
 
-void PoolDatabaseConnection_QueryMethods::queryAllocStmt(Query*)
+void PoolDatabaseConnectionQueryMethods::queryAllocStmt(Query*)
 {
     notImplemented("queryAllocStmt");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryFreeStmt(Query*)
+void PoolDatabaseConnectionQueryMethods::queryFreeStmt(Query*)
 {
     notImplemented("queryFreeStmt");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryCloseStmt(Query*)
+void PoolDatabaseConnectionQueryMethods::queryCloseStmt(Query*)
 {
     notImplemented("queryCloseStmt");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryPrepare(Query*)
+void PoolDatabaseConnectionQueryMethods::queryPrepare(Query*)
 {
     notImplemented("queryPrepare");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryUnprepare(Query *query)
+void PoolDatabaseConnectionQueryMethods::queryUnprepare(Query *query)
 {
     queryFreeStmt(query);
 }
 
-void PoolDatabaseConnection_QueryMethods::queryExecute(Query*)
+void PoolDatabaseConnectionQueryMethods::queryExecute(Query*)
 {
     notImplemented("queryExecute");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryExecDirect(Query*)
+void PoolDatabaseConnectionQueryMethods::queryExecDirect(Query*)
 {
     notImplemented("queryExecDirect");
 }
 
-int PoolDatabaseConnection_QueryMethods::queryColCount(Query*)
+int PoolDatabaseConnectionQueryMethods::queryColCount(Query*)
 {
     notImplemented("queryColCount");
-    return 0;
 }
 
-void PoolDatabaseConnection_QueryMethods::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
+void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryColAttributes(Query*, int16_t, int16_t, char *, int32_t)
+void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int16_t, char *, int32_t)
 {
     notImplemented("queryColAttributes");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryBindParameters(Query*)
+void PoolDatabaseConnectionQueryMethods::queryBindParameters(Query*)
 {
     notImplemented("queryBindParameters");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryOpen(Query*)
+void PoolDatabaseConnectionQueryMethods::queryOpen(Query*)
 {
     notImplemented("queryOpen");
 }
 
-void PoolDatabaseConnection_QueryMethods::queryFetch(Query*)
+void PoolDatabaseConnectionQueryMethods::queryFetch(Query*)
 {
     notImplemented("queryFetch");
 }
 
-void PoolDatabaseConnection_QueryMethods::notImplemented(const String& methodName) const
+void PoolDatabaseConnectionQueryMethods::notImplemented(const String& methodName) const
 {
     throw DatabaseException("Method '" + methodName + "' is not supported by this database driver.");
 }
 
-String PoolDatabaseConnection_QueryMethods::paramMark(unsigned /*paramIndex*/)
+String PoolDatabaseConnectionQueryMethods::paramMark(unsigned /*paramIndex*/)
 {
     return String("?");
 }
 
+#if USE_GTEST
+
+TEST(SPTK_BulkInsert, escapeSqlString)
+{
+    String sourceString = "Hello, 'World'.\n\rLet's go\n";
+    String escapedString = escapeSQLString(sourceString, false);
+    EXPECT_STREQ("Hello, ''World''.\\n\\rLet''s go\\n", escapedString.c_str());
+}
+
+TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
+{
+    size_t maxCount = 100000;
+    String sourceString = "Hello, 'World'.\n\rLet's go\n";
+    StopWatch stopWatch;
+    stopWatch.start();
+    for (size_t i = 0; i < maxCount; ++i)
+        escapeSQLString(sourceString, false);
+    stopWatch.stop();
+    COUT("Escaped " << maxCount << " SQLs " << " for " << stopWatch.seconds() << " sec, "
+         << fixed << setprecision(2) << maxCount / stopWatch.seconds() / 1E6 << "M op/sec" << endl)
+}
+
+#endif

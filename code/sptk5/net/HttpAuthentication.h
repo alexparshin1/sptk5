@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       HttpAuthentication.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday April 8 2018                                    ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -40,7 +38,7 @@ namespace sptk {
  * Only Basic and Bearer authentication types are currently supported.
  * The data is parsed upon first getData() call.
  */
-class HttpAuthentication
+class SP_EXPORT HttpAuthentication
 {
 public:
     /**
@@ -57,28 +55,17 @@ public:
         AWS4_HMAC_SHA256
     };
 
-private:
-    Type                    m_type { UNDEFINED };       ///< Authentication data type
-    const String            m_authenticationHeader;     ///< Authentication data
-    const JWT*              m_jwtData = { nullptr };    ///< JWT token, if type is BEARER
-    const json::Document*   m_userData = { nullptr };   ///< Decoded user data
-
-    /**
-     * Decode authentication data (username and password, or JWT)
-     */
-    void parse();
-
-public:
     /**
      * Constructor
      * @param authenticationHeader  Authentication HTTP header content
      */
-    explicit HttpAuthentication(const String& authenticationHeader);
+    explicit HttpAuthentication(String authenticationHeader);
 
     /**
-     * Destructor
+     * Get decoded authentication data (username and password, or JWT)
+     * @return authentication data
      */
-    ~HttpAuthentication();
+    String getHeader() const;
 
     /**
      * Get decoded authentication data (username and password, or JWT)
@@ -90,8 +77,22 @@ public:
      * Get authentication data type
      */
     Type type();
+
+private:
+
+    Type                                m_type { UNDEFINED };     ///< Authentication data type
+    const String                        m_authenticationHeader;   ///< Authentication data
+    std::shared_ptr<JWT>                m_jwtData;                ///< JWT token, if type is BEARER
+    std::shared_ptr<json::Document>     m_userData;               ///< Decoded user data
+
+    /**
+     * Decode authentication data (username and password, or JWT)
+     */
+    void parse();
 };
 
-} // namespace sptk
+typedef std::shared_ptr<HttpAuthentication> SHttpAuthentication;
+
+}
 
 #endif

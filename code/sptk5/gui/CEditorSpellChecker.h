@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CEditorSpellChecker.h - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -140,7 +138,7 @@ namespace sptk {
          * @param aconfig AspellConfig *, Aspell config structure
          * @param options CSpellOptions &, config options (output)
          */
-        void getConfigStrings(AspellConfig* aconfig, CSpellOptions& options);
+        static void getConfigStrings(AspellConfig* aconfig, CSpellOptions& options);
 
         /**
          * Saves changed (local) Aspell config options from internal list of options
@@ -197,22 +195,6 @@ namespace sptk {
          */
         virtual ~CSpellChecker()
         {}
-
-        /**
-         * Sets the dictionary for the spell checking
-         * @see getDictionaries for obtaining the list of available dictionaries
-         */
-        void selectDictionary(std::string dictionary);
-
-        /**
-         * Defines the directory where Aspell data (language) files are stored
-         */
-        void languageDataDirectory(std::string path);
-
-        /**
-         * Defines the directory where Aspell dictionary files are stored
-         */
-        void dictionaryDirectory(std::string path);
 
         /**
          * Downloads the list of installed dictionaries

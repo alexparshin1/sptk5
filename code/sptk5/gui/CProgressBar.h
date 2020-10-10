@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CProgressBar.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -39,13 +37,13 @@ namespace sptk {
  */
 
 /**
- * @brief Progress bar widget
+ * Progress bar widget
  *
  * The extended version of FLTK's standard Fl_Progress.
  * Added the CLayoutClient interface and preferred size computations.
  */
-class CProgressBar : public CInput {
-
+class SP_EXPORT CProgressBar : public CInput 
+{
     /**
      * Constructor initializer
      * @param label const char *, widget label
@@ -79,7 +77,7 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w,int& h);
+    bool preferredSize(int& w,int& h) override;
 
     /**
      * Defines the progress bar minimum value
@@ -123,15 +121,15 @@ public:
      * Universal data connection, returns data from date control.
      * Data is returned as VAR_FLOAT.
      */
-    virtual Variant data() const;
+    Variant data() const override;
 
     /**
      * Universal data connection, sets data to date control
      */
-    virtual void     data(const Variant v);
+    void data(const Variant& v) override;
 
     /**
-     * @brief Creates a widget based on the XML node information
+     * Creates a widget based on the XML node information
      * @param node xml::Node*, an XML node with widget information
      */
     static CLayoutClient* creator(xml::Node* node);

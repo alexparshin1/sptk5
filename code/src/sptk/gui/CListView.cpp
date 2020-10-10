@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CListView.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -54,6 +52,16 @@ void CListView::hscrollbar_callback(Fl_Widget* s, void*)
 }
 
 int CListView::m_scrollbarWidth = 16;
+
+void CListView::scrollbar_width(int b)
+{
+	m_scrollbarWidth = b;
+}
+
+int CListView::scrollbar_width()
+{
+	return m_scrollbarWidth;
+}
 
 // Cause minimal update to redraw the given item:
 
@@ -117,8 +125,7 @@ void CListView::ctor_init()
     m_textColor = FL_FOREGROUND_COLOR;
     m_currentTextFont = m_textFont;
     m_currentTextSize = m_textSize;
-    for (auto* smallPixmapID : smallPixmapIDs)
-        m_iconNames.push_back(smallPixmapID);
+    m_iconNames = smallPixmapIDs;
 }
 
 CListView::CListView(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
@@ -387,7 +394,7 @@ int CListView::item_height(unsigned index) const
             h = 6;
         return h;
     } catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 
     return 0;
@@ -847,7 +854,7 @@ void CListView::textValue(const string& tv)
             }
         }
     if (dataWasChanged)
-        fireEvent(CE_DATA_CHANGED, (int32_t) (long) dataValue);
+        fireEvent(CE_DATA_CHANGED, (int32_t) (uint64_t) dataValue);
     redraw();
 }
 
@@ -873,7 +880,7 @@ Variant CListView::data() const
     }
 }
 
-void CListView::data(const Variant vv)
+void CListView::data(const Variant& vv)
 {
     unsigned cnt = m_rows.size();
     void* dataValue = nullptr;
@@ -911,7 +918,7 @@ void CListView::data(const Variant vv)
             dataValue = newSelectedRow->user_data();
     }
     if (dataWasChanged)
-        fireEvent(CE_DATA_CHANGED, (int32_t) (long) dataValue);
+        fireEvent(CE_DATA_CHANGED, (int32_t) (uint64_t) dataValue);
     redraw();
 }
 
@@ -1070,7 +1077,7 @@ int CListView::find_id(int id) const
     return -1;
 }
 
-void CListView::getSelections(IntList& sel) const
+void CListView::getSelections(vector<uint64_t>& sel) const
 {
     sel.clear();
     if (!m_multipleSelection) {
@@ -1085,11 +1092,11 @@ void CListView::getSelections(IntList& sel) const
     }
 }
 
-void CListView::setSelections(const IntList& sel)
+void CListView::setSelections(const vector<uint64_t>& sel)
 {
     size_t scnt = sel.size();
     if (scnt)
-        data(sel[0]);
+        data((int)sel[0]);
     else
         data(-1);
 
@@ -1097,7 +1104,7 @@ void CListView::setSelections(const IntList& sel)
         return;
 
     for (size_t si = 1; si < scnt; si++) {
-        int selectedKey = sel[si];
+        auto selectedKey = (int) sel[si];
         size_t cnt = m_rows.size();
         for (size_t i = 0; i < cnt; i++) {
             CPackedStrings* r = m_rows[(uint32_t) i];
@@ -1180,7 +1187,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
         try {
             ds.open();
 
-            unsigned fieldCount = ds.fieldCount();
+            auto fieldCount = (unsigned) ds.fieldCount();
             unsigned keyField = 9999;
 
             for (unsigned i = 0; i < fieldCount; i++) {
@@ -1212,7 +1219,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
                 columnName = columnName.replace("_", " ");
                 if (m_capitalizeColumnNames)
                     columnName = capitalizeWords(columnName);
-                auto cwidth = short(field.view.width + 1);
+                auto cwidth = short(field.view().width + 1);
                 VariantType ctype = field.dataType();
                 switch (ctype) {
                     case VAR_BOOL:
@@ -1556,7 +1563,6 @@ int CListView::handle(int event)
     int my;
     unsigned l;
     static char change;
-    static int py;
     switch (event) {
         case FL_MOVE:
             if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight) &&
@@ -1583,7 +1589,7 @@ int CListView::handle(int event)
             }
             if (!m_multipleSelection)
                 m_selection.deselectAll();
-            my = py = Fl::event_y();
+            my = Fl::event_y();
             change = 0;
             l = (unsigned) find_item(my);
             if (m_multipleSelection && (Fl::event_state() & (FL_CTRL | FL_SHIFT)) != 0) {
@@ -1991,7 +1997,7 @@ void CListView::saveList(xml::Node* node) const
                 xml::Node* cellNode = new xml::Element(*rowNode, "cell");
                 new xml::Text(*cellNode, cell);
                 if (index != c) {
-                    cellNode->setAttribute("index", c);
+                    cellNode->setAttribute("index", (int) c);
                     index = c;
                 }
                 index++;

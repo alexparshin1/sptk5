@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       TestRunner.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Monday September 10, 2018                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,6 +28,7 @@
 #include <sptk5/Strings.h>
 #include <googletest/include/gtest/gtest.h>
 #include <sptk5/net/TCPServer.h>
+#include <sptk5/net/SSLSocket.h>
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/JWT.h>
 #include <sptk5/CommandLine.h>
@@ -40,29 +39,32 @@
 #include <sptk5/net/HttpConnect.h>
 #include <sptk5/Crypt.h>
 #include <sptk5/Base64.h>
+#include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/test/TestRunner.h>
+#ifndef _WIN32
+#include <test/wsdl/TestWebService.h>
+#endif
 
 using namespace std;
 using namespace sptk;
-
-static void acallback(void*)
-{
-    // Dummy callback
-}
 
 /**
  * Stub TCP server - testing only
  */
 class StubServer : public TCPServer
 {
+public:
+
+    StubServer() : TCPServer("test", 1)
+    {}
+
 protected:
+
     ServerConnection* createConnection(SOCKET, sockaddr_in*) override
     {
         return nullptr;
     }
-public:
-    StubServer() : TCPServer("test", 1) {}
 };
 
 // Hints to linker that we need other modules.
@@ -75,23 +77,17 @@ void stub()
     CommandLine          cmd("", "", "");
     DirectoryDS          dir("");
     ThreadPool           threads(1, std::chrono::milliseconds(), "test");
-    Timer                timer(acallback);
+    Timer                timer;
     MD5                  md5;
     StubServer           tcpServer;
     Tar                  tar;
     FieldList            fieldList(false);
     SharedStrings        sharedStrings;
     Variant              v;
+    WSComplexType::FieldNameIndex fieldNames;
 
-    TCPSocket            socket;
+    SSLSocket            socket;
     HttpConnect          connect(socket);
-
-    try {
-        SysLogEngine logger("unit_tests");
-    }
-    catch (Exception&) {
-        CERR("");
-    }
 
     string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     string key("01234567890123456789012345678901");
@@ -99,14 +95,17 @@ void stub()
 
     Buffer intext(text);
     Buffer outtext;
-    COUT("Encrypt text (" << text.length() << " bytes)." << endl);
     Crypt::encrypt(outtext, intext, key, iv);
 
     Buffer b1;
     Buffer b2("xxx");
     Base64::encode(b1, b2);
 
-    DatabaseConnectionPool         connectionPool("");
+    DatabaseConnectionPool  connectionPool("");
+
+#ifndef _WIN32
+    TestWebService          setvice;
+#endif
 }
 
 TestRunner::TestRunner(int& argc, char**& argv)
@@ -114,9 +113,9 @@ TestRunner::TestRunner(int& argc, char**& argv)
 {
 }
 
-void TestRunner::addDatabaseConnection(const DatabaseConnectionString& connectionString)
+void TestRunner::addDatabaseConnection(const DatabaseConnectionString& connectionString) const
 {
-    databaseTests.addDatabaseConnection(connectionString);
+    DatabaseTests::tests().addDatabaseConnection(connectionString);
 }
 
 static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& definedConnections)
@@ -145,10 +144,10 @@ int TestRunner::runAllTests()
     TCPSocket socket;
 #endif
 
-    String excludeDBDriverPatterns = excludeDatabasePatterns(databaseTests.connectionStrings());
+    String excludeDBDriverPatterns = excludeDatabasePatterns(DatabaseTests::tests().connectionStrings());
 
     size_t filterArgumentIndex = 0;
-    for (int i = 1; i < m_argc; i++) {
+    for (int i = 1; i < m_argc; ++i) {
         if (strstr(m_argv[i], "--gtest_filter=")) {
             filterArgumentIndex = i;
             break;
@@ -168,11 +167,11 @@ int TestRunner::runAllTests()
             filter += ":-" + excludeDBDriverPatterns;
 
         if (filterArgumentIndex == 0) {
-            argv.push_back((char*)filter.c_str());
-            m_argc++;
+            argv.push_back(&filter[0]);
+            ++m_argc;
         }
         else
-            argv[filterArgumentIndex] = (char*) filter.c_str();
+            argv[filterArgumentIndex] = &filter[0];
     }
 
     ::testing::InitGoogleTest(&m_argc, &argv[0]);

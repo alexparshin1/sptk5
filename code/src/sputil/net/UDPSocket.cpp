@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       UDPSocket.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,10 +39,36 @@ UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY _domain)
 
 size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from)
 {
+    sockaddr_in6 addr;
+    if (from == nullptr)
+        from = (sockaddr_in*)&addr;
+
     socklen_t addrLength = sizeof(sockaddr_in);
-    auto bytes = recvfrom(socketFD(), buffer, (int) size, 0, (sockaddr*) from, &addrLength);
+    auto bytes = recvfrom(fd(), buffer, (int) size, 0, (sockaddr*) from, &addrLength);
     if (bytes == -1)
-        THROW_SOCKET_ERROR("Can't read to socket");
+        THROW_SOCKET_ERROR("Can't read from socket");
+    return (size_t) bytes;
+}
+
+size_t UDPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
+{
+    buffer.checkSize(size);
+    socklen_t addrLength = sizeof(sockaddr_in);
+    auto bytes = recvfrom(fd(), buffer.data(), (int) size, 0, (sockaddr*) from, &addrLength);
+    if (bytes == -1)
+        THROW_SOCKET_ERROR("Can't read from socket");
+    buffer.bytes(bytes);
+    return (size_t) bytes;
+}
+
+size_t UDPSocket::read(String& buffer, size_t size, sockaddr_in* from)
+{
+    buffer.resize(size);
+    socklen_t addrLength = sizeof(sockaddr_in);
+    auto bytes = recvfrom(fd(), buffer.data(), (int) size, 0, (sockaddr*) from, &addrLength);
+    if (bytes == -1)
+        THROW_SOCKET_ERROR("Can't read from socket");
+    buffer.resize((size_t) bytes);
     return (size_t) bytes;
 }
 
@@ -74,7 +98,7 @@ public:
     }
 
     /**
-     * Connection thread function
+     * Session thread function
      */
     void threadFunction() override
     {
@@ -82,8 +106,8 @@ public:
         while (!terminated()) {
             try {
                 if (socket.readyToRead(chrono::seconds(30))) {
-                    sockaddr_in from;
-                    int sz = socket.read(data.data(), 2048, &from);
+                    sockaddr_in from {};
+                    size_t sz = socket.read(data.data(), 2048, &from);
                     if (sz == 0)
                         return;
                     data.bytes(sz);
@@ -91,7 +115,7 @@ public:
                 }
             }
             catch (const Exception& e) {
-                CERR(e.what() << endl);
+                CERR(e.what() << endl)
             }
         }
         socket.close();
@@ -100,12 +124,12 @@ public:
 
 TEST(SPTK_UDPSocket, minimal)
 {
-    Buffer buffer(2048);
+    Buffer buffer(4096);
 
     UDPEchoServer echoServer;
     echoServer.run();
 
-    sockaddr_in serverAddr;
+    sockaddr_in serverAddr {};
     Host serverHost("127.0.0.1:3000");
     serverHost.getAddress(serverAddr);
 
@@ -118,13 +142,16 @@ TEST(SPTK_UDPSocket, minimal)
     UDPSocket socket;
 
     int rowCount = 0;
-    for (auto& row: rows) {
+    for (const auto& row: rows) {
         socket.write(row.c_str(), row.length(), &serverAddr);
         buffer.bytes(0);
-        if (socket.readyToRead(chrono::seconds(3)))
-            socket.read(buffer.data(), 2048);
+        if (socket.readyToRead(chrono::seconds(3))) {
+            auto bytes = socket.read(buffer.data(), 2048);
+            if (bytes > 0)
+                buffer.bytes(bytes);
+        }
         EXPECT_STREQ(row.c_str(), buffer.c_str());
-        rowCount++;
+        ++rowCount;
     }
     EXPECT_EQ(4, rowCount);
 

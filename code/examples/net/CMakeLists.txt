@@ -8,7 +8,7 @@ SET (NET_TESTS ws_server_test tcp_client_test tcp_server_test smtp_connect udp_c
 IF (FLTK_FLAG)
     INCLUDE_DIRECTORIES (${FLTK_INCLUDE_DIR})
     LINK_DIRECTORIES (${FLTK_LIB_DIR})
-    SET (NET_TESTS ${NET_TESTS} imap_connect http_connect)
+    SET (NET_TESTS ${NET_TESTS} http_connect)
     LINK_LIBRARIES (sputil5 sptk5 spwsdl5 spdb5 ${SOCKET_LIBRARY} ${FLTK_LIBRARIES} ${ASPELL_LIBRARIES})
 ELSE (FLTK_FLAG)
     LINK_LIBRARIES (sputil5 spwsdl5 spdb5 ${SOCKET_LIBRARY})

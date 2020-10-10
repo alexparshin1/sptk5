@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        OracleConnection.h - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,6 +34,7 @@
 
 #include <sptk5/db/OracleStatement.h>
 #include <sptk5/db/OracleEnvironment.h>
+#include <src/drivers/Oracle/OracleBulkInsertQuery.h>
 #include "DatabaseField.h"
 
 namespace sptk
@@ -47,6 +46,7 @@ namespace sptk
  */
 
 class OracleStatement;
+class OracleBulkInsertQuery;
 
 /**
  * @brief Oracle database
@@ -66,12 +66,102 @@ public:
     typedef oracle::occi::Clob          Clob;
     typedef oracle::occi::Blob          Blob;
 
-private:
+    /**
+     * @brief Returns the Oracle connection object
+     */
+    Connection* connection() const
+    {
+        return m_connection;
+    }
 
-    mutable std::mutex          m_mutex;            ///< Mutex that protects access to data members
-    OracleEnvironment           m_environment;      ///< Oracle connection environment
-    Connection*                 m_connection;       ///< Oracle database connection
-    std::string                 m_lastError;        ///< Last error in this connection or query
+    /**
+     * @brief Returns the Oracle connection object
+     */
+    Environment* environment() const
+    {
+        return m_environment.handle();
+    }
+
+    Statement* createStatement(const std::string& sql)
+    {
+        return m_connection->createStatement(sql);
+    }
+
+    Statement* createStatement()
+    {
+        return m_connection->createStatement();
+    }
+
+    /**
+     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @param connectionString  The Oracle connection string
+     */
+    void _openDatabase(const String& connectionString) override;
+
+    /**
+     * @brief Executes bulk inserts of data from memory buffer
+     *
+     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
+     * about data. If format is empty than default server-specific data format is used.
+     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
+     * @param fullTableName     Table name to insert into, with or without schema name
+     * @param columnNames       List of table columns to populate
+     * @param data              Data for bulk insert
+     */
+    void _bulkInsert(const String& fullTableName, const Strings& columnNames, const std::vector<VariantVector>& data) override;
+
+    /**
+     * @brief Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL          SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     */
+    void _executeBatchSQL(const Strings& batchSQL, Strings* errors) override;
+
+    /**
+     * @brief Constructor
+     * @param connectionString  The Oracle connection string
+     */
+    explicit OracleConnection(const String& connectionString = "");
+
+    /**
+     * @brief Destructor
+     */
+    ~OracleConnection() override;
+
+    /**
+     * @brief Closes the database connection. If unsuccessful throws an exception.
+     */
+    void closeDatabase() override;
+
+    /**
+     * @brief Returns true if database is opened
+     */
+    bool active() const override;
+
+    /**
+     * @brief Returns the database connection handle
+     */
+    void* handle() const override;
+
+    /**
+     * @brief Returns driver-specific connection string
+     */
+    String nativeConnectionString() const override;
+
+    /**
+     * @brief Returns the Oracle driver description for the active connection
+     */
+    String driverDescription() const override;
+
+    /**
+     * @brief Lists database objects
+     * @param objectType        Object type to list
+     * @param objects           Object list (output)
+     */
+    void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
 protected:
 
@@ -151,116 +241,30 @@ protected:
      */
     String paramMark(unsigned paramIndex) override;
 
-public:
-    /**
-     * @brief Returns the Oracle connection object
-     */
-    Connection* connection() const
-    {
-        return m_connection;
-    }
-
-    /**
-     * @brief Returns the Oracle connection object
-     */
-    Environment* environment() const
-    {
-        return m_environment.handle();
-    }
-
-    Statement* createStatement(const std::string& sql)
-    {
-        return m_connection->createStatement(sql);
-    }
-
-    Statement* createStatement()
-    {
-        return m_connection->createStatement();
-    }
-
-    /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The Oracle connection string
-     */
-    void _openDatabase(const String& connectionString) override;
-
-    /**
-     * @brief Executes bulk inserts of data from memory buffer
-     *
-     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
-     * about data. If format is empty than default server-specific data format is used.
-     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
-     */
-    void _bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                     const String& format) override;
-
-    /**
-     * @brief Executes SQL batch file
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
-     */
-    void _executeBatchSQL(const Strings& batchSQL, Strings* errors) override;
-
-    /**
-     * @brief Constructor
-     * @param connectionString  The Oracle connection string
-     */
-    explicit OracleConnection(const String& connectionString = "");
-
-    /**
-     * @brief Destructor
-     */
-    ~OracleConnection() override;
-
-    /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
-     */
-    void closeDatabase() override;
-
-    /**
-     * @brief Returns true if database is opened
-     */
-    bool active() const override;
-
-    /**
-     * @brief Returns the database connection handle
-     */
-    void* handle() const override;
-
-    /**
-     * @brief Returns driver-specific connection string
-     */
-    String nativeConnectionString() const override;
-
-    /**
-     * @brief Returns the Oracle driver description for the active connection
-     */
-    String driverDescription() const override;
-
-    /**
-     * @brief Lists database objects
-     * @param objectType        Object type to list
-     * @param objects           Object list (output)
-     */
-    void objectList(DatabaseObjectType objectType, Strings& objects) override;
-
 private:
+
+    mutable std::mutex          m_mutex;                ///< Mutex that protects access to data members
+    OracleEnvironment           m_environment;          ///< Oracle connection environment
+    Connection*                 m_connection {nullptr}; ///< Oracle database connection
+    std::string                 m_lastError;            ///< Last error in this connection or query
 
     void executeMultipleStatements(const Strings& statements, Strings* errors);
 
-    void readTimestamp(oracle::occi::ResultSet* resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
+    static void readTimestamp(oracle::occi::ResultSet* resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
 
-    void readDate(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+    static void readDate(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
 
-    void readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+    static void readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
 
-    void readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+    static void readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+
+    void setMaxParamSizes(const CParamVector& enumeratedParams, Statement* stmt,
+                          const QueryColumnTypeSizeMap& columnTypeSizes) const;
+
+    void createQueryFieldsFromMetadata(Query* query, oracle::occi::ResultSet* resultSet) const;
+
+    void bulkInsertSingleRow(const Strings& columnNames, const QueryColumnTypeSizeVector& columnTypeSizeVector,
+                             sptk::OracleBulkInsertQuery& insertQuery, const VariantVector& row) const;
 };
 
 /**

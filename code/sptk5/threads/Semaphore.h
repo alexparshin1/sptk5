@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Semaphore.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -102,14 +100,19 @@ public:
     virtual ~Semaphore();
 
     /**
-     * @brief Posts the semaphore
+     * @brief Set the semaphore value
+     */
+    void set(size_t value);
+
+    /**
+     * @brief Post the semaphore
      *
      * The semaphore value is increased by one.
      */
     void post();
 
     /**
-     * @brief Waits until semaphore value is greater than zero, or until timeout interval is passed
+     * @brief Wait until semaphore value is greater than zero, or until timeout interval is passed
      *
      * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
      * @param timeout           Wait timeout
@@ -118,7 +121,7 @@ public:
     bool sleep_for(std::chrono::milliseconds timeout);
 
     /**
-     * @brief Waits until semaphore value is greater than zero, or until timeoutAt occurs
+     * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
      *
      * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
      * @param timeout           Timeout moment

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CTabs.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -125,16 +123,6 @@ public:
      * @param show bool, if true the tabs would be visible
      */
     void showTabs(bool show);
-
-    /**
-     * @brief Returns currently selected page
-     */
-    Fl_Group *page();
-
-    /**
-     * Selects page
-     */
-    uint32_t page(Fl_Widget *page);
 
     /**
      * @brief Returns tabs count

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Exception.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -91,12 +89,6 @@ public:
      * @param description       The optional description information
      */
     explicit Exception(const String& text, const String& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
-
-    /**
-     * @brief Copy constructor
-     * @param other             The other exception object
-     */
-    Exception(const Exception& other) DOESNT_THROW;
 
     /**
      * @brief Returns complete text of exception
@@ -257,6 +249,13 @@ public:
      * @return HTTP status text
      */
     String statusText() const { return m_statusText; }
+
+    /**
+     * Return standard HTTP response status text for status code
+     * @param statusCode
+     * @return
+     */
+    static String httpResponseStatus(size_t statusCode);
 };
 
 /**

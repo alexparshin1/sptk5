@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Field.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,70 +42,55 @@ namespace sptk {
  */
 
 class Query;
-
-#include <sptk5/Variant.h>
-
 class FieldList;
 
 /**
- * @brief Data field for CDataSource.
+ * Data field for CDataSource.
  *
  * Contains field name, field type, field data and field format information.
  */
 class SP_EXPORT Field : public Variant
 {
     friend class FieldList;
-    /**
-     * Field name
-     */
-    String m_name;
 
 public:
     /**
-     * Optional display field name
+     * Combination of field view attributes
      */
-    String displayName;
+    struct View {
+        signed int  width:10;       ///< Field width
+        unsigned    precision:5;    ///< Field precision
+        unsigned    flags:16;       ///< Field flags like alignment, etc
+        bool        visible:1;      ///< Is field visible?
+    };
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param name               Field name
      */
     explicit Field(const String& name);
 
     /**
-     * @brief Copy constructor
+     * Copy constructor
      * @param other              Other field object
      */
-    Field(const Field& other);
+    Field(const Field& other) = default;
 
     /**
-     * @brief Combination of field view attributes
+     * Move constructor
+     * @param other              Other field object
      */
-    struct {
-        /**
-         * Field width
-         */
-        int         width:10;
+    Field(Field&& other) noexcept = default;
 
-        /**
-         * Field precision
-         */
-        unsigned    precision:5;
-
-        /**
-         * Field flags like alignment, etc
-         */
-        unsigned    flags:16;
-
-        /**
-         * Is field visible?
-         */
-        bool        visible:1;
-
-    } view;
+    ~Field() noexcept override = default;
 
     /**
-     * @brief Returns field name
+     * Combination of field view attributes
+     */
+    View& view() { return m_view; };
+
+    /**
+     * Returns field name
      */
     const String& fieldName() const
     {
@@ -115,7 +98,7 @@ public:
     }
 
     /**
-     * @brief Sets the NULL state
+     * Sets the NULL state
      *
      * Useful for the database operations.
      * Retains the data type. Sets the data to zero(s).
@@ -124,7 +107,37 @@ public:
     void setNull(VariantType vtype) override;
 
     /**
-     * @brief Assignment operation
+     * Copy assignment operation
+     */
+    Field& operator = (const Field& other)
+    {
+        if (this == &other)
+            return *this;
+
+        setData(other);
+        m_name = other.m_name;
+        m_displayName = other.m_displayName;
+
+        return *this;
+    }
+
+    /**
+     * Move assignment operation
+     */
+    Field& operator = (Field&& other) noexcept
+    {
+        if (this == &other)
+            return *this;
+
+        *(Variant*)this = std::move(other);
+        m_name = std::move(other.m_name);
+        m_displayName = std::move(other.m_displayName);
+
+        return *this;
+    }
+
+    /**
+     * Assignment operation
      */
     Field& operator = (const Variant &C)
     {
@@ -136,7 +149,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(int64_t value) override
     {
@@ -145,7 +158,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(int32_t value) override
     {
@@ -154,7 +167,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(double value) override
     {
@@ -163,7 +176,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(const char * value) override
     {
@@ -172,7 +185,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(const sptk::String& value) override
     {
@@ -181,7 +194,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(DateTime value) override
     {
@@ -190,7 +203,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(const void *value) override
     {
@@ -199,21 +212,21 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     Field& operator =(const Buffer& value) override
     {
-        setBuffer(value.data(), value.bytes(), VAR_BUFFER, false);
+        setBuffer(value.data(), value.bytes(), VAR_BUFFER);
         return *this;
     }
 
     /**
-     * @brief Better (than in base class) conversion method
+     * Better (than in base class) conversion method
      */
     String asString() const override;
 
     /**
-     * @brief Exports the field data into XML node
+     * Exports the field data into XML node
      *
      * If the compactXmlMode flag is true, the field is exported as an attribute.
      * Otherwise, the field is exported as subnodes.
@@ -223,10 +236,23 @@ public:
      */
     void toXML(xml::Node& node, bool compactXmlMode) const;
 
+    String displayName() const
+    {
+        return m_displayName;
+    }
+
+    void displayName(const String& name)
+    {
+        m_displayName = name;
+    }
+
 private:
 
-    String doubleDataToString(char* printBuffer, size_t printBufferSize) const;
-    String moneyDataToString(char* printBuffer, size_t printBufferSize) const;
+    String  m_name;          ///< Field name
+    View    m_view {};       ///< Combination of field view attributes
+    String  m_displayName;   ///< Optional display field name
+
+    String doubleDataToString() const;
     String epochDataToDateTimeString() const;
 };
 /**

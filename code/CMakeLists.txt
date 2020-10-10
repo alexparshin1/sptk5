@@ -1,27 +1,32 @@
-# Under Cygwin, CMake 2.8.4 and newer doesn't define WIN32 anymore.
-# For other environments, required CMake version can be 2.6 or higher.
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-# The name of our project is "SPTK".  CMakeLists files in this project can
+# The name of the project is "SPTK".  CMakeLists files in this project can
 # refer to the root source directory of the project as ${SPTK_SOURCE_DIR} and
 # to the root binary directory of the project as ${SPTK_BINARY_DIR}.
 PROJECT (SPTK)
 
+#cmake_policy(SET CMP0046 OLD)
 
 #SET (CMAKE_BUILD_TYPE Release)
 SET (CMAKE_BUILD_TYPE Debug)
 
-SET (VERSION "5.2.17")
+SET (VERSION "5.2.21")
+SET (VERSION_MAJOR "5")
+SET (VERSION_MINOR "2")
+SET (VERSION_PATCH "21")
 SET (SOVERSION "5")
 
-SET (CMAKE_ENABLE_COMPILE_COMMANDS ON)
+SET (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Place compiled libraries and examples into ./bin/
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 SET (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
+SET (TEST_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+SET (CMAKE_INSTALL_RPATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+
 IF (UNIX)
-    OPTION (USE_NEW_ABI "Use new GCC ABI" ON)
+    OPTION (USE_NEW_ABI "Use new GCC ABI" OFF)
 ENDIF ()
 
 OPTION (USE_EPOLL      "Build Asynchronous sockets (epoll) support" ON)
@@ -36,9 +41,11 @@ OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
 OPTION (USE_GTEST      "Build Google Test unit tests" ON)
 
 OPTION (USE_PCRE       "Use PCRE library" ON)
+OPTION (USE_BROTLI     "Use Brotli library" ON)
 
 OPTION (BUILD_EXAMPLES "Build usage examples" ON)
 OPTION (BUILD_UTILS    "Build utitlity programs" ON)
+OPTION (BUILD_PACKAGE  "Build OS package" ON)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindASPELL.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
@@ -57,8 +64,15 @@ ENDIF()
 MESSAGE ("Build type:         ${CMAKE_BUILD_TYPE} ${BITNESS} bit")
 MESSAGE ("Compiler:           ${CMAKE_CXX_COMPILER_ID}")
 IF (WIN32)
-  ADD_DEFINITIONS(-DHAVE_CONFIG_H -DWIN32 -D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
-  LINK_LIBRARIES(wsock32 ole32 uuid comctl32 ws2_32)
+  ADD_DEFINITIONS(
+    -DHAVE_CONFIG_H
+    -DWIN32
+    -D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
+    -D_CRT_SECURE_NO_WARNINGS
+    -DGTEST_LANG_CXX11=1
+  )
+  ADD_COMPILE_OPTIONS(/wd4275 /std:c++17)
+  LINK_LIBRARIES(wsock32 ole32 uuid comctl32 ws2_32 winhttp)
 ELSE ()
   IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     ADD_DEFINITIONS (
@@ -66,7 +80,6 @@ ELSE ()
         -Wno-c++98-compat
         -Wno-c++98-compat-pedantic
         -Wno-cast-align
-        -Wcovered-switch-default
         -Wno-exit-time-destructors
         -Wno-float-equal
         -Wno-format-nonliteral
@@ -79,9 +92,10 @@ ELSE ()
         -Wno-shadow
         -Wno-switch-enum
         -Wno-unused-parameter
+        #-fprofile-arcs -ftest-coverage
     )
   ELSE()
-    ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long -fPIC)
+    ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long -fPIC --coverage)
   ENDIF()
 
   IF (USE_NEW_ABI)
@@ -95,8 +109,14 @@ ELSE ()
     ADD_DEFINITIONS (-D_GLIBCXX_USE_CXX11_ABI=0)
   ENDIF ()
 
+  IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    #ADD_DEFINITIONS (-O2)
+  ELSE()
+    ADD_DEFINITIONS (-O2)
+  ENDIF()
+
   IF (UNIX)
-    LINK_LIBRARIES(pthread rt dl)
+    LINK_LIBRARIES(pthread rt dl gcov stdc++fs)
   ELSE ()
     LINK_LIBRARIES(pthread rt)
   ENDIF ()
@@ -107,8 +127,12 @@ IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
 ENDIF()
 
 IF (WIN32)
-  SET (LIBRARY_TYPE STATIC)
-  #SET (LIBRARY_TYPE SHARED)
+  SET (WINDIR "$ENV{ProgramW6432}")
+  IF (NOT WINDIR)
+    SET (WINDIR "$ENV{ProgramFiles}")
+  ENDIF()
+  SET (CMAKE_INSTALL_PREFIX "${WINDIR}/SPTK" CACHE PATH "Cmake prefix" FORCE)
+  SET (LIBRARY_TYPE SHARED)
   IF (LIBRARY_TYPE STREQUAL "SHARED")
     ADD_DEFINITIONS (-DSP_DLL)
   ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
@@ -298,17 +322,26 @@ IF (WIN32)
 ENDIF (WIN32)
 
 
+SET (PCRE2_FLAG "0")
 SET (PCRE_FLAG "0")
 IF (USE_PCRE)
-  FIND_PACKAGE(PCRE QUIET)
-  IF (PCRE_FOUND)
-    MESSAGE("PCRE support:       compile")
-    INCLUDE_DIRECTORIES(${PCRE_INCLUDE_DIR})
-    LINK_LIBRARIES(${PCRE_LIBRARY})
-    SET (PCRE_FLAG "1")
-  ELSE (PCRE_FOUND)
-    MESSAGE(FATAL_ERROR "PCRE library not found")
-  ENDIF (PCRE_FOUND)
+  FIND_PACKAGE(PCRE2 QUIET)
+  IF (PCRE2_FOUND)
+    MESSAGE("PCRE2 support:      compile")
+    INCLUDE_DIRECTORIES(${PCRE2_INCLUDE_DIR})
+    LINK_LIBRARIES(${PCRE2_LIBRARY})
+    SET (PCRE2_FLAG "1")
+  ELSE (PCRE2_FOUND)
+    FIND_PACKAGE(PCRE QUIET)
+    IF (PCRE_FOUND)
+      MESSAGE("PCRE support:       compile")
+      INCLUDE_DIRECTORIES(${PCRE_INCLUDE_DIR})
+      LINK_LIBRARIES(${PCRE_LIBRARY})
+      SET (PCRE_FLAG "1")
+    ELSE (PCRE_FOUND)
+      MESSAGE(FATAL_ERROR "PCRE library not found")
+    ENDIF (PCRE_FOUND)
+  ENDIF (PCRE2_FOUND)
 ENDIF (USE_PCRE)
 
 
@@ -323,6 +356,20 @@ ELSE (ZLIB_FOUND)
   MESSAGE("ZLIB support:       don't compile")
   SET (ZLIB_FLAG "0")
 ENDIF (ZLIB_FOUND)
+
+FIND_PACKAGE(Brotli QUIET)
+SET (BROTLI_FLAG "0")
+IF (USE_BROTLI)
+  IF (BROTLI_FOUND)
+    MESSAGE("Brotli support:     compile")
+    INCLUDE_DIRECTORIES(${BROTLI_INCLUDE_DIR})
+    LINK_LIBRARIES(${BROTLI_LIBRARIES})
+    SET (BROTLI_FLAG "1")
+  ELSE (BROTLI_FOUND)
+    MESSAGE("Brotli support:     don't compile")
+    SET (BROTLI_FLAG "0")
+  ENDIF (BROTLI_FOUND)
+ENDIF ()
 
 
 SET (OPENSSL_FLAG "0")
@@ -339,15 +386,29 @@ IF (USE_OPENSSL)
 ENDIF (USE_OPENSSL)
 
 
+INCLUDE(cmake/CXX14.cmake)
+check_for_cxx14_compiler(CXX14_COMPILER)
+# If a C++14 compiler is available, then set the appropriate flags
+IF (CXX14_COMPILER)
+  enable_cxx14()
+  SET (CXX_STANDARD "14")
+  MESSAGE("C++14 compiler is available")
+ELSE (CXX14_COMPILER)
+  MESSAGE(FATAL_ERROR "C++14 compiler is not available")
+ENDIF (CXX14_COMPILER)
+
+
 INCLUDE(cmake/CXX17.cmake)
 check_for_cxx17_compiler(CXX17_COMPILER)
 # If a C++17 compiler is available, then set the appropriate flags
 IF (CXX17_COMPILER)
   enable_cxx17()
-  SET (CXX17_FLAG "1")
+  SET (CXX_STANDARD "17")
+  MESSAGE("C++17 compiler is available")
 ELSE (CXX17_COMPILER)
-  MESSAGE(FATAL_ERROR "C++17 compiler is not available")
+  MESSAGE("C++17 compiler is not available")
 ENDIF (CXX17_COMPILER)
+
 
 SET (THEMES_PREFIX ${CMAKE_INSTALL_PREFIX})
 
@@ -355,14 +416,16 @@ INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
 
 IF (USE_GTEST)
   SET (GTEST_FLAG "1")
+  MESSAGE("GTest unit tests:   compile")
 ELSE ()
   SET (GTEST_FLAG "0")
+  MESSAGE("GTest unit tests:   don't compile")
 ENDIF ()
 
 CONFIGURE_FILE ("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 
 
-IF (GTEST_FLAG)
+IF (USE_GTEST)
   SET (gtest_force_shared_crt ON CACHE BOOL "" FORCE)
   ADD_SUBDIRECTORY (googletest)
   IF (WIN32)
@@ -390,46 +453,48 @@ IF (BUILD_UTILS)
   ADD_SUBDIRECTORY (utilities)
 ENDIF ()
 
-ADD_SUBDIRECTORY (test)
+IF (USE_GTEST)
+  ADD_SUBDIRECTORY (test)
+ENDIF ()
+
+IF (BUILD_PACKAGE)
+  ADD_SUBDIRECTORY (packages)
+ENDIF ()
 
 FILE (GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
-INSTALL (FILES ${includeFiles} DESTINATION include/sptk5)
+INSTALL (FILES ${includeFiles} DESTINATION include/sptk5 COMPONENT core)
 
 FILE (GLOB includeFilesJSON "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/json/*.h")
-INSTALL (FILES ${includeFilesJSON} DESTINATION include/sptk5/json)
+INSTALL (FILES ${includeFilesJSON} DESTINATION include/sptk5/json COMPONENT core)
 
 FILE (GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
-INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml)
+INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml COMPONENT core)
 
 FILE (GLOB includeFilesWSDL "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/wsdl/*.h")
-INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/wsdl)
+INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/wsdl COMPONENT core)
+
+FILE (GLOB includeFilesWSDL2 "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/wsdl/protocol/*.h")
+INSTALL (FILES ${includeFilesWSDL2} DESTINATION include/sptk5/wsdl/protocol COMPONENT core)
 
 FILE (GLOB includeFilesNet "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/net/*.h")
-INSTALL (FILES ${includeFilesNet} DESTINATION include/sptk5/net)
+INSTALL (FILES ${includeFilesNet} DESTINATION include/sptk5/net COMPONENT core)
 
 FILE (GLOB includeFilesThreads "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/threads/*.h")
-INSTALL (FILES ${includeFilesThreads} DESTINATION include/sptk5/threads)
+INSTALL (FILES ${includeFilesThreads} DESTINATION include/sptk5/threads COMPONENT core)
 
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/db/*.h")
-INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db)
+INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db COMPONENT db)
 
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/test/*.h")
 INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/test)
 
 IF (FLTK_FLAG)
   FILE (GLOB includeFilesGUI "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/gui/*.h")
-  INSTALL (FILES ${includeFilesGUI} DESTINATION include/sptk5/gui)
+  INSTALL (FILES ${includeFilesGUI} DESTINATION include/sptk5/gui COMPONENT gui)
 ENDIF (FLTK_FLAG)
 
 FILE (GLOB includeFilesGroup "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/c*")
-INSTALL (FILES ${includeFilesGroup} DESTINATION include/sptk5)
-
-IF (POSTGRESQL_FLAG)
-  FILE (GLOB pgSQLscripts "${CMAKE_CURRENT_SOURCE_DIR}/dbtools/sql2cpp")
-  INSTALL (PROGRAMS ${pgSQLscripts} DESTINATION bin)
-  FILE (GLOB pgSQLscriptConfigs "${CMAKE_CURRENT_SOURCE_DIR}/dbtools/*.conf")
-  INSTALL (FILES ${pgSQLscriptConfigs} DESTINATION share/sptk5/doc)
-ENDIF (POSTGRESQL_FLAG)
+INSTALL (FILES ${includeFilesGroup} DESTINATION include/sptk5 COMPONENT core)
 
 # create uninstall configuration file
 CONFIGURE_FILE(

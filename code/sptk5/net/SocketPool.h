@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday Sep 17 2015                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,11 +27,13 @@
 #ifndef __SPTK_SOCKETPOOL_H__
 #define __SPTK_SOCKETPOOL_H__
 
-#include <map>
-#include <mutex>
 #include <sptk5/Exception.h>
 #include <sptk5/threads/Thread.h>
 #include <sptk5/net/BaseSocket.h>
+
+#include <functional>
+#include <map>
+#include <mutex>
 
 namespace sptk {
 
@@ -41,24 +41,15 @@ namespace sptk {
  * Socket event types
  */
 typedef enum {
-    /**
-     * Event is unknown or undefined
-     */
-    ET_UNKNOWN_EVENT,
-    /**
-     * Socket has data available to read
-     */
-    ET_HAS_DATA,
-    /**
-     * Peer closed connection
-     */
-    ET_CONNECTION_CLOSED
+    ET_UNKNOWN_EVENT,       ///< Event is unknown or undefined
+    ET_HAS_DATA,            ///< Socket has data available to read
+    ET_CONNECTION_CLOSED    ///< Peer closed connection
 } SocketEventType;
 
 /**
  * Type definition of socket event callback function
  */
-typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
+typedef std::function<void(void *userData, SocketEventType eventType)> SocketEventCallback;
 
 #ifdef _WIN32
 #define INVALID_EPOLL nullptr
@@ -73,38 +64,24 @@ typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
  * On Linux it is using epoll, on BSD it is using kqueue,
  * and on Windows WSAAsyncSelect is used.
  */
-class SocketPool : public std::mutex
+class SP_EXPORT SocketPool : public std::mutex
 {
-    /**
-     * Socket that controls other sockets events
-     */
-#ifdef _WIN32
-    HANDLE                      m_pool { INVALID_EPOLL };
-#else
-    SOCKET                      m_pool { INVALID_EPOLL };
-#endif // _WIN32
-
-    /**
-     * Callback function executed upon socket events
-     */
-    SocketEventCallback         m_eventsCallback;
-
-    /**
-     * Map of sockets to corresponding user data
-     */
-	std::map<BaseSocket*,void*> m_socketData;
-
 public:
     /**
      * Constructor
-     * @param eventCallback SocketEventCallback, Callback function executed upon socket events
+     * @param eventsCallback SocketEventCallback, Callback function executed upon socket events
      */
-    explicit SocketPool(SocketEventCallback eventCallback);
+    explicit SocketPool(const SocketEventCallback& eventsCallback);
 
     /**
-     * Destructor
+     * Deleted copy constructor
      */
-    ~SocketPool();
+    SocketPool(const SocketPool&) noexcept = delete;
+
+    /**
+     * Deleted copy assignment
+     */
+    SocketPool& operator = (const SocketPool&) = delete;
 
     /**
      * Initialize socket pool
@@ -112,11 +89,16 @@ public:
     void open();
 
     /**
+     * Destructor
+     */
+    ~SocketPool();
+
+    /**
      * Wait until one or more sockets are signaled.
      *
      * Execute callback function for each signaled socket.
      */
-    void waitForEvents(std::chrono::milliseconds timeout);
+    void waitForEvents(std::chrono::milliseconds timeout) const;
 
     /**
      * Shutdown socket pool.
@@ -136,7 +118,30 @@ public:
      */
     void forgetSocket(BaseSocket& socket);
 
-	bool active();
+    /**
+     * @return true if socket pool is active
+     */
+    [[nodiscard]] bool active() const;
+
+private:
+    /**
+     * Socket that controls other sockets events
+     */
+#ifdef _WIN32
+    HANDLE                      m_pool { INVALID_EPOLL };
+#else
+    SOCKET                      m_pool { INVALID_EPOLL };
+#endif // _WIN32
+
+    /**
+     * Callback function executed upon socket events
+     */
+    SocketEventCallback         m_eventsCallback;
+
+    /**
+     * Map of sockets to corresponding user data
+     */
+    std::map<BaseSocket*,void*> m_socketData;
 };
 
 }

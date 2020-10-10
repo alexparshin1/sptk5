@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        DatabaseConnectionPool.h - description                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -45,12 +43,12 @@ namespace sptk
  */
 
 /**
- * @brief Create driver instance function type
+ * Create driver instance function type
  */
 typedef PoolDatabaseConnection* CreateDriverInstance(const char*);
 
 /**
- * @brief Destroy driver instance function type
+ * Destroy driver instance function type
  */
 typedef void DestroyDriverInstance(PoolDatabaseConnection*);
 
@@ -69,7 +67,7 @@ typedef void DestroyDriverInstance(PoolDatabaseConnection*);
 #endif
 
 /**
- * @brief Information about loaded database driver
+ * Information about loaded database driver
  */
 struct SP_EXPORT DatabaseDriver
 {
@@ -91,7 +89,7 @@ struct SP_EXPORT DatabaseDriver
 };
 
 /**
- * @brief Database driver loader
+ * Database driver loader
  *
  * Loads and initializes SPTK database driver by request.
  * Already loaded drivers are cached.
@@ -100,6 +98,62 @@ class SP_EXPORT DatabaseConnectionPool : public DatabaseConnectionString, public
 {
     friend class AutoDatabaseConnection;
 
+public:
+    /**
+     * Constructor
+     *
+     * Database connection string is the same for all connections,
+     * created with this object.
+     * @param connectionString  Database connection string
+     * @param maxConnections    Maximum number of connections in the pool
+     */
+    DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100);
+
+    /**
+     * Destructor
+     *
+     * Closes and destroys all created connections
+     */
+    ~DatabaseConnectionPool();
+
+    [[nodiscard]] DatabaseConnection getConnection();
+
+protected:
+
+    /**
+     * Loads database driver
+     *
+     * First successfull driver load places driver into driver cache.
+     */
+    void load();
+
+    /**
+     * Close connection callback
+     * @param item          Database connection
+     * @param data          Data (connection pool pointer)
+     * @return true if callback should continue to be executed
+     */
+    static bool closeConnectionCB(PoolDatabaseConnection*& item, void* data);
+
+    /**
+     * Creates database connection
+     */
+    [[nodiscard]] PoolDatabaseConnection* createConnection();
+
+    /**
+     * Returns used database connection back to the pool
+     * @param connection        Database that is no longer in use and may be returned to the pool
+     */
+    void releaseConnection(PoolDatabaseConnection* connection);
+
+    /**
+     * Destroys connection
+     * @param connection DatabaseConnection*, destroys the driver instance
+     * @param unlink            Should always be true for any external use
+     */
+    void destroyConnection(PoolDatabaseConnection* connection, bool unlink=true);
+
+private:
     /**
      * Database driver
      */
@@ -129,63 +183,6 @@ class SP_EXPORT DatabaseConnectionPool : public DatabaseConnectionString, public
      * List all connections
      */
     SynchronizedList<PoolDatabaseConnection*>      m_connections;
-
-protected:
-
-    /**
-     * @brief Loads database driver
-     *
-     * First successfull driver load places driver into driver cache.
-     */
-    void load();
-
-    /**
-     * Close connection callback
-     * @param item          Database connection
-     * @param data          Data (connection pool pointer)
-     * @return true if callback should continue to be executed
-     */
-    static bool closeConnectionCB(PoolDatabaseConnection*& item, void* data);
-
-public:
-    /**
-     * @brief Constructor
-     *
-     * Database connection string is the same for all connections,
-     * created with this object.
-     * @param connectionString  Database connection string
-     * @param maxConnections    Maximum number of connections in the pool
-     */
-    DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100);
-
-    /**
-     * @brief Destructor
-     *
-     * Closes and destroys all created connections
-     */
-    ~DatabaseConnectionPool();
-
-    DatabaseConnection getConnection();
-
-protected:
-
-    /**
-     * @brief Creates database connection
-     */
-    PoolDatabaseConnection* createConnection();
-
-    /**
-     * @brief Returns used database connection back to the pool
-     * @param connection        Database that is no longer in use and may be returned to the pool
-     */
-    void releaseConnection(PoolDatabaseConnection* connection);
-
-    /**
-     * @brief Destroys connection
-     * @param connection DatabaseConnection*, destroys the driver instance
-     * @param unlink            Should always be true for any external use
-     */
-    void destroyConnection(PoolDatabaseConnection* connection, bool unlink=true);
 };
 
 /**

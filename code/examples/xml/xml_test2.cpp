@@ -4,7 +4,7 @@
 ║                       xml_test2.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -42,11 +42,11 @@ int main()
         DateTime end;
         auto *buf = new Buffer;
 
-        COUT("The XML document generation test started:" << endl);
-        COUT("Size of Node is : " << sizeof(xml::Node) << endl);
-        COUT("Size of Element is : " << sizeof(xml::Element) << endl);
-        COUT("Size of Attributes is : " << sizeof(xml::Attributes) << endl);
-        COUT("Size of NodeList is : " << sizeof(xml::NodeList) << endl);
+        COUT("The XML document generation test started:" << endl)
+        COUT("Size of Node is : " << sizeof(xml::Node) << endl)
+        COUT("Size of Element is : " << sizeof(xml::Element) << endl)
+        COUT("Size of Attributes is : " << sizeof(xml::Attributes) << endl)
+        COUT("Size of NodeList is : " << sizeof(xml::NodeList) << endl)
         char buffer[64];
         String rowTag("row");
         String cellTag("cell");
@@ -72,7 +72,7 @@ int main()
         DateTime::duration duration = end - start;
         start = end;
 
-        COUT("The document is ready (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl);
+        COUT("The document is ready (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl)
 
         doc.save(*buf, true);
         buf->saveToFile("0.xml");
@@ -80,42 +80,42 @@ int main()
         end = DateTime::Now();
         duration = end - start;
         start = end;
-        COUT("The document is saved to buffer (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl);
+        COUT("The document is saved to buffer (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl)
 
         doc.clear();
 
         end = DateTime::Now();
         duration = end - start;
         start = end;
-        COUT("The document is cleared (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl);
+        COUT("The document is cleared (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl)
 
         doc.load(*buf);
         end = DateTime::Now();
         duration = end - start;
         start = end;
-        COUT("The document is loaded from the buffer (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl);
+        COUT("The document is loaded from the buffer (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl)
 
         doc.save(*buf, true);
 
         end = DateTime::Now();
         duration = end - start;
         start = end;
-        COUT("The document is saved to buffer(" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl);
+        COUT("The document is saved to buffer(" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl)
 
         buf->saveToFile("1.xml");
 
         end = DateTime::Now();
         duration = end - start;
         start = end;
-        COUT("The document is saved to disk: " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl);
+        COUT("The document is saved to disk: " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl)
 
-        COUT("The XML document generation test completed." << endl);
+        COUT("The XML document generation test completed." << endl)
 
         // Releasing the buffer memory
         delete buf;
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
         return 1;
     }
     return 0;

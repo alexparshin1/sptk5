@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDateTimeInput.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -115,7 +113,7 @@ bool CDateTimeBaseInput::valid() const
             return val >= m_minValue && val <= m_maxValue;
         return true;
     } catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
     return false;
 }
@@ -200,7 +198,7 @@ Variant CDateInput::data() const
     return rc;
 }
 
-void CDateInput::data(const Variant s)
+void CDateInput::data(const Variant& s)
 {
     DateTime dt = s.asDateTime();
     m_dateInput->input()->value(dt.dateString().c_str());
@@ -217,7 +215,7 @@ CTimeInput::CTimeInput(const char* label, int layoutSize, CLayoutAlign layoutAli
         : CDateTimeBaseInput(label, layoutSize, layoutAlignment, true)
 {
     m_timeInput = (CInput_*) m_control;
-    m_timeInput->mask(DateTime::shortTimeFormat);
+    m_timeInput->mask(DateTime::format(DateTime::SHORT_TIME_FORMAT).c_str());
 }
 
 #ifdef __COMPATIBILITY_MODE__
@@ -320,7 +318,7 @@ Variant CDateTimeInput::data() const
     return String(dateStr + " " + timeStr);
 }
 
-void CDateTimeInput::data(const Variant s)
+void CDateTimeInput::data(const Variant& s)
 {
     dateTimeValue(s.asDateTime());
 }

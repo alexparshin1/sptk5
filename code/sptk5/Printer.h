@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Printer.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday November 14 2018                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,38 +30,8 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <mutex>
 
-namespace sptk {
-
-/**
- * Thread-safe stream printer.
- * Designed to be used with stdout and stderr.
- */
-class Printer
-{
-    static std::mutex   m_mutex;    ///< Mutex that protects file access
-    FILE*               m_stream;   ///< Output file
-public:
-    /**
-     * Constructor
-     * @param stream            Output file
-     */
-    explicit Printer(FILE* stream);
-
-    /**
-     * Thread-safe print
-     * @param text              Text to print
-     */
-    void print(const String& text);
-};
-
-extern Printer __stdout;
-extern Printer __stderr;
-
-#define COUT(a) { std::stringstream _printstream; _printstream << a; sptk::__stdout.print(_printstream.str().c_str()); }
-#define CERR(a) { std::stringstream _printstream; _printstream << a; sptk::__stderr.print(_printstream.str().c_str()); }
-
-}
+#define COUT(a) { std::stringstream _printstream; _printstream << a; std::cout << _printstream.str().c_str(); }
+#define CERR(a) { std::stringstream _printstream; _printstream << a; std::cerr << _printstream.str().c_str(); }
 
 #endif

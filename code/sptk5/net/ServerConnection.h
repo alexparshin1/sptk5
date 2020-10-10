@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       ServerConnection.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -33,6 +31,10 @@
 #include <sptk5/threads/Thread.h>
 #include <sptk5/threads/Runable.h>
 
+#ifndef _WIN32
+#include <netinet/in.h>
+#endif
+
 namespace sptk
 {
 
@@ -44,46 +46,62 @@ class TCPServer;
  */
 
 /**
- * @brief Abstract TCP or SSL server connection thread
+ * Abstract TCP or SSL server connection thread
  *
  * Used a base class for CTCPServerConnection and COpenSSLServerConnection
  */
-class ServerConnection: public Runable
+class SP_EXPORT ServerConnection: public Runable
 {
-    friend class SMQServer;
     friend class TCPServer;
-
-    /**
-     * Parent server object
-     */
-    TCPServer&     m_server;
-
-    /**
-     * Connection socket
-     */
-    TCPSocket*     m_socket;
-
-protected:
-
-    TCPSocket& socket() const;
-
-    void setSocket(TCPSocket* socket);
-
-    TCPServer& server() const;
 
 public:
 
     /**
-     * @brief Constructor
+     * Constructor
+     * @param server            Server that created this connection
      * @param connectionSocket  Already accepted by accept() function incoming connection socket
      * @param taskName          Task name
      */
-    ServerConnection(TCPServer& server, SOCKET connectionSocket, const String& taskName);
+    ServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, const String& taskName);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     ~ServerConnection() override;
+
+    /**
+     * Access to internal socket for derived classes
+     * @return internal socket
+     */
+    TCPSocket& socket() const;
+
+    /**
+     * Parent TCP server reference
+     * @return
+     */
+    TCPServer& server() const;
+
+    /**
+     * Get incoming connection address
+     */
+    String address() const { return m_address; }
+
+protected:
+
+    /**
+     * Assign new socket
+     * @param socket            Socket to assign
+     */
+    void setSocket(TCPSocket* socket);
+
+    void parseAddress(const sockaddr_in* connectionAddress);
+
+private:
+
+    mutable std::mutex  m_mutex;
+    TCPServer&          m_server;            ///< Parent server object
+    TCPSocket*          m_socket {nullptr};  ///< Connection socket
+    String              m_address;           ///< Incoming connection IP address
 };
 
 /**

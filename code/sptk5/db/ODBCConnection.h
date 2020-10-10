@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        ODBCConnection.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -53,17 +51,61 @@ class SP_DRIVER_EXPORT ODBCConnection: public PoolDatabaseConnection
 {
     friend class Query;
 
-    /**
-     * The ODBC connection object
-     */
-    ODBCConnectionBase *m_connect;
-
+public:
 
     /**
-     * @brief Retrieves an error (if any) after statement was executed
-     * @param stmt SQLHSTMT, the statement that had an error
+     * @brief Constructor
+     * @param connectionString  The ODBC connection string
      */
-    String queryError(SQLHSTMT stmt) const;
+    explicit ODBCConnection(const String& connectionString = "");
+
+    ODBCConnection(const ODBCConnection&) = delete;
+    ODBCConnection(ODBCConnection&&) noexcept = default;
+
+    /**
+     * @brief Destructor
+     */
+    ~ODBCConnection() override;
+
+    ODBCConnection& operator = (const ODBCConnection&) = delete;
+    ODBCConnection& operator = (ODBCConnection&&) noexcept = default;
+
+    /**
+     * @brief Returns driver-specific connection string
+     */
+    String nativeConnectionString() const override;
+
+    /**
+     * @brief Closes the database connection. If unsuccessful throws an exception.
+     */
+    void closeDatabase() override;
+
+    /**
+     * @brief Returns true if database is opened
+     */
+    bool active() const override;
+
+    /**
+     * @brief Returns the database connection handle
+     */
+    void* handle() const override;
+
+    /**
+     * @brief Returns the ODBC connection string for the active connection
+     */
+    virtual String connectString() const;
+
+    /**
+     * @brief Returns the ODBC driver description for the active connection
+     */
+    String driverDescription() const override;
+
+    /**
+     * @brief Lists database objects
+     * @param objectType        Object type to list
+     * @param objects           Object list (output)
+     */
+    void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
 protected:
 
@@ -161,7 +203,7 @@ protected:
      * List all data sources (user and system)
      * @param dsns
      */
-    void listDataSources(Strings& dsns);
+    static void listDataSources(Strings& dsns);
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
@@ -179,57 +221,18 @@ protected:
      */
     void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
-public:
-
-    /**
-     * @brief Constructor
-     * @param connectionString  The ODBC connection string
-     */
-    explicit ODBCConnection(const String& connectionString = "");
-
-    /**
-     * @brief Destructor
-     */
-    ~ODBCConnection() override;
-
-    /**
-     * @brief Returns driver-specific connection string
-     */
-    String nativeConnectionString() const override;
-
-    /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
-     */
-    void closeDatabase() override;
-
-    /**
-     * @brief Returns true if database is opened
-     */
-    bool active() const override;
-
-    /**
-     * @brief Returns the database connection handle
-     */
-    void* handle() const override;
-
-    /**
-     * @brief Returns the ODBC connection string for the active connection
-     */
-    virtual String connectString() const;
-
-    /**
-     * @brief Returns the ODBC driver description for the active connection
-     */
-    String driverDescription() const override;
-
-    /**
-     * @brief Lists database objects
-     * @param objectType        Object type to list
-     * @param objects           Object list (output)
-     */
-    void objectList(DatabaseObjectType objectType, Strings& objects) override;
-
 private:
+    /**
+     * The ODBC connection object
+     */
+    ODBCConnectionBase *m_connect {new ODBCConnectionBase};
+
+
+    /**
+     * @brief Retrieves an error (if any) after statement was executed
+     * @param stmt SQLHSTMT, the statement that had an error
+     */
+    String queryError(SQLHSTMT stmt) const;
 
     /**
      * Parse columns information, returned by opened statement
@@ -247,8 +250,8 @@ private:
      * @param dataLength        Output data length
      * @return operation result
      */
-    SQLRETURN readStringObBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
-                                    SQLLEN& dataLength);
+    static SQLRETURN readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
+                                           SQLLEN& dataLength);
 
     /**
      * Read timestamp field
@@ -259,9 +262,10 @@ private:
      * @param rc
      * @param dataLength        Output data length
      */
-    SQLRETURN readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
+    static SQLRETURN readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
                                  SQLLEN& dataLength);
 
+    void queryBindParameter(Query* query, QueryParameter* parameter) const;
 };
 
 

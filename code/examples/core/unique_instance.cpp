@@ -4,7 +4,7 @@
 ║                       unique_instance.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,9 +41,9 @@ int main()
    UniqueInstance instance("mytest");
 
    if (instance.isUnique()) {
-      COUT("-------- Test for UNIQUE APPLICATION INSTANCE ------------" << endl);
-      COUT("To test it, try to start another copy of application while" << endl);
-      COUT("the first copy is still running. Type 'end' to exit test." << endl);
+      COUT("-------- Test for UNIQUE APPLICATION INSTANCE ------------" << endl)
+      COUT("To test it, try to start another copy of application while" << endl)
+      COUT("the first copy is still running. Type 'end' to exit test." << endl)
 
       // Unique instance, wait here
       char buffer[128];
@@ -53,7 +53,7 @@ int main()
             break;
       } while (strstr(buffer, "end") == nullptr);
    } else
-      COUT("Another instance of the program is running. Exiting." << endl);
+      COUT("Another instance of the program is running. Exiting." << endl)
 
    return 0;
 }

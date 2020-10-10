@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Runable.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -49,12 +47,12 @@ void Runable::terminate()
 
 bool Runable::terminated() const
 {
-    SharedLock(m_mutex);
+    lock_guard<mutex> lock(m_dataMutex);
     return m_terminated;
 }
 
 void Runable::setTerminated(bool terminated)
 {
-    UniqueLock(m_mutex);
+    lock_guard<mutex> lock(m_dataMutex);
     m_terminated = terminated;
 }

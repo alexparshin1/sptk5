@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CQuery.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -33,46 +31,36 @@
 using namespace std;
 using namespace sptk;
 
-void Query_StatementManagement::setDatabase(PoolDatabaseConnection* db)
+void QueryStatementManagement::setDatabase(PoolDatabaseConnection* db)
 {
     m_db = db;
 }
 
-bool Query_StatementManagement::bulkMode() const
+bool QueryStatementManagement::bulkMode() const
 {
     return m_bulkMode;
 }
 
-void Query_StatementManagement::freeStmt()
+void QueryStatementManagement::closeStmt(bool freeStatement)
 {
     if (database() != nullptr && statement() !=nullptr) {
-        database()->queryFreeStmt((Query*)this);
+        if (freeStatement)
+            database()->queryFreeStmt((Query*)this);
+        else
+            database()->queryCloseStmt((Query*)this);
         setPrepared(false);
         setActive(false);
     }
 }
 
-void Query_StatementManagement::closeStmt()
+void QueryStatementManagement::closeQuery(bool releaseStatement)
 {
-    if (database() != nullptr && statement() !=nullptr) {
-        database()->queryCloseStmt((Query*)this);
-        setActive(false);
-    }
-}
-
-void Query_StatementManagement::closeQuery(bool releaseStatement)
-{
-    setActive(false);
     setEof(true);
-    if (statement() !=nullptr) {
-        if (releaseStatement)
-            freeStmt();
-        else
-            closeStmt();
-    }
+    if (statement() !=nullptr)
+        closeStmt(releaseStatement);
 }
 
-void Query_StatementManagement::prepare()
+void QueryStatementManagement::prepare()
 {
     if (!autoPrepare())
         throw DatabaseException("Can't prepare this statement");
@@ -84,7 +72,7 @@ void Query_StatementManagement::prepare()
     }
 }
 
-void Query_StatementManagement::unprepare()
+void QueryStatementManagement::unprepare()
 {
     if (!prepared())
         return;
@@ -95,12 +83,12 @@ void Query_StatementManagement::unprepare()
     }
 }
 
-void Query_StatementManagement::notImplemented(const String& functionName) const
+void QueryStatementManagement::notImplemented(const String& functionName) const
 {
     throw DatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, getSQL());
 }
 
-void Query_StatementManagement::connect(PoolDatabaseConnection* _db)
+void QueryStatementManagement::connect(PoolDatabaseConnection* _db)
 {
     if (database() == _db)
         return;
@@ -109,7 +97,7 @@ void Query_StatementManagement::connect(PoolDatabaseConnection* _db)
     database()->linkQuery((Query*)this);
 }
 
-void Query_StatementManagement::disconnect()
+void QueryStatementManagement::disconnect()
 {
     closeQuery(true);
     if (database() != nullptr)
@@ -127,12 +115,12 @@ void Query::execute()
 
 //==============================================================================
 Query::Query() noexcept
-: Query_StatementManagement(true), m_fields(true)
+: QueryStatementManagement(true)
 {
 }
 
-Query::Query(DatabaseConnection db, const String& sql, bool autoPrepare)
-: Query_StatementManagement(autoPrepare), m_fields(true)
+Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
+: QueryStatementManagement(autoPrepare)
 {
     if (db) {
         setDatabase(db->connection());
@@ -142,7 +130,7 @@ Query::Query(DatabaseConnection db, const String& sql, bool autoPrepare)
 }
 
 Query::Query(PoolDatabaseConnection* db, const String& sql, bool autoPrepare)
-: Query_StatementManagement(autoPrepare), m_fields(true)
+: QueryStatementManagement(autoPrepare)
 {
     if (db != nullptr) {
         setDatabase(db);
@@ -157,7 +145,7 @@ Query::~Query()
         closeQuery(true);
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
     if (database() != nullptr)
         database()->unlinkQuery(this);
@@ -173,58 +161,60 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
     if (paramStart == nullptr)
         return false;      // No more parameters
 
+    bool rc = false;
     if (*paramStart == '\'') {
         // Started string constant
         const char* nextQuote = strchr(paramStart + 1, '\'');
         if (nextQuote == nullptr) {
+            // Quote opened but never closed?
             paramEnd = nullptr;
-            return false;  // Quote opened but never closed?
+        } else {
+            sql += string(paramEnd, nextQuote - paramEnd + 1);
+            paramEnd = nextQuote + 1;
         }
-        sql += string(paramEnd, nextQuote - paramEnd + 1);
-        paramEnd = (char*) nextQuote + 1;
-        return false;
     }
-
-    if (*paramStart == '-' && paramStart[1] == '-') {
+    else if (*paramStart == '-' && paramStart[1] == '-') {
         // Started inline comment '--comment text', jump to the end of comment
         const char* endOfRow = strchr(paramStart + 1, '\n');
         if (endOfRow == nullptr) {
+            // Comment at the end of last row
             paramEnd = nullptr;
-            return false;  // Comment at the end of last row
+        } else {
+            sql += string(paramEnd, endOfRow - paramEnd + 1);
+            paramEnd = endOfRow + 1;
         }
-        sql += string(paramEnd, endOfRow - paramEnd + 1);
-        paramEnd = (char*) endOfRow + 1;
-        return false;
     }
-
-    if (*paramStart == '/' && paramStart[1] == '*') {
+    else if (*paramStart == '/' && paramStart[1] == '*') {
         // Started C-style block comment, jump to the end of comment
         const char* endOfRow = strstr(paramStart + 1, "*/");
         if (endOfRow == nullptr) {
+            // Comment never closed
             paramEnd = nullptr;
-            return false;  // Comment never closed
+        } else {
+            sql += string(paramEnd, endOfRow - paramEnd + 2);
+            paramEnd = endOfRow + 2;
         }
-        sql += string(paramEnd, endOfRow - paramEnd + 2);
-        paramEnd = (char*) endOfRow + 2;
-        return false;
     }
-
-    if (*paramStart == '/' || paramStart[1] == ':' || paramStart[1] == '=') {
+    else if (*paramStart == '/' || paramStart[1] == ':' || paramStart[1] == '=') {
         // Started PostgreSQL type qualifier '::' or assignment ':='
         sql += string(paramEnd, paramStart - paramEnd + 2);
         paramEnd = paramStart + 2;
-        return false;
+    }
+    else {
+        sql += string(paramEnd, paramStart - paramEnd);
+        rc = true;
     }
 
-    sql += string(paramEnd, paramStart - paramEnd);
+    if (!rc)
+        return false;
 
     paramEnd = paramStart + 1;
     if (*paramStart != ':') {
         sql += *paramStart;
-        return false;
+        rc = false;
     }
 
-    return true;
+    return rc;
 }
 
 void Query::sqlParseParameter(const char* paramStart, const char* paramEnd, int& paramNumber, String& sql)
@@ -237,7 +227,7 @@ void Query::sqlParseParameter(const char* paramStart, const char* paramEnd, int&
     }
     param->bindAdd(uint32_t(paramNumber));
     sql += database()->paramMark(uint32_t(paramNumber));
-    paramNumber++;
+    ++paramNumber;
 }
 
 void Query::sql(const String& _sql)
@@ -245,43 +235,9 @@ void Query::sql(const String& _sql)
     if (database() == nullptr)
         throw DatabaseException("Query isn't connected to the database");
 
-    const char* paramStart;
-    const char* paramEnd = _sql.c_str();
-    int paramNumber = 0;
+    String sql = parseParameters(_sql);
 
-    m_params.clear();
-
-    String sql;
-    for (; ;) {
-        if (!skipToNextParameter(paramStart, paramEnd, sql)) {
-            if (paramStart == nullptr || paramEnd == nullptr)
-                break;
-            continue;
-        }
-
-        for (; ; paramEnd++) {
-
-            if (isalnum(*paramEnd) != 0)
-                continue;
-
-            if (*paramEnd == '_')
-                continue;
-
-            if (*paramEnd == '.') {
-                // Oracle ':new.' or ':old.'
-                sql += string(paramStart, paramEnd - paramStart + 1);
-                paramEnd++;
-                break;
-            }
-
-            sqlParseParameter(paramStart, paramEnd, paramNumber, sql);
-            break;
-        }
-    }
-
-    sql += paramEnd;
-
-    for (int i = (int) m_params.size() - 1; i >= 0; i--)
+    for (int i = (int) m_params.size() - 1; i >= 0; --i)
         if (m_params[i].bindCount() == 0)
             m_params.remove(uint32_t(i));
 
@@ -292,6 +248,53 @@ void Query::sql(const String& _sql)
         setPrepared(false);
         m_fields.clear();
     }
+}
+
+const char* Query::readParamater(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd)
+{
+    for (; ; ++paramEnd) {
+
+        if (isalnum(*paramEnd) != 0)
+            continue;
+
+        if (*paramEnd == '_')
+            continue;
+
+        if (*paramEnd == '.') {
+            // Oracle ':new.' or ':old.'
+            sql += string(paramStart, paramEnd - paramStart + 1);
+            ++paramEnd;
+            return paramEnd;
+        }
+
+        sqlParseParameter(paramStart, paramEnd, paramNumber, sql);
+        break;
+    }
+    return paramEnd;
+}
+
+String Query::parseParameters(const String& _sql)
+{
+    const char* paramStart;
+    const char* paramEnd = _sql.c_str();
+
+    m_params.clear();
+    String sql;
+
+    int paramNumber = 0;
+    for (; ;) {
+        if (!skipToNextParameter(paramStart, paramEnd, sql)) {
+            if (paramStart == nullptr || paramEnd == nullptr)
+                break;
+            continue;
+        }
+
+        paramEnd = readParamater(sql, paramNumber, paramStart, paramEnd);
+    }
+
+    if (paramEnd != nullptr)
+        sql += paramEnd;
+    return sql;
 }
 
 bool Query::open()
@@ -337,7 +340,7 @@ void Query::throwError(const String& method, const String& error)
     throw DatabaseException(errorText);
 }
 
-void Query_StatementManagement::setBulkMode(bool bulkMode)
+void QueryStatementManagement::setBulkMode(bool bulkMode)
 {
     m_bulkMode = bulkMode;
 }

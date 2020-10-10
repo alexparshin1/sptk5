@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                           Crypt.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Tusday July 18 2017                                    ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -56,14 +54,14 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const std::string& key, con
     if (iv.length() < 16)
         throw Exception("Please use 128 bit initialization vector");
 
-    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (unsigned char*) key.c_str(), (unsigned char*) iv.c_str()) != 1)
+    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (const unsigned char*) key.c_str(), (const unsigned char*) iv.c_str()) != 1)
         throw Exception("Error calling EVP_EncryptInit_ex()");
 
     int len;
     dest.bytes(0);
     dest.checkSize(src.bytes());
     for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK) {
-        unsigned char* intext = (unsigned char*) src.data() + position;
+        const auto* intext = (unsigned char*) src.data() + position;
         size_t inlen = src.bytes() - position;
         if (inlen > TEXT_BLOCK)
             inlen = TEXT_BLOCK;
@@ -88,14 +86,14 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const std::string& key, con
     if (ctx == nullptr)
         throw Exception("Error calling EVP_CIPHER_CTX_new()");
 
-    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (unsigned char*) key.c_str(), (unsigned char*) iv.c_str()) != 1)
+    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (const unsigned char*) key.c_str(), (const unsigned char*) iv.c_str()) != 1)
         throw Exception("Error calling EVP_DecryptInit_ex()");
 
     int len;
     dest.bytes(0);
     dest.checkSize(src.bytes());
     for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK) {
-        unsigned char* intext = (unsigned char*) src.data() + position;
+        const unsigned char* intext = (unsigned char*) src.data() + position;
         size_t inlen = src.bytes() - position;
         if (inlen > TEXT_BLOCK)
             inlen = TEXT_BLOCK;
@@ -119,10 +117,10 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const std::string& key, con
 
 #if USE_GTEST
 
-static const char* testText = "The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static const char* testKey = "01234567890123456789012345678901";
-static const char* testIV = "0123456789012345";
-static const char* encryptedB64 = "4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=";
+static const String testText("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+static const String testKey("01234567890123456789012345678901");
+static const String testIV("0123456789012345");
+static const String encryptedB64("4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=");
 
 TEST(SPTK_Crypt, encrypt)
 {
@@ -132,7 +130,7 @@ TEST(SPTK_Crypt, encrypt)
     Crypt::encrypt(encrypted, Buffer(testText), testKey, testIV);
     Base64::encode(encryptedStr, encrypted);
 
-    EXPECT_STREQ(encryptedB64, encryptedStr.c_str());
+    EXPECT_STREQ(encryptedB64.c_str(), encryptedStr.c_str());
 }
 
 TEST(SPTK_Crypt, decrypt)
@@ -143,7 +141,7 @@ TEST(SPTK_Crypt, decrypt)
     Base64::decode(encrypted, encryptedB64);
     Crypt::decrypt(decrypted, encrypted, testKey, testIV);
 
-    EXPECT_STREQ(testText, decrypted.c_str());
+    EXPECT_STREQ(testText.c_str(), decrypted.c_str());
 }
 
 #endif

@@ -16,4 +16,7 @@ ADD_CUSTOM_TARGET(
 
 ENDIF()
 
-INSTALL_FILES(/share/sptk5 .tar ${THEME}.tar)
+INSTALL(
+    FILES ${THEME}.tar
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sptk5 COMPONENT gui
+)

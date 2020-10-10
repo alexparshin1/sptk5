@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DocType.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,6 +28,39 @@
 
 using namespace std;
 using namespace sptk;
+using namespace xml;
+
+void Entity::parse(const String& entityTag)
+{
+    static const RegularExpression matchEntity(R"(^<!ENTITY\s*(?<percent>\%)? (?<name>\S+)(?<type> SYSTEM| PUBLIC \w+)? (?<resource>[\w\._]+|".*"))");
+
+    name = "";
+    type = SYSTEM;
+    id = "";
+    resource = "";
+
+    auto matches = matchEntity.m(entityTag);
+    if (matches) {
+        auto pc = matches["percent"].value;
+        name = matches["name"].value;
+        if (!pc.empty())
+            name = "%" + name;
+
+        auto typeAndId = matches["type"].value;
+        if (typeAndId == " SYSTEM") {
+            type = SYSTEM;
+            id = "";
+        }
+        else if (typeAndId.startsWith(" PUBLIC ")) {
+            type = PUBLIC;
+            id = typeAndId.substr(8);
+        }
+
+        resource = matches["resource"].value;
+        if (resource[0] == '"')
+            resource = resource.substr(1, resource.length() - 2);
+    }
+}
 
 xml::DocType::DocType(const char *name, const char *public_id, const char *system_id)
 : m_name(name)
@@ -47,15 +78,15 @@ struct entity
     const char *replacement;
 };
 
-typedef map<std::string, struct entity *> CEntityMap;
+typedef map<std::string, const struct entity *> CEntityMap;
 
-static struct entity builtin_ent_xml[] = {
-        { "amp", 1, "&" },
-        { "lt", 1, "<" },
-        { "gt", 1, ">" },
-        { "apos", 1, "'" },
-        { "quot", 1, "\"" },
-        {nullptr, 1, "\"" }
+static const struct entity builtin_ent_xml[] = {
+    { "amp", 1, "&" },
+    { "lt", 1, "<" },
+    { "gt", 1, ">" },
+    { "apos", 1, "'" },
+    { "quot", 1, "\"" },
+    {nullptr, 1, "\"" }
 };
 
 const char xml_shortcut[] = "&<>'\"";
@@ -66,16 +97,16 @@ class CEntityCache
     map<int, CEntityMap>    m_replacementMaps;
 public:
 
-    explicit CEntityCache(struct entity entities[]) noexcept
+    explicit CEntityCache(const struct entity entities[]) noexcept
     {
-        struct entity *ent = entities;
-        for (; ent->name != nullptr; ent++) {
+        const struct entity *ent = entities;
+        for (; ent->name != nullptr; ++ent) {
             m_hash[ent->name] = ent;
             m_replacementMaps[ent->replacement_len][ent->replacement] = ent;
         }
     }
 
-    const struct entity *find(const std::string &ent) const
+    [[nodiscard]] const struct entity *find(const std::string &ent) const
     {
         auto itor = m_hash.find(ent);
         if (itor != m_hash.end())
@@ -102,45 +133,48 @@ const struct entity *CEntityCache::encode(const char* str) const
 
 static const CEntityCache xml_entities(builtin_ent_xml);
 
-void xml::DocType::decodeEntities(const char* str, uint32_t sz, Buffer& ret)
+void xml::DocType::decodeEntities(const char* str, size_t sz, Buffer& ret)
 {
+    Buffer buffer(str, sz);
     ret.bytes(0);
 
-    const char* start = str;
-    const char* ptr = str;
+    char* start = buffer.data();
+    char* ptr = start;
     while (*ptr != char(0)) {
-        const char* ent_start = strchr(ptr, '&');
-        if (ent_start != nullptr) {
-            auto* ent_end = (char*) strchr(ent_start + 1, ';');
-            if (ent_end != nullptr) {
-                char ch = *ent_end;
-                *ent_end = 0;
-                uint32_t replacementLength = 0;
-                const char* rep = getReplacement(ent_start + 1, replacementLength);
-                *ent_end = ch;
-                if (rep != nullptr) {
-                    auto len = uint32_t(ent_start - start);
-                    if (len != 0)
-                        ret.append(start, len);
-                    ptr = ent_end + 1;
-                    start = ptr;
-                    ret.append(rep, replacementLength);
-                } else
-                    ptr++;
-            } else {
-                ptr++;
-            }
-        } else {
-            sz = (uint32_t) strlen(start);
+        char* ent_start = strchr(ptr, '&');
+        if (ent_start == nullptr)
             break;
-        }
+
+        auto* ent_end = strchr(ent_start + 1, ';');
+        if (ent_end != nullptr) {
+            auto len = uint32_t(ent_start - start);
+            if (len != 0)
+                ret.append(start, len);
+            ptr = appendDecodedEntity(ret, ent_start, ent_end);
+            start = ptr;
+        } else
+            ++ptr;
     }
-    ret.append(start, sz);
+    ret.append(start, strlen(start));
+}
+
+char* xml::DocType::appendDecodedEntity(Buffer& ret, const char* ent_start, char* ent_end)
+{
+    char ch = *ent_end;
+    *ent_end = 0;
+    uint32_t replacementLength = 0;
+    const char* rep = this->getReplacement(ent_start + 1, replacementLength);
+    *ent_end = ch;
+    if (rep != nullptr)
+        ret.append(rep, replacementLength);
+    else
+        ret.append(ent_start, ent_end - ent_start);
+    return ent_end + 1;
 }
 
 bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
 {
-    entity* table = builtin_ent_xml;
+    const entity* table = builtin_ent_xml;
 
     bool replaced = false;
 
@@ -152,7 +186,7 @@ bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
         const char* pos = strpbrk(ptr, xml_shortcut);
         if (pos != nullptr) {
             auto index = uint32_t(strchr(xml_shortcut, *pos) - xml_shortcut);
-            entity* ent = table + index;
+            const entity* ent = table + index;
             auto tailBytes = uint32_t(pos - ptr);
             if (tailBytes != 0)
                 dst->append(ptr, tailBytes);
@@ -177,7 +211,7 @@ bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
     if (!m_entities.empty()) {
         auto it = m_entities.begin();
         for (; it != m_entities.end(); ++it) {
-            std::string& val = it->second;
+            const string& val = it->second;
             auto len = (uint32_t) val.length();
             const char* pos = strstr(ptr, val.c_str());
             while (pos != nullptr) {
@@ -188,15 +222,13 @@ bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
                 replaced = true;
                 ptr = pos + len;
                 pos = strstr(ptr, val.c_str());
-                if (pos == nullptr) {
-                    dst->append(ptr);
-                    ptr = dst->data();
-                    Buffer* tmp = dst;
-                    dst = src;
-                    src = tmp;
-                    dst->bytes(0);
-                }
             }
+            dst->append(ptr);
+            ptr = dst->data();
+            Buffer* tmp = dst;
+            dst = src;
+            src = tmp;
+            dst->bytes(0);
         }
     }
 
@@ -211,37 +243,39 @@ bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
 const char* xml::DocType::getReplacement(const char *name, uint32_t& replacementLength)
 {
     // &#123; style entity..
-    if (name[0] == '#') {
-        if (isdigit(name[1]) != 0) {
-            m_replacementBuffer[0] = (char) strtol(name + 1, nullptr, 10);
-            m_replacementBuffer[1] = '\0';
-            replacementLength = 1;
-            return m_replacementBuffer;
-        }
-        if (name[1] == 'x' || name[1] == 'X') {
-            m_replacementBuffer[0] = (char) strtol(name + 2, nullptr, 16);
+    if (*name == '#') {
+        const char *ptr = name;
+        ++ptr;
+
+        if (*ptr == 'x' || *ptr == 'X')
+            ++ptr;
+
+        if (isdigit(*ptr) != 0) {
+            m_replacementBuffer[0] = (char) strtol(ptr, nullptr, 10);
             m_replacementBuffer[1] = '\0';
             replacementLength = 1;
             return m_replacementBuffer;
         }
     }
+
+    const char* result {nullptr};
 
     // Find in built-ins, see entities.h
     const struct entity *entity = xml_entities.find(name);
     if (entity != nullptr) {
         replacementLength = uint32_t(entity->replacement_len);
-        return entity->replacement;
+        result = entity->replacement;
+    } else {
+        // Find in custom attributes
+        auto itor = m_entities.find(name);
+        if (itor != m_entities.end()) {
+            const string& rep = itor->second;
+            replacementLength = (uint32_t) rep.length();
+            result = rep.c_str();
+        }
     }
 
-    // Find in custom attributes
-    auto itor = m_entities.find(name);
-    if (itor != m_entities.end()) {
-        const string& rep = itor->second;
-        replacementLength = (uint32_t) rep.length();
-        return rep.c_str();
-    }
-
-    return nullptr;
+    return result;
 }
 
 bool xml::DocType::hasEntity(const char *name)
@@ -250,3 +284,49 @@ bool xml::DocType::hasEntity(const char *name)
     const char* tmp = getReplacement(name, len);
     return tmp != nullptr;
 }
+
+#if USE_GTEST
+
+TEST(SPTK_XmlDocType, parseEntity)
+{
+    Entity entity;
+
+    entity.parse(R"(<!ENTITY file_pic SYSTEM "file.jpg" NDATA jpg>)");
+    EXPECT_STREQ(entity.name.c_str(), "file_pic");
+    EXPECT_EQ(entity.type, Entity::SYSTEM);
+    EXPECT_STREQ(entity.resource.c_str(), "file.jpg");
+
+    entity.parse(R"(<!ENTITY % lists "ul | ol")");
+    EXPECT_STREQ(entity.name.c_str(), "%lists");
+    EXPECT_EQ(entity.type, Entity::SYSTEM);
+    EXPECT_STREQ(entity.resource.c_str(), "ul | ol");
+
+    entity.parse(R"(<!ENTITY % lists PUBLIC list_id "ul | ol")");
+    EXPECT_STREQ(entity.name.c_str(), "%lists");
+    EXPECT_EQ(entity.type, Entity::PUBLIC);
+    EXPECT_STREQ(entity.id.c_str(), "list_id");
+    EXPECT_STREQ(entity.resource.c_str(), "ul | ol");
+}
+
+TEST(SPTK_XmlDocType, decodeEncodeEntities)
+{
+    String testString1("<'test1'> value");
+    String testString2(R"(<v a='test1'>value</v>)");
+
+    Buffer encoded;
+    Buffer decoded;
+    xml::DocType docType("x");
+
+    docType.encodeEntities(testString1.c_str(), encoded);
+    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.length(), decoded);
+    EXPECT_STREQ(testString1.c_str(), decoded.c_str());
+
+    encoded.reset();
+    decoded.reset();
+
+    docType.encodeEntities(testString2.c_str(), encoded);
+    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.length(), decoded);
+    EXPECT_STREQ(testString2.c_str(), decoded.c_str());
+}
+
+#endif

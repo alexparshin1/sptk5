@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday Sep 17 2015                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,14 +34,12 @@
 #else
 #include <sys/epoll.h>
 #endif
-#include <sptk5/net/SocketPool.h>
-
 
 using namespace std;
 using namespace sptk;
 
-SocketPool::SocketPool(SocketEventCallback eventsCallback)
-: m_pool(INVALID_EPOLL), m_eventsCallback(eventsCallback)
+SocketPool::SocketPool(const SocketEventCallback& eventsCallback)
+: m_eventsCallback(eventsCallback)
 {
 }
 
@@ -79,7 +75,7 @@ void SocketPool::close()
     }
 
     for (auto itor: m_socketData)
-        free(itor.second);
+        delete (epoll_event*) itor.second;
 
     m_socketData.clear();
 }
@@ -91,9 +87,9 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 
     lock_guard<mutex> lock(*this);
 
-    int socketFD = socket.handle();
+    auto socketFD = socket.fd();
 
-    auto* event = (epoll_event*) malloc(sizeof(epoll_event));
+    auto* event = new epoll_event;
     event->data.ptr = userData;
     event->events = EPOLLIN | EPOLLHUP | EPOLLRDHUP;
 
@@ -117,24 +113,24 @@ void SocketPool::forgetSocket(BaseSocket& socket)
     event = (epoll_event*) itor->second;
     m_socketData.erase(itor);
 
-    int rc = epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.handle(), event);
+    int rc = epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), event);
     if (rc == -1)
         throw SystemException("Can't remove socket from epoll");
 
-    free(event);
+    delete event;
 }
 
 #define MAXEVENTS 16
 
-void SocketPool::waitForEvents(chrono::milliseconds timeout)
+void SocketPool::waitForEvents(chrono::milliseconds timeout) const
 {
     epoll_event events[MAXEVENTS];
 
     int eventCount = epoll_wait(m_pool, events, MAXEVENTS, (int) timeout.count());
     if (eventCount < 0)
-        throw SystemException("Error waiting for socket activity");
+        return;
 
-    for (int i = 0; i < eventCount; i++) {
+    for (int i = 0; i < eventCount && m_pool != INVALID_EPOLL; ++i) {
         epoll_event& event = events[i];
         if ((event.events & (EPOLLHUP | EPOLLRDHUP)) != 0)
             m_eventsCallback(event.data.ptr, ET_CONNECTION_CLOSED);
@@ -143,7 +139,7 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout)
     }
 }
 
-bool SocketPool::active()
+bool SocketPool::active() const
 {
     return m_pool != INVALID_EPOLL;
 }

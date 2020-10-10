@@ -11,10 +11,11 @@ ADD_EXECUTABLE (wsdl2cxx wsdl2cxx.cpp)
 TARGET_LINK_LIBRARIES (wsdl2cxx sputil5 spwsdl5 spdb5)
 
 FILE (GLOB utilities "${CMAKE_SOURCE_DIR}/utilities/wsdl2cxx")
-INSTALL(TARGETS wsdl2cxx
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
+INSTALL(
+    TARGETS wsdl2cxx
+    RUNTIME DESTINATION bin COMPONENT core
+    LIBRARY DESTINATION lib COMPONENT core
+    ARCHIVE DESTINATION lib COMPONENT core
   )
 
 ADD_SUBDIRECTORY (load_balance)

@@ -1,10 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CParam.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2019 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2020 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,17 +29,12 @@
 using namespace std;
 using namespace sptk;
 
-void QueryParameter::bindClear()
-{
-    m_bindParamIndexes.clear();
-}
-
 void QueryParameter::bindAdd(uint32_t bindIndex)
 {
     m_bindParamIndexes.push_back(bindIndex);
 }
 
-uint32_t QueryParameter::bindCount()
+uint32_t QueryParameter::bindCount() const
 {
     return (uint32_t) m_bindParamIndexes.size();
 }
@@ -52,17 +45,12 @@ uint32_t QueryParameter::bindIndex(uint32_t ind)
 }
 
 QueryParameter::QueryParameter(const char *name, bool isOutput)
-: m_name(lowerCase(name)),
-  m_timeData(new char[80]),
-  m_callbackLength(0),
-  m_paramList(nullptr),
-  m_binding(isOutput)
+: m_binding(isOutput), m_name(lowerCase(name))
 {
 }
 
 QueryParameter::~QueryParameter()
 {
-    delete [] m_timeData;
 }
 
 String QueryParameter::name() const
@@ -77,28 +65,24 @@ void QueryParameter::setOutput()
 
 QueryParameter& QueryParameter::operator = (const Variant& param)
 {
-    if (this == &param)
-        return *this;
-    setData(param);
+    if (this != &param)
+        setData(param);
     return *this;
 }
 
 void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t valueLength)
 {
-    m_dataSize = valueLength;
-    m_data.getBuffer().size = valueLength + 1;
+    m_dataSize = maxlen > 0? min(valueLength,maxlen) : valueLength;
+    m_data.getBuffer().size = m_dataSize + 1;
     if ((dataType() & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0)
         delete[] m_data.getBuffer().data;
-    m_data.getBuffer().data = new char[m_data.getBuffer().size];
-    if (maxlen != 0) {
-        if (m_data.getBuffer().data != nullptr) {
-            strncpy(m_data.getBuffer().data, value, maxlen);
-            m_data.getBuffer().data[maxlen] = 0;
-        }
-    } else {
-        m_data.getBuffer().size = m_dataSize + 1;
-        strncpy(m_data.getBuffer().data, value, m_data.getBuffer().size);
-    }
+    char* data = new char[m_dataSize + 1];
+    m_data.getBuffer().data = data;
+    if (value == nullptr)
+        memset(data, 0, m_dataSize);
+    else
+        memcpy(data, value, m_dataSize);
+    data[m_dataSize] = 0;
 }
 
 void QueryParameter::setString(const char * value, size_t maxlen)
@@ -125,12 +109,70 @@ void QueryParameter::setString(const char * value, size_t maxlen)
             m_dataSize = 0;
         }
     } else {
-        if (value != nullptr)
-            reallocateBuffer(value, maxlen, valueLength);
-        else {
+        reallocateBuffer(value, maxlen, valueLength);
+        if (value == nullptr) {
             m_dataSize = 0;
             dtype |= VAR_NULL;
         }
     }
     dataType((VariantType) dtype);
 }
+
+#if USE_GTEST
+
+TEST(SPTK_QueryParameter, minimal)
+{
+    QueryParameter param1("param1");
+
+    EXPECT_STREQ(param1.name().c_str(), "param1");
+}
+
+TEST(SPTK_QueryParameter, setString)
+{
+    QueryParameter param1("param1");
+
+    param1.setString("String 1");
+    EXPECT_STREQ(param1.getString(), "String 1");
+
+    param1.setString("String 1", 3);
+    EXPECT_STREQ(param1.getString(), "Str");
+
+    param1.setString("String 1 + String 2");
+    EXPECT_STREQ(param1.getString(), "String 1 + String 2");
+
+    param1.setString("String 1");
+    EXPECT_STREQ(param1.getString(), "String 1");
+
+    param1.setString("String 1 + String 2 + String 3", 22);
+    EXPECT_STREQ(param1.getString(), "String 1 + String 2 + ");
+
+    param1.setString(nullptr);
+    EXPECT_TRUE(param1.isNull());
+}
+
+TEST(SPTK_QueryParameter, assign)
+{
+    QueryParameter param1("param1");
+
+    param1 = "String 1";
+    EXPECT_STREQ(param1.getString(), "String 1");
+
+    param1 = "String 1, String 2";
+    EXPECT_STREQ(param1.getString(), "String 1, String 2");
+
+    param1 = 123;
+    EXPECT_EQ(param1.getInteger(), 123);
+
+    param1 = 123.0;
+    EXPECT_FLOAT_EQ(param1.getFloat(), 123.0);
+
+    param1.setString(nullptr);
+    EXPECT_TRUE(param1.isNull());
+
+    DateTime dt("2020-03-01 10:11:12");
+    Variant  v1(dt);
+    param1 = v1;
+    EXPECT_TRUE(param1.asDateTime() == dt);
+}
+
+#endif
