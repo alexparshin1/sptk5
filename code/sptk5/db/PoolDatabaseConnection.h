@@ -482,6 +482,17 @@ protected:
         m_connType = connType;
     }
 
+    /**
+     * Create and execute single query to insert multiple records
+     * @param tableName         Table name
+     * @param columnNames       Column names
+     * @param begin             Data rows begin iterator
+     * @param end               Data rows end iterator (not included into query)
+     */
+    void bulkInsertRecords(const String& tableName, const Strings& columnNames,
+                           const std::vector<VariantVector>::const_iterator& begin,
+                           const std::vector<VariantVector>::const_iterator& end);
+
 private:
 
     std::set<Query*>            m_queryList;                ///< The list of queries that use this database

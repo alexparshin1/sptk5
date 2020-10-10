@@ -898,6 +898,21 @@ void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     }
 }
 
+void ODBCConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const vector<VariantVector>& data)
+{
+    auto begin = data.begin();
+    auto end = data.begin();
+    for (; end != data.end(); ++end) {
+        if (end - begin > 16) {
+            bulkInsertRecords(tableName, columnNames, begin, end);
+            begin = end;
+        }
+    }
+
+    if (begin != end)
+        bulkInsertRecords(tableName, columnNames, begin, end);
+}
+
 void* odbc_create_connection(const char* connectionString)
 {
     auto* connection = new ODBCConnection(connectionString);

@@ -172,8 +172,8 @@ String sptk::escapeSQLString(const String& str, bool tsv)
 }
 
 // Note: end row is not included
-static void insertRecords(
-        PoolDatabaseConnection* db, const String& tableName, const Strings& columnNames,
+void PoolDatabaseConnection::bulkInsertRecords(
+        const String& tableName, const Strings& columnNames,
         const vector<VariantVector>::const_iterator& begin, const vector<VariantVector>::const_iterator& end)
 {
     stringstream sql;
@@ -211,7 +211,7 @@ static void insertRecords(
         }
         sql << ")";
     }
-    Query insertRows(db, sql.str());
+    Query insertRows(this, sql.str(), false);
     insertRows.exec();
 }
 
@@ -221,14 +221,14 @@ void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings&
     auto begin = data.begin();
     auto end = data.begin();
     for (; end != data.end(); ++end) {
-        if (end - begin > 256) {
-            insertRecords(this, tableName, columnNames, begin, end);
+        if (end - begin > 16) {
+            bulkInsertRecords(tableName, columnNames, begin, end);
             begin = end;
         }
     }
 
     if (begin != end)
-        insertRecords(this, tableName, columnNames, begin, end);
+        bulkInsertRecords(tableName, columnNames, begin, end);
 }
 
 void PoolDatabaseConnection::_executeBatchFile(const String& batchFileName, Strings* errors)

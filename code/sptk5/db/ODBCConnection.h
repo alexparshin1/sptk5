@@ -221,6 +221,9 @@ protected:
      */
     void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
+    void _bulkInsert(const String& tableName, const Strings& columnNames,
+                     const std::vector<VariantVector>& data) override;
+
 private:
     /**
      * The ODBC connection object

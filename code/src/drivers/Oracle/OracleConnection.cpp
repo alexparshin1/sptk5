@@ -561,14 +561,14 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     query.close();
 }
 
-void OracleConnection::_bulkInsert(const String& fullTableName, const Strings& columnNames,
+void OracleConnection::_bulkInsert(const String& _tableName, const Strings& columnNames,
                                    const vector<VariantVector>& data)
 {
     RegularExpression matchTableAndSchema(R"(^(\S+\.)?(\S+)$)");
 
     String schema;
     String tableName;
-    auto matches = matchTableAndSchema.m(fullTableName.toUpperCase());
+    auto matches = matchTableAndSchema.m(_tableName.toUpperCase());
     if (!matches[(size_t) 0].value.empty()) {
         schema = matches[(size_t) 0].value;
         schema = schema.substr(0, schema.length() - 1);
@@ -621,7 +621,7 @@ void OracleConnection::_bulkInsert(const String& fullTableName, const Strings& c
     }
 
     OracleBulkInsertQuery insertQuery(this,
-                                      "INSERT INTO " + fullTableName + "(" + columnNames.join(",") +
+                                      "INSERT INTO " + tableName + "(" + columnNames.join(",") +
                                       ") VALUES (:" + columnNames.join(",:") + ")",
                                       data.size(),
                                       columnTypeSizeMap);
