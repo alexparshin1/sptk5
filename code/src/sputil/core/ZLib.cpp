@@ -72,7 +72,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src)
         memcpy(in, src.c_str() + readPosition, bytesToRead);
         readPosition += bytesToRead;
         strm.avail_in = bytesToRead;
-        flush = eof ? Z_FINISH : Z_NO_FLUSH;
+        flush = eof ? Z_FINISH : Z_PARTIAL_FLUSH;
         strm.next_in = in;
 
         // Run deflate() on input until output buffer not full, finish
@@ -88,7 +88,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src)
         } while (strm.avail_out == 0);
 
         // Done when last data in file processed
-    } while (flush != Z_FINISH);
+    } while (!eof);
 
     // Clean up and return
     (void)deflateEnd(&strm);
@@ -164,12 +164,24 @@ static const String originalTestString = "This is a test of compression using GZ
 	static const String originalTestStringBase64 = "H4sIAAAAAAAAAwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
 #endif
 
+TEST(SPTK_ZLib, compressDecompress)
+{
+    Buffer compressed;
+    Buffer decompressed;
+    ZLib::compress(compressed, Buffer(originalTestString));
+    ZLib::decompress(decompressed, compressed);
+
+    EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
+}
+
 TEST(SPTK_ZLib, compress)
 {
     Buffer compressed;
     String compressedBase64;
     ZLib::compress(compressed, Buffer(originalTestString));
     Base64::encode(compressedBase64, compressed);
+
+    compressed.saveToFile("/tmp/00.gz");
     
     EXPECT_STREQ(originalTestStringBase64.c_str(), compressedBase64.c_str());
 }
@@ -213,5 +225,19 @@ TEST(SPTK_ZLib, performance)
 
     EXPECT_STREQ(data.c_str(), decompressed.c_str());
 }
+/*
+TEST(SPTK_ZLib, compressDecompressFile)
+{
+    Buffer compressed;
+    Buffer decompressed;
+    Buffer data;
 
+    data.loadFromFile("/tmp/1.json");
+
+    ZLib::compress(compressed, data);
+    ZLib::decompress(decompressed, compressed);
+
+    EXPECT_STREQ(data.c_str(), decompressed.c_str());
+}
+*/
 #endif
