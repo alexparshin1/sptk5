@@ -41,8 +41,6 @@ using namespace sptk;
 
 void ZLib::compress(Buffer& dest, const Buffer& src)
 {
-    int flush;
-    unsigned have;
     z_stream strm = {};
     unsigned char in[CHUNK];
     unsigned char out[CHUNK];
@@ -72,7 +70,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src)
         memcpy(in, src.c_str() + readPosition, bytesToRead);
         readPosition += bytesToRead;
         strm.avail_in = bytesToRead;
-        flush = eof ? Z_FINISH : Z_PARTIAL_FLUSH;
+        int flush = eof ? Z_FINISH : Z_PARTIAL_FLUSH;
         strm.next_in = in;
 
         // Run deflate() on input until output buffer not full, finish
@@ -83,7 +81,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src)
             ret = deflate(&strm, flush);    // no bad return value
             if (ret == Z_STREAM_ERROR)      // state not clobbered
                 throw Exception("compressed data error");
-            have = CHUNK - strm.avail_out;
+            unsigned have = CHUNK - strm.avail_out;
             dest.append((char*) out, have);
         } while (strm.avail_out == 0);
 
@@ -91,13 +89,11 @@ void ZLib::compress(Buffer& dest, const Buffer& src)
     } while (!eof);
 
     // Clean up and return
-    (void)deflateEnd(&strm);
+    deflateEnd(&strm);
 }
 
 void ZLib::decompress(Buffer& dest, const Buffer& src)
 {
-    int ret;
-    unsigned have;
     z_stream strm = {};
     unsigned char in[CHUNK];
     unsigned char out[CHUNK];
@@ -108,7 +104,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
     strm.opaque = Z_NULL;
     strm.avail_in = 0;
     strm.next_in = Z_NULL;
-    ret = inflateInit2(&strm, 16+MAX_WBITS);
+    int ret = inflateInit2(&strm, 16+MAX_WBITS);
     if (ret != Z_OK)
         throw Exception("inflateInit() error");
 
@@ -141,7 +137,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
                 default:
                     break;
             }
-            have = CHUNK - strm.avail_out;
+            unsigned have = CHUNK - strm.avail_out;
             dest.append((char*) out, have);
         } while (strm.avail_out == 0);
 
@@ -149,7 +145,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
     } while (ret != Z_STREAM_END);
 
     // clean up and return
-    (void)inflateEnd(&strm);
+    inflateEnd(&strm);
 }
 
 #if USE_GTEST
