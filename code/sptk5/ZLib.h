@@ -32,6 +32,7 @@
 #if HAVE_ZLIB
 
 #include <sptk5/Buffer.h>
+#include <zlib.h>
 
 namespace sptk
 {
@@ -49,7 +50,7 @@ public:
      * @param dest Buffer&, Destination buffer
      * @param src const Buffer&, Source buffer
      */
-    static void compress(Buffer& dest, const Buffer& src);
+    static void compress(Buffer& dest, const Buffer& src, int level=Z_DEFAULT_COMPRESSION);
 
     /**
      * Uncompress data in gzip format

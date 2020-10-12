@@ -39,7 +39,7 @@ using namespace sptk;
 
 #define CHUNK 16384
 
-void ZLib::compress(Buffer& dest, const Buffer& src)
+void ZLib::compress(Buffer& dest, const Buffer& src, int level)
 {
     z_stream strm = {};
     unsigned char in[CHUNK];
@@ -50,7 +50,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src)
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
     int ret = deflateInit2(&strm,
-                           Z_DEFAULT_COMPRESSION,
+                           level,
                            Z_DEFLATED,
                            MAX_WBITS + 16,
                            ZLIB_VER_MAJOR,
