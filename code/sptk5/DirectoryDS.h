@@ -170,7 +170,7 @@ protected:
      * @param file              File information
      * @returns the file type name
      */
-    String getFileType(const std::filesystem::directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime) const;
+    String getFileType(const filesystem::directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime) const;
 
 private:
     /**
@@ -200,7 +200,7 @@ private:
      * @param file              File information
      * @return data source row
      */
-    FieldList* makeFileListEntry(const std::filesystem::directory_entry& file, size_t& index) const;
+    FieldList* makeFileListEntry(const filesystem::directory_entry& file, size_t& index) const;
     CSmallPixmapType imageTypeFromExtention(const String& ext) const;
 };
 /**
