@@ -26,7 +26,6 @@
 
 #include <string>
 #include <sys/stat.h>
-#include <experimental/filesystem>
 
 #include <sptk5/DirectoryDS.h>
 #include <sptk5/filedefs.h>

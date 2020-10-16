@@ -55,6 +55,7 @@
 #define USE_GTEST        @GTEST_FLAG@        ///< Flag indicating if GTest library is installed and used
 
 #define CXX_STANDARD     @CXX_STANDARD@       ///< Flag indicating if GTest library is installed and used
+#define FS_EXPERIMENTAL  @FS_EXPERIMENTAL@    ///< Flag if use #include <filesystem> or <experimental/filesystem>
 
 #define TEST_DIRECTORY   "@TEST_DIRECTORY@"    ///< Directory that contains data, used in unit tests
 

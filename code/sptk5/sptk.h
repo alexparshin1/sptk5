@@ -129,6 +129,14 @@
 	#define strtok_r strtok_s
 #endif
 
+#if __cplusplus >= 201703L && __has_include(<filesystem>)
+#include <filesystem>
+namespace filesystem = std::filesystem;
+#else
+#include <experimental/filesystem>
+namespace filesystem = std::experimental::filesystem;
+#endif
+
 #if USE_GTEST
 #include <gtest/gtest.h>
 #endif
