@@ -187,7 +187,7 @@ FieldList* DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& i
     if (modeName == "Directory")
         df->push_back("Size", false) = "";
     else
-        df->push_back("Size", false) = (int64_t) file.file_size();
+        df->push_back("Size", false) = (int64_t) file_size(file.path());
     df->push_back("Type", false) = modeName;
 
     df->push_back("Modified", false) = modificationTime;
