@@ -427,7 +427,7 @@ private:
  * @param file              Source file name
  * @param line              Source file line number
  */
-[[noreturn]] void throwSocketError(const String& message, const char* file, int line);
+void throwSocketError(const String& message, const char* file, int line);
 
 #define THROW_SOCKET_ERROR(msg) sptk::throwSocketError(msg,__FILE__,__LINE__)
 
