@@ -54,7 +54,7 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
     bool executable = ext == "exe" || ext == "bat";
 #endif
 
-    bool directory = file.is_directory();
+    bool directory = is_directory(file.status());
     image = SXPM_DOCUMENT;
 
     string modeName;
@@ -154,7 +154,7 @@ bool DirectoryDS::open()
         if ((showPolicy() & DDS_HIDE_DOT_FILES) && fileName[0] == '.')
             continue;
 
-        if (!file.is_directory()) {
+        if (!is_directory(file.status())) {
             if ((showPolicy() & DDS_HIDE_FILES) == DDS_HIDE_FILES)
                 continue;
             if (!m_patterns.empty() && !fileMatchesPattern(fileName, m_patterns))
@@ -178,7 +178,7 @@ FieldList* DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& i
     DateTime         modificationTime;
     String           modeName = getFileType(file, pixmapType, modificationTime);
 
-    if (file.is_symlink())
+    if (is_symlink(file.status()))
         modeName += " symlink";
 
     auto* df = new FieldList(false);
