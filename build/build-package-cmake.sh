@@ -41,7 +41,7 @@ cmake . -DCMAKE_INSTALL_PREFIX=/usr -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF -DUSE_N
 mkdir -p /build/output/$VERSION/
 chmod 777 /build/output/$VERSION/
 
-for fname in *.rpm
+for fname in *.rpm *.deb
 do
     name=$(echo $fname | sed -re 's/SPTK.*Linux-/sptk-/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
     mv $fname /build/output/$VERSION/$name
