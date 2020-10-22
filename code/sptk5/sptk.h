@@ -131,14 +131,16 @@
 	#define strcasecmp _stricmp
 	#define strncasecmp _strnicmp
 	#define strtok_r strtok_s
-#endif
-
-#if __cplusplus >= 201703L && __has_include(<filesystem>)
-#include <filesystem>
-namespace filesystem = std::filesystem;
+    #include <filesystem>
+    namespace filesystem = std::filesystem;
 #else
-#include <experimental/filesystem>
-namespace filesystem = std::experimental::filesystem;
+    #if __cplusplus >= 201703L && __has_include(<filesystem>)
+        #include <filesystem>
+        namespace filesystem = std::filesystem;
+    #else
+        #include <experimental/filesystem>
+        namespace filesystem = std::experimental::filesystem;
+    #endif
 #endif
 
 #endif
