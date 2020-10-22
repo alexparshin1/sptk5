@@ -86,6 +86,11 @@ public:
      */
     explicit MySQLConnection(const String& connectionString = "");
 
+    MySQLConnection(const MySQLConnection&) = delete;
+    MySQLConnection(MySQLConnection&&) = delete;
+    MySQLConnection& operator= (const MySQLConnection&) = delete;
+    MySQLConnection& operator= (MySQLConnection&&) = delete;
+
     /**
      * @brief Destructor
      */

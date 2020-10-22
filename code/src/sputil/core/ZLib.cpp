@@ -221,21 +221,5 @@ TEST(SPTK_ZLib, performance)
 
     EXPECT_STREQ(data.c_str(), decompressed.c_str());
 }
-/*
-TEST(SPTK_ZLib, compressDecompressFile)
-{
-    Buffer compressed;
-    Buffer decompressed;
-    Buffer data;
 
-    data.loadFromFile("/tmp/1.json");
-
-    ZLib::compress(compressed, data, 9);
-    cout << "# Compressed size: " << compressed.length() << endl;
-    compressed.saveToFile("/tmp/2.json.gz");
-    ZLib::decompress(decompressed, compressed);
-
-    EXPECT_STREQ(data.c_str(), decompressed.c_str());
-}
-*/
 #endif

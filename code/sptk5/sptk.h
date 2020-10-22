@@ -81,6 +81,10 @@
     #include <cerrno>
 #endif
 
+#if USE_GTEST
+#include <gtest/gtest.h>
+#endif
+
 #ifndef STRING_NPOS
     /**
      * Definition for string::npos missing in some compilers
@@ -135,10 +139,6 @@ namespace filesystem = std::filesystem;
 #else
 #include <experimental/filesystem>
 namespace filesystem = std::experimental::filesystem;
-#endif
-
-#if USE_GTEST
-#include <gtest/gtest.h>
 #endif
 
 #endif
