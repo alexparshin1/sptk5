@@ -268,7 +268,7 @@ private:
     static SQLRETURN readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
                                  SQLLEN& dataLength);
 
-    void queryBindParameter(Query* query, QueryParameter* parameter) const;
+    void queryBindParameter(const Query* query, QueryParameter* parameter) const;
 };
 
 

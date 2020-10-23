@@ -226,7 +226,7 @@ bool PostgreSQLConnection::active() const
     return m_connect != nullptr;
 }
 
-static void checkError(PGconn* conn, PGresult* res, const String& command, ExecStatusType expectedResult=PGRES_COMMAND_OK)
+static void checkError(const PGconn* conn, PGresult* res, const String& command, ExecStatusType expectedResult=PGRES_COMMAND_OK)
 {
     auto rc = PQresultStatus(res);
     if (rc != expectedResult) {

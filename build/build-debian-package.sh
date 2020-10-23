@@ -26,4 +26,4 @@ debuild -eDEB_BUILD_OPTIONS="parallel=4" -us -uc -b
 cd ${BUILD_HOME}
 
 mv ../sptk_${VERSION}_amd64.deb Downloads/
-cp Downloads/sptk_${VERSION}_amd64.deb /var/www/sites/sptk/download/
+cp Downloads/sptk_${VERSION}_amd64.deb /var/www/sites/sptk/download/debian
