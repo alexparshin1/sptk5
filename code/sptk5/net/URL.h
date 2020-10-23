@@ -45,6 +45,7 @@ public:
     String password() const { return m_password; }
     String hostAndPort() const { return m_hostAndPort; }
     String path() const { return m_path; }
+    String location() const;
     String toString () const;
 
     void path(const String& path) { m_path = path; }
