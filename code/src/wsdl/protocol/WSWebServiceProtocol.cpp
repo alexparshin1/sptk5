@@ -31,12 +31,12 @@
 using namespace std;
 using namespace sptk;
 
-WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
+WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSServices& services,
                                            const Host& host, bool allowCORS, bool keepAlive,
                                            bool suppressHttpStatus)
 : WSProtocol(&httpReader.socket(), httpReader.getHttpHeaders()),
   m_httpReader(httpReader),
-  m_service(service),
+  m_services(services),
   m_url(url),
   m_host(host),
   m_allowCORS(allowCORS),
@@ -126,7 +126,8 @@ String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& xmlCo
     try {
         auto* pXmlContent = requestIsJSON? nullptr: &xmlContent;
         auto* pJsonContent = requestIsJSON? &jsonContent: nullptr;
-        m_service.processRequest(pXmlContent, pJsonContent, authentication.get(), requestName);
+        auto& service = m_services.get(m_url.location());
+        service.processRequest(pXmlContent, pJsonContent, authentication.get(), requestName);
         if (pJsonContent) {
             pJsonContent->exportTo(output, false);
             contentType = "application/json";
@@ -277,7 +278,8 @@ RequestInfo WSWebServiceProtocol::process()
         if (m_url.params().has("wsdl")) {
             // Requested WSDL content
             returnWSDL = true;
-            requestInfo.response.content().set(m_service.wsdl());
+            auto& service = m_services.get(m_url.location());
+            requestInfo.response.content().set(service.wsdl());
             substituteHostname(requestInfo.response.content(), m_host);
             requestInfo.name = "wsdl";
         } else {

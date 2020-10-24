@@ -31,9 +31,9 @@ using namespace std;
 using namespace sptk;
 
 WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress,
-                           WSRequest& service, Logger& logger, const Options& options)
+                           WSServices& services, Logger& logger, const Options& options)
 : ServerConnection(server, connectionSocket, connectionAddress, "WSConnection"),
-  m_service(service),
+  m_services(services),
   m_logger(logger),
   m_options(options)
 {
@@ -111,7 +111,7 @@ void WSConnection::processSingleConnection(bool& done)
 
     bool closeConnection = reviewHeaders(requestType, headers);
 
-    WSWebServiceProtocol protocol(httpReader, url, m_service, server().host(),
+    WSWebServiceProtocol protocol(httpReader, url, m_services, server().host(),
                                   m_options.allowCors, m_options.keepAlive, m_options.suppressHttpStatus);
     auto requestInfo = protocol.process();
 
@@ -256,9 +256,9 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
     socket().write(response);
 }
 
-WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSRequest& service,
+WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSServices& services,
                                  Logger& logger, const Options& options)
-: WSConnection(server, connectionSocket, addr, service, logger, options)
+: WSConnection(server, connectionSocket, addr, services, logger, options)
 {
     if (options.encrypted) {
         auto& sslKeys = server.getSSLKeys();

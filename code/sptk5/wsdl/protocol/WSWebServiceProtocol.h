@@ -31,6 +31,7 @@
 #include <sptk5/cnet>
 #include <sptk5/net/URL.h>
 #include <sptk5/net/HttpResponseStatus.h>
+#include <sptk5/wsdl/WSServices.h>
 
 namespace sptk {
 
@@ -50,15 +51,14 @@ public:
      * @param httpReader        Connection socket
      * @param url               Method URL
      * @param headers           Connection HTTP headers
-     * @param service           Web service that handles request
-     * @param host          Listener's hostname
+     * @param service           Services that handle request
+     * @param host              Listener's hostname
      * @param port              Listener's port
      * @param allowCORS         Allow CORS
      * @param keepAlive         Keep alive
      */
-    WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSRequest& service,
-                         const Host& host, bool allowCORS, bool keepAlive,
-                         bool suppressHttpStatus);
+    WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSServices& services,
+                         const Host& host, bool allowCORS, bool keepAlive, bool suppressHttpStatus);
 
     /*
      * Process method
@@ -69,7 +69,7 @@ public:
 
 private:
     HttpReader&         m_httpReader;           ///< HTTP reader
-    WSRequest&          m_service;              ///< Web service
+    WSServices&         m_services;             ///< Web service
     const URL           m_url;                  ///< Request URL
     Host                m_host;                 ///< Listener's host
     bool                m_allowCORS;            ///< Allow CORS?

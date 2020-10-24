@@ -31,6 +31,7 @@
 #include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
 #include <sptk5/wsdl/protocol/WSWebSocketsProtocol.h>
 #include <sptk5/wsdl/WSRequest.h>
+#include "WSServices.h"
 
 namespace sptk {
 
@@ -71,7 +72,7 @@ public:
      * @param logger            Logger instance
      * @param options           Connection options
      */
-    WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, WSRequest& service,
+    WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, WSServices& services,
                  Logger& logger, const Options& options);
 
     /**
@@ -86,7 +87,7 @@ public:
 
 private:
 
-    WSRequest&      m_service;
+    WSServices&     m_services;
     Logger&         m_logger;
     Options         m_options;
 
@@ -110,9 +111,14 @@ class WSSSLConnection : public WSConnection
 public:
     /**
      * Constructor
-     * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
+     * @param server            TCP server
+     * @param connectionSocket  Incoming connection socket, accepted by accept() function
+     * @param addr              Incoming connection info
+     * @param services          Registered services to process incoming connection
+     * @param logger            Logger
+     * @param options           Connection options
      */
-    WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSRequest& service,
+    WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSServices& services,
                     Logger& logger, const Options& options);
 
     /**

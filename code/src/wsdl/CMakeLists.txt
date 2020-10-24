@@ -13,6 +13,7 @@ ADD_LIBRARY (spwsdl5 ${LIBRARY_TYPE}
     WSParserComplexType.cpp
     WSRequest.cpp
     WSRestriction.cpp
+    WSServices.cpp
     WSTypeTranslator.cpp
     protocol/WSProtocol.cpp
     protocol/WSStaticHttpProtocol.cpp

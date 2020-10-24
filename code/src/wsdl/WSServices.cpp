@@ -24,30 +24,33 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/wsdl/WSConnection.h"
-#include <sptk5/wsdl/WSListener.h>
+#include "sptk5/wsdl/WSServices.h"
 
 using namespace std;
 using namespace sptk;
 
-WSListener::WSListener(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
-                       const WSConnection::Options& options)
-: TCPServer(services.get("").title(), threadCount, nullptr, options.logDetails),
-  m_services(services),
-  m_logger(logger),
-  m_options(options)
+WSServices::WSServices(const SWSRequest& defaultService)
 {
-    if (!hostname.empty()) {
-        host(Host(hostname));
-    }
-
-    if (m_options.paths.htmlIndexPage.empty())
-        m_options.paths.htmlIndexPage = "index.html";
-    if (m_options.paths.wsRequestPage.empty())
-        m_options.paths.wsRequestPage = "request";
+    m_services[""] = defaultService;
 }
 
-ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
+WSServices::WSServices(const WSServices& other)
 {
-    return new WSSSLConnection(*this, connectionSocket, peer, m_services, m_logger, m_options);
+    lock_guard<mutex>   lock(other.m_mutex);
+    m_services = other.m_services;
+}
+
+void WSServices::set(const sptk::String& location, const SWSRequest& service)
+{
+    lock_guard<mutex>   lock(m_mutex);
+    m_services[location] = service;
+}
+
+WSRequest& WSServices::get(const sptk::String& location) const
+{
+    lock_guard<mutex>   lock(m_mutex);
+    auto itor = m_services.find(location);
+    if (itor == m_services.end())
+        itor = m_services.find("");
+    return *itor->second;
 }

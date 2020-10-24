@@ -134,14 +134,15 @@ TEST(SPTK_TestWebService, Hello)
  */
 static void request_listener_test(const Strings& methodNames, bool encrypted = false)
 {
-    SysLogEngine        logEngine("TestWebService");
-    TestWebService      service;
+    SysLogEngine    logEngine("TestWebService");
+    auto            service = make_shared<TestWebService>();
 
     // Define Web Service listener
     WSConnection::Paths     paths("index.html","/test",".");
     WSConnection::Options   options(paths);
     options.encrypted = encrypted;
-    WSListener listener(service, logEngine, "localhost", 16, options);
+    WSServices services(service);
+    WSListener listener(services, logEngine, "localhost", 16, options);
 
     const uint16_t      servicePort = 11000;
     shared_ptr<SSLKeys> sslKeys;

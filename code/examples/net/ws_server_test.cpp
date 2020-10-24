@@ -48,7 +48,7 @@ public:
 int main()
 {
 	try {
-		StubRequest     request;
+		auto request = make_shared<StubRequest>();
 		SysLogEngine    log("ws_server_test");
 		Logger          logger(log);
         
@@ -58,7 +58,8 @@ int main()
             throw SystemException("Can't get hostname");
         WSConnection::Paths   paths("index.html", "request", "/var/lib/pgman/webapp");
         WSConnection::Options options(paths);
-        WSListener server(request, log, hostname, 32, options);
+        WSServices services(request);
+        WSListener server(services, log, hostname, 32, options);
         server.listen(8000);
         while (true)
             this_thread::sleep_for(chrono::milliseconds(1000));

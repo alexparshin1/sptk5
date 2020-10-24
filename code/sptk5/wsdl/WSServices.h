@@ -24,30 +24,54 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/wsdl/WSConnection.h"
-#include <sptk5/wsdl/WSListener.h>
+#ifndef SPTK_WSSERVICES_H
+#define SPTK_WSSERVICES_H
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/wsdl/WSRequest.h>
 
-WSListener::WSListener(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
-                       const WSConnection::Options& options)
-: TCPServer(services.get("").title(), threadCount, nullptr, options.logDetails),
-  m_services(services),
-  m_logger(logger),
-  m_options(options)
+namespace sptk {
+
+/**
+ * Collection of references to available services
+ */
+class WSServices
 {
-    if (!hostname.empty()) {
-        host(Host(hostname));
-    }
+public:
+    /**
+     * Constructor
+     *
+     * Registers default service for empty location
+     * @param defaultService    Default service
+     */
+    WSServices(const SWSRequest& defaultService);
 
-    if (m_options.paths.htmlIndexPage.empty())
-        m_options.paths.htmlIndexPage = "index.html";
-    if (m_options.paths.wsRequestPage.empty())
-        m_options.paths.wsRequestPage = "request";
+    /**
+     * Copy constructor
+     *
+     * Registers default service for empty location
+     * @param other             Other services object
+     */
+    WSServices(const WSServices& other);
+
+    /**
+     * Set a service for given location
+     * @param location          Path to the resource, not including resource name
+     * @param service           Service that is processing that location requests
+     */
+    void set(const sptk::String& location, const SWSRequest& service);
+
+    /**
+     * Get service for given location that is processing that location requests
+     * @param location          Path to the resource, not including resource name
+     * @return matching service, or default service if there is no match
+     */
+    WSRequest& get(const sptk::String& location) const;
+
+private:
+    mutable std::mutex          m_mutex;
+    std::map<String,SWSRequest> m_services;
+};
+
 }
 
-ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
-{
-    return new WSSSLConnection(*this, connectionSocket, peer, m_services, m_logger, m_options);
-}
+#endif

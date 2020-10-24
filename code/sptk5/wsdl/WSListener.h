@@ -31,6 +31,7 @@
 #include <sptk5/cnet>
 #include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/wsdl/WSConnection.h>
+#include "WSServices.h"
 
 namespace sptk {
 
@@ -59,7 +60,7 @@ public:
      * @param threadCount           Max number of simultaneously running requests
      * @param options               Client connection options
      */
-    WSListener(WSRequest& service, LogEngine& logger, const String& hostname, size_t threadCount,
+    WSListener(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
                const WSConnection::Options& options);
 
 protected:
@@ -75,7 +76,7 @@ protected:
 
 private:
     mutable SharedMutex     m_mutex;                ///< Mutex that protects internal data
-    WSRequest&              m_service;              ///< Web Service request processor
+    WSServices              m_services;             ///< Web Service request processor
     Logger                  m_logger;               ///< Logger object
     WSConnection::Options   m_options;              ///< Client connection options
 };

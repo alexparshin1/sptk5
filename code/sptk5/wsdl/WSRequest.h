@@ -185,5 +185,7 @@ protected:
     xml::Element* findSoapBody(const xml::Element* soapEnvelope, const WSNameSpace& soapNamespace);
 };
 
+typedef std::shared_ptr<WSRequest> SWSRequest;
+
 }
 #endif
