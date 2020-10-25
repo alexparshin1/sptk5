@@ -6,6 +6,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace test_service;
 
 void CTestServiceBase::requestBroker(const String& requestName, xml::Element* xmlContent, json::Element* jsonContent, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
@@ -83,7 +84,7 @@ void processAnyRequest(xml::Element* requestNode, HttpAuthentication* authentica
 
 template <class InputData, class OutputData>
 void processAnyRequest(json::Element* request, HttpAuthentication* authentication,
-                       function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)
+                       const function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)
 {
    InputData inputData;
    OutputData outputData;

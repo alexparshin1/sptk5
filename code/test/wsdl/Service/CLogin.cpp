@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace test_service;
 
 const Strings CLogin::m_fieldNames { "username", "password" };
 const Strings CLogin::m_elementNames { "username", "password" };
@@ -80,10 +81,12 @@ void CLogin::load(const FieldList& input)
     // Load elements
     if ((field = input.findField("username")) != nullptr) {
         m_username.load(*field);
+
     }
 
     if ((field = input.findField("password")) != nullptr) {
         m_password.load(*field);
+
     }
 
 

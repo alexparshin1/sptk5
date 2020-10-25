@@ -31,17 +31,17 @@
 
 namespace sptk {
 
-class TestWebService : public CTestServiceBase
+class TestWebService : public test_service::CTestServiceBase
 {
 public:
     static std::shared_ptr<sptk::HttpConnect::Authorization> jwtAuthorization;
 
-    void Hello(const CHello& input, CHelloResponse& output, sptk::HttpAuthentication* authentication) override;
+    void Hello(const test_service::CHello& input, test_service::CHelloResponse& output, sptk::HttpAuthentication* authentication) override;
 
-    void AccountBalance(const CAccountBalance& input, CAccountBalanceResponse& output,
+    void AccountBalance(const test_service::CAccountBalance& input, test_service::CAccountBalanceResponse& output,
                         sptk::HttpAuthentication* authentication) override;
 
-    void Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthentication* authentication) override;
+    void Login(const test_service::CLogin& input, test_service::CLoginResponse& output, sptk::HttpAuthentication* authentication) override;
 };
 
 }

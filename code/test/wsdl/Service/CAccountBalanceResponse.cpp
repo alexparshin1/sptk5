@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace test_service;
 
 const Strings CAccountBalanceResponse::m_fieldNames { "account_balance" };
 const Strings CAccountBalanceResponse::m_elementNames { "account_balance" };
@@ -67,6 +68,7 @@ void CAccountBalanceResponse::load(const FieldList& input)
     // Load elements
     if ((field = input.findField("account_balance")) != nullptr) {
         m_account_balance.load(*field);
+
     }
 
 

@@ -196,7 +196,8 @@ public:
     /**
      * Generates C++ class declaration and implementation
      */
-    void generate(std::ostream& classDeclaration, std::ostream& classImplementation, const String& externalHeader) const;
+    void generate(std::ostream& classDeclaration, std::ostream& classImplementation,
+                  const String& externalHeader, const String& serviceNamespace) const;
 
     static std::map<String, const xml::Element*> SimpleTypeElements;
     static const xml::Element* findSimpleType(const String& typeName);
@@ -207,14 +208,16 @@ protected:
      * Generate C++ class declaration
      * @param classDeclaration std::ostream&, Output header file stream
      */
-    void generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames, sptk::Strings& elementNames) const;
+    void generateDefinition(std::ostream& classDeclaration, Strings& fieldNames, Strings& elementNames,
+                            const String& serviceNamespace) const;
 
     /**
      * Generate C++ class implementation
      * @param classImplementation std::ostream&, Output implementation file stream
      */
     void generateImplementation(std::ostream& classImplementation, const Strings& fieldNames,
-                                const Strings& elementNames, const Strings& attributeNames) const;
+                                const Strings& elementNames, const Strings& attributeNames,
+                                const String& serviceNamespace) const;
 
 private:
 
@@ -327,7 +330,7 @@ private:
     void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames,
                                Strings& copyInitializer, Strings& moveInitializer) const;
 
-    sptk::String addOptionalRestriction(std::stringstream& fieldLoads, const SWSParserComplexType& complexType) const;
+    String addOptionalRestriction(std::stringstream& fieldLoads, const SWSParserComplexType& complexType) const;
 };
 
 /**

@@ -31,6 +31,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace test_service;
 
 shared_ptr<HttpConnect::Authorization> TestWebService::jwtAuthorization;
 

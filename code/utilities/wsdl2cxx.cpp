@@ -72,6 +72,11 @@ public:
                         CommandLine::Visibility(""), "",
                         "Header file the content of which is added to every generated C++ file");
 
+        defineParameter("cxx-namespace", "n", "C++ namespace",
+                        ".*",
+                        CommandLine::Visibility(""), "",
+                        "C++ namespace for generated C++ classes. The default is '<lc(servicename)>_service'");
+
         defineParameter("openapi-json", "j", "filename", ".*",
                         CommandLine::Visibility(""), "",
                         "Create openapi service description file. The default file name is the same as WSDL file, only with .json extention.");
@@ -144,11 +149,12 @@ int main(int argc, const char* argv[])
 
         WSParser   wsParser;
 
-        string outputDirectory = commandLine.getOptionValue("cxx-directory").trim();
+        auto outputDirectory = commandLine.getOptionValue("cxx-directory").trim();
         if (outputDirectory.empty())
             outputDirectory = ".";
 
-        string headerFile = commandLine.getOptionValue("cxx-directory").trim();
+        auto headerFile = commandLine.getOptionValue("cxx-directory").trim();
+        auto serviceNamespace = commandLine.getOptionValue("cxx-namespace").trim();
 
         if (outputDirectory != "." && access(outputDirectory.c_str(), 0) < 0 && !createDirectory(outputDirectory))
             return 1;
@@ -166,7 +172,7 @@ int main(int argc, const char* argv[])
         options.openApiFile = commandLine.getOptionValue("openapi-json");
 
         wsParser.parse(wsdlFile);
-        wsParser.generate(outputDirectory, headerFile, options, verbose);
+        wsParser.generate(outputDirectory, headerFile, options, verbose, serviceNamespace);
         wsParser.generateWsdlCxx(outputDirectory, headerFile, wsdlFile);
     }
     catch (const Exception& e) {

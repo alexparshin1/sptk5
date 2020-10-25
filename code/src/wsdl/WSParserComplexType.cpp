@@ -163,12 +163,13 @@ void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, co
     classDeclaration << includeFiles.join("\n") << endl << endl;
 }
 
-void WSParserComplexType::generateDefinition(ostream& classDeclaration, Strings& fieldNames,
-                                             Strings& elementNames) const
+void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames,
+                                             sptk::Strings& elementNames,
+                                             const String& serviceNamespace) const
 {
     String className = "C" + wsClassName(m_name);
 
-    String defineName = "__" + className.toUpperCase() + "__";
+    String defineName = "__" + serviceNamespace.toUpperCase() + "_" + className.toUpperCase() + "__";
     classDeclaration << "#ifndef " << defineName << endl;
     classDeclaration << "#define " << defineName << endl;
     classDeclaration << endl;
@@ -186,6 +187,8 @@ void WSParserComplexType::generateDefinition(ostream& classDeclaration, Strings&
             wordList.push_back(word.value);
         tagName = wordList.join("_").toLowerCase();
     }
+
+    classDeclaration << "namespace " << serviceNamespace << " {" << endl << endl;
 
     classDeclaration << "/**" << endl;
     classDeclaration << " * WSDL complex type class " << className << "." << endl;
@@ -312,6 +315,7 @@ void WSParserComplexType::generateDefinition(ostream& classDeclaration, Strings&
     classDeclaration << endl;
     classDeclaration << "typedef std::shared_ptr<" << className << "> " << "S" << wsClassName(m_name) << ";" << endl;
     classDeclaration << endl;
+    classDeclaration << "}" << endl << endl;
     classDeclaration << "#endif" << endl;
 }
 
@@ -362,7 +366,7 @@ void WSParserComplexType::printImplementationIncludes(ostream& classImplementati
     classImplementation << "#include \"" << className << ".h\"" << endl;
     classImplementation << "#include <sptk5/json/JsonArrayData.h>" << endl << endl;
     classImplementation << "using namespace std;" << endl;
-    classImplementation << "using namespace sptk;" << endl << endl;
+    classImplementation << "using namespace sptk;" << endl;
 }
 
 void WSParserComplexType::printImplementationClear(ostream& classImplementation, const String& className) const
@@ -741,12 +745,15 @@ void WSParserComplexType::printImplementationUnloadParamList(ostream& classImple
     classImplementation << "}" << endl;
 }
 
-void WSParserComplexType::generateImplementation(std::ostream& classImplementation, const sptk::Strings& fieldNames,
-                                                 const Strings& elementNames, const Strings& attributeNames) const
+void WSParserComplexType::generateImplementation(std::ostream& classImplementation, const Strings& fieldNames,
+                                                 const Strings& elementNames,
+                                                 const Strings& attributeNames, const String& serviceNamespace) const
 {
     String className = "C" + wsClassName(m_name);
 
     printImplementationIncludes(classImplementation, className);
+
+    classImplementation << "using namespace " << serviceNamespace << ";" << endl << endl;
 
     classImplementation << "const Strings " << className << "::m_fieldNames { \"" << fieldNames.join("\", \"")
                         << "\" };" << endl;
@@ -769,7 +776,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 }
 
 void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation,
-                                   const String& externalHeader) const
+                                   const String& externalHeader, const String& serviceNamespace) const
 {
     if (!externalHeader.empty()) {
         classDeclaration << externalHeader << endl;
@@ -779,8 +786,8 @@ void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImpl
     Strings fieldNames;
     Strings elementNames;
     Strings attributeNames;
-    generateDefinition(classDeclaration, fieldNames, elementNames);
-    generateImplementation(classImplementation, fieldNames, elementNames, attributeNames);
+    generateDefinition(classDeclaration, fieldNames, elementNames, serviceNamespace);
+    generateImplementation(classImplementation, fieldNames, elementNames, attributeNames, serviceNamespace);
 }
 
 const xml::Element* WSParserComplexType::findSimpleType(const String& typeName)

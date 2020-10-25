@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace test_service;
 
 const Strings CLoginResponse::m_fieldNames { "jwt" };
 const Strings CLoginResponse::m_elementNames { "jwt" };
@@ -67,6 +68,7 @@ void CLoginResponse::load(const FieldList& input)
     // Load elements
     if ((field = input.findField("jwt")) != nullptr) {
         m_jwt.load(*field);
+
     }
 
 

@@ -1,5 +1,5 @@
-#ifndef __CLOGIN__
-#define __CLOGIN__
+#ifndef __TEST_SERVICE_CLOGIN__
+#define __TEST_SERVICE_CLOGIN__
 
 #include <sptk5/FieldList.h>
 #include <sptk5/db/QueryParameterList.h>
@@ -8,6 +8,8 @@
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/wsdl/WSRestriction.h>
+
+namespace test_service {
 
 /**
  * WSDL complex type class CLogin.
@@ -98,5 +100,7 @@ protected:
 };
 
 typedef std::shared_ptr<CLogin> SLogin;
+
+}
 
 #endif

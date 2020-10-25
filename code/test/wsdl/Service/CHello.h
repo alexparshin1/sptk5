@@ -1,5 +1,5 @@
-#ifndef __CHELLO__
-#define __CHELLO__
+#ifndef __TEST_SERVICE_CHELLO__
+#define __TEST_SERVICE_CHELLO__
 
 #include <sptk5/FieldList.h>
 #include <sptk5/db/QueryParameterList.h>
@@ -8,6 +8,8 @@
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/wsdl/WSRestriction.h>
+
+namespace test_service {
 
 /**
  * WSDL complex type class CHello.
@@ -99,5 +101,7 @@ protected:
 };
 
 typedef std::shared_ptr<CHello> SHello;
+
+}
 
 #endif

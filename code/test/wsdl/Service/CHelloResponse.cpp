@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace test_service;
 
 const Strings CHelloResponse::m_fieldNames { "date_of_birth", "verified", "retired", "hour_rate", "vacation_days", "height" };
 const Strings CHelloResponse::m_elementNames { "date_of_birth", "verified", "retired", "hour_rate", "vacation_days", "height" };
@@ -132,26 +133,32 @@ void CHelloResponse::load(const FieldList& input)
     // Load elements
     if ((field = input.findField("date_of_birth")) != nullptr) {
         m_date_of_birth.load(*field);
+
     }
 
     if ((field = input.findField("verified")) != nullptr) {
         m_verified.load(*field);
+
     }
 
     if ((field = input.findField("retired")) != nullptr) {
         m_retired.load(*field);
+
     }
 
     if ((field = input.findField("hour_rate")) != nullptr) {
         m_hour_rate.load(*field);
+
     }
 
     if ((field = input.findField("vacation_days")) != nullptr) {
         m_vacation_days.load(*field);
+
     }
 
     if ((field = input.findField("height")) != nullptr) {
         m_height.load(*field);
+
     }
 
 

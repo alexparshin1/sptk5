@@ -15,6 +15,8 @@
 #include "CLogin.h"
 #include "CLoginResponse.h"
 
+namespace test_service {
+
 /**
  * Base class for service method.
  *
@@ -114,5 +116,7 @@ private:
     void process_Login(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
 };
+
+}
 
 #endif

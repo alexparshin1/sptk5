@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace test_service;
 
 const Strings CHello::m_fieldNames { "action", "first_name", "last_name" };
 const Strings CHello::m_elementNames { "action", "first_name", "last_name" };
@@ -93,14 +94,17 @@ void CHello::load(const FieldList& input)
     // Load elements
     if ((field = input.findField("action")) != nullptr) {
         m_action.load(*field);
+
     }
 
     if ((field = input.findField("first_name")) != nullptr) {
         m_first_name.load(*field);
+
     }
 
     if ((field = input.findField("last_name")) != nullptr) {
         m_last_name.load(*field);
+
     }
 
 

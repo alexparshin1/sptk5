@@ -210,6 +210,7 @@ void WSParser::parse(String wsdlFile)
 
     const auto* service = (xml::Element*) wsdlXML.findFirst("wsdl:service");
     m_serviceName = (String) service->getAttribute("name");
+    m_serviceNamespace = m_serviceName.toLowerCase() + "_service";
 
     const auto* address = service->findFirst("soap:address");
     if (address)
@@ -271,10 +272,13 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "#include \"" << "C" + capitalize(m_serviceName) + "WSDL.h\"" << endl;
     serviceDefinition << "#include <sptk5/wsdl/WSRequest.h>" << endl;
     serviceDefinition << "#include <sptk5/net/HttpAuthentication.h>" << endl << endl;
+
     serviceDefinition << "// This Web Service types" << endl;
     for (auto& usedClass: usedClasses)
         serviceDefinition << "#include \"" << usedClass << ".h\"" << endl;
     serviceDefinition << endl;
+
+    serviceDefinition << "namespace " << m_serviceNamespace << " {" << endl << endl;
 
     serviceDefinition << "/**" << endl;
     serviceDefinition << " * Base class for service method." << endl;
@@ -351,6 +355,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition << "    void process_" << requestName << "(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);" << endl << endl;
     }
     serviceDefinition << "};" << endl << endl;
+    serviceDefinition << "}" << endl << endl;
     serviceDefinition << "#endif" << endl;
 }
 
@@ -373,7 +378,8 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     serviceImplementation << "#include <set>" << endl << endl;
 
     serviceImplementation << "using namespace std;" << endl;
-    serviceImplementation << "using namespace sptk;" << endl << endl;
+    serviceImplementation << "using namespace sptk;" << endl;
+    serviceImplementation << "using namespace " << m_serviceNamespace << ";" << endl << endl;
 
     serviceImplementation << "void " << serviceClassName << "::requestBroker(const String& requestName, xml::Element* xmlContent, json::Element* jsonContent, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl;
     serviceImplementation << "{" << endl;
@@ -501,8 +507,11 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
 
 void WSParser::generate(const String& sourceDirectory, const String& headerFile,
                         const OpenApiGenerator::Options& options,
-                        bool verbose)
+                        bool verbose, const String& serviceNamespace)
 {
+    if (!serviceNamespace.empty())
+        m_serviceNamespace = serviceNamespace;
+
     Buffer externalHeader;
     if (!headerFile.empty())
         externalHeader.loadFromFile(headerFile);
@@ -529,7 +538,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
         SWSParserComplexType complexType = itor.second;
         SourceModule module("C" + complexType->name(), sourceDirectory);
         module.open();
-        complexType->generate(module.header(), module.source(), externalHeader.c_str());
+        complexType->generate(module.header(), module.source(), externalHeader.c_str(), m_serviceNamespace);
         usedClasses.push_back("C" + complexType->name());
         cmakeLists << "  " << sourceDirectory << "/C" << complexType->name() << ".cpp "
                            << sourceDirectory << "/C" << complexType->name() << ".h" << endl;

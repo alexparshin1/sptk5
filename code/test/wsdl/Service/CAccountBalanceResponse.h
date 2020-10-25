@@ -1,5 +1,5 @@
-#ifndef __CACCOUNTBALANCERESPONSE__
-#define __CACCOUNTBALANCERESPONSE__
+#ifndef __TEST_SERVICE_CACCOUNTBALANCERESPONSE__
+#define __TEST_SERVICE_CACCOUNTBALANCERESPONSE__
 
 #include <sptk5/FieldList.h>
 #include <sptk5/db/QueryParameterList.h>
@@ -8,6 +8,8 @@
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/wsdl/WSRestriction.h>
+
+namespace test_service {
 
 /**
  * WSDL complex type class CAccountBalanceResponse.
@@ -97,5 +99,7 @@ protected:
 };
 
 typedef std::shared_ptr<CAccountBalanceResponse> SAccountBalanceResponse;
+
+}
 
 #endif

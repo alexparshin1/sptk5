@@ -95,15 +95,9 @@ public:
         const WSComplexTypeMap& complexTypes() const { return m_complexTypes; }
 
     private:
-        /**
-         * Map of all elements
-         */
-        ElementMap          m_elements;
 
-        /**
-         * Map of all parsed complex types
-         */
-        WSComplexTypeMap      m_complexTypes;
+        ElementMap          m_elements;         ///< Map of all elements
+        WSComplexTypeMap    m_complexTypes;     ///< Map of all parsed complex types
     };
 
     /**
@@ -149,7 +143,8 @@ public:
      * @param headerFile        Optional header file to insert at the start of each generated file
      */
     void generate(const String& sourceDirectory = ".", const String& headerFile = "",
-                  const OpenApiGenerator::Options& options = OpenApiGenerator::Options(), bool verbose=false);
+                  const OpenApiGenerator::Options& options = OpenApiGenerator::Options(), bool verbose = false,
+                  const String& serviceNamespace="");
 
     /**
      * Stores WSDL to C++ file
@@ -220,6 +215,7 @@ protected:
 private:
 
     String              m_serviceName;      ///< Service name, defining service class name and source file names
+    String              m_serviceNamespace; ///< Service classes namespace
     String              m_description;      ///< Service description
     String              m_location;         ///< Service location
     String              m_wsdlFile;         ///< WSDL source file name
