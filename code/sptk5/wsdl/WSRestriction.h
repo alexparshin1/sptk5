@@ -36,7 +36,7 @@ namespace sptk {
     /**
      * WSDL Restriction
      */
-    class WSRestriction
+    class SP_EXPORT WSRestriction
     {
     public:
 

@@ -35,7 +35,7 @@ namespace sptk {
 /**
  * WSDL message index
  */
-class WSMessageIndex
+class SP_EXPORT WSMessageIndex
 {
     /**
      * Mutex that protects internal data

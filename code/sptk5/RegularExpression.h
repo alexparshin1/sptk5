@@ -267,6 +267,13 @@ public:
     virtual ~RegularExpression();
 
     /**
+     * Copy assignment
+     * @param other             Other regular expression
+     * @return this reference
+     */
+    RegularExpression& operator =(const RegularExpression& other);
+
+    /**
      * Returns true if text matches with regular expression
      * @param text              Input text
      * @return true if match found

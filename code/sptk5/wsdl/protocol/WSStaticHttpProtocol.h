@@ -39,7 +39,7 @@ namespace sptk {
 /// @brief Handler for static files (.html, .js, .png, etc)
 ///
 /// Session disconnects as soon as file is served.
-class WSStaticHttpProtocol : public WSProtocol
+class SP_EXPORT WSStaticHttpProtocol : public WSProtocol
 {
     URL     m_url;                      ///< File URL
     String  m_staticFilesDirectory;     ///< Directory where static files reside on the server

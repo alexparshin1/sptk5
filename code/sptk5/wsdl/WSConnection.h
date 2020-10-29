@@ -35,7 +35,7 @@
 
 namespace sptk {
 
-class WSConnection : public ServerConnection
+class SP_EXPORT WSConnection : public ServerConnection
 {
 public:
     class Paths
@@ -106,7 +106,7 @@ private:
 /**
  * WS server connection
  */
-class WSSSLConnection : public WSConnection
+class SP_EXPORT WSSSLConnection : public WSConnection
 {
 public:
     /**

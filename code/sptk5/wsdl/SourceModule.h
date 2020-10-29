@@ -43,7 +43,7 @@ namespace sptk
 /**
  * @brief Helper module to generate source files
  */
-class SourceModule
+class SP_EXPORT SourceModule
 {
     String              m_name;     ///< Module name
     String              m_path;     ///< Module path

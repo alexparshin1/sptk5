@@ -38,7 +38,7 @@ namespace sptk {
 /// WebSockets protocol message
 ///
 /// Provides WebSockets message encode and decode methods
-class WSWebSocketsMessage
+class SP_EXPORT WSWebSocketsMessage
 {
 public:
     enum OpCode {
@@ -79,7 +79,7 @@ private:
 /// Treats connection as WebSockets, implementing WebSockets
 /// handshake and client session. Session stays connected until
 /// client disconnects.
-class WSWebSocketsProtocol : public WSProtocol
+class SP_EXPORT WSWebSocketsProtocol : public WSProtocol
 {
 public:
     /// Constructor

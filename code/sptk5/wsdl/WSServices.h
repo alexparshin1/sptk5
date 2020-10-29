@@ -34,7 +34,7 @@ namespace sptk {
 /**
  * Collection of references to available services
  */
-class WSServices
+class SP_EXPORT WSServices
 {
 public:
     /**

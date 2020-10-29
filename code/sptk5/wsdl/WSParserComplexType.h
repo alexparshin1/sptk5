@@ -71,7 +71,7 @@ enum WSMultiplicity {
 /**
  * WSDL element attribute
  */
-class WSParserAttribute
+class SP_EXPORT WSParserAttribute
 {
 public:
     /**
@@ -121,7 +121,7 @@ typedef std::list<SWSParserComplexType>         WSParserComplexTypeList;
 /**
  * Parses WSDL complexType element
  */
-class WSParserComplexType
+class SP_EXPORT WSParserComplexType
 {
 public:
     /**

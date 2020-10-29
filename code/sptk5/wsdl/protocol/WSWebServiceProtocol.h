@@ -42,7 +42,7 @@ namespace sptk {
 ///
 /// Uses WSRequest service object to parse WS request and
 /// reply, then closes connection.
-class WSWebServiceProtocol : public WSProtocol
+class SP_EXPORT WSWebServiceProtocol : public WSProtocol
 {
 public:
 

@@ -41,7 +41,7 @@ namespace sptk
 /**
  * Translates WSDL type names to C++ type names
  */
-class WSTypeTranslator
+class SP_EXPORT WSTypeTranslator
 {
     /**
      * WSDL to C++ type map

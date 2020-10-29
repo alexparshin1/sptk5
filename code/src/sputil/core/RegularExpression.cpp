@@ -231,6 +231,14 @@ RegularExpression::~RegularExpression()
 #endif
 }
 
+RegularExpression& RegularExpression::operator = (const RegularExpression& other)
+{
+    m_pattern = other.m_pattern; 
+    m_options = other.m_options;
+    compile();
+    return *this;
+}
+
 size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchData& matchData) const
 {
     if (!m_pcre) throwException(m_error)
