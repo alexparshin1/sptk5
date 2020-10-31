@@ -316,6 +316,8 @@ private:
 
     String addOptionalRestriction(std::ostream& implementation, const SWSParserComplexType& complexType,
                                   size_t& restrictionIndex) const;
+
+    void printImplementationCheckRestrictions(std::ostream& classImplementation, const String& className) const;
 };
 
 /**

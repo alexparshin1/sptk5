@@ -311,6 +311,13 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
                      << "    */" << endl
                      << "   void _clear() override;" << endl;
 
+    classDeclaration << "private:" << endl << endl;
+    classDeclaration << "   /**" << endl
+                     << "    * Check restrictions" << endl
+                     << "    * Throws an exception if any restriction is violated." << endl
+                     << "    */" << endl
+                     << "   void checkRestrictions() const;" << endl;
+
     classDeclaration << "};" << endl;
     classDeclaration << endl;
     classDeclaration << "typedef std::shared_ptr<" << className << "> " << "S" << wsClassName(m_name) << ";" << endl;
@@ -397,18 +404,34 @@ void WSParserComplexType::printImplementationRestrictions(std::ostream& classImp
         if (!complexType->m_typeName.startsWith("xsd:"))
             continue;
         String restrictionCheck = addOptionalRestriction(classImplementation, complexType, restrictionIndex);
-        if (!restrictionCheck.empty())
+        if (!restrictionCheck.empty()) {
+            if (restrictionIndex == 1)
+                checks << "    // Check value restrictions" << endl;
             checks << restrictionCheck << endl;
+        }
     }
 
-    if (restrictionIndex > 0)
+    if (restrictionIndex > 0) {
         classImplementation << endl;
+        checks << endl;
+    }
 
     if (!requiredElements.empty()) {
-        checks << endl << "    // Check 'required' restrictions" << endl;
+        checks << "    // Check 'required' restrictions" << endl;
         for (auto& requiredElement : requiredElements)
             checks << "    m_" << requiredElement << ".throwIfNull(\"" << wsClassName(m_name) << "." << requiredElement << "\");" << endl;
     }
+}
+
+void WSParserComplexType::printImplementationCheckRestrictions(ostream& classImplementation,
+                                                               const String& className) const
+{
+    classImplementation << "void " << className << "::checkRestrictions() const" << endl
+                        << "{" << endl;
+    stringstream checks;
+    printImplementationRestrictions(classImplementation, checks);
+    classImplementation << checks.str();
+    classImplementation << "}" << endl << endl;
 }
 
 void WSParserComplexType::printImplementationLoadXML(ostream& classImplementation, const String& className) const
@@ -419,8 +442,6 @@ void WSParserComplexType::printImplementationLoadXML(ostream& classImplementatio
                         << (hideInputParameterName? "": " input") << ")" << endl
                         << "{" << endl;
 
-    printImplementationRestrictions(implementationParts.body, implementationParts.checks);
-
     implementationParts.body << "    _clear();" << endl
                              << "    setLoaded(true);" << endl;
 
@@ -429,6 +450,7 @@ void WSParserComplexType::printImplementationLoadXML(ostream& classImplementatio
 
     implementationParts.print(classImplementation);
 
+    classImplementation << "    checkRestrictions();" << endl;
     classImplementation << "}" << endl << endl;
 }
 
@@ -472,8 +494,6 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
                         << (hideInputParameterName? "": " input") << ")" << endl
                         << "{" << endl;
 
-    printImplementationRestrictions(implementationParts.body, implementationParts.checks);
-
     implementationParts.body
                         << "    _clear();" << endl
                         << "    setLoaded(true);" << endl
@@ -508,6 +528,7 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
 
     implementationParts.print(classImplementation);
 
+    classImplementation << "    checkRestrictions();" << endl;
     classImplementation << "}" << endl << endl;
 }
 
@@ -543,8 +564,6 @@ void WSParserComplexType::printImplementationLoadFields(ostream& classImplementa
                         << (hideInputParameter? "" : " input") << ")" << endl
                         << "{" << endl;
 
-    printImplementationRestrictions(classImplementation, checks);
-
     classImplementation << "    _clear();" << endl
                         << "    setLoaded(true);" << endl;
 
@@ -555,6 +574,7 @@ void WSParserComplexType::printImplementationLoadFields(ostream& classImplementa
 
     classImplementation << checks.str();
 
+    classImplementation << "    checkRestrictions();" << endl;
     classImplementation << "}" << endl << endl;
 }
 
@@ -786,6 +806,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "const Strings " << className << "::m_attributeNames { \"" << attributeNames.join("\", \"")
                         << "\" };" << endl << endl;
 
+    printImplementationCheckRestrictions(classImplementation, className);
     printImplementationClear(classImplementation, className);
     printImplementationLoadXML(classImplementation, className);
     printImplementationLoadJSON(classImplementation, className);

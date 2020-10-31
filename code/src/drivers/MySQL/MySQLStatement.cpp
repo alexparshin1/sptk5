@@ -33,13 +33,16 @@ using namespace sptk;
 // When TEXT field is large, fetch in chunks:
 #define FETCH_BUFFER 256
 
+// MySQL-specific database field
 class sptk::MySQLStatementField: public DatabaseField
 {
 public:
+
     // Callback variables
     unsigned long   m_cbLength {0};
     my_bool         m_cbNull {0};
     my_bool         m_cbError {0};
+
     // MySQL time conversion buffer
     MYSQL_TIME      m_timeBuffer {};
     char            m_tempBuffer[16] {};
