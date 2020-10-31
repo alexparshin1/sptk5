@@ -48,92 +48,6 @@ namespace json {
  * @{
  */
 
-/**
- * Variant types
- */
-enum VariantType : uint32_t {
-    /**
-     * Undefined
-     */
-    VAR_NONE      = 0,
-
-    /**
-     * Integer
-     */
-    VAR_INT       = 1,
-
-    /**
-     * Floating-point (double)
-     */
-    VAR_FLOAT     = 2,
-
-    /**
-     * Special (integer quantity and scale) money
-     */
-    VAR_MONEY     = 4,
-
-    /**
-     * String pointer
-     */
-    VAR_STRING    = 8,
-
-    /**
-     * String pointer, corresponding to BLOBS in database
-     */
-    VAR_TEXT      = 16,
-
-    /**
-     * Data pointer, corresponding to BLOBS in database
-     */
-    VAR_BUFFER    = 32,
-
-    /**
-     * DateTime (double)
-     */
-    VAR_DATE      = 64,
-
-    /**
-     * DateTime (double)
-     */
-    VAR_DATE_TIME = 128,
-
-    /**
-     * Image pointer
-     */
-    VAR_IMAGE_PTR = 256,
-
-    /**
-     * Image index in object-specific table of image pointers
-     */
-    VAR_IMAGE_NDX = 512,
-
-    /**
-     * 64bit integer
-     */
-    VAR_INT64     = 1024,
-
-    /**
-     * Boolean
-     */
-    VAR_BOOL      = 2048
-
-};
-
-/**
- * FLAG: External const memory buffer, memory isn't managed
- */
-constexpr int VAR_EXTERNAL_BUFFER = 16384;
-
-/**
- * FLAG: Data is NULL
- */
-constexpr int VAR_NULL = 32768;
-
-/**
- * MASK: All the known field types w/o flags
- */
-constexpr int VAR_TYPES = 16383;
-
 class Field;
 
 class SP_EXPORT BaseVariant
@@ -249,8 +163,6 @@ public:
 protected:
 
     VariantData             m_data;                 ///< Internal variant data storage
-    size_t                  m_dataSize {0};         ///< Data size
-    uint16_t                m_dataType {VAR_NONE};  ///< Data type
 
     /**
      * Releases allocated buffer (if any)
@@ -267,7 +179,7 @@ protected:
      */
     bool isExternalBuffer() const
     {
-        return (m_dataType & VAR_EXTERNAL_BUFFER) != 0;
+        return (m_data.type() & VAR_EXTERNAL_BUFFER) != 0;
     }
 
     /**

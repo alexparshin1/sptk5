@@ -48,6 +48,41 @@ struct VariantDataBuffer
 };
 
 /**
+ * Variant types
+ */
+enum VariantType : uint32_t
+{
+    VAR_NONE      = 0,      ///< Undefined
+    VAR_INT       = 1,      ///< Integer
+    VAR_FLOAT     = 2,      ///< Floating-point (double)
+    VAR_MONEY     = 4,      ///< Special (integer quantity and scale) money
+    VAR_STRING    = 8,      ///< String pointer
+    VAR_TEXT      = 16,     ///< String pointer, corresponding to BLOBS in database
+    VAR_BUFFER    = 32,     ///< Data pointer, corresponding to BLOBS in database
+    VAR_DATE      = 64,     ///< DateTime (double)
+    VAR_DATE_TIME = 128,    ///< DateTime (double)
+    VAR_IMAGE_PTR = 256,    ///< Image pointer
+    VAR_IMAGE_NDX = 512,    ///< Image index in object-specific table of image pointers
+    VAR_INT64     = 1024,   ///< 64bit integer
+    VAR_BOOL      = 2048    ///< Boolean
+};
+
+/**
+ * FLAG: External const memory buffer, memory isn't managed
+ */
+constexpr int VAR_EXTERNAL_BUFFER = 16384;
+
+/**
+ * FLAG: Data is NULL
+ */
+constexpr int VAR_NULL = 32768;
+
+/**
+ * MASK: All the known field types w/o flags
+ */
+constexpr int VAR_TYPES = 16383;
+
+/**
  * Money data (internal).
  *
  * A combination of integer quantity and scale - positive integer presenting power of ten for divider.
@@ -110,6 +145,8 @@ public:
      * @param other             Other object
      */
     VariantData(const VariantData& other)
+    : m_dataType(other.m_dataType),
+      m_dataSize(other.m_dataSize)
     {
         memcpy(m_data, other.m_data, sizeof(m_data));
     }
@@ -119,6 +156,8 @@ public:
      * @param other             Other object
      */
     VariantData(VariantData&& other) noexcept
+    : m_dataType(std::exchange(other.m_dataType, VAR_NONE | VAR_NULL)),
+      m_dataSize(std::exchange(other.m_dataSize, 0))
     {
         memcpy(m_data, other.m_data, sizeof(m_data));
         memset(other.m_data, 0, sizeof(m_data));
@@ -132,8 +171,11 @@ public:
      */
     VariantData& operator = (const VariantData& other)
     {
-        if (&other != this)
+        if (&other != this) {
             memcpy(m_data, other.m_data, sizeof(m_data));
+            m_dataType = other.m_dataType;
+            m_dataSize = other.m_dataSize;
+        }
         return *this;
     }
 
@@ -146,6 +188,10 @@ public:
         if (&other != this) {
             memcpy(m_data, other.m_data, sizeof(m_data));
             memset(other.m_data, 0, sizeof(m_data));
+            m_dataType = other.m_dataType;
+            other.m_dataType = VAR_NONE | VAR_NULL;
+            m_dataSize = other.m_dataSize;
+            other.m_dataSize = 0;
         }
         return *this;
     }
@@ -289,9 +335,31 @@ public:
         return (char*) m_data;
     }
 
+    void type(uint16_t dataType)
+    {
+        m_dataType = dataType;
+    }
+
+    uint16_t type() const
+    {
+        return m_dataType;
+    }
+
+    void size(size_t dataSize)
+    {
+        m_dataSize = dataSize;
+    }
+
+    size_t size() const
+    {
+        return m_dataSize;
+    }
+
 private:
 
-    uint8_t     m_data[32]{};         ///< Variant data BLOB
+    uint8_t     m_data[32]{};           ///< Variant data BLOB
+    uint16_t    m_dataType {VAR_NONE};  ///< Data type
+    size_t      m_dataSize {0};         ///< Data size
 };
 
 /**

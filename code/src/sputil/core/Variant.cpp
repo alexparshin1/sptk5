@@ -63,7 +63,7 @@ MoneyData::operator bool() const
 void BaseVariant::releaseBuffers()
 {
     auto& buffer = m_data.getBuffer();
-    if ((m_dataType & (VAR_STRING | VAR_BUFFER | VAR_TEXT)) != 0 &&
+    if ((m_data.type() & (VAR_STRING | VAR_BUFFER | VAR_TEXT)) != 0 &&
         buffer.data != nullptr) {
         if (!isExternalBuffer())
             delete [] buffer.data;
@@ -76,21 +76,21 @@ void BaseVariant::releaseBuffers()
 //---------------------------------------------------------------------------
 void BaseVariant::dataSize(size_t ds)
 {
-    m_dataSize = ds;
-    if (m_dataSize > 0)
-        m_dataType &= VAR_TYPES | VAR_EXTERNAL_BUFFER;
+    m_data.size(ds);
+    if (m_data.size() > 0)
+        m_data.type(m_data.type() & (VAR_TYPES | VAR_EXTERNAL_BUFFER));
 }
 
 //---------------------------------------------------------------------------
 void BaseVariant::dataType(uint32_t dt)
 {
-    m_dataType = (uint16_t) dt;
+    m_data.type((uint16_t) dt);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant()
 {
-    m_dataType = VAR_NONE | VAR_NULL;
+    m_data.type(VAR_NONE | VAR_NULL);
     m_data.getInt64() = 0;
     m_data.getBuffer().size = 0;
 }
@@ -98,7 +98,7 @@ Variant::Variant()
 //---------------------------------------------------------------------------
 Variant::Variant(int32_t value)
 {
-    m_dataType = VAR_INT;
+    m_data.type(VAR_INT);
     m_data.getInteger() = value;
 }
 
@@ -106,11 +106,11 @@ Variant::Variant(int32_t value)
 Variant::Variant(int64_t value, unsigned scale)
 {
     if (scale > 1) {
-        m_dataType = VAR_MONEY;
+        m_data.type(VAR_MONEY);
         m_data.getMoneyData().quantity = value;
         m_data.getMoneyData().scale = (uint8_t) scale;
     } else {
-        m_dataType = VAR_INT64;
+        m_data.type(VAR_INT64);
         m_data.getInt64() = value;
     }
 }
@@ -118,7 +118,7 @@ Variant::Variant(int64_t value, unsigned scale)
 //---------------------------------------------------------------------------
 Variant::Variant(double value)
 {
-    m_dataType = VAR_FLOAT;
+    m_data.type(VAR_FLOAT);
     m_data.getFloat() = value;
 }
 
@@ -137,7 +137,7 @@ Variant::Variant(const String& v)
 //---------------------------------------------------------------------------
 Variant::Variant(const DateTime& v)
 {
-    m_dataType = VAR_DATE_TIME;
+    m_data.type(VAR_DATE_TIME);
     DateTime::duration sinceEpoch = v.timePoint().time_since_epoch();
     m_data.getInt64() = chrono::duration_cast<chrono::microseconds>(sinceEpoch).count();
 }
@@ -151,14 +151,14 @@ Variant::Variant(const void* value, size_t sz)
 //---------------------------------------------------------------------------
 Variant::Variant(const Buffer& value)
 {
-    m_dataType = VAR_NONE;
+    m_data.type(VAR_NONE);
     Variant::setBuffer(value.data(), value.bytes(), VAR_BUFFER);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(const Variant& value)
 {
-    m_dataType = VAR_NONE;
+    m_data.type(VAR_NONE);
     setData(value);
 }
 
@@ -166,10 +166,6 @@ Variant::Variant(const Variant& value)
 Variant::Variant(Variant&& other) noexcept
 {
     m_data = move(other.m_data);
-    m_dataType = other.m_dataType;
-    m_dataSize = other.m_dataSize;
-    other.m_dataType = VAR_NONE | VAR_NULL;
-    other.m_dataSize = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -181,10 +177,10 @@ Variant::~Variant()
 //---------------------------------------------------------------------------
 void VariantAdaptors::setBool(bool value)
 {
-    if (m_dataType != VAR_BOOL) {
+    if (m_data.type() != VAR_BOOL) {
         releaseBuffers();
-        m_dataType = VAR_BOOL;
-        m_dataSize = sizeof(value);
+        m_data.type(VAR_BOOL);
+        m_data.size(sizeof(value));
     }
 
     m_data.getBool() = value;
@@ -193,10 +189,10 @@ void VariantAdaptors::setBool(bool value)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setInteger(int32_t value)
 {
-    if (m_dataType != VAR_INT) {
+    if (m_data.type() != VAR_INT) {
         releaseBuffers();
-        m_dataType = VAR_INT;
-        m_dataSize = sizeof(value);
+        m_data.type(VAR_INT);
+        m_data.size(sizeof(value));
     }
 
     m_data.getInteger() = value;
@@ -205,10 +201,10 @@ void VariantAdaptors::setInteger(int32_t value)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setInt64(int64_t value)
 {
-    if (m_dataType != VAR_INT64) {
+    if (m_data.type() != VAR_INT64) {
         releaseBuffers();
-        m_dataType = VAR_INT64;
-        m_dataSize = sizeof(value);
+        m_data.type(VAR_INT64);
+        m_data.size(sizeof(value));
     }
 
     m_data.getInt64() = value;
@@ -217,10 +213,10 @@ void VariantAdaptors::setInt64(int64_t value)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setFloat(double value)
 {
-    if (m_dataType != VAR_FLOAT) {
+    if (m_data.type() != VAR_FLOAT) {
         releaseBuffers();
-        m_dataType = VAR_FLOAT;
-        m_dataSize = sizeof(value);
+        m_data.type(VAR_FLOAT);
+        m_data.size(sizeof(value));
     }
 
     m_data.getFloat() = value;
@@ -229,10 +225,10 @@ void VariantAdaptors::setFloat(double value)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setMoney(int64_t value, unsigned scale)
 {
-    if (m_dataType != VAR_MONEY) {
+    if (m_data.type() != VAR_MONEY) {
         releaseBuffers();
-        m_dataType = VAR_MONEY;
-        m_dataSize = sizeof(MoneyData);
+        m_data.type(VAR_MONEY);
+        m_data.size(sizeof(MoneyData));
     }
 
     m_data.getMoneyData().quantity = value;
@@ -292,18 +288,18 @@ void VariantAdaptors::setExternalBuffer(void* value, size_t sz, VariantType type
 //---------------------------------------------------------------------------
 void VariantAdaptors::setDateTime(DateTime value, bool dateOnly)
 {
-    if ((m_dataType & (VAR_DATE|VAR_DATE_TIME)) == 0) {
+    if ((m_data.type() & (VAR_DATE|VAR_DATE_TIME)) == 0) {
         releaseBuffers();
         dataSize(sizeof(value));
     }
 
     DateTime::duration sinceEpoch = value.timePoint().time_since_epoch();
     if (dateOnly) {
-        m_dataType = VAR_DATE;
+        m_data.type(VAR_DATE);
         int64_t days = chrono::duration_cast<chrono::hours>(sinceEpoch).count() / 24;
         m_data.getInt64() = days * 86400 * 1000000;
     } else {
-        m_dataType = VAR_DATE_TIME;
+        m_data.type(VAR_DATE_TIME);
         m_data.getInt64() = chrono::duration_cast<chrono::microseconds>(sinceEpoch).count();
     }
 }
@@ -311,7 +307,7 @@ void VariantAdaptors::setDateTime(DateTime value, bool dateOnly)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setImagePtr(const void* value)
 {
-    if (m_dataType != VAR_IMAGE_PTR) {
+    if (m_data.type() != VAR_IMAGE_PTR) {
         releaseBuffers();
         dataType(VAR_IMAGE_PTR);
         dataSize(sizeof(value));
@@ -404,7 +400,7 @@ void VariantAdaptors::setData(const BaseVariant& C)
             break;
     }
 
-    m_dataType = C.m_dataType;
+    m_data.type(C.m_data.type());
 }
 
 //---------------------------------------------------------------------------
@@ -422,10 +418,6 @@ Variant& Variant::operator=(Variant&& other) noexcept
     if (this == &other)
         return *this;
     m_data = move(other.m_data);
-    m_dataType = other.m_dataType;
-    m_dataSize = other.m_dataSize;
-    other.m_dataType = VAR_NONE | VAR_NULL;
-    other.m_dataSize = 0;
     return *this;
 }
 
@@ -568,13 +560,13 @@ uint32_t BaseVariant::getImageNdx() const
 //---------------------------------------------------------------------------
 VariantType BaseVariant::dataType() const
 {
-    return (VariantType) (m_dataType & VAR_TYPES);
+    return (VariantType) (m_data.type() & VAR_TYPES);
 }
 
 //---------------------------------------------------------------------------
 size_t BaseVariant::dataSize() const
 {
-    return m_dataSize;
+    return m_data.size();
 }
 
 //---------------------------------------------------------------------------
@@ -976,7 +968,7 @@ void VariantAdaptors::setNull(VariantType vtype)
 
 bool BaseVariant::isNull() const
 {
-    return (m_dataType & VAR_NULL) != 0 || (m_dataType & VAR_TYPES) == VAR_NONE;
+    return (m_data.type() & VAR_NULL) != 0 || (m_data.type() & VAR_TYPES) == VAR_NONE;
 }
 
 String BaseVariant::typeName(VariantType type)

@@ -59,9 +59,9 @@ void Field::setNull(VariantType vtype)
     }
 
     if (vtype == VAR_NONE)
-        m_dataType |= VAR_NULL;
+        m_data.type(m_data.type() | VAR_NULL);
     else
-        m_dataType = uint16_t(vtype | VAR_NULL);
+        m_data.type(vtype | VAR_NULL);
 }
 
 String Field::asString() const
