@@ -45,27 +45,12 @@ namespace sptk
 /**
  * Multiplicity flag
  */
-enum WSMultiplicity {
-    /**
-     * Element is required
-     */
-    WSM_REQUIRED       = 1,
-
-    /**
-     * Element is optional
-     */
-    WSM_OPTIONAL       = 2,
-
-    /**
-     * Element may occur 0 or more times
-     */
-    WSM_ZERO_OR_MORE   = 4,
-
-    /**
-     * Element may occur one or more times
-     */
-    WSM_ONE_OR_MORE    = 8
-
+enum WSMultiplicity
+{
+    WSM_REQUIRED       = 1, ///< Element is required
+    WSM_OPTIONAL       = 2, ///< Element is optional
+    WSM_ZERO_OR_MORE   = 4, ///< Element may occur 0 or more times
+    WSM_ONE_OR_MORE    = 8  ///< Element may occur one or more times
 };
 
 /**
@@ -231,10 +216,9 @@ private:
         size_t              restrictionNumber {0};
 
         void print(std::ostream& output) const;
-        void printImplementationLoadArray(const SWSParserComplexType& complexType, const String& restrictionName);
+        void printImplementationLoadArray(const SWSParserComplexType& complexType);
         String appendRestrictionIfDefined(const SWSParserComplexType& complexType);
-        void printImplementationLoadField(Strings& requiredElements, const SWSParserComplexType& complexType,
-                                          const String& restrictionName);
+        void printImplementationLoadField(Strings& requiredElements, const SWSParserComplexType& complexType);
     };
 
     /**
@@ -307,7 +291,7 @@ private:
      */
     void printImplementationUnloadParamList(std::ostream& classImplementation, const String& className) const;
 
-    void printImplementationRestrictions(std::ostream& classImplementation, const Strings& requiredElements) const;
+    void printImplementationRestrictions(std::ostream& classImplementation, std::ostream& checks) const;
 
     void printDeclarationIncludes(std::ostream& classDeclaration, const std::set<String>& usedClasses) const;
 
@@ -330,7 +314,8 @@ private:
     void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames,
                                Strings& copyInitializer, Strings& moveInitializer) const;
 
-    String addOptionalRestriction(std::stringstream& fieldLoads, const SWSParserComplexType& complexType) const;
+    String addOptionalRestriction(std::ostream& implementation, const SWSParserComplexType& complexType,
+                                  size_t& restrictionIndex) const;
 };
 
 /**
