@@ -355,6 +355,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition << "    void process_" << requestName << "(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);" << endl << endl;
     }
     serviceDefinition << "};" << endl << endl;
+    serviceDefinition << "typedef std::shared_ptr<" << serviceClassName << "> S" << capitalize(m_serviceName) + "ServiceBase;" << endl << endl;
     serviceDefinition << "}" << endl << endl;
     serviceDefinition << "#endif" << endl;
 }
