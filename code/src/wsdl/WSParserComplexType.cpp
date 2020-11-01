@@ -418,7 +418,7 @@ void WSParserComplexType::printImplementationRestrictions(std::ostream& classImp
 
     if (!requiredElements.empty()) {
         checks << "    // Check 'required' restrictions" << endl;
-        for (auto& requiredElement : requiredElements)
+        for (const auto& requiredElement : requiredElements)
             checks << "    m_" << requiredElement << ".throwIfNull(\"" << wsClassName(m_name) << "." << requiredElement << "\");" << endl;
     }
 }

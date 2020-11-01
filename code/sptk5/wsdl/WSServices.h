@@ -46,6 +46,11 @@ public:
     WSServices(const SWSRequest& defaultService);
 
     /**
+     * Destructor
+     */
+    ~WSServices() = default;
+
+    /**
      * Copy constructor
      *
      * Registers default service for empty location

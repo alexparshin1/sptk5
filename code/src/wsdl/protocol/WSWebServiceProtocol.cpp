@@ -117,7 +117,7 @@ void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& htt
 
 String WSWebServiceProtocol::processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
                                             const SHttpAuthentication& authentication, bool requestIsJSON,
-                                            HttpResponseStatus& httpResponseStatus, String& contentType)
+                                            HttpResponseStatus& httpResponseStatus, String& contentType) const
 {
     String requestName("Error");
     httpResponseStatus.code = 200;
@@ -278,7 +278,7 @@ RequestInfo WSWebServiceProtocol::process()
         if (m_url.params().has("wsdl")) {
             // Requested WSDL content
             returnWSDL = true;
-            auto& service = m_services.get(m_url.location());
+            const auto& service = m_services.get(m_url.location());
             requestInfo.response.content().set(service.wsdl());
             substituteHostname(requestInfo.response.content(), m_host);
             requestInfo.name = "wsdl";

@@ -253,7 +253,7 @@ void MySQLStatement::setParameterValues()
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            m_paramLengths[paramIndex] = (unsigned long) param->dataSize();
+            m_paramLengths[paramIndex] = param->dataSize();
             break;
 
         case VAR_DATE:
@@ -282,7 +282,7 @@ void MySQLStatement::setParameterValues()
 
 void MySQLStatement::MySQLStatement::prepare(const String& sql) const
 {
-    if (mysql_stmt_prepare(statement(), sql.c_str(), (unsigned long) sql.length()) != 0)
+    if (mysql_stmt_prepare(statement(), sql.c_str(), sql.length()) != 0)
         throwMySQLError();
 }
 
@@ -555,7 +555,7 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
         /// Fetch truncated, enlarge buffer and fetch again
         field->checkSize(dataLength);
         bind.buffer = field->getBuffer();
-        bind.buffer_length = (unsigned long) field->bufferSize();
+        bind.buffer_length = field->bufferSize();
         if (mysql_stmt_fetch_column(statement(), &bind, (unsigned) fieldIndex, 0) != 0)
             throwMySQLError();
         fieldSizeChanged = true;

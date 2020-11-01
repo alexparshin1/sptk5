@@ -88,7 +88,7 @@ private:
      */
     String processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
                           const SHttpAuthentication& authentication, bool requestIsJSON,
-                          HttpResponseStatus& httpResponseStatus, String& contentType);
+                          HttpResponseStatus& httpResponseStatus, String& contentType) const;
 
     xml::Node* getFirstChildElement(const xml::Node* element) const;
 

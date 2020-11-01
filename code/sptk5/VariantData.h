@@ -50,7 +50,7 @@ struct VariantDataBuffer
 /**
  * Variant types
  */
-enum VariantType : uint32_t
+enum VariantType : uint16_t
 {
     VAR_NONE      = 0,      ///< Undefined
     VAR_INT       = 1,      ///< Integer
