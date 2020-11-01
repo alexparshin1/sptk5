@@ -42,17 +42,6 @@ FieldList::FieldList(bool indexed, bool compactXmlMode)
 FieldList::FieldList(const FieldList& other)
 {
     assign(other);
-    if (other.m_index != nullptr)
-        m_index = make_shared<Map>();
-    else
-        m_index.reset();
-
-    for (const auto* otherField: other) {
-        auto* field = new Field(*otherField);
-        m_list.push_back(field);
-        if (m_index)
-            (*m_index)[field->fieldName()] = field;
-    }
 }
 
 FieldList::~FieldList()
