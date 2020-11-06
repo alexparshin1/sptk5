@@ -334,7 +334,7 @@ String sptk::wsTypeIdToName(const String& typeIdName)
 
 TEST(SPTK_WSInteger, move_ctor_assign)
 {
-    WSInteger   integer1("I1");
+    WSInteger   integer1("I1", false);
     integer1 = 5;
     EXPECT_EQ(integer1.asInteger(), 5);
     EXPECT_EQ(integer1.isNull(), false);
@@ -344,7 +344,7 @@ TEST(SPTK_WSInteger, move_ctor_assign)
     EXPECT_EQ(integer2.isNull(), false);
     EXPECT_EQ(integer1.isNull(), true);
 
-    WSInteger   integer3("I3");
+    WSInteger   integer3("I3", false);
     integer3 = move(integer2);
     EXPECT_EQ(integer3.asInteger(), 5);
     EXPECT_EQ(integer3.isNull(), false);
@@ -354,7 +354,7 @@ TEST(SPTK_WSInteger, move_ctor_assign)
 template <class T>
 void loadScriptAttackData()
 {
-    T  type("type");
+    T type("type", false);
     try {
         type.load("Hello, <script>alert(1);</script>");
         if (type.asString().find("<script>") != string::npos)

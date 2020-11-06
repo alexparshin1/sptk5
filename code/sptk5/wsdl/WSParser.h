@@ -74,7 +74,7 @@ public:
             m_elements.clear();
         }
 
-        const WSParserElement* element(const sptk::String& elementName, const sptk::String& context) const
+        [[nodiscard]] const WSParserElement* element(const sptk::String& elementName, const sptk::String& context) const
         {
             auto itor = m_elements.find(elementName);
             if (itor == m_elements.end())
@@ -82,9 +82,9 @@ public:
             return itor->second;
         }
 
-        const ElementMap& elements() const { return m_elements; }
+        [[nodiscard]] const ElementMap& elements() const { return m_elements; }
 
-        const SWSParserComplexType complexType(const sptk::String& elementName, const sptk::String& context) const
+        [[nodiscard]] const SWSParserComplexType complexType(const sptk::String& elementName, const sptk::String& context) const
         {
             auto itor = m_complexTypes.find(elementName);
             if (itor == m_complexTypes.end())
@@ -92,7 +92,7 @@ public:
             return itor->second;
         }
 
-        const WSComplexTypeMap& complexTypes() const { return m_complexTypes; }
+        [[nodiscard]] const WSComplexTypeMap& complexTypes() const { return m_complexTypes; }
 
     private:
 

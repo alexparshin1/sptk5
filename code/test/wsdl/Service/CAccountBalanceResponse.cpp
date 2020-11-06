@@ -9,6 +9,12 @@ const Strings CAccountBalanceResponse::m_fieldNames { "account_balance" };
 const Strings CAccountBalanceResponse::m_elementNames { "account_balance" };
 const Strings CAccountBalanceResponse::m_attributeNames { "" };
 
+void CAccountBalanceResponse::checkRestrictions() const
+{
+    // Check 'required' restrictions
+    m_account_balance.throwIfNull("AccountBalanceResponse.account_balance");
+}
+
 void CAccountBalanceResponse::_clear()
 {
     // Clear elements
@@ -30,10 +36,7 @@ void CAccountBalanceResponse::load(const xml::Element* input)
             continue;
         }
     }
-
-
-    // Check 'required' restrictions
-    m_account_balance.throwIfNull("AccountBalanceResponse");
+    checkRestrictions();
 }
 
 void CAccountBalanceResponse::load(const json::Element* input)
@@ -53,10 +56,7 @@ void CAccountBalanceResponse::load(const json::Element* input)
             continue;
         }
     }
-
-
-    // Check 'required' restrictions
-    m_account_balance.throwIfNull("AccountBalanceResponse");
+    checkRestrictions();
 }
 
 void CAccountBalanceResponse::load(const FieldList& input)
@@ -71,9 +71,7 @@ void CAccountBalanceResponse::load(const FieldList& input)
 
     }
 
-
-    // Check 'required' restrictions
-    m_account_balance.throwIfNull("AccountBalanceResponse");
+    checkRestrictions();
 }
 
 void CAccountBalanceResponse::unload(xml::Element* output) const

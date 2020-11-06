@@ -84,7 +84,7 @@ void BufferStorage::adjustSize(size_t sz)
 
 void BufferStorage::set(const char* data, size_t sz)
 {
-    checkSize(sz);
+    checkSize(sz + 1);
     if (data != nullptr) {
         memcpy(m_buffer, data, sz);
         m_buffer[sz] = 0;

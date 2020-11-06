@@ -117,6 +117,8 @@ private:
 
 };
 
+typedef std::shared_ptr<CTestServiceBase> STestServiceBase;
+
 }
 
 #endif

@@ -213,7 +213,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
             appendMemberDocumentation(classDeclaration, complexType);
 
             String cxxType = complexType->className();
-            string optional = (complexType->multiplicity() & WSM_OPTIONAL) != 0 ? ", true" : "";
+            string optional = (complexType->multiplicity() & WSM_OPTIONAL) != 0 ? ", true" : ", false";
             if (complexType->isArray())
                 cxxType = "sptk::WSArray<" + cxxType + ">";
             else
@@ -513,7 +513,7 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
             implementationParts.body << "        if (elementName == \"" << complexType->name() << "\") {" << endl;
             if (complexType->isArray()) {
                 implementationParts.body << "            for (const auto* arrayElement: element->getArray()) {" << endl;
-                implementationParts.body << "                " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
+                implementationParts.body << "                " << complexType->className() << " item(\"" << complexType->name() << "\", false);" << endl;
                 implementationParts.body << "                item.load(arrayElement);" << endl;
                 implementationParts.body << "                m_" << complexType->name() << ".push_back(move(item));" << endl;
                 implementationParts.body << "            }" << endl;
@@ -596,7 +596,7 @@ void WSParserComplexType::makeImplementationLoadFields(stringstream& fieldLoads,
             String restrictionCheck = addOptionalRestriction(fieldLoads, complexType, restrictionIndex);
 
             if (complexType->isArray()) {
-                fieldLoads << "        " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
+                fieldLoads << "        " << complexType->className() << " item(\"" << complexType->name() << "\", false);" << endl;
                 fieldLoads << "        item.load(*field);" << endl;
                 fieldLoads << "        m_" << complexType->name() << ".push_back(move(item));" << endl;
             }
@@ -854,7 +854,7 @@ void WSParserComplexType::ImplementationParts::print(ostream& output) const
 
 void WSParserComplexType::ImplementationParts::printImplementationLoadArray(const SWSParserComplexType& complexType)
 {
-    body << "            " << complexType->className() << " item(\"" << complexType->name() << "\");" << endl;
+    body << "            " << complexType->className() << " item(\"" << complexType->name() << "\", false);" << endl;
     body << "            item.load(element);" << endl;
     body << "            m_" << complexType->name() << ".push_back(move(item));" << endl;
 }

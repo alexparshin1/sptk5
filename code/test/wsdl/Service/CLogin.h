@@ -20,8 +20,8 @@ class CLogin : public sptk::WSComplexType
 public:
 
    // Elements
-   sptk::WSString       m_username {"username"};
-   sptk::WSString       m_password {"password"};
+   sptk::WSString       m_username {"username", false};
+   sptk::WSString       m_password {"password", false};
 
    // Field names of simple types, that can be used to build SQL queries
    static const sptk::Strings m_fieldNames;
@@ -97,6 +97,13 @@ protected:
     * Clear content and release allocated memory (internal)
     */
    void _clear() override;
+private:
+
+   /**
+    * Check restrictions
+    * Throws an exception if any restriction is violated.
+    */
+   void checkRestrictions() const;
 };
 
 typedef std::shared_ptr<CLogin> SLogin;

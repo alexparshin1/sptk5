@@ -20,12 +20,12 @@ class CHelloResponse : public sptk::WSComplexType
 public:
 
    // Elements
-   sptk::WSDate         m_date_of_birth {"date_of_birth"};
-   sptk::WSDateTime     m_verified {"verified"};
-   sptk::WSBool         m_retired {"retired"};
-   sptk::WSDouble       m_hour_rate {"hour_rate"};
-   sptk::WSInteger      m_vacation_days {"vacation_days"};
-   sptk::WSDouble       m_height {"height"};
+   sptk::WSDate         m_date_of_birth {"date_of_birth", false};
+   sptk::WSDateTime     m_verified {"verified", false};
+   sptk::WSBool         m_retired {"retired", false};
+   sptk::WSDouble       m_hour_rate {"hour_rate", false};
+   sptk::WSInteger      m_vacation_days {"vacation_days", false};
+   sptk::WSDouble       m_height {"height", false};
 
    // Field names of simple types, that can be used to build SQL queries
    static const sptk::Strings m_fieldNames;
@@ -101,6 +101,13 @@ protected:
     * Clear content and release allocated memory (internal)
     */
    void _clear() override;
+private:
+
+   /**
+    * Check restrictions
+    * Throws an exception if any restriction is violated.
+    */
+   void checkRestrictions() const;
 };
 
 typedef std::shared_ptr<CHelloResponse> SHelloResponse;

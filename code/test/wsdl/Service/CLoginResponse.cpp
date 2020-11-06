@@ -9,6 +9,12 @@ const Strings CLoginResponse::m_fieldNames { "jwt" };
 const Strings CLoginResponse::m_elementNames { "jwt" };
 const Strings CLoginResponse::m_attributeNames { "" };
 
+void CLoginResponse::checkRestrictions() const
+{
+    // Check 'required' restrictions
+    m_jwt.throwIfNull("LoginResponse.jwt");
+}
+
 void CLoginResponse::_clear()
 {
     // Clear elements
@@ -30,10 +36,7 @@ void CLoginResponse::load(const xml::Element* input)
             continue;
         }
     }
-
-
-    // Check 'required' restrictions
-    m_jwt.throwIfNull("LoginResponse");
+    checkRestrictions();
 }
 
 void CLoginResponse::load(const json::Element* input)
@@ -53,10 +56,7 @@ void CLoginResponse::load(const json::Element* input)
             continue;
         }
     }
-
-
-    // Check 'required' restrictions
-    m_jwt.throwIfNull("LoginResponse");
+    checkRestrictions();
 }
 
 void CLoginResponse::load(const FieldList& input)
@@ -71,9 +71,7 @@ void CLoginResponse::load(const FieldList& input)
 
     }
 
-
-    // Check 'required' restrictions
-    m_jwt.throwIfNull("LoginResponse");
+    checkRestrictions();
 }
 
 void CLoginResponse::unload(xml::Element* output) const

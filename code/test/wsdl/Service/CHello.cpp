@@ -9,6 +9,14 @@ const Strings CHello::m_fieldNames { "action", "first_name", "last_name" };
 const Strings CHello::m_elementNames { "action", "first_name", "last_name" };
 const Strings CHello::m_attributeNames { "" };
 
+void CHello::checkRestrictions() const
+{
+    // Check 'required' restrictions
+    m_action.throwIfNull("Hello.action");
+    m_first_name.throwIfNull("Hello.first_name");
+    m_last_name.throwIfNull("Hello.last_name");
+}
+
 void CHello::_clear()
 {
     // Clear elements
@@ -42,12 +50,7 @@ void CHello::load(const xml::Element* input)
             continue;
         }
     }
-
-
-    // Check 'required' restrictions
-    m_action.throwIfNull("Hello");
-    m_first_name.throwIfNull("Hello");
-    m_last_name.throwIfNull("Hello");
+    checkRestrictions();
 }
 
 void CHello::load(const json::Element* input)
@@ -77,12 +80,7 @@ void CHello::load(const json::Element* input)
             continue;
         }
     }
-
-
-    // Check 'required' restrictions
-    m_action.throwIfNull("Hello");
-    m_first_name.throwIfNull("Hello");
-    m_last_name.throwIfNull("Hello");
+    checkRestrictions();
 }
 
 void CHello::load(const FieldList& input)
@@ -107,11 +105,7 @@ void CHello::load(const FieldList& input)
 
     }
 
-
-    // Check 'required' restrictions
-    m_action.throwIfNull("Hello");
-    m_first_name.throwIfNull("Hello");
-    m_last_name.throwIfNull("Hello");
+    checkRestrictions();
 }
 
 void CHello::unload(xml::Element* output) const

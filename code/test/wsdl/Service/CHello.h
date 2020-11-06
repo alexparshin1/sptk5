@@ -20,9 +20,9 @@ class CHello : public sptk::WSComplexType
 public:
 
    // Elements
-   sptk::WSString       m_action {"action"};
-   sptk::WSString       m_first_name {"first_name"};
-   sptk::WSString       m_last_name {"last_name"};
+   sptk::WSString       m_action {"action", false};
+   sptk::WSString       m_first_name {"first_name", false};
+   sptk::WSString       m_last_name {"last_name", false};
 
    // Field names of simple types, that can be used to build SQL queries
    static const sptk::Strings m_fieldNames;
@@ -98,6 +98,13 @@ protected:
     * Clear content and release allocated memory (internal)
     */
    void _clear() override;
+private:
+
+   /**
+    * Check restrictions
+    * Throws an exception if any restriction is violated.
+    */
+   void checkRestrictions() const;
 };
 
 typedef std::shared_ptr<CHello> SHello;

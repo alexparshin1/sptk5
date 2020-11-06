@@ -49,7 +49,7 @@ public:
      * Get WS type name
      * @return WS type name
      */
-    virtual String className() const { return ""; }
+    [[nodiscard]] virtual String className() const { return ""; }
 
     virtual void owaspCheck(const String& value);
 };
@@ -67,10 +67,17 @@ class SP_EXPORT WSBasicType : public Field, public WSTypeName
 public:
     /**
      * Constructor
+     */
+    WSBasicType()
+    : Field(""), m_optional(false)
+    {}
+
+    /**
+     * Constructor
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSBasicType(const char* name = "", bool optional = false)
+    WSBasicType(const char* name, bool optional)
     : Field(name), m_optional(optional)
     {}
 
@@ -96,8 +103,8 @@ public:
     WSBasicType& operator = (WSBasicType&& other) noexcept
     {
         if (&other != this) {
-            *(Field*) this = std::move(other);
             m_optional = other.m_optional;
+            *(Field*) this = std::move(other);
         }
         return *this;
     }
@@ -199,13 +206,30 @@ class SP_EXPORT WSString : public WSBasicType
 public:
     /**
      * Constructor
+     */
+    WSString()
+    {
+        Field::setNull(VAR_STRING);
+    }
+
+    /**
+     * Constructor
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    WSString(const char* name = "", bool optional = false)
-            : WSBasicType(name, optional)
+    WSString(const String& name, bool optional)
+    : WSBasicType(name.c_str(), optional)
     {
         Field::setNull(VAR_STRING);
+    }
+
+    /**
+     * Constructor
+     * @param value             Value
+     */
+    explicit WSString(const String& value)
+    {
+        Field::setString(value);
     }
 
     /**
@@ -302,13 +326,31 @@ class SP_EXPORT WSBool : public WSBasicType
 public:
     /**
      * Constructor
+     */
+    WSBool()
+    {
+        Field::setNull(VAR_BOOL);
+    }
+
+    /**
+     * Constructor
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    explicit WSBool(const char* name = "", bool optional = false)
-    : WSBasicType(name, optional)
+    WSBool(const String& name, bool optional)
+            : WSBasicType(name.c_str(), optional)
     {
         Field::setNull(VAR_BOOL);
+    }
+
+    /**
+     * Constructor
+     * @param value             Value
+     * @param optional          Element optionality flag
+     */
+    explicit WSBool(bool value)
+    {
+        Field::setBool(value);
     }
 
     /**
@@ -361,13 +403,31 @@ class SP_EXPORT WSDate : public WSBasicType
 public:
     /**
      * Constructor
+     */
+    WSDate()
+    {
+        Field::setNull(VAR_DATE);
+    }
+
+    /**
+     * Constructor
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    explicit WSDate(const char* name = "", bool optional = false)
-    : WSBasicType(name, optional)
+    WSDate(const String& name, bool optional)
+    : WSBasicType(name.c_str(), optional)
     {
         Field::setNull(VAR_DATE);
+    }
+
+    /**
+     * Constructor
+     * @param value             Value
+     */
+    explicit WSDate(const DateTime& value)
+    {
+        setDateTime(value);
+        dataType(VAR_DATE);
     }
 
     /**
@@ -428,13 +488,30 @@ class SP_EXPORT WSDateTime : public WSBasicType
 public:
     /**
      * Constructor
+     */
+    WSDateTime()
+    {
+        Field::setNull(VAR_DATE_TIME);
+    }
+
+    /**
+     * Constructor
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    explicit WSDateTime(const char* name = "", bool optional = false)
-    : WSBasicType(name, optional)
+    WSDateTime(const String& name, bool optional)
+    : WSBasicType(name.c_str(), optional)
     {
         Field::setNull(VAR_DATE_TIME);
+    }
+
+    /**
+     * Constructor
+     * @param value             Value
+     */
+    explicit WSDateTime(const DateTime& value)
+    {
+        Field::setDateTime(value);
     }
 
     /**
@@ -500,17 +577,24 @@ class SP_EXPORT WSDouble : public WSBasicType
 public:
     /**
      * Constructor
+     */
+    WSDouble()
+    {
+        Field::setNull(VAR_FLOAT);
+    }
+
+    /**
+     * Constructor
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
-    explicit WSDouble(const char* name = "", bool optional = false)
-    : WSBasicType(name, optional)
+    WSDouble(const String& name, bool optional)
+    : WSBasicType(name.c_str(), optional)
     {
         Field::setNull(VAR_FLOAT);
     }
 
     explicit WSDouble(double value)
-    : WSBasicType("", true)
     {
         Field::setFloat(value);
     }
@@ -573,20 +657,28 @@ class SP_EXPORT WSInteger : public WSBasicType
 public:
     /**
      * Constructor
-     * @param name              WSDL element name
-     * @param optional          Element optionality flag
      */
-    explicit WSInteger(const char* name = "", bool optional = false)
-    : WSBasicType(name, optional)
+    WSInteger()
     {
         Field::setNull(VAR_INT);
     }
 
     /**
      * Constructor
+     * @param name              WSDL element name
+     * @param optional          Element optionality flag
+     */
+    WSInteger(const String& name, bool optional)
+    : WSBasicType(name.c_str(), optional)
+    {
+        Field::setNull(VAR_INT);
+    }
+
+    /**
+     * Constructor
+     * @param value             Value
      */
     explicit WSInteger(int value)
-    : WSBasicType("", true)
     {
         Field::setInteger(value);
     }
@@ -676,12 +768,12 @@ public:
    /**
      * Return class name
      */
-    String className() const override
+    [[nodiscard]] String className() const override
     {
         return "WSArray";
     }
 
-    bool isNull() const { return std::vector<T>::empty(); }
+    [[nodiscard]] bool isNull() const { return std::vector<T>::empty(); }
 };
 
 /**

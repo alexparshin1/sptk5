@@ -43,7 +43,7 @@ public:
      * Registers default service for empty location
      * @param defaultService    Default service
      */
-    WSServices(const SWSRequest& defaultService);
+    explicit WSServices(const SWSRequest& defaultService);
 
     /**
      * Destructor

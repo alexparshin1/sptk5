@@ -9,6 +9,17 @@ const Strings CHelloResponse::m_fieldNames { "date_of_birth", "verified", "retir
 const Strings CHelloResponse::m_elementNames { "date_of_birth", "verified", "retired", "hour_rate", "vacation_days", "height" };
 const Strings CHelloResponse::m_attributeNames { "" };
 
+void CHelloResponse::checkRestrictions() const
+{
+    // Check 'required' restrictions
+    m_date_of_birth.throwIfNull("HelloResponse.date_of_birth");
+    m_verified.throwIfNull("HelloResponse.verified");
+    m_retired.throwIfNull("HelloResponse.retired");
+    m_hour_rate.throwIfNull("HelloResponse.hour_rate");
+    m_vacation_days.throwIfNull("HelloResponse.vacation_days");
+    m_height.throwIfNull("HelloResponse.height");
+}
+
 void CHelloResponse::_clear()
 {
     // Clear elements
@@ -60,15 +71,7 @@ void CHelloResponse::load(const xml::Element* input)
             continue;
         }
     }
-
-
-    // Check 'required' restrictions
-    m_date_of_birth.throwIfNull("HelloResponse");
-    m_verified.throwIfNull("HelloResponse");
-    m_retired.throwIfNull("HelloResponse");
-    m_hour_rate.throwIfNull("HelloResponse");
-    m_vacation_days.throwIfNull("HelloResponse");
-    m_height.throwIfNull("HelloResponse");
+    checkRestrictions();
 }
 
 void CHelloResponse::load(const json::Element* input)
@@ -113,15 +116,7 @@ void CHelloResponse::load(const json::Element* input)
             continue;
         }
     }
-
-
-    // Check 'required' restrictions
-    m_date_of_birth.throwIfNull("HelloResponse");
-    m_verified.throwIfNull("HelloResponse");
-    m_retired.throwIfNull("HelloResponse");
-    m_hour_rate.throwIfNull("HelloResponse");
-    m_vacation_days.throwIfNull("HelloResponse");
-    m_height.throwIfNull("HelloResponse");
+    checkRestrictions();
 }
 
 void CHelloResponse::load(const FieldList& input)
@@ -161,14 +156,7 @@ void CHelloResponse::load(const FieldList& input)
 
     }
 
-
-    // Check 'required' restrictions
-    m_date_of_birth.throwIfNull("HelloResponse");
-    m_verified.throwIfNull("HelloResponse");
-    m_retired.throwIfNull("HelloResponse");
-    m_hour_rate.throwIfNull("HelloResponse");
-    m_vacation_days.throwIfNull("HelloResponse");
-    m_height.throwIfNull("HelloResponse");
+    checkRestrictions();
 }
 
 void CHelloResponse::unload(xml::Element* output) const

@@ -9,6 +9,13 @@ const Strings CLogin::m_fieldNames { "username", "password" };
 const Strings CLogin::m_elementNames { "username", "password" };
 const Strings CLogin::m_attributeNames { "" };
 
+void CLogin::checkRestrictions() const
+{
+    // Check 'required' restrictions
+    m_username.throwIfNull("Login.username");
+    m_password.throwIfNull("Login.password");
+}
+
 void CLogin::_clear()
 {
     // Clear elements
@@ -36,11 +43,7 @@ void CLogin::load(const xml::Element* input)
             continue;
         }
     }
-
-
-    // Check 'required' restrictions
-    m_username.throwIfNull("Login");
-    m_password.throwIfNull("Login");
+    checkRestrictions();
 }
 
 void CLogin::load(const json::Element* input)
@@ -65,11 +68,7 @@ void CLogin::load(const json::Element* input)
             continue;
         }
     }
-
-
-    // Check 'required' restrictions
-    m_username.throwIfNull("Login");
-    m_password.throwIfNull("Login");
+    checkRestrictions();
 }
 
 void CLogin::load(const FieldList& input)
@@ -89,10 +88,7 @@ void CLogin::load(const FieldList& input)
 
     }
 
-
-    // Check 'required' restrictions
-    m_username.throwIfNull("Login");
-    m_password.throwIfNull("Login");
+    checkRestrictions();
 }
 
 void CLogin::unload(xml::Element* output) const
