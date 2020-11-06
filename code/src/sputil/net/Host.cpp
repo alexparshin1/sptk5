@@ -68,30 +68,31 @@ Host::Host(const String& hostAndPort)
 
 Host::Host(const sockaddr_in* addressAndPort)
 {
-    socklen_t addressLen = 0;
-    const sockaddr_in6* addressAndPort6;
+    socklen_t addressLen = sizeof(sockaddr_in);
+    memcpy(m_address, addressAndPort, addressLen);
+    m_port = htons(ip_v4().sin_port);
 
-    switch (addressAndPort->sin_family) {
-        case AF_INET:
-            addressLen = sizeof(sockaddr_in);
-            memcpy(m_address, addressAndPort, addressLen);
-            m_port = htons(ip_v4().sin_port);
-            break;
-        case AF_INET6:
-            addressAndPort6 = (const sockaddr_in6*) addressAndPort;
-            addressLen = sizeof(sockaddr_in6);
-            memcpy((sockaddr_in6*) m_address, addressAndPort6, addressLen);
-            m_port = htons(ip_v6().sin6_port);
-            break;
-        default:
-            break;
-    }
+    setHostNameFromAddress(addressLen);
+}
 
+Host::Host(const sockaddr_in6* addressAndPort)
+{
+    socklen_t addressLen = sizeof(sockaddr_in6);
+
+    const auto* addressAndPort6 = addressAndPort;
+    memcpy((sockaddr_in6*) m_address, addressAndPort6, addressLen);
+    m_port = htons(ip_v6().sin6_port);
+
+    setHostNameFromAddress(addressLen);
+}
+
+void Host::setHostNameFromAddress(socklen_t addressLen)
+{
 #ifdef _WIN32
     char hbuf[NI_MAXHOST];
-    char sbuf[NI_MAXSERV];
-    if (getnameinfo((const sockaddr*)m_address, addressLen, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), 0) == 0)
-        m_hostname = hbuf;
+        char sbuf[NI_MAXSERV];
+        if (getnameinfo((const sockaddr*)m_address, addressLen, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), 0) == 0)
+            m_hostname = hbuf;
 #else
     char hbuf[NI_MAXHOST];
     char sbuf[NI_MAXSERV];

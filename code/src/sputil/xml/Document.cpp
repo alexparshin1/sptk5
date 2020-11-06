@@ -259,7 +259,7 @@ char* Document::readProcessingInstructions(const char* nodeName, char* tokenEnd,
         throw Exception("Invalid PI section: no closing tag");
     *nodeEnd = 0;
     *tokenEnd = 0;
-    auto* pi = new PI(*currentNode, nodeName + 1);
+    auto* pi = currentNode->add<PI>(nodeName + 1);
     processAttributes(pi, tokenEnd + 1);
 
     ++nodeEnd;
@@ -311,11 +311,11 @@ char* Document::readOpenningTag(const char* nodeName, char* tokenEnd, char*& nod
     /// Attributes
     Node* anode;
     if (*nodeEnd == '/') {
-        anode = new Element(currentNode, nodeName);
+        anode = currentNode->add<Element>(nodeName);
         *nodeEnd = 0;
         ++nodeEnd;
     } else {
-        anode = currentNode = new Element(currentNode, nodeName);
+        anode = currentNode = currentNode->add<Element>(nodeName);
         *nodeEnd = 0;
     }
     processAttributes(anode, tokenStart);
@@ -519,19 +519,19 @@ TEST(SPTK_XmlDocument, add)
     xml::Document document;
     document.load(testXML);
 
-    (new xml::Element(&document, "name"))->text("John");
-    (new xml::Element(&document, "age"))->text("33");
-    (new xml::Element(&document, "temperature"))->text("33.6");
-    (new xml::Element(&document, "timestamp"))->text("1519005758000");
+    document.add<xml::Element>("name")->text("John");
+    document.add<xml::Element>("age")->text("33");
+    document.add<xml::Element>("temperature")->text("33.6");
+    document.add<xml::Element>("timestamp")->text("1519005758000");
 
     auto* skills = new xml::Element(&document, "skills");
-    (new xml::Element(skills, "skill"))->text("C++");
-    (new xml::Element(skills, "skill"))->text("Java");
-    (new xml::Element(skills, "skill"))->text("Motorbike");
+    skills->add<xml::Element>("skill")->text("C++");
+    skills->add<xml::Element>("skill")->text("Java");
+    skills->add<xml::Element>("skill")->text("Motorbike");
 
     auto* address = new xml::Element(&document, "address");
-    (new xml::Element(address, "married"))->text("true");
-    (new xml::Element(address, "employed"))->text("false");
+    address->add<xml::Element>("married")->text("true");
+    address->add<xml::Element>("employed")->text("false");
 
     verifyDocument(document);
 }

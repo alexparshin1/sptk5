@@ -374,6 +374,12 @@ public:
      */
     Node* findOrCreate(const String& name, bool recursively = true);
 
+    template <class T>
+    T* add(const String& nameOrData)
+    {
+        return new T(this, nameOrData.c_str());
+    }
+
     /**
      * Finds the first subnode with the given name, or creates a new one.
      *

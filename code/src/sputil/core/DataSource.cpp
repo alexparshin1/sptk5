@@ -55,7 +55,7 @@ void DataSource::toXML(xml::Node& parentNode, const string& nodeName, bool compa
     try {
         open();
         while (!eof()) {
-            xml::Node& node = *(new xml::Element(parentNode, nodeName));
+            xml::Node& node = *parentNode.add<xml::Element>(nodeName);
             rowToXML(node, compactXmlMode);
             next();
         }

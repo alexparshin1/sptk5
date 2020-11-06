@@ -250,7 +250,7 @@ void ElementGetMethods::exportValueTo(const String& name, xml::Element& parentNo
 {
     xml::Element* node {nullptr};
     if (type() != JDT_ARRAY)
-        node = new xml::Element(parentNode, name);
+        node = parentNode.add<xml::Element>(name);
     switch (type()) {
         case JDT_NUMBER:
         case JDT_BOOLEAN:

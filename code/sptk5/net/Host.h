@@ -147,9 +147,15 @@ public:
 
     /**
      * Constructor
-     * @param addressAndPort    The host and port, ether IPv4 or IPv6
+     * @param addressAndPort    The host and port, IPv4
      */
     explicit Host(const sockaddr_in* addressAndPort);
+
+    /**
+     * Constructor
+     * @param addressAndPort    The host and port, IPv6
+     */
+    explicit Host(const sockaddr_in6* addressAndPort);
 
     /**
      * Copy constructor
@@ -248,6 +254,8 @@ public:
         SharedLock(m_mutex);
         memcpy(&address, &m_address, sizeof(address));
     }
+
+    void setHostNameFromAddress(socklen_t addressLen);
 };
 
 /**

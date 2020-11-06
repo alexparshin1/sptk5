@@ -59,17 +59,12 @@ public:
  */
 class SP_EXPORT WSBasicType : public Field, public WSTypeName
 {
-    /**
-     * Element optionality flag
-     */
-    bool m_optional;
-
 public:
     /**
      * Constructor
      */
     WSBasicType()
-    : Field(""), m_optional(false)
+    : Field("")
     {}
 
     /**
@@ -196,6 +191,10 @@ public:
      * @param parentTypeName    Parent object type name
      */
     void throwIfNull(const String& parentTypeName) const;
+
+private:
+
+    bool m_optional {false};    ///< Element optionality flag
 };
 
 /**
@@ -426,7 +425,7 @@ public:
      */
     explicit WSDate(const DateTime& value)
     {
-        setDateTime(value);
+        Field::setDateTime(value);
         dataType(VAR_DATE);
     }
 
