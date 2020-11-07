@@ -44,7 +44,7 @@ WSParserAttribute::WSParserAttribute(const String& name, const String& typeName)
 String WSParserAttribute::generate(bool initialize) const
 {
     stringstream str;
-    str << left << setw(20) << m_cxxTypeName << " m_" << m_name;
+    str << left << setw(30) << m_cxxTypeName << " m_" << m_name;
     if (initialize)
         str << " {\"" << m_name << "\"}";
     return str.str();
@@ -224,7 +224,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
             copyInitializer.push_back("m_" + complexType->name() + "(other.m_" + complexType->name() + ")");
             moveInitializer.push_back("m_" + complexType->name() + "(std::move(other.m_" + complexType->name() + "))");
 
-            classDeclaration << "   " << left << setw(20) << cxxType << " m_" << complexType->name();
+            classDeclaration << "   " << left << setw(30) << cxxType << " m_" << complexType->name();
             if (!complexType->isArray())
                 classDeclaration
                     << " {\"" << complexType->name() << "\"" << optional << "}";

@@ -228,6 +228,12 @@ public:
     bool startsWith(const String& subject) const;
 
     /**
+     * Returns true if the string contains subject
+     * @param subject           Subject to look for
+     */
+    bool contains(const String& subject) const;
+
+    /**
      * Returns true if the string ends with subject
      * @param subject           Subject to look for
      */

@@ -27,6 +27,8 @@
 #include <fstream>
 #include <sptk5/Strings.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/String.h>
+
 
 using namespace std;
 using namespace sptk;
@@ -61,6 +63,12 @@ bool String::endsWith(const String& subject) const
 {
     size_t pos = rfind(subject);
     return pos != string::npos && pos == length() - subject.length();
+}
+
+bool String::contains(const String& subject) const
+{
+    size_t pos = find(subject);
+    return pos != string::npos;
 }
 
 String String::replace(const String& pattern, const String& replacement) const
