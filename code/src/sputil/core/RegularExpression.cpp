@@ -585,6 +585,16 @@ TEST(SPTK_RegularExpression, match_first)
     EXPECT_STREQ(words.c_str(), "test text");
 }
 
+TEST(SPTK_RegularExpression, match_first_group)
+{
+    RegularExpression matchFirst("(test text)", "g");
+    auto matches = matchFirst.m(testPhrase);
+    String words;
+    for (auto& match: matches.groups())
+        words = match.value;
+    EXPECT_STREQ(words.c_str(), "test text");
+}
+
 TEST(SPTK_RegularExpression, match_many)
 {
     RegularExpression matchWord("(\\w+)+", "g");
