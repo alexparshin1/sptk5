@@ -333,7 +333,11 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
 
         matchedStrings.grow(matchCount);
 
-        for (size_t matchIndex = 1; matchIndex < matchCount; ++matchIndex) {
+        size_t matchIndex = 0;
+        if (matchCount > 1)
+            matchIndex++;
+
+        for (; matchIndex < matchCount; ++matchIndex) {
             const Match& match = matchData.matches[matchIndex];
             if (match.m_start >= 0)
                 matchedStrings.add(
@@ -570,6 +574,16 @@ const String& RegularExpression::pattern() const
 #if USE_GTEST
 
 static const String testPhrase("This is a test text to verify rexec text data group");
+
+TEST(SPTK_RegularExpression, match_first)
+{
+    RegularExpression matchFirst("test text", "g");
+    auto matches = matchFirst.m(testPhrase);
+    String words;
+    for (auto& match: matches.groups())
+        words = match.value;
+    EXPECT_STREQ(words.c_str(), "test text");
+}
 
 TEST(SPTK_RegularExpression, match_many)
 {
