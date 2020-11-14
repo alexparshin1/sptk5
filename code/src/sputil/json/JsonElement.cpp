@@ -855,7 +855,7 @@ Element::XPath::XPath(const sptk::String& _xpath)
         int index = 0;
         if (matches.groups().size() > 2)
             index = matches[2].value == "last()" ? -1 : string2int(matches[2].value);
-        emplace_back(matches[size_t(0)].value, index);
+        emplace_back(matches[0].value, index);
     }
 }
 

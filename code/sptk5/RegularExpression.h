@@ -177,7 +177,18 @@ public:
          * @param index         Group index, 0-based
          * @return const reference to a group
          */
-        const Group& operator[] (size_t index) const;
+        const Group& operator[] (int index) const;
+
+        /**
+         * Get unnamed group by index.
+         * If group doesn't exist, return reference to empty group.
+         * @param index         Group index, 0-based
+         * @return const reference to a group
+         */
+        const Group& operator[] (size_t index) const
+        {
+            return operator[] (int(index));
+        }
 
         /**
          * Get named group by capture group name.

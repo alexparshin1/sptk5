@@ -123,9 +123,9 @@ RegularExpression::Groups::Groups(RegularExpression::Groups&& other) noexcept
 : m_groups(move(other.m_groups)), m_namedGroups(move(other.m_namedGroups))
 {}
 
-const RegularExpression::Group& RegularExpression::Groups::operator[](size_t index) const
+const RegularExpression::Group& RegularExpression::Groups::operator[](int index) const
 {
-    if (index >= m_groups.size())
+    if (size_t(index) >= m_groups.size())
         return emptyGroup;
     return m_groups[index];
 }

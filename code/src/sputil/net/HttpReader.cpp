@@ -75,7 +75,7 @@ bool HttpReader::readHttpRequest()
     RegularExpression parseProtocol("^(GET|POST|DELETE|PUT|OPTIONS) (\\S+)", "i");
     auto matches = parseProtocol.m(request);
     if (matches) {
-        m_requestType = matches[size_t(0)].value.toUpperCase();
+        m_requestType = matches[0].value.toUpperCase();
         m_requestURL = matches[1].value;
         return true;
     }

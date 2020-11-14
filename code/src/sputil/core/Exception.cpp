@@ -38,7 +38,7 @@ Exception::Exception(const String& text, const String& file, int line, const Str
         String fname(file);
         auto matches = matchFileName.m(file);
         if (!matches.empty())
-            fname = matches[size_t(0)].value;
+            fname = matches[0].value;
 		m_fullMessage += " in " + fname + "(" + int2string(uint32_t(m_line)) + ")";
     }
 

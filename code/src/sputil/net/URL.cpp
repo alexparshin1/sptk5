@@ -107,7 +107,7 @@ String URL::location() const
     if (!matches)
         return "";
 
-    return matches[size_t(0)].value;
+    return matches[0].value;
 }
 
 #if USE_GTEST
