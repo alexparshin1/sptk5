@@ -115,12 +115,12 @@ void Query::execute()
 
 //==============================================================================
 Query::Query() noexcept
-: QueryStatementManagement(true)
+: QueryStatementManagement(true), m_fields(false)
 {
 }
 
 Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
-: QueryStatementManagement(autoPrepare)
+: QueryStatementManagement(autoPrepare), m_fields(false)
 {
     if (db) {
         setDatabase(db->connection());
@@ -130,7 +130,7 @@ Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
 }
 
 Query::Query(PoolDatabaseConnection* db, const String& sql, bool autoPrepare)
-: QueryStatementManagement(autoPrepare)
+: QueryStatementManagement(autoPrepare), m_fields(false)
 {
     if (db != nullptr) {
         setDatabase(db);

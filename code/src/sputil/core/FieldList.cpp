@@ -32,8 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-FieldList::FieldList(bool indexed, bool compactXmlMode)
-: m_compactXmlMode(compactXmlMode)
+FieldList::FieldList(bool indexed)
 {
     if (indexed)
         m_index = make_shared<Map>();
@@ -126,10 +125,10 @@ Field *FieldList::findField(const String& fname) const
     return nullptr;
 }
 
-void FieldList::toXML(xml::Node& node) const
+void FieldList::toXML(xml::Node& node, bool compactMode) const
 {
     for (const auto* field: *this)
-        field->toXML(node, m_compactXmlMode);
+        field->toXML(node, compactMode);
 }
 
 #if USE_GTEST
@@ -246,7 +245,7 @@ TEST(SPTK_FieldList, toXml)
 
     xml::Document xml;
     auto* fieldsElement = new xml::Element(xml, "fields");
-    fieldList.toXML(*fieldsElement);
+    fieldList.toXML(*fieldsElement, false);
 
     Buffer buffer;
     fieldsElement->save(buffer);

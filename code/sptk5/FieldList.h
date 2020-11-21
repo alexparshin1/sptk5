@@ -67,7 +67,7 @@ public:
      * @param indexed           If you want to have a field index by name added. Such index speeds up the search of the field by name, but increases the occupied memory.
      * @param compactXmlMode    Compact XML export flag, @see xmlMode for details
      */
-    explicit FieldList(bool indexed=false, bool compactXmlMode=true);
+    explicit FieldList(bool indexed);
 
     /**
      * Copy constructor
@@ -131,18 +131,6 @@ public:
     const_iterator end() const
     {
         return m_list.end();
-    }
-
-    /**
-     * Defines XML export mode
-     *
-     * The compact XML modes means that fields values are stored as attributes, w/o type information.
-     * Otherwise, fields are stored as subnodes, with the field information stored as attributes.
-     * @param compact           Compact XML export flag
-     */
-    void xmlMode(bool compact)
-    {
-        m_compactXmlMode = compact;
     }
 
     /**
@@ -234,10 +222,12 @@ public:
     /**
      * Exports data into XML node
      *
-     * @see setXmlMode() for details.
-     * @param xml               XML node to store fields into
+     * The compact XML modes means that fields values are stored as attributes, w/o type information.
+     * Otherwise, fields are stored as subnodes, with the field information stored as attributes.
+     * @param node              XML node to store fields into
+     * @param compact           Compact XML export flag
      */
-    void toXML(xml::Node& xml) const;
+    void toXML(xml::Node& node, bool compactMode=false) const;
 
 private:
     /**
@@ -252,7 +242,6 @@ private:
 
     Vector                  m_list;                     ///< The list of fields
     std::shared_ptr<Map>    m_index;                    ///< The optional field index by name. 0L if field list isn't indexed.
-    bool                    m_compactXmlMode {false};   ///< The compact XML mode flag
 
     /**
      * Copy assignment

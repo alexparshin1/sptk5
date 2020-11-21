@@ -81,7 +81,7 @@ void stub()
     MD5                  md5;
     StubServer           tcpServer;
     Tar                  tar;
-    FieldList            fieldList(false);
+    FieldList fieldList(false);
     SharedStrings        sharedStrings;
     Variant              v;
     WSComplexType::FieldNameIndex fieldNames;

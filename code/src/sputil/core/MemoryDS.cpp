@@ -216,7 +216,7 @@ TEST(SPTK_MemoryDS, createAndVerify)
     EXPECT_TRUE(ds.empty());
 
     for (const auto& person: people) {
-        auto* row = new FieldList;
+        auto* row = new FieldList(false);
 
         auto* name = new Field("name");
         *name = person.name;
