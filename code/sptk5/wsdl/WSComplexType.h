@@ -232,7 +232,7 @@ public:
      * @param asJSON            Output is JSON (true) or XML (false)
      * @return object presentation as JSON or XML string
      */
-    String toString(bool asJSON=true) const;
+    String toString(bool asJSON = true, bool formatted=false) const;
 
     /**
      * Throw SOAPException is the object is null

@@ -70,19 +70,19 @@ void WSComplexType::addElement(json::Element* parent) const
     }
 }
 
-String WSComplexType::toString(bool asJSON) const
+String WSComplexType::toString(bool asJSON, bool formatted) const
 {
     Buffer          output;
 
     if (asJSON) {
         json::Document  outputJSON;
         unload(&outputJSON.root());
-        outputJSON.exportTo(output);
+        outputJSON.exportTo(output, formatted);
     } else {
         xml::Document outputXML;
         auto element = new xml::Element(outputXML, "type");
         unload(element);
-        outputXML.save(output, 2);
+        outputXML.save(output, formatted? 2 : 0);
     }
 
     return String(output.c_str(), output.bytes());
