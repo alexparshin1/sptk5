@@ -623,7 +623,7 @@ TEST(SPTK_RegularExpression, match_global)
 
     auto matchedStrings = match.m(testPhrase);
 
-    EXPECT_STREQ(matchedStrings[(size_t)0].value.c_str(), "text");
+    EXPECT_STREQ(matchedStrings[0].value.c_str(), "text");
     EXPECT_EQ(matchedStrings.groups().size(), size_t(4));
 }
 
@@ -681,7 +681,7 @@ TEST(SPTK_RegularExpression, extract)
     auto matchedStrings = match1.m(testPhrase);
     EXPECT_TRUE(matchedStrings);
     EXPECT_EQ(size_t(4), matchedStrings.groups().size());
-    EXPECT_STREQ("This is a test ", matchedStrings[(size_t)0].value.c_str());
+    EXPECT_STREQ("This is a test ", matchedStrings[0].value.c_str());
     EXPECT_STREQ(" rexec text data group", matchedStrings[3].value.c_str());
 }
 
@@ -705,7 +705,7 @@ TEST(SPTK_RegularExpression, match_performance)
     for (size_t i = 0; i < maxIterations; ++i) {
         String s(data);
         while (auto matches = match.m(s)) {
-            s = s.substr(matches[(size_t)0].value.length());
+            s = s.substr(matches[0].value.length());
             groupCount += matches.groups().size();
         }
     }

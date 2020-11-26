@@ -1092,7 +1092,7 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch) const
         if (functionHeader && !functionBody && matchFunctionBodyStart.matches(row)) {
             functionBody = true;
             functionHeader = false;
-            delimiter = matches[(size_t)0].value;
+            delimiter = matches[0].value;
             statement << row << "\n";
             continue;
         }

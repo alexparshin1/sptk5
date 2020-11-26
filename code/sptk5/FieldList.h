@@ -183,7 +183,7 @@ public:
      * @param index             Field index
      * @returns field reference
      */
-    Field& operator [](size_t index)
+    Field& operator [](int index)
     {
         return *m_list[index];
     }
@@ -194,7 +194,7 @@ public:
      * @param index             Field index
      * @returns field reference
      */
-    const Field& operator [](size_t index) const
+    const Field& operator [](int index) const
     {
         return *m_list[index];
     }
