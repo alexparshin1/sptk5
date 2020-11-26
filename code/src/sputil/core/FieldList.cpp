@@ -118,7 +118,7 @@ Field *FieldList::findField(const String& fname) const
     }
     else {
         for (auto* field: *this) {
-            if (strcmp(field->m_name.c_str(), fname.c_str()) == 0)
+            if (strcasecmp(field->m_name.c_str(), fname.c_str()) == 0)
                 return field;
         }
     }
