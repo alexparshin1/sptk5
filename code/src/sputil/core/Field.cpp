@@ -159,7 +159,7 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
                 node.setAttribute(fieldName(), value);
             else {
                 element = new xml::Element(node, "field");
-                element->value(value);
+                new xml::Text(element, value.c_str());
             }
         }
 

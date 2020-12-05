@@ -256,22 +256,20 @@ static const DateTimeFormat dateTimeFormatInitializer;
 
 namespace sptk {
 
+#if _WIN32
+#define gmtime_r(a,b)		gmtime_s(b,a)
+#define localtime_r(a,b)	localtime_s(b,a)
+#endif
+
 static void decodeDate(const DateTime::time_point& dt, short& year, short& month, short& day, short& dayOfWeek, short& dayOfYear,
                        bool gmt)
 {
     time_t tt = DateTime::clock::to_time_t(dt);
 
     tm time = {};
-#ifdef _WIN32
-    if (gmt)
-        gmtime_s(&time, &tt);
-    else
-        localtime_s(&time, &tt);
-#else
     if (!gmt)
         tt += DateTime::timeZoneOffset() * 60;
     gmtime_r(&tt, &time);
-#endif
 
     year = (short) (time.tm_year + 1900);
     month = (short) (time.tm_mon + 1);
@@ -286,14 +284,9 @@ static void decodeTime(const DateTime::time_point& dt, short& h, short& m, short
     time_t tt = DateTime::clock::to_time_t(dt);
 
     tm time = {};
-
     if (!gmt)
         tt += DateTime::timeZoneOffset() * 60;
-#ifdef _WIN32
-    gmtime_s(&time, &tt);
-#else
     gmtime_r(&tt, &time);
-#endif
 
     h = (short) time.tm_hour;
     m = (short) time.tm_min;
@@ -647,11 +640,6 @@ DateTime::duration operator-(const DateTime &dt, const sptk::DateTime &dt2)
 
 }
 
-#if _WIN32
-#define gmtime_r(a,b)		gmtime_s(b,a)
-#define localtime_r(a,b)	localtime_s(b,a)
-#endif
-
 //----------------------------------------------------------------
 // Format routine
 //----------------------------------------------------------------
@@ -661,11 +649,12 @@ void DateTime::formatDate(ostream& str, int printFlags) const
         return;
 
     time_t t = clock::to_time_t(m_dateTime);
+
+    if ((printFlags & PF_GMT) == 0)
+        t += DateTime::timeZoneOffset() * 60;
+
     tm     tt {};
-    if ((printFlags & PF_GMT) != 0)
-        gmtime_r(&t, &tt);
-    else
-        localtime_r(&t, &tt);
+    gmtime_r(&t, &tt);
 
     char buffer[128];
     size_t len;
@@ -992,6 +981,20 @@ TEST(SPTK_DateTime, formatTime)
 
     EXPECT_STREQ("11:22:33.444Z", dateTime.timeString(DateTime::PF_GMT|DateTime::PF_TIMEZONE, DateTime::PA_MILLISECONDS).c_str());
     EXPECT_STREQ("11:22:33", dateTime.timeString(DateTime::PF_GMT).c_str());
+}
+
+TEST(SPTK_DateTime, formatDateTime2)
+{
+    DateTime dateTime("2020-10-02 00:00:00+11");
+
+    auto   t = (time_t) dateTime;
+    tm     tt {};
+    localtime_r(&t, &tt);
+
+    char buffer[128];
+    strftime(buffer, sizeof(buffer) - 1, "%X", &tt);
+
+    EXPECT_STREQ("2020-10-02 00:00:00+11:00", dateTime.isoDateTimeString().replace("T"," ").c_str());
 }
 
 TEST(SPTK_DateTime, parsePerformance)

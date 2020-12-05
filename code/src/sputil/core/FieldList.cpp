@@ -240,7 +240,7 @@ TEST(SPTK_FieldList, toXml)
 
     fieldList.push_back("name", true);
     fieldList.push_back("value", true);
-    fieldList["name"] = "id";
+    fieldList["name"] = "John";
     fieldList["value"] = 12345;
 
     xml::Document xml;
@@ -250,7 +250,8 @@ TEST(SPTK_FieldList, toXml)
     Buffer buffer;
     fieldsElement->save(buffer);
 
-    EXPECT_STREQ(buffer.c_str(), R"(<fields name="id" value="12345"/>)");
+    EXPECT_STREQ(buffer.c_str(),
+                 R"(<fields><field name="name" type="string" size="4">John</field><field name="value" type="int" size="4">12345</field></fields>)");
 }
 
 #endif
