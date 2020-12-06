@@ -994,6 +994,7 @@ TEST(SPTK_DateTime, formatDateTime2)
     char buffer[128];
     strftime(buffer, sizeof(buffer) - 1, "%X", &tt);
 
+    EXPECT_STREQ("02/10/20", dateTime.dateString().c_str());
     EXPECT_STREQ("2020-10-02 00:00:00+11:00", dateTime.isoDateTimeString().replace("T"," ").c_str());
 }
 
