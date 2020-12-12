@@ -649,6 +649,7 @@ static const String testXML1("<AAA><BBB/><CCC/><BBB/><BBB/><DDD><BBB/></DDD><CCC
 static const String testXML2("<AAA><BBB/><CCC/><BBB/><DDD><BBB/></DDD><CCC><DDD><BBB/><BBB/></DDD></CCC></AAA>");
 static const String testXML3("<AAA><XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX><CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC><CCC><BBB><BBB><BBB/></BBB></BBB></CCC></AAA>");
 static const String testXML4("<AAA><BBB>1</BBB><BBB>2</BBB><BBB>3</BBB><BBB>4</BBB></AAA>");
+static const String testXML5(R"(<AAA><BBB>1</BBB><BBB id="002">2</BBB><BBB id="003">3</BBB><BBB>4</BBB></AAA>)");
 
 TEST(SPTK_XmlElement, select)
 {
@@ -712,6 +713,22 @@ TEST(SPTK_XmlElement, select4)
     document.select(elementSet, "/AAA/BBB[last()]");
     EXPECT_EQ(size_t(1), elementSet.size());
     EXPECT_STREQ("4", elementSet[0]->text().c_str());
+}
+
+TEST(SPTK_XmlElement, select5)
+{
+    xml::NodeVector elementSet;
+    xml::Document   document;
+
+    document.load(testXML5);
+
+    document.select(elementSet, "//BBB[@id=002]");
+    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_STREQ("2", elementSet[0]->text().c_str());
+
+    document.select(elementSet, "//BBB[@id=003]");
+    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_STREQ("3", elementSet[0]->text().c_str());
 }
 
 #endif
