@@ -83,74 +83,59 @@ const String& Node::value() const
     return emptyString;
 }
 
-static void makeAttributeCriteria(XPathElement& pathElement, size_t pos, const string& criteria, int nodePosition)
+static void makeCriteria(XPathElement& pathElement)
 {
-    if (nodePosition == 0 && criteria[0] == '@') {
-        pos = criteria.find('=');
-        if (pos == STRING_NPOS)
-            pathElement.attributeName = criteria.c_str() + 1;
-        else {
-            pathElement.attributeName = criteria.substr(1, pos - 1);
-            if (criteria[pos + 1] == '\'' || criteria[pos + 1] == '"')
-                pathElement.attributeValue = criteria.substr(pos + 2, criteria.length() - (pos + 3));
-            else
-                pathElement.attributeValue = criteria.substr(pos + 1, criteria.length() - (pos + 1));
-            pathElement.attributeValueDefined = true;
-        }
-    }
-}
+    static const RegularExpression matchAttribute(R"(@(?<attribute>[\w\-_:]+)=['"]?(?<value>.*)['"]?)");
 
-static void makeCriteria(XPathElement& pathElement, size_t pos)
-{
     const String& criteria = pathElement.criteria;
+
+    auto matches = matchAttribute.m(pathElement.criteria);
+    if (matches) {
+        pathElement.attributeName = matches["attribute"].value;
+        pathElement.attributeValue = matches["value"].value;
+        pathElement.attributeValueDefined = true;
+        return;
+    }
 
     if (!criteria.empty()) {
         int& nodePosition = pathElement.nodePosition;
         nodePosition = string2int(pathElement.criteria);
         if (nodePosition == 0 && criteria == "last()")
             nodePosition = -1;
-
-        makeAttributeCriteria(pathElement, pos, criteria, nodePosition);
     }
 }
 
 static void parsePathElement(const string& pathElementStr, XPathElement& pathElement)
 {
+    static const RegularExpression matchPathElement(R"((?<type>(descendant|parent)::)?(?<element>([\w\-_:]+|\*))(\[(?<option>.*)\])?)");
+
+    auto matches = matchPathElement.m(pathElementStr);
+    if (!matches)
+        throw Exception("Invalid XML path element: " + pathElementStr);
+
+    auto pathElementType = matches["type"].value;
+    auto pathElementName = matches["element"].value;
+    auto pathElementOption = matches["option"].value;
+
     pathElement.elementName = "";
     pathElement.attributeName = "";
     pathElement.axis = XPA_CHILD;
-    size_t backBracketPosition = pathElementStr.rfind(']');
-    string pathElementName;
-    if (backBracketPosition == STRING_NPOS) {
-        pathElementName = pathElementStr;
-        pathElement.criteria.clear();
-    } else {
-        size_t bracketPosition = pathElementStr.find('[');
-        if (bracketPosition == STRING_NPOS || backBracketPosition < bracketPosition) {
-            pathElementName = pathElementStr;
-            pathElement.criteria.clear();
-        } else {
-            pathElementName = pathElementStr.substr(0, bracketPosition);
-            pathElement.criteria = pathElementStr.substr(bracketPosition + 1,
-                                                         backBracketPosition - bracketPosition - 1);
-        }
+
+    if (!pathElementOption.empty()) {
+        pathElement.criteria = pathElementOption;
+        makeCriteria(pathElement);
     }
 
-    size_t pos = pathElementName.find("::");
-    if (pos != STRING_NPOS) {
-        if (pos == 10 && pathElementName.compare(0, 12, "descendant::") == 0)
-            pathElement.axis = XPA_DESCENDANT;
-        else if (pos == 6 && pathElementName.compare(0, 8, "parent::") == 0)
-            pathElement.axis = XPA_DESCENDANT;
-        pathElementName.erase(0, pos + 2);
-    }
+    if (pathElementType.startsWith("descendant"))
+        pathElement.axis = XPA_DESCENDANT;
+    else if (pathElementType.startsWith("parent"))
+        pathElement.axis = XPA_PARENT;
 
     if (pathElementName[0] == '@')
         pathElement.attributeName = pathElementName.c_str() + 1;
     else
         pathElement.elementName = pathElementName.c_str();
 
-    makeCriteria(pathElement, pos);
 }
 
 bool NodeSearchAlgorithms::matchPathElementAttribute(Node* thisNode, const XPathElement& pathElement,
