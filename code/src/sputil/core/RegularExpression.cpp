@@ -335,7 +335,7 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
 
         size_t matchIndex = 0;
         if (matchCount > 1)
-            matchIndex++;
+            ++matchIndex;
 
         for (; matchIndex < matchCount; ++matchIndex) {
             const Match& match = matchData.matches[matchIndex];

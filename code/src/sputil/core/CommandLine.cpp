@@ -448,7 +448,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         return;
     }
 
-    COUT(m_programVersion << endl)
+    printVersion();
     printLine(doubleLine, screenColumns);
     COUT(m_description << endl)
 
@@ -554,7 +554,7 @@ public:
 
     static const char* testCommandLineArgs2[8];
 
-    static const char* testCommandLineArgs3[8];
+    static const char* testCommandLineArgs3[9];
 };
 
 const char* CommandLineTestData::testCommandLineArgs[14] = {"testapp", "connect", "--host", "'ahostname'", "-p", "12345",
@@ -565,8 +565,8 @@ const char* CommandLineTestData::testCommandLineArgs2[8] = {"testapp", "connect"
                                               "--verbose",
                                               nullptr};
 
-const char* CommandLineTestData::testCommandLineArgs3[8] = {"testapp", "connect", "--host", "ahostname", "-p", "12345",
-                                              "--verbotten",
+const char* CommandLineTestData::testCommandLineArgs3[9] = {"testapp", "connect", "--host", "ahostname", "-p", "12345",
+                                              "--verbotten", "--gtest_test",
                                               nullptr};
 
 CommandLine* createTestCommandLine()
@@ -574,10 +574,28 @@ CommandLine* createTestCommandLine()
     CommandLine* commandLine = new CommandLine("test 1.00", "This is test command line description.", "testapp <action> [options]");
     commandLine->defineArgument("action", "Action to perform");
     commandLine->defineParameter("host", "h", "hostname", "^[\\S]+$", CommandLine::Visibility(""), "", "Hostname to connect");
-    commandLine->defineParameter("port", "p", "port #", "^\\d{2,5}$", CommandLine::Visibility(""), "", "Port to connect");
+    commandLine->defineParameter("port", "p", "port #", "^\\d{2,5}$", CommandLine::Visibility(""), "80", "Port to connect");
+    commandLine->defineParameter("port2", "r", "port #", "^\\d{2,5}$", CommandLine::Visibility(""), "80", "Port to connect");
     commandLine->defineParameter("description", "d", "text", "", CommandLine::Visibility(""), "", "Operation description");
     commandLine->defineOption("verbose", "v", CommandLine::Visibility(""), "Verbose messages");
     return commandLine;
+}
+
+TEST(SPTK_CommandLine, Visibility)
+{
+    CommandLine::Visibility visibility1("");
+    CommandLine::Visibility visibility2("^\\d+$");
+
+    EXPECT_TRUE(visibility1.any());
+    EXPECT_TRUE(visibility2.matches("123"));
+}
+
+TEST(SPTK_CommandLine, CommandLineElement)
+{
+    CommandLine::CommandLineElement testElement("test", "t", "short help", CommandLine::Visibility("^test|not-test$"));
+
+    EXPECT_FALSE(testElement.hasValue());
+    EXPECT_TRUE(testElement.useWithCommand("not-test"));
 }
 
 TEST(SPTK_CommandLine, ctor)
@@ -588,11 +606,14 @@ TEST(SPTK_CommandLine, ctor)
     EXPECT_EQ(size_t(1), commandLine->arguments().size());
     EXPECT_STREQ("ahostname", commandLine->getOptionValue("host").c_str());
     EXPECT_STREQ("12345", commandLine->getOptionValue("port").c_str());
+    EXPECT_STREQ("80", commandLine->getOptionValue("port2").c_str());
     EXPECT_STREQ("true", commandLine->getOptionValue("verbose").c_str());
     EXPECT_STREQ("", commandLine->getOptionValue("bad").c_str());
     EXPECT_STREQ("This is a quoted argument", commandLine->getOptionValue("description").c_str());
     EXPECT_STREQ("connect", commandLine->arguments()[0].c_str());
     EXPECT_TRUE(commandLine->hasOption("verbose"));
+
+    EXPECT_THROW(commandLine->setOptionValue("something", "xxx"), Exception);
 }
 
 TEST(SPTK_CommandLine, wrongArgumentValue)
@@ -610,7 +631,7 @@ TEST(SPTK_CommandLine, wrongOption)
     shared_ptr<CommandLine> commandLine(createTestCommandLine());
 
     EXPECT_THROW(
-            commandLine->init(7, CommandLineTestData::testCommandLineArgs3),
+            commandLine->init(8, CommandLineTestData::testCommandLineArgs3),
             Exception
     );
 }

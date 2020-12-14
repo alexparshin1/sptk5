@@ -218,8 +218,6 @@ public:
      */
     static Strings rewriteArguments(const Strings& arguments);
 
-protected:
-
     /**
      * Command line element that could be argument/command, option, or option with value
      */

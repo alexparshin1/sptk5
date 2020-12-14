@@ -74,7 +74,7 @@ MemoryTarHandle* Tar::tarMemoryHandle(int handle)
     return itor->second;
 }
 
-int Tar::mem_open(const char*, int, ...)
+int Tar::mem_open(const char*, int, const void*)
 {
     ++lastTarHandle;
     auto* memHandle = new MemoryTarHandle;

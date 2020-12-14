@@ -100,7 +100,7 @@ public:
     /**
      * Overwrites standard tar open
      */
-    static int mem_open(const char *name, int x, ...);
+    static int mem_open(const char *name, int mode, const void* data);
 
     /**
      * Overwrites standard tar close

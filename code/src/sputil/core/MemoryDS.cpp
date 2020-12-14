@@ -61,7 +61,7 @@ Field& MemoryDS::operator[](size_t index)
     if (m_current == m_list.end())
         throw Exception("At the end of the data");
     auto& row = *(*m_current);
-    return row[index];
+    return row[(int)index];
 }
 
 // read this field data into external value

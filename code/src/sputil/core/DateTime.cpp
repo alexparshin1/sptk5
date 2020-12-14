@@ -352,7 +352,7 @@ static short splitTimeString(const char* bdat, short* timePart)
     if (!matches)
         throw Exception("Invalid time string");
 
-    size_t partNumber = 0;
+    int partNumber = 0;
     for (; partNumber < 4; ++partNumber) {
         auto& part = matches[partNumber].value;
         if (part.empty())

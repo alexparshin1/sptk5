@@ -409,7 +409,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
     auto        fieldCount = fields.size();
     const auto* lengths = mysql_fetch_lengths(m_result);
 
-    for (std::size_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
+    for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
 
         auto* field = (MySQLStatementField*) &fields[fieldIndex];
 
@@ -499,7 +499,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
 {
     auto    fieldCount = fields.size();
     bool    fieldSizeChanged = false;
-    for (size_t fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
+    for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
         auto*       field = (MySQLStatementField*) &fields[fieldIndex];
         MYSQL_BIND& bind = m_fieldBuffers[fieldIndex];
 
