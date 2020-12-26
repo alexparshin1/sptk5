@@ -37,7 +37,7 @@ using namespace sptk;
 
 #define TEXT_BLOCK 16384
 
-void Crypt::encrypt(Buffer& dest, const Buffer& src, const std::string& key, const std::string& iv)
+void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const String& iv)
 {
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (ctx == nullptr)
@@ -80,7 +80,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const std::string& key, con
     EVP_CIPHER_CTX_free(ctx);
 }
 
-void Crypt::decrypt(Buffer& dest, const Buffer& src, const std::string& key, const std::string& iv)
+void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const String& iv)
 {
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (ctx == nullptr)
@@ -126,6 +126,9 @@ TEST(SPTK_Crypt, encrypt)
 {
     Buffer encrypted;
     String encryptedStr;
+
+    EXPECT_THROW(Crypt::encrypt(encrypted, Buffer(testText), "xxx", testIV), Exception);
+    EXPECT_THROW(Crypt::encrypt(encrypted, Buffer(testText), testKey, "xxx"), Exception);
 
     Crypt::encrypt(encrypted, Buffer(testText), testKey, testIV);
     Base64::encode(encryptedStr, encrypted);

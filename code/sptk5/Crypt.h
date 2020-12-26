@@ -45,7 +45,7 @@ public:
      * @param key const std::string&, Encryption key
      * @param iv const std::string&, Initialization vector
      */
-    static void encrypt(Buffer& dest, const Buffer& src, const std::string& key, const std::string& iv);
+    static void encrypt(Buffer& dest, const Buffer& src, const String& key, const String& iv);
 
     /**
      * Decrypt data using OpenSSL
@@ -54,7 +54,7 @@ public:
      * @param key const std::string&, Encryption key
      * @param iv const std::string&, Initialization vector
      */
-    static void decrypt(Buffer& dest, const Buffer& src, const std::string& key, const std::string& iv);
+    static void decrypt(Buffer& dest, const Buffer& src, const String& key, const String& iv);
 };
 
 }
