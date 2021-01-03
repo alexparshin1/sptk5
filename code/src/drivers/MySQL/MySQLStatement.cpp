@@ -406,7 +406,7 @@ void MySQLStatement::readResultRow(FieldList& fields)
 
 void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
 {
-    auto        fieldCount = fields.size();
+    auto        fieldCount = (int) fields.size();
     const auto* lengths = mysql_fetch_lengths(m_result);
 
     for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
@@ -497,7 +497,7 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
 
 void MySQLStatement::readPreparedResultRow(FieldList& fields)
 {
-    auto    fieldCount = fields.size();
+    auto    fieldCount = (int) fields.size();
     bool    fieldSizeChanged = false;
     for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
         auto*       field = (MySQLStatementField*) &fields[fieldIndex];
