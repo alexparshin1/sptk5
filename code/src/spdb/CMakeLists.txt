@@ -6,7 +6,8 @@ ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 ADD_LIBRARY (spdb5 ${LIBRARY_TYPE}
     AutoDatabaseConnection.cpp
-    DatabaseField.cpp QueryParameterBinding.cpp QueryParameter.cpp QueryParameterList.cpp
+    DatabaseField.cpp InsertQuery
+    QueryParameterBinding.cpp QueryParameter.cpp QueryParameterList.cpp
     Query.cpp QueryBuilder.cpp Transaction.cpp DatabaseConnectionString.cpp
     PoolDatabaseConnection.cpp DatabaseConnectionPool.cpp DatabaseTests.cpp)
 

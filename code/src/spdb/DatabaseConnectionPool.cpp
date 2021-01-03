@@ -248,6 +248,19 @@ static void testDDL(const String& dbName)
     }
 }
 
+static void testInsertQuery(const String& dbName)
+{
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    if (connectionString.empty())
+        FAIL() << dbName <<" connection is not defined";
+    try {
+        DatabaseTests::testInsertQuery(connectionString);
+    }
+    catch (const Exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
 static void testBulkInsert(const String& dbName)
 {
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
@@ -369,6 +382,11 @@ TEST(SPTK_PostgreSQLConnection, select)
     testSelect("PostgreSQL");
 }
 
+TEST(SPTK_PostgreSQLConnection, insertQuery)
+{
+    testInsertQuery("PostgreSQL");
+}
+
 #endif
 
 //───────────────────────────────── MySQL ────────────────────────────────────────────────
@@ -415,6 +433,11 @@ TEST(SPTK_MySQLConnection, select)
     testSelect("MySQL");
 }
 
+TEST(SPTK_MySQLConnection, insertQuery)
+{
+    testInsertQuery("MySQL");
+}
+
 #endif
 
 //───────────────────────────────── Oracle ─────────────────────────────────────────────
@@ -455,6 +478,11 @@ TEST(SPTK_OracleConnection, select)
     testSelect("Oracle");
 }
 
+TEST(SPTK_OracleConnection, insertQuery)
+{
+    testInsertQuery("Oracle");
+}
+
 #endif
 
 //───────────────────────────────── MS SQL ─────────────────────────────────────────────
@@ -493,6 +521,11 @@ TEST(SPTK_MSSQLConnection, transaction)
 TEST(SPTK_MSSQLConnection, select)
 {
     testSelect("MSSQL");
+}
+
+TEST(SPTK_MSSQLConnection, insertQuery)
+{
+    testInsertQuery("MSSQL");
 }
 
 #endif

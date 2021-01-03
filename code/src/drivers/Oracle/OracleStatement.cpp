@@ -364,9 +364,12 @@ void OracleStatement::getOutputParameters(FieldList& fields)
         try {
             parameter = enumeratedParams()[index - 1];
 
-            auto* field = new DatabaseField(parameter->name(), (int) columnIndex, OCCIANYDATA,
-                                                     parameter->dataType(), 256);
-            fields.push_back(field);
+            auto* field = (DatabaseField*) fields.findField(parameter->name());
+            if (field == nullptr) {
+                field = new DatabaseField(parameter->name(), (int) fields.size(), OCCIANYDATA,
+                                          parameter->dataType(), 256);
+                fields.push_back(field);
+            }
 
             switch (parameter->dataType()) {
                 case VAR_INT:

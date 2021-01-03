@@ -31,6 +31,7 @@
 #include <sptk5/db/Transaction.h>
 
 #include <cmath>
+#include <sptk5/db/InsertQuery.h>
 
 using namespace std;
 using namespace sptk;
@@ -340,6 +341,65 @@ void DatabaseTests::createTestTable(DatabaseConnection db)
     createTable.exec();
 }
 
+void DatabaseTests::createTestTableWithSerial(DatabaseConnection db)
+{
+    auto itor = dateTimeFieldTypes.find(db->connectionString().driverName());
+    if (itor == dateTimeFieldTypes.end())
+        throw Exception("DateTime data type mapping is not defined for the test");
+    String dateTimeType = itor->second;
+
+    db->open();
+
+    stringstream sql;
+    String idDefinition;
+
+    switch (db->connectionType()) {
+        case DCT_MYSQL:
+        case DCT_POSTGRES:
+            idDefinition = "id serial";
+            break;
+        case DCT_MSSQL_ODBC:
+            idDefinition = "id int identity";
+            break;
+        case DCT_ORACLE:
+            idDefinition = "id int";
+            break;
+        default:
+            throw DatabaseException("InsertQuery doesn't support " + db->driverDescription());
+    }
+
+    sql << "CREATE TABLE gtest_temp_table2(" << idDefinition << " primary key, name varchar(40))";
+
+    Query createTable(db, sql.str());
+    Query dropTable(db, "DROP TABLE gtest_temp_table2");
+
+    try {
+        dropTable.exec();
+    }
+    catch (const Exception& e) {
+        RegularExpression matchTableNotExists("not exist|unknown table", "i");
+        if (!matchTableNotExists.matches(e.what()))
+        CERR(e.what() << endl)
+    }
+
+    createTable.exec();
+
+    if (db->connectionType() == DCT_ORACLE)
+        createOracleAutoIncrement(db, "gtest_temp_table2", "id");
+
+    InsertQuery query(db, "INSERT INTO gtest_temp_table2(name) VALUES(:name)");
+
+    query.param("name") = "Alex";
+    query.exec();
+    auto id = query.id();
+    EXPECT_EQ(id, uint64_t(1));
+
+    query.param("name") = "David";
+    query.exec();
+    id = query.id();
+    EXPECT_EQ(id, uint64_t(2));
+}
+
 static const string expectedBulkInsertResult(
         "1|Alex,'Doe'|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2015 # 3|Roger|Bunny|01-JAN-2016");
 
@@ -394,6 +454,13 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     String actualResult(printRows.join(" # "));
     if (actualResult != expectedBulkInsertResult)
         throw Exception("Expected bulk insert result doesn't match inserted data");
+}
+
+void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection db = connectionPool.getConnection();
+    createTestTableWithSerial(db);
 }
 
 void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount)
@@ -553,4 +620,40 @@ DatabaseTests::DatabaseTests()
 DatabaseTests& DatabaseTests::tests()
 {
     return _databaseTests;
+}
+
+void DatabaseTests::createOracleAutoIncrement(const DatabaseConnection& db, const String& tableName, const String& columnName)
+{
+    string baseName = "id_" + tableName.substr(0,27);
+    string sequenceName = "sq_" + baseName;
+    string triggerName = "tr_" + baseName;
+
+    try {
+        Query dropSequence(db,"DROP SEQUENCE " + sequenceName);
+        dropSequence.exec();
+    }
+    catch (const Exception& e)
+    {
+        COUT(e.what() << endl)
+    }
+
+    Query createSequence(db,"CREATE SEQUENCE " + sequenceName + " START WITH 1 INCREMENT BY 1 NOMAXVALUE");
+    createSequence.exec();
+
+    try {
+        Query createTrigger(db,
+                            "CREATE OR REPLACE TRIGGER " + triggerName + "\n" +
+                            "BEFORE INSERT ON " + tableName + "\n" +
+                            "FOR EACH ROW\n" +
+                            "BEGIN\n" +
+                            "  IF :new." + columnName + " IS NULL THEN\n" +
+                            "    :new." + columnName + " := " + sequenceName + ".nextval;\n" +
+                            "  END IF;\n" +
+                            "END;\n"
+        );
+        createTrigger.exec();
+    }
+    catch (const Exception& e) {
+        CERR(e.what() << endl)
+    }
 }

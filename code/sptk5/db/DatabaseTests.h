@@ -37,38 +37,8 @@ namespace sptk {
  */
 class SP_EXPORT DatabaseTests
 {
-	/**
-	 * Global database tests collection
-	 */
-	static DatabaseTests _databaseTests;
-
-	/**
-     * Connection strings for which tests will be executed
-     */
-    std::map<String, DatabaseConnectionString> m_connectionStrings;
-
-    /**
-     * Get number of rows in table
-     * @param db            Database connection
-     * @param table         Database table
-     * @return number of rows in table
-     */
-    static size_t countRowsInTable(const DatabaseConnection& db, const String& table);
-
-    /**
-     * Test transactions
-     * @param db            Database connection
-     * @param commit        If true then commit the transaction
-     */
-    static void testTransaction(DatabaseConnection db, bool commit);
-
-    /**
-     * Connect to database and create test table
-     * @return
-     */
-    static void createTestTable(DatabaseConnection db);
-
 public:
+
     /**
      * Constructor
      */
@@ -118,6 +88,10 @@ public:
      */
     static void testDDL(const DatabaseConnectionString& connectionString);
 
+    /**
+     * Test query inserting date
+     * @param connectionString
+     */
     static void testQueryInsertDate(const DatabaseConnectionString& connectionString);
 
     /**
@@ -125,6 +99,12 @@ public:
      * @param connectionString Database connection string
      */
     static void testQueryParameters(const DatabaseConnectionString& connectionString);
+
+    /**
+     * Test InsertQuery returning created value
+     * @param connectionString
+     */
+    static void testInsertQuery(const DatabaseConnectionString& connectionString);
 
     /**
      * Test transaction
@@ -149,6 +129,52 @@ public:
 	 * Global database tests collection
 	 */
 	static DatabaseTests& tests();
+
+private:
+    /**
+     * Global database tests collection
+     */
+    static DatabaseTests _databaseTests;
+
+    /**
+     * Connection strings for which tests will be executed
+     */
+    std::map<String, DatabaseConnectionString> m_connectionStrings;
+
+    /**
+     * Get number of rows in table
+     * @param db            Database connection
+     * @param table         Database table
+     * @return number of rows in table
+     */
+    static size_t countRowsInTable(const DatabaseConnection& db, const String& table);
+
+    /**
+     * Test transactions
+     * @param db            Database connection
+     * @param commit        If true then commit the transaction
+     */
+    static void testTransaction(DatabaseConnection db, bool commit);
+
+    /**
+     * Connect to database and create test table
+     * @return
+     */
+    static void createTestTable(DatabaseConnection db);
+
+    /**
+     * Connect to database and create test table with serial id
+     * @return
+     */
+    static void createTestTableWithSerial(DatabaseConnection db);
+
+    /**
+     * Create Oracle autoincrement for a column
+     * @param db
+     * @param tableName
+     * @param columnName
+     */
+    static void createOracleAutoIncrement(const DatabaseConnection& db, const String& tableName, const String& columnName);
 };
 
 }
