@@ -392,6 +392,14 @@ public:
         setBool(value);
         return *this;
     }
+
+    /**
+     * Conversion operator
+     */
+    operator bool() const override
+    {
+        return asBool();
+    }
 };
 
 /**
