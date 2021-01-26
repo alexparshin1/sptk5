@@ -356,41 +356,42 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
                 paramType = SQL_C_BIT;
                 sqlType = SQL_BIT;
                 break;
+
             case VAR_INT:
                 paramType = SQL_C_SLONG;
                 sqlType = SQL_INTEGER;
                 break;
+
             case VAR_INT64:
                 paramType = SQL_C_SBIGINT;
                 sqlType = SQL_BIGINT;
                 break;
+
             case VAR_FLOAT:
                 paramType = SQL_C_DOUBLE;
                 sqlType = SQL_DOUBLE;
                 break;
+
             case VAR_STRING:
                 buff = (void*) param->getString();
                 len = (long) param->dataSize();
                 paramType = SQL_C_CHAR;
                 sqlType = SQL_WVARCHAR;
                 break;
+
             case VAR_TEXT:
                 buff = (void*) param->getString();
                 len = (long) param->dataSize();
                 paramType = SQL_C_CHAR;
                 sqlType = SQL_WLONGVARCHAR;
                 break;
+
             case VAR_BUFFER:
+                paramType = SQL_C_BINARY;
+                sqlType = SQL_LONGVARBINARY;
                 buff = (void*) param->getString();
                 len = (long) param->dataSize();
-                cblen = len;
-                rc = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, SQL_C_BINARY,
-                                      SQL_LONGVARBINARY, (SQLULEN) len, scale, buff, SQLINTEGER(len), &cblen);
-                if (rc != 0) {
-                    param->binding().reset(false);
-                    THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber << ", value: '" << param->asString() << "'")
-                }
-                continue;
+                break;
 
             case VAR_DATE:
                 paramType = SQL_C_TIMESTAMP;
@@ -417,7 +418,7 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
                 break;
 
             default:
-            THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'")
+                THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'")
         }
         SQLLEN* cbValue = nullptr;
         if (param->isNull()) {
