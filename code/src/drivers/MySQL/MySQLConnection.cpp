@@ -181,6 +181,7 @@ void MySQLConnection::queryPrepare(Query* query)
             try {
                 statement->prepare(query->sql());
                 statement->enumerateParams(query->params());
+                querySetPrepared(query, true);
             }
             catch (const Exception& e) {
                 THROW_QUERY_ERROR(query, e.what())
@@ -192,6 +193,7 @@ void MySQLConnection::queryPrepare(Query* query)
 void MySQLConnection::queryUnprepare(Query* query)
 {
     queryFreeStmt(query);
+    querySetPrepared(query, false);
 }
 
 int MySQLConnection::queryColCount(Query* query)
@@ -250,8 +252,9 @@ void MySQLConnection::queryOpen(Query* query)
     }
 
     if (query->autoPrepare()) {
-        if (!query->prepared())
+        if (!query->prepared()) {
             queryPrepare(query);
+        }
         queryBindParameters(query);
     }
 

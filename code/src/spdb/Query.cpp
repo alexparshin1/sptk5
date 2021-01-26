@@ -44,11 +44,12 @@ bool QueryStatementManagement::bulkMode() const
 void QueryStatementManagement::closeStmt(bool freeStatement)
 {
     if (database() != nullptr && statement() !=nullptr) {
-        if (freeStatement)
-            database()->queryFreeStmt((Query*)this);
-        else
-            database()->queryCloseStmt((Query*)this);
-        setPrepared(false);
+        if (freeStatement) {
+            database()->queryFreeStmt((Query*) this);
+            setPrepared(false);
+        } else {
+            database()->queryCloseStmt((Query*) this);
+        }
         setActive(false);
     }
 }
