@@ -62,6 +62,10 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
 
     case VAR_STRING:
         Variant::setString("");
+        if (fieldLength == 0) {
+            fieldLength = 256;
+            m_fldSize = fieldLength;
+        }
         checkSize((size_t)fieldLength + 1);
         view().width = fieldLength;
         break;

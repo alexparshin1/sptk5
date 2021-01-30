@@ -420,7 +420,13 @@ void OracleConnection::queryFetch(Query* query)
 
     auto* statement = (OracleStatement*) query->statement();
 
-    statement->fetch();
+    try {
+        statement->fetch();
+    }
+    catch (const oracle::occi::SQLException& e) {
+        THROW_QUERY_ERROR(query, e.what())
+    }
+
     if (statement->eof()) {
         querySetEof(query, true);
         return;

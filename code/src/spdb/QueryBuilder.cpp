@@ -77,7 +77,7 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
     Strings outputColumns = makeSelectColumns(columns);
     query << outputColumns.join(", ") << endl;
 
-    query << "  FROM " << m_tableName << " AS t" << endl;
+    query << "  FROM " << m_tableName << " t" << endl;
 
     for (auto& join: m_joins)
         query << join.joinDefinition << endl;
@@ -228,17 +228,17 @@ TEST(SPTK_QueryBuilder, selectSQL)
 
     auto selectSQL = queryBuilder.selectSQL({},{},false);
     EXPECT_STREQ(
-            "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee AS t",
+            "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee t",
             selectSQL.c_str());
 
     selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"},{},false);
     EXPECT_STREQ(
-            "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee AS t WHERE (id=1) AND (name <> '')",
+            "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee t WHERE (id=1) AND (name <> '')",
             selectSQL.c_str());
 
     selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"}, {"first_name", "id"},false);
     EXPECT_STREQ(
-            "SELECT first_name, id FROM employee AS t WHERE (id=1) AND (name <> '')",
+            "SELECT first_name, id FROM employee t WHERE (id=1) AND (name <> '')",
             selectSQL.c_str());
 }
 
@@ -256,7 +256,7 @@ TEST(SPTK_QueryBuilder, selectJoinsSQL)
     auto selectSQL = queryBuilder.selectSQL({"c.name = 'Australia'"}, {}, false);
     EXPECT_STREQ(
             "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id, d.name department_name, c.name country_name "
-            "FROM employee AS t "
+            "FROM employee t "
             "JOIN department d ON d.id = t.department_id "
             "JOIN country c ON c.id = d.country_id "
             "WHERE (c.name = 'Australia')",
