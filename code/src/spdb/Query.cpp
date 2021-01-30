@@ -242,7 +242,7 @@ void Query::sql(const String& _sql)
         if (m_params[i].bindCount() == 0)
             m_params.remove(uint32_t(i));
 
-    if (!getSQL().empty() && getSQL() != sql) {
+    if (getSQL() != sql) {
         closeQuery(true);
         setSQL(sql);
         m_fields.clear();
