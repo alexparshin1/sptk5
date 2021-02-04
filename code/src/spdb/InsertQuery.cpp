@@ -29,21 +29,22 @@
 using namespace std;
 using namespace sptk;
 
-string InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const string& sql)
+String InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const String& sql,
+                                const String& idFieldName)
 {
     switch (connectionType) {
         case DCT_POSTGRES:
-            return sql + " RETURNING id";
+            return sql + " RETURNING " + idFieldName;
         case DCT_ORACLE:
-            return sql + " RETURNING id INTO :last_id";
+            return sql + " RETURNING " + idFieldName + " INTO :last_id";
         default:
             break;
     }
     return sql;
 }
 
-InsertQuery::InsertQuery(DatabaseConnection db, const String& sql)
-: Query(db, reviewQuery(db->connectionType(), sql), true)
+InsertQuery::InsertQuery(DatabaseConnection db, const String& sql, const String& idFieldName)
+: Query(db, reviewQuery(db->connectionType(), sql, idFieldName), true), m_idFieldName(idFieldName)
 {
 }
 
@@ -51,7 +52,7 @@ void InsertQuery::sql(const String& _sql)
 {
     if (!database())
         throwException("Database connection is not defined yet")
-    Query::sql(reviewQuery(database()->connectionType(), _sql));
+    Query::sql(reviewQuery(database()->connectionType(), _sql, m_idFieldName));
 }
 
 void InsertQuery::exec()

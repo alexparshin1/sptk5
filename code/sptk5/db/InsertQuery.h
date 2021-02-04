@@ -53,8 +53,9 @@ public:
      * calls statistics is stored to the database object during the query dtor.
      * @param db               Database connection
      * @param sql              SQL query, optional
+     * @param idFieldName      Name of auto-incremental field
      */
-    explicit InsertQuery(DatabaseConnection db, const String& sql = "");
+    explicit InsertQuery(DatabaseConnection db, const String& sql = "", const String& idFieldName="id");
 
     /**
      * Return query' SQL
@@ -101,15 +102,17 @@ public:
 private:
 
     uint64_t  m_id {0};           ///< The value of 'id' field in inserted record
+    String    m_idFieldName;      ///< The name of auto-incremental field
     SQuery    m_lastInsertedId;   ///< The query retrieving last inserted id (if needed by connection)
 
     /**
      * Adjust insert query by adding RETURNING id if connection type allows that
      * @param connectionType    Database connection type
      * @param sql               Query SQL
+     * @param idFieldName       Auto-incremental field name
      * @returns Adjusted SQL
      */
-    static std::string reviewQuery(DatabaseConnectionType connectionType, const std::string& sql);
+    static String reviewQuery(DatabaseConnectionType connectionType, const String& sql, const String& idFieldName);
 };
 
 }
