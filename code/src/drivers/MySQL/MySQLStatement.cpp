@@ -40,8 +40,8 @@ public:
 
     // Callback variables
     unsigned long   m_cbLength {0};
-    my_bool         m_cbNull {0};
-    my_bool         m_cbError {0};
+    bool            m_cbNull {0};
+    bool            m_cbError {0};
 
     // MySQL time conversion buffer
     MYSQL_TIME      m_timeBuffer {};
@@ -224,7 +224,7 @@ enum_field_types MySQLStatement::variantTypeToMySQLType(VariantType dataType)
 
 void MySQLStatement::setParameterValues()
 {
-    static my_bool nullValue = true;
+    static bool nullValue = true;
 
     auto paramCount = enumeratedParams().size();
     for (unsigned paramIndex = 0; paramIndex < paramCount; ++paramIndex) {
