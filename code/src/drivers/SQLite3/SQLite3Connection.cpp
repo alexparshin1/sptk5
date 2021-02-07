@@ -119,7 +119,7 @@ void SQLite3Connection::driverBeginTransaction()
     if (getInTransaction())
         throw DatabaseException("Transaction already started.");
 
-    char* zErrMsg;
+    char* zErrMsg = nullptr;
 
     if (sqlite3_exec(m_connect, "BEGIN TRANSACTION", nullptr, nullptr, &zErrMsg) != SQLITE_OK)
         throw DatabaseException(zErrMsg);
@@ -132,16 +132,11 @@ void SQLite3Connection::driverEndTransaction(bool commit)
     if (!getInTransaction())
         throw DatabaseException("Transaction isn't started.");
 
-    string action;
+    const char* action = commit ? "COMMIT" : "ROLLBACK";
 
-    if (commit)
-        action = "COMMIT";
-    else
-        action = "ROLLBACK";
+    char* zErrMsg = nullptr;
 
-    char* zErrMsg;
-
-    if (sqlite3_exec(m_connect, action.c_str(), nullptr, nullptr, &zErrMsg) != SQLITE_OK)
+    if (sqlite3_exec(m_connect, action, nullptr, nullptr, &zErrMsg) != SQLITE_OK)
         throw DatabaseException(zErrMsg);
 
     setInTransaction(false);
@@ -189,8 +184,8 @@ void SQLite3Connection::queryPrepare(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    SQLHSTMT stmt;
-    const char* pzTail;
+    SQLHSTMT stmt = nullptr;
+    const char* pzTail = nullptr;
 
     if (sqlite3_prepare(m_connect, query->sql().c_str(), int(query->sql().length()), &stmt, &pzTail) != SQLITE_OK) {
         const char* errorMsg = sqlite3_errmsg(m_connect);

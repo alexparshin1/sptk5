@@ -296,7 +296,6 @@ Type sptk::VariantTypeToOracleType(VariantType dataType)
         case VAR_DATE_TIME:
             return OCCITIMESTAMP;
         case VAR_INT64:
-            return OCCIINT;
         case VAR_BOOL:
             return OCCIINT;
         default: throwException("Unsupported SPTK data type: " << dataType)
@@ -387,13 +386,13 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
 
 void OracleConnection::readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
-    int year;
-    unsigned month;
-    unsigned day;
-    unsigned hour;
-    unsigned min;
-    unsigned sec;
-    unsigned ms;
+    int      year = 0;
+    unsigned month = 0;
+    unsigned day = 0;
+    unsigned hour = 0;
+    unsigned min = 0;
+    unsigned sec = 0;
+    unsigned ms = 0;
     Timestamp timestamp = resultSet->getTimestamp(columnIndex);
     timestamp.getDate(year, month, day);
     timestamp.getTime(hour, min, sec, ms);
@@ -402,12 +401,12 @@ void OracleConnection::readTimestamp(ResultSet* resultSet, DatabaseField* field,
 
 void OracleConnection::readDate(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
-    int year;
-    unsigned month;
-    unsigned day;
-    unsigned hour;
-    unsigned min;
-    unsigned sec;
+    int      year = 0;
+    unsigned month = 0;
+    unsigned day = 0;
+    unsigned hour = 0;
+    unsigned min = 0;
+    unsigned sec = 0;
     resultSet->getDate(columnIndex).getDate(year, month, day, hour, min, sec);
     field->setDateTime(DateTime(short(year), short(month), short(day), short(0), short(0), short(0)), true);
 }
@@ -619,7 +618,7 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
     tableColumnsQuery.close();
 
     QueryColumnTypeSizeVector columnTypeSizeVector;
-    for (auto& columnName: columnNames) {
+    for (const auto& columnName: columnNames) {
         auto column = columnTypeSizeMap.find(upperCase(columnName));
         if (column == columnTypeSizeMap.end()) throwDatabaseException(
                 "Column '" << columnName << "' doesn't belong to table " << tableName)
@@ -631,7 +630,7 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
                                       ") VALUES (:" + columnNames.join(",:") + ")",
                                       data.size(),
                                       columnTypeSizeMap);
-    for (auto& row: data) {
+    for (const auto& row: data) {
         bulkInsertSingleRow(columnNames, columnTypeSizeVector, insertQuery, row);
     }
 }
@@ -683,7 +682,7 @@ void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors
     Strings statements;
     string statement;
     bool routineStarted = false;
-    for (auto& arow: sqlBatch) {
+    for (const auto& arow: sqlBatch) {
         String row = trim(arow);
         if (row.empty() || matchCommentRow.matches(row))
             continue;
@@ -725,7 +724,7 @@ void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors
 
 void OracleConnection::executeMultipleStatements(const Strings& statements, Strings* errors)
 {
-    for (auto& stmt: statements) {
+    for (const auto& stmt: statements) {
         try {
             Query query(this, stmt, false);
             query.exec();

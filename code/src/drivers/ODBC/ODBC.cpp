@@ -41,7 +41,7 @@ static inline bool Successful(RETCODE ret)
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
 
-void ODBCBase::exception(const String& text, int line) const
+void ODBCBase::exception(const String& text, int line)
 {
     throw DatabaseException(text, __FILE__, line);
 }
@@ -242,7 +242,7 @@ String sptk::removeDriverIdentification(const char* error)
     if (error == nullptr)
         return "";
 
-    auto* p = error;
+    const auto* p = error;
     const char* p1 = error;
     while (p1 != nullptr) {
         p1 = strstr(p, "][");
@@ -271,10 +271,10 @@ string extract_error(
         SQLSMALLINT type)
 {
     SQLSMALLINT i = 0;
-    SQLINTEGER native;
+    SQLINTEGER native = 0;
     SQLCHAR state[7];
     SQLCHAR text[256];
-    SQLSMALLINT len;
+    SQLSMALLINT len = 0;
     SQLRETURN ret;
 
     string error;

@@ -31,7 +31,9 @@
 #include <sptk5/db/ODBCConnection.h>
 #include <sptk5/db/Query.h>
 
-#define MAX_BUF 1024
+constexpr size_t MAX_BUF = 1024;
+constexpr size_t MAX_NAME_LEN = 256;
+constexpr size_t MAX_ERROR_LEN = 1024;
 
 using namespace std;
 using namespace sptk;
@@ -144,7 +146,7 @@ void ODBCConnection::driverEndTransaction(bool commit)
     else
         m_connect->rollback();
 
-    m_connect->setConnectOption(SQL_ATTR_AUTOCOMMIT, true);
+    m_connect->setConnectOption(SQL_ATTR_AUTOCOMMIT, (UDWORD) true);
     setInTransaction(false);
 }
 
@@ -262,7 +264,7 @@ void ODBCConnection::queryExecute(Query* query)
         return;
 
     SQLCHAR state[16];
-    SQLCHAR text[1024];
+    SQLCHAR text[MAX_ERROR_LEN];
     SQLINTEGER nativeError = 0;
     SQLSMALLINT recordCount = 0;
     SQLSMALLINT textLength = 0;
@@ -299,7 +301,7 @@ int ODBCConnection::queryColCount(Query* query)
 void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
     lock_guard<mutex> lock(*m_connect);
-    SQLLEN result;
+    SQLLEN result = 0;
 
     if (!successful(SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr, &result)))
         THROW_QUERY_ERROR(query, queryError(query))
@@ -308,7 +310,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
 
 void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, LPSTR buff, int len)
 {
-    int16_t available;
+    int16_t available = 0;
     if (buff == nullptr || len <= 0)
         THROW_QUERY_ERROR(query, "Invalid buffer or buffer len")
 
@@ -321,9 +323,9 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
 static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
 {
     if (!dt.zero()) {
-        short wday;
-        short yday;
-        short ms;
+        short wday = 0;
+        short yday = 0;
+        short ms = 0;
         dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day, &wday, &yday);
         if (dateOnly)
             t->hour = t->minute = t->second = 0;
@@ -335,13 +337,12 @@ static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
     return false;
 }
 
-void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* param) const
+void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* param)
 {
     static SQLLEN cbNullValue = SQL_NULL_DATA;
-    int rc;
+    int rc = 0;
 
     VariantType ptype = param->dataType();
-    auto cblen = (SQLLEN&) param->callbackLength();
     for (unsigned j = 0; j < param->bindCount(); ++j) {
         int16_t paramType = 0;
         int16_t sqlType = 0;
@@ -499,19 +500,20 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantTy
 }
 
 void ODBCConnection::parseColumns(Query* query, int count)
-{// Reading the column attributes
-    char columnName[256];
-    int32_t columnType;
-    int32_t columnLength;
-    int32_t columnScale;
-    int32_t cType;
-    VariantType dataType;
+{
+    // Reading the column attributes
+    char columnName[MAX_NAME_LEN];
+    int32_t columnType = 0;
+    int32_t columnLength = 0;
+    int32_t columnScale = 0;
+    int32_t cType = 0;
+    VariantType dataType = VAR_NONE;
 
     stringstream columnNameStr;
     columnNameStr.fill('0');
 
     for (int16_t column = 1; column <= int16_t(count); ++column) {
-        queryColAttributes(query, column, SQL_COLUMN_NAME, columnName, 255);
+        queryColAttributes(query, column, SQL_COLUMN_NAME, columnName, MAX_NAME_LEN - 1);
         queryColAttributes(query, column, SQL_COLUMN_TYPE, columnType);
         queryColAttributes(query, column, SQL_COLUMN_LENGTH, columnLength);
         queryColAttributes(query, column, SQL_COLUMN_SCALE, columnScale);
@@ -603,11 +605,11 @@ SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseFiel
                                                 int16_t fieldType, SQLLEN& dataLength)
 {
     field->checkSize(uint32_t(128));
-    size_t readSize = field->bufferSize();
+    auto readSize = (SQLLEN) field->bufferSize();
     auto* buffer = field->getBuffer();
-    SQLRETURN rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
+    auto rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
 
-    size_t offset = readSize - 1;
+    SQLLEN offset = readSize - 1;
     if (dataLength > SQLINTEGER(readSize)) { // continue to fetch BLOB data in one go
         field->checkSize(uint32_t(dataLength + 1));
         buffer = field->getBuffer();
@@ -740,7 +742,7 @@ void ODBCConnection::listDataSources(Strings& dsns)
     SQLCHAR     descrip[MAX_BUF] = {0};
     SQLSMALLINT rdsrc = 0;
     SQLSMALLINT rdesc = 0;
-    SQLRETURN ret;
+    SQLRETURN   ret = 0;
 
     SQLHENV hEnv = ODBCConnectionBase::getEnvironment().handle();
     bool offline = hEnv == nullptr;
@@ -779,7 +781,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 
     SQLHSTMT stmt = nullptr;
     try {
-        SQLRETURN rc;
+        SQLRETURN rc = 0;
         auto* hdb = handle();
         if (SQLAllocStmt(hdb, &stmt) != SQL_SUCCESS)
             throw DatabaseException("CODBCConnection::SQLAllocStmt");
@@ -805,10 +807,10 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
                 break;
         }
 
-        SQLCHAR objectSchema[256] = {};
-        SQLCHAR objectName[256] = {};
-        SQLLEN cbObjectSchema;
-        SQLLEN cbObjectName;
+        SQLCHAR objectSchema[MAX_NAME_LEN] = {};
+        SQLCHAR objectName[MAX_NAME_LEN] = {};
+        SQLLEN  cbObjectSchema = 0;
+        SQLLEN  cbObjectName = 0;
         if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema, sizeof(objectSchema), &cbObjectSchema) != SQL_SUCCESS)
             throw DatabaseException("SQLBindCol");
         if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName, sizeof(objectName), &cbObjectName) != SQL_SUCCESS)

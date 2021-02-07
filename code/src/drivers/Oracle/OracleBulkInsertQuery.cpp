@@ -29,7 +29,7 @@
 using namespace std;
 using namespace sptk;
 
-OracleBulkInsertQuery::OracleBulkInsertQuery(PoolDatabaseConnection *db, String sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes)
+OracleBulkInsertQuery::OracleBulkInsertQuery(PoolDatabaseConnection *db, const String& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes)
 : Query(db, sql), m_recordCount(recordCount), m_columnTypeSizes(columnTypeSizes)
 {
     setBulkMode(true);

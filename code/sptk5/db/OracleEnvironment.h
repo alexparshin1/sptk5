@@ -90,7 +90,7 @@ public:
     /**
      * Returns client version
      */
-    std::string clientVersion() const;
+    static String clientVersion();
 
     /**
      * Creates new database connection

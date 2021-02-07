@@ -160,7 +160,7 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
-    Strings extractStatements(const Strings& sqlBatch) const;
+    static Strings extractStatements(const Strings& sqlBatch);
 
 protected:
 

@@ -78,12 +78,12 @@ namespace sptk {
         void setParameterValue(unsigned paramIndex, QueryParameter* param);
         void setFloatParameterValue(unsigned paramIndex, QueryParameter *param);
 
-        unsigned size() const               { return (unsigned) m_count;   }
-        const char* const* values() const   { return &m_values[0]; }
-        const int* lengths() const          { return &m_lengths[0]; }
-        const int* formats() const          { return &m_formats[0]; }
-        const Oid* types() const            { return &m_types[0]; }
-        const CParamVector& params() const  { return m_params;  }
+        [[nodiscard]] unsigned size() const               { return (unsigned) m_count;   }
+        [[nodiscard]] const char* const* values() const   { return &m_values[0]; }
+        [[nodiscard]] const int* lengths() const          { return &m_lengths[0]; }
+        [[nodiscard]] const int* formats() const          { return &m_formats[0]; }
+        [[nodiscard]] const Oid* types() const            { return &m_types[0]; }
+        [[nodiscard]] const CParamVector& params() const  { return m_params;  }
     };
 
     extern const DateTime epochDate;

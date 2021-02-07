@@ -198,7 +198,7 @@ void MySQLConnection::queryUnprepare(Query* query)
 
 int MySQLConnection::queryColCount(Query* query)
 {
-    int colCount;
+    int colCount = 0;
     const auto* statement = (MySQLStatement*) query->statement();
     try {
         if (statement == nullptr)

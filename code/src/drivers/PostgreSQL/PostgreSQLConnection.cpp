@@ -583,7 +583,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
                 columnName << "column" << setw(2) << (column + 1);
 
             Oid dataType = PQftype(stmt, column);
-            VariantType fieldType;
+            VariantType fieldType = VAR_NONE;
             PostgreTypeToCType((int) dataType, fieldType);
             int fieldLength = PQfsize(stmt, column);
             auto* field = new DatabaseField(columnName.str(), column, (int) dataType, fieldType, fieldLength);
@@ -995,7 +995,7 @@ String PostgreSQLConnection::paramMark(unsigned paramIndex)
 static void appendTSV(Buffer& dest, const VariantVector& row)
 {
     bool firstValue = true;
-    for (auto& value: row) {
+    for (const auto& value: row) {
         if (firstValue)
             firstValue = false;
         else
@@ -1023,7 +1023,7 @@ void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& c
     PQclear(res);
 
     Buffer buffer;
-    for (auto& row: data) {
+    for (const auto& row: data) {
         appendTSV(buffer, row);
     }
 
@@ -1062,7 +1062,7 @@ void PostgreSQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* er
     }
 }
 
-Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch) const
+Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
 {
     RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
     RegularExpression matchFunctionBodyStart(R"(AS\s+(\S+)\s*$)", "i");

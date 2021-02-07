@@ -38,15 +38,6 @@ class sptk::MySQLStatementField: public DatabaseField
 {
 public:
 
-    // Callback variables
-    unsigned long   m_cbLength {0};
-    bool            m_cbNull {0};
-    bool            m_cbError {0};
-
-    // MySQL time conversion buffer
-    MYSQL_TIME      m_timeBuffer {};
-    char            m_tempBuffer[16] {};
-
     MySQLStatementField(const string& fieldName, int fieldColumn, enum_field_types fieldType, VariantType dataType, int fieldSize)
     : DatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize)
     {
@@ -68,6 +59,17 @@ public:
     {
         return m_tempBuffer;
     }
+
+private:
+
+    // Callback variables
+    unsigned long   m_cbLength {0};
+    bool            m_cbNull {0};
+    bool            m_cbError {0};
+
+    // MySQL time conversion buffer
+    MYSQL_TIME      m_timeBuffer {};
+    char            m_tempBuffer[16] {};
 };
 
 
@@ -90,15 +92,15 @@ MySQLStatement::~MySQLStatement()
 
 void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType)
 {
-    short year;
-    short month;
-    short day;
-    short wday;
-    short yday;
-    short hour;
-    short minute;
-    short second;
-    short msecond;
+    short year = 0;
+    short month = 0;
+    short day = 0;
+    short wday = 0;
+    short yday = 0;
+    short hour = 0;
+    short minute = 0;
+    short second = 0;
+    short msecond = 0;
 
     memset(&mysqlDate, 0, sizeof(MYSQL_TIME));
     timestamp.decodeDate(&year, &month, &day, &wday, &yday);
@@ -532,7 +534,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            fieldSizeChanged = bindVarCharField(bind, field, fieldIndex, dataLength);
+            fieldSizeChanged = bindVarCharField(bind, field, (size_t) fieldIndex, dataLength);
             break;
 
         case VAR_INT64:

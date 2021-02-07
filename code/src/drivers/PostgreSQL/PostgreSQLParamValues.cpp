@@ -80,7 +80,7 @@ void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, QueryPar
 {
     double value = param->asFloat();
     void* ptr = &value;
-    uint64_t* uptrBuffer64 = (uint64_t*) param->conversionBuffer();
+    auto* uptrBuffer64 = (uint64_t*) param->conversionBuffer();
     *uptrBuffer64 = htonq(*(uint64_t*)ptr);
     setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
 }
@@ -95,7 +95,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
         uint32_t*   uptrBuffer;
         uint64_t*   uptrBuffer64;
         long        days;
-        int64_t     mcs;
+        int64_t     mcs = 0;
         switch (ptype) {
             case VAR_BOOL:
                 if (param->asBool())

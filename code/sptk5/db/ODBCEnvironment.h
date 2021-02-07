@@ -78,7 +78,7 @@ public:
     /**
      * Throws the exception
      */
-    [[noreturn]] void exception(const String& text, int line) const;
+    [[noreturn]] static void exception(const String& text, int line);
 
 protected:
 
