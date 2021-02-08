@@ -107,7 +107,7 @@ static void makeCriteria(XPathElement& pathElement)
 
 static void parsePathElement(const string& pathElementStr, XPathElement& pathElement)
 {
-    static const RegularExpression matchPathElement(R"((?<type>(descendant|parent)::)?(?<element>([\w\-_:]+|\*))(\[(?<option>.*)\])?)");
+    static const RegularExpression matchPathElement(R"((?<type>(descendant|parent)::)?(?<element>([\w\-_:]+|\*))(?<option>\[.*\])?)");
 
     auto matches = matchPathElement.m(pathElementStr);
     if (!matches)
@@ -115,7 +115,12 @@ static void parsePathElement(const string& pathElementStr, XPathElement& pathEle
 
     auto pathElementType = matches["type"].value;
     auto pathElementName = matches["element"].value;
-    auto pathElementOption = matches["option"].value;
+
+    // Compensating bug in PCRE
+    auto option = matches["option"].value;
+    if (!option.empty())
+        option = option.substr(1, option.length() - 2);
+    auto pathElementOption = option;
 
     pathElement.elementName = "";
     pathElement.attributeName = "";
