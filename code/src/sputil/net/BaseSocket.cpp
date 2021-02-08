@@ -461,3 +461,44 @@ void BaseSocket::getOption(int level, int option, int& value) const
     if (getsockopt(m_sockfd, level, option, VALUE_TYPE (&value), &len) != 0)
         THROW_SOCKET_ERROR("Can't get socket option");
 }
+
+#if USE_GTEST
+
+TEST(SPTK_BaseSocket, minimal)
+{
+    Host yahoo("www.yahoo.com", 80);
+    sockaddr_in address;
+    yahoo.getAddress(address);
+
+    BaseSocket socket;
+    socket.open_addr(sptk::BaseSocket::SOM_CONNECT, &address);
+    socket.close();
+}
+
+TEST(SPTK_BaseSocket, option)
+{
+    Host yahoo("www.yahoo.com", 80);
+    sockaddr_in address;
+    yahoo.getAddress(address);
+
+    BaseSocket socket;
+    int value = 0;
+    try {
+        socket.getOption(SOL_SOCKET, SO_REUSEPORT, value);
+        FAIL() << "Shouldn't get socket option for closed socket";
+    }
+    catch (const Exception&) {
+        SUCCEED() << "Can't get socket option for closed socket";
+    }
+
+    socket.open_addr(sptk::BaseSocket::SOM_CONNECT, &address);
+
+    socket.getOption(SOL_SOCKET, SO_REUSEPORT, value);
+    EXPECT_EQ(value, 0);
+
+    socket.setOption(SOL_SOCKET, SO_REUSEPORT, 1);
+    socket.getOption(SOL_SOCKET, SO_REUSEPORT, value);
+    EXPECT_EQ(value, 1);
+}
+
+#endif

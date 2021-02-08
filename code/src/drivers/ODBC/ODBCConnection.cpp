@@ -163,25 +163,23 @@ String ODBCConnection::connectString() const
 
 String ODBCConnection::queryError(SQLHSTMT stmt) const
 {
-    SQLCHAR errorDescription[SQL_MAX_MESSAGE_LENGTH];
-    SQLCHAR errorState[SQL_MAX_MESSAGE_LENGTH];
+    array<SQLCHAR,SQL_MAX_MESSAGE_LENGTH> errorDescription = {};
+    array<SQLCHAR,SQL_MAX_MESSAGE_LENGTH> errorState = {};
 
     SWORD pcnmsg = 0;
     SQLINTEGER nativeError = 0;
-    *errorDescription = 0;
-    *errorState = 0;
 
     String error;
-    int rc = SQLError(SQL_NULL_HENV, handle(), stmt, errorState, &nativeError, errorDescription,
-                      sizeof(errorDescription), &pcnmsg);
+    int rc = SQLError(SQL_NULL_HENV, handle(), stmt, errorState.data(), &nativeError, errorDescription.data(),
+                      errorDescription.size(), &pcnmsg);
 
     if (rc == SQL_SUCCESS) {
-        error = (const char*) errorDescription;
+        error = (const char*) errorDescription.data();
     } else {
-        rc = SQLError(SQL_NULL_HENV, handle(), nullptr, errorState, &nativeError, errorDescription,
-                      sizeof(errorDescription), &pcnmsg);
+        rc = SQLError(SQL_NULL_HENV, handle(), nullptr, errorState.data(), &nativeError, errorDescription.data(),
+                      errorDescription.size(), &pcnmsg);
         if (rc == SQL_SUCCESS)
-            error = (const char*) errorDescription;
+            error = (const char*) errorDescription.data();
     }
 
     if (error.empty())
@@ -263,8 +261,8 @@ void ODBCConnection::queryExecute(Query* query)
     if (successful(rc))
         return;
 
-    SQLCHAR state[16];
-    SQLCHAR text[MAX_ERROR_LEN];
+    array<SQLCHAR,16> state = {};
+    array<SQLCHAR,MAX_ERROR_LEN> text = {};
     SQLINTEGER nativeError = 0;
     SQLSMALLINT recordCount = 0;
     SQLSMALLINT textLength = 0;
@@ -274,11 +272,11 @@ void ODBCConnection::queryExecute(Query* query)
     if (successful(rc)) {
         Strings errors;
         for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; ++recordNumber) {
-            rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state, &nativeError, text, sizeof(text),
-                               &textLength);
+            rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state.data(), &nativeError,
+                               text.data(), text.size(), &textLength);
             if (!successful(rc))
                 break;
-            errors.push_back(removeDriverIdentification((const char*) text));
+            errors.push_back(removeDriverIdentification((const char*) text.data()));
         }
         THROW_QUERY_ERROR(query, errors.join("; "))
     }
@@ -502,7 +500,7 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantTy
 void ODBCConnection::parseColumns(Query* query, int count)
 {
     // Reading the column attributes
-    char columnName[MAX_NAME_LEN];
+    array<char,MAX_NAME_LEN> columnName = {};
     int32_t columnType = 0;
     int32_t columnLength = 0;
     int32_t columnScale = 0;
@@ -513,7 +511,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
     columnNameStr.fill('0');
 
     for (int16_t column = 1; column <= int16_t(count); ++column) {
-        queryColAttributes(query, column, SQL_COLUMN_NAME, columnName, MAX_NAME_LEN - 1);
+        queryColAttributes(query, column, SQL_COLUMN_NAME, columnName.data(), MAX_NAME_LEN - 1);
         queryColAttributes(query, column, SQL_COLUMN_TYPE, columnType);
         queryColAttributes(query, column, SQL_COLUMN_LENGTH, columnLength);
         queryColAttributes(query, column, SQL_COLUMN_SCALE, columnScale);
@@ -521,7 +519,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
         if (dataType == VAR_STRING && columnLength > 65535)
             dataType = VAR_TEXT;
         if (columnName[0] != 0)
-            columnNameStr.str(columnName);
+            columnNameStr.str(columnName.data());
         else {
             columnNameStr.str("column");
             columnNameStr << setw(2) << column;
@@ -738,8 +736,8 @@ String ODBCConnection::driverDescription() const
 void ODBCConnection::listDataSources(Strings& dsns)
 {
     dsns.clear();
-    SQLCHAR     datasrc[MAX_BUF] = {0};
-    SQLCHAR     descrip[MAX_BUF] = {0};
+    array<SQLCHAR,MAX_BUF> datasrc = {0};
+    array<SQLCHAR,MAX_BUF> descrip = {0};
     SQLSMALLINT rdsrc = 0;
     SQLSMALLINT rdesc = 0;
     SQLRETURN   ret = 0;
@@ -758,12 +756,12 @@ void ODBCConnection::listDataSources(Strings& dsns)
     {
         ret = SQLDataSources(
                 hEnv, direction,
-                datasrc, MAX_BUF, &rdsrc,
-                descrip, MAX_BUF, &rdesc);
+                datasrc.data(), datasrc.size(), &rdsrc,
+                descrip.data(), descrip.size(), &rdesc);
         if (ret == SQL_NO_DATA)
             break;
         direction = SQL_FETCH_NEXT;
-        dsns.push_back(string((char*) datasrc) + " (" +  string((char*) descrip) + ")");
+        dsns.push_back(String((char*) datasrc.data()) + " (" +  String((char*) descrip.data()) + ")");
     }
 
     if (offline)
@@ -807,13 +805,13 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
                 break;
         }
 
-        SQLCHAR objectSchema[MAX_NAME_LEN] = {};
-        SQLCHAR objectName[MAX_NAME_LEN] = {};
+        array<SQLCHAR,MAX_NAME_LEN> objectSchema = {};
+        array<SQLCHAR,MAX_NAME_LEN> objectName = {};
         SQLLEN  cbObjectSchema = 0;
         SQLLEN  cbObjectName = 0;
-        if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema, sizeof(objectSchema), &cbObjectSchema) != SQL_SUCCESS)
+        if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema.data(), objectSchema.size(), &cbObjectSchema) != SQL_SUCCESS)
             throw DatabaseException("SQLBindCol");
-        if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName, sizeof(objectName), &cbObjectName) != SQL_SUCCESS)
+        if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName.data(), objectName.size(), &cbObjectName) != SQL_SUCCESS)
             throw DatabaseException("SQLBindCol");
 
         while (true) {
@@ -824,8 +822,8 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
                 break;
             if (!successful(rc))
                 throw DatabaseException("SQLFetch");
-            String objectNameStr = String((char*) objectName).replace(";0$", "");
-            objects.push_back(string((char*) objectSchema) + "." + objectNameStr);
+            String objectNameStr = String((char*) objectName.data()).replace(";0$", "");
+            objects.push_back(String((char*) objectSchema.data()) + "." + objectNameStr);
         }
 
         SQLFreeStmt(stmt, SQL_DROP);
