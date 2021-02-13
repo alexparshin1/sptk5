@@ -41,7 +41,7 @@ namespace sptk {
 class SP_EXPORT WSWebSocketsMessage
 {
 public:
-    enum OpCode {
+    enum OpCode : uint8_t {
         OC_CONTINUATION     = 0,
         OC_TEXT             = 1,
         OC_BINARY           = 2,
@@ -67,11 +67,23 @@ public:
     /// @param output           WebSockets frame, ready to send
     static void encode(String payload, OpCode opcode, bool finalMessage, Buffer& output);
 
-private:
+    /// Get operation code
+    OpCode opcode() const;
 
-    uint32_t    m_opcode {0};           ///< WebSockets operation code
+    /// Set operation code
+    void opcode(OpCode code);
+
+    /// Operation status code
+    uint32_t statusCode() const;
+
+    /// 'message is final' flag
+    bool isFinal() const;
+
+private:
+    OpCode      m_opcode {0};
+    uint32_t    m_status {0};
     Buffer      m_payload;              ///< Message payload
-    bool        m_finalMessage {true};  ///< 'message is final' flag
+    bool        m_finalMessage {true};
 };
 
 /// WebSockets connection handler

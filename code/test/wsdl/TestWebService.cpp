@@ -278,4 +278,42 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
     request_listener_test(Strings("Login|AccountBalance", "|"), true);
 }
 
+
+
+TEST(SPTK_TestWebService, websockets)
+{
+    SysLogEngine    logEngine("TestWebService");
+    auto            service = make_shared<TestWebService>();
+
+    // Define Web Service listener
+    WSConnection::Paths     paths("index.html","/test",".");
+    WSConnection::Options   options(paths);
+    options.encrypted = false;
+    WSServices services(service);
+    WSListener listener(services, logEngine, "localhost", 16, options);
+
+    const uint16_t      servicePort = 11000;
+    shared_ptr<SSLKeys> sslKeys;
+    try {
+
+        if (options.encrypted) {
+            sslKeys = make_shared<SSLKeys>("keys/test.key", "keys/test.cert");
+            listener.setSSLKeys(sslKeys);
+        }
+
+        // Start Web Service listener
+        listener.listen(servicePort);
+
+        TestWebService::jwtAuthorization.reset();
+
+        sleep(100000);
+
+        listener.stop();
+    }
+    catch (const Exception& e) {
+        FAIL() << e.what();
+    }
+}
+
+
 #endif

@@ -55,7 +55,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
     auto*  ptr = (const uint8_t*) incomingData;
 
     m_finalMessage = (*ptr & 0x80) != 0;
-    m_opcode = uint32_t(*ptr & 0xF);
+    m_opcode = OpCode(*ptr & 0xF);
 
     ++ptr;
     bool masked = (*ptr & 0x80) != 0;
@@ -84,11 +84,29 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         memcpy(mask, ptr, sizeof(mask));
         ptr += 4;
         char* dest = m_payload.data();
+        char statusCodeBuffer[2];
+        size_t j = 0;
         for (uint64_t i = 0; i < payloadLength; ++i) {
-            dest[i] = ptr[i] ^ mask[i % 4];
+            auto unmaskedByte = ptr[i] ^ mask[i % 4];
+            if (m_opcode == OC_CONNECTION_CLOSE && i < 2) {
+                statusCodeBuffer[i] = unmaskedByte;
+                continue;
+            }
+
+            dest[j] = unmaskedByte;
+            j++;
         }
-    } else
-        m_payload.set((const char*)ptr, payloadLength);
+        m_payload.bytes(j);
+        if (m_opcode == OC_CONNECTION_CLOSE)
+            m_status = ntohs(*(uint16_t *)statusCodeBuffer);
+    } else {
+        if (m_opcode == OC_CONNECTION_CLOSE) {
+            m_status = ntohs(*(uint16_t *)ptr);
+            ptr += 2;
+            payloadLength -= 2;
+        }
+        m_payload.set((const char*) ptr, payloadLength);
+    }
 }
 
 void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool finalMessage, Buffer& output)
@@ -118,6 +136,26 @@ void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool finalMessag
 
     output.bytes(ptr - (uint8_t*) output.data());
     output.append(payload);
+}
+
+WSWebSocketsMessage::OpCode WSWebSocketsMessage::opcode() const
+{
+    return m_opcode;
+}
+
+void WSWebSocketsMessage::opcode(OpCode code)
+{
+    m_opcode = code;
+}
+
+uint32_t WSWebSocketsMessage::statusCode() const
+{
+    return m_status;
+}
+
+bool WSWebSocketsMessage::isFinal() const
+{
+    return m_finalMessage;
 }
 
 WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders& headers)
@@ -153,18 +191,28 @@ RequestInfo WSWebSocketsProtocol::process()
         socket().write("Sec-WebSocket-Protocol: " + websocketProtocol + "\r\n");
         socket().write("\r\n");
 
-        if (socket().readyToRead(chrono::seconds(30))) {
-            Buffer message;
-
-            while (socket().socketBytes() == 0)
-                this_thread::sleep_for(chrono::milliseconds(100));
+        while (socket().readyToRead(chrono::seconds(30))) {
 
             size_t available = socket().socketBytes();
+            if (available == 0)
+                break; // Client closed connection
+
+            Buffer message;
             socket().read(message, available);
             WSWebSocketsMessage msg;
             msg.decode(message.c_str());
 
-            COUT(msg.payload().c_str() << endl)
+            if (msg.opcode() == WSWebSocketsMessage::OC_CONNECTION_CLOSE) {
+                COUT("Close: " << msg.payload().c_str() << endl)
+                String reply("  ");
+                *(uint16_t*) reply.data() = htons(msg.statusCode());
+                reply.append("Connection closed by client request");
+                WSWebSocketsMessage::encode(reply, WSWebSocketsMessage::OC_CONNECTION_CLOSE, true, message);
+                socket().write(message);
+                break;
+            }
+
+            COUT(msg.opcode() << ": " << msg.payload().c_str() << endl)
 
             WSWebSocketsMessage::encode("Hello", WSWebSocketsMessage::OC_TEXT, true, message);
             socket().write(message);
