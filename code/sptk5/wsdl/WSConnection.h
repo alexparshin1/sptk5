@@ -53,7 +53,8 @@ public:
         Paths(const Paths& other) = default;
     };
 
-    struct Options {
+    struct Options
+    {
         Paths       paths;
         bool        encrypted          {false};
         bool        allowCors          {false};

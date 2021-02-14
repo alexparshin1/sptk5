@@ -188,9 +188,11 @@ RequestInfo WSWebSocketsProtocol::process()
         socket().write("Upgrade: websocket\r\n");
         socket().write("Connection: Upgrade\r\n");
         socket().write("Sec-WebSocket-Accept: " + responseKey + "\r\n");
-        socket().write("Sec-WebSocket-Protocol: " + websocketProtocol + "\r\n");
+        if (!websocketProtocol.empty())
+            socket().write("Sec-WebSocket-Protocol: " + websocketProtocol + "\r\n");
         socket().write("\r\n");
 
+        bool connectionCloseRequestReplied = false;
         while (socket().readyToRead(chrono::seconds(30))) {
 
             size_t available = socket().socketBytes();
@@ -203,12 +205,8 @@ RequestInfo WSWebSocketsProtocol::process()
             msg.decode(message.c_str());
 
             if (msg.opcode() == WSWebSocketsMessage::OC_CONNECTION_CLOSE) {
-                COUT("Close: " << msg.payload().c_str() << endl)
-                String reply("  ");
-                *(uint16_t*) reply.data() = htons(msg.statusCode());
-                reply.append("Connection closed by client request");
-                WSWebSocketsMessage::encode(reply, WSWebSocketsMessage::OC_CONNECTION_CLOSE, true, message);
-                socket().write(message);
+                replyCloseConnectionRequest(msg.statusCode(), "Connection closed by client request");
+                connectionCloseRequestReplied = true;
                 break;
             }
 
@@ -220,6 +218,9 @@ RequestInfo WSWebSocketsProtocol::process()
             WSWebSocketsMessage::encode("World", WSWebSocketsMessage::OC_TEXT, true, message);
             socket().write(message);
         }
+
+        if (!connectionCloseRequestReplied)
+            replyCloseConnectionRequest(1000, "Connection terminated");
     }
     catch (const Exception& e) {
         string text("<html><head><title>Error processing request</title></head><body>" + e.message() + "</body></html>\n");
@@ -231,4 +232,16 @@ RequestInfo WSWebSocketsProtocol::process()
     }
 
     return requestInfo;
+}
+
+void WSWebSocketsProtocol::replyCloseConnectionRequest(uint16_t statusCode, const String& closeReason)
+{
+    Buffer message;
+
+    String reply("  ");
+    *(uint16_t*) reply.data() = htons(statusCode);
+    reply.append(closeReason);
+    WSWebSocketsMessage::encode(reply, WSWebSocketsMessage::OC_CONNECTION_CLOSE, true, message);
+
+    socket().write(message);
 }

@@ -287,8 +287,7 @@ TEST(SPTK_TestWebService, websockets)
 
     // Define Web Service listener
     WSConnection::Paths     paths("index.html","/test",".");
-    WSConnection::Options   options(paths);
-    options.encrypted = false;
+    WSConnection::Options   options(paths, true);
     WSServices services(service);
     WSListener listener(services, logEngine, "localhost", 16, options);
 

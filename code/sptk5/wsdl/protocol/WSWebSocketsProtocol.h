@@ -103,6 +103,8 @@ public:
     ///
     /// Implements WebSockets session
     RequestInfo process() override;
+
+    void replyCloseConnectionRequest(uint16_t statusCode, const String& closeReason);
 };
 
 class WSNotification
