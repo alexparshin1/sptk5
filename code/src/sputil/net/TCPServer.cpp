@@ -35,6 +35,7 @@ using namespace std;
 using namespace sptk;
 
 const map<String,LogDetails::MessageDetail> LogDetails::detailNames {
+    { "serial_id", SERIAL_ID },
     { "source_ip", SOURCE_IP },
     { "request_name", REQUEST_NAME },
     { "request_duration", REQUEST_DURATION },

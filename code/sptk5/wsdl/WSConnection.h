@@ -70,11 +70,11 @@ public:
      * @param server            Server object
      * @param connectionSocket  Incoming connection socket
      * @param service           Web service object
-     * @param logger            Logger instance
+     * @param logEngine         Logger engine
      * @param options           Connection options
      */
     WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, WSServices& services,
-                 Logger& logger, const Options& options);
+                 LogEngine& logEngine, const Options& options);
 
     /**
      * Destructor
@@ -89,7 +89,7 @@ public:
 private:
 
     WSServices&     m_services;
-    Logger&         m_logger;
+    Logger          m_logger;
     Options         m_options;
 
     void respondToOptions(const HttpHeaders& headers) const;
@@ -98,8 +98,7 @@ private:
 
     bool reviewHeaders(const String& requestType, HttpHeaders& headers) const;
 
-    void logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
-                              const RequestInfo& requestInfo) const;
+    void logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader, const RequestInfo& requestInfo);
 
     void processSingleConnection(bool& done);
 };
@@ -116,11 +115,11 @@ public:
      * @param connectionSocket  Incoming connection socket, accepted by accept() function
      * @param addr              Incoming connection info
      * @param services          Registered services to process incoming connection
-     * @param logger            Logger
+     * @param logEngine         Log engine
      * @param options           Connection options
      */
     WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSServices& services,
-                    Logger& logger, const Options& options);
+                    LogEngine& logEngine, const Options& options);
 
     /**
      * Destructor

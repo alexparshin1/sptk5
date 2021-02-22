@@ -15,6 +15,7 @@ ADD_LIBRARY (spwsdl5 ${LIBRARY_TYPE}
     WSRestriction.cpp
     WSServices.cpp
     WSTypeTranslator.cpp
+    protocol/BaseWebServiceProtocol.cpp
     protocol/WSProtocol.cpp
     protocol/WSStaticHttpProtocol.cpp
     protocol/WSWebServiceProtocol.cpp

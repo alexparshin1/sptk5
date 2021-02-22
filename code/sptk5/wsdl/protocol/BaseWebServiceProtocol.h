@@ -24,105 +24,58 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __WSWEBSOCKETSPROTOCOL_H__
-#define __WSWEBSOCKETSPROTOCOL_H__
+#ifndef SPTK_BASEWEBSERVICEPROTOCOL_H
+#define SPTK_BASEWEBSERVICEPROTOCOL_H
 
-#include "WSProtocol.h"
 #include <sptk5/cnet>
+#include <sptk5/net/URL.h>
+#include <sptk5/net/HttpResponseStatus.h>
+#include <sptk5/wsdl/WSServices.h>
+#include "WSProtocol.h"
+#include "sptk5/wsdl/protocol/BaseWebServiceProtocol.h"
 
 namespace sptk {
 
-/// @addtogroup wsdl WSDL-related Classes
-/// @{
-
-/// WebSockets protocol message
-///
-/// Provides WebSockets message encode and decode methods
-class SP_EXPORT WSWebSocketsMessage
+class BaseWebServiceProtocol : public WSProtocol
 {
+    xml::Node* getFirstChildElement(const xml::Node* element) const;
+
 public:
-    enum OpCode : uint8_t {
-        OC_CONTINUATION     = 0,
-        OC_TEXT             = 1,
-        OC_BINARY           = 2,
-        OC_CONNECTION_CLOSE = 8,
-        OC_PING1            = 9,
-        OC_PING2            = 10
-    };
+    BaseWebServiceProtocol(TCPSocket* socket, const HttpHeaders& headers, sptk::WSServices& services, const URL& url);
 
-    /// Default constructor
-    WSWebSocketsMessage() = default;
+protected:
+    WSServices&         m_services;
+    const URL           m_url;
 
-    /// Return message payload buffer
-    [[nodiscard]] const Buffer& payload() const;
+    virtual std::shared_ptr<HttpAuthentication> getAuthentication() = 0;
 
-    /// Decode incoming data into message payload
-    /// @param incomingData     Incoming data received from WebSockets
-    void decode(const char* incomingData);
+    virtual void generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
+                               const HTTPException& e, bool jsonOutput) const = 0;
 
-    /// Encode a payload into WebSockets frame
-    /// @param payload          Message to encode
-    /// @param opcode           WebSockets operation code
-    /// @param finalMessage     'message is final' flag
-    /// @param output           WebSockets frame, ready to send
-    static void encode(const String& payload, OpCode opcode, bool finalMessage, Buffer& output);
+    void RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) const;
 
-    /// Get operation code
-    OpCode opcode() const;
+    xml::Node* findRequestNode(const xml::Document& message, const String& messageType) const;
 
-    /// Set operation code
-    void opcode(OpCode code);
+    void processXmlContent(const char* startOfMessage, xml::Document& xmlContent, json::Document& jsonContent) const;
 
-    /// Operation status code
-    uint32_t statusCode() const;
+    void processJsonContent(const char* startOfMessage, json::Document& jsonContent,
+                            RequestInfo& requestInfo, HttpResponseStatus& httpStatus,
+                            String& contentType) const;
 
-    /// 'message is final' flag
-    bool isFinal() const;
-
-private:
-    OpCode      m_opcode {0};
-    uint32_t    m_status {0};
-    Buffer      m_payload;              ///< Message payload
-    bool        m_finalMessage {true};
+/**
+ * Process request message, and store response to output
+ * @param output                Output buffer
+ * @param xmlContent            Input message
+ * @param authentication        Authentication
+ * @param requestIsJSON         Request is in JSON format
+ * @param httpResponseStatus    Output HTTP response status
+ * @param contentType           Output content type
+ */
+String processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
+                      const SHttpAuthentication& authentication, bool requestIsJSON,
+                      HttpResponseStatus& httpResponseStatus, String& contentType) const;
 };
 
-/// WebSockets connection handler
-///
-/// Treats connection as WebSockets, implementing WebSockets
-/// handshake and client session. Session stays connected until
-/// client disconnects.
-class SP_EXPORT WSWebSocketsProtocol : public WSProtocol
-{
-public:
-    /// Constructor
-    /// @param socket TCPSocket*, Connection socket
-    /// @param headers const std::map<String,String>&, Connection HTTP headers
-    WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders& headers);
-
-    /// Process method
-    ///
-    /// Implements WebSockets session
-    RequestInfo process() override;
-
-    void replyCloseConnectionRequest(uint16_t statusCode, const String& closeReason);
-};
-
-class WSNotification
-{
-public:
-    const std::map<String,String>   m_headers;
-    String                          m_data;
-};
-
-class WSNotificationManager
-{
-public:
-    WSNotificationManager() = default;
-
-private:
-    Strings  m_queues;
-};
-
-} // namespace sptk
+}
 
 #endif

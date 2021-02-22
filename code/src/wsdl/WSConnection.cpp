@@ -31,10 +31,10 @@ using namespace std;
 using namespace sptk;
 
 WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress,
-                           WSServices& services, Logger& logger, const Options& options)
+                           WSServices& services, LogEngine& logEngine, const Options& options)
 : ServerConnection(server, connectionSocket, connectionAddress, "WSConnection"),
   m_services(services),
-  m_logger(logger),
+  m_logger(logEngine, "(" + to_string(serial()) + ") "),
   m_options(options)
 {
     if (!m_options.paths.staticFilesDirectory.endsWith("/"))
@@ -61,12 +61,14 @@ static void printMessage(stringstream& logMessage, const String& prefix, const R
 
 void WSConnection::processSingleConnection(bool& done)
 {
+    m_logger.debug("Processing connection");
+
     if (!socket().readyToRead(chrono::seconds(30))  // Client communication timeout
-        ||
-        socket().socketBytes() == 0)                        // Client closed connection
+        || socket().socketBytes() == 0)                        // Client closed connection
     {
         socket().close();
         done = true;
+        m_logger.debug("Client closed connection");
         return;
     }
 
@@ -89,6 +91,7 @@ void WSConnection::processSingleConnection(bool& done)
             httpReader.close();
             done = true;
         }
+        m_logger.debug("Processed OPTIONS");
         return;
     }
 
@@ -106,8 +109,10 @@ void WSConnection::processSingleConnection(bool& done)
         processed = true;
     }
 
-    if (processed)
+    if (processed) {
+        m_logger.debug("Processed " + protocolName);
         return;
+    }
 
     bool closeConnection = reviewHeaders(requestType, headers);
 
@@ -147,7 +152,7 @@ void WSConnection::run()
 }
 
 void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
-                                        const RequestInfo& requestInfo) const
+                                        const RequestInfo& requestInfo)
 {
     if (!m_options.logDetails.empty()) {
         stringstream logMessage;
@@ -257,8 +262,8 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
 }
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSServices& services,
-                                 Logger& logger, const Options& options)
-: WSConnection(server, connectionSocket, addr, services, logger, options)
+                                 LogEngine& logEngine, const Options& options)
+: WSConnection(server, connectionSocket, addr, services, logEngine, options)
 {
     if (options.encrypted) {
         auto& sslKeys = server.getSSLKeys();

@@ -49,5 +49,5 @@ WSListener::WSListener(const WSServices& services, LogEngine& logger, const Stri
 
 ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    return new WSSSLConnection(*this, connectionSocket, peer, m_services, m_logger, m_options);
+    return new WSSSLConnection(*this, connectionSocket, peer, m_services, m_logger.destination(), m_options);
 }

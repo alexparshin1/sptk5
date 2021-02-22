@@ -40,7 +40,7 @@ static uint64_t ntoh64(uint64_t data)
     union {
         uint64_t    m_uint64;
         uint32_t    m_uint32[2];
-    } input, output;
+    } input = {}, output = {};
 
     input.m_uint64 = data;
 
@@ -52,21 +52,28 @@ static uint64_t ntoh64(uint64_t data)
 
 void WSWebSocketsMessage::decode(const char* incomingData)
 {
-    auto*  ptr = (const uint8_t*) incomingData;
+    constexpr char finalBitMask(char(0x80));
+    constexpr char maskedBitMask(char(0x80));
+    constexpr char opcodeBitMask(char(0xF));
+    constexpr char payloadLengthBitMask(char(0x7F));
+    constexpr char lengthIsTwoBytes(126);
+    constexpr char lengthIsEightBytes(127);
 
-    m_finalMessage = (*ptr & 0x80) != 0;
-    m_opcode = OpCode(*ptr & 0xF);
+    const auto*  ptr = (const uint8_t*) incomingData;
+
+    m_finalMessage = (*ptr & finalBitMask) != 0;
+    m_opcode = OpCode(*ptr & opcodeBitMask);
 
     ++ptr;
-    bool masked = (*ptr & 0x80) != 0;
-    auto payloadLength = uint64_t((*ptr) & 0x7F);
+    bool masked = (*ptr & maskedBitMask) != 0;
+    auto payloadLength = uint64_t(*ptr & payloadLengthBitMask);
     switch (payloadLength) {
-        case 126:
+        case lengthIsTwoBytes:
             ++ptr;
             payloadLength = ntohs(*(const uint16_t*)ptr);
             ptr += 2;
             break;
-        case 127:
+        case lengthIsEightBytes:
             ++ptr;
             payloadLength = ntoh64(*(const uint64_t*)ptr);
             ptr += 8;
@@ -109,7 +116,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
     }
 }
 
-void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool finalMessage, Buffer& output)
+void WSWebSocketsMessage::encode(const String& payload, OpCode opcode, bool finalMessage, Buffer& output)
 {
     output.reset(payload.length() + 10);
 
@@ -166,6 +173,10 @@ WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders&
 
 RequestInfo WSWebSocketsProtocol::process()
 {
+    constexpr size_t shaBufferLength(20);
+    constexpr chrono::seconds thirtySeconds(30);
+    constexpr int connectionTerminatedCode(1000);
+
     RequestInfo requestInfo;
     try {
         String clientKey = headers()["Sec-WebSocket-Key"];
@@ -177,9 +188,9 @@ RequestInfo WSWebSocketsProtocol::process()
 
         // Generate server response key from client key
         String responseKey = clientKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-        unsigned char obuf[20];
+        unsigned char obuf[shaBufferLength];
         SHA1((const unsigned char*)responseKey.c_str(), responseKey.length(), obuf);
-        Buffer responseKeySHA(obuf, 20);
+        Buffer responseKeySHA(obuf, shaBufferLength);
         Buffer responseKeyEncoded;
         Base64::encode(responseKeyEncoded, responseKeySHA);
         responseKey = responseKeyEncoded.c_str();
@@ -193,7 +204,9 @@ RequestInfo WSWebSocketsProtocol::process()
         socket().write("\r\n");
 
         bool connectionCloseRequestReplied = false;
-        while (socket().readyToRead(chrono::seconds(30))) {
+        while (true) {
+            if (!socket().readyToRead(thirtySeconds))
+                continue;
 
             size_t available = socket().socketBytes();
             if (available == 0)
@@ -220,7 +233,7 @@ RequestInfo WSWebSocketsProtocol::process()
         }
 
         if (!connectionCloseRequestReplied)
-            replyCloseConnectionRequest(1000, "Connection terminated");
+            replyCloseConnectionRequest(connectionTerminatedCode, "Connection terminated");
     }
     catch (const Exception& e) {
         string text("<html><head><title>Error processing request</title></head><body>" + e.message() + "</body></html>\n");

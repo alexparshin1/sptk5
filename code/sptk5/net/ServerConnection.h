@@ -83,8 +83,15 @@ public:
 
     /**
      * Get incoming connection address
+     * @return incoming connection address
      */
     String address() const { return m_address; }
+
+    /**
+     * Get connection serial number
+     * @return connection serial number
+     */
+    size_t serial() const { return m_serial; }
 
 protected:
 
@@ -102,6 +109,13 @@ private:
     TCPServer&          m_server;            ///< Parent server object
     TCPSocket*          m_socket {nullptr};  ///< Connection socket
     String              m_address;           ///< Incoming connection IP address
+    size_t              m_serial {0};        ///< Connection serial number
+
+    /**
+     * Create next connection serial number
+     * @return
+     */
+    static size_t nextSerial();
 };
 
 /**

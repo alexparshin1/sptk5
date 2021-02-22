@@ -35,6 +35,15 @@
 using namespace std;
 using namespace sptk;
 
+size_t ServerConnection::nextSerial()
+{
+    static mutex  amutex;
+    static size_t serial = 0;
+
+    lock_guard<mutex> lock(amutex);
+    return ++serial;
+}
+
 TCPSocket& ServerConnection::socket() const
 {
     lock_guard<mutex>   lock(m_mutex);
@@ -54,7 +63,7 @@ TCPServer& ServerConnection::server() const
 }
 
 ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in* connectionAddress, const String& taskName)
-: Runable(taskName), m_server(server), m_socket(nullptr)
+: Runable(taskName), m_server(server), m_socket(nullptr), m_serial(nextSerial())
 {
     parseAddress(connectionAddress);
 }

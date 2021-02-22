@@ -27,10 +27,10 @@
 #ifndef __WSWEBSERVICEPROTOCOL_H__
 #define __WSWEBSERVICEPROTOCOL_H__
 
-#include "WSProtocol.h"
 #include <sptk5/cnet>
 #include <sptk5/net/URL.h>
 #include <sptk5/net/HttpResponseStatus.h>
+#include "sptk5/wsdl/protocol/BaseWebServiceProtocol.h"
 #include <sptk5/wsdl/WSServices.h>
 
 namespace sptk {
@@ -42,7 +42,7 @@ namespace sptk {
 ///
 /// Uses WSRequest service object to parse WS request and
 /// reply, then closes connection.
-class SP_EXPORT WSWebServiceProtocol : public WSProtocol
+class SP_EXPORT WSWebServiceProtocol : public BaseWebServiceProtocol
 {
 public:
 
@@ -67,49 +67,24 @@ public:
      */
     RequestInfo process() override;
 
+    void generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
+                       const HTTPException& e, bool jsonOutput) const override;
+
+protected:
+    std::shared_ptr<HttpAuthentication> getAuthentication() override;
+
 private:
     HttpReader&         m_httpReader;           ///< HTTP reader
-    WSServices&         m_services;             ///< Web service
-    const URL           m_url;                  ///< Request URL
+    ///< Web service
+    ///< Request URL
     Host                m_host;                 ///< Listener's host
     bool                m_allowCORS;            ///< Allow CORS?
     bool                m_keepAlive;            ///< Allow keep-alive connections
     bool                m_suppressHttpStatus;   ///< If true, then HTTP status is 202 Accepted even if HttpException raised
     LogDetails          m_logDetails;           ///< Log details
 
-    /**
-     * Process request message, and store response to output
-     * @param output                Output buffer
-     * @param xmlContent            Input message
-     * @param authentication        Authentication
-     * @param requestIsJSON         Request is in JSON format
-     * @param httpResponseStatus    Output HTTP response status
-     * @param contentType           Output content type
-     */
-    String processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
-                          const SHttpAuthentication& authentication, bool requestIsJSON,
-                          HttpResponseStatus& httpResponseStatus, String& contentType) const;
-
-    xml::Node* getFirstChildElement(const xml::Node* element) const;
-
-    xml::Node* findRequestNode(const xml::Document& message, const String& messageType) const;
-
-    void generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
-                       const HTTPException& e,
-                       bool jsonOutput) const;
-
-    void RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) const;
-
     int getContentLength();
 
-    std::shared_ptr<HttpAuthentication> getAuthentication();
-
-    void processXmlContent(const char* startOfMessage, xml::Document& xmlContent,
-                           json::Document& jsonContent) const;
-
-    void processJsonContent(const char* startOfMessage, json::Document& jsonContent,
-                            RequestInfo& requestInfo, HttpResponseStatus& httpStatus,
-                            String& contentType) const;
 };
 
 /// @}

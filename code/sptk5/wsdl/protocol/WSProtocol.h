@@ -42,10 +42,11 @@ class WSProtocol
 public:
 
     /// Constructor
+    /// Note: the socket is not owned by this class and not discarded by destructor.
     /// @param socket           Connection socket
     /// @param headers          Connection HTTP headers
     WSProtocol(TCPSocket* socket, const HttpHeaders& headers)
-    : m_socket(*socket), m_headers(headers)
+    : m_socket(socket), m_headers(headers)
     {
     }
 
@@ -56,7 +57,8 @@ public:
     /// Closes connection
     virtual ~WSProtocol()
     {
-        m_socket.close();
+        if (m_socket)
+            m_socket->close();
     }
 
     /// Process virtual method - to be implemented in derived classes
@@ -67,7 +69,7 @@ protected:
      * Connection socket
      * @return Connection socket
      */
-    TCPSocket& socket() { return m_socket; }
+    TCPSocket& socket() { return *m_socket; }
 
     /**
      * Connection HTTP headers
@@ -83,7 +85,7 @@ protected:
 
 private:
 
-    TCPSocket&      m_socket;   ///< Connection socket
+    TCPSocket*      m_socket;   ///< Connection socket
     HttpHeaders     m_headers;  ///< Connection HTTP headers
 };
 

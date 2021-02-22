@@ -34,12 +34,15 @@
 using namespace std;
 using namespace sptk;
 
+static constexpr int oneKb(1024);
+static constexpr chrono::seconds thirtySeconds(30);
+
 HttpReader::HttpReader(TCPSocket& socket, Buffer& output, ReadMode readMode)
 : m_socket(socket),
   m_readMode(readMode),
   m_output(output)
 {
-    output.reset(128);
+    output.reset(oneKb);
 }
 
 bool HttpReader::readStatus()
@@ -85,6 +88,8 @@ bool HttpReader::readHttpRequest()
 
 void HttpReader::readHttpHeaders()
 {
+    constexpr int lengthRequiredResponseCode(411);
+
     reset();
 
     if (m_readMode == RESPONSE) {
@@ -129,7 +134,7 @@ void HttpReader::readHttpHeaders()
     bool expectingContent = m_requestType == "POST" || m_requestType == "PUT";
     bool contentLengthDefined = m_contentLength > 0 || m_contentIsChunked;
     if (expectingContent && !contentLengthDefined)
-        throw HTTPException(411, "Length required");
+        throw HTTPException(lengthRequiredResponseCode, "Length required");
 
     m_contentReceivedLength = 0;
 
@@ -140,7 +145,7 @@ static size_t readAndAppend(TCPSocket& socket, Buffer& output, size_t bytesToRea
 {
     Buffer buffer(bytesToRead);
 
-    if (!socket.readyToRead(chrono::seconds(30)))
+    if (!socket.readyToRead(thirtySeconds))
         throw TimeoutException("Timeout reading from connection");
 
     size_t readBytes = socket.read(buffer, bytesToRead);
@@ -156,7 +161,7 @@ static size_t readChunk(TCPSocket& socket, Buffer& m_output)
     // Starting next chunk
     String chunkSizeStr;
     while (chunkSizeStr.empty()) {
-        if (!socket.readyToRead(chrono::seconds(30)))
+        if (!socket.readyToRead(thirtySeconds))
             throw TimeoutException("Timeout reading next chunk");
         if (socket.readLine(chunkSizeStr) > 0)
             chunkSizeStr = trim(chunkSizeStr);
@@ -190,7 +195,7 @@ void HttpReader::readDataChunk(bool& done)
     } else
         bytesToRead = m_socket.socketBytes();
 
-    int readBytes;
+    int readBytes = 0;
     if (!m_contentIsChunked) {
         readBytes = (int) readAndAppend(m_socket, m_output, bytesToRead);
         m_contentReceivedLength += readBytes;
@@ -209,7 +214,7 @@ void HttpReader::readDataChunk(bool& done)
             String tail(m_output.c_str() + tailOffset);
             if (tail.toLowerCase().find("</html>") != string::npos)
                 done = true;
-            else if (!m_socket.readyToRead(chrono::seconds(30)))
+            else if (!m_socket.readyToRead(thirtySeconds))
                 throw TimeoutException("Read timeout");
         }
     }
@@ -218,7 +223,7 @@ void HttpReader::readDataChunk(bool& done)
 bool HttpReader::readData()
 {
     bool done {false};
-    while (!done && m_socket.readyToRead(chrono::seconds(10))) {
+    while (!done && m_socket.readyToRead(thirtySeconds)) {
         readDataChunk(done);
     }
     return true;
@@ -226,6 +231,9 @@ bool HttpReader::readData()
 
 void HttpReader::read()
 {
+    constexpr int httpErrorResponseCode(400);
+    constexpr int serverErrorResponseCode(500);
+
     lock_guard<mutex> lock(m_mutex);
 
     if (m_readerState == READY) {
@@ -262,8 +270,8 @@ void HttpReader::read()
     if (itor != m_httpHeaders.end() && itor->second == "close")
         m_socket.close();
 
-    if (m_statusCode >= 400 && m_statusText.empty()) {
-        if (m_statusCode >= 500)
+    if (m_statusCode >= httpErrorResponseCode && m_statusText.empty()) {
+        if (m_statusCode >= serverErrorResponseCode)
             m_statusText = "Unknown server error";
         else
             m_statusText = "Unknown client error";
@@ -329,7 +337,7 @@ void HttpReader::reset()
     m_contentReceivedLength = 0;
     m_contentIsChunked = false;
     m_httpHeaders.clear();
-    m_read_buffer.reset(1024);
+    m_read_buffer.reset(oneKb);
     m_requestType = "";
     m_requestURL = "";
 }

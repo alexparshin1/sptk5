@@ -58,6 +58,7 @@ public:
      * Log details constants
      */
     enum MessageDetail {
+        SERIAL_ID,
         SOURCE_IP,
         REQUEST_NAME,
         REQUEST_DURATION,

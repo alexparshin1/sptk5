@@ -278,8 +278,7 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
     request_listener_test(Strings("Login|AccountBalance", "|"), true);
 }
 
-
-
+/*
 TEST(SPTK_TestWebService, websockets)
 {
     SysLogEngine    logEngine("TestWebService");
@@ -313,6 +312,6 @@ TEST(SPTK_TestWebService, websockets)
         FAIL() << e.what();
     }
 }
-
+*/
 
 #endif
