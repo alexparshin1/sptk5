@@ -63,9 +63,8 @@ String LogDetails::toString(const String& delimiter) const
     return names.join(delimiter.c_str());
 }
 
-
 TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
-: ThreadPool((uint32_t)threadLimit, std::chrono::seconds(60), listenerName),
+: ThreadPool((uint32_t) threadLimit, std::chrono::seconds(60), listenerName, logEngine),
   m_logDetails(logDetails)
 {
     if (logEngine != nullptr)

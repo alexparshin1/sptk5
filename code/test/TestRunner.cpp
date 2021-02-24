@@ -76,7 +76,7 @@ void stub()
     RegularExpression    regexp(".*");
     CommandLine          cmd("", "", "");
     DirectoryDS          dir("");
-    ThreadPool           threads(1, std::chrono::milliseconds(), "test");
+    ThreadPool threads(1, std::chrono::milliseconds(), "test", nullptr);
     Timer                timer;
     MD5                  md5;
     StubServer           tcpServer;

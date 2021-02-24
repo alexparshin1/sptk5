@@ -137,6 +137,8 @@ private:
     String          m_prefix;
 };
 
+typedef std::shared_ptr<Logger> SLogger;
+
 /**
  * @}
  */

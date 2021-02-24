@@ -32,7 +32,7 @@ using namespace sptk;
 
 WSListener::WSListener(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
                        const WSConnection::Options& options)
-: TCPServer(services.get("").title(), threadCount, nullptr, options.logDetails),
+: TCPServer(services.get("").title(), threadCount, &logger, options.logDetails),
   m_services(services),
   m_logger(logger),
   m_options(options)

@@ -33,6 +33,7 @@
 #include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/threads/SynchronizedList.h>
 #include <sptk5/threads/WorkerThread.h>
+#include <sptk5/LogEngine.h>
 
 namespace sptk {
 
@@ -51,21 +52,6 @@ namespace sptk {
  */
 class SP_EXPORT ThreadPool : public ThreadEvent, public std::mutex
 {
-    SThreadManager                      m_threadManager;    ///< Pool's thread manager
-    size_t                              m_threadLimit;      ///< Maximum number of threads in this pool
-    SynchronizedQueue<Runable*>         m_taskQueue;        ///< Shared task queue
-    Semaphore                           m_availableThreads; ///< Semaphore indicating available threads
-    std::chrono::milliseconds           m_threadIdleTime;   ///< Maximum thread idle time before thread in this pool is terminated
-
-    std::atomic_bool                    m_shutdown {false}; ///< Flag: true during pool shutdown
-
-    /**
-     * Creates a new thread and adds it to thread pool
-     *
-     * Create new worker thread
-     */
-    WorkerThread* createThread();
-
 public:
 
     /**
@@ -74,7 +60,8 @@ public:
      * @param threadIdleSeconds Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
      * @param threadName        Thread pool own threadName
      */
-    ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName);
+    ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName,
+               LogEngine* logEngine);
 
     /**
      * Destructor
@@ -111,6 +98,26 @@ public:
      * Number of active threads in the pool
      */
     size_t size() const;
+
+private:
+
+    SThreadManager                      m_threadManager;    ///< Pool's thread manager
+    size_t                              m_threadLimit;      ///< Maximum number of threads in this pool
+    SynchronizedQueue<Runable*>         m_taskQueue;        ///< Shared task queue
+    Semaphore                           m_availableThreads; ///< Semaphore indicating available threads
+    std::chrono::milliseconds           m_threadIdleTime;   ///< Maximum thread idle time before thread in this pool is terminated
+    SLogger                             m_logger;           ///< Optional logger
+
+    std::atomic_bool                    m_shutdown {false}; ///< Flag: true during pool shutdown
+
+    /**
+     * Creates a new thread and adds it to thread pool
+     *
+     * Create new worker thread
+     */
+    WorkerThread* createThread();
+
+    void logThreadEvent(const String& event, const Thread* workerThread);
 };
 
 /**

@@ -79,7 +79,7 @@ int main()
         vector<CMyTask*> tasks;
 
         /// Thread manager controls tasks execution.
-        ThreadPool threadPool(16, std::chrono::milliseconds(30000), "test thread pool");
+        ThreadPool threadPool(16, std::chrono::milliseconds(30000), "test thread pool", nullptr);
 
         /// Threads send messages through their own Logger objects.
         /// Multiple Logger objects can share same log object thread-safely.

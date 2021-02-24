@@ -29,18 +29,33 @@
 using namespace std;
 using namespace sptk;
 
-ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName)
+ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName,
+                       LogEngine* logEngine)
 : m_threadManager(make_shared<ThreadManager>(threadName + ".ThreadManager")),
   m_threadLimit(threadLimit),
   m_threadIdleTime(threadIdleSeconds)
 {
+    if (logEngine != nullptr)
+        m_logger = make_shared<Logger>(*logEngine);
 }
 
 WorkerThread* ThreadPool::createThread()
 {
     auto* workerThread = new WorkerThread(m_threadManager, m_taskQueue, this, m_threadIdleTime);
     workerThread->run();
+    logThreadEvent("Started thread", workerThread);
     return workerThread;
+}
+
+void ThreadPool::logThreadEvent(const String& event, const Thread* workerThread)
+{
+    static mutex mtx;
+    if (m_logger) {
+        lock_guard<mutex> lock(mtx);
+        stringstream message;
+        message << event << " " << workerThread->id();
+        m_logger->debug(message.str());
+    }
 }
 
 void ThreadPool::execute(Runable* task)
@@ -58,13 +73,15 @@ void ThreadPool::execute(Runable* task)
     m_taskQueue.push(task);
 }
 
-void ThreadPool::threadEvent(Thread*, ThreadEvent::Type eventType, Runable*)
+void ThreadPool::threadEvent(Thread* workerThread, ThreadEvent::Type eventType, Runable*)
 {
     switch (eventType) {
     case ThreadEvent::RUNABLE_STARTED:
+        logThreadEvent("Runable started", workerThread);
         break;
     case ThreadEvent::RUNABLE_FINISHED:
         m_availableThreads.post();
+        logThreadEvent("Runable finished", workerThread);
         break;
     default:
         break;
@@ -113,7 +130,7 @@ TEST(SPTK_ThreadPool, run)
     vector<MyTask*> tasks;
 
     /// Thread manager controls tasks execution.
-    auto* threadPool = new ThreadPool(16, std::chrono::milliseconds(60), "test thread pool");
+    auto* threadPool = new ThreadPool(16, std::chrono::milliseconds(60), "test thread pool", nullptr);
 
     // Creating several tasks
     for (i = 0; i < 5; ++i)
