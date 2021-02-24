@@ -57,13 +57,15 @@ public:
     /**
      * Log details constants
      */
-    enum MessageDetail {
+    enum MessageDetail
+    {
         SERIAL_ID,
         SOURCE_IP,
         REQUEST_NAME,
         REQUEST_DURATION,
         REQUEST_DATA,
         RESPONSE_DATA,
+        THREAD_POOLING,
         MAX_MESSAGE_DETAIL
     };
 

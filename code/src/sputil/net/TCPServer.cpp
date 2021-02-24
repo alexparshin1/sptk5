@@ -40,7 +40,8 @@ const map<String,LogDetails::MessageDetail> LogDetails::detailNames {
     { "request_name", REQUEST_NAME },
     { "request_duration", REQUEST_DURATION },
     { "request_data", REQUEST_DATA },
-    { "response_data", RESPONSE_DATA }
+    { "response_data", RESPONSE_DATA },
+    { "thread_pooling", THREAD_POOLING }
 };
 
 LogDetails::LogDetails(const Strings& details)
@@ -64,7 +65,10 @@ String LogDetails::toString(const String& delimiter) const
 }
 
 TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
-: ThreadPool((uint32_t) threadLimit, std::chrono::seconds(60), listenerName, logEngine),
+: ThreadPool((uint32_t) threadLimit,
+             chrono::seconds(60),
+             listenerName,
+             logDetails.has(LogDetails::THREAD_POOLING) ? logEngine : nullptr),
   m_logDetails(logDetails)
 {
     if (logEngine != nullptr)
