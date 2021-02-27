@@ -41,9 +41,11 @@ ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdl
 
 WorkerThread* ThreadPool::createThread()
 {
+    logThreadEvent("Creating worker thread", nullptr);
     auto* workerThread = new WorkerThread(m_threadManager, m_taskQueue, this, m_threadIdleTime);
+    logThreadEvent("Starting worker thread", nullptr);
     workerThread->run();
-    logThreadEvent("Started thread", workerThread);
+    logThreadEvent("Started worker thread", workerThread);
     return workerThread;
 }
 
@@ -53,7 +55,10 @@ void ThreadPool::logThreadEvent(const String& event, const Thread* workerThread)
     if (m_logger) {
         lock_guard<mutex> lock(mtx);
         stringstream message;
-        message << event << " " << workerThread->id();
+        if (workerThread != nullptr)
+            message << event << " " << workerThread->id();
+        else
+            message << event;
         m_logger->debug(message.str());
     }
 }

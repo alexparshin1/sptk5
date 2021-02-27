@@ -57,7 +57,7 @@ public:
     /**
      * Log details constants
      */
-    enum MessageDetail
+    enum MessageDetail : uint8_t
     {
         SERIAL_ID,
         SOURCE_IP,
@@ -69,7 +69,7 @@ public:
         MAX_MESSAGE_DETAIL
     };
 
-    typedef std::bitset<MAX_MESSAGE_DETAIL> MessageDetails;
+    typedef std::set<uint8_t> MessageDetails;
 
     /**
      * Default constructor
@@ -97,7 +97,7 @@ public:
     explicit LogDetails(std::initializer_list<MessageDetail> details)
     {
         for (auto detail: details)
-            m_details.set(detail);
+            m_details.insert(detail);
     }
 
     /**
@@ -137,12 +137,12 @@ public:
      */
     bool has(MessageDetail detail) const
     {
-        return m_details.test(detail);
+        return m_details.find(detail) != m_details.end();
     }
 
     bool empty() const
     {
-        return m_details.none();
+        return m_details.empty();
     }
 
 private:

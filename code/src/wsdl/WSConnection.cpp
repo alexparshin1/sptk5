@@ -274,3 +274,14 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, con
         setSocket(new TCPSocket);
     socket().attach(connectionSocket, true);
 }
+
+WSConnection::Options::Options(const Options& other)
+: paths(other.paths),
+  encrypted(other.encrypted),
+  allowCors(other.allowCors),
+  keepAlive(other.keepAlive),
+  suppressHttpStatus(other.suppressHttpStatus),
+  logDetails(other.logDetails)
+{
+
+}

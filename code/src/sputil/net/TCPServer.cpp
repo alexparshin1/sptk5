@@ -50,7 +50,7 @@ LogDetails::LogDetails(const Strings& details)
         auto itor = detailNames.find(detailName);
         if (itor == detailNames.end())
             continue;
-        m_details.set(itor->second);
+        m_details.insert(itor->second);
     }
 }
 
@@ -58,7 +58,7 @@ String LogDetails::toString(const String& delimiter) const
 {
     Strings names;
     for (auto& itor: detailNames) {
-        if (m_details.test(itor.second))
+        if (m_details.find(itor.second) != m_details.end())
             names.push_back(itor.first);
     }
     return names.join(delimiter.c_str());

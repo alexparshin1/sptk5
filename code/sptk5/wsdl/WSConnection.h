@@ -61,7 +61,7 @@ public:
         bool        keepAlive          {false};
         bool        suppressHttpStatus {false};
         LogDetails  logDetails;
-        Options(const Options& paths) = default;
+        Options(const Options& other);
         Options(const Paths& paths, bool encrypted=false) : paths(paths), encrypted(encrypted) {}
     };
 
