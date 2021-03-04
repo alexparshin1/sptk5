@@ -43,7 +43,6 @@ WorkerThread* ThreadPool::createThread()
 {
     logThreadEvent("Creating worker thread", nullptr);
     auto* workerThread = new WorkerThread(m_threadManager, m_taskQueue, this, m_threadIdleTime);
-    logThreadEvent("Starting worker thread", nullptr);
     workerThread->run();
     logThreadEvent("Started worker thread", workerThread);
     return workerThread;
@@ -71,9 +70,10 @@ void ThreadPool::execute(Runable* task)
     if (!m_threadManager->running())
         m_threadManager->start();
 
-    if (!m_availableThreads.sleep_for(std::chrono::milliseconds(10)) &&
-        (m_threadLimit == 0 || m_threadManager->threadCount() < m_threadLimit))
-            createThread();
+    bool needMoreThreads = m_threadManager->threadCount() == 0 || !m_availableThreads.sleep_for(std::chrono::milliseconds(10));
+
+    if (needMoreThreads && (m_threadLimit == 0 || m_threadManager->threadCount() < m_threadLimit))
+        createThread();
 
     m_taskQueue.push(task);
 }
