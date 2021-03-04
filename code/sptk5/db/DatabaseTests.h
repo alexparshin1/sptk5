@@ -143,36 +143,37 @@ private:
 
     /**
      * Get number of rows in table
-     * @param db            Database connection
-     * @param table         Database table
+     * @param db                Database connection
+     * @param table             Database table
      * @return number of rows in table
      */
     static size_t countRowsInTable(const DatabaseConnection& db, const String& table);
 
     /**
      * Test transactions
-     * @param db            Database connection
-     * @param commit        If true then commit the transaction
+     * @param db                Database connection
+     * @param commit            If true then commit the transaction
      */
     static void testTransaction(DatabaseConnection db, bool commit);
 
     /**
      * Connect to database and create test table
+     * @param db                Database connection
      * @return
      */
     static void createTestTable(DatabaseConnection db);
 
     /**
      * Connect to database and create test table with serial id
-     * @return
+     * @param db                Database connection
      */
     static void createTestTableWithSerial(DatabaseConnection db);
 
     /**
      * Create Oracle autoincrement for a column
-     * @param db
-     * @param tableName
-     * @param columnName
+     * @param db                Database connection
+     * @param tableName         Table name
+     * @param columnName        Column name
      */
     static void createOracleAutoIncrement(const DatabaseConnection& db, const String& tableName, const String& columnName);
 };
