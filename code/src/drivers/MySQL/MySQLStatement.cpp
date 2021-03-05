@@ -33,7 +33,7 @@ using namespace sptk;
 // When TEXT field is large, fetch in chunks:
 #define FETCH_BUFFER 256
 
-#ifndef LIBMARIADB
+#ifndef MARIADB_BASE_VERSION
 typedef bool my_bool;
 #endif
 
