@@ -391,15 +391,15 @@ void DatabaseTests::createTestTableWithSerial(DatabaseConnection db)
 
     query.param("name") = "Alex";
     query.exec();
-    auto id = query.id();
 #if USE_GTEST
+    auto id = query.id();
     EXPECT_EQ(id, uint64_t(1));
 #endif
 
     query.param("name") = "David";
     query.exec();
-    id = query.id();
 #if USE_GTEST
+    id = query.id();
     EXPECT_EQ(id, uint64_t(2));
 #endif
 }
