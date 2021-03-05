@@ -69,7 +69,7 @@ public:
      * All worker threads are sent terminate() message,
      * then thread pool waits while threads are destroyed
      */
-    virtual ~ThreadPool() = default;
+    ~ThreadPool() override;
 
     /**
      * Executes task

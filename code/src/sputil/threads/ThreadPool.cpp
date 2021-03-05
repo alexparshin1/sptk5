@@ -39,6 +39,12 @@ ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdl
         m_logger = make_shared<Logger>(*logEngine);
 }
 
+ThreadPool::~ThreadPool()
+{
+    m_threadManager->stop();
+    m_taskQueue.clear();
+}
+
 WorkerThread* ThreadPool::createThread()
 {
     logThreadEvent("Creating worker thread", nullptr);

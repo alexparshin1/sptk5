@@ -44,7 +44,7 @@ class SP_EXPORT Brotli
 public:
     /**
      * Compress data using br format.
-     * 
+     *
      * Compressed data is appended to destination buffer
      * @param dest Buffer&, Destination buffer
      * @param src const Buffer&, Source buffer
@@ -53,7 +53,7 @@ public:
 
     /**
      * Uncompress data in br format
-     * 
+     *
      * Uncompressed data is appended to destination buffer
      * @param dest Buffer&, Destination buffer
      * @param src const Buffer&, Source buffer

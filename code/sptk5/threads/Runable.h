@@ -30,6 +30,7 @@
 #include <sptk5/Strings.h>
 
 #include <mutex>
+#include <list>
 
 namespace sptk
 {
@@ -96,9 +97,10 @@ protected:
 
 private:
 
-    mutable std::mutex  m_dataMutex;            ///< Synchronized object that protects internal data
-    bool                m_terminated {false};   ///< Flag indicating if task is terminated
-    const String        m_name;                 ///< Runable object name
+    mutable std::mutex              m_dataMutex;            ///< Synchronized object that protects internal data
+    bool                            m_terminated {false};   ///< Flag indicating if task is terminated
+    const String                    m_name;                 ///< Runable object name
+    std::list<Runable*>::iterator   m_position;             ///< Runable position in the queue
 
     /**
      * Set runable to terminated
@@ -106,6 +108,18 @@ private:
      */
     void setTerminated(bool terminated);
 };
+
+class RunableQueue
+{
+public:
+
+    void push(Runable* runable);
+
+private:
+    mutable std::mutex  m_mutex;
+    std::list<Runable*> m_queue;
+};
+
 /**
  * @}
  */
