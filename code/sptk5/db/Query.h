@@ -333,7 +333,7 @@ public:
      * Field index should be inside 0..fieldCount()-1
      * @param fieldIndex int, field index
      */
-    Field& operator [](size_t fieldIndex) override
+    Field& operator [](int fieldIndex) override
     {
         return m_fields[fieldIndex];
     }
