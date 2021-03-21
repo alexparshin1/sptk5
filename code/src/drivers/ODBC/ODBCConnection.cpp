@@ -30,6 +30,7 @@
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/ODBCConnection.h>
 #include <sptk5/db/Query.h>
+#include <array>
 
 constexpr size_t MAX_BUF = 1024;
 constexpr size_t MAX_NAME_LEN = 256;

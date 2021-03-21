@@ -33,7 +33,7 @@ using namespace sptk;
 // When TEXT field is large, fetch in chunks:
 #define FETCH_BUFFER 256
 
-#if MARIADB_FLAG == 0
+#if MARIADB_FLAG == 0 && !defined(_WIN32)
 typedef bool my_bool;
 #endif
 

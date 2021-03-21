@@ -65,7 +65,7 @@ TAR* tar_open(const char *pathname, const tartype_t *type, int oflags, int mode,
     if (t->fd == -1)
     {
         delete t;
-        throw Exception("Can't open tar");
+        return NULL;
     }
 
     return t;
