@@ -34,7 +34,7 @@ using namespace sptk;
 #define FETCH_BUFFER 256
 
 #if MARIADB_FLAG == 0 && !defined(_WIN32)
-typedef bool my_bool;
+//typedef bool my_bool;
 #endif
 
 // MySQL-specific database field
