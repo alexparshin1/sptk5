@@ -331,9 +331,9 @@ public:
      * Field access by number, const version
      *
      * Field index should be inside 0..fieldCount()-1
-     * @param fieldIndex int, field index
+     * @param fieldIndex        Field index
      */
-    Field& operator [](int fieldIndex) override
+    Field& operator [](size_t fieldIndex) override
     {
         return m_fields[fieldIndex];
     }
