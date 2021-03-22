@@ -33,8 +33,8 @@ using namespace sptk;
 // When TEXT field is large, fetch in chunks:
 #define FETCH_BUFFER 256
 
-#if MARIADB_FLAG == 0 && !defined(_WIN32)
-//typedef bool my_bool;
+#if MYSQL_HAS_MYBOOL == 0
+typedef bool my_bool;
 #endif
 
 // MySQL-specific database field
