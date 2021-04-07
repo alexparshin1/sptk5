@@ -335,7 +335,7 @@ public:
      */
     Field& operator [](size_t fieldIndex) override
     {
-        return m_fields[fieldIndex];
+        return m_fields[(int)fieldIndex];
     }
 
     /**
