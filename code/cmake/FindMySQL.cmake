@@ -32,15 +32,12 @@ ENDIF()
 
 IF (MariaDB_INCLUDE_DIR)
     SET (MARIADB_FLAG 1)
-    IF (NOT WIN32)
-        FILE (STRINGS "${MariaDB_INCLUDE_DIR}/mysql.h" MySQL_has_my_bool_match REGEX my_bool)
-    ENDIF ()
+    SET (MySQL_INCLUDE_DIR "${MariaDB_INCLUDE_DIR}/mysql.h")
 ELSE ()
     SET(MARIADB_FLAG 0)
-    IF (NOT WIN32)
-        FILE (STRINGS "${MySQL_INCLUDE_DIR}/mysql.h" MySQL_has_my_bool_match REGEX my_bool)
-    ENDIF ()
 ENDIF ()
+
+FILE (STRINGS "${MySQL_INCLUDE_DIR}/mysql.h" MySQL_has_my_bool_match REGEX my_bool)
 
 SET (MySQL_has_my_bool "0")
 IF (MySQL_has_my_bool_match)
