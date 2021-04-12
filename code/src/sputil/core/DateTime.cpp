@@ -985,7 +985,18 @@ TEST(SPTK_DateTime, formatTime)
 
 TEST(SPTK_DateTime, formatDateTime2)
 {
-    DateTime dateTime("2020-10-02 00:00:00+11");
+    int tzOffsetMinutes = DateTime::timeZoneOffset();
+    stringstream tzOffsetStr;
+    tzOffsetStr.fill('0');
+    if (tzOffsetMinutes > 0)
+        tzOffsetStr << "+" << tzOffsetMinutes / 60 << ":" << setw(2) << tzOffsetMinutes % 60;
+    else if (tzOffsetMinutes < 0)
+        tzOffsetStr << "-" << tzOffsetMinutes / 60 << ":" << setw(2) << tzOffsetMinutes % 60;
+    else
+        tzOffsetStr << "Z";
+    String tzOffset(tzOffsetStr.str());
+
+    DateTime dateTime(("2020-10-02 00:00:00" + tzOffset).c_str());
 
     auto   t = (time_t) dateTime;
     tm     tt {};
@@ -995,7 +1006,7 @@ TEST(SPTK_DateTime, formatDateTime2)
     strftime(buffer, sizeof(buffer) - 1, "%X", &tt);
 
     EXPECT_STREQ("02/10/20", dateTime.dateString().c_str());
-    EXPECT_STREQ("2020-10-02 00:00:00+11:00", dateTime.isoDateTimeString().replace("T"," ").c_str());
+    EXPECT_STREQ(("2020-10-02 00:00:00" + tzOffset).c_str(), dateTime.isoDateTimeString().replace("T"," ").c_str());
 }
 
 TEST(SPTK_DateTime, parsePerformance)
