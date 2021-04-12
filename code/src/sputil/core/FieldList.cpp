@@ -133,6 +133,8 @@ void FieldList::toXML(xml::Node& node, bool compactMode) const
 
 #if USE_GTEST
 
+static constexpr int testInteger = 12345;
+
 TEST(SPTK_FieldList, ctors)
 {
     FieldList fieldList(true);
@@ -140,12 +142,12 @@ TEST(SPTK_FieldList, ctors)
     fieldList.push_back("name", true);
     fieldList.push_back("value", true);
     fieldList["name"] = "id";
-    fieldList["value"] = 12345;
+    fieldList["value"] = testInteger;
 
     FieldList fieldList2(fieldList);
 
     EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
-    EXPECT_EQ(12345, (int32_t) fieldList2["value"]);
+    EXPECT_EQ(testInteger, (int32_t) fieldList2["value"]);
 
     fieldList2["name"] = "id2";
     EXPECT_STREQ("id", fieldList["name"].asString().c_str());
@@ -159,10 +161,10 @@ TEST(SPTK_FieldList, push_back)
     fieldList.push_back("name", true);
     fieldList.push_back("value", true);
     fieldList["name"] = "id";
-    fieldList["value"] = 12345;
+    fieldList["value"] = testInteger;
 
     EXPECT_STREQ("id", fieldList["name"].asString().c_str());
-    EXPECT_EQ(12345, (int32_t) fieldList["value"]);
+    EXPECT_EQ(testInteger, (int32_t) fieldList["value"]);
 }
 
 TEST(SPTK_FieldList, assign)
@@ -172,12 +174,12 @@ TEST(SPTK_FieldList, assign)
     fieldList.push_back("name", true);
     fieldList.push_back("value", true);
     fieldList["name"] = "id";
-    fieldList["value"] = 12345;
+    fieldList["value"] = testInteger;
 
     FieldList fieldList2 = fieldList;
 
     EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
-    EXPECT_EQ(12345, (int32_t) fieldList2["value"]);
+    EXPECT_EQ(testInteger, (int32_t) fieldList2["value"]);
 }
 
 TEST(SPTK_FieldList, dataTypes)
@@ -197,19 +199,19 @@ TEST(SPTK_FieldList, dataTypes)
     fieldList.push_back("money_value", true);
     fieldList.push_back("long_value", true);
     fieldList["name"] = "id";
-    fieldList["value"] = 12345;
+    fieldList["value"] = testInteger;
     fieldList["online"].setBool(true);
     fieldList["visible"].setBool(false);
     fieldList["date"] = testDate;
     fieldList["null"].setNull(VAR_STRING);
     fieldList["text"].setBuffer("1234", 5);
-    fieldList["float_value"] = 12345.0;
+    fieldList["float_value"] = double(testInteger);
     fieldList["money_value"].setMoney(1234567,2);
     fieldList["long_value"] = int64_t(12345678901234567);
 
     EXPECT_STREQ("id", fieldList["name"].asString().c_str());
 
-    EXPECT_EQ(12345, (int32_t) fieldList["value"]);
+    EXPECT_EQ(testInteger, (int32_t) fieldList["value"]);
     EXPECT_STREQ("12345", fieldList["value"].asString().c_str());
 
     EXPECT_TRUE(fieldList["online"].asBool());
@@ -223,7 +225,7 @@ TEST(SPTK_FieldList, dataTypes)
     EXPECT_TRUE(fieldList["null"].isNull());
     EXPECT_STREQ("1234", fieldList["text"].asString().c_str());
 
-    EXPECT_DOUBLE_EQ(12345.0, fieldList["float_value"].asFloat());
+    EXPECT_DOUBLE_EQ(double(testInteger), fieldList["float_value"].asFloat());
     EXPECT_STREQ("12345.000", fieldList["float_value"].asString().c_str());
 
     EXPECT_DOUBLE_EQ(12345.67, fieldList["money_value"].asFloat());
@@ -241,7 +243,7 @@ TEST(SPTK_FieldList, toXml)
     fieldList.push_back("name", true);
     fieldList.push_back("value", true);
     fieldList["name"] = "John";
-    fieldList["value"] = 12345;
+    fieldList["value"] = testInteger;
 
     xml::Document xml;
     auto* fieldsElement = new xml::Element(xml, "fields");

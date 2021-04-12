@@ -41,11 +41,6 @@ class SP_EXPORT StopWatch
 public:
 
 	/**
-	 * Default constructor
-	 */
-    StopWatch();
-
-	/**
 	 * Set stopwatch start time
 	 */
     void start();

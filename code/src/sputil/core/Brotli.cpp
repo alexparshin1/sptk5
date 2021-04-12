@@ -40,9 +40,9 @@
 using namespace std;
 using namespace sptk;
 
-#define MAX_OPTIONS 20
-#define DEFAULT_LGWIN 24
-#define BROTLI_WINDOW_GAP 16
+constexpr int MAX_OPTIONS = 20;
+constexpr int DEFAULT_LGWIN = 24;
+constexpr int BROTLI_WINDOW_GAP = 16;
 #define BROTLI_MAX_BACKWARD_LIMIT(W) (((size_t)1 << (W)) - BROTLI_WINDOW_GAP)
 
 static const size_t kBufferSize = 1 << 16;
@@ -68,74 +68,29 @@ public:
     }
 
     BrotliEncoderState* createEncoderInstance();
+    void CompressFile(BrotliEncoderState* s);
+    void DecompressFile(BrotliDecoderState* s);
 
+private:
     /* Parameters */
     int quality = 9;
+
     int lgwin = DEFAULT_LGWIN;
     BROTLI_BOOL decompress = BROTLI_FALSE;
-
     uint8_t* buffer = new uint8_t[kBufferSize * 2];
+
     uint8_t* input = buffer;
     uint8_t* output = buffer + kBufferSize;
-
     ReadBuffer& inputData;
+
     Buffer& outputData;
     int64_t input_file_length {0};  /* -1, if impossible to calculate */
-
     size_t available_in {0};
     const uint8_t* next_in = nullptr;
+
     size_t available_out;
+
     uint8_t* next_out = nullptr;
-
-    void DecompressFile(BrotliDecoderState* s)
-    {
-        BrotliDecoderResult result = BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT;
-        for (;;) {
-            if (result == BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT) {
-                if (!HasMoreInput())
-                    throw Exception("corrupt input data");
-                ProvideInput();
-            } else if (result == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT) {
-                ProvideOutput();
-            } else if (result == BROTLI_DECODER_RESULT_SUCCESS) {
-                FlushOutput();
-                if (available_in != 0 || HasMoreInput())
-                    throw Exception("corrupt input data");
-                return;
-            } else {
-                throw Exception("corrupt input data");
-            }
-
-            result = BrotliDecoderDecompressStream(s, &available_in,
-                                                   &next_in, &available_out, &next_out, nullptr);
-        }
-    }
-
-    void CompressFile(BrotliEncoderState* s)
-    {
-        BROTLI_BOOL is_eof = BROTLI_FALSE;
-        for (;;) {
-            if (available_in == 0 && !is_eof) {
-                ProvideInput();
-                is_eof = !HasMoreInput();
-            }
-
-            if (!BrotliEncoderCompressStream(s,
-                                             is_eof ? BROTLI_OPERATION_FINISH : BROTLI_OPERATION_PROCESS,
-                                             &available_in, &next_in,
-                                             &available_out, &next_out, nullptr)) {
-                throw Exception("failed to compress data");
-            }
-
-            if (available_out == 0)
-                ProvideOutput();
-
-            if (BrotliEncoderIsFinished(s)) {
-                FlushOutput();
-                return;
-            }
-        }
-    }
 
 private:
 
@@ -198,6 +153,56 @@ BrotliEncoderState* Context::createEncoderInstance()
     }
 
     return instance;
+}
+
+void Context::CompressFile(BrotliEncoderState* s)
+{
+    BROTLI_BOOL is_eof = BROTLI_FALSE;
+    for (;;) {
+        if (available_in == 0 && !is_eof) {
+            ProvideInput();
+            is_eof = !HasMoreInput();
+        }
+
+        if (!BrotliEncoderCompressStream(s,
+                                         is_eof ? BROTLI_OPERATION_FINISH : BROTLI_OPERATION_PROCESS,
+                                         &available_in, &next_in,
+                                         &available_out, &next_out, nullptr)) {
+            throw Exception("failed to compress data");
+        }
+
+        if (available_out == 0)
+            ProvideOutput();
+
+        if (BrotliEncoderIsFinished(s)) {
+            FlushOutput();
+            return;
+        }
+    }
+}
+
+void Context::DecompressFile(BrotliDecoderState* s)
+{
+    BrotliDecoderResult result = BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT;
+    for (;;) {
+        if (result == BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT) {
+            if (!HasMoreInput())
+                throw Exception("corrupt input data");
+            ProvideInput();
+        } else if (result == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT) {
+            ProvideOutput();
+        } else if (result == BROTLI_DECODER_RESULT_SUCCESS) {
+            FlushOutput();
+            if (available_in != 0 || HasMoreInput())
+                throw Exception("corrupt input data");
+            return;
+        } else {
+            throw Exception("corrupt input data");
+        }
+
+        result = BrotliDecoderDecompressStream(s, &available_in,
+                                               &next_in, &available_out, &next_out, nullptr);
+    }
 }
 
 void Brotli::compress(Buffer& dest, const Buffer& src)

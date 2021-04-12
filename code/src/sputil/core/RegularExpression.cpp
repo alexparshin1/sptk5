@@ -43,6 +43,7 @@ typedef struct
 
 class MatchData
 {
+
 public:
 #if HAVE_PCRE2
     pcre2_match_data*   match_data {nullptr};
@@ -164,8 +165,8 @@ void RegularExpression::compile()
         throw Exception((const char*) buffer);
     }
 #else
-    const char* error;
-    int errorOffset;
+    const char* error = nullptr;
+    int errorOffset = 0;
     m_pcre = pcre_compile(m_pattern.c_str(), m_options, &error, &errorOffset, nullptr);
     if (!m_pcre)
         m_error = "PCRE pattern error at pattern offset " + int2string(errorOffset) + ": " + string(error);
@@ -233,9 +234,11 @@ RegularExpression::~RegularExpression()
 
 RegularExpression& RegularExpression::operator = (const RegularExpression& other)
 {
-    m_pattern = other.m_pattern; 
-    m_options = other.m_options;
-    compile();
+    if (this != &other) {
+        m_pattern = other.m_pattern;
+        m_options = other.m_options;
+        compile();
+    }
     return *this;
 }
 
@@ -364,12 +367,12 @@ void RegularExpression::extractNamedMatches(const String& text, RegularExpressio
 {
     int nameCount = (int) getNamedGroupCount();
     if (nameCount > 0) {
-        const char* nameTable;
-        int nameEntrySize;
+        const char* nameTable = nullptr;
+        int nameEntrySize = 0;
         getNameTable(nameTable, nameEntrySize);
-        auto* tabptr = nameTable;
+        const auto* tabptr = nameTable;
         for (int i = 0; i < nameCount; ++i) {
-            size_t n = size_t( (tabptr[0] << 8) | tabptr[1] );
+            auto n = size_t( (tabptr[0] << 8) | tabptr[1] );
             String name(tabptr + 2, nameEntrySize - 3);
             const auto& match = matchData.matches[n];
             if (match.m_start >= 0 && n < matchCount) {
@@ -530,7 +533,7 @@ String RegularExpression::s(const String& text, const std::function<String(const
     return result + text.substr(lastOffset);
 }
 
-size_t RegularExpression::findNextPlaceholder(size_t pos, const String& outputPattern) const
+size_t RegularExpression::findNextPlaceholder(size_t pos, const String& outputPattern)
 {
     size_t placeHolderStart = pos;
     for (;; ++placeHolderStart) {
@@ -545,9 +548,9 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
 {
     // For "i" option, make lowercase match map
     map<String, String> substitutionsMap;
-    bool ignoreCase = m_options & SPRE_CASELESS;
+    bool ignoreCase = (m_options & SPRE_CASELESS) == SPRE_CASELESS;
     if (ignoreCase) {
-        for (auto& itor: substitutions)
+        for (const auto & itor: substitutions)
             substitutionsMap[lowerCase(itor.first)] = itor.second;
     } else
         substitutionsMap = substitutions;
@@ -562,7 +565,7 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
 
 String RegularExpression::s(const String& text, const String& outputPattern) const
 {
-    bool replaced;
+    bool replaced = 0;
     return replaceAll(text, outputPattern, replaced);
 }
 
@@ -580,7 +583,7 @@ TEST(SPTK_RegularExpression, match_first)
     RegularExpression matchFirst("test text", "g");
     auto matches = matchFirst.m(testPhrase);
     String words;
-    for (auto& match: matches.groups())
+    for (const auto & match: matches.groups())
         words = match.value;
     EXPECT_STREQ(words.c_str(), "test text");
 }
@@ -590,7 +593,7 @@ TEST(SPTK_RegularExpression, match_first_group)
     RegularExpression matchFirst("(test text)", "g");
     auto matches = matchFirst.m(testPhrase);
     String words;
-    for (auto& match: matches.groups())
+    for (const auto & match: matches.groups())
         words = match.value;
     EXPECT_STREQ(words.c_str(), "test text");
 }
@@ -600,7 +603,7 @@ TEST(SPTK_RegularExpression, match_many)
     RegularExpression matchWord("(\\w+)+", "g");
     auto matches = matchWord.m(testPhrase);
     Strings words;
-    for (auto& match: matches.groups())
+    for (const auto & match: matches.groups())
         words.push_back(match.value);
     EXPECT_STREQ(words.join("_").c_str(), "This_is_a_test_text_to_verify_rexec_text_data_group");
 }
@@ -698,7 +701,7 @@ TEST(SPTK_RegularExpression, match_performance)
 {
     String data("red=#FF0000, green=#00FF00, blue=#0000FF");
     RegularExpression match("((\\w+)=(#\\w+))");
-    size_t maxIterations = 100000;
+    constexpr size_t maxIterations = 100000;
     size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();
@@ -710,15 +713,16 @@ TEST(SPTK_RegularExpression, match_performance)
         }
     }
     stopWatch.stop();
+    constexpr double oneMillion = 1E6;
     COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl)
+         << maxIterations / stopWatch.seconds() / oneMillion << "M/sec" << endl)
 }
 
 TEST(SPTK_RegularExpression, std_match_performance)
 {
     String data("red=#FF0000, green=#00FF00, blue=#0000FF");
     std::regex match("(\\w+)=(#\\w+)");
-    size_t maxIterations = 100000;
+    constexpr size_t maxIterations = 100000;
     size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();
@@ -731,8 +735,9 @@ TEST(SPTK_RegularExpression, std_match_performance)
         }
     }
     stopWatch.stop();
+    constexpr double oneMillion = 1E6;
     COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-         << maxIterations / stopWatch.seconds() / 1E6 << "M/sec" << endl)
+         << maxIterations / stopWatch.seconds() / oneMillion << "M/sec" << endl)
 }
 
 TEST(SPTK_RegularExpression, asyncExec)
@@ -742,7 +747,7 @@ TEST(SPTK_RegularExpression, asyncExec)
     mutex                       amutex;
     queue< future<size_t> >     states;
 
-    size_t maxThreads = 10;
+    constexpr size_t maxThreads = 10;
     for (size_t n = 0; n < maxThreads; ++n) {
         future<size_t> f = async(launch::async,[&match]() {
             RegularExpression::Groups matchedStrings;
@@ -767,10 +772,11 @@ TEST(SPTK_RegularExpression, asyncExec)
             }
         }
 
+        constexpr chrono::milliseconds tenMilliseconds(10);
         if (gotOne)
             f.wait();
         else
-            this_thread::sleep_for(chrono::milliseconds(10));
+            this_thread::sleep_for(tenMilliseconds);
     }
 }
 

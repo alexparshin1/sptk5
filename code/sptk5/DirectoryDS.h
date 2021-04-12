@@ -193,7 +193,7 @@ private:
      * @param path              Relative path
      * @return absolute path
      */
-    String absolutePath(const String& path) const;
+    static String absolutePath(const String& path) ;
 
     /**
      * Create a row in the data source
@@ -201,7 +201,7 @@ private:
      * @return data source row
      */
     FieldList* makeFileListEntry(const filesystem::directory_entry& file, size_t& index) const;
-    CSmallPixmapType imageTypeFromExtention(const String& ext) const;
+    static CSmallPixmapType imageTypeFromExtention(const String& ext) ;
 };
 /**
  * @}

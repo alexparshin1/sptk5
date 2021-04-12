@@ -35,10 +35,10 @@ using namespace sptk;
 static void splitByDelimiter(Strings& dest, const String& src, const char* delimitter)
 {
     dest.clear();
-    auto pos = src.c_str();
+    const auto *pos = src.c_str();
     size_t delimitterLength = strlen(delimitter);
     while (true) {
-        auto end = strstr(pos, delimitter);
+        const auto *end = strstr(pos, delimitter);
         if (end != nullptr) {
             dest.emplace_back(pos, size_t(end - pos));
             pos = end + delimitterLength;
@@ -136,7 +136,7 @@ int Strings::indexOf(const String& s) const
 void Strings::saveToFile(const String& fileName) const
 {
     Buffer buffer;
-    for (auto& str: *this) {
+    for (const auto & str: *this) {
         buffer.append(str);
         buffer.append("\n");
     }
@@ -169,7 +169,7 @@ String Strings::join(const String& delimitter) const
 {
     stringstream result;
     bool first = true;
-    for (auto& str: *this) {
+    for (const auto & str: *this) {
         if (first) {
             result << str;
             first = false;

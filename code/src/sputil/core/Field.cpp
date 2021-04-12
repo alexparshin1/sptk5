@@ -59,16 +59,18 @@ void Field::setNull(VariantType vtype)
     }
 
     if (vtype == VAR_NONE)
-        m_data.type(m_data.type() | VAR_NULL);
+        m_data.type(uint16_t (m_data.type() | VAR_NULL));
     else
         m_data.type(vtype | VAR_NULL);
 }
 
 String Field::asString() const
 {
+    constexpr int maxPrintBuffer = 64;
+
     String result;
-    char print_buffer[64];
-    int len;
+    char print_buffer[maxPrintBuffer];
+    int len = 0;
 
     if (isNull())
         return result;
@@ -140,7 +142,7 @@ String Field::epochDataToDateTimeString() const
 String Field::doubleDataToString() const
 {
     stringstream output;
-    output << fixed << setprecision(m_view.precision) << m_data.getFloat();
+    output << fixed << setprecision((int)m_view.precision) << m_data.getFloat();
     return output.str();
 }
 
@@ -149,7 +151,7 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
     String value = asString();
 
     if (!value.empty()) {
-        xml::Element* element;
+        xml::Element* element = nullptr;
 
         if (dataType() == VAR_TEXT) {
             element = new xml::Element(node, fieldName());
@@ -175,16 +177,17 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
 
 TEST(SPTK_Field, move_ctor_assign)
 {
+    constexpr int testInteger = 10;
     Field   field1("f1");
-    field1 = 10;
+    field1 = testInteger;
 
     Field   field2(move(field1));
-    EXPECT_EQ(field2.asInteger(), 10);
+    EXPECT_EQ(field2.asInteger(), testInteger);
     EXPECT_EQ(field1.isNull(), true);
 
     Field   field3("f3");
     field3 = move(field2);
-    EXPECT_EQ(field3.asInteger(), 10);
+    EXPECT_EQ(field3.asInteger(), testInteger);
     EXPECT_EQ(field2.isNull(), true);
 }
 
@@ -192,26 +195,31 @@ TEST(SPTK_Field, double)
 {
     Field   field1("f1");
 
-    field1 = double(12345678.123456);
+    constexpr double testDouble = 12345678.123456;
+    field1 = testDouble;
     field1.view().precision = 3;
 
-    EXPECT_DOUBLE_EQ(field1.asFloat(), 12345678.123456);
+    EXPECT_DOUBLE_EQ(field1.asFloat(), testDouble);
     EXPECT_STREQ(field1.asString().c_str(), "12345678.123");
 }
 
 TEST(SPTK_Field, money)
 {
-    MoneyData money1(1234567890123456789L, 8);
-    MoneyData money2(-1234567890100456789L, 8);
+    constexpr long testLong = 1234567890123456789L;
+    constexpr int64_t testInt64 = 12345678901;
+    constexpr int scaleDigits = 8;
+
+    MoneyData money1(testLong, scaleDigits);
+    MoneyData money2(-testLong, scaleDigits);
     Field   field1("f1");
 
     field1.setMoney(money1);
-    EXPECT_EQ(field1.asInt64(), 12345678901);
+    EXPECT_EQ(field1.asInt64(), testInt64);
     EXPECT_STREQ(field1.asString().c_str(), "12345678901.23456789");
 
     field1.setMoney(money2);
-    EXPECT_EQ(field1.asInt64(), -12345678901);
-    EXPECT_STREQ(field1.asString().c_str(), "-12345678901.00456789");
+    EXPECT_EQ(field1.asInt64(), -testInt64);
+    EXPECT_STREQ(field1.asString().c_str(), "-12345678901.23456789");
 }
 
 #endif

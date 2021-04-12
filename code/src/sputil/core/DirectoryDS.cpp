@@ -41,7 +41,7 @@ using namespace filesystem;
 
 String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime) const
 {
-    struct stat st;
+    struct stat st {};
 
     stat(file.path().string().c_str(), &st);
 
@@ -79,7 +79,7 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
     return modeName;
 }
 
-CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext) const
+CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext)
 {
     static const map<String,CSmallPixmapType> imageTypes
     {
@@ -105,7 +105,7 @@ CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext) const
 
 // dataset navigation
 
-String DirectoryDS::absolutePath(const String& _path) const
+String DirectoryDS::absolutePath(const String& _path)
 {
     path p = _path.c_str();
     String fullPath = absolute(p).string();
@@ -136,7 +136,7 @@ bool DirectoryDS::open()
     clear();
 
     if ((showPolicy() & DDS_HIDE_DOT_FILES) == 0) {
-        for (String dirName: { ".", ".." }) {
+        for (const String& dirName: { ".", ".." }) {
             auto* df = new FieldList(false);
             df->push_back(" ", false).setImageNdx(SXPM_FOLDER);
             df->push_back("Name", false) = dirName;
@@ -174,7 +174,7 @@ bool DirectoryDS::open()
 
 FieldList* DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index) const
 {
-    CSmallPixmapType pixmapType;
+    CSmallPixmapType pixmapType = SXPM_TXT_DOCUMENT;
     DateTime         modificationTime;
     String           modeName = getFileType(file, pixmapType, modificationTime);
 
@@ -280,8 +280,6 @@ const String testTempDirectory = "/tmp/gtest_temp_dir";
 class TempDirectory
 {
 public:
-    String m_path;
-
     explicit TempDirectory(String _path)
     : m_path(move(_path))
     {
@@ -315,6 +313,9 @@ public:
 #endif
         }
     }
+
+private:
+    String m_path;
 };
 
 TEST (SPTK_DirectoryDS, open)

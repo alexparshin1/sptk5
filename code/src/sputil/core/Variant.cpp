@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-#define BUFFER_TYPES (VAR_STRING|VAR_TEXT|VAR_BUFFER)
+constexpr int BUFFER_TYPES = VAR_STRING|VAR_TEXT|VAR_BUFFER;
 
 int64_t MoneyData::dividers[16] = {1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL, 1000000000LL,
                                    10000000000LL, 100000000000LL,
@@ -78,7 +78,7 @@ void BaseVariant::dataSize(size_t ds)
 {
     m_data.size(ds);
     if (m_data.size() > 0)
-        m_data.type(m_data.type() & (VAR_TYPES | VAR_EXTERNAL_BUFFER));
+        m_data.type(uint16_t(m_data.type() & (VAR_TYPES | VAR_EXTERNAL_BUFFER)));
 }
 
 //---------------------------------------------------------------------------
@@ -711,7 +711,7 @@ int64_t VariantAdaptors::asInt64() const
 
 bool VariantAdaptors::asBool() const
 {
-    char ch;
+    char ch = 0;
 
     if (isNull())
         return false;
@@ -1051,9 +1051,6 @@ void Variant::load(const xml::Node* node)
         case VAR_DATE:
         case VAR_DATE_TIME:
         case VAR_IMAGE_NDX:
-            *this = node->text();
-            break;
-
         case VAR_TEXT:
         case VAR_BUFFER:
             *this = node->text();
@@ -1378,6 +1375,7 @@ TEST(SPTK_Variant, externalBuffer)
 
 TEST(SPTK_Variant, json)
 {
+    constexpr int testInteger1 = 12345;
     const char* json = R"({ "value": 12345 })";
     json::Document document;
     document.load(json);
@@ -1385,9 +1383,10 @@ TEST(SPTK_Variant, json)
 
     Variant v;
     v.load(&node);
-    EXPECT_EQ(v.asInteger(), 12345);
+    EXPECT_EQ(v.asInteger(), testInteger1);
 
-    v = 123456;
+    constexpr int testInteger2 = 123456;
+    v = testInteger2;
     v.save(&node);
     EXPECT_STREQ(node.getString().c_str(), "123456");
 }

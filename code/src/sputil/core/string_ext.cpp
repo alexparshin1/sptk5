@@ -65,12 +65,13 @@ String sptk::trim(const String& str)
     if (len == 0)
         return "";
 
-    auto* s = (const unsigned char*) str.c_str();
+    const auto * s = (const unsigned char*) str.c_str();
     int   endpos = int(len - 1);
     bool  found = false;
 
+    unsigned char space = ' ';
     for (int i = endpos; i >= 0; --i) {
-        if (s[i] > 32) {
+        if (s[i] > space) {
             endpos = i;
             found = true;
             break;
@@ -82,7 +83,7 @@ String sptk::trim(const String& str)
 
     int startpos = 0;
     for (int i = 0; i <= endpos; ++i) {
-        if (s[i] > 32) {
+        if (s[i] > space) {
             startpos = i;
             break;
         }
@@ -93,21 +94,24 @@ String sptk::trim(const String& str)
 
 String sptk::int2string(int32_t value)
 {
-    char buff[32];
+    constexpr int bufferSize = 32;
+    char buff[bufferSize];
     int len = snprintf(buff, sizeof(buff), "%i", value);
     return string(buff, (unsigned) len);
 }
 
 String sptk::int2string(uint32_t value)
 {
-    char buff[64];
+    constexpr int bufferSize = 64;
+    char buff[bufferSize];
     int len = snprintf(buff, sizeof(buff), "%u", value);
     return string(buff, (unsigned) len);
 }
 
 String sptk::int2string(int64_t value)
 {
-    char buff[128];
+    constexpr int bufferSize = 128;
+    char buff[bufferSize];
 #ifdef _WIN32
     int len = snprintf(buff, sizeof(buff), "%lli", value);
 #else
@@ -118,7 +122,8 @@ String sptk::int2string(int64_t value)
 
 String sptk::int2string(uint64_t value)
 {
-    char buff[128];
+    constexpr int bufferSize = 128;
+    char buff[bufferSize];
 #ifdef _WIN32
     int len = snprintf(buff, sizeof(buff), "%llu", value);
 #else
@@ -129,7 +134,7 @@ String sptk::int2string(uint64_t value)
 
 int sptk::string2int(const String& str, int defaultValue)
 {
-    char* endptr;
+    char* endptr = nullptr;
     errno = 0;
     auto result = (int) strtol(str.c_str(), &endptr, 10);
 
@@ -141,7 +146,7 @@ int sptk::string2int(const String& str, int defaultValue)
 
 int64_t sptk::string2int64(const String& str, int64_t defaultValue)
 {
-    char* endptr;
+    char* endptr = nullptr;
     errno = 0;
     auto result = (int64_t) strtoll(str.c_str(), &endptr, 10);
 
@@ -153,7 +158,8 @@ int64_t sptk::string2int64(const String& str, int64_t defaultValue)
 
 String sptk::double2string(double value)
 {
-    char buffer[128];
+    constexpr int bufferSize = 128;
+    char buffer[bufferSize];
     int len = snprintf(buffer, sizeof(buffer) - 1, "%f", value);
     for (int i = len - 1; i > 0; --i) {
         if (buffer[i] != '0') {
@@ -169,7 +175,7 @@ String sptk::double2string(double value)
 
 double sptk::string2double(const String& str)
 {
-    char* endptr;
+    char* endptr = nullptr;
     errno = 0;
     auto result = strtod(str.c_str(), &endptr);
 
@@ -181,7 +187,7 @@ double sptk::string2double(const String& str)
 
 double sptk::string2double(const String& str, double defaultValue)
 {
-    char* endptr;
+    char* endptr = nullptr;
     errno = 0;
     auto result = strtod(str.c_str(), &endptr);
 

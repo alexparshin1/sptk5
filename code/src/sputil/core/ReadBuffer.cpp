@@ -71,7 +71,7 @@ TEST(SPTK_ReadBuffer, read)
     EXPECT_EQ(size_t(0), buffer.readOffset());
 
     for (int i = 0; i < 5; ++i) {
-        int x;
+        int x = 0;
         buffer.read(x);
         EXPECT_EQ(i, x);
         if (i == 2) {

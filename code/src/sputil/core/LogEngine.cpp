@@ -112,7 +112,7 @@ void LogEngine::threadFunction()
     chrono::seconds timeout(1);
     while (!terminated()) {
 
-        Logger::Message* message;
+        Logger::Message* message = nullptr;
         if (!m_messages.pop(message, timeout))
             continue;
 

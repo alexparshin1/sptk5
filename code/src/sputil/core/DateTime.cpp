@@ -41,7 +41,7 @@ class SP_EXPORT DateTimeFormat
 public:
     DateTimeFormat() noexcept;
 
-    void init() const noexcept;
+    static void init() noexcept;
 
     static char parseDateOrTime(String& format, const String& dateOrTime);
 };
@@ -109,7 +109,7 @@ char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
 
     format.clear();
 
-    const char* pattern;
+    const char* pattern = nullptr;
     while (ptr != nullptr) {
         int number = string2int(ptr);
         switch (number) {
@@ -122,8 +122,6 @@ char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
                 DateTime::_time24Mode = true;
                 break;
             case 48:
-                pattern = "59";    // minute
-                break;
             case 59:
                 pattern = "59";    // second
                 break;
@@ -163,7 +161,7 @@ DateTimeFormat::DateTimeFormat() noexcept
     init();
 }
 
-void DateTimeFormat::init() const noexcept
+void DateTimeFormat::init() noexcept
 {
     char dateBuffer[32];
     char timeBuffer[32];
@@ -985,13 +983,14 @@ TEST(SPTK_DateTime, formatTime)
 
 TEST(SPTK_DateTime, formatDateTime2)
 {
+    constexpr int minutesInHour = 60;
     int tzOffsetMinutes = DateTime::timeZoneOffset();
     stringstream tzOffsetStr;
     tzOffsetStr.fill('0');
     if (tzOffsetMinutes > 0)
-        tzOffsetStr << "+" << tzOffsetMinutes / 60 << ":" << setw(2) << tzOffsetMinutes % 60;
+        tzOffsetStr << "+" << tzOffsetMinutes / minutesInHour << ":" << setw(2) << tzOffsetMinutes % minutesInHour;
     else if (tzOffsetMinutes < 0)
-        tzOffsetStr << "-" << tzOffsetMinutes / 60 << ":" << setw(2) << tzOffsetMinutes % 60;
+        tzOffsetStr << "-" << tzOffsetMinutes / minutesInHour << ":" << setw(2) << tzOffsetMinutes % minutesInHour;
     else
         tzOffsetStr << "Z";
     String tzOffset(tzOffsetStr.str());
@@ -1002,7 +1001,8 @@ TEST(SPTK_DateTime, formatDateTime2)
     tm     tt {};
     localtime_r(&t, &tt);
 
-    char buffer[128];
+    constexpr size_t maxBuffer = 128;
+    char buffer[maxBuffer];
     strftime(buffer, sizeof(buffer) - 1, "%X", &tt);
 
     EXPECT_STREQ("02/10/20", dateTime.dateString().c_str());
@@ -1011,17 +1011,18 @@ TEST(SPTK_DateTime, formatDateTime2)
 
 TEST(SPTK_DateTime, parsePerformance)
 {
+    constexpr size_t maxTests = 100000;
+    constexpr double millisecondsInSecond = 1000.0;
     DateTime started("now");
 
     DateTime dateTime("2018-08-07 11:22:33.444Z");
-    size_t count = 100000;
-    for (size_t i = 0; i < count; ++i)
+    for (size_t i = 0; i < maxTests; ++i)
         dateTime = DateTime("2018-08-07 11:22:33.444Z");
 
     DateTime ended("now");
-    double durationSec = double(duration_cast<milliseconds>(ended - started).count()) / 1000.0;
+    double durationSec = double(duration_cast<milliseconds>(ended - started).count()) / millisecondsInSecond;
 
-    COUT("Performed " << size_t (count / 1E3 / durationSec)  << "K parses/sec" << endl)
+    COUT("Performed " << size_t (maxTests / millisecondsInSecond / durationSec)  << "K parses/sec" << endl)
 }
 
 #endif

@@ -153,8 +153,9 @@ TEST(SPTK_Exception, throwException)
         EXPECT_STREQ("Test exception", e.what());
     }
 
+    constexpr int testLineNumber = 1234;
     try {
-        throw Exception("Test exception", __FILE__, 1234, "This happens sometimes");
+        throw Exception("Test exception", __FILE__, testLineNumber, "This happens sometimes");
     }
     catch (const Exception& e) {
 #ifdef _WIN32
@@ -164,18 +165,21 @@ TEST(SPTK_Exception, throwException)
 #endif
         EXPECT_STREQ("Test exception", e.message().c_str());
         EXPECT_STREQ(__FILE__, e.file().c_str());
-        EXPECT_EQ(1234, e.line());
+        EXPECT_EQ(testLineNumber, e.line());
     }
 }
 
 TEST(SPTK_HttpException, throw)
 {
-    for (size_t code = 400; code < 512; ++code) {
+    constexpr size_t firstErrorCode = 400;
+    constexpr size_t maxErrorCode = 512;
+    constexpr int testLineNumber = 1234;
+    for (size_t code = firstErrorCode; code < maxErrorCode; ++code) {
         auto expectedStatus = HTTPException::httpResponseStatus(code);
         if (expectedStatus.empty())
             continue;
         try {
-            throw HTTPException(code, "Something happened", __FILE__, 1234, "This happens sometimes");
+            throw HTTPException(code, "Something happened", __FILE__, testLineNumber, "This happens sometimes");
         }
         catch (const HTTPException& e) {
 #ifdef _WIN32

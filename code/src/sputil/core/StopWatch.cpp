@@ -28,10 +28,6 @@
 
 using namespace sptk;
 
-StopWatch::StopWatch()
-{
-}
-
 void StopWatch::start()
 {
     m_started = DateTime::Now();

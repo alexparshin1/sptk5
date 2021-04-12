@@ -416,7 +416,7 @@ private:
      * @param outputPattern     Output pattern
      * @return placeholder position
      */
-    size_t findNextPlaceholder(size_t pos, const String& outputPattern) const;
+    static size_t findNextPlaceholder(size_t pos, const String& outputPattern) ;
 
     void extractNamedMatches(const String& text, Groups& matchedStrings, const MatchData& matchData,
                              size_t matchCount) const;

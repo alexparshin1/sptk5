@@ -35,7 +35,7 @@
 using namespace std;
 using namespace sptk;
 
-#define TEXT_BLOCK 16384
+constexpr int TEXT_BLOCK = 16384;
 
 void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const String& iv)
 {
@@ -57,7 +57,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
     if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (const unsigned char*) key.c_str(), (const unsigned char*) iv.c_str()) != 1)
         throw Exception("Error calling EVP_EncryptInit_ex()");
 
-    int len;
+    int len = 0;
     dest.bytes(0);
     dest.checkSize(src.bytes());
     for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK) {
@@ -89,7 +89,7 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
     if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (const unsigned char*) key.c_str(), (const unsigned char*) iv.c_str()) != 1)
         throw Exception("Error calling EVP_DecryptInit_ex()");
 
-    int len;
+    int len = 0;
     dest.bytes(0);
     dest.checkSize(src.bytes());
     for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK) {
