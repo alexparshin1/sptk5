@@ -31,7 +31,8 @@ using namespace std;
 using namespace sptk;
 
 // When TEXT field is large, fetch in chunks:
-#define FETCH_BUFFER 256
+constexpr unsigned FETCH_BUFFER = 256;
+constexpr unsigned SMALL_BUFFER = 16;
 
 #if MYSQL_HAS_MYBOOL == 0
 typedef bool my_bool;
@@ -73,7 +74,7 @@ private:
 
     // MySQL time conversion buffer
     MYSQL_TIME      m_timeBuffer {};
-    char            m_tempBuffer[16] {};
+    char            m_tempBuffer[SMALL_BUFFER] {};
 };
 
 
@@ -303,7 +304,7 @@ void MySQLStatement::execute(bool)
         if (mysql_stmt_execute(statement()) != 0)
             throwMySQLError();
         state().columnCount = mysql_stmt_field_count(statement());
-        if (state().columnCount != 0)
+        if (state().columnCount != 0U)
             m_result = mysql_stmt_result_metadata(statement());
     } else {
         MYSQL* conn = connection()->m_connection;
@@ -312,7 +313,7 @@ void MySQLStatement::execute(bool)
             throw DatabaseException(error);
         }
         state().columnCount = mysql_field_count(conn);
-        if (state().columnCount != 0)
+        if (state().columnCount != 0U)
             m_result = mysql_store_result(conn);
     }
 }
@@ -344,7 +345,7 @@ void MySQLStatement::bindResult(FieldList& fields)
         // Bind initialized fields to MySQL bind buffers
         m_fieldBuffers.resize(state().columnCount);
         for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex) {
-            auto*        field = (MySQLStatementField*) &fields[columnIndex];
+            auto*        field = (MySQLStatementField*) &fields[(int)columnIndex];
             MYSQL_BIND&  bind = m_fieldBuffers[columnIndex];
 
             bind.buffer_type = (enum_field_types) field->fieldType();
@@ -604,7 +605,7 @@ void MySQLStatement::fetch()
     } else {
         m_row = mysql_fetch_row(m_result);
         if (m_row == nullptr) {
-            int err = mysql_errno(connection()->m_connection);
+            auto err = mysql_errno(connection()->m_connection);
             if (err != 0)
                 throwMySQLError();
             state().eof = true;

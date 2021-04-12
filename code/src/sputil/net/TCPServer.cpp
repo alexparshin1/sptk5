@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/cutils>
+#include <utility>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
 #if USE_GTEST
@@ -46,7 +47,7 @@ const map<String,LogDetails::MessageDetail> LogDetails::detailNames {
 
 LogDetails::LogDetails(const Strings& details)
 {
-    for (auto& detailName: details) {
+    for (const auto & detailName: details) {
         auto itor = detailNames.find(detailName);
         if (itor == detailNames.end())
             continue;
@@ -57,7 +58,7 @@ LogDetails::LogDetails(const Strings& details)
 String LogDetails::toString(const String& delimiter) const
 {
     Strings names;
-    for (auto& itor: detailNames) {
+    for (const auto & itor: detailNames) {
         if (m_details.find(itor.second) != m_details.end())
             names.push_back(itor.first);
     }
@@ -66,7 +67,7 @@ String LogDetails::toString(const String& delimiter) const
 
 TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
 : ThreadPool((uint32_t) threadLimit,
-             chrono::seconds(60),
+             chrono::minutes(1),
              listenerName,
              logDetails.has(LogDetails::THREAD_POOLING) ? logEngine : nullptr),
   m_logDetails(logDetails)
@@ -74,7 +75,8 @@ TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* 
     if (logEngine != nullptr)
         m_logger = make_shared<Logger>(*logEngine);
 
-    char hostname[128] = { "localhost" };
+    constexpr unsigned maxHostNameLength = 128;
+    char hostname[maxHostNameLength] = { "localhost" };
     int rc = gethostname(hostname, sizeof(hostname));
     if (rc == 0)
         m_host = Host(hostname);
@@ -121,7 +123,7 @@ void TCPServer::stop()
 void TCPServer::setSSLKeys(shared_ptr<SSLKeys> sslKeys)
 {
     UniqueLock(m_mutex);
-    m_sslKeys = sslKeys;
+    m_sslKeys = std::move(sslKeys);
 }
 
 const SSLKeys& TCPServer::getSSLKeys() const
@@ -174,7 +176,7 @@ public:
         Buffer data;
         while (!terminated()) {
             try {
-                if (socket().readyToRead(chrono::seconds(30))) {
+                if (socket().readyToRead(chrono::seconds(1))) {
                     if (socket().readLine(data) == 0)
                         return;
                     string str(data.c_str());
@@ -206,33 +208,40 @@ protected:
     }
 };
 
+static constexpr uint16_t testEchoServerPort = 3001;
+
 TEST(SPTK_TCPServer, minimal)
 {
     Buffer buffer;
 
-    EchoServer echoServer;
-    ASSERT_NO_THROW(echoServer.listen(3001));
+    try {
+        EchoServer echoServer;
+        echoServer.listen(testEchoServerPort);
 
-    TCPSocket socket;
-    ASSERT_NO_THROW(socket.open(Host("localhost", 3001)));
+        TCPSocket socket;
+        socket.open(Host("localhost", testEchoServerPort));
 
-    Strings rows("Hello, World!\n"
-                  "This is a test of TCPServer class.\n"
-                  "Using simple echo server to verify data flow.\n"
-                  "The session is terminated when this row is received", "\n");
+        Strings rows("Hello, World!\n"
+                     "This is a test of TCPServer class.\n"
+                     "Using simple echo server to verify data flow.\n"
+                     "The session is terminated when this row is received", "\n");
 
-    int rowCount = 0;
-    for (const auto& row: rows) {
-        socket.write(row + "\n");
-        buffer.bytes(0);
-        if (socket.readyToRead(chrono::seconds(3)))
-            socket.readLine(buffer);
-        EXPECT_STREQ(row.c_str(), buffer.c_str());
-        ++rowCount;
+        int rowCount = 0;
+        for (const auto& row: rows) {
+            socket.write(row + "\n");
+            buffer.bytes(0);
+            if (socket.readyToRead(chrono::seconds(3)))
+                socket.readLine(buffer);
+            EXPECT_STREQ(row.c_str(), buffer.c_str());
+            ++rowCount;
+        }
+        EXPECT_EQ(4, rowCount);
+
+        socket.close();
     }
-    EXPECT_EQ(4, rowCount);
-
-    socket.close();
+    catch (const Exception& e) {
+        FAIL() << e.what();
+    }
 }
 
 #endif

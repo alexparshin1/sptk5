@@ -76,7 +76,8 @@ void ThreadPool::execute(Runable* task)
     if (!m_threadManager->running())
         m_threadManager->start();
 
-    bool needMoreThreads = m_threadManager->threadCount() == 0 || !m_availableThreads.sleep_for(std::chrono::milliseconds(10));
+    constexpr std::chrono::milliseconds tenMilliseconds(10);
+    bool needMoreThreads = m_threadManager->threadCount() == 0 || !m_availableThreads.sleep_for(tenMilliseconds);
 
     if (needMoreThreads && (m_threadLimit == 0 || m_threadManager->threadCount() < m_threadLimit))
         createThread();
@@ -120,9 +121,10 @@ public:
     MyTask() : Runable("MyTask") {}
     void run() override
     {
+        constexpr std::chrono::milliseconds tenMilliseconds(10);
         while (!terminated()) {
-            int item;
-            if (intQueue.pop(item, chrono::milliseconds(10))) {
+            int item = 0;
+            if (intQueue.pop(item, tenMilliseconds)) {
                 ++m_count;
             }
             this_thread::sleep_for(chrono::milliseconds(1));
@@ -137,23 +139,27 @@ SynchronizedQueue<int> MyTask::intQueue;
 
 TEST(SPTK_ThreadPool, run)
 {
-    unsigned i;
     vector<MyTask*> tasks;
 
     /// Thread manager controls tasks execution.
-    auto* threadPool = new ThreadPool(16, std::chrono::milliseconds(60), "test thread pool", nullptr);
+    constexpr uint32_t maxThreads = 16;
+    constexpr std::chrono::milliseconds maxThreadIdleTime(60);
+    auto* threadPool = new ThreadPool(maxThreads, maxThreadIdleTime, "test thread pool", nullptr);
 
     // Creating several tasks
-    for (i = 0; i < 5; ++i)
+    constexpr unsigned taskCount = 5;
+    for (unsigned i = 0; i < taskCount; ++i)
         tasks.push_back(new MyTask);
 
-    for (i = 0; i < tasks.size(); ++i)
-        threadPool->execute(tasks[i]);
+    for (auto & task : tasks)
+        threadPool->execute(task);
 
-    for (int value = 0; value < 100; ++value)
+    constexpr int maxValues = 100;
+    for (int value = 0; value < maxValues; ++value)
         MyTask::intQueue.push(value);
 
-    this_thread::sleep_for(chrono::milliseconds(300));
+    constexpr chrono::milliseconds sleepInterval(300);
+    this_thread::sleep_for(sleepInterval);
 
     EXPECT_EQ(size_t(5), tasks.size());
     for (const auto* task: tasks)

@@ -25,13 +25,14 @@
 */
 
 #include <sptk5/cutils>
+#include <utility>
 #include <sptk5/threads/WorkerThread.h>
 
 using namespace std;
 using namespace sptk;
 
 WorkerThread::WorkerThread(SThreadManager threadManager, SynchronizedQueue<Runable*>& queue, ThreadEvent* threadEvent, chrono::milliseconds maxIdleTime)
-: Thread("worker", threadManager),
+: Thread("worker", std::move(threadManager)),
   m_queue(queue),
   m_threadEvent(threadEvent),
   m_maxIdleSeconds(maxIdleTime)
@@ -42,6 +43,7 @@ void WorkerThread::threadFunction()
     if (m_threadEvent != nullptr)
         m_threadEvent->threadEvent(this, ThreadEvent::THREAD_STARTED, nullptr);
 
+    constexpr chrono::seconds oneSecond(1);
     chrono::milliseconds idleSeconds(0);
     while (!terminated()) {
 
@@ -49,7 +51,7 @@ void WorkerThread::threadFunction()
             break;
 
         Runable* runable = nullptr;
-        if (m_queue.pop(runable, chrono::milliseconds(1000))) {
+        if (m_queue.pop(runable, oneSecond)) {
             setRunable(runable);
             idleSeconds = chrono::milliseconds(0);
             if (m_threadEvent != nullptr)

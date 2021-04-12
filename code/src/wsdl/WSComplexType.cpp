@@ -61,7 +61,7 @@ void WSComplexType::addElement(json::Element* parent) const
     if (m_exportable) {
         if (isOptional() && isNull())
             return;
-        json::Element* element;
+        json::Element* element = nullptr;
         if (parent->is(json::JDT_ARRAY))
             element = parent->push_back();
         else
@@ -80,7 +80,7 @@ String WSComplexType::toString(bool asJSON, bool formatted) const
         outputJSON.exportTo(output, formatted);
     } else {
         xml::Document outputXML;
-        auto element = new xml::Element(outputXML, "type");
+        auto* element = new xml::Element(outputXML, "type");
         unload(element);
         outputXML.save(output, formatted? 2 : 0);
     }
