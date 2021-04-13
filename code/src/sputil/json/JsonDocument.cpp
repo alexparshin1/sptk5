@@ -433,7 +433,8 @@ TEST(SPTK_JsonDocument, performance)
 
     // Verify data
     auto& arrayData = arrayElement->getArray();
-    auto& object = arrayData[100];
+    constexpr int someIndex = 100;
+    auto& object = arrayData[someIndex];
     EXPECT_FLOAT_EQ(object.getNumber("id"), 100.0);
     EXPECT_STREQ(object.getString("name").c_str(), "Name 100");
 
