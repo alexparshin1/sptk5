@@ -34,10 +34,6 @@
 using namespace std;
 using namespace sptk;
 
-JWT::JWT()
-{
-}
-
 JWT::Algorithm JWT::get_alg() const
 {
     return alg;
@@ -112,7 +108,7 @@ JWT::Algorithm JWT::str_alg(const char *alg)
 const json::Element* JWT::find_grant(const json::Element *js, const String& key)
 {
     if (js->is(json::JDT_OBJECT)) {
-        auto* element = js->find(key);
+        const auto* element = js->find(key);
         return element;
     }
     return nullptr;
@@ -279,10 +275,10 @@ void JWT::exportTo(ostream& output, bool pretty) const
 
 void sptk::jwt_b64_decode(Buffer& destination, const char* src)
 {
-    char *newData;
-    size_t len;
-    size_t i;
-    size_t z;
+    char *newData = nullptr;
+    size_t len = 0;
+    size_t i = 0;
+    size_t z = 0;
 
     /* Decode based on RFC-4648 URI safe encoding. */
     len = strlen(src);
@@ -460,8 +456,8 @@ void JWT::decode(const char *token, const String& _key)
 
 TEST(SPTK_JWT, dup)
 {
-    time_t now;
-    int valint;
+    time_t now = 0;
+    int valint = 0;
 
     JWT jwt;
 
@@ -503,7 +499,7 @@ TEST(SPTK_JWT, decode)
     const char token[] =
             "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
             "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
-    JWT::Algorithm alg;
+    JWT::Algorithm alg = JWT::JWT_ALG_NONE;
 
     auto jwt = make_shared<JWT>();
 

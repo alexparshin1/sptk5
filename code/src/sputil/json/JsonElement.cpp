@@ -90,7 +90,7 @@ Element& ElementData::getChild(const String& name)
 
 const Element& ElementData::getChild(const String& name) const
 {
-    auto* element = dynamic_cast<const Element*>(this);
+    const auto * element = dynamic_cast<const Element*>(this);
     if (!name.empty()) {
         element = find(name);
         if (element == nullptr)
@@ -101,7 +101,7 @@ const Element& ElementData::getChild(const String& name) const
 
 double ElementGetMethods::getNumber(const String& name) const
 {
-    auto& element = getChild(name);
+    const auto & element = getChild(name);
     if (element.is(JDT_NUMBER))
         return element.data().get_number();
     else if (element.is(JDT_STRING))
@@ -111,7 +111,7 @@ double ElementGetMethods::getNumber(const String& name) const
 
 static String JsonNumberToString(double number)
 {
-    long len;
+    long len = 0;
     char buffer[64];
 
     if (number == round(number))
@@ -128,7 +128,7 @@ static String JsonNumberToString(double number)
 
 String ElementGetMethods::getString(const String& name) const
 {
-    auto& element = getChild(name);
+    const auto & element = getChild(name);
 
     if (element.is(JDT_STRING))
         return *element.data().get_string();
@@ -157,7 +157,7 @@ String ElementGetMethods::getString(const String& name) const
 
 bool ElementGetMethods::getBoolean(const String& name) const
 {
-    auto& element = getChild(name);
+    const auto & element = getChild(name);
     if (element.type() == JDT_STRING)
         return *element.data().get_string() == "true";
     else if (element.type() == JDT_BOOLEAN)
@@ -175,7 +175,7 @@ json::ArrayData& ElementGetMethods::getArray(const String& name)
 
 const json::ArrayData& ElementGetMethods::getArray(const String& name) const
 {
-    auto& element = getChild(name);
+    const auto & element = getChild(name);
     if (element.type() == JDT_ARRAY && element.data().get_array())
         return *element.data().get_array();
     throw Exception("Not an array");
@@ -191,7 +191,7 @@ json::ObjectData& ElementGetMethods::getObject(const String& name)
 
 const json::ObjectData& ElementGetMethods::getObject(const String& name) const
 {
-    auto& element = getChild(name);
+    const auto & element = getChild(name);
     if (element.type() == JDT_OBJECT && element.data().get_object())
         return *element.data().get_object();
     throw Exception("Not an object");
@@ -1017,7 +1017,7 @@ TEST(SPTK_JsonElement, array)
         const auto& constArray = document.root().getArray(name);
         EXPECT_EQ(3, (int) constArray[1].getNumber());
 
-        json::Element* embeddedArrayElement;
+        json::Element* embeddedArrayElement = nullptr;
         if (name.empty())
             embeddedArrayElement = document.root().push_array();
         else

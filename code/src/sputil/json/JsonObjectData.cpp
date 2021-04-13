@@ -65,7 +65,7 @@ Element& ObjectData::operator[](const String& name)
 {
     const string* sharedName = m_document->getString(name);
     auto itor = m_items.find(sharedName);
-    Element* element;
+    Element* element = nullptr;
     if (itor == m_items.end()) {
         element = new Element(m_document);
         element->m_parent = m_parent;

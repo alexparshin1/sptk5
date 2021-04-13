@@ -73,7 +73,7 @@ namespace sptk {
 
 void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 {
-    const EVP_MD* algorithm;
+    const EVP_MD* algorithm = nullptr;
 
     switch (this->alg) {
         /* HMAC */
@@ -92,7 +92,7 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 
     out.checkSize(EVP_MAX_MD_SIZE);
 
-    unsigned len;
+    unsigned len = 0;
     HMAC(algorithm, key.c_str(), (int) key.length(),
          (const unsigned char*) str, (int) strlen(str), (unsigned char*) out.data(),
          &len);
@@ -102,9 +102,9 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 void JWT::verify_sha_hmac(const char* head, const char* sig) const
 {
     unsigned char res[EVP_MAX_MD_SIZE];
-    unsigned int res_len;
-    const EVP_MD* algorithm;
-    int len;
+    unsigned int res_len = 0;
+    const EVP_MD* algorithm = nullptr;
+    int len = 0;
     Buffer readBuf;
 
     switch (this->alg) {
@@ -172,7 +172,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
 
 static const EVP_MD* signAlgorithm(const JWT::Algorithm alg, int& type)
 {
-    const EVP_MD* algorithm;
+    const EVP_MD* algorithm = nullptr;
     switch (alg) {
         /* RSA */
         case JWT::JWT_ALG_RS256:
@@ -216,10 +216,10 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
     const BIGNUM* ec_sig_r = nullptr;
     const BIGNUM* ec_sig_s = nullptr;
     BIO* bufkey = nullptr;
-    const EVP_MD* algorithm;
-    int type;
+    const EVP_MD* algorithm = nullptr;
+    int type = 0;
     EVP_PKEY* pkey = nullptr;
-    size_t slen;
+    size_t slen = 0;
 
     algorithm = signAlgorithm(alg, type);
 
@@ -266,13 +266,13 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
         if (pkey_type != EVP_PKEY_EC) {
             out.set((char*)sig_ptr, slen);
         } else {
-            unsigned degree;
-            unsigned bn_len;
-            unsigned r_len;
-            unsigned s_len;
-            unsigned buf_len;
-            unsigned char* raw_buf;
-            EC_KEY* ec_key;
+            unsigned degree = 0;
+            unsigned bn_len = 0;
+            unsigned r_len = 0;
+            unsigned s_len = 0;
+            unsigned buf_len = 0;
+            unsigned char* raw_buf = nullptr;
+            EC_KEY* ec_key = nullptr;
 
             /* For EC we need to convert to a raw format of R/S. */
 
@@ -285,7 +285,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
             EC_KEY_free(ec_key);
 
             /* Get the sig from the DER encoded version. */
-            unsigned char* sig;
+            unsigned char* sig = nullptr;
             ec_sig = d2i_ECDSA_SIG(nullptr, (const unsigned char**) &sig, (long) slen);
             if (ec_sig == nullptr) SIGN_ERROR(ENOMEM);
 
@@ -335,7 +335,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
 
 static const EVP_MD* getAlgorithm(JWT::Algorithm alg, int& type)
 {
-    const EVP_MD* algorithm;
+    const EVP_MD* algorithm = nullptr;
 
     switch (alg) {
         /* RSA */
@@ -378,7 +378,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
     EVP_MD_CTX* mdctx = nullptr;
     ECDSA_SIG* ec_sig = nullptr;
     EVP_PKEY* pkey = nullptr;
-    int type;
+    int type = 0;
     BIO* bufkey = nullptr;
 
     const auto* algorithm = getAlgorithm(this->alg, type);
@@ -404,10 +404,10 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
 
         /* Convert EC sigs back to ASN1. */
         if (pkey_type == EVP_PKEY_EC) {
-            unsigned degree;
-            unsigned bn_len;
-            unsigned char* p;
-            EC_KEY* ec_key;
+            unsigned degree = 0;
+            unsigned bn_len = 0;
+            unsigned char* p = nullptr;
+            EC_KEY* ec_key = nullptr;
 
             ec_sig = ECDSA_SIG_new();
             if (ec_sig == nullptr) VERIFY_ERROR(ENOMEM);

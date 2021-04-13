@@ -62,16 +62,9 @@ void Document::parse(const String& json)
 }
 
 Document::Document(bool isObject)
-: m_emptyElement(this, "")
-{
-    if (isObject) {
-        auto* objectData = new ObjectData(this);
-        m_root = make_shared<Element>(this, objectData);
-    } else {
-        auto* arrayData = new ArrayData(this);
-        m_root = make_shared<Element>(this, arrayData);
-    }
-}
+: m_root(createDocumentRoot(isObject ? JDT_OBJECT : JDT_ARRAY)),
+  m_emptyElement(this, "")
+{}
 
 Document::Document(const Document& other)
 : m_emptyElement(this, "")
@@ -92,15 +85,26 @@ Document& Document::operator = (const Document& other)
 }
 
 Document::Document(Document&& other) noexcept
-: m_root(other.m_root), m_emptyElement(this, "")
+: m_root(move(other.m_root)), m_emptyElement(this, "")
 {
-    if (m_root->type() == JDT_OBJECT) {
+    other.m_root = createDocumentRoot(m_root->type());
+}
+
+std::shared_ptr<Element> Document::createDocumentRoot(Type documentType)
+{
+    if (documentType == JDT_OBJECT) {
         auto* objectData = new ObjectData(this);
-        other.m_root = make_shared<Element>(this, objectData);
+        return make_shared<Element>(this, objectData);
     } else {
         auto* arrayData = new ArrayData(this);
-        other.m_root = make_shared<Element>(this, arrayData);
+        return make_shared<Element>(this, arrayData);
     }
+}
+
+Document& Document::operator = (Document&& other) noexcept
+{
+    m_root = move(other.m_root);
+    return *this;
 }
 
 void Document::load(const String& json)
@@ -211,8 +215,12 @@ TEST(SPTK_JsonDocument, add)
 
     json::Element& root = document.root();
 
+    constexpr int testInteger = 178;
+    constexpr double testDouble1 = 2.5;
+    constexpr double testDouble2 = 85.5;
+
     root["int"] = 1;
-    root["double"] = 2.5;
+    root["double"] = testDouble1;
     root["string"] = "Test";
     root["bool1"] = true;
     root["bool2"] = false;
@@ -223,11 +231,11 @@ TEST(SPTK_JsonDocument, add)
     arrayData->push_back("Python");
 
     auto* objectData = root.add_object("object");
-    (*objectData)["height"] = 178;
-    (*objectData)["weight"] = 85.5;
+    (*objectData)["height"] = testInteger;
+    (*objectData)["weight"] = testDouble2;
 
     EXPECT_EQ(1, (int) root.getNumber("int"));
-    EXPECT_DOUBLE_EQ(2.5, root.getNumber("double"));
+    EXPECT_DOUBLE_EQ(testDouble1, root.getNumber("double"));
     EXPECT_STREQ("Test", root.getString("string").c_str());
     EXPECT_TRUE(root.getBoolean("bool1"));
     EXPECT_FALSE(root.getBoolean("bool2"));
@@ -241,8 +249,8 @@ TEST(SPTK_JsonDocument, add)
 
     const json::Element* object = root.find("object");
     EXPECT_TRUE(object != nullptr);
-    EXPECT_EQ(178, object->getNumber("height"));
-    EXPECT_DOUBLE_EQ(85.5, object->getNumber("weight"));
+    EXPECT_EQ(testInteger, object->getNumber("height"));
+    EXPECT_DOUBLE_EQ(testDouble2, object->getNumber("weight"));
 }
 
 TEST(SPTK_JsonDocument, remove)
@@ -402,7 +410,7 @@ TEST(SPTK_JsonDocument, errors)
 
 TEST(SPTK_JsonDocument, performance)
 {
-    int objectCount = 50000;
+    constexpr int objectCount = 50000;
 
     json::Document document;
 

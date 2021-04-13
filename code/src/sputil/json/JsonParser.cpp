@@ -43,7 +43,7 @@ namespace sptk {
     }
 }
 
-#define ERROR_CONTEXT_CHARS 65
+static constexpr int ERROR_CONTEXT_CHARS = 65;
 
 [[noreturn]] void throwError(const string& message, const char* json, size_t position)
 {
@@ -161,7 +161,7 @@ string readJsonName(const char* json, const char*& readPosition)
 
 double readJsonNumber(const char* json, const char*& readPosition)
 {
-    char* pos;
+    char* pos = nullptr;
     errno = 0;
     double value = strtod(readPosition, &pos);
     if (errno != 0)
@@ -177,7 +177,7 @@ bool readJsonBoolean(const char* json, const char*& readPosition)
     if (pos == nullptr)
         throwError("Premature end of data, expecting boolean value", json, readPosition - json);
     ++pos;
-    bool result;
+    bool result = false;
     if (strncmp(readPosition, "true", 4) == 0)
         result = true;
     else if (strncmp(readPosition, "false", 4) == 0)
@@ -201,7 +201,7 @@ void readJsonNull(const char* json, const char*& readPosition)
 
 void readArrayData(Element* parent, const char* json, const char*& readPosition)
 {
-    Element* element;
+    Element* element = nullptr;
 
     if (*readPosition != '[')
         throwUnexpectedCharacterError(*readPosition, '[', json, readPosition - json);
@@ -288,7 +288,7 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
         if (isdigit(firstChar))
             firstChar = '0';
 
-        json::Element* element;
+        json::Element* element = nullptr;
         switch (firstChar) {
             case '}':
                 // Close bracket

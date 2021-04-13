@@ -89,6 +89,12 @@ public:
     Document& operator = (const Document& other);
 
     /**
+     * Move assignment
+     * @param other             Other document
+     */
+    Document& operator = (Document&& other) noexcept;
+
+    /**
      * Load document from JSON text, replacing existing document
      * @param json              JSON text
      */
@@ -172,6 +178,10 @@ protected:
     {
         return &m_sharedStrings.shareString(str);
     }
+
+private:
+
+    std::shared_ptr<Element> createDocumentRoot(Type documentType);
 };
 
 }

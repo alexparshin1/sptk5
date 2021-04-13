@@ -66,7 +66,7 @@ public:
     /**
      * Constructor
      */
-    JWT();
+    JWT() = default;
 
     /**
      * Get JSON element in JSON object element by name.
