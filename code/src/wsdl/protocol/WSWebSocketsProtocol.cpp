@@ -91,7 +91,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         memcpy(mask, ptr, sizeof(mask));
         ptr += 4;
         char* dest = m_payload.data();
-        char statusCodeBuffer[2];
+        char statusCodeBuffer[2] = {};
         size_t j = 0;
         for (uint64_t i = 0; i < payloadLength; ++i) {
             auto unmaskedByte = ptr[i] ^ mask[i % 4];
@@ -105,10 +105,10 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         }
         m_payload.bytes(j);
         if (m_opcode == OC_CONNECTION_CLOSE)
-            m_status = ntohs(*(uint16_t *)statusCodeBuffer);
+            m_status = ntohs(*(const uint16_t *)statusCodeBuffer);
     } else {
         if (m_opcode == OC_CONNECTION_CLOSE) {
-            m_status = ntohs(*(uint16_t *)ptr);
+            m_status = ntohs(*(const uint16_t *)ptr);
             ptr += 2;
             payloadLength -= 2;
         }

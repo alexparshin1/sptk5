@@ -54,7 +54,7 @@ WorkerThread* ThreadPool::createThread()
     return workerThread;
 }
 
-void ThreadPool::logThreadEvent(const String& event, const Thread* workerThread)
+void ThreadPool::logThreadEvent(const String& event, const Thread* workerThread) const
 {
     static mutex mtx;
     if (m_logger) {

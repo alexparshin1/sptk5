@@ -282,6 +282,16 @@ WSConnection::Options::Options(const Options& other)
   keepAlive(other.keepAlive),
   suppressHttpStatus(other.suppressHttpStatus),
   logDetails(other.logDetails)
-{
+{}
 
+WSConnection::Options& WSConnection::Options::operator=(const Options& other)
+{
+    paths = other.paths;
+    encrypted = other.encrypted;
+    allowCors = other.allowCors;
+    keepAlive = other.keepAlive;
+    suppressHttpStatus = other.suppressHttpStatus;
+    logDetails = other.logDetails;
+
+    return *this;
 }

@@ -565,7 +565,7 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
 
 String RegularExpression::s(const String& text, const String& outputPattern) const
 {
-    bool replaced = 0;
+    bool replaced = false;
     return replaceAll(text, outputPattern, replaced);
 }
 

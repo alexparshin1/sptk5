@@ -61,6 +61,8 @@ public:
             m_socket->close();
     }
 
+    WSProtocol& operator = (const WSProtocol&) = delete;
+
     /// Process virtual method - to be implemented in derived classes
     virtual RequestInfo process() = 0;
 

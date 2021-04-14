@@ -63,6 +63,8 @@ public:
         LogDetails  logDetails;
         Options(const Options& other);
         Options(const Paths& paths, bool encrypted=false) : paths(paths), encrypted(encrypted) {}
+        ~Options() = default;
+        Options& operator = (const Options& other);
     };
 
     /**

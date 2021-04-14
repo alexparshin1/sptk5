@@ -661,7 +661,7 @@ void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
 
 String OracleConnection::driverDescription() const
 {
-    return m_environment.clientVersion();
+    return OracleEnvironment::clientVersion();
 }
 
 String OracleConnection::paramMark(unsigned paramIndex)

@@ -117,7 +117,12 @@ private:
      */
     WorkerThread* createThread();
 
-    void logThreadEvent(const String& event, const Thread* workerThread);
+    /**
+     * Log thread event
+     * @param event             Event info
+     * @param workerThread      Related worker thread
+     */
+    void logThreadEvent(const String& event, const Thread* workerThread) const;
 };
 
 /**

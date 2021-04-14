@@ -164,7 +164,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
 
 [[noreturn]] static void SIGN_ERROR(int __err)
 {
-    if ((__err) == EINVAL)
+    if (__err == EINVAL)
         throw Exception("Invalid value");
     else
         throw Exception("Can't allocate memory");
@@ -327,7 +327,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
 
 [[noreturn]] static void VERIFY_ERROR(int __err)
 {
-    if ((__err) == EINVAL)
+    if (__err == EINVAL)
         throw Exception("Invalid value");
     else
         throw Exception("Can't allocate memory");
