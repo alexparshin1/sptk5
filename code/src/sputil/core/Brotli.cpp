@@ -40,7 +40,6 @@
 using namespace std;
 using namespace sptk;
 
-constexpr int MAX_OPTIONS = 20;
 constexpr int DEFAULT_LGWIN = 24;
 constexpr int BROTLI_WINDOW_GAP = 16;
 #define BROTLI_MAX_BACKWARD_LIMIT(W) (((size_t)1 << (W)) - BROTLI_WINDOW_GAP)
@@ -91,8 +90,6 @@ private:
     size_t available_out;
 
     uint8_t* next_out = nullptr;
-
-private:
 
     BROTLI_BOOL HasMoreInput() const
     {

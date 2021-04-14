@@ -119,11 +119,9 @@ void DirectoryDS::directory(const String& d)
 
 static bool fileMatchesPattern(const String& fileName, const vector<SRegularExpression>& matchPatterns)
 {
-    for (const auto& matchPattern: matchPatterns) {
-        if (matchPattern->matches(fileName))
-            return true;
-    }
-    return false;
+    return any_of(matchPatterns.begin(),
+                  matchPatterns.end(),
+                  [&fileName](const auto& matchPattern) { return matchPattern->matches(fileName); });
 }
 
 bool DirectoryDS::open()

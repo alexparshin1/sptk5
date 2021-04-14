@@ -94,14 +94,13 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         char statusCodeBuffer[2] = {};
         size_t j = 0;
         for (uint64_t i = 0; i < payloadLength; ++i) {
-            auto unmaskedByte = ptr[i] ^ mask[i % 4];
+            auto unmaskedByte = uint8_t(ptr[i] ^ mask[i % 4]);
             if (m_opcode == OC_CONNECTION_CLOSE && i < 2) {
                 statusCodeBuffer[i] = unmaskedByte;
                 continue;
             }
-
             dest[j] = unmaskedByte;
-            j++;
+            ++j;
         }
         m_payload.bytes(j);
         if (m_opcode == OC_CONNECTION_CLOSE)
@@ -218,7 +217,7 @@ RequestInfo WSWebSocketsProtocol::process()
             msg.decode(message.c_str());
 
             if (msg.opcode() == WSWebSocketsMessage::OC_CONNECTION_CLOSE) {
-                replyCloseConnectionRequest(msg.statusCode(), "Connection closed by client request");
+                replyCloseConnectionRequest((uint16_t)msg.statusCode(), "Connection closed by client request");
                 connectionCloseRequestReplied = true;
                 break;
             }

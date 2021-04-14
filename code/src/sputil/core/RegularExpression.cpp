@@ -56,7 +56,7 @@ public:
         memset(matches, 0, sizeof(Match) * (maxMatches + 2));
     }
 #else
-    MatchData(pcre*, size_t maxMatches)
+    MatchData(const pcre*, size_t maxMatches)
     : maxMatches(maxMatches + 4),
       matches(new Match[maxMatches + 8])
     {

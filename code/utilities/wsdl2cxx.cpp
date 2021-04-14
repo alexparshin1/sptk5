@@ -160,10 +160,10 @@ int main(int argc, const char* argv[])
             return 1;
 
         if (!quiet && verbose) {
-            COUT("Input WSDL file:             " << wsdlFile << endl);
-            COUT("Generate files to directory: " << wsdlFile << endl);
+            COUT("Input WSDL file:             " << wsdlFile << endl)
+            COUT("Generate files to directory: " << wsdlFile << endl)
             if (!headerFile.empty())
-                COUT("Using C++ header file:       " << headerFile << endl);
+                COUT("Using C++ header file:       " << headerFile << endl)
         }
 
         OpenApiGenerator::Options options;

@@ -36,6 +36,9 @@ constexpr unsigned SMALL_BUFFER = 16;
 
 #if MYSQL_HAS_MYBOOL == 0
 typedef bool my_bool;
+constexpr my_bool MY_BOOL_FALSE = false;
+#else
+constexpr my_bool MY_BOOL_FALSE = 0;
 #endif
 
 // MySQL-specific database field
@@ -69,8 +72,8 @@ private:
 
     // Callback variables
     unsigned long   m_cbLength {0};
-    my_bool         m_cbNull {0};
-    my_bool         m_cbError {0};
+    my_bool         m_cbNull {MY_BOOL_FALSE};
+    my_bool         m_cbError {MY_BOOL_FALSE};
 
     // MySQL time conversion buffer
     MYSQL_TIME      m_timeBuffer {};

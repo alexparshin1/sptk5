@@ -320,8 +320,6 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 
     classDeclaration << "};" << endl;
     classDeclaration << endl;
-    //classDeclaration << "typedef std::shared_ptr<" << className << "> " << "S" << wsClassName(m_name) << ";" << endl;
-    //classDeclaration << endl;
     classDeclaration << "}" << endl << endl;
     classDeclaration << "#endif" << endl;
 }
