@@ -320,8 +320,8 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 
     classDeclaration << "};" << endl;
     classDeclaration << endl;
-    classDeclaration << "typedef std::shared_ptr<" << className << "> " << "S" << wsClassName(m_name) << ";" << endl;
-    classDeclaration << endl;
+    //classDeclaration << "typedef std::shared_ptr<" << className << "> " << "S" << wsClassName(m_name) << ";" << endl;
+    //classDeclaration << endl;
     classDeclaration << "}" << endl << endl;
     classDeclaration << "#endif" << endl;
 }
@@ -504,7 +504,7 @@ void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementati
 
     if (!m_sequence.empty()) {
         implementationParts.body << endl << "    // Load elements" << endl;
-        implementationParts.body << "    for (auto& itor: input->getObject()) {" << endl;
+        implementationParts.body << "    for (const auto& itor: input->getObject()) {" << endl;
         implementationParts.body << "        const auto& elementName = itor.name();" << endl;
         implementationParts.body << "        const auto* element = itor.element();" << endl;
         Strings requiredElements;
@@ -668,7 +668,7 @@ void WSParserComplexType::printImplementationUnloadXML(ostream& classImplementat
         classImplementation << endl << "    // Unload elements" << endl;
         for (auto& complexType: m_sequence) {
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
-                classImplementation << "    for (auto& element: m_" << complexType->name() << ")" << endl;
+                classImplementation << "    for (const auto& element: m_" << complexType->name() << ")" << endl;
                 classImplementation << "        element.addElement(output, \"" << complexType->name() <<  "\");" << endl;
             }
             else
@@ -711,8 +711,8 @@ void WSParserComplexType::printImplementationUnloadJSON(ostream& classImplementa
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
                 String outputArrayName = complexType->name() + "_array";
                 classImplementation
-                    << "    auto " << outputArrayName << " = output->add_array(\"" << complexType->name() << "\");" << endl
-                    << "    for (auto& element: m_" << complexType->name() << ")" << endl
+                    << "    auto* " << outputArrayName << " = output->add_array(\"" << complexType->name() << "\");" << endl
+                    << "    for (const auto& element: m_" << complexType->name() << ")" << endl
                     << "        element.addElement(" << outputArrayName << ");" << endl;
             }
             else
