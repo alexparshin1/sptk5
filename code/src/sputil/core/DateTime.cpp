@@ -345,7 +345,7 @@ static short splitDateString(const char* bdat, short* datePart, char& actualDate
 
 static short splitTimeString(const char* bdat, short* timePart)
 {
-    static const RegularExpression matchTime("^([0-2]\\d?):([0-5]\\d):([0-5]\\d)(\\.\\d+)?");
+    static const RegularExpression matchTime("^([0-2]?\\d):([0-5]\\d):([0-5]\\d)(\\.\\d+)?");
     auto matches = matchTime.m(bdat);
     if (!matches)
         throw Exception("Invalid time string");
