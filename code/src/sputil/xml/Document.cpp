@@ -441,9 +441,13 @@ String Document::name() const
 
 void Document::exportTo(json::Element& json) const
 {
-    const Node* rootNode = *begin();
-    rootNode->exportTo(json);
-    json.optimizeArrays("item");
+    for (const auto* node: *this) {
+        if (node->isPI())
+            continue;
+        node->exportTo(json);
+        json.optimizeArrays("item");
+        break;
+    }
 }
 
 bool Document::isNumber(const String& str)
