@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __HOST_H__
-#define __HOST_H__
+#pragma once
 
 #include <sptk5/Strings.h>
 #include <sptk5/threads/Locks.h>
@@ -289,4 +288,3 @@ public:
 
 }
 
-#endif

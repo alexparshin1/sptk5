@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_FIREBIRDSTATEMENT_H__
-#define __SPTK_FIREBIRDSTATEMENT_H__
+#pragma once
 
 #include <ibase.h>
 
@@ -252,6 +251,3 @@ public:
 };
 
 }
-
-#endif
-

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CButtonGroup_H__
-#define __CButtonGroup_H__
+#pragma once
 
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Box.H>
@@ -215,4 +214,3 @@ public:
  * @}
  */
 }
-#endif

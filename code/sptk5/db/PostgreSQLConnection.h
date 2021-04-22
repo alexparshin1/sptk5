@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_POSTGRESQLCONNECTION_H__
-#define __SPTK_POSTGRESQLCONNECTION_H__
+#pragma once
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <mutex>
@@ -273,4 +272,3 @@ extern "C" {
     SP_DRIVER_EXPORT void  postgresql_destroy_connection(void* connection);
 }
 
-#endif

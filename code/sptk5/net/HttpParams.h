@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __HTTP_PARAMS_H__
-#define __HTTP_PARAMS_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/Buffer.h>
@@ -116,4 +115,3 @@ public:
  * @}
  */
 }
-#endif

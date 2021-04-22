@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __STOP_WATCH_H__
-#define __STOP_WATCH_H__
+#pragma once
 
 #include <sptk5/DateTime.h>
 
@@ -59,4 +58,3 @@ public:
 
 }
 
-#endif

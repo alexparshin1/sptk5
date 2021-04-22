@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_THREAD_H__
-#define __SPTK_THREAD_H__
+#pragma once
 
 #include <sptk5/threads/Locks.h>
 
@@ -164,4 +163,3 @@ typedef std::unique_ptr<Thread> UThread;
  */
 }
 
-#endif

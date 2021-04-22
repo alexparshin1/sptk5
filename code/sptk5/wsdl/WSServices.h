@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_WSSERVICES_H
-#define SPTK_WSSERVICES_H
+#pragma once
 
 #include <sptk5/wsdl/WSRequest.h>
 
@@ -79,4 +78,3 @@ private:
 
 }
 
-#endif

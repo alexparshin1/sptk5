@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSCROLLBAR_H__
-#define __CSCROLLBAR_H__
+#pragma once
 
 #include <FL/Fl_Scrollbar.H>
 #include <sptk5/sptk.h>
@@ -104,4 +103,3 @@ public:
  */
 }
 
-#endif

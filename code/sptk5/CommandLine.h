@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_COMMANDLINE_H__
-#define __SPTK_COMMANDLINE_H__
+#pragma once
 
 #include <map>
 #include <set>
@@ -465,4 +464,3 @@ private:
  */
 }
 
-#endif

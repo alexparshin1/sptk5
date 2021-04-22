@@ -28,8 +28,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __JWT_H__
-#define __JWT_H__
+#pragma once
 
 #include <sptk5/cutils>
 #include <sstream>
@@ -248,4 +247,3 @@ void jwt_b64_decode(Buffer& destination, const char* src);
 
 } // namespace sptk
 
-#endif

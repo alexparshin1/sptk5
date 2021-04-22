@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CICON_H__
-#define __CICON_H__
+#pragma once
 
 #include <sptk5/gui/CPngImage.h>
 #include <sptk5/CaseInsensitiveCompare.h>
@@ -191,4 +190,3 @@ public:
  * @}
  */
 }
-#endif

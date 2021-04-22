@@ -1,5 +1,4 @@
-#ifndef __LOG_PRIORITY_H__
-#define __LOG_PRIORITY_H__
+#pragma once
 
 #ifndef _WIN32
 
@@ -87,4 +86,3 @@ enum LogPriority : unsigned
  */
 }
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __IPADDRESS_H__
-#define __IPADDRESS_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -152,4 +151,3 @@ public:
  * @}
  */
 }
-#endif

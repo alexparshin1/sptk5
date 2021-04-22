@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __FILEDEFS_H__
-#define __FILEDEFS_H__
+#pragma once
 
 # include <sys/stat.h>
 
@@ -65,6 +64,3 @@
 #endif
 
 #endif
-
-#endif
-

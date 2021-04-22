@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_SOCKETEVENTS_H__
-#define __SPTK_SOCKETEVENTS_H__
+#pragma once
 
 #include <map>
 #include <mutex>
@@ -113,4 +112,3 @@ typedef std::shared_ptr<SocketEvents> SharedSocketEvents;
 
 }
 
-#endif

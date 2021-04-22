@@ -23,8 +23,7 @@
 │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 └──────────────────────────────────────────────────────────────────────────────┘
 */
-#ifndef __SCREEN_STREAM_H__
-#define __SCREEN_STREAM_H__
+#pragma once
 
 #include <sptk5/String.h>
 #include <iostream>
@@ -34,4 +33,3 @@
 #define COUT(a) { std::stringstream _printstream; _printstream << a; std::cout << _printstream.str().c_str(); }
 #define CERR(a) { std::stringstream _printstream; _printstream << a; std::cerr << _printstream.str().c_str(); }
 
-#endif

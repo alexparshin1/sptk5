@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __JSON__PARSER_H__
-#define __JSON__PARSER_H__
+#pragma once
 
 #include <sptk5/json/JsonElement.h>
 #include <sptk5/json/JsonArrayData.h>
@@ -61,4 +60,3 @@ public:
 
 }
 
-#endif

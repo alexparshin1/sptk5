@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_RUNABLE_H__
-#define __SPTK_RUNABLE_H__
+#pragma once
 
 #include <sptk5/Strings.h>
 
@@ -125,4 +124,3 @@ private:
  */
 }
 
-#endif

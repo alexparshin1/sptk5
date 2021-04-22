@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_ODBCCONNECTION_H__
-#define __SPTK_ODBCCONNECTION_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -283,4 +282,3 @@ extern "C" {
     SP_DRIVER_EXPORT void  odbc_destroy_connection(void* connection);
 }
 
-#endif

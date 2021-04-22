@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __TEST_RUNNER_H__
-#define __TEST_RUNNER_H__
+#pragma once
 
 #include <sptk5/db/DatabaseConnectionString.h>
 
@@ -61,4 +60,3 @@ public:
 
 } // namespace sptk
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_MEMORYDS_H__
-#define __SPTK_MEMORYDS_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/FieldList.h>
@@ -224,4 +223,3 @@ private:
  * @}
  */
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDATACONTROL_H__
-#define __CDATACONTROL_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/gui/CBox.h>
@@ -38,4 +37,3 @@
 #include <sptk5/gui/CPasswordInput.h>
 #include <sptk5/gui/CDateTimeInput.h>
 
-#endif

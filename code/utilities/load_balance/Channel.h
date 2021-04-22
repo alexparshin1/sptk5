@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_CHANNEL_H__
-#define __SPTK_CHANNEL_H__
+#pragma once
 
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/net/SocketEvents.h>
@@ -68,4 +67,3 @@ public:
 
 }
 
-#endif

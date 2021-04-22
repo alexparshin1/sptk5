@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SYNCHRONIZED_LIST_H__
-#define __SYNCHRONIZED_LIST_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/threads/Semaphore.h>
@@ -224,4 +223,3 @@ private:
  */
 
 }
-#endif

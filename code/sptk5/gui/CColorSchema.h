@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CCOLORSCHEMA_H__
-#define	__CCOLORSCHEMA_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <FL/Fl.H>
@@ -76,4 +75,3 @@ public:
  */
 }
 
-#endif

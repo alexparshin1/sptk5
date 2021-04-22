@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __WSWEBSERVICEPROTOCOL_H__
-#define __WSWEBSERVICEPROTOCOL_H__
+#pragma once
 
 #include <sptk5/cnet>
 #include <sptk5/net/URL.h>
@@ -91,4 +90,3 @@ private:
 
 } // namespace sptk
 
-#endif

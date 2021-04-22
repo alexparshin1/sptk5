@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CPACKEDSTRINGS_H__
-#define __CPACKEDSTRINGS_H__
+#pragma once
 
 #include <sptk5/Strings.h>
 #include <sptk5/FieldList.h>
@@ -153,4 +152,3 @@ namespace sptk {
      * @}
      */
 }
-#endif

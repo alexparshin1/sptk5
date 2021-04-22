@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CFONT_H__
-#define __CFONT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/String.h>
@@ -248,4 +247,3 @@ public:
  */
 }
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_FIELD_H__
-#define __SPTK_FIELD_H__
+#pragma once
 
 #include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
@@ -259,4 +258,3 @@ private:
  * @}
  */
 }
-#endif

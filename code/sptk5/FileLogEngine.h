@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __FILELOGGER_H__
-#define __FILELOGGER_H__
+#pragma once
 
 #include <sptk5/LogEngine.h>
 #include <fstream>
@@ -97,4 +96,3 @@ public:
  */
 }
 
-#endif

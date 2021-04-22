@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTHEMESCROLLBAR_H__
-#define __CTHEMESCROLLBAR_H__
+#pragma once
 
 #include <FL/Fl.H>
 #include <FL/Enumerations.H>
@@ -199,4 +198,3 @@ public:
  */
 }
 
-#endif

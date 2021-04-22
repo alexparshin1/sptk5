@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CCheckButtons_H__
-#define __CCheckButtons_H__
+#pragma once
 
 #include <FL/Fl_Check_Button.H>
 #include <sptk5/gui/CLayoutClient.h>
@@ -167,4 +166,3 @@ public:
  * @}
  */
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CPNGIMAGE_H__
-#define __CPNGIMAGE_H__
+#pragma once
 
 #include <FL/Fl.H>
 #include <FL/Fl_Image.H>
@@ -203,4 +202,3 @@ public:
 
 }
 
-#endif

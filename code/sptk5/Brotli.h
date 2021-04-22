@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_BROTLI_H__
-#define __SPTK_BROTLI_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -65,4 +64,3 @@ public:
 
 #endif
 
-#endif

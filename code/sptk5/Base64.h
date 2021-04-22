@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_BASE64_H__
-#define __SPTK_BASE64_H__
+#pragma once
 
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
@@ -98,4 +97,3 @@ public:
  */
 }
 
-#endif

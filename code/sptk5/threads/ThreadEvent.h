@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_THREAD_EVENT_H__
-#define __SPTK_THREAD_EVENT_H__
+#pragma once
 
 #include <sptk5/threads/Thread.h>
 
@@ -98,4 +97,3 @@ public:
  */
 }
 
-#endif

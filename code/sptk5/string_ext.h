@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __STRING_EXT_H__
-#define __STRING_EXT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -116,4 +115,3 @@ String SP_EXPORT capitalizeWords(const sptk::String& str);
 
 }
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTREECONTROL_H__
-#define __CTREECONTROL_H__
+#pragma once
 
 #include <FL/Fl_Widget.H>
 #include <FL/Fl_Pixmap.H>
@@ -670,4 +669,3 @@ public:
  * @}
  */
 }
-#endif

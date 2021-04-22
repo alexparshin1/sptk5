@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CCALENDAR_H__
-#define __CCALENDAR_H__
+#pragma once
 
 class Fl_Box;
 class Fl_Button;
@@ -220,4 +219,3 @@ public:
  * @}
  */
 }
-#endif

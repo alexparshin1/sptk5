@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CEDITORSPELLCHECKER_H__
-#define __CEDITORSPELLCHECKER_H__
+#pragma once
 
 #include <FL/Fl.H>
 
@@ -301,4 +300,3 @@ namespace sptk {
  * @}
  */
 }
-#endif

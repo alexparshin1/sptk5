@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __WSWEBSOCKETSPROTOCOL_H__
-#define __WSWEBSOCKETSPROTOCOL_H__
+#pragma once
 
 #include "WSProtocol.h"
 #include <sptk5/cnet>
@@ -125,4 +124,3 @@ private:
 
 } // namespace sptk
 
-#endif

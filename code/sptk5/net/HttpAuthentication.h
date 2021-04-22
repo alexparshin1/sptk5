@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __HTTP_AUTHENTICATION_H__
-#define __HTTP_AUTHENTICATION_H__
+#pragma once
 
 #include <sptk5/Strings.h>
 #include <sptk5/JWT.h>
@@ -95,4 +94,3 @@ typedef std::shared_ptr<HttpAuthentication> SHttpAuthentication;
 
 }
 
-#endif

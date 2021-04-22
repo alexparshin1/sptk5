@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_MYSQLCONNECTION_H__
-#define __SPTK_MYSQLCONNECTION_H__
+#pragma once
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 
@@ -231,4 +230,3 @@ extern "C" {
     SP_DRIVER_EXPORT void  mysql_destroy_connection(void* connection);
 }
 
-#endif

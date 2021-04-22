@@ -23,8 +23,7 @@
 │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 └──────────────────────────────────────────────────────────────────────────────┘
 */
-#ifndef __CACHED_SSLCONTEXT_H__
-#define __CACHED_SSLCONTEXT_H__
+#pragma once
 
 #include <set>
 #include <sptk5/net/SSLKeys.h>
@@ -69,4 +68,3 @@ public:
 
 }
 
-#endif

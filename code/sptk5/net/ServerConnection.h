@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SERVERCONNECTION_H__
-#define __SERVERCONNECTION_H__
+#pragma once
 
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/threads/Thread.h>
@@ -122,4 +121,3 @@ private:
  * @}
  */
 }
-#endif

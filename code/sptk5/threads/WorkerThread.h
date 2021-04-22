@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_WORKERTHREAD_H__
-#define __SPTK_WORKERTHREAD_H__
+#pragma once
 
 #include <sptk5/threads/Thread.h>
 #include <sptk5/threads/ThreadEvent.h>
@@ -122,4 +121,3 @@ private:
  */
 }
 
-#endif

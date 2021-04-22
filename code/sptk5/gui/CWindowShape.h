@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CWINDOWSHAPE_H__
-#define __CWINDOWSHAPE_H__
+#pragma once
 
 #include <vector>
 #include <sptk5/gui/sptk_fltk_version.h>
@@ -201,4 +200,3 @@ protected:
  */
 }
 
-#endif

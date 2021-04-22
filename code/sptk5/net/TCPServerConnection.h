@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __TCPSERVERCONNECTION_H__
-#define __TCPSERVERCONNECTION_H__
+#pragma once
 
 #include <sptk5/net/ServerConnection.h>
 
@@ -64,4 +63,3 @@ public:
  * @}
  */
 }
-#endif

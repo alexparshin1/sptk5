@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_HTTP_PROXY_H__
-#define __SPTK_HTTP_PROXY_H__
+#pragma once
 
 #include <sptk5/net/Proxy.h>
 #include <sptk5/net/Host.h>
@@ -51,4 +50,3 @@ public:
 
 }
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_ORACLECONNECTION_H__
-#define __SPTK_ORACLECONNECTION_H__
+#pragma once
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <mutex>
@@ -296,4 +295,3 @@ extern "C" {
     SP_DRIVER_EXPORT void  oracle_destroy_connection(void* connection);
 }
 
-#endif

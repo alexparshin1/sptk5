@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_SEMAPHORE_H__
-#define __SPTK_SEMAPHORE_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/DateTime.h>
@@ -134,4 +133,3 @@ public:
  */
 }
 
-#endif

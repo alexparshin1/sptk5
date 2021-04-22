@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_QUERY_H__
-#define __SPTK_QUERY_H__
+#pragma once
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -579,4 +578,3 @@ typedef std::shared_ptr<Query>  SQuery;
 }
 #define FETCH_BUFFER_SIZE 1024
 
-#endif

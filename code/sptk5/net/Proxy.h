@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_PROXY_H__
-#define __SPTK_PROXY_H__
+#pragma once
 
 #include <sptk5/net/Host.h>
 #include <sptk5/net/BaseSocket.h>
@@ -51,4 +50,3 @@ protected:
 
 }
 
-#endif

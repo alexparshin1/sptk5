@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __IMAPDS_H__
-#define __IMAPDS_H__
+#pragma once
 
 #include <sptk5/MemoryDS.h>
 #include <sptk5/net/ImapConnect.h>
@@ -222,4 +221,3 @@ public:
  * @}
  */
 }
-#endif

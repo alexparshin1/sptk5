@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CCOMBOBOX_H__
-#define __CCOMBOBOX_H__
+#pragma once
 
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
@@ -556,4 +555,3 @@ public:
  * @}
  */
 }
-#endif

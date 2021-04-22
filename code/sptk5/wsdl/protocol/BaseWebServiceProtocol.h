@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_BASEWEBSERVICEPROTOCOL_H
-#define SPTK_BASEWEBSERVICEPROTOCOL_H
+#pragma once
 
 #include <sptk5/cnet>
 #include <sptk5/net/URL.h>
@@ -78,4 +77,3 @@ String processMessage(Buffer& output, xml::Document& xmlContent, json::Document&
 
 }
 
-#endif

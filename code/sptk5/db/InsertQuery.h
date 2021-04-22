@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __INSERT_QUERY_H__
-#define __INSERT_QUERY_H__
+#pragma once
 
 #include <sptk5/db/Query.h>
 
@@ -117,4 +116,3 @@ private:
 
 }
 
-#endif

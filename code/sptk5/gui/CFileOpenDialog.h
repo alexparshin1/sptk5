@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CFILEOPENDIALOG_H__
-#define __CFILEOPENDIALOG_H__
+#pragma once
 
 #include <sptk5/gui/CFileDialog.h>
 
@@ -70,4 +69,3 @@ public:
  * @}
  */
 }
-#endif

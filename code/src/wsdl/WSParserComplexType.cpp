@@ -169,9 +169,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 {
     String className = "C" + wsClassName(m_name);
 
-    String defineName = "__" + serviceNamespace.toUpperCase() + "_" + className.toUpperCase() + "__";
-    classDeclaration << "#ifndef " << defineName << endl;
-    classDeclaration << "#define " << defineName << endl;
+    classDeclaration << "#pragma once" << endl;
     classDeclaration << endl;
 
     auto usedClasses = getUsedClasses();
@@ -320,8 +318,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 
     classDeclaration << "};" << endl;
     classDeclaration << endl;
-    classDeclaration << "}" << endl << endl;
-    classDeclaration << "#endif" << endl;
+    classDeclaration << "}" << endl;
 }
 
 void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strings& fieldNames,

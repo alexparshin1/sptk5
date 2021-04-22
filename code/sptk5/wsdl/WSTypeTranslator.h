@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_WSTYPETRANSLATOR_H__
-#define __SPTK_WSTYPETRANSLATOR_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
@@ -67,4 +66,3 @@ extern const WSTypeTranslator wsTypeTranslator;
  */
 
 }
-#endif

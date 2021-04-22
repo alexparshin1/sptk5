@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __XML_DOC_TYPE_H__
-#define __XML_DOC_TYPE_H__
+#pragma once
 
 #include <sptk5/xml/Entities.h>
 
@@ -213,4 +212,3 @@ private:
  */
 }
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_REGULAR_EXPRESSION_H__
-#define __SPTK_REGULAR_EXPRESSION_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/sptk-config.h>
@@ -431,4 +430,3 @@ typedef std::shared_ptr<RegularExpression> SRegularExpression;
 
 #endif
 
-#endif

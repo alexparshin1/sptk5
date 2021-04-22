@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_PARAMETERLIST_H__
-#define __SPTK_PARAMETERLIST_H__
+#pragma once
 
 #include <sptk5/db/QueryParameter.h>
 
@@ -197,4 +196,3 @@ private:
  */
 }
 
-#endif

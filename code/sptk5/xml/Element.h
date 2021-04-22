@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XML_ELEMENT_H__
-#define __SPTK_XML_ELEMENT_H__
+#pragma once
 
 #include <sptk5/Buffer.h>
 #include <sptk5/Strings.h>
@@ -340,4 +339,3 @@ public:
  */
 }
 }
-#endif

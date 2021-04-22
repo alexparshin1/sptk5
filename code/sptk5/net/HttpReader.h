@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __HTTP_READER_H__
-#define __HTTP_READER_H__
+#pragma once
 
 #include <sptk5/Buffer.h>
 #include <sptk5/net/TCPSocket.h>
@@ -183,4 +182,3 @@ private:
 
 } // namespace sptk
 
-#endif

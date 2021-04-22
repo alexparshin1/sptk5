@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_HTTPRESPONSESTATUS_H
-#define SPTK_HTTPRESPONSESTATUS_H
+#pragma once
 
 #include <sptk5/String.h>
 
@@ -39,4 +38,3 @@ struct HttpResponseStatus
 
 }
 
-#endif

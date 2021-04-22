@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTREEVIEW_H__
-#define __CTREEVIEW_H__
+#pragma once
 
 #include <sptk5/gui/CPngImage.h>
 #include <sptk5/gui/CTreeControl.h>
@@ -250,4 +249,3 @@ public:
  * @}
  */
 }
-#endif

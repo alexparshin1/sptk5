@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDATETIMEINPUT_H__
-#define __CDATETIMEINPUT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -405,4 +404,3 @@ public:
  * @}
  */
 }
-#endif

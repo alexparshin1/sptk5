@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CLAYOUTMANAGER_H__
-#define __CLAYOUTMANAGER_H__
+#pragma once
 
 #include <string>
 #include <map>
@@ -307,4 +306,3 @@ public:
  * @}
  */
 }
-#endif

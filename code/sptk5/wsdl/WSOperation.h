@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_WSOPERATION_H
-#define SPTK_WSOPERATION_H
+#pragma once
 
 #include <sptk5/wsdl/WSParserComplexType.h>
 
@@ -64,4 +63,3 @@ typedef std::map<String,WSOperation>            WSOperationMap;
 
 }
 
-#endif

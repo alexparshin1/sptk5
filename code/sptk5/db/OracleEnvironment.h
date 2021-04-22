@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_ORACLE_ENVIRONMENT_H__
-#define __SPTK_ORACLE_ENVIRONMENT_H__
+#pragma once
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 
@@ -115,4 +114,3 @@ private:
 
 #endif
 
-#endif

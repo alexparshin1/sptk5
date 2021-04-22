@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __DBLISTVIEW_H__
-#define __DBLISTVIEW_H__
+#pragma once
 
 #include <sptk5/gui/CListView.h>
 #include <sptk5/db/Query.h>
@@ -213,4 +212,3 @@ public:
  */
 }
 
-#endif

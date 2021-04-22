@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_DATABASEFIELD_H__
-#define __SPTK_DATABASEFIELD_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -163,4 +162,3 @@ private:
  * @}
  */
 }
-#endif

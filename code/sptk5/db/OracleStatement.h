@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_ORACLESTATEMENT_H__
-#define __SPTK_ORACLESTATEMENT_H__
+#pragma once
 
 #include <occi.h>
 
@@ -239,4 +238,3 @@ private:
 
 }
 
-#endif

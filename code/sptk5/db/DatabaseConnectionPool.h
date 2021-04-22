@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_DATABASECONNECTIONLOADER_H__
-#define __SPTK_DATABASECONNECTIONLOADER_H__
+#pragma once
 
 #include <sptk5/db/AutoDatabaseConnection.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
@@ -189,4 +188,3 @@ private:
  * @}
  */
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __MAILMESSAGEBODY_H__
-#define __MAILMESSAGEBODY_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <string>
@@ -119,4 +118,3 @@ private:
  * @}
  */
 }
-#endif

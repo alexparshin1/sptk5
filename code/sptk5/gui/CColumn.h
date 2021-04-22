@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CCOLUMNS_H__
-#define __CCOLUMNS_H__
+#pragma once
 
 #include <string>
 #include <sptk5/Strings.h>
@@ -257,4 +256,3 @@ public:
  * @}
  */
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __LOGENGINE_H__
-#define __LOGENGINE_H__
+#pragma once
 
 #include <sptk5/DateTime.h>
 #include <sptk5/threads/SynchronizedQueue.h>
@@ -212,4 +211,3 @@ private:
  */
 }
 
-#endif

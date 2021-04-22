@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_BUFFER_STORAGE_H__
-#define __SPTK_BUFFER_STORAGE_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
@@ -355,4 +354,3 @@ private:
  * @}
  */
 }
-#endif

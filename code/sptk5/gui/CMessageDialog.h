@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CMESSAGEDIALOG_H__
-#define __CMESSAGEDIALOG_H__
+#pragma once
 
 #include <sptk5/gui/CDialog.h>
 #include <sptk5/gui/CDataControl.h>
@@ -168,4 +167,3 @@ int SP_EXPORT spInput(const String& message, String& inputText);
  * @}
  */
 }
-#endif

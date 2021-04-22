@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CGROUP_H__
-#define __CGROUP_H__
+#pragma once
 
 #include <FL/Fl_Group.H>
 #include <sptk5/Strings.h>
@@ -161,4 +160,3 @@ public:
  * @}
  */
 }
-#endif

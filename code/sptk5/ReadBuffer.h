@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __READ_BUFFER_H__
-#define __READ_BUFFER_H__
+#pragma once
 
 #include <sptk5/Buffer.h>
 
@@ -138,4 +137,3 @@ public:
 
 }
 
-#endif

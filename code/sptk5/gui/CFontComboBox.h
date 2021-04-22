@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CFONTCOMBOBOX_H__
-#define __CFONTCOMBOBOX_H__
+#pragma once
 
 #include <sptk5/gui/CComboBox.h>
 #include <string>
@@ -115,4 +114,3 @@ public:
  * @}
  */
 }
-#endif

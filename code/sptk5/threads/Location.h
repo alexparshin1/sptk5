@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __LOCATION_H__
-#define __LOCATION_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/string_ext.h>
@@ -126,4 +125,3 @@ public:
  */
 }
 
-#endif

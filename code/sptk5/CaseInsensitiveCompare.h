@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_CASEINSENSITIVECOMPARE_H__
-#define __SPTK_CASEINSENSITIVECOMPARE_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -65,4 +64,3 @@ public:
 
 }
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __JSON_OBJECT_DATA_H__
-#define __JSON_OBJECT_DATA_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
@@ -262,4 +261,3 @@ private:
 
 }
 
-#endif

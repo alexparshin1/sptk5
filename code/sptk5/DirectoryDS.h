@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_DIRECTORYDS_H__
-#define __SPTK_DIRECTORYDS_H__
+#pragma once
 
 #include <memory>
 #include <sys/stat.h>
@@ -207,4 +206,3 @@ private:
  * @}
  */
 }
-#endif

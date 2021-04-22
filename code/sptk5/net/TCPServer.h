@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __TCP_SERVER_H__
-#define __TCP_SERVER_H__
+#pragma once
 
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/Logger.h>
@@ -279,4 +278,3 @@ private:
  * @}
  */
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSCROLL_H__
-#define __CSCROLL_H__
+#pragma once
 
 #include <FL/Fl_Group.H>
 
@@ -218,4 +217,3 @@ public:
  * @}
  */
 }
-#endif

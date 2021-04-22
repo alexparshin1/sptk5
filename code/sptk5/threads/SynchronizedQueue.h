@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SYNCHRONIZED_QUEUE_H__
-#define __SYNCHRONIZED_QUEUE_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/threads/Semaphore.h>
@@ -225,4 +224,3 @@ public:
  * @}
  */
 }
-#endif

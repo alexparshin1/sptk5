@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_THREADPOOL_H__
-#define __SPTK_THREADPOOL_H__
+#pragma once
 
 #include <sptk5/threads/ThreadManager.h>
 #include <sptk5/threads/ThreadEvent.h>
@@ -129,6 +128,3 @@ private:
  * @}
  */
 }
-
-#endif
-

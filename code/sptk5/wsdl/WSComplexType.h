@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_WSCOMPLEXTYPE_H__
-#define __SPTK_WSCOMPLEXTYPE_H__
+#pragma once
 
 #include <sptk5/cxml>
 #include <sptk5/json/JsonElement.h>
@@ -285,4 +284,3 @@ private:
  */
 
 }
-#endif

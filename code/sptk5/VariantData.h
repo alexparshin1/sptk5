@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_VARIANT_DATA_H__
-#define __SPTK_VARIANT_DATA_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -366,4 +365,3 @@ private:
  * @}
  */
 }
-#endif

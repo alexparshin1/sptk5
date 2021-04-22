@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSYSLOG_H__
-#define __CSYSLOG_H__
+#pragma once
 
 #ifndef _WIN32
 #include <syslog.h>
@@ -112,4 +111,3 @@ private:
  * @}
  */
 }
-#endif

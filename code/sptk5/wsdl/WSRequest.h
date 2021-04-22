@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_WSREQUEST_H__
-#define __SPTK_WSREQUEST_H__
+#pragma once
 
 #include <sptk5/cxml>
 #include <sptk5/cthreads>
@@ -188,4 +187,3 @@ protected:
 typedef std::shared_ptr<WSRequest> SWSRequest;
 
 }
-#endif

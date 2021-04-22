@@ -30,8 +30,7 @@ documentation and/or software.
 
 */
 
-#ifndef BZF_MD5_H
-#define BZF_MD5_H
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/String.h>
@@ -201,4 +200,3 @@ namespace sptk {
 
 }
 
-#endif

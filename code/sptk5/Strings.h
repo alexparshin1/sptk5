@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_STRINGS_H__
-#define __SPTK_STRINGS_H__
+#pragma once
 
 #include <sptk5/String.h>
 
@@ -321,4 +320,3 @@ private:
  * @}
  */
 }
-#endif

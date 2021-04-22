@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CLISTVIEWROWS_H__
-#define __CLISTVIEWROWS_H__
+#pragma once
 
 #include <sptk5/Variant.h>
 #include <sptk5/PackedStrings.h>
@@ -241,4 +240,3 @@ public:
  * @}
  */
 }
-#endif

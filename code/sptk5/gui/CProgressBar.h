@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CPROGRESSBAR_H__
-#define __CPROGRESSBAR_H__
+#pragma once
 
 #include <sptk5/gui/CDataControl.h>
 
@@ -138,4 +137,3 @@ public:
  * @}
  */
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CEDITOR_H__
-#define __CEDITOR_H__
+#pragma once
 
 #include <FL/Fl_Text_Editor.H>
 
@@ -138,4 +137,3 @@ public:
  * @}
  */
 }
-#endif

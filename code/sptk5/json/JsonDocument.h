@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __JSON_DOCUMENT_H__
-#define __JSON_DOCUMENT_H__
+#pragma once
 
 #include "JsonElement.h"
 #include "JsonArrayData.h"
@@ -186,4 +185,3 @@ private:
 
 }
 
-#endif

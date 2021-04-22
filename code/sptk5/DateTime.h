@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_DATETIME_H__
-#define __SPTK_DATETIME_H__
+#pragma once
 
 #include <chrono>
 #include <ctime>
@@ -414,4 +413,3 @@ SP_EXPORT double duration2seconds(const sptk::DateTime::duration& duration);
  */
 }
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XML_NODE_H__
-#define __SPTK_XML_NODE_H__
+#pragma once
 
 #include <sptk5/Buffer.h>
 #include <sptk5/Strings.h>
@@ -989,4 +988,3 @@ protected:
 #define XML_TYPE_COMMENT         xml::Node::DOM_COMMENT          ///< Node type is a comment
 
 }
-#endif

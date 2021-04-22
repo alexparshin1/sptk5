@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CFILEDIALOG_H__
-#define __CFILEDIALOG_H__
+#pragma once
 
 #include <sptk5/gui/CDialog.h>
 #include <sptk5/DirectoryDS.h>
@@ -209,4 +208,3 @@ public:
  * @}
  */
 }
-#endif

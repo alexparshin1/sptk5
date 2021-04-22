@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __WS_MESSAGE_INDEX_H__
-#define __WS_MESSAGE_INDEX_H__
+#pragma once
 
 #include <sptk5/Strings.h>
 #include <mutex>
@@ -63,4 +62,3 @@ public:
 
 } // namespace sptk
 
-#endif

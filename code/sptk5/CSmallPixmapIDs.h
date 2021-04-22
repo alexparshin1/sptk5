@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSMALLPIXMAPIDS_H__
-#define __CSMALLPIXMAPIDS_H__
+#pragma once
 
 #include <sptk5/Strings.h>
 
@@ -86,4 +85,3 @@ extern const Strings smallPixmapIDs;
  */
 }
 
-#endif

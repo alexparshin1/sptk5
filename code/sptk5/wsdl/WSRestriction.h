@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_WSRESTRICTION_H__
-#define __SPTK_WSRESTRICTION_H__
+#pragma once
 
 #include <sptk5/cxml>
 #include <sptk5/Variant.h>
@@ -104,5 +103,3 @@ namespace sptk {
 
     typedef std::shared_ptr<WSRestriction> SWSRestriction;
 }
-#endif
-

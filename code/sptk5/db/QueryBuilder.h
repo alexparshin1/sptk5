@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_QUERYBUILDER_H
-#define SPTK_QUERYBUILDER_H
+#pragma once
 
 #include <sptk5/Strings.h>
 #include <memory>
@@ -70,4 +69,3 @@ private:
 
 }
 
-#endif

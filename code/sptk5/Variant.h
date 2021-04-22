@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_VARIANT_H__
-#define __SPTK_VARIANT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/DateTime.h>
@@ -544,4 +543,3 @@ typedef std::vector<Variant>    VariantVector;
  * @}
  */
 }
-#endif

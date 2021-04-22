@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDATEINTERVALINPUT_H__
-#define __CDATEINTERVALINPUT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -198,4 +197,3 @@ public:
  * @}
  */
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_QUERYPARAMBINDING_H__
-#define __SPTK_QUERYPARAMBINDING_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/Variant.h>
@@ -115,4 +114,3 @@ public:
  */
 }
 
-#endif

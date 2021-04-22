@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_BUFFER_H__
-#define __SPTK_BUFFER_H__
+#pragma once
 
 #include <sptk5/BufferStorage.h>
 
@@ -270,4 +269,3 @@ SP_EXPORT std::ostream& operator<<(std::ostream&, const Buffer& buffer);
  * @}
  */
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SSLSERVERCONNECTION_H__
-#define __SSLSERVERCONNECTION_H__
+#pragma once
 
 #include <sptk5/net/ServerConnection.h>
 
@@ -69,4 +68,3 @@ public:
  * @}
  */
 }
-#endif

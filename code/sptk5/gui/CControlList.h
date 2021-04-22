@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CCONTROLLIST_H__
-#define __CCONTROLLIST_H__
+#pragma once
 
 #include <sptk5/gui/CControl.h>
 #include <sptk5/CaseInsensitiveCompare.h>
@@ -160,4 +159,3 @@ public:
  * @}
  */
 }
-#endif

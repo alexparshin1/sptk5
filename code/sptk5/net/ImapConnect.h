@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __IMAPCONNECT_H__
-#define __IMAPCONNECT_H__
+#pragma once
 
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/Strings.h>
@@ -301,4 +300,3 @@ private:
  * @}
  */
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTHEMES_H__
-#define __CTHEMES_H__
+#pragma once
 
 #include <FL/Fl.H>
 #include <sptk5/gui/CFrame.h>
@@ -529,4 +528,3 @@ public:
  * @}
  */
 }
-#endif

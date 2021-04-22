@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_HOMEDIRECTORY_H
-#define SPTK_HOMEDIRECTORY_H
+#pragma once
 
 #include <sptk5/String.h>
 
@@ -46,4 +45,3 @@ public:
 
 }
 
-#endif

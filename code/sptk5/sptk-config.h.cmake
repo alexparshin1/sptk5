@@ -26,8 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_CONFIG_H__
-#define __SPTK_CONFIG_H__
+#pragma once
 
 #define VERSION          "@VERSION@"
 #define THEMES_PREFIX    "@THEMES_PREFIX@"
@@ -62,5 +61,3 @@
 #define TEST_DIRECTORY   "@TEST_DIRECTORY@"    ///< Directory that contains data, used in unit tests
 
 /// @}
-
-#endif

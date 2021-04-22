@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSYNCHRONIZEDMAP_H__
-#define __CSYNCHRONIZEDMAP_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <map>
@@ -176,4 +175,3 @@ public:
  */
 
 }
-#endif

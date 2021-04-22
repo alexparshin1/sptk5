@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CPASSWORDINPUT_H__
-#define __CPASSWORDINPUT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -83,4 +82,3 @@ public:
  * @}
  */
 }
-#endif

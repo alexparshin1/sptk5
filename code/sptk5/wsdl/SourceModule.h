@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_SOURCEMODULE_H__
-#define __SPTK_SOURCEMODULE_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/Buffer.h>
@@ -91,4 +90,3 @@ public:
  */
 
 }
-#endif

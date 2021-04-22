@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __LOGGER_H__
-#define __LOGGER_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/DateTime.h>
@@ -144,4 +143,3 @@ typedef std::shared_ptr<Logger> SLogger;
  */
 }
 
-#endif

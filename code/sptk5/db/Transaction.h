@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_TRANSACTION_H__
-#define __SPTK_TRANSACTION_H__
+#pragma once
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/Exception.h>
@@ -111,4 +110,3 @@ private:
  * @}
  */
 }
-#endif

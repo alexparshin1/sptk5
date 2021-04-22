@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XML_NODE_LIST_H__
-#define __SPTK_XML_NODE_LIST_H__
+#pragma once
 
 #include <string>
 #include <vector>
@@ -98,4 +97,3 @@ public:
  */
 }
 }
-#endif

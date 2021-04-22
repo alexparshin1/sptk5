@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTABS_H__
-#define __CTABS_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/gui/CGroup.h>
@@ -163,4 +162,3 @@ public:
  * @}
  */
 }
-#endif

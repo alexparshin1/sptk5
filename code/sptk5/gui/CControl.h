@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CCONTROL_H__
-#define __CCONTROL_H__
+#pragma once
 
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Menu_Button.H>
@@ -932,4 +931,3 @@ void createControls(const xml::NodeList& xmlControls);
  * @}
  */
 }
-#endif

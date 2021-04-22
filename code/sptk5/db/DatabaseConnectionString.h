@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_DATABASECONNECTIONSTRING_H__
-#define __SPTK_DATABASECONNECTIONSTRING_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
@@ -231,4 +230,3 @@ private:
  * @}
  */
 }
-#endif

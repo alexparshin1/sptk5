@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __TCPSOCKET_H__
-#define __TCPSOCKET_H__
+#pragma once
 
 #include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
@@ -310,4 +309,3 @@ private:
  * @}
  */
 }
-#endif

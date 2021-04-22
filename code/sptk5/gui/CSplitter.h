@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSPLITTER_H__
-#define __CSPLITTER_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/gui/CDataControl.h>
@@ -84,4 +83,3 @@ public:
  * @}
  */
 }
-#endif

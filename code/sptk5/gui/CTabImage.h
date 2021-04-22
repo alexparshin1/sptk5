@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTABIMAGE_H__
-#define __CTABIMAGE_H__
+#pragma once
 
 #include <sptk5/gui/CPngImage.h>
 #include <sptk5/Tar.h>
@@ -149,4 +148,3 @@ public:
  * @}
  */
 }
-#endif

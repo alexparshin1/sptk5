@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CEVENT_H__
-#define __CEVENT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -201,4 +200,3 @@ public:
  */
 }
 
-#endif

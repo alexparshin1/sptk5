@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_DATABASECONNECTIONPARAMETERS_H__
-#define __SPTK_DATABASECONNECTIONPARAMETERS_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -63,4 +62,3 @@ public:
  * @}
  */
 }
-#endif

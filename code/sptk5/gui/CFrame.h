@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CFRAME_H__
-#define __CFRAME_H__
+#pragma once
 
 #include <sptk5/cxml>
 #include <sptk5/gui/CPngImage.h>
@@ -230,4 +229,3 @@ public:
  */
 }
 
-#endif

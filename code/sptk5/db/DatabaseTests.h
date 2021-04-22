@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_DATABASE_TESTS_H__
-#define __SPTK_DATABASE_TESTS_H__
+#pragma once
 
 #include "DatabaseConnectionString.h"
 #include "AutoDatabaseConnection.h"
@@ -180,4 +179,3 @@ private:
 
 }
 
-#endif

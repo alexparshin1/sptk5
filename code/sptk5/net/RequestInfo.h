@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_REQUESTINFO_H
-#define SPTK_REQUESTINFO_H
+#pragma once
 
 #include <sptk5/Buffer.h>
 
@@ -80,4 +79,3 @@ public:
  */
 }
 
-#endif

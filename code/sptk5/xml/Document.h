@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __XML_DOCUMENT_H__
-#define __XML_DOCUMENT_H__
+#pragma once
 
 #include <sptk5/xml/Node.h>
 #include <sptk5/xml/DocType.h>
@@ -257,4 +256,3 @@ private:
  * @}
  */
 }
-#endif

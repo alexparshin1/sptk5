@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_SOCKETPOOL_H__
-#define __SPTK_SOCKETPOOL_H__
+#pragma once
 
 #include <sptk5/Exception.h>
 #include <sptk5/threads/Thread.h>
@@ -146,4 +145,3 @@ private:
 
 }
 
-#endif

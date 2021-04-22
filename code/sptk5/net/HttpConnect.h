@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __HTTPCONNECT_H__
-#define __HTTPCONNECT_H__
+#pragma once
 
 #include <sptk5/RegularExpression.h>
 #include <sptk5/Strings.h>
@@ -297,4 +296,3 @@ private:
  * @}
  */
 }
-#endif

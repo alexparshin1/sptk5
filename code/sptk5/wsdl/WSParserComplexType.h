@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_WSPARSERCOMPLEXTYPE_H__
-#define __SPTK_WSPARSERCOMPLEXTYPE_H__
+#pragma once
 
 #include <sptk5/cxml>
 #include <sptk5/wsdl/WSBasicTypes.h>
@@ -334,4 +333,3 @@ typedef std::map<String, SWSParserComplexType>  WSComplexTypeMap;
  * @}
  */
 }
-#endif

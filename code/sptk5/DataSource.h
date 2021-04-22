@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_DATASOURCE_H__
-#define __SPTK_DATASOURCE_H__
+#pragma once
 
 #include <sptk5/Variant.h>
 #include <sptk5/FieldList.h>
@@ -233,4 +232,3 @@ protected:
  * @}
  */
 }
-#endif

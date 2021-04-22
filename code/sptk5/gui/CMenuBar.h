@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CMENUBAR_H__
-#define __CMENUBAR_H__
+#pragma once
 
 #include <FL/Fl_Menu_Bar.H>
 #include <sptk5/gui/CLayoutClient.h>
@@ -85,4 +84,3 @@ public:
  */
 }
 
-#endif

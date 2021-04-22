@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_SYSTEMEXCEPTION_H__
-#define __SPTK_SYSTEMEXCEPTION_H__
+#pragma once
 
 #include <sptk5/Exception.h>
 
@@ -74,4 +73,3 @@ public:
  */
 }
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CPHONENUMBERINPUT_H__
-#define __CPHONENUMBERINPUT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -124,4 +123,3 @@ public:
  * @}
  */
 }
-#endif

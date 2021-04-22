@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SSLCONTEXT_H__
-#define __SSLCONTEXT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/String.h>
@@ -99,4 +98,3 @@ typedef std::shared_ptr<SSLContext> SharedSSLContext;
  */
 }
 
-#endif

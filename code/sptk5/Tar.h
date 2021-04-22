@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTAR_H__
-#define __CTAR_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
@@ -203,4 +202,3 @@ private:
 
 }
 
-#endif

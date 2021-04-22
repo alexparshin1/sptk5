@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SSL_KEYS_H__
-#define __SSL_KEYS_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/String.h>
@@ -130,4 +129,3 @@ public:
 
 }
 
-#endif

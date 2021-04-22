@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CPOPUPWINDOW_H__
-#define __CPOPUPWINDOW_H__
+#pragma once
 
 #include <sptk5/gui/CWindow.h>
 #include <sptk5/sptk.h>
@@ -73,4 +72,3 @@ public:
  * @}
  */
 }
-#endif

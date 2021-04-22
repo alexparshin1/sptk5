@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_THREADMANAGER_H__
-#define __SPTK_THREADMANAGER_H__
+#pragma once
 
 #include <sptk5/threads/Thread.h>
 #include <sptk5/threads/SynchronizedQueue.h>
@@ -74,4 +73,3 @@ typedef std::shared_ptr<ThreadManager>  SThreadManager;
 
 }
 
-#endif

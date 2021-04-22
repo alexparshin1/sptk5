@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDATECONTROL_H__
-#define __CDATECONTROL_H__
+#pragma once
 
 #include <FL/Fl_Group.H>
 
@@ -117,4 +116,3 @@ public:
  * @}
  */
 }
-#endif

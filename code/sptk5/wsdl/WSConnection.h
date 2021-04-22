@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __WS_CONNECTION_H__
-#define __WS_CONNECTION_H__
+#pragma once
 
 #include <sptk5/wsdl/protocol/WSStaticHttpProtocol.h>
 #include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
@@ -131,4 +130,3 @@ public:
 
 }
 
-#endif

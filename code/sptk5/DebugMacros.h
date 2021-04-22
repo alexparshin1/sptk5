@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __DEBUGMACROS_H__
-#define __DEBUGMACROS_H__
+#pragma once
 
 #ifdef DEBUG
 #include <stdio.h>
@@ -50,4 +49,3 @@
 #define DEBUG_DOUBLE_LN(name,value) ;
 #endif
 
-#endif

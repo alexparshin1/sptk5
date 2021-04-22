@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_WSBASICTYPES_H__
-#define __SPTK_WSBASICTYPES_H__
+#pragma once
 
 #include <sptk5/cxml>
 #include <sptk5/Field.h>
@@ -795,4 +794,3 @@ String SP_EXPORT wsTypeIdToName(const String& typeIdName);
  */
 
 }
-#endif

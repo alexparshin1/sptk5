@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CLISTVIEWSELECTION_H__
-#define __CLISTVIEWSELECTION_H__
+#pragma once
 
 #include <sptk5/PackedStrings.h>
 
@@ -137,4 +136,3 @@ public:
  * @}
  */
 }
-#endif

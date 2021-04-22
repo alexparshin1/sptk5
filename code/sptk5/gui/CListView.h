@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __LISTVIEW_H__
-#define __LISTVIEW_H__
+#pragma once
 
 #include <FL/Fl_Group.H>
 
@@ -1268,4 +1267,3 @@ public:
  * @}
  */
 }
-#endif

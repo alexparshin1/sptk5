@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_MYSQLSTATEMENT_H__
-#define __SPTK_MYSQLSTATEMENT_H__
+#pragma once
 
 #include <mysql.h>
 
@@ -201,4 +200,3 @@ private:
 
 }
 
-#endif

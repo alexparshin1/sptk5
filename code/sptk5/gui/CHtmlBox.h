@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __HTMLBOX_H__
-#define __HTMLBOX_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -149,4 +148,3 @@ public:
  */
 }
 
-#endif

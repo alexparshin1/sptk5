@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CRadioButtons_H__
-#define __CRadioButtons_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/gui/CButtonGroup.h>
@@ -115,4 +114,3 @@ public:
  * @}
  */
 }
-#endif

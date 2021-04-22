@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_AUTO_DATABASE_CONNECTION_H__
-#define __SPTK_AUTO_DATABASE_CONNECTION_H__
+#pragma once
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <memory>
@@ -227,4 +226,3 @@ typedef std::shared_ptr<AutoDatabaseConnection> DatabaseConnection;
  * @}
  */
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XML_ENTITIES_H__
-#define __SPTK_XML_ENTITIES_H__
+#pragma once
 
 #include <string>
 #include <map>
@@ -93,4 +92,3 @@ public:
  */
 }
 }
-#endif

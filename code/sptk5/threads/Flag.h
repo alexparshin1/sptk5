@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_FLAG_H
-#define SPTK_FLAG_H
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/DateTime.h>
@@ -140,4 +139,3 @@ public:
  */
 }
 
-#endif

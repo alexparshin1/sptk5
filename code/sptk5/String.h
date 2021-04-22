@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_STRING_H__
-#define __SPTK_STRING_H__
+#pragma once
 
 #include "sptk.h"
 #include "string_ext.h"
@@ -247,4 +246,3 @@ public:
 
 } // namespace sptk
 
-#endif

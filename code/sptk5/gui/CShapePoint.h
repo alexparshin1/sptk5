@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSHAPEPOINT_H__
-#define __CSHAPEPOINT_H__
+#pragma once
 
 namespace sptk {
 
@@ -82,4 +81,3 @@ public:
  * @}
  */
 }
-#endif

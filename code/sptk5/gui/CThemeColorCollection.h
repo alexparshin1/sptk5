@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTHEMECOLORCOLLECTION_H__
-#define __CTHEMECOLORCOLLECTION_H__
+#pragma once
 
 #include <FL/Fl.H>
 #include <FL/Enumerations.H>
@@ -172,4 +171,3 @@ public:
  */
 }
 
-#endif

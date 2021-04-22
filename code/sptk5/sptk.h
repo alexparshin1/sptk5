@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_H__
-#define __SPTK_H__
+#pragma once
 
 #if defined(__GNUC__) || defined(__SUNPRO_CC)
     /**
@@ -143,4 +142,3 @@
     #endif
 #endif
 
-#endif

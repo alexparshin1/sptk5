@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XML_ATTRIBUTES_H__
-#define __SPTK_XML_ATTRIBUTES_H__
+#pragma once
 
 #include <sptk5/DateTime.h>
 #include <sptk5/Variant.h>
@@ -185,4 +184,3 @@ public:
  */
 }
 }
-#endif

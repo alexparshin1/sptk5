@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __URL_H__
-#define __URL_H__
+#pragma once
 
 #include <sptk5/net/HttpParams.h>
 
@@ -61,4 +60,3 @@ private:
 
 }
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_WSPARSER_H__
-#define __SPTK_WSPARSER_H__
+#pragma once
 
 #include <sptk5/wsdl/WSParserComplexType.h>
 #include <sptk5/wsdl/WSOperation.h>
@@ -229,4 +228,3 @@ private:
  */
 
 }
-#endif

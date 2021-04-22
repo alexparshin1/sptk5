@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __LOOP__
-#define __LOOP__
+#pragma once
 
 #include <sptk5/Exception.h>
 #include <list>
@@ -84,4 +83,3 @@ public:
     }
 };
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDIALOG_H__
-#define __CDIALOG_H__
+#pragma once
 
 #include <sptk5/cxml>
 
@@ -467,4 +466,3 @@ public:
  * @}
  */
 }
-#endif

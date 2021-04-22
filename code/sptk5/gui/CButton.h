@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CBUTTON_H__
-#define __CBUTTON_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/gui/CLayoutClient.h>
@@ -427,4 +426,3 @@ public:
  * @}
  */
 }
-#endif

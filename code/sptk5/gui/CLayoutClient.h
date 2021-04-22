@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CLAYOUTCLIENT_H__
-#define __CLAYOUTCLIENT_H__
+#pragma once
 
 #include <FL/Fl_Widget.H>
 #include <string>
@@ -315,4 +314,3 @@ public:
  */
 }
 
-#endif

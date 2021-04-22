@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_FIELDLIST_H__
-#define __SPTK_FIELDLIST_H__
+#pragma once
 
 #include <sptk5/Field.h>
 #include <sptk5/cxml>
@@ -255,4 +254,3 @@ private:
  * @}
  */
 
-#endif

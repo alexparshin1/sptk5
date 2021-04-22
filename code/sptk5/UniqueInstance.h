@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_UNIQUEINSTANCE_H__
-#define __SPTK_UNIQUEINSTANCE_H__
+#pragma once
 
 #ifdef _WIN32
     #include <winsock2.h>
@@ -114,4 +113,3 @@ private:
  */
 }
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_LOADBALANCE_H__
-#define __SPTK_LOADBALANCE_H__
+#pragma once
 
 #include <vector>
 #include <sptk5/Loop.h>
@@ -55,4 +54,3 @@ public:
 
 }
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_WSLISTENER_H__
-#define __SPTK_WSLISTENER_H__
+#pragma once
 
 #include <sptk5/cutils>
 #include <sptk5/cnet>
@@ -87,4 +86,3 @@ private:
 
 }
 
-#endif

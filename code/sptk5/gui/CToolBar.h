@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTOOLBAR_H__
-#define __CTOOLBAR_H__
+#pragma once
 
 #include <sptk5/gui/CGroup.h>
 #include <sptk5/gui/CButton.h>
@@ -129,4 +128,3 @@ public:
  * @}
  */
 }
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SSLSOCKET_H__
-#define __SSLSOCKET_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/net/SSLContext.h>
@@ -184,4 +183,3 @@ private:
  */
 }
 
-#endif

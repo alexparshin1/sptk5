@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef CInput_H
-#define CInput_H
+#pragma once
 
 #include <FL/Fl_Input.H>
 
@@ -379,4 +378,3 @@ public:
  * @}
  */
 }
-#endif

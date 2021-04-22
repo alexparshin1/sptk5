@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CINTEGERINPUT_H__
-#define __CINTEGERINPUT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -123,4 +122,3 @@ public:
  * @}
  */
 }
-#endif

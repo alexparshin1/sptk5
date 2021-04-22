@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_ZLIB_H__
-#define __SPTK_ZLIB_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -66,4 +65,3 @@ public:
 
 #endif
 
-#endif

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __WSHTTPPROTOCOL_H__
-#define __WSHTTPPROTOCOL_H__
+#pragma once
 
 #include "WSProtocol.h"
 #include <sptk5/cnet>
@@ -62,4 +61,3 @@ public:
 
 } // namespace sptk
 
-#endif

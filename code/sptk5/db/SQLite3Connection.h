@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_SQLITE3CONNECTION_H__
-#define __SPTK_SQLITE3CONNECTION_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/sptk.h>
@@ -205,4 +204,3 @@ extern "C" {
     SP_DRIVER_EXPORT void  sqlite3_destroy_connection(void* connection);
 }
 
-#endif

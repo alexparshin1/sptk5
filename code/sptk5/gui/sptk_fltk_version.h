@@ -24,12 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_FLTK_VERSION_H__
-#define __SPTK_FLTK_VERSION_H__
+#pragma once
 
 #include <FL/Fl.H>
 #if (FL_MAJOR_VERSION != 1 || FL_MINOR_VERSION >= 4)
 #include <FL/platform.H>
 #endif
 
-#endif

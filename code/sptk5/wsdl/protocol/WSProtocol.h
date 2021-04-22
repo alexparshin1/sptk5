@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __WSPROTOCOL_H__
-#define __WSPROTOCOL_H__
+#pragma once
 
 #include <sptk5/cnet>
 #include <sptk5/wsdl/WSRequest.h>
@@ -95,4 +94,3 @@ private:
 
 }
 
-#endif

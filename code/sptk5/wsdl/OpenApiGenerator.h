@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_OPENAPIGENERATOR_H
-#define SPTK_OPENAPIGENERATOR_H
+#pragma once
 
 #include <sptk5/wsdl/WSOperation.h>
 
@@ -130,4 +129,3 @@ private:
 
 }
 
-#endif

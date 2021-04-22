@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_SHAREDSTRINGS_H__
-#define __SPTK_SHAREDSTRINGS_H__
+#pragma once
 
 #include <sptk5/Exception.h>
 #include <string>
@@ -107,4 +106,3 @@ public:
  */
 }
 
-#endif

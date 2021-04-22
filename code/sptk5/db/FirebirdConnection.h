@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_FIREBIRDCONNECTION_H__
-#define __SPTK_FIREBIRDCONNECTION_H__
+#pragma once
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <mutex>
@@ -219,4 +218,3 @@ extern "C" {
     SP_DRIVER_EXPORT void  firebird_destroy_connection(void* connection);
 }
 
-#endif

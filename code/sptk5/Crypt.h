@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_CRYPT_H__
-#define __SPTK_CRYPT_H__
+#pragma once
 
 #include <sptk5/Buffer.h>
 
@@ -59,4 +58,3 @@ public:
 
 }
 
-#endif

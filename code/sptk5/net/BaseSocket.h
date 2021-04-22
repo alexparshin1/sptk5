@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __BASESOCKET_H__
-#define __BASESOCKET_H__
+#pragma once
 
 #include <chrono>
 #include <sptk5/DateTime.h>
@@ -435,4 +434,3 @@ void throwSocketError(const String& message, const char* file, int line);
  * @}
  */
 }
-#endif

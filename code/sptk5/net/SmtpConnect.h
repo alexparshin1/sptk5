@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SMTPCONNECT_H__
-#define __SMTPCONNECT_H__
+#pragma once
 
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/Strings.h>
@@ -153,4 +152,3 @@ private:
  * @}
  */
 }
-#endif

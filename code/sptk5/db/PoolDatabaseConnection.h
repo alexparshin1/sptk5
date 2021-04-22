@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_DATABASE_CONNECTION_H__
-#define __SPTK_DATABASE_CONNECTION_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
@@ -514,4 +513,3 @@ SP_EXPORT String escapeSQLString(const String& str, bool tsv=false);
  * @}
  */
 }
-#endif

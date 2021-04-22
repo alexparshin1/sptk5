@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __JSON__ELEMENT_H__
-#define __JSON__ELEMENT_H__
+#pragma once
 
 #include <sptk5/cxml>
 #include <sptk5/Strings.h>
@@ -861,4 +860,3 @@ std::string decode(const std::string& text);
 
 }
 
-#endif

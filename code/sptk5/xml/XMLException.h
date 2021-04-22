@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XMLEXCEPTION_H__
-#define __SPTK_XMLEXCEPTION_H__
+#pragma once
 
 #include <sptk5/Exception.h>
 #include <sptk5/xml/Document.h>
@@ -77,4 +76,3 @@ public:
  * @}
  */
 }
-#endif

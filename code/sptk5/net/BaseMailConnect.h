@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __BASE_MAIL_CONNECT_H__
-#define __BASE_MAIL_CONNECT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 #include <sptk5/Buffer.h>
@@ -236,4 +235,3 @@ private:
  * @}
  */
 }
-#endif

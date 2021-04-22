@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CFLOATINPUT_H__
-#define __CFLOATINPUT_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -147,4 +146,3 @@ public:
  * @}
  */
 }
-#endif
