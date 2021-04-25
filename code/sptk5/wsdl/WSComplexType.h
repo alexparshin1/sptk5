@@ -146,7 +146,7 @@ public:
      * Load data from XML node
      * @param input             XML node containing CAddHandler data
      */
-    virtual void load(const xml::Element* input) = 0;
+    virtual void load(const xml::Node* input) = 0;
 
     /**
      * Load data from JSON element
@@ -167,7 +167,7 @@ public:
      * Unload data to existing XML node
      * @param output            Existing XML node
      */
-    virtual void unload(xml::Element* output) const = 0;
+    virtual void unload(xml::Node* output) const = 0;
 
     /**
      * Unload data to existing JSON node
@@ -194,7 +194,7 @@ public:
      * @param parent            Parent XML node where new node is created
      * @param name              Optional name for the child element
      */
-    virtual void addElement(xml::Element* parent, const char* name=nullptr) const;
+    virtual void addElement(xml::Node* parent, const char* name=nullptr) const;
 
     /**
      * Unload data to new JSON node

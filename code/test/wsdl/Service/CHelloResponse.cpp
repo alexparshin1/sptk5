@@ -31,7 +31,7 @@ void CHelloResponse::_clear()
     m_height.clear();
 }
 
-void CHelloResponse::load(const xml::Element* input)
+void CHelloResponse::load(const xml::Node* input)
 {
     _clear();
     setLoaded(true);
@@ -82,7 +82,7 @@ void CHelloResponse::load(const json::Element* input)
         return;
 
     // Load elements
-    for (auto& itor: input->getObject()) {
+    for (const auto& itor: input->getObject()) {
         const auto& elementName = itor.name();
         const auto* element = itor.element();
 
@@ -159,7 +159,7 @@ void CHelloResponse::load(const FieldList& input)
     checkRestrictions();
 }
 
-void CHelloResponse::unload(xml::Element* output) const
+void CHelloResponse::unload(xml::Node* output) const
 {
 
     // Unload elements

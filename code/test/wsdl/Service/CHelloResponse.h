@@ -1,5 +1,4 @@
-#ifndef __TEST_SERVICE_CHELLORESPONSE__
-#define __TEST_SERVICE_CHELLORESPONSE__
+#pragma once
 
 #include <sptk5/FieldList.h>
 #include <sptk5/db/QueryParameterList.h>
@@ -20,12 +19,12 @@ class CHelloResponse : public sptk::WSComplexType
 public:
 
    // Elements
-   sptk::WSDate         m_date_of_birth {"date_of_birth", false};
-   sptk::WSDateTime     m_verified {"verified", false};
-   sptk::WSBool         m_retired {"retired", false};
-   sptk::WSDouble       m_hour_rate {"hour_rate", false};
-   sptk::WSInteger      m_vacation_days {"vacation_days", false};
-   sptk::WSDouble       m_height {"height", false};
+   sptk::WSDate                   m_date_of_birth {"date_of_birth", false};
+   sptk::WSDateTime               m_verified {"verified", false};
+   sptk::WSBool                   m_retired {"retired", false};
+   sptk::WSDouble                 m_hour_rate {"hour_rate", false};
+   sptk::WSInteger                m_vacation_days {"vacation_days", false};
+   sptk::WSDouble                 m_height {"height", false};
 
    // Field names of simple types, that can be used to build SQL queries
    static const sptk::Strings m_fieldNames;
@@ -46,7 +45,7 @@ public:
     * Complex WSDL type members are loaded recursively.
     * @param input              XML node containing CHelloResponse data
     */
-   void load(const sptk::xml::Element* input) override;
+   void load(const sptk::xml::Node* input) override;
 
    /**
     * Load content from JSON element
@@ -68,7 +67,7 @@ public:
     * Unload content to existing XML node
     * @param output             Existing XML node
     */
-   void unload(sptk::xml::Element* output) const override;
+   void unload(sptk::xml::Node* output) const override;
 
    /**
     * Unload content to existing JSON node
@@ -110,8 +109,4 @@ private:
    void checkRestrictions() const;
 };
 
-typedef std::shared_ptr<CHelloResponse> SHelloResponse;
-
 }
-
-#endif

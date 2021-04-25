@@ -252,7 +252,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "    * Complex WSDL type members are loaded recursively." << endl;
     classDeclaration << "    * @param input              XML node containing " << className << " data" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void load(const sptk::xml::Element* input) override;" << endl << endl;
+    classDeclaration << "   void load(const sptk::xml::Node* input) override;" << endl << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Load content from JSON element" << endl;
@@ -274,7 +274,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "    * Unload content to existing XML node" << endl;
     classDeclaration << "    * @param output             Existing XML node" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void unload(sptk::xml::Element* output) const override;" << endl << endl;
+    classDeclaration << "   void unload(sptk::xml::Node* output) const override;" << endl << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Unload content to existing JSON node" << endl;
@@ -433,7 +433,7 @@ void WSParserComplexType::printImplementationLoadXML(ostream& classImplementatio
 {
     ImplementationParts implementationParts;
     bool hideInputParameterName = m_attributes.empty() && m_sequence.empty();
-    classImplementation << "void " << className << "::load(const xml::Element*"
+    classImplementation << "void " << className << "::load(const xml::Node*"
                         << (hideInputParameterName? "": " input") << ")" << endl
                         << "{" << endl;
 
@@ -647,7 +647,7 @@ void WSParserComplexType::makeImplementationLoadAttributes(stringstream& fieldLo
 void WSParserComplexType::printImplementationUnloadXML(ostream& classImplementation, const String& className) const
 {
     bool hideOutputParameterName = m_attributes.empty() && m_sequence.empty();
-    classImplementation << "void " << className << "::unload(xml::Element*"
+    classImplementation << "void " << className << "::unload(xml::Node*"
                         << (hideOutputParameterName? "": " output") << ") const" << endl
                         << "{" << endl;
 

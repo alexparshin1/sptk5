@@ -25,7 +25,7 @@ void CHello::_clear()
     m_last_name.clear();
 }
 
-void CHello::load(const xml::Element* input)
+void CHello::load(const xml::Node* input)
 {
     _clear();
     setLoaded(true);
@@ -61,7 +61,7 @@ void CHello::load(const json::Element* input)
         return;
 
     // Load elements
-    for (auto& itor: input->getObject()) {
+    for (const auto& itor: input->getObject()) {
         const auto& elementName = itor.name();
         const auto* element = itor.element();
 
@@ -108,7 +108,7 @@ void CHello::load(const FieldList& input)
     checkRestrictions();
 }
 
-void CHello::unload(xml::Element* output) const
+void CHello::unload(xml::Node* output) const
 {
 
     // Unload elements

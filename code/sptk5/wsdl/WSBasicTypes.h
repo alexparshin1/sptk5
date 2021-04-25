@@ -51,19 +51,46 @@ public:
     [[nodiscard]] virtual String className() const { return ""; }
 
     virtual void owaspCheck(const String& value);
+
+    /**
+     * Clears content (sets to NULL)
+     */
+    virtual void clear() = 0;
+
+    /**
+     * Loads type data from request XML node
+     * @param attr              XML node
+     */
+    virtual void load(const xml::Node* attr) = 0;
+
+    /**
+     * Loads type data from request JSON element
+     * @param attr              JSON element
+     */
+    virtual void load(const json::Element* attr) = 0;
+
+    /**
+     * Conversion to string
+     */
+    virtual String asString() const
+    {
+        return "";
+    }
+
+    virtual bool isNull() const = 0;
 };
 
 /**
  * Base type for all standard WSDL types
  */
-class SP_EXPORT WSBasicType : public Field, public WSTypeName
+class SP_EXPORT WSBasicType : public WSTypeName
 {
 public:
     /**
      * Constructor
      */
     WSBasicType()
-    : Field("")
+    : m_field("")
     {}
 
     /**
@@ -72,23 +99,23 @@ public:
      * @param optional          Element optionality flag
      */
     WSBasicType(const char* name, bool optional)
-    : Field(name), m_optional(optional)
+    : m_field(name), m_optional(optional)
     {}
 
     WSBasicType(const WSBasicType& other)
-    : Field(other), m_optional(other.m_optional)
+    : m_field(other.m_field), m_optional(other.m_optional)
     {}
 
     WSBasicType(WSBasicType&& other) noexcept
-    : Field(std::move(other)), m_optional(std::exchange(other.m_optional, 0))
+    : m_field(std::move(other.m_field)), m_optional(std::exchange(other.m_optional, 0))
     {}
 
-    ~WSBasicType() noexcept override = default;
+    virtual ~WSBasicType() noexcept = default;
 
     WSBasicType& operator = (const WSBasicType& other)
     {
         if (&other != this) {
-            Field::operator=(other);
+            m_field = other.m_field;
             m_optional = other.m_optional;
         }
         return *this;
@@ -98,7 +125,7 @@ public:
     {
         if (&other != this) {
             m_optional = other.m_optional;
-            *(Field*) this = std::move(other);
+            m_field = std::move(other.m_field);
         }
         return *this;
     }
@@ -117,7 +144,7 @@ public:
      */
     void clear()
     {
-        setNull(VAR_NONE);
+        m_field.setNull(VAR_NONE);
     }
 
     /**
@@ -126,7 +153,7 @@ public:
      */
     void load(const xml::Node* attr) override
     {
-        Variant::load(attr);
+        static_cast<Variant*>(&m_field)->load(attr);
     }
 
     /**
@@ -135,7 +162,7 @@ public:
      */
     void load(const json::Element* attr) override
     {
-        Variant::load(attr);
+        static_cast<Variant*>(&m_field)->load(attr);
     }
 
     /**
@@ -144,7 +171,7 @@ public:
      */
     virtual void load(const String& attr)
     {
-        setString(attr);
+        m_field.setString(attr);
     }
 
     /**
@@ -153,7 +180,7 @@ public:
      */
     virtual void load(const Field& field)
     {
-        *(Variant*) this = field;
+        *static_cast<Variant*>(&m_field) = field;
     }
 
     /**
@@ -161,7 +188,7 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    xml::Element* addElement(xml::Element* parent, const char* name=nullptr) const;
+    xml::Element* addElement(xml::Node* parent, const char* name=nullptr) const;
 
     /**
      * Adds an element to response JSON with this object data
@@ -174,15 +201,39 @@ public:
      */
     String name() const
     {
-        return fieldName();
+        return m_field.fieldName();
     }
 
     /**
      * Conversion operator
      */
-    operator String() const override
+    operator String() const
     {
-        return asString();
+        return m_field.asString();
+    }
+
+    /**
+     * Conversion to string
+     */
+    String asString() const override
+    {
+        return m_field.asString();
+    }
+
+    auto asInteger() const { return field().asInteger(); }
+    auto asInt64() const { return field().asInt64(); }
+    auto asFloat() const { return field().asFloat(); }
+    auto asBool() const { return field().asBool(); }
+
+    void setInteger(int32_t value) { field().setInteger(value); }
+    void setInt64(int64_t value) { field().setInt64(value); }
+    void setFloat(bool value) { field().setFloat(value); }
+    void setBool(bool value) { field().setBool(value); }
+    void setBuffer(const char* buffer, size_t size) { field().setBuffer(buffer, size); }
+
+    bool isNull() const override
+    {
+        return m_field.isNull();
     }
 
     /**
@@ -191,9 +242,23 @@ public:
      */
     void throwIfNull(const String& parentTypeName) const;
 
+    VariantType dataType() const
+    {
+        return m_field.dataType();
+    }
+
+    void setNull(VariantType type)
+    {
+        m_field.setNull(type);
+    }
+
+    Field& field() { return m_field; }
+    const Field& field() const { return m_field; }
+
 private:
 
-    bool m_optional {false};    ///< Element optionality flag
+    Field   m_field;
+    bool    m_optional {false};    ///< Element optionality flag
 };
 
 /**
@@ -207,7 +272,7 @@ public:
      */
     WSString()
     {
-        Field::setNull(VAR_STRING);
+        setNull(VAR_STRING);
     }
 
     /**
@@ -218,16 +283,16 @@ public:
     WSString(const String& name, bool optional)
     : WSBasicType(name.c_str(), optional)
     {
-        Field::setNull(VAR_STRING);
+        setNull(VAR_STRING);
     }
 
     /**
      * Constructor
      * @param value             Value
      */
-    explicit WSString(const String& value)
+    WSString(const String& value)
     {
-        Field::setString(value);
+        field().setString(value);
     }
 
     /**
@@ -265,54 +330,59 @@ public:
     /**
      * Assignment operation
      */
-    WSString& operator=(const char* value) override
+    WSString& operator=(const char* value)
     {
-        setString(value);
+        field().setString(value);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(const String& value) override
+    WSString& operator=(const String& value)
     {
-        setBuffer(value.c_str(), value.length(), VAR_STRING);
+        field().setBuffer(value.c_str(), value.length(), VAR_STRING);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(const Buffer& value) override
+    WSString& operator=(const Buffer& value)
     {
-        setBuffer(value.data(), value.bytes(), VAR_BUFFER);
+        field().setBuffer(value.data(), value.bytes(), VAR_BUFFER);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(int32_t value) override
+    WSString& operator=(int32_t value)
     {
-        setInteger(value);
+        field().setInteger(value);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(int64_t value) override
+    WSString& operator=(int64_t value)
     {
-        setInt64(value);
+        field().setInt64(value);
         return *this;
     }
 
     /**
      * Conversion operator
      */
-    operator String() const override
+    operator String() const
     {
-        return asString();
+        return field().asString();
+    }
+
+    const char* getString() const
+    {
+        return field().getString();
     }
 };
 
@@ -327,7 +397,7 @@ public:
      */
     WSBool()
     {
-        Field::setNull(VAR_BOOL);
+        setNull(VAR_BOOL);
     }
 
     /**
@@ -338,7 +408,7 @@ public:
     WSBool(const String& name, bool optional)
             : WSBasicType(name.c_str(), optional)
     {
-        Field::setNull(VAR_BOOL);
+        setNull(VAR_BOOL);
     }
 
     /**
@@ -348,7 +418,7 @@ public:
      */
     explicit WSBool(bool value)
     {
-        Field::setBool(value);
+        field().setBool(value);
     }
 
     /**
@@ -388,16 +458,16 @@ public:
      */
     virtual WSBool& operator=(bool value)
     {
-        setBool(value);
+        field().setBool(value);
         return *this;
     }
 
     /**
      * Conversion operator
      */
-    operator bool() const override
+    operator bool() const
     {
-        return asBool();
+        return field().asBool();
     }
 };
 
@@ -412,7 +482,7 @@ public:
      */
     WSDate()
     {
-        Field::setNull(VAR_DATE);
+        setNull(VAR_DATE);
     }
 
     /**
@@ -423,7 +493,7 @@ public:
     WSDate(const String& name, bool optional)
     : WSBasicType(name.c_str(), optional)
     {
-        Field::setNull(VAR_DATE);
+        setNull(VAR_DATE);
     }
 
     /**
@@ -432,8 +502,7 @@ public:
      */
     explicit WSDate(const DateTime& value)
     {
-        Field::setDateTime(value);
-        dataType(VAR_DATE);
+        field().setDateTime(value, true);
     }
 
     /**
@@ -471,18 +540,34 @@ public:
     /**
      * Assignment operation
      */
-    WSDate& operator=(DateTime value) override
+    WSDate& operator=(DateTime value)
     {
-        setDateTime(value, true);
+        field().setDateTime(value, true);
         return *this;
     }
 
     /**
      * Conversion operator
      */
-    operator DateTime() const override
+    auto asDate() const
     {
-        return asDate();
+        return field().asDate();
+    }
+
+    /**
+     * Conversion operator
+     */
+    auto asDateTime() const
+    {
+        return field().asDateTime();
+    }
+
+    /**
+     * Conversion operator
+     */
+    operator DateTime() const
+    {
+        return field().asDate();
     }
 };
 
@@ -497,7 +582,7 @@ public:
      */
     WSDateTime()
     {
-        Field::setNull(VAR_DATE_TIME);
+        setNull(VAR_DATE_TIME);
     }
 
     /**
@@ -508,7 +593,7 @@ public:
     WSDateTime(const String& name, bool optional)
     : WSBasicType(name.c_str(), optional)
     {
-        Field::setNull(VAR_DATE_TIME);
+        setNull(VAR_DATE_TIME);
     }
 
     /**
@@ -517,7 +602,7 @@ public:
      */
     explicit WSDateTime(const DateTime& value)
     {
-        Field::setDateTime(value);
+        field().setDateTime(value);
     }
 
     /**
@@ -558,20 +643,36 @@ public:
     String asString() const override;
 
     /**
+     * Conversion operator
+     */
+    auto asDate() const
+    {
+        return field().asDate();
+    }
+
+    /**
+     * Conversion operator
+     */
+    auto asDateTime() const
+    {
+        return field().asDateTime();
+    }
+
+    /**
      * Assignment operation
      */
-    WSDateTime& operator=(DateTime value) override
+    WSDateTime& operator=(DateTime value)
     {
-        setDateTime(value);
+        field().setDateTime(value);
         return *this;
     }
 
     /**
      * Conversion operator
      */
-    operator DateTime() const override
+    operator DateTime() const
     {
-        return asDateTime();
+        return field().asDateTime();
     }
 };
 
@@ -586,7 +687,7 @@ public:
      */
     WSDouble()
     {
-        Field::setNull(VAR_FLOAT);
+        setNull(VAR_FLOAT);
     }
 
     /**
@@ -597,12 +698,12 @@ public:
     WSDouble(const String& name, bool optional)
     : WSBasicType(name.c_str(), optional)
     {
-        Field::setNull(VAR_FLOAT);
+        setNull(VAR_FLOAT);
     }
 
-    explicit WSDouble(double value)
+    WSDouble(double value)
     {
-        Field::setFloat(value);
+        field().setFloat(value);
     }
 
     /**
@@ -640,18 +741,18 @@ public:
     /**
      * Assignment operation
      */
-    WSDouble& operator=(double value) override
+    WSDouble& operator=(double value)
     {
-        setFloat(value);
+        field().setFloat(value);
         return *this;
     }
 
     /**
      * Conversion operator
      */
-    operator double() const override
+    operator double() const
     {
-        return asFloat();
+        return field().asFloat();
     }
 };
 
@@ -666,7 +767,7 @@ public:
      */
     WSInteger()
     {
-        Field::setNull(VAR_INT);
+        setNull(VAR_INT);
     }
 
     /**
@@ -677,16 +778,16 @@ public:
     WSInteger(const String& name, bool optional)
     : WSBasicType(name.c_str(), optional)
     {
-        Field::setNull(VAR_INT);
+        setNull(VAR_INT);
     }
 
     /**
      * Constructor
      * @param value             Value
      */
-    explicit WSInteger(int value)
+    WSInteger(int value)
     {
-        Field::setInteger(value);
+        field().setInteger(value);
     }
 
     /**
@@ -724,53 +825,57 @@ public:
     /**
      * Assignment operation
      */
-    WSInteger& operator=(int64_t value) override
+    WSInteger& operator=(int64_t value)
     {
-        setInt64(value);
+        field().setInt64(value);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSInteger& operator=(int32_t value) override
+    WSInteger& operator=(int value)
     {
-        setInteger(value);
+        field().setInteger(value);
         return *this;
     }
 
     /**
      * Conversion operator
      */
-    operator int32_t() const override
+    operator int32_t() const
     {
-        return asInteger();
+        return field().asInteger();
     }
 
     /**
      * Conversion operator
      */
-    operator int64_t() const override
+    operator int64_t() const
     {
-        return asInt64();
+        return field().asInt64();
     }
 
     /**
      * Conversion operator
      */
-    operator uint64_t() const override
+    operator uint64_t() const
     {
-        return (uint64_t) asInt64();
+        return (uint64_t) field().asInt64();
     }
 };
 
 /**
  * Wrapper for WSDL int type
  */
-template<class T>
-class SP_EXPORT WSArray : public std::vector<T>, public WSTypeName
+template<typename T>
+class SP_EXPORT WSArray : public WSTypeName
 {
 public:
+    typedef T value_type;
+    typedef typename std::vector<T>::iterator iterator;
+    typedef typename std::vector<T>::const_iterator const_iterator;
+
    /**
      * Return class name
      */
@@ -779,7 +884,120 @@ public:
         return "WSArray";
     }
 
-    [[nodiscard]] bool isNull() const { return std::vector<T>::empty(); }
+    [[nodiscard]] bool isNull() const override
+    {
+        return m_array.empty();
+    }
+
+    [[nodiscard]] size_t size() const
+    {
+        return m_array.size();
+    }
+
+    void clear() override
+    {
+        return m_array.clear();
+    }
+
+    bool empty() const
+    {
+        return m_array.empty();
+    }
+
+    T& operator [] (size_t index)
+    {
+        return m_array[index];
+    }
+
+    const T& operator [] (size_t index) const
+    {
+        return m_array[index];
+    }
+
+    iterator begin()
+    {
+        return m_array.begin();
+    }
+
+    iterator end()
+    {
+        return m_array.end();
+    }
+
+    const_iterator begin() const
+    {
+        return m_array.begin();
+    }
+
+    const_iterator end() const
+    {
+        return m_array.end();
+    }
+
+    T& front()
+    {
+        return m_array.front();
+    }
+
+    const T& front() const
+    {
+        return m_array.front();
+    }
+
+    T& back()
+    {
+        return m_array.back();
+    }
+
+    const T& back() const
+    {
+        return m_array.back();
+    }
+
+    void push_back(const T& value)
+    {
+        m_array.push_back(value);
+    }
+
+    void emplace_back(const T& value)
+    {
+        m_array.emplace_back(value);
+    }
+
+    auto erase(const iterator& pos)
+    {
+        return m_array.erase(pos);
+    }
+
+    auto erase(const iterator& first, const iterator& last)
+    {
+        return m_array.erase(first, last);
+    }
+
+    void load(const xml::Node* attr) override
+    {
+        throwException("Invalid load attempt");
+    }
+
+    /**
+     * Loads type data from request JSON element
+     * @param attr              JSON element
+     */
+    void load(const json::Element* attr) override
+    {
+        throwException("Invalid load attempt");
+    }
+
+    /**
+     * Conversion to string
+     */
+    String asString() const override
+    {
+        throwException("Invalid conversion attempt");
+    }
+
+private:
+    std::vector<T>  m_array;
 };
 
 /**

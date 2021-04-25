@@ -1,5 +1,4 @@
-#ifndef __TEST_SERVICE_CACCOUNTBALANCERESPONSE__
-#define __TEST_SERVICE_CACCOUNTBALANCERESPONSE__
+#pragma once
 
 #include <sptk5/FieldList.h>
 #include <sptk5/db/QueryParameterList.h>
@@ -20,7 +19,7 @@ class CAccountBalanceResponse : public sptk::WSComplexType
 public:
 
    // Elements
-   sptk::WSDouble       m_account_balance {"account_balance", false};
+   sptk::WSDouble                 m_account_balance {"account_balance", false};
 
    // Field names of simple types, that can be used to build SQL queries
    static const sptk::Strings m_fieldNames;
@@ -41,7 +40,7 @@ public:
     * Complex WSDL type members are loaded recursively.
     * @param input              XML node containing CAccountBalanceResponse data
     */
-   void load(const sptk::xml::Element* input) override;
+   void load(const sptk::xml::Node* input) override;
 
    /**
     * Load content from JSON element
@@ -63,7 +62,7 @@ public:
     * Unload content to existing XML node
     * @param output             Existing XML node
     */
-   void unload(sptk::xml::Element* output) const override;
+   void unload(sptk::xml::Node* output) const override;
 
    /**
     * Unload content to existing JSON node
@@ -105,8 +104,4 @@ private:
    void checkRestrictions() const;
 };
 
-typedef std::shared_ptr<CAccountBalanceResponse> SAccountBalanceResponse;
-
 }
-
-#endif

@@ -21,7 +21,7 @@ void CLoginResponse::_clear()
     m_jwt.clear();
 }
 
-void CLoginResponse::load(const xml::Element* input)
+void CLoginResponse::load(const xml::Node* input)
 {
     _clear();
     setLoaded(true);
@@ -47,7 +47,7 @@ void CLoginResponse::load(const json::Element* input)
         return;
 
     // Load elements
-    for (auto& itor: input->getObject()) {
+    for (const auto& itor: input->getObject()) {
         const auto& elementName = itor.name();
         const auto* element = itor.element();
 
@@ -74,7 +74,7 @@ void CLoginResponse::load(const FieldList& input)
     checkRestrictions();
 }
 
-void CLoginResponse::unload(xml::Element* output) const
+void CLoginResponse::unload(xml::Node* output) const
 {
 
     // Unload elements

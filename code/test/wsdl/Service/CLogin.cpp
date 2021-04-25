@@ -23,7 +23,7 @@ void CLogin::_clear()
     m_password.clear();
 }
 
-void CLogin::load(const xml::Element* input)
+void CLogin::load(const xml::Node* input)
 {
     _clear();
     setLoaded(true);
@@ -54,7 +54,7 @@ void CLogin::load(const json::Element* input)
         return;
 
     // Load elements
-    for (auto& itor: input->getObject()) {
+    for (const auto& itor: input->getObject()) {
         const auto& elementName = itor.name();
         const auto* element = itor.element();
 
@@ -91,7 +91,7 @@ void CLogin::load(const FieldList& input)
     checkRestrictions();
 }
 
-void CLogin::unload(xml::Element* output) const
+void CLogin::unload(xml::Node* output) const
 {
 
     // Unload elements

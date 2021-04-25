@@ -48,7 +48,7 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
         *param = *elementOrAttribute;
 }
 
-void WSComplexType::addElement(xml::Element* parent, const char* name) const
+void WSComplexType::addElement(xml::Node* parent, const char* name) const
 {
     if (m_exportable) {
         const char* elementName = name == nullptr ? m_name.c_str() : name;

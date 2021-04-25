@@ -21,7 +21,7 @@ void CAccountBalance::_clear()
     m_account_number.clear();
 }
 
-void CAccountBalance::load(const xml::Element* input)
+void CAccountBalance::load(const xml::Node* input)
 {
     _clear();
     setLoaded(true);
@@ -47,7 +47,7 @@ void CAccountBalance::load(const json::Element* input)
         return;
 
     // Load elements
-    for (auto& itor: input->getObject()) {
+    for (const auto& itor: input->getObject()) {
         const auto& elementName = itor.name();
         const auto* element = itor.element();
 
@@ -74,7 +74,7 @@ void CAccountBalance::load(const FieldList& input)
     checkRestrictions();
 }
 
-void CAccountBalance::unload(xml::Element* output) const
+void CAccountBalance::unload(xml::Node* output) const
 {
 
     // Unload elements
