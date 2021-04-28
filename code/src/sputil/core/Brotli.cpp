@@ -74,8 +74,6 @@ private:
     /* Parameters */
     int quality = 9;
 
-    int lgwin = DEFAULT_LGWIN;
-    BROTLI_BOOL decompress = BROTLI_FALSE;
     uint8_t* buffer = new uint8_t[kBufferSize * 2];
 
     uint8_t* input = buffer;
