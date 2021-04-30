@@ -37,6 +37,10 @@ using namespace sptk::xml;
 static const String emptyString;
 static const String indentsString(1024, ' ');
 
+static constexpr int cdataStartMarkerLength = 9;
+static constexpr int cdataEndMarkerLength = 3;
+static constexpr int cdataMarkersLength = cdataStartMarkerLength + cdataEndMarkerLength;
+
 /// An empty nodes list to return end() iterator
 NodeList NodeIterators::emptyNodes;
 
@@ -199,7 +203,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const Node* thisNode, NodeVector&
         return;
 
     if (pathElement.nodePosition != 0) {
-        int matchedPosition;
+        int matchedPosition = 0;
         if (pathElement.nodePosition < 0)
             matchedPosition = int(matchedNodes.size() + pathElement.nodePosition);
         else
@@ -244,7 +248,6 @@ void NodeSearchAlgorithms::matchNode(Node* thisNode, NodeVector& nodes, const ve
 
 void Node::select(NodeVector& nodes, String xpath)
 {
-    const char* ptr;
     nodes.clear();
 
     if (!xpath.startsWith("/"))
@@ -252,10 +255,7 @@ void Node::select(NodeVector& nodes, String xpath)
 
     xpath = xpath.replace("\\/\\/", "/descendant::");
 
-    if (xpath[0] == '/')
-        ptr = xpath.c_str() + 1;
-    else
-        ptr = xpath.c_str();
+    const char* ptr = xpath[0] == '/' ? xpath.c_str() + 1 : xpath.c_str();
 
     Strings pathElementStrs(ptr, "/");
     vector<XPathElement> pathElements(pathElementStrs.size());
@@ -277,8 +277,8 @@ void Node::copy(const Node& node)
             setAttribute(attrNode->name(), attrNode->value());
     }
 
+    Node* element = nullptr;
     for (const auto* childNode: node) {
-        Node* element;
         switch (childNode->type()) {
             case DOM_ELEMENT:
                 element = new Element(this, "");
@@ -334,10 +334,9 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
         saveAttributes(buffer);
     }
     if (!empty()) {
-        bool only_cdata;
+        bool only_cdata = true;
         const Node* nd = *begin();
         if (size() == 1 && nd->type() == DOM_TEXT) {
-            only_cdata = true;
             buffer.append('>');
         } else {
             only_cdata = false;
@@ -418,7 +417,7 @@ void Node::save(Buffer& buffer, int indent) const
     // depending on the nodetype, do output
     switch (type()) {
         case DOM_TEXT:
-            if (value().substr(0, 9) == "<![CDATA[" && value().substr(value().length() - 3) == "]]>")
+            if (value().substr(0, cdataStartMarkerLength) == "<![CDATA[" && value().substr(value().length() - cdataEndMarkerLength) == "]]>")
                 buffer.append(value());
             else
                 document()->docType().encodeEntities(value().c_str(), buffer);
@@ -450,8 +449,8 @@ void Node::save(Buffer& buffer, int indent) const
 
 void Node::saveTextOrCDATASection(json::Element* object) const
 {
-    if (value().substr(0, 9) == "<![CDATA[" && value().substr(value().length() - 3) == "]]>")
-        *object = value().substr(9, value().length() - 12);
+    if (value().substr(0, cdataStartMarkerLength) == "<![CDATA[" && value().substr(value().length() - cdataEndMarkerLength) == "]]>")
+        *object = value().substr(cdataStartMarkerLength, value().length() - cdataMarkersLength);
     else
         *object = value();
 }
@@ -515,12 +514,18 @@ void Node::saveElement(json::Element* object) const
         String nodeText;
         for (const auto* np: *this)
             np->save(*object, nodeText);
-        if (object->is(json::JDT_OBJECT) && object->size() == 0) {
-            if (Document::isNumber(nodeText)) {
-                double value = string2double(nodeText);
-                *object = value;
-            } else
-                *object = nodeText;
+        if (object->is(json::JDT_OBJECT)) {
+            if (object->size() == 0) {
+                if (Document::isNumber(nodeText)) {
+                    double value = string2double(nodeText);
+                    *object = value;
+                } else {
+                    *object = nodeText;
+                }
+            }
+            else if (!nodeText.empty()) {
+                object->set("#text", nodeText);
+            }
         }
     }
 }

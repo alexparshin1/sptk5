@@ -27,6 +27,7 @@
 #include <cstdlib>
 #include <sptk5/Strings.h>
 #include <sptk5/json/JsonDocument.h>
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -72,7 +73,7 @@ void Document::processAttributes(Node* node, const char* ptr)
     auto matches = parseAttributes.m(ptr);
 
     for (auto itor = matches.groups().begin(); itor != matches.groups().end(); ++itor) {
-        auto& attributeName = itor->value;
+        const auto& attributeName = itor->value;
         ++itor;
         if (itor == matches.groups().end())
             break;
@@ -85,11 +86,12 @@ void Document::processAttributes(Node* node, const char* ptr)
 char* Document::parseEntity(char* start)
 {
     static const RegularExpression matchEntity(R"( (?<name>[\w_\-]+)\s+["'](?<value>.*)["'])");
+    constexpr int entityMarkerLength = 8;
 
     start = strstr(start, "<!ENTITY ");
     if (start == nullptr)
         return start;
-    start += 8;
+    start += entityMarkerLength;
 
     auto* end = strchr(start, '>');
     if (end == nullptr)
@@ -110,7 +112,7 @@ void Document::parseEntities(char* entitiesSection)
     }
 }
 
-unsigned char* Document::skipSpaces(unsigned char* start) const
+unsigned char* Document::skipSpaces(unsigned char* start)
 {
     while (*start <= ' ')
         ++start;
@@ -203,11 +205,12 @@ char* Document::readComment(Node* currentNode, char* nodeName, char* nodeEnd, ch
 
 char* Document::readCDataSection(Node* currentNode, char* nodeName, char* nodeEnd, char* tokenEnd)
 {
+    constexpr int cdataTagLength = 8;
     nodeEnd = strstr(nodeName + 1, "]]>");
     if (nodeEnd == nullptr)
         throw Exception("Invalid CDATA section");
     *nodeEnd = 0;
-    new CDataSection(currentNode, nodeName + 8);
+    new CDataSection(currentNode, nodeName + cdataTagLength);
     tokenEnd = nodeEnd + 2;
     return tokenEnd;
 }
@@ -234,6 +237,8 @@ char* Document::readDocType(char* tokenEnd)
 
 char* Document::readExclamationTag(char* nodeName, char* tokenEnd, char* nodeEnd, Node* currentNode)
 {
+    constexpr int cdataTagLength = 8;
+    constexpr int docTypeTagLength = 8;
     char ch = *tokenEnd;
     *tokenEnd = 0;
     if (strncmp(nodeName, "!--", 3) == 0) {
@@ -241,12 +246,12 @@ char* Document::readExclamationTag(char* nodeName, char* tokenEnd, char* nodeEnd
         *tokenEnd = ch; // ' ' or '>' could be within a comment
         tokenEnd = readComment(currentNode, nodeName, nodeEnd, tokenEnd);
     }
-    else if (strncmp(nodeName, "![CDATA[", 8) == 0) {
+    else if (strncmp(nodeName, "![CDATA[", cdataTagLength) == 0) {
         /// CDATA section
         *tokenEnd = ch;
         tokenEnd = readCDataSection(currentNode, nodeName, nodeEnd, tokenEnd);
     }
-    else if (strncmp(nodeName, "!DOCTYPE", 8) == 0 && ch != '>') {
+    else if (strncmp(nodeName, "!DOCTYPE", docTypeTagLength) == 0 && ch != '>') {
         tokenEnd = readDocType(tokenEnd);
     }
     return tokenEnd;
@@ -416,7 +421,7 @@ void Document::save(Buffer& buffer, int indent) const
         if (!docType().entities().empty()) {
             buffer.append(" [\n", 3);
             const Entities& entities = docType().entities();
-            for (auto& it: entities)
+            for (const auto& it: entities)
                 buffer.append("<!ENTITY " + it.first + " \"" + it.second + "\">\n");
             buffer.append("]", 1);
         }
@@ -657,20 +662,16 @@ TEST(SPTK_XmlDocument, unicodeAndSpacesXML)
     }
 }
 
-TEST(SPTK_XmlDocument, ooDocumentContent)
+TEST(SPTK_XmlDocument, exportToJSON)
 {
-    Buffer data;
-    Buffer data2;
+    xml::Document xmlDocument;
+    json::Document jsonDocument;
+    xmlDocument.load("<d>" + testXML + "</d>");
+    xmlDocument.exportTo(jsonDocument.root());
 
-    // Using uncompressed mplayer manual as test data
-    data.loadFromFile(TEST_DIRECTORY "/data/content2.xml");
-
-    xml::Document document;
-    document.load(data, true);
-
-    document.save(data2, 0);
-
-    EXPECT_TRUE(data == data2);
+    Buffer buffer;
+    jsonDocument.exportTo(buffer, true);
+    COUT(buffer.c_str() << endl)
 }
 
 #endif

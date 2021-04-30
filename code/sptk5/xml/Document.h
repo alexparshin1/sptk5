@@ -207,7 +207,7 @@ protected:
      */
     void extractEntities(char* docTypeSection);
 
-    unsigned char* skipSpaces(unsigned char* start) const;
+    static unsigned char* skipSpaces(unsigned char* start);
 
 private:
 
