@@ -113,16 +113,17 @@ bool Attributes::hasAttribute(const String& attr) const
 
 TEST(SPTK_XmlDocument, attributes)
 {
+    constexpr int testAge = 30;
     DateTime testDate("2020-01-02 10:00:00");
     xml::Document doc;
     auto* element = new Element(doc, "item");
     element->setAttribute("name", "John");
-    element->setAttribute("age", 30);
+    element->setAttribute("age", testAge);
     element->setAttribute("when", testDate);
     element->setAttribute("how", "directly", "directly");
 
     EXPECT_STREQ(element->getAttribute("name").asString().c_str(), "John");
-    EXPECT_EQ(element->getAttribute("age").asInteger(), 30);
+    EXPECT_EQ(element->getAttribute("age").asInteger(), testAge);
     EXPECT_EQ(element->getAttribute("when").asDateTime(), testDate);
     EXPECT_EQ(element->getAttribute("how").asString(), String(""));
 
