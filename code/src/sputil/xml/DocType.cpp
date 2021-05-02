@@ -80,7 +80,7 @@ struct entity
 
 typedef map<std::string, const struct entity *> CEntityMap;
 
-static const vector<entity> builtin_ent_xml = {
+static const struct entity builtin_ent_xml[] = {
     { "amp", 1, "&" },
     { "lt", 1, "<" },
     { "gt", 1, ">" },
@@ -89,7 +89,7 @@ static const vector<entity> builtin_ent_xml = {
     {nullptr, 1, "\"" }
 };
 
-static const char* xml_shortcut = "&<>'\"";
+const char xml_shortcut[] = "&<>'\"";
 
 class CEntityCache
 {
@@ -97,11 +97,12 @@ class CEntityCache
     map<int, CEntityMap>    m_replacementMaps;
 public:
 
-    explicit CEntityCache(const std::vector<entity>& entities) noexcept
+    explicit CEntityCache(const struct entity entities[]) noexcept
     {
-        for (const auto& ent: entities) {
-            m_hash[ent.name] = &ent;
-            m_replacementMaps[ent.replacement_len][ent.replacement] = &ent;
+        const struct entity *ent = entities;
+        for (; ent->name != nullptr; ++ent) {
+            m_hash[ent->name] = ent;
+            m_replacementMaps[ent->replacement_len][ent->replacement] = ent;
         }
     }
 
@@ -173,6 +174,8 @@ char* xml::DocType::appendDecodedEntity(Buffer& ret, const char* ent_start, char
 
 bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
 {
+    const entity* table = builtin_ent_xml;
+
     bool replaced = false;
 
     const char* ptr = str;
@@ -183,12 +186,12 @@ bool xml::DocType::encodeEntities(const char *str, Buffer& ret)
         const char* pos = strpbrk(ptr, xml_shortcut);
         if (pos != nullptr) {
             auto index = uint32_t(strchr(xml_shortcut, *pos) - xml_shortcut);
-            const auto& ent = builtin_ent_xml[index];
+            const entity* ent = table + index;
             auto tailBytes = uint32_t(pos - ptr);
             if (tailBytes != 0)
                 dst->append(ptr, tailBytes);
             dst->append('&');
-            dst->append(ent.name);
+            dst->append(ent->name);
             dst->append(';');
             replaced = true;
             ptr = pos + 1;
@@ -248,8 +251,7 @@ const char* xml::DocType::getReplacement(const char *name, uint32_t& replacement
             ++ptr;
 
         if (isdigit(*ptr) != 0) {
-            constexpr int decimal = 10;
-            m_replacementBuffer[0] = (char) strtol(ptr, nullptr, decimal);
+            m_replacementBuffer[0] = (char) strtol(ptr, nullptr, 10);
             m_replacementBuffer[1] = '\0';
             replacementLength = 1;
             return m_replacementBuffer;
@@ -278,7 +280,7 @@ const char* xml::DocType::getReplacement(const char *name, uint32_t& replacement
 
 bool xml::DocType::hasEntity(const char *name)
 {
-    uint32_t len = 0;
+    uint32_t len;
     const char* tmp = getReplacement(name, len);
     return tmp != nullptr;
 }
