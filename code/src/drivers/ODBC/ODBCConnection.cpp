@@ -757,7 +757,7 @@ void ODBCConnection::listDataSources(Strings& dsns)
     {
         ret = SQLDataSources(
                 hEnv, direction,
-                datasrc.data(), datasrc.size(), &rdsrc,
+                datasrc.data(), (SQLSMALLINT) datasrc.size(), &rdsrc,
                 descrip.data(), (SQLSMALLINT) descrip.size(), &rdesc);
         if (ret == SQL_NO_DATA)
             break;
