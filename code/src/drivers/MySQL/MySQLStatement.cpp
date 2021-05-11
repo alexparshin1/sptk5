@@ -263,7 +263,7 @@ void MySQLStatement::setParameterValues()
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            m_paramLengths[paramIndex] = param->dataSize();
+            m_paramLengths[paramIndex] = (unsigned long) param->dataSize();
             break;
 
         case VAR_DATE:
@@ -292,7 +292,7 @@ void MySQLStatement::setParameterValues()
 
 void MySQLStatement::MySQLStatement::prepare(const String& sql) const
 {
-    if (mysql_stmt_prepare(statement(), sql.c_str(), sql.length()) != 0)
+    if (mysql_stmt_prepare(statement(), sql.c_str(), (unsigned long) sql.length()) != 0)
         throwMySQLError();
 }
 
