@@ -172,13 +172,13 @@ String ODBCConnection::queryError(SQLHSTMT stmt) const
 
     String error;
     int rc = SQLError(SQL_NULL_HENV, handle(), stmt, errorState.data(), &nativeError, errorDescription.data(),
-                      errorDescription.size(), &pcnmsg);
+                      (SQLSMALLINT) errorDescription.size(), &pcnmsg);
 
     if (rc == SQL_SUCCESS) {
         error = (const char*) errorDescription.data();
     } else {
         rc = SQLError(SQL_NULL_HENV, handle(), nullptr, errorState.data(), &nativeError, errorDescription.data(),
-                      errorDescription.size(), &pcnmsg);
+                      (SQLSMALLINT) errorDescription.size(), &pcnmsg);
         if (rc == SQL_SUCCESS)
             error = (const char*) errorDescription.data();
     }
@@ -274,7 +274,7 @@ void ODBCConnection::queryExecute(Query* query)
         Strings errors;
         for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; ++recordNumber) {
             rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state.data(), &nativeError,
-                               text.data(), text.size(), &textLength);
+                               text.data(), (SQLSMALLINT) text.size(), &textLength);
             if (!successful(rc))
                 break;
             errors.push_back(removeDriverIdentification((const char*) text.data()));
@@ -758,7 +758,7 @@ void ODBCConnection::listDataSources(Strings& dsns)
         ret = SQLDataSources(
                 hEnv, direction,
                 datasrc.data(), datasrc.size(), &rdsrc,
-                descrip.data(), descrip.size(), &rdesc);
+                descrip.data(), (SQLSMALLINT) descrip.size(), &rdesc);
         if (ret == SQL_NO_DATA)
             break;
         direction = SQL_FETCH_NEXT;
