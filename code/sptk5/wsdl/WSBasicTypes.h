@@ -206,7 +206,7 @@ public:
     /**
      * Conversion operator
      */
-    operator String() const
+    virtual operator String() const
     {
         return m_field.asString();
     }
@@ -214,7 +214,7 @@ public:
     /**
      * Conversion to string
      */
-    String asString() const override
+    virtual String asString() const override
     {
         return m_field.asString();
     }
