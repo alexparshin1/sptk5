@@ -66,7 +66,7 @@ void WorkerThread::threadFunction()
             if (m_threadEvent != nullptr)
                 m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_FINISHED, runable);
         } else
-            idleSeconds++;
+            ++idleSeconds;
     }
     if (m_threadEvent != nullptr)
         m_threadEvent->threadEvent(this, ThreadEvent::THREAD_FINISHED, nullptr);

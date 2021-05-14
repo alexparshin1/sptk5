@@ -537,9 +537,9 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     Strings usedClasses;
     for (auto& itor: m_complexTypeIndex.complexTypes()) {
         SWSParserComplexType complexType = itor.second;
-        SourceModule module("C" + complexType->name(), sourceDirectory);
-        module.open();
-        complexType->generate(module.header(), module.source(), externalHeader.c_str(), m_serviceNamespace);
+        SourceModule sourceModule("C" + complexType->name(), sourceDirectory);
+        sourceModule.open();
+        complexType->generate(sourceModule.header(), sourceModule.source(), externalHeader.c_str(), m_serviceNamespace);
         usedClasses.push_back("C" + complexType->name());
         cmakeLists << "  " << sourceDirectory << "/C" << complexType->name() << ".cpp "
                            << sourceDirectory << "/C" << complexType->name() << ".h" << endl;

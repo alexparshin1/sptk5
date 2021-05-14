@@ -310,7 +310,9 @@ String Node::text() const
         ret += value();
     else {
         for (const auto* np: *this) {
-            if ((np->type() & (DOM_TEXT | DOM_CDATA_SECTION)) != 0)
+            if (np->size())
+                ret += np->text();
+            else
                 ret += np->value();
         }
     }
@@ -515,18 +517,23 @@ void Node::saveElement(json::Element* object) const
         for (const auto* np: *this)
             np->save(*object, nodeText);
         if (object->is(json::JDT_OBJECT)) {
-            if (object->size() == 0) {
-                if (Document::isNumber(nodeText)) {
-                    double value = string2double(nodeText);
-                    *object = value;
-                } else {
-                    *object = nodeText;
-                }
-            }
-            else if (!nodeText.empty()) {
-                object->set("#text", nodeText);
-            }
+            setJsonValue(object, nodeText);
         }
+    }
+}
+
+void Node::setJsonValue(json::Element* object, const String& nodeText) const
+{
+    if (object->size() == 0) {
+        if (Document::isNumber(nodeText)) {
+            double value = string2double(nodeText);
+            *object = value;
+        } else {
+            *object = nodeText;
+        }
+    }
+    else if (!nodeText.empty()) {
+        object->set("#text", nodeText);
     }
 }
 

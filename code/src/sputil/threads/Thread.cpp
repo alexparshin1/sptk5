@@ -125,7 +125,7 @@ public:
     {
         m_counter = 0;
         while (!terminated()) {
-            m_counter++;
+            ++m_counter;
             if (m_counter == m_maxCounter)
                 break;
             sleep_for(chrono::milliseconds(5));

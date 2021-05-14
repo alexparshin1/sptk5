@@ -163,8 +163,6 @@ DateTimeFormat::DateTimeFormat() noexcept
 
 void DateTimeFormat::init() noexcept
 {
-    char dateBuffer[32];
-    char timeBuffer[32];
     // make a special date and time - today :)
     struct tm t = {};
     t.tm_year = 100;    // since 1900, -> 2000
@@ -183,8 +181,10 @@ void DateTimeFormat::init() noexcept
 #endif
 
     // Build local data and time
-    strftime(timeBuffer, 32, "%X", &t);
-    strftime(dateBuffer, 32, "%x", &t);
+    char dateBuffer[32] = {};
+    char timeBuffer[32] = {};
+    strftime(timeBuffer, 31, "%X", &t);
+    strftime(dateBuffer, 31, "%x", &t);
 
     // Build local date and time formats
     DateTime::_datePartsOrder[0] = 0;

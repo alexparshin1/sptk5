@@ -203,16 +203,20 @@ RequestInfo WSWebSocketsProtocol::process()
         socket().write("\r\n");
 
         bool connectionCloseRequestReplied = false;
-        while (true) {
+        bool clientClosedConnection = false;
+        while (!clientClosedConnection) {
             if (!socket().readyToRead(thirtySeconds))
                 continue;
 
             size_t available = socket().socketBytes();
-            if (available == 0)
-                break; // Client closed connection
+            if (available == 0) {
+                clientClosedConnection = true;
+                continue;
+            }
 
             Buffer message;
             socket().read(message, available);
+
             WSWebSocketsMessage msg;
             msg.decode(message.c_str());
 

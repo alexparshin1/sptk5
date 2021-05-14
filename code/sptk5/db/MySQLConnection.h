@@ -33,6 +33,12 @@
 #include <sptk5/db/MySQLStatement.h>
 #include <mutex>
 
+#ifdef _WIN32
+#define ULONG_CAST (unsigned long)
+#else
+#define ULONG_CAST
+#endif
+
 namespace sptk
 {
 

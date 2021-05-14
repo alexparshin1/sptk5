@@ -1,21 +1,8 @@
-SET (SPUTIL_SOURCES
-    core/Base64.cpp core/Crypt.cpp core/Buffer.cpp core/CommandLine.cpp core/DataSource.cpp core/DateTime.cpp core/Exception.cpp
-    core/Field.cpp core/FieldList.cpp core/FileLogEngine.cpp core/LogEngine.cpp
-    core/SharedStrings.cpp core/String.cpp core/Strings.cpp core/SysLogEngine.cpp core/UniqueInstance.cpp core/Variant.cpp
-    core/string_ext.cpp core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/ReadBuffer.cpp core/StopWatch.cpp
-    core/SystemException.cpp core/md5.cpp core/BufferStorage.cpp core/HomeDirectory.cpp
-    json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
-    jwt/JWT.cpp jwt/JWT-openssl.cpp
-    net/BaseMailConnect.cpp net/BaseSocket.cpp net/CachedSSLContext.cpp
-    net/Host.cpp net/HttpAuthentication.cpp net/HttpConnect.cpp net/HttpParams.cpp net/HttpAuthentication.cpp net/HttpReader.cpp
-    net/HttpProxy.cpp net/ImapConnect.cpp net/MailMessageBody.cpp net/RequestInfo.cpp net/SmtpConnect.cpp net/SSLContext.cpp
-    net/SSLSocket.cpp net/SSLKeys.cpp net/SocketEvents.cpp net/TCPServer.cpp net/TCPServerListener.cpp net/TCPSocket.cpp
-    net/ServerConnection.cpp net/UDPSocket.cpp net/ImapDS.cpp net/Proxy.cpp net/URL.cpp
-    xml/Attributes.cpp xml/Document.cpp xml/DocType.cpp xml/Node.cpp xml/NodeList.cpp
-    tar/block.cpp tar/Tar.cpp tar/decode.cpp tar/handle.cpp tar/util.cpp
-    threads/Flag.cpp threads/Locks.cpp threads/Thread.cpp threads/ThreadManager.cpp threads/ThreadPool.cpp
-    threads/Semaphore.cpp threads/Runable.cpp threads/WorkerThread.cpp threads/Timer.cpp
-)
+FILE (GLOB SPUTIL_SOURCES core/*.cpp json/*.cpp jwt/*.cpp net/*.cpp xml/*.cpp tar/*.cpp threads/*.cpp)
+SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} ${SPUTL_INCLUDE_FILES})
+
+FILE (GLOB CONDITIONAL_SOURCES net/SocketPool.* core/ZLib.cpp core/Brotli.cpp core/RegularExpression.cpp)
+LIST (REMOVE_ITEM SPUTIL_SOURCES ${CONDITIONAL_SOURCES})
 
 IF (ZLIB_FOUND)
     SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/ZLib.cpp)

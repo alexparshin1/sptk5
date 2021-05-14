@@ -90,7 +90,6 @@ public:
      * Constructor
      */
     WSBasicType()
-    : m_field("")
     {}
 
     /**
@@ -257,7 +256,7 @@ public:
 
 private:
 
-    Field   m_field;
+    Field   m_field {""};
     bool    m_optional {false};    ///< Element optionality flag
 };
 
@@ -976,7 +975,7 @@ public:
 
     void load(const xml::Node* attr) override
     {
-        throwException("Invalid load attempt");
+        throwException("Invalid load attempt")
     }
 
     /**
@@ -985,7 +984,7 @@ public:
      */
     void load(const json::Element* attr) override
     {
-        throwException("Invalid load attempt");
+        throwException("Invalid load attempt")
     }
 
     /**
@@ -993,7 +992,7 @@ public:
      */
     String asString() const override
     {
-        throwException("Invalid conversion attempt");
+        throwException("Invalid conversion attempt")
     }
 
 private:

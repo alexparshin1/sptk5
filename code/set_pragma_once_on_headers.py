@@ -3,33 +3,33 @@
 import sys
 import re
 
-def processFile(fileName):
-    print('Processing: ', fileName)
+def process_file(file_name):
+    print('Processing: ', file_name)
 
-    with open(fileName) as f:
+    with open(file_name) as f:
         lines = f.readlines()
 
-    lineNumber = 0;
+    line_number = 0;
     for line in lines:
         if re.search("^#ifndef ", line):
-            line2 = lines[lineNumber + 1]
+            line2 = lines[line_number + 1]
             if re.search("^#define ", line2):
-                lines[lineNumber] = "#pragma once\n"
-                lines[lineNumber + 1] = ""
+                lines[line_number] = "#pragma once\n"
+                lines[line_number + 1] = ""
                 break;
-        lineNumber = lineNumber + 1
+        line_number = line_number + 1
 
-    for lineNumber in range(1,2):
-        if re.search("^#endif", lines[-lineNumber]):
-            lines[-lineNumber] = ""
+    for line_number in range(1,2):
+        if re.search("^#endif", lines[-line_number]):
+            lines[-line_number] = ""
             break;
 
-    output = open(fileName, "w")
+    output = open(file_name, "w")
     output.writelines(lines)
     output.close()
 
 paramNumber = 0
 for fileName in sys.argv:
     if paramNumber > 0:
-        processFile(fileName)
+        process_file(fileName)
     paramNumber = paramNumber + 1

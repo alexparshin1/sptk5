@@ -48,8 +48,8 @@ namespace sptk {
          */
         struct EventId
         {
-            uint64_t    serial {Timer::nextSerial++};  ///< Serial number
-            DateTime    when;                   ///< Execution date and time
+            uint64_t    serial {++Timer::nextSerial}; ///< Serial number
+            DateTime    when;                         ///< Execution date and time
             /**
              * Constructor
              * @param when      Event execution time

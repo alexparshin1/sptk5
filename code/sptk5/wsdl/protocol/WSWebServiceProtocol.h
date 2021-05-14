@@ -83,7 +83,6 @@ private:
     LogDetails          m_logDetails;           ///< Log details
 
     int getContentLength();
-
 };
 
 /// @}

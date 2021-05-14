@@ -592,6 +592,7 @@ private:
     void appendClosingTag(Buffer& buffer, int indent, bool only_cdata) const;
 
     void saveTextOrCDATASection(json::Element* object) const;
+    void setJsonValue(json::Element* object, const String& nodeText) const;
 };
 
 /**
