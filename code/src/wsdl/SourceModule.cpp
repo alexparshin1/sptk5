@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/wsdl/SourceModule.h>
+#include <sptk5/Printer.h>
 #include <fstream>
 
 using namespace std;
@@ -37,8 +38,13 @@ SourceModule::SourceModule(const String& moduleName, const String& modulePath)
 
 SourceModule::~SourceModule()
 {
-    writeFile(m_name + ".h", Buffer(m_header.str()));
-    writeFile(m_name + ".cpp", Buffer(m_source.str()));
+    try {
+        writeFile(m_name + ".h", Buffer(m_header.str()));
+        writeFile(m_name + ".cpp", Buffer(m_source.str()));
+    }
+    catch (const Exception& e) {
+        CERR(e.what())
+    }
 }
 
 void SourceModule::open()
@@ -81,6 +87,6 @@ void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& d
     file.open(fileName.c_str(), ofstream::out | ofstream::trunc);
     if (!file.is_open())
         throw Exception("Can't create file " + fileNameAndExtension);
-    file.write(data.c_str(), data.bytes());
+    file.write(data.c_str(), (long) data.bytes());
     file.close();
 }

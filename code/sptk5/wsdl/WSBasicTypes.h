@@ -141,7 +141,7 @@ public:
     /**
      * Clears content (sets to NULL)
      */
-    void clear()
+    void clear() override
     {
         m_field.setNull(VAR_NONE);
     }
@@ -374,7 +374,7 @@ public:
     /**
      * Conversion operator
      */
-    operator String() const
+    operator String() const override
     {
         return field().asString();
     }

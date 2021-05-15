@@ -30,6 +30,8 @@
 using namespace std;
 using namespace sptk;
 
+static constexpr char finalBitMask(char(0x80));
+
 const Buffer& WSWebSocketsMessage::payload() const
 {
     return m_payload;
@@ -52,12 +54,12 @@ static uint64_t ntoh64(uint64_t data)
 
 void WSWebSocketsMessage::decode(const char* incomingData)
 {
-    constexpr char finalBitMask(char(0x80));
     constexpr char maskedBitMask(char(0x80));
     constexpr char opcodeBitMask(char(0xF));
     constexpr char payloadLengthBitMask(char(0x7F));
     constexpr char lengthIsTwoBytes(126);
     constexpr char lengthIsEightBytes(127);
+    constexpr int  eightBytes(8);
 
     const auto*  ptr = (const uint8_t*) incomingData;
 
@@ -76,7 +78,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         case lengthIsEightBytes:
             ++ptr;
             payloadLength = ntoh64(*(const uint64_t*)ptr);
-            ptr += 8;
+            ptr += eightBytes;
             break;
         default:
             ++ptr;
@@ -123,7 +125,7 @@ void WSWebSocketsMessage::encode(const String& payload, OpCode opcode, bool fina
 
     *ptr = opcode & 0xF;
     if (finalMessage)
-        *ptr |= 0x80;
+        *ptr |= finalBitMask;
 
     ++ptr;
 

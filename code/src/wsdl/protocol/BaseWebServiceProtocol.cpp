@@ -40,7 +40,7 @@ BaseWebServiceProtocol::BaseWebServiceProtocol(TCPSocket* socket, const HttpHead
 {
 }
 
-xml::Node* BaseWebServiceProtocol::getFirstChildElement(const xml::Node* element) const
+xml::Node* BaseWebServiceProtocol::getFirstChildElement(const xml::Node* element)
 {
     for (auto* node: *element) {
         if (node->isElement())
@@ -70,7 +70,7 @@ xml::Node* BaseWebServiceProtocol::findRequestNode(const xml::Document& message,
     return xmlRequest;
 }
 
-void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) const
+void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message)
 {
     // Converting JSON request to XML request
     json::Document jsonContent;
@@ -153,7 +153,7 @@ void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, json
         }
 
         jsonContent.root()["rest_method_name"] = method;
-        for (auto& itor: m_url.params())
+        for (const auto& itor: m_url.params())
             jsonContent.root()[itor.first] = itor.second;
     }
 }

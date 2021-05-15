@@ -37,7 +37,7 @@ namespace sptk {
 
 class BaseWebServiceProtocol : public WSProtocol
 {
-    xml::Node* getFirstChildElement(const xml::Node* element) const;
+    static xml::Node* getFirstChildElement(const xml::Node* element) ;
 
 public:
     BaseWebServiceProtocol(TCPSocket* socket, const HttpHeaders& headers, sptk::WSServices& services, const URL& url);
@@ -51,7 +51,7 @@ protected:
     virtual void generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
                                const HTTPException& e, bool jsonOutput) const = 0;
 
-    void RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) const;
+    static void RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) ;
 
     xml::Node* findRequestNode(const xml::Document& message, const String& messageType) const;
 

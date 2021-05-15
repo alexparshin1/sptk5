@@ -131,7 +131,7 @@ public:
     /**
      * Clear content and releases allocated memory
      */
-    virtual void clear()
+    void clear() override
     {
         _clear();
     }
@@ -143,16 +143,16 @@ public:
     void copyFrom(const WSComplexType& other);
 
     /**
-     * Load data from XML node
-     * @param input             XML node containing CAddHandler data
+     * Loads type data from request XML node
+     * @param attr              XML node
      */
-    virtual void load(const xml::Node* input) = 0;
+    void load(const xml::Node* attr) override = 0;
 
     /**
-     * Load data from JSON element
-     * @param input             XML node containing CAddHandler data
+     * Loads type data from request JSON element
+     * @param attr              JSON element
      */
-    virtual void load(const json::Element* input) = 0;
+    void load(const json::Element* attr) override = 0;
 
     /**
      * Load data from FieldList
@@ -160,7 +160,6 @@ public:
      * Only simple WSDL type members are loaded.
      * @param input             Query field list containing CMqType data
      */
-
     virtual void load(const sptk::FieldList& input) = 0;
 
     /**
@@ -205,7 +204,7 @@ public:
     /**
      * True is data was loaded
      */
-    virtual bool isNull() const
+    bool isNull() const override
     {
         return !m_loaded;
     }
