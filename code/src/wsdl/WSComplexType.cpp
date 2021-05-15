@@ -45,7 +45,7 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
 
     sptk::QueryParameter* param = output.find(paramName);
     if (param != nullptr)
-        *param = *elementOrAttribute;
+        *param = elementOrAttribute->field();
 }
 
 void WSComplexType::addElement(xml::Node* parent, const char* name) const
