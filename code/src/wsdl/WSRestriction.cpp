@@ -88,7 +88,7 @@ void WSRestriction::check(const String& typeName, const String& value) const
     else
         return;
 
-    throw Exception("value '" + value + "' is invalid for restriction on element " + typeName);
+    throw Exception("The value '" + value + "' is invalid for restriction on element " + typeName);
 }
 
 String sptk::WSRestriction::generateConstructor(const String& variableName) const
