@@ -4,12 +4,9 @@ IF (LIBRARY_TYPE STREQUAL "SHARED")
   ADD_DEFINITIONS (-DSP_LIBRARY)
 ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
-ADD_LIBRARY (spdb5 ${LIBRARY_TYPE}
-    AutoDatabaseConnection.cpp
-    DatabaseField.cpp InsertQuery
-    QueryParameterBinding.cpp QueryParameter.cpp QueryParameterList.cpp
-    Query.cpp QueryBuilder.cpp Transaction.cpp DatabaseConnectionString.cpp
-    PoolDatabaseConnection.cpp DatabaseConnectionPool.cpp DatabaseTests.cpp)
+FILE (GLOB SPDB_SOURCE_FILES *.cpp)
+
+ADD_LIBRARY (spdb5 ${LIBRARY_TYPE} ${SPDB_SOURCE_FILES} ${SPDB_INCLUDE_FILES})
 
 SET_TARGET_PROPERTIES(spdb5 PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
 
