@@ -30,35 +30,63 @@ public:
    /**
     * Constructor
     * @param elementName        WSDL element name
-    * @param optional bool, Is element optional flag
+    * @param optional           Is element optional flag
     */
    explicit CHello(const char* elementName="hello", bool optional=false) noexcept
    : sptk::WSComplexType(elementName, optional)
-   {}
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_action, &m_first_name, &m_last_name});
+   }
 
    /**
-    * Load content from XML node
-    *
-    * Complex WSDL type members are loaded recursively.
-    * @param input              XML node containing CHello data
+    * Copy constructor
+    * @param other              Other object
     */
-   void load(const sptk::xml::Node* input) override;
+   explicit CHello(const CHello& other)
+   : sptk::WSComplexType(other),
+     m_action(other.m_action),
+     m_first_name(other.m_first_name),
+     m_last_name(other.m_last_name)
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_action, &m_first_name, &m_last_name});
+   }
 
    /**
-    * Load content from JSON element
-    *
-    * Complex WSDL type members are loaded recursively.
-    * @param input              JSON element containing CHello data
+    * Move constructor
+    * @param other              Other object
     */
-   void load(const sptk::json::Element* input) override;
+   explicit CHello(CHello&& other)
+   : sptk::WSComplexType(std::move(other)),
+     m_action(std::move(other.m_action)),
+     m_first_name(std::move(other.m_first_name)),
+     m_last_name(std::move(other.m_last_name))
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_action, &m_first_name, &m_last_name});
+   }
 
    /**
-    * Load content from FieldList
-    *
-    * Only simple WSDL type members are loaded.
-    * @param input              Query field list containing CHello data
+    * Copy assignment
+    * @param other              Other object
     */
-   void load(const sptk::FieldList& input) override;
+   CHello& operator = (const CHello& other)
+   {
+      m_action = other.m_action;
+      m_first_name = other.m_first_name;
+      m_last_name = other.m_last_name;
+      return *this;
+   }
+
+   /**
+    * Move assignment
+    * @param other              Other object
+    */
+   CHello& operator = (CHello&& other)
+   {
+      m_action = std::move(other.m_action);
+      m_first_name = std::move(other.m_first_name);
+      m_last_name = std::move(other.m_last_name);
+      return *this;
+   }
 
    /**
     * Unload content to existing XML node
@@ -79,31 +107,19 @@ public:
    void unload(sptk::QueryParameterList& output) const override;
 
    /**
-    * Check if null
-    * @return true if all elements and attributes are null
-    */
-   bool isNull() const override;
-
-   /**
     * Get simple field names that can be used to build SQL queries.
     * Return list of fields doesn't include fields of complex type.
     * @return list of fields as string vector
     */
    static const sptk::Strings& fieldNames() { return m_fieldNames; }
 
-protected:
-
-   /**
-    * Clear content and release allocated memory (internal)
-    */
-   void _clear() override;
 private:
 
    /**
     * Check restrictions
     * Throws an exception if any restriction is violated.
     */
-   void checkRestrictions() const;
+   void checkRestrictions() const override;
 };
 
 }

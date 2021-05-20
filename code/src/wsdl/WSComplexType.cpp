@@ -94,31 +94,99 @@ void WSComplexType::throwIfNull(const String& parentTypeName) const
         throw SOAPException("Element '" + m_name + "' is required in '" + parentTypeName + "'.");
 }
 
-WSComplexType::FieldNameIndex::FieldNameIndex(initializer_list<const char*> list)
+void WSComplexType::load(const xml::Node* input)
 {
-    int id = 0;
-    for (const auto* item: list) {
-        emplace_back(item, strlen(item), id);
-        m_index.emplace(item, strlen(item), id);
-        ++id;
+    _clear();
+    setLoaded(true);
+
+    // Load elements
+    for (const auto* node: *input) {
+        const auto* element = dynamic_cast<const xml::Element*>(node);
+        if (element == nullptr) continue;
+
+        auto* field = m_fields.find(element->name());
+        if (field != nullptr) {
+            field->load(node);
+        }
     }
+
+    // Load attributes
+    for (const auto* attribute: input->attributes()) {
+        auto* field = m_fields.find(attribute->name());
+        if (field != nullptr) {
+            auto* outputField = dynamic_cast<WSBasicType*>(field);
+            if (outputField != nullptr) {
+                outputField->load(attribute->value());
+            }
+        }
+    }
+
+    checkRestrictions();
 }
 
-int WSComplexType::FieldNameIndex::indexOf(const String& name) const
+void WSComplexType::load(const json::Element* input)
 {
-    auto itor = m_index.find(name);
-    if (itor == m_index.end())
-        return -1;
-    return (int) itor->ident();
+    _clear();
+    setLoaded(true);
+    if (!input->is(json::JDT_OBJECT))
+        return;
+
+    // Load elements
+    for (const auto& itor: input->getObject()) {
+        const auto* element = itor.element();
+
+        auto* field = m_fields.find(itor.name());
+        if (field != nullptr) {
+            field->load(element);
+        }
+    }
+
+    // Load attributes
+    const auto* attributes = input->find("attributes");
+    if (attributes != nullptr) {
+        if (attributes->is(json::JDT_OBJECT)) {
+            for (const auto& attribute: attributes->getObject()) {
+                auto* field = m_fields.find(attribute.name());
+                if (field != nullptr) {
+                    auto* outputField = dynamic_cast<WSBasicType*>(field);
+                    if (outputField != nullptr) {
+                        outputField->load((String)*attribute.element());
+                    }
+                }
+            }
+        }
+    }
+
+    checkRestrictions();
 }
 
-#if USE_GTEST
-
-TEST(SPTK_WSComplexType, FieldNameIndex)
+void WSComplexType::load(const FieldList& input)
 {
-    WSComplexType::FieldNameIndex fields = { "zero", "one", "two", "three" };
-    EXPECT_STREQ("zero,one,two,three", fields.join(",").c_str());
-    EXPECT_EQ(1, fields.indexOf("one"));
+    _clear();
+    setLoaded(true);
+
+    m_fields.forEach([&input](const String& name, WSType* field)
+    {
+        auto* inputField = input.findField("username");
+        auto* outputField = dynamic_cast<WSBasicType*>(field);
+        if (inputField != nullptr && outputField != nullptr) {
+            outputField->load(*inputField);
+        }
+        return true;
+    });
+
+    checkRestrictions();
 }
 
-#endif
+bool WSComplexType::isNull() const
+{
+    bool hasValues = false;
+    m_fields.forEach([&hasValues](const String&, WSType* field)
+                     {
+                         if (field->isNull())
+                            return true;
+                         hasValues = true;
+                         return false;
+                     });
+    return !hasValues;
+}

@@ -26,22 +26,84 @@
 
 #pragma once
 
-#include <sptk5/net/HttpConnect.h>
-#include <test/wsdl/Service/CTestServiceBase.h>
+#include <sptk5/wsdl/WSType.h>
 
 namespace sptk {
 
-class TestWebService : public test_service::CTestServiceBase
+/**
+ * Field index contains pointers to WSTypeName objects
+ *
+ * Field list is defined during construction, and
+ * can't be altered later
+ */
+class WSFieldIndex
 {
 public:
-    static std::shared_ptr<HttpConnect::Authorization> jwtAuthorization;
 
-    void Hello(const test_service::CHello& input, test_service::CHelloResponse& output, sptk::HttpAuthentication* authentication) override;
+    /**
+     * Initialize field index with field fieldList
+     * @param fieldNames        Field names
+     * @param fieldList         Field list
+     */
+    WSFieldIndex() {}
 
-    void AccountBalance(const test_service::CAccountBalance& input, test_service::CAccountBalanceResponse& output,
-                        sptk::HttpAuthentication* authentication) override;
+    /**
+     * Do not change internal state
+     */
+    WSFieldIndex(const WSFieldIndex&) {}
 
-    void Login(const test_service::CLogin& input, test_service::CLoginResponse& output, sptk::HttpAuthentication* authentication) override;
+    /**
+     * Do not change internal state
+     */
+    WSFieldIndex(WSFieldIndex&&) {}
+
+    /**
+     * Do not change internal state
+     */
+    WSFieldIndex& operator = (const WSFieldIndex&) { return *this; }
+
+    /**
+     * Do not change internal state
+     */
+    WSFieldIndex& operator = (WSFieldIndex&&) { return *this; }
+
+    /**
+     * Initialize field index with field fieldList
+     * @param fieldNames        Field names
+     * @param fieldList         Field list
+     */
+    void set(const Strings& fieldNames, std::initializer_list<WSType*> fieldList);
+
+    /**
+     * Get const fields map
+     * @return fields map
+     */
+    const std::map<String, WSType*>& fields() const { return m_fields; }
+
+    /**
+     * Return a field for field name, or return nullptr if not found
+     * @param name              Field name
+     * @return field pointer, or nullptr if not found
+     */
+    WSType* find(const String& name) const;
+
+    /**
+     * Execute the method for each field until it returns false
+     * @param method            Method to execute
+     */
+    void forEach(const std::function<bool(const String&,WSType*)>& method);
+
+    /**
+     * Execute the method for each field until it returns false
+     * @param method            Method to execute
+     */
+    void forEach(const std::function<bool(const String&,WSType*)>& method) const;
+
+private:
+
+    std::map<String, WSType*>   m_fields;
 };
+
+typedef std::shared_ptr<WSFieldIndex> SWSFieldIndex;
 
 }

@@ -29,36 +29,54 @@ void CTestServiceBase::requestBroker(const String& requestName, xml::Element* xm
         }
     }
     catch (const SOAPException& e) {
-        if (xmlContent) {
-            auto* soapBody = (xml::Element*) xmlContent->parent();
-            soapBody->clearChildren();
-            String soap_namespace = WSParser::get_namespace(soapBody->name());
-            if (!soap_namespace.empty())
-                soap_namespace += ":";
-            auto* faultNode = new xml::Element(soapBody, (soap_namespace + "Fault").c_str());
-            auto* faultCodeNode = new xml::Element(faultNode, "faultcode");
-            faultCodeNode->text(soap_namespace + "Client");
-            auto* faultStringNode = new xml::Element(faultNode, "faultstring");
-            faultStringNode->text(e.what());
-            new xml::Element(faultNode, "detail");
-        }
-        else throw;
+        logError(requestName, e.what(), 0);
+        handleError(xmlContent, jsonContent, e.what(), 0);
     }
     catch (const HTTPException& e) {
-        if (m_logEngine != nullptr) {
-            Logger logger(*m_logEngine);
-            logger.error(requestName + ": "  + String("HTTP exception: ") + e.what());
-        }
-        throw;
+        logError(requestName, e.what(), e.statusCode());
+        handleError(xmlContent, jsonContent, e.what(), e.statusCode());
     }
     catch (const Exception& e) {
-        if (m_logEngine != nullptr) {
-            Logger logger(*m_logEngine);
-            logger.error(requestName + ": " + String("Request error: ") + e.what());
-        }
-        throw;
+        logError(requestName, e.what(), 0);
+        handleError(xmlContent, jsonContent, e.what(), 0);
     }
 }
+
+void CTestServiceBase::logError(const String& requestName, const String& error, int errorCode) const
+{
+    if (m_logEngine) {
+        Logger logger(*m_logEngine);
+        if (errorCode != 0)
+            logger.error(requestName + ": " + to_string(errorCode) + " " + error);
+        else
+            logger.error(requestName + ": " + error);
+    }
+}
+
+void CTestServiceBase::handleError(xml::Element* xmlContent, json::Element* jsonContent, const String& error, int errorCode) const
+{
+    // Error handling
+    if (xmlContent) {
+        auto* soapBody = (xml::Element*) xmlContent->parent();
+        soapBody->clearChildren();
+        String soap_namespace = WSParser::get_namespace(soapBody->name());
+        if (!soap_namespace.empty())
+            soap_namespace += ":";
+        auto* faultNode = new xml::Element(soapBody, (soap_namespace + "Fault").c_str());
+        auto* faultCodeNode = new xml::Element(faultNode, "faultcode");
+        faultCodeNode->text(soap_namespace + "Client");
+        auto* faultStringNode = new xml::Element(faultNode, "faultstring");
+        faultStringNode->text(error);
+        new xml::Element(faultNode, "detail");
+    }
+    else {
+        jsonContent->clear();
+        if (errorCode != 0)
+            jsonContent->set("error_code", errorCode);
+        jsonContent->set("error_description", error);
+    }
+}
+
 
 template <class InputData, class OutputData>
 void processAnyRequest(xml::Element* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)

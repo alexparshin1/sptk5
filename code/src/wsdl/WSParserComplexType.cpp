@@ -202,6 +202,8 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     Strings ctorInitializer;
     Strings copyInitializer;
     Strings moveInitializer;
+    Strings copyFields;
+    Strings moveFields;
     ctorInitializer.push_back(string("sptk::WSComplexType(elementName, optional)"));
     copyInitializer.push_back(string("sptk::WSComplexType(other)"));
     moveInitializer.push_back(string("sptk::WSComplexType(std::move(other))"));
@@ -222,6 +224,9 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
             copyInitializer.push_back("m_" + complexType->name() + "(other.m_" + complexType->name() + ")");
             moveInitializer.push_back("m_" + complexType->name() + "(std::move(other.m_" + complexType->name() + "))");
 
+            copyFields.push_back("m_" + complexType->name() + " = other.m_" + complexType->name());
+            moveFields.push_back("m_" + complexType->name() + " = std::move(other.m_" + complexType->name() + ")");
+
             classDeclaration << "   " << left << setw(30) << cxxType << " m_" << complexType->name();
             if (!complexType->isArray())
                 classDeclaration
@@ -241,34 +246,53 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Constructor" << endl;
     classDeclaration << "    * @param elementName        WSDL element name" << endl;
-    classDeclaration << "    * @param optional bool, Is element optional flag" << endl;
+    classDeclaration << "    * @param optional           Is element optional flag" << endl;
     classDeclaration << "    */" << endl;
     classDeclaration << "   explicit " << className << "(const char* elementName=\"" << tagName << "\", bool optional=false) noexcept" << endl
-                     << "   : " << ctorInitializer.join(",\n     ") << endl << "   {}" << endl << endl;
+                     << "   : " << ctorInitializer.join(",\n     ") << endl
+                     << "   {" << endl;
+    classDeclaration << "      WSComplexType::setFields(m_fieldNames, {&m_" << fieldNames.join(", &m_") << "});" << endl;
+    classDeclaration << "   }" << endl << endl;
 
     classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Load content from XML node" << endl;
-    classDeclaration << "    *" << endl;
-    classDeclaration << "    * Complex WSDL type members are loaded recursively." << endl;
-    classDeclaration << "    * @param input              XML node containing " << className << " data" << endl;
+    classDeclaration << "    * Copy constructor" << endl;
+    classDeclaration << "    * @param other              Other object" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void load(const sptk::xml::Node* input) override;" << endl << endl;
+    classDeclaration << "   explicit " << className << "(const " << className << "& other)" << endl
+                     << "   : " << copyInitializer.join(",\n     ") << endl
+                     << "   {" << endl;
+    classDeclaration << "      WSComplexType::setFields(m_fieldNames, {&m_" << fieldNames.join(", &m_") << "});" << endl;
+    classDeclaration << "   }" << endl << endl;
 
     classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Load content from JSON element" << endl;
-    classDeclaration << "    *" << endl;
-    classDeclaration << "    * Complex WSDL type members are loaded recursively." << endl;
-    classDeclaration << "    * @param input              JSON element containing " << className << " data" << endl;
+    classDeclaration << "    * Move constructor" << endl;
+    classDeclaration << "    * @param other              Other object" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void load(const sptk::json::Element* input) override;" << endl << endl;
+    classDeclaration << "   explicit " << className << "(" << className << "&& other)" << endl
+                     << "   : " << moveInitializer.join(",\n     ") << endl
+                     << "   {" << endl;
+    classDeclaration << "      WSComplexType::setFields(m_fieldNames, {&m_" << fieldNames.join(", &m_") << "});" << endl;
+    classDeclaration << "   }" << endl << endl;
 
     classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Load content from FieldList" << endl;
-    classDeclaration << "    *" << endl;
-    classDeclaration << "    * Only simple WSDL type members are loaded." << endl;
-    classDeclaration << "    * @param input              Query field list containing " << className << " data" << endl;
+    classDeclaration << "    * Copy assignment" << endl;
+    classDeclaration << "    * @param other              Other object" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void load(const sptk::FieldList& input) override;" << endl << endl;
+    classDeclaration << "   " << className << "& operator = (const " << className << "& other)" << endl
+                     << "   {" << endl;
+    classDeclaration << "      " << copyFields.join(";\n      ") << ";" << endl;
+    classDeclaration << "      return *this;" << endl;
+    classDeclaration << "   }" << endl << endl;
+
+    classDeclaration << "   /**" << endl;
+    classDeclaration << "    * Move assignment" << endl;
+    classDeclaration << "    * @param other              Other object" << endl;
+    classDeclaration << "    */" << endl;
+    classDeclaration << "   " << className << "& operator = (" << className << "&& other)" << endl
+                     << "   {" << endl;
+    classDeclaration << "      " << moveFields.join(";\n      ") << ";" << endl;
+    classDeclaration << "      return *this;" << endl;
+    classDeclaration << "   }" << endl << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Unload content to existing XML node" << endl;
@@ -289,12 +313,6 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "   void unload(sptk::QueryParameterList& output) const override;" << endl << endl;
 
     classDeclaration << "   /**" << endl;
-    classDeclaration << "    * Check if null" << endl;
-    classDeclaration << "    * @return true if all elements and attributes are null" << endl;
-    classDeclaration << "    */" << endl;
-    classDeclaration << "   bool isNull() const override;" << endl << endl;
-
-    classDeclaration << "   /**" << endl;
     classDeclaration << "    * Get simple field names that can be used to build SQL queries." << endl;
     classDeclaration << "    * Return list of fields doesn't include fields of complex type." << endl;
     classDeclaration << "    * @return list of fields as string vector" << endl;
@@ -302,19 +320,13 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "   static const sptk::Strings& fieldNames() { return m_fieldNames; }" << endl;
 
     classDeclaration << endl;
-    classDeclaration << "protected:" << endl << endl;
-
-    classDeclaration << "   /**" << endl
-                     << "    * Clear content and release allocated memory (internal)" << endl
-                     << "    */" << endl
-                     << "   void _clear() override;" << endl;
 
     classDeclaration << "private:" << endl << endl;
     classDeclaration << "   /**" << endl
                      << "    * Check restrictions" << endl
                      << "    * Throws an exception if any restriction is violated." << endl
                      << "    */" << endl
-                     << "   void checkRestrictions() const;" << endl;
+                     << "   void checkRestrictions() const override;" << endl;
 
     classDeclaration << "};" << endl;
     classDeclaration << endl;
@@ -371,24 +383,6 @@ void WSParserComplexType::printImplementationIncludes(ostream& classImplementati
     classImplementation << "using namespace sptk;" << endl;
 }
 
-void WSParserComplexType::printImplementationClear(ostream& classImplementation, const String& className) const
-{
-    classImplementation << "void " << className << "::_clear()" << endl;
-    classImplementation << "{" << endl;
-    classImplementation << "    // Clear elements" << endl;
-    for (auto& complexType: m_sequence) {
-        classImplementation << "    m_" << complexType->name() << ".clear();" << endl;
-    }
-    if (!m_attributes.empty()) {
-        classImplementation << "    // Clear attributes" << endl;
-        for (auto& itor: m_attributes) {
-            const WSParserAttribute& attr = *(itor.second);
-            classImplementation << "    m_" << attr.name() << ".setNull(VAR_NONE);" << endl;
-        }
-    }
-    classImplementation << "}" << endl << endl;
-}
-
 void WSParserComplexType::printImplementationRestrictions(std::ostream& classImplementation, std::ostream& checks) const
 {
     Strings requiredElements;
@@ -427,184 +421,6 @@ void WSParserComplexType::printImplementationCheckRestrictions(ostream& classImp
     printImplementationRestrictions(classImplementation, checks);
     classImplementation << checks.str();
     classImplementation << "}" << endl << endl;
-}
-
-void WSParserComplexType::printImplementationLoadXML(ostream& classImplementation, const String& className) const
-{
-    ImplementationParts implementationParts;
-    bool hideInputParameterName = m_attributes.empty() && m_sequence.empty();
-    classImplementation << "void " << className << "::load(const xml::Node*"
-                        << (hideInputParameterName? "": " input") << ")" << endl
-                        << "{" << endl;
-
-    implementationParts.body << "    _clear();" << endl
-                             << "    setLoaded(true);" << endl;
-
-    printImplementationLoadXMLAttributes(implementationParts);
-    printImplementationLoadXMLFields(implementationParts);
-
-    implementationParts.print(classImplementation);
-
-    classImplementation << "    checkRestrictions();" << endl;
-    classImplementation << "}" << endl << endl;
-}
-
-void WSParserComplexType::printImplementationLoadXMLAttributes(ImplementationParts& implementationParts) const
-{
-    if (!m_attributes.empty()) {
-        implementationParts.body << endl << "    // Load attributes" << endl;
-        for (auto& itor: m_attributes) {
-            const WSParserAttribute& attr = *itor.second;
-            implementationParts.body << "    m_" << attr.name() << ".load((String) input->getAttribute(\"" << attr.name() << "\"));" << endl;
-        }
-    }
-}
-
-void WSParserComplexType::printImplementationLoadXMLFields(ImplementationParts& implementationParts) const
-{
-    if (!m_sequence.empty()) {
-        implementationParts.body << endl << "    // Load elements" << endl;
-        implementationParts.body << "    for (const auto* node: *input) {" << endl;
-        implementationParts.body << "        const auto* element = dynamic_cast<const xml::Element*>(node);" << endl;
-        implementationParts.body << "        if (element == nullptr) continue;" << endl;
-        Strings requiredElements;
-        for (auto& complexType: m_sequence) {
-            implementationParts.body << endl;
-            implementationParts.body << "        if (element->name() == \"" << complexType->name() << "\") {" << endl;
-            if (complexType->isArray())
-                implementationParts.printImplementationLoadArray(complexType);
-            else
-                implementationParts.printImplementationLoadField(requiredElements, complexType);
-            implementationParts.body << "        }" << endl;
-        }
-        implementationParts.body << "    }" << endl;
-    }
-}
-
-void WSParserComplexType::printImplementationLoadJSON(ostream& classImplementation, const String& className) const
-{
-    ImplementationParts implementationParts;
-    bool hideInputParameterName = m_attributes.empty() && m_sequence.empty();
-    classImplementation << "void " << className << "::load(const json::Element*"
-                        << (hideInputParameterName? "": " input") << ")" << endl
-                        << "{" << endl;
-
-    implementationParts.body
-                        << "    _clear();" << endl
-                        << "    setLoaded(true);" << endl
-                        << "    if (!input->is(json::JDT_OBJECT))" << endl
-                        << "        return;" << endl;
-
-    printImplementationLoadJSONAttributes(implementationParts);
-
-    if (!m_sequence.empty()) {
-        implementationParts.body << endl << "    // Load elements" << endl;
-        implementationParts.body << "    for (const auto& itor: input->getObject()) {" << endl;
-        implementationParts.body << "        const auto& elementName = itor.name();" << endl;
-        implementationParts.body << "        const auto* element = itor.element();" << endl;
-        Strings requiredElements;
-        for (auto& complexType: m_sequence) {
-            implementationParts.body << endl;
-            implementationParts.body << "        if (elementName == \"" << complexType->name() << "\") {" << endl;
-            if (complexType->isArray()) {
-                implementationParts.body << "            for (const auto* arrayElement: element->getArray()) {" << endl;
-                implementationParts.body << "                " << complexType->className() << " item(\"" << complexType->name() << "\", false);" << endl;
-                implementationParts.body << "                item.load(arrayElement);" << endl;
-                implementationParts.body << "                m_" << complexType->name() << ".push_back(move(item));" << endl;
-                implementationParts.body << "            }" << endl;
-            }
-            else {
-                implementationParts.printImplementationLoadField(requiredElements, complexType);
-            }
-            implementationParts.body << "        }" << endl;
-        }
-        implementationParts.body << "    }" << endl;
-    }
-
-    implementationParts.print(classImplementation);
-
-    classImplementation << "    checkRestrictions();" << endl;
-    classImplementation << "}" << endl << endl;
-}
-
-void WSParserComplexType::printImplementationLoadJSONAttributes(ImplementationParts& implementationParts) const
-{
-    if (!m_attributes.empty()) {
-        implementationParts.body << endl << "    // Load attributes" << endl;
-        implementationParts.body << "    auto* attributes = input->find(\"attributes\");" << endl;
-        implementationParts.body << "    if (attributes != nullptr) {" << endl;
-        implementationParts.body << "        const json::Element* attribute;" << endl;
-        for (auto& itor: m_attributes) {
-            const WSParserAttribute& attr = *itor.second;
-            implementationParts.body << "        attribute = attributes->find(\"" << attr.name() << "\");" << endl;
-            implementationParts.body << "        if (attribute != nullptr)" << endl;
-            implementationParts.body << "            m_" << attr.name() << ".load(attribute);" << endl;
-        }
-        implementationParts.body << endl << "    }" << endl;
-    }
-}
-
-void WSParserComplexType::printImplementationLoadFields(ostream& classImplementation, const String& className) const
-{
-    Strings             requiredElements;
-    stringstream        fieldLoads;
-    stringstream        checks;
-    int                 fieldLoadCount = 0;
-
-    makeImplementationLoadAttributes(fieldLoads, fieldLoadCount);
-    makeImplementationLoadFields(fieldLoads, fieldLoadCount, requiredElements);
-
-    bool hideInputParameter = fieldLoadCount == 0;
-    classImplementation << "void " << className << "::load(const FieldList&"
-                        << (hideInputParameter? "" : " input") << ")" << endl
-                        << "{" << endl;
-
-    classImplementation << "    _clear();" << endl
-                        << "    setLoaded(true);" << endl;
-
-    if (fieldLoadCount != 0) {
-        classImplementation << "    const Field* field;" << endl;
-        classImplementation << fieldLoads.str();
-    }
-
-    classImplementation << checks.str();
-
-    classImplementation << "    checkRestrictions();" << endl;
-    classImplementation << "}" << endl << endl;
-}
-
-void WSParserComplexType::makeImplementationLoadFields(stringstream& fieldLoads, int& fieldLoadCount,
-                                                       Strings& requiredElements) const
-{
-    RegularExpression matchStandardType("^xsd:");
-    size_t            restrictionIndex = 0;
-
-    if (!m_sequence.empty()) {
-        fieldLoads << endl << "    // Load elements" << endl;
-        for (auto& complexType: m_sequence) {
-            if ((complexType->multiplicity() & WSM_REQUIRED) != 0)
-                requiredElements.push_back(complexType->name());
-            if (!matchStandardType.matches(complexType->m_typeName))
-                continue;
-            ++fieldLoadCount;
-            fieldLoads << "    if ((field = input.findField(\"" << complexType->name() << "\")) != nullptr) {" << endl;
-            String restrictionCheck = addOptionalRestriction(fieldLoads, complexType, restrictionIndex);
-
-            if (complexType->isArray()) {
-                fieldLoads << "        " << complexType->className() << " item(\"" << complexType->name() << "\", false);" << endl;
-                fieldLoads << "        item.load(*field);" << endl;
-                fieldLoads << "        m_" << complexType->name() << ".push_back(move(item));" << endl;
-            }
-            else {
-                fieldLoads << "        m_" << complexType->name() << ".load(*field);" << endl;
-            }
-
-            if (restrictionCheck.empty())
-                fieldLoads << restrictionCheck << endl;
-
-            fieldLoads << "    }" << endl << endl;
-        }
-    }
 }
 
 String WSParserComplexType::addOptionalRestriction(std::ostream& implementation,
@@ -717,40 +533,6 @@ void WSParserComplexType::printImplementationUnloadJSON(ostream& classImplementa
     classImplementation << "}" << endl << endl;
 }
 
-void WSParserComplexType::printImplementationIsNull(ostream& classImplementation, const String& className) const
-{
-    classImplementation << "bool " << className << "::isNull() const" << endl
-                        << "{" << endl;
-
-    String indent = "\n        ";
-    if (!m_attributes.empty()) {
-        classImplementation << "    // Check attributes" << endl;
-        classImplementation << "    bool attributesAreNull = ";
-
-        Strings attributeChecks;
-        for (auto& itor: m_attributes) {
-            const WSParserAttribute& attr = *itor.second;
-            attributeChecks.push_back("m_" + attr.name() + ".isNull()");
-        }
-        classImplementation << indent << attributeChecks.join(indent + "&& ") << ";";
-        classImplementation << "    if (!attributesAreNull)" << endl
-                            << "        return false;" << endl;
-        classImplementation << endl;
-    }
-
-    if (!m_sequence.empty()) {
-        classImplementation << "    // Check elements" << endl;
-        classImplementation << "    bool elementsAreNull = ";
-        Strings elementChecks;
-        for (auto& complexType: m_sequence) {
-            elementChecks.push_back("m_" + complexType->name() + ".isNull()");
-        }
-        classImplementation << indent << elementChecks.join(indent + "&& ") << ";" << endl << endl;
-    }
-    classImplementation << "    return elementsAreNull;" << endl;
-    classImplementation << "}" << endl << endl;
-}
-
 void WSParserComplexType::printImplementationUnloadParamList(ostream& classImplementation, const String& className) const
 {
     stringstream    unloadList;
@@ -802,16 +584,11 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
                         << "\" };" << endl << endl;
 
     printImplementationCheckRestrictions(classImplementation, className);
-    printImplementationClear(classImplementation, className);
-    printImplementationLoadXML(classImplementation, className);
-    printImplementationLoadJSON(classImplementation, className);
 
     RegularExpression matchStandardType("^xsd:");
-    printImplementationLoadFields(classImplementation, className);
 
     printImplementationUnloadXML(classImplementation, className);
     printImplementationUnloadJSON(classImplementation, className);
-    printImplementationIsNull(classImplementation, className);
     printImplementationUnloadParamList(classImplementation, className);
 }
 

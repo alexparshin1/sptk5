@@ -278,4 +278,96 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
     request_listener_test(Strings("Login|AccountBalance", "|"), true);
 }
 
+TEST(SPTK_WSGeneratedClasses, CopyConstructor)
+{
+    CLogin login;
+    login.m_username = "johnd";
+    login.m_password = "secret";
+
+    CLogin login2(login);
+    EXPECT_EQ(login.m_username.asString(), login2.m_username.asString());
+    EXPECT_EQ(login.m_password.asString(), login2.m_password.asString());
+}
+
+TEST(SPTK_WSGeneratedClasses, MoveConstructor)
+{
+    CLogin login;
+    login.m_username = "johnd";
+    login.m_password = "secret";
+
+    CLogin login2(move(login));
+    EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
+    EXPECT_STREQ("secret", login2.m_password.asString().c_str());
+    EXPECT_TRUE(login.m_username.isNull());
+    EXPECT_TRUE(login.m_password.isNull());
+}
+
+TEST(SPTK_WSGeneratedClasses, CopyAssignment)
+{
+    CLogin login;
+    login.m_username = "johnd";
+    login.m_password = "secret";
+
+    CLogin login2;
+    login2 = login;
+    EXPECT_EQ(login.m_username.asString(), login2.m_username.asString());
+    EXPECT_EQ(login.m_password.asString(), login2.m_password.asString());
+}
+
+TEST(SPTK_WSGeneratedClasses, MoveAssignment)
+{
+    CLogin login;
+    login.m_username = "johnd";
+    login.m_password = "secret";
+
+    CLogin login2;
+    login2 = move(login);
+    EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
+    EXPECT_STREQ("secret", login2.m_password.asString().c_str());
+    EXPECT_TRUE(login.m_username.isNull());
+    EXPECT_TRUE(login.m_password.isNull());
+}
+
+TEST(SPTK_WSGeneratedClasses, Clear)
+{
+    CLogin login;
+    login.m_username = "johnd";
+    login.m_password = "secret";
+
+    login.clear();
+
+    EXPECT_TRUE(login.m_username.isNull());
+    EXPECT_TRUE(login.m_password.isNull());
+    EXPECT_TRUE(login.isNull());
+}
+
+static const char* testXML = R"(<?xml version="1.0" encoding="UTF-8"?><login><username>johnd</username><password>secret</password></login>)";
+static const char* testJSON = R"({ "username": "johnd", "password": "secret" })";
+
+TEST(SPTK_WSGeneratedClasses, LoadXML)
+{
+    xml::Document input;
+    input.load(testXML);
+    auto* loginNode = input.findFirst("login");
+
+    CLogin login;
+    login.load(loginNode);
+
+    EXPECT_STREQ("johnd", login.m_username.asString().c_str());
+    EXPECT_STREQ("secret", login.m_password.asString().c_str());
+}
+
+TEST(SPTK_WSGeneratedClasses, LoadJSON)
+{
+    json::Document input;
+    input.load(testJSON);
+    auto& loginNode = input.root();
+
+    CLogin login;
+    login.load(&loginNode);
+
+    EXPECT_STREQ("johnd", login.m_username.asString().c_str());
+    EXPECT_STREQ("secret", login.m_password.asString().c_str());
+}
+
 #endif

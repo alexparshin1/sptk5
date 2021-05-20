@@ -24,24 +24,40 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include <sptk5/wsdl/WSFieldIndex.h>
 
-#include <sptk5/net/HttpConnect.h>
-#include <test/wsdl/Service/CTestServiceBase.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-class TestWebService : public test_service::CTestServiceBase
+void WSFieldIndex::set(const Strings& fieldNames, std::initializer_list<WSType*> fieldList)
 {
-public:
-    static std::shared_ptr<HttpConnect::Authorization> jwtAuthorization;
+    size_t index = 0;
+    for (auto* field: fieldList) {
+        m_fields[ fieldNames[index] ] = field;
+        ++index;
+    }
+}
 
-    void Hello(const test_service::CHello& input, test_service::CHelloResponse& output, sptk::HttpAuthentication* authentication) override;
+WSType* WSFieldIndex::find(const String& name) const
+{
+    auto itor = m_fields.find(name);
+    if (itor == m_fields.end())
+        return nullptr;
+    return itor->second;
+}
 
-    void AccountBalance(const test_service::CAccountBalance& input, test_service::CAccountBalanceResponse& output,
-                        sptk::HttpAuthentication* authentication) override;
+void WSFieldIndex::forEach(const function<bool(const String&, WSType*)>& method)
+{
+    for (auto& field: m_fields) {
+        if (!method(field.first, field.second))
+            break;
+    }
+}
 
-    void Login(const test_service::CLogin& input, test_service::CLoginResponse& output, sptk::HttpAuthentication* authentication) override;
-};
-
+void WSFieldIndex::forEach(const function<bool(const String&, WSType*)>& method) const
+{
+    for (auto& field: m_fields) {
+        if (!method(field.first, field.second))
+            break;
+    }
 }

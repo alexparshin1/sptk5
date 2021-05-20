@@ -29,12 +29,6 @@
 using namespace std;
 using namespace sptk;
 
-void WSTypeName::owaspCheck(const String& value)
-{
-    if (value.find("<script") != string::npos || value.find("</script>") != string::npos)
-        throw Exception("Invalid value: constains a script");
-}
-
 xml::Element* WSBasicType::addElement(xml::Node* parent, const char* _name) const
 {
     String elementName = _name == nullptr? name() : _name;

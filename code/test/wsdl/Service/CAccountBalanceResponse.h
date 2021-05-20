@@ -28,35 +28,55 @@ public:
    /**
     * Constructor
     * @param elementName        WSDL element name
-    * @param optional bool, Is element optional flag
+    * @param optional           Is element optional flag
     */
    explicit CAccountBalanceResponse(const char* elementName="account_balance_response", bool optional=false) noexcept
    : sptk::WSComplexType(elementName, optional)
-   {}
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_account_balance});
+   }
 
    /**
-    * Load content from XML node
-    *
-    * Complex WSDL type members are loaded recursively.
-    * @param input              XML node containing CAccountBalanceResponse data
+    * Copy constructor
+    * @param other              Other object
     */
-   void load(const sptk::xml::Node* input) override;
+   explicit CAccountBalanceResponse(const CAccountBalanceResponse& other)
+   : sptk::WSComplexType(other),
+     m_account_balance(other.m_account_balance)
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_account_balance});
+   }
 
    /**
-    * Load content from JSON element
-    *
-    * Complex WSDL type members are loaded recursively.
-    * @param input              JSON element containing CAccountBalanceResponse data
+    * Move constructor
+    * @param other              Other object
     */
-   void load(const sptk::json::Element* input) override;
+   explicit CAccountBalanceResponse(CAccountBalanceResponse&& other)
+   : sptk::WSComplexType(std::move(other)),
+     m_account_balance(std::move(other.m_account_balance))
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_account_balance});
+   }
 
    /**
-    * Load content from FieldList
-    *
-    * Only simple WSDL type members are loaded.
-    * @param input              Query field list containing CAccountBalanceResponse data
+    * Copy assignment
+    * @param other              Other object
     */
-   void load(const sptk::FieldList& input) override;
+   CAccountBalanceResponse& operator = (const CAccountBalanceResponse& other)
+   {
+      m_account_balance = other.m_account_balance;
+      return *this;
+   }
+
+   /**
+    * Move assignment
+    * @param other              Other object
+    */
+   CAccountBalanceResponse& operator = (CAccountBalanceResponse&& other)
+   {
+      m_account_balance = std::move(other.m_account_balance);
+      return *this;
+   }
 
    /**
     * Unload content to existing XML node
@@ -77,31 +97,19 @@ public:
    void unload(sptk::QueryParameterList& output) const override;
 
    /**
-    * Check if null
-    * @return true if all elements and attributes are null
-    */
-   bool isNull() const override;
-
-   /**
     * Get simple field names that can be used to build SQL queries.
     * Return list of fields doesn't include fields of complex type.
     * @return list of fields as string vector
     */
    static const sptk::Strings& fieldNames() { return m_fieldNames; }
 
-protected:
-
-   /**
-    * Clear content and release allocated memory (internal)
-    */
-   void _clear() override;
 private:
 
    /**
     * Check restrictions
     * Throws an exception if any restriction is violated.
     */
-   void checkRestrictions() const;
+   void checkRestrictions() const override;
 };
 
 }

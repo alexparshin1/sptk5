@@ -31,6 +31,7 @@
 #include <sptk5/Variant.h>
 #include <sptk5/FieldList.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
+#include <sptk5/wsdl/WSFieldIndex.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/threads/Locks.h>
 
@@ -44,19 +45,9 @@ namespace sptk {
 /**
  * Base type for all user WSDL types
  */
-class SP_EXPORT WSComplexType : public WSTypeName
+class SP_EXPORT WSComplexType : public WSType
 {
 public:
-
-    class SP_EXPORT FieldNameIndex : public sptk::Strings
-    {
-    public:
-        FieldNameIndex() = default;
-        FieldNameIndex(std::initializer_list<const char*> list);
-        int indexOf(const String& name) const override;
-    private:
-        std::set<String> m_index;
-    };
 
     /**
      * Default constructor
@@ -72,7 +63,9 @@ public:
      * @param other             Other object
      */
     WSComplexType(const WSComplexType& other)
-    : m_name(other.m_name), m_optional(other.m_optional), m_loaded(other.m_loaded)
+    : m_name(other.m_name),
+      m_optional(other.m_optional),
+      m_loaded(other.m_loaded)
     {}
 
     /**
@@ -144,15 +137,15 @@ public:
 
     /**
      * Loads type data from request XML node
-     * @param attr              XML node
+     * @param input             XML node
      */
-    void load(const xml::Node* attr) override = 0;
+    void load(const xml::Node* input) override;
 
     /**
      * Loads type data from request JSON element
      * @param attr              JSON element
      */
-    void load(const json::Element* attr) override = 0;
+    void load(const json::Element* attr) override;
 
     /**
      * Load data from FieldList
@@ -160,7 +153,7 @@ public:
      * Only simple WSDL type members are loaded.
      * @param input             Query field list containing CMqType data
      */
-    virtual void load(const sptk::FieldList& input) = 0;
+    virtual void load(const sptk::FieldList& input);
 
     /**
      * Unload data to existing XML node
@@ -183,7 +176,7 @@ public:
     /**
      * Unload single element or attribute to DB query parameter
      * @param output            Query parameters
-     * @param paramName         Query parameter name
+     * @param paramName         Quermy parameter name
      * @param elementOrAttribute Complex type element (not an array!)
      */
     static void unload(QueryParameterList& output, const char* paramName, const WSBasicType* elementOrAttribute);
@@ -202,12 +195,9 @@ public:
     virtual void addElement(json::Element* parent) const;
 
     /**
-     * True is data was loaded
+     * True if data was not loaded, or if all the fields are null.
      */
-    bool isNull() const override
-    {
-        return !m_loaded;
-    }
+    bool isNull() const override;
 
     /**
      * Returns element name
@@ -268,14 +258,34 @@ protected:
      */
     virtual void _clear()
     {
-        // Implemented in derived classes
+        m_fields.forEach([](const String&, WSType* field) {
+            field->clear();
+            return true;
+        });
+    }
+
+protected:
+
+    const WSFieldIndex& getFields() const
+    {
+        return m_fields;
+    }
+
+    void setFields(const Strings& fieldNames, std::initializer_list<WSType*> fields)
+    {
+        m_fields.set(fieldNames, fields);
+    }
+
+    virtual void checkRestrictions() const
+    {
     }
 
 private:
-    String       m_name;                ///< WSDL element name
-    bool         m_optional {false};    ///< Element optionality flag
-    bool         m_loaded {false};      ///< Is data loaded flag
-    bool         m_exportable {true};   ///< Is this object exportable?
+    String          m_name;                ///< WSDL element name
+    bool            m_optional {false};    ///< Element optionality flag
+    bool            m_loaded {false};      ///< Is data loaded flag
+    bool            m_exportable {true};   ///< Is this object exportable?
+    WSFieldIndex    m_fields;              ///< All fields
 };
 
 /**

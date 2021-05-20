@@ -26,64 +26,19 @@
 
 #pragma once
 
-#include <sptk5/cxml>
 #include <sptk5/Field.h>
-#include <sptk5/xml/Element.h>
+#include <sptk5/cxml>
 #include <sptk5/json/JsonElement.h>
+#include <sptk5/wsdl/WSFieldIndex.h>
+#include <sptk5/wsdl/WSType.h>
+#include <sptk5/xml/Element.h>
 
 namespace sptk {
 
 /**
- * @addtogroup wsdl WSDL-related Classes
- * @{
- */
-
-/**
- * Class name support for WS-classes
- */
-class SP_EXPORT WSTypeName
-{
-public:
-    /**
-     * Get WS type name
-     * @return WS type name
-     */
-    [[nodiscard]] virtual String className() const { return ""; }
-
-    virtual void owaspCheck(const String& value);
-
-    /**
-     * Clears content (sets to NULL)
-     */
-    virtual void clear() = 0;
-
-    /**
-     * Loads type data from request XML node
-     * @param attr              XML node
-     */
-    virtual void load(const xml::Node* attr) = 0;
-
-    /**
-     * Loads type data from request JSON element
-     * @param attr              JSON element
-     */
-    virtual void load(const json::Element* attr) = 0;
-
-    /**
-     * Conversion to string
-     */
-    virtual String asString() const
-    {
-        return "";
-    }
-
-    virtual bool isNull() const = 0;
-};
-
-/**
  * Base type for all standard WSDL types
  */
-class SP_EXPORT WSBasicType : public WSTypeName
+class SP_EXPORT WSBasicType : public WSType
 {
 public:
     /**
@@ -868,7 +823,7 @@ public:
  * Wrapper for WSDL int type
  */
 template<typename T>
-class SP_EXPORT WSArray : public WSTypeName
+class SP_EXPORT WSArray : public WSType
 {
 public:
     typedef T value_type;

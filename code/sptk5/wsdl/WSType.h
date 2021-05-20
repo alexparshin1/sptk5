@@ -26,22 +26,56 @@
 
 #pragma once
 
-#include <sptk5/net/HttpConnect.h>
-#include <test/wsdl/Service/CTestServiceBase.h>
+#include <sptk5/xml/Node.h>
+#include <sptk5/json/JsonDocument.h>
 
 namespace sptk {
 
-class TestWebService : public test_service::CTestServiceBase
+/**
+ * @addtogroup wsdl WSDL-related Classes
+ * @{
+ */
+
+/**
+ * Class name support for WS-classes
+ */
+class SP_EXPORT WSType
 {
 public:
-    static std::shared_ptr<HttpConnect::Authorization> jwtAuthorization;
+    /**
+     * Get WS type name
+     * @return WS type name
+     */
+    [[nodiscard]] virtual String className() const { return ""; }
 
-    void Hello(const test_service::CHello& input, test_service::CHelloResponse& output, sptk::HttpAuthentication* authentication) override;
+    virtual void owaspCheck(const String& value);
 
-    void AccountBalance(const test_service::CAccountBalance& input, test_service::CAccountBalanceResponse& output,
-                        sptk::HttpAuthentication* authentication) override;
+    /**
+     * Clears content (sets to NULL)
+     */
+    virtual void clear() = 0;
 
-    void Login(const test_service::CLogin& input, test_service::CLoginResponse& output, sptk::HttpAuthentication* authentication) override;
+    /**
+     * Loads type data from request XML node
+     * @param attr              XML node
+     */
+    virtual void load(const xml::Node* attr) = 0;
+
+    /**
+     * Loads type data from request JSON element
+     * @param attr              JSON element
+     */
+    virtual void load(const json::Element* attr) = 0;
+
+    /**
+     * Conversion to string
+     */
+    virtual String asString() const
+    {
+        return "";
+    }
+
+    virtual bool isNull() const = 0;
 };
 
 }

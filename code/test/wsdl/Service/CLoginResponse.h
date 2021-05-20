@@ -28,35 +28,55 @@ public:
    /**
     * Constructor
     * @param elementName        WSDL element name
-    * @param optional bool, Is element optional flag
+    * @param optional           Is element optional flag
     */
    explicit CLoginResponse(const char* elementName="login_response", bool optional=false) noexcept
    : sptk::WSComplexType(elementName, optional)
-   {}
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_jwt});
+   }
 
    /**
-    * Load content from XML node
-    *
-    * Complex WSDL type members are loaded recursively.
-    * @param input              XML node containing CLoginResponse data
+    * Copy constructor
+    * @param other              Other object
     */
-   void load(const sptk::xml::Node* input) override;
+   explicit CLoginResponse(const CLoginResponse& other)
+   : sptk::WSComplexType(other),
+     m_jwt(other.m_jwt)
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_jwt});
+   }
 
    /**
-    * Load content from JSON element
-    *
-    * Complex WSDL type members are loaded recursively.
-    * @param input              JSON element containing CLoginResponse data
+    * Move constructor
+    * @param other              Other object
     */
-   void load(const sptk::json::Element* input) override;
+   explicit CLoginResponse(CLoginResponse&& other)
+   : sptk::WSComplexType(std::move(other)),
+     m_jwt(std::move(other.m_jwt))
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_jwt});
+   }
 
    /**
-    * Load content from FieldList
-    *
-    * Only simple WSDL type members are loaded.
-    * @param input              Query field list containing CLoginResponse data
+    * Copy assignment
+    * @param other              Other object
     */
-   void load(const sptk::FieldList& input) override;
+   CLoginResponse& operator = (const CLoginResponse& other)
+   {
+      m_jwt = other.m_jwt;
+      return *this;
+   }
+
+   /**
+    * Move assignment
+    * @param other              Other object
+    */
+   CLoginResponse& operator = (CLoginResponse&& other)
+   {
+      m_jwt = std::move(other.m_jwt);
+      return *this;
+   }
 
    /**
     * Unload content to existing XML node
@@ -77,31 +97,19 @@ public:
    void unload(sptk::QueryParameterList& output) const override;
 
    /**
-    * Check if null
-    * @return true if all elements and attributes are null
-    */
-   bool isNull() const override;
-
-   /**
     * Get simple field names that can be used to build SQL queries.
     * Return list of fields doesn't include fields of complex type.
     * @return list of fields as string vector
     */
    static const sptk::Strings& fieldNames() { return m_fieldNames; }
 
-protected:
-
-   /**
-    * Clear content and release allocated memory (internal)
-    */
-   void _clear() override;
 private:
 
    /**
     * Check restrictions
     * Throws an exception if any restriction is violated.
     */
-   void checkRestrictions() const;
+   void checkRestrictions() const override;
 };
 
 }

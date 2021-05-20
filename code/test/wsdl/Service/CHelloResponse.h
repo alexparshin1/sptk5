@@ -33,35 +33,75 @@ public:
    /**
     * Constructor
     * @param elementName        WSDL element name
-    * @param optional bool, Is element optional flag
+    * @param optional           Is element optional flag
     */
    explicit CHelloResponse(const char* elementName="hello_response", bool optional=false) noexcept
    : sptk::WSComplexType(elementName, optional)
-   {}
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
+   }
 
    /**
-    * Load content from XML node
-    *
-    * Complex WSDL type members are loaded recursively.
-    * @param input              XML node containing CHelloResponse data
+    * Copy constructor
+    * @param other              Other object
     */
-   void load(const sptk::xml::Node* input) override;
+   explicit CHelloResponse(const CHelloResponse& other)
+   : sptk::WSComplexType(other),
+     m_date_of_birth(other.m_date_of_birth),
+     m_verified(other.m_verified),
+     m_retired(other.m_retired),
+     m_hour_rate(other.m_hour_rate),
+     m_vacation_days(other.m_vacation_days),
+     m_height(other.m_height)
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
+   }
 
    /**
-    * Load content from JSON element
-    *
-    * Complex WSDL type members are loaded recursively.
-    * @param input              JSON element containing CHelloResponse data
+    * Move constructor
+    * @param other              Other object
     */
-   void load(const sptk::json::Element* input) override;
+   explicit CHelloResponse(CHelloResponse&& other)
+   : sptk::WSComplexType(std::move(other)),
+     m_date_of_birth(std::move(other.m_date_of_birth)),
+     m_verified(std::move(other.m_verified)),
+     m_retired(std::move(other.m_retired)),
+     m_hour_rate(std::move(other.m_hour_rate)),
+     m_vacation_days(std::move(other.m_vacation_days)),
+     m_height(std::move(other.m_height))
+   {
+      WSComplexType::setFields(m_fieldNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
+   }
 
    /**
-    * Load content from FieldList
-    *
-    * Only simple WSDL type members are loaded.
-    * @param input              Query field list containing CHelloResponse data
+    * Copy assignment
+    * @param other              Other object
     */
-   void load(const sptk::FieldList& input) override;
+   CHelloResponse& operator = (const CHelloResponse& other)
+   {
+      m_date_of_birth = other.m_date_of_birth;
+      m_verified = other.m_verified;
+      m_retired = other.m_retired;
+      m_hour_rate = other.m_hour_rate;
+      m_vacation_days = other.m_vacation_days;
+      m_height = other.m_height;
+      return *this;
+   }
+
+   /**
+    * Move assignment
+    * @param other              Other object
+    */
+   CHelloResponse& operator = (CHelloResponse&& other)
+   {
+      m_date_of_birth = std::move(other.m_date_of_birth);
+      m_verified = std::move(other.m_verified);
+      m_retired = std::move(other.m_retired);
+      m_hour_rate = std::move(other.m_hour_rate);
+      m_vacation_days = std::move(other.m_vacation_days);
+      m_height = std::move(other.m_height);
+      return *this;
+   }
 
    /**
     * Unload content to existing XML node
@@ -82,31 +122,19 @@ public:
    void unload(sptk::QueryParameterList& output) const override;
 
    /**
-    * Check if null
-    * @return true if all elements and attributes are null
-    */
-   bool isNull() const override;
-
-   /**
     * Get simple field names that can be used to build SQL queries.
     * Return list of fields doesn't include fields of complex type.
     * @return list of fields as string vector
     */
    static const sptk::Strings& fieldNames() { return m_fieldNames; }
 
-protected:
-
-   /**
-    * Clear content and release allocated memory (internal)
-    */
-   void _clear() override;
 private:
 
    /**
     * Check restrictions
     * Throws an exception if any restriction is violated.
     */
-   void checkRestrictions() const;
+   void checkRestrictions() const override;
 };
 
 }

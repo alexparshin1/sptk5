@@ -242,34 +242,6 @@ private:
     void printImplementationIncludes(std::ostream& classImplementation, const String& className) const;
 
     /**
-     * Generate C++ class clear() method
-     * @param classImplementation   Output stream
-     * @param className             Class name
-     */
-    void printImplementationClear(std::ostream& classImplementation, const String& className) const;
-
-    /**
-     * Generate C++ class load() from XML method
-     * @param classImplementation   Output stream
-     * @param className             Class name
-     */
-    void printImplementationLoadXML(std::ostream& classImplementation, const String& className) const;
-
-    /**
-     * Generate C++ class load() from JSON method
-     * @param classImplementation   Output stream
-     * @param className             Class name
-     */
-    void printImplementationLoadJSON(std::ostream& classImplementation, const String& className) const;
-
-    /**
-     * Generate C++ class load() from FieldList method
-     * @param classImplementation   Output stream
-     * @param className             Class name
-     */
-    void printImplementationLoadFields(std::ostream& classImplementation, const String& className) const;
-
-    /**
      * Generate C++ class unload() to XML method
      * @param classImplementation   Output stream
      * @param className             Class name
@@ -296,17 +268,7 @@ private:
 
     std::set<String> getUsedClasses() const;
 
-    void printImplementationLoadJSONAttributes(ImplementationParts& implementationParts) const;
-
     void makeImplementationLoadAttributes(std::stringstream& fieldLoads, int& fieldLoadCount) const;
-
-    void makeImplementationLoadFields(std::stringstream& fieldLoads, int& fieldLoadCount, Strings& requiredElements) const;
-
-    void printImplementationLoadXMLAttributes(ImplementationParts& implementationParts) const;
-
-    void printImplementationLoadXMLFields(ImplementationParts& implementationParts) const;
-
-    void printImplementationIsNull(std::ostream& classImplementation, const String& className) const;
 
     void appendMemberDocumentation(std::ostream& classDeclaration, const SWSParserComplexType& complexType) const;
 

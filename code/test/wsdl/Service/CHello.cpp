@@ -17,97 +17,6 @@ void CHello::checkRestrictions() const
     m_last_name.throwIfNull("Hello.last_name");
 }
 
-void CHello::_clear()
-{
-    // Clear elements
-    m_action.clear();
-    m_first_name.clear();
-    m_last_name.clear();
-}
-
-void CHello::load(const xml::Node* input)
-{
-    _clear();
-    setLoaded(true);
-
-    // Load elements
-    for (const auto* node: *input) {
-        const auto* element = dynamic_cast<const xml::Element*>(node);
-        if (element == nullptr) continue;
-
-        if (element->name() == "action") {
-            m_action.load(element);
-            continue;
-        }
-
-        if (element->name() == "first_name") {
-            m_first_name.load(element);
-            continue;
-        }
-
-        if (element->name() == "last_name") {
-            m_last_name.load(element);
-            continue;
-        }
-    }
-    checkRestrictions();
-}
-
-void CHello::load(const json::Element* input)
-{
-    _clear();
-    setLoaded(true);
-    if (!input->is(json::JDT_OBJECT))
-        return;
-
-    // Load elements
-    for (const auto& itor: input->getObject()) {
-        const auto& elementName = itor.name();
-        const auto* element = itor.element();
-
-        if (elementName == "action") {
-            m_action.load(element);
-            continue;
-        }
-
-        if (elementName == "first_name") {
-            m_first_name.load(element);
-            continue;
-        }
-
-        if (elementName == "last_name") {
-            m_last_name.load(element);
-            continue;
-        }
-    }
-    checkRestrictions();
-}
-
-void CHello::load(const FieldList& input)
-{
-    _clear();
-    setLoaded(true);
-    const Field* field;
-
-    // Load elements
-    if ((field = input.findField("action")) != nullptr) {
-        m_action.load(*field);
-
-    }
-
-    if ((field = input.findField("first_name")) != nullptr) {
-        m_first_name.load(*field);
-
-    }
-
-    if ((field = input.findField("last_name")) != nullptr) {
-        m_last_name.load(*field);
-
-    }
-
-    checkRestrictions();
-}
-
 void CHello::unload(xml::Node* output) const
 {
 
@@ -124,17 +33,6 @@ void CHello::unload(json::Element* output) const
     m_action.addElement(output);
     m_first_name.addElement(output);
     m_last_name.addElement(output);
-}
-
-bool CHello::isNull() const
-{
-    // Check elements
-    bool elementsAreNull = 
-        m_action.isNull()
-        && m_first_name.isNull()
-        && m_last_name.isNull();
-
-    return elementsAreNull;
 }
 
 void CHello::unload(QueryParameterList& output) const

@@ -84,7 +84,6 @@ void stub()
     FieldList fieldList(false);
     SharedStrings        sharedStrings;
     Variant              v;
-    WSComplexType::FieldNameIndex fieldNames;
 
     SSLSocket            socket;
     HttpConnect          connect(socket);

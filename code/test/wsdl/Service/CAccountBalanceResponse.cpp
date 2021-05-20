@@ -15,65 +15,6 @@ void CAccountBalanceResponse::checkRestrictions() const
     m_account_balance.throwIfNull("AccountBalanceResponse.account_balance");
 }
 
-void CAccountBalanceResponse::_clear()
-{
-    // Clear elements
-    m_account_balance.clear();
-}
-
-void CAccountBalanceResponse::load(const xml::Node* input)
-{
-    _clear();
-    setLoaded(true);
-
-    // Load elements
-    for (const auto* node: *input) {
-        const auto* element = dynamic_cast<const xml::Element*>(node);
-        if (element == nullptr) continue;
-
-        if (element->name() == "account_balance") {
-            m_account_balance.load(element);
-            continue;
-        }
-    }
-    checkRestrictions();
-}
-
-void CAccountBalanceResponse::load(const json::Element* input)
-{
-    _clear();
-    setLoaded(true);
-    if (!input->is(json::JDT_OBJECT))
-        return;
-
-    // Load elements
-    for (const auto& itor: input->getObject()) {
-        const auto& elementName = itor.name();
-        const auto* element = itor.element();
-
-        if (elementName == "account_balance") {
-            m_account_balance.load(element);
-            continue;
-        }
-    }
-    checkRestrictions();
-}
-
-void CAccountBalanceResponse::load(const FieldList& input)
-{
-    _clear();
-    setLoaded(true);
-    const Field* field;
-
-    // Load elements
-    if ((field = input.findField("account_balance")) != nullptr) {
-        m_account_balance.load(*field);
-
-    }
-
-    checkRestrictions();
-}
-
 void CAccountBalanceResponse::unload(xml::Node* output) const
 {
 
@@ -86,15 +27,6 @@ void CAccountBalanceResponse::unload(json::Element* output) const
 
     // Unload elements
     m_account_balance.addElement(output);
-}
-
-bool CAccountBalanceResponse::isNull() const
-{
-    // Check elements
-    bool elementsAreNull = 
-        m_account_balance.isNull();
-
-    return elementsAreNull;
 }
 
 void CAccountBalanceResponse::unload(QueryParameterList& output) const
