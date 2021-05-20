@@ -342,7 +342,7 @@ TEST(SPTK_WSGeneratedClasses, Clear)
 }
 
 static const String testXML(R"(<?xml version="1.0" encoding="UTF-8"?><login><username>johnd</username><password>secret</password></login>)");
-static const String testJSON(R"({ "username": "johnd", "password": "secret" })");
+static const String testJSON(R"({"username":"johnd","password":"secret"})");
 
 TEST(SPTK_WSGeneratedClasses, LoadXML)
 {
@@ -384,6 +384,21 @@ TEST(SPTK_WSGeneratedClasses, UnloadXML)
     xml.save(buffer, 0);
 
     EXPECT_STREQ(buffer.c_str(), testXML.c_str());
+}
+
+TEST(SPTK_WSGeneratedClasses, UnloadJSON)
+{
+    CLogin login;
+    login.m_username = "johnd";
+    login.m_password = "secret";
+
+    json::Document json;
+    login.unload(&json.root());
+
+    Buffer buffer;
+    json.exportTo(buffer, false);
+
+    EXPECT_STREQ(buffer.c_str(), testJSON.c_str());
 }
 
 #endif

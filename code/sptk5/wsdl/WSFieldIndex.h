@@ -100,13 +100,13 @@ public:
      * Get elements
      * @return const elements map
      */
-    const std::map<String, WSType*>& elements() const { return m_elements; }
+    const std::map<String, WSType*>& elements() const { return m_elementIndex; }
 
     /**
      * Get attributes
      * @return const attributes map
      */
-    const std::map<String, WSType*>& attributes() const { return m_attributes; }
+    const std::map<String, WSType*>& attributes() const { return m_attributeIndex; }
 
     /**
      * Return a field for field name, or return nullptr if not found
@@ -119,21 +119,24 @@ public:
      * Execute the method for each field until it returns false
      * @param method            Method to execute
      */
-    void forEach(const std::function<bool(const String&,WSType*)>& method, FieldGroup fieldType=ELEMENTS_AND_ATTRIBUTES);
+    void forEach(const std::function<bool(WSType*)>& method, FieldGroup fieldType=ELEMENTS_AND_ATTRIBUTES);
 
     /**
      * Execute the method for each field until it returns false
      * @param method            Method to execute
      */
-    void forEach(const std::function<bool(const String&,const WSType*)>& method, FieldGroup fieldType=ELEMENTS_AND_ATTRIBUTES) const;
+    void forEach(const std::function<bool(const WSType*)>& method, FieldGroup fieldType=ELEMENTS_AND_ATTRIBUTES) const;
 
     bool hasElements() const;
     bool hasAttributes() const;
 
 private:
 
-    std::map<String, WSType*>   m_elements;
-    std::map<String, WSType*>   m_attributes;
+    std::vector<WSType*>        m_elements;
+    std::vector<WSType*>        m_attributes;
+
+    std::map<String, WSType*>   m_elementIndex;
+    std::map<String, WSType*>   m_attributeIndex;
 };
 
 typedef std::shared_ptr<WSFieldIndex> SWSFieldIndex;

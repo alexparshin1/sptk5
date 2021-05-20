@@ -161,9 +161,9 @@ void WSComplexType::load(const FieldList& input)
     _clear();
     setLoaded(true);
 
-    m_fields.forEach([&input](const String&, WSType* field)
+    m_fields.forEach([&input](WSType* field)
     {
-        const auto* inputField = input.findField("username");
+        const auto* inputField = input.findField(field->name());
         auto* outputField = dynamic_cast<WSBasicType*>(field);
         if (inputField != nullptr && outputField != nullptr) {
             outputField->load(*inputField);
@@ -177,7 +177,7 @@ void WSComplexType::load(const FieldList& input)
 bool WSComplexType::isNull() const
 {
     bool hasValues = false;
-    m_fields.forEach([&hasValues](const String&, const WSType* field)
+    m_fields.forEach([&hasValues](const WSType* field)
     {
         if (field->isNull())
             return true;

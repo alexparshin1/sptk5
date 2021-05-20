@@ -140,7 +140,7 @@ public:
     /**
      * Returns element name
      */
-    String name() const
+    [[nodiscard]] String name() const override
     {
         return m_field.fieldName();
     }

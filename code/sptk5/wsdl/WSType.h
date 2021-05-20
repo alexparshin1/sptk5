@@ -48,6 +48,8 @@ public:
      */
     [[nodiscard]] virtual String className() const { return ""; }
 
+    [[nodiscard]] virtual String name() const { return ""; }
+
     virtual void owaspCheck(const String& value);
 
     /**

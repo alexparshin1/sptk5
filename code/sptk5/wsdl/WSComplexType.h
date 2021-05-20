@@ -202,7 +202,7 @@ public:
     /**
      * Returns element name
      */
-    std::string complexTypeName() const
+    [[nodiscard]] String name() const override
     {
         return m_name;
     }
@@ -258,7 +258,7 @@ protected:
      */
     virtual void _clear()
     {
-        m_fields.forEach([](const String&, WSType* field) {
+        m_fields.forEach([](WSType* field) {
             field->clear();
             return true;
         });

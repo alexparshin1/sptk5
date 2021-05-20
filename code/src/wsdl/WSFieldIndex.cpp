@@ -32,65 +32,73 @@ using namespace sptk;
 void WSFieldIndex::setElements(const Strings& elementNames, std::initializer_list<WSType*> fieldList)
 {
     m_elements.clear();
+    m_elementIndex.clear();
+
     size_t index = 0;
     for (auto* field: fieldList) {
-        m_elements[ elementNames[index] ] = field;
+        m_elementIndex[ elementNames[index] ] = field;
         ++index;
     }
+
+    std::copy(fieldList.begin(), fieldList.end(), back_inserter(m_elements));
 }
 
 void WSFieldIndex::setAttributes(const Strings& attributeNames, std::initializer_list<WSType*> fieldList)
 {
     m_attributes.clear();
+    m_attributeIndex.clear();
+
     size_t index = 0;
     for (auto* field: fieldList) {
-        m_attributes[ attributeNames[index] ] = field;
+        m_attributeIndex[ attributeNames[index] ] = field;
         ++index;
     }
+
+    std::copy(fieldList.begin(), fieldList.end(), back_inserter(m_attributes));
 }
 
 WSType* WSFieldIndex::find(const String& name) const
 {
-    auto itor = m_elements.find(name);
-    if (itor != m_elements.end())
+    auto itor = m_elementIndex.find(name);
+    if (itor != m_elementIndex.end())
         return itor->second;
 
-    itor = m_attributes.find(name);
-    if (itor != m_attributes.end())
+    itor = m_attributeIndex.find(name);
+    if (itor != m_attributeIndex.end())
         return itor->second;
 
     return nullptr;
 }
 
-void WSFieldIndex::forEach(const function<bool(const String&, WSType*)>& method, FieldGroup fieldType)
+void WSFieldIndex::forEach(const function<bool(WSType*)>& method, FieldGroup fieldType)
 {
     if ((fieldType & ELEMENTS) == ELEMENTS) {
-        for (auto& field: m_elements) {
-            if (!method(field.first, field.second))
+        for (auto* field: m_elements) {
+            if (!method(field))
                 return;
         }
     }
 
     if ((fieldType & ATTRIBUTES) == ATTRIBUTES) {
-        for (auto& field: m_attributes) {
-            if (!method(field.first, field.second))
+        for (auto* field: m_attributes) {
+            if (!method(field))
                 return;
         }
     }
 }
 
-void WSFieldIndex::forEach(const function<bool(const String&, const WSType*)>& method, FieldGroup fieldType) const
+void WSFieldIndex::forEach(const function<bool(const WSType*)>& method, FieldGroup fieldType) const
 {
     if ((fieldType & ELEMENTS) == ELEMENTS) {
-        for (const auto& field: m_elements) {
-            if (!method(field.first, field.second))
+        for (const auto* field: m_elements) {
+            if (!method(field))
                 return;
         }
     }
 
     if ((fieldType & ATTRIBUTES) == ATTRIBUTES) {
-        for (const auto& field: m_attributes) {
-            if (!method(field.first, field.second))
+        for (const auto* field: m_attributes) {
+            if (!method(field))
                 return;
         }
     }
@@ -98,10 +106,10 @@ void WSFieldIndex::forEach(const function<bool(const String&, const WSType*)>& m
 
 bool WSFieldIndex::hasElements() const
 {
-    return !m_elements.empty();
+    return !m_elementIndex.empty();
 }
 
 bool WSFieldIndex::hasAttributes() const
 {
-    return !m_attributes.empty();
+    return !m_attributeIndex.empty();
 }
