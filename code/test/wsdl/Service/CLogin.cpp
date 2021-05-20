@@ -18,18 +18,40 @@ void CLogin::checkRestrictions() const
 
 void CLogin::unload(xml::Node* output) const
 {
-
     // Unload elements
-    m_username.addElement(output);
-    m_password.addElement(output);
+    getFields().forEach([&output](const String&, const WSType* field)
+    {
+        field->addElement(output);
+        return true;
+    }, WSFieldIndex::ELEMENTS);
+
+    // Unload attributes
+    getFields().forEach([&output](const String& name, const WSType* field)
+    {
+        output->setAttribute(name, field->asString());
+        return true;
+    }, WSFieldIndex::ATTRIBUTES);
 }
 
 void CLogin::unload(json::Element* output) const
 {
+    const auto& fields = getFields();
 
     // Unload elements
-    m_username.addElement(output);
-    m_password.addElement(output);
+    fields.forEach([&output](const String&, const WSType* field)
+    {
+        field->addElement(output);
+        return true;
+    }, WSFieldIndex::ELEMENTS);
+
+    if (fields.hasAttributes()) {
+        auto* attributes = output->add_object("attributes");
+        // Unload attributes
+        fields.forEach([&attributes](const String& name, const WSType* field) {
+            attributes->set(name, field->asString());
+            return true;
+        }, WSFieldIndex::ATTRIBUTES);
+    }
 }
 
 void CLogin::unload(QueryParameterList& output) const

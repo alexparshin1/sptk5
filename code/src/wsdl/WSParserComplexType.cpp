@@ -164,7 +164,7 @@ void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, co
 }
 
 void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames,
-                                             sptk::Strings& elementNames,
+                                             sptk::Strings& elementNames, sptk::Strings& attributeNames,
                                              const String& serviceNamespace) const
 {
     String className = "C" + wsClassName(m_name);
@@ -251,7 +251,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "   explicit " << className << "(const char* elementName=\"" << tagName << "\", bool optional=false) noexcept" << endl
                      << "   : " << ctorInitializer.join(",\n     ") << endl
                      << "   {" << endl;
-    classDeclaration << "      WSComplexType::setFields(m_fieldNames, {&m_" << fieldNames.join(", &m_") << "});" << endl;
+    generateSetFieldIndex(classDeclaration, elementNames, attributeNames);
     classDeclaration << "   }" << endl << endl;
 
     classDeclaration << "   /**" << endl;
@@ -261,18 +261,23 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "   explicit " << className << "(const " << className << "& other)" << endl
                      << "   : " << copyInitializer.join(",\n     ") << endl
                      << "   {" << endl;
-    classDeclaration << "      WSComplexType::setFields(m_fieldNames, {&m_" << fieldNames.join(", &m_") << "});" << endl;
+    generateSetFieldIndex(classDeclaration, elementNames, attributeNames);
     classDeclaration << "   }" << endl << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Move constructor" << endl;
     classDeclaration << "    * @param other              Other object" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   explicit " << className << "(" << className << "&& other)" << endl
+    classDeclaration << "   explicit " << className << "(" << className << "&& other) noexcept" << endl
                      << "   : " << moveInitializer.join(",\n     ") << endl
                      << "   {" << endl;
-    classDeclaration << "      WSComplexType::setFields(m_fieldNames, {&m_" << fieldNames.join(", &m_") << "});" << endl;
+    generateSetFieldIndex(classDeclaration, elementNames, attributeNames);
     classDeclaration << "   }" << endl << endl;
+
+    classDeclaration << "   /**" << endl;
+    classDeclaration << "    * Destructor" << endl;
+    classDeclaration << "    */" << endl;
+    classDeclaration << "   ~" << className << "() = default;" << endl << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Copy assignment" << endl;
@@ -288,7 +293,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "    * Move assignment" << endl;
     classDeclaration << "    * @param other              Other object" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "& operator = (" << className << "&& other)" << endl
+    classDeclaration << "   " << className << "& operator = (" << className << "&& other) noexcept" << endl
                      << "   {" << endl;
     classDeclaration << "      " << moveFields.join(";\n      ") << ";" << endl;
     classDeclaration << "      return *this;" << endl;
@@ -331,6 +336,15 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "};" << endl;
     classDeclaration << endl;
     classDeclaration << "}" << endl;
+}
+
+void WSParserComplexType::generateSetFieldIndex(ostream& classDeclaration, const Strings& elementNames,
+                                                const Strings& attributeNames) const
+{
+    if (!elementNames.empty())
+        classDeclaration << "      WSComplexType::setElements(m_elementNames, {&m_" << elementNames.join(", &m_") << "});" << endl;
+    if (!attributeNames.empty())
+        classDeclaration << "      WSComplexType::setAttributes(m_attributeNames, {&m_" << attributeNames.join(", &m_") << "});" << endl;
 }
 
 void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strings& fieldNames,
@@ -603,7 +617,7 @@ void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImpl
     Strings fieldNames;
     Strings elementNames;
     Strings attributeNames;
-    generateDefinition(classDeclaration, fieldNames, elementNames, serviceNamespace);
+    generateDefinition(classDeclaration, fieldNames, elementNames, attributeNames, serviceNamespace);
     generateImplementation(classImplementation, fieldNames, elementNames, attributeNames, serviceNamespace);
 }
 

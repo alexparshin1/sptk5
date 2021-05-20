@@ -425,8 +425,8 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     serviceImplementation << "        handleError(xmlContent, jsonContent, e.what(), 0);" << endl;
     serviceImplementation << "    }" << endl;
     serviceImplementation << "    catch (const HTTPException& e) {" << endl;
-    serviceImplementation << "        logError(requestName, e.what(), e.statusCode());" << endl;
-    serviceImplementation << "        handleError(xmlContent, jsonContent, e.what(), e.statusCode());" << endl;
+    serviceImplementation << "        logError(requestName, e.what(), (int) e.statusCode());" << endl;
+    serviceImplementation << "        handleError(xmlContent, jsonContent, e.what(), (int) e.statusCode());" << endl;
     serviceImplementation << "    }" << endl;
     serviceImplementation << "    catch (const Exception& e) {" << endl;
     serviceImplementation << "        logError(requestName, e.what(), 0);" << endl;

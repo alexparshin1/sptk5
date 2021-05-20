@@ -34,7 +34,7 @@ public:
    explicit CLogin(const char* elementName="login", bool optional=false) noexcept
    : sptk::WSComplexType(elementName, optional)
    {
-      WSComplexType::setFields(m_fieldNames, {&m_username, &m_password});
+      WSComplexType::setElements(m_elementNames, {&m_username, &m_password});
    }
 
    /**
@@ -46,20 +46,25 @@ public:
      m_username(other.m_username),
      m_password(other.m_password)
    {
-      WSComplexType::setFields(m_fieldNames, {&m_username, &m_password});
+      WSComplexType::setElements(m_elementNames, {&m_username, &m_password});
    }
 
    /**
     * Move constructor
     * @param other              Other object
     */
-   explicit CLogin(CLogin&& other)
+   explicit CLogin(CLogin&& other) noexcept
    : sptk::WSComplexType(std::move(other)),
      m_username(std::move(other.m_username)),
      m_password(std::move(other.m_password))
    {
-      WSComplexType::setFields(m_fieldNames, {&m_username, &m_password});
+      WSComplexType::setElements(m_elementNames, {&m_username, &m_password});
    }
+
+   /**
+    * Destructor
+    */
+   ~CLogin() = default;
 
    /**
     * Copy assignment
@@ -76,7 +81,7 @@ public:
     * Move assignment
     * @param other              Other object
     */
-   CLogin& operator = (CLogin&& other)
+   CLogin& operator = (CLogin&& other) noexcept
    {
       m_username = std::move(other.m_username);
       m_password = std::move(other.m_password);

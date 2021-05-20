@@ -192,7 +192,8 @@ protected:
      * Generate C++ class declaration
      * @param classDeclaration std::ostream&, Output header file stream
      */
-    void generateDefinition(std::ostream& classDeclaration, Strings& fieldNames, Strings& elementNames,
+    void generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames,
+                            sptk::Strings& elementNames, sptk::Strings& attributeNames,
                             const String& serviceNamespace) const;
 
     /**
@@ -279,6 +280,9 @@ private:
                                   size_t& restrictionIndex) const;
 
     void printImplementationCheckRestrictions(std::ostream& classImplementation, const String& className) const;
+
+    void generateSetFieldIndex(std::ostream& classDeclaration, const Strings& elementNames,
+                               const Strings& attributeNames) const;
 };
 
 /**

@@ -33,8 +33,8 @@ void CTestServiceBase::requestBroker(const String& requestName, xml::Element* xm
         handleError(xmlContent, jsonContent, e.what(), 0);
     }
     catch (const HTTPException& e) {
-        logError(requestName, e.what(), e.statusCode());
-        handleError(xmlContent, jsonContent, e.what(), e.statusCode());
+        logError(requestName, e.what(), (int) e.statusCode());
+        handleError(xmlContent, jsonContent, e.what(), (int) e.statusCode());
     }
     catch (const Exception& e) {
         logError(requestName, e.what(), 0);

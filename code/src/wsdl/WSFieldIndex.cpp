@@ -29,35 +29,79 @@
 using namespace std;
 using namespace sptk;
 
-void WSFieldIndex::set(const Strings& fieldNames, std::initializer_list<WSType*> fieldList)
+void WSFieldIndex::setElements(const Strings& elementNames, std::initializer_list<WSType*> fieldList)
 {
+    m_elements.clear();
     size_t index = 0;
     for (auto* field: fieldList) {
-        m_fields[ fieldNames[index] ] = field;
+        m_elements[ elementNames[index] ] = field;
+        ++index;
+    }
+}
+
+void WSFieldIndex::setAttributes(const Strings& attributeNames, std::initializer_list<WSType*> fieldList)
+{
+    m_attributes.clear();
+    size_t index = 0;
+    for (auto* field: fieldList) {
+        m_attributes[ attributeNames[index] ] = field;
         ++index;
     }
 }
 
 WSType* WSFieldIndex::find(const String& name) const
 {
-    auto itor = m_fields.find(name);
-    if (itor == m_fields.end())
-        return nullptr;
-    return itor->second;
+    auto itor = m_elements.find(name);
+    if (itor != m_elements.end())
+        return itor->second;
+
+    itor = m_attributes.find(name);
+    if (itor != m_attributes.end())
+        return itor->second;
+
+    return nullptr;
 }
 
-void WSFieldIndex::forEach(const function<bool(const String&, WSType*)>& method)
+void WSFieldIndex::forEach(const function<bool(const String&, WSType*)>& method, FieldGroup fieldType)
 {
-    for (auto& field: m_fields) {
-        if (!method(field.first, field.second))
-            break;
+    if ((fieldType & ELEMENTS) == ELEMENTS) {
+        for (auto& field: m_elements) {
+            if (!method(field.first, field.second))
+                return;
+        }
+    }
+
+    if ((fieldType & ATTRIBUTES) == ATTRIBUTES) {
+        for (auto& field: m_attributes) {
+            if (!method(field.first, field.second))
+                return;
+        }
     }
 }
 
-void WSFieldIndex::forEach(const function<bool(const String&, WSType*)>& method) const
+void WSFieldIndex::forEach(const function<bool(const String&, const WSType*)>& method, FieldGroup fieldType) const
 {
-    for (auto& field: m_fields) {
-        if (!method(field.first, field.second))
-            break;
+    if ((fieldType & ELEMENTS) == ELEMENTS) {
+        for (const auto& field: m_elements) {
+            if (!method(field.first, field.second))
+                return;
+        }
     }
+
+    if ((fieldType & ATTRIBUTES) == ATTRIBUTES) {
+        for (const auto& field: m_attributes) {
+            if (!method(field.first, field.second))
+                return;
+        }
+    }
+}
+
+bool WSFieldIndex::hasElements() const
+{
+    return !m_elements.empty();
+}
+
+bool WSFieldIndex::hasAttributes() const
+{
+    return !m_attributes.empty();
 }

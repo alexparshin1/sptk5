@@ -33,7 +33,7 @@ public:
    explicit CLoginResponse(const char* elementName="login_response", bool optional=false) noexcept
    : sptk::WSComplexType(elementName, optional)
    {
-      WSComplexType::setFields(m_fieldNames, {&m_jwt});
+      WSComplexType::setElements(m_elementNames, {&m_jwt});
    }
 
    /**
@@ -44,19 +44,24 @@ public:
    : sptk::WSComplexType(other),
      m_jwt(other.m_jwt)
    {
-      WSComplexType::setFields(m_fieldNames, {&m_jwt});
+      WSComplexType::setElements(m_elementNames, {&m_jwt});
    }
 
    /**
     * Move constructor
     * @param other              Other object
     */
-   explicit CLoginResponse(CLoginResponse&& other)
+   explicit CLoginResponse(CLoginResponse&& other) noexcept
    : sptk::WSComplexType(std::move(other)),
      m_jwt(std::move(other.m_jwt))
    {
-      WSComplexType::setFields(m_fieldNames, {&m_jwt});
+      WSComplexType::setElements(m_elementNames, {&m_jwt});
    }
+
+   /**
+    * Destructor
+    */
+   ~CLoginResponse() = default;
 
    /**
     * Copy assignment
@@ -72,7 +77,7 @@ public:
     * Move assignment
     * @param other              Other object
     */
-   CLoginResponse& operator = (CLoginResponse&& other)
+   CLoginResponse& operator = (CLoginResponse&& other) noexcept
    {
       m_jwt = std::move(other.m_jwt);
       return *this;

@@ -29,64 +29,62 @@
 using namespace std;
 using namespace sptk;
 
-xml::Element* WSBasicType::addElement(xml::Node* parent, const char* _name) const
+void WSBasicType::addElement(xml::Node* parent, const char* _name) const
 {
     String elementName = _name == nullptr? name() : _name;
     String text(isNull()? "": asString());
     if (m_optional && (isNull() || text.empty()))
-        return nullptr;
+        return;
     auto* element = new xml::Element(*parent, elementName);
     element->text(text);
-    return element;
 }
 
-json::Element* WSBasicType::addElement(json::Element* parent) const
+void WSBasicType::addElement(json::Element* parent) const
 {
     String text(isNull()? "": asString());
+
     if (m_optional && (isNull() || text.empty()))
-        return nullptr;
-    json::Element* element;
+        return;
+
     if (!parent->is(json::JDT_ARRAY)) {
         if (name().empty())
-            return nullptr;
+            return;
         switch (dataType()) {
             case VAR_BOOL:
-                element = parent->set(name(), m_field.asBool());
+                parent->set(name(), m_field.asBool());
                 break;
             case VAR_INT:
-                element = parent->set(name(), m_field.asInteger());
+                parent->set(name(), m_field.asInteger());
                 break;
             case VAR_INT64:
-                element = parent->set(name(), m_field.asInt64());
+                parent->set(name(), m_field.asInt64());
                 break;
             case VAR_FLOAT:
-                element = parent->set(name(), m_field.asFloat());
+                parent->set(name(), m_field.asFloat());
                 break;
             default:
-                element = parent->set(name(), asString());
+                parent->set(name(), asString());
                 break;
         }
     } else {
         switch (dataType()) {
             case VAR_BOOL:
-                element = parent->push_back(m_field.asBool());
+                parent->push_back(m_field.asBool());
                 break;
             case VAR_INT:
-                element = parent->push_back(m_field.asInteger());
+                parent->push_back(m_field.asInteger());
                 break;
             case VAR_INT64:
-                element = parent->push_back(m_field.asInt64());
+                parent->push_back(m_field.asInt64());
                 break;
             case VAR_FLOAT:
-                element = parent->push_back(m_field.asFloat());
+                parent->push_back(m_field.asFloat());
                 break;
             default:
-                element = parent->push_back(asString());
+                parent->push_back(asString());
                 break;
         }
     }
-
-    return element;
 }
 
 void WSBasicType::throwIfNull(const String& parentTypeName) const

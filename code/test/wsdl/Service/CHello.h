@@ -35,7 +35,7 @@ public:
    explicit CHello(const char* elementName="hello", bool optional=false) noexcept
    : sptk::WSComplexType(elementName, optional)
    {
-      WSComplexType::setFields(m_fieldNames, {&m_action, &m_first_name, &m_last_name});
+      WSComplexType::setElements(m_elementNames, {&m_action, &m_first_name, &m_last_name});
    }
 
    /**
@@ -48,21 +48,26 @@ public:
      m_first_name(other.m_first_name),
      m_last_name(other.m_last_name)
    {
-      WSComplexType::setFields(m_fieldNames, {&m_action, &m_first_name, &m_last_name});
+      WSComplexType::setElements(m_elementNames, {&m_action, &m_first_name, &m_last_name});
    }
 
    /**
     * Move constructor
     * @param other              Other object
     */
-   explicit CHello(CHello&& other)
+   explicit CHello(CHello&& other) noexcept
    : sptk::WSComplexType(std::move(other)),
      m_action(std::move(other.m_action)),
      m_first_name(std::move(other.m_first_name)),
      m_last_name(std::move(other.m_last_name))
    {
-      WSComplexType::setFields(m_fieldNames, {&m_action, &m_first_name, &m_last_name});
+      WSComplexType::setElements(m_elementNames, {&m_action, &m_first_name, &m_last_name});
    }
+
+   /**
+    * Destructor
+    */
+   ~CHello() = default;
 
    /**
     * Copy assignment
@@ -80,7 +85,7 @@ public:
     * Move assignment
     * @param other              Other object
     */
-   CHello& operator = (CHello&& other)
+   CHello& operator = (CHello&& other) noexcept
    {
       m_action = std::move(other.m_action);
       m_first_name = std::move(other.m_first_name);

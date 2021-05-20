@@ -186,13 +186,13 @@ public:
      * @param parent            Parent XML node where new node is created
      * @param name              Optional name for the child element
      */
-    virtual void addElement(xml::Node* parent, const char* name=nullptr) const;
+    void addElement(xml::Node* parent, const char* name=nullptr) const override;
 
     /**
      * Unload data to new JSON node
      * @param parent            Parent JSON node where new node is created
      */
-    virtual void addElement(json::Element* parent) const;
+    void addElement(json::Element* parent) const override;
 
     /**
      * True if data was not loaded, or if all the fields are null.
@@ -264,20 +264,27 @@ protected:
         });
     }
 
-protected:
-
     const WSFieldIndex& getFields() const
     {
         return m_fields;
     }
 
-    void setFields(const Strings& fieldNames, std::initializer_list<WSType*> fields)
+    void setElements(const Strings& fieldNames, std::initializer_list<WSType*> fields)
     {
-        m_fields.set(fieldNames, fields);
+        m_fields.setElements(fieldNames, fields);
     }
 
+    void setAttributes(const Strings& fieldNames, std::initializer_list<WSType*> fields)
+    {
+        m_fields.setAttributes(fieldNames, fields);
+    }
+
+    /**
+     * Optional checking for restrictions
+     */
     virtual void checkRestrictions() const
     {
+        // Implement in derived class
     }
 
 private:

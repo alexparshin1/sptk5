@@ -33,7 +33,7 @@ public:
    explicit CAccountBalanceResponse(const char* elementName="account_balance_response", bool optional=false) noexcept
    : sptk::WSComplexType(elementName, optional)
    {
-      WSComplexType::setFields(m_fieldNames, {&m_account_balance});
+      WSComplexType::setElements(m_elementNames, {&m_account_balance});
    }
 
    /**
@@ -44,19 +44,24 @@ public:
    : sptk::WSComplexType(other),
      m_account_balance(other.m_account_balance)
    {
-      WSComplexType::setFields(m_fieldNames, {&m_account_balance});
+      WSComplexType::setElements(m_elementNames, {&m_account_balance});
    }
 
    /**
     * Move constructor
     * @param other              Other object
     */
-   explicit CAccountBalanceResponse(CAccountBalanceResponse&& other)
+   explicit CAccountBalanceResponse(CAccountBalanceResponse&& other) noexcept
    : sptk::WSComplexType(std::move(other)),
      m_account_balance(std::move(other.m_account_balance))
    {
-      WSComplexType::setFields(m_fieldNames, {&m_account_balance});
+      WSComplexType::setElements(m_elementNames, {&m_account_balance});
    }
+
+   /**
+    * Destructor
+    */
+   ~CAccountBalanceResponse() = default;
 
    /**
     * Copy assignment
@@ -72,7 +77,7 @@ public:
     * Move assignment
     * @param other              Other object
     */
-   CAccountBalanceResponse& operator = (CAccountBalanceResponse&& other)
+   CAccountBalanceResponse& operator = (CAccountBalanceResponse&& other) noexcept
    {
       m_account_balance = std::move(other.m_account_balance);
       return *this;

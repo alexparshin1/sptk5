@@ -38,7 +38,7 @@ public:
    explicit CHelloResponse(const char* elementName="hello_response", bool optional=false) noexcept
    : sptk::WSComplexType(elementName, optional)
    {
-      WSComplexType::setFields(m_fieldNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
+      WSComplexType::setElements(m_elementNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
    }
 
    /**
@@ -54,14 +54,14 @@ public:
      m_vacation_days(other.m_vacation_days),
      m_height(other.m_height)
    {
-      WSComplexType::setFields(m_fieldNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
+      WSComplexType::setElements(m_elementNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
    }
 
    /**
     * Move constructor
     * @param other              Other object
     */
-   explicit CHelloResponse(CHelloResponse&& other)
+   explicit CHelloResponse(CHelloResponse&& other) noexcept
    : sptk::WSComplexType(std::move(other)),
      m_date_of_birth(std::move(other.m_date_of_birth)),
      m_verified(std::move(other.m_verified)),
@@ -70,8 +70,13 @@ public:
      m_vacation_days(std::move(other.m_vacation_days)),
      m_height(std::move(other.m_height))
    {
-      WSComplexType::setFields(m_fieldNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
+      WSComplexType::setElements(m_elementNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
    }
+
+   /**
+    * Destructor
+    */
+   ~CHelloResponse() = default;
 
    /**
     * Copy assignment
@@ -92,7 +97,7 @@ public:
     * Move assignment
     * @param other              Other object
     */
-   CHelloResponse& operator = (CHelloResponse&& other)
+   CHelloResponse& operator = (CHelloResponse&& other) noexcept
    {
       m_date_of_birth = std::move(other.m_date_of_birth);
       m_verified = std::move(other.m_verified);

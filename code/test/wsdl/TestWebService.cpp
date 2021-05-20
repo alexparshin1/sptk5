@@ -341,14 +341,14 @@ TEST(SPTK_WSGeneratedClasses, Clear)
     EXPECT_TRUE(login.isNull());
 }
 
-static const char* testXML = R"(<?xml version="1.0" encoding="UTF-8"?><login><username>johnd</username><password>secret</password></login>)";
-static const char* testJSON = R"({ "username": "johnd", "password": "secret" })";
+static const String testXML(R"(<?xml version="1.0" encoding="UTF-8"?><login><username>johnd</username><password>secret</password></login>)");
+static const String testJSON(R"({ "username": "johnd", "password": "secret" })");
 
 TEST(SPTK_WSGeneratedClasses, LoadXML)
 {
     xml::Document input;
     input.load(testXML);
-    auto* loginNode = input.findFirst("login");
+    const auto* loginNode = input.findFirst("login");
 
     CLogin login;
     login.load(loginNode);
@@ -361,13 +361,29 @@ TEST(SPTK_WSGeneratedClasses, LoadJSON)
 {
     json::Document input;
     input.load(testJSON);
-    auto& loginNode = input.root();
+    const auto& loginNode = input.root();
 
     CLogin login;
     login.load(&loginNode);
 
     EXPECT_STREQ("johnd", login.m_username.asString().c_str());
     EXPECT_STREQ("secret", login.m_password.asString().c_str());
+}
+
+TEST(SPTK_WSGeneratedClasses, UnloadXML)
+{
+    CLogin login;
+    login.m_username = "johnd";
+    login.m_password = "secret";
+
+    xml::Document xml;
+    auto* loginNode = xml.findOrCreate("login");
+    login.unload(loginNode);
+
+    Buffer buffer;
+    xml.save(buffer, 0);
+
+    EXPECT_STREQ(buffer.c_str(), testXML.c_str());
 }
 
 #endif

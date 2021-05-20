@@ -143,16 +143,12 @@ void WSComplexType::load(const json::Element* input)
 
     // Load attributes
     const auto* attributes = input->find("attributes");
-    if (attributes != nullptr) {
-        if (attributes->is(json::JDT_OBJECT)) {
-            for (const auto& attribute: attributes->getObject()) {
-                auto* field = m_fields.find(attribute.name());
-                if (field != nullptr) {
-                    auto* outputField = dynamic_cast<WSBasicType*>(field);
-                    if (outputField != nullptr) {
-                        outputField->load((String)*attribute.element());
-                    }
-                }
+    if (attributes != nullptr && attributes->is(json::JDT_OBJECT)) {
+        for (const auto& attribute: attributes->getObject()) {
+            auto* field = m_fields.find(attribute.name());
+            WSBasicType* outputField = field != nullptr ? dynamic_cast<WSBasicType*>(field) : nullptr;
+            if (outputField != nullptr) {
+                outputField->load((String)*attribute.element());
             }
         }
     }
@@ -165,9 +161,9 @@ void WSComplexType::load(const FieldList& input)
     _clear();
     setLoaded(true);
 
-    m_fields.forEach([&input](const String& name, WSType* field)
+    m_fields.forEach([&input](const String&, WSType* field)
     {
-        auto* inputField = input.findField("username");
+        const auto* inputField = input.findField("username");
         auto* outputField = dynamic_cast<WSBasicType*>(field);
         if (inputField != nullptr && outputField != nullptr) {
             outputField->load(*inputField);
@@ -181,12 +177,12 @@ void WSComplexType::load(const FieldList& input)
 bool WSComplexType::isNull() const
 {
     bool hasValues = false;
-    m_fields.forEach([&hasValues](const String&, WSType* field)
-                     {
-                         if (field->isNull())
-                            return true;
-                         hasValues = true;
-                         return false;
-                     });
+    m_fields.forEach([&hasValues](const String&, const WSType* field)
+    {
+        if (field->isNull())
+            return true;
+        hasValues = true;
+        return false;
+    });
     return !hasValues;
 }

@@ -138,19 +138,6 @@ public:
     }
 
     /**
-     * Adds an element to response XML with this object data
-     * @param parent            Parent XML element
-     * @param name              Optional name for child element
-     */
-    xml::Element* addElement(xml::Node* parent, const char* name=nullptr) const;
-
-    /**
-     * Adds an element to response JSON with this object data
-     * @param parent            Parent JSON element
-     */
-    json::Element* addElement(json::Element* parent) const;
-
-    /**
      * Returns element name
      */
     String name() const
@@ -208,6 +195,19 @@ public:
 
     Field& field() { return m_field; }
     const Field& field() const { return m_field; }
+
+    /**
+     * Adds an element to response XML with this object data
+     * @param parent            Parent XML element
+     * @param name              Optional name for child element
+     */
+    void addElement(xml::Node* parent, const char* name=nullptr) const override;
+
+    /**
+     * Adds an element to response JSON with this object data
+     * @param parent            Parent JSON element
+     */
+    void addElement(json::Element* parent) const override;
 
 private:
 
@@ -949,6 +949,19 @@ public:
     {
         throwException("Invalid conversion attempt")
     }
+
+    /**
+     * Adds an element to response XML with this object data
+     * @param parent            Parent XML element
+     * @param name              Optional name for child element
+     */
+    void addElement(xml::Node* parent, const char* name=nullptr) const override {}
+
+    /**
+     * Adds an element to response JSON with this object data
+     * @param parent            Parent JSON element
+     */
+    void addElement(json::Element* parent) const override {}
 
 private:
     std::vector<T>  m_array;

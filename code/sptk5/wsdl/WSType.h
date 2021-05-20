@@ -76,6 +76,19 @@ public:
     }
 
     virtual bool isNull() const = 0;
+
+    /**
+     * Unload data to new XML node
+     * @param parent            Parent XML node where new node is created
+     * @param name              Optional name for the child element
+     */
+    virtual void addElement(xml::Node* parent, const char* name=nullptr) const = 0;
+
+    /**
+     * Unload data to new JSON node
+     * @param parent            Parent JSON node where new node is created
+     */
+    virtual void addElement(json::Element* parent) const = 0;
 };
 
 }
