@@ -27,6 +27,8 @@
 #include <sptk5/wsdl/WSConnection.h>
 #include <sptk5/wsdl/WSListener.h>
 #include <sptk5/StopWatch.h>
+#include <sptk5/db/Query.h>
+#include <sptk5/db/DatabaseConnectionPool.h>
 #include "TestWebService.h"
 
 using namespace std;
@@ -399,6 +401,22 @@ TEST(SPTK_WSGeneratedClasses, UnloadJSON)
     json.exportTo(buffer, false);
 
     EXPECT_STREQ(buffer.c_str(), testJSON.c_str());
+}
+
+TEST(SPTK_WSGeneratedClasses, UnloadQueryParameters)
+{
+    CLogin login;
+    login.m_username = "johnd";
+    login.m_password = "secret";
+
+    DatabaseConnectionPool pool("postgresql://localhost/test");
+    auto connection = pool.getConnection();
+    Query query(connection, "SELECT * FROM test WHERE username = :username and password = :password");
+
+    login.unload(query.params());
+
+    EXPECT_STREQ(query.param("username").asString().c_str(), "johnd");
+    EXPECT_STREQ(query.param("password").asString().c_str(), "secret");
 }
 
 #endif

@@ -15,23 +15,3 @@ void CLoginResponse::checkRestrictions() const
     m_jwt.throwIfNull("LoginResponse.jwt");
 }
 
-void CLoginResponse::unload(xml::Node* output) const
-{
-
-    // Unload elements
-    m_jwt.addElement(output);
-}
-
-void CLoginResponse::unload(json::Element* output) const
-{
-
-    // Unload elements
-    m_jwt.addElement(output);
-}
-
-void CLoginResponse::unload(QueryParameterList& output) const
-{
-
-    // Unload attributes
-    WSComplexType::unload(output, "jwt", dynamic_cast<const WSBasicType*>(&m_jwt));
-}

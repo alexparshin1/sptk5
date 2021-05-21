@@ -242,34 +242,11 @@ private:
      */
     void printImplementationIncludes(std::ostream& classImplementation, const String& className) const;
 
-    /**
-     * Generate C++ class unload() to XML method
-     * @param classImplementation   Output stream
-     * @param className             Class name
-     */
-    void printImplementationUnloadXML(std::ostream& classImplementation, const String& className) const;
-
-    /**
-     * Generate C++ class unload() to JSON method
-     * @param classImplementation   Output stream
-     * @param className             Class name
-     */
-    void printImplementationUnloadJSON(std::ostream& classImplementation, const String& className) const;
-
-    /**
-     * Generate C++ class unload() to ParamList method
-     * @param classImplementation   Output stream
-     * @param className             Class name
-     */
-    void printImplementationUnloadParamList(std::ostream& classImplementation, const String& className) const;
-
     void printImplementationRestrictions(std::ostream& classImplementation, std::ostream& checks) const;
 
     void printDeclarationIncludes(std::ostream& classDeclaration, const std::set<String>& usedClasses) const;
 
     std::set<String> getUsedClasses() const;
-
-    void makeImplementationLoadAttributes(std::stringstream& fieldLoads, int& fieldLoadCount) const;
 
     void appendMemberDocumentation(std::ostream& classDeclaration, const SWSParserComplexType& complexType) const;
 
@@ -283,6 +260,8 @@ private:
 
     void generateSetFieldIndex(std::ostream& classDeclaration, const Strings& elementNames,
                                const Strings& attributeNames) const;
+
+    String jsonAttributeOutputMethod(const String& wsTypeName) const;
 };
 
 /**

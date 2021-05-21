@@ -17,29 +17,3 @@ void CHello::checkRestrictions() const
     m_last_name.throwIfNull("Hello.last_name");
 }
 
-void CHello::unload(xml::Node* output) const
-{
-
-    // Unload elements
-    m_action.addElement(output);
-    m_first_name.addElement(output);
-    m_last_name.addElement(output);
-}
-
-void CHello::unload(json::Element* output) const
-{
-
-    // Unload elements
-    m_action.addElement(output);
-    m_first_name.addElement(output);
-    m_last_name.addElement(output);
-}
-
-void CHello::unload(QueryParameterList& output) const
-{
-
-    // Unload attributes
-    WSComplexType::unload(output, "action", dynamic_cast<const WSBasicType*>(&m_action));
-    WSComplexType::unload(output, "first_name", dynamic_cast<const WSBasicType*>(&m_first_name));
-    WSComplexType::unload(output, "last_name", dynamic_cast<const WSBasicType*>(&m_last_name));
-}

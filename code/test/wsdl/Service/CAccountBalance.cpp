@@ -15,23 +15,3 @@ void CAccountBalance::checkRestrictions() const
     m_account_number.throwIfNull("AccountBalance.account_number");
 }
 
-void CAccountBalance::unload(xml::Node* output) const
-{
-
-    // Unload elements
-    m_account_number.addElement(output);
-}
-
-void CAccountBalance::unload(json::Element* output) const
-{
-
-    // Unload elements
-    m_account_number.addElement(output);
-}
-
-void CAccountBalance::unload(QueryParameterList& output) const
-{
-
-    // Unload attributes
-    WSComplexType::unload(output, "account_number", dynamic_cast<const WSBasicType*>(&m_account_number));
-}

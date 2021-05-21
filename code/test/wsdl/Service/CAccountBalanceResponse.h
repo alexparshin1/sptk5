@@ -84,24 +84,6 @@ public:
    }
 
    /**
-    * Unload content to existing XML node
-    * @param output             Existing XML node
-    */
-   void unload(sptk::xml::Node* output) const override;
-
-   /**
-    * Unload content to existing JSON node
-    * @param output             Existing JSON node
-    */
-   void unload(sptk::json::Element* output) const override;
-
-   /**
-    * Unload content to Query's parameters
-    * @param output             Query parameters
-    */
-   void unload(sptk::QueryParameterList& output) const override;
-
-   /**
     * Get simple field names that can be used to build SQL queries.
     * Return list of fields doesn't include fields of complex type.
     * @return list of fields as string vector

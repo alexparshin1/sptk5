@@ -186,3 +186,56 @@ bool WSComplexType::isNull() const
     });
     return !hasValues;
 }
+
+void WSComplexType::unload(xml::Node* output) const
+{
+    const auto& fields = getFields();
+
+    // Unload attributes
+    fields.forEach([&output](const WSType* field)
+    {
+        output->setAttribute(field->name(), field->asString());
+        return true;
+    }, WSFieldIndex::ATTRIBUTES);
+
+    // Unload elements
+    fields.forEach([&output](const WSType* field)
+    {
+        field->addElement(output);
+        return true;
+    }, WSFieldIndex::ELEMENTS);
+}
+
+void WSComplexType::unload(json::Element* output) const
+{
+    const auto& fields = getFields();
+
+    // Unload attributes
+    if (fields.hasAttributes()) {
+        auto* attributes = output->add_object("attributes");
+        // Unload attributes
+        fields.forEach([&attributes](const WSType* field) {
+            attributes->set(field->name(), field->asString());
+            return true;
+        }, WSFieldIndex::ATTRIBUTES);
+    }
+
+    // Unload elements
+    fields.forEach([&output](const WSType* field) {
+        field->addElement(output);
+        return true;
+    }, WSFieldIndex::ELEMENTS);
+}
+
+void WSComplexType::unload(QueryParameterList& output) const
+{
+    const auto& fields = getFields();
+
+    fields.forEach([&output](const WSType* field) {
+        const auto* inputField = dynamic_cast<const WSBasicType*>(field);
+        if (inputField != nullptr) {
+            WSComplexType::unload(output, inputField->name().c_str(), inputField);
+        }
+        return true;
+    }, WSFieldIndex::ELEMENTS_AND_ATTRIBUTES);
+}

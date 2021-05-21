@@ -159,19 +159,19 @@ public:
      * Unload data to existing XML node
      * @param output            Existing XML node
      */
-    virtual void unload(xml::Node* output) const = 0;
+    virtual void unload(xml::Node* output) const;
 
     /**
      * Unload data to existing JSON node
      * @param output            Existing JSON node
      */
-    virtual void unload(json::Element* output) const = 0;
+    virtual void unload(json::Element* output) const;
 
     /**
      * Unload data to Query's parameters
      * @param output            Query parameters
      */
-    virtual void unload(QueryParameterList& output) const = 0;
+    virtual void unload(QueryParameterList& output) const;
 
     /**
      * Unload single element or attribute to DB query parameter

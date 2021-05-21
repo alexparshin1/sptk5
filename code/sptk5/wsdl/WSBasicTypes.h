@@ -955,13 +955,19 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void addElement(xml::Node* parent, const char* name=nullptr) const override {}
+    void addElement(xml::Node* parent, const char* name=nullptr) const override
+    {
+        // TBD
+    }
 
     /**
      * Adds an element to response JSON with this object data
      * @param parent            Parent JSON element
      */
-    void addElement(json::Element* parent) const override {}
+    void addElement(json::Element* parent) const override
+    {
+        // TBD
+    }
 
 private:
     std::vector<T>  m_array;
