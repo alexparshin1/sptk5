@@ -159,6 +159,21 @@ const Element& Document::root() const
     return *m_root;
 }
 
+Type Document::dataType(const String& data)
+{
+    static const RegularExpression isNumber(R"(^[+\-]?\d+(\.\d*)?(E[+\-]?\d+)?$)", "i");
+    static const RegularExpression isBoolean(R"(^(true|false)$)", "i");
+
+    if (isNumber.matches(data))
+        return JDT_NUMBER;
+    if (isBoolean.matches(data))
+        return JDT_BOOLEAN;
+    if (data == "null")
+        return JDT_NULL;
+
+    return JDT_STRING;
+}
+
 #if USE_GTEST
 
 const String testJSON(

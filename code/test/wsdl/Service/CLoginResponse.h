@@ -19,44 +19,30 @@ class CLoginResponse : public sptk::WSComplexType
 public:
 
    // Elements
-   sptk::WSString                 m_jwt {"jwt", false};
+   sptk::WSString                           m_jwt {"jwt", false};
 
    // Field names of simple types, that can be used to build SQL queries
-   static const sptk::Strings m_fieldNames;
-   static const sptk::Strings m_elementNames;
-   static const sptk::Strings m_attributeNames;
+   static const sptk::Strings              m_fieldNames;
+   static const sptk::Strings              m_elementNames;
+   static const sptk::Strings              m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CLoginResponse(const char* elementName="login_response", bool optional=false) noexcept
-   : sptk::WSComplexType(elementName, optional)
-   {
-      WSComplexType::setElements(m_elementNames, {&m_jwt});
-   }
+   explicit CLoginResponse(const char* elementName="login_response", bool optional=false) noexcept;
 
    /**
     * Copy constructor
     * @param other              Other object
     */
-   explicit CLoginResponse(const CLoginResponse& other)
-   : sptk::WSComplexType(other),
-     m_jwt(other.m_jwt)
-   {
-      WSComplexType::setElements(m_elementNames, {&m_jwt});
-   }
+   CLoginResponse(const CLoginResponse& other);
 
    /**
     * Move constructor
     * @param other              Other object
     */
-   explicit CLoginResponse(CLoginResponse&& other) noexcept
-   : sptk::WSComplexType(std::move(other)),
-     m_jwt(std::move(other.m_jwt))
-   {
-      WSComplexType::setElements(m_elementNames, {&m_jwt});
-   }
+   CLoginResponse(CLoginResponse&& other) noexcept;
 
    /**
     * Destructor

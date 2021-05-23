@@ -19,50 +19,32 @@ class CHello : public sptk::WSComplexType
 public:
 
    // Elements
-   sptk::WSString                 m_action {"action", false};
-   sptk::WSString                 m_first_name {"first_name", false};
-   sptk::WSString                 m_last_name {"last_name", false};
+   sptk::WSString                           m_action {"action", false};
+   sptk::WSString                           m_first_name {"first_name", false};
+   sptk::WSString                           m_last_name {"last_name", false};
 
    // Field names of simple types, that can be used to build SQL queries
-   static const sptk::Strings m_fieldNames;
-   static const sptk::Strings m_elementNames;
-   static const sptk::Strings m_attributeNames;
+   static const sptk::Strings              m_fieldNames;
+   static const sptk::Strings              m_elementNames;
+   static const sptk::Strings              m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CHello(const char* elementName="hello", bool optional=false) noexcept
-   : sptk::WSComplexType(elementName, optional)
-   {
-      WSComplexType::setElements(m_elementNames, {&m_action, &m_first_name, &m_last_name});
-   }
+   explicit CHello(const char* elementName="hello", bool optional=false) noexcept;
 
    /**
     * Copy constructor
     * @param other              Other object
     */
-   explicit CHello(const CHello& other)
-   : sptk::WSComplexType(other),
-     m_action(other.m_action),
-     m_first_name(other.m_first_name),
-     m_last_name(other.m_last_name)
-   {
-      WSComplexType::setElements(m_elementNames, {&m_action, &m_first_name, &m_last_name});
-   }
+   CHello(const CHello& other);
 
    /**
     * Move constructor
     * @param other              Other object
     */
-   explicit CHello(CHello&& other) noexcept
-   : sptk::WSComplexType(std::move(other)),
-     m_action(std::move(other.m_action)),
-     m_first_name(std::move(other.m_first_name)),
-     m_last_name(std::move(other.m_last_name))
-   {
-      WSComplexType::setElements(m_elementNames, {&m_action, &m_first_name, &m_last_name});
-   }
+   CHello(CHello&& other) noexcept;
 
    /**
     * Destructor

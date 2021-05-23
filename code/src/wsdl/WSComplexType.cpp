@@ -194,7 +194,8 @@ void WSComplexType::unload(xml::Node* output) const
     // Unload attributes
     fields.forEach([&output](const WSType* field)
     {
-        output->setAttribute(field->name(), field->asString());
+        if (!field->isNull())
+            output->setAttribute(field->name(), field->asString());
         return true;
     }, WSFieldIndex::ATTRIBUTES);
 
@@ -209,15 +210,40 @@ void WSComplexType::unload(xml::Node* output) const
 void WSComplexType::unload(json::Element* output) const
 {
     const auto& fields = getFields();
+    double doubleValue;
 
     // Unload attributes
     if (fields.hasAttributes()) {
-        auto* attributes = output->add_object("attributes");
+        map<String,String> values;
         // Unload attributes
-        fields.forEach([&attributes](const WSType* field) {
-            attributes->set(field->name(), field->asString());
+        fields.forEach([&values](const WSType* field) {
+            if (!field->isNull())
+                values[field->name()] = field->asString();
             return true;
         }, WSFieldIndex::ATTRIBUTES);
+        if (!values.empty()) {
+            auto* attributes = output->add_object("attributes");
+            for (const auto& itor: values) {
+                auto valueType = json::Document::dataType(itor.second);
+                switch (valueType) {
+                    case json::JDT_STRING:
+                        attributes->set(itor.first, itor.second);
+                        break;
+                    case json::JDT_NUMBER:
+                        doubleValue = std::stod(itor.second);
+                        if (doubleValue == long(doubleValue))
+                            attributes->set(itor.first, long(doubleValue));
+                        else
+                            attributes->set(itor.first, doubleValue);
+                        break;
+                    case json::JDT_BOOLEAN:
+                        attributes->set(itor.first, itor.second == "true");
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     // Unload elements

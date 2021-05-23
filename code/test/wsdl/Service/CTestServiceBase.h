@@ -14,6 +14,7 @@
 #include "CHelloResponse.h"
 #include "CLogin.h"
 #include "CLoginResponse.h"
+#include "CProjectInfo.h"
 
 namespace test_service {
 

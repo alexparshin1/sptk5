@@ -45,16 +45,6 @@ class SP_EXPORT Document
     friend class ObjectData;
     friend class Element;
 
-    std::shared_ptr<Element>    m_root;             ///< Root element of the document
-    SharedStrings               m_sharedStrings;    ///< Shared string table for element names
-    const Element               m_emptyElement;     ///< Empty element
-
-    /**
-     * Parse JSON text, replacing current document content
-     * @param json              JSON text
-     */
-    void parse(const String& json);
-
 public:
 
     /**
@@ -147,6 +137,8 @@ public:
      */
     void clear();
 
+    [[nodiscard]] static Type dataType(const String& data);
+
 protected:
 
     /**
@@ -179,6 +171,16 @@ protected:
     }
 
 private:
+
+    std::shared_ptr<Element>    m_root;             ///< Root element of the document
+    SharedStrings               m_sharedStrings;    ///< Shared string table for element names
+    const Element               m_emptyElement;     ///< Empty element
+
+    /**
+     * Parse JSON text, replacing current document content
+     * @param json              JSON text
+     */
+    void parse(const String& json);
 
     std::shared_ptr<Element> createDocumentRoot(Type documentType);
 };

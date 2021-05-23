@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CProjectInfo.h"
 #include <sptk5/FieldList.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/sptk.h>
@@ -19,47 +20,36 @@ class CLogin : public sptk::WSComplexType
 public:
 
    // Elements
-   sptk::WSString                 m_username {"username", false};
-   sptk::WSString                 m_password {"password", false};
+   sptk::WSString                           m_username {"username", false};
+   sptk::WSString                           m_password {"password", false};
+   sptk::WSArray<sptk::WSString>            m_servers {"servers"};
+   CProjectInfo                             m_project {"project", true};
+   // Attributes
+   sptk::WSInteger                          m_server_count {"server_count", true};
+   sptk::WSString                           m_type {"type", true};
 
    // Field names of simple types, that can be used to build SQL queries
-   static const sptk::Strings m_fieldNames;
-   static const sptk::Strings m_elementNames;
-   static const sptk::Strings m_attributeNames;
+   static const sptk::Strings              m_fieldNames;
+   static const sptk::Strings              m_elementNames;
+   static const sptk::Strings              m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CLogin(const char* elementName="login", bool optional=false) noexcept
-   : sptk::WSComplexType(elementName, optional)
-   {
-      WSComplexType::setElements(m_elementNames, {&m_username, &m_password});
-   }
+   explicit CLogin(const char* elementName="login", bool optional=false) noexcept;
 
    /**
     * Copy constructor
     * @param other              Other object
     */
-   explicit CLogin(const CLogin& other)
-   : sptk::WSComplexType(other),
-     m_username(other.m_username),
-     m_password(other.m_password)
-   {
-      WSComplexType::setElements(m_elementNames, {&m_username, &m_password});
-   }
+   CLogin(const CLogin& other);
 
    /**
     * Move constructor
     * @param other              Other object
     */
-   explicit CLogin(CLogin&& other) noexcept
-   : sptk::WSComplexType(std::move(other)),
-     m_username(std::move(other.m_username)),
-     m_password(std::move(other.m_password))
-   {
-      WSComplexType::setElements(m_elementNames, {&m_username, &m_password});
-   }
+   CLogin(CLogin&& other) noexcept;
 
    /**
     * Destructor
@@ -74,6 +64,8 @@ public:
    {
       m_username = other.m_username;
       m_password = other.m_password;
+      m_servers = other.m_servers;
+      m_project = other.m_project;
       return *this;
    }
 
@@ -85,6 +77,8 @@ public:
    {
       m_username = std::move(other.m_username);
       m_password = std::move(other.m_password);
+      m_servers = std::move(other.m_servers);
+      m_project = std::move(other.m_project);
       return *this;
    }
 

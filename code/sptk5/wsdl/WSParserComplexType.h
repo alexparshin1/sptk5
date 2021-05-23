@@ -206,6 +206,14 @@ protected:
 
 private:
 
+    class Initializer
+    {
+    public:
+        Strings ctor {"WSComplexType(elementName, optional)"};
+        Strings copy {"WSComplexType(other)"};
+        Strings move {"WSComplexType(std::move(other))"};
+    };
+
     class ImplementationParts
     {
     public:
@@ -251,10 +259,16 @@ private:
     void appendMemberDocumentation(std::ostream& classDeclaration, const SWSParserComplexType& complexType) const;
 
     void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames,
-                               Strings& copyInitializer, Strings& moveInitializer) const;
+                               Initializer& initializer) const;
 
     String addOptionalRestriction(std::ostream& implementation, const SWSParserComplexType& complexType,
                                   size_t& restrictionIndex) const;
+
+    String makeTagName(const String& className) const;
+    Initializer makeInitializer() const;
+
+    void printImplementationConstructors(std::ostream& classImplementation, const String& className,
+                                         const Strings& elementNames, const Strings& attributeNames) const;
 
     void printImplementationCheckRestrictions(std::ostream& classImplementation, const String& className) const;
 

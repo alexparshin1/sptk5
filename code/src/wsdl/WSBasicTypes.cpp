@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/wsdl/WSBasicTypes.h>
+#include <sptk5/wsdl/WSArray.h>
 
 using namespace std;
 using namespace sptk;
@@ -355,7 +356,7 @@ void loadScriptAttackData()
 
 TEST(SPTK_WSBasicTypes, array)
 {
-    WSArray<WSInteger> array;
+    WSArray<WSInteger> array("");
     array.emplace_back(1);
     array.emplace_back(2);
     array.emplace_back(3);

@@ -19,59 +19,35 @@ class CHelloResponse : public sptk::WSComplexType
 public:
 
    // Elements
-   sptk::WSDate                   m_date_of_birth {"date_of_birth", false};
-   sptk::WSDateTime               m_verified {"verified", false};
-   sptk::WSBool                   m_retired {"retired", false};
-   sptk::WSDouble                 m_hour_rate {"hour_rate", false};
-   sptk::WSInteger                m_vacation_days {"vacation_days", false};
-   sptk::WSDouble                 m_height {"height", false};
+   sptk::WSDate                             m_date_of_birth {"date_of_birth", false};
+   sptk::WSDateTime                         m_verified {"verified", false};
+   sptk::WSBool                             m_retired {"retired", false};
+   sptk::WSDouble                           m_hour_rate {"hour_rate", false};
+   sptk::WSInteger                          m_vacation_days {"vacation_days", false};
+   sptk::WSDouble                           m_height {"height", false};
 
    // Field names of simple types, that can be used to build SQL queries
-   static const sptk::Strings m_fieldNames;
-   static const sptk::Strings m_elementNames;
-   static const sptk::Strings m_attributeNames;
+   static const sptk::Strings              m_fieldNames;
+   static const sptk::Strings              m_elementNames;
+   static const sptk::Strings              m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CHelloResponse(const char* elementName="hello_response", bool optional=false) noexcept
-   : sptk::WSComplexType(elementName, optional)
-   {
-      WSComplexType::setElements(m_elementNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
-   }
+   explicit CHelloResponse(const char* elementName="hello_response", bool optional=false) noexcept;
 
    /**
     * Copy constructor
     * @param other              Other object
     */
-   explicit CHelloResponse(const CHelloResponse& other)
-   : sptk::WSComplexType(other),
-     m_date_of_birth(other.m_date_of_birth),
-     m_verified(other.m_verified),
-     m_retired(other.m_retired),
-     m_hour_rate(other.m_hour_rate),
-     m_vacation_days(other.m_vacation_days),
-     m_height(other.m_height)
-   {
-      WSComplexType::setElements(m_elementNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
-   }
+   CHelloResponse(const CHelloResponse& other);
 
    /**
     * Move constructor
     * @param other              Other object
     */
-   explicit CHelloResponse(CHelloResponse&& other) noexcept
-   : sptk::WSComplexType(std::move(other)),
-     m_date_of_birth(std::move(other.m_date_of_birth)),
-     m_verified(std::move(other.m_verified)),
-     m_retired(std::move(other.m_retired)),
-     m_hour_rate(std::move(other.m_hour_rate)),
-     m_vacation_days(std::move(other.m_vacation_days)),
-     m_height(std::move(other.m_height))
-   {
-      WSComplexType::setElements(m_elementNames, {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
-   }
+   CHelloResponse(CHelloResponse&& other) noexcept;
 
    /**
     * Destructor

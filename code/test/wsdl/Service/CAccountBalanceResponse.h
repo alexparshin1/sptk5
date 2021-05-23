@@ -19,44 +19,30 @@ class CAccountBalanceResponse : public sptk::WSComplexType
 public:
 
    // Elements
-   sptk::WSDouble                 m_account_balance {"account_balance", false};
+   sptk::WSDouble                           m_account_balance {"account_balance", false};
 
    // Field names of simple types, that can be used to build SQL queries
-   static const sptk::Strings m_fieldNames;
-   static const sptk::Strings m_elementNames;
-   static const sptk::Strings m_attributeNames;
+   static const sptk::Strings              m_fieldNames;
+   static const sptk::Strings              m_elementNames;
+   static const sptk::Strings              m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CAccountBalanceResponse(const char* elementName="account_balance_response", bool optional=false) noexcept
-   : sptk::WSComplexType(elementName, optional)
-   {
-      WSComplexType::setElements(m_elementNames, {&m_account_balance});
-   }
+   explicit CAccountBalanceResponse(const char* elementName="account_balance_response", bool optional=false) noexcept;
 
    /**
     * Copy constructor
     * @param other              Other object
     */
-   explicit CAccountBalanceResponse(const CAccountBalanceResponse& other)
-   : sptk::WSComplexType(other),
-     m_account_balance(other.m_account_balance)
-   {
-      WSComplexType::setElements(m_elementNames, {&m_account_balance});
-   }
+   CAccountBalanceResponse(const CAccountBalanceResponse& other);
 
    /**
     * Move constructor
     * @param other              Other object
     */
-   explicit CAccountBalanceResponse(CAccountBalanceResponse&& other) noexcept
-   : sptk::WSComplexType(std::move(other)),
-     m_account_balance(std::move(other.m_account_balance))
-   {
-      WSComplexType::setElements(m_elementNames, {&m_account_balance});
-   }
+   CAccountBalanceResponse(CAccountBalanceResponse&& other) noexcept;
 
    /**
     * Destructor

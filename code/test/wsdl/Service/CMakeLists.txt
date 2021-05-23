@@ -10,4 +10,5 @@ ADD_LIBRARY (TestWebService STATIC
   CHelloResponse.cpp CHelloResponse.h
   CLogin.cpp CLogin.h
   CLoginResponse.cpp CLoginResponse.h
+  CProjectInfo.cpp CProjectInfo.h
 )

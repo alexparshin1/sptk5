@@ -343,8 +343,15 @@ TEST(SPTK_WSGeneratedClasses, Clear)
     EXPECT_TRUE(login.isNull());
 }
 
-static const String testXML(R"(<?xml version="1.0" encoding="UTF-8"?><login><username>johnd</username><password>secret</password></login>)");
-static const String testJSON(R"({"username":"johnd","password":"secret"})");
+static const String testXML(
+        R"(<?xml version="1.0" encoding="UTF-8"?>)"
+        "<login server_count=\"2\" type=\"abstract\">"
+        "<username>johnd</username>"
+        "<password>secret</password>"
+        "<servers><item>x1</item><item>x2</item></servers>"
+        "<project><id>123</id><expiration>2020-10-01</expiration></project>"
+        "</login>");
+static const String testJSON(R"({"attributes":{"server_count":2,"type":"abstract"},"username":"johnd","password":"secret","servers":["x1","x2"],"project":{"id":123,"expiration":"2020-10-01"}})");
 
 TEST(SPTK_WSGeneratedClasses, LoadXML)
 {
@@ -357,6 +364,8 @@ TEST(SPTK_WSGeneratedClasses, LoadXML)
 
     EXPECT_STREQ("johnd", login.m_username.asString().c_str());
     EXPECT_STREQ("secret", login.m_password.asString().c_str());
+    EXPECT_STREQ("123", login.m_project.m_id.asString().c_str());
+    EXPECT_STREQ("2020-10-01", login.m_project.m_expiration.asString().c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, LoadJSON)
@@ -377,6 +386,12 @@ TEST(SPTK_WSGeneratedClasses, UnloadXML)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
+    login.m_servers.push_back(WSString("x1"));
+    login.m_servers.push_back(WSString("x2"));
+    login.m_project.m_id = 123;
+    login.m_project.m_expiration = "2020-10-01";
+    login.m_server_count = 2;
+    login.m_type = "abstract";
 
     xml::Document xml;
     auto* loginNode = xml.findOrCreate("login");
@@ -393,6 +408,12 @@ TEST(SPTK_WSGeneratedClasses, UnloadJSON)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
+    login.m_servers.push_back(WSString("x1"));
+    login.m_servers.push_back(WSString("x2"));
+    login.m_project.m_id = 123;
+    login.m_project.m_expiration = "2020-10-01";
+    login.m_server_count = 2;
+    login.m_type = "abstract";
 
     json::Document json;
     login.unload(&json.root());
