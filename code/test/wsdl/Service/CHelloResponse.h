@@ -26,10 +26,6 @@ public:
    sptk::WSInteger                          m_vacation_days {"vacation_days", false};
    sptk::WSDouble                           m_height {"height", false};
 
-   // Field names of simple types, that can be used to build SQL queries
-   static const sptk::Strings              m_fieldNames;
-   static const sptk::Strings              m_elementNames;
-   static const sptk::Strings              m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
@@ -58,38 +54,20 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CHelloResponse& operator = (const CHelloResponse& other)
-   {
-      m_date_of_birth = other.m_date_of_birth;
-      m_verified = other.m_verified;
-      m_retired = other.m_retired;
-      m_hour_rate = other.m_hour_rate;
-      m_vacation_days = other.m_vacation_days;
-      m_height = other.m_height;
-      return *this;
-   }
+   CHelloResponse& operator = (const CHelloResponse& other);
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CHelloResponse& operator = (CHelloResponse&& other) noexcept
-   {
-      m_date_of_birth = std::move(other.m_date_of_birth);
-      m_verified = std::move(other.m_verified);
-      m_retired = std::move(other.m_retired);
-      m_hour_rate = std::move(other.m_hour_rate);
-      m_vacation_days = std::move(other.m_vacation_days);
-      m_height = std::move(other.m_height);
-      return *this;
-   }
+   CHelloResponse& operator = (CHelloResponse&& other) noexcept;
 
    /**
-    * Get simple field names that can be used to build SQL queries.
-    * Return list of fields doesn't include fields of complex type.
-    * @return list of fields as string vector
+    * Get complex type field names.
+    * @param group              Field group: elements, attributes, or both
+    * @return list of fields as Strings
     */
-   static const sptk::Strings& fieldNames() { return m_fieldNames; }
+   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::FieldGroup group);
 
 private:
 

@@ -21,10 +21,6 @@ public:
    // Elements
    sptk::WSString                           m_account_number {"account_number", false};
 
-   // Field names of simple types, that can be used to build SQL queries
-   static const sptk::Strings              m_fieldNames;
-   static const sptk::Strings              m_elementNames;
-   static const sptk::Strings              m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
@@ -53,28 +49,20 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CAccountBalance& operator = (const CAccountBalance& other)
-   {
-      m_account_number = other.m_account_number;
-      return *this;
-   }
+   CAccountBalance& operator = (const CAccountBalance& other);
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CAccountBalance& operator = (CAccountBalance&& other) noexcept
-   {
-      m_account_number = std::move(other.m_account_number);
-      return *this;
-   }
+   CAccountBalance& operator = (CAccountBalance&& other) noexcept;
 
    /**
-    * Get simple field names that can be used to build SQL queries.
-    * Return list of fields doesn't include fields of complex type.
-    * @return list of fields as string vector
+    * Get complex type field names.
+    * @param group              Field group: elements, attributes, or both
+    * @return list of fields as Strings
     */
-   static const sptk::Strings& fieldNames() { return m_fieldNames; }
+   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::FieldGroup group);
 
 private:
 

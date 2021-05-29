@@ -28,10 +28,6 @@ public:
    sptk::WSInteger                          m_server_count {"server_count", true};
    sptk::WSString                           m_type {"type", true};
 
-   // Field names of simple types, that can be used to build SQL queries
-   static const sptk::Strings              m_fieldNames;
-   static const sptk::Strings              m_elementNames;
-   static const sptk::Strings              m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
@@ -60,34 +56,20 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CLogin& operator = (const CLogin& other)
-   {
-      m_username = other.m_username;
-      m_password = other.m_password;
-      m_servers = other.m_servers;
-      m_project = other.m_project;
-      return *this;
-   }
+   CLogin& operator = (const CLogin& other);
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CLogin& operator = (CLogin&& other) noexcept
-   {
-      m_username = std::move(other.m_username);
-      m_password = std::move(other.m_password);
-      m_servers = std::move(other.m_servers);
-      m_project = std::move(other.m_project);
-      return *this;
-   }
+   CLogin& operator = (CLogin&& other) noexcept;
 
    /**
-    * Get simple field names that can be used to build SQL queries.
-    * Return list of fields doesn't include fields of complex type.
-    * @return list of fields as string vector
+    * Get complex type field names.
+    * @param group              Field group: elements, attributes, or both
+    * @return list of fields as Strings
     */
-   static const sptk::Strings& fieldNames() { return m_fieldNames; }
+   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::FieldGroup group);
 
 private:
 

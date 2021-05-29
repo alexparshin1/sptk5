@@ -21,10 +21,6 @@ public:
    // Elements
    sptk::WSString                           m_jwt {"jwt", false};
 
-   // Field names of simple types, that can be used to build SQL queries
-   static const sptk::Strings              m_fieldNames;
-   static const sptk::Strings              m_elementNames;
-   static const sptk::Strings              m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
@@ -53,28 +49,20 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CLoginResponse& operator = (const CLoginResponse& other)
-   {
-      m_jwt = other.m_jwt;
-      return *this;
-   }
+   CLoginResponse& operator = (const CLoginResponse& other);
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CLoginResponse& operator = (CLoginResponse&& other) noexcept
-   {
-      m_jwt = std::move(other.m_jwt);
-      return *this;
-   }
+   CLoginResponse& operator = (CLoginResponse&& other) noexcept;
 
    /**
-    * Get simple field names that can be used to build SQL queries.
-    * Return list of fields doesn't include fields of complex type.
-    * @return list of fields as string vector
+    * Get complex type field names.
+    * @param group              Field group: elements, attributes, or both
+    * @return list of fields as Strings
     */
-   static const sptk::Strings& fieldNames() { return m_fieldNames; }
+   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::FieldGroup group);
 
 private:
 

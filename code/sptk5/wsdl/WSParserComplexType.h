@@ -210,8 +210,10 @@ private:
     {
     public:
         Strings ctor {"WSComplexType(elementName, optional)"};
-        Strings copy {"WSComplexType(other)"};
-        Strings move {"WSComplexType(std::move(other))"};
+        Strings copyCtor {"WSComplexType(other)"};
+        Strings moveCtor {"WSComplexType(std::move(other))"};
+        Strings copyAssign;
+        Strings moveAssign;
     };
 
     class ImplementationParts
@@ -269,6 +271,9 @@ private:
 
     void printImplementationConstructors(std::ostream& classImplementation, const String& className,
                                          const Strings& elementNames, const Strings& attributeNames) const;
+
+    void printImplementationAssignments(std::ostream& classImplementation, const String& className,
+                                        const Strings& elementNames, const Strings& attributeNames) const;
 
     void printImplementationCheckRestrictions(std::ostream& classImplementation, const String& className) const;
 

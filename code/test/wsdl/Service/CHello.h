@@ -23,10 +23,6 @@ public:
    sptk::WSString                           m_first_name {"first_name", false};
    sptk::WSString                           m_last_name {"last_name", false};
 
-   // Field names of simple types, that can be used to build SQL queries
-   static const sptk::Strings              m_fieldNames;
-   static const sptk::Strings              m_elementNames;
-   static const sptk::Strings              m_attributeNames;
    /**
     * Constructor
     * @param elementName        WSDL element name
@@ -55,32 +51,20 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CHello& operator = (const CHello& other)
-   {
-      m_action = other.m_action;
-      m_first_name = other.m_first_name;
-      m_last_name = other.m_last_name;
-      return *this;
-   }
+   CHello& operator = (const CHello& other);
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CHello& operator = (CHello&& other) noexcept
-   {
-      m_action = std::move(other.m_action);
-      m_first_name = std::move(other.m_first_name);
-      m_last_name = std::move(other.m_last_name);
-      return *this;
-   }
+   CHello& operator = (CHello&& other) noexcept;
 
    /**
-    * Get simple field names that can be used to build SQL queries.
-    * Return list of fields doesn't include fields of complex type.
-    * @return list of fields as string vector
+    * Get complex type field names.
+    * @param group              Field group: elements, attributes, or both
+    * @return list of fields as Strings
     */
-   static const sptk::Strings& fieldNames() { return m_fieldNames; }
+   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::FieldGroup group);
 
 private:
 
