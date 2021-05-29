@@ -45,7 +45,7 @@ public:
    /**
     * Destructor
     */
-   ~CHello() = default;
+   ~CHello() override = default;
 
    /**
     * Copy assignment

@@ -48,7 +48,7 @@ public:
    /**
     * Destructor
     */
-   ~CHelloResponse() = default;
+   ~CHelloResponse() override = default;
 
    /**
     * Copy assignment

@@ -50,7 +50,7 @@ public:
    /**
     * Destructor
     */
-   ~CLogin() = default;
+   ~CLogin() override = default;
 
    /**
     * Copy assignment

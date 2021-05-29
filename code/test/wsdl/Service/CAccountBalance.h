@@ -43,7 +43,7 @@ public:
    /**
     * Destructor
     */
-   ~CAccountBalance() = default;
+   ~CAccountBalance() override = default;
 
    /**
     * Copy assignment

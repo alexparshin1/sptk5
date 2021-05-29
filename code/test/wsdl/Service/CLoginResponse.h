@@ -43,7 +43,7 @@ public:
    /**
     * Destructor
     */
-   ~CLoginResponse() = default;
+   ~CLoginResponse() override = default;
 
    /**
     * Copy assignment
