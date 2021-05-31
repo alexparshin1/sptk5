@@ -31,9 +31,7 @@ public:
      * Constructor
      * @param logEngine        Optional log engine for error messages
      */
-    explicit CTestServiceBase(sptk::LogEngine* logEngine=nullptr)
-     : m_logEngine(logEngine)
-     {}
+    explicit CTestServiceBase(sptk::LogEngine* logEngine=nullptr);
 
     /**
      * Destructor
@@ -111,7 +109,11 @@ protected:
 
 private:
 
+    typedef std::function<void(sptk::xml::Element*, sptk::json::Element*, sptk::HttpAuthentication*, const sptk::WSNameSpace&)> RequestMethod;
+
     sptk::LogEngine*  m_logEngine;    ///< Optional logger, or nullptr
+
+    std::map<sptk::String, RequestMethod> m_requestMethods;
 
     /**
      * Internal Web Service AccountBalance processing

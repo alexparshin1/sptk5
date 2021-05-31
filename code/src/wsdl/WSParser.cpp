@@ -293,13 +293,13 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "     * Constructor" << endl;
     serviceDefinition << "     * @param logEngine        Optional log engine for error messages" << endl;
     serviceDefinition << "     */" << endl;
-    serviceDefinition << "    explicit " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr)" << endl;
-    serviceDefinition << "     : m_logEngine(logEngine)" << endl;
-    serviceDefinition << "     {}" << endl << endl;
+    serviceDefinition << "    explicit " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr);" << endl << endl;
+
     serviceDefinition << "    /**" << endl;
     serviceDefinition << "     * Destructor" << endl;
     serviceDefinition << "     */" << endl;
     serviceDefinition << "    ~" << serviceClassName << "() override = default;" << endl << endl;
+
     serviceDefinition << "    // Abstract methods below correspond to WSDL-defined operations. " << endl;
     serviceDefinition << "    // Application must overwrite these methods with processing of corresponding" << endl;
     serviceDefinition << "    // requests, reading data from input and writing data to output structures." << endl;
@@ -364,7 +364,9 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "    virtual void logError(const sptk::String& requestName, const sptk::String& error, int errorCode) const;" << endl << endl;
 
     serviceDefinition << "private:" << endl << endl;
+    serviceDefinition << "    typedef std::function<void(sptk::xml::Element*, sptk::json::Element*, sptk::HttpAuthentication*, const sptk::WSNameSpace&)> RequestMethod;" << endl << endl;
     serviceDefinition << "    sptk::LogEngine*  m_logEngine;    ///< Optional logger, or nullptr" << endl << endl;
+    serviceDefinition << "    std::map<sptk::String, RequestMethod> m_requestMethods;" << endl << endl;
     for (const auto& itor: m_operations) {
         string requestName = strip_namespace(itor.second.m_input->name());
         serviceDefinition << "    /**" << endl;
@@ -403,22 +405,25 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     serviceImplementation << "using namespace sptk;" << endl;
     serviceImplementation << "using namespace " << m_serviceNamespace << ";" << endl << endl;
 
-    serviceImplementation << "void " << serviceClassName << "::requestBroker(const String& requestName, xml::Element* xmlContent, json::Element* jsonContent, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl;
-    serviceImplementation << "{" << endl;
-    serviceImplementation << "    static const WSMessageIndex messageNames(Strings(\"" << operationNames << "\", \"|\"));" << endl << endl;
-    serviceImplementation << "    int messageIndex = messageNames.indexOf(requestName);" << endl;
-    serviceImplementation << "    try {" << endl;
-    serviceImplementation << "        switch (messageIndex) {" << endl;
+    serviceImplementation << serviceClassName << "::" << serviceClassName << "(LogEngine* logEngine)" << endl;
+    serviceImplementation << ": m_logEngine(logEngine)," << endl;
+    serviceImplementation << "  m_requestMethods({" << endl;
     for (const auto& itor: m_operations) {
         string requestName = strip_namespace(itor.second.m_input->name());
-        int messageIndex = serviceOperationsIndex.indexOf(requestName);
-        serviceImplementation << "        case " << messageIndex << ":" << endl;
-        serviceImplementation << "            process_" << requestName << "(xmlContent, jsonContent, authentication, requestNameSpace);" << endl;
-        serviceImplementation << "            break;" << endl;
+        serviceImplementation << "        {\"" << requestName << "\", "
+            << "bind(&" << serviceClassName << "::process_" << requestName << ", this, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4)}," << endl;
     }
-    serviceImplementation << "        default:" << endl;
+    serviceImplementation << "  })" << endl;
+    serviceImplementation << "{" << endl;
+    serviceImplementation << "}" << endl << endl;
+
+    serviceImplementation << "void " << serviceClassName << "::requestBroker(const String& requestName, xml::Element* xmlContent, json::Element* jsonContent, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl;
+    serviceImplementation << "{" << endl;
+    serviceImplementation << "    try {" << endl;
+    serviceImplementation << "        auto itor = m_requestMethods.find(requestName);" << endl;
+    serviceImplementation << "        if (itor == m_requestMethods.end())" << endl;
     serviceImplementation << "            throw SOAPException(\"Request '\" + requestName + \"' is not defined in this service\");" << endl;
-    serviceImplementation << "        }" << endl;
+    serviceImplementation << "        itor->second(xmlContent, jsonContent, authentication, requestNameSpace);" << endl;
     serviceImplementation << "    }" << endl;
     serviceImplementation << "    catch (const SOAPException& e) {" << endl;
     serviceImplementation << "        logError(requestName, e.what(), 0);" << endl;

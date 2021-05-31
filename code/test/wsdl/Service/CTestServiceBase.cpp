@@ -8,25 +8,23 @@ using namespace std;
 using namespace sptk;
 using namespace test_service;
 
+CTestServiceBase::CTestServiceBase(LogEngine* logEngine)
+: m_logEngine(logEngine),
+  m_requestMethods({
+        {"AccountBalance", bind(&CTestServiceBase::process_AccountBalance, this, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4)},
+        {"Hello", bind(&CTestServiceBase::process_Hello, this, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4)},
+        {"Login", bind(&CTestServiceBase::process_Login, this, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4)},
+  })
+{
+}
+
 void CTestServiceBase::requestBroker(const String& requestName, xml::Element* xmlContent, json::Element* jsonContent, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
-    static const WSMessageIndex messageNames(Strings("AccountBalance|Hello|Login", "|"));
-
-    int messageIndex = messageNames.indexOf(requestName);
     try {
-        switch (messageIndex) {
-        case 0:
-            process_AccountBalance(xmlContent, jsonContent, authentication, requestNameSpace);
-            break;
-        case 1:
-            process_Hello(xmlContent, jsonContent, authentication, requestNameSpace);
-            break;
-        case 2:
-            process_Login(xmlContent, jsonContent, authentication, requestNameSpace);
-            break;
-        default:
+        auto itor = m_requestMethods.find(requestName);
+        if (itor == m_requestMethods.end())
             throw SOAPException("Request '" + requestName + "' is not defined in this service");
-        }
+        itor->second(xmlContent, jsonContent, authentication, requestNameSpace);
     }
     catch (const SOAPException& e) {
         logError(requestName, e.what(), 0);
