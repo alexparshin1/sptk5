@@ -44,7 +44,7 @@ class SP_EXPORT CaseInsensitiveCompare
 {
 public:
     /**
-     * @brief Compare method
+     * Compare method
      * @param s1                First compare string
      * @param s2                Second compare string
      */
