@@ -402,6 +402,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     serviceImplementation << "#include <set>" << endl << endl;
 
     serviceImplementation << "using namespace std;" << endl;
+    serviceImplementation << "using namespace placeholders;" << endl;
     serviceImplementation << "using namespace sptk;" << endl;
     serviceImplementation << "using namespace " << m_serviceNamespace << ";" << endl << endl;
 
@@ -411,7 +412,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     for (const auto& itor: m_operations) {
         string requestName = strip_namespace(itor.second.m_input->name());
         serviceImplementation << "        {\"" << requestName << "\", "
-            << "bind(&" << serviceClassName << "::process_" << requestName << ", this, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4)}," << endl;
+            << "bind(&" << serviceClassName << "::process_" << requestName << ", this, _1, _2, _3, _4)}," << endl;
     }
     serviceImplementation << "  })" << endl;
     serviceImplementation << "{" << endl;
