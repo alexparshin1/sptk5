@@ -16,8 +16,7 @@ do
   find -name $file -exec rm -rf {} \;
 done
 
-for fname in lib/*
-do
-    rm $fname
-done
+if [ -d lib ]; then
+  rm lib/*
+fi
 
