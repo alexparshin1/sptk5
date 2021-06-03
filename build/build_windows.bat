@@ -1,8 +1,8 @@
 @echo off
 
 cd "C:\Users\alexe\workspace\sptk5"
-rem git reset --hard
-rem git pull
+git reset --hard
+git pull
 
 cd "C:\Users\alexe\workspace\sptk5\build" 2>&1 > build.log
 
