@@ -1,8 +1,8 @@
 @echo off
 
 cd "C:\Users\alexe\workspace\sptk5"
-git reset --hard
-git pull
+rem git reset --hard
+rem git pull
 
 cd "C:\Users\alexe\workspace\sptk5\build" 2>&1 > build.log
 
@@ -12,6 +12,7 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
+echo "Create build64 directory"
 rmdir /S /Q build64 2>&1 >> build.log
 
 mkdir build64 2>&1 >> build.log
@@ -21,6 +22,7 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
+echo "Configuring project"
 cmake -G "Visual Studio 16 2019" -A x64 -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF "C:\Users\alexe\workspace\sptk5\code"
 if errorlevel 1 (
     echo "Can't configure build"
@@ -28,6 +30,7 @@ if errorlevel 1 (
 )
 cd ..
 
+echo "Building project"
 cmake --build build64 --config Release --target INSTALL
 if errorlevel 1 (
     echo "Can't complete build and install"
