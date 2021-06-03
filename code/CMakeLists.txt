@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 # The name of the project is "SPTK".  CMakeLists files in this project can
 # refer to the root source directory of the project as ${SPTK_SOURCE_DIR} and
