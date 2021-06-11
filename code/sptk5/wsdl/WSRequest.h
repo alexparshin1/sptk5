@@ -117,8 +117,11 @@ class SP_EXPORT WSRequest : public std::mutex
 public:
     /**
      * Constructor
+     * @param logEngine        Optional log engine for error messages
      */
-    WSRequest() {}
+    WSRequest(sptk::LogEngine* logEngine=nullptr)
+    : m_logEngine(logEngine)
+    {}
 
     /**
      * Destructor
@@ -163,6 +166,9 @@ public:
     }
 
 protected:
+
+    typedef std::function<void(sptk::xml::Element*, sptk::json::Element*, sptk::HttpAuthentication*, const sptk::WSNameSpace&)> RequestMethod;
+
     /**
      * Internal SOAP body processor
      *
@@ -174,7 +180,28 @@ protected:
      * @param requestNameSpace  Request SOAP element namespace
      */
     virtual void requestBroker(const String& requestName, xml::Element* requestNode, json::Element* jsonNode,
-                               HttpAuthentication* authentication, const WSNameSpace& requestNameSpace) = 0;
+                               HttpAuthentication* authentication, const WSNameSpace& requestNameSpace);
+
+    /**
+     * Default error handling
+     *
+     * Forms server response in case of error. The response should contain error information.
+     * @param xmlContent       Incoming XML request, or nullptr if JSON
+     * @param jsonContent      Incoming JSON request, or nullptr if XML
+     * @param error            Error description
+     * @param errorCode        Optional HTTP error code, or 0
+     */
+    virtual void handleError(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, const sptk::String& error, int errorCode) const;
+
+    /**
+     * Default error logging
+     *
+     * Logs error information to default logger.
+     * @param requestName      Request name
+     * @param error            Error description
+     * @param errorCode        Optional HTTP error code, or 0
+     */
+    virtual void logError(const sptk::String& requestName, const sptk::String& error, int errorCode) const;
 
     /**
      * Find SOAP body node
@@ -182,6 +209,12 @@ protected:
      * @return
      */
     xml::Element* findSoapBody(const xml::Element* soapEnvelope, const WSNameSpace& soapNamespace);
+
+    std::map<sptk::String, RequestMethod>   m_requestMethods;
+
+private:
+
+    sptk::LogEngine*                        m_logEngine;    ///< Optional logger, or nullptr
 };
 
 typedef std::shared_ptr<WSRequest> SWSRequest;

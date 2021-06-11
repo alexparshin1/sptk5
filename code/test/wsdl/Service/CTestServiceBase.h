@@ -74,46 +74,7 @@ public:
      */
     sptk::String wsdl() const override;
 
-protected:
-    /**
-     * Internal request processor
-     *
-     * Receive incoming requests, and return application response.
-     * @param requestName      Incoming request name
-     * @param xmlContent       Incoming and outgoing XML data
-     * @param jsonContent      Incoming and outgoing JSON data
-     * @param requestNameSpace Request SOAP element namespace
-     */
-    void requestBroker(const sptk::String& requestName, sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace) override;
-
-    /**
-     * Default error handling
-     *
-     * Forms server response in case of error. The response should contain error information.
-     * @param xmlContent       Incoming XML request, or nullptr if JSON
-     * @param jsonContent      Incoming JSON request, or nullptr if XML
-     * @param error            Error description
-     * @param errorCode        Optional HTTP error code, or 0
-     */
-    virtual void handleError(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, const sptk::String& error, int errorCode) const;
-
-    /**
-     * Default error logging
-     *
-     * Logs error information to default logger.
-     * @param requestName      Request name
-     * @param error            Error description
-     * @param errorCode        Optional HTTP error code, or 0
-     */
-    virtual void logError(const sptk::String& requestName, const sptk::String& error, int errorCode) const;
-
 private:
-
-    typedef std::function<void(sptk::xml::Element*, sptk::json::Element*, sptk::HttpAuthentication*, const sptk::WSNameSpace&)> RequestMethod;
-
-    sptk::LogEngine*  m_logEngine;    ///< Optional logger, or nullptr
-
-    std::map<sptk::String, RequestMethod> m_requestMethods;
 
     /**
      * Internal Web Service AccountBalance processing

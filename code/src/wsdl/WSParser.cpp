@@ -330,43 +330,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "     */" << endl;
     serviceDefinition << "    sptk::String wsdl() const override;" << endl << endl;
 
-    serviceDefinition << "protected:" << endl;
-    serviceDefinition << "    /**" << endl;
-    serviceDefinition << "     * Internal request processor" << endl;
-    serviceDefinition << "     *" << endl;
-    serviceDefinition << "     * Receive incoming requests, and return application response." << endl;
-    serviceDefinition << "     * @param requestName      Incoming request name" << endl;
-    serviceDefinition << "     * @param xmlContent       Incoming and outgoing XML data" << endl;
-    serviceDefinition << "     * @param jsonContent      Incoming and outgoing JSON data" << endl;
-    serviceDefinition << "     * @param requestNameSpace Request SOAP element namespace" << endl;
-    serviceDefinition << "     */" << endl;
-    serviceDefinition << "    void requestBroker(const sptk::String& requestName, sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace) override;" << endl << endl;
-
-    serviceDefinition << "    /**" << endl;
-    serviceDefinition << "     * Default error handling" << endl;
-    serviceDefinition << "     *" << endl;
-    serviceDefinition << "     * Forms server response in case of error. The response should contain error information." << endl;
-    serviceDefinition << "     * @param xmlContent       Incoming XML request, or nullptr if JSON" << endl;
-    serviceDefinition << "     * @param jsonContent      Incoming JSON request, or nullptr if XML" << endl;
-    serviceDefinition << "     * @param error            Error description" << endl;
-    serviceDefinition << "     * @param errorCode        Optional HTTP error code, or 0" << endl;
-    serviceDefinition << "     */" << endl;
-    serviceDefinition << "    virtual void handleError(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, const sptk::String& error, int errorCode) const;" << endl << endl;
-
-    serviceDefinition << "    /**" << endl;
-    serviceDefinition << "     * Default error logging" << endl;
-    serviceDefinition << "     *" << endl;
-    serviceDefinition << "     * Logs error information to default logger." << endl;
-    serviceDefinition << "     * @param requestName      Request name" << endl;
-    serviceDefinition << "     * @param error            Error description" << endl;
-    serviceDefinition << "     * @param errorCode        Optional HTTP error code, or 0" << endl;
-    serviceDefinition << "     */" << endl;
-    serviceDefinition << "    virtual void logError(const sptk::String& requestName, const sptk::String& error, int errorCode) const;" << endl << endl;
-
     serviceDefinition << "private:" << endl << endl;
-    serviceDefinition << "    typedef std::function<void(sptk::xml::Element*, sptk::json::Element*, sptk::HttpAuthentication*, const sptk::WSNameSpace&)> RequestMethod;" << endl << endl;
-    serviceDefinition << "    sptk::LogEngine*  m_logEngine;    ///< Optional logger, or nullptr" << endl << endl;
-    serviceDefinition << "    std::map<sptk::String, RequestMethod> m_requestMethods;" << endl << endl;
     for (const auto& itor: m_operations) {
         string requestName = strip_namespace(itor.second.m_input->name());
         serviceDefinition << "    /**" << endl;
@@ -407,72 +371,16 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     serviceImplementation << "using namespace " << m_serviceNamespace << ";" << endl << endl;
 
     serviceImplementation << serviceClassName << "::" << serviceClassName << "(LogEngine* logEngine)" << endl;
-    serviceImplementation << ": m_logEngine(logEngine)," << endl;
-    serviceImplementation << "  m_requestMethods({" << endl;
+    serviceImplementation << ": WSRequest(logEngine)" << endl;
+    serviceImplementation << "{" << endl;
+    serviceImplementation << "    map<String, RequestMethod> requestMethods {" << endl;
     for (const auto& itor: m_operations) {
         string requestName = strip_namespace(itor.second.m_input->name());
         serviceImplementation << "        {\"" << requestName << "\", "
             << "bind(&" << serviceClassName << "::process_" << requestName << ", this, _1, _2, _3, _4)}," << endl;
     }
-    serviceImplementation << "  })" << endl;
-    serviceImplementation << "{" << endl;
-    serviceImplementation << "}" << endl << endl;
-
-    serviceImplementation << "void " << serviceClassName << "::requestBroker(const String& requestName, xml::Element* xmlContent, json::Element* jsonContent, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl;
-    serviceImplementation << "{" << endl;
-    serviceImplementation << "    try {" << endl;
-    serviceImplementation << "        auto itor = m_requestMethods.find(requestName);" << endl;
-    serviceImplementation << "        if (itor == m_requestMethods.end())" << endl;
-    serviceImplementation << "            throw SOAPException(\"Request '\" + requestName + \"' is not defined in this service\");" << endl;
-    serviceImplementation << "        itor->second(xmlContent, jsonContent, authentication, requestNameSpace);" << endl;
-    serviceImplementation << "    }" << endl;
-    serviceImplementation << "    catch (const SOAPException& e) {" << endl;
-    serviceImplementation << "        logError(requestName, e.what(), 0);" << endl;
-    serviceImplementation << "        handleError(xmlContent, jsonContent, e.what(), 0);" << endl;
-    serviceImplementation << "    }" << endl;
-    serviceImplementation << "    catch (const HTTPException& e) {" << endl;
-    serviceImplementation << "        logError(requestName, e.what(), (int) e.statusCode());" << endl;
-    serviceImplementation << "        handleError(xmlContent, jsonContent, e.what(), (int) e.statusCode());" << endl;
-    serviceImplementation << "    }" << endl;
-    serviceImplementation << "    catch (const Exception& e) {" << endl;
-    serviceImplementation << "        logError(requestName, e.what(), 0);" << endl;
-    serviceImplementation << "        handleError(xmlContent, jsonContent, e.what(), 0);" << endl;
-    serviceImplementation << "    }" << endl;
-    serviceImplementation << "}" << endl << endl;
-
-    serviceImplementation << "void " << serviceClassName << "::logError(const String& requestName, const String& error, int errorCode) const" << endl;
-    serviceImplementation << "{" << endl;
-    serviceImplementation << "    if (m_logEngine) {" << endl;
-    serviceImplementation << "        Logger logger(*m_logEngine);" << endl;
-    serviceImplementation << "        if (errorCode != 0)" << endl;
-    serviceImplementation << "            logger.error(requestName + \": \" + to_string(errorCode) + \" \" + error);" << endl;
-    serviceImplementation << "        else" << endl;
-    serviceImplementation << "            logger.error(requestName + \": \" + error);" << endl;
-    serviceImplementation << "    }" << endl;
-    serviceImplementation << "}" << endl << endl;
-
-    serviceImplementation << "void " << serviceClassName << "::handleError(xml::Element* xmlContent, json::Element* jsonContent, const String& error, int errorCode) const" << endl;
-    serviceImplementation << "{" << endl;
-    serviceImplementation << "    // Error handling" << endl;
-    serviceImplementation << "    if (xmlContent) {" << endl;
-    serviceImplementation << "        auto* soapBody = (xml::Element*) xmlContent->parent();" << endl;
-    serviceImplementation << "        soapBody->clearChildren();" << endl;
-    serviceImplementation << "        String soap_namespace = WSParser::get_namespace(soapBody->name());" << endl;
-    serviceImplementation << "        if (!soap_namespace.empty())" << endl;
-    serviceImplementation << "            soap_namespace += \":\";" << endl;
-    serviceImplementation << "        auto* faultNode = new xml::Element(soapBody, (soap_namespace + \"Fault\").c_str());" << endl;
-    serviceImplementation << "        auto* faultCodeNode = new xml::Element(faultNode, \"faultcode\");" << endl;
-    serviceImplementation << "        faultCodeNode->text(soap_namespace + \"Client\");" << endl;
-    serviceImplementation << "        auto* faultStringNode = new xml::Element(faultNode, \"faultstring\");" << endl;
-    serviceImplementation << "        faultStringNode->text(error);" << endl;
-    serviceImplementation << "        new xml::Element(faultNode, \"detail\");" << endl;
-    serviceImplementation << "    }" << endl;
-    serviceImplementation << "    else {" << endl;
-    serviceImplementation << "        jsonContent->clear();" << endl;
-    serviceImplementation << "        if (errorCode != 0)" << endl;
-    serviceImplementation << "            jsonContent->set(\"error_code\", errorCode);" << endl;
-    serviceImplementation << "        jsonContent->set(\"error_description\", error);" << endl;
-    serviceImplementation << "    }" << endl;
+    serviceImplementation << "    };" << endl;
+    serviceImplementation << "    m_requestMethods = move(requestMethods);" << endl;
     serviceImplementation << "}" << endl << endl;
 
     serviceImplementation << endl <<

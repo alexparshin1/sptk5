@@ -43,6 +43,63 @@ static void extractNameSpaces(xml::Node* node, map<String,WSNameSpace>& nameSpac
     }
 }
 
+void WSRequest::requestBroker(const String& requestName, xml::Element* xmlContent, json::Element* jsonContent, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+{
+    try {
+        auto itor = m_requestMethods.find(requestName);
+        if (itor == m_requestMethods.end())
+            throw SOAPException("Request '" + requestName + "' is not defined in this service");
+        itor->second(xmlContent, jsonContent, authentication, requestNameSpace);
+    }
+    catch (const SOAPException& e) {
+        logError(requestName, e.what(), 0);
+        handleError(xmlContent, jsonContent, e.what(), 0);
+    }
+    catch (const HTTPException& e) {
+        logError(requestName, e.what(), (int) e.statusCode());
+        handleError(xmlContent, jsonContent, e.what(), (int) e.statusCode());
+    }
+    catch (const Exception& e) {
+        logError(requestName, e.what(), 0);
+        handleError(xmlContent, jsonContent, e.what(), 0);
+    }
+}
+
+void WSRequest::handleError(xml::Element* xmlContent, json::Element* jsonContent, const String& error, int errorCode) const
+{
+    // Error handling
+    if (xmlContent) {
+        auto* soapBody = (xml::Element*) xmlContent->parent();
+        soapBody->clearChildren();
+        String soap_namespace = WSParser::get_namespace(soapBody->name());
+        if (!soap_namespace.empty())
+            soap_namespace += ":";
+        auto* faultNode = new xml::Element(soapBody, (soap_namespace + "Fault").c_str());
+        auto* faultCodeNode = new xml::Element(faultNode, "faultcode");
+        faultCodeNode->text(soap_namespace + "Client");
+        auto* faultStringNode = new xml::Element(faultNode, "faultstring");
+        faultStringNode->text(error);
+        new xml::Element(faultNode, "detail");
+    }
+    else {
+        jsonContent->clear();
+        if (errorCode != 0)
+            jsonContent->set("error_code", errorCode);
+        jsonContent->set("error_description", error);
+    }
+}
+
+void WSRequest::logError(const String& requestName, const String& error, int errorCode) const
+{
+    if (m_logEngine) {
+        Logger logger(*m_logEngine);
+        if (errorCode != 0)
+            logger.error(requestName + ": " + to_string(errorCode) + " " + error);
+        else
+            logger.error(requestName + ": " + error);
+    }
+}
+
 xml::Element* WSRequest::findSoapBody(const xml::Element* soapEnvelope, const WSNameSpace& soapNamespace)
 {
     lock_guard<mutex> lock(*this);
