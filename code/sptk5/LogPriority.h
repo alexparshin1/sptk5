@@ -38,47 +38,47 @@ namespace sptk {
 /**
  * @brief Log message priority
  */
-enum LogPriority : unsigned
+enum class LogPriority : uint8_t
 {
     /**
      * Debug message priority
      */
-    LP_DEBUG = LOG_DEBUG,
+    DEBUG = LOG_DEBUG,
 
     /**
      * Information message priority
      */
-    LP_INFO = LOG_INFO,
+    INFO = LOG_INFO,
 
     /**
      * Notice message priority
      */
-    LP_NOTICE = LOG_NOTICE,
+    NOTICE = LOG_NOTICE,
 
     /**
      * Warning message priority
      */
-    LP_WARNING = LOG_WARNING,
+    WARNING = LOG_WARNING,
 
     /**
      * Error message priority
      */
-    LP_ERROR = LOG_ERR,
+    ERROR = LOG_ERR,
 
     /**
      * Critical message priority
      */
-    LP_CRITICAL = LOG_CRIT,
+    CRITICAL = LOG_CRIT,
 
     /**
      * Alert message priority
      */
-    LP_ALERT = LOG_ALERT,
+    ALERT = LOG_ALERT,
 
     /**
      * Panic message priority
      */
-    LP_PANIC = LOG_EMERG
+    PANIC = LOG_EMERG
 };
 
 /**

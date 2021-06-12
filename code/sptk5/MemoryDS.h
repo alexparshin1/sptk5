@@ -53,7 +53,7 @@ public:
     /**
      * Default constructor
      */
-    MemoryDS() : DataSource() {}
+    MemoryDS() = default;
 
     /**
      * Deleted copy constructor
@@ -90,7 +90,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~MemoryDS()
+    ~MemoryDS() override
     {
         MemoryDS::close();
     }

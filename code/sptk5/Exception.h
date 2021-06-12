@@ -92,7 +92,7 @@ public:
     /**
      * @brief Returns complete text of exception
      */
-    virtual const char * what() const DOESNT_THROW;
+    const char * what() const DOESNT_THROW override;
 
     /**
      * @brief Returns exception message without file name, line number, or description

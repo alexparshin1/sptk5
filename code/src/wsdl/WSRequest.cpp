@@ -159,3 +159,8 @@ void WSRequest::processRequest(xml::Document* xmlContent, json::Document* jsonCo
     json::Element* jsonNode = jsonContent? &jsonContent->root(): nullptr;
     requestBroker(requestName, xmlContent, jsonNode, authentication, requestNameSpace);
 }
+
+void WSRequest::setRequestMethods(map<sptk::String, RequestMethod>&& requestMethods)
+{
+    m_requestMethods = move(requestMethods);
+}

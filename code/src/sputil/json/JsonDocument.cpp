@@ -164,14 +164,20 @@ Type Document::dataType(const String& data)
     static const RegularExpression isNumber(R"(^[+\-]?\d+(\.\d*)?(E[+\-]?\d+)?$)", "i");
     static const RegularExpression isBoolean(R"(^(true|false)$)", "i");
 
-    if (isNumber.matches(data))
-        return JDT_NUMBER;
-    if (isBoolean.matches(data))
-        return JDT_BOOLEAN;
-    if (data == "null")
-        return JDT_NULL;
+    Type type = JDT_STRING;
+    if (data.empty())
+        return type;
 
-    return JDT_STRING;
+    if (isalpha(data[0])) {
+        if (isBoolean.matches(data))
+            type = JDT_BOOLEAN;
+        else if (data == "null")
+            type = JDT_NULL;
+    }
+    else if (isNumber.matches(data))
+        type = JDT_NUMBER;
+
+    return type;
 }
 
 #if USE_GTEST

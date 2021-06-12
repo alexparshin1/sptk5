@@ -140,7 +140,7 @@ void CCalendar::ctor_init()
     unsigned i;
     for (i = 0; i < 7; i++) {
         auto* label = m_weekDayLabels + uint64_t(i * 2);
-        label[0] = DateTime::format(DateTime::WEEKDAY_NAME,i).c_str()[0];
+        label[0] = DateTime::format(DateTime::Format::WEEKDAY_NAME,i).c_str()[0];
         label[1] = 0;
         m_dayNameBoxes[i] = new Fl_Box(xx + i * 16, yy + 16, 16, 16, label);
         m_dayNameBoxes[i]->box(FL_THIN_UP_BOX);

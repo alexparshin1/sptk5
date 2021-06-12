@@ -193,7 +193,7 @@ private:
     /**
      * Min message priority, should be defined for every message
      */
-    std::atomic<LogPriority>            m_minPriority {LP_INFO};
+    std::atomic<LogPriority>            m_minPriority {LogPriority::INFO};
 
     /**
      * Log options, a bit combination of Option

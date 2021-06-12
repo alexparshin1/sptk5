@@ -45,30 +45,30 @@ void Logger::log(LogPriority priority, const String& message)
 
 void Logger::debug(const String& message)
 {
-    m_destination.log(new Message(LP_DEBUG, m_prefix + message));
+    m_destination.log(new Message(LogPriority::DEBUG, m_prefix + message));
 }
 
 void Logger::info(const String& message)
 {
-    m_destination.log(new Message(LP_INFO, m_prefix + message));
+    m_destination.log(new Message(LogPriority::INFO, m_prefix + message));
 }
 
 void Logger::notice(const String& message)
 {
-    m_destination.log(new Message(LP_NOTICE, m_prefix + message));
+    m_destination.log(new Message(LogPriority::NOTICE, m_prefix + message));
 }
 
 void Logger::warning(const String& message)
 {
-    m_destination.log(new Message(LP_WARNING, m_prefix + message));
+    m_destination.log(new Message(LogPriority::WARNING, m_prefix + message));
 }
 
 void Logger::error(const String& message)
 {
-    m_destination.log(new Message(LP_ERROR, m_prefix + message));
+    m_destination.log(new Message(LogPriority::ERROR, m_prefix + message));
 }
 
 void Logger::critical(const String& message)
 {
-    m_destination.log(new Message(LP_CRITICAL, m_prefix + message));
+    m_destination.log(new Message(LogPriority::CRITICAL, m_prefix + message));
 }

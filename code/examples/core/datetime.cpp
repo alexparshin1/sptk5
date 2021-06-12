@@ -37,10 +37,10 @@ int main()
     int printFlags = DateTime::PF_TIMEZONE;
 
     // Print current date and time, showing timezone and milliseconds
-    COUT("Current time is " << now.dateString() + " " + now.timeString(printFlags, DateTime::PA_MILLISECONDS) << endl)
+    COUT("Current time is " << now.dateString() + " " + now.timeString(printFlags, DateTime::PrintAccuracy::MILLISECONDS) << endl)
 
     // Print same date and time as GMT, showing timezone and milliseconds
-    COUT("Current GMT time is " << now.dateString() + " " + now.timeString(printFlags|DateTime::PF_GMT, DateTime::PA_MILLISECONDS) << endl)
+    COUT("Current GMT time is " << now.dateString() + " " + now.timeString(printFlags|DateTime::PF_GMT, DateTime::PrintAccuracy::MILLISECONDS) << endl)
     COUT("UTC epoch is " << chrono::duration_cast<chrono::seconds>(now.sinceEpoch()).count() << endl)
     COUT(endl)
 

@@ -92,13 +92,13 @@ int main()
         for (i = 0; i < 5; i++)
             tasks.push_back(new CMyTask(logEngine));
 
-        sharedLog.log(LP_NOTICE, "Thread pool has " + to_string(threadPool.size()) + " threads");
+        sharedLog.log(LogPriority::NOTICE, "Thread pool has " + to_string(threadPool.size()) + " threads");
 
-        sharedLog.log(LP_NOTICE, "Starting all tasks.");
+        sharedLog.log(LogPriority::NOTICE, "Starting all tasks.");
         for (i = 0; i < tasks.size(); i++)
             threadPool.execute(tasks[i]);
 
-        sharedLog.log(LP_NOTICE, to_string(tasks.size()) + " tasks are running.");
+        sharedLog.log(LogPriority::NOTICE, to_string(tasks.size()) + " tasks are running.");
 
         // Let the tasks start and print start message
         this_thread::sleep_for(chrono::milliseconds(100));
@@ -106,20 +106,20 @@ int main()
         for (int value = 0; value < 100; value++)
             intQueue.push(value);
 
-        sharedLog.log(LP_NOTICE, "Waiting 1 seconds while tasks are running..");
+        sharedLog.log(LogPriority::NOTICE, "Waiting 1 seconds while tasks are running..");
         this_thread::sleep_for(chrono::milliseconds(1000));
 
-        sharedLog.log(LP_NOTICE, "Sending 'terminate' signal to all the tasks.");
+        sharedLog.log(LogPriority::NOTICE, "Sending 'terminate' signal to all the tasks.");
         for (i = 0; i < tasks.size(); i++)
             tasks[i]->terminate();
         this_thread::sleep_for(chrono::seconds(1));
 
-        sharedLog.log(LP_NOTICE, "Thread pool has " + to_string(threadPool.size()) + " threads");
+        sharedLog.log(LogPriority::NOTICE, "Thread pool has " + to_string(threadPool.size()) + " threads");
 
-        sharedLog.log(LP_NOTICE, "Stopping thread pool...");
+        sharedLog.log(LogPriority::NOTICE, "Stopping thread pool...");
         threadPool.stop();
 
-        sharedLog.log(LP_NOTICE, "Deleting all the tasks.");
+        sharedLog.log(LogPriority::NOTICE, "Deleting all the tasks.");
         for (i = 0; i < tasks.size(); i++)
             delete tasks[i];
 

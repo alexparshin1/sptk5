@@ -215,7 +215,7 @@ CTimeInput::CTimeInput(const char* label, int layoutSize, CLayoutAlign layoutAli
         : CDateTimeBaseInput(label, layoutSize, layoutAlignment, true)
 {
     m_timeInput = (CInput_*) m_control;
-    m_timeInput->mask(DateTime::format(DateTime::SHORT_TIME_FORMAT).c_str());
+    m_timeInput->mask(DateTime::format(DateTime::Format::SHORT_TIME_FORMAT).c_str());
 }
 
 #ifdef __COMPATIBILITY_MODE__

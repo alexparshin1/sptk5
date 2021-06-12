@@ -135,40 +135,8 @@ public:
     class SP_EXPORT Groups
     {
         friend class RegularExpression;
+
     public:
-        /**
-         * Default constructor
-         */
-        Groups() = default;
-
-        /**
-         * Copy constructor
-         * @param other         Other object to copy from
-         */
-        Groups(const Groups& other) = default;
-
-        /**
-         * Move constructor
-         * @param other         Other object to move from
-         */
-        Groups(Groups&& other) noexcept;
-
-        /**
-         * Destructor
-         */
-        ~Groups() noexcept = default;
-
-        /**
-         * Copy assignment
-         * @param other         Other object to move from
-         */
-        Groups& operator = (const Groups& other) = default;
-
-        /**
-         * Move assignment
-         * @param other         Other object to move from
-         */
-        Groups& operator = (Groups&& other) = default;
 
         /**
          * Get unnamed group by index.

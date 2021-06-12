@@ -51,19 +51,19 @@ void LogEngine::option(Option option, bool flag)
 String LogEngine::priorityName(LogPriority prt)
 {
     switch (prt) {
-        case LP_DEBUG:
+        case LogPriority::DEBUG:
             return "DEBUG";
-        case LP_INFO:
+        case LogPriority::INFO:
             return "INFO";
-        case LP_NOTICE:
+        case LogPriority::NOTICE:
             return "NOTICE";
-        case LP_WARNING:
+        case LogPriority::WARNING:
             return "WARNING";
-        case LP_ERROR:
+        case LogPriority::ERROR:
             return "ERROR";
-        case LP_CRITICAL:
+        case LogPriority::CRITICAL:
             return "CRITICAL";
-        case LP_ALERT:
+        case LogPriority::ALERT:
             return "ALERT";
         default:
             return "PANIC";
@@ -76,23 +76,23 @@ LogPriority LogEngine::priorityFromName(const String& prt)
 
     switch (priorityNames.indexOf(prt.toUpperCase())) {
         case 0:
-            return LP_DEBUG;
+            return LogPriority::DEBUG;
         case 1:
-            return LP_INFO;
+            return LogPriority::INFO;
         case 2:
-            return LP_NOTICE;
+            return LogPriority::NOTICE;
         case 3:
-            return LP_WARNING;
+            return LogPriority::WARNING;
         case 4:
-            return LP_ERROR;
+            return LogPriority::ERROR;
         case 5:
-            return LP_CRITICAL;
+            return LogPriority::CRITICAL;
         case 6:
-            return LP_ALERT;
+            return LogPriority::ALERT;
         case 7:
-            return LP_PANIC;
+            return LogPriority::PANIC;
         default:
-            return LP_DEBUG;
+            return LogPriority::DEBUG;
     }
 }
 
@@ -130,7 +130,7 @@ void LogEngine::threadFunction()
                 messagePrefix += "[" + priorityName(message->priority) + "] ";
 
             FILE* dest = stdout;
-            if (message->priority <= LP_ERROR)
+            if (message->priority <= LogPriority::ERROR)
                 dest = stderr;
             fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
             fflush(dest);

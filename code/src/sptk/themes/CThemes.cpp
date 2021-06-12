@@ -187,7 +187,7 @@ void CThemes::reset()
     Fl::set_boxtype(FL_THIN_DOWN_FRAME, m_thinDownFrame, 1, 1, 2, 2);
     Fl::set_boxtype(FL_DOWN_FRAME, m_downFrame, 2, 2, 4, 4);
 
-    Buffer defaultThemeBuffer(default_icons, default_icons_len);
+    Buffer defaultThemeBuffer((const char*)default_icons, default_icons_len);
     m_tar.read(defaultThemeBuffer);
     m_registry->load(m_tar.file("theme.ini"));
 
@@ -266,7 +266,7 @@ void CThemes::set(string theThemeName)
                 continue;
             }
         } else {
-            Buffer defaultThemeBuffer(default_icons, default_icons_len);
+            Buffer defaultThemeBuffer((const char*)default_icons, default_icons_len);
             m_tar.read(defaultThemeBuffer);
             m_registry->load(m_tar.file("theme.ini"));
             m_name = themeName;

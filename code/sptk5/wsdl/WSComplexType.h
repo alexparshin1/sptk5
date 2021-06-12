@@ -294,6 +294,7 @@ private:
     bool            m_loaded {false};      ///< Is data loaded flag
     bool            m_exportable {true};   ///< Is this object exportable?
     WSFieldIndex    m_fields;              ///< All fields
+    void setAttributes(const std::map<String, String>& values, json::Element* attributes) const;
 };
 
 /**

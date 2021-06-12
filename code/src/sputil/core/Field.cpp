@@ -136,7 +136,7 @@ String Field::asString() const
 String Field::epochDataToDateTimeString() const
 {
     DateTime dt(chrono::microseconds(m_data.getInt64()));
-    return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PA_SECONDS);
+    return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PrintAccuracy::SECONDS);
 }
 
 String Field::doubleDataToString() const

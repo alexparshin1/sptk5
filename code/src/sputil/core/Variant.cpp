@@ -1133,7 +1133,7 @@ TEST(SPTK_Variant, ctors)
     EXPECT_DOUBLE_EQ(2.22, v2.asFloat());
     EXPECT_STREQ("Test", v3.asString().c_str());
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
-                 v4.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+                 v4.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 }
 
 TEST(SPTK_Variant, copy_ctors)
@@ -1162,7 +1162,7 @@ TEST(SPTK_Variant, copy_ctors)
     EXPECT_DOUBLE_EQ(2.22, v2c.asFloat());
     EXPECT_STREQ("Test", v3c.asString().c_str());
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
-                 v4c.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+                 v4c.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_EQ(v5c.isNull(), true);
     EXPECT_EQ(v5c.dataType(), VAR_STRING);
     EXPECT_STREQ(v6c.asString().c_str(), "A test");
@@ -1205,7 +1205,7 @@ TEST(SPTK_Variant, move_ctors)
     EXPECT_EQ(VAR_NONE, v4.dataType());
     EXPECT_EQ(v4.isNull(), true);
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
-                 v4m.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+                 v4m.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 
     EXPECT_EQ(VAR_NONE, v5.dataType());
     EXPECT_EQ(v5.isNull(), true);
@@ -1239,10 +1239,10 @@ TEST(SPTK_Variant, assigns)
 
     v = testDate;
 
-    EXPECT_STREQ("2018-02-01T09:11:14.345Z", v.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_STREQ("2018-02-01T09:11:14.345Z", v.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 
     v.setDateTime(testDate, true);
-    EXPECT_STREQ("2018-02-01T00:00:00.000Z", v.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_STREQ("2018-02-01T00:00:00.000Z", v.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 }
 
 TEST(SPTK_Variant, move_assigns)
@@ -1272,13 +1272,13 @@ TEST(SPTK_Variant, move_assigns)
 
     v = testDate;
     vm = move(v);
-    EXPECT_STREQ("2018-02-01T09:11:14.345Z", vm.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_STREQ("2018-02-01T09:11:14.345Z", vm.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_EQ(true, v.isNull());
     EXPECT_EQ(VAR_NONE, v.dataType());
 
     v.setDateTime(testDate, true);
     vm = move(v);
-    EXPECT_STREQ("2018-02-01T00:00:00.000Z", vm.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_STREQ("2018-02-01T00:00:00.000Z", vm.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_EQ(true, v.isNull());
     EXPECT_EQ(VAR_NONE, v.dataType());
 }
@@ -1300,7 +1300,7 @@ TEST(SPTK_Variant, copy)
     EXPECT_EQ(12345, v.asInteger());
 
     v = v1;
-    EXPECT_STREQ("2018-02-01T09:11:14.345Z", v.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_STREQ("2018-02-01T09:11:14.345Z", v.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 
     v = v2;
     EXPECT_DOUBLE_EQ(1.2345, v.asFloat());
@@ -1309,7 +1309,7 @@ TEST(SPTK_Variant, copy)
     EXPECT_STREQ("Test", v.asString().c_str());
 
     v = v4;
-    EXPECT_STREQ("2018-02-01T00:00:00.000Z", v.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_STREQ("2018-02-01T00:00:00.000Z", v.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 }
 
 TEST(SPTK_Variant, toString)

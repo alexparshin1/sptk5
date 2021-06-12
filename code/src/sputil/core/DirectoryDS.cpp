@@ -55,13 +55,13 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
 #endif
 
     bool directory = is_directory(file.status());
-    image = SXPM_DOCUMENT;
+    image = CSmallPixmapType::SXPM_DOCUMENT;
 
     string modeName;
     if (directory) {
         modeName = "Directory";
         executable = false;
-        image = SXPM_FOLDER;
+        image = CSmallPixmapType::SXPM_FOLDER;
     } else if (S_ISREG(st.st_mode)) {
         if (executable)
             modeName = "Executable";
@@ -70,7 +70,7 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
     }
 
     if (executable) {
-        image = SXPM_EXECUTABLE;
+        image = CSmallPixmapType::SXPM_EXECUTABLE;
     } else {
         if (!directory && !ext.empty())
             image = imageTypeFromExtention(ext);
@@ -83,19 +83,19 @@ CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext)
 {
     static const map<String,CSmallPixmapType> imageTypes
     {
-        { "doc", SXPM_DOC_DOCUMENT },
-        { "docx", SXPM_DOC_DOCUMENT },
-        { "odt", SXPM_DOC_DOCUMENT },
-        { "txt", SXPM_TXT_DOCUMENT },
-        { "xls", SXPM_XLS_DOCUMENT },
-        { "csv", SXPM_XLS_DOCUMENT }
+        { "doc", CSmallPixmapType::SXPM_DOC_DOCUMENT },
+        { "docx", CSmallPixmapType::SXPM_DOC_DOCUMENT },
+        { "odt", CSmallPixmapType::SXPM_DOC_DOCUMENT },
+        { "txt", CSmallPixmapType::SXPM_TXT_DOCUMENT },
+        { "xls", CSmallPixmapType::SXPM_XLS_DOCUMENT },
+        { "csv", CSmallPixmapType::SXPM_XLS_DOCUMENT }
     };
 
     const auto itor = imageTypes.find(ext);
     if (itor != imageTypes.end())
         return itor->second;
 
-    return SXPM_DOCUMENT;
+    return CSmallPixmapType::SXPM_DOCUMENT;
 }
 
 // Define access mode constants if they aren't already defined.
@@ -136,7 +136,7 @@ bool DirectoryDS::open()
     if ((showPolicy() & DDS_HIDE_DOT_FILES) == 0) {
         for (const String& dirName: { ".", ".." }) {
             auto* df = new FieldList(false);
-            df->push_back(" ", false).setImageNdx(SXPM_FOLDER);
+            df->push_back(" ", false).setImageNdx((uint32_t)CSmallPixmapType::SXPM_FOLDER);
             df->push_back("Name", false) = dirName;
             df->push_back("Size", false) = "";
             df->push_back("Type", false) = "Directory";
@@ -172,7 +172,7 @@ bool DirectoryDS::open()
 
 FieldList* DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index) const
 {
-    CSmallPixmapType pixmapType = SXPM_TXT_DOCUMENT;
+    CSmallPixmapType pixmapType = CSmallPixmapType::SXPM_TXT_DOCUMENT;
     DateTime         modificationTime;
     String           modeName = getFileType(file, pixmapType, modificationTime);
 
@@ -180,7 +180,7 @@ FieldList* DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& i
         modeName += " symlink";
 
     auto* df = new FieldList(false);
-    df->push_back(" ", false).setImageNdx(pixmapType);
+    df->push_back(" ", false).setImageNdx((uint32_t)pixmapType);
     df->push_back("Name", false) = file.path().filename().string();
     if (modeName == "Directory")
         df->push_back("Size", false) = "";

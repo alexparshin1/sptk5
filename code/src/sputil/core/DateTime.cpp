@@ -467,7 +467,7 @@ static void encodeDate(DateTime::time_point& dt, const char* dat)
 
 void parseDate(const short* datePart, short& month, short& day, short& year)
 {
-    auto datePartsOrder(DateTime::format(DateTime::DATE_PARTS_ORDER, 0));
+    auto datePartsOrder(DateTime::format(DateTime::Format::DATE_PARTS_ORDER, 0));
     for (int ii = 0; ii < 3; ++ii) {
         switch (datePartsOrder[ii]) {
             case 'M':
@@ -687,9 +687,9 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
     char savedFill = str.fill('0');
     str << setw(2) << h << _timeSeparator << setw(2) << m;
     switch (printAccuracy) {
-        case PA_MINUTES:
+        case PrintAccuracy::MINUTES:
             break;
-        case PA_SECONDS:
+        case PrintAccuracy::SECONDS:
             str << _timeSeparator << setw(2) << s;
             break;
         default:
@@ -818,15 +818,15 @@ DateTime DateTime::convertCTime(const time_t tt)
 String DateTime::format(Format dtFormat, size_t arg)
 {
     switch (dtFormat) {
-        case DATE_PARTS_ORDER:
+        case Format::DATE_PARTS_ORDER:
             return _datePartsOrder;
-        case FULL_TIME_FORMAT:
+        case Format::FULL_TIME_FORMAT:
             return _fullTimeFormat;
-        case SHORT_TIME_FORMAT:
+        case Format::SHORT_TIME_FORMAT:
             return _shortTimeFormat;
-        case MONTH_NAME:
+        case Format::MONTH_NAME:
             return _monthNames[arg];
-        case WEEKDAY_NAME:
+        case Format::WEEKDAY_NAME:
             return _weekDayNames[arg];
         default:
             return _dateFormat;
@@ -895,7 +895,7 @@ TEST(SPTK_DateTime, isoTimeString)
     String input("2018-01-01T11:22:33");
     DateTime dateTime1(input.c_str());
     COUT((String)dateTime1 << endl)
-    String output(dateTime1.isoDateTimeString(sptk::DateTime::PA_MILLISECONDS));
+    String output(dateTime1.isoDateTimeString(sptk::DateTime::PrintAccuracy::MILLISECONDS));
     EXPECT_TRUE(output.startsWith(input));
 }
 
@@ -977,7 +977,7 @@ TEST(SPTK_DateTime, formatTime)
     char buffer[128];
     strftime(buffer, sizeof(buffer) - 1, "%X", &tt);
 
-    EXPECT_STREQ("11:22:33.444Z", dateTime.timeString(DateTime::PF_GMT|DateTime::PF_TIMEZONE, DateTime::PA_MILLISECONDS).c_str());
+    EXPECT_STREQ("11:22:33.444Z", dateTime.timeString(DateTime::PF_GMT|DateTime::PF_TIMEZONE, DateTime::PrintAccuracy::MILLISECONDS).c_str());
     EXPECT_STREQ("11:22:33", dateTime.timeString(DateTime::PF_GMT).c_str());
 }
 

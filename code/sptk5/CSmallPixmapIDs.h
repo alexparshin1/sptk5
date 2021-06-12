@@ -38,7 +38,7 @@ namespace sptk {
 /**
  * A list of predefined small pixmaps
  */
-enum CSmallPixmapType {
+enum class CSmallPixmapType : uint8_t {
     /**
      * Small pixmap - executable
      */

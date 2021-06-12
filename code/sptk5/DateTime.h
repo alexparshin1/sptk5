@@ -40,6 +40,7 @@ namespace sptk {
  */
 
 class DateTimeFormat;
+
 class DateTime;
 
 /**
@@ -105,11 +106,11 @@ public:
     /**
      * Time print accuracy
      */
-    enum PrintAccuracy
+    enum class PrintAccuracy
     {
-        PA_MINUTES = 1,
-        PA_SECONDS = 2,
-        PA_MILLISECONDS = 3
+        MINUTES = 1,
+        SECONDS = 2,
+        MILLISECONDS = 3
     };
 
     /**
@@ -123,7 +124,8 @@ public:
         PF_GMT = 16
     };
 
-    enum Format {
+    enum class Format
+    {
         DATE_FORMAT,
         DATE_PARTS_ORDER,
         FULL_TIME_FORMAT,
@@ -132,32 +134,32 @@ public:
         WEEKDAY_NAME
     };
 
-	/**
-	 * System's format info
-	 * @param dtFormat          Format type
-	 * @param arg               Optional format argument, for MONTH_NAME and WEEKDAY_NAME
-	 */
-	static String format(Format dtFormat, size_t arg=0);
+    /**
+     * System's format info
+     * @param dtFormat          Format type
+     * @param arg               Optional format argument, for MONTH_NAME and WEEKDAY_NAME
+     */
+    static String format(Format dtFormat, size_t arg = 0);
 
-	/**
-	 * System's date separator
-	 */
-	static char dateSeparator();
+    /**
+     * System's date separator
+     */
+    static char dateSeparator();
 
-	/**
-	 * System's time separator
-	 */
-	static char timeSeparator();
+    /**
+     * System's time separator
+     */
+    static char timeSeparator();
 
-	/**
-	 * Returns system's time mode.
-	 */
-	static bool time24Mode();
+    /**
+     * Returns system's time mode.
+     */
+    static bool time24Mode();
 
-	/**
-	 * Sets system's time mode
-	 */
-	static void time24Mode(bool t24mode);
+    /**
+     * Sets system's time mode
+     */
+    static void time24Mode(bool t24mode);
 
     /**
     * Constructor
@@ -175,7 +177,7 @@ public:
      * Constructor
      * @param dateStr           Date string
      */
-    explicit DateTime(const char* dateStr=nullptr) noexcept;
+    explicit DateTime(const char* dateStr = nullptr) noexcept;
 
     /**
      * Copy constructor
@@ -212,7 +214,7 @@ public:
      * @param str               Output stream
      * @param printFlags        Print flags, recognised { PF_GMT, PF_RFC_DATE }
      */
-    void formatDate(std::ostream& str, int printFlags=0) const;
+    void formatDate(std::ostream& str, int printFlags = 0) const;
 
     /**
      * Print date into string
@@ -220,7 +222,7 @@ public:
      * @param printFlags        Print flags, recognised { PF_GMT, PF_TIMEZONE, PF_12HOURS }
      * @param printAccuracy     Print accuracy, @see PrintAccuracy
      */
-    void formatTime(std::ostream& str, int printFlags=0, PrintAccuracy printAccuracy=PA_SECONDS) const;
+    void formatTime(std::ostream& str, int printFlags = 0, PrintAccuracy printAccuracy = PrintAccuracy::SECONDS) const;
 
     /**
      * Duration since epoch
@@ -277,14 +279,14 @@ public:
      * @param printFlags        Print flags, recognised { PF_GMT, PF_TIMEZONE, PF_12HOURS }
      * @param printAccuracy     Print accuracy, @see PrintAccuracy
      */
-    String timeString(int printFlags = 0, PrintAccuracy printAccuracy = PA_SECONDS) const;
+    String timeString(int printFlags = 0, PrintAccuracy printAccuracy = PrintAccuracy::SECONDS) const;
 
     /**
      * Returns time as a ISO date and time string
      * @param printAccuracy     Print accuracy, @see PrintAccuracy
      * @param gmt               If true print GMT time
      */
-    String isoDateTimeString(PrintAccuracy printAccuracy = PA_SECONDS, bool gmt = false) const;
+    String isoDateTimeString(PrintAccuracy printAccuracy = PrintAccuracy::SECONDS, bool gmt = false) const;
 
     /**
      * Returns timezone offset in minutes
@@ -340,21 +342,21 @@ public:
 
 private:
 
-    time_point      m_dateTime;             ///< Actual date and time value
+    time_point m_dateTime;             ///< Actual date and time value
 
-    static String   _dateFormat;            ///< System's date format
-    static String   _fullTimeFormat;        ///< System's time format
-    static String   _shortTimeFormat;       ///< System's time format
-    static String   _datePartsOrder;        ///< System's date parts order
-    static char     _dateSeparator;         ///< System's date separator
-    static char     _timeSeparator;         ///< System's time separator
-    static Strings  _weekDayNames;          ///< The locale-defined weekday names
-    static Strings  _monthNames;            ///< The locale-defined weekday names
+    static String _dateFormat;            ///< System's date format
+    static String _fullTimeFormat;        ///< System's time format
+    static String _shortTimeFormat;       ///< System's time format
+    static String _datePartsOrder;        ///< System's date parts order
+    static char _dateSeparator;         ///< System's date separator
+    static char _timeSeparator;         ///< System's time separator
+    static Strings _weekDayNames;          ///< The locale-defined weekday names
+    static Strings _monthNames;            ///< The locale-defined weekday names
 
-    static bool     _time24Mode;
-    static String   _timeZoneName;
-    static int      _timeZoneOffset;
-    static int      _isDaylightSavingsTime;
+    static bool _time24Mode;
+    static String _timeZoneName;
+    static int _timeZoneOffset;
+    static int _isDaylightSavingsTime;
 };
 
 

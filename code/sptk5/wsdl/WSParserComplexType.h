@@ -272,8 +272,7 @@ private:
     void printImplementationConstructors(std::ostream& classImplementation, const String& className,
                                          const Strings& elementNames, const Strings& attributeNames) const;
 
-    void printImplementationAssignments(std::ostream& classImplementation, const String& className,
-                                        const Strings& elementNames, const Strings& attributeNames) const;
+    void printImplementationAssignments(std::ostream& classImplementation, const String& className) const;
 
     void printImplementationCheckRestrictions(std::ostream& classImplementation, const String& className) const;
 

@@ -46,7 +46,7 @@ CDateControl::CDateControl(int x, int y, int w, int h, const char* label)
 {
     box(FL_DOWN_BOX);
     m_input = new CInput_;
-    m_input->mask(DateTime::format(DateTime::DATE_FORMAT).c_str());
+    m_input->mask(DateTime::format(DateTime::Format::DATE_FORMAT).c_str());
     m_input->box(FL_FLAT_BOX);
     m_input->callback(date_cb);
     m_input->when(FL_WHEN_CHANGED);
