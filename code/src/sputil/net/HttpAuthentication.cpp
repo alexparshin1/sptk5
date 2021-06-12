@@ -98,7 +98,7 @@ static String makeJWT()
     String key256("012345678901234567890123456789XY");
 
     JWT jwt;
-    jwt.set_alg(JWT::JWT_ALG_HS256, key256);
+    jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     jwt["iat"] = 1594642696;
     jwt["iss"] = "http://test.com";

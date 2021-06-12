@@ -64,8 +64,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~DatabaseStatement()
-    {}
+    virtual ~DatabaseStatement() = default;
 
     /**
      * Returns current DB statement handle

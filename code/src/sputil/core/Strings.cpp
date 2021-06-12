@@ -95,10 +95,10 @@ void Strings::fromString(const String& src, const char* delimitter, SplitMode mo
 {
     clear();
     switch (mode) {
-        case SM_ANYCHAR:
+        case SplitMode::ANYCHAR:
             splitByAnyChar(*this, src, delimitter);
             break;
-        case SM_REGEXP:
+        case SplitMode::REGEXP:
             splitByRegExp(*this, src, delimitter);
             break;
         default:
@@ -114,12 +114,12 @@ int Strings::indexOf(const String& s) const
     const_reverse_iterator  xtor;
 
     switch (m_sorted) {
-        case DESCENDING:
+        case SortOrder::DESCENDING:
             xtor = lower_bound(rbegin(), rend(), s);
             if (xtor != rend() && *xtor == s)
                 result = (int) distance(rbegin(), xtor);
             break;
-        case ASCENDING:
+        case SortOrder::ASCENDING:
             itor = lower_bound(begin(), end(), s);
             if (itor != end() && *itor == s)
                 result = (int) distance(begin(), itor);
@@ -204,10 +204,10 @@ void Strings::sort(bool ascending)
 {
     if (ascending) {
         ::sort(begin(), end(), sortAscending);
-        m_sorted = ASCENDING;
+        m_sorted = SortOrder::ASCENDING;
     } else {
         ::sort(begin(), end(), sortDescending);
-        m_sorted = DESCENDING;
+        m_sorted = SortOrder::DESCENDING;
     }
 }
 
@@ -218,7 +218,7 @@ static const String resultString("This is a test\rtext that contains several\rex
 
 TEST(SPTK_Strings, ctor)
 {
-    Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
+    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
     EXPECT_EQ(size_t(3), strings.size());
     EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
 
@@ -226,7 +226,7 @@ TEST(SPTK_Strings, ctor)
     EXPECT_EQ(size_t(3), strings2.size());
     EXPECT_STREQ(resultString.c_str(), strings2.join("\r").c_str());
 
-    strings.fromString(testString, "\n", Strings::SM_DELIMITER);
+    strings.fromString(testString, "\n", Strings::SplitMode::DELIMITER);
     EXPECT_EQ(size_t(3), strings.size());
     EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
 
@@ -242,7 +242,7 @@ TEST(SPTK_Strings, ctor)
 
 TEST(SPTK_Strings, sort)
 {
-    Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
+    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
     strings.sort();
     EXPECT_STREQ("This is a test\nexample rows\ntext that contains several", strings.join("\n").c_str());
 }
@@ -256,7 +256,7 @@ TEST(SPTK_Strings, remove)
 
 TEST(SPTK_Strings, indexOf)
 {
-    Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
+    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
     EXPECT_EQ(1, strings.indexOf("text that contains several"));
     EXPECT_EQ(-1, strings.indexOf("text that contains"));
 
@@ -271,7 +271,7 @@ TEST(SPTK_Strings, indexOf)
 
 TEST(SPTK_Strings, grep)
 {
-    Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
+    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
 
     Strings group1 = strings.grep("text");
     EXPECT_EQ(size_t(1), group1.size());

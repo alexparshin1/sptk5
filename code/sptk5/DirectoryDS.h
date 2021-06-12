@@ -143,7 +143,7 @@ public:
      */
     void pattern(const String& wildcards)
     {
-        Strings patterns(wildcards, ";", Strings::SM_DELIMITER);
+        Strings patterns(wildcards, ";", Strings::SplitMode::DELIMITER);
         m_patterns.clear();
         for (const auto& pattern: patterns) {
             auto matchPattern = wildcardToRegexp(pattern);

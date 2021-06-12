@@ -101,7 +101,7 @@ public:
 auto parseOperationsAuth(const String& operationsAuth)
 {
     map<String, OpenApiGenerator::AuthMethod> output;
-    for (auto& operationAuthStr: Strings(operationsAuth, "[,; ]+", Strings::SM_REGEXP)) {
+    for (auto& operationAuthStr: Strings(operationsAuth, "[,; ]+", Strings::SplitMode::REGEXP)) {
         operationAuthStr = operationAuthStr.trim();
         if (operationAuthStr.empty())
             continue;

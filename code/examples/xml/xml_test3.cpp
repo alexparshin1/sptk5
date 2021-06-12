@@ -71,7 +71,7 @@ int main(int, char *argv[])
     try {
         COUT("The XPath selection test started." << endl << endl)
 
-        Strings path(argv[0], "[\\\\\\/]+", Strings::SM_REGEXP);
+        Strings path(argv[0], "[\\\\\\/]+", Strings::SplitMode::REGEXP);
         String workDirectory(path[0]);
         if (path.size() > 1 && workDirectory.endsWith(":")) {
             workDirectory += "/";

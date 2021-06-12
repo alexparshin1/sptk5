@@ -41,7 +41,7 @@ JWT::Algorithm JWT::get_alg() const
 
 void JWT::set_alg(Algorithm _alg, const String &_key)
 {
-    if (_alg == JWT_ALG_NONE) {
+    if (_alg == Algorithm::NONE) {
         if (!_key.empty())
             throw Exception("Key is not expected here");
     } else {
@@ -56,25 +56,25 @@ void JWT::set_alg(Algorithm _alg, const String &_key)
 const char * JWT::alg_str(Algorithm _alg)
 {
     switch (_alg) {
-        case JWT_ALG_NONE:
+        case Algorithm::NONE:
             return "none";
-        case JWT_ALG_HS256:
+        case Algorithm::HS256:
             return "HS256";
-        case JWT_ALG_HS384:
+        case Algorithm::HS384:
             return "HS384";
-        case JWT_ALG_HS512:
+        case Algorithm::HS512:
             return "HS512";
-        case JWT_ALG_RS256:
+        case Algorithm::RS256:
             return "RS256";
-        case JWT_ALG_RS384:
+        case Algorithm::RS384:
             return "RS384";
-        case JWT_ALG_RS512:
+        case Algorithm::RS512:
             return "RS512";
-        case JWT_ALG_ES256:
+        case Algorithm::ES256:
             return "ES256";
-        case JWT_ALG_ES384:
+        case Algorithm::ES384:
             return "ES384";
-        case JWT_ALG_ES512:
+        case Algorithm::ES512:
             return "ES512";
         default:
             return nullptr;
@@ -84,24 +84,24 @@ const char * JWT::alg_str(Algorithm _alg)
 JWT::Algorithm JWT::str_alg(const char *alg)
 {
     static const map<String, Algorithm> algorithmInfo = {
-        { "NONE",  JWT_ALG_NONE  },
-        { "HS256", JWT_ALG_HS256 },
-        { "HS384", JWT_ALG_HS384 },
-        { "HS512", JWT_ALG_HS512 },
-        { "RS256", JWT_ALG_RS256 },
-        { "RS384", JWT_ALG_RS384 },
-        { "RS512", JWT_ALG_RS512 },
-        { "ES256", JWT_ALG_ES256 },
-        { "ES384", JWT_ALG_ES384 },
-        { "ES512", JWT_ALG_ES512 }
+        { "NONE",  Algorithm::NONE  },
+        { "HS256", Algorithm::HS256 },
+        { "HS384", Algorithm::HS384 },
+        { "HS512", Algorithm::HS512 },
+        { "RS256", Algorithm::RS256 },
+        { "RS384", Algorithm::RS384 },
+        { "RS512", Algorithm::RS512 },
+        { "ES256", Algorithm::ES256 },
+        { "ES384", Algorithm::ES384 },
+        { "ES512", Algorithm::ES512 }
     };
 
     if (alg == nullptr)
-        return JWT_ALG_INVAL;
+        return Algorithm::INVAL;
 
     auto itor = algorithmInfo.find(upperCase(alg));
     if (itor == algorithmInfo.end())
-        return JWT_ALG_INVAL;
+        return Algorithm::INVAL;
     return itor->second;
 }
 
@@ -162,7 +162,7 @@ void JWT::write_head(std::ostream& output, bool pretty) const
 
     /* An unsecured JWT is a JWS and provides no "typ".
      * -- draft-ietf-oauth-json-web-token-32 #6. */
-    if (alg != JWT_ALG_NONE) {
+    if (alg != Algorithm::NONE) {
         if (pretty)
             output << "    ";
 
@@ -201,21 +201,21 @@ void JWT::sign(Buffer& out, const char* str) const
 {
     switch (alg) {
         /* HMAC */
-        case JWT::JWT_ALG_HS256:
-        case JWT::JWT_ALG_HS384:
-        case JWT::JWT_ALG_HS512:
+        case JWT::Algorithm::HS256:
+        case JWT::Algorithm::HS384:
+        case JWT::Algorithm::HS512:
             sign_sha_hmac(out, str);
             break;
 
             /* RSA */
-        case JWT::JWT_ALG_RS256:
-        case JWT::JWT_ALG_RS384:
-        case JWT::JWT_ALG_RS512:
+        case JWT::Algorithm::RS256:
+        case JWT::Algorithm::RS384:
+        case JWT::Algorithm::RS512:
 
             /* ECC */
-        case JWT::JWT_ALG_ES256:
-        case JWT::JWT_ALG_ES384:
-        case JWT::JWT_ALG_ES512:
+        case JWT::Algorithm::ES256:
+        case JWT::Algorithm::ES384:
+        case JWT::Algorithm::ES512:
             sign_sha_pem(out, str);
             break;
 
@@ -250,7 +250,7 @@ void JWT::encode(ostream& out) const
     output.append('.');
     output.append(encodedBody);
 
-    if (alg == JWT::JWT_ALG_NONE) {
+    if (alg == JWT::Algorithm::NONE) {
         out << output.c_str() << '.';
         return;
     }
@@ -351,21 +351,21 @@ void JWT::verify(const Buffer& head, const Buffer& sig) const
 {
     switch (alg) {
         /* HMAC */
-        case JWT::JWT_ALG_HS256:
-        case JWT::JWT_ALG_HS384:
-        case JWT::JWT_ALG_HS512:
+        case JWT::Algorithm::HS256:
+        case JWT::Algorithm::HS384:
+        case JWT::Algorithm::HS512:
             verify_sha_hmac(head.c_str(), sig.c_str());
             break;
 
             /* RSA */
-        case JWT::JWT_ALG_RS256:
-        case JWT::JWT_ALG_RS384:
-        case JWT::JWT_ALG_RS512:
+        case JWT::Algorithm::RS256:
+        case JWT::Algorithm::RS384:
+        case JWT::Algorithm::RS512:
 
             /* ECC */
-        case JWT::JWT_ALG_ES256:
-        case JWT::JWT_ALG_ES384:
-        case JWT::JWT_ALG_ES512:
+        case JWT::Algorithm::ES256:
+        case JWT::Algorithm::ES384:
+        case JWT::Algorithm::ES512:
             verify_sha_pem(head.c_str(), sig.c_str());
             break;
 
@@ -388,18 +388,18 @@ static void jwt_verify_head(JWT *jwt, const Buffer& head)
 
     String val = JWT::get_js_string(js, "alg");
     jwt->alg = JWT::str_alg(val.c_str());
-    if (jwt->alg == JWT::JWT_ALG_INVAL) {
+    if (jwt->alg == JWT::Algorithm::INVAL) {
         throw Exception("Invalid algorithm");
     }
 
-    if (jwt->alg != JWT::JWT_ALG_NONE) {
+    if (jwt->alg != JWT::Algorithm::NONE) {
         /* If alg is not NONE, there may be a typ. */
         val = JWT::get_js_string(js, "typ");
         if (val != "JWT")
             throw Exception("Invalid algorithm name");
 
         if (jwt->key.empty())
-            jwt->alg = JWT::JWT_ALG_NONE;
+            jwt->alg = JWT::Algorithm::NONE;
     } else {
         /* If alg is NONE, there should not be a key */
         if (!jwt->key.empty()) {
@@ -444,7 +444,7 @@ void JWT::decode(const char *token, const String& _key)
     jwt_parse_body(this, body);
 
     // Check the signature, if needed.
-    if (this->alg != JWT::JWT_ALG_NONE) {
+    if (this->alg != JWT::Algorithm::NONE) {
         // Re-add this since it's part of the verified data.
         head.append('.');
         head.append(body);
@@ -470,7 +470,7 @@ TEST(SPTK_JWT, dup)
     EXPECT_FALSE(val.empty()) << "Can't get grant for second JWT";
 
     EXPECT_STREQ("test", val.c_str()) << "Got incorrect grant";
-    EXPECT_EQ(JWT::JWT_ALG_NONE, jwt.get_alg()) << "Got incorrect alogorithm";
+    EXPECT_EQ(JWT::Algorithm::NONE, jwt.get_alg()) << "Got incorrect alogorithm";
 
     now = time(nullptr);
     jwt["iat"] = (int) now;
@@ -485,12 +485,12 @@ TEST(SPTK_JWT, dup_signed)
 
     JWT jwt;
     jwt["iss"] = "test";
-    jwt.set_alg(JWT::JWT_ALG_HS256, key256);
+    jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     JWT newJWT(jwt);
     String val = (String) newJWT["iss"];
     EXPECT_STREQ("test", val.c_str()) << "Failed jwt_get_grant_int()";
-    EXPECT_EQ(JWT::JWT_ALG_HS256, jwt.get_alg()) << "Failed jwt_get_alg()";
+    EXPECT_EQ(JWT::Algorithm::HS256, jwt.get_alg()) << "Failed jwt_get_alg()";
 }
 
 
@@ -499,13 +499,13 @@ TEST(SPTK_JWT, decode)
     const char token[] =
             "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
             "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
-    JWT::Algorithm alg = JWT::JWT_ALG_NONE;
+    JWT::Algorithm alg = JWT::Algorithm::NONE;
 
     auto jwt = make_shared<JWT>();
 
     EXPECT_NO_THROW(jwt->decode(token)) << "Failed jwt_decode()";
     alg = jwt->get_alg();
-    EXPECT_EQ(JWT::JWT_ALG_NONE, alg) << "Failed jwt_get_alg()";
+    EXPECT_EQ(JWT::Algorithm::NONE, alg) << "Failed jwt_get_alg()";
 }
 
 
@@ -634,7 +634,7 @@ TEST(SPTK_JWT, encode_hs256_decode)
     String key256("012345678901234567890123456789XY");
 
     JWT jwt;
-    jwt.set_alg(JWT::JWT_ALG_HS256, key256);
+    jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     jwt["iat"] = (int) time(nullptr);
     jwt["iss"] = "http://test.com";

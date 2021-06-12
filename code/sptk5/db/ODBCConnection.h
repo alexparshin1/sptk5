@@ -195,7 +195,7 @@ protected:
      */
     ODBCConnectionBase *connection()
     {
-        return m_connect;
+        return m_connect.get();
     }
 
     /**
@@ -227,7 +227,7 @@ private:
     /**
      * The ODBC connection object
      */
-    ODBCConnectionBase *m_connect {new ODBCConnectionBase};
+    std::shared_ptr<ODBCConnectionBase> m_connect = std::make_shared<ODBCConnectionBase>();
 
 
     /**

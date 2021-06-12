@@ -60,7 +60,7 @@ public:
      * This method should be overwritten by the actual log implementation
      * @param message           Log message
      */
-    virtual void saveMessage(const Logger::Message* message) override;
+    void saveMessage(const Logger::Message* message) override;
 
     /**
      * Constructor
@@ -81,7 +81,7 @@ public:
      *
      * Destructs the log object, closes the log descriptor, releases all the allocated resources
      */
-    virtual ~SysLogEngine();
+    ~SysLogEngine() override;
 
     /**
      * Get log engine options
