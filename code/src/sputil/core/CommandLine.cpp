@@ -66,7 +66,7 @@ CommandLine::CommandLineElement::CommandLineElement(const String& name, const St
 
 CommandLine::CommandLineElement::Type CommandLine::CommandLineElement::type() const
 {
-    return IS_UNKNOWN;
+    return Type::IS_UNKNOWN;
 }
 
 String CommandLine::CommandLineElement::name() const
@@ -167,7 +167,7 @@ bool CommandLine::CommandLineOption::hasValue() const
 
 CommandLine::CommandLineElement::Type CommandLine::CommandLineOption::type() const
 {
-    return CommandLineElement::IS_OPTION;
+    return CommandLineElement::Type::IS_OPTION;
 }
 
 String CommandLine::CommandLineOption::printableName() const
@@ -230,7 +230,7 @@ bool CommandLine::CommandLineParameter::hasValue() const
 
 CommandLine::CommandLineElement::Type CommandLine::CommandLineParameter::type() const
 {
-    return IS_VALUE_OPTION;
+    return Type::IS_VALUE_OPTION;
 }
 //=============================================================================
 

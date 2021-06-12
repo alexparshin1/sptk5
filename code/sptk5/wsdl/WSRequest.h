@@ -176,7 +176,7 @@ protected:
      * application response.
      * This method is abstract and overwritten in derived generated classes.
      * @param requestNode       Incoming and outgoing SOAP element
-     * @param authentication    Optional HTTP authentication
+     * @param authentication    Optional setRequestMethods(move(requestMethods));HTTP authentication
      * @param requestNameSpace  Request SOAP element namespace
      */
     virtual void requestBroker(const String& requestName, xml::Element* requestNode, json::Element* jsonNode,
@@ -210,11 +210,13 @@ protected:
      */
     xml::Element* findSoapBody(const xml::Element* soapEnvelope, const WSNameSpace& soapNamespace);
 
-    std::map<sptk::String, RequestMethod>   m_requestMethods;
+    void setRequestMethods(std::map<sptk::String, RequestMethod>&& requestMethods);
 
 private:
 
-    sptk::LogEngine*                        m_logEngine;    ///< Optional logger, or nullptr
+    sptk::LogEngine*                        m_logEngine;        ///< Optional logger, or nullptr
+    std::map<sptk::String, RequestMethod>   m_requestMethods;   ///< Map of requset names to methods
+
 };
 
 typedef std::shared_ptr<WSRequest> SWSRequest;

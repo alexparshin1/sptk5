@@ -226,7 +226,7 @@ public:
         /**
          * Command line element type
          */
-        enum Type
+        enum class Type
         {
             IS_UNKNOWN,         ///< Type is unknown or undefined
             IS_COMMAND,         ///< Element is a command, not starting from '-' character
@@ -344,7 +344,7 @@ public:
         /**
          * Destructor
          */
-        virtual ~CommandLineArgument() = default;
+        ~CommandLineArgument() override = default;
     };
 
     /**
@@ -369,7 +369,7 @@ public:
         /**
          * Destructor
          */
-        virtual ~CommandLineOption() = default;
+        ~CommandLineOption() override = default;
 
         /**
          * Returns true if element expects value

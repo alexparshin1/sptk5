@@ -17,7 +17,7 @@ CTestServiceBase::CTestServiceBase(LogEngine* logEngine)
         {"Hello", bind(&CTestServiceBase::process_Hello, this, _1, _2, _3, _4)},
         {"Login", bind(&CTestServiceBase::process_Login, this, _1, _2, _3, _4)},
     };
-    m_requestMethods = move(requestMethods);
+    setRequestMethods(move(requestMethods));
 }
 
 

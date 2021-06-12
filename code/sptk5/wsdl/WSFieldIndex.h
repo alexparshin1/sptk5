@@ -59,11 +59,7 @@ public:
     ~WSFieldIndex() = default;
 
     /**
-     * Do not change internal state    for (auto& field: m_attributes) {
-        if (!method(field.first, field.second))
-            return;
-    }
-
+     * Do not change internal state
      */
     WSFieldIndex(const WSFieldIndex&) {}
 

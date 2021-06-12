@@ -210,7 +210,6 @@ void WSComplexType::unload(xml::Node* output) const
 void WSComplexType::unload(json::Element* output) const
 {
     const auto& fields = getFields();
-    double doubleValue;
 
     // Unload attributes
     if (fields.hasAttributes()) {
@@ -223,26 +222,7 @@ void WSComplexType::unload(json::Element* output) const
         }, WSFieldIndex::ATTRIBUTES);
         if (!values.empty()) {
             auto* attributes = output->add_object("attributes");
-            for (const auto& itor: values) {
-                auto valueType = json::Document::dataType(itor.second);
-                switch (valueType) {
-                    case json::JDT_STRING:
-                        attributes->set(itor.first, itor.second);
-                        break;
-                    case json::JDT_NUMBER:
-                        doubleValue = std::stod(itor.second);
-                        if (doubleValue == long(doubleValue))
-                            attributes->set(itor.first, long(doubleValue));
-                        else
-                            attributes->set(itor.first, doubleValue);
-                        break;
-                    case json::JDT_BOOLEAN:
-                        attributes->set(itor.first, itor.second == "true");
-                        break;
-                    default:
-                        break;
-                }
-            }
+            setAttributes(values, attributes);
         }
     }
 
@@ -253,11 +233,36 @@ void WSComplexType::unload(json::Element* output) const
     }, WSFieldIndex::ELEMENTS);
 }
 
+void WSComplexType::setAttributes(const map<String, String>& values, json::Element* attributes) const
+{
+    double doubleValue;
+    for (const auto& itor: values) {
+        auto valueType = json::Document::dataType(itor.second);
+        switch (valueType) {
+            case json::JDT_STRING:
+                attributes->set(itor.first, itor.second);
+                break;
+            case json::JDT_NUMBER:
+                doubleValue = stod(itor.second);
+                if (doubleValue == (double) long(doubleValue))
+                    attributes->set(itor.first, long(doubleValue));
+                else
+                    attributes->set(itor.first, doubleValue);
+                break;
+            case json::JDT_BOOLEAN:
+                attributes->set(itor.first, itor.second == "true");
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void WSComplexType::unload(QueryParameterList& output) const
 {
     const auto& fields = getFields();
 
-    fields.forEach([this,&output](const WSType* field) {
+    fields.forEach([&output](const WSType* field) {
         const auto* inputField = dynamic_cast<const WSBasicType*>(field);
         if (inputField != nullptr) {
             WSComplexType::unload(output, inputField->name().c_str(), inputField);

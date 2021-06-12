@@ -466,7 +466,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "}" << endl << endl;
 
     printImplementationConstructors(classImplementation, className, elementNames, attributeNames);
-    printImplementationAssignments(classImplementation, className, elementNames, attributeNames);
+    printImplementationAssignments(classImplementation, className);
 
     printImplementationCheckRestrictions(classImplementation, className);
 
@@ -498,8 +498,7 @@ void WSParserComplexType::printImplementationConstructors(ostream& classImplemen
     classImplementation << "}" << endl << endl;
 }
 
-void WSParserComplexType::printImplementationAssignments(ostream& classImplementation, const String& className,
-                                                          const Strings& elementNames, const Strings& attributeNames) const
+void WSParserComplexType::printImplementationAssignments(ostream& classImplementation, const String& className) const
 {
     auto initializer = makeInitializer();
 
