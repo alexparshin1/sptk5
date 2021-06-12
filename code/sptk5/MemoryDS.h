@@ -122,7 +122,7 @@ public:
      * @param fieldName const char *, field name
      * @returns field reference
      */
-    virtual Field& operator[](const String& fieldName) override;
+    Field& operator[](const String& fieldName) override;
 
     /**
      * Returns field count in the datasource.

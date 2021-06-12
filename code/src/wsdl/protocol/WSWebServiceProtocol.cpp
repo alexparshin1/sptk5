@@ -179,7 +179,7 @@ RequestInfo WSWebServiceProtocol::process()
                                           httpStatus, contentType);
     }
 
-    Strings clientAcceptEncoding(header("accept-encoding"), "[,\\s]+", Strings::SM_REGEXP);
+    Strings clientAcceptEncoding(header("accept-encoding"), "[,\\s]+", Strings::SplitMode::REGEXP);
 
     // For errors, always return uncompressed content
     if (httpStatus.code >= httpErrorResponseCode)

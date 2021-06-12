@@ -135,9 +135,7 @@ public:
     /**
      * Default constructor
      */
-    VariantData()
-    {
-    }
+    VariantData() = default;
 
     /**
      * Copy constructor
@@ -297,7 +295,7 @@ public:
     /**
      * @return date and time data
      */
-    const int64_t getTime() const
+    int64_t getTime() const
     {
         return *(const int64_t*) m_data;
     }

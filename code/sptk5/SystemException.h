@@ -60,7 +60,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~SystemException() = default;
+    ~SystemException() override = default;
 
     /**
      * @brief Returns OS error

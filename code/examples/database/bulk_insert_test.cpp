@@ -107,7 +107,7 @@ int main()
             String hire_date;
 
             int fieldIndex = 0;
-            for (Field* field: step3Query.fields()) {
+            for (const auto& field: step3Query.fields()) {
                 switch (fieldIndex) {
                     case 0:
                         id = field->asInteger();

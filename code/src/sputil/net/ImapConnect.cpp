@@ -272,7 +272,7 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
     results.clear();
     bool first = true;
     for (auto& headerName: required_headers) {
-        auto *fld = new Field(lowerCase(headerName).c_str());
+        auto fld = make_shared<Field>(lowerCase(headerName).c_str());
         if (first) {
             fld->view().width = 16;
             first = false;
@@ -315,8 +315,9 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
     for (; i < m_response.size() - 1; ++i)
         body += m_response[i] + "\n";
 
-    Field &bodyField = results.push_back(new Field("body"));
-    bodyField.setString(body);
+    auto bodyField = make_shared<Field>("body");
+    results.push_back(bodyField);
+    bodyField->setString(body);
 }
 
 void ImapConnect::cmd_fetch_headers(int32_t msg_id, FieldList &result)

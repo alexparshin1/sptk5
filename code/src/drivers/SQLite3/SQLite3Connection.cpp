@@ -354,7 +354,7 @@ void SQLite3Connection::queryOpen(Query* query)
         if (columnName.empty())
             columnName = "column_" + to_string(column);
 
-        auto* field = new SQLite3Field(columnName, column);
+        auto field = make_shared<SQLite3Field>(columnName, column);
         query->fields().push_back(field);
     }
 

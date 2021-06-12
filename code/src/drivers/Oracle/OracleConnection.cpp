@@ -376,7 +376,7 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
         if (columnType == OCCI_SQLT_LNG && columnDataSize == 0)
             resultSet->setMaxColumnSize(columnIndex + 1, 16384);
         VariantType dataType = OracleTypeToVariantType(columnType, columnScale);
-        auto* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize,
+        auto field = make_shared<DatabaseField>(columnName, columnIndex, columnType, dataType, columnDataSize,
                                         columnScale);
         query->fields().push_back(field);
 

@@ -68,7 +68,7 @@ public:
      */
     char* conversionBuffer()
     {
-        return m_timeData;
+        return m_timeData.data();
     }
 
     /**
@@ -181,7 +181,7 @@ public:
     /**
      * Assignment operator
      */
-    virtual QueryParameter& operator=(const void* value) override
+    QueryParameter& operator=(const void* value) override
     {
         setImagePtr(value);
         return *this;
@@ -226,7 +226,7 @@ public:
      * tries not to decrease the allocated buffer.
      * @param value const string&, string to assign
      */
-    virtual void setString(const String& value) override
+    void setString(const String& value) override
     {
         setString(value.c_str(), (uint32_t) value.length());
     }
@@ -255,7 +255,7 @@ private:
     QueryParameterBinding   m_binding;               ///< The last successfull binding information
     String                  m_name;                  ///< Parameter name
     std::vector<uint32_t>   m_bindParamIndexes;      ///< The list of SQL query parameter numbers with this name
-    char                    m_timeData[80] {};       ///< Special memory allocated for time structures
+    std::array<char,80>     m_timeData;              ///< Special memory allocated for time structures
     int32_t                 m_callbackLength {0};    ///< An integer reserved to callback parameter data length
     QueryParameterList*     m_paramList {nullptr};   ///< Parent param list used for notifications
 };

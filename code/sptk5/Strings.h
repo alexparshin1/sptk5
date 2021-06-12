@@ -54,7 +54,8 @@ public:
     /**
      * Sort order enumeration
      */
-    enum SortOrder {
+    enum class SortOrder : uint8_t
+    {
         UNSORTED,
         ASCENDING,
         DESCENDING
@@ -63,22 +64,22 @@ public:
     /**
      * String split mode
      */
-    enum SplitMode
+    enum class SplitMode : uint8_t
     {
         /**
          * Split by the whole delimiter
          */
-        SM_DELIMITER,
+        DELIMITER,
 
         /**
          * Split by any char in delimiter
          */
-        SM_ANYCHAR,
+        ANYCHAR,
 
         /**
          * Regular expression
          */
-        SM_REGEXP
+        REGEXP
 
     };
 
@@ -120,7 +121,7 @@ public:
      * @param delimiter         Delimiter string
      * @param mode              Delimiter string usage
      */
-    Strings(const String& src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept;
+    Strings(const String& src, const char *delimiter, SplitMode mode = SplitMode::DELIMITER) noexcept;
 
     /**
      * Constructor from a string with elements separated by a delimiter string
@@ -236,7 +237,7 @@ public:
      */
     void clear()
     {
-        m_sorted = UNSORTED;
+        m_sorted = SortOrder::UNSORTED;
         StringVector::clear();
         m_userData = 0;
     }
@@ -248,7 +249,7 @@ public:
     void resize(size_t size)
     {
         if (size > this->size())
-            m_sorted = UNSORTED;
+            m_sorted = SortOrder::UNSORTED;
         StringVector::resize(size);
     }
 
@@ -257,7 +258,7 @@ public:
      */
     void push_back(const String& str)
     {
-        m_sorted = UNSORTED;
+        m_sorted = SortOrder::UNSORTED;
         StringVector::push_back(str);
     }
 
@@ -266,7 +267,7 @@ public:
      */
     void push_back(String&& str)
     {
-        m_sorted = UNSORTED;
+        m_sorted = SortOrder::UNSORTED;
         StringVector::push_back(std::move(str));
     }
 
@@ -276,7 +277,7 @@ public:
     template<typename... Args>
     void emplace_back(Args&&... args)
     {
-        m_sorted = UNSORTED;
+        m_sorted = SortOrder::UNSORTED;
         StringVector::emplace_back(args...);
     }
 
@@ -287,7 +288,7 @@ public:
      */
     String& operator[] (size_t index)
     {
-        m_sorted = UNSORTED;
+        m_sorted = SortOrder::UNSORTED;
         return StringVector::operator[](index);
     }
 
@@ -313,7 +314,7 @@ private:
     /**
      * Is sorted flag
      */
-    SortOrder           m_sorted {UNSORTED};
+    SortOrder           m_sorted {SortOrder::UNSORTED};
 };
 
 /**

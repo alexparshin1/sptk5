@@ -444,7 +444,7 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     Strings printRows;
     while (!selectData.eof()) {
         Strings row;
-        for (const auto* field: selectData.fields())
+        for (const auto& field: selectData.fields())
             row.push_back(field->asString().trim());
         printRows.push_back(row.join("|"));
         selectData.next();
@@ -577,7 +577,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     while (!selectData.eof()) {
         // Check if all fields are NULLs
         int column = 0;
-        for (const auto* field: selectData.fields()) {
+        for (const auto& field: selectData.fields()) {
             if (!field->isNull())
                 throw Exception("Field " + field->fieldName() + " = [" + field->asString() + "] but null is expected");
             VariantType expectedType = VAR_INT;
@@ -590,7 +590,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         selectData.next();
 
         Strings row;
-        for (const auto* field: selectData.fields())
+        for (const auto& field: selectData.fields())
             row.push_back(field->asString().trim());
         printRows.push_back(row.join("|"));
         selectData.next();

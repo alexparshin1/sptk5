@@ -333,7 +333,7 @@ TEST(SPTK_Buffer, hexDump)
     stringstream stream;
     stream << buffer;
 
-    Strings output(stream.str(), "\n\r", Strings::SM_ANYCHAR);
+    Strings output(stream.str(), "\n\r", Strings::SplitMode::ANYCHAR);
     EXPECT_TRUE(output == expected);
 }
 

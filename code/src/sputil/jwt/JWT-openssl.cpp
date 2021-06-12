@@ -77,13 +77,13 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 
     switch (this->alg) {
         /* HMAC */
-        case JWT::JWT_ALG_HS256:
+        case JWT::Algorithm::HS256:
             algorithm = EVP_sha256();
             break;
-        case JWT::JWT_ALG_HS384:
+        case JWT::Algorithm::HS384:
             algorithm = EVP_sha384();
             break;
-        case JWT::JWT_ALG_HS512:
+        case JWT::Algorithm::HS512:
             algorithm = EVP_sha512();
             break;
         default:
@@ -108,13 +108,13 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
     Buffer readBuf;
 
     switch (this->alg) {
-        case JWT::JWT_ALG_HS256:
+        case JWT::Algorithm::HS256:
             algorithm = EVP_sha256();
             break;
-        case JWT::JWT_ALG_HS384:
+        case JWT::Algorithm::HS384:
             algorithm = EVP_sha384();
             break;
-        case JWT::JWT_ALG_HS512:
+        case JWT::Algorithm::HS512:
             algorithm = EVP_sha512();
             break;
         default:
@@ -175,29 +175,29 @@ static const EVP_MD* signAlgorithm(const JWT::Algorithm alg, int& type)
     const EVP_MD* algorithm = nullptr;
     switch (alg) {
         /* RSA */
-        case JWT::JWT_ALG_RS256:
+        case JWT::Algorithm::RS256:
             algorithm = EVP_sha256();
             type = EVP_PKEY_RSA;
             break;
-        case JWT::JWT_ALG_RS384:
+        case JWT::Algorithm::RS384:
             algorithm = EVP_sha384();
             type = EVP_PKEY_RSA;
             break;
-        case JWT::JWT_ALG_RS512:
+        case JWT::Algorithm::RS512:
             algorithm = EVP_sha512();
             type = EVP_PKEY_RSA;
             break;
 
             /* ECC */
-        case JWT::JWT_ALG_ES256:
+        case JWT::Algorithm::ES256:
             algorithm = EVP_sha256();
             type = EVP_PKEY_EC;
             break;
-        case JWT::JWT_ALG_ES384:
+        case JWT::Algorithm::ES384:
             algorithm = EVP_sha384();
             type = EVP_PKEY_EC;
             break;
-        case JWT::JWT_ALG_ES512:
+        case JWT::Algorithm::ES512:
             algorithm = EVP_sha512();
             type = EVP_PKEY_EC;
             break;
@@ -339,29 +339,29 @@ static const EVP_MD* getAlgorithm(JWT::Algorithm alg, int& type)
 
     switch (alg) {
         /* RSA */
-        case JWT::JWT_ALG_RS256:
+        case JWT::Algorithm::RS256:
             algorithm = EVP_sha256();
             type = EVP_PKEY_RSA;
             break;
-        case JWT::JWT_ALG_RS384:
+        case JWT::Algorithm::RS384:
             algorithm = EVP_sha384();
             type = EVP_PKEY_RSA;
             break;
-        case JWT::JWT_ALG_RS512:
+        case JWT::Algorithm::RS512:
             algorithm = EVP_sha512();
             type = EVP_PKEY_RSA;
             break;
 
             /* ECC */
-        case JWT::JWT_ALG_ES256:
+        case JWT::Algorithm::ES256:
             algorithm = EVP_sha256();
             type = EVP_PKEY_EC;
             break;
-        case JWT::JWT_ALG_ES384:
+        case JWT::Algorithm::ES384:
             algorithm = EVP_sha384();
             type = EVP_PKEY_EC;
             break;
-        case JWT::JWT_ALG_ES512:
+        case JWT::Algorithm::ES512:
             algorithm = EVP_sha512();
             type = EVP_PKEY_EC;
             break;

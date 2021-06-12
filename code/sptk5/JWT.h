@@ -42,23 +42,22 @@ class SP_EXPORT JWT
 {
 public:
     /** JWT algorithm types. */
-    enum Algorithm {
-        JWT_ALG_NONE = 0,
-        JWT_ALG_HS256,
-        JWT_ALG_HS384,
-        JWT_ALG_HS512,
-        JWT_ALG_RS256,
-        JWT_ALG_RS384,
-        JWT_ALG_RS512,
-        JWT_ALG_ES256,
-        JWT_ALG_ES384,
-        JWT_ALG_ES512,
-        JWT_ALG_TERM
+    enum class Algorithm : uint8_t
+    {
+        NONE = 0,
+        HS256,
+        HS384,
+        HS512,
+        RS256,
+        RS384,
+        RS512,
+        ES256,
+        ES384,
+        ES512,
+        INVAL
     };
 
-#define JWT_ALG_INVAL JWT_ALG_TERM
-
-    Algorithm       alg {JWT_ALG_NONE};     ///< Signature encryption algorithm
+    Algorithm       alg {Algorithm::NONE};     ///< Signature encryption algorithm
     String          key;                    ///< Signature encryption key
     json::Document  grants {true};   ///< Token content
 

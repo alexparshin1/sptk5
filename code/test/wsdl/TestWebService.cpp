@@ -69,7 +69,7 @@ void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::Ht
         throw Exception("Invalid username or password");
 
     JWT jwt;
-    jwt.set_alg(JWT::JWT_ALG_HS256, jwtEncryptionKey256);
+    jwt.set_alg(JWT::Algorithm::HS256, jwtEncryptionKey256);
 
     jwt["iat"] = (int) time(nullptr);           // JWT issue time
     jwt["iss"] = "http://test.com";                   // JWT issuer

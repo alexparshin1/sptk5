@@ -163,7 +163,7 @@ void WSComplexType::load(const FieldList& input)
 
     m_fields.forEach([&input](WSType* field)
     {
-        const auto* inputField = input.findField(field->name());
+        const auto& inputField = input.findField(field->name());
         auto* outputField = dynamic_cast<WSBasicType*>(field);
         if (inputField != nullptr && outputField != nullptr) {
             outputField->load(*inputField);

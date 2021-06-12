@@ -103,7 +103,7 @@ bool CommandLine::CommandLineElement::useWithCommand(const String& command) cons
 
 void CommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& formattedText) const
 {
-    Strings words(m_help, "\\s+", Strings::SM_REGEXP);
+    Strings words(m_help, "\\s+", Strings::SplitMode::REGEXP);
 
     formattedText.clear();
 

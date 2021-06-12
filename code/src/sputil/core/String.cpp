@@ -51,7 +51,7 @@ String String::toLowerCase() const
 
 Strings String::split(const String& pattern) const
 {
-    return Strings(*this, pattern.c_str(), Strings::SM_REGEXP);
+    return Strings(*this, pattern.c_str(), Strings::SplitMode::REGEXP);
 }
 
 bool String::startsWith(const String& subject) const

@@ -58,7 +58,7 @@ bool test_dup()
     if (val != "test")
         throw Exception("Got incorrect grant");
 
-    if (jwt.get_alg() != JWT::JWT_ALG_NONE)
+    if (jwt.get_alg() != JWT::Algorithm::NONE)
         throw Exception("Got incorrect alogorithm");
 
     now = time(nullptr);
@@ -78,14 +78,14 @@ bool test_dup_signed()
 
     JWT jwt;
     jwt["iss"] = "test";
-    jwt.set_alg(JWT::JWT_ALG_HS256, key256);
+    jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     JWT newJWT(jwt);
     String val = (String) newJWT["iss"];
     if (val != "test")
         throw Exception("Failed jwt_get_grant_int()");
 
-    if (jwt.get_alg() != JWT::JWT_ALG_HS256)
+    if (jwt.get_alg() != JWT::Algorithm::HS256)
         throw Exception("Failed jwt_get_alg()");
 
     return true;
@@ -108,7 +108,7 @@ bool test_decode()
     }
 
     alg = jwt->get_alg();
-    if (alg != JWT::JWT_ALG_NONE)
+    if (alg != JWT::Algorithm::NONE)
         throw Exception("Failed jwt_get_alg()");
 
     return true;
@@ -309,7 +309,7 @@ bool test_encode_hs256_decode()
     String key256("012345678901234567890123456789XY");
 
     JWT jwt;
-    jwt.set_alg(JWT::JWT_ALG_HS256, key256);
+    jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     jwt["iat"] = (int) time(nullptr);
     jwt["iss"] = "http://test.com";

@@ -134,11 +134,6 @@ public:
     Tar& operator = (Tar&&) noexcept = default;
 
     /**
-     * Destructor
-     */
-    ~Tar() { clear(); }
-
-    /**
      * Reads tar archive from file
      *
      * The archive content is red into the internal set of buffers

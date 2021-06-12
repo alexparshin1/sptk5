@@ -335,7 +335,8 @@ void FirebirdStatement::bindResult(FieldList& fields)
 
         VariantType fieldType = firebirdTypeToVariantType(type, sqlvar.sqlsubtype);
         auto fieldLength = (unsigned) sqlvar.sqllen;
-        fields.push_back(new FirebirdStatementField(columnName, columnIndex, type, fieldType, (int) fieldLength, sqlvar));
+        auto field = make_shared<FirebirdStatementField>(columnName, columnIndex, type, fieldType, (int) fieldLength, sqlvar);
+        fields.push_back(field);
     }
 }
 

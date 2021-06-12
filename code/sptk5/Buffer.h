@@ -108,7 +108,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~Buffer() noexcept = default;
+    ~Buffer() noexcept override = default;
 
     /**
      * Appends a single char to the current buffer.

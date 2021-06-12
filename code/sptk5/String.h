@@ -64,8 +64,7 @@ public:
      */
     String(const String& str) noexcept
     : std::string(str), m_id(str.m_id)
-    {
-    }
+    {}
 
     /**
      * Move constructor
