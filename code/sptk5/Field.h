@@ -254,9 +254,6 @@ private:
     String doubleDataToString() const;
     String epochDataToDateTimeString() const;
 };
-
-typedef std::shared_ptr<Field> SField;
-
 /**
  * @}
  */

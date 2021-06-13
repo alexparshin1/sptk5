@@ -55,7 +55,7 @@ bool ImapDS::open()
                 m_imap.cmd_fetch_message((int32_t) msg_id, *df);
             else m_imap.cmd_fetch_headers((int32_t) msg_id, *df);
 
-            auto fld = std::make_shared<Field>("msg_id");
+            auto* fld = new Field("msg_id");
             fld->view().width = 0;
             fld->setInteger((int32_t) msg_id);
             df->push_back(fld);

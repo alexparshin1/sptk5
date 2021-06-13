@@ -364,9 +364,9 @@ void OracleStatement::getOutputParameters(FieldList& fields)
         try {
             parameter = enumeratedParams()[index - 1];
 
-            auto* field = (DatabaseField*) fields.findField(parameter->name()).get();
+            auto* field = (DatabaseField*) fields.findField(parameter->name());
             if (field == nullptr) {
-                auto field = make_shared<DatabaseField>(parameter->name(), (int) fields.size(), OCCIANYDATA,
+                field = new DatabaseField(parameter->name(), (int) fields.size(), OCCIANYDATA,
                                           parameter->dataType(), 256);
                 fields.push_back(field);
             }

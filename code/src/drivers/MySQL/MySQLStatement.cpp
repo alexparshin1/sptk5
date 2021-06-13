@@ -341,8 +341,7 @@ void MySQLStatement::bindResult(FieldList& fields)
         auto fieldLength = (unsigned) fieldMetadata->length;
         if (fieldLength > FETCH_BUFFER)
             fieldLength = FETCH_BUFFER;
-        auto field = make_shared<MySQLStatementField>(columnName, (int) columnIndex, fieldMetadata->type, fieldType, (int) fieldLength);
-        fields.push_back(field);
+        fields.push_back(new MySQLStatementField(columnName, (int) columnIndex, fieldMetadata->type, fieldType, (int) fieldLength));
     }
 
     if (statement() != nullptr) {

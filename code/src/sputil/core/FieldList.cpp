@@ -57,8 +57,8 @@ void FieldList::assign(const FieldList& other)
     else
         m_index.reset();
 
-    for (const auto& otherField: other) {
-        auto field = make_shared<Field>(*otherField);
+    for (const auto* otherField: other) {
+        auto* field = new Field(*otherField);
         m_list.push_back(field);
         if (m_index)
             (*m_index)[field->fieldName()] = field;
@@ -67,6 +67,8 @@ void FieldList::assign(const FieldList& other)
 
 void FieldList::clear()
 {
+    for (auto* field: *this)
+        delete field;
     m_list.clear();
     if (m_index)
         m_index->clear();
@@ -82,12 +84,12 @@ FieldList& FieldList::operator=(const FieldList &other)
 Field& FieldList::push_back(const String& fname, bool checkDuplicates)
 {
     if (checkDuplicates) {
-        const auto pfld = findField(fname);
-        if (pfld)
+        const Field *pfld = findField(fname);
+        if (pfld != nullptr)
             throw Exception("Attempt to duplicate field name");
     }
 
-    auto field = make_shared<Field>(fname);
+    auto* field = new Field(fname);
 
     m_list.push_back(field);
 
@@ -97,7 +99,7 @@ Field& FieldList::push_back(const String& fname, bool checkDuplicates)
     return *field;
 }
 
-Field& FieldList::push_back(SField field)
+Field& FieldList::push_back(Field *field)
 {
     m_list.push_back(field);
 
@@ -107,7 +109,7 @@ Field& FieldList::push_back(SField field)
     return *field;
 }
 
-SField FieldList::findField(const String& fname) const
+Field *FieldList::findField(const String& fname) const
 {
     if (m_index) {
         auto itor = m_index->find(fname);
@@ -115,7 +117,7 @@ SField FieldList::findField(const String& fname) const
             return itor->second;
     }
     else {
-        for (auto& field: *this) {
+        for (auto* field: *this) {
             if (strcasecmp(field->m_name.c_str(), fname.c_str()) == 0)
                 return field;
         }
@@ -125,7 +127,7 @@ SField FieldList::findField(const String& fname) const
 
 void FieldList::toXML(xml::Node& node, bool compactMode) const
 {
-    for (const auto& field: *this)
+    for (const auto* field: *this)
         field->toXML(node, compactMode);
 }
 

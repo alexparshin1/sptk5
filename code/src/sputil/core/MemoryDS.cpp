@@ -218,11 +218,11 @@ TEST(SPTK_MemoryDS, createAndVerify)
     for (const auto& person: people) {
         auto* row = new FieldList(false);
 
-        auto name = make_shared<Field>("name");
+        auto* name = new Field("name");
         *name = person.name;
         row->push_back(name);
 
-        auto age = make_shared<Field>("age");
+        auto* age = new Field("age");
         *age = person.age;
         row->push_back(age);
 

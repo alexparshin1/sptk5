@@ -49,16 +49,15 @@ namespace sptk {
 class SP_EXPORT FieldList
 {
 public:
-
     /**
      * Field iterator
      */
-    typedef std::vector<SField>::iterator                              iterator;
+    typedef std::vector<Field*>::iterator                              iterator;
 
     /**
      * Field const iterator
      */
-    typedef std::vector<SField>::const_iterator                        const_iterator;
+    typedef std::vector<Field*>::const_iterator                        const_iterator;
 
 
     /**
@@ -151,7 +150,7 @@ public:
      * @param fld               Field name
      * @returns new field reference
      */
-    Field& push_back(SField fld);
+    Field& push_back(Field *fld);
 
     /**
      * Finds a field by the field name
@@ -160,7 +159,7 @@ public:
      * @param fname             Field name
      * @returns CField pointer, or 0L if not found
      */
-    SField findField(const String& fname) const;
+    Field* findField(const String& fname) const;
 
     /**
      * Finds a field by the field name
@@ -169,9 +168,9 @@ public:
      * @param fname             Field name
      * @returns CField pointer, or throw exception not found
      */
-    SField fieldByName(const String& fname) const
+    Field* fieldByName(const String& fname) const
     {
-        SField field = findField(fname);
+        Field* field = findField(fname);
         if (field == nullptr)
             throw Exception("Field name '" + String(fname) + "' not found");
         return field;
@@ -230,16 +229,15 @@ public:
     void toXML(xml::Node& node, bool compactMode=false) const;
 
 private:
-
     /**
      * Field vector
      */
-    typedef std::vector<SField>                                 Vector;
+    typedef std::vector<Field*>                                 Vector;
 
     /**
      * Field name to field case-insensitive map
      */
-    typedef std::map<String, SField, CaseInsensitiveCompare>    Map;
+    typedef std::map<String, Field *, CaseInsensitiveCompare>   Map;
 
     Vector                  m_list;                     ///< The list of fields
     std::shared_ptr<Map>    m_index;                    ///< The optional field index by name. 0L if field list isn't indexed.
