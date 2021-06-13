@@ -71,7 +71,6 @@ ODBCConnection::~ODBCConnection()
         if (getInTransaction() && ODBCConnection::active())
             rollbackTransaction();
         close();
-        delete m_connect;
     } catch (const Exception& e) {
         CERR(e.what() << endl)
     }

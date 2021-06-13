@@ -300,7 +300,8 @@ void OracleStatement::execute(bool inTransaction)
     state().eof = true;
     state().columnCount = 0;
 
-    if (statement()->execute() == Statement::RESULT_SET_AVAILABLE) {
+    auto rc = statement()->execute();
+    if (rc == Statement::RESULT_SET_AVAILABLE) {
 
         state().eof = false;
 

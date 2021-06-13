@@ -64,7 +64,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~TCPServerListener();
+    ~TCPServerListener() override;
 
     /**
      * Thread function

@@ -43,16 +43,16 @@ namespace sptk {
 /**
  * Shared timed mutex
  */
-typedef std::shared_timed_mutex             SharedMutex;
-typedef std::shared_lock<SharedMutex>       ReadLockType;
-typedef std::unique_lock<SharedMutex>       WriteLockType;
+using SharedMutex = std::shared_timed_mutex;
+using ReadLockType = std::shared_lock<SharedMutex>;
+using WriteLockType = std::unique_lock<SharedMutex>;
 #else
 /**
  * Regular timed mutex, since c++ 14 doesn't support shared mutex
  */
-typedef std::timed_mutex                    SharedMutex;
-typedef std::unique_lock<SharedMutex>       ReadLockType;
-typedef std::unique_lock<SharedMutex>       WriteLockType;
+using SharedMutex = std::timed_mutex;
+using ReadLockType = std::unique_lock<SharedMutex>;
+using WriteLockType = std::unique_lock<SharedMutex>;
 #endif
 
 /**
