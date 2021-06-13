@@ -66,7 +66,7 @@ public:
     /**
      * Thread ID type
      */
-    typedef std::thread::id Id;
+    using Id = std::thread::id;
 
 
     /**
@@ -151,12 +151,12 @@ public:
 /**
  * Shared pointer to Thread
  */
-typedef std::shared_ptr<Thread> SThread;
+using SThread = std::shared_ptr<Thread>;
 
 /**
  * Unique pointer to Thread
  */
-typedef std::unique_ptr<Thread> UThread;
+using UThread = std::unique_ptr<Thread>;
 
 /**
  * @}

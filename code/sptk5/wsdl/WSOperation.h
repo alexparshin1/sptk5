@@ -55,7 +55,7 @@ struct WSOperation
 /**
  * Map of operation names to operation objects
  */
-typedef std::map<String,WSOperation>            WSOperationMap;
+using WSOperationMap = std::map<String,WSOperation>;
 
 /**
  * @}

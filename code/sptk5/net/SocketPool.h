@@ -48,7 +48,7 @@ typedef enum {
 /**
  * Type definition of socket event callback function
  */
-typedef std::function<void(void *userData, SocketEventType eventType)> SocketEventCallback;
+using SocketEventCallback = std::function<void(void *userData, SocketEventType eventType)>;
 
 #ifdef _WIN32
 #define INVALID_EPOLL nullptr

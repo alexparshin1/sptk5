@@ -68,7 +68,7 @@ public:
         MAX_MESSAGE_DETAIL
     };
 
-    typedef std::set<uint8_t> MessageDetails;
+    using MessageDetails = std::set<uint8_t>;
 
     /**
      * Default constructor

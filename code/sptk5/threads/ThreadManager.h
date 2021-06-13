@@ -69,7 +69,7 @@ private:
     void terminateRunningThreads();
 };
 
-typedef std::shared_ptr<ThreadManager>  SThreadManager;
+using SThreadManager = std::shared_ptr<ThreadManager>;
 
 }
 

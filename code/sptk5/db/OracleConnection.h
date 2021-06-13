@@ -58,12 +58,12 @@ class SP_EXPORT OracleConnection: public PoolDatabaseConnection
     friend class OracleStatement;
 
 public:
-    typedef oracle::occi::Environment   Environment;
-    typedef oracle::occi::Connection    Connection;
-    typedef oracle::occi::Statement     Statement;
-    typedef oracle::occi::Type          Type;
-    typedef oracle::occi::Clob          Clob;
-    typedef oracle::occi::Blob          Blob;
+    using Environment = oracle::occi::Environment;
+    using Connection = oracle::occi::Connection;
+    using Statement = oracle::occi::Statement;
+    using Type = oracle::occi::Type;
+    using Clob = oracle::occi::Clob;
+    using Blob = oracle::occi::Blob;
 
     /**
      * @brief Returns the Oracle connection object

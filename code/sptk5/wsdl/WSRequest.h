@@ -167,7 +167,7 @@ public:
 
 protected:
 
-    typedef std::function<void(sptk::xml::Element*, sptk::json::Element*, sptk::HttpAuthentication*, const sptk::WSNameSpace&)> RequestMethod;
+    using RequestMethod = std::function<void(sptk::xml::Element*, sptk::json::Element*, sptk::HttpAuthentication*, const sptk::WSNameSpace&)>;
 
     /**
      * Internal SOAP body processor
@@ -219,6 +219,6 @@ private:
 
 };
 
-typedef std::shared_ptr<WSRequest> SWSRequest;
+using SWSRequest = std::shared_ptr<WSRequest>;
 
 }

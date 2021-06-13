@@ -49,7 +49,7 @@ class CDateControl;
  */
 class SP_EXPORT CDateTimeBaseInput : public CInput
 {
-    typedef class CInput inherited;
+    using inherited = class CInput;
 
     /**
      * @brief Mininmum date and time value to check in valid()

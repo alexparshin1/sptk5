@@ -90,7 +90,7 @@ private:
     void parse();
 };
 
-typedef std::shared_ptr<HttpAuthentication> SHttpAuthentication;
+using SHttpAuthentication = std::shared_ptr<HttpAuthentication>;
 
 }
 

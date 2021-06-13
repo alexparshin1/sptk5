@@ -101,5 +101,5 @@ namespace sptk {
         std::vector<RegularExpression>  m_patterns;         ///< Patterns
     };
 
-    typedef std::shared_ptr<WSRestriction> SWSRestriction;
+    using SWSRestriction = std::shared_ptr<WSRestriction>;
 }

@@ -85,12 +85,12 @@ struct QueryColumnTypeSize
 /**
  * Vector of column type and size structures
  */
-typedef std::vector<QueryColumnTypeSize> QueryColumnTypeSizeVector;
+using QueryColumnTypeSizeVector = std::vector<QueryColumnTypeSize>;
 
 /**
  * Map of column names to column type and size structures
  */
-typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
+using QueryColumnTypeSizeMap = std::map<std::string,QueryColumnTypeSize>;
 
 class SP_EXPORT PoolDatabaseConnectionQueryMethods
 {

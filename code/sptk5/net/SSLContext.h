@@ -91,7 +91,7 @@ public:
     SSL_CTX* handle();
 };
 
-typedef std::shared_ptr<SSLContext> SharedSSLContext;
+using SharedSSLContext = std::shared_ptr<SSLContext>;
 
 /**
  * @}

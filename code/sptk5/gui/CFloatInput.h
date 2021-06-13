@@ -45,7 +45,7 @@ namespace sptk {
  */
 class SP_EXPORT CFloatInput : public CInput
 {
-    typedef class CInput inherited;
+    using inherited = class CInput;
 
     /**
      * @brief Minimum value (optional)

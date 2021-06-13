@@ -304,7 +304,7 @@ public:
 
 private:
 
-    typedef std::vector<String> StringVector;
+    using StringVector = std::vector<String>;
 
     /**
      * User-specified data

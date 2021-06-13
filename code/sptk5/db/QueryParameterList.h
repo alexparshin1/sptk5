@@ -45,7 +45,7 @@ namespace sptk
  * Doesn't mantain CParam memory.
  * Used to return a list of pointers on existing parameters.
  */
-typedef std::vector<QueryParameter*> CParamVector;
+using CParamVector = std::vector<QueryParameter*>;
 
 /**
  * Query parameters list.
@@ -62,12 +62,12 @@ public:
     /**
      * Query parameter iterator
      */
-    typedef CParamVector::iterator          iterator;
+    using iterator = CParamVector::iterator;
 
     /**
      * Query parameter const iterator
      */
-    typedef CParamVector::const_iterator    const_iterator;
+    using const_iterator = CParamVector::const_iterator;
 
     /**
      * Default constructor

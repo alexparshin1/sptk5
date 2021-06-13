@@ -43,8 +43,8 @@ class SP_EXPORT WSArray : public WSType
 {
 public:
     typedef T value_type;
-    typedef typename std::vector<T>::iterator iterator;
-    typedef typename std::vector<T>::const_iterator const_iterator;
+    using iterator = typename std::vector<T>::iterator;
+    using const_iterator = typename std::vector<T>::const_iterator;
 
     /**
      * Constructor

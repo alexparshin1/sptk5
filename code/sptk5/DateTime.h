@@ -91,17 +91,17 @@ public:
     /**
      * Clock used by DateTime
      */
-    typedef std::chrono::system_clock clock;
+    using clock = std::chrono::system_clock;
 
     /**
      * DateTime::time_point type definition
      */
-    typedef std::chrono::system_clock::time_point time_point;
+    using time_point = std::chrono::system_clock::time_point;
 
     /**
      * DateTime::duration type definition
      */
-    typedef std::chrono::system_clock::duration duration;
+    using duration = std::chrono::system_clock::duration;
 
     /**
      * Time print accuracy

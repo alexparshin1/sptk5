@@ -48,7 +48,7 @@ namespace sptk {
  */
 class SP_EXPORT CHtmlBox : public CInput
 {
-    typedef class CInput inherited;
+    using inherited = class CInput;
 
     /**
      * @brief Constructor initializer

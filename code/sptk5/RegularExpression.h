@@ -43,7 +43,7 @@
 #define SPRE_MULTILINE  PCRE2_MULTILINE
 #define SPRE_DOTALL     PCRE2_DOTALL
 #define SPRE_EXTENDED   PCRE2_EXTENDED
-typedef long pcre_offset_t;
+using pcre_offset_t = long;
 #endif
 
 #if HAVE_PCRE
@@ -52,7 +52,7 @@ typedef long pcre_offset_t;
 #define SPRE_MULTILINE  PCRE_MULTILINE
 #define SPRE_DOTALL     PCRE_DOTALL
 #define SPRE_EXTENDED   PCRE_EXTENDED
-typedef int pcre_offset_t;
+using pcre_offset_t = int;
 #endif
 
 #if (HAVE_PCRE2 | HAVE_PCRE)
@@ -389,7 +389,7 @@ private:
                              size_t matchCount) const;
 };
 
-typedef std::shared_ptr<RegularExpression> SRegularExpression;
+using SRegularExpression = std::shared_ptr<RegularExpression>;
 
 /**
  * @}

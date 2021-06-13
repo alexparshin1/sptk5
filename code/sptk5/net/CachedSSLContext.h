@@ -33,7 +33,7 @@ namespace sptk {
 
 class CachedSSLContext
 {
-    typedef std::map<String, SharedSSLContext> CachedSSLContextMap;
+    using CachedSSLContextMap = std::map<String, SharedSSLContext>;
 
     static SharedMutex          m_mutex;
     static CachedSSLContextMap  m_contexts;

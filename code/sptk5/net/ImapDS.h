@@ -41,7 +41,7 @@ namespace sptk
 /**
  * Progression callback function prototype
  */
-typedef std::function<void(int total, int progress)> ProgressCallback;
+using ProgressCallback = std::function<void(int total, int progress)>;
 
 /**
  * @brief IMAP datasource

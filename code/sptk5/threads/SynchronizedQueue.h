@@ -71,7 +71,7 @@ public:
      * @param item T&, List item
      * @param data void*, Optional function-specific data
      */
-    typedef std::function<bool(T& item, void* data)> CallbackFunction;
+    using CallbackFunction = std::function<bool(T& item, void* data)>;
 
     /**
      * Default constructor

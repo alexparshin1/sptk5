@@ -48,8 +48,8 @@ namespace sptk {
 
 class SP_EXPORT CSelection
 {
-    typedef CPackedStrings * PPackedStrings;
-    typedef std::vector<PPackedStrings> CPSVector;
+    using PPackedStrings = CPackedStrings *;
+    using CPSVector = std::vector<PPackedStrings>;
 
     /**
      * The list of the rows

@@ -46,7 +46,7 @@ namespace sptk {
 class SP_EXPORT CPhoneNumberInput
         : public CInput
 {
-    typedef class CInput inherited;
+    using inherited = class CInput;
 
     /**
      * Constructor initializer

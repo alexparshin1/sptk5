@@ -537,7 +537,7 @@ public:
 /**
  * Vector of Variant objects
  */
-typedef std::vector<Variant>    VariantVector;
+using VariantVector = std::vector<Variant>;
 
 /**
  * @}

@@ -48,11 +48,11 @@
     /**
      * A socket handle is an integer
      */
-    typedef int SOCKET;
-    typedef sa_family_t SOCKET_ADDRESS_FAMILY;
+    using SOCKET = int;
+    using SOCKET_ADDRESS_FAMILY = sa_family_t;
 
     #ifdef __APPLE__
-        typedef int socklen_t;
+        using socklen_t = int;
     #endif
 
     /**
@@ -64,8 +64,8 @@
     #include <winsock2.h>
     #include <ws2tcpip.h>
     #include <windows.h>
-    typedef int socklen_t;
-    typedef unsigned short SOCKET_ADDRESS_FAMILY;
+    using socklen_t = int;
+    using SOCKET_ADDRESS_FAMILY = unsigned short;
 #endif
 
 namespace sptk

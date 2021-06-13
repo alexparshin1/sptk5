@@ -67,7 +67,7 @@ public:
     }
 };
 
-typedef std::map<int, MemoryTarHandle*> TarHandleMap;
+using TarHandleMap = std::map<int, MemoryTarHandle*>;
 
 /**
  * A wrapper for libtar functions
@@ -77,7 +77,7 @@ typedef std::map<int, MemoryTarHandle*> TarHandleMap;
  */
 class SP_EXPORT Tar
 {
-    typedef std::map<String,Buffer>  FileCollection;
+    using FileCollection = std::map<String,Buffer>;
 
 public:
     /**

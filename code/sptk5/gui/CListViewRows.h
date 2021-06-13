@@ -47,8 +47,8 @@ class CListView;
 
 class SP_EXPORT CListViewRows
 {
-    typedef CPackedStrings * PPackedStrings;
-    typedef std::vector<PPackedStrings> CPSVector;
+    using PPackedStrings = CPackedStrings *;
+    using CPSVector = std::vector<PPackedStrings>;
     friend class CListView;
 
     /**

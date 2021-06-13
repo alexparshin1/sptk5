@@ -44,7 +44,7 @@ namespace sptk {
  * Allows to input only integers, and you can also define the input value range for the valid().
  */
 class SP_EXPORT CIntegerInput : public CInput {
-    typedef class CInput inherited;
+    using inherited = class CInput;
 
     /**
      * @brief Minimum value (optional)

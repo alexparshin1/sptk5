@@ -46,7 +46,7 @@ namespace sptk {
  */
 class SP_EXPORT CBox : public CInput
 {
-    typedef class CInput inherited;
+    using inherited = class CInput;
 
     /**
      * X-coordinate when mouse was pushed down

@@ -48,7 +48,7 @@ class SP_EXPORT SharedStrings
     /**
      * String set type
      */
-    typedef std::set<std::string> Set;
+    using Set = std::set<std::string>;
 
     /**
      * Set of shared strings

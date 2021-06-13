@@ -39,12 +39,12 @@ namespace sptk {
     /**
      * Type definition for pchar
      */
-    typedef char *          pchar;
+    using pchar = char *;
 
     /**
      * Type definition for cpchar
      */
-    typedef const char *    cpchar;
+    using cpchar = const char *;
 
 
     /**

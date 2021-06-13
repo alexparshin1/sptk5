@@ -52,12 +52,12 @@ typedef CLayoutClient* (*createControlCallback)(xml::Node *node);
 /**
  * @brief A callback map that stores type names and control create functions
  */
-typedef std::map<std::string,createControlCallback> createControlCallbackMap;
+using createControlCallbackMap = std::map<std::string,createControlCallback>;
 
 /**
  * @brief a map of widget names to widgets
  */
-typedef std::map<std::string,Fl_Widget*> CWidgetNamesMap;
+using CWidgetNamesMap = std::map<std::string,Fl_Widget*>;
 
 /**
  * @brief Layout manager grow mode.

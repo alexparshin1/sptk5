@@ -152,12 +152,12 @@ class SP_EXPORT CFrames
     /**
      * String (frame name) to frame map
      */
-    typedef std::map<std::string, CFrame*> CFrameMap;
+    using CFrameMap = std::map<std::string, CFrame*>;
 
     /**
      * Box type to frame map
      */
-    typedef std::map<Fl_Boxtype, CFrame*> CFltkFrameMap;
+    using CFltkFrameMap = std::map<Fl_Boxtype, CFrame*>;
 
 
     /**

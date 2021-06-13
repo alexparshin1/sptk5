@@ -48,17 +48,17 @@ public:
     /**
      * Type definition: array of JSON elements
      */
-    typedef std::vector<Element*>   Vector;
+    using Vector = std::vector<Element*>;
 
     /**
      * Type definition: iterator on array of JSON elements
      */
-    typedef Vector::iterator        iterator;
+    using iterator = Vector::iterator;
 
     /**
      * Type definition: const iterator on array of JSON elements
      */
-    typedef Vector::const_iterator  const_iterator;
+    using const_iterator = Vector::const_iterator;
 
     /**
      * Document this object belongs to

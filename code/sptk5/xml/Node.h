@@ -88,12 +88,12 @@ public:
     /**
      * xml::Node own iterator for subnodes
      */
-    typedef NodeList::iterator iterator;
+    using iterator = NodeList::iterator;
 
     /**
      * xml::Node own const_iterator for subnodes
      */
-    typedef NodeList::const_iterator const_iterator;
+    using const_iterator = NodeList::const_iterator;
 
     /**
      * Returns the first subnode iterator

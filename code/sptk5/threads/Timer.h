@@ -70,7 +70,7 @@ namespace sptk {
              * Event callback definition.
              * Events call that function when there is time for them to fire.
              */
-            typedef std::function<void()> Callback;
+            using Callback = std::function<void()>;
 
             /**
              * Disabled event copy constructor
@@ -163,7 +163,7 @@ namespace sptk {
         /**
          * Type definition for timer event
          */
-        typedef std::shared_ptr<EventData> Event;
+        using Event = std::shared_ptr<EventData>;
 
         /**
          * Constructor

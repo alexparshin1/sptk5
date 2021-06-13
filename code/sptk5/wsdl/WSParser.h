@@ -51,7 +51,7 @@ public:
     /**
      * Map of element names to element objects
      */
-    typedef std::map<String, const WSParserElement*>      ElementMap;
+    using ElementMap = std::map<String, const WSParserElement*>;
 
     class ComplexTypeIndex
     {
@@ -102,12 +102,12 @@ public:
     /**
      * Map of element names to corresponding WSDL (XML) elements
      */
-    typedef std::map<String,const xml::Element*>    XmlTypeMap;
+    using XmlTypeMap = std::map<String,const xml::Element*>;
 
     /**
      * Map of operation names to operation objects
      */
-    typedef std::map<String,String>                 DocumentationMap;
+    using DocumentationMap = std::map<String,String>;
 
     /**
      * Constructor

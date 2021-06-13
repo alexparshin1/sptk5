@@ -48,7 +48,7 @@ class CDateControl;
  * Masked date interval input with the drop-down calendar
  */
 class SP_EXPORT CDateIntervalInput : public CInput {
-    typedef class CInput inherited;
+    using inherited = class CInput;
 
     /**
      * First date input widget

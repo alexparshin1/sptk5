@@ -567,7 +567,7 @@ private:
     const char* readParamater(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd);
 };
 
-typedef std::shared_ptr<Query>  SQuery;
+using SQuery = std::shared_ptr<Query>;
 
 /**
  * @}

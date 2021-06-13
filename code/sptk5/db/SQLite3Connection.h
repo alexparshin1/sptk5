@@ -184,8 +184,8 @@ protected:
 
 private:
 
-    typedef sqlite3_stmt * SQLHSTMT;
-    typedef sqlite3 * SQLHDBC;
+    using SQLHSTMT = sqlite3_stmt *;
+    using SQLHDBC = sqlite3 *;
 
     mutable std::mutex  m_mutex;                ///< Mutex that protects access to data members
     sqlite3*            m_connect {nullptr};    ///< Database connection

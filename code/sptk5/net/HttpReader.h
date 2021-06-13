@@ -38,7 +38,7 @@ namespace sptk {
 /**
  * @brief A map of HTTP headers and their values (string to string)
  */
-typedef std::map<String, String, CaseInsensitiveCompare> HttpHeaders;
+using HttpHeaders = std::map<String, String, CaseInsensitiveCompare>;
 
 /**
  * HTTP response reader

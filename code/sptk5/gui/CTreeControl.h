@@ -451,7 +451,7 @@ public:
 /**
  * @brief Vector of CTreeItem pointers
  */
-typedef std::vector<CTreeItem*> CTreeItemVector;
+using CTreeItemVector = std::vector<CTreeItem*>;
 
 /**
  * @brief Tree widget.

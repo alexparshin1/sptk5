@@ -135,6 +135,6 @@ private:
     std::map<String, WSType*>   m_attributeIndex;
 };
 
-typedef std::shared_ptr<WSFieldIndex> SWSFieldIndex;
+using SWSFieldIndex = std::shared_ptr<WSFieldIndex>;
 
 }

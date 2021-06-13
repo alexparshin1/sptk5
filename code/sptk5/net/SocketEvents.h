@@ -108,7 +108,7 @@ private:
     bool						m_shutdown {false}; ///< Is watching shutdown?
 };
 
-typedef std::shared_ptr<SocketEvents> SharedSocketEvents;
+using SharedSocketEvents = std::shared_ptr<SocketEvents>;
 
 }
 

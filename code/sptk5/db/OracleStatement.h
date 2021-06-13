@@ -48,10 +48,10 @@ class OracleStatement : public DatabaseStatement<OracleConnection,oracle::occi::
 {
 public:
 
-    typedef oracle::occi::Connection    Connection;         ///< Oracle connection type
-    typedef oracle::occi::Statement     Statement;          ///< Oracle statement type
-    typedef oracle::occi::ResultSet     ResultSet;          ///< Oracle result set type
-    typedef oracle::occi::MetaData      MetaData;           ///< Oracle result set metdata type
+    using Connection = oracle::occi::Connection;        ///< Oracle connection type
+    using Statement = oracle::occi::Statement;          ///< Oracle statement type
+    using ResultSet = oracle::occi::ResultSet;          ///< Oracle result set type
+    using MetaData = oracle::occi::MetaData;            ///< Oracle result set metdata type
 
     /**
      * Constructor

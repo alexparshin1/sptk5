@@ -59,7 +59,7 @@ class CToggleTree;
  */
 class SP_EXPORT CMemoInput: public CInput
 {
-    typedef class CInput inherited;
+    using inherited = class CInput;
 
     /**
      * Constructor initializer

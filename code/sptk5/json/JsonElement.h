@@ -42,7 +42,7 @@ namespace sptk::json {
  * JSON Element object pointers.
  * Used in select() method.
  */
-typedef std::vector<Element*> ElementSet;
+using ElementSet = std::vector<Element*>;
 
 /**
  * JSON Element type

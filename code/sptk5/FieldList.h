@@ -52,12 +52,12 @@ public:
     /**
      * Field iterator
      */
-    typedef std::vector<Field*>::iterator                              iterator;
+    using iterator = std::vector<Field*>::iterator;
 
     /**
      * Field const iterator
      */
-    typedef std::vector<Field*>::const_iterator                        const_iterator;
+    using const_iterator = std::vector<Field*>::const_iterator;
 
 
     /**
@@ -232,12 +232,12 @@ private:
     /**
      * Field vector
      */
-    typedef std::vector<Field*>                                 Vector;
+    using Vector = std::vector<Field*>;
 
     /**
      * Field name to field case-insensitive map
      */
-    typedef std::map<String, Field *, CaseInsensitiveCompare>   Map;
+    using Map = std::map<String, Field *, CaseInsensitiveCompare>;
 
     Vector                  m_list;                     ///< The list of fields
     std::shared_ptr<Map>    m_index;                    ///< The optional field index by name. 0L if field list isn't indexed.

@@ -44,24 +44,24 @@ namespace sptk
 /**
  * Create driver instance function type
  */
-typedef PoolDatabaseConnection* CreateDriverInstance(const char*);
+using CreateDriverInstance = PoolDatabaseConnection* (const char*);
 
 /**
  * Destroy driver instance function type
  */
-typedef void DestroyDriverInstance(PoolDatabaseConnection*);
+using DestroyDriverInstance = void (PoolDatabaseConnection*);
 
 #ifdef WIN32
     /**
      * Windows: Driver DLL handle type
      */
-    typedef HMODULE DriverHandle;
+    using DriverHandle = HMODULE;
 
 #else
     /**
      * Unix: Driver shared library handle type
      */
-    typedef void*   DriverHandle;
+    using DriverHandle = void*;
 
 #endif
 

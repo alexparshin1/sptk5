@@ -99,8 +99,8 @@ private:
 };
 
 class WSParserComplexType;
-typedef std::shared_ptr<WSParserComplexType>    SWSParserComplexType;
-typedef std::list<SWSParserComplexType>         WSParserComplexTypeList;
+using SWSParserComplexType = std::shared_ptr<WSParserComplexType>;
+using WSParserComplexTypeList = std::list<SWSParserComplexType>;
 
 /**
  * Parses WSDL complexType element
@@ -234,7 +234,7 @@ private:
     /**
      * Map of attribute names to attribute objects
      */
-    typedef std::map<std::string, WSParserAttribute*>   AttributeMap;
+    using AttributeMap = std::map<std::string, WSParserAttribute*>;
 
     String                  m_name;                 ///< Element name
     String                  m_typeName;             ///< WSDL type name
@@ -285,12 +285,12 @@ private:
 /**
  * Alias for WSDL complex type
  */
-typedef WSParserComplexType WSParserElement;
+using WSParserElement = WSParserComplexType;
 
 /**
  * Map of complex type names to complex type objects
  */
-typedef std::map<String, SWSParserComplexType>  WSComplexTypeMap;
+using WSComplexTypeMap = std::map<String, SWSParserComplexType>;
 
 /**
  * @}

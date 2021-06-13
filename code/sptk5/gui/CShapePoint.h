@@ -34,12 +34,12 @@ namespace sptk {
  */
 
 #ifdef _WIN32
-typedef int32_t COORD;
+using COORD = int32_t;
 #else
 /**
  * @brief Coordinate type for shapes
  */
-typedef int16_t COORD;
+using COORD = int16_t;
 #endif
 
 /**

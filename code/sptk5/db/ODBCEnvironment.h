@@ -218,7 +218,7 @@ public:
      */
     bool isConnected()
     {
-        std::lock_guard<std::mutex> lock(*this);
+        std::lock_guard lock(*this);
         return m_connected;
     }
 
@@ -232,7 +232,7 @@ public:
      */
     String connectString()
     {
-        std::lock_guard<std::mutex> lock(*this);
+        std::lock_guard lock(*this);
         return m_connectString;
     }
 
@@ -241,7 +241,7 @@ public:
      */
     String driverDescription()
     {
-        std::lock_guard<std::mutex> lock(*this);
+        std::lock_guard lock(*this);
         return m_driverDescription;
     }
 

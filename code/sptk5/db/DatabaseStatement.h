@@ -147,7 +147,7 @@ protected:
     /**
      * Statement state type definition
      */
-    typedef struct {
+    struct State {
         /**
          * Number of columns is result set
          */
@@ -167,7 +167,7 @@ protected:
          * Output parameter count
          */
         unsigned    outputParameterCount:1;
-    } State;
+    };
 
     State& state()
     {

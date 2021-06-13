@@ -71,8 +71,8 @@ public:
         Element*            m_element;
     };
 
-    typedef std::list<Property>::iterator       iterator;
-    typedef std::list<Property>::const_iterator const_iterator;
+    using iterator = std::list<Property>::iterator;
+    using const_iterator = std::list<Property>::const_iterator;
 
     Element* get(const std::string* name)
     {
@@ -139,12 +139,12 @@ public:
     /**
      * Type definition: map of element names to elements iterator
      */
-    typedef PropertyMap::iterator               iterator;
+    using iterator = PropertyMap::iterator;
 
     /**
      * Type definition: map of element names to elements const iterator
      */
-    typedef PropertyMap::const_iterator         const_iterator;
+    using const_iterator = PropertyMap::const_iterator;
 
     /**
      * Constructor

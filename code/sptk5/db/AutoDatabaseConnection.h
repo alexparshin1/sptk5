@@ -220,7 +220,7 @@ public:
     }
 };
 
-typedef std::shared_ptr<AutoDatabaseConnection> DatabaseConnection;
+using DatabaseConnection = std::shared_ptr<AutoDatabaseConnection>;
 
 /**
  * @}

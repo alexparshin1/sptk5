@@ -56,7 +56,7 @@ namespace sptk {
         /**
          * Defines integer type
          */
-        typedef unsigned int size_type; // must be 32bit
+        using size_type = unsigned int; // must be 32bit
 
         /**
          * Default constructor
@@ -111,12 +111,12 @@ namespace sptk {
         /**
          * 8bit unsigned integer
          */
-        typedef uint8_t uint1;
+        using uint1 = uint8_t;
 
         /**
          * 32bit unsigned integer
          */
-        typedef uint32_t uint4;
+        using uint4 = uint32_t;
 
         /**
          * Blocksize const

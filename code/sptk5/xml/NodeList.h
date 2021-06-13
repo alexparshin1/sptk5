@@ -43,7 +43,7 @@ class Node;
 /**
  * The vector of xml::Node *
  */
-typedef std::vector<Node*> NodeVector;
+using NodeVector = std::vector<Node*>;
 
 /**
  * XML node list

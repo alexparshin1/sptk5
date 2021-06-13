@@ -258,7 +258,7 @@ public:
     }
 };
 
-typedef std::shared_ptr<Buffer> SBuffer;
+using SBuffer = std::shared_ptr<Buffer>;
 
 /**
  * Print buffer to ostream as hexadecimal dump

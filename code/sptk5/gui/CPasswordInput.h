@@ -50,7 +50,7 @@ class CToggleTree;
  * Displays '*' for the text inside
  */
 class SP_EXPORT CPasswordInput : public CInput {
-    typedef class CInput inherited;
+    using inherited = class CInput;
 public:
 
     /**

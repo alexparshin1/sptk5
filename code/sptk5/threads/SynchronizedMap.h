@@ -50,7 +50,7 @@ class SynchronizedMap
      */
     mutable std::mutex      m_sync;
 
-    typedef std::map<K,T>   Map;
+    using Map = std::map<K,T>;
     /**
      * Map
      */
@@ -66,7 +66,7 @@ public:
      * @param item T&, Map item
      * @param data void*, Optional function-specific data
      */
-    typedef std::function<bool(const K& key, T& item)>  CallbackFunction;
+    using CallbackFunction = std::function<bool(const K& key, T& item)>;
 
     /**
      * Default constructor
