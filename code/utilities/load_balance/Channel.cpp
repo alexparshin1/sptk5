@@ -35,7 +35,7 @@ using namespace sptk;
 
 void Channel::open(SOCKET sourceFD, const String& interfaceAddress, const Host& destination)
 {
-    lock_guard<mutex>   lock(m_mutex);
+    scoped_lock   lock(m_mutex);
 
     m_source.attach(sourceFD, false);
 
@@ -48,7 +48,7 @@ void Channel::open(SOCKET sourceFD, const String& interfaceAddress, const Host& 
 
 void Channel::close()
 {
-    lock_guard<mutex>   lock(m_mutex);
+    scoped_lock   lock(m_mutex);
 
     if (m_source.active()) {
         m_sourceEvents.remove(m_source);
@@ -63,7 +63,7 @@ void Channel::close()
 
 int Channel::copyData(const TCPSocket& source, const TCPSocket& destination)
 {
-    lock_guard<mutex>   lock(m_mutex);
+    scoped_lock   lock(m_mutex);
 
     char        buffer[1024];
     uint32_t    totalBytes = 0;

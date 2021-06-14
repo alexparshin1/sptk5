@@ -153,7 +153,7 @@ String SQLite3Connection::queryError(const Query*) const
 // the previously allocated stmt is released
 void SQLite3Connection::queryAllocStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* stmt = (SQLHSTMT) query->statement();
     if (stmt != nullptr)
@@ -164,7 +164,7 @@ void SQLite3Connection::queryAllocStmt(Query* query)
 
 void SQLite3Connection::queryFreeStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* stmt = (SQLHSTMT) query->statement();
 
@@ -182,7 +182,7 @@ void SQLite3Connection::queryCloseStmt(Query* query)
 
 void SQLite3Connection::queryPrepare(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     SQLHSTMT stmt = nullptr;
     const char* pzTail = nullptr;
@@ -203,7 +203,7 @@ void SQLite3Connection::queryUnprepare(Query* query)
 
 void SQLite3Connection::queryExecute(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     if (!query->prepared())
         throw DatabaseException("Query isn't prepared");
@@ -211,7 +211,7 @@ void SQLite3Connection::queryExecute(Query* query)
 
 int SQLite3Connection::queryColCount(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* stmt = (SQLHSTMT) query->statement();
 
@@ -220,7 +220,7 @@ int SQLite3Connection::queryColCount(Query* query)
 
 void SQLite3Connection::queryBindParameters(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     for (uint32_t i = 0; i < query->paramCount(); ++i) {
         bindParameter(query, i);
@@ -387,7 +387,7 @@ void SQLite3Connection::queryFetch(Query* query)
 
     auto* statement = (SQLHSTMT) query->statement();
 
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     int rc = sqlite3_step(statement);
 

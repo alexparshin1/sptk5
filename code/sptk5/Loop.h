@@ -44,14 +44,14 @@ public:
 
     void clear()
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_position = m_list.end();
         m_list.clear();
     }
 
     void add(const T& data)
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_list.push_back(data);
         m_position = m_list.end();
         --m_position;
@@ -59,7 +59,7 @@ public:
 
     T& get()
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         if (m_list.empty())
             throw sptk::Exception("Loop is empty");
         return *m_position;
@@ -67,7 +67,7 @@ public:
 
     T& loop()
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         if (m_list.empty())
             throw sptk::Exception("Loop is empty");
         ++m_position;
@@ -78,7 +78,7 @@ public:
 
     size_t size() const
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_list.size();
     }
 };

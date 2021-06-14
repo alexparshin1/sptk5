@@ -78,7 +78,7 @@ public:
      */
     void set(const char* file, int line)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock> lock(m_mutex);
         m_file = file;
         m_line = line;
     }
@@ -88,7 +88,7 @@ public:
      */
     const char* file() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_file;
     }
 
@@ -97,7 +97,7 @@ public:
      */
     int line() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_line;
     }
 
@@ -106,7 +106,7 @@ public:
      */
     String toString() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return String(m_file) + "(" + int2string(m_line) + ")";
     }
 
@@ -115,7 +115,7 @@ public:
      */
     bool empty() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return (m_file == NULL) && (m_line == 0);
     }
 };

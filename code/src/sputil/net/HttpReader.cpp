@@ -234,7 +234,7 @@ void HttpReader::read()
     constexpr int httpErrorResponseCode(400);
     constexpr int serverErrorResponseCode(500);
 
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     if (m_readerState == State::READY) {
         readHttpHeaders();
@@ -282,31 +282,31 @@ void HttpReader::read()
 
 HttpHeaders& HttpReader::getHttpHeaders()
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     return m_httpHeaders;
 }
 
 HttpReader::State HttpReader::getReaderState() const
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     return m_readerState;
 }
 
 int HttpReader::getStatusCode() const
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     return m_statusCode;
 }
 
 const String& HttpReader::getStatusText() const
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     return m_statusText;
 }
 
 String HttpReader::httpHeader(const String& headerName) const
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto itor = m_httpHeaders.find(lowerCase(headerName));
     if (itor == m_httpHeaders.end())

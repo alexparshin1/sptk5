@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/threads/Flag.h>
+#include <mutex>
 
 using namespace std;
 using namespace sptk;
@@ -39,32 +40,32 @@ Flag::~Flag()
 {
     terminate();
     do {
-        lock_guard<mutex>  lock(m_lockMutex);
+        scoped_lock  lock(m_lockMutex);
         m_condition.notify_one();
     } while (waiters() > 0);
 }
 
 void Flag::terminate()
 {
-    lock_guard<mutex>  lock(m_lockMutex);
+    scoped_lock  lock(m_lockMutex);
     m_terminated = true;
 }
 
 size_t Flag::waiters() const
 {
-    lock_guard<mutex>  lock(m_lockMutex);
+    scoped_lock  lock(m_lockMutex);
     return m_waiters;
 }
 
 bool Flag::get() const
 {
-    lock_guard<mutex>  lock(m_lockMutex);
+    scoped_lock  lock(m_lockMutex);
     return m_value;
 }
 
 void Flag::set(bool value)
 {
-    lock_guard<mutex>  lock(m_lockMutex);
+    scoped_lock  lock(m_lockMutex);
     if (m_value != value) {
         m_value = value;
         m_condition.notify_one();

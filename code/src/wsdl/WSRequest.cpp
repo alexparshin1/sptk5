@@ -102,7 +102,7 @@ void WSRequest::logError(const String& requestName, const String& error, int err
 
 xml::Element* WSRequest::findSoapBody(const xml::Element* soapEnvelope, const WSNameSpace& soapNamespace)
 {
-    lock_guard<mutex> lock(*this);
+    scoped_lock lock(*this);
 
     xml::Element* soapBody = dynamic_cast<xml::Element*>(soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body"));
     if (soapBody == nullptr)
@@ -141,7 +141,7 @@ void WSRequest::processRequest(xml::Document* xmlContent, json::Document* jsonCo
         for (auto* anode: *soapBody) {
             auto* node = dynamic_cast<xml::Element*>(anode);
             if (node != nullptr) {
-                std::lock_guard<std::mutex> lock(*this);
+                scoped_lock lock(*this);
                 requestNode = node;
                 String nameSpaceAlias = requestNode->nameSpace();
                 extractNameSpaces(requestNode, allNamespaces);

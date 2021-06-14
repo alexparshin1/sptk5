@@ -55,7 +55,7 @@ public:
 
     void schedule(Timer::Event event)
     {
-        lock_guard<mutex> lock(m_scheduledMutex);
+        scoped_lock lock(m_scheduledMutex);
         m_scheduledEvents.insert(pair<Timer::EventId,Timer::Event>(event->getId(), event));
         m_semaphore.post();
     }
@@ -72,19 +72,19 @@ public:
 
     void clear()
     {
-        lock_guard<mutex> lock(m_scheduledMutex);
+        scoped_lock lock(m_scheduledMutex);
         m_scheduledEvents.clear();
     }
 
     void forget(Timer::Event event)
     {
-        lock_guard<mutex> lock(m_scheduledMutex);
+        scoped_lock lock(m_scheduledMutex);
         m_scheduledEvents.erase(event->getId());
     }
 
     void forget(const set<Timer::Event>& events)
     {
-        lock_guard<mutex> lock(m_scheduledMutex);
+        scoped_lock lock(m_scheduledMutex);
         for (auto event: events)
             m_scheduledEvents.erase(event->getId());
     }
@@ -103,7 +103,7 @@ private:
 
     DateTime nextWakeUp()
     {
-        lock_guard<mutex> lock(m_scheduledMutex);
+        scoped_lock lock(m_scheduledMutex);
         if (m_scheduledEvents.empty())
             return DateTime::Now() + seconds(1);
         else {
@@ -114,7 +114,7 @@ private:
 
     bool popFrontEvent(Timer::Event& event)
     {
-        lock_guard<mutex> lock(m_scheduledMutex);
+        scoped_lock lock(m_scheduledMutex);
         if (m_scheduledEvents.empty())
             return false;
         else {
@@ -204,13 +204,13 @@ Timer::~Timer()
 
 void Timer::unlink(Timer::Event event)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     m_events.erase(event);
 }
 
 void Timer::checkTimerThreadRunning()
 {
-    lock_guard<mutex> lock(timerThreadMutex);
+    scoped_lock lock(timerThreadMutex);
     if (timerThread == nullptr) {
         timerThread = new TimerThread();
         timerThread->run();
@@ -224,7 +224,7 @@ Timer::Event Timer::fireAt(const DateTime& timestamp, const EventData::Callback&
     Event event = make_shared<EventData>(timestamp, eventCallback, milliseconds(), 0);
     timerThread->schedule(event);
 
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     m_events.insert(event);
 
     return event;
@@ -237,7 +237,7 @@ Timer::Event Timer::repeat(milliseconds interval, const EventData::Callback& eve
     Event event = make_shared<EventData>(DateTime::Now() + interval, eventCallback, interval, repeatCount);
     timerThread->schedule(event);
 
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     m_events.insert(event);
 
     return event;
@@ -245,7 +245,7 @@ Timer::Event Timer::repeat(milliseconds interval, const EventData::Callback& eve
 
 void Timer::cancel(Event event)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     if (event) {
         timerThread->forget(event);
         m_events.erase(event);
@@ -257,7 +257,7 @@ set<Timer::Event> Timer::moveOutEvents()
     set<Timer::Event> events;
 
     // Cancel all events in this timer
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     events = move(m_events);
 
     return events;
@@ -315,7 +315,7 @@ vector<size_t> TimerTestData::eventData(MAX_EVENT_COUNTER);
 
 static void gtestTimerCallback2(void* theEventData)
 {
-    lock_guard<mutex> lock(TimerTestData::eventCounterMutex);
+    scoped_lock lock(TimerTestData::eventCounterMutex);
     size_t eventIndex = size_t(theEventData);
     ++TimerTestData::eventCounter[eventIndex];
 }
@@ -329,14 +329,14 @@ TEST(SPTK_Timer, fireOnce)
     timer.fireAt(
         DateTime::Now() + milliseconds(10),
         [&counter, &counterMutex]() {
-            lock_guard<mutex> lock(counterMutex);
+            scoped_lock lock(counterMutex);
             ++counter;
         }
     );
 
     this_thread::sleep_for(milliseconds(20));
 
-    lock_guard<mutex> lock(counterMutex);
+    scoped_lock lock(counterMutex);
     EXPECT_EQ(counter, size_t(2));
 }
 
@@ -349,7 +349,7 @@ TEST(SPTK_Timer, repeatTwice)
     timer.repeat(
             milliseconds(10),
             [&counter, &counterMutex]() {
-                lock_guard<mutex> lock(counterMutex);
+                scoped_lock lock(counterMutex);
                 ++counter;
             },
             2
@@ -357,7 +357,7 @@ TEST(SPTK_Timer, repeatTwice)
 
     this_thread::sleep_for(milliseconds(40));
 
-    lock_guard<mutex> lock(counterMutex);
+    scoped_lock lock(counterMutex);
     EXPECT_EQ(counter, size_t(2));
 }
 
@@ -386,7 +386,7 @@ TEST(SPTK_Timer, repeatMultipleEvents)
 
         int totalEvents(0);
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex) {
-            lock_guard<mutex> lock(TimerTestData::eventCounterMutex);
+            scoped_lock lock(TimerTestData::eventCounterMutex);
             totalEvents += TimerTestData::eventCounter[eventIndex];
         }
 
@@ -401,7 +401,7 @@ TEST(SPTK_Timer, repeatMultipleTimers)
     vector<Timer> timers(MAX_TIMERS);
 
     if (!timers.empty()) {
-        lock_guard<mutex> lock(TimerTestData::eventCounterMutex);
+        scoped_lock lock(TimerTestData::eventCounterMutex);
         TimerTestData::eventCounter.clear();
         TimerTestData::eventCounter.resize(MAX_EVENT_COUNTER);
     }
@@ -420,7 +420,7 @@ TEST(SPTK_Timer, repeatMultipleTimers)
 
     int totalEvents(0);
     if (!timers.empty()) {
-        lock_guard<mutex> lock(TimerTestData::eventCounterMutex);
+        scoped_lock lock(TimerTestData::eventCounterMutex);
         for (auto counter: TimerTestData::eventCounter)
             totalEvents += counter;
     }
@@ -435,12 +435,12 @@ class NotifyObject
 public:
     int  getValue() const
     {
-        lock_guard<mutex> lock(m_mutex);
+        scoped_lock lock(m_mutex);
         return m_value;
     }
     void setValue(int v)
     {
-        lock_guard<mutex> lock(m_mutex);
+        scoped_lock lock(m_mutex);
         m_value = v;
     }
 };

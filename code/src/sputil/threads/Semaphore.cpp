@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/threads/Semaphore.h>
+#include <mutex>
 
 using namespace std;
 using namespace sptk;
@@ -44,19 +45,19 @@ Semaphore::~Semaphore()
 
 void Semaphore::terminate()
 {
-    lock_guard<mutex>  lock(m_lockMutex);
+    scoped_lock  lock(m_lockMutex);
     m_terminated = true;
 }
 
 size_t Semaphore::waiters() const
 {
-    lock_guard<mutex>  lock(m_lockMutex);
+    scoped_lock  lock(m_lockMutex);
     return m_waiters;
 }
 
 void Semaphore::post()
 {
-    lock_guard<mutex>  lock(m_lockMutex);
+    scoped_lock  lock(m_lockMutex);
     if (m_maxValue == 0 || m_value < m_maxValue) {
         ++m_value;
         m_condition.notify_one();
@@ -65,7 +66,7 @@ void Semaphore::post()
 
 void Semaphore::set(size_t value)
 {
-    lock_guard<mutex>  lock(m_lockMutex);
+    scoped_lock  lock(m_lockMutex);
     if (m_value != value && (m_maxValue == 0 || value < m_maxValue)) {
         m_value = value;
         m_condition.notify_one();

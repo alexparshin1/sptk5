@@ -289,7 +289,7 @@ void PostgreSQLConnection::queryAllocStmt(Query* query)
 
 void PostgreSQLConnection::queryFreeStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* statement = (PostgreSQLStatement*) query->statement();
 
@@ -310,7 +310,7 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
 
 void PostgreSQLConnection::queryCloseStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* statement = (PostgreSQLStatement*) query->statement();
     statement->clearRows();
@@ -320,7 +320,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 {
     queryFreeStmt(query);
 
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     querySetStmt(query,
                  new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64, query->autoPrepare()));
@@ -364,7 +364,7 @@ int PostgreSQLConnection::queryColCount(Query* query)
 
 void PostgreSQLConnection::queryBindParameters(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* statement = (PostgreSQLStatement*) query->statement();
     PostgreSQLParamValues& paramValues = statement->paramValues();
@@ -416,7 +416,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
 
 void PostgreSQLConnection::queryExecDirect(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* statement = (PostgreSQLStatement*) query->statement();
     PostgreSQLParamValues& paramValues = statement->paramValues();
@@ -570,7 +570,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
     querySetActive(query, true);
 
     if (query->fieldCount() == 0) {
-        lock_guard<mutex> lock(m_mutex);
+        scoped_lock lock(m_mutex);
         // Reading the column attributes
         const PGresult* stmt = statement->stmt();
 
@@ -817,7 +817,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
     if (!query->active())
         THROW_QUERY_ERROR(query, "Dataset isn't open")
 
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* statement = (PostgreSQLStatement*) query->statement();
     if (statement == nullptr)

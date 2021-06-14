@@ -91,7 +91,7 @@ void ThreadManager::stop()
 
 void ThreadManager::terminateRunningThreads()
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     for (const auto& itor: m_runningThreads) {
         m_joiner.push(itor.second);
         itor.second->terminate();
@@ -101,7 +101,7 @@ void ThreadManager::terminateRunningThreads()
 void ThreadManager::registerThread(Thread* thread)
 {
     if (thread) {
-        lock_guard<mutex> lock(m_mutex);
+        scoped_lock lock(m_mutex);
         auto itor = m_runningThreads.find(thread);
         if (itor == m_runningThreads.end()) {
             m_runningThreads[thread] = shared_ptr<Thread>(thread);
@@ -112,7 +112,7 @@ void ThreadManager::registerThread(Thread* thread)
 void ThreadManager::destroyThread(Thread* thread)
 {
     if (thread && thread->running()) {
-        lock_guard<mutex> lock(m_mutex);
+        scoped_lock lock(m_mutex);
         auto itor = m_runningThreads.find(thread);
         if (itor != m_runningThreads.end()) {
             auto sthread = itor->second;
@@ -124,13 +124,13 @@ void ThreadManager::destroyThread(Thread* thread)
 
 size_t ThreadManager::threadCount() const
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     return m_runningThreads.size();
 }
 
 bool ThreadManager::running() const
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     return m_joiner.running();
 }
 

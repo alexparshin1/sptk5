@@ -50,7 +50,7 @@ SocketPool::~SocketPool()
 
 void SocketPool::open()
 {
-    lock_guard<mutex> lock(*this);
+    scoped_lock lock(*this);
 
     if (m_pool != INVALID_EPOLL)
         return;
@@ -63,7 +63,7 @@ void SocketPool::open()
 
 void SocketPool::close()
 {
-    lock_guard<mutex> lock(*this);
+    scoped_lock lock(*this);
 
     if (m_pool != INVALID_EPOLL) {
 #ifdef _WIN32
@@ -85,7 +85,7 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
     if (!socket.active())
         throw Exception("Socket is closed");
 
-    lock_guard<mutex> lock(*this);
+    scoped_lock lock(*this);
 
     auto socketFD = socket.fd();
 
@@ -104,7 +104,7 @@ void SocketPool::forgetSocket(BaseSocket& socket)
 {
     epoll_event* event;
 
-    lock_guard<mutex> lock(*this);
+    scoped_lock lock(*this);
 
     auto itor = m_socketData.find(&socket);
     if (itor == m_socketData.end())

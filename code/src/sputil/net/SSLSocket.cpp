@@ -189,7 +189,7 @@ void SSLSocket::_open(const struct sockaddr_in& address, OpenMode openMode, bool
 {
     TCPSocket::_open(address, openMode, _blockingMode, timeout);
 
-    lock_guard<mutex> lock(*this);
+    scoped_lock lock(*this);
 
     openSocketFD(_blockingMode, timeout);
 }
@@ -247,7 +247,7 @@ void SSLSocket::close() noexcept
 
 void SSLSocket::attach(SOCKET socketHandle, bool accept)
 {
-    lock_guard<mutex> lock(*this);
+    scoped_lock lock(*this);
 
     initContextAndSocket();
 

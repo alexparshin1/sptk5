@@ -89,7 +89,7 @@ DatabaseConnectionPool::~DatabaseConnectionPool()
 
 void DatabaseConnectionPool::load()
 {
-    lock_guard<mutex> lock(*this);
+    scoped_lock lock(*this);
 
     String driverNameLC = lowerCase(driverName());
     if (driverNameLC == "mssql")

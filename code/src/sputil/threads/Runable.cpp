@@ -47,12 +47,12 @@ void Runable::terminate()
 
 bool Runable::terminated() const
 {
-    lock_guard<mutex> lock(m_dataMutex);
+    scoped_lock lock(m_dataMutex);
     return m_terminated;
 }
 
 void Runable::setTerminated(bool terminated)
 {
-    lock_guard<mutex> lock(m_dataMutex);
+    scoped_lock lock(m_dataMutex);
     m_terminated = terminated;
 }

@@ -163,7 +163,7 @@ void OracleConnection::queryAllocStmt(Query* query)
 
 void OracleConnection::queryFreeStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     auto* statement = (OracleStatement*) query->statement();
     if (statement) {
         delete statement;
@@ -174,7 +174,7 @@ void OracleConnection::queryFreeStmt(Query* query)
 
 void OracleConnection::queryCloseStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     auto* statement = (OracleStatement*) query->statement();
     if (statement)
         statement->close();
@@ -182,7 +182,7 @@ void OracleConnection::queryCloseStmt(Query* query)
 
 void OracleConnection::queryPrepare(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
     if (!statement)
@@ -234,7 +234,7 @@ int OracleConnection::queryColCount(Query* query)
 
 void OracleConnection::queryBindParameters(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
     if (!statement)
@@ -348,7 +348,7 @@ void OracleConnection::queryOpen(Query* query)
     } else {
         querySetActive(query, true);
         if (query->fieldCount() == 0) {
-            lock_guard<mutex> lock(m_mutex);
+            scoped_lock lock(m_mutex);
             ResultSet* resultSet = statement->resultSet();
             createQueryFieldsFromMetadata(query, resultSet);
         }
@@ -415,7 +415,7 @@ void OracleConnection::queryFetch(Query* query)
 {
     if (!query->active()) THROW_QUERY_ERROR(query, "Dataset isn't open")
 
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
 

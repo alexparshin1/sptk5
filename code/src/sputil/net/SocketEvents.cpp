@@ -61,7 +61,7 @@ void SocketEvents::stop()
 void SocketEvents::add(BaseSocket& socket, void* userData)
 {
 	if (!running()) {
-		lock_guard<mutex> lock(m_mutex);
+		scoped_lock lock(m_mutex);
 		if (m_shutdown)
 			throw Exception("SocketEvents already stopped");
 		run();
@@ -96,12 +96,12 @@ void SocketEvents::threadFunction()
 void SocketEvents::terminate()
 {
 	Thread::terminate();
-	lock_guard<mutex> lock(m_mutex);
+	scoped_lock lock(m_mutex);
 	m_shutdown = true;
 }
 
 size_t SocketEvents::size() const
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     return m_watchList.size();
 }

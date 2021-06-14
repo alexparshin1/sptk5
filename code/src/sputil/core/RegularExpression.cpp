@@ -750,7 +750,7 @@ TEST(SPTK_RegularExpression, asyncExec)
             auto matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
             return matchedNamedGroups.namedGroups().size();
         });
-        lock_guard<mutex> lock(amutex);
+        scoped_lock lock(amutex);
         states.push(move(f));
     }
 
@@ -759,7 +759,7 @@ TEST(SPTK_RegularExpression, asyncExec)
     for (size_t n = 0; n < maxThreads;) {
         bool gotOne {false};
         if (statesCount > 0) {
-            lock_guard<mutex> lock(amutex);
+            scoped_lock lock(amutex);
             if (!states.empty()) {
                 f = move(states.front());
                 states.pop();

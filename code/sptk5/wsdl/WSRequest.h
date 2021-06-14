@@ -75,7 +75,7 @@ public:
     WSNameSpace& operator = (const WSNameSpace& other)
     {
         if (&other != this) {
-            std::lock_guard<std::mutex> lock(m_mutex);
+            std::scoped_lock lock(m_mutex);
             m_alias = other.m_alias;
             m_location = other.m_location;
         }
@@ -88,7 +88,7 @@ public:
      */
     String getAlias() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_alias;
     }
 
@@ -98,7 +98,7 @@ public:
      */
     String getLocation() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_location; 
     }
 

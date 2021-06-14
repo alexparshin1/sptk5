@@ -40,25 +40,25 @@ size_t ServerConnection::nextSerial()
     static mutex  amutex;
     static size_t serial = 0;
 
-    lock_guard<mutex> lock(amutex);
+    scoped_lock lock(amutex);
     return ++serial;
 }
 
 TCPSocket& ServerConnection::socket() const
 {
-    lock_guard<mutex>   lock(m_mutex);
+    scoped_lock   lock(m_mutex);
     return *m_socket;
 }
 
 void ServerConnection::setSocket(TCPSocket* socket)
 {
-    lock_guard<mutex>   lock(m_mutex);
+    scoped_lock   lock(m_mutex);
     m_socket = socket;
 }
 
 TCPServer& ServerConnection::server() const
 {
-    lock_guard<mutex>   lock(m_mutex);
+    scoped_lock   lock(m_mutex);
     return m_server;
 }
 
@@ -70,7 +70,7 @@ ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in*
 
 ServerConnection::~ServerConnection()
 {
-    lock_guard<mutex>   lock(m_mutex);
+    scoped_lock   lock(m_mutex);
     delete m_socket;
 }
 

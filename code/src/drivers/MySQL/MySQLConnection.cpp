@@ -52,7 +52,7 @@ void MySQLConnection::initConnection()
 {
     static std::mutex libraryInitMutex;
 
-    lock_guard<mutex> lock(libraryInitMutex);
+    scoped_lock lock(libraryInitMutex);
     m_connection = mysql_init(m_connection);
     if (m_connection == nullptr)
         throw DatabaseException("Can't initialize MySQL environment");
@@ -149,7 +149,7 @@ void MySQLConnection::queryAllocStmt(Query* query)
 
 void MySQLConnection::queryFreeStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     auto* statement = (MySQLStatement*) query->statement();
     if (statement != nullptr) {
         delete statement;
@@ -160,7 +160,7 @@ void MySQLConnection::queryFreeStmt(Query* query)
 
 void MySQLConnection::queryCloseStmt(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
     try {
         auto* statement = (MySQLStatement*) query->statement();
         if (statement != nullptr)
@@ -173,7 +173,7 @@ void MySQLConnection::queryCloseStmt(Query* query)
 
 void MySQLConnection::queryPrepare(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     if (!query->prepared()) {
         auto* statement = (MySQLStatement*) query->statement();
@@ -213,7 +213,7 @@ int MySQLConnection::queryColCount(Query* query)
 
 void MySQLConnection::queryBindParameters(Query* query)
 {
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     auto* statement = (MySQLStatement*) query->statement();
     try {
@@ -267,7 +267,7 @@ void MySQLConnection::queryOpen(Query* query)
 
     querySetActive(query, true);
     if (query->fieldCount() == 0) {
-        lock_guard<mutex> lock(m_mutex);
+        scoped_lock lock(m_mutex);
         statement->bindResult(query->fields());
     }
 
@@ -280,7 +280,7 @@ void MySQLConnection::queryFetch(Query* query)
     if (!query->active())
         THROW_QUERY_ERROR(query, "Dataset isn't open")
 
-    lock_guard<mutex> lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     try {
         auto* statement = (MySQLStatement*) query->statement();

@@ -73,7 +73,7 @@ public:
      */
     virtual ~SynchronizedList()
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         delete m_list;
         m_list = nullptr;
     }
@@ -87,7 +87,7 @@ public:
      */
     virtual void push_front(const T& data)
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_list->push_front(data);
         m_semaphore.post();
     }
@@ -103,7 +103,7 @@ public:
     virtual bool pop_front(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.sleep_for(timeout)) {
-            std::lock_guard lock(m_mutex);
+            std::scoped_lock lock(m_mutex);
             if (!m_list->empty()) {
                 item = m_list->front();
                 m_list->pop_front();
@@ -122,7 +122,7 @@ public:
      */
     virtual void push_back(const T& data)
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_list->push_back(data);
         m_semaphore.post();
     }
@@ -138,7 +138,7 @@ public:
     virtual bool pop_back(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.sleep_for(timeout)) {
-            std::lock_guard lock(m_mutex);
+            std::scoped_lock lock(m_mutex);
             if (!m_list->empty()) {
                 item = m_list->back();
                 m_list->pop_back();
@@ -153,7 +153,7 @@ public:
      */
     virtual void remove(T& item)
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_list->remove(item);
     }
 
@@ -172,7 +172,7 @@ public:
      */
     bool empty() const
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_list->empty();
     }
 
@@ -181,7 +181,7 @@ public:
      */
     size_t size() const
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_list->size();
     }
 
@@ -190,7 +190,7 @@ public:
      */
     void clear()
     {
-        std::lock_guard lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_list->clear();
     }
 
@@ -202,9 +202,8 @@ public:
      */
     bool each(const CallbackFunction& callbackFunction, void* data=nullptr)
     {
-        std::lock_guard lock(m_mutex);
-        typename std::list<T>::iterator itor;
-        for (itor = m_list->begin(); itor != m_list->end(); ++itor) {
+        std::scoped_lock lock(m_mutex);
+        for (auto itor = m_list->begin(); itor != m_list->end(); ++itor) {
             if (!callbackFunction(*itor, data))
                 return false;
         }
