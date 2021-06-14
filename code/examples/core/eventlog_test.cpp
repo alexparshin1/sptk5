@@ -46,7 +46,7 @@ int main()
       /// Any messages with the less priority are ignored.
       /// This means, in this example, that no messages with CLP_DEBUG priority
       /// would make it to the log.
-      fileLog.minPriority(LP_INFO);
+      fileLog.minPriority(LogPriority::INFO);
 
       COUT("Sending 'Hello, World!' to this file.." << endl)
       log.info("Hello, World!");

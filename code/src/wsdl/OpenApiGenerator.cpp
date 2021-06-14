@@ -153,7 +153,7 @@ void OpenApiGenerator::createComponents(json::Document & document, const WSCompl
             auto& property = *properties.add_object(ctypeProperty->name());
             parseClassName(ctypeProperty, property);
 
-            if (ctypeProperty->multiplicity() != WSMultiplicity::OPTIONAL)
+            if (ctypeProperty->multiplicity() != WSMultiplicity::ZERO_OR_ONE)
                 requiredProperties.push_back(ctypeProperty->name());
 
             parseRestriction(ctypeProperty, property);

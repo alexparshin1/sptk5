@@ -27,6 +27,7 @@
 #pragma once
 
 #include <sptk5/db/QueryParameterBinding.h>
+#include <array>
 
 namespace sptk {
 

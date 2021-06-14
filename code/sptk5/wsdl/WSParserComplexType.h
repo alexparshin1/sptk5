@@ -47,7 +47,7 @@ namespace sptk
 enum class WSMultiplicity: uint8_t
 {
     REQUIRED       = 1, ///< Element is required
-    OPTIONAL       = 2, ///< Element is optional
+    ZERO_OR_ONE    = 2, ///< Element is optional
     ZERO_OR_MORE   = 4, ///< Element may occur 0 or more times
     ONE_OR_MORE    = 8  ///< Element may occur one or more times
 };

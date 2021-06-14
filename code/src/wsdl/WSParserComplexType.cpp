@@ -93,7 +93,7 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
         maxOccurs = "1";
 
     if (minOccurs == "0")
-        m_multiplicity = maxOccurs == "1" ? WSMultiplicity::OPTIONAL : WSMultiplicity::ZERO_OR_MORE;
+        m_multiplicity = maxOccurs == "1" ? WSMultiplicity::ZERO_OR_ONE : WSMultiplicity::ZERO_OR_MORE;
     else if (minOccurs == "1")
         m_multiplicity = maxOccurs == "1" ? WSMultiplicity::REQUIRED : WSMultiplicity::ONE_OR_MORE;
 }
@@ -217,7 +217,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
             appendMemberDocumentation(classDeclaration, complexType);
 
             String cxxType = complexType->className();
-            string optional = ((int)complexType->multiplicity() & (int)WSMultiplicity::OPTIONAL) != 0 ? ", true" : ", false";
+            string optional = ((int)complexType->multiplicity() & (int)WSMultiplicity::ZERO_OR_ONE) != 0 ? ", true" : ", false";
             if (complexType->isArray())
                 cxxType = "sptk::WSArray<" + cxxType + ">";
 

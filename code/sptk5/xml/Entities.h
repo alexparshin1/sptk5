@@ -44,7 +44,11 @@ namespace xml {
 class Entity
 {
 public:
-    enum Type { SYSTEM, PUBLIC };
+    enum class Type: uint8_t
+    { 
+        SYSTEM, 
+        PUBLIC 
+    };
     String  name;
     Type    type;
     String  id;

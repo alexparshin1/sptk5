@@ -65,7 +65,7 @@ void Logger::warning(const String& message)
 
 void Logger::error(const String& message)
 {
-    m_destination.log(new Message(LogPriority::ERROR, m_prefix + message));
+    m_destination.log(new Message(LogPriority::ERR, m_prefix + message));
 }
 
 void Logger::critical(const String& message)

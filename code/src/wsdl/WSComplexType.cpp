@@ -262,7 +262,7 @@ void WSComplexType::unload(QueryParameterList& output) const
 {
     const auto& fields = getFields();
 
-    fields.forEach([&output](const WSType* field) {
+    fields.forEach([this,&output](const WSType* field) {
         const auto* inputField = dynamic_cast<const WSBasicType*>(field);
         if (inputField != nullptr) {
             WSComplexType::unload(output, inputField->name().c_str(), inputField);

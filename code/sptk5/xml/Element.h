@@ -303,32 +303,13 @@ private:
 class SP_EXPORT PI : public Element
 {
 public:
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node. Make sure it's a pointer to the existing node.
-     * @param target            Target tag name
-     */
-    PI(Node& parent, const String& target)
-    : Element(parent, target)
-    {
-    }
 
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node. Make sure it's a pointer to the existing node.
-     * @param target            Target tag name
-     */
-    PI(Node* parent, const String& target)
-    : Element(*parent, target)
-    {
-    }
+    using Element::Element;
 
     /**
      * Returns node type
      */
-    virtual NodeType type() const
+    NodeType type() const override
     {
         return DOM_PI;
     }

@@ -63,7 +63,7 @@ void TCPServerListener::acceptConnection()
         }
     }
     catch (const Exception& e) {
-        m_server->log(LogPriority::ERROR, e.what());
+        m_server->log(LogPriority::ERR, e.what());
     }
 }
 
@@ -77,7 +77,7 @@ void TCPServerListener::threadFunction()
         }
     }
     catch (const Exception& e) {
-        m_server->log(LogPriority::ERROR, e.what());
+        m_server->log(LogPriority::ERR, e.what());
     }
 }
 

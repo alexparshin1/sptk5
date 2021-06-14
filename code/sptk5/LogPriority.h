@@ -63,7 +63,7 @@ enum class LogPriority : uint8_t
     /**
      * Error message priority
      */
-    ERROR = LOG_ERR,
+    ERR = LOG_ERR,
 
     /**
      * Critical message priority

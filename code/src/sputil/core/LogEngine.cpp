@@ -59,7 +59,7 @@ String LogEngine::priorityName(LogPriority prt)
             return "NOTICE";
         case LogPriority::WARNING:
             return "WARNING";
-        case LogPriority::ERROR:
+        case LogPriority::ERR:
             return "ERROR";
         case LogPriority::CRITICAL:
             return "CRITICAL";
@@ -84,7 +84,7 @@ LogPriority LogEngine::priorityFromName(const String& prt)
         case 3:
             return LogPriority::WARNING;
         case 4:
-            return LogPriority::ERROR;
+            return LogPriority::ERR;
         case 5:
             return LogPriority::CRITICAL;
         case 6:
@@ -130,7 +130,7 @@ void LogEngine::threadFunction()
                 messagePrefix += "[" + priorityName(message->priority) + "] ";
 
             FILE* dest = stdout;
-            if (message->priority <= LogPriority::ERROR)
+            if (message->priority <= LogPriority::ERR)
                 dest = stderr;
             fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
             fflush(dest);

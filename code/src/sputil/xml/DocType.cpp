@@ -35,7 +35,7 @@ void Entity::parse(const String& entityTag)
     static const RegularExpression matchEntity(R"(^<!ENTITY\s*(?<percent>\%)? (?<name>\S+)(?<type> SYSTEM| PUBLIC \w+)? (?<resource>[\w\._]+|".*"))");
 
     name = "";
-    type = SYSTEM;
+    type = Type::SYSTEM;
     id = "";
     resource = "";
 
@@ -48,11 +48,11 @@ void Entity::parse(const String& entityTag)
 
         auto typeAndId = matches["type"].value;
         if (typeAndId == " SYSTEM") {
-            type = SYSTEM;
+            type = Type::SYSTEM;
             id = "";
         }
         else if (typeAndId.startsWith(" PUBLIC ")) {
-            type = PUBLIC;
+            type = Type::PUBLIC;
             id = typeAndId.substr(8);
         }
 
@@ -293,17 +293,17 @@ TEST(SPTK_XmlDocType, parseEntity)
 
     entity.parse(R"(<!ENTITY file_pic SYSTEM "file.jpg" NDATA jpg>)");
     EXPECT_STREQ(entity.name.c_str(), "file_pic");
-    EXPECT_EQ(entity.type, Entity::SYSTEM);
+    EXPECT_EQ(entity.type, Entity::Type::SYSTEM);
     EXPECT_STREQ(entity.resource.c_str(), "file.jpg");
 
     entity.parse(R"(<!ENTITY % lists "ul | ol")");
     EXPECT_STREQ(entity.name.c_str(), "%lists");
-    EXPECT_EQ(entity.type, Entity::SYSTEM);
+    EXPECT_EQ(entity.type, Entity::Type::SYSTEM);
     EXPECT_STREQ(entity.resource.c_str(), "ul | ol");
 
     entity.parse(R"(<!ENTITY % lists PUBLIC list_id "ul | ol")");
     EXPECT_STREQ(entity.name.c_str(), "%lists");
-    EXPECT_EQ(entity.type, Entity::PUBLIC);
+    EXPECT_EQ(entity.type, Entity::Type::PUBLIC);
     EXPECT_STREQ(entity.id.c_str(), "list_id");
     EXPECT_STREQ(entity.resource.c_str(), "ul | ol");
 }
