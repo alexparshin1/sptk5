@@ -153,7 +153,7 @@ void OpenApiGenerator::createComponents(json::Document & document, const WSCompl
             auto& property = *properties.add_object(ctypeProperty->name());
             parseClassName(ctypeProperty, property);
 
-            if (ctypeProperty->multiplicity() != WSM_OPTIONAL)
+            if (ctypeProperty->multiplicity() != WSMultiplicity::OPTIONAL)
                 requiredProperties.push_back(ctypeProperty->name());
 
             parseRestriction(ctypeProperty, property);
@@ -204,7 +204,7 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
     }
     else if (className.startsWith("C")) {
         className = "#/components/schemas/" + className.substr(1);
-        if (ctypeProperty->multiplicity() & (WSM_ZERO_OR_MORE|WSM_ONE_OR_MORE)) { //array
+        if ((int)ctypeProperty->multiplicity() & ((int)WSMultiplicity::ZERO_OR_MORE|(int)WSMultiplicity::ONE_OR_MORE)) { //array
             property["type"] = "array";
             auto& items = *property.add_object("items");
             items["$ref"] = className;

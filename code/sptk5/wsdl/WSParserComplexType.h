@@ -44,12 +44,12 @@ namespace sptk
 /**
  * Multiplicity flag
  */
-enum WSMultiplicity
+enum class WSMultiplicity: uint8_t
 {
-    WSM_REQUIRED       = 1, ///< Element is required
-    WSM_OPTIONAL       = 2, ///< Element is optional
-    WSM_ZERO_OR_MORE   = 4, ///< Element may occur 0 or more times
-    WSM_ONE_OR_MORE    = 8  ///< Element may occur one or more times
+    REQUIRED       = 1, ///< Element is required
+    OPTIONAL       = 2, ///< Element is optional
+    ZERO_OR_MORE   = 4, ///< Element may occur 0 or more times
+    ONE_OR_MORE    = 8  ///< Element may occur one or more times
 };
 
 /**
@@ -152,14 +152,14 @@ public:
      */
     bool isArray() const
     {
-        return (m_multiplicity & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0;
+        return ((int)m_multiplicity & ((int)WSMultiplicity::ZERO_OR_MORE | (int)WSMultiplicity::ONE_OR_MORE)) != 0;
     }
 
     /**
      * Get child elements sequence
      * @return Child elements sequence
      */
-    const WSParserComplexTypeList sequence() const { return m_sequence; }
+    WSParserComplexTypeList sequence() const { return m_sequence; }
 
     /**
      * Get optional restriction

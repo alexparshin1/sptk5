@@ -84,7 +84,7 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
     if (complexTypeElement->hasAttribute("minOccurs"))
         minOccurs = (String) complexTypeElement->getAttribute("minOccurs");
 
-    m_multiplicity = WSM_REQUIRED;
+    m_multiplicity = WSMultiplicity::REQUIRED;
 
     // Relaxed defaults, in case of incomplete or missing multiplicity
     if (minOccurs.empty())
@@ -93,9 +93,9 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
         maxOccurs = "1";
 
     if (minOccurs == "0")
-        m_multiplicity = maxOccurs == "1" ? WSM_OPTIONAL : WSM_ZERO_OR_MORE;
+        m_multiplicity = maxOccurs == "1" ? WSMultiplicity::OPTIONAL : WSMultiplicity::ZERO_OR_MORE;
     else if (minOccurs == "1")
-        m_multiplicity = maxOccurs == "1" ? WSM_REQUIRED : WSM_ONE_OR_MORE;
+        m_multiplicity = maxOccurs == "1" ? WSMultiplicity::REQUIRED : WSMultiplicity::ONE_OR_MORE;
 }
 
 String WSParserComplexType::className() const
@@ -217,7 +217,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
             appendMemberDocumentation(classDeclaration, complexType);
 
             String cxxType = complexType->className();
-            string optional = (complexType->multiplicity() & WSM_OPTIONAL) != 0 ? ", true" : ", false";
+            string optional = ((int)complexType->multiplicity() & (int)WSMultiplicity::OPTIONAL) != 0 ? ", true" : ", false";
             if (complexType->isArray())
                 cxxType = "sptk::WSArray<" + cxxType + ">";
 
@@ -372,7 +372,7 @@ void WSParserComplexType::printImplementationRestrictions(std::ostream& classImp
     Strings requiredElements;
     std::size_t restrictionIndex = 0;
     for (auto& complexType: m_sequence) {
-        if ((complexType->multiplicity() & WSM_REQUIRED) != 0)
+        if (((int)complexType->multiplicity() & (int)WSMultiplicity::REQUIRED) != 0)
             requiredElements.push_back(complexType->name());
         if (!complexType->m_typeName.startsWith("xsd:"))
             continue;
@@ -574,6 +574,6 @@ void WSParserComplexType::ImplementationParts::printImplementationLoadField(Stri
 {
     body << "            m_" << complexType->name() << ".load(element);" << endl;
     body << "            continue;" << endl;
-    if ((complexType->multiplicity() & WSM_REQUIRED) != 0)
+    if (((int)complexType->multiplicity() & (int)WSMultiplicity::REQUIRED) != 0)
         requiredElements.push_back(complexType->name());
 }
