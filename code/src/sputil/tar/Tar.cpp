@@ -185,7 +185,7 @@ void Tar::read(const Buffer& tarData)
     MemoryTarHandle* memHandle = tarMemoryHandle((int) tar->fd);
     if (memHandle == nullptr)
         throw Exception("Can't open the archive", __FILE__, __LINE__);
-    memHandle->sourceBuffer = tarData.data();
+    memHandle->sourceBuffer = const_cast<char*>(tarData.data());
     memHandle->sourceBufferLen = tarData.bytes();
     m_tar = tar;
     while (loadFile()) ;

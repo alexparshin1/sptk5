@@ -56,14 +56,14 @@ bool HttpReader::readStatus()
 
     auto matches = m_matchProtocolAndResponseCode.m(status);
     if (!matches) {
-        m_readerState = READ_ERROR;
+        m_readerState = State::READ_ERROR;
         throw Exception("Broken HTTP version header: [" + status + "]");
     }
     m_statusCode = string2int(matches[1].value);
     if (matches.groups().size() > 2)
         m_statusText = matches[2].value.trim();
 
-    m_readerState = READING_HEADERS;
+    m_readerState = State::READING_HEADERS;
 
     return true;
 }
@@ -92,7 +92,7 @@ void HttpReader::readHttpHeaders()
 
     reset();
 
-    if (m_readMode == RESPONSE) {
+    if (m_readMode == ReadMode::RESPONSE) {
         if (!readStatus())
             throw Exception("Can't read server response");
     } else {
@@ -138,7 +138,7 @@ void HttpReader::readHttpHeaders()
 
     m_contentReceivedLength = 0;
 
-    m_readerState = READING_DATA;
+    m_readerState = State::READING_DATA;
 }
 
 static size_t readAndAppend(TCPSocket& socket, Buffer& output, size_t bytesToRead)
@@ -236,12 +236,12 @@ void HttpReader::read()
 
     lock_guard<mutex> lock(m_mutex);
 
-    if (m_readerState == READY) {
+    if (m_readerState == State::READY) {
         readHttpHeaders();
-        m_readerState = READING_DATA;
+        m_readerState = State::READING_DATA;
     }
 
-    if (m_readerState == READING_DATA && !readData())
+    if (m_readerState == State::READING_DATA && !readData())
         return;
 
     auto itor = m_httpHeaders.find("content-encoding");
@@ -277,7 +277,7 @@ void HttpReader::read()
             m_statusText = "Unknown client error";
     }
 
-    m_readerState = COMPLETED;
+    m_readerState = State::COMPLETED;
 }
 
 HttpHeaders& HttpReader::getHttpHeaders()
@@ -286,7 +286,7 @@ HttpHeaders& HttpReader::getHttpHeaders()
     return m_httpHeaders;
 }
 
-HttpReader::ReaderState HttpReader::getReaderState() const
+HttpReader::State HttpReader::getReaderState() const
 {
     lock_guard<mutex> lock(m_mutex);
     return m_readerState;
@@ -316,7 +316,7 @@ String HttpReader::httpHeader(const String& headerName) const
 
 int HttpReader::readAll(std::chrono::milliseconds timeout)
 {
-    while (getReaderState() < HttpReader::COMPLETED) {
+    while (getReaderState() < HttpReader::State::COMPLETED) {
         if (!m_socket.readyToRead(timeout)) {
             m_socket.close();
             throw Exception("Response read timeout");
@@ -330,7 +330,7 @@ int HttpReader::readAll(std::chrono::milliseconds timeout)
 
 void HttpReader::reset()
 {
-    m_readerState = READY;
+    m_readerState = State::READY;
     m_statusText = "";
     m_statusCode = 0;
     m_contentLength = 0;

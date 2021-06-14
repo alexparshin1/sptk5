@@ -31,19 +31,19 @@ using namespace sptk;
 
 BufferStorage::BufferStorage(const BufferStorage& other)
 {
-    allocate(other.m_buffer, other.m_bytes);
+    allocate(other.m_buffer.data(), other.m_bytes);
 }
 
 BufferStorage::BufferStorage(BufferStorage&& other) noexcept
-: m_buffer(exchange(other.m_buffer, nullptr)),
-  m_size(exchange(other.m_size, 0)),
+: m_buffer(move(other.m_buffer)),
   m_bytes(exchange(other.m_bytes,0))
 {
+    other.m_buffer.resize(1);
 }
 
 BufferStorage::BufferStorage(size_t sz)
 {
-    allocate(sz + 1);
+    allocate(sz);
 }
 
 BufferStorage::BufferStorage(const void* data, size_t sz)
@@ -54,13 +54,8 @@ BufferStorage::BufferStorage(const void* data, size_t sz)
 BufferStorage& BufferStorage::operator=(const BufferStorage& other)
 {
     if (&other != this) {
-        if (m_size < other.m_size) {
-            delete m_buffer;
-            allocate(other.m_bytes + 1);
-        }
+        m_buffer = other.m_buffer;
         m_bytes = other.m_bytes;
-        if (m_bytes > 0)
-            memcpy(m_buffer, other.m_buffer, other.m_bytes + 1);
     }
     return *this;
 }
@@ -68,8 +63,8 @@ BufferStorage& BufferStorage::operator=(const BufferStorage& other)
 BufferStorage& BufferStorage::operator=(BufferStorage&& other) noexcept
 {
     if (&other != this) {
-        m_buffer = exchange(other.m_buffer, nullptr);
-        m_size = exchange(other.m_size, 0);
+        m_buffer = move(other.m_buffer);
+        other.m_buffer.resize(1);
         m_bytes = exchange(other.m_bytes, 0);
     }
     return *this;
@@ -85,12 +80,12 @@ void BufferStorage::adjustSize(size_t sz)
 void BufferStorage::set(const char* data, size_t sz)
 {
     checkSize(sz + 1);
-    if (data != nullptr) {
-        memcpy(m_buffer, data, sz);
-        m_buffer[sz] = 0;
+    if (data != nullptr && sz > 0) {
+        memcpy(m_buffer.data(), data, sz);
         m_bytes = sz;
     } else
         m_bytes = 0;
+    m_buffer[sz] = 0;
 }
 
 void BufferStorage::append(char ch)
@@ -108,7 +103,7 @@ void BufferStorage::append(const char* data, size_t sz)
 
     checkSize(m_bytes + sz + 1);
     if (data != nullptr) {
-        memcpy(m_buffer + m_bytes, data, sz);
+        memcpy(m_buffer.data() + m_bytes, data, sz);
         m_bytes += sz;
         m_buffer[m_bytes] = 0;
     }
@@ -124,7 +119,7 @@ void BufferStorage::reset(size_t sz)
 void BufferStorage::fill(char c, size_t count)
 {
     checkSize(count + 1);
-    memset(m_buffer, c, count);
+    memset(m_buffer.data(), c, count);
     m_bytes = count;
     m_buffer[m_bytes] = 0;
 }
@@ -144,7 +139,7 @@ void BufferStorage::erase(size_t offset, size_t length)
         length = m_bytes - offset;
 
     if (length > 0)
-        memmove(m_buffer + offset, m_buffer + offset + length, moveLength);
+        memmove(m_buffer.data() + offset, m_buffer.data() + offset + length, moveLength);
 
     m_bytes -= length;
     m_buffer[m_bytes] = 0;
@@ -166,7 +161,7 @@ TEST(SPTK_BufferStorage, constructors)
     EXPECT_EQ(testStorage3.length(), size_t(16));
     EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
     EXPECT_EQ(testStorage1.length(), size_t(0));
-    EXPECT_STREQ(testStorage1.c_str(), nullptr);
+    EXPECT_STREQ(testStorage1.c_str(), "");
 }
 
 TEST(SPTK_BufferStorage, assignments)
@@ -183,7 +178,7 @@ TEST(SPTK_BufferStorage, assignments)
     EXPECT_EQ(testStorage3.length(), size_t(16));
     EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
     EXPECT_EQ(testStorage1.length(), size_t(0));
-    EXPECT_STREQ(testStorage1.c_str(), nullptr);
+    EXPECT_STREQ(testStorage1.c_str(), "");
 }
 
 TEST(SPTK_BufferStorage, append)

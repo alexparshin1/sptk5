@@ -56,7 +56,7 @@ public:
     /**
      * Log details constants
      */
-    enum MessageDetail : uint8_t
+    enum class MessageDetail : uint8_t
     {
         SERIAL_ID,
         SOURCE_IP,
@@ -68,7 +68,7 @@ public:
         MAX_MESSAGE_DETAIL
     };
 
-    using MessageDetails = std::set<uint8_t>;
+    using MessageDetails = std::set<MessageDetail>;
 
     /**
      * Default constructor

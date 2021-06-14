@@ -103,7 +103,7 @@ public:
      * The start of un-read data
      * @return
      */
-    char* head() const
+    char* head()
     {
         return data() + m_readOffset;
     }

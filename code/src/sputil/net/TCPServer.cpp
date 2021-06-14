@@ -36,13 +36,13 @@ using namespace std;
 using namespace sptk;
 
 const map<String,LogDetails::MessageDetail> LogDetails::detailNames {
-    { "serial_id", SERIAL_ID },
-    { "source_ip", SOURCE_IP },
-    { "request_name", REQUEST_NAME },
-    { "request_duration", REQUEST_DURATION },
-    { "request_data", REQUEST_DATA },
-    { "response_data", RESPONSE_DATA },
-    { "thread_pooling", THREAD_POOLING }
+    { "serial_id", MessageDetail::SERIAL_ID },
+    { "source_ip", MessageDetail::SOURCE_IP },
+    { "request_name", MessageDetail::REQUEST_NAME },
+    { "request_duration", MessageDetail::REQUEST_DURATION },
+    { "request_data", MessageDetail::REQUEST_DATA },
+    { "response_data", MessageDetail::RESPONSE_DATA },
+    { "thread_pooling", MessageDetail::THREAD_POOLING }
 };
 
 LogDetails::LogDetails(const Strings& details)
@@ -69,7 +69,7 @@ TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* 
 : ThreadPool((uint32_t) threadLimit,
              chrono::minutes(1),
              listenerName,
-             logDetails.has(LogDetails::THREAD_POOLING) ? logEngine : nullptr),
+             logDetails.has(LogDetails::MessageDetail::THREAD_POOLING) ? logEngine : nullptr),
   m_logDetails(logDetails)
 {
     if (logEngine != nullptr)

@@ -493,10 +493,7 @@ protected:
      * @param document          Parent document
      * @param type              Data type
      */
-    ElementGetMethods(Document* document, Type type) noexcept
-            : ElementData(document, type)
-    {
-    }
+    using ElementData::ElementData;
 
     /**
      * Export JSON element to text format

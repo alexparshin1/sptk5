@@ -103,17 +103,23 @@ public:
     /**
      * Destructor
      */
-    virtual ~BufferStorage() noexcept
+    virtual ~BufferStorage()
+    {}
+
+    /**
+     * Returns pointer on the data buffer.
+     */
+    char* data()
     {
-        deallocate();
+        return m_buffer.data();
     }
 
     /**
      * Returns pointer on the data buffer.
      */
-    char* data() const
+    const char* data() const
     {
-        return m_buffer;
+        return m_buffer.data();
     }
 
     /**
@@ -121,7 +127,7 @@ public:
      */
     const char* c_str() const
     {
-        return m_buffer;
+        return m_buffer.data();
     }
 
     /**
@@ -140,7 +146,7 @@ public:
      */
     virtual void checkSize(size_t sz)
     {
-        if (sz >= m_size)
+        if (sz + 1 >= m_buffer.size())
             adjustSize(sz);
     }
 
@@ -164,7 +170,7 @@ public:
         if (data.m_bytes == 0)
             m_bytes = 0;
         else
-            set(data.m_buffer, data.m_bytes);
+            set(data.m_buffer.data(), data.m_bytes);
     }
 
     /**
@@ -184,7 +190,7 @@ public:
      */
     size_t capacity()  const
     {
-        return m_size;
+        return m_buffer.size() - 1;
     }
 
     /**
@@ -215,7 +221,7 @@ public:
     {
         if (m_bytes == b)
             return;
-        if (b < m_size) {
+        if (b + 1 <= m_buffer.size()) {
             m_bytes = b;
             m_buffer[b] = 0;
             return;
@@ -276,10 +282,9 @@ protected:
      */
     void allocate(size_t size)
     {
+        m_buffer.resize(size + 1);
         m_bytes = 0;
-        m_size = size;
-        m_buffer = new char[m_size];
-        memset(m_buffer, 0, size);
+        m_buffer[size] = 0;
     }
 
     /**
@@ -288,11 +293,10 @@ protected:
      */
     void allocate(const void* data, size_t size)
     {
+        m_buffer.resize(size + 1);
         m_bytes = size;
-        m_size = m_bytes + 1;
-        m_buffer = new char[m_size];
         if (data != nullptr && size != 0)
-            memcpy(m_buffer, data, size);
+            memcpy(m_buffer.data(), data, size);
         m_buffer[size] = 0;
     }
 
@@ -302,26 +306,9 @@ protected:
      */
     void reallocate(size_t size)
     {
-        size_t newSize = size + 1;
-        if (newSize == m_size)
-            return;
-
-        auto* ptr = new char[newSize];
-        if (ptr == nullptr)
-            throwException("Out of memory")
-
-        if (m_size < size && size > 0)
-            memcpy(ptr, m_buffer, m_size);
-        else
-            memcpy(ptr, m_buffer, size);
-
-        delete [] m_buffer;
-
-        m_buffer = ptr;
-        m_size = newSize;
+        m_buffer.resize(size + 1);
         if (m_bytes > size)
             m_bytes = size;
-
         m_buffer[size] = 0;
     }
 
@@ -330,24 +317,21 @@ protected:
      */
     void deallocate() noexcept
     {
-        delete [] m_buffer;
-        m_buffer = nullptr;
+        m_buffer.resize(1);
+        m_buffer[0] = 0;
         m_bytes = 0;
-        m_size = 0;
     }
 
     void init(char* data, size_t size, size_t bytes)
     {
-        m_buffer = data;
-        m_size = size;
+        allocate(data, size);
         m_bytes = bytes;
     }
 
 private:
 
-    char*       m_buffer {nullptr};     ///< Actual storage
-    size_t      m_size {0};             ///< Alocated storage size
-    size_t      m_bytes {0};            ///< Actual size of the data in buffer
+    std::vector<char>   m_buffer;         ///< Actual storage
+    size_t              m_bytes {0};      ///< Actual size of the data in buffer
 };
 
 /**

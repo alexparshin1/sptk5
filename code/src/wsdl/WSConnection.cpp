@@ -76,7 +76,7 @@ void WSConnection::processSingleConnection(bool& done)
     requestStopWatch.start();
 
     Buffer contentBuffer;
-    HttpReader httpReader(socket(), contentBuffer, HttpReader::REQUEST);
+    HttpReader httpReader(socket(), contentBuffer, HttpReader::ReadMode::REQUEST);
 
     String protocolName = "http";
     httpReader.readHttpHeaders();
@@ -158,7 +158,7 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
         stringstream logMessage;
         bool listStarted = false;
 
-        if (m_options.logDetails.has(LogDetails::SOURCE_IP)) {
+        if (m_options.logDetails.has(LogDetails::MessageDetail::SOURCE_IP)) {
             auto remoteIp = address();
             auto remoteIpHeader = httpReader.httpHeader("Remote-Ip");
             if (remoteIp == "127.0.0.1" && !remoteIpHeader.empty())
@@ -166,25 +166,25 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
             logMessage << "[" << remoteIp << "] ";
         }
 
-        if (m_options.logDetails.has(LogDetails::REQUEST_NAME)) {
+        if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_NAME)) {
             logMessage << "(" << requestInfo.name << ") ";
         }
 
-        if (m_options.logDetails.has(LogDetails::REQUEST_DURATION)) {
+        if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_DURATION)) {
             if (listStarted)
                 logMessage << ", ";
             listStarted = true;
             logMessage << "duration " << fixed << setprecision(1) << requestStopWatch.seconds() * 1000 << " ms";
         }
 
-        if (m_options.logDetails.has(LogDetails::REQUEST_DATA)) {
+        if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_DATA)) {
             if (listStarted)
                 logMessage << ", ";
             listStarted = true;
             printMessage(logMessage, "IN ", requestInfo.request);
         }
 
-        if (m_options.logDetails.has(LogDetails::RESPONSE_DATA)) {
+        if (m_options.logDetails.has(LogDetails::MessageDetail::RESPONSE_DATA)) {
             if (listStarted)
                 logMessage << ", ";
             printMessage(logMessage, "OUT ", requestInfo.response);
