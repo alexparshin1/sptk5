@@ -62,7 +62,7 @@ void WSComplexType::addElement(json::Element* parent) const
         if (isOptional() && isNull())
             return;
         json::Element* element = nullptr;
-        if (parent->is(json::JDT_ARRAY))
+        if (parent->is(json::Type::ARRAY))
             element = parent->push_back();
         else
             element = parent->set(m_name);
@@ -128,7 +128,7 @@ void WSComplexType::load(const json::Element* input)
 {
     _clear();
     setLoaded(true);
-    if (!input->is(json::JDT_OBJECT))
+    if (!input->is(json::Type::OBJECT))
         return;
 
     // Load elements
@@ -143,7 +143,7 @@ void WSComplexType::load(const json::Element* input)
 
     // Load attributes
     const auto* attributes = input->find("attributes");
-    if (attributes != nullptr && attributes->is(json::JDT_OBJECT)) {
+    if (attributes != nullptr && attributes->is(json::Type::OBJECT)) {
         for (const auto& attribute: attributes->getObject()) {
             auto* field = m_fields.find(attribute.name());
             WSBasicType* outputField = field != nullptr ? dynamic_cast<WSBasicType*>(field) : nullptr;
@@ -239,17 +239,17 @@ void WSComplexType::setAttributes(const map<String, String>& values, json::Eleme
     for (const auto& itor: values) {
         auto valueType = json::Document::dataType(itor.second);
         switch (valueType) {
-            case json::JDT_STRING:
+            case json::Type::STRING:
                 attributes->set(itor.first, itor.second);
                 break;
-            case json::JDT_NUMBER:
+            case json::Type::NUMBER:
                 doubleValue = stod(itor.second);
                 if (doubleValue == (double) long(doubleValue))
                     attributes->set(itor.first, long(doubleValue));
                 else
                     attributes->set(itor.first, doubleValue);
                 break;
-            case json::JDT_BOOLEAN:
+            case json::Type::BOOLEAN:
                 attributes->set(itor.first, itor.second == "true");
                 break;
             default:

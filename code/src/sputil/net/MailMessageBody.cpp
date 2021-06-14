@@ -49,11 +49,11 @@ void MailMessageBody::text(const string& messageText, bool smtp)
         }
     }
     if (upperCase(messageText.substr(0, 100)).find("<HTML>") == STRING_NPOS) {
-        m_type = MMT_PLAIN_TEXT_MESSAGE;
+        m_type = MailMessageType::PLAIN_TEXT_MESSAGE;
         m_plainText = msg;
         m_htmlText = "";
     } else {
-        m_type = MMT_HTML_MESSAGE;
+        m_type = MailMessageType::HTML_MESSAGE;
         m_plainText = stripHtml(msg);
         m_htmlText = msg;
     }

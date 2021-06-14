@@ -51,49 +51,12 @@ using ProgressCallback = std::function<void(int total, int progress)>;
  */
 class SP_EXPORT ImapDS: public MemoryDS
 {
-    /**
-     * IMAP socket connector
-     */
-    ImapConnect         m_imap;
-
-    /**
-     * IMAP folder name
-     */
-    std::string         m_folder;
-
-    /**
-     * IMAP user name
-     */
-    std::string         m_user;
-
-    /**
-     * IMAP user password
-     */
-    std::string         m_password;
-
-    /**
-     * True, if we want to fetch the message headers AND message body
-     */
-    bool                m_fetchbody {false};
-
-    /**
-     * Internal prograssion callback for open()
-     */
-    ProgressCallback    m_callback {nullptr};
-
-    /**
-     * Internal message ID
-     */
-    int                 m_msgid {0};
-
 public:
 
     /**
      * Default constructor
      */
-    ImapDS()
-    : MemoryDS()
-    {}
+    using MemoryDS::MemoryDS;
 
     /**
      * Destructor
@@ -216,6 +179,16 @@ public:
     {
         m_callback = cb;
     }
+
+private:
+
+    ImapConnect         m_imap;     ///< IMAP socket connector
+    std::string         m_folder;   ///< IMAP folder name
+    std::string         m_user;     ///< IMAP user name
+    std::string         m_password; ///< IMAP user password
+    bool                m_fetchbody {false}; ///< Do we want to fetch the message headers AND message body?
+    ProgressCallback    m_callback {nullptr}; ///< Internal prograssion callback for open()
+    int                 m_msgid {0};    ///< Internal message ID
 };
 /**
  * @}

@@ -158,7 +158,7 @@ void BaseSocket::host(const Host& host)
 }
 
 // Connect & disconnect
-void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, std::chrono::milliseconds timeout)
+void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chrono::milliseconds timeout)
 {
     auto timeoutMS = (int) timeout.count();
 
@@ -174,7 +174,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
     string currentOperation;
 
     switch (openMode) {
-        case SOM_CONNECT:
+        case OpenMode::CONNECT:
             currentOperation = "connect";
             if (timeoutMS != 0) {
                 blockingMode(false);
@@ -201,7 +201,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
                 rc = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
             break;
 
-        case SOM_BIND:
+        case OpenMode::BIND:
             if (m_type != SOCK_DGRAM) {
 #ifndef _WIN32
                 setOption(SOL_SOCKET, SO_REUSEPORT, 1);
@@ -230,7 +230,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
     }
 }
 
-void BaseSocket::_open(const Host&, CSocketOpenMode, bool, std::chrono::milliseconds)
+void BaseSocket::_open(const Host&, OpenMode, bool, std::chrono::milliseconds)
 {
     // Override in derived classes
 }
@@ -271,7 +271,7 @@ void BaseSocket::listen(uint16_t portNumber)
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(m_host.port());
 
-    open_addr(SOM_BIND, &addr);
+    open_addr(OpenMode::BIND, &addr);
 }
 
 void BaseSocket::close() noexcept
@@ -471,7 +471,7 @@ TEST(SPTK_BaseSocket, minimal)
     yahoo.getAddress(address);
 
     BaseSocket socket;
-    socket.open_addr(sptk::BaseSocket::SOM_CONNECT, &address);
+    socket.open_addr(sptk::BaseSocket::OpenMode::CONNECT, &address);
     socket.close();
 }
 
@@ -491,7 +491,7 @@ TEST(SPTK_BaseSocket, option)
         SUCCEED() << "Can't get socket option for closed socket";
     }
 
-    socket.open_addr(sptk::BaseSocket::SOM_CONNECT, &address);
+    socket.open_addr(sptk::BaseSocket::OpenMode::CONNECT, &address);
 
     socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
     EXPECT_EQ(value, 0);

@@ -178,14 +178,14 @@ void SSLSocket::initContextAndSocket()
     }
 }
 
-void SSLSocket::_open(const Host& _host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
+void SSLSocket::_open(const Host& _host, OpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
     initContextAndSocket();
 
     TCPSocket::_open(_host, openMode, _blockingMode, timeout);
 }
 
-void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
+void SSLSocket::_open(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
     TCPSocket::_open(address, openMode, _blockingMode, timeout);
 

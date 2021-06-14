@@ -1064,16 +1064,16 @@ void Variant::load(const xml::Node* node)
 void Variant::load(const json::Element* element)
 {
     switch (element->type()) {
-        case json::JDT_NUMBER:
+        case json::Type::NUMBER:
             *this = element->getNumber();
             break;
-        case json::JDT_BOOLEAN:
+        case json::Type::BOOLEAN:
             *this = element->getBoolean();
             break;
-        case json::JDT_NULL:
+        case json::Type::NULL_VALUE:
             setNull();
             break;
-        case json::JDT_STRING:
+        case json::Type::STRING:
             *this = element->getString();
             break;
         default:

@@ -35,11 +35,11 @@ using namespace sptk::json;
 
 void Document::clear()
 {
-    json::Type elementType = JDT_NULL;
+    json::Type elementType = Type::NULL_VALUE;
     if (m_root != nullptr)
         elementType = m_root->type();
 
-    if (elementType == JDT_ARRAY) {
+    if (elementType == Type::ARRAY) {
         auto* arrayData = new ArrayData(this);
         m_root = make_shared<Element>(this, arrayData);
     } else {
@@ -62,7 +62,7 @@ void Document::parse(const String& json)
 }
 
 Document::Document(bool isObject)
-: m_root(createDocumentRoot(isObject ? JDT_OBJECT : JDT_ARRAY)),
+: m_root(createDocumentRoot(isObject ? Type::OBJECT : Type::ARRAY)),
   m_emptyElement(this, "")
 {}
 
@@ -92,7 +92,7 @@ Document::Document(Document&& other) noexcept
 
 std::shared_ptr<Element> Document::createDocumentRoot(Type documentType)
 {
-    if (documentType == JDT_OBJECT) {
+    if (documentType == Type::OBJECT) {
         auto* objectData = new ObjectData(this);
         return make_shared<Element>(this, objectData);
     } else {
@@ -164,18 +164,18 @@ Type Document::dataType(const String& data)
     static const RegularExpression isNumber(R"(^[+\-]?\d+(\.\d*)?(E[+\-]?\d+)?$)", "i");
     static const RegularExpression isBoolean(R"(^(true|false)$)", "i");
 
-    Type type = JDT_STRING;
+    Type type = Type::STRING;
     if (data.empty())
         return type;
 
     if (isalpha(data[0])) {
         if (isBoolean.matches(data))
-            type = JDT_BOOLEAN;
+            type = Type::BOOLEAN;
         else if (data == "null")
-            type = JDT_NULL;
+            type = Type::NULL_VALUE;
     }
     else if (isNumber.matches(data))
-        type = JDT_NUMBER;
+        type = Type::NUMBER;
 
     return type;
 }
@@ -298,7 +298,7 @@ TEST(SPTK_JsonDocument, clear)
 
     document.clear();
     json::Element& root = document.root();
-    EXPECT_TRUE(root.is(JDT_OBJECT));
+    EXPECT_TRUE(root.is(Type::OBJECT));
     EXPECT_FALSE(root.find("address"));
     EXPECT_EQ(root.size(), size_t(0));
 }

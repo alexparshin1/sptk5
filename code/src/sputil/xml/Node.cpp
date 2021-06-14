@@ -516,7 +516,7 @@ void Node::saveElement(json::Element* object) const
         String nodeText;
         for (const auto* np: *this)
             np->save(*object, nodeText);
-        if (object->is(json::JDT_OBJECT)) {
+        if (object->is(json::Type::OBJECT)) {
             setJsonValue(object, nodeText);
         }
     }

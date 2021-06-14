@@ -46,32 +46,13 @@ public:
     /**
      * @brief Thread event type
      */
-    enum Type {
-        /**
-         * Thread started event
-         */
-        THREAD_STARTED,
-
-        /**
-         * Thread finished event
-         */
-        THREAD_FINISHED,
-
-        /**
-         * Runable started
-         */
-        RUNABLE_STARTED,
-
-        /**
-         * Runable finished
-         */
-        RUNABLE_FINISHED,
-
-        /**
-         * Thread was idle longer than defined idle timeout
-         */
-        IDLE_TIMEOUT
-
+    enum class Type: uint8_t
+    {
+        THREAD_STARTED,     ///< Thread started event
+        THREAD_FINISHED,    ///< Thread finished event
+        RUNABLE_STARTED,    ///< Runable started
+        RUNABLE_FINISHED,   ///< Runable finished
+        IDLE_TIMEOUT        ///< Thread was idle longer than defined idle timeout
     };
 
     /**

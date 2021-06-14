@@ -41,7 +41,7 @@ WorkerThread::WorkerThread(SThreadManager threadManager, SynchronizedQueue<Runab
 void WorkerThread::threadFunction()
 {
     if (m_threadEvent != nullptr)
-        m_threadEvent->threadEvent(this, ThreadEvent::THREAD_STARTED, nullptr);
+        m_threadEvent->threadEvent(this, ThreadEvent::Type::THREAD_STARTED, nullptr);
 
     constexpr chrono::seconds oneSecond(1);
     chrono::milliseconds idleSeconds(0);
@@ -55,7 +55,7 @@ void WorkerThread::threadFunction()
             setRunable(runable);
             idleSeconds = chrono::milliseconds(0);
             if (m_threadEvent != nullptr)
-                m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_STARTED, runable);
+                m_threadEvent->threadEvent(this, ThreadEvent::Type::RUNABLE_STARTED, runable);
             try {
                 runable->execute();
             }
@@ -64,12 +64,12 @@ void WorkerThread::threadFunction()
             }
             setRunable(nullptr);
             if (m_threadEvent != nullptr)
-                m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_FINISHED, runable);
+                m_threadEvent->threadEvent(this, ThreadEvent::Type::RUNABLE_FINISHED, runable);
         } else
             ++idleSeconds;
     }
     if (m_threadEvent != nullptr)
-        m_threadEvent->threadEvent(this, ThreadEvent::THREAD_FINISHED, nullptr);
+        m_threadEvent->threadEvent(this, ThreadEvent::Type::THREAD_FINISHED, nullptr);
 }
 
 void WorkerThread::execute(Runable* task)

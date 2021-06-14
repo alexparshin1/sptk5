@@ -176,7 +176,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
 
     message << endl << "--" << boundary << endl;
 
-    if (m_body.type() == MMT_PLAIN_TEXT_MESSAGE) {
+    if (m_body.type() == MailMessageType::PLAIN_TEXT_MESSAGE) {
         message << "Content-Type: text/plain; charset=ISO-8859-1" << endl;
         message << "Content-Transfer-Encoding: 7bit" << endl;
         message << "Content-Disposition: inline" << endl << endl;

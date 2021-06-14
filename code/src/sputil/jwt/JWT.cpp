@@ -107,7 +107,7 @@ JWT::Algorithm JWT::str_alg(const char *alg)
 
 const json::Element* JWT::find_grant(const json::Element *js, const String& key)
 {
-    if (js->is(json::JDT_OBJECT)) {
+    if (js->is(json::Type::OBJECT)) {
         const auto* element = js->find(key);
         return element;
     }
@@ -119,7 +119,7 @@ String JWT::get_js_string(const json::Element *js, const String& key, bool* foun
     if (found)
         *found = false;
     const json::Element *element = find_grant(js, key);
-    if (element != nullptr && element->is(json::JDT_STRING)) {
+    if (element != nullptr && element->is(json::Type::STRING)) {
         if (found)
             *found = true;
         return element->getString();
@@ -132,7 +132,7 @@ long JWT::get_js_int(const json::Element *js, const String& key, bool* found)
     if (found)
         *found = false;
     const json::Element *element = find_grant(js, key);
-    if (element != nullptr && element->is(json::JDT_NUMBER)) {
+    if (element != nullptr && element->is(json::Type::NUMBER)) {
         if (found)
             *found = true;
         return (long) element->getNumber();
@@ -145,7 +145,7 @@ bool JWT::get_js_bool(const json::Element *js, const String& key, bool* found)
     if (found)
         *found = false;
     const json::Element *element = find_grant(js, key);
-    if (element != nullptr && element->is(json::JDT_BOOLEAN)) {
+    if (element != nullptr && element->is(json::Type::BOOLEAN)) {
         if (found)
             *found = true;
         return element->getBoolean();

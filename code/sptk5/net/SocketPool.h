@@ -39,11 +39,12 @@ namespace sptk {
 /**
  * Socket event types
  */
-typedef enum {
-    ET_UNKNOWN_EVENT,       ///< Event is unknown or undefined
-    ET_HAS_DATA,            ///< Socket has data available to read
-    ET_CONNECTION_CLOSED    ///< Peer closed connection
-} SocketEventType;
+enum class SocketEventType: uint8_t
+{
+    UNKNOWN,             ///< Event is unknown or undefined
+    HAS_DATA,            ///< Socket has data available to read
+    CONNECTION_CLOSED    ///< Peer closed connection
+};
 
 /**
  * Type definition of socket event callback function

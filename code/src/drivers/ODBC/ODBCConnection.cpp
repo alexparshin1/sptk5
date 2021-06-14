@@ -61,7 +61,7 @@ protected:
 } // namespace sptk
 
 ODBCConnection::ODBCConnection(const String& connectionString)
-: PoolDatabaseConnection(connectionString, DCT_GENERIC_ODBC)
+: PoolDatabaseConnection(connectionString, DatabaseConnectionType::GENERIC_ODBC)
 {
 }
 
@@ -100,7 +100,7 @@ void ODBCConnection::_openDatabase(const String& newConnectionString)
         String finalConnectionString;
         m_connect->connect(nativeConnectionString(), finalConnectionString, false);
         if (m_connect->driverDescription().find("Microsoft SQL Server") != string::npos)
-            connectionType(DCT_MSSQL_ODBC);
+            connectionType(DatabaseConnectionType::MSSQL_ODBC);
     }
 }
 

@@ -131,7 +131,7 @@ string SmtpConnect::unmime(const string& s)
 void SmtpConnect::cmd_auth(const string& user, const string& password)
 {
     close();
-    open(Host(), SOM_CONNECT, true, chrono::seconds(30));
+    open(Host(), OpenMode::CONNECT, true, chrono::seconds(30));
 
     m_response.clear();
     getResponse();

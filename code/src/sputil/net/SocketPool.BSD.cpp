@@ -130,8 +130,8 @@ void SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
     for (int i = 0; i < eventCount; i++) {
         struct kevent& event = events[i];
         if (event.flags & EV_EOF)
-            m_eventsCallback(event.udata, ET_CONNECTION_CLOSED);
+            m_eventsCallback(event.udata, SocketEventType::CONNECTION_CLOSED);
         else
-            m_eventsCallback(event.udata, ET_HAS_DATA);
+            m_eventsCallback(event.udata, SocketEventType::HAS_DATA);
     }
 }

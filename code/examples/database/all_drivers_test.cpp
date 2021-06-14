@@ -158,7 +158,7 @@ void createTempTable(DatabaseConnection db, const String& tableName)
 
     try {
         createTempTableQuery.exec();
-        if (db->connectionType() == DCT_FIREBIRD)
+        if (db->connectionType() == DatabaseConnectionType::FIREBIRD)
             db->commitTransaction(); // Some databases don't recognize table existense until it is committed
     } catch (const Exception& e) {
         if (strstr(e.what(), " already ") == nullptr)

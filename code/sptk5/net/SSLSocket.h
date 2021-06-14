@@ -128,7 +128,7 @@ protected:
      * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
      * @param timeout               Connection timeout. The default is 0 (wait forever)
      */
-    void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+    void _open(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
      * Opens the client socket connection by host and port
@@ -137,7 +137,7 @@ protected:
      * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
      * @param timeout               Connection timeout. The default is 0 (wait forever)
      */
-    void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+    void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
      * Reads data from SSL socket

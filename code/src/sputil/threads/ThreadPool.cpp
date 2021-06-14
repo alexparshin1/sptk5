@@ -88,10 +88,10 @@ void ThreadPool::execute(Runable* task)
 void ThreadPool::threadEvent(Thread* workerThread, ThreadEvent::Type eventType, Runable*)
 {
     switch (eventType) {
-    case ThreadEvent::RUNABLE_STARTED:
+    case ThreadEvent::Type::RUNABLE_STARTED:
         logThreadEvent("Runable started", workerThread);
         break;
-    case ThreadEvent::RUNABLE_FINISHED:
+    case ThreadEvent::Type::RUNABLE_FINISHED:
         m_availableThreads.post();
         logThreadEvent("Runable finished", workerThread);
         break;

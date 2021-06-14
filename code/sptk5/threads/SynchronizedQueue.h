@@ -88,7 +88,7 @@ public:
      */
     virtual ~SynchronizedQueue()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         delete m_queue;
         m_queue = nullptr;
     }
@@ -103,7 +103,7 @@ public:
      */
     void push(T&& data)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_queue->push(std::move(data));
         m_semaphore.post();
     }
@@ -117,7 +117,7 @@ public:
      */
     void push(const T& data)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_queue->push(data);
         m_semaphore.post();
     }
@@ -133,7 +133,7 @@ public:
     bool pop(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.sleep_for(timeout)) {
-            std::lock_guard<std::mutex> lock(m_mutex);
+            std::scoped_lock lock(m_mutex);
             if (!m_queue->empty()) {
                 item = std::move(m_queue->front());
                 m_queue->pop();
@@ -158,7 +158,7 @@ public:
      */
     bool empty() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_queue->empty();
     }
 
@@ -167,7 +167,7 @@ public:
      */
     size_t size() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_queue->size();
     }
 
@@ -176,7 +176,7 @@ public:
      */
     void clear()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         delete m_queue;
         m_queue = new std::queue<T>;
     }
@@ -192,7 +192,7 @@ public:
      */
     bool each(const CallbackFunction& callbackFunction, void* data=nullptr)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
 
         std::queue<T>* newQueue = new std::queue<T>;
 

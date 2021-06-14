@@ -140,7 +140,7 @@ namespace sptk {
 } // namespace sptk
 
 PostgreSQLConnection::PostgreSQLConnection(const String& connectionString)
-: PoolDatabaseConnection(connectionString, DCT_POSTGRES)
+: PoolDatabaseConnection(connectionString, DatabaseConnectionType::POSTGRES)
 {
 }
 

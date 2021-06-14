@@ -134,7 +134,7 @@ const SSLKeys& TCPServer::getSSLKeys() const
 
 void TCPServer::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable)
 {
-    if (eventType == RUNABLE_FINISHED) {
+    if (eventType == Type::RUNABLE_FINISHED) {
         delete runable;
         runable = nullptr;
     }

@@ -33,9 +33,9 @@ String InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const Str
                                 const String& idFieldName)
 {
     switch (connectionType) {
-        case DCT_POSTGRES:
+        case DatabaseConnectionType::POSTGRES:
             return sql + " RETURNING " + idFieldName;
-        case DCT_ORACLE:
+        case DatabaseConnectionType::ORACLE:
             return sql + " RETURNING " + idFieldName + " INTO :last_id";
         default:
             break;
@@ -60,7 +60,7 @@ void InsertQuery::exec()
     m_id = 0;
     switch ( database()->connectionType() ) {
 
-    case DCT_ORACLE:
+    case DatabaseConnectionType::ORACLE:
         param("last_id").setOutput();
         param("last_id").setNull(VAR_INT);
         open();
@@ -68,13 +68,13 @@ void InsertQuery::exec()
         close();
         break;
 
-    case DCT_POSTGRES:
+    case DatabaseConnectionType::POSTGRES:
         open();
         m_id = (uint64_t) (*this)[0].asInteger();
         close();
         break;
 
-    case DCT_MYSQL:
+    case DatabaseConnectionType::MYSQL:
         Query::exec();
         if (!m_lastInsertedId)
             m_lastInsertedId = make_shared<Query>(database(),"SELECT LAST_INSERT_ID()");
@@ -82,7 +82,7 @@ void InsertQuery::exec()
         m_id = (uint64_t) (*m_lastInsertedId)[0].asInteger();
         m_lastInsertedId->close();
         break;
-    case DCT_MSSQL_ODBC:
+    case DatabaseConnectionType::MSSQL_ODBC:
         Query::exec();
         if (!m_lastInsertedId)
             m_lastInsertedId = make_shared<Query>(database(),"SELECT @@IDENTITY");

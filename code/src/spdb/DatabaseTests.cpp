@@ -354,14 +354,14 @@ void DatabaseTests::createTestTableWithSerial(DatabaseConnection db)
     String idDefinition;
 
     switch (db->connectionType()) {
-        case DCT_MYSQL:
-        case DCT_POSTGRES:
+        case DatabaseConnectionType::MYSQL:
+        case DatabaseConnectionType::POSTGRES:
             idDefinition = "id serial";
             break;
-        case DCT_MSSQL_ODBC:
+        case DatabaseConnectionType::MSSQL_ODBC:
             idDefinition = "id int identity";
             break;
-        case DCT_ORACLE:
+        case DatabaseConnectionType::ORACLE:
             idDefinition = "id int";
             break;
         default:
@@ -384,7 +384,7 @@ void DatabaseTests::createTestTableWithSerial(DatabaseConnection db)
 
     createTable.exec();
 
-    if (db->connectionType() == DCT_ORACLE)
+    if (db->connectionType() == DatabaseConnectionType::ORACLE)
         createOracleAutoIncrement(db, "gtest_temp_table2", "id");
 
     InsertQuery query(db, "INSERT INTO gtest_temp_table2(name) VALUES(:name)");
@@ -537,7 +537,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     DatabaseConnection db = connectionPool.getConnection();
     createTestTable(db);
 
-    if (db->connectionType() == DCT_POSTGRES) {
+    if (db->connectionType() == DatabaseConnectionType::POSTGRES) {
         Query testNumeric(db, "SELECT (20/1000000.0)::numeric(8,6)");
         testNumeric.open();
         String numeric = testNumeric[size_t(0)].asString();

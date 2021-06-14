@@ -241,7 +241,7 @@ TCPSocket::~TCPSocket()
     TCPSocket::close();
 }
 
-void TCPSocket::_open(const Host& _host, CSocketOpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
+void TCPSocket::_open(const Host& _host, OpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
 {
     if (!_host.hostname().empty())
         host(_host);
@@ -259,7 +259,7 @@ void TCPSocket::_open(const Host& _host, CSocketOpenMode openMode, bool _blockin
     }
 }
 
-void TCPSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode,
+void TCPSocket::_open(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
                       chrono::milliseconds timeoutMS)
 {
     open_addr(openMode, &address, timeoutMS);

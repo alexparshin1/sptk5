@@ -40,18 +40,10 @@ namespace sptk
 /**
  * Defines the type of the mail message
  */
-enum MailMessageType
+enum class MailMessageType : uint8_t
 {
-    /**
-     * Message has plain text only
-     */
-    MMT_PLAIN_TEXT_MESSAGE,
-
-    /**
-     * Message has plain text and HTML parts
-     */
-    MMT_HTML_MESSAGE
-
+    PLAIN_TEXT_MESSAGE,     ///< Message has plain text only
+    HTML_MESSAGE            ///< Message has plain text and HTML parts
 };
 
 /**
@@ -68,7 +60,7 @@ public:
      */
     MailMessageBody()
     {
-        m_type = MMT_PLAIN_TEXT_MESSAGE;
+        m_type = MailMessageType::PLAIN_TEXT_MESSAGE;
     }
     /**
      * Sets the message text.

@@ -88,11 +88,11 @@ public:
     /**
     * A mode to open a socket, one of
     */
-    enum CSocketOpenMode : uint8_t
+    enum class OpenMode : uint8_t
     {
-        SOM_CREATE,     ///< Only create (Typical UDP connectionless socket)
-        SOM_CONNECT,    ///< Connect (Typical TCP connection socket)
-        SOM_BIND        ///< Bind (TCP listener)
+        CREATE,     ///< Only create (Typical UDP connectionless socket)
+        CONNECT,    ///< Connect (Typical TCP connection socket)
+        BIND        ///< Bind (TCP listener)
     };
 
     /**
@@ -109,7 +109,7 @@ public:
      * @param addr              Defines socket address/port information
      * @param timeout           Connection timeout. If 0 then wait forever.
      */
-    void open_addr(CSocketOpenMode openMode = SOM_CREATE, const sockaddr_in* addr = nullptr, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
+    void open_addr(OpenMode openMode = OpenMode::CREATE, const sockaddr_in* addr = nullptr, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
 
     /**
      * Constructor
@@ -194,7 +194,7 @@ public:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
      */
-    void open(const Host& host = Host(), CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true,
+    void open(const Host& host = Host(), OpenMode openMode = OpenMode::CONNECT, bool blockingMode = true,
               std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {
         _open(host, openMode, blockingMode, timeoutMS);
@@ -207,7 +207,7 @@ public:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
      */
-    void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT,
+    void open(const struct sockaddr_in& address, OpenMode openMode = OpenMode::CONNECT,
               bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {
         _open(address, openMode, blockingMode, timeoutMS);
@@ -397,7 +397,7 @@ protected:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
      */
-    virtual void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS);
+    virtual void _open(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS);
 
     /**
      * Opens the client socket connection by host and port
@@ -406,7 +406,7 @@ protected:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
      */
-    virtual void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
+    virtual void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
     {
         // Implement in derived class
     }

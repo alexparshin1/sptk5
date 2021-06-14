@@ -48,16 +48,16 @@ class Query;
 /**
  * Database connection type
  */
-enum DatabaseConnectionType : uint16_t
+enum class DatabaseConnectionType : uint16_t
 {
-    DCT_UNKNOWN=0,          ///< Unknown
-    DCT_MYSQL=1,            ///< MySQL
-    DCT_ORACLE=2,           ///< Oracle
-    DCT_POSTGRES=4,         ///< PostgreSQL
-    DCT_SQLITE3=8,          ///< SQLite3
-    DCT_FIREBIRD=16,        ///< Firebird
-    DCT_GENERIC_ODBC=32,    ///< Generic ODBC
-    DCT_MSSQL_ODBC=64       ///< MS SQL ODBC
+    UNKNOWN=0,          ///< Unknown
+    MYSQL=1,            ///< MySQL
+    ORACLE=2,           ///< Oracle
+    POSTGRES=4,         ///< PostgreSQL
+    SQLITE3=8,          ///< SQLite3
+    FIREBIRD=16,        ///< Firebird
+    GENERIC_ODBC=32,    ///< Generic ODBC
+    MSSQL_ODBC=64       ///< MS SQL ODBC
 };
 
 /**

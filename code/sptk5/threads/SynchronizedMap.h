@@ -87,7 +87,7 @@ public:
      */
     virtual void insert(const K& key, const T& data)
     {
-        std::lock_guard<std::mutex> lock(m_sync);
+        std::scoped_lock lock(m_sync);
         m_map.emplace(key, data);
     }
 
@@ -101,7 +101,7 @@ public:
      */
     virtual bool get(const K& key, T& item, bool remove=false)
     {
-        std::lock_guard<std::mutex> lock(m_sync);
+        std::scoped_lock lock(m_sync);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
             return false;
@@ -119,7 +119,7 @@ public:
      */
     virtual bool remove(const K& key)
     {
-        std::lock_guard<std::mutex> lock(m_sync);
+        std::scoped_lock lock(m_sync);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
             return false;
@@ -132,7 +132,7 @@ public:
      */
     bool empty() const
     {
-        std::lock_guard<std::mutex> lock(m_sync);
+        std::scoped_lock lock(m_sync);
         return m_map.empty();
     }
 
@@ -141,7 +141,7 @@ public:
      */
     size_t size() const
     {
-        std::lock_guard<std::mutex> lock(m_sync);
+        std::scoped_lock lock(m_sync);
         return m_map.size();
     }
 
@@ -150,7 +150,7 @@ public:
      */
     void clear()
     {
-        std::lock_guard<std::mutex> lock(m_sync);
+        std::scoped_lock lock(m_sync);
         m_map.clear();
     }
 
@@ -161,7 +161,7 @@ public:
      */
     bool for_each(CallbackFunction callbackFunction)
     {
-        std::lock_guard<std::mutex> lock(m_sync);
+        std::scoped_lock lock(m_sync);
         for (auto itor: m_map) {
             if (!callbackFunction(itor.first, itor.second))
                 return false;

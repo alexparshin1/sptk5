@@ -48,7 +48,7 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
     bool proxyConnected = false;
     for (const auto& method: methods) {
         try {
-            socket->open(m_host, BaseSocket::SOM_CONNECT, blockingMode, timeout);
+            socket->open(m_host, BaseSocket::OpenMode::CONNECT, blockingMode, timeout);
             sendRequest(destination, socket, method);
 
             String error("Proxy connection timeout");
@@ -244,7 +244,7 @@ TEST(SPTK_HttpProxy, connect)
             socket = make_shared<SSLSocket>();
 
         socket->setProxy(move(httpProxy));
-        socket->open(ahost, BaseSocket::SOM_CONNECT, true, seconds(5));
+        socket->open(ahost, BaseSocket::OpenMode::CONNECT, true, seconds(5));
 
         HttpConnect http(*socket);
 

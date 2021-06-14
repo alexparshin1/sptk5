@@ -85,17 +85,17 @@ void Parser::parse(Element& jsonElement, const String& jsonStr)
     const char* pos = json;
     skipSpaces(json, pos);
 
-    if (!jsonElement.is(JDT_NULL))
+    if (!jsonElement.is((int)Type::NULL_VALUE))
         throwError("Can't execute on non-null JSON element", json, 0);
 
     switch (*pos) {
         case '{':
-            jsonElement.setType(JDT_OBJECT);
+            jsonElement.setType(Type::OBJECT);
             jsonElement.m_data.set_object(new ObjectData(jsonElement.getDocument(), &jsonElement));
             readObjectData(&jsonElement, json, pos);
             break;
         case '[':
-            jsonElement.m_type = JDT_ARRAY;
+            jsonElement.m_type = Type::ARRAY;
             jsonElement.m_data.set_array(new ArrayData(jsonElement.getDocument(), &jsonElement));
             readArrayData(&jsonElement, json, pos);
             break;

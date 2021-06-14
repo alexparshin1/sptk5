@@ -133,9 +133,9 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout) const
     for (int i = 0; i < eventCount && m_pool != INVALID_EPOLL; ++i) {
         epoll_event& event = events[i];
         if ((event.events & (EPOLLHUP | EPOLLRDHUP)) != 0)
-            m_eventsCallback(event.data.ptr, ET_CONNECTION_CLOSED);
+            m_eventsCallback(event.data.ptr, SocketEventType::CONNECTION_CLOSED);
         else
-            m_eventsCallback(event.data.ptr, ET_HAS_DATA);
+            m_eventsCallback(event.data.ptr, SocketEventType::HAS_DATA);
     }
 }
 

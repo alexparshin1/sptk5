@@ -47,14 +47,14 @@ using ElementSet = std::vector<Element*>;
 /**
  * JSON Element type
  */
-enum Type
+enum class Type : uint8_t
 {
-    JDT_NUMBER = 1,
-    JDT_STRING = 2,
-    JDT_BOOLEAN = 4,
-    JDT_ARRAY = 8,
-    JDT_OBJECT = 16,
-    JDT_NULL = 32
+    NUMBER = 1,
+    STRING = 2,
+    BOOLEAN = 4,
+    ARRAY = 8,
+    OBJECT = 16,
+    NULL_VALUE = 32
 };
 
 class ArrayData;
@@ -92,24 +92,34 @@ public:
     /**
      * Clear JSON element.
      * Releases memory allocated by string, array, or object data,
-     * and sets the type to JDT_NULL.
+     * and sets the type to Type::NULL.
      */
     void clear() noexcept;
 
     /**
      * Get number of elements in array or object.
-     * Returns 0 for not { JDT_ARRAY, JDT_OBJECT }
+     * Returns 0 for not { Type::ARRAY, Type::OBJECT }
      */
     [[nodiscard]] size_t size() const;
 
     /**
      * Element type check
-     * @param type              Type or types bit combination
-     * @return true if element is a number
+     * @param types              Type or types bit combination
+     * @return true if element is one of the types
      */
-    [[nodiscard]] bool is(size_t type) const
+    [[nodiscard]] bool is(int types) const
     {
-        return (m_type & type) != 0;
+        return ((int)m_type & types) != 0;
+    }
+
+    /**
+     * Element type check
+     * @param type              Type
+     * @return true if element is of the type
+     */
+    [[nodiscard]] bool is(Type type) const
+    {
+        return (m_type == type) != 0;
     }
 
     /**
@@ -383,10 +393,10 @@ protected:
 
 private:
 
-    Document*   m_document {nullptr};   ///< Parent JSON document
-    Element*    m_parent {nullptr};     ///< Parent JSON element
-    Type        m_type {JDT_NULL};      ///< JSON element type
-    Data        m_data;                 ///< JSON element data
+    Document*   m_document {nullptr};       ///< Parent JSON document
+    Element*    m_parent {nullptr};         ///< Parent JSON element
+    Type        m_type {Type::NULL_VALUE};  ///< JSON element type
+    Data        m_data;                     ///< JSON element data
     void selectArrayElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition);
 
     void selectObjectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly,
