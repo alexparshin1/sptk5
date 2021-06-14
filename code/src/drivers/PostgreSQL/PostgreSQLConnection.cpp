@@ -197,12 +197,12 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
             throw DatabaseException(error);
         }
 
-        if (m_timestampsFormat == PG_UNKNOWN_TIMESTAMPS) {
+        if (m_timestampsFormat == TimestampFormat::UNKNOWN) {
             const char* val = PQparameterStatus(m_connect, "integer_datetimes");
             if (upperCase(val) == "ON")
-                m_timestampsFormat = PG_INT64_TIMESTAMPS;
+                m_timestampsFormat = TimestampFormat::INT64;
             else
-                m_timestampsFormat = PG_DOUBLE_TIMESTAMPS;
+                m_timestampsFormat = TimestampFormat::DOUBLE;
         }
     }
 }
@@ -284,7 +284,7 @@ void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
     querySetStmt(query,
-                 new PostgreSQLStatement(m_timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
+                 new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64, query->autoPrepare()));
 }
 
 void PostgreSQLConnection::queryFreeStmt(Query* query)
@@ -323,7 +323,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     lock_guard<mutex> lock(m_mutex);
 
     querySetStmt(query,
-                 new PostgreSQLStatement(m_timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
+                 new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64, query->autoPrepare()));
 
     auto* statement = (PostgreSQLStatement*) query->statement();
 
@@ -799,7 +799,7 @@ static void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::
 
                 case PG_TIMESTAMPTZ:
                 case PG_TIMESTAMP:
-                    output << readTimestamp(data, timestampFormat == PostgreSQLConnection::PG_INT64_TIMESTAMPS).dateString();
+                    output << readTimestamp(data, timestampFormat == PostgreSQLConnection::TimestampFormat::INT64).dateString();
                     break;
 
                 default:
@@ -902,7 +902,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
                     case PG_TIMESTAMPTZ:
                     case PG_TIMESTAMP:
-                        field->setDateTime(readTimestamp(data, m_timestampsFormat == PG_INT64_TIMESTAMPS));
+                        field->setDateTime(readTimestamp(data, m_timestampsFormat == TimestampFormat::INT64));
                         break;
 
                     case PG_CHAR_ARRAY:

@@ -578,4 +578,3 @@ using SQuery = std::shared_ptr<Query>;
 constexpr int FETCH_BUFFER_SIZE = 1024;
 
 }
-

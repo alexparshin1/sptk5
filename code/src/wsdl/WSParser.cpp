@@ -380,7 +380,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
             << "bind(&" << serviceClassName << "::process_" << requestName << ", this, _1, _2, _3, _4)}," << endl;
     }
     serviceImplementation << "    };" << endl;
-    serviceImplementation << "    m_requestMethods = move(requestMethods);" << endl;
+    serviceImplementation << "    setRequestMethods(move(requestMethods));" << endl;
     serviceImplementation << "}" << endl << endl;
 
     serviceImplementation << endl <<

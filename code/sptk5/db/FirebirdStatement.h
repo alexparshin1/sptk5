@@ -203,18 +203,18 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~FirebirdStatement();
+    ~FirebirdStatement() override;
 
     /**
      * @brief Generates normalized list of parameters
      * @param queryParams QueryParameterList&, Standard query parameters
      */
-    void enumerateParams(QueryParameterList& queryParams);
+    void enumerateParams(QueryParameterList& queryParams) override;
 
     /**
      * @brief Sets actual parameter values for the statement execution
      */
-    void setParameterValues();
+    void setParameterValues() override;
 
     /**
      * @brief Prepares Firebird statement
@@ -225,7 +225,7 @@ public:
     /**
      * @brief Executes statement
      */
-    void execute(bool);
+    void execute(bool) override;
 
     /**
      * @brief Binds statement result metadata to query fields
@@ -242,12 +242,12 @@ public:
     /**
      * @brief Closes statement and releases allocated resources
      */
-    void close();
+    void close() override;
 
     /**
      * @brief Fetches next record
      */
-    void fetch();
+    void fetch() override;
 };
 
 }

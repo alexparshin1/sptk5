@@ -59,9 +59,9 @@ class SP_EXPORT PostgreSQLConnection: public PoolDatabaseConnection
 
 public:
 
-    enum TimestampFormat
+    enum class TimestampFormat: uint8_t
     {
-        PG_UNKNOWN_TIMESTAMPS, PG_DOUBLE_TIMESTAMPS, PG_INT64_TIMESTAMPS
+        UNKNOWN, DOUBLE, INT64
     };
 
     /**
@@ -257,7 +257,7 @@ private:
 
     mutable std::mutex      m_mutex;                                    ///< Mutex that protects access to data members
     PGconn*                 m_connect {nullptr};                        ///< PostgreSQL database connection
-    TimestampFormat         m_timestampsFormat {PG_UNKNOWN_TIMESTAMPS}; ///< Connection timestamp format
+    TimestampFormat         m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format
 };
 
 /**
