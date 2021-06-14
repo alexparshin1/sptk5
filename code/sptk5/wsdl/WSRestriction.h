@@ -39,7 +39,8 @@ namespace sptk {
     {
     public:
 
-        enum Type {
+        enum class Type: uint8_t
+        {
             Unknown,
             Enumeration,
             Pattern
@@ -95,10 +96,10 @@ namespace sptk {
 
     private:
 
-        Type                            m_type { Unknown }; ///< Restriction type
-        String                          m_wsdlTypeName;     ///< WSDL type name
-        Strings                         m_enumeration;      ///< List of enumerations if any
-        std::vector<RegularExpression>  m_patterns;         ///< Patterns
+        Type                            m_type { Type::Unknown }; ///< Restriction type
+        String                          m_wsdlTypeName;           ///< WSDL type name
+        Strings                         m_enumeration;            ///< List of enumerations if any
+        std::vector<RegularExpression>  m_patterns;               ///< Patterns
     };
 
     using SWSRestriction = std::shared_ptr<WSRestriction>;

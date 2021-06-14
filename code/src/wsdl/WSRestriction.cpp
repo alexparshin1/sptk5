@@ -41,7 +41,7 @@ WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElemen
     }
 
     if (!m_enumeration.empty()) {
-        m_type = Enumeration;
+        m_type = Type::Enumeration;
     } else {
         xml::NodeVector patternNodes;
         simpleTypeElement->select(patternNodes, "xsd:restriction/xsd:pattern");
@@ -49,7 +49,7 @@ WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElemen
             patternNode = dynamic_cast<xml::Element*>(patternNode);
             String pattern = patternNode->getAttribute("value").asString().replace(R"(\\)", R"(\)");
             if (!pattern.empty())
-                m_type = Pattern;
+                m_type = Type::Pattern;
             m_patterns.emplace_back(pattern);
         }
     }
@@ -59,14 +59,14 @@ WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const String
 : m_type(type), m_wsdlTypeName(wsdlTypeName)
 {
     if (enumerationsOrPatterns.empty()) {
-        m_type = Unknown;
+        m_type = Type::Unknown;
         return;
     }
 
-    if (type == Enumeration) {
+    if (type == Type::Enumeration) {
         m_enumeration = enumerationsOrPatterns;
     }
-    else if (type == Pattern) {
+    else if (type == Type::Pattern) {
         for (auto& pattern: enumerationsOrPatterns)
             m_patterns.emplace_back(pattern);
     }
@@ -74,11 +74,11 @@ WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const String
 
 void WSRestriction::check(const String& typeName, const String& value) const
 {
-    if (m_type == Enumeration) {
+    if (m_type == Type::Enumeration) {
         if (m_enumeration.indexOf(value) >= 0)
             return;
     }
-    else if (m_type == Pattern) {
+    else if (m_type == Type::Pattern) {
         for (auto& pattern: m_patterns) {
             RegularExpression regex(pattern);
             if (regex.matches(value))
@@ -97,11 +97,11 @@ String sptk::WSRestriction::generateConstructor(const String& variableName) cons
     Strings      patterns;
 
     switch (m_type) {
-        case Enumeration:
+        case Type::Enumeration:
             str << "WSRestriction " << variableName << "(WSRestriction::Enumeration, \"" << m_wsdlTypeName << "\", "
                 << "{ \"" << m_enumeration.join("\", \"") << "\" })";
             break;
-        case Pattern:
+        case Type::Pattern:
             for (auto& regex: m_patterns)
                 patterns.push_back(regex.pattern());
             str << "WSRestriction " << variableName << "(WSRestriction::Pattern, \"" << m_wsdlTypeName << "\", "
