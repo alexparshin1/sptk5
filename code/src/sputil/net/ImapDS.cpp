@@ -26,6 +26,7 @@
 
 #include <sptk5/net/ImapDS.h>
 
+using namespace std;
 using namespace sptk;
 
 // read the folder() and move item into the first entry
@@ -49,18 +50,18 @@ bool ImapDS::open()
         if (m_callback != nullptr)
             m_callback(total_messages, 0);
         for (long msg_id = first_message; msg_id <= total_messages; ++msg_id) {
-            auto* df = new FieldList(false);
+            FieldList df(false);
 
             if (m_fetchbody)
-                m_imap.cmd_fetch_message((int32_t) msg_id, *df);
-            else m_imap.cmd_fetch_headers((int32_t) msg_id, *df);
+                m_imap.cmd_fetch_message((int32_t) msg_id, df);
+            else m_imap.cmd_fetch_headers((int32_t) msg_id, df);
 
             auto* fld = new Field("msg_id");
             fld->view().width = 0;
             fld->setInteger((int32_t) msg_id);
-            df->push_back(fld);
+            df.push_back(fld);
 
-            push_back(df);
+            push_back(move(df));
 
             if (m_callback != nullptr)
                 m_callback(total_messages, (int) msg_id);

@@ -247,7 +247,9 @@ private:
      *
      * @param other             Other field list
      */
-    void assign(const FieldList& other);};
+    void assign(const FieldList& other);
+};
+
 }
 
 /**

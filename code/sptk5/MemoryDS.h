@@ -107,7 +107,7 @@ public:
     virtual FieldList& current()
     {
         UniqueLock(m_mutex);
-        return *(*m_current);
+        return *m_current;
     }
 
     /**
@@ -196,12 +196,12 @@ public:
 
     bool empty() const;
 
-    std::vector<FieldList*>& rows()
+    std::vector<FieldList>& rows()
     {
         return m_list;
     }
 
-    const std::vector<FieldList*>& rows() const
+    const std::vector<FieldList>& rows() const
     {
         return m_list;
     }
@@ -211,13 +211,13 @@ public:
      * Memory DS takes ownership of the data
      * @param fieldList         Field list
      */
-    void push_back(FieldList* fieldList);
+    void push_back(FieldList&& fieldList);
 
 private:
 
     mutable SharedMutex                 m_mutex;
-    std::vector<FieldList*>             m_list;     // List of the dataset records
-    std::vector<FieldList*>::iterator   m_current;  // DS iterator
+    std::vector<FieldList>              m_list;     // List of the dataset records
+    std::vector<FieldList>::iterator    m_current;  // DS iterator
 };
 /**
  * @}

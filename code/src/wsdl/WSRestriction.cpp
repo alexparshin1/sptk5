@@ -79,8 +79,7 @@ void WSRestriction::check(const String& typeName, const String& value) const
             return;
     }
     else if (m_type == Type::Pattern) {
-        for (auto& pattern: m_patterns) {
-            RegularExpression regex(pattern);
+        for (const auto& regex: m_patterns) {
             if (regex.matches(value))
                 return;
         }

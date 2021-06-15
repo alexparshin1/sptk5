@@ -135,12 +135,12 @@ bool DirectoryDS::open()
 
     if ((showPolicy() & DDS_HIDE_DOT_FILES) == 0) {
         for (const String& dirName: { ".", ".." }) {
-            auto* df = new FieldList(false);
-            df->push_back(" ", false).setImageNdx((uint32_t)CSmallPixmapType::SXPM_FOLDER);
-            df->push_back("Name", false) = dirName;
-            df->push_back("Size", false) = "";
-            df->push_back("Type", false) = "Directory";
-            push_back(df);
+            FieldList df(false);
+            df.push_back(" ", false).setImageNdx((uint32_t)CSmallPixmapType::SXPM_FOLDER);
+            df.push_back("Name", false) = dirName;
+            df.push_back("Size", false) = "";
+            df.push_back("Type", false) = "Directory";
+            push_back(move(df));
             ++index;
         }
     }
@@ -162,7 +162,7 @@ bool DirectoryDS::open()
                 continue;
         }
 
-        push_back(makeFileListEntry(file, index));
+        push_back(move(*makeFileListEntry(file, index)));
     }
 
     first();

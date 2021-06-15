@@ -34,7 +34,7 @@ Field& MemoryDS::operator[](const String& field_name)
     UniqueLock(m_mutex);
     if (m_current == m_list.end())
         throw Exception("At the end of the data");
-    auto& row = *(*m_current);
+    auto& row = *m_current;
     return row[field_name];
 }
 
@@ -51,7 +51,7 @@ size_t MemoryDS::fieldCount() const
     SharedLock(m_mutex);
     if (m_current == m_list.end())
         throw Exception("At the end of the data");
-    return (*m_current)->size();
+    return m_current->size();
 }
 
 // access to the field by number, 0..field.size()-1
@@ -60,7 +60,7 @@ Field& MemoryDS::operator[](size_t index)
     SharedLock(m_mutex);
     if (m_current == m_list.end())
         throw Exception("At the end of the data");
-    auto& row = *(*m_current);
+    auto& row = *m_current;
     return row[(int)index];
 }
 
@@ -159,7 +159,7 @@ bool MemoryDS::find(const String& fieldName, const Variant& position)
 
     String value = position.asString();
     for (auto itor = m_list.begin(); itor != m_list.end(); ++itor) {
-        FieldList& entry = *(*itor);
+        FieldList& entry = *itor;
         if (entry[fieldName].asString() == value) {
             m_current = itor;
             return true;
@@ -173,17 +173,15 @@ void MemoryDS::clear()
 {
     UniqueLock(m_mutex);
 
-    for (auto* row: m_list)
-        delete row;
     m_list.clear();
 
     m_current = m_list.end();
 }
 
-void MemoryDS::push_back(FieldList* fieldList)
+void MemoryDS::push_back(FieldList&& fieldList)
 {
     UniqueLock(m_mutex);
-    m_list.push_back(fieldList);
+    m_list.push_back(move(fieldList));
     if (m_list.size() == 1)
         m_current = m_list.begin();
 }
@@ -216,17 +214,17 @@ TEST(SPTK_MemoryDS, createAndVerify)
     EXPECT_TRUE(ds.empty());
 
     for (const auto& person: people) {
-        auto* row = new FieldList(false);
+        FieldList row(false);
 
         auto* name = new Field("name");
         *name = person.name;
-        row->push_back(name);
+        row.push_back(name);
 
         auto* age = new Field("age");
         *age = person.age;
-        row->push_back(age);
+        row.push_back(age);
 
-        ds.push_back(row);
+        ds.push_back(move(row));
     }
 
     EXPECT_EQ(ds.recordCount(), size_t(3));

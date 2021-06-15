@@ -71,6 +71,15 @@ class MatchData;
  */
 class SP_EXPORT RegularExpression
 {
+
+#if HAVE_PCRE2
+    using PCREHandle = pcre2_code;      ///< Compiled PCRE expression handle
+    using PCREExtraHandle = void*;      ///< Dummy
+#else
+    using PCREHandle = pcre;            ///< Compiled PCRE expression handle
+    using PCREExtraHandle = pcre_extra; ///< Compiled PCRE expression optimization (for faster execution)
+#endif
+
 public:
 
     /**
@@ -202,14 +211,14 @@ public:
     /**
      * Destructor
      */
-    virtual ~RegularExpression();
+    virtual ~RegularExpression() = default;
 
     /**
      * Copy assignment
      * @param other             Other regular expression
      * @return this reference
      */
-    RegularExpression& operator =(const RegularExpression& other);
+    RegularExpression& operator =(const RegularExpression& other) = default;
 
     /**
      * Returns true if text matches with regular expression
@@ -301,20 +310,15 @@ public:
 
 private:
 
-    String                  m_pattern;              ///< Match pattern
-    bool                    m_global {false};       ///< Global match (g) or first match only
-    String                  m_error;                ///< Last pattern error (if any)
+    String                              m_pattern;        ///< Match pattern
+    bool                                m_global {false}; ///< Global match (g) or first match only
+    String                              m_error;          ///< Last pattern error (if any)
 
-#if HAVE_PCRE2
-    pcre2_code*             m_pcre {nullptr};       ///< Compiled PCRE expression handle
-    void*                   m_pcreExtra {nullptr};  ///< Dummy
-#else
-    pcre*                   m_pcre {nullptr};       ///< Compiled PCRE expression handle
-    pcre_extra*             m_pcreExtra {nullptr};  ///< Compiled PCRE expression optimization (for faster execution)
-#endif
+    std::shared_ptr<PCREHandle>         m_pcre;           ///< Compiled PCRE expression handle
+    std::shared_ptr<PCREExtraHandle>    m_pcreExtra;      ///< Compiled PCRE expression optimization (for faster execution)
 
-    uint32_t                m_options {0};          ///< PCRE pattern options
-    std::atomic<size_t>     m_captureCount {0};   ///< RE' capture count
+    uint32_t                            m_options {0};    ///< PCRE pattern options
+    std::atomic<size_t>                 m_captureCount {0}; ///< RE' capture count
 
     /**
      * Initialize PCRE expression

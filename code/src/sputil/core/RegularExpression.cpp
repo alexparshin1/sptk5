@@ -86,9 +86,9 @@ size_t RegularExpression::getCaptureCount() const
     int captureCount = 0;
 
 #if HAVE_PCRE2
-    int rc = pcre2_pattern_info(m_pcre, PCRE2_INFO_CAPTURECOUNT, &captureCount);
+    int rc = pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_CAPTURECOUNT, &captureCount);
 #else
-    int rc = pcre_fullinfo(m_pcre, m_pcreExtra, PCRE_INFO_CAPTURECOUNT, &captureCount);
+    int rc = pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_CAPTURECOUNT, &captureCount);
 #endif
     if (rc != 0)
         captureCount = 0;
@@ -124,7 +124,7 @@ void RegularExpression::compile()
     int errornumber {0};
     PCRE2_SIZE erroroffset {0};
 
-    m_pcre = pcre2_compile(
+    auto* pcre = pcre2_compile(
             (PCRE2_SPTR) m_pattern.c_str(),     // the pattern
             PCRE2_ZERO_TERMINATED,              // indicates pattern is zero-terminated
             m_options,                          // options
@@ -138,19 +138,34 @@ void RegularExpression::compile()
         pcre2_get_error_message(errornumber, buffer, sizeof(buffer));
         throw Exception((const char*) buffer);
     }
+
+    m_pcre = shared_ptr<PCREHandle>(pcre,
+                                    [](auto* pcre) {
+                                        pcre2_code_free(pcre);
+                                    });
+
 #else
     const char* error = nullptr;
     int errorOffset = 0;
-    m_pcre = pcre_compile(m_pattern.c_str(), m_options, &error, &errorOffset, nullptr);
+
+    auto* pcre = pcre_compile(m_pattern.c_str(), m_options, &error, &errorOffset, nullptr);
+    m_pcre = shared_ptr<PCREHandle>(pcre,
+                                    [](auto* pcre) {
+                                        pcre_free(pcre);
+                                    });
+
     if (!m_pcre)
         m_error = "PCRE pattern error at pattern offset " + int2string(errorOffset) + ": " + string(error);
 #if PCRE_MAJOR > 7
     else {
-        m_pcreExtra = pcre_study(m_pcre, 0, &error);
-        if (!m_pcreExtra && error) {
-            pcre_free(m_pcre);
-            m_pcre = nullptr;
+        auto* pcreExtra = pcre_study(m_pcre.get(), 0, &error);
+        if (!pcreExtra && error) {
             m_error = "PCRE pattern study error : " + string(error);
+        } else {
+            m_pcreExtra = shared_ptr<PCREExtraHandle>(pcreExtra,
+                                                      [](auto* study) {
+                                                          pcre_free_study(study);
+                                                      });
         }
     }
 #endif
@@ -186,35 +201,8 @@ RegularExpression::RegularExpression(String pattern, const String& options)
 }
 
 RegularExpression::RegularExpression(const RegularExpression& other)
-: m_pattern(other.m_pattern), m_options(other.m_options)
-{
-    compile();
-}
-
-RegularExpression::~RegularExpression()
-{
-#if HAVE_PCRE2
-    if (m_pcre)
-        pcre2_code_free(m_pcre);
-#else
-#if PCRE_MAJOR > 7
-    if (m_pcreExtra)
-        pcre_free_study(m_pcreExtra);
-#endif
-    if (m_pcre)
-        pcre_free(m_pcre);
-#endif
-}
-
-RegularExpression& RegularExpression::operator = (const RegularExpression& other)
-{
-    if (this != &other) {
-        m_pattern = other.m_pattern;
-        m_options = other.m_options;
-        compile();
-    }
-    return *this;
-}
+: m_pattern(other.m_pattern), m_pcre(other.m_pcre), m_pcreExtra(other.m_pcreExtra), m_options(other.m_options)
+{}
 
 size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchData& matchData) const
 {
@@ -224,7 +212,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
     auto ovector = pcre2_get_ovector_pointer(matchData.match_data);
 
     auto rc = pcre2_match(
-            m_pcre,                     // the compiled pattern
+            m_pcre.get(),               // the compiled pattern
             (PCRE2_SPTR)text.c_str(),   // the subject string
             text.length(),              // the length of the subject
             offset,                     // start at offset in the subject
@@ -248,9 +236,10 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
     return rc >= 0;
 #else
     int rc = pcre_exec(
-            m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0,
+            m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
             (pcre_offset_t*) matchData.matches,
             (pcre_offset_t) matchData.maxMatches * 2);
+
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
 
@@ -275,21 +264,21 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 bool RegularExpression::operator==(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_captureCount);
+    MatchData matchData(m_pcre.get(), m_captureCount);
     return nextMatch(text, offset, matchData) > 0;
 }
 
 bool RegularExpression::operator!=(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_captureCount);
+    MatchData matchData(m_pcre.get(), m_captureCount);
     return nextMatch(text, offset, matchData) == 0;
 }
 
 bool RegularExpression::matches(const String& text) const
 {
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_captureCount);
+    MatchData matchData(m_pcre.get(), m_captureCount);
     size_t matchCount = nextMatch(text, offset, matchData);
     return matchCount > 0;
 }
@@ -298,7 +287,7 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
 {
     Groups matchedStrings;
 
-    MatchData matchData(m_pcre, m_captureCount);
+    MatchData matchData(m_pcre.get(), m_captureCount);
     size_t totalMatches = 0;
 
     bool first {true};
@@ -364,11 +353,11 @@ void RegularExpression::getNameTable(const char*& nameTable, int& nameEntrySize)
 {
     nameEntrySize= 0;
 #if HAVE_PCRE2
-    pcre2_pattern_info(m_pcre, PCRE2_INFO_NAMETABLE, &nameTable);
-    pcre2_pattern_info(m_pcre, PCRE2_INFO_NAMEENTRYSIZE, &nameEntrySize);
+    pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMETABLE, &nameTable);
+    pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMEENTRYSIZE, &nameEntrySize);
 #else
-    pcre_fullinfo(m_pcre, m_pcreExtra, PCRE_INFO_NAMETABLE, &nameTable);
-    pcre_fullinfo(m_pcre, m_pcreExtra, PCRE_INFO_NAMEENTRYSIZE, &nameEntrySize);
+    pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_NAMETABLE, &nameTable);
+    pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_NAMEENTRYSIZE, &nameEntrySize);
 #endif
 }
 
@@ -379,7 +368,7 @@ size_t RegularExpression::getNamedGroupCount() const
 #if HAVE_PCRE2
     int rc = pcre2_pattern_info(m_pcre, PCRE2_INFO_NAMECOUNT, &nameCount);
 #else
-    int rc = pcre_fullinfo(m_pcre, m_pcreExtra, PCRE_INFO_NAMECOUNT, &nameCount);
+    int rc = pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_NAMECOUNT, &nameCount);
 #endif
     if (rc != 0)
         nameCount = 0;
@@ -392,7 +381,7 @@ Strings RegularExpression::split(const String& text) const
     Strings matchedStrings;
 
     size_t offset = 0;
-    MatchData matchData(m_pcre, m_captureCount);
+    MatchData matchData(m_pcre.get(), m_captureCount);
 
     pcre_offset_t lastMatchEnd = 0;
     do {
@@ -417,7 +406,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    MatchData matchData(m_pcre, m_captureCount);
+    MatchData matchData(m_pcre.get(), m_captureCount);
     string result;
 
     replaced = false;
@@ -474,7 +463,7 @@ String RegularExpression::s(const String& text, const std::function<String(const
 {
     size_t offset = 0;
     size_t lastOffset = 0;
-    MatchData matchData(m_pcre, m_captureCount);
+    MatchData matchData(m_pcre.get(), m_captureCount);
     string result;
 
     replaced = false;
