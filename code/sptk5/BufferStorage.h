@@ -321,7 +321,7 @@ protected:
         m_bytes = 0;
     }
 
-    void init(char* data, size_t size, size_t bytes)
+    void init(const char* data, size_t size, size_t bytes)
     {
         allocate(data, size);
         m_bytes = bytes;

@@ -5,15 +5,15 @@ using namespace std;
 using namespace sptk;
 using namespace test_service;
 
-const sptk::Strings& CLogin::fieldNames(WSFieldIndex::FieldGroup group)
+const sptk::Strings& CLogin::fieldNames(WSFieldIndex::Group group)
 {
     static const Strings _fieldNames { "username", "password", "servers", "project", "server_count", "type" };
     static const Strings _elementNames { "username", "password", "servers", "project" };
     static const Strings _attributeNames { "server_count", "type" };
 
     switch (group) {
-        case WSFieldIndex::ELEMENTS: return _elementNames;
-        case WSFieldIndex::ATTRIBUTES: return _attributeNames;
+        case WSFieldIndex::Group::ELEMENTS: return _elementNames;
+        case WSFieldIndex::Group::ATTRIBUTES: return _attributeNames;
         default: break;
     }
 
@@ -23,8 +23,8 @@ const sptk::Strings& CLogin::fieldNames(WSFieldIndex::FieldGroup group)
 CLogin::CLogin(const char* elementName, bool optional) noexcept
 : WSComplexType(elementName, optional)
 {
-    WSComplexType::setElements(fieldNames(WSFieldIndex::ELEMENTS), {&m_username, &m_password, &m_servers, &m_project});
-    WSComplexType::setAttributes(fieldNames(WSFieldIndex::ATTRIBUTES), {&m_server_count, &m_type});
+    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_username, &m_password, &m_servers, &m_project});
+    WSComplexType::setAttributes(fieldNames(WSFieldIndex::Group::ATTRIBUTES), {&m_server_count, &m_type});
 }
 
 CLogin::CLogin(const CLogin& other)
@@ -34,8 +34,8 @@ CLogin::CLogin(const CLogin& other)
   m_servers(other.m_servers),
   m_project(other.m_project)
 {
-    WSComplexType::setElements(fieldNames(WSFieldIndex::ELEMENTS), {&m_username, &m_password, &m_servers, &m_project});
-    WSComplexType::setAttributes(fieldNames(WSFieldIndex::ATTRIBUTES), {&m_server_count, &m_type});
+    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_username, &m_password, &m_servers, &m_project});
+    WSComplexType::setAttributes(fieldNames(WSFieldIndex::Group::ATTRIBUTES), {&m_server_count, &m_type});
 }
 
 CLogin::CLogin(CLogin&& other) noexcept
@@ -45,8 +45,8 @@ CLogin::CLogin(CLogin&& other) noexcept
   m_servers(std::move(other.m_servers)),
   m_project(std::move(other.m_project))
 {
-    WSComplexType::setElements(fieldNames(WSFieldIndex::ELEMENTS), {&m_username, &m_password, &m_servers, &m_project});
-    WSComplexType::setAttributes(fieldNames(WSFieldIndex::ATTRIBUTES), {&m_server_count, &m_type});
+    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_username, &m_password, &m_servers, &m_project});
+    WSComplexType::setAttributes(fieldNames(WSFieldIndex::Group::ATTRIBUTES), {&m_server_count, &m_type});
 }
 
 CLogin& CLogin::operator = (const CLogin& other)

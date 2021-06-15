@@ -240,7 +240,7 @@ protected:
     /**
      * @return true if object is loaded
      */
-    const bool loaded() const
+    bool loaded() const
     {
         return m_loaded;
     }

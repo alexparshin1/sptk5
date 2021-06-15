@@ -132,7 +132,7 @@ void RegularExpression::compile()
             &erroroffset,                       // for error offset
             nullptr);                           // use default compile context
 
-    if (m_pcre == nullptr)
+    if (pcre == nullptr)
     {
         PCRE2_UCHAR buffer[256];
         pcre2_get_error_message(errornumber, buffer, sizeof(buffer));
@@ -366,7 +366,7 @@ size_t RegularExpression::getNamedGroupCount() const
     int nameCount = 0;
 
 #if HAVE_PCRE2
-    int rc = pcre2_pattern_info(m_pcre, PCRE2_INFO_NAMECOUNT, &nameCount);
+    int rc = pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMECOUNT, &nameCount);
 #else
     int rc = pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_NAMECOUNT, &nameCount);
 #endif

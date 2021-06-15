@@ -61,7 +61,7 @@ public:
      */
     MYSQL* connection() const
     {
-        return m_connection;
+        return m_connection.get();
     }
 
     /**
@@ -95,11 +95,6 @@ public:
     MySQLConnection(MySQLConnection&&) = delete;
     MySQLConnection& operator= (const MySQLConnection&) = delete;
     MySQLConnection& operator= (MySQLConnection&&) = delete;
-
-    /**
-     * @brief Destructor
-     */
-    ~MySQLConnection() override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -208,8 +203,8 @@ protected:
 
 private:
 
-    MYSQL*                      m_connection {nullptr}; ///< MySQL database connection
-    mutable std::mutex          m_mutex;                ///< Mutex that protects access to data members
+    std::shared_ptr<MYSQL>      m_connection; ///< MySQL database connection
+    mutable std::mutex          m_mutex;      ///< Mutex that protects access to data members
 
     /**
      * @brief Init connection to MySQL server
@@ -222,7 +217,7 @@ private:
     void executeCommand(const String& command);
 };
 
-#define throwMySQLException(info) throw DatabaseException(string(info) + ":" + string(mysql_error(m_connection)))
+#define throwMySQLException(info) throw DatabaseException(string(info) + ":" + string(mysql_error(m_connection.get())))
 
 /**
  * @}

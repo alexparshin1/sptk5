@@ -64,11 +64,6 @@ public:
     ServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, const String& taskName);
 
     /**
-     * Destructor
-     */
-    ~ServerConnection() override;
-
-    /**
      * Access to internal socket for derived classes
      * @return internal socket
      */
@@ -104,11 +99,11 @@ protected:
 
 private:
 
-    mutable std::mutex  m_mutex;
-    TCPServer&          m_server;            ///< Parent server object
-    TCPSocket*          m_socket {nullptr};  ///< Connection socket
-    String              m_address;           ///< Incoming connection IP address
-    size_t              m_serial {0};        ///< Connection serial number
+    mutable std::mutex          m_mutex;
+    TCPServer&                  m_server;            ///< Parent server object
+    std::shared_ptr<TCPSocket>  m_socket {nullptr};  ///< Connection socket
+    String                      m_address;           ///< Incoming connection IP address
+    size_t                      m_serial {0};        ///< Connection serial number
 
     /**
      * Create next connection serial number

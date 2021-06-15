@@ -128,7 +128,7 @@ static void parsePathElement(const string& pathElementStr, XPathElement& pathEle
 
     pathElement.elementName = "";
     pathElement.attributeName = "";
-    pathElement.axis = XPA_CHILD;
+    pathElement.axis = XPathAxis::CHILD;
 
     if (!pathElementOption.empty()) {
         pathElement.criteria = pathElementOption;
@@ -136,9 +136,9 @@ static void parsePathElement(const string& pathElementStr, XPathElement& pathEle
     }
 
     if (pathElementType.startsWith("descendant"))
-        pathElement.axis = XPA_DESCENDANT;
+        pathElement.axis = XPathAxis::DESCENDANT;
     else if (pathElementType.startsWith("parent"))
-        pathElement.axis = XPA_PARENT;
+        pathElement.axis = XPathAxis::PARENT;
 
     if (pathElementName[0] == '@')
         pathElement.attributeName = pathElementName.c_str() + 1;
@@ -194,7 +194,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const Node* thisNode, NodeVector&
             if ((node->type() & (Node::DOM_DOCUMENT | Node::DOM_ELEMENT)) != 0)
                 scanDescendents(node, nodes, pathElements, pathPosition, starPointer);
         } else {
-            if (pathElement.axis == XPA_DESCENDANT)
+            if (pathElement.axis == XPathAxis::DESCENDANT)
                 scanDescendents(node, nodes, pathElements, pathPosition, starPointer);
         }
     }

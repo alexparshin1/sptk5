@@ -5,15 +5,15 @@ using namespace std;
 using namespace sptk;
 using namespace test_service;
 
-const sptk::Strings& CHelloResponse::fieldNames(WSFieldIndex::FieldGroup group)
+const sptk::Strings& CHelloResponse::fieldNames(WSFieldIndex::Group group)
 {
     static const Strings _fieldNames { "date_of_birth", "verified", "retired", "hour_rate", "vacation_days", "height" };
     static const Strings _elementNames { "date_of_birth", "verified", "retired", "hour_rate", "vacation_days", "height" };
     static const Strings _attributeNames { "" };
 
     switch (group) {
-        case WSFieldIndex::ELEMENTS: return _elementNames;
-        case WSFieldIndex::ATTRIBUTES: return _attributeNames;
+        case WSFieldIndex::Group::ELEMENTS: return _elementNames;
+        case WSFieldIndex::Group::ATTRIBUTES: return _attributeNames;
         default: break;
     }
 
@@ -23,7 +23,7 @@ const sptk::Strings& CHelloResponse::fieldNames(WSFieldIndex::FieldGroup group)
 CHelloResponse::CHelloResponse(const char* elementName, bool optional) noexcept
 : WSComplexType(elementName, optional)
 {
-    WSComplexType::setElements(fieldNames(WSFieldIndex::ELEMENTS), {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
+    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
 }
 
 CHelloResponse::CHelloResponse(const CHelloResponse& other)
@@ -35,7 +35,7 @@ CHelloResponse::CHelloResponse(const CHelloResponse& other)
   m_vacation_days(other.m_vacation_days),
   m_height(other.m_height)
 {
-    WSComplexType::setElements(fieldNames(WSFieldIndex::ELEMENTS), {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
+    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
 }
 
 CHelloResponse::CHelloResponse(CHelloResponse&& other) noexcept
@@ -47,7 +47,7 @@ CHelloResponse::CHelloResponse(CHelloResponse&& other) noexcept
   m_vacation_days(std::move(other.m_vacation_days)),
   m_height(std::move(other.m_height))
 {
-    WSComplexType::setElements(fieldNames(WSFieldIndex::ELEMENTS), {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
+    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
 }
 
 CHelloResponse& CHelloResponse::operator = (const CHelloResponse& other)

@@ -84,18 +84,13 @@ private:
 MySQLStatement::MySQLStatement(MySQLConnection* connection, String sql, bool autoPrepare)
 : DatabaseStatement<MySQLConnection,MYSQL_STMT>(connection), m_sql(move(sql))
 {
-    if (autoPrepare)
-        statement(mysql_stmt_init((MYSQL*)connection->handle()));
-    else
+    if (autoPrepare) {
+        auto* stmt = mysql_stmt_init((MYSQL*) connection->handle());
+        m_stmt = shared_ptr<MYSQL_STMT>(stmt, [](auto* stmt) { mysql_stmt_close(stmt); });
+        statement(m_stmt.get());
+    } else {
         statement(nullptr); // direct execution
-}
-
-MySQLStatement::~MySQLStatement()
-{
-    if (statement() != nullptr)
-       mysql_stmt_close(statement());
-    if (m_result != nullptr)
-        mysql_free_result(m_result);
+    }
 }
 
 void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType)
@@ -299,25 +294,26 @@ void MySQLStatement::MySQLStatement::prepare(const String& sql) const
 void MySQLStatement::execute(bool)
 {
     state().eof = false;
-    if (m_result != nullptr) {
-        mysql_free_result(m_result);
-        m_result = nullptr;
-    }
+    m_result.reset();
     if (statement() != nullptr) {
         if (mysql_stmt_execute(statement()) != 0)
             throwMySQLError();
         state().columnCount = mysql_stmt_field_count(statement());
-        if (state().columnCount != 0U)
-            m_result = mysql_stmt_result_metadata(statement());
+        if (state().columnCount != 0U) {
+            auto* result = mysql_stmt_result_metadata(statement());
+            m_result = shared_ptr<MYSQL_RES>(result, [](auto* result) { mysql_free_result(result); });
+        }
     } else {
-        MYSQL* conn = connection()->m_connection;
+        MYSQL* conn = connection()->m_connection.get();
         if (mysql_query(conn, m_sql.c_str()) != 0) {
             string error = mysql_error(conn);
             throw DatabaseException(error);
         }
         state().columnCount = mysql_field_count(conn);
-        if (state().columnCount != 0U)
-            m_result = mysql_store_result(conn);
+        if (state().columnCount != 0U) {
+            auto* result = mysql_store_result(conn);
+            m_result = shared_ptr<MYSQL_RES>(result, [](auto* result) { mysql_free_result(result); });
+        }
     }
 }
 
@@ -329,7 +325,7 @@ void MySQLStatement::bindResult(FieldList& fields)
 
     String columnName;
     for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex) {
-        const MYSQL_FIELD *fieldMetadata = mysql_fetch_field(m_result);
+        const MYSQL_FIELD *fieldMetadata = mysql_fetch_field(m_result.get());
         if (fieldMetadata == nullptr)
             throwMySQLError();
 
@@ -417,7 +413,7 @@ void MySQLStatement::readResultRow(FieldList& fields)
 void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
 {
     auto        fieldCount = (int) fields.size();
-    const auto* lengths = mysql_fetch_lengths(m_result);
+    const auto* lengths = mysql_fetch_lengths(m_result.get());
 
     for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex) {
 
@@ -583,8 +579,7 @@ void MySQLStatement::close()
         // Read all the results until EOF
         while (!state().eof)
             fetch();
-        mysql_free_result(m_result);
-        m_result = nullptr;
+        m_result.reset();
     }
 }
 
@@ -606,9 +601,9 @@ void MySQLStatement::fetch()
             throwMySQLError();
         }
     } else {
-        m_row = mysql_fetch_row(m_result);
+        m_row = mysql_fetch_row(m_result.get());
         if (m_row == nullptr) {
-            auto err = mysql_errno(connection()->m_connection);
+            auto err = mysql_errno(connection()->m_connection.get());
             if (err != 0)
                 throwMySQLError();
             state().eof = true;

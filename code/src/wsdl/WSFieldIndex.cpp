@@ -70,16 +70,21 @@ WSType* WSFieldIndex::find(const String& name) const
     return nullptr;
 }
 
-void WSFieldIndex::forEach(const function<bool(WSType*)>& method, FieldGroup fieldType)
+inline bool fieldTypeHas(WSFieldIndex::Group fieldType, WSFieldIndex::Group checkFor)
 {
-    if ((fieldType & ELEMENTS) == ELEMENTS) {
+    return ((int)fieldType & (int)checkFor) != 0;
+}
+
+void WSFieldIndex::forEach(const function<bool(WSType*)>& method, Group fieldType)
+{
+    if (fieldTypeHas(fieldType, Group::ELEMENTS)) {
         for (auto* field: m_elements) {
             if (!method(field))
                 return;
         }
     }
 
-    if ((fieldType & ATTRIBUTES) == ATTRIBUTES) {
+    if (fieldTypeHas(fieldType, Group::ATTRIBUTES)) {
         for (auto* field: m_attributes) {
             if (!method(field))
                 return;
@@ -87,16 +92,16 @@ void WSFieldIndex::forEach(const function<bool(WSType*)>& method, FieldGroup fie
     }
 }
 
-void WSFieldIndex::forEach(const function<bool(const WSType*)>& method, FieldGroup fieldType) const
+void WSFieldIndex::forEach(const function<bool(const WSType*)>& method, Group fieldType) const
 {
-    if ((fieldType & ELEMENTS) == ELEMENTS) {
+    if (fieldTypeHas(fieldType, Group::ELEMENTS)) {
         for (const auto* field: m_elements) {
             if (!method(field))
                 return;
         }
     }
 
-    if ((fieldType & ATTRIBUTES) == ATTRIBUTES) {
+    if (fieldTypeHas(fieldType, Group::ATTRIBUTES)) {
         for (const auto* field: m_attributes) {
             if (!method(field))
                 return;

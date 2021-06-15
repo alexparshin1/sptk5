@@ -64,7 +64,7 @@ public:
     * @param group              Field group: elements, attributes, or both
     * @return list of fields as Strings
     */
-   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::FieldGroup group);
+   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
 
 private:
 

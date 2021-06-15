@@ -5,15 +5,15 @@ using namespace std;
 using namespace sptk;
 using namespace test_service;
 
-const sptk::Strings& CHello::fieldNames(WSFieldIndex::FieldGroup group)
+const sptk::Strings& CHello::fieldNames(WSFieldIndex::Group group)
 {
     static const Strings _fieldNames { "action", "first_name", "last_name" };
     static const Strings _elementNames { "action", "first_name", "last_name" };
     static const Strings _attributeNames { "" };
 
     switch (group) {
-        case WSFieldIndex::ELEMENTS: return _elementNames;
-        case WSFieldIndex::ATTRIBUTES: return _attributeNames;
+        case WSFieldIndex::Group::ELEMENTS: return _elementNames;
+        case WSFieldIndex::Group::ATTRIBUTES: return _attributeNames;
         default: break;
     }
 
@@ -23,7 +23,7 @@ const sptk::Strings& CHello::fieldNames(WSFieldIndex::FieldGroup group)
 CHello::CHello(const char* elementName, bool optional) noexcept
 : WSComplexType(elementName, optional)
 {
-    WSComplexType::setElements(fieldNames(WSFieldIndex::ELEMENTS), {&m_action, &m_first_name, &m_last_name});
+    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_action, &m_first_name, &m_last_name});
 }
 
 CHello::CHello(const CHello& other)
@@ -32,7 +32,7 @@ CHello::CHello(const CHello& other)
   m_first_name(other.m_first_name),
   m_last_name(other.m_last_name)
 {
-    WSComplexType::setElements(fieldNames(WSFieldIndex::ELEMENTS), {&m_action, &m_first_name, &m_last_name});
+    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_action, &m_first_name, &m_last_name});
 }
 
 CHello::CHello(CHello&& other) noexcept
@@ -41,7 +41,7 @@ CHello::CHello(CHello&& other) noexcept
   m_first_name(std::move(other.m_first_name)),
   m_last_name(std::move(other.m_last_name))
 {
-    WSComplexType::setElements(fieldNames(WSFieldIndex::ELEMENTS), {&m_action, &m_first_name, &m_last_name});
+    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_action, &m_first_name, &m_last_name});
 }
 
 CHello& CHello::operator = (const CHello& other)

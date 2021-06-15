@@ -162,7 +162,8 @@ bool DirectoryDS::open()
                 continue;
         }
 
-        push_back(move(*makeFileListEntry(file, index)));
+        auto entry = makeFileListEntry(file, index);
+        push_back(move(entry));
     }
 
     first();
@@ -170,7 +171,7 @@ bool DirectoryDS::open()
     return !empty();
 }
 
-FieldList* DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index) const
+FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index) const
 {
     CSmallPixmapType pixmapType = CSmallPixmapType::SXPM_TXT_DOCUMENT;
     DateTime         modificationTime;
@@ -179,23 +180,24 @@ FieldList* DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& i
     if (is_symlink(file.status()))
         modeName += " symlink";
 
-    auto* df = new FieldList(false);
-    df->push_back(" ", false).setImageNdx((uint32_t)pixmapType);
-    df->push_back("Name", false) = file.path().filename().string();
+    FieldList df(false);
+    df.push_back(" ", false).setImageNdx((uint32_t)pixmapType);
+    df.push_back("Name", false) = file.path().filename().string();
     if (modeName == "Directory")
-        df->push_back("Size", false) = "";
+        df.push_back("Size", false) = "";
     else
-        df->push_back("Size", false) = (int64_t) file_size(file.path());
-    df->push_back("Type", false) = modeName;
+        df.push_back("Size", false) = (int64_t) file_size(file.path());
+    df.push_back("Type", false) = modeName;
 
-    df->push_back("Modified", false) = modificationTime;
-    df->push_back("", false) = (int32_t) index; // Fake key value
+    df.push_back("Modified", false) = modificationTime;
+    df.push_back("", false) = (int32_t) index; // Fake key value
     ++index;
 
     if (access(file.path().filename().string().c_str(), R_OK) != 0) {
-        (*df)[uint32_t(0)].view().flags = FL_ALIGN_LEFT;
-        (*df)[uint32_t(1)].view().flags = FL_ALIGN_LEFT;
+        df[uint32_t(0)].view().flags = FL_ALIGN_LEFT;
+        df[uint32_t(1)].view().flags = FL_ALIGN_LEFT;
     }
+
     return df;
 }
 

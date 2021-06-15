@@ -277,7 +277,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "    * @param group              Field group: elements, attributes, or both" << endl;
     classDeclaration << "    * @return list of fields as Strings" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::FieldGroup group);" << endl;
+    classDeclaration << "   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);" << endl;
 
     classDeclaration << endl;
 
@@ -311,9 +311,9 @@ void WSParserComplexType::generateSetFieldIndex(ostream& classDeclaration, const
                                                 const Strings& attributeNames) const
 {
     if (!elementNames.empty())
-        classDeclaration << "    WSComplexType::setElements(fieldNames(WSFieldIndex::ELEMENTS), {&m_" << elementNames.join(", &m_") << "});" << endl;
+        classDeclaration << "    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_" << elementNames.join(", &m_") << "});" << endl;
     if (!attributeNames.empty())
-        classDeclaration << "    WSComplexType::setAttributes(fieldNames(WSFieldIndex::ATTRIBUTES), {&m_" << attributeNames.join(", &m_") << "});" << endl;
+        classDeclaration << "    WSComplexType::setAttributes(fieldNames(WSFieldIndex::Group::ATTRIBUTES), {&m_" << attributeNames.join(", &m_") << "});" << endl;
 }
 
 void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strings& fieldNames,
@@ -451,14 +451,14 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 
     classImplementation << "using namespace " << serviceNamespace << ";" << endl << endl;
 
-    classImplementation << "const sptk::Strings& " << className << "::fieldNames(WSFieldIndex::FieldGroup group)" << endl;
+    classImplementation << "const sptk::Strings& " << className << "::fieldNames(WSFieldIndex::Group group)" << endl;
     classImplementation << "{" << endl;
     classImplementation << "    static const Strings _fieldNames { \"" << fieldNames.join("\", \"") << "\" };" << endl;
     classImplementation << "    static const Strings _elementNames { \"" << elementNames.join("\", \"") << "\" };" << endl;
     classImplementation << "    static const Strings _attributeNames { \"" << attributeNames.join("\", \"") << "\" };" << endl << endl;
     classImplementation << "    switch (group) {" << endl;
-    classImplementation << "        case WSFieldIndex::ELEMENTS: return _elementNames;" << endl;
-    classImplementation << "        case WSFieldIndex::ATTRIBUTES: return _attributeNames;" << endl;
+    classImplementation << "        case WSFieldIndex::Group::ELEMENTS: return _elementNames;" << endl;
+    classImplementation << "        case WSFieldIndex::Group::ATTRIBUTES: return _attributeNames;" << endl;
     classImplementation << "        default: break;" << endl;
     classImplementation << "    }" << endl << endl;
     classImplementation << "    return _fieldNames;" << endl;

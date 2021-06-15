@@ -197,14 +197,14 @@ void WSComplexType::unload(xml::Node* output) const
         if (!field->isNull())
             output->setAttribute(field->name(), field->asString());
         return true;
-    }, WSFieldIndex::ATTRIBUTES);
+    }, WSFieldIndex::Group::ATTRIBUTES);
 
     // Unload elements
     fields.forEach([&output](const WSType* field)
     {
         field->addElement(output);
         return true;
-    }, WSFieldIndex::ELEMENTS);
+    }, WSFieldIndex::Group::ELEMENTS);
 }
 
 void WSComplexType::unload(json::Element* output) const
@@ -219,7 +219,7 @@ void WSComplexType::unload(json::Element* output) const
             if (!field->isNull())
                 values[field->name()] = field->asString();
             return true;
-        }, WSFieldIndex::ATTRIBUTES);
+        }, WSFieldIndex::Group::ATTRIBUTES);
         if (!values.empty()) {
             auto* attributes = output->add_object("attributes");
             setAttributes(values, attributes);
@@ -230,7 +230,7 @@ void WSComplexType::unload(json::Element* output) const
     fields.forEach([&output](const WSType* field) {
         field->addElement(output);
         return true;
-    }, WSFieldIndex::ELEMENTS);
+    }, WSFieldIndex::Group::ELEMENTS);
 }
 
 void WSComplexType::setAttributes(const map<String, String>& values, json::Element* attributes) const
@@ -268,5 +268,5 @@ void WSComplexType::unload(QueryParameterList& output) const
             WSComplexType::unload(output, inputField->name().c_str(), inputField);
         }
         return true;
-    }, WSFieldIndex::ELEMENTS_AND_ATTRIBUTES);
+    }, WSFieldIndex::Group::ELEMENTS_AND_ATTRIBUTES);
 }

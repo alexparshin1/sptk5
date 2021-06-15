@@ -36,28 +36,19 @@ MySQLConnection::MySQLConnection(const String& connectionString)
 {
 }
 
-MySQLConnection::~MySQLConnection()
-{
-    try {
-        if (getInTransaction() && MySQLConnection::active())
-            rollbackTransaction();
-        disconnectAllQueries();
-        close();
-    } catch (const Exception& e) {
-        CERR(e.what() << endl)
-    }
-}
-
 void MySQLConnection::initConnection()
 {
     static std::mutex libraryInitMutex;
 
     scoped_lock lock(libraryInitMutex);
-    m_connection = mysql_init(m_connection);
+    m_connection = shared_ptr<MYSQL>(mysql_init(nullptr),
+                                     [](auto* connection) {
+                                         mysql_close(connection);
+                                     });
     if (m_connection == nullptr)
         throw DatabaseException("Can't initialize MySQL environment");
-    mysql_options(m_connection, MYSQL_SET_CHARSET_NAME, "utf8");
-    mysql_options(m_connection, MYSQL_INIT_COMMAND, "SET NAMES utf8");
+    mysql_options(m_connection.get(), MYSQL_SET_CHARSET_NAME, "utf8");
+    mysql_options(m_connection.get(), MYSQL_INIT_COMMAND, "SET NAMES utf8");
 }
 
 void MySQLConnection::_openDatabase(const String& newConnectionString)
@@ -71,7 +62,7 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
 
         string connectionError;
         const DatabaseConnectionString& connString = connectionString();
-        if (mysql_real_connect(m_connection,
+        if (mysql_real_connect(m_connection.get(),
                                connString.hostName().c_str(),
                                connString.userName().c_str(),
                                connString.password().c_str(),
@@ -80,8 +71,8 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
                                nullptr,
                                CLIENT_MULTI_RESULTS) == nullptr)
         {
-            connectionError = mysql_error(m_connection);
-            mysql_close(m_connection);
+            connectionError = mysql_error(m_connection.get());
+            mysql_close(m_connection.get());
             m_connection = nullptr;
             throw DatabaseException("Can't connect to MySQL: " + connectionError);
         }
@@ -90,17 +81,12 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
 
 void MySQLConnection::closeDatabase()
 {
-    disconnectAllQueries();
-
-    if (m_connection != nullptr) {
-        mysql_close(m_connection);
-        m_connection = nullptr;
-    }
+    m_connection.reset();
 }
 
 void* MySQLConnection::handle() const
 {
-    return m_connection;
+    return m_connection.get();
 }
 
 bool MySQLConnection::active() const
@@ -113,7 +99,7 @@ void MySQLConnection::executeCommand(const String& command)
     if (m_connection == nullptr)
         open();
 
-    if (mysql_real_query(m_connection, command.c_str(), ULONG_CAST(command.length())) != 0)
+    if (mysql_real_query(m_connection.get(), command.c_str(), ULONG_CAST(command.length())) != 0)
         throwMySQLException("Can't execute " + command);
 }
 
@@ -138,7 +124,7 @@ void MySQLConnection::driverEndTransaction(bool commit)
 //-----------------------------------------------------------------------------------------------
 String MySQLConnection::queryError(const Query*) const
 {
-    return mysql_error(m_connection);
+    return mysql_error(m_connection.get());
 }
 
 void MySQLConnection::queryAllocStmt(Query* query)
@@ -402,7 +388,7 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 String MySQLConnection::driverDescription() const
 {
     if (m_connection != nullptr)
-        return string("MySQL ") + mysql_get_server_info(m_connection);
+        return string("MySQL ") + mysql_get_server_info(m_connection.get());
     return "MySQL";
 }
 

@@ -318,7 +318,7 @@ private:
     std::shared_ptr<PCREExtraHandle>    m_pcreExtra;      ///< Compiled PCRE expression optimization (for faster execution)
 
     uint32_t                            m_options {0};    ///< PCRE pattern options
-    std::atomic<size_t>                 m_captureCount {0}; ///< RE' capture count
+    size_t                              m_captureCount {0}; ///< RE' capture count
 
     /**
      * Initialize PCRE expression

@@ -88,14 +88,6 @@ public:
     }
 
     /**
-     * Destructor
-     */
-    ~MemoryDS() override
-    {
-        MemoryDS::close();
-    }
-
-    /**
      * Clears all the records
      */
     virtual void clear();

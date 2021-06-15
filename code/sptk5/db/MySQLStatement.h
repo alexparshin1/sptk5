@@ -95,11 +95,6 @@ public:
     MySQLStatement(MySQLStatement&&) = default;
 
     /**
-     * Destructor
-     */
-    ~MySQLStatement() override;
-
-    /**
      * Deleted copy assignment
      */
     MySQLStatement& operator = (const MySQLStatement&) = delete;
@@ -159,7 +154,8 @@ private:
     std::vector<MYSQL_BIND>         m_paramBuffers;     ///< Parameter binding buffers
     std::vector<unsigned long>      m_paramLengths;     ///< Parameter data lengths
     std::vector<MYSQL_BIND>         m_fieldBuffers;     ///< Fetch data buffers
-    MYSQL_RES*                      m_result {nullptr}; ///< Statement handle
+    std::shared_ptr<MYSQL_STMT>     m_stmt;
+    std::shared_ptr<MYSQL_RES>      m_result {nullptr}; ///< Statement handle
     MYSQL_ROW                       m_row {};           ///< Fetch data row
 
     /**

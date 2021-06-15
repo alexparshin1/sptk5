@@ -100,14 +100,6 @@ public:
     }
 
     /**
-     * Destructor
-     */
-    ~DirectoryDS() override
-    {
-        MemoryDS::close();
-    }
-
-    /**
      * Returns current show policy, @see CDirectoryDSpolicies for more information
      * @returns current show policy
      */
@@ -199,7 +191,7 @@ private:
      * @param file              File information
      * @return data source row
      */
-    FieldList* makeFileListEntry(const filesystem::directory_entry& file, size_t& index) const;
+    FieldList makeFileListEntry(const filesystem::directory_entry& file, size_t& index) const;
     static CSmallPixmapType imageTypeFromExtention(const String& ext) ;
 };
 /**

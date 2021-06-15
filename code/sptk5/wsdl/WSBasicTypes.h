@@ -156,7 +156,7 @@ public:
     /**
      * Conversion to string
      */
-    virtual String asString() const override
+    String asString() const override
     {
         return m_field.asString();
     }

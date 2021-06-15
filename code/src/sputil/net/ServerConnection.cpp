@@ -53,7 +53,7 @@ TCPSocket& ServerConnection::socket() const
 void ServerConnection::setSocket(TCPSocket* socket)
 {
     scoped_lock   lock(m_mutex);
-    m_socket = socket;
+    m_socket = shared_ptr<TCPSocket>(socket);
 }
 
 TCPServer& ServerConnection::server() const
@@ -66,12 +66,6 @@ ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in*
 : Runable(taskName), m_server(server), m_socket(nullptr), m_serial(nextSerial())
 {
     parseAddress(connectionAddress);
-}
-
-ServerConnection::~ServerConnection()
-{
-    scoped_lock   lock(m_mutex);
-    delete m_socket;
 }
 
 void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)

@@ -42,7 +42,7 @@ template<typename T>
 class SP_EXPORT WSArray : public WSType
 {
 public:
-    typedef T value_type;
+    using value_type = T;
     using iterator = typename std::vector<T>::iterator;
     using const_iterator = typename std::vector<T>::const_iterator;
 

@@ -57,11 +57,11 @@ class Attributes;
 /**
  * XPath Axis enum
  */
-enum XPathAxis
+enum class XPathAxis: uint8_t
 {
-    XPA_CHILD,      ///< Child axis
-    XPA_DESCENDANT, ///< Descendant axis
-    XPA_PARENT      ///< Parent Axis
+    CHILD,      ///< Child axis
+    DESCENDANT, ///< Descendant axis
+    PARENT      ///< Parent Axis
 };
 
 /**
@@ -72,7 +72,7 @@ class SP_EXPORT XPathElement
 public:
     String      elementName;                   ///< Node name, or '*'
     String      criteria;                      ///< Criteria
-    XPathAxis   axis {XPA_CHILD};              ///< Axis
+    XPathAxis   axis {XPathAxis::CHILD};       ///< Axis
     String      attributeName;                 ///< Attribute name (optional)
     String      attributeValue;                ///< Attribute value (optional)
     bool        attributeValueDefined {false}; ///< true if attribute value was defined
