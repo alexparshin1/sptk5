@@ -46,16 +46,12 @@ class Strings;
  */
 class SP_EXPORT String : public std::string
 {
-    /**
-     * String ID
-     */
-    int64_t m_id {0};
-
 public:
     /**
      * Default constructor
      */
-    String() noexcept = default;
+    String() noexcept
+    {}
 
     /**
      * Copy constructor
@@ -240,7 +236,12 @@ public:
      * Returns trimmed string
      */
     String trim() const;
+
+private:
+    /**
+     * String ID
+     */
+    int64_t m_id {0};
 };
 
 } // namespace sptk
-
