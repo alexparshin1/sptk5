@@ -134,7 +134,7 @@ public:
      */
     virtual void load(const Field& field)
     {
-        *static_cast<Variant*>(&m_field) = field;
+        *static_cast<Variant*>(&m_field) = *static_cast<const Variant*>(&field);
     }
 
     /**

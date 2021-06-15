@@ -113,8 +113,7 @@ void WSParserComplexType::parseSequence(const xml::Element* sequence)
         if (node->type() != xml::Node::DOM_ELEMENT)
             throw Exception("The node " + node->name() + " is not an XML element");
         auto* element = dynamic_cast<xml::Element*>(node);
-        string elementName = element->name();
-        if (elementName == "xsd:element")
+        if (element->name() == "xsd:element")
             m_sequence.push_back(make_shared<WSParserComplexType>(element));
     }
 }

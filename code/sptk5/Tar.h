@@ -192,7 +192,7 @@ private:
     /**
      * Throws an error
      */
-    [[noreturn]] static void throwError(std::string fileName);
+    [[noreturn]] static void throwError(const String& fileName);
 };
 
 }

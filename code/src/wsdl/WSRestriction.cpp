@@ -98,13 +98,13 @@ String sptk::WSRestriction::generateConstructor(const String& variableName) cons
 
     switch (m_type) {
         case Type::Enumeration:
-            str << "WSRestriction " << variableName << "(WSRestriction::Enumeration, \"" << m_wsdlTypeName << "\", "
+            str << "WSRestriction " << variableName << "(WSRestriction::Type::Enumeration, \"" << m_wsdlTypeName << "\", "
                 << "{ \"" << m_enumeration.join("\", \"") << "\" })";
             break;
         case Type::Pattern:
             for (auto& regex: m_patterns)
                 patterns.push_back(regex.pattern());
-            str << "WSRestriction " << variableName << "(WSRestriction::Pattern, \"" << m_wsdlTypeName << "\", "
+            str << "WSRestriction " << variableName << "(WSRestriction::Type::Pattern, \"" << m_wsdlTypeName << "\", "
                 << "{ R\"(" << patterns.join(")\", R\"(") << ")\" })";
             break;
         default:

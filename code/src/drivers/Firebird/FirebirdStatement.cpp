@@ -53,6 +53,7 @@ public:
                 if (sqlvar.sqlsubtype != 1) {
                     break;
                 }
+                [[fallthrough]]; // Continue longs as MONEY type
             case SQL_FLOAT:
             case SQL_D_FLOAT:
             case SQL_DOUBLE:

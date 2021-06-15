@@ -128,7 +128,7 @@ public:
         if (this == &other)
             return *this;
 
-        *(Variant*)this = std::move(other);
+        *static_cast<Variant*>(this) = std::move(*static_cast<Variant*>(&other));
         m_name = std::move(other.m_name);
         m_displayName = std::move(other.m_displayName);
 

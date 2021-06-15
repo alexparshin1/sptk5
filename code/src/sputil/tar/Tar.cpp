@@ -157,7 +157,7 @@ bool Tar::loadFile()
     return true;
 }
 
-void Tar::throwError(string fileName)
+void Tar::throwError(const String& fileName)
 {
     const char* ptr = strerror(errno);
     if (fileName.empty())

@@ -149,11 +149,11 @@ void WSParser::parseOperation(const xml::Element* operationNode)
         if (node->type() != xml::Node::DOM_ELEMENT)
             throw Exception("The node " + node->name() + " is not an XML element");
         auto* element = dynamic_cast<const xml::Element*>(node);
-        String message = (String) element->getAttribute("message");
+        auto message = (String) element->getAttribute("message");
         size_t pos = message.find(':');
         if (pos != string::npos)
             message = message.substr(pos+1);
-        string elementName = messageToElementMap[message];
+        auto elementName = messageToElementMap[message];
         if (element->name() == "wsdl:input") {
             operation.m_input = m_complexTypeIndex.complexType(elementName, "Message " + message);
             found = true;
@@ -309,7 +309,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition << "    /**" << endl;
         serviceDefinition << "     * Web Service " << itor.first << " operation" << endl;
         serviceDefinition << "     *" << endl;
-        string documentation = m_documentation[operation.m_input->name()];
+        auto documentation = m_documentation[operation.m_input->name()];
         if (!documentation.empty()) {
             Strings documentationRows(documentation, "\n");
             for (const auto& row: documentationRows)

@@ -94,35 +94,6 @@ public:
          */
         Group() = default;
 
-        /**
-         * Copy constructor
-         * @param other         Object to copy from
-         */
-        Group(const Group& other) = default;
-
-        /**
-         * Move constructor
-         * @param other         Object to copy from
-         */
-        Group(Group&& other) noexcept;
-
-        /**
-         * Default destructor
-         */
-        ~Group() = default;
-
-        /**
-         * Copy assignment
-         * @param other         Object to copy from
-         */
-        Group& operator = (const Group& other);
-
-        /**
-         * Move assignment
-         * @param other         Object to copy from
-         */
-        Group& operator = (Group&& other) noexcept;
-
         String        value;        ///< Matched fragment of subject
         pcre_offset_t start {0};    ///< Start position of the matched fragment in subject
         pcre_offset_t end {0};      ///< End position of the matched fragment in subject

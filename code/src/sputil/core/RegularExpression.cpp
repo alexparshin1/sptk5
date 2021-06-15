@@ -96,28 +96,6 @@ size_t RegularExpression::getCaptureCount() const
     return (size_t) captureCount;
 }
 
-RegularExpression::Group::Group(RegularExpression::Group&& other) noexcept
-: value(move(other.value)),
-  start(exchange(other.start,0)),
-  end(exchange(other.end, 0))
-{}
-
-RegularExpression::Group& RegularExpression::Group::operator = (const RegularExpression::Group& other)
-{
-    value = other.value;
-    start = other.start;
-    end = other.end;
-    return *this;
-}
-
-RegularExpression::Group& RegularExpression::Group::operator = (RegularExpression::Group&& other) noexcept
-{
-    value = move(other.value);
-    start = exchange(other.start,0);
-    end = exchange(other.end, 0);
-    return *this;
-}
-
 const RegularExpression::Group RegularExpression::Groups::emptyGroup;
 
 const RegularExpression::Group& RegularExpression::Groups::operator[](int index) const
@@ -723,7 +701,7 @@ TEST(SPTK_RegularExpression, std_match_performance)
     StopWatch stopWatch;
     stopWatch.start();
     for (size_t i = 0; i < maxIterations; ++i) {
-        string s(data);
+        String s(data);
         std::smatch color_matches;
         while (std::regex_search(s, color_matches, match)) {
             s = color_matches.suffix().str();
