@@ -55,8 +55,7 @@ public:
     /**
      * Default constructor
      */
-    String() noexcept
-    {}
+    String() noexcept = default;
 
     /**
      * Copy constructor
