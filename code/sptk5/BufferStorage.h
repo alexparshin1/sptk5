@@ -103,8 +103,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~BufferStorage()
-    {}
+    virtual ~BufferStorage() = default;
 
     /**
      * Returns pointer on the data buffer.
