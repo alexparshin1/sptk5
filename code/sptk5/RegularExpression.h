@@ -203,24 +203,6 @@ public:
     explicit RegularExpression(String pattern, const String& options = "");
 
     /**
-     * Copy constructor
-     * @param other             Other regular expression
-     */
-    RegularExpression(const RegularExpression& other);
-
-    /**
-     * Destructor
-     */
-    virtual ~RegularExpression() = default;
-
-    /**
-     * Copy assignment
-     * @param other             Other regular expression
-     * @return this reference
-     */
-    RegularExpression& operator =(const RegularExpression& other) = default;
-
-    /**
      * Returns true if text matches with regular expression
      * @param text              Input text
      * @return true if match found

@@ -30,7 +30,8 @@
 #include <sptk5/Exception.h>
 #include <sptk5/json/JsonElement.h>
 
-namespace sptk { namespace json {
+namespace sptk {
+namespace json {
 
 /// @addtogroup JSON
 /// @{

@@ -40,10 +40,10 @@ const json::Element& HttpAuthentication::getData()
     parse();
 
     switch (m_type) {
-        case EMPTY:
-        case BASIC:
+        case Type::EMPTY:
+        case Type::BASIC:
             return m_userData->root();
-        case BEARER:
+        case Type::BEARER:
             return m_jwtData->grants.root();
         default:
             throw Exception("Invalid or unsupported 'Authentication' header format");
@@ -57,10 +57,10 @@ String HttpAuthentication::getHeader() const
 
 void HttpAuthentication::parse()
 {
-    if (m_type == UNDEFINED) {
+    if (m_type == Type::UNDEFINED) {
         if (m_authenticationHeader.empty()) {
             m_userData = make_shared<json::Document>();
-            m_type = EMPTY;
+            m_type = Type::EMPTY;
         } else if (m_authenticationHeader.toLowerCase().startsWith("basic ")) {
             Buffer encoded(m_authenticationHeader.substr(6));
             Buffer decoded;
@@ -72,14 +72,14 @@ void HttpAuthentication::parse()
             xuserData->root()["username"] = usernameAndPassword[0];
             xuserData->root()["password"] = usernameAndPassword[1];
             m_userData = xuserData;
-            m_type = BASIC;
+            m_type = Type::BASIC;
         } else {
             String authMethod = m_authenticationHeader.substr(0, 6);
             if (authMethod.toLowerCase() == "bearer") {
                 auto xjwtData = make_shared<JWT>();
                 xjwtData->decode(m_authenticationHeader.substr(7).c_str());
                 m_jwtData = xjwtData;
-                m_type = BEARER;
+                m_type = Type::BEARER;
             }
         }
     }
@@ -120,7 +120,7 @@ TEST(SPTK_HttpAuthentication, basic)
     const auto& auth = test.getData();
     EXPECT_STREQ(auth["username"].getString().c_str(), "Aladdin");
     EXPECT_STREQ(auth["password"].getString().c_str(), "OpenSesame");
-    EXPECT_EQ(test.type(), HttpAuthentication::BASIC);
+    EXPECT_EQ(test.type(), HttpAuthentication::Type::BASIC);
 }
 
 TEST(SPTK_HttpAuthentication, bearer)
@@ -132,7 +132,7 @@ TEST(SPTK_HttpAuthentication, bearer)
     EXPECT_STREQ(auth["iat"].getString().c_str(), "1594642696");
     EXPECT_STREQ(auth["iss"].getString().c_str(), "http://test.com");
     EXPECT_STREQ(auth["exp"].getString().c_str(), "1594642697");
-    EXPECT_EQ(test.type(), HttpAuthentication::BEARER);
+    EXPECT_EQ(test.type(), HttpAuthentication::Type::BEARER);
 }
 
 #endif

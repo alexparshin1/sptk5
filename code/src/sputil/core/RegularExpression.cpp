@@ -35,11 +35,11 @@ using namespace sptk;
 
 namespace sptk {
 
-typedef struct
+struct Match
 {
     pcre_offset_t m_start;                    ///< Match start
     pcre_offset_t m_end;                      ///< Match end
-} Match;
+};
 
 class MatchData
 {
@@ -199,10 +199,6 @@ RegularExpression::RegularExpression(String pattern, const String& options)
     }
     compile();
 }
-
-RegularExpression::RegularExpression(const RegularExpression& other)
-: m_pattern(other.m_pattern), m_pcre(other.m_pcre), m_pcreExtra(other.m_pcreExtra), m_options(other.m_options)
-{}
 
 size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchData& matchData) const
 {
