@@ -56,17 +56,7 @@ public:
         next_out = output;
     }
 
-    Context(const Context&) = delete;
-    Context(Context&&) noexcept = delete;
-    Context& operator = (const Context&) = delete;
-    Context& operator = (Context&&) noexcept = delete;
-
-    ~Context()
-    {
-        delete[] buffer;
-    }
-
-    BrotliEncoderState* createEncoderInstance();
+    BrotliEncoderState* createEncoderInstance() const;
     void CompressFile(BrotliEncoderState* s);
     void DecompressFile(BrotliDecoderState* s);
 
@@ -74,10 +64,10 @@ private:
     /* Parameters */
     int quality = 9;
 
-    uint8_t* buffer = new uint8_t[kBufferSize * 2];
+    array<uint8_t, kBufferSize * 2> buffer {};
 
-    uint8_t* input = buffer;
-    uint8_t* output = buffer + kBufferSize;
+    uint8_t* input = buffer.data();
+    uint8_t* output = buffer.data() + kBufferSize;
     ReadBuffer& inputData;
 
     Buffer& outputData;
@@ -89,7 +79,7 @@ private:
 
     uint8_t* next_out = nullptr;
 
-    BROTLI_BOOL HasMoreInput() const
+    [[nodiscard]] BROTLI_BOOL HasMoreInput() const
     {
         return inputData.eof() ? BROTLI_FALSE : BROTLI_TRUE;
     }
@@ -124,7 +114,7 @@ private:
     }
 };
 
-BrotliEncoderState* Context::createEncoderInstance()
+BrotliEncoderState* Context::createEncoderInstance() const
 {
     auto* instance = BrotliEncoderCreateInstance(nullptr, nullptr, nullptr);
     BrotliEncoderSetParameter(instance, BROTLI_PARAM_QUALITY, (uint32_t) quality);

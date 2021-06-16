@@ -464,8 +464,8 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     size_t nameColumns = 10;
     Strings sortedCommands;
 
-    for (auto& itor : m_argumentTemplates)
-        sortedCommands.push_back(itor.first);
+    for (auto& [argumentName, value]: m_argumentTemplates)
+        sortedCommands.push_back(argumentName);
 
     for (const String& commandName : sortedCommands) {
         if (!onlyForCommand.empty() && commandName != onlyForCommand)
@@ -475,8 +475,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     }
 
     Strings sortedOptions;
-    for (auto& itor : m_optionTemplates) {
-        String optionName = itor.first;
+    for (auto& [optionName, value] : m_optionTemplates) {
         if (optionName.length() > 1)
             sortedOptions.push_back(optionName);
     }
@@ -515,8 +514,7 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
             if (!optionTemplate || !optionTemplate->useWithCommand(onlyForCommand))
                 continue;
             String defaultValue;
-            auto vtor = m_values.find(optionTemplate->name());
-            if (vtor != m_values.end())
+            if (auto vtor = m_values.find(optionTemplate->name()); vtor != m_values.end())
                 defaultValue = vtor->second;
             optionTemplate->printHelp(nameColumns, helpTextColumns, defaultValue);
         }
@@ -569,9 +567,9 @@ const char* CommandLineTestData::testCommandLineArgs3[9] = {"testapp", "connect"
                                               "--verbotten", "--gtest_test",
                                               nullptr};
 
-CommandLine* createTestCommandLine()
+shared_ptr<CommandLine> createTestCommandLine()
 {
-    CommandLine* commandLine = new CommandLine("test 1.00", "This is test command line description.", "testapp <action> [options]");
+    auto commandLine = make_shared<CommandLine>("test 1.00", "This is test command line description.", "testapp <action> [options]");
     commandLine->defineArgument("action", "Action to perform");
     commandLine->defineParameter("host", "h", "hostname", "^[\\S]+$", CommandLine::Visibility(""), "", "Hostname to connect");
     commandLine->defineParameter("port", "p", "port #", "^\\d{2,5}$", CommandLine::Visibility(""), "80", "Port to connect");
@@ -600,7 +598,7 @@ TEST(SPTK_CommandLine, CommandLineElement)
 
 TEST(SPTK_CommandLine, ctor)
 {
-    shared_ptr<CommandLine> commandLine(createTestCommandLine());
+    auto commandLine = createTestCommandLine();
     commandLine->init(13, CommandLineTestData::testCommandLineArgs);
 
     EXPECT_EQ(size_t(1), commandLine->arguments().size());
@@ -618,7 +616,7 @@ TEST(SPTK_CommandLine, ctor)
 
 TEST(SPTK_CommandLine, wrongArgumentValue)
 {
-    shared_ptr<CommandLine> commandLine(createTestCommandLine());
+    auto commandLine = createTestCommandLine();
 
     EXPECT_THROW(
         commandLine->init(7, CommandLineTestData::testCommandLineArgs2),
@@ -628,7 +626,7 @@ TEST(SPTK_CommandLine, wrongArgumentValue)
 
 TEST(SPTK_CommandLine, wrongOption)
 {
-    shared_ptr<CommandLine> commandLine(createTestCommandLine());
+    auto commandLine = createTestCommandLine();
 
     EXPECT_THROW(
             commandLine->init(8, CommandLineTestData::testCommandLineArgs3),
@@ -638,7 +636,7 @@ TEST(SPTK_CommandLine, wrongOption)
 
 TEST(SPTK_CommandLine, setOption)
 {
-    shared_ptr<CommandLine> commandLine(createTestCommandLine());
+    auto commandLine = createTestCommandLine();
 
     commandLine->init(7, CommandLineTestData::testCommandLineArgs);
     EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "ahostname");
@@ -648,7 +646,7 @@ TEST(SPTK_CommandLine, setOption)
 
 TEST(SPTK_CommandLine, printHelp)
 {
-    shared_ptr<CommandLine> commandLine(createTestCommandLine());
+    auto commandLine = createTestCommandLine();
 
     stringstream output;
     commandLine->init(7, CommandLineTestData::testCommandLineArgs);

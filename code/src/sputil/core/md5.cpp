@@ -38,22 +38,22 @@ using namespace std;
 using namespace sptk;
 
 // Constants for MD5Transform routine.
-#define S11 7
-#define S12 12
-#define S13 17
-#define S14 22
-#define S21 5
-#define S22 9
-#define S23 14
-#define S24 20
-#define S31 4
-#define S32 11
-#define S33 16
-#define S34 23
-#define S41 6
-#define S42 10
-#define S43 15
-#define S44 21
+constexpr uint32_t S11 = 7;
+constexpr uint32_t S12 = 12;
+constexpr uint32_t S13 = 17;
+constexpr uint32_t S14 = 22;
+constexpr uint32_t S21 = 5;
+constexpr uint32_t S22 = 9;
+constexpr uint32_t S23 = 14;
+constexpr uint32_t S24 = 20;
+constexpr uint32_t S31 = 4;
+constexpr uint32_t S32 = 11;
+constexpr uint32_t S33 = 16;
+constexpr uint32_t S34 = 23;
+constexpr uint32_t S41 = 6;
+constexpr uint32_t S42 = 10;
+constexpr uint32_t S43 = 15;
+constexpr uint32_t S44 = 21;
 
 ///////////////////////////////////////////////
 
@@ -143,7 +143,7 @@ void MD5::init()
 //////////////////////////////
 
 // decodes input (unsigned char) into output (uint4). Assumes len is a multiple of 4.
-void MD5::decode(uint4 output[], const uint1 input[], size_type len)
+void MD5::decode(uint4* output, const uint1* input, size_type len)
 {
     size_t i = 0;
     for (size_t j = 0; j < len; j += 4) {
@@ -157,7 +157,7 @@ void MD5::decode(uint4 output[], const uint1 input[], size_type len)
 
 // encodes input (uint4) into output (unsigned char). Assumes len is
 // a multiple of 4.
-void MD5::encode(uint1 output[], const uint4 input[], size_type len)
+void MD5::encode(uint1* output, const uint4* input, size_type len)
 {
     size_type i = 0;
     for (size_type j = 0; j < len; j += 4) {
@@ -172,15 +172,15 @@ void MD5::encode(uint1 output[], const uint4 input[], size_type len)
 //////////////////////////////
 
 // apply MD5 algo on a block
-void MD5::transform(const uint1 block[blocksize])
+void MD5::transform(const uint1* block)
 {
     uint4 a = state[0];
     uint4 b = state[1];
     uint4 c = state[2];
     uint4 d = state[3];
-    uint4 x[16];
+    array<uint4,16> x;
 
-    decode(x, block, blocksize);
+    decode(x.data(), block, blocksize);
 
     /* Round 1 */
     FF(a, b, c, d, x[0], S11, 0xd76aa478); /* 1 */
@@ -258,9 +258,6 @@ void MD5::transform(const uint1 block[blocksize])
     state[1] += b;
     state[2] += c;
     state[3] += d;
-
-    // Zeroize sensitive information.
-    memset(x, 0, sizeof x);
 }
 
 //////////////////////////////
@@ -286,7 +283,7 @@ void MD5::update(const unsigned char input[], size_type length)
     if (length >= firstpart) {
         // fill buffer first, transform
         memcpy(&buffer[index], input, firstpart);
-        transform(buffer);
+        transform(buffer.data());
 
         // transform chunks of blocksize (64 bytes)
         for (i = firstpart; i + blocksize <= length; i += blocksize)
@@ -316,30 +313,30 @@ MD5& MD5::finalize()
 {
     if (!finalized) {
 
-        static unsigned char padding[64] = {
+        static const array<unsigned char,64> padding = {
                 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
 
         // Save number of bits
-        unsigned char bits[8];
-        encode((uint1*) bits, count, 8);
+        array<unsigned char,8> bits;
+        encode(bits.data(), count.data(), 8);
 
         // pad out to 56 mod 64.
         size_type index = count[0] / 8 % 64;
         size_type padLen = (index < 56) ? (56 - index) : (120 - index);
-        update(padding, padLen);
+        update(padding.data(), padLen);
 
         // Append length (before padding)
-        update(bits, 8);
+        update(bits.data(), 8);
 
         // Store state in digest
-        encode(digest, state, 16);
+        encode(digest.data(), state.data(), 16);
 
         // Zeroize sensitive information.
-        memset(buffer, 0, sizeof buffer);
-        memset(count, 0, sizeof count);
+        memset(buffer.data(), 0, sizeof buffer);
+        memset(count.data(), 0, sizeof count);
 
         finalized = true;
     }
@@ -355,26 +352,24 @@ sptk::String MD5::hexdigest() const
     if (!finalized)
         return "";
 
-    char buf[34];
-    auto* ptr = buf;
-    auto* digestPtr = digest;
-    for (int i = 0; i < 16; ++i) {
-        auto high = *digestPtr >> 4;
-        auto low = *digestPtr & 0xF;
+    array<char,34> buf;
+    auto* ptr = buf.data();
+    for (const auto& digestElement: digest) {
+        auto high = (int) digestElement >> 4;
+        auto low = (int) digestElement & 0xF;
         *ptr = char(high > 9? high - 10  + 'a': high + '0');
         ++ptr;
         *ptr = char(low > 9? low - 10 + 'a': low + '0');
         ++ptr;
-        ++digestPtr;
     }
     buf[32] = 0;
 
-    return std::string(buf);
+    return std::string(buf.data());
 }
 
 String sptk::md5(const Buffer& data)
 {
-    MD5 md5 = MD5(data);
+    auto md5 = MD5(data);
 
     return md5.hexdigest();
 }
@@ -382,7 +377,7 @@ String sptk::md5(const Buffer& data)
 String sptk::md5(const String& data)
 {
     Buffer buffer(data);
-    MD5 md5 = MD5(buffer);
+    auto md5 = MD5(buffer);
 
     return md5.hexdigest();
 }

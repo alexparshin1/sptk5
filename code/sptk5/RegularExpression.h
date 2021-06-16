@@ -94,8 +94,8 @@ public:
          * @param start         String start position in subject
          * @param end           String end position in subject
          */
-        Group(String value, size_t start, size_t end)
-        : value(move(value)), start((pcre_offset_t)start), end((pcre_offset_t)end)
+        Group(String value, pcre_offset_t start, pcre_offset_t end)
+        : value(move(value)), start(start), end(end)
         {}
 
         /**

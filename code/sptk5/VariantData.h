@@ -91,9 +91,9 @@ class MoneyData
 {
 public:
 
-    static int64_t dividers[16];        ///< Dividers that help formatting money data
-    int64_t      quantity;              ///< Integer value
-    uint8_t      scale;                 ///< Scale
+    static std::array<int64_t,16>   dividers;    ///< Dividers that help formatting money data
+    int64_t                         quantity;    ///< Integer value
+    uint8_t                         scale;       ///< Scale
 
     /**
      * Constructor
@@ -145,7 +145,7 @@ public:
     : m_dataType(other.m_dataType),
       m_dataSize(other.m_dataSize)
     {
-        memcpy(m_data, other.m_data, sizeof(m_data));
+        m_data = other.m_data;
     }
 
     /**
@@ -156,8 +156,7 @@ public:
     : m_dataType(std::exchange(other.m_dataType, VAR_NONE | VAR_NULL)),
       m_dataSize(std::exchange(other.m_dataSize, 0))
     {
-        memcpy(m_data, other.m_data, sizeof(m_data));
-        memset(other.m_data, 0, sizeof(m_data));
+        m_data = std::move(other.m_data);
     }
 
     virtual ~VariantData() noexcept = default;
@@ -169,7 +168,7 @@ public:
     VariantData& operator = (const VariantData& other)
     {
         if (&other != this) {
-            memcpy(m_data, other.m_data, sizeof(m_data));
+            m_data = other.m_data;
             m_dataType = other.m_dataType;
             m_dataSize = other.m_dataSize;
         }
@@ -183,8 +182,7 @@ public:
     VariantData& operator = (VariantData&& other) noexcept
     {
         if (&other != this) {
-            memcpy(m_data, other.m_data, sizeof(m_data));
-            memset(other.m_data, 0, sizeof(m_data));
+            m_data = std::move(other.m_data);
             m_dataType = other.m_dataType;
             other.m_dataType = VAR_NONE | VAR_NULL;
             m_dataSize = other.m_dataSize;
@@ -198,7 +196,7 @@ public:
      */
     bool& getBool()
     {
-        return *(bool*) m_data;
+        return *(bool*) m_data.data();
     }
 
     /**
@@ -206,7 +204,7 @@ public:
      */
     int32_t& getInteger()
     {
-        return *(int32_t*) m_data;
+        return *(int32_t*) m_data.data();
     }
 
     /**
@@ -214,7 +212,7 @@ public:
      */
     int64_t& getInt64()
     {
-        return *(int64_t*) m_data;
+        return *(int64_t*) m_data.data();
     }
 
     /**
@@ -222,7 +220,7 @@ public:
      */
     double& getFloat()
     {
-        return *(double*) m_data;
+        return *(double*) m_data.data();
     }
 
     /**
@@ -230,7 +228,7 @@ public:
      */
     int64_t& getTime()
     {
-        return *(int64_t*) m_data;
+        return *(int64_t*) m_data.data();
     }
 
     /**
@@ -238,7 +236,7 @@ public:
      */
     VariantDataBuffer& getBuffer()
     {
-        return *(VariantDataBuffer*) m_data;
+        return *(VariantDataBuffer*) m_data.data();
     }
 
     /**
@@ -248,7 +246,7 @@ public:
     void setImagePtr(const void* ptr)
     {
         size_t ptrSize = sizeof(ptr);
-        memcpy(m_data, ptr, ptrSize);
+        memcpy(m_data.data(), ptr, ptrSize);
     }
 
     /**
@@ -256,7 +254,7 @@ public:
      */
     MoneyData& getMoneyData()
     {
-        return *(MoneyData*) m_data;
+        return *(MoneyData*) m_data.data();
     }
 
 
@@ -265,7 +263,7 @@ public:
      */
     const bool& getBool() const
     {
-        return *(const bool*) m_data;
+        return *(const bool*) m_data.data();
     }
 
     /**
@@ -273,7 +271,7 @@ public:
      */
     const int32_t& getInteger() const
     {
-        return *(const int32_t*) m_data;
+        return *(const int32_t*) m_data.data();
     }
 
     /**
@@ -281,7 +279,7 @@ public:
      */
     const int64_t& getInt64() const
     {
-        return *(const int64_t*) m_data;
+        return *(const int64_t*) m_data.data();
     }
 
     /**
@@ -289,7 +287,7 @@ public:
      */
     const double& getFloat() const
     {
-        return *(const double*) m_data;
+        return *(const double*) m_data.data();
     }
 
     /**
@@ -297,7 +295,7 @@ public:
      */
     int64_t getTime() const
     {
-        return *(const int64_t*) m_data;
+        return *(const int64_t*) m_data.data();
     }
 
     /**
@@ -305,7 +303,7 @@ public:
      */
     const VariantDataBuffer& getBuffer() const
     {
-        return *(const VariantDataBuffer*) m_data;
+        return *(const VariantDataBuffer*) m_data.data();
     }
 
     /**
@@ -313,7 +311,7 @@ public:
      */
     const void* getImagePtr() const
     {
-        return (const void*) m_data;
+        return (const void*) m_data.data();
     }
 
     /**
@@ -321,7 +319,7 @@ public:
      */
     const MoneyData& getMoneyData() const
     {
-        return *(const MoneyData*) m_data;
+        return *(const MoneyData*) m_data.data();
     }
 
     /**
@@ -329,7 +327,7 @@ public:
      */
     char* getData()
     {
-        return (char*) m_data;
+        return (char*) m_data.data();
     }
 
     void type(uint16_t dataType)
@@ -354,9 +352,9 @@ public:
 
 private:
 
-    uint8_t     m_data[32]{};           ///< Variant data BLOB
-    uint16_t    m_dataType {VAR_NONE};  ///< Data type
-    size_t      m_dataSize {0};         ///< Data size
+    std::array<uint8_t,32>  m_data {};              ///< Variant data BLOB
+    uint16_t                m_dataType {VAR_NONE};  ///< Data type
+    size_t                  m_dataSize {0};         ///< Data size
 };
 
 /**

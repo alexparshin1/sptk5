@@ -37,8 +37,8 @@ namespace sptk {
 
 struct Match
 {
-    pcre_offset_t m_start;                    ///< Match start
-    pcre_offset_t m_end;                      ///< Match end
+    pcre_offset_t m_start {0};  ///< Match start
+    pcre_offset_t m_end {0};    ///< Match end
 };
 
 class MatchData
@@ -46,19 +46,21 @@ class MatchData
 
 public:
 #if HAVE_PCRE2
-    pcre2_match_data*   match_data {nullptr};
+    shared_ptr<pcre2_match_data> match_data;
 
     MatchData(pcre2_code* pcre, size_t maxMatches)
-    : match_data(pcre2_match_data_create_from_pattern(pcre, nullptr)),
+    : match_data(shared_ptr<pcre2_match_data>(pcre2_match_data_create_from_pattern(pcre, nullptr),
+                                              [](auto* match_data){ pcre2_match_data_free(match_data); })),
       maxMatches(maxMatches + 2),
-      matches(new Match[maxMatches + 2])
+      matches(maxMatches + 2)
     {
-        memset(matches, 0, sizeof(Match) * (maxMatches + 2));
     }
 #else
+    static constexpr int reservedMatches = 4;
+
     MatchData(const pcre*, size_t maxMatches)
-    : maxMatches(maxMatches + 4),
-      matches(new Match[maxMatches + 8])
+    : maxMatches(maxMatches + reservedMatches),
+      matches(maxMatches + reservedMatches * 2)
     {
     }
 #endif
@@ -66,17 +68,8 @@ public:
     MatchData(const MatchData&) = delete;
     MatchData& operator=(const MatchData&) = delete;
 
-    ~MatchData()
-    {
-#if HAVE_PCRE2
-        if (match_data)
-                pcre2_match_data_free(match_data);
-#endif
-        delete [] matches;
-    }
-
-    size_t maxMatches{0};
-    Match* matches{nullptr};
+    size_t          maxMatches{0};
+    vector<Match>   matches;
 };
 
 }
@@ -85,12 +78,13 @@ size_t RegularExpression::getCaptureCount() const
 {
     int captureCount = 0;
 
+    if (
 #if HAVE_PCRE2
-    int rc = pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_CAPTURECOUNT, &captureCount);
+        pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_CAPTURECOUNT, &captureCount)
 #else
-    int rc = pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_CAPTURECOUNT, &captureCount);
+        pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_CAPTURECOUNT, &captureCount)
 #endif
-    if (rc != 0)
+    != 0)
         captureCount = 0;
 
     return (size_t) captureCount;
@@ -150,8 +144,8 @@ void RegularExpression::compile()
 
     auto* pcre = pcre_compile(m_pattern.c_str(), m_options, &error, &errorOffset, nullptr);
     m_pcre = shared_ptr<PCREHandle>(pcre,
-                                    [](auto* pcre) {
-                                        pcre_free(pcre);
+                                    [](auto* pcreHandle) {
+                                        pcre_free(pcreHandle);
                                     });
 
     if (!m_pcre)
@@ -163,7 +157,7 @@ void RegularExpression::compile()
             m_error = "PCRE pattern study error : " + string(error);
         } else {
             m_pcreExtra = shared_ptr<PCREExtraHandle>(pcreExtra,
-                                                      [](auto* study) {
+                                                      [](pcre_extra* study) {
                                                           pcre_free_study(study);
                                                       });
         }
@@ -233,7 +227,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 #else
     int rc = pcre_exec(
             m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
-            (pcre_offset_t*) matchData.matches,
+            (pcre_offset_t*) matchData.matches.data(),
             (pcre_offset_t) matchData.maxMatches * 2);
 
     if (rc == PCRE_ERROR_NOMATCH)
@@ -306,7 +300,7 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
                         Group(
                             string(text.c_str() + match.m_start,
                             size_t(match.m_end - match.m_start)),
-                            (size_t) match.m_start, (size_t) match.m_end));
+                            match.m_start, match.m_end));
             else
                 matchedStrings.add(Group());
         }
@@ -324,7 +318,7 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
 void RegularExpression::extractNamedMatches(const String& text, RegularExpression::Groups& matchedStrings,
                                             const MatchData& matchData, size_t matchCount) const
 {
-    int nameCount = (int) getNamedGroupCount();
+    auto nameCount = (int) getNamedGroupCount();
     if (nameCount > 0) {
         const char* nameTable = nullptr;
         int nameEntrySize = 0;
@@ -332,9 +326,8 @@ void RegularExpression::extractNamedMatches(const String& text, RegularExpressio
         const auto* tabptr = nameTable;
         for (int i = 0; i < nameCount; ++i) {
             auto n = size_t( (tabptr[0] << 8) | tabptr[1] );
-            String name(tabptr + 2, nameEntrySize - 3);
-            const auto& match = matchData.matches[n];
-            if (match.m_start >= 0 && n < matchCount) {
+            String name(tabptr + 2, size_t(nameEntrySize - 3));
+            if (const auto& match = matchData.matches[n]; match.m_start >= 0 && n < matchCount) {
                 String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
                 matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
             } else {
@@ -361,12 +354,13 @@ size_t RegularExpression::getNamedGroupCount() const
 {
     int nameCount = 0;
 
+    if (
 #if HAVE_PCRE2
-    int rc = pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMECOUNT, &nameCount);
+    pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMECOUNT, &nameCount)
 #else
-    int rc = pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_NAMECOUNT, &nameCount);
+    pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_NAMECOUNT, &nameCount)
 #endif
-    if (rc != 0)
+    != 0)
         nameCount = 0;
 
     return (size_t) nameCount;
@@ -440,8 +434,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
         }
 
         // Append text from fragment start to match start
-        size_t fragmentStartLength = size_t(matchData.matches[0].m_start) - size_t(fragmentOffset);
-        if (fragmentStartLength)
+        if (size_t fragmentStartLength = size_t(matchData.matches[0].m_start) - size_t(fragmentOffset); fragmentStartLength != 0)
             result += text.substr(fragmentOffset, fragmentStartLength);
 
         // Append next replacement
@@ -475,8 +468,7 @@ String RegularExpression::s(const String& text, const std::function<String(const
         replaced = true;
 
         // Append text from fragment start to match start
-        size_t fragmentStartLength = size_t(matchData.matches[0].m_start) - size_t(fragmentOffset);
-        if (fragmentStartLength)
+        if (size_t fragmentStartLength = size_t(matchData.matches[0].m_start) - size_t(fragmentOffset); fragmentStartLength != 0)
             result += text.substr(fragmentOffset, fragmentStartLength);
 
         // Append replacement

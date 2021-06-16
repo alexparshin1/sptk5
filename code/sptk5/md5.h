@@ -121,26 +121,22 @@ namespace sptk {
         /**
          * Blocksize const
          */
-        enum
-        {
-            blocksize = 64
-        };
-
+        static constexpr int blocksize = 64;
 
         /**
          * Internal transformation
          */
-        void transform(const uint1 block[blocksize]);
+        void transform(const uint1* block);
 
         /**
          * Internal decode
          */
-        static void decode(uint4 output[], const uint1 input[], size_type len);
+        static void decode(uint4* output, const uint1* input, size_type len);
 
         /**
          * Internal encode
          */
-        static void encode(uint1 output[], const uint4 input[], size_type len);
+        static void encode(uint1* output, const uint4* input, size_type len);
 
         /**
          * MD5 finalized flag
@@ -150,22 +146,22 @@ namespace sptk {
         /**
          * bytes that didn't fit in last 64 byte chunk
          */
-		uint1 buffer[blocksize] {};
+		std::array<uint1, blocksize> buffer {};
 
         /**
          * 64bit counter for number of bits (lo, hi)
          */
-		uint4 count[2] {};
+		std::array<uint4, 2> count {};
 
         /**
          * digest so far
          */
-		uint4 state[4] {};
+		std::array<uint4, 4> state {};
 
         /**
          * the result
          */
-		uint1 digest[16] {};
+		std::array<uint1, 16> digest {};
 
 
         // low level logic operations

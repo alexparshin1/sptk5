@@ -25,9 +25,18 @@
 */
 
 #include <sptk5/test/TestRunner.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
+
+void atesting() {
+    vector<RegularExpression> values;
+    RegularExpression x("");
+    values.push_back(x);
+    values.emplace_back("xxx");
+}
+
 
 int main(int argc, char* argv[])
 {
