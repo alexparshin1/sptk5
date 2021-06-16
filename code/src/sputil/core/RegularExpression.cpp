@@ -50,7 +50,7 @@ public:
 
     MatchData(pcre2_code* pcre, size_t maxMatches)
     : match_data(shared_ptr<pcre2_match_data>(pcre2_match_data_create_from_pattern(pcre, nullptr),
-                                              [](auto* match_data){ pcre2_match_data_free(match_data); })),
+                                              [](auto* ptr){ pcre2_match_data_free(ptr); })),
       maxMatches(maxMatches + 2),
       matches(maxMatches + 2)
     {
@@ -128,14 +128,14 @@ void RegularExpression::compile()
 
     if (pcre == nullptr)
     {
-        PCRE2_UCHAR buffer[256];
-        pcre2_get_error_message(errornumber, buffer, sizeof(buffer));
-        throw Exception((const char*) buffer);
+        array<PCRE2_UCHAR,256> buffer;
+        pcre2_get_error_message(errornumber, buffer.data(), sizeof(buffer));
+        throw Exception((const char*) buffer.data());
     }
 
     m_pcre = shared_ptr<PCREHandle>(pcre,
-                                    [](auto* pcre) {
-                                        pcre2_code_free(pcre);
+                                    [](auto* ptr) {
+                                        pcre2_code_free(ptr);
                                     });
 
 #else
@@ -199,7 +199,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
     if (!m_pcre) throwException(m_error)
 
 #if HAVE_PCRE2
-    auto ovector = pcre2_get_ovector_pointer(matchData.match_data);
+    auto ovector = pcre2_get_ovector_pointer(matchData.match_data.get());
 
     auto rc = pcre2_match(
             m_pcre.get(),               // the compiled pattern
@@ -207,11 +207,11 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
             text.length(),              // the length of the subject
             offset,                     // start at offset in the subject
             0,                          // default options
-            matchData.match_data,       // block for storing the result
+            matchData.match_data.get(), // block for storing the result
             nullptr);                   // use default match context
 
     if (rc >= 0) {
-        memcpy(matchData.matches, ovector, sizeof(pcre_offset_t) * 2 * (rc));
+        memcpy(matchData.matches.data(), ovector, sizeof(pcre_offset_t) * 2 * rc);
         offset = ovector[1];
         return size_t(rc); // match count
     }
@@ -459,9 +459,8 @@ String RegularExpression::s(const String& text, const std::function<String(const
 
     do {
         size_t fragmentOffset = offset;
-        size_t matchCount = nextMatch(text, offset, matchData);
-        if (matchCount == 0) // No matches
-            break;
+        if (size_t matchCount = nextMatch(text, offset, matchData); matchCount == 0)
+            break;  // No matches
         if (offset)
             lastOffset = offset;
 

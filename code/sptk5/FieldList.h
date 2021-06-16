@@ -76,6 +76,13 @@ public:
     FieldList(const FieldList& other);
 
     /**
+     * Move constructor
+     *
+     * @param other             Other field list
+     */
+    FieldList(FieldList&& other) noexcept;
+
+    /**
      * Destructor
      */
     ~FieldList();

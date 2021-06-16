@@ -40,8 +40,9 @@ String sptk::upperCase(const String& str)
     string result;
     result.resize(len);
 
-    for (uint32_t i = 0; i < len; ++i)
+    for (uint32_t i = 0; i < len; ++i) {
         result[i] = (char) toupper(str[i]);
+    }
 
     return result;
 }
@@ -52,8 +53,9 @@ String sptk::lowerCase(const String& str)
     string result;
     result.resize(len);
 
-    for (uint32_t i = 0; i < len; ++i)
+    for (uint32_t i = 0; i < len; ++i) {
         result[i] = (char) tolower(str[i]);
+    }
 
     return result;
 }
@@ -65,9 +67,9 @@ String sptk::trim(const String& str)
     if (len == 0)
         return "";
 
-    const auto * s = (const unsigned char*) str.c_str();
-    int   endpos = int(len - 1);
-    bool  found = false;
+    const auto* s = (const unsigned char*) str.c_str();
+    auto endpos = int(len - 1);
+    bool found = false;
 
     unsigned char space = ' ';
     for (int i = endpos; i >= 0; --i) {
@@ -94,42 +96,42 @@ String sptk::trim(const String& str)
 
 String sptk::int2string(int32_t value)
 {
-    constexpr int bufferSize = 32;
-    char buff[bufferSize];
-    int len = snprintf(buff, sizeof(buff), "%i", value);
-    return string(buff, (unsigned) len);
+    constexpr int maxLength = 32;
+    array<char,maxLength + 1> buff;
+    int len = snprintf(buff.data(), maxLength, "%i", value);
+    return string(buff.data(), (unsigned) len);
 }
 
 String sptk::int2string(uint32_t value)
 {
-    constexpr int bufferSize = 64;
-    char buff[bufferSize];
-    int len = snprintf(buff, sizeof(buff), "%u", value);
-    return string(buff, (unsigned) len);
+    constexpr int maxLength = 64;
+    array<char,maxLength + 1> buff;
+    int len = snprintf(buff.data(), maxLength, "%u", value);
+    return string(buff.data(), (unsigned) len);
 }
 
 String sptk::int2string(int64_t value)
 {
-    constexpr int bufferSize = 128;
-    char buff[bufferSize];
+    constexpr int maxLength = 128;
+    array<char,maxLength + 1> buff;
 #ifdef _WIN32
     int len = snprintf(buff, sizeof(buff), "%lli", value);
 #else
-    int len = snprintf(buff, sizeof(buff), "%lli", (long long int) value);
+    int len = snprintf(buff.data(), maxLength, "%lli", (long long int) value);
 #endif
-    return string(buff, (unsigned) len);
+    return string(buff.data(), (unsigned) len);
 }
 
 String sptk::int2string(uint64_t value)
 {
-    constexpr int bufferSize = 128;
-    char buff[bufferSize];
+    constexpr int maxLength = 64;
+    array<char,maxLength + 1> buff;
 #ifdef _WIN32
     int len = snprintf(buff, sizeof(buff), "%llu", value);
 #else
-    int len = snprintf(buff, sizeof(buff), "%lu", value);
+    int len = snprintf(buff.data(), maxLength, "%lu", value);
 #endif
-    return string(buff, (unsigned) len);
+    return string(buff.data(), (unsigned) len);
 }
 
 int sptk::string2int(const String& str, int defaultValue)
@@ -158,9 +160,9 @@ int64_t sptk::string2int64(const String& str, int64_t defaultValue)
 
 String sptk::double2string(double value)
 {
-    constexpr int bufferSize = 128;
-    char buffer[bufferSize];
-    int len = snprintf(buffer, sizeof(buffer) - 1, "%f", value);
+    constexpr int maxLength = 64;
+    array<char,maxLength + 1> buffer;
+    int len = snprintf(buffer.data(), maxLength, "%f", value);
     for (int i = len - 1; i > 0; --i) {
         if (buffer[i] != '0') {
             if (buffer[i] == '.')
@@ -170,7 +172,7 @@ String sptk::double2string(double value)
             break;
         }
     }
-    return String(buffer, size_t(len), 0);
+    return String(buffer.data(), size_t(len), 0);
 }
 
 double sptk::string2double(const String& str)
@@ -204,15 +206,17 @@ static void capitalizeWord(char* current, char* wordStart)
     else
         wordStart = current;
 
-    for (char* ptr = wordStart + 1; ptr < current; ++ptr)
+    for (char* ptr = wordStart + 1; ptr < current; ++ptr) {
         *ptr = (char) tolower(*ptr);
+    }
 }
 
 static void lowerCaseWord(const char* current, char* wordStart)
 {
     if (wordStart != nullptr) {
-        for (char* ptr = wordStart; ptr < current; ++ptr)
+        for (char* ptr = wordStart; ptr < current; ++ptr) {
             *ptr = (char) tolower(*ptr);
+        }
     }
 }
 
@@ -224,7 +228,7 @@ String sptk::capitalizeWords(const String& s)
     Buffer buffer(s);
     char* wordStart = nullptr;
 
-    for (auto* current = buffer.data(); ; ++current) {
+    for (auto* current = buffer.data();; ++current) {
         if (isalnum(*current) != 0) {
             if (wordStart == nullptr)
                 wordStart = current;

@@ -32,7 +32,7 @@
 #include <sptk5/Printer.h>
 
 #ifndef FL_ALIGN_LEFT
-#define FL_ALIGN_LEFT 4
+constexpr int FL_ALIGN_LEFT = 4;
 #endif
 
 using namespace std;
@@ -91,8 +91,7 @@ CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext)
         { "csv", CSmallPixmapType::SXPM_XLS_DOCUMENT }
     };
 
-    const auto itor = imageTypes.find(ext);
-    if (itor != imageTypes.end())
+    if (const auto itor = imageTypes.find(ext); itor != imageTypes.end())
         return itor->second;
 
     return CSmallPixmapType::SXPM_DOCUMENT;

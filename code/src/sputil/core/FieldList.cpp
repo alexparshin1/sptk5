@@ -43,6 +43,10 @@ FieldList::FieldList(const FieldList& other)
     assign(other);
 }
 
+FieldList::FieldList(FieldList&& other) noexcept
+: m_list(move(other.m_list)), m_index(move(other.m_index))
+{}
+
 FieldList::~FieldList()
 {
     clear();

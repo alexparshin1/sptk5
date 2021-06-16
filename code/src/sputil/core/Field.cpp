@@ -66,10 +66,10 @@ void Field::setNull(VariantType vtype)
 
 String Field::asString() const
 {
-    constexpr int maxPrintBuffer = 64;
+    constexpr int maxPrintLength = 64;
 
     String result;
-    char print_buffer[maxPrintBuffer];
+    array<char,maxPrintLength+1> print_buffer;
     int len = 0;
 
     if (isNull())
@@ -81,17 +81,18 @@ String Field::asString() const
             break;
 
         case VAR_INT:
-            len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.getInteger());
-            result.assign(print_buffer, len);
+        case VAR_IMAGE_NDX:
+            len = snprintf(print_buffer.data(), maxPrintLength, "%i", m_data.getInteger());
+            result.assign(print_buffer.data(), len);
             break;
 
         case VAR_INT64:
 #ifndef _WIN32
-            len = snprintf(print_buffer, sizeof(print_buffer), "%li", m_data.getInt64());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%li", m_data.getInt64());
 #else
             len = snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.getInt64());
 #endif
-            result.assign(print_buffer, len);
+            result.assign(print_buffer.data(), len);
             break;
 
         case VAR_FLOAT:
@@ -118,13 +119,8 @@ String Field::asString() const
             break;
 
         case VAR_IMAGE_PTR:
-            len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.getImagePtr());
-            result.assign(print_buffer, len);
-            break;
-
-        case VAR_IMAGE_NDX:
-            len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.getInteger());
-            result.assign(print_buffer, len);
+            len = snprintf(print_buffer.data(), maxPrintLength, "%p", m_data.getImagePtr());
+            result.assign(print_buffer.data(), len);
             break;
 
         default:
@@ -205,7 +201,7 @@ TEST(SPTK_Field, double)
 
 TEST(SPTK_Field, money)
 {
-    constexpr long testLong = (long) 1234567890123456789L;
+    constexpr auto testLong = (long) 1234567890123456789L;
     constexpr int64_t testInt64 = 12345678901;
     constexpr int scaleDigits = 8;
 
