@@ -44,7 +44,7 @@ namespace sptk {
     public:
 
         PostgreSQLStatement(bool int64timestamps, bool prepared)
-            : m_stmt(nullptr), m_paramValues(int64timestamps)
+            : m_paramValues(int64timestamps)
         {
             if (prepared) {
                 stringstream str;
@@ -53,11 +53,6 @@ namespace sptk {
                 ++index;
             }
         }
-
-        PostgreSQLStatement(const PostgreSQLStatement&) = delete;
-        PostgreSQLStatement(PostgreSQLStatement&&) noexcept = default;
-        PostgreSQLStatement& operator = (const PostgreSQLStatement&) = delete;
-        PostgreSQLStatement& operator = (PostgreSQLStatement&&) noexcept = default;
 
         void clear()
         {
