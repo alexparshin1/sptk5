@@ -162,7 +162,7 @@ private:
      * Reads not prepared statement result row to query fields
      * @param fields CFieldList&, query fields (if any)
      */
-    void readUnpreparedResultRow(FieldList& fields);
+    void readUnpreparedResultRow(FieldList& fields) const;
 
     /**
      * Reads prepared statement result row to query fields

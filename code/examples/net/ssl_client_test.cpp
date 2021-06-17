@@ -44,7 +44,7 @@ int main(int, const char**)
         for (unsigned i = 0; i < 10; i++) {
             client.open(Host("localhost", 443));
 
-            client.write("GET /\n",6);
+            client.write((const uint8_t*) "GET /\n",6);
             client.readLine(buffer, '\n');
             COUT("Receiving: ");
             COUT(buffer.data() << endl);

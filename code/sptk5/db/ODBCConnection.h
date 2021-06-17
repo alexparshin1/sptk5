@@ -281,4 +281,3 @@ extern "C" {
     SP_DRIVER_EXPORT void* odbc_create_connection(const char* connectionString);
     SP_DRIVER_EXPORT void  odbc_destroy_connection(void* connection);
 }
-

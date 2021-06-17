@@ -71,7 +71,7 @@ void HttpConnect::sendCommand(const String& cmd)
     if (!m_socket.readyToWrite(chrono::seconds(30)))
         throw Exception("Server is busy");
 
-    m_socket.write(cmd.c_str(), (uint32_t) cmd.length());
+    m_socket.write((const uint8_t*)cmd.c_str(), (uint32_t) cmd.length());
 }
 
 void HttpConnect::sendCommand(const Buffer& cmd)
@@ -79,7 +79,7 @@ void HttpConnect::sendCommand(const Buffer& cmd)
     if (!m_socket.active())
         throw Exception("Socket isn't open");
 
-    m_socket.write(cmd.c_str(), (uint32_t) cmd.bytes());
+    m_socket.write((const uint8_t*)cmd.c_str(), (uint32_t) cmd.bytes());
 }
 
 Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,

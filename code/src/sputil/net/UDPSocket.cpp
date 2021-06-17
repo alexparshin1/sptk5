@@ -111,7 +111,7 @@ public:
                     if (sz == 0)
                         return;
                     data.bytes(sz);
-                    socket.write(data.c_str(), sz, &from);
+                    socket.write((const uint8_t*) data.c_str(), sz, &from);
                 }
             }
             catch (const Exception& e) {
@@ -143,7 +143,7 @@ TEST(SPTK_UDPSocket, minimal)
 
     int rowCount = 0;
     for (const auto& row: rows) {
-        socket.write(row.c_str(), row.length(), &serverAddr);
+        socket.write((const uint8_t*) row.c_str(), row.length(), &serverAddr);
         buffer.bytes(0);
         if (socket.readyToRead(chrono::seconds(3))) {
             auto bytes = socket.read(buffer.data(), 2048);

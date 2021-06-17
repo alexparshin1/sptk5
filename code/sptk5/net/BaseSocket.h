@@ -261,18 +261,18 @@ public:
     /**
      * Reads data from the socket in regular or TLS mode
      * @param buffer            The destination buffer
-     * @param size              The destination buffer size
+     * @param len              The destination buffer size
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t recv(void* buffer, size_t size);
+    [[nodiscard]] virtual size_t recv(uint8_t* buffer, size_t len);
 
     /**
      * Reads data from the socket in regular or TLS mode
      * @param buffer            The send buffer
-     * @param size              The send data length
+     * @param len              The send data length
      * @returns the number of bytes sent the socket
      */
-    [[nodiscard]] virtual size_t send(const void* buffer, size_t size);
+    [[nodiscard]] virtual size_t send(const uint8_t* buffer, size_t len);
 
     /**
      * Reads data from the socket
@@ -314,7 +314,7 @@ public:
      * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const char *buffer, size_t size = size_t(-1), const sockaddr_in* peer = nullptr);
+    virtual size_t write(const uint8_t* buffer, size_t size = size_t(-1), const sockaddr_in* peer = nullptr);
 
     /**
      * Writes data to the socket

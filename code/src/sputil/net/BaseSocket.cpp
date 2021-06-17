@@ -122,23 +122,24 @@ void BaseSocket::blockingMode(bool blocking) const
 size_t BaseSocket::socketBytes()
 {
     uint32_t bytes = 0;
+    if (
 #ifdef _WIN32
-    const int32_t rc = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
+    int32_t rc = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
 #else
     int32_t rc = ioctl(m_sockfd, FIONREAD, &bytes);
 #endif
-    if (rc < 0)
+    rc < 0)
         THROW_SOCKET_ERROR("Can't get socket bytes");
 
     return bytes;
 }
 
-size_t BaseSocket::recv(void* buffer, size_t len)
+size_t BaseSocket::recv(uint8_t* buffer, size_t len)
 {
     return (size_t) ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
 }
 
-size_t BaseSocket::send(const void* buffer, size_t len)
+size_t BaseSocket::send(const uint8_t* buffer, size_t len)
 {
     return (size_t) ::send(m_sockfd, (const char*) buffer, (int32_t) len, 0);
 }
@@ -333,13 +334,13 @@ size_t BaseSocket::read(String& buffer, size_t size, sockaddr_in* from)
     return bytes;
 }
 
-size_t BaseSocket::write(const char* buffer, size_t size, const sockaddr_in* peer)
+size_t BaseSocket::write(const uint8_t* buffer, size_t size, const sockaddr_in* peer)
 {
     int bytes;
-    const char* p = buffer;
+    const auto* p = buffer;
 
     if ((int)size == -1)
-        size = strlen(buffer);
+        size = strlen((const char*)buffer);
 
     const size_t total = size;
     auto remaining = (int) size;
@@ -358,12 +359,12 @@ size_t BaseSocket::write(const char* buffer, size_t size, const sockaddr_in* pee
 
 size_t BaseSocket::write(const Buffer& buffer, const sockaddr_in* peer)
 {
-    return write(buffer.data(), buffer.bytes(), peer);
+    return write((const uint8_t*)buffer.data(), buffer.bytes(), peer);
 }
 
 size_t BaseSocket::write(const String& buffer, const sockaddr_in* peer)
 {
-    return write(buffer.c_str(), buffer.length(), peer);
+    return write((const uint8_t*)buffer.c_str(), buffer.length(), peer);
 }
 
 #if (__FreeBSD__ | __OpenBSD__)

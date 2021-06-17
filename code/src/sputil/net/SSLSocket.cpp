@@ -320,11 +320,11 @@ size_t SSLSocket::socketBytes()
     return 0;
 }
 
-size_t SSLSocket::recv(void* buffer, size_t size)
+size_t SSLSocket::recv(uint8_t* buffer, size_t len)
 {
     int rc;
     for (;;) {
-        rc = SSL_read(m_ssl, buffer, (int) size);
+        rc = SSL_read(m_ssl, buffer, (int) len);
         if (rc >= 0)
             break;
         int error = SSL_get_error(m_ssl, rc);
@@ -341,7 +341,7 @@ size_t SSLSocket::recv(void* buffer, size_t size)
 }
 #define WRITE_BLOCK 16384
 
-size_t SSLSocket::send(const void* buffer, size_t len)
+size_t SSLSocket::send(const uint8_t* buffer, size_t len)
 {
     if (len == 0)
         return 0;

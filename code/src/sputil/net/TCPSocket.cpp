@@ -85,7 +85,7 @@ int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
 #endif
             receivedBytes = (int) recvfrom(m_socket.fd(), data(), (int) capacity() - 2, 0, (sockaddr*) from, &flen);
         } else
-            receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
+            receivedBytes = (int) m_socket.recv((uint8_t*) data(), capacity() - 2);
 
         if (receivedBytes == -1) {
             bytes(0);
@@ -108,7 +108,7 @@ void TCPSocketReader::readMoreFromSocket(int availableBytes)
         bytes((size_t) availableBytes);
     } else
         checkSize(capacity() + 128);
-    size_t receivedBytes = m_socket.recv(data() + availableBytes, capacity() - availableBytes);
+    size_t receivedBytes = m_socket.recv((uint8_t*) data() + availableBytes, capacity() - availableBytes);
     bytes(bytes() + receivedBytes);
 }
 

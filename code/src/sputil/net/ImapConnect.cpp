@@ -96,7 +96,7 @@ String ImapConnect::sendCommand(const String& cmd)
     command = ident + cmd + "\n";
     if (!active())
         throw Exception("Socket isn't open");
-    write(command.c_str(), (uint32_t) command.length());
+    write((const uint8_t*)command.c_str(), (uint32_t) command.length());
     return ident;
 }
 
@@ -128,8 +128,8 @@ void ImapConnect::cmd_append(const String& mail_box, const Buffer& message)
     String cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string((uint32_t) message.bytes()) + "}";
     String ident = sendCommand(cmd);
     getResponse(ident);
-    write(message.data(), message.bytes());
-    write("\n", 1);
+    write((const uint8_t*) message.data(), message.bytes());
+    write((const uint8_t*) "\n", 1);
     getResponse(ident);
 }
 

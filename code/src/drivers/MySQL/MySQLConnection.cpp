@@ -247,8 +247,7 @@ void MySQLConnection::queryOpen(Query* query)
     auto* statement = (MySQLStatement*) query->statement();
 
     queryExecute(query);
-    auto fieldCount = (short) queryColCount(query);
-    if (fieldCount < 1)
+    if (auto fieldCount = (short) queryColCount(query); fieldCount < 1)
         return;
 
     querySetActive(query, true);
@@ -336,7 +335,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
 
 void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
-    shared_ptr<RegularExpression> matchStatementEnd(new RegularExpression("(;\\s*)$"));
+    auto matchStatementEnd = make_shared<RegularExpression>("(;\\s*)$");
 
     RegularExpression matchDelimiterChange("^DELIMITER\\s+(\\S+)");
     RegularExpression matchEscapeChars("([$.])", "g");
@@ -348,14 +347,15 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
         row = row.trim();
         if (row.empty() || matchCommentRow.matches(row))
             continue;
-        auto matches = matchDelimiterChange.m(row);
-        if (matches) {
+
+        if (auto matches = matchDelimiterChange.m(row); matches) {
             auto delimiter = matches[0].value;
             delimiter = matchEscapeChars.s(delimiter, "\\\\1");
             matchStatementEnd = make_shared<RegularExpression>("(" + delimiter + ")(\\s*|-- .*)$");
             statement = "";
             continue;
         }
+
         if (matchStatementEnd->matches(row)) {
             row = matchStatementEnd->s(row, "");
             statement += row;
@@ -363,6 +363,7 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
             statement = "";
             continue;
         }
+
         statement += row + "\n";
     }
 

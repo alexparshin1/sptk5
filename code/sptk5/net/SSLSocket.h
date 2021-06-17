@@ -145,7 +145,7 @@ protected:
      * @param size              Destination buffer size
      * @return the number of bytes read from the socket
      */
-    size_t recv(void* buffer, size_t size) override;
+    size_t recv(uint8_t* buffer, size_t size) override;
 
     /**
      * Sends data through SSL socket
@@ -154,7 +154,7 @@ protected:
      * @return the number of bytes sent the socket
      */
 
-    size_t send(const void* buffer, size_t len) override;
+    size_t send(const uint8_t* buffer, size_t len) override;
 
     /**
      * Get error description for SSL error code

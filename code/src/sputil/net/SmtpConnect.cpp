@@ -92,7 +92,7 @@ void SmtpConnect::sendCommand(String cmd, bool encode)
     if (m_log != nullptr)
         m_log->debug("[SEND] " + cmd);
     cmd += "\r\n";
-    write(cmd.c_str(), (uint32_t) cmd.length());
+    write((const uint8_t*)cmd.c_str(), (uint32_t) cmd.length());
 }
 
 int SmtpConnect::command(const string& cmd, bool encodeCommand, bool decodeResponse)

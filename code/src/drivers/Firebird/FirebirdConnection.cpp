@@ -33,8 +33,7 @@ using namespace std;
 using namespace sptk;
 
 FirebirdConnection::FirebirdConnection(const String& connectionString)
-: PoolDatabaseConnection(connectionString, DatabaseConnectionType::FIREBIRD),
-  m_connection(0)
+: PoolDatabaseConnection(connectionString, DatabaseConnectionType::FIREBIRD)
 {
 }
 
@@ -46,7 +45,7 @@ FirebirdConnection::~FirebirdConnection()
         disconnectAllQueries();
         close();
     } catch (const Exception& e) {
-        CERR(e.what() << endl);
+        CERR(e.what() << endl)
     }
 }
 
@@ -55,10 +54,10 @@ void FirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char
     if (status_vector[0] == 1 && status_vector[1])
     {
         string errors;
-        char error[256];
+        array<char,256> error;
         const ISC_STATUS* pvector = status_vector;
-        while (fb_interpret(error, sizeof(error), &pvector))
-            errors += string(error) + " ";
+        while (fb_interpret(error.data(), sizeof(error), &pvector))
+            errors += string(error.data()) + " ";
         m_lastStatus = errors;
         throw DatabaseException(errors, file, line);
     } else
@@ -67,46 +66,44 @@ void FirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char
 
 void FirebirdConnection::_openDatabase(const String& newConnectionString)
 {
-    ISC_STATUS status_vector[20];
+    array<ISC_STATUS,20> status_vector;
 
     if (!active()) {
         setInTransaction(false);
         if (newConnectionString.length())
             connectionString(DatabaseConnectionString(newConnectionString));
 
-        char dpb_buffer[256];
+        array<char,256> dpb_buffer;
         char *dpb;
         short dpb_length;
 
-        dpb = dpb_buffer;
+        dpb = dpb_buffer.data();
         *dpb++ = isc_dpb_version1;
         *dpb++ = isc_dpb_num_buffers;
         *dpb++ = 1;
         *dpb++ = 90;
-        dpb_length = short(dpb - dpb_buffer);
+        dpb_length = short(dpb - dpb_buffer.data());
 
-        dpb = dpb_buffer;
+        dpb = dpb_buffer.data();
 
         const DatabaseConnectionString& connString = connectionString();
 
-        const string& username = connString.userName();
-        if (!username.empty())
+        if (const string& username = connString.userName(); !username.empty())
             isc_modify_dpb(&dpb, &dpb_length, isc_dpb_user_name, username.c_str(), (short) username.length());
 
-        const string& password = connString.password();
-        if (!password.empty())
+        if (const string& password = connString.password(); !password.empty())
             isc_modify_dpb(&dpb, &dpb_length, isc_dpb_password, password.c_str(), (short) password.length());
 
         m_connection = 0;
         string fullDatabaseName = connString.hostName() + ":/" + connString.databaseName();
-        isc_attach_database(status_vector, (short) fullDatabaseName.length(), fullDatabaseName.c_str(), &m_connection, dpb_length, dpb);
-        checkStatus(status_vector, __FILE__, __LINE__);
+        isc_attach_database(status_vector.data(), (short) fullDatabaseName.length(), fullDatabaseName.c_str(), &m_connection, dpb_length, dpb);
+        checkStatus(status_vector.data(), __FILE__, __LINE__);
     }
 }
 
 void FirebirdConnection::closeDatabase()
 {
-    ISC_STATUS status_vector[20];
+    array<ISC_STATUS,20> status_vector;
 
     if (m_transaction)
         driverEndTransaction(false);
@@ -114,7 +111,7 @@ void FirebirdConnection::closeDatabase()
     disconnectAllQueries();
 
     if (m_connection) {
-        isc_detach_database(status_vector, &m_connection);
+        isc_detach_database(status_vector.data(), &m_connection);
         m_connection = 0;
     }
 }
@@ -149,7 +146,7 @@ String FirebirdConnection::nativeConnectionString() const
 
 void FirebirdConnection::driverBeginTransaction()
 {
-    ISC_STATUS status_vector[20];
+    array<ISC_STATUS,20> status_vector;
 
     if (!m_connection)
         open();
@@ -159,25 +156,25 @@ void FirebirdConnection::driverBeginTransaction()
 
     m_transaction = 0L;
     static char isc_tpb[] = { isc_tpb_version3, isc_tpb_write, isc_tpb_read_committed, isc_tpb_no_rec_version, isc_tpb_wait};
-    isc_start_transaction(status_vector, &m_transaction, 1, &m_connection, sizeof(isc_tpb), isc_tpb);
-    checkStatus(status_vector, __FILE__, __LINE__);
+    isc_start_transaction(status_vector.data(), &m_transaction, 1, &m_connection, sizeof(isc_tpb), isc_tpb);
+    checkStatus(status_vector.data(), __FILE__, __LINE__);
 
     setInTransaction(true);
 }
 
 void FirebirdConnection::driverEndTransaction(bool commit)
 {
-    ISC_STATUS status_vector[20];
+    array<ISC_STATUS,20> status_vector;
 
     if (!getInTransaction())
-        throwDatabaseException("Transaction isn't started.");
+        throwDatabaseException("Transaction isn't started.")
 
     if (commit)
-        isc_commit_transaction(status_vector, &m_transaction);
+        isc_commit_transaction(status_vector.data(), &m_transaction);
     else
-        isc_rollback_transaction(status_vector, &m_transaction);
+        isc_rollback_transaction(status_vector.data(), &m_transaction);
 
-    checkStatus(status_vector, __FILE__, __LINE__);
+    checkStatus(status_vector.data(), __FILE__, __LINE__);
     m_transaction = 0L;
     setInTransaction(false);
 }
@@ -214,7 +211,7 @@ void FirebirdConnection::queryCloseStmt(Query *query)
             statement->close();
     }
     catch (const Exception& e) {
-        throwDatabaseException(e.what());
+        throwDatabaseException(e.what())
     }
 }
 
@@ -229,7 +226,7 @@ void FirebirdConnection::queryPrepare(Query *query)
             statement->enumerateParams(query->params());
         }
         catch (const Exception& e) {
-            throwDatabaseException(e.what());
+            throwDatabaseException(e.what())
         }
         querySetPrepared(query, true);
     }
@@ -243,12 +240,12 @@ void FirebirdConnection::queryUnprepare(Query *query)
 int FirebirdConnection::queryColCount(Query *query)
 {
     int colCount = 0;
-    auto* statement = (FirebirdStatement*) query->statement();
+    const auto* statement = (FirebirdStatement*) query->statement();
     try {
         colCount = (int) statement->colCount();
     }
     catch (const Exception& e) {
-        throwDatabaseException(e.what());
+        throwDatabaseException(e.what())
     }
     return colCount;
 }
@@ -260,11 +257,11 @@ void FirebirdConnection::queryBindParameters(Query *query)
     auto* statement = (FirebirdStatement*) query->statement();
     try {
         if (!statement)
-            throwDatabaseException("Query not prepared");
+            throwDatabaseException("Query not prepared")
         statement->setParameterValues();
     }
     catch (const Exception& e) {
-        throwDatabaseException(e.what());
+        throwDatabaseException(e.what())
     }
 }
 
@@ -273,11 +270,11 @@ void FirebirdConnection::queryExecute(Query *query)
     auto* statement = (FirebirdStatement*) query->statement();
     try {
         if (!statement)
-            throwDatabaseException("Query is not prepared");
+            throwDatabaseException("Query is not prepared")
         statement->execute(getInTransaction());
     }
     catch (const Exception& e) {
-        throwDatabaseException(e.what());
+        throwDatabaseException(e.what())
     }
 }
 
@@ -301,8 +298,7 @@ void FirebirdConnection::queryOpen(Query *query)
     auto* statement = (FirebirdStatement*) query->statement();
 
     queryExecute(query);
-    auto fieldCount = (short) queryColCount(query);
-    if (fieldCount < 1) {
+    if (auto fieldCount = (short) queryColCount(query); fieldCount < 1) {
         return;
     } else {
         querySetActive(query, true);
@@ -320,7 +316,7 @@ void FirebirdConnection::queryOpen(Query *query)
 void FirebirdConnection::queryFetch(Query *query)
 {
     if (!query->active())
-        throwDatabaseException("Dataset isn't open");
+        throwDatabaseException("Dataset isn't open")
 
     scoped_lock lock(m_mutex);
 
@@ -337,7 +333,7 @@ void FirebirdConnection::queryFetch(Query *query)
         statement->fetchResult(query->fields());
     }
     catch (const Exception& e) {
-        throwDatabaseException(e.what());
+        throwDatabaseException(e.what())
     }
 }
 
@@ -374,7 +370,7 @@ void FirebirdConnection::objectList(DatabaseObjectType objectType, Strings& obje
             "ORDER BY 1";
         break;
     default:
-        throwDatabaseException("Not supported");
+        throwDatabaseException("Not supported")
     }
     Query query(this, objectsSQL);
     query.open();
@@ -397,7 +393,7 @@ String FirebirdConnection::paramMark(unsigned)
 
 void* firebird_create_connection(const char* connectionString)
 {
-    FirebirdConnection* connection = new FirebirdConnection(connectionString);
+    auto* connection = new FirebirdConnection(connectionString);
     return connection;
 }
 

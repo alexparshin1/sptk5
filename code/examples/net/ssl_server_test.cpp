@@ -34,9 +34,10 @@ using namespace sptk;
 
 void readAndReply(SSLSocket& socket)
 {
-    char        buffer[1024];
-    char        reply[2048];
+    array<char,1024>    buffer;
+    array<char,1024>    reply;
     size_t      bytes;
+
     const char* HTMLecho="<html><body><pre>%s</pre></body></html>\n\n";
 
     if (!socket.readyToRead(chrono::seconds(3))) {
@@ -53,11 +54,11 @@ void readAndReply(SSLSocket& socket)
     if (bytes > sizeof(buffer))
         bytes = sizeof(buffer);
 
-    bytes = socket.read(buffer, bytes);
+    bytes = socket.read(buffer.data(), bytes);
     buffer[bytes] = 0;
-    COUT("Client msg: " << buffer << endl)
-    snprintf(reply, sizeof(reply), HTMLecho, buffer);
-    socket.write(reply, strlen(reply));
+    COUT("Client msg: " << buffer.data() << endl)
+    snprintf(reply.data(), sizeof(reply), HTMLecho, buffer);
+    socket.write((const uint8_t*) reply.data(), strlen(reply.data()));
 }
 
 void processConnection(SOCKET clientSocketFD)

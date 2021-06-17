@@ -272,18 +272,18 @@ string extract_error(
 {
     SQLSMALLINT i = 0;
     SQLINTEGER native = 0;
-    SQLCHAR state[7];
-    SQLCHAR text[256];
+    array<SQLCHAR,7> state;
+    array<SQLCHAR,256> text;
     SQLSMALLINT len = 0;
     SQLRETURN ret;
 
     string error;
     for (;;) {
         ++i;
-        ret = SQLGetDiagRec(type, handle, i, state, &native, text, sizeof(text), &len);
+        ret = SQLGetDiagRec(type, handle, i, state.data(), &native, text.data(), sizeof(text), &len);
         if (ret != SQL_SUCCESS)
             break;
-        error += removeDriverIdentification((char*) text) + string(". ");
+        error += removeDriverIdentification((char*)text.data()) + string(". ");
     }
 
     return error;
@@ -291,22 +291,20 @@ string extract_error(
 
 String ODBCConnectionBase::errorInformation(const char* function)
 {
-    char errorDescription[SQL_MAX_MESSAGE_LENGTH];
-    char errorState[SQL_MAX_MESSAGE_LENGTH];
+    array<char,SQL_MAX_MESSAGE_LENGTH> errorDescription {};
+    array<char,SQL_MAX_MESSAGE_LENGTH> errorState {};
     SWORD pcnmsg = 0;
     SQLINTEGER nativeError = 0;
-    *errorState = 0;
-    *errorDescription = 0;
 
-    int rc = SQLError(SQL_NULL_HENV, m_hConnection, SQL_NULL_HSTMT, (UCHAR FAR*) errorState, &nativeError,
-                      (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg);
+    int rc = SQLError(SQL_NULL_HENV, m_hConnection, SQL_NULL_HSTMT, (UCHAR*) errorState.data(), &nativeError,
+                      (UCHAR*) errorDescription.data(), sizeof(errorDescription), &pcnmsg);
     if (rc == SQL_SUCCESS)
         return extract_error(m_hConnection, SQL_HANDLE_DBC);
 
-    rc = SQLError(m_cEnvironment.handle(), SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR FAR*) errorState,
-                  &nativeError, (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg);
+    rc = SQLError(m_cEnvironment.handle(), SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR*) errorState.data(),
+                  &nativeError, (UCHAR*) errorDescription.data(), sizeof(errorDescription), &pcnmsg);
     if (rc != SQL_SUCCESS)
         exception(cantGetInformation, __LINE__);
 
-    return String(function) + ": " + removeDriverIdentification(errorDescription);
+    return String(function) + ": " + removeDriverIdentification(errorDescription.data());
 }

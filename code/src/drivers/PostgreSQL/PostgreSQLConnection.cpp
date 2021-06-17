@@ -46,20 +46,18 @@ namespace sptk {
         PostgreSQLStatement(bool int64timestamps, bool prepared)
             : m_stmt(nullptr), m_paramValues(int64timestamps)
         {
-            if (prepared)
-                snprintf(m_stmtName, sizeof(m_stmtName), "S%04u", ++index);
+            if (prepared) {
+                stringstream str;
+                str << "S" << setfill('0') << setw(4) << index;
+                m_stmtName = str.str();
+                ++index;
+            }
         }
 
         PostgreSQLStatement(const PostgreSQLStatement&) = delete;
         PostgreSQLStatement(PostgreSQLStatement&&) noexcept = default;
         PostgreSQLStatement& operator = (const PostgreSQLStatement&) = delete;
         PostgreSQLStatement& operator = (PostgreSQLStatement&&) noexcept = default;
-
-        ~PostgreSQLStatement()
-        {
-            if (m_stmt != nullptr)
-                PQclear(m_stmt);
-        }
 
         void clear()
         {
@@ -69,21 +67,14 @@ namespace sptk {
 
         void clearRows()
         {
-            if (m_stmt != nullptr) {
-                PQclear(m_stmt);
-                m_stmt = nullptr;
-            }
-
+            m_stmt.reset();
             m_rows = 0;
             m_currentRow = -1;
         }
 
         void stmt(PGresult* st, unsigned rows, unsigned cols = 99999)
         {
-            if (m_stmt != nullptr)
-                PQclear(m_stmt);
-
-            m_stmt = st;
+            m_stmt = shared_ptr<PGresult>(st, [](auto* ptr) { PQclear(ptr); });
             m_rows = (int) rows;
 
             if (cols != 99999)
@@ -94,7 +85,7 @@ namespace sptk {
 
         [[nodiscard]] const PGresult* stmt() const
         {
-            return m_stmt;
+            return m_stmt.get();
         }
 
         [[nodiscard]] String name() const
@@ -126,8 +117,8 @@ namespace sptk {
 
     private:
 
-        PGresult*               m_stmt {nullptr};
-        char                    m_stmtName[20] {};
+        shared_ptr<PGresult>    m_stmt;
+        String                  m_stmtName;
         static unsigned         index;
         int                     m_rows {0};
         int                     m_cols {0};
@@ -291,9 +282,7 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
 {
     scoped_lock lock(m_mutex);
 
-    auto* statement = (PostgreSQLStatement*) query->statement();
-
-    if (statement != nullptr) {
+    if (auto* statement = (PostgreSQLStatement*) query->statement(); statement != nullptr) {
         if (statement->stmt() != nullptr && !statement->name().empty()) {
             String deallocateCommand = "DEALLOCATE \"" + statement->name() + "\"";
             PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
@@ -333,8 +322,9 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     const Oid* paramTypes = params.types();
     unsigned paramCount = params.size();
 
-    PGresult* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), (int) paramCount,
+    auto* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), (int) paramCount,
                                paramTypes);
+
     checkError(m_connect, stmt, "PREPARE");
 
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
@@ -838,7 +828,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
     DatabaseField* field = nullptr;
     const PGresult* stmt = statement->stmt();
-    int currentRow = (int) statement->currentRow();
+    auto currentRow = (int) statement->currentRow();
 
     for (int column = 0; column < fieldCount; ++column) {
         try {
@@ -855,8 +845,8 @@ void PostgreSQLConnection::queryFetch(Query* query)
                 if (isNull)
                     field->setNull(VAR_NONE);
                 else {
-                    static char emptyString[2] = {};
-                    field->setExternalBuffer(emptyString, 0, VAR_STRING); // External string
+                    static array<char,2> emptyString {};
+                    field->setExternalBuffer(emptyString.data(), 0, VAR_STRING); // External string
                 }
             } else {
                 char* data = PQgetvalue(stmt, currentRow, column);
@@ -987,9 +977,9 @@ String PostgreSQLConnection::driverDescription() const
 
 String PostgreSQLConnection::paramMark(unsigned paramIndex)
 {
-    char mark[16];
-    snprintf(mark, sizeof(mark), "$%i", paramIndex + 1);
-    return string(mark);
+    array<char,16> mark;
+    snprintf(mark.data(), sizeof(mark), "$%i", paramIndex + 1);
+    return String(mark.data());
 }
 
 static void appendTSV(Buffer& dest, const VariantVector& row)
