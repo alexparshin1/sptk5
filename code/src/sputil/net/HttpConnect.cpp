@@ -98,8 +98,8 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
     headers.push_back(command + " HTTP/1.1");
     headers.push_back("HOST: " + m_socket.host().toString(false));
 
-    for (const auto& itor: m_requestHeaders)
-        headers.push_back(itor.first + ": " + itor.second);
+    for (const auto& [name,value]: m_requestHeaders)
+        headers.push_back(name + ": " + value);
 
     if (authorization && !authorization->method().empty())
         headers.push_back("Authorization: " + authorization->method() + " " + authorization->value());
@@ -170,8 +170,7 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
 
     const Buffer* data = &postData;
 
-    Buffer compressBuffer;
-    if (!possibleContentEncodings.empty()
+    if (Buffer compressBuffer; !possibleContentEncodings.empty()
         && compressPostData(possibleContentEncodings, headers, postData, compressBuffer))
     {
         data = &compressBuffer;
@@ -241,7 +240,7 @@ TEST(SPTK_HttpConnect, get)
 {
     Host google("www.google.com:80");
 
-    auto* socket = new TCPSocket;
+    auto socket = make_shared<TCPSocket>();
 
     ASSERT_NO_THROW(socket->open(google));
     ASSERT_TRUE(socket->active());
@@ -261,8 +260,6 @@ TEST(SPTK_HttpConnect, get)
 
     String data(output.c_str(), output.bytes());
     EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
-
-	delete socket;
 }
 
 #endif

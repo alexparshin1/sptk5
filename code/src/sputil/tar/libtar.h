@@ -18,6 +18,8 @@
 #include "tar.h"
 #include <cstddef>
 #include <string>
+#include <memory>
+#include <iostream>
 
 #ifdef __cplusplus
 extern "C"
@@ -26,14 +28,14 @@ extern "C"
 
 
 /* useful constants */
-#define T_BLOCKSIZE		512
-#define T_NAMELEN		100
-#define T_PREFIXLEN		155
-#define T_MAXPATHLEN		(T_NAMELEN + T_PREFIXLEN)
+constexpr int T_BLOCKSIZE = 512;
+constexpr int T_NAMELEN = 100;
+constexpr int T_PREFIXLEN = 155;
+constexpr int T_MAXPATHLEN = T_NAMELEN + T_PREFIXLEN;
 
 /* GNU extensions for typeflag */
-#define GNU_LONGNAME_TYPE	'L'
-#define GNU_LONGLINK_TYPE	'K'
+constexpr char GNU_LONGNAME_TYPE = 'L';
+constexpr char GNU_LONGLINK_TYPE = 'K';
 
 /* our version of the tar header structure */
 struct tar_header
@@ -62,51 +64,47 @@ struct tar_header
 
 /***** handle.c ************************************************************/
 
-typedef int (*openfunc_t)(const char *, int, ...);
-typedef int (*closefunc_t)(int);
-typedef int (*readfunc_t)(int, void *, size_t);
-typedef int (*writefunc_t)(int, const void *, size_t);
+using openfunc_t = int (*)(const char *, int, ...);
+using closefunc_t = int (*)(int);
+using readfunc_t = int (*)(int, uint8_t *, size_t);
+using writefunc_t = int (*)(int, const uint8_t *, size_t);
 
-typedef struct
+struct tartype_t
 {
 	openfunc_t  openfunc;
 	closefunc_t closefunc;
 	readfunc_t  readfunc;
 	writefunc_t writefunc;
-}
-tartype_t;
+};
 
 struct TAR
 {
-	const tartype_t *type;
-	const char *pathname;
-	long fd;
-	int oflags;
-	int options;
-	struct tar_header th_buf;
+	const tartype_t *type {nullptr};
+	const char *pathname {nullptr};
+	long fd {0};
+	int oflags {0};
+	int options {0};
+	struct tar_header th_buf {};
 };
 
-/* constant values for the TAR options field */
-#define TAR_GNU			 1	/* use GNU extensions */
-#define TAR_VERBOSE		 2	/* output file info to stdout */
-#define TAR_NOOVERWRITE		 4	/* don't overwrite existing files */
-#define TAR_IGNORE_EOT		 8	/* ignore double zero blocks as EOF */
-#define TAR_CHECK_MAGIC		16	/* check magic in file header */
-#define TAR_CHECK_VERSION	32	/* check version in file header */
-#define TAR_IGNORE_CRC		64	/* ignore CRC in file header */
+// constant values for the TAR options field
+constexpr int TAR_GNU = 1;	            // use GNU extensions
+constexpr int TAR_VERBOSE = 2;	        // output file info to stdout
+constexpr int TAR_NOOVERWRITE = 4;	    // don't overwrite existing files
+constexpr int TAR_IGNORE_EOT = 8;	    // ignore double zero blocks as EOF
+constexpr int TAR_CHECK_MAGIC = 16;	    // check magic in file header
+constexpr int TAR_CHECK_VERSION = 32;	// check version in file header
+constexpr int TAR_IGNORE_CRC = 64;	    // ignore CRC in file header
 
-/* this is obsolete - it's here for backwards-compatibility only */
-#define TAR_IGNORE_MAGIC	0
+// this is obsolete - it's here for backwards-compatibility only
+constexpr int TAR_IGNORE_MAGIC = 0;
 
 /* open a new tarfile handle */
-TAR* tar_open(const char *pathname, const tartype_t *type, int oflags, int mode, int options);
-
-/* close tarfile handle */
-int tar_close(TAR *t);
+std::shared_ptr<TAR> tar_open(const char *pathname, const tartype_t *type, int oflags, int mode, int options);
 
 /* macros for reading/writing tarchive blocks */
 #define tar_block_read(t, buf) \
-	(*((t)->type->readfunc))((int)(t)->fd, (char *)(buf), T_BLOCKSIZE)
+	(*((t)->type->readfunc))((int)(t)->fd, (uint8_t *)(buf), T_BLOCKSIZE)
 
 /* read/write a header block */
 int th_read(TAR *t);

@@ -76,8 +76,7 @@ bool HttpReader::readHttpRequest()
         return false;
 
     RegularExpression parseProtocol("^(GET|POST|DELETE|PUT|OPTIONS) (\\S+)", "i");
-    auto matches = parseProtocol.m(request);
-    if (matches) {
+    if (auto matches = parseProtocol.m(request); matches) {
         m_requestType = matches[0].value.toUpperCase();
         m_requestURL = matches[1].value;
         return true;
@@ -110,8 +109,8 @@ void HttpReader::readHttpHeaders()
         if (header.empty())
             throw Exception("Empty HTTP header");
 
-        size_t pos = header.find(':');
-        if (pos != string::npos) {
+
+        if (size_t pos = header.find(':'); pos != string::npos) {
             m_httpHeaders[lowerCase(header.substr(0, pos))] = trim(header.substr(pos + 1));
             continue;
         }
@@ -131,9 +130,7 @@ void HttpReader::readHttpHeaders()
     if (itor != m_httpHeaders.end())
         m_contentIsChunked = itor->second.find("chunked") != string::npos;
 
-    bool expectingContent = m_requestType == "POST" || m_requestType == "PUT";
-    bool contentLengthDefined = m_contentLength > 0 || m_contentIsChunked;
-    if (expectingContent && !contentLengthDefined)
+    if ((m_requestType == "POST" || m_requestType == "PUT") && !(m_contentLength > 0 || m_contentIsChunked))
         throw HTTPException(lengthRequiredResponseCode, "Length required");
 
     m_contentReceivedLength = 0;

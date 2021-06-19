@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 
 SmtpConnect::SmtpConnect(Logger* log)
-: m_log(log)
+        : m_log(log)
 {
 }
 
@@ -41,7 +41,7 @@ constexpr int RSP_BLOCK_SIZE = 1024;
 
 int SmtpConnect::getResponse(bool decode)
 {
-    char readBuffer[RSP_BLOCK_SIZE + 1];
+    array<char, RSP_BLOCK_SIZE + 1> readBuffer;
     string longLine;
     bool readCompleted = false;
     int rc = 0;
@@ -50,12 +50,12 @@ int SmtpConnect::getResponse(bool decode)
         throw TimeoutException("SMTP server response timeout");
 
     while (!readCompleted) {
-        size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
-        longLine = readBuffer;
+        size_t len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
+        longLine = readBuffer.data();
         if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n') {
             do {
-                len = readLine(readBuffer, RSP_BLOCK_SIZE);
-                longLine += readBuffer;
+                len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
+                longLine += readBuffer.data();
             }
             while (len == RSP_BLOCK_SIZE);
         }
@@ -72,12 +72,11 @@ int SmtpConnect::getResponse(bool decode)
                 longLine.erase(lastCharPos);
         }
 
-        const char * text = longLine.c_str() + 4;
+        const char* text = longLine.c_str() + 4;
         if (rc <= 432 && decode) {
             longLine = unmime(text);
             m_response.push_back(longLine);
-        }
-        else
+        } else
             m_response.push_back(std::string(text));
     }
     return rc;
@@ -92,7 +91,7 @@ void SmtpConnect::sendCommand(String cmd, bool encode)
     if (m_log != nullptr)
         m_log->debug("[SEND] " + cmd);
     cmd += "\r\n";
-    write((const uint8_t*)cmd.c_str(), (uint32_t) cmd.length());
+    write((const uint8_t*) cmd.c_str(), (uint32_t) cmd.length());
 }
 
 int SmtpConnect::command(const string& cmd, bool encodeCommand, bool decodeResponse)
@@ -221,8 +220,7 @@ void SmtpConnect::sendMessage()
     Strings recepients(rcpts, ";");
     auto cnt = (uint32_t) recepients.size();
     for (uint32_t i = 0; i < cnt; ++i) {
-        String address = trim(recepients[i]);
-        if (address[0] == 0) continue;
+        if (trim(recepients[i]).empty()) continue;
         rc = command("RCPT TO:<" + parseAddress(recepients[i]) + ">");
         if (rc > 251)
             throw Exception("Recepient " + recepients[i] + " is not accepted.\n" + m_response.join("\n"));

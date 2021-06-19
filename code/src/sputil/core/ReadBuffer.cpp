@@ -29,7 +29,7 @@
 using namespace std;
 using namespace sptk;
 
-bool ReadBuffer::read(void* data, size_t length)
+bool ReadBuffer::read(uint8_t* data, size_t length)
 {
     if (bytes() - m_readOffset < length)
         return false;
@@ -43,13 +43,13 @@ bool ReadBuffer::read(void* data, size_t length)
 bool ReadBuffer::read(String& data, size_t length)
 {
     data.resize(length);
-    return read(&data[0], length);
+    return read((uint8_t*) &data[0], length);
 }
 
 bool ReadBuffer::read(Buffer& data, size_t length)
 {
     data.checkSize(length);
-    return read(data.data(), length);
+    return read((uint8_t*) data.data(), length);
 }
 
 #if USE_GTEST

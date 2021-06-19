@@ -76,8 +76,7 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket) const
     socket->readLine(buffer);
 
     RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
-    auto responseMatches = matchProxyResponse.m(buffer.c_str());
-    if (responseMatches) {
+    if (auto responseMatches = matchProxyResponse.m(buffer.c_str()); responseMatches) {
         int rc = responseMatches[0].value.toInt();
         if (rc < 400)
             proxyConnected = true;
@@ -196,8 +195,7 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
     if (proxyEnv == nullptr)
         return false;
 
-    auto parts = matchProxy.m(proxyEnv);
-    if (parts) {
+    if (auto parts = matchProxy.m(proxyEnv); parts) {
         proxyUser = parts[2].value;
         proxyPassword = parts[3].value.empty() ? "" : parts[3].value.substr(1);
         proxyHost = Host(parts[4].value);
@@ -249,9 +247,10 @@ TEST(SPTK_HttpProxy, connect)
         HttpConnect http(*socket);
 
         Buffer output;
-        auto statusCode = http.cmd_get("/", HttpParams(), output);
-        if (statusCode >= 400)
+
+        if (auto statusCode = http.cmd_get("/", HttpParams(), output); statusCode >= 400)
             throw Exception(http.statusText());
+
         COUT(output.c_str() << endl)
     }
     catch (const Exception& e) {

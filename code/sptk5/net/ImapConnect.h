@@ -53,17 +53,7 @@ public:
     /**
      * Default constructor
      */
-    ImapConnect();
-
-    /**
-     * Deleted copy constructor
-     */
-    ImapConnect(const ImapConnect&) = delete;
-
-    /**
-     * Destructor, closes the connection if it's open.
-     */
-    ~ImapConnect() override;
+    ImapConnect() = default;
 
     /**
      * Sends a command with the arguments. Arguments (if any) are automatically

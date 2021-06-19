@@ -36,7 +36,7 @@
 #include <sptk5/DateTime.h>
 #include <sptk5/net/BaseMailConnect.h>
 
-#define LINE_CHARS 72
+static constexpr int LINE_CHARS = 72;
 
 using namespace std;
 using namespace sptk;
@@ -47,10 +47,10 @@ public:
     static string type(const string& fileName);
 
 private:
-    static const map<string, string> m_contentTypes;
+    static const map<string, string, std::less<>> m_contentTypes;
 };
 
-const map<string, string> ContentTypes::m_contentTypes
+const map<string, string, std::less<>> ContentTypes::m_contentTypes
 {
     { "txt", "text/plain" },
     { "htm", "text/html" },
@@ -69,8 +69,7 @@ const map<string, string> ContentTypes::m_contentTypes
 
 string ContentTypes::type(const string& fileName)
 {
-    const char* extension = strrchr(fileName.c_str(), '.');
-    if (extension != nullptr) {
+    if (const char* extension = strrchr(fileName.c_str(), '.'); extension != nullptr) {
         ++extension;
         if (strlen(extension) > 4)
             return "application/octet-stream";
@@ -148,7 +147,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     date.decodeDate(&dy, &dm, &dd, &wd, &yd);
     date.decodeTime(&th, &tm, &ts, &tms);
 
-    char dateBuffer[128] = {};
+    array<char, 128> dateBuffer = {};
     const char* sign = "-";
     int offset = TimeZone::offset();
     if (offset >= 0)
@@ -157,7 +156,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
         offset = -offset;
     }
 
-    int len = snprintf(dateBuffer, sizeof(dateBuffer),
+    int len = snprintf(dateBuffer.data(), sizeof(dateBuffer) - 1,
             "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
             date.dayOfWeekName().substr(0, 3).c_str(),
             dd,
@@ -169,7 +168,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
             TimeZone::name().c_str()
     );
 
-    message << string(dateBuffer, (size_t) len) << endl;
+    message << String(dateBuffer.data(), (size_t) len) << endl;
 
     message << "MIME-Version: 1.0" << endl;
     message << "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"" << endl << endl;
@@ -207,9 +206,10 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
         if (attachment.find('/') != STRING_NPOS)
             separator = "/";
         Strings attachmentParts(attachment, separator);
-        auto attachmentPartsCount = (uint32_t) attachmentParts.size();
-        if (attachmentPartsCount > 1)
+
+        if (auto attachmentPartsCount = (uint32_t) attachmentParts.size(); attachmentPartsCount > 1)
             attachmentAlias = attachmentParts[attachmentPartsCount - 1].c_str();
+
         if (!attachment.empty()) {
             message << endl << "--" << boundary << endl;
             mimeFile(attachment, attachmentAlias, message);

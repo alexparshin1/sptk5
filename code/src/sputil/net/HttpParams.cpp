@@ -98,8 +98,8 @@ String Url::decode(const String& str)
 
 HttpParams::HttpParams(std::initializer_list<std::pair<String, String>> lst)
 {
-    for (const auto& itor: lst) {
-        operator[](itor.first) = itor.second;
+    for (const auto& [name,value]: lst) {
+        operator[](name) = value;
     }
 }
 
@@ -123,9 +123,9 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
 void HttpParams::encode(Buffer& result) const
 {
     unsigned cnt = 0;
-    for (auto& itor: *this) {
+    for (auto& [name,value]: *this) {
         String param;
-        param = itor.first + "=" + Url::encode(itor.second);
+        param = name + "=" + Url::encode(value);
         if (cnt != 0)
             result.append('&');
         result.append(param);

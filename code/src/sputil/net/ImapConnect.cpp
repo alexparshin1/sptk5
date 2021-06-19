@@ -33,27 +33,19 @@ using namespace sptk;
 // Implementation is based on
 // http://www.course.molina.com.br/RFC/Orig/rfc2060.txt
 
-ImapConnect::ImapConnect()
-{}
-
-ImapConnect::~ImapConnect()
-{
-    TCPSocket::close();
-}
-
-#define RSP_BLOCK_SIZE 1024
+static constexpr int RSP_BLOCK_SIZE = 1024;
 
 bool ImapConnect::getResponse(const String& ident)
 {
-    char readBuffer[RSP_BLOCK_SIZE + 1];
+    array<char, RSP_BLOCK_SIZE + 1> readBuffer;
 
     for (; ;) {
-        size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
-        String longLine = readBuffer;
+        size_t len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
+        String longLine = readBuffer.data();
         if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n') {
             do {
-                len = readLine(readBuffer, RSP_BLOCK_SIZE);
-                longLine += readBuffer;
+                len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
+                longLine += readBuffer.data();
             } while (len == RSP_BLOCK_SIZE);
         }
         m_response.push_back(longLine);
@@ -335,16 +327,14 @@ String ImapConnect::cmd_fetch_flags(int32_t msg_id)
 {
     String result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
-    size_t count = m_response.size() - 1;
-    if (count > 0) {
+    if (size_t count = m_response.size() - 1; count > 0) {
         size_t i = 0;
         const String &st = m_response[i];
         const char *fpos = strstr(st.c_str(), "(\\");
         if (fpos == nullptr)
             return "";
         String flags(fpos + 1);
-        size_t pos = flags.find("))");
-        if (pos != STRING_NPOS)
+        if (size_t pos = flags.find("))"); pos != STRING_NPOS)
             flags[pos] = 0;
         return flags;
     }

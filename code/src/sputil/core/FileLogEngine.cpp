@@ -32,8 +32,8 @@ using namespace sptk;
 void FileLogEngine::saveMessage(const Logger::Message* message)
 {
     UniqueLock(m_mutex);
-    auto _options = (uint32_t) options();
-    if ((_options & LO_ENABLE) == LO_ENABLE) {
+
+    if (auto _options = (uint32_t) options(); (_options & LO_ENABLE) == LO_ENABLE) {
         if (!m_fileStream.is_open()) {
             m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
             if (!m_fileStream.is_open())

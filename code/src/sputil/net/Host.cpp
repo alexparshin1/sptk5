@@ -88,16 +88,14 @@ Host::Host(const sockaddr_in6* addressAndPort)
 
 void Host::setHostNameFromAddress(socklen_t addressLen)
 {
+    array<char, NI_MAXHOST> hbuf;
+    array<char, NI_MAXSERV> sbuf;
 #ifdef _WIN32
-    char hbuf[NI_MAXHOST];
-        char sbuf[NI_MAXSERV];
-        if (getnameinfo((const sockaddr*)m_address, addressLen, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), 0) == 0)
-            m_hostname = hbuf;
+    if (getnameinfo((const sockaddr*)m_address, addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
+        m_hostname = hbuf.data();
 #else
-    char hbuf[NI_MAXHOST];
-    char sbuf[NI_MAXSERV];
-    if (getnameinfo((const sockaddr*) m_address, addressLen, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), 0) == 0)
-        m_hostname = hbuf;
+    if (getnameinfo((const sockaddr*) m_address, addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
+        m_hostname = hbuf.data();
 #endif
 }
 
@@ -178,8 +176,7 @@ static struct addrinfo* safeGetAddrInfo(const String& hostname)
     UniqueLock(getaddrinfoMutex);
 
     struct addrinfo* result;
-    int rc = getaddrinfo(hostname.c_str(), nullptr, &hints, &result);
-    if (rc != 0)
+    if (int rc = getaddrinfo(hostname.c_str(), nullptr, &hints, &result); rc != 0)
         throw Exception(gai_strerror(rc));
 
     return result;

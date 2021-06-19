@@ -72,7 +72,7 @@ public:
     template <typename T>
     bool read(T& data)
     {
-        return read(&data, sizeof(T));
+        return read((uint8_t*) &data, sizeof(T));
     }
 
     /**
@@ -81,7 +81,7 @@ public:
      * @param size              Data size
      * @return true if read was successful
      */
-    bool read(void* data, size_t size);
+    bool read(uint8_t* data, size_t size);
 
     /**
      * Read into string

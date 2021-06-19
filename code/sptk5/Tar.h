@@ -69,7 +69,7 @@ public:
     }
 };
 
-using TarHandleMap = std::map<int, MemoryTarHandle*>;
+using TarHandleMap = std::map<int, std::shared_ptr<MemoryTarHandle>>;
 
 /**
  * A wrapper for libtar functions
@@ -101,7 +101,7 @@ public:
     /**
      * Overwrites standard tar open
      */
-    static int mem_open(const char *name, int mode, const void* data);
+    static int mem_open(const char *name, int mode, const uint8_t* data);
 
     /**
      * Overwrites standard tar close
@@ -115,7 +115,7 @@ public:
      * @param buf void*, data buffer
      * @param len size_t, read size
      */
-    static int mem_read(int handle, void *buf, size_t len);
+    static int mem_read(int handle, uint8_t* buf, size_t len);
 
     /**
      * Overwrites standard tar write
@@ -123,7 +123,7 @@ public:
      * @param buf void*, data buffer
      * @param len size_t, write size
      */
-    static int mem_write(int handle, const void *buf, size_t len);
+    static int mem_write(int handle, const uint8_t *buf, size_t len);
 
     /**
      * Constructor

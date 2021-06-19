@@ -23,22 +23,26 @@
 using namespace std;
 using namespace sptk;
 
-static const tartype_t default_type {
-    (openfunc_t) open,
-    (closefunc_t) close,
-    (readfunc_t) read,
-    (writefunc_t) write
+static const tartype_t default_type{
+        (openfunc_t) open,
+        (closefunc_t) close,
+        (readfunc_t) read,
+        (writefunc_t) write
 };
 
-static TAR* tar_init(const char *pathname, const tartype_t *type, int oflags, int /*mode*/, int options)
+static int tar_close(TAR* t);
+
+static std::shared_ptr<TAR> tar_init(const char* pathname, const tartype_t* type, int oflags, int /*mode*/, int options)
 {
-    if ((oflags & (O_RDWR|O_RDONLY|O_WRONLY)) == O_RDWR)
-    {
+    if ((oflags & (O_RDWR | O_RDONLY | O_WRONLY)) == O_RDWR) {
         throw Exception("Invalid flags");
     }
 
-    auto* t = new TAR;
-    memset(t, 0, sizeof(TAR));
+    auto t = std::shared_ptr<TAR>(new TAR,
+                                  [](TAR* tar) {
+                                      tar_close(tar);
+                                      delete tar;
+                                  });
 
     t->pathname = pathname;
     t->options = options;
@@ -50,9 +54,9 @@ static TAR* tar_init(const char *pathname, const tartype_t *type, int oflags, in
 
 
 /* open a new tarfile handle */
-TAR* tar_open(const char *pathname, const tartype_t *type, int oflags, int mode, int options)
+std::shared_ptr<TAR> tar_open(const char* pathname, const tartype_t* type, int oflags, int mode, int options)
 {
-    auto* t = tar_init(pathname, type, oflags, mode, options);
+    auto t = tar_init(pathname, type, oflags, mode, options);
 
     if ((options & TAR_NOOVERWRITE) && (oflags & O_CREAT))
         oflags |= O_EXCL;
@@ -62,10 +66,8 @@ TAR* tar_open(const char *pathname, const tartype_t *type, int oflags, int mode,
 #endif
 
     t->fd = (*(t->type->openfunc))(pathname, oflags, mode);
-    if (t->fd == -1)
-    {
-        delete t;
-        return NULL;
+    if (t->fd == -1) {
+        return std::shared_ptr<TAR>();
     }
 
     return t;
@@ -73,13 +75,11 @@ TAR* tar_open(const char *pathname, const tartype_t *type, int oflags, int mode,
 
 
 /* close tarfile handle */
-int tar_close(TAR *t)
+int tar_close(TAR* t)
 {
     int i;
 
-    i = (*(t->type->closefunc))((int)t->fd);
-
-    delete t;
+    i = (*(t->type->closefunc))((int) t->fd);
 
     return i;
 }

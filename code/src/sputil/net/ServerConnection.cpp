@@ -63,21 +63,21 @@ TCPServer& ServerConnection::server() const
 }
 
 ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in* connectionAddress, const String& taskName)
-: Runable(taskName), m_server(server), m_socket(nullptr), m_serial(nextSerial())
+: Runable(taskName), m_server(server), m_serial(nextSerial())
 {
     parseAddress(connectionAddress);
 }
 
 void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
 {
-    char address[128] { "127.0.0.1" };
+    array<char, 128> address { "127.0.0.1" };
     if (connectionAddress) {
         if (connectionAddress->sin_family == AF_INET) {
-            inet_ntop(AF_INET, &connectionAddress->sin_addr, address, sizeof(address));
+            inet_ntop(AF_INET, &connectionAddress->sin_addr, address.data(), sizeof(address));
         } else if (connectionAddress->sin_family == AF_INET6) {
             auto* connectionAddress6 = (const sockaddr_in6*) connectionAddress;
-            inet_ntop(AF_INET6, &connectionAddress6->sin6_addr, address, sizeof(address));
+            inet_ntop(AF_INET6, &connectionAddress6->sin6_addr, address.data(), sizeof(address));
         }
     }
-    m_address = address;
+    m_address = address.data();
 }
