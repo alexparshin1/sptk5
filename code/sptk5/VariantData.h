@@ -141,23 +141,17 @@ public:
      * Copy constructor
      * @param other             Other object
      */
-    VariantData(const VariantData& other)
-    : m_dataType(other.m_dataType),
-      m_dataSize(other.m_dataSize)
-    {
-        m_data = other.m_data;
-    }
+    VariantData(const VariantData& other) = default;
 
     /**
      * Move constructor
      * @param other             Other object
      */
     VariantData(VariantData&& other) noexcept
-    : m_dataType(std::exchange(other.m_dataType, VAR_NONE | VAR_NULL)),
+    : m_data(std::move(other.m_data)),
+      m_dataType(std::exchange(other.m_dataType, VAR_NONE | VAR_NULL)),
       m_dataSize(std::exchange(other.m_dataSize, 0))
-    {
-        m_data = std::move(other.m_data);
-    }
+    {}
 
     virtual ~VariantData() noexcept = default;
 
@@ -165,15 +159,7 @@ public:
      * Copy assigment
      * @param other             Other object
      */
-    VariantData& operator = (const VariantData& other)
-    {
-        if (&other != this) {
-            m_data = other.m_data;
-            m_dataType = other.m_dataType;
-            m_dataSize = other.m_dataSize;
-        }
-        return *this;
-    }
+    VariantData& operator = (const VariantData& other) = default;
 
     /**
      * Move assignment

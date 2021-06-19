@@ -40,8 +40,8 @@ const Buffer& WSWebSocketsMessage::payload() const
 static uint64_t ntoh64(uint64_t data)
 {
     union {
-        uint64_t    m_uint64;
-        uint32_t    m_uint32[2];
+        uint64_t            m_uint64;
+        array<uint32_t, 2>  m_uint32;
     } input = {}, output = {};
 
     input.m_uint64 = data;
@@ -89,8 +89,8 @@ void WSWebSocketsMessage::decode(const char* incomingData)
     m_payload.bytes(payloadLength);
 
     if (masked) {
-        uint8_t mask[4];
-        memcpy(mask, ptr, sizeof(mask));
+        array<uint8_t, 4> mask;
+        memcpy(mask.data(), ptr, sizeof(mask));
         ptr += 4;
         char* dest = m_payload.data();
         char statusCodeBuffer[2] = {};

@@ -110,21 +110,18 @@ int Tar::mem_write(int, const void*, size_t)
     return -1;
 }
 
-Tar::Tar()
-{
-}
-
 bool Tar::loadFile()
 {
-    auto* tar = (TAR*) m_tar;
+    auto* tar = m_tar.get();
     // Read file header
     int rc = th_read(tar);
     if (rc > 0) return false; // End of archive
     if (rc < 0) throwError(m_fileName);
 
-    char path[1024];
-    th_get_pathname(tar, path, sizeof(path));
-    String fileName(path);
+    constexpr int MAX_PATH_LENGTH = 1024;
+    array<char, MAX_PATH_LENGTH> path {};
+    th_get_pathname(tar, path.data(), sizeof(path));
+    String fileName(path.data());
     auto fileSize = (uint32_t) th_get_size(tar);
 
     if (fileSize != 0) {
@@ -146,11 +143,11 @@ bool Tar::loadFile()
         m_files[fileName] = buffer;
 
         auto emptyTail = off_t(T_BLOCKSIZE - fileSize % T_BLOCKSIZE);
-        char buff[T_BLOCKSIZE];
+        array<char, T_BLOCKSIZE> buff;
         if (m_memoryRead) {
             mem_read((int) tar->fd, nullptr, size_t(emptyTail));
         } else {
-            if (::read((int) tar->fd, buff, size_t(emptyTail)) == -1)
+            if (::read((int) tar->fd, buff.data(), size_t(emptyTail)) == -1)
                 throwError(m_fileName);
         }
     }
@@ -170,10 +167,10 @@ void Tar::read(const char* fileName)
     m_fileName = fileName;
     m_memoryRead = false;
     clear();
-    m_tar = tar_open(fileName, nullptr, 0, 0, TAR_GNU);
+    m_tar = shared_ptr<TAR>(tar_open(fileName, nullptr, 0, 0, TAR_GNU),
+                            [](TAR* handle){ tar_close(handle); });
     while (loadFile()) ;
-    tar_close((TAR*) m_tar);
-    m_tar = nullptr;
+    m_tar.reset();
 }
 
 void Tar::read(const Buffer& tarData)
@@ -181,16 +178,17 @@ void Tar::read(const Buffer& tarData)
     m_fileName = "";
     m_memoryRead = true;
     clear();
-    TAR* tar = tar_open("memory", &memtype, 0, 0, TAR_GNU);
-    MemoryTarHandle* memHandle = tarMemoryHandle((int) tar->fd);
-    if (memHandle == nullptr)
+    m_tar = shared_ptr<TAR>(tar_open("memory", &memtype, 0, 0, TAR_GNU),
+                            [](TAR* handle){ tar_close(handle); });
+    auto* memHandle = tarMemoryHandle((int) m_tar->fd);
+    if (memHandle == nullptr) {
+        m_tar.reset();
         throw Exception("Can't open the archive", __FILE__, __LINE__);
+    }
     memHandle->sourceBuffer = const_cast<char*>(tarData.data());
     memHandle->sourceBufferLen = tarData.bytes();
-    m_tar = tar;
     while (loadFile()) ;
-    tar_close((TAR*) m_tar);
-    m_tar = nullptr;
+    m_tar.reset();
 }
 
 void Tar::clear()
@@ -200,7 +198,7 @@ void Tar::clear()
     m_fileNames.clear();
 }
 
-const Buffer& Tar::file(std::string fileName) const
+const Buffer& Tar::file(const String& fileName) const
 {
     auto itor = m_files.find(fileName);
     if (itor == m_files.end())
@@ -220,15 +218,17 @@ TEST(SPTK_Tar, read)
 
     filesystem::create_directories(gtestTempDirectory.c_str());
 
+    constexpr int TestFileBytes = 1000;
+
     Buffer file1;
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < TestFileBytes; ++i) {
         file1.append((const char*)&i, sizeof(i));
     }
     file1.saveToFile(gtestTempDirectory + "/file1.txt");
     EXPECT_STREQ(file1_md5.c_str(), md5(file1).c_str());
 
     Buffer file2;
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < TestFileBytes; ++i) {
         file2.append("ABCDEFG HIJKLMN OPQRSTUV\n");
     }
     file2.saveToFile(gtestTempDirectory + "/file2.txt");

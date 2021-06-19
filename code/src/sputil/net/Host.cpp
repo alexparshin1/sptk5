@@ -225,7 +225,7 @@ String Host::toString(bool forceAddress) const
 
     String address;
     if (forceAddress) {
-        char buffer[128];
+        array<char, 128> buffer;
 
         const void *addr;
         // Get the pointer to the address itself, different fields in IPv4 and IPv6
@@ -235,10 +235,10 @@ String Host::toString(bool forceAddress) const
             addr = (void*) &(ip_v6().sin6_addr);
         }
 
-        if (inet_ntop(any().sa_family, addr, buffer, sizeof(buffer) - 1) == nullptr)
+        if (inet_ntop(any().sa_family, addr, buffer.data(), sizeof(buffer) - 1) == nullptr)
             throw SystemException("Can't print IP address");
 
-        address = buffer;
+        address = buffer.data();
     } else
         address = m_hostname;
 

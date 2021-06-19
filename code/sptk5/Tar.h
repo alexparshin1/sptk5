@@ -31,6 +31,8 @@
 #include <sptk5/Strings.h>
 #include <sptk5/Buffer.h>
 
+struct TAR;
+
 namespace sptk {
 
 /**
@@ -126,7 +128,7 @@ public:
     /**
      * Constructor
      */
-    Tar();
+    Tar() = default;
 
     Tar(const Tar&) = delete;
     Tar(Tar&&) noexcept = default;
@@ -169,7 +171,7 @@ public:
      * Returns file data by file name
      * @param fileName std::string, file name
      */
-    const Buffer& file(std::string fileName) const;
+    const Buffer& file(const String& fileName) const;
 
     /**
      * Clears the allocated memory
@@ -178,11 +180,11 @@ public:
 
 private:
 
-    void*           m_tar {nullptr};      ///< Tar file header
-    FileCollection  m_files;              ///< File name to the file data map
-    Strings         m_fileNames;          ///< List of files in archive
-    bool            m_memoryRead {false}; ///< Flag to indicate if tar data is red from the memory buffer
-    String          m_fileName;           ///< Tar file name
+    std::shared_ptr<TAR>    m_tar {nullptr};      ///< Tar file header
+    FileCollection          m_files;              ///< File name to the file data map
+    Strings                 m_fileNames;          ///< List of files in archive
+    bool                    m_memoryRead {false}; ///< Flag to indicate if tar data is red from the memory buffer
+    String                  m_fileName;           ///< Tar file name
 
     /**
      * Loads tar file into memory

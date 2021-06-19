@@ -235,14 +235,14 @@ void CFileDialog::createFolder()
 
 static void makeDriveList(Strings& driveList)
 {
-    char buffer[128];
+    array<char, 128> buffer;
 
     driveList.clear();
-    int nLen = GetLogicalDriveStrings(128, buffer);
+    int nLen = GetLogicalDriveStrings(128, buffer.data());
     int nDrives = nLen / 4;
 
     for (int d = 0; d < nDrives; d++)
-        driveList.push_back(upperCase(buffer + (d * 4)));
+        driveList.push_back(upperCase(buffer.data() + (d * 4)));
 }
 
 #endif

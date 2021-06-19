@@ -124,13 +124,6 @@ public:
     Strings(const String& src, const char *delimiter, SplitMode mode = SplitMode::DELIMITER) noexcept;
 
     /**
-     * Constructor from a string with elements separated by a delimiter string
-     * @param argc              Number of arguments
-     * @param argv              Arguments
-     */
-    Strings(int argc, const char *argv[]) noexcept;
-
-    /**
      * Destructor
      */
     ~Strings() noexcept = default;
@@ -209,8 +202,7 @@ public:
      */
     iterator remove(const String& str)
     {
-        auto itor = std::find(begin(), end(), str);
-        if (itor != end())
+        if (auto itor = std::find(begin(), end(), str); itor != end())
             return StringVector::erase(itor);
         return end();
     }

@@ -41,7 +41,7 @@ String Url::encode(const String& str)
 {
     auto cnt = (uint32_t) str.length();
     const char *src = str.c_str();
-    char hexBuffer[5];
+    array<char, 5> hexBuffer;
     Buffer buffer(cnt * 3 + 1);
     buffer.data();
     int len;
@@ -58,8 +58,8 @@ String Url::encode(const String& str)
                     buffer.append(*src);
                     break;
                 default:
-                    len = snprintf(hexBuffer, sizeof(hexBuffer), "%%%02X", (unsigned char)*src);
-                    buffer.append(hexBuffer, (size_t) len);
+                    len = snprintf(hexBuffer.data(), sizeof(hexBuffer), "%%%02X", (unsigned char)*src);
+                    buffer.append(hexBuffer.data(), (size_t) len);
                     break;
             }
         }

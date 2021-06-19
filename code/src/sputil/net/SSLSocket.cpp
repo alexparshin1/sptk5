@@ -313,8 +313,8 @@ size_t SSLSocket::socketBytes()
     if (reader().availableBytes() > 0)
         return reader().availableBytes();
     if (m_ssl != nullptr) {
-        char dummy[8];
-        SSL_read(m_ssl, dummy, 0);
+        array<char, 8> dummy;
+        SSL_read(m_ssl, dummy.data(), 0);
         return (uint32_t) SSL_pending(m_ssl);
     }
     return 0;

@@ -71,17 +71,12 @@ public:
 
 
 FirebirdStatement::FirebirdStatement(FirebirdConnection* connection, const String& /*sql*/)
-: DatabaseStatement<FirebirdConnection,isc_stmt_handle>(connection)
+: DatabaseStatement<FirebirdConnection,isc_stmt_handle>(connection),
+  m_statement(new isc_stmt_handle,
+              [this](isc_stmt_handle* handle) { isc_dsql_free_statement(m_status_vector.data(), handle, DSQL_drop); })
 {
-    statement(new isc_stmt_handle);
+    statement(m_statement.get());
     *statement() = 0;
-}
-
-FirebirdStatement::~FirebirdStatement()
-{
-    if (*statement() != 0)
-        isc_dsql_free_statement(m_status_vector, statement(), DSQL_drop);
-    delete statement();
 }
 
 void FirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantType timeType)
@@ -122,12 +117,12 @@ void FirebirdStatement::enumerateParams(QueryParameterList& queryParams)
 {
     DatabaseStatement<FirebirdConnection,isc_stmt_handle>::enumerateParams(queryParams);
     XSQLDA* psqlda = &m_paramBuffers.sqlda();
-    isc_dsql_describe_bind(m_status_vector, statement(), 1, psqlda);
-    connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+    isc_dsql_describe_bind(m_status_vector.data(), statement(), 1, psqlda);
+    connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
     if (psqlda->sqln != psqlda->sqld) {
         m_paramBuffers.resize(size_t(psqlda->sqld));
-        isc_dsql_describe_bind(m_status_vector, statement(), 1, psqlda);
-        connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+        isc_dsql_describe_bind(m_status_vector.data(), statement(), 1, psqlda);
+        connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
     }
 }
 
@@ -272,9 +267,9 @@ void FirebirdStatement::setParameterValues()
 
             default:
             {
-                char buffer[256];
-                snprintf(buffer, sizeof(buffer) - 1, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
-                throw DatabaseException(buffer);
+                array<char,256> buffer;
+                snprintf(buffer.data(), sizeof(buffer) - 1, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
+                throw DatabaseException(buffer.data());
             }
         }
     }
@@ -284,15 +279,15 @@ void FirebirdStatement::FirebirdStatement::prepare(const string& sql)
 {
     if (!statement() || !*statement()) {
         isc_db_handle db = connection()->connection();
-        isc_dsql_allocate_statement(m_status_vector, &db, statement());
-        connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+        isc_dsql_allocate_statement(m_status_vector.data(), &db, statement());
+        connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
     }
 
     if (!connection()->m_transaction)
         connection()->driverBeginTransaction();
 
-    isc_dsql_prepare(m_status_vector, &connection()->m_transaction, statement(), 0, sql.c_str(), SQL_DIALECT_CURRENT, nullptr);
-    connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+    isc_dsql_prepare(m_status_vector.data(), &connection()->m_transaction, statement(), 0, sql.c_str(), SQL_DIALECT_CURRENT, nullptr);
+    connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
 }
 
 void FirebirdStatement::execute(bool)
@@ -301,18 +296,18 @@ void FirebirdStatement::execute(bool)
         connection()->driverBeginTransaction();
 
     state().eof = false;
-    isc_dsql_execute(m_status_vector, &connection()->m_transaction, statement(), 1, &m_paramBuffers.sqlda());
-    connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+    isc_dsql_execute(m_status_vector.data(), &connection()->m_transaction, statement(), 1, &m_paramBuffers.sqlda());
+    connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
 
     // Allocate result buffers
     XSQLDA* osqlda = &m_outputBuffers.sqlda();
-    isc_dsql_describe(m_status_vector, statement(), 1, osqlda);
+    isc_dsql_describe(m_status_vector.data(), statement(), 1, osqlda);
     if (osqlda->sqln < osqlda->sqld) {
         m_outputBuffers.resize(size_t(osqlda->sqld));
-        isc_dsql_describe(m_status_vector, statement(), 1, osqlda);
+        isc_dsql_describe(m_status_vector.data(), statement(), 1, osqlda);
     }
 
-    connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+    connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
 
     state().columnCount = (unsigned) osqlda->sqld;
 }
@@ -321,7 +316,7 @@ void FirebirdStatement::bindResult(FieldList& fields)
 {
     fields.clear();
 
-    char columnName[256];
+    array<char, 256> columnName;
     for (int columnIndex = 0; columnIndex < state().columnCount; columnIndex++) {
         XSQLVAR& sqlvar = m_outputBuffers[size_t(columnIndex)];
         ISC_SHORT type = sqlvar.sqltype;
@@ -329,14 +324,14 @@ void FirebirdStatement::bindResult(FieldList& fields)
         if (type == SQL_TEXT && sqlvar.sqlsubtype)
             type = SQL_BLOB;
 
-        strncpy(columnName, sqlvar.aliasname, sizeof(columnName));
+        strncpy(columnName.data(), sqlvar.aliasname, sizeof(columnName));
         columnName[sizeof(columnName)-1] = 0;
         if (columnName[0] == 0)
-            snprintf(columnName, sizeof(columnName)-1, "column_%02i", columnIndex + 1);
+            snprintf(columnName.data(), sizeof(columnName)-1, "column_%02i", columnIndex + 1);
 
         VariantType fieldType = firebirdTypeToVariantType(type, sqlvar.sqlsubtype);
         auto fieldLength = (unsigned) sqlvar.sqllen;
-        fields.push_back(new FirebirdStatementField(columnName, columnIndex, type, fieldType, (int) fieldLength, sqlvar));
+        fields.push_back(new FirebirdStatementField(columnName.data(), columnIndex, type, fieldType, (int) fieldLength, sqlvar));
     }
 }
 
@@ -346,7 +341,7 @@ isc_blob_handle FirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter*
     isc_blob_handle blob_handle = 0;
 
     isc_create_blob2(
-        m_status_vector,
+        m_status_vector.data(),
         &db,
         &connection()->m_transaction,
         &blob_handle,
@@ -354,7 +349,7 @@ isc_blob_handle FirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter*
         0, // Blob Parameter Buffer length = 0; no filter will be used
         nullptr // NULL Blob Parameter Buffer, since no filter will be used
     );
-    connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+    connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
 
     const char *segment = param->getBuffer();
     size_t remaining = param->dataSize();
@@ -362,17 +357,17 @@ isc_blob_handle FirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter*
     {
         size_t segmentSize = remaining > 16384 ? 16384 : remaining;
         isc_put_segment(
-            m_status_vector,
+            m_status_vector.data(),
             &blob_handle,
             (unsigned short) segmentSize,
             segment
         );
-        connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+        connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
         remaining -= segmentSize;
         segment += segmentSize;
     }
-    isc_close_blob(m_status_vector, &blob_handle);
-    connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+    isc_close_blob(m_status_vector.data(), &blob_handle);
+    connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
 
     return blob_handle;
 }
@@ -385,8 +380,8 @@ size_t FirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field)
         return 0;
 
     isc_blob_handle blob_handle = 0;
-    isc_open_blob2(m_status_vector, &db, &connection()->m_transaction, &blob_handle, blob_id, 0, nullptr);
-    connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+    isc_open_blob2(m_status_vector.data(), &db, &connection()->m_transaction, &blob_handle, blob_id, 0, nullptr);
+    connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
 
     size_t  dataLength = 0;
     size_t  fragmentSize = 8192;
@@ -396,14 +391,14 @@ size_t FirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field)
     while (true) {
         char* currentFragment = (char*) field->getBuffer() + dataLength;
         unsigned short  fragmentLength = 0;
-        isc_get_segment(m_status_vector, &blob_handle, &fragmentLength, (unsigned short) fragmentSize, currentFragment);
+        isc_get_segment(m_status_vector.data(), &blob_handle, &fragmentLength, (unsigned short) fragmentSize, currentFragment);
         if (fragmentLength == 0)
             break;
         dataLength += fragmentLength;
         field->checkSize(uint32_t(dataLength + fragmentSize));
     }
 
-    isc_close_blob(m_status_vector, &blob_handle);
+    isc_close_blob(m_status_vector.data(), &blob_handle);
 
     field->setDataSize(uint32_t(dataLength));
 
@@ -416,7 +411,7 @@ void FirebirdStatement::fetchResult(FieldList& fields)
     uint32_t        fieldCount = fields.size();
     int             pos;
     size_t          len;
-    char            buffer[64];
+    array<char, 64> buffer;
 
     for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         auto*       field = (FirebirdStatementField*) &fields[fieldIndex];
@@ -496,25 +491,25 @@ void FirebirdStatement::fetchResult(FieldList& fields)
                 break;
 
             default:
-                snprintf(buffer, sizeof(buffer) - 1, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
-                throw DatabaseException(buffer);
+                snprintf(buffer.data(), sizeof(buffer) - 1, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
+                throw DatabaseException(buffer.data());
         }
     }
 }
 
 void FirebirdStatement::close()
 {
-    isc_dsql_free_statement(m_status_vector, statement(), DSQL_close);
-    connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+    isc_dsql_free_statement(m_status_vector.data(), statement(), DSQL_close);
+    connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
 }
 
 void FirebirdStatement::fetch()
 {
-    ISC_STATUS retcode = isc_dsql_fetch(m_status_vector, statement(), 1, &m_outputBuffers.sqlda());
+    ISC_STATUS retcode = isc_dsql_fetch(m_status_vector.data(), statement(), 1, &m_outputBuffers.sqlda());
     if (retcode == 100)
         state().eof = true;
     else {
-        connection()->checkStatus(m_status_vector, __FILE__, __LINE__);
+        connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
         state().eof = false;
     }
 }

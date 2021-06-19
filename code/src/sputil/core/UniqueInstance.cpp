@@ -52,22 +52,20 @@ UniqueInstance::UniqueInstance(String  instanceName)
         write_pid();
 #else
     m_mutex = CreateMutex(NULL,true,m_instanceName.c_str());
-    if (GetLastError() == 0)
-        m_lockCreated = true;
+    if (GetLastError() == 0) {
+        m_lockCreated = shared_ptr<bool>(new bool,
+                                         [this](bool* ptr) { cleanup(); delete ptr; } );
+    }
 #endif
 }
 
-// Destructor
-UniqueInstance::~UniqueInstance()
+void UniqueInstance::cleanup()
 {
-    // Cleanup
-    if (m_lockCreated) {
 #ifndef _WIN32
-        unlink(m_fileName.c_str());
+    unlink(m_fileName.c_str());
 #else
-        CloseHandle(m_mutex);
+    CloseHandle(m_mutex);
 #endif
-    }
 }
 
 #ifndef _WIN32
@@ -98,7 +96,9 @@ int UniqueInstance::write_pid()
     lockfile << pid;
     lockfile.close();
 
-    m_lockCreated = true;
+    m_lockCreated = shared_ptr<bool>(new bool,
+                                     [this](bool* ptr) { cleanup(); delete ptr; } );
+
     return pid;
 }
 
@@ -110,7 +110,7 @@ const String& UniqueInstance::lockFileName() const
 
 bool UniqueInstance::isUnique() const
 {
-    return m_lockCreated;
+    return m_lockCreated != nullptr;
 }
 
 #if USE_GTEST
@@ -132,8 +132,8 @@ TEST(SPTK_UniqueInstance, create)
     // Get pid of existing process
     FILE* pipe1 = popen("pidof systemd", "r");
     if (pipe1 != nullptr) {
-        char buffer[64];
-        const char* data = fgets(buffer, sizeof(buffer), pipe1);
+        array<char, 64> buffer;
+        const char* data = fgets(buffer.data(), sizeof(buffer), pipe1);
         if (data) {
             int pid = string2int(data);
             if (pid > 0) {

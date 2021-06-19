@@ -369,9 +369,9 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
         string columnName = metaData.getString(MetaData::ATTR_NAME);
         int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
         if (columnName.empty()) {
-            char alias[32];
-            snprintf(alias, sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
-            columnName = alias;
+            array<char, 32> alias;
+            snprintf(alias.data(), sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
+            columnName = alias.data();
         }
         if (columnType == OCCI_SQLT_LNG && columnDataSize == 0)
             resultSet->setMaxColumnSize(columnIndex + 1, 16384);
@@ -666,9 +666,9 @@ String OracleConnection::driverDescription() const
 
 String OracleConnection::paramMark(unsigned paramIndex)
 {
-    char mark[16];
-    snprintf(mark, sizeof(mark) - 1, ":%i", paramIndex + 1);
-    return string(mark);
+    array<char, 16> mark;
+    snprintf(mark.data(), sizeof(mark) - 1, ":%i", paramIndex + 1);
+    return string(mark.data());
 }
 
 void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)

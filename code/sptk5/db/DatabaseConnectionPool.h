@@ -61,7 +61,7 @@ using DestroyDriverInstance = void (PoolDatabaseConnection*);
     /**
      * Unix: Driver shared library handle type
      */
-    using DriverHandle = void*;
+    using DriverHandle = uint8_t *;
 
 #endif
 

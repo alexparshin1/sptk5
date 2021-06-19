@@ -116,13 +116,10 @@ public:
     /**
      * Date and time print flags
      */
-    enum PrintFlags
-    {
-        PF_RFC_DATE = 1,
-        PF_TIMEZONE = 2,
-        PF_12HOURS = 4,
-        PF_GMT = 16
-    };
+    static constexpr int PF_RFC_DATE = 1;
+    static constexpr int PF_TIMEZONE = 2;
+    static constexpr int PF_12HOURS = 4;
+    static constexpr int PF_GMT = 16;
 
     enum class Format
     {

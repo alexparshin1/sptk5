@@ -159,10 +159,10 @@ const Strings& CThemes::searchDirectories()
     if (!sd.empty())
         return sd;
 #ifdef _WIN32
-    char windir[256];
-    GetEnvironmentVariable("PROGRAMFILES", windir, sizeof(windir));
+    array<char, 256> windir;
+    GetEnvironmentVariable("PROGRAMFILES", windir.data(), sizeof(windir));
     if (strlen(windir))
-        sd.push_back(windir + string("\\SPTK\\share\\sptk5"));
+        sd.push_back(windir.data() + String("\\SPTK\\share\\sptk5"));
 #else
     sd.push_back("/usr/share/sptk5");
     sd.push_back("/usr/local/share/sptk5");

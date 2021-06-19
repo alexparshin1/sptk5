@@ -148,7 +148,7 @@ public:
     /**
      * @brief Returns the Firebird connection object
      */
-    isc_db_handle connection()
+    isc_db_handle connection() const
     {
         return m_connection;
     }

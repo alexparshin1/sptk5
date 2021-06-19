@@ -112,18 +112,18 @@ double ElementGetMethods::getNumber(const String& name) const
 static String JsonNumberToString(double number)
 {
     long len = 0;
-    char buffer[64];
+    array<char, 64> buffer;
 
     if (number == round(number))
-        len = snprintf(buffer, sizeof(buffer) - 1, "%lld", (long long) number);
+        len = snprintf(buffer.data(), sizeof(buffer) - 1, "%lld", (long long) number);
     else {
-        len = snprintf(buffer, sizeof(buffer) - 1, "%1.8f", number);
-        const char* ptr = buffer + len - 1;
+        len = snprintf(buffer.data(), sizeof(buffer) - 1, "%1.8f", number);
+        const char* ptr = buffer.data() + len - 1;
         while (*ptr == '0')
             --ptr;
-        len = long(ptr - buffer + 1);
+        len = long(ptr - buffer.data() + 1);
     }
-    return String(buffer, (size_t) len);
+    return String(buffer.data(), (size_t) len);
 }
 
 String ElementGetMethods::getString(const String& name) const

@@ -50,6 +50,11 @@ class FirebirdBindBuffers
     size_t  m_size {0};
 
     /**
+     * Buffers allocation
+     */
+    std::vector<uint8_t> m_sqldaBuffer;
+
+    /**
      * Buffers structure
      */
     XSQLDA* m_sqlda {nullptr};
@@ -57,7 +62,7 @@ class FirebirdBindBuffers
     /**
      * Null flags (callback)
      */
-    short*  m_cbNulls {nullptr};
+    std::vector<short> m_cbNulls;
 
 public:
     /**
@@ -66,15 +71,6 @@ public:
     FirebirdBindBuffers()
     {
         resize(16);
-    }
-
-    /**
-     * @brief Destructor
-     */
-    ~FirebirdBindBuffers()
-    {
-        delete [] (char*) m_sqlda;
-        delete [] m_cbNulls;
     }
 
     /**
@@ -97,24 +93,15 @@ public:
             size = 1024;
         m_size = size;
 
-        auto* newptr = new char[XSQLDA_LENGTH(m_size)];
-        if (newptr == nullptr)
-            throw Exception("Can't allocate memory for Firebird statement");
-        delete [] (char*) m_sqlda;
-        m_sqlda = (XSQLDA *) newptr;
+        m_sqldaBuffer.resize(XSQLDA_LENGTH(m_size));
+        m_sqlda = (XSQLDA *) m_sqldaBuffer.data();
 
         m_sqlda->version = SQLDA_VERSION1;
         m_sqlda->sqln = (ISC_SHORT) m_size;
 
-        auto* nptr = new short[size];
-        if (nptr == nullptr)
-            throw Exception("Can't allocate memory for Firebird statement");
-        delete [] m_cbNulls;
-        m_cbNulls = nptr;
-
-        short* cbNull = m_cbNulls;
-        for (unsigned i = 0; i < m_size; i++, cbNull++)
-            m_sqlda->sqlvar[i].sqlind = cbNull;
+        m_cbNulls.resize(size);
+        for (unsigned i = 0; i < m_size; i++)
+            m_sqlda->sqlvar[i].sqlind = &m_cbNulls[i];
     }
 
     /**
@@ -139,21 +126,6 @@ public:
  */
 class FirebirdStatement : public DatabaseStatement<FirebirdConnection,isc_stmt_handle>
 {
-    /**
-     * Output result buffers
-     */
-    FirebirdBindBuffers    m_outputBuffers;
-
-    /**
-     * Parameter buffers
-     */
-    FirebirdBindBuffers    m_paramBuffers;
-
-    /**
-     * Execution result
-     */
-    ISC_STATUS              m_status_vector[20];
-
 public:
 
     /**
@@ -201,11 +173,6 @@ public:
     FirebirdStatement(FirebirdConnection* connection, const String& sql);
 
     /**
-     * @brief Destructor
-     */
-    ~FirebirdStatement() override;
-
-    /**
      * @brief Generates normalized list of parameters
      * @param queryParams QueryParameterList&, Standard query parameters
      */
@@ -248,6 +215,13 @@ public:
      * @brief Fetches next record
      */
     void fetch() override;
+
+private:
+
+    std::shared_ptr<isc_stmt_handle>    m_statement;        ///< Statement
+    FirebirdBindBuffers                 m_outputBuffers;    ///< Output result buffers
+    FirebirdBindBuffers                 m_paramBuffers;     ///< Parameter buffers
+    std::array<ISC_STATUS, 20>          m_status_vector;    ///< Execution result
 };
 
 }

@@ -90,9 +90,9 @@ static String quotes(const String& st)
 String ImapConnect::sendCommand(const String& cmd)
 {
     String command(cmd);
-    char id_str[10];
-	int len = snprintf(id_str, sizeof(id_str), "a%03i ", ++m_ident);
-    String ident(id_str, (size_t) len);
+    array<char, 10> id_str;
+	int len = snprintf(id_str.data(), sizeof(id_str), "a%03i ", ++m_ident);
+    String ident(id_str.data(), (size_t) len);
     command = ident + cmd + "\n";
     if (!active())
         throw Exception("Socket isn't open");
@@ -195,11 +195,11 @@ static void parse_header(const String& header, String& header_name, String& head
 
 static DateTime decodeDate(const String& dt)
 {
-    char temp[40];
-    snprintf(temp, sizeof(temp), "%s", dt.c_str() + 5);
+    array<char, 40> temp;
+    snprintf(temp.data(), sizeof(temp), "%s", dt.c_str() + 5);
 
     // 1. get the day of the month
-    char *p1 = temp;
+    char *p1 = temp.data();
     char *p2 = strchr(p1, ' ');
     if (p2 == nullptr)
         return DateTime();
