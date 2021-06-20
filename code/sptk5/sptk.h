@@ -95,6 +95,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <array>
 
 #define ALIGN_LEFT   1
 #define ALIGN_RIGHT  2

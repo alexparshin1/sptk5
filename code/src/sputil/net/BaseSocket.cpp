@@ -346,7 +346,7 @@ size_t BaseSocket::write(const uint8_t* buffer, size_t size, const sockaddr_in* 
     auto remaining = (int) size;
     while (remaining > 0) {
         if (peer != nullptr)
-            bytes = (int) sendto(m_sockfd, p, (int32_t) size, 0, (const sockaddr*) peer, sizeof(sockaddr_in));
+            bytes = (int) sendto(m_sockfd, (const char*) p, (int32_t) size, 0, (const sockaddr*) peer, sizeof(sockaddr_in));
         else
             bytes = (int) send(p, (int32_t) size);
         if (bytes == -1)
