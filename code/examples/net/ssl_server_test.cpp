@@ -54,7 +54,7 @@ void readAndReply(SSLSocket& socket)
     if (bytes > sizeof(buffer))
         bytes = sizeof(buffer);
 
-    bytes = socket.read(buffer.data(), bytes);
+    bytes = socket.read((uint8_t*)buffer.data(), bytes);
     buffer[bytes] = 0;
     COUT("Client msg: " << buffer.data() << endl)
     snprintf(reply.data(), sizeof(reply), HTMLecho, buffer);

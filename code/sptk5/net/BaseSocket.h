@@ -281,7 +281,7 @@ public:
      * @param from              Optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(char *buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * Reads data from the socket into memory buffer

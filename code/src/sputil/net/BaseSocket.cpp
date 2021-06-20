@@ -302,14 +302,14 @@ SOCKET BaseSocket::detach()
     return sockfd;
 }
 
-size_t BaseSocket::read(char* buffer, size_t size, sockaddr_in* from)
+size_t BaseSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
 {
     int bytes;
     if (from != nullptr) {
         socklen_t flen = sizeof(sockaddr_in);
-        bytes = (int) ::recvfrom(m_sockfd, buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
+        bytes = (int) ::recvfrom(m_sockfd, (char*) buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
     } else
-        bytes = (int) ::recv(m_sockfd, buffer, (int32_t) size, 0);
+        bytes = (int) ::recv(m_sockfd, (char*) buffer, (int32_t) size, 0);
 
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read from socket");
@@ -320,7 +320,7 @@ size_t BaseSocket::read(char* buffer, size_t size, sockaddr_in* from)
 size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
     buffer.checkSize(size);
-    size_t bytes = read(buffer.data(), size, from);
+    size_t bytes = read((uint8_t*) buffer.data(), size, from);
     if (bytes != size)
         buffer.bytes(bytes);
     return bytes;
@@ -329,7 +329,7 @@ size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 size_t BaseSocket::read(String& buffer, size_t size, sockaddr_in* from)
 {
     Buffer buff(size);
-    size_t bytes = read(buff.data(), size, from);
+    size_t bytes = read((uint8_t*) buff.data(), size, from);
     buffer.assign(buff.c_str(), bytes);
     return bytes;
 }

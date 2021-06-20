@@ -72,8 +72,7 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
                                CLIENT_MULTI_RESULTS) == nullptr)
         {
             connectionError = mysql_error(m_connection.get());
-            mysql_close(m_connection.get());
-            m_connection = nullptr;
+            m_connection.reset();
             throw DatabaseException("Can't connect to MySQL: " + connectionError);
         }
     }

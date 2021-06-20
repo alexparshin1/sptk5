@@ -37,14 +37,14 @@ UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY _domain)
     setSocketFD(socket(domain(), type(), protocol()));
 }
 
-size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from)
+size_t UDPSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
 {
     sockaddr_in6 addr;
     if (from == nullptr)
         from = (sockaddr_in*)&addr;
 
     socklen_t addrLength = sizeof(sockaddr_in);
-    auto bytes = recvfrom(fd(), buffer, (int) size, 0, (sockaddr*) from, &addrLength);
+    auto bytes = recvfrom(fd(), (char*) buffer, (int) size, 0, (sockaddr*) from, &addrLength);
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read from socket");
     return (size_t) bytes;
@@ -107,7 +107,7 @@ public:
             try {
                 if (socket.readyToRead(chrono::seconds(30))) {
                     sockaddr_in from {};
-                    size_t sz = socket.read(data.data(), 2048, &from);
+                    size_t sz = socket.read((uint8_t*) data.data(), 2048, &from);
                     if (sz == 0)
                         return;
                     data.bytes(sz);
@@ -146,7 +146,7 @@ TEST(SPTK_UDPSocket, minimal)
         socket.write((const uint8_t*) row.c_str(), row.length(), &serverAddr);
         buffer.bytes(0);
         if (socket.readyToRead(chrono::seconds(3))) {
-            auto bytes = socket.read(buffer.data(), 2048);
+            auto bytes = socket.read((uint8_t*) buffer.data(), 2048);
             if (bytes > 0)
                 buffer.bytes(bytes);
         }
