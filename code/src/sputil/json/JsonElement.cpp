@@ -218,7 +218,7 @@ void ElementGetMethods::exportValueTo(ostream& stream, bool formatted, size_t in
     switch (type()) {
         case Type::NUMBER:
             if (data().get_number() == round(data().get_number()))
-                stream << fixed << (long) data().get_number();
+                stream << fixed << (long long) data().get_number();
             else
                 stream << fixed << data().get_number();
             break;

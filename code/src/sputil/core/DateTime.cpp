@@ -981,9 +981,9 @@ TEST(SPTK_DateTime, formatDateTime2)
 
     constexpr size_t maxBuffer = 128;
     array<char, maxBuffer> buffer;
-    strftime(buffer.data(), sizeof(buffer) - 1, "%X", &tt);
+    strftime(buffer.data(), sizeof(buffer) - 1, "%x", &tt);
 
-    EXPECT_STREQ("02/10/20", dateTime.dateString().c_str());
+    EXPECT_STREQ(buffer.data(), dateTime.dateString().c_str());
     EXPECT_STREQ(("2020-10-02 00:00:00" + tzOffset).c_str(), dateTime.isoDateTimeString().replace("T", " ").c_str());
 }
 

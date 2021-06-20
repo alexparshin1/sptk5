@@ -271,26 +271,26 @@ protected:
 
     private:
 
-        uint64_t m_storage {0};
+        std::array<uint8_t, 10> m_storage {};
 
         template<typename T>
         T& as()
         {
-            auto* ptr = (void*) &m_storage;
+            auto* ptr = (void*) m_storage.data();
             return *(T*) ptr;
         }
 
         template<typename T>
         const T& as() const
         {
-            const auto* ptr = (void*) &m_storage;
+            const auto* ptr = (void*) m_storage.data();
             return *(const T*) ptr;
         }
 
         template<typename T>
         void set(T& value)
         {
-            auto* ptr = (void*) &m_storage;
+            auto* ptr = (void*) m_storage.data();
             *(T*) ptr = value;
         }
     };

@@ -201,7 +201,7 @@ TEST(SPTK_Field, double)
 
 TEST(SPTK_Field, money)
 {
-    constexpr long testLong = 12345678901234567L;
+    constexpr int64_t testLong = 1234567890123456789L;
     constexpr int64_t testInt64 = 12345678901;
     constexpr int scaleDigits = 8;
 
