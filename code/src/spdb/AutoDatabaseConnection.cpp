@@ -30,14 +30,15 @@ using namespace std;
 using namespace sptk;
 
 AutoDatabaseConnection::AutoDatabaseConnection(DatabaseConnectionPool& connectionPool)
-: m_connectionPool(connectionPool)
+    : m_connectionPool(connectionPool)
 {
     m_connection = m_connectionPool.createConnection();
 }
 
 AutoDatabaseConnection::~AutoDatabaseConnection()
 {
-    if (m_connection != nullptr) {
+    if (m_connection != nullptr)
+    {
         m_connection->close();
         m_connectionPool.releaseConnection(m_connection);
     }
@@ -45,5 +46,5 @@ AutoDatabaseConnection::~AutoDatabaseConnection()
 
 PoolDatabaseConnection* AutoDatabaseConnection::connection()
 {
-    return m_connection;
+    return m_connection.get();
 }

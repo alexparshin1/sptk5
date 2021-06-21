@@ -30,8 +30,7 @@
 #include <vector>
 #include <algorithm>
 
-namespace sptk {
-namespace xml {
+namespace sptk::xml {
 
 /**
  * @addtogroup XML
@@ -95,5 +94,4 @@ public:
 /**
  * @}
  */
-}
 }

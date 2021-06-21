@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 
 CPopupWindow::CPopupWindow(int w, int h, const char* label)
-        : CWindow(w, h, label)
+    : CWindow(w, h, label)
 {
     m_clicked = 0;
     end();
@@ -51,7 +51,9 @@ bool CPopupWindow::showModal()
     Fl::grab(this);
     show();
     while (shown())
+    {
         Fl::wait();
+    }
     Fl::release();
     take_focus();
 
@@ -64,10 +66,12 @@ int CPopupWindow::handle(int event)
     int ey = Fl::event_y();
     int key;
 
-    switch (event) {
+    switch (event)
+    {
 
         case FL_PUSH:
-            if (ex < 0 || ex > w() || ey < 0 || ey > h()) {
+            if (ex < 0 || ex > w() || ey < 0 || ey > h())
+            {
                 m_clicked = -1;
                 hide();
                 return 1;
@@ -76,7 +80,8 @@ int CPopupWindow::handle(int event)
 
         case FL_KEYBOARD:
             key = Fl::event_key();
-            switch (key) {
+            switch (key)
+            {
                 case FL_Escape:
                 case FL_Tab:
                     m_clicked = -1;
@@ -95,7 +100,8 @@ int CPopupWindow::handle(int event)
             break;
     }
 
-    if (m_clicked) {
+    if (m_clicked)
+    {
         hide();
         return 1;
     }

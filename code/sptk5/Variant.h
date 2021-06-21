@@ -79,7 +79,7 @@ public:
     /**
      * Returns the internal buffer
      */
-    void* dataBuffer() const;
+    uint8_t* dataBuffer() const;
 
     /**
      * Null flag
@@ -132,7 +132,7 @@ public:
     /**
      * Directly reads the internal data
      */
-    virtual char* getBuffer() const;
+    virtual uint8_t* getBuffer() const;
 
     /**
      * Directly reads the internal data
@@ -152,7 +152,7 @@ public:
     /**
      * Directly reads the internal data
      */
-    virtual const void* getImagePtr() const;
+    virtual const uint8_t* getImagePtr() const;
 
     /**
      * Directly reads the internal data
@@ -229,12 +229,12 @@ public:
     /**
      * Assignment method
      */
-    virtual void setBuffer(const void* value, size_t sz, VariantType type=VAR_BUFFER);
+    virtual void setBuffer(const uint8_t* value, size_t sz, VariantType type=VAR_BUFFER);
 
     /**
      * Assignment method
      */
-    virtual void setExternalBuffer(void* value, size_t sz, VariantType type=VAR_BUFFER);
+    virtual void setExternalBuffer(uint8_t* value, size_t sz, VariantType type=VAR_BUFFER);
 
     /**
      * Assignment method
@@ -244,7 +244,7 @@ public:
     /**
      * Assignment method
      */
-    virtual void setImagePtr(const void *value);
+    virtual void setImagePtr(const uint8_t* value);
 
     /**
      * Assignment method
@@ -323,7 +323,7 @@ public:
      * Simply returns the internal data pointer for string/text/blob types.
      * For incompatible types throws an exception.
      */
-    const void *asImagePtr() const;
+    const uint8_t* asImagePtr() const;
 
 protected:
 
@@ -383,7 +383,7 @@ public:
      * @param value             Buffer to copy from
      * @param sz                Buffer size
      */
-    Variant(const void * value, size_t sz);
+    Variant(const uint8_t* value, size_t sz);
 
     /**
      * Constructor
@@ -466,7 +466,7 @@ public:
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator =(const void *value);
+    virtual Variant& operator =(const uint8_t* value);
 
     /**
      * Assignment operator

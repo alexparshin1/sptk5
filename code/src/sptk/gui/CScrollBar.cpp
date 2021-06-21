@@ -49,13 +49,18 @@ int CScrollBar::handle(int event)
     int H = h();
 
     // adjust slider area to be inside the arrow buttons:
-    if (horizontal()) {
-        if (W >= 3 * H) {
+    if (horizontal())
+    {
+        if (W >= 3 * H)
+        {
             X += H;
             W -= 2 * H;
         }
-    } else {
-        if (H >= 3 * W) {
+    }
+    else
+    {
+        if (H >= 3 * W)
+        {
             Y += W;
             H -= 2 * W;
         }
@@ -64,42 +69,67 @@ int CScrollBar::handle(int event)
     // which widget part is highlighted?
     int relx;
     int ww;
-    if (horizontal()) {
+    if (horizontal())
+    {
         relx = Fl::event_x() - X;
         ww = W;
-    } else {
+    }
+    else
+    {
         relx = Fl::event_y() - Y;
         ww = H;
     }
     if (relx < 0)
+    {
         area = 1;
+    }
     else if (relx >= ww)
+    {
         area = 2;
-    else {
+    }
+    else
+    {
         auto S = (int) std::round(slider_size() * ww);
         int T = (horizontal() ? H : W) / 2 + 1;
         if (S < T)
+        {
             S = T;
+        }
         double val =
-                (maximum() - minimum()) ? (value() - minimum()) / (maximum() - minimum()) : 0.5;
+            (maximum() - minimum()) ? (value() - minimum()) / (maximum() - minimum()) : 0.5;
         int sliderx;
         if (val >= 1.0)
+        {
             sliderx = ww - S;
+        }
         else if (val <= 0.0)
+        {
             sliderx = 0;
+        }
         else
+        {
             sliderx = (int) std::round(val * (ww - S));
+        }
         if (Fl::event_button() == FL_MIDDLE_MOUSE)
+        {
             area = 8;
+        }
         else if (relx < sliderx)
+        {
             area = 5;
+        }
         else if (relx >= sliderx + S)
+        {
             area = 6;
+        }
         else
+        {
             area = 8;
+        }
     }
 
-    switch (event) {
+    switch (event)
+    {
         case FL_ENTER:
         case FL_LEAVE:
             break;
@@ -108,9 +138,13 @@ int CScrollBar::handle(int event)
             break;
         case FL_PUSH:
             if (m_pushed)
+            {
                 break;
+            }
             if (area != 8)
+            {
                 m_pushed = area;
+            }
             break;
         default:
             break;

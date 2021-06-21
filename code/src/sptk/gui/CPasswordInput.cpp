@@ -32,7 +32,7 @@
 using namespace sptk;
 
 CPasswordInput::CPasswordInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CInput(label, layoutSize, layoutAlignment)
+    : CInput(label, layoutSize, layoutAlignment)
 {
     controlType(FL_SECRET_INPUT);
 }

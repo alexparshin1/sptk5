@@ -69,15 +69,21 @@ Node::const_iterator NodeIterators::end() const
 void NodeBase::setParent(Node* p, bool minimal)
 {
     if (m_parent == p)
+    {
         return;
+    }
 
     if (!minimal && m_parent != nullptr)
+    {
         m_parent->unlink(p);
+    }
 
     m_parent = p;
 
     if (!minimal && m_parent != nullptr)
-        m_parent->push_back((Node*)this);
+    {
+        m_parent->push_back((Node*) this);
+    }
 }
 
 //──────────────────────────────────────────────────────────────────────────────
@@ -94,28 +100,35 @@ static void makeCriteria(XPathElement& pathElement)
     const String& criteria = pathElement.criteria;
 
     auto matches = matchAttribute.m(pathElement.criteria);
-    if (matches) {
+    if (matches)
+    {
         pathElement.attributeName = matches["attribute"].value;
         pathElement.attributeValue = matches["value"].value;
         pathElement.attributeValueDefined = true;
         return;
     }
 
-    if (!criteria.empty()) {
+    if (!criteria.empty())
+    {
         int& nodePosition = pathElement.nodePosition;
         nodePosition = string2int(pathElement.criteria);
         if (nodePosition == 0 && criteria == "last()")
+        {
             nodePosition = -1;
+        }
     }
 }
 
 static void parsePathElement(const string& pathElementStr, XPathElement& pathElement)
 {
-    static const RegularExpression matchPathElement(R"((?<type>(descendant|parent)::)?(?<element>([\w\-_:]+|\*))(?<option>\[.*\])?)");
+    static const RegularExpression matchPathElement(
+        R"((?<type>(descendant|parent)::)?(?<element>([\w\-_:]+|\*))(?<option>\[.*\])?)");
 
     auto matches = matchPathElement.m(pathElementStr);
     if (!matches)
+    {
         throw Exception("Invalid XML path element: " + pathElementStr);
+    }
 
     auto pathElementType = matches["type"].value;
     auto pathElementName = matches["element"].value;
@@ -123,27 +136,38 @@ static void parsePathElement(const string& pathElementStr, XPathElement& pathEle
     // Compensating bug in PCRE
     auto option = matches["option"].value;
     if (!option.empty())
+    {
         option = option.substr(1, option.length() - 2);
+    }
     auto pathElementOption = option;
 
     pathElement.elementName = "";
     pathElement.attributeName = "";
     pathElement.axis = XPathAxis::CHILD;
 
-    if (!pathElementOption.empty()) {
+    if (!pathElementOption.empty())
+    {
         pathElement.criteria = pathElementOption;
         makeCriteria(pathElement);
     }
 
     if (pathElementType.startsWith("descendant"))
+    {
         pathElement.axis = XPathAxis::DESCENDANT;
+    }
     else if (pathElementType.startsWith("parent"))
+    {
         pathElement.axis = XPathAxis::PARENT;
+    }
 
     if (pathElementName[0] == '@')
+    {
         pathElement.attributeName = pathElementName.c_str() + 1;
+    }
     else
+    {
         pathElement.elementName = pathElementName.c_str();
+    }
 
 }
 
@@ -152,18 +176,28 @@ bool NodeSearchAlgorithms::matchPathElementAttribute(Node* thisNode, const XPath
 {
     const Attributes& attributes = thisNode->attributes();
     bool attributeMatch = false;
-    if (pathElement.attributeValueDefined) {
-        if (pathElement.attributeValue == starPointer) {
+    if (pathElement.attributeValueDefined)
+    {
+        if (pathElement.attributeValue == starPointer)
+        {
             attributeMatch = attributes.hasAttribute(pathElement.attributeName);
-        } else {
-            attributeMatch =
-                    attributes.getAttribute(pathElement.attributeName).asString() == pathElement.attributeValue;
         }
-    } else {
-        if (pathElement.attributeName == starPointer)
-            attributeMatch = thisNode->hasAttributes();
         else
+        {
+            attributeMatch =
+                attributes.getAttribute(pathElement.attributeName).asString() == pathElement.attributeValue;
+        }
+    }
+    else
+    {
+        if (pathElement.attributeName == starPointer)
+        {
+            attributeMatch = thisNode->hasAttributes();
+        }
+        else
+        {
             attributeMatch = thisNode->hasAttribute(pathElement.attributeName.c_str());
+        }
     }
     return attributeMatch;
 }
@@ -172,72 +206,104 @@ bool NodeSearchAlgorithms::matchPathElement(Node* thisNode, const XPathElement& 
 {
     if (!pathElement.elementName.empty() && pathElement.elementName != starPointer &&
         !thisNode->nameIs(pathElement.elementName))
+    {
         return false;
+    }
 
     // Node criteria is attribute
-    if (!pathElement.attributeName.empty() && thisNode->type() == Node::DOM_ELEMENT) {
+    if (!pathElement.attributeName.empty() && thisNode->type() == Node::Type::DOM_ELEMENT)
+    {
         return matchPathElementAttribute(thisNode, pathElement, starPointer);
     }
     return true;
 }
 
-void NodeSearchAlgorithms::matchNodesThisLevel(const Node* thisNode, NodeVector& nodes, const vector<XPathElement>& pathElements, int pathPosition,
+void NodeSearchAlgorithms::matchNodesThisLevel(const Node* thisNode, NodeVector& nodes,
+                                               const vector<XPathElement>& pathElements, int pathPosition,
                                                const String& starPointer, NodeVector& matchedNodes, bool descendants)
 {
     const XPathElement& pathElement = pathElements[size_t(pathPosition)];
 
-    for (auto* node: *thisNode) {
-        if (matchPathElement(node, pathElement, starPointer)) {
+    for (auto* node: *thisNode)
+    {
+        if (matchPathElement(node, pathElement, starPointer))
+        {
             matchedNodes.push_back(node);
         }
-        if (descendants) {
-            if ((node->type() & (Node::DOM_DOCUMENT | Node::DOM_ELEMENT)) != 0)
+        if (descendants)
+        {
+            if ((int) node->type() & ((int) Node::Type::DOM_DOCUMENT | (int) Node::Type::DOM_ELEMENT))
+            {
                 scanDescendents(node, nodes, pathElements, pathPosition, starPointer);
-        } else {
+            }
+        }
+        else
+        {
             if (pathElement.axis == XPathAxis::DESCENDANT)
+            {
                 scanDescendents(node, nodes, pathElements, pathPosition, starPointer);
+            }
         }
     }
 
     if (matchedNodes.empty())
+    {
         return;
+    }
 
-    if (pathElement.nodePosition != 0) {
+    if (pathElement.nodePosition != 0)
+    {
         int matchedPosition = 0;
         if (pathElement.nodePosition < 0)
+        {
             matchedPosition = int(matchedNodes.size() + pathElement.nodePosition);
+        }
         else
+        {
             matchedPosition = pathElement.nodePosition - 1;
+        }
         if (matchedPosition < 0 || matchedPosition >= (int) matchedNodes.size())
+        {
             return;
+        }
         Node* anode = matchedNodes[matchedPosition];
         matchedNodes.clear();
         matchedNodes.push_back(anode);
     }
 
     for (auto* node: matchedNodes)
+    {
         matchNode(node, nodes, pathElements, pathPosition, starPointer);
+    }
 }
 
-void NodeSearchAlgorithms::scanDescendents(const Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+void NodeSearchAlgorithms::scanDescendents(const Node* thisNode, NodeVector& nodes,
+                                           const std::vector<XPathElement>& pathElements, int pathPosition,
                                            const String& starPointer)
 {
     NodeVector matchedNodes;
     matchNodesThisLevel(thisNode, nodes, pathElements, pathPosition, starPointer, matchedNodes, true);
 }
 
-void NodeSearchAlgorithms::matchNode(Node* thisNode, NodeVector& nodes, const vector<XPathElement>& pathElements, int pathPosition,
+void NodeSearchAlgorithms::matchNode(Node* thisNode, NodeVector& nodes, const vector<XPathElement>& pathElements,
+                                     int pathPosition,
                                      const String& starPointer)
 {
     ++pathPosition;
-    if (pathPosition == (int) pathElements.size()) {
+    if (pathPosition == (int) pathElements.size())
+    {
         const XPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
         if (!pathElement.elementName.empty())
+        {
             nodes.insert(nodes.end(), thisNode);
-        else if (!pathElement.attributeName.empty()) {
+        }
+        else if (!pathElement.attributeName.empty())
+        {
             Attribute* attributeNode = thisNode->attributes().getAttributeNode(pathElement.attributeName);
             if (attributeNode != nullptr)
+            {
                 nodes.insert(nodes.end(), dynamic_cast<Node*>(attributeNode));
+            }
         }
         return;
     }
@@ -251,7 +317,9 @@ void Node::select(NodeVector& nodes, String xpath)
     nodes.clear();
 
     if (!xpath.startsWith("/"))
+    {
         xpath = "//" + xpath;
+    }
 
     xpath = xpath.replace("\\/\\/", "/descendant::");
 
@@ -260,7 +328,9 @@ void Node::select(NodeVector& nodes, String xpath)
     Strings pathElementStrs(ptr, "/");
     vector<XPathElement> pathElements(pathElementStrs.size());
     for (size_t i = 0; i < pathElements.size(); ++i)
+    {
         parsePathElement(pathElementStrs[i], pathElements[i]);
+    }
 
     const String starPointer("*");
     NodeSearchAlgorithms::matchNode(this, nodes, pathElements, -1, starPointer);
@@ -270,30 +340,35 @@ void Node::copy(const Node& node)
 {
     name(node.name());
     value(node.value());
-    if (isElement() && node.isElement()) {
+    if (isElement() && node.isElement())
+    {
         auto& nodeAttributes = attributes();
         nodeAttributes.clear();
-        for (const auto *attrNode: node.attributes())
+        for (const auto* attrNode: node.attributes())
+        {
             setAttribute(attrNode->name(), attrNode->value());
+        }
     }
 
     Node* element = nullptr;
-    for (const auto* childNode: node) {
-        switch (childNode->type()) {
-            case DOM_ELEMENT:
+    for (const auto* childNode: node)
+    {
+        switch (childNode->type())
+        {
+            case Type::DOM_ELEMENT:
                 element = new Element(this, "");
                 element->copy(*childNode);
                 break;
-            case DOM_PI:
+            case Type::DOM_PI:
                 new PI(*this, childNode->name());
                 break;
-            case DOM_TEXT:
+            case Type::DOM_TEXT:
                 new Text(*this, childNode->value());
                 break;
-            case DOM_CDATA_SECTION:
+            case Type::DOM_CDATA_SECTION:
                 new CDataSection(*this, childNode->value());
                 break;
-            case DOM_COMMENT:
+            case Type::DOM_COMMENT:
                 new Comment(*this, childNode->value());
                 break;
             default:
@@ -306,14 +381,22 @@ String Node::text() const
 {
     String ret;
 
-    if ((type() & (DOM_TEXT | DOM_CDATA_SECTION)) != 0)
+    if ((int) type() & ((int) Type::DOM_TEXT | (int) Type::DOM_CDATA_SECTION))
+    {
         ret += value();
-    else {
-        for (const auto* np: *this) {
+    }
+    else
+    {
+        for (const auto* np: *this)
+        {
             if (np->size())
+            {
                 ret += np->text();
+            }
             else
+            {
                 ret += np->value();
+            }
         }
     }
 
@@ -329,48 +412,72 @@ void Node::text(const String& txt)
 void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
 {
     buffer.append('<');
-    if (type() == DOM_PI) buffer.append('?');
+    if (type() == Type::DOM_PI)
+    { buffer.append('?'); }
     buffer.append(nodeName);
-    if (!this->attributes().empty()) {
+    if (!this->attributes().empty())
+    {
         // Output attributes
         saveAttributes(buffer);
     }
-    if (!empty()) {
+    if (!empty())
+    {
         bool only_cdata = true;
         const Node* nd = *begin();
-        if (size() == 1 && nd->type() == DOM_TEXT) {
+        if (size() == 1 && nd->type() == Type::DOM_TEXT)
+        {
             buffer.append('>');
-        } else {
+        }
+        else
+        {
             only_cdata = false;
             buffer.append('>');
             if (indent)
+            {
                 buffer.append('\n');
+            }
         }
         appendSubNodes(buffer, indent, only_cdata);
         appendClosingTag(buffer, indent, only_cdata);
-    } else {
+    }
+    else
+    {
         //LEAF
-        if (type() == DOM_PI)
+        if (type() == Type::DOM_PI)
+        {
             buffer.append("?>", 2);
+        }
         else
+        {
             buffer.append("/>", 2);
+        }
         if (indent)
+        {
             buffer.append('\n');
+        }
     }
 }
 
 void Node::appendSubNodes(Buffer& buffer, int indent, bool only_cdata) const
 {
-    for (const auto* np: *this) {
+    for (const auto* np: *this)
+    {
         if (only_cdata)
+        {
             np->save(buffer, -1);
-        else {
+        }
+        else
+        {
             int newIndent = 0;
             if (indent)
+            {
                 newIndent = indent + document()->indentSpaces();
+            }
             np->save(buffer, newIndent);
             if (indent && buffer.data()[buffer.bytes() - 1] != '\n')
+            {
                 buffer.append('\n');
+            }
         }
     }
 }
@@ -378,27 +485,36 @@ void Node::appendSubNodes(Buffer& buffer, int indent, bool only_cdata) const
 void Node::appendClosingTag(Buffer& buffer, int indent, bool only_cdata) const
 {// output indendation spaces
     if (!only_cdata && indent > 0)
+    {
         buffer.append(indentsString.c_str(), size_t(indent));
+    }
 
     // output closing tag
     buffer.append("</", 2);
     buffer.append(name());
     buffer.append('>');
     if (indent)
+    {
         buffer.append('\n');
+    }
 }
 
 void Node::saveAttributes(Buffer& buffer) const
 {
     Buffer real_id;
     Buffer real_val;
-    for (const auto* attributeNode: attributes()) {
+    for (const auto* attributeNode: attributes())
+    {
         real_id.bytes(0);
         real_val.bytes(0);
         if (!document()->docType().encodeEntities(attributeNode->name().c_str(), real_id))
+        {
             real_id = attributeNode->name();
+        }
         if (!document()->docType().encodeEntities(attributeNode->value().c_str(), real_val))
+        {
             real_val = attributeNode->value();
+        }
 
         buffer.append(' ');
         buffer.append(real_id);
@@ -412,35 +528,47 @@ void Node::save(Buffer& buffer, int indent) const
 {
     // output indendation spaces
     if (indent > 0)
+    {
         buffer.append(indentsString.c_str(), size_t(indent));
+    }
 
     const string& nodeName = name();
 
     // depending on the nodetype, do output
-    switch (type()) {
-        case DOM_TEXT:
-            if (value().substr(0, cdataStartMarkerLength) == "<![CDATA[" && value().substr(value().length() - cdataEndMarkerLength) == "]]>")
+    switch (type())
+    {
+        case Type::DOM_TEXT:
+            if (value().substr(0, cdataStartMarkerLength) == "<![CDATA[" &&
+                value().substr(value().length() - cdataEndMarkerLength) == "]]>")
+            {
                 buffer.append(value());
+            }
             else
+            {
                 document()->docType().encodeEntities(value().c_str(), buffer);
+            }
             break;
 
-        case DOM_CDATA_SECTION:
+        case Type::DOM_CDATA_SECTION:
             // output all subnodes
             buffer.append("<![CDATA[" + value() + "]]>");
             if (indent)
+            {
                 buffer.append("\n", 1);
+            }
             break;
 
-        case DOM_COMMENT:
+        case Type::DOM_COMMENT:
             // output all subnodes
             buffer.append("<!-- " + value() + " -->");
             if (indent)
+            {
                 buffer.append("\n", 1);
+            }
             break;
 
-        case DOM_PI:
-        case DOM_ELEMENT:
+        case Type::DOM_PI:
+        case Type::DOM_ELEMENT:
             saveElement(nodeName, buffer, indent);
             break;
 
@@ -451,42 +579,52 @@ void Node::save(Buffer& buffer, int indent) const
 
 void Node::saveTextOrCDATASection(json::Element* object) const
 {
-    if (value().substr(0, cdataStartMarkerLength) == "<![CDATA[" && value().substr(value().length() - cdataEndMarkerLength) == "]]>")
+    if (value().substr(0, cdataStartMarkerLength) == "<![CDATA[" &&
+        value().substr(value().length() - cdataEndMarkerLength) == "]]>")
+    {
         *object = value().substr(cdataStartMarkerLength, value().length() - cdataMarkersLength);
+    }
     else
+    {
         *object = value();
+    }
 }
 
 void Node::save(json::Element& json, string& text) const
 {
     const string& nodeName = name();
 
-    if (isText()) {
+    if (isText())
+    {
         text.append(this->text());
         return;
     }
 
-    if (isPI()) {
+    if (isPI())
+    {
         json.set(name(), value());
         return;
     }
 
     auto* object = json.add_object(nodeName);
     if (isElement())
+    {
         saveAttributes(object);
+    }
 
-    switch (type()) {
-        case DOM_TEXT:
-        case DOM_CDATA_SECTION:
+    switch (type())
+    {
+        case Type::DOM_TEXT:
+        case Type::DOM_CDATA_SECTION:
             saveTextOrCDATASection(object);
             break;
 
-        case DOM_COMMENT:
+        case Type::DOM_COMMENT:
             // output all subnodes
             object->set("comments", value());
             break;
 
-        case DOM_ELEMENT:
+        case Type::DOM_ELEMENT:
             saveElement(object);
             break;
 
@@ -497,26 +635,34 @@ void Node::save(json::Element& json, string& text) const
 
 void Node::saveElement(json::Element* object) const
 {
-    if (empty()) {
+    if (empty())
+    {
         *object = "";
         return;
     }
 
     bool done = false;
-    if (size() == 1) {
-        for (const auto* np: *this) {
-            if (np->name() == "null") {
+    if (size() == 1)
+    {
+        for (const auto* np: *this)
+        {
+            if (np->name() == "null")
+            {
                 done = true;
             }
         }
     }
 
-    if (!done) {
+    if (!done)
+    {
         // output all subnodes
         String nodeText;
         for (const auto* np: *this)
+        {
             np->save(*object, nodeText);
-        if (object->is(json::Type::OBJECT)) {
+        }
+        if (object->is(json::Type::OBJECT))
+        {
             setJsonValue(object, nodeText);
         }
     }
@@ -524,15 +670,20 @@ void Node::saveElement(json::Element* object) const
 
 void Node::setJsonValue(json::Element* object, const String& nodeText) const
 {
-    if (object->size() == 0) {
-        if (Document::isNumber(nodeText)) {
+    if (object->size() == 0)
+    {
+        if (Document::isNumber(nodeText))
+        {
             double value = string2double(nodeText);
             *object = value;
-        } else {
+        }
+        else
+        {
             *object = nodeText;
         }
     }
-    else if (!nodeText.empty()) {
+    else if (!nodeText.empty())
+    {
         object->set("#text", nodeText);
     }
 }
@@ -540,10 +691,13 @@ void Node::setJsonValue(json::Element* object, const String& nodeText) const
 void Node::saveAttributes(json::Element* object) const
 {
     const Attributes& attributes = this->attributes();
-    if (!attributes.empty()) {
+    if (!attributes.empty())
+    {
         auto* attrs = object->add_object("attributes");
         for (const auto* attributeNode: attributes)
+        {
             attrs->set(attributeNode->name(), attributeNode->value());
+        }
     }
 }
 
@@ -551,18 +705,26 @@ void Node::exportTo(json::Element& element) const
 {
     string text;
     for (const auto* np: *this)
+    {
         np->save(element, text);
+    }
 }
 
 Node* Node::findFirst(const String& aname, bool recursively) const
 {
-    for (auto* node: *this) {
+    for (auto* node: *this)
+    {
         if (node->name() == aname)
+        {
             return node;
-        if (recursively && !node->empty()) {
+        }
+        if (recursively && !node->empty())
+        {
             Node* cnode = node->findFirst(aname, true);
             if (cnode != nullptr)
+            {
                 return cnode;
+            }
         }
     }
     return nullptr;
@@ -572,7 +734,9 @@ Node* Node::findOrCreate(const String& aname, bool recursively)
 {
     Node* node = findFirst(aname, recursively);
     if (node != nullptr)
+    {
         return node;
+    }
     return new Element(*this, aname);
 }
 
@@ -602,7 +766,9 @@ void Element::unlink(Node* node)
 {
     auto itor = find(begin(), end(), node);
     if (itor == end())
+    {
         return;
+    }
     m_nodes.erase(itor);
 }
 
@@ -610,7 +776,9 @@ void Element::remove(Node* node)
 {
     auto itor = find(begin(), end(), node);
     if (itor == end())
+    {
         return;
+    }
     delete *itor;
     m_nodes.erase(itor);
 }
@@ -649,14 +817,15 @@ String CDataSection::nodeName() const
 
 static const String testXML1("<AAA><BBB/><CCC/><BBB/><BBB/><DDD><BBB/></DDD><CCC/></AAA>");
 static const String testXML2("<AAA><BBB/><CCC/><BBB/><DDD><BBB/></DDD><CCC><DDD><BBB/><BBB/></DDD></CCC></AAA>");
-static const String testXML3("<AAA><XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX><CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC><CCC><BBB><BBB><BBB/></BBB></BBB></CCC></AAA>");
+static const String testXML3(
+    "<AAA><XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX><CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC><CCC><BBB><BBB><BBB/></BBB></BBB></CCC></AAA>");
 static const String testXML4("<AAA><BBB>1</BBB><BBB>2</BBB><BBB>3</BBB><BBB>4</BBB></AAA>");
 static const String testXML5(R"(<AAA><BBB>1</BBB><BBB id="002">2</BBB><BBB id="003">3</BBB><BBB>4</BBB></AAA>)");
 
 TEST(SPTK_XmlElement, select)
 {
     xml::NodeVector elementSet;
-    xml::Document   document;
+    xml::Document document;
 
     document.load(testXML1);
 
@@ -673,7 +842,7 @@ TEST(SPTK_XmlElement, select)
 TEST(SPTK_XmlElement, select2)
 {
     xml::NodeVector elementSet;
-    xml::Document   document;
+    xml::Document document;
 
     document.load(testXML2);
 
@@ -687,7 +856,7 @@ TEST(SPTK_XmlElement, select2)
 TEST(SPTK_XmlElement, select3)
 {
     xml::NodeVector elementSet;
-    xml::Document   document;
+    xml::Document document;
 
     document.load(testXML3);
 
@@ -704,7 +873,7 @@ TEST(SPTK_XmlElement, select3)
 TEST(SPTK_XmlElement, select4)
 {
     xml::NodeVector elementSet;
-    xml::Document   document;
+    xml::Document document;
 
     document.load(testXML4);
 
@@ -720,7 +889,7 @@ TEST(SPTK_XmlElement, select4)
 TEST(SPTK_XmlElement, select5)
 {
     xml::NodeVector elementSet;
-    xml::Document   document;
+    xml::Document document;
 
     document.load(testXML5);
 

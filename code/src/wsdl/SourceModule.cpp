@@ -32,17 +32,19 @@ using namespace std;
 using namespace sptk;
 
 SourceModule::SourceModule(const String& moduleName, const String& modulePath)
-: m_name(moduleName), m_path(modulePath)
+    : m_name(moduleName), m_path(modulePath)
 {
 }
 
 SourceModule::~SourceModule()
 {
-    try {
+    try
+    {
         writeFile(m_name + ".h", Buffer(m_header.str()));
         writeFile(m_name + ".cpp", Buffer(m_source.str()));
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what())
     }
 }
@@ -50,7 +52,9 @@ SourceModule::~SourceModule()
 void SourceModule::open()
 {
     if (m_path.empty())
+    {
         m_path = ".";
+    }
     m_header.str("");
     m_source.str("");
 }
@@ -67,26 +71,34 @@ ostream& SourceModule::source()
 
 void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& data)
 {
-    Buffer existingData("", 1);
+    Buffer existingData((const uint8_t*) "", 1);
 
     if (m_path.empty())
+    {
         m_path = ".";
+    }
     String fileName = m_path + "/" + fileNameAndExtension;
 
-    try {
+    try
+    {
         existingData.loadFromFile(fileName);
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         existingData.bytes(0);
     }
 
     if (strcmp(existingData.c_str(), data.c_str()) == 0)
+    {
         return;
+    }
 
     ofstream file;
     file.open(fileName.c_str(), ofstream::out | ofstream::trunc);
     if (!file.is_open())
+    {
         throw Exception("Can't create file " + fileNameAndExtension);
+    }
     file.write(data.c_str(), (long) data.bytes());
     file.close();
 }

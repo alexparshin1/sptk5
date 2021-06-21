@@ -23,7 +23,7 @@ using namespace sptk;
 
 
 /* read a header block */
-int th_read_internal(TAR *t)
+int th_read_internal(TAR* t)
 {
     int i;
     int num_zero_blocks = 0;
@@ -36,7 +36,9 @@ int th_read_internal(TAR *t)
             ++num_zero_blocks;
             if (!BIT_ISSET(t->options, TAR_IGNORE_EOT)
                 && num_zero_blocks >= 2)
-                return 0;    /* EOF */
+            {
+                return 0;
+            }    /* EOF */
             continue;
         }
 
@@ -68,18 +70,20 @@ int th_read_internal(TAR *t)
 
 void clearTarHeader(struct tar_header* th)
 {
-    delete [] th->gnu_longname;
-    delete [] th->gnu_longlink;
+    delete[] th->gnu_longname;
+    delete[] th->gnu_longlink;
     memset(th, 0, sizeof(struct tar_header));
 }
 
-static void th_read_long_link(TAR *t)
+static void th_read_long_link(TAR* t)
 {
     auto sz = (size_t) th_get_size(t);
-    auto j = (int) ( (sz / T_BLOCKSIZE) + ((sz % T_BLOCKSIZE) ? 1 : 0) );
+    auto j = (int) ((sz / T_BLOCKSIZE) + ((sz % T_BLOCKSIZE) ? 1 : 0));
     t->th_buf.gnu_longlink = new char[size_t(j) * T_BLOCKSIZE];
     if (t->th_buf.gnu_longlink == nullptr)
+    {
         throw Exception("Can't allocate " + to_string(size_t(j) * T_BLOCKSIZE) + " bytes");
+    }
 
     int i;
     for (char* ptr = t->th_buf.gnu_longlink; j > 0 && ptr != nullptr; --j, ptr += T_BLOCKSIZE)
@@ -98,36 +102,44 @@ static void th_read_long_link(TAR *t)
     }
 }
 
-static void th_read_long_filename(TAR *t)
+static void th_read_long_filename(TAR* t)
 {
     auto sz = (size_t) th_get_size(t);
-    auto j = (int) ( (sz / T_BLOCKSIZE) + ((sz % T_BLOCKSIZE) ? 1 : 0) );
+    auto j = (int) ((sz / T_BLOCKSIZE) + ((sz % T_BLOCKSIZE) ? 1 : 0));
 
     t->th_buf.gnu_longname = new char[size_t(j) * T_BLOCKSIZE];
     if (t->th_buf.gnu_longname == nullptr)
+    {
         throw Exception("Can't allocate " + to_string(size_t(j) * T_BLOCKSIZE) + " bytes");
+    }
 
     int i;
-    for (char *ptr = t->th_buf.gnu_longname; j > 0 && ptr != nullptr; --j, ptr += T_BLOCKSIZE)
+    for (char* ptr = t->th_buf.gnu_longname; j > 0 && ptr != nullptr; --j, ptr += T_BLOCKSIZE)
     {
         i = tar_block_read(t, ptr);
         if (i != T_BLOCKSIZE)
+        {
             throw Exception("Can't read block from tar");
+        }
     }
 
     i = th_read_internal(t);
     if (i != T_BLOCKSIZE)
+    {
         throw Exception("Can't read from tar");
+    }
 }
 
 /* wrapper function for th_read_internal() to handle GNU extensions */
-int th_read(TAR *t)
+int th_read(TAR* t)
 {
     clearTarHeader(&(t->th_buf));
 
     int i = th_read_internal(t);
     if (i == 0)
+    {
         return 1;
+    }
     if (i != T_BLOCKSIZE)
     {
         if (i != -1)
@@ -137,13 +149,15 @@ int th_read(TAR *t)
 
     /* check for GNU long link extention */
     if TH_ISLONGLINK(t)
+    {
         th_read_long_link(t);
+    }
 
     /* check for GNU long name extention */
     if TH_ISLONGNAME(t)
+    {
         th_read_long_filename(t);
+    }
 
     return 0;
 }
-
-

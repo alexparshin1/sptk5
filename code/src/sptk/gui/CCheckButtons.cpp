@@ -45,17 +45,24 @@ void CCheckButton::draw()
     bool checked = value() != 0;
     bool highlited = (Fl::belowmouse() == this) && active_r();
     int dy = (h() - bh) / 2;
-    if (CThemes::drawCheckButton(x(), y() + dy, checked, highlited)) {
-        if (!m_label.empty()) {
+    if (CThemes::drawCheckButton(x(), y() + dy, checked, highlited))
+    {
+        if (!m_label.empty())
+        {
             fl_color(labelcolor());
             fl_font(labelfont(), labelsize());
             fl_draw(m_label.c_str(), x() + bw + 4, y() + 2, w() - bw - 6, h() - 4,
                     Fl_Align(FL_ALIGN_LEFT | FL_ALIGN_WRAP));
             if (Fl::focus() == this)
+            {
                 draw_focus(FL_FLAT_BOX, x() + bw + 2, y() + 1, w() - bw - 2, h() - 1);
+            }
         }
-    } else
+    }
+    else
+    {
         Fl_Check_Button::draw();
+    }
 }
 
 bool CCheckButton::preferredSize(int& w, int& h)
@@ -68,22 +75,31 @@ bool CCheckButton::preferredSize(int& w, int& h)
     fl_measure(m_label.c_str(), w, h);
     w += bw + 6;
     if (h < bh)
+    {
         h = bh;
+    }
     if (h < labelsize())
+    {
         h = labelsize();
+    }
     return false;
 }
 
 int CCheckButton::handle(int event)
 {
     CControl* control;
-    switch (event) {
+    switch (event)
+    {
         case FL_FOCUS:
             control = dynamic_cast<CControl*> (parent());
             if (!control && parent())
+            {
                 control = dynamic_cast<CControl*> (parent()->parent());
+            }
             if (control)
+            {
                 control->notifyFocus();
+            }
             break;
         case FL_ENTER:
         case FL_LEAVE:
@@ -105,7 +121,7 @@ void CCheckButtons::checkButtonsCallback(Fl_Widget* w, void*)
 }
 
 CCheckButtons::CCheckButtons(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CRadioButtons(label, layoutSize, layoutAlignment)
+    : CRadioButtons(label, layoutSize, layoutAlignment)
 {
 }
 
@@ -128,14 +144,21 @@ Variant CCheckButtons::data() const
     String result;
     auto* group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         auto* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
+        {
             continue;
-        if (b->value()) {
-            if (b == m_otherButton) {
+        }
+        if (b->value())
+        {
+            if (b == m_otherButton)
+            {
                 result += m_otherInput->value();
-            } else {
+            }
+            else
+            {
                 result += b->label();
             }
             result += "|";
@@ -143,7 +166,9 @@ Variant CCheckButtons::data() const
     }
     size_t len = result.length();
     if (len)
+    {
         result[len - 1] = 0;
+    }
 
     return result;
 }
@@ -152,18 +177,25 @@ void CCheckButtons::data(const Variant& s)
 {
     deselectAllButtons();
     if (m_otherButton)
+    {
         m_otherInput->value("");
+    }
     String st = s.asString();
     Strings sl(st, "|");
     size_t cnt = sl.size();
     auto* g = (CScroll*) m_control;
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         int ndx = buttonIndex(sl[i].c_str());
-        if (ndx > -1) {
+        if (ndx > -1)
+        {
             auto* b = (Fl_Button*) g->child(ndx);
             b->value(1);
-        } else {
-            if (m_otherButton) {
+        }
+        else
+        {
+            if (m_otherButton)
+            {
                 m_otherButton->value(1);
                 m_otherInput->value(sl[i].c_str());
             }
@@ -176,11 +208,15 @@ void CCheckButtons::getSelections(vector<uint64_t>& selection) const
     selection.clear();
     auto* group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         auto* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
+        {
             continue;
-        if (b->value()) {
+        }
+        if (b->value())
+        {
             auto id = (uint32_t) (uint64_t) b->user_data();
             selection.push_back(id);
         }
@@ -192,14 +228,19 @@ void CCheckButtons::setSelections(const vector<uint64_t>& selection)
     deselectAllButtons();
     auto* group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         auto* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
+        {
             continue;
+        }
         auto id = (uint32_t) (uint64_t) b->user_data();
         auto itor = std::find(selection.begin(), selection.end(), id);
         if (itor != selection.end())
+        {
             b->value(1);
+        }
     }
 }
 

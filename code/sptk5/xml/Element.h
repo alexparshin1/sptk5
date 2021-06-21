@@ -35,8 +35,7 @@
 #include <map>
 #include <vector>
 
-namespace sptk {
-namespace xml {
+namespace sptk::xml {
 
 /**
  * @addtogroup XML
@@ -122,9 +121,9 @@ public:
     /**
      * Returns node type
      */
-    NodeType type() const override
+    Type type() const override
     {
-        return DOM_ELEMENT;
+        return Type::DOM_ELEMENT;
     }
 
     /**
@@ -309,14 +308,13 @@ public:
     /**
      * Returns node type
      */
-    NodeType type() const override
+    Type type() const override
     {
-        return DOM_PI;
+        return Type::DOM_PI;
     }
 };
 
 /**
  * @}
  */
-}
 }

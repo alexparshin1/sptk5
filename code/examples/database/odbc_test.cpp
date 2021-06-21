@@ -155,7 +155,7 @@ int main(int argc, const char* argv[])
 
         COUT("Ok.\nDriver description: " << db->driverDescription() << endl)
 
-        DatabaseObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
+        DatabaseObjectType objectTypes[] = {DatabaseObjectType::TABLES, DatabaseObjectType::VIEWS, DatabaseObjectType::PROCEDURES};
         string objectTypeNames[] = {"tables", "views", "stored procedures"};
 
         for (unsigned i = 0; i < 3; i++) {

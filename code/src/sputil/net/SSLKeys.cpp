@@ -33,9 +33,9 @@ using namespace sptk;
 SSLKeys::SSLKeys(String privateKeyFileName, String certificateFileName,
                  String password, String caFileName, int verifyMode,
                  int verifyDepth)
-        : m_privateKeyFileName(std::move(privateKeyFileName)), m_certificateFileName(std::move(certificateFileName)),
-          m_password(std::move(password)), m_caFileName(std::move(caFileName)), m_verifyMode(verifyMode),
-          m_verifyDepth(verifyDepth)
+    : m_privateKeyFileName(std::move(privateKeyFileName)), m_certificateFileName(std::move(certificateFileName)),
+      m_password(std::move(password)), m_caFileName(std::move(caFileName)), m_verifyMode(verifyMode),
+      m_verifyDepth(verifyDepth)
 {
 }
 
@@ -49,7 +49,9 @@ SSLKeys& SSLKeys::operator=(const SSLKeys& other)
 {
     CopyLock(m_mutex, other.m_mutex);
     if (&other == this)
+    {
         return *this;
+    }
     assign(other);
     return *this;
 }

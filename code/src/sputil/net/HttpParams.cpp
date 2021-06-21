@@ -33,23 +33,30 @@ using namespace sptk;
 int hexCharToInt(unsigned char ch)
 {
     if (ch > '@')
+    {
         return ch - 'A' + 10;
+    }
     return ch - '0';
 }
 
 String Url::encode(const String& str)
 {
     auto cnt = (uint32_t) str.length();
-    const char *src = str.c_str();
+    const char* src = str.c_str();
     array<char, 5> hexBuffer;
     Buffer buffer(cnt * 3 + 1);
     buffer.data();
     int len;
-    while (*src != 0) {
-        if (isalnum(*src) != 0) {
+    while (*src != 0)
+    {
+        if (isalnum(*src) != 0)
+        {
             buffer.append(*src);
-        } else {
-            switch (*src) {
+        }
+        else
+        {
+            switch (*src)
+            {
                 case ' ':
                     buffer.append('+');
                     break;
@@ -58,7 +65,7 @@ String Url::encode(const String& str)
                     buffer.append(*src);
                     break;
                 default:
-                    len = snprintf(hexBuffer.data(), sizeof(hexBuffer), "%%%02X", (unsigned char)*src);
+                    len = snprintf(hexBuffer.data(), sizeof(hexBuffer), "%%%02X", (unsigned char) *src);
                     buffer.append(hexBuffer.data(), (size_t) len);
                     break;
             }
@@ -70,11 +77,13 @@ String Url::encode(const String& str)
 
 String Url::decode(const String& str)
 {
-    const char *src = str.c_str();
+    const char* src = str.c_str();
     char dest;
     Buffer buffer;
-    while (*src != 0) {
-        switch (*src) {
+    while (*src != 0)
+    {
+        switch (*src)
+        {
             case '+':
                 buffer.append(' ');
                 ++src;
@@ -82,7 +91,7 @@ String Url::decode(const String& str)
 
             case '%':
                 ++src;
-                dest = char(hexCharToInt((unsigned char)*src) * 16 + hexCharToInt((unsigned char)src[1]));
+                dest = char(hexCharToInt((unsigned char) *src) * 16 + hexCharToInt((unsigned char) src[1]));
                 buffer.append(dest);
                 src += 2;
                 break;
@@ -98,7 +107,8 @@ String Url::decode(const String& str)
 
 HttpParams::HttpParams(std::initializer_list<std::pair<String, String>> lst)
 {
-    for (const auto& [name,value]: lst) {
+    for (const auto&[name, value]: lst)
+    {
         operator[](name) = value;
     }
 }
@@ -107,14 +117,18 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
 {
     clear();
 
-    Strings sl(cb.data(),"&");
-    for (const auto& s: sl) {
+    Strings sl(cb.c_str(), "&");
+    for (const auto& s: sl)
+    {
         size_t pos = s.find('=');
-        if (pos != string::npos) {
+        if (pos != string::npos)
+        {
             string key = s.substr(0, pos);
-            string value = s.substr(pos+1);
+            string value = s.substr(pos + 1);
             (*this)[key] = Url::decode(value);
-        } else {
+        }
+        else
+        {
             (*this)[s] = "";
         }
     }
@@ -123,11 +137,14 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
 void HttpParams::encode(Buffer& result) const
 {
     unsigned cnt = 0;
-    for (auto& [name,value]: *this) {
+    for (auto&[name, value]: *this)
+    {
         String param;
         param = name + "=" + Url::encode(value);
         if (cnt != 0)
+        {
             result.append('&');
+        }
         result.append(param);
         ++cnt;
     }
@@ -137,7 +154,9 @@ String HttpParams::get(const String& paramName) const
 {
     auto itor = find(paramName);
     if (itor == end())
+    {
         return "";
+    }
     return itor->second;
 }
 

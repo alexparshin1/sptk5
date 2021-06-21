@@ -32,11 +32,11 @@ using namespace sptk;
 
 DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType,
                              VariantType dataType, int fieldLength, int fieldScale)
-: Field(fName.c_str()),
-  m_fldType(fieldType),
-  m_fldColumn(fieldColumn),
-  m_fldSize(fieldLength),
-  m_fldScale(fieldScale)
+    : Field(fName.c_str()),
+      m_fldType(fieldType),
+      m_fldColumn(fieldColumn),
+      m_fldSize(fieldLength),
+      m_fldScale(fieldScale)
 {
     displayName(fName);
 
@@ -44,70 +44,73 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
 
     switch (dataType)
     {
-    case VAR_BOOL:
-        Variant::setBool(false);
-        view().width = 6;
-        break;
+        case VAR_BOOL:
+            Variant::setBool(false);
+            view().width = 6;
+            break;
 
-    case VAR_INT:
-        Variant::setInteger(0);
-        view().width = 10;
-        break;
+        case VAR_INT:
+            Variant::setInteger(0);
+            view().width = 10;
+            break;
 
-    case VAR_FLOAT:
-        Variant::setFloat(0);
-        view().width = 16;
-        view().precision = (unsigned) fieldScale;
-        break;
+        case VAR_FLOAT:
+            Variant::setFloat(0);
+            view().width = 16;
+            view().precision = (unsigned) fieldScale;
+            break;
 
-    case VAR_STRING:
-        Variant::setString("");
-        if (fieldLength == 0) {
-            fieldLength = 256;
-            m_fldSize = fieldLength;
-        }
-        checkSize((size_t)fieldLength + 1);
-        view().width = fieldLength;
-        break;
+        case VAR_STRING:
+            Variant::setString("");
+            if (fieldLength == 0)
+            {
+                fieldLength = 256;
+                m_fldSize = fieldLength;
+            }
+            checkSize((size_t) fieldLength + 1);
+            view().width = fieldLength;
+            break;
 
-    case VAR_TEXT:
-        Variant::setBuffer("", 1, VAR_TEXT);
-        checkSize((size_t)fieldLength + 1);
-        view().width = fieldLength;
-        break;
+        case VAR_TEXT:
+            Variant::setBuffer((const uint8_t*) "", 1, VAR_TEXT);
+            checkSize((size_t) fieldLength + 1);
+            view().width = fieldLength;
+            break;
 
-    case VAR_BUFFER:
-        Variant::setBuffer("", 1, VAR_BUFFER);
-        checkSize((size_t)fieldLength);
-        view().width = 1;
-        break;
+        case VAR_BUFFER:
+            Variant::setBuffer((const uint8_t*) "", 1, VAR_BUFFER);
+            checkSize((size_t) fieldLength);
+            view().width = 1;
+            break;
 
-    case VAR_DATE:
-    case VAR_DATE_TIME:
-        Variant::setDateTime(DateTime());
-        Field::dataType(dataType);
-        view().width = 10;
-        break;
+        case VAR_DATE:
+        case VAR_DATE_TIME:
+            Variant::setDateTime(DateTime());
+            Field::dataType(dataType);
+            view().width = 10;
+            break;
 
-    case VAR_INT64:
-        Variant::setInt64(0);
-        view().width = 16;
-        break;
+        case VAR_INT64:
+            Variant::setInt64(0);
+            view().width = 16;
+            break;
 
-    default:
-        Variant::setString("");
-        checkSize((size_t)fieldLength + 1);
-        view().width = fieldLength;
-        break;
+        default:
+            Variant::setString("");
+            checkSize((size_t) fieldLength + 1);
+            view().width = fieldLength;
+            break;
     }
 }
 
 void DatabaseField::checkSize(size_t sz)
 {
-    if (sz > m_data.getBuffer().size) {
+    if (sz > m_data.getBuffer().size)
+    {
         size_t newSize = (sz / 16 + 1) * 16;
         auto* p = new char[newSize + 1];
-        if (m_data.getBuffer().data != nullptr) {
+        if (m_data.getBuffer().data != nullptr)
+        {
             memcpy(p, m_data.getBuffer().data, m_data.getBuffer().size);
             delete[] m_data.getBuffer().data;
         }

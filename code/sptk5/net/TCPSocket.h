@@ -97,11 +97,11 @@ public:
      * @param destination              Destination buffer
      * @param sz                Size of the destination buffer
      * @param delimiter         Line delimiter
-     * @param readLine          True if we want to read one line (ended with CRLF) only
+     * @param read_line          True if we want to read one line (ended with CRLF) only
      * @param from              An optional structure for source address
      * @returns bytes read from the internal buffer
      */
-    size_t read(char* destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = nullptr);
+    size_t read(uint8_t* destination, size_t sz, char delimiter, bool read_line, struct sockaddr_in* from = nullptr);
 
     /**
      * Performs the buffered read of LF-terminated string
@@ -142,11 +142,11 @@ private:
      * @param destination       Destination buffer
      * @param sz                Size of the destination buffer
      * @param delimiter         Line delimiter
-     * @param readLine          True if we want to read one line (ended with CRLF) only
+     * @param read_line          True if we want to read one line (ended with CRLF) only
      * @param from              An optional structure for source address
      * @returns number of bytes read
      */
-    [[nodiscard]] int32_t bufferedRead(char *destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = nullptr);
+    [[nodiscard]] int32_t bufferedRead(uint8_t* destination, size_t sz, char delimiter, bool read_line, struct sockaddr_in* from = nullptr);
 
     void handleReadFromSocketError(int error);
 };
@@ -240,7 +240,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    size_t read(char *buffer, size_t size, sockaddr_in* from = nullptr) override;
+    size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr) override;
 
     /**
      * Reads data from the socket into memory buffer

@@ -40,13 +40,14 @@ namespace sptk {
 class SP_EXPORT WSWebSocketsMessage
 {
 public:
-    enum OpCode : uint8_t {
-        OC_CONTINUATION     = 0,
-        OC_TEXT             = 1,
-        OC_BINARY           = 2,
-        OC_CONNECTION_CLOSE = 8,
-        OC_PING1            = 9,
-        OC_PING2            = 10
+    enum class OpCode : uint8_t
+    {
+        CONTINUATION     = 0,
+        TEXT             = 1,
+        BINARY           = 2,
+        CONNECTION_CLOSE = 8,
+        PING1            = 9,
+        PING2            = 10
     };
 
     /// Default constructor

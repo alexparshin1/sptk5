@@ -25,7 +25,7 @@
 */
 
 #ifndef __THEMEUTILS_H__
-#define	__THEMEUTILS_H__
+#define    __THEMEUTILS_H__
 
 #include <sptk5/sptk.h>
 
@@ -35,27 +35,35 @@ using namespace std;
 
 namespace sptk {
 
-	SP_EXPORT CPngImage *loadValidatePNGImage(const string& fileName, bool externalFile) {
-        try {
-            CPngImage *img;
-            if (externalFile) {
-                Buffer imageBuffer;
-                imageBuffer.loadFromFile(fileName);
-                img = new CPngImage(imageBuffer);
-            } else {
-                const Buffer& imageBuffer = CThemes::m_tar.file(fileName);
-                img = new CPngImage(imageBuffer);
-            }
-            if (img->data())
-                return img;
-            delete img;
-            img = nullptr;
+SP_EXPORT CPngImage* loadValidatePNGImage(const string& fileName, bool externalFile)
+{
+    try
+    {
+        CPngImage* img;
+        if (externalFile)
+        {
+            Buffer imageBuffer;
+            imageBuffer.loadFromFile(fileName);
+            img = new CPngImage(imageBuffer);
+        }
+        else
+        {
+            const Buffer& imageBuffer = CThemes::m_tar.file(fileName);
+            img = new CPngImage(imageBuffer);
+        }
+        if (img->data())
+        {
             return img;
-        } catch (...) {}
-        return nullptr;
+        }
+        delete img;
+        img = nullptr;
+        return img;
     }
+    catch (...)
+    {}
+    return nullptr;
+}
 
 }
 
-#endif	/* _THEMEUTILS_H */
-
+#endif    /* _THEMEUTILS_H */

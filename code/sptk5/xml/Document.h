@@ -90,9 +90,9 @@ public:
     /**
      * Returns node type
      */
-    NodeType type() const override
+    Type type() const override
     {
-        return DOM_DOCUMENT;
+        return Type::DOM_DOCUMENT;
     }
 
     /**

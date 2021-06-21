@@ -13,7 +13,9 @@
 #include "libtar.h"
 
 #if defined(__GNUC__) || defined(__SUNPRO_C)
+
 #include <sys/param.h>
+
 #endif
 
 #ifndef MAXPATHLEN
@@ -21,9 +23,10 @@
 #endif
 
 /* determine full path name */
-void th_get_pathname(TAR *t, char* path, size_t sz)
+void th_get_pathname(TAR* t, char* path, size_t sz)
 {
-    if (t->th_buf.gnu_longname != nullptr) {
+    if (t->th_buf.gnu_longname != nullptr)
+    {
         snprintf(path, sz, "%s", t->th_buf.gnu_longname);
         return;
     }
@@ -33,7 +36,7 @@ void th_get_pathname(TAR *t, char* path, size_t sz)
 #ifdef _MSC_VER
         int len = _snprintf(path, sz - 1, "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
 #else
-        int len = snprintf(path, sz - 1, "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
+        int len = snprintf(path, sz - 1, "%.155s/%.100s", t->th_buf.prefix, t->th_buf.name);
 #endif
         path[len] = 0;
         return;
@@ -46,4 +49,3 @@ void th_get_pathname(TAR *t, char* path, size_t sz)
 #endif
     path[len] = 0;
 }
-

@@ -208,7 +208,7 @@ TEST(SPTK_FieldList, dataTypes)
     fieldList["visible"].setBool(false);
     fieldList["date"] = testDate;
     fieldList["null"].setNull(VAR_STRING);
-    fieldList["text"].setBuffer("1234", 5);
+    fieldList["text"].setBuffer((const uint8_t*) "1234", 5);
     fieldList["float_value"] = double(testInteger);
     fieldList["money_value"].setMoney(1234567,2);
     fieldList["long_value"] = int64_t(12345678901234567);

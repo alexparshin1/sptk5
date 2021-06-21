@@ -31,7 +31,8 @@ using namespace sptk;
 
 void CSelection::select(CPackedStrings* row)
 {
-    if (row) {
+    if (row)
+    {
         row->flags |= CLV_SELECTED;
         m_selectedRows.push_back(row);
     }
@@ -39,7 +40,8 @@ void CSelection::select(CPackedStrings* row)
 
 void CSelection::deselect(CPackedStrings* row)
 {
-    if (row) {
+    if (row)
+    {
         row->flags &= ~CLV_SELECTED;
         remove(row);
     }
@@ -48,7 +50,8 @@ void CSelection::deselect(CPackedStrings* row)
 void CSelection::deselectAll()
 {
     size_t cnt = m_selectedRows.size();
-    for (size_t i = 0; i < cnt; i++) {
+    for (size_t i = 0; i < cnt; i++)
+    {
         auto* row = (CPackedStrings*) m_selectedRows[i];
         row->flags &= ~CLV_SELECTED;
     }
@@ -59,7 +62,9 @@ void CSelection::remove(CPackedStrings* row)
 {
     auto itor = std::find(m_selectedRows.begin(), m_selectedRows.end(), row);
     if (itor != m_selectedRows.end())
+    {
         m_selectedRows.erase(itor);
+    }
 }
 
 void CSelection::clear()
@@ -70,10 +75,13 @@ void CSelection::clear()
 CPackedStrings* CSelection::findKey(int keyValue) const
 {
     size_t cnt = m_selectedRows.size();
-    for (size_t i = 0; i < cnt; i++) {
+    for (size_t i = 0; i < cnt; i++)
+    {
         auto* row = (CPackedStrings*) m_selectedRows[i];
         if (row->argument() == keyValue)
+        {
             return row;
+        }
     }
     return nullptr;
 }
@@ -81,10 +89,13 @@ CPackedStrings* CSelection::findKey(int keyValue) const
 CPackedStrings* CSelection::findCaption(const String& caption) const
 {
     size_t cnt = m_selectedRows.size();
-    for (size_t i = 0; i < cnt; i++) {
+    for (size_t i = 0; i < cnt; i++)
+    {
         auto* row = (CPackedStrings*) m_selectedRows[i];
         if ((*row)[0] == caption)
+        {
             return row;
+        }
     }
     return nullptr;
 }

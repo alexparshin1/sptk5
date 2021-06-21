@@ -42,19 +42,27 @@ bool ImapDS::open()
     int32_t first_message = 1;
     m_imap.cmd_select(m_folder, total_messages);
 
-    if (m_msgid != 0) {
+    if (m_msgid != 0)
+    {
         first_message = m_msgid;
         total_messages = m_msgid;
     }
-    if (total_messages != 0) {
+    if (total_messages != 0)
+    {
         if (m_callback != nullptr)
+        {
             m_callback(total_messages, 0);
-        for (long msg_id = first_message; msg_id <= total_messages; ++msg_id) {
+        }
+        for (long msg_id = first_message; msg_id <= total_messages; ++msg_id)
+        {
             FieldList df(false);
 
             if (m_fetchbody)
+            {
                 m_imap.cmd_fetch_message((int32_t) msg_id, df);
-            else m_imap.cmd_fetch_headers((int32_t) msg_id, df);
+            }
+            else
+            { m_imap.cmd_fetch_headers((int32_t) msg_id, df); }
 
             auto* fld = new Field("msg_id");
             fld->view().width = 0;
@@ -64,13 +72,21 @@ bool ImapDS::open()
             push_back(move(df));
 
             if (m_callback != nullptr)
+            {
                 m_callback(total_messages, (int) msg_id);
+            }
         }
         if (m_callback != nullptr)
+        {
             m_callback(total_messages, total_messages);
-    } else {
+        }
+    }
+    else
+    {
         if (m_callback != nullptr)
+        {
             m_callback(100, 100);
+        }
     }
 
     first();

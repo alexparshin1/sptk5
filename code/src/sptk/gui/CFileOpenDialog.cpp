@@ -29,6 +29,7 @@
 #ifdef _WIN32
 #include <io.h>
 #endif
+
 #include <fcntl.h>
 
 #include <sptk5/gui/CFileOpenDialog.h>
@@ -37,28 +38,35 @@
 using namespace std;
 using namespace sptk;
 
-bool CFileOpenDialog::okPressed() {
-   string fname;
-   try {
-      fname = fileName();
-      if (!fname.length()) 
-         throw Exception("Please, select or type in the filename.");
-      fname = removeTrailingSlash(directory()) + slashStr + fname;
-      int fh = open(fname.c_str(),O_RDONLY);
-      if (fh < 0) 
-         throw Exception("File doesn't exist.");
-      close(fh);
-      return true;
-   }
-   catch(Exception&  e) {
-      spError("Can't open file "+fname +".\n"+string(e.what()));
-      return false;
-   }
+bool CFileOpenDialog::okPressed()
+{
+    string fname;
+    try
+    {
+        fname = fileName();
+        if (!fname.length())
+        {
+            throw Exception("Please, select or type in the filename.");
+        }
+        fname = removeTrailingSlash(directory()) + slashStr + fname;
+        int fh = open(fname.c_str(), O_RDONLY);
+        if (fh < 0)
+        {
+            throw Exception("File doesn't exist.");
+        }
+        close(fh);
+        return true;
+    }
+    catch (Exception& e)
+    {
+        spError("Can't open file " + fname + ".\n" + string(e.what()));
+        return false;
+    }
 }
 
 CFileOpenDialog::CFileOpenDialog(const string& caption)
-: CFileDialog(caption,false)
+    : CFileDialog(caption, false)
 {
-   m_okButton->label("Open");
-   m_okButton->buttonImage(SP_OPEN_BUTTON);
+    m_okButton->label("Open");
+    m_okButton->buttonImage(SP_OPEN_BUTTON);
 }

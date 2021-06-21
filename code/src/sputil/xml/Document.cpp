@@ -34,30 +34,33 @@ using namespace sptk;
 
 namespace sptk::xml {
 
-const RegularExpression Document::parseAttributes { R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])","g" };
+const RegularExpression Document::parseAttributes{R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])", "g"};
 
 Document::Document()
-: Element(*this)
+    : Element(*this)
 {
 }
 
 Document::Document(const String& xml)
-: Element(*this)
+    : Element(*this)
 {
     Document::load(xml);
 }
 
 Document::Document(const char* aname, const char* public_id, const char* system_id)
-: Element(*this),
-  m_doctype(aname, public_id, system_id)
+    : Element(*this),
+      m_doctype(aname, public_id, system_id)
 {
 }
 
 Node* Document::rootNode()
 {
-    for (auto* nd: *this) {
-        if (nd->type() == DOM_ELEMENT)
+    for (auto* nd: *this)
+    {
+        if (nd->type() == Type::DOM_ELEMENT)
+        {
             return nd;
+        }
     }
     return nullptr;
 }
@@ -72,11 +75,14 @@ void Document::processAttributes(Node* node, const char* ptr)
 {
     auto matches = parseAttributes.m(ptr);
 
-    for (auto itor = matches.groups().begin(); itor != matches.groups().end(); ++itor) {
+    for (auto itor = matches.groups().begin(); itor != matches.groups().end(); ++itor)
+    {
         const auto& attributeName = itor->value;
         ++itor;
         if (itor == matches.groups().end())
+        {
             break;
+        }
         m_encodeBuffer.bytes(0);
         m_doctype.decodeEntities(itor->value.c_str(), (uint32_t) itor->value.length(), m_encodeBuffer);
         node->setAttribute(attributeName, m_encodeBuffer.c_str());
@@ -90,24 +96,31 @@ char* Document::parseEntity(char* start)
 
     start = strstr(start, "<!ENTITY ");
     if (start == nullptr)
+    {
         return start;
+    }
     start += entityMarkerLength;
 
     auto* end = strchr(start, '>');
     if (end == nullptr)
+    {
         return end;
+    }
 
     *end = 0;
     auto matches = matchEntity.m(start);
     if (matches)
+    {
         m_doctype.m_entities.setEntity(matches["name"].value, matches["value"].value);
+    }
     return end + 1;
 }
 
 void Document::parseEntities(char* entitiesSection)
 {
     auto* start = entitiesSection;
-    while (start != nullptr) {
+    while (start != nullptr)
+    {
         start = parseEntity(start);
     }
 }
@@ -115,7 +128,9 @@ void Document::parseEntities(char* entitiesSection)
 unsigned char* Document::skipSpaces(unsigned char* start)
 {
     while (*start <= ' ')
+    {
         ++start;
+    }
     return start;
 }
 
@@ -132,32 +147,46 @@ void Document::parseDocType(char* docTypeSection)
     extractEntities(docTypeSection);
 
     char delimiter = ' ';
-    while (start != nullptr) {
+    while (start != nullptr)
+    {
         while (*start == ' ' || *start == delimiter)
+        {
             ++start;
+        }
         char* end = strchr(start, delimiter);
         if (end != nullptr)
+        {
             *end = 0;
-        switch (index) {
+        }
+        switch (index)
+        {
             case 0:
                 m_doctype.m_name = start;
                 if (end == nullptr)
+                {
                     return;
+                }
                 break;
             case 1:
             case 3:
                 if (end == nullptr)
+                {
                     break;
-                if (strcmp(start, "SYSTEM") == 0) {
+                }
+                if (strcmp(start, "SYSTEM") == 0)
+                {
                     t = 0;
-                } else if (strcmp(start, "PUBLIC") == 0) {
+                }
+                else if (strcmp(start, "PUBLIC") == 0)
+                {
                     t = 1;
                 }
                 delimiter = '\"';
                 break;
             case 2:
             case 4:
-                switch (t) {
+                switch (t)
+                {
                     case 0:
                         m_doctype.m_system_id = start;
                         break;
@@ -172,7 +201,9 @@ void Document::parseDocType(char* docTypeSection)
                 break;
         }
         if (end == nullptr)
+        {
             break;
+        }
         start = end + 1;
         ++index;
     }
@@ -181,11 +212,13 @@ void Document::parseDocType(char* docTypeSection)
 void Document::extractEntities(char* docTypeSection)
 {
     char* entitiesSection = strchr(docTypeSection, '[');
-    if (entitiesSection != nullptr) {
+    if (entitiesSection != nullptr)
+    {
         *entitiesSection = 0;
         ++entitiesSection;
         char* end = strchr(entitiesSection, ']');
-        if (end != nullptr) {
+        if (end != nullptr)
+        {
             *end = 0;
             parseEntities(entitiesSection);
         }
@@ -196,7 +229,9 @@ char* Document::readComment(Node* currentNode, char* nodeName, char* nodeEnd, ch
 {
     nodeEnd = strstr(nodeName + 3, "-->");
     if (nodeEnd == nullptr)
+    {
         throw Exception("Invalid end of the comment tag");
+    }
     *nodeEnd = 0;
     new Comment(currentNode, nodeName + 3);
     tokenEnd = nodeEnd + 2;
@@ -208,7 +243,9 @@ char* Document::readCDataSection(Node* currentNode, char* nodeName, char* nodeEn
     constexpr int cdataTagLength = 8;
     nodeEnd = strstr(nodeName + 1, "]]>");
     if (nodeEnd == nullptr)
+    {
         throw Exception("Invalid CDATA section");
+    }
     *nodeEnd = 0;
     new CDataSection(currentNode, nodeName + cdataTagLength);
     tokenEnd = nodeEnd + 2;
@@ -219,13 +256,18 @@ char* Document::readDocType(char* tokenEnd)
 {
     auto* nodeEnd = strstr(tokenEnd + 1, "]>");
 
-    if (nodeEnd != nullptr) { /// ENTITIES
+    if (nodeEnd != nullptr)
+    { /// ENTITIES
         ++nodeEnd;
         *nodeEnd = 0;
-    } else {
+    }
+    else
+    {
         nodeEnd = strchr(tokenEnd + 1, '>');
         if (nodeEnd == nullptr)
+        {
             throw Exception("Invalid CDATA section");
+        }
         *nodeEnd = 0;
     }
 
@@ -241,17 +283,20 @@ char* Document::readExclamationTag(char* nodeName, char* tokenEnd, char* nodeEnd
     constexpr int docTypeTagLength = 8;
     char ch = *tokenEnd;
     *tokenEnd = 0;
-    if (strncmp(nodeName, "!--", 3) == 0) {
+    if (strncmp(nodeName, "!--", 3) == 0)
+    {
         /// Comment
         *tokenEnd = ch; // ' ' or '>' could be within a comment
         tokenEnd = readComment(currentNode, nodeName, nodeEnd, tokenEnd);
     }
-    else if (strncmp(nodeName, "![CDATA[", cdataTagLength) == 0) {
+    else if (strncmp(nodeName, "![CDATA[", cdataTagLength) == 0)
+    {
         /// CDATA section
         *tokenEnd = ch;
         tokenEnd = readCDataSection(currentNode, nodeName, nodeEnd, tokenEnd);
     }
-    else if (strncmp(nodeName, "!DOCTYPE", docTypeTagLength) == 0 && ch != '>') {
+    else if (strncmp(nodeName, "!DOCTYPE", docTypeTagLength) == 0 && ch != '>')
+    {
         tokenEnd = readDocType(tokenEnd);
     }
     return tokenEnd;
@@ -261,7 +306,9 @@ char* Document::readProcessingInstructions(const char* nodeName, char* tokenEnd,
 {
     nodeEnd = strstr(tokenEnd, "?>");
     if (nodeEnd == nullptr)
+    {
         throw Exception("Invalid PI section: no closing tag");
+    }
     *nodeEnd = 0;
     *tokenEnd = 0;
     auto* pi = currentNode->add<PI>(nodeName + 1);
@@ -277,15 +324,21 @@ char* Document::readClosingTag(const char* nodeName, char* tokenEnd, char*& node
     char ch = *tokenEnd;
     *tokenEnd = 0;
     if (ch != '>')
+    {
         throw Exception("Invalid tag (spaces before closing '>')");
+    }
     ++nodeName;
     if (currentNode->name() != nodeName)
+    {
         throw Exception(
-                "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() + ">");
+            "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() + ">");
+    }
     currentNode = currentNode->parent();
     if (currentNode == nullptr)
+    {
         throw Exception(
-                "Closing tag <" + string(nodeName) + "> doesn't have corresponding opening tag");
+            "Closing tag <" + string(nodeName) + "> doesn't have corresponding opening tag");
+    }
     nodeEnd = tokenEnd;
     return tokenEnd;
 }
@@ -294,11 +347,15 @@ char* Document::readOpenningTag(const char* nodeName, char* tokenEnd, char*& nod
 {
     char ch = *tokenEnd;
     *tokenEnd = 0;
-    if (ch == '>' || ch == '/') {
-        if (ch == '/') {
+    if (ch == '>' || ch == '/')
+    {
+        if (ch == '/')
+        {
             new Element(currentNode, nodeName);
             nodeEnd = tokenEnd + 1;
-        } else {
+        }
+        else
+        {
             currentNode = new Element(currentNode, nodeName);
             nodeEnd = tokenEnd;
         }
@@ -308,18 +365,25 @@ char* Document::readOpenningTag(const char* nodeName, char* tokenEnd, char*& nod
     auto* tokenStart = tokenEnd + 1;
     nodeEnd = strchr(tokenStart, '>');
     if (nodeEnd == nullptr)
+    {
         throw Exception("Invalid tag (started, not closed)");
+    }
     auto len = nodeEnd - tokenStart;
     if (tokenStart[len - 1] == '/')
-        nodeEnd = tokenStart + len -1;
+    {
+        nodeEnd = tokenStart + len - 1;
+    }
 
     /// Attributes
     Node* anode;
-    if (*nodeEnd == '/') {
+    if (*nodeEnd == '/')
+    {
         anode = currentNode->add<Element>(nodeName);
         *nodeEnd = 0;
         ++nodeEnd;
-    } else {
+    }
+    else
+    {
         anode = currentNode = currentNode->add<Element>(nodeName);
         *nodeEnd = 0;
     }
@@ -335,15 +399,19 @@ void Document::load(const char* _buffer, bool keepSpaces)
     DocType* doctype = &docType();
     Buffer buffer(_buffer);
 
-    for (char* nodeStart = strchr(buffer.data(), '<'); nodeStart != nullptr; ) {
+    for (char* nodeStart = strchr((char*) buffer.data(), '<'); nodeStart != nullptr;)
+    {
         auto* nameStart = nodeStart + 1;
         char* nameEnd = strpbrk(nameStart + 1, "?/\r\n <>");
         if (nameEnd == nullptr || *nameEnd == '<')
+        {
             throw Exception("Tag started but not closed");
+        }
 
         char* nodeName = nameStart;
         char* nodeEnd = nameStart;
-        switch (*nameStart) {
+        switch (*nameStart)
+        {
             case '!':
                 nodeEnd = readExclamationTag(nodeName, nameEnd, nodeEnd, currentNode);
                 break;
@@ -362,28 +430,36 @@ void Document::load(const char* _buffer, bool keepSpaces)
         }
 
         nodeStart = strchr(nodeEnd + 1, '<');
-        if (nodeStart == nullptr) {
+        if (nodeStart == nullptr)
+        {
             if (currentNode == this)
-                continue; // exit the loop
+            {
+                continue;
+            } // exit the loop
             throw Exception("Tag started but not closed");
         }
 
         const auto* textStart = nodeEnd + 1;
-        if (*textStart != '<') {
+        if (*textStart != '<')
+        {
             readText(keepSpaces, currentNode, doctype, nodeStart, textStart);
         }
     }
 }
 
-void Document::readText(bool keepSpaces, Node* currentNode, DocType* doctype, const char* nodeStart, const char* textStart)
+void Document::readText(bool keepSpaces, Node* currentNode, DocType* doctype, const char* nodeStart,
+                        const char* textStart)
 {
     const auto* textTrail = nodeStart;
-    if (textStart != textTrail) { // && nodeStart[1] == '/)') {
+    if (textStart != textTrail)
+    { // && nodeStart[1] == '/)') {
         Buffer& decoded = m_decodeBuffer;
         doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
         String decodedText(decoded.c_str(), decoded.length());
         if (keepSpaces || decodedText.find_first_not_of("\n\r\t ") != string::npos)
+        {
             new Text(currentNode, decodedText.c_str());
+        }
     }
 }
 
@@ -395,8 +471,10 @@ void Document::save(Buffer& buffer, int indent) const
 
     // Write XML PI
     bool hasXmlPI = false;
-    for (const auto* node: *this) {
-        if (node->type() == DOM_PI && lowerCase(node->name()) == "xml") {
+    for (const auto* node: *this)
+    {
+        if (node->type() == Type::DOM_PI && lowerCase(node->name()) == "xml")
+        {
             xml_pi = node;
             xml_pi->save(buffer, 0);
             hasXmlPI = true;
@@ -404,35 +482,50 @@ void Document::save(Buffer& buffer, int indent) const
         }
     }
 
-    if (!hasXmlPI) {
+    if (!hasXmlPI)
+    {
         buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         if (indent)
+        {
             buffer.append('\n');
+        }
     }
 
-    if (!docType().name().empty()) {
+    if (!docType().name().empty())
+    {
         buffer.append("<!DOCTYPE " + docType().name());
         if (!docType().systemID().empty())
+        {
             buffer.append(" SYSTEM \"" + docType().systemID() + "\"");
+        }
 
         if (!docType().publicID().empty())
+        {
             buffer.append(" PUBLIC \"" + docType().publicID() + "\"");
+        }
 
-        if (!docType().entities().empty()) {
+        if (!docType().entities().empty())
+        {
             buffer.append(" [\n", 3);
             const Entities& entities = docType().entities();
             for (const auto& it: entities)
+            {
                 buffer.append("<!ENTITY " + it.first + " \"" + it.second + "\">\n");
+            }
             buffer.append("]", 1);
         }
         buffer.append('>');
-        if (indent) buffer.append('\n');
+        if (indent)
+        { buffer.append('\n'); }
     }
 
     // call save() method of the first (and hopefully only) node in xml document
-    for (const auto* node: *this) {
+    for (const auto* node: *this)
+    {
         if (node == xml_pi)
+        {
             continue;
+        }
         node->save(buffer, indent);
     }
     buffer[buffer.length()] = 0;
@@ -446,9 +539,12 @@ String Document::name() const
 
 void Document::exportTo(json::Element& json) const
 {
-    for (const auto* node: *this) {
+    for (const auto* node: *this)
+    {
         if (node->isPI())
+        {
             continue;
+        }
         node->exportTo(json);
         json.optimizeArrays("item");
         break;
@@ -457,7 +553,7 @@ void Document::exportTo(json::Element& json) const
 
 bool Document::isNumber(const String& str)
 {
-    static const RegularExpression matchNumber {R"(^[+\-]?(0|[1-9]\d*)(\.\d+)?(e-?\d+)?$)", "i"};
+    static const RegularExpression matchNumber{R"(^[+\-]?(0|[1-9]\d*)(\.\d+)?(e-?\d+)?$)", "i"};
 
     return matchNumber.matches(str);
 }
@@ -492,7 +588,8 @@ void verifyDocument(xml::Document& document)
     EXPECT_DOUBLE_EQ(1519005758, int(string2int64(document.findOrCreate("timestamp")->text())/1000));
 
     Strings skills;
-    for (const auto* node: *document.findOrCreate("skills")) {
+    for (const auto* node: *document.findOrCreate("skills"))
+    {
         skills.push_back(node->text());
     }
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
@@ -508,7 +605,8 @@ void verifyDocument(xml::Document& document)
     const xml::Node* dataNode = document.findOrCreate("data");
     const xml::Node* cdataNode = nullptr;
 
-    for (const auto* node: *dataNode) {
+    for (const auto* node: *dataNode)
+    {
         cdataNode = node;
         EXPECT_TRUE(cdataNode->isCDataSection());
         EXPECT_STREQ("hello, /\\>", cdataNode->value().c_str());
@@ -598,18 +696,20 @@ TEST(SPTK_XmlDocument, parse)
     const auto* bodyElement = document.findFirst("soap:Body");
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
-    EXPECT_EQ(2, bodyElement->type());
+    EXPECT_EQ(xml::Node::Type::DOM_ELEMENT, bodyElement->type());
     EXPECT_EQ(1, (int) bodyElement->size());
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 
     const xml::Node* methodElement = nullptr;
-    for (const auto* node: *bodyElement) {
-        if (node->isElement()) {
+    for (const auto* node: *bodyElement)
+    {
+        if (node->isElement())
+        {
             methodElement = node;
             break;
         }
     }
-    EXPECT_EQ(2, methodElement->type());
+    EXPECT_EQ(xml::Node::Type::DOM_ELEMENT, methodElement->type());
     EXPECT_EQ(2, (int) methodElement->size());
     EXPECT_STREQ("ns1:GetRequests", methodElement->name().c_str());
 }
@@ -618,30 +718,36 @@ TEST(SPTK_XmlDocument, brokenXML)
 {
     xml::Document document;
 
-    try {
+    try
+    {
         const String brokenXML1("<xml></html>");
         document.load(brokenXML1);
         FAIL() << "Must throw exception";
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         SUCCEED() << "Correct exception: " << e.what();
     }
 
-    try {
+    try
+    {
         const String brokenXML1("<xml><html></xml></html>");
         document.load(brokenXML1);
         FAIL() << "Must throw exception";
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         SUCCEED() << "Correct exception: " << e.what();
     }
 
-    try {
+    try
+    {
         const String brokenXML1("<xml</html>");
         document.load(brokenXML1);
         FAIL() << "Must throw exception";
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         SUCCEED() << "Correct exception: " << e.what();
     }
 }
@@ -650,14 +756,16 @@ TEST(SPTK_XmlDocument, unicodeAndSpacesXML)
 {
     xml::Document document;
 
-    try {
+    try
+    {
         const String unicodeXML(R"(<?xml version="1.0" encoding="UTF-8"?><p> “Add” </p><span> </span>)");
         document.load(unicodeXML, true);
         Buffer buffer;
         document.save(buffer, 0);
         EXPECT_STREQ(unicodeXML.c_str(), buffer.c_str());
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << e.what();
     }
 }

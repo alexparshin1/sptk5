@@ -38,28 +38,36 @@ void CWindow::resize(int xx, int yy, int ww, int hh)
     // For a window, layout is always located at 0,0 coordinates
     autoLayout(0, 0, www, hhh, true);
     bool limited = false;
-    if (www > Fl::w()) {
+    if (www > Fl::w())
+    {
         www = Fl::w();
         limited = true;
     }
-    if (hhh > Fl::h()) {
+    if (hhh > Fl::h())
+    {
         hhh = Fl::h();
         limited = true;
     }
-    if (xx + www > Fl::w()) {
+    if (xx + www > Fl::w())
+    {
         xx = Fl::w() - www;
         limited = true;
     }
-    if (yy + hhh > Fl::h()) {
+    if (yy + hhh > Fl::h())
+    {
         yy = Fl::h() - hhh;
         limited = true;
     }
 
     if (limited || ww != www || hh != hhh)
+    {
         Fl_Double_Window::resize(xx, yy, www, hhh);
+    }
 
     if (m_shapeExtension)
+    {
         resizingShape(ww, hh);
+    }
 }
 
 bool CWindow::preferredSize(int& ww, int& hh)
@@ -76,7 +84,8 @@ void CWindow::hide()
 
 void CWindow::draw()
 {
-    if (m_shapeExtension && m_shapeChanged) {
+    if (m_shapeExtension && m_shapeChanged)
+    {
         resizingShape(w(), h());
         shapeApply();
     }
@@ -87,7 +96,8 @@ void CWindow::draw()
     y(0);
 
     Fl_Boxtype b = box();
-    if (damage() & ~FL_DAMAGE_CHILD) { // redraw the entire thing:
+    if (damage() & ~FL_DAMAGE_CHILD)
+    { // redraw the entire thing:
         draw_box();
         paintBackground();
     }
@@ -116,12 +126,18 @@ void CWindow::loadPosition(const xml::Node* node)
 {
     int hh = (int) node->getAttribute("height");
     if (!hh)
+    {
         hh = (int) node->getAttribute("h");
+    }
     int ww = (int) node->getAttribute("width");
     if (!ww)
+    {
         ww = (int) node->getAttribute("w");
+    }
     if (hh > 0 && ww > 0)
+    {
         resize((int) node->getAttribute("x", "0"), (int) node->getAttribute("y", "0"), ww, hh);
+    }
 }
 
 void CWindow::savePosition(xml::Node* node) const
@@ -139,9 +155,12 @@ int CWindow::handle(int event)
     int rc = Fl_Window::handle(event);
 
     if (!m_shapeExtension)
+    {
         return rc;
+    }
 
-    switch (event) {
+    switch (event)
+    {
 
         case FL_PUSH:
             m_pushedX = Fl::event_x();
@@ -150,12 +169,15 @@ int CWindow::handle(int event)
             break;
 
         case FL_DRAG:
-            if (m_resizingZone) {
+            if (m_resizingZone)
+            {
                 int x;
                 int y;
                 Fl::get_mouse(x, y);
                 changeSize(x, y);
-            } else {
+            }
+            else
+            {
                 int new_x;
                 int new_y;
                 new_x = Fl::event_x() + x() - m_pushedX;
@@ -169,7 +191,9 @@ int CWindow::handle(int event)
     }
 
     if (shapeCursorHandle(event))
+    {
         return 1;
+    }
 
     return rc;
 }

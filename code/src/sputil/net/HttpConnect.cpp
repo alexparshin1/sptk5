@@ -35,7 +35,7 @@ using namespace std;
 using namespace sptk;
 
 HttpConnect::HttpConnect(TCPSocket& socket)
-: m_socket(socket)
+    : m_socket(socket)
 {
 }
 
@@ -44,15 +44,19 @@ HttpConnect::HttpConnect(TCPSocket& socket)
 String HttpConnect::responseHeader(const String& headerName) const
 {
     if (m_reader)
+    {
         return m_reader->httpHeader(headerName);
+    }
     return "";
 }
 
 int HttpConnect::getResponse(Buffer& output, chrono::milliseconds readTimeout)
 {
     m_reader = make_shared<HttpReader>(m_socket, output, HttpReader::ReadMode::RESPONSE);
-    while (m_reader->getReaderState() < HttpReader::State::COMPLETED) {
-        if (!m_socket.readyToRead(readTimeout)) {
+    while (m_reader->getReaderState() < HttpReader::State::COMPLETED)
+    {
+        if (!m_socket.readyToRead(readTimeout))
+        {
             m_socket.close();
             throw Exception("Response read timeout");
         }
@@ -66,20 +70,26 @@ int HttpConnect::getResponse(Buffer& output, chrono::milliseconds readTimeout)
 void HttpConnect::sendCommand(const String& cmd)
 {
     if (!m_socket.active())
+    {
         throw Exception("Socket isn't open");
+    }
 
     if (!m_socket.readyToWrite(chrono::seconds(30)))
+    {
         throw Exception("Server is busy");
+    }
 
-    m_socket.write((const uint8_t*)cmd.c_str(), (uint32_t) cmd.length());
+    m_socket.write((const uint8_t*) cmd.c_str(), (uint32_t) cmd.length());
 }
 
 void HttpConnect::sendCommand(const Buffer& cmd)
 {
     if (!m_socket.active())
+    {
         throw Exception("Socket isn't open");
+    }
 
-    m_socket.write((const uint8_t*)cmd.c_str(), (uint32_t) cmd.bytes());
+    m_socket.write((const uint8_t*) cmd.c_str(), (uint32_t) cmd.bytes());
 }
 
 Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
@@ -89,20 +99,25 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
 
     string command(httpCommand + " " + pageName);
 
-    if (!requestParameters.empty()) {
+    if (!requestParameters.empty())
+    {
         Buffer buffer;
         requestParameters.encode(buffer);
-        command += string("?") + buffer.data();
+        command += string("?") + buffer.c_str();
     }
 
     headers.push_back(command + " HTTP/1.1");
     headers.push_back("HOST: " + m_socket.host().toString(false));
 
-    for (const auto& [name,value]: m_requestHeaders)
+    for (const auto&[name, value]: m_requestHeaders)
+    {
         headers.push_back(name + ": " + value);
+    }
 
     if (authorization && !authorization->method().empty())
+    {
         headers.push_back("Authorization: " + authorization->method() + " " + authorization->value());
+    }
 
     return headers;
 }
@@ -118,43 +133,52 @@ int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParame
     return getResponse(output, timeout);
 }
 
-static bool compressPostData(const sptk::Strings& possibleContentEncodings, Strings& headers, const Buffer& postData, Buffer& compressedData)
+static bool compressPostData(const sptk::Strings& possibleContentEncodings, Strings& headers, const Buffer& postData,
+                             Buffer& compressedData)
 {
-    static const sptk::Strings& availableContentEncodings {
+    static const sptk::Strings& availableContentEncodings{
 #if HAVE_BROTLI
-            "br",
+        "br",
 #endif
 #if HAVE_ZLIB
-            "gzip",
+        "gzip",
 #endif
     };
 
     Strings encodings;
-    for (auto& contentEncoding: availableContentEncodings) {
-        if (possibleContentEncodings.indexOf(contentEncoding) != -1) {
+    for (auto& contentEncoding: availableContentEncodings)
+    {
+        if (possibleContentEncodings.indexOf(contentEncoding) != -1)
+        {
             encodings.push_back(contentEncoding);
         }
     }
 
     String usedEncoding;
-    for (const auto& contentEncoding: encodings) {
+    for (const auto& contentEncoding: encodings)
+    {
 #if HAVE_BROTLI
-        if (contentEncoding == "br") {
+        if (contentEncoding == "br")
+        {
             Brotli::compress(compressedData, postData);
             usedEncoding = contentEncoding;
         }
 #endif
 #if HAVE_ZLIB
-        if (contentEncoding == "gzip") {
+        if (contentEncoding == "gzip")
+        {
             ZLib::compress(compressedData, postData);
             usedEncoding = contentEncoding;
         }
 #endif
         if (!usedEncoding.empty())
+        {
             break;
+        }
     }
 
-    if (!usedEncoding.empty() && compressedData.length() < postData.length()) {
+    if (!usedEncoding.empty() && compressedData.length() < postData.length())
+    {
         headers.push_back("Content-Encoding: " + usedEncoding);
         return true;
     }
@@ -171,7 +195,7 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
     const Buffer* data = &postData;
 
     if (Buffer compressBuffer; !possibleContentEncodings.empty()
-        && compressPostData(possibleContentEncodings, headers, postData, compressBuffer))
+                               && compressPostData(possibleContentEncodings, headers, postData, compressBuffer))
     {
         data = &compressBuffer;
     }
@@ -196,12 +220,16 @@ int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& request
 #endif
 
     if (!putData.empty())
+    {
         headers.push_back("Content-Length: " + int2string((uint32_t) putData.bytes()));
+    }
 
     string command = headers.join("\r\n") + "\r\n\r\n";
 
     if (!putData.empty())
-        command += putData.data();
+    {
+        command += putData.c_str();
+    }
 
     sendCommand(command);
 
@@ -212,7 +240,7 @@ int HttpConnect::cmd_delete(const sptk::String& pageName, const HttpParams& requ
                             const Authorization* authorization, chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("DELETE", pageName, requestParameters, authorization);
-    string  command = headers.join("\r\n") + "\r\n\r\n";
+    string command = headers.join("\r\n") + "\r\n\r\n";
 
     sendCommand(command);
 
@@ -229,9 +257,10 @@ String HttpConnect::statusText() const
     return m_reader->getStatusText();
 }
 
-HttpConnect::Authorization::Authorization(const String& method, const String& username, const String& password, const String& jwtToken)
-: m_method(method),
-  m_value(method == "basic" ? md5(username + ":" + password) : jwtToken)
+HttpConnect::Authorization::Authorization(const String& method, const String& username, const String& password,
+                                          const String& jwtToken)
+    : m_method(method),
+      m_value(method == "basic" ? md5(username + ":" + password) : jwtToken)
 {}
 
 #if USE_GTEST
@@ -246,13 +275,15 @@ TEST(SPTK_HttpConnect, get)
     ASSERT_TRUE(socket->active());
 
     HttpConnect http(*socket);
-    Buffer      output;
+    Buffer output;
 
     int statusCode;
-    try {
+    try
+    {
         statusCode = http.cmd_get("/", HttpParams(), output);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << e.what();
     }
     EXPECT_EQ(200, statusCode);

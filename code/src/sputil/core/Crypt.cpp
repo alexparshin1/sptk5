@@ -28,8 +28,11 @@
 #include <sptk5/Crypt.h>
 #include <openssl/conf.h>
 #include <openssl/evp.h>
+
 #if USE_GTEST
+
 #include <sptk5/Base64.h>
+
 #endif
 
 using namespace std;
@@ -39,9 +42,11 @@ constexpr int TEXT_BLOCK = 16384;
 
 void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const String& iv)
 {
-    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     if (ctx == nullptr)
+    {
         throw Exception("Error calling EVP_CIPHER_CTX_new()");
+    }
 
     /* Initialise the encryption operation. IMPORTANT - ensure you use a key
      * and IV size appropriate for your cipher
@@ -49,31 +54,45 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
      * IV size for *most* modes is the same as the block size. For AES this
      * is 128 bits */
     if (key.length() < 32)
+    {
         throw Exception("Please use 256 bit key");
+    }
 
     if (iv.length() < 16)
+    {
         throw Exception("Please use 128 bit initialization vector");
+    }
 
-    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (const unsigned char*) key.c_str(), (const unsigned char*) iv.c_str()) != 1)
+    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (const unsigned char*) key.c_str(),
+                           (const unsigned char*) iv.c_str()) != 1)
+    {
         throw Exception("Error calling EVP_EncryptInit_ex()");
+    }
 
     int len = 0;
     dest.bytes(0);
     dest.checkSize(src.bytes());
-    for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK) {
+    for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK)
+    {
         const auto* intext = (unsigned char*) src.data() + position;
         size_t inlen = src.bytes() - position;
         if (inlen > TEXT_BLOCK)
+        {
             inlen = TEXT_BLOCK;
+        }
         dest.checkSize(position + TEXT_BLOCK);
-        if (EVP_EncryptUpdate(ctx, (unsigned char*) dest.data() + dest.bytes(), &len, intext, (int) inlen) != 1)
+        if (EVP_EncryptUpdate(ctx, dest.data() + dest.bytes(), &len, intext, (int) inlen) != 1)
+        {
             throw Exception("Error calling EVP_EncryptUpdate()");
+        }
         dest.bytes(dest.bytes() + len);
     }
 
     dest.checkSize(dest.bytes() + TEXT_BLOCK);
-    if (EVP_EncryptFinal_ex(ctx, (unsigned char*) dest.data() + dest.bytes(), &len) != 1)
+    if (EVP_EncryptFinal_ex(ctx, dest.data() + dest.bytes(), &len) != 1)
+    {
         throw Exception("Error calling EVP_EncryptFinal_ex()");
+    }
     dest.bytes(dest.bytes() + len);
 
     // Clean up
@@ -82,32 +101,46 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
 
 void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const String& iv)
 {
-    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     if (ctx == nullptr)
+    {
         throw Exception("Error calling EVP_CIPHER_CTX_new()");
+    }
 
-    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (const unsigned char*) key.c_str(), (const unsigned char*) iv.c_str()) != 1)
+    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (const unsigned char*) key.c_str(),
+                           (const unsigned char*) iv.c_str()) != 1)
+    {
         throw Exception("Error calling EVP_DecryptInit_ex()");
+    }
 
     int len = 0;
     dest.bytes(0);
     dest.checkSize(src.bytes());
-    for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK) {
-        const unsigned char* intext = (unsigned char*) src.data() + position;
+    for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK)
+    {
+        const auto* intext = src.data() + position;
         size_t inlen = src.bytes() - position;
         if (inlen > TEXT_BLOCK)
+        {
             inlen = TEXT_BLOCK;
+        }
         dest.checkSize(position + TEXT_BLOCK);
-        if (EVP_DecryptUpdate(ctx, (unsigned char*) dest.data() + dest.bytes(), &len, intext, (int) inlen) != 1)
+        if (EVP_DecryptUpdate(ctx, dest.data() + dest.bytes(), &len, intext, (int) inlen) != 1)
+        {
             throw Exception("Error calling EVP_DecryptUpdate()");
+        }
         dest.bytes(dest.bytes() + len);
         if (len < TEXT_BLOCK - 16)
+        {
             break;
+        }
     }
 
     dest.checkSize(dest.bytes() + TEXT_BLOCK);
-    if (EVP_DecryptFinal_ex(ctx, (unsigned char*) dest.data() + dest.bytes(), &len) != 1)
+    if (EVP_DecryptFinal_ex(ctx, dest.data() + dest.bytes(), &len) != 1)
+    {
         throw Exception("Error calling EVP_DecryptFinal_ex()");
+    }
     dest.bytes(dest.bytes() + len);
     dest[dest.bytes()] = 0;
 
@@ -120,7 +153,8 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
 static const String testText("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 static const String testKey("01234567890123456789012345678901");
 static const String testIV("0123456789012345");
-static const String encryptedB64("4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=");
+static const String encryptedB64(
+    "4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=");
 
 TEST(SPTK_Crypt, encrypt)
 {

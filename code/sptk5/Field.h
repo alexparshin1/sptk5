@@ -188,7 +188,7 @@ public:
      */
     Field& operator =(const sptk::String& value) override
     {
-        setBuffer(value.c_str(), value.length(), VAR_STRING);
+        setBuffer((const uint8_t*)value.c_str(), value.length(), VAR_STRING);
         return *this;
     }
 
@@ -204,7 +204,7 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator =(const void *value) override
+    Field& operator =(const uint8_t* value) override
     {
         setImagePtr(value);
         return *this;

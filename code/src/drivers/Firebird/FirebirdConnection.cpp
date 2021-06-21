@@ -116,14 +116,14 @@ void FirebirdConnection::closeDatabase()
     }
 }
 
-void* FirebirdConnection::handle() const
+PoolDatabaseConnection::DBHandle FirebirdConnection::handle() const
 {
     union {
         isc_db_handle   connection;
         void*           handle;
     } convert = {};
     convert.connection = m_connection;
-    return convert.handle;
+    return (PoolDatabaseConnection::DBHandle) convert.handle;
 }
 
 bool FirebirdConnection::active() const
@@ -343,26 +343,26 @@ void FirebirdConnection::objectList(DatabaseObjectType objectType, Strings& obje
     objects.clear();
     switch (objectType)
     {
-    case DOT_PROCEDURES:
+    case DatabaseObjectType::PROCEDURES:
         objectsSQL =
             "SELECT rdb$procedure_name object_name "
             "FROM rdb$procedures "
             "ORDER BY 1";
         break;
-    case DOT_FUNCTIONS:
+    case DatabaseObjectType::FUNCTIONS:
         objectsSQL =
             "SELECT rdb$function_name object_name "
             "FROM rdb$functions "
             "ORDER BY 1";
             break;
-    case DOT_TABLES:
+    case DatabaseObjectType::TABLES:
         objectsSQL =
             "SELECT rdb$relation_name object_name "
             "FROM rdb$relations "
             "WHERE rdb$system_flag = 0 AND rdb$view_source IS NULL "
             "ORDER BY 1";
         break;
-    case DOT_VIEWS:
+    case DatabaseObjectType::VIEWS:
         objectsSQL =
             "SELECT rdb$relation_name object_name "
             "FROM rdb$relations "

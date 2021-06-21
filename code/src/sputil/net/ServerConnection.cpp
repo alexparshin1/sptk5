@@ -37,7 +37,7 @@ using namespace sptk;
 
 size_t ServerConnection::nextSerial()
 {
-    static mutex  amutex;
+    static mutex amutex;
     static size_t serial = 0;
 
     scoped_lock lock(amutex);
@@ -46,35 +46,40 @@ size_t ServerConnection::nextSerial()
 
 TCPSocket& ServerConnection::socket() const
 {
-    scoped_lock   lock(m_mutex);
+    scoped_lock lock(m_mutex);
     return *m_socket;
 }
 
 void ServerConnection::setSocket(TCPSocket* socket)
 {
-    scoped_lock   lock(m_mutex);
+    scoped_lock lock(m_mutex);
     m_socket = shared_ptr<TCPSocket>(socket);
 }
 
 TCPServer& ServerConnection::server() const
 {
-    scoped_lock   lock(m_mutex);
+    scoped_lock lock(m_mutex);
     return m_server;
 }
 
-ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in* connectionAddress, const String& taskName)
-: Runable(taskName), m_server(server), m_serial(nextSerial())
+ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in* connectionAddress,
+                                   const String& taskName)
+    : Runable(taskName), m_server(server), m_serial(nextSerial())
 {
     parseAddress(connectionAddress);
 }
 
 void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
 {
-    array<char, 128> address { "127.0.0.1" };
-    if (connectionAddress) {
-        if (connectionAddress->sin_family == AF_INET) {
+    array<char, 128> address{"127.0.0.1"};
+    if (connectionAddress)
+    {
+        if (connectionAddress->sin_family == AF_INET)
+        {
             inet_ntop(AF_INET, &connectionAddress->sin_addr, address.data(), sizeof(address));
-        } else if (connectionAddress->sin_family == AF_INET6) {
+        }
+        else if (connectionAddress->sin_family == AF_INET6)
+        {
             auto* connectionAddress6 = (const sockaddr_in6*) connectionAddress;
             inet_ntop(AF_INET6, &connectionAddress6->sin6_addr, address.data(), sizeof(address));
         }

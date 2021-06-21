@@ -45,14 +45,14 @@ void CButtonGroup::ctor_init()
 }
 
 CButtonGroup::CButtonGroup(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CControl(label, layoutSize, layoutAlignment)
+    : CControl(label, layoutSize, layoutAlignment)
 {
     ctor_init();
 }
 
 #ifdef __COMPATIBILITY_MODE__
 CButtonGroup::CButtonGroup(int x,int y,int w,int h,const char *l)
-: CControl (x,y,w,h,l) 
+: CControl (x,y,w,h,l)
 {
    ctor_init();
 }
@@ -62,7 +62,9 @@ void CButtonGroup::controlDataChanged()
 {
     string newValue = data().getString();
     if (m_lastValue != newValue)
+    {
         fireEvent(CE_DATA_CHANGED, 0);
+    }
 }
 
 void CButtonGroup::clearButtons()
@@ -82,20 +84,26 @@ void CButtonGroup::buttons(const Strings& sl)
     auto* group = (CGroup*) m_control;
     group->begin();
     const String* otherLabel = nullptr;
-    for (unsigned i = 0; i < buttonsCount; i++) {
+    for (unsigned i = 0; i < buttonsCount; i++)
+    {
         String& si = m_buttonLabels[i];
-        if (si == "*") {
-            if (otherLabel) continue;  // Only one free entry is allowed
+        if (si == "*")
+        {
+            if (otherLabel)
+            { continue; }  // Only one free entry is allowed
             otherLabel = &m_buttonLabels[i];
-        } else {
+        }
+        else
+        {
             Fl_Button* btn = createButton(si.c_str());
-            btn->argument((long)si.ident());
+            btn->argument((long) si.ident());
             btn->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT | FL_ALIGN_WRAP);
         }
     }
-    if (otherLabel) {
+    if (otherLabel)
+    {
         Fl_Button* btn = createButton("", 16, SP_ALIGN_LEFT);
-        btn->argument((long)otherLabel->ident());
+        btn->argument((long) otherLabel->ident());
         m_otherButton = btn;
         m_otherInput = new CInput_("");
         m_otherInput->color(FL_LIGHT3);
@@ -108,14 +116,20 @@ Variant CButtonGroup::data() const
 {
     auto* group = (CGroup*) m_control;
     auto cnt = unsigned(group->children());
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         Fl_Widget* w = group->child(i);
         auto* b = dynamic_cast<Fl_Button*>(w);
-        if (!b) continue;
-        if (b->value()) {
-            if (b == m_otherButton) {
+        if (!b)
+        { continue; }
+        if (b->value())
+        {
+            if (b == m_otherButton)
+            {
                 return m_otherInput->value();
-            } else {
+            }
+            else
+            {
                 return b->label();
             }
         }
@@ -127,11 +141,15 @@ int CButtonGroup::buttonIndex(const char* buttonLabel)
 {
     auto* group = (CGroup*) m_control;
     auto cnt = (unsigned) group->children();
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         auto* b = dynamic_cast<Fl_Button*>(group->child(i));
-        if (!b) continue;
+        if (!b)
+        { continue; }
         if (strcmp(b->label(), buttonLabel) == 0)
+        {
             return i;
+        }
     }
     return -1;
 }
@@ -140,9 +158,11 @@ void CButtonGroup::deselectAllButtons()
 {
     auto* group = (CGroup*) m_control;
     auto cnt = unsigned(group->children());
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         auto* b = dynamic_cast<Fl_Button*>(group->child(i));
-        if (!b) continue;
+        if (!b)
+        { continue; }
         b->value(0);
     }
 }
@@ -151,12 +171,16 @@ void CButtonGroup::data(const Variant& d)
 {
     deselectAllButtons();
     int ndx = buttonIndex(d.getString());
-    if (ndx > -1) {
+    if (ndx > -1)
+    {
         auto* g = (CGroup*) m_control;
         auto* b = (Fl_Button*) g->child(ndx);
         b->value(1);
-    } else {
-        if (m_otherButton) {
+    }
+    else
+    {
+        if (m_otherButton)
+        {
             m_otherButton->value(1);
             m_otherInput->value(d.getString());
         }
@@ -171,20 +195,23 @@ bool CButtonGroup::preferredSize(int& w, int& h)
     bool rc = g->preferredSize(w, h);
     w += labelWidth();
     int hh = labelHeight();
-    if (h < hh) h = hh;
+    if (h < hh)
+    { h = hh; }
     return rc;
 }
 
 void CButtonGroup::load(Query* loadQuery)
 {
-    if (!m_fieldName.length()) return;
+    if (!m_fieldName.length())
+    { return; }
     Field& fld = (*loadQuery)[m_fieldName.c_str()];
     data(fld.asString());
 }
 
 void CButtonGroup::save(Query* updateQuery)
 {
-    if (!m_fieldName.length()) return;
+    if (!m_fieldName.length())
+    { return; }
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     param = data();
 }
@@ -194,7 +221,9 @@ void CButtonGroup::load(const xml::Node* node, CLayoutXMLmode xmlMode)
     CControl::load(node, xmlMode);
     Strings btns((String) node->getAttribute("buttons"), "|");
     if (!btns.empty())
+    {
         buttons(btns);
+    }
 }
 
 void CButtonGroup::save(xml::Node* node, CLayoutXMLmode xmlMode) const

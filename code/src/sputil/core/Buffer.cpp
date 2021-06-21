@@ -32,23 +32,13 @@
 using namespace std;
 using namespace sptk;
 
-Buffer::Buffer(size_t sz)
-: BufferStorage(sz)
-{
-}
-
-Buffer::Buffer(const void* data, size_t sz)
-: BufferStorage(data, sz)
-{
-}
-
 Buffer::Buffer(const String& str)
-: BufferStorage(str.c_str(), str.length())
+    : BufferStorage((const uint8_t*) str.c_str(), str.length())
 {
 }
 
 Buffer::Buffer(const Buffer& other)
-: BufferStorage(other.data(), other.length())
+    : BufferStorage(other.data(), other.length())
 {
 }
 
@@ -63,10 +53,13 @@ void Buffer::loadFromFile(const String& fileName)
     FILE* f = fopen(fileName.c_str(), "rb");
 
     if (f == nullptr)
+    {
         throw SystemException("Can't open file " + fileName + " for reading");
+    }
 
     struct stat st = {};
-    if (fstat(fileno(f), &st) != 0) {
+    if (fstat(fileno(f), &st) != 0)
+    {
         fclose(f);
         throw Exception("Can't get file size for '" + fileName + "'");
     }
@@ -83,19 +76,25 @@ void Buffer::saveToFile(const String& fileName) const
     FILE* f = fopen(fileName.c_str(), "wb");
 
     if (f == nullptr)
+    {
         throw SystemException("Can't open file " + fileName + " for writing");
+    }
 
     fwrite(data(), bytes(), 1, f);
     fclose(f);
 }
 
-Buffer& Buffer::operator = (Buffer&& other) DOESNT_THROW
+Buffer& Buffer::operator=(Buffer&& other) DOESNT_THROW
 {
     if (this == &other)
+    {
         return *this;
+    }
 
     if (data() != nullptr)
+    {
         deallocate();
+    }
 
     init(other.data(), other.capacity(), other.bytes());
     other.init(nullptr, 0, 0);
@@ -103,26 +102,28 @@ Buffer& Buffer::operator = (Buffer&& other) DOESNT_THROW
     return *this;
 }
 
-Buffer& Buffer::operator = (const Buffer& other)
+Buffer& Buffer::operator=(const Buffer& other)
 {
     if (&other == this)
+    {
         return *this;
+    }
 
     set(other.data(), other.length());
 
     return *this;
 }
 
-Buffer& Buffer::operator = (const String& other)
+Buffer& Buffer::operator=(const String& other)
 {
-    set(other.c_str(), other.length());
+    set((const uint8_t*) other.c_str(), other.length());
 
     return *this;
 }
 
-Buffer& Buffer::operator = (const char* str)
+Buffer& Buffer::operator=(const char* str)
 {
-    set(str, strlen(str));
+    set((const uint8_t*) str, strlen(str));
 
     return *this;
 }
@@ -130,14 +131,18 @@ Buffer& Buffer::operator = (const char* str)
 bool Buffer::operator==(const Buffer& other) const
 {
     if (bytes() != other.bytes())
+    {
         return false;
+    }
     return memcmp(data(), other.data(), bytes()) == 0;
 }
 
 bool Buffer::operator!=(const Buffer& other) const
 {
     if (bytes() != other.bytes())
+    {
         return true;
+    }
     return memcmp(data(), other.data(), bytes()) != 0;
 }
 
@@ -148,19 +153,24 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 
     size_t offset = 0;
 
-    while (offset < buffer.bytes()) {
+    while (offset < buffer.bytes())
+    {
         stream << hex << setw(8) << offset << "  ";
 
         size_t printed = 0;
         size_t rowOffset = offset;
-        for (; rowOffset < buffer.bytes() && printed < 16; ++rowOffset, ++printed) {
+        for (; rowOffset < buffer.bytes() && printed < 16; ++rowOffset, ++printed)
+        {
             if (printed == 8)
+            {
                 stream << " ";
-            unsigned printChar = (uint8_t) buffer[rowOffset];
+            }
+            unsigned printChar = buffer[rowOffset];
             stream << hex << setw(2) << printChar << " ";
         }
 
-        while (printed < 16) {
+        while (printed < 16)
+        {
             stream << "   ";
             ++printed;
         }
@@ -169,14 +179,21 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 
         printed = 0;
         rowOffset = offset;
-        for (; rowOffset < buffer.bytes() && printed < 16; ++rowOffset, ++printed) {
+        for (; rowOffset < buffer.bytes() && printed < 16; ++rowOffset, ++printed)
+        {
             if (printed == 8)
+            {
                 stream << " ";
-            auto testChar = (uint8_t) buffer[rowOffset];
+            }
+            auto testChar = buffer[rowOffset];
             if (testChar >= 32)
+            {
                 stream << buffer[rowOffset];
+            }
             else
+            {
                 stream << ".";
+            }
         }
 
         stream << endl;
@@ -196,7 +213,7 @@ static const String tempFileName("./gtest_sptk5_buffer.tmp");
 
 TEST(SPTK_Buffer, create)
 {
-    Buffer  buffer1(testPhrase);
+    Buffer buffer1(testPhrase);
     EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
     EXPECT_EQ(testPhrase.length(), buffer1.bytes());
     EXPECT_TRUE(testPhrase.length() <= buffer1.capacity());
@@ -205,7 +222,7 @@ TEST(SPTK_Buffer, create)
 TEST(SPTK_Buffer, copyCtor)
 {
     auto buffer1 = make_shared<Buffer>(testPhrase);
-    Buffer  buffer2(*buffer1);
+    Buffer buffer2(*buffer1);
     buffer1.reset();
 
     EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
@@ -215,8 +232,8 @@ TEST(SPTK_Buffer, copyCtor)
 
 TEST(SPTK_Buffer, move)
 {
-    Buffer  buffer1(testPhrase);
-    Buffer  buffer2(move(buffer1));
+    Buffer buffer1(testPhrase);
+    Buffer buffer2(move(buffer1));
     buffer1.reset();
 
     EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
@@ -237,8 +254,8 @@ TEST(SPTK_Buffer, move)
 
 TEST(SPTK_Buffer, assign)
 {
-    Buffer  buffer1(testPhrase);
-    Buffer  buffer2;
+    Buffer buffer1(testPhrase);
+    Buffer buffer2;
 
     buffer2 = buffer1;
 
@@ -255,7 +272,7 @@ TEST(SPTK_Buffer, assign)
 
 TEST(SPTK_Buffer, append)
 {
-    Buffer  buffer1;
+    Buffer buffer1;
 
     buffer1.append(testPhrase);
 
@@ -266,8 +283,8 @@ TEST(SPTK_Buffer, append)
 
 TEST(SPTK_Buffer, saveLoadFile)
 {
-    Buffer  buffer1(testPhrase);
-    Buffer  buffer2;
+    Buffer buffer1(testPhrase);
+    Buffer buffer2;
 
     buffer1.saveToFile(tempFileName);
     buffer2.loadFromFile(tempFileName);
@@ -279,7 +296,7 @@ TEST(SPTK_Buffer, saveLoadFile)
 
 TEST(SPTK_Buffer, fill)
 {
-    Buffer  buffer1;
+    Buffer buffer1;
 
     buffer1.fill('#', 12);
 
@@ -289,7 +306,7 @@ TEST(SPTK_Buffer, fill)
 
 TEST(SPTK_Buffer, reset)
 {
-    Buffer  buffer1(testPhrase);
+    Buffer buffer1(testPhrase);
 
     buffer1.reset();
 
@@ -300,7 +317,7 @@ TEST(SPTK_Buffer, reset)
 
 TEST(SPTK_Buffer, erase)
 {
-    Buffer  buffer1(testPhrase);
+    Buffer buffer1(testPhrase);
 
     buffer1.erase(4, 5);
 
@@ -309,9 +326,9 @@ TEST(SPTK_Buffer, erase)
 
 TEST(SPTK_Buffer, compare)
 {
-    Buffer  buffer1(testPhrase);
-    Buffer  buffer2(testPhrase);
-    Buffer  buffer3("something else");
+    Buffer buffer1(testPhrase);
+    Buffer buffer2(testPhrase);
+    Buffer buffer3("something else");
 
     EXPECT_TRUE(buffer1 == buffer2);
     EXPECT_FALSE(buffer1 != buffer2);
@@ -322,12 +339,12 @@ TEST(SPTK_Buffer, compare)
 
 TEST(SPTK_Buffer, hexDump)
 {
-    const Strings expected {
+    const Strings expected{
         "00000000  54 68 69 73 20 69 73 20  61 20 74 65 73 74 54 68  This is  a testTh",
         "00000010  69 73 20 69 73 20 61 20  74 65 73 74              is is a  test"
     };
 
-    Buffer  buffer(testPhrase);
+    Buffer buffer(testPhrase);
     buffer.append(testPhrase);
 
     stringstream stream;

@@ -39,11 +39,15 @@ void CDateTimeBaseInput::calendarButtonPressed(Fl_Widget* btn, void*)
 {
     auto* dateInput = (CDateTimeBaseInput*) btn->parent()->parent();
     if (!dateInput)
+    {
         return;
+    }
     DateTime dt = dateInput->dateTimeValue();
     dateInput->showCalendar(btn);
     if (dt != dateInput->dateTimeValue())
+    {
         dateInput->m_dateInput->do_callback();
+    }
 }
 
 void CDateTimeBaseInput::ctor_init()
@@ -57,7 +61,7 @@ void CDateTimeBaseInput::ctor_init()
 }
 
 CDateTimeBaseInput::CDateTimeBaseInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment, bool autoCreate)
-        : CInput(label, layoutSize, layoutAlignment, autoCreate)
+    : CInput(label, layoutSize, layoutAlignment, autoCreate)
 {
     ctor_init();
 }
@@ -79,7 +83,9 @@ void CDateTimeBaseInput::setLimits(bool limited, DateTime min, DateTime max)
 void CDateTimeBaseInput::load(Query* loadQuery)
 {
     if (!m_fieldName.length())
-        return; // no field name - no data loaded
+    {
+        return;
+    } // no field name - no data loaded
     if (!m_fieldName.length())
         return;
     Field& fld = (*loadQuery)[m_fieldName.c_str()];
@@ -89,7 +95,9 @@ void CDateTimeBaseInput::load(Query* loadQuery)
 void CDateTimeBaseInput::save(Query* updateQuery)
 {
     if (!m_fieldName.length())
-        return; // no field name - no data saved
+    {
+        return;
+    } // no field name - no data saved
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     DateTime dt = dateTimeValue();
     param.setDateTime(dt);
@@ -107,12 +115,17 @@ void CDateTimeBaseInput::save(xml::Node* node, CLayoutXMLmode xmlMode) const
 
 bool CDateTimeBaseInput::valid() const
 {
-    try {
+    try
+    {
         DateTime val = dateTimeValue();
         if (m_limited)
+        {
             return val >= m_minValue && val <= m_maxValue;
+        }
         return true;
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
     }
     return false;
@@ -126,19 +139,26 @@ DateTime CDateTimeBaseInput::dateTimeValue() const
 void CDateTimeBaseInput::dateTimeValue(DateTime dt)
 {
     if (kind() == DCV_DATE)
+    {
         data(dt.dateString());
+    }
     else
+    {
         data(dt.timeString());
+    }
 }
 
 bool CDateTimeBaseInput::showCalendar(Fl_Widget* btn)
 {
     if (!m_calendarWindow)
+    {
         return false;
+    }
     m_calendarWindow->attachTo(btn->parent());
     m_calendarWindow->date(dateTimeValue());
     bool rc = m_calendarWindow->showModal();
-    if (rc && m_calendarWindow->date() != dateTimeValue()) {
+    if (rc && m_calendarWindow->date() != dateTimeValue())
+    {
         dateTimeValue(m_calendarWindow->date());
         do_callback();
     }
@@ -160,7 +180,7 @@ void CDateInput::ctor_init()
 }
 
 CDateInput::CDateInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CDateTimeBaseInput(label, layoutSize, layoutAlignment, false)
+    : CDateTimeBaseInput(label, layoutSize, layoutAlignment, false)
 {
     ctor_init();
 }
@@ -212,7 +232,7 @@ void CDateInput::preferredHeight(int& h) const
 
 //===========================================================================
 CTimeInput::CTimeInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CDateTimeBaseInput(label, layoutSize, layoutAlignment, true)
+    : CDateTimeBaseInput(label, layoutSize, layoutAlignment, true)
 {
     m_timeInput = (CInput_*) m_control;
     m_timeInput->mask(DateTime::format(DateTime::Format::SHORT_TIME_FORMAT).c_str());
@@ -260,7 +280,7 @@ void CDateTimeInput::ctor_init()
 }
 
 CDateTimeInput::CDateTimeInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CDateTimeBaseInput(label, layoutSize, layoutAlignment, false)
+    : CDateTimeBaseInput(label, layoutSize, layoutAlignment, false)
 {
     ctor_init();
 }
@@ -288,7 +308,9 @@ void CDateTimeInput::resize(int x, int y, int w, int h)
     int hh = textSize() + 6;
 
     if (m_menuButton)
+    {
         m_menuButton->resize(x, y, w, hh);
+    }
 
     m_dateInput->resize(x, y, w / 2 - 2, hh);
     x += m_dateInput->w() + 4;

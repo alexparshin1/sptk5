@@ -33,20 +33,27 @@ using namespace sptk;
 
 void DatabaseConnectionString::parse()
 {
-    static const set<string> supportedDrivers{ "sqlite3", "postgres", "postgresql", "oracle", "mysql", "firebird", "odbc", "mssql" };
+    static const set<string> supportedDrivers{"sqlite3", "postgres", "postgresql", "oracle", "mysql", "firebird",
+                                              "odbc", "mssql"};
 
     URL url(m_connectionString);
 
     if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
+    {
         throw DatabaseException("Unsupported driver: " + url.protocol());
+    }
 
     m_driverName = url.protocol();
     if (m_driverName == "postgres" || m_driverName == "pg")
+    {
         m_driverName = "postgresql";
+    }
 
     Strings hostAndPort(url.hostAndPort(), ":");
     while (hostAndPort.size() < 2)
+    {
         hostAndPort.push_back("");
+    }
     m_hostName = hostAndPort[0];
     m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
     m_userName = url.username();
@@ -54,7 +61,9 @@ void DatabaseConnectionString::parse()
 
     Strings databaseAndSchema(url.path().c_str() + 1, "/");
     while (databaseAndSchema.size() < 2)
+    {
         databaseAndSchema.push_back("");
+    }
     m_databaseName = databaseAndSchema[0];
     m_schema = databaseAndSchema[1];
 
@@ -66,31 +75,46 @@ String DatabaseConnectionString::toString() const
     stringstream result;
 
     result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
-    if (!m_userName.empty()) {
+    if (!m_userName.empty())
+    {
         result << m_userName;
         if (!m_password.empty())
+        {
             result << ":" << m_password;
+        }
         result << "@";
     }
 
     result << m_hostName;
     if (m_portNumber != 0)
+    {
         result << ":" << m_portNumber;
+    }
 
     if (!m_databaseName.empty())
+    {
         result << "/" << m_databaseName;
+    }
 
     if (!m_schema.empty())
+    {
         result << "/" << m_schema;
+    }
 
-    if (!m_parameters.empty()) {
+    if (!m_parameters.empty())
+    {
         result << "?";
         bool first = true;
-        for (auto& parameter: m_parameters) {
+        for (auto& parameter: m_parameters)
+        {
             if (first)
+            {
                 first = false;
+            }
             else
+            {
                 result << "&";
+            }
             result << parameter.first << "=" << parameter.second;
         }
     }
@@ -102,7 +126,9 @@ String DatabaseConnectionString::parameter(const String& name) const
 {
     auto itor = m_parameters.find(name);
     if (itor == m_parameters.end())
+    {
         return "";
+    }
     return itor->second;
 }
 

@@ -33,7 +33,8 @@ using namespace sptk;
 
 void CFrames::clear()
 {
-    for (auto itor: m_frames) {
+    for (auto itor: m_frames)
+    {
         CFrame* frame = itor.second;
         delete frame;
     }
@@ -43,7 +44,7 @@ void CFrames::clear()
 
 const Strings     CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame", "|");
 const Fl_Boxtype  CFrames::frameTypes[] = {
-        FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME
+    FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME
 };
 
 void CFrames::load(Tar& tar, xml::Node* framesNode)
@@ -51,29 +52,39 @@ void CFrames::load(Tar& tar, xml::Node* framesNode)
     clear();
     auto itor = framesNode->begin();
     auto iend = framesNode->end();
-    for (; itor != iend; ++itor) {
+    for (; itor != iend; ++itor)
+    {
         xml::Node* frameNode = *itor;
         if (frameNode->name() != "frame")
+        {
             continue;
+        }
         String fileName = (String) frameNode->getAttribute("image");
         if (fileName.empty())
+        {
             continue;
+        }
         String frameTypeStr = (String) frameNode->getAttribute("type");
         String frameName = (String) frameNode->getAttribute("name", frameTypeStr.c_str());
         if (frameTypeStr.empty())
+        {
             frameTypeStr = frameName;
+        }
         unsigned frameTypeInt = (unsigned) frameTypeNames.indexOf(frameTypeStr);
         unsigned frameWidth = (int) frameNode->getAttribute("width", "1");
         unsigned cornerZone = (int) frameNode->getAttribute("corner", "1");
         Fl_Boxtype frameType = FL_NO_BOX;
         CFrame::CFrameKind kind = CFrame::USER_EXTENDED;
-        if (frameTypeInt < 4) {
+        if (frameTypeInt < 4)
+        {
             frameType = frameTypes[frameTypeInt];
             kind = CFrame::FLTK_STANDARD;
         }
         CPngImage::CPatternDrawMode drawMode = CPngImage::PDM_STRETCH;
         if ((String) frameNode->getAttribute("mode") == "tile")
+        {
             drawMode = CPngImage::PDM_TILE;
+        }
         const Buffer& imageData = tar.file(fileName);
         registerFrame(frameName, new CFrame(imageData, frameWidth, cornerZone, drawMode, kind), frameType);
     }
@@ -83,7 +94,8 @@ void CFrames::registerFrame(std::string frameName, CFrame* frame, Fl_Boxtype fra
 {
     CFrame* oldFrame = find(frameName);
     delete oldFrame;
-    if (frameType != FL_NO_BOX) {
+    if (frameType != FL_NO_BOX)
+    {
         m_fltkFrames[frameType] = frame;
     }
     m_frames[frameName] = frame;
@@ -91,15 +103,21 @@ void CFrames::registerFrame(std::string frameName, CFrame* frame, Fl_Boxtype fra
 
 CFrame* CFrames::find(Fl_Boxtype frameType) const
 {
-    try {
+    try
+    {
         if (m_fltkFrames.empty())
+        {
             return nullptr;
+        }
         auto itor = m_fltkFrames.find(frameType);
         if (itor == m_fltkFrames.end())
+        {
             return nullptr;
+        }
         return itor->second;
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         return nullptr;
     }
 }
@@ -108,6 +126,8 @@ CFrame* CFrames::find(std::string frameName) const
 {
     auto itor = m_frames.find(frameName);
     if (itor == m_frames.end())
+    {
         return nullptr;
+    }
     return itor->second;
 }

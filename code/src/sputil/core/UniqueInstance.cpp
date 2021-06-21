@@ -42,8 +42,8 @@ using namespace std;
 using namespace sptk;
 
 // Constructor
-UniqueInstance::UniqueInstance(String  instanceName)
-: m_instanceName(move(instanceName))
+UniqueInstance::UniqueInstance(String instanceName)
+        : m_instanceName(move(instanceName))
 {
 #ifndef _WIN32
     String home = getenv("HOME");
@@ -69,6 +69,7 @@ void UniqueInstance::cleanup()
 }
 
 #ifndef _WIN32
+
 // Get the existing process id (if any) from the file
 int UniqueInstance::read_pid() const
 {
@@ -82,8 +83,7 @@ int UniqueInstance::read_pid() const
     if (pid == 0)
         return 0; // Lock file exists, but there is no process id int
 
-    int rc = getsid(pid);
-    if (rc < 0 || rc == ESRCH)
+    if (int rc = getsid(pid); rc < 0 || rc == ESRCH)
         return 0; // No such process - stale lock file.
 
     return pid;
@@ -97,7 +97,10 @@ int UniqueInstance::write_pid()
     lockfile.close();
 
     m_lockCreated = shared_ptr<bool>(new bool,
-                                     [this](bool* ptr) { cleanup(); delete ptr; } );
+                                     [this](bool* ptr) {
+                                         cleanup();
+                                         delete ptr;
+                                     });
 
     return pid;
 }
@@ -106,6 +109,7 @@ const String& UniqueInstance::lockFileName() const
 {
     return m_fileName;
 }
+
 #endif
 
 bool UniqueInstance::isUnique() const
@@ -116,6 +120,7 @@ bool UniqueInstance::isUnique() const
 #if USE_GTEST
 
 #ifndef _WIN32
+
 TEST(SPTK_UniqueInstance, create)
 {
     UniqueInstance uniqueInstance("unit_tests");
@@ -130,11 +135,9 @@ TEST(SPTK_UniqueInstance, create)
     EXPECT_TRUE(uniqueInstance2.isUnique());
 
     // Get pid of existing process
-    FILE* pipe1 = popen("pidof systemd", "r");
-    if (pipe1 != nullptr) {
+    if (FILE* pipe1 = popen("pidof systemd", "r"); pipe1 != nullptr) {
         array<char, 64> buffer;
-        const char* data = fgets(buffer.data(), sizeof(buffer), pipe1);
-        if (data) {
+        if (const char* data = fgets(buffer.data(), sizeof(buffer), pipe1); data != nullptr) {
             int pid = string2int(data);
             if (pid > 0) {
                 lockFile.open(uniqueInstance.lockFileName());

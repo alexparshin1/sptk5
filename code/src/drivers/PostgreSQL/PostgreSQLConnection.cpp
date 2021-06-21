@@ -202,9 +202,9 @@ void PostgreSQLConnection::closeDatabase()
     }
 }
 
-void* PostgreSQLConnection::handle() const
+PoolDatabaseConnection::DBHandle PostgreSQLConnection::handle() const
 {
-    return m_connect;
+    return (PoolDatabaseConnection::DBHandle) m_connect;
 }
 
 bool PostgreSQLConnection::active() const
@@ -841,7 +841,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                     field->setNull(VAR_NONE);
                 else {
                     static array<char,2> emptyString {};
-                    field->setExternalBuffer(emptyString.data(), 0, VAR_STRING); // External string
+                    field->setExternalBuffer((uint8_t*) emptyString.data(), 0, VAR_STRING); // External string
                 }
             } else {
                 char* data = PQgetvalue(stmt, currentRow, column);
@@ -878,7 +878,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     case PG_BYTEA:
-                        field->setExternalBuffer(data, (size_t) dataLength, VAR_BUFFER); // External buffer
+                        field->setExternalBuffer((uint8_t*) data, (size_t) dataLength, VAR_BUFFER); // External buffer
                         break;
 
                     case PG_DATE:
@@ -905,7 +905,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     default:
-                        field->setExternalBuffer(data, size_t(dataLength), VAR_STRING); // External string
+                        field->setExternalBuffer((uint8_t*) data, size_t(dataLength), VAR_STRING); // External string
                         break;
                 }
             }
@@ -924,7 +924,7 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
     objects.clear();
 
     switch (objectType) {
-        case DOT_FUNCTIONS:
+        case DatabaseObjectType::FUNCTIONS:
             objectsSQL =
                 "SELECT DISTINCT routine_schema || '.' || routine_name "
                     "FROM information_schema.routines "
@@ -932,7 +932,7 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
                     "AND routine_type = 'FUNCTION'";
             break;
 
-        case DOT_PROCEDURES:
+        case DatabaseObjectType::PROCEDURES:
             objectsSQL =
                 "SELECT DISTINCT routine_schema || '.' || routine_name "
                     "FROM information_schema.routines "
@@ -940,11 +940,11 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
                     "AND routine_type = 'PROCEDURE'";
             break;
 
-        case DOT_VIEWS:
+        case DatabaseObjectType::VIEWS:
             objectsSQL = tablesSQL + "AND table_type = 'VIEW'";
             break;
 
-        case DOT_DATABASES:
+        case DatabaseObjectType::DATABASES:
             objectsSQL =
                 "SELECT datname FROM pg_database WHERE datname NOT IN ('postgres','template0','template1')";
             break;

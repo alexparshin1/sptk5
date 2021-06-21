@@ -46,7 +46,7 @@ BufferStorage::BufferStorage(size_t sz)
     allocate(sz);
 }
 
-BufferStorage::BufferStorage(const void* data, size_t sz)
+BufferStorage::BufferStorage(const uint8_t* data, size_t sz)
 {
     allocate(data, sz);
 }
@@ -77,7 +77,7 @@ void BufferStorage::adjustSize(size_t sz)
     m_buffer[sz] = 0;
 }
 
-void BufferStorage::set(const char* data, size_t sz)
+void BufferStorage::set(const uint8_t* data, size_t sz)
 {
     checkSize(sz + 1);
     if (data != nullptr && sz > 0) {
@@ -100,6 +100,19 @@ void BufferStorage::append(const char* data, size_t sz)
 {
     if (sz == 0)
         sz = strlen(data);
+
+    checkSize(m_bytes + sz + 1);
+    if (data != nullptr) {
+        memcpy(m_buffer.data() + m_bytes, data, sz);
+        m_bytes += sz;
+        m_buffer[m_bytes] = 0;
+    }
+}
+
+void BufferStorage::append(const uint8_t* data, size_t sz)
+{
+    if (sz == 0)
+        return;
 
     checkSize(m_bytes + sz + 1);
     if (data != nullptr) {
@@ -151,7 +164,7 @@ static const String testString("0123456789ABCDEF");
 
 TEST(SPTK_BufferStorage, constructors)
 {
-    BufferStorage testStorage1(testString.c_str(), testString.length());
+    BufferStorage testStorage1((const uint8_t*) testString.c_str(), testString.length());
 
     BufferStorage testStorage2(testStorage1);
     EXPECT_EQ(testStorage2.length(), size_t(16));
@@ -166,7 +179,7 @@ TEST(SPTK_BufferStorage, constructors)
 
 TEST(SPTK_BufferStorage, assignments)
 {
-    BufferStorage testStorage1(testString.c_str(), testString.length());
+    BufferStorage testStorage1((const uint8_t*) testString.c_str(), testString.length());
 
     BufferStorage testStorage2;
     testStorage2 = testStorage1;

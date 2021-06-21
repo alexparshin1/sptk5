@@ -30,15 +30,16 @@ using namespace std;
 using namespace sptk;
 
 Fl_Color CColorSchema::m_colorMapIndex[] =
-{
-  FL_FOREGROUND_COLOR, FL_BACKGROUND2_COLOR, FL_INACTIVE_COLOR, FL_SELECTION_COLOR,             /// Window colors
-  FL_GRAY0, FL_DARK3, FL_DARK2, FL_DARK1, FL_BACKGROUND_COLOR, FL_LIGHT1, FL_LIGHT2, FL_LIGHT3, /// Box colors
-  FL_WHITE                                                                                      /// List termination
-};
+    {
+        FL_FOREGROUND_COLOR, FL_BACKGROUND2_COLOR, FL_INACTIVE_COLOR, FL_SELECTION_COLOR,             /// Window colors
+        FL_GRAY0, FL_DARK3, FL_DARK2, FL_DARK1, FL_BACKGROUND_COLOR, FL_LIGHT1, FL_LIGHT2, FL_LIGHT3, /// Box colors
+        FL_WHITE                                                                                      /// List termination
+    };
 
 void CColorSchema::store()
 {
-    for (unsigned i = 0; m_colorMapIndex[i] != FL_WHITE; i++ ) {
+    for (unsigned i = 0; m_colorMapIndex[i] != FL_WHITE; i++)
+    {
         Fl_Color color = m_colorMapIndex[i];
         m_colorMap[color] = Fl::get_color(color);
     }
@@ -47,6 +48,7 @@ void CColorSchema::store()
 void CColorSchema::restore()
 {
     for (auto itor: m_colorMap)
+    {
         Fl::set_color(itor.first, itor.second);
+    }
 }
-

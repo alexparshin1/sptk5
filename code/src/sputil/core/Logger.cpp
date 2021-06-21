@@ -30,11 +30,11 @@ using namespace std;
 using namespace sptk;
 
 Logger::Message::Message(LogPriority priority, String message)
-: priority(priority), message(move(message))
+    : priority(priority), message(move(message))
 {}
 
 Logger::Logger(LogEngine& destination, String prefix)
-: m_destination(destination), m_prefix(move(prefix))
+    : m_destination(destination), m_prefix(move(prefix))
 {
 }
 

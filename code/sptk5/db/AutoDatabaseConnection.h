@@ -34,7 +34,7 @@ namespace sptk
 
 /**
  * @addtogroup Database Database Support
- * @{
+ * @{SPTK_OracleConnection
  */
 class DatabaseConnectionPool;
 
@@ -51,7 +51,7 @@ class AutoDatabaseConnection
     /**
      * Database connection
      */
-    PoolDatabaseConnection*     m_connection {nullptr};
+    SPoolDatabaseConnection     m_connection {nullptr};
 
 public:
 
@@ -85,7 +85,7 @@ public:
      * If unsuccessful throws an exception.
      * @param connectionString  The ODBC connection string
      */
-    void open(const String& connectionString = "")
+    void open(const String& connectionString = "") const
     {
         if (!m_connection)
             throw Exception("DB driver not loaded");
@@ -96,7 +96,7 @@ public:
     /**
      * Closes the database connection. If unsuccessful throws an exception.
      */
-    void close()
+    void close() const
     {
         m_connection->close();
     }
@@ -136,7 +136,7 @@ public:
     /**
      * Begins the transaction
      */
-    void beginTransaction()
+    void beginTransaction() const
     {
         m_connection->beginTransaction();
     }
@@ -144,7 +144,7 @@ public:
     /**
      * Commits the transaction
      */
-    void commitTransaction()
+    void commitTransaction() const
     {
         m_connection->commitTransaction();
     }
@@ -152,7 +152,7 @@ public:
     /**
      * Rolls back the transaction
      */
-    void rollbackTransaction()
+    void rollbackTransaction() const
     {
         m_connection->rollbackTransaction();
     }
@@ -173,7 +173,7 @@ public:
      * @param objectType        Object type to list
      * @param objects           Object list (output)
      */
-    void objectList(DatabaseObjectType objectType, Strings& objects)
+    void objectList(DatabaseObjectType objectType, Strings& objects) const
     {
         m_connection->objectList(objectType, objects);
     }
@@ -188,7 +188,7 @@ public:
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
      */
-    void bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data)
+    void bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data) const
     {
         m_connection->bulkInsert(tableName, columnNames, data);
     }
@@ -201,7 +201,7 @@ public:
      * @param batchFileName     SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchFile(const String& batchFileName, Strings* errors = nullptr)
+    void executeBatchFile(const String& batchFileName, Strings* errors = nullptr) const
     {
         m_connection->executeBatchFile(batchFileName, errors);
     }
@@ -214,7 +214,7 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = nullptr)
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = nullptr) const
     {
         m_connection->executeBatchSQL(batchSQL, errors);
     }

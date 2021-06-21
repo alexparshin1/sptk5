@@ -43,33 +43,11 @@ namespace sptk {
 /**
  * Directory Show Policies
  */
-enum DirectoryDSpolicies {
-    /**
-     * Show everything
-     */
-    DDS_SHOW_ALL = 0,
-
-    /**
-     * Hide files
-     */
-    DDS_HIDE_FILES = 1,
-
-    /**
-     * Hide files with the name started with '.' (Unix hidden files,mostly)
-     */
-    DDS_HIDE_DOT_FILES = 2,
-
-    /**
-     * Hide directories
-     */
-    DDS_HIDE_DIRECTORIES = 4,
-
-    /**
-     * Do not sort
-     */
-    DDS_NO_SORT = 8
-
-};
+static constexpr int DDS_SHOW_ALL = 0;          ///< Show everything
+static constexpr int DDS_HIDE_FILES = 1;        ///< Hide files
+static constexpr int DDS_HIDE_DOT_FILES = 2;    ///< Hide files with the name started with '.' (*nix hidden files,mostly)
+static constexpr int DDS_HIDE_DIRECTORIES = 4;  ///< Hide directories
+static constexpr int DDS_NO_SORT = 8;           ///< Do not sort
 
 /**
  * @brief Directory datasource

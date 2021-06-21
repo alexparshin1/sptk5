@@ -52,10 +52,10 @@ void CScroll::ctor_init()
 }
 
 CScroll::CScroll(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : Fl_Group(0, 0, layoutSize, layoutSize, label),
-          CLayoutManager(this, layoutSize, layoutAlignment),
-          scrollbar(layoutSize - SLIDER_WIDTH, 0, SLIDER_WIDTH, layoutSize - SLIDER_WIDTH),
-          hscrollbar(0, layoutSize - SLIDER_WIDTH, layoutSize - SLIDER_WIDTH, SLIDER_WIDTH)
+    : Fl_Group(0, 0, layoutSize, layoutSize, label),
+      CLayoutManager(this, layoutSize, layoutAlignment),
+      scrollbar(layoutSize - SLIDER_WIDTH, 0, SLIDER_WIDTH, layoutSize - SLIDER_WIDTH),
+      hscrollbar(0, layoutSize - SLIDER_WIDTH, layoutSize - SLIDER_WIDTH, SLIDER_WIDTH)
 {
     ctor_init();
 }
@@ -81,25 +81,33 @@ bool CScroll::preferredSize(int& ww, int& hh)
 {
     int minh = 10;
     int minw = 10;
-    if (type()) {
+    if (type())
+    {
         int sbw = 0;
         int sbh = 0;
         scrollbar.preferredSize(sbw, minh);
         scrollbar.preferredSize(minw, sbh);
     }
     if (hh < minh)
+    {
         hh = minh;
+    }
     if (ww < minw)
+    {
         ww = minw;
+    }
     return false;
 }
 
 void CScroll::clear()
 {
-    for (int i = children() - 1; i >= 0; i--) {
+    for (int i = children() - 1; i >= 0; i--)
+    {
         Fl_Widget* o = child(i);
         if (o != &hscrollbar && o != &scrollbar)
+        {
             delete o;
+        }
     }
 }
 
@@ -107,12 +115,17 @@ void CScroll::clear()
 void CScroll::fix_scrollbar_order()
 {
     auto** a = (Fl_Widget**) array();
-    if (a[children() - 1] != &scrollbar) {
+    if (a[children() - 1] != &scrollbar)
+    {
         int i;
         int j;
         for (i = j = 0; j < children(); j++)
+        {
             if (a[j] != &hscrollbar && a[j] != &scrollbar)
+            {
                 a[i++] = a[j];
+            }
+        }
         a[i++] = &hscrollbar;
         a[i++] = &scrollbar;
     }
@@ -128,7 +141,8 @@ void CScroll::draw_clip(void* v, int X, int Y, int W, int H)
     Fl_Widget* const* a = s->array();
     int R = X;
     int B = Y; // track bottom & right edge of all children
-    for (int i = s->children() - 2; i--;) {
+    for (int i = s->children() - 2; i--;)
+    {
         Fl_Widget& o = **a++;
         int NR;
         int NB;
@@ -137,25 +151,36 @@ void CScroll::draw_clip(void* v, int X, int Y, int W, int H)
         NR = o.x() + o.w();
         NB = o.y() + o.h();
         if ((o.align() & (FL_ALIGN_BOTTOM | FL_ALIGN_RIGHT)) &&
-            !(o.align() & FL_ALIGN_INSIDE)) {
+            !(o.align() & FL_ALIGN_INSIDE))
+        {
             int LW = 0;
             int LH = 0;
             o.measure_label(LW, LH);
             if (o.align() & FL_ALIGN_BOTTOM)
+            {
                 NB += LH;
+            }
             else
+            {
                 NR += LW;
+            }
         }
         if (NR > R)
+        {
             R = NR;
+        }
         if (NB > B)
+        {
             B = NB;
+        }
     }
     // fill any area to right & bottom of widgets:
-    if (R < X + W && B > Y) {
+    if (R < X + W && B > Y)
+    {
         s->draw_box(FL_FLAT_BOX, R, Y, X + W - R, B - Y, s->color());
     }
-    if (B < Y + H) {
+    if (B < Y + H)
+    {
         s->draw_box(FL_FLAT_BOX, X, B, W, Y + H - B, s->color());
     }
     fl_pop_clip();
@@ -167,15 +192,21 @@ void CScroll::bbox(int& X, int& Y, int& W, int& H)
     Y = y() + Fl::box_dy(box());
     W = w() - Fl::box_dw(box());
     H = h() - Fl::box_dh(box());
-    if (scrollbar.visible()) {
+    if (scrollbar.visible())
+    {
         W -= scrollbar.w();
         if (scrollbar.align() & FL_ALIGN_LEFT)
+        {
             X += scrollbar.w();
+        }
     }
-    if (hscrollbar.visible()) {
+    if (hscrollbar.visible())
+    {
         H -= hscrollbar.h();
         if (hscrollbar.align() & FL_ALIGN_TOP)
+        {
             Y += hscrollbar.h();
+        }
     }
 }
 
@@ -197,16 +228,25 @@ void CScroll::draw()
     int t = Y;
     int b = Y;
     Fl_Widget* const* a = array();
-    for (int i = children() - 2; i--;) {
+    for (int i = children() - 2; i--;)
+    {
         Fl_Object* o = *a++;
         if (o->x() < l)
+        {
             l = o->x();
+        }
         if (o->y() < t)
+        {
             t = o->y();
+        }
         if (o->x() + o->w() > r)
+        {
             r = o->x() + o->w();
+        }
         if (o->y() + o->h() > b)
+        {
             b = o->y() + o->h();
+        }
     }
 
     // turn the scrollbars on and off as necessary:
@@ -217,41 +257,57 @@ void CScroll::draw()
     H = h() - Fl::box_dh(box());
     int vneeded = 0;
     int hneeded = 0;
-    if ((type() & VERTICAL) && ((type() & ALWAYS_ON) || t < Y || b > Y + H)) {
+    if ((type() & VERTICAL) && ((type() & ALWAYS_ON) || t < Y || b > Y + H))
+    {
         vneeded = 1;
         W -= scrollbar.w();
         if (scrollbar.align() & FL_ALIGN_LEFT)
+        {
             X += scrollbar.w();
+        }
     }
 
-    if ((type() & HORIZONTAL) && ((type() & ALWAYS_ON) || l < X || r > X + W)) {
+    if ((type() & HORIZONTAL) && ((type() & ALWAYS_ON) || l < X || r > X + W))
+    {
         hneeded = 1;
         H -= hscrollbar.h();
         if (scrollbar.align() & FL_ALIGN_TOP)
+        {
             Y += hscrollbar.h();
+        }
         // recheck vertical since we added a horizontal scrollbar
-        if (!vneeded && (type() & VERTICAL)) {
-            if ((type() & ALWAYS_ON) || t < Y || b > Y + H) {
+        if (!vneeded && (type() & VERTICAL))
+        {
+            if ((type() & ALWAYS_ON) || t < Y || b > Y + H)
+            {
                 vneeded = 1;
                 W -= scrollbar.w();
                 if (scrollbar.align() & FL_ALIGN_LEFT)
+                {
                     X += scrollbar.w();
+                }
             }
         }
     }
 
     // Now that we know what's needed, make it so.
-    if (vneeded && !scrollbar.visible()) {
+    if (vneeded && !scrollbar.visible())
+    {
         scrollbar.set_visible();
-    } else if (!vneeded && scrollbar.visible()) {
+    }
+    else if (!vneeded && scrollbar.visible())
+    {
         scrollbar.clear_visible();
         draw_clip(this,
                   scrollbar.align() & FL_ALIGN_LEFT ? X : X + W - scrollbar.w(),
                   Y, scrollbar.w(), H);
     }
-    if (hneeded && !hscrollbar.visible()) {
+    if (hneeded && !hscrollbar.visible())
+    {
         hscrollbar.set_visible();
-    } else if (!hneeded && hscrollbar.visible()) {
+    }
+    else if (!hneeded && hscrollbar.visible())
+    {
         hscrollbar.clear_visible();
         draw_clip(this,
                   X, scrollbar.align() & FL_ALIGN_TOP ? Y : Y + H - hscrollbar.h(),
@@ -271,7 +327,8 @@ void CScroll::draw()
     // draw the scrollbars:
     draw_child(scrollbar);
     draw_child(hscrollbar);
-    if (scrollbar.visible() && hscrollbar.visible()) {
+    if (scrollbar.visible() && hscrollbar.visible())
+    {
         // fill in the little box in the corner
         draw_box(FL_FLAT_BOX, scrollbar.x(), hscrollbar.y(), scrollbar.w(), hscrollbar.h(), color());
     }
@@ -285,7 +342,8 @@ void CScroll::resize(int xx, int yy, int ww, int hh)
     fix_scrollbar_order();
     // move all the children:
     Fl_Widget* const* a = array();
-    for (int i = children() - 2; i--;) {
+    for (int i = children() - 2; i--;)
+    {
         Fl_Object* o = *a++;
         o->position(o->x() + xx - x(), o->y() + yy - y());
     }
@@ -308,14 +366,19 @@ void CScroll::position(int X, int Y)
     int dx = m_xposition - X;
     int dy = m_yposition - Y;
     if (!dx && !dy)
+    {
         return;
+    }
     m_xposition = X;
     m_yposition = Y;
     Fl_Widget* const* a = array();
-    for (int i = children(); i--;) {
+    for (int i = children(); i--;)
+    {
         Fl_Widget* o = *a++;
         if (o == &hscrollbar || o == &scrollbar)
+        {
             continue;
+        }
         o->position(o->x() + dx, o->y() + dy);
     }
     damage(FL_DAMAGE_SCROLL);
@@ -335,13 +398,18 @@ void CScroll::scrollbar_cb(Fl_Widget* o, void*)
 
 int CScroll::handle(int event)
 {
-    if (event == FL_KEYUP) {
+    if (event == FL_KEYUP)
+    {
         Fl_Widget* w = Fl::focus();
-        if (w != nullptr) {
+        if (w != nullptr)
+        {
             Fl_Group* p = w->parent();
             while (p && p != this)
+            {
                 p = p->parent();
-            if (p == this) {
+            }
+            if (p == this)
+            {
                 int controlTop = w->y();
                 int controlBottom = controlTop + w->h();
                 int scrollTop = y();
@@ -351,15 +419,22 @@ int CScroll::handle(int event)
 
                 int dy = 0;
                 if (controlBottom > scrollBottom)
+                {
                     dy = controlBottom - scrollBottom;
+                }
                 if (controlTop - dy < scrollTop)
+                {
                     dy = controlTop - scrollTop;
+                }
                 ypos += dy;
 
                 position(xpos, ypos);
             }
         }
-    } else
+    }
+    else
+    {
         fix_scrollbar_order();
+    }
     return Fl_Group::handle(event);
 }

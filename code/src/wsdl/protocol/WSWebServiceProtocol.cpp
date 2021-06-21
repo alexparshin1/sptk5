@@ -34,12 +34,12 @@ using namespace sptk;
 WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSServices& services,
                                            const Host& host, bool allowCORS, bool keepAlive,
                                            bool suppressHttpStatus)
-: BaseWebServiceProtocol(&httpReader.socket(), httpReader.getHttpHeaders(), services, url),
-  m_httpReader(httpReader),
-  m_host(host),
-  m_allowCORS(allowCORS),
-  m_keepAlive(keepAlive),
-  m_suppressHttpStatus(suppressHttpStatus)
+    : BaseWebServiceProtocol(&httpReader.socket(), httpReader.getHttpHeaders(), services, url),
+      m_httpReader(httpReader),
+      m_host(host),
+      m_allowCORS(allowCORS),
+      m_keepAlive(keepAlive),
+      m_suppressHttpStatus(suppressHttpStatus)
 {
 }
 
@@ -54,7 +54,8 @@ void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& htt
     // Remove possibly injected scripts
     errorText = errorText.replace("<script.*</script>", "");
 
-    if (jsonOutput) {
+    if (jsonOutput)
+    {
         contentType = "application/json";
 
         json::Document error;
@@ -62,7 +63,9 @@ void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& htt
         error.root().set("status_code", (int) e.statusCode());
         error.root().set("status_text", e.statusText());
         error.exportTo(output, true);
-    } else {
+    }
+    else
+    {
         contentType = "application/xml";
 
         xml::Document error;
@@ -87,12 +90,15 @@ static void substituteHostname(Buffer& page, const Host& host)
     xml::Document wsdl;
     wsdl.load(page);
     xml::Node* node = wsdl.findFirst("soap:address");
-    if (node == nullptr) {
+    if (node == nullptr)
+    {
         throw Exception("Can't find <soap:address> in WSDL file");
     }
     String location = (String) node->getAttribute("location", "");
     if (location.empty())
+    {
         throw Exception("Can't find location attribute of <soap:address> in WSDL file");
+    }
     stringstream listener;
     listener << "http://" << host.toString() << "/";
     location = location.replace("http://([^\\/]+)/", listener.str());
@@ -109,11 +115,13 @@ RequestInfo WSWebServiceProtocol::process()
     constexpr int serverErrorResponseCode(500);
     constexpr chrono::seconds thirtySeconds(30);
 
-    HttpResponseStatus  httpStatus { okResponseCode, "OK" };
-    bool                returnWSDL = false;
+    HttpResponseStatus httpStatus{okResponseCode, "OK"};
+    bool returnWSDL = false;
 
     if (m_httpReader.getRequestType() != "POST")
+    {
         throw HTTPException(onlyPostResponseCode, "Only POST method is supported");
+    }
 
     const Buffer& contentBuffer = m_httpReader.output();
     m_httpReader.readAll(thirtySeconds);
@@ -125,9 +133,13 @@ RequestInfo WSWebServiceProtocol::process()
     bool urlEncoded = contentType.find("x-www-form-urlencoded") != string::npos;
     bool requestIsJSON = true;
     if (urlEncoded)
+    {
         contentEncoding = "x-www-form-urlencoded";
+    }
     else
+    {
         contentEncoding = m_httpReader.httpHeader("Content-Encoding");
+    }
     requestInfo.request.input(contentBuffer, contentEncoding);
 
     auto authentication = getAuthentication();
@@ -135,45 +147,57 @@ RequestInfo WSWebServiceProtocol::process()
     auto* startOfMessage = requestInfo.request.content().data();
     auto* endOfMessage = startOfMessage + requestInfo.request.content().bytes();
 
-    while (startOfMessage != endOfMessage && (unsigned char)*startOfMessage < 33)
+    while (startOfMessage != endOfMessage && (unsigned char) *startOfMessage < 33)
+    {
         ++startOfMessage;
+    }
 
     xml::Document xmlContent;
     json::Document jsonContent;
 
-    if (startOfMessage != endOfMessage) {
+    if (startOfMessage != endOfMessage)
+    {
         *endOfMessage = 0;
-        if (*startOfMessage == '<') {
+        if (*startOfMessage == '<')
+        {
             contentType = "application/xml; charset=utf-8";
             requestIsJSON = false;
-            processXmlContent(startOfMessage, xmlContent, jsonContent);
+            processXmlContent((const char*) startOfMessage, xmlContent, jsonContent);
         }
-        else if (*startOfMessage == '{' || *startOfMessage == '[') {
+        else if (*startOfMessage == '{' || *startOfMessage == '[')
+        {
             contentType = "application/json; charset=utf-8";
-            processJsonContent(startOfMessage, jsonContent, requestInfo, httpStatus,
+            processJsonContent((const char*) startOfMessage, jsonContent, requestInfo, httpStatus,
                                contentType);
         }
-        else {
+        else
+        {
             generateFault(requestInfo.response.content(), httpStatus, contentType,
                           HTTPException(invalidContentResponseCode, "Expect JSON or XML content"),
                           requestIsJSON);
         }
-    } else {
+    }
+    else
+    {
         // Empty request content
-        if (m_url.params().has("wsdl")) {
+        if (m_url.params().has("wsdl"))
+        {
             // Requested WSDL content
             returnWSDL = true;
             const auto& service = m_services.get(m_url.location());
             requestInfo.response.content().set(service.wsdl());
             substituteHostname(requestInfo.response.content(), m_host);
             requestInfo.name = "wsdl";
-        } else {
+        }
+        else
+        {
             // Regular request w/o content
             RESTtoSOAP(m_url, "", xmlContent);
         }
     }
 
-    if (!returnWSDL && httpStatus.code < httpErrorResponseCode) {
+    if (!returnWSDL && httpStatus.code < httpErrorResponseCode)
+    {
         requestInfo.name = processMessage(requestInfo.response.content(), xmlContent, jsonContent, authentication,
                                           requestIsJSON,
                                           httpStatus, contentType);
@@ -183,10 +207,14 @@ RequestInfo WSWebServiceProtocol::process()
 
     // For errors, always return uncompressed content
     if (httpStatus.code >= httpErrorResponseCode)
+    {
         clientAcceptEncoding.clear();
+    }
 
     if (httpStatus.code == serverErrorResponseCode)
+    {
         clientAcceptEncoding.clear();
+    }
 
     Buffer outputData = requestInfo.response.output(clientAcceptEncoding);
     contentEncoding = requestInfo.response.contentEncoding();
@@ -194,17 +222,27 @@ RequestInfo WSWebServiceProtocol::process()
     Buffer response;
     response.append("HTTP/1.1 ");
     if (m_suppressHttpStatus && httpStatus.code >= httpErrorResponseCode)
+    {
         response.append("202 Accepted\r\n");
+    }
     else
+    {
         response.append(to_string(httpStatus.code) + " " + httpStatus.description + "\r\n");
+    }
     response.append("Content-Type: " + contentType + "\r\n");
     response.append("Content-Length: " + to_string(outputData.bytes()) + "\r\n");
     if (m_keepAlive)
+    {
         response.append("Connection: keep-alive\r\n");
+    }
     if (m_allowCORS)
+    {
         response.append("Access-Control-Allow-Origin: *\r\n");
+    }
     if (!contentEncoding.empty())
+    {
         response.append("Content-Encoding: " + contentEncoding + "\r\n");
+    }
 
     // OWASP-suggested headers
     response.append("X-Content-Type-Options: nosniff\r\n");
@@ -220,7 +258,8 @@ shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()
 {
     shared_ptr<HttpAuthentication> authentication;
     auto itor = headers().find("authorization");
-    if (itor != headers().end()) {
+    if (itor != headers().end())
+    {
         String value(itor->second);
         authentication = make_shared<HttpAuthentication>(value);
     }
@@ -231,10 +270,14 @@ int WSWebServiceProtocol::getContentLength()
 {
     int contentLength = -1; // Undefined
     if (m_url.params().has("wsdl"))
+    {
         contentLength = 0;
+    }
 
     auto itor = headers().find("Content-Length");
     if (itor != headers().end())
+    {
         contentLength = string2int(itor->second);
+    }
     return contentLength;
 }

@@ -31,16 +31,20 @@ using namespace std;
 using namespace sptk;
 
 
-QueryParameterList::QueryParameterList() :
+QueryParameterList::QueryParameterList()
+    :
     m_bindingTypeChanged(true)
 {
 }
 
 QueryParameterList::~QueryParameterList()
 {
-    try {
+    try
+    {
         clear();
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
     }
 }
@@ -48,7 +52,9 @@ QueryParameterList::~QueryParameterList()
 void QueryParameterList::clear()
 {
     for (auto* item: m_items)
+    {
         delete item;
+    }
 
     m_items.clear();
     m_index.clear();
@@ -66,7 +72,9 @@ QueryParameter* QueryParameterList::find(const String& paramName)
     auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
+    {
         return nullptr;
+    }
 
     return itor->second;
 }
@@ -76,7 +84,7 @@ QueryParameter& QueryParameterList::operator[](const String& paramName) const
     auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
-        throwException("Invalid parameter name: " << paramName)
+    throwException("Invalid parameter name: " << paramName)
 
     return *itor->second;
 }
@@ -105,21 +113,29 @@ void QueryParameterList::enumerate(CParamVector& params) const
     params.resize(m_items.size() * 2);
 
     if (m_items.empty())
+    {
         return;
+    }
 
     size_t maxIndex = 0;
 
-    for (auto* param: m_items) {
+    for (auto* param: m_items)
+    {
         const auto& bindIndex = param->m_bindParamIndexes;
 
-        for (auto index: bindIndex) {
+        for (auto index: bindIndex)
+        {
             if (index >= params.size())
+            {
                 params.resize(index + 1);
+            }
 
             params[index] = param;
 
             if (index > maxIndex)
+            {
                 maxIndex = index;
+            }
         }
     }
 

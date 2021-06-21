@@ -32,7 +32,7 @@ using namespace std;
 using namespace sptk;
 
 PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType)
-: m_connString(connectionString), m_connType(connectionType)
+    : m_connString(connectionString), m_connType(connectionType)
 {}
 
 PoolDatabaseConnection::~PoolDatabaseConnection()
@@ -42,11 +42,14 @@ PoolDatabaseConnection::~PoolDatabaseConnection()
 
 void PoolDatabaseConnection::disconnectAllQueries()
 {
-    for (auto* query: m_queryList) {
-        try {
+    for (auto* query: m_queryList)
+    {
+        try
+        {
             query->closeQuery(true);
         }
-        catch (const Exception& e) {
+        catch (const Exception& e)
+        {
             CERR(e.what() << endl)
         }
     }
@@ -63,13 +66,13 @@ void PoolDatabaseConnection::setInTransaction(bool inTransaction)
     m_inTransaction = inTransaction;
 }
 
-bool PoolDatabaseConnection::linkQuery(Query *q)
+bool PoolDatabaseConnection::linkQuery(Query* q)
 {
     m_queryList.insert(q);
     return true;
 }
 
-bool PoolDatabaseConnection::unlinkQuery(Query *q)
+bool PoolDatabaseConnection::unlinkQuery(Query* q)
 {
     m_queryList.erase(q);
     return true;
@@ -92,14 +95,15 @@ void PoolDatabaseConnection::closeDatabase()
 
 void PoolDatabaseConnection::close()
 {
-    if (active()) {
+    if (active())
+    {
         m_inTransaction = false;
         disconnectAllQueries();
         closeDatabase();
     }
 }
 
-void* PoolDatabaseConnection::handle() const
+PoolDatabaseConnection::DBHandle PoolDatabaseConnection::handle() const
 {
     notImplemented("handle");
 }
@@ -147,23 +151,41 @@ String sptk::escapeSQLString(const String& str, bool tsv)
     String output;
     const char* replaceChars = "'\t\n\r";
     if (tsv)
+    {
         replaceChars = "\t\n\r";
+    }
     const char* start = str.c_str();
-    while (*start) {
+    while (*start)
+    {
         const char* end = strpbrk(start, replaceChars);
-        if (end != nullptr) {
+        if (end != nullptr)
+        {
             output.append(start, end - start);
-            switch (*end) {
-                case '\'': output += "''"; break;
-                case '\t': output += "\\t"; break;
-                case '\r': output += "\\r"; break;
-                case '\n': output += "\\n"; break;
-                default: break;
+            switch (*end)
+            {
+                case '\'':
+                    output += "''";
+                    break;
+                case '\t':
+                    output += "\\t";
+                    break;
+                case '\r':
+                    output += "\\r";
+                    break;
+                case '\n':
+                    output += "\\n";
+                    break;
+                default:
+                    break;
             }
             start = end + 1;
             if (*start == 0)
+            {
                 continue;
-        } else {
+            }
+        }
+        else
+        {
             output.append(start);
             break;
         }
@@ -173,27 +195,37 @@ String sptk::escapeSQLString(const String& str, bool tsv)
 
 // Note: end row is not included
 void PoolDatabaseConnection::bulkInsertRecords(
-        const String& tableName, const Strings& columnNames,
-        const vector<VariantVector>::const_iterator& begin, const vector<VariantVector>::const_iterator& end)
+    const String& tableName, const Strings& columnNames,
+    const vector<VariantVector>::const_iterator& begin, const vector<VariantVector>::const_iterator& end)
 {
     stringstream sql;
     sql << "INSERT INTO " << tableName << " (" << columnNames.join(",") << ") VALUES ";
-    for (auto itor = begin; itor != end; ++itor) {
+    for (auto itor = begin; itor != end; ++itor)
+    {
         const VariantVector& row = *itor;
         if (itor != begin)
+        {
             sql << ", ";
+        }
         sql << "(";
         bool firstValue = true;
-        for (auto& value: row) {
+        for (auto& value: row)
+        {
             if (firstValue)
+            {
                 firstValue = false;
+            }
             else
+            {
                 sql << ", ";
-            if (value.isNull()) {
+            }
+            if (value.isNull())
+            {
                 sql << "NULL";
                 continue;
             }
-            switch (value.dataType()) {
+            switch (value.dataType())
+            {
                 case VAR_BOOL:
                     sql << "true";
                     break;
@@ -202,7 +234,8 @@ void PoolDatabaseConnection::bulkInsertRecords(
                     sql << "'" << escapeSQLString(value.asString(), false) << "'";
                     break;
                 case VAR_DATE_TIME:
-                    sql << "'" << value.asDateTime().dateString(DateTime::PF_RFC_DATE) << " " << value.asDateTime().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << "'";
+                    sql << "'" << value.asDateTime().dateString(DateTime::PF_RFC_DATE) << " "
+                        << value.asDateTime().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << "'";
                     break;
                 default:
                     sql << "'" << value.asString() << "'";
@@ -220,15 +253,19 @@ void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings&
 {
     auto begin = data.begin();
     auto end = data.begin();
-    for (; end != data.end(); ++end) {
-        if (end - begin > 16) {
+    for (; end != data.end(); ++end)
+    {
+        if (end - begin > 16)
+        {
             bulkInsertRecords(tableName, columnNames, begin, end);
             begin = end;
         }
     }
 
     if (begin != end)
+    {
         bulkInsertRecords(tableName, columnNames, begin, end);
+    }
 }
 
 void PoolDatabaseConnection::_executeBatchFile(const String& batchFileName, Strings* errors)
@@ -243,22 +280,22 @@ void PoolDatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Stri
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetStmt(Query *q, void *stmt)
+void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* q, void* stmt)
 {
     q->setStatement(stmt);
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query *q, bool pf)
+void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query* q, bool pf)
 {
     q->setPrepared(pf);
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetActive(Query *q, bool af)
+void PoolDatabaseConnectionQueryMethods::querySetActive(Query* q, bool af)
 {
     q->setActive(af);
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetEof(Query *q, bool eof)
+void PoolDatabaseConnectionQueryMethods::querySetEof(Query* q, bool eof)
 {
     q->setEof(eof);
 }
@@ -288,7 +325,7 @@ void PoolDatabaseConnectionQueryMethods::queryPrepare(Query*)
     notImplemented("queryPrepare");
 }
 
-void PoolDatabaseConnectionQueryMethods::queryUnprepare(Query *query)
+void PoolDatabaseConnectionQueryMethods::queryUnprepare(Query* query)
 {
     queryFreeStmt(query);
 }
@@ -313,7 +350,7 @@ void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int
     notImplemented("queryColAttributes");
 }
 
-void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int16_t, char *, int32_t)
+void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int16_t, char*, int32_t)
 {
     notImplemented("queryColAttributes");
 }
@@ -359,10 +396,12 @@ TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
     StopWatch stopWatch;
     stopWatch.start();
     for (size_t i = 0; i < maxCount; ++i)
+    {
         escapeSQLString(sourceString, false);
+    }
     stopWatch.stop();
     COUT("Escaped " << maxCount << " SQLs " << " for " << stopWatch.seconds() << " sec, "
-         << fixed << setprecision(2) << maxCount / stopWatch.seconds() / 1E6 << "M op/sec" << endl)
+                    << fixed << setprecision(2) << maxCount / stopWatch.seconds() / 1E6 << "M op/sec" << endl)
 }
 
 #endif

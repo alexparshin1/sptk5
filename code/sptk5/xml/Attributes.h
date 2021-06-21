@@ -34,8 +34,7 @@
 
 #define XML_ATTRIBUTE_IS_NODE
 
-namespace sptk {
-namespace xml {
+namespace sptk::xml {
 
 /**
  * @addtogroup XML
@@ -182,5 +181,4 @@ public:
 /**
  * @}
  */
-}
 }

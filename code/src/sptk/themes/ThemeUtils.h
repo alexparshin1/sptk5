@@ -26,15 +26,14 @@
 */
 
 #ifndef __THEMEUTILS_H__
-#define	__THEMEUTILS_H__
+#define    __THEMEUTILS_H__
 
 #include <sptk5/gui/CPngImage.h>
 
 namespace sptk {
 
-CPngImage *loadValidatePNGImage(const std::string& fileName, bool externalFile = false);
+CPngImage* loadValidatePNGImage(const std::string& fileName, bool externalFile = false);
 
 }
 
-#endif	/* _THEMEUTILS_H */
-
+#endif    /* _THEMEUTILS_H */

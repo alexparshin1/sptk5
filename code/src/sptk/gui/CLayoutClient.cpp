@@ -34,9 +34,10 @@ using namespace std;
 using namespace sptk;
 
 CLayoutClient::CLayoutClient(Fl_Widget* widget, int layoutSize, CLayoutAlign ca)
-: m_layoutSize(layoutSize), m_widget(widget), m_layoutAlign(ca)
+    : m_layoutSize(layoutSize), m_widget(widget), m_layoutAlign(ca)
 {
-    if (widget->label()) {
+    if (widget->label())
+    {
         m_label = widget->label();
         widget->label(m_label.c_str());
     }
@@ -44,10 +45,12 @@ CLayoutClient::CLayoutClient(Fl_Widget* widget, int layoutSize, CLayoutAlign ca)
 
 void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 {
-    if (xmlMode & (int) LXM_LAYOUT) {
+    if (xmlMode & (int) LXM_LAYOUT)
+    {
         CLayoutAlign layoutAlign;
-        String alignName(lowerCase((String)node->getAttribute("layout_align")));
-        switch (alignName[0]) {
+        String alignName(lowerCase((String) node->getAttribute("layout_align")));
+        switch (alignName[0])
+        {
             case 'b':
                 layoutAlign = SP_ALIGN_BOTTOM;
                 break;
@@ -71,9 +74,13 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
                     int w = (int) node->getAttribute("w", "-1");
                     int h = (int) node->getAttribute("h", "-1");
                     if (x > -1 && y > -1)
+                    {
                         m_widget->position(x, y);
+                    }
                     if (w > -1 && h > -1)
+                    {
                         m_widget->Fl_Widget::size(w, h);
+                    }
                 }
                 break;
         }
@@ -81,59 +88,92 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
         name((String) node->getAttribute("name"));
         label((String) node->getAttribute("label"));
 
-        if (layoutAlign != SP_ALIGN_NONE) {
+        if (layoutAlign != SP_ALIGN_NONE)
+        {
             int layoutSize = (int) node->getAttribute("layout_size");
             if (layoutSize)
+            {
                 m_layoutSize = layoutSize;
+            }
         }
 
         String boxTypeName = (String) node->getAttribute("box");
         if (boxTypeName.empty())
+        {
             boxTypeName = (String) node->getAttribute("frame");
-        if (!boxTypeName.empty()) {
+        }
+        if (!boxTypeName.empty())
+        {
             auto btor = CLayoutManager::boxTypeNames().find(boxTypeName);
             if (btor != CLayoutManager::boxTypeNames().end())
+            {
                 m_widget->box(btor->second);
+            }
         }
 
         if (!(bool) node->getAttribute("visible", "Y"))
+        {
             m_widget->hide();
+        }
         else
+        {
             m_widget->show();
+        }
         if (!(bool) node->getAttribute("enable", "Y"))
+        {
             m_widget->deactivate();
+        }
         else
+        {
             m_widget->activate();
+        }
     }
-    if (xmlMode & (int) LXM_DATA) {
+    if (xmlMode & (int) LXM_DATA)
+    {
         auto* control = dynamic_cast<CControl*>(m_widget);
         if (control)
+        {
             control->load(node, LXM_DATA);
+        }
     }
 }
 
 void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
 {
     if (!node->isElement())
+    {
         throw Exception("Node must be an element");
+    }
     String className = "widget";
     auto* layoutClient = dynamic_cast<CLayoutClient*>(m_widget);
     if (layoutClient)
+    {
         className = layoutClient->className();
+    }
     node->name(className);
 
-    if (xmlMode & (int) LXM_LAYOUT) {
+    if (xmlMode & (int) LXM_LAYOUT)
+    {
         if (!m_name.empty())
+        {
             node->setAttribute("name", name());
+        }
         if (!m_label.empty())
+        {
             node->setAttribute("label", label());
+        }
         if (!m_widget->visible())
+        {
             node->setAttribute("visible", (int) m_widget->visible());
+        }
         if (!m_widget->active())
+        {
             node->setAttribute("enable", (int) m_widget->active());
+        }
 
         String layoutAlignStr;
-        switch (m_layoutAlign) {
+        switch (m_layoutAlign)
+        {
             case SP_ALIGN_TOP:
                 layoutAlignStr = "top";
                 break;
@@ -153,25 +193,37 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
                 break;
         }
 
-        if (layoutAlignStr.empty()) {
+        if (layoutAlignStr.empty())
+        {
             node->setAttribute("x", m_widget->x());
             node->setAttribute("y", m_widget->y());
             node->setAttribute("w", m_widget->w());
             node->setAttribute("h", m_widget->h());
-        } else {
+        }
+        else
+        {
             node->setAttribute("layout_align", layoutAlignStr);
             node->setAttribute("layout_size", layoutSize());
         }
-    } else {
-        if (!m_name.empty())
-            node->setAttribute("name", name());
-        else if (!m_label.empty())
-            node->setAttribute("label", label());
     }
-    if (xmlMode & (int) LXM_DATA) {
+    else
+    {
+        if (!m_name.empty())
+        {
+            node->setAttribute("name", name());
+        }
+        else if (!m_label.empty())
+        {
+            node->setAttribute("label", label());
+        }
+    }
+    if (xmlMode & (int) LXM_DATA)
+    {
         auto* control = dynamic_cast<CControl*>(m_widget);
         if (control != nullptr)
+        {
             control->save(node, LXM_DATA);
+        }
     }
 }
 

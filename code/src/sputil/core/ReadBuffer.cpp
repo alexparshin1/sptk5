@@ -49,7 +49,7 @@ bool ReadBuffer::read(String& data, size_t length)
 bool ReadBuffer::read(Buffer& data, size_t length)
 {
     data.checkSize(length);
-    return read((uint8_t*) data.data(), length);
+    return read(data.data(), length);
 }
 
 #if USE_GTEST

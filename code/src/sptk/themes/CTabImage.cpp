@@ -42,9 +42,13 @@ CTabImage::CTabImage(const Tar& tar, const xml::Node* tabImageNode)
     m_topFrameHeight = (int) tabImageNode->getAttribute("top_frame", "0");
     m_bottomFrameHeight = (int) tabImageNode->getAttribute("bottom_frame", "0");
     if ((String) tabImageNode->getAttribute("fill") == "stretch")
+    {
         m_backgroundDrawMode = CPngImage::PDM_STRETCH;
+    }
     else
+    {
         m_backgroundDrawMode = CPngImage::PDM_TILE;
+    }
 }
 
 void CTabImage::draw(int x, int y, int w, int h)
@@ -96,7 +100,8 @@ void CTabImage::draw(int x, int y, int w, int h)
 void CTabImages::load(const Tar& tar, const xml::Node* tabImagesNode)
 {
     clear();
-    for (auto tabNode: *tabImagesNode) {
+    for (auto tabNode: *tabImagesNode)
+    {
         auto tabImage = new CTabImage(tar, tabNode);
         (*this)[tabImage->name()] = tabImage;
     }
@@ -105,7 +110,9 @@ void CTabImages::load(const Tar& tar, const xml::Node* tabImagesNode)
 void CTabImages::clear()
 {
     for (auto itor: *this)
+    {
         delete itor.second;
+    }
     map<String, CTabImage*>::clear();
 }
 
@@ -113,6 +120,8 @@ CTabImage* CTabImages::tabImage(const char* imageName)
 {
     auto itor = find(imageName);
     if (itor == end())
+    {
         return nullptr;
+    }
     return itor->second;
 }

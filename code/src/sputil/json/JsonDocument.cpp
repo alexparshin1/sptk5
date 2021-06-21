@@ -127,7 +127,7 @@ void Document::load(istream& json)
     json.seekg (pos, ios::beg);
 
     Buffer buffer((size_t)length);
-    json.read(buffer.data(), length);
+    json.read((char*) buffer.data(), length);
     buffer.bytes((size_t)length);
     load(buffer.c_str());
 }

@@ -97,9 +97,9 @@ void SQLite3Connection::closeDatabase()
     m_connect = nullptr;
 }
 
-void* SQLite3Connection::handle() const
+PoolDatabaseConnection::DBHandle SQLite3Connection::handle() const
 {
-    return m_connect;
+    return (PoolDatabaseConnection::DBHandle) m_connect;
 }
 
 bool SQLite3Connection::active() const
@@ -427,13 +427,12 @@ void SQLite3Connection::queryFetch(Query* query)
                         break;
 
                     case SQLITE_TEXT:
-                        field->setBuffer((const char*) sqlite3_column_text(statement, int(column)), dataLength,
-                                         VAR_STRING);
-                        dataLength = trimField(field->getBuffer(), dataLength);
+                        field->setBuffer(sqlite3_column_text(statement, int(column)), dataLength, VAR_STRING);
+                        dataLength = trimField((char*)field->getBuffer(), dataLength);
                         break;
 
                     case SQLITE_BLOB:
-                        field->setBuffer(sqlite3_column_blob(statement, int(column)), dataLength, VAR_BUFFER);
+                        field->setBuffer((const uint8_t*) sqlite3_column_blob(statement, int(column)), dataLength, VAR_BUFFER);
                         break;
 
                     default:
@@ -462,11 +461,11 @@ void SQLite3Connection::objectList(DatabaseObjectType objectType, Strings& objec
     objects.clear();
 
     switch (objectType) {
-        case DOT_TABLES:
+        case DatabaseObjectType::TABLES:
             objectTypeName = "table";
             break;
 
-        case DOT_VIEWS:
+        case DatabaseObjectType::VIEWS:
             objectTypeName = "view";
             break;
 

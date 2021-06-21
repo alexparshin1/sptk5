@@ -52,17 +52,8 @@ class ReadBuffer : public Buffer
     }
 
 public:
-    /**
-     * Default constructor
-     */
-    explicit ReadBuffer(size_t size=64) : Buffer(size) {}
 
-    /**
-     * Constructor
-     * @param data              Data
-     * @param size              Data size
-     */
-    ReadBuffer(const char* data, size_t size) : Buffer(data, size) {}
+    using Buffer::Buffer;
 
     /**
      * Read into data of primitive type (int, double, etc).
@@ -103,7 +94,7 @@ public:
      * The start of un-read data
      * @return
      */
-    char* head()
+    uint8_t* head()
     {
         return data() + m_readOffset;
     }

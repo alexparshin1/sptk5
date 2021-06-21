@@ -47,7 +47,7 @@ public:
     bool m_showText;
 
     CProgressBox(int x, int y, int w, int h)
-            : Fl_Box(x, y, w, h)
+        : Fl_Box(x, y, w, h)
     {
         m_value = 0;
         m_minValue = 0;
@@ -62,26 +62,31 @@ public:
 void CProgressBox::draw()
 {
     float delta = m_maxValue - m_minValue;
-    if (!delta) {
+    if (!delta)
+    {
         fl_draw_box(box(), x(), y(), w(), h(), parent()->color());
         return;
     }
 
     int fontHeight = 12;
-    if (fontHeight >= h() - 4) fontHeight = h() - 4;
+    if (fontHeight >= h() - 4)
+    { fontHeight = h() - 4; }
 
     fl_push_clip(x(), y(), w(), h() + 1);
     float percent = m_value * 100 / delta;
-    if (percent < 0) percent = -percent;
+    if (percent < 0)
+    { percent = -percent; }
 
-    if (!CThemes::drawProgressBar(x(), y(), w(), percent)) {
+    if (!CThemes::drawProgressBar(x(), y(), w(), percent))
+    {
         fl_draw_box(box(), x(), y(), w(), h(), parent()->color());
         auto width = (int) std::round((w() - Fl::box_dw(box())) * percent / 100.0);
         fl_draw_box(FL_THIN_UP_BOX, x() + Fl::box_dx(box()), y() + Fl::box_dy(box()), width, h() - Fl::box_dh(box()),
                     FL_BLUE);
     }
 
-    if (m_showText) {
+    if (m_showText)
+    {
         std::string txt = int2string((int) m_value) + m_units;
         fl_color(FL_FOREGROUND_COLOR);
         fl_font(0, fontHeight);
@@ -105,7 +110,7 @@ void CProgressBar::ctor_init(const char* label)
 }
 
 CProgressBar::CProgressBar(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CInput("", layoutSize, layoutAlignment, false)
+    : CInput("", layoutSize, layoutAlignment, false)
 {
     ctor_init(label);
 }
@@ -129,17 +134,26 @@ bool CProgressBar::preferredSize(int& w, int& h)
     int minWidth;
     int minHeight;
     CThemes::sizeProgressBar(minWidth, minHeight);
-    if (minWidth) {
+    if (minWidth)
+    {
         // progress bar is themed
         if (w < minWidth)
+        {
             w = minWidth;
+        }
         h = minHeight;
-    } else {
+    }
+    else
+    {
         auto* pb = (CProgressBox*) m_control;
-        if (w < 20) w = 20;
+        if (w < 20)
+        { w = 20; }
         if (pb->m_showText)
+        {
             h = m_textSize + 6;
-        else if (h < 6) h = 6;
+        }
+        else if (h < 6)
+        { h = 6; }
     }
     return false;
 }

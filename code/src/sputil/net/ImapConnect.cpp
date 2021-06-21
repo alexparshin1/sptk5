@@ -39,26 +39,38 @@ bool ImapConnect::getResponse(const String& ident)
 {
     array<char, RSP_BLOCK_SIZE + 1> readBuffer;
 
-    for (; ;) {
+    for (;;)
+    {
         size_t len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
         String longLine = readBuffer.data();
-        if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n') {
-            do {
+        if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n')
+        {
+            do
+            {
                 len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
                 longLine += readBuffer.data();
-            } while (len == RSP_BLOCK_SIZE);
+            }
+            while (len == RSP_BLOCK_SIZE);
         }
         m_response.push_back(longLine);
-        if (ident[0] == 0) return true;
+        if (ident[0] == 0)
+        { return true; }
 
         if (longLine[0] == '*')
+        {
             continue;
+        }
         if (longLine[0] == '+')
+        {
             return true;
-        if (longLine.find(ident) == 0) {
+        }
+        if (longLine.find(ident) == 0)
+        {
             auto p = (uint32_t) ident.length();
-            while (longLine[p] == ' ') ++p;
-            switch (longLine[p]) {
+            while (longLine[p] == ' ')
+            { ++p; }
+            switch (longLine[p])
+            {
                 case 'O': // OK
                     return true;
                 case 'N': // NO
@@ -83,12 +95,14 @@ String ImapConnect::sendCommand(const String& cmd)
 {
     String command(cmd);
     array<char, 10> id_str;
-	int len = snprintf(id_str.data(), sizeof(id_str), "a%03i ", ++m_ident);
+    int len = snprintf(id_str.data(), sizeof(id_str), "a%03i ", ++m_ident);
     String ident(id_str.data(), (size_t) len);
     command = ident + cmd + "\n";
     if (!active())
+    {
         throw Exception("Socket isn't open");
-    write((const uint8_t*)command.c_str(), (uint32_t) command.length());
+    }
+    write((const uint8_t*) command.c_str(), (uint32_t) command.length());
     return ident;
 }
 
@@ -96,9 +110,13 @@ void ImapConnect::command(const String& cmd, const String& arg1, const String& a
 {
     String command(cmd);
     if (!arg1.empty() || &arg1 == &empty_quotes)
+    {
         command += " " + quotes(arg1);
+    }
     if (!arg2.empty() || &arg2 == &empty_quotes)
+    {
         command += " " + quotes(arg2);
+    }
     m_response.clear();
     String ident = sendCommand(command);
     getResponse(ident);
@@ -120,7 +138,7 @@ void ImapConnect::cmd_append(const String& mail_box, const Buffer& message)
     String cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string((uint32_t) message.bytes()) + "}";
     String ident = sendCommand(cmd);
     getResponse(ident);
-    write((const uint8_t*) message.data(), message.bytes());
+    write(message.data(), message.bytes());
     write((const uint8_t*) "\n", 1);
     getResponse(ident);
 }
@@ -128,10 +146,13 @@ void ImapConnect::cmd_append(const String& mail_box, const Buffer& message)
 void ImapConnect::cmd_select(const String& mail_box, int32_t& total_msgs)
 {
     command("select", mail_box);
-    for (auto& st: m_response) {
-        if (st[0] == '*') {
+    for (auto& st: m_response)
+    {
+        if (st[0] == '*')
+        {
             size_t p = st.find("EXISTS");
-            if (p != STRING_NPOS) {
+            if (p != STRING_NPOS)
+            {
                 total_msgs = string2int(st.substr(2, p - 2));
                 break;
             }
@@ -142,9 +163,12 @@ void ImapConnect::cmd_select(const String& mail_box, int32_t& total_msgs)
 void ImapConnect::parseSearch(String& result) const
 {
     result = "";
-    for (const auto& st: m_response) {
+    for (const auto& st: m_response)
+    {
         if (st.find("* SEARCH") == 0)
+        {
             result += st.substr(8, st.length());
+        }
     }
 }
 
@@ -160,7 +184,7 @@ void ImapConnect::cmd_search_new(String& result)
     parseSearch(result);
 }
 
-static const Strings required_headers {
+static const Strings required_headers{
     "Date",
     "From",
     "Subject",
@@ -174,12 +198,17 @@ static const Strings required_headers {
 static void parse_header(const String& header, String& header_name, String& header_value)
 {
     if (header[0] == ' ')
+    {
         return;
+    }
 
     size_t p = header.find(' ');
     if (p == STRING_NPOS)
+    {
         return;
-    if (header[p - 1] == ':') {
+    }
+    if (header[p - 1] == ':')
+    {
         header_name = lowerCase(header.substr(0, p - 1));
         header_value = header.substr(p + 1, header.length());
     }
@@ -191,19 +220,23 @@ static DateTime decodeDate(const String& dt)
     snprintf(temp.data(), sizeof(temp), "%s", dt.c_str() + 5);
 
     // 1. get the day of the month
-    char *p1 = temp.data();
-    char *p2 = strchr(p1, ' ');
+    char* p1 = temp.data();
+    char* p2 = strchr(p1, ' ');
     if (p2 == nullptr)
+    {
         return DateTime();
+    }
     *p2 = 0;
     int mday = string2int(p1);
 
     // 2. get the month
     p1 = p2 + 1;
     int month = 1;
-    switch (*p1) {
+    switch (*p1)
+    {
         case 'A':
-            if (*(p1 + 1) == 'p') {
+            if (*(p1 + 1) == 'p')
+            {
                 month = 4; // Apr
                 break;
             }
@@ -216,18 +249,21 @@ static DateTime decodeDate(const String& dt)
             month = 2; // Feb
             break;
         case 'J':
-            if (*(p1 + 1) == 'a') {
+            if (*(p1 + 1) == 'a')
+            {
                 month = 1; // Jan
                 break;
             }
-            if (*(p1 + 2) == 'n') {
+            if (*(p1 + 2) == 'n')
+            {
                 month = 6; // Jun
                 break;
             }
             month = 7; // Jul
             break;
         case 'M':
-            if (*(p1 + 2) == 'r') {
+            if (*(p1 + 2) == 'r')
+            {
                 month = 3; // Mar
                 break;
             }
@@ -253,71 +289,95 @@ static DateTime decodeDate(const String& dt)
     p1 = p2 + 1;
     p2 = strchr(p1, ' ');
     if (p2 != nullptr)
+    {
         *p2 = 0;
+    }
     DateTime time(p1);
     DateTime date((short) year, (short) month, (short) mday);
     return date + time.timePoint().time_since_epoch();
 }
 
-void ImapConnect::parseMessage(FieldList &results, bool headers_only)
+void ImapConnect::parseMessage(FieldList& results, bool headers_only)
 {
     results.clear();
     bool first = true;
-    for (auto& headerName: required_headers) {
-        auto *fld = new Field(lowerCase(headerName).c_str());
-        if (first) {
+    for (auto& headerName: required_headers)
+    {
+        auto* fld = new Field(lowerCase(headerName).c_str());
+        if (first)
+        {
             fld->view().width = 16;
             first = false;
-        } else
+        }
+        else
+        {
             fld->view().width = 32;
+        }
         results.push_back(fld);
     }
 
     // parse headers
     size_t i = 1;
-    for (; i < m_response.size() - 1; ++i) {
-        const String &st = m_response[i];
+    for (; i < m_response.size() - 1; ++i)
+    {
+        const String& st = m_response[i];
         if (st.empty())
+        {
             break;
+        }
         String header_name;
         String header_value;
         parse_header(st, header_name, header_value);
-        if (!header_name.empty()) {
-            try {
-                Field &field = results[header_name];
+        if (!header_name.empty())
+        {
+            try
+            {
+                Field& field = results[header_name];
                 if (header_name == "date")
+                {
                     field.setDateTime(decodeDate(header_value), true);
+                }
                 else
+                {
                     field = header_value;
-            } catch (const Exception& e) {
+                }
+            }
+            catch (const Exception& e)
+            {
                 CERR(e.what() << endl)
             }
         }
     }
 
-    for (i = 0; i < results.size(); ++i) {
-        Field &field = results[int(i)];
+    for (i = 0; i < results.size(); ++i)
+    {
+        Field& field = results[int(i)];
         if (field.dataType() == VAR_NONE)
+        {
             field.setString("");
+        }
     }
 
-    if (headers_only) return;
+    if (headers_only)
+    { return; }
 
     String body;
     for (; i < m_response.size() - 1; ++i)
+    {
         body += m_response[i] + "\n";
+    }
 
-    Field &bodyField = results.push_back(new Field("body"));
+    Field& bodyField = results.push_back(new Field("body"));
     bodyField.setString(body);
 }
 
-void ImapConnect::cmd_fetch_headers(int32_t msg_id, FieldList &result)
+void ImapConnect::cmd_fetch_headers(int32_t msg_id, FieldList& result)
 {
     command("FETCH " + int2string(msg_id) + " (BODY[HEADER])");
     parseMessage(result, true);
 }
 
-void ImapConnect::cmd_fetch_message(int32_t msg_id, FieldList &result)
+void ImapConnect::cmd_fetch_message(int32_t msg_id, FieldList& result)
 {
     command("FETCH " + int2string(msg_id) + " (BODY[])");
     parseMessage(result, false);
@@ -327,21 +387,26 @@ String ImapConnect::cmd_fetch_flags(int32_t msg_id)
 {
     String result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
-    if (size_t count = m_response.size() - 1; count > 0) {
+    if (size_t count = m_response.size() - 1; count > 0)
+    {
         size_t i = 0;
-        const String &st = m_response[i];
-        const char *fpos = strstr(st.c_str(), "(\\");
+        const String& st = m_response[i];
+        const char* fpos = strstr(st.c_str(), "(\\");
         if (fpos == nullptr)
+        {
             return "";
+        }
         String flags(fpos + 1);
         if (size_t pos = flags.find("))"); pos != STRING_NPOS)
+        {
             flags[pos] = 0;
+        }
         return flags;
     }
     return result;
 }
 
-void ImapConnect::cmd_store_flags(int32_t msg_id, const char *flags)
+void ImapConnect::cmd_store_flags(int32_t msg_id, const char* flags)
 {
     command("STORE " + int2string(msg_id) + " FLAGS " + String(flags));
 }
@@ -349,7 +414,9 @@ void ImapConnect::cmd_store_flags(int32_t msg_id, const char *flags)
 static String strip_framing_quotes(const String& st)
 {
     if (st[0] == '\"')
+    {
         return st.substr(1, st.length() - 2);
+    }
     return st;
 }
 
@@ -357,14 +424,18 @@ void ImapConnect::parseFolderList()
 {
     Strings folder_names;
     String prefix = "* LIST ";
-    for (const auto& st: m_response) {
-        if (st.find(prefix) == 0) {
+    for (const auto& st: m_response)
+    {
+        if (st.find(prefix) == 0)
+        {
             // passing the attribute(s)
-            const char *p = strstr(st.c_str() + prefix.length(), ") ");
-            if (p == nullptr) continue;
+            const char* p = strstr(st.c_str() + prefix.length(), ") ");
+            if (p == nullptr)
+            { continue; }
             // passing the reference
             p = strchr(p + 2, ' ');
-            if (p == nullptr) continue;
+            if (p == nullptr)
+            { continue; }
             ++p;
             // Ok, we found the path
             folder_names.push_back(strip_framing_quotes(p));
@@ -377,6 +448,7 @@ void ImapConnect::cmd_list(const String& mail_box_mask, bool decode)
 {
     command("list", empty_quotes, mail_box_mask);
     if (decode)
+    {
         parseFolderList();
+    }
 }
-

@@ -68,7 +68,9 @@ CLayoutClient* CDBListView::creator(xml::Node* node)
 void CDBListView::database(PoolDatabaseConnection* db)
 {
     if (m_dataMode == LV_DATA_UNDEFINED)
+    {
         m_dataMode = LV_DATA_KEY;
+    }
     m_fastRefreshQuery.connect(db);
     m_fullRefreshQuery.connect(db);
     m_recordCountQuery.connect(db);
@@ -95,7 +97,9 @@ String CDBListView::sql()
 QueryParameter& CDBListView::param(const char* paramName, CRefreshKind refreshKind)
 {
     if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST)
+    {
         return m_fastRefreshQuery.param(paramName);
+    }
     return m_fullRefreshQuery.param(paramName);
 }
 
@@ -119,7 +123,8 @@ void CDBListView::refreshData(CRefreshKind refreshKind)
     Fl::check();
 
     unsigned recordsEstimated = 0;
-    if (!m_recordCountQuery.sql().empty()) {
+    if (!m_recordCountQuery.sql().empty())
+    {
         m_recordCountQuery.open();
         recordsEstimated = (unsigned) m_recordCountQuery[uint32_t(0)].asInteger();
         m_recordCountQuery.close();
@@ -127,8 +132,11 @@ void CDBListView::refreshData(CRefreshKind refreshKind)
 
     Query* query = &m_fullRefreshQuery;
     if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST)
+    {
         query = &m_fastRefreshQuery;
-    else refreshKind = LV_REFRESH_FULL;
+    }
+    else
+    { refreshKind = LV_REFRESH_FULL; }
 
     fill(*query, m_keyField, m_maxRecords, recordsEstimated, refreshKind);
 }

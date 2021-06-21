@@ -80,7 +80,7 @@ int main()
         COUT("Ok.\nDriver description: " << db->driverDescription() << endl)
 
         Strings tableList;
-        db->objectList(DOT_TABLES, tableList);
+        db->objectList(DatabaseObjectType::TABLES, tableList);
         COUT("First 10 tables in the database:" << endl)
         for (unsigned i = 0; i < tableList.size() && i < 10; i++)
             COUT("  Table: " << tableList[i] << endl)

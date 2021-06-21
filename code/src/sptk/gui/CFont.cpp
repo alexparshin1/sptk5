@@ -31,29 +31,38 @@
 using namespace std;
 using namespace sptk;
 
-string CFont::id() const {
+string CFont::id() const
+{
     return m_name + "|" + int2string(m_index) + "|" + int2string(m_size) + "|" + int2string(m_color);
 }
 
-void CFontsMap::clear() {
+void CFontsMap::clear()
+{
     for (auto itor: *this)
+    {
         delete itor.second;
-    map<string,CFont*>::clear();
+    }
+    map<string, CFont*>::clear();
 }
 
-void CFontsVector::clear() {
+void CFontsVector::clear()
+{
     m_items.clear();
     m_index.clear();
 }
 
-void CFontsVector::push_back(CFont *font) {
+void CFontsVector::push_back(CFont* font)
+{
     m_items.push_back(font);
     m_index[font->name()] = font;
 }
 
-CFont* CFontsVector::find(std::string fontName) const {
+CFont* CFontsVector::find(std::string fontName) const
+{
     auto itor = m_index.find(fontName);
     if (itor == m_index.end())
+    {
         return nullptr;
+    }
     return itor->second;
 }

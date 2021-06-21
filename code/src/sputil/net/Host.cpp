@@ -45,7 +45,7 @@ Host::Host() noexcept
 }
 
 Host::Host(const String& hostname, uint16_t port)
-: m_hostname(hostname), m_port(port)
+    : m_hostname(hostname), m_port(port)
 {
     getHostAddress();
     setPort(m_port);
@@ -55,13 +55,18 @@ Host::Host(const String& hostAndPort)
 {
     RegularExpression matchHost(R"(^(\[.*\]|[^\[\]:]*)(:\d+)?)");
     auto matches = matchHost.m(hostAndPort);
-    if (matches) {
+    if (matches)
+    {
         m_hostname = matches[0].value;
         if (matches.groups().size() > 1)
+        {
             m_port = (uint16_t) string2int(matches[1].value.substr(1));
+        }
         getHostAddress();
         setPort(m_port);
-    } else {
+    }
+    else
+    {
         memset(&m_address, 0, sizeof(m_address));
     }
 }
@@ -94,28 +99,32 @@ void Host::setHostNameFromAddress(socklen_t addressLen)
     if (getnameinfo((const sockaddr*)m_address, addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
         m_hostname = hbuf.data();
 #else
-    if (getnameinfo((const sockaddr*) m_address, addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
+    if (getnameinfo((const sockaddr*) m_address, addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) ==
+        0)
+    {
         m_hostname = hbuf.data();
+    }
 #endif
 }
 
 Host::Host(const Host& other)
-: m_hostname(other.m_hostname), m_port(other.m_port)
+    : m_hostname(other.m_hostname), m_port(other.m_port)
 {
     SharedLock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
 Host::Host(Host&& other) noexcept
-: m_hostname(exchange(other.m_hostname,"")), m_port(exchange(other.m_port,0))
+    : m_hostname(exchange(other.m_hostname, "")), m_port(exchange(other.m_port, 0))
 {
     SharedLock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
-Host& Host::operator = (const Host& other)
+Host& Host::operator=(const Host& other)
 {
-    if (&other != this) {
+    if (&other != this)
+    {
         SharedLockInt lock1(other.m_mutex);
         UniqueLockInt lock2(m_mutex);
         m_hostname = other.m_hostname;
@@ -125,7 +134,7 @@ Host& Host::operator = (const Host& other)
     return *this;
 }
 
-Host& Host::operator = (Host&& other) noexcept
+Host& Host::operator=(Host&& other) noexcept
 {
     CopyLock(m_mutex, other.m_mutex);
     m_hostname = other.m_hostname;
@@ -134,13 +143,13 @@ Host& Host::operator = (Host&& other) noexcept
     return *this;
 }
 
-bool Host::operator == (const Host& other) const
+bool Host::operator==(const Host& other) const
 {
     CompareLock(m_mutex, other.m_mutex);
     return toString(true) == other.toString(true);
 }
 
-bool Host::operator != (const Host& other) const
+bool Host::operator!=(const Host& other) const
 {
     CompareLock(m_mutex, other.m_mutex);
     return toString(true) != other.toString(true);
@@ -150,15 +159,16 @@ void Host::setPort(uint16_t p)
 {
     UniqueLock(m_mutex);
     m_port = p;
-    switch (any().sa_family) {
-    case AF_INET:
-        ip_v4().sin_port = htons(uint16_t(m_port));
-        break;
-    case AF_INET6:
-        ip_v6().sin6_port = htons(uint16_t(m_port));
-        break;
-    default:
-        break;
+    switch (any().sa_family)
+    {
+        case AF_INET:
+            ip_v4().sin_port = htons(uint16_t(m_port));
+            break;
+        case AF_INET6:
+            ip_v6().sin6_port = htons(uint16_t(m_port));
+            break;
+        default:
+            break;
     }
 }
 
@@ -177,7 +187,9 @@ static struct addrinfo* safeGetAddrInfo(const String& hostname)
 
     struct addrinfo* result;
     if (int rc = getaddrinfo(hostname.c_str(), nullptr, &hints, &result); rc != 0)
+    {
         throw Exception(gai_strerror(rc));
+    }
 
     return result;
 }
@@ -218,31 +230,46 @@ String Host::toString(bool forceAddress) const
     std::stringstream str;
 
     if (m_hostname.empty())
+    {
         return "";
+    }
 
     String address;
-    if (forceAddress) {
+    if (forceAddress)
+    {
         array<char, 128> buffer;
 
-        const void *addr;
+        const void* addr;
         // Get the pointer to the address itself, different fields in IPv4 and IPv6
-        if (any().sa_family == AF_INET) {
+        if (any().sa_family == AF_INET)
+        {
             addr = (void*) &(ip_v4().sin_addr);
-        } else {
+        }
+        else
+        {
             addr = (void*) &(ip_v6().sin6_addr);
         }
 
         if (inet_ntop(any().sa_family, addr, buffer.data(), sizeof(buffer) - 1) == nullptr)
+        {
             throw SystemException("Can't print IP address");
+        }
 
         address = buffer.data();
-    } else
+    }
+    else
+    {
         address = m_hostname;
+    }
 
     if (any().sa_family == AF_INET6 && m_hostname.find(':') != std::string::npos)
+    {
         str << "[" << address << "]:" << m_port;
+    }
     else
+    {
         str << address << ":" << m_port;
+    }
 
     return str.str();
 }
@@ -272,7 +299,7 @@ TEST(SPTK_Host, ctorAddress)
 
 TEST(SPTK_Host, ctorAddressStruct)
 {
-    String testHostAndPort { "bitbucket.com:80" };
+    String testHostAndPort{"bitbucket.com:80"};
     Host host1(testHostAndPort);
 
     sockaddr_in address;

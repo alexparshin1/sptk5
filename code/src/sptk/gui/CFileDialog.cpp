@@ -49,7 +49,9 @@ String CFileDialog::removeTrailingSlash(const String& dirname)
     size_t dlen = dirname.length();
 
     if (dlen && (dirname[dlen - 1] == '/' || dirname[dlen - 1] == '\\'))
+    {
         return dirname.substr(0, dlen - 1);
+    }
 
     return dirname;
 }
@@ -83,21 +85,29 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
     auto* listView = (CListView*) w;
 
     if (listView->selectedRow() == nullptr)
+    {
         return;
+    }
 
     CPackedStrings& row = *listView->selectedRow();
 
     if (strncmp(row[3], "Directory", 9) == 0)
+    {
         directoryClicked = true;
+    }
 
-    switch (listView->eventType()) {
+    switch (listView->eventType())
+    {
         case CE_MOUSE_CLICK:
-            if (!directoryClicked) {
+            if (!directoryClicked)
+            {
                 Strings fileNames;
                 const CSelection& selection = fileDialog->m_directoryView->selection();
 
-                for (unsigned i = 0; i < selection.size(); i++) {
-                    if (strncmp(row[3], "Directory", 9) != 0) {
+                for (unsigned i = 0; i < selection.size(); i++)
+                {
+                    if (strncmp(row[3], "Directory", 9) != 0)
+                    {
                         CPackedStrings& srow = selection[i];
                         fileNames.push_back(srow[1]);
                     }
@@ -108,12 +118,16 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
 
             break;
 
-        case CE_MOUSE_DOUBLE_CLICK: {
-            if (directoryClicked) {
+        case CE_MOUSE_DOUBLE_CLICK:
+        {
+            if (directoryClicked)
+            {
                 String fullPath = fileDialog->m_directory.directory() + slashStr + row[1];
                 fileDialog->directory(fullPath.replace("[\\/\\\\]{2}", slashStr));
                 fileDialog->refreshDirectory();
-            } else {
+            }
+            else
+            {
                 fileDialog->m_fileNameInput->data(row[1]);
                 fileDialog->m_okButton->do_callback();
             }
@@ -132,14 +146,19 @@ void CFileDialog::lookin_cb(Fl_Widget* w, void*)
     auto* comboBox = (CComboBox*) w;
 
     if (comboBox->eventType() != CE_DATA_CHANGED)
+    {
         return;
+    }
 
     if (comboBox->selectedRow() == nullptr)
+    {
         return;
+    }
 
     CPackedStrings& ps = *comboBox->selectedRow();
 
-    if (fileDialog->m_directory.directory() != ps[0]) {
+    if (fileDialog->m_directory.directory() != ps[0])
+    {
         fileDialog->refreshDirectory(ps[0]);
     }
 }
@@ -149,14 +168,16 @@ void CFileDialog::pattern_cb(Fl_Widget* w, void*)
     auto* comboBox = (CComboBox*) w;
 
     if (comboBox->eventType() != CE_DATA_CHANGED)
+    {
         return;
+    }
 
     auto* fileDialog = (CFileDialog*) w->window();
     fileDialog->refreshDirectory();
 }
 
 CFileDialog::CFileDialog(const String& label, bool saveMode)
-: CDialog(450, 400, label.c_str())
+    : CDialog(450, 400, label.c_str())
 {
     CButton* btn;
 
@@ -165,7 +186,8 @@ CFileDialog::CFileDialog(const String& label, bool saveMode)
     m_lookInCombo->labelWidth(60);
     m_lookInCombo->addColumn("Path", VAR_STRING, 250);
 
-    if (saveMode) {
+    if (saveMode)
+    {
         btn = new CButton("", SP_ALIGN_RIGHT);
         btn->buttonImage(CThemes::getIconImage("fd_new_folder", IS_LARGE_ICON));
         btn->callback(CFileDialog::new_folder_cb);
@@ -200,7 +222,8 @@ bool CFileDialog::execute()
 {
     m_directory.showPolicy(DDS_HIDE_DOT_FILES);
 
-    if (m_patternCombo->selectedRow()) {
+    if (m_patternCombo->selectedRow())
+    {
         CPackedStrings& selectedPattern = *m_patternCombo->selectedRow();
         m_directory.pattern(selectedPattern[1]);
     }
@@ -217,15 +240,18 @@ void CFileDialog::createFolder()
     CInput folderNameInput("Folder Name:");
     folderNameInput.labelWidth(90);
 
-    if (dialog.showModal()) {
+    if (dialog.showModal())
+    {
         String folderName = m_directory.directory() + slashStr + folderNameInput.data().asString();
         folderName = folderName.replace("[\\/\\\\]{2}", slashStr);
-        try {
+        try
+        {
             filesystem::create_directories(folderName.c_str());
             directory(folderName);
             refreshDirectory();
         }
-        catch (const filesystem::filesystem_error& e) {
+        catch (const filesystem::filesystem_error& e)
+        {
             fl_alert("%s", ("Can't create directory " + folderName + ": " + String(e.what())).c_str());
         }
     }
@@ -269,11 +295,14 @@ void CFileDialog::directory(const String& p)
     Strings pathItems(m_directory.directory().c_str(), slashStr);
     string incrementalPath;
 
-    for (size_t i = 0; i < pathItems.size(); i++) {
+    for (size_t i = 0; i < pathItems.size(); i++)
+    {
         incrementalPath += pathItems[i];
 
         if (i == 0)
+        {
             incrementalPath += slashStr;
+        }
 
 #ifdef WIN32
         if (i)
@@ -284,7 +313,9 @@ void CFileDialog::directory(const String& p)
         }
 
         if (i != 0)
+        {
             incrementalPath += slashStr;
+        }
     }
 
     m_lookInCombo->callback(lookin_cb);
@@ -295,7 +326,9 @@ void CFileDialog::directory(const String& p)
     int minColWidth = 280;
 
     if (estimatedColumnWidth < minColWidth)
+    {
         estimatedColumnWidth = minColWidth;
+    }
 
     m_lookInCombo->columns()[0].width((int16_t) estimatedColumnWidth);
 
@@ -327,7 +360,8 @@ void CFileDialog::addPattern(const String& patternName, const String& pattern)
 
 String CFileDialog::pattern() const
 {
-    if (m_patternCombo->selectedRow()) {
+    if (m_patternCombo->selectedRow())
+    {
         CPackedStrings& ps = *m_patternCombo->selectedRow();
         return ps[1];
     }
@@ -338,7 +372,9 @@ String CFileDialog::pattern() const
 void CFileDialog::refreshDirectory(const String& dir)
 {
     if (dir.length())
+    {
         m_directory.directory(dir);
+    }
 
     m_directory.pattern(pattern());
     m_directoryView->fill(m_directory, "N/A");
@@ -354,7 +390,8 @@ String CFileDialog::fullFileName() const
     String fileNamesStr = m_fileNameInput->data().asString();
     Strings fileNames(fileNamesStr, ";");
 
-    for (auto& fileName : fileNames) {
+    for (auto& fileName : fileNames)
+    {
         String fname = m_directory.directory() + slashStr + fileName;
         fileName = trim(fname.replace("[\\/\\\\]{2}", slashStr));
     }

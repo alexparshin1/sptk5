@@ -99,7 +99,7 @@ void testBLOBs(PoolDatabaseConnection* db)
     for (unsigned i = 0; i < 1000; i++) {
         createBlobQuery.param("id").setInteger(i);
         String text("This is a test " + to_string(i));
-        createBlobQuery.param("data").setBuffer(text.c_str(), text.size());
+        createBlobQuery.param("data").setBuffer((const uint8_t*) text.c_str(), text.size());
         createBlobQuery.exec();
     }
 
@@ -119,7 +119,7 @@ void testBLOBs(PoolDatabaseConnection* db)
 
 void printDatabaseObjects(DatabaseConnection db)
 {
-    DatabaseObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
+    DatabaseObjectType objectTypes[] = {DatabaseObjectType::TABLES, DatabaseObjectType::VIEWS, DatabaseObjectType::PROCEDURES};
     string objectTypeNames[] = {"tables", "views", "stored procedures"};
 
     for (unsigned i = 0; i < 3; i++) {

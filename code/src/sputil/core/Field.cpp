@@ -31,7 +31,7 @@ using namespace std;
 using namespace sptk;
 
 Field::Field(const String& name)
-: m_name(name), m_displayName(name)
+    : m_name(name), m_displayName(name)
 {
     m_view.width = -1;
     m_view.flags = 4;       // FL_ALIGN_LEFT
@@ -42,14 +42,19 @@ Field::Field(const String& name)
 
 void Field::setNull(VariantType vtype)
 {
-    switch (dataType()) {
+    switch (dataType())
+    {
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
             if (isExternalBuffer())
+            {
                 m_data.getBuffer().data = nullptr;
+            }
             else if (m_data.getBuffer().data != nullptr)
+            {
                 m_data.getBuffer().data[0] = 0;
+            }
 
             break;
 
@@ -59,9 +64,13 @@ void Field::setNull(VariantType vtype)
     }
 
     if (vtype == VAR_NONE)
-        m_data.type(uint16_t (m_data.type() | VAR_NULL));
+    {
+        m_data.type(uint16_t(m_data.type() | VAR_NULL));
+    }
     else
+    {
         m_data.type(vtype | VAR_NULL);
+    }
 }
 
 String Field::asString() const
@@ -69,13 +78,16 @@ String Field::asString() const
     constexpr int maxPrintLength = 64;
 
     String result;
-    array<char,maxPrintLength+1> print_buffer;
+    array<char, maxPrintLength + 1> print_buffer;
     int len = 0;
 
     if (isNull())
+    {
         return result;
+    }
 
-    switch (dataType()) {
+    switch (dataType())
+    {
         case VAR_BOOL:
             result = m_data.getInteger() != 0 ? "true" : "false";
             break;
@@ -107,7 +119,9 @@ String Field::asString() const
         case VAR_TEXT:
         case VAR_BUFFER:
             if (m_data.getBuffer().data != nullptr)
+            {
                 result = m_data.getBuffer().data;
+            }
             break;
 
         case VAR_DATE:
@@ -138,7 +152,7 @@ String Field::epochDataToDateTimeString() const
 String Field::doubleDataToString() const
 {
     stringstream output;
-    output << fixed << setprecision((int)m_view.precision) << m_data.getFloat();
+    output << fixed << setprecision((int) m_view.precision) << m_data.getFloat();
     return output.str();
 }
 
@@ -146,22 +160,30 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
 {
     String value = asString();
 
-    if (!value.empty()) {
+    if (!value.empty())
+    {
         xml::Element* element = nullptr;
 
-        if (dataType() == VAR_TEXT) {
+        if (dataType() == VAR_TEXT)
+        {
             element = new xml::Element(node, fieldName());
             new xml::CDataSection(*element, value);
-        } else {
+        }
+        else
+        {
             if (compactXmlMode)
+            {
                 node.setAttribute(fieldName(), value);
-            else {
+            }
+            else
+            {
                 element = new xml::Element(node, "field");
                 new xml::Text(element, value.c_str());
             }
         }
 
-        if (!compactXmlMode) {
+        if (!compactXmlMode)
+        {
             element->setAttribute("name", fieldName());
             element->setAttribute("type", Variant::typeName(dataType()));
             element->setAttribute("size", int2string((uint32_t) dataSize()));
@@ -174,14 +196,14 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
 TEST(SPTK_Field, move_ctor_assign)
 {
     constexpr int testInteger = 10;
-    Field   field1("f1");
+    Field field1("f1");
     field1 = testInteger;
 
-    Field   field2(move(field1));
+    Field field2(move(field1));
     EXPECT_EQ(field2.asInteger(), testInteger);
     EXPECT_EQ(field1.isNull(), true);
 
-    Field   field3("f3");
+    Field field3("f3");
     field3 = move(field2);
     EXPECT_EQ(field3.asInteger(), testInteger);
     EXPECT_EQ(field2.isNull(), true);
@@ -189,7 +211,7 @@ TEST(SPTK_Field, move_ctor_assign)
 
 TEST(SPTK_Field, double)
 {
-    Field   field1("f1");
+    Field field1("f1");
 
     constexpr double testDouble = 12345678.123456;
     field1 = testDouble;
@@ -207,7 +229,7 @@ TEST(SPTK_Field, money)
 
     MoneyData money1(testLong, scaleDigits);
     MoneyData money2(-testLong, scaleDigits);
-    Field   field1("f1");
+    Field field1("f1");
 
     field1.setMoney(money1);
     EXPECT_EQ(field1.asInt64(), testInt64);

@@ -108,13 +108,6 @@ public:
      */
     DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100);
 
-    /**
-     * Destructor
-     *
-     * Closes and destroys all created connections
-     */
-    ~DatabaseConnectionPool();
-
     [[nodiscard]] DatabaseConnection getConnection();
 
 protected:
@@ -127,30 +120,22 @@ protected:
     void load();
 
     /**
-     * Close connection callback
-     * @param item          Database connection
-     * @param data          Data (connection pool pointer)
-     * @return true if callback should continue to be executed
-     */
-    static bool closeConnectionCB(PoolDatabaseConnection*& item, void* data);
-
-    /**
      * Creates database connection
      */
-    [[nodiscard]] PoolDatabaseConnection* createConnection();
+    [[nodiscard]] SPoolDatabaseConnection createConnection();
 
     /**
      * Returns used database connection back to the pool
      * @param connection        Database that is no longer in use and may be returned to the pool
      */
-    void releaseConnection(PoolDatabaseConnection* connection);
+    void releaseConnection(SPoolDatabaseConnection& connection);
 
     /**
      * Destroys connection
      * @param connection DatabaseConnection*, destroys the driver instance
      * @param unlink            Should always be true for any external use
      */
-    void destroyConnection(PoolDatabaseConnection* connection, bool unlink=true);
+    void destroyConnection(SPoolDatabaseConnection& connection);
 
 private:
     /**
@@ -171,17 +156,9 @@ private:
     /**
      * Maximum number of connections in the pool
      */
-    unsigned                                   m_maxConnections;
-
-    /**
-     * Connection pool
-     */
-    SynchronizedQueue<PoolDatabaseConnection*>     m_pool;
-
-    /**
-     * List all connections
-     */
-    SynchronizedList<PoolDatabaseConnection*>      m_connections;
+    size_t                                      m_maxConnections;
+    SynchronizedQueue<SPoolDatabaseConnection>  m_pool;          ///< Available connections
+    SynchronizedList<SPoolDatabaseConnection>   m_connections;   ///< All connections
 };
 
 /**

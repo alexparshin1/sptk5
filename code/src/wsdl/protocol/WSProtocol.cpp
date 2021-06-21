@@ -33,6 +33,8 @@ String WSProtocol::header(const String& name)
 {
     auto itor = m_headers.find(name);
     if (itor == m_headers.end())
+    {
         return "";
+    }
     return itor->second;
 }

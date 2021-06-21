@@ -32,15 +32,19 @@ using namespace sptk;
 
 WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress,
                            WSServices& services, LogEngine& logEngine, const Options& options)
-: ServerConnection(server, connectionSocket, connectionAddress, "WSConnection"),
-  m_services(services),
-  m_logger(logEngine, "(" + to_string(serial()) + ") "),
-  m_options(options)
+    : ServerConnection(server, connectionSocket, connectionAddress, "WSConnection"),
+      m_services(services),
+      m_logger(logEngine, "(" + to_string(serial()) + ") "),
+      m_options(options)
 {
     if (!m_options.paths.staticFilesDirectory.endsWith("/"))
+    {
         m_options.paths.staticFilesDirectory += "/";
+    }
     if (!m_options.paths.wsRequestPage.startsWith("/"))
+    {
         m_options.paths.wsRequestPage = "/" + m_options.paths.wsRequestPage;
+    }
 }
 
 static void printMessage(stringstream& logMessage, const String& prefix, const RequestInfo::Message& message)
@@ -51,12 +55,18 @@ static void printMessage(stringstream& logMessage, const String& prefix, const R
     logMessage << message.content().length() << "/" << message.compressedLength()
                << " bytes ";
     if (!message.contentEncoding().empty())
+    {
         logMessage << "(" << message.contentEncoding() << ") ";
+    }
     String content(message.content().c_str());
     if (content.length() > maxContentLength)
+    {
         logMessage << content.substr(0, maxContentLength) << "..";
+    }
     else
+    {
         logMessage << content;
+    }
 }
 
 void WSConnection::processSingleConnection(bool& done)
@@ -85,9 +95,11 @@ void WSConnection::processSingleConnection(bool& done)
     String requestType = httpReader.getRequestType();
     URL url(httpReader.getRequestURL());
 
-    if (requestType == "OPTIONS") {
+    if (requestType == "OPTIONS")
+    {
         respondToOptions(headers);
-        if (headers["Connection"].toLowerCase() == "close") {
+        if (headers["Connection"].toLowerCase() == "close")
+        {
             httpReader.close();
             done = true;
         }
@@ -96,20 +108,26 @@ void WSConnection::processSingleConnection(bool& done)
     }
 
     if (url.params().has("wsdl"))
+    {
         protocolName = "wsdl";
+    }
 
     bool processed = false;
 
     if (protocolName == "http")
+    {
         processed = handleHttpProtocol(requestType, url, protocolName, headers);
+    }
 
-    if (protocolName == "websocket") {
+    if (protocolName == "websocket")
+    {
         WSWebSocketsProtocol protocol(&socket(), headers);
         protocol.process();
         processed = true;
     }
 
-    if (processed) {
+    if (processed)
+    {
         m_logger.debug("Processed " + protocolName);
         return;
     }
@@ -120,7 +138,8 @@ void WSConnection::processSingleConnection(bool& done)
                                   m_options.allowCors, m_options.keepAlive, m_options.suppressHttpStatus);
     auto requestInfo = protocol.process();
 
-    if (closeConnection) {
+    if (closeConnection)
+    {
         httpReader.close();
         done = true;
     }
@@ -132,21 +151,26 @@ void WSConnection::processSingleConnection(bool& done)
 
 void WSConnection::run()
 {
-    Buffer  data;
+    Buffer data;
 
     // Read request data
-    String  row;
+    String row;
     Strings matches;
-    String  protocolName;
-    bool    done {false};
+    String protocolName;
+    bool done{false};
 
-    while (!done && socket().active()) {
-        try {
+    while (!done && socket().active())
+    {
+        try
+        {
             processSingleConnection(done);
         }
-        catch (const Exception& e) {
+        catch (const Exception& e)
+        {
             if (!terminated())
+            {
                 m_logger.error("Error in incoming connection: " + String(e.what()));
+            }
         }
     }
 }
@@ -154,39 +178,53 @@ void WSConnection::run()
 void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
                                         const RequestInfo& requestInfo)
 {
-    if (!m_options.logDetails.empty()) {
+    if (!m_options.logDetails.empty())
+    {
         stringstream logMessage;
         bool listStarted = false;
 
-        if (m_options.logDetails.has(LogDetails::MessageDetail::SOURCE_IP)) {
+        if (m_options.logDetails.has(LogDetails::MessageDetail::SOURCE_IP))
+        {
             auto remoteIp = address();
             auto remoteIpHeader = httpReader.httpHeader("Remote-Ip");
             if (remoteIp == "127.0.0.1" && !remoteIpHeader.empty())
+            {
                 remoteIp = remoteIpHeader;
+            }
             logMessage << "[" << remoteIp << "] ";
         }
 
-        if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_NAME)) {
+        if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_NAME))
+        {
             logMessage << "(" << requestInfo.name << ") ";
         }
 
-        if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_DURATION)) {
+        if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_DURATION))
+        {
             if (listStarted)
+            {
                 logMessage << ", ";
+            }
             listStarted = true;
             logMessage << "duration " << fixed << setprecision(1) << requestStopWatch.seconds() * 1000 << " ms";
         }
 
-        if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_DATA)) {
+        if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_DATA))
+        {
             if (listStarted)
+            {
                 logMessage << ", ";
+            }
             listStarted = true;
             printMessage(logMessage, "IN ", requestInfo.request);
         }
 
-        if (m_options.logDetails.has(LogDetails::MessageDetail::RESPONSE_DATA)) {
+        if (m_options.logDetails.has(LogDetails::MessageDetail::RESPONSE_DATA))
+        {
             if (listStarted)
+            {
                 logMessage << ", ";
+            }
             printMessage(logMessage, "OUT ", requestInfo.response);
         }
 
@@ -198,11 +236,15 @@ bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers
 {
     String contentLength = headers["Content-Length"];
     if (requestType == "GET" && contentLength.empty())
+    {
         headers["Content-Length"] = "0";
+    }
 
     bool closeConnection = headers["Connection"].toLowerCase() == "close";
     if (closeConnection)
+    {
         headers.erase("Connection");
+    }
 
     return closeConnection;
 }
@@ -213,20 +255,31 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
     String contentType = headers["Content-Type"];
     bool processed = false;
     if (contentType.find("/json") != string::npos)
+    {
         protocolName = "rest";
+    }
     else if (contentType.find("/xml") != string::npos)
+    {
         protocolName = "WS";
+    }
     else if (requestType == "POST")
+    {
         protocolName = "rest";
-    else {
-        if (headers["Upgrade"] == "websocket") {
+    }
+    else
+    {
+        if (headers["Upgrade"] == "websocket")
+        {
             WSWebSocketsProtocol protocol(&socket(), headers);
             protocol.process();
             processed = true;
         }
-        else if (url.path() != m_options.paths.wsRequestPage) {
+        else if (url.path() != m_options.paths.wsRequestPage)
+        {
             if (url.path() == "/")
+            {
                 url.path(m_options.paths.htmlIndexPage);
+            }
 
             WSStaticHttpProtocol protocol(&socket(), url, headers, m_options.paths.staticFilesDirectory);
             protocol.process();
@@ -245,13 +298,19 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
     response.append("HTTP/1.1 204 No Content\r\n");
 
     if (m_options.keepAlive)
+    {
         response.append("Connection: keep-alive\r\n");
+    }
 
-    if (m_options.allowCors) {
+    if (m_options.allowCors)
+    {
         response.append("Access-Control-Allow-Origin: *\r\n");
         response.append("Access-Control-Allow-Methods: POST, GET, OPTIONS\r\n");
-        response.append("Access-Control-Allow-Headers: Content-Type, Content-Length, Content-Encoding, Access-Control-Allow-Origin, Authorization\r\n");
-    } else {
+        response.append(
+            "Access-Control-Allow-Headers: Content-Type, Content-Length, Content-Encoding, Access-Control-Allow-Origin, Authorization\r\n");
+    }
+    else
+    {
         response.append("Access-Control-Allow-Origin: null\r\n");
     }
 
@@ -261,27 +320,32 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
     socket().write(response);
 }
 
-WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSServices& services,
+WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr,
+                                 WSServices& services,
                                  LogEngine& logEngine, const Options& options)
-: WSConnection(server, connectionSocket, addr, services, logEngine, options)
+    : WSConnection(server, connectionSocket, addr, services, logEngine, options)
 {
-    if (options.encrypted) {
+    if (options.encrypted)
+    {
         auto& sslKeys = server.getSSLKeys();
         auto* socket = new SSLSocket;
         socket->loadKeys(sslKeys);
         setSocket(socket);
-    } else
+    }
+    else
+    {
         setSocket(new TCPSocket);
+    }
     socket().attach(connectionSocket, true);
 }
 
 WSConnection::Options::Options(const Options& other)
-: paths(other.paths),
-  encrypted(other.encrypted),
-  allowCors(other.allowCors),
-  keepAlive(other.keepAlive),
-  suppressHttpStatus(other.suppressHttpStatus),
-  logDetails(other.logDetails)
+    : paths(other.paths),
+      encrypted(other.encrypted),
+      allowCors(other.allowCors),
+      keepAlive(other.keepAlive),
+      suppressHttpStatus(other.suppressHttpStatus),
+      logDetails(other.logDetails)
 {}
 
 WSConnection::Options& WSConnection::Options::operator=(const Options& other)

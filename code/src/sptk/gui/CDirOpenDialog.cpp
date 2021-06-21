@@ -48,12 +48,15 @@ bool CDirOpenDialog::okPressed()
 {
     struct stat st = {};
     string dname;
-    try {
+    try
+    {
         dname = fileName();
-        if (dname.empty()) {
+        if (dname.empty())
+        {
             dname = directory();
             const CSelection& selection = m_directoryView->selection();
-            if (selection.size()) {
+            if (selection.size())
+            {
                 CPackedStrings& row = selection[0];
                 string fname(row[1]);
                 dname += fname;
@@ -64,27 +67,32 @@ bool CDirOpenDialog::okPressed()
         memset(&st, 0, sizeof(struct stat));
 
 #ifdef _WIN32
-		if (stat((dname + string(".")).c_str(), &st) != 0)
-			throw Exception("Can't access directory '" + dname + "'");
+        if (stat((dname + string(".")).c_str(), &st) != 0)
+            throw Exception("Can't access directory '" + dname + "'");
 #else
         if (lstat((dname + string(".")).c_str(), &st) != 0)
+        {
             throw Exception("Can't access directory '" + dname + "'");
+        }
 #endif
-		if (!S_ISDIR(st.st_mode))
+        if (!S_ISDIR(st.st_mode))
+        {
             dname = directory();
+        }
 
         directory(dname);
 
         return true;
     }
-    catch (Exception&  e) {
+    catch (Exception& e)
+    {
         spError(e.what());
         return false;
     }
 }
 
 CDirOpenDialog::CDirOpenDialog(const String& caption)
-: CFileDialog(caption, true)
+    : CFileDialog(caption, true)
 {
     m_okButton->label("Use");
     m_okButton->buttonImage(SP_SAVE_BUTTON);

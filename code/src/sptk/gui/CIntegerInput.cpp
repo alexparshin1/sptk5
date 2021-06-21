@@ -33,7 +33,7 @@
 using namespace sptk;
 
 CIntegerInput::CIntegerInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-: CInput(label, layoutSize, layoutAlignment)
+    : CInput(label, layoutSize, layoutAlignment)
 {
     controlType(FL_INT_INPUT);
     m_minValue = m_maxValue = 0;
@@ -58,14 +58,17 @@ CLayoutClient* CIntegerInput::creator(xml::Node* node)
 void CIntegerInput::save(Query* updateQuery)
 {
     if (!m_fieldName.length())
+    {
         return;
+    }
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     param.setInteger(data().asInteger());
 }
 
 bool CIntegerInput::valid() const
 {
-    if (m_limited) {
+    if (m_limited)
+    {
         int val = data().asInteger();
         return val >= m_minValue && val <= m_maxValue;
     }

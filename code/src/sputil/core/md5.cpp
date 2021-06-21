@@ -146,7 +146,8 @@ void MD5::init()
 void MD5::decode(uint4* output, const uint1* input, size_type len)
 {
     size_t i = 0;
-    for (size_t j = 0; j < len; j += 4) {
+    for (size_t j = 0; j < len; j += 4)
+    {
         output[i] = ((uint4) input[j]) | (((uint4) input[j + 1]) << 8) |
                     (((uint4) input[j + 2]) << 16) | (((uint4) input[j + 3]) << 24);
         ++i;
@@ -160,7 +161,8 @@ void MD5::decode(uint4* output, const uint1* input, size_type len)
 void MD5::encode(uint1* output, const uint4* input, size_type len)
 {
     size_type i = 0;
-    for (size_type j = 0; j < len; j += 4) {
+    for (size_type j = 0; j < len; j += 4)
+    {
         output[j] = input[i] & 0xff;
         output[j + 1] = (input[i] >> 8) & 0xff;
         output[j + 2] = (input[i] >> 16) & 0xff;
@@ -178,7 +180,7 @@ void MD5::transform(const uint1* block)
     uint4 b = state[1];
     uint4 c = state[2];
     uint4 d = state[3];
-    array<uint4,16> x;
+    array<uint4, 16> x;
 
     decode(x.data(), block, blocksize);
 
@@ -271,7 +273,9 @@ void MD5::update(const unsigned char input[], size_type length)
 
     // Update number of bits
     if ((count[0] += (length << 3)) < (length << 3))
+    {
         ++count[1];
+    }
     count[1] += (length >> 29);
 
     // number of bytes we need to fill in buffer
@@ -280,18 +284,24 @@ void MD5::update(const unsigned char input[], size_type length)
     size_type i;
 
     // transform as many times as possible.
-    if (length >= firstpart) {
+    if (length >= firstpart)
+    {
         // fill buffer first, transform
         memcpy(&buffer[index], input, firstpart);
         transform(buffer.data());
 
         // transform chunks of blocksize (64 bytes)
         for (i = firstpart; i + blocksize <= length; i += blocksize)
+        {
             transform(&input[i]);
+        }
 
         index = 0;
-    } else
+    }
+    else
+    {
         i = 0;
+    }
 
     // buffer remaining input
     memcpy(&buffer[index], &input[i], length - i);
@@ -311,16 +321,17 @@ void MD5::update(const char input[], size_type length)
 // the message digest and zeroizing the context.
 MD5& MD5::finalize()
 {
-    if (!finalized) {
+    if (!finalized)
+    {
 
-        static const array<unsigned char,64> padding = {
-                0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        static const array<unsigned char, 64> padding = {
+            0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
 
         // Save number of bits
-        array<unsigned char,8> bits;
+        array<unsigned char, 8> bits;
         encode(bits.data(), count.data(), 8);
 
         // pad out to 56 mod 64.
@@ -350,16 +361,19 @@ MD5& MD5::finalize()
 sptk::String MD5::hexdigest() const
 {
     if (!finalized)
+    {
         return "";
+    }
 
-    array<char,34> buf;
+    array<char, 34> buf;
     auto* ptr = buf.data();
-    for (const auto& digestElement: digest) {
+    for (const auto& digestElement: digest)
+    {
         auto high = (int) digestElement >> 4;
         auto low = (int) digestElement & 0xF;
-        *ptr = char(high > 9? high - 10  + 'a': high + '0');
+        *ptr = char(high > 9 ? high - 10 + 'a' : high + '0');
         ++ptr;
-        *ptr = char(low > 9? low - 10 + 'a': low + '0');
+        *ptr = char(low > 9 ? low - 10 + 'a' : low + '0');
         ++ptr;
     }
     buf[32] = 0;
@@ -387,13 +401,13 @@ String sptk::md5(const String& data)
 static const String testPhrase("This is a test text to verify MD5 algorithm");
 
 static const String testSQL(
-        "SELECT * FROM schema1.employee "
-        "JOIN schema1.department ON employee.department_id = department.id "
-        "JOIN schema1.city ON employee.city_id = city_id "
-        "WHERE employee.id in (1,2,3,4) "
-        "AND employee.name LIKE 'John%' "
-        "AND department.name = 'Information Technologies' "
-        "LIMIT 1024");
+    "SELECT * FROM schema1.employee "
+    "JOIN schema1.department ON employee.department_id = department.id "
+    "JOIN schema1.city ON employee.city_id = city_id "
+    "WHERE employee.id in (1,2,3,4) "
+    "AND employee.name LIKE 'John%' "
+    "AND department.name = 'Information Technologies' "
+    "LIMIT 1024");
 
 TEST(SPTK_MD5, md5)
 {
@@ -407,12 +421,14 @@ TEST(SPTK_MD5, performance)
     size_t iterations = 200000;
 
     stopWatch.start();
-    for (size_t i = 0; i < iterations; ++i) {
+    for (size_t i = 0; i < iterations; ++i)
+    {
         auto testMD5 = md5(Buffer(testSQL));
     }
     stopWatch.stop();
 
-    COUT("Computed " << iterations << " MD5s for " << fixed << setprecision(1) << stopWatch.seconds() << " seconds, " << iterations / stopWatch.seconds() << " per second" << endl)
+    COUT("Computed " << iterations << " MD5s for " << fixed << setprecision(1) << stopWatch.seconds() << " seconds, "
+                     << iterations / stopWatch.seconds() << " per second" << endl)
 }
 
 #endif

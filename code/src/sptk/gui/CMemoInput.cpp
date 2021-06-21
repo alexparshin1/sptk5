@@ -46,7 +46,7 @@ void CMemoInput::ctor_init()
 }
 
 CMemoInput::CMemoInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-: CInput(label, layoutSize, layoutAlignment, false)
+    : CInput(label, layoutSize, layoutAlignment, false)
 {
     ctor_init();
 }
@@ -99,16 +99,22 @@ void CMemoInput::textSize(uchar s)
 void CMemoInput::save(Query* updateQuery)
 {
     if (m_fieldName.empty())
+    {
         return;
+    }
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
-    param.setBuffer(data().getString(), strlen(data().getString()), VAR_TEXT);
+    param.setBuffer((const uint8_t*) data().getString(), strlen(data().getString()), VAR_TEXT);
 }
 
 bool CMemoInput::preferredSize(int& w, int& h)
 {
     if (h < 30)
+    {
         h = 30;
+    }
     if (w < 30)
+    {
         w = 30;
+    }
     return false;
 }

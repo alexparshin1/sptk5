@@ -182,7 +182,7 @@ public:
     /**
      * Assignment operator
      */
-    QueryParameter& operator=(const void* value) override
+    QueryParameter& operator=(const uint8_t* value) override
     {
         setImagePtr(value);
         return *this;
@@ -194,7 +194,7 @@ public:
      */
     QueryParameter& operator=(const Buffer& buffer) override
     {
-        setBuffer(buffer.c_str(), buffer.bytes());
+        setBuffer(buffer.data(), buffer.bytes());
         return *this;
     }
 

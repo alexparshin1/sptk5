@@ -26,20 +26,23 @@
 
 #include "sptk5/SystemException.h"
 #include "sptk5/net/SocketPool.h"
+
 #ifdef _WIN32
 #include <wepoll.h>
 #include <WS2tcpip.h>
 #include <WinSock2.h>
 #include <Windows.h>
 #else
+
 #include <sys/epoll.h>
+
 #endif
 
 using namespace std;
 using namespace sptk;
 
 SocketPool::SocketPool(const SocketEventCallback& eventsCallback)
-: m_eventsCallback(eventsCallback)
+    : m_eventsCallback(eventsCallback)
 {
 }
 
@@ -53,19 +56,24 @@ void SocketPool::open()
     scoped_lock lock(*this);
 
     if (m_pool != INVALID_EPOLL)
+    {
         return;
+    }
 
     m_pool = epoll_create1(0);
 
     if (m_pool == INVALID_EPOLL)
+    {
         throw SystemException("epoll_create1");
+    }
 }
 
 void SocketPool::close()
 {
     scoped_lock lock(*this);
 
-    if (m_pool != INVALID_EPOLL) {
+    if (m_pool != INVALID_EPOLL)
+    {
 #ifdef _WIN32
         epoll_close(m_pool);
 #else
@@ -75,7 +83,9 @@ void SocketPool::close()
     }
 
     for (auto itor: m_socketData)
+    {
         delete (epoll_event*) itor.second;
+    }
 
     m_socketData.clear();
 }
@@ -83,7 +93,9 @@ void SocketPool::close()
 void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 {
     if (!socket.active())
+    {
         throw Exception("Socket is closed");
+    }
 
     scoped_lock lock(*this);
 
@@ -95,7 +107,9 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 
     int rc = epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, event);
     if (rc == -1)
-      throw SystemException("Can't add socket to epoll");
+    {
+        throw SystemException("Can't add socket to epoll");
+    }
 
     m_socketData[&socket] = event;
 }
@@ -108,14 +122,18 @@ void SocketPool::forgetSocket(BaseSocket& socket)
 
     auto itor = m_socketData.find(&socket);
     if (itor == m_socketData.end())
+    {
         return;
+    }
 
     event = (epoll_event*) itor->second;
     m_socketData.erase(itor);
 
     int rc = epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), event);
     if (rc == -1)
+    {
         throw SystemException("Can't remove socket from epoll");
+    }
 
     delete event;
 }
@@ -128,14 +146,21 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout) const
 
     int eventCount = epoll_wait(m_pool, events, MAXEVENTS, (int) timeout.count());
     if (eventCount < 0)
+    {
         return;
+    }
 
-    for (int i = 0; i < eventCount && m_pool != INVALID_EPOLL; ++i) {
+    for (int i = 0; i < eventCount && m_pool != INVALID_EPOLL; ++i)
+    {
         epoll_event& event = events[i];
         if ((event.events & (EPOLLHUP | EPOLLRDHUP)) != 0)
+        {
             m_eventsCallback(event.data.ptr, SocketEventType::CONNECTION_CLOSED);
+        }
         else
+        {
             m_eventsCallback(event.data.ptr, SocketEventType::HAS_DATA);
+        }
     }
 }
 

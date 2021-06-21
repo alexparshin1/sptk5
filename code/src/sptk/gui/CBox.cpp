@@ -46,11 +46,13 @@ void CBox::ctor_init(const char* label)
     m_control->when(FL_WHEN_CHANGED);
     labelWidth(0);
     if (label != nullptr)
+    {
         data(label);
+    }
 }
 
 CBox::CBox(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CInput("", layoutSize, layoutAlignment, false)
+    : CInput("", layoutSize, layoutAlignment, false)
 {
     ctor_init(label);
 }
@@ -93,11 +95,15 @@ void CBox::data(const Variant& v)
 {
     String text = v.asString();
     m_label.resize(text.length());
-    if (!m_label.empty()) {
+    if (!m_label.empty())
+    {
         unsigned i = 0;
-        for (auto& c: text) {
+        for (auto& c: text)
+        {
             if (c == '\r')
+            {
                 continue;
+            }
             m_label[i] = c;
             i++;
         }
@@ -142,7 +148,9 @@ int CBox::totalHeight(int ww) const
 {
     fl_font(m_textFont, m_textSize);
     if (ww < 1)
+    {
         ww = w();
+    }
     int cw = ww;
     int ch = 0;
     fl_measure(m_label.c_str(), cw, ch);
@@ -163,13 +171,18 @@ bool CBox::preferredSize(int& w, int& h)
     int dh = Fl::box_dh(box()) * 2;
     int dw = Fl::box_dw(box()) * 2;
 
-    switch (m_layoutAlign) {
+    switch (m_layoutAlign)
+    {
         case SP_ALIGN_TOP:
         case SP_ALIGN_BOTTOM:
             if ((align() & FL_ALIGN_WRAP) == 0)
+            {
                 cw = 0;
+            }
             else
+            {
                 cw = w - dw;
+            }
             break;
         case SP_ALIGN_LEFT:
         case SP_ALIGN_RIGHT:
@@ -184,22 +197,28 @@ bool CBox::preferredSize(int& w, int& h)
     int hh = ch + dh;
     int ww = cw + dw;
     if (h < hh)
+    {
         h = hh;
+    }
     if (w < ww)
+    {
         w = ww;
+    }
     return false;
 }
 
 int CBox::handle(int event)
 {
-    switch (event) {
+    switch (event)
+    {
         case FL_PUSH:
             m_xPushed = Fl::event_x();
             m_yPushed = Fl::event_y();
             fireEvent(CE_MOUSE_CLICK, 0);
             return 1;
         case FL_DRAG:
-            if (m_dragable) {
+            if (m_dragable)
+            {
                 int dx = Fl::event_x_root();
                 int dy = Fl::event_y_root();
                 Fl_Window* w = window();

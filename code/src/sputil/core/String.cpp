@@ -82,7 +82,9 @@ String String::trim() const
 {
     auto startPos = find_first_not_of(" \n\r\t\b");
     if (startPos == string::npos)
+    {
         return String("");
+    }
     size_t endPos = find_last_not_of(" \n\r\t\b");
     return substr(startPos, endPos - startPos + 1);
 }

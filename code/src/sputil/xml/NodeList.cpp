@@ -35,17 +35,22 @@ using namespace sptk::xml;
 void NodeList::clear()
 {
     for (auto* item: *this)
+    {
         delete item;
+    }
     NodeVector::clear();
 }
 
 NodeList::iterator NodeList::findFirst(const String& nodeName)
 {
     iterator itor;
-    for (itor = begin(); itor != end(); ++itor) {
+    for (itor = begin(); itor != end(); ++itor)
+    {
         const auto* anode = *itor;
         if (anode->nameIs(nodeName))
+        {
             break;
+        }
     }
     return itor;
 }
@@ -53,10 +58,13 @@ NodeList::iterator NodeList::findFirst(const String& nodeName)
 NodeList::const_iterator NodeList::findFirst(const String& nodeName) const
 {
     const_iterator itor;
-    for (itor = begin(); itor != end(); ++itor) {
+    for (itor = begin(); itor != end(); ++itor)
+    {
         const auto* anode = *itor;
         if (anode->nameIs(nodeName))
+        {
             break;
+        }
     }
     return itor;
 }

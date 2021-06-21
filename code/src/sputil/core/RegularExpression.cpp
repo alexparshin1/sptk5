@@ -325,7 +325,7 @@ void RegularExpression::extractNamedMatches(const String& text, RegularExpressio
         getNameTable(nameTable, nameEntrySize);
         const auto* tabptr = nameTable;
         for (int i = 0; i < nameCount; ++i) {
-            auto n = size_t( (tabptr[0] << 8) | tabptr[1] );
+            auto n = size_t( ((int)tabptr[0] << 8) | (int)tabptr[1] );
             String name(tabptr + 2, size_t(nameEntrySize - 3));
             if (const auto& match = matchData.matches[n]; match.m_start >= 0 && n < matchCount) {
                 String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
@@ -500,8 +500,8 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
     map<String, String> substitutionsMap;
     bool ignoreCase = (m_options & SPRE_CASELESS) == SPRE_CASELESS;
     if (ignoreCase) {
-        for (const auto & itor: substitutions)
-            substitutionsMap[lowerCase(itor.first)] = itor.second;
+        for (const auto& [name, value]: substitutions)
+            substitutionsMap[lowerCase(name)] = value;
     } else
         substitutionsMap = substitutions;
 

@@ -84,9 +84,9 @@ void MySQLConnection::closeDatabase()
     m_connection.reset();
 }
 
-void* MySQLConnection::handle() const
+PoolDatabaseConnection::DBHandle MySQLConnection::handle() const
 {
-    return m_connection.get();
+    return (PoolDatabaseConnection::DBHandle) m_connection.get();
 }
 
 bool MySQLConnection::active() const
@@ -288,30 +288,30 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     string objectsSQL;
     objects.clear();
     switch (objectType) {
-        case DOT_PROCEDURES:
+        case DatabaseObjectType::PROCEDURES:
             objectsSQL =
                     "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
                     "FROM information_schema.routines "
                     "WHERE routine_type = 'PROCEDURE'";
             break;
-        case sptk::DOT_FUNCTIONS:
+        case DatabaseObjectType::FUNCTIONS:
             objectsSQL =
                     "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
                     "FROM information_schema.routines "
                     "WHERE routine_type = 'FUNCTION'";
             break;
-        case DOT_TABLES:
+        case DatabaseObjectType::TABLES:
             objectsSQL =
                     "SELECT CONCAT(table_schema, '.', table_name) object_name "
                     "FROM information_schema.tables "
                     "WHERE NOT table_schema IN ('mysql','information_schema')";
             break;
-        case DOT_VIEWS:
+        case DatabaseObjectType::VIEWS:
             objectsSQL =
                     "SELECT CONCAT(table_schema, '.', table_name) object_name "
                     "FROM information_schema.views";
             break;
-        case DOT_DATABASES:
+        case DatabaseObjectType::DATABASES:
             objectsSQL =
                     "SHOW SCHEMAS where `Database` NOT IN ('information_schema','performance_schema','mysql')";
             break;

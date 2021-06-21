@@ -63,7 +63,7 @@ public:
     explicit MemoryTarHandle(const Buffer* buffer=nullptr)
     {
         if (buffer) {
-            sourceBuffer = const_cast<char*>(buffer->data());
+            sourceBuffer = (char*) buffer->data();
             sourceBufferLen = buffer->bytes();
         }
     }

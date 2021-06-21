@@ -38,7 +38,8 @@ void CFontComboBox::loadFonts()
 {
     Strings fontNames;
     int k = Fl::set_fonts("*");
-    for (int i = 0; i < k; i++) {
+    for (int i = 0; i < k; i++)
+    {
         int t;
         String fontIdString(string(Fl::get_font_name((Fl_Font) i, &t)), i);
         fontNames.push_back(fontIdString);
@@ -50,7 +51,7 @@ void CFontComboBox::loadFonts()
 }
 
 CFontComboBox::CFontComboBox(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CComboBox(label, layoutSize, layoutAlignment)
+    : CComboBox(label, layoutSize, layoutAlignment)
 {
     loadFonts();
 }

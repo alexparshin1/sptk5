@@ -253,7 +253,7 @@ void OracleStatement::setBLOBParameterValue(unsigned int parameterIndex, const Q
         statement()->registerOutParam(parameterIndex, OCCIBLOB);
         m_outputParamIndex.push_back(parameterIndex);
     } else
-        setBlobParameter(parameterIndex, (unsigned char*) parameter.getBuffer(), (unsigned) parameter.dataSize());
+        setBlobParameter(parameterIndex, parameter.getBuffer(), (unsigned) parameter.dataSize());
 }
 
 void OracleStatement::setCLOBParameterValue(unsigned int parameterIndex, const QueryParameter& parameter)
@@ -262,7 +262,7 @@ void OracleStatement::setCLOBParameterValue(unsigned int parameterIndex, const Q
         statement()->registerOutParam(parameterIndex, OCCICLOB);
         m_outputParamIndex.push_back(parameterIndex);
     } else
-        setClobParameter(parameterIndex, (unsigned char*) parameter.getBuffer(), (unsigned) parameter.dataSize());
+        setClobParameter(parameterIndex, parameter.getBuffer(), (unsigned) parameter.dataSize());
 }
 
 void OracleStatement::execBulk(bool inTransaction, bool lastIteration)
@@ -333,10 +333,7 @@ void OracleStatement::getBLOBOutputParameter(unsigned int index, DatabaseField* 
     blob.open(OCCI_LOB_READONLY);
     unsigned bytes = blob.length();
     field->checkSize(bytes);
-    blob.read(bytes,
-              (unsigned char*) field->getBuffer(),
-              bytes,
-              1);
+    blob.read(bytes, field->getBuffer(), bytes, 1);
     blob.close();
     field->setDataSize(bytes);
 }
@@ -349,10 +346,7 @@ void OracleStatement::getCLOBOutputParameter(unsigned int index, DatabaseField* 
     unsigned clobChars = clob.length();
     unsigned clobBytes = clobChars * 4;
     field->checkSize(clobBytes);
-    unsigned bytes = clob.read(clobChars,
-                               (unsigned char*) field->getBuffer(),
-                               clobBytes,
-                               1);
+    unsigned bytes = clob.read(clobChars, field->getBuffer(), clobBytes, 1);
     clob.close();
     field->setDataSize(bytes);
 }

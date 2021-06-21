@@ -29,52 +29,61 @@
 
 using namespace sptk;
 
-void CEditor::ctor_init() {
-   auto *buff = new Fl_Text_Buffer;
-   box(FL_THIN_DOWN_BOX);
-   buffer(buff);
-   m_lastCursorPosition = -1;
-   m_wrapMode = false;
+void CEditor::ctor_init()
+{
+    auto* buff = new Fl_Text_Buffer;
+    box(FL_THIN_DOWN_BOX);
+    buffer(buff);
+    m_lastCursorPosition = -1;
+    m_wrapMode = false;
 }
 
-CEditor::CEditor(int layoutSize,CLayoutAlign layoutAlign) 
-: Fl_Text_Editor(0,0,100,100), CLayoutClient(this,layoutSize,layoutAlign) {
-   ctor_init();
+CEditor::CEditor(int layoutSize, CLayoutAlign layoutAlign)
+    : Fl_Text_Editor(0, 0, 100, 100), CLayoutClient(this, layoutSize, layoutAlign)
+{
+    ctor_init();
 }
 
-#ifdef __COMPATIBILITY_MODE__    
+#ifdef __COMPATIBILITY_MODE__
 CEditor::CEditor(int x, int y, int w, int h, const char*l)
 : Fl_Text_Editor(x, y, w, h, l), CLayoutClient(this,w,SP_ALIGN_NONE) {
    ctor_init();
 }
 #endif
 
-CEditor::~CEditor() {
-   delete mBuffer;
-   mBuffer = nullptr;
+CEditor::~CEditor()
+{
+    delete mBuffer;
+    mBuffer = nullptr;
 }
 
-bool CEditor::preferredSize(int& w,int& h) {
-   if (h < 50) h = 50;
-   if (w < 50) w = 50;
-   return false;
+bool CEditor::preferredSize(int& w, int& h)
+{
+    if (h < 50)
+    { h = 50; }
+    if (w < 50)
+    { w = 50; }
+    return false;
 }
 
-void CEditor::cursorRowCol(int& row,int& col) {
-   position_to_linecol(mCursorPos, &row, &col);
+void CEditor::cursorRowCol(int& row, int& col)
+{
+    position_to_linecol(mCursorPos, &row, &col);
 }
 
-int CEditor::handle(int event) {
-   if ((event == FL_KEYUP || event == FL_RELEASE) && m_lastCursorPosition != mCursorPos) {
-      m_lastCursorPosition = mCursorPos;
-      do_callback();
-   }
-   return Fl_Text_Editor::handle(event);
+int CEditor::handle(int event)
+{
+    if ((event == FL_KEYUP || event == FL_RELEASE) && m_lastCursorPosition != mCursorPos)
+    {
+        m_lastCursorPosition = mCursorPos;
+        do_callback();
+    }
+    return Fl_Text_Editor::handle(event);
 }
 
-void CEditor::wrapMode(bool wm) {
-   m_wrapMode = wm;
-   wrap_mode(wm, 0);
-   maintain_absolute_top_line_number(wm);
+void CEditor::wrapMode(bool wm)
+{
+    m_wrapMode = wm;
+    wrap_mode(wm, 0);
+    maintain_absolute_top_line_number(wm);
 }
-

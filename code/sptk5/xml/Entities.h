@@ -30,8 +30,7 @@
 #include <map>
 #include <sptk5/RegularExpression.h>
 
-namespace sptk {
-namespace xml {
+namespace sptk::xml {
 
 /**
  * @addtogroup XML
@@ -94,5 +93,4 @@ public:
 /**
  * @}
  */
-}
 }

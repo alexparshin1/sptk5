@@ -33,20 +33,23 @@ using namespace sptk;
 using namespace oracle::occi;
 
 OracleConnection::OracleConnection(const String& connectionString)
-        : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE)
 {
 }
 
 OracleConnection::~OracleConnection()
 {
     try {
-        if (getInTransaction() && OracleConnection::active())
+        if (getInTransaction() && OracleConnection::active()) {
             rollbackTransaction();
+        }
         disconnectAllQueries();
         close();
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e) {
         CERR(e.what() << endl)
-    } catch (const SQLException& e) {
+    }
+    catch (const SQLException& e) {
         CERR(e.what() << endl)
     }
 }
@@ -55,15 +58,16 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
 {
     if (!active()) {
         setInTransaction(false);
-        if (newConnectionString.length())
+        if (newConnectionString.length()) {
             connectionString(DatabaseConnectionString(newConnectionString));
+        }
 
         Statement* createLOBtable = nullptr;
         try {
             m_connection = m_environment.createConnection(connectionString());
             createLOBtable = m_connection->createStatement();
             createLOBtable->setSQL(
-                    "CREATE GLOBAL TEMPORARY TABLE sptk_lobs (sptk_clob CLOB, sptk_blob BLOB) ON COMMIT DELETE ROWS");
+                "CREATE GLOBAL TEMPORARY TABLE sptk_lobs (sptk_clob CLOB, sptk_blob BLOB) ON COMMIT DELETE ROWS");
             createLOBtable->executeUpdate();
         }
         catch (const SQLException& e) {
@@ -93,9 +97,9 @@ void OracleConnection::closeDatabase()
     }
 }
 
-void* OracleConnection::handle() const
+PoolDatabaseConnection::DBHandle OracleConnection::handle() const
 {
-    return m_connection;
+    return (PoolDatabaseConnection::DBHandle) m_connection;
 }
 
 bool OracleConnection::active() const
@@ -109,17 +113,20 @@ String OracleConnection::nativeConnectionString() const
     stringstream connectionString;
     const DatabaseConnectionString& connString = PoolDatabaseConnection::connectionString();
     connectionString << connString.hostName();
-    if (connString.portNumber())
+    if (connString.portNumber()) {
         connectionString << ":" << connString.portNumber();
-    if (!connString.databaseName().empty())
+    }
+    if (!connString.databaseName().empty()) {
         connectionString << "/" << connString.databaseName();
+    }
     return connectionString.str();
 }
 
 void OracleConnection::driverBeginTransaction()
 {
-    if (!m_connection)
+    if (!m_connection) {
         open();
+    }
 
     if (getInTransaction()) throwOracleException("Transaction already started.")
 
@@ -135,7 +142,8 @@ void OracleConnection::driverEndTransaction(bool commit)
         if (commit) {
             action = "COMMIT";
             m_connection->commit();
-        } else {
+        }
+        else {
             action = "ROLLBACK";
             m_connection->rollback();
         }
@@ -176,8 +184,9 @@ void OracleConnection::queryCloseStmt(Query* query)
 {
     scoped_lock lock(m_mutex);
     auto* statement = (OracleStatement*) query->statement();
-    if (statement)
+    if (statement) {
         statement->close();
+    }
 }
 
 void OracleConnection::queryPrepare(Query* query)
@@ -185,15 +194,17 @@ void OracleConnection::queryPrepare(Query* query)
     scoped_lock lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
-    if (!statement)
+    if (!statement) {
         statement = new OracleStatement(this, query->sql());
+    }
     statement->enumerateParams(query->params());
     if (query->bulkMode()) {
         const CParamVector& enumeratedParams = statement->enumeratedParams();
         Statement* stmt = statement->stmt();
         const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
-        if (bulkInsertQuery == nullptr)
+        if (bulkInsertQuery == nullptr) {
             throw Exception("Not a bulk query");
+        }
         const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
         setMaxParamSizes(enumeratedParams, stmt, columnTypeSizes);
         stmt->setMaxIterations((unsigned) bulkInsertQuery->batchSize());
@@ -207,12 +218,14 @@ void OracleConnection::setMaxParamSizes(const CParamVector& enumeratedParams, St
 {
     unsigned paramIndex = 1;
     for (const auto* param: enumeratedParams) {
-        auto xtor = columnTypeSizes.find(upperCase(param->name()));
-        if (xtor != columnTypeSizes.end()) {
-            if (xtor->second.length)
+        if (auto xtor = columnTypeSizes.find(upperCase(param->name()));
+            xtor != columnTypeSizes.end()) {
+            if (xtor->second.length) {
                 stmt->setMaxParamSize(paramIndex, (unsigned) xtor->second.length);
-            else
+            }
+            else {
                 stmt->setMaxParamSize(paramIndex, 32);
+            }
         }
         ++paramIndex;
     }
@@ -228,8 +241,10 @@ int OracleConnection::queryColCount(Query* query)
     const auto* statement = (OracleStatement*) query->statement();
     if (statement == nullptr) {
         throwOracleException("Query not opened")
-    } else
+    }
+    else {
         return (int) statement->colCount();
+    }
 }
 
 void OracleConnection::queryBindParameters(Query* query)
@@ -237,8 +252,9 @@ void OracleConnection::queryBindParameters(Query* query)
     scoped_lock lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
-    if (!statement)
+    if (!statement) {
         throw DatabaseException("Query not prepared");
+    }
     try {
         statement->setParameterValues();
     }
@@ -306,15 +322,19 @@ void OracleConnection::queryExecute(Query* query)
 {
     try {
         auto* statement = (OracleStatement*) query->statement();
-        if (!statement)
+        if (!statement) {
             throw Exception("Query is not prepared");
+        }
         if (query->bulkMode()) {
             const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
-            if (bulkInsertQuery == nullptr)
+            if (bulkInsertQuery == nullptr) {
                 throw Exception("Query is not COracleBulkInsertQuery");
+            }
             statement->execBulk(getInTransaction(), bulkInsertQuery->lastIteration());
-        } else
+        }
+        else {
             statement->execute(getInTransaction());
+        }
     }
     catch (const SQLException& e) {
         throwOracleException(e.what())
@@ -323,17 +343,21 @@ void OracleConnection::queryExecute(Query* query)
 
 void OracleConnection::queryOpen(Query* query)
 {
-    if (!active())
+    if (!active()) {
         open();
+    }
 
-    if (query->active())
+    if (query->active()) {
         return;
+    }
 
-    if (!query->statement())
+    if (!query->statement()) {
         queryAllocStmt(query);
+    }
 
-    if (!query->prepared())
+    if (!query->prepared()) {
         queryPrepare(query);
+    }
 
     // Bind parameters also executes a query
     queryBindParameters(query);
@@ -341,11 +365,11 @@ void OracleConnection::queryOpen(Query* query)
     auto* statement = (OracleStatement*) query->statement();
 
     queryExecute(query);
-    int count = queryColCount(query);
-    if (count < 1) {
+    if (queryColCount(query) < 1) {
         statement->getOutputParameters(query->fields());
         return;
-    } else {
+    }
+    else {
         querySetActive(query, true);
         if (query->fieldCount() == 0) {
             scoped_lock lock(m_mutex);
@@ -373,8 +397,9 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
             snprintf(alias.data(), sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
             columnName = alias.data();
         }
-        if (columnType == OCCI_SQLT_LNG && columnDataSize == 0)
+        if (columnType == OCCI_SQLT_LNG && columnDataSize == 0) {
             resultSet->setMaxColumnSize(columnIndex + 1, 16384);
+        }
         VariantType dataType = OracleTypeToVariantType(columnType, columnScale);
         auto* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize,
                                         columnScale);
@@ -386,7 +411,7 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
 
 void OracleConnection::readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
-    int      year = 0;
+    int year = 0;
     unsigned month = 0;
     unsigned day = 0;
     unsigned hour = 0;
@@ -401,7 +426,7 @@ void OracleConnection::readTimestamp(ResultSet* resultSet, DatabaseField* field,
 
 void OracleConnection::readDate(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
-    int      year = 0;
+    int year = 0;
     unsigned month = 0;
     unsigned day = 0;
     unsigned hour = 0;
@@ -432,8 +457,9 @@ void OracleConnection::queryFetch(Query* query)
     }
 
     auto fieldCount = query->fieldCount();
-    if (!fieldCount)
+    if (!fieldCount) {
         return;
+    }
 
     ResultSet* resultSet = statement->resultSet();
     DatabaseField* field = nullptr;
@@ -456,10 +482,12 @@ void OracleConnection::queryFetch(Query* query)
                     break;
 
                 case Type(SQLT_NUM):
-                    if (field->dataType() == VAR_INT)
+                    if (field->dataType() == VAR_INT) {
                         field->setInteger(resultSet->getInt(columnIndex));
-                    else
+                    }
+                    else {
                         field->setFloat(resultSet->getFloat(columnIndex));
+                    }
                     break;
 
                 case Type(SQLT_FLT):
@@ -514,10 +542,7 @@ void OracleConnection::readCLOB(ResultSet* resultSet, DatabaseField* field, unsi
     unsigned clobChars = clob.length();
     unsigned clobBytes = clobChars * 4;
     field->checkSize(clobBytes);
-    unsigned bytes = clob.read(clobChars,
-                               (unsigned char*) field->getBuffer(),
-                               clobBytes,
-                               1);
+    unsigned bytes = clob.read(clobChars, field->getBuffer(), clobBytes, 1);
     clob.close();
     field->setDataSize(bytes);
     field->getBuffer()[bytes] = 0;
@@ -529,10 +554,7 @@ void OracleConnection::readBLOB(ResultSet* resultSet, DatabaseField* field, unsi
     blob.open(OCCI_LOB_READONLY);
     unsigned bytes = blob.length();
     field->checkSize(bytes);
-    blob.read(bytes,
-              (unsigned char*) field->getBuffer(),
-              bytes,
-              1);
+    blob.read(bytes, field->getBuffer(), bytes, 1);
     blob.close();
     field->setDataSize(bytes);
 }
@@ -542,16 +564,16 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     string objectsSQL;
     objects.clear();
     switch (objectType) {
-        case DOT_PROCEDURES:
+        case DatabaseObjectType::PROCEDURES:
             objectsSQL = "SELECT object_name FROM user_procedures";
             break;
-        case DOT_FUNCTIONS:
+        case DatabaseObjectType::FUNCTIONS:
             objectsSQL = "SELECT object_name FROM user_functions";
             break;
-        case DOT_TABLES:
+        case DatabaseObjectType::TABLES:
             objectsSQL = "SELECT table_name FROM user_tables";
             break;
-        case DOT_VIEWS:
+        case DatabaseObjectType::VIEWS:
             objectsSQL = "SELECT view_name FROM user_views";
             break;
         default:
@@ -585,14 +607,16 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
     if (schema.empty()) {
         // User' database table
         columnsInfoSQL << "user_tab_columns WHERE table_name = :table_name";
-    } else {
+    }
+    else {
         columnsInfoSQL << "all_tab_columns WHERE owner = :schema AND table_name = :table_name";
     }
 
     Query tableColumnsQuery(this, columnsInfoSQL.str());
     tableColumnsQuery.param("table_name") = upperCase(tableName);
-    if (!schema.empty())
+    if (!schema.empty()) {
         tableColumnsQuery.param("schema") = schema;
+    }
     tableColumnsQuery.open();
     const Field& column_name = tableColumnsQuery["column_name"];
     const Field& data_type = tableColumnsQuery["data_type"];
@@ -608,10 +632,13 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
         if (columnType.find("LOB") != string::npos) {
             columnTypeSize.type = VAR_TEXT;
             columnTypeSize.length = 65536;
-        } else if (columnType.find("CHAR") != string::npos)
+        }
+        else if (columnType.find("CHAR") != string::npos) {
             columnTypeSize.length = maxDataLength;
-        else if (columnType.find("TIMESTAMP") != string::npos)
+        }
+        else if (columnType.find("TIMESTAMP") != string::npos) {
             columnTypeSize.type = VAR_DATE_TIME;
+        }
         columnTypeSizeMap[columnName] = columnTypeSize;
         tableColumnsQuery.fetch();
     }
@@ -621,7 +648,7 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
     for (const auto& columnName: columnNames) {
         auto column = columnTypeSizeMap.find(upperCase(columnName));
         if (column == columnTypeSizeMap.end()) throwDatabaseException(
-                "Column '" << columnName << "' doesn't belong to table " << tableName)
+            "Column '" << columnName << "' doesn't belong to table " << tableName)
         columnTypeSizeVector.push_back(column->second);
     }
 
@@ -643,10 +670,12 @@ void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
         auto& value = row[i];
         switch (columnTypeSizeVector[i].type) {
             case VAR_TEXT:
-                if (value.dataSize())
-                    insertQuery.param(i).setBuffer(value.getText(), value.dataSize(), VAR_TEXT);
-                else
+                if (value.dataSize()) {
+                    insertQuery.param(i).setBuffer((const uint8_t*) value.getText(), value.dataSize(), VAR_TEXT);
+                }
+                else {
                     insertQuery.param(i).setNull(VAR_TEXT);
+                }
                 break;
             case VAR_DATE_TIME:
                 insertQuery.param(i).setDateTime(value.getDateTime());
@@ -684,19 +713,23 @@ void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors
     bool routineStarted = false;
     for (const auto& arow: sqlBatch) {
         String row = trim(arow);
-        if (row.empty() || matchCommentRow.matches(row))
+        if (row.empty() || matchCommentRow.matches(row)) {
             continue;
+        }
 
         if (!routineStarted) {
             row = trim(row);
-            if (row.empty())
+            if (row.empty()) {
                 continue;
-            if (matchShowErrors.matches(row))
+            }
+            if (matchShowErrors.matches(row)) {
                 continue;
+            }
         }
 
-        if (matchRoutineStart.matches(row))
+        if (matchRoutineStart.matches(row)) {
             routineStarted = true;
+        }
 
         if (!routineStarted && matchStatementEnd.matches(row)) {
             row = matchStatementEnd.s(row, "");
@@ -716,8 +749,9 @@ void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors
         statement += row + "\n";
     }
 
-    if (!trim(statement).empty())
+    if (!trim(statement).empty()) {
         statements.push_back(statement);
+    }
 
     executeMultipleStatements(statements, errors);
 }
@@ -730,16 +764,20 @@ void OracleConnection::executeMultipleStatements(const Strings& statements, Stri
             query.exec();
         }
         catch (const Exception& e) {
-            if (errors)
+            if (errors) {
                 errors->push_back(e.what() + String(": ") + stmt);
-            else
+            }
+            else {
                 throw;
+            }
         }
         catch (const SQLException& e) {
-            if (errors)
+            if (errors) {
                 errors->push_back(e.what() + String(": ") + stmt);
-            else
+            }
+            else {
                 throw;
+            }
         }
     }
 }

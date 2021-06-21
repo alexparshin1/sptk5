@@ -32,7 +32,8 @@ using namespace sptk;
 String InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const String& sql,
                                 const String& idFieldName)
 {
-    switch (connectionType) {
+    switch (connectionType)
+    {
         case DatabaseConnectionType::POSTGRES:
             return sql + " RETURNING " + idFieldName;
         case DatabaseConnectionType::ORACLE:
@@ -44,53 +45,58 @@ String InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const Str
 }
 
 InsertQuery::InsertQuery(DatabaseConnection db, const String& sql, const String& idFieldName)
-: Query(db, reviewQuery(db->connectionType(), sql, idFieldName), true), m_idFieldName(idFieldName)
+    : Query(db, reviewQuery(db->connectionType(), sql, idFieldName), true), m_idFieldName(idFieldName)
 {
 }
 
 void InsertQuery::sql(const String& _sql)
 {
     if (!database())
-        throwException("Database connection is not defined yet")
+    throwException("Database connection is not defined yet")
     Query::sql(reviewQuery(database()->connectionType(), _sql, m_idFieldName));
 }
 
 void InsertQuery::exec()
 {
     m_id = 0;
-    switch ( database()->connectionType() ) {
+    switch (database()->connectionType())
+    {
 
-    case DatabaseConnectionType::ORACLE:
-        param("last_id").setOutput();
-        param("last_id").setNull(VAR_INT);
-        open();
-        m_id = (uint64_t) (*this)[0].asInteger();
-        close();
-        break;
+        case DatabaseConnectionType::ORACLE:
+            param("last_id").setOutput();
+            param("last_id").setNull(VAR_INT);
+            open();
+            m_id = (uint64_t) (*this)[0].asInteger();
+            close();
+            break;
 
-    case DatabaseConnectionType::POSTGRES:
-        open();
-        m_id = (uint64_t) (*this)[0].asInteger();
-        close();
-        break;
+        case DatabaseConnectionType::POSTGRES:
+            open();
+            m_id = (uint64_t) (*this)[0].asInteger();
+            close();
+            break;
 
-    case DatabaseConnectionType::MYSQL:
-        Query::exec();
-        if (!m_lastInsertedId)
-            m_lastInsertedId = make_shared<Query>(database(),"SELECT LAST_INSERT_ID()");
-        m_lastInsertedId->open();
-        m_id = (uint64_t) (*m_lastInsertedId)[0].asInteger();
-        m_lastInsertedId->close();
-        break;
-    case DatabaseConnectionType::MSSQL_ODBC:
-        Query::exec();
-        if (!m_lastInsertedId)
-            m_lastInsertedId = make_shared<Query>(database(),"SELECT @@IDENTITY");
-        m_lastInsertedId->open();
-        m_id = (uint64_t) (*m_lastInsertedId)[0].asInteger();
-        m_lastInsertedId->close();
-        break;
-    default:
+        case DatabaseConnectionType::MYSQL:
+            Query::exec();
+            if (!m_lastInsertedId)
+            {
+                m_lastInsertedId = make_shared<Query>(database(), "SELECT LAST_INSERT_ID()");
+            }
+            m_lastInsertedId->open();
+            m_id = (uint64_t) (*m_lastInsertedId)[0].asInteger();
+            m_lastInsertedId->close();
+            break;
+        case DatabaseConnectionType::MSSQL_ODBC:
+            Query::exec();
+            if (!m_lastInsertedId)
+            {
+                m_lastInsertedId = make_shared<Query>(database(), "SELECT @@IDENTITY");
+            }
+            m_lastInsertedId->open();
+            m_id = (uint64_t) (*m_lastInsertedId)[0].asInteger();
+            m_lastInsertedId->close();
+            break;
+        default:
         throwException ("Unsupported database connection type")
     }
 }

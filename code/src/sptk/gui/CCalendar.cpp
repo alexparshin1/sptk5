@@ -35,18 +35,18 @@ using namespace std;
 using namespace sptk;
 
 static const char* monthDayLabels[31] = {
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-        "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
-        "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
-        "31"
+    "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+    "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
+    "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
+    "31"
 };
 
 static const char* switchLabels[4] = {
-        "@<<", "@<", "@>", "@>>"
+    "@<<", "@<", "@>", "@>>"
 };
 
 static const int64_t monthChanges[4] = {
-        -12, -1, 1, 12
+    -12, -1, 1, 12
 };
 
 // Callback function for day buttons
@@ -54,22 +54,26 @@ void CCalendar::cbDayButtonClicked(Fl_Widget* button, void* param)
 {
     Fl_Group* buttonBox = button->parent();
     auto* calendar = dynamic_cast<CCalendar*>(buttonBox->parent());
-    if (!calendar) return;
-    calendar->dayButtonClicked((uint32_t)(uint64_t) param);
+    if (!calendar)
+    { return; }
+    calendar->dayButtonClicked((uint32_t) (uint64_t) param);
 }
 
 // Callback function for switch buttons
 void CCalendar::cbSwitchButtonClicked(Fl_Widget* button, void* param)
 {
     auto* calendar = dynamic_cast<CCalendar*>(button->parent());
-    if (!calendar) return;
-    calendar->switchButtonClicked((uint32_t)(uint64_t) param);
+    if (!calendar)
+    { return; }
+    calendar->switchButtonClicked((uint32_t) (uint64_t) param);
 }
 
 void CCalendar::dayButtonClicked(uint32_t day)
 {
-    if (day < 1 || day > 31) return;
-    if (m_activeButtonIndex > -1) {
+    if (day < 1 || day > 31)
+    { return; }
+    if (m_activeButtonIndex > -1)
+    {
         Fl_Button* btn = m_dayButtons[m_activeButtonIndex];
         btn->box(FL_THIN_UP_BOX);
         btn->color(fl_lighter(color()));
@@ -84,7 +88,8 @@ void CCalendar::dayButtonClicked(uint32_t day)
 
     // Check if this calendar is on a popup-window
     auto* w = dynamic_cast<CPopupCalendar*>(btn->window());
-    if (w) {
+    if (w)
+    {
         w->clicked();
         w->hide();
     }
@@ -99,21 +104,26 @@ void CCalendar::switchButtonClicked(int32_t monthChange)
     short yday;
     m_date.decodeDate(&year, &month, &day, &wday, &yday);
     month += (short) monthChange;
-    if (month < 1) {
+    if (month < 1)
+    {
         month += 12;
         year--;
     }
-    if (month > 12) {
+    if (month > 12)
+    {
         month -= 12;
         year++;
     }
-    while (day > 0) {
-        try {
+    while (day > 0)
+    {
+        try
+        {
             DateTime newDate(year, month, day);
             date(newDate);
             break;
         }
-        catch (const Exception&) {
+        catch (const Exception&)
+        {
             day--;
         }
     }
@@ -138,14 +148,17 @@ void CCalendar::ctor_init()
 
     // Weekday headers
     unsigned i;
-    for (i = 0; i < 7; i++) {
+    for (i = 0; i < 7; i++)
+    {
         auto* label = m_weekDayLabels + uint64_t(i * 2);
-        label[0] = DateTime::format(DateTime::Format::WEEKDAY_NAME,i).c_str()[0];
+        label[0] = DateTime::format(DateTime::Format::WEEKDAY_NAME, i).c_str()[0];
         label[1] = 0;
         m_dayNameBoxes[i] = new Fl_Box(xx + i * 16, yy + 16, 16, 16, label);
         m_dayNameBoxes[i]->box(FL_THIN_UP_BOX);
         if (i == 0 || i == 6)
+        {
             m_dayNameBoxes[i]->labelcolor(FL_RED);
+        }
     }
     m_headerBox->end();
 
@@ -153,17 +166,19 @@ void CCalendar::ctor_init()
     m_buttonBox = new Fl_Group(xx, yy + 32, ww, 64);
     m_buttonBox->box(FL_FLAT_BOX);
     m_buttonBox->color(fl_darker(FL_GRAY));
-    for (i = 0; i < 31; i++) {
+    for (i = 0; i < 31; i++)
+    {
         auto* btn = new Fl_Button(xx, yy, 16, 16, monthDayLabels[i]);
         m_dayButtons[i] = btn;
-        btn->callback(cbDayButtonClicked, (void*)uint64_t(i + 1));
+        btn->callback(cbDayButtonClicked, (void*) uint64_t(i + 1));
         btn->color(fl_lighter(fl_lighter(color())));
         btn->box(FL_THIN_UP_BOX);
     }
     m_buttonBox->end();
 
     // Switch buttons, correct positions are set by resize()
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < 4; i++)
+    {
         m_switchButtons[i] = new Fl_Button(xx, yy, 16, 16, switchLabels[i]);
         m_switchButtons[i]->box(FL_THIN_UP_BOX);
         m_switchButtons[i]->labelcolor(fl_darker(FL_GREEN));
@@ -175,13 +190,13 @@ void CCalendar::ctor_init()
 }
 
 CCalendar::CCalendar(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : Fl_Group(0, 0, 10, 10, label), CLayoutClient(this, layoutSize, layoutAlignment)
+    : Fl_Group(0, 0, 10, 10, label), CLayoutClient(this, layoutSize, layoutAlignment)
 {
     ctor_init();
 }
 
 CCalendar::CCalendar(int x, int y, int w, int h, const char* lbl)
-        : Fl_Group(x, y, w, h, lbl), CLayoutClient(this, w, SP_ALIGN_NONE)
+    : Fl_Group(x, y, w, h, lbl), CLayoutClient(this, w, SP_ALIGN_NONE)
 {
     ctor_init();
 }
@@ -201,7 +216,9 @@ void CCalendar::resize(int xx, int yy, int ww, int hh)
 
     unsigned i;
     for (i = 0; i < 7; i++)
+    {
         m_dayNameBoxes[i]->resize(xx + i * bw, yy + bh, bw, bh);
+    }
 
     // compute the month start date
     short year;
@@ -211,7 +228,9 @@ void CCalendar::resize(int xx, int yy, int ww, int hh)
     short yday;
 
     if (m_date.zero())
+    {
         m_date = DateTime::Now();
+    }
     m_date.decodeDate(&year, &month, &day, &wday, &yday);
     DateTime monthDate(year, month, 1);
     m_headerLabel = monthDate.monthName() + ", " + int2string(year);
@@ -222,17 +241,22 @@ void CCalendar::resize(int xx, int yy, int ww, int hh)
     int dayOffset = monthDate.dayOfWeek() - 1;
     int daysInMonth = monthDate.daysInMonth();
     int weekOffset = bh * 2;
-    for (i = 0; i < 31; i++) {
+    for (i = 0; i < 31; i++)
+    {
         Fl_Button* btn = m_dayButtons[i];
         btn->resize(xx + dayOffset * bw, yy + weekOffset, bw, bh);
         dayOffset++;
-        if ((int) i < daysInMonth) {
-            if (dayOffset > 6) {
+        if ((int) i < daysInMonth)
+        {
+            if (dayOffset > 6)
+            {
                 dayOffset = 0;
                 weekOffset += bh;
             }
             btn->show();
-        } else btn->hide();
+        }
+        else
+        { btn->hide(); }
     }
 
     // last visible button
@@ -241,20 +265,27 @@ void CCalendar::resize(int xx, int yy, int ww, int hh)
 
     bw = bw * 3 / 2;
     for (i = 0; i < 2; i++)
+    {
         m_switchButtons[i]->resize(xx + i * bw, sby, bw, bh);
+    }
 
     int x1 = xx + ww - bw * 2;
     for (i = 2; i < 4; i++)
+    {
         m_switchButtons[i]->resize(x1 + (i - 2) * bw, sby, bw, bh);
+    }
 
     // Check if this calendar is on a popup-window
     btn = m_switchButtons[3];
     auto* pcw = dynamic_cast<CPopupCalendar*>(btn->window());
-    if (pcw) {
+    if (pcw)
+    {
         int requiredWidth = ww + 4;
         int requiredHeight = sby + bh + 3 - yy;
         if (pcw->h() != requiredHeight || pcw->w() != requiredWidth)
+        {
             pcw->size(requiredWidth, requiredHeight);
+        }
     }
 }
 
@@ -275,7 +306,9 @@ DateTime CCalendar::date() const
 
     m_date.decodeDate(&year, &month, &day, &wday, &yday);
     if (m_activeButtonIndex > -1)
+    {
         day = short(m_activeButtonIndex + 1);
+    }
 
     return DateTime(year, month, day);
 }
@@ -288,13 +321,14 @@ int CCalendar::maxHeight() const
 void CCalendar::autoHeight(int minHeight)
 {
     int height = maxHeight();
-    if (height < minHeight) height = minHeight;
+    if (height < minHeight)
+    { height = minHeight; }
     resize(x(), y(), w(), height);
 }
 
 //------------------------------------------------------------------------------------------------------
 CPopupCalendar::CPopupCalendar(Fl_Widget* dateControl)
-: CPopupWindow(100, 140, "Calendar"), m_dateControl(dateControl)
+    : CPopupWindow(100, 140, "Calendar"), m_dateControl(dateControl)
 {
     box(FL_UP_BOX);
     m_calendar = new CCalendar(0, 0, 100, 100);
@@ -310,7 +344,8 @@ void CPopupCalendar::resize(int xx, int yy, int ww, int hh)
 bool CPopupCalendar::showModal()
 {
     bool rc = false;
-    if (m_dateControl) {
+    if (m_dateControl)
+    {
         int width = 175;
         resize(m_dateControl->x() + m_dateControl->w() - width + m_dateControl->window()->x(),
                m_dateControl->y() + m_dateControl->window()->y() + m_dateControl->h() - 1,
@@ -324,9 +359,13 @@ bool CPopupCalendar::showModal()
 int CPopupCalendar::handle(int event)
 {
     int rc = CPopupWindow::handle(event);
-    if (rc) return rc;
+    if (rc)
+    { return rc; }
 
     if (event != FL_DRAG)
+    {
         return m_calendar->handle(event);
-    else return Fl_Widget::handle(event);
+    }
+    else
+    { return Fl_Widget::handle(event); }
 }

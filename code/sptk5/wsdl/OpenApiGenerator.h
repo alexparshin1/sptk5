@@ -40,10 +40,11 @@ public:
     /**
      * Authentication method
      */
-    enum AuthMethod {
-        AM_NONE,        ///< No authentication
-        AM_BASIC,       ///< Authorization: Basic ZGVtbzpwQDU1dzByZA==
-        AM_BEARER       ///< Authorization: Bearer <token>
+    enum class AuthMethod: uint8_t
+    {
+        NONE,        ///< No authentication
+        BASIC,       ///< Authorization: Basic ZGVtbzpwQDU1dzByZA==
+        BEARER       ///< Authorization: Bearer <token>
     };
 
     /**
@@ -54,7 +55,7 @@ public:
         /**
          * Default authentication method, used by most operations
          */
-        AuthMethod                  defaultAuthMethod { AM_BEARER };
+        AuthMethod                  defaultAuthMethod { AuthMethod::BEARER };
 
         /**
          * Authentication method, in format: Operation name -> Auth method

@@ -132,7 +132,7 @@ public:
     /**
      * Node type enumeration
      */
-    enum NodeType
+    enum class Type: uint8_t
     {
         DOM_UNDEFINED = 0,      ///< Type isn't defined yet
         DOM_DOCUMENT = 1,       ///< Document node
@@ -252,7 +252,7 @@ public:
     /**
      * Returns node type
      */
-    virtual NodeType type() const = 0;
+    virtual Type type() const = 0;
 
     /**
      * Returns the node namespace.
@@ -275,7 +275,7 @@ public:
      */
     bool isDocument() const
     {
-        return type() == DOM_DOCUMENT;
+        return type() == Type::DOM_DOCUMENT;
     }
 
     /**
@@ -283,7 +283,7 @@ public:
      */
     bool isElement() const
     {
-        return (type() & (DOM_ELEMENT | DOM_DOCUMENT)) != 0;
+        return ((int)type() & ((int)Type::DOM_ELEMENT | (int)Type::DOM_DOCUMENT)) != 0;
     }
 
     /**
@@ -291,7 +291,7 @@ public:
      */
     bool isPI() const
     {
-        return type() == DOM_PI;
+        return type() == Type::DOM_PI;
     }
 
     /**
@@ -299,7 +299,7 @@ public:
      */
     bool isText() const
     {
-        return type() == DOM_TEXT;
+        return type() == Type::DOM_TEXT;
     }
 
     /**
@@ -307,7 +307,7 @@ public:
      */
     bool isCDataSection() const
     {
-        return type() == DOM_CDATA_SECTION;
+        return type() == Type::DOM_CDATA_SECTION;
     }
 
     /**
@@ -315,7 +315,7 @@ public:
      */
     bool isComment() const
     {
-        return type() == DOM_COMMENT;
+        return type() == Type::DOM_COMMENT;
     }
 
 protected:
@@ -651,10 +651,7 @@ public:
         NamedItem::name(tagname);
     }
 
-    NamedItem(const NamedItem&) = default;
-    NamedItem(NamedItem&&) noexcept = default;
-    NamedItem& operator = (const NamedItem&) = default;
-    NamedItem& operator = (NamedItem&&) noexcept = default;
+    using Node::Node;
 
     /**
      * Constructor
@@ -707,9 +704,9 @@ public:
     /**
      * Returns node type
      */
-    NodeType type() const override
+    Type type() const override
     {
-        return DOM_ATTRIBUTE;
+        return Type::DOM_ATTRIBUTE;
     }
 
 protected:
@@ -747,6 +744,15 @@ public:
      */
     BaseTextNode(Node* parent, const char* data)
     : Node(*parent, true)
+    {
+        BaseTextNode::value(data);
+    }
+
+    /**
+     * Constructor
+     */
+    BaseTextNode(Node& parent, const String& data)
+    : Node(parent, true)
     {
         BaseTextNode::value(data);
     }
@@ -856,16 +862,16 @@ public:
     /**
      * Returns node type
      */
-    virtual NodeType type() const
+    Type type() const override
     {
-        return DOM_TEXT;
+        return Type::DOM_TEXT;
     }
 
 protected:
     /**
      * returns node name
      */
-    virtual String nodeName() const;
+    String nodeName() const override;
 };
 
 /**
@@ -910,16 +916,16 @@ public:
     /**
      * Returns node type
      */
-    virtual NodeType type() const
+    Type type() const override
     {
-        return DOM_COMMENT;
+        return Type::DOM_COMMENT;
     }
 
 protected:
     /**
      * returns node name
      */
-    virtual String nodeName() const;
+    String nodeName() const override;
 };
 
 /**
@@ -928,45 +934,15 @@ protected:
 class SP_EXPORT CDataSection : public BaseTextNode
 {
 public:
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node.
-     * @param data              Data
-     */
-    CDataSection(Node& parent, const char* data)
-    : BaseTextNode(&parent, data)
-    {
-    }
 
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node.
-     * @param data              Data
-     */
-    CDataSection(Node* parent, const char* data)
-    : BaseTextNode(parent, data)
-    {
-    }
-
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node.
-     * @param data              Data
-     */
-    CDataSection(Node& parent, const String& data)
-    : BaseTextNode(&parent, data.c_str())
-    {
-    }
+    using BaseTextNode::BaseTextNode;
 
     /**
      * Returns node type
      */
-    NodeType type() const override
+    Type type() const override
     {
-        return DOM_CDATA_SECTION;
+        return Type::DOM_CDATA_SECTION;
     }
 
 protected:

@@ -31,7 +31,7 @@ using namespace std;
 using namespace sptk;
 
 HttpAuthentication::HttpAuthentication(String authenticationHeader)
-: m_authenticationHeader(std::move(authenticationHeader))
+    : m_authenticationHeader(std::move(authenticationHeader))
 {
 }
 
@@ -39,7 +39,8 @@ const json::Element& HttpAuthentication::getData()
 {
     parse();
 
-    switch (m_type) {
+    switch (m_type)
+    {
         case Type::EMPTY:
         case Type::BASIC:
             return m_userData->root();
@@ -57,25 +58,34 @@ String HttpAuthentication::getHeader() const
 
 void HttpAuthentication::parse()
 {
-    if (m_type == Type::UNDEFINED) {
-        if (m_authenticationHeader.empty()) {
+    if (m_type == Type::UNDEFINED)
+    {
+        if (m_authenticationHeader.empty())
+        {
             m_userData = make_shared<json::Document>();
             m_type = Type::EMPTY;
-        } else if (m_authenticationHeader.toLowerCase().startsWith("basic ")) {
+        }
+        else if (m_authenticationHeader.toLowerCase().startsWith("basic "))
+        {
             Buffer encoded(m_authenticationHeader.substr(6));
             Buffer decoded;
             Base64::decode(decoded, encoded);
             Strings usernameAndPassword(decoded.c_str(), ":");
             if (usernameAndPassword.size() != 2)
+            {
                 throw Exception("Invalid or unsupported 'Authentication' header format");
+            }
             auto xuserData = make_shared<json::Document>();
             xuserData->root()["username"] = usernameAndPassword[0];
             xuserData->root()["password"] = usernameAndPassword[1];
             m_userData = xuserData;
             m_type = Type::BASIC;
-        } else {
+        }
+        else
+        {
             String authMethod = m_authenticationHeader.substr(0, 6);
-            if (authMethod.toLowerCase() == "bearer") {
+            if (authMethod.toLowerCase() == "bearer")
+            {
                 auto xjwtData = make_shared<JWT>();
                 xjwtData->decode(m_authenticationHeader.substr(7).c_str());
                 m_jwtData = xjwtData;

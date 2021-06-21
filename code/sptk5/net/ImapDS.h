@@ -28,7 +28,6 @@
 
 #include <sptk5/MemoryDS.h>
 #include <sptk5/net/ImapConnect.h>
-#include <string>
 
 namespace sptk
 {
@@ -59,14 +58,6 @@ public:
     using MemoryDS::MemoryDS;
 
     /**
-     * Destructor
-     */
-    ~ImapDS() override
-    {
-        MemoryDS::close();
-    }
-
-    /**
      * Set IMAP host
      */
     void host(const Host& host)
@@ -85,7 +76,7 @@ public:
     /**
      * IMAP user name
      */
-    void user(const std::string& usr)
+    void user(const String& usr)
     {
         m_user = usr;
     }
@@ -93,7 +84,7 @@ public:
     /**
      * IMAP user name
      */
-    const std::string& user() const
+    const String& user() const
     {
         return m_user;
     }
@@ -101,7 +92,7 @@ public:
     /**
      * IMAP user password
      */
-    void password(const std::string& pwd)
+    void password(const String& pwd)
     {
         m_password = pwd;
     }
@@ -109,7 +100,7 @@ public:
     /**
      * IMAP user password
      */
-    const std::string& password() const
+    const String& password() const
     {
         return m_password;
     }
@@ -117,7 +108,7 @@ public:
     /**
      * IMAP folder name
      */
-    void folder(const std::string& d)
+    void folder(const String& d)
     {
         m_folder = d;
     }
@@ -125,7 +116,7 @@ public:
     /**
      * IMAP folder name
      */
-    const std::string& folder() const
+    const String& folder() const
     {
         return m_folder;
     }
@@ -182,13 +173,13 @@ public:
 
 private:
 
-    ImapConnect         m_imap;     ///< IMAP socket connector
-    std::string         m_folder;   ///< IMAP folder name
-    std::string         m_user;     ///< IMAP user name
-    std::string         m_password; ///< IMAP user password
-    bool                m_fetchbody {false}; ///< Do we want to fetch the message headers AND message body?
-    ProgressCallback    m_callback {nullptr}; ///< Internal prograssion callback for open()
-    int                 m_msgid {0};    ///< Internal message ID
+    ImapConnect         m_imap;                 ///< IMAP socket connector
+    String              m_folder;               ///< IMAP folder name
+    String              m_user;                 ///< IMAP user name
+    String              m_password;             ///< IMAP user password
+    bool                m_fetchbody {false};    ///< Do we want to fetch the message headers AND message body?
+    ProgressCallback    m_callback {nullptr};   ///< Internal prograssion callback for open()
+    int                 m_msgid {0};            ///< Internal message ID
 };
 /**
  * @}

@@ -36,6 +36,7 @@
 #endif
 
 #if USE_GTEST
+
 #include <sptk5/md5.h>
 #include <filesystem>
 
@@ -46,20 +47,20 @@ using namespace sptk;
 
 using CMemOpenCallback = int (*)(const char*, int, ...);
 using CMemCloseCallback = int (*)(int);
-using CMemReadCallback = int (*)(int, uint8_t *, size_t);
-using CMemWriteCallback = int (*)(int, const uint8_t *, size_t);
+using CMemReadCallback = int (*)(int, uint8_t*, size_t);
+using CMemWriteCallback = int (*)(int, const uint8_t*, size_t);
 
 #ifdef _MSC_VER
 #define lseek _lseek
 #endif
 
 static const tartype_t memtype
-{
-    (CMemOpenCallback) Tar::mem_open,
-    (CMemCloseCallback) Tar::mem_close,
-    (CMemReadCallback) Tar::mem_read,
-    (CMemWriteCallback) Tar::mem_write
-};
+    {
+        (CMemOpenCallback) Tar::mem_open,
+        (CMemCloseCallback) Tar::mem_close,
+        (CMemReadCallback) Tar::mem_read,
+        (CMemWriteCallback) Tar::mem_write
+    };
 
 int            Tar::lastTarHandle;
 TarHandleMap   Tar::tarHandleMap;
@@ -68,7 +69,9 @@ MemoryTarHandle* Tar::tarMemoryHandle(int handle)
 {
     auto itor = tarHandleMap.find(handle);
     if (itor == tarHandleMap.end())
+    {
         return nullptr;
+    }
     return itor->second.get();
 }
 
@@ -83,7 +86,9 @@ int Tar::mem_close(int handle)
 {
     auto itor = tarHandleMap.find(handle);
     if (itor == tarHandleMap.end())
+    {
         return -1;
+    }
     tarHandleMap.erase(itor);
     return 0;
 }
@@ -91,11 +96,16 @@ int Tar::mem_close(int handle)
 int Tar::mem_read(int x, uint8_t* buf, size_t len)
 {
     MemoryTarHandle* memHandle = tarMemoryHandle(x);
-    if (memHandle == nullptr) return -1;
+    if (memHandle == nullptr)
+    { return -1; }
     if (memHandle->position + len > memHandle->sourceBufferLen)
+    {
         len = memHandle->sourceBufferLen - memHandle->position;
+    }
     if (buf != nullptr)
+    {
         memcpy(buf, memHandle->sourceBuffer + memHandle->position, len);
+    }
     memHandle->position += (uint32_t) len;
     return (int) len;
 }
@@ -110,22 +120,26 @@ bool Tar::loadFile()
     auto* tar = m_tar.get();
     // Read file header
     int rc = th_read(tar);
-    if (rc > 0) return false; // End of archive
+    if (rc > 0)
+    { return false; } // End of archive
     if (rc < 0) throwError(m_fileName);
 
     constexpr int MAX_PATH_LENGTH = 1024;
-    array<char, MAX_PATH_LENGTH> path {};
+    array<char, MAX_PATH_LENGTH> path{};
     th_get_pathname(tar, path.data(), sizeof(path));
     String fileName(path.data());
 
-    if (auto fileSize = (uint32_t) th_get_size(tar); fileSize != 0) {
+    if (auto fileSize = (uint32_t) th_get_size(tar); fileSize != 0)
+    {
         Buffer buffer(size_t(fileSize) + 1);
-        auto* buf = (uint8_t*) buffer.data();
+        auto* buf = buffer.data();
 
         uint32_t offset = 0;
-        while (offset != fileSize) {
+        while (offset != fileSize)
+        {
             int k = tar->type->readfunc((int) tar->fd, buf + offset, unsigned(fileSize - offset));
-            if (k < 0) {
+            if (k < 0)
+            {
                 throw Exception("Error reading file '" + fileName + "' from tar archive");
             }
             offset += unsigned(k);
@@ -138,9 +152,12 @@ bool Tar::loadFile()
 
         auto emptyTail = off_t(T_BLOCKSIZE - fileSize % T_BLOCKSIZE);
         array<char, T_BLOCKSIZE> buff;
-        if (m_memoryRead) {
+        if (m_memoryRead)
+        {
             mem_read((int) tar->fd, nullptr, size_t(emptyTail));
-        } else {
+        }
+        else
+        {
             if (::read((int) tar->fd, buff.data(), size_t(emptyTail)) == -1)
                 throwError(m_fileName);
         }
@@ -152,7 +169,9 @@ void Tar::throwError(const String& fileName)
 {
     const char* ptr = strerror(errno);
     if (fileName.empty())
+    {
         throw Exception(ptr);
+    }
     throw Exception(fileName + ": " + string(ptr));
 }
 
@@ -162,7 +181,8 @@ void Tar::read(const char* fileName)
     m_memoryRead = false;
     clear();
     m_tar = tar_open(fileName, nullptr, 0, 0, TAR_GNU);
-    while (loadFile()) ;
+    while (loadFile())
+    {}
     m_tar.reset();
 }
 
@@ -173,13 +193,15 @@ void Tar::read(const Buffer& tarData)
     clear();
     m_tar = tar_open("memory", &memtype, 0, 0, TAR_GNU);
     auto* memHandle = tarMemoryHandle((int) m_tar->fd);
-    if (memHandle == nullptr) {
+    if (memHandle == nullptr)
+    {
         m_tar.reset();
         throw Exception("Can't open the archive", __FILE__, __LINE__);
     }
-    memHandle->sourceBuffer = (char*)tarData.data();
+    memHandle->sourceBuffer = (char*) tarData.data();
     memHandle->sourceBufferLen = tarData.bytes();
-    while (loadFile()) ;
+    while (loadFile())
+    {}
     m_tar.reset();
 }
 
@@ -194,7 +216,9 @@ const Buffer& Tar::file(const String& fileName) const
 {
     auto itor = m_files.find(fileName);
     if (itor == m_files.end())
+    {
         throw Exception("File '" + fileName + "' isn't found", __FILE__, __LINE__);
+    }
     return itor->second;
 }
 
@@ -213,14 +237,16 @@ TEST(SPTK_Tar, read)
     constexpr int TestFileBytes = 1000;
 
     Buffer file1;
-    for (int i = 0; i < TestFileBytes; ++i) {
-        file1.append((const char*)&i, sizeof(i));
+    for (int i = 0; i < TestFileBytes; ++i)
+    {
+        file1.append((const char*) &i, sizeof(i));
     }
     file1.saveToFile(gtestTempDirectory + "/file1.txt");
     EXPECT_STREQ(file1_md5.c_str(), md5(file1).c_str());
 
     Buffer file2;
-    for (int i = 0; i < TestFileBytes; ++i) {
+    for (int i = 0; i < TestFileBytes; ++i)
+    {
         file2.append("ABCDEFG HIJKLMN OPQRSTUV\n");
     }
     file2.saveToFile(gtestTempDirectory + "/file2.txt");

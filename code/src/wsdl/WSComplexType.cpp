@@ -41,16 +41,21 @@ void WSComplexType::copyFrom(const WSComplexType& other)
 void WSComplexType::unload(QueryParameterList& output, const char* paramName, const WSBasicType* elementOrAttribute)
 {
     if (elementOrAttribute == nullptr)
+    {
         return;
+    }
 
     sptk::QueryParameter* param = output.find(paramName);
     if (param != nullptr)
+    {
         *param = elementOrAttribute->field();
+    }
 }
 
 void WSComplexType::addElement(xml::Node* parent, const char* name) const
 {
-    if (m_exportable) {
+    if (m_exportable)
+    {
         const char* elementName = name == nullptr ? m_name.c_str() : name;
         unload(new xml::Element(parent, elementName));
     }
@@ -58,31 +63,41 @@ void WSComplexType::addElement(xml::Node* parent, const char* name) const
 
 void WSComplexType::addElement(json::Element* parent) const
 {
-    if (m_exportable) {
+    if (m_exportable)
+    {
         if (isOptional() && isNull())
+        {
             return;
+        }
         json::Element* element = nullptr;
         if (parent->is(json::Type::ARRAY))
+        {
             element = parent->push_back();
+        }
         else
+        {
             element = parent->set(m_name);
+        }
         unload(element);
     }
 }
 
 String WSComplexType::toString(bool asJSON, bool formatted) const
 {
-    Buffer          output;
+    Buffer output;
 
-    if (asJSON) {
-        json::Document  outputJSON;
+    if (asJSON)
+    {
+        json::Document outputJSON;
         unload(&outputJSON.root());
         outputJSON.exportTo(output, formatted);
-    } else {
+    }
+    else
+    {
         xml::Document outputXML;
         auto* element = new xml::Element(outputXML, "type");
         unload(element);
-        outputXML.save(output, formatted? 2 : 0);
+        outputXML.save(output, formatted ? 2 : 0);
     }
 
     return String(output.c_str(), output.bytes());
@@ -91,7 +106,9 @@ String WSComplexType::toString(bool asJSON, bool formatted) const
 void WSComplexType::throwIfNull(const String& parentTypeName) const
 {
     if (!m_loaded)
+    {
         throw SOAPException("Element '" + m_name + "' is required in '" + parentTypeName + "'.");
+    }
 }
 
 void WSComplexType::load(const xml::Node* input)
@@ -100,22 +117,28 @@ void WSComplexType::load(const xml::Node* input)
     setLoaded(true);
 
     // Load elements
-    for (const auto* node: *input) {
+    for (const auto* node: *input)
+    {
         const auto* element = dynamic_cast<const xml::Element*>(node);
-        if (element == nullptr) continue;
+        if (element == nullptr)
+        { continue; }
 
         auto* field = m_fields.find(element->name());
-        if (field != nullptr) {
+        if (field != nullptr)
+        {
             field->load(node);
         }
     }
 
     // Load attributes
-    for (const auto* attribute: input->attributes()) {
+    for (const auto* attribute: input->attributes())
+    {
         auto* field = m_fields.find(attribute->name());
-        if (field != nullptr) {
+        if (field != nullptr)
+        {
             auto* outputField = dynamic_cast<WSBasicType*>(field);
-            if (outputField != nullptr) {
+            if (outputField != nullptr)
+            {
                 outputField->load(attribute->value());
             }
         }
@@ -129,26 +152,33 @@ void WSComplexType::load(const json::Element* input)
     _clear();
     setLoaded(true);
     if (!input->is(json::Type::OBJECT))
+    {
         return;
+    }
 
     // Load elements
-    for (const auto& itor: input->getObject()) {
+    for (const auto& itor: input->getObject())
+    {
         const auto* element = itor.element();
 
         auto* field = m_fields.find(itor.name());
-        if (field != nullptr) {
+        if (field != nullptr)
+        {
             field->load(element);
         }
     }
 
     // Load attributes
     const auto* attributes = input->find("attributes");
-    if (attributes != nullptr && attributes->is(json::Type::OBJECT)) {
-        for (const auto& attribute: attributes->getObject()) {
+    if (attributes != nullptr && attributes->is(json::Type::OBJECT))
+    {
+        for (const auto& attribute: attributes->getObject())
+        {
             auto* field = m_fields.find(attribute.name());
             WSBasicType* outputField = field != nullptr ? dynamic_cast<WSBasicType*>(field) : nullptr;
-            if (outputField != nullptr) {
-                outputField->load((String)*attribute.element());
+            if (outputField != nullptr)
+            {
+                outputField->load((String) *attribute.element());
             }
         }
     }
@@ -161,11 +191,11 @@ void WSComplexType::load(const FieldList& input)
     _clear();
     setLoaded(true);
 
-    m_fields.forEach([&input](WSType* field)
-    {
+    m_fields.forEach([&input](WSType* field) {
         const auto* inputField = input.findField(field->name());
         auto* outputField = dynamic_cast<WSBasicType*>(field);
-        if (inputField != nullptr && outputField != nullptr) {
+        if (inputField != nullptr && outputField != nullptr)
+        {
             outputField->load(*inputField);
         }
         return true;
@@ -177,10 +207,11 @@ void WSComplexType::load(const FieldList& input)
 bool WSComplexType::isNull() const
 {
     bool hasValues = false;
-    m_fields.forEach([&hasValues](const WSType* field)
-    {
+    m_fields.forEach([&hasValues](const WSType* field) {
         if (field->isNull())
+        {
             return true;
+        }
         hasValues = true;
         return false;
     });
@@ -192,16 +223,16 @@ void WSComplexType::unload(xml::Node* output) const
     const auto& fields = getFields();
 
     // Unload attributes
-    fields.forEach([&output](const WSType* field)
-    {
+    fields.forEach([&output](const WSType* field) {
         if (!field->isNull())
+        {
             output->setAttribute(field->name(), field->asString());
+        }
         return true;
     }, WSFieldIndex::Group::ATTRIBUTES);
 
     // Unload elements
-    fields.forEach([&output](const WSType* field)
-    {
+    fields.forEach([&output](const WSType* field) {
         field->addElement(output);
         return true;
     }, WSFieldIndex::Group::ELEMENTS);
@@ -212,15 +243,19 @@ void WSComplexType::unload(json::Element* output) const
     const auto& fields = getFields();
 
     // Unload attributes
-    if (fields.hasAttributes()) {
-        map<String,String> values;
+    if (fields.hasAttributes())
+    {
+        map<String, String> values;
         // Unload attributes
         fields.forEach([&values](const WSType* field) {
             if (!field->isNull())
+            {
                 values[field->name()] = field->asString();
+            }
             return true;
         }, WSFieldIndex::Group::ATTRIBUTES);
-        if (!values.empty()) {
+        if (!values.empty())
+        {
             auto* attributes = output->add_object("attributes");
             setAttributes(values, attributes);
         }
@@ -236,18 +271,24 @@ void WSComplexType::unload(json::Element* output) const
 void WSComplexType::setAttributes(const map<String, String>& values, json::Element* attributes) const
 {
     double doubleValue;
-    for (const auto& itor: values) {
+    for (const auto& itor: values)
+    {
         auto valueType = json::Document::dataType(itor.second);
-        switch (valueType) {
+        switch (valueType)
+        {
             case json::Type::STRING:
                 attributes->set(itor.first, itor.second);
                 break;
             case json::Type::NUMBER:
                 doubleValue = stod(itor.second);
                 if (doubleValue == (double) long(doubleValue))
+                {
                     attributes->set(itor.first, long(doubleValue));
+                }
                 else
+                {
                     attributes->set(itor.first, doubleValue);
+                }
                 break;
             case json::Type::BOOLEAN:
                 attributes->set(itor.first, itor.second == "true");
@@ -264,12 +305,12 @@ void WSComplexType::unload(QueryParameterList& output) const
 
     fields.forEach([
 #ifdef _WIN32
-            this,
+                       this,
 #endif
-        &output](const WSType* field)
-    {
+                       &output](const WSType* field) {
         const auto* inputField = dynamic_cast<const WSBasicType*>(field);
-        if (inputField != nullptr) {
+        if (inputField != nullptr)
+        {
             WSComplexType::unload(output, inputField->name().c_str(), inputField);
         }
         return true;

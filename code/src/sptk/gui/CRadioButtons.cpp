@@ -39,23 +39,23 @@ using namespace sptk;
 
 namespace sptk {
 
-    class CRadioButton : public Fl_Round_Button, public CLayoutClient
-    {
-    protected:
-        void draw() override;
+class CRadioButton : public Fl_Round_Button, public CLayoutClient
+{
+protected:
+    void draw() override;
 
-    public:
-        CRadioButton(const char* label, int layoutSize, CLayoutAlign layoutAlignment);
+public:
+    CRadioButton(const char* label, int layoutSize, CLayoutAlign layoutAlignment);
 
-        int handle(int) override;
+    int handle(int) override;
 
-        bool preferredSize(int& w, int& h) override;
-    };
+    bool preferredSize(int& w, int& h) override;
+};
 
 }
 
 CRadioButton::CRadioButton(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : Fl_Round_Button(0, 0, layoutSize, layoutSize, label), CLayoutClient(this, layoutSize, layoutAlignment)
+    : Fl_Round_Button(0, 0, layoutSize, layoutSize, label), CLayoutClient(this, layoutSize, layoutAlignment)
 {}
 
 void CRadioButton::draw()
@@ -66,17 +66,24 @@ void CRadioButton::draw()
     bool checked = value() != 0;
     bool highlited = (Fl::belowmouse() == this) && active_r();
     int dy = (h() - bh) / 2;
-    if (CThemes::drawRadioButton(x(), y() + dy, checked, highlited)) {
-        if (!m_label.empty()) {
+    if (CThemes::drawRadioButton(x(), y() + dy, checked, highlited))
+    {
+        if (!m_label.empty())
+        {
             fl_color(labelcolor());
             fl_font(labelfont(), labelsize());
             fl_draw(m_label.c_str(), x() + bw + 4, y() + 2, w() - bw - 6, h() - 4,
                     Fl_Align(FL_ALIGN_LEFT | FL_ALIGN_WRAP));
             if (Fl::focus() == this)
+            {
                 draw_focus(FL_FLAT_BOX, x() + bw + 2, y() + 1, w() - bw - 2, h() - 1);
+            }
         }
-    } else
+    }
+    else
+    {
         Fl_Round_Button::draw();
+    }
 }
 
 bool CRadioButton::preferredSize(int& w, int& h)
@@ -90,22 +97,31 @@ bool CRadioButton::preferredSize(int& w, int& h)
     fl_measure(m_label.c_str(), w, h);
     w += bw + 6;
     if (h < labelsize())
+    {
         h = labelsize();
+    }
     if (h < bh)
+    {
         h = bh;
+    }
     return false;
 }
 
 int CRadioButton::handle(int event)
 {
     CControl* control;
-    switch (event) {
+    switch (event)
+    {
         case FL_FOCUS:
             control = dynamic_cast<CControl*> (parent());
             if (!control && parent())
+            {
                 control = dynamic_cast<CControl*> (parent()->parent());
+            }
             if (control)
+            {
                 control->notifyFocus();
+            }
             break;
         case FL_ENTER:
         case FL_LEAVE:
@@ -129,7 +145,7 @@ void CRadioButtons::radioButtonsCallback(Fl_Widget* w, void*)
 }
 
 CRadioButtons::CRadioButtons(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-: CButtonGroup(label, layoutSize, layoutAlignment)
+    : CButtonGroup(label, layoutSize, layoutAlignment)
 {}
 
 #ifdef __COMPATIBILITY_MODE__
@@ -156,12 +172,17 @@ int32_t CRadioButtons::intValue() const
 {
     auto* group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
-    for (uint32_t i = 0; i < cnt; i++) {
+    for (uint32_t i = 0; i < cnt; i++)
+    {
         auto* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
+        {
             continue;
+        }
         if (b->value())
+        {
             return (int32_t) (uint64_t) b->user_data();
+        }
     }
     return 0;
 }
@@ -171,11 +192,15 @@ void CRadioButtons::intValue(int32_t v)
     deselectAllButtons();
     auto* group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         auto* btn = dynamic_cast<Fl_Button*>(group->child(i));
         if (!btn)
+        {
             continue;
-        if (int64_t(btn->user_data()) == v) {
+        }
+        if (int64_t(btn->user_data()) == v)
+        {
             btn->value(1);
             break;
         }

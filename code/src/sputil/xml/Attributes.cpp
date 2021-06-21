@@ -30,7 +30,7 @@ using namespace sptk;
 using namespace sptk::xml;
 
 Attribute::Attribute(Element* parent, const char* tagname, const Variant& avalue)
-: NamedItem(*parent->document())
+    : NamedItem(*parent->document())
 {
     NamedItem::name(tagname);
     Attribute::value(avalue.asString());
@@ -38,7 +38,7 @@ Attribute::Attribute(Element* parent, const char* tagname, const Variant& avalue
 }
 
 Attribute::Attribute(Element* parent, const String& tagname, const Variant& avalue)
-: NamedItem(*parent->document())
+    : NamedItem(*parent->document())
 {
     NamedItem::name(tagname);
     Attribute::value(avalue.asString());
@@ -64,7 +64,9 @@ Attribute* Attributes::getAttributeNode(const String& attr)
 {
     const auto itor = findFirst(attr.c_str());
     if (itor != end())
+    {
         return (Attribute*) *itor;
+    }
     return nullptr;
 }
 
@@ -72,7 +74,9 @@ const Attribute* Attributes::getAttributeNode(const String& attr) const
 {
     const auto itor = findFirst(attr.c_str());
     if (itor != end())
+    {
         return (const Attribute*) *itor;
+    }
     return nullptr;
 }
 
@@ -80,27 +84,37 @@ Variant Attributes::getAttribute(const String& attr, const char* defaultValue) c
 {
     const auto itor = findFirst(attr.c_str());
     if (itor != end())
+    {
         return (*itor)->value();
+    }
     Variant rc;
     if (defaultValue != nullptr)
+    {
         rc = defaultValue;
+    }
     return rc;
 }
 
 void Attributes::setAttribute(const String& attr, const Variant& value, const char* defaultValue)
 {
     const auto itor = findFirst(attr);
-    if (defaultValue != nullptr && value.asString() == defaultValue) {
-        if (itor != end()) {
+    if (defaultValue != nullptr && value.asString() == defaultValue)
+    {
+        if (itor != end())
+        {
             delete *itor;
             erase(itor);
         }
         return;
     }
     if (itor != end())
+    {
         (*itor)->value(String(value));
+    }
     else
+    {
         new Attribute(m_parent, attr, value);
+    }
 }
 
 bool Attributes::hasAttribute(const String& attr) const

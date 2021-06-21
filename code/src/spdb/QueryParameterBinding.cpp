@@ -43,22 +43,26 @@ bool QueryParameterBinding::check(void* stmt, VariantType type, uint32_t size, v
 {
     bool changed = true;
 
-    if (m_stmt != stmt) {
+    if (m_stmt != stmt)
+    {
         m_stmt = stmt;
         changed = false;
     }
 
-    if (m_dataType != type) {
+    if (m_dataType != type)
+    {
         m_dataType = type;
         changed = false;
     }
 
-    if (m_size != size) {
+    if (m_size != size)
+    {
         m_size = size;
         changed = false;
     }
 
-    if (m_buffer != buffer) {
+    if (m_buffer != buffer)
+    {
         m_buffer = buffer;
         changed = false;
     }

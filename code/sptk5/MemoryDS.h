@@ -70,6 +70,8 @@ public:
     {
     }
 
+    ~MemoryDS() override = default;
+
     /**
      * Deleted copy assignment
      * @param other             Other object

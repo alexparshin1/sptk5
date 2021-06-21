@@ -295,9 +295,9 @@ public:
     /**
      * @return image pointer
      */
-    const void* getImagePtr() const
+    const uint8_t* getImagePtr() const
     {
-        return (const void*) m_data.data();
+        return m_data.data();
     }
 
     /**

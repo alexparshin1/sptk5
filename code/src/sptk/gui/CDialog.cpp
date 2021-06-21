@@ -41,11 +41,14 @@ using namespace sptk;
 void CDialogTabs::prepareNewPage(Fl_Group* page, bool autoColor)
 {
     CTabs::prepareNewPage(page, autoColor);
-    if (pageCount() == 1) {
+    if (pageCount() == 1)
+    {
         box(FL_THIN_DOWN_FRAME);
         showTabs(false);
         page->box(FL_NO_BOX);
-    } else {
+    }
+    else
+    {
         box(FL_THIN_UP_BOX);
         showTabs(true);
         page->box(FL_FLAT_BOX);
@@ -54,7 +57,7 @@ void CDialogTabs::prepareNewPage(Fl_Group* page, bool autoColor)
 
 //==============================================================================
 CDialog::CDialog(int w, int h, const char* label)
-: CWindow(w, h, label)
+    : CWindow(w, h, label)
 {
     m_queriesBuilt = false;
     m_controlsScanned = false;
@@ -93,13 +96,20 @@ int CDialog::handle(int event)
 {
     int rc = CWindow::handle(event);
     if (rc)
+    {
         return rc;
-    if (event == FL_KEYBOARD && Fl::event_key() == FL_Enter) {
+    }
+    if (event == FL_KEYBOARD && Fl::event_key() == FL_Enter)
+    {
         auto* btn = dynamic_cast<Fl_Button*>(Fl::focus());
         if (btn)
+        {
             btn->do_callback();
+        }
         else if (m_defaultButton)
+        {
             m_defaultButton->do_callback();
+        }
         return 1;
     }
     return 0;
@@ -108,7 +118,8 @@ int CDialog::handle(int event)
 void CDialog::defaultButton(CButton* newDefaultButton)
 {
     auto cnt = (unsigned) m_buttonGroup->children();
-    for (unsigned bi = 0; bi < cnt; bi++) {
+    for (unsigned bi = 0; bi < cnt; bi++)
+    {
         auto* button = (CButton*) m_buttonGroup->child(bi);
         button->defaultButton(button == newDefaultButton);
     }
@@ -117,9 +128,12 @@ void CDialog::defaultButton(CButton* newDefaultButton)
 
 bool CDialog::okPressed()
 {
-    try {
+    try
+    {
         save();
-    } catch (Exception&  e) {
+    }
+    catch (Exception& e)
+    {
         spError(e.what());
         return false;
     }
@@ -144,19 +158,25 @@ bool CDialog::showModal()
 
     m_modalResult = DMR_NONE;
 
-    while (m_modalResult == DMR_NONE) {
+    while (m_modalResult == DMR_NONE)
+    {
         Fl_Widget* pressed = Fl::readqueue();
 
         if (!pressed)
+        {
             Fl::wait(0.1);
-        else {
+        }
+        else
+        {
             fl_cursor(FL_CURSOR_WAIT);
             Fl::check();
-            if ((pressed == this || pressed == m_cancelButton) && cancelPressed()) {
+            if ((pressed == this || pressed == m_cancelButton) && cancelPressed())
+            {
                 m_modalResult = DMR_CANCEL;
                 break;
             }
-            if (pressed == m_okButton &&  okPressed()) {
+            if (pressed == m_okButton && okPressed())
+            {
                 rc = true;
                 m_modalResult = DMR_OK;
                 break;
@@ -166,7 +186,9 @@ bool CDialog::showModal()
     }
 
     if (m_modalResult == DMR_USER)
+    {
         rc = true;
+    }
 
     fl_cursor(FL_CURSOR_DEFAULT);
     hide();
@@ -188,7 +210,8 @@ PoolDatabaseConnection* CDialog::database() const
 
 void CDialog::table(const String& tableName)
 {
-    if (m_tableName != tableName) {
+    if (m_tableName != tableName)
+    {
         m_tableName = tableName;
         m_queriesBuilt = false;
     }
@@ -203,7 +226,8 @@ void CDialog::table(PoolDatabaseConnection* db, const String& tb, const String& 
 
 void CDialog::keyField(const String& fldName)
 {
-    if (m_keyField != fldName) {
+    if (m_keyField != fldName)
+    {
         m_keyValue = -1;
         m_keyField = fldName;
         m_queriesBuilt = false;
@@ -213,9 +237,12 @@ void CDialog::keyField(const String& fldName)
 void CDialog::keyValue(int val)
 {
     m_keyValue = val;
-    try {
+    try
+    {
         load();
-    } catch (Exception&  e) {
+    }
+    catch (Exception& e)
+    {
         m_keyValue = -1;
         spError(e.what());
     }
@@ -228,26 +255,34 @@ bool CDialog::buildQueries()
     stringstream updateNames;
 
     if (!m_controlsScanned)
+    {
         scanControls();
+    }
 
     if (m_queriesBuilt)
+    {
         return true;
+    }
 
     bool first = true;
-    for (auto itor: m_defaultFields) {
+    for (auto itor: m_defaultFields)
+    {
         const CControl* control = itor.second;
         const string& fieldName = control->fieldName();
 
         if (first)
+        {
             first = false;
-        else {
+        }
+        else
+        {
             columnNames << ",";
-            paramNames  << ",";
+            paramNames << ",";
             updateNames << ",";
         }
 
         columnNames << fieldName;
-        paramNames  << ":" << fieldName;
+        paramNames << ":" << fieldName;
         updateNames << fieldName << "=:" << fieldName;
     }
 
@@ -264,15 +299,20 @@ bool CDialog::load()
 {
     buildQueries();
     reset();
-    if (m_keyValue > 0) {
+    if (m_keyValue > 0)
+    {
         m_selectQuery->param("key").setInteger(m_keyValue);
         m_selectQuery->open();
         auto itor = m_defaultFields.begin();
-        for (; itor != m_defaultFields.end(); ++itor) {
-            try {
+        for (; itor != m_defaultFields.end(); ++itor)
+        {
+            try
+            {
                 CControl* control = itor->second;
                 control->load(m_selectQuery);
-            } catch (Exception&  e) {
+            }
+            catch (Exception& e)
+            {
                 spError(e.what());
             }
         }
@@ -285,22 +325,30 @@ bool CDialog::save()
 {
 
     if (!m_controlsScanned)
+    {
         scanControls();
+    }
 
     if (m_defaultFields.empty())
+    {
         return true;
+    }
 
     // Validating data in controls
     auto itor = m_defaultFields.begin();
-    for (; itor != m_defaultFields.end(); ++itor) {
+    for (; itor != m_defaultFields.end(); ++itor)
+    {
         CControl* control = itor->second;
-        if (!control->valid()) {
+        if (!control->valid())
+        {
             Fl::focus(control->control());
             throw Exception(control->label() + " entry has the incorrect value!");
         }
-        if (control->flags() & FGE_MANDATORY) {
+        if (control->flags() & FGE_MANDATORY)
+        {
             String test = control->data().asString();
-            if (!trim(test).length()) {
+            if (!trim(test).length())
+            {
                 Fl::focus(control->control());
                 throw Exception(control->label() + " entry can't be empty!");
             }
@@ -308,17 +356,21 @@ bool CDialog::save()
     }
 
     if (!database())
+    {
         return true;
+    }
     buildQueries();
     Query* query = m_insertQuery;
 
-    if (m_keyValue > 0) {
+    if (m_keyValue > 0)
+    {
         query = m_updateQuery;
         query->param("key").setInteger(m_keyValue);
     }
 
     itor = m_defaultFields.begin();
-    for (; itor != m_defaultFields.end(); ++itor) {
+    for (; itor != m_defaultFields.end(); ++itor)
+    {
         CControl* control = itor->second;
         control->save(query);
     }
@@ -342,10 +394,14 @@ void CDialog::save(xml::Node* node) const
 CControl& CDialog::operator[](const String& fieldName)
 {
     if (!m_controlsScanned)
+    {
         scanControls();
+    }
     auto itor = m_allFields.find(fieldName);
     if (itor != m_allFields.end())
+    {
         return *itor->second;
+    }
     throw Exception("The dialog window doesn't have a field '" + fieldName + "'");
 }
 
@@ -355,7 +411,9 @@ CButton* CDialog::addExtraButton(CButtonKind buttonKind, const char* label, Fl_C
     auto* extraButton = new CButton(buttonKind, SP_ALIGN_RIGHT, label);
     m_buttonGroup->end();
     if (callbackFunction)
+    {
         extraButton->callback(callbackFunction);
+    }
     return extraButton;
 }
 
@@ -393,7 +451,9 @@ Fl_Group* CDialog::newScroll(const char* label, bool autoColor)
 bool CDialog::reset()
 {
     if (!m_controlsScanned)
+    {
         scanControls();
+    }
     m_allFields.reset();
     return true;
 }

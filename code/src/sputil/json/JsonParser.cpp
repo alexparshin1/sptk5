@@ -30,8 +30,7 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::json;
 
-namespace sptk {
-    namespace json {
+namespace sptk::json {
         void skipSpaces(const char* json, const char*& readPosition);
         string readJsonString(const char* json, const char*& readPosition);
         string readJsonName(const char* json, const char*& readPosition);
@@ -40,7 +39,6 @@ namespace sptk {
         double readJsonNumber(const char* json, const char*& readPosition);
         void readArrayData(Element* parent, const char* json, const char*& readPosition);
         void readObjectData(Element* parent, const char* json, const char*& readPosition);
-    }
 }
 
 static constexpr int ERROR_CONTEXT_CHARS = 65;
@@ -111,7 +109,7 @@ void Parser::parse(Element& jsonElement, const String& jsonStr)
     }
 }
 
-namespace sptk { namespace json {
+namespace sptk::json {
 
 inline void skipSpaces(const char* json, const char*& readPosition)
 {
@@ -334,4 +332,4 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
     ++readPosition;
 }
 
-}}
+}

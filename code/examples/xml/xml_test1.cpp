@@ -42,14 +42,14 @@ void build_tree(xml::Element *n, CTreeControl *tree, CTreeItem *item)
 
     CTreeItem *w = nullptr;
     CTreeItem *newItem = nullptr;
-    if (!n->empty() || n->type() & (xml::Node::DOM_CDATA_SECTION | xml::Node::DOM_COMMENT)) {
+    if (!n->empty() || (int)n->type() & ((int)xml::Node::Type::DOM_CDATA_SECTION | (int)xml::Node::Type::DOM_COMMENT)) {
         // Create a new item group
         if (item)
             newItem = item->addItem("", nullptr, nullptr, n);
         else
             newItem = tree->addItem("", nullptr, nullptr, n);
         w = newItem;
-        if (n->type() & (xml::Node::DOM_CDATA_SECTION | xml::Node::DOM_COMMENT)) {
+        if ((int)n->type() & ((int)xml::Node::Type::DOM_CDATA_SECTION | (int)xml::Node::Type::DOM_COMMENT)) {
             w->label(n->name().c_str());
             w = newItem->addItem("", nullptr, nullptr, n);
         }
@@ -66,7 +66,7 @@ void build_tree(xml::Element *n, CTreeControl *tree, CTreeItem *item)
 
     switch (n->type())
     {
-    case xml::Node::DOM_ELEMENT:
+    case xml::Node::Type::DOM_ELEMENT:
         label = n->name();
         if (n->hasAttributes()) {
             auto it = attr_map.begin();
@@ -75,13 +75,13 @@ void build_tree(xml::Element *n, CTreeControl *tree, CTreeItem *item)
         }
         break;
 
-    case xml::Node::DOM_PI:
+    case xml::Node::Type::DOM_PI:
         label = n->name();
         label += ": ";
         label += n->value();
         break;
 
-    case xml::Node::DOM_DOCUMENT:
+    case xml::Node::Type::DOM_DOCUMENT:
         label = n->name();
         break;
 

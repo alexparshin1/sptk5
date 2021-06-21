@@ -83,7 +83,7 @@ public:
 
         [[nodiscard]] const ElementMap& elements() const { return m_elements; }
 
-        [[nodiscard]] const SWSParserComplexType complexType(const sptk::String& elementName, const sptk::String& context) const
+        [[nodiscard]] SWSParserComplexType complexType(const sptk::String& elementName, const sptk::String& context) const
         {
             auto itor = m_complexTypes.find(elementName);
             if (itor == m_complexTypes.end())

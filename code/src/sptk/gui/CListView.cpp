@@ -55,37 +55,49 @@ int CListView::m_scrollbarWidth = 16;
 
 void CListView::scrollbar_width(int b)
 {
-	m_scrollbarWidth = b;
+    m_scrollbarWidth = b;
 }
 
 int CListView::scrollbar_width()
 {
-	return m_scrollbarWidth;
+    return m_scrollbarWidth;
 }
 
 // Cause minimal update to redraw the given item:
 
 void CListView::redraw_line(unsigned l)
 {
-    if (!m_redraw1 || m_redraw1 == (int) l) {
+    if (!m_redraw1 || m_redraw1 == (int) l)
+    {
         m_redraw1 = l;
         damage(FL_DAMAGE_EXPOSE);
-    } else if (!m_redraw2 || m_redraw2 == (int) l) {
+    }
+    else if (!m_redraw2 || m_redraw2 == (int) l)
+    {
         m_redraw2 = l;
         damage(FL_DAMAGE_EXPOSE);
-    } else
+    }
+    else
+    {
         damage(FL_DAMAGE_SCROLL);
+    }
 }
 
 void CListView::hposition(int x)
 {
     if (x < 0)
+    {
         x = 0;
+    }
     if (x == m_horizPosition)
+    {
         return;
+    }
     m_horizPosition = x;
     if (x != m_realHorizPosition)
+    {
         redraw_lines();
+    }
 }
 
 void CListView::ctor_init()
@@ -129,7 +141,7 @@ void CListView::ctor_init()
 }
 
 CListView::CListView(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CControl(label, layoutSize, layoutAlignment), scrollbar(0, 0, 0, 0), hscrollbar(0, 0, 0, 0)
+    : CControl(label, layoutSize, layoutAlignment), scrollbar(0, 0, 0, 0), hscrollbar(0, 0, 0, 0)
 {
     ctor_init();
 }
@@ -162,15 +174,21 @@ void CListView::resize(int X, int Y, int W, int H)
     bbox(X, Y, W, H);
 
     if (m_menuButton)
+    {
         m_menuButton->resize(X, Y, W, H);
+    }
 }
 
 void CListView::displayRow(unsigned index)
 {
     if (index >= m_rows.size())
+    {
         return;
+    }
     if (displayed(index))
+    {
         return;
+    }
 
     int X;
     int Y;
@@ -181,32 +199,41 @@ void CListView::displayRow(unsigned index)
     // find the bottom
     int hh = 0;
     bool lastPage = true;
-    for (unsigned i = index; i < m_rows.size(); i++) {
+    for (unsigned i = index; i < m_rows.size(); i++)
+    {
         int rh = m_rows[i]->height;
         hh += rh;
-        if (hh > H) {
+        if (hh > H)
+        {
             lastPage = false;
             break;
         }
     }
 
-    if (lastPage) { // Now find top
-        for (int i = index - 1; i >= 0; i--) {
+    if (lastPage)
+    { // Now find top
+        for (int i = index - 1; i >= 0; i--)
+        {
             int rh = m_rows[i]->height;
             hh += rh;
-            if (hh > H) {
+            if (hh > H)
+            {
                 m_top = unsigned(i);
                 break;
             }
         }
-    } else {
+    }
+    else
+    {
         hh = 0;
         H /= 2;
         m_top = index;
-        for (int i = index; i >= 0; i--) {
+        for (int i = index; i >= 0; i--)
+        {
             int rh = m_rows[i]->height;
             hh += rh;
-            if (hh > H) {
+            if (hh > H)
+            {
                 m_top = unsigned(i);
                 break;
             }
@@ -220,14 +247,16 @@ void CListView::displayRow(unsigned index)
 
 void CListView::draw()
 {
-    if (m_currentTextFont != m_textFont || m_currentTextSize != m_textSize) {
+    if (m_currentTextFont != m_textFont || m_currentTextSize != m_textSize)
+    {
         m_currentTextFont = m_textFont;
         m_currentTextSize = m_textSize;
         item_compute_height_all();
     }
     Fl_Color bgColor = FL_BACKGROUND2_COLOR;
     int drawsquare = 0;
-    if (damage() & FL_DAMAGE_ALL) { // redraw the box if full redraw
+    if (damage() & FL_DAMAGE_ALL)
+    { // redraw the box if full redraw
         Fl_Boxtype b = box() ? box() : FL_DOWN_BOX;
         draw_box(b, x(), y(), w(), h(), bgColor);
         drawsquare = 1;
@@ -246,33 +275,46 @@ void CListView::draw()
     bbox(X, Y, W, H);
 
     if (m_top >= m_rows.size())
+    {
         m_top = 0;
+    }
 
     // see if scrollbar needs to be switched on/off:
-    for (int iteration = 0; iteration < 2; iteration++) {
-        if (full_height_ > H) {
-            if (!scrollbar.visible()) {
+    for (int iteration = 0; iteration < 2; iteration++)
+    {
+        if (full_height_ > H)
+        {
+            if (!scrollbar.visible())
+            {
                 scrollbar.set_visible();
                 W -= m_scrollbarWidth;
                 drawsquare = 1;
             }
-        } else {
+        }
+        else
+        {
             m_top = 0;
-            if (scrollbar.visible()) {
+            if (scrollbar.visible())
+            {
                 scrollbar.clear_visible();
                 clear_damage(uchar(damage() | FL_DAMAGE_SCROLL));
             }
         }
 
-        if (full_width_ > W) {
-            if (!hscrollbar.visible()) {
+        if (full_width_ > W)
+        {
+            if (!hscrollbar.visible())
+            {
                 hscrollbar.set_visible();
                 H -= m_scrollbarWidth;
                 drawsquare = 1;
             }
-        } else {
+        }
+        else
+        {
             m_realHorizPosition = 0;
-            if (hscrollbar.visible()) {
+            if (hscrollbar.visible())
+            {
                 hscrollbar.clear_visible();
                 clear_damage(uchar(damage() | FL_DAMAGE_SCROLL));
             }
@@ -280,7 +322,9 @@ void CListView::draw()
     }
 
     if (m_headerHeight)
+    {
         header_draw(X - m_horizPosition, Y - m_headerHeight, m_headerHeight);
+    }
 
     fl_push_clip(X, Y, W, H);
 
@@ -292,16 +336,23 @@ void CListView::draw()
     draw_box(FL_FLAT_BOX, X, Y, W, H, bgColor);
 
     int maxl = size();
-    for (; l < maxl && yy < H; l++) {
+    for (; l < maxl && yy < H; l++)
+    {
         int hh = item_height(uint32_t(l));
         if (hh <= 0)
+        {
             continue;
-        if ((damage() & (FL_DAMAGE_SCROLL | FL_DAMAGE_ALL)) || l == m_redraw1 || l == m_redraw2) {
+        }
+        if ((damage() & (FL_DAMAGE_SCROLL | FL_DAMAGE_ALL)) || l == m_redraw1 || l == m_redraw2)
+        {
             fl_push_clip(X, Y + yy, W, hh);
             int textAlign = FL_ALIGN_TOP;
             if (m_autoRowHeight)
+            {
                 textAlign |= FL_ALIGN_WRAP;
-            item_draw(uint32_t(l), nullptr, X - m_horizPosition, yy + Y, W + m_horizPosition, hh, Fl::focus() == this, textAlign,
+            }
+            item_draw(uint32_t(l), nullptr, X - m_horizPosition, yy + Y, W + m_horizPosition, hh, Fl::focus() == this,
+                      textAlign,
                       false);
             fl_pop_clip();
         }
@@ -315,41 +366,59 @@ void CListView::draw()
     // update the scrollbars and redraw them:
     int dy = m_top ? item_height(m_top) : 0;
     if (dy < 10)
+    {
         dy = 10;
-    if (scrollbar.visible()) {
+    }
+    if (scrollbar.visible())
+    {
         int visibleRows = 0;
         int hh = 0;
-        for (unsigned i = m_top; i < m_rows.size(); i++) {
+        for (unsigned i = m_top; i < m_rows.size(); i++)
+        {
             hh += m_rows[i]->height;
             if (hh < H)
+            {
                 visibleRows++;
+            }
             else
+            {
                 break;
+            }
         }
         scrollbar.damage_resize(
-                scrollbar.align() & FL_ALIGN_LEFT ? X - m_scrollbarWidth : X + W,
-                Y, m_scrollbarWidth, H);
+            scrollbar.align() & FL_ALIGN_LEFT ? X - m_scrollbarWidth : X + W,
+            Y, m_scrollbarWidth, H);
         scrollbar.value(m_top, visibleRows, 0, m_rows.size());
         scrollbar.linesize(1);
         if (drawsquare)
+        {
             draw_child(scrollbar);
+        }
         else
+        {
             update_child(scrollbar);
+        }
     }
-    if (hscrollbar.visible()) {
+    if (hscrollbar.visible())
+    {
         hscrollbar.damage_resize(
-                X, scrollbar.align() & FL_ALIGN_TOP ? Y - m_scrollbarWidth : Y + H,
-                W, m_scrollbarWidth);
+            X, scrollbar.align() & FL_ALIGN_TOP ? Y - m_scrollbarWidth : Y + H,
+            W, m_scrollbarWidth);
         hscrollbar.value(m_horizPosition, W, 0, full_width_);
         hscrollbar.linesize(dy);
         if (drawsquare)
+        {
             draw_child(hscrollbar);
+        }
         else
+        {
             update_child(hscrollbar);
+        }
     }
 
     // draw that little square between the scrollbars:
-    if (drawsquare && scrollbar.visible() && hscrollbar.visible()) {
+    if (drawsquare && scrollbar.visible() && hscrollbar.visible())
+    {
         fl_color(bgColor);
         fl_rectf(scrollbar.x(), hscrollbar.y(), m_scrollbarWidth, m_scrollbarWidth);
     }
@@ -365,35 +434,52 @@ bool CListView::item_selected(unsigned index) const
 void CListView::item_select(unsigned index, bool v)
 {
     if (index >= m_rows.size())
+    {
         return;
+    }
     CPackedStrings* item = m_rows[index];
     if (v)
+    {
         m_selection.select(item);
+    }
     else
+    {
         m_selection.deselect(item);
+    }
 }
 
 void CListView::removeRow(unsigned line)
 {
     if (line > m_rows.size())
+    {
         return;
+    }
     m_selection.deselect(m_rows[line]);
     if (displayed(line))
+    {
         redraw_lines();
+    }
     m_rows.remove(line);
 }
 
 int CListView::item_height(unsigned index) const
 {
-    try {
+    try
+    {
         CPackedStrings* l = m_rows[index];
         if (l->flags & CLV_NOTDISPLAYED)
+        {
             return 0;
+        }
         int h = l->height;
         if (h < 6)
+        {
             h = 6;
+        }
         return h;
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
     }
 
@@ -405,7 +491,9 @@ int CListView::item_compute_height_all()
     unsigned cnt = m_rows.size();
     unsigned totalHeight = 0;
     for (unsigned i = 0; i < cnt; i++)
+    {
         totalHeight += item_compute_height(m_rows[i]);
+    }
     m_rows.m_fullHeight = totalHeight;
     return totalHeight;
 }
@@ -413,10 +501,14 @@ int CListView::item_compute_height_all()
 int CListView::item_compute_height(CPackedStrings* l)
 {
     if (l->flags & CLV_NOTDISPLAYED)
+    {
         return 0;
+    }
 
     if (fl_font() != m_textFont || fl_size() != m_textSize)
+    {
         fl_font(m_textFont, m_textSize);
+    }
 
     CPackedStrings& cells = *l;
 
@@ -424,19 +516,26 @@ int CListView::item_compute_height(CPackedStrings* l)
     unsigned hmax = m_textSize;
     unsigned borderWidth = cellBorderWidth();
 
-    if (cells.size()) {
+    if (cells.size())
+    {
         short colmax = cells.size();
         if (colmax > (short) m_columnList.size())
+        {
             colmax = (short) m_columnList.size();
-        for (short c = 0; c < colmax; c++) {
+        }
+        for (short c = 0; c < colmax; c++)
+        {
             CColumn& column = m_columnList[c];
-            if (column.visible()) {
+            if (column.visible())
+            {
                 const char* str = cells[c];
                 int ch = 0;
                 int cw = column.width() - borderWidth;
 
                 if (column.autoWidth())
-                    cw = 400; // max width for auto-width column
+                {
+                    cw = 400;
+                } // max width for auto-width column
 
                 if (column.autoWidth() || m_autoRowHeight)
                     fl_measure(str, cw, ch, 0);
@@ -444,7 +543,8 @@ int CListView::item_compute_height(CPackedStrings* l)
                     ch = m_textSize + 2;
 
                 cw += borderWidth;
-                if (column.autoWidth()) {
+                if (column.autoWidth())
+                {
                     if ((kind() & (DCV_CHECKBUTTONS | DCV_RADIOBUTTONS)) && c == 0)
                         cw += (m_textSize - 2) / 3 * 3 + 3;
                     if (cw > column.width())
@@ -458,7 +558,9 @@ int CListView::item_compute_height(CPackedStrings* l)
 
     hmax += borderWidth;
     if (hmax > 254)
+    {
         hmax = 254;
+    }
     l->height = (unsigned char) hmax;
     return hmax;
 }
@@ -467,9 +569,12 @@ int CListView::item_width(unsigned) const
 {
     size_t w = 6;
     size_t cnt = m_columnList.size();
-    for (size_t i = 0; i < cnt; i++) {
+    for (size_t i = 0; i < cnt; i++)
+    {
         if (m_columnList[i].visible())
+        {
             w += m_columnList[i].width();
+        }
     }
 
     return (int) w;
@@ -478,19 +583,28 @@ int CListView::item_width(unsigned) const
 void CListView::sortColumn(int column, bool sortNow)
 {
     if ((unsigned) column >= m_columnList.size())
+    {
         return;
+    }
     CColumn& columnInfo = m_columnList[column];
     VariantType ctype = columnInfo.type();
     CPackedStrings* row = nullptr;
     if (m_activeRow < size())
+    {
         row = m_rows[m_activeRow];
+    }
     m_rows.sortColumn(column, ctype, sortNow);
-    if (row && sortNow) {
+    if (row && sortNow)
+    {
         m_activeRow = (uint32_t) m_rows.indexOf(row);
         if (!displayed(m_activeRow))
+        {
             displayRow(m_activeRow);
+        }
         else
+        {
             redraw();
+        }
     }
 }
 
@@ -503,7 +617,9 @@ std::string CListView::sortColumnName() const
 {
     int ndx = sortColumn();
     if (ndx < 0)
+    {
         return "";
+    }
     return m_columnList[ndx].name();
 }
 
@@ -511,14 +627,21 @@ void CListView::sortAscending(bool ascending, bool sortNow)
 {
     CPackedStrings* row = nullptr;
     if (m_activeRow < size())
+    {
         row = m_rows[m_activeRow];
+    }
     m_rows.sortAscending(ascending, sortNow);
-    if (row && sortNow) {
+    if (row && sortNow)
+    {
         m_activeRow = (uint32_t) m_rows.indexOf(row);
         if (!displayed(m_activeRow))
+        {
             displayRow(m_activeRow);
+        }
         else
+        {
             redraw();
+        }
     }
 }
 
@@ -527,13 +650,16 @@ void CListView::header_draw(int xx, int y, int hh) const
     fl_push_clip(x() + 2, y, w() - 3, hh);
     fl_font(m_textFont, m_textSize);
     size_t cnt = m_columnList.size();
-    for (size_t i = 0; i < cnt; i++) {
+    for (size_t i = 0; i < cnt; i++)
+    {
         const CColumn& column = m_columnList[i];
         bool sortColumn = (int(i) == m_rows.sortColumn());
-        if (column.visible()) {
+        if (column.visible())
+        {
             int width = column.width();
             int markSize = hh - 8;
-            if (!CThemes::drawButton(THM_BUTTON_COMBO, xx, y, width, hh, sortColumn, false, false)) {
+            if (!CThemes::drawButton(THM_BUTTON_COMBO, xx, y, width, hh, sortColumn, false, false))
+            {
                 // Workaround for the FLTK bug..
                 draw_box(FL_FLAT_BOX, xx, y, width, hh, FL_BACKGROUND_COLOR);
                 draw_box(FL_UP_FRAME, xx, y, width, hh, FL_BACKGROUND_COLOR);
@@ -542,21 +668,27 @@ void CListView::header_draw(int xx, int y, int hh) const
             int twidth = width - 6;
             int clipWidth = twidth;
             if (sortColumn)
+            {
                 clipWidth -= markSize;
+            }
             fl_color(FL_FOREGROUND_COLOR);
             fl_push_clip(xx, y, clipWidth, hh);
             fl_draw(column.name().c_str(), tx, y, twidth, hh, FL_ALIGN_LEFT);
             fl_pop_clip();
-            if (sortColumn) {
+            if (sortColumn)
+            {
                 int yc = y + hh / 2;
                 int xc = tx + twidth - markSize;
-                if (sortAscending()) {
+                if (sortAscending())
+                {
                     fl_color(FL_DARK3);
                     fl_line(xc + markSize / 2, yc + markSize / 2, xc, yc - markSize / 2, xc + markSize,
                             yc - markSize / 2);
                     fl_color(FL_LIGHT3);
                     fl_line(xc + markSize / 2, yc + markSize / 2, xc + markSize, yc - markSize / 2);
-                } else {
+                }
+                else
+                {
                     fl_color(FL_LIGHT3);
                     fl_line(xc + markSize / 2, yc - markSize / 2, xc + markSize, yc + markSize / 2, xc,
                             yc + markSize / 2);
@@ -580,30 +712,43 @@ unsigned CListView::cellBorderWidth() const
 {
     unsigned bwidth = 2;
     if (m_showGrid)
+    {
         bwidth = 4;
+    }
     return bwidth;
 }
 
 void CListView::item_draw(
-        unsigned index, const CPackedStrings* item, int xx, int yy, int ww, int hh, int focusMode, int verticalAlign,
-        bool paintBackground) const
+    unsigned index, const CPackedStrings* item, int xx, int yy, int ww, int hh, int focusMode, int verticalAlign,
+    bool paintBackground) const
 {
     bool selected = false;
-    if (!item) {
+    if (!item)
+    {
         if ((int) index < 0)
+        {
             item = nullptr;
+        }
         else
+        {
             item = m_rows[index];
+        }
     }
     if (item)
+    {
         selected = (item->flags & CLV_SELECTED) != 0;
+    }
     Fl_Color lcol = FL_FOREGROUND_COLOR;
     Fl_Color boxcol = FL_BACKGROUND2_COLOR;
     if (m_showStripes && (index & 0x1))
+    {
         boxcol = fl_darker(boxcol);
+    }
 
-    if (selected && m_showSelection) {
-        switch (focusMode) {
+    if (selected && m_showSelection)
+    {
+        switch (focusMode)
+        {
             case -1 :
                 lcol = FL_FOREGROUND_COLOR;
                 break;
@@ -621,7 +766,9 @@ void CListView::item_draw(
     fl_font(m_textFont, m_textSize);
     size_t cnt = m_columnList.size();
     if (item && (size_t) item->size() < cnt)
+    {
         cnt = item->size();
+    }
     auto align = Fl_Align(FL_ALIGN_LEFT | verticalAlign);
     int borderWidth = cellBorderWidth();
     int x = xx;
@@ -629,35 +776,47 @@ void CListView::item_draw(
     int maxX = xx + ww;
 
     if (paintBackground || boxcol != FL_LIGHT3)
+    {
         draw_box(FL_FLAT_BOX, xx, yy, ww, hh, boxcol);
+    }
 
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         const CColumn& column = m_columnList[i];
-        if (column.visible()) {
+        if (column.visible())
+        {
             int xt = x + borderWidth - 1;
             int yt = yy + borderWidth - 1;
             int w1 = column.width();
 
-            if (x + w1 > 0 && x <= maxX) {
+            if (x + w1 > 0 && x <= maxX)
+            {
                 if (m_showGrid)
+                {
                     draw_box(FL_THIN_DOWN_FRAME, x, yy, w1, hh, FL_GRAY);
+                }
 
                 const char* str = "";
                 if (item)
+                {
                     str = (*item)[short(i)];
+                }
 
                 int wt = w1 - borderWidth * 2;
 
-                if ((kind() & (DCV_CHECKBUTTONS | DCV_RADIOBUTTONS)) && i == 0) {
+                if ((kind() & (DCV_CHECKBUTTONS | DCV_RADIOBUTTONS)) && i == 0)
+                {
                     int bw = m_textSize;
                     int xb = xt + bw;
 
                     int yb = yt + bw;
 
-                    if (kind() == DCV_CHECKBUTTONS) {
+                    if (kind() == DCV_CHECKBUTTONS)
+                    {
                         draw_box(FL_DOWN_BOX, xt, yt, bw + 1, bw + 1, FL_WHITE);
 
-                        if (selected) {
+                        if (selected)
+                        {
                             fl_color(FL_FOREGROUND_COLOR);
                             // left top to right bottom
                             fl_line(xt + 3, yt + 3, xb - 3, yb - 3);
@@ -668,9 +827,12 @@ void CListView::item_draw(
                             fl_line(xb - 4, yt + 3, xt + 3, yb - 4);
                             fl_line(xb - 3, yt + 4, xt + 4, yb - 3);
                         }
-                    } else if (kind() == DCV_RADIOBUTTONS) {
+                    }
+                    else if (kind() == DCV_RADIOBUTTONS)
+                    {
                         draw_box(FL_ROUND_DOWN_BOX, xt, yt, bw + 1, bw + 1, FL_WHITE);
-                        if (selected) {
+                        if (selected)
+                        {
                             fl_color(FL_FOREGROUND_COLOR);
                             fl_pie(xt + 4, yt + 4, bw - 7, bw - 7, 0, 360);
                             fl_arc(xt + 4, yt + 4, bw - 7, bw - 7, 0, 360);
@@ -681,9 +843,11 @@ void CListView::item_draw(
                     xf = xt;
                 }
 
-                if (item) {
+                if (item)
+                {
                     fl_push_clip(xt, yy, wt, hh);
-                    if (column.type() & (VAR_IMAGE_PTR | VAR_IMAGE_NDX)) {
+                    if (column.type() & (VAR_IMAGE_PTR | VAR_IMAGE_NDX))
+                    {
                         char* endptr;
                         Fl_Image* image = nullptr;
 #ifdef _WIN32
@@ -692,21 +856,35 @@ void CListView::item_draw(
                         auto value = (uint64_t) strtoll(str, &endptr, 16);
 #endif
                         if (column.type() == VAR_IMAGE_PTR)
+                        {
                             image = (Fl_Image*) value;
-                        else {
-                            if (value < m_iconNames.size()) {
+                        }
+                        else
+                        {
+                            if (value < m_iconNames.size())
+                            {
                                 CIcon* icon = CThemes::getIcon(m_iconNames[(size_t) value], IS_SMALL_ICON);
                                 if (icon)
+                                {
                                     image = icon->image();
+                                }
                             }
                         }
                         if (image)
+                        {
                             image->draw(xt, yy + 2, image->w(), image->h(), 0, 0);
-                    } else {
+                        }
+                    }
+                    else
+                    {
                         if (selected)
+                        {
                             fl_color(lcol);
+                        }
                         else
+                        {
                             fl_color(item_color(i, *item));
+                        }
                         fl_draw(str, xt, yy, wt, hh, align, nullptr, 0);
                     }
                     fl_pop_clip();
@@ -718,11 +896,15 @@ void CListView::item_draw(
 
     // Draw the focus rect if necessary
     if (index == m_activeRow && Fl::focus() == (Fl_Widget*) this)
+    {
         draw_focus(FL_FLAT_BOX, xf - 1, yy + 1, x - xf + 2, hh - 1);
+    }
 
     int w = ww - x + this->x() + 10;
     if (w > 0)
+    {
         draw_box(FL_FLAT_BOX, x, yy, w, hh, boxcol);
+    }
 }
 
 void CListView::clear()
@@ -745,7 +927,9 @@ void CListView::addRow(int ident, const Strings& ss)
 {
     auto* packedStrings = new CPackedStrings(ss);
     if (ident)
+    {
         packedStrings->argument(ident);
+    }
     addRow(packedStrings);
 }
 
@@ -753,7 +937,9 @@ void CListView::insertRow(unsigned position, const Strings& ss, int ident)
 {
     auto* packedStrings = new CPackedStrings(ss);
     if (ident)
+    {
         packedStrings->argument(ident);
+    }
     item_compute_height(packedStrings);
     m_rows.insert(position, packedStrings);
 }
@@ -773,7 +959,9 @@ void CListView::updateRow(unsigned position, const Strings& ss, int ident)
     CPackedStrings* row = m_rows[position];
     *row = ss;
     if (ident)
+    {
         row->argument(ident);
+    }
     int dh = item_compute_height(row) - oldh;
     m_rows.m_fullHeight += dh;
 }
@@ -787,21 +975,30 @@ int CListView::selected(int line) const
 {
     const CPackedStrings* r = m_rows[line];
     if (r)
+    {
         return r->flags & CLV_SELECTED;
+    }
     else
+    {
         return 0;
+    }
 }
 
 void CListView::show(int line)
 {
     CPackedStrings* t = m_rows[line];
     if (!t)
+    {
         return;
-    if (t->flags & CLV_NOTDISPLAYED) {
+    }
+    if (t->flags & CLV_NOTDISPLAYED)
+    {
         t->flags &= ~CLV_NOTDISPLAYED;
         m_rows.m_fullHeight += item_compute_height(t);
         if (displayed(uint32_t(line)))
+        {
             redraw_lines();
+        }
     }
 }
 
@@ -809,12 +1006,17 @@ void CListView::hide(int line)
 {
     CPackedStrings* t = m_rows[line];
     if (!t)
+    {
         return;
-    if (!(t->flags & CLV_NOTDISPLAYED)) {
+    }
+    if (!(t->flags & CLV_NOTDISPLAYED))
+    {
         m_rows.m_fullHeight -= item_height(uint32_t(line));
         t->flags |= CLV_NOTDISPLAYED;
-        if (displayed((unsigned)line))
+        if (displayed((unsigned) line))
+        {
             redraw_lines();
+        }
     }
 }
 
@@ -822,7 +1024,9 @@ int CListView::visible(int line) const
 {
     CPackedStrings* t = m_rows[line];
     if (!t)
+    {
         return false;
+    }
     return !(t->flags & CLV_NOTDISPLAYED);
 }
 
@@ -830,7 +1034,9 @@ std::string CListView::textValue() const
 {
     CPackedStrings* t = selectedRow();
     if (!t)
+    {
         return "";
+    }
     return (*t)[0];
 }
 
@@ -841,28 +1047,38 @@ void CListView::textValue(const string& tv)
     void* dataValue = nullptr;
     int column = m_rows.sortColumn();
     if (column >= -1)
-        for (unsigned line = 0; line < cnt; line++) {
+    {
+        for (unsigned line = 0; line < cnt; line++)
+        {
             CPackedStrings* t = m_rows[line];
             bool wasSelected = (t->flags & CLV_SELECTED) != 0;
-            if ((*t)[column] == tv) {
+            if ((*t)[column] == tv)
+            {
                 activate_row(line);
                 dataWasChanged = true;
                 dataValue = t->user_data();
-            } else if (wasSelected) {
+            }
+            else if (wasSelected)
+            {
                 t->flags &= ~CLV_SELECTED;
                 dataWasChanged = true;
             }
         }
+    }
     if (dataWasChanged)
+    {
         fireEvent(CE_DATA_CHANGED, (int32_t) (uint64_t) dataValue);
+    }
     redraw();
 }
 
 Variant CListView::data() const
 {
     CPackedStrings* t = selectedRow();
-    if (!t) {
-        switch (m_dataMode) {
+    if (!t)
+    {
+        switch (m_dataMode)
+        {
             case LV_DATA_KEY:
             case LV_DATA_INDEX:
                 return 0;
@@ -870,7 +1086,8 @@ Variant CListView::data() const
                 return "";
         }
     }
-    switch (m_dataMode) {
+    switch (m_dataMode)
+    {
         case LV_DATA_KEY:
             return t->argument();
         case LV_DATA_INDEX:
@@ -890,15 +1107,20 @@ void CListView::data(const Variant& vv)
     CPackedStrings* newSelectedRow = nullptr;
 
     if (oldSelectedCount > 0)
+    {
         oldSelectedRow = &m_selection[0];
+    }
 
-    switch (m_dataMode) {
+    switch (m_dataMode)
+    {
         case LV_DATA_KEY:
             newSelectedRow = findKey(vv.asInteger());
             break;
-        case LV_DATA_INDEX: {
+        case LV_DATA_INDEX:
+        {
             auto line = (unsigned) intValue;
-            if (line < cnt) {
+            if (line < cnt)
+            {
                 newSelectedRow = m_rows[line];
             }
         }
@@ -911,33 +1133,44 @@ void CListView::data(const Variant& vv)
     m_selection.deselectAll();
     m_selection.select(newSelectedRow);
     bool dataWasChanged = false;
-    if ((newSelectedRow != nullptr && newSelectedRow != oldSelectedRow) || oldSelectedCount > 1) {
+    if ((newSelectedRow != nullptr && newSelectedRow != oldSelectedRow) || oldSelectedCount > 1)
+    {
         dataWasChanged = true;
-        displayRow((unsigned)selectedIndex());
+        displayRow((unsigned) selectedIndex());
         if (newSelectedRow)
+        {
             dataValue = newSelectedRow->user_data();
+        }
     }
     if (dataWasChanged)
+    {
         fireEvent(CE_DATA_CHANGED, (int32_t) (uint64_t) dataValue);
+    }
     redraw();
 }
 
 void CListView::showGrid(bool flag)
 {
-    if (m_showGrid != flag) {
+    if (m_showGrid != flag)
+    {
         m_showGrid = flag;
         if (m_showGrid)
+        {
             m_showStripes = false;
+        }
         redraw();
     }
 }
 
 void CListView::showStripes(bool flag)
 {
-    if (m_showStripes != flag) {
+    if (m_showStripes != flag)
+    {
         m_showStripes = flag;
         if (m_showStripes)
+        {
             m_showGrid = false;
+        }
         redraw();
     }
 }
@@ -951,14 +1184,19 @@ int CListView::columnAt(int xm)
 {
     unsigned xx = 0;
     m_draggingColumn = -1;
-    for (unsigned col = 0; col < m_columnList.size(); col++) {
+    for (unsigned col = 0; col < m_columnList.size(); col++)
+    {
         int leftDistance = xm - xx;
         xx += m_columnList[col].width();
         int rightDistance = xx - xm;
         if (rightDistance < 0)
+        {
             continue;
-        if (leftDistance < rightDistance) {
-            if (leftDistance < 4) {
+        }
+        if (leftDistance < rightDistance)
+        {
+            if (leftDistance < 4)
+            {
                 m_draggingColumn = col - 1;
                 fl_cursor(FL_CURSOR_WE);
                 return -1;
@@ -966,8 +1204,10 @@ int CListView::columnAt(int xm)
             return col;
         }
 
-        if (leftDistance > rightDistance) {
-            if (rightDistance < 4) {
+        if (leftDistance > rightDistance)
+        {
+            if (rightDistance < 4)
+            {
                 m_draggingColumn = col;
                 fl_cursor(FL_CURSOR_WE);
                 return -1;
@@ -979,7 +1219,9 @@ int CListView::columnAt(int xm)
     m_draggingStarted = xm;
 
     if (m_draggingColumn >= 0)
+    {
         fl_cursor(FL_CURSOR_WE);
+    }
 
     return -1;
 }
@@ -987,11 +1229,15 @@ int CListView::columnAt(int xm)
 void CListView::header_clicked(int x)
 {
     int column = columnAt(x);
-    if (column >= 0) {
-        if (sortColumn() == column) {
+    if (column >= 0)
+    {
+        if (sortColumn() == column)
+        {
             // Same sort column clicked, reversing the sort order
             sortAscending(!sortAscending(), true);
-        } else {
+        }
+        else
+        {
             // Sort the column ascending
             sortColumn(column, false);
             sortAscending(true, true);
@@ -1002,12 +1248,17 @@ void CListView::header_clicked(int x)
 bool CListView::header_drag_position(int x)
 {
     int xx = 0;
-    for (unsigned c = 0; c < m_columnList.size(); c++) {
+    for (unsigned c = 0; c < m_columnList.size(); c++)
+    {
         xx += m_columnList[c].width();
         if (abs(x - xx) < 3)
+        {
             return true;
+        }
         if (x < xx)
+        {
             break;
+        }
     }
     return false;
 }
@@ -1015,12 +1266,16 @@ bool CListView::header_drag_position(int x)
 void CListView::header_dragged(int xm)
 {
     if (m_draggingColumn < 0)
+    {
         return;
+    }
     int dx = xm - m_mousePressedX;
     CColumn& column = m_columnList[m_draggingColumn];
     int newWidth = column.width() + dx;
     if (newWidth < 1)
+    {
         newWidth = 1;
+    }
     column.width(short(newWidth));
     m_mousePressedX = xm;
     damage(FL_DAMAGE_SCROLL);
@@ -1036,7 +1291,9 @@ void CListView::key_changed(unsigned index)
     CPackedStrings* t = m_rows[index];
     int keyValue = 0;
     if (t)
+    {
         keyValue = t->argument();
+    }
     fireEvent(CE_DATA_CHANGED, keyValue);
 }
 
@@ -1046,9 +1303,11 @@ void CListView::load(Query* loadQuery)
 {
     Query& query = *loadQuery;
     if (!m_fieldName.length())
+    {
         return;
+    }
     Field& fld = query[m_fieldName.c_str()];
-    data(*(Variant*)&fld);
+    data(*(Variant*) &fld);
 }
 
 // storing the key value in data entry dialog
@@ -1056,7 +1315,9 @@ void CListView::load(Query* loadQuery)
 void CListView::save(Query* updateQuery)
 {
     if (!m_fieldName.length())
+    {
         return;
+    }
     QueryParameter& param = updateQuery->param(m_fieldName);
     param = data();
 }
@@ -1069,10 +1330,13 @@ void CListView::item_clicked(int)
 int CListView::find_id(int id) const
 {
     unsigned cnt = m_rows.size();
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         CPackedStrings* r = m_rows[i];
         if (id == r->argument())
+        {
             return i;
+        }
     }
     return -1;
 }
@@ -1080,14 +1344,20 @@ int CListView::find_id(int id) const
 void CListView::getSelections(vector<uint64_t>& sel) const
 {
     sel.clear();
-    if (!m_multipleSelection) {
+    if (!m_multipleSelection)
+    {
         sel.push_back(unsigned(data().asInteger()));
-    } else {
+    }
+    else
+    {
         unsigned cnt = m_rows.size();
-        for (unsigned i = 0; i < cnt; i++) {
+        for (unsigned i = 0; i < cnt; i++)
+        {
             CPackedStrings* r = m_rows[i];
             if (r->flags & CLV_SELECTED)
+            {
                 sel.push_back(unsigned(r->argument()));
+            }
         }
     }
 }
@@ -1096,19 +1366,28 @@ void CListView::setSelections(const vector<uint64_t>& sel)
 {
     size_t scnt = sel.size();
     if (scnt)
-        data((int)sel[0]);
+    {
+        data((int) sel[0]);
+    }
     else
+    {
         data(-1);
+    }
 
     if (!m_multipleSelection)
+    {
         return;
+    }
 
-    for (size_t si = 1; si < scnt; si++) {
+    for (size_t si = 1; si < scnt; si++)
+    {
         auto selectedKey = (int) sel[si];
         size_t cnt = m_rows.size();
-        for (size_t i = 0; i < cnt; i++) {
+        for (size_t i = 0; i < cnt; i++)
+        {
             CPackedStrings* r = m_rows[(uint32_t) i];
-            if (r->argument() == selectedKey) {
+            if (r->argument() == selectedKey)
+            {
                 r->flags |= CLV_SELECTED;
                 continue;
             }
@@ -1118,7 +1397,8 @@ void CListView::setSelections(const vector<uint64_t>& sel)
 
 void CListView::autoRowHeight(bool arh)
 {
-    if (arh != m_autoRowHeight) {
+    if (arh != m_autoRowHeight)
+    {
         m_autoRowHeight = arh;
         item_compute_height_all();
         redraw_lines();
@@ -1129,20 +1409,29 @@ int CListView::findString(const string& str, bool findAndSelect, unsigned startR
 {
     unsigned cnt = m_rows.size();
     if (startRow >= cnt)
+    {
         startRow = 0;
+    }
     if (endRow <= startRow || endRow >= cnt)
+    {
         endRow = cnt - 1;
+    }
 
     int col = m_rows.sortColumn();
     if (col < 0)
+    {
         col = 0;
+    }
     String searchStr = lowerCase(str);
-    for (uint32_t i = startRow; i <= (uint32_t) endRow; i++) {
+    for (uint32_t i = startRow; i <= (uint32_t) endRow; i++)
+    {
         CPackedStrings* row = m_rows[i];
         std::string currentStr((*row)[col]);
         size_t pos = lowerCase(currentStr).find(searchStr.c_str());
-        if (pos != STRING_NPOS) {
-            if (findAndSelect) {
+        if (pos != STRING_NPOS)
+        {
+            if (findAndSelect)
+            {
                 select_only(i);
                 m_activeRow = i;
             }
@@ -1161,9 +1450,13 @@ void CListView::top(int t)
 bool CListView::preferredSize(int& w, int& h)
 {
     if (w < 100)
+    {
         w = 100;
+    }
     if (h < 100)
+    {
         h = 100;
+    }
     return false;
 }
 
@@ -1172,35 +1465,43 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
 {
 
     m_fillTerminated = false;
-    if (m_fillInProgress) {
+    if (m_fillInProgress)
+    {
         m_fillTerminated = true;
         return;
     }
 
-    do {
+    do
+    {
         m_fillTerminated = false;
         m_fillInProgress = true;
 
         fl_cursor(FL_CURSOR_WAIT);
         Fl::check();
 
-        try {
+        try
+        {
             ds.open();
 
             auto fieldCount = (unsigned) ds.fieldCount();
             unsigned keyField = 9999;
 
-            for (unsigned i = 0; i < fieldCount; i++) {
-                if (ds[i].fieldName() == keyFieldName) {
+            for (unsigned i = 0; i < fieldCount; i++)
+            {
+                if (ds[i].fieldName() == keyFieldName)
+                {
                     keyField = i;
                     break;
                 }
             }
 
-            if (keyField == 9999) {
+            if (keyField == 9999)
+            {
                 // if keyFieldName is not defined (find the first integer field and use it)
-                for (unsigned i = 0; i < fieldCount; i++) {
-                    if (ds[i].dataType() == VAR_INT) {
+                for (unsigned i = 0; i < fieldCount; i++)
+                {
+                    if (ds[i].dataType() == VAR_INT)
+                    {
                         keyField = i;
                         break;
                     }
@@ -1210,18 +1511,24 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
             CColumnList newColumns;
             CColumnList& oldColumns = columns();
             int colNumber = 0;
-            for (unsigned f = 0; f < ds.fieldCount(); f++) {
+            for (unsigned f = 0; f < ds.fieldCount(); f++)
+            {
                 if (f == keyField)
+                {
                     continue;
+                }
                 Field& field = ds[f];
                 String columnName = field.fieldName();
                 bool cvisible = columnName[0] != '_';
                 columnName = columnName.replace("_", " ");
                 if (m_capitalizeColumnNames)
+                {
                     columnName = capitalizeWords(columnName);
+                }
                 auto cwidth = short(field.view().width + 1);
                 VariantType ctype = field.dataType();
-                switch (ctype) {
+                switch (ctype)
+                {
                     case VAR_BOOL:
                         cwidth = 6;
                         break;
@@ -1251,15 +1558,22 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
                 }
                 auto maxcw = short(columnName.length() + 1);
                 if (cwidth < maxcw)
+                {
                     cwidth = maxcw;
+                }
                 if (cwidth > 50)
+                {
                     cwidth = 50;
+                }
                 cwidth = short(cwidth * 7);
 
                 int colIndex = oldColumns.indexOf(columnName.c_str());
                 if (colIndex < 0)
+                {
                     newColumns.push_back(CColumn(columnName, ctype, cwidth, cvisible));
-                else {
+                }
+                else
+                {
                     CColumn& existingColumn = oldColumns[colIndex];
                     newColumns.push_back(existingColumn);
                 }
@@ -1272,79 +1586,104 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
             // Memorizing selected records IDs, if the keyField is defined
             unsigned selectedCount = 0;
             int* selectedIDs = nullptr;
-            if (keyField < 9999) {
+            if (keyField < 9999)
+            {
                 selectedCount = m_selection.size();
 
                 selectedIDs = new int[selectedCount];
                 for (unsigned i = 0; i < selectedCount; i++)
+                {
                     selectedIDs[i] = m_selection[i].argument();
+                }
             }
             m_selection.clear();
 
             unsigned recordCount = 0;
-            if (fieldCount > 0) {
+            if (fieldCount > 0)
+            {
                 fireEvent(CE_PROGRESS, 0);
 
                 Strings rowStrings;
                 rowStrings.resize(fieldCount);
 
                 unsigned lastProgression = 0;
-                while (!ds.eof()) {
+                while (!ds.eof())
+                {
 
                     unsigned listSize = m_rows.size();
 
                     int keyValue = 0;
                     int j = 0;
-                    for (unsigned i = 0; i < fieldCount; i++) {
+                    for (unsigned i = 0; i < fieldCount; i++)
+                    {
                         Field& field = ds[i];
-                        if (i == keyField) {
+                        if (i == keyField)
+                        {
                             keyValue = field.asInteger();
                             rowStrings.argument(keyValue);
-                        } else {
+                        }
+                        else
+                        {
                             rowStrings[j] = field.asString();
                             j++;
                         }
                     }
 
                     int rowNumber;
-                    if (refreshKind == LV_REFRESH_FULL) {
+                    if (refreshKind == LV_REFRESH_FULL)
+                    {
                         rowNumber = recordCount;
-                        if (recordCount >= listSize) {
+                        if (recordCount >= listSize)
+                        {
                             addRow(new CPackedStrings(rowStrings));
-                        } else {
+                        }
+                        else
+                        {
                             CPackedStrings* row = m_rows[rowNumber];
                             int oldh = row->height;
                             *row = rowStrings;
                             int newh = item_compute_height(row);
                             m_rows.m_fullHeight += newh - oldh;
                         }
-                    } else {
+                    }
+                    else
+                    {
                         rowNumber = find_id(keyValue);
-                        if (rowNumber < 0) {
+                        if (rowNumber < 0)
+                        {
                             addRow(new CPackedStrings(rowStrings));
-                        } else {
+                        }
+                        else
+                        {
                             updateRow(uint32_t(rowNumber), rowStrings, keyValue);
                         }
                     }
 
                     recordCount++;
-                    if (recordsLimit && recordCount >= recordsLimit) {
+                    if (recordsLimit && recordCount >= recordsLimit)
+                    {
                         break;
                     }
 
-                    if (recordsEstimated) {
+                    if (recordsEstimated)
+                    {
                         unsigned newProgression = (recordCount * 20 / recordsEstimated) * 5;
-                        if (newProgression != lastProgression) {
+                        if (newProgression != lastProgression)
+                        {
                             fireEvent(CE_PROGRESS, newProgression);
                             lastProgression = newProgression;
                         }
                     }
 
-                    if (m_fillTerminated) break;
+                    if (m_fillTerminated)
+                    { break; }
 
-                    try {
+                    try
+                    {
                         ds.next();
-                    } catch (const Exception&) {
+                    }
+                    catch (const Exception&)
+                    {
                         ds.close();
                         throw;
                     }
@@ -1353,7 +1692,9 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
             ds.close();
 
             if (refreshKind != LV_REFRESH_FULL)
+            {
                 recordCount = m_rows.size();
+            }
 
             fireEvent(CE_PROGRESS, 100);
 
@@ -1361,23 +1702,31 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
             m_rows.truncate(recordCount);
 
             // Select previously selected rows
-            for (unsigned selectionIndex = 0; selectionIndex < selectedCount; selectionIndex++) {
+            for (unsigned selectionIndex = 0; selectionIndex < selectedCount; selectionIndex++)
+            {
                 int keyValue = selectedIDs[selectionIndex];
                 int rowNumber = find_id(keyValue);
                 if (rowNumber >= 0)
+                {
                     m_selection.select(m_rows[rowNumber]);
+                }
             }
 
             delete[] selectedIDs;
 
             // check if we have any selection in SELECT_BROWSER
-            if (!m_multipleSelection && !m_selection.size()) {
+            if (!m_multipleSelection && !m_selection.size())
+            {
                 select(0, true);
             }
 
             if (unsigned(m_rows.sortColumn()) < columns().size())
+            {
                 m_rows.sort();
-        } catch (const Exception&) {
+            }
+        }
+        catch (const Exception&)
+        {
             m_fillInProgress = false;
             ds.close();
             fl_cursor(FL_CURSOR_DEFAULT);
@@ -1385,7 +1734,8 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
             redraw();
             throw;
         }
-    } while (m_fillTerminated);
+    }
+    while (m_fillTerminated);
 
     fl_cursor(FL_CURSOR_DEFAULT);
     Fl::check();
@@ -1405,15 +1755,20 @@ bool CListView::select_only(unsigned index, bool docallbacks)
 {
     CPackedStrings* row = m_rows[index];
     bool change = false;
-    if (row) {
+    if (row)
+    {
         change = (row->flags & CLV_SELECTED) == 0;
         m_selection.deselectAll();
         if (select(index, true, docallbacks))
+        {
             change = true;
+        }
         m_activeRow = index;
         displayRow(index);
         if (change)
+        {
             key_changed(index);
+        }
     }
     return change;
 }
@@ -1423,12 +1778,15 @@ bool CListView::select_only(unsigned index, bool docallbacks)
 
 static int navkey()
 {
-    switch (Fl::event_key()) {
+    switch (Fl::event_key())
+    {
         case 0: // not an FL_KEYBOARD/FL_SHORTCUT event
             break;
         case FL_Tab:
             if (!Fl::event_state(FL_SHIFT))
+            {
                 return FL_Right;
+            }
             break;
         case 0xfe20: // XK_ISO_Left_Tab
             return FL_Left;
@@ -1442,7 +1800,8 @@ static int navkey()
         case FL_End:
             return Fl::event_key();
         default:
-            switch (Fl::event_text()[0]) {
+            switch (Fl::event_text()[0])
+            {
                 case ctrl('N') :
                     return FL_Down;
                 case ctrl('P') :
@@ -1462,15 +1821,21 @@ static int navkey()
 static int charkey(unsigned ch)
 {
     if (ch >= 32 && ch <= 254)
+    {
         return ch;
+    }
     else
+    {
         return 0;
+    }
 }
 
 int CListView::get_focus()
 {
     if (contains(Fl::focus()))
+    {
         return 1;
+    }
     m_searchPhrase = "";
     Fl::focus(this);
     return 1;
@@ -1478,11 +1843,14 @@ int CListView::get_focus()
 
 int CListView::handle(int event)
 {
-    switch (event) {
+    switch (event)
+    {
         case FL_FOCUS:
-            if (navkey()) {
+            if (navkey())
+            {
                 int rc = get_focus();
-                if (!m_hasFocus) {
+                if (!m_hasFocus)
+                {
                     m_hasFocus = true;
                     fireEvent(CE_FOCUS, 0);
                 }
@@ -1497,8 +1865,10 @@ int CListView::handle(int event)
             break;
         case FL_SHORTCUT:
         case FL_KEYBOARD:
-            if (navkey()) {
-                switch (Fl::event_key()) {
+            if (navkey())
+            {
+                switch (Fl::event_key())
+                {
                     case FL_Down:
                         m_searchPhrase = "";
                         return select_next();
@@ -1520,19 +1890,27 @@ int CListView::handle(int event)
                     default:
                         break;
                 }
-            } else {
+            }
+            else
+            {
                 auto ch = (unsigned) Fl::event_key();
-                if (m_multipleSelection) {
+                if (m_multipleSelection)
+                {
                     if (ch == ' ')
+                    {
                         select(m_activeRow, !item_selected(m_activeRow), 1);
+                    }
                     return 1;
                 }
                 // Type-in search
                 size_t ln = m_searchPhrase.length();
-                switch (ch) {
+                switch (ch)
+                {
                     case FL_BackSpace:
                         if (ln)
+                        {
                             m_searchPhrase[ln - 1] = 0;
+                        }
                         break;
                     case FL_Escape:
                         m_searchPhrase = "";
@@ -1541,10 +1919,12 @@ int CListView::handle(int event)
                         break;
                 }
                 auto chr = (char) charkey(ch);
-                if (chr) {
+                if (chr)
+                {
                     std::string newSearchString = m_searchPhrase + chr;
                     int found = findString(newSearchString);
-                    if (found != -1) {
+                    if (found != -1)
+                    {
                         m_searchPhrase = newSearchString;
                         m_activeRow = uint32_t(found);
                     }
@@ -1563,7 +1943,8 @@ int CListView::handle(int event)
     int my;
     unsigned l;
     static char change;
-    switch (event) {
+    switch (event)
+    {
         case FL_MOVE:
             if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight) &&
                 header_drag_position(Fl::event_x() + m_horizPosition - x()))
@@ -1575,80 +1956,115 @@ int CListView::handle(int event)
             return 1;
         case FL_PUSH:
             get_focus();
-            if (!m_hasFocus) {
+            if (!m_hasFocus)
+            {
                 m_hasFocus = true;
                 fireEvent(CE_FOCUS, 0);
             }
             m_mousePressedX = Fl::event_x() + m_horizPosition - x();
-            if (!Fl::event_inside(X, Y, W, H)) {
-                if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight)) {
+            if (!Fl::event_inside(X, Y, W, H))
+            {
+                if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight))
+                {
                     header_clicked(Fl::event_x() + m_horizPosition - x());
                     return 1;
                 }
                 break;
             }
             if (!m_multipleSelection)
+            {
                 m_selection.deselectAll();
+            }
             my = Fl::event_y();
             change = 0;
             l = (unsigned) find_item(my);
-            if (m_multipleSelection && (Fl::event_state() & (FL_CTRL | FL_SHIFT)) != 0) {
-                if (Fl::event_state() & FL_CTRL) { // Ctrl pressed
-                    if (l < unsigned(-1)) {
+            if (m_multipleSelection && (Fl::event_state() & (FL_CTRL | FL_SHIFT)) != 0)
+            {
+                if (Fl::event_state() & FL_CTRL)
+                { // Ctrl pressed
+                    if (l < unsigned(-1))
+                    {
                         char whichway = !item_selected(l);
                         change = select(l, whichway != 0, when() & FL_WHEN_CHANGED);
                         m_activeRow = l;
                     }
-                } else { // Shift pressed
-                    if (m_selection.size()) {
+                }
+                else
+                { // Shift pressed
+                    if (m_selection.size())
+                    {
                         CPackedStrings* ps = &m_selection[m_selection.size() - 1];
                         int index = m_rows.indexOf(ps);
                         m_selection.deselectAll();
                         int itemClicked = l;
-                        if (index < itemClicked) {
+                        if (index < itemClicked)
+                        {
                             int t = index;
                             index = itemClicked;
                             itemClicked = t;
                         }
                         if (itemClicked < 0)
+                        {
                             itemClicked = 0;
+                        }
                         if (index >= (int) m_rows.size())
+                        {
                             index = size() - 1;
+                        }
                         for (int i = itemClicked; i <= index; i++)
+                        {
                             m_selection.select(m_rows[i]);
+                        }
                         change = true;
                         redraw();
-                    } else {
+                    }
+                    else
+                    {
                         change = select_only(l, when() & FL_WHEN_CHANGED);
                     }
                 }
-            } else {
+            }
+            else
+            {
                 change = select_only(l, when() & FL_WHEN_CHANGED);
             }
             if (l < size())
+            {
                 item_clicked(Fl::event_key() - FL_Button);
+            }
             if (Fl::event_clicks())
+            {
                 fireEvent(CE_MOUSE_DOUBLE_CLICK, 0);
+            }
             else
+            {
                 fireEvent(CE_MOUSE_CLICK, 0);
+            }
             break;
         case FL_DRAG:
-            if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight)) {
+            if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight))
+            {
                 header_dragged(Fl::event_x() + m_horizPosition - x());
                 return 1;
             }
             break;
         case FL_RELEASE:
-            if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight)) {
+            if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight))
+            {
                 header_released(Fl::event_x() + m_horizPosition - x());
                 fl_cursor(FL_CURSOR_DEFAULT);
                 return 1;
             }
-            if (change) {
+            if (change)
+            {
                 if (when() & FL_WHEN_RELEASE)
+                {
                     fireEvent(CE_MOUSE_RELEASE, 0);
+                }
                 else if (!(when() & FL_WHEN_CHANGED))
+                {
                     set_changed();
+                }
             }
             break;
         default:
@@ -1660,7 +2076,9 @@ int CListView::handle(int event)
 bool CListView::select_first()
 {
     if (size() == 0)
+    {
         return false;
+    }
     m_top = 0;
     return activate_row(0);
 }
@@ -1668,7 +2086,9 @@ bool CListView::select_first()
 bool CListView::select_last()
 {
     if (size() == 0)
+    {
         return false;
+    }
     return activate_row(size() - 1);
 }
 
@@ -1677,20 +2097,29 @@ bool CListView::select_next()
     int l = m_activeRow;
     // find next row to activate
     int newActiveRow = -1;
-    while ((++l) < (int) size()) {
-        if (item_height(uint32_t(l)) > 0) {
+    while ((++l) < (int) size())
+    {
+        if (item_height(uint32_t(l)) > 0)
+        {
             newActiveRow = l;
             break;
         }
     }
     if (newActiveRow < 0)
+    {
         return false;
+    }
     unsigned cnt = size();
-    for (; m_top < cnt; m_top++) {
+    for (; m_top < cnt; m_top++)
+    {
         if (!item_height(m_top))
+        {
             continue;
+        }
         if (displayed(uint32_t(newActiveRow)))
+        {
             break;
+        }
     }
     return activate_row(uint32_t(newActiveRow));
 }
@@ -1700,20 +2129,29 @@ bool CListView::select_prior()
     int l = m_activeRow;
     // find next row to activate
     int newActiveRow = -1;
-    while ((--l) >= 0) {
-        if (item_height(uint32_t(l)) > 0) {
+    while ((--l) >= 0)
+    {
+        if (item_height(uint32_t(l)) > 0)
+        {
             newActiveRow = l;
             break;
         }
     }
     if (newActiveRow < 0)
+    {
         return false;
-    for (int newTop = m_top; newTop >= 0; newTop--) {
+    }
+    for (int newTop = m_top; newTop >= 0; newTop--)
+    {
         m_top = (uint32_t) newTop;
         if (!item_height(m_top))
+        {
             continue;
+        }
         if (displayed(uint32_t(newActiveRow)))
+        {
             break;
+        }
     }
     return activate_row(uint32_t(newActiveRow));
 }
@@ -1730,21 +2168,29 @@ bool CListView::select_next_page()
     bbox(X, Y, W, H);
     // find the new active row
     unsigned newActiveRow = m_activeRow;
-    for (row = m_activeRow; row < (int) cnt; row++) {
+    for (row = m_activeRow; row < (int) cnt; row++)
+    {
         hh += item_height(uint32_t(row));
         if (hh >= H)
+        {
             break;
+        }
         newActiveRow = (unsigned) row;
     }
     if (newActiveRow == m_activeRow)
+    {
         return false;
+    }
     // find the new top
     hh = 0;
     int newTop = 0;
-    for (row = newActiveRow; row >= 0; row--) {
+    for (row = newActiveRow; row >= 0; row--)
+    {
         hh += item_height(uint32_t(row));
         if (hh >= H)
+        {
             break;
+        }
         newTop = row;
     }
     m_top = (uint32_t) newTop;
@@ -1762,15 +2208,20 @@ bool CListView::select_prior_page()
     bbox(X, Y, W, H);
     // find the new active row
     unsigned newActiveRow = m_activeRow;
-    for (row = m_activeRow; row >= 0; row--) {
+    for (row = m_activeRow; row >= 0; row--)
+    {
         hh += item_height(uint32_t(row));
         if (hh >= H)
+        {
             break;
+        }
         newActiveRow = (unsigned) row;
     }
 
     if (newActiveRow == m_activeRow)
+    {
         return false;
+    }
 
     m_top = newActiveRow;
 
@@ -1786,13 +2237,18 @@ int CListView::find_item(int my)
     bbox(X, Y, W, H);
     int yy = Y;
     unsigned maxl = size();
-    for (unsigned l = m_top; l < maxl; l++) {
+    for (unsigned l = m_top; l < maxl; l++)
+    {
         int hh = item_height(l);
         if (hh <= 0)
+        {
             continue;
+        }
         yy += hh;
         if (my <= yy || yy >= (Y + H))
+        {
             return l;
+        }
     }
     return 0;
 }
@@ -1808,10 +2264,13 @@ bool CListView::displayed(unsigned index) const
     bbox(X, Y, W, H);
     int yy = H;
     unsigned maxl = size();
-    for (unsigned l = m_top; l < maxl && yy > 0; l++) {
+    for (unsigned l = m_top; l < maxl && yy > 0; l++)
+    {
         yy -= item_height(l);
         if (l == index)
+        {
             return yy >= 0;
+        }
     }
     return false;
 }
@@ -1826,33 +2285,50 @@ unsigned CListView::fullWidth() const
     size_t cnt = m_columnList.size();
     size_t ww = 0;
     for (size_t i = 0; i < cnt; i++)
+    {
         if (m_columnList[i].visible())
+        {
             ww += m_columnList[i].width();
+        }
+    }
     return (unsigned) ww;
 }
 
 bool CListView::select(unsigned index, bool i, int docallbacks)
 {
     if (index >= size())
+    {
         return false;
+    }
     bool sel = item_selected(index);
-    if (m_multipleSelection) {
+    if (m_multipleSelection)
+    {
         item_select(index, i);
         redraw_line(index);
-    } else {
+    }
+    else
+    {
         if (i == sel)
+        {
             return false;
+        }
 
         if (i)
+        {
             m_selection.deselectAll();
+        }
         item_select(index, i);
         if (i)
+        {
             displayRow(index);
+        }
         redraw();
     }
 
     if (docallbacks)
+    {
         fireEvent(CE_DATA_CHANGED, 0);
+    }
 
     return true;
 }
@@ -1867,13 +2343,21 @@ void CListView::bbox(int& X, int& Y, int& W, int& H) const
     W = w() - Fl::box_dw(b);
     H = h() - Fl::box_dh(b) - m_headerHeight;
     if (scrollbar.visible())
+    {
         W -= m_scrollbarWidth;
+    }
     if (hscrollbar.visible())
+    {
         H -= m_scrollbarWidth;
+    }
     if (H < 0)
+    {
         H = 0;
+    }
     if (W < 0)
+    {
         W = 0;
+    }
 }
 
 bool CListView::activate_row(unsigned newActiveRow)
@@ -1889,7 +2373,8 @@ bool CListView::activate_row(unsigned newActiveRow)
 
 CPackedStrings* CListView::selectedRow() const
 {
-    if (m_selection.size()) {
+    if (m_selection.size())
+    {
         CPackedStrings& ps = m_selection[0];
         return &ps;
     }
@@ -1900,7 +2385,9 @@ CColumn& CListView::column(const char* colname)
 {
     int index = m_columnList.indexOf(colname);
     if (index >= 0)
+    {
         return m_columnList[index];
+    }
     throw Exception("Column '" + std::string(colname) + "' is not found.");
 }
 
@@ -1908,13 +2395,18 @@ CPackedStrings* CListView::findCaption(const String& caption)
 {
     CPackedStrings* row = m_selection.findCaption(caption);
     if (row)
+    {
         return row;
+    }
 
     unsigned cnt = m_rows.size();
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         row = m_rows[i];
         if (strcmp((*row)[0], caption.c_str()) == 0)
+        {
             return row;
+        }
     }
 
     return nullptr;
@@ -1924,13 +2416,18 @@ CPackedStrings* CListView::findKey(int keyValue)
 {
     CPackedStrings* row = m_selection.findKey(keyValue);
     if (row)
+    {
         return row;
+    }
 
     unsigned cnt = m_rows.size();
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         row = m_rows[i];
         if (row->argument() == keyValue)
+        {
             return row;
+        }
     }
     return nullptr;
 }
@@ -1940,34 +2437,45 @@ void CListView::loadList(const xml::Node* node)
     clear();
     auto ntor = node->begin();
 
-    for (; ntor != node->end(); ++ntor) {
+    for (; ntor != node->end(); ++ntor)
+    {
         xml::Node* anode = *ntor;
 
-        if (anode->name() == "columns") {
+        if (anode->name() == "columns")
+        {
             m_columnList.load(*anode);
             continue;
         }
 
-        if (anode->name() == "rows") {
+        if (anode->name() == "rows")
+        {
             auto itor = anode->begin();
             size_t colCount = m_columnList.size();
-            if (colCount > 0) {
+            if (colCount > 0)
+            {
                 Strings strings;
                 strings.resize(colCount);
-                for (; itor != anode->end(); ++itor) {
+                for (; itor != anode->end(); ++itor)
+                {
                     xml::Node* rowNode = *itor;
                     int rowID = (int) rowNode->getAttribute("id");
                     auto rtor = rowNode->begin();
                     unsigned c = 0;
-                    for (; rtor != rowNode->end(); ++rtor, ++c) {
+                    for (; rtor != rowNode->end(); ++rtor, ++c)
+                    {
                         xml::Node* cellNode = *rtor;
                         unsigned index = (int) cellNode->getAttribute("index");
                         if (index)
+                        {
                             c = index;
+                        }
                         if (c >= colCount)
+                        {
                             break;
+                        }
                         auto ctor = cellNode->begin();
-                        if (ctor != cellNode->end()) {
+                        if (ctor != cellNode->end())
+                        {
                             xml::Node* cdata = *ctor;
                             strings[c] = (char*) cdata->value().c_str();
                         }
@@ -1985,18 +2493,24 @@ void CListView::saveList(xml::Node* node) const
     xml::Node* rowsNode = new xml::Element(node, "rows");
     unsigned rowCount = m_rows.size();
     size_t colCount = m_columnList.size();
-    for (unsigned i = 0; i < rowCount; i++) {
+    for (unsigned i = 0; i < rowCount; i++)
+    {
         CPackedStrings* row = m_rows[i];
         xml::Node* rowNode = new xml::Element(*rowsNode, "row");
         if (row->argument())
+        {
             rowNode->setAttribute("id", row->argument());
+        }
         size_t index = 0;
-        for (size_t c = 0; c < colCount; c++) {
+        for (size_t c = 0; c < colCount; c++)
+        {
             const char* cell = (*row)[(uint16_t) c];
-            if (*cell) {
+            if (*cell)
+            {
                 xml::Node* cellNode = new xml::Element(*rowNode, "cell");
                 new xml::Text(*cellNode, cell);
-                if (index != c) {
+                if (index != c)
+                {
                     cellNode->setAttribute("index", (int) c);
                     index = c;
                 }
@@ -2022,5 +2536,7 @@ void CListView::imageCollection(Strings& iconNames)
 {
     m_iconNames.resize(iconNames.size());
     for (uint32_t i = 0; i < iconNames.size(); i++)
+    {
         m_iconNames[i] = iconNames[i];
+    }
 }

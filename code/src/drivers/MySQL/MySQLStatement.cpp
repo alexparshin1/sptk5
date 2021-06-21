@@ -463,7 +463,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
             case VAR_STRING:
             case VAR_TEXT:
             case VAR_BUFFER:
-                field->setBuffer(data, dataLength, fieldType);
+                field->setBuffer((const uint8_t*) data, dataLength, fieldType);
                 break;
 
             case VAR_INT64:
@@ -608,8 +608,7 @@ void MySQLStatement::fetch()
     } else {
         m_row = mysql_fetch_row(m_result.get());
         if (m_row == nullptr) {
-            auto err = mysql_errno(connection()->m_connection.get());
-            if (err != 0)
+            if (mysql_errno(connection()->m_connection.get()) != 0)
                 throwMySQLError();
             state().eof = true;
         }

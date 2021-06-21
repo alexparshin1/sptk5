@@ -52,21 +52,7 @@ class SP_EXPORT Buffer : public BufferStorage
 
 public:
 
-    /**
-     * Default constructor
-     *
-     * Creates an empty buffer.
-     */
-    Buffer() = default;
-
-    /**
-     * Constructor
-     *
-     * Creates an empty buffer.
-     * The return of the bytes() method will be 0.
-     * @param sz                Buffer size to be pre-allocated
-     */
-    explicit Buffer(size_t sz);
+    using BufferStorage::BufferStorage;
 
     /**
      * Constructor
@@ -77,17 +63,6 @@ public:
      * @param str               Input string
      */
     explicit Buffer(const String& str);
-
-    /**
-     * Constructor
-     *
-     * Creates a buffer from void *data.
-     * The data is copied inside the buffer.
-     * The return of the bytes() method will be the input data size.
-     * @param data              Data buffer
-     * @param sz                Data buffer size
-     */
-    Buffer(const void* data, size_t sz);
 
     /**
      * Copy constructor
@@ -129,6 +104,18 @@ public:
      * @param sz                Required memory size
      */
     void append(const char* data, size_t sz = 0) override
+    {
+        BufferStorage::append(data, sz);
+    }
+
+    /**
+     * Appends the external data of size sz to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param data              External data buffer
+     * @param sz                Required memory size
+     */
+    void append(const uint8_t* data, size_t sz) override
     {
         BufferStorage::append(data, sz);
     }
@@ -181,7 +168,7 @@ public:
      * Access the chars by index
      * @param index             Character index
      */
-    char& operator[](size_t index)
+    uint8_t& operator[](size_t index)
     {
         return data()[index];
     }
@@ -190,7 +177,7 @@ public:
      * Access the chars by index, const version
      * @param index             Character index
      */
-    const char& operator[](size_t index) const
+    const uint8_t& operator[](size_t index) const
     {
         return data()[index];
     }
@@ -254,7 +241,7 @@ public:
      */
     explicit operator String() const
     {
-        return String(data(), bytes());
+        return String((const char*) data(), bytes());
     }
 };
 

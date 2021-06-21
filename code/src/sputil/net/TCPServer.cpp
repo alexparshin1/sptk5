@@ -28,29 +28,35 @@
 #include <utility>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
+
 #if USE_GTEST
+
 #include <sptk5/net/TCPServerConnection.h>
+
 #endif
 
 using namespace std;
 using namespace sptk;
 
-const map<String,LogDetails::MessageDetail> LogDetails::detailNames {
-    { "serial_id", MessageDetail::SERIAL_ID },
-    { "source_ip", MessageDetail::SOURCE_IP },
-    { "request_name", MessageDetail::REQUEST_NAME },
-    { "request_duration", MessageDetail::REQUEST_DURATION },
-    { "request_data", MessageDetail::REQUEST_DATA },
-    { "response_data", MessageDetail::RESPONSE_DATA },
-    { "thread_pooling", MessageDetail::THREAD_POOLING }
+const map<String, LogDetails::MessageDetail> LogDetails::detailNames{
+    {"serial_id",        MessageDetail::SERIAL_ID},
+    {"source_ip",        MessageDetail::SOURCE_IP},
+    {"request_name",     MessageDetail::REQUEST_NAME},
+    {"request_duration", MessageDetail::REQUEST_DURATION},
+    {"request_data",     MessageDetail::REQUEST_DATA},
+    {"response_data",    MessageDetail::RESPONSE_DATA},
+    {"thread_pooling",   MessageDetail::THREAD_POOLING}
 };
 
 LogDetails::LogDetails(const Strings& details)
 {
-    for (const auto & detailName: details) {
+    for (const auto& detailName: details)
+    {
         auto itor = detailNames.find(detailName);
         if (itor == detailNames.end())
+        {
             continue;
+        }
         m_details.insert(itor->second);
     }
 }
@@ -58,28 +64,35 @@ LogDetails::LogDetails(const Strings& details)
 String LogDetails::toString(const String& delimiter) const
 {
     Strings names;
-    for (const auto & itor: detailNames) {
+    for (const auto& itor: detailNames)
+    {
         if (m_details.find(itor.second) != m_details.end())
+        {
             names.push_back(itor.first);
+        }
     }
     return names.join(delimiter.c_str());
 }
 
 TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
-: ThreadPool((uint32_t) threadLimit,
-             chrono::minutes(1),
-             listenerName,
-             logDetails.has(LogDetails::MessageDetail::THREAD_POOLING) ? logEngine : nullptr),
-  m_logDetails(logDetails)
+    : ThreadPool((uint32_t) threadLimit,
+                 chrono::minutes(1),
+                 listenerName,
+                 logDetails.has(LogDetails::MessageDetail::THREAD_POOLING) ? logEngine : nullptr),
+      m_logDetails(logDetails)
 {
     if (logEngine != nullptr)
+    {
         m_logger = make_shared<Logger>(*logEngine);
+    }
 
     constexpr unsigned maxHostNameLength = 128;
-    char hostname[maxHostNameLength] = { "localhost" };
+    char hostname[maxHostNameLength] = {"localhost"};
     int rc = gethostname(hostname, sizeof(hostname));
     if (rc == 0)
+    {
         m_host = Host(hostname);
+    }
 }
 
 TCPServer::~TCPServer()
@@ -97,7 +110,9 @@ void TCPServer::host(const Host& host)
 {
     SharedLock(m_mutex);
     if (!m_listenerThread)
+    {
         m_host = host;
+    }
 }
 
 void TCPServer::listen(uint16_t port)
@@ -134,7 +149,8 @@ const SSLKeys& TCPServer::getSSLKeys() const
 
 void TCPServer::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable)
 {
-    if (eventType == Type::RUNABLE_FINISHED) {
+    if (eventType == Type::RUNABLE_FINISHED)
+    {
         delete runable;
         runable = nullptr;
     }
@@ -150,7 +166,7 @@ class EchoConnection : public TCPServerConnection
 {
 public:
     EchoConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
-    : TCPServerConnection(server, connectionSocket, connectionAddress)
+        : TCPServerConnection(server, connectionSocket, connectionAddress)
     {
     }
 
@@ -174,18 +190,27 @@ public:
     void run() override
     {
         Buffer data;
-        while (!terminated()) {
-            try {
-                if (socket().readyToRead(chrono::seconds(1))) {
+        while (!terminated())
+        {
+            try
+            {
+                if (socket().readyToRead(chrono::seconds(1)))
+                {
                     if (socket().readLine(data) == 0)
+                    {
                         return;
+                    }
                     string str(data.c_str());
                     str += "\n";
                     socket().write(str);
-                } else
+                }
+                else
+                {
                     break;
+                }
             }
-            catch (const Exception& e) {
+            catch (const Exception& e)
+            {
                 CERR(e.what() << endl)
             }
         }
@@ -197,7 +222,8 @@ class EchoServer : public sptk::TCPServer
 {
 public:
 
-    EchoServer() : TCPServer("EchoServer")
+    EchoServer()
+        : TCPServer("EchoServer")
     {}
 
 protected:
@@ -214,7 +240,8 @@ TEST(SPTK_TCPServer, minimal)
 {
     Buffer buffer;
 
-    try {
+    try
+    {
         EchoServer echoServer;
         echoServer.listen(testEchoServerPort);
 
@@ -227,11 +254,14 @@ TEST(SPTK_TCPServer, minimal)
                      "The session is terminated when this row is received", "\n");
 
         int rowCount = 0;
-        for (const auto& row: rows) {
+        for (const auto& row: rows)
+        {
             socket.write(row + "\n");
             buffer.bytes(0);
             if (socket.readyToRead(chrono::seconds(3)))
+            {
                 socket.readLine(buffer);
+            }
             EXPECT_STREQ(row.c_str(), buffer.c_str());
             ++rowCount;
         }
@@ -239,7 +269,8 @@ TEST(SPTK_TCPServer, minimal)
 
         socket.close();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << e.what();
     }
 }

@@ -238,7 +238,7 @@ void FirebirdStatement::setParameterValues()
             case VAR_BUFFER:
                 sqlvar.sqltype = SQL_BLOB + 1;
                 sqlvar.sqllen = sizeof(ISC_QUAD);
-                sqlvar.sqldata = (ISC_SCHAR*) param->conversionBuffer();
+                sqlvar.sqldata = param->conversionBuffer();
                 createBLOB((ISC_QUAD*)sqlvar.sqldata, param);
                 break;
 
@@ -246,7 +246,7 @@ void FirebirdStatement::setParameterValues()
                 sqlvar.sqltype = SQL_TYPE_DATE + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(ISC_DATE);
-                sqlvar.sqldata = (ISC_SCHAR*) param->conversionBuffer();
+                sqlvar.sqldata = param->conversionBuffer();
                 dateTimeToFirebirdDate(firebirdDateTime, param->getDate(), VAR_DATE);
                 isc_encode_sql_date(&firebirdDateTime, (ISC_DATE*)sqlvar.sqldata);
                 break;
@@ -255,7 +255,7 @@ void FirebirdStatement::setParameterValues()
                 sqlvar.sqltype = SQL_TIMESTAMP + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(ISC_TIMESTAMP);
-                sqlvar.sqldata = (ISC_SCHAR*) param->conversionBuffer();
+                sqlvar.sqldata = param->conversionBuffer();
                 pts = (ISC_TIMESTAMP*) sqlvar.sqldata;
 
                 dateTimeToFirebirdDate(firebirdDateTime, param->getDateTime(), VAR_DATE);
@@ -351,7 +351,7 @@ isc_blob_handle FirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter*
     );
     connection()->checkStatus(m_status_vector.data(), __FILE__, __LINE__);
 
-    const char *segment = param->getBuffer();
+    const char *segment = param->getText();
     size_t remaining = param->dataSize();
     while (remaining)
     {
@@ -422,7 +422,7 @@ void FirebirdStatement::fetchResult(FieldList& fields)
         }
         switch (sqlvar.sqltype & 0xFFFE) {
             case SQL_BLOB:
-                field->setBuffer("", 0);
+                field->setBuffer((const uint8_t*) "", 0);
                 fetchBLOB((ISC_QUAD*)sqlvar.sqldata, field);
                 break;
 
@@ -482,12 +482,12 @@ void FirebirdStatement::fetchResult(FieldList& fields)
                     pos--;
                 pos++;
                 sqlvar.sqldata[pos] = 0;
-                field->setBuffer(sqlvar.sqldata + 2, pos, VAR_TEXT);
+                field->setBuffer((const uint8_t*) sqlvar.sqldata + 2, pos, VAR_TEXT);
                 break;
 
             case SQL_VARYING:
                 len = *(uint16_t*) sqlvar.sqldata;
-                field->setBuffer(sqlvar.sqldata + 2, len, VAR_STRING);
+                field->setBuffer((const uint8_t*) sqlvar.sqldata + 2, len, VAR_STRING);
                 break;
 
             default:

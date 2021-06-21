@@ -29,7 +29,9 @@
 #include <sptk5/net/BaseSocket.h>
 
 #ifndef _WIN32
+
 #include <sys/poll.h>
+
 #endif
 
 using namespace std;
@@ -58,7 +60,9 @@ void sptk::throwSocketError(const String& operation, const char* file, int line)
     errorStr = strerror(errno);
 #endif
     if (!errorStr.empty())
+    {
         throw Exception(operation + ": " + errorStr, file, line);
+    }
 }
 
 #ifdef _WIN32
@@ -67,7 +71,7 @@ void BaseSocket::init() noexcept
     if (m_inited)
         return;
     m_inited =  true;
-	WSADATA  wsaData = {};
+    WSADATA  wsaData = {};
     const WORD     wVersionRequested = MAKEWORD (2, 0);
     WSAStartup (wVersionRequested, &wsaData);
 }
@@ -81,7 +85,7 @@ void BaseSocket::cleanup() noexcept
 
 // Constructor
 BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-: m_sockfd(INVALID_SOCKET), m_domain(domain), m_type(type), m_protocol(protocol)
+    : m_sockfd(INVALID_SOCKET), m_domain(domain), m_type(type), m_protocol(protocol)
 {
 #ifdef _WIN32
     init();
@@ -110,9 +114,13 @@ void BaseSocket::blockingMode(bool blocking) const
 #else
     int flags = fcntl(m_sockfd, F_GETFL);
     if ((flags & O_NONBLOCK) == O_NONBLOCK)
+    {
         flags -= O_NONBLOCK;
+    }
     if (!blocking)
+    {
         flags |= O_NONBLOCK;
+    }
     int rc = fcntl(m_sockfd, F_SETFL, flags);
 #endif
     if (rc != 0)
@@ -124,11 +132,11 @@ size_t BaseSocket::socketBytes()
     uint32_t bytes = 0;
     if (
 #ifdef _WIN32
-    int32_t rc = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
+        int32_t rc = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
 #else
-    int32_t rc = ioctl(m_sockfd, FIONREAD, &bytes);
+        int32_t rc = ioctl(m_sockfd, FIONREAD, &bytes);
 #endif
-    rc < 0)
+rc < 0)
         THROW_SOCKET_ERROR("Can't get socket bytes");
 
     return bytes;
@@ -164,7 +172,9 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
     auto timeoutMS = (int) timeout.count();
 
     if (active())
+    {
         close();
+    }
 
     // Create a new socket
     m_sockfd = socket(m_domain, m_type, m_protocol);
@@ -174,13 +184,16 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
     int rc = 0;
     string currentOperation;
 
-    switch (openMode) {
+    switch (openMode)
+    {
         case OpenMode::CONNECT:
             currentOperation = "connect";
-            if (timeoutMS != 0) {
+            if (timeoutMS != 0)
+            {
                 blockingMode(false);
                 rc = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
-                switch (rc) {
+                switch (rc)
+                {
                     case ENETUNREACH:
                         throw Exception("Network unreachable");
                     case ECONNREFUSED:
@@ -188,22 +201,30 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
                     default:
                         break;
                 }
-                try {
+                try
+                {
                     if (!readyToWrite(timeout))
+                    {
                         throw Exception("Connection timeout");
+                    }
                 }
-                catch (const Exception&) {
+                catch (const Exception&)
+                {
                     close();
                     throw;
                 }
                 rc = 0;
                 blockingMode(true);
-            } else
+            }
+            else
+            {
                 rc = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
+            }
             break;
 
         case OpenMode::BIND:
-            if (m_type != SOCK_DGRAM) {
+            if (m_type != SOCK_DGRAM)
+            {
 #ifndef _WIN32
                 setOption(SOL_SOCKET, SO_REUSEPORT, 1);
 #else
@@ -212,7 +233,8 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
             }
             currentOperation = "bind";
             rc = ::bind(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
-            if (rc == 0 && m_type != SOCK_DGRAM) {
+            if (rc == 0 && m_type != SOCK_DGRAM)
+            {
                 rc = ::listen(m_sockfd, SOMAXCONN);
                 currentOperation = "listen";
             }
@@ -222,7 +244,8 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
             break;
     }
 
-    if (rc != 0) {
+    if (rc != 0)
+    {
         stringstream error;
         error << "Can't " << currentOperation << " to " << m_host.toString(false) << ". " << SystemException::osError()
               << ".";
@@ -238,7 +261,8 @@ void BaseSocket::_open(const Host&, OpenMode, bool, std::chrono::milliseconds)
 
 void BaseSocket::bind(const char* address, uint32_t portNumber)
 {
-    if (m_sockfd == INVALID_SOCKET) {
+    if (m_sockfd == INVALID_SOCKET)
+    {
         // Create a new socket
         m_sockfd = socket(m_domain, m_type, m_protocol);
         if (m_sockfd == INVALID_SOCKET)
@@ -250,9 +274,13 @@ void BaseSocket::bind(const char* address, uint32_t portNumber)
     addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
 
     if (address == nullptr)
+    {
         addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
     else
+    {
         addr.sin_addr.s_addr = inet_addr(address);
+    }
 
     addr.sin_port = htons(uint16_t(portNumber));
 
@@ -263,7 +291,9 @@ void BaseSocket::bind(const char* address, uint32_t portNumber)
 void BaseSocket::listen(uint16_t portNumber)
 {
     if (portNumber != 0)
+    {
         m_host.port(portNumber);
+    }
 
     sockaddr_in addr = {};
 
@@ -277,7 +307,8 @@ void BaseSocket::listen(uint16_t portNumber)
 
 void BaseSocket::close() noexcept
 {
-    if (m_sockfd != INVALID_SOCKET) {
+    if (m_sockfd != INVALID_SOCKET)
+    {
 #ifndef _WIN32
         shutdown(m_sockfd, SHUT_RDWR);
         ::close(m_sockfd);
@@ -302,14 +333,18 @@ SOCKET BaseSocket::detach()
     return sockfd;
 }
 
-size_t BaseSocket::read(char* buffer, size_t size, sockaddr_in* from)
+size_t BaseSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
 {
     int bytes;
-    if (from != nullptr) {
+    if (from != nullptr)
+    {
         socklen_t flen = sizeof(sockaddr_in);
         bytes = (int) ::recvfrom(m_sockfd, buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
-    } else
+    }
+    else
+    {
         bytes = (int) ::recv(m_sockfd, buffer, (int32_t) size, 0);
+    }
 
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read from socket");
@@ -322,7 +357,9 @@ size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
     buffer.checkSize(size);
     size_t bytes = read(buffer.data(), size, from);
     if (bytes != size)
+    {
         buffer.bytes(bytes);
+    }
     return bytes;
 }
 
@@ -339,16 +376,23 @@ size_t BaseSocket::write(const uint8_t* buffer, size_t size, const sockaddr_in* 
     int bytes;
     const auto* p = buffer;
 
-    if ((int)size == -1)
-        size = strlen((const char*)buffer);
+    if ((int) size == -1)
+    {
+        size = strlen((const char*) buffer);
+    }
 
     const size_t total = size;
     auto remaining = (int) size;
-    while (remaining > 0) {
+    while (remaining > 0)
+    {
         if (peer != nullptr)
+        {
             bytes = (int) sendto(m_sockfd, p, (int32_t) size, 0, (const sockaddr*) peer, sizeof(sockaddr_in));
+        }
         else
+        {
             bytes = (int) send(p, (int32_t) size);
+        }
         if (bytes == -1)
             THROW_SOCKET_ERROR("Can't write to socket");
         remaining -= bytes;
@@ -359,12 +403,12 @@ size_t BaseSocket::write(const uint8_t* buffer, size_t size, const sockaddr_in* 
 
 size_t BaseSocket::write(const Buffer& buffer, const sockaddr_in* peer)
 {
-    return write((const uint8_t*)buffer.data(), buffer.bytes(), peer);
+    return write(buffer.data(), buffer.bytes(), peer);
 }
 
 size_t BaseSocket::write(const String& buffer, const sockaddr_in* peer)
 {
-    return write((const uint8_t*)buffer.c_str(), buffer.length(), peer);
+    return write((const uint8_t*) buffer.c_str(), buffer.length(), peer);
 }
 
 #if (__FreeBSD__ | __OpenBSD__)
@@ -404,7 +448,9 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
+    {
         throw ConnectionException("Connection closed");
+    }
     return rc != 0;
 #endif
 }
@@ -417,7 +463,7 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
     fdarray.fd = m_sockfd;
     fdarray.events = POLLWRNORM;
     switch (WSAPoll(&fdarray, 1, timeoutMS)) {
-    case 0: 
+    case 0:
         return false;
     case 1:
         if (fdarray.revents & POLLWRNORM)
@@ -438,7 +484,9 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
+    {
         throw Exception("Connection closed");
+    }
     return rc != 0;
 #endif
 }
@@ -484,11 +532,13 @@ TEST(SPTK_BaseSocket, option)
 
     BaseSocket socket;
     int value = 0;
-    try {
+    try
+    {
         socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
         FAIL() << "Shouldn't get socket option for closed socket";
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         SUCCEED() << "Can't get socket option for closed socket";
     }
 

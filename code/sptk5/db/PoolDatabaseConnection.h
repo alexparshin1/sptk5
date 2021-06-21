@@ -63,14 +63,14 @@ enum class DatabaseConnectionType : uint16_t
 /**
  * Types of the objects for DatabaseConnection::listObjects method
  */
-enum DatabaseObjectType : uint8_t
+enum class DatabaseObjectType : uint8_t
 {
-    DOT_UNDEFINED,          ///< Undefined
-    DOT_TABLES,             ///< Tables
-    DOT_VIEWS,              ///< Views
-    DOT_PROCEDURES,         ///< Stored procedures
-    DOT_FUNCTIONS,          ///< Stored functions
-    DOT_DATABASES           ///< Available databases
+    UNDEFINED,          ///< Undefined
+    TABLES,             ///< Tables
+    VIEWS,              ///< Views
+    PROCEDURES,         ///< Stored procedures
+    FUNCTIONS,          ///< Stored functions
+    DATABASES           ///< Available databases
 };
 
 /**
@@ -90,7 +90,7 @@ using QueryColumnTypeSizeVector = std::vector<QueryColumnTypeSize>;
 /**
  * Map of column names to column type and size structures
  */
-using QueryColumnTypeSizeMap = std::map<std::string,QueryColumnTypeSize>;
+using QueryColumnTypeSizeMap = std::map<std::string, QueryColumnTypeSize, std::less<>>;
 
 class SP_EXPORT PoolDatabaseConnectionQueryMethods
 {
@@ -208,7 +208,7 @@ protected:
 /**
  * Database connector
  *
- * Implements a thread-safe connection to general database. It is used
+ * Implements a thread-safe connection to generDOT_al database. It is used
  * as a base class for actual database driver classes.
  */
 class SP_EXPORT PoolDatabaseConnection : public PoolDatabaseConnectionQueryMethods
@@ -217,6 +217,8 @@ class SP_EXPORT PoolDatabaseConnection : public PoolDatabaseConnectionQueryMetho
     friend class QueryStatementManagement;
 
 public:
+
+    using DBHandle = uint8_t*;
 
     /**
      * Destructor
@@ -247,7 +249,7 @@ public:
     /**
      * Returns the database connection handle
      */
-    virtual void* handle() const;
+    virtual DBHandle handle() const;
 
     /**
      * Returns the connection string
@@ -500,6 +502,8 @@ private:
     String                      m_driverDescription;        ///< Driver description is filled by the particular driver.
     bool                        m_inTransaction {false};    ///< The in-transaction flag
 };
+
+using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;
 
 /**
  * Escape SQL string for bulk insert

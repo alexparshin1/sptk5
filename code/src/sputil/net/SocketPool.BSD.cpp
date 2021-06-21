@@ -37,7 +37,7 @@ using namespace std;
 using namespace sptk;
 
 SocketPool::SocketPool(SocketEventCallback eventsCallback)
-        : m_pool(INVALID_SOCKET), m_eventsCallback(eventsCallback)
+    : m_pool(INVALID_SOCKET), m_eventsCallback(eventsCallback)
 {
     open();
 }
@@ -50,22 +50,30 @@ SocketPool::~SocketPool()
 void SocketPool::open()
 {
     if (m_pool != INVALID_SOCKET)
+    {
         return;
+    }
     m_pool = kqueue();
     if (m_pool == -1)
+    {
         new SystemException("epoll_create1");
+    }
 }
 
 void SocketPool::close()
 {
     if (m_pool == INVALID_SOCKET)
+    {
         return;
+    }
 
     ::close(m_pool);
 
     scoped_lock lock(*this);
     for (auto itor: m_socketData)
+    {
         free(itor.second);
+    }
 
     m_socketData.clear();
     m_pool = INVALID_SOCKET;
@@ -74,7 +82,9 @@ void SocketPool::close()
 void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 {
     if (!socket.active())
+    {
         throw Exception("Socket is closed");
+    }
 
     scoped_lock lock(*this);
 
@@ -84,7 +94,9 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 
     int rc = kevent(m_pool, event, 1, NULL, 0, NULL);
     if (rc == -1)
+    {
         throw SystemException("Can't add socket to kqueue");
+    }
 
     m_socketData[&socket] = event;
 }
@@ -92,16 +104,20 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 void SocketPool::forgetSocket(BaseSocket& socket)
 {
     if (!socket.active())
+    {
         throw Exception("Socket is closed");
+    }
 
     struct kevent* event;
 
     {
         scoped_lock lock(*this);
 
-        map<BaseSocket*,void*>::iterator itor = m_socketData.find(&socket);
+        map<BaseSocket*, void*>::iterator itor = m_socketData.find(&socket);
         if (itor == m_socketData.end())
+        {
             return;
+        }
 
         event = (struct kevent*) itor->second;
         m_socketData.erase(itor);
@@ -111,7 +127,9 @@ void SocketPool::forgetSocket(BaseSocket& socket)
     EV_SET(event, socketFD, 0, EV_DELETE, 0, 0, 0);
     int rc = kevent(m_pool, event, 1, NULL, 0, NULL);
     if (rc == -1)
+    {
         throw SystemException("Can't remove socket from kqueue");
+    }
 
     free(event);
 }
@@ -120,18 +138,26 @@ void SocketPool::forgetSocket(BaseSocket& socket)
 
 void SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
 {
-    static const struct timespec timeout = { time_t(timeoutMS.count() / 1000), long((timeoutMS.count() % 1000) * 1000000) };
+    static const struct timespec timeout = {time_t(timeoutMS.count() / 1000),
+                                            long((timeoutMS.count() % 1000) * 1000000)};
     struct kevent events[MAXEVENTS];
 
     int eventCount = kevent(m_pool, NULL, 0, events, MAXEVENTS, &timeout);
     if (eventCount < 0)
+    {
         throw SystemException("Error waiting for socket activity");
+    }
 
-    for (int i = 0; i < eventCount; i++) {
+    for (int i = 0; i < eventCount; i++)
+    {
         struct kevent& event = events[i];
         if (event.flags & EV_EOF)
+        {
             m_eventsCallback(event.udata, SocketEventType::CONNECTION_CLOSED);
+        }
         else
+        {
             m_eventsCallback(event.udata, SocketEventType::HAS_DATA);
+        }
     }
 }

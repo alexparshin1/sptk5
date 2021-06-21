@@ -145,7 +145,7 @@ public:
     /**
      * @brief Returns the database connection handle
      */
-    void* handle() const override;
+    DBHandle handle() const override;
 
     /**
      * @brief Returns the PostgreSQL driver description for the active connection

@@ -27,11 +27,15 @@
 #include <sptk5/cutils>
 
 #include <FL/fl_draw.H>
+
 #ifdef _WIN32
 #include <FL/images/png.h>
 #else
+
 #include <png.h>
+
 #endif
+
 #include <sptk5/gui/CPngImage.h>
 
 using namespace sptk;
@@ -49,7 +53,9 @@ static void png_read(png_structp pp, png_bytep buf, png_size_t len)
     const Buffer* buffer = p->buffer;
     png_size_t tail = buffer->bytes() - p->read_offset;
     if (len > tail)
+    {
         len = tail;
+    }
     memcpy(buf, p->buffer->data() + p->read_offset, len);
     p->read_offset += (int) len;
 }
@@ -74,29 +80,41 @@ void CPngImage::load(const Buffer& imagedata)
 
     int color_type = png_get_color_type(pp, info);
     if (color_type == PNG_COLOR_TYPE_PALETTE)
+    {
         png_set_expand(pp);
+    }
     if (color_type & PNG_COLOR_MASK_COLOR)
+    {
         channels = 3;
+    }
     else
+    {
         channels = 1;
+    }
 
     int num_trans = 0;
     png_color_16p trans_color;
     png_bytep trans_alpha;
     png_get_tRNS(pp, info, &trans_alpha, &num_trans, &trans_color);
     if ((color_type & PNG_COLOR_MASK_ALPHA) || num_trans)
+    {
         channels++;
+    }
 
     w((int) png_get_image_width(pp, info));
     h((int) png_get_image_height(pp, info));
     d(channels);
 
     int bit_depth = png_get_bit_depth(pp, info);
-    if (bit_depth < 8) {
+    if (bit_depth < 8)
+    {
         png_set_packing(pp);
         png_set_expand(pp);
-    } else if (bit_depth == 16)
+    }
+    else if (bit_depth == 16)
+    {
         png_set_strip_16(pp);
+    }
 
 #if defined(HAVE_PNG_GET_VALID) && defined(HAVE_PNG_SET_TRNS_TO_ALPHA)
     // Handle transparency...
@@ -111,11 +129,15 @@ void CPngImage::load(const Buffer& imagedata)
     rows = new png_bytep[h()];
 
     for (i = 0; i < h(); i++)
+    {
         rows[i] = (png_bytep) (array + i * w() * d());
+    }
 
     // Read the image, handling interlacing as needed...
     for (i = png_set_interlace_handling(pp); i > 0; i--)
+    {
         png_read_rows(pp, rows, nullptr, h());
+    }
 
 #ifdef WIN32
     // Some Windows graphics drivers don't honor transparency when RGB == white
@@ -135,13 +157,13 @@ void CPngImage::load(const Buffer& imagedata)
 }
 
 CPngImage::CPngImage(const Buffer& imagedata)
-        : Fl_RGB_Image(nullptr, 0, 0)
+    : Fl_RGB_Image(nullptr, 0, 0)
 {
     load(imagedata);
 }
 
 CPngImage::CPngImage(const Fl_RGB_Image* image)
-        : Fl_RGB_Image(nullptr, 0, 0)
+    : Fl_RGB_Image(nullptr, 0, 0)
 {
     unsigned arraySize = unsigned(image->w() * image->h() * image->d());
     array = new uchar[arraySize];
@@ -154,13 +176,16 @@ CPngImage::CPngImage(const Fl_RGB_Image* image)
 }
 
 CPngImage::CPngImage(const String& fileName)
-: Fl_RGB_Image(nullptr, 0, 0)
+    : Fl_RGB_Image(nullptr, 0, 0)
 {
-    try {
+    try
+    {
         Buffer imageData;
         imageData.loadFromFile(fileName);
         load(imageData);
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
     }
 }
@@ -169,13 +194,21 @@ static Fl_RGB_Image*
 subRGBImage(Fl_RGB_Image* image, unsigned offsetX, unsigned offsetY, unsigned width, unsigned height)
 {
     if (offsetX > (unsigned) image->w())
+    {
         offsetX = (unsigned) image->w();
+    }
     if (offsetY > (unsigned) image->h())
+    {
         offsetY = (unsigned) image->h();
+    }
     if (offsetX + width > (unsigned) image->w())
+    {
         width = (unsigned) image->w() - offsetX;
+    }
     if (offsetY + height > (unsigned) image->h())
+    {
         height = (unsigned) image->h() - offsetY;
+    }
     unsigned bytesPerRow = image->w() * image->d();
     unsigned newBytesPerRow = width * image->d();
     unsigned totalBytes = height * newBytesPerRow;
@@ -185,7 +218,8 @@ subRGBImage(Fl_RGB_Image* image, unsigned offsetX, unsigned offsetY, unsigned wi
     newImage->alloc_array = 1;
 
     const uchar* imageRow = imageArray + offsetY * bytesPerRow + offsetX * image->d();
-    for (unsigned row = 0; row < height; row++) {
+    for (unsigned row = 0; row < height; row++)
+    {
         memcpy(newArray, imageRow, newBytesPerRow);
         newArray += newBytesPerRow;
         imageRow += bytesPerRow;
@@ -194,9 +228,10 @@ subRGBImage(Fl_RGB_Image* image, unsigned offsetX, unsigned offsetY, unsigned wi
 }
 
 void CPngImage::cutStretchDraw(
-        CPngImage* sourceImage, int srcX, int srcY, int srcW, int srcH, int destX, int destY, int destW, int destH)
+    CPngImage* sourceImage, int srcX, int srcY, int srcW, int srcH, int destX, int destY, int destW, int destH)
 {
-    if (destW <= 0 || destH <= 0) return;
+    if (destW <= 0 || destH <= 0)
+    { return; }
     Fl_RGB_Image* img = subRGBImage(sourceImage, srcX, srcY, srcW, srcH);
     auto* stretched = (Fl_RGB_Image*) img->copy(destW, destH);
     stretched->draw(destX, destY);
@@ -205,14 +240,19 @@ void CPngImage::cutStretchDraw(
 }
 
 void CPngImage::cutTileDraw(
-        CPngImage* sourceImage, int srcX, int srcY, int srcW, int srcH, int destX, int destY, int destW, int destH)
+    CPngImage* sourceImage, int srcX, int srcY, int srcW, int srcH, int destX, int destY, int destW, int destH)
 {
-    if (destW <= 0 || destH <= 0) return;
+    if (destW <= 0 || destH <= 0)
+    { return; }
     Fl_RGB_Image* img = subRGBImage(sourceImage, srcX, srcY, srcW, srcH);
     fl_push_clip(destX, destY, destW, destH);
     for (int y = destY; y < destY + destH; y += srcH)
+    {
         for (int x = destX; x < destX + destW; x += srcW)
+        {
             img->draw(x, y);
+        }
+    }
     fl_pop_clip();
     delete img;
 }
@@ -222,29 +262,43 @@ CPngImage::drawResized(int xx, int yy, int ww, int hh, int cornerWidth, CPattern
 {
     int xSideSpace = w() - cornerWidth * 2;
     if (xSideSpace < 2)
+    {
         xSideSpace = 2;
+    }
     int cornerSizeX = (w() - xSideSpace) / 2;
 
     int ySideSpace = h() - cornerWidth * 2;
     if (ySideSpace < 2)
+    {
         ySideSpace = 2;
+    }
     int cornerSizeY = (h() - ySideSpace) / 2;
 
     if (cornerSizeX > ww / 2)
+    {
         cornerSizeX = ww / 2;
+    }
     if (cornerSizeY > hh / 2)
+    {
         cornerSizeY = hh / 2;
+    }
 
     /// Draw corners
     int imageHeight = h();
     int imageWidth = w();
     for (int destY = yy, srcY = 0; destY < yy + hh; destY += hh - cornerSizeY, srcY += imageHeight - cornerSizeY)
+    {
         for (int destX = xx, srcX = 0; destX < xx + ww; destX += ww - cornerSizeX, srcX += imageWidth - cornerSizeX)
+        {
             draw(destX, destY, cornerSizeX, cornerSizeY, srcX, srcY);
+        }
+    }
 
     resized_draw_function resizedDraw = cutTileDraw;
     if (drawMode == PDM_STRETCH)
+    {
         resizedDraw = cutStretchDraw;
+    }
 
     resizedDraw(this, cornerSizeX, 0, w() - cornerSizeX * 2, cornerSizeY, xx + cornerSizeX, yy, ww - cornerSizeX * 2,
                 cornerSizeY);
@@ -255,8 +309,10 @@ CPngImage::drawResized(int xx, int yy, int ww, int hh, int cornerWidth, CPattern
     resizedDraw(this, w() - cornerSizeX, cornerSizeY, cornerSizeX, h() - cornerSizeY * 2, xx + ww - cornerSizeX,
                 yy + cornerSizeY, cornerSizeX, hh - cornerSizeY * 2);
     if (drawBackground)
+    {
         resizedDraw(this, cornerSizeX, cornerSizeY, w() - cornerSizeX * 2, h() - cornerSizeY * 2, xx + cornerSizeX,
                     yy + cornerSizeY, ww - cornerSizeX * 2, hh - cornerSizeY * 2);
+    }
 }
 
 void
@@ -281,23 +337,29 @@ CPngImage::drawResized(int xx, int yy, int ww, int hh, int border[], CPatternDra
 
     resized_draw_function resizedDraw = cutTileDraw;
     if (drawMode == PDM_STRETCH)
+    {
         resizedDraw = cutStretchDraw;
+    }
 
-    /// Draw frame parts 
-    if (xSideSpace > 0) {
+    /// Draw frame parts
+    if (xSideSpace > 0)
+    {
         resizedDraw(this, border[BORDER_LEFT], 0, xSideSpace, border[BORDER_TOP], xx + border[BORDER_LEFT], yy,
                     ww - xBorderSpace, border[BORDER_TOP]);
         resizedDraw(this, border[BORDER_LEFT], h() - border[BORDER_BOTTOM], xSideSpace, border[BORDER_BOTTOM],
                     xx + border[BORDER_LEFT], yy + hh - border[BORDER_BOTTOM], ww - xBorderSpace,
                     border[BORDER_BOTTOM]);
     }
-    if (ySideSpace > 0) {
+    if (ySideSpace > 0)
+    {
         resizedDraw(this, 0, border[BORDER_TOP], border[BORDER_LEFT], ySideSpace, xx, yy + border[BORDER_TOP],
                     border[BORDER_LEFT], hh - yBorderSpace);
         resizedDraw(this, w() - border[BORDER_RIGHT], border[BORDER_TOP], border[BORDER_RIGHT], ySideSpace,
                     xx + ww - border[BORDER_RIGHT], yy + border[BORDER_TOP], border[BORDER_RIGHT], hh - yBorderSpace);
     }
     if (drawBackground && xSideSpace > 0 && ySideSpace > 0)
+    {
         resizedDraw(this, border[BORDER_LEFT], border[BORDER_TOP], xSideSpace, ySideSpace, xx + border[BORDER_LEFT],
                     yy + border[BORDER_TOP], ww - xBorderSpace, hh - yBorderSpace);
+    }
 }

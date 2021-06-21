@@ -35,8 +35,9 @@ void WSFieldIndex::setElements(const Strings& elementNames, std::initializer_lis
     m_elementIndex.clear();
 
     size_t index = 0;
-    for (auto* field: fieldList) {
-        m_elementIndex[ elementNames[index] ] = field;
+    for (auto* field: fieldList)
+    {
+        m_elementIndex[elementNames[index]] = field;
         ++index;
     }
 
@@ -49,8 +50,9 @@ void WSFieldIndex::setAttributes(const Strings& attributeNames, std::initializer
     m_attributeIndex.clear();
 
     size_t index = 0;
-    for (auto* field: fieldList) {
-        m_attributeIndex[ attributeNames[index] ] = field;
+    for (auto* field: fieldList)
+    {
+        m_attributeIndex[attributeNames[index]] = field;
         ++index;
     }
 
@@ -61,50 +63,70 @@ WSType* WSFieldIndex::find(const String& name) const
 {
     auto itor = m_elementIndex.find(name);
     if (itor != m_elementIndex.end())
+    {
         return itor->second;
+    }
 
     itor = m_attributeIndex.find(name);
     if (itor != m_attributeIndex.end())
+    {
         return itor->second;
+    }
 
     return nullptr;
 }
 
 inline bool fieldTypeHas(WSFieldIndex::Group fieldType, WSFieldIndex::Group checkFor)
 {
-    return ((int)fieldType & (int)checkFor) != 0;
+    return ((int) fieldType & (int) checkFor) != 0;
 }
 
 void WSFieldIndex::forEach(const function<bool(WSType*)>& method, Group fieldType)
 {
-    if (fieldTypeHas(fieldType, Group::ELEMENTS)) {
-        for (auto* field: m_elements) {
+    if (fieldTypeHas(fieldType, Group::ELEMENTS))
+    {
+        for (auto* field: m_elements)
+        {
             if (!method(field))
+            {
                 return;
+            }
         }
     }
 
-    if (fieldTypeHas(fieldType, Group::ATTRIBUTES)) {
-        for (auto* field: m_attributes) {
+    if (fieldTypeHas(fieldType, Group::ATTRIBUTES))
+    {
+        for (auto* field: m_attributes)
+        {
             if (!method(field))
+            {
                 return;
+            }
         }
     }
 }
 
 void WSFieldIndex::forEach(const function<bool(const WSType*)>& method, Group fieldType) const
 {
-    if (fieldTypeHas(fieldType, Group::ELEMENTS)) {
-        for (const auto* field: m_elements) {
+    if (fieldTypeHas(fieldType, Group::ELEMENTS))
+    {
+        for (const auto* field: m_elements)
+        {
             if (!method(field))
+            {
                 return;
+            }
         }
     }
 
-    if (fieldTypeHas(fieldType, Group::ATTRIBUTES)) {
-        for (const auto* field: m_attributes) {
+    if (fieldTypeHas(fieldType, Group::ATTRIBUTES))
+    {
+        for (const auto* field: m_attributes)
+        {
             if (!method(field))
+            {
                 return;
+            }
         }
     }
 }

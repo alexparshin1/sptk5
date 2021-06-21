@@ -31,9 +31,7 @@
 #include <string>
 #include <map>
 
-namespace sptk {
-
-namespace xml {
+namespace sptk::xml {
 
 /**
  * @addtogroup XML
@@ -210,5 +208,4 @@ private:
 /**
  * @}
  */
-}
 }

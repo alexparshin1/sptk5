@@ -54,7 +54,7 @@ public:
      * @param bufSource         Source buffer
      * @param len               Size of source buffer
      */
-    static void encode(Buffer& bufDest, const char* bufSource, size_t len);
+    static void encode(Buffer& bufDest, const uint8_t* bufSource, size_t len);
 
     /**
      * @brief Data encoding.

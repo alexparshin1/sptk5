@@ -76,11 +76,15 @@ String CTreeView::selectedPath() const
     std::string result;
     CTreeItem* node = m_treeControl->selected();
     if (node == nullptr)
+    {
         return "";
-    do {
+    }
+    do
+    {
         result = "/" + std::string(node->label()) + result;
         node = node->parentItem();
-    } while (node != nullptr && node->parentItem() != nullptr);
+    }
+    while (node != nullptr && node->parentItem() != nullptr);
     return result;
 }
 
@@ -92,21 +96,25 @@ void CTreeView::resize(int x, int y, int w, int h)
     x += m_labelWidth;
 
     if (m_menuButton != nullptr)
+    {
         m_menuButton->resize(x, y, w, this->h());
+    }
 
     m_treeControl->resize(x, y, w, h);
 }
 
 void CTreeView::load(Query* loadQuery)
 {
-    if (m_fieldName.empty()) return;
+    if (m_fieldName.empty())
+    { return; }
     Field& fld = (*loadQuery)[m_fieldName.c_str()];
-    data(*(Variant*)&fld);
+    data(*(Variant*) &fld);
 }
 
 void CTreeView::save(Query* updateQuery)
 {
-    if (m_fieldName.empty()) return;
+    if (m_fieldName.empty())
+    { return; }
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     param = data();
 }
@@ -124,7 +132,8 @@ void CTreeView::save(xml::Node* node) const
 Variant CTreeView::data() const
 {
     CTreeItem* node = m_treeControl->selected();
-    if (node != nullptr) return (int32_t) (uint64_t) node->user_data();
+    if (node != nullptr)
+    { return (int32_t) (uint64_t) node->user_data(); }
     return int32_t(0);
 }
 
@@ -132,5 +141,7 @@ void CTreeView::data(const Variant& v)
 {
     CTreeItem* node = m_treeControl->findData((void*) (uint64_t) v.asInteger());
     if (node != nullptr)
+    {
         m_treeControl->makeVisible(node);
+    }
 }

@@ -31,7 +31,7 @@ using namespace std;
 using namespace sptk;
 
 TCPServerListener::TCPServerListener(TCPServer* server, uint16_t port)
-: Thread("CTCPServer::Listener"), m_server(server)
+    : Thread("CTCPServer::Listener"), m_server(server)
 {
     m_listenerSocket.host(Host("localhost", port));
 }
@@ -43,40 +43,51 @@ TCPServerListener::~TCPServerListener()
 
 void TCPServerListener::acceptConnection()
 {
-    try {
+    try
+    {
         SOCKET connectionFD;
         sockaddr_in connectionInfo = {};
         m_listenerSocket.accept(connectionFD, connectionInfo);
         if (connectionFD == -1)
+        {
             return;
-        if (m_server->allowConnection(&connectionInfo)) {
+        }
+        if (m_server->allowConnection(&connectionInfo))
+        {
             auto* connection = m_server->createConnection(connectionFD, &connectionInfo);
             m_server->execute(connection);
         }
-        else {
+        else
+        {
 #ifndef _WIN32
-            shutdown(connectionFD,SHUT_RDWR);
-            ::close (connectionFD);
+            shutdown(connectionFD, SHUT_RDWR);
+            ::close(connectionFD);
 #else
             closesocket(connectionFD);
 #endif
         }
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         m_server->log(LogPriority::ERR, e.what());
     }
 }
 
 void TCPServerListener::threadFunction()
 {
-    try {
-        while (!terminated()) {
+    try
+    {
+        while (!terminated())
+        {
             scoped_lock lock(*this);
             if (m_listenerSocket.readyToRead(chrono::milliseconds(100)))
+            {
                 acceptConnection();
+            }
         }
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         m_server->log(LogPriority::ERR, e.what());
     }
 }
@@ -84,8 +95,8 @@ void TCPServerListener::threadFunction()
 void TCPServerListener::terminate()
 {
     Thread::terminate();
-	scoped_lock lock(*this);
-	m_listenerSocket.close();
+    scoped_lock lock(*this);
+    m_listenerSocket.close();
 }
 
 void TCPServerListener::stop()

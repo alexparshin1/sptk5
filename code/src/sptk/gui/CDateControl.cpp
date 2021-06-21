@@ -42,7 +42,7 @@ void CDateControl::date_cb(Fl_Widget* w, void*)
 }
 
 CDateControl::CDateControl(int x, int y, int w, int h, const char* label)
-        : Fl_Group(x, y, w, h, label)
+    : Fl_Group(x, y, w, h, label)
 {
     box(FL_DOWN_BOX);
     m_input = new CInput_;
@@ -75,9 +75,11 @@ void CDateControl::preferredHeight(int& hh)
     int bh = 18;
     int dh = Fl::box_dh(box());
     CThemes::sizeButton(THM_BUTTON_COMBO, bw, bh);
-    if (parentControl) {
+    if (parentControl)
+    {
         hh = parentControl->textSize() + 8;
-        if (hh < bh) hh = bh;
+        if (hh < bh)
+        { hh = bh; }
     }
     hh += dh;
 }
@@ -90,7 +92,8 @@ void CDateControl::preferredSize(int& ww, int& hh, int& editorWidth, int& button
     int bh = 18;
     CThemes::sizeButton(THM_BUTTON_COMBO, bw, bh);
     int dw = Fl::box_dw(box());
-    if (parentControl) {
+    if (parentControl)
+    {
         fl_font(parentControl->textFont(), parentControl->textSize());
         editorWidth = (int) fl_width("00/00/00000");
     }

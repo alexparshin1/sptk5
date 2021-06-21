@@ -48,44 +48,64 @@ void CThemes::loadGtkButton(xml::Node* imageNode, std::map<CThemeImageState, std
 
     String fileName = (String) imageNode->getAttribute("file");
     if (fileName.empty())
+    {
         fileName = (String) imageNode->getAttribute("overlay_file");
+    }
 
     String state = upperCase((String) imageNode->getAttribute("state", "NORMAL"));
     //string border = imageNode->getAttribute("border");
     String shadow = upperCase((String) imageNode->getAttribute("shadow", "OUT"));
     if (shadow == "ETCHED_IN")
+    {
         return;
-    if (fileName[0] == '/') fileName = fileName.substr(1, 255);
+    }
+    if (fileName[0] == '/')
+    { fileName = fileName.substr(1, 255); }
     int buttonState = buttonStates.indexOf(state);
     if (defaultFrame)
+    {
         buttonState = THM_DEFAULT_FRAME;
+    }
     else if (buttonState > -1 && shadow == "IN")
+    {
         buttonState++;
+    }
     if (buttonState > -1 && fileName.find(".png") != STRING_NPOS)
+    {
         buttonFileNames[CThemeImageState(buttonState)] = m_themeFolder + fileName;
+    }
 }
 
 void CThemes::loadGtkButtonFileNames(
-        xml::Document& xml, string XPath, map<CThemeImageState, string>& buttonFileNames, string orientation)
+    xml::Document& xml, string XPath, map<CThemeImageState, string>& buttonFileNames, string orientation)
 {
     xml::NodeVector buttonImages;
 
     buttonFileNames.clear();
     xml.select(buttonImages, XPath);
-    for (auto imageNode : buttonImages) {
+    for (auto imageNode : buttonImages)
+    {
         if (!orientation.empty() && (String) imageNode->getAttribute("arrow_direction") != orientation)
+        {
             continue;
+        }
         loadGtkButton(imageNode, buttonFileNames);
     }
 
     if (buttonFileNames[THM_IMAGE_ACTIVE].empty())
+    {
         buttonFileNames[THM_IMAGE_ACTIVE] = buttonFileNames[THM_IMAGE_NORMAL];
+    }
 
     if (buttonFileNames[THM_IMAGE_NORMAL_HIGHLITED].empty())
+    {
         buttonFileNames[THM_IMAGE_NORMAL_HIGHLITED] = buttonFileNames[THM_IMAGE_NORMAL];
+    }
 
     if (buttonFileNames[THM_IMAGE_ACTIVE_HIGHLITED].empty())
+    {
         buttonFileNames[THM_IMAGE_ACTIVE_HIGHLITED] = buttonFileNames[THM_IMAGE_ACTIVE];
+    }
 }
 
 void CThemes::loadGtkButtons(xml::Document& xml, const String& styleName, CThemeImageCollection& buttons,
@@ -100,10 +120,12 @@ void CThemes::loadGtkTheme(const String& gtkThemeName)
     CGtkThemeParser gtkThemeLoader;
     const String& testThemeName(gtkThemeName);
 
-    try {
+    try
+    {
         gtkThemeLoader.load(testThemeName);
     }
-    catch (...) {
+    catch (...)
+    {
         return;
     }
 
@@ -114,10 +136,12 @@ void CThemes::loadGtkTheme(const String& gtkThemeName)
     Buffer buffer;
     gtkThemeLoader.xml().save(buffer, true);
 
-    try { // Debug
+    try
+    { // Debug
         buffer.saveToFile("/svn/sptk5/trunk/" + testThemeName + ".xml");
     }
-    catch (...) {}
+    catch (...)
+    {}
 
     xml::Document& xml = gtkThemeLoader.xml();
 
@@ -140,7 +164,8 @@ void CThemes::loadGtkTheme(const String& gtkThemeName)
 
     xml::NodeVector bgImageNodes;
     xml.select(bgImageNodes, "/styles/style/bg_pixmap");
-    if (!bgImageNodes.empty()) {
+    if (!bgImageNodes.empty())
+    {
         String fileName = CThemeImageCollection::gtkFullFileName((String) bgImageNodes[0]->getAttribute("NORMAL"));
         m_background[3] = loadValidatePNGImage(fileName, true);
     }

@@ -28,9 +28,11 @@
 #include <sptk5/Brotli.h>
 
 #if USE_GTEST
+
 #include <sptk5/Base64.h>
 #include <sptk5/StopWatch.h>
 #include <sptk5/cutils>
+
 #endif
 
 #include <brotli/decode.h>
@@ -50,29 +52,31 @@ class Context
 {
 public:
     Context(ReadBuffer& inputBuffer, Buffer& outputBuffer)
-    : inputData(inputBuffer), outputData(outputBuffer), input_file_length(inputBuffer.length())
+        : inputData(inputBuffer), outputData(outputBuffer), input_file_length(inputBuffer.length())
     {
         available_out = kBufferSize;
         next_out = output;
     }
 
     BrotliEncoderState* createEncoderInstance() const;
+
     void CompressFile(BrotliEncoderState* s);
+
     void DecompressFile(BrotliDecoderState* s);
 
 private:
     /* Parameters */
     int quality = 9;
 
-    array<uint8_t, kBufferSize * 2> buffer {};
+    array<uint8_t, kBufferSize * 2> buffer{};
 
     uint8_t* input = buffer.data();
     uint8_t* output = buffer.data() + kBufferSize;
     ReadBuffer& inputData;
 
     Buffer& outputData;
-    int64_t input_file_length {0};  /* -1, if impossible to calculate */
-    size_t available_in {0};
+    int64_t input_file_length{0};  /* -1, if impossible to calculate */
+    size_t available_in{0};
     const uint8_t* next_in = nullptr;
 
     size_t available_out;
@@ -88,7 +92,9 @@ private:
     {
         available_in = inputData.available();
         if (available_in > kBufferSize)
+        {
             available_in = kBufferSize;
+        }
         inputData.read(input, available_in);
         next_in = input;
     }
@@ -97,7 +103,9 @@ private:
     {
         auto out_size = (size_t) (next_out - output);
         if (out_size > 0)
-            outputData.append((const char*) output, out_size);
+        {
+            outputData.append(output, out_size);
+        }
     }
 
     void ProvideOutput()
@@ -122,18 +130,22 @@ BrotliEncoderState* Context::createEncoderInstance() const
     /* 0, or not specified by user; could be chosen by compressor. */
     uint32_t _lgwin = DEFAULT_LGWIN;
     /* Use file size to limit lgwin. */
-    if (input_file_length >= 0) {
+    if (input_file_length >= 0)
+    {
         _lgwin = BROTLI_MIN_WINDOW_BITS;
-        while (BROTLI_MAX_BACKWARD_LIMIT(_lgwin) < (uint64_t) input_file_length) {
+        while (BROTLI_MAX_BACKWARD_LIMIT(_lgwin) < (uint64_t) input_file_length)
+        {
             ++_lgwin;
-            if (_lgwin == BROTLI_MAX_WINDOW_BITS) break;
+            if (_lgwin == BROTLI_MAX_WINDOW_BITS)
+            { break; }
         }
     }
     BrotliEncoderSetParameter(instance, BROTLI_PARAM_LGWIN, _lgwin);
 
-    if (input_file_length > 0) {
+    if (input_file_length > 0)
+    {
         uint32_t size_hint = input_file_length < (1 << 30) ?
-                             (uint32_t)input_file_length : (1U << 30);
+                             (uint32_t) input_file_length : (1U << 30);
         BrotliEncoderSetParameter(instance, BROTLI_PARAM_SIZE_HINT, size_hint);
     }
 
@@ -143,8 +155,10 @@ BrotliEncoderState* Context::createEncoderInstance() const
 void Context::CompressFile(BrotliEncoderState* s)
 {
     BROTLI_BOOL is_eof = BROTLI_FALSE;
-    for (;;) {
-        if (available_in == 0 && !is_eof) {
+    for (;;)
+    {
+        if (available_in == 0 && !is_eof)
+        {
             ProvideInput();
             is_eof = !HasMoreInput();
         }
@@ -152,14 +166,18 @@ void Context::CompressFile(BrotliEncoderState* s)
         if (!BrotliEncoderCompressStream(s,
                                          is_eof ? BROTLI_OPERATION_FINISH : BROTLI_OPERATION_PROCESS,
                                          &available_in, &next_in,
-                                         &available_out, &next_out, nullptr)) {
+                                         &available_out, &next_out, nullptr))
+        {
             throw Exception("failed to compress data");
         }
 
         if (available_out == 0)
+        {
             ProvideOutput();
+        }
 
-        if (BrotliEncoderIsFinished(s)) {
+        if (BrotliEncoderIsFinished(s))
+        {
             FlushOutput();
             return;
         }
@@ -169,19 +187,31 @@ void Context::CompressFile(BrotliEncoderState* s)
 void Context::DecompressFile(BrotliDecoderState* s)
 {
     BrotliDecoderResult result = BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT;
-    for (;;) {
-        if (result == BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT) {
+    for (;;)
+    {
+        if (result == BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT)
+        {
             if (!HasMoreInput())
+            {
                 throw Exception("corrupt input data");
+            }
             ProvideInput();
-        } else if (result == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT) {
+        }
+        else if (result == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT)
+        {
             ProvideOutput();
-        } else if (result == BROTLI_DECODER_RESULT_SUCCESS) {
+        }
+        else if (result == BROTLI_DECODER_RESULT_SUCCESS)
+        {
             FlushOutput();
             if (available_in != 0 || HasMoreInput())
+            {
                 throw Exception("corrupt input data");
+            }
             return;
-        } else {
+        }
+        else
+        {
             throw Exception("corrupt input data");
         }
 
@@ -208,14 +238,18 @@ void Brotli::decompress(Buffer& dest, const Buffer& src)
 
     BrotliDecoderState* s = BrotliDecoderCreateInstance(nullptr, nullptr, nullptr);
     if (!s)
+    {
         throw Exception("out of memory");
+    }
 
     BrotliDecoderSetParameter(s, BROTLI_DECODER_PARAM_LARGE_WINDOW, 1U);
-    try {
+    try
+    {
         context->DecompressFile(s);
         BrotliDecoderDestroyInstance(s);
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         BrotliDecoderDestroyInstance(s);
         throw;
     }
@@ -226,9 +260,9 @@ void Brotli::decompress(Buffer& dest, const Buffer& src)
 static const String originalTestString = "This is a test of compression using Brotli algorithm";
 
 #ifdef _WIN32
-	static const String originalTestStringBase64 = "H4sIAAAAAAAACwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
+static const String originalTestStringBase64 = "H4sIAAAAAAAACwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
 #else
-	static const String originalTestStringBase64 = "oZgBACBuY+u6dus1GkIllLABJwCJBp6OOGyMnS2IO2hX4F/C9cYbegYltUixcXITXgA=";
+static const String originalTestStringBase64 = "oZgBACBuY+u6dus1GkIllLABJwCJBp6OOGyMnS2IO2hX4F/C9cYbegYltUixcXITXgA=";
 #endif
 
 TEST(SPTK_Brotli, compress)
@@ -237,7 +271,7 @@ TEST(SPTK_Brotli, compress)
     String compressedBase64;
     Brotli::compress(compressed, Buffer(originalTestString));
     Base64::encode(compressedBase64, compressed);
-    
+
     EXPECT_STREQ(originalTestStringBase64.c_str(), compressedBase64.c_str());
 }
 
@@ -269,14 +303,16 @@ TEST(SPTK_Brotli, performance)
 
     COUT("Brotli compressor:" << endl)
     COUT("Compressed " << data.bytes() << " bytes to " << compressed.bytes() << " bytes for "
-        << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / 1E6 << " Mb/s)" << endl)
+                       << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / 1E6 << " Mb/s)"
+                       << endl)
 
     stopWatch.start();
     Brotli::decompress(decompressed, compressed);
     stopWatch.stop();
 
     COUT("Decompressed " << compressed.bytes() << " bytes to " << decompressed.bytes() << " bytes for "
-                       << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / 1E6 << " Mb/s)" << endl)
+                         << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / 1E6
+                         << " Mb/s)" << endl)
 
     EXPECT_STREQ(data.c_str(), decompressed.c_str());
 }

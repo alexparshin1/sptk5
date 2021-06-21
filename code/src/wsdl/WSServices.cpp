@@ -36,21 +36,23 @@ WSServices::WSServices(const SWSRequest& defaultService)
 
 WSServices::WSServices(const WSServices& other)
 {
-    scoped_lock   lock(other.m_mutex);
+    scoped_lock lock(other.m_mutex);
     m_services = other.m_services;
 }
 
 void WSServices::set(const sptk::String& location, const SWSRequest& service)
 {
-    scoped_lock   lock(m_mutex);
+    scoped_lock lock(m_mutex);
     m_services[location] = service;
 }
 
 WSRequest& WSServices::get(const sptk::String& location) const
 {
-    scoped_lock   lock(m_mutex);
+    scoped_lock lock(m_mutex);
     auto itor = m_services.find(location);
     if (itor == m_services.end())
+    {
         itor = m_services.find("");
+    }
     return *itor->second;
 }

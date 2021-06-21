@@ -71,7 +71,7 @@ public:
      * @param item T&, List item
      * @param data void*, Optional function-specific data
      */
-    using CallbackFunction = std::function<bool(T& item, void* data)>;
+    using CallbackFunction = std::function<bool(T& item)>;
 
     /**
      * Default constructor
@@ -190,7 +190,7 @@ public:
      * @param data              Function-specific data
      * @returns true if every list item was processed
      */
-    bool each(const CallbackFunction& callbackFunction, void* data=nullptr)
+    bool each(const CallbackFunction& callbackFunction)
     {
         std::scoped_lock lock(m_mutex);
 
@@ -206,7 +206,7 @@ public:
             // for the remaining queue items
             if (rc) {
                 try {
-                    rc = callbackFunction(item, data);
+                    rc = callbackFunction(item);
                 }
                 catch (const Exception&) {
                     rc = false;

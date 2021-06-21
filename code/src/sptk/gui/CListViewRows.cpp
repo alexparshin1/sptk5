@@ -50,8 +50,10 @@ CListViewRows::~CListViewRows()
 void CListViewRows::truncate(unsigned cnt)
 {
     size_t rowCount = m_rows.size();
-    if (cnt < rowCount) {
-        for (size_t i = cnt; i < rowCount; i++) {
+    if (cnt < rowCount)
+    {
+        for (size_t i = cnt; i < rowCount; i++)
+        {
             auto* row = (CPackedStrings*) m_rows[i];
             m_fullHeight -= row->height;
             delete row;
@@ -88,14 +90,17 @@ unsigned CListViewRows::update(unsigned index, CPackedStrings* ss)
 void CListViewRows::clear()
 {
     for (auto* packedStrings: m_rows)
+    {
         delete packedStrings;
+    }
     m_rows.clear();
     m_fullHeight = 0;
 }
 
 void CListViewRows::remove(unsigned index)
 {
-    if (index < m_rows.size()) {
+    if (index < m_rows.size())
+    {
         auto* row = (CPackedStrings*) m_rows[index];
         m_fullHeight -= row->height;
         delete row;
@@ -144,9 +149,11 @@ void CListViewRows::sort()
     Fl::check();
 
     size_t m_size = m_rows.size();
-    if (m_sortColumn >= 0 && m_size > 1) {
+    if (m_sortColumn >= 0 && m_size > 1)
+    {
         CListViewRows::currentSortColumn = m_sortColumn;
-        switch (m_sortColumnType) {
+        switch (m_sortColumnType)
+        {
             case VAR_BOOL:
             case VAR_INT:
                 std::sort(m_rows.begin(), m_rows.end(), compare_integers);
@@ -164,12 +171,14 @@ void CListViewRows::sort()
                 std::sort(m_rows.begin(), m_rows.end(), compare_strings);
                 break;
         }
-        if (!m_sortAscending) {
+        if (!m_sortAscending)
+        {
             // reversing sort order for the descending sort
             size_t cnt = m_rows.size();
             size_t mid = cnt / 2;
             size_t j = cnt - 1;
-            for (size_t i = 0; i < mid; i++, j--) {
+            for (size_t i = 0; i < mid; i++, j--)
+            {
                 CPackedStrings* item = m_rows[i];
                 m_rows[i] = m_rows[j];
                 m_rows[j] = item;
@@ -184,18 +193,21 @@ void CListViewRows::sortColumn(int column, VariantType columnType, bool sortNow)
 {
     m_sortColumn = column;
     m_sortColumnType = columnType;
-    if (sortNow) sort();
+    if (sortNow)
+    { sort(); }
 }
 
 void CListViewRows::sortAscending(bool ascending, bool sortNow)
 {
     m_sortAscending = ascending;
-    if (sortNow) sort();
+    if (sortNow)
+    { sort(); }
 }
 
 int CListViewRows::indexOf(CPackedStrings* ss) const
 {
     auto itor = find(m_rows.begin(), m_rows.end(), ss);
-    if (itor == m_rows.end()) return -1;
+    if (itor == m_rows.end())
+    { return -1; }
     return (int) distance(m_rows.begin(), itor);
 }

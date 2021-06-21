@@ -44,11 +44,13 @@ void CHtmlBox::ctor_init(const char* label)
     m_control->when(FL_WHEN_CHANGED);
     labelWidth(0);
     if (label)
+    {
         data(label);
+    }
 }
 
 CHtmlBox::CHtmlBox(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CInput("", layoutSize, layoutAlignment, false)
+    : CInput("", layoutSize, layoutAlignment, false)
 {
     ctor_init(label);
 }
@@ -110,11 +112,17 @@ bool CHtmlBox::preferredSize(int& w, int& h)
 
     int hh = totalHeight + 10;
     if (hh < (int) labelHeight())
+    {
         hh = labelHeight();
+    }
     if (h < hh)
+    {
         h = hh;
+    }
     if (w < (int) m_labelWidth + 16)
+    {
         w = m_labelWidth + 16;
+    }
 
     return false;
 }

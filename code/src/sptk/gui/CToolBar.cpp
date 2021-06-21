@@ -36,7 +36,7 @@ using namespace std;
 using namespace sptk;
 
 CToolBar::CToolBar(CLayoutAlign layoutAlignment)
-: CGroup("", 5, layoutAlignment)
+    : CGroup("", 5, layoutAlignment)
 {
     m_colapsed = false;
     layoutSpacing(4);
@@ -63,7 +63,9 @@ CButton* CToolBar::addButton(CButtonKind buttonKind, Fl_Callback_p cb, const cha
 {
     auto* b = new CButton(buttonKind, buttonAlign, label);
     if (cb != nullptr)
+    {
         b->callback(cb);
+    }
     return b;
 }
 
@@ -72,9 +74,12 @@ CButton* CToolBar::addButton(CButtonKind buttonKind, Fl_Callback_p cb, const cha
 
 void CToolBar::resize(int xx, int yy, int ww, int hh)
 {
-    if (m_colapsed) {
+    if (m_colapsed)
+    {
         Fl_Widget::resize(xx, yy, ww, HIDE_BAR_WIDTH + Fl::box_dh(box()));
-    } else {
+    }
+    else
+    {
         Fl_Widget::resize(xx, yy, ww, hh);
         xx += HIDE_BAR_WIDTH;
         ww -= HIDE_BAR_WIDTH;
@@ -84,12 +89,17 @@ void CToolBar::resize(int xx, int yy, int ww, int hh)
 
 bool CToolBar::preferredSize(int& ww, int& hh)
 {
-    if (m_colapsed) {
+    if (m_colapsed)
+    {
         hh = HIDE_BAR_WIDTH + Fl::box_dh(box());
         int wm = HIDE_BAR_WIDTH_COLLAPSED + Fl::box_dw(box());
         if (ww < wm)
+        {
             ww = wm;
-    } else {
+        }
+    }
+    else
+    {
         ww -= HIDE_BAR_WIDTH + 1;
         autoLayout(0, 0, ww, hh, false);
         ww += HIDE_BAR_WIDTH + 1;
@@ -99,18 +109,26 @@ bool CToolBar::preferredSize(int& ww, int& hh)
 
 int CToolBar::handle(int event)
 {
-    if (event == FL_PUSH) {
+    if (event == FL_PUSH)
+    {
         int xzone = HIDE_BAR_WIDTH;
         if (m_colapsed)
+        {
             xzone = HIDE_BAR_WIDTH_COLLAPSED;
+        }
 
-        if (Fl::event_x() <= x() + xzone) {
+        if (Fl::event_x() <= x() + xzone)
+        {
             m_colapsed = !m_colapsed;
             auto* parentLayoutManager = dynamic_cast<CLayoutManager*>(parent());
             if (parentLayoutManager != nullptr)
+            {
                 parentLayoutManager->relayout();
+            }
             else
+            {
                 relayout();
+            }
             window()->redraw();
             return 1;
         }
@@ -126,17 +144,22 @@ void CToolBar::draw()
     int xs = x() + dx + 1;
     int ys = y() + dy + 1;
     int hs = h() - dh - 2;
-    if (m_colapsed) {
+    if (m_colapsed)
+    {
         draw_box();
         int xe = xs + HIDE_BAR_WIDTH_COLLAPSED - 4;
-        for (int xx = xs; xx < xe; xx += 3) {
+        for (int xx = xs; xx < xe; xx += 3)
+        {
             fl_draw_box(FL_THIN_UP_BOX, xx, ys, 2, 2, FL_WHITE);
             fl_draw_box(FL_THIN_UP_BOX, xx + 1, ys + 3, 2, 2, FL_WHITE);
         }
-    } else {
+    }
+    else
+    {
         CGroup::draw();
         int ye = ys + hs - 2;
-        for (int yy = ys; yy < ye; yy += 3) {
+        for (int yy = ys; yy < ye; yy += 3)
+        {
             fl_draw_box(FL_THIN_UP_BOX, xs, yy, 2, 2, FL_WHITE);
             fl_draw_box(FL_THIN_UP_BOX, xs + 3, yy + 1, 2, 2, FL_WHITE);
         }

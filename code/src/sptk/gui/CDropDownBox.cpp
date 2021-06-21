@@ -49,7 +49,7 @@ void CDBDropDownListView::onExit()
 
 //===========================================================================
 CDBDropDownList::CDBDropDownList(int width, int height, const char* label)
-: CPopupWindow(width, height, label)
+    : CPopupWindow(width, height, label)
 {
     layoutSpacing(0);
     begin();
@@ -78,7 +78,8 @@ int CDBDropDownList::handle(int event)
 {
     int rc = CPopupWindow::handle(event);
 
-    if (rc) return rc;
+    if (rc)
+    { return rc; }
 
     return listView->handle(event);
 }

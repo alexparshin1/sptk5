@@ -32,19 +32,24 @@ using namespace sptk;
 
 WSListener::WSListener(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
                        const WSConnection::Options& options)
-: TCPServer(services.get("").title(), threadCount, &logger, options.logDetails),
-  m_services(services),
-  m_logger(logger),
-  m_options(options)
+    : TCPServer(services.get("").title(), threadCount, &logger, options.logDetails),
+      m_services(services),
+      m_logger(logger),
+      m_options(options)
 {
-    if (!hostname.empty()) {
+    if (!hostname.empty())
+    {
         host(Host(hostname));
     }
 
     if (m_options.paths.htmlIndexPage.empty())
+    {
         m_options.paths.htmlIndexPage = "index.html";
+    }
     if (m_options.paths.wsRequestPage.empty())
+    {
         m_options.paths.wsRequestPage = "request";
+    }
 }
 
 ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)

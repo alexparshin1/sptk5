@@ -34,39 +34,45 @@ using namespace chrono;
 #define MAXEVENTS 128
 
 SocketEvents::SocketEvents(const String& name, const SocketEventCallback& eventsCallback, milliseconds timeout)
-: Thread(name), m_socketPool(eventsCallback), m_timeout(timeout)
+    : Thread(name), m_socketPool(eventsCallback), m_timeout(timeout)
 {
     m_socketPool.open();
 }
 
 SocketEvents::~SocketEvents()
 {
-	stop();
+    stop();
 }
 
 void SocketEvents::stop()
 {
-	try {
-	    m_socketPool.close();
-		if (running()) {
-			terminate();
-			join();
-		}
-	}
-	catch (const Exception& e) {
-		CERR(e.message() << endl)
-	}
+    try
+    {
+        m_socketPool.close();
+        if (running())
+        {
+            terminate();
+            join();
+        }
+    }
+    catch (const Exception& e)
+    {
+        CERR(e.message() << endl)
+    }
 }
 
 void SocketEvents::add(BaseSocket& socket, void* userData)
 {
-	if (!running()) {
-		scoped_lock lock(m_mutex);
-		if (m_shutdown)
-			throw Exception("SocketEvents already stopped");
-		run();
-		m_started.wait_for(true, milliseconds(1000));
-	}
+    if (!running())
+    {
+        scoped_lock lock(m_mutex);
+        if (m_shutdown)
+        {
+            throw Exception("SocketEvents already stopped");
+        }
+        run();
+        m_started.wait_for(true, milliseconds(1000));
+    }
     m_socketPool.watchSocket(socket, userData);
 }
 
@@ -79,15 +85,22 @@ void SocketEvents::threadFunction()
 {
     m_socketPool.open();
     m_started = true;
-    while (!terminated()) {
-        try {
+    while (!terminated())
+    {
+        try
+        {
             m_socketPool.waitForEvents(m_timeout);
         }
-        catch (const Exception& e) {
-        	if (m_socketPool.active()) {
-				CERR(e.message() << endl)
-			} else
-        		break;
+        catch (const Exception& e)
+        {
+            if (m_socketPool.active())
+            {
+                CERR(e.message() << endl)
+            }
+            else
+            {
+                break;
+            }
         }
     }
     m_socketPool.close();
@@ -95,9 +108,9 @@ void SocketEvents::threadFunction()
 
 void SocketEvents::terminate()
 {
-	Thread::terminate();
-	scoped_lock lock(m_mutex);
-	m_shutdown = true;
+    Thread::terminate();
+    scoped_lock lock(m_mutex);
+    m_shutdown = true;
 }
 
 size_t SocketEvents::size() const

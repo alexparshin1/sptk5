@@ -29,6 +29,7 @@
 #ifdef _WIN32
 #include <io.h>
 #endif
+
 #include <sys/stat.h>
 #include <fcntl.h>
 
@@ -39,43 +40,59 @@
 using namespace std;
 using namespace sptk;
 
-bool CFileSaveDialog::okPressed() {
-   string fname;
-   try {
-      fname = fileName();
-      if (!fname.length()) 
-         throw Exception("Please, select or type in the filename.");
-      fname = removeTrailingSlash(directory()) + CFileDialog::slashStr + fname;
+bool CFileSaveDialog::okPressed()
+{
+    string fname;
+    try
+    {
+        fname = fileName();
+        if (!fname.length())
+        {
+            throw Exception("Please, select or type in the filename.");
+        }
+        fname = removeTrailingSlash(directory()) + CFileDialog::slashStr + fname;
 
-      int fh = open(fname.c_str(),O_RDONLY);
-      if (fh >= 0) {
-         close(fh);
-         if (!spAsk("File exists, overwrite it?"))
-            return false;
-         fh = open(fname.c_str(),O_RDWR);
-         if (fh < 0)
-            throw SystemException("File is write-protected.");
-         close(fh);
-      } else {
-         fh = creat(fname.c_str(),S_IWRITE);
-         if (fh < 0)
-            throw SystemException("Can't create the file.");
-         close(fh);
-         if (::remove(fname.c_str()) != 0)
-            throw SystemException("Can't create temporary file file.");
-      }
-      return true;
-   }
-   catch(Exception&  e) {
-      spError("Can't save file "+fname +".\n"+string(e.what()));
-   }
-   return false;
+        int fh = open(fname.c_str(), O_RDONLY);
+        if (fh >= 0)
+        {
+            close(fh);
+            if (!spAsk("File exists, overwrite it?"))
+            {
+                return false;
+            }
+            fh = open(fname.c_str(), O_RDWR);
+            if (fh < 0)
+            {
+                throw SystemException("File is write-protected.");
+            }
+            close(fh);
+        }
+        else
+        {
+            fh = creat(fname.c_str(), S_IWRITE);
+            if (fh < 0)
+            {
+                throw SystemException("Can't create the file.");
+            }
+            close(fh);
+            if (::remove(fname.c_str()) != 0)
+            {
+                throw SystemException("Can't create temporary file file.");
+            }
+        }
+        return true;
+    }
+    catch (Exception& e)
+    {
+        spError("Can't save file " + fname + ".\n" + string(e.what()));
+    }
+    return false;
 }
 
 CFileSaveDialog::CFileSaveDialog(const string& caption)
-: CFileDialog(caption,true)
+    : CFileDialog(caption, true)
 {
-   m_okButton->label("Save");
-   m_okButton->buttonImage(SP_SAVE_BUTTON);
-   m_directoryView->multiSelect(false);
+    m_okButton->label("Save");
+    m_okButton->buttonImage(SP_SAVE_BUTTON);
+    m_directoryView->multiSelect(false);
 }

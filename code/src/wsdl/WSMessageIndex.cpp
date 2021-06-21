@@ -32,7 +32,8 @@ using namespace sptk;
 WSMessageIndex::WSMessageIndex(const Strings& messages)
 {
     int i = 0;
-    for (auto& message: messages) {
+    for (auto& message: messages)
+    {
         m_messageIndex[message] = i;
         ++i;
     }
@@ -43,7 +44,8 @@ int WSMessageIndex::indexOf(const String& message) const
     scoped_lock lock(m_mutex);
     auto itor = m_messageIndex.find(message);
     if (itor == m_messageIndex.end())
+    {
         return -1;
+    }
     return itor->second;
 }
-

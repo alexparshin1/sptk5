@@ -32,25 +32,33 @@ using namespace sptk;
 
 void WSBasicType::addElement(xml::Node* parent, const char* _name) const
 {
-    String elementName = _name == nullptr? name() : _name;
-    String text(isNull()? "": asString());
+    String elementName = _name == nullptr ? name() : _name;
+    String text(isNull() ? "" : asString());
     if (m_optional && (isNull() || text.empty()))
+    {
         return;
+    }
     auto* element = new xml::Element(*parent, elementName);
     element->text(text);
 }
 
 void WSBasicType::addElement(json::Element* parent) const
 {
-    String text(isNull()? "": asString());
+    String text(isNull() ? "" : asString());
 
     if (m_optional && (isNull() || text.empty()))
+    {
         return;
+    }
 
-    if (!parent->is(json::Type::ARRAY)) {
+    if (!parent->is(json::Type::ARRAY))
+    {
         if (name().empty())
+        {
             return;
-        switch (dataType()) {
+        }
+        switch (dataType())
+        {
             case VAR_BOOL:
                 parent->set(name(), m_field.asBool());
                 break;
@@ -67,8 +75,11 @@ void WSBasicType::addElement(json::Element* parent) const
                 parent->set(name(), asString());
                 break;
         }
-    } else {
-        switch (dataType()) {
+    }
+    else
+    {
+        switch (dataType())
+        {
             case VAR_BOOL:
                 parent->push_back(m_field.asBool());
                 break;
@@ -91,7 +102,9 @@ void WSBasicType::addElement(json::Element* parent) const
 void WSBasicType::throwIfNull(const String& parentTypeName) const
 {
     if (isNull())
+    {
         throw SOAPException("Element '" + m_field.fieldName() + "' is required in '" + parentTypeName + "'.");
+    }
 }
 
 void WSString::load(const xml::Node* attr)
@@ -103,8 +116,11 @@ void WSString::load(const xml::Node* attr)
 void WSString::load(const json::Element* attr)
 {
     if (attr->is(json::Type::NULL_VALUE))
+    {
         setNull(VAR_STRING);
-    else {
+    }
+    else
+    {
         owaspCheck(attr->getString());
         field().setString(attr->getString());
     }
@@ -125,70 +141,107 @@ void WSBool::load(const xml::Node* attr)
 {
     String text = attr->text();
     if (text.empty())
+    {
         setNull(VAR_BOOL);
-    else {
+    }
+    else
+    {
         if (text == "true")
+        {
             field().setBool(true);
+        }
         else if (text == "false")
+        {
             field().setBool(false);
+        }
         else
+        {
             throw Exception("Invalid data: not true or false");
+        }
     }
 }
 
 void WSBool::load(const json::Element* attr)
 {
     if (attr->is(json::Type::NULL_VALUE))
+    {
         setNull(VAR_BOOL);
+    }
     else
+    {
         field().setBool(attr->getBoolean());
+    }
 }
 
 void WSBool::load(const String& attr)
 {
     if (attr.empty())
+    {
         setNull(VAR_BOOL);
-    else {
+    }
+    else
+    {
         if (attr == "true")
+        {
             field().setBool(true);
+        }
         else if (attr == "false")
+        {
             field().setBool(false);
+        }
         else
+        {
             throw Exception("Invalid data: not true or false");
+        }
     }
 }
 
 void WSBool::load(const Field& field)
 {
     if (field.isNull())
+    {
         setNull(VAR_BOOL);
+    }
     else
+    {
         this->field().setBool(field.asBool());
+    }
 }
 
 void WSDate::load(const xml::Node* attr)
 {
     String text = attr->text();
     if (text.empty())
+    {
         setNull(VAR_DATE);
+    }
     else
+    {
         field().setDateTime(DateTime(text.c_str()), true);
+    }
 }
 
 void WSDate::load(const json::Element* attr)
 {
     String text = attr->getString();
     if (attr->is(json::Type::NULL_VALUE) || text.empty())
+    {
         setNull(VAR_DATE);
+    }
     else
+    {
         field().setDateTime(DateTime(text.c_str()), true);
+    }
 }
 
 void WSDate::load(const String& attr)
 {
     if (attr.empty())
+    {
         setNull(VAR_DATE);
-    else {
+    }
+    else
+    {
         DateTime dt(attr.c_str());
         field().setDateTime(dt, true);
     }
@@ -197,17 +250,24 @@ void WSDate::load(const String& attr)
 void WSDate::load(const Field& field)
 {
     if (field.isNull())
+    {
         setNull(VAR_DATE);
+    }
     else
+    {
         this->field().setDateTime(field.asDate(), true);
+    }
 }
 
 void WSDateTime::load(const xml::Node* attr)
 {
     String text = attr->text();
     if (text.empty())
+    {
         setNull(VAR_DATE_TIME);
-    else {
+    }
+    else
+    {
         DateTime dt(text.c_str());
         field().setDateTime(dt);
     }
@@ -217,8 +277,11 @@ void WSDateTime::load(const json::Element* attr)
 {
     String text = attr->getString();
     if (text.empty())
+    {
         setNull(VAR_DATE_TIME);
-    else {
+    }
+    else
+    {
         DateTime dt(text.c_str());
         field().setDateTime(dt);
     }
@@ -227,8 +290,11 @@ void WSDateTime::load(const json::Element* attr)
 void WSDateTime::load(const String& attr)
 {
     if (attr.empty())
+    {
         setNull(VAR_DATE_TIME);
-    else {
+    }
+    else
+    {
         DateTime dt(attr.c_str());
         field().setDateTime(DateTime(attr.c_str()));
     }
@@ -237,9 +303,13 @@ void WSDateTime::load(const String& attr)
 void WSDateTime::load(const Field& field)
 {
     if (field.isNull())
+    {
         setNull(VAR_DATE_TIME);
+    }
     else
+    {
         this->field().setDateTime(field.asDateTime());
+    }
 }
 
 String WSDateTime::asString() const
@@ -261,50 +331,74 @@ void WSDouble::load(const json::Element* attr)
 void WSDouble::load(const String& attr)
 {
     if (attr.empty())
+    {
         setNull(VAR_INT);
+    }
     else
+    {
         field().setFloat(strtod(attr.c_str(), nullptr));
+    }
 }
 
 void WSDouble::load(const Field& field)
 {
     if (field.isNull())
+    {
         setNull(VAR_FLOAT);
+    }
     else
+    {
         this->field().setFloat(field.asFloat());
+    }
 }
 
 void WSInteger::load(const xml::Node* attr)
 {
     String text = attr->text();
     if (text.empty())
+    {
         setNull(VAR_INT64);
+    }
     else
+    {
         field().setInt64(strtol(text.c_str(), nullptr, 10));
+    }
 }
 
 void WSInteger::load(const json::Element* attr)
 {
     if (attr->is(json::Type::NULL_VALUE))
+    {
         setNull(VAR_INT64);
+    }
     else
-        field().setInt64((int64_t)attr->getNumber());
+    {
+        field().setInt64((int64_t) attr->getNumber());
+    }
 }
 
 void WSInteger::load(const String& attr)
 {
     if (attr.empty())
+    {
         setNull(VAR_INT64);
+    }
     else
+    {
         field().setInt64(strtol(attr.c_str(), nullptr, 10));
+    }
 }
 
 void WSInteger::load(const Field& field)
 {
     if (field.isNull())
+    {
         setNull(VAR_INT64);
+    }
     else
+    {
         this->field().setInt64(field.asInt64());
+    }
 }
 
 String sptk::wsTypeIdToName(const String& typeIdName)
@@ -313,7 +407,9 @@ String sptk::wsTypeIdToName(const String& typeIdName)
 
     auto matches = matchClassName.m(typeIdName);
     if (matches)
+    {
         return matches.groups()[0].value;
+    }
 
     return "Unknown";
 }
@@ -322,33 +418,35 @@ String sptk::wsTypeIdToName(const String& typeIdName)
 
 TEST(SPTK_WSInteger, move_ctor_assign)
 {
-    WSInteger   integer1("I1", false);
+    WSInteger integer1("I1", false);
     integer1 = 5;
     EXPECT_EQ(integer1.asInteger(), 5);
     EXPECT_EQ(integer1.isNull(), false);
 
-    WSInteger   integer2(move(integer1));
+    WSInteger integer2(move(integer1));
     EXPECT_EQ(integer2.asInteger(), 5);
     EXPECT_EQ(integer2.isNull(), false);
     EXPECT_EQ(integer1.isNull(), true);
 
-    WSInteger   integer3("I3", false);
+    WSInteger integer3("I3", false);
     integer3 = move(integer2);
     EXPECT_EQ(integer3.asInteger(), 5);
     EXPECT_EQ(integer3.isNull(), false);
     EXPECT_EQ(integer2.isNull(), true);
 }
 
-template <class T>
+template<class T>
 void loadScriptAttackData()
 {
     T type("type", false);
-    try {
+    try
+    {
         type.load("Hello, <script>alert(1);</script>");
         if (type.asString().find("<script>") != string::npos)
             FAIL() << type.className() << ": Script attack is accepted";
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         if (String(e.what()).find("<script>") != string::npos)
             FAIL() << type.className() << ": Script attack is reflected back";
     }

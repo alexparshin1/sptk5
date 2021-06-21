@@ -29,8 +29,9 @@
 using namespace std;
 using namespace sptk;
 
-WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket* socket, const URL& url, const HttpHeaders& headers, const String& staticFilesDirectory)
-: WSProtocol(socket, headers), m_url(url), m_staticFilesDirectory(staticFilesDirectory)
+WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket* socket, const URL& url, const HttpHeaders& headers,
+                                           const String& staticFilesDirectory)
+    : WSProtocol(socket, headers), m_url(url), m_staticFilesDirectory(staticFilesDirectory)
 {
 }
 
@@ -46,28 +47,37 @@ RequestInfo WSStaticHttpProtocol::process()
 
     Strings contentEncodings;
     if (!matchImageFiles.matches(m_url.path()))
+    {
         contentEncodings.push_back("gzip");
-    try {
+    }
+    try
+    {
         requestInfo.response.content().loadFromFile(fullPath);
         Buffer output = requestInfo.response.output(contentEncodings);
         socket().write("HTTP/1.1 200 OK\n");
         socket().write("Content-Type: text/html; charset=utf-8\n");
         if (!requestInfo.response.contentEncoding().empty())
+        {
             socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
+        }
         socket().write("Content-Length: " + int2string(output.length()) + "\n\n");
         socket().write(output);
     }
-    catch (const Exception&) {
-        String text("<html><head><title>Not Found</title></head><body>Resource " + m_staticFilesDirectory + m_url.path() + " was not found.</body></html>\n");
+    catch (const Exception&)
+    {
+        String text(
+            "<html><head><title>Not Found</title></head><body>Resource " + m_staticFilesDirectory + m_url.path() +
+            " was not found.</body></html>\n");
         Buffer output = requestInfo.response.output(contentEncodings);
         requestInfo.response.content() = text;
         socket().write("HTTP/1.1 404 Not Found\n");
         socket().write("Content-Type: text/html; charset=utf-8\n");
         if (!requestInfo.response.contentEncoding().empty())
+        {
             socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
+        }
         socket().write("Content-length: " + int2string(text.length()) + "\n\n");
         socket().write(text);
     }
     return requestInfo;
 }
-

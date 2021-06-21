@@ -65,7 +65,7 @@ public:
      * @param encodeCommand     Encode the comand argument to Base64 or not
      * @param decodeResponse    Decode the response from Base64 or not
      */
-    int command(const std::string& cmd, bool encodeCommand = false, bool decodeResponse = false);
+    int command(const String& cmd, bool encodeCommand = false, bool decodeResponse = false);
 
     /**
      * @brief The response from the server - makes sence after calling any command
@@ -80,7 +80,7 @@ public:
      * @param user              User name
      * @param password          User password
      */
-    void cmd_auth(const std::string& user, const std::string& password);
+    void cmd_auth(const String& user, const String& password);
 
     /**
      * @brief Sends the message
@@ -141,7 +141,7 @@ protected:
      * @param s                 Source data
      * @return Decoded data
      */
-    static std::string unmime(const std::string& s);
+    static String unmime(const String& s);
 
 private:
 

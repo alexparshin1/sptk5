@@ -43,7 +43,7 @@ const Fl_Image* CTreeItem::folderOpened;
 const Fl_Image* CTreeItem::document;
 
 CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Image* closedImage, void* data)
-: CGroup("", 10, SP_ALIGN_TOP)
+    : CGroup("", 10, SP_ALIGN_TOP)
 {
     drawClipped(false);
     m_tree = dynamic_cast<CTreeControl*> (parent());
@@ -51,14 +51,19 @@ CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Imag
     layoutSpacing(0);
     bool root = false;
 
-    if (m_tree != nullptr) {
+    if (m_tree != nullptr)
+    {
         // This widget is the root item
         m_itemHeight = 0;
         m_indent = 18;
         root = true;
-    } else {
+    }
+    else
+    {
         if (par != nullptr)
+        {
             m_tree = par->tree();
+        }
 
         m_itemHeight = 16;
         m_indent = 18;
@@ -69,36 +74,55 @@ CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Imag
     m_openedImage = openedImage;
 
     if (closedImage != nullptr)
+    {
         m_closedImage = closedImage;
+    }
     else
+    {
         m_closedImage = openedImage;
+    }
 
-    if (!root) {
-        if (m_openedImage) {
+    if (!root)
+    {
+        if (m_openedImage)
+        {
             if (m_indent < m_openedImage->w() + 2)
+            {
                 m_indent = m_openedImage->w() + 2;
+            }
 
             if (m_itemHeight < m_openedImage->h() + 2)
+            {
                 m_itemHeight = m_openedImage->h() + 2;
+            }
         }
 
-        if (m_closedImage) {
+        if (m_closedImage)
+        {
             if (m_indent < m_closedImage->w() + 2)
+            {
                 m_indent = m_closedImage->w() + 2;
+            }
 
             if (m_itemHeight < m_closedImage->h() + 2)
+            {
                 m_itemHeight = m_closedImage->h() + 2;
+            }
         }
     }
 
     user_data(data);
 
-    if (root) {
+    if (root)
+    {
         m_body = m_tree->m_itemCreator(this);
         Fl_Widget* widget = m_body->widget();
         widget->hide();
-    } else if (par)
+    }
+    else if (par)
+    {
         m_body = par->m_tree->m_itemCreator(this);
+    }
 
     CTreeItem::label(lbl);
 }
@@ -106,13 +130,17 @@ CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Imag
 bool CTreeItem::preferredSize(int& ww, int& hh)
 {
     if (lastPreferredW() == ww && lastPreferredH() == hh)
+    {
         return false;
+    }
 
     int offsetX = m_indent + 2;
     int www = ww - (offsetX + 2);
 
     if (www < 0)
+    {
         www = 20;
+    }
 
     bool rc = autoLayout(offsetX, 0, www, hh, false);
     ww = www + (offsetX + 2);
@@ -127,7 +155,9 @@ void CTreeItem::resize(int xx, int yy, int ww, int hh)
     int www = ww - (offsetX + 2);
 
     if (www < 0)
+    {
         www = 20;
+    }
 
     autoLayout(xx + offsetX, yy, www, hh, true);
     ww = www + (offsetX + 2);
@@ -138,13 +168,18 @@ void CTreeItem::label(const String& lbl)
 {
     auto* abox = dynamic_cast<CBox*>(m_body);
 
-    if (abox) {
+    if (abox)
+    {
         abox->data(lbl);
-    } else {
+    }
+    else
+    {
         auto* control = dynamic_cast<CControl*> (m_body);
 
         if (control)
+        {
             control->label(lbl);
+        }
     }
 }
 
@@ -152,43 +187,54 @@ int CTreeItem::handle(int event)
 {
     bool relayout = false;
 
-    switch (event) {
+    switch (event)
+    {
 
         case FL_PUSH:
             tree()->m_tabPressed = false;
 
-            if (opened() && Fl::event_inside(x(), y() + m_itemHeight, m_indent, h() - m_itemHeight)) {
+            if (opened() && Fl::event_inside(x(), y() + m_itemHeight, m_indent, h() - m_itemHeight))
+            {
                 auto cnt = (unsigned) children();
 
-                for (unsigned i = 1; i < cnt; i++) {
+                for (unsigned i = 1; i < cnt; i++)
+                {
                     auto* item = (CTreeItem*) child(i);
 
-                    if (item->y() + 12 >= Fl::event_y()) {
+                    if (item->y() + 12 >= Fl::event_y())
+                    {
                         if (item->opened())
+                        {
                             item->close();
+                        }
                         else
+                        {
                             item->open();
+                        }
 
                         relayout = true;
                         break;
                     }
                 }
             }
-            else if (Fl::event_inside(m_indent, y(), w() - m_indent, m_itemHeight)) {
+            else if (Fl::event_inside(m_indent, y(), w() - m_indent, m_itemHeight))
+            {
                 handle(FL_FOCUS);
             }
 
             break;
 
         case FL_KEYBOARD:
-            switch (Fl::event_key()) {
+            switch (Fl::event_key())
+            {
                 case FL_Tab:
                     tree()->m_tabPressed = true;
                     break;
 
                 case '+':
                 case '=':
-                    if (Fl::event_shift()) {
+                    if (Fl::event_shift())
+                    {
                         visibleChildren(true);
                         relayout = true;
                     }
@@ -218,9 +264,12 @@ int CTreeItem::handle(int event)
             redraw();
             return 1;
 
-        case FL_FOCUS: {
+        case FL_FOCUS:
+        {
             if (tree()->m_tabPressed)
+            {
                 return 0;
+            }
 
             CTreeItem* old_selection = tree()->selected();
             tree()->selectOnly(this, true);
@@ -228,7 +277,9 @@ int CTreeItem::handle(int event)
             redraw();
 
             if (old_selection)
+            {
                 old_selection->redraw();
+            }
         }
 
             return 1;
@@ -237,7 +288,8 @@ int CTreeItem::handle(int event)
             return 0;
     }
 
-    if (relayout) {
+    if (relayout)
+    {
         tree()->relayout();
         tree()->redraw();
         return 1;
@@ -255,7 +307,9 @@ CTreeItem* CTreeItem::parentItem() const
 CTreeItem* CTreeItem::addItem(const char* label, const Fl_Image* openedImage, const Fl_Image* closedImage, void* data)
 {
     if (!closedImage)
+    {
         closedImage = openedImage;
+    }
 
     Fl_Group* saveCurrent = Fl_Group::current();
     begin();
@@ -263,7 +317,9 @@ CTreeItem* CTreeItem::addItem(const char* label, const Fl_Image* openedImage, co
     //insert(*item,children());
 
     if (!m_opened)
+    {
         item->hide();
+    }
 
     Fl_Group::current(saveCurrent);
 
@@ -280,24 +336,38 @@ void CTreeItem::draw()
 
     const Fl_Image* image = nullptr;
 
-    if (!isRoot) {
-        if (m_opened) {
+    if (!isRoot)
+    {
+        if (m_opened)
+        {
             image = m_openedImage;
 
-            if (!image) {
+            if (!image)
+            {
                 if (children())
+                {
                     image = folderOpened;
+                }
                 else
+                {
                     image = document;
+                }
             }
-        } else {
+        }
+        else
+        {
             image = m_closedImage;
 
-            if (!image) {
+            if (!image)
+            {
                 if (children())
+                {
                     image = folderClosed;
+                }
                 else
+                {
                     image = document;
+                }
             }
         }
 
@@ -310,7 +380,9 @@ void CTreeItem::draw()
     CGroup::draw();
 
     if (isRoot)
+    {
         fl_push_clip(x(), y(), w(), h());
+    }
 
     // draw the lines
     int lx = x() + m_indent / 2;
@@ -319,25 +391,34 @@ void CTreeItem::draw()
     int cly = sly;
     fl_color(0x40404000);
 
-    if (m_opened) {
-        for (unsigned i = 1; i < cnt; i++) {
+    if (m_opened)
+    {
+        for (unsigned i = 1; i < cnt; i++)
+        {
             Fl_Widget* item = child(i);
             cly = item->y() + item->labelsize() / 2 + 1;
 
             if (isRoot && i == 1)
+            {
                 sly = cly;
+            }
 
             fl_line(lx, cly, item->x() - 1, cly);
         }
 
         if (cnt > 1)
+        {
             fl_line(lx, sly, lx, cly);
+        }
 
-        for (unsigned j = 1; j < cnt; j++) {
+        for (unsigned j = 1; j < cnt; j++)
+        {
             auto* item = (CTreeItem*) child(j);
 
             if (item->children() < 2)
+            {
                 continue;
+            }
 
             cly = item->y() + item->labelsize() / 2 + 1;
             draw_box(FL_THIN_DOWN_BOX, lx - 5, cly - 5, 10, 10, backClr);
@@ -345,19 +426,26 @@ void CTreeItem::draw()
             fl_line(lx - 3, cly, lx + 3, cly);
 
             if (!item->opened())
+            {
                 fl_line(lx, cly - 3, lx, cly + 3);
+            }
         }
     }
 
-    if (!isRoot) {
+    if (!isRoot)
+    {
         auto* img = (Fl_Image*) image;
 
         if (img)
+        {
             img->draw(xx, yy, image->w(), image->h(), 0, 0);
+        }
     }
 
     if (isRoot)
+    {
         fl_pop_clip();
+    }
 }
 
 CTreeItem* CTreeItem::findItem(const char* label) const
@@ -365,17 +453,23 @@ CTreeItem* CTreeItem::findItem(const char* label) const
     auto cnt = (unsigned) children();
     string slabel = label;
 
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         auto* item = (CTreeItem*) child(i);
 
         if (item->m_body->label() == slabel)
+        {
             return item;
+        }
 
-        if (item->children()) {
+        if (item->children())
+        {
             CTreeItem* fitem = item->findItem(label);
 
             if (fitem)
+            {
                 return fitem;
+            }
         }
     }
 
@@ -386,17 +480,23 @@ CTreeItem* CTreeItem::findData(const void* itemData) const
 {
     auto cnt = (unsigned) children();
 
-    for (unsigned i = 0; i < cnt; i++) {
+    for (unsigned i = 0; i < cnt; i++)
+    {
         auto* item = (CTreeItem*) child(i);
 
         if (item->user_data() == itemData)
+        {
             return item;
+        }
 
-        if (item->children()) {
+        if (item->children())
+        {
             item = item->findData(itemData);
 
             if (item)
+            {
                 return item;
+            }
         }
     }
 
@@ -409,23 +509,31 @@ CTreeItem* CTreeItem::addPathOffset(const vector<String>& pathFolders, unsigned 
     CTreeItem* node = this;
     auto cnt = (int) pathFolders.size();
 
-    for (int i = offset; i < cnt - 1; i++) {
+    for (int i = offset; i < cnt - 1; i++)
+    {
         const string& folder = pathFolders[i];
         CTreeItem* n = node->findItem(folder.c_str());
 
         if (!n)
+        {
             n = node->addItem(folder.c_str(), openedImage, closedImage);
+        }
 
         node = n;
     }
 
     if (cnt - 1 >= 0)
+    {
         return node->addItem(pathFolders[cnt - 1].c_str(), itemImage, itemImage, data);
+    }
     else
+    {
         return nullptr;
+    }
 }
 
-CTreeItem* CTreeItem::addPath(const vector<String>& pathFolders, const Fl_Image* openedImage, const Fl_Image* closedImage,
+CTreeItem* CTreeItem::addPath(const vector<String>& pathFolders, const Fl_Image* openedImage,
+                              const Fl_Image* closedImage,
                               const Fl_Image* itemImage, void* data)
 {
     return addPathOffset(pathFolders, 0, openedImage, closedImage, itemImage, data);
@@ -439,7 +547,9 @@ static Fl_Image* getIconImage(const char* iconName)
 CTreeItem* CTreeItem::addPath(const vector<String>& pathFolders, const Fl_Image* itemImage, void* data)
 {
     if (!itemImage)
+    {
         itemImage = getIconImage("document");
+    }
 
     return addPath(pathFolders, getIconImage("folder_opened"), getIconImage("folder_closed"), itemImage, data);
 }
@@ -449,18 +559,26 @@ void CTreeItem::visibleChildren(bool show)
     m_opened = show;
     auto cnt = (unsigned) children();
 
-    for (unsigned i = 1; i < cnt; i++) {
+    for (unsigned i = 1; i < cnt; i++)
+    {
         auto* item = dynamic_cast<CTreeItem*> (child(i));
 
         if (!item)
+        {
             continue;
+        }
 
-        if (show) {
+        if (show)
+        {
             item->show();
 
             if (item->m_opened)
+            {
                 item->visibleChildren(true);
-        } else {
+            }
+        }
+        else
+        {
             item->hide();
             item->visibleChildren(false);
         }
@@ -477,19 +595,30 @@ void CTreeItem::moveItem(CTreeItem* item, int direction)
     int itemPosition = find(item);
 
     if (itemPosition == children())
+    {
         return;
+    }
 
     if (direction == 0)
+    {
         return;
+    }
 
-    if (direction < 0) {                          // move item up
+    if (direction < 0)
+    {                          // move item up
         if (itemPosition == 0)
-            return;             // can't move - at the start already
+        {
+            return;
+        }             // can't move - at the start already
 
         insert(*item, child(itemPosition - 1));
-    } else {                                      // move item down
+    }
+    else
+    {                                      // move item down
         if (itemPosition == children() - 1)
-            return;  // can't move - at the end already
+        {
+            return;
+        }  // can't move - at the end already
 
         insert(*item, itemPosition + 1);
     }
@@ -500,19 +629,29 @@ void CTreeItem::removeItem(CTreeItem* item)
     int itemPosition = find(item);
 
     if (itemPosition == children())
+    {
         return;
+    }
 
     Fl_Widget* newSelected = nullptr;
     bool wasFocused = (Fl::focus() == item);
 
-    if (item->m_selected || wasFocused) {
-        if (itemPosition < children() - 1) {
+    if (item->m_selected || wasFocused)
+    {
+        if (itemPosition < children() - 1)
+        {
             newSelected = (CTreeItem*) child(itemPosition + 1);
-        } else {
+        }
+        else
+        {
             if (children() > 1)
+            {
                 newSelected = (CTreeItem*) child(itemPosition - 1);
+            }
             else
+            {
                 newSelected = this;
+            }
         }
     }
 
@@ -521,12 +660,15 @@ void CTreeItem::removeItem(CTreeItem* item)
     delete item;
 
     if (newSelected)
+    {
         tree()->selectOnly((CTreeItem*) newSelected, wasFocused);
+    }
 }
 
 void CTreeItem::clear()
 {
-    while (children() > 1) {
+    while (children() > 1)
+    {
         Fl_Widget* widget = child(1);
         remove
             (*widget);
@@ -537,16 +679,21 @@ void CTreeItem::clear()
 void CTreeItem::select(bool flag)
 {
     if (m_selected == flag)
+    {
         return;
+    }
 
     m_selected = flag;
     auto* widget = (CGroup*) m_body->widget();
 
-    if (m_selected) {
+    if (m_selected)
+    {
         m_itemColor[0] = widget->labelcolor();
         m_itemColor[1] = widget->color();
         widget->color(FL_DARK2);
-    } else {
+    }
+    else
+    {
         widget->labelcolor(m_itemColor[0]);
         widget->color(m_itemColor[1]);
     }
@@ -557,21 +704,27 @@ void CTreeItem::select(bool flag)
 CTreeItem* CTreeItem::findFirst() const
 {
     if (opened() && children() > 1)
+    {
         return (CTreeItem*) child(1);
+    }
 
     return nullptr;
 }
 
 CTreeItem* CTreeItem::findLast(bool recursive) const
 {
-    if (opened() && children() > 1) {
+    if (opened() && children() > 1)
+    {
         auto* lastChild = (CTreeItem*) child(children() - 1);
 
-        if (recursive) {
+        if (recursive)
+        {
             CTreeItem* foundLast = lastChild->findLast(recursive);
 
             if (foundLast)
+            {
                 lastChild = foundLast;
+            }
         }
 
         return lastChild;
@@ -582,17 +735,22 @@ CTreeItem* CTreeItem::findLast(bool recursive) const
 
 CTreeItem* CTreeItem::findNext(bool recursive) const
 {
-    if (recursive && opened()) {
+    if (recursive && opened())
+    {
         CTreeItem* firstChild = findFirst();
 
         if (firstChild)
+        {
             return firstChild;
+        }
     }
 
     int index = parent()->find(this);
 
     if (index < parent()->children() - 1)
+    {
         return (CTreeItem*) parent()->child(index + 1);
+    }
 
     return nullptr;
 }
@@ -603,29 +761,39 @@ CTreeItem* CTreeItem::findPrior(bool recursive) const
     CTreeItem* lastChild;
     int index = parent()->find(this);
 
-    if (index > 1) {
+    if (index > 1)
+    {
         currentItem = (CTreeItem*) parent()->child(index - 1);
 
-        if (recursive) {
+        if (recursive)
+        {
             lastChild = currentItem->findLast(recursive);
 
             if (lastChild)
+            {
                 currentItem = lastChild;
+            }
         }
 
         return currentItem;
     }
 
     if (!recursive)
+    {
         return nullptr;
+    }
 
     currentItem = parentItem();
 
-    if (!currentItem) // root item?
+    if (!currentItem)
+    { // root item?
         return nullptr;
+    }
 
     if (currentItem->parentItem())
+    {
         return currentItem;
+    }
 
     return nullptr;
 }
@@ -634,17 +802,20 @@ bool CTreeItem::selectNext()
 {
     CTreeItem* nextItem = findNext(true);
 
-    if (nextItem) {
+    if (nextItem)
+    {
         tree()->selectOnly(nextItem, true);
         return true;
     }
 
     CTreeItem* currentItem = this;
 
-    while (currentItem && currentItem->parentItem()) {
+    while (currentItem && currentItem->parentItem())
+    {
         nextItem = currentItem->findNext(false);
 
-        if (nextItem) {
+        if (nextItem)
+        {
             tree()->selectOnly(nextItem, true);
             return true;
         }
@@ -659,7 +830,8 @@ bool CTreeItem::selectPrior()
 {
     CTreeItem* priorItem = findPrior(true);
 
-    if (priorItem) {
+    if (priorItem)
+    {
         tree()->selectOnly(priorItem, true);
         return true;
     }
@@ -731,20 +903,27 @@ CTreeItem* CTreeControl::findData(const void* itemData) const
 void CTreeControl::selectOnly(CTreeItem* item, bool giveFocus)
 {
     if (item->tree() != this)
+    {
         return;
+    }
 
     if (giveFocus)
+    {
         Fl::focus(item);
+    }
 
     /// Unselect currently selected items:
     auto itor = m_selectedItems.begin();
     auto iend = m_selectedItems.end();
 
-    for (; itor != iend; ++itor) {
+    for (; itor != iend; ++itor)
+    {
         CTreeItem* treeItem = *itor;
 
         if (treeItem != item)
+        {
             treeItem->select(false);
+        }
     }
 
     m_selectedItems.clear();
@@ -753,7 +932,8 @@ void CTreeControl::selectOnly(CTreeItem* item, bool giveFocus)
     m_selectedItems.push_back(item);
     makeVisible(item);
 
-    if (!item->selected()) {
+    if (!item->selected())
+    {
         item->select(true);
         do_callback();
     }
@@ -762,19 +942,24 @@ void CTreeControl::selectOnly(CTreeItem* item, bool giveFocus)
 void CTreeControl::makeVisible(CTreeItem* item)
 {
     if (item->tree() != this)
+    {
         return;
+    }
 
     int dh = 0;
 
     if (hscrollbar.visible())
+    {
         dh = hscrollbar.h();
+    }
 
     /// Is the bottom of the item visible?
     int itemY = item->y();
     int dy = y() + h() - dh - (itemY + item->h());
     int ypos = yposition();
 
-    if (dy < 0) {
+    if (dy < 0)
+    {
         ypos -= dy;
         itemY += dy;
     }
@@ -783,7 +968,9 @@ void CTreeControl::makeVisible(CTreeItem* item)
     dy = y() - itemY;
 
     if (dy > 0)
+    {
         ypos -= dy;
+    }
 
     position(xposition(), ypos);
 
@@ -793,13 +980,17 @@ void CTreeControl::makeVisible(CTreeItem* item)
 int CTreeControl::handle(int event)
 {
     if (event == FL_PUSH)
+    {
         return CScroll::handle(event);
+    }
 
-    if (event == FL_FOCUS) {
+    if (event == FL_FOCUS)
+    {
         m_tabPressed = false;
         CTreeItem* old_selection = selected();
 
-        if (old_selection) {
+        if (old_selection)
+        {
             Fl::focus(old_selection);
             redraw();
             return true;
@@ -812,17 +1003,27 @@ int CTreeControl::handle(int event)
 void CTreeControl::load(const xml::Node& groupNode, bool /*autoCreate*/)
 {
     if (m_noXml)
+    {
         return;
+    }
 
     if (!(bool) groupNode.getAttribute("visible", "Y"))
+    {
         m_group->hide();
+    }
     else
+    {
         m_group->show();
+    }
 
     if (!(bool) groupNode.getAttribute("enable", "Y"))
+    {
         m_group->deactivate();
+    }
     else
+    {
         m_group->activate();
+    }
 }
 
 void CTreeControl::save(xml::Node& groupNode) const
@@ -831,23 +1032,31 @@ void CTreeControl::save(xml::Node& groupNode) const
     groupNode.name("tree");
 
     if (m_noXml)
+    {
         return;
+    }
 
     String label = m_group->label();
 
     if (!label.empty())
+    {
         groupNode.setAttribute("label", label);
+    }
 
     if (!visible())
+    {
         groupNode.setAttribute("visible", "N");
+    }
 
     if (!active())
+    {
         groupNode.setAttribute("enable", "N");
+    }
 }
 
 const Fl_Image* CTreeItem::getTreeOpened()
 {
-	return treeOpened;
+    return treeOpened;
 }
 
 /**
@@ -855,7 +1064,7 @@ const Fl_Image* CTreeItem::getTreeOpened()
  */
 void CTreeItem::setTreeOpened(const Fl_Image* image)
 {
-	treeOpened = image;
+    treeOpened = image;
 }
 
 /**
@@ -863,7 +1072,7 @@ void CTreeItem::setTreeOpened(const Fl_Image* image)
  */
 const Fl_Image* CTreeItem::getTreeClosed()
 {
-	return treeClosed;
+    return treeClosed;
 }
 
 /**
@@ -871,35 +1080,35 @@ const Fl_Image* CTreeItem::getTreeClosed()
  */
 void CTreeItem::setTreeClosed(const Fl_Image* image)
 {
-	treeClosed = image;
+    treeClosed = image;
 }
 
 const Fl_Image* CTreeItem::getFolderOpened()
 {
-	return folderOpened;
+    return folderOpened;
 }
 
 void CTreeItem::setFolderOpened(const Fl_Image* image)
 {
-	folderOpened = image;
+    folderOpened = image;
 }
 
 const Fl_Image* CTreeItem::getFolderClosed()
 {
-	return folderClosed;
+    return folderClosed;
 }
 
 void CTreeItem::setFolderClosed(const Fl_Image* image)
 {
-	folderClosed = image;
+    folderClosed = image;
 }
 
 const Fl_Image* CTreeItem::getDocument()
 {
-	return document;
+    return document;
 }
 
 void CTreeItem::setDocument(const Fl_Image* image)
 {
-	document = image;
+    document = image;
 }

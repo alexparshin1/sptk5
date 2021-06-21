@@ -44,8 +44,8 @@ uint32_t QueryParameter::bindIndex(uint32_t ind)
     return m_bindParamIndexes[ind];
 }
 
-QueryParameter::QueryParameter(const char *name, bool isOutput)
-: m_binding(isOutput), m_name(lowerCase(name))
+QueryParameter::QueryParameter(const char* name, bool isOutput)
+    : m_binding(isOutput), m_name(lowerCase(name))
 {
 }
 
@@ -63,54 +63,76 @@ void QueryParameter::setOutput()
     m_binding.setOutput();
 }
 
-QueryParameter& QueryParameter::operator = (const Variant& param)
+QueryParameter& QueryParameter::operator=(const Variant& param)
 {
     if (this != &param)
+    {
         setData(param);
+    }
     return *this;
 }
 
 void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t valueLength)
 {
-    m_data.size(maxlen > 0? min(valueLength,maxlen) : valueLength);
+    m_data.size(maxlen > 0 ? min(valueLength, maxlen) : valueLength);
     m_data.getBuffer().size = m_data.size() + 1;
     if ((dataType() & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0)
+    {
         delete[] m_data.getBuffer().data;
+    }
     char* data = new char[m_data.size() + 1];
     m_data.getBuffer().data = data;
     if (value == nullptr)
+    {
         memset(data, 0, m_data.size());
+    }
     else
+    {
         memcpy(data, value, m_data.size());
+    }
     data[m_data.size()] = 0;
 }
 
-void QueryParameter::setString(const char * value, size_t maxlen)
+void QueryParameter::setString(const char* value, size_t maxlen)
 {
     size_t valueLength;
     uint32_t dtype = VAR_STRING;
     if (maxlen != 0)
+    {
         valueLength = (uint32_t) maxlen;
-    else {
+    }
+    else
+    {
         if (value != nullptr)
+        {
             valueLength = (uint32_t) strlen(value);
+        }
         else
+        {
             valueLength = 0;
+        }
     }
 
-    if (dataType() == VAR_STRING && m_data.getBuffer().size >= valueLength + 1) {
-        if (value != nullptr) {
+    if (dataType() == VAR_STRING && m_data.getBuffer().size >= valueLength + 1)
+    {
+        if (value != nullptr)
+        {
             memcpy(m_data.getBuffer().data, value, valueLength);
             m_data.getBuffer().data[valueLength] = 0;
             m_data.size(valueLength);
-        } else {
+        }
+        else
+        {
             m_data.getBuffer().data[0] = 0;
             dtype |= VAR_NULL;
             m_data.size(0);
         }
-    } else {
+    }
+    else
+    {
         reallocateBuffer(value, maxlen, valueLength);
-        if (value == nullptr) {
+        if (value == nullptr)
+        {
             m_data.size(0);
             dtype |= VAR_NULL;
         }
@@ -170,7 +192,7 @@ TEST(SPTK_QueryParameter, assign)
     EXPECT_TRUE(param1.isNull());
 
     DateTime dt("2020-03-01 10:11:12");
-    Variant  v1(dt);
+    Variant v1(dt);
     param1 = v1;
     EXPECT_TRUE(param1.asDateTime() == dt);
 }

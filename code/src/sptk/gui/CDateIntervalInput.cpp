@@ -66,7 +66,7 @@ void CDateIntervalInput::ctor_init()
 }
 
 CDateIntervalInput::CDateIntervalInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CInput(label, layoutSize, layoutAlignment, false)
+    : CInput(label, layoutSize, layoutAlignment, false)
 {
     ctor_init();
 }
@@ -89,20 +89,27 @@ void CDateIntervalInput::showCalendar(Fl_Widget* btn)
 {
     DateTime originalDate;
     CDateControl* dateControl;
-    if (btn == m_firstDateInput->button()) {
+    if (btn == m_firstDateInput->button())
+    {
         originalDate = beginOfInterval();
         dateControl = m_firstDateInput;
-    } else {
+    }
+    else
+    {
         originalDate = endOfInterval();
         dateControl = m_secondDateInput;
     }
     m_calendarWindow->attachTo(dateControl);
     m_calendarWindow->date(originalDate);
     bool rc = m_calendarWindow->showModal();
-    if (rc && m_calendarWindow->date() != originalDate) {
-        if (btn == m_firstDateInput->button()) {
+    if (rc && m_calendarWindow->date() != originalDate)
+    {
+        if (btn == m_firstDateInput->button())
+        {
             beginOfInterval(m_calendarWindow->date());
-        } else {
+        }
+        else
+        {
             endOfInterval(m_calendarWindow->date());
         }
         dateControl->do_callback();
@@ -122,7 +129,9 @@ void CDateIntervalInput::resize(int x, int y, int w, int h)
     int maxWidth = 2 * editorWidth + twidth + m_labelWidth;
 
     if (w > maxWidth)
+    {
         w = maxWidth;
+    }
 
     CControl::resize(x, y, w, h);
     h = this->h();
@@ -130,7 +139,9 @@ void CDateIntervalInput::resize(int x, int y, int w, int h)
     w -= m_labelWidth;
     x += m_labelWidth;
     if (m_menuButton)
+    {
         m_menuButton->resize(x, y, w, h);
+    }
 
     m_firstDateInput->resize(x, y, editorWidth, h);
     x += editorWidth + twidth;
@@ -143,7 +154,9 @@ Variant CDateIntervalInput::data() const
     DateTime dt2 = endOfInterval();
 
     if (dt1.zero() && dt2.zero())
+    {
         return "";
+    }
 
     String result = m_firstDateInput->input()->value();
     result += m_separator;
@@ -160,9 +173,12 @@ void CDateIntervalInput::data(const Variant& s)
     size_t separatorLength = m_separator.length();
 
     if (!separatorLength)
+    {
         throw Exception("Can't work with an empty dates separator");
+    }
 
-    if (pos != STRING_NPOS && pos > 0) {
+    if (pos != STRING_NPOS && pos > 0)
+    {
         firstStringData[pos] = 0;
         secondStringData = firstStringData.substr(pos + separatorLength, 20);
     }

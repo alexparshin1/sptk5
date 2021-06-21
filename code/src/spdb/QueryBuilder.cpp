@@ -33,19 +33,20 @@ using namespace std;
 using namespace sptk;
 
 QueryBuilder::Join::Join(const String& tableAlias, const Strings& columns, const String& join)
-: tableAlias(tableAlias), columns(columns), joinDefinition(join)
+    : tableAlias(tableAlias), columns(columns), joinDefinition(join)
 {
 }
 
 QueryBuilder::QueryBuilder(const String& tableName, const String& pkColumn, const Strings& columns,
                            const vector<Join>& joins)
-: m_tableName(tableName),
-  m_pkColumn(pkColumn),
-  m_columns(columns),
-  m_joins(joins)
+    : m_tableName(tableName),
+      m_pkColumn(pkColumn),
+      m_columns(columns),
+      m_joins(joins)
 {
     m_columns.remove(m_pkColumn);
-    for (const auto& join: m_joins) {
+    for (const auto& join: m_joins)
+    {
         auto tableAlias = join.tableAlias;
         removeUnNeededColumns(join, tableAlias);
     }
@@ -54,16 +55,24 @@ QueryBuilder::QueryBuilder(const String& tableName, const String& pkColumn, cons
 void QueryBuilder::removeUnNeededColumns(const Join& join, const String& tableAlias)
 {
     static const RegularExpression matchExpressionAndAlias(R"(^.*\s(\S+))");
-    for (auto& column: join.columns) {
+    for (auto& column: join.columns)
+    {
         auto matches = matchExpressionAndAlias.m(column);
-        if (matches) {
+        if (matches)
+        {
             auto alias = matches[0].value;
             m_columns.remove(alias);
-        } else {
+        }
+        else
+        {
             if (!tableAlias.empty() && column.startsWith(tableAlias + "."))
+            {
                 m_columns.remove(column.substr(tableAlias.length() + 1));
+            }
             else
+            {
                 m_columns.remove(column);
+            }
         }
     }
 }
@@ -80,24 +89,36 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
     query << "  FROM " << m_tableName << " t" << endl;
 
     for (auto& join: m_joins)
+    {
         query << join.joinDefinition << endl;
+    }
 
-    if (!filter.empty()) {
+    if (!filter.empty())
+    {
         bool first = true;
-        for (auto& condition: filter) {
+        for (auto& condition: filter)
+        {
             if (condition.trim().empty())
+            {
                 continue;
-            if (first) {
+            }
+            if (first)
+            {
                 first = false;
                 query << " WHERE (" << condition << ")";
-            } else
+            }
+            else
+            {
                 query << " AND (" << condition << ")";
+            }
         }
     }
 
     String queryStr = query.str();
     if (!pretty)
+    {
         queryStr = queryStr.replace("[\\n\\r\\s]+", " ").trim();
+    }
 
     return queryStr;
 }
@@ -108,22 +129,35 @@ Strings QueryBuilder::makeSelectColumns(const Strings& columns) const
 
     Strings outputColumns(columns);
     if (!outputColumns.empty())
+    {
         return outputColumns;
+    }
 
     outputColumns.push_back("t." + m_pkColumn);
-    for (auto& column: m_columns) {
+    for (auto& column: m_columns)
+    {
         if (column.find(' ') == string::npos)
+        {
             outputColumns.push_back("t." + column);
+        }
         else
+        {
             outputColumns.push_back(column);
+        }
     }
-    for (auto& join: m_joins) {
-        for (auto& column: join.columns) {
-            if (matchExpression.matches(column)) {
+    for (auto& join: m_joins)
+    {
+        for (auto& column: join.columns)
+        {
+            if (matchExpression.matches(column))
+            {
                 // if column contains expression and alias, don't add table alias prefix
                 outputColumns.push_back(column);
-            } else
+            }
+            else
+            {
                 outputColumns.push_back(join.tableAlias + "." + column);
+            }
         }
     }
 
@@ -136,12 +170,17 @@ String QueryBuilder::insertSQL(const Strings& columns, bool pretty) const
 
     const Strings* insertColumns = &columns;
     if (columns.empty())
+    {
         insertColumns = &m_columns;
+    }
 
     Strings filteredColumns;
-    for (auto& columnName: *insertColumns) {
+    for (auto& columnName: *insertColumns)
+    {
         if (columnName.find(' ') != string::npos)
+        {
             continue;
+        }
         filteredColumns.push_back(columnName);
     }
 
@@ -150,7 +189,9 @@ String QueryBuilder::insertSQL(const Strings& columns, bool pretty) const
 
     String queryStr = query.str();
     if (!pretty)
+    {
         queryStr = queryStr.replace("[\\n\\r\\s]+", " ").trim();
+    }
 
     return queryStr;
 }
@@ -164,27 +205,42 @@ String QueryBuilder::updateSQL(const Strings& filter, const Strings& columns, bo
 
     const Strings* updateColumns = &columns;
     if (columns.empty())
+    {
         updateColumns = &m_columns;
+    }
 
-    bool first {true};
-    for (auto& columnName: *updateColumns) {
+    bool first{true};
+    for (auto& columnName: *updateColumns)
+    {
         if (columnName.find(' ') != string::npos)
+        {
             continue;
+        }
         if (first)
+        {
             first = false;
+        }
         else
+        {
             query << ", ";
+        }
         query << columnName << " = :" << columnName;
     }
     query << "\n WHERE ";
     if (filter.empty())
+    {
         query << m_pkColumn << " = :" << m_pkColumn;
+    }
     else
+    {
         query << filter.join("\n   AND ");
+    }
 
     String queryStr = query.str();
     if (!pretty)
+    {
         queryStr = queryStr.replace("[\\n\\r\\s]+", " ").trim();
+    }
 
     return queryStr;
 }
@@ -197,13 +253,19 @@ String QueryBuilder::deleteSQL(const Strings& filter, bool pretty) const
 
     query << " WHERE ";
     if (filter.empty())
+    {
         query << m_pkColumn << " = :" << m_pkColumn;
+    }
     else
+    {
         query << filter.join("\n   AND ");
+    }
 
     String queryStr = query.str();
     if (!pretty)
+    {
         queryStr = queryStr.replace("[\\n\\r\\s]+", " ").trim();
+    }
 
     return queryStr;
 }
@@ -223,100 +285,100 @@ String QueryBuilder::pkColumnName() const
 TEST(SPTK_QueryBuilder, selectSQL)
 {
     QueryBuilder queryBuilder(
-            "employee", "id",
-            {"first_name", "last_name", "position", "department_id"});
+        "employee", "id",
+        {"first_name", "last_name", "position", "department_id"});
 
-    auto selectSQL = queryBuilder.selectSQL({},{},false);
+    auto selectSQL = queryBuilder.selectSQL({}, {}, false);
     EXPECT_STREQ(
-            "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee t",
-            selectSQL.c_str());
+        "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee t",
+        selectSQL.c_str());
 
-    selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"},{},false);
+    selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"}, {}, false);
     EXPECT_STREQ(
-            "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee t WHERE (id=1) AND (name <> '')",
-            selectSQL.c_str());
+        "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id FROM employee t WHERE (id=1) AND (name <> '')",
+        selectSQL.c_str());
 
-    selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"}, {"first_name", "id"},false);
+    selectSQL = queryBuilder.selectSQL({"id=1", "name <> ''"}, {"first_name", "id"}, false);
     EXPECT_STREQ(
-            "SELECT first_name, id FROM employee t WHERE (id=1) AND (name <> '')",
-            selectSQL.c_str());
+        "SELECT first_name, id FROM employee t WHERE (id=1) AND (name <> '')",
+        selectSQL.c_str());
 }
 
 TEST(SPTK_QueryBuilder, selectJoinsSQL)
 {
-    vector<QueryBuilder::Join>  joins;
+    vector<QueryBuilder::Join> joins;
     joins.emplace_back("d", Strings({"name department_name"}), "JOIN department d ON d.id = t.department_id");
     joins.emplace_back("c", Strings({"name country_name"}), "JOIN country c ON c.id = d.country_id");
 
     QueryBuilder queryBuilder(
-            "employee", "id",
-            {"id", "first_name", "last_name", "position", "department_id"},
-            joins);
+        "employee", "id",
+        {"id", "first_name", "last_name", "position", "department_id"},
+        joins);
 
     auto selectSQL = queryBuilder.selectSQL({"c.name = 'Australia'"}, {}, false);
     EXPECT_STREQ(
-            "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id, d.name department_name, c.name country_name "
-            "FROM employee t "
-            "JOIN department d ON d.id = t.department_id "
-            "JOIN country c ON c.id = d.country_id "
-            "WHERE (c.name = 'Australia')",
-            selectSQL.c_str());
+        "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id, d.name department_name, c.name country_name "
+        "FROM employee t "
+        "JOIN department d ON d.id = t.department_id "
+        "JOIN country c ON c.id = d.country_id "
+        "WHERE (c.name = 'Australia')",
+        selectSQL.c_str());
 }
 
 TEST(SPTK_QueryBuilder, insertSQL)
 {
     QueryBuilder queryBuilder(
-            "employee", "id",
-            {"id", "first_name", "last_name", "position", "department_id"});
+        "employee", "id",
+        {"id", "first_name", "last_name", "position", "department_id"});
 
     auto insertSQL = queryBuilder.insertSQL({}, false);
     EXPECT_STREQ(
-            "INSERT INTO employee(first_name, last_name, position, department_id) VALUES (:first_name, :last_name, :position, :department_id)",
-            insertSQL.c_str());
+        "INSERT INTO employee(first_name, last_name, position, department_id) VALUES (:first_name, :last_name, :position, :department_id)",
+        insertSQL.c_str());
 
     insertSQL = queryBuilder.insertSQL({"first_name", "last_name"}, false);
     EXPECT_STREQ(
-            "INSERT INTO employee(first_name, last_name) VALUES (:first_name, :last_name)",
-            insertSQL.c_str());
+        "INSERT INTO employee(first_name, last_name) VALUES (:first_name, :last_name)",
+        insertSQL.c_str());
 }
 
 TEST(SPTK_QueryBuilder, updateSQL)
 {
     QueryBuilder queryBuilder(
-            "employee", "id",
-            {"id", "first_name", "last_name", "position", "department_id"});
+        "employee", "id",
+        {"id", "first_name", "last_name", "position", "department_id"});
 
     auto updateSQL = queryBuilder.updateSQL({}, {}, false);
     EXPECT_STREQ(
-            "UPDATE employee SET first_name = :first_name, last_name = :last_name, position = :position, department_id = :department_id WHERE id = :id",
-            updateSQL.c_str());
+        "UPDATE employee SET first_name = :first_name, last_name = :last_name, position = :position, department_id = :department_id WHERE id = :id",
+        updateSQL.c_str());
 
     updateSQL = queryBuilder.updateSQL({"id = 1", "last_name = 'Doe'"}, {}, false);
     EXPECT_STREQ(
-            "UPDATE employee SET first_name = :first_name, last_name = :last_name, position = :position, department_id = :department_id WHERE id = 1 AND last_name = 'Doe'",
-            updateSQL.c_str());
+        "UPDATE employee SET first_name = :first_name, last_name = :last_name, position = :position, department_id = :department_id WHERE id = 1 AND last_name = 'Doe'",
+        updateSQL.c_str());
 
     updateSQL = queryBuilder.updateSQL({}, {"first_name", "last_name"}, false);
     EXPECT_STREQ(
-            "UPDATE employee SET first_name = :first_name, last_name = :last_name WHERE id = :id",
-            updateSQL.c_str());
+        "UPDATE employee SET first_name = :first_name, last_name = :last_name WHERE id = :id",
+        updateSQL.c_str());
 }
 
 TEST(SPTK_QueryBuilder, deleteSQL)
 {
     QueryBuilder queryBuilder(
-            "employee", "id",
-            {"id", "first_name", "last_name", "position", "department_id"});
+        "employee", "id",
+        {"id", "first_name", "last_name", "position", "department_id"});
 
     auto deleteSQL = queryBuilder.deleteSQL({}, false);
     EXPECT_STREQ(
-            "DELETE FROM employee WHERE id = :id",
-            deleteSQL.c_str());
+        "DELETE FROM employee WHERE id = :id",
+        deleteSQL.c_str());
 
     deleteSQL = queryBuilder.deleteSQL({"id = 1", "last_name = 'Doe'"}, false);
     EXPECT_STREQ(
-            "DELETE FROM employee WHERE id = 1 AND last_name = 'Doe'",
-            deleteSQL.c_str());
+        "DELETE FROM employee WHERE id = 1 AND last_name = 'Doe'",
+        deleteSQL.c_str());
 }
 
 #endif

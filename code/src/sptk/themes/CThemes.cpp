@@ -57,18 +57,18 @@ CFontsMap CThemes::m_fonts;
 CFrames CThemes::m_frames;
 CTabImages CThemes::m_tabImages;
 
-Fl_Box_Draw_F *CThemes::m_flatBox;
-Fl_Box_Draw_F *CThemes::m_thinUpBox;
-Fl_Box_Draw_F *CThemes::m_upBox;
-Fl_Box_Draw_F *CThemes::m_thinDownBox;
-Fl_Box_Draw_F *CThemes::m_downBox;
+Fl_Box_Draw_F* CThemes::m_flatBox;
+Fl_Box_Draw_F* CThemes::m_thinUpBox;
+Fl_Box_Draw_F* CThemes::m_upBox;
+Fl_Box_Draw_F* CThemes::m_thinDownBox;
+Fl_Box_Draw_F* CThemes::m_downBox;
 
-Fl_Box_Draw_F *CThemes::m_thinUpFrame;
-Fl_Box_Draw_F *CThemes::m_upFrame;
-Fl_Box_Draw_F *CThemes::m_thinDownFrame;
-Fl_Box_Draw_F *CThemes::m_downFrame;
+Fl_Box_Draw_F* CThemes::m_thinUpFrame;
+Fl_Box_Draw_F* CThemes::m_upFrame;
+Fl_Box_Draw_F* CThemes::m_thinDownFrame;
+Fl_Box_Draw_F* CThemes::m_downFrame;
 
-CPngImage *CThemes::m_background[7];
+CPngImage* CThemes::m_background[7];
 CThemeImageCollection CThemes::m_progressBar[2];
 
 CThemeImageCollection CThemes::m_normalButtons;
@@ -79,7 +79,7 @@ CThemeColorCollection CThemes::m_colors;
 bool CThemes::m_flatButtons;
 bool CThemes::m_gtkTheme;
 
-xml::Document *CThemes::m_registry;
+xml::Document* CThemes::m_registry;
 Tar CThemes::m_tar;
 CIconMap CThemes::m_icons[4]; /// Four different sets of icons
 bool CThemes::m_desaturateInactiveButtons;
@@ -104,11 +104,15 @@ CThemes::CThemes()
     m_buttonFocusRadius = 0;
 
     for (auto& i : m_background)
+    {
         i = nullptr;
+    }
 
-    if (!screenFonts.size()) {
+    if (!screenFonts.size())
+    {
         auto k = (unsigned) Fl::set_fonts("*");
-        for (unsigned i = 0; i < k; i++) {
+        for (unsigned i = 0; i < k; i++)
+        {
             int attributes = 0;
             string fontName = Fl::get_font_name((Fl_Font) i, &attributes);
             CFont* font = new CFont(fontName, 10, 0, i, (unsigned) attributes);
@@ -124,16 +128,20 @@ CThemes::~CThemes()
     delete m_registry;
 }
 
-std::string CThemes::name() { return m_name; }
+std::string CThemes::name()
+{ return m_name; }
 
-std::string CThemes::themeFolder() { return m_themeFolder; }
+std::string CThemes::themeFolder()
+{ return m_themeFolder; }
 
-int CThemes::buttonFocusRadius() { return m_buttonFocusRadius; }
+int CThemes::buttonFocusRadius()
+{ return m_buttonFocusRadius; }
 
 CIcon* CThemes::getIcon(const string& iconName, CIconSize iconSize)
 {
     auto itor = m_icons[iconSize].find(iconName);
-    if (itor == m_icons[iconSize].end()) {
+    if (itor == m_icons[iconSize].end())
+    {
         //cerr << "Can't find icon '" << iconName << "' for size " << iconSize << endl;
         return nullptr;
     }
@@ -144,7 +152,9 @@ CPngImage* CThemes::getIconImage(const string& iconName, CIconSize iconSize)
 {
     CIcon* icon = getIcon(iconName, iconSize);
     if (icon)
+    {
         return icon->image();
+    }
     return nullptr;
 }
 
@@ -157,7 +167,9 @@ const Strings& CThemes::searchDirectories()
 {
     static Strings sd;
     if (!sd.empty())
+    {
         return sd;
+    }
 #ifdef _WIN32
     array<char, 256> windir;
     GetEnvironmentVariable("PROGRAMFILES", windir.data(), sizeof(windir));
@@ -187,7 +199,7 @@ void CThemes::reset()
     Fl::set_boxtype(FL_THIN_DOWN_FRAME, m_thinDownFrame, 1, 1, 2, 2);
     Fl::set_boxtype(FL_DOWN_FRAME, m_downFrame, 2, 2, 4, 4);
 
-    Buffer defaultThemeBuffer((const char*)default_icons, default_icons_len);
+    Buffer defaultThemeBuffer((const uint8_t*) default_icons, default_icons_len);
     m_tar.read(defaultThemeBuffer);
     m_registry->load(m_tar.file("theme.ini"));
 
@@ -212,7 +224,8 @@ void CThemes::reset()
 
 CThemeImageCollection& CThemes::sizeToButtonImages(CThemeButtonType sz)
 {
-    switch (sz) {
+    switch (sz)
+    {
         case THM_BUTTON_COMBO:
             return m_comboButtons;
         case THM_BUTTON_CHECK:
@@ -228,10 +241,15 @@ CThemeImageCollection& CThemes::sizeToButtonImages(CThemeButtonType sz)
 void CThemes::replaceImage(CPngImage** images, int ndx, const string& fileName)
 {
     if (images[ndx])
+    {
         delete images[ndx];
-    try {
+    }
+    try
+    {
         images[ndx] = loadValidatePNGImage(fileName);
-    } catch (...) {
+    }
+    catch (...)
+    {
         images[ndx] = nullptr;
     }
 }
@@ -240,16 +258,21 @@ void CThemes::set(string theThemeName)
 {
     string themeName(theThemeName);
     if (themeName.empty() || themeName.find("GTK:") == 0)
+    {
         themeName = "Default";
+    }
 
     if (theThemeName == m_name)
+    {
         return;
+    }
 
     reset();
 
     const Strings& dirs = searchDirectories();
     bool defaultTheme = false;
-    for (unsigned dn = 0; dn < dirs.size() && !defaultTheme; dn++) {
+    for (unsigned dn = 0; dn < dirs.size() && !defaultTheme; dn++)
+    {
         string fileName = dirs[dn] + "/" + themeName + ".tar";
 
         defaultTheme = lowerCase(themeName) == "default";
@@ -257,30 +280,41 @@ void CThemes::set(string theThemeName)
 
         m_desaturateInactiveButtons = false;
         //int scrollBarButtonSize = 0;
-        if (!defaultTheme) {
-            try {
+        if (!defaultTheme)
+        {
+            try
+            {
                 m_tar.read(fileName);
                 m_registry->load(m_tar.file("theme.ini"));
                 m_name = themeName;
-            } catch (...) {
+            }
+            catch (...)
+            {
                 continue;
             }
-        } else {
-            Buffer defaultThemeBuffer((const char*)default_icons, default_icons_len);
+        }
+        else
+        {
+            Buffer defaultThemeBuffer((const uint8_t*) default_icons, default_icons_len);
             m_tar.read(defaultThemeBuffer);
             m_registry->load(m_tar.file("theme.ini"));
             m_name = themeName;
         }
 
-        try {
+        try
+        {
             auto itor = m_registry->begin();
-            for (; itor != m_registry->end(); ++itor) {
+            for (; itor != m_registry->end(); ++itor)
+            {
                 xml::Node* iconsNode = *itor;
                 if (iconsNode->name() != "icons")
+                {
                     continue;
+                }
                 String iconsSizeStr = (String) iconsNode->getAttribute("size", "large");
                 CIconSize iconsSize;
-                switch (iconsSizeStr[0]) {
+                switch (iconsSizeStr[0])
+                {
                     case 'c':
                         iconsSize = IS_COMBO_ICON;
                         break;
@@ -307,23 +341,27 @@ void CThemes::set(string theThemeName)
 
             xml::Node* fontsTopic = m_registry->findOrCreate("fonts", false);
             m_fonts.clear();
-            for (itor = fontsTopic->begin(); itor != fontsTopic->end(); ++itor) {
+            for (itor = fontsTopic->begin(); itor != fontsTopic->end(); ++itor)
+            {
                 xml::Node* fontInfo = *itor;
                 String fontName = (String) fontInfo->getAttribute("name", "Arial");
                 CFont* screenFont = screenFonts.find(fontName);
                 if (!screenFont)
+                {
                     continue;
+                }
                 String object = (String) fontInfo->getAttribute("object", "Arial");
                 CFont* font = new CFont(fontName,
-                        (int) fontInfo->getAttribute("size", "10"),
-                        (int) fontInfo->getAttribute("color", "0"),
-                        screenFont->index(),
-                        screenFont->attributes()
-                        );
+                                        (int) fontInfo->getAttribute("size", "10"),
+                                        (int) fontInfo->getAttribute("color", "0"),
+                                        screenFont->index(),
+                                        screenFont->attributes()
+                );
                 m_fonts[object] = font;
             }
             auto ftor = m_fonts.find("default");
-            if (ftor == m_fonts.end()) {
+            if (ftor == m_fonts.end())
+            {
                 CFont* font = screenFonts[0];
                 m_fonts["default"] = new CFont(font->name(), 10, 0, font->index(), font->attributes());
             }
@@ -331,32 +369,42 @@ void CThemes::set(string theThemeName)
             xml::Node* framesNode = m_registry->findOrCreate("frames", false);
             m_frames.load(m_tar, framesNode);
 
-        } catch (...) {
+        }
+        catch (...)
+        {
         }
 
         m_colors.loadFromSptkTheme(*m_registry);
 
         unsigned i;
         for (i = 0; i < 7; i++)
+        {
             replaceImage(m_background, i, "background" + int2string(i) + ".png");
+        }
 
-        m_progressBar[0].loadFromSptkTheme(Strings("progress0",","));
-        m_progressBar[1].loadFromSptkTheme(Strings("progress1",","));
+        m_progressBar[0].loadFromSptkTheme(Strings("progress0", ","));
+        m_progressBar[1].loadFromSptkTheme(Strings("progress1", ","));
 
-        m_normalButtons.loadFromSptkTheme(Strings("button0,button1,button2,button3,button4",","));
-        m_comboButtons.loadFromSptkTheme(Strings("combo_button0,combo_button1,combo_button2,combo_button3",","));
-        m_checkButtons.loadFromSptkTheme(Strings("check_button0,check_button1,check_button2,check_button3",","));
-        m_radioButtons.loadFromSptkTheme(Strings("radio_button0,radio_button1,radio_button2,radio_button3",","));
+        m_normalButtons.loadFromSptkTheme(Strings("button0,button1,button2,button3,button4", ","));
+        m_comboButtons.loadFromSptkTheme(Strings("combo_button0,combo_button1,combo_button2,combo_button3", ","));
+        m_checkButtons.loadFromSptkTheme(Strings("check_button0,check_button1,check_button2,check_button3", ","));
+        m_radioButtons.loadFromSptkTheme(Strings("radio_button0,radio_button1,radio_button2,radio_button3", ","));
 
         CTreeItem::setTreeOpened(getIconImage("tree_opened", IS_SMALL_ICON)); ///< Default image of the opened tree
         CTreeItem::setTreeClosed(getIconImage("tree_closed", IS_SMALL_ICON)); ///< Default image of the closed tree
-        CTreeItem::setFolderOpened(getIconImage("folder_opened", IS_SMALL_ICON)); ///< Default image of the opened floder
-        CTreeItem::setFolderClosed(getIconImage("folder_closed", IS_SMALL_ICON)); ///< Default image of the closed floder
+        CTreeItem::setFolderOpened(
+            getIconImage("folder_opened", IS_SMALL_ICON)); ///< Default image of the opened floder
+        CTreeItem::setFolderClosed(
+            getIconImage("folder_closed", IS_SMALL_ICON)); ///< Default image of the closed floder
         CTreeItem::setDocument(getIconImage("document", IS_SMALL_ICON)); ///< Default image of the document
         if (!CTreeItem::getFolderOpened())
+        {
             CTreeItem::setFolderOpened(CTreeItem::getTreeOpened());
+        }
         if (!CTreeItem::getFolderClosed())
+        {
             CTreeItem::setFolderClosed(CTreeItem::getTreeClosed());
+        }
 
         /*
         try {
@@ -373,32 +421,40 @@ void CThemes::set(string theThemeName)
 
         Fl_Boxtype stdBoxes[] = {FL_UP_BOX, FL_THIN_UP_BOX, FL_DOWN_BOX, FL_THIN_DOWN_BOX};
         Fl_Boxtype stdFrames[] = {FL_UP_FRAME, FL_THIN_UP_FRAME, FL_DOWN_FRAME, FL_THIN_DOWN_FRAME};
-        Fl_Box_Draw_F * boxFuncs[] = {drawUpBox, drawThinUpBox, drawDownBox, drawThinDownBox};
-        Fl_Box_Draw_F * frameFuncs[] = {drawUpFrame, drawThinUpFrame, drawDownFrame, drawThinDownFrame};
+        Fl_Box_Draw_F* boxFuncs[] = {drawUpBox, drawThinUpBox, drawDownBox, drawThinDownBox};
+        Fl_Box_Draw_F* frameFuncs[] = {drawUpFrame, drawThinUpFrame, drawDownFrame, drawThinDownFrame};
         int defaultFrameWidth[] = {2, 1, 2, 1};
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < 4; i++)
+        {
             Fl_Boxtype frameType = stdFrames[i];
             int frameWidth = defaultFrameWidth[i];
             CFrame* frame = m_frames.find(frameType);
-            if (frame) {
+            if (frame)
+            {
                 frameWidth = frame->frameWidth();
-                Fl::set_boxtype(frameType, frameFuncs[i], (uchar) frameWidth, (uchar) frameWidth, (uchar) (frameWidth * 2), (uchar) (frameWidth * 2));
+                Fl::set_boxtype(frameType, frameFuncs[i], (uchar) frameWidth, (uchar) frameWidth,
+                                (uchar) (frameWidth * 2), (uchar) (frameWidth * 2));
             }
-            Fl::set_boxtype(stdBoxes[i], boxFuncs[i], (uchar) frameWidth, (uchar) frameWidth, (uchar) (frameWidth * 2), (uchar) (frameWidth * 2));
+            Fl::set_boxtype(stdBoxes[i], boxFuncs[i], (uchar) frameWidth, (uchar) frameWidth, (uchar) (frameWidth * 2),
+                            (uchar) (frameWidth * 2));
         }
 
         break;
     }
 
     if (theThemeName.find("GTK:") == 0)
-        loadGtkTheme(theThemeName.substr(4,255));
+    {
+        loadGtkTheme(theThemeName.substr(4, 255));
+    }
 }
 
-CPngImage *CThemes::imageForColor(Fl_Color clr)
+CPngImage* CThemes::imageForColor(Fl_Color clr)
 {
-    if (clr >= FL_DARK3 && clr <= FL_LIGHT3) {
+    if (clr >= FL_DARK3 && clr <= FL_LIGHT3)
+    {
         int ndx = 0;
-        switch (clr) {
+        switch (clr)
+        {
             case FL_DARK3:
                 break;
             case FL_DARK2:
@@ -427,12 +483,16 @@ CPngImage *CThemes::imageForColor(Fl_Color clr)
     return nullptr;
 }
 
-void CThemes::paintBackground(int xx, int yy, int ww, int hh, CPngImage *image)
+void CThemes::paintBackground(int xx, int yy, int ww, int hh, CPngImage* image)
 {
     if (!image)
+    {
         return;
+    }
     if (ww < 0 || hh < 0)
+    {
         return;
+    }
     int dx = image->w();
     int dy = image->h();
     fl_push_clip(xx, yy, ww, hh);
@@ -441,19 +501,26 @@ void CThemes::paintBackground(int xx, int yy, int ww, int hh, CPngImage *image)
     /// Image alignments
     yy = (yy / dy) * dy;
     xx = (xx / dx) * dx;
-    for (int xi = xx; xi < maxx; xi += dx) {
+    for (int xi = xx; xi < maxx; xi += dx)
+    {
         for (int yi = yy; yi < maxy; yi += dy)
+        {
             image->draw(xi, yi, dx, dy, 0, 0);
+        }
     }
     fl_pop_clip();
 }
 
 void CThemes::drawThemeBox(int x, int y, int w, int h, Fl_Color clr, Fl_Boxtype frameType)
 {
-    CPngImage *image = imageForColor(clr);
-    if (image) {
-        paintBackground(x + Fl::box_dx(frameType), y + Fl::box_dy(frameType), w - Fl::box_dw(frameType), h - Fl::box_dh(frameType), image);
-    } else {
+    CPngImage* image = imageForColor(clr);
+    if (image)
+    {
+        paintBackground(x + Fl::box_dx(frameType), y + Fl::box_dy(frameType), w - Fl::box_dw(frameType),
+                        h - Fl::box_dh(frameType), image);
+    }
+    else
+    {
         fl_color(clr);
         fl_rectf(x, y, w, h);
     }
@@ -489,9 +556,13 @@ void CThemes::drawThemeFrame(int x, int y, int w, int h, Fl_Boxtype frameType)
 {
     CFrame* frame = m_frames.find(frameType);
     if (frame)
+    {
         frame->drawResized(x, y, w, h, false);
+    }
     else
+    {
         fl_draw_box(frameType, x, y, w, h, FL_BLACK);
+    }
 }
 
 void CThemes::drawThinUpFrame(int x, int y, int w, int h, Fl_Color)
@@ -517,57 +588,84 @@ void CThemes::drawDownFrame(int x, int y, int w, int h, Fl_Color)
 bool CThemes::sizeButton(CThemeButtonType sz, int& w, int& h)
 {
     CThemeImageCollection& buttons = sizeToButtonImages(sz);
-    CPngImage *image = buttons.image(THM_IMAGE_NORMAL);
-    if (!image) {
+    CPngImage* image = buttons.image(THM_IMAGE_NORMAL);
+    if (!image)
+    {
         image = buttons.overlayImage(THM_IMAGE_NORMAL);
         if (!image)
+        {
             return false;
+        }
     }
-    if (sz != THM_BUTTON_COMBO) {
+    if (sz != THM_BUTTON_COMBO)
+    {
         if (w < image->h() + CThemes::m_buttonFocusRadius)
+        {
             w = image->h() + CThemes::m_buttonFocusRadius;
+        }
     }
     h = image->h();
     return true;
 }
 
-bool CThemes::drawButton(CThemeButtonType sz, int x, int y, int& w, int& h, bool highlited, bool pressed, bool defaultButton)
+bool CThemes::drawButton(CThemeButtonType sz, int x, int y, int& w, int& h, bool highlited, bool pressed,
+                         bool defaultButton)
 {
     int ndx = THM_IMAGE_NORMAL;
 
     if (pressed)
+    {
         ndx = THM_IMAGE_ACTIVE;
+    }
 
-    CPngImage *image;
+    CPngImage* image;
     CThemeImageCollection& buttons = sizeToButtonImages(sz);
     if (highlited)
+    {
         ndx |= THMF_HIGHLIGHTED;
+    }
 
     image = buttons.image(CThemeImageState(ndx));
 
-    if (!image || image->w() < 10) {
+    if (!image || image->w() < 10)
+    {
         if (defaultButton)
+        {
             fl_draw_box(FL_THIN_DOWN_BOX, x - 2, y - 2, w + 4, h + 4, FL_BACKGROUND_COLOR);
+        }
         CThemeColorState colorState = THM_COLOR_NORMAL;
         if (pressed)
+        {
             colorState = THM_COLOR_ACTIVE;
+        }
         else if (highlited)
+        {
             colorState = THM_COLOR_PRELIGHT;
-        fl_draw_box(pressed?FL_THIN_DOWN_BOX:FL_THIN_UP_BOX, x, y, w, h, m_colors.bgColor(colorState));
+        }
+        fl_draw_box(pressed ? FL_THIN_DOWN_BOX : FL_THIN_UP_BOX, x, y, w, h, m_colors.bgColor(colorState));
         return true;
     }
 
     //h = image->h();
 
-    if (m_flatButtons && !highlited) {
+    if (m_flatButtons && !highlited)
+    {
         if (defaultButton)
+        {
             fl_draw_box(FL_DOWN_BOX, x - 2, y - 2, w + 4, h + 4, FL_BACKGROUND_COLOR);
+        }
         else
+        {
             fl_draw_box(FL_FLAT_BOX, x, y, w, h, FL_BACKGROUND_COLOR);
-    } else {
-        CPngImage *defaultFrameImage = buttons.image(THM_DEFAULT_FRAME);
+        }
+    }
+    else
+    {
+        CPngImage* defaultFrameImage = buttons.image(THM_DEFAULT_FRAME);
         if (defaultButton && defaultFrameImage)
+        {
             defaultFrameImage->drawResized(x - 2, y - 2, w + 4, h + 4, buttons.border(), CPngImage::PDM_STRETCH, false);
+        }
         image->drawResized(x, y, w, h, buttons.border(), CPngImage::PDM_STRETCH, true);
     }
 
@@ -578,17 +676,25 @@ bool CThemes::drawCheckOrRadioButton(CThemeImageCollection& buttonImages, int x,
 {
     int ndx = THM_IMAGE_NORMAL;
     if (checked)
+    {
         ndx = THM_IMAGE_ACTIVE;
+    }
 
     if (highlited)
+    {
         ndx |= THMF_HIGHLIGHTED;
+    }
 
     CPngImage* image = buttonImages.overlayImage(CThemeImageState(ndx));
     if (!image)
+    {
         image = buttonImages.image(CThemeImageState(ndx));
+    }
 
     if (!image || image->w() < 10)
+    {
         return false;
+    }
 
     image->draw(x, y);
 
@@ -607,12 +713,15 @@ bool CThemes::drawRadioButton(int x, int y, bool checked, bool highlited)
 
 bool CThemes::sizeProgressBar(int& w, int& h)
 {
-    CPngImage *image = m_progressBar[0].image(THM_IMAGE_NORMAL);
-    if (image && image->data()) {
+    CPngImage* image = m_progressBar[0].image(THM_IMAGE_NORMAL);
+    if (image && image->data())
+    {
         w = image->w();
         h = image->h();
         return true;
-    } else {
+    }
+    else
+    {
         w = h = 0;
         return false;
     }
@@ -621,23 +730,30 @@ bool CThemes::sizeProgressBar(int& w, int& h)
 bool CThemes::drawProgressBar(int x, int y, int w, float percent)
 {
     if (percent > 100)
+    {
         percent = 100;
+    }
     if (percent < 0)
+    {
         percent = 0;
+    }
 
-    CPngImage*                  partImage[2];  // 0 - trough, 1 - bar
-    int                         border[2] = { 0, 0 };
-    CPngImage::CPatternDrawMode drawMode[2] = { CPngImage::PDM_TILE, CPngImage::PDM_TILE };
+    CPngImage* partImage[2];  // 0 - trough, 1 - bar
+    int border[2] = {0, 0};
+    CPngImage::CPatternDrawMode drawMode[2] = {CPngImage::PDM_TILE, CPngImage::PDM_TILE};
 
-    for (unsigned i = 0; i < 2; i++) {
+    for (unsigned i = 0; i < 2; i++)
+    {
         partImage[i] = m_progressBar[i].image(THM_IMAGE_NORMAL);
-        if (m_progressBar[i].stretch()) {
+        if (m_progressBar[i].stretch())
+        {
             drawMode[i] = CPngImage::PDM_STRETCH;
             border[i] = m_progressBar[i].border(0);
         }
     }
 
-    if (partImage[0] && partImage[1]) {
+    if (partImage[0] && partImage[1])
+    {
         int frameHeight = partImage[0]->h();
         int frameWidth = partImage[0]->w();
         int barHeight = partImage[1]->h();
@@ -648,7 +764,9 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent)
         partImage[0]->drawResized(x, y, w, frameHeight, border[0], drawMode[0], true);
         partImage[1]->drawResized(x + xspace, y + yspace, psize, barHeight, border[1], drawMode[1], true);
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }
@@ -659,26 +777,34 @@ Strings CThemes::availableThemes()
     themes.push_back("Default");
     //themes.push_back("GTK");
     const Strings& dirs = searchDirectories();
-    for (const auto& adir : dirs) {
-        try {
+    for (const auto& adir : dirs)
+    {
+        try
+        {
             DirectoryDS dir;
             dir.directory(adir);
 
             dir.showPolicy(DDS_HIDE_DIRECTORIES | DDS_HIDE_DOT_FILES);
             dir.pattern("*.tar");
             dir.open();
-            while (!dir.eof()) {
+            while (!dir.eof())
+            {
                 String fileName = dir["Name"].asString();
                 size_t pos = fileName.rfind(".tar");
-                if (pos != STRING_NPOS) {
+                if (pos != STRING_NPOS)
+                {
                     String themeName = fileName.substr(0, pos);
                     if (themes.indexOf(themeName) < 0)
+                    {
                         themes.push_back(themeName);
+                    }
                 }
                 dir.next();
             }
             dir.close();
-        } catch (...) {
+        }
+        catch (...)
+        {
             continue;
         }
     }
@@ -687,26 +813,34 @@ Strings CThemes::availableThemes()
     Strings gtkDirs;
     gtkDirs.push_back("/usr/share/themes");
     gtkDirs.push_back(HomeDirectory::location() + ".themes");
-    for (unsigned i = 0; i < gtkDirs.size(); i++) {
-        try {
+    for (unsigned i = 0; i < gtkDirs.size(); i++)
+    {
+        try
+        {
             DirectoryDS dir;
             dir.directory(gtkDirs[i]);
 
             dir.showPolicy(DDS_HIDE_FILES | DDS_HIDE_DOT_FILES);
             //dir.pattern("*.tar");
             dir.open();
-            while (!dir.eof()) {
+            while (!dir.eof())
+            {
                 String dirName = dir["Name"].asString();
                 String gtkThemeDirName = gtkDirs[i] + "/" + dirName + "/gtk-2.0";
-                if (access(gtkThemeDirName.c_str(),X_OK) == 0) {
+                if (access(gtkThemeDirName.c_str(), X_OK) == 0)
+                {
                     string themeName = "GTK:" + dirName;
                     if (themes.indexOf(themeName) < 0)
+                    {
                         themes.push_back(themeName);
+                    }
                 }
                 dir.next();
             }
             dir.close();
-        } catch (...) {
+        }
+        catch (...)
+        {
             continue;
         }
     }
@@ -717,11 +851,17 @@ bool CThemes::drawTab(int x, int y, int w, int h, bool active)
 {
     CTabImage* tabImage;
     if (active)
+    {
         tabImage = m_tabImages.tabImage("active");
+    }
     else
+    {
         tabImage = m_tabImages.tabImage("inactive");
+    }
     if (!tabImage)
+    {
         return false;
+    }
     tabImage->draw(x, y, w, h);
     return true;
 }

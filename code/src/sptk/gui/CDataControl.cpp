@@ -41,7 +41,8 @@ CControl* sptk::createControl(int controlKind, const String& label, const String
 
     const char* lbl = label.c_str();
 
-    switch (controlKind) {
+    switch (controlKind)
+    {
         case DCV_BOX:
             control = new CBox(lbl, size);
             break;

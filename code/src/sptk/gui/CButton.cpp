@@ -42,152 +42,163 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, String label
     const char* name;
     const char* l;
 
-    if (buttonKind < SP_NEW_BUTTON) {
-    switch (buttonKind) {
-        case SP_ADD_BUTTON:
-            name = "add";
-            l = "Add";
-            break;
-        case SP_DELETE_BUTTON:
-            name = "delete";
-            l = "Delete";
-            break;
-        case SP_EDIT_BUTTON:
-            name = "edit";
-            l = "Edit";
-            break;
-        case SP_BROWSE_BUTTON:
-            name = "browse";
-            l = "Browse";
-            break;
-        case SP_CALENDAR_BUTTON:
-            name = "calendar";
-            l = "Date";
-            break;
-        case SP_REFRESH_BUTTON:
-            name = "refresh";
-            l = "Refresh";
-            break;
-        case SP_CANCEL_BUTTON:
-            name = "cancel";
-            l = "Cancel";
-            break;
-        case SP_HELP_BUTTON:
-            name = "help";
-            l = "Help";
-            break;
-        case SP_NO_BUTTON:
-            name = "no";
-            l = "No";
-            break;
-        case SP_OK_BUTTON:
-            name = "ok";
-            l = "Ok";
-            break;
-        case SP_OPEN_BUTTON:
-            name = "open";
-            l = "Open";
-            break;
-        case SP_PRINT_BUTTON:
-            name = "print";
-            l = "Print";
-            break;
-        case SP_SAVE_BUTTON:
-            name = "save";
-            l = "Save";
-            break;
-        case SP_COPY_BUTTON:
-            name = "copy";
-            l = "Insert";
-            break;
-        case SP_LEFT_BUTTON:
-            name = "left";
-            l = "Left";
-            break;
-        default:
-            name = nullptr;
-            l = "??";
-            break;
+    if (buttonKind < SP_NEW_BUTTON)
+    {
+        switch (buttonKind)
+        {
+            case SP_ADD_BUTTON:
+                name = "add";
+                l = "Add";
+                break;
+            case SP_DELETE_BUTTON:
+                name = "delete";
+                l = "Delete";
+                break;
+            case SP_EDIT_BUTTON:
+                name = "edit";
+                l = "Edit";
+                break;
+            case SP_BROWSE_BUTTON:
+                name = "browse";
+                l = "Browse";
+                break;
+            case SP_CALENDAR_BUTTON:
+                name = "calendar";
+                l = "Date";
+                break;
+            case SP_REFRESH_BUTTON:
+                name = "refresh";
+                l = "Refresh";
+                break;
+            case SP_CANCEL_BUTTON:
+                name = "cancel";
+                l = "Cancel";
+                break;
+            case SP_HELP_BUTTON:
+                name = "help";
+                l = "Help";
+                break;
+            case SP_NO_BUTTON:
+                name = "no";
+                l = "No";
+                break;
+            case SP_OK_BUTTON:
+                name = "ok";
+                l = "Ok";
+                break;
+            case SP_OPEN_BUTTON:
+                name = "open";
+                l = "Open";
+                break;
+            case SP_PRINT_BUTTON:
+                name = "print";
+                l = "Print";
+                break;
+            case SP_SAVE_BUTTON:
+                name = "save";
+                l = "Save";
+                break;
+            case SP_COPY_BUTTON:
+                name = "copy";
+                l = "Insert";
+                break;
+            case SP_LEFT_BUTTON:
+                name = "left";
+                l = "Left";
+                break;
+            default:
+                name = nullptr;
+                l = "??";
+                break;
         }
-    } else {
-    switch (buttonKind) {
-        case SP_NEW_BUTTON:
-            name = "new";
-            l = "New";
-            break;
-        case SP_NEXT_BUTTON:
-            name = "next";
-            l = "Next";
-            break;
-        case SP_PRINTER_BUTTON:
-            name = "printer";
-            l = "Printer";
-            break;
-        case SP_PRIOR_BUTTON:
-            name = "prior";
-            l = "Prior";
-            break;
-        case SP_RIGHT_BUTTON:
-            name = "right";
-            l = "Right";
-            break;
-        case SP_SEARCH_BUTTON:
-            name = "search";
-            l = "Search";
-            break;
-        case SP_SEND_BUTTON:
-            name = "send";
-            l = "Send";
-            break;
-        case SP_STEPLEFT_BUTTON:
-            name = "stepleft";
-            l = "Step Left";
-            break;
-        case SP_STEPRIGHT_BUTTON:
-            name = "stepright";
-            l = "Step Right";
-            break;
-        case SP_VIEW_BUTTON:
-            name = "view";
-            l = "View";
-            break;
-        case SP_HOME_BUTTON:
-            name = "home";
-            l = "Home";
-            break;
-        case SP_EXEC_BUTTON:
-            name = "exec";
-            l = "Exec";
-            break;
-        case SP_STOP_BUTTON:
-            name = "stop";
-            l = "Stop";
-            break;
-        case SP_EXIT_BUTTON:
-            name = "exit";
-            l = "Exit";
-            break;
-        case SP_SAVE_AS_BUTTON:
-            name = "saveas";
-            l = "Save As..";
-            break;
-        case SP_CONFIGURE_BUTTON:
-            name = "configure";
-            l = "Settings";
-            break;
-        default:
-            name = nullptr;
-            l = "??";
-            break;
+    }
+    else
+    {
+        switch (buttonKind)
+        {
+            case SP_NEW_BUTTON:
+                name = "new";
+                l = "New";
+                break;
+            case SP_NEXT_BUTTON:
+                name = "next";
+                l = "Next";
+                break;
+            case SP_PRINTER_BUTTON:
+                name = "printer";
+                l = "Printer";
+                break;
+            case SP_PRIOR_BUTTON:
+                name = "prior";
+                l = "Prior";
+                break;
+            case SP_RIGHT_BUTTON:
+                name = "right";
+                l = "Right";
+                break;
+            case SP_SEARCH_BUTTON:
+                name = "search";
+                l = "Search";
+                break;
+            case SP_SEND_BUTTON:
+                name = "send";
+                l = "Send";
+                break;
+            case SP_STEPLEFT_BUTTON:
+                name = "stepleft";
+                l = "Step Left";
+                break;
+            case SP_STEPRIGHT_BUTTON:
+                name = "stepright";
+                l = "Step Right";
+                break;
+            case SP_VIEW_BUTTON:
+                name = "view";
+                l = "View";
+                break;
+            case SP_HOME_BUTTON:
+                name = "home";
+                l = "Home";
+                break;
+            case SP_EXEC_BUTTON:
+                name = "exec";
+                l = "Exec";
+                break;
+            case SP_STOP_BUTTON:
+                name = "stop";
+                l = "Stop";
+                break;
+            case SP_EXIT_BUTTON:
+                name = "exit";
+                l = "Exit";
+                break;
+            case SP_SAVE_AS_BUTTON:
+                name = "saveas";
+                l = "Save As..";
+                break;
+            case SP_CONFIGURE_BUTTON:
+                name = "configure";
+                l = "Settings";
+                break;
+            default:
+                name = nullptr;
+                l = "??";
+                break;
         }
     }
     if (label.empty())
+    {
         label = l;
+    }
     m_image = nullptr;
     if (name)
+    {
         m_image = CThemes::getIconImage(name, iconSize);
+    }
     if (iconSize == IS_LARGE_ICON)
+    {
         this->label(label);
+    }
     m_kind = buttonKind;
     m_iconSize = iconSize;
 }
@@ -204,20 +215,23 @@ CBaseButton::CBaseButton(CButtonKind kind,int x,int y,int w,const char *l,CTheme
 #endif
 
 CBaseButton::CBaseButton(CButtonKind kind, CLayoutAlign layoutAlign, bool is_small, const char* l, CThemeButtonType tbt)
-: Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign), m_type(tbt)
+    : Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign), m_type(tbt)
 {
     m_default = false;
     if (is_small)
+    {
         image(kind, IS_SMALL_ICON);
-    else image(kind, IS_LARGE_ICON, l);
+    }
+    else
+    { image(kind, IS_LARGE_ICON, l); }
     box(FL_THIN_UP_BOX);
 }
 
 CBaseButton::CBaseButton(const char* l, CLayoutAlign layoutAlign, CThemeButtonType tbt)
-: Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign),
-  m_type(tbt),
-  m_kind(SP_UNDEFINED_BUTTON),
-  m_iconSize(IS_SMALL_ICON)
+    : Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign),
+      m_type(tbt),
+      m_kind(SP_UNDEFINED_BUTTON),
+      m_iconSize(IS_SMALL_ICON)
 {
     m_default = false;
     m_image = nullptr;
@@ -229,8 +243,11 @@ void CBaseButton::defaultButton(bool isDefault)
 {
     m_default = isDefault;
     if (isDefault)
+    {
         box(FL_UP_BOX);
-    else box(FL_THIN_UP_BOX);
+    }
+    else
+    { box(FL_THIN_UP_BOX); }
     redraw();
 }
 
@@ -242,24 +259,30 @@ void CBaseButton::drawFocusLine(int xs, int ys, int xe, int ye)
     int yp = ys;
     int xsign = ((xs < xe) - (xs > xe));
     int ysign = ((ys < ye) - (ys > ye));
-    if (xsign == 0 && ysign == 0) return;
+    if (xsign == 0 && ysign == 0)
+    { return; }
     int dx = xsign * 2;
     int dy = ysign * 2;
     for (; xp * xsign <= xe * xsign && yp * ysign <= ye * ysign; xp += dx, yp += dy)
+    {
         fl_point(xp, yp);
+    }
 }
 
 void CBaseButton::drawFocus(bool usingTheme)
 {
     fl_color(FL_FOREGROUND_COLOR);
     int r = 0;
-    if (usingTheme) r = CThemes::buttonFocusRadius();
-    if (r > h() / 2) r = h() / 2;
+    if (usingTheme)
+    { r = CThemes::buttonFocusRadius(); }
+    if (r > h() / 2)
+    { r = h() / 2; }
     int xx = x() + 3;
     int yy = y() + 3;
     int ww = w() - 7;
     int hh = h() - 7;
-    if (m_default) {
+    if (m_default)
+    {
         xx += 2;
         yy += 2;
         ww -= 6;
@@ -278,19 +301,23 @@ void CBaseButton::drawFocus(bool usingTheme)
 void CBaseButton::draw()
 {
     if (m_kind != SP_UNDEFINED_BUTTON)
+    {
         image(m_kind, m_iconSize, m_label.c_str());
+    }
 #if FL_MAJOR_VERSION > 1
     align(FL_ALIGN_INSIDE);
     image(m_image);
     //Fl_Button::draw();
 #else
     align(Fl_Align(align() | FL_ALIGN_INSIDE));
-    if (type() == FL_HIDDEN_BUTTON) return;
+    if (type() == FL_HIDDEN_BUTTON)
+    { return; }
 
     int xx = x();
     int yy = y();
     int offset = 0;
-    if (m_default) offset = 2;
+    if (m_default)
+    { offset = 2; }
     int X = xx + offset;
     int Y = yy + offset;
     int W = w() - offset * 2;
@@ -302,8 +329,11 @@ void CBaseButton::draw()
 
     fl_push_clip(X + 1, Y + 1, W - 2, H - 2);
     if (!m_image)
+    {
         draw_label();
-    else {
+    }
+    else
+    {
         int pressedOffset = value() ? 1 : 0;
         xx = X + 4 + pressedOffset;
         yy = Y + (H - m_image->h()) / 2 + pressedOffset;
@@ -311,10 +341,13 @@ void CBaseButton::draw()
         int hh = H - 6;
         int tx = xx + m_image->w() + 2;
         int tw = ww - (tx - xx) - 2;
-        if (label().empty()) { // center image
+        if (label().empty())
+        { // center image
             xx = x() + (w() - m_image->w() - 1) / 2 + pressedOffset;
             m_image->draw(xx, yy, m_image->w(), m_image->h(), 0, 0);
-        } else {
+        }
+        else
+        {
             m_image->draw(xx, yy, ww, hh, 0, 0);
         }
         fl_color(FL_FOREGROUND_COLOR);
@@ -325,7 +358,9 @@ void CBaseButton::draw()
         int ty = Y + H / 2 - ht / 2;
         fl_draw(label().c_str(), tx, ty, wt, ht, Fl_Align(FL_ALIGN_LEFT | FL_ALIGN_TOP));
         if (Fl::focus() == this)
+        {
             drawFocus(usingTheme);
+        }
     }
     fl_pop_clip();
 #endif
@@ -334,13 +369,17 @@ void CBaseButton::draw()
 int CBaseButton::handle(int event)
 {
     CControl* control = nullptr;
-    switch (event) {
+    switch (event)
+    {
         case FL_FOCUS:
             control = dynamic_cast<CControl*>(parent());
-            if (!control && parent()) {
+            if (!control && parent())
+            {
                 control = dynamic_cast<CControl*>(parent()->parent());
                 if (control)
+                {
                     control->notifyFocus();
+                }
             }
             break;
 
@@ -363,33 +402,45 @@ bool CBaseButton::preferredSize(int& w, int& h)
     int bw = 0;
     int br = 0;
     CThemes::sizeButton(m_type, bw, bh);
-    if (bw) {
+    if (bw)
+    {
         br = CThemes::buttonFocusRadius();
-        if (m_default) {
+        if (m_default)
+        {
             bh += 4;
             bw += 4;
         }
     }
 
     if (m_image)
+    {
         h = m_image->h() + 6;
+    }
 
     fl_font(labelfont(), labelsize());
     int lw = 0;
     int lh = 0;
     fl_measure(label().c_str(), lw, lh);
-    if (lh + 8 > h) h = lh + 8;
-    if (lw) lw += 8;
+    if (lh + 8 > h)
+    { h = lh + 8; }
+    if (lw)
+    { lw += 8; }
     int ww = lw + 6 + br;
     if (m_image)
+    {
         ww += m_image->w();
-    if (m_default) {
+    }
+    if (m_default)
+    {
         h += 4;
         ww += 4;
     }
-    if (bh > h) h = bh;
-    if (w < ww) w = ww;
-    if (w < bw) w = bw;
+    if (bh > h)
+    { h = bh; }
+    if (w < ww)
+    { w = ww; }
+    if (w < bw)
+    { w = bw; }
     return false;
 }
 
@@ -406,7 +457,8 @@ void CButton::load(const xml::Node* node)
     String iconName = (String) node->getAttribute("icon");
     String iconType = (String) node->getAttribute("size", "large");
     CIconSize iconSize;
-    switch (iconType[0]) {
+    switch (iconType[0])
+    {
         case 'c':
             iconSize = IS_COMBO_ICON;
             break;
@@ -417,7 +469,8 @@ void CButton::load(const xml::Node* node)
             iconSize = IS_LARGE_ICON;
             break;
     }
-    if (!iconName.empty()) {
+    if (!iconName.empty())
+    {
         Fl_Image* image = CThemes::getIconImage(iconName, iconSize);
         buttonImage(image);
     }

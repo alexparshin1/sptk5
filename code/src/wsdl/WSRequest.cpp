@@ -31,49 +31,65 @@
 using namespace std;
 using namespace sptk;
 
-static void extractNameSpaces(xml::Node* node, map<String,WSNameSpace>& nameSpaces)
+static void extractNameSpaces(xml::Node* node, map<String, WSNameSpace>& nameSpaces)
 {
-    for (const auto* attributeNode: node->attributes()) {
+    for (const auto* attributeNode: node->attributes())
+    {
         const auto* attribute = dynamic_cast<const xml::Attribute*>(attributeNode);
         if (attribute == nullptr)
+        {
             continue;
+        }
         if (attribute->nameSpace() != "xmlns")
+        {
             continue;
+        }
         nameSpaces[attribute->tagname()] = WSNameSpace(attribute->tagname(), attribute->value());
     }
 }
 
-void WSRequest::requestBroker(const String& requestName, xml::Element* xmlContent, json::Element* jsonContent, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+void WSRequest::requestBroker(const String& requestName, xml::Element* xmlContent, json::Element* jsonContent,
+                              HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
-    try {
+    try
+    {
         auto itor = m_requestMethods.find(requestName);
         if (itor == m_requestMethods.end())
+        {
             throw SOAPException("Request '" + requestName + "' is not defined in this service");
+        }
         itor->second(xmlContent, jsonContent, authentication, requestNameSpace);
     }
-    catch (const SOAPException& e) {
+    catch (const SOAPException& e)
+    {
         logError(requestName, e.what(), 0);
         handleError(xmlContent, jsonContent, e.what(), 0);
     }
-    catch (const HTTPException& e) {
+    catch (const HTTPException& e)
+    {
         logError(requestName, e.what(), (int) e.statusCode());
         handleError(xmlContent, jsonContent, e.what(), (int) e.statusCode());
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         logError(requestName, e.what(), 0);
         handleError(xmlContent, jsonContent, e.what(), 0);
     }
 }
 
-void WSRequest::handleError(xml::Element* xmlContent, json::Element* jsonContent, const String& error, int errorCode) const
+void WSRequest::handleError(xml::Element* xmlContent, json::Element* jsonContent, const String& error,
+                            int errorCode) const
 {
     // Error handling
-    if (xmlContent) {
+    if (xmlContent)
+    {
         auto* soapBody = (xml::Element*) xmlContent->parent();
         soapBody->clearChildren();
         String soap_namespace = WSParser::get_namespace(soapBody->name());
         if (!soap_namespace.empty())
+        {
             soap_namespace += ":";
+        }
         auto* faultNode = new xml::Element(soapBody, (soap_namespace + "Fault").c_str());
         auto* faultCodeNode = new xml::Element(faultNode, "faultcode");
         faultCodeNode->text(soap_namespace + "Client");
@@ -81,22 +97,30 @@ void WSRequest::handleError(xml::Element* xmlContent, json::Element* jsonContent
         faultStringNode->text(error);
         new xml::Element(faultNode, "detail");
     }
-    else {
+    else
+    {
         jsonContent->clear();
         if (errorCode != 0)
+        {
             jsonContent->set("error_code", errorCode);
+        }
         jsonContent->set("error_description", error);
     }
 }
 
 void WSRequest::logError(const String& requestName, const String& error, int errorCode) const
 {
-    if (m_logEngine) {
+    if (m_logEngine)
+    {
         Logger logger(*m_logEngine);
         if (errorCode != 0)
+        {
             logger.error(requestName + ": " + to_string(errorCode) + " " + error);
+        }
         else
+        {
             logger.error(requestName + ": " + error);
+        }
     }
 }
 
@@ -106,7 +130,7 @@ xml::Element* WSRequest::findSoapBody(const xml::Element* soapEnvelope, const WS
 
     xml::Element* soapBody = dynamic_cast<xml::Element*>(soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body"));
     if (soapBody == nullptr)
-        throwException("Can't find SOAP Body node in incoming request")
+    throwException("Can't find SOAP Body node in incoming request")
 
     return soapBody;
 }
@@ -116,15 +140,20 @@ void WSRequest::processRequest(xml::Document* xmlContent, json::Document* jsonCo
 {
     WSNameSpace requestNameSpace;
 
-    if (xmlContent) {
+    if (xmlContent)
+    {
         WSNameSpace soapNamespace;
         xml::Element* soapEnvelope = nullptr;
         map<String, WSNameSpace> allNamespaces;
-        for (auto* anode: *xmlContent) {
+        for (auto* anode: *xmlContent)
+        {
             auto* node = dynamic_cast<xml::Element*>(anode);
             if (node == nullptr)
+            {
                 continue;
-            if (node->tagname() == "Envelope") {
+            }
+            if (node->tagname() == "Envelope")
+            {
                 soapEnvelope = node;
                 String nameSpaceAlias = node->nameSpace();
                 extractNameSpaces(soapEnvelope, allNamespaces);
@@ -133,14 +162,17 @@ void WSRequest::processRequest(xml::Document* xmlContent, json::Document* jsonCo
             }
         }
 
-        if (soapEnvelope == nullptr) throwException("Can't find SOAP Envelope node")
+        if (soapEnvelope == nullptr)
+        throwException("Can't find SOAP Envelope node")
 
         const xml::Element* soapBody = findSoapBody(soapEnvelope, soapNamespace);
 
         xml::Element* requestNode = nullptr;
-        for (auto* anode: *soapBody) {
+        for (auto* anode: *soapBody)
+        {
             auto* node = dynamic_cast<xml::Element*>(anode);
-            if (node != nullptr) {
+            if (node != nullptr)
+            {
                 scoped_lock lock(*this);
                 requestNode = node;
                 String nameSpaceAlias = requestNode->nameSpace();
@@ -149,14 +181,17 @@ void WSRequest::processRequest(xml::Document* xmlContent, json::Document* jsonCo
                 break;
             }
         }
-        if (requestNode == nullptr) throwException("Can't find request node in SOAP Body")
+        if (requestNode == nullptr)
+        throwException("Can't find request node in SOAP Body")
 
         requestName = WSParser::strip_namespace(requestNode->name());
-    } else {
+    }
+    else
+    {
         requestName = (String) jsonContent->root()["rest_method_name"];
     }
 
-    json::Element* jsonNode = jsonContent? &jsonContent->root(): nullptr;
+    json::Element* jsonNode = jsonContent ? &jsonContent->root() : nullptr;
     requestBroker(requestName, xmlContent, jsonNode, authentication, requestNameSpace);
 }
 

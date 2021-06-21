@@ -32,13 +32,15 @@ using namespace std;
 using namespace sptk;
 
 CColumn::CColumn(const string& cname, VariantType type, int32_t cwidth, bool cvisible)
-: m_name(cname), m_type(type), m_visible(cvisible)
-
+    : m_name(cname), m_type(type), m_visible(cvisible)
 {
-    if (cwidth < 0) {
+    if (cwidth < 0)
+    {
         m_autoWidth = true;
         m_width = 0;
-    } else {
+    }
+    else
+    {
         m_autoWidth = false;
         m_width = (uint32_t) cwidth;
     }
@@ -64,13 +66,16 @@ void CColumn::save(xml::Node& node) const
     node.setAttribute("auto_width", m_autoWidth);
 }
 
-int CColumnList::indexOf(const char *colname) const
+int CColumnList::indexOf(const char* colname) const
 {
     size_t cnt = size();
-    for (size_t i = 0; i < cnt; i++) {
+    for (size_t i = 0; i < cnt; i++)
+    {
         const CColumn& column = operator[](i);
         if (column.name() == colname)
+        {
             return int(i);
+        }
     }
     return -1;
 }
@@ -80,15 +85,21 @@ void CColumnList::load(const xml::Node& node)
     auto itor = node.begin();
     auto iend = node.end();
     resize(node.size());
-    for (; itor != iend; ++itor) {
-        try {
+    for (; itor != iend; ++itor)
+    {
+        try
+        {
             xml::Node& columnNode = *(*itor);
             unsigned columnIndex = (int) columnNode.getAttribute("index");
             if (columnIndex >= size())
+            {
                 continue;
+            }
             CColumn& column = (*this)[columnIndex];
             column.load(columnNode);
-        } catch (const Exception& e) {
+        }
+        catch (const Exception& e)
+        {
             CERR(e.what() << endl)
         }
     }
@@ -99,13 +110,17 @@ void CColumnList::save(xml::Node& node) const
     node.clear();
     node.name("columns");
     size_t counter = size();
-    for (size_t i = 0; i < counter; i++) {
-        try {
+    for (size_t i = 0; i < counter; i++)
+    {
+        try
+        {
             const CColumn& column = (*this)[i];
             xml::Node& columnNode = *(new xml::Element(node, "column"));
             column.save(columnNode);
             columnNode.setAttribute("index", (int) i);
-        } catch (const Exception& e) {
+        }
+        catch (const Exception& e)
+        {
             CERR(e.what() << endl)
         }
     }

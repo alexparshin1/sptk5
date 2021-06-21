@@ -30,62 +30,85 @@ using namespace std;
 using namespace sptk;
 
 WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElement)
-: m_wsdlTypeName(typeName)
+    : m_wsdlTypeName(typeName)
 {
     xml::NodeVector enumerationNodes;
     simpleTypeElement->select(enumerationNodes, "xsd:restriction/xsd:enumeration");
-    for (const auto* node: enumerationNodes) {
+    for (const auto* node: enumerationNodes)
+    {
         const auto* enumerationNode = dynamic_cast<const xml::Element*>(node);
         if (enumerationNode != nullptr)
+        {
             m_enumeration.push_back((String) enumerationNode->getAttribute("value"));
+        }
     }
 
-    if (!m_enumeration.empty()) {
+    if (!m_enumeration.empty())
+    {
         m_type = Type::Enumeration;
-    } else {
+    }
+    else
+    {
         xml::NodeVector patternNodes;
         simpleTypeElement->select(patternNodes, "xsd:restriction/xsd:pattern");
-        for (auto* patternNode: patternNodes) {
+        for (auto* patternNode: patternNodes)
+        {
             patternNode = dynamic_cast<xml::Element*>(patternNode);
             String pattern = patternNode->getAttribute("value").asString().replace(R"(\\)", R"(\)");
             if (!pattern.empty())
+            {
                 m_type = Type::Pattern;
+            }
             m_patterns.emplace_back(pattern);
         }
     }
 }
 
 WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const Strings& enumerationsOrPatterns)
-: m_type(type), m_wsdlTypeName(wsdlTypeName)
+    : m_type(type), m_wsdlTypeName(wsdlTypeName)
 {
-    if (enumerationsOrPatterns.empty()) {
+    if (enumerationsOrPatterns.empty())
+    {
         m_type = Type::Unknown;
         return;
     }
 
-    if (type == Type::Enumeration) {
+    if (type == Type::Enumeration)
+    {
         m_enumeration = enumerationsOrPatterns;
     }
-    else if (type == Type::Pattern) {
+    else if (type == Type::Pattern)
+    {
         for (auto& pattern: enumerationsOrPatterns)
+        {
             m_patterns.emplace_back(pattern);
+        }
     }
 }
 
 void WSRestriction::check(const String& typeName, const String& value) const
 {
-    if (m_type == Type::Enumeration) {
+    if (m_type == Type::Enumeration)
+    {
         if (m_enumeration.indexOf(value) >= 0)
+        {
             return;
+        }
     }
-    else if (m_type == Type::Pattern) {
-        for (const auto& regex: m_patterns) {
+    else if (m_type == Type::Pattern)
+    {
+        for (const auto& regex: m_patterns)
+        {
             if (regex.matches(value))
+            {
                 return;
+            }
         }
     }
     else
+    {
         return;
+    }
 
     throw Exception("The value '" + value + "' is invalid for restriction on element " + typeName);
 }
@@ -93,16 +116,20 @@ void WSRestriction::check(const String& typeName, const String& value) const
 String sptk::WSRestriction::generateConstructor(const String& variableName) const
 {
     stringstream str;
-    Strings      patterns;
+    Strings patterns;
 
-    switch (m_type) {
+    switch (m_type)
+    {
         case Type::Enumeration:
-            str << "WSRestriction " << variableName << "(WSRestriction::Type::Enumeration, \"" << m_wsdlTypeName << "\", "
+            str << "WSRestriction " << variableName << "(WSRestriction::Type::Enumeration, \"" << m_wsdlTypeName
+                << "\", "
                 << "{ \"" << m_enumeration.join("\", \"") << "\" })";
             break;
         case Type::Pattern:
             for (auto& regex: m_patterns)
+            {
                 patterns.push_back(regex.pattern());
+            }
             str << "WSRestriction " << variableName << "(WSRestriction::Type::Pattern, \"" << m_wsdlTypeName << "\", "
                 << "{ R\"(" << patterns.join(")\", R\"(") << ")\" })";
             break;
@@ -120,25 +147,25 @@ WSRestriction::Type WSRestriction::type() const
 
 #if USE_GTEST
 
-static const String coloursXML {
+static const String coloursXML{
     "<xsd:element name=\"Colours\">"
-        "<xsd:simpleType>"
-            "<xsd:restriction base=\"xsd:string\">"
-                "<xsd:enumeration value=\"Red\"/>"
-                "<xsd:enumeration value=\"Green\"/>"
-                "<xsd:enumeration value=\"Blue\"/>"
-            "</xsd:restriction>"
-        "</xsd:simpleType>"
+    "<xsd:simpleType>"
+    "<xsd:restriction base=\"xsd:string\">"
+    "<xsd:enumeration value=\"Red\"/>"
+    "<xsd:enumeration value=\"Green\"/>"
+    "<xsd:enumeration value=\"Blue\"/>"
+    "</xsd:restriction>"
+    "</xsd:simpleType>"
     "</xsd:element>"
 };
 
-static const String initialsXML {
+static const String initialsXML{
     "<xsd:element name=\"Initials\">"
-        "<xsd:simpleType>"
-            "<xsd:restriction base=\"xsd:string\">"
-                "<xsd:pattern value=\"[A-Z][A-Z]\"/>"
-            "</xsd:restriction>"
-        "</xsd:simpleType>"
+    "<xsd:simpleType>"
+    "<xsd:restriction base=\"xsd:string\">"
+    "<xsd:pattern value=\"[A-Z][A-Z]\"/>"
+    "</xsd:restriction>"
+    "</xsd:simpleType>"
     "</xsd:element>"
 };
 
@@ -151,18 +178,22 @@ TEST(SPTK_WSRestriction, parseEnumeration)
 
     WSRestriction restrictions("Colours", simpleTypeElement);
 
-    try {
+    try
+    {
         restrictions.check("Colour", "Green");
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         FAIL() << "Green is allowed colour!";
     }
 
-    try {
+    try
+    {
         restrictions.check("Colour", "Yellow");
         FAIL() << "Yellow is not allowed colour!";
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         SUCCEED() << "Correctly detected not allowed colour";
     }
 }
@@ -176,18 +207,22 @@ TEST(SPTK_WSRestriction, parseInitials)
 
     WSRestriction restrictions("Initials", simpleTypeElement);
 
-    try {
+    try
+    {
         restrictions.check("Initials", "AL");
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         FAIL() << "AL is correct initials!";
     }
 
-    try {
+    try
+    {
         restrictions.check("Initials", "xY");
         FAIL() << "xY is incorrect initials!";
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         SUCCEED() << "Correctly detected incorrect initials";
     }
 }

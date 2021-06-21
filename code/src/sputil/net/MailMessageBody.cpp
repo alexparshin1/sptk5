@@ -41,18 +41,23 @@ String MailMessageBody::stripHtml(const String& origHtml)
 void MailMessageBody::text(const string& messageText, bool smtp)
 {
     string msg(messageText);
-    if (smtp) {
+    if (smtp)
+    {
         size_t pos = 0;
-        while ( (pos = msg.find("\n.\n", pos)) != string::npos) {
+        while ((pos = msg.find("\n.\n", pos)) != string::npos)
+        {
             msg[pos + 1] = ' ';
             pos += 3;
         }
     }
-    if (upperCase(messageText.substr(0, 100)).find("<HTML>") == STRING_NPOS) {
+    if (upperCase(messageText.substr(0, 100)).find("<HTML>") == STRING_NPOS)
+    {
         m_type = MailMessageType::PLAIN_TEXT_MESSAGE;
         m_plainText = msg;
         m_htmlText = "";
-    } else {
+    }
+    else
+    {
         m_type = MailMessageType::HTML_MESSAGE;
         m_plainText = stripHtml(msg);
         m_htmlText = msg;

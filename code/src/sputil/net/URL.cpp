@@ -34,7 +34,8 @@ static bool nextToken(const String& url, size_t& start, size_t end, const String
 {
     value = "";
     end = url.find(delimiter, start);
-    if (end != string::npos) {
+    if (end != string::npos)
+    {
         value = url.substr(start, end - start);
         start = end + delimiter.length();
         return true;
@@ -50,11 +51,15 @@ URL::URL(const String& url)
 
     String credentials;
     nextToken(url, start, end, "@", credentials);
-    if (!credentials.empty()) {
+    if (!credentials.empty())
+    {
         auto pos = credentials.find(":");
         if (pos == string::npos)
+        {
             m_username = credentials;
-        else {
+        }
+        else
+        {
             m_username = credentials.substr(0, pos);
             m_password = credentials.substr(pos + 1);
         }
@@ -62,14 +67,19 @@ URL::URL(const String& url)
 
     Buffer buffer;
     if (!nextToken(url, start, end, "/", m_hostAndPort))
+    {
         m_hostAndPort = url.substr(start);
-    else {
+    }
+    else
+    {
         --start;
-        if (nextToken(url, start, end, "?", m_path)) {
+        if (nextToken(url, start, end, "?", m_path))
+        {
             buffer.set(url.substr(start));
             m_params.decode(buffer);
         }
-        else {
+        else
+        {
             m_path = url.substr(start);
         }
     }
@@ -80,17 +90,24 @@ String URL::toString() const
     stringstream str;
 
     if (!m_protocol.empty())
+    {
         str << m_protocol << "://";
+    }
 
     if (!m_username.empty())
+    {
         str << m_username << ":" << m_password << "@";
+    }
 
     str << m_hostAndPort;
 
     if (!m_path.empty())
+    {
         str << m_path;
+    }
 
-    if (!m_params.empty()) {
+    if (!m_params.empty())
+    {
         Buffer buffer;
         m_params.encode(buffer);
         str << "?" << buffer.c_str();
@@ -105,7 +122,9 @@ String URL::location() const
 
     auto matches = matchLocation.m(m_path);
     if (!matches)
+    {
         return "";
+    }
 
     return matches[0].value;
 }
@@ -171,7 +190,9 @@ TEST(SPTK_URL, loop)
 {
     size_t numIterations = 100;
     for (size_t i = 0; i < numIterations; ++i)
+    {
         URL url(testURL0);
+    }
 }
 
 #endif

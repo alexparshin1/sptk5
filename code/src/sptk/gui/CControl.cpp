@@ -36,11 +36,11 @@ using namespace std;
 using namespace sptk;
 
 const Fl_Menu_Item CControl::defaultControlMenu[] = {
-        {"Copy",  FL_CTRL + FL_Insert,  CControl::defaultControlMenuCopy, nullptr, 0, 0, 0, 12, 0},
-        {"Cut",   FL_SHIFT + FL_Delete, CControl::defaultControlMenuCut, nullptr, 0, 0, 0, 12, 0},
-        {"Paste", FL_SHIFT + FL_Insert, CControl::defaultControlMenuPaste, nullptr, 0, 0, 0, 12, 0},
-        {"Clear", 0, CControl::defaultControlMenuClear, nullptr, 0, 0, 0, 12, 0},
-        {nullptr, 0, nullptr, nullptr, 0, 0, 0, 0,  0}
+    {"Copy",  FL_CTRL + FL_Insert,  CControl::defaultControlMenuCopy,  nullptr, 0, 0, 0, 12, 0},
+    {"Cut",   FL_SHIFT + FL_Delete, CControl::defaultControlMenuCut,   nullptr, 0, 0, 0, 12, 0},
+    {"Paste", FL_SHIFT + FL_Insert, CControl::defaultControlMenuPaste, nullptr, 0, 0, 0, 12, 0},
+    {"Clear", 0, CControl::defaultControlMenuClear, nullptr, 0, 0, 0, 12, 0},
+    {nullptr, 0, nullptr,                           nullptr, 0, 0, 0, 0,  0}
 };
 
 class CControlKindIndex
@@ -72,33 +72,34 @@ struct CControlKindName
 };
 
 static CControlKindName typeNames[] = {
-        {DCV_BOX,           "BOX"},
-        {DCV_HTMLBOX,       "HTML"},
-        {DCV_STRING,        "STRING"},
-        {DCV_MEMO,          "MEMO"},
-        {DCV_INTEGER,       "INTEGER"},
-        {DCV_FLOAT,         "FLOAT"},
-        {DCV_DATE,          "DATE"},
-        {DCV_TIME,          "TIME"},
-        {DCV_DATETIME,      "DATETIME"},
-        {DCV_DATEINTERVAL,  "DATEINTERVAL"},
-        {DCV_COMBO,         "COMBO"},
-        {DCV_INTVALUECOMBO, "INTVALUECOMBO"},
-        {DCV_LISTBOX,       "LISTBOX"},
-        {DCV_CHECKBUTTONS,  "CHECKBUTTONS"},
-        {DCV_RADIOBUTTONS,  "RADIOBUTTONS"},
-        {DCV_PHONE,         "PHONE"},
-        {DCV_TREEVIEW,      "TREEVIEW"},
-        {DCV_GROUP,         "GROUP"},
-        {DCV_SLIDER,        "SLIDER"},
-        {DCV_PROGRESS,      "PROGRESS"},
-        {DCV_UNKNOWN,       ""}
+    {DCV_BOX,           "BOX"},
+    {DCV_HTMLBOX,       "HTML"},
+    {DCV_STRING,        "STRING"},
+    {DCV_MEMO,          "MEMO"},
+    {DCV_INTEGER,       "INTEGER"},
+    {DCV_FLOAT,         "FLOAT"},
+    {DCV_DATE,          "DATE"},
+    {DCV_TIME,          "TIME"},
+    {DCV_DATETIME,      "DATETIME"},
+    {DCV_DATEINTERVAL,  "DATEINTERVAL"},
+    {DCV_COMBO,         "COMBO"},
+    {DCV_INTVALUECOMBO, "INTVALUECOMBO"},
+    {DCV_LISTBOX,       "LISTBOX"},
+    {DCV_CHECKBUTTONS,  "CHECKBUTTONS"},
+    {DCV_RADIOBUTTONS,  "RADIOBUTTONS"},
+    {DCV_PHONE,         "PHONE"},
+    {DCV_TREEVIEW,      "TREEVIEW"},
+    {DCV_GROUP,         "GROUP"},
+    {DCV_SLIDER,        "SLIDER"},
+    {DCV_PROGRESS,      "PROGRESS"},
+    {DCV_UNKNOWN,       ""}
 };
 
 CControlKindIndex::CControlKindIndex() noexcept
 {
     CControlKindName* typeName = typeNames;
-    while (typeName->type != DCV_UNKNOWN) {
+    while (typeName->type != DCV_UNKNOWN)
+    {
         registerType(typeName->type, typeName->name);
         typeName++;
     }
@@ -121,7 +122,9 @@ string CControlKindIndex::name(CControlKind type)
 {
     auto itor = m_typeNameMap.find(type);
     if (itor == m_typeNameMap.end())
+    {
         throw Exception("Control type " + int2string(type) + " is undefined");
+    }
     return *itor->second;
 }
 
@@ -129,7 +132,9 @@ CControlKind CControlKindIndex::type(const char* name)
 {
     auto itor = m_nameTypeMap.find(name);
     if (itor == m_nameTypeMap.end())
+    {
         throw Exception("Control name " + string(name) + " is undefined");
+    }
     return itor->second;
 }
 
@@ -138,7 +143,8 @@ CControlKind CControlKindIndex::type(const char* name)
 void CControl::defaultControlMenuCopy(Fl_Widget* w, void*)
 {
     auto* control = dynamic_cast<CControl*>(w->parent());
-    if (control != nullptr) {
+    if (control != nullptr)
+    {
         String text = control->data().asString();
         Fl::copy(text.c_str(), (int) text.length(), 1);
     }
@@ -147,7 +153,8 @@ void CControl::defaultControlMenuCopy(Fl_Widget* w, void*)
 void CControl::defaultControlMenuCut(Fl_Widget* w, void*)
 {
     auto* control = dynamic_cast<CControl*>(w->parent());
-    if (control != nullptr) {
+    if (control != nullptr)
+    {
         String text = control->data().asString();
         Fl::copy(text.c_str(), (int) text.length(), 1);
         control->data("");
@@ -157,7 +164,8 @@ void CControl::defaultControlMenuCut(Fl_Widget* w, void*)
 void CControl::defaultControlMenuPaste(Fl_Widget* w, void*)
 {
     auto* control = dynamic_cast<CControl*>(w->parent());
-    if (control != nullptr) {
+    if (control != nullptr)
+    {
         control->data("");
         Fl::paste(*control->m_control, 1);
     }
@@ -167,13 +175,17 @@ void CControl::defaultControlMenuClear(Fl_Widget* w, void*)
 {
     auto* control = dynamic_cast<CControl*>(w->parent());
     if (control != nullptr)
+    {
         control->data("");
+    }
 }
 
 void CControl::ctor_init(const char* label)
 {
     if (label != nullptr)
+    {
         m_label = label;
+    }
     m_limited = false;
     m_controlFlags = FGE_SINGLELINEENTRY;
     m_textFont = FL_HELVETICA;
@@ -189,8 +201,8 @@ void CControl::ctor_init(const char* label)
 }
 
 CControl::CControl(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        :
-        Fl_Group(0, 0, layoutSize, layoutSize), CLayoutClient(this, layoutSize, layoutAlignment)
+    :
+    Fl_Group(0, 0, layoutSize, layoutSize), CLayoutClient(this, layoutSize, layoutAlignment)
 {
     ctor_init(label);
 }
@@ -216,21 +228,28 @@ unsigned CControl::labelHeight() const
     int cw = m_labelWidth - 3;
     int ch = 0;
     if (m_labelWidth != 0)
+    {
         fl_measure(m_label.c_str(), cw, ch);
+    }
     return (unsigned) ch;
 }
 
 void CControl::resize(int x, int y, int w, int h)
 {
     Fl_Group::resize(x, y, w, h);
-    if (m_control != nullptr) {
+    if (m_control != nullptr)
+    {
         int hh = h;
         if (!(m_controlFlags & FGE_MULTILINEENTRY))
+        {
             hh = textSize() + 8;
+        }
         m_control->resize(x + m_labelWidth, y, w - m_labelWidth, hh);
     }
     if (m_menuButton != nullptr)
+    {
         m_menuButton->resize(x + m_labelWidth, y, w - m_labelWidth, h);
+    }
 }
 
 Fl_Color CControl::labelColor() const
@@ -247,9 +266,11 @@ void CControl::draw()
 {
     Fl_Group::label(nullptr);
     Fl_Group::draw();
-    if (m_labelWidth > 5) {
+    if (m_labelWidth > 5)
+    {
         int hh = labelHeight();
-        if (hh != 0) {
+        if (hh != 0)
+        {
             fl_font(labelfont(), labelsize());
             fl_color(m_labelColor);
             fl_draw(m_label.c_str(), x() + 1, y() + 1, m_labelWidth - 3, hh,
@@ -260,7 +281,8 @@ void CControl::draw()
 
 void CControl::label(const String& label)
 {
-    if (m_label != label) {
+    if (m_label != label)
+    {
         m_label = label;
         damage(FL_DAMAGE_ALL);
         draw();
@@ -269,7 +291,8 @@ void CControl::label(const String& label)
 
 void CControl::labelWidth(unsigned newWidth)
 {
-    if (m_labelWidth != newWidth) {
+    if (m_labelWidth != newWidth)
+    {
         m_labelWidth = newWidth;
         resize(x(), y(), w(), h());
     }
@@ -339,13 +362,20 @@ bool sptk::checkFieldName(const String& fieldName)
 {
     size_t len = fieldName.length();
     if (len > 80)
+    {
         return false;
+    }
     if (len == 0)
+    {
         return true;
+    }
 
-    for (size_t i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++)
+    {
         if (isalnum(fieldName[i]) == 0 && fieldName[i] != '_')
+        {
             return false;
+        }
     }
     return isalpha(fieldName[0]) != 0;
 }
@@ -357,13 +387,18 @@ bool CControl::containsFocus() const
 
 void CControl::notifyFocus(bool gotFocus)
 {
-    if (gotFocus) {
-        if (!m_hasFocus) {
+    if (gotFocus)
+    {
+        if (!m_hasFocus)
+        {
             m_hasFocus = true;
             fireEvent(CE_FOCUS, 0);
         }
-    } else {
-        if (m_hasFocus && !contains(Fl::focus())) {
+    }
+    else
+    {
+        if (m_hasFocus && !contains(Fl::focus()))
+        {
             m_hasFocus = false;
             fireEvent(CE_UNFOCUS, 0);
         }
@@ -372,7 +407,8 @@ void CControl::notifyFocus(bool gotFocus)
 
 int CControl::handle(int event)
 {
-    switch (event) {
+    switch (event)
+    {
         case FL_SHOW:
             fireEvent(CE_SHOW, 0);
             break;
@@ -383,9 +419,11 @@ int CControl::handle(int event)
             break;
     }
     int rc = Fl_Group::handle(event);
-    if (event == FL_UNFOCUS) {
+    if (event == FL_UNFOCUS)
+    {
         bool newFocus = containsFocus();
-        if (!newFocus) {
+        if (!newFocus)
+        {
             m_hasFocus = false;
             fireEvent(CE_UNFOCUS, 0);
         }
@@ -403,13 +441,15 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
     CControlKind controlType = DCV_UNKNOWN;
     auto c1 = (char) toupper(typeName[1]);
     maxLength = 0;
-    switch (toupper(typeName[0])) {
+    switch (toupper(typeName[0]))
+    {
         case 'A':   // AREA CODE
             maxLength = 3;
             return DCV_INTEGER;
 
         case 'C':   // CURRENCY, CREDIT CARD, COMBO BOX, CHOICE, CHECK BUTTONS
-            switch (c1) {
+            switch (c1)
+            {
                 case 'U':
                     controlType = DCV_FLOAT;
                     break;
@@ -420,7 +460,9 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
                 case 'H':
                     controlType = DCV_COMBO;
                     if (toupper(typeName[2]) == 'E')
+                    {
                         controlType = DCV_CHECKBUTTONS;
+                    }
                     break;
                 case 'O':
                     controlType = DCV_COMBO;
@@ -432,9 +474,13 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
 
         case 'D':   // DATE, DATE AND TIME
             if (typeName.length() > 4)
+            {
                 controlType = DCV_DATETIME;
+            }
             else
+            {
                 controlType = DCV_DATE;
+            }
             break;
 
         case 'F':   // float #
@@ -451,13 +497,18 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
 
         case 'I':   // INTEGER
             if (trim(values).length())
+            {
                 controlType = DCV_INTVALUECOMBO;
+            }
             else
+            {
                 controlType = DCV_INTEGER;
+            }
             break;
 
         case 'L':   // LABEL, LONG ZIP CODE
-            switch (c1) {
+            switch (c1)
+            {
                 case 'A':
                     controlType = DCV_BOX;
                     break;
@@ -471,7 +522,8 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
             break;
 
         case 'M':   // MASK, MULTIPLE CHOICE, MONEY
-            switch (c1) {
+            switch (c1)
+            {
                 case 'A':
                     controlType = DCV_STRING;
                     break;
@@ -487,11 +539,15 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
             break;
 
         case 'P':   // PHONE, PHONE EXT, PLAIN TEXT
-            switch (c1) {
+            switch (c1)
+            {
                 case 'H':
                     if (typeName.find("ext") == STRING_NPOS)
+                    {
                         controlType = DCV_PHONE; // phone number
-                    else {
+                    }
+                    else
+                    {
                         maxLength = 4;
                         controlType = DCV_INTEGER;  // phone extension
                     }
@@ -526,15 +582,18 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
 
 void CControl::menu(const Fl_Menu_Item* newMenu)
 {
-    if (newMenu == nullptr) {
-        if (m_menuButton != nullptr) {
+    if (newMenu == nullptr)
+    {
+        if (m_menuButton != nullptr)
+        {
             remove(m_menuButton);
             delete m_menuButton;
             m_menuButton = nullptr;
         }
         return;
     }
-    if (m_menuButton == nullptr) {
+    if (m_menuButton == nullptr)
+    {
         Fl_Group* currentGroup = Fl_Group::current();
         begin();
         m_menuButton = new Fl_Menu_Button(m_labelWidth, 0, w() - m_labelWidth, h());
@@ -543,8 +602,11 @@ void CControl::menu(const Fl_Menu_Item* newMenu)
         m_menuButton->visible_focus(false);
         end();
         Fl_Group::current(currentGroup);
-    } else
+    }
+    else
+    {
         m_menuButton->menu(newMenu);
+    }
 }
 
 Fl_Menu_* CControl::menu() const
@@ -555,10 +617,12 @@ Fl_Menu_* CControl::menu() const
 void CControl::internalCallback(Fl_Widget* internalWidget, void* data)
 {
     for (Fl_Widget* parentWidget = internalWidget->parent();
-         parentWidget != nullptr; parentWidget = parentWidget->parent()) {
+         parentWidget != nullptr; parentWidget = parentWidget->parent())
+    {
         auto* control = dynamic_cast<CControl*>(parentWidget);
-        if (control != nullptr) {
-            control->fireEvent(CE_DATA_CHANGED, (int32_t)(uint64_t)(data));
+        if (control != nullptr)
+        {
+            control->fireEvent(CE_DATA_CHANGED, (int32_t) (uint64_t) (data));
             break;
         }
     }
@@ -566,7 +630,8 @@ void CControl::internalCallback(Fl_Widget* internalWidget, void* data)
 
 void CControl::fireEvent(CEvent ev, int32_t arg)
 {
-    if (callback() != nullptr) {
+    if (callback() != nullptr)
+    {
         m_event = CEventInfo(ev, arg);
         do_callback();
         m_event = CEventInfo(CE_NONE, 0);
@@ -575,23 +640,31 @@ void CControl::fireEvent(CEvent ev, int32_t arg)
 
 void sptk::createControls(const xml::NodeList& xmlControls)
 {
-    for (auto* node: xmlControls) {
+    for (auto* node: xmlControls)
+    {
         CControlKind controlKind = CControlKindIndex::type(node->name());
         CControl* control = createControl(controlKind, (String) node->getAttribute("label", ""),
                                           (String) node->getAttribute("fieldName", ""),
                                           (int) node->getAttribute("size", "12"));
         if ((int) node->getAttribute("visible", "1") == 0)
+        {
             control->hide();
+        }
         if ((int) node->getAttribute("enable", "1") == 0)
+        {
             control->deactivate();
+        }
     }
 }
 
 void CControl::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 {
     if (xmlMode & LXM_LAYOUT)
+    {
         CLayoutClient::load(node, LXM_LAYOUT);
-    if (xmlMode & LXM_DATA) {
+    }
+    if (xmlMode & LXM_DATA)
+    {
         Variant v;
         v.load(node);
         data(v);
@@ -602,8 +675,11 @@ void CControl::save(xml::Node* node, CLayoutXMLmode xmlMode) const
 {
     node->name("control");
     if (xmlMode & LXM_LAYOUT)
+    {
         CLayoutClient::save(node, LXM_LAYOUT);
-    if (xmlMode & LXM_DATA) {
+    }
+    if (xmlMode & LXM_DATA)
+    {
         Variant v;
         v = data();
         v.save(node);

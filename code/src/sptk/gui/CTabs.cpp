@@ -43,11 +43,11 @@ class CTabButtons;
 class SP_EXPORT CTabButton : public Fl_Button
 {
     Fl_Group* m_page;
-    CTabButtons* m_ownerRow {nullptr};
+    CTabButtons* m_ownerRow{nullptr};
 public:
     explicit CTabButton(Fl_Group* page)
-    : Fl_Button(0, 0, 10, 10, ""),
-      m_page(page)
+        : Fl_Button(0, 0, 10, 10, ""),
+          m_page(page)
     {
     }
 
@@ -96,7 +96,9 @@ public:
     void height(int h)
     {
         if (m_maxHeight < h)
+        {
             m_maxHeight = h;
+        }
     }
 
     virtual void clear()
@@ -119,7 +121,9 @@ public:
     virtual void clear()
     {
         for (auto* button: *this)
+        {
             delete button;
+        }
         vector<CTabButtons*>::clear();
     }
 };
@@ -127,11 +131,12 @@ public:
 class CTabGroup : public CGroup
 {
     friend class CTabButton;
+
     friend class CTabs;
 
     CTabButtons m_buttons;
     CTabButton* m_activeTabButton;
-    CTabRows    m_rows;
+    CTabRows m_rows;
 protected:
 
     static void cb_tabButton(Fl_Widget* btn, void* data);
@@ -140,7 +145,7 @@ protected:
 
 public:
     CTabGroup()
-    : CGroup("", 16, SP_ALIGN_TOP)
+        : CGroup("", 16, SP_ALIGN_TOP)
     {
         m_activeTabButton = nullptr;
         layoutSpacing(0);
@@ -163,7 +168,9 @@ public:
     Fl_Group* page()
     {
         if (!m_activeTabButton)
+        {
             return nullptr;
+        }
         return m_activeTabButton->page();
     }
 
@@ -172,7 +179,9 @@ public:
     {
         auto itor = std::find(m_buttons.begin(), m_buttons.end(), m_activeTabButton);
         if (itor == m_buttons.end())
+        {
             return -1;
+        }
         return (int) distance(m_buttons.begin(), itor);
     }
 
@@ -182,7 +191,9 @@ public:
     void pageNumber(unsigned pgNumber)
     {
         if (pgNumber >= m_buttons.size())
+        {
             return;
+        }
         activate(m_buttons[pgNumber]);
     }
 };
@@ -194,12 +205,14 @@ using namespace sptk;
 int CTabButton::handle(int event)
 {
     auto* tabGroup = (CTabGroup*) parent();
-    switch (event) {
+    switch (event)
+    {
         case FL_FOCUS:
             tabGroup->activate(this);
             break;
         case FL_KEYBOARD:
-            if (Fl::event_key() == FL_Down) {
+            if (Fl::event_key() == FL_Down)
+            {
                 redraw();
                 return m_page->handle(FL_FOCUS);
             }
@@ -213,7 +226,9 @@ bool CTabButton::selected() const
 {
     auto* tabGroup = dynamic_cast<CTabGroup*>(parent());
     if (!tabGroup)
+    {
         return false;
+    }
     return tabGroup->m_activeTabButton == this;
 }
 
@@ -222,7 +237,8 @@ bool CTabButton::preferredSize(int& w, int& h)
     w = 0;
     h = 0;
 
-    if (m_page != nullptr) {
+    if (m_page != nullptr)
+    {
         fl_font(m_page->labelfont(), m_page->labelsize());
         int frame_dw = Fl::box_dw(parent()->box());
         int frame_dh = Fl::box_dh(parent()->box());
@@ -238,7 +254,9 @@ void CTabButton::draw()
 {
     auto* tabsWidget = dynamic_cast<CTabGroup*>(parent());
     if (!tabsWidget)
+    {
         return;
+    }
     int hh = parent()->h() - (y() - parent()->y());
     bool selected = tabsWidget->m_activeTabButton == this;
 
@@ -256,17 +274,21 @@ void CTabButton::draw()
     m_page->draw_label(labelLeft, y() + 2, wt, ht + 2, labelAlign);
 
     if (Fl::focus() == this && selected)
+    {
         draw_focus(box(), labelLeft - 3, y() + 2, wt + 6, ht + 4);
+    }
 }
 
 void CTabGroup::draw()
 {
     draw_box();
     auto itor = m_rows.begin();
-    for (; itor != m_rows.end(); ++itor) {
+    for (; itor != m_rows.end(); ++itor)
+    {
         CTabButtons* row = *itor;
         auto btor = row->begin();
-        for (; btor != row->end(); btor++) {
+        for (; btor != row->end(); btor++)
+        {
             CTabButton* button = *btor;
             button->draw();
         }
@@ -282,21 +304,27 @@ void CTabGroup::add(Fl_Group* group)
     m_buttons.push_back(button);
     end();
     if (!m_activeTabButton)
+    {
         m_activeTabButton = button;
+    }
     Fl_Group::current(saveParent);
 }
 
 void CTabGroup::remove(Fl_Group* group)
 {
     auto itor = m_buttons.begin();
-    for (; itor != m_buttons.end(); ++itor) {
+    for (; itor != m_buttons.end(); ++itor)
+    {
         CTabButton* button = *itor;
-        if (button->page() == group) {
+        if (button->page() == group)
+        {
             if (button == m_activeTabButton)
+            {
                 m_activeTabButton = nullptr;
+            }
             m_buttons.erase(itor);
             Fl_Group::remove
-                    (button);
+                (button);
             delete button;
             break;
         }
@@ -306,7 +334,9 @@ void CTabGroup::remove(Fl_Group* group)
 void CTabGroup::activate(CTabButton* button)
 {
     if (m_activeTabButton == button)
+    {
         return;
+    }
     m_activeTabButton->page()->hide();
     m_activeTabButton = button;
     m_activeTabButton->page()->show();
@@ -319,7 +349,9 @@ void CTabGroup::cb_tabButton(Fl_Widget* btn, void* data)
 {
     auto* button = dynamic_cast<CTabButton*>(btn);
     if (!button)
+    {
         return;
+    }
     auto* group = (CTabGroup*) data;
     group->activate(button);
 }
@@ -342,9 +374,11 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
     int maxWidth = 0;
 
     CTabButtons* row = nullptr;
-    if (buildRows) {
+    if (buildRows)
+    {
         m_rows.clear();
-        if (buttonCount) {
+        if (buttonCount)
+        {
             row = new CTabButtons;
             m_rows.push_back(row);
         }
@@ -354,19 +388,28 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
     int rowHeight = 0;
     auto itor = m_buttons.begin();
     auto iend = m_buttons.end();
-    for (; itor != iend; ++itor) {
+    for (; itor != iend; ++itor)
+    {
         CTabButton* button = *itor;
         if (!button)
+        {
             continue;
+        }
         int bw = 0;
         int bh = 0;
         button->preferredSize(bw, bh);
         unsigned newOffset = offset + bw + 2;
-        if (newOffset <= (unsigned) width) {
+        if (newOffset <= (unsigned) width)
+        {
             if (newOffset > (unsigned) maxWidth)
+            {
                 maxWidth = newOffset;
-        } else {
-            if (buildRows) {
+            }
+        }
+        else
+        {
+            if (buildRows)
+            {
                 row = new CTabButtons;
                 m_rows.push_back(row);
             }
@@ -375,8 +418,11 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
             newOffset = (unsigned) bw;
         }
         if (rowHeight < bh)
+        {
             rowHeight = bh;
-        if (buildRows && row) {
+        }
+        if (buildRows && row)
+        {
             row->push_back(button);
             button->ownerRow(row);
             button->size(bw, bh);
@@ -387,12 +433,17 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
     }
     height += rowHeight;
     if (width < maxWidth)
+    {
         width = maxWidth;
-    if (buildRows) {
-        if (m_activeTabButton) {
+    }
+    if (buildRows)
+    {
+        if (m_activeTabButton)
+        {
             CTabButtons* activeRow = m_activeTabButton->ownerRow();
             auto activeRowPos = std::find(m_rows.begin(), m_rows.end(), activeRow);
-            if (activeRowPos != m_rows.end()) {
+            if (activeRowPos != m_rows.end())
+            {
                 m_rows.erase(activeRowPos);
                 m_rows.push_back(activeRow);
             }
@@ -400,12 +451,14 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
         auto rtor = m_rows.begin();
         auto rend = m_rows.end();
         auto yPosition = (unsigned) y();
-        for (; rtor != rend; rtor++) {
+        for (; rtor != rend; rtor++)
+        {
             CTabButtons* brow = *rtor;
             auto btor = brow->begin();
             auto bend = brow->end();
             auto xPosition = (unsigned) x();
-            for (; btor != bend; btor++) {
+            for (; btor != bend; btor++)
+            {
                 CTabButton* button = *btor;
                 button->position(xPosition, yPosition);
                 xPosition += button->w() + 2;
@@ -417,26 +470,26 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
 }
 
 const Fl_Color CTabs::AutoColorTable[16] = {
-        fl_rgb_color(0xB0, 0xD0, 0xD0),
-        fl_rgb_color(0xC0, 0xC0, 0xE0),
-        fl_rgb_color(192, 176, 160),
-        fl_rgb_color(0xD0, 0xD0, 0xB0),
-        fl_rgb_color(240, 190, 190),
-        fl_rgb_color(0xC0, 0xB0, 0xC0),
-        fl_rgb_color(0xC0, 0xA0, 0x90),
-        fl_rgb_color(0xD0, 0xD0, 0xE8),
-        fl_rgb_color(0xE8, 0xC0, 0xC0),
-        fl_rgb_color(0xC0, 0xE8, 0xC0),
-        fl_rgb_color(0xE8, 0xC0, 0xE8),
-        fl_rgb_color(0xE0, 0xE0, 0xC0),
-        fl_rgb_color(0xC0, 0xE0, 0xE0),
-        fl_rgb_color(0xE0, 0xC0, 0xE0),
-        fl_rgb_color(0xA0, 0xB8, 0xA0),
-        fl_rgb_color(0xB8, 0xC0, 0xE8)
+    fl_rgb_color(0xB0, 0xD0, 0xD0),
+    fl_rgb_color(0xC0, 0xC0, 0xE0),
+    fl_rgb_color(192, 176, 160),
+    fl_rgb_color(0xD0, 0xD0, 0xB0),
+    fl_rgb_color(240, 190, 190),
+    fl_rgb_color(0xC0, 0xB0, 0xC0),
+    fl_rgb_color(0xC0, 0xA0, 0x90),
+    fl_rgb_color(0xD0, 0xD0, 0xE8),
+    fl_rgb_color(0xE8, 0xC0, 0xC0),
+    fl_rgb_color(0xC0, 0xE8, 0xC0),
+    fl_rgb_color(0xE8, 0xC0, 0xE8),
+    fl_rgb_color(0xE0, 0xE0, 0xC0),
+    fl_rgb_color(0xC0, 0xE0, 0xE0),
+    fl_rgb_color(0xE0, 0xC0, 0xE0),
+    fl_rgb_color(0xA0, 0xB8, 0xA0),
+    fl_rgb_color(0xB8, 0xC0, 0xE8)
 };
 
 CTabs::CTabs(const char* label, int layoutSize, CLayoutAlign layoutAlign)
-: CGroup(label, layoutSize, layoutAlign), m_autoColorIndex(0)
+    : CGroup(label, layoutSize, layoutAlign), m_autoColorIndex(0)
 {
     box(FL_THIN_UP_BOX);
     layoutSpacing(0);
@@ -468,38 +521,58 @@ CLayoutClient* CTabs::creator(xml::Node* node)
 void CTabs::showTabs(bool show)
 {
     if (show)
+    {
         m_tabs->show();
+    }
     else
+    {
         m_tabs->hide();
+    }
 }
 
 void CTabs::draw()
 {
-    if (m_tabs->visible()) {
+    if (m_tabs->visible())
+    {
         m_tabs->draw();
         fl_draw_box(box(), x(), y() + m_tabs->h(), w(), h() - m_tabs->h(), color());
-    } else
+    }
+    else
+    {
         fl_draw_box(box(), x(), y(), w(), h(), color());
-    for (int i = 1; i < children(); i++) {
+    }
+    for (int i = 1; i < children(); i++)
+    {
         Fl_Widget* page = child(i);
         if (page->visible())
+        {
             page->draw();
+        }
     }
     if (m_tabs->visible() && m_tabs->m_activeTabButton)
+    {
         m_tabs->m_activeTabButton->draw();
+    }
 }
 
 void CTabs::removeEmptyLastPage()
 {
     int i = children() - 1;
     if (i < 1)
+    {
         return;
+    }
     auto* agroup = (Fl_Group*) child(i);
-    if (agroup) {
+    if (agroup)
+    {
         if (!agroup->children())
+        {
             remove(agroup);
+        }
         else
+        {
             agroup->box(FL_FLAT_BOX);
+        }
     }
 }
 
@@ -507,8 +580,11 @@ void CTabs::prepareNewPage(Fl_Group* page, bool autoColor)
 {
     page->box(FL_FLAT_BOX);
     if (pageCount())
+    {
         page->hide();
-    if (autoColor) {
+    }
+    if (autoColor)
+    {
         Fl_Color clr = AutoColorTable[m_autoColorIndex & 0xF];
         page->color(clr);
         m_autoColorIndex++;
@@ -556,11 +632,11 @@ void CTabs::pageNumber(uint32_t pgNumber)
 }
 
 void CTabs::remove
-        (Fl_Group* page)
+    (Fl_Group* page)
 {
     m_tabs->remove
-                  (page);
+              (page);
     Fl_Group::remove
-            (page);
+        (page);
     delete page;
 }

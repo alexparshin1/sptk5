@@ -39,7 +39,7 @@ void CPhoneNumberInput::ctor_init()
 }
 
 CPhoneNumberInput::CPhoneNumberInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CInput(label, layoutSize, layoutAlignment, true)
+    : CInput(label, layoutSize, layoutAlignment, true)
 {
     ctor_init();
 }
@@ -76,8 +76,10 @@ void CPhoneNumberInput::data(const Variant& ss)
     int pos = 0;
     char* s2 = s1;
     char* p2 = p1;
-    while (*s2 && pos < 14) {
-        switch (pos) {
+    while (*s2 && pos < 14)
+    {
+        switch (pos)
+        {
             case 0:
                 *p2 = '(';
                 p2++;
@@ -93,8 +95,11 @@ void CPhoneNumberInput::data(const Variant& ss)
                 break;
             default:
                 while (*s2 && !isdigit(*s2))
+                {
                     s2++;
-                if (isdigit(*s2)) {
+                }
+                if (isdigit(*s2))
+                {
                     *p2 = *s2;
                     p2++;
                     s2++;

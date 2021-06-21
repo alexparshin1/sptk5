@@ -37,13 +37,15 @@ using namespace sptk;
 void CGroup::ctor_init(const char* alabel)
 {
     if (alabel == nullptr)
+    {
         alabel = "";
+    }
     m_drawClipped = true;
     label(alabel);
 }
 
 CGroup::CGroup(const char* alabel, int layoutSize, CLayoutAlign layoutAlign)
-        : Fl_Group(0, 0, layoutSize, layoutSize), CLayoutManager(this, layoutSize, layoutAlign)
+    : Fl_Group(0, 0, layoutSize, layoutSize), CLayoutManager(this, layoutSize, layoutAlign)
 {
     ctor_init(alabel);
 }
@@ -67,7 +69,8 @@ void CGroup::resize(int xx, int yy, int ww, int hh)
     Fl_Widget::resize(xx, yy, ww, hh);
 
     const char* lbl = m_label.c_str();
-    if ((align() & FL_ALIGN_INSIDE) != 0 && lbl != nullptr && lbl[0] != 0) {
+    if ((align() & FL_ALIGN_INSIDE) != 0 && lbl != nullptr && lbl[0] != 0)
+    {
         int tw = ww - 8;
         int th = 0;
         fl_font(labelfont(), labelsize());
@@ -83,7 +86,8 @@ bool CGroup::preferredSize(int& ww, int& hh)
     int offsetY = offsetX;
 
     const char* lbl = m_label.c_str();
-    if ((align() & FL_ALIGN_INSIDE) != 0 && lbl != nullptr && lbl[0] != 0) {
+    if ((align() & FL_ALIGN_INSIDE) != 0 && lbl != nullptr && lbl[0] != 0)
+    {
         int tw = ww - 8;
         int th = 0;
         fl_font(labelfont(), labelsize());
@@ -101,21 +105,28 @@ void CGroup::draw()
 
     Fl_Boxtype b = box();
 
-    if (damage() & ~FL_DAMAGE_CHILD) { // redraw the entire thing:
+    if (damage() & ~FL_DAMAGE_CHILD)
+    { // redraw the entire thing:
         if (m_frame == nullptr)
+        {
             fl_draw_box(box(), x(), y(), w(), h(), color());
+        }
         paintBackground();
     }
 
     box(FL_NO_BOX);
 
     if (m_drawClipped)
+    {
         fl_push_clip(x() + Fl::box_dx(b), y() + Fl::box_dy(b), w() - Fl::box_dw(b), h() + Fl::box_dh(b));
+    }
 
     Fl_Group::draw();
 
     if (m_drawClipped)
+    {
         fl_pop_clip();
+    }
 
     label(lbl.c_str());
 
@@ -124,9 +135,11 @@ void CGroup::draw()
     fl_font(labelfont(), labelsize());
     fl_measure(m_label.c_str(), tw, th);
 
-    if ((align() & FL_ALIGN_INSIDE) && lbl[0]) {
+    if ((align() & FL_ALIGN_INSIDE) && lbl[0])
+    {
         int xt = x() + 8;
-        switch (align() & (FL_ALIGN_LEFT | FL_ALIGN_RIGHT | FL_ALIGN_CENTER)) {
+        switch (align() & (FL_ALIGN_LEFT | FL_ALIGN_RIGHT | FL_ALIGN_CENTER))
+        {
             case FL_ALIGN_LEFT:
                 break;
             case FL_ALIGN_RIGHT:
@@ -141,7 +154,9 @@ void CGroup::draw()
         fl_draw_box(FL_FLAT_BOX, xt, y(), tw + 4, th + 2, color());
         fl_color(labelcolor());
         fl_draw(m_label.c_str(), xt, y() + 2, tw + 4, th, FL_ALIGN_CENTER);
-    } else {
+    }
+    else
+    {
         draw_label();
     }
     box(b);

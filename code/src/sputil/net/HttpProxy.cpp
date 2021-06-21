@@ -46,19 +46,26 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
 
     Strings methods("CONNECT|GET", "|");
     bool proxyConnected = false;
-    for (const auto& method: methods) {
-        try {
+    for (const auto& method: methods)
+    {
+        try
+        {
             socket->open(m_host, BaseSocket::OpenMode::CONNECT, blockingMode, timeout);
             sendRequest(destination, socket, method);
 
             String error("Proxy connection timeout");
             if (socket->readyToRead(seconds(10)))
+            {
                 proxyConnected = readResponse(socket);
+            }
 
             if (proxyConnected)
+            {
                 break;
+            }
         }
-        catch (const Exception& e) {
+        catch (const Exception& e)
+        {
             throw ConnectionException("Can't connect to proxy " + m_host.toString() + ": " + String(e.what()));
         }
     }
@@ -71,36 +78,51 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
 
 bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket) const
 {
-    bool proxyConnected {false};
+    bool proxyConnected{false};
     Buffer buffer;
     socket->readLine(buffer);
 
     RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
-    if (auto responseMatches = matchProxyResponse.m(buffer.c_str()); responseMatches) {
+    if (auto responseMatches = matchProxyResponse.m(buffer.c_str()); responseMatches)
+    {
         int rc = responseMatches[0].value.toInt();
         if (rc < 400)
+        {
             proxyConnected = true;
+        }
     }
 
     // Read all headers
     RegularExpression matchResponseHeader(R"(^(\S+): (.*)$)");
     int contentLength = -1;
-    while (buffer.bytes() > 1) {
+    while (buffer.bytes() > 1)
+    {
         socket->readLine(buffer);
         auto matches = matchResponseHeader.m(buffer.c_str());
-        if (matches) {
+        if (matches)
+        {
             if (matches[0].value.toLowerCase() == "content-length")
+            {
                 contentLength = matches[1].value.toInt();
-        } else
+            }
+        }
+        else
+        {
             break;
+        }
     }
 
     // Read response body (if any)
-    if (contentLength > 0) {
+    if (contentLength > 0)
+    {
         socket->read(buffer, (size_t) contentLength);
-    } else {
+    }
+    else
+    {
         while (socket->readyToRead(milliseconds(100)))
+        {
             socket->read(buffer, socket->socketBytes());
+        }
     }
 
     return proxyConnected;
@@ -112,10 +134,12 @@ void HttpProxy::sendRequest(const Host& destination, const shared_ptr<TCPSocket>
     socket->write("Proxy-Connection: keep-alive\r\n");
 
     socket->write("User-agent: SPTK\r\n");
-    if (!m_username.empty()) {
+    if (!m_username.empty())
+    {
         Buffer usernameAndPassword(m_username + ":" + m_password);
         Buffer encodedUsernameAndPassword;
-        Base64::encode(encodedUsernameAndPassword, usernameAndPassword.c_str(), usernameAndPassword.bytes());
+        Base64::encode(encodedUsernameAndPassword, (const uint8_t*) usernameAndPassword.c_str(),
+                       usernameAndPassword.bytes());
         socket->write("Proxy-Authorization: Basic " + String(encodedUsernameAndPassword.c_str()) + "\r\n");
     }
     socket->write("\r\n");
@@ -136,7 +160,7 @@ static bool windowsGetDefaultProxy(Host& host, String& username, String& passwor
     if (!hHttpSession)
         throw Exception("Can't initialize WinHTTP");
 
-    // Use auto-detection because the Proxy 
+    // Use auto-detection because the Proxy
     // Auto-Config URL is not known.
     AutoProxyOptions.dwFlags = WINHTTP_AUTOPROXY_AUTO_DETECT;
 
@@ -191,11 +215,16 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
     RegularExpression matchProxy(R"(^(http://)?((\S+)(:\S+)@)?(\S+:\d+)$)");
     const char* proxyEnv = getenv("http_proxy");
     if (proxyEnv == nullptr)
+    {
         proxyEnv = getenv("HTTP_PROXY");
+    }
     if (proxyEnv == nullptr)
+    {
         return false;
+    }
 
-    if (auto parts = matchProxy.m(proxyEnv); parts) {
+    if (auto parts = matchProxy.m(proxyEnv); parts)
+    {
         proxyUser = parts[2].value;
         proxyPassword = parts[3].value.empty() ? "" : parts[3].value.substr(1);
         proxyHost = Host(parts[4].value);
@@ -215,24 +244,30 @@ TEST(SPTK_HttpProxy, connect)
     // If proxy is not defined or defined in wrong format, this test is exiting.
     const char* proxy = getenv("HTTP_PROXY");
     if (proxy == nullptr)
+    {
         proxy = getenv("http_proxy");
+    }
     if (proxy == nullptr)
-        return; // No proxy defined, don't test
+    {
+        return;
+    } // No proxy defined, don't test
 
     RegularExpression matchProxy(R"(^((.*):(.*)@)?(\d+\.\d+\.\d+\.\d+:\d+)$)");
     auto matches = matchProxy.m(proxy);
-    if (!matches) {
+    if (!matches)
+    {
         CERR("Can't parse proxy from environment variable" << endl)
         return;
     }
 
-    String  proxyUser(matches[1].value);
-    String  proxyPassword(matches[2].value);
-    Host    proxyHost(matches[3].value);
+    String proxyUser(matches[1].value);
+    String proxyPassword(matches[2].value);
+    Host proxyHost(matches[3].value);
 
     auto httpProxy = make_shared<HttpProxy>(proxyHost, proxyUser, proxyPassword);
     String error;
-    try {
+    try
+    {
         Host ahost("www.sptk.net:80");
 
         shared_ptr<TCPSocket> socket;
@@ -253,14 +288,15 @@ TEST(SPTK_HttpProxy, connect)
 
         COUT(output.c_str() << endl)
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << e.what();
     }
 }
 
 TEST(SPTK_HttpProxy, getDefaultProxy)
 {
-    Host   proxyHost;
+    Host proxyHost;
     String proxyUser;
     String proxyPassword;
 

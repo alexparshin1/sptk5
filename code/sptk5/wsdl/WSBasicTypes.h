@@ -170,7 +170,7 @@ public:
     void setInt64(int64_t value) { field().setInt64(value); }
     void setFloat(bool value) { field().setFloat(value); }
     void setBool(bool value) { field().setBool(value); }
-    void setBuffer(const char* buffer, size_t size) { field().setBuffer(buffer, size); }
+    void setBuffer(const char* buffer, size_t size) { field().setBuffer((const uint8_t*) buffer, size); }
 
     bool isNull() const override
     {
@@ -295,7 +295,7 @@ public:
      */
     WSString& operator=(const String& value)
     {
-        field().setBuffer(value.c_str(), value.length(), VAR_STRING);
+        field().setBuffer((const uint8_t*) value.c_str(), value.length(), VAR_STRING);
         return *this;
     }
 

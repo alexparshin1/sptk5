@@ -98,7 +98,7 @@ public:
      * @param data              Data buffer
      * @param sz                Data buffer size
      */
-    BufferStorage(const void* data, size_t sz);
+    BufferStorage(const uint8_t* data, size_t sz);
 
     /**
      * Destructor
@@ -108,7 +108,7 @@ public:
     /**
      * Returns pointer on the data buffer.
      */
-    char* data()
+    uint8_t* data()
     {
         return m_buffer.data();
     }
@@ -116,7 +116,7 @@ public:
     /**
      * Returns pointer on the data buffer.
      */
-    const char* data() const
+    const uint8_t* data() const
     {
         return m_buffer.data();
     }
@@ -126,7 +126,7 @@ public:
      */
     const char* c_str() const
     {
-        return m_buffer.data();
+        return (const char*) m_buffer.data();
     }
 
     /**
@@ -156,7 +156,7 @@ public:
      * @param data              External data buffer
      * @param sz                Required memory size
      */
-    void set(const char* data, size_t sz);
+    void set(const uint8_t* data, size_t sz);
 
     /**
      * Copies the external data of size sz into the current buffer.
@@ -180,7 +180,7 @@ public:
      */
     void set(const String& data)
     {
-        set(data.c_str(), data.length());
+        set((const uint8_t*) data.c_str(), data.length());
     }
 
     /**
@@ -246,6 +246,15 @@ public:
     virtual void append(const char* data, size_t sz = 0);
 
     /**
+     * Appends the external data of size sz to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param data              External data buffer
+     * @param sz                Required memory size
+     */
+    virtual void append(const uint8_t* data, size_t sz);
+
+    /**
      * Truncates the current buffer to the size sz.
      *
      * Deallocates unused memory if needed.
@@ -290,7 +299,7 @@ protected:
      * Allocate memory
      * @param size              Number of bytes for new buffer
      */
-    void allocate(const void* data, size_t size)
+    void allocate(const uint8_t* data, size_t size)
     {
         m_buffer.resize(size + 1);
         m_bytes = size;
@@ -321,7 +330,7 @@ protected:
         m_bytes = 0;
     }
 
-    void init(const char* data, size_t size, size_t bytes)
+    void init(const uint8_t* data, size_t size, size_t bytes)
     {
         allocate(data, size);
         m_bytes = bytes;
@@ -329,8 +338,8 @@ protected:
 
 private:
 
-    std::vector<char>   m_buffer;         ///< Actual storage
-    size_t              m_bytes {0};      ///< Actual size of the data in buffer
+    std::vector<uint8_t>    m_buffer;         ///< Actual storage
+    size_t                  m_bytes {0};      ///< Actual size of the data in buffer
 };
 
 /**

@@ -33,17 +33,21 @@ using namespace sptk;
 
 OpenApiGenerator::OpenApiGenerator(const String& title, const String& description, const String& version,
                                    const Strings& servers, const Options& options)
-: m_title(title), m_description(description), m_version(version), m_servers(servers), m_options(options)
+    : m_title(title), m_description(description), m_version(version), m_servers(servers), m_options(options)
 {
 }
 
 void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& operations,
-                                const WSComplexTypeMap& complexTypes, const std::map<String,String>& documentation) const
+                                const WSComplexTypeMap& complexTypes,
+                                const std::map<String, String>& documentation) const
 {
     // Validate options
-    for (auto& itor: m_options.operationsAuth) {
+    for (auto& itor: m_options.operationsAuth)
+    {
         if (operations.find(itor.first) == operations.end())
+        {
             throw Exception("Alternative Auth operation '" + itor.first + "' is not a part of this service");
+        }
     }
 
     json::Document document;
@@ -67,7 +71,8 @@ void OpenApiGenerator::createServers(json::Document& document) const
 {
     // Create servers object
     auto& servers = *document.root().add_array("servers");
-    for (auto& url: m_servers) {
+    for (auto& url: m_servers)
+    {
         auto& server = *servers.push_object();
         server["url"] = url;
     }
@@ -76,16 +81,17 @@ void OpenApiGenerator::createServers(json::Document& document) const
 void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMap& operations,
                                    const map<String, String>& documentation) const
 {
-    static const map<String,String> possibleResponses = {
-            {"200", "Ok"},
-            {"401", "Unauthorized"},
-            {"404", "Not found"},
-            {"500", "Server error"},
+    static const map<String, String> possibleResponses = {
+        {"200", "Ok"},
+        {"401", "Unauthorized"},
+        {"404", "Not found"},
+        {"500", "Server error"},
     };
 
     // Create paths object
     auto& paths = *document.root().add_object("paths");
-    for (auto& itor: operations) {
+    for (auto& itor: operations)
+    {
         auto& operation = itor.second;
         String operationName = itor.first;
 
@@ -96,10 +102,15 @@ void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMa
         AuthMethod authMethod;
         auto ator = m_options.operationsAuth.find(operationName);
         if (ator != m_options.operationsAuth.end())
+        {
             authMethod = ator->second;
+        }
         else
+        {
             authMethod = m_options.defaultAuthMethod;
-        if (authMethod != AM_NONE) {
+        }
+        if (authMethod != AuthMethod::NONE)
+        {
             auto& securityObject = *postElement.add_array("security");
             auto& securityMechanism = *securityObject.push_object();
             securityMechanism.add_array(authMethodName(authMethod));
@@ -107,7 +118,9 @@ void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMa
 
         auto dtor = documentation.find(operation.m_input->name());
         if (dtor != documentation.end())
+        {
             postElement["summary"] = dtor->second;
+        }
 
         postElement["operationId"] = itor.first;
 
@@ -118,50 +131,59 @@ void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMa
         schema["$ref"] = "#/components/schemas/" + operation.m_input->name();
 
         auto& responsesElement = *postElement.add_object("responses");
-        for (auto& rtor: possibleResponses) {
+        for (auto& rtor: possibleResponses)
+        {
             auto& response = *responsesElement.add_object(rtor.first);
             response["description"] = rtor.second;
         }
     }
 }
 
-void OpenApiGenerator::createComponents(json::Document & document, const WSComplexTypeMap& complexTypes) const
+void OpenApiGenerator::createComponents(json::Document& document, const WSComplexTypeMap& complexTypes) const
 {
-    struct OpenApiType {
+    struct OpenApiType
+    {
         String type;
         String format;
     };
 
-    static const map<String,OpenApiType> wsTypesToOpenApiTypes = {
-            { "string", { "string", "" } },
-            { "datetime", { "string", "date-time" } },
-            { "bool", {"boolean", ""} },
-            { "integer", { "integer", "int64" } },
-            { "double", { "number", "double" } }
+    static const map<String, OpenApiType> wsTypesToOpenApiTypes = {
+        {"string",   {"string",  ""}},
+        {"datetime", {"string",  "date-time"}},
+        {"bool",     {"boolean", ""}},
+        {"integer",  {"integer", "int64"}},
+        {"double",   {"number",  "double"}}
     };
 
     // Create components object
     auto& components = *document.root().add_object("components");
     auto& schemas = *components.add_object("schemas");
-    for (auto& itor: complexTypes) {
+    for (auto& itor: complexTypes)
+    {
         auto& complexTypeInfo = itor.second;
         auto& complexType = *schemas.add_object(complexTypeInfo->name());
         complexType["type"] = "object";
         auto& properties = *complexType.add_object("properties");
         Strings requiredProperties;
-        for (auto ctypeProperty: complexTypeInfo->sequence()) {
+        for (auto ctypeProperty: complexTypeInfo->sequence())
+        {
             auto& property = *properties.add_object(ctypeProperty->name());
             parseClassName(ctypeProperty, property);
 
             if (ctypeProperty->multiplicity() != WSMultiplicity::ZERO_OR_ONE)
+            {
                 requiredProperties.push_back(ctypeProperty->name());
+            }
 
             parseRestriction(ctypeProperty, property);
         }
-        if (!requiredProperties.empty()) {
+        if (!requiredProperties.empty())
+        {
             auto& required = *complexType.add_array("required");
             for (const auto& property: requiredProperties)
+            {
                 required.push_back(property);
+            }
         }
     }
 
@@ -179,51 +201,67 @@ void OpenApiGenerator::createComponents(json::Document & document, const WSCompl
 
 void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty, json::Element& property) const
 {
-    struct OpenApiType {
+    struct OpenApiType
+    {
         String type;
         String format;
     };
 
-    static const map<String,OpenApiType> wsTypesToOpenApiTypes = {
-            { "string", { "string", "" } },
-            { "datetime", { "string", "date-time" } },
-            { "bool", {"boolean", ""} },
-            { "integer", { "integer", "int64" } },
-            { "double", { "number", "double" } }
+    static const map<String, OpenApiType> wsTypesToOpenApiTypes = {
+        {"string",   {"string",  ""}},
+        {"datetime", {"string",  "date-time"}},
+        {"bool",     {"boolean", ""}},
+        {"integer",  {"integer", "int64"}},
+        {"double",   {"number",  "double"}}
     };
 
     auto className = ctypeProperty->className();
-    if (className.startsWith("sptk::WS")) {
+    if (className.startsWith("sptk::WS"))
+    {
         className = className.replace("sptk::WS", "").toLowerCase();
         auto ttor = wsTypesToOpenApiTypes.find(className);
-        if (ttor != wsTypesToOpenApiTypes.end()) {
+        if (ttor != wsTypesToOpenApiTypes.end())
+        {
             property["type"] = ttor->second.type;
             if (!ttor->second.format.empty())
+            {
                 property["format"] = ttor->second.format;
+            }
         }
     }
-    else if (className.startsWith("C")) {
+    else if (className.startsWith("C"))
+    {
         className = "#/components/schemas/" + className.substr(1);
-        if ((int)ctypeProperty->multiplicity() & ((int)WSMultiplicity::ZERO_OR_MORE|(int)WSMultiplicity::ONE_OR_MORE)) { //array
+        if ((int) ctypeProperty->multiplicity() &
+            ((int) WSMultiplicity::ZERO_OR_MORE | (int) WSMultiplicity::ONE_OR_MORE))
+        { //array
             property["type"] = "array";
             auto& items = *property.add_object("items");
             items["$ref"] = className;
-        } else
+        }
+        else
+        {
             property["$ref"] = className;
+        }
     }
 }
 
 void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypeProperty, json::Element& property) const
 {
     auto restriction = ctypeProperty->restriction();
-    if (restriction) {
-        if (!restriction->patterns().empty()) {
+    if (restriction)
+    {
+        if (!restriction->patterns().empty())
+        {
             parseRestrictionPatterns(property, restriction);
         }
-        else if (!restriction->enumeration().empty()) {
+        else if (!restriction->enumeration().empty())
+        {
             auto& enumArray = *property.add_array("enum");
             for (const auto& str: restriction->enumeration())
+            {
                 enumArray.push_back(str);
+            }
         }
     }
 }
@@ -231,10 +269,14 @@ void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypePropert
 void OpenApiGenerator::parseRestrictionPatterns(json::Element& property, const SWSRestriction& restriction) const
 {
     if (restriction->patterns().size() == 1)
+    {
         property["pattern"] = restriction->patterns()[0].pattern();
-    else {
+    }
+    else
+    {
         auto& oneOf = *property.add_array("oneOf");
-        for (const auto& regex: restriction->patterns()) {
+        for (const auto& regex: restriction->patterns())
+        {
             auto& patternElement = *oneOf.push_object();
             patternElement["pattern"] = regex.pattern();
         }
@@ -244,19 +286,29 @@ void OpenApiGenerator::parseRestrictionPatterns(json::Element& property, const S
 OpenApiGenerator::AuthMethod OpenApiGenerator::authMethod(const String& auth)
 {
     if (auth == "none")
-        return AM_NONE;
+    {
+        return AuthMethod::NONE;
+    }
     if (auth == "basic")
-        return AM_BASIC;
+    {
+        return AuthMethod::BASIC;
+    }
     if (auth == "bearer")
-        return AM_BEARER;
+    {
+        return AuthMethod::BEARER;
+    }
     throw Exception("Auth method '" + auth + "' is not supported");
 }
 
 String OpenApiGenerator::authMethodName(AuthMethod auth)
 {
-    switch (auth) {
-        case AM_BASIC: return "basicAuth";
-        case AM_BEARER: return "bearerAuth";
-        default: return "none";
+    switch (auth)
+    {
+        case AuthMethod::BASIC:
+            return "basicAuth";
+        case AuthMethod::BEARER:
+            return "bearerAuth";
+        default:
+            return "none";
     }
 }

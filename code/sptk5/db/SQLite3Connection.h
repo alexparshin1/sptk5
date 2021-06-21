@@ -80,7 +80,7 @@ public:
     /**
      * @brief Returns the database connection handle
      */
-    void* handle() const override;
+    DBHandle handle() const override;
 
     /**
      * @brief Returns the SQLite3 driver description for the active connection

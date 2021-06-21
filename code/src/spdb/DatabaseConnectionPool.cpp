@@ -28,10 +28,13 @@
 #include <sptk5/db/DatabaseConnectionPool.h>
 
 #ifndef WIN32
+
 #include <dlfcn.h>
+
 #endif
 
 #if USE_GTEST
+
 #include <sptk5/db/DatabaseTests.h>
 #include <future>
 
@@ -47,7 +50,9 @@ public:
     {
         auto itor = drivers.find(driverName);
         if (itor == drivers.end())
+        {
             return nullptr;
+        }
         return itor->second.get();
     }
 
@@ -65,7 +70,8 @@ private:
 
 DriverLoaders DriverLoaders::loadedDrivers;
 
-DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections) :
+DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections)
+    :
     DatabaseConnectionString(connectionString),
     m_driver(nullptr),
     m_createConnection(nullptr),
@@ -74,29 +80,18 @@ DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, u
 {
 }
 
-bool DatabaseConnectionPool::closeConnectionCB(PoolDatabaseConnection*& item, void* data)
-{
-    PoolDatabaseConnection* connection = item;
-    auto* connectionPool = (DatabaseConnectionPool*)data;
-    connectionPool->destroyConnection(connection, false);
-    return true;
-}
-
-DatabaseConnectionPool::~DatabaseConnectionPool()
-{
-    m_connections.each(closeConnectionCB,this);
-}
-
 void DatabaseConnectionPool::load()
 {
     scoped_lock lock(*this);
 
     String driverNameLC = lowerCase(driverName());
     if (driverNameLC == "mssql")
+    {
         driverNameLC = "odbc";
+    }
 
-    DatabaseDriver* loadedDriver = DriverLoaders::loadedDrivers.get(driverNameLC);
-    if (loadedDriver != nullptr) {
+    if (auto* loadedDriver = DriverLoaders::loadedDrivers.get(driverNameLC); loadedDriver != nullptr)
+    {
         m_driver = loadedDriver;
         m_createConnection = loadedDriver->m_createConnection;
         m_destroyConnection = loadedDriver->m_destroyConnection;
@@ -114,7 +109,9 @@ void DatabaseConnectionPool::load()
 
     DriverHandle handle = (DriverHandle) dlopen(driverFileName.c_str(), RTLD_NOW);
     if (handle == nullptr)
+    {
         throw DatabaseException("Cannot load library: " + string(dlerror()));
+    }
 #endif
 
     // Creating the driver instance
@@ -138,13 +135,15 @@ void DatabaseConnectionPool::load()
 
     DestroyDriverInstance* destroyConnection;
     const char* dlsym_error = dlerror();
-    if (dlsym_error == nullptr) {
+    if (dlsym_error == nullptr)
+    {
         ptr = dlsym(handle, destroy_connectionFunctionName.c_str());
         destroyConnection = (DestroyDriverInstance*) ptr;
         dlsym_error = dlerror();
     }
 
-    if (dlsym_error != nullptr) {
+    if (dlsym_error != nullptr)
+    {
         m_createConnection = nullptr;
         dlclose(handle);
         throw DatabaseException(String("Cannot load driver ") + driverNameLC + String(": ") + string(dlsym_error));
@@ -168,13 +167,27 @@ void DatabaseConnectionPool::load()
     return make_shared<AutoDatabaseConnection>(*this);
 }
 
-PoolDatabaseConnection* DatabaseConnectionPool::createConnection()
+SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
 {
     if (m_driver == nullptr)
+    {
         load();
-    PoolDatabaseConnection* connection = nullptr;
-    if (m_connections.size() < m_maxConnections && m_pool.empty()) {
-        connection = m_createConnection(toString().c_str());
+    }
+    SPoolDatabaseConnection connection;
+    if (m_connections.size() < m_maxConnections && m_pool.empty())
+    {
+        connection = SPoolDatabaseConnection(m_createConnection(toString().c_str()),
+                                             [this](PoolDatabaseConnection* conn) {
+                                                 try
+                                                 {
+                                                     conn->close();
+                                                 }
+                                                 catch (const Exception& e)
+                                                 {
+                                                     CERR(e.what() << endl)
+                                                 }
+                                                 m_destroyConnection(conn);
+                                             });
         m_connections.push_back(connection);
         return connection;
     }
@@ -182,42 +195,38 @@ PoolDatabaseConnection* DatabaseConnectionPool::createConnection()
     return connection;
 }
 
-void DatabaseConnectionPool::releaseConnection(PoolDatabaseConnection* connection)
+void DatabaseConnectionPool::releaseConnection(SPoolDatabaseConnection& connection)
 {
     m_pool.push(connection);
 }
 
-void DatabaseConnectionPool::destroyConnection(PoolDatabaseConnection* connection, bool unlink)
+void DatabaseConnectionPool::destroyConnection(SPoolDatabaseConnection& connection)
 {
-    if (unlink)
-        m_connections.remove(connection);
-    try {
-        connection->close();
-    }
-    catch (const Exception& e) {
-        CERR(e.what() << endl)
-    }
-    m_destroyConnection(connection);
+    connection.reset();
 }
 
 #if USE_GTEST
 
 TEST(SPTK_DatabaseConnectionPool, connectString)
 {
-    try {
+    try
+    {
         DatabaseConnectionPool connectionPool("xsql://server1/db1");
         CERR(connectionPool.toString() << endl)
         FAIL() << "MUST FAIL, incorrect server type";
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
     }
 
-    try {
+    try
+    {
         DatabaseConnectionPool connectionPool("mysql://server1/db1");
         COUT(connectionPool.toString() << endl)
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << e.what();
     }
 }
@@ -227,10 +236,12 @@ static void testConnect(const String& dbName)
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
-    try {
+    try
+    {
         DatabaseTests::testConnect(connectionString);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -240,10 +251,12 @@ static void testDDL(const String& dbName)
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
-    try {
+    try
+    {
         DatabaseTests::testDDL(connectionString);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -252,11 +265,13 @@ static void testInsertQuery(const String& dbName)
 {
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
-        FAIL() << dbName <<" connection is not defined";
-    try {
+        FAIL() << dbName << " connection is not defined";
+    try
+    {
         DatabaseTests::testInsertQuery(connectionString);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -265,11 +280,13 @@ static void testBulkInsert(const String& dbName)
 {
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
-        FAIL() << dbName <<" connection is not defined";
-    try {
+        FAIL() << dbName << " connection is not defined";
+    try
+    {
         DatabaseTests::testBulkInsert(connectionString);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -279,10 +296,12 @@ static void testBulkInsertPerformance(const String& dbName)
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
-    try {
+    try
+    {
         DatabaseTests::testBulkInsertPerformance(connectionString, 1024);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -292,10 +311,12 @@ static void testQueryParameters(const String& dbName)
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
-    try {
+    try
+    {
         DatabaseTests::testQueryParameters(connectionString);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -305,10 +326,12 @@ static void testQueryDates(const String& dbName)
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
-    try {
+    try
+    {
         DatabaseTests::testQueryInsertDate(connectionString);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -318,10 +341,12 @@ static void testTransaction(const String& dbName)
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
-    try {
+    try
+    {
         DatabaseTests::testTransaction(connectionString);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -331,10 +356,12 @@ static void testSelect(const String& dbName)
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
-    try {
+    try
+    {
         DatabaseTests::testSelect(connectionString);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }

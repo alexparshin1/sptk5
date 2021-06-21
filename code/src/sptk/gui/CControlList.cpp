@@ -31,28 +31,34 @@
 
 using namespace sptk;
 
-void CControlList::scanControls(const Fl_Group *group)
+void CControlList::scanControls(const Fl_Group* group)
 {
     auto cnt = (unsigned) group->children();
-    for (unsigned i = 0; i < cnt; i++) {
-        Fl_Widget *widget = group->child(i);
+    for (unsigned i = 0; i < cnt; i++)
+    {
+        Fl_Widget* widget = group->child(i);
 
         // The try {} catch() {} is only required for MSVC++
-        CControl *control = dynamic_cast<CControl *>(widget);
-        if (control != nullptr) {
+        CControl* control = dynamic_cast<CControl*>(widget);
+        if (control != nullptr)
+        {
             if (control->fieldName().length())
+            {
                 add(control);
+            }
             continue;
         }
 
 
-        Fl_Group *g = dynamic_cast<Fl_Group *>(widget);
+        Fl_Group* g = dynamic_cast<Fl_Group*>(widget);
         if (g != nullptr)
+        {
             scanControls(g);
+        }
     }
 }
 
-void CControlList::add(CControl *control)
+void CControlList::add(CControl* control)
 {
     (*this)[control->fieldName()] = control;
 }
@@ -66,17 +72,23 @@ void CControlList::add(const CControlList& list)
 {
     auto itor = list.begin();
     for (; itor != list.end(); ++itor)
+    {
         add(itor->second);
+    }
 }
 
 void CControlList::remove(const CControlList& l)
 {
     for (auto itor: l)
+    {
         remove(itor.second);
+    }
 }
 
 void CControlList::reset()
 {
     for (auto itor: *this)
+    {
         itor.second->reset();
+    }
 }

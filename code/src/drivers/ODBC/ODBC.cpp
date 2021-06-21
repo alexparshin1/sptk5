@@ -152,9 +152,9 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
 #else
     void* ParentWnd = nullptr;
 #endif
-    char* pConnectString = m_connectString.empty() ? nullptr: &m_connectString[0];
-    SQLRETURN rc = ::SQLDriverConnect(m_hConnection, ParentWnd, (UCHAR FAR*) pConnectString, SQL_NTS,
-                                      (UCHAR FAR*) buff.data(), (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
+    char* pConnectString = m_connectString.empty() ? nullptr : &m_connectString[0];
+    SQLRETURN rc = ::SQLDriverConnect(m_hConnection, ParentWnd, (UCHAR*) pConnectString, SQL_NTS,
+                                      buff.data(), (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
 
 
     if (!Successful(rc)) {
@@ -208,11 +208,12 @@ void ODBCConnectionBase::execQuery(const char* query)
     scoped_lock lock(*this);
 
     // Allocate Statement Handle
-    if (!Successful(SQLAllocHandle(SQL_HANDLE_STMT, m_hConnection, &hstmt)))
+    if (!Successful(SQLAllocHandle(SQL_HANDLE_STMT, m_hConnection, &hstmt))) {
         throw Exception("Can't allocate handle");
+    }
 
-    Buffer queryBuffer(query, strlen(query));
-    if (!Successful(SQLExecDirect(hstmt, (SQLCHAR*) queryBuffer.data(), (SQLINTEGER) queryBuffer.length()))) {
+    if (Buffer queryBuffer((const uint8_t*) query, strlen(query));
+        !Successful(SQLExecDirect(hstmt, queryBuffer.data(), (SQLINTEGER) queryBuffer.length()))) {
         SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
         throw Exception("Can't execute query: " + String(query));
     }
@@ -267,13 +268,13 @@ String sptk::removeDriverIdentification(const char* error)
 }
 
 string extract_error(
-        SQLHANDLE handle,
-        SQLSMALLINT type)
+    SQLHANDLE handle,
+    SQLSMALLINT type)
 {
     SQLSMALLINT i = 0;
     SQLINTEGER native = 0;
-    array<SQLCHAR,7> state;
-    array<SQLCHAR,256> text;
+    array<SQLCHAR, 7> state;
+    array<SQLCHAR, 256> text;
     SQLSMALLINT len = 0;
     SQLRETURN ret;
 
@@ -283,7 +284,7 @@ string extract_error(
         ret = SQLGetDiagRec(type, handle, i, state.data(), &native, text.data(), sizeof(text), &len);
         if (ret != SQL_SUCCESS)
             break;
-        error += removeDriverIdentification((char*)text.data()) + string(". ");
+        error += removeDriverIdentification((char*) text.data()) + string(". ");
     }
 
     return error;
@@ -291,8 +292,8 @@ string extract_error(
 
 String ODBCConnectionBase::errorInformation(const char* function)
 {
-    array<char,SQL_MAX_MESSAGE_LENGTH> errorDescription {};
-    array<char,SQL_MAX_MESSAGE_LENGTH> errorState {};
+    array<char, SQL_MAX_MESSAGE_LENGTH> errorDescription{};
+    array<char, SQL_MAX_MESSAGE_LENGTH> errorState{};
     SWORD pcnmsg = 0;
     SQLINTEGER nativeError = 0;
 

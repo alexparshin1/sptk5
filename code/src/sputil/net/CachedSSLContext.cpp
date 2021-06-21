@@ -40,12 +40,15 @@ SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipher
     UniqueLock(m_mutex);
 
     SharedSSLContext context = m_contexts[ident];
-    if (!context) {
+    if (!context)
+    {
         context = make_shared<SSLContext>(cipherList);
         m_contexts[ident] = context;
     }
     if (!keys.privateKeyFileName().empty() || !keys.certificateFileName().empty())
+    {
         context->loadKeys(keys);
+    }
 
     return context;
 }

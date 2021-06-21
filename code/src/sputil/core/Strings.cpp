@@ -35,16 +35,22 @@ using namespace sptk;
 static void splitByDelimiter(Strings& dest, const String& src, const char* delimitter)
 {
     dest.clear();
-    const auto *pos = src.c_str();
+    const auto* pos = src.c_str();
     size_t delimitterLength = strlen(delimitter);
-    while (true) {
-        const auto *end = strstr(pos, delimitter);
-        if (end != nullptr) {
+    while (true)
+    {
+        const auto* end = strstr(pos, delimitter);
+        if (end != nullptr)
+        {
             dest.emplace_back(pos, size_t(end - pos));
             pos = end + delimitterLength;
-        } else {
+        }
+        else
+        {
             if (*pos != 0)
+            {
                 dest.emplace_back(pos);
+            }
             break;
         }
     }
@@ -54,14 +60,20 @@ static void splitByAnyChar(Strings& dest, const String& src, const char* delimit
 {
     dest.clear();
     size_t pos = 0;
-    while (pos != string::npos) {
+    while (pos != string::npos)
+    {
         size_t end = src.find_first_of(delimitter, pos);
-        if (end != string::npos) {
+        if (end != string::npos)
+        {
             dest.emplace_back(src.substr(pos, end - pos));
             pos = src.find_first_not_of(delimitter, end + 1);
-        } else {
+        }
+        else
+        {
             if (pos + 1 < src.length())
+            {
                 dest.emplace_back(src.substr(pos));
+            }
             break;
         }
     }
@@ -75,12 +87,14 @@ static void splitByRegExp(Strings& dest, const String& src, const char* pattern)
     dest = regularExpression.split(src);
 }
 
-Strings::Strings(const String& src, const char *delimiter, SplitMode mode) noexcept
+Strings::Strings(const String& src, const char* delimiter, SplitMode mode) noexcept
 {
-    try {
+    try
+    {
         fromString(src.c_str(), delimiter, mode);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         push_back("# ERROR: " + String(e.what()));
     }
 }
@@ -88,7 +102,8 @@ Strings::Strings(const String& src, const char *delimiter, SplitMode mode) noexc
 void Strings::fromString(const String& src, const char* delimitter, SplitMode mode)
 {
     clear();
-    switch (mode) {
+    switch (mode)
+    {
         case SplitMode::ANYCHAR:
             splitByAnyChar(*this, src, delimitter);
             break;
@@ -103,25 +118,32 @@ void Strings::fromString(const String& src, const char* delimitter, SplitMode mo
 
 int Strings::indexOf(const String& s) const
 {
-    int                     result = -1;
-    const_iterator          itor;
-    const_reverse_iterator  xtor;
+    int result = -1;
+    const_iterator itor;
+    const_reverse_iterator xtor;
 
-    switch (m_sorted) {
+    switch (m_sorted)
+    {
         case SortOrder::DESCENDING:
             xtor = lower_bound(rbegin(), rend(), s);
             if (xtor != rend() && *xtor == s)
+            {
                 result = (int) distance(rbegin(), xtor);
+            }
             break;
         case SortOrder::ASCENDING:
             itor = lower_bound(begin(), end(), s);
             if (itor != end() && *itor == s)
+            {
                 result = (int) distance(begin(), itor);
+            }
             break;
         default:
             itor = find(begin(), end(), s);
             if (itor != end() && *itor == s)
+            {
                 result = (int) distance(begin(), itor);
+            }
             break;
     }
     return result;
@@ -130,7 +152,8 @@ int Strings::indexOf(const String& s) const
 void Strings::saveToFile(const String& fileName) const
 {
     Buffer buffer;
-    for (const auto & str: *this) {
+    for (const auto& str: *this)
+    {
         buffer.append(str);
         buffer.append("\n");
     }
@@ -148,12 +171,15 @@ void Strings::loadFromFile(const String& fileName)
 
     // Determine delimiter
     String delimiter = "\n";
-    size_t pos1 = text.find_first_of("\n\r");
-    if (pos1 != string::npos) {
+    if (size_t pos1 = text.find_first_of("\n\r");
+        pos1 != string::npos)
+    {
         size_t pos2 = text.find_first_of("\n\r", pos1 + 1);
         delimiter = text.substr(pos1, 1);
-        if (pos1 + 1 == pos2 && text[pos1] != text[pos2]) // Two chars delimiter
+        if (pos1 + 1 == pos2 && text[pos1] != text[pos2])
+        { // Two chars delimiter
             delimiter = text.substr(pos1, 2);
+        }
     }
 
     splitByDelimiter(*this, text, delimiter.c_str());
@@ -163,12 +189,17 @@ String Strings::join(const String& delimitter) const
 {
     stringstream result;
     bool first = true;
-    for (const auto & str: *this) {
-        if (first) {
+    for (const auto& str: *this)
+    {
+        if (first)
+        {
             result << str;
             first = false;
-        } else
+        }
+        else
+        {
             result << delimitter << str;
+        }
     }
     return result.str();
 }
@@ -177,9 +208,12 @@ Strings Strings::grep(const String& pattern) const
 {
     RegularExpression regularExpression(pattern);
     Strings output;
-    for (const String& str : *(this)) {
+    for (const String& str : *(this))
+    {
         if (regularExpression.matches(str))
+        {
             output.push_back(str);
+        }
     }
     return output;
 }
@@ -196,10 +230,13 @@ static bool sortDescending(const String& first, const String& second)
 
 void Strings::sort(bool ascending)
 {
-    if (ascending) {
+    if (ascending)
+    {
         ::sort(begin(), end(), sortAscending);
         m_sorted = SortOrder::ASCENDING;
-    } else {
+    }
+    else
+    {
         ::sort(begin(), end(), sortDescending);
         m_sorted = SortOrder::DESCENDING;
     }
@@ -228,7 +265,9 @@ TEST(SPTK_Strings, ctor)
     EXPECT_EQ(size_t(3), strings3.size());
     EXPECT_STREQ("1,2,3", strings3.join(",").c_str());
 
-    Strings numbers = { {"one", 3, 1}, {"two", 3,2}, {"three", 5, 3} };
+    Strings numbers = {{"one",   3, 1},
+                       {"two",   3, 2},
+                       {"three", 5, 3}};
     EXPECT_EQ(size_t(3), numbers.size());
     EXPECT_STREQ("one,two,three", numbers.join(",").c_str());
     EXPECT_EQ(2, numbers[1].ident());

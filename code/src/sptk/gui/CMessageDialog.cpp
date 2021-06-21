@@ -35,10 +35,11 @@ using namespace std;
 using namespace sptk;
 
 CAskDialog::CAskDialog(const char* label, int w)
-        : CDialog(w, 100, label)
+    : CDialog(w, 100, label)
 {
     auto textSize = std::round(Fl::h() / 64.0);
-    if (textSize < 14) textSize = 14;
+    if (textSize < 14)
+    { textSize = 14; }
 
     auto* grp = new CGroup("", 65, SP_ALIGN_LEFT);
     m_imageBox = new Fl_Box(8, 8, 50, 50);
@@ -64,7 +65,9 @@ bool CAskDialog::execute(const String& msg)
 {
     String htmlMessage(msg);
     if (upperCase(htmlMessage).find("<HTML>") == STRING_NPOS)
+    {
         htmlMessage = "<HTML><BODY>" + htmlMessage.replace("\\n", "<BR>") + "</BODY></HTML>";
+    }
     m_textBox->data(htmlMessage);
     relayout();
     return showModal();
@@ -73,7 +76,8 @@ bool CAskDialog::execute(const String& msg)
 bool CInputDialog::execute(const String& msg, String& inputText)
 {
     m_inputBox->data(inputText.c_str());
-    if (CAskDialog::execute(msg)) {
+    if (CAskDialog::execute(msg))
+    {
         inputText = m_inputBox->data().asString().c_str();
         return true;
     }

@@ -30,11 +30,11 @@ using namespace std;
 using namespace sptk;
 
 static const array<char, 64> B64Chars = {
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-        'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
-        'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-        't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', '+', '/'
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+    'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
+    'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
+    't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
+    '8', '9', '+', '/'
 };
 
 inline uint8_t base64chars(int c)
@@ -42,16 +42,19 @@ inline uint8_t base64chars(int c)
     return B64Chars[(c & 0x3F)];
 }
 
-void Base64::encode(Buffer& bufDest, const char* bufSource, size_t len)
+void Base64::encode(Buffer& bufDest, const uint8_t* bufSource, size_t len)
 {
-    const auto* current = (const uint8_t*) bufSource;
+    const auto* current = bufSource;
     auto outputLen = size_t(len / 3 * 4);
     if ((len % 3) != 0)
+    {
         outputLen += 4;
+    }
     bufDest.checkSize(outputLen + 1);
-    char* output = bufDest.data();
+    auto* output = bufDest.data();
 
-    while (len >= 3) {
+    while (len >= 3)
+    {
         *output = base64chars((int(current[0]) & 0xFC) >> 2);
         ++output;
 
@@ -69,18 +72,22 @@ void Base64::encode(Buffer& bufDest, const char* bufSource, size_t len)
     }
 
     /// Now we should clean up remainder
-    if (len > 0) {
-        *output = base64chars((int)current[0] >> 2);
+    if (len > 0)
+    {
+        *output = base64chars((int) current[0] >> 2);
         ++output;
-        if (len > 1) {
-            *output = base64chars((((int)current[0] & 0x03) << 4) | (((int)current[1] & 0xF0) >> 4));
+        if (len > 1)
+        {
+            *output = base64chars((((int) current[0] & 0x03) << 4) | (((int) current[1] & 0xF0) >> 4));
             ++output;
-            *output = base64chars(((int)current[1] & 0x0f) << 2);
+            *output = base64chars(((int) current[1] & 0x0f) << 2);
             ++output;
             *output = '=';
             ++output;
-        } else {
-            *output = base64chars(((int)current[0] & 0x03) << 4);
+        }
+        else
+        {
+            *output = base64chars(((int) current[0] & 0x03) << 4);
             ++output;
             *output = '=';
             ++output;
@@ -106,9 +113,9 @@ void Base64::encode(String& strDest, const Buffer& bufSource)
 }
 
 static const String base64_chars(
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz"
-        "0123456789+/");
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789+/");
 
 static inline bool is_base64(uint8_t c) noexcept
 {
@@ -120,45 +127,52 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
     size_t in_len = encoded_string.size();
     int i = 0;
     int in_ = 0;
-    array<uint8_t,4> char_array_4 {};
-    array<uint8_t,3> char_array_3 {};
+    array<uint8_t, 4> char_array_4{};
+    array<uint8_t, 3> char_array_3{};
 
     dest.reset();
 
-    while (in_len && (encoded_string[in_] != '=') && is_base64((uint8_t) encoded_string[in_])) {
+    while (in_len && (encoded_string[in_] != '=') && is_base64((uint8_t) encoded_string[in_]))
+    {
         --in_len;
         char_array_4[i] = (uint8_t) encoded_string[in_];
         ++i;
         ++in_;
-        if (i == 4) {
-            for (i = 0; i < 4; ++i) {
+        if (i == 4)
+        {
+            for (i = 0; i < 4; ++i)
+            {
                 char_array_4[i] = (uint8_t) base64_chars.find(char_array_4[i]);
             }
 
-            char_array_3[0] = uint8_t(((int)char_array_4[0] << 2) + (((int)char_array_4[1] & 0x30) >> 4));
-            char_array_3[1] = uint8_t((((int)char_array_4[1] & 0xf) << 4) + (((int)char_array_4[2] & 0x3c) >> 2));
-            char_array_3[2] = uint8_t((((int)char_array_4[2] & 0x3) << 6) + (int)char_array_4[3]);
+            char_array_3[0] = uint8_t(((int) char_array_4[0] << 2) + (((int) char_array_4[1] & 0x30) >> 4));
+            char_array_3[1] = uint8_t((((int) char_array_4[1] & 0xf) << 4) + (((int) char_array_4[2] & 0x3c) >> 2));
+            char_array_3[2] = uint8_t((((int) char_array_4[2] & 0x3) << 6) + (int) char_array_4[3]);
 
             dest.append((char*) char_array_3.data(), 3);
             i = 0;
         }
     }
 
-    if (i != 0) {
+    if (i != 0)
+    {
         int j = i;
-        for (; j < 4; ++j) {
+        for (; j < 4; ++j)
+        {
             char_array_4[j] = 0;
         }
 
-        for (j = 0; j < 4; ++j) {
+        for (j = 0; j < 4; ++j)
+        {
             char_array_4[j] = (uint8_t) base64_chars.find(char_array_4[j]);
         }
 
-        char_array_3[0] = uint8_t(((int)char_array_4[0] << 2) + (((int)char_array_4[1] & 0x30) >> 4));
-        char_array_3[1] = uint8_t((((int)char_array_4[1] & 0xf) << 4) + (((int)char_array_4[2] & 0x3c) >> 2));
-        char_array_3[2] = uint8_t((((int)char_array_4[2] & 0x3) << 6) + (int)char_array_4[3]);
+        char_array_3[0] = uint8_t(((int) char_array_4[0] << 2) + (((int) char_array_4[1] & 0x30) >> 4));
+        char_array_3[1] = uint8_t((((int) char_array_4[1] & 0xf) << 4) + (((int) char_array_4[2] & 0x3c) >> 2));
+        char_array_3[2] = uint8_t((((int) char_array_4[2] & 0x3) << 6) + (int) char_array_4[3]);
 
-        for (j = 0; (j < i - 1); ++j) {
+        for (j = 0; (j < i - 1); ++j)
+        {
             dest.append((char) char_array_3[j]);
         }
     }
@@ -206,7 +220,9 @@ TEST(SPTK_Base64, decodeBinary)
 {
     Buffer expectedBinary;
     for (uint8_t i = 0; i < 255; i++)
+    {
         expectedBinary.append(i);
+    }
 
     Buffer decoded;
     Base64::decode(decoded, encodedBinary);
@@ -217,7 +233,9 @@ TEST(SPTK_Base64, encodeBinary)
 {
     Buffer source;
     for (uint8_t i = 0; i < 255; i++)
+    {
         source.append(i);
+    }
 
     source.saveToFile("/tmp/source");
 
