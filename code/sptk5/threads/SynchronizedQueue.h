@@ -194,7 +194,7 @@ public:
     {
         std::scoped_lock lock(m_mutex);
 
-        std::queue<T>* newQueue = new std::queue<T>;
+        auto* newQueue = new std::queue<T>;
 
         // Iterating through queue until callback returns false
         bool rc = true;

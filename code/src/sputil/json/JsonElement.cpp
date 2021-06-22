@@ -232,8 +232,8 @@ json::ObjectData& ElementGetMethods::getObject(const String& name)
 
 const json::ObjectData& ElementGetMethods::getObject(const String& name) const
 {
-    const auto& element = getChild(name);
-    if (element.type() == Type::OBJECT && element.data().get_object())
+    if (const auto& element = getChild(name);
+        element.type() == Type::OBJECT && element.data().get_object())
     {
         return *element.data().get_object();
     }

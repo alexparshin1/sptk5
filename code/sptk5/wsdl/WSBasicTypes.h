@@ -55,13 +55,9 @@ public:
     : m_field(name), m_optional(optional)
     {}
 
-    WSBasicType(const WSBasicType& other)
-    : m_field(other.m_field), m_optional(other.m_optional)
-    {}
+    WSBasicType(const WSBasicType& other) = default;
 
-    WSBasicType(WSBasicType&& other) noexcept
-    : m_field(std::move(other.m_field)), m_optional(std::exchange(other.m_optional, 0))
-    {}
+    WSBasicType(WSBasicType&& other) noexcept = default;
 
     virtual ~WSBasicType() noexcept = default;
 

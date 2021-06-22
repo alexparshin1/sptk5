@@ -49,24 +49,12 @@ class DocType
 {
     friend class Document;
 
-    /**
-     * The buffer used to return replacement literals
-     */
-	char m_replacementBuffer[16] {};
-
-    /**
-     * Encode buffers
-     */
-    Buffer m_encodeBuffers[2];
-
 public:
 
     /**
      * Default constructor
      */
-    DocType()
-    {
-    }
+    DocType() = default;
 
     /**
      * Constructor
@@ -76,7 +64,7 @@ public:
     /**
      * Returns the name of the document type as specified in the <!DOCTYPE name> tag
      */
-    const std::string& name() const
+    const String& name() const
     {
         return m_name;
     }
@@ -86,7 +74,7 @@ public:
      *
      * Returns empty string if there is no public identifier
      */
-    const std::string& publicID() const
+    const String& publicID() const
     {
         return m_public_id;
     }
@@ -96,7 +84,7 @@ public:
      *
      * Returns empty string if there is no system identifier
      */
-    const std::string& systemID() const
+    const String& systemID() const
     {
         return m_system_id;
     }
@@ -126,8 +114,8 @@ public:
      *
      * Converts "<test>" to "&lt;test&gt;"
      * @returns true, any entities replaced.
-     * @param str const char *, string to convert
-     * @param ret CBuffer&, converted text is stored here
+     * @param str               String to convert
+     * @param ret               Converted text is stored here
      */
     bool encodeEntities(const char* str, Buffer& ret);
 
@@ -135,23 +123,23 @@ public:
      * Decodes entities in string to their actual values.
      *
      * Converts "&lt;test&gt;" to "<test>"
-     * @param str const char*, text to convert
-     * @param sz uint32_t, text length
-     * @param ret CBuffer&, converted text is stored here
+     * @param str               Text to convert
+     * @param sz                Text length
+     * @param ret               Converted text is stored here
      */
     void decodeEntities(const char* str, size_t sz, Buffer& ret);
 
     /**
      * Searches for entity with given name
      *
+     * @param name              Entity to search
      * @returns true, if attribute is found.
-     * @param name const char *, entity to search
      */
     bool hasEntity(const char* name);
 
     /**
      * Removes named entity from entity map
-     * @param name entity to remove
+     * @param name              Entity to remove
      */
     void removeEntity(const char* name)
     {
@@ -162,8 +150,8 @@ public:
      * Returnes replacement value for named entity.
      *
      * If entity is not found, empty string is returned.
-     * @param name const char *, entity name
-     * @param replacementLength uint32_t&, the length of the replacement 
+     * @param name              Entity name
+     * @param replacementLength Length of the replacement
      */
     const char* getReplacement(const char* name, uint32_t& replacementLength);
 
@@ -172,8 +160,8 @@ public:
      *
      * If entity named 'name' exists already in map,
      * its value is replaced with 'replacement'
-     * @param name entity to add/change
-     * @param replacement value that represents entity
+     * @param name              Entity to add/change
+     * @param replacement       Value that represents entity
      */
     void setEntity(const char* name, const char* replacement)
     {
@@ -181,26 +169,13 @@ public:
     }
 
 private:
-    /**
-     * List of entities
-     */
-    Entities m_entities;
 
-
-    /**
-     * Document type name
-     */
-    std::string m_name;
-
-    /**
-     * Public ID
-     */
-    std::string m_public_id;
-
-    /**
-     * System ID
-     */
-    std::string m_system_id;
+    std::array<char, 16>    m_replacementBuffer {}; ///< The buffer used to return replacement literals
+    std::array<Buffer, 2>   m_encodeBuffers;        ///< Encode buffers
+    Entities                m_entities;             ///< List of entities
+    String                  m_name;                 ///< Document type name
+    String                  m_public_id;            ///< Public ID
+    String                  m_system_id;            ///< System ID
 
     char* appendDecodedEntity(Buffer& ret, const char* ent_start, char* ent_end);
 };

@@ -53,10 +53,10 @@ namespace sptk {
  */
 class SP_EXPORT Host
 {
-    mutable SharedMutex m_mutex;                            ///< Mutex to protect internal class data
-    String              m_hostname;                         ///< Host name or IP address
-    uint16_t            m_port {0};                         ///< Port number
-    uint8_t             m_address[sizeof(sockaddr_in6)] {}; ///< Storage for IPv4 and IPv6 addresses
+    mutable SharedMutex                         m_mutex;        ///< Mutex to protect internal class data
+    String                                      m_hostname;     ///< Host name or IP address
+    uint16_t                                    m_port {0};     ///< Port number
+    std::array<uint8_t, sizeof(sockaddr_in6)>   m_address {};   ///< Storage for IPv4 and IPv6 addresses
 
     /**
      * Get address presentation as generic IP address
@@ -64,7 +64,7 @@ class SP_EXPORT Host
      */
     sockaddr& any()
     {
-        return *(sockaddr*) m_address;
+        return *(sockaddr*) m_address.data();
     }
 
     /**
@@ -73,7 +73,7 @@ class SP_EXPORT Host
      */
     const sockaddr& any() const
     {
-        return *(const sockaddr*) m_address;
+        return *(const sockaddr*) m_address.data();
     }
 
     /**
@@ -82,7 +82,7 @@ class SP_EXPORT Host
      */
     sockaddr_in& ip_v4()
     {
-        return *(sockaddr_in*) m_address;
+        return *(sockaddr_in*) m_address.data();
     }
 
     /**
@@ -91,7 +91,7 @@ class SP_EXPORT Host
      */
     const sockaddr_in& ip_v4() const
     {
-        return *(const sockaddr_in*) m_address;
+        return *(const sockaddr_in*) m_address.data();
     }
 
     /**
@@ -100,7 +100,7 @@ class SP_EXPORT Host
      */
     sockaddr_in6& ip_v6()
     {
-        return *(sockaddr_in6*) m_address;
+        return *(sockaddr_in6*) m_address.data();
     }
 
     /**
@@ -109,7 +109,7 @@ class SP_EXPORT Host
      */
     const sockaddr_in6& ip_v6() const
     {
-        return *(const sockaddr_in6*) m_address;
+        return *(const sockaddr_in6*) m_address.data();
     }
 
     /**
@@ -287,4 +287,3 @@ public:
  */
 
 }
-

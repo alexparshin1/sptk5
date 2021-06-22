@@ -69,40 +69,40 @@
    length can not be stored in a tar archive.  */
 
 /* The bits in mode: */
-#define TSUID    04000
-#define TSGID    02000
-#define TSVTX    01000
-#define TUREAD    00400
-#define TUWRITE    00200
-#define TUEXEC    00100
-#define TGREAD    00040
-#define TGWRITE    00020
-#define TGEXEC    00010
-#define TOREAD    00004
-#define TOWRITE    00002
-#define TOEXEC    00001
+constexpr int TSUID = 04000;
+constexpr int TSGID = 02000;
+constexpr int TSVTX = 01000;
+constexpr int TUREAD = 00400;
+constexpr int TUWRITE = 00200;
+constexpr int TUEXEC = 00100;
+constexpr int TGREAD = 00040;
+constexpr int TGWRITE = 00020;
+constexpr int TGEXEC = 00010;
+constexpr int TOREAD = 00004;
+constexpr int TOWRITE = 00002;
+constexpr int TOEXEC = 00001;
 
 /* The values for typeflag:
    Values 'A'-'Z' are reserved for custom implementations.
    All other values are reserved for future POSIX.1 revisions.  */
 
-#define REGTYPE        '0'    /* Regular file (preferred code).  */
-#define AREGTYPE    '\0'    /* Regular file (alternate code).  */
-#define LNKTYPE        '1'    /* Hard link.  */
-#define SYMTYPE        '2'    /* Symbolic link (hard if not supported).  */
-#define CHRTYPE        '3'    /* Character special.  */
-#define BLKTYPE        '4'    /* Block special.  */
-#define DIRTYPE        '5'    /* Directory.  */
-#define FIFOTYPE    '6'    /* Named pipe.  */
-#define CONTTYPE    '7'    /* Contiguous file */
+constexpr char REGTYPE = '0';    /* Regular file (preferred code).  */
+constexpr char AREGTYPE = '\0';    /* Regular file (alternate code).  */
+constexpr char LNKTYPE = '1';    /* Hard link.  */
+constexpr char SYMTYPE = '2';    /* Symbolic link (hard if not supported).  */
+constexpr char CHRTYPE = '3';    /* Character special.  */
+constexpr char BLKTYPE = '4';    /* Block special.  */
+constexpr char DIRTYPE = '5';    /* Directory.  */
+constexpr char FIFOTYPE = '6';    /* Named pipe.  */
+constexpr char CONTTYPE = '7';    /* Contiguous file */
 /* (regular file if not supported).  */
 
 /* Contents of magic field and its length.  */
-#define TMAGIC    "ustar"
-#define TMAGLEN    6
+constexpr const char* TMAGIC = "ustar";
+constexpr int TMAGLEN = 6;
 
 /* Contents of the version field and its length.  */
-#define TVERSION    "00"
-#define TVERSLEN    2
+constexpr const char* TVERSION = "00";
+constexpr int TVERSLEN = 2;
 
 #endif /* tar.h */
