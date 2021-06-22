@@ -21,12 +21,6 @@
 #include <memory>
 #include <iostream>
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-
 /* useful constants */
 constexpr int T_BLOCKSIZE = 512;
 constexpr int T_NAMELEN = 100;
@@ -151,10 +145,5 @@ int th_crc_calc(TAR* t);
 
 /* string-octal to integer conversion */
 int oct_to_int(const char* oct);
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* ! LIBTAR_H */

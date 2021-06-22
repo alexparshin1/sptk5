@@ -115,7 +115,7 @@ String sptk::int2string(int64_t value)
     constexpr int maxLength = 128;
     array<char,maxLength + 1> buff;
 #ifdef _WIN32
-    int len = snprintf(buff, sizeof(buff), "%lli", value);
+    int len = snprintf(buff.data(), maxLength, "%lli", value);
 #else
     int len = snprintf(buff.data(), maxLength, "%lli", (long long int) value);
 #endif
@@ -127,7 +127,7 @@ String sptk::int2string(uint64_t value)
     constexpr int maxLength = 64;
     array<char,maxLength + 1> buff;
 #ifdef _WIN32
-    int len = snprintf(buff, sizeof(buff), "%llu", value);
+    int len = snprintf(buff.data(), sizeof(buff), "%llu", value);
 #else
     int len = snprintf(buff.data(), maxLength, "%lu", value);
 #endif

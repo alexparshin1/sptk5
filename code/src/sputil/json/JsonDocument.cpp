@@ -195,8 +195,8 @@ void verifyDocument(json::Document& document)
     EXPECT_STREQ("John", root.getString("name").c_str());
     EXPECT_EQ(33, (int) root.getNumber("age"));
     EXPECT_DOUBLE_EQ(33.6, root.getNumber("temperature"));
-    EXPECT_DOUBLE_EQ(1519005758000, root.getNumber("timestamp"));
     EXPECT_STREQ("1519005758000", root.getString("timestamp").c_str());
+    EXPECT_DOUBLE_EQ(1519005758000L, root.getNumber("timestamp"));
 
     json::ArrayData& arrayData = root.getArray("skills");
     Strings skills;

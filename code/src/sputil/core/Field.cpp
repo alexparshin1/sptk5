@@ -102,7 +102,7 @@ String Field::asString() const
 #ifndef _WIN32
             len = snprintf(print_buffer.data(), maxPrintLength, "%li", m_data.getInt64());
 #else
-            len = snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.getInt64());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%lli", m_data.getInt64());
 #endif
             result.assign(print_buffer.data(), len);
             break;
@@ -223,7 +223,7 @@ TEST(SPTK_Field, double)
 
 TEST(SPTK_Field, money)
 {
-    constexpr long testLong = 1234567890123456789L;
+    constexpr int64_t testLong = 1234567890123456789L;
     constexpr int64_t testInt64 = 12345678901;
     constexpr int scaleDigits = 8;
 
