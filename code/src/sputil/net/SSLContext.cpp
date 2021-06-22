@@ -45,26 +45,24 @@ void SSLContext::throwError(const String& humanDescription)
 
 SSLContext::SSLContext(const String& cipherList)
 {
-    m_ctx = SSL_CTX_new(SSLv23_method());
+    m_ctx = shared_ptr<SSL_CTX>(SSL_CTX_new(SSLv23_method()),
+                                [this](SSL_CTX* context){
+                                    UniqueLock(*this);
+                                    SSL_CTX_free(context);
+    });
     if (!cipherList.empty())
     {
-        SSL_CTX_set_cipher_list(m_ctx, cipherList.c_str());
+        SSL_CTX_set_cipher_list(m_ctx.get(), cipherList.c_str());
     }
-    SSL_CTX_set_mode(m_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
-    SSL_CTX_set_session_id_context(m_ctx, (const unsigned char*) &s_server_session_id_context,
+    SSL_CTX_set_mode(m_ctx.get(), SSL_MODE_ENABLE_PARTIAL_WRITE);
+    SSL_CTX_set_session_id_context(m_ctx.get(), (const unsigned char*) &s_server_session_id_context,
                                    sizeof s_server_session_id_context);
-}
-
-SSLContext::~SSLContext()
-{
-    UniqueLock(*this);
-    SSL_CTX_free(m_ctx);
 }
 
 SSL_CTX* SSLContext::handle()
 {
     UniqueLock(*this);
-    return m_ctx;
+    return m_ctx.get();
 }
 
 int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwflag*/, void* userdata)
@@ -81,35 +79,35 @@ void SSLContext::loadKeys(const SSLKeys& keys)
     m_password = keys.password();
 
     // Load keys and certificates
-    if (SSL_CTX_use_certificate_chain_file(m_ctx, keys.certificateFileName().c_str()) <= 0)
+    if (SSL_CTX_use_certificate_chain_file(m_ctx.get(), keys.certificateFileName().c_str()) <= 0)
     {
         throwError("Can't use certificate file " + keys.certificateFileName());
     }
 
     // Define password for auto-answer in callback function
-    SSL_CTX_set_default_passwd_cb(m_ctx, passwordReplyCallback);
-    SSL_CTX_set_default_passwd_cb_userdata(m_ctx, (void*) m_password.c_str());
-    if (SSL_CTX_use_PrivateKey_file(m_ctx, keys.privateKeyFileName().c_str(), SSL_FILETYPE_PEM) <= 0)
+    SSL_CTX_set_default_passwd_cb(m_ctx.get(), passwordReplyCallback);
+    SSL_CTX_set_default_passwd_cb_userdata(m_ctx.get(), (void*) m_password.c_str());
+    if (SSL_CTX_use_PrivateKey_file(m_ctx.get(), keys.privateKeyFileName().c_str(), SSL_FILETYPE_PEM) <= 0)
     {
         throwError("Can't use private key file " + keys.privateKeyFileName());
     }
 
-    if (SSL_CTX_check_private_key(m_ctx) == 0)
+    if (SSL_CTX_check_private_key(m_ctx.get()) == 0)
     {
         throwError("Can't check private key file " + keys.privateKeyFileName());
     }
 
     // Load the CAs we trust
-    if (!keys.caFileName().empty() && SSL_CTX_load_verify_locations(m_ctx, keys.caFileName().c_str(), nullptr) <= 0)
+    if (!keys.caFileName().empty() && SSL_CTX_load_verify_locations(m_ctx.get(), keys.caFileName().c_str(), nullptr) <= 0)
     {
         throwError("Can't load or verify CA file " + keys.caFileName());
     }
 
-    if (SSL_CTX_set_default_verify_paths(m_ctx) <= 0)
+    if (SSL_CTX_set_default_verify_paths(m_ctx.get()) <= 0)
     {
         throwError("Can't set default verify paths");
     }
 
-    SSL_CTX_set_verify(m_ctx, keys.verifyMode(), nullptr);
-    SSL_CTX_set_verify_depth(m_ctx, keys.verifyDepth());
+    SSL_CTX_set_verify(m_ctx.get(), keys.verifyMode(), nullptr);
+    SSL_CTX_set_verify_depth(m_ctx.get(), keys.verifyDepth());
 }

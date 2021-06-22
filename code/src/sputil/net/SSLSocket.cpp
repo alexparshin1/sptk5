@@ -182,8 +182,8 @@ void SSLSocket::initContextAndSocket()
 
     if (!m_sniHostName.empty())
     {
-        int rc = (int) SSL_set_tlsext_host_name(m_ssl, m_sniHostName.c_str());
-        if (!rc)
+        if (auto rc = (int) SSL_set_tlsext_host_name(m_ssl, m_sniHostName.c_str());
+            !rc)
         {
             throwSSLError("SSL_set_tlsext_host_name", rc);
         }

@@ -99,34 +99,6 @@ public:
             m_details.insert(detail);
     }
 
-    /**
-     * Copy constructor
-     * @param other             Other log details object
-     */
-    explicit LogDetails(const LogDetails& other)
-    : m_details(other.m_details)
-    {}
-
-    /**
-     * Move constructor
-     * @param other             Other log details object
-     */
-    explicit LogDetails(LogDetails&& other) noexcept
-    : m_details(std::move(other.m_details))
-    {}
-
-    /**
-     * Destructor
-     */
-    ~LogDetails() noexcept = default;
-
-    LogDetails& operator=(const LogDetails& other)
-    {
-        if (&other != this)
-            m_details = other.m_details;
-        return *this;
-    }
-
     String toString(const String& delimiter=",") const;
 
     /**

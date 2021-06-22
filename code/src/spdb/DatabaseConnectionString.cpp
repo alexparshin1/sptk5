@@ -105,7 +105,7 @@ String DatabaseConnectionString::toString() const
     {
         result << "?";
         bool first = true;
-        for (auto& parameter: m_parameters)
+        for (auto& [name,value]: m_parameters)
         {
             if (first)
             {
@@ -115,7 +115,7 @@ String DatabaseConnectionString::toString() const
             {
                 result << "&";
             }
-            result << parameter.first << "=" << parameter.second;
+            result << name << "=" << value;
         }
     }
 

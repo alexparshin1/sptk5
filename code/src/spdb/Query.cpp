@@ -180,7 +180,7 @@ Query::~Query()
 bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql)
 {
     // Looking up for SQL parameters
-    char delimitters[] = "':-/";
+    const char* delimitters = "':-/";
 
     // Find param start
     paramStart = strpbrk(paramEnd, delimitters);

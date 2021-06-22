@@ -107,7 +107,7 @@ void DatabaseConnectionPool::load()
 #else
     String driverFileName = String("libspdb5_") + driverNameLC + String(".so");
 
-    DriverHandle handle = (DriverHandle) dlopen(driverFileName.c_str(), RTLD_NOW);
+    auto handle = (DriverHandle) dlopen(driverFileName.c_str(), RTLD_NOW);
     if (handle == nullptr)
     {
         throw DatabaseException("Cannot load library: " + string(dlerror()));

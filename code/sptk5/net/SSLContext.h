@@ -46,9 +46,9 @@ namespace sptk {
  */
 class SSLContext : public SharedMutex
 {
-    SSL_CTX*        m_ctx;                          ///< SSL connection context
-    String          m_password;                     ///< Password for auto-answer in callback function
-    static int      s_server_session_id_context;
+    std::shared_ptr<SSL_CTX>    m_ctx;                          ///< SSL connection context
+    String                      m_password;                     ///< Password for auto-answer in callback function
+    static int                  s_server_session_id_context;
 
     /**
      * Password auto-reply callback function
@@ -68,11 +68,6 @@ public:
 	 * @param cipherList		Cipher list. Use "ALL" if not known.
      */
     explicit SSLContext(const String& cipherList);
-
-    /**
-     * Destructor
-     */
-    virtual ~SSLContext();
 
     /**
      * Loads private key and certificate(s)
@@ -97,4 +92,3 @@ using SharedSSLContext = std::shared_ptr<SSLContext>;
  * @}
  */
 }
-

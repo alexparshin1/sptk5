@@ -42,9 +42,9 @@ DatabaseTests DatabaseTests::_databaseTests;
 vector<DatabaseConnectionString> DatabaseTests::connectionStrings() const
 {
     vector<DatabaseConnectionString> connectionStrings;
-    for (auto& itor: m_connectionStrings)
+    for (auto& [name,value]: m_connectionStrings)
     {
-        connectionStrings.push_back(itor.second);
+        connectionStrings.push_back(value);
     }
     return connectionStrings;
 }
@@ -689,7 +689,7 @@ size_t DatabaseTests::countRowsInTable(const DatabaseConnection& db, const Strin
 {
     Query select(db, "SELECT count(*) cnt FROM " + table);
     select.open();
-    size_t count = (size_t) select["cnt"].asInteger();
+    auto count = (size_t) select["cnt"].asInteger();
     select.close();
 
     return count;

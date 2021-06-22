@@ -374,7 +374,7 @@ static void jwt_b64_decode_json(json::Document& dest, const Buffer& src)
 
 void sptk::jwt_base64uri_encode(Buffer& buffer)
 {
-    char* str = (char*) buffer.data();
+    auto* str = (char*) buffer.data();
     size_t len = strlen(str);
     size_t t = 0;
 
@@ -536,7 +536,7 @@ TEST(SPTK_JWT, dup)
     JWT jwt;
 
     jwt["iss"] = "test";
-    String val = (String) jwt["iss"];
+    auto val = (String) jwt["iss"];
     EXPECT_FALSE(val.empty()) << "Can't get grant for first JWT";
 
     JWT newJWT(jwt);
@@ -562,7 +562,7 @@ TEST(SPTK_JWT, dup_signed)
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     JWT newJWT(jwt);
-    String val = (String) newJWT["iss"];
+    auto val = (String) newJWT["iss"];
     EXPECT_STREQ("test", val.c_str()) << "Failed jwt_get_grant_int()";
     EXPECT_EQ(JWT::Algorithm::HS256, jwt.get_alg()) << "Failed jwt_get_alg()";
 }
