@@ -339,11 +339,11 @@ size_t BaseSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
     if (from != nullptr)
     {
         socklen_t flen = sizeof(sockaddr_in);
-        bytes = (int) ::recvfrom(m_sockfd, buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
+        bytes = (int) ::recvfrom(m_sockfd, (char*) buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
     }
     else
     {
-        bytes = (int) ::recv(m_sockfd, buffer, (int32_t) size, 0);
+        bytes = (int) ::recv(m_sockfd, (char*) buffer, (int32_t) size, 0);
     }
 
     if (bytes == -1)
@@ -387,7 +387,7 @@ size_t BaseSocket::write(const uint8_t* buffer, size_t size, const sockaddr_in* 
     {
         if (peer != nullptr)
         {
-            bytes = (int) sendto(m_sockfd, p, (int32_t) size, 0, (const sockaddr*) peer, sizeof(sockaddr_in));
+            bytes = (int) sendto(m_sockfd, (const char*) p, (int32_t) size, 0, (const sockaddr*) peer, sizeof(sockaddr_in));
         }
         else
         {
