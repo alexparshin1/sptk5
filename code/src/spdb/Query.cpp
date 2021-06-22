@@ -263,10 +263,10 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
 void Query::sqlParseParameter(const char* paramStart, const char* paramEnd, int& paramNumber, String& sql)
 {
     string paramName(paramStart + 1, paramEnd - paramStart - 1);
-    QueryParameter* param = m_params.find(paramName.c_str());
-    if (param == nullptr)
+    auto param = m_params.find(paramName.c_str());
+    if (!param)
     {
-        param = new QueryParameter(paramName.c_str());
+        param = make_shared<QueryParameter>(paramName.c_str());
         m_params.add(param);
     }
     param->bindAdd(uint32_t(paramNumber));

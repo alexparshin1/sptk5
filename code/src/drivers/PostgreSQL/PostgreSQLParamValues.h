@@ -32,6 +32,7 @@
 #include "PostgreSQLDataType.h"
 #include <sptk5/db/PostgreSQLConnection.h>
 #include <sptk5/db/QueryParameterList.h>
+#include <sptk5/db/QueryParameter.h>
 
 namespace sptk {
 
@@ -75,8 +76,8 @@ namespace sptk {
             m_types[paramIndex] = dataType;
         }
 
-        void setParameterValue(unsigned paramIndex, QueryParameter* param);
-        void setFloatParameterValue(unsigned paramIndex, QueryParameter *param);
+        void setParameterValue(unsigned paramIndex, const SQueryParameter& param);
+        void setFloatParameterValue(unsigned paramIndex, const SQueryParameter& param);
 
         [[nodiscard]] unsigned size() const               { return (unsigned) m_count;   }
         [[nodiscard]] const char* const* values() const   { return &m_values[0]; }

@@ -45,7 +45,7 @@ namespace sptk
  * Doesn't mantain CParam memory.
  * Used to return a list of pointers on existing parameters.
  */
-using CParamVector = std::vector<QueryParameter*>;
+using CParamVector = std::vector<SQueryParameter>;
 
 /**
  * Query parameters list.
@@ -70,36 +70,6 @@ public:
     using const_iterator = CParamVector::const_iterator;
 
     /**
-     * Default constructor
-     */
-    QueryParameterList();
-
-    /**
-     * Deleted copy constructor
-     */
-    QueryParameterList(const QueryParameterList&) = delete;
-
-    /**
-     * Move constructor
-     */
-    QueryParameterList(QueryParameterList&&) = default;
-
-    /**
-     * Destructor
-     */
-    ~QueryParameterList();
-
-    /**
-     * Deleted copy assignment
-     */
-    QueryParameterList& operator = (const QueryParameterList&) = delete;
-
-    /**
-     * Move assignment
-     */
-    QueryParameterList& operator = (QueryParameterList&&) = default;
-
-    /**
      * Removes all the parameters from the list
      *
      * Releases any allocated resources
@@ -113,7 +83,7 @@ public:
      * @param paramName         parameter name
      * @returns parameter pointer, or 0 if not found
      */
-    QueryParameter* find(const String& paramName);
+    SQueryParameter find(const String& paramName);
 
     /**
      * Removes a parameter from the list and from the memory.
@@ -182,12 +152,12 @@ protected:
     /**
      * Adds a parameter to the list
      */
-    void add(QueryParameter* item);
+    void add(const SQueryParameter& item);
 
 private:
 
     CParamVector                        m_items;                        ///< The list of parameters
-    std::map<String, QueryParameter*>   m_index;                        ///< The parameters index
+    std::map<String, SQueryParameter>   m_index;                        ///< The parameters index
     bool                                m_bindingTypeChanged {true};    ///< Indicates that one of the parameters binding type has changed since prepare()
 };
 
@@ -195,4 +165,3 @@ private:
  * @}
  */
 }
-

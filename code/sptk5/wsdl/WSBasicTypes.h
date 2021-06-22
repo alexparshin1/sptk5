@@ -44,8 +44,7 @@ public:
     /**
      * Constructor
      */
-    WSBasicType()
-    {}
+    WSBasicType() = default;
 
     /**
      * Constructor
@@ -664,8 +663,8 @@ public:
      * Return class name
      */
     String className() const override
-    { 
-        return "WSDouble"; 
+    {
+        return "WSDouble";
     }
 
     /**

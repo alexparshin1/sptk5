@@ -261,8 +261,9 @@ private:
     QueryParameterList*     m_paramList {nullptr};   ///< Parent param list used for notifications
 };
 
+using SQueryParameter = std::shared_ptr<QueryParameter>;
+
 /**
  * @}
  */
 }
-

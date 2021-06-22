@@ -133,7 +133,7 @@ String Field::asString() const
             break;
 
         case VAR_IMAGE_PTR:
-            len = snprintf(print_buffer.data(), maxPrintLength, "%p", m_data.getImagePtr());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%p", (const void*) m_data.getImagePtr());
             result.assign(print_buffer.data(), len);
             break;
 

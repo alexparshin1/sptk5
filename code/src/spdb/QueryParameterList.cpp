@@ -26,48 +26,25 @@
 
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/cutils>
+#include <sptk5/db/QueryParameter.h>
 
 using namespace std;
 using namespace sptk;
 
-
-QueryParameterList::QueryParameterList()
-    :
-    m_bindingTypeChanged(true)
-{
-}
-
-QueryParameterList::~QueryParameterList()
-{
-    try
-    {
-        clear();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what() << endl)
-    }
-}
-
 void QueryParameterList::clear()
 {
-    for (auto* item: m_items)
-    {
-        delete item;
-    }
-
     m_items.clear();
     m_index.clear();
 }
 
-void QueryParameterList::add(QueryParameter* item)
+void QueryParameterList::add(const SQueryParameter& item)
 {
     m_items.push_back(item);
     m_index[item->name()] = item;
     item->m_paramList = this;
 }
 
-QueryParameter* QueryParameterList::find(const String& paramName)
+SQueryParameter QueryParameterList::find(const String& paramName)
 {
     auto itor = m_index.find(paramName);
 
@@ -102,10 +79,9 @@ size_t QueryParameterList::size() const
 void QueryParameterList::remove(size_t i)
 {
     auto itor = m_items.begin() + i;
-    QueryParameter* item = *itor;
+    SQueryParameter item = *itor;
     m_index.erase(item->name());
     m_items.erase(itor);
-    delete item;
 }
 
 void QueryParameterList::enumerate(CParamVector& params) const
@@ -119,7 +95,7 @@ void QueryParameterList::enumerate(CParamVector& params) const
 
     size_t maxIndex = 0;
 
-    for (auto* param: m_items)
+    for (auto& param: m_items)
     {
         const auto& bindIndex = param->m_bindParamIndexes;
 

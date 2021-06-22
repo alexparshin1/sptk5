@@ -356,7 +356,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     const CParamVector& params = paramValues.params();
 
     uint32_t paramNumber = 0;
-    for (auto* param: params) {
+    for (auto& param: params) {
         paramValues.setParameterValue(paramNumber, param);
         ++paramNumber;
     }
@@ -408,7 +408,7 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
-    for (auto* param: params) {
+    for (auto& param: params) {
         paramValues.setParameterValue(paramNumber, param);
         ++paramNumber;
     }

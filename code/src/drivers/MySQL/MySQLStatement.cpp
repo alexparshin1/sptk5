@@ -235,7 +235,7 @@ void MySQLStatement::setParameterValues()
 
     auto paramCount = enumeratedParams().size();
     for (unsigned paramIndex = 0; paramIndex < paramCount; ++paramIndex) {
-        QueryParameter* param = enumeratedParams()[paramIndex];
+        auto param = enumeratedParams()[paramIndex];
         bool setNull = param->isNull();
         MYSQL_BIND& bind = m_paramBuffers[paramIndex];
 

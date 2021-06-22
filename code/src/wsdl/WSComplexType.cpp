@@ -45,8 +45,8 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
         return;
     }
 
-    sptk::QueryParameter* param = output.find(paramName);
-    if (param != nullptr)
+    auto param = output.find(paramName);
+    if (param)
     {
         *param = elementOrAttribute->field();
     }

@@ -217,7 +217,7 @@ void OracleConnection::setMaxParamSizes(const CParamVector& enumeratedParams, St
                                         const QueryColumnTypeSizeMap& columnTypeSizes) const
 {
     unsigned paramIndex = 1;
-    for (const auto* param: enumeratedParams) {
+    for (const auto& param: enumeratedParams) {
         if (auto xtor = columnTypeSizes.find(upperCase(param->name()));
             xtor != columnTypeSizes.end()) {
             if (xtor->second.length) {

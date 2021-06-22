@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/db/QueryParameter.h>
 #include "PostgreSQLParamValues.h"
 #include "htonq.h"
 
@@ -36,7 +37,7 @@ void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
     m_count = m_params.size();
     resize(m_count);
     for (size_t i = 0; i < m_count; ++i) {
-        QueryParameter* param = m_params[i];
+        auto& param = m_params[i];
         VariantType ptype = param->dataType();
         PostgreSQLConnection::CTypeToPostgreType(ptype, m_types[i], param->name());
 
@@ -76,7 +77,7 @@ void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
     }
 }
 
-void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, QueryParameter *param)
+void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, const SQueryParameter& param)
 {
     double value = param->asFloat();
     void* ptr = &value;
@@ -85,15 +86,15 @@ void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, QueryPar
     setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
 }
 
-void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParameter* param)
+void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryParameter& param)
 {
     VariantType ptype = param->dataType();
 
     if (param->isNull())
         setParameterValue(paramIndex, nullptr, 0, 0, PG_VARCHAR);
     else {
-        uint32_t*   uptrBuffer;
-        uint64_t*   uptrBuffer64;
+        uint32_t*   uptrBuffer {nullptr};
+        uint64_t*   uptrBuffer64 {nullptr};
         long        days;
         int64_t     mcs = 0;
         switch (ptype) {

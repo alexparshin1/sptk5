@@ -98,7 +98,7 @@ void OracleStatement::setParameterValues()
     m_outputParamIndex.clear();
 
     unsigned parameterIndex = 1;
-    for (auto* parameterPtr: enumeratedParams()) {
+    for (auto& parameterPtr: enumeratedParams()) {
         QueryParameter& parameter = *parameterPtr;
         VariantType& priorDataType = parameter.binding().m_dataType;
 
@@ -355,7 +355,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
 {
     size_t columnIndex = 0;
     for (unsigned index: m_outputParamIndex) {
-        const QueryParameter* parameter;
+        SQueryParameter parameter;
         try {
             parameter = enumeratedParams()[index - 1];
 
