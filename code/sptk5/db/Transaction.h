@@ -54,31 +54,6 @@ public:
     explicit Transaction(const DatabaseConnection& db);
 
     /**
-     * Deleted copy constructor
-     */
-    Transaction(const Transaction&) = delete;
-
-    /**
-     * Move constructor
-     */
-    Transaction(Transaction&&) = default;
-
-    /**
-     * Destructor
-     */
-    ~Transaction();
-
-    /**
-     * Deleted copy assignment
-     */
-    Transaction& operator = (const Transaction&) = delete;
-
-    /**
-     * Move assignment
-     */
-    Transaction& operator = (Transaction&&) = default;
-
-    /**
      * Begins the transaction
      */
     void begin();
@@ -98,13 +73,13 @@ public:
      */
     bool active() const
     {
-        return m_active;
+        return *m_active;
     }
 
 private:
 
-    bool                        m_active {false};   ///< Transaction activity
-    PoolDatabaseConnection*     m_db;               ///< Database to work with
+    PoolDatabaseConnection* m_db;    ///< Database to work with
+    std::shared_ptr<bool> m_active;  ///< Transaction activity
 };
 /**
  * @}

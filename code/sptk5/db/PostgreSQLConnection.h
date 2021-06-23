@@ -32,14 +32,15 @@
 #if HAVE_POSTGRESQL == 1
 
 #include <libpq-fe.h>
+
 #ifndef _WIN32
+
 #include <netinet/in.h>
 #include <list>
 
 #endif
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup Database Database Support
@@ -53,21 +54,25 @@ class PostgreSQLStatement;
  *
  * CPostgreSQLConnection is thread-safe connection to PostgreSQL database.
  */
-class SP_EXPORT PostgreSQLConnection: public PoolDatabaseConnection
+class SP_EXPORT PostgreSQLConnection
+    : public PoolDatabaseConnection
 {
     friend class Query;
 
 public:
 
-    enum class TimestampFormat: uint8_t
+    enum class TimestampFormat
+        : uint8_t
     {
-        UNKNOWN, DOUBLE, INT64
+        UNKNOWN,
+        DOUBLE,
+        INT64
     };
 
     /**
      * @brief Returns the PostgreSQL connection object
      */
-    PGconn *connection()
+    PGconn* connection()
     {
         return m_connect;
     }
@@ -75,12 +80,12 @@ public:
     /**
      * @brief Converts datatype from PostgreSQL type to SPTK VariantType
      */
-    static void PostgreTypeToCType(int postgreType, VariantType& dataType);
+    static void PostgreTypeToCType(PostgreSQLDataType postgreType, VariantType& dataType);
 
     /**
      * @brief Converts datatype from SPTK VariantType to PostgreSQL type
      */
-    static void CTypeToPostgreType(VariantType dataType, Oid& postgreType, const String& paramName);
+    static void CTypeToPostgreType(VariantType dataType, PostgreSQLDataType& postgreType, const String& paramName);
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
@@ -179,37 +184,37 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    String queryError(const Query *query) const override;
+    String queryError(const Query* query) const override;
 
     /**
      * Allocates an PostgreSQL statement
      */
-    void queryAllocStmt(Query *query) override;
+    void queryAllocStmt(Query* query) override;
 
     /**
      * Deallocates an PostgreSQL statement
      */
-    void queryFreeStmt(Query *query) override;
+    void queryFreeStmt(Query* query) override;
 
     /**
      * Closes an PostgreSQL statement
      */
-    void queryCloseStmt(Query *query) override;
+    void queryCloseStmt(Query* query) override;
 
     /**
      * Prepares a query if supported by database
      */
-    void queryPrepare(Query *query) override;
+    void queryPrepare(Query* query) override;
 
     /**
      * Unprepares a query if supported by database
      */
-    void queryUnprepare(Query *query) override;
+    void queryUnprepare(Query* query) override;
 
     /**
      * Executes a statement
      */
-    void queryExecute(Query *query) override
+    void queryExecute(Query* query) override
     {
         // Not needed for PG driver
     }
@@ -217,27 +222,27 @@ protected:
     /**
      * Executes unprepared statement
      */
-    void queryExecDirect(Query *query) override;
+    void queryExecDirect(Query* query) override;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    int  queryColCount(Query *query) override;
+    int queryColCount(Query* query) override;
 
     /**
      * Binds the parameters to the query
      */
-    void queryBindParameters(Query *query) override;
+    void queryBindParameters(Query* query) override;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    void queryOpen(Query *query) override;
+    void queryOpen(Query* query) override;
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    void queryFetch(Query *query) override;
+    void queryFetch(Query* query) override;
 
     /**
      * @brief Returns parameter mark
@@ -251,13 +256,14 @@ protected:
      * Connection timestamp format
      * @return Connection timestamp format
      */
-    TimestampFormat timestampsFormat() const { return m_timestampsFormat; }
+    TimestampFormat timestampsFormat() const
+    { return m_timestampsFormat; }
 
 private:
 
-    mutable std::mutex      m_mutex;                                    ///< Mutex that protects access to data members
-    PGconn*                 m_connect {nullptr};                        ///< PostgreSQL database connection
-    TimestampFormat         m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format
+    mutable std::mutex m_mutex;                                    ///< Mutex that protects access to data members
+    PGconn* m_connect{nullptr};                        ///< PostgreSQL database connection
+    TimestampFormat m_timestampsFormat{TimestampFormat::UNKNOWN}; ///< Connection timestamp format
 };
 
 /**
@@ -268,7 +274,6 @@ private:
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* postgresql_create_connection(const char* connectionString);
-    SP_DRIVER_EXPORT void  postgresql_destroy_connection(void* connection);
+SP_DRIVER_EXPORT void* postgresql_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT void postgresql_destroy_connection(void* connection);
 }
-

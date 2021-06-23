@@ -36,8 +36,7 @@
 #include <src/drivers/Oracle/OracleBulkInsertQuery.h>
 #include "DatabaseField.h"
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup Database Database Support
@@ -45,6 +44,7 @@ namespace sptk
  */
 
 class OracleStatement;
+
 class OracleBulkInsertQuery;
 
 /**
@@ -52,9 +52,11 @@ class OracleBulkInsertQuery;
  *
  * COracleConnection is thread-safe connection to Oracle database.
  */
-class SP_EXPORT OracleConnection: public PoolDatabaseConnection
+class SP_EXPORT OracleConnection
+    : public PoolDatabaseConnection
 {
     friend class Query;
+
     friend class OracleStatement;
 
 public:
@@ -70,7 +72,7 @@ public:
      */
     Connection* connection() const
     {
-        return m_connection;
+        return m_connection.get();
     }
 
     /**
@@ -180,58 +182,57 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    String queryError(const Query *query) const override;
+    String queryError(const Query* query) const override;
 
     /**
      * Allocates an Oracle statement
      */
-    void queryAllocStmt(Query *query) override;
+    void queryAllocStmt(Query* query) override;
 
     /**
      * Deallocates an Oracle statement
      */
-    void queryFreeStmt(Query *query) override;
+    void queryFreeStmt(Query* query) override;
 
     /**
      * Closes an Oracle statement
      */
-    void queryCloseStmt(Query *query) override;
+    void queryCloseStmt(Query* query) override;
 
     /**
      * Prepares a query if supported by database
      */
-    void queryPrepare(Query *query) override;
+    void queryPrepare(Query* query) override;
 
     /**
      * Unprepares a query if supported by database
      */
-    void queryUnprepare(Query *query) override;
+    void queryUnprepare(Query* query) override;
 
     /**
      * Executes a statement
      */
-    void queryExecute(Query *query) override;
+    void queryExecute(Query* query) override;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    int  queryColCount(Query *query) override;
+    int queryColCount(Query* query) override;
 
     /**
      * Binds the parameters to the query
      */
-    void queryBindParameters(Query *query) override;
+    void queryBindParameters(Query* query) override;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    void queryOpen(Query *query) override;
+    void queryOpen(Query* query) override;
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    void queryFetch(Query *query) override;
-
+    void queryFetch(Query* query) override;
 
     /**
      * @brief Returns parameter mark
@@ -243,10 +244,12 @@ protected:
 
 private:
 
-    mutable std::mutex          m_mutex;                ///< Mutex that protects access to data members
-    OracleEnvironment           m_environment;          ///< Oracle connection environment
-    Connection*                 m_connection {nullptr}; ///< Oracle database connection
-    std::string                 m_lastError;            ///< Last error in this connection or query
+    using SConnection = std::shared_ptr<Connection>;
+
+    mutable std::mutex m_mutex;               ///< Mutex that protects access to data members
+    OracleEnvironment m_environment;          ///< Oracle connection environment
+    SConnection m_connection;                 ///< Oracle database connection
+    std::string m_lastError;                  ///< Last error in this connection or query
 
     void executeMultipleStatements(const Strings& statements, Strings* errors);
 
@@ -291,7 +294,6 @@ OracleConnection::Type VariantTypeToOracleType(VariantType dataType);
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* oracle_create_connection(const char* connectionString);
-    SP_DRIVER_EXPORT void  oracle_destroy_connection(void* connection);
+SP_DRIVER_EXPORT void* oracle_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT void oracle_destroy_connection(void* connection);
 }
-

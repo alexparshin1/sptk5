@@ -31,28 +31,28 @@ using namespace std;
 using namespace sptk;
 
 Transaction::Transaction(const DatabaseConnection& db)
-    : m_db(db->connection())
+    : m_db(db->connection()),
+      m_active(new bool(false),
+               [this](bool* ptr) {
+                   try
+                   {
+                       if (*m_active)
+                       {
+                           m_db->rollbackTransaction();
+                       }
+                   }
+                   catch (const Exception& e)
+                   {
+                       CERR(e.what() << endl)
+                   }
+                   delete ptr;
+               })
 {
-}
-
-Transaction::~Transaction()
-{
-    try
-    {
-        if (m_active)
-        {
-            m_db->rollbackTransaction();
-        }
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what() << endl)
-    }
 }
 
 void Transaction::begin()
 {
-    if (m_active)
+    if (*m_active)
     {
         throw DatabaseException("This transaction is already active");
     }
@@ -70,17 +70,17 @@ void Transaction::begin()
         m_db->open();
         m_db->beginTransaction();
     }
-    m_active = true;
+    *m_active = true;
 }
 
 void Transaction::commit()
 {
-    if (!m_active)
+    if (!*m_active)
     {
         throw DatabaseException("This transaction is not active");
     }
     m_db->commitTransaction();
-    m_active = false;
+    *m_active = false;
 }
 
 void Transaction::rollback()
@@ -90,5 +90,5 @@ void Transaction::rollback()
         throw DatabaseException("This transaction is not active");
     }
     m_db->rollbackTransaction();
-    m_active = false;
+    *m_active = false;
 }
