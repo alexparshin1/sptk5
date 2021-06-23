@@ -39,6 +39,7 @@
 
 #include <sptk5/md5.h>
 #include <filesystem>
+#include <fstream>
 
 #endif
 
@@ -131,8 +132,8 @@ bool Tar::loadFile()
 
     if (auto fileSize = (uint32_t) th_get_size(tar); fileSize != 0)
     {
-        Buffer buffer(size_t(fileSize) + 1);
-        auto* buf = buffer.data();
+        auto buffer = make_shared<Buffer>(size_t(fileSize) + 1);
+        auto* buf = buffer->data();
 
         uint32_t offset = 0;
         while (offset != fileSize)
@@ -145,7 +146,7 @@ bool Tar::loadFile()
             offset += unsigned(k);
         }
         buf[fileSize] = '\0';
-        buffer.bytes(fileSize);
+        buffer->bytes(fileSize);
 
         m_fileNames.push_back(fileName);
         m_files[fileName] = buffer;
@@ -219,7 +220,59 @@ const Buffer& Tar::file(const String& fileName) const
     {
         throw Exception("File '" + fileName + "' isn't found", __FILE__, __LINE__);
     }
-    return itor->second;
+    return *itor->second;
+}
+
+void Tar::append(const SArchiveFile& file)
+{
+    // Note: Existing file is replaced, unlike regular tar
+    auto itor = m_files.find(file->fileName());
+    if (itor == m_files.end())
+    {
+        m_fileNames.push_back(file->fileName());
+    }
+    m_files[file->fileName()] = file;
+}
+
+template <typename T>
+static void writeField(ofstream& file, const T& field)
+{
+    file.write(field.data(), sizeof(field));
+}
+
+void Tar::saveToFile(const String& archiveFileName)
+{
+    ofstream archive(archiveFileName);
+    for (const auto& fileName: m_fileNames) {
+        auto fileData = m_files[fileName];
+        auto archiveFile = dynamic_pointer_cast<ArchiveFile>(fileData);
+        if (archiveFile) {
+            const auto& header = *(const tar_header *)archiveFile->header();
+            writeField(archive, header.name);
+            writeField(archive, header.mode);
+            writeField(archive, header.uid);
+            writeField(archive, header.gid);
+            writeField(archive, header.size);
+            writeField(archive, header.mtime);
+            writeField(archive, header.chksum);
+            archive << header.typeflag;
+            writeField(archive, header.linkname);
+            writeField(archive, header.magic);
+            writeField(archive, header.version);
+            writeField(archive, header.uname);
+            writeField(archive, header.gname);
+            writeField(archive, header.devmajor);
+            writeField(archive, header.devminor);
+            writeField(archive, header.prefix);
+            writeField(archive, header.padding);
+
+            size_t paddingLength = T_BLOCKSIZE - archiveFile->length() % T_BLOCKSIZE;
+            Buffer padding(paddingLength);
+            archive.write(archiveFile->c_str(), archiveFile->length());
+            archive.write(padding.c_str(), paddingLength);
+        }
+    }
+    archive.close();
 }
 
 #if USE_GTEST
@@ -268,6 +321,16 @@ TEST(SPTK_Tar, read)
 #else
     EXPECT_EQ(0, system(("rm -rf " + gtestTempDirectory).c_str()));
 #endif
+}
+
+TEST(SPTK_Tar, write)
+{
+    Tar tar;
+    auto archiveFile = make_shared<ArchiveFile>("/tmp/1.txt", "/tmp");
+    tar.append(archiveFile);
+    archiveFile = make_shared<ArchiveFile>("/tmp/2.txt", "/tmp");
+    tar.append(archiveFile);
+    tar.saveToFile("/tmp/2.bin");
 }
 
 #endif

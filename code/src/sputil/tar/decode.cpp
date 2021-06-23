@@ -36,7 +36,7 @@ void th_get_pathname(TAR* t, char* path, size_t sz)
 #ifdef _MSC_VER
         int len = _snprintf(path, sz - 1, "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
 #else
-        int len = snprintf(path, sz - 1, "%.155s/%.100s", t->th_buf.prefix, t->th_buf.name);
+        int len = snprintf(path, sz - 1, "%.155s/%.100s", t->th_buf.prefix.data(), t->th_buf.name.data());
 #endif
         path[len] = 0;
         return;
@@ -45,7 +45,7 @@ void th_get_pathname(TAR* t, char* path, size_t sz)
 #ifdef _MSC_VER
     int len = _snprintf(path, sz - 1, "%.100s", t->th_buf.name);
 #else
-    int len = snprintf(path, sz - 1, "%.100s", t->th_buf.name);
+    int len = snprintf(path, sz - 1, "%.100s", t->th_buf.name.data());
 #endif
     path[len] = 0;
 }

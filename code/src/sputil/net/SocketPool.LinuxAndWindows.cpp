@@ -82,9 +82,9 @@ void SocketPool::close()
         m_pool = INVALID_EPOLL;
     }
 
-    for (auto itor: m_socketData)
+    for (const auto& [socket, event]: m_socketData)
     {
-        delete (epoll_event*) itor.second;
+        delete (epoll_event*) event;
     }
 
     m_socketData.clear();
@@ -105,8 +105,7 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
     event->data.ptr = userData;
     event->events = EPOLLIN | EPOLLHUP | EPOLLRDHUP;
 
-    int rc = epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, event);
-    if (rc == -1)
+    if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, event) == -1)
     {
         throw SystemException("Can't add socket to epoll");
     }
@@ -129,8 +128,7 @@ void SocketPool::forgetSocket(BaseSocket& socket)
     event = (epoll_event*) itor->second;
     m_socketData.erase(itor);
 
-    int rc = epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), event);
-    if (rc == -1)
+    if (epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), event) == -1)
     {
         throw SystemException("Can't remove socket from epoll");
     }
@@ -138,13 +136,13 @@ void SocketPool::forgetSocket(BaseSocket& socket)
     delete event;
 }
 
-#define MAXEVENTS 16
+constexpr int MAXEVENTS = 16;
 
 void SocketPool::waitForEvents(chrono::milliseconds timeout) const
 {
-    epoll_event events[MAXEVENTS];
+    array<epoll_event, MAXEVENTS> events;
 
-    int eventCount = epoll_wait(m_pool, events, MAXEVENTS, (int) timeout.count());
+    int eventCount = epoll_wait(m_pool, events.data(), MAXEVENTS, (int) timeout.count());
     if (eventCount < 0)
     {
         return;

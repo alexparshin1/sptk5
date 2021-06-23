@@ -5,7 +5,7 @@ export PATH=/opt/sonar-scanner/bin:$PATH
 CORES=$(grep 'cpu MHz' /proc/cpuinfo | wc -l)
 sed -i "s/sonar.cfamily.threads=.*$/sonar.cfamily.threads=$CORES/" sonar-project.properties
 
-build-wrapper-linux-x86-64 --out-dir bw-output make clean all
+build-wrapper-linux-x86-64 --out-dir bw-output make -j $CORES clean all
 
 # Project options
 OPTIONS="-Dsonar.projectKey=HappySquirrel_sptk5 -Dsonar.organization=happysquirrel-bitbucket -Dsonar.sources=."

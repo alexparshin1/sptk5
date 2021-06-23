@@ -34,23 +34,23 @@ constexpr char GNU_LONGLINK_TYPE = 'K';
 /* our version of the tar header structure */
 struct tar_header
 {
-    char name[100];
-    char mode[8];
-    char uid[8];
-    char gid[8];
-    char size[12];
-    char mtime[12];
-    char chksum[8];
+    std::array<char, 100> name;
+    std::array<char, 8> mode;
+    std::array<char, 8> uid;
+    std::array<char, 8> gid;
+    std::array<char, 12> size;
+    std::array<char, 12> mtime;
+    std::array<char, 8> chksum;
     char typeflag;
-    char linkname[100];
-    char magic[6];
-    char version[2];
-    char uname[32];
-    char gname[32];
-    char devmajor[8];
-    char devminor[8];
-    char prefix[155];
-    char padding[12];
+    std::array<char, 100> linkname;
+    std::array<char, 6> magic;
+    std::array<char, 2> version;
+    std::array<char, 32> uname;
+    std::array<char, 32> gname;
+    std::array<char, 8> devmajor;
+    std::array<char, 8> devminor;
+    std::array<char, 155> prefix;
+    std::array<char, 12> padding;
     char* gnu_longname;
     char* gnu_longlink;
 };
@@ -129,8 +129,8 @@ int th_read(TAR* t);
 #define TH_ISLONGLINK(t)    ((t)->th_buf.typeflag == GNU_LONGLINK_TYPE)
 
 /* decode tar header info */
-#define th_get_crc(t) oct_to_int((t)->th_buf.chksum)
-#define th_get_size(t) oct_to_int((t)->th_buf.size)
+#define th_get_crc(t) oct_to_int((t)->th_buf.chksum.data())
+#define th_get_size(t) oct_to_int((t)->th_buf.size.data())
 void th_get_pathname(TAR* t, char* path, size_t sz);
 
 

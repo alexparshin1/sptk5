@@ -44,13 +44,13 @@ int th_read_internal(TAR* t)
 
         /* verify magic and version */
         if (BIT_ISSET(t->options, TAR_CHECK_MAGIC)
-            && strncmp(t->th_buf.magic, TMAGIC, TMAGLEN - 1) != 0)
+            && strncmp(t->th_buf.magic.data(), TMAGIC, TMAGLEN - 1) != 0)
         {
             throw Exception("Unknown magic value in tar header");
         }
 
         if (BIT_ISSET(t->options, TAR_CHECK_VERSION)
-            && strncmp(t->th_buf.version, TVERSION, TVERSLEN) != 0)
+            && strncmp(t->th_buf.version.data(), TVERSION, TVERSLEN) != 0)
         {
             throw Exception("Unknown version value in tar header");
         }
