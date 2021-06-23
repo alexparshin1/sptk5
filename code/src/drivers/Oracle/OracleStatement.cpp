@@ -31,7 +31,7 @@ using namespace sptk;
 using namespace oracle::occi;
 
 OracleStatement::OracleStatement(OracleConnection* connection, const string& sql)
-: DatabaseStatement<OracleConnection, oracle::occi::Statement>(connection)
+    : DatabaseStatement<OracleConnection, oracle::occi::Statement>(connection)
 {
     statement(connection->createStatement(sql));
     state().columnCount = 0;
@@ -43,23 +43,30 @@ OracleStatement::OracleStatement(OracleConnection* connection, const string& sql
 
 OracleStatement::~OracleStatement()
 {
-    if (statement() != nullptr) {
+    if (statement() != nullptr)
+    {
         Connection* connection = statement()->getConnection();
         if (m_createClobStatement)
+        {
             connection->terminateStatement(m_createClobStatement);
+        }
         if (m_createBlobStatement)
+        {
             connection->terminateStatement(m_createBlobStatement);
+        }
         connection->terminateStatement(statement());
     }
 }
 
 void OracleStatement::setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize)
 {
-    if (connection()) {
-        if (!m_createClobStatement) {
+    if (connection())
+    {
+        if (!m_createClobStatement)
+        {
             m_createClobStatement =
-                    connection()->createStatement(
-                            "INSERT INTO sptk_lobs(sptk_clob) VALUES (empty_clob()) RETURNING sptk_clob INTO :1");
+                connection()->createStatement(
+                    "INSERT INTO sptk_lobs(sptk_clob) VALUES (empty_clob()) RETURNING sptk_clob INTO :1");
             m_createClobStatement->registerOutParam(1, OCCICLOB);
         }
 
@@ -75,11 +82,13 @@ void OracleStatement::setClobParameter(uint32_t parameterIndex, unsigned char* d
 
 void OracleStatement::setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize)
 {
-    if (connection()) {
-        if (!m_createBlobStatement) {
+    if (connection())
+    {
+        if (!m_createBlobStatement)
+        {
             m_createBlobStatement =
-                    connection()->createStatement(
-                            "INSERT INTO sptk_lobs(sptk_blob) VALUES (empty_blob()) RETURNING sptk_blob INTO :1");
+                connection()->createStatement(
+                    "INSERT INTO sptk_lobs(sptk_blob) VALUES (empty_blob()) RETURNING sptk_blob INTO :1");
             m_createBlobStatement->registerOutParam(1, OCCIBLOB);
         }
 
@@ -98,23 +107,30 @@ void OracleStatement::setParameterValues()
     m_outputParamIndex.clear();
 
     unsigned parameterIndex = 1;
-    for (auto& parameterPtr: enumeratedParams()) {
+    for (const auto& parameterPtr: enumeratedParams())
+    {
         QueryParameter& parameter = *parameterPtr;
         VariantType& priorDataType = parameter.binding().m_dataType;
 
         if (priorDataType == VAR_NONE)
+        {
             priorDataType = parameter.dataType();
+        }
 
-        if (!parameter.isOutput() && parameter.isNull()) {
+        if (!parameter.isOutput() && parameter.isNull())
+        {
             if (priorDataType == VAR_NONE)
+            {
                 priorDataType = VAR_STRING;
+            }
             Type nativeType = VariantTypeToOracleType(parameter.binding().m_dataType);
             statement()->setNull(parameterIndex, nativeType);
             ++parameterIndex;
             continue;
         }
 
-        switch (priorDataType) {
+        switch (priorDataType)
+        {
 
             case VAR_NONE:      ///< Undefined
             throwDatabaseException("Parameter " + parameter.name() + " data type is undefined")
@@ -155,7 +171,8 @@ void OracleStatement::setParameterValues()
                 setBooleanParamValue(parameterIndex, parameter);
                 break;
 
-            default: throwDatabaseException("Unsupported data type for parameter " + parameter.name())
+            default:
+            throwDatabaseException("Unsupported data type for parameter " + parameter.name())
         }
         ++parameterIndex;
     }
@@ -163,55 +180,78 @@ void OracleStatement::setParameterValues()
 
 void OracleStatement::setIntParamValue(unsigned int parameterIndex, const QueryParameter& parameter)
 {
-    if (parameter.isOutput()) {
+    if (parameter.isOutput())
+    {
         statement()->registerOutParam(parameterIndex, OCCIINT);
         m_outputParamIndex.push_back(parameterIndex);
-    } else
+    }
+    else
+    {
         statement()->setInt(parameterIndex, parameter.asInteger());
+    }
 }
 
 void OracleStatement::setFloatParamValue(unsigned int parameterIndex, const QueryParameter& parameter)
 {
-    if (parameter.isOutput()) {
+    if (parameter.isOutput())
+    {
         statement()->registerOutParam(parameterIndex, OCCIDOUBLE);
         m_outputParamIndex.push_back(parameterIndex);
-    } else
+    }
+    else
+    {
         statement()->setDouble(parameterIndex, parameter.asFloat());
+    }
 }
 
 void OracleStatement::setStringParamValue(unsigned int parameterIndex, const QueryParameter& parameter)
 {
-    if (parameter.isOutput()) {
+    if (parameter.isOutput())
+    {
         statement()->registerOutParam(parameterIndex, OCCISTRING);
         m_outputParamIndex.push_back(parameterIndex);
-    } else
+    }
+    else
+    {
         statement()->setString(parameterIndex, parameter.asString());
+    }
 }
 
 void OracleStatement::setBooleanParamValue(unsigned int parameterIndex, const QueryParameter& parameter)
 {
-    if (parameter.isOutput()) {
+    if (parameter.isOutput())
+    {
         statement()->registerOutParam(parameterIndex, OCCIINT);
         m_outputParamIndex.push_back(parameterIndex);
-    } else
+    }
+    else
+    {
         statement()->setInt(parameterIndex, parameter.asInteger());
+    }
 }
 
 void OracleStatement::setInt64ParamValue(unsigned int parameterIndex, const QueryParameter& parameter)
 {
-    if (parameter.isOutput()) {
+    if (parameter.isOutput())
+    {
         statement()->registerOutParam(parameterIndex, OCCIINT);
         m_outputParamIndex.push_back(parameterIndex);
-    } else
+    }
+    else
+    {
         statement()->setInt(parameterIndex, parameter.asInteger());
+    }
 }
 
 void OracleStatement::setDateTimeParameterValue(unsigned int parameterIndex, const QueryParameter& parameter)
 {
-    if (parameter.isOutput()) {
+    if (parameter.isOutput())
+    {
         statement()->registerOutParam(parameterIndex, OCCITIMESTAMP);
         m_outputParamIndex.push_back(parameterIndex);
-    } else {
+    }
+    else
+    {
         int16_t year;
         int16_t month;
         int16_t day;
@@ -232,10 +272,13 @@ void OracleStatement::setDateTimeParameterValue(unsigned int parameterIndex, con
 
 void OracleStatement::setDateParameterValue(unsigned int parameterIndex, const QueryParameter& parameter)
 {
-    if (parameter.isOutput()) {
+    if (parameter.isOutput())
+    {
         statement()->registerOutParam(parameterIndex, OCCIDATE);
         m_outputParamIndex.push_back(parameterIndex);
-    } else {
+    }
+    else
+    {
         int16_t year;
         int16_t month;
         int16_t day;
@@ -249,59 +292,78 @@ void OracleStatement::setDateParameterValue(unsigned int parameterIndex, const Q
 
 void OracleStatement::setBLOBParameterValue(unsigned int parameterIndex, const QueryParameter& parameter)
 {
-    if (parameter.isOutput()) {
+    if (parameter.isOutput())
+    {
         statement()->registerOutParam(parameterIndex, OCCIBLOB);
         m_outputParamIndex.push_back(parameterIndex);
-    } else
+    }
+    else
+    {
         setBlobParameter(parameterIndex, parameter.getBuffer(), (unsigned) parameter.dataSize());
+    }
 }
 
 void OracleStatement::setCLOBParameterValue(unsigned int parameterIndex, const QueryParameter& parameter)
 {
-    if (parameter.isOutput()) {
+    if (parameter.isOutput())
+    {
         statement()->registerOutParam(parameterIndex, OCCICLOB);
         m_outputParamIndex.push_back(parameterIndex);
-    } else
+    }
+    else
+    {
         setClobParameter(parameterIndex, parameter.getBuffer(), (unsigned) parameter.dataSize());
+    }
 }
 
 void OracleStatement::execBulk(bool inTransaction, bool lastIteration)
 {
     // If statement is inside the transaction, it shouldn't be in auto-commit mode
-    if (inTransaction != state().transaction) {
+    if (inTransaction != state().transaction)
+    {
         statement()->setAutoCommit(!inTransaction);
         state().transaction = inTransaction;
     }
 
     if (m_resultSet)
+    {
         close();
+    }
 
     state().eof = true;
     state().columnCount = 0;
 
     if (lastIteration)
+    {
         statement()->execute();
+    }
     else
+    {
         statement()->addIteration();
+    }
 }
 
 
 void OracleStatement::execute(bool inTransaction)
 {
     // If statement is inside the transaction, it shouldn't be in auto-commit mode
-    if (inTransaction != state().transaction) {
+    if (inTransaction != state().transaction)
+    {
         statement()->setAutoCommit(!inTransaction);
         state().transaction = inTransaction;
     }
 
     if (m_resultSet)
+    {
         close();
+    }
 
     state().eof = true;
     state().columnCount = 0;
 
     auto rc = statement()->execute();
-    if (rc == Statement::RESULT_SET_AVAILABLE) {
+    if (rc == Statement::RESULT_SET_AVAILABLE)
+    {
 
         state().eof = false;
 
@@ -312,9 +374,11 @@ void OracleStatement::execute(bool inTransaction)
         state().columnCount = (unsigned) resultSetMetaData.size();
 
         unsigned columnIndex = 1;
-        for (const MetaData& metaData: resultSetMetaData) {
+        for (const MetaData& metaData: resultSetMetaData)
+        {
             // If resultSet contains cursor, use that cursor as resultSet
-            if (metaData.getInt(MetaData::ATTR_DATA_TYPE) == SQLT_RSET) {
+            if (metaData.getInt(MetaData::ATTR_DATA_TYPE) == SQLT_RSET)
+            {
                 m_resultSet->next();
                 ResultSet* resultSet = m_resultSet->getCursor(columnIndex);
                 m_resultSet->cancel();
@@ -354,19 +418,23 @@ void OracleStatement::getCLOBOutputParameter(unsigned int index, DatabaseField* 
 void OracleStatement::getOutputParameters(FieldList& fields)
 {
     size_t columnIndex = 0;
-    for (unsigned index: m_outputParamIndex) {
+    for (unsigned index: m_outputParamIndex)
+    {
         SQueryParameter parameter;
-        try {
+        try
+        {
             parameter = enumeratedParams()[index - 1];
 
             auto* field = (DatabaseField*) fields.findField(parameter->name());
-            if (field == nullptr) {
+            if (field == nullptr)
+            {
                 field = new DatabaseField(parameter->name(), (int) fields.size(), OCCIANYDATA,
                                           parameter->dataType(), 256);
                 fields.push_back(field);
             }
 
-            switch (parameter->dataType()) {
+            switch (parameter->dataType())
+            {
                 case VAR_INT:
                 case VAR_INT64:
                     field->setInteger(statement()->getInt(index));
@@ -397,9 +465,13 @@ void OracleStatement::getOutputParameters(FieldList& fields)
                     break;
             }
 
-        } catch (const Exception& e) {
+        }
+        catch (const Exception& e)
+        {
             throw DatabaseException("Can't read parameter " + parameter->name() + ": " + string(e.what()));
-        } catch (const SQLException& e) {
+        }
+        catch (const SQLException& e)
+        {
             throw DatabaseException("Can't read parameter " + parameter->name() + ": " + string(e.what()));
         }
         ++columnIndex;
@@ -408,7 +480,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
 
 void OracleStatement::getDateTimeOutputParameter(unsigned int index, DatabaseField* field) const
 {
-    int      year;
+    int year;
     unsigned month;
     unsigned day;
     unsigned hour;
@@ -437,7 +509,9 @@ void OracleStatement::getDateOutputParameter(unsigned int index, DatabaseField* 
 void OracleStatement::close()
 {
     if (m_resultSet)
+    {
         m_resultSet->cancel();
+    }
 
     m_resultSet = nullptr;
 }

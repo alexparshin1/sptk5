@@ -39,7 +39,8 @@ class QueryParameterList;
  * Simplifies the ODBC parameter binding.
  * Automatically handles most of the data conversions on assignments.
  */
-class SP_EXPORT QueryParameter : public Variant
+class SP_EXPORT QueryParameter
+    : public Variant
 {
     friend class Query;
 
@@ -67,7 +68,7 @@ public:
      *
      * Please, don't use it directly.
      */
-    char* conversionBuffer()
+    uint8_t* conversionBuffer()
     {
         return m_timeData.data();
     }
@@ -253,12 +254,12 @@ public:
 
 private:
 
-    QueryParameterBinding   m_binding;               ///< The last successfull binding information
-    String                  m_name;                  ///< Parameter name
-    std::vector<uint32_t>   m_bindParamIndexes;      ///< The list of SQL query parameter numbers with this name
-    std::array<char,80>     m_timeData;              ///< Special memory allocated for time structures
-    int32_t                 m_callbackLength {0};    ///< An integer reserved to callback parameter data length
-    QueryParameterList*     m_paramList {nullptr};   ///< Parent param list used for notifications
+    QueryParameterBinding m_binding;               ///< The last successfull binding information
+    String m_name;                  ///< Parameter name
+    std::vector<uint32_t> m_bindParamIndexes;      ///< The list of SQL query parameter numbers with this name
+    std::array<uint8_t, 80> m_timeData;              ///< Special memory allocated for time structures
+    int32_t m_callbackLength{0};    ///< An integer reserved to callback parameter data length
+    QueryParameterList* m_paramList{nullptr};   ///< Parent param list used for notifications
 };
 
 using SQueryParameter = std::shared_ptr<QueryParameter>;

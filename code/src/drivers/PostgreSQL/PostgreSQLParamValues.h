@@ -36,60 +36,74 @@
 
 namespace sptk {
 
-    class PostgreSQLParamValues
-    {
-        friend class PostgreSQLStatement;
-        size_t                      m_count {0};
-        std::vector<const char*>    m_values;
-        std::vector<int>            m_lengths;
-        std::vector<int>            m_formats;
-        std::vector<Oid>            m_types;
-        CParamVector                m_params;
-        bool                        m_int64timestamps;
-    public:
-        explicit PostgreSQLParamValues(bool int64timestamps)
+class PostgreSQLParamValues
+{
+    friend class PostgreSQLStatement;
+
+    size_t m_count{0};
+    std::vector<const uint8_t*> m_values;
+    std::vector<int> m_lengths;
+    std::vector<int> m_formats;
+    std::vector<Oid> m_types;
+    CParamVector m_params;
+    bool m_int64timestamps;
+public:
+    explicit PostgreSQLParamValues(bool int64timestamps)
         : m_int64timestamps(int64timestamps)
-        {
-            resize(16);
-        }
+    {
+        resize(16);
+    }
 
-        void reset()
-        {
-            m_count = 0;
-        }
+    void reset()
+    {
+        m_count = 0;
+    }
 
-        void resize(size_t sz)
-        {
-            m_values.resize(sz);
-            m_lengths.resize(sz);
-            m_formats.resize(sz);
-            m_types.resize(sz);
-        }
+    void resize(size_t sz)
+    {
+        m_values.resize(sz);
+        m_lengths.resize(sz);
+        m_formats.resize(sz);
+        m_types.resize(sz);
+    }
 
-        void setParameters(const QueryParameterList& params);
+    void setParameters(const QueryParameterList& params);
 
-        void setParameterValue(unsigned paramIndex, const void* value, unsigned sz, int32_t format, PostgreSQLDataType dataType)
-        {
-            m_values[paramIndex] = (const char*) value;
-            m_lengths[paramIndex] = (int) sz;
-            m_formats[paramIndex] = format;
-            m_types[paramIndex] = dataType;
-        }
+    void setParameterValue(unsigned paramIndex, const uint8_t* value, unsigned sz, int32_t format,
+                           PostgreSQLDataType dataType)
+    {
+        m_values[paramIndex] = value;
+        m_lengths[paramIndex] = (int) sz;
+        m_formats[paramIndex] = format;
+        m_types[paramIndex] = (Oid) dataType;
+    }
 
-        void setParameterValue(unsigned paramIndex, const SQueryParameter& param);
-        void setFloatParameterValue(unsigned paramIndex, const SQueryParameter& param);
+    void setParameterValue(unsigned paramIndex, const SQueryParameter& param);
 
-        [[nodiscard]] unsigned size() const               { return (unsigned) m_count;   }
-        [[nodiscard]] const char* const* values() const   { return &m_values[0]; }
-        [[nodiscard]] const int* lengths() const          { return &m_lengths[0]; }
-        [[nodiscard]] const int* formats() const          { return &m_formats[0]; }
-        [[nodiscard]] const Oid* types() const            { return &m_types[0]; }
-        [[nodiscard]] const CParamVector& params() const  { return m_params;  }
-    };
+    void setFloatParameterValue(unsigned paramIndex, const SQueryParameter& param);
 
-    extern const DateTime epochDate;
-    extern const long     daysSinceEpoch;
-    extern const int64_t  microsecondsSinceEpoch;
+    [[nodiscard]] unsigned size() const
+    { return (unsigned) m_count; }
+
+    [[nodiscard]] const uint8_t* const* values() const
+    { return m_values.data(); }
+
+    [[nodiscard]] const int* lengths() const
+    { return m_lengths.data(); }
+
+    [[nodiscard]] const int* formats() const
+    { return m_formats.data(); }
+
+    [[nodiscard]] const Oid* types() const
+    { return m_types.data(); }
+
+    [[nodiscard]] const CParamVector& params() const
+    { return m_params; }
+};
+
+extern const DateTime epochDate;
+extern const long daysSinceEpoch;
+extern const int64_t microsecondsSinceEpoch;
 
 } // namespace sptk
 

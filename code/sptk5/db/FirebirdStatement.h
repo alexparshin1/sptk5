@@ -156,7 +156,7 @@ public:
      * @param blob_id ISC_QUAD*, Firebird-specific BLOB id
      * @param param QueryParameter*, BLOB field
      */
-    isc_blob_handle createBLOB(ISC_QUAD* blob_id, QueryParameter* param);
+    isc_blob_handle createBLOB(ISC_QUAD* blob_id, const SQueryParameter& param);
 
     /**
      * @brief Fetches BLOB data during fetch of query results
