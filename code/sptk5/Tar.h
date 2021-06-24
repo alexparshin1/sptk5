@@ -161,7 +161,7 @@ public:
      * Save tar archive to file
      * @param tarFileName          Tar file name
      */
-    void saveToFile(const String& tarFileName);
+    void saveToFile(const String& tarFileName) const;
 
     /**
      * Clears the allocated memory

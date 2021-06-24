@@ -90,8 +90,7 @@ ArchiveFile::ArchiveFile(const String& fileName, const String& baseDirectory)
 
     Buffer buff(128);
     struct passwd pw;
-    struct passwd* pw_result;
-    if (getpwuid_r(info.st_uid, &pw, (char*) buff.data(), 128, &pw_result) != 0)
+    if (struct passwd* pw_result; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), 128, &pw_result) != 0)
     {
         throw SystemException("Can't get user information");
     }
@@ -101,8 +100,7 @@ ArchiveFile::ArchiveFile(const String& fileName, const String& baseDirectory)
     m_gid = pw.pw_gid;
 
     struct group gr;
-    struct group* gr_result;
-    if (getgrgid_r(info.st_gid, &gr, (char*) buff.data(), 128, &gr_result) != 0)
+    if (struct group* gr_result; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), 128, &gr_result) != 0)
     {
         throw SystemException("Can't get group information");
     }

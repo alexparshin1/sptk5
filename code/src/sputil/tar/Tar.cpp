@@ -113,7 +113,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     }
     offset += T_BLOCKSIZE;
 
-    ArchiveFile::Type type = (ArchiveFile::Type) header->typeflag;
+    auto type = (ArchiveFile::Type) header->typeflag;
 
     size_t contentLength = 0;
     if (type == ArchiveFile::Type::REGULAR_FILE || type == ArchiveFile::Type::REGULAR_FILE2)
@@ -158,7 +158,7 @@ void Tar::read(const char* tarFileName)
     read(tarData);
 }
 
-void Tar::saveToFile(const String& tarFileName)
+void Tar::saveToFile(const String& tarFileName) const
 {
     ofstream archive(tarFileName);
     for (const auto&[fileName, fileData]: m_files)
@@ -243,10 +243,6 @@ TEST(SPTK_Tar, write)
     tar.append(archiveFile);
     archiveFile = make_shared<ArchiveFile>("/tmp/1.txt", "/tmp");
     tar.append(archiveFile);
-    /*
-    archiveFile = make_shared<ArchiveFile>("/tmp/2.txt", "/tmp");
-    tar.append(archiveFile);
-    */
     tar.saveToFile("/tmp/2.bin");
 }
 
