@@ -45,25 +45,26 @@ public:
     /**
      * Memory buffer position
      */
-    size_t      position {0};
+    size_t position{0};
 
     /**
      * Memory buffer
      */
-    char*       sourceBuffer {nullptr};
+    char* sourceBuffer{nullptr};
 
     /**
      * Memory buffer len
      */
-    size_t      sourceBufferLen {0};
+    size_t sourceBufferLen{0};
 
     /**
      * Constructor
      * @param buffer CBuffer*, source data
      */
-    explicit MemoryTarHandle(const Buffer* buffer=nullptr)
+    explicit MemoryTarHandle(const Buffer* buffer = nullptr)
     {
-        if (buffer) {
+        if (buffer)
+        {
             sourceBuffer = (char*) buffer->data();
             sourceBufferLen = buffer->bytes();
         }
@@ -85,57 +86,23 @@ class SP_EXPORT Tar
 
 public:
     /**
-     * The last generated tar handle
-     */
-    static int            lastTarHandle;
-
-    /**
-     * The map of tar handles
-     */
-    static TarHandleMap   tarHandleMap;
-
-    /**
-     * Returns memory handle
-     * @param handle int, tar handle
-     */
-    static MemoryTarHandle* tarMemoryHandle(int handle);
-
-    /**
-     * Overwrites standard tar open
-     */
-    static int mem_open(const char *name, int mode, const uint8_t* data);
-
-    /**
-     * Overwrites standard tar close
-     * @param handle int, tar handle
-     */
-    static int mem_close(int handle);
-
-    /**
-     * Overwrites standard tar read
-     * @param handle int, tar handle
-     * @param buf void*, data buffer
-     * @param len size_t, read size
-     */
-    static int mem_read(int handle, uint8_t* buf, size_t len);
-
-    /**
-     * Overwrites standard tar write
-     *@param handle int, tar handle
-     * @param buf void*, data buffer
-     * @param len size_t, write size
-     */
-    static int mem_write(int handle, const uint8_t *buf, size_t len);
-
-    /**
      * Constructor
      */
     Tar() = default;
 
+    /**
+     * Constructor
+     * @param tarData           Tar archive data
+     */
+    Tar(const Buffer& tarData);
+
     Tar(const Tar&) = delete;
+
     Tar(Tar&&) noexcept = default;
-    Tar& operator = (const Tar&) = delete;
-    Tar& operator = (Tar&&) noexcept = default;
+
+    Tar& operator=(const Tar&) = delete;
+
+    Tar& operator=(Tar&&) noexcept = default;
 
     /**
      * Reads tar archive from file
@@ -167,7 +134,15 @@ public:
     /**
      * returns a list of files in tar archive
      */
-    const Strings& fileList() const { return m_fileNames; }
+    Strings fileList() const
+    {
+        Strings fileNames;
+        for (const auto&[fileName, data]: m_files)
+        {
+            fileNames.push_back(fileName);
+        }
+        return fileNames;
+    }
 
     /**
      * Return file data by file name
@@ -184,9 +159,9 @@ public:
 
     /**
      * Save tar archive to file
-     * @param archiveFileName          Tar file name
+     * @param tarFileName          Tar file name
      */
-    void saveToFile(const String& archiveFileName);
+    void saveToFile(const String& tarFileName);
 
     /**
      * Clears the allocated memory
@@ -194,12 +169,13 @@ public:
     void clear();
 
 private:
+    std::shared_ptr<TAR> m_tar;   ///< Tar file header
+    FileCollection m_files;       ///< File name to the file data map
+    bool m_memoryRead{false};     ///< Flag to indicate if tar data is red from the memory buffer
 
-    std::shared_ptr<TAR>    m_tar;                ///< Tar file header
-    FileCollection          m_files;              ///< File name to the file data map
-    Strings                 m_fileNames;          ///< List of files in archive
-    bool                    m_memoryRead {false}; ///< Flag to indicate if tar data is red from the memory buffer
-    String                  m_fileName;           ///< Tar file name
+    String m_fileName;            ///< Tar file name
+
+    bool readNextFile(const Buffer& buffer, size_t& offset);
 
     /**
      * Loads tar file into memory

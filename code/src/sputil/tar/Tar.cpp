@@ -1,169 +1,47 @@
-/***************************************************************************
-                          SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CTar.cpp  -  description
-                             -------------------
-    begin                : Fri Sep 1 2006
-    copyright            : © 1999-2021 Alexey Parshin.    All rights reserved.
-
-    This module creation was sponsored by Total Knowledge (http://www.total-knowledge.com).
-    Author thanks the developers of CPPSERV project (http://www.total-knowledge.com/progs/cppserv)
-    for defining the requirements for this class.
- ***************************************************************************/
-
-/***************************************************************************
-   This library is free software; you can redistribute it and/or modify it
-   under the terms of the GNU Library General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or (at
-   your option) any later version.
-
-   This library is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
-   General Public License for more details.
-
-   You should have received a copy of the GNU Library General Public License
-   along with this library; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-
-   Please report all bugs and problems to "alexeyp@gmail.com"
- ***************************************************************************/
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
 
 #include "libtar.h"
 #include <sptk5/Tar.h>
-
-#ifdef _WIN32
-#include <io.h>
-#endif
+#include <filesystem>
+#include <fstream>
 
 #if USE_GTEST
 
 #include <sptk5/md5.h>
-#include <filesystem>
-#include <fstream>
+#include <sptk5/Printer.h>
 
 #endif
 
 using namespace std;
 using namespace sptk;
 
-using CMemOpenCallback = int (*)(const char*, int, ...);
-using CMemCloseCallback = int (*)(int);
-using CMemReadCallback = int (*)(int, uint8_t*, size_t);
-using CMemWriteCallback = int (*)(int, const uint8_t*, size_t);
-
-#ifdef _MSC_VER
-#define lseek _lseek
-#endif
-
-static const tartype_t memtype
-    {
-        (CMemOpenCallback) Tar::mem_open,
-        (CMemCloseCallback) Tar::mem_close,
-        (CMemReadCallback) Tar::mem_read,
-        (CMemWriteCallback) Tar::mem_write
-    };
-
-int            Tar::lastTarHandle;
-TarHandleMap   Tar::tarHandleMap;
-
-MemoryTarHandle* Tar::tarMemoryHandle(int handle)
+Tar::Tar(const Buffer& tarData)
 {
-    auto itor = tarHandleMap.find(handle);
-    if (itor == tarHandleMap.end())
-    {
-        return nullptr;
-    }
-    return itor->second.get();
-}
-
-int Tar::mem_open(const char*, int, const uint8_t*)
-{
-    ++lastTarHandle;
-    tarHandleMap[lastTarHandle] = make_shared<MemoryTarHandle>();
-    return lastTarHandle;
-}
-
-int Tar::mem_close(int handle)
-{
-    auto itor = tarHandleMap.find(handle);
-    if (itor == tarHandleMap.end())
-    {
-        return -1;
-    }
-    tarHandleMap.erase(itor);
-    return 0;
-}
-
-int Tar::mem_read(int x, uint8_t* buf, size_t len)
-{
-    MemoryTarHandle* memHandle = tarMemoryHandle(x);
-    if (memHandle == nullptr)
-    { return -1; }
-    if (memHandle->position + len > memHandle->sourceBufferLen)
-    {
-        len = memHandle->sourceBufferLen - memHandle->position;
-    }
-    if (buf != nullptr)
-    {
-        memcpy(buf, memHandle->sourceBuffer + memHandle->position, len);
-    }
-    memHandle->position += (uint32_t) len;
-    return (int) len;
-}
-
-int Tar::mem_write(int, const uint8_t*, size_t)
-{
-    return -1;
-}
-
-bool Tar::loadFile()
-{
-    auto* tar = m_tar.get();
-    // Read file header
-    int rc = th_read(tar);
-    if (rc > 0)
-    { return false; } // End of archive
-    if (rc < 0) throwError(m_fileName);
-
-    constexpr int MAX_PATH_LENGTH = 1024;
-    array<char, MAX_PATH_LENGTH> path{};
-    th_get_pathname(tar, path.data(), sizeof(path));
-    String fileName(path.data());
-
-    if (auto fileSize = (uint32_t) th_get_size(tar); fileSize != 0)
-    {
-        auto buffer = make_shared<Buffer>(size_t(fileSize) + 1);
-        auto* buf = buffer->data();
-
-        uint32_t offset = 0;
-        while (offset != fileSize)
-        {
-            int k = tar->type->readfunc((int) tar->fd, buf + offset, unsigned(fileSize - offset));
-            if (k < 0)
-            {
-                throw Exception("Error reading file '" + fileName + "' from tar archive");
-            }
-            offset += unsigned(k);
-        }
-        buf[fileSize] = '\0';
-        buffer->bytes(fileSize);
-
-        m_fileNames.push_back(fileName);
-        m_files[fileName] = buffer;
-
-        auto emptyTail = off_t(T_BLOCKSIZE - fileSize % T_BLOCKSIZE);
-        array<char, T_BLOCKSIZE> buff;
-        if (m_memoryRead)
-        {
-            mem_read((int) tar->fd, nullptr, size_t(emptyTail));
-        }
-        else
-        {
-            if (::read((int) tar->fd, buff.data(), size_t(emptyTail)) == -1)
-                throwError(m_fileName);
-        }
-    }
-    return true;
+    read(tarData);
 }
 
 void Tar::throwError(const String& fileName)
@@ -176,41 +54,10 @@ void Tar::throwError(const String& fileName)
     throw Exception(fileName + ": " + string(ptr));
 }
 
-void Tar::read(const char* fileName)
-{
-    m_fileName = fileName;
-    m_memoryRead = false;
-    clear();
-    m_tar = tar_open(fileName, nullptr, 0, 0, TAR_GNU);
-    while (loadFile())
-    {}
-    m_tar.reset();
-}
-
-void Tar::read(const Buffer& tarData)
-{
-    m_fileName = "";
-    m_memoryRead = true;
-    clear();
-    m_tar = tar_open("memory", &memtype, 0, 0, TAR_GNU);
-    auto* memHandle = tarMemoryHandle((int) m_tar->fd);
-    if (memHandle == nullptr)
-    {
-        m_tar.reset();
-        throw Exception("Can't open the archive", __FILE__, __LINE__);
-    }
-    memHandle->sourceBuffer = (char*) tarData.data();
-    memHandle->sourceBufferLen = tarData.bytes();
-    while (loadFile())
-    {}
-    m_tar.reset();
-}
-
 void Tar::clear()
 {
     m_fileName = "";
     m_files.clear();
-    m_fileNames.clear();
 }
 
 const Buffer& Tar::file(const String& fileName) const
@@ -226,50 +73,108 @@ const Buffer& Tar::file(const String& fileName) const
 void Tar::append(const SArchiveFile& file)
 {
     // Note: Existing file is replaced, unlike regular tar
-    auto itor = m_files.find(file->fileName());
-    if (itor == m_files.end())
-    {
-        m_fileNames.push_back(file->fileName());
-    }
     m_files[file->fileName()] = file;
 }
 
-template <typename T>
-static void writeField(ofstream& file, const T& field)
+void Tar::read(const Buffer& tarData)
 {
-    file.write(field.data(), sizeof(field));
+    m_files.clear();
+
+    size_t offset = 0;
+    while (offset < tarData.length())
+    {
+        if (!readNextFile(tarData, offset))
+        {
+            break;
+        }
+    }
 }
 
-void Tar::saveToFile(const String& archiveFileName)
+template<typename Field>
+unsigned readOctalNumber(Field& field)
 {
-    ofstream archive(archiveFileName);
-    for (const auto& fileName: m_fileNames) {
-        auto fileData = m_files[fileName];
-        auto archiveFile = dynamic_pointer_cast<ArchiveFile>(fileData);
-        if (archiveFile) {
-            const auto& header = *(const tar_header *)archiveFile->header();
-            writeField(archive, header.name);
-            writeField(archive, header.mode);
-            writeField(archive, header.uid);
-            writeField(archive, header.gid);
-            writeField(archive, header.size);
-            writeField(archive, header.mtime);
-            writeField(archive, header.chksum);
-            archive << header.typeflag;
-            writeField(archive, header.linkname);
-            writeField(archive, header.magic);
-            writeField(archive, header.version);
-            writeField(archive, header.uname);
-            writeField(archive, header.gname);
-            writeField(archive, header.devmajor);
-            writeField(archive, header.devminor);
-            writeField(archive, header.prefix);
-            writeField(archive, header.padding);
+    unsigned value;
+    sscanf(field.data(), "%o", &value);
+    return value;
+}
 
-            size_t paddingLength = T_BLOCKSIZE - archiveFile->length() % T_BLOCKSIZE;
-            Buffer padding(paddingLength);
-            archive.write(archiveFile->c_str(), archiveFile->length());
-            archive.write(padding.c_str(), paddingLength);
+bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
+{
+    const auto* header = (const TarHeader*) (buffer.data() + offset);
+    if (header->magic.data()[0] == 0)
+    {
+        // empty block at the end of file
+        return false;
+    }
+
+    if (memcmp(header->magic.data(), "ustar ", 6) != 0)
+    {
+        throw Exception("Unsupported TAR format: Expecting ustar.");
+    }
+    offset += T_BLOCKSIZE;
+
+    ArchiveFile::Type type = (ArchiveFile::Type) header->typeflag;
+
+    size_t contentLength = 0;
+    if (type == ArchiveFile::Type::REGULAR_FILE || type == ArchiveFile::Type::REGULAR_FILE2)
+    {
+        contentLength = readOctalNumber(header->size);
+    }
+
+    int mode = readOctalNumber(header->mode);
+    int uid = readOctalNumber(header->uid);
+    int gid = readOctalNumber(header->gid);
+
+    time_t mtime = readOctalNumber(header->mtime);
+    auto dt = DateTime::convertCTime(mtime);
+
+    const uint8_t* content = buffer.data() + offset;
+
+    String fname = header->name.data();
+    String uname = header->uname.data();
+    String gname = header->gname.data();
+    String linkName = header->linkname.data();
+
+    size_t blockCount = contentLength / T_BLOCKSIZE;
+    if (blockCount * T_BLOCKSIZE < contentLength)
+    {
+        blockCount++;
+    }
+
+    auto file = make_shared<ArchiveFile>(fname, content, contentLength, mode, uid, gid, dt, type,
+                                         uname, gname, linkName);
+
+    m_files[fname] = file;
+
+    offset += blockCount * T_BLOCKSIZE;
+
+    return true;
+}
+
+void Tar::read(const char* tarFileName)
+{
+    Buffer tarData;
+    tarData.loadFromFile(tarFileName);
+    read(tarData);
+}
+
+void Tar::saveToFile(const String& tarFileName)
+{
+    ofstream archive(tarFileName);
+    for (const auto&[fileName, fileData]: m_files)
+    {
+        auto archiveFile = dynamic_pointer_cast<ArchiveFile>(fileData);
+        if (archiveFile)
+        {
+            const auto& header = *(const TarHeader*) archiveFile->header();
+            archive.write((const char*) &header, T_BLOCKSIZE);
+            if (archiveFile->length() > 0)
+            {
+                size_t paddingLength = T_BLOCKSIZE - archiveFile->length() % T_BLOCKSIZE;
+                Buffer padding(paddingLength);
+                archive.write(archiveFile->c_str(), archiveFile->length());
+                archive.write(padding.c_str(), paddingLength);
+            }
         }
     }
     archive.close();
@@ -323,13 +228,25 @@ TEST(SPTK_Tar, read)
 #endif
 }
 
+TEST(SPTK_Tar, load)
+{
+    Tar tar;
+    tar.read("/tmp/1.bin");
+    auto files = tar.fileList();
+    COUT(files.join("\n") << endl)
+}
+
 TEST(SPTK_Tar, write)
 {
     Tar tar;
-    auto archiveFile = make_shared<ArchiveFile>("/tmp/1.txt", "/tmp");
+    auto archiveFile = make_shared<ArchiveFile>("/tmp/3.lnk", "/tmp");
     tar.append(archiveFile);
+    archiveFile = make_shared<ArchiveFile>("/tmp/1.txt", "/tmp");
+    tar.append(archiveFile);
+    /*
     archiveFile = make_shared<ArchiveFile>("/tmp/2.txt", "/tmp");
     tar.append(archiveFile);
+    */
     tar.saveToFile("/tmp/2.bin");
 }
 

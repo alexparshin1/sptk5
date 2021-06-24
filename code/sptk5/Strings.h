@@ -32,8 +32,7 @@
 #include <iterator>
 #endif
 
-namespace sptk
-{
+namespace sptk {
 
 class Exception;
 
@@ -48,13 +47,15 @@ class Exception;
  * General string list. Based on vector<idstring>. Stores strings with (optional) integer Ids.
  * Includes several extra methods to construct it from string or load/save from/to file.
  */
-class SP_EXPORT Strings : public std::vector<String>
+class SP_EXPORT Strings
+    : public std::vector<String>
 {
 public:
     /**
      * Sort order enumeration
      */
-    enum class SortOrder : uint8_t
+    enum class SortOrder
+        : uint8_t
     {
         UNSORTED,
         ASCENDING,
@@ -64,7 +65,8 @@ public:
     /**
      * String split mode
      */
-    enum class SplitMode : uint8_t
+    enum class SplitMode
+        : uint8_t
     {
         /**
          * Split by the whole delimiter
@@ -89,15 +91,6 @@ public:
     Strings() = default;
 
     /**
-     * Copy constructor
-     * @param src               Other object
-     */
-    Strings(const Strings& src) noexcept
-    : StringVector(src), m_userData(src.m_userData)
-    {
-    }
-
-    /**
      * Initializer list constructor
      * @param list              Initializer list
      */
@@ -107,39 +100,12 @@ public:
     }
 
     /**
-     * Move constructor
-     * @param src               Other object
-     */
-    Strings(Strings&& src) noexcept
-    : StringVector(std::move(src)), m_userData(src.m_userData)
-    {
-    }
-
-    /**
      * Constructor from a string with elements separated by a delimiter string
      * @param src               Source string
      * @param delimiter         Delimiter string
      * @param mode              Delimiter string usage
      */
-    Strings(const String& src, const char *delimiter, SplitMode mode = SplitMode::DELIMITER) noexcept;
-
-    /**
-     * Destructor
-     */
-    ~Strings() noexcept = default;
-
-    /**
-     * Assignment operator
-     * @param other             Other object
-     */
-    Strings &operator=(const Strings &other)
-    {
-        if (&other != this) {
-            m_userData = other.m_userData;
-            assign(other.begin(), other.end());
-        }
-        return *this;
-    }
+    Strings(const String& src, const char* delimiter, SplitMode mode = SplitMode::DELIMITER) noexcept;
 
     /**
      * Assigns strings from a string with elements separated by a delimiter string
@@ -147,7 +113,7 @@ public:
      * @param delimiter         Delimiter string
      * @param mode              Delimiter string usage
      */
-    void fromString(const String& src, const char *delimiter, SplitMode mode);
+    void fromString(const String& src, const char* delimiter, SplitMode mode);
 
     /**
      * Returns an index of the string in strings, or -1 if not found.
@@ -175,7 +141,7 @@ public:
      */
     int64_t argument() const
     {
-        return(int) m_userData;
+        return (int) m_userData;
     }
 
     /**
@@ -203,7 +169,9 @@ public:
     iterator remove(const String& str)
     {
         if (auto itor = std::find(begin(), end(), str); itor != end())
+        {
             return StringVector::erase(itor);
+        }
         return end();
     }
 
@@ -222,7 +190,7 @@ public:
     /**
      * Sort strings inside this object
      */
-    void sort(bool ascending=true);
+    void sort(bool ascending = true);
 
     /**
      * Clear strings
@@ -241,7 +209,9 @@ public:
     void resize(size_t size)
     {
         if (size > this->size())
+        {
             m_sorted = SortOrder::UNSORTED;
+        }
         StringVector::resize(size);
     }
 
@@ -267,7 +237,7 @@ public:
      * Emplace back a string
      */
     template<typename... Args>
-    void emplace_back(Args&&... args)
+    void emplace_back(Args&& ... args)
     {
         m_sorted = SortOrder::UNSORTED;
         StringVector::emplace_back(args...);
@@ -278,7 +248,7 @@ public:
      * @param index             String index
      * @return string by the index
      */
-    String& operator[] (size_t index)
+    String& operator[](size_t index)
     {
         m_sorted = SortOrder::UNSORTED;
         return StringVector::operator[](index);
@@ -289,7 +259,7 @@ public:
      * @param index             String index
      * @return string by the index
      */
-    const String& operator[] (size_t index) const
+    const String& operator[](size_t index) const
     {
         return StringVector::operator[](index);
     }
@@ -301,12 +271,12 @@ private:
     /**
      * User-specified data
      */
-    int64_t             m_userData {0};
+    int64_t m_userData{0};
 
     /**
      * Is sorted flag
      */
-    SortOrder           m_sorted {SortOrder::UNSORTED};
+    SortOrder m_sorted{SortOrder::UNSORTED};
 };
 
 /**
