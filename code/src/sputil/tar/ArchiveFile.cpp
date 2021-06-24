@@ -25,6 +25,7 @@
 */
 
 #include "sptk5/ArchiveFile.h"
+#include "sptk5/Tar.h"
 #include <chrono>
 #include <filesystem>
 
@@ -126,7 +127,7 @@ ArchiveFile::ArchiveFile(const String& fileName, const uint8_t* content, size_t 
                          int gid, const DateTime& mtime, ArchiveFile::Type type, const String& uname,
                          const String& gname, const String& linkName)
     : Buffer(content, contentLength),
-      m_name(fileName), m_mode(mode), m_uid(uid), m_gid(gid), m_mtime(mtime),
+      m_fileName(fileName), m_mode(mode), m_uid(uid), m_gid(gid), m_mtime(mtime),
       m_type(type), m_linkname(linkName), m_uname(uname), m_gname(gname)
 {
     makeHeader();
@@ -137,7 +138,7 @@ void ArchiveFile::makeHeader()
     m_header = make_shared<TarHeader>();
     memset(m_header.get(), 0, sizeof(TarHeader));
 
-    strncpy(m_header->name.data(), m_name.c_str(), sizeof(m_header->name));
+    strncpy(m_header->filename.data(), m_fileName.c_str(), sizeof(m_header->filename));
     snprintf(m_header->mode.data(), sizeof(m_header->mode), "%07o", m_mode);
     snprintf(m_header->uid.data(), sizeof(m_header->uid), "%07o", m_uid);
     snprintf(m_header->gid.data(), sizeof(m_header->gid), "%07o", m_gid);
@@ -172,9 +173,4 @@ void ArchiveFile::makeHeader()
 const char* ArchiveFile::header() const
 {
     return (const char*) m_header.get();
-}
-
-String ArchiveFile::fileName() const
-{
-    return m_header->name.data();
 }

@@ -32,49 +32,10 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/ArchiveFile.h>
 
-struct TAR;
-
 namespace sptk {
 
 /**
- * Tar memory handle
- */
-class MemoryTarHandle
-{
-public:
-    /**
-     * Memory buffer position
-     */
-    size_t position{0};
-
-    /**
-     * Memory buffer
-     */
-    char* sourceBuffer{nullptr};
-
-    /**
-     * Memory buffer len
-     */
-    size_t sourceBufferLen{0};
-
-    /**
-     * Constructor
-     * @param buffer CBuffer*, source data
-     */
-    explicit MemoryTarHandle(const Buffer* buffer = nullptr)
-    {
-        if (buffer)
-        {
-            sourceBuffer = (char*) buffer->data();
-            sourceBufferLen = buffer->bytes();
-        }
-    }
-};
-
-using TarHandleMap = std::map<int, std::shared_ptr<MemoryTarHandle>>;
-
-/**
- * A wrapper for libtar functions
+ * Tar archive
  *
  * Allows reading tar archive files into memory buffers.
  * The main usage currently is to read an SPTK theme from tar-archive.
@@ -82,7 +43,7 @@ using TarHandleMap = std::map<int, std::shared_ptr<MemoryTarHandle>>;
 class SP_EXPORT Tar
 {
     using SBuffer = std::shared_ptr<Buffer>;
-    using FileCollection = std::map<String, SBuffer>;
+    using FileCollection = std::map<String, SArchiveFile>;
 
 public:
     /**
@@ -96,13 +57,11 @@ public:
      */
     Tar(const Buffer& tarData);
 
-    Tar(const Tar&) = delete;
-
-    Tar(Tar&&) noexcept = default;
-
-    Tar& operator=(const Tar&) = delete;
-
-    Tar& operator=(Tar&&) noexcept = default;
+    /**
+     * Constructor
+     * @param tarData           Tar file name
+     */
+    Tar(const String& tarFileName);
 
     /**
      * Reads tar archive from file
@@ -149,7 +108,13 @@ public:
      * @param fileName          File name
      * @return file data
      */
-    const Buffer& file(const String& fileName) const;
+    const ArchiveFile& file(const String& fileName) const;
+
+    /**
+     * Remove file data
+     * @param fileName          Archive file
+     */
+    void remove(const String& filename);
 
     /**
      * Add file data
@@ -161,7 +126,7 @@ public:
      * Save tar archive to file
      * @param tarFileName          Tar file name
      */
-    void saveToFile(const String& tarFileName) const;
+    void save(const String& tarFileName) const;
 
     /**
      * Clears the allocated memory
@@ -169,23 +134,16 @@ public:
     void clear();
 
 private:
-    std::shared_ptr<TAR> m_tar;   ///< Tar file header
     FileCollection m_files;       ///< File name to the file data map
-    bool m_memoryRead{false};     ///< Flag to indicate if tar data is red from the memory buffer
-
+    bool m_memoryRead {false};    ///< Flag to indicate if tar data is red from the memory buffer
     String m_fileName;            ///< Tar file name
 
-    bool readNextFile(const Buffer& buffer, size_t& offset);
+    [[nodiscard]] bool readNextFile(const Buffer& buffer, size_t& offset);
 
     /**
      * Loads tar file into memory
      */
-    bool loadFile();
-
-    /**
-     * Throws an error
-     */
-    [[noreturn]] static void throwError(const String& fileName);
+    void loadFile();
 };
 
 }

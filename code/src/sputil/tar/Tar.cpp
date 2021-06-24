@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "libtar.h"
 #include <sptk5/Tar.h>
 #include <filesystem>
 #include <fstream>
@@ -44,14 +43,9 @@ Tar::Tar(const Buffer& tarData)
     read(tarData);
 }
 
-void Tar::throwError(const String& fileName)
+Tar::Tar(const String& fileName)
 {
-    const char* ptr = strerror(errno);
-    if (fileName.empty())
-    {
-        throw Exception(ptr);
-    }
-    throw Exception(fileName + ": " + string(ptr));
+    read(fileName);
 }
 
 void Tar::clear()
@@ -60,7 +54,7 @@ void Tar::clear()
     m_files.clear();
 }
 
-const Buffer& Tar::file(const String& fileName) const
+const ArchiveFile& Tar::file(const String& fileName) const
 {
     auto itor = m_files.find(fileName);
     if (itor == m_files.end())
@@ -74,6 +68,12 @@ void Tar::append(const SArchiveFile& file)
 {
     // Note: Existing file is replaced, unlike regular tar
     m_files[file->fileName()] = file;
+}
+
+void Tar::remove(const String& fileName)
+{
+    // Note: Existing file is replaced, unlike regular tar
+    m_files.erase(fileName);
 }
 
 void Tar::read(const Buffer& tarData)
@@ -111,7 +111,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     {
         throw Exception("Unsupported TAR format: Expecting ustar.");
     }
-    offset += T_BLOCKSIZE;
+    offset += TAR_BLOCK_SIZE;
 
     auto type = (ArchiveFile::Type) header->typeflag;
 
@@ -130,13 +130,13 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
 
     const uint8_t* content = buffer.data() + offset;
 
-    String fname = header->name.data();
+    String fname = header->filename.data();
     String uname = header->uname.data();
     String gname = header->gname.data();
     String linkName = header->linkname.data();
 
-    size_t blockCount = contentLength / T_BLOCKSIZE;
-    if (blockCount * T_BLOCKSIZE < contentLength)
+    size_t blockCount = contentLength / TAR_BLOCK_SIZE;
+    if (blockCount * TAR_BLOCK_SIZE < contentLength)
     {
         blockCount++;
     }
@@ -146,7 +146,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
 
     m_files[fname] = file;
 
-    offset += blockCount * T_BLOCKSIZE;
+    offset += blockCount * TAR_BLOCK_SIZE;
 
     return true;
 }
@@ -158,23 +158,19 @@ void Tar::read(const char* tarFileName)
     read(tarData);
 }
 
-void Tar::saveToFile(const String& tarFileName) const
+void Tar::save(const String& tarFileName) const
 {
     ofstream archive(tarFileName);
-    for (const auto&[fileName, fileData]: m_files)
+    for (const auto&[fileName, archiveFile]: m_files)
     {
-        auto archiveFile = dynamic_pointer_cast<ArchiveFile>(fileData);
-        if (archiveFile)
+        const auto& header = *(const TarHeader*) archiveFile->header();
+        archive.write((const char*) &header, TAR_BLOCK_SIZE);
+        if (archiveFile->length() > 0)
         {
-            const auto& header = *(const TarHeader*) archiveFile->header();
-            archive.write((const char*) &header, T_BLOCKSIZE);
-            if (archiveFile->length() > 0)
-            {
-                size_t paddingLength = T_BLOCKSIZE - archiveFile->length() % T_BLOCKSIZE;
-                Buffer padding(paddingLength);
-                archive.write(archiveFile->c_str(), archiveFile->length());
-                archive.write(padding.c_str(), paddingLength);
-            }
+            size_t paddingLength = TAR_BLOCK_SIZE - archiveFile->length() % TAR_BLOCK_SIZE;
+            Buffer padding(paddingLength);
+            archive.write(archiveFile->c_str(), archiveFile->length());
+            archive.write(padding.c_str(), paddingLength);
         }
     }
     archive.close();
@@ -182,68 +178,71 @@ void Tar::saveToFile(const String& tarFileName) const
 
 #if USE_GTEST
 
-static const string gtestTempDirectory("gtest_temp_directory3");
-static const string file1_md5("2934e1a7ae11b11b88c9b0e520efd978");
-static const string file2_md5("adb45e22bba7108bb4ad1b772ecf6b40");
+static const String file1_md5 {"2934e1a7ae11b11b88c9b0e520efd978"};
+static const String file2_md5 {"adb45e22bba7108bb4ad1b772ecf6b40"};
+static const String gtestTempDirectory {"gtest_temp_directory3"};
+static const String testTar1 {"gtest_temp1.tar"};
+static const String testTar2 {"gtest_temp2.tar"};
 
-TEST(SPTK_Tar, read)
+class SPTK_Tar
+    : public ::testing::Test
+{
+protected:
+    virtual void SetUp()
+    {
+
+        filesystem::create_directories(gtestTempDirectory.c_str());
+
+        constexpr int TestFileBytes = 1000;
+
+        Buffer file1;
+        for (int i = 0; i < TestFileBytes; ++i)
+        {
+            file1.append((const char*) &i, sizeof(i));
+        }
+        file1.saveToFile(gtestTempDirectory + "/file1.txt");
+
+        Buffer file2;
+        for (int i = 0; i < TestFileBytes; ++i)
+        {
+            file2.append("ABCDEFG HIJKLMN OPQRSTUV\n");
+        }
+        file2.saveToFile(gtestTempDirectory + "/file2.txt");
+
+        ASSERT_EQ(0, system(("tar cf " + testTar1 + " " + gtestTempDirectory).c_str()));
+    }
+
+    virtual void TearDown()
+    {
+        unlink((gtestTempDirectory + "/file1.txt").c_str());
+        unlink((gtestTempDirectory + "/file2.txt").c_str());
+        unlink((testTar1).c_str());
+        unlink((testTar2).c_str());
+        unlink("test.lst");
+        rmdir(gtestTempDirectory.c_str());
+    }
+};
+
+TEST_F(SPTK_Tar, read)
 {
     Tar tar;
 
-    filesystem::create_directories(gtestTempDirectory.c_str());
+    EXPECT_NO_THROW(tar.read(testTar1));
 
-    constexpr int TestFileBytes = 1000;
-
-    Buffer file1;
-    for (int i = 0; i < TestFileBytes; ++i)
-    {
-        file1.append((const char*) &i, sizeof(i));
-    }
-    file1.saveToFile(gtestTempDirectory + "/file1.txt");
-    EXPECT_STREQ(file1_md5.c_str(), md5(file1).c_str());
-
-    Buffer file2;
-    for (int i = 0; i < TestFileBytes; ++i)
-    {
-        file2.append("ABCDEFG HIJKLMN OPQRSTUV\n");
-    }
-    file2.saveToFile(gtestTempDirectory + "/file2.txt");
-    EXPECT_STREQ(file2_md5.c_str(), md5(file2).c_str());
-
-    ASSERT_EQ(0, system(("tar cf gtest_temp.tar " + gtestTempDirectory).c_str()));
-    EXPECT_NO_THROW(tar.read("gtest_temp.tar"));
-
-    Buffer outfile1;
-    Buffer outfile2;
-
-    EXPECT_NO_THROW(outfile1 = tar.file(gtestTempDirectory + "/file1.txt"));
-    EXPECT_NO_THROW(outfile2 = tar.file(gtestTempDirectory + "/file2.txt"));
+    const auto& outfile1 = tar.file(gtestTempDirectory + "/file1.txt");
+    const auto& outfile2 = tar.file(gtestTempDirectory + "/file2.txt");
     EXPECT_STREQ(file1_md5.c_str(), md5(outfile1).c_str());
     EXPECT_STREQ(file2_md5.c_str(), md5(outfile2).c_str());
-
-#ifdef _WIN32
-    EXPECT_EQ(0, system(("rmdir /s /q " + gtestTempDirectory).c_str()));
-#else
-    EXPECT_EQ(0, system(("rm -rf " + gtestTempDirectory).c_str()));
-#endif
 }
 
-TEST(SPTK_Tar, load)
+TEST_F(SPTK_Tar, write)
 {
     Tar tar;
-    tar.read("/tmp/1.bin");
-    auto files = tar.fileList();
-    COUT(files.join("\n") << endl)
-}
 
-TEST(SPTK_Tar, write)
-{
-    Tar tar;
-    auto archiveFile = make_shared<ArchiveFile>("/tmp/3.lnk", "/tmp");
-    tar.append(archiveFile);
-    archiveFile = make_shared<ArchiveFile>("/tmp/1.txt", "/tmp");
-    tar.append(archiveFile);
-    tar.saveToFile("/tmp/2.bin");
+    EXPECT_NO_THROW(tar.read(testTar1));
+    EXPECT_NO_THROW(tar.save(testTar2));
+
+    ASSERT_EQ(0, system(("tar tf " + testTar1 + " > test.lst").c_str()));
 }
 
 #endif

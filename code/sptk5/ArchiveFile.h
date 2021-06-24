@@ -29,15 +29,50 @@
 
 #include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
-#include "src/sputil/tar/libtar.h"
 
 namespace sptk {
 
+constexpr int TAR_BLOCK_SIZE = 512;     ///< Tar archive block size
+
+#pragma pack(push, 1)
+
+/**
+ * Tar header as it's stored in file
+ */
+struct TarHeader
+{
+    std::array<char, 100> filename;
+    std::array<char, 8> mode;
+    std::array<char, 8> uid;
+    std::array<char, 8> gid;
+    std::array<char, 12> size;
+    std::array<char, 12> mtime;
+    std::array<char, 8> chksum;
+    char typeflag;
+    std::array<char, 100> linkname;
+    std::array<char, 6> magic;
+    std::array<char, 2> version;
+    std::array<char, 32> uname;
+    std::array<char, 32> gname;
+    std::array<char, 8> devmajor;
+    std::array<char, 8> devminor;
+    std::array<char, 155> prefix;
+    std::array<char, 12> padding;
+};
+
+#pragma pack(pop)
+
+/**
+ * @brief File inside tar archive
+ */
 class ArchiveFile
     : public Buffer
 {
 public:
 
+    /**
+     * @brief File type for file inside tar archive
+     */
     enum class Type
         : uint8_t
     {
@@ -52,15 +87,41 @@ public:
         CONTTYPE = '7'         ///< Contiguous file (regular file if not supported).
     };
 
+    /**
+     * @brief Constructor
+     * @param fileName          File name
+     * @param baseDirectory     Directory used as a base for relative path for files inside archive
+     */
     explicit ArchiveFile(const String& fileName, const String& baseDirectory);
 
+    /**
+     * @brief Constructor
+     * @param fileName          File name
+     * @param content           File data (regular files only)
+     * @param contentLength     File data length
+     * @param mode              File mode, i.e. 0640
+     * @param uid               Owner user id
+     * @param gid               Owner group id
+     * @param mtime             Modification time
+     * @param type              File type
+     * @param uname             Owner user name
+     * @param gname             Owner group name
+     * @param linkName          Name the link is pointing to
+     */
     ArchiveFile(const String& fileName, const uint8_t* content, size_t contentLength, int mode, int uid,
                 int gid, const DateTime& mtime, ArchiveFile::Type type, const String& uname, const String& gname,
                 const String& linkName);
 
+    /**
+     * @brief Actual tar file header, length is TAR_BLOCK_SIZE
+     * @return Actual tar file header data
+     */
     const char* header() const;
 
-    String fileName() const;
+    String fileName() const
+    {
+        return m_fileName;
+    }
 
     unsigned mode() const
     {
@@ -109,13 +170,13 @@ public:
 
 private:
 
-    String m_name;
-    unsigned m_mode{777};
-    unsigned m_uid{0};
-    unsigned m_gid{0};
-    unsigned m_size{0};
+    String m_fileName;
+    unsigned m_mode {777};
+    unsigned m_uid {0};
+    unsigned m_gid {0};
+    unsigned m_size {0};
     DateTime m_mtime;
-    Type m_type{Type::REGULAR_FILE};
+    Type m_type {Type::REGULAR_FILE};
     String m_linkname;
     String m_uname;
     String m_gname;
