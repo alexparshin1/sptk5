@@ -188,7 +188,7 @@ class SPTK_Tar
     : public ::testing::Test
 {
 protected:
-    virtual void SetUp()
+    void SetUp() override
     {
 
         filesystem::create_directories(gtestTempDirectory.c_str());
@@ -212,12 +212,12 @@ protected:
         ASSERT_EQ(0, system(("tar cf " + testTar1 + " " + gtestTempDirectory).c_str()));
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
         unlink((gtestTempDirectory + "/file1.txt").c_str());
         unlink((gtestTempDirectory + "/file2.txt").c_str());
-        unlink((testTar1).c_str());
-        unlink((testTar2).c_str());
+        unlink(testTar1.c_str());
+        unlink(testTar2.c_str());
         unlink("test.lst");
         rmdir(gtestTempDirectory.c_str());
     }

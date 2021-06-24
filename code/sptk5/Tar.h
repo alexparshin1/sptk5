@@ -55,13 +55,13 @@ public:
      * Constructor
      * @param tarData           Tar archive data
      */
-    Tar(const Buffer& tarData);
+    explicit Tar(const Buffer& tarData);
 
     /**
      * Constructor
      * @param tarData           Tar file name
      */
-    Tar(const String& tarFileName);
+    explicit Tar(const String& tarFileName);
 
     /**
      * Reads tar archive from file

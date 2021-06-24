@@ -90,7 +90,7 @@ ArchiveFile::ArchiveFile(const String& fileName, const String& baseDirectory)
     stat(fileName.c_str(), &info);  // Error check omitted
 
     Buffer buff(128);
-    struct passwd pw;
+    struct passwd pw {};
     if (struct passwd* pw_result; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), 128, &pw_result) != 0)
     {
         throw SystemException("Can't get user information");
@@ -100,7 +100,7 @@ ArchiveFile::ArchiveFile(const String& fileName, const String& baseDirectory)
     m_uid = pw.pw_uid;
     m_gid = pw.pw_gid;
 
-    struct group gr;
+    struct group gr {};
     if (struct group* gr_result; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), 128, &gr_result) != 0)
     {
         throw SystemException("Can't get group information");
