@@ -42,19 +42,19 @@ namespace sptk {
  *
  * Simple thread-safe map
  */
-template <class K, class T>
+template<class K, class T>
 class SynchronizedMap
 {
     /**
      * Lock to synchronize map operations
      */
-    mutable std::mutex      m_sync;
+    mutable std::mutex m_sync;
 
-    using Map = std::map<K,T>;
+    using Map = std::map<K, T>;
     /**
      * Map
      */
-    Map                     m_map;
+    Map m_map;
 
 public:
 
@@ -67,18 +67,6 @@ public:
      * @param data void*, Optional function-specific data
      */
     using CallbackFunction = std::function<bool(const K& key, T& item)>;
-
-    /**
-     * Default constructor
-     */
-    SynchronizedMap()
-    {}
-
-    /**
-     * Destructor
-     */
-    virtual ~SynchronizedMap()
-    {}
 
     /**
      * Inserts data item to the map
@@ -99,15 +87,19 @@ public:
      * @param item              A list item (output)
      * @param remove            If true, then item is removed from map
      */
-    virtual bool get(const K& key, T& item, bool remove=false)
+    virtual bool get(const K& key, T& item, bool remove = false)
     {
         std::scoped_lock lock(m_sync);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
+        {
             return false;
+        }
         item = itor->second;
         if (remove)
+        {
             m_map.erase(itor);
+        }
         return true;
     }
 
@@ -122,7 +114,9 @@ public:
         std::scoped_lock lock(m_sync);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
+        {
             return false;
+        }
         m_map.erase(itor);
         return true;
     }
@@ -162,9 +156,12 @@ public:
     bool for_each(CallbackFunction callbackFunction)
     {
         std::scoped_lock lock(m_sync);
-        for (auto itor: m_map) {
+        for (auto itor: m_map)
+        {
             if (!callbackFunction(itor.first, itor.second))
+            {
                 return false;
+            }
         }
         return true;
     }

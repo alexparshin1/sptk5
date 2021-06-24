@@ -40,10 +40,14 @@ shared_ptr<HttpConnect::Authorization> TestWebService::jwtAuthorization;
 void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuthentication*)
 {
     if (input.m_action.asString() != "view")
+    {
         throw Exception("Invalid action: expecting 'view'");
+    }
 
     if (input.m_first_name.asString() != "John" || input.m_last_name.asString() != "Doe")
+    {
         throw Exception("Invalid first or last name: expecting John Doe");
+    }
 
     output.m_date_of_birth = DateTime("1981-02-01");
     output.m_height = 6.5;
@@ -63,10 +67,10 @@ static const String jwtEncryptionKey256("012345678901234567890123456789XY");
 void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthentication*)
 {
     // First, we verify credentials. Usually, we check the username and password against the password database
-    String username = input.m_username;
-    String password = input.m_password;
-    if (username != "johnd" || password != "secret")
+    if (input.m_username.asString() != "johnd" || input.m_password.asString() != "secret")
+    {
         throw Exception("Invalid username or password");
+    }
 
     JWT jwt;
     jwt.set_alg(JWT::Algorithm::HS256, jwtEncryptionKey256);
@@ -93,11 +97,13 @@ void TestWebService::AccountBalance(const CAccountBalance& input, CAccountBalanc
                                     sptk::HttpAuthentication* authentication)
 {
     if (authentication == nullptr)
+    {
         throw Exception("Not authenticated");
+    }
 
     auto& token = authentication->getData();
     auto& info = token.getObject("info");
-    auto  username = info["username"].getString();
+    auto username = info["username"].getString();
 
     output.m_account_balance = 12345.67;
 }
@@ -137,21 +143,23 @@ TEST(SPTK_TestWebService, Hello)
  */
 static void request_listener_test(const Strings& methodNames, bool encrypted = false)
 {
-    SysLogEngine    logEngine("TestWebService");
-    auto            service = make_shared<TestWebService>();
+    SysLogEngine logEngine("TestWebService");
+    auto service = make_shared<TestWebService>();
 
     // Define Web Service listener
-    WSConnection::Paths     paths("index.html","/test",".");
-    WSConnection::Options   options(paths);
+    WSConnection::Paths paths("index.html", "/test", ".");
+    WSConnection::Options options(paths);
     options.encrypted = encrypted;
     WSServices services(service);
     WSListener listener(services, logEngine, "localhost", 16, options);
 
-    const uint16_t      servicePort = 11000;
+    const uint16_t servicePort = 11000;
     shared_ptr<SSLKeys> sslKeys;
-    try {
+    try
+    {
 
-        if (encrypted) {
+        if (encrypted)
+        {
             sslKeys = make_shared<SSLKeys>("keys/test.key", "keys/test.cert");
             listener.setSSLKeys(sslKeys);
         }
@@ -159,54 +167,70 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
         // Start Web Service listener
         listener.listen(servicePort);
 
-        for (auto& methodName: methodNames) {
+        for (auto& methodName: methodNames)
+        {
             Buffer sendRequestBuffer;
             json::Document sendRequestJson;
 
-            if (methodName == "Hello") {
+            if (methodName == "Hello")
+            {
                 sendRequestJson.root()["first_name"] = "John";
                 sendRequestJson.root()["last_name"] = "Doe";
                 TestWebService::jwtAuthorization.reset();
-            } else if (methodName == "Login") {
+            }
+            else if (methodName == "Login")
+            {
                 sendRequestJson.root()["username"] = "johnd";
                 sendRequestJson.root()["password"] = "secret";
                 TestWebService::jwtAuthorization.reset();
-            } else if (methodName == "AccountBalance") {
+            }
+            else if (methodName == "AccountBalance")
+            {
                 sendRequestJson.root()["account_number"] = "000-123456-7890";
             }
 
             sendRequestJson.exportTo(sendRequestBuffer);
 
             shared_ptr<TCPSocket> client;
-            if (encrypted) {
+            if (encrypted)
+            {
                 auto sslClient = make_shared<SSLSocket>();
                 sslClient->loadKeys(*sslKeys);
                 client = sslClient;
-            } else
+            }
+            else
+            {
                 client = make_shared<TCPSocket>();
+            }
             client->host(Host("localhost", servicePort));
             client->open();
 
             HttpConnect httpClient(*client);
-            HttpParams httpParams { {"action", "view"} };
+            HttpParams httpParams {{"action", "view"}};
             Buffer requestResponse;
             httpClient.requestHeaders()["Content-Type"] = "application/json";
-            int statusCode = httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer, requestResponse, {"gzip"}, TestWebService::jwtAuthorization.get());
+            int statusCode = httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer, requestResponse,
+                                                 {"gzip"}, TestWebService::jwtAuthorization.get());
             client->close();
 
             if (statusCode >= 400)
                 FAIL() << requestResponse.c_str();
-            else {
+            else
+            {
                 json::Document response;
                 response.load(requestResponse.c_str());
 
-                if (methodName == "Hello") {
+                if (methodName == "Hello")
+                {
                     // Just check some fields
                     EXPECT_DOUBLE_EQ(response.root().getNumber("height"), 6.5);
                     EXPECT_DOUBLE_EQ(response.root().getNumber("vacation_days"), 21);
-                } else if (methodName == "Login") {
+                }
+                else if (methodName == "Login")
+                {
                     // Set JWT authorization for future operations
-                    TestWebService::jwtAuthorization = make_shared<HttpConnect::BearerAuthorization>(response.root().getString("jwt"));
+                    TestWebService::jwtAuthorization = make_shared<HttpConnect::BearerAuthorization>(
+                        response.root().getString("jwt"));
 
                     // Decode JWT content
                     JWT jwt;
@@ -217,7 +241,9 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
                     auto username = info["username"].getString();
 
                     EXPECT_STREQ(username.c_str(), "johnd");
-                } else if (methodName == "AccountBalance") {
+                }
+                else if (methodName == "AccountBalance")
+                {
                     EXPECT_DOUBLE_EQ(response.root().getNumber("account_balance"), 12345.67);
                 }
             }
@@ -228,7 +254,8 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
         listener.stop();
         stopwatch.stop();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         FAIL() << e.what();
     }
 }
@@ -344,14 +371,15 @@ TEST(SPTK_WSGeneratedClasses, Clear)
 }
 
 static const String testXML(
-        R"(<?xml version="1.0" encoding="UTF-8"?>)"
-        "<login server_count=\"2\" type=\"abstract\">"
-        "<username>johnd</username>"
-        "<password>secret</password>"
-        "<servers><item>x1</item><item>x2</item></servers>"
-        "<project><id>123</id><expiration>2020-10-01</expiration></project>"
-        "</login>");
-static const String testJSON(R"({"attributes":{"server_count":2,"type":"abstract"},"username":"johnd","password":"secret","servers":["x1","x2"],"project":{"id":123,"expiration":"2020-10-01"}})");
+    R"(<?xml version="1.0" encoding="UTF-8"?>)"
+    "<login server_count=\"2\" type=\"abstract\">"
+    "<username>johnd</username>"
+    "<password>secret</password>"
+    "<servers><item>x1</item><item>x2</item></servers>"
+    "<project><id>123</id><expiration>2020-10-01</expiration></project>"
+    "</login>");
+static const String testJSON(
+    R"({"attributes":{"server_count":2,"type":"abstract"},"username":"johnd","password":"secret","servers":["x1","x2"],"project":{"id":123,"expiration":"2020-10-01"}})");
 
 TEST(SPTK_WSGeneratedClasses, LoadXML)
 {

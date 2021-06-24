@@ -52,13 +52,14 @@ void help()
 #define access _access
 #endif
 
-class AppCommandLine : public CommandLine
+class AppCommandLine
+    : public CommandLine
 {
 public:
     AppCommandLine()
-    : CommandLine("wsdl2cxx v 1.1",
-                  "Generate C++ skeleton classes from WSDL file",
-                  "wsdl2cxx <wsdl file> [options]")
+        : CommandLine("wsdl2cxx v 1.1",
+                      "Generate C++ skeleton classes from WSDL file",
+                      "wsdl2cxx <wsdl file> [options]")
     {
         defineArgument("wsdl", "Input WSDL file to process");
 
@@ -101,13 +102,18 @@ public:
 auto parseOperationsAuth(const String& operationsAuth)
 {
     map<String, OpenApiGenerator::AuthMethod> output;
-    for (auto& operationAuthStr: Strings(operationsAuth, "[,; ]+", Strings::SplitMode::REGEXP)) {
+    for (auto& operationAuthStr: Strings(operationsAuth, "[,; ]+", Strings::SplitMode::REGEXP))
+    {
         operationAuthStr = operationAuthStr.trim();
         if (operationAuthStr.empty())
+        {
             continue;
+        }
         Strings parts(operationAuthStr, ":");
         if (parts.size() != 2)
+        {
             throw Exception("Invalid operation auth definition: '" + operationAuthStr + "'");
+        }
         output[parts[0]] = OpenApiGenerator::authMethod(parts[1]);
     }
     return output;
@@ -115,10 +121,12 @@ auto parseOperationsAuth(const String& operationsAuth)
 
 static bool createDirectory(const String& directory)
 {
-    try {
+    try
+    {
         filesystem::create_directory(directory.c_str());
     }
-    catch (const filesystem::filesystem_error& e) {
+    catch (const filesystem::filesystem_error& e)
+    {
         CERR("Can't create output directory '" << directory << "': " << e.what() << endl)
         return false;
     }
@@ -130,15 +138,19 @@ int main(int argc, const char* argv[])
     AppCommandLine commandLine;
     int rc = 0;
 
-    try {
+    try
+    {
         size_t screenColumns = 80;
-        const auto* colsStr = getenv("COLS");
-        if (colsStr != nullptr)
+        if (const auto* colsStr = getenv("COLS");
+            colsStr != nullptr)
+        {
             screenColumns = (size_t) string2int(colsStr);
+        }
 
         commandLine.init(argc, argv);
 
-        if (argc < 2 || commandLine.hasOption("help") || commandLine.arguments().size() != 1) {
+        if (argc < 2 || commandLine.hasOption("help") || commandLine.arguments().size() != 1)
+        {
             commandLine.printHelp(screenColumns);
             return 1;
         }
@@ -147,23 +159,28 @@ int main(int argc, const char* argv[])
         auto quiet = commandLine.hasOption("quiet");
         auto verbose = commandLine.hasOption("verbose");
 
-        WSParser   wsParser;
+        WSParser wsParser;
 
         auto outputDirectory = commandLine.getOptionValue("cxx-directory").trim();
         if (outputDirectory.empty())
+        {
             outputDirectory = ".";
+        }
 
         auto headerFile = commandLine.getOptionValue("cxx-directory").trim();
         auto serviceNamespace = commandLine.getOptionValue("cxx-namespace").trim();
 
         if (outputDirectory != "." && access(outputDirectory.c_str(), 0) < 0 && !createDirectory(outputDirectory))
+        {
             return 1;
+        }
 
-        if (!quiet && verbose) {
+        if (!quiet && verbose)
+        {
             COUT("Input WSDL file:             " << wsdlFile << endl)
             COUT("Generate files to directory: " << wsdlFile << endl)
             if (!headerFile.empty())
-                COUT("Using C++ header file:       " << headerFile << endl)
+            COUT("Using C++ header file:       " << headerFile << endl)
         }
 
         OpenApiGenerator::Options options;
@@ -175,7 +192,8 @@ int main(int argc, const char* argv[])
         wsParser.generate(outputDirectory, headerFile, options, verbose, serviceNamespace);
         wsParser.generateWsdlCxx(outputDirectory, headerFile, wsdlFile);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         rc = 1;
     }

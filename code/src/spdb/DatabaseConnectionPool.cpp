@@ -195,12 +195,12 @@ SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
     return connection;
 }
 
-void DatabaseConnectionPool::releaseConnection(SPoolDatabaseConnection& connection)
+void DatabaseConnectionPool::releaseConnection(const SPoolDatabaseConnection& connection)
 {
     m_pool.push(connection);
 }
 
-void DatabaseConnectionPool::destroyConnection(SPoolDatabaseConnection& connection)
+void DatabaseConnectionPool::destroyConnection(SPoolDatabaseConnection& connection) const
 {
     connection.reset();
 }

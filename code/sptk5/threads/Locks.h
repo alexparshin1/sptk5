@@ -29,31 +29,13 @@
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
 
-#if CXX_STANDARD == 17
-#define USE_SHARED_MUTEX 1
 #include <shared_mutex>
-#else
-#define USE_SHARED_MUTEX 0
-#include <mutex>
-#endif
 
 namespace sptk {
 
-#if USE_SHARED_MUTEX
-/**
- * Shared timed mutex
- */
 using SharedMutex = std::shared_timed_mutex;
 using ReadLockType = std::shared_lock<SharedMutex>;
 using WriteLockType = std::unique_lock<SharedMutex>;
-#else
-/**
- * Regular timed mutex, since c++ 14 doesn't support shared mutex
- */
-using SharedMutex = std::timed_mutex;
-using ReadLockType = std::unique_lock<SharedMutex>;
-using WriteLockType = std::unique_lock<SharedMutex>;
-#endif
 
 /**
  * Unique lock
@@ -91,13 +73,15 @@ public:
     virtual ~UniqueLockInt()
     {
         if (locked)
+        {
             mutex.unlock();
+        }
     }
 
 private:
 
-    SharedMutex&    mutex;              ///< Shared mutex that controls lock
-    bool            locked {true};      ///< True if lock is acquired
+    SharedMutex& mutex;              ///< Shared mutex that controls lock
+    bool locked {true};      ///< True if lock is acquired
 };
 
 /**
@@ -138,14 +122,16 @@ public:
 #if USE_SHARED_MUTEX
             mutex.unlock_shared();
 #else
+        {
             mutex.unlock();
+        }
 #endif
     }
 
 private:
 
-    SharedMutex&    mutex;              ///< Shared mutex that controls lock
-    bool            locked {true};      ///< True if lock is acquired
+    SharedMutex& mutex;              ///< Shared mutex that controls lock
+    bool locked {true};      ///< True if lock is acquired
 };
 
 /**
@@ -156,8 +142,8 @@ private:
  */
 class CopyLockInt
 {
-    WriteLockType   destinationLock;    ///< Unique lock that belongs to destination object
-    ReadLockType    sourceLock;         ///< Shared lock that belongs to source object
+    WriteLockType destinationLock;    ///< Unique lock that belongs to destination object
+    ReadLockType sourceLock;         ///< Shared lock that belongs to source object
 
 
 public:
@@ -178,8 +164,8 @@ public:
  */
 class CompareLockInt
 {
-    ReadLockType   lock1;   ///< Shared lock that belongs to first object
-    ReadLockType   lock2;   ///< Shared lock that belongs to second object
+    ReadLockType lock1;   ///< Shared lock that belongs to first object
+    ReadLockType lock2;   ///< Shared lock that belongs to second object
 
 public:
 
@@ -193,11 +179,10 @@ public:
 };
 
 #define UniqueLock(amutex)                      UniqueLockInt  lock(amutex)
-#define TimedUniqueLock(amutex,timeout)         UniqueLockInt  lock(amutex,timeout,__FILE__,__LINE__)
+#define TimedUniqueLock(amutex, timeout)         UniqueLockInt  lock(amutex,timeout,__FILE__,__LINE__)
 #define SharedLock(amutex)                      SharedLockInt  lock(amutex)
-#define TimedSharedLock(amutex,timeout)         SharedLockInt  lock(amutex,timeout,__FILE__,__LINE__)
-#define CompareLock(mutex1,mutex2)              CompareLockInt lock(mutex1, mutex2)
-#define CopyLock(destinationMutex,sourceMutex)  CopyLockInt    lock(destinationMutex, sourceMutex)
+#define TimedSharedLock(amutex, timeout)         SharedLockInt  lock(amutex,timeout,__FILE__,__LINE__)
+#define CompareLock(mutex1, mutex2)              CompareLockInt lock(mutex1, mutex2)
+#define CopyLock(destinationMutex, sourceMutex)  CopyLockInt    lock(destinationMutex, sourceMutex)
 
 } // namespace sptk
-

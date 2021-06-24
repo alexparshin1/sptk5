@@ -93,13 +93,14 @@ Host::Host(const sockaddr_in6* addressAndPort)
 
 void Host::setHostNameFromAddress(socklen_t addressLen)
 {
-    array<char, NI_MAXHOST> hbuf;
-    array<char, NI_MAXSERV> sbuf;
+    array<char, NI_MAXHOST> hbuf {};
+    array<char, NI_MAXSERV> sbuf {};
 #ifdef _WIN32
     if (getnameinfo((const sockaddr*)m_address, addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
         m_hostname = hbuf.data();
 #else
-    if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) ==
+    if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(),
+                    sizeof(sbuf), 0) ==
         0)
     {
         m_hostname = hbuf.data();
@@ -145,13 +146,11 @@ Host& Host::operator=(Host&& other) noexcept
 
 bool Host::operator==(const Host& other) const
 {
-    CompareLock(m_mutex, other.m_mutex);
     return toString(true) == other.toString(true);
 }
 
 bool Host::operator!=(const Host& other) const
 {
-    CompareLock(m_mutex, other.m_mutex);
     return toString(true) != other.toString(true);
 }
 
@@ -185,7 +184,7 @@ static struct addrinfo* safeGetAddrInfo(const String& hostname)
 
     UniqueLock(getaddrinfoMutex);
 
-    struct addrinfo* result;
+    struct addrinfo* result = nullptr;
     if (int rc = getaddrinfo(hostname.c_str(), nullptr, &hints, &result); rc != 0)
     {
         throw Exception(gai_strerror(rc));
@@ -237,9 +236,10 @@ String Host::toString(bool forceAddress) const
     String address;
     if (forceAddress)
     {
-        array<char, 128> buffer;
+        constexpr int maxBufferSize = 128;
+        array<char, maxBufferSize> buffer {};
 
-        const void* addr;
+        const void* addr {nullptr};
         // Get the pointer to the address itself, different fields in IPv4 and IPv6
         if (any().sa_family == AF_INET)
         {
@@ -277,14 +277,17 @@ String Host::toString(bool forceAddress) const
 
 #if USE_GTEST
 
-const String testHost("www.google.com:80");
+static constexpr uint16_t sshPort = 22;
+static constexpr uint16_t telnetPort = 23;
+static constexpr uint16_t httpPort = 80;
+static const String testHost("www.google.com:80");
 
 TEST(SPTK_Host, ctorHostname)
 {
     Host google1(testHost);
     EXPECT_STREQ(testHost.c_str(), google1.toString(false).c_str());
     EXPECT_STREQ("www.google.com", google1.hostname().c_str());
-    EXPECT_EQ(80, google1.port());
+    EXPECT_EQ(httpPort, google1.port());
 
     Host google(google1.toString(true));
     EXPECT_TRUE(google1 == google);
@@ -292,17 +295,17 @@ TEST(SPTK_Host, ctorHostname)
 
 TEST(SPTK_Host, ctorAddress)
 {
-    Host host("11.22.33.44", 22);
+    Host host("11.22.33.44", sshPort);
     EXPECT_STREQ("11.22.33.44", host.hostname().c_str());
-    EXPECT_EQ(22, host.port());
+    EXPECT_EQ(sshPort, host.port());
 }
 
 TEST(SPTK_Host, ctorAddressStruct)
 {
-    String testHostAndPort{"bitbucket.com:80"};
+    String testHostAndPort {"bitbucket.com:80"};
     Host host1(testHostAndPort);
 
-    sockaddr_in address;
+    sockaddr_in address {};
     host1.getAddress(address);
     Host host2(&address);
 
@@ -313,46 +316,46 @@ TEST(SPTK_Host, ctorAddressStruct)
 
 TEST(SPTK_Host, ctorCopy)
 {
-    Host host1("11.22.33.44", 22);
+    Host host1("11.22.33.44", sshPort);
     Host host2(host1);
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
-    EXPECT_EQ(22, host2.port());
+    EXPECT_EQ(sshPort, host2.port());
 }
 
 TEST(SPTK_Host, ctorMove)
 {
-    Host host1("11.22.33.44", 22);
+    Host host1("11.22.33.44", sshPort);
     Host host2(move(host1));
     EXPECT_STREQ("", host1.hostname().c_str());
     EXPECT_EQ(0, host1.port());
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
-    EXPECT_EQ(22, host2.port());
+    EXPECT_EQ(sshPort, host2.port());
 }
 
 TEST(SPTK_Host, assign)
 {
-    Host host1("11.22.33.44", 22);
+    Host host1("11.22.33.44", sshPort);
     Host host2 = host1;
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
-    EXPECT_EQ(22, host2.port());
+    EXPECT_EQ(sshPort, host2.port());
 }
 
 TEST(SPTK_Host, move)
 {
-    Host host1("11.22.33.44", 22);
+    Host host1("11.22.33.44", sshPort);
     Host host2 = move(host1);
     EXPECT_STREQ("", host1.hostname().c_str());
     EXPECT_EQ(0, host1.port());
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
-    EXPECT_EQ(22, host2.port());
+    EXPECT_EQ(sshPort, host2.port());
 }
 
 TEST(SPTK_Host, compare)
 {
-    Host host1("11.22.33.44", 22);
+    Host host1("11.22.33.44", sshPort);
     Host host2(host1);
-    Host host3("11.22.33.45", 22);
-    Host host4("11.22.33.44", 23);
+    Host host3("11.22.33.45", sshPort);
+    Host host4("11.22.33.44", telnetPort);
 
     EXPECT_TRUE(host1 == host2);
     EXPECT_FALSE(host1 != host2);

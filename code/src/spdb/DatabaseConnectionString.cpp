@@ -33,8 +33,8 @@ using namespace sptk;
 
 void DatabaseConnectionString::parse()
 {
-    static const set<string> supportedDrivers{"sqlite3", "postgres", "postgresql", "oracle", "mysql", "firebird",
-                                              "odbc", "mssql"};
+    static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
+                                                       "firebird", "odbc", "mssql"};
 
     URL url(m_connectionString);
 
@@ -105,7 +105,7 @@ String DatabaseConnectionString::toString() const
     {
         result << "?";
         bool first = true;
-        for (auto& [name,value]: m_parameters)
+        for (auto&[name, value]: m_parameters)
         {
             if (first)
             {

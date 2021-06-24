@@ -49,7 +49,8 @@ namespace sptk {
  * If a thread is idle for the period longer than defined in constructor,
  * it's automatically terminated.
  */
-class SP_EXPORT ThreadPool : public ThreadEvent, public std::mutex
+class SP_EXPORT ThreadPool
+    : public ThreadEvent, public std::mutex
 {
 public:
 
@@ -61,14 +62,6 @@ public:
      */
     ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName,
                LogEngine* logEngine);
-
-    /**
-     * Destructor
-     *
-     * All worker threads are sent terminate() message,
-     * then thread pool waits while threads are destroyed
-     */
-    ~ThreadPool() override;
 
     /**
      * Executes task
@@ -100,14 +93,14 @@ public:
 
 private:
 
-    SThreadManager                      m_threadManager;    ///< Pool's thread manager
-    size_t                              m_threadLimit;      ///< Maximum number of threads in this pool
-    SynchronizedQueue<Runable*>         m_taskQueue;        ///< Shared task queue
-    Semaphore                           m_availableThreads; ///< Semaphore indicating available threads
-    std::chrono::milliseconds           m_threadIdleTime;   ///< Maximum thread idle time before thread in this pool is terminated
-    SLogger                             m_logger;           ///< Optional logger
+    SThreadManager m_threadManager;    ///< Pool's thread manager
+    size_t m_threadLimit;      ///< Maximum number of threads in this pool
+    SynchronizedQueue<Runable*> m_taskQueue;        ///< Shared task queue
+    Semaphore m_availableThreads; ///< Semaphore indicating available threads
+    std::chrono::milliseconds m_threadIdleTime;   ///< Maximum thread idle time before thread in this pool is terminated
+    SLogger m_logger;           ///< Optional logger
 
-    std::atomic_bool                    m_shutdown {false}; ///< Flag: true during pool shutdown
+    std::atomic_bool m_shutdown {false}; ///< Flag: true during pool shutdown
 
     /**
      * Creates a new thread and adds it to thread pool

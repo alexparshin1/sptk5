@@ -44,24 +44,9 @@ namespace sptk {
  *
  * Simple thread-safe queue
  */
-template <class T>
+template<class T>
 class SynchronizedQueue
 {
-    /**
-     * Lock to synchronize queue operations
-     */
-    mutable std::mutex      m_mutex;
-
-    /**
-     * Semaphore to waiting for an item if queue is empty
-     */
-    Semaphore               m_semaphore;
-
-    /**
-     * Queue
-     */
-    std::queue<T>*          m_queue { new std::queue<T> };
-
 public:
 
     /**
@@ -72,26 +57,6 @@ public:
      * @param data void*, Optional function-specific data
      */
     using CallbackFunction = std::function<bool(T& item)>;
-
-    /**
-     * Default constructor
-     */
-    SynchronizedQueue() = default;
-
-    SynchronizedQueue(const SynchronizedQueue&) = delete;
-    SynchronizedQueue(SynchronizedQueue&&) noexcept = default;
-    SynchronizedQueue& operator = (const SynchronizedQueue&) = delete;
-    SynchronizedQueue& operator = (SynchronizedQueue&&) noexcept = default;
-
-    /**
-     * Destructor
-     */
-    virtual ~SynchronizedQueue()
-    {
-        std::scoped_lock lock(m_mutex);
-        delete m_queue;
-        m_queue = nullptr;
-    }
 
     /**
      * Pushes a data item to the queue
@@ -132,9 +97,11 @@ public:
      */
     bool pop(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.sleep_for(timeout)) {
+        if (m_semaphore.sleep_for(timeout))
+        {
             std::scoped_lock lock(m_mutex);
-            if (!m_queue->empty()) {
+            if (!m_queue->empty())
+            {
                 item = std::move(m_queue->front());
                 m_queue->pop();
                 return true;
@@ -177,8 +144,7 @@ public:
     void clear()
     {
         std::scoped_lock lock(m_mutex);
-        delete m_queue;
-        m_queue = new std::queue<T>;
+        m_queue = std::make_shared<std::queue<T> >();
     }
 
     /**
@@ -194,31 +160,51 @@ public:
     {
         std::scoped_lock lock(m_mutex);
 
-        auto* newQueue = new std::queue<T>;
+        auto newQueue = std::make_shared<std::queue<T> >();
 
         // Iterating through queue until callback returns false
         bool rc = true;
-        while (m_queue->size()) {
+        while (m_queue->size())
+        {
             T& item = m_queue->front();
             m_queue->pop();
             newQueue->push(item);
             // When rc switches to false, don't execute callback
             // for the remaining queue items
-            if (rc) {
-                try {
+            if (rc)
+            {
+                try
+                {
                     rc = callbackFunction(item);
                 }
-                catch (const Exception&) {
+                catch (const Exception&)
+                {
                     rc = false;
                 }
             }
         }
 
-        delete m_queue;
         m_queue = newQueue;
 
         return rc;
     }
+
+private:
+
+    /**
+     * Lock to synchronize queue operations
+     */
+    mutable std::mutex m_mutex;
+
+    /**
+     * Semaphore to waiting for an item if queue is empty
+     */
+    Semaphore m_semaphore;
+
+    /**
+     * Queue
+     */
+    std::shared_ptr<std::queue<T>> m_queue {std::make_shared<std::queue<T>>()};
 };
 /**
  * @}

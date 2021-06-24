@@ -46,7 +46,8 @@ public:
     /**
      * @brief Thread event type
      */
-    enum class Type: uint8_t
+    enum class Type
+        : uint8_t
     {
         THREAD_STARTED,     ///< Thread started event
         THREAD_FINISHED,    ///< Thread finished event
@@ -69,12 +70,10 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~ThreadEvent()
-    {}
+    virtual ~ThreadEvent() = default;
 };
 
 /**
  * @}
  */
 }
-

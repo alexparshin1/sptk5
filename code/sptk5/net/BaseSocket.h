@@ -34,42 +34,42 @@
 #include <sptk5/Buffer.h>
 
 #ifndef _WIN32
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    #include <sys/un.h>
-    #include <sys/time.h>
-    #include <sys/ioctl.h>
-    #include <unistd.h>
-    #include <fcntl.h>
-    #include <netinet/in.h>
-    #include <arpa/inet.h>
-    #include <netdb.h>
 
-    /**
-     * A socket handle is an integer
-     */
-    using SOCKET = int;
-    using SOCKET_ADDRESS_FAMILY = sa_family_t;
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <sys/time.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 
-    #ifdef __APPLE__
-        using socklen_t = int;
-    #endif
+/**
+ * A socket handle is an integer
+ */
+using SOCKET = int;
+using SOCKET_ADDRESS_FAMILY = sa_family_t;
 
-    /**
-     * A value to indicate an invalid handle
-     */
-    #define INVALID_SOCKET (-1)
-
-#else
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #include <windows.h>
-    using socklen_t = int;
-    using SOCKET_ADDRESS_FAMILY = unsigned short;
+#ifdef __APPLE__
+using socklen_t = int;
 #endif
 
-namespace sptk
-{
+/**
+ * A value to indicate an invalid handle
+ */
+#define INVALID_SOCKET (-1)
+
+#else
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+using socklen_t = int;
+using SOCKET_ADDRESS_FAMILY = unsigned short;
+#endif
+
+namespace sptk {
 
 /**
  * @addtogroup utility Utility Classes
@@ -88,7 +88,8 @@ public:
     /**
     * A mode to open a socket, one of
     */
-    enum class OpenMode : uint8_t
+    enum class OpenMode
+        : uint8_t
     {
         CREATE,     ///< Only create (Typical UDP connectionless socket)
         CONNECT,    ///< Connect (Typical TCP connection socket)
@@ -109,7 +110,8 @@ public:
      * @param addr              Defines socket address/port information
      * @param timeout           Connection timeout. If 0 then wait forever.
      */
-    void open_addr(OpenMode openMode = OpenMode::CREATE, const sockaddr_in* addr = nullptr, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
+    void open_addr(OpenMode openMode = OpenMode::CREATE, const sockaddr_in* addr = nullptr,
+                   std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
 
     /**
      * Constructor
@@ -132,22 +134,16 @@ public:
     BaseSocket(BaseSocket&& other) noexcept = default;
 
     /**
-     * Destructor
-     */
-    virtual ~BaseSocket();
-
-
-    /**
      * Deleted copy assignment
      * @param other             Other socket
      */
-    BaseSocket& operator = (const BaseSocket& other) = delete;
+    BaseSocket& operator=(const BaseSocket& other) = delete;
 
     /**
      * Move assignment
      * @param other             Other socket
      */
-    BaseSocket& operator = (BaseSocket&& other) noexcept = default;
+    BaseSocket& operator=(BaseSocket&& other) noexcept = default;
 
     /**
      * Set blocking mode
@@ -184,7 +180,7 @@ public:
      */
     [[nodiscard]] const Host& host() const
     {
-        return m_host;
+        return *m_host;
     }
 
     /**
@@ -406,18 +402,19 @@ protected:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
      */
-    virtual void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
+    virtual void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
+                       std::chrono::milliseconds timeoutMS)
     {
         // Implement in derived class
     }
 
 private:
 
-    SOCKET      m_sockfd {INVALID_SOCKET};  ///< Socket internal (OS) handle
-    int32_t     m_domain;                   ///< Socket domain type
-    int32_t     m_type;                     ///< Socket type
-    int32_t     m_protocol;                 ///< Socket protocol
-    Host        m_host;                     ///< Host
+    SOCKET m_sockfd {INVALID_SOCKET};  ///< Socket internal (OS) handle
+    int32_t m_domain;                   ///< Socket domain type
+    int32_t m_type;                     ///< Socket type
+    int32_t m_protocol;                 ///< Socket protocol
+    SHost m_host;                     ///< Host
 };
 
 /**

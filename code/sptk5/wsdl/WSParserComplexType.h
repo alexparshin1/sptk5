@@ -33,8 +33,7 @@
 #include <set>
 #include "WSRestriction.h"
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup wsdl WSDL-related Classes
@@ -44,12 +43,13 @@ namespace sptk
 /**
  * Multiplicity flag
  */
-enum class WSMultiplicity: uint8_t
+enum class WSMultiplicity
+    : uint8_t
 {
-    REQUIRED       = 1, ///< Element is required
-    ZERO_OR_ONE    = 2, ///< Element is optional
-    ZERO_OR_MORE   = 4, ///< Element may occur 0 or more times
-    ONE_OR_MORE    = 8  ///< Element may occur one or more times
+    REQUIRED = 1, ///< Element is required
+    ZERO_OR_ONE = 2, ///< Element is optional
+    ZERO_OR_MORE = 4, ///< Element may occur 0 or more times
+    ONE_OR_MORE = 8  ///< Element may occur one or more times
 };
 
 /**
@@ -74,7 +74,10 @@ public:
     /**
      * Returns attribute name
      */
-    String name() const { return m_name; }
+    String name() const
+    {
+        return m_name;
+    }
 
     /**
      * Generates attribute presentation in C++ skeleton
@@ -84,21 +87,28 @@ public:
     /**
      * Returns attribute C++ type name
      */
-    String cxxTypeName() const { return m_cxxTypeName; }
+    String cxxTypeName() const
+    {
+        return m_cxxTypeName;
+    }
 
     /**
      * Returns attribute WSDL type name
      */
-    String wsTypeName() const { return m_wsTypeName; }
+    String wsTypeName() const
+    {
+        return m_wsTypeName;
+    }
 
 private:
 
-    String          m_name;         ///< Attribute name
-    String          m_wsTypeName;   ///< Attribute type name
-    String          m_cxxTypeName;  ///< C++ type name
+    String m_name;         ///< Attribute name
+    String m_wsTypeName;   ///< Attribute type name
+    String m_cxxTypeName;  ///< C++ type name
 };
 
 class WSParserComplexType;
+
 using SWSParserComplexType = std::shared_ptr<WSParserComplexType>;
 using WSParserComplexTypeList = std::list<SWSParserComplexType>;
 
@@ -119,7 +129,8 @@ public:
      * @param name              Object name
      * @param typeName          Object types
      */
-    explicit WSParserComplexType(const xml::Element* complexTypeElement, const String& name = "", const String& typeName = "");
+    explicit WSParserComplexType(const xml::Element* complexTypeElement, const String& name = "",
+                                 const String& typeName = "");
 
     /**
      * Destructor
@@ -152,20 +163,26 @@ public:
      */
     bool isArray() const
     {
-        return ((int)m_multiplicity & ((int)WSMultiplicity::ZERO_OR_MORE | (int)WSMultiplicity::ONE_OR_MORE)) != 0;
+        return ((int) m_multiplicity & ((int) WSMultiplicity::ZERO_OR_MORE | (int) WSMultiplicity::ONE_OR_MORE)) != 0;
     }
 
     /**
      * Get child elements sequence
      * @return Child elements sequence
      */
-    WSParserComplexTypeList sequence() const { return m_sequence; }
+    WSParserComplexTypeList sequence() const
+    {
+        return m_sequence;
+    }
 
     /**
      * Get optional restriction
      * @return restriction
      */
-    SWSRestriction restriction() const { return m_restriction; }
+    SWSRestriction restriction() const
+    {
+        return m_restriction;
+    }
 
     /**
      * Parses WSDL complexType element
@@ -184,6 +201,7 @@ public:
                   const String& externalHeader, const String& serviceNamespace) const;
 
     static std::map<String, const xml::Element*> SimpleTypeElements;
+
     static const xml::Element* findSimpleType(const String& typeName);
 
 protected:
@@ -219,31 +237,34 @@ private:
     class ImplementationParts
     {
     public:
-        std::stringstream   declarations;
-        std::stringstream   body;
-        std::stringstream   checks;
+        std::stringstream declarations;
+        std::stringstream body;
+        std::stringstream checks;
 
-        size_t              restrictionNumber {0};
+        size_t restrictionNumber {0};
 
         void print(std::ostream& output) const;
+
         void printImplementationLoadArray(const SWSParserComplexType& complexType);
+
         String appendRestrictionIfDefined(const SWSParserComplexType& complexType);
+
         void printImplementationLoadField(Strings& requiredElements, const SWSParserComplexType& complexType);
     };
 
     /**
      * Map of attribute names to attribute objects
      */
-    using AttributeMap = std::map<std::string, WSParserAttribute*>;
+    using AttributeMap = std::map<std::string, WSParserAttribute*, std::less<>>;
 
-    String                  m_name;                 ///< Element name
-    String                  m_typeName;             ///< WSDL type name
-    const xml::Element*     m_element {nullptr};    ///< XML element for that WSDL element
-    AttributeMap            m_attributes;           ///< Element attributes
-    WSParserComplexTypeList m_sequence;             ///< Child element sequence
-    WSMultiplicity          m_multiplicity;         ///< Multiplicity flag
-    SWSRestriction          m_restriction;          ///< Element restriction (if any) or NULL
-    String                  m_documentation;        ///< Optional documentation
+    String m_name;                             ///< Element name
+    String m_typeName;                         ///< WSDL type name
+    const xml::Element* m_element {nullptr};   ///< XML element for that WSDL element
+    AttributeMap m_attributes;                 ///< Element attributes
+    WSParserComplexTypeList m_sequence;        ///< Child element sequence
+    WSMultiplicity m_multiplicity;             ///< Multiplicity flag
+    SWSRestriction m_restriction;              ///< Element restriction (if any) or NULL
+    String m_documentation;                    ///< Optional documentation
 
     /**
      * Generate includes for C++ class
@@ -267,6 +288,7 @@ private:
                                   size_t& restrictionIndex) const;
 
     String makeTagName(const String& className) const;
+
     Initializer makeInitializer() const;
 
     void printImplementationConstructors(std::ostream& classImplementation, const String& className,

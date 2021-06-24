@@ -41,10 +41,73 @@ namespace sptk {
  */
 
 /**
- * @brief Generic unnamed semaphore class
+ * Generic unnamed semaphore class
  */
 class SP_EXPORT Flag
 {
+public:
+
+    /**
+     * Constructor
+     *
+     * Creates flag with starting value (default false)
+     * @param startingValue     Starting semaphore value
+     * @param maxValue          Maximum semaphore value, or 0 if unlimited
+     */
+    explicit Flag(bool startingValue = false);
+
+    /**
+     * Destructor
+     */
+    virtual ~Flag();
+
+    /**
+     * Get the flag value
+     * @param value             New flag value
+     */
+    bool get() const;
+
+    /**
+     * Set the flag value
+     * @param value             New flag value
+     */
+    void set(bool value);
+
+    /**
+     * Adaptor
+     */
+    operator bool() const
+    {
+        return get();
+    }
+
+    /**
+     * Assignment
+     */
+    Flag& operator=(bool value)
+    {
+        set(value);
+        return *this;
+    }
+
+    /**
+     * Waits until the flag has the value
+     * @param value             Value to wait for
+     * @param timeout           Wait timeout
+     * @return true if flag received the value, or false if timeout occurs
+     */
+    bool wait_for(bool value, std::chrono::milliseconds timeout);
+
+    /**
+     * Waits until the flag has the value
+     * @param value             Value to wait for
+     * @param timeout           Wait timeout
+     * @return true if flag received the value, or false if timeout occurs
+     */
+    bool wait_until(bool value, DateTime timeout);
+
+private:
+
     /**
      * Mutex object
      */
@@ -63,7 +126,7 @@ class SP_EXPORT Flag
     /**
      * Number of waiters
      */
-    size_t m_waiters{0};
+    size_t m_waiters {0};
 
     /**
      * Terminated flag
@@ -79,63 +142,8 @@ class SP_EXPORT Flag
      * Current number of waiters
      */
     size_t waiters() const;
-
-public:
-
-    /**
-     * @brief Constructor
-     *
-     * Creates flag with starting value (default false)
-     * @param startingValue     Starting semaphore value
-     * @param maxValue          Maximum semaphore value, or 0 if unlimited
-     */
-    explicit Flag(bool startingValue = false);
-
-    /**
-     * @brief Destructor
-     */
-    virtual ~Flag();
-
-    /**
-     * @brief Get the flag value
-     * @param value             New flag value
-     */
-    bool get() const;
-
-    /**
-     * @brief Set the flag value
-     * @param value             New flag value
-     */
-    void set(bool value);
-
-    /**
-     * Adaptor
-     */
-    operator bool () const { return get(); }
-
-    /**
-     * Assignment
-     */
-    Flag& operator = (bool value) { set(value); return *this; }
-
-    /**
-     * @brief Waits until the flag has the value
-     * @param value             Value to wait for
-     * @param timeout           Wait timeout
-     * @return true if flag received the value, or false if timeout occurs
-     */
-    bool wait_for(bool value, std::chrono::milliseconds timeout);
-
-    /**
-     * @brief Waits until the flag has the value
-     * @param value             Value to wait for
-     * @param timeout           Wait timeout
-     * @return true if flag received the value, or false if timeout occurs
-     */
-    bool wait_until(bool value, DateTime timeout);
 };
 /**
  * @}
  */
 }
-

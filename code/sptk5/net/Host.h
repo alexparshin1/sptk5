@@ -53,10 +53,10 @@ namespace sptk {
  */
 class SP_EXPORT Host
 {
-    mutable SharedMutex                         m_mutex;        ///< Mutex to protect internal class data
-    String                                      m_hostname;     ///< Host name or IP address
-    uint16_t                                    m_port {0};     ///< Port number
-    std::array<uint8_t, sizeof(sockaddr_in6)>   m_address {};   ///< Storage for IPv4 and IPv6 addresses
+    mutable SharedMutex m_mutex;        ///< Mutex to protect internal class data
+    String m_hostname;     ///< Host name or IP address
+    uint16_t m_port {0};     ///< Port number
+    std::array<uint8_t, sizeof(sockaddr_in6)> m_address {};   ///< Storage for IPv4 and IPv6 addresses
 
     /**
      * Get address presentation as generic IP address
@@ -234,7 +234,7 @@ public:
      * @param forceAddress      If true then use IP address instead of hostname
      * @return host name and port string
      */
-    String toString(bool forceAddress=false) const;
+    String toString(bool forceAddress = false) const;
 
     /**
      * Get host address
@@ -256,6 +256,8 @@ public:
 
     void setHostNameFromAddress(socklen_t addressLen);
 };
+
+using SHost = std::shared_ptr<Host>;
 
 /**
  * @brief Case-insensitive host compare class.

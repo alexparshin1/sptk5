@@ -35,7 +35,7 @@ using namespace sptk;
 
 void Channel::open(SOCKET sourceFD, const String& interfaceAddress, const Host& destination)
 {
-    scoped_lock   lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     m_source.attach(sourceFD, false);
 
@@ -48,14 +48,16 @@ void Channel::open(SOCKET sourceFD, const String& interfaceAddress, const Host& 
 
 void Channel::close()
 {
-    scoped_lock   lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
-    if (m_source.active()) {
+    if (m_source.active())
+    {
         m_sourceEvents.remove(m_source);
         m_source.close();
     }
 
-    if (m_destination.active()) {
+    if (m_destination.active())
+    {
         m_destinationEvents.remove(m_destination);
         m_destination.close();
     }
@@ -63,29 +65,34 @@ void Channel::close()
 
 int Channel::copyData(const TCPSocket& source, const TCPSocket& destination)
 {
-    scoped_lock   lock(m_mutex);
+    scoped_lock lock(m_mutex);
 
-    char        buffer[1024];
-    uint32_t    totalBytes = 0;
-    size_t      fragmentSize = sizeof(buffer);
-    int         readBytes = (int) fragmentSize;
+    Buffer buffer(1024);
+    uint32_t totalBytes = 0;
+    size_t fragmentSize = sizeof(buffer);
+    auto readBytes = (int) fragmentSize;
 
-    while ((size_t) readBytes == fragmentSize) {
+    while ((size_t) readBytes == fragmentSize)
+    {
 
 #ifdef _WIN32
-        readBytes = _read((int) source.fd(), buffer, (unsigned) fragmentSize);
+        readBytes = _read((int) source.fd(), buffer.data(), (unsigned) fragmentSize);
         if (readBytes < 0)
             throw SystemException("Can't read from socket");
 
-        if (_write((int) destination.fd(), buffer, readBytes) < 0)
+        if (_write((int) destination.fd(), buffer.data(), readBytes) < 0)
             throw SystemException("Can't write to socket");
 #else
-        readBytes = (int) ::read(source.fd(), buffer, fragmentSize);
+        readBytes = (int) ::read(source.fd(), buffer.data(), fragmentSize);
         if (readBytes < 0)
+        {
             throw SystemException("Can't read from socket");
+        }
 
-        if (::write(destination.fd(), buffer, (size_t) readBytes) < 0)
+        if (::write(destination.fd(), buffer.data(), (size_t) readBytes) < 0)
+        {
             throw SystemException("Can't write to socket");
+        }
 #endif
         totalBytes += readBytes;
     }

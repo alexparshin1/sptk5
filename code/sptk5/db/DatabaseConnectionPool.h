@@ -33,8 +33,7 @@
 #include <sptk5/threads/SynchronizedList.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup Database Database Support
@@ -44,24 +43,24 @@ namespace sptk
 /**
  * Create driver instance function type
  */
-using CreateDriverInstance = PoolDatabaseConnection* (const char*);
+using CreateDriverInstance = PoolDatabaseConnection*(const char*);
 
 /**
  * Destroy driver instance function type
  */
-using DestroyDriverInstance = void (PoolDatabaseConnection*);
+using DestroyDriverInstance = void(PoolDatabaseConnection*);
 
 #ifdef WIN32
-    /**
-     * Windows: Driver DLL handle type
-     */
-    using DriverHandle = HMODULE;
+/**
+ * Windows: Driver DLL handle type
+ */
+using DriverHandle = HMODULE;
 
 #else
-    /**
-     * Unix: Driver shared library handle type
-     */
-    using DriverHandle = uint8_t *;
+/**
+ * Unix: Driver shared library handle type
+ */
+using DriverHandle = uint8_t*;
 
 #endif
 
@@ -73,17 +72,17 @@ struct SP_EXPORT DatabaseDriver
     /**
      * Driver SO/DLL handle after load
      */
-    DriverHandle                               m_handle;
+    DriverHandle m_handle;
 
     /**
      * Function that creates driver instances
      */
-    CreateDriverInstance*                      m_createConnection;
+    CreateDriverInstance* m_createConnection;
 
     /**
      * Function that destroys driver instances
      */
-    DestroyDriverInstance*                     m_destroyConnection;
+    DestroyDriverInstance* m_destroyConnection;
 
 };
 
@@ -93,7 +92,8 @@ struct SP_EXPORT DatabaseDriver
  * Loads and initializes SPTK database driver by request.
  * Already loaded drivers are cached.
  */
-class SP_EXPORT DatabaseConnectionPool : public DatabaseConnectionString, public std::mutex
+class SP_EXPORT DatabaseConnectionPool
+    : public DatabaseConnectionString, public std::mutex
 {
     friend class AutoDatabaseConnection;
 
@@ -128,37 +128,37 @@ protected:
      * Returns used database connection back to the pool
      * @param connection        Database that is no longer in use and may be returned to the pool
      */
-    void releaseConnection(SPoolDatabaseConnection& connection);
+    void releaseConnection(const SPoolDatabaseConnection& connection);
 
     /**
      * Destroys connection
      * @param connection DatabaseConnection*, destroys the driver instance
      * @param unlink            Should always be true for any external use
      */
-    void destroyConnection(SPoolDatabaseConnection& connection);
+    void destroyConnection(SPoolDatabaseConnection& connection) const;
 
 private:
     /**
      * Database driver
      */
-    DatabaseDriver*                            m_driver {nullptr};
+    DatabaseDriver* m_driver {nullptr};
 
     /**
      * Function that creates driver instances
      */
-    CreateDriverInstance*                      m_createConnection {nullptr};
+    CreateDriverInstance* m_createConnection {nullptr};
 
     /**
      * Function that destroys driver instances
      */
-    DestroyDriverInstance*                     m_destroyConnection {nullptr};
+    DestroyDriverInstance* m_destroyConnection {nullptr};
 
     /**
      * Maximum number of connections in the pool
      */
-    size_t                                      m_maxConnections;
-    SynchronizedQueue<SPoolDatabaseConnection>  m_pool;          ///< Available connections
-    SynchronizedList<SPoolDatabaseConnection>   m_connections;   ///< All connections
+    size_t m_maxConnections;
+    SynchronizedQueue<SPoolDatabaseConnection> m_pool;          ///< Available connections
+    SynchronizedList<SPoolDatabaseConnection> m_connections;   ///< All connections
 };
 
 /**

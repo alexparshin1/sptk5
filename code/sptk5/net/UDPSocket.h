@@ -42,19 +42,20 @@ namespace sptk {
  * Sends and receives data using UDP protocol.
  * Not buffered. Doesn't use CSocket timeout settings in read and write operations by default.
  */
-class SP_EXPORT UDPSocket : public BaseSocket
+class SP_EXPORT UDPSocket
+    : public BaseSocket
 {
 public:
     /**
      * Constructor
      * @param domain SOCKET_ADDRESS_FAMILY, socket domain type
      */
-    explicit UDPSocket(SOCKET_ADDRESS_FAMILY domain=AF_INET);
+    explicit UDPSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET);
 
     /**
      * Destructor
      */
-    ~UDPSocket() override = default;
+    virtual ~UDPSocket() = default;
 
     /**
      * Reads data from the socket
@@ -63,7 +64,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] size_t read(uint8_t* buffer, size_t size, sockaddr_in* from=nullptr) override;
+    [[nodiscard]] size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr) override;
 
     /**
      * Reads data from the socket
@@ -72,7 +73,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] size_t read(Buffer& buffer, size_t size, sockaddr_in* from=nullptr) override;
+    [[nodiscard]] size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr) override;
 
     /**
      * Reads data from the socket
@@ -81,7 +82,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] size_t read(String& buffer, size_t size,sockaddr_in* from=nullptr) override;
+    [[nodiscard]] size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr) override;
 };
 
 /**

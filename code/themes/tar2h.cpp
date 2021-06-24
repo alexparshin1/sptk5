@@ -8,16 +8,18 @@
 #include <sptk5/cutils>
 
 #ifndef O_BINARY
-#define O_BINARY 0
+constexpr int O_BINARY = 0;
 #endif
 
 using namespace std;
 using namespace sptk;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-    try {
-        if (argc != 3) {
+    try
+    {
+        if (argc != 3)
+        {
             fprintf(stderr, "Usage: tar2h <input file> valuename.\n");
             return 1;
         }
@@ -30,22 +32,24 @@ int main(int argc, char **argv)
         COUT("static size_t " << argv[2] << "_len = " << dataSize << ";" << endl)
         COUT("static unsigned char " << argv[2] << "[" << dataSize << "] = {" << endl)
 
-        const auto* x = (const unsigned char *)data.c_str();
+        const auto* x = (const unsigned char*) data.c_str();
 
         stringstream str;
         str.fill('0');
-        for (unsigned i = 0; i < dataSize; ++i) {
+        for (unsigned i = 0; i < dataSize; ++i)
+        {
             str << "0x" << hex << setw(2) << ", " << (unsigned) x[i];
-            if (!(i & 0xf)) str << endl;
+            if (!(i & 0xf))
+            { str << endl; }
         }
         str << "};" << endl;
         COUT(str.str())
 
         return 0;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }
 }
-

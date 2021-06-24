@@ -36,11 +36,10 @@ using namespace sptk;
 class FirebirdStatementField
     : public DatabaseField
 {
-    XSQLVAR& m_sqlvar;
 public:
-    // Callback variables
-    ISC_SHORT m_cbNull{0};
-    double m_numericScale{1.0};
+    XSQLVAR& m_sqlvar;
+    ISC_SHORT m_cbNull {0};
+    double m_numericScale {1.0};
 
     FirebirdStatementField(const std::string& fieldName, int fieldColumn, int fieldType, VariantType dataType,
                            int fieldSize, XSQLVAR& sqlvar)
@@ -49,7 +48,7 @@ public:
         m_sqlvar(sqlvar)
     {
         DatabaseField::setInt64(0);
-        m_sqlvar.sqldata = (ISC_SCHAR*) &DatabaseField::getInt64();
+        m_sqlvar.sqldata = (ISC_SCHAR*) DatabaseField::getBuffer();
         fieldType &= 0xFFFE;
         switch (fieldType)
         {
@@ -189,6 +188,10 @@ VariantType FirebirdStatement::firebirdTypeToVariantType(int firebirdType, int f
 
 void FirebirdStatement::setParameterValues()
 {
+    static array<char, 2> emptyString = {};
+
+    array<char, 256> buffer;
+
     auto paramCount = (unsigned) enumeratedParams().size();
     struct tm firebirdDateTime = {};
     ISC_TIMESTAMP* pts;
@@ -213,7 +216,7 @@ void FirebirdStatement::setParameterValues()
                 sqlvar.sqltype = SQL_TEXT + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = 0;
-                sqlvar.sqldata = (ISC_SCHAR*) "";
+                sqlvar.sqldata = emptyString.data();
                 param->setNull();
                 break;
 
@@ -221,28 +224,28 @@ void FirebirdStatement::setParameterValues()
                 sqlvar.sqltype = SQL_SHORT + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(short);
-                sqlvar.sqldata = (ISC_SCHAR*) &param->getInteger();
+                sqlvar.sqldata = (ISC_SCHAR*) param->getBuffer();
                 break;
 
             case VAR_INT:
                 sqlvar.sqltype = SQL_LONG + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(int32_t);
-                sqlvar.sqldata = (ISC_SCHAR*) &param->getInteger();
+                sqlvar.sqldata = (ISC_SCHAR*) param->getBuffer();
                 break;
 
             case VAR_FLOAT:
                 sqlvar.sqltype = SQL_DOUBLE + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(double);
-                sqlvar.sqldata = (ISC_SCHAR*) &param->getFloat();
+                sqlvar.sqldata = (ISC_SCHAR*) param->getBuffer();
                 break;
 
             case VAR_INT64:
                 sqlvar.sqltype = SQL_INT64 + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(int64_t);
-                sqlvar.sqldata = (ISC_SCHAR*) &param->getInt64();
+                sqlvar.sqldata = (ISC_SCHAR*) param->getBuffer();
                 break;
 
             case VAR_MONEY:
@@ -292,11 +295,8 @@ void FirebirdStatement::setParameterValues()
                 break;
 
             default:
-            {
-                array<char, 256> buffer;
                 snprintf(buffer.data(), sizeof(buffer) - 1, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
                 throw DatabaseException(buffer.data());
-            }
         }
     }
 }
@@ -452,7 +452,7 @@ size_t FirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field)
 
 void FirebirdStatement::fetchResult(FieldList& fields)
 {
-    struct tm times{};
+    struct tm times {};
     auto fieldCount = fields.size();
     int pos;
     size_t len;
@@ -460,8 +460,8 @@ void FirebirdStatement::fetchResult(FieldList& fields)
 
     for (size_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++)
     {
-        auto* field = (FirebirdStatementField*) &fields[fieldIndex];
-        XSQLVAR& sqlvar = m_outputBuffers[fieldIndex];
+        auto* field = (FirebirdStatementField*) &fields[(int) fieldIndex];
+        XSQLVAR& sqlvar = m_outputBuffers[(int) fieldIndex];
         if (*sqlvar.sqlind)
         {
             field->setNull(VAR_STRING);

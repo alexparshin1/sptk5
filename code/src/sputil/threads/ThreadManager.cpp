@@ -31,28 +31,24 @@ using namespace sptk;
 using namespace chrono;
 
 ThreadManager::ThreadManager(const String& name)
-: m_joiner(name + ".Joiner")
+    : m_joiner(shared_ptr<Joiner>(new Joiner(name + ".Joiner"),
+                                  [this](Joiner* ptr) {
+                                      stop();
+                                      ptr->stop();
+                                      delete ptr;
+                                  }))
 {
-}
-
-ThreadManager::~ThreadManager()
-{
-    stop();
 }
 
 ThreadManager::Joiner::Joiner(const String& name)
-: Thread(name)
+    : Thread(name)
 {
-}
-
-ThreadManager::Joiner::~Joiner()
-{
-    stop();
 }
 
 void ThreadManager::Joiner::threadFunction()
 {
-    while (!terminated()) {
+    while (!terminated())
+    {
         joinTerminatedThreads(std::chrono::milliseconds(1000));
     }
 }
@@ -72,7 +68,8 @@ void ThreadManager::Joiner::stop()
 void ThreadManager::Joiner::joinTerminatedThreads(milliseconds timeout)
 {
     SThread thread;
-    while (m_terminatedThreads.pop(thread, timeout)) {
+    while (m_terminatedThreads.pop(thread, timeout))
+    {
         thread->terminate();
         thread->join();
     }
@@ -80,30 +77,33 @@ void ThreadManager::Joiner::joinTerminatedThreads(milliseconds timeout)
 
 void ThreadManager::start()
 {
-    m_joiner.run();
+    m_joiner->run();
 }
 
 void ThreadManager::stop()
 {
     terminateRunningThreads();
-    m_joiner.stop();
+    m_joiner->stop();
 }
 
 void ThreadManager::terminateRunningThreads()
 {
     scoped_lock lock(m_mutex);
-    for (const auto& itor: m_runningThreads) {
-        m_joiner.push(itor.second);
+    for (const auto& itor: m_runningThreads)
+    {
+        m_joiner->push(itor.second);
         itor.second->terminate();
     }
 }
 
 void ThreadManager::registerThread(Thread* thread)
 {
-    if (thread) {
+    if (thread)
+    {
         scoped_lock lock(m_mutex);
         auto itor = m_runningThreads.find(thread);
-        if (itor == m_runningThreads.end()) {
+        if (itor == m_runningThreads.end())
+        {
             m_runningThreads[thread] = shared_ptr<Thread>(thread);
         }
     }
@@ -111,13 +111,15 @@ void ThreadManager::registerThread(Thread* thread)
 
 void ThreadManager::destroyThread(Thread* thread)
 {
-    if (thread && thread->running()) {
+    if (thread && thread->running())
+    {
         scoped_lock lock(m_mutex);
         auto itor = m_runningThreads.find(thread);
-        if (itor != m_runningThreads.end()) {
+        if (itor != m_runningThreads.end())
+        {
             auto sthread = itor->second;
             m_runningThreads.erase(itor);
-            m_joiner.push(sthread);
+            m_joiner->push(sthread);
         }
     }
 }
@@ -131,19 +133,20 @@ size_t ThreadManager::threadCount() const
 bool ThreadManager::running() const
 {
     scoped_lock lock(m_mutex);
-    return m_joiner.running();
+    return m_joiner->running();
 }
 
 #if USE_GTEST
 
-class ThreadManagerTestThread : public Thread
+class ThreadManagerTestThread
+    : public Thread
 {
 public:
-    static atomic<size_t>   taskCounter;
-    static atomic<size_t>   joinCounter;
+    static atomic<size_t> taskCounter;
+    static atomic<size_t> joinCounter;
 
     ThreadManagerTestThread(const String& name, const shared_ptr<ThreadManager> threadManager)
-    : Thread(name, threadManager)
+        : Thread(name, threadManager)
     {
     }
 
@@ -165,12 +168,13 @@ atomic<size_t> ThreadManagerTestThread::joinCounter;
 
 TEST(SPTK_ThreadManager, minimal)
 {
-    size_t  maxThreads = 10;
-    auto    threadManager = make_shared<ThreadManager>("Test Manager");
+    size_t maxThreads = 10;
+    auto threadManager = make_shared<ThreadManager>("Test Manager");
 
     threadManager->start();
 
-    for (size_t i = 0; i < maxThreads; ++i) {
+    for (size_t i = 0; i < maxThreads; ++i)
+    {
         auto thread = new ThreadManagerTestThread("thread " + to_string(i), threadManager);
         thread->run();
     }

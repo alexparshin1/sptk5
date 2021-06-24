@@ -42,8 +42,11 @@
 #include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/test/TestRunner.h>
+
 #ifndef _WIN32
+
 #include <test/wsdl/TestWebService.h>
+
 #endif
 
 using namespace std;
@@ -52,12 +55,15 @@ using namespace sptk;
 /**
  * Stub TCP server - testing only
  */
-class StubServer : public TCPServer
+class StubServer
+    : public TCPServer
 {
 public:
 
-    StubServer() : TCPServer("test", 1)
-    {}
+    StubServer()
+        : TCPServer("test", 1)
+    {
+    }
 
 protected:
 
@@ -71,22 +77,22 @@ protected:
 // Otherwise, Visual Studio doesn't include any tests
 void stub()
 {
-    DateTime             dt;
-    JWT                  jwt;
-    RegularExpression    regexp(".*");
-    CommandLine          cmd("", "", "");
-    DirectoryDS          dir("");
+    DateTime dt;
+    JWT jwt;
+    RegularExpression regexp(".*");
+    CommandLine cmd("", "", "");
+    DirectoryDS dir("");
     ThreadPool threads(1, std::chrono::milliseconds(), "test", nullptr);
-    Timer                timer;
-    MD5                  md5;
-    StubServer           tcpServer;
-    Tar                  tar;
+    Timer timer;
+    MD5 md5;
+    StubServer tcpServer;
+    Tar tar;
     FieldList fieldList(false);
-    SharedStrings        sharedStrings;
-    Variant              v;
+    SharedStrings sharedStrings;
+    Variant v;
 
-    SSLSocket            socket;
-    HttpConnect          connect(socket);
+    SSLSocket socket;
+    HttpConnect connect(socket);
 
     string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     string key("01234567890123456789012345678901");
@@ -100,15 +106,15 @@ void stub()
     Buffer b2("xxx");
     Base64::encode(b1, b2);
 
-    DatabaseConnectionPool  connectionPool("");
+    DatabaseConnectionPool connectionPool("");
 
 #ifndef _WIN32
-    TestWebService          setvice;
+    TestWebService setvice;
 #endif
 }
 
 TestRunner::TestRunner(int& argc, char**& argv)
-: m_argc(argc), m_argv(argv)
+    : m_argc(argc), m_argv(argv)
 {
 }
 
@@ -119,19 +125,23 @@ void TestRunner::addDatabaseConnection(const DatabaseConnectionString& connectio
 
 static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& definedConnections)
 {
-    map<String,String> excludeDrivers = {
-            { "postgresql", "PostgreSQL" },
-            { "mysql", "MySQL" },
-            { "mssql", "MSSQL" },
-            { "oracle", "Oracle" }
+    map<String, String> excludeDrivers = {
+        {"postgresql", "PostgreSQL"},
+        {"mysql",      "MySQL"},
+        {"mssql",      "MSSQL"},
+        {"oracle",     "Oracle"}
     };
 
     for (auto& connection: definedConnections)
+    {
         excludeDrivers.erase(connection.driverName());
+    }
 
     Strings excludePatterns;
-    for (auto itor: excludeDrivers)
-        excludePatterns.push_back("SPTK_" + itor.second + "*.*");
+    for (const auto&[protocol, serverName]: excludeDrivers)
+    {
+        excludePatterns.push_back("SPTK_" + serverName + "*.*");
+    }
 
     return excludePatterns.join(":");
 }
@@ -146,8 +156,10 @@ int TestRunner::runAllTests()
     String excludeDBDriverPatterns = excludeDatabasePatterns(DatabaseTests::tests().connectionStrings());
 
     size_t filterArgumentIndex = 0;
-    for (int i = 1; i < m_argc; ++i) {
-        if (strstr(m_argv[i], "--gtest_filter=")) {
+    for (int i = 1; i < m_argc; ++i)
+    {
+        if (strstr(m_argv[i], "--gtest_filter="))
+        {
             filterArgumentIndex = i;
             break;
         }
@@ -156,21 +168,31 @@ int TestRunner::runAllTests()
     vector<char*> argv(m_argv, m_argv + m_argc);
     String filter;
 
-    if (!excludeDBDriverPatterns.empty()) {
+    if (!excludeDBDriverPatterns.empty())
+    {
         if (filterArgumentIndex != 0)
+        {
             filter = argv[filterArgumentIndex];
+        }
 
         if (filter.empty())
+        {
             filter = "-" + excludeDBDriverPatterns;
+        }
         else
+        {
             filter += ":-" + excludeDBDriverPatterns;
+        }
 
-        if (filterArgumentIndex == 0) {
+        if (filterArgumentIndex == 0)
+        {
             argv.push_back(&filter[0]);
             ++m_argc;
         }
         else
+        {
             argv[filterArgumentIndex] = &filter[0];
+        }
     }
 
     ::testing::InitGoogleTest(&m_argc, &argv[0]);

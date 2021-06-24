@@ -48,22 +48,24 @@ class Query;
 /**
  * Database connection type
  */
-enum class DatabaseConnectionType : uint16_t
+enum class DatabaseConnectionType
+    : uint16_t
 {
-    UNKNOWN=0,          ///< Unknown
-    MYSQL=1,            ///< MySQL
-    ORACLE=2,           ///< Oracle
-    POSTGRES=4,         ///< PostgreSQL
-    SQLITE3=8,          ///< SQLite3
-    FIREBIRD=16,        ///< Firebird
-    GENERIC_ODBC=32,    ///< Generic ODBC
-    MSSQL_ODBC=64       ///< MS SQL ODBC
+    UNKNOWN = 0,          ///< Unknown
+    MYSQL = 1,            ///< MySQL
+    ORACLE = 2,           ///< Oracle
+    POSTGRES = 4,         ///< PostgreSQL
+    SQLITE3 = 8,          ///< SQLite3
+    FIREBIRD = 16,        ///< Firebird
+    GENERIC_ODBC = 32,    ///< Generic ODBC
+    MSSQL_ODBC = 64       ///< MS SQL ODBC
 };
 
 /**
  * Types of the objects for DatabaseConnection::listObjects method
  */
-enum class DatabaseObjectType : uint8_t
+enum class DatabaseObjectType
+    : uint8_t
 {
     UNDEFINED,          ///< Undefined
     TABLES,             ///< Tables
@@ -78,8 +80,8 @@ enum class DatabaseObjectType : uint8_t
  */
 struct QueryColumnTypeSize
 {
-    VariantType     type;   ///< Column type
-    size_t          length; ///< Column data size
+    VariantType type;   ///< Column type
+    size_t length; ///< Column data size
 };
 
 /**
@@ -95,13 +97,14 @@ using QueryColumnTypeSizeMap = std::map<std::string, QueryColumnTypeSize, std::l
 class SP_EXPORT PoolDatabaseConnectionQueryMethods
 {
     friend class Query;
+
     friend class QueryStatementManagement;
 
 protected:
     /**
      * Sets internal CQuery statement handle
      */
-    static void querySetStmt(Query* q, void *stmt);
+    static void querySetStmt(Query* q, void* stmt);
 
     /**
      * Sets internal CQuery m_prepared flag
@@ -162,7 +165,7 @@ protected:
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    virtual int  queryColCount(Query* query);
+    virtual int queryColCount(Query* query);
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
@@ -172,7 +175,7 @@ protected:
     /**
      * In a dataset returned by a query, retrieves the column attributes
      */
-    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, char *buff, int len);
+    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len);
 
     /**
      * Binds the parameters to the query
@@ -211,14 +214,17 @@ protected:
  * Implements a thread-safe connection to generDOT_al database. It is used
  * as a base class for actual database driver classes.
  */
-class SP_EXPORT PoolDatabaseConnection : public PoolDatabaseConnectionQueryMethods
+class SP_EXPORT PoolDatabaseConnection
+    : public PoolDatabaseConnectionQueryMethods
 {
     friend class Query;
+
     friend class QueryStatementManagement;
 
 public:
 
     using DBHandle = uint8_t*;
+    using StmtHandle = uint8_t*;
 
     /**
      * Destructor
@@ -375,8 +381,9 @@ public:
 
 protected:
 
-    bool   getInTransaction() const;
-    void   setInTransaction(bool inTransaction);
+    bool getInTransaction() const;
+
+    void setInTransaction(bool inTransaction);
 
     /**
      * Attaches (links) query to the database
@@ -399,9 +406,12 @@ protected:
     explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType);
 
     PoolDatabaseConnection(const PoolDatabaseConnection&) = delete;
+
     PoolDatabaseConnection(PoolDatabaseConnection&&) noexcept = default;
-    PoolDatabaseConnection& operator = (const PoolDatabaseConnection&) = delete;
-    PoolDatabaseConnection& operator = (PoolDatabaseConnection&&) noexcept = default;
+
+    PoolDatabaseConnection& operator=(const PoolDatabaseConnection&) = delete;
+
+    PoolDatabaseConnection& operator=(PoolDatabaseConnection&&) noexcept = default;
 
     /**
      * Opens the database connection.
@@ -496,11 +506,11 @@ protected:
 
 private:
 
-    std::set<Query*>            m_queryList;                ///< The list of queries that use this database
-    DatabaseConnectionString    m_connString;               ///< The connection string
-    DatabaseConnectionType      m_connType;                 ///< The connection type
-    String                      m_driverDescription;        ///< Driver description is filled by the particular driver.
-    bool                        m_inTransaction {false};    ///< The in-transaction flag
+    std::set<Query*> m_queryList;                ///< The list of queries that use this database
+    DatabaseConnectionString m_connString;               ///< The connection string
+    DatabaseConnectionType m_connType;                 ///< The connection type
+    String m_driverDescription;        ///< Driver description is filled by the particular driver.
+    bool m_inTransaction {false};    ///< The in-transaction flag
 };
 
 using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;
@@ -511,7 +521,7 @@ using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;
  * @param tsv                   True if output data is TSV (tab-separated values)
  * @return                      Escaped string
  */
-SP_EXPORT String escapeSQLString(const String& str, bool tsv=false);
+SP_EXPORT String escapeSQLString(const String& str, bool tsv = false);
 
 /**
  * @}

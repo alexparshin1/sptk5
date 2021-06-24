@@ -33,35 +33,35 @@
 #include <sptk5/net/Proxy.h>
 
 #ifndef _WIN32
-    #include <arpa/inet.h>
-    #include <fcntl.h>
-    #include <netdb.h>
-    #include <netinet/in.h>
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    #include <sys/un.h>
-    #include <unistd.h>
 
-    /**
-     * A socket handle is an integer
-     */
-    using SOCKET = int;
-    using SOCKET_ADDRESS_FAMILY = sa_family_t;
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
 
-    /**
-     * A value to indicate an invalid handle
-     */
-    #define INVALID_SOCKET (-1)
+/**
+ * A socket handle is an integer
+ */
+using SOCKET = int;
+using SOCKET_ADDRESS_FAMILY = sa_family_t;
+
+/**
+ * A value to indicate an invalid handle
+ */
+#define INVALID_SOCKET (-1)
 
 #else
-    #include <winsock2.h>
-    #include <windows.h>
-    using socklen_t = int;
-    using SOCKET_ADDRESS_FAMILY = unsigned short;
+#include <winsock2.h>
+#include <windows.h>
+using socklen_t = int;
+using SOCKET_ADDRESS_FAMILY = unsigned short;
 #endif
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup utility Utility Classes
@@ -71,7 +71,8 @@ namespace sptk
 /**
  * Buffered Socket reader.
  */
-class SP_EXPORT TCPSocketReader: public Buffer
+class SP_EXPORT TCPSocketReader
+    : public Buffer
 {
 public:
 
@@ -126,12 +127,12 @@ private:
     /**
      * Socket to read from
      */
-    BaseSocket&     m_socket;
+    BaseSocket& m_socket;
 
     /**
      * Current offset in the read buffer
      */
-    uint32_t        m_readOffset {0};
+    uint32_t m_readOffset {0};
 
     [[nodiscard]] int32_t readFromSocket(sockaddr_in* from);
 
@@ -146,7 +147,8 @@ private:
      * @param from              An optional structure for source address
      * @returns number of bytes read
      */
-    [[nodiscard]] int32_t bufferedRead(uint8_t* destination, size_t sz, char delimiter, bool read_line, struct sockaddr_in* from = nullptr);
+    [[nodiscard]] int32_t bufferedRead(uint8_t* destination, size_t sz, char delimiter, bool read_line,
+                                       struct sockaddr_in* from = nullptr);
 
     void handleReadFromSocketError(int error);
 };
@@ -157,7 +159,8 @@ private:
  * Allows to establish a network connection
  * to the host by name and port address
  */
-class SP_EXPORT TCPSocket: public BaseSocket
+class SP_EXPORT TCPSocket
+    : public BaseSocket
 {
 public:
     /**
@@ -171,7 +174,7 @@ public:
     /**
     * Destructor
     */
-    ~TCPSocket() override;
+    virtual ~TCPSocket();
 
     /**
      * Set proxy
@@ -213,7 +216,7 @@ public:
      * @param delimiter         Line delimiter
      * @returns the number of bytes read from the socket
      */
-    size_t readLine(char *buffer, size_t size, char delimiter='\n');
+    size_t readLine(char* buffer, size_t size, char delimiter = '\n');
 
     /**
      * Reads one line (terminated with CRLF) from the socket into existing memory buffer
@@ -223,7 +226,7 @@ public:
      * @param delimiter         Line delimiter
      * @returns the number of bytes read from the socket
      */
-    size_t readLine(Buffer& buffer, char delimiter='\n');
+    size_t readLine(Buffer& buffer, char delimiter = '\n');
 
     /**
      * Reads one line (terminated with CRLF) from the socket into string
@@ -290,19 +293,23 @@ protected:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeout           Connection timeout. The default is 0 (wait forever)
      */
-    void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+    void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
+               std::chrono::milliseconds timeout) override;
 
     /**
      * Get proxy information
      * @return
      */
-    Proxy* proxy() { return m_proxy.get(); }
+    Proxy* proxy()
+    {
+        return m_proxy.get();
+    }
 
 private:
 
-    TCPSocketReader         m_reader;          ///< Buffered socket reader
-    std::shared_ptr<Proxy>  m_proxy;           ///< Optional proxy
-    Buffer                  m_stringBuffer;    ///< Buffer to read a line
+    TCPSocketReader m_reader;          ///< Buffered socket reader
+    std::shared_ptr<Proxy> m_proxy;           ///< Optional proxy
+    Buffer m_stringBuffer;    ///< Buffer to read a line
 };
 
 /**

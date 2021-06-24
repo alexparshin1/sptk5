@@ -44,7 +44,7 @@ namespace sptk {
  *
  * Simple thread-safe list
  */
-template <class T>
+template<class T>
 class SynchronizedList
 {
 public:
@@ -64,19 +64,17 @@ public:
     SynchronizedList() = default;
 
     SynchronizedList(const SynchronizedList&) = delete;
+
     SynchronizedList(SynchronizedList&&) noexcept = default;
-    SynchronizedList& operator = (const SynchronizedList&) = delete;
-    SynchronizedList& operator = (SynchronizedList&&) noexcept = default;
+
+    SynchronizedList& operator=(const SynchronizedList&) = delete;
+
+    SynchronizedList& operator=(SynchronizedList&&) noexcept = default;
 
     /**
      * Destructor
      */
-    virtual ~SynchronizedList()
-    {
-        std::scoped_lock lock(m_mutex);
-        delete m_list;
-        m_list = nullptr;
-    }
+    virtual ~SynchronizedList() = default;
 
     /**
      * Pushes a data item to the list front
@@ -88,7 +86,7 @@ public:
     virtual void push_front(const T& data)
     {
         std::scoped_lock lock(m_mutex);
-        m_list->push_front(data);
+        m_list.push_front(data);
         m_semaphore.post();
     }
 
@@ -102,11 +100,13 @@ public:
      */
     virtual bool pop_front(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.sleep_for(timeout)) {
+        if (m_semaphore.sleep_for(timeout))
+        {
             std::scoped_lock lock(m_mutex);
-            if (!m_list->empty()) {
-                item = m_list->front();
-                m_list->pop_front();
+            if (!m_list.empty())
+            {
+                item = m_list.front();
+                m_list.pop_front();
                 return true;
             }
         }
@@ -123,7 +123,7 @@ public:
     virtual void push_back(const T& data)
     {
         std::scoped_lock lock(m_mutex);
-        m_list->push_back(data);
+        m_list.push_back(data);
         m_semaphore.post();
     }
 
@@ -137,11 +137,13 @@ public:
      */
     virtual bool pop_back(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.sleep_for(timeout)) {
+        if (m_semaphore.sleep_for(timeout))
+        {
             std::scoped_lock lock(m_mutex);
-            if (!m_list->empty()) {
-                item = m_list->back();
-                m_list->pop_back();
+            if (!m_list.empty())
+            {
+                item = m_list.back();
+                m_list.pop_back();
                 return true;
             }
         }
@@ -154,7 +156,7 @@ public:
     virtual void remove(T& item)
     {
         std::scoped_lock lock(m_mutex);
-        m_list->remove(item);
+        m_list.remove(item);
     }
 
     /**
@@ -173,7 +175,7 @@ public:
     bool empty() const
     {
         std::scoped_lock lock(m_mutex);
-        return m_list->empty();
+        return m_list.empty();
     }
 
     /**
@@ -182,7 +184,7 @@ public:
     size_t size() const
     {
         std::scoped_lock lock(m_mutex);
-        return m_list->size();
+        return m_list.size();
     }
 
     /**
@@ -191,7 +193,7 @@ public:
     void clear()
     {
         std::scoped_lock lock(m_mutex);
-        m_list->clear();
+        m_list.clear();
     }
 
     /**
@@ -203,18 +205,21 @@ public:
     bool each(const CallbackFunction& callbackFunction)
     {
         std::scoped_lock lock(m_mutex);
-        for (auto itor = m_list->begin(); itor != m_list->end(); ++itor) {
+        for (auto itor = m_list.begin(); itor != m_list.end(); ++itor)
+        {
             if (!callbackFunction(*itor))
+            {
                 return false;
+            }
         }
         return true;
     }
 
 private:
 
-    mutable std::mutex      m_mutex;                    ///< Lock to synchronize list operations
-    Semaphore               m_semaphore;                ///< Semaphore to waiting for an item if list is empty
-    std::list<T>*           m_list {new std::list<T>};  ///< List
+    mutable std::mutex m_mutex;   ///< Lock to synchronize list operations
+    Semaphore m_semaphore;        ///< Semaphore to waiting for an item if list is empty
+    std::list<T> m_list;          ///< List
 };
 
 /**

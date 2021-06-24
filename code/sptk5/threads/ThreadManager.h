@@ -35,36 +35,43 @@ class ThreadManager
 {
 public:
     explicit ThreadManager(const String& name);
-    virtual ~ThreadManager();
 
     void start();
+
     void stop();
 
     void registerThread(Thread* thread);
+
     void destroyThread(Thread* thread);
 
     size_t threadCount() const;
-    bool   running() const;
+
+    bool running() const;
 
 private:
 
-    class Joiner : public Thread
+    class Joiner
+        : public Thread
     {
     public:
         explicit Joiner(const String& name);
-        ~Joiner() override;
+
         void push(const SThread& thread);
+
         void stop();
+
     protected:
         void threadFunction() override;
+
         void joinTerminatedThreads(std::chrono::milliseconds timeout);
+
     private:
-        SynchronizedQueue<SThread>  m_terminatedThreads;    ///< Terminated threads scheduled for delete
+        SynchronizedQueue<SThread> m_terminatedThreads;    ///< Terminated threads scheduled for delete
     };
 
-    mutable std::mutex          m_mutex;                ///< Mutex that protects internal data
-    std::map<Thread*, SThread>  m_runningThreads;       ///< Running threads
-    Joiner                      m_joiner;
+    mutable std::mutex m_mutex;                            ///< Mutex that protects internal data
+    std::map<Thread*, SThread> m_runningThreads;           ///< Running threads
+    std::shared_ptr<Joiner> m_joiner;
 
     void terminateRunningThreads();
 };
@@ -72,4 +79,3 @@ private:
 using SThreadManager = std::shared_ptr<ThreadManager>;
 
 }
-

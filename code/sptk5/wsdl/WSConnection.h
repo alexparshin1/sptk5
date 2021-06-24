@@ -34,36 +34,40 @@
 
 namespace sptk {
 
-class SP_EXPORT WSConnection : public ServerConnection
+class SP_EXPORT WSConnection
+    : public ServerConnection
 {
 public:
     class Paths
     {
     public:
-        String  htmlIndexPage;
-        String  wsRequestPage;
-        String  staticFilesDirectory;
+        String htmlIndexPage;
+        String wsRequestPage;
+        String staticFilesDirectory;
+
         Paths(String htmlIndexPage, String wsRequestPage, String staticFilesDirectory)
-        : htmlIndexPage(std::move(htmlIndexPage)),
-          wsRequestPage(std::move(wsRequestPage)),
-          staticFilesDirectory(std::move(staticFilesDirectory))
+            : htmlIndexPage(std::move(htmlIndexPage)),
+              wsRequestPage(std::move(wsRequestPage)),
+              staticFilesDirectory(std::move(staticFilesDirectory))
         {
         }
+
         Paths(const Paths& other) = default;
     };
 
     struct Options
     {
-        Paths       paths;
-        bool        encrypted          {false};
-        bool        allowCors          {false};
-        bool        keepAlive          {false};
-        bool        suppressHttpStatus {false};
-        LogDetails  logDetails;
-        Options(const Options& other);
-        Options(const Paths& paths, bool encrypted=false) : paths(paths), encrypted(encrypted) {}
-        ~Options() = default;
-        Options& operator = (const Options& other);
+        Paths paths;
+        bool encrypted {false};
+        bool allowCors {false};
+        bool keepAlive {false};
+        bool suppressHttpStatus {false};
+        LogDetails logDetails;
+
+        Options(const Paths& paths, bool encrypted = false)
+            : paths(paths), encrypted(encrypted)
+        {
+        }
     };
 
     /**
@@ -89,9 +93,9 @@ public:
 
 private:
 
-    WSServices&     m_services;
-    Logger          m_logger;
-    Options         m_options;
+    WSServices& m_services;
+    Logger m_logger;
+    Options m_options;
 
     void respondToOptions(const HttpHeaders& headers) const;
 
@@ -99,7 +103,8 @@ private:
 
     bool reviewHeaders(const String& requestType, HttpHeaders& headers) const;
 
-    void logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader, const RequestInfo& requestInfo);
+    void logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
+                              const RequestInfo& requestInfo);
 
     void processSingleConnection(bool& done);
 };
@@ -107,7 +112,8 @@ private:
 /**
  * WS server connection
  */
-class SP_EXPORT WSSSLConnection : public WSConnection
+class SP_EXPORT WSSSLConnection
+    : public WSConnection
 {
 public:
     /**
@@ -129,4 +135,3 @@ public:
 };
 
 }
-

@@ -30,8 +30,7 @@
 #include <sptk5/cthreads>
 #include <sptk5/net/HttpAuthentication.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup wsdl WSDL-related Classes
@@ -50,17 +49,19 @@ public:
      * @param alias             Namespace alias
      * @param location          Namespace location
      */
-    WSNameSpace(const String& alias="", const String& location="")
-    : m_alias(alias), m_location(location)
-    {}
+    WSNameSpace(const String& alias = "", const String& location = "")
+        : m_alias(alias), m_location(location)
+    {
+    }
 
     /**
      * Constructor
      * @param other             Other namespace
      */
     WSNameSpace(const WSNameSpace& other)
-    : m_alias(other.m_alias), m_location(other.m_location)
-    {}
+        : m_alias(other.m_alias), m_location(other.m_location)
+    {
+    }
 
     /**
      * Destructor
@@ -72,9 +73,10 @@ public:
      * @param other             Other namespace
      * @return
      */
-    WSNameSpace& operator = (const WSNameSpace& other)
+    WSNameSpace& operator=(const WSNameSpace& other)
     {
-        if (&other != this) {
+        if (&other != this)
+        {
             std::scoped_lock lock(m_mutex);
             m_alias = other.m_alias;
             m_location = other.m_location;
@@ -99,34 +101,36 @@ public:
     String getLocation() const
     {
         std::scoped_lock lock(m_mutex);
-        return m_location; 
+        return m_location;
     }
 
 private:
 
-    mutable std::mutex  m_mutex;        ///< Mutex to protect internal data
-    String              m_alias;        ///< Namespace alias
-    String              m_location;     ///< Namespace location
+    mutable std::mutex m_mutex;        ///< Mutex to protect internal data
+    String m_alias;        ///< Namespace alias
+    String m_location;     ///< Namespace location
 };
 
 /**
  * Parser of WSDL requests
  */
-class SP_EXPORT WSRequest : public std::mutex
+class SP_EXPORT WSRequest
+    : public std::mutex
 {
 public:
     /**
      * Constructor
      * @param logEngine        Optional log engine for error messages
      */
-    WSRequest(sptk::LogEngine* logEngine=nullptr)
-    : m_logEngine(logEngine)
-    {}
+    explicit WSRequest(sptk::LogEngine* logEngine = nullptr)
+        : m_logEngine(logEngine)
+    {
+    }
 
     /**
      * Destructor
      */
-    virtual ~WSRequest() {}
+    virtual ~WSRequest() = default;
 
     /**
      * Processes incoming requests
@@ -135,7 +139,7 @@ public:
      * @param xmlContent           Incoming request and outgoing response
      */
     void processRequest(xml::Document* xmlContent, json::Document* jsonContent,
-                                      HttpAuthentication* authentication, String& requestName);
+                        HttpAuthentication* authentication, String& requestName);
 
     /**
      * Returns service title (for service handshake)
@@ -167,7 +171,8 @@ public:
 
 protected:
 
-    using RequestMethod = std::function<void(sptk::xml::Element*, sptk::json::Element*, sptk::HttpAuthentication*, const sptk::WSNameSpace&)>;
+    using RequestMethod = std::function<void(sptk::xml::Element*, sptk::json::Element*, sptk::HttpAuthentication*,
+                                             const sptk::WSNameSpace&)>;
 
     /**
      * Internal SOAP body processor
@@ -191,7 +196,8 @@ protected:
      * @param error            Error description
      * @param errorCode        Optional HTTP error code, or 0
      */
-    virtual void handleError(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, const sptk::String& error, int errorCode) const;
+    virtual void handleError(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent,
+                             const sptk::String& error, int errorCode) const;
 
     /**
      * Default error logging
@@ -214,8 +220,8 @@ protected:
 
 private:
 
-    sptk::LogEngine*                        m_logEngine;        ///< Optional logger, or nullptr
-    std::map<sptk::String, RequestMethod>   m_requestMethods;   ///< Map of requset names to methods
+    sptk::LogEngine* m_logEngine;        ///< Optional logger, or nullptr
+    std::map<sptk::String, RequestMethod> m_requestMethods;   ///< Map of requset names to methods
 
 };
 
