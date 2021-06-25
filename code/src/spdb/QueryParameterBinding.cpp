@@ -39,7 +39,7 @@ void QueryParameterBinding::reset(bool isOutput)
     m_output = isOutput;
 }
 
-bool QueryParameterBinding::check(void* stmt, VariantType type, uint32_t size, void* buffer)
+bool QueryParameterBinding::check(StmtHandle stmt, VariantType type, uint32_t size, uint8_t* buffer)
 {
     bool changed = true;
 

@@ -35,13 +35,14 @@
 
 namespace sptk {
 
-class SQLite3Field : public DatabaseField
+class SQLite3Field
+    : public DatabaseField
 {
     friend class SQLite3Connection;
 
 public:
     SQLite3Field(const std::string& fieldName, int fieldColumn)
-            : DatabaseField(fieldName, fieldColumn, 0, VAR_NONE, 0, 0)
+        : DatabaseField(fieldName, fieldColumn, 0, VAR_NONE, 0, 0)
     {
     }
 };
@@ -52,18 +53,22 @@ using namespace std;
 using namespace sptk;
 
 SQLite3Connection::SQLite3Connection(const String& connectionString)
-        : PoolDatabaseConnection(connectionString, DatabaseConnectionType::SQLITE3)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::SQLITE3)
 {
 }
 
 SQLite3Connection::~SQLite3Connection()
 {
-    try {
+    try
+    {
         if (getInTransaction() && SQLite3Connection::active())
+        {
             rollbackTransaction();
+        }
         close();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
     }
 }
@@ -75,13 +80,17 @@ String SQLite3Connection::nativeConnectionString() const
 
 void SQLite3Connection::_openDatabase(const String& newConnectionString)
 {
-    if (!active()) {
+    if (!active())
+    {
         setInTransaction(false);
 
         if (!newConnectionString.empty())
+        {
             connectionString(DatabaseConnectionString(newConnectionString));
+        }
 
-        if (sqlite3_open(nativeConnectionString().c_str(), &m_connect) != 0) {
+        if (sqlite3_open(nativeConnectionString().c_str(), &m_connect) != 0)
+        {
             string error = sqlite3_errmsg(m_connect);
             sqlite3_close(m_connect);
             m_connect = nullptr;
@@ -97,9 +106,9 @@ void SQLite3Connection::closeDatabase()
     m_connect = nullptr;
 }
 
-PoolDatabaseConnection::DBHandle SQLite3Connection::handle() const
+DBHandle SQLite3Connection::handle() const
 {
-    return (PoolDatabaseConnection::DBHandle) m_connect;
+    return (DBHandle) m_connect;
 }
 
 bool SQLite3Connection::active() const
@@ -110,14 +119,19 @@ bool SQLite3Connection::active() const
 void SQLite3Connection::driverBeginTransaction()
 {
     if (m_connect == nullptr)
+    {
         open();
+    }
 
     if (getInTransaction())
+    {
         throw DatabaseException("Transaction already started.");
+    }
 
 
     if (char* zErrMsg = nullptr;
-            sqlite3_exec(m_connect, "BEGIN TRANSACTION", nullptr, nullptr, &zErrMsg) != SQLITE_OK) {
+        sqlite3_exec(m_connect, "BEGIN TRANSACTION", nullptr, nullptr, &zErrMsg) != SQLITE_OK)
+    {
         throw DatabaseException(zErrMsg);
     }
 
@@ -127,13 +141,16 @@ void SQLite3Connection::driverBeginTransaction()
 void SQLite3Connection::driverEndTransaction(bool commit)
 {
     if (!getInTransaction())
+    {
         throw DatabaseException("Transaction isn't started.");
+    }
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
 
 
     if (char* zErrMsg = nullptr;
-            sqlite3_exec(m_connect, action, nullptr, nullptr, &zErrMsg) != SQLITE_OK) {
+        sqlite3_exec(m_connect, action, nullptr, nullptr, &zErrMsg) != SQLITE_OK)
+    {
         throw DatabaseException(zErrMsg);
     }
 
@@ -154,7 +171,9 @@ void SQLite3Connection::queryAllocStmt(Query* query)
     scoped_lock lock(m_mutex);
 
     if (auto* stmt = (SQLHSTMT) query->statement(); stmt != nullptr)
+    {
         sqlite3_finalize(stmt);
+    }
 
     querySetStmt(query, nullptr);
 }
@@ -164,7 +183,9 @@ void SQLite3Connection::queryFreeStmt(Query* query)
     scoped_lock lock(m_mutex);
 
     if (auto* stmt = (SQLHSTMT) query->statement(); stmt != nullptr)
+    {
         sqlite3_finalize(stmt);
+    }
 
     querySetStmt(query, nullptr);
     querySetPrepared(query, false);
@@ -183,12 +204,13 @@ void SQLite3Connection::queryPrepare(Query* query)
 
 
     if (const char* pzTail = nullptr;
-            sqlite3_prepare(m_connect, query->sql().c_str(), int(query->sql().length()), &stmt, &pzTail) != SQLITE_OK) {
+        sqlite3_prepare(m_connect, query->sql().c_str(), int(query->sql().length()), &stmt, &pzTail) != SQLITE_OK)
+    {
         const char* errorMsg = sqlite3_errmsg(m_connect);
         throw DatabaseException(errorMsg, __FILE__, __LINE__, query->sql());
     }
 
-    querySetStmt(query, stmt);
+    querySetStmt(query, (StmtHandle) stmt);
     querySetPrepared(query, true);
 }
 
@@ -202,7 +224,9 @@ void SQLite3Connection::queryExecute(Query* query)
     scoped_lock lock(m_mutex);
 
     if (!query->prepared())
+    {
         throw DatabaseException("Query isn't prepared");
+    }
 }
 
 int SQLite3Connection::queryColCount(Query* query)
@@ -218,7 +242,8 @@ void SQLite3Connection::queryBindParameters(Query* query)
 {
     scoped_lock lock(m_mutex);
 
-    for (uint32_t i = 0; i < query->paramCount(); ++i) {
+    for (uint32_t i = 0; i < query->paramCount(); ++i)
+    {
         bindParameter(query, i);
     }
 }
@@ -229,15 +254,20 @@ void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber) const
     QueryParameter* param = &query->param(paramNumber);
     VariantType ptype = param->dataType();
 
-    for (unsigned j = 0; j < param->bindCount(); ++j) {
+    for (unsigned j = 0; j < param->bindCount(); ++j)
+    {
 
         int rc;
         auto paramBindNumber = short(param->bindIndex(j) + 1);
 
         if (param->isNull())
+        {
             rc = sqlite3_bind_null(stmt, paramBindNumber);
-        else {
-            switch (ptype) {
+        }
+        else
+        {
+            switch (ptype)
+            {
                 case VAR_BOOL:
                 case VAR_INT:
                     rc = sqlite3_bind_int(stmt, paramBindNumber, param->getInteger());
@@ -263,27 +293,30 @@ void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber) const
                     break;
 
                 case VAR_DATE:
-                case VAR_DATE_TIME: throwException("Date and time types isn't yet supported for SQLite3")
+                case VAR_DATE_TIME:
+                throwException("Date and time types isn't yet supported for SQLite3")
 
                 default:
                     throw DatabaseException(
-                            "Unsupported type of parameter " + int2string(paramBindNumber), __FILE__, __LINE__,
-                            query->sql());
+                        "Unsupported type of parameter " + int2string(paramBindNumber), __FILE__, __LINE__,
+                        query->sql());
             }
         }
 
-        if (rc != SQLITE_OK) {
+        if (rc != SQLITE_OK)
+        {
             string error = sqlite3_errmsg(m_connect);
             throw DatabaseException(
-                    error + ", in binding parameter " + int2string(paramBindNumber), __FILE__, __LINE__,
-                    query->sql());
+                error + ", in binding parameter " + int2string(paramBindNumber), __FILE__, __LINE__,
+                query->sql());
         }
     }
 }
 
 void SQLite3Connection::SQLITEtypeToCType(int sqliteType, VariantType& dataType)
 {
-    switch (sqliteType) {
+    switch (sqliteType)
+    {
 
         case SQLITE_INTEGER:
             dataType = VAR_INT64;
@@ -311,16 +344,24 @@ void SQLite3Connection::SQLITEtypeToCType(int sqliteType, VariantType& dataType)
 void SQLite3Connection::queryOpen(Query* query)
 {
     if (!active())
+    {
         open();
+    }
 
     if (query->active())
+    {
         return;
+    }
 
     if (active() && query->statement() == nullptr)
+    {
         queryAllocStmt(query);
+    }
 
     if (!query->prepared())
+    {
         queryPrepare(query);
+    }
 
     queryBindParameters(query);
     queryExecute(query);
@@ -331,8 +372,10 @@ void SQLite3Connection::queryOpen(Query* query)
 
     auto* stmt = (SQLHSTMT) query->statement();
 
-    if (count < 1) {
-        if (sqlite3_step(stmt) != SQLITE_DONE) {
+    if (count < 1)
+    {
+        if (sqlite3_step(stmt) != SQLITE_DONE)
+        {
             String error = queryError(query);
             queryCloseStmt(query);
             throw DatabaseException(error, __FILE__, __LINE__, query->sql());
@@ -345,10 +388,13 @@ void SQLite3Connection::queryOpen(Query* query)
     querySetActive(query, true);
 
     // Reading the column attributes
-    for (short column = 1; column <= count; ++column) {
+    for (short column = 1; column <= count; ++column)
+    {
         String columnName(sqlite3_column_name(stmt, column - 1));
         if (columnName.empty())
+        {
             columnName = "column_" + to_string(column);
+        }
 
         auto* field = new SQLite3Field(columnName, column);
         query->fields().push_back(field);
@@ -365,12 +411,15 @@ static uint32_t trimField(char* s, uint32_t sz)
     char ch = s[0];
     s[0] = '!';
 
-    while (*(--p) == ' ') {}
+    while (*(--p) == ' ')
+    {}
 
     *(++p) = 0;
 
     if (ch == ' ' && s[1] == 0)
+    {
         return 0;
+    }
 
     s[0] = ch;
     return uint32_t(p - s);
@@ -379,13 +428,16 @@ static uint32_t trimField(char* s, uint32_t sz)
 void SQLite3Connection::queryFetch(Query* query)
 {
     if (!query->active())
+    {
         throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, query->sql());
+    }
 
     auto* statement = (SQLHSTMT) query->statement();
 
     scoped_lock lock(m_mutex);
 
-    switch (sqlite3_step(statement)) {
+    switch (sqlite3_step(statement))
+    {
         case SQLITE_DONE:
             querySetEof(query, true);
             return;
@@ -399,24 +451,31 @@ void SQLite3Connection::queryFetch(Query* query)
 
     auto fieldCount = query->fieldCount();
     if (fieldCount == 0)
+    {
         return;
+    }
 
     SQLite3Field* field = nullptr;
 
-    for (uint32_t column = 0; column < fieldCount; ++column) {
-        try {
+    for (uint32_t column = 0; column < fieldCount; ++column)
+    {
+        try
+        {
             field = (SQLite3Field*) &(*query)[column];
 
             auto fieldType = (short) field->fieldType();
-            if (fieldType == 0) {
+            if (fieldType == 0)
+            {
                 fieldType = (short) sqlite3_column_type(statement, int(column));
                 field->setFieldType(fieldType, 0, 0);
             }
 
             auto dataLength = (uint32_t) sqlite3_column_bytes(statement, int(column));
 
-            if (dataLength != 0) {
-                switch (fieldType) {
+            if (dataLength != 0)
+            {
+                switch (fieldType)
+                {
 
                     case SQLITE_INTEGER:
                         field->setInt64(sqlite3_column_int64(statement, int(column)));
@@ -428,11 +487,12 @@ void SQLite3Connection::queryFetch(Query* query)
 
                     case SQLITE_TEXT:
                         field->setBuffer(sqlite3_column_text(statement, int(column)), dataLength, VAR_STRING);
-                        dataLength = trimField((char*)field->getBuffer(), dataLength);
+                        dataLength = trimField((char*) field->getBuffer(), dataLength);
                         break;
 
                     case SQLITE_BLOB:
-                        field->setBuffer((const uint8_t*) sqlite3_column_blob(statement, int(column)), dataLength, VAR_BUFFER);
+                        field->setBuffer((const uint8_t*) sqlite3_column_blob(statement, int(column)), dataLength,
+                                         VAR_BUFFER);
                         break;
 
                     default:
@@ -442,15 +502,18 @@ void SQLite3Connection::queryFetch(Query* query)
 
                 field->dataSize(dataLength);
 
-            } else {
+            }
+            else
+            {
                 field->setString("");
                 field->setNull(VAR_NONE);
             }
         }
-        catch (const Exception& e) {
+        catch (const Exception& e)
+        {
             throw DatabaseException(
-                    "Can't read field " + field->fieldName() + "\n" + string(e.what()), __FILE__, __LINE__,
-                    query->sql());
+                "Can't read field " + field->fieldName() + "\n" + string(e.what()), __FILE__, __LINE__,
+                query->sql());
         }
     }
 }
@@ -460,7 +523,8 @@ void SQLite3Connection::objectList(DatabaseObjectType objectType, Strings& objec
     string objectTypeName;
     objects.clear();
 
-    switch (objectType) {
+    switch (objectType)
+    {
         case DatabaseObjectType::TABLES:
             objectTypeName = "table";
             break;
@@ -476,7 +540,8 @@ void SQLite3Connection::objectList(DatabaseObjectType objectType, Strings& objec
     Query query(this, "SELECT name FROM sqlite_master WHERE type='" + objectTypeName + "'");
     query.open();
 
-    while (!query.eof()) {
+    while (!query.eof())
+    {
         objects.push_back(query[uint32_t(0)].asString());
         query.next();
     }

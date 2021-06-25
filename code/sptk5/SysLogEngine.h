@@ -27,7 +27,9 @@
 #pragma once
 
 #ifndef _WIN32
+
 #include <syslog.h>
+
 #else
 #include <winsock2.h>
 #include <windows.h>
@@ -35,8 +37,7 @@
 
 #include <sptk5/LogEngine.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup log Log Classes
@@ -51,7 +52,8 @@ namespace sptk
  * On Windows 95/98/ME the system log isn't supported..
  * The facility method allows to define - which system log is used
  */
-class SP_EXPORT SysLogEngine: public LogEngine
+class SP_EXPORT SysLogEngine
+    : public LogEngine
 {
 public:
     /**
@@ -74,14 +76,16 @@ public:
      * @param programName       Program name
      * @param facilities        Log facility or a set of facilities.
      */
-    SysLogEngine(const std::string& programName, uint32_t facilities = LOG_USER);
+    SysLogEngine(const String& programName, uint32_t facilities = LOG_USER);
 
     /**
      * Destructor
      *
      * Destructs the log object, closes the log descriptor, releases all the allocated resources
      */
+#ifdef _WIN32
     ~SysLogEngine() override;
+#endif
 
     /**
      * Get log engine options
@@ -98,13 +102,14 @@ private:
     static bool             m_registrySet;          ///< Is registry set?
 #endif
 
-    static SharedMutex      syslogMutex;
+    static SharedMutex syslogMutex;
     static std::atomic_bool m_logOpened;
 
-    uint32_t            m_facilities;               ///< List of facilities allows to define one or more system logs where messages would be sent
-    std::string         m_programName;              ///< Application name
+    uint32_t m_facilities;               ///< List of facilities allows to define one or more system logs where messages would be sent
+    String m_programName;              ///< Application name
 
-    void programName(const std::string& progName);
+    void programName(const String& progName);
+
     void setupEventSource() const;
 };
 /**

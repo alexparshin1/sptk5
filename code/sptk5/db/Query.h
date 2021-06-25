@@ -45,7 +45,8 @@ namespace sptk {
  * @{
  */
 
-class SP_EXPORT QueryStatementManagement: public DataSource
+class SP_EXPORT QueryStatementManagement
+    : public DataSource
 {
 public:
     /**
@@ -53,15 +54,16 @@ public:
      * @param autoPrepare       If true the auto-prepare statement
      */
     explicit QueryStatementManagement(bool autoPrepare)
-    : m_autoPrepare(autoPrepare)
-    {}
+        : m_autoPrepare(autoPrepare)
+    {
+    }
 
     QueryStatementManagement(const QueryStatementManagement& other) = delete;
 
     /**
      * Returns query statement handle
      */
-    void *statement() const
+    void* statement() const
     {
         return m_statement;
     }
@@ -112,7 +114,7 @@ public:
      * If the query was connected
      * to another database, releases all the allocated resources in it.
      */
-    void connect(PoolDatabaseConnection *db);
+    void connect(PoolDatabaseConnection* db);
 
     /**
      * Disconnects query from the database and releases all the allocated resourses.
@@ -122,7 +124,7 @@ public:
     /**
      * Returns the database the query is connected to
      */
-    PoolDatabaseConnection *database() const
+    PoolDatabaseConnection* database() const
     {
         return m_db;
     }
@@ -130,7 +132,7 @@ public:
     /**
      * Connects the query to the database different database.
      */
-    void database(PoolDatabaseConnection *db)
+    void database(PoolDatabaseConnection* db)
     {
         connect(db);
     }
@@ -145,7 +147,7 @@ protected:
     /**
      * Returns query statement handle
      */
-    void setStatement(void *statement)
+    void setStatement(StmtHandle statement)
     {
         m_statement = statement;
     }
@@ -175,7 +177,7 @@ protected:
      * Closes a statement. Prepared statement stay prepared but closed.
      * @param freeStatement     If true then statement is freed.
      */
-    void closeStmt(bool freeStatement=false);
+    void closeStmt(bool freeStatement = false);
 
     /**
      * Closes query by closing the statement.
@@ -224,50 +226,15 @@ protected:
     [[noreturn]] void notImplemented(const String& functionName) const;
 
 private:
-    /**
-     * Prepare the query automatically, on thedynamic_cast<COracleBulkInsertQuery*>( first call
-     */
-    bool                    m_autoPrepare {true};
-
-    /**
-     * ODBC statement handle
-     */
-    void*                   m_statement {nullptr};
-
-    /**
-     * True if the statement is prepared
-     */
-    bool                    m_prepared {false};
-
-    /**
-     * True if query is active (opened)
-     */
-    bool                    m_active {false};
-
-    /**
-     * True if there is no more records to fetch
-     */
-    bool                    m_eof {true};
-
-    /**
-     * Bulk mode flag
-     */
-    bool                    m_bulkMode {false};
-
-    /**
-     * SQL statement string
-     */
-    String                  m_sql;
-
-    /**
-     * Optional diagnostic messages populated after exec() or open()
-     */
-    Strings                 m_messages;
-
-    /**
-     * Database connection
-     */
-    PoolDatabaseConnection* m_db {nullptr};
+    bool m_autoPrepare {true};              ///< Prepare the query automatically, on the first call
+    StmtHandle m_statement {nullptr};       ///< DB statement handle
+    bool m_prepared {false};                ///< True if the statement is prepared
+    bool m_active {false};                  ///< True if query is active (opened)
+    bool m_eof {true};                      ///< True if there is no more records to fetch
+    bool m_bulkMode {false};                ///< Bulk mode flag
+    String m_sql;                           ///< SQL statement string
+    Strings m_messages;                     ///< Optional diagnostic messages populated after exec() or open()
+    PoolDatabaseConnection* m_db {nullptr}; ///< Database connection
 };
 
 /**
@@ -277,9 +244,11 @@ private:
  * execute a database queries. The type of the database
  * depends on the DatabaseConnection object query is connected to.
  */
-class SP_EXPORT Query: public QueryStatementManagement
+class SP_EXPORT Query
+    : public QueryStatementManagement
 {
     friend class PoolDatabaseConnection;
+
     friend class PoolDatabaseConnectionQueryMethods;
 
 public:
@@ -313,13 +282,14 @@ public:
      * @param sql               The SQL query text to use, optional
      * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
      */
-    explicit Query(PoolDatabaseConnection *db, const String& sql = "", bool autoPrepare = true);
+    explicit Query(PoolDatabaseConnection* db, const String& sql = "", bool autoPrepare = true);
 
     /**
      * Deleted copy constructor
      */
     Query(const Query&) = delete;
-    Query& operator = (const Query&) = delete;
+
+    Query& operator=(const Query&) = delete;
 
     /**
      * Destructor
@@ -332,15 +302,15 @@ public:
      * Field index should be inside 0..fieldCount()-1
      * @param fieldIndex        Field index
      */
-    Field& operator [](size_t fieldIndex) override
+    Field& operator[](size_t fieldIndex) override
     {
-        return m_fields[(int)fieldIndex];
+        return m_fields[(int) fieldIndex];
     }
 
     /**
      * Field access by field name.
      */
-    Field& operator [](const String& fieldName) override
+    Field& operator[](const String& fieldName) override
     {
         return m_fields[fieldName.c_str()];
     }
@@ -399,12 +369,12 @@ public:
     /**
      * Field read access by the field name, for the universal data connection
      */
-    bool readField(const char *fname, Variant& value) override;
+    bool readField(const char* fname, Variant& value) override;
 
     /**
      * Field write access by the field name, for the universal data connection
      */
-    bool writeField(const char *fname, const Variant& fvalue) override;
+    bool writeField(const char* fname, const Variant& fvalue) override;
 
     /**
      * Opens the query and fetches the first row.
@@ -477,7 +447,7 @@ public:
      * @returns parameter
      * @see CParamList
      */
-    QueryParameter& param(const char *paramName) const
+    QueryParameter& param(const char* paramName) const
     {
         return m_params[paramName];
     }
@@ -547,12 +517,12 @@ private:
     /**
      * List of query parameters
      */
-    QueryParameterList      m_params;
+    QueryParameterList m_params;
 
     /**
      * List of query fields - makes sense after fetch
      */
-    FieldList               m_fields {true};
+    FieldList m_fields {true};
 
     /**
      * Parse query parameter during assigning SQL to query
@@ -564,6 +534,7 @@ private:
     void sqlParseParameter(const char* paramStart, const char* paramEnd, int& paramNumber, String& sql);
 
     String parseParameters(const String& _sql);
+
     const char* readParamater(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd);
 };
 

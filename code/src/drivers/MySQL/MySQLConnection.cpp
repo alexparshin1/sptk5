@@ -32,7 +32,7 @@ using namespace std;
 using namespace sptk;
 
 MySQLConnection::MySQLConnection(const String& connectionString)
-: PoolDatabaseConnection(connectionString, DatabaseConnectionType::MYSQL)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::MYSQL)
 {
 }
 
@@ -46,17 +46,22 @@ void MySQLConnection::initConnection()
                                          mysql_close(connection);
                                      });
     if (m_connection == nullptr)
+    {
         throw DatabaseException("Can't initialize MySQL environment");
+    }
     mysql_options(m_connection.get(), MYSQL_SET_CHARSET_NAME, "utf8");
     mysql_options(m_connection.get(), MYSQL_INIT_COMMAND, "SET NAMES utf8");
 }
 
 void MySQLConnection::_openDatabase(const String& newConnectionString)
 {
-    if (!active()) {
+    if (!active())
+    {
         setInTransaction(false);
         if (!newConnectionString.empty())
+        {
             connectionString(DatabaseConnectionString(newConnectionString));
+        }
 
         initConnection();
 
@@ -83,9 +88,9 @@ void MySQLConnection::closeDatabase()
     m_connection.reset();
 }
 
-PoolDatabaseConnection::DBHandle MySQLConnection::handle() const
+DBHandle MySQLConnection::handle() const
 {
-    return (PoolDatabaseConnection::DBHandle) m_connection.get();
+    return (DBHandle) m_connection.get();
 }
 
 bool MySQLConnection::active() const
@@ -96,7 +101,9 @@ bool MySQLConnection::active() const
 void MySQLConnection::executeCommand(const String& command)
 {
     if (m_connection == nullptr)
+    {
         open();
+    }
 
     if (mysql_real_query(m_connection.get(), command.c_str(), ULONG_CAST(command.length())) != 0)
         throwMySQLException("Can't execute " + command);
@@ -113,7 +120,8 @@ void MySQLConnection::driverBeginTransaction()
 
 void MySQLConnection::driverEndTransaction(bool commit)
 {
-    if (!getInTransaction()) throwDatabaseException("Transaction isn't started.")
+    if (!getInTransaction())
+    throwDatabaseException("Transaction isn't started.")
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
     executeCommand(action);
@@ -129,14 +137,15 @@ String MySQLConnection::queryError(const Query*) const
 void MySQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new MySQLStatement(this, query->sql(), query->autoPrepare()));
+    querySetStmt(query, (StmtHandle) new MySQLStatement(this, query->sql(), query->autoPrepare()));
 }
 
 void MySQLConnection::queryFreeStmt(Query* query)
 {
     scoped_lock lock(m_mutex);
     auto* statement = (MySQLStatement*) query->statement();
-    if (statement != nullptr) {
+    if (statement != nullptr)
+    {
         delete statement;
         querySetStmt(query, nullptr);
         querySetPrepared(query, false);
@@ -146,12 +155,16 @@ void MySQLConnection::queryFreeStmt(Query* query)
 void MySQLConnection::queryCloseStmt(Query* query)
 {
     scoped_lock lock(m_mutex);
-    try {
+    try
+    {
         auto* statement = (MySQLStatement*) query->statement();
         if (statement != nullptr)
+        {
             statement->close();
+        }
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         THROW_QUERY_ERROR(query, e.what())
     }
 }
@@ -160,15 +173,19 @@ void MySQLConnection::queryPrepare(Query* query)
 {
     scoped_lock lock(m_mutex);
 
-    if (!query->prepared()) {
+    if (!query->prepared())
+    {
         auto* statement = (MySQLStatement*) query->statement();
-        if (statement != nullptr) {
-            try {
+        if (statement != nullptr)
+        {
+            try
+            {
                 statement->prepare(query->sql());
                 statement->enumerateParams(query->params());
                 querySetPrepared(query, true);
             }
-            catch (const Exception& e) {
+            catch (const Exception& e)
+            {
                 THROW_QUERY_ERROR(query, e.what())
             }
         }
@@ -185,12 +202,16 @@ int MySQLConnection::queryColCount(Query* query)
 {
     int colCount = 0;
     const auto* statement = (MySQLStatement*) query->statement();
-    try {
+    try
+    {
         if (statement == nullptr)
+        {
             throw DatabaseException("Query not opened");
+        }
         colCount = (int) statement->colCount();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         THROW_QUERY_ERROR(query, e.what())
     }
     return colCount;
@@ -201,12 +222,16 @@ void MySQLConnection::queryBindParameters(Query* query)
     scoped_lock lock(m_mutex);
 
     auto* statement = (MySQLStatement*) query->statement();
-    try {
+    try
+    {
         if (statement == nullptr)
+        {
             throw DatabaseException("Query not prepared");
+        }
         statement->setParameterValues();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         THROW_QUERY_ERROR(query, e.what())
     }
 }
@@ -214,12 +239,16 @@ void MySQLConnection::queryBindParameters(Query* query)
 void MySQLConnection::queryExecute(Query* query)
 {
     auto* statement = (MySQLStatement*) query->statement();
-    try {
+    try
+    {
         if (statement == nullptr)
+        {
             throw DatabaseException("Query is not prepared");
+        }
         statement->execute(getInTransaction());
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         THROW_QUERY_ERROR(query, e.what())
     }
 }
@@ -227,17 +256,24 @@ void MySQLConnection::queryExecute(Query* query)
 void MySQLConnection::queryOpen(Query* query)
 {
     if (!active())
+    {
         open();
+    }
 
     if (query->active())
+    {
         return;
+    }
 
-    if (query->statement() == nullptr) {
+    if (query->statement() == nullptr)
+    {
         queryAllocStmt(query);
     }
 
-    if (query->autoPrepare()) {
-        if (!query->prepared()) {
+    if (query->autoPrepare())
+    {
+        if (!query->prepared())
+        {
             queryPrepare(query);
         }
         queryBindParameters(query);
@@ -247,10 +283,13 @@ void MySQLConnection::queryOpen(Query* query)
 
     queryExecute(query);
     if (auto fieldCount = (short) queryColCount(query); fieldCount < 1)
+    {
         return;
+    }
 
     querySetActive(query, true);
-    if (query->fieldCount() == 0) {
+    if (query->fieldCount() == 0)
+    {
         scoped_lock lock(m_mutex);
         statement->bindResult(query->fields());
     }
@@ -262,22 +301,25 @@ void MySQLConnection::queryOpen(Query* query)
 void MySQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
-        THROW_QUERY_ERROR(query, "Dataset isn't open")
+    THROW_QUERY_ERROR(query, "Dataset isn't open")
 
     scoped_lock lock(m_mutex);
 
-    try {
+    try
+    {
         auto* statement = (MySQLStatement*) query->statement();
 
         statement->fetch();
-        if (statement->eof()) {
+        if (statement->eof())
+        {
             querySetEof(query, true);
             return;
         }
 
         statement->readResultRow(query->fields());
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         Query::throwError("CMySQLConnection::queryFetch", e.what());
     }
 }
@@ -286,48 +328,52 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
 {
     string objectsSQL;
     objects.clear();
-    switch (objectType) {
+    switch (objectType)
+    {
         case DatabaseObjectType::PROCEDURES:
             objectsSQL =
-                    "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
-                    "FROM information_schema.routines "
-                    "WHERE routine_type = 'PROCEDURE'";
+                "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
+                "FROM information_schema.routines "
+                "WHERE routine_type = 'PROCEDURE'";
             break;
         case DatabaseObjectType::FUNCTIONS:
             objectsSQL =
-                    "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
-                    "FROM information_schema.routines "
-                    "WHERE routine_type = 'FUNCTION'";
+                "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
+                "FROM information_schema.routines "
+                "WHERE routine_type = 'FUNCTION'";
             break;
         case DatabaseObjectType::TABLES:
             objectsSQL =
-                    "SELECT CONCAT(table_schema, '.', table_name) object_name "
-                    "FROM information_schema.tables "
-                    "WHERE NOT table_schema IN ('mysql','information_schema')";
+                "SELECT CONCAT(table_schema, '.', table_name) object_name "
+                "FROM information_schema.tables "
+                "WHERE NOT table_schema IN ('mysql','information_schema')";
             break;
         case DatabaseObjectType::VIEWS:
             objectsSQL =
-                    "SELECT CONCAT(table_schema, '.', table_name) object_name "
-                    "FROM information_schema.views";
+                "SELECT CONCAT(table_schema, '.', table_name) object_name "
+                "FROM information_schema.views";
             break;
         case DatabaseObjectType::DATABASES:
             objectsSQL =
-                    "SHOW SCHEMAS where `Database` NOT IN ('information_schema','performance_schema','mysql')";
+                "SHOW SCHEMAS where `Database` NOT IN ('information_schema','performance_schema','mysql')";
             break;
         default:
             break;
     }
 
     Query query(this, objectsSQL);
-    try {
+    try
+    {
         query.open();
-        while (!query.eof()) {
+        while (!query.eof())
+        {
             objects.push_back(query[uint32_t(0)].asString());
             query.next();
         }
         query.close();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR("Error fetching system info: " << e.what() << endl)
     }
 }
@@ -342,12 +388,16 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 
     Strings statements;
     String statement;
-    for (auto row: sqlBatch) {
+    for (auto row: sqlBatch)
+    {
         row = row.trim();
         if (row.empty() || matchCommentRow.matches(row))
+        {
             continue;
+        }
 
-        if (auto matches = matchDelimiterChange.m(row); matches) {
+        if (auto matches = matchDelimiterChange.m(row); matches)
+        {
             auto delimiter = matches[0].value;
             delimiter = matchEscapeChars.s(delimiter, "\\\\1");
             matchStatementEnd = make_shared<RegularExpression>("(" + delimiter + ")(\\s*|-- .*)$");
@@ -355,7 +405,8 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
             continue;
         }
 
-        if (matchStatementEnd->matches(row)) {
+        if (matchStatementEnd->matches(row))
+        {
             row = matchStatementEnd->s(row, "");
             statement += row;
             statements.push_back(statement);
@@ -367,20 +418,29 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     }
 
     if (!trim(statement).empty())
+    {
         statements.push_back(statement);
+    }
 
-    for (const auto& stmt: statements) {
+    for (const auto& stmt: statements)
+    {
         Query query(this, stmt, false);
-        try {
+        try
+        {
             query.exec();
         }
-        catch (const Exception& e) {
+        catch (const Exception& e)
+        {
             stringstream error;
             error << e.what() << ", query: " << query.sql();
             if (errors != nullptr)
+            {
                 errors->push_back(error.str());
+            }
             else
+            {
                 throw DatabaseException(error.str());
+            }
         }
     }
 }
@@ -388,7 +448,9 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 String MySQLConnection::driverDescription() const
 {
     if (m_connection != nullptr)
+    {
         return string("MySQL ") + mysql_get_server_info(m_connection.get());
+    }
     return "MySQL";
 }
 

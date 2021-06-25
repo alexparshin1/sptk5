@@ -137,7 +137,7 @@ void FirebirdConnection::closeDatabase()
     }
 }
 
-PoolDatabaseConnection::DBHandle FirebirdConnection::handle() const
+DBHandle FirebirdConnection::handle() const
 {
     union
     {
@@ -145,7 +145,7 @@ PoolDatabaseConnection::DBHandle FirebirdConnection::handle() const
         void* handle;
     } convert = {};
     convert.connection = m_connection;
-    return (PoolDatabaseConnection::DBHandle) convert.handle;
+    return (DBHandle) convert.handle;
 }
 
 bool FirebirdConnection::active() const
@@ -186,7 +186,7 @@ void FirebirdConnection::driverBeginTransaction()
 
     m_transaction = 0L;
     static array<char, 5> isc_tpb = {isc_tpb_version3, isc_tpb_write, isc_tpb_read_committed, isc_tpb_no_rec_version,
-                             isc_tpb_wait};
+                                     isc_tpb_wait};
     isc_start_transaction(status_vector.data(), &m_transaction, 1, &m_connection, sizeof(isc_tpb), isc_tpb);
     checkStatus(status_vector.data(), __FILE__, __LINE__);
 
@@ -223,7 +223,7 @@ String FirebirdConnection::queryError(const Query*) const
 void FirebirdConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new FirebirdStatement(this, query->sql()));
+    querySetStmt(query, (StmtHandle) new FirebirdStatement(this, query->sql()));
 }
 
 void FirebirdConnection::queryFreeStmt(Query* query)

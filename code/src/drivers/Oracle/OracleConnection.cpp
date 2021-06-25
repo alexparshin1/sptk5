@@ -109,9 +109,9 @@ void OracleConnection::closeDatabase()
     }
 }
 
-PoolDatabaseConnection::DBHandle OracleConnection::handle() const
+DBHandle OracleConnection::handle() const
 {
-    return (PoolDatabaseConnection::DBHandle) m_connection.get();
+    return (DBHandle) m_connection.get();
 }
 
 bool OracleConnection::active() const
@@ -187,7 +187,7 @@ String OracleConnection::queryError(const Query*) const
 void OracleConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new OracleStatement(this, query->sql()));
+    querySetStmt(query, (StmtHandle) new OracleStatement(this, query->sql()));
 }
 
 void OracleConnection::queryFreeStmt(Query* query)
@@ -235,7 +235,7 @@ void OracleConnection::queryPrepare(Query* query)
         setMaxParamSizes(enumeratedParams, stmt, columnTypeSizes);
         stmt->setMaxIterations((unsigned) bulkInsertQuery->batchSize());
     }
-    querySetStmt(query, statement);
+    querySetStmt(query, (StmtHandle) statement);
     querySetPrepared(query, true);
 }
 

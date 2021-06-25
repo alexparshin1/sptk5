@@ -49,10 +49,6 @@ QueryParameter::QueryParameter(const char* name, bool isOutput)
 {
 }
 
-QueryParameter::~QueryParameter()
-{
-}
-
 String QueryParameter::name() const
 {
     return m_name;

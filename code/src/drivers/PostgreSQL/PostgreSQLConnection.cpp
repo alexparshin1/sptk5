@@ -113,16 +113,18 @@ public:
     }
 
     PostgreSQLParamValues& paramValues()
-    { return m_paramValues; }
+    {
+        return m_paramValues;
+    }
 
 private:
 
     shared_ptr<PGresult> m_stmt;
     String m_stmtName;
     static unsigned index;
-    int m_rows{0};
-    int m_cols{0};
-    int m_currentRow{0};
+    int m_rows {0};
+    int m_cols {0};
+    int m_currentRow {0};
     PostgreSQLParamValues m_paramValues;
 };
 
@@ -226,9 +228,9 @@ void PostgreSQLConnection::closeDatabase()
     }
 }
 
-PoolDatabaseConnection::DBHandle PostgreSQLConnection::handle() const
+DBHandle PostgreSQLConnection::handle() const
 {
-    return (PoolDatabaseConnection::DBHandle) m_connect;
+    return (DBHandle) m_connect;
 }
 
 bool PostgreSQLConnection::active() const
@@ -305,8 +307,8 @@ String PostgreSQLConnection::queryError(const Query*) const
 void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    querySetStmt(query,
-                 new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64, query->autoPrepare()));
+    auto* stmt = new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64, query->autoPrepare());
+    querySetStmt(query, (StmtHandle) stmt);
 }
 
 void PostgreSQLConnection::queryFreeStmt(Query* query)
@@ -344,8 +346,8 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 
     scoped_lock lock(m_mutex);
 
-    querySetStmt(query,
-                 new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64, query->autoPrepare()));
+    auto* pstmt = new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64, query->autoPrepare());
+    querySetStmt(query, (StmtHandle) pstmt);
 
     auto* statement = (PostgreSQLStatement*) query->statement();
 
@@ -945,7 +947,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                 }
                 else
                 {
-                    static array<char, 2> emptyString{};
+                    static array<char, 2> emptyString {};
                     field->setExternalBuffer((uint8_t*) emptyString.data(), 0, VAR_STRING); // External string
                 }
             }

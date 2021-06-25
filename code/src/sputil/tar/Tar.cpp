@@ -214,12 +214,10 @@ protected:
 
     void TearDown() override
     {
-        unlink((gtestTempDirectory + "/file1.txt").c_str());
-        unlink((gtestTempDirectory + "/file2.txt").c_str());
+        filesystem::remove_all(gtestTempDirectory.c_str());
         unlink(testTar1.c_str());
         unlink(testTar2.c_str());
         unlink("test.lst");
-        rmdir(gtestTempDirectory.c_str());
     }
 };
 

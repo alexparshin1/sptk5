@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/SysLogEngine.h>
+
 #ifdef _WIN32
 #include <events.w32/event_provider.h>
 #endif
@@ -39,28 +40,30 @@ atomic_bool      SysLogEngine::m_logOpened(false);
 bool             SysLogEngine::m_registrySet(false);
 #endif
 
-SysLogEngine::SysLogEngine(const string& _programName, uint32_t facilities)
-: LogEngine("SysLogEngine"), m_facilities(facilities)
+SysLogEngine::SysLogEngine(const String& _programName, uint32_t facilities)
+    : LogEngine("SysLogEngine"), m_facilities(facilities)
 {
     programName(_programName);
 }
 
 void SysLogEngine::saveMessage(const Logger::Message* message)
 {
-    uint32_t    options;
-    String      programName;
-    uint32_t    facilities;
+    uint32_t options;
+    String programName;
+    uint32_t facilities;
 
     getOptions(options, programName, facilities);
 
-    if (options & LO_ENABLE) {
+    if (options & LO_ENABLE)
+    {
 #ifndef _WIN32
         UniqueLock(syslogMutex);
-        if (!m_logOpened) {
+        if (!m_logOpened)
+        {
             openlog(programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
             m_logOpened = true;
         }
-        syslog((int)message->priority, "[%s] %s", priorityName(message->priority).c_str(), message->message.c_str());
+        syslog((int) message->priority, "[%s] %s", priorityName(message->priority).c_str(), message->message.c_str());
 #else
         if (m_logHandle.load() == nullptr) {
             OSVERSIONINFO version;
@@ -119,13 +122,13 @@ void SysLogEngine::getOptions(uint32_t& options, String& programName, uint32_t& 
     facilities = m_facilities;
 }
 
+#ifdef _WIN32
 SysLogEngine::~SysLogEngine()
 {
-#ifdef _WIN32
     if (m_logHandle)
         CloseEventLog(m_logHandle);
-#endif
 }
+#endif
 
 void SysLogEngine::setupEventSource() const
 {
@@ -202,7 +205,7 @@ void SysLogEngine::setupEventSource() const
 #endif
 }
 
-void SysLogEngine::programName(const string& progName)
+void SysLogEngine::programName(const String& progName)
 {
     m_programName = progName;
     setupEventSource();

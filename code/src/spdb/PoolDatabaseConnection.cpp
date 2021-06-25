@@ -33,7 +33,8 @@ using namespace sptk;
 
 PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType)
     : m_connString(connectionString), m_connType(connectionType)
-{}
+{
+}
 
 PoolDatabaseConnection::~PoolDatabaseConnection()
 {
@@ -103,7 +104,7 @@ void PoolDatabaseConnection::close()
     }
 }
 
-PoolDatabaseConnection::DBHandle PoolDatabaseConnection::handle() const
+DBHandle PoolDatabaseConnection::handle() const
 {
     notImplemented("handle");
 }
@@ -280,7 +281,7 @@ void PoolDatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Stri
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* q, void* stmt)
+void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* q, StmtHandle stmt)
 {
     q->setStatement(stmt);
 }

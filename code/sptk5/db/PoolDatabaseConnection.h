@@ -45,6 +45,9 @@ namespace sptk {
 
 class Query;
 
+using DBHandle = uint8_t*;
+using StmtHandle = uint8_t*;
+
 /**
  * Database connection type
  */
@@ -104,7 +107,7 @@ protected:
     /**
      * Sets internal CQuery statement handle
      */
-    static void querySetStmt(Query* q, void* stmt);
+    static void querySetStmt(Query* q, StmtHandle stmt);
 
     /**
      * Sets internal CQuery m_prepared flag
@@ -222,9 +225,6 @@ class SP_EXPORT PoolDatabaseConnection
     friend class QueryStatementManagement;
 
 public:
-
-    using DBHandle = uint8_t*;
-    using StmtHandle = uint8_t*;
 
     /**
      * Destructor

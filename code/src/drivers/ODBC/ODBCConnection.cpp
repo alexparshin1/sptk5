@@ -41,7 +41,8 @@ using namespace sptk;
 
 namespace sptk {
 
-class CODBCField : public DatabaseField
+class CODBCField
+    : public DatabaseField
 {
     friend class ODBCConnection;
 
@@ -126,9 +127,9 @@ void ODBCConnection::closeDatabase()
     m_connect->freeConnect();
 }
 
-PoolDatabaseConnection::DBHandle ODBCConnection::handle() const
+DBHandle ODBCConnection::handle() const
 {
-    return (PoolDatabaseConnection::DBHandle) m_connect->handle();
+    return (DBHandle) m_connect->handle();
 }
 
 bool ODBCConnection::active() const
@@ -248,7 +249,7 @@ void ODBCConnection::queryAllocStmt(Query* query)
         logAndThrow("CODBCConnection::queryAllocStmt", error);
     }
 
-    querySetStmt(query, stmt);
+    querySetStmt(query, (StmtHandle) stmt);
 }
 
 void ODBCConnection::queryFreeStmt(Query* query)

@@ -31,9 +31,9 @@
 
 #include <vector>
 #include <map>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup Database Database Support
@@ -51,27 +51,27 @@ public:
     /**
      * Statement handle or id
      */
-	void*        m_stmt {nullptr};
+    StmtHandle m_stmt {nullptr};
 
     /**
      * Data type
      */
-	VariantType  m_dataType {VAR_NONE};
+    VariantType m_dataType {VAR_NONE};
 
     /**
      * Buffer
      */
-	void*        m_buffer {nullptr};
+    uint8_t* m_buffer {nullptr};
 
     /**
      * Buffer size
      */
-	uint32_t     m_size {0};
+    uint32_t m_size {0};
 
     /**
      * Output parameter flag
      */
-	bool         m_output {false};
+    bool m_output {false};
 
     /**
      * Constructor
@@ -106,11 +106,10 @@ public:
      * @param size              Binding buffer size
      * @param buffer            Binding buffer
      */
-    bool check(void* stmt, VariantType type, uint32_t size, void* buffer);
+    bool check(StmtHandle stmt, VariantType type, uint32_t size, uint8_t* buffer);
 };
 
 /**
  * @}
  */
 }
-
