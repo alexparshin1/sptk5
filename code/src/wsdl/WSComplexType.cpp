@@ -271,27 +271,27 @@ void WSComplexType::unload(json::Element* output) const
 void WSComplexType::setAttributes(const map<String, String>& values, json::Element* attributes) const
 {
     double doubleValue;
-    for (const auto& itor: values)
+    for (const auto&[name, value]: values)
     {
-        auto valueType = json::Document::dataType(itor.second);
+        auto valueType = json::Document::dataType(value);
         switch (valueType)
         {
             case json::Type::STRING:
-                attributes->set(itor.first, itor.second);
+                attributes->set(name, value);
                 break;
             case json::Type::NUMBER:
-                doubleValue = stod(itor.second);
+                doubleValue = stod(value);
                 if (doubleValue == (double) long(doubleValue))
                 {
-                    attributes->set(itor.first, long(doubleValue));
+                    attributes->set(name, long(doubleValue));
                 }
                 else
                 {
-                    attributes->set(itor.first, doubleValue);
+                    attributes->set(name, doubleValue);
                 }
                 break;
             case json::Type::BOOLEAN:
-                attributes->set(itor.first, itor.second == "true");
+                attributes->set(name, value == "true");
                 break;
             default:
                 break;
@@ -308,8 +308,8 @@ void WSComplexType::unload(QueryParameterList& output) const
                        this,
 #endif
                        &output](const WSType* field) {
-        const auto* inputField = dynamic_cast<const WSBasicType*>(field);
-        if (inputField != nullptr)
+        if (const auto* inputField = dynamic_cast<const WSBasicType*>(field);
+            inputField != nullptr)
         {
             WSComplexType::unload(output, inputField->name().c_str(), inputField);
         }

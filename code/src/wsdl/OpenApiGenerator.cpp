@@ -42,11 +42,11 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
                                 const std::map<String, String>& documentation) const
 {
     // Validate options
-    for (auto& itor: m_options.operationsAuth)
+    for (const auto&[name, value]: m_options.operationsAuth)
     {
-        if (operations.find(itor.first) == operations.end())
+        if (operations.find(name) == operations.end())
         {
-            throw Exception("Alternative Auth operation '" + itor.first + "' is not a part of this service");
+            throw Exception("Alternative Auth operation '" + name + "' is not a part of this service");
         }
     }
 
@@ -90,12 +90,9 @@ void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMa
 
     // Create paths object
     auto& paths = *document.root().add_object("paths");
-    for (auto& itor: operations)
+    for (const auto&[operationName, operation]: operations)
     {
-        auto& operation = itor.second;
-        String operationName = itor.first;
-
-        auto& operationElement = *paths.add_object("/" + itor.second.m_input->name());
+        auto& operationElement = *paths.add_object("/" + operation.m_input->name());
         auto& postElement = *operationElement.add_object("post");
 
         // Define operation security
@@ -122,7 +119,7 @@ void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMa
             postElement["summary"] = dtor->second;
         }
 
-        postElement["operationId"] = itor.first;
+        postElement["operationId"] = operationName;
 
         auto& requestBody = *postElement.add_object("requestBody");
         auto& content = *requestBody.add_object("content");
@@ -131,10 +128,10 @@ void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMa
         schema["$ref"] = "#/components/schemas/" + operation.m_input->name();
 
         auto& responsesElement = *postElement.add_object("responses");
-        for (auto& rtor: possibleResponses)
+        for (const auto&[name, description]: possibleResponses)
         {
-            auto& response = *responsesElement.add_object(rtor.first);
-            response["description"] = rtor.second;
+            auto& response = *responsesElement.add_object(name);
+            response["description"] = description;
         }
     }
 }
@@ -158,9 +155,8 @@ void OpenApiGenerator::createComponents(json::Document& document, const WSComple
     // Create components object
     auto& components = *document.root().add_object("components");
     auto& schemas = *components.add_object("schemas");
-    for (auto& itor: complexTypes)
+    for (const auto&[complexTypeName, complexTypeInfo]: complexTypes)
     {
-        auto& complexTypeInfo = itor.second;
         auto& complexType = *schemas.add_object(complexTypeInfo->name());
         complexType["type"] = "object";
         auto& properties = *complexType.add_object("properties");

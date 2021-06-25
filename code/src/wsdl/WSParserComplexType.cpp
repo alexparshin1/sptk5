@@ -251,9 +251,9 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
         classDeclaration << "public:" << endl << endl;
     }
 
-    for (const auto& itor: m_attributes)
+    for (const auto&[name, value]: m_attributes)
     {
-        attributeNames.push_back(itor.first);
+        attributeNames.push_back(name);
     }
 
     Initializer initializer = makeInitializer();

@@ -7,10 +7,6 @@
 
 #include <sptk5/cutils>
 
-#ifndef O_BINARY
-constexpr int O_BINARY = 0;
-#endif
-
 using namespace std;
 using namespace sptk;
 

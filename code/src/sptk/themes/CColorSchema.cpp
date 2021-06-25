@@ -47,8 +47,8 @@ void CColorSchema::store()
 
 void CColorSchema::restore()
 {
-    for (auto itor: m_colorMap)
+    for (const auto&[name, value]: m_colorMap)
     {
-        Fl::set_color(itor.first, itor.second);
+        Fl::set_color(name, value);
     }
 }

@@ -38,7 +38,7 @@
 using namespace std;
 using namespace sptk;
 
-const map<String, LogDetails::MessageDetail> LogDetails::detailNames{
+const map<String, LogDetails::MessageDetail> LogDetails::detailNames {
     {"serial_id",        MessageDetail::SERIAL_ID},
     {"source_ip",        MessageDetail::SOURCE_IP},
     {"request_name",     MessageDetail::REQUEST_NAME},
@@ -64,11 +64,11 @@ LogDetails::LogDetails(const Strings& details)
 String LogDetails::toString(const String& delimiter) const
 {
     Strings names;
-    for (const auto& itor: detailNames)
+    for (const auto&[name, value]: detailNames)
     {
-        if (m_details.find(itor.second) != m_details.end())
+        if (m_details.find(value) != m_details.end())
         {
-            names.push_back(itor.first);
+            names.push_back(name);
         }
     }
     return names.join(delimiter.c_str());
@@ -162,7 +162,8 @@ void TCPServer::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable
 /**
  * Not encrypted connection to control service
  */
-class EchoConnection : public TCPServerConnection
+class EchoConnection
+    : public TCPServerConnection
 {
 public:
     EchoConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
@@ -218,13 +219,15 @@ public:
     }
 };
 
-class EchoServer : public sptk::TCPServer
+class EchoServer
+    : public sptk::TCPServer
 {
 public:
 
     EchoServer()
         : TCPServer("EchoServer")
-    {}
+    {
+    }
 
 protected:
 

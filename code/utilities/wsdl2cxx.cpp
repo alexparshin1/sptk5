@@ -167,7 +167,7 @@ int main(int argc, const char* argv[])
             outputDirectory = ".";
         }
 
-        auto headerFile = commandLine.getOptionValue("cxx-directory").trim();
+        auto headerFile = commandLine.getOptionValue("cxx-header").trim();
         auto serviceNamespace = commandLine.getOptionValue("cxx-namespace").trim();
 
         if (outputDirectory != "." && access(outputDirectory.c_str(), 0) < 0 && !createDirectory(outputDirectory))

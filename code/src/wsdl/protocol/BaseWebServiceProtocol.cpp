@@ -89,9 +89,9 @@ void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessa
     xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
     auto* xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
     jsonContent.load(startOfMessage);
-    for (auto& itor: url.params())
+    for (const auto&[name, value]: url.params())
     {
-        jsonContent.root()[itor.first] = itor.second;
+        jsonContent.root()[name] = value;
     }
     jsonContent.root().exportTo("ns1:" + method, *xmlBody);
 }
@@ -176,9 +176,9 @@ void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, json
         }
 
         jsonContent.root()["rest_method_name"] = method;
-        for (const auto& itor: m_url.params())
+        for (const auto&[name, value]: m_url.params())
         {
-            jsonContent.root()[itor.first] = itor.second;
+            jsonContent.root()[name] = value;
         }
     }
 }

@@ -359,12 +359,11 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "    // Abstract methods below correspond to WSDL-defined operations. " << endl;
     serviceDefinition << "    // Application must overwrite these methods with processing of corresponding" << endl;
     serviceDefinition << "    // requests, reading data from input and writing data to output structures." << endl;
-    for (const auto& itor: m_operations)
+    for (const auto&[name, operation]: m_operations)
     {
-        const WSOperation& operation = itor.second;
         serviceDefinition << endl;
         serviceDefinition << "    /**" << endl;
-        serviceDefinition << "     * Web Service " << itor.first << " operation" << endl;
+        serviceDefinition << "     * Web Service " << name << " operation" << endl;
         serviceDefinition << "     *" << endl;
         auto documentation = m_documentation[operation.m_input->name()];
         if (!documentation.empty())
@@ -382,7 +381,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition << "     * @param output           Operation response data" << endl;
         serviceDefinition << "     */" << endl;
         serviceDefinition
-            << "    virtual void " << itor.first
+            << "    virtual void " << name
             << "(const " << operation.m_input->className() << "& input, "
             << operation.m_output->className() << "& output, sptk::HttpAuthentication* authentication) = 0;" << endl;
     }
@@ -494,10 +493,9 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
                           "   outputData.unload(request);\n"
                           "}\n\n";
 
-    for (const auto& itor: m_operations)
+    for (const auto&[operationName, operation]: m_operations)
     {
-        String operationName = itor.first;
-        Strings nameParts(itor.second.m_input->name(), ":");
+        Strings nameParts(operation.m_input->name(), ":");
         String requestName;
         if (nameParts.size() == 1)
         {
@@ -507,7 +505,6 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
         {
             requestName = nameParts[1];
         }
-        const WSOperation& operation = itor.second;
         serviceImplementation << endl;
         serviceImplementation << "void " << serviceClassName << "::process_" << requestName
                               << "(xml::Element* xmlNode, json::Element* jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
@@ -633,8 +630,7 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
 
     stringstream wsdlHeader;
     wsdlHeader << externalHeader.c_str() << endl;
-    wsdlHeader << "#ifndef __" << m_serviceName.toUpperCase() << "_WSDL__" << endl;
-    wsdlHeader << "#define __" << m_serviceName.toUpperCase() << "_WSDL__" << endl;
+    wsdlHeader << "#pragma once" << endl;
     wsdlHeader << endl << "#include <sptk5/Strings.h>" << endl;
     wsdlHeader << endl << "extern const sptk::Strings " << m_serviceName << "_wsdl;" << endl << endl;
     wsdlHeader << "#endif" << endl;

@@ -34,7 +34,7 @@ using namespace sptk;
 
 namespace sptk::xml {
 
-const RegularExpression Document::parseAttributes{R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])", "g"};
+const RegularExpression Document::parseAttributes {R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])", "g"};
 
 Document::Document()
     : Element(*this)
@@ -508,9 +508,9 @@ void Document::save(Buffer& buffer, int indent) const
         {
             buffer.append(" [\n", 3);
             const Entities& entities = docType().entities();
-            for (const auto& it: entities)
+            for (const auto&[name, value]: entities)
             {
-                buffer.append("<!ENTITY " + it.first + " \"" + it.second + "\">\n");
+                buffer.append("<!ENTITY " + name + " \"" + value + "\">\n");
             }
             buffer.append("]", 1);
         }
@@ -553,7 +553,7 @@ void Document::exportTo(json::Element& json) const
 
 bool Document::isNumber(const String& str)
 {
-    static const RegularExpression matchNumber{R"(^[+\-]?(0|[1-9]\d*)(\.\d+)?(e-?\d+)?$)", "i"};
+    static const RegularExpression matchNumber {R"(^[+\-]?(0|[1-9]\d*)(\.\d+)?(e-?\d+)?$)", "i"};
 
     return matchNumber.matches(str);
 }
