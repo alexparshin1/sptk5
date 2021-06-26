@@ -48,12 +48,12 @@ class SP_EXPORT SharedStrings
     /**
      * String set type
      */
-    using Set = std::set<std::string>;
+    using Set = std::set<std::string, std::less<>>;
 
     /**
      * Set of shared strings
      */
-    Set     m_strings;
+    Set m_strings;
 
 public:
     /**
@@ -68,8 +68,8 @@ public:
      * to it. If a shared string not found, returns nullptr.
      * @param str const char *, a string to find
      */
-    const std::string* findString(const char *str) const;
-    
+    const std::string* findString(const char* str) const;
+
     /**
      * @brief Obtain a shared string
      *
@@ -79,7 +79,7 @@ public:
      * reference counter by one
      * @param str const char *, a string to share
      */
-    const std::string& shareString(const char *str);
+    const std::string& shareString(const char* str);
 
     /**
      * @brief Obtain a shared string
@@ -90,11 +90,11 @@ public:
      * reference counter by one
      * @param str const std::string&, a string to share
      */
-    const std::string& shareString(const std::string& str) 
+    const std::string& shareString(const std::string& str)
     {
         return shareString(str.c_str());
     }
-    
+
     /**
      * @brief Clear shared starings
      */
@@ -105,4 +105,3 @@ public:
  * @}
  */
 }
-

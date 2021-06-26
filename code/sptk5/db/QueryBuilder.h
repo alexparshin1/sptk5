@@ -40,27 +40,33 @@ public:
     public:
         Join(const String& tableAlias, const Strings& columns, const String& join);
 
-        const String  tableAlias;
-        const Strings columns;
-        const String  joinDefinition;
+        String tableAlias;
+        Strings columns;
+        String joinDefinition;
     };
 
-    QueryBuilder(const String& tableName, const String& pkColumn, const Strings& columns={}, const std::vector<Join>& joins={});
+    QueryBuilder(const String& tableName, const String& pkColumn, const Strings& columns = {},
+                 const std::vector<Join>& joins = {});
+
     virtual ~QueryBuilder() = default;
 
     virtual String selectSQL(const Strings& filter, const Strings& columns, bool pretty) const;
+
     virtual String insertSQL(const Strings& columns, bool pretty) const;
+
     virtual String updateSQL(const Strings& filter, const Strings& columns, bool pretty) const;
+
     virtual String deleteSQL(const Strings& filter, bool pretty) const;
 
     String tableName() const;
+
     String pkColumnName() const;
 
 private:
-    String              m_tableName;
-    String              m_pkColumn;
-    Strings             m_columns;
-    std::vector<Join>   m_joins;
+    String m_tableName;
+    String m_pkColumn;
+    Strings m_columns;
+    std::vector<Join> m_joins;
 
     Strings makeSelectColumns(const Strings& columns) const;
 
@@ -68,4 +74,3 @@ private:
 };
 
 }
-

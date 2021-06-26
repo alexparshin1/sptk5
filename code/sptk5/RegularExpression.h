@@ -38,7 +38,9 @@
 #if HAVE_PCRE2
 #define PCRE2_STATIC
 #define PCRE2_CODE_UNIT_WIDTH 8
+
 #include <pcre2.h>
+
 #define SPRE_CASELESS   PCRE2_CASELESS
 #define SPRE_MULTILINE  PCRE2_MULTILINE
 #define SPRE_DOTALL     PCRE2_DOTALL
@@ -74,7 +76,7 @@ class SP_EXPORT RegularExpression
 
 #if HAVE_PCRE2
     using PCREHandle = pcre2_code;      ///< Compiled PCRE expression handle
-    using PCREExtraHandle = void*;      ///< Dummy
+    using PCREExtraHandle = uint8_t*;   ///< Dummy
 #else
     using PCREHandle = pcre;            ///< Compiled PCRE expression handle
     using PCREExtraHandle = pcre_extra; ///< Compiled PCRE expression optimization (for faster execution)
@@ -95,15 +97,16 @@ public:
          * @param end           String end position in subject
          */
         Group(String value, pcre_offset_t start, pcre_offset_t end)
-        : value(move(value)), start(start), end(end)
-        {}
+            : value(move(value)), start(start), end(end)
+        {
+        }
 
         /**
          * Default constructor
          */
         Group() = default;
 
-        String        value;        ///< Matched fragment of subject
+        String value;        ///< Matched fragment of subject
         pcre_offset_t start {0};    ///< Start position of the matched fragment in subject
         pcre_offset_t end {0};      ///< End position of the matched fragment in subject
     };
@@ -124,7 +127,7 @@ public:
          * @param index         Group index, 0-based
          * @return const reference to a group
          */
-        const Group& operator[] (int index) const;
+        const Group& operator[](int index) const;
 
         /**
          * Get named group by capture group name.
@@ -132,29 +135,41 @@ public:
          * @param name          Group name
          * @return const reference to a group
          */
-        const Group& operator[] (const char* name) const;
+        const Group& operator[](const char* name) const;
 
         /**
          * Get unnamed groups.
          * @return const reference to unnamed groups object
          */
-        const std::vector<Group>& groups() const { return m_groups; }
+        const std::vector<Group>& groups() const
+        {
+            return m_groups;
+        }
 
         /**
          * Get named groups.
          * @return const reference to named groups object
          */
-        const std::map<String, Group>& namedGroups() const { return m_namedGroups; }
+        const std::map<String, Group>& namedGroups() const
+        {
+            return m_namedGroups;
+        }
 
         /**
          * @return true if there are no matched groups
          */
-        bool empty() const { return m_groups.empty(); }
+        bool empty() const
+        {
+            return m_groups.empty();
+        }
 
         /**
          * @return false if there are no matched groups
          */
-        operator bool () const { return !m_groups.empty(); }
+        operator bool() const
+        {
+            return !m_groups.empty();
+        }
 
     protected:
         /**
@@ -167,14 +182,20 @@ public:
          * Add new group by moving it to unnamed groups
          * @param group         Group to add
          */
-        void add(Group&& group) { m_groups.push_back(std::move(group)); }
+        void add(Group&& group)
+        {
+            m_groups.push_back(std::move(group));
+        }
 
         /**
          * Add new group by moving it to named groups
          * @param name          Group name
          * @param group         Group to add
          */
-        void add(const String& name, Group&& group) { m_namedGroups[name] = std::move(group); }
+        void add(const String& name, Group&& group)
+        {
+            m_namedGroups[name] = std::move(group);
+        }
 
     private:
 
@@ -183,9 +204,9 @@ public:
          */
         void clear();
 
-        std::vector<Group>      m_groups;           ///< Unnamed groups
+        std::vector<Group> m_groups;           ///< Unnamed groups
         std::map<String, Group> m_namedGroups;      ///< Named groups
-        static const Group      emptyGroup;         ///< Empty group to return if group can't be found
+        static const Group emptyGroup;         ///< Empty group to return if group can't be found
     };
 
     /**
@@ -207,14 +228,14 @@ public:
      * @param text              Input text
      * @return true if match found
      */
-    bool operator ==(const String& text) const;
+    bool operator==(const String& text) const;
 
     /**
      * Returns true if text doesn't match with regular expression
      * @param text              Input text
      * @return true if match found
      */
-    bool operator !=(const String& text) const;
+    bool operator!=(const String& text) const;
 
     /**
      * Returns true if text matches with regular expression
@@ -282,25 +303,25 @@ public:
      * @param replaced          Optional flag if replacement was made
      * @return processed text
      */
-    String replaceAll(const String& text, const std::map<String,String>& substitutions, bool& replaced) const;
+    String replaceAll(const String& text, const std::map<String, String>& substitutions, bool& replaced) const;
 
     /**
      * Get regular expression pattern
-     * @return 
+     * @return
      */
     const String& pattern() const;
 
 private:
 
-    String                              m_pattern;        ///< Match pattern
-    bool                                m_global {false}; ///< Global match (g) or first match only
-    String                              m_error;          ///< Last pattern error (if any)
+    String m_pattern;        ///< Match pattern
+    bool m_global {false}; ///< Global match (g) or first match only
+    String m_error;          ///< Last pattern error (if any)
 
-    std::shared_ptr<PCREHandle>         m_pcre;           ///< Compiled PCRE expression handle
-    std::shared_ptr<PCREExtraHandle>    m_pcreExtra;      ///< Compiled PCRE expression optimization (for faster execution)
+    std::shared_ptr<PCREHandle> m_pcre;           ///< Compiled PCRE expression handle
+    std::shared_ptr<PCREExtraHandle> m_pcreExtra;      ///< Compiled PCRE expression optimization (for faster execution)
 
-    uint32_t                            m_options {0};    ///< PCRE pattern options
-    size_t                              m_captureCount {0}; ///< RE' capture count
+    uint32_t m_options {0};    ///< PCRE pattern options
+    size_t m_captureCount {0}; ///< RE' capture count
 
     /**
      * Initialize PCRE expression
@@ -340,7 +361,7 @@ private:
      * @param outputPattern     Output pattern
      * @return placeholder position
      */
-    static size_t findNextPlaceholder(size_t pos, const String& outputPattern) ;
+    static size_t findNextPlaceholder(size_t pos, const String& outputPattern);
 
     void extractNamedMatches(const String& text, Groups& matchedStrings, const MatchData& matchData,
                              size_t matchCount) const;
@@ -354,4 +375,3 @@ using SRegularExpression = std::shared_ptr<RegularExpression>;
 }
 
 #endif
-
