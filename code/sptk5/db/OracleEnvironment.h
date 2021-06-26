@@ -32,8 +32,7 @@
 
 #include <occi.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup Database Database Support
@@ -64,26 +63,21 @@ public:
     OracleEnvironment(OracleEnvironment&&) = default;
 
     /**
-     * Destructor
-     */
-    ~OracleEnvironment();
-
-    /**
      * Deleted copy assignment
      */
-    OracleEnvironment& operator = (const OracleEnvironment&) = delete;
+    OracleEnvironment& operator=(const OracleEnvironment&) = delete;
 
     /**
      * Move assignment
      */
-    OracleEnvironment& operator = (OracleEnvironment&&) = default;
+    OracleEnvironment& operator=(OracleEnvironment&&) = default;
 
     /**
      * Returns environment handle
      */
     oracle::occi::Environment* handle() const
     {
-        return m_handle;
+        return m_handle.get();
     }
 
     /**
@@ -104,7 +98,17 @@ public:
     void terminateConnection(oracle::occi::Connection* connection);
 
 private:
-    oracle::occi::Environment* m_handle { oracle::occi::Environment::createEnvironment("UTF8", "UTF8", oracle::occi::Environment::THREADED_MUTEXED)};
+
+    /**
+     * Environment handle
+     */
+    std::shared_ptr<oracle::occi::Environment> m_handle {
+        std::shared_ptr<oracle::occi::Environment>(
+            oracle::occi::Environment::createEnvironment("UTF8", "UTF8", oracle::occi::Environment::THREADED_MUTEXED),
+            [](oracle::occi::Environment* handle) {
+                oracle::occi::Environment::terminateEnvironment(handle);
+            }
+        )};
 };
 
 /**
@@ -113,4 +117,3 @@ private:
 }
 
 #endif
-

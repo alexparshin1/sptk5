@@ -30,11 +30,6 @@ using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
-OracleEnvironment::~OracleEnvironment()
-{
-    Environment::terminateEnvironment(m_handle);
-}
-
 String OracleEnvironment::clientVersion()
 {
     int major = 0;
@@ -45,7 +40,9 @@ String OracleEnvironment::clientVersion()
     Environment::getClientVersion(major, minor, update, patch, portUpdate);
     string version = "Oracle " + int2string(major) + "." + int2string(minor);
     if (update)
+    {
         version += " update " + int2string(update);
+    }
     return version;
 }
 
@@ -53,9 +50,13 @@ oracle::occi::Connection* OracleEnvironment::createConnection(const DatabaseConn
 {
     String host = connectionString.hostName();
     if (connectionString.portNumber())
+    {
         host += ":" + int2string(connectionString.portNumber());
+    }
     if (connectionString.databaseName().length())
+    {
         host += "/" + connectionString.databaseName();
+    }
     return m_handle->createConnection(connectionString.userName(), connectionString.password(), host);
 }
 
