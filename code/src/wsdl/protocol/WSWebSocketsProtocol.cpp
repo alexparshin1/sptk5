@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-static constexpr char finalBitMask(char(0x80));
+static constexpr int finalBitMask(0x80);
 
 const Buffer& WSWebSocketsMessage::payload() const
 {
@@ -55,21 +55,21 @@ static uint64_t ntoh64(uint64_t data)
 
 void WSWebSocketsMessage::decode(const char* incomingData)
 {
-    constexpr char maskedBitMask(0x80);
-    constexpr char opcodeBitMask(0xF);
-    constexpr char payloadLengthBitMask(0x7F);
+    constexpr int maskedBitMask(0x80);
+    constexpr int opcodeBitMask(0xF);
+    constexpr int payloadLengthBitMask(0x7F);
     constexpr char lengthIsTwoBytes(126);
     constexpr char lengthIsEightBytes(127);
     constexpr int eightBytes(8);
 
     const auto* ptr = (const uint8_t*) incomingData;
 
-    m_finalMessage = (*ptr & finalBitMask) != 0;
-    m_opcode = OpCode(*ptr & opcodeBitMask);
+    m_finalMessage = ((int) *ptr & finalBitMask) != 0;
+    m_opcode = OpCode((int) *ptr & opcodeBitMask);
 
     ++ptr;
-    bool masked = (*ptr & maskedBitMask) != 0;
-    auto payloadLength = uint64_t(*ptr & payloadLengthBitMask);
+    bool masked = ((int) *ptr & maskedBitMask) != 0;
+    auto payloadLength = uint64_t((int) *ptr & payloadLengthBitMask);
     switch (payloadLength)
     {
         case lengthIsTwoBytes:
@@ -96,11 +96,11 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         memcpy(mask.data(), ptr, sizeof(mask));
         ptr += 4;
         auto* dest = m_payload.data();
-        char statusCodeBuffer[2] = {};
+        array<char, 2> statusCodeBuffer = {};
         size_t j = 0;
         for (uint64_t i = 0; i < payloadLength; ++i)
         {
-            auto unmaskedByte = uint8_t(ptr[i] ^ mask[i % 4]);
+            auto unmaskedByte = uint8_t((int) ptr[i] ^ mask[i % 4]);
             if (m_opcode == OpCode::CONNECTION_CLOSE && i < 2)
             {
                 statusCodeBuffer[i] = unmaskedByte;
@@ -112,7 +112,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         m_payload.bytes(j);
         if (m_opcode == OpCode::CONNECTION_CLOSE)
         {
-            m_status = ntohs(*(const uint16_t*) statusCodeBuffer);
+            m_status = ntohs(*(const uint16_t*) statusCodeBuffer.data());
         }
     }
     else
@@ -136,7 +136,7 @@ void WSWebSocketsMessage::encode(const String& payload, OpCode opcode, bool fina
     *ptr = (int) opcode & 0xF;
     if (finalMessage)
     {
-        *ptr |= finalBitMask;
+        *ptr = (int) *ptr | finalBitMask;
     }
 
     ++ptr;
