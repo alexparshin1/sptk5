@@ -149,7 +149,7 @@ int Strings::indexOf(const String& s) const
     return result;
 }
 
-void Strings::saveToFile(const String& fileName) const
+void Strings::saveToFile(const fs::path& fileName) const
 {
     Buffer buffer;
     for (const auto& str: *this)
@@ -160,7 +160,7 @@ void Strings::saveToFile(const String& fileName) const
     buffer.saveToFile(fileName);
 }
 
-void Strings::loadFromFile(const String& fileName)
+void Strings::loadFromFile(const fs::path& fileName)
 {
     Buffer buffer;
     buffer.loadFromFile(fileName);

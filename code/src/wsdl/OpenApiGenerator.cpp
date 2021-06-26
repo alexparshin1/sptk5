@@ -97,8 +97,9 @@ void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMa
 
         // Define operation security
         AuthMethod authMethod;
-        auto ator = m_options.operationsAuth.find(operationName);
-        if (ator != m_options.operationsAuth.end())
+
+        if (auto ator = m_options.operationsAuth.find(operationName);
+            ator != m_options.operationsAuth.end())
         {
             authMethod = ator->second;
         }
@@ -113,8 +114,8 @@ void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMa
             securityMechanism.add_array(authMethodName(authMethod));
         }
 
-        auto dtor = documentation.find(operation.m_input->name());
-        if (dtor != documentation.end())
+        if (auto dtor = documentation.find(operation.m_input->name());
+            dtor != documentation.end())
         {
             postElement["summary"] = dtor->second;
         }

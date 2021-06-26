@@ -90,7 +90,7 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
     Buffer bufSource;
     String strDest;
 
-    bufSource.loadFromFile(fileName);
+    bufSource.loadFromFile(fileName.c_str());
 
     String ctype = ContentTypes::type(trim(fileName));
 

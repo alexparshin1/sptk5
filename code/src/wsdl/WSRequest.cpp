@@ -128,7 +128,7 @@ xml::Element* WSRequest::findSoapBody(const xml::Element* soapEnvelope, const WS
 {
     scoped_lock lock(*this);
 
-    xml::Element* soapBody = dynamic_cast<xml::Element*>(soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body"));
+    auto* soapBody = dynamic_cast<xml::Element*>(soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body"));
     if (soapBody == nullptr)
     throwException("Can't find SOAP Body node in incoming request")
 

@@ -181,7 +181,7 @@ CPngImage::CPngImage(const String& fileName)
     try
     {
         Buffer imageData;
-        imageData.loadFromFile(fileName);
+        imageData.loadFromFile(fileName.c_str());
         load(imageData);
     }
     catch (const Exception& e)

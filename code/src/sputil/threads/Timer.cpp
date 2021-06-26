@@ -68,12 +68,11 @@ public:
 
     bool waitForEvent(Timer::Event& event)
     {
-        DateTime when = nextWakeUp();
-
-        if (m_semaphore.sleep_until(when))
+        if (DateTime when = nextWakeUp();
+            m_semaphore.sleep_until(when))
         {
-            return false;
-        } // Wait interrupted
+            return false; // Wait interrupted
+        }
 
         return popFrontEvent(event);
     }

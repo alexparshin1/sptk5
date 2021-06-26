@@ -27,10 +27,10 @@
 #pragma once
 
 #if defined(__GNUC__) || defined(__SUNPRO_CC)
-    /**
-     * Unix compiler flag
-     */
-    #define __UNIX_COMPILER__
+/**
+ * Unix compiler flag
+ */
+#define __UNIX_COMPILER__
 
 #endif
 
@@ -63,32 +63,37 @@
 #endif
 
 #include <sptk5/sptk-config.h>
+
 #if defined(_MSC_VER) || defined(__BORLANDC__)
-    #include <winsock2.h>
-    #include <windows.h>
-    #include <process.h>
-    #pragma warning (disable: 4251)
-    #pragma warning (disable: 4290)
-    #pragma warning (disable: 4355)
-    #pragma warning (disable: 4786)
-    #pragma warning (disable: 4996)
-    #if defined(_MSC_VER)
-        #define STRING_NPOS -1
-    #endif
+#include <winsock2.h>
+#include <windows.h>
+#include <process.h>
+#pragma warning (disable: 4251)
+#pragma warning (disable: 4290)
+#pragma warning (disable: 4355)
+#pragma warning (disable: 4786)
+#pragma warning (disable: 4996)
+#if defined(_MSC_VER)
+#define STRING_NPOS -1
+#endif
 #else
-    #include <unistd.h>
-    #include <cerrno>
+
+#include <unistd.h>
+#include <cerrno>
+
 #endif
 
 #if USE_GTEST
+
 #include <gtest/gtest.h>
+
 #endif
 
 #ifndef STRING_NPOS
-    /**
-     * Definition for string::npos missing in some compilers
-     */
-    #define STRING_NPOS string::npos
+/**
+ * Definition for string::npos missing in some compilers
+ */
+#define STRING_NPOS string::npos
 
 #endif
 
@@ -102,44 +107,46 @@
 #define ALIGN_CENTER 3
 
 #ifdef __UNIX_COMPILER__
-    #include <cinttypes>
-    #include <cstdint>
+
+#include <cinttypes>
+#include <cstdint>
 
 #elif __BORLANDC__
-    #include <stdint.h>
-    #include <ctype.h>
+#include <stdint.h>
+#include <ctype.h>
 
 #elif defined(_MSC_VER)
-    #if _MSC_VER >= 1800
-        // Visual Studio 2013 and up
-        #include <stdint.h>
-        #include <inttypes.h>
-    #else
-        // Visual Studio 2012 and before
-        #include <stdint.h>
-        #include <inttypes.h>
-    #endif
+#if _MSC_VER >= 1800
+// Visual Studio 2013 and up
+#include <stdint.h>
+#include <inttypes.h>
 #else
-    #include <stdint.h>
-    #include <inttypes.h>
+// Visual Studio 2012 and before
+#include <stdint.h>
+#include <inttypes.h>
+#endif
+#else
+#include <stdint.h>
+#include <inttypes.h>
 
 #endif
 
-#ifdef _WIN32 
-	#define snprintf _snprintf
-	#define vsnprintf _vsnprintf
-	#define strcasecmp _stricmp
-	#define strncasecmp _strnicmp
-	#define strtok_r strtok_s
-    #include <filesystem>
-    namespace filesystem = std::filesystem;
+#ifdef _WIN32
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#define strtok_r strtok_s
+#include <filesystem>
+namespace filesystem = std::filesystem;
 #else
-    #if __cplusplus >= 201703L && __has_include(<filesystem>)
-        #include <filesystem>
-        namespace filesystem = std::filesystem;
-    #else
-        #include <experimental/filesystem>
-        namespace filesystem = std::experimental::filesystem;
-    #endif
-#endif
+#if __cplusplus >= 201703L && __has_include(<filesystem>)
 
+#include <filesystem>
+
+namespace fs = std::filesystem;
+#else
+#include <experimental/filesystem>
+namespace filesystem = std::experimental::filesystem;
+#endif
+#endif

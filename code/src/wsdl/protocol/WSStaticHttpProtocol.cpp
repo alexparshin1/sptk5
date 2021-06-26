@@ -52,7 +52,7 @@ RequestInfo WSStaticHttpProtocol::process()
     }
     try
     {
-        requestInfo.response.content().loadFromFile(fullPath);
+        requestInfo.response.content().loadFromFile(fullPath.c_str());
         Buffer output = requestInfo.response.output(contentEncodings);
         socket().write("HTTP/1.1 200 OK\n");
         socket().write("Content-Type: text/html; charset=utf-8\n");

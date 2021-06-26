@@ -58,7 +58,8 @@ static constexpr int DDS_NO_SORT = 8;           ///< Do not sort
  * and may use the list. Method close() should be called aftewards
  * to release any allocated resourses.
  */
-class SP_EXPORT DirectoryDS: public MemoryDS
+class SP_EXPORT DirectoryDS
+    : public MemoryDS
 {
 public:
     /**
@@ -68,13 +69,17 @@ public:
      * @param _showPolicy       Bit combination of show policies
      *
      */
-    DirectoryDS(const String& _directory="", const String& _pattern="", int _showPolicy=0)
-    : MemoryDS(), m_showPolicy(_showPolicy)
+    DirectoryDS(const String& _directory = "", const String& _pattern = "", int _showPolicy = 0)
+        : MemoryDS(), m_showPolicy(_showPolicy)
     {
         if (!_directory.empty())
+        {
             directory(_directory);
+        }
         if (!_pattern.empty())
+        {
             pattern(_pattern);
+        }
     }
 
     /**
@@ -115,7 +120,8 @@ public:
     {
         Strings patterns(wildcards, ";", Strings::SplitMode::DELIMITER);
         m_patterns.clear();
-        for (const auto& pattern: patterns) {
+        for (const auto& pattern: patterns)
+        {
             auto matchPattern = wildcardToRegexp(pattern);
             m_patterns.push_back(matchPattern);
         }
@@ -139,38 +145,40 @@ protected:
      * @param file              File information
      * @returns the file type name
      */
-    String getFileType(const filesystem::directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime) const;
+    String getFileType(const fs::directory_entry& file, CSmallPixmapType& image,
+                       DateTime& modificationTime) const;
 
 private:
     /**
      * Current directory
      */
-    String          m_directory;
+    String m_directory;
 
     /**
      * Current file pattern
      */
-    std::vector< std::shared_ptr<RegularExpression> > m_patterns;
+    std::vector<std::shared_ptr<RegularExpression> > m_patterns;
 
     /**
      * Show policy, see CDirectoryDSpolicies for more information
      */
-    int             m_showPolicy;
+    int m_showPolicy;
 
     /**
      * Returns absolute path to directory or file
      * @param path              Relative path
      * @return absolute path
      */
-    static String absolutePath(const String& path) ;
+    static String absolutePath(const String& path);
 
     /**
      * Create a row in the data source
      * @param file              File information
      * @return data source row
      */
-    FieldList makeFileListEntry(const filesystem::directory_entry& file, size_t& index) const;
-    static CSmallPixmapType imageTypeFromExtention(const String& ext) ;
+    FieldList makeFileListEntry(const fs::directory_entry& file, size_t& index) const;
+
+    static CSmallPixmapType imageTypeFromExtention(const String& ext);
 };
 /**
  * @}

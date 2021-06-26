@@ -44,9 +44,8 @@ void WSBasicType::addElement(xml::Node* parent, const char* _name) const
 
 void WSBasicType::addElement(json::Element* parent) const
 {
-    String text(isNull() ? "" : asString());
-
-    if (m_optional && (isNull() || text.empty()))
+    if (String text(isNull() ? "" : asString());
+        m_optional && (isNull() || text.empty()))
     {
         return;
     }
@@ -405,8 +404,8 @@ String sptk::wsTypeIdToName(const String& typeIdName)
 {
     static const RegularExpression matchClassName("^\\d+C([A-Z]\\S+)$");
 
-    auto matches = matchClassName.m(typeIdName);
-    if (matches)
+    if (auto matches = matchClassName.m(typeIdName);
+        matches)
     {
         return matches.groups()[0].value;
     }

@@ -33,9 +33,9 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <filesystem>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup utility Utility Classes
@@ -47,7 +47,8 @@ namespace sptk
  *
  * Generic buffer with a special memory-allocation strategy for effective append() operation
  */
-class SP_EXPORT Buffer : public BufferStorage
+class SP_EXPORT Buffer
+    : public BufferStorage
 {
 
 public:
@@ -126,9 +127,10 @@ public:
      * Allocates memory if needed.
      * @param val               Primitive type or structure
      */
-    template <class T> void append(T val)
+    template<class T>
+    void append(T val)
     {
-        append((char*)&val, sizeof(val));
+        append((char*) &val, sizeof(val));
     }
 
     /**
@@ -142,18 +144,18 @@ public:
         return append(str.c_str(), str.length());
     }
 
-	/**
-	 * Appends the string to the current buffer.
-	 *
-	 * Allocates memory if needed.
-	 * @param str               String to append
-	 */
-	void append(const String& str)
-	{
-		return append(str.c_str(), str.length());
-	}
+    /**
+     * Appends the string to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param str               String to append
+     */
+    void append(const String& str)
+    {
+        return append(str.c_str(), str.length());
+    }
 
-	/**
+    /**
      * Appends the string to the current buffer.
      *
      * Allocates memory if needed.
@@ -187,54 +189,54 @@ public:
      * @param other             Other buffer
      * @return                  True if buffer contents are identical
      */
-    bool operator == (const Buffer& other) const;
+    bool operator==(const Buffer& other) const;
 
     /**
      * Compare operator
      * @param other             Other buffer
      * @return                  True if buffer contents are not matching
      */
-    bool operator != (const Buffer& other) const;
+    bool operator!=(const Buffer& other) const;
 
     /**
      * Loads the buffer from file fileName.
      * @param fileName          Name of the input file
      */
-    void loadFromFile(const String& fileName);
+    void loadFromFile(const fs::path& fileName);
 
     /**
      * Saves the buffer to the file fileName.
      * @param fileName          Name of the output file
      */
-    void saveToFile(const String& fileName) const;
+    void saveToFile(const fs::path& fileName) const;
 
     /**
      * Moves buffer from another buffer
      * @param other             Buffer to move from
      * @returns this object
      */
-    Buffer& operator = (Buffer&& other) DOESNT_THROW;
+    Buffer& operator=(Buffer&& other) DOESNT_THROW;
 
     /**
      * Assigns from Buffer
      * @param other             Buffer to assign from
      * @returns this object
      */
-    Buffer& operator = (const Buffer& other);
+    Buffer& operator=(const Buffer& other);
 
     /**
      * Assigns from String
      * @param str               String to assign from
      * @returns this object
      */
-    Buffer& operator = (const String& str);
+    Buffer& operator=(const String& str);
 
     /**
      * Assigns from char *
      * @param str const char *, the string to assign from
      * @returns this object
      */
-    Buffer& operator = (const char* str);
+    Buffer& operator=(const char* str);
 
     /**
      * Convertor to std::string

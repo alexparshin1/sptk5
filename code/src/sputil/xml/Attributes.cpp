@@ -62,8 +62,8 @@ void Attribute::value(const char* new_value)
 
 Attribute* Attributes::getAttributeNode(const String& attr)
 {
-    const auto itor = findFirst(attr.c_str());
-    if (itor != end())
+    if (const auto itor = findFirst(attr.c_str());
+        itor != end())
     {
         return (Attribute*) *itor;
     }
@@ -72,8 +72,8 @@ Attribute* Attributes::getAttributeNode(const String& attr)
 
 const Attribute* Attributes::getAttributeNode(const String& attr) const
 {
-    const auto itor = findFirst(attr.c_str());
-    if (itor != end())
+    if (const auto itor = findFirst(attr.c_str());
+        itor != end())
     {
         return (const Attribute*) *itor;
     }
@@ -82,8 +82,8 @@ const Attribute* Attributes::getAttributeNode(const String& attr) const
 
 Variant Attributes::getAttribute(const String& attr, const char* defaultValue) const
 {
-    const auto itor = findFirst(attr.c_str());
-    if (itor != end())
+    if (const auto itor = findFirst(attr.c_str());
+        itor != end())
     {
         return (*itor)->value();
     }

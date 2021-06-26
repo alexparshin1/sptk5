@@ -46,7 +46,7 @@ static void replaceFile(const String& fileName, const stringstream& fileData)
     Buffer oldData((const uint8_t*) "", 1);
     try
     {
-        oldData.loadFromFile(fileName);
+        oldData.loadFromFile(fileName.c_str());
     }
     catch (const Exception&)
     {
@@ -56,7 +56,7 @@ static void replaceFile(const String& fileName, const stringstream& fileData)
 
     if (String(oldData.c_str()) != String(newData.c_str()))
     {
-        newData.saveToFile(fileName);
+        newData.saveToFile(fileName.c_str());
     }
 }
 
@@ -79,11 +79,11 @@ void WSParser::clear()
 
 void WSParser::parseElement(const xml::Element* elementNode)
 {
-    String elementName = (String) elementNode->getAttribute("name");
-    String elementType = (String) elementNode->getAttribute("type");
+    auto elementName = (String) elementNode->getAttribute("name");
+    auto elementType = (String) elementNode->getAttribute("type");
 
-    size_t namespacePos = elementType.find(':');
-    if (namespacePos != string::npos)
+    if (size_t namespacePos = elementType.find(':');
+        namespacePos != string::npos)
     {
         elementType = elementType.substr(namespacePos + 1);
     }
@@ -106,7 +106,7 @@ void WSParser::parseElement(const xml::Element* elementNode)
 
 void WSParser::parseSimpleType(const xml::Element* simpleTypeElement)
 {
-    String simpleTypeName = (String) simpleTypeElement->getAttribute("name");
+    auto simpleTypeName = (String) simpleTypeElement->getAttribute("name");
     if (simpleTypeName.empty())
     {
         return;
@@ -122,7 +122,7 @@ void WSParser::parseSimpleType(const xml::Element* simpleTypeElement)
 
 void WSParser::parseComplexType(const xml::Element* complexTypeElement)
 {
-    String complexTypeName = (String) complexTypeElement->getAttribute("name");
+    auto complexTypeName = (String) complexTypeElement->getAttribute("name");
     if (complexTypeName.empty())
     {
         complexTypeName = (String) complexTypeElement->parent()->getAttribute("name");
@@ -134,9 +134,11 @@ void WSParser::parseComplexType(const xml::Element* complexTypeElement)
         complexTypeName = (String) parent->getAttribute("name");
     }
 
-    const auto& complexTypes = m_complexTypeIndex.complexTypes();
-    if (complexTypes.find(complexTypeName) != complexTypes.end())
-    throwException("Duplicate complexType definition: " << complexTypeName)
+    if (const auto& complexTypes = m_complexTypeIndex.complexTypes();
+        complexTypes.find(complexTypeName) != complexTypes.end())
+    {
+        throwException("Duplicate complexType definition: " << complexTypeName)
+    }
 
     auto complexType = make_shared<WSParserComplexType>(complexTypeElement, complexTypeName);
     m_complexTypeIndex.addType(complexTypeName, complexType);
@@ -177,8 +179,8 @@ void WSParser::parseOperation(const xml::Element* operationNode)
         }
         const auto* element = dynamic_cast<const xml::Element*>(node);
         auto message = (String) element->getAttribute("message");
-        size_t pos = message.find(':');
-        if (pos != string::npos)
+        if (size_t pos = message.find(':');
+            pos != string::npos)
         {
             message = message.substr(pos + 1);
         }
@@ -199,7 +201,7 @@ void WSParser::parseOperation(const xml::Element* operationNode)
 
     if (found)
     {
-        String operationName = (String) operationNode->getAttribute("name");
+        auto operationName = (String) operationNode->getAttribute("name");
         m_operations[operationName] = operation;
     }
 }
@@ -240,7 +242,7 @@ void WSParser::parseSchema(xml::Element* schemaElement)
     }
 }
 
-void WSParser::parse(const String& wsdlFile)
+void WSParser::parse(const filesystem::path& wsdlFile)
 {
     m_wsdlFile = wsdlFile;
 
@@ -253,8 +255,8 @@ void WSParser::parse(const String& wsdlFile)
     m_serviceName = (String) service->getAttribute("name");
     m_serviceNamespace = m_serviceName.toLowerCase() + "_service";
 
-    const auto* address = service->findFirst("soap:address");
-    if (address)
+    if (const auto* address = service->findFirst("soap:address");
+        address != nullptr)
     {
         m_location = (String) address->getAttribute("location");
     }
@@ -268,8 +270,8 @@ void WSParser::parse(const String& wsdlFile)
     if (portElement == nullptr)
     throwException("Can't find wsdl:portType element")
 
-    const auto* descriptionElement = portElement->findFirst("wsdl:documentation");
-    if (descriptionElement)
+    if (const auto* descriptionElement = portElement->findFirst("wsdl:documentation");
+        descriptionElement != nullptr)
     {
         m_description = descriptionElement->text();
     }
@@ -365,8 +367,8 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition << "    /**" << endl;
         serviceDefinition << "     * Web Service " << name << " operation" << endl;
         serviceDefinition << "     *" << endl;
-        auto documentation = m_documentation[operation.m_input->name()];
-        if (!documentation.empty())
+        if (auto documentation = m_documentation[operation.m_input->name()];
+            !documentation.empty())
         {
             Strings documentationRows(documentation, "\n");
             for (const auto& row: documentationRows)
@@ -392,9 +394,9 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "    sptk::String wsdl() const override;" << endl << endl;
 
     serviceDefinition << "private:" << endl << endl;
-    for (const auto& itor: m_operations)
+    for (const auto&[name, operation]: m_operations)
     {
-        string requestName = strip_namespace(itor.second.m_input->name());
+        string requestName = strip_namespace(operation.m_input->name());
         serviceDefinition << "    /**" << endl;
         serviceDefinition << "     * Internal Web Service " << requestName << " processing" << endl;
         serviceDefinition << "     * @param requestNode      Operation input/output XML data" << endl;
@@ -417,9 +419,9 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     Strings serviceOperations;
-    for (const auto& itor: m_operations)
+    for (const auto&[name, operation]: m_operations)
     {
-        String requestName = strip_namespace(itor.second.m_input->name());
+        String requestName = strip_namespace(operation.m_input->name());
         serviceOperations.push_back(requestName);
     }
     String operationNames = serviceOperations.join("|");
@@ -440,9 +442,9 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     serviceImplementation << ": WSRequest(logEngine)" << endl;
     serviceImplementation << "{" << endl;
     serviceImplementation << "    map<String, RequestMethod> requestMethods {" << endl;
-    for (const auto& itor: m_operations)
+    for (const auto&[name, operation]: m_operations)
     {
-        string requestName = strip_namespace(itor.second.m_input->name());
+        string requestName = strip_namespace(operation.m_input->name());
         serviceImplementation << "        {\"" << requestName << "\", "
                               << "bind(&" << serviceClassName << "::process_" << requestName
                               << ", this, _1, _2, _3, _4)}," << endl;
@@ -547,7 +549,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     Buffer externalHeader;
     if (!headerFile.empty())
     {
-        externalHeader.loadFromFile(headerFile);
+        externalHeader.loadFromFile(headerFile.c_str());
     }
     else
     {
@@ -570,9 +572,8 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
                << sourceDirectory << "/" << wsdlFileName << ".h" << endl;
 
     Strings usedClasses;
-    for (const auto& itor: m_complexTypeIndex.complexTypes())
+    for (const auto&[name, complexType]: m_complexTypeIndex.complexTypes())
     {
-        SWSParserComplexType complexType = itor.second;
         SourceModule sourceModule("C" + complexType->name(), sourceDirectory);
         sourceModule.open();
         complexType->generate(sourceModule.header(), sourceModule.source(), externalHeader.c_str(), m_serviceNamespace);
@@ -614,7 +615,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 }
 
 void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile,
-                               const String& _wsdlFileName) const
+                               const fs::path& _wsdlFileName) const
 {
     Strings wsdl;
     wsdl.loadFromFile(_wsdlFileName);
@@ -622,7 +623,7 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
     Buffer externalHeader("// Auto-generated by wsdl2cxx\n");
     if (!headerFile.empty())
     {
-        externalHeader.loadFromFile(headerFile);
+        externalHeader.loadFromFile(headerFile.c_str());
     }
 
     String baseFileName = "C" + capitalize(m_serviceName) + "WSDL";

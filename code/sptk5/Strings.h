@@ -128,13 +128,13 @@ public:
      * Saves strings to file. String ids are discarded.
      * @param fileName          The name of the file
      */
-    void saveToFile(const String& fileName) const;
+    void saveToFile(const fs::path& fileName) const;
 
     /**
      * Loads strings from file. String ids are not loaded.
      * @param fileName          The name of the file
      */
-    void loadFromFile(const String& fileName);
+    void loadFromFile(const fs::path& fileName);
 
     /**
      * Returns user data as integer
@@ -271,12 +271,12 @@ private:
     /**
      * User-specified data
      */
-    int64_t m_userData{0};
+    int64_t m_userData {0};
 
     /**
      * Is sorted flag
      */
-    SortOrder m_sorted{SortOrder::UNSORTED};
+    SortOrder m_sorted {SortOrder::UNSORTED};
 };
 
 /**

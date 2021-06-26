@@ -110,10 +110,10 @@ void BaseWebServiceProtocol::processXmlContent(const char* startOfMessage, xml::
 
     xml::Node* xmlRequest = findRequestNode(xmlContent, "API request");
     auto* jsonEnvelope = jsonContent.root().add_object(xmlRequest->name());
-    for (auto& itor: m_url.params())
+    for (const auto&[name, param]: m_url.params())
     {
-        auto* paramNode = new xml::Element(xmlRequest, itor.second.c_str());
-        paramNode->text(itor.second);
+        auto* paramNode = new xml::Element(xmlRequest, name.c_str());
+        paramNode->text(param);
     }
     xmlRequest->exportTo(*jsonEnvelope);
 }

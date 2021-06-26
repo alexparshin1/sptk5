@@ -36,10 +36,12 @@ void example_dialog_cb(Fl_Widget* w, void*)
 {
     auto* btn = dynamic_cast<CButton*>(w);
     if (btn)
+    {
         spInformation(string(btn->label()) +
                       " button was pressed.\n"
                       "It is different from <B>Ok</B> and <B>Cancel</B> buttons "
                       "that are processed by default.");
+    }
 }
 
 void exit_cb(Fl_Widget* w, void*)
@@ -47,13 +49,14 @@ void exit_cb(Fl_Widget* w, void*)
     w->window()->hide();
 }
 
-class CExampleDialog : public CDialog
+class CExampleDialog
+    : public CDialog
 {
-    xml::Document   m_state;
-    String          m_stateFileName { "dialog_test.xml" };
+    xml::Document m_state;
+    String m_stateFileName {"dialog_test.xml"};
 public:
     CExampleDialog()
-    : CDialog(300, 260, "Example Dialog")
+        : CDialog(300, 260, "Example Dialog")
     {
         CInput* inp;
 
@@ -99,32 +102,37 @@ public:
 
     void loadState()
     {
-        try {
+        try
+        {
             /// Try to load the prior values of the dialog controls.
             /// If the XML file doesn't exist yet - this will throw an exception that we trap.
             Buffer buffer;
-            buffer.loadFromFile(m_stateFileName);
+            buffer.loadFromFile(m_stateFileName.c_str());
             m_state.load(buffer);
 
             /// If the XML file exists, try to load data into the dialog
             load(&m_state);
-        } catch (const Exception& e) {
+        }
+        catch (const Exception& e)
+        {
             CERR(e.what() << endl)
         }
     }
 
     void saveState()
     {
-        try {
+        try
+        {
             /// Save data from dialog controls into XML file
             save(&m_state);
 
             /// Save the XML file.
             Buffer buffer;
             m_state.save(buffer, 0);
-            buffer.saveToFile(m_stateFileName);
+            buffer.saveToFile(m_stateFileName.c_str());
         }
-        catch (const Exception& e) {
+        catch (const Exception& e)
+        {
             spError("Can't save dialog data: " + string(e.what()));
         }
     }
@@ -138,7 +146,8 @@ void dialog_cb(Fl_Widget*, void*)
     /// Setting the default values for the dialog controls.
     /// The controls are addressed by their field names.
     /// The data is converted automatically based on the data type.
-    try {
+    try
+    {
         dialog["company_name"] = "Tiny Soft";
         dialog["company_size"] = 2;
         dialog["business_type"] = "Software";
@@ -147,7 +156,9 @@ void dialog_cb(Fl_Widget*, void*)
         dialog["last_name"] = "Doe";
         dialog["age"] = 35.2;
         dialog["notes"] = "Heavy duty worker. Family Guy. Good Friend.";
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         /// We can get here if the field name is incorrect,
         /// or data conversion isn't possible
         spError(e.what());
@@ -157,12 +168,13 @@ void dialog_cb(Fl_Widget*, void*)
     /// stored in the XML file
     dialog.loadState();
 
-    if (dialog.showModal()) {
+    if (dialog.showModal())
+    {
         COUT(
-             (String) dialog["company_name"] << ", has " <<
-             (int) dialog["company_size"] << " employees (" <<
-             (String) dialog["business_type"] << "), established " <<
-             (String) dialog["established"] << endl)
+            (String) dialog["company_name"] << ", has " <<
+                                            (int) dialog["company_size"] << " employees (" <<
+                                            (String) dialog["business_type"] << "), established " <<
+                                            (String) dialog["established"] << endl)
     }
 
     /// This saves the last known state of the dialog
@@ -172,7 +184,8 @@ void dialog_cb(Fl_Widget*, void*)
 
 int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes themes;
 
@@ -195,11 +208,14 @@ int main(int argc, char* argv[])
         w.show();
 
         if (argc > 1)
+        {
             CThemes::set(argv[1]);
+        }
 
         return Fl::run();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

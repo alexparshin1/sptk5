@@ -169,8 +169,8 @@ void WSComplexType::load(const json::Element* input)
     }
 
     // Load attributes
-    const auto* attributes = input->find("attributes");
-    if (attributes != nullptr && attributes->is(json::Type::OBJECT))
+    if (const auto* attributes = input->find("attributes");
+        attributes != nullptr && attributes->is(json::Type::OBJECT))
     {
         for (const auto& attribute: attributes->getObject())
         {
@@ -193,8 +193,8 @@ void WSComplexType::load(const FieldList& input)
 
     m_fields.forEach([&input](WSType* field) {
         const auto* inputField = input.findField(field->name());
-        auto* outputField = dynamic_cast<WSBasicType*>(field);
-        if (inputField != nullptr && outputField != nullptr)
+        if (auto* outputField = dynamic_cast<WSBasicType*>(field);
+            inputField != nullptr && outputField != nullptr)
         {
             outputField->load(*inputField);
         }

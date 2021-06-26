@@ -94,7 +94,7 @@ static void substituteHostname(Buffer& page, const Host& host)
     {
         throw Exception("Can't find <soap:address> in WSDL file");
     }
-    String location = (String) node->getAttribute("location", "");
+    auto location = (String) node->getAttribute("location", "");
     if (location.empty())
     {
         throw Exception("Can't find location attribute of <soap:address> in WSDL file");
@@ -115,7 +115,7 @@ RequestInfo WSWebServiceProtocol::process()
     constexpr int serverErrorResponseCode(500);
     constexpr chrono::seconds thirtySeconds(30);
 
-    HttpResponseStatus httpStatus{okResponseCode, "OK"};
+    HttpResponseStatus httpStatus {okResponseCode, "OK"};
     bool returnWSDL = false;
 
     if (m_httpReader.getRequestType() != "POST")
@@ -147,7 +147,7 @@ RequestInfo WSWebServiceProtocol::process()
     auto* startOfMessage = requestInfo.request.content().data();
     auto* endOfMessage = startOfMessage + requestInfo.request.content().bytes();
 
-    while (startOfMessage != endOfMessage && (unsigned char) *startOfMessage < 33)
+    while (startOfMessage != endOfMessage && *startOfMessage < 33)
     {
         ++startOfMessage;
     }
@@ -257,12 +257,14 @@ RequestInfo WSWebServiceProtocol::process()
 shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()
 {
     shared_ptr<HttpAuthentication> authentication;
-    auto itor = headers().find("authorization");
-    if (itor != headers().end())
+
+    if (auto itor = headers().find("authorization");
+        itor != headers().end())
     {
         String value(itor->second);
         authentication = make_shared<HttpAuthentication>(value);
     }
+
     return authentication;
 }
 
@@ -274,8 +276,8 @@ int WSWebServiceProtocol::getContentLength()
         contentLength = 0;
     }
 
-    auto itor = headers().find("Content-Length");
-    if (itor != headers().end())
+    if (auto itor = headers().find("Content-Length");
+        itor != headers().end())
     {
         contentLength = string2int(itor->second);
     }

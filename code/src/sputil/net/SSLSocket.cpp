@@ -221,13 +221,17 @@ bool SSLSocket::tryConnect(const DateTime& timeoutAt)
         if (errorCode == SSL_ERROR_WANT_READ)
         {
             if (!readyToRead(nextTimeout))
+            {
                 throw Exception("SSL handshake read timeout");
+            }
             return false; // continue attempts
         }
         else if (errorCode == SSL_ERROR_WANT_WRITE)
         {
             if (!readyToWrite(nextTimeout))
+            {
                 throw Exception("SSL handshake write timeout");
+            }
             return false; // continue attempts
         }
     }
@@ -406,8 +410,9 @@ size_t SSLSocket::send(const uint8_t* buffer, size_t len)
             }
             continue;
         }
-        int32_t errorCode = SSL_get_error(m_ssl, rc);
-        if (errorCode != SSL_ERROR_WANT_READ && errorCode != SSL_ERROR_WANT_WRITE)
+
+        if (int32_t errorCode = SSL_get_error(m_ssl, rc);
+            errorCode != SSL_ERROR_WANT_READ && errorCode != SSL_ERROR_WANT_WRITE)
         {
             throw Exception(getSSLError("writing to SSL connection", errorCode));
         }

@@ -186,8 +186,9 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
         if (m_options.logDetails.has(LogDetails::MessageDetail::SOURCE_IP))
         {
             auto remoteIp = address();
-            auto remoteIpHeader = httpReader.httpHeader("Remote-Ip");
-            if (remoteIp == "127.0.0.1" && !remoteIpHeader.empty())
+
+            if (auto remoteIpHeader = httpReader.httpHeader("Remote-Ip");
+                remoteIp == "127.0.0.1" && !remoteIpHeader.empty())
             {
                 remoteIp = remoteIpHeader;
             }
@@ -234,8 +235,9 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
 
 bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers) const
 {
-    String contentLength = headers["Content-Length"];
-    if (requestType == "GET" && contentLength.empty())
+
+    if (String contentLength = headers["Content-Length"];
+        requestType == "GET" && contentLength.empty())
     {
         headers["Content-Length"] = "0";
     }

@@ -146,7 +146,7 @@ public:
      * Loads WSDL-file and parses it to output classes
      * @param wsdlFile          WSDL file name
      */
-    void parse(const String& wsdlFile);
+    void parse(const fs::path& wsdlFile);
 
     /**
      * Stores parsed classes to files in source directory
@@ -163,7 +163,7 @@ public:
      * @param headerFile        Optional header file to insert at the start of each generated file
      * @param wsdlFileName              WSDL content
      */
-    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const String& wsdlFileName) const;
+    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const fs::path& wsdlFileName) const;
 
     /**
      * Utility function that removes namespace from the element name

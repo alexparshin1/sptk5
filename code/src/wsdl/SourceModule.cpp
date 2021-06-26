@@ -81,7 +81,7 @@ void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& d
 
     try
     {
-        existingData.loadFromFile(fileName);
+        existingData.loadFromFile(fileName.c_str());
     }
     catch (const Exception&)
     {

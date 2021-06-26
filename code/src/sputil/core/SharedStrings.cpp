@@ -35,12 +35,14 @@ SharedStrings::SharedStrings()
     shareString("");
 }
 
-const std::string* SharedStrings::findString(const char *str) const
+const std::string* SharedStrings::findString(const char* str) const
 {
     string s(str);
     auto itor = m_strings.find(s);
-    if (itor == m_strings.end()) 
+    if (itor == m_strings.end())
+    {
         return nullptr;
+    }
     return &(*itor);
 }
 
@@ -48,9 +50,10 @@ const string& SharedStrings::shareString(const char* str)
 {
     string s(str);
     auto itor = m_strings.find(s);
-    if (itor == m_strings.end()) {
-        pair<Set::iterator, bool> insertResult = m_strings.insert(s);
-        itor = insertResult.first;
+    if (itor == m_strings.end())
+    {
+        const auto&[item, inserted] = m_strings.insert(s);
+        return *item;
     }
     return *itor;
 }

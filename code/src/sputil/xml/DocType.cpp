@@ -50,8 +50,8 @@ void Entity::parse(const String& entityTag)
             name = "%" + name;
         }
 
-        auto typeAndId = matches["type"].value;
-        if (typeAndId == " SYSTEM")
+        if (auto typeAndId = matches["type"].value;
+            typeAndId == " SYSTEM")
         {
             type = Type::SYSTEM;
             id = "";
@@ -121,8 +121,8 @@ public:
 
     [[nodiscard]] const struct entity* find(const String& ent) const
     {
-        auto itor = m_hash.find(ent);
-        if (itor != m_hash.end())
+        if (auto itor = m_hash.find(ent);
+            itor != m_hash.end())
         {
             return itor->second;
         }
@@ -156,8 +156,8 @@ void DocType::decodeEntities(const char* str, size_t sz, Buffer& ret)
     Buffer buffer((const uint8_t*) str, sz);
     ret.bytes(0);
 
-    char* start = (char*) buffer.data();
-    char* ptr = start;
+    auto* start = (char*) buffer.data();
+    auto* ptr = start;
     while (*ptr != char(0))
     {
         char* ent_start = strchr(ptr, '&');
@@ -169,8 +169,8 @@ void DocType::decodeEntities(const char* str, size_t sz, Buffer& ret)
         auto* ent_end = strchr(ent_start + 1, ';');
         if (ent_end != nullptr)
         {
-            auto len = uint32_t(ent_start - start);
-            if (len != 0)
+            if (auto len = uint32_t(ent_start - start);
+                len != 0)
             {
                 ret.append(start, len);
             }
@@ -220,8 +220,8 @@ bool DocType::encodeEntities(const char* str, Buffer& ret)
         {
             auto index = uint32_t(strchr(xml_shortcut, *pos) - xml_shortcut);
             const entity* ent = table + index;
-            auto tailBytes = uint32_t(pos - ptr);
-            if (tailBytes != 0)
+            if (auto tailBytes = uint32_t(pos - ptr);
+                tailBytes != 0)
             {
                 dst->append(ptr, tailBytes);
             }
@@ -307,11 +307,11 @@ const char* DocType::getReplacement(const char* name, uint32_t& replacementLengt
         }
     }
 
-    const char* result{nullptr};
+    const char* result {nullptr};
 
     // Find in built-ins, see entities.h
-    const struct entity* entity = xml_entities.find(name);
-    if (entity != nullptr)
+    if (const struct entity* entity = xml_entities.find(name);
+        entity != nullptr)
     {
         replacementLength = uint32_t(entity->replacement_len);
         result = entity->replacement;

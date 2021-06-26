@@ -79,8 +79,8 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
         }
     }
 
-    const xml::Node* documentationElement = complexTypeElement->findFirst("xsd:documentation");
-    if (documentationElement != nullptr)
+    if (const xml::Node* documentationElement = complexTypeElement->findFirst("xsd:documentation");
+        documentationElement != nullptr)
     {
         m_documentation = documentationElement->text().trim();
     }
@@ -125,8 +125,8 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
 
 String WSParserComplexType::className() const
 {
-    String cxxType = wsTypeTranslator.toCxxType(m_typeName, "");
-    if (!cxxType.empty())
+    if (String cxxType = wsTypeTranslator.toCxxType(m_typeName, "");
+        !cxxType.empty())
     {
         return cxxType;
     }
@@ -166,7 +166,7 @@ void WSParserComplexType::parse()
         const auto* element = dynamic_cast<xml::Element*>(node);
         if (element->name() == "xsd:attribute")
         {
-            String attrName = (String) element->getAttribute("name");
+            auto attrName = (String) element->getAttribute("name");
             m_attributes[attrName] = new WSParserAttribute(attrName, (String) element->getAttribute("type"));
             continue;
         }
@@ -356,8 +356,8 @@ String WSParserComplexType::makeTagName(const String& className)
 {
     String tagName = lowerCase(className.substr(1));
     RegularExpression matchWords("([A-Z]+[a-z]+)", "g");
-    auto words = matchWords.m(className.substr(1));
-    if (words)
+    if (auto words = matchWords.m(className.substr(1));
+        words)
     {
         Strings wordList;
         for (const auto& word: words.groups())

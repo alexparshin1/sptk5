@@ -108,8 +108,9 @@ char* Document::parseEntity(char* start)
     }
 
     *end = 0;
-    auto matches = matchEntity.m(start);
-    if (matches)
+
+    if (auto matches = matchEntity.m(start);
+        matches)
     {
         m_doctype.m_entities.setEntity(matches["name"].value, matches["value"].value);
     }
@@ -368,8 +369,9 @@ char* Document::readOpenningTag(const char* nodeName, char* tokenEnd, char*& nod
     {
         throw Exception("Invalid tag (started, not closed)");
     }
-    auto len = nodeEnd - tokenStart;
-    if (tokenStart[len - 1] == '/')
+
+    if (auto len = nodeEnd - tokenStart;
+        tokenStart[len - 1] == '/')
     {
         nodeEnd = tokenStart + len - 1;
     }

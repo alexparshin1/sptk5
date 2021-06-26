@@ -55,9 +55,9 @@ static uint64_t ntoh64(uint64_t data)
 
 void WSWebSocketsMessage::decode(const char* incomingData)
 {
-    constexpr char maskedBitMask(char(0x80));
-    constexpr char opcodeBitMask(char(0xF));
-    constexpr char payloadLengthBitMask(char(0x7F));
+    constexpr char maskedBitMask(0x80);
+    constexpr char opcodeBitMask(0xF);
+    constexpr char payloadLengthBitMask(0x7F);
     constexpr char lengthIsTwoBytes(126);
     constexpr char lengthIsEightBytes(127);
     constexpr int eightBytes(8);
@@ -131,7 +131,7 @@ void WSWebSocketsMessage::encode(const String& payload, OpCode opcode, bool fina
 {
     output.reset(payload.length() + 10);
 
-    auto* ptr = (uint8_t*) output.data();
+    auto* ptr = output.data();
 
     *ptr = (int) opcode & 0xF;
     if (finalMessage)
@@ -157,7 +157,7 @@ void WSWebSocketsMessage::encode(const String& payload, OpCode opcode, bool fina
         ptr += 8;
     }
 
-    output.bytes(ptr - (uint8_t*) output.data());
+    output.bytes(ptr - output.data());
     output.append(payload);
 }
 
@@ -197,8 +197,8 @@ RequestInfo WSWebSocketsProtocol::process()
     try
     {
         String clientKey = headers()["Sec-WebSocket-Key"];
-        String socketVersion = headers()["Sec-WebSocket-Version"];
-        if (clientKey.empty() || socketVersion != "13")
+        if (String socketVersion = headers()["Sec-WebSocket-Version"];
+            clientKey.empty() || socketVersion != "13")
         {
             throw Exception(
                 "WebSocket protocol is missing or has invalid Sec-WebSocket-Key or Sec-WebSocket-Version headers");
@@ -208,9 +208,9 @@ RequestInfo WSWebSocketsProtocol::process()
 
         // Generate server response key from client key
         String responseKey = clientKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-        unsigned char obuf[shaBufferLength];
-        SHA1((const unsigned char*) responseKey.c_str(), responseKey.length(), obuf);
-        Buffer responseKeySHA(obuf, shaBufferLength);
+        Buffer obuf(shaBufferLength);
+        SHA1((const unsigned char*) responseKey.c_str(), responseKey.length(), obuf.data());
+        Buffer responseKeySHA(obuf.data(), shaBufferLength);
         Buffer responseKeyEncoded;
         Base64::encode(responseKeyEncoded, responseKeySHA);
         responseKey = responseKeyEncoded.c_str();

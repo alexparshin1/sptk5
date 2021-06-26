@@ -99,8 +99,8 @@ static void makeCriteria(XPathElement& pathElement)
 
     const String& criteria = pathElement.criteria;
 
-    auto matches = matchAttribute.m(pathElement.criteria);
-    if (matches)
+    if (auto matches = matchAttribute.m(pathElement.criteria);
+        matches)
     {
         pathElement.attributeName = matches["attribute"].value;
         pathElement.attributeValue = matches["value"].value;
@@ -292,8 +292,8 @@ void NodeSearchAlgorithms::matchNode(Node* thisNode, NodeVector& nodes, const ve
     ++pathPosition;
     if (pathPosition == (int) pathElements.size())
     {
-        const XPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
-        if (!pathElement.elementName.empty())
+        if (const XPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
+            !pathElement.elementName.empty())
         {
             nodes.insert(nodes.end(), thisNode);
         }
@@ -423,8 +423,8 @@ void Node::saveElement(const String& nodeName, Buffer& buffer, int indent) const
     if (!empty())
     {
         bool only_cdata = true;
-        const Node* nd = *begin();
-        if (size() == 1 && nd->type() == Type::DOM_TEXT)
+        if (const Node* nd = *begin();
+            size() == 1 && nd->type() == Type::DOM_TEXT)
         {
             buffer.append('>');
         }
@@ -732,8 +732,8 @@ Node* Node::findFirst(const String& aname, bool recursively) const
 
 Node* Node::findOrCreate(const String& aname, bool recursively)
 {
-    Node* node = findFirst(aname, recursively);
-    if (node != nullptr)
+    if (Node* node = findFirst(aname, recursively);
+        node != nullptr)
     {
         return node;
     }
