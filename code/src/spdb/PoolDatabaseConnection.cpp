@@ -272,7 +272,7 @@ void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings&
 void PoolDatabaseConnection::_executeBatchFile(const String& batchFileName, Strings* errors)
 {
     Strings batchFileContent;
-    batchFileContent.loadFromFile(batchFileName);
+    batchFileContent.loadFromFile(batchFileName.c_str());
     _executeBatchSQL(batchFileContent, errors);
 }
 

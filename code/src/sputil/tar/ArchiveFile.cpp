@@ -69,7 +69,7 @@ ArchiveFile::ArchiveFile(const String& fileName, const String& baseDirectory)
     }
     else if (fs::is_regular_file(status))
     {
-        loadFromFile(fileName);
+        loadFromFile(fileName.c_str());
     }
     else if (fs::is_directory(status))
     {

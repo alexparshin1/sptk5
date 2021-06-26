@@ -28,6 +28,7 @@
 #include <sptk5/SystemException.h>
 #include <sys/stat.h>
 #include <iomanip>
+#include <filesystem>
 
 using namespace std;
 using namespace sptk;
@@ -48,20 +49,20 @@ Buffer::Buffer(Buffer&& other) noexcept
     other.init(nullptr, 0, 0);
 }
 
-void Buffer::loadFromFile(const String& fileName)
+void Buffer::loadFromFile(const filesystem::path& fileName)
 {
     FILE* f = fopen(fileName.c_str(), "rb");
 
     if (f == nullptr)
     {
-        throw SystemException("Can't open file " + fileName + " for reading");
+        throw SystemException("Can't open file " + (string) fileName + " for reading");
     }
 
     struct stat st = {};
     if (fstat(fileno(f), &st) != 0)
     {
         fclose(f);
-        throw Exception("Can't get file size for '" + fileName + "'");
+        throw Exception("Can't get file size for '" + (string) fileName + "'");
     }
 
     auto size = (size_t) st.st_size;
@@ -71,13 +72,13 @@ void Buffer::loadFromFile(const String& fileName)
     fclose(f);
 }
 
-void Buffer::saveToFile(const String& fileName) const
+void Buffer::saveToFile(const fs::path& fileName) const
 {
     FILE* f = fopen(fileName.c_str(), "wb");
 
     if (f == nullptr)
     {
-        throw SystemException("Can't open file " + fileName + " for writing");
+        throw SystemException("Can't open file " + (string) fileName + " for writing");
     }
 
     fwrite(data(), bytes(), 1, f);
@@ -209,7 +210,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 #if USE_GTEST
 
 static const String testPhrase("This is a test");
-static const String tempFileName("./gtest_sptk5_buffer.tmp");
+static const fs::path tempFileName("./gtest_sptk5_buffer.tmp");
 
 TEST(SPTK_Buffer, create)
 {
@@ -339,7 +340,7 @@ TEST(SPTK_Buffer, compare)
 
 TEST(SPTK_Buffer, hexDump)
 {
-    const Strings expected{
+    const Strings expected {
         "00000000  54 68 69 73 20 69 73 20  61 20 74 65 73 74 54 68  This is  a testTh",
         "00000010  69 73 20 69 73 20 61 20  74 65 73 74              is is a  test"
     };

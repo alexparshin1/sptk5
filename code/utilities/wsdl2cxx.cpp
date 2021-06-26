@@ -155,7 +155,7 @@ int main(int argc, const char* argv[])
             return 1;
         }
 
-        auto wsdlFile = commandLine.arguments().front();
+        fs::path wsdlFile = commandLine.arguments().front().c_str();
         auto quiet = commandLine.hasOption("quiet");
         auto verbose = commandLine.hasOption("verbose");
 
