@@ -102,7 +102,7 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 
 void JWT::verify_sha_hmac(const char* head, const char* sig) const
 {
-    unsigned char res[EVP_MAX_MD_SIZE];
+    array<unsigned char, EVP_MAX_MD_SIZE> res {};
     unsigned int res_len = 0;
     const EVP_MD* algorithm = nullptr;
     int len = 0;
@@ -142,9 +142,9 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
     BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 
     HMAC(algorithm, key.c_str(), (int) key.length(),
-         (const unsigned char*) head, (int) strlen(head), res, &res_len);
+         (const unsigned char*) head, (int) strlen(head), res.data(), &res_len);
 
-    BIO_write(b64, res, res_len);
+    BIO_write(b64, res.data(), res_len);
 
     (void) BIO_flush(b64);
 

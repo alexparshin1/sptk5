@@ -247,8 +247,8 @@ void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& tim
 
     if (timeout == chrono::milliseconds(0))
     {
-        int rc = SSL_connect(m_ssl);
-        if (rc <= 0)
+        if (int rc = SSL_connect(m_ssl);
+            rc <= 0)
         {
             close();
             throwSSLError("SSL_connect", rc);

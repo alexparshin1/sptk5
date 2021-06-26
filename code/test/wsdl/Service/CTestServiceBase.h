@@ -102,7 +102,7 @@ private:
 
 };
 
-typedef std::shared_ptr<CTestServiceBase> STestServiceBase;
+using STestServiceBase = std::shared_ptr<CTestServiceBase>;
 
 }
 

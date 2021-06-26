@@ -90,7 +90,7 @@ struct entity
     const char* replacement;
 };
 
-typedef map<String, const struct entity*> CEntityMap;
+using CEntityMap = map<String, const struct entity*>;
 
 static const struct entity builtin_ent_xml[] = {
     {"amp",   1, "&"},

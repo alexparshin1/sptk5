@@ -39,8 +39,9 @@
 namespace sptk {
 
 namespace json {
-    class Document;
-    class Element;
+class Document;
+
+class Element;
 }
 
 namespace xml {
@@ -51,13 +52,16 @@ namespace xml {
  */
 
 class Document;
+
 class Attribute;
+
 class Attributes;
 
 /**
  * XPath Axis enum
  */
-enum class XPathAxis: uint8_t
+enum class XPathAxis
+    : uint8_t
 {
     CHILD,      ///< Child axis
     DESCENDANT, ///< Descendant axis
@@ -70,13 +74,13 @@ enum class XPathAxis: uint8_t
 class SP_EXPORT XPathElement
 {
 public:
-    String      elementName;                   ///< Node name, or '*'
-    String      criteria;                      ///< Criteria
-    XPathAxis   axis {XPathAxis::CHILD};       ///< Axis
-    String      attributeName;                 ///< Attribute name (optional)
-    String      attributeValue;                ///< Attribute value (optional)
-    bool        attributeValueDefined {false}; ///< true if attribute value was defined
-    int         nodePosition {0};              ///< 0 (not required), -1 (last), or node position
+    String elementName;                   ///< Node name, or '*'
+    String criteria;                      ///< Criteria
+    XPathAxis axis {XPathAxis::CHILD};       ///< Axis
+    String attributeName;                 ///< Attribute name (optional)
+    String attributeValue;                ///< Attribute value (optional)
+    bool attributeValueDefined {false}; ///< true if attribute value was defined
+    int nodePosition {0};              ///< 0 (not required), -1 (last), or node position
 };
 
 /**
@@ -126,13 +130,15 @@ class Node;
 /**
  * Base XML Node class
  */
-class SP_EXPORT NodeBase: public NodeIterators
+class SP_EXPORT NodeBase
+    : public NodeIterators
 {
 public:
     /**
      * Node type enumeration
      */
-    enum class Type: uint8_t
+    enum class Type
+        : uint8_t
     {
         DOM_UNDEFINED = 0,      ///< Type isn't defined yet
         DOM_DOCUMENT = 1,       ///< Document node
@@ -149,8 +155,9 @@ public:
      * @param document          Parent XML document
      */
     explicit NodeBase(Document* document)
-    : m_document(document)
-    {}
+        : m_document(document)
+    {
+    }
 
     /**
      * Returns parent node of this node.
@@ -283,7 +290,7 @@ public:
      */
     bool isElement() const
     {
-        return ((int)type() & ((int)Type::DOM_ELEMENT | (int)Type::DOM_DOCUMENT)) != 0;
+        return ((int) type() & ((int) Type::DOM_ELEMENT | (int) Type::DOM_DOCUMENT)) != 0;
     }
 
     /**
@@ -342,12 +349,17 @@ private:
  *
  * Basic class for any XML node
  */
-class SP_EXPORT Node: public NodeBase
+class SP_EXPORT Node
+    : public NodeBase
 {
     friend class NodeList;
+
     friend class Document;
+
     friend class Element;
+
     friend class Attribute;
+
     friend class Attributes;
 
     friend class NodeSearchAlgorithms;
@@ -373,7 +385,7 @@ public:
      */
     Node* findOrCreate(const String& name, bool recursively = true);
 
-    template <class T>
+    template<class T>
     T* add(const String& nameOrData)
     {
         return new T(this, nameOrData.c_str());
@@ -550,8 +562,9 @@ protected:
      * @param doc               Node document
      */
     explicit Node(Document& doc)
-    : NodeBase(&doc)
-    {}
+        : NodeBase(&doc)
+    {
+    }
 
     /**
      * Protected constructor - for derived classes
@@ -559,15 +572,18 @@ protected:
      * @param parent            Node document
      */
     explicit Node(Node& parent, bool)
-    : NodeBase(parent.document())
+        : NodeBase(parent.document())
     {
         parent.push_back(this);
     }
 
     Node(const Node&) = default;
+
     Node(Node&&) noexcept = default;
-    Node& operator = (const Node&) = default;
-    Node& operator = (Node&&) noexcept = default;
+
+    Node& operator=(const Node&) = default;
+
+    Node& operator=(Node&&) noexcept = default;
 
     /**
      * Destructor
@@ -585,13 +601,19 @@ private:
     virtual void save(json::Element& json, std::string& text) const;
 
     void saveElement(const String& nodeName, Buffer& buffer, int indent) const;
+
     void saveAttributes(Buffer& buffer) const;
+
     void saveAttributes(json::Element* object) const;
+
     void saveElement(json::Element* object) const;
+
     void appendSubNodes(Buffer& buffer, int indent, bool only_cdata) const;
+
     void appendClosingTag(Buffer& buffer, int indent, bool only_cdata) const;
 
     void saveTextOrCDATASection(json::Element* object) const;
+
     void setJsonValue(json::Element* object, const String& nodeText) const;
 };
 
@@ -604,19 +626,22 @@ public:
     /**
      * Scan descendents nodes
      */
-    static void scanDescendents(const Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+    static void scanDescendents(const Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements,
+                                int pathPosition,
                                 const String& starPointer);
 
     /**
      * Match nodes
      */
-    static void matchNode(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+    static void matchNode(Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements,
+                          int pathPosition,
                           const String& starPointer);
 
     /**
      * Match nodes only this level
      */
-    static void matchNodesThisLevel(const Node* thisNode, NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+    static void matchNodesThisLevel(const Node* thisNode, NodeVector& nodes,
+                                    const std::vector<XPathElement>& pathElements, int pathPosition,
                                     const String& starPointer, NodeVector& matchedNodes, bool descendants);
 
     /**
@@ -633,9 +658,11 @@ public:
  *
  * Used as a base class for XML element and XML attribute
  */
-class SP_EXPORT NamedItem : public Node
+class SP_EXPORT NamedItem
+    : public Node
 {
     friend class Document;
+
     friend class Attribute;
 
 public:
@@ -646,7 +673,7 @@ public:
      * @param tagname           Name of XML tag
      */
     NamedItem(Node& parent, const char* tagname)
-    : Node(parent, true)
+        : Node(parent, true)
     {
         NamedItem::name(tagname);
     }
@@ -660,7 +687,7 @@ public:
      * @param tagname           Name of XML tag
      */
     NamedItem(Node& parent, const String& tagname)
-    : Node(parent, true)
+        : Node(parent, true)
     {
         NamedItem::name(tagname);
     }
@@ -680,7 +707,9 @@ public:
     {
         size_t pos = m_name.find(":");
         if (pos == std::string::npos)
+        {
             return "";
+        }
         return m_name.substr(0, pos);
     }
 
@@ -691,7 +720,9 @@ public:
     {
         size_t pos = m_name.find(":");
         if (pos == std::string::npos)
+        {
             return m_name;
+        }
         return m_name.substr(pos + 1);
     }
 
@@ -710,14 +741,6 @@ public:
     }
 
 protected:
-    /**
-     * Protected constructor for creating Doc only
-     *
-     * @param doc a document.
-     */
-    explicit NamedItem(Document& doc) : Node(doc)
-    {
-    }
 
     /**
      * Returns true if node name pointer (from SST) matches aname pointer
@@ -730,20 +753,21 @@ protected:
 
 private:
 
-    String  m_name;    ///< Node name
+    String m_name;    ///< Node name
 };
 
 /**
  * Base class for XML nodes with value
  */
-class SP_EXPORT BaseTextNode : public Node
+class SP_EXPORT BaseTextNode
+    : public Node
 {
 public:
     /**
      * Constructor
      */
     BaseTextNode(Node* parent, const char* data)
-    : Node(*parent, true)
+        : Node(*parent, true)
     {
         BaseTextNode::value(data);
     }
@@ -752,7 +776,7 @@ public:
      * Constructor
      */
     BaseTextNode(Node& parent, const String& data)
-    : Node(parent, true)
+        : Node(parent, true)
     {
         BaseTextNode::value(data);
     }
@@ -823,7 +847,8 @@ private:
 /**
  * XML Text
  */
-class SP_EXPORT Text : public BaseTextNode
+class SP_EXPORT Text
+    : public BaseTextNode
 {
 public:
     /**
@@ -833,20 +858,11 @@ public:
      * @param data              Text
      */
     Text(Node& parent, const char* data)
-    : BaseTextNode(&parent, data)
+        : BaseTextNode(&parent, data)
     {
     }
 
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node.
-     * @param data              Text
-     */
-    Text(Node* parent, const char* data)
-    : BaseTextNode(parent, data)
-    {
-    }
+    using BaseTextNode::BaseTextNode;
 
     /**
      * Constructor
@@ -855,7 +871,7 @@ public:
      * @param data              Text
      */
     Text(Node& parent, const String& data)
-    : BaseTextNode(&parent, data.c_str())
+        : BaseTextNode(&parent, data.c_str())
     {
     }
 
@@ -877,7 +893,8 @@ protected:
 /**
  * XML comment
  */
-class SP_EXPORT Comment : public BaseTextNode
+class SP_EXPORT Comment
+    : public BaseTextNode
 {
 public:
     /**
@@ -887,20 +904,11 @@ public:
      * @param data              Comment
      */
     Comment(Node& parent, const char* data)
-    : BaseTextNode(&parent, data)
+        : BaseTextNode(&parent, data)
     {
     }
 
-    /**
-     * Constructor
-     *
-     * @param parent            Parent node.
-     * @param data              Comment
-     */
-    Comment(Node* parent, const char* data)
-    : BaseTextNode(parent, data)
-    {
-    }
+    using BaseTextNode::BaseTextNode;
 
     /**
      * Constructor
@@ -909,7 +917,7 @@ public:
      * @param data              Comment
      */
     Comment(Node& parent, const String& data)
-    : BaseTextNode(&parent, data.c_str())
+        : BaseTextNode(&parent, data.c_str())
     {
     }
 
@@ -931,7 +939,8 @@ protected:
 /**
  * XML CData section
  */
-class SP_EXPORT CDataSection : public BaseTextNode
+class SP_EXPORT CDataSection
+    : public BaseTextNode
 {
 public:
 

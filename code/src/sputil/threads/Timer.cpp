@@ -104,7 +104,7 @@ protected:
 
 private:
 
-    typedef map<Timer::EventId, Timer::Event, EventIdComparator> EventMap;
+    using EventMap = map<Timer::EventId, Timer::Event, EventIdComparator>;
 
     mutex m_scheduledMutex;
     EventMap m_scheduledEvents;
@@ -236,7 +236,7 @@ Timer::Event Timer::fireAt(const DateTime& timestamp, const EventData::Callback&
 {
     checkTimerThreadRunning();
 
-    Event event = make_shared<EventData>(timestamp, eventCallback, milliseconds(), 0);
+    auto event = make_shared<EventData>(timestamp, eventCallback, milliseconds(), 0);
     timerThread->schedule(event);
 
     scoped_lock lock(m_mutex);
@@ -249,7 +249,7 @@ Timer::Event Timer::repeat(milliseconds interval, const EventData::Callback& eve
 {
     checkTimerThreadRunning();
 
-    Event event = make_shared<EventData>(DateTime::Now() + interval, eventCallback, interval, repeatCount);
+    auto event = make_shared<EventData>(DateTime::Now() + interval, eventCallback, interval, repeatCount);
     timerThread->schedule(event);
 
     scoped_lock lock(m_mutex);
@@ -333,7 +333,7 @@ vector<size_t> TimerTestData::eventData(MAX_EVENT_COUNTER);
 static void gtestTimerCallback2(void* theEventData)
 {
     scoped_lock lock(TimerTestData::eventCounterMutex);
-    size_t eventIndex = size_t(theEventData);
+    auto eventIndex = size_t(theEventData);
     ++TimerTestData::eventCounter[eventIndex];
 }
 

@@ -32,41 +32,44 @@ using namespace sptk;
 using namespace chrono;
 
 Flag::Flag(bool startingValue)
-: m_value(startingValue)
+    : m_value(startingValue)
 {
 }
 
 Flag::~Flag()
 {
     terminate();
-    do {
-        scoped_lock  lock(m_lockMutex);
+    do
+    {
+        scoped_lock lock(m_lockMutex);
         m_condition.notify_one();
-    } while (waiters() > 0);
+    }
+    while (waiters() > 0);
 }
 
 void Flag::terminate()
 {
-    scoped_lock  lock(m_lockMutex);
+    scoped_lock lock(m_lockMutex);
     m_terminated = true;
 }
 
 size_t Flag::waiters() const
 {
-    scoped_lock  lock(m_lockMutex);
+    scoped_lock lock(m_lockMutex);
     return m_waiters;
 }
 
 bool Flag::get() const
 {
-    scoped_lock  lock(m_lockMutex);
+    scoped_lock lock(m_lockMutex);
     return m_value;
 }
 
 void Flag::set(bool value)
 {
-    scoped_lock  lock(m_lockMutex);
-    if (m_value != value) {
+    scoped_lock lock(m_lockMutex);
+    if (m_value != value)
+    {
         m_value = value;
         m_condition.notify_one();
     }
@@ -80,22 +83,27 @@ bool Flag::wait_for(bool value, chrono::milliseconds timeout)
 
 bool Flag::wait_until(bool value, DateTime timeoutAt)
 {
-    unique_lock<mutex>  lock(m_lockMutex);
+    unique_lock lock(m_lockMutex);
 
     ++m_waiters;
 
     // Wait until semaphore value is greater than 0
-    while (!m_terminated) {
+    while (!m_terminated)
+    {
         if (!m_condition.wait_until(lock,
                                     timeoutAt.timePoint(),
-                                    [this,value]() { return m_value == value; }))
+                                    [this, value]() { return m_value == value; }))
         {
-            if (timeoutAt < DateTime::Now()) {
+            if (timeoutAt < DateTime::Now())
+            {
                 --m_waiters;
                 return false;
             }
-        } else
+        }
+        else
+        {
             break;
+        }
     }
 
     --m_waiters;
@@ -139,10 +147,10 @@ TEST(SPTK_Flag, adaptorAndAssignment)
     Flag flag;
 
     flag = true;
-    EXPECT_EQ((bool)flag, true);
+    EXPECT_EQ((bool) flag, true);
 
     flag = false;
-    EXPECT_EQ((bool)flag, false);
+    EXPECT_EQ((bool) flag, false);
 }
 
 

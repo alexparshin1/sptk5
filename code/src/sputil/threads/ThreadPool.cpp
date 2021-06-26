@@ -137,8 +137,8 @@ public:
         constexpr std::chrono::milliseconds tenMilliseconds(10);
         while (!terminated())
         {
-            int item = 0;
-            if (intQueue.pop(item, tenMilliseconds))
+            if (int item = 0;
+                intQueue.pop(item, tenMilliseconds))
             {
                 ++m_count;
             }

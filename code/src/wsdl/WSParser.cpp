@@ -408,8 +408,10 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
                           << endl << endl;
     }
     serviceDefinition << "};" << endl << endl;
-    serviceDefinition << "typedef std::shared_ptr<" << serviceClassName << "> S"
-                      << capitalize(m_serviceName) + "ServiceBase;" << endl << endl;
+    serviceDefinition << "using S"
+                      << capitalize(m_serviceName) + "ServiceBase = "
+                      << "std::shared_ptr<" << serviceClassName << ">;"
+                      << endl << endl;
     serviceDefinition << "}" << endl << endl;
     serviceDefinition << "#endif" << endl;
 }
