@@ -210,7 +210,7 @@ void PoolDatabaseConnection::bulkInsertRecords(
         }
         sql << "(";
         bool firstValue = true;
-        for (auto& value: row)
+        for (const auto& value: row)
         {
             if (firstValue)
             {
@@ -252,11 +252,12 @@ void PoolDatabaseConnection::bulkInsertRecords(
 void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings& columnNames,
                                          const vector<VariantVector>& data)
 {
+    const auto recordsInBatch = 16;
     auto begin = data.begin();
     auto end = data.begin();
     for (; end != data.end(); ++end)
     {
-        if (end - begin > 16)
+        if (end - begin > recordsInBatch)
         {
             bulkInsertRecords(tableName, columnNames, begin, end);
             begin = end;
@@ -392,7 +393,8 @@ TEST(SPTK_BulkInsert, escapeSqlString)
 
 TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
 {
-    size_t maxCount = 100000;
+    constexpr auto maxCount = 100000;
+    constexpr auto mcsInSecond = 1E6;
     String sourceString = "Hello, 'World'.\n\rLet's go\n";
     StopWatch stopWatch;
     stopWatch.start();
@@ -402,7 +404,7 @@ TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
     }
     stopWatch.stop();
     COUT("Escaped " << maxCount << " SQLs " << " for " << stopWatch.seconds() << " sec, "
-                    << fixed << setprecision(2) << maxCount / stopWatch.seconds() / 1E6 << "M op/sec" << endl)
+                    << fixed << setprecision(2) << maxCount / stopWatch.seconds() / mcsInSecond << "M op/sec" << endl)
 }
 
 #endif
