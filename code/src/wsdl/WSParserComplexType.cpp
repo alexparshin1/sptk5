@@ -43,8 +43,9 @@ WSParserAttribute::WSParserAttribute(const String& name, const String& typeName)
 
 String WSParserAttribute::generate(bool initialize) const
 {
+    constexpr int fieldNameWidth = 40;
     stringstream str;
-    str << left << setw(40) << m_cxxTypeName << " m_" << m_name;
+    str << left << setw(fieldNameWidth) << m_cxxTypeName << " m_" << m_name;
     if (initialize)
     {
         str << " {\"" << m_name << "\", true}";
@@ -182,7 +183,7 @@ String WSParserComplexType::wsClassName(const String& name)
     return name;
 }
 
-void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, const set<String>& usedClasses) const
+void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, const set<String>& usedClasses)
 {
     Strings includeFiles;
     includeFiles.push_back("#include <sptk5/sptk.h>");
@@ -193,7 +194,7 @@ void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, co
     includeFiles.push_back("#include <sptk5/wsdl/WSComplexType.h>");
     includeFiles.push_back("#include <sptk5/wsdl/WSRestriction.h>");
 
-    for (auto& usedClass: usedClasses)
+    for (const auto& usedClass: usedClasses)
     {
         includeFiles.push_back("#include \"" + usedClass + ".h\"");
     }
@@ -225,6 +226,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
                                              sptk::Strings& elementNames, sptk::Strings& attributeNames,
                                              const String& serviceNamespace) const
 {
+    constexpr int fieldNameWidth = 40;
     String className = "C" + wsClassName(m_name);
 
     classDeclaration << "#pragma once" << endl;
@@ -275,7 +277,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
             fieldNames.push_back(complexType->name());
             elementNames.push_back(complexType->name());
 
-            classDeclaration << "   " << left << setw(40) << cxxType << " m_" << complexType->name();
+            classDeclaration << "   " << left << setw(fieldNameWidth) << cxxType << " m_" << complexType->name();
             if (complexType->isArray())
             {
                 classDeclaration << " {\"" << complexType->name() << "\"}";
@@ -350,7 +352,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "}" << endl;
 }
 
-String WSParserComplexType::makeTagName(const String& className) const
+String WSParserComplexType::makeTagName(const String& className)
 {
     String tagName = lowerCase(className.substr(1));
     RegularExpression matchWords("([A-Z]+[a-z]+)", "g");
@@ -358,7 +360,7 @@ String WSParserComplexType::makeTagName(const String& className) const
     if (words)
     {
         Strings wordList;
-        for (auto& word: words.groups())
+        for (const auto& word: words.groups())
         {
             wordList.push_back(word.value);
         }
@@ -368,7 +370,7 @@ String WSParserComplexType::makeTagName(const String& className) const
 }
 
 void WSParserComplexType::generateSetFieldIndex(ostream& classDeclaration, const Strings& elementNames,
-                                                const Strings& attributeNames) const
+                                                const Strings& attributeNames)
 {
     if (!elementNames.empty())
     {
@@ -388,19 +390,18 @@ void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strin
     if (!m_attributes.empty())
     {
         classDeclaration << "   // Attributes" << endl;
-        for (auto& itor: m_attributes)
+        for (const auto&[name, attr]: m_attributes)
         {
-            const WSParserAttribute& attr = *itor.second;
-            classDeclaration << "   " << attr.generate(true) << ";" << endl;
-            initializer.copyCtor.push_back("m_" + attr.name() + "(other.m_" + attr.name() + ")");
-            initializer.moveCtor.push_back("m_" + attr.name() + "(std::move(other.m_" + attr.name() + "))");
-            fieldNames.push_back(attr.name());
+            classDeclaration << "   " << attr->generate(true) << ";" << endl;
+            initializer.copyCtor.push_back("m_" + attr->name() + "(other.m_" + attr->name() + ")");
+            initializer.moveCtor.push_back("m_" + attr->name() + "(std::move(other.m_" + attr->name() + "))");
+            fieldNames.push_back(attr->name());
         }
     }
 }
 
 void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
-                                                    const SWSParserComplexType& complexType) const
+                                                    const SWSParserComplexType& complexType)
 {
     if (!complexType->m_documentation.empty())
     {
@@ -419,7 +420,7 @@ set<String> WSParserComplexType::getUsedClasses() const
 {
     set<String> usedClasses;
     // determine the list of used classes
-    for (auto& complexType: m_sequence)
+    for (const auto& complexType: m_sequence)
     {
         String cxxType = complexType->className();
         if (cxxType[0] == 'C')
@@ -430,7 +431,7 @@ set<String> WSParserComplexType::getUsedClasses() const
     return usedClasses;
 }
 
-void WSParserComplexType::printImplementationIncludes(ostream& classImplementation, const String& className) const
+void WSParserComplexType::printImplementationIncludes(ostream& classImplementation, const String& className)
 {
     classImplementation << "#include \"" << className << ".h\"" << endl;
     classImplementation << "#include <sptk5/json/JsonArrayData.h>" << endl << endl;
@@ -442,7 +443,7 @@ void WSParserComplexType::printImplementationRestrictions(std::ostream& classImp
 {
     Strings requiredElements;
     std::size_t restrictionIndex = 0;
-    for (auto& complexType: m_sequence)
+    for (const auto& complexType: m_sequence)
     {
         if (((int) complexType->multiplicity() & (int) WSMultiplicity::REQUIRED) != 0)
         {
@@ -525,7 +526,7 @@ String WSParserComplexType::addOptionalRestriction(std::ostream& implementation,
     return restrictionCheck;
 }
 
-String WSParserComplexType::jsonAttributeOutputMethod(const String& wsTypeName) const
+String WSParserComplexType::jsonAttributeOutputMethod(const String& wsTypeName)
 {
     String attributeOutputMethod = ".asString()";
     if (wsTypeName == "xsd:boolean")

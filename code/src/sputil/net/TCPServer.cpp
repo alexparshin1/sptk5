@@ -87,11 +87,11 @@ TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* 
     }
 
     constexpr unsigned maxHostNameLength = 128;
-    char hostname[maxHostNameLength] = {"localhost"};
-    int rc = gethostname(hostname, sizeof(hostname));
+    array<char, maxHostNameLength> hostname = {"localhost"};
+    int rc = gethostname(hostname.data(), sizeof(hostname));
     if (rc == 0)
     {
-        m_host = Host(hostname);
+        m_host = Host(hostname.data());
     }
 }
 

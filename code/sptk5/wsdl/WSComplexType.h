@@ -62,62 +62,9 @@ public:
     }
 
     /**
-     * Copy constructor
-     * @param other             Other object
-     */
-    WSComplexType(const WSComplexType& other)
-        : m_name(other.m_name),
-          m_optional(other.m_optional),
-          m_loaded(other.m_loaded)
-    {
-    }
-
-    /**
-     * Move constructor
-     * @param other             Other object
-     */
-    WSComplexType(WSComplexType&& other) noexcept
-        : m_name(other.m_name),
-          m_optional(std::exchange(other.m_optional, false)),
-          m_loaded(std::exchange(other.m_loaded, false))
-    {
-    }
-
-    /**
      * Destructor
      */
     virtual ~WSComplexType() = default;
-
-    /**
-     * Copy assignment
-     * @param other             Other object
-     */
-    WSComplexType& operator=(const WSComplexType& other)
-    {
-        if (&other != this)
-        {
-            m_name = other.m_name;
-            m_optional = other.m_optional;
-            m_loaded = other.m_loaded;
-        }
-        return *this;
-    }
-
-    /**
-     * Move assignment
-     * @param other             Other object
-     */
-    WSComplexType& operator=(WSComplexType&& other) noexcept
-    {
-        if (&other != this)
-        {
-            _clear();
-            m_name = other.m_name;
-            m_optional = std::exchange(other.m_optional, false);
-            m_loaded = std::exchange(other.m_loaded, false);
-        }
-        return *this;
-    }
 
     /**
      * Return class name

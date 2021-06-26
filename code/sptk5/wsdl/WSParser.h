@@ -30,8 +30,7 @@
 #include <sptk5/wsdl/WSOperation.h>
 #include <sptk5/wsdl/OpenApiGenerator.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup wsdl WSDL-related Classes
@@ -77,37 +76,48 @@ public:
         {
             auto itor = m_elements.find(elementName);
             if (itor == m_elements.end())
+            {
                 throw Exception(context + ": Element '" + elementName + "' not found");
+            }
             return itor->second;
         }
 
-        [[nodiscard]] const ElementMap& elements() const { return m_elements; }
+        [[nodiscard]] const ElementMap& elements() const
+        {
+            return m_elements;
+        }
 
-        [[nodiscard]] SWSParserComplexType complexType(const sptk::String& elementName, const sptk::String& context) const
+        [[nodiscard]] SWSParserComplexType complexType(const sptk::String& elementName,
+                                                       const sptk::String& context) const
         {
             auto itor = m_complexTypes.find(elementName);
             if (itor == m_complexTypes.end())
+            {
                 throw Exception(context + ": Complex type '" + elementName + "' not found");
+            }
             return itor->second;
         }
 
-        [[nodiscard]] const WSComplexTypeMap& complexTypes() const { return m_complexTypes; }
+        [[nodiscard]] const WSComplexTypeMap& complexTypes() const
+        {
+            return m_complexTypes;
+        }
 
     private:
 
-        ElementMap          m_elements;         ///< Map of all elements
-        WSComplexTypeMap    m_complexTypes;     ///< Map of all parsed complex types
+        ElementMap m_elements;         ///< Map of all elements
+        WSComplexTypeMap m_complexTypes;     ///< Map of all parsed complex types
     };
 
     /**
      * Map of element names to corresponding WSDL (XML) elements
      */
-    using XmlTypeMap = std::map<String,const xml::Element*>;
+    using XmlTypeMap = std::map<String, const xml::Element*>;
 
     /**
      * Map of operation names to operation objects
      */
-    using DocumentationMap = std::map<String,String>;
+    using DocumentationMap = std::map<String, String>;
 
     /**
      * Constructor
@@ -115,6 +125,7 @@ public:
     WSParser() = default;
 
     WSParser(const WSParser& other) = delete;
+
     WSParser(WSParser&& other) = delete;
 
     /**
@@ -122,8 +133,9 @@ public:
      */
     virtual ~WSParser();
 
-    WSParser& operator = (const WSParser& other) = delete;
-    WSParser& operator = (WSParser&& other) = delete;
+    WSParser& operator=(const WSParser& other) = delete;
+
+    WSParser& operator=(WSParser&& other) = delete;
 
     /**
      * Clears parsed data
@@ -134,7 +146,7 @@ public:
      * Loads WSDL-file and parses it to output classes
      * @param wsdlFile          WSDL file name
      */
-    void parse(String wsdlFile);
+    void parse(const String& wsdlFile);
 
     /**
      * Stores parsed classes to files in source directory
@@ -143,7 +155,7 @@ public:
      */
     void generate(const String& sourceDirectory = ".", const String& headerFile = "",
                   const OpenApiGenerator::Options& options = OpenApiGenerator::Options(), bool verbose = false,
-                  const String& serviceNamespace="");
+                  const String& serviceNamespace = "");
 
     /**
      * Stores WSDL to C++ file
@@ -178,7 +190,7 @@ protected:
      * Parses xsd:simpleType nodes directly under xsd:schema
      * @param simpleTypeElement Schema simple type
      */
-    void parseSimpleType(const xml::Element* simpleTypeElement) const;
+    static void parseSimpleType(const xml::Element* simpleTypeElement);
 
     /**
      * Parses xsd:complexType nodes directly under xsd:schema
@@ -213,14 +225,14 @@ protected:
 
 private:
 
-    String              m_serviceName;      ///< Service name, defining service class name and source file names
-    String              m_serviceNamespace; ///< Service classes namespace
-    String              m_description;      ///< Service description
-    String              m_location;         ///< Service location
-    String              m_wsdlFile;         ///< WSDL source file name
-    ComplexTypeIndex    m_complexTypeIndex; ///< Index of all parsed complex types and elements
-    WSOperationMap      m_operations;       ///< Map of all operations
-    DocumentationMap    m_documentation;    ///< Map of documentation
+    String m_serviceName;      ///< Service name, defining service class name and source file names
+    String m_serviceNamespace; ///< Service classes namespace
+    String m_description;      ///< Service description
+    String m_location;         ///< Service location
+    String m_wsdlFile;         ///< WSDL source file name
+    ComplexTypeIndex m_complexTypeIndex; ///< Index of all parsed complex types and elements
+    WSOperationMap m_operations;       ///< Map of all operations
+    DocumentationMap m_documentation;    ///< Map of documentation
 };
 
 /**

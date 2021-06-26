@@ -104,7 +104,7 @@ void WSParser::parseElement(const xml::Element* elementNode)
     }
 }
 
-void WSParser::parseSimpleType(const xml::Element* simpleTypeElement) const
+void WSParser::parseSimpleType(const xml::Element* simpleTypeElement)
 {
     String simpleTypeName = (String) simpleTypeElement->getAttribute("name");
     if (simpleTypeName.empty())
@@ -134,7 +134,7 @@ void WSParser::parseComplexType(const xml::Element* complexTypeElement)
         complexTypeName = (String) parent->getAttribute("name");
     }
 
-    auto& complexTypes = m_complexTypeIndex.complexTypes();
+    const auto& complexTypes = m_complexTypeIndex.complexTypes();
     if (complexTypes.find(complexTypeName) != complexTypes.end())
     throwException("Duplicate complexType definition: " << complexTypeName)
 
@@ -175,7 +175,7 @@ void WSParser::parseOperation(const xml::Element* operationNode)
         {
             throw Exception("The node " + node->name() + " is not an XML element");
         }
-        auto* element = dynamic_cast<const xml::Element*>(node);
+        const auto* element = dynamic_cast<const xml::Element*>(node);
         auto message = (String) element->getAttribute("message");
         size_t pos = message.find(':');
         if (pos != string::npos)
@@ -211,7 +211,7 @@ void WSParser::parseSchema(xml::Element* schemaElement)
 
     for (const auto* node: simpleTypeNodes)
     {
-        auto* element = dynamic_cast<const xml::Element*>(node);
+        const auto* element = dynamic_cast<const xml::Element*>(node);
         if (element != nullptr && element->name() == "xsd:simpleType")
         {
             parseSimpleType(element);
@@ -223,7 +223,7 @@ void WSParser::parseSchema(xml::Element* schemaElement)
 
     for (const auto* node: complexTypeNodes)
     {
-        auto* element = dynamic_cast<const xml::Element*>(node);
+        const auto* element = dynamic_cast<const xml::Element*>(node);
         if (element != nullptr && element->name() == "xsd:complexType")
         {
             parseComplexType(element);
@@ -232,7 +232,7 @@ void WSParser::parseSchema(xml::Element* schemaElement)
 
     for (const auto* node: *schemaElement)
     {
-        auto* element = dynamic_cast<const xml::Element*>(node);
+        const auto* element = dynamic_cast<const xml::Element*>(node);
         if (element != nullptr && element->name() == "xsd:element")
         {
             parseElement(element);
@@ -240,7 +240,7 @@ void WSParser::parseSchema(xml::Element* schemaElement)
     }
 }
 
-void WSParser::parse(String wsdlFile)
+void WSParser::parse(const String& wsdlFile)
 {
     m_wsdlFile = wsdlFile;
 
@@ -328,7 +328,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "#include <sptk5/net/HttpAuthentication.h>" << endl << endl;
 
     serviceDefinition << "// This Web Service types" << endl;
-    for (auto& usedClass: usedClasses)
+    for (const auto& usedClass: usedClasses)
     {
         serviceDefinition << "#include \"" << usedClass << ".h\"" << endl;
     }
@@ -570,7 +570,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
                << sourceDirectory << "/" << wsdlFileName << ".h" << endl;
 
     Strings usedClasses;
-    for (auto& itor: m_complexTypeIndex.complexTypes())
+    for (const auto& itor: m_complexTypeIndex.complexTypes())
     {
         SWSParserComplexType complexType = itor.second;
         SourceModule sourceModule("C" + complexType->name(), sourceDirectory);
@@ -633,7 +633,6 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
     wsdlHeader << "#pragma once" << endl;
     wsdlHeader << endl << "#include <sptk5/Strings.h>" << endl;
     wsdlHeader << endl << "extern const sptk::Strings " << m_serviceName << "_wsdl;" << endl << endl;
-    wsdlHeader << "#endif" << endl;
 
     stringstream wsdlCxx;
     wsdlCxx << externalHeader.c_str() << endl;

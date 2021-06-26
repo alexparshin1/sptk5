@@ -270,7 +270,7 @@ void WSComplexType::unload(json::Element* output) const
 
 void WSComplexType::setAttributes(const map<String, String>& values, json::Element* attributes) const
 {
-    double doubleValue;
+    double doubleValue {0.0};
     for (const auto&[name, value]: values)
     {
         auto valueType = json::Document::dataType(value);

@@ -39,7 +39,8 @@ namespace sptk {
  * Wrapper for WSDL array type
  */
 template<typename T>
-class SP_EXPORT WSArray : public WSType
+class SP_EXPORT WSArray
+    : public WSType
 {
 public:
     using value_type = T;
@@ -50,7 +51,10 @@ public:
      * Constructor
      * @param name              Element name
      */
-    WSArray(const char* name="array") : m_name(name) {}
+    explicit WSArray(const char* name = "array")
+        : m_name(name)
+    {
+    }
 
     /**
      * Return class name
@@ -80,12 +84,12 @@ public:
         return m_array.empty();
     }
 
-    T& operator [] (size_t index)
+    T& operator[](size_t index)
     {
         return m_array[index];
     }
 
-    const T& operator [] (size_t index) const
+    const T& operator[](size_t index) const
     {
         return m_array[index];
     }
@@ -152,7 +156,8 @@ public:
 
     void load(const xml::Node* node) override
     {
-        for (const auto* arrayElement: *node) {
+        for (const auto* arrayElement: *node)
+        {
             T item(m_name.c_str(), false);
             item.load(arrayElement);
             m_array.push_back(std::move(item));
@@ -165,7 +170,8 @@ public:
      */
     void load(const json::Element* attr) override
     {
-        for (const auto* arrayElement: attr->getArray()) {
+        for (const auto* arrayElement: attr->getArray())
+        {
             T item(m_name.c_str(), false);
             item.load(arrayElement);
             m_array.push_back(std::move(item));
@@ -185,12 +191,14 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void addElement(xml::Node* output, const char* name=nullptr) const override
+    void addElement(xml::Node* output, const char* name = nullptr) const override
     {
         const char* itemName = name == nullptr ? "item" : name;
         auto* arrayNode = new xml::Element(output, m_name.c_str());
         for (const auto& element: m_array)
+        {
             element.addElement(arrayNode, itemName);
+        }
     }
 
     /**
@@ -201,12 +209,14 @@ public:
     {
         auto* records_array = parent->add_array(m_name);
         for (const auto& element: m_array)
+        {
             element.addElement(records_array);
+        }
     }
 
 private:
-    String          m_name;
-    std::vector<T>  m_array;
+    String m_name;
+    std::vector<T> m_array;
 };
 
 }

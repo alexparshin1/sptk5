@@ -271,15 +271,15 @@ private:
      * @param classImplementation   Output stream
      * @param className             Class name
      */
-    void printImplementationIncludes(std::ostream& classImplementation, const String& className) const;
+    static void printImplementationIncludes(std::ostream& classImplementation, const String& className);
 
     void printImplementationRestrictions(std::ostream& classImplementation, std::ostream& checks) const;
 
-    void printDeclarationIncludes(std::ostream& classDeclaration, const std::set<String>& usedClasses) const;
+    static void printDeclarationIncludes(std::ostream& classDeclaration, const std::set<String>& usedClasses);
 
     std::set<String> getUsedClasses() const;
 
-    void appendMemberDocumentation(std::ostream& classDeclaration, const SWSParserComplexType& complexType) const;
+    static void appendMemberDocumentation(std::ostream& classDeclaration, const SWSParserComplexType& complexType);
 
     void appendClassAttributes(std::ostream& classDeclaration, Strings& fieldNames,
                                Initializer& initializer) const;
@@ -287,7 +287,7 @@ private:
     String addOptionalRestriction(std::ostream& implementation, const SWSParserComplexType& complexType,
                                   size_t& restrictionIndex) const;
 
-    String makeTagName(const String& className) const;
+    static String makeTagName(const String& className);
 
     Initializer makeInitializer() const;
 
@@ -298,10 +298,10 @@ private:
 
     void printImplementationCheckRestrictions(std::ostream& classImplementation, const String& className) const;
 
-    void generateSetFieldIndex(std::ostream& classDeclaration, const Strings& elementNames,
-                               const Strings& attributeNames) const;
+    static void generateSetFieldIndex(std::ostream& classDeclaration, const Strings& elementNames,
+                                      const Strings& attributeNames);
 
-    String jsonAttributeOutputMethod(const String& wsTypeName) const;
+    static String jsonAttributeOutputMethod(const String& wsTypeName);
 };
 
 /**

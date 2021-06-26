@@ -66,6 +66,8 @@ static const String jwtEncryptionKey256("012345678901234567890123456789XY");
  */
 void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthentication*)
 {
+    constexpr int secondsInDay = 86400;
+
     // First, we verify credentials. Usually, we check the username and password against the password database
     if (input.m_username.asString() != "johnd" || input.m_password.asString() != "secret")
     {
@@ -75,9 +77,9 @@ void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::Ht
     JWT jwt;
     jwt.set_alg(JWT::Algorithm::HS256, jwtEncryptionKey256);
 
-    jwt["iat"] = (int) time(nullptr);           // JWT issue time
-    jwt["iss"] = "http://test.com";                   // JWT issuer
-    jwt["exp"] = (int) time(nullptr) + 86400;   // JWT expiration time
+    jwt["iat"] = (int) time(nullptr);                  // JWT issue time
+    jwt["iss"] = "http://test.com";                         // JWT issuer
+    jwt["exp"] = (int) time(nullptr) + secondsInDay;   // JWT expiration time
 
     // Add some description information that we may use later
     auto* info = jwt.grants.root().add_object("info");
@@ -96,19 +98,22 @@ void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::Ht
 void TestWebService::AccountBalance(const CAccountBalance& input, CAccountBalanceResponse& output,
                                     sptk::HttpAuthentication* authentication)
 {
+    static constexpr double testAmount = 12345.67;
     if (authentication == nullptr)
     {
         throw Exception("Not authenticated");
     }
 
-    auto& token = authentication->getData();
-    auto& info = token.getObject("info");
+    const auto& token = authentication->getData();
+    const auto& info = token.getObject("info");
     auto username = info["username"].getString();
 
-    output.m_account_balance = 12345.67;
+    output.m_account_balance = testAmount;
 }
 
 #if USE_GTEST
+
+static constexpr int int123 = 123;
 
 /**
  * Test Hello WS method input and output
@@ -167,7 +172,7 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
         // Start Web Service listener
         listener.listen(servicePort);
 
-        for (auto& methodName: methodNames)
+        for (const auto& methodName: methodNames)
         {
             Buffer sendRequestBuffer;
             json::Document sendRequestJson;
@@ -416,7 +421,7 @@ TEST(SPTK_WSGeneratedClasses, UnloadXML)
     login.m_password = "secret";
     login.m_servers.push_back(WSString("x1"));
     login.m_servers.push_back(WSString("x2"));
-    login.m_project.m_id = 123;
+    login.m_project.m_id = int123;
     login.m_project.m_expiration = "2020-10-01";
     login.m_server_count = 2;
     login.m_type = "abstract";
@@ -438,7 +443,7 @@ TEST(SPTK_WSGeneratedClasses, UnloadJSON)
     login.m_password = "secret";
     login.m_servers.push_back(WSString("x1"));
     login.m_servers.push_back(WSString("x2"));
-    login.m_project.m_id = 123;
+    login.m_project.m_id = int123;
     login.m_project.m_expiration = "2020-10-01";
     login.m_server_count = 2;
     login.m_type = "abstract";
