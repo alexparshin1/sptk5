@@ -234,30 +234,33 @@ void ODBCConnection::queryAllocStmt(Query* query)
 {
     scoped_lock lock(*m_connect);
 
-    auto* stmt = (SQLHSTMT) query->statement();
-    if (stmt != SQL_NULL_HSTMT)
+    auto* hStmt = (SQLHSTMT) query->statement();
+    if (hStmt != SQL_NULL_HSTMT)
     {
-        SQLFreeStmt(stmt, SQL_DROP);
+        SQLFreeStmt(hStmt, SQL_DROP);
     }
 
     auto* hdb = handle();
 
-    if (int rc = SQLAllocStmt(hdb, &stmt); rc != SQL_SUCCESS)
+    if (int rc = SQLAllocStmt(hdb, &hStmt); rc != SQL_SUCCESS)
     {
         String error = queryError(query);
         querySetStmt(query, SQL_NULL_HSTMT);
         logAndThrow("CODBCConnection::queryAllocStmt", error);
     }
 
-    querySetStmt(query, (StmtHandle) stmt);
+    auto statement = shared_ptr<uint8_t>((StmtHandle) hStmt,
+                                         [](StmtHandle ptr) {
+                                             SQLFreeStmt((SQLHSTMT) ptr, SQL_DROP);
+                                         });
+    querySetStmt(query, statement);
 }
 
 void ODBCConnection::queryFreeStmt(Query* query)
 {
     scoped_lock lock(*m_connect);
 
-    SQLFreeStmt(query->statement(), SQL_DROP);
-    querySetStmt(query, SQL_NULL_HSTMT);
+    querySetStmt(query, nullptr);
     querySetPrepared(query, false);
 }
 

@@ -41,9 +41,9 @@ PoolDatabaseConnection::~PoolDatabaseConnection()
     disconnectAllQueries();
 }
 
-void PoolDatabaseConnection::disconnectAllQueries()
+void PoolDatabaseConnectionQueryMethods::disconnectAllQueries()
 {
-    for (auto* query: m_queryList)
+    for (const auto&[query, statement]: m_queryList)
     {
         try
         {
@@ -67,13 +67,17 @@ void PoolDatabaseConnection::setInTransaction(bool inTransaction)
     m_inTransaction = inTransaction;
 }
 
-bool PoolDatabaseConnection::linkQuery(Query* q)
+bool PoolDatabaseConnectionQueryMethods::linkQuery(Query* q)
 {
-    m_queryList.insert(q);
+    if (auto itor = m_queryList.find(q);
+        itor == m_queryList.end())
+    {
+        m_queryList[q] = nullptr;
+    }
     return true;
 }
 
-bool PoolDatabaseConnection::unlinkQuery(Query* q)
+bool PoolDatabaseConnectionQueryMethods::unlinkQuery(Query* q)
 {
     m_queryList.erase(q);
     return true;
@@ -282,9 +286,10 @@ void PoolDatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Stri
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* q, StmtHandle stmt)
+void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* q, SStmtHandle stmt)
 {
-    q->setStatement(stmt);
+    m_queryList[q] = stmt;
+    q->setStatement(stmt.get());
 }
 
 void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query* q, bool pf)

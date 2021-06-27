@@ -137,19 +137,19 @@ String MySQLConnection::queryError(const Query*) const
 void MySQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, (StmtHandle) new MySQLStatement(this, query->sql(), query->autoPrepare()));
+    auto* stmt = (StmtHandle) new MySQLStatement(this, query->sql(), query->autoPrepare());
+    querySetStmt(query, shared_ptr<uint8_t>(stmt,
+                                            [](StmtHandle handle) {
+                                                auto* statement = (MySQLStatement*) handle;
+                                                delete statement;
+                                            }));
 }
 
 void MySQLConnection::queryFreeStmt(Query* query)
 {
     scoped_lock lock(m_mutex);
-    auto* statement = (MySQLStatement*) query->statement();
-    if (statement != nullptr)
-    {
-        delete statement;
-        querySetStmt(query, nullptr);
-        querySetPrepared(query, false);
-    }
+    querySetStmt(query, nullptr);
+    querySetPrepared(query, false);
 }
 
 void MySQLConnection::queryCloseStmt(Query* query)
@@ -171,23 +171,26 @@ void MySQLConnection::queryCloseStmt(Query* query)
 
 void MySQLConnection::queryPrepare(Query* query)
 {
+    if (query->prepared())
+    {
+        queryFreeStmt(query);
+        queryAllocStmt(query);
+    }
+
     scoped_lock lock(m_mutex);
 
-    if (!query->prepared())
+    auto* statement = (MySQLStatement*) query->statement();
+    if (statement != nullptr)
     {
-        auto* statement = (MySQLStatement*) query->statement();
-        if (statement != nullptr)
+        try
         {
-            try
-            {
-                statement->prepare(query->sql());
-                statement->enumerateParams(query->params());
-                querySetPrepared(query, true);
-            }
-            catch (const Exception& e)
-            {
-                THROW_QUERY_ERROR(query, e.what())
-            }
+            statement->prepare(query->sql());
+            statement->enumerateParams(query->params());
+            querySetPrepared(query, true);
+        }
+        catch (const Exception& e)
+        {
+            THROW_QUERY_ERROR(query, e.what())
         }
     }
 }

@@ -47,6 +47,7 @@ class Query;
 
 using DBHandle = uint8_t*;
 using StmtHandle = uint8_t*;
+using SStmtHandle = std::shared_ptr<uint8_t>;
 
 /**
  * Database connection type
@@ -107,7 +108,7 @@ protected:
     /**
      * Sets internal CQuery statement handle
      */
-    static void querySetStmt(Query* q, StmtHandle stmt);
+    void querySetStmt(Query* q, SStmtHandle stmt);
 
     /**
      * Sets internal CQuery m_prepared flag
@@ -209,6 +210,26 @@ protected:
      */
     [[noreturn]] void notImplemented(const String& methodName) const;
 
+    /**
+     * Attaches (links) query to the database
+     */
+    bool linkQuery(Query* q);
+
+    /**
+     * Unlinks query from the database
+     */
+    bool unlinkQuery(Query* q);
+
+    /**
+     * Close all queries, connected to this connection,
+     * free their statements, and empty connected query
+     * list.
+     */
+    void disconnectAllQueries();
+
+private:
+
+    std::map<Query*, SStmtHandle> m_queryList;  ///< The list of queries that use this database
 };
 
 /**
@@ -372,28 +393,11 @@ public:
         _executeBatchSQL(batchSQL, errors);
     }
 
-    /**
-     * Close all queries, connected to this connection,
-     * free their statements, and empty connected query
-     * list.
-     */
-    void disconnectAllQueries();
-
 protected:
 
     bool getInTransaction() const;
 
     void setInTransaction(bool inTransaction);
-
-    /**
-     * Attaches (links) query to the database
-     */
-    bool linkQuery(Query* q);
-
-    /**
-     * Unlinks query from the database
-     */
-    bool unlinkQuery(Query* q);
 
     /**
      * Constructor
@@ -506,11 +510,10 @@ protected:
 
 private:
 
-    std::set<Query*> m_queryList;                ///< The list of queries that use this database
-    DatabaseConnectionString m_connString;               ///< The connection string
-    DatabaseConnectionType m_connType;                 ///< The connection type
-    String m_driverDescription;        ///< Driver description is filled by the particular driver.
-    bool m_inTransaction {false};    ///< The in-transaction flag
+    DatabaseConnectionString m_connString;       ///< The connection string
+    DatabaseConnectionType m_connType;           ///< The connection type
+    String m_driverDescription;                  ///< Driver description is filled by the particular driver.
+    bool m_inTransaction {false};                ///< The in-transaction flag
 };
 
 using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;

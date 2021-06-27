@@ -182,7 +182,8 @@ void SQLite3Connection::queryFreeStmt(Query* query)
 {
     scoped_lock lock(m_mutex);
 
-    if (auto* stmt = (SQLHSTMT) query->statement(); stmt != nullptr)
+    if (auto* stmt = (SQLHSTMT) query->statement();
+        stmt != nullptr)
     {
         sqlite3_finalize(stmt);
     }
@@ -200,17 +201,21 @@ void SQLite3Connection::queryPrepare(Query* query)
 {
     scoped_lock lock(m_mutex);
 
-    SQLHSTMT stmt = nullptr;
-
+    SQLHSTMT hStmt = nullptr;
 
     if (const char* pzTail = nullptr;
-        sqlite3_prepare(m_connect, query->sql().c_str(), int(query->sql().length()), &stmt, &pzTail) != SQLITE_OK)
+        sqlite3_prepare(m_connect, query->sql().c_str(), int(query->sql().length()), &hStmt, &pzTail) != SQLITE_OK)
     {
         const char* errorMsg = sqlite3_errmsg(m_connect);
         throw DatabaseException(errorMsg, __FILE__, __LINE__, query->sql());
     }
 
-    querySetStmt(query, (StmtHandle) stmt);
+    auto statement = shared_ptr<uint8_t>((StmtHandle) hStmt,
+                                         [](StmtHandle ptr) {
+                                             auto* stmt = (SQLHSTMT) ptr;
+                                             sqlite3_finalize(stmt);
+                                         });
+    querySetStmt(query, statement);
     querySetPrepared(query, true);
 }
 

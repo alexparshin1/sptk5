@@ -186,20 +186,19 @@ String OracleConnection::queryError(const Query*) const
 // the previously allocated stmt is released
 void OracleConnection::queryAllocStmt(Query* query)
 {
-    queryFreeStmt(query);
-    querySetStmt(query, (StmtHandle) new OracleStatement(this, query->sql()));
+    auto* stmt = (StmtHandle) new OracleStatement(this, query->sql());
+    querySetStmt(query, shared_ptr<uint8_t>(stmt,
+                                            [](StmtHandle ptr) {
+                                                auto* ostmt = (OracleStatement*) ptr;
+                                                delete ostmt;
+                                            }));
 }
 
 void OracleConnection::queryFreeStmt(Query* query)
 {
     scoped_lock lock(m_mutex);
-    auto* statement = (OracleStatement*) query->statement();
-    if (statement)
-    {
-        delete statement;
-        querySetStmt(query, nullptr);
-        querySetPrepared(query, false);
-    }
+    querySetStmt(query, nullptr);
+    querySetPrepared(query, false);
 }
 
 void OracleConnection::queryCloseStmt(Query* query)
@@ -217,10 +216,6 @@ void OracleConnection::queryPrepare(Query* query)
     scoped_lock lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
-    if (!statement)
-    {
-        statement = new OracleStatement(this, query->sql());
-    }
     statement->enumerateParams(query->params());
     if (query->bulkMode())
     {
@@ -235,7 +230,6 @@ void OracleConnection::queryPrepare(Query* query)
         setMaxParamSizes(enumeratedParams, stmt, columnTypeSizes);
         stmt->setMaxIterations((unsigned) bulkInsertQuery->batchSize());
     }
-    querySetStmt(query, (StmtHandle) statement);
     querySetPrepared(query, true);
 }
 

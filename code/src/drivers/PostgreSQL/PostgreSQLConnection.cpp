@@ -307,25 +307,26 @@ String PostgreSQLConnection::queryError(const Query*) const
 void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    auto* stmt = new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64, query->autoPrepare());
-    querySetStmt(query, (StmtHandle) stmt);
+    auto* stmt = (StmtHandle) new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64,
+                                                      query->autoPrepare());
+    querySetStmt(query, shared_ptr<uint8_t>(stmt,
+                                            [this](StmtHandle stmtHandle) {
+                                                auto* statement = (PostgreSQLStatement*) stmtHandle;
+                                                if (statement->stmt() != nullptr && !statement->name().empty())
+                                                {
+                                                    String deallocateCommand =
+                                                        "DEALLOCATE \"" + statement->name() + "\"";
+                                                    PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
+                                                    checkError(m_connect, res, "DEALLOCATE");
+                                                    PQclear(res);
+                                                }
+                                                delete statement;
+                                            }));
 }
 
 void PostgreSQLConnection::queryFreeStmt(Query* query)
 {
     scoped_lock lock(m_mutex);
-
-    if (auto* statement = (PostgreSQLStatement*) query->statement(); statement != nullptr)
-    {
-        if (statement->stmt() != nullptr && !statement->name().empty())
-        {
-            String deallocateCommand = "DEALLOCATE \"" + statement->name() + "\"";
-            PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
-            checkError(m_connect, res, "DEALLOCATE");
-            PQclear(res);
-        }
-        delete statement;
-    }
 
     querySetStmt(query, nullptr);
 
@@ -342,12 +343,13 @@ void PostgreSQLConnection::queryCloseStmt(Query* query)
 
 void PostgreSQLConnection::queryPrepare(Query* query)
 {
-    queryFreeStmt(query);
+    if (query->prepared())
+    {
+        queryFreeStmt(query);
+        queryAllocStmt(query);
+    }
 
     scoped_lock lock(m_mutex);
-
-    auto* pstmt = new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64, query->autoPrepare());
-    querySetStmt(query, (StmtHandle) pstmt);
 
     auto* statement = (PostgreSQLStatement*) query->statement();
 
