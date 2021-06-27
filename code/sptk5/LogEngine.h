@@ -48,7 +48,8 @@ namespace sptk {
  * This class is abstract. Derived classes have to implement
  * at least saveMessage() method.
  */
-class SP_EXPORT LogEngine : public Thread
+class SP_EXPORT LogEngine
+    : public Thread
 {
     friend class Logger;
 
@@ -62,7 +63,8 @@ public:
     /**
      * Log options
      */
-    enum Option : unsigned
+    enum Option
+        : unsigned
     {
         /**
          * Duplicate messages to stdout
@@ -188,17 +190,17 @@ private:
     /**
      * Mutex that protects internal data access
      */
-    mutable SharedMutex                 m_mutex;
+    mutable SharedMutex m_mutex;
 
     /**
      * Min message priority, should be defined for every message
      */
-    std::atomic<LogPriority>            m_minPriority {LogPriority::INFO};
+    std::atomic<LogPriority> m_minPriority {LogPriority::INFO};
 
     /**
      * Log options, a bit combination of Option
      */
-    std::atomic<uint32_t>               m_options {LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY};
+    std::atomic<uint32_t> m_options {LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY};
 
     /**
      * Message queue
@@ -210,4 +212,3 @@ private:
  * @}
  */
 }
-

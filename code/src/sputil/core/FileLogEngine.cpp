@@ -33,48 +33,110 @@ void FileLogEngine::saveMessage(const Logger::Message* message)
 {
     UniqueLock(m_mutex);
 
-    if (auto _options = (uint32_t) options(); (_options & LO_ENABLE) == LO_ENABLE) {
-        if (!m_fileStream.is_open()) {
-            m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
-            if (!m_fileStream.is_open())
-                throw Exception("Can't append or create log file '" + m_fileName + "'", __FILE__, __LINE__);
+    if (!m_fileStream)
+    {
+        return;
+    }
+
+    if (auto _options = (uint32_t) options(); (_options & LO_ENABLE) == LO_ENABLE)
+    {
+        if (!m_fileStream->is_open())
+        {
+            m_fileStream->open(m_fileName.c_str(), ofstream::out | ofstream::app);
+            if (!m_fileStream->is_open())
+            {
+                throw Exception("Can't append or create log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
+            }
         }
 
         if ((_options & LO_DATE) == LO_DATE)
-            m_fileStream << message->timestamp.dateString() << " ";
+        {
+            *m_fileStream << message->timestamp.dateString() << " ";
+        }
 
         if ((_options & LO_TIME) == LO_TIME)
-            m_fileStream << message->timestamp.timeString(true) << " ";
+        {
+            *m_fileStream << message->timestamp.timeString(true) << " ";
+        }
 
         if ((_options & LO_PRIORITY) == LO_PRIORITY)
-            m_fileStream << "[" << priorityName(message->priority) << "] ";
+        {
+            *m_fileStream << "[" << priorityName(message->priority) << "] ";
+        }
 
-        m_fileStream << message->message << endl;
+        *m_fileStream << message->message << endl;
     }
 
-	if (m_fileStream.bad())
-        throw Exception("Can't write to log file '" + m_fileName + "'", __FILE__, __LINE__);
+    if (m_fileStream->bad())
+    {
+        throw Exception("Can't write to log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
+    }
 }
 
-FileLogEngine::FileLogEngine(const String& fileName)
-: LogEngine("FileLogEngine"),
-  m_fileName(fileName)
-{}
-
-FileLogEngine::~FileLogEngine()
+FileLogEngine::FileLogEngine(const fs::path& fileName)
+    : LogEngine("FileLogEngine"),
+      m_fileName(fileName),
+      m_fileStream(shared_ptr<ofstream>(new ofstream(fileName.c_str()),
+                                        [this](ofstream* ptr) {
+                                            sleep_for(chrono::milliseconds(1000));
+                                            terminate();
+                                            join();
+                                            UniqueLock(m_mutex);
+                                            if (ptr->is_open())
+                                            {
+                                                ptr->close();
+                                            }
+                                            delete ptr;
+                                        }))
 {
-    if (m_fileStream.is_open())
-        m_fileStream.close();
 }
 
 void FileLogEngine::reset()
 {
     UniqueLock(m_mutex);
-    if (m_fileStream.is_open())
-        m_fileStream.close();
+    if (m_fileStream->is_open())
+    {
+        m_fileStream->close();
+    }
     if (m_fileName.empty())
+    {
         throw Exception("File name isn't defined", __FILE__, __LINE__);
-    m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
-    if (!m_fileStream.is_open())
-        throw Exception("Can't open log file '" + m_fileName + "'", __FILE__, __LINE__);
+    }
+    m_fileStream->open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
+    if (!m_fileStream->is_open())
+    {
+        throw Exception("Can't open log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
+    }
 }
+
+#if USE_GTEST
+
+TEST(SPTK_FileLogEngine, create)
+{
+    const fs::path logFileName("/tmp/file_log_test.tmp");
+
+    unlink(logFileName.c_str());
+
+    auto logEngine = make_shared<FileLogEngine>(logFileName);
+    auto logger = make_shared<Logger>(*logEngine, "(Test application) ");
+    logger->debug("Test started");
+    logger->critical("Critical message");
+    logger->error("Error message");
+    logger->warning("Warning message");
+    logger->info("Test completed");
+    logger.reset();
+
+    logEngine.reset();
+
+    Strings content;
+    content.loadFromFile(logFileName);
+
+    EXPECT_EQ(content.size(), 5U);
+    for (String level: {"critical", "error", "warning", "info", "debug"})
+    {
+        const auto messages = content.grep(level.toUpperCase());
+        EXPECT_EQ(messages.size(), 1U);
+    }
+}
+
+#endif

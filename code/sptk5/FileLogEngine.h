@@ -37,62 +37,46 @@ namespace sptk {
  */
 
 /**
- * @brief A log stored in the regular file.
+ * A log stored in the regular file.
  *
  * A simplest possible way to implement logging.
  * The log file is created automatically if it doesn't exist.
  * @see CBaseLog for more information about basic log abilities.
  */
-class SP_EXPORT FileLogEngine: public sptk::LogEngine
+class SP_EXPORT FileLogEngine
+    : public sptk::LogEngine
 {
-    /**
-     * Mutex that protects internal data
-     */
-    mutable SharedMutex m_mutex;
-
-    /**
-     * Log file stream
-     */
-    std::ofstream       m_fileStream;
-
-    /**
-     * Log file name
-     */
-    String              m_fileName;
-
-
 public:
-    /**
-     * @brief Stores or sends log message to actual destination
-     * @param message           Log message
-     */
-    void saveMessage(const Logger::Message* message) override;
 
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Creates a new log object based on the file name.
      * If this file doesn't exist - it will be created.
      * @param fileName          Log file name
      */
-    explicit FileLogEngine(const String& fileName);
+    explicit FileLogEngine(const fs::path& fileName);
 
     /**
-     * @brief Destructor
-     *
-     * Destructs the log object, closes the log file, releases all the allocated resources
+     * Stores or sends log message to actual destination
+     * @param message           Log message
      */
-    ~FileLogEngine() override;
+    void saveMessage(const Logger::Message* message) override;
 
     /**
-     * @brief Restarts the log
+     * Restarts the log
      *
      * The current log content is cleared. The file is recreated.
      */
     void reset() override;
+
+private:
+
+    mutable SharedMutex m_mutex;                    ///< Mutex that protects internal data
+    fs::path m_fileName;                            ///< Log file name
+    std::shared_ptr<std::ofstream> m_fileStream;    ///< Log file stream
 };
 /**
  * @}
  */
 }
-
