@@ -31,7 +31,8 @@ using namespace sptk;
 
 Logger::Message::Message(LogPriority priority, String message)
     : priority(priority), message(move(message))
-{}
+{
+}
 
 Logger::Logger(LogEngine& destination, String prefix)
     : m_destination(destination), m_prefix(move(prefix))
@@ -40,35 +41,42 @@ Logger::Logger(LogEngine& destination, String prefix)
 
 void Logger::log(LogPriority priority, const String& message)
 {
-    m_destination.log(new Message(priority, m_prefix + message));
+    auto msg = make_shared<Message>(priority, m_prefix + message);
+    m_destination.log(msg);
 }
 
 void Logger::debug(const String& message)
 {
-    m_destination.log(new Message(LogPriority::DEBUG, m_prefix + message));
+    auto msg = make_shared<Message>(LogPriority::DEBUG, m_prefix + message);
+    m_destination.log(msg);
 }
 
 void Logger::info(const String& message)
 {
-    m_destination.log(new Message(LogPriority::INFO, m_prefix + message));
+    auto msg = make_shared<Message>(LogPriority::INFO, m_prefix + message);
+    m_destination.log(msg);
 }
 
 void Logger::notice(const String& message)
 {
-    m_destination.log(new Message(LogPriority::NOTICE, m_prefix + message));
+    auto msg = make_shared<Message>(LogPriority::NOTICE, m_prefix + message);
+    m_destination.log(msg);
 }
 
 void Logger::warning(const String& message)
 {
-    m_destination.log(new Message(LogPriority::WARNING, m_prefix + message));
+    auto msg = make_shared<Message>(LogPriority::WARNING, m_prefix + message);
+    m_destination.log(msg);
 }
 
 void Logger::error(const String& message)
 {
-    m_destination.log(new Message(LogPriority::ERR, m_prefix + message));
+    auto msg = make_shared<Message>(LogPriority::ERR, m_prefix + message);
+    m_destination.log(msg);
 }
 
 void Logger::critical(const String& message)
 {
-    m_destination.log(new Message(LogPriority::CRITICAL, m_prefix + message));
+    auto msg = make_shared<Message>(LogPriority::CRITICAL, m_prefix + message);
+    m_destination.log(msg);
 }

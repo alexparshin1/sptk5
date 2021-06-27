@@ -58,9 +58,9 @@ public:
      */
     struct Message
     {
-        DateTime    timestamp {DateTime::Now()};    ///< Message timestamp
+        DateTime timestamp {DateTime::Now()};    ///< Message timestamp
         LogPriority priority;                       ///< Message priority
-        String      message;                        ///< Message text
+        String message;                        ///< Message text
 
         /**
          * Constructor
@@ -69,6 +69,8 @@ public:
          */
         Message(LogPriority priority, String message);
     };
+
+    using UMessage = std::shared_ptr<Message>;
 
     /**
      * @brief Constructor
@@ -132,8 +134,8 @@ private:
     /**
      * The actual log to store messages to (destination log)
      */
-    LogEngine&      m_destination;
-    String          m_prefix;
+    LogEngine& m_destination;
+    String m_prefix;
 };
 
 using SLogger = std::shared_ptr<Logger>;
@@ -142,4 +144,3 @@ using SLogger = std::shared_ptr<Logger>;
  * @}
  */
 }
-

@@ -42,6 +42,13 @@ namespace sptk {
  * @{
  */
 
+// Log options
+constexpr int LO_STDOUT = 1;    ///< Duplicate messages to stdout
+constexpr int LO_DATE = 2;      ///< Print date for every log message
+constexpr int LO_TIME = 4;      ///< Print time for every log message
+constexpr int LO_PRIORITY = 8;  ///< Print message priority
+constexpr int LO_ENABLE = 16;   ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+
 /**
  * Base class for various log engines.
  *
@@ -58,40 +65,7 @@ public:
      * Stores or sends log message to actual destination
      * @param message           Log message
      */
-    virtual void saveMessage(const Logger::Message* message) = 0;
-
-    /**
-     * Log options
-     */
-    enum Option
-        : unsigned
-    {
-        /**
-         * Duplicate messages to stdout
-         */
-        LO_STDOUT = 1,
-
-        /**
-         * Print date for every log message
-         */
-        LO_DATE = 2,
-
-        /**
-         * Print time for every log message
-         */
-        LO_TIME = 4,
-
-        /**
-         * Print message priority
-         */
-        LO_PRIORITY = 8,
-
-        /**
-         * Enable logging (doesn't affect stdout if CLO_STDOUT is on)
-         */
-        LO_ENABLE = 16
-
-    };
+    virtual void saveMessage(const Logger::UMessage& message) = 0;
 
     /**
      * Constructor
@@ -99,8 +73,6 @@ public:
      * Creates a new log object.
      */
     explicit LogEngine(const String& logEngineName);
-
-    ~LogEngine() override;
 
     /**
      * Restarts the log
@@ -133,8 +105,10 @@ public:
 
     /**
      * Sets an option to true or false
+     * @param option            Log option, one or more of LO_* constants
+     * @param flag              Set option on or off?
      */
-    void option(Option option, bool flag);
+    void option(int options, bool flag);
 
     /**
      * Sets current message priority
@@ -184,7 +158,7 @@ protected:
      * Log a message
      * @param message           Message
      */
-    void log(Logger::Message* message);
+    void log(Logger::UMessage& message);
 
 private:
     /**
@@ -202,10 +176,12 @@ private:
      */
     std::atomic<uint32_t> m_options {LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY};
 
+    using MessageQueue = SynchronizedQueue<Logger::UMessage>;
+
     /**
      * Message queue
      */
-    SynchronizedQueue<Logger::Message*> m_messages;
+    std::shared_ptr<MessageQueue> m_messages;
 };
 
 /**

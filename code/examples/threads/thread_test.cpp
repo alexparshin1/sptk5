@@ -32,7 +32,8 @@
 using namespace std;
 using namespace sptk;
 
-class CMyThread: public Thread
+class CMyThread
+    : public Thread
 {
     Logger m_log; /// Thread proxy log
 public:
@@ -44,8 +45,9 @@ public:
     void threadFunction() override;
 };
 
-CMyThread::CMyThread(const string& threadName, FileLogEngine& sharedLog) :
-        Thread(threadName), m_log(sharedLog)
+CMyThread::CMyThread(const string& threadName, FileLogEngine& sharedLog)
+    :
+    Thread(threadName), m_log(sharedLog)
 {
     // Put anything you need here to define your actual thread
     m_log.info(name() + " is created");
@@ -57,7 +59,8 @@ void CMyThread::threadFunction()
     m_log.info(name() + " is started");
 
     unsigned counter = 0;
-    while (!terminated()) {
+    while (!terminated())
+    {
         m_log.info("Output (1) " + to_string(counter) + " from " + name());
         m_log.info("Output (2) " + to_string(counter) + " from " + name());
         counter++;
@@ -75,25 +78,29 @@ int main()
     /// Threads send messages through their own Logger objects.
     /// Multiple Logger objects can share same log object thread-safely.
     FileLogEngine sharedLog("thread_test.log");
-    Logger  log(sharedLog);
+    Logger log(sharedLog);
 
-    try {
+    try
+    {
 
         /// Trancate the log file
         sharedLog.reset();
 
         /// Adding 'duplicate messages to stdout' option to log options
-        sharedLog.options(sharedLog.options() | LogEngine::LO_STDOUT);
+        sharedLog.options(sharedLog.options() | LO_STDOUT);
 
         // Creating several threads
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < 5; i++)
+        {
             string threadName = "Thread" + int2string(i);
             threads.push_back(new CMyThread(threadName, sharedLog));
         }
 
         // Starting all the threads
         for (i = 0; i < threads.size(); i++)
+        {
             threads[i]->run();
+        }
 
         log.info("Waiting 1 second while threads are running..");
         this_thread::sleep_for(chrono::seconds(1));
@@ -101,21 +108,28 @@ int main()
         log.info("Sending 'terminate' signal to all the threads.");
         // That signal suggests thread to terminate and exits ASAP.
         for (i = 0; i < threads.size(); i++)
+        {
             threads[i]->terminate();
+        }
 
         log.info("Joining all the threads.");
         for (i = 0; i < threads.size(); i++)
+        {
             threads[i]->join();
+        }
 
         log.info("Deleting all the threads.");
         // Since threads are created in polite mode (see CMyThread class definition),
         // the delete operation would wait for actual thread termination.
         for (i = 0; i < threads.size(); i++)
+        {
             delete threads[i];
+        }
 
         return 0;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         log.error(e.what());
         return 1;
     }

@@ -49,6 +49,8 @@ class SynchronizedQueue
 {
 public:
 
+    virtual ~SynchronizedQueue() = default;
+
     /**
      * Queue callback function used in each() method.
      *

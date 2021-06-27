@@ -39,9 +39,10 @@ using namespace sptk;
 
 int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         FileLogEngine logEngine("smtp.log");
-        logEngine.option(LogEngine::LO_STDOUT, true);
+        logEngine.option(LO_STDOUT, true);
 
         Logger logger(logEngine);
 
@@ -54,21 +55,29 @@ int main(int argc, char* argv[])
 
         COUT("Testing SMTP connectivity." << endl)
 
-        if (argc == 3) {
+        if (argc == 3)
+        {
             RegularExpression parser("^((\\S+):(\\S+)@){0,1}([\\w_\\-\\.]+)(:\\d+){0,1}$", "i");
             auto matches = parser.m(argv[1]);
-            if (matches) {
+            if (matches)
+            {
                 user = matches[1].value;
                 password = matches[2].value;
                 host = matches[3].value;
                 portStr = matches[4].value;
                 if (!portStr.empty())
+                {
                     portStr.erase(0, 1);
+                }
                 else
+                {
                     portStr = "25";
+                }
             }
             email = argv[2];
-        } else {
+        }
+        else
+        {
             COUT("Please provide server hostname/port, user credentials, ad destination email address." << endl)
             COUT("You can also use command line arguments:" << endl)
             COUT("  ./smtp_connect [username:password@]<hostname>[:port] <email address>" << endl << endl)
@@ -79,23 +88,30 @@ int main(int argc, char* argv[])
             cin >> portStr;
             COUT("SMTP user name (or N/A if not required): ")
             cin >> user;
-            if (trim(lowerCase(user)) != "n/a") {
+            if (trim(lowerCase(user)) != "n/a")
+            {
                 COUT("SMTP user password: ")
                 cin >> password;
-            } else
+            }
+            else
+            {
                 user = "";
+            }
             COUT("E-mail address to test: ")
             cin >> email;
         }
 
         auto port = (uint16_t) string2int(portStr);
-        if (port < 1) port = 25;
+        if (port < 1)
+        { port = 25; }
 
         COUT("\nTrying to connect to SMTP server.." << endl)
 
         SMTP.host(Host(host, port));
         if (!user.empty() && !password.empty())
-            SMTP.cmd_auth(user, password);  // Supported methods are login and plain
+        {
+            SMTP.cmd_auth(user, password);
+        }  // Supported methods are login and plain
 
         COUT(SMTP.response().join("\n") << endl)
 
@@ -103,8 +119,8 @@ int main(int argc, char* argv[])
         SMTP.from("Me <" + email + ">");
         SMTP.to(email);
         SMTP.body(
-                "<HTML><BODY>Hello, <b>my friend!</b><br><br>\n\nIf you received this e-mail it means the SMTP module works just fine.<br><br>\n\nSincerely, SPTK.<br>\n</BODY></HTML>",
-                true);
+            "<HTML><BODY>Hello, <b>my friend!</b><br><br>\n\nIf you received this e-mail it means the SMTP module works just fine.<br><br>\n\nSincerely, SPTK.<br>\n</BODY></HTML>",
+            true);
 
         COUT("\nSending test message.." << endl)
         SMTP.cmd_send();
@@ -118,7 +134,8 @@ int main(int argc, char* argv[])
 
         return 0;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

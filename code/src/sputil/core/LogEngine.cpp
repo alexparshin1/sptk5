@@ -25,32 +25,38 @@
 */
 
 #include <sptk5/LogEngine.h>
+#include <sptk5/Logger.h>
 
 using namespace std;
 using namespace sptk;
 
 LogEngine::LogEngine(const String& logEngineName)
-: Thread(logEngineName)
+    : Thread(logEngineName),
+      m_messages(shared_ptr<MessageQueue>(new MessageQueue,
+                                          [this](MessageQueue* ptr) {
+                                              terminate();
+                                              join();
+                                              delete ptr;
+                                          }))
 {
 }
 
-LogEngine::~LogEngine()
-{
-    Thread::terminate();
-    Thread::join();
-}
-
-void LogEngine::option(Option option, bool flag)
+void LogEngine::option(int option, bool flag)
 {
     if (flag)
+    {
         m_options |= option;
+    }
     else
+    {
         m_options &= ~option;
+    }
 }
 
 String LogEngine::priorityName(LogPriority prt)
 {
-    switch (prt) {
+    switch (prt)
+    {
         case LogPriority::DEBUG:
             return "DEBUG";
         case LogPriority::INFO:
@@ -74,7 +80,8 @@ LogPriority LogEngine::priorityFromName(const String& prt)
 {
     static const Strings priorityNames("DEBUG|INFO|NOTICE|WARNING|ERROR|CRITICAL|ALERT|PANIC", "|");
 
-    switch (priorityNames.indexOf(prt.toUpperCase())) {
+    switch (priorityNames.indexOf(prt.toUpperCase()))
+    {
         case 0:
             return LogPriority::DEBUG;
         case 1:
@@ -96,46 +103,60 @@ LogPriority LogEngine::priorityFromName(const String& prt)
     }
 }
 
-void LogEngine::log(Logger::Message* message)
+void LogEngine::log(Logger::UMessage& message)
 {
     if (terminated())
+    {
         return;
+    }
 
     if (!running())
+    {
         run();
+    }
 
-    m_messages.push(message);
+    m_messages->push(move(message));
 }
 
 void LogEngine::threadFunction()
 {
     chrono::seconds timeout(1);
-    while (!terminated()) {
+    while (!terminated())
+    {
 
-        Logger::Message* message = nullptr;
-        if (!m_messages.pop(message, timeout))
+        Logger::UMessage message = nullptr;
+        if (!m_messages->pop(message, timeout))
+        {
             continue;
+        }
 
         saveMessage(message);
 
-        if (m_options & LO_STDOUT) {
+        if (m_options & LO_STDOUT)
+        {
             string messagePrefix;
             if (m_options & LO_DATE)
+            {
                 messagePrefix += message->timestamp.dateString() + " ";
+            }
 
             if (m_options & LO_TIME)
+            {
                 messagePrefix += message->timestamp.timeString(true) + " ";
+            }
 
             if (m_options & LO_PRIORITY)
+            {
                 messagePrefix += "[" + priorityName(message->priority) + "] ";
+            }
 
             FILE* dest = stdout;
             if (message->priority <= LogPriority::ERR)
+            {
                 dest = stderr;
+            }
             fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
             fflush(dest);
         }
-
-        delete message;
     }
 }

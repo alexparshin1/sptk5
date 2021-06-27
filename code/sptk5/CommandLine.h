@@ -77,8 +77,8 @@ public:
 
     private:
 
-        bool                                m_inverted; ///< If true then expression shoul not match
-        std::shared_ptr<RegularExpression>  m_regexp;   ///< Regular expression for matching an argument(s)
+        bool m_inverted; ///< If true then expression shoul not match
+        std::shared_ptr<RegularExpression> m_regexp;   ///< Regular expression for matching an argument(s)
     };
 
     /**
@@ -158,7 +158,7 @@ public:
      * @param argc              Number of command line arguments (from main(argc,argv)).
      * @param argv              Command line arguments (from main(argc,argv)).
      */
-    void init(int argc, const char* argv[]);
+    void init(size_t argc, const char** argv);
 
     /**
      * Returns actual option value
@@ -208,7 +208,7 @@ public:
      * @param argv              Command line arguments
      * @return preprocessed command line arguments
      */
-    static Strings preprocessArguments(int argc, const char* const* argv);
+    static Strings preprocessArguments(const std::vector<const char*>& argv);
 
     /**
      * Re-write command line arguments
@@ -307,22 +307,22 @@ public:
         /**
          * Element name
          */
-        String      m_name;
+        String m_name;
 
         /**
          * Short element name (single character, options only)
          */
-        String      m_shortName;
+        String m_shortName;
 
         /**
          * Help (description) for the element
          */
-        String      m_help;
+        String m_help;
 
         /**
          * Element visibility for a command (options only)
          */
-        Visibility  m_useWithCommands;
+        Visibility m_useWithCommands;
     };
 
     /**
@@ -331,7 +331,8 @@ public:
      * Command line argument that doesn't start from '-' character and doesn't expect a value,
      * AKA command.
      */
-    class SP_EXPORT CommandLineArgument: public CommandLineElement
+    class SP_EXPORT CommandLineArgument
+        : public CommandLineElement
     {
     public:
         /**
@@ -353,7 +354,8 @@ public:
      * Command line argument that starts from '-' character and doesn't expect a value.
      * It may have a long name that starts from '--', and/or a short name, that starts from '-'.
      */
-    class SP_EXPORT CommandLineOption: public CommandLineElement
+    class SP_EXPORT CommandLineOption
+        : public CommandLineElement
     {
     public:
         /**
@@ -395,7 +397,8 @@ public:
      * Value has human readable name, such as 'file name', 'text', 'number', etc.. and optional
      * validation pattern that can be regular expression or empty string.
      */
-    class SP_EXPORT CommandLineParameter: public CommandLineElement
+    class SP_EXPORT CommandLineParameter
+        : public CommandLineElement
     {
     public:
 
@@ -435,24 +438,25 @@ public:
 
     private:
 
-        String                                              m_valueInfo;            ///< Value name, for using in help
-        std::shared_ptr<RegularExpression>                  m_validateValue;        ///< Value validation regular expression
+        String m_valueInfo;            ///< Value name, for using in help
+        std::shared_ptr<RegularExpression> m_validateValue;        ///< Value validation regular expression
     };
 
 private:
 
-    String                                                  m_programVersion;       ///< Program version and copyright message (for help only).
-    String                                                  m_description;          ///< Program description (for help only).
-    String                                                  m_commandLinePrototype; ///< Command line prototype (for help only).
-    std::map<String, std::shared_ptr<CommandLineElement>>   m_optionTemplates;      ///< All the defined options.
+    String m_programVersion;       ///< Program version and copyright message (for help only).
+    String m_description;          ///< Program description (for help only).
+    String m_commandLinePrototype; ///< Command line prototype (for help only).
+    std::map<String, std::shared_ptr<CommandLineElement>> m_optionTemplates;      ///< All the defined options.
 
     /**
      * All the defined arguments.
      */
-    std::map<String, std::shared_ptr<CommandLineArgument>>  m_argumentTemplates;
-    std::map<String, String>                                m_values;               ///< Received option values.
-    Strings                                                 m_arguments;            ///< Received arguments.
-    std::list<std::shared_ptr<CommandLineElement>>          m_allElements;          ///< All defined elements.
+    std::map<String, std::shared_ptr<CommandLineArgument>> m_argumentTemplates;
+    std::map<String, String> m_values; ///< Received option values.
+    Strings m_arguments;               ///< Received arguments.
+    fs::path m_executablePath;         ///< Executable path, from argv[0]
+    std::list<std::shared_ptr<CommandLineElement>> m_allElements;          ///< All defined elements.
 
     static String preprocessArgument(String& arg, String& quote, String& quotedString);
 
@@ -463,4 +467,3 @@ private:
  * @}
  */
 }
-

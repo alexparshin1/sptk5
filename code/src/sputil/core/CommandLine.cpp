@@ -171,14 +171,16 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
 
 CommandLine::CommandLineArgument::CommandLineArgument(const String& name, const String& help)
     : CommandLineElement(name, "", help, Visibility(""))
-{}
+{
+}
 
 //=============================================================================
 
 CommandLine::CommandLineOption::CommandLineOption(const String& name, const String& shortName,
                                                   const Visibility& useWithCommands, const String& help)
     : CommandLineElement(name, shortName, help, useWithCommands)
-{}
+{
+}
 
 bool CommandLine::CommandLineOption::hasValue() const
 {
@@ -272,7 +274,8 @@ CommandLine::CommandLineElement::Type CommandLine::CommandLineParameter::type() 
 
 CommandLine::CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype)
     : m_programVersion(programVersion), m_description(description), m_commandLinePrototype(commandLinePrototype)
-{}
+{
+}
 
 void CommandLine::defineOption(const String& fullName, const String& shortName, Visibility useForCommands,
                                const String& help)
@@ -337,12 +340,15 @@ void CommandLine::defineArgument(const String& fullName, const String& helpText)
     }
 }
 
-Strings CommandLine::preprocessArguments(int argc, const char* const* argv)
+Strings CommandLine::preprocessArguments(const vector<const char*>& argv)
 {
     Strings args;
-    for (int i = 1; i < argc && argv[i] != nullptr; ++i)
+    for (auto* arg: argv)
     {
-        args.push_back(string(argv[i]));
+        if (arg != nullptr)
+        {
+            args.push_back(arg);
+        }
     }
 
     // Pre-process command line arguments
@@ -474,9 +480,12 @@ void CommandLine::readOption(const Strings& digestedArgs, size_t& i)
     }
 }
 
-void CommandLine::init(int argc, const char* argv[])
+void CommandLine::init(size_t argc, const char** argv)
 {
-    Strings arguments = preprocessArguments(argc, argv);
+    vector<const char*> args(argv + 1, argv + argc);
+    m_executablePath = argv[0];
+
+    Strings arguments = preprocessArguments(args);
     Strings digestedArgs = rewriteArguments(arguments);
 
     for (size_t i = 0; i < digestedArgs.size(); ++i)
@@ -668,25 +677,24 @@ void CommandLine::printVersion() const
 class CommandLineTestData
 {
 public:
-    static const char* testCommandLineArgs[14];
 
-    static const char* testCommandLineArgs2[8];
-
-    static const char* testCommandLineArgs3[9];
+    static vector<const char*> testCommandLineArgs;
+    static vector<const char*> testCommandLineArgs2;
+    static vector<const char*> testCommandLineArgs3;
 };
 
-const char* CommandLineTestData::testCommandLineArgs[14] = {"testapp", "connect", "--host", "'ahostname'", "-p",
-                                                            "12345", "--verbose", "--description", "'This", "is",
-                                                            "a", "quoted", "argument'",
-                                                            nullptr};
+vector<const char*> CommandLineTestData::testCommandLineArgs = {"testapp", "connect", "--host",
+                                                                "'ahostname'", "-p", "12345", "--verbose",
+                                                                "--description",
+                                                                "'This", "is", "a", "quoted", "argument'"};
 
-const char* CommandLineTestData::testCommandLineArgs2[8] = {"testapp", "connect", "--host", "host name", "-p", "12345",
-                                                            "--verbose",
-                                                            nullptr};
+vector<const char*> CommandLineTestData::testCommandLineArgs2 = {"testapp", "connect", "--host",
+                                                                 "host name", "-p", "12345",
+                                                                 "--verbose"};
 
-const char* CommandLineTestData::testCommandLineArgs3[9] = {"testapp", "connect", "--host", "ahostname", "-p", "12345",
-                                                            "--verbotten", "--gtest_test",
-                                                            nullptr};
+vector<const char*> CommandLineTestData::testCommandLineArgs3 = {"testapp", "connect", "--host",
+                                                                 "ahostname", "-p", "12345",
+                                                                 "--verbotten", "--gtest_test"};
 
 shared_ptr<CommandLine> createTestCommandLine()
 {
@@ -725,7 +733,8 @@ TEST(SPTK_CommandLine, CommandLineElement)
 TEST(SPTK_CommandLine, ctor)
 {
     auto commandLine = createTestCommandLine();
-    commandLine->init(13, CommandLineTestData::testCommandLineArgs);
+    commandLine->init(CommandLineTestData::testCommandLineArgs.size(),
+                      CommandLineTestData::testCommandLineArgs.data());
 
     EXPECT_EQ(size_t(1), commandLine->arguments().size());
     EXPECT_STREQ("ahostname", commandLine->getOptionValue("host").c_str());
@@ -745,7 +754,8 @@ TEST(SPTK_CommandLine, wrongArgumentValue)
     auto commandLine = createTestCommandLine();
 
     EXPECT_THROW(
-        commandLine->init(7, CommandLineTestData::testCommandLineArgs2),
+        commandLine->init(CommandLineTestData::testCommandLineArgs2.size(),
+                          CommandLineTestData::testCommandLineArgs2.data()),
         Exception
     );
 }
@@ -755,7 +765,8 @@ TEST(SPTK_CommandLine, wrongOption)
     auto commandLine = createTestCommandLine();
 
     EXPECT_THROW(
-        commandLine->init(8, CommandLineTestData::testCommandLineArgs3),
+        commandLine->init(CommandLineTestData::testCommandLineArgs3.size(),
+                          CommandLineTestData::testCommandLineArgs3.data()),
         Exception
     );
 }
@@ -764,7 +775,8 @@ TEST(SPTK_CommandLine, setOption)
 {
     auto commandLine = createTestCommandLine();
 
-    commandLine->init(7, CommandLineTestData::testCommandLineArgs);
+    commandLine->init(CommandLineTestData::testCommandLineArgs.size(),
+                      CommandLineTestData::testCommandLineArgs.data());
     EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "ahostname");
     commandLine->setOptionValue("host", "www.x.com");
     EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "www.x.com");
@@ -775,7 +787,8 @@ TEST(SPTK_CommandLine, printHelp)
     auto commandLine = createTestCommandLine();
 
     stringstream output;
-    commandLine->init(7, CommandLineTestData::testCommandLineArgs);
+    commandLine->init(CommandLineTestData::testCommandLineArgs.size(),
+                      CommandLineTestData::testCommandLineArgs.data());
     commandLine->printHelp(80);
 }
 

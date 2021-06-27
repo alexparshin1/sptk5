@@ -29,7 +29,7 @@
 using namespace std;
 using namespace sptk;
 
-void FileLogEngine::saveMessage(const Logger::Message* message)
+void FileLogEngine::saveMessage(const Logger::UMessage& message)
 {
     UniqueLock(m_mutex);
 
