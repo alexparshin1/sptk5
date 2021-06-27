@@ -35,26 +35,31 @@ namespace sptk {
  */
 class SP_EXPORT StopWatch
 {
-    DateTime    m_started {"now"};	///< Start time
-    DateTime    m_ended;	                ///< Stop time
+    DateTime m_started {"now"};    ///< Start time
+    DateTime m_ended;                    ///< Stop time
 public:
 
-	/**
-	 * Set stopwatch start time
-	 */
+    /**
+     * Set stopwatch start time
+     */
     void start();
 
-	/**
-	 * Set stopwatch stop time
-	 */
-	void stop();
+    /**
+     * Set stopwatch stop time
+     */
+    void stop();
 
-	/**
-	 * Get difference between stopwatch start and stop times in seconds
-	 * @return interval in seconds
-	 */
-	double seconds() const;
+    /**
+     * Get difference between stopwatch start and stop times in seconds
+     * @return interval in seconds
+     */
+    double seconds() const;
+
+    /**
+     * Get difference between stopwatch start and stop times in seconds
+     * @return interval in seconds
+     */
+    double milliseconds() const;
 };
 
 }
-

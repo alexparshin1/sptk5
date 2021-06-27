@@ -234,7 +234,7 @@ void ODBCConnection::queryAllocStmt(Query* query)
 {
     scoped_lock lock(*m_connect);
 
-    auto* stmt = query->statement();
+    auto* stmt = (SQLHSTMT) query->statement();
     if (stmt != SQL_NULL_HSTMT)
     {
         SQLFreeStmt(stmt, SQL_DROP);
@@ -306,7 +306,8 @@ void ODBCConnection::queryExecute(Query* query)
         return;
     }
 
-    array<SQLCHAR, 16> state = {};
+    constexpr int diagRecordSize = 16;
+    array<SQLCHAR, diagRecordSize> state = {};
     array<SQLCHAR, MAX_ERROR_LEN> text = {};
     SQLINTEGER nativeError = 0;
     SQLSMALLINT recordCount = 0;
@@ -577,6 +578,9 @@ void ODBCConnection::parseColumns(Query* query, int count)
     stringstream columnNameStr;
     columnNameStr.fill('0');
 
+    constexpr int largeTextSize = 65536;
+    constexpr int maxColumnScale = 20;
+
     for (int16_t column = 1; column <= int16_t(count); ++column)
     {
         queryColAttributes(query, column, SQL_COLUMN_NAME, columnName.data(), MAX_NAME_LEN - 1);
@@ -584,7 +588,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
         queryColAttributes(query, column, SQL_COLUMN_LENGTH, columnLength);
         queryColAttributes(query, column, SQL_COLUMN_SCALE, columnScale);
         ODBCtypeToCType(columnType, cType, dataType);
-        if (dataType == VAR_STRING && columnLength > 65535)
+        if (dataType == VAR_STRING && columnLength >= largeTextSize)
         {
             dataType = VAR_TEXT;
         }
@@ -602,7 +606,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
             columnLength = FETCH_BUFFER_SIZE;
         }
 
-        if (dataType == VAR_FLOAT && (columnScale < 0 || columnScale > 20))
+        if (dataType == VAR_FLOAT && (columnScale < 0 || columnScale > maxColumnScale))
         {
             columnScale = 0;
         }
@@ -693,7 +697,8 @@ static uint32_t trimField(char* s, uint32_t sz)
 SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
                                                 int16_t fieldType, SQLLEN& dataLength)
 {
-    field->checkSize(uint32_t(128));
+    constexpr size_t initialBlobBufferSize = 128;
+    field->checkSize(initialBlobBufferSize);
     auto readSize = (SQLLEN) field->bufferSize();
     auto* buffer = field->getBuffer();
     auto rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
@@ -708,15 +713,16 @@ SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseFiel
     }
     else if (dataLength == SQL_NO_TOTAL)
     {
+        constexpr size_t initialReadSize = 16384;
         size_t bufferSize = field->bufferSize();
         SQLLEN remainingSize = 0;
 
         dataLength = readSize;
-        readSize = 16384;
+        readSize = initialReadSize;
         while (rc != SQL_SUCCESS)
         {
             bufferSize += readSize;
-            field->checkSize(uint32_t(bufferSize));
+            field->checkSize(bufferSize);
             buffer = field->getBuffer();
             rc = SQLGetData(statement, column, fieldType, buffer + offset, SQLINTEGER(readSize), &remainingSize);
             if (remainingSize > 0)
@@ -1071,11 +1077,12 @@ void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 
 void ODBCConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const vector<VariantVector>& data)
 {
+    constexpr int recordsInBatch = 16;
     auto begin = data.begin();
     auto end = data.begin();
     for (; end != data.end(); ++end)
     {
-        if (end - begin > 16)
+        if (end - begin > recordsInBatch)
         {
             bulkInsertRecords(tableName, columnNames, begin, end);
             begin = end;

@@ -95,7 +95,7 @@ public:
      * Terminates database connection
      * @param connection oracle::occi::Connection*, Oracle connection
      */
-    void terminateConnection(oracle::occi::Connection* connection);
+    void terminateConnection(oracle::occi::Connection* connection) const;
 
 private:
 

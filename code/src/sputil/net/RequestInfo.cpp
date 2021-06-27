@@ -34,7 +34,8 @@ using namespace sptk;
 
 void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
 {
-    m_content.reset(128);
+    constexpr int initialBufferSize = 128;
+    m_content.reset(initialBufferSize);
     m_compressedLength = content.length();
     m_contentEncoding = contentEncoding;
 
@@ -74,8 +75,9 @@ void RequestInfo::Message::input(const Buffer& content, const String& contentEnc
 
 Buffer RequestInfo::Message::output(const Strings& contentEncodings)
 {
+    constexpr int minimumSizeForCompression = 64;
     m_contentEncoding = "";
-    if (m_content.bytes() > 64 && !contentEncodings.empty())
+    if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
     {
         Buffer outputData;
 #if HAVE_BROTLI
@@ -129,13 +131,14 @@ static Buffer decode(const Buffer& data, const String& encoding)
 
 TEST(SPTK_RequestInfo, Message)
 {
+    constexpr int nodeCount = 16;
     Buffer testData;
-    for (size_t i = 0; i < 16; ++i)
+    for (size_t i = 0; i < nodeCount; ++i)
     {
         testData.append("<0123456789=ABCDEF>");
     }
 
-    Strings outputEncodings{"br", "gzip"};
+    Strings outputEncodings {"br", "gzip"};
     RequestInfo::Message message;
 
     message.input(testData, "");

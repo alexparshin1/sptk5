@@ -73,8 +73,9 @@ void WSConnection::processSingleConnection(bool& done)
 {
     m_logger.debug("Processing connection");
 
-    if (!socket().readyToRead(chrono::seconds(30))  // Client communication timeout
-        || socket().socketBytes() == 0)                        // Client closed connection
+    if (constexpr chrono::seconds readTimeout30sec(30);
+        !socket().readyToRead(readTimeout30sec)                 // Client communication timeout
+        || socket().socketBytes() == 0)                         // Client closed connection
     {
         socket().close();
         done = true;
@@ -207,7 +208,7 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
                 logMessage << ", ";
             }
             listStarted = true;
-            logMessage << "duration " << fixed << setprecision(1) << requestStopWatch.seconds() * 1000 << " ms";
+            logMessage << "duration " << fixed << setprecision(1) << requestStopWatch.milliseconds() << " ms";
         }
 
         if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_DATA))
@@ -233,9 +234,8 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
     }
 }
 
-bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers) const
+bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers)
 {
-
     if (String contentLength = headers["Content-Length"];
         requestType == "GET" && contentLength.empty())
     {
@@ -256,17 +256,13 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
 {
     String contentType = headers["Content-Type"];
     bool processed = false;
-    if (contentType.find("/json") != string::npos)
+    if (contentType.find("/json") != string::npos || requestType == "POST")
     {
         protocolName = "rest";
     }
     else if (contentType.find("/xml") != string::npos)
     {
         protocolName = "WS";
-    }
-    else if (requestType == "POST")
-    {
-        protocolName = "rest";
     }
     else
     {
@@ -329,7 +325,7 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, con
 {
     if (options.encrypted)
     {
-        auto& sslKeys = server.getSSLKeys();
+        const auto& sslKeys = server.getSSLKeys();
         auto* socket = new SSLSocket;
         socket->loadKeys(sslKeys);
         setSocket(socket);

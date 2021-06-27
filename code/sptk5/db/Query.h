@@ -63,7 +63,7 @@ public:
     /**
      * Returns query statement handle
      */
-    void* statement() const
+    StmtHandle statement() const
     {
         return m_statement;
     }

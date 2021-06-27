@@ -64,6 +64,14 @@ String   DateTime::_timeZoneName;
 int      DateTime::_timeZoneOffset;
 int      DateTime::_isDaylightSavingsTime;
 
+constexpr int minutesInHour = 60;
+constexpr int secondsInMinute = 60;
+constexpr int secondsInDay = 86400;
+constexpr int hoursInDay = 24;
+constexpr int tzMultiplier = 100;
+constexpr double millisecondsInSecond = 1000.0;
+constexpr size_t maxDateTimeStringLength = 128;
+
 // Returns timezone offset in minutes from formats:
 // "Z" - UTC
 // "[+-]HH24:MM - TZ offset
@@ -93,7 +101,7 @@ static int decodeTZOffset(const char* tzOffset)
         minutes = string2int(p1 + 1);
     }
     int hours = string2int(p);
-    return sign * (hours * 60 + minutes);
+    return sign * (hours * minutesInHour + minutes);
 }
 
 char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
@@ -242,8 +250,8 @@ void DateTimeFormat::init() noexcept
     DateTime::_timeZoneName = String(ptr, (unsigned) len);
 
     time_t ts = time(nullptr);
-    array<char, 16> buf;
-    struct tm ltime{};
+    array<char, 16> buf {};
+    struct tm ltime {};
 #ifdef _WIN32
     localtime_s(&ltime, &ts);
 #else
@@ -251,10 +259,10 @@ void DateTimeFormat::init() noexcept
 #endif
     strftime(buf.data(), sizeof(buf), "%z", &ltime);
     int offset = string2int(buf.data());
-    int minutes = offset % 100;
-    int hours = offset / 100;
+    int minutes = offset % tzMultiplier;
+    int hours = offset / tzMultiplier;
     DateTime::_isDaylightSavingsTime = ltime.tm_isdst == -1 ? 0 : ltime.tm_isdst;
-    DateTime::_timeZoneOffset = hours * 60 + minutes;
+    DateTime::_timeZoneOffset = hours * minutesInHour + minutes;
 }
 
 static const DateTimeFormat dateTimeFormatInitializer;
@@ -377,7 +385,7 @@ static short splitTimeString(const char* bdat, short* timePart)
     int partNumber = 0;
     for (; partNumber < 4; ++partNumber)
     {
-        auto& part = matches[partNumber].value;
+        const auto& part = matches[partNumber].value;
         if (part.empty())
         {
             break;
@@ -471,11 +479,11 @@ void parseDate(const short* datePart, short& month, short& day, short& year);
 
 static void encodeDate(DateTime::time_point& dt, const char* dat)
 {
-    array<short, 7> datePart;
+    array<short, 7> datePart {};
 
     const char* timePtr = strpbrk(dat, " T");
 
-    char actualDateSeparator;
+    char actualDateSeparator = 0;
 
     if (short partNumber = splitDateString(dat, datePart.data(), actualDateSeparator); partNumber != 0)
     {
@@ -594,7 +602,7 @@ DateTime::DateTime(short year, short month, short day, short hour, short minute,
     }
 }
 
-using days = duration<int, ratio<86400>>;
+using days = duration<int, ratio<secondsInDay>>;
 
 DateTime::DateTime(const char* dat) noexcept
 {
@@ -723,14 +731,14 @@ void DateTime::formatDate(ostream& str, int printFlags) const
 
     if ((printFlags & PF_GMT) == 0)
     {
-        t += DateTime::timeZoneOffset() * 60;
+        t += DateTime::timeZoneOffset() * minutesInHour;
     }
 
-    tm tt{};
+    tm tt {};
     gmtime_r(&t, &tt);
 
-    array<char, 128> buffer;
-    size_t len;
+    array<char, maxDateTimeStringLength> buffer {};
+    size_t len = 0;
     if ((printFlags & PF_RFC_DATE) != 0)
     {
         len = strftime(buffer.data(), sizeof(buffer) - 1, "%F", &tt);
@@ -799,7 +807,7 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
         }
         else
         {
-            int minutes;
+            int minutes {};
             if (_timeZoneOffset > 0)
             {
                 str << '+';
@@ -810,7 +818,7 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
                 str << '-';
                 minutes = -_timeZoneOffset;
             }
-            str << setw(2) << minutes / 60 << ":" << setw(2) << minutes % 60;
+            str << setw(2) << minutes / secondsInMinute << ":" << setw(2) << minutes % secondsInMinute;
         }
     }
 
@@ -849,8 +857,8 @@ short DateTime::daysInMonth() const
 DateTime DateTime::date() const
 {
     duration sinceEpoch = m_dateTime.time_since_epoch();
-    long days = duration_cast<hours>(sinceEpoch).count() / 24;
-    DateTime dt(time_point() + hours(days * 24));  // Sets the current date
+    long days = duration_cast<hours>(sinceEpoch).count() / hoursInDay;
+    DateTime dt(time_point() + hours(days * hoursInDay));  // Sets the current date
     return dt;
 }
 
@@ -935,19 +943,29 @@ String DateTime::format(Format dtFormat, size_t arg)
 }
 
 char DateTime::dateSeparator()
-{ return _dateSeparator; }
+{
+    return _dateSeparator;
+}
 
 char DateTime::timeSeparator()
-{ return _timeSeparator; }
+{
+    return _timeSeparator;
+}
 
 String TimeZone::name()
-{ return DateTime::timeZoneName(); }
+{
+    return DateTime::timeZoneName();
+}
 
 int TimeZone::offset()
-{ return DateTime::timeZoneOffset(); }
+{
+    return DateTime::timeZoneOffset();
+}
 
 int TimeZone::isDaylightSavingsTime()
-{ return DateTime::isDaylightSavingsTime(); }
+{
+    return DateTime::isDaylightSavingsTime();
+}
 
 bool DateTime::time24Mode()
 {
@@ -979,7 +997,7 @@ bool DateTime::isDaylightSavingsTime()
 
 double sptk::duration2seconds(const DateTime::duration& duration)
 {
-    return double(chrono::duration_cast<milliseconds>(duration).count()) / 1000.0;
+    return double(chrono::duration_cast<milliseconds>(duration).count()) / millisecondsInSecond;
 }
 
 #if USE_GTEST
@@ -1029,11 +1047,11 @@ TEST(SPTK_DateTime, add)
 
 TEST(SPTK_DateTime, extractDate)
 {
-    short year;
-    short month;
-    short day;
-    short wday;
-    short yday;
+    short year = 0;
+    short month = 0;
+    short day = 0;
+    short wday = 0;
+    short yday = 0;
 
     DateTime dateTime("2018-08-07 11:22:33.444Z");
     dateTime.decodeDate(&year, &month, &day, &wday, &yday, true);
@@ -1047,10 +1065,10 @@ TEST(SPTK_DateTime, extractDate)
 
 TEST(SPTK_DateTime, extractTime)
 {
-    short hour;
-    short minute;
-    short second;
-    short ms;
+    short hour = 0;
+    short minute = 0;
+    short second = 0;
+    short ms = 0;
 
     DateTime dateTime("2018-08-07 11:22:33.444Z");
     dateTime.decodeTime(&hour, &minute, &second, &ms, true);
@@ -1066,10 +1084,10 @@ TEST(SPTK_DateTime, formatDate)
     DateTime dateTime("2018-08-07 11:22:33.444Z");
 
     auto t = (time_t) dateTime;
-    tm tt{};
+    tm tt {};
     localtime_r(&t, &tt);
 
-    array<char, 128> buffer;
+    array<char, maxDateTimeStringLength> buffer {};
     strftime(buffer.data(), sizeof(buffer) - 1, "%x", &tt);
 
     EXPECT_STREQ("2018-08-07", dateTime.dateString(DateTime::PF_GMT | DateTime::PF_RFC_DATE).c_str());
@@ -1081,10 +1099,10 @@ TEST(SPTK_DateTime, formatTime)
     DateTime dateTime("2018-08-07 11:22:33.444Z");
 
     auto t = (time_t) dateTime;
-    tm tt{};
+    tm tt {};
     gmtime_r(&t, &tt);
 
-    array<char, 128> buffer;
+    array<char, maxDateTimeStringLength> buffer {};
     strftime(buffer.data(), sizeof(buffer) - 1, "%X", &tt);
 
     EXPECT_STREQ("11:22:33.444Z", dateTime.timeString(DateTime::PF_GMT | DateTime::PF_TIMEZONE,
@@ -1094,7 +1112,6 @@ TEST(SPTK_DateTime, formatTime)
 
 TEST(SPTK_DateTime, formatDateTime2)
 {
-    constexpr int minutesInHour = 60;
     int tzOffsetMinutes = DateTime::timeZoneOffset();
     stringstream tzOffsetStr;
     tzOffsetStr.fill('0');
@@ -1115,11 +1132,10 @@ TEST(SPTK_DateTime, formatDateTime2)
     DateTime dateTime(("2020-10-02 00:00:00" + tzOffset).c_str());
 
     auto t = (time_t) dateTime;
-    tm tt{};
+    tm tt {};
     localtime_r(&t, &tt);
 
-    constexpr size_t maxBuffer = 128;
-    array<char, maxBuffer> buffer;
+    array<char, maxDateTimeStringLength> buffer {};
     strftime(buffer.data(), sizeof(buffer) - 1, "%x", &tt);
 
     EXPECT_STREQ(buffer.data(), dateTime.dateString().c_str());
@@ -1129,7 +1145,6 @@ TEST(SPTK_DateTime, formatDateTime2)
 TEST(SPTK_DateTime, parsePerformance)
 {
     constexpr size_t maxTests = 100000;
-    constexpr double millisecondsInSecond = 1000.0;
     DateTime started("now");
 
     DateTime dateTime("2018-08-07 11:22:33.444Z");

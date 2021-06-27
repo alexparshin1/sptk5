@@ -122,8 +122,8 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
 
 void BaseMailConnect::mimeMessage(Buffer& buffer)
 {
-    static const char boundary[] = "--MESSAGE-MIME-BOUNDARY--";
-    static const char boundary2[] = "--TEXT-MIME-BOUNDARY--";
+    static const char* boundary = "--MESSAGE-MIME-BOUNDARY--";
+    static const char* boundary2 = "--TEXT-MIME-BOUNDARY--";
     stringstream message;
 
     if (!m_from.empty())
@@ -147,31 +147,33 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     message << "Subject: " << m_subject << endl;
 
     const DateTime date = DateTime::Now();
-    short dy;
-    short dm;
-    short dd;
-    short wd;
-    short yd;
-    short th;
-    short tm;
-    short ts;
-    short tms;
+    short dy {0};
+    short dm {0};
+    short dd {0};
+    short wd {0};
+    short yd {0};
+    short th {0};
+    short tm {0};
+    short ts {0};
+    short tms {0};
 
     date.decodeDate(&dy, &dm, &dd, &wd, &yd);
     date.decodeTime(&th, &tm, &ts, &tms);
 
-    array<char, 128> dateBuffer = {};
+    constexpr int maxDateBuffer = 128;
+    array<char, maxDateBuffer> dateBuffer = {};
     const char* sign = "-";
-    int offset = TimeZone::offset();
-    if (offset >= 0)
+    int tzOffset = TimeZone::offset();
+    if (tzOffset >= 0)
     {
         sign = "";
     }
     else
     {
-        offset = -offset;
+        tzOffset = -tzOffset;
     }
 
+    constexpr int tzOffsetMultiplier = 100;
     int len = snprintf(dateBuffer.data(), sizeof(dateBuffer) - 1,
                        "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
                        date.dayOfWeekName().substr(0, 3).c_str(),
@@ -180,7 +182,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
                        dy,
                        th, tm, ts,
                        sign,
-                       offset * 100,
+                       tzOffset * tzOffsetMultiplier,
                        TimeZone::name().c_str()
     );
 
@@ -243,7 +245,6 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
 
     message << endl << "--" << boundary << "--" << endl;
 
-    buffer.reset(2048);
-    buffer.append(message.str().c_str(), (uint32_t) message.str().length());
+    buffer.set((const uint8_t*) message.str().c_str(), (uint32_t) message.str().length());
     buffer.saveToFile("/tmp/mimed.txt");
 }

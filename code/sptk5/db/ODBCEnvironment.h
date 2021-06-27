@@ -33,12 +33,12 @@
 #include <sptk5/Strings.h>
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <windows.h>
-    #include <sys/types.h>
-    #include <time.h>
+#include <winsock2.h>
+#include <windows.h>
+#include <sys/types.h>
+#include <time.h>
 #else
-    #define LPCVOID  const void *
+#define LPCVOID  const void *
 #endif
 
 #include <sqlext.h>
@@ -47,8 +47,7 @@
 #include <sptk5/db/QueryParameterList.h>
 #include <mutex>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup Database Database Support
@@ -56,6 +55,7 @@ namespace sptk
  */
 
 class ODBCEnvironment;
+
 class ODBCConnectionBase;
 
 /**
@@ -63,9 +63,10 @@ class ODBCConnectionBase;
  *
  * Base class for all ODBC classes
  */
-class SP_DRIVER_EXPORT ODBCBase : public std::mutex
+class SP_DRIVER_EXPORT ODBCBase
+    : public std::mutex
 {
-	friend class ODBCConnection;
+    friend class ODBCConnection;
 
 public:
 
@@ -104,7 +105,8 @@ private:
  *
  * Environment is only used by ODBCConnection class
  */
-class SP_DRIVER_EXPORT ODBCEnvironment : public ODBCBase
+class SP_DRIVER_EXPORT ODBCEnvironment
+    : public ODBCBase
 {
     friend class ODBCConnectionBase;
 
@@ -115,23 +117,8 @@ public:
      */
     SQLHENV handle() const
     {
-        return m_hEnvironment;
+        return m_hEnvironment.get();
     }
-
-    /**
-     * Deleted copy constructor
-     */
-    ODBCEnvironment(const ODBCEnvironment&) = delete;
-
-    /**
-     * Destructor
-     */
-    ~ODBCEnvironment();
-
-    /**
-     * Deleted copy assignment
-     */
-    ODBCEnvironment& operator = (const ODBCEnvironment&) = delete;
 
 protected:
 
@@ -146,23 +133,18 @@ protected:
     void allocEnv();
 
     /**
-     * Deallocates enviromment handle
-     */
-    void freeEnv();
-
-    /**
      * Is enviromment handle allocated?
      */
     bool valid() const
     {
-        return m_hEnvironment != SQL_NULL_HENV;
+        return m_hEnvironment != nullptr;
     }
 
 private:
     /**
      * ODBC environment handle
      */
-    SQLHENV m_hEnvironment {SQL_NULL_HENV};
+    std::shared_ptr<void> m_hEnvironment;
 };
 
 /**
@@ -170,7 +152,8 @@ private:
  *
  * Class ODBCConnection represents the ODBC connection to a database.
  */
-class SP_DRIVER_EXPORT ODBCConnectionBase : public ODBCBase
+class SP_DRIVER_EXPORT ODBCConnectionBase
+    : public ODBCBase
 {
 public:
 
@@ -274,7 +257,10 @@ public:
     /**
      * Returns the only environment needed
      */
-    static ODBCEnvironment& getEnvironment();
+    static ODBCEnvironment& getEnvironment()
+    {
+        return m_env;
+    }
 
     /**
      * Retrieves an error information for user action name
@@ -299,11 +285,12 @@ protected:
 
 private:
 
-    ODBCEnvironment&    m_cEnvironment {getEnvironment()};  ///< ODBC environment
-    SQLHDBC             m_hConnection {SQL_NULL_HDBC};      ///< ODBC connection handle
-    bool                m_connected {false};                ///< Is connection active?
-    String              m_connectString;                    ///< ODBC connection string
-    String              m_driverDescription;                ///< Driver description, filled in during the connection to the DSN
+    ODBCEnvironment& m_cEnvironment {getEnvironment()};  ///< ODBC environment
+    SQLHDBC m_hConnection {SQL_NULL_HDBC};               ///< ODBC connection handle
+    bool m_connected {false};                            ///< Is connection active?
+    String m_connectString;                              ///< ODBC connection string
+    String m_driverDescription;                          ///< Driver description, filled in during the connection to the DSN
+    static ODBCEnvironment m_env;
 };
 
 /**
@@ -316,4 +303,3 @@ String removeDriverIdentification(const char* error);
  */
 }
 #endif
-

@@ -27,12 +27,13 @@
 #include <sptk5/wsdl/SourceModule.h>
 #include <sptk5/Printer.h>
 #include <fstream>
+#include <utility>
 
 using namespace std;
 using namespace sptk;
 
-SourceModule::SourceModule(const String& moduleName, const String& modulePath)
-    : m_name(moduleName), m_path(modulePath)
+SourceModule::SourceModule(String moduleName, const String& modulePath)
+    : m_name(std::move(moduleName)), m_path(modulePath)
 {
 }
 

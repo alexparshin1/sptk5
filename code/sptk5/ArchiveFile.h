@@ -92,7 +92,7 @@ public:
      * @param fileName          File name
      * @param baseDirectory     Directory used as a base for relative path for files inside archive
      */
-    explicit ArchiveFile(const String& fileName, const String& baseDirectory);
+    explicit ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory);
 
     /**
      * @brief Constructor
@@ -108,9 +108,9 @@ public:
      * @param gname             Owner group name
      * @param linkName          Name the link is pointing to
      */
-    ArchiveFile(const String& fileName, const uint8_t* content, size_t contentLength, int mode, int uid,
+    ArchiveFile(const fs::path& fileName, const uint8_t* content, size_t contentLength, int mode, int uid,
                 int gid, const DateTime& mtime, ArchiveFile::Type type, const String& uname, const String& gname,
-                const String& linkName);
+                const fs::path& linkName);
 
     /**
      * @brief Actual tar file header, length is TAR_BLOCK_SIZE
@@ -168,6 +168,8 @@ public:
         return m_gname;
     }
 
+    static fs::path relativePath(const fs::path& fileName, const fs::path& baseDirectory);
+
 private:
 
     String m_fileName;
@@ -184,8 +186,6 @@ private:
     std::shared_ptr<TarHeader> m_header;
 
     void makeHeader();
-
-    String relativePath(const String& fileName, const String& baseDirectory) const;
 };
 
 using SArchiveFile = std::shared_ptr<ArchiveFile>;

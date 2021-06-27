@@ -248,7 +248,9 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
     }
 
     if (!rc)
+    {
         return false;
+    }
 
     paramEnd = paramStart + 1;
     if (*paramStart != ':')
@@ -330,7 +332,7 @@ const char* Query::readParamater(String& sql, int& paramNumber, const char* para
 
 String Query::parseParameters(const String& _sql)
 {
-    const char* paramStart;
+    const char* paramStart {};
     const char* paramEnd = _sql.c_str();
 
     m_params.clear();

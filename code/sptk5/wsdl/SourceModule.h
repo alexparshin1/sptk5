@@ -31,8 +31,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup wsdl WSDL-related Classes
@@ -44,10 +43,10 @@ namespace sptk
  */
 class SP_EXPORT SourceModule
 {
-    String              m_name;     ///< Module name
-    String              m_path;     ///< Module path
-    std::stringstream   m_header;   ///< Module .h file content
-    std::stringstream   m_source;   ///< Module cpp file content
+    String m_name;     ///< Module name
+    String m_path;     ///< Module path
+    std::stringstream m_header;   ///< Module .h file content
+    std::stringstream m_source;   ///< Module cpp file content
 
     /**
      * Write data to file if it doesn't exist, or if file content is different from data
@@ -62,7 +61,7 @@ public:
      * @param moduleName        Module name
      * @param modulePath        Module path
      */
-    SourceModule(const String& moduleName, const String& modulePath);
+    SourceModule(String moduleName, const String& modulePath);
 
     /**
      * @brief Destructor

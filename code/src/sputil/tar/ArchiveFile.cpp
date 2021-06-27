@@ -53,7 +53,7 @@ std::time_t to_time_t(TP tp)
     return system_clock::to_time_t(sctp);
 }
 
-ArchiveFile::ArchiveFile(const String& fileName, const String& baseDirectory)
+ArchiveFile::ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory)
 {
     auto relativeFileName = relativePath(fileName, baseDirectory);
 
@@ -86,12 +86,13 @@ ArchiveFile::ArchiveFile(const String& fileName, const String& baseDirectory)
     m_mtime = DateTime::convertCTime(mtime);
 
 #ifndef _WIN32
-    struct stat info;
+    struct stat info {};
     stat(fileName.c_str(), &info);  // Error check omitted
 
-    Buffer buff(128);
+    constexpr int bufferSize = 128;
+    Buffer buff(bufferSize);
     struct passwd pw {};
-    if (struct passwd* pw_result; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), 128, &pw_result) != 0)
+    if (struct passwd* pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
     {
         throw SystemException("Can't get user information");
     }
@@ -101,7 +102,7 @@ ArchiveFile::ArchiveFile(const String& fileName, const String& baseDirectory)
     m_gid = pw.pw_gid;
 
     struct group gr {};
-    if (struct group* gr_result; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), 128, &gr_result) != 0)
+    if (struct group* gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
     {
         throw SystemException("Can't get group information");
     }
@@ -112,20 +113,36 @@ ArchiveFile::ArchiveFile(const String& fileName, const String& baseDirectory)
     makeHeader();
 }
 
-String ArchiveFile::relativePath(const String& fileName, const String& baseDirectory) const
+fs::path ArchiveFile::relativePath(const fs::path& fileName, const fs::path& baseDirectory)
 {
-    const fs::path basePath(baseDirectory.c_str());
-    if (!fileName.startsWith(basePath.c_str()))
+    fs::path relativePath;
+
+    auto fdir = fileName.begin();
+    for (auto bdir = baseDirectory.begin(); fdir != fileName.end(); ++fdir, ++bdir)
     {
-        return fileName;
+        if (bdir == baseDirectory.end())
+        {
+            break;
+        }
+        if (*fdir != *bdir)
+        {
+            return fileName;
+        }
     }
 
-    return fileName.substr(string(basePath).length() + 1);
+    relativePath = *(fdir++);
+    for (; fdir != fileName.end(); ++fdir)
+    {
+        relativePath /= *fdir;
+        cout << relativePath << endl;
+    }
+
+    return relativePath;
 }
 
-ArchiveFile::ArchiveFile(const String& fileName, const uint8_t* content, size_t contentLength, int mode, int uid,
+ArchiveFile::ArchiveFile(const fs::path& fileName, const uint8_t* content, size_t contentLength, int mode, int uid,
                          int gid, const DateTime& mtime, ArchiveFile::Type type, const String& uname,
-                         const String& gname, const String& linkName)
+                         const String& gname, const fs::path& linkName)
     : Buffer(content, contentLength),
       m_fileName(fileName), m_mode(mode), m_uid(uid), m_gid(gid), m_mtime(mtime),
       m_type(type), m_linkname(linkName), m_uname(uname), m_gname(gname)

@@ -50,30 +50,23 @@ void ODBCBase::exception(const String& text, int line)
 // ODBC Environment class
 //---------------------------------------------------------------------------
 
-ODBCEnvironment::~ODBCEnvironment()
-{
-    if (valid())
-        freeEnv();
-}
-
 void ODBCEnvironment::allocEnv()
 {
     if (valid())
-        return; // Already allocated
+    {
+        return;
+    } // Already allocated
     scoped_lock lock(*this);
-    if (!Successful(SQLAllocEnv(&m_hEnvironment))) {
-        m_hEnvironment = SQL_NULL_HENV;
+    SQLHENV hEnvironment;
+    if (!Successful(SQLAllocEnv(&hEnvironment)))
+    {
         exception("Can't allocate ODBC environment", __LINE__);
     }
-}
-
-void ODBCEnvironment::freeEnv()
-{
-    if (!valid())
-        return; // Never allocated
-    scoped_lock lock(*this);
-    SQLFreeEnv(m_hEnvironment);
-    m_hEnvironment = SQL_NULL_HENV;
+    m_hEnvironment = shared_ptr<void>(hEnvironment,
+                                      [this](void* env) {
+                                          scoped_lock lck(*this);
+                                          SQLFreeEnv(env);
+                                      });
 }
 
 //--------------------------------------------------------------------------------------------
@@ -83,22 +76,21 @@ void ODBCEnvironment::freeEnv()
 ODBCConnectionBase::~ODBCConnectionBase()
 {
     if (isConnected())
+    {
         disconnect();
+    }
     freeConnect();
 }
 
-// Static environment object inside this function
-ODBCEnvironment& ODBCConnectionBase::getEnvironment()
-{
-    static ODBCEnvironment Env;
-    return Env;
-}
+ODBCEnvironment ODBCConnectionBase::m_env;
 
 void ODBCConnectionBase::allocConnect()
 {
     // If already connected, return false
     if (valid())
+    {
         return;
+    }
 
     // Allocate environment if not already done
     m_cEnvironment.allocEnv();
@@ -106,7 +98,8 @@ void ODBCConnectionBase::allocConnect()
     scoped_lock lock(*this);
 
     // Create connection handle
-    if (!Successful(SQLAllocConnect(m_cEnvironment.handle(), &m_hConnection))) {
+    if (!Successful(SQLAllocConnect(m_cEnvironment.handle(), &m_hConnection)))
+    {
         m_hConnection = SQL_NULL_HDBC;
         exception(errorInformation("Can't alloc connection"), __LINE__);
     }
@@ -115,9 +108,13 @@ void ODBCConnectionBase::allocConnect()
 void ODBCConnectionBase::freeConnect()
 {
     if (!valid())
-        return; // Not connected
+    {
+        return;
+    } // Not connected
     if (isConnected())
+    {
         disconnect();
+    }
 
     scoped_lock lock(*this);
 
@@ -131,14 +128,18 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
 {
     // Check parameters
     if (ConnectionString.empty())
+    {
         exception("Can'connect: connection string is empty", __LINE__);
+    }
 
     // If handle not allocated, allocate it
     allocConnect();
 
     // If we are  already connected, disconnect
     if (isConnected())
+    {
         disconnect();
+    }
 
     scoped_lock lock(*this);
 
@@ -157,7 +158,8 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
                                       buff.data(), (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
 
 
-    if (!Successful(rc)) {
+    if (!Successful(rc))
+    {
         String errorInfo = errorInformation(("SQLDriverConnect(" + ConnectionString + ")").c_str());
         exception(errorInfo, __LINE__);
     }
@@ -171,17 +173,23 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
     SQLSMALLINT descriptionLength = 0;
     rc = SQLGetInfo(m_hConnection, SQL_DBMS_NAME, driverDescription.data(), 2048, &descriptionLength);
     if (Successful(rc))
+    {
         m_driverDescription = driverDescription.c_str();
+    }
 
     rc = SQLGetInfo(m_hConnection, SQL_DBMS_VER, driverDescription.data(), 2048, &descriptionLength);
     if (Successful(rc))
+    {
         m_driverDescription += " " + String(driverDescription.c_str());
+    }
 }
 
 void ODBCConnectionBase::disconnect()
 {
     if (!isConnected())
-        return; // Not connected
+    {
+        return;
+    } // Not connected
 
     scoped_lock lock(*this);
 
@@ -193,12 +201,16 @@ void ODBCConnectionBase::disconnect()
 void ODBCConnectionBase::setConnectOption(UWORD fOption, UDWORD vParam)
 {
     if (!isConnected())
+    {
         exception(errorInformation(cantSetConnectOption), __LINE__);
+    }
 
     scoped_lock lock(*this);
 
     if (!Successful(SQLSetConnectOption(m_hConnection, fOption, vParam)))
+    {
         exception(errorInformation(cantSetConnectOption), __LINE__);
+    }
 }
 
 void ODBCConnectionBase::execQuery(const char* query)
@@ -208,12 +220,14 @@ void ODBCConnectionBase::execQuery(const char* query)
     scoped_lock lock(*this);
 
     // Allocate Statement Handle
-    if (!Successful(SQLAllocHandle(SQL_HANDLE_STMT, m_hConnection, &hstmt))) {
+    if (!Successful(SQLAllocHandle(SQL_HANDLE_STMT, m_hConnection, &hstmt)))
+    {
         throw Exception("Can't allocate handle");
     }
 
     if (Buffer queryBuffer((const uint8_t*) query, strlen(query));
-        !Successful(SQLExecDirect(hstmt, queryBuffer.data(), (SQLINTEGER) queryBuffer.length()))) {
+        !Successful(SQLExecDirect(hstmt, queryBuffer.data(), (SQLINTEGER) queryBuffer.length())))
+    {
         SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
         throw Exception("Can't execute query: " + String(query));
     }
@@ -229,39 +243,55 @@ void ODBCConnectionBase::beginTransaction()
 void ODBCConnectionBase::transact(UWORD fType)
 {
     if (!isConnected())
+    {
         exception(string(cantEndTranscation) + "Not connected to the database", __LINE__);
+    }
 
     if (fType == SQL_COMMIT)
+    {
         execQuery("COMMIT");
+    }
     else
+    {
         execQuery("ROLLBACK");
+    }
 }
 
 //==============================================================================
 String sptk::removeDriverIdentification(const char* error)
 {
     if (error == nullptr)
+    {
         return "";
+    }
 
     const auto* p = error;
     const char* p1 = error;
-    while (p1 != nullptr) {
+    while (p1 != nullptr)
+    {
         p1 = strstr(p, "][");
         if (p1 != nullptr)
+        {
             p = p1 + 1;
+        }
     }
     p1 = strstr(p, "]");
     if (p1 != nullptr)
+    {
         p = p1 + 1;
+    }
 
     auto len = (int) strlen(p);
 
     p1 = strstr(p, "sqlerrm(");
-    if (p1 != nullptr) {
+    if (p1 != nullptr)
+    {
         p = p1 + 8;
         len = (int) strlen(p);
         if (p[len - 1] == ')')
+        {
             --len;
+        }
     }
 
     return String(p, size_t(len));
@@ -279,11 +309,14 @@ string extract_error(
     SQLRETURN ret;
 
     string error;
-    for (;;) {
+    for (;;)
+    {
         ++i;
         ret = SQLGetDiagRec(type, handle, i, state.data(), &native, text.data(), sizeof(text), &len);
         if (ret != SQL_SUCCESS)
+        {
             break;
+        }
         error += removeDriverIdentification((char*) text.data()) + string(". ");
     }
 
@@ -292,20 +325,24 @@ string extract_error(
 
 String ODBCConnectionBase::errorInformation(const char* function)
 {
-    array<char, SQL_MAX_MESSAGE_LENGTH> errorDescription{};
-    array<char, SQL_MAX_MESSAGE_LENGTH> errorState{};
+    array<char, SQL_MAX_MESSAGE_LENGTH> errorDescription {};
+    array<char, SQL_MAX_MESSAGE_LENGTH> errorState {};
     SWORD pcnmsg = 0;
     SQLINTEGER nativeError = 0;
 
     int rc = SQLError(SQL_NULL_HENV, m_hConnection, SQL_NULL_HSTMT, (UCHAR*) errorState.data(), &nativeError,
                       (UCHAR*) errorDescription.data(), sizeof(errorDescription), &pcnmsg);
     if (rc == SQL_SUCCESS)
+    {
         return extract_error(m_hConnection, SQL_HANDLE_DBC);
+    }
 
     rc = SQLError(m_cEnvironment.handle(), SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR*) errorState.data(),
                   &nativeError, (UCHAR*) errorDescription.data(), sizeof(errorDescription), &pcnmsg);
     if (rc != SQL_SUCCESS)
+    {
         exception(cantGetInformation, __LINE__);
+    }
 
     return String(function) + ": " + removeDriverIdentification(errorDescription.data());
 }

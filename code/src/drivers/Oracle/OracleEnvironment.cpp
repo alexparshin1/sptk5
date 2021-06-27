@@ -60,7 +60,7 @@ oracle::occi::Connection* OracleEnvironment::createConnection(const DatabaseConn
     return m_handle->createConnection(connectionString.userName(), connectionString.password(), host);
 }
 
-void OracleEnvironment::terminateConnection(oracle::occi::Connection* connection)
+void OracleEnvironment::terminateConnection(oracle::occi::Connection* connection) const
 {
     m_handle->terminateConnection(connection);
 }

@@ -28,8 +28,7 @@
 
 #include <sptk5/Buffer.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup net Networking Classes
@@ -49,33 +48,50 @@ public:
     {
     public:
         void input(const Buffer& content, const String& contentEncoding);
+
         Buffer output(const Strings& contentEncodings);
 
-        Buffer& content() { return m_content; }
-        const Buffer& content() const { return m_content; }
+        Buffer& content()
+        {
+            return m_content;
+        }
 
-        String contentEncoding() const { return m_contentEncoding; }
-        size_t compressedLength() const { return m_compressedLength; }
+        const Buffer& content() const
+        {
+            return m_content;
+        }
+
+        String contentEncoding() const
+        {
+            return m_contentEncoding;
+        }
+
+        size_t compressedLength() const
+        {
+            return m_compressedLength;
+        }
 
     private:
-        Buffer  m_content;              ///< Message content (decompressed)
-        String  m_contentEncoding;      ///< Content encoding, i.e. gzip, br, etc
-        size_t  m_compressedLength {0}; ///< Compressed length if contentEncoding isn't empty
+        Buffer m_content;              ///< Message content (decompressed)
+        String m_contentEncoding;      ///< Content encoding, i.e. gzip, br, etc
+        size_t m_compressedLength {0}; ///< Compressed length if contentEncoding isn't empty
     };
 
     /**
      * Constructor
      * @param name              Request name
      */
-    RequestInfo(const String& name="") : name(name) {}
+    explicit RequestInfo(const String& name = "")
+        : name(name)
+    {
+    }
 
-    Message     request;                ///< Request data
-    Message     response;               ///< Response data
-    String      name;                   ///< Request name
+    Message request;                ///< Request data
+    Message response;               ///< Response data
+    String name;                   ///< Request name
 };
 
 /**
  * @}
  */
 }
-

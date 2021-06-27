@@ -91,23 +91,30 @@ void Tar::read(const Buffer& tarData)
 }
 
 template<typename Field>
-unsigned readOctalNumber(Field& field)
+unsigned readOctalNumber(Field& field, const String& fieldName)
 {
-    unsigned value;
-    sscanf(field.data(), "%o", &value);
+    constexpr int octal = 8;
+    errno = 0;
+    unsigned value = strtoul(field.data(), nullptr, octal);
+    if (errno != 0)
+    {
+        throw Exception("Invalid octal number for " + fieldName);
+    }
     return value;
 }
 
 bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
 {
     const auto* header = (const TarHeader*) (buffer.data() + offset);
-    if (header->magic.data()[0] == 0)
+    if (header->magic[0] == 0)
     {
         // empty block at the end of file
         return false;
     }
 
-    if (memcmp(header->magic.data(), "ustar ", 6) != 0)
+
+    if (constexpr int magicLength = 6;
+        memcmp(header->magic.data(), "ustar ", magicLength) != 0)
     {
         throw Exception("Unsupported TAR format: Expecting ustar.");
     }
@@ -118,22 +125,22 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     size_t contentLength = 0;
     if (type == ArchiveFile::Type::REGULAR_FILE || type == ArchiveFile::Type::REGULAR_FILE2)
     {
-        contentLength = readOctalNumber(header->size);
+        contentLength = readOctalNumber(header->size, "size");
     }
 
-    int mode = readOctalNumber(header->mode);
-    int uid = readOctalNumber(header->uid);
-    int gid = readOctalNumber(header->gid);
+    int mode = readOctalNumber(header->mode, "mode");
+    int uid = readOctalNumber(header->uid, "uid");
+    int gid = readOctalNumber(header->gid, "gid");
 
-    time_t mtime = readOctalNumber(header->mtime);
+    time_t mtime = readOctalNumber(header->mtime, "mtime");
     auto dt = DateTime::convertCTime(mtime);
 
     const uint8_t* content = buffer.data() + offset;
 
-    String fname = header->filename.data();
-    String uname = header->uname.data();
-    String gname = header->gname.data();
-    String linkName = header->linkname.data();
+    fs::path fname(header->filename.data());
+    String uname(header->uname.data());
+    String gname(header->gname.data());
+    fs::path linkName(header->linkname.data());
 
     size_t blockCount = contentLength / TAR_BLOCK_SIZE;
     if (blockCount * TAR_BLOCK_SIZE < contentLength)
@@ -144,7 +151,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     auto file = make_shared<ArchiveFile>(fname, content, contentLength, mode, uid, gid, dt, type,
                                          uname, gname, linkName);
 
-    m_files[fname] = file;
+    m_files[fname.c_str()] = file;
 
     offset += blockCount * TAR_BLOCK_SIZE;
 
@@ -220,6 +227,18 @@ protected:
         unlink("test.lst");
     }
 };
+
+TEST_F(SPTK_Tar, relativePath)
+{
+    auto relPath = ArchiveFile::relativePath("/tmp/mydir/myfile.txt", "/tmp/mydir");
+    EXPECT_STREQ(relPath.c_str(), "myfile.txt");
+
+    relPath = ArchiveFile::relativePath("/tmp/mydir1/mydir2/myfile.txt", "/tmp/mydir1");
+    EXPECT_STREQ(relPath.c_str(), "mydir2/myfile.txt");
+
+    relPath = ArchiveFile::relativePath("/tmp/mydir1/myfile.txt", "/tmp/mydir");
+    EXPECT_STREQ(relPath.c_str(), "/tmp/mydir1/myfile.txt");
+}
 
 TEST_F(SPTK_Tar, read)
 {

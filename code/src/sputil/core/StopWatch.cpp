@@ -26,6 +26,7 @@
 
 #include "sptk5/StopWatch.h"
 
+using namespace std;
 using namespace sptk;
 
 void StopWatch::start()
@@ -42,4 +43,10 @@ void StopWatch::stop()
 double StopWatch::seconds() const
 {
     return duration2seconds(m_ended - m_started);
+}
+
+double StopWatch::milliseconds() const
+{
+    constexpr double microsecondsInMillisecond = 1000.0;
+    return chrono::duration_cast<chrono::microseconds>(m_ended - m_started).count() / microsecondsInMillisecond;
 }

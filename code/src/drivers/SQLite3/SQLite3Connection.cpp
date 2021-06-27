@@ -411,8 +411,10 @@ static uint32_t trimField(char* s, uint32_t sz)
     char ch = s[0];
     s[0] = '!';
 
-    while (*(--p) == ' ')
-    {}
+    while (*p == ' ')
+    {
+        --p;
+    }
 
     *(++p) = 0;
 
