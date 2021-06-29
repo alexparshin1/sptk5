@@ -64,7 +64,7 @@ void InsertQuery::exec()
 
         case DatabaseConnectionType::ORACLE:
             param("last_id").setOutput();
-            param("last_id").setNull(VAR_INT);
+            param("last_id").setNull(VariantDataType::VAR_INT);
             open();
             m_id = (uint64_t) (*this)[0].asInteger();
             close();

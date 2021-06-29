@@ -102,10 +102,6 @@
 #include <vector>
 #include <array>
 
-#define ALIGN_LEFT   1
-#define ALIGN_RIGHT  2
-#define ALIGN_CENTER 3
-
 #ifdef __UNIX_COMPILER__
 
 #include <cinttypes>
@@ -150,3 +146,7 @@ namespace fs = std::filesystem;
 namespace filesystem = std::experimental::filesystem;
 #endif
 #endif
+
+constexpr int ALIGN_LEFT = 1;
+constexpr int ALIGN_RIGHT = 2;
+constexpr int ALIGN_CENTER = 3;

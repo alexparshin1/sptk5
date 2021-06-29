@@ -33,13 +33,13 @@ using namespace sptk;
 void QueryParameterBinding::reset(bool isOutput)
 {
     m_stmt = nullptr;
-    m_dataType = VAR_NONE;
+    m_dataType = VariantDataType::VAR_NONE;
     m_size = 0;
     m_buffer = nullptr;
     m_output = isOutput;
 }
 
-bool QueryParameterBinding::check(StmtHandle stmt, VariantType type, uint32_t size, uint8_t* buffer)
+bool QueryParameterBinding::check(StmtHandle stmt, VariantDataType type, uint32_t size, uint8_t* buffer)
 {
     bool changed = true;
 

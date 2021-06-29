@@ -38,7 +38,8 @@ namespace sptk {
 /**
  * Base type for all standard WSDL types
  */
-class SP_EXPORT WSBasicType : public WSType
+class SP_EXPORT WSBasicType
+    : public WSType
 {
 public:
     /**
@@ -52,8 +53,9 @@ public:
      * @param optional          Element optionality flag
      */
     WSBasicType(const char* name, bool optional)
-    : m_field(name), m_optional(optional)
-    {}
+        : m_field(name), m_optional(optional)
+    {
+    }
 
     WSBasicType(const WSBasicType& other) = default;
 
@@ -61,18 +63,20 @@ public:
 
     virtual ~WSBasicType() noexcept = default;
 
-    WSBasicType& operator = (const WSBasicType& other)
+    WSBasicType& operator=(const WSBasicType& other)
     {
-        if (&other != this) {
+        if (&other != this)
+        {
             m_field = other.m_field;
             m_optional = other.m_optional;
         }
         return *this;
     }
 
-    WSBasicType& operator = (WSBasicType&& other) noexcept
+    WSBasicType& operator=(WSBasicType&& other) noexcept
     {
-        if (&other != this) {
+        if (&other != this)
+        {
             m_optional = other.m_optional;
             m_field = std::move(other.m_field);
         }
@@ -93,7 +97,7 @@ public:
      */
     void clear() override
     {
-        m_field.setNull(VAR_NONE);
+        m_field.setNull(VariantDataType::VAR_NONE);
     }
 
     /**
@@ -156,16 +160,50 @@ public:
         return m_field.asString();
     }
 
-    auto asInteger() const { return field().asInteger(); }
-    auto asInt64() const { return field().asInt64(); }
-    auto asFloat() const { return field().asFloat(); }
-    auto asBool() const { return field().asBool(); }
+    auto asInteger() const
+    {
+        return field().asInteger();
+    }
 
-    void setInteger(int32_t value) { field().setInteger(value); }
-    void setInt64(int64_t value) { field().setInt64(value); }
-    void setFloat(bool value) { field().setFloat(value); }
-    void setBool(bool value) { field().setBool(value); }
-    void setBuffer(const char* buffer, size_t size) { field().setBuffer((const uint8_t*) buffer, size); }
+    auto asInt64() const
+    {
+        return field().asInt64();
+    }
+
+    auto asFloat() const
+    {
+        return field().asFloat();
+    }
+
+    auto asBool() const
+    {
+        return field().asBool();
+    }
+
+    void setInteger(int32_t value)
+    {
+        field().setInteger(value);
+    }
+
+    void setInt64(int64_t value)
+    {
+        field().setInt64(value);
+    }
+
+    void setFloat(bool value)
+    {
+        field().setFloat(value);
+    }
+
+    void setBool(bool value)
+    {
+        field().setBool(value);
+    }
+
+    void setBuffer(const char* buffer, size_t size)
+    {
+        field().setBuffer((const uint8_t*) buffer, size);
+    }
 
     bool isNull() const override
     {
@@ -178,25 +216,32 @@ public:
      */
     void throwIfNull(const String& parentTypeName) const;
 
-    VariantType dataType() const
+    VariantDataType dataType() const
     {
         return m_field.dataType();
     }
 
-    void setNull(VariantType type)
+    void setNull(VariantDataType type)
     {
         m_field.setNull(type);
     }
 
-    Field& field() { return m_field; }
-    const Field& field() const { return m_field; }
+    Field& field()
+    {
+        return m_field;
+    }
+
+    const Field& field() const
+    {
+        return m_field;
+    }
 
     /**
      * Adds an element to response XML with this object data
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void addElement(xml::Node* parent, const char* name=nullptr) const override;
+    void addElement(xml::Node* parent, const char* name = nullptr) const override;
 
     /**
      * Adds an element to response JSON with this object data
@@ -206,14 +251,15 @@ public:
 
 private:
 
-    Field   m_field {""};
-    bool    m_optional {false};    ///< Element optionality flag
+    Field m_field {""};
+    bool m_optional {false};    ///< Element optionality flag
 };
 
 /**
  * Base type for all standard WSDL types
  */
-class SP_EXPORT WSString : public WSBasicType
+class SP_EXPORT WSString
+    : public WSBasicType
 {
 public:
     /**
@@ -221,7 +267,7 @@ public:
      */
     WSString()
     {
-        setNull(VAR_STRING);
+        setNull(VariantDataType::VAR_STRING);
     }
 
     /**
@@ -230,9 +276,9 @@ public:
      * @param optional          Element optionality flag
      */
     WSString(const String& name, bool optional)
-    : WSBasicType(name.c_str(), optional)
+        : WSBasicType(name.c_str(), optional)
     {
-        setNull(VAR_STRING);
+        setNull(VariantDataType::VAR_STRING);
     }
 
     /**
@@ -290,7 +336,7 @@ public:
      */
     WSString& operator=(const String& value)
     {
-        field().setBuffer((const uint8_t*) value.c_str(), value.length(), VAR_STRING);
+        field().setBuffer((const uint8_t*) value.c_str(), value.length(), VariantDataType::VAR_STRING);
         return *this;
     }
 
@@ -299,7 +345,7 @@ public:
      */
     WSString& operator=(const Buffer& value)
     {
-        field().setBuffer(value.data(), value.bytes(), VAR_BUFFER);
+        field().setBuffer(value.data(), value.bytes(), VariantDataType::VAR_BUFFER);
         return *this;
     }
 
@@ -338,7 +384,8 @@ public:
 /**
  * Wrapper for WSDL bool type
  */
-class SP_EXPORT WSBool : public WSBasicType
+class SP_EXPORT WSBool
+    : public WSBasicType
 {
 public:
     /**
@@ -346,7 +393,7 @@ public:
      */
     WSBool()
     {
-        setNull(VAR_BOOL);
+        setNull(VariantDataType::VAR_BOOL);
     }
 
     /**
@@ -355,9 +402,9 @@ public:
      * @param optional          Element optionality flag
      */
     WSBool(const String& name, bool optional)
-            : WSBasicType(name.c_str(), optional)
+        : WSBasicType(name.c_str(), optional)
     {
-        setNull(VAR_BOOL);
+        setNull(VariantDataType::VAR_BOOL);
     }
 
     /**
@@ -423,7 +470,8 @@ public:
 /**
  * Wrapper for WSDL date type
  */
-class SP_EXPORT WSDate : public WSBasicType
+class SP_EXPORT WSDate
+    : public WSBasicType
 {
 public:
     /**
@@ -431,7 +479,7 @@ public:
      */
     WSDate()
     {
-        setNull(VAR_DATE);
+        setNull(VariantDataType::VAR_DATE);
     }
 
     /**
@@ -440,9 +488,9 @@ public:
      * @param optional          Element optionality flag
      */
     WSDate(const String& name, bool optional)
-    : WSBasicType(name.c_str(), optional)
+        : WSBasicType(name.c_str(), optional)
     {
-        setNull(VAR_DATE);
+        setNull(VariantDataType::VAR_DATE);
     }
 
     /**
@@ -523,7 +571,8 @@ public:
 /**
  * Wrapper for WSDL dateTime type
  */
-class SP_EXPORT WSDateTime : public WSBasicType
+class SP_EXPORT WSDateTime
+    : public WSBasicType
 {
 public:
     /**
@@ -531,7 +580,7 @@ public:
      */
     WSDateTime()
     {
-        setNull(VAR_DATE_TIME);
+        setNull(VariantDataType::VAR_DATE_TIME);
     }
 
     /**
@@ -540,9 +589,9 @@ public:
      * @param optional          Element optionality flag
      */
     WSDateTime(const String& name, bool optional)
-    : WSBasicType(name.c_str(), optional)
+        : WSBasicType(name.c_str(), optional)
     {
-        setNull(VAR_DATE_TIME);
+        setNull(VariantDataType::VAR_DATE_TIME);
     }
 
     /**
@@ -628,7 +677,8 @@ public:
 /**
  * Wrapper for WSDL double type
  */
-class SP_EXPORT WSDouble : public WSBasicType
+class SP_EXPORT WSDouble
+    : public WSBasicType
 {
 public:
     /**
@@ -636,7 +686,7 @@ public:
      */
     WSDouble()
     {
-        setNull(VAR_FLOAT);
+        setNull(VariantDataType::VAR_FLOAT);
     }
 
     /**
@@ -645,9 +695,9 @@ public:
      * @param optional          Element optionality flag
      */
     WSDouble(const String& name, bool optional)
-    : WSBasicType(name.c_str(), optional)
+        : WSBasicType(name.c_str(), optional)
     {
-        setNull(VAR_FLOAT);
+        setNull(VariantDataType::VAR_FLOAT);
     }
 
     WSDouble(double value)
@@ -708,7 +758,8 @@ public:
 /**
  * Wrapper for WSDL int type
  */
-class SP_EXPORT WSInteger : public WSBasicType
+class SP_EXPORT WSInteger
+    : public WSBasicType
 {
 public:
     /**
@@ -716,7 +767,7 @@ public:
      */
     WSInteger()
     {
-        setNull(VAR_INT);
+        setNull(VariantDataType::VAR_INT);
     }
 
     /**
@@ -725,9 +776,9 @@ public:
      * @param optional          Element optionality flag
      */
     WSInteger(const String& name, bool optional)
-    : WSBasicType(name.c_str(), optional)
+        : WSBasicType(name.c_str(), optional)
     {
-        setNull(VAR_INT);
+        setNull(VariantDataType::VAR_INT);
     }
 
     /**

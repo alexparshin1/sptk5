@@ -62,7 +62,7 @@ public:
     void schedule(Timer::Event event)
     {
         scoped_lock lock(m_scheduledMutex);
-        m_scheduledEvents.insert(pair<Timer::EventId, Timer::Event>(event->getId(), event));
+        m_scheduledEvents.try_emplace(event->getId(), event);
         m_semaphore.post();
     }
 

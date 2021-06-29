@@ -66,6 +66,7 @@ enum CRefreshKind
 };
 
 class CInternalComboBoxPanel;
+
 class CDBDropDownList;
 
 /**
@@ -103,9 +104,11 @@ enum CListViewDataMode
  * by column, supports type-in incremental search etc.
  */
 
-class SP_EXPORT CListView : public CControl, public SharedMutex
+class SP_EXPORT CListView
+    : public CControl, public SharedMutex
 {
     friend class CInternalComboBoxPanel;
+
     friend class CDBDropDownList;
 
     /**
@@ -340,12 +343,12 @@ protected:
      * @brief Changes the default scrollbar width for the class
      * @param b int, new scrollbar width
      */
-	static void scrollbar_width(int b);
+    static void scrollbar_width(int b);
 
     /**
      * @brief Returns the default scrollbar width for the class
      */
-	static int scrollbar_width();
+    static int scrollbar_width();
 
     /**
      * @brief Finds item with ID
@@ -382,7 +385,7 @@ protected:
      * @param rowData CPackedStrings *, item pointer
      * @returns item height
      */
-    virtual int item_compute_height(CPackedStrings *rowData);
+    virtual int item_compute_height(CPackedStrings* rowData);
 
     /**
      * @brief Recomputes items height
@@ -411,7 +414,8 @@ protected:
      * @param paintBackground bool, true if the item should paint the background
      * @returns item width
      */
-    virtual void item_draw(uint32_t index, const CPackedStrings *rowData, int x, int y, int w, int h, int focusMode, int verticalAlign, bool paintBackground) const;
+    virtual void item_draw(uint32_t index, const CPackedStrings* rowData, int x, int y, int w, int h, int focusMode,
+                           int verticalAlign, bool paintBackground) const;
 
     /**
      * Internal mouse callback
@@ -490,7 +494,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CListView(const char *label = 0, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CListView(const char* label = 0, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -539,7 +543,7 @@ public:
      * Optional row ID may be defined inside row parameter.
      * @param row               Row data
      */
-    virtual void addRow(CPackedStrings *row);
+    virtual void addRow(CPackedStrings* row);
 
     /**
      * @brief Adds new row
@@ -569,7 +573,7 @@ public:
      * @param position uint32_t, insert position
      * @param row CPackedStrings *, row data
      */
-    virtual void updateRow(uint32_t position, CPackedStrings *row);
+    virtual void updateRow(uint32_t position, CPackedStrings* row);
 
     /**
      * @brief Updates a row. Optional row argument may be defined inside row parameter.
@@ -707,7 +711,7 @@ public:
      * @param index int, row number
      * @returns row pointer
      */
-    CPackedStrings *row(uint32_t index) const;
+    CPackedStrings* row(uint32_t index) const;
 
     /**
      * Returns selection list
@@ -768,12 +772,12 @@ protected:
     /**
      * @brief Loads the key value from the query
      */
-    void load(Query *) override;
+    void load(Query*) override;
 
     /**
      * @brief Saves the key value from the query
      */
-    void save(Query *) override;
+    void save(Query*) override;
 
     /**
      * @brief Loads control data from XML
@@ -899,7 +903,7 @@ public:
      * @brief Returns column informartion
      * @param colname const char *, column name
      */
-    CColumn& column(const char *colname);
+    CColumn& column(const char* colname);
 
     /**
      * @brief Adds a new column as a copy of column
@@ -919,7 +923,7 @@ public:
      * @param cvisible bool, is the column visible?
      */
 
-    void addColumn(const String& colname, VariantType type, uint32_t cwidth = 100, bool cvisible = true)
+    void addColumn(const String& colname, VariantDataType type, uint32_t cwidth = 100, bool cvisible = true)
     {
         m_columnList.push_back(CColumn(colname, type, (short) cwidth, cvisible));
     }
@@ -1082,14 +1086,14 @@ public:
      * @param caption std::string, the caption to find and select.
      * @returns an item, or NULL if item caption is not found
      */
-    CPackedStrings *findCaption(const String& caption);
+    CPackedStrings* findCaption(const String& caption);
 
     /**
      * @brief Finds an item with the key (an integer associated with the item - argument()).
      * @param keyValue int, the caption to find and select.
      * @returns an item, or NULL if item caption is not found
      */
-    CPackedStrings *findKey(int keyValue);
+    CPackedStrings* findKey(int keyValue);
 
     /**
      * @brief Returns maximum width of all items including the header row

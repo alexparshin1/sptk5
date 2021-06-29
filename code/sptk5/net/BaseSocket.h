@@ -173,7 +173,7 @@ public:
      * Sets the host name
      * @param host              The host
      */
-    void host(const Host& host);
+    void host(const Host& host) const;
 
     /**
      * Returns the host

@@ -110,18 +110,18 @@ void OracleStatement::setParameterValues()
     for (const auto& parameterPtr: enumeratedParams())
     {
         QueryParameter& parameter = *parameterPtr;
-        VariantType& priorDataType = parameter.binding().m_dataType;
+        VariantDataType& priorDataType = parameter.binding().m_dataType;
 
-        if (priorDataType == VAR_NONE)
+        if (priorDataType == VariantDataType::VAR_NONE)
         {
             priorDataType = parameter.dataType();
         }
 
         if (!parameter.isOutput() && parameter.isNull())
         {
-            if (priorDataType == VAR_NONE)
+            if (priorDataType == VariantDataType::VAR_NONE)
             {
-                priorDataType = VAR_STRING;
+                priorDataType = VariantDataType::VAR_STRING;
             }
             Type nativeType = VariantTypeToOracleType(parameter.binding().m_dataType);
             statement()->setNull(parameterIndex, nativeType);
@@ -132,42 +132,42 @@ void OracleStatement::setParameterValues()
         switch (priorDataType)
         {
 
-            case VAR_NONE:      ///< Undefined
+            case VariantDataType::VAR_NONE:      ///< Undefined
             throwDatabaseException("Parameter " + parameter.name() + " data type is undefined")
 
-            case VAR_INT:       ///< Integer
+            case VariantDataType::VAR_INT:       ///< Integer
                 setIntParamValue(parameterIndex, parameter);
                 break;
 
-            case VAR_FLOAT:     ///< Floating-point (double)
+            case VariantDataType::VAR_FLOAT:     ///< Floating-point (double)
                 setFloatParamValue(parameterIndex, parameter);
                 break;
 
-            case VAR_STRING:    ///< String pointer
+            case VariantDataType::VAR_STRING:    ///< String pointer
                 setStringParamValue(parameterIndex, parameter);
                 break;
 
-            case VAR_TEXT:      ///< String pointer, corresponding to CLOB in database
+            case VariantDataType::VAR_TEXT:      ///< String pointer, corresponding to CLOB in database
                 setCLOBParameterValue(parameterIndex, parameter);
                 break;
 
-            case VAR_BUFFER:    ///< Data pointer, corresponding to BLOB in database
+            case VariantDataType::VAR_BUFFER:    ///< Data pointer, corresponding to BLOB in database
                 setBLOBParameterValue(parameterIndex, parameter);
                 break;
 
-            case VAR_DATE:      ///< DateTime (double)
+            case VariantDataType::VAR_DATE:      ///< DateTime (double)
                 setDateParameterValue(parameterIndex, parameter);
                 break;
 
-            case VAR_DATE_TIME: ///< DateTime (double)
+            case VariantDataType::VAR_DATE_TIME: ///< DateTime (double)
                 setDateTimeParameterValue(parameterIndex, parameter);
                 break;
 
-            case VAR_INT64:     ///< 64bit integer
+            case VariantDataType::VAR_INT64:     ///< 64bit integer
                 setInt64ParamValue(parameterIndex, parameter);
                 break;
 
-            case VAR_BOOL:      ///< Boolean
+            case VariantDataType::VAR_BOOL:      ///< Boolean
                 setBooleanParamValue(parameterIndex, parameter);
                 break;
 
@@ -435,28 +435,28 @@ void OracleStatement::getOutputParameters(FieldList& fields)
 
             switch (parameter->dataType())
             {
-                case VAR_INT:
-                case VAR_INT64:
+                case VariantDataType::VAR_INT:
+                case VariantDataType::VAR_INT64:
                     field->setInteger(statement()->getInt(index));
                     break;
 
-                case VAR_FLOAT:
+                case VariantDataType::VAR_FLOAT:
                     field->setFloat(statement()->getDouble(index));
                     break;
 
-                case VAR_DATE:
+                case VariantDataType::VAR_DATE:
                     getDateOutputParameter(index, field);
                     break;
 
-                case VAR_DATE_TIME:
+                case VariantDataType::VAR_DATE_TIME:
                     getDateTimeOutputParameter(index, field);
                     break;
 
-                case VAR_BUFFER:
+                case VariantDataType::VAR_BUFFER:
                     getBLOBOutputParameter(index, field);
                     break;
 
-                case VAR_TEXT:
+                case VariantDataType::VAR_TEXT:
                     getCLOBOutputParameter(index, field);
                     break;
 

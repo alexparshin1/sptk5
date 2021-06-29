@@ -184,7 +184,7 @@ void ImapConnect::cmd_search_new(String& result)
     parseSearch(result);
 }
 
-static const Strings required_headers{
+static const Strings required_headers {
     "Date",
     "From",
     "Subject",
@@ -352,7 +352,7 @@ void ImapConnect::parseMessage(FieldList& results, bool headers_only)
     for (i = 0; i < results.size(); ++i)
     {
         Field& field = results[int(i)];
-        if (field.dataType() == VAR_NONE)
+        if (field.dataType() == VariantDataType::VAR_NONE)
         {
             field.setString("");
         }

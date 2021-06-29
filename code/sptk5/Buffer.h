@@ -71,7 +71,7 @@ public:
      * Creates a buffer from another buffer.
      * @param other             Data buffer
      */
-    Buffer(const Buffer& other);
+    Buffer(const Buffer& other) = default;
 
     /**
      * Move constructor
@@ -79,12 +79,26 @@ public:
      * Moves a buffer from another buffer.
      * @param other             Data buffer
      */
-    Buffer(Buffer&& other) noexcept;
+    Buffer(Buffer&& other) noexcept = default;
 
     /**
      * Destructor
      */
-    ~Buffer() noexcept override = default;
+    virtual ~Buffer() noexcept = default;
+
+    /**
+     * Moves buffer from another buffer
+     * @param other             Buffer to move from
+     * @returns this object
+     */
+    Buffer& operator=(Buffer&& other) DOESNT_THROW = default;
+
+    /**
+     * Assigns from Buffer
+     * @param other             Buffer to assign from
+     * @returns this object
+     */
+    Buffer& operator=(const Buffer& other) = default;
 
     /**
      * Appends a single char to the current buffer.
@@ -209,20 +223,6 @@ public:
      * @param fileName          Name of the output file
      */
     void saveToFile(const fs::path& fileName) const;
-
-    /**
-     * Moves buffer from another buffer
-     * @param other             Buffer to move from
-     * @returns this object
-     */
-    Buffer& operator=(Buffer&& other) DOESNT_THROW;
-
-    /**
-     * Assigns from Buffer
-     * @param other             Buffer to assign from
-     * @returns this object
-     */
-    Buffer& operator=(const Buffer& other);
 
     /**
      * Assigns from String

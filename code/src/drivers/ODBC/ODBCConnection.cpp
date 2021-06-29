@@ -47,7 +47,7 @@ class CODBCField
     friend class ODBCConnection;
 
 public:
-    CODBCField(const string& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength,
+    CODBCField(const string& fieldName, int fieldColumn, int fieldType, VariantDataType dataType, int fieldLength,
                int fieldScale)
         : DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
     {
@@ -402,7 +402,7 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
     static SQLLEN cbNullValue = SQL_NULL_DATA;
     int rc = 0;
 
-    VariantType ptype = param->dataType();
+    VariantDataType ptype = param->dataType();
     for (unsigned j = 0; j < param->bindCount(); ++j)
     {
         int16_t paramType = 0;
@@ -415,48 +415,48 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
         int16_t parameterMode = SQL_PARAM_INPUT;
         switch (ptype)
         {
-            case VAR_BOOL:
+            case VariantDataType::VAR_BOOL:
                 paramType = SQL_C_BIT;
                 sqlType = SQL_BIT;
                 break;
 
-            case VAR_INT:
+            case VariantDataType::VAR_INT:
                 paramType = SQL_C_SLONG;
                 sqlType = SQL_INTEGER;
                 break;
 
-            case VAR_INT64:
+            case VariantDataType::VAR_INT64:
                 paramType = SQL_C_SBIGINT;
                 sqlType = SQL_BIGINT;
                 break;
 
-            case VAR_FLOAT:
+            case VariantDataType::VAR_FLOAT:
                 paramType = SQL_C_DOUBLE;
                 sqlType = SQL_DOUBLE;
                 break;
 
-            case VAR_STRING:
+            case VariantDataType::VAR_STRING:
                 buff = (void*) param->getString();
                 len = (long) param->dataSize();
                 paramType = SQL_C_CHAR;
                 sqlType = SQL_WVARCHAR;
                 break;
 
-            case VAR_TEXT:
+            case VariantDataType::VAR_TEXT:
                 buff = (void*) param->getString();
                 len = (long) param->dataSize();
                 paramType = SQL_C_CHAR;
                 sqlType = SQL_WLONGVARCHAR;
                 break;
 
-            case VAR_BUFFER:
+            case VariantDataType::VAR_BUFFER:
                 paramType = SQL_C_BINARY;
                 sqlType = SQL_LONGVARBINARY;
                 buff = (void*) param->getString();
                 len = (long) param->dataSize();
                 break;
 
-            case VAR_DATE:
+            case VariantDataType::VAR_DATE:
                 paramType = SQL_C_TIMESTAMP;
                 sqlType = SQL_TIMESTAMP;
                 len = sizeof(TIMESTAMP_STRUCT);
@@ -469,7 +469,7 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
                 }
                 break;
 
-            case VAR_DATE_TIME:
+            case VariantDataType::VAR_DATE_TIME:
                 paramType = SQL_C_TIMESTAMP;
                 sqlType = SQL_TIMESTAMP;
                 len = sizeof(TIMESTAMP_STRUCT);
@@ -514,7 +514,7 @@ void ODBCConnection::queryBindParameters(Query* query)
     }
 }
 
-void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantType& dataType)
+void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantDataType& dataType)
 {
     switch (odbcType)
     {
@@ -523,7 +523,7 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantTy
         case SQL_SMALLINT:
         case SQL_INTEGER:
             cType = SQL_C_SLONG;
-            dataType = VAR_INT;
+            dataType = VariantDataType::VAR_INT;
             break;
 
         case SQL_NUMERIC:
@@ -532,13 +532,13 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantTy
         case SQL_DOUBLE:
         case SQL_FLOAT:
             cType = SQL_C_DOUBLE;
-            dataType = VAR_FLOAT;
+            dataType = VariantDataType::VAR_FLOAT;
             break;
 
         case SQL_DATE: // ODBC 2.0 only
         case SQL_TYPE_DATE: // ODBC 3.0 only
             cType = SQL_C_TIMESTAMP;
-            dataType = VAR_DATE;
+            dataType = VariantDataType::VAR_DATE;
             break;
 
         case SQL_TIME:
@@ -546,24 +546,24 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantTy
         case SQL_TYPE_TIME:
         case SQL_TYPE_TIMESTAMP:
             cType = SQL_C_TIMESTAMP;
-            dataType = VAR_DATE_TIME;
+            dataType = VariantDataType::VAR_DATE_TIME;
             break;
 
         case SQL_BINARY:
         case SQL_LONGVARBINARY:
         case SQL_VARBINARY:
             cType = SQL_C_BINARY;
-            dataType = VAR_BUFFER;
+            dataType = VariantDataType::VAR_BUFFER;
             break;
 
         case SQL_BIT:
             cType = SQL_C_BIT;
-            dataType = VAR_BOOL;
+            dataType = VariantDataType::VAR_BOOL;
             break;
 
         default:
             cType = SQL_C_CHAR;
-            dataType = VAR_STRING;
+            dataType = VariantDataType::VAR_STRING;
             break;
     }
 }
@@ -576,7 +576,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
     int32_t columnLength = 0;
     int32_t columnScale = 0;
     int32_t cType = 0;
-    VariantType dataType = VAR_NONE;
+    VariantDataType dataType = VariantDataType::VAR_NONE;
 
     stringstream columnNameStr;
     columnNameStr.fill('0');
@@ -591,9 +591,9 @@ void ODBCConnection::parseColumns(Query* query, int count)
         queryColAttributes(query, column, SQL_COLUMN_LENGTH, columnLength);
         queryColAttributes(query, column, SQL_COLUMN_SCALE, columnScale);
         ODBCtypeToCType(columnType, cType, dataType);
-        if (dataType == VAR_STRING && columnLength >= largeTextSize)
+        if (dataType == VariantDataType::VAR_STRING && columnLength >= largeTextSize)
         {
-            dataType = VAR_TEXT;
+            dataType = VariantDataType::VAR_TEXT;
         }
         if (columnName[0] != 0)
         {
@@ -609,7 +609,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
             columnLength = FETCH_BUFFER_SIZE;
         }
 
-        if (dataType == VAR_FLOAT && (columnScale < 0 || columnScale > maxColumnScale))
+        if (dataType == VariantDataType::VAR_FLOAT && (columnScale < 0 || columnScale > maxColumnScale))
         {
             columnScale = 0;
         }
@@ -748,7 +748,7 @@ SQLRETURN ODBCConnection::readTimestampField(SQLHSTMT statement, DatabaseField* 
     if (dataLength > 0)
     {
         DateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
-        field->setDateTime(dt, field->dataType() == VAR_DATE);
+        field->setDateTime(dt, field->dataType() == VariantDataType::VAR_DATE);
     }
     return rc;
 }
@@ -836,7 +836,7 @@ void ODBCConnection::queryFetch(Query* query)
 
             if (dataLength <= 0)
             {
-                field->setNull(VAR_NONE);
+                field->setNull(VariantDataType::VAR_NONE);
             }
             else
             {

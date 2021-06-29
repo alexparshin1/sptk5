@@ -31,7 +31,7 @@ using namespace std;
 using namespace sptk;
 
 DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType,
-                             VariantType dataType, int fieldLength, int fieldScale)
+                             VariantDataType dataType, int fieldLength, int fieldScale)
     : Field(fName.c_str()),
       m_fldType(fieldType),
       m_fldColumn(fieldColumn),
@@ -44,23 +44,23 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
 
     switch (dataType)
     {
-        case VAR_BOOL:
+        case VariantDataType::VAR_BOOL:
             Variant::setBool(false);
             view().width = 6;
             break;
 
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             Variant::setInteger(0);
             view().width = 10;
             break;
 
-        case VAR_FLOAT:
+        case VariantDataType::VAR_FLOAT:
             Variant::setFloat(0);
             view().width = 16;
             view().precision = (unsigned) fieldScale;
             break;
 
-        case VAR_STRING:
+        case VariantDataType::VAR_STRING:
             Variant::setString("");
             if (fieldLength == 0)
             {
@@ -71,26 +71,26 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
             view().width = fieldLength;
             break;
 
-        case VAR_TEXT:
-            Variant::setBuffer((const uint8_t*) "", 1, VAR_TEXT);
+        case VariantDataType::VAR_TEXT:
+            Variant::setBuffer((const uint8_t*) "", 1, VariantDataType::VAR_TEXT);
             checkSize((size_t) fieldLength + 1);
             view().width = fieldLength;
             break;
 
-        case VAR_BUFFER:
-            Variant::setBuffer((const uint8_t*) "", 1, VAR_BUFFER);
+        case VariantDataType::VAR_BUFFER:
+            Variant::setBuffer((const uint8_t*) "", 1, VariantDataType::VAR_BUFFER);
             checkSize((size_t) fieldLength);
             view().width = 1;
             break;
 
-        case VAR_DATE:
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
             Variant::setDateTime(DateTime());
             Field::dataType(dataType);
             view().width = 10;
             break;
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
             Variant::setInt64(0);
             view().width = 16;
             break;

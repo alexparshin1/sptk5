@@ -155,7 +155,7 @@ int32_t BaseSocket::control(int flag, const uint32_t* check) const
 #endif
 }
 
-void BaseSocket::host(const Host& host)
+void BaseSocket::host(const Host& host) const
 {
     *m_host = host;
 }

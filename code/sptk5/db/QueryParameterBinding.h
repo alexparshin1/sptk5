@@ -56,7 +56,7 @@ public:
     /**
      * Data type
      */
-    VariantType m_dataType {VAR_NONE};
+    VariantDataType m_dataType {VariantDataType::VAR_NONE};
 
     /**
      * Buffer
@@ -106,7 +106,7 @@ public:
      * @param size              Binding buffer size
      * @param buffer            Binding buffer
      */
-    bool check(StmtHandle stmt, VariantType type, uint32_t size, uint8_t* buffer);
+    bool check(StmtHandle stmt, VariantDataType type, uint32_t size, uint8_t* buffer);
 };
 
 /**

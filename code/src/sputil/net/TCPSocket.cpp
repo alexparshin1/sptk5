@@ -41,7 +41,8 @@ static bool  m_inited(false);
 TCPSocketReader::TCPSocketReader(BaseSocket& socket, size_t buffer_size)
     : Buffer(buffer_size),
       m_socket(socket)
-{}
+{
+}
 
 void TCPSocketReader::open()
 {
@@ -53,7 +54,6 @@ void TCPSocketReader::close() noexcept
 {
     try
     {
-        reset(1024);
         m_readOffset = 0;
         bytes(0);
     }
@@ -93,7 +93,8 @@ int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
 #else
             socklen_t flen = sizeof(sockaddr_in);
 #endif
-            receivedBytes = (int) recvfrom(m_socket.fd(), (char*) data(), (int) capacity() - 2, 0, (sockaddr*) from, &flen);
+            receivedBytes = (int) recvfrom(m_socket.fd(), (char*) data(), (int) capacity() - 2, 0, (sockaddr*) from,
+                                           &flen);
         }
         else
         {

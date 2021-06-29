@@ -38,17 +38,6 @@ Buffer::Buffer(const String& str)
 {
 }
 
-Buffer::Buffer(const Buffer& other)
-    : BufferStorage(other.data(), other.length())
-{
-}
-
-Buffer::Buffer(Buffer&& other) noexcept
-{
-    init(other.data(), other.capacity(), other.bytes());
-    other.init(nullptr, 0, 0);
-}
-
 void Buffer::loadFromFile(const filesystem::path& fileName)
 {
     FILE* f = fopen(fileName.c_str(), "rb");
@@ -83,36 +72,6 @@ void Buffer::saveToFile(const fs::path& fileName) const
 
     fwrite(data(), bytes(), 1, f);
     fclose(f);
-}
-
-Buffer& Buffer::operator=(Buffer&& other) DOESNT_THROW
-{
-    if (this == &other)
-    {
-        return *this;
-    }
-
-    if (data() != nullptr)
-    {
-        deallocate();
-    }
-
-    init(other.data(), other.capacity(), other.bytes());
-    other.init(nullptr, 0, 0);
-
-    return *this;
-}
-
-Buffer& Buffer::operator=(const Buffer& other)
-{
-    if (&other == this)
-    {
-        return *this;
-    }
-
-    set(other.data(), other.length());
-
-    return *this;
 }
 
 Buffer& Buffer::operator=(const String& other)
@@ -249,8 +208,6 @@ TEST(SPTK_Buffer, move)
 
     EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
     EXPECT_EQ(testPhrase.length(), buffer1.bytes());
-    EXPECT_TRUE(buffer2.empty());
-    EXPECT_TRUE(buffer2.bytes() == 0);
 }
 
 TEST(SPTK_Buffer, assign)

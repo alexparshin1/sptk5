@@ -33,7 +33,8 @@
 using namespace std;
 using namespace sptk;
 
-constexpr int BUFFER_TYPES = VAR_STRING | VAR_TEXT | VAR_BUFFER;
+constexpr int BUFFER_TYPES =
+    (int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT | (int) VariantDataType::VAR_BUFFER;
 
 array<int64_t, 16> MoneyData::dividers = {1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL,
                                           1000000000LL,
@@ -64,7 +65,7 @@ MoneyData::operator bool() const
 void BaseVariant::releaseBuffers()
 {
     auto& buffer = m_data.getBuffer();
-    if ((m_data.type() & (VAR_STRING | VAR_BUFFER | VAR_TEXT)) != 0 &&
+    if (((int) m_data.type().type & BUFFER_TYPES) != 0 &&
         buffer.data != nullptr)
     {
         if (!isExternalBuffer())
@@ -83,20 +84,26 @@ void BaseVariant::dataSize(size_t ds)
     m_data.size(ds);
     if (m_data.size() > 0)
     {
-        m_data.type(uint16_t(m_data.type() & (VAR_TYPES | VAR_EXTERNAL_BUFFER)));
+        m_data.setNull(false);
     }
 }
 
 //---------------------------------------------------------------------------
-void BaseVariant::dataType(uint32_t dt)
+void BaseVariant::dataType(VariantDataType dt)
 {
-    m_data.type((uint16_t) dt);
+    m_data.type(dt);
+}
+
+//---------------------------------------------------------------------------
+void BaseVariant::dataType(VariantType dt)
+{
+    m_data.type(dt);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant()
 {
-    m_data.type(VAR_NONE | VAR_NULL);
+    m_data.type(VariantDataType::VAR_NONE);
     m_data.getInt64() = 0;
     m_data.getBuffer().size = 0;
 }
@@ -104,7 +111,8 @@ Variant::Variant()
 //---------------------------------------------------------------------------
 Variant::Variant(int32_t value)
 {
-    m_data.type(VAR_INT);
+    m_data.type(VariantDataType::VAR_INT);
+    m_data.setNull(false);
     m_data.getInteger() = value;
 }
 
@@ -113,21 +121,23 @@ Variant::Variant(int64_t value, unsigned scale)
 {
     if (scale > 1)
     {
-        m_data.type(VAR_MONEY);
+        m_data.type(VariantDataType::VAR_MONEY);
         m_data.getMoneyData().quantity = value;
         m_data.getMoneyData().scale = (uint8_t) scale;
     }
     else
     {
-        m_data.type(VAR_INT64);
+        m_data.type(VariantDataType::VAR_INT64);
         m_data.getInt64() = value;
     }
+    m_data.setNull(false);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(double value)
 {
-    m_data.type(VAR_FLOAT);
+    m_data.type(VariantDataType::VAR_FLOAT);
+    m_data.setNull(false);
     m_data.getFloat() = value;
 }
 
@@ -140,13 +150,14 @@ Variant::Variant(const char* value)
 //---------------------------------------------------------------------------
 Variant::Variant(const String& v)
 {
-    Variant::setBuffer((const uint8_t*) v.c_str(), v.length(), VAR_STRING);
+    Variant::setBuffer((const uint8_t*) v.c_str(), v.length(), VariantDataType::VAR_STRING);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(const DateTime& v)
 {
-    m_data.type(VAR_DATE_TIME);
+    m_data.type(VariantDataType::VAR_DATE_TIME);
+    m_data.setNull(false);
     DateTime::duration sinceEpoch = v.timePoint().time_since_epoch();
     m_data.getInt64() = chrono::duration_cast<chrono::microseconds>(sinceEpoch).count();
 }
@@ -154,20 +165,20 @@ Variant::Variant(const DateTime& v)
 //---------------------------------------------------------------------------
 Variant::Variant(const uint8_t* value, size_t sz)
 {
-    Variant::setBuffer(value, sz, VAR_BUFFER);
+    Variant::setBuffer(value, sz, VariantDataType::VAR_BUFFER);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(const Buffer& value)
 {
-    m_data.type(VAR_NONE);
-    Variant::setBuffer(value.data(), value.bytes(), VAR_BUFFER);
+    m_data.type(VariantDataType::VAR_NONE);
+    Variant::setBuffer(value.data(), value.bytes(), VariantDataType::VAR_BUFFER);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(const Variant& value)
 {
-    m_data.type(VAR_NONE);
+    m_data.type(VariantDataType::VAR_NONE);
     setData(value);
 }
 
@@ -186,65 +197,85 @@ Variant::~Variant()
 //---------------------------------------------------------------------------
 void VariantAdaptors::setBool(bool value)
 {
-    if (m_data.type() != VAR_BOOL)
+    if (m_data.type().type != VariantDataType::VAR_BOOL)
     {
         releaseBuffers();
-        m_data.type(VAR_BOOL);
+
+        VariantType vtype {VariantDataType::VAR_BOOL, false, false};
+        m_data.type(vtype);
+
         m_data.size(sizeof(value));
     }
 
+    m_data.setNull(false);
     m_data.getBool() = value;
 }
 
 //---------------------------------------------------------------------------
 void VariantAdaptors::setInteger(int32_t value)
 {
-    if (m_data.type() != VAR_INT)
+    if (m_data.type().type != VariantDataType::VAR_INT)
     {
         releaseBuffers();
-        m_data.type(VAR_INT);
+
+        VariantType vtype {VariantDataType::VAR_INT, false, false};
+        m_data.type(vtype);
+
         m_data.size(sizeof(value));
     }
 
+    m_data.setNull(false);
     m_data.getInteger() = value;
 }
 
 //---------------------------------------------------------------------------
 void VariantAdaptors::setInt64(int64_t value)
 {
-    if (m_data.type() != VAR_INT64)
+    if (m_data.type().type != VariantDataType::VAR_INT64)
     {
         releaseBuffers();
-        m_data.type(VAR_INT64);
+
+        VariantType vtype {VariantDataType::VAR_INT64, false, false};
+        m_data.type(vtype);
+
         m_data.size(sizeof(value));
     }
 
+    m_data.setNull(false);
     m_data.getInt64() = value;
 }
 
 //---------------------------------------------------------------------------
 void VariantAdaptors::setFloat(double value)
 {
-    if (m_data.type() != VAR_FLOAT)
+    if (m_data.type().type != VariantDataType::VAR_FLOAT)
     {
         releaseBuffers();
-        m_data.type(VAR_FLOAT);
+
+        VariantType vtype {VariantDataType::VAR_FLOAT, false, false};
+        m_data.type(vtype);
+
         m_data.size(sizeof(value));
     }
 
+    m_data.setNull(false);
     m_data.getFloat() = value;
 }
 
 //---------------------------------------------------------------------------
 void VariantAdaptors::setMoney(int64_t value, unsigned scale)
 {
-    if (m_data.type() != VAR_MONEY)
+    if (m_data.type().type != VariantDataType::VAR_MONEY)
     {
         releaseBuffers();
-        m_data.type(VAR_MONEY);
+
+        VariantType vtype {VariantDataType::VAR_MONEY, false, false};
+        m_data.type(vtype);
+
         m_data.size(sizeof(MoneyData));
     }
 
+    m_data.setNull(false);
     m_data.getMoneyData().quantity = value;
     m_data.getMoneyData().scale = (uint8_t) scale;
 }
@@ -252,13 +283,13 @@ void VariantAdaptors::setMoney(int64_t value, unsigned scale)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setString(const String& value)
 {
-    setBuffer((const uint8_t*) value.c_str(), value.length(), VAR_STRING);
+    setBuffer((const uint8_t*) value.c_str(), value.length(), VariantDataType::VAR_STRING);
 }
 
 //---------------------------------------------------------------------------
-void VariantAdaptors::setBuffer(const uint8_t* value, size_t sz, VariantType type)
+void VariantAdaptors::setBuffer(const uint8_t* value, size_t sz, VariantDataType type)
 {
-    if ((type & BUFFER_TYPES) == 0)
+    if (((int) type & BUFFER_TYPES) == 0)
     {
         throw Exception("Invalid buffer type");
     }
@@ -279,8 +310,8 @@ void VariantAdaptors::setBuffer(const uint8_t* value, size_t sz, VariantType typ
         }
         buffer.data = data;
 
-        dataType(type);
-
+        VariantType vtype {type, false, false};
+        dataType(vtype);
     }
     else
     {
@@ -289,9 +320,9 @@ void VariantAdaptors::setBuffer(const uint8_t* value, size_t sz, VariantType typ
 }
 
 //---------------------------------------------------------------------------
-void VariantAdaptors::setExternalBuffer(uint8_t* value, size_t sz, VariantType type)
+void VariantAdaptors::setExternalBuffer(uint8_t* value, size_t sz, VariantDataType type)
 {
-    if ((type & BUFFER_TYPES) == 0)
+    if (((int) type & BUFFER_TYPES) == 0)
     {
         throw Exception("Invalid buffer type");
     }
@@ -304,7 +335,8 @@ void VariantAdaptors::setExternalBuffer(uint8_t* value, size_t sz, VariantType t
         buffer.size = sz;
         buffer.data = (char*) value;
         dataSize(sz);
-        dataType(type | VAR_EXTERNAL_BUFFER);
+        VariantType vtype {type, false, true};
+        dataType(vtype);
     }
     else
     {
@@ -315,7 +347,7 @@ void VariantAdaptors::setExternalBuffer(uint8_t* value, size_t sz, VariantType t
 //---------------------------------------------------------------------------
 void VariantAdaptors::setDateTime(DateTime value, bool dateOnly)
 {
-    if ((m_data.type() & (VAR_DATE | VAR_DATE_TIME)) == 0)
+    if (((int) m_data.type().type & ((int) VariantDataType::VAR_DATE | (int) VariantDataType::VAR_DATE_TIME)) == 0)
     {
         releaseBuffers();
         dataSize(sizeof(value));
@@ -324,39 +356,48 @@ void VariantAdaptors::setDateTime(DateTime value, bool dateOnly)
     DateTime::duration sinceEpoch = value.timePoint().time_since_epoch();
     if (dateOnly)
     {
-        m_data.type(VAR_DATE);
+        VariantType vtype {VariantDataType::VAR_DATE, false, false};
+        m_data.type(vtype);
         int64_t days = chrono::duration_cast<chrono::hours>(sinceEpoch).count() / 24;
         m_data.getInt64() = days * 86400 * 1000000;
     }
     else
     {
-        m_data.type(VAR_DATE_TIME);
+        VariantType vtype {VariantDataType::VAR_DATE_TIME, false, false};
+        m_data.type(vtype);
         m_data.getInt64() = chrono::duration_cast<chrono::microseconds>(sinceEpoch).count();
     }
+    m_data.setNull(false);
 }
 
 //---------------------------------------------------------------------------
 void VariantAdaptors::setImagePtr(const uint8_t* value)
 {
-    if (m_data.type() != VAR_IMAGE_PTR)
+    if (m_data.type().type != VariantDataType::VAR_IMAGE_PTR)
     {
         releaseBuffers();
-        dataType(VAR_IMAGE_PTR);
+
+        VariantType vtype {VariantDataType::VAR_IMAGE_PTR, false, true};
+        dataType(vtype);
+
         dataSize(sizeof(value));
     }
 
+    m_data.setNull(false);
     m_data.setImagePtr(value);
 }
 
 //---------------------------------------------------------------------------
 void VariantAdaptors::setImageNdx(uint32_t value)
 {
-    if (dataType() != VAR_IMAGE_NDX)
+    if (dataType() != VariantDataType::VAR_IMAGE_NDX)
     {
         releaseBuffers();
-        dataType(VAR_IMAGE_NDX);
+        VariantType vtype {VariantDataType::VAR_IMAGE_NDX, false, false};
+        dataType(vtype);
     }
 
+    m_data.setNull(false);
     dataSize(sizeof(value));
     m_data.getInteger() = (int32_t) value;
 }
@@ -364,12 +405,13 @@ void VariantAdaptors::setImageNdx(uint32_t value)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setMoney(const MoneyData& value)
 {
-    if (dataType() != VAR_MONEY)
+    if (dataType() != VariantDataType::VAR_MONEY)
     {
         releaseBuffers();
-        dataType(VAR_MONEY);
+        dataType(VariantDataType::VAR_MONEY);
     }
 
+    m_data.setNull(false);
     dataSize(sizeof(value));
     m_data.getMoneyData() = value;
 }
@@ -384,51 +426,51 @@ void VariantAdaptors::setData(const BaseVariant& C)
     }
     switch (C.dataType())
     {
-        case VAR_BOOL:
+        case VariantDataType::VAR_BOOL:
             setInteger(C.getBool() ? 1 : 0);
             break;
 
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             setInteger(C.getInteger());
             break;
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
             setInt64(C.getInt64());
             break;
 
-        case VAR_FLOAT:
+        case VariantDataType::VAR_FLOAT:
             setFloat(C.getFloat());
             break;
 
-        case VAR_MONEY:
+        case VariantDataType::VAR_MONEY:
             setMoney(C.m_data.getMoneyData().quantity, C.m_data.getMoneyData().scale);
             break;
 
-        case VAR_STRING:
-            setBuffer((const uint8_t*) C.getString(), C.dataSize(), VAR_STRING);
+        case VariantDataType::VAR_STRING:
+            setBuffer((const uint8_t*) C.getString(), C.dataSize(), VariantDataType::VAR_STRING);
             break;
 
-        case VAR_TEXT:
-            setBuffer((const uint8_t*) C.getText(), strlen(C.getText()), VAR_TEXT);
+        case VariantDataType::VAR_TEXT:
+            setBuffer((const uint8_t*) C.getText(), strlen(C.getText()), VariantDataType::VAR_TEXT);
             break;
 
-        case VAR_BUFFER:
-            setBuffer((const uint8_t*) C.getBuffer(), C.dataSize(), VAR_BUFFER);
+        case VariantDataType::VAR_BUFFER:
+            setBuffer((const uint8_t*) C.getBuffer(), C.dataSize(), VariantDataType::VAR_BUFFER);
             break;
 
-        case VAR_DATE:
+        case VariantDataType::VAR_DATE:
             setDateTime(C.getDateTime(), true);
             break;
 
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE_TIME:
             setDateTime(C.getDateTime(), false);
             break;
 
-        case VAR_IMAGE_PTR:
+        case VariantDataType::VAR_IMAGE_PTR:
             setImagePtr(C.getImagePtr());
             break;
 
-        case VAR_IMAGE_NDX:
+        case VariantDataType::VAR_IMAGE_NDX:
             setImageNdx(C.getImageNdx());
             break;
 
@@ -499,7 +541,7 @@ Variant& Variant::operator=(const char* value)
 //---------------------------------------------------------------------------
 Variant& Variant::operator=(const String& value)
 {
-    setBuffer((const uint8_t*) value.c_str(), value.length(), VAR_STRING);
+    setBuffer((const uint8_t*) value.c_str(), value.length(), VariantDataType::VAR_STRING);
     return *this;
 }
 
@@ -520,7 +562,7 @@ Variant& Variant::operator=(const uint8_t* value)
 //---------------------------------------------------------------------------
 Variant& Variant::operator=(const Buffer& value)
 {
-    setBuffer(value.data(), value.bytes(), VAR_BUFFER);
+    setBuffer(value.data(), value.bytes(), VariantDataType::VAR_BUFFER);
     return *this;
 }
 
@@ -598,9 +640,9 @@ uint32_t BaseVariant::getImageNdx() const
 }
 
 //---------------------------------------------------------------------------
-VariantType BaseVariant::dataType() const
+VariantDataType BaseVariant::dataType() const
 {
-    return (VariantType) (m_data.type() & VAR_TYPES);
+    return m_data.type().type;
 }
 
 //---------------------------------------------------------------------------
@@ -674,28 +716,28 @@ int32_t VariantAdaptors::asInteger() const
 
     switch (dataType())
     {
-        case VAR_BOOL:
+        case VariantDataType::VAR_BOOL:
             return m_data.getBool() ? 1 : 0;
 
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             return m_data.getInteger();
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
             return (int32_t) m_data.getInt64();
 
-        case VAR_MONEY:
+        case VariantDataType::VAR_MONEY:
             return (int32_t) m_data.getMoneyData();
 
-        case VAR_FLOAT:
+        case VariantDataType::VAR_FLOAT:
             return (int32_t) m_data.getFloat();
 
-        case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
             return string2int(m_data.getBuffer().data);
 
-        case VAR_DATE:
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
             // Time is in microseconds since epoch
             // - returning seconds since epoch
             return int32_t(m_data.getInt64() / 1000000);
@@ -714,40 +756,40 @@ int64_t VariantAdaptors::asInt64() const
 
     switch (dataType())
     {
-        case VAR_BOOL:
+        case VariantDataType::VAR_BOOL:
             return m_data.getBool() ? 1 : 0;
 
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             return m_data.getInteger();
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
             return m_data.getInt64();
 
-        case VAR_MONEY:
+        case VariantDataType::VAR_MONEY:
             return (int64_t) m_data.getMoneyData();
 
-        case VAR_FLOAT:
+        case VariantDataType::VAR_FLOAT:
             return (int64_t) m_data.getFloat();
 
-        case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
 #ifdef _MSC_VER
             return _atoi64 (m_data.getBuffer().data);
 #else
             return string2int64(m_data.getBuffer().data);
 #endif
 
-        case VAR_DATE:
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
             // Time is in microseconds since epoch
             // - returning seconds since epoch
             return m_data.getInt64() / 1000000;
 
-        case VAR_IMAGE_PTR:
+        case VariantDataType::VAR_IMAGE_PTR:
             return int64_t(m_data.getImagePtr());
 
-        case VAR_IMAGE_NDX:
+        case VariantDataType::VAR_IMAGE_NDX:
             return int64_t(m_data.getInteger());
 
         default:
@@ -766,35 +808,35 @@ bool VariantAdaptors::asBool() const
 
     switch (dataType())
     {
-        case VAR_BOOL:
+        case VariantDataType::VAR_BOOL:
             return m_data.getBool();
 
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             return (m_data.getInteger() > 0);
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
             return (m_data.getInt64() > 0);
 
-        case VAR_MONEY:
+        case VariantDataType::VAR_MONEY:
             return (m_data.getMoneyData().quantity > 0);
 
-        case VAR_FLOAT:
+        case VariantDataType::VAR_FLOAT:
             return (m_data.getFloat() > 0);
 
-        case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
             ch = m_data.getBuffer().data[0];
             return (strchr("YyTt1", ch) != nullptr);
 
-        case VAR_DATE:
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
             return bool(m_data.getInt64() != 0);
 
-        case VAR_IMAGE_PTR:
+        case VariantDataType::VAR_IMAGE_PTR:
             return bool(m_data.getImagePtr() != nullptr);
 
-        case VAR_IMAGE_NDX:
+        case VariantDataType::VAR_IMAGE_NDX:
             return bool(m_data.getInteger() != 0);
 
         default:
@@ -813,34 +855,34 @@ double VariantAdaptors::asFloat() const
 
     switch (dataType())
     {
-        case VAR_BOOL:
+        case VariantDataType::VAR_BOOL:
             result = m_data.getBool() ? 1 : 0;
             break;
 
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             result = m_data.getInteger();
             break;
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
             result = (double) m_data.getInt64();
             break;
 
-        case VAR_MONEY:
+        case VariantDataType::VAR_MONEY:
             result = (double) m_data.getMoneyData();
             break;
 
-        case VAR_FLOAT:
+        case VariantDataType::VAR_FLOAT:
             result = m_data.getFloat();
             break;
 
-        case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
             result = strtod(m_data.getBuffer().data, nullptr);
             break;
 
-        case VAR_DATE:
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
             // Time is in microseconds since epoch
             // - returning seconds since epoch
             result = double(m_data.getInt64()) / 1000000.0;
@@ -864,41 +906,41 @@ String VariantAdaptors::asString() const
 
     switch (dataType())
     {
-        case VAR_BOOL:
+        case VariantDataType::VAR_BOOL:
             output = m_data.getBool() ? "true" : "false";
             break;
 
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             output = int2string(m_data.getInteger());
             break;
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
             output = int2string(m_data.getInt64());
             break;
 
-        case VAR_MONEY:
+        case VariantDataType::VAR_MONEY:
             output = moneyDataToString();
             break;
 
-        case VAR_FLOAT:
+        case VariantDataType::VAR_FLOAT:
             output = double2string(m_data.getFloat());
             break;
 
-        case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
             output = m_data.getBuffer().data != nullptr ? m_data.getBuffer().data : "";
             break;
 
-        case VAR_DATE:
+        case VariantDataType::VAR_DATE:
             output = DateTime(chrono::microseconds(m_data.getInt64())).dateString();
             break;
 
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE_TIME:
             output = (String) DateTime(chrono::microseconds(m_data.getInt64()));
             break;
 
-        case VAR_IMAGE_PTR:
+        case VariantDataType::VAR_IMAGE_PTR:
             if (m_data.getImagePtr() != nullptr)
             {
                 stringstream str;
@@ -911,7 +953,7 @@ String VariantAdaptors::asString() const
             }
             break;
 
-        case VAR_IMAGE_NDX:
+        case VariantDataType::VAR_IMAGE_NDX:
             output = int2string(m_data.getInteger());
             break;
 
@@ -942,24 +984,24 @@ DateTime VariantAdaptors::asDate() const
 
     switch (dataType())
     {
-        case VAR_BOOL:
-        case VAR_MONEY:
-        case VAR_FLOAT:
+        case VariantDataType::VAR_BOOL:
+        case VariantDataType::VAR_MONEY:
+        case VariantDataType::VAR_FLOAT:
             return DateTime();
 
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             return DateTime(chrono::seconds(m_data.getInt64())).date();
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
             return DateTime(chrono::microseconds(m_data.getInt64())).date();
 
-        case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
             return DateTime(m_data.getBuffer().data).date();
 
-        case VAR_DATE:
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
             return DateTime(chrono::microseconds(m_data.getInt64())).date();
 
         default:
@@ -976,24 +1018,24 @@ DateTime VariantAdaptors::asDateTime() const
 
     switch (dataType())
     {
-        case VAR_BOOL:
-        case VAR_MONEY:
-        case VAR_FLOAT:
+        case VariantDataType::VAR_BOOL:
+        case VariantDataType::VAR_MONEY:
+        case VariantDataType::VAR_FLOAT:
             return DateTime();
 
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             return DateTime(chrono::seconds(m_data.getInteger()));
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
             return DateTime(chrono::microseconds(m_data.getInt64()));
 
-        case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
             return DateTime(m_data.getBuffer().data);
 
-        case VAR_DATE:
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
             return DateTime(chrono::microseconds(m_data.getInt64()));
 
         default:
@@ -1008,7 +1050,7 @@ const uint8_t* VariantAdaptors::asImagePtr() const
         return nullptr;
     }
 
-    if (dataType() == VAR_IMAGE_PTR)
+    if (dataType() == VariantDataType::VAR_IMAGE_PTR)
     {
         return m_data.getImagePtr();
     }
@@ -1016,16 +1058,17 @@ const uint8_t* VariantAdaptors::asImagePtr() const
     throw Exception("Can't convert field for that type");
 }
 
-void VariantAdaptors::setNull(VariantType vtype)
+void VariantAdaptors::setNull(VariantDataType vtype)
 {
     releaseBuffers();
-    dataType(vtype | VAR_NULL);
+    VariantType vt {vtype, true, false};
+    dataType(vt);
 
     switch (dataType())
     {
-        case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
             m_data.getBuffer().data = nullptr;
             m_data.getBuffer().size = 0;
             break;
@@ -1038,47 +1081,47 @@ void VariantAdaptors::setNull(VariantType vtype)
 
 bool BaseVariant::isNull() const
 {
-    return (m_data.type() & VAR_NULL) != 0 || (m_data.type() & VAR_TYPES) == VAR_NONE;
+    return m_data.type().isNull || m_data.type().type == VariantDataType::VAR_NONE;
 }
 
-String BaseVariant::typeName(VariantType type)
+String BaseVariant::typeName(VariantDataType type)
 {
     switch (type)
     {
-        case VAR_BOOL:
+        case VariantDataType::VAR_BOOL:
             return "bool";
 
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             return "int";
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
             return "int64";
 
-        case VAR_FLOAT:
+        case VariantDataType::VAR_FLOAT:
             return "double";
 
-        case VAR_MONEY:
+        case VariantDataType::VAR_MONEY:
             return "money";
 
-        case VAR_STRING:
+        case VariantDataType::VAR_STRING:
             return "string";
 
-        case VAR_TEXT:
+        case VariantDataType::VAR_TEXT:
             return "text";
 
-        case VAR_BUFFER:
+        case VariantDataType::VAR_BUFFER:
             return "blob";
 
-        case VAR_DATE:
+        case VariantDataType::VAR_DATE:
             return "date";
 
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE_TIME:
             return "datetime";
 
-        case VAR_IMAGE_PTR:
+        case VariantDataType::VAR_IMAGE_PTR:
             return "imageptr";
 
-        case VAR_IMAGE_NDX:
+        case VariantDataType::VAR_IMAGE_NDX:
             return "imagendx";
 
         default:
@@ -1086,18 +1129,23 @@ String BaseVariant::typeName(VariantType type)
     }
 }
 
-VariantType BaseVariant::nameType(const char* name)
+VariantDataType BaseVariant::nameType(const char* name)
 {
-    static std::map<string, VariantType> nameToTypeMap;
-
-    if (nameToTypeMap.empty())
-    {
-        for (unsigned type = VAR_INT; type <= VAR_BOOL; type *= 2)
-        {
-            auto vtype = (VariantType) type;
-            nameToTypeMap[typeName(vtype)] = vtype;
-        }
-    }
+    static const std::map<string, VariantDataType, less<>> nameToTypeMap {
+        {typeName(VariantDataType::VAR_NONE),      VariantDataType::VAR_NONE},
+        {typeName(VariantDataType::VAR_INT),       VariantDataType::VAR_INT},
+        {typeName(VariantDataType::VAR_FLOAT),     VariantDataType::VAR_FLOAT},
+        {typeName(VariantDataType::VAR_MONEY),     VariantDataType::VAR_MONEY},
+        {typeName(VariantDataType::VAR_STRING),    VariantDataType::VAR_STRING},
+        {typeName(VariantDataType::VAR_TEXT),      VariantDataType::VAR_TEXT},
+        {typeName(VariantDataType::VAR_BUFFER),    VariantDataType::VAR_BUFFER},
+        {typeName(VariantDataType::VAR_DATE),      VariantDataType::VAR_DATE},
+        {typeName(VariantDataType::VAR_DATE_TIME), VariantDataType::VAR_DATE_TIME},
+        {typeName(VariantDataType::VAR_IMAGE_PTR), VariantDataType::VAR_IMAGE_PTR},
+        {typeName(VariantDataType::VAR_IMAGE_NDX), VariantDataType::VAR_IMAGE_NDX},
+        {typeName(VariantDataType::VAR_INT64),     VariantDataType::VAR_INT64},
+        {typeName(VariantDataType::VAR_BOOL),      VariantDataType::VAR_BOOL},
+    };
 
     if (name == nullptr || name[0] == 0)
     {
@@ -1116,21 +1164,21 @@ VariantType BaseVariant::nameType(const char* name)
 void Variant::load(const xml::Node* node)
 {
     const String& ntype = node->getAttribute("type").asString();
-    unsigned type = nameType(ntype.c_str());
+    auto type = nameType(ntype.c_str());
 
     switch (type)
     {
-        case VAR_BOOL:
-        case VAR_INT:
-        case VAR_INT64:
-        case VAR_FLOAT:
-        case VAR_MONEY:
-        case VAR_STRING:
-        case VAR_DATE:
-        case VAR_DATE_TIME:
-        case VAR_IMAGE_NDX:
-        case VAR_TEXT:
-        case VAR_BUFFER:
+        case VariantDataType::VAR_BOOL:
+        case VariantDataType::VAR_INT:
+        case VariantDataType::VAR_INT64:
+        case VariantDataType::VAR_FLOAT:
+        case VariantDataType::VAR_MONEY:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
+        case VariantDataType::VAR_IMAGE_NDX:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
             *this = node->text();
             break;
 
@@ -1171,20 +1219,20 @@ void Variant::save(xml::Node* node) const
     {
         switch (dataType())
         {
-            case VAR_BOOL:
-            case VAR_INT:
-            case VAR_INT64:
-            case VAR_FLOAT:
-            case VAR_MONEY:
-            case VAR_STRING:
-            case VAR_DATE:
-            case VAR_DATE_TIME:
-            case VAR_IMAGE_NDX:
+            case VariantDataType::VAR_BOOL:
+            case VariantDataType::VAR_INT:
+            case VariantDataType::VAR_INT64:
+            case VariantDataType::VAR_FLOAT:
+            case VariantDataType::VAR_MONEY:
+            case VariantDataType::VAR_STRING:
+            case VariantDataType::VAR_DATE:
+            case VariantDataType::VAR_DATE_TIME:
+            case VariantDataType::VAR_IMAGE_NDX:
                 new xml::Text(*node, stringValue);
                 break;
 
-            case VAR_TEXT:
-            case VAR_BUFFER:
+            case VariantDataType::VAR_TEXT:
+            case VariantDataType::VAR_BUFFER:
                 new xml::CDataSection(*node, asString());
                 break;
 
@@ -1229,7 +1277,7 @@ TEST(SPTK_Variant, copy_ctors)
     Variant v6(Buffer((const uint8_t*) "A test", 6));
     Variant v7(int64_t(1));
 
-    v5.setNull(VAR_STRING);
+    v5.setNull(VariantDataType::VAR_STRING);
 
     Variant v1c(v1);
     Variant v2c(v2);
@@ -1245,9 +1293,9 @@ TEST(SPTK_Variant, copy_ctors)
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  v4c.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_EQ(v5c.isNull(), true);
-    EXPECT_EQ(v5c.dataType(), VAR_STRING);
+    EXPECT_EQ(v5c.dataType(), VariantDataType::VAR_STRING);
     EXPECT_STREQ(v6c.asString().c_str(), "A test");
-    EXPECT_EQ(v6c.dataType(), VAR_BUFFER);
+    EXPECT_EQ(v6c.dataType(), VariantDataType::VAR_BUFFER);
     EXPECT_EQ(int64_t(1), v1c.asInt64());
 }
 
@@ -1262,7 +1310,7 @@ TEST(SPTK_Variant, move_ctors)
     Variant v5;
     Variant v6(Buffer((const uint8_t*) "A test", 6));
 
-    v5.setNull(VAR_STRING);
+    v5.setNull(VariantDataType::VAR_STRING);
 
     Variant v1m(move(v1));
     Variant v2m(move(v2));
@@ -1271,32 +1319,32 @@ TEST(SPTK_Variant, move_ctors)
     Variant v5m(move(v5));
     Variant v6m(move(v6));
 
-    EXPECT_EQ(VAR_NONE, v1.dataType());
+    EXPECT_EQ(VariantDataType::VAR_NONE, v1.dataType());
     EXPECT_EQ(v1.isNull(), true);
     EXPECT_EQ(1, v1m.asInteger());
 
-    EXPECT_EQ(VAR_NONE, v2.dataType());
+    EXPECT_EQ(VariantDataType::VAR_NONE, v2.dataType());
     EXPECT_EQ(v2.isNull(), true);
     EXPECT_DOUBLE_EQ(2.22, v2m.asFloat());
 
-    EXPECT_EQ(VAR_NONE, v3.dataType());
+    EXPECT_EQ(VariantDataType::VAR_NONE, v3.dataType());
     EXPECT_EQ(v3.isNull(), true);
     EXPECT_STREQ("Test", v3m.asString().c_str());
 
-    EXPECT_EQ(VAR_NONE, v4.dataType());
+    EXPECT_EQ(VariantDataType::VAR_NONE, v4.dataType());
     EXPECT_EQ(v4.isNull(), true);
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  v4m.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 
-    EXPECT_EQ(VAR_NONE, v5.dataType());
+    EXPECT_EQ(VariantDataType::VAR_NONE, v5.dataType());
     EXPECT_EQ(v5.isNull(), true);
     EXPECT_EQ(v5m.isNull(), true);
-    EXPECT_EQ(v5m.dataType(), VAR_STRING);
+    EXPECT_EQ(v5m.dataType(), VariantDataType::VAR_STRING);
 
-    EXPECT_EQ(VAR_NONE, v6.dataType());
+    EXPECT_EQ(VariantDataType::VAR_NONE, v6.dataType());
     EXPECT_EQ(v6.isNull(), true);
     EXPECT_STREQ(v6m.asString().c_str(), "A test");
-    EXPECT_EQ(v6m.dataType(), VAR_BUFFER);
+    EXPECT_EQ(v6m.dataType(), VariantDataType::VAR_BUFFER);
 }
 
 TEST(SPTK_Variant, assigns)
@@ -1339,33 +1387,33 @@ TEST(SPTK_Variant, move_assigns)
     vm = move(v);
     EXPECT_EQ(1, vm.asInteger());
     EXPECT_EQ(true, v.isNull());
-    EXPECT_EQ(VAR_NONE, v.dataType());
+    EXPECT_EQ(VariantDataType::VAR_NONE, v.dataType());
 
     v = 2.22;
     vm = move(v);
     EXPECT_DOUBLE_EQ(2.22, vm.asFloat());
     EXPECT_EQ(true, v.isNull());
-    EXPECT_EQ(VAR_NONE, v.dataType());
+    EXPECT_EQ(VariantDataType::VAR_NONE, v.dataType());
 
     v = "Test";
     vm = move(v);
     EXPECT_STREQ("Test", vm.asString().c_str());
     EXPECT_EQ(true, v.isNull());
-    EXPECT_EQ(VAR_NONE, v.dataType());
+    EXPECT_EQ(VariantDataType::VAR_NONE, v.dataType());
 
     v = testDate;
     vm = move(v);
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  vm.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_EQ(true, v.isNull());
-    EXPECT_EQ(VAR_NONE, v.dataType());
+    EXPECT_EQ(VariantDataType::VAR_NONE, v.dataType());
 
     v.setDateTime(testDate, true);
     vm = move(v);
     EXPECT_STREQ("2018-02-01T00:00:00.000Z",
                  vm.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_EQ(true, v.isNull());
-    EXPECT_EQ(VAR_NONE, v.dataType());
+    EXPECT_EQ(VariantDataType::VAR_NONE, v.dataType());
 }
 
 TEST(SPTK_Variant, copy)
@@ -1437,13 +1485,13 @@ TEST(SPTK_Variant, money)
 
     money.setMoney(200055, 2);
     EXPECT_STREQ(money.asString().c_str(), "2000.55");
-    EXPECT_EQ(VAR_MONEY, Variant::nameType("money"));
-    EXPECT_STREQ("money", Variant::typeName(VAR_MONEY).c_str());
+    EXPECT_EQ(VariantDataType::VAR_MONEY, Variant::nameType("money"));
+    EXPECT_STREQ("money", Variant::typeName(VariantDataType::VAR_MONEY).c_str());
 
-    MoneyData value{12345678, 4};
+    MoneyData value {12345678, 4};
     money.setMoney(value);
     EXPECT_DOUBLE_EQ((double) money, 1234.5678);
-    EXPECT_TRUE(money.dataType() == VAR_MONEY);
+    EXPECT_TRUE(money.dataType() == VariantDataType::VAR_MONEY);
 
     Variant s((const uint8_t*) "test", 4);
     s.setMoney(1234567, 4);

@@ -92,13 +92,12 @@ struct entity
 
 using CEntityMap = map<String, const struct entity*>;
 
-static const struct entity builtin_ent_xml[] = {
-    {"amp",   1, "&"},
-    {"lt",    1, "<"},
-    {"gt",    1, ">"},
-    {"apos",  1, "'"},
-    {"quot",  1, "\""},
-    {nullptr, 1, "\""}
+static const vector<struct entity> builtin_ent_xml = {
+    {"amp",  1, "&"},
+    {"lt",   1, "<"},
+    {"gt",   1, ">"},
+    {"apos", 1, "'"},
+    {"quot", 1, "\""}
 };
 
 const char xml_shortcut[] = "&<>'\"";
@@ -109,13 +108,12 @@ class CEntityCache
     map<int, CEntityMap> m_replacementMaps;
 public:
 
-    explicit CEntityCache(const struct entity entities[]) noexcept
+    explicit CEntityCache(const vector<struct entity>& entities) noexcept
     {
-        const struct entity* ent = entities;
-        for (; ent->name != nullptr; ++ent)
+        for (const auto& ent: entities)
         {
-            m_hash[ent->name] = ent;
-            m_replacementMaps[ent->replacement_len][ent->replacement] = ent;
+            m_hash[ent.name] = &ent;
+            m_replacementMaps[ent.replacement_len][ent.replacement] = &ent;
         }
     }
 
@@ -205,7 +203,7 @@ char* DocType::appendDecodedEntity(Buffer& ret, const char* ent_start, char* ent
 
 bool DocType::encodeEntities(const char* str, Buffer& ret)
 {
-    const entity* table = builtin_ent_xml;
+    const auto* table = builtin_ent_xml.data();
 
     bool replaced = false;
 

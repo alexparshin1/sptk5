@@ -231,14 +231,14 @@ void PoolDatabaseConnection::bulkInsertRecords(
             }
             switch (value.dataType())
             {
-                case VAR_BOOL:
+                case VariantDataType::VAR_BOOL:
                     sql << "true";
                     break;
-                case VAR_STRING:
-                case VAR_TEXT:
+                case VariantDataType::VAR_STRING:
+                case VariantDataType::VAR_TEXT:
                     sql << "'" << escapeSQLString(value.asString(), false) << "'";
                     break;
-                case VAR_DATE_TIME:
+                case VariantDataType::VAR_DATE_TIME:
                     sql << "'" << value.asDateTime().dateString(DateTime::PF_RFC_DATE) << " "
                         << value.asDateTime().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << "'";
                     break;

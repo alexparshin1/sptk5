@@ -39,12 +39,15 @@ void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
     for (size_t i = 0; i < m_count; ++i)
     {
         const auto& param = m_params[i];
-        VariantType ptype = param->dataType();
+        VariantDataType ptype = param->dataType();
         PostgreSQLDataType pgDataType;
         PostgreSQLConnection::CTypeToPostgreType(ptype, pgDataType, param->name());
         m_types[i] = (Oid) pgDataType;
 
-        if ((ptype & (VAR_INT | VAR_INT64 | VAR_FLOAT | VAR_BUFFER | VAR_DATE | VAR_DATE_TIME)) != 0)
+        if (((int) ptype &
+             ((int) VariantDataType::VAR_INT | (int) VariantDataType::VAR_INT64 | (int) VariantDataType::VAR_FLOAT |
+              (int) VariantDataType::VAR_BUFFER | (int) VariantDataType::VAR_DATE |
+              (int) VariantDataType::VAR_DATE_TIME)) != 0)
         {
             m_formats[i] = 1; // Binary format
         }
@@ -53,28 +56,28 @@ void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
             m_formats[i] = 0; // Text format
         }
 
-        m_values[i] = param->conversionBuffer(); // This is a default. For VAR_STRING, VAR_TEXT, VAR_BUFFER and it would be replaced later
+        m_values[i] = param->conversionBuffer(); // This is a default. For VariantDataType::VAR_STRING, VariantDataType::VAR_TEXT, VariantDataType::VAR_BUFFER and it would be replaced later
 
         switch (ptype)
         {
-            case VAR_BOOL:
+            case VariantDataType::VAR_BOOL:
                 m_lengths[i] = sizeof(bool);
                 break;
 
-            case VAR_INT:
+            case VariantDataType::VAR_INT:
                 m_lengths[i] = sizeof(int32_t);
                 break;
 
-            case VAR_DATE:
-            case VAR_DATE_TIME:
+            case VariantDataType::VAR_DATE:
+            case VariantDataType::VAR_DATE_TIME:
                 m_lengths[i] = sizeof(int64_t);
                 break;
 
-            case VAR_FLOAT:
+            case VariantDataType::VAR_FLOAT:
                 m_lengths[i] = sizeof(double);
                 break;
 
-            case VAR_INT64:
+            case VariantDataType::VAR_INT64:
                 m_lengths[i] = sizeof(int64_t);
                 break;
 
@@ -96,7 +99,7 @@ void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, const SQ
 
 void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryParameter& param)
 {
-    VariantType ptype = param->dataType();
+    VariantDataType ptype = param->dataType();
 
     if (param->isNull())
     {
@@ -104,13 +107,13 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
     }
     else
     {
-        uint32_t* uptrBuffer{nullptr};
-        uint64_t* uptrBuffer64{nullptr};
+        uint32_t* uptrBuffer {nullptr};
+        uint64_t* uptrBuffer64 {nullptr};
         long days;
         int64_t mcs = 0;
         switch (ptype)
         {
-            case VAR_BOOL:
+            case VariantDataType::VAR_BOOL:
                 if (param->asBool())
                 {
                     setParameterValue(paramIndex, (const uint8_t*) "t", 1, 0, PostgreSQLDataType::VARCHAR);
@@ -121,14 +124,14 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 }
                 break;
 
-            case VAR_INT:
+            case VariantDataType::VAR_INT:
                 uptrBuffer = (uint32_t*) param->conversionBuffer();
                 *uptrBuffer = htonl((uint32_t) param->getInteger());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int32_t), 1,
                                   PostgreSQLDataType::INT4);
                 break;
 
-            case VAR_DATE:
+            case VariantDataType::VAR_DATE:
                 days = chrono::duration_cast<chrono::hours>(param->getDateTime() - epochDate).count() / 24;
                 if (m_int64timestamps)
                 {
@@ -144,7 +147,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                                   PostgreSQLDataType::TIMESTAMP);
                 break;
 
-            case VAR_DATE_TIME:
+            case VariantDataType::VAR_DATE_TIME:
                 mcs = chrono::duration_cast<chrono::microseconds>(param->getDateTime() - epochDate).count();
                 if (m_int64timestamps)
                 {
@@ -159,27 +162,27 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                                   PostgreSQLDataType::TIMESTAMP);
                 break;
 
-            case VAR_INT64:
+            case VariantDataType::VAR_INT64:
                 uptrBuffer64 = (uint64_t*) param->conversionBuffer();
                 *uptrBuffer64 = htonq((uint64_t) param->getInt64());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
                                   PostgreSQLDataType::INT8);
                 break;
 
-            case VAR_MONEY:
+            case VariantDataType::VAR_MONEY:
                 setFloatParameterValue(paramIndex, param);
                 break;
 
-            case VAR_FLOAT:
+            case VariantDataType::VAR_FLOAT:
                 uptrBuffer64 = (uint64_t*) param->conversionBuffer();
                 *uptrBuffer64 = htonq(*(const uint64_t*) &param->getFloat());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
                                   PostgreSQLDataType::FLOAT8);
                 break;
 
-            case VAR_STRING:
-            case VAR_TEXT:
-            case VAR_BUFFER:
+            case VariantDataType::VAR_STRING:
+            case VariantDataType::VAR_TEXT:
+            case VariantDataType::VAR_BUFFER:
                 setParameterValue(paramIndex, param->getBuffer(), (unsigned) param->dataSize(), 0,
                                   PostgreSQLDataType::VARCHAR);
                 break;

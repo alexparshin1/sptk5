@@ -49,7 +49,9 @@ using pcre_offset_t = long;
 #endif
 
 #if HAVE_PCRE
+
 #include <pcre.h>
+
 #define SPRE_CASELESS   PCRE_CASELESS
 #define SPRE_MULTILINE  PCRE_MULTILINE
 #define SPRE_DOTALL     PCRE_DOTALL
@@ -166,7 +168,7 @@ public:
         /**
          * @return false if there are no matched groups
          */
-        operator bool() const
+        explicit operator bool() const
         {
             return !m_groups.empty();
         }

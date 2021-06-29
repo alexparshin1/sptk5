@@ -292,62 +292,62 @@ void OracleConnection::queryBindParameters(Query* query)
     }
 }
 
-VariantType sptk::OracleTypeToVariantType(Type oracleType, int scale)
+VariantDataType sptk::OracleTypeToVariantType(Type oracleType, int scale)
 {
     switch (oracleType)
     {
         case Type(SQLT_NUM):
-            return scale == 0 ? VAR_INT : VAR_FLOAT;
+            return scale == 0 ? VariantDataType::VAR_INT : VariantDataType::VAR_FLOAT;
         case Type(SQLT_INT):
-            return VAR_INT;
+            return VariantDataType::VAR_INT;
         case Type(SQLT_UIN):
-            return VAR_INT64;
+            return VariantDataType::VAR_INT64;
         case Type(SQLT_DAT):
         case Type(SQLT_DATE):
-            return VAR_DATE;
+            return VariantDataType::VAR_DATE;
         case Type(SQLT_FLT):
         case Type(SQLT_BFLOAT):
         case Type(SQLT_BDOUBLE):
-            return VAR_FLOAT;
+            return VariantDataType::VAR_FLOAT;
         case Type(SQLT_BLOB):
-            return VAR_BUFFER;
+            return VariantDataType::VAR_BUFFER;
         case Type(SQLT_CLOB):
-            return VAR_TEXT;
+            return VariantDataType::VAR_TEXT;
         case Type(SQLT_TIME):
         case Type(SQLT_TIME_TZ):
         case Type(SQLT_TIMESTAMP):
         case Type(SQLT_TIMESTAMP_TZ):
-            return VAR_DATE_TIME;
+            return VariantDataType::VAR_DATE_TIME;
         default:
-            return VAR_STRING;
+            return VariantDataType::VAR_STRING;
     }
 }
 
-Type sptk::VariantTypeToOracleType(VariantType dataType)
+Type sptk::VariantTypeToOracleType(VariantDataType dataType)
 {
     switch (dataType)
     {
-        case VAR_NONE:
+        case VariantDataType::VAR_NONE:
         throwException("Data type is not defined")
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             return (Type) SQLT_INT;
-        case VAR_FLOAT:
+        case VariantDataType::VAR_FLOAT:
             return OCCIBDOUBLE;
-        case VAR_STRING:
+        case VariantDataType::VAR_STRING:
             return OCCICHAR;
-        case VAR_TEXT:
+        case VariantDataType::VAR_TEXT:
             return OCCICLOB;
-        case VAR_BUFFER:
+        case VariantDataType::VAR_BUFFER:
             return OCCIBLOB;
-        case VAR_DATE:
+        case VariantDataType::VAR_DATE:
             return OCCIDATE;
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE_TIME:
             return OCCITIMESTAMP;
-        case VAR_INT64:
-        case VAR_BOOL:
+        case VariantDataType::VAR_INT64:
+        case VariantDataType::VAR_BOOL:
             return OCCIINT;
         default:
-        throwException("Unsupported SPTK data type: " << dataType)
+        throwException("Unsupported SPTK data type: " << (int) dataType)
     }
 }
 
@@ -449,7 +449,7 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
         {
             resultSet->setMaxColumnSize(columnIndex + 1, 16384);
         }
-        VariantType dataType = OracleTypeToVariantType(columnType, columnScale);
+        VariantDataType dataType = OracleTypeToVariantType(columnType, columnScale);
         auto* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize,
                                         columnScale);
         query->fields().push_back(field);
@@ -528,7 +528,7 @@ void OracleConnection::queryFetch(Query* query)
 
             if (resultSet->isNull(columnIndex))
             {
-                field->setNull(VAR_NONE);
+                field->setNull(VariantDataType::VAR_NONE);
                 continue;
             }
 
@@ -540,7 +540,7 @@ void OracleConnection::queryFetch(Query* query)
                     break;
 
                 case Type(SQLT_NUM):
-                    if (field->dataType() == VAR_INT)
+                    if (field->dataType() == VariantDataType::VAR_INT)
                     {
                         field->setInteger(resultSet->getInt(columnIndex));
                     }
@@ -696,11 +696,11 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
         auto columnType = data_type.asString();
         auto maxDataLength = (size_t) data_length.asInteger();
         QueryColumnTypeSize columnTypeSize = {};
-        columnTypeSize.type = VAR_STRING;
+        columnTypeSize.type = VariantDataType::VAR_STRING;
         columnTypeSize.length = 0;
         if (columnType.find("LOB") != string::npos)
         {
-            columnTypeSize.type = VAR_TEXT;
+            columnTypeSize.type = VariantDataType::VAR_TEXT;
             columnTypeSize.length = 65536;
         }
         else if (columnType.find("CHAR") != string::npos)
@@ -709,7 +709,7 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
         }
         else if (columnType.find("TIMESTAMP") != string::npos)
         {
-            columnTypeSize.type = VAR_DATE_TIME;
+            columnTypeSize.type = VariantDataType::VAR_DATE_TIME;
         }
         columnTypeSizeMap[columnName] = columnTypeSize;
         tableColumnsQuery.fetch();
@@ -746,17 +746,18 @@ void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
         auto& value = row[i];
         switch (columnTypeSizeVector[i].type)
         {
-            case VAR_TEXT:
+            case VariantDataType::VAR_TEXT:
                 if (value.dataSize())
                 {
-                    insertQuery.param(i).setBuffer((const uint8_t*) value.getText(), value.dataSize(), VAR_TEXT);
+                    insertQuery.param(i).setBuffer((const uint8_t*) value.getText(), value.dataSize(),
+                                                   VariantDataType::VAR_TEXT);
                 }
                 else
                 {
-                    insertQuery.param(i).setNull(VAR_TEXT);
+                    insertQuery.param(i).setNull(VariantDataType::VAR_TEXT);
                 }
                 break;
-            case VAR_DATE_TIME:
+            case VariantDataType::VAR_DATE_TIME:
                 insertQuery.param(i).setDateTime(value.getDateTime());
                 break;
             default:

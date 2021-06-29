@@ -36,8 +36,7 @@
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/DatabaseStatement.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @brief Firebird-specific bind buffers
@@ -47,7 +46,7 @@ class FirebirdBindBuffers
     /**
      * Buffer count
      */
-    size_t  m_size {0};
+    size_t m_size {0};
 
     /**
      * Buffers allocation
@@ -88,26 +87,32 @@ public:
     void resize(size_t size)
     {
         if (size < 1)
+        {
             size = 1;
+        }
         if (size > 1024)
+        {
             size = 1024;
+        }
         m_size = size;
 
         m_sqldaBuffer.resize(XSQLDA_LENGTH(m_size));
-        m_sqlda = (XSQLDA *) m_sqldaBuffer.data();
+        m_sqlda = (XSQLDA*) m_sqldaBuffer.data();
 
         m_sqlda->version = SQLDA_VERSION1;
         m_sqlda->sqln = (ISC_SHORT) m_size;
 
         m_cbNulls.resize(size);
         for (unsigned i = 0; i < m_size; i++)
+        {
             m_sqlda->sqlvar[i].sqlind = &m_cbNulls[i];
+        }
     }
 
     /**
      * @brief Returns individual buffer
      */
-    XSQLVAR& operator [] (size_t index)
+    XSQLVAR& operator[](size_t index)
     {
         return m_sqlda->sqlvar[index];
     }
@@ -124,7 +129,8 @@ public:
 /**
  * @brief Firebird SQL statement
  */
-class FirebirdStatement : public DatabaseStatement<FirebirdConnection,isc_stmt_handle>
+class FirebirdStatement
+    : public DatabaseStatement<FirebirdConnection, isc_stmt_handle>
 {
 public:
 
@@ -134,7 +140,7 @@ public:
      * @param firebirdSubtype int, Firebird native subtype
      * @returns CVariant type
      */
-    static VariantType firebirdTypeToVariantType(int firebirdType, int firebirdSubtype);
+    static VariantDataType firebirdTypeToVariantType(int firebirdType, int firebirdSubtype);
 
     /**
      * @brief Translates DateTime to Firebird time
@@ -142,7 +148,7 @@ public:
      * @param timestamp DateTime, Timestamp
      * @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
      */
-    static void dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantType timeType);
+    static void dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantDataType timeType);
 
     /**
      * @brief Translates Firebird time to DateTime
@@ -218,10 +224,10 @@ public:
 
 private:
 
-    std::shared_ptr<isc_stmt_handle>    m_statement;        ///< Statement
-    FirebirdBindBuffers                 m_outputBuffers;    ///< Output result buffers
-    FirebirdBindBuffers                 m_paramBuffers;     ///< Parameter buffers
-    std::array<ISC_STATUS, 20>          m_status_vector;    ///< Execution result
+    std::shared_ptr<isc_stmt_handle> m_statement;        ///< Statement
+    FirebirdBindBuffers m_outputBuffers;    ///< Output result buffers
+    FirebirdBindBuffers m_paramBuffers;     ///< Parameter buffers
+    std::array<ISC_STATUS, 20> m_status_vector;    ///< Execution result
 };
 
 }

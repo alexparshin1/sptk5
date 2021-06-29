@@ -35,7 +35,9 @@ using namespace sptk;
 FieldList::FieldList(bool indexed)
 {
     if (indexed)
+    {
         m_index = make_shared<Map>();
+    }
 }
 
 FieldList::FieldList(const FieldList& other)
@@ -44,8 +46,9 @@ FieldList::FieldList(const FieldList& other)
 }
 
 FieldList::FieldList(FieldList&& other) noexcept
-: m_list(move(other.m_list)), m_index(move(other.m_index))
-{}
+    : m_list(move(other.m_list)), m_index(move(other.m_index))
+{
+}
 
 FieldList::~FieldList()
 {
@@ -57,40 +60,56 @@ void FieldList::assign(const FieldList& other)
     clear();
 
     if (other.m_index != nullptr)
+    {
         m_index = make_shared<Map>();
+    }
     else
+    {
         m_index.reset();
+    }
 
-    for (const auto* otherField: other) {
+    for (const auto* otherField: other)
+    {
         auto* field = new Field(*otherField);
         m_list.push_back(field);
         if (m_index)
+        {
             (*m_index)[field->fieldName()] = field;
+        }
     }
 }
 
 void FieldList::clear()
 {
     for (auto* field: *this)
+    {
         delete field;
+    }
     m_list.clear();
     if (m_index)
+    {
         m_index->clear();
+    }
 }
 
-FieldList& FieldList::operator=(const FieldList &other)
+FieldList& FieldList::operator=(const FieldList& other)
 {
     if (&other != this)
+    {
         assign(other);
+    }
     return *this;
 }
 
 Field& FieldList::push_back(const String& fname, bool checkDuplicates)
 {
-    if (checkDuplicates) {
-        const Field *pfld = findField(fname);
+    if (checkDuplicates)
+    {
+        const Field* pfld = findField(fname);
         if (pfld != nullptr)
+        {
             throw Exception("Attempt to duplicate field name");
+        }
     }
 
     auto* field = new Field(fname);
@@ -98,32 +117,43 @@ Field& FieldList::push_back(const String& fname, bool checkDuplicates)
     m_list.push_back(field);
 
     if (m_index)
+    {
         (*m_index)[fname] = field;
+    }
 
     return *field;
 }
 
-Field& FieldList::push_back(Field *field)
+Field& FieldList::push_back(Field* field)
 {
     m_list.push_back(field);
 
     if (m_index)
+    {
         (*m_index)[field->m_name] = field;
+    }
 
     return *field;
 }
 
-Field *FieldList::findField(const String& fname) const
+Field* FieldList::findField(const String& fname) const
 {
-    if (m_index) {
+    if (m_index)
+    {
         auto itor = m_index->find(fname);
         if (itor != m_index->end())
+        {
             return itor->second;
+        }
     }
-    else {
-        for (auto* field: *this) {
+    else
+    {
+        for (auto* field: *this)
+        {
             if (strcasecmp(field->m_name.c_str(), fname.c_str()) == 0)
+            {
                 return field;
+            }
         }
     }
     return nullptr;
@@ -132,7 +162,9 @@ Field *FieldList::findField(const String& fname) const
 void FieldList::toXML(xml::Node& node, bool compactMode) const
 {
     for (const auto* field: *this)
+    {
         field->toXML(node, compactMode);
+    }
 }
 
 #if USE_GTEST
@@ -207,10 +239,10 @@ TEST(SPTK_FieldList, dataTypes)
     fieldList["online"].setBool(true);
     fieldList["visible"].setBool(false);
     fieldList["date"] = testDate;
-    fieldList["null"].setNull(VAR_STRING);
+    fieldList["null"].setNull(VariantDataType::VAR_STRING);
     fieldList["text"].setBuffer((const uint8_t*) "1234", 5);
     fieldList["float_value"] = double(testInteger);
-    fieldList["money_value"].setMoney(1234567,2);
+    fieldList["money_value"].setMoney(1234567, 2);
     fieldList["long_value"] = int64_t(12345678901234567);
 
     EXPECT_STREQ("id", fieldList["name"].asString().c_str());
@@ -224,7 +256,9 @@ TEST(SPTK_FieldList, dataTypes)
     EXPECT_STREQ("false", fieldList["visible"].asString().c_str());
 
     EXPECT_TRUE(fieldList["date"].asDateTime() == testDate);
-    EXPECT_STREQ("2020-02-01T11:22:33Z", fieldList["date"].asDateTime().isoDateTimeString(sptk::DateTime::PrintAccuracy::SECONDS, true).c_str());
+    EXPECT_STREQ("2020-02-01T11:22:33Z",
+                 fieldList["date"].asDateTime().isoDateTimeString(sptk::DateTime::PrintAccuracy::SECONDS,
+                                                                  true).c_str());
 
     EXPECT_TRUE(fieldList["null"].isNull());
     EXPECT_STREQ("1234", fieldList["text"].asString().c_str());

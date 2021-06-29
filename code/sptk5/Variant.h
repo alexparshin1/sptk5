@@ -35,11 +35,11 @@
 namespace sptk {
 
 namespace xml {
-    class Node;
+class Node;
 }
 
 namespace json {
-    class Element;
+class Element;
 }
 
 /**
@@ -58,7 +58,7 @@ public:
     /**
      * Returns the data type
      */
-    VariantType dataType() const;
+    VariantDataType dataType() const;
 
     /**
      * Returns the data size
@@ -87,17 +87,18 @@ public:
      * Returns true if the NULL state is set
      */
     bool isNull() const;
+
     /**
      * Returns a name for a particular variant type
      * @param type              Variant type
      */
-    static String typeName(VariantType type);
+    static String typeName(VariantDataType type);
 
     /**
      * Returns a type for a particular variant type name
      * @param name              Variant type name
      */
-    static VariantType nameType(const char* name);
+    static VariantDataType nameType(const char* name);
 
     /**
      * Directly reads the internal data
@@ -161,7 +162,7 @@ public:
 
 protected:
 
-    VariantData             m_data;                 ///< Internal variant data storage
+    VariantData m_data;                 ///< Internal variant data storage
 
     /**
      * Releases allocated buffer (if any)
@@ -171,14 +172,19 @@ protected:
     /**
      * Sets the data type
      */
-    void dataType(uint32_t dt);
+    void dataType(VariantType dt);
+
+    /**
+     * Sets the data type
+     */
+    void dataType(VariantDataType dt);
 
     /**
      * @return True if current data type is external buffer
      */
     bool isExternalBuffer() const
     {
-        return (m_data.type() & VAR_EXTERNAL_BUFFER) != 0;
+        return m_data.type().isExternalBuffer;
     }
 
     /**
@@ -192,7 +198,8 @@ protected:
  * Variant set methods and adaptors
  * 22 methods
  */
-class SP_EXPORT VariantAdaptors : public BaseVariant
+class SP_EXPORT VariantAdaptors
+    : public BaseVariant
 {
 public:
 
@@ -229,17 +236,17 @@ public:
     /**
      * Assignment method
      */
-    virtual void setBuffer(const uint8_t* value, size_t sz, VariantType type=VAR_BUFFER);
+    virtual void setBuffer(const uint8_t* value, size_t sz, VariantDataType type = VariantDataType::VAR_BUFFER);
 
     /**
      * Assignment method
      */
-    virtual void setExternalBuffer(uint8_t* value, size_t sz, VariantType type=VAR_BUFFER);
+    virtual void setExternalBuffer(uint8_t* value, size_t sz, VariantDataType type = VariantDataType::VAR_BUFFER);
 
     /**
      * Assignment method
      */
-    virtual void setDateTime(DateTime value, bool dateOnly=false);
+    virtual void setDateTime(DateTime value, bool dateOnly = false);
 
     /**
      * Assignment method
@@ -264,7 +271,7 @@ public:
      * Sets the data to zero(s).
      * @param vtype             Optional variant type to enforce
      */
-    virtual void setNull(VariantType vtype=VAR_NONE);
+    virtual void setNull(VariantDataType vtype = VariantDataType::VAR_NONE);
 
     /**
      * Conversion method
@@ -339,7 +346,8 @@ protected:
  * Reasonably compact an fast class what allows storing data of different
  * types. It also allows conversions to and from supported types.
  */
-class SP_EXPORT Variant : public VariantAdaptors
+class SP_EXPORT Variant
+    : public VariantAdaptors
 {
 public:
 
@@ -366,7 +374,7 @@ public:
     /**
      * Constructor
      */
-    Variant(const char * value);
+    Variant(const char* value);
 
     /**
      * Constructor
@@ -412,67 +420,67 @@ public:
      * Assignment operator
      * @param other             Other object
      */
-    Variant& operator =(const Variant& other);
+    Variant& operator=(const Variant& other);
 
     /**
      * Assignment operator
      * @param other             Other object
      */
-    Variant& operator =(Variant&& other) noexcept;
+    Variant& operator=(Variant&& other) noexcept;
 
     /**
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator =(int32_t value);
+    virtual Variant& operator=(int32_t value);
 
     /**
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator =(int64_t value);
+    virtual Variant& operator=(int64_t value);
 
     /**
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator =(double value);
+    virtual Variant& operator=(double value);
 
     /**
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator =(const MoneyData& value);
+    virtual Variant& operator=(const MoneyData& value);
 
     /**
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator =(const char * value);
+    virtual Variant& operator=(const char* value);
 
     /**
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator =(const String& value);
+    virtual Variant& operator=(const String& value);
 
     /**
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator =(DateTime value);
+    virtual Variant& operator=(DateTime value);
 
     /**
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator =(const uint8_t* value);
+    virtual Variant& operator=(const uint8_t* value);
 
     /**
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator =(const Buffer& value);
+    virtual Variant& operator=(const Buffer& value);
 
     /**
      * Conversion operator

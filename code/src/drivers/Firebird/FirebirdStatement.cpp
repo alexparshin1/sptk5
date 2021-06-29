@@ -41,7 +41,7 @@ public:
     ISC_SHORT m_cbNull {0};
     double m_numericScale {1.0};
 
-    FirebirdStatementField(const std::string& fieldName, int fieldColumn, int fieldType, VariantType dataType,
+    FirebirdStatementField(const std::string& fieldName, int fieldColumn, int fieldType, VariantDataType dataType,
                            int fieldSize, XSQLVAR& sqlvar)
         :
         DatabaseField(fieldName, fieldColumn, fieldType & 0xFFFE, dataType, fieldSize),
@@ -86,7 +86,7 @@ FirebirdStatement::FirebirdStatement(FirebirdConnection* connection, const Strin
     *statement() = 0;
 }
 
-void FirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantType timeType)
+void FirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantDataType timeType)
 {
     short year;
     short month;
@@ -99,7 +99,7 @@ void FirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime
     short msecond;
 
     memset(&firebirdDate, 0, sizeof(firebirdDate));
-    if (timeType == VAR_DATE)
+    if (timeType == VariantDataType::VAR_DATE)
     {
         // Date only
         timestamp.decodeDate(&year, &month, &day, &wday, &yday);
@@ -138,7 +138,7 @@ void FirebirdStatement::enumerateParams(QueryParameterList& queryParams)
     }
 }
 
-VariantType FirebirdStatement::firebirdTypeToVariantType(int firebirdType, int firebirdSubtype)
+VariantDataType FirebirdStatement::firebirdTypeToVariantType(int firebirdType, int firebirdSubtype)
 {
     switch (firebirdType)
     {
@@ -147,42 +147,42 @@ VariantType FirebirdStatement::firebirdTypeToVariantType(int firebirdType, int f
         case SQL_LONG:
             if (firebirdSubtype == 1)
             {
-                return VAR_MONEY;
+                return VariantDataType::VAR_MONEY;
             }
-            return VAR_INT;
+            return VariantDataType::VAR_INT;
 
         case SQL_FLOAT:
         case SQL_DOUBLE:
         case SQL_D_FLOAT:
-            return VAR_FLOAT;
+            return VariantDataType::VAR_FLOAT;
 
         case SQL_BLOB:
-            return VAR_BUFFER;
+            return VariantDataType::VAR_BUFFER;
 
         case SQL_TYPE_DATE:
-            return VAR_DATE;
+            return VariantDataType::VAR_DATE;
 
         case SQL_TIMESTAMP:
         case SQL_TYPE_TIME:
-            return VAR_DATE_TIME;
+            return VariantDataType::VAR_DATE_TIME;
 
         case SQL_INT64:
             if (firebirdSubtype == 1)
             {
-                return VAR_MONEY;
+                return VariantDataType::VAR_MONEY;
             }
-            return VAR_INT64;
+            return VariantDataType::VAR_INT64;
 
         case SQL_TEXT:
             if (firebirdSubtype == 1)
             {
-                return VAR_BUFFER;
+                return VariantDataType::VAR_BUFFER;
             }
-            return VAR_STRING;
+            return VariantDataType::VAR_STRING;
 
             // Anything we don't know about - treat as string
         default:
-            return VAR_STRING;
+            return VariantDataType::VAR_STRING;
     }
 }
 
@@ -212,7 +212,7 @@ void FirebirdStatement::setParameterValues()
         switch (param->dataType())
         {
 
-            case VAR_NONE:
+            case VariantDataType::VAR_NONE:
                 sqlvar.sqltype = SQL_TEXT + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = 0;
@@ -220,35 +220,35 @@ void FirebirdStatement::setParameterValues()
                 param->setNull();
                 break;
 
-            case VAR_BOOL:
+            case VariantDataType::VAR_BOOL:
                 sqlvar.sqltype = SQL_SHORT + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(short);
                 sqlvar.sqldata = (ISC_SCHAR*) param->getBuffer();
                 break;
 
-            case VAR_INT:
+            case VariantDataType::VAR_INT:
                 sqlvar.sqltype = SQL_LONG + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(int32_t);
                 sqlvar.sqldata = (ISC_SCHAR*) param->getBuffer();
                 break;
 
-            case VAR_FLOAT:
+            case VariantDataType::VAR_FLOAT:
                 sqlvar.sqltype = SQL_DOUBLE + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(double);
                 sqlvar.sqldata = (ISC_SCHAR*) param->getBuffer();
                 break;
 
-            case VAR_INT64:
+            case VariantDataType::VAR_INT64:
                 sqlvar.sqltype = SQL_INT64 + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(int64_t);
                 sqlvar.sqldata = (ISC_SCHAR*) param->getBuffer();
                 break;
 
-            case VAR_MONEY:
+            case VariantDataType::VAR_MONEY:
                 sqlvar.sqltype = SQL_INT64 + 1;
                 sqlvar.sqlsubtype = 1;
                 sqlvar.sqllen = sizeof(int64_t);
@@ -256,41 +256,41 @@ void FirebirdStatement::setParameterValues()
                 sqlvar.sqlscale = -(ISC_SHORT) param->getMoney().scale;
                 break;
 
-            case VAR_STRING:
+            case VariantDataType::VAR_STRING:
                 sqlvar.sqltype = SQL_TEXT + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = (ISC_SHORT) param->dataSize();
                 sqlvar.sqldata = (ISC_SCHAR*) param->getBuffer();
                 break;
 
-            case VAR_TEXT:
-            case VAR_BUFFER:
+            case VariantDataType::VAR_TEXT:
+            case VariantDataType::VAR_BUFFER:
                 sqlvar.sqltype = SQL_BLOB + 1;
                 sqlvar.sqllen = sizeof(ISC_QUAD);
                 sqlvar.sqldata = (ISC_SCHAR*) param->conversionBuffer();
                 createBLOB((ISC_QUAD*) sqlvar.sqldata, param);
                 break;
 
-            case VAR_DATE:
+            case VariantDataType::VAR_DATE:
                 sqlvar.sqltype = SQL_TYPE_DATE + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(ISC_DATE);
                 sqlvar.sqldata = (ISC_SCHAR*) param->conversionBuffer();
-                dateTimeToFirebirdDate(firebirdDateTime, param->getDate(), VAR_DATE);
+                dateTimeToFirebirdDate(firebirdDateTime, param->getDate(), VariantDataType::VAR_DATE);
                 isc_encode_sql_date(&firebirdDateTime, (ISC_DATE*) sqlvar.sqldata);
                 break;
 
-            case VAR_DATE_TIME:
+            case VariantDataType::VAR_DATE_TIME:
                 sqlvar.sqltype = SQL_TIMESTAMP + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(ISC_TIMESTAMP);
                 sqlvar.sqldata = (ISC_SCHAR*) param->conversionBuffer();
                 pts = (ISC_TIMESTAMP*) sqlvar.sqldata;
 
-                dateTimeToFirebirdDate(firebirdDateTime, param->getDateTime(), VAR_DATE);
+                dateTimeToFirebirdDate(firebirdDateTime, param->getDateTime(), VariantDataType::VAR_DATE);
                 isc_encode_sql_date(&firebirdDateTime, &pts->timestamp_date);
 
-                dateTimeToFirebirdDate(firebirdDateTime, param->getDateTime(), VAR_DATE_TIME);
+                dateTimeToFirebirdDate(firebirdDateTime, param->getDateTime(), VariantDataType::VAR_DATE_TIME);
                 isc_encode_sql_time(&firebirdDateTime, &pts->timestamp_time);
                 break;
 
@@ -367,7 +367,7 @@ void FirebirdStatement::bindResult(FieldList& fields)
             snprintf(columnName.data(), sizeof(columnName) - 1, "column_%02i", columnIndex + 1);
         }
 
-        VariantType fieldType = firebirdTypeToVariantType(type, sqlvar.sqlsubtype);
+        VariantDataType fieldType = firebirdTypeToVariantType(type, sqlvar.sqlsubtype);
         auto fieldLength = (unsigned) sqlvar.sqllen;
         fields.push_back(
             new FirebirdStatementField(columnName.data(), columnIndex, type, fieldType, (int) fieldLength, sqlvar));
@@ -464,7 +464,7 @@ void FirebirdStatement::fetchResult(FieldList& fields)
         XSQLVAR& sqlvar = m_outputBuffers[(int) fieldIndex];
         if (*sqlvar.sqlind)
         {
-            field->setNull(VAR_STRING);
+            field->setNull(VariantDataType::VAR_STRING);
             continue;
         }
         switch (sqlvar.sqltype & 0xFFFE)
@@ -545,12 +545,12 @@ void FirebirdStatement::fetchResult(FieldList& fields)
                 }
                 pos++;
                 sqlvar.sqldata[pos] = 0;
-                field->setBuffer((const uint8_t*) sqlvar.sqldata + 2, pos, VAR_TEXT);
+                field->setBuffer((const uint8_t*) sqlvar.sqldata + 2, pos, VariantDataType::VAR_TEXT);
                 break;
 
             case SQL_VARYING:
                 len = *(uint16_t*) sqlvar.sqldata;
-                field->setBuffer((const uint8_t*) sqlvar.sqldata + 2, len, VAR_STRING);
+                field->setBuffer((const uint8_t*) sqlvar.sqldata + 2, len, VariantDataType::VAR_STRING);
                 break;
 
             default:

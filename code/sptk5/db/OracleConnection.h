@@ -275,14 +275,14 @@ private:
  * @param oracleType        Oracle native type
  * @returns Variant type
  */
-VariantType OracleTypeToVariantType(OracleConnection::Type oracleType, int scale);
+VariantDataType OracleTypeToVariantType(OracleConnection::Type oracleType, int scale);
 
 /**
  * @brief Translates CVariant type to Oracle native type
  * @param dataType          CVariant type
  * @returns Oracle native type
  */
-OracleConnection::Type VariantTypeToOracleType(VariantType dataType);
+OracleConnection::Type VariantTypeToOracleType(VariantDataType dataType);
 
 #define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }
 

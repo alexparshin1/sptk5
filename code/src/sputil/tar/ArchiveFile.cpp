@@ -134,7 +134,6 @@ fs::path ArchiveFile::relativePath(const fs::path& fileName, const fs::path& bas
     for (; fdir != fileName.end(); ++fdir)
     {
         relativePath /= *fdir;
-        cout << relativePath << endl;
     }
 
     return relativePath;

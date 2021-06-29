@@ -58,16 +58,16 @@ void WSBasicType::addElement(json::Element* parent) const
         }
         switch (dataType())
         {
-            case VAR_BOOL:
+            case VariantDataType::VAR_BOOL:
                 parent->set(name(), m_field.asBool());
                 break;
-            case VAR_INT:
+            case VariantDataType::VAR_INT:
                 parent->set(name(), m_field.asInteger());
                 break;
-            case VAR_INT64:
+            case VariantDataType::VAR_INT64:
                 parent->set(name(), m_field.asInt64());
                 break;
-            case VAR_FLOAT:
+            case VariantDataType::VAR_FLOAT:
                 parent->set(name(), m_field.asFloat());
                 break;
             default:
@@ -79,16 +79,16 @@ void WSBasicType::addElement(json::Element* parent) const
     {
         switch (dataType())
         {
-            case VAR_BOOL:
+            case VariantDataType::VAR_BOOL:
                 parent->push_back(m_field.asBool());
                 break;
-            case VAR_INT:
+            case VariantDataType::VAR_INT:
                 parent->push_back(m_field.asInteger());
                 break;
-            case VAR_INT64:
+            case VariantDataType::VAR_INT64:
                 parent->push_back(m_field.asInt64());
                 break;
-            case VAR_FLOAT:
+            case VariantDataType::VAR_FLOAT:
                 parent->push_back(m_field.asFloat());
                 break;
             default:
@@ -116,7 +116,7 @@ void WSString::load(const json::Element* attr)
 {
     if (attr->is(json::Type::NULL_VALUE))
     {
-        setNull(VAR_STRING);
+        setNull(VariantDataType::VAR_STRING);
     }
     else
     {
@@ -141,7 +141,7 @@ void WSBool::load(const xml::Node* attr)
     String text = attr->text();
     if (text.empty())
     {
-        setNull(VAR_BOOL);
+        setNull(VariantDataType::VAR_BOOL);
     }
     else
     {
@@ -164,7 +164,7 @@ void WSBool::load(const json::Element* attr)
 {
     if (attr->is(json::Type::NULL_VALUE))
     {
-        setNull(VAR_BOOL);
+        setNull(VariantDataType::VAR_BOOL);
     }
     else
     {
@@ -176,7 +176,7 @@ void WSBool::load(const String& attr)
 {
     if (attr.empty())
     {
-        setNull(VAR_BOOL);
+        setNull(VariantDataType::VAR_BOOL);
     }
     else
     {
@@ -199,7 +199,7 @@ void WSBool::load(const Field& field)
 {
     if (field.isNull())
     {
-        setNull(VAR_BOOL);
+        setNull(VariantDataType::VAR_BOOL);
     }
     else
     {
@@ -212,7 +212,7 @@ void WSDate::load(const xml::Node* attr)
     String text = attr->text();
     if (text.empty())
     {
-        setNull(VAR_DATE);
+        setNull(VariantDataType::VAR_DATE);
     }
     else
     {
@@ -225,7 +225,7 @@ void WSDate::load(const json::Element* attr)
     String text = attr->getString();
     if (attr->is(json::Type::NULL_VALUE) || text.empty())
     {
-        setNull(VAR_DATE);
+        setNull(VariantDataType::VAR_DATE);
     }
     else
     {
@@ -237,7 +237,7 @@ void WSDate::load(const String& attr)
 {
     if (attr.empty())
     {
-        setNull(VAR_DATE);
+        setNull(VariantDataType::VAR_DATE);
     }
     else
     {
@@ -250,7 +250,7 @@ void WSDate::load(const Field& field)
 {
     if (field.isNull())
     {
-        setNull(VAR_DATE);
+        setNull(VariantDataType::VAR_DATE);
     }
     else
     {
@@ -263,7 +263,7 @@ void WSDateTime::load(const xml::Node* attr)
     String text = attr->text();
     if (text.empty())
     {
-        setNull(VAR_DATE_TIME);
+        setNull(VariantDataType::VAR_DATE_TIME);
     }
     else
     {
@@ -277,7 +277,7 @@ void WSDateTime::load(const json::Element* attr)
     String text = attr->getString();
     if (text.empty())
     {
-        setNull(VAR_DATE_TIME);
+        setNull(VariantDataType::VAR_DATE_TIME);
     }
     else
     {
@@ -290,7 +290,7 @@ void WSDateTime::load(const String& attr)
 {
     if (attr.empty())
     {
-        setNull(VAR_DATE_TIME);
+        setNull(VariantDataType::VAR_DATE_TIME);
     }
     else
     {
@@ -303,7 +303,7 @@ void WSDateTime::load(const Field& field)
 {
     if (field.isNull())
     {
-        setNull(VAR_DATE_TIME);
+        setNull(VariantDataType::VAR_DATE_TIME);
     }
     else
     {
@@ -331,7 +331,7 @@ void WSDouble::load(const String& attr)
 {
     if (attr.empty())
     {
-        setNull(VAR_INT);
+        setNull(VariantDataType::VAR_INT);
     }
     else
     {
@@ -343,7 +343,7 @@ void WSDouble::load(const Field& field)
 {
     if (field.isNull())
     {
-        setNull(VAR_FLOAT);
+        setNull(VariantDataType::VAR_FLOAT);
     }
     else
     {
@@ -356,7 +356,7 @@ void WSInteger::load(const xml::Node* attr)
     String text = attr->text();
     if (text.empty())
     {
-        setNull(VAR_INT64);
+        setNull(VariantDataType::VAR_INT64);
     }
     else
     {
@@ -368,7 +368,7 @@ void WSInteger::load(const json::Element* attr)
 {
     if (attr->is(json::Type::NULL_VALUE))
     {
-        setNull(VAR_INT64);
+        setNull(VariantDataType::VAR_INT64);
     }
     else
     {
@@ -380,7 +380,7 @@ void WSInteger::load(const String& attr)
 {
     if (attr.empty())
     {
-        setNull(VAR_INT64);
+        setNull(VariantDataType::VAR_INT64);
     }
     else
     {
@@ -392,7 +392,7 @@ void WSInteger::load(const Field& field)
 {
     if (field.isNull())
     {
-        setNull(VAR_INT64);
+        setNull(VariantDataType::VAR_INT64);
     }
     else
     {

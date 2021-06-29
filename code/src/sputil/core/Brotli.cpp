@@ -68,15 +68,15 @@ private:
     /* Parameters */
     int quality = 9;
 
-    array<uint8_t, kBufferSize * 2> buffer{};
+    array<uint8_t, kBufferSize * 2> buffer {};
 
     uint8_t* input = buffer.data();
     uint8_t* output = buffer.data() + kBufferSize;
     ReadBuffer& inputData;
 
     Buffer& outputData;
-    int64_t input_file_length{0};  /* -1, if impossible to calculate */
-    size_t available_in{0};
+    int64_t input_file_length {0};  /* -1, if impossible to calculate */
+    size_t available_in {0};
     const uint8_t* next_in = nullptr;
 
     size_t available_out;
@@ -293,7 +293,7 @@ TEST(SPTK_Brotli, performance)
     Buffer decompressed;
 
     // Using uncompressed mplayer manual as test data
-    data.loadFromFile(TEST_DIRECTORY "/data/mplayer.1");
+    data.loadFromFile(String(TEST_DIRECTORY) + "/data/mplayer.1");
     EXPECT_EQ(data.bytes(), size_t(345517));
 
     StopWatch stopWatch;

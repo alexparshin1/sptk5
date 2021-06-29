@@ -46,7 +46,8 @@ namespace sptk {
  *
  * CODBCConnection is thread-safe connection to ODBC database.
  */
-class SP_DRIVER_EXPORT ODBCConnection: public PoolDatabaseConnection
+class SP_DRIVER_EXPORT ODBCConnection
+    : public PoolDatabaseConnection
 {
     friend class Query;
 
@@ -59,6 +60,7 @@ public:
     explicit ODBCConnection(const String& connectionString = "");
 
     ODBCConnection(const ODBCConnection&) = delete;
+
     ODBCConnection(ODBCConnection&&) noexcept = default;
 
     /**
@@ -66,8 +68,9 @@ public:
      */
     ~ODBCConnection() override;
 
-    ODBCConnection& operator = (const ODBCConnection&) = delete;
-    ODBCConnection& operator = (ODBCConnection&&) noexcept = default;
+    ODBCConnection& operator=(const ODBCConnection&) = delete;
+
+    ODBCConnection& operator=(ODBCConnection&&) noexcept = default;
 
     /**
      * @brief Returns driver-specific connection string
@@ -128,72 +131,72 @@ protected:
     /**
      * Allocates an ODBC statement
      */
-    void queryAllocStmt(Query *query) override;
+    void queryAllocStmt(Query* query) override;
 
     /**
      * Deallocates an ODBC statement
      */
-    void queryFreeStmt(Query *query) override;
+    void queryFreeStmt(Query* query) override;
 
     /**
      * Closes an ODBC statement
      */
-    void queryCloseStmt(Query *query) override;
+    void queryCloseStmt(Query* query) override;
 
     /**
      * Prepares a query if supported by database
      */
-    void queryPrepare(Query *query) override;
+    void queryPrepare(Query* query) override;
 
     /**
      * Unprepares a query if supported by database
      */
-    void queryUnprepare(Query *query) override;
+    void queryUnprepare(Query* query) override;
 
     /**
      * Executes a statement
      */
-    void queryExecute(Query *query) override;
+    void queryExecute(Query* query) override;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    int queryColCount(Query *query) override;
+    int queryColCount(Query* query) override;
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
      */
-    void queryColAttributes(Query *query, int16_t column, int16_t descType, int32_t& value) override;
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
      */
-    void queryColAttributes(Query *query, int16_t column, int16_t descType, char *buff, int len) override;
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
 
     /**
      * Binds the parameters to the query
      */
-    void queryBindParameters(Query *query) override;
+    void queryBindParameters(Query* query) override;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    void queryOpen(Query *query) override;
+    void queryOpen(Query* query) override;
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    void queryFetch(Query *query) override;
+    void queryFetch(Query* query) override;
 
     /**
      * Converts the native ODBC type into SPTK data type
      */
-    static void ODBCtypeToCType(int odbcType, int32_t &ctype, VariantType& dataType);
+    static void ODBCtypeToCType(int odbcType, int32_t& ctype, VariantDataType& dataType);
 
     /**
      * Returns the ODBC connection object
      */
-    ODBCConnectionBase *connection()
+    ODBCConnectionBase* connection()
     {
         return m_connect.get();
     }
@@ -252,7 +255,8 @@ private:
      * @param dataLength        Output data length
      * @return operation result
      */
-    static SQLRETURN readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
+    static SQLRETURN readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
+                                           int16_t fieldType,
                                            SQLLEN& dataLength);
 
     /**
@@ -264,8 +268,9 @@ private:
      * @param rc
      * @param dataLength        Output data length
      */
-    static SQLRETURN readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
-                                 SQLLEN& dataLength);
+    static SQLRETURN readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
+                                        int16_t fieldType,
+                                        SQLLEN& dataLength);
 
     static void queryBindParameter(const Query* query, QueryParameter* parameter);
 };
@@ -278,6 +283,6 @@ private:
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* odbc_create_connection(const char* connectionString);
-    SP_DRIVER_EXPORT void  odbc_destroy_connection(void* connection);
+SP_DRIVER_EXPORT void* odbc_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT void odbc_destroy_connection(void* connection);
 }

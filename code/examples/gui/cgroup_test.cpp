@@ -34,38 +34,42 @@
 using namespace std;
 using namespace sptk;
 
-void exit_cb(Fl_Widget *w, void *)
+void exit_cb(Fl_Widget* w, void*)
 {
     w->window()->hide();
 }
 
-void theme_cb(Fl_Widget *w, void *)
+void theme_cb(Fl_Widget* w, void*)
 {
-    try {
-        auto* themesCombo = (CComboBox *) w;
+    try
+    {
+        auto* themesCombo = (CComboBox*) w;
         String themeName = themesCombo->data().asString();
 
-        if (themesCombo->eventType() == CE_DATA_CHANGED) {
+        if (themesCombo->eventType() == CE_DATA_CHANGED)
+        {
             CThemes::set(themeName);
 
-            auto* window = (CWindow *) w->window();
+            auto* window = (CWindow*) w->window();
             window->relayout();
             window->redraw();
         }
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         spError(e.what());
     }
 }
 
-void maximize_cb(Fl_Widget *w, void *)
+void maximize_cb(Fl_Widget* w, void*)
 {
     w->window()->resize(Fl::x(), Fl::y(), Fl::w(), Fl::h());
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes themes;
 
@@ -99,15 +103,16 @@ int main(int argc, char *argv[])
         // the space left after all the other widgets are
         // put in place
         CListView listView("List View:", 10, SP_ALIGN_CLIENT);
-        listView.columns().push_back(CColumn("column 1", VAR_INT, 100));
-        listView.columns().push_back(CColumn("column 2", VAR_INT, 100));
-        listView.columns().push_back(CColumn("column 3", VAR_STRING, 200));
-        listView.columns().push_back(CColumn("column 4", VAR_STRING, 200));
+        listView.columns().push_back(CColumn("column 1", VariantDataType::VAR_INT, 100));
+        listView.columns().push_back(CColumn("column 2", VariantDataType::VAR_INT, 100));
+        listView.columns().push_back(CColumn("column 3", VariantDataType::VAR_STRING, 200));
+        listView.columns().push_back(CColumn("column 4", VariantDataType::VAR_STRING, 200));
 
         // Add 10 items
         char buffer1[20];
         char buffer2[20];
-        for (int a = 0; a < 10; a++) {
+        for (int a = 0; a < 10; a++)
+        {
             snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
             snprintf(buffer2, sizeof(buffer2) - 1, "%i", 100000 - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
@@ -141,7 +146,8 @@ int main(int argc, char *argv[])
         Fl::run();
 
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

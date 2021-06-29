@@ -35,16 +35,17 @@
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/DatabaseStatement.h>
 
-namespace sptk
-{
+namespace sptk {
 
 class MySQLConnection;
+
 class MySQLStatementField;
 
 /**
  * MySQL statement wrapper
  */
-class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
+class MySQLStatement
+    : public DatabaseStatement<MySQLConnection, MYSQL_STMT>
 {
 public:
     /**
@@ -52,14 +53,14 @@ public:
      * @param mysqlType enum_field_types, MySQL native type
      * @returns CVariant type
      */
-    static VariantType mySQLTypeToVariantType(enum_field_types mysqlType);
+    static VariantDataType mySQLTypeToVariantType(enum_field_types mysqlType);
 
     /**
      * Translates CVariant type to MySQL native type
      * @param dataType VariantType&, CVariant type
      * @returns MySQL native type
      */
-    static enum_field_types variantTypeToMySQLType(VariantType dataType);
+    static enum_field_types variantTypeToMySQLType(VariantDataType dataType);
 
     /**
      * Translates DateTime to MySQL time
@@ -67,7 +68,7 @@ public:
      * @param timestamp DateTime, Timestamp
      * @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
      */
-    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType);
+    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantDataType timeType);
 
     /**
      * Translates MySQL time to DateTime
@@ -97,12 +98,12 @@ public:
     /**
      * Deleted copy assignment
      */
-    MySQLStatement& operator = (const MySQLStatement&) = delete;
+    MySQLStatement& operator=(const MySQLStatement&) = delete;
 
     /**
      * Move assignment
      */
-    MySQLStatement& operator = (MySQLStatement&&) = default;
+    MySQLStatement& operator=(MySQLStatement&&) = default;
 
     /**
      * Generates normalized list of parameters
@@ -150,13 +151,13 @@ public:
 
 private:
 
-    String                          m_sql;              ///< Statement SQL
-    std::vector<MYSQL_BIND>         m_paramBuffers;     ///< Parameter binding buffers
-    std::vector<unsigned long>      m_paramLengths;     ///< Parameter data lengths
-    std::vector<MYSQL_BIND>         m_fieldBuffers;     ///< Fetch data buffers
-    std::shared_ptr<MYSQL_STMT>     m_stmt;
-    std::shared_ptr<MYSQL_RES>      m_result {nullptr}; ///< Statement handle
-    MYSQL_ROW                       m_row {};           ///< Fetch data row
+    String m_sql;              ///< Statement SQL
+    std::vector<MYSQL_BIND> m_paramBuffers;     ///< Parameter binding buffers
+    std::vector<unsigned long> m_paramLengths;     ///< Parameter data lengths
+    std::vector<MYSQL_BIND> m_fieldBuffers;     ///< Fetch data buffers
+    std::shared_ptr<MYSQL_STMT> m_stmt;
+    std::shared_ptr<MYSQL_RES> m_result {nullptr}; ///< Statement handle
+    MYSQL_ROW m_row {};           ///< Fetch data row
 
     /**
      * Reads not prepared statement result row to query fields
@@ -176,7 +177,7 @@ private:
      * @param mysqlTime         MySQL time
      * @param fieldType         Field type (date or datetime)
      */
-    static void decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime, VariantType fieldType);
+    static void decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime, VariantDataType fieldType);
 
     /**
      * Convert MySQL float data to field
@@ -191,8 +192,8 @@ private:
         throw DatabaseException(mysql_stmt_error(statement()));
     }
 
-    [[nodiscard]] bool bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* field, size_t fieldIndex, uint32_t dataLength) const;
+    [[nodiscard]] bool bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* field, size_t fieldIndex,
+                                        uint32_t dataLength) const;
 };
 
 }
-

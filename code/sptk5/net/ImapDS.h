@@ -29,8 +29,7 @@
 #include <sptk5/MemoryDS.h>
 #include <sptk5/net/ImapConnect.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup gui GUI Classes
@@ -48,7 +47,8 @@ using ProgressCallback = std::function<void(int total, int progress)>;
  * Allows to browse the list of messages and folders on IMAP server.
  * It returns a dataset with message headers.
  */
-class SP_EXPORT ImapDS: public MemoryDS
+class SP_EXPORT ImapDS
+    : public MemoryDS
 {
 public:
 
@@ -60,7 +60,7 @@ public:
     /**
      * Set IMAP host
      */
-    void host(const Host& host)
+    void host(const Host& host) const
     {
         m_imap.host(host);
     }
@@ -173,13 +173,13 @@ public:
 
 private:
 
-    ImapConnect         m_imap;                 ///< IMAP socket connector
-    String              m_folder;               ///< IMAP folder name
-    String              m_user;                 ///< IMAP user name
-    String              m_password;             ///< IMAP user password
-    bool                m_fetchbody {false};    ///< Do we want to fetch the message headers AND message body?
-    ProgressCallback    m_callback {nullptr};   ///< Internal prograssion callback for open()
-    int                 m_msgid {0};            ///< Internal message ID
+    ImapConnect m_imap;                 ///< IMAP socket connector
+    String m_folder;               ///< IMAP folder name
+    String m_user;                 ///< IMAP user name
+    String m_password;             ///< IMAP user password
+    bool m_fetchbody {false};    ///< Do we want to fetch the message headers AND message body?
+    ProgressCallback m_callback {nullptr};   ///< Internal prograssion callback for open()
+    int m_msgid {0};            ///< Internal message ID
 };
 /**
  * @}

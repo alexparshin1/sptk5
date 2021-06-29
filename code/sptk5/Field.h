@@ -41,6 +41,7 @@ namespace sptk {
  */
 
 class Query;
+
 class FieldList;
 
 /**
@@ -48,7 +49,8 @@ class FieldList;
  *
  * Contains field name, field type, field data and field format information.
  */
-class SP_EXPORT Field : public Variant
+class SP_EXPORT Field
+    : public Variant
 {
     friend class FieldList;
 
@@ -56,11 +58,12 @@ public:
     /**
      * Combination of field view attributes
      */
-    struct View {
-        signed int  width:10;       ///< Field width
-        unsigned    precision:5;    ///< Field precision
-        unsigned    flags:16;       ///< Field flags like alignment, etc
-        bool        visible:1;      ///< Is field visible?
+    struct View
+    {
+        signed int width: 10;       ///< Field width
+        unsigned precision: 5;    ///< Field precision
+        unsigned flags: 16;       ///< Field flags like alignment, etc
+        bool visible: 1;      ///< Is field visible?
     };
 
     /**
@@ -86,7 +89,10 @@ public:
     /**
      * Combination of field view attributes
      */
-    View& view() { return m_view; };
+    View& view()
+    {
+        return m_view;
+    };
 
     /**
      * Returns field name
@@ -103,15 +109,17 @@ public:
      * Retains the data type. Sets the data to zero(s).
      * @param vtype              Optional variant type to enforce
      */
-    void setNull(VariantType vtype) override;
+    void setNull(VariantDataType vtype) override;
 
     /**
      * Copy assignment operation
      */
-    Field& operator = (const Field& other)
+    Field& operator=(const Field& other)
     {
         if (this == &other)
+        {
             return *this;
+        }
 
         setData(other);
         m_name = other.m_name;
@@ -123,14 +131,20 @@ public:
     /**
      * Move assignment operation
      */
-    Field& operator = (Field&& other) noexcept
+    Field& operator=(Field&& other) noexcept
     {
         if (this == &other)
+        {
             return *this;
+        }
 
         *static_cast<Variant*>(this) = std::move(*static_cast<Variant*>(&other));
-        m_name = std::move(other.m_name);
-        m_displayName = std::move(other.m_displayName);
+
+        m_name = other.m_name;
+        other.m_name.clear();
+
+        m_displayName = other.m_displayName;
+        other.m_displayName.clear();
 
         return *this;
     }
@@ -138,10 +152,12 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator = (const Variant &C)
+    Field& operator=(const Variant& C)
     {
         if (this == &C)
+        {
             return *this;
+        }
 
         setData(C);
         return *this;
@@ -150,7 +166,7 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator =(int64_t value) override
+    Field& operator=(int64_t value) override
     {
         setInt64(value);
         return *this;
@@ -159,7 +175,7 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator =(int32_t value) override
+    Field& operator=(int32_t value) override
     {
         setInteger(value);
         return *this;
@@ -168,7 +184,7 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator =(double value) override
+    Field& operator=(double value) override
     {
         setFloat(value);
         return *this;
@@ -177,7 +193,7 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator =(const char * value) override
+    Field& operator=(const char* value) override
     {
         setString(value);
         return *this;
@@ -186,16 +202,16 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator =(const sptk::String& value) override
+    Field& operator=(const sptk::String& value) override
     {
-        setBuffer((const uint8_t*)value.c_str(), value.length(), VAR_STRING);
+        setBuffer((const uint8_t*) value.c_str(), value.length(), VariantDataType::VAR_STRING);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    Field& operator =(DateTime value) override
+    Field& operator=(DateTime value) override
     {
         setDateTime(value);
         return *this;
@@ -204,7 +220,7 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator =(const uint8_t* value) override
+    Field& operator=(const uint8_t* value) override
     {
         setImagePtr(value);
         return *this;
@@ -213,9 +229,9 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator =(const Buffer& value) override
+    Field& operator=(const Buffer& value) override
     {
-        setBuffer(value.data(), value.bytes(), VAR_BUFFER);
+        setBuffer(value.data(), value.bytes(), VariantDataType::VAR_BUFFER);
         return *this;
     }
 
@@ -247,11 +263,12 @@ public:
 
 private:
 
-    String  m_name;          ///< Field name
-    View    m_view {};       ///< Combination of field view attributes
-    String  m_displayName;   ///< Optional display field name
+    String m_name;          ///< Field name
+    View m_view {};       ///< Combination of field view attributes
+    String m_displayName;   ///< Optional display field name
 
     String doubleDataToString() const;
+
     String epochDataToDateTimeString() const;
 };
 /**

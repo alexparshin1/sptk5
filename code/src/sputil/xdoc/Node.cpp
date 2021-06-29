@@ -24,90 +24,61 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include "Node.h"
 
-#include <sptk5/net/ServerConnection.h>
-#include <sptk5/Logger.h>
-#include <set>
-#include <iostream>
-#include <sptk5/threads/SynchronizedQueue.h>
+using namespace std;
+using namespace sptk;
+using namespace xdoc;
 
-namespace sptk {
-
-class TCPServer;
-
-/**
- * @addtogroup net Networking Classes
- * @{
- */
-
-/**
- * Internal TCP server listener thread
- */
-class TCPServerListener
-    : public Thread, public std::mutex
+Node::Node(const String& nodeName)
+    : m_name(nodeName)
 {
-public:
-    /**
-     * Constructor
-     * @param server CTCPServer*, TCP server created connection
-     * @param port int, Listener port number
-     */
-    TCPServerListener(TCPServer* server, uint16_t port);
 
-    /**
-     * Thread function
-     */
-    void threadFunction() override;
+}
 
-    /**
-     * Custom thread terminate method
-     */
-    void terminate() override;
-
-    /**
-     * Start socket listening
-     */
-    void listen()
+String Node::getAttribute(const String& name) const
+{
+    const auto itor = m_attributes.find(name);
+    if (itor == m_attributes.end())
     {
-        if (!running())
+        return String();
+    }
+    return itor->second;
+}
+
+void Node::setAttribute(const String& name, const String& value)
+{
+    m_attributes[name] = value;
+}
+
+Node* Node::find(const String& name, bool createIfMissing)
+{
+    for (auto& node: m_nodes)
+    {
+        if (node.name() == name)
         {
-            m_listenerSocket.listen();
-            run();
+            return &node;
         }
     }
 
-    /**
-     * Returns listener port number
-     */
-    uint16_t port() const
+    if (createIfMissing)
     {
-        return m_listenerSocket.host().port();
+        m_nodes.emplace_back();
+        return &m_nodes.back();
     }
 
-    /**
-     * Returns latest socket error (if any)
-     */
-    String error() const
+    return nullptr;
+}
+
+const Node* Node::find(const String& name) const
+{
+    for (const auto& node: m_nodes)
     {
-        return m_error;
+        if (node.name() == name)
+        {
+            return &node;
+        }
     }
 
-    /**
-     * Stop running listener and join its thread
-     */
-    void stop();
-
-private:
-
-    std::shared_ptr<TCPServer> m_server;  ///< TCP server created connection
-    TCPSocket m_listenerSocket;           ///< Listener socket
-    String m_error;                       ///< Last socket error
-
-    void acceptConnection();              ///< Accept connection
-};
-
-/**
- * @}
- */
+    return nullptr;
 }

@@ -45,7 +45,8 @@ namespace sptk {
  * A special variation of CField to support database field essentials
  */
 
-class SP_EXPORT DatabaseField : public Field
+class SP_EXPORT DatabaseField
+    : public Field
 {
     friend class Query;
 
@@ -60,8 +61,8 @@ public:
      * @param fieldLength		Database field length
      * @param fieldScale		Database field scale
      */
-    DatabaseField(const String& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength,
-				  int fieldScale = 4);
+    DatabaseField(const String& fieldName, int fieldColumn, int fieldType, VariantDataType dataType, int fieldLength,
+                  int fieldScale = 4);
 
     /**
      * @brief Checks the internal buffer size
@@ -114,23 +115,35 @@ public:
      * Column display format
      * @return Column display format
      */
-    String displayFormat() const { return m_displayFormat; }
+    String displayFormat() const
+    {
+        return m_displayFormat;
+    }
 
     /**
      * Set column display format
      */
-    void displayFormat(const String& format) { m_displayFormat = format; }
+    void displayFormat(const String& format)
+    {
+        m_displayFormat = format;
+    }
 
     /**
      * Column alignment
      * @return Column alignment
      */
-    int alignment() const { return m_alignment; }
+    int alignment() const
+    {
+        return m_alignment;
+    }
 
     /**
      * Set column alignment
      */
-    void alignment(int al) { m_alignment = al; }
+    void alignment(int al)
+    {
+        m_alignment = al;
+    }
 
 protected:
 
@@ -149,12 +162,12 @@ protected:
 
 private:
 
-    int     m_fldType;                  ///< Native database data type
-    int     m_fldColumn;                ///< Field column number in recordset
-    int     m_fldSize;                  ///< Field size
-    int     m_fldScale;                 ///< Field scale, optional, for floating point fields
-    String  m_displayFormat;            ///< Column display format
-    int     m_alignment {ALIGN_LEFT};   ///< Column alignment
+    int m_fldType;                  ///< Native database data type
+    int m_fldColumn;                ///< Field column number in recordset
+    int m_fldSize;                  ///< Field size
+    int m_fldScale;                 ///< Field scale, optional, for floating point fields
+    String m_displayFormat;            ///< Column display format
+    int m_alignment {ALIGN_LEFT};   ///< Column alignment
 
 
 };

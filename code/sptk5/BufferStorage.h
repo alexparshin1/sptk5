@@ -30,8 +30,7 @@
 #include <sptk5/Exception.h>
 #include <string.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup utility Utility Classes
@@ -53,34 +52,6 @@ public:
     BufferStorage() = default;
 
     /**
-     * Copy constructor
-     *
-     * Creates an empty buffer.
-     */
-    BufferStorage(const BufferStorage& other);
-
-    /**
-     * Move constructor
-     *
-     * Creates an empty buffer.
-     */
-    BufferStorage(BufferStorage&& other) noexcept;
-
-    /**
-     * Copy assignment
-     *
-     * Creates an empty buffer.
-     */
-    BufferStorage& operator = (const BufferStorage& other);
-
-    /**
-     * Move assignment
-     *
-     * Creates an empty buffer.
-     */
-    BufferStorage& operator = (BufferStorage&& other) noexcept;
-
-    /**
      * Constructor
      *
      * Creates an empty buffer.
@@ -99,11 +70,6 @@ public:
      * @param sz                Data buffer size
      */
     BufferStorage(const uint8_t* data, size_t sz);
-
-    /**
-     * Destructor
-     */
-    virtual ~BufferStorage() = default;
 
     /**
      * Returns pointer on the data buffer.
@@ -146,7 +112,9 @@ public:
     virtual void checkSize(size_t sz)
     {
         if (sz + 1 >= m_buffer.size())
+        {
             adjustSize(sz);
+        }
     }
 
     /**
@@ -167,9 +135,13 @@ public:
     void set(const BufferStorage& data)
     {
         if (data.m_bytes == 0)
+        {
             m_bytes = 0;
+        }
         else
+        {
             set(data.m_buffer.data(), data.m_bytes);
+        }
     }
 
     /**
@@ -187,7 +159,7 @@ public:
      * Returns the size of memory allocated for the data buffer
      * @returns buffer size
      */
-    size_t capacity()  const
+    size_t capacity() const
     {
         return m_buffer.size() - 1;
     }
@@ -219,8 +191,11 @@ public:
     void bytes(size_t b)
     {
         if (m_bytes == b)
+        {
             return;
-        if (b + 1 <= m_buffer.size()) {
+        }
+        if (b + 1 <= m_buffer.size())
+        {
             m_bytes = b;
             m_buffer[b] = 0;
             return;
@@ -304,7 +279,9 @@ protected:
         m_buffer.resize(size + 1);
         m_bytes = size;
         if (data != nullptr && size != 0)
+        {
             memcpy(m_buffer.data(), data, size);
+        }
         m_buffer[size] = 0;
     }
 
@@ -316,7 +293,9 @@ protected:
     {
         m_buffer.resize(size + 1);
         if (m_bytes > size)
+        {
             m_bytes = size;
+        }
         m_buffer[size] = 0;
     }
 
@@ -338,8 +317,8 @@ protected:
 
 private:
 
-    std::vector<uint8_t>    m_buffer;         ///< Actual storage
-    size_t                  m_bytes {0};      ///< Actual size of the data in buffer
+    std::vector<uint8_t> m_buffer;         ///< Actual storage
+    size_t m_bytes {0};      ///< Actual size of the data in buffer
 };
 
 /**

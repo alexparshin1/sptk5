@@ -424,7 +424,7 @@ size_t SSLSocket::send(const uint8_t* buffer, size_t len)
 
 TEST(SPTK_SSLSocket, connect)
 {
-    SSLKeys keys(TEST_DIRECTORY "/keys/test.key", TEST_DIRECTORY "/keys/test.cert");
+    SSLKeys keys(String(TEST_DIRECTORY) + "/keys/test.key", String(TEST_DIRECTORY) + "/keys/test.cert");
     SSLSocket sslSocket;
 
     try

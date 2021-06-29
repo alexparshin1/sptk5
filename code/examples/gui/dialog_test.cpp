@@ -70,7 +70,7 @@ public:
 
         auto* cb = new CComboBox("Business Type:");
         cb->fieldName("business_type");
-        cb->addColumn("business type", VAR_STRING, 120);
+        cb->addColumn("business type", VariantDataType::VAR_STRING, 120);
         cb->addRow(1, Strings("Agriculture", "|"));
         cb->addRow(2, Strings("Education", "|"));
         cb->addRow(3, Strings("Hardware", "|"));

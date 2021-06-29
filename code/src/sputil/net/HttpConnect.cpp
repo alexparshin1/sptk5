@@ -136,7 +136,7 @@ int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParame
 static bool compressPostData(const sptk::Strings& possibleContentEncodings, Strings& headers, const Buffer& postData,
                              Buffer& compressedData)
 {
-    static const sptk::Strings& availableContentEncodings{
+    static const sptk::Strings& availableContentEncodings {
 #if HAVE_BROTLI
         "br",
 #endif
@@ -192,18 +192,28 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
 {
     Strings headers = makeHeaders("POST", pageName, parameters, authorization);
 
-    const Buffer* data = &postData;
-
-    if (Buffer compressBuffer; !possibleContentEncodings.empty()
-                               && compressPostData(possibleContentEncodings, headers, postData, compressBuffer))
+    bool compressed = false;
+    size_t contentLength = postData.bytes();
+    Buffer compressBuffer;
+    if (!possibleContentEncodings.empty()
+        && compressPostData(possibleContentEncodings, headers, postData, compressBuffer))
     {
-        data = &compressBuffer;
+        compressed = true;
+        contentLength = compressBuffer.bytes();
     }
 
-    headers.push_back("Content-Length: " + int2string((uint32_t) data->bytes()));
+    headers.push_back("Content-Length: " + to_string(contentLength));
 
     Buffer command(headers.join("\r\n") + "\r\n\r\n");
-    command.append(*data);
+
+    if (compressed)
+    {
+        command.append(compressBuffer);
+    }
+    else
+    {
+        command.append(postData);
+    }
 
     sendCommand(command);
 
@@ -261,7 +271,8 @@ HttpConnect::Authorization::Authorization(const String& method, const String& us
                                           const String& jwtToken)
     : m_method(method),
       m_value(method == "basic" ? md5(username + ":" + password) : jwtToken)
-{}
+{
+}
 
 #if USE_GTEST
 

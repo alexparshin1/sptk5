@@ -31,14 +31,14 @@ using namespace std;
 using namespace sptk;
 
 TCPServerListener::TCPServerListener(TCPServer* server, uint16_t port)
-    : Thread("CTCPServer::Listener"), m_server(server)
+    : Thread("CTCPServer::Listener"),
+      m_server(shared_ptr<TCPServer>(server,
+                                     [this](const TCPServer*) {
+                                         // don't destroy server object as it's not owned here
+                                         stop();
+                                     }))
 {
     m_listenerSocket.host(Host("localhost", port));
-}
-
-TCPServerListener::~TCPServerListener()
-{
-    stop();
 }
 
 void TCPServerListener::acceptConnection()

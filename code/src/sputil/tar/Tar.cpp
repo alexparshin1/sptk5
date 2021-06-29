@@ -95,7 +95,7 @@ unsigned readOctalNumber(Field& field, const String& fieldName)
 {
     constexpr int octal = 8;
     errno = 0;
-    unsigned value = strtoul(field.data(), nullptr, octal);
+    auto value = (unsigned) strtoul(field.data(), nullptr, octal);
     if (errno != 0)
     {
         throw Exception("Invalid octal number for " + fieldName);

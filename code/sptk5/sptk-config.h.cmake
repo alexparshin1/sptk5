@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       sptk-config.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -28,8 +26,8 @@
 
 #pragma once
 
-#define VERSION          "@VERSION@"
-#define THEMES_PREFIX    "@THEMES_PREFIX@"
+constexpr const char* VERSION = "@VERSION@";
+constexpr const char* THEMES_PREFIX = "@THEMES_PREFIX@";
 
 /// @addtogroup utility Utility Classes
 /// @{

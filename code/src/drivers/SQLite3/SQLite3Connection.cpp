@@ -42,7 +42,7 @@ class SQLite3Field
 
 public:
     SQLite3Field(const std::string& fieldName, int fieldColumn)
-        : DatabaseField(fieldName, fieldColumn, 0, VAR_NONE, 0, 0)
+        : DatabaseField(fieldName, fieldColumn, 0, VariantDataType::VAR_NONE, 0, 0)
     {
     }
 };
@@ -257,7 +257,7 @@ void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber) const
 {
     auto* stmt = (SQLHSTMT) query->statement();
     QueryParameter* param = &query->param(paramNumber);
-    VariantType ptype = param->dataType();
+    VariantDataType ptype = param->dataType();
 
     for (unsigned j = 0; j < param->bindCount(); ++j)
     {
@@ -273,32 +273,32 @@ void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber) const
         {
             switch (ptype)
             {
-                case VAR_BOOL:
-                case VAR_INT:
+                case VariantDataType::VAR_BOOL:
+                case VariantDataType::VAR_INT:
                     rc = sqlite3_bind_int(stmt, paramBindNumber, param->getInteger());
                     break;
 
-                case VAR_INT64:
+                case VariantDataType::VAR_INT64:
                     rc = sqlite3_bind_int64(stmt, paramBindNumber, param->getInt64());
                     break;
 
-                case VAR_FLOAT:
+                case VariantDataType::VAR_FLOAT:
                     rc = sqlite3_bind_double(stmt, paramBindNumber, param->getFloat());
                     break;
 
-                case VAR_STRING:
-                case VAR_TEXT:
+                case VariantDataType::VAR_STRING:
+                case VariantDataType::VAR_TEXT:
                     rc = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
                                            nullptr);
                     break;
 
-                case VAR_BUFFER:
+                case VariantDataType::VAR_BUFFER:
                     rc = sqlite3_bind_blob(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
                                            nullptr);
                     break;
 
-                case VAR_DATE:
-                case VAR_DATE_TIME:
+                case VariantDataType::VAR_DATE:
+                case VariantDataType::VAR_DATE_TIME:
                 throwException("Date and time types isn't yet supported for SQLite3")
 
                 default:
@@ -318,30 +318,30 @@ void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber) const
     }
 }
 
-void SQLite3Connection::SQLITEtypeToCType(int sqliteType, VariantType& dataType)
+void SQLite3Connection::SQLITEtypeToCType(int sqliteType, VariantDataType& dataType)
 {
     switch (sqliteType)
     {
 
         case SQLITE_INTEGER:
-            dataType = VAR_INT64;
+            dataType = VariantDataType::VAR_INT64;
             break;
 
         case SQLITE_FLOAT:
-            dataType = VAR_FLOAT;
+            dataType = VariantDataType::VAR_FLOAT;
             break;
 
         case 0:
         case SQLITE_TEXT:
-            dataType = VAR_STRING;
+            dataType = VariantDataType::VAR_STRING;
             break;
 
         case SQLITE_BLOB:
-            dataType = VAR_BUFFER;
+            dataType = VariantDataType::VAR_BUFFER;
             break;
 
         default:
-            dataType = VAR_NONE;
+            dataType = VariantDataType::VAR_NONE;
             break;
     }
 }
@@ -493,13 +493,14 @@ void SQLite3Connection::queryFetch(Query* query)
                         break;
 
                     case SQLITE_TEXT:
-                        field->setBuffer(sqlite3_column_text(statement, int(column)), dataLength, VAR_STRING);
+                        field->setBuffer(sqlite3_column_text(statement, int(column)), dataLength,
+                                         VariantDataType::VAR_STRING);
                         dataLength = trimField((char*) field->getBuffer(), dataLength);
                         break;
 
                     case SQLITE_BLOB:
                         field->setBuffer((const uint8_t*) sqlite3_column_blob(statement, int(column)), dataLength,
-                                         VAR_BUFFER);
+                                         VariantDataType::VAR_BUFFER);
                         break;
 
                     default:
@@ -513,7 +514,7 @@ void SQLite3Connection::queryFetch(Query* query)
             else
             {
                 field->setString("");
-                field->setNull(VAR_NONE);
+                field->setNull(VariantDataType::VAR_NONE);
             }
         }
         catch (const Exception& e)

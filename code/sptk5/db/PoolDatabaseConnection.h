@@ -84,7 +84,7 @@ enum class DatabaseObjectType
  */
 struct QueryColumnTypeSize
 {
-    VariantType type;   ///< Column type
+    VariantDataType type;   ///< Column type
     size_t length; ///< Column data size
 };
 

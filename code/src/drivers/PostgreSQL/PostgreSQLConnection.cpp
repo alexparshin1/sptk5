@@ -307,21 +307,21 @@ String PostgreSQLConnection::queryError(const Query*) const
 void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    auto* stmt = (StmtHandle) new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64,
-                                                      query->autoPrepare());
-    querySetStmt(query, shared_ptr<uint8_t>(stmt,
-                                            [this](StmtHandle stmtHandle) {
-                                                auto* statement = (PostgreSQLStatement*) stmtHandle;
-                                                if (statement->stmt() != nullptr && !statement->name().empty())
-                                                {
-                                                    String deallocateCommand =
-                                                        "DEALLOCATE \"" + statement->name() + "\"";
-                                                    PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
-                                                    checkError(m_connect, res, "DEALLOCATE");
-                                                    PQclear(res);
-                                                }
-                                                delete statement;
-                                            }));
+    querySetStmt(query,
+                 shared_ptr<uint8_t>((StmtHandle) new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64,
+                                                                          query->autoPrepare()),
+                                     [this](StmtHandle stmtHandle) {
+                                         auto* statement = (PostgreSQLStatement*) stmtHandle;
+                                         if (statement->stmt() != nullptr && !statement->name().empty())
+                                         {
+                                             String deallocateCommand =
+                                                 "DEALLOCATE \"" + statement->name() + "\"";
+                                             PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
+                                             checkError(m_connect, res, "DEALLOCATE");
+                                             PQclear(res);
+                                         }
+                                         delete statement;
+                                     }));
 }
 
 void PostgreSQLConnection::queryFreeStmt(Query* query)
@@ -499,88 +499,88 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
     }
 }
 
-void PostgreSQLConnection::PostgreTypeToCType(PostgreSQLDataType postgreType, VariantType& dataType)
+void PostgreSQLConnection::PostgreTypeToCType(PostgreSQLDataType postgreType, VariantDataType& dataType)
 {
     switch (postgreType)
     {
         case PostgreSQLDataType::BOOLEAN:
-            dataType = VAR_BOOL;
+            dataType = VariantDataType::VAR_BOOL;
             return;
 
         case PostgreSQLDataType::OID:
         case PostgreSQLDataType::INT2:
         case PostgreSQLDataType::INT4:
-            dataType = VAR_INT;
+            dataType = VariantDataType::VAR_INT;
             return;
 
         case PostgreSQLDataType::INT8:
-            dataType = VAR_INT64;
+            dataType = VariantDataType::VAR_INT64;
             return;
 
         case PostgreSQLDataType::NUMERIC:
         case PostgreSQLDataType::FLOAT4:
         case PostgreSQLDataType::FLOAT8:
-            dataType = VAR_FLOAT;
+            dataType = VariantDataType::VAR_FLOAT;
             return;
 
         case PostgreSQLDataType::BYTEA:
-            dataType = VAR_BUFFER;
+            dataType = VariantDataType::VAR_BUFFER;
             return;
 
         case PostgreSQLDataType::DATE:
-            dataType = VAR_DATE;
+            dataType = VariantDataType::VAR_DATE;
             return;
 
         case PostgreSQLDataType::TIME:
         case PostgreSQLDataType::TIMESTAMP:
-            dataType = VAR_DATE_TIME;
+            dataType = VariantDataType::VAR_DATE_TIME;
             return;
 
         default:
-            dataType = VAR_STRING;
+            dataType = VariantDataType::VAR_STRING;
             return;
     }
 }
 
-void PostgreSQLConnection::CTypeToPostgreType(VariantType dataType, PostgreSQLDataType& postgreType,
+void PostgreSQLConnection::CTypeToPostgreType(VariantDataType dataType, PostgreSQLDataType& postgreType,
                                               const String& paramName)
 {
     switch (dataType)
     {
-        case VAR_INT:
+        case VariantDataType::VAR_INT:
             postgreType = PostgreSQLDataType::INT4;
             return;        ///< Integer 4 bytes
 
-        case VAR_MONEY:
-        case VAR_FLOAT:
+        case VariantDataType::VAR_MONEY:
+        case VariantDataType::VAR_FLOAT:
             postgreType = PostgreSQLDataType::FLOAT8;
             return;        ///< Floating-point (double)
 
-        case VAR_STRING:
-        case VAR_TEXT:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
             postgreType = PostgreSQLDataType::VARCHAR;
             return;        ///< Varchar
 
-        case VAR_BUFFER:
+        case VariantDataType::VAR_BUFFER:
             postgreType = PostgreSQLDataType::BYTEA;
             return;        ///< Bytea
 
-        case VAR_DATE:
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
             postgreType = PostgreSQLDataType::TIMESTAMP;
             return;        ///< Timestamp
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
             postgreType = PostgreSQLDataType::INT8;
             return;        ///< Integer 8 bytes
 
-        case VAR_BOOL:
+        case VariantDataType::VAR_BOOL:
             postgreType = PostgreSQLDataType::BOOLEAN;
             return;           ///< Boolean
 
         default:
             throw DatabaseException(
-                "Unsupported parameter type(" + to_string(dataType) + ") for parameter '" + paramName + "'");
+                "Unsupported parameter type(" + to_string((int) dataType) + ") for parameter '" + paramName + "'");
     }
 }
 
@@ -642,7 +642,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
             }
 
             auto dataType = (PostgreSQLDataType) PQftype(stmt, column);
-            VariantType fieldType = VAR_NONE;
+            VariantDataType fieldType = VariantDataType::VAR_NONE;
             PostgreTypeToCType(dataType, fieldType);
             int fieldLength = PQfsize(stmt, column);
             auto* field = new DatabaseField(columnName.str(), column, (int) dataType, fieldType, fieldLength);
@@ -934,23 +934,25 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
             if (dataLength == 0)
             {
-                VariantType dataType;
+                VariantDataType dataType;
                 PostgreTypeToCType(fieldType, dataType);
 
                 bool isNull = true;
-                if (dataType & (VAR_STRING | VAR_TEXT | VAR_BUFFER))
+                if ((int) dataType & ((int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT |
+                                      (int) VariantDataType::VAR_BUFFER))
                 {
                     isNull = PQgetisnull(stmt, currentRow, column) == 1;
                 }
 
                 if (isNull)
                 {
-                    field->setNull(VAR_NONE);
+                    field->setNull(dataType);
                 }
                 else
                 {
                     static array<char, 2> emptyString {};
-                    field->setExternalBuffer((uint8_t*) emptyString.data(), 0, VAR_STRING); // External string
+                    field->setExternalBuffer((uint8_t*) emptyString.data(), 0,
+                                             VariantDataType::VAR_STRING); // External string
                 }
             }
             else
@@ -989,7 +991,8 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     case PostgreSQLDataType::BYTEA:
-                        field->setExternalBuffer((uint8_t*) data, (size_t) dataLength, VAR_BUFFER); // External buffer
+                        field->setExternalBuffer((uint8_t*) data, (size_t) dataLength,
+                                                 VariantDataType::VAR_BUFFER); // External buffer
                         break;
 
                     case PostgreSQLDataType::DATE:
@@ -1016,7 +1019,8 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     default:
-                        field->setExternalBuffer((uint8_t*) data, size_t(dataLength), VAR_STRING); // External string
+                        field->setExternalBuffer((uint8_t*) data, size_t(dataLength),
+                                                 VariantDataType::VAR_STRING); // External string
                         break;
                 }
             }
@@ -1110,7 +1114,8 @@ static void appendTSV(Buffer& dest, const VariantVector& row)
             dest.append("\\N", 2);
             continue;
         }
-        if (value.dataType() & (VAR_BUFFER | VAR_STRING | VAR_TEXT))
+        if ((int) value.dataType() &
+            ((int) VariantDataType::VAR_BUFFER | (int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT))
         {
             dest.append(escapeSQLString(value.asString(), true));
         }

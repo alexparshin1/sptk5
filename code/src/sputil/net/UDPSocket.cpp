@@ -76,7 +76,8 @@ size_t UDPSocket::read(String& buffer, size_t size, sockaddr_in* from)
 
 #if USE_GTEST
 
-class UDPEchoServer : public UDPSocket, public Thread
+class UDPEchoServer
+    : public UDPSocket, public Thread
 {
     UDPSocket socket;
 public:
@@ -109,9 +110,9 @@ public:
         {
             try
             {
-                if (socket.readyToRead(chrono::seconds(30)))
+                if (socket.readyToRead(chrono::milliseconds(100)))
                 {
-                    sockaddr_in from{};
+                    sockaddr_in from {};
                     size_t sz = socket.read(data.data(), 2048, &from);
                     if (sz == 0)
                     {
@@ -123,7 +124,8 @@ public:
             }
             catch (const Exception& e)
             {
-                CERR(e.what() << endl)
+                COUT("Server: " << e.what() << endl)
+                break;
             }
         }
         socket.close();
@@ -137,7 +139,7 @@ TEST(SPTK_UDPSocket, minimal)
     UDPEchoServer echoServer;
     echoServer.run();
 
-    sockaddr_in serverAddr{};
+    sockaddr_in serverAddr {};
     Host serverHost("127.0.0.1:3000");
     serverHost.getAddress(serverAddr);
 
@@ -154,18 +156,22 @@ TEST(SPTK_UDPSocket, minimal)
     {
         socket.write((const uint8_t*) row.c_str(), row.length(), &serverAddr);
         buffer.bytes(0);
-        if (socket.readyToRead(chrono::seconds(3)))
+        if (socket.readyToRead(chrono::milliseconds(100)))
         {
             auto bytes = socket.read(buffer.data(), 2048);
             if (bytes > 0)
             {
                 buffer.bytes(bytes);
             }
+            COUT("received " << bytes << " bytes: " << buffer.c_str() << endl)
         }
         EXPECT_STREQ(row.c_str(), buffer.c_str());
         ++rowCount;
     }
     EXPECT_EQ(4, rowCount);
+
+    echoServer.terminate();
+    echoServer.join();
 
     socket.close();
 }
