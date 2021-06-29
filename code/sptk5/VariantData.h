@@ -42,44 +42,37 @@ namespace sptk {
  */
 struct VariantDataBuffer
 {
-    char*        data;      ///< String or buffer pointer
-    size_t       size;      ///< Allocated buffer size
+    char* data;      ///< String or buffer pointer
+    size_t size;      ///< Allocated buffer size
 };
 
 /**
  * Variant types
  */
-enum VariantType : uint16_t
+enum class VariantDataType
+    : uint16_t
 {
-    VAR_NONE      = 0,      ///< Undefined
-    VAR_INT       = 1,      ///< Integer
-    VAR_FLOAT     = 2,      ///< Floating-point (double)
-    VAR_MONEY     = 4,      ///< Special (integer quantity and scale) money
-    VAR_STRING    = 8,      ///< String pointer
-    VAR_TEXT      = 16,     ///< String pointer, corresponding to BLOBS in database
-    VAR_BUFFER    = 32,     ///< Data pointer, corresponding to BLOBS in database
-    VAR_DATE      = 64,     ///< DateTime (double)
-    VAR_DATE_TIME = 128,    ///< DateTime (double)
-    VAR_IMAGE_PTR = 256,    ///< Image pointer
-    VAR_IMAGE_NDX = 512,    ///< Image index in object-specific table of image pointers
-    VAR_INT64     = 1024,   ///< 64bit integer
-    VAR_BOOL      = 2048    ///< Boolean
+    VAR_NONE = 0,        ///< Undefined
+    VAR_INT = 1,         ///< Integer
+    VAR_FLOAT = 2,       ///< Floating-point (double)
+    VAR_MONEY = 4,       ///< Special (integer quantity and scale) money
+    VAR_STRING = 8,      ///< String pointer
+    VAR_TEXT = 16,       ///< String pointer, corresponding to BLOBS in database
+    VAR_BUFFER = 32,     ///< Data pointer, corresponding to BLOBS in database
+    VAR_DATE = 64,       ///< DateTime (double)
+    VAR_DATE_TIME = 128, ///< DateTime (double)
+    VAR_IMAGE_PTR = 256, ///< Image pointer
+    VAR_IMAGE_NDX = 512, ///< Image index in object-specific table of image pointers
+    VAR_INT64 = 1024,    ///< 64bit integer
+    VAR_BOOL = 2048      ///< Boolean
 };
 
-/**
- * FLAG: External const memory buffer, memory isn't managed
- */
-constexpr int VAR_EXTERNAL_BUFFER = 16384;
-
-/**
- * FLAG: Data is NULL
- */
-constexpr int VAR_NULL = 32768;
-
-/**
- * MASK: All the known field types w/o flags
- */
-constexpr int VAR_TYPES = 16383;
+struct VariantType
+{
+    VariantDataType type: 12;
+    bool isNull: 1;
+    bool isExternalBuffer: 1;
+};
 
 /**
  * Money data (internal).
@@ -87,13 +80,13 @@ constexpr int VAR_TYPES = 16383;
  * A combination of integer quantity and scale - positive integer presenting power of ten for divider.
  * A money value is quantity / 10^(scale)
  */
-class MoneyData
+class SP_EXPORT MoneyData
 {
 public:
 
-    static std::array<int64_t,16>   dividers;    ///< Dividers that help formatting money data
-    int64_t                         quantity;    ///< Integer value
-    uint8_t                         scale;       ///< Scale
+    static std::array<int64_t, 16> dividers;    ///< Dividers that help formatting money data
+    int64_t quantity;    ///< Integer value
+    uint8_t scale;       ///< Scale
 
     /**
      * Constructor
@@ -101,28 +94,29 @@ public:
      * @param scale             Money value scale (signs after decimal point)
      */
     MoneyData(int64_t quantity, uint8_t scale)
-    : quantity(quantity), scale(scale)
-    {}
+        : quantity(quantity), scale(scale)
+    {
+    }
 
     /**
      * Convert to double value
      */
-    explicit operator double () const;
+    explicit operator double() const;
 
     /**
      * Convert to integer value
      */
-    explicit operator int64_t () const;
+    explicit operator int64_t() const;
 
     /**
      * Convert to integer value
      */
-    explicit operator int32_t () const;
+    explicit operator int32_t() const;
 
     /**
      * Convert to bool value
      */
-    explicit operator bool () const;
+    explicit operator bool() const;
 
 };
 
@@ -148,10 +142,11 @@ public:
      * @param other             Other object
      */
     VariantData(VariantData&& other) noexcept
-    : m_data(std::move(other.m_data)),
-      m_dataType(std::exchange(other.m_dataType, VAR_NONE | VAR_NULL)),
-      m_dataSize(std::exchange(other.m_dataSize, 0))
-    {}
+        : m_data(std::move(other.m_data)),
+          m_dataType(std::exchange(other.m_dataType, emptyType)),
+          m_dataSize(std::exchange(other.m_dataSize, 0))
+    {
+    }
 
     virtual ~VariantData() noexcept = default;
 
@@ -159,18 +154,19 @@ public:
      * Copy assigment
      * @param other             Other object
      */
-    VariantData& operator = (const VariantData& other) = default;
+    VariantData& operator=(const VariantData& other) = default;
 
     /**
      * Move assignment
      * @param other             Other object
      */
-    VariantData& operator = (VariantData&& other) noexcept
+    VariantData& operator=(VariantData&& other) noexcept
     {
-        if (&other != this) {
+        if (&other != this)
+        {
             m_data = std::move(other.m_data);
             m_dataType = other.m_dataType;
-            other.m_dataType = VAR_NONE | VAR_NULL;
+            other.m_dataType = VariantType {VariantDataType::VAR_NONE, true, false};
             m_dataSize = other.m_dataSize;
             other.m_dataSize = 0;
         }
@@ -316,12 +312,22 @@ public:
         return (char*) m_data.data();
     }
 
-    void type(uint16_t dataType)
+    void type(VariantType dataType)
     {
         m_dataType = dataType;
     }
 
-    uint16_t type() const
+    void type(VariantDataType dataType)
+    {
+        m_dataType.type = dataType;
+    }
+
+    void setNull(bool isNull)
+    {
+        m_dataType.isNull = isNull;
+    }
+
+    VariantType type() const
     {
         return m_dataType;
     }
@@ -338,9 +344,11 @@ public:
 
 private:
 
-    std::array<uint8_t,32>  m_data {};              ///< Variant data BLOB
-    uint16_t                m_dataType {VAR_NONE};  ///< Data type
-    size_t                  m_dataSize {0};         ///< Data size
+    static constexpr VariantType emptyType {VariantDataType::VAR_NONE, true, false};
+
+    std::array<uint8_t, 32> m_data {};  ///< Variant data BLOB
+    VariantType m_dataType {emptyType}; ///< Variant type
+    size_t m_dataSize {0};              ///< Data size
 };
 
 /**

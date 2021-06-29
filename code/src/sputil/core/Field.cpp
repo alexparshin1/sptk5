@@ -40,13 +40,13 @@ Field::Field(const String& name)
     dataSize(0);
 }
 
-void Field::setNull(VariantType vtype)
+void Field::setNull(VariantDataType vtype)
 {
     switch (dataType())
     {
-        case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
             if (isExternalBuffer())
             {
                 m_data.getBuffer().data = nullptr;
@@ -63,13 +63,14 @@ void Field::setNull(VariantType vtype)
             break;
     }
 
-    if (vtype == VAR_NONE)
+    if (vtype == VariantDataType::VAR_NONE)
     {
-        m_data.type(uint16_t(m_data.type() | VAR_NULL));
+        m_data.setNull(true);
     }
     else
     {
-        m_data.type(vtype | VAR_NULL);
+        VariantType type {vtype, true, false};
+        m_data.type(type);
     }
 }
 
@@ -88,17 +89,17 @@ String Field::asString() const
 
     switch (dataType())
     {
-        case VAR_BOOL:
+        case VariantDataType::VAR_BOOL:
             result = m_data.getInteger() != 0 ? "true" : "false";
             break;
 
-        case VAR_INT:
-        case VAR_IMAGE_NDX:
+        case VariantDataType::VAR_INT:
+        case VariantDataType::VAR_IMAGE_NDX:
             len = snprintf(print_buffer.data(), maxPrintLength, "%i", m_data.getInteger());
             result.assign(print_buffer.data(), len);
             break;
 
-        case VAR_INT64:
+        case VariantDataType::VAR_INT64:
 #ifndef _WIN32
             len = snprintf(print_buffer.data(), maxPrintLength, "%li", m_data.getInt64());
 #else
@@ -107,32 +108,32 @@ String Field::asString() const
             result.assign(print_buffer.data(), len);
             break;
 
-        case VAR_FLOAT:
+        case VariantDataType::VAR_FLOAT:
             result = doubleDataToString();
             break;
 
-        case VAR_MONEY:
+        case VariantDataType::VAR_MONEY:
             result = moneyDataToString();
             break;
 
-        case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
             if (m_data.getBuffer().data != nullptr)
             {
                 result = m_data.getBuffer().data;
             }
             break;
 
-        case VAR_DATE:
+        case VariantDataType::VAR_DATE:
             result = DateTime(chrono::microseconds(m_data.getInt64())).dateString();
             break;
 
-        case VAR_DATE_TIME:
+        case VariantDataType::VAR_DATE_TIME:
             result = epochDataToDateTimeString();
             break;
 
-        case VAR_IMAGE_PTR:
+        case VariantDataType::VAR_IMAGE_PTR:
             len = snprintf(print_buffer.data(), maxPrintLength, "%p", (const void*) m_data.getImagePtr());
             result.assign(print_buffer.data(), len);
             break;
@@ -164,7 +165,7 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
     {
         xml::Element* element = nullptr;
 
-        if (dataType() == VAR_TEXT)
+        if (dataType() == VariantDataType::VAR_TEXT)
         {
             element = new xml::Element(node, fieldName());
             new xml::CDataSection(*element, value);

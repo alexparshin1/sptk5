@@ -32,71 +32,78 @@
 using namespace std;
 using namespace sptk;
 
-void theme_cb(Fl_Widget *w, void *)
+void theme_cb(Fl_Widget* w, void*)
 {
-    try {
-        auto* themesCombo = (CComboBox *) w;
+    try
+    {
+        auto* themesCombo = (CComboBox*) w;
         String themeName = themesCombo->data().asString();
 
-        if (themesCombo->eventType() == CE_DATA_CHANGED) {
+        if (themesCombo->eventType() == CE_DATA_CHANGED)
+        {
             CThemes::set(themeName);
 
-            auto* window = (CWindow *) w->window();
+            auto* window = (CWindow*) w->window();
             window->relayout();
             window->redraw();
         }
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         spError(e.what());
     }
 }
 
-void exit_cb(Fl_Widget *w, void *)
+void exit_cb(Fl_Widget* w, void*)
 {
     w->window()->hide();
 }
 
-void combo_cb(Fl_Widget *w, void *)
+void combo_cb(Fl_Widget* w, void*)
 {
-    auto* control = dynamic_cast<CControl *> (w);
+    auto* control = dynamic_cast<CControl*> (w);
     if (!control)
+    {
         return;
-    switch (control->eventType()) {
+    }
+    switch (control->eventType())
+    {
         case CE_FOCUS:
-            COUT("Got focus" << endl)
+        COUT("Got focus" << endl)
             break;
         case CE_UNFOCUS:
-            COUT("Lost focus" << endl)
+        COUT("Lost focus" << endl)
             break;
         case CE_DATA_CHANGED:
-            COUT("Data Changed" << endl)
+        COUT("Data Changed" << endl)
             break;
         case UC_ADD_ITEM:
-            COUT("Add Item Command" << endl)
+        COUT("Add Item Command" << endl)
             break;
         case UC_EDIT_ITEM:
-            COUT("Edit Item Command" << endl)
+        COUT("Edit Item Command" << endl)
             break;
         case UC_DELETE_ITEM:
-            COUT("Delete Item Command" << endl)
+        COUT("Delete Item Command" << endl)
             break;
         case CE_MOUSE_CLICK:
-            COUT("Mouse Click" << endl)
+        COUT("Mouse Click" << endl)
             break;
         case CE_MOUSE_DOUBLE_CLICK:
-            COUT("Mouse Double Click" << endl)
+        COUT("Mouse Double Click" << endl)
             break;
         case CE_KEYBOARD:
-            COUT("Keyboard Key Pressed" << endl)
+        COUT("Keyboard Key Pressed" << endl)
             break;
         default:
             break;
     }
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes allThemes;
 
@@ -105,9 +112,9 @@ int main(int argc, char *argv[])
         CComboBox cb("Test Combo Box:");
 
         CColumnList columns;
-        columns.push_back(CColumn("name", VAR_STRING, 45));
-        columns.push_back(CColumn("phone", VAR_STRING, 140));
-        columns.push_back(CColumn("city", VAR_STRING, 120));
+        columns.push_back(CColumn("name", VariantDataType::VAR_STRING, 45));
+        columns.push_back(CColumn("phone", VariantDataType::VAR_STRING, 140));
+        columns.push_back(CColumn("city", VariantDataType::VAR_STRING, 120));
         cb.columns(columns);
 
         Strings sl1("Alex|(415)-123-45678|SF", "|");
@@ -149,7 +156,8 @@ int main(int argc, char *argv[])
 
         return Fl::run();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

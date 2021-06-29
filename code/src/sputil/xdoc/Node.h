@@ -26,88 +26,67 @@
 
 #pragma once
 
-#include <sptk5/net/ServerConnection.h>
-#include <sptk5/Logger.h>
-#include <set>
-#include <iostream>
-#include <sptk5/threads/SynchronizedQueue.h>
+#include <sptk5/Variant.h>
 
-namespace sptk {
+namespace sptk::xdoc {
 
-class TCPServer;
-
-/**
- * @addtogroup net Networking Classes
- * @{
- */
-
-/**
- * Internal TCP server listener thread
- */
-class TCPServerListener
-    : public Thread, public std::mutex
+class Node
+    : public Variant
 {
 public:
-    /**
-     * Constructor
-     * @param server CTCPServer*, TCP server created connection
-     * @param port int, Listener port number
-     */
-    TCPServerListener(TCPServer* server, uint16_t port);
 
-    /**
-     * Thread function
-     */
-    void threadFunction() override;
+    using Nodes = std::vector<Node>;
+    using Attributes = std::map<String, String>;
+    using iterator = Nodes::iterator;
+    using const_iterator = Nodes::const_iterator;
 
-    /**
-     * Custom thread terminate method
-     */
-    void terminate() override;
-
-    /**
-     * Start socket listening
-     */
-    void listen()
+    enum class NodeType
+        : uint8_t
     {
-        if (!running())
+        Null,
+        Text,
+        Number,
+        Boolean,
+        Array,
+        Object
+    };
+
+    Node(const String& nodeName = "");
+
+    String name() const
+    {
+        return m_name;
+    }
+
+    String getAttribute(const String& name) const;
+
+    void setAttribute(const String& name, const String& value);
+
+    Variant& operator[](const String& name)
+    {
+        return *find(name, true);
+    }
+
+    const Variant& operator[](const String& name) const
+    {
+        auto* pNode = find(name);
+        if (pNode == nullptr)
         {
-            m_listenerSocket.listen();
-            run();
+            throw Exception("Element " + name + " doesn't exist");
         }
+        return *pNode;
     }
 
-    /**
-     * Returns listener port number
-     */
-    uint16_t port() const
-    {
-        return m_listenerSocket.host().port();
-    }
+    Node* find(const String& name, bool createIfMissing);
 
-    /**
-     * Returns latest socket error (if any)
-     */
-    String error() const
-    {
-        return m_error;
-    }
-
-    /**
-     * Stop running listener and join its thread
-     */
-    void stop();
+    const Node* find(const String& name) const;
 
 private:
 
-    std::shared_ptr<TCPServer> m_server;  ///< TCP server created connection
-    TCPSocket m_listenerSocket;           ///< Listener socket
-    String m_error;                       ///< Last socket error
-
-    void acceptConnection();              ///< Accept connection
+    String m_name;
+    NodeType m_nodeType {NodeType::Null};
+    Attributes m_attributes;
+    Nodes m_nodes;
 };
 
-/**
- * @}
- */
 }

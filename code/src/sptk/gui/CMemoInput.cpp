@@ -103,7 +103,7 @@ void CMemoInput::save(Query* updateQuery)
         return;
     }
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
-    param.setBuffer((const uint8_t*) data().getString(), strlen(data().getString()), VAR_TEXT);
+    param.setBuffer((const uint8_t*) data().getString(), strlen(data().getString()), VariantDataType::VAR_TEXT);
 }
 
 bool CMemoInput::preferredSize(int& w, int& h)

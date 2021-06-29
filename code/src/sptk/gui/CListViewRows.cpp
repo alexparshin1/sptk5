@@ -38,7 +38,7 @@ CListViewRows::CListViewRows()
 {
     m_sortColumn = -1;
     m_sortAscending = true;
-    m_sortColumnType = VAR_STRING;
+    m_sortColumnType = VariantDataType::VAR_STRING;
     m_fullHeight = 0;
 }
 
@@ -154,17 +154,17 @@ void CListViewRows::sort()
         CListViewRows::currentSortColumn = m_sortColumn;
         switch (m_sortColumnType)
         {
-            case VAR_BOOL:
-            case VAR_INT:
+            case VariantDataType::VAR_BOOL:
+            case VariantDataType::VAR_INT:
                 std::sort(m_rows.begin(), m_rows.end(), compare_integers);
                 break;
-            case VAR_FLOAT:
+            case VariantDataType::VAR_FLOAT:
                 std::sort(m_rows.begin(), m_rows.end(), compare_floats);
                 break;
-            case VAR_DATE:
+            case VariantDataType::VAR_DATE:
                 std::sort(m_rows.begin(), m_rows.end(), compare_dates);
                 break;
-            case VAR_DATE_TIME:
+            case VariantDataType::VAR_DATE_TIME:
                 std::sort(m_rows.begin(), m_rows.end(), compare_datetimes);
                 break;
             default:
@@ -189,7 +189,7 @@ void CListViewRows::sort()
     Fl::check();
 }
 
-void CListViewRows::sortColumn(int column, VariantType columnType, bool sortNow)
+void CListViewRows::sortColumn(int column, VariantDataType columnType, bool sortNow)
 {
     m_sortColumn = column;
     m_sortColumnType = columnType;

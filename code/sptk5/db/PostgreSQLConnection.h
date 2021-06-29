@@ -80,12 +80,12 @@ public:
     /**
      * @brief Converts datatype from PostgreSQL type to SPTK VariantType
      */
-    static void PostgreTypeToCType(PostgreSQLDataType postgreType, VariantType& dataType);
+    static void PostgreTypeToCType(PostgreSQLDataType postgreType, VariantDataType& dataType);
 
     /**
      * @brief Converts datatype from SPTK VariantType to PostgreSQL type
      */
-    static void CTypeToPostgreType(VariantType dataType, PostgreSQLDataType& postgreType, const String& paramName);
+    static void CTypeToPostgreType(VariantDataType dataType, PostgreSQLDataType& postgreType, const String& paramName);
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
@@ -257,13 +257,15 @@ protected:
      * @return Connection timestamp format
      */
     TimestampFormat timestampsFormat() const
-    { return m_timestampsFormat; }
+    {
+        return m_timestampsFormat;
+    }
 
 private:
 
     mutable std::mutex m_mutex;                                    ///< Mutex that protects access to data members
-    PGconn* m_connect{nullptr};                        ///< PostgreSQL database connection
-    TimestampFormat m_timestampsFormat{TimestampFormat::UNKNOWN}; ///< Connection timestamp format
+    PGconn* m_connect {nullptr};                        ///< PostgreSQL database connection
+    TimestampFormat m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format
 };
 
 /**

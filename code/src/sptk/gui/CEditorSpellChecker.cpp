@@ -126,7 +126,7 @@ CSpellChecker::CSpellChecker()
     m_replaceToInput->callback(CSpellChecker::cb_replaceword);
 
     m_suggestionListView = new CListView("", 10, SP_ALIGN_CLIENT);
-    m_suggestionListView->addColumn("Suggestions", VAR_STRING, 310);
+    m_suggestionListView->addColumn("Suggestions", VariantDataType::VAR_STRING, 310);
     m_suggestionListView->callback(CSpellChecker::cb_suggest);
 
     addExtraButton(SP_ADD_BUTTON, "Add", CSpellChecker::cb_learn);

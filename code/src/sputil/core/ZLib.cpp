@@ -227,7 +227,7 @@ TEST(SPTK_ZLib, performance)
     Buffer decompressed;
 
     // Using uncompressed mplayer manual as test data
-    data.loadFromFile(TEST_DIRECTORY "/data/mplayer.1");
+    data.loadFromFile(String(TEST_DIRECTORY) + "/data/mplayer.1");
     EXPECT_EQ(data.bytes(), size_t(345517));
 
     StopWatch stopWatch;

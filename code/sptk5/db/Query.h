@@ -312,7 +312,7 @@ public:
      */
     Field& operator[](const String& fieldName) override
     {
-        return m_fields[fieldName.c_str()];
+        return m_fields[fieldName];
     }
 
     /**

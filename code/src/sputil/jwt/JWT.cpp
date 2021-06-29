@@ -476,11 +476,13 @@ static void jwt_verify_head(JWT* jwt, const Buffer& head)
 
 void JWT::decode(const char* token, const String& _key)
 {
-    struct
+    struct Part
     {
         const char* data;
         size_t length;
-    } parts[3] = {};
+    };
+
+    vector<Part> parts(3);
 
     size_t index = 0;
     for (const char* data = token; data != nullptr && index < 3; ++index)

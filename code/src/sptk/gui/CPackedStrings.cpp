@@ -114,7 +114,7 @@ CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
                 continue;
             }
             uint16_t l;
-            if (field.dataType() == VAR_STRING)
+            if (field.dataType() == VariantDataType::VAR_STRING)
             { // conversion isn't required
                 l = uint16_t(field.dataSize() + 1);
                 strings.push_back(field.getString());

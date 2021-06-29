@@ -42,7 +42,7 @@ DatabaseTests DatabaseTests::_databaseTests;
 vector<DatabaseConnectionString> DatabaseTests::connectionStrings() const
 {
     vector<DatabaseConnectionString> connectionStrings;
-    for (auto& [name,value]: m_connectionStrings)
+    for (auto&[name, value]: m_connectionStrings)
     {
         connectionStrings.push_back(value);
     }
@@ -246,9 +246,9 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         insert.param("id") = row.id;
         insert.param("name") = row.name;
         insert.param("price") = row.price;
-        insert.param("ts").setNull(VAR_DATE_TIME);
+        insert.param("ts").setNull(VariantDataType::VAR_DATE_TIME);
         insert.param("enabled").setBool(true);
-        insert.param("txt").setBuffer((const uint8_t*) clob.data(), clob.length(), VAR_TEXT);
+        insert.param("txt").setBuffer((const uint8_t*) clob.data(), clob.length(), VariantDataType::VAR_TEXT);
         insert.exec();
     }
 
@@ -621,10 +621,10 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     for (const auto& row: data)
     {
         // Insert all nulls
-        insertData.param("id").setNull(VAR_INT);
-        insertData.param("name").setNull(VAR_STRING);
-        insertData.param("position").setNull(VAR_STRING);
-        insertData.param("hired").setNull(VAR_STRING);
+        insertData.param("id").setNull(VariantDataType::VAR_INT);
+        insertData.param("name").setNull(VariantDataType::VAR_STRING);
+        insertData.param("position").setNull(VariantDataType::VAR_STRING);
+        insertData.param("hired").setNull(VariantDataType::VAR_STRING);
         insertData.exec();
 
         // Insert data row
@@ -648,15 +648,15 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
             {
                 throw Exception("Field " + field->fieldName() + " = [" + field->asString() + "] but null is expected");
             }
-            VariantType expectedType = VAR_INT;
+            VariantDataType expectedType = VariantDataType::VAR_INT;
             if (column != 0)
             {
-                expectedType = VAR_STRING;
+                expectedType = VariantDataType::VAR_STRING;
             }
             if (field->dataType() != expectedType)
             {
-                throw Exception("Field " + field->fieldName() + " has data type " + to_string(field->dataType()) +
-                                " but expected " + to_string(expectedType));
+                throw Exception("Field " + field->fieldName() + " has data type " + to_string((int) field->dataType()) +
+                                " but expected " + to_string((int) expectedType));
             }
             ++column;
         }

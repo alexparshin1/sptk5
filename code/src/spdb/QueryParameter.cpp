@@ -72,7 +72,9 @@ void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t v
 {
     m_data.size(maxlen > 0 ? min(valueLength, maxlen) : valueLength);
     m_data.getBuffer().size = m_data.size() + 1;
-    if ((dataType() & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0)
+    if (((int) dataType() &
+         ((int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT | (int) VariantDataType::VAR_BUFFER)) !=
+        0)
     {
         delete[] m_data.getBuffer().data;
     }
@@ -92,7 +94,7 @@ void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t v
 void QueryParameter::setString(const char* value, size_t maxlen)
 {
     size_t valueLength;
-    uint32_t dtype = VAR_STRING;
+    auto dtype = VariantDataType::VAR_STRING;
     if (maxlen != 0)
     {
         valueLength = (uint32_t) maxlen;
@@ -109,7 +111,8 @@ void QueryParameter::setString(const char* value, size_t maxlen)
         }
     }
 
-    if (dataType() == VAR_STRING && m_data.getBuffer().size >= valueLength + 1)
+    m_data.setNull(false);
+    if (dataType() == VariantDataType::VAR_STRING && m_data.getBuffer().size >= valueLength + 1)
     {
         if (value != nullptr)
         {
@@ -120,8 +123,8 @@ void QueryParameter::setString(const char* value, size_t maxlen)
         else
         {
             m_data.getBuffer().data[0] = 0;
-            dtype |= VAR_NULL;
             m_data.size(0);
+            m_data.setNull(true);
         }
     }
     else
@@ -130,10 +133,10 @@ void QueryParameter::setString(const char* value, size_t maxlen)
         if (value == nullptr)
         {
             m_data.size(0);
-            dtype |= VAR_NULL;
+            m_data.setNull(true);
         }
     }
-    dataType((VariantType) dtype);
+    dataType((VariantDataType) dtype);
 }
 
 #if USE_GTEST

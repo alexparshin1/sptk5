@@ -55,7 +55,8 @@ void theme_cb(Fl_Widget* w, void*)
 
 int main(int argc, char** argv)
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes allThemes;
 
@@ -85,17 +86,18 @@ int main(int argc, char** argv)
         CInput inp2("input 2");
 
         CDBListView listView("List View:", 10, SP_ALIGN_CLIENT);
-        listView.columns().push_back(CColumn("column 1", VAR_INT, 70));
-        listView.columns().push_back(CColumn("column 2", VAR_INT, 70));
-        listView.columns().push_back(CColumn("column 3", VAR_STRING, 200));
-        listView.columns().push_back(CColumn("column 4", VAR_STRING, 300));
+        listView.columns().push_back(CColumn("column 1", VariantDataType::VAR_INT, 70));
+        listView.columns().push_back(CColumn("column 2", VariantDataType::VAR_INT, 70));
+        listView.columns().push_back(CColumn("column 3", VariantDataType::VAR_STRING, 200));
+        listView.columns().push_back(CColumn("column 4", VariantDataType::VAR_STRING, 300));
 
         listView.showGrid(false);
 
         char buffer1[20];
         char buffer2[20];
         int maxItems = 20;
-        for (int a = 0; a < maxItems; a++) {
+        for (int a = 0; a < maxItems; a++)
+        {
             snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
             snprintf(buffer2, sizeof(buffer2) - 1, "%i", maxItems - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
@@ -132,7 +134,8 @@ int main(int argc, char** argv)
 
         return Fl::run();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

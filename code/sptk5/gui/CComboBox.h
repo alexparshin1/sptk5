@@ -42,6 +42,7 @@ namespace sptk {
  */
 
 class CInternalComboBoxPanel;
+
 class CDBListView;
 
 /**
@@ -50,34 +51,35 @@ class CDBListView;
  * A base class for CListBox and CComboBox.
  * Implements most of the common methods for these two classes.
  */
-class SP_EXPORT CBaseListBox: public CControl
+class SP_EXPORT CBaseListBox
+    : public CControl
 {
     friend class CInternalComboBoxPanel;
 
     /**
      * Internal button callback
      */
-    Fl_Callback_p   m_buttonClicked;
+    Fl_Callback_p m_buttonClicked;
 
     /**
      * The list of buttons
      */
-    Fl_Button*      m_buttons[5];
+    Fl_Button* m_buttons[5];
 
     /**
      * Is the list dropped down (shown)?
      */
-    bool            m_droppedDown;
+    bool m_droppedDown;
 
     /**
      * The bit-combination of button IDs
      */
-    uint32_t        m_buttonSet;
+    uint32_t m_buttonSet;
 
     /**
      * Control mode - CListBox or CComboBox
      */
-    int             m_mode;
+    int m_mode;
 
     /**
      * The internal function to process data changes
@@ -87,24 +89,24 @@ class SP_EXPORT CBaseListBox: public CControl
     /**
      * The constructor initializer
      */
-    void ctor_init(const char *label, int _mode);
+    void ctor_init(const char* label, int _mode);
 
     /**
      * Internal buttons callback function.
      */
-    static void comboButtonPressed(Fl_Widget *btn, void *data);
+    static void comboButtonPressed(Fl_Widget* btn, void* data);
 
 protected:
 
     /**
      * Drop down window - CComboBox only
      */
-    CDBDropDownList*    m_dropDownWindow;
+    CDBDropDownList* m_dropDownWindow;
 
     /**
      * Internal CDBListView widget
      */
-    CDBListView*        m_list;
+    CDBListView* m_list;
 
     /**
      * The width of space taken by buttons
@@ -120,12 +122,12 @@ protected:
     /**
      * @brief Loads data from the Query
      */
-    void load(Query *) override;
+    void load(Query*) override;
 
     /**
      * @brief Saves data to the Query
      */
-    void save(Query *) override;
+    void save(Query*) override;
 
     /**
      * @brief Loads control data from XML
@@ -162,7 +164,7 @@ protected:
      * @param layoutAlign CLayoutAlign, widget align in layout
      * @param mode int, IS_COMBO_BOX or IS_LIST_BOX - internal
      */
-    CBaseListBox(const char *label, int layoutSize, CLayoutAlign layoutAlign, int mode);
+    CBaseListBox(const char* label, int layoutSize, CLayoutAlign layoutAlign, int mode);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -243,7 +245,8 @@ public:
      * @param cwidth int16_t, column width
      * @param cvisible bool, is the column visible?
      */
-    void addColumn(std::string cname, VariantType type = VAR_STRING, int16_t cwidth = 70, bool cvisible = true);
+    void addColumn(std::string cname, VariantDataType type = VariantDataType::VAR_STRING, int16_t cwidth = 70,
+                   bool cvisible = true);
 
     /**
      * Adds a new row to the internal list view. Doesn't make a copy - just
@@ -251,7 +254,7 @@ public:
      * The row ID may be defined inside CPackedStrings object.
      * @param row CPackedStrings *, new row
      */
-    void addRow(CPackedStrings *row);
+    void addRow(CPackedStrings* row);
 
     /**
      * Adds a new row to the internal list view. Makes a copy of data in rowStrings.
@@ -313,7 +316,7 @@ public:
      * @param caption std::string, the caption to find and select.
      * @returns an item, or NULL if item caption is not found
      */
-    CPackedStrings *findCaption(std::string caption)
+    CPackedStrings* findCaption(std::string caption)
     {
         return m_list->findCaption(caption);
     }
@@ -323,7 +326,7 @@ public:
      * @param keyValue int, the caption to find and select.
      * @returns an item, or NULL if item caption is not found
      */
-    CPackedStrings *findKey(int keyValue)
+    CPackedStrings* findKey(int keyValue)
     {
         return m_list->findKey(keyValue);
     }
@@ -393,7 +396,7 @@ public:
      * @param paramName const char *, parameter name.
      * @returns the parameter reference, if found, or throws an excception.
      */
-    QueryParameter& param(const char *paramName);
+    QueryParameter& param(const char* paramName);
 
     /**
      * Reloads data from the database if database connection is defined.
@@ -453,7 +456,8 @@ public:
  * It may include up to four special buttons to insert, edit, delete, refresh data inside
  * the drop down list besides the standard button to show the drop down list
  */
-class SP_EXPORT CComboBox: public CBaseListBox
+class SP_EXPORT CComboBox
+    : public CBaseListBox
 {
 public:
     /**
@@ -462,7 +466,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CComboBox(const char * label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CComboBox(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -475,6 +479,7 @@ public:
      */
     CComboBox(int x,int y,int w,int h,const char *label = 0);
 #endif
+
     /**
      * Destructor
      */
@@ -499,7 +504,7 @@ public:
     /**
      * @brief Creates a combo box based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node *node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 
 /**
@@ -509,7 +514,8 @@ public:
  * It may include up to four special buttons to insert, edit, delete, refresh data inside
  * the list.
  */
-class SP_EXPORT CListBox: public CBaseListBox
+class SP_EXPORT CListBox
+    : public CBaseListBox
 {
 public:
     /**
@@ -518,7 +524,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CListBox(const char * label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CListBox(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**

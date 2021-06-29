@@ -184,7 +184,7 @@ CFileDialog::CFileDialog(const String& label, bool saveMode)
     auto* grp = new CGroup;
     m_lookInCombo = new CComboBox("Look in:", 10, SP_ALIGN_CLIENT);
     m_lookInCombo->labelWidth(60);
-    m_lookInCombo->addColumn("Path", VAR_STRING, 250);
+    m_lookInCombo->addColumn("Path", VariantDataType::VAR_STRING, 250);
 
     if (saveMode)
     {
@@ -204,8 +204,8 @@ CFileDialog::CFileDialog(const String& label, bool saveMode)
     grp->end();
 
     m_patternCombo = new CComboBox("Files of type:", 10, SP_ALIGN_BOTTOM);
-    m_patternCombo->addColumn("file type", VAR_STRING, 150);
-    m_patternCombo->addColumn("pattern", VAR_STRING, 100);
+    m_patternCombo->addColumn("file type", VariantDataType::VAR_STRING, 150);
+    m_patternCombo->addColumn("pattern", VariantDataType::VAR_STRING, 100);
     m_patternCombo->addRow(1, Strings("All Files|*.*", "|"));
     m_patternCombo->data(1);
     m_patternCombo->callback(pattern_cb);

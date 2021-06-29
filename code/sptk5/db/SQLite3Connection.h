@@ -45,7 +45,8 @@ namespace sptk {
  *
  * CSQLite3Connection is thread-safe connection to SQLite3 database.
  */
-class SP_EXPORT SQLite3Connection: public PoolDatabaseConnection
+class SP_EXPORT SQLite3Connection
+    : public PoolDatabaseConnection
 {
     friend class Query;
 
@@ -111,62 +112,62 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    String queryError(const Query *query) const override;
+    String queryError(const Query* query) const override;
 
     /**
      * Allocates an SQLite3 statement
      */
-    void queryAllocStmt(Query *query) override;
+    void queryAllocStmt(Query* query) override;
 
     /**
      * Deallocates an SQLite3 statement
      */
-    void queryFreeStmt(Query *query) override;
+    void queryFreeStmt(Query* query) override;
 
     /**
      * Closes an SQLite3 statement
      */
-    void queryCloseStmt(Query *query) override;
+    void queryCloseStmt(Query* query) override;
 
     /**
      * Prepares a query if supported by database
      */
-    void queryPrepare(Query *query) override;
+    void queryPrepare(Query* query) override;
 
     /**
      * Unprepares a query if supported by database
      */
-    void queryUnprepare(Query *query) override;
+    void queryUnprepare(Query* query) override;
 
     /**
      * Executes a statement
      */
-    void queryExecute(Query *query) override;
+    void queryExecute(Query* query) override;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    int queryColCount(Query *query) override;
+    int queryColCount(Query* query) override;
 
     /**
      * Binds the parameters to the query
      */
-    void queryBindParameters(Query *query) override;
+    void queryBindParameters(Query* query) override;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    void queryOpen(Query *query) override;
+    void queryOpen(Query* query) override;
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    void queryFetch(Query *query) override;
+    void queryFetch(Query* query) override;
 
     /**
      * @brief Returns the SQLite3 connection object
      */
-    sqlite3 *connection()
+    sqlite3* connection()
     {
         return m_connect;
     }
@@ -174,7 +175,7 @@ protected:
     /**
      * @brief Converts datatype from SQLite type to SPTK VariantType
      */
-    static void SQLITEtypeToCType(int sqliteType, VariantType& dataType);
+    static void SQLITEtypeToCType(int sqliteType, VariantDataType& dataType);
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
@@ -184,11 +185,11 @@ protected:
 
 private:
 
-    using SQLHSTMT = sqlite3_stmt *;
-    using SQLHDBC = sqlite3 *;
+    using SQLHSTMT = sqlite3_stmt*;
+    using SQLHDBC = sqlite3*;
 
-    mutable std::mutex  m_mutex;                ///< Mutex that protects access to data members
-    sqlite3*            m_connect {nullptr};    ///< Database connection
+    mutable std::mutex m_mutex;                ///< Mutex that protects access to data members
+    sqlite3* m_connect {nullptr};    ///< Database connection
     void bindParameter(Query* query, uint32_t paramNumber) const;
 };
 
@@ -200,7 +201,6 @@ private:
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* sqlite3_create_connection(const char* connectionString);
-    SP_DRIVER_EXPORT void  sqlite3_destroy_connection(void* connection);
+SP_DRIVER_EXPORT void* sqlite3_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT void sqlite3_destroy_connection(void* connection);
 }
-

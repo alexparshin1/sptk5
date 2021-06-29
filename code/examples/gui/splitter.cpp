@@ -40,7 +40,8 @@ void exit_cb(Fl_Widget* w, void*)
 
 int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes themes;
 
@@ -56,15 +57,16 @@ int main(int argc, char* argv[])
         CSplitter splitter("", 3, SP_ALIGN_RIGHT);
 
         CListView listView2("List View 2:", 10, SP_ALIGN_CLIENT);
-        listView2.columns().push_back(CColumn("column 1", VAR_INT, 70));
-        listView2.columns().push_back(CColumn("column 2", VAR_INT, 70));
-        listView2.columns().push_back(CColumn("column 3", VAR_STRING, 200));
-        listView2.columns().push_back(CColumn("column 4", VAR_STRING));
+        listView2.columns().push_back(CColumn("column 1", VariantDataType::VAR_INT, 70));
+        listView2.columns().push_back(CColumn("column 2", VariantDataType::VAR_INT, 70));
+        listView2.columns().push_back(CColumn("column 3", VariantDataType::VAR_STRING, 200));
+        listView2.columns().push_back(CColumn("column 4", VariantDataType::VAR_STRING));
 
         // Add 10 items
         char buffer1[20];
         char buffer2[20];
-        for (int a = 0; a < 10; a++) {
+        for (int a = 0; a < 10; a++)
+        {
             snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
             snprintf(buffer2, sizeof(buffer2) - 1, "%i", 100000 - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
@@ -73,8 +75,8 @@ int main(int argc, char* argv[])
         }
 
         // That group keeps togeteher the buttons. These
-        // buttons use the default alignment for buttons - 
-        // SP_ALIGN_RIGHT, and the text/icon defined by the 
+        // buttons use the default alignment for buttons -
+        // SP_ALIGN_RIGHT, and the text/icon defined by the
         // button kind.
         CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
         buttonGroup.color(FL_LIGHT1);
@@ -89,7 +91,8 @@ int main(int argc, char* argv[])
 
         return Fl::run();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

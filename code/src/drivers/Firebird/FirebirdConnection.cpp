@@ -223,19 +223,19 @@ String FirebirdConnection::queryError(const Query*) const
 void FirebirdConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, (StmtHandle) new FirebirdStatement(this, query->sql()));
+    auto stmt = shared_ptr<uint8_t>((StmtHandle) new FirebirdStatement(this, query->sql()),
+                                    [](StmtHandle handle) {
+                                        auto* statement = (FirebirdStatement*) handle;
+                                        delete statement;
+                                    });
+    querySetStmt(query, stmt);
 }
 
 void FirebirdConnection::queryFreeStmt(Query* query)
 {
     scoped_lock lock(m_mutex);
-    auto* statement = (FirebirdStatement*) query->statement();
-    if (statement)
-    {
-        delete statement;
-        querySetStmt(query, nullptr);
-        querySetPrepared(query, false);
-    }
+    querySetStmt(query, nullptr);
+    querySetPrepared(query, false);
 }
 
 void FirebirdConnection::queryCloseStmt(Query* query)

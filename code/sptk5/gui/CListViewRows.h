@@ -47,8 +47,9 @@ class CListView;
 
 class SP_EXPORT CListViewRows
 {
-    using PPackedStrings = CPackedStrings *;
+    using PPackedStrings = CPackedStrings*;
     using CPSVector = std::vector<PPackedStrings>;
+
     friend class CListView;
 
     /**
@@ -59,7 +60,7 @@ class SP_EXPORT CListViewRows
     /**
      * The type of the sort column - determines the sort algorithm
      */
-    VariantType m_sortColumnType;
+    VariantDataType m_sortColumnType;
 
     /**
      * Sort direction - ascending/descending
@@ -108,6 +109,7 @@ protected:
      * The date and time data compare function
      */
     static bool compare_datetimes(const PPackedStrings&, const PPackedStrings&);
+
 public:
 
     /**
@@ -143,7 +145,7 @@ public:
      * @returns row index
      */
     uint32_t add
-    (CPackedStrings *row);
+        (CPackedStrings* row);
 
     /**
      * Inserts the new row.
@@ -151,7 +153,7 @@ public:
      * @param row CPackedStrings *, the new row pointer
      * @returns row index
      */
-    uint32_t insert(uint32_t index, CPackedStrings *row);
+    uint32_t insert(uint32_t index, CPackedStrings* row);
 
     /**
      * Updates the row by replacing it with a new one.
@@ -159,17 +161,19 @@ public:
      * @param row CPackedStrings *, the new row pointer
      * @returns row index
      */
-    uint32_t update(uint32_t index, CPackedStrings *row);
+    uint32_t update(uint32_t index, CPackedStrings* row);
 
     /**
      * Row access by row index
      * @param index uint32_t, row index
      * @returns row pointer, or 0L if index is out of range
      */
-    CPackedStrings* operator [] (uint32_t index) const
+    CPackedStrings* operator[](uint32_t index) const
     {
         if (index < m_rows.size())
-            return(CPackedStrings *) m_rows[index];
+        {
+            return (CPackedStrings*) m_rows[index];
+        }
         return 0L;
     }
 
@@ -178,7 +182,7 @@ public:
      * @param row CPackedStrings *, the row pointer
      * @returns the row index, or -1 if not found
      */
-    int32_t indexOf(CPackedStrings *row) const;
+    int32_t indexOf(CPackedStrings* row) const;
 
     /**
      * Returns the row count
@@ -186,7 +190,7 @@ public:
 
     uint32_t size() const
     {
-        return(uint32_t) m_rows.size();
+        return (uint32_t) m_rows.size();
     }
 
     /**
@@ -209,7 +213,7 @@ public:
      * @param ctype VariantType, the sort column data type
      * @param sortNow bool, true if you want to sort immediatedly
      */
-    void sortColumn(int column, VariantType ctype, bool sortNow);
+    void sortColumn(int column, VariantDataType ctype, bool sortNow);
 
     /**
      * Returns the sort direction - ascending/descending
@@ -233,7 +237,7 @@ public:
 
     int32_t fullHeight() const
     {
-        return(int32_t) m_fullHeight;
+        return (int32_t) m_fullHeight;
     }
 };
 /**

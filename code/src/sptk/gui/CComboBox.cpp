@@ -37,7 +37,10 @@ using namespace sptk;
 
 enum CChangeType
 {
-    CT_REFRESH_DATA, CT_SET_KEY, CT_SET_TEXT, CT_CHOOSE_ITEM
+    CT_REFRESH_DATA,
+    CT_SET_KEY,
+    CT_SET_TEXT,
+    CT_CHOOSE_ITEM
 };
 
 #define IS_LIST_BOX   1
@@ -45,7 +48,8 @@ enum CChangeType
 
 namespace sptk {
 
-class SP_EXPORT CInternalComboBoxPanel : public Fl_Box
+class SP_EXPORT CInternalComboBoxPanel
+    : public Fl_Box
 {
     void draw() override;
 
@@ -609,7 +613,7 @@ CColumnList& CBaseListBox::columns()
     return m_list->columns();
 }
 
-void CBaseListBox::addColumn(string cname, VariantType type, short cwidth, bool cvisible)
+void CBaseListBox::addColumn(string cname, VariantDataType type, short cwidth, bool cvisible)
 {
     m_list->columns().push_back(CColumn(cname, type, cwidth, cvisible));
 }
@@ -626,7 +630,7 @@ void CBaseListBox::addRow(int rowId, const Strings& ss)
 
 void CBaseListBox::addRows(string columnName, Strings strings)
 {
-    CColumn newColumn(columnName, VAR_STRING, w() - labelWidth(), true);
+    CColumn newColumn(columnName, VariantDataType::VAR_STRING, w() - labelWidth(), true);
     CColumnList newColumns;
 
     newColumns.push_back(newColumn);

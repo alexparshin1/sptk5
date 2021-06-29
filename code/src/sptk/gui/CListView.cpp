@@ -538,20 +538,30 @@ int CListView::item_compute_height(CPackedStrings* l)
                 } // max width for auto-width column
 
                 if (column.autoWidth() || m_autoRowHeight)
+                {
                     fl_measure(str, cw, ch, 0);
+                }
                 else
+                {
                     ch = m_textSize + 2;
+                }
 
                 cw += borderWidth;
                 if (column.autoWidth())
                 {
                     if ((kind() & (DCV_CHECKBUTTONS | DCV_RADIOBUTTONS)) && c == 0)
+                    {
                         cw += (m_textSize - 2) / 3 * 3 + 3;
+                    }
                     if (cw > column.width())
-                        column.width(int16_t(cw)); // adjust column width for auto-width column
+                    {
+                        column.width(int16_t(cw));
+                    } // adjust column width for auto-width column
                 }
                 if (ch > (int) hmax)
+                {
                     hmax = (unsigned) ch;
+                }
             }
         }
     }
@@ -587,7 +597,7 @@ void CListView::sortColumn(int column, bool sortNow)
         return;
     }
     CColumn& columnInfo = m_columnList[column];
-    VariantType ctype = columnInfo.type();
+    VariantDataType ctype = columnInfo.type();
     CPackedStrings* row = nullptr;
     if (m_activeRow < size())
     {
@@ -846,7 +856,8 @@ void CListView::item_draw(
                 if (item)
                 {
                     fl_push_clip(xt, yy, wt, hh);
-                    if (column.type() & (VAR_IMAGE_PTR | VAR_IMAGE_NDX))
+                    if ((int) column.type() &
+                        ((int) VariantDataType::VAR_IMAGE_PTR | (int) VariantDataType::VAR_IMAGE_NDX))
                     {
                         char* endptr;
                         Fl_Image* image = nullptr;
@@ -855,7 +866,7 @@ void CListView::item_draw(
 #else
                         auto value = (uint64_t) strtoll(str, &endptr, 16);
 #endif
-                        if (column.type() == VAR_IMAGE_PTR)
+                        if (column.type() == VariantDataType::VAR_IMAGE_PTR)
                         {
                             image = (Fl_Image*) value;
                         }
@@ -1500,7 +1511,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
                 // if keyFieldName is not defined (find the first integer field and use it)
                 for (unsigned i = 0; i < fieldCount; i++)
                 {
-                    if (ds[i].dataType() == VAR_INT)
+                    if (ds[i].dataType() == VariantDataType::VAR_INT)
                     {
                         keyField = i;
                         break;
@@ -1526,30 +1537,30 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
                     columnName = capitalizeWords(columnName);
                 }
                 auto cwidth = short(field.view().width + 1);
-                VariantType ctype = field.dataType();
+                VariantDataType ctype = field.dataType();
                 switch (ctype)
                 {
-                    case VAR_BOOL:
+                    case VariantDataType::VAR_BOOL:
                         cwidth = 6;
                         break;
 
-                    case VAR_INT:
+                    case VariantDataType::VAR_INT:
                         cwidth = 12;
                         break;
 
-                    case VAR_INT64:
+                    case VariantDataType::VAR_INT64:
                         cwidth = 20;
                         break;
 
-                    case VAR_FLOAT:
+                    case VariantDataType::VAR_FLOAT:
                         cwidth = 16;
                         break;
 
-                    case VAR_DATE_TIME:
+                    case VariantDataType::VAR_DATE_TIME:
                         cwidth = 24;
                         break;
 
-                    case VAR_DATE:
+                    case VariantDataType::VAR_DATE:
                         cwidth = 14;
                         break;
 

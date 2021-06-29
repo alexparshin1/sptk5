@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-CColumn::CColumn(const string& cname, VariantType type, int32_t cwidth, bool cvisible)
+CColumn::CColumn(const string& cname, VariantDataType type, int32_t cwidth, bool cvisible)
     : m_name(cname), m_type(type), m_visible(cvisible)
 {
     if (cwidth < 0)
@@ -49,7 +49,7 @@ CColumn::CColumn(const string& cname, VariantType type, int32_t cwidth, bool cvi
 void CColumn::load(const xml::Node& node)
 {
     m_name = (String) node.getAttribute("caption");
-    m_type = (VariantType) (int) node.getAttribute("type");
+    m_type = (VariantDataType) (int) node.getAttribute("type");
     m_width = (int) node.getAttribute("width");
     m_visible = (bool) node.getAttribute("visible");
     m_autoWidth = (bool) node.getAttribute("auto_width");

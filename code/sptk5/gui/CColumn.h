@@ -46,27 +46,27 @@ class SP_EXPORT CColumn
     /**
      * Column name
      */
-    String          m_name;
+    String m_name;
 
     /**
      * Column width in pixels
      */
-    uint32_t        m_width;
+    uint32_t m_width;
 
     /**
      * Column data type
      */
-    VariantType     m_type;
+    VariantDataType m_type;
 
     /**
      * Column visibility
      */
-    bool            m_visible;
+    bool m_visible;
 
     /**
      * Column auto width flag
      */
-    bool            m_autoWidth;
+    bool m_autoWidth;
 
 public:
 
@@ -77,7 +77,8 @@ public:
      * @param cwidth            Column width, or -1 for auto-width
      * @param cvisible          Column visibility
      */
-    CColumn(const std::string& cname = "", VariantType type = VAR_STRING, int32_t cwidth = 100, bool cvisible = true);
+    CColumn(const std::string& cname = "", VariantDataType type = VariantDataType::VAR_STRING, int32_t cwidth = 100,
+            bool cvisible = true);
 
     /**
      * @brief Copy constructor
@@ -147,7 +148,7 @@ public:
     /**
      * @brief Returns column data type
      */
-    VariantType type() const
+    VariantDataType type() const
     {
         return m_type;
     }
@@ -197,7 +198,8 @@ public:
 /**
  * Class CColumnList is a list of columns used in CListView
  */
-class SP_EXPORT CColumnList: public std::vector<CColumn>
+class SP_EXPORT CColumnList
+    : public std::vector<CColumn>
 {
 public:
 
@@ -212,7 +214,7 @@ public:
      * @brief Finds the column index by column name
      * @param columnName        Column name
      */
-    int indexOf(const char *columnName) const;
+    int indexOf(const char* columnName) const;
 
     /**
      * @brief Loads columns information
