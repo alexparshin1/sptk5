@@ -68,5 +68,5 @@ CFileOpenDialog::CFileOpenDialog(const string& caption)
     : CFileDialog(caption, false)
 {
     m_okButton->label("Open");
-    m_okButton->buttonImage(SP_OPEN_BUTTON);
+    m_okButton->buttonImage(CButtonKind::OPEN_BUTTON);
 }

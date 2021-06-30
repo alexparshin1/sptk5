@@ -72,33 +72,33 @@ struct CControlKindName
 };
 
 static CControlKindName typeNames[] = {
-    {DCV_BOX,           "BOX"},
-    {DCV_HTMLBOX,       "HTML"},
-    {DCV_STRING,        "STRING"},
-    {DCV_MEMO,          "MEMO"},
-    {DCV_INTEGER,       "INTEGER"},
-    {DCV_FLOAT,         "FLOAT"},
-    {DCV_DATE,          "DATE"},
-    {DCV_TIME,          "TIME"},
-    {DCV_DATETIME,      "DATETIME"},
-    {DCV_DATEINTERVAL,  "DATEINTERVAL"},
-    {DCV_COMBO,         "COMBO"},
-    {DCV_INTVALUECOMBO, "INTVALUECOMBO"},
-    {DCV_LISTBOX,       "LISTBOX"},
-    {DCV_CHECKBUTTONS,  "CHECKBUTTONS"},
-    {DCV_RADIOBUTTONS,  "RADIOBUTTONS"},
-    {DCV_PHONE,         "PHONE"},
-    {DCV_TREEVIEW,      "TREEVIEW"},
-    {DCV_GROUP,         "GROUP"},
-    {DCV_SLIDER,        "SLIDER"},
-    {DCV_PROGRESS,      "PROGRESS"},
-    {DCV_UNKNOWN,       ""}
+    {CControlKind::BOX,           "BOX"},
+    {CControlKind::HTMLBOX,       "HTML"},
+    {CControlKind::STRING,        "STRING"},
+    {CControlKind::MEMO,          "MEMO"},
+    {CControlKind::INTEGER,       "INTEGER"},
+    {CControlKind::FLOAT,         "FLOAT"},
+    {CControlKind::DATE,          "DATE"},
+    {CControlKind::TIME,          "TIME"},
+    {CControlKind::DATETIME,      "DATETIME"},
+    {CControlKind::DATEINTERVAL,  "DATEINTERVAL"},
+    {CControlKind::COMBO,         "COMBO"},
+    {CControlKind::INTVALUECOMBO, "INTVALUECOMBO"},
+    {CControlKind::LISTBOX,       "LISTBOX"},
+    {CControlKind::CHECKBUTTONS,  "CHECKBUTTONS"},
+    {CControlKind::RADIOBUTTONS,  "RADIOBUTTONS"},
+    {CControlKind::PHONE,         "PHONE"},
+    {CControlKind::TREEVIEW,      "TREEVIEW"},
+    {CControlKind::GROUP,         "GROUP"},
+    {CControlKind::SLIDER,        "SLIDER"},
+    {CControlKind::PROGRESS,      "PROGRESS"},
+    {CControlKind::UNKNOWN,       ""}
 };
 
 CControlKindIndex::CControlKindIndex() noexcept
 {
     CControlKindName* typeName = typeNames;
-    while (typeName->type != DCV_UNKNOWN)
+    while (typeName->type != CControlKind::UNKNOWN)
     {
         registerType(typeName->type, typeName->name);
         typeName++;
@@ -123,7 +123,7 @@ string CControlKindIndex::name(CControlKind type)
     auto itor = m_typeNameMap.find(type);
     if (itor == m_typeNameMap.end())
     {
-        throw Exception("Control type " + int2string(type) + " is undefined");
+        throw Exception("Control type " + int2string((int) type) + " is undefined");
     }
     return *itor->second;
 }
@@ -438,34 +438,34 @@ void CControl::fieldName(const String& s)
 
 CControlKind CControl::controlNameToType(const String& typeName, int& maxLength, const String& values)
 {
-    CControlKind controlType = DCV_UNKNOWN;
+    CControlKind controlType = CControlKind::UNKNOWN;
     auto c1 = (char) toupper(typeName[1]);
     maxLength = 0;
     switch (toupper(typeName[0]))
     {
         case 'A':   // AREA CODE
             maxLength = 3;
-            return DCV_INTEGER;
+            return CControlKind::INTEGER;
 
         case 'C':   // CURRENCY, CREDIT CARD, COMBO BOX, CHOICE, CHECK BUTTONS
             switch (c1)
             {
                 case 'U':
-                    controlType = DCV_FLOAT;
+                    controlType = CControlKind::FLOAT;
                     break;
                 case 'R':
-                    controlType = DCV_STRING;
+                    controlType = CControlKind::STRING;
                     maxLength = 16;
                     break;
                 case 'H':
-                    controlType = DCV_COMBO;
+                    controlType = CControlKind::COMBO;
                     if (toupper(typeName[2]) == 'E')
                     {
-                        controlType = DCV_CHECKBUTTONS;
+                        controlType = CControlKind::CHECKBUTTONS;
                     }
                     break;
                 case 'O':
-                    controlType = DCV_COMBO;
+                    controlType = CControlKind::COMBO;
                     break;
                 default:
                     break;
@@ -475,34 +475,34 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
         case 'D':   // DATE, DATE AND TIME
             if (typeName.length() > 4)
             {
-                controlType = DCV_DATETIME;
+                controlType = CControlKind::DATETIME;
             }
             else
             {
-                controlType = DCV_DATE;
+                controlType = CControlKind::DATE;
             }
             break;
 
         case 'F':   // float #
-            controlType = DCV_FLOAT;
+            controlType = CControlKind::FLOAT;
             break;
 
         case 'H':  // HTML
-            controlType = DCV_HTMLBOX;
+            controlType = CControlKind::HTMLBOX;
             break;
 
         case 'G':  // GROUP
-            controlType = DCV_GROUP;
+            controlType = CControlKind::GROUP;
             break;
 
         case 'I':   // INTEGER
             if (trim(values).length())
             {
-                controlType = DCV_INTVALUECOMBO;
+                controlType = CControlKind::INTVALUECOMBO;
             }
             else
             {
-                controlType = DCV_INTEGER;
+                controlType = CControlKind::INTEGER;
             }
             break;
 
@@ -510,10 +510,10 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
             switch (c1)
             {
                 case 'A':
-                    controlType = DCV_BOX;
+                    controlType = CControlKind::BOX;
                     break;
                 case 'O':
-                    controlType = DCV_STRING;
+                    controlType = CControlKind::STRING;
                     maxLength = 10;
                     break;
                 default:
@@ -525,13 +525,13 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
             switch (c1)
             {
                 case 'A':
-                    controlType = DCV_STRING;
+                    controlType = CControlKind::STRING;
                     break;
                 case 'U':
-                    controlType = DCV_CHECKBUTTONS;
+                    controlType = CControlKind::CHECKBUTTONS;
                     break;
                 case 'O':
-                    controlType = DCV_FLOAT;
+                    controlType = CControlKind::FLOAT;
                     break;
                 default:
                     break;
@@ -544,34 +544,34 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
                 case 'H':
                     if (typeName.find("ext") == STRING_NPOS)
                     {
-                        controlType = DCV_PHONE; // phone number
+                        controlType = CControlKind::PHONE; // phone number
                     }
                     else
                     {
                         maxLength = 4;
-                        controlType = DCV_INTEGER;  // phone extension
+                        controlType = CControlKind::INTEGER;  // phone extension
                     }
                     break;
                 case 'R':
-                    controlType = DCV_PROGRESS;  // progress bar
+                    controlType = CControlKind::PROGRESS;  // progress bar
                     break;
                 default:
-                    controlType = DCV_BOX;
+                    controlType = CControlKind::BOX;
                     break;
             }
             break;
 
         case 'S':   // SIMPLE, STRING, SSN
-            controlType = DCV_STRING;
+            controlType = CControlKind::STRING;
             break;
 
         case 'T':   // TIME
-            controlType = DCV_TIME;
+            controlType = CControlKind::TIME;
             break;
 
         case 'Z':   // Zip code
             maxLength = 10;
-            controlType = DCV_STRING;
+            controlType = CControlKind::STRING;
             break;
 
         default:

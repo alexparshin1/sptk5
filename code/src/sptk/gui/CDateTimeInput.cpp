@@ -87,7 +87,9 @@ void CDateTimeBaseInput::load(Query* loadQuery)
         return;
     } // no field name - no data loaded
     if (!m_fieldName.length())
+    {
         return;
+    }
     Field& fld = (*loadQuery)[m_fieldName.c_str()];
     dateTimeValue(fld.asDateTime());
 }
@@ -138,7 +140,7 @@ DateTime CDateTimeBaseInput::dateTimeValue() const
 
 void CDateTimeBaseInput::dateTimeValue(DateTime dt)
 {
-    if (kind() == DCV_DATE)
+    if (kind() == CControlKind::DATE)
     {
         data(dt.dateString());
     }

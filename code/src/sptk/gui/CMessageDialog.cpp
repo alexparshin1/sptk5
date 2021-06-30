@@ -56,7 +56,7 @@ CAskDialog::CAskDialog(const char* label, int w)
     m_inputBox->textSize((uchar) textSize);
     m_inputBox->hide();
 
-    layoutGrowMode(LGM_AUTO_GROW);
+    layoutGrowMode(CLayoutGrowMode::LGM_AUTO_GROW);
 
     end();
 }

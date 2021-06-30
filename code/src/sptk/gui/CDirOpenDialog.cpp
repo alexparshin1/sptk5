@@ -95,7 +95,7 @@ CDirOpenDialog::CDirOpenDialog(const String& caption)
     : CFileDialog(caption, true)
 {
     m_okButton->label("Use");
-    m_okButton->buttonImage(SP_SAVE_BUTTON);
+    m_okButton->buttonImage(CButtonKind::SAVE_BUTTON);
     m_directoryView->multiSelect(false);
     m_patternCombo->hide();
     m_fileNameInput->label("Directory:");

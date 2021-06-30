@@ -89,7 +89,7 @@ public:
     /**
      * @brief Returns column name
      */
-    std::string name() const
+    String name() const
     {
         return m_name;
     }

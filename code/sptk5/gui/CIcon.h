@@ -73,23 +73,24 @@ class CIcon
     /**
      * Icon image
      */
-    CPngImage*  m_image;
+    CPngImage* m_image;
 
     /**
      * Icon image symbolic name
      */
-    std::string m_name;
+    String m_name;
 
 public:
     /**
      * Is this icon shared (stock) icon
      */
-    bool        m_shared;
+    bool m_shared;
 
     /**
      * @brief Constructor
      */
-    CIcon(const String& name = "", CPngImage* image = 0L, bool shared = true) :
+    CIcon(const String& name = "", CPngImage* image = 0L, bool shared = true)
+        :
         m_image(image),
         m_name(name),
         m_shared(shared)
@@ -102,7 +103,9 @@ public:
     ~CIcon()
     {
         if (m_image && !m_shared)
+        {
             delete m_image;
+        }
     }
 
     /**
@@ -122,7 +125,7 @@ public:
     /**
      * @brief Returns an icon symbolic name
      */
-    const std::string name() const
+    String name() const
     {
         return m_name;
     }
@@ -135,7 +138,9 @@ public:
     void image(CPngImage* img, bool shared)
     {
         if (m_image && !m_shared)
+        {
             delete m_image;
+        }
         m_image = img;
         m_shared = shared;
     }
@@ -144,7 +149,8 @@ public:
 /**
  * @brief A map of theme icon names to theme icons
  */
-class SP_EXPORT CIconMap: public std::map<std::string, CIcon*, CaseInsensitiveCompare>
+class SP_EXPORT CIconMap
+    : public std::map<String, CIcon*, CaseInsensitiveCompare>
 {
     bool m_shared;
 public:
@@ -153,7 +159,7 @@ public:
      * @param shared bool, if true then memory, allocated for the icons, isn't managed
      */
     explicit CIconMap(bool shared = false)
-    : m_shared(shared)
+        : m_shared(shared)
     {
     }
 

@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
         CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
         buttonGroup.color(FL_LIGHT1);
 
-        CButton okButton(SP_EXIT_BUTTON);
+        CButton okButton(CButtonKind::EXIT_BUTTON);
         okButton.callback(exit_cb);
 
         buttonGroup.end();

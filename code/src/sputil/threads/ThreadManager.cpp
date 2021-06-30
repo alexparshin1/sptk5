@@ -75,7 +75,7 @@ void ThreadManager::Joiner::joinTerminatedThreads(milliseconds timeout)
     }
 }
 
-void ThreadManager::start()
+void ThreadManager::start() const
 {
     m_joiner->run();
 }

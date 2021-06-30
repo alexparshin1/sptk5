@@ -87,6 +87,14 @@ public:
         CONTTYPE = '7'         ///< Contiguous file (regular file if not supported).
     };
 
+    struct Ownership
+    {
+        int uid {0};
+        int gid {0};
+        String uname;
+        String gname;
+    };
+
     /**
      * @brief Constructor
      * @param fileName          File name
@@ -98,19 +106,14 @@ public:
      * @brief Constructor
      * @param fileName          File name
      * @param content           File data (regular files only)
-     * @param contentLength     File data length
      * @param mode              File mode, i.e. 0640
-     * @param uid               Owner user id
-     * @param gid               Owner group id
      * @param mtime             Modification time
      * @param type              File type
-     * @param uname             Owner user name
-     * @param gname             Owner group name
+     * @param ownership         File owners
      * @param linkName          Name the link is pointing to
      */
-    ArchiveFile(const fs::path& fileName, const uint8_t* content, size_t contentLength, int mode, int uid,
-                int gid, const DateTime& mtime, ArchiveFile::Type type, const String& uname, const String& gname,
-                const fs::path& linkName);
+    ArchiveFile(const fs::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
+                ArchiveFile::Type type, const Ownership& ownership, const fs::path& linkName);
 
     /**
      * @brief Actual tar file header, length is TAR_BLOCK_SIZE
@@ -128,14 +131,9 @@ public:
         return m_mode;
     }
 
-    unsigned uid() const
+    const Ownership& ownership() const
     {
-        return m_uid;
-    }
-
-    unsigned gid() const
-    {
-        return m_gid;
+        return m_ownership;
     }
 
     unsigned size() const
@@ -158,30 +156,17 @@ public:
         return m_linkname;
     }
 
-    String uname() const
-    {
-        return m_uname;
-    }
-
-    String gname() const
-    {
-        return m_gname;
-    }
-
     static fs::path relativePath(const fs::path& fileName, const fs::path& baseDirectory);
 
 private:
 
     String m_fileName;
     unsigned m_mode {777};
-    unsigned m_uid {0};
-    unsigned m_gid {0};
+    Ownership m_ownership {};
     unsigned m_size {0};
     DateTime m_mtime;
     Type m_type {Type::REGULAR_FILE};
     String m_linkname;
-    String m_uname;
-    String m_gname;
 
     std::shared_ptr<TarHeader> m_header;
 

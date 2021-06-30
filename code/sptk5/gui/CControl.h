@@ -46,112 +46,113 @@ namespace sptk {
 /**
  * @brief Control kind is the constant to report the internal SPTK RTTI.
  */
-enum CControlKind
+enum class CControlKind
+    : uint32_t
 {
     /**
      * Control kind is unknown
      */
-    DCV_UNKNOWN=0,
+    UNKNOWN = 0,
 
     /**
      * Control is a box of plain text
      */
-    DCV_BOX=1,
+    BOX = 1,
 
     /**
      * Control is a box of HTML text
      */
-    DCV_HTMLBOX=2,
+    HTMLBOX = 2,
 
     /**
      * Control is a text input (single line)
      */
-    DCV_STRING=4,
+    STRING = 4,
 
     /**
      * Control is a text input (multiple lines)
      */
-    DCV_MEMO=8,
+    MEMO = 8,
 
     /**
      * Control is an integer value input
      */
-    DCV_INTEGER=0x10,
+    INTEGER = 0x10,
 
     /**
      * Control is an integer value input
      */
-    DCV_FLOAT=0x20,
+    FLOAT = 0x20,
 
     /**
      * Control is a date input
      */
-    DCV_DATE=0x40,
+    DATE = 0x40,
 
     /**
      * Control is a time input
      */
-    DCV_TIME=0x80,
+    TIME = 0x80,
 
     /**
      * Control is a date and time input
      */
-    DCV_DATETIME=0x100,
+    DATETIME = 0x100,
 
     /**
      * Control is a date interval input
      */
-    DCV_DATEINTERVAL=0x200,
+    DATEINTERVAL = 0x200,
 
     /**
      * Control is a combobox
      */
-    DCV_COMBO=0x400,
+    COMBO = 0x400,
 
     /**
      * Control is a combobox with int key value
      */
-    DCV_INTVALUECOMBO=0x800,
+    INTVALUECOMBO = 0x800,
 
     /**
      * Control is a listbox
      */
-    DCV_LISTBOX=0x1000,
+    LISTBOX = 0x1000,
 
     /**
      * Control is a set of check buttons
      */
-    DCV_CHECKBUTTONS=0x2000,
+    CHECKBUTTONS = 0x2000,
 
     /**
      * Control is a set of radio buttons
      */
-    DCV_RADIOBUTTONS=0x4000,
+    RADIOBUTTONS = 0x4000,
 
     /**
      * Control is a phone number input
      */
-    DCV_PHONE=0x8000,
+    PHONE = 0x8000,
 
     /**
      * Control is a tree widget
      */
-    DCV_TREEVIEW=0x10000,
+    TREEVIEW = 0x10000,
 
     /**
      * Control is a group
      */
-    DCV_GROUP=0x20000,
+    GROUP = 0x20000,
 
     /**
      * Control is a value slider
      */
-    DCV_SLIDER=0x40000,
+    SLIDER = 0x40000,
 
     /**
      * Control is a progress bar
      */
-    DCV_PROGRESS=0x80000
+    PROGRESS = 0x80000
 
 };
 
@@ -163,32 +164,32 @@ enum FGENTRYFLAGS
     /**
      * No flags
      */
-    FGE_NONE=0,
+    FGE_NONE = 0,
 
     /**
      * Requires spell checking
      */
-    FGE_SPELLCHECK=1,
+    FGE_SPELLCHECK = 1,
 
     /**
      * Must have some value
      */
-    FGE_MANDATORY=2,
+    FGE_MANDATORY = 2,
 
     /**
      * Is a custom field
      */
-    FGE_CFIELD=4,
+    FGE_CFIELD = 4,
 
     /**
      * Is a single-line entry
      */
-    FGE_SINGLELINEENTRY=256,
+    FGE_SINGLELINEENTRY = 256,
 
     /**
      * Is a multi-line entry
      */
-    FGE_MULTILINEENTRY=512
+    FGE_MULTILINEENTRY = 512
 
 };
 
@@ -198,8 +199,11 @@ enum FGENTRYFLAGS
 #define SINGLE_EDIT_ENTRY_HEIGHT 23
 
 class CDBDropDownList;
+
 class CPackedStrings;
+
 class CColumnList;
+
 class Strings;
 
 /**
@@ -213,91 +217,97 @@ SP_EXPORT bool checkFieldName(const String& fldName);
  * It is a group used as a container for the widget(s) inside.
  * Every CControl has a field name, and it can be a layout client.
  */
-class SP_EXPORT CControl : public ::Fl_Group, public CLayoutClient
+class SP_EXPORT CControl
+    : public ::Fl_Group, public CLayoutClient
 {
     friend class CInternalComboBoxPanel;
+
     friend class CEditor;
+
     friend class CBaseButton;
+
     friend class CRadioButton;
+
     friend class CCheckButton;
+
     friend class CInput_;
 
     /**
      * Constructor initializer
      */
-    void ctor_init(const char *);
+    void ctor_init(const char*);
 
 protected:
 
     /**
      * Control has the defined min and max values
      */
-    bool              m_limited;
+    bool m_limited;
 
     /**
      * Control label width (on the left)
      */
-    uint32_t          m_labelWidth;
+    uint32_t m_labelWidth;
 
     /**
      * Control label color
      */
-    Fl_Color          m_labelColor;
+    Fl_Color m_labelColor;
 
     /**
      * Control text color
      */
-    Fl_Color          m_textColor;
+    Fl_Color m_textColor;
 
     /**
      * Control text font
      */
-    Fl_Font           m_textFont;
+    Fl_Font m_textFont;
 
     /**
      * Control text font size
      */
-    uchar             m_textSize;
+    uchar m_textSize;
 
     /**
      * Field name for the universal data connection
      */
-    String            m_fieldName;
+    String m_fieldName;
 
     /**
      * The text of the hint
      */
-    String            m_hint;
+    String m_hint;
 
     /**
      * The main widget inside the control.
      */
-    Fl_Widget*        m_control;
+    Fl_Widget* m_control;
 
     /**
      * Control's special data tag
      */
-    int               m_tag;
+    int m_tag;
 
     /**
      * @brief Control's special flags (a bit combination of FGENTRYFLAGS).
      * @see FGENTRYFLAGS for details.
      */
-    uint32_t          m_controlFlags;
+    uint32_t m_controlFlags;
     /**
      * Control's menu button - to show right-mouse click menu
      */
-    Fl_Menu_Button   *m_menuButton;
+    Fl_Menu_Button* m_menuButton;
 
     /**
      * The last SPTK event inside this control.
      */
-    CEventInfo        m_event;
+    CEventInfo m_event;
 
     /**
      * Does the control have focus?
      */
-    bool              m_hasFocus;
+    bool m_hasFocus;
 
     /**
      * @brief Does the control contain focus?
@@ -332,7 +342,7 @@ protected:
     /**
      * @brief Internal callback function
      */
-    static void internalCallback(Fl_Widget *internalWidget, void *data);
+    static void internalCallback(Fl_Widget* internalWidget, void* data);
 
 public:
 
@@ -342,7 +352,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    explicit CControl(const char *label, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    explicit CControl(const char* label, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -390,12 +400,14 @@ public:
      * @brief Returns the control's text font
      */
 #if FL_MAJOR_VERSION < 2
+
     virtual Fl_Font textFont() const;
 
     /**
      * @brief Sets the control's text font
      */
     virtual void textFont(Fl_Font);
+
 #else
 
     virtual Font* textFont() const;
@@ -535,7 +547,8 @@ public:
      */
     void hint(const String& str)
     {
-        if (m_control) {
+        if (m_control)
+        {
             m_hint = str;
             m_control->tooltip(m_hint.c_str());
         }
@@ -604,7 +617,7 @@ public:
     /**
      * @brief Loads control data from query fields
      */
-    virtual void load(Query *)
+    virtual void load(Query*)
     {
         // Implemented in derived classes
     }
@@ -612,7 +625,7 @@ public:
     /**
      * @brief Saves control data to query params
      */
-    virtual void save(Query *)
+    virtual void save(Query*)
     {
         // Implemented in derived classes
     }
@@ -721,7 +734,7 @@ public:
     /**
      * @brief Control data assignment
      */
-    CControl& operator =(const String& str)
+    CControl& operator=(const String& str)
     {
         data(str);
         return *this;
@@ -730,7 +743,7 @@ public:
     /**
      * @brief Control data assignment
      */
-    CControl& operator =(const char *str)
+    CControl& operator=(const char* str)
     {
         data(str);
         return *this;
@@ -739,7 +752,7 @@ public:
     /**
      * @brief Control data assignment
      */
-    CControl& operator =(int32_t v)
+    CControl& operator=(int32_t v)
     {
         data(v);
         return *this;
@@ -748,25 +761,16 @@ public:
     /**
      * @brief Control data assignment
      */
-    CControl& operator =(uint32_t v)
+    CControl& operator=(uint32_t v)
     {
-        data((int)v);
+        data((int) v);
         return *this;
     }
 
     /**
      * @brief Control data assignment
      */
-    CControl& operator =(int64_t v)
-    {
-        data(v);
-        return *this;
-    }
-
-    /**
-     * @brief Control data assignment
-     */
-    CControl& operator =(float v)
+    CControl& operator=(int64_t v)
     {
         data(v);
         return *this;
@@ -775,7 +779,7 @@ public:
     /**
      * @brief Control data assignment
      */
-    CControl& operator =(double v)
+    CControl& operator=(float v)
     {
         data(v);
         return *this;
@@ -784,7 +788,16 @@ public:
     /**
      * @brief Control data assignment
      */
-    CControl& operator =(const DateTime& dt)
+    CControl& operator=(double v)
+    {
+        data(v);
+        return *this;
+    }
+
+    /**
+     * @brief Control data assignment
+     */
+    CControl& operator=(const DateTime& dt)
     {
         data(Variant(dt));
         return *this;
@@ -793,7 +806,7 @@ public:
     /**
      * @brief Control data assignment
      */
-    CControl& operator =(const Field& fld)
+    CControl& operator=(const Field& fld)
     {
         data(fld);
         return *this;
@@ -866,22 +879,22 @@ public:
     /**
      * @brief Default callback function to support CControl default menu item 'Copy'
      */
-    static void defaultControlMenuCopy(Fl_Widget *, void *);
+    static void defaultControlMenuCopy(Fl_Widget*, void*);
 
     /**
      * @brief Default callback function to support CControl default menu item 'Delete'
      */
-    static void defaultControlMenuCut(Fl_Widget *, void *);
+    static void defaultControlMenuCut(Fl_Widget*, void*);
 
     /**
      * @brief Default callback function to support CControl default menu item 'Paste'
      */
-    static void defaultControlMenuPaste(Fl_Widget *, void *);
+    static void defaultControlMenuPaste(Fl_Widget*, void*);
 
     /**
      * @brief Default callback function to support CControl default menu item 'Clear'
      */
-    static void defaultControlMenuClear(Fl_Widget *, void *);
+    static void defaultControlMenuClear(Fl_Widget*, void*);
 
     /**
      * @brief CControl default menu
@@ -898,7 +911,7 @@ public:
  * @param fieldName std::string, a control field name
  * @param layoutSize int, a control layout size
  */
-CControl *createControl(int controlKind, const String& label, const String& fieldName, int layoutSize);
+CControl* createControl(CControlKind controlKind, const String& label, const String& fieldName, int layoutSize);
 
 /**
  * @brief Create a control or a group of controls

@@ -46,7 +46,8 @@ namespace sptk {
  *
  * Multiple line HTML text box (read-only)
  */
-class SP_EXPORT CHtmlBox : public CInput
+class SP_EXPORT CHtmlBox
+    : public CInput
 {
     using inherited = class CInput;
 
@@ -93,7 +94,7 @@ public:
      */
     CControlKind kind() const override
     {
-        return DCV_HTMLBOX;
+        return CControlKind::HTMLBOX;
     }
 
     /**
@@ -147,4 +148,3 @@ public:
  * @}
  */
 }
-

@@ -32,67 +32,78 @@
 using namespace std;
 using namespace sptk;
 
-void exit_cb(Fl_Widget *w,void *)
+void exit_cb(Fl_Widget* w, void*)
 {
     w->window()->hide();
 }
 
-void file_open_dialog_cb(Fl_Widget *,void *)
+void file_open_dialog_cb(Fl_Widget*, void*)
 {
     CFileOpenDialog dialog;
     dialog.directory(".");
-    dialog.addPattern("C++ Files","*.cpp;*.cxx");
-    dialog.addPattern("VC++ Projects","*.dsp");
+    dialog.addPattern("C++ Files", "*.cpp;*.cxx");
+    dialog.addPattern("VC++ Projects", "*.dsp");
     dialog.fileName("file_dialog.cpp");
     if (dialog.execute())
-        spInformation("Selected file:\n"+dialog.directory()+dialog.fileName());
+    {
+        spInformation("Selected file:\n" + dialog.directory() + dialog.fileName());
+    }
 }
 
-void file_save_dialog_cb(Fl_Widget *,void *)
+void file_save_dialog_cb(Fl_Widget*, void*)
 {
     CFileSaveDialog dialog;
     dialog.directory(".");
-    dialog.addPattern("C++ Files","*.cpp;*.cxx");
-    dialog.addPattern("VC++ Projects","*.dsp");
+    dialog.addPattern("C++ Files", "*.cpp;*.cxx");
+    dialog.addPattern("VC++ Projects", "*.dsp");
     // Optionally, you can pre-select the file name with dialog.fileName("file_dialog.cpp");
     if (dialog.execute())
-        spInformation("Selected file:\n"+dialog.directory()+dialog.fileName());
+    {
+        spInformation("Selected file:\n" + dialog.directory() + dialog.fileName());
+    }
 }
 
-void dir_open_dialog_cb(Fl_Widget *,void *)
+void dir_open_dialog_cb(Fl_Widget*, void*)
 {
     CDirOpenDialog dialog;
     dialog.directory(".");
     if (dialog.execute())
-        spInformation("Selected directory:\n"+dialog.directory());
+    {
+        spInformation("Selected directory:\n" + dialog.directory());
+    }
 }
 
-int main(int argc,char *argv[])
+int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes themes;
 
         CWindow w(200, 150);
 
-        CButton b1(SP_OPEN_BUTTON,SP_ALIGN_TOP,"Open File Dialog");
+        CButton b1(CButtonKind::OPEN_BUTTON, SP_ALIGN_TOP,
+        "Open File Dialog");
         b1.callback(file_open_dialog_cb);
 
-        CButton b2(SP_SAVE_BUTTON,SP_ALIGN_TOP,"Save File Dialog");
+        CButton b2(CButtonKind::SAVE_BUTTON, SP_ALIGN_TOP,
+        "Save File Dialog");
         b2.callback(file_save_dialog_cb);
 
-        CButton b3(SP_BROWSE_BUTTON,SP_ALIGN_TOP,"Open Directory Dialog");
+        CButton b3(CButtonKind::BROWSE_BUTTON, SP_ALIGN_TOP,
+        "Open Directory Dialog");
         b3.callback(dir_open_dialog_cb);
 
-        CButton b4(SP_EXIT_BUTTON,SP_ALIGN_BOTTOM);
+        CButton b4(CButtonKind::EXIT_BUTTON, SP_ALIGN_BOTTOM);
         b4.callback(exit_cb);
 
         w.end();
-        w.show(argc,argv);
+        w.show(argc, argv);
 
         return Fl::run();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

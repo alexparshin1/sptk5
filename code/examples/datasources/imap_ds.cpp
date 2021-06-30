@@ -53,17 +53,20 @@ void go_cb(Fl_Widget*, void*)
     imapDS->user(imapUser->data().asString());
     imapDS->password(imapPassword->data().asString());
     imapDS->folder(imapMailBox->data().asString());
-    try {
+    try
+    {
         filesListView->fill(*imapDS);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         fl_alert("%s", e.what());
     }
 }
 
 int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes themes;
 
@@ -79,12 +82,13 @@ int main(int argc, char* argv[])
         imapMailBox = new CInput("Mail Box:", 130, SP_ALIGN_LEFT);
         imapMailBox->labelWidth(70);
         imapMailBox->data("Inbox");
-        CButton goButton(SP_EXEC_BUTTON, SP_ALIGN_RIGHT, "Messages");
+        CButton goButton(CButtonKind::EXEC_BUTTON, SP_ALIGN_RIGHT,
+        "Messages");
         goButton.callback(go_cb);
         agroup1.end();
 
         CGroup agroup2("", 10, SP_ALIGN_BOTTOM);
-        CButton exitButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
+        CButton exitButton(CButtonKind::EXIT_BUTTON, SP_ALIGN_RIGHT);
         exitButton.callback(exit_cb);
         agroup2.end();
 
@@ -101,7 +105,8 @@ int main(int argc, char* argv[])
 
         return rc;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

@@ -48,8 +48,11 @@ namespace sptk {
  */
 
 class CPopupWindow;
+
 class CPopupCalendar;
+
 class CDateControl;
+
 class CToggleTree;
 
 /**
@@ -57,7 +60,8 @@ class CToggleTree;
  *
  * Multiple line input box
  */
-class SP_EXPORT CMemoInput: public CInput
+class SP_EXPORT CMemoInput
+    : public CInput
 {
     using inherited = class CInput;
 
@@ -74,7 +78,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CMemoInput(const char *label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CMemoInput(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -94,7 +98,7 @@ public:
      */
     CControlKind kind() const override
     {
-        return DCV_MEMO;
+        return CControlKind::MEMO;
     }
 
     /**
@@ -138,7 +142,7 @@ public:
     /**
      * Saves data to query
      */
-    void save(Query *) override;
+    void save(Query*) override;
 
     /**
      * Computes the optimal widget size
@@ -151,7 +155,7 @@ public:
     /**
      * Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node *node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 /**
  * @}

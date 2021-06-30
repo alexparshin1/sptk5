@@ -47,17 +47,17 @@ namespace sptk {
  *
  * The information (layout,style,etc) is provided by the XML node
  */
-typedef CLayoutClient* (*createControlCallback)(xml::Node *node);
+using createControlCallback = CLayoutClient* (*)(xml::Node* node);
 
 /**
  * @brief A callback map that stores type names and control create functions
  */
-using createControlCallbackMap = std::map<std::string,createControlCallback>;
+using createControlCallbackMap = std::map<std::string, createControlCallback>;
 
 /**
  * @brief a map of widget names to widgets
  */
-using CWidgetNamesMap = std::map<std::string,Fl_Widget*>;
+using CWidgetNamesMap = std::map<std::string, Fl_Widget*>;
 
 /**
  * @brief Layout manager grow mode.
@@ -65,7 +65,9 @@ using CWidgetNamesMap = std::map<std::string,Fl_Widget*>;
  * Allows or disables the layout to
  * grow in horizontal and/or vertical direction
  */
-enum CLayoutGrowMode {
+enum class CLayoutGrowMode
+    : uint8_t
+{
     /**
      * Don't allow layout to grow
      */
@@ -97,45 +99,47 @@ enum CLayoutGrowMode {
  * the widget's size and position.
  * @see CLayoutClient
  */
-class SP_EXPORT CLayoutManager : public CLayoutClient 
+class SP_EXPORT CLayoutManager
+    : public CLayoutClient
 {
     friend class CLayoutManagerInitializer;
+
 protected:
     /**
      * An extra space between widgets
      */
-    int               m_layoutSpacing;
+    int m_layoutSpacing;
 
     /**
      * Layout grow mode, @see CLayoutGrowMode
      */
-    CLayoutGrowMode   m_layoutGrowMode;
+    CLayoutGrowMode m_layoutGrowMode;
 
     /**
      * Attached group to manage
      */
-    Fl_Group         *m_group;
+    Fl_Group* m_group;
 
     /**
      * The group frame, including optional background image
      */
-    CFrame           *m_frame;
+    CFrame* m_frame;
 
     /**
      * Should we draw background
      */
-    bool              m_frameDrawBackground;
+    bool m_frameDrawBackground;
 
     /**
      * If true - do not read or write any XML
      */
-    bool              m_noXml;
+    bool m_noXml;
 
 
     /**
      * A map of box type names and corresponding constants
      */
-    static std::map<std::string,Fl_Boxtype> m_boxTypeNames;
+    static std::map<std::string, Fl_Boxtype> m_boxTypeNames;
 
     /**
      * A map of control types and callbacks that create them
@@ -152,12 +156,13 @@ protected:
      * @param resizeWidgets bool, resize widgets if true, or just compute the layout size
      * @returns true if the size is stable (doesn't depend on input sizes w,h)
      */
-    bool autoLayout(int x,int y,int& w,int& h,bool resizeWidgets) const;
+    bool autoLayout(int x, int y, int& w, int& h, bool resizeWidgets) const;
 
     /**
      * Paints background in tiles mode
      */
     virtual void paintBackground();
+
 public:
 
     /**
@@ -166,12 +171,14 @@ public:
      * @param layoutSize int, the size of the widget in layout. See m_layoutSize for more information.
      * @param ca CLayoutAlign, widget align in layout
      */
-    CLayoutManager(Fl_Group* group,int layoutSize,CLayoutAlign ca);
+    CLayoutManager(Fl_Group* group, int layoutSize, CLayoutAlign ca);
 
     /**
      * Destructor
      */
-    virtual ~CLayoutManager() {}
+    virtual ~CLayoutManager()
+    {
+    }
 
     /**
      * @brief Removes all the children
@@ -181,7 +188,8 @@ public:
     /**
      * Returns current layout spacing between widgets
      */
-    int  layoutSpacing() const   {
+    int layoutSpacing() const
+    {
         return m_layoutSpacing;
     }
 
@@ -189,7 +197,8 @@ public:
      * Defines layout spacing between widgets
      * @param ls int, new layout spacing
      */
-    void layoutSpacing(int ls)   {
+    void layoutSpacing(int ls)
+    {
         m_layoutSpacing = ls;
     }
 
@@ -198,7 +207,8 @@ public:
      * @param gm CLayoutGrowMode, new layout grow mode
      * @see CLayoutGrowMode
      */
-    void layoutGrowMode(CLayoutGrowMode gm=LGM_AUTO_GROW) {
+    void layoutGrowMode(CLayoutGrowMode gm = CLayoutGrowMode::LGM_AUTO_GROW)
+    {
         m_layoutGrowMode = gm;
     }
 
@@ -206,7 +216,8 @@ public:
      * Returns current layout grow mode
      * @see CLayoutGrowMode
      */
-    CLayoutGrowMode layoutGrowMode() const {
+    CLayoutGrowMode layoutGrowMode() const
+    {
         return m_layoutGrowMode;
     }
 
@@ -221,7 +232,8 @@ public:
      * @param frame CFrame *, frame to use
      * @param drawBackground bool, if true then background is paint
      */
-    void frame(CFrame *frame,bool drawBackground=true) {
+    void frame(CFrame* frame, bool drawBackground = true)
+    {
         m_frame = frame;
         m_frameDrawBackground = drawBackground;
     }
@@ -229,7 +241,8 @@ public:
     /**
      * @brief Returnes the current frame.
      */
-    const CFrame *frame() const {
+    const CFrame* frame() const
+    {
         return m_frame;
     }
 
@@ -244,7 +257,7 @@ public:
      * @param node const xml::Node*, node to load data from
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
      */
-    virtual void loadLayout(const xml::Node* node,CLayoutXMLmode xmlMode);
+    virtual void loadLayout(const xml::Node* node, CLayoutXMLmode xmlMode);
 
     /**
      * @brief Saves group controls data into XML node
@@ -252,7 +265,7 @@ public:
      * @param node const xml::Node*, node to save data into
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void saveLayout(xml::Node* node,CLayoutXMLmode xmlMode) const;
+    virtual void saveLayout(xml::Node* node, CLayoutXMLmode xmlMode) const;
 
     /**
      * @brief Builds an index of internal widget names
@@ -263,14 +276,15 @@ public:
      * @param recursive bool, if true also processes the children
      * @param clean bool, if true, the list is cleaned prior to fill
      */
-    void nameIndex(CWidgetNamesMap& index,bool recursive,bool clean=true) const;
+    void nameIndex(CWidgetNamesMap& index, bool recursive, bool clean = true) const;
 
     /**
      * @brief Returns flag of blocking XML processing
      *
      * If this flag is set then no XML is loaded or saved
      */
-    bool noXml() const {
+    bool noXml() const
+    {
         return m_noXml;
     }
 
@@ -282,7 +296,8 @@ public:
      * (widget) from being stored in XML.
      * @param noXml bool, if true - no XML is red or written
      */
-    void noXml(bool noXml) {
+    void noXml(bool noXml)
+    {
         m_noXml = noXml;
     }
 
@@ -295,12 +310,12 @@ public:
      * @param typeName std::string, the type of the (control) widget
      * @param creator createControlCallback, a callback that creates the required widget
      */
-	static void registerControl(std::string typeName, createControlCallback creator) noexcept;
+    static void registerControl(std::string typeName, createControlCallback creator) noexcept;
 
     /**
      * @brief Returns a read-only map of box type names and corresponding constants
      */
-	static const std::map<std::string, Fl_Boxtype>& boxTypeNames();
+    static const std::map<std::string, Fl_Boxtype>& boxTypeNames();
 };
 /**
  * @}

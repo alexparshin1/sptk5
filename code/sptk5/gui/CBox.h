@@ -44,7 +44,8 @@ namespace sptk {
  *
  * Multiple line text box (read-only)
  */
-class SP_EXPORT CBox : public CInput
+class SP_EXPORT CBox
+    : public CInput
 {
     using inherited = class CInput;
 
@@ -107,7 +108,7 @@ public:
      */
     CControlKind kind() const override
     {
-        return DCV_BOX;
+        return CControlKind::BOX;
     }
 
     /**

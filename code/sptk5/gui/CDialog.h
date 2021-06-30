@@ -42,9 +42,13 @@ class Fl_Group;
 namespace sptk {
 
 class Query;
+
 class PoolDatabaseConnection;
+
 class CButton;
+
 class CControl;
+
 class CDlgControls;
 
 /**
@@ -59,27 +63,28 @@ class CDlgControls;
  * If the Ok button was pressed, it would return DMR_OK.
  * For Cancel button it would return DMR_CANCEL. And, for user buttons, it would be DMR_USER.
  */
-enum CDialogModalResult
+enum class CDialogModalResult
+    : uint8_t
 {
     /**
      * Modal result undefined
      */
-    DMR_NONE,
+    NONE,
 
     /**
      * Ok button pressed
      */
-    DMR_OK,
+    OK,
 
     /**
      * Cancel button pressed
      */
-    DMR_CANCEL,
+    CANCEL,
 
     /**
      * User-added button pressed
      */
-    DMR_USER
+    USER
 
 };
 
@@ -89,21 +94,23 @@ enum CDialogModalResult
  * The main difference is - it hides the tab label
  * and the border when there is only one tab.
  */
-class SP_EXPORT CDialogTabs: public CTabs
+class SP_EXPORT CDialogTabs
+    : public CTabs
 {
 protected:
     /**
      * Sets default parameters for a new page
      */
-    void prepareNewPage(Fl_Group *page, bool autoColor) override;
+    void prepareNewPage(Fl_Group* page, bool autoColor) override;
 
 public:
 
     /**
      * @brief Default constructor
      */
-    CDialogTabs() :
-            CTabs("", 10, SP_ALIGN_CLIENT)
+    CDialogTabs()
+        :
+        CTabs("", 10, SP_ALIGN_CLIENT)
     {
     }
 };
@@ -117,7 +124,8 @@ public:
  * of controls inside the dialog. Controls should have the field names defined, though.
  * And don't forget to define a table name and key field name.
  */
-class SP_EXPORT CDialog: public CWindow
+class SP_EXPORT CDialog
+    : public CWindow
 {
     /**
      * @brief Loads window coordinates and widgets from XML node
@@ -145,82 +153,82 @@ protected:
     /**
      * Standard Ok button
      */
-    CButton*        m_okButton;
+    CButton* m_okButton;
 
     /**
      * Standard Cancel button
      */
-    CButton*        m_cancelButton;
+    CButton* m_cancelButton;
 
     /**
      * Pointer to the default button
      */
-    CButton*        m_defaultButton;
+    CButton* m_defaultButton;
 
     /**
      * Database interface: table name
      */
-    String          m_tableName;
+    String m_tableName;
 
     /**
      * Database interface: table key field name
      */
-    String          m_keyField;
+    String m_keyField;
 
     /**
      * Database interface: table key field value for the record to edit
      */
-    int             m_keyValue;
+    int m_keyValue;
 
     /**
      * Database interface: The list of controls for standard processing
      */
-    CControlList    m_defaultFields;
+    CControlList m_defaultFields;
 
     /**
      * The list of all controls (CControl-descendants)
      */
-    CControlList    m_allFields;
+    CControlList m_allFields;
 
     /**
      * The group buttons are placed on.
      */
-    CGroup*         m_buttonGroup;
+    CGroup* m_buttonGroup;
 
     /**
      * The tabs
      */
-    CDialogTabs*    m_pages;
+    CDialogTabs* m_pages;
 
     /**
      * Database interface: The query to select a database record
      */
-    Query*         m_selectQuery;
+    Query* m_selectQuery;
 
     /**
      * Database interface: The query to update a database record
      */
-    Query*         m_updateQuery;
+    Query* m_updateQuery;
 
     /**
      * Database interface: The query to insert a new database record
      */
-    Query*         m_insertQuery;
+    Query* m_insertQuery;
 
     /**
      * Database interface: The flag indicating if queries are created from available controls.
      */
-    bool            m_queriesBuilt;
+    bool m_queriesBuilt;
 
     /**
      * Database interface: The flag indicating if available controls were scanned for field names.
      */
-    bool            m_controlsScanned;
+    bool m_controlsScanned;
 
     /**
      * Database interface: The list of the controls to exclude from standard database queries.
      */
-    CControlList    m_specialProcessingControls;
+    CControlList m_specialProcessingControls;
 
     /**
      * The result of exiting the modal mode.
@@ -284,7 +292,7 @@ public:
      * @param h                 Dialog height
      * @param label             Dialog caption
      */
-    CDialog(int w, int h, const char *label = nullptr);
+    CDialog(int w, int h, const char* label = nullptr);
 
     /**
      * Destructor
@@ -318,18 +326,18 @@ public:
      * Defines the default button
      * @param btn               Button in dialog to become the default button
      */
-    void defaultButton(CButton *btn);
+    void defaultButton(CButton* btn);
 
     /**
      * Sets the database connection
      * @param db                Database connection
      */
-    virtual void database(PoolDatabaseConnection *db);
+    virtual void database(PoolDatabaseConnection* db);
 
     /**
      * Returns current database connection
      */
-    PoolDatabaseConnection *database() const;
+    PoolDatabaseConnection* database() const;
 
     /**
      * Defines database table to use
@@ -385,7 +393,7 @@ public:
      * @param autoColor         If true the page color is assigned automatically
      * @returns created group
      */
-    virtual Fl_Group* newPage(const char *label, bool autoColor);
+    virtual Fl_Group* newPage(const char* label, bool autoColor);
 
     /**
      * Creates a new page as CScroll
@@ -393,7 +401,7 @@ public:
      * @param autoColor         If true the page color is assigned automatically
      * @returns created group
      */
-    virtual Fl_Group* newScroll(const char *label, bool autoColor);
+    virtual Fl_Group* newScroll(const char* label, bool autoColor);
 
     /**
      * Adds a user-defined button to the dialog.
@@ -404,7 +412,7 @@ public:
      * @param label const char *, button label
      * @param callback Fl_Callback_p, button callback
      */
-    CButton* addExtraButton(CButtonKind buttonKind, const char *label, Fl_Callback_p callback);
+    CButton* addExtraButton(CButtonKind buttonKind, const char* label, Fl_Callback_p callback);
 
     /**
      * Returns the number of controls inside the dialog with defined field names
@@ -419,7 +427,7 @@ public:
      *
      * @param fieldName         The control field name
      */
-    CControl& operator [](const String& fieldName);
+    CControl& operator[](const String& fieldName);
 
     /**
      * @brief Makes dialog to scan the widgets inside

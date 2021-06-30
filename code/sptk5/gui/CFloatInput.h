@@ -43,7 +43,8 @@ namespace sptk {
  *
  * Allows to input only Floating point numbers, and you can also define the input value range for the valid().
  */
-class SP_EXPORT CFloatInput : public CInput
+class SP_EXPORT CFloatInput
+    : public CInput
 {
     using inherited = class CInput;
 
@@ -126,7 +127,7 @@ public:
      */
     CControlKind kind() const override
     {
-        return DCV_FLOAT;
+        return CControlKind::FLOAT;
     }
 
     /**

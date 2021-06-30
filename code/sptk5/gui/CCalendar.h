@@ -27,6 +27,7 @@
 #pragma once
 
 class Fl_Box;
+
 class Fl_Button;
 
 #include <sptk5/gui/CPopupWindow.h>
@@ -48,27 +49,29 @@ namespace sptk {
  * The calendar window allows to select the date.
  * You can change a day, a month and a year selected in the widget.
  */
-class SP_EXPORT CCalendar : public ::Fl_Group, public CLayoutClient {
-    Fl_Group  *m_headerBox;
-    Fl_Group  *m_buttonBox;
-    Fl_Box    *m_monthNameBox;
-    Fl_Box    *m_dayNameBoxes[7];
-    Fl_Button *m_dayButtons[31];
-    Fl_Button *m_switchButtons[4];
-    DateTime  m_date;
+class SP_EXPORT CCalendar
+    : public ::Fl_Group, public CLayoutClient
+{
+    Fl_Group* m_headerBox;
+    Fl_Group* m_buttonBox;
+    Fl_Box* m_monthNameBox;
+    Fl_Box* m_dayNameBoxes[7];
+    Fl_Button* m_dayButtons[31];
+    Fl_Button* m_switchButtons[4];
+    DateTime m_date;
     std::string m_headerLabel;
-    int        m_activeButtonIndex;
-    char       m_weekDayLabels[14];
+    int m_activeButtonIndex;
+    char m_weekDayLabels[14];
 
     /**
      * Day button callback class function
      */
-    static void cbDayButtonClicked(Fl_Widget *,void *);
+    static void cbDayButtonClicked(Fl_Widget*, void*);
 
     /**
      * Month button callback class function
      */
-    static void cbSwitchButtonClicked(Fl_Widget *,void *);
+    static void cbSwitchButtonClicked(Fl_Widget*, void*);
 
     /**
      * Constructor initializer
@@ -94,7 +97,7 @@ public:
      * @param layoutSize int, the size of widget in layout
      * @param layoutAlignment CLayoutAlign, widget align in the layout
      */
-    CCalendar(const char * label,int layoutSize=20,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
+    CCalendar(const char* label, int layoutSize = 20, CLayoutAlign layoutAlignment = SP_ALIGN_TOP);
 
     /**
      * @brief FLTK-style constructor
@@ -104,7 +107,7 @@ public:
      * @param h int, widget height
      * @param label int, optional widget label
      */
-    CCalendar(int x,int y,int w,int h,const char *label=nullptr);
+    CCalendar(int x, int y, int w, int h, const char* label = nullptr);
 
     /**
      * @brief Widget resize
@@ -113,12 +116,12 @@ public:
      * @param w int, widget width
      * @param h int, widget height
      */
-    void resize(int x,int y,int w,int h);
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * @brief Reports the maximum height of the calendar widget
      */
-    int  maxHeight() const;
+    int maxHeight() const;
 
     /**
      * @brief Resizes widget to the optimal height, considering minHeight
@@ -128,7 +131,7 @@ public:
     /**
      * @brief Sets the calendar date
      */
-    void      date(DateTime dt);
+    void date(DateTime dt);
 
     /**
      * @brief Reports the calendar date
@@ -142,17 +145,20 @@ public:
  * Creates a popup window with the calendar widget on it.
  * Allows to select day, month, and year with increment/decrement buttons.
  */
-class SP_EXPORT CPopupCalendar : public CPopupWindow {
+class SP_EXPORT CPopupCalendar
+    : public CPopupWindow
+{
     friend class CCalendar;
+
     /**
      * The calendar widget
      */
-    CCalendar     *m_calendar;
+    CCalendar* m_calendar;
 
     /**
      * The widget that shows the pop-up calendar
      */
-    Fl_Widget     *m_dateControl;
+    Fl_Widget* m_dateControl;
 
 protected:
     /**
@@ -165,12 +171,13 @@ public:
      * @brief Constructor
      * @param dateControl Fl_Widget, the widget the shows the popup calendar
      */
-    explicit CPopupCalendar(Fl_Widget *dateControl);
+    explicit CPopupCalendar(Fl_Widget* dateControl);
 
     /**
      * @brief Attaches the calendar to another widget
      */
-    void attachTo(Fl_Widget *dateControl) {
+    void attachTo(Fl_Widget* dateControl)
+    {
         m_dateControl = dateControl;
     }
 
@@ -181,12 +188,13 @@ public:
      * @param w int, widget width
      * @param h int, widget height
      */
-    void resize(int x,int y,int w,int h) override;
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * @brief Function that is used to report that calendar is clicked on and should be hidden.
      */
-    void clicked() {
+    void clicked()
+    {
         m_clicked = 1;
     }
 
@@ -194,7 +202,8 @@ public:
      * @brief Sets the calendar date
      * @param dt DateTime, new calendar date
      */
-    void date(DateTime dt) {
+    void date(DateTime dt)
+    {
         m_calendar->date(dt);
     }
 
@@ -202,7 +211,8 @@ public:
      * @brief Reports the calendar date
      * @returns DateTime value of the currently selected date
      */
-    DateTime date() const       {
+    DateTime date() const
+    {
         return m_calendar->date();
     }
 

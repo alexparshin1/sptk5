@@ -43,30 +43,32 @@ namespace sptk {
  *
  * Allows to input only integers, and you can also define the input value range for the valid().
  */
-class SP_EXPORT CIntegerInput : public CInput {
+class SP_EXPORT CIntegerInput
+    : public CInput
+{
     using inherited = class CInput;
 
     /**
      * @brief Minimum value (optional)
      */
-    int        m_minValue;
+    int m_minValue;
 
     /**
      * @brief Maximum value (optional)
      */
-    int        m_maxValue;
+    int m_maxValue;
 
 protected:
 
     /**
      * @brief Saves data to query
      */
-    virtual void save(Query *);
+    void save(Query*) override;
 
     /**
      * @brief Returns true if the input data is valid
      */
-    virtual bool valid() const;
+    bool valid() const override;
 
 public:
 
@@ -76,7 +78,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CIntegerInput(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CIntegerInput(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -96,27 +98,29 @@ public:
      * @param min int, minimum value
      * @param max int, maximum value
      */
-    void             setLimits(bool limited,int min=0,int max=0);
+    void setLimits(bool limited, int min = 0, int max = 0);
 
     /**
      * @brief Returns the control kind, SPTK-style RTTI
      * @see CControlKind for more information
      */
-    virtual CControlKind kind() const {
-        return DCV_INTEGER;
+    CControlKind kind() const override
+    {
+        return CControlKind::INTEGER;
     }
 
     /**
      * @brief Returns the control class name, SPTK-style RTTI
      */
-    virtual String className() const {
+    String className() const override
+    {
         return "integer_input";
     }
 
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node *node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 /**
  * @}

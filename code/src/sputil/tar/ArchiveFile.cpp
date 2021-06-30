@@ -36,6 +36,8 @@
 #include <sys/stat.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/SystemException.h>
+#include <sptk5/cgui>
+#include <sptk5/ArchiveFile.h>
 
 #endif
 
@@ -97,9 +99,9 @@ ArchiveFile::ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory
         throw SystemException("Can't get user information");
     }
 
-    m_uname = pw.pw_name;
-    m_uid = pw.pw_uid;
-    m_gid = pw.pw_gid;
+    m_ownership.uname = pw.pw_name;
+    m_ownership.uid = pw.pw_uid;
+    m_ownership.gid = pw.pw_gid;
 
     struct group gr {};
     if (struct group* gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
@@ -107,7 +109,7 @@ ArchiveFile::ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory
         throw SystemException("Can't get group information");
     }
 
-    m_gname = gr.gr_name;
+    m_ownership.gname = gr.gr_name;
 #endif
 
     makeHeader();
@@ -139,12 +141,12 @@ fs::path ArchiveFile::relativePath(const fs::path& fileName, const fs::path& bas
     return relativePath;
 }
 
-ArchiveFile::ArchiveFile(const fs::path& fileName, const uint8_t* content, size_t contentLength, int mode, int uid,
-                         int gid, const DateTime& mtime, ArchiveFile::Type type, const String& uname,
-                         const String& gname, const fs::path& linkName)
-    : Buffer(content, contentLength),
-      m_fileName(fileName), m_mode(mode), m_uid(uid), m_gid(gid), m_mtime(mtime),
-      m_type(type), m_linkname(linkName), m_uname(uname), m_gname(gname)
+ArchiveFile::ArchiveFile(const fs::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
+                         ArchiveFile::Type type, const sptk::ArchiveFile::Ownership& ownership,
+                         const fs::path& linkName)
+    : Buffer(content),
+      m_fileName(fileName), m_mode(mode), m_ownership(ownership), m_mtime(mtime),
+      m_type(type), m_linkname(linkName)
 {
     makeHeader();
 }
@@ -156,8 +158,8 @@ void ArchiveFile::makeHeader()
 
     strncpy(m_header->filename.data(), m_fileName.c_str(), sizeof(m_header->filename));
     snprintf(m_header->mode.data(), sizeof(m_header->mode), "%07o", m_mode);
-    snprintf(m_header->uid.data(), sizeof(m_header->uid), "%07o", m_uid);
-    snprintf(m_header->gid.data(), sizeof(m_header->gid), "%07o", m_gid);
+    snprintf(m_header->uid.data(), sizeof(m_header->uid), "%07o", m_ownership.uid);
+    snprintf(m_header->gid.data(), sizeof(m_header->gid), "%07o", m_ownership.gid);
     snprintf(m_header->size.data(), sizeof(m_header->size), "%011o", (unsigned) length());
     snprintf(m_header->mtime.data(), sizeof(m_header->mtime), "%011o", (unsigned) (time_t) m_mtime);
 
@@ -171,8 +173,8 @@ void ArchiveFile::makeHeader()
     memcpy(m_header->magic.data(), "ustar ", sizeof(m_header->magic));
     snprintf(m_header->version.data(), sizeof(m_header->version), " ");
 
-    snprintf(m_header->uname.data(), sizeof(m_header->uname), "%s", m_uname.c_str());
-    snprintf(m_header->gname.data(), sizeof(m_header->gname), "%s", m_gname.c_str());
+    snprintf(m_header->uname.data(), sizeof(m_header->uname), "%s", m_ownership.uname.c_str());
+    snprintf(m_header->gname.data(), sizeof(m_header->gname), "%s", m_ownership.gname.c_str());
 
     memset(m_header->chksum.data(), ' ', sizeof(m_header->chksum));
     unsigned chksum = 0;

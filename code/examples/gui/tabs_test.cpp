@@ -171,10 +171,10 @@ void buttonDemo(CTabs* tabs)
     new CBox(
         "All the buttons in application are sharing the pixmaps.\nThere are no duplicate button pixmaps in the memory.\nThe size of the button is defined by both the pixmap and the label.");
     int button_kind = 1;
-    for (int col = 0; col < 5 && button_kind < SP_MAX_BUTTON; col++)
+    for (int col = 0; col < 5 && button_kind < (int) CButtonKind::MAX_BUTTON; col++)
     {
         auto* columnGroup = new CGroup("", 10, SP_ALIGN_LEFT); // Reserving some space on the page
-        for (int row = 0; row < 6 && button_kind < SP_MAX_BUTTON; row++)
+        for (int row = 0; row < 6 && button_kind < (int) CButtonKind::MAX_BUTTON; row++)
         {
             auto* btn = new CButton((CButtonKind) button_kind, SP_ALIGN_TOP);
             btn->callback(general_cb);
@@ -274,7 +274,9 @@ void scrollDemo(const Strings& sl1, const Strings& sl2, const Strings& sl3, cons
     columns.push_back(CColumn("city", VariantDataType::VAR_STRING));
     comboBox1->columns(columns);
 
-    comboBox1->buttons(SP_BROWSE_BUTTON | SP_ADD_BUTTON | SP_EDIT_BUTTON | SP_DELETE_BUTTON);
+    comboBox1->buttons(
+        (int) CButtonKind::BROWSE_BUTTON | (int) CButtonKind::ADD_BUTTON | (int) CButtonKind::EDIT_BUTTON |
+        (int) CButtonKind::DELETE_BUTTON);
 
     comboBox1->callback(general_cb);
 
@@ -405,7 +407,7 @@ int main(int argc, char** argv)
 
         themesCombo.data("Default");
 
-        auto* exitButton = new CButton(SP_EXIT_BUTTON, SP_ALIGN_TOP);
+        auto* exitButton = new CButton(CButtonKind::EXIT_BUTTON, SP_ALIGN_TOP);
         exitButton->callback((Fl_Callback*) cb_OK);
 
         buttonGroup.end();

@@ -51,7 +51,7 @@ namespace sptk {
  * widgets.
  */
 class SP_EXPORT CInput_
-        : public Fl_Input, public CLayoutClient
+    : public Fl_Input, public CLayoutClient
 {
 
     /**
@@ -120,7 +120,7 @@ public:
      * @param event int, FLTK event
      * @returns true if the event was processed
      */
-    int handle(int event);
+    int handle(int event) override;
 
     /**
      * Returns the font size for the input text
@@ -176,7 +176,7 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w, int& h);
+    bool preferredSize(int& w, int& h) override;
 
     /**
      * Sets the optional mask to the input widget. Passing an empty string as the maskString clears the mask.
@@ -193,7 +193,8 @@ public:
  * several other SPTK widgets. As CControl descendant it's a
  * layout client.
  */
-class SP_EXPORT CInput : public CControl
+class SP_EXPORT CInput
+    : public CControl
 {
 
     /**
@@ -280,7 +281,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~CInput();
+    virtual ~CInput() override;
 
     /**
      * Returns input widget input type
@@ -308,7 +309,7 @@ public:
      */
     CControlKind kind() const override
     {
-        return DCV_STRING;
+        return CControlKind::STRING;
     }
 
     /**

@@ -50,7 +50,7 @@ void changed_cb(Fl_Widget*, void*)
 {
     CTreeItem* item = tree->selected();
     if (item)
-        COUT(item->label().c_str() << endl)
+    COUT(item->label().c_str() << endl)
 }
 
 void add_item_cb(Fl_Widget*, void*)
@@ -82,10 +82,12 @@ void add_item_cb(Fl_Widget*, void*)
     CInput inp("Item Name:");
     inp.labelWidth(80);
     dlg.end();
-    if (dlg.showModal()) {
+    if (dlg.showModal())
+    {
         CTreeItem* node = nullptr;
         int mode = int(typeCombo.data()) + int(modeCombo.data()) * 2;
-        switch (mode) {
+        switch (mode)
+        {
             case 3: // add folder to the root
                 node = tree->addItem(inp.data().asString(), CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
                 break;
@@ -94,17 +96,24 @@ void add_item_cb(Fl_Widget*, void*)
                 break;
             case 5: // add folder to the current
                 if (selectedItem)
-                    node = selectedItem->addItem(inp.data().asString().c_str(), CTreeItem::getFolderOpened(), CTreeItem::getFolderClosed());
+                {
+                    node = selectedItem->addItem(inp.data().asString().c_str(), CTreeItem::getFolderOpened(),
+                                                 CTreeItem::getFolderClosed());
+                }
                 break;
             case 6: // add item to the current
                 if (selectedItem)
+                {
                     node = selectedItem->addItem(inp.data().asString().c_str(), CTreeItem::getDocument());
+                }
                 break;
             default:
                 break;
         }
         if (node)
+        {
             Fl::focus(node);
+        }
         tree->relayout();
     }
 }
@@ -117,7 +126,8 @@ void remove_item_cb(Fl_Widget*, void*)
 
 int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes themes;
 
@@ -178,13 +188,13 @@ int main(int argc, char* argv[])
         group.box(FL_THIN_DOWN_BOX);
         group.color(FL_LIGHT1);
 
-        CButton btn1(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
+        CButton btn1(CButtonKind::EXIT_BUTTON, SP_ALIGN_RIGHT);
         btn1.callback(exit_cb);
 
-        CButton btn2(SP_DELETE_BUTTON, SP_ALIGN_RIGHT);
+        CButton btn2(CButtonKind::DELETE_BUTTON, SP_ALIGN_RIGHT);
         btn2.callback(remove_item_cb);
 
-        CButton btn3(SP_ADD_BUTTON, SP_ALIGN_RIGHT);
+        CButton btn3(CButtonKind::ADD_BUTTON, SP_ALIGN_RIGHT);
         btn3.callback(add_item_cb);
 
         window.end();
@@ -198,7 +208,8 @@ int main(int argc, char* argv[])
 
         return 0;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

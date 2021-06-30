@@ -93,6 +93,6 @@ CFileSaveDialog::CFileSaveDialog(const string& caption)
     : CFileDialog(caption, true)
 {
     m_okButton->label("Save");
-    m_okButton->buttonImage(SP_SAVE_BUTTON);
+    m_okButton->buttonImage(CButtonKind::SAVE_BUTTON);
     m_directoryView->multiSelect(false);
 }

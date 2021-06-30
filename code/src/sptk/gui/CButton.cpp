@@ -42,67 +42,67 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, String label
     const char* name;
     const char* l;
 
-    if (buttonKind < SP_NEW_BUTTON)
+    if (buttonKind < CButtonKind::NEW_BUTTON)
     {
         switch (buttonKind)
         {
-            case SP_ADD_BUTTON:
+            case CButtonKind::ADD_BUTTON:
                 name = "add";
                 l = "Add";
                 break;
-            case SP_DELETE_BUTTON:
+            case CButtonKind::DELETE_BUTTON:
                 name = "delete";
                 l = "Delete";
                 break;
-            case SP_EDIT_BUTTON:
+            case CButtonKind::EDIT_BUTTON:
                 name = "edit";
                 l = "Edit";
                 break;
-            case SP_BROWSE_BUTTON:
+            case CButtonKind::BROWSE_BUTTON:
                 name = "browse";
                 l = "Browse";
                 break;
-            case SP_CALENDAR_BUTTON:
+            case CButtonKind::CALENDAR_BUTTON:
                 name = "calendar";
                 l = "Date";
                 break;
-            case SP_REFRESH_BUTTON:
+            case CButtonKind::REFRESH_BUTTON:
                 name = "refresh";
                 l = "Refresh";
                 break;
-            case SP_CANCEL_BUTTON:
+            case CButtonKind::CANCEL_BUTTON:
                 name = "cancel";
                 l = "Cancel";
                 break;
-            case SP_HELP_BUTTON:
+            case CButtonKind::HELP_BUTTON:
                 name = "help";
                 l = "Help";
                 break;
-            case SP_NO_BUTTON:
+            case CButtonKind::NO_BUTTON:
                 name = "no";
                 l = "No";
                 break;
-            case SP_OK_BUTTON:
+            case CButtonKind::OK_BUTTON:
                 name = "ok";
                 l = "Ok";
                 break;
-            case SP_OPEN_BUTTON:
+            case CButtonKind::OPEN_BUTTON:
                 name = "open";
                 l = "Open";
                 break;
-            case SP_PRINT_BUTTON:
+            case CButtonKind::PRINT_BUTTON:
                 name = "print";
                 l = "Print";
                 break;
-            case SP_SAVE_BUTTON:
+            case CButtonKind::SAVE_BUTTON:
                 name = "save";
                 l = "Save";
                 break;
-            case SP_COPY_BUTTON:
+            case CButtonKind::COPY_BUTTON:
                 name = "copy";
                 l = "Insert";
                 break;
-            case SP_LEFT_BUTTON:
+            case CButtonKind::LEFT_BUTTON:
                 name = "left";
                 l = "Left";
                 break;
@@ -116,67 +116,67 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, String label
     {
         switch (buttonKind)
         {
-            case SP_NEW_BUTTON:
+            case CButtonKind::NEW_BUTTON:
                 name = "new";
                 l = "New";
                 break;
-            case SP_NEXT_BUTTON:
+            case CButtonKind::NEXT_BUTTON:
                 name = "next";
                 l = "Next";
                 break;
-            case SP_PRINTER_BUTTON:
+            case CButtonKind::PRINTER_BUTTON:
                 name = "printer";
                 l = "Printer";
                 break;
-            case SP_PRIOR_BUTTON:
+            case CButtonKind::PRIOR_BUTTON:
                 name = "prior";
                 l = "Prior";
                 break;
-            case SP_RIGHT_BUTTON:
+            case CButtonKind::RIGHT_BUTTON:
                 name = "right";
                 l = "Right";
                 break;
-            case SP_SEARCH_BUTTON:
+            case CButtonKind::SEARCH_BUTTON:
                 name = "search";
                 l = "Search";
                 break;
-            case SP_SEND_BUTTON:
+            case CButtonKind::SEND_BUTTON:
                 name = "send";
                 l = "Send";
                 break;
-            case SP_STEPLEFT_BUTTON:
+            case CButtonKind::STEPLEFT_BUTTON:
                 name = "stepleft";
                 l = "Step Left";
                 break;
-            case SP_STEPRIGHT_BUTTON:
+            case CButtonKind::STEPRIGHT_BUTTON:
                 name = "stepright";
                 l = "Step Right";
                 break;
-            case SP_VIEW_BUTTON:
+            case CButtonKind::VIEW_BUTTON:
                 name = "view";
                 l = "View";
                 break;
-            case SP_HOME_BUTTON:
+            case CButtonKind::HOME_BUTTON:
                 name = "home";
                 l = "Home";
                 break;
-            case SP_EXEC_BUTTON:
+            case CButtonKind::EXEC_BUTTON:
                 name = "exec";
                 l = "Exec";
                 break;
-            case SP_STOP_BUTTON:
+            case CButtonKind::STOP_BUTTON:
                 name = "stop";
                 l = "Stop";
                 break;
-            case SP_EXIT_BUTTON:
+            case CButtonKind::EXIT_BUTTON:
                 name = "exit";
                 l = "Exit";
                 break;
-            case SP_SAVE_AS_BUTTON:
+            case CButtonKind::SAVE_AS_BUTTON:
                 name = "saveas";
                 l = "Save As..";
                 break;
-            case SP_CONFIGURE_BUTTON:
+            case CButtonKind::CONFIGURE_BUTTON:
                 name = "configure";
                 l = "Settings";
                 break;
@@ -230,7 +230,7 @@ CBaseButton::CBaseButton(CButtonKind kind, CLayoutAlign layoutAlign, bool is_sma
 CBaseButton::CBaseButton(const char* l, CLayoutAlign layoutAlign, CThemeButtonType tbt)
     : Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign),
       m_type(tbt),
-      m_kind(SP_UNDEFINED_BUTTON),
+      m_kind(CButtonKind::UNDEFINED_BUTTON),
       m_iconSize(IS_SMALL_ICON)
 {
     m_default = false;
@@ -300,7 +300,7 @@ void CBaseButton::drawFocus(bool usingTheme)
 
 void CBaseButton::draw()
 {
-    if (m_kind != SP_UNDEFINED_BUTTON)
+    if (m_kind != CButtonKind::UNDEFINED_BUTTON)
     {
         image(m_kind, m_iconSize, m_label.c_str());
     }

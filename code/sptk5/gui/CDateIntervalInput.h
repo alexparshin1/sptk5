@@ -40,6 +40,7 @@ namespace sptk {
  */
 
 class CPopupCalendar;
+
 class CDateControl;
 
 /**
@@ -47,28 +48,30 @@ class CDateControl;
  *
  * Masked date interval input with the drop-down calendar
  */
-class SP_EXPORT CDateIntervalInput : public CInput {
+class SP_EXPORT CDateIntervalInput
+    : public CInput
+{
     using inherited = class CInput;
 
     /**
      * First date input widget
      */
-    CDateControl   *m_firstDateInput;
+    CDateControl* m_firstDateInput;
 
     /**
      * Second date input widget
      */
-    CDateControl   *m_secondDateInput;
+    CDateControl* m_secondDateInput;
 
     /**
      * Separator to display
      */
-    std::string     m_separator;
+    std::string m_separator;
 
     /**
      * Pop-up calendar window
      */
-    CPopupCalendar *m_calendarWindow;
+    CPopupCalendar* m_calendarWindow;
 
 
     /**
@@ -79,7 +82,7 @@ class SP_EXPORT CDateIntervalInput : public CInput {
     /**
      * @brief Internal callback function
      */
-    static void intervalCalendarButtonPressed(Fl_Widget *btn,void *data);
+    static void intervalCalendarButtonPressed(Fl_Widget* btn, void* data);
 
 protected:
 
@@ -87,7 +90,7 @@ protected:
      * @brief Shows drop-down calendar for the particular date input that owns the button btn
      * @param btn Fl_Widget *, button of the date input widget
      */
-    void showCalendar(Fl_Widget *btn);
+    void showCalendar(Fl_Widget* btn);
 
 public:
 
@@ -97,7 +100,8 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    explicit CDateIntervalInput(const char *label=nullptr,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    explicit CDateIntervalInput(const char* label = nullptr, int layoutSize = 10,
+                                CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -120,7 +124,8 @@ public:
     /**
      * @brief Returns the separator between date inputs
      */
-    std::string separator() {
+    std::string separator()
+    {
         return m_separator;
     }
 
@@ -133,7 +138,7 @@ public:
      * @brief Sets the date in the first date input - the beginning of interval
      * @param dt const DateTime, date and time value for the first control
      */
-    void      beginOfInterval(DateTime dt);
+    void beginOfInterval(DateTime dt);
 
     /**
      * @brief Returns the date from the second date input - the end of interval
@@ -144,21 +149,21 @@ public:
      * Sets the date from the second date input - the end of interval
      * @param dt const DateTime, date and time value for the second control
      */
-    void      endOfInterval(DateTime dt);
+    void endOfInterval(DateTime dt);
 
     /**
      * @brief Returns the control kind, SPTK-style RTTI
      * @see CControlKind for more information
      */
-    virtual CControlKind kind() const override
+    CControlKind kind() const override
     {
-        return DCV_DATEINTERVAL;
+        return CControlKind::DATEINTERVAL;
     }
 
     /**
      * @brief Returns the control class name, SPTK-style RTTI
      */
-    virtual String className() const override
+    String className() const override
     {
         return "date_interval_input";
     }
@@ -166,7 +171,7 @@ public:
     /**
      * @brief Universal data connection, returns data from control
      */
-    virtual Variant data() const override;
+    Variant data() const override;
 
     /**
      * @brief Universal data connection, sets data from control
@@ -180,18 +185,18 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    virtual void resize(int x,int y,int w,int h) override;
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * @brief Returns true if the control state is valid, and the data is inside the limits
      * if applicable
      */
-    virtual bool valid() const override;
+    bool valid() const override;
 
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node *node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 /**
  * @}

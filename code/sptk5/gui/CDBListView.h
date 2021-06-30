@@ -40,47 +40,48 @@ namespace sptk {
 /**
  * @brief List view widget with extended database support
  */
-class SP_EXPORT CDBListView : public CListView
+class SP_EXPORT CDBListView
+    : public CListView
 {
     /**
      * Full refersh Query
      */
-    Query      m_fullRefreshQuery;
+    Query m_fullRefreshQuery;
 
     /**
      * Fast refersh Query
      */
-    Query      m_fastRefreshQuery;
+    Query m_fastRefreshQuery;
 
     /**
      * Record count Query
      */
-    Query      m_recordCountQuery;
+    Query m_recordCountQuery;
 
     /**
      * Key field name
      */
-    String      m_keyField;
+    String m_keyField;
 
     /**
      * True if fast refresh is defined properly
      */
-    bool        m_fastRefreshEnabed;
+    bool m_fastRefreshEnabed;
 
     /**
      * Last refresh date and time
      */
-    DateTime   m_lastRefresh;
+    DateTime m_lastRefresh;
 
     /**
      * Record fetch limit
      */
-    uint32_t    m_maxRecords;
+    uint32_t m_maxRecords;
 
     /**
      * Is the records limit enabled?
      */
-    bool        m_recordsLimited;
+    bool m_recordsLimited;
 
 public:
 
@@ -90,7 +91,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CDBListView(const char *label= nullptr,int layoutSize=20,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CDBListView(const char* label = nullptr, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -107,17 +108,17 @@ public:
     /**
      * Destructor
      */
-    ~CDBListView();
+    ~CDBListView() override;
 
     /**
      * Sets the database connection
      */
-    void database(PoolDatabaseConnection *db);
+    void database(PoolDatabaseConnection* db);
 
     /**
      * Returns the database connection
      */
-    PoolDatabaseConnection *database() const;
+    PoolDatabaseConnection* database() const;
 
     /**
      * Sets the SQL queries. Both full and fast refresh queries should return the same set of fields.
@@ -138,28 +139,28 @@ public:
      * @param paramName         The parameter Name
      * @param refreshKind       The query it belongs to (full or fast refresh)
      */
-    QueryParameter& param(const char *paramName,CRefreshKind refreshKind = LV_REFRESH_FULL);
+    QueryParameter& param(const char* paramName, CRefreshKind refreshKind = LV_REFRESH_FULL);
 
     /**
      * Defines the key field name. This field name should be a part of the SQL query
      * and contain the unique integer values so the row could be identified by that value.
-     * @param fieldName std::string, the name of the field
+     * @param fieldName         The name of the field
      */
     void keyField(const String& fieldName);
 
     /**
      * Returns key field name
      */
-    std::string keyField() const
+    String keyField() const
     {
         return m_keyField;
     }
 
     /**
      * Fast setup of the database connection
-     * @param db CDatabase *, the database connection
-     * @param sql std::string,  the full refresh SQL query text
-     * @param keyField std::string, the name of the key field
+     * @param db                The database connection
+     * @param sql               The full refresh SQL query text
+     * @param keyField          Tthe name of the key field
      */
     void setup(PoolDatabaseConnection* db, const String& sql, const String& keyField);
 
@@ -172,7 +173,8 @@ public:
     /**
      * Returns the date and time of the last data refresh
      */
-    DateTime lastRefresh() const {
+    DateTime lastRefresh() const
+    {
         return m_lastRefresh;
     }
 
@@ -211,4 +213,3 @@ public:
  * @}
  */
 }
-

@@ -69,8 +69,8 @@ int main(int argc, char** argv)
 
         CGroup group1("", 10);
         group1.box(FL_DOWN_BOX);
-        CButton testButton1(SP_OK_BUTTON, SP_ALIGN_LEFT);
-        CButton testButton2(SP_CANCEL_BUTTON, SP_ALIGN_LEFT);
+        CButton testButton1(CButtonKind::OK_BUTTON, SP_ALIGN_LEFT);
+        CButton testButton2(CButtonKind::CANCEL_BUTTON, SP_ALIGN_LEFT);
         testButton1.defaultButton(true);
         group1.end();
 
@@ -117,7 +117,7 @@ int main(int argc, char** argv)
         themesCombo.callback(theme_cb);
         themesCombo.labelWidth(70);
 
-        auto* exitButton = new CButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
+        auto* exitButton = new CButton(CButtonKind::EXIT_BUTTON, SP_ALIGN_RIGHT);
         exitButton->callback((Fl_Callback*) exit_cb);
         exitButton->defaultButton(true);
 

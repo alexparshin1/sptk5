@@ -182,7 +182,7 @@ protected:
     /**
      * Destructor
      */
-    ~CBaseListBox();
+    ~CBaseListBox() override;
 
     /**
      * Internal buttons callback function
@@ -483,20 +483,20 @@ public:
     /**
      * Destructor
      */
-    ~CComboBox();
+    ~CComboBox() override;
 
     /**
      * SPTK RTTI information
      * @returns control type as CControlKind
      * @see CControlKind
      */
-    virtual CControlKind kind() const;
+    CControlKind kind() const override;
 
     /**
      * SPTK RTTI information
      * @returns control type name
      */
-    virtual String className() const
+    String className() const override
     {
         return "combo_box";
     }
@@ -543,16 +543,16 @@ public:
      * @returns control type as CControlKind
      * @see CControlKind
      */
-    virtual CControlKind kind() const
+    CControlKind kind() const override
     {
-        return DCV_LISTBOX;
+        return CControlKind::LISTBOX;
     }
 
     /**
      * SPTK RTTI information
      * @returns control type name
      */
-    virtual String className() const
+    String className() const override
     {
         return "list_box";
     }

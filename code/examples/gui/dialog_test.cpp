@@ -93,7 +93,7 @@ public:
         inp = new CMemoInput("Notes:", 100);
         inp->fieldName("notes");
 
-        addExtraButton(SP_SEND_BUTTON, "E-mail", example_dialog_cb);
+        addExtraButton(CButtonKind::SEND_BUTTON, "E-mail", example_dialog_cb);
 
         end();
 
@@ -198,10 +198,11 @@ int main(int argc, char* argv[])
                      "widget may have a <i>field name</i> attached to it.</p>");
         textBox.color(FL_GRAY);
 
-        CButton b2(SP_EXIT_BUTTON);
+        CButton b2(CButtonKind::EXIT_BUTTON);
         b2.callback(exit_cb);
 
-        CButton b1(SP_EDIT_BUTTON, SP_ALIGN_RIGHT, "Show Dialog");
+        CButton b1(CButtonKind::EDIT_BUTTON, SP_ALIGN_RIGHT,
+        "Show Dialog");
         b1.callback(dialog_cb);
 
         w.end();

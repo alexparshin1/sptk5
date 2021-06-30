@@ -136,7 +136,7 @@ void WSWebSocketsMessage::encode(const String& payload, OpCode opcode, bool fina
     *ptr = (int) opcode & 0xF;
     if (finalMessage)
     {
-        *ptr = (int) *ptr | finalBitMask;
+        *ptr = (uint8_t) ((int) *ptr | finalBitMask);
     }
 
     ++ptr;

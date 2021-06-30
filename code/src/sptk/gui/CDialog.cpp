@@ -72,8 +72,8 @@ CDialog::CDialog(int w, int h, const char* label)
     m_insertQuery = new Query;
 
     m_buttonGroup = new CGroup("", 20, SP_ALIGN_BOTTOM);
-    m_okButton = new CButton(SP_OK_BUTTON);
-    m_cancelButton = new CButton(SP_CANCEL_BUTTON);
+    m_okButton = new CButton(CButtonKind::OK_BUTTON);
+    m_cancelButton = new CButton(CButtonKind::CANCEL_BUTTON);
     m_buttonGroup->end();
 
     m_pages = new CDialogTabs;
@@ -82,7 +82,7 @@ CDialog::CDialog(int w, int h, const char* label)
 
     CDialog::newPage("", false);
 
-    m_modalResult = DMR_NONE;
+    m_modalResult = CDialogModalResult::NONE;
 }
 
 CDialog::~CDialog()
@@ -156,9 +156,9 @@ bool CDialog::showModal()
     show();
     bool rc = false;
 
-    m_modalResult = DMR_NONE;
+    m_modalResult = CDialogModalResult::NONE;
 
-    while (m_modalResult == DMR_NONE)
+    while (m_modalResult == CDialogModalResult::NONE)
     {
         Fl_Widget* pressed = Fl::readqueue();
 
@@ -172,20 +172,20 @@ bool CDialog::showModal()
             Fl::check();
             if ((pressed == this || pressed == m_cancelButton) && cancelPressed())
             {
-                m_modalResult = DMR_CANCEL;
+                m_modalResult = CDialogModalResult::CANCEL;
                 break;
             }
             if (pressed == m_okButton && okPressed())
             {
                 rc = true;
-                m_modalResult = DMR_OK;
+                m_modalResult = CDialogModalResult::OK;
                 break;
             }
             fl_cursor(FL_CURSOR_DEFAULT);
         }
     }
 
-    if (m_modalResult == DMR_USER)
+    if (m_modalResult == CDialogModalResult::USER)
     {
         rc = true;
     }

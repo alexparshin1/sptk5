@@ -97,7 +97,7 @@ void CSpellChecker::learnAndClose()
     {
         aspell_speller_add_to_personal(m_spellChecker, word.c_str(), (int) word.length());
     }
-    m_modalResult = DMR_USER;
+    m_modalResult = CDialogModalResult::USER;
 }
 
 void CSpellChecker::ignoreAndClose()
@@ -107,7 +107,7 @@ void CSpellChecker::ignoreAndClose()
     {
         aspell_speller_add_to_session(m_spellChecker, word.c_str(), (int) word.length());
     }
-    m_modalResult = DMR_USER;
+    m_modalResult = CDialogModalResult::USER;
 }
 
 CSpellChecker::CSpellChecker()
@@ -129,8 +129,8 @@ CSpellChecker::CSpellChecker()
     m_suggestionListView->addColumn("Suggestions", VariantDataType::VAR_STRING, 310);
     m_suggestionListView->callback(CSpellChecker::cb_suggest);
 
-    addExtraButton(SP_ADD_BUTTON, "Add", CSpellChecker::cb_learn);
-    addExtraButton(SP_NO_BUTTON, "Ignore", CSpellChecker::cb_ignore);
+    addExtraButton(CButtonKind::ADD_BUTTON, "Add", CSpellChecker::cb_learn);
+    addExtraButton(CButtonKind::NO_BUTTON, "Ignore", CSpellChecker::cb_ignore);
 
     m_okButton->label("Replace");
     m_cancelButton->label("Stop");
@@ -296,7 +296,7 @@ bool CSpellChecker::spellCheck()
                 rc = false;
                 break;
             }
-            if (modalResult() == DMR_OK)
+            if (modalResult() == CDialogModalResult::OK)
             {
                 replaceWord(m_replaceToInput->data().asString(), wordStart, wordEnd);
             }

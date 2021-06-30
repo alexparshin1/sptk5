@@ -44,7 +44,7 @@ namespace sptk {
  * edit entry for the 'Other' choice.
  */
 class SP_EXPORT CRadioButtons
-        : public CButtonGroup
+    : public CButtonGroup
 {
     /**
      * Internal callback function
@@ -83,7 +83,7 @@ public:
      */
     CControlKind kind() const override
     {
-        return DCV_RADIOBUTTONS;
+        return CControlKind::RADIOBUTTONS;
     }
 
     /**

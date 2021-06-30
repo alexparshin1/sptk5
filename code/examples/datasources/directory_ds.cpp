@@ -50,9 +50,11 @@ void go_cb(Fl_Widget*, void*)
 void list_view_cb(Fl_Widget* w, void*)
 {
     auto* listView = (CListView*) w;
-    if (listView->eventType() == CE_MOUSE_DOUBLE_CLICK) {
+    if (listView->eventType() == CE_MOUSE_DOUBLE_CLICK)
+    {
         CPackedStrings& row = *listView->selectedRow();
-        if (strncmp(row[3], "Directory", 9) == 0) {
+        if (strncmp(row[3], "Directory", 9) == 0)
+        {
             String fullPath = directoryDS->directory() + row[1];
             directoryDS->directory(fullPath);
             directoryInput->data(fullPath);
@@ -63,7 +65,8 @@ void list_view_cb(Fl_Widget* w, void*)
 
 int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes themes;
 
@@ -77,12 +80,13 @@ int main(int argc, char* argv[])
 #else
         directoryInput->data("/");
 #endif
-        CButton goButton(SP_EXEC_BUTTON, SP_ALIGN_RIGHT, "Chdir");
+        CButton goButton(CButtonKind::EXEC_BUTTON, SP_ALIGN_RIGHT,
+        "Chdir");
         goButton.callback(go_cb);
         agroup.end();
 
         CGroup agroup2("", 10, SP_ALIGN_BOTTOM);
-        CButton exitButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
+        CButton exitButton(CButtonKind::EXIT_BUTTON, SP_ALIGN_RIGHT);
         exitButton.callback(exit_cb);
         agroup2.end();
 
@@ -102,7 +106,8 @@ int main(int argc, char* argv[])
 
         return rc;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

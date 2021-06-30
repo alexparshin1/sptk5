@@ -42,19 +42,20 @@ namespace sptk {
  * Uses strings and pointers to CControl.
  * Strings are control field names.
  */
-using CStringControlMap = std::map<std::string, CControl *, CaseInsensitiveCompare>;
+using CStringControlMap = std::map<std::string, CControl*, CaseInsensitiveCompare>;
 
 /**
  * @brief List of CControl object pointers in Fl_Group
  */
-class SP_EXPORT CControlList: public CStringControlMap
+class SP_EXPORT CControlList
+    : public CStringControlMap
 {
 protected:
 
     /**
      * @brief Scan group to find all CControl objects inside, including children groups
      */
-    void scanControls(const Fl_Group *group);
+    void scanControls(const Fl_Group* group);
 
 public:
 
@@ -66,7 +67,7 @@ public:
     /**
      * @brief Adds a CControl pointer into the list
      */
-    void add(CControl *control);
+    void add(CControl* control);
 
     /**
      * @brief Adds a list of CControl pointers into the list
@@ -81,7 +82,7 @@ public:
     /**
      * @brief Removes CControl pointer from the list
      */
-    void remove(CControl *control)
+    void remove(const CControl* control)
     {
         erase(control->fieldName());
     }
@@ -94,17 +95,19 @@ public:
     /**
      * @brief Returns true if the control for the same field name exists
      */
-    bool contains(CControl *control) const
+    bool contains(const CControl* control) const
     {
         if (!control)
+        {
             return false;
+        }
         return find(control->fieldName()) != end();
     }
 
     /**
      * @brief Assignment operation
      */
-    CControlList& operator =(const Fl_Group& g)
+    CControlList& operator=(const Fl_Group& g)
     {
         clear();
         add(g);
@@ -114,9 +117,10 @@ public:
     /**
      * @brief Assignment operation
      */
-    CControlList& operator =(const CControlList& l)
+    CControlList& operator=(const CControlList& l)
     {
-        if (&l != this) {
+        if (&l != this)
+        {
             clear();
             add(l);
         }
@@ -126,7 +130,7 @@ public:
     /**
      * @brief Addition operation
      */
-    CControlList& operator <<(CControl *c)
+    CControlList& operator<<(CControl* c)
     {
         add(c);
         return *this;
@@ -135,7 +139,7 @@ public:
     /**
      * @brief Addition operation
      */
-    CControlList& operator <<(const Fl_Group& g)
+    CControlList& operator<<(const Fl_Group& g)
     {
         add(g);
         return *this;
@@ -144,7 +148,7 @@ public:
     /**
      * @brief Addition operation
      */
-    CControlList& operator <<(const CControlList& l)
+    CControlList& operator<<(const CControlList& l)
     {
         add(l);
         return *this;

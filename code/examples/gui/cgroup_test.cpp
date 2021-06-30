@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
         CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
         buttonGroup.color(FL_LIGHT1);
 
-        CButton exitButton(SP_EXIT_BUTTON);
+        CButton exitButton(CButtonKind::EXIT_BUTTON);
         exitButton.callback(exit_cb);
 
         CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);

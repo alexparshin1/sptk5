@@ -43,14 +43,16 @@ namespace sptk {
  * Contains the frame image and frame width
  */
 
-class SP_EXPORT CFrame : public CPngImage
+class SP_EXPORT CFrame
+    : public CPngImage
 {
 public:
     /**
      * @brief An expected usage of the frame
      */
 
-    enum CFrameKind
+    enum class CFrameKind
+        : uint8_t
     {
         /**
          * The frame should be used to draw standard FLTK frames
@@ -94,9 +96,9 @@ public:
      */
 
     CFrame(const Buffer& imageData, uint32_t frameWidth, uint32_t cornerZone,
-           CPatternDrawMode drawMode = CPngImage::PDM_STRETCH, CFrameKind kind = USER_EXTENDED)
-    : CPngImage(imageData), m_frameWidth(frameWidth), m_cornerZone(cornerZone),
-      m_drawMode(drawMode), m_kind(kind)
+           CPatternDrawMode drawMode = CPngImage::PDM_STRETCH, CFrameKind kind = CFrameKind::USER_EXTENDED)
+        : CPngImage(imageData), m_frameWidth(frameWidth), m_cornerZone(cornerZone),
+          m_drawMode(drawMode), m_kind(kind)
     {
     }
 
@@ -228,4 +230,3 @@ public:
  * @}
  */
 }
-

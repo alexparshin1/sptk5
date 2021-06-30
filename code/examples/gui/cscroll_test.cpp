@@ -94,7 +94,7 @@ int main()
         // SP_ALIGN_RIGHT, and the text/icon defined by the
         // button kind.
         CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
-        CButton exitButton(SP_EXIT_BUTTON);
+        CButton exitButton(CButtonKind::EXIT_BUTTON);
         exitButton.callback(exit_cb);
         buttonGroup.end();
 

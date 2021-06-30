@@ -135,7 +135,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     time_t mtime = readOctalNumber(header->mtime, "mtime");
     auto dt = DateTime::convertCTime(mtime);
 
-    const uint8_t* content = buffer.data() + offset;
+    const Buffer content(buffer.data() + offset, contentLength);
 
     fs::path fname(header->filename.data());
     String uname(header->uname.data());
@@ -148,8 +148,8 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
         blockCount++;
     }
 
-    auto file = make_shared<ArchiveFile>(fname, content, contentLength, mode, uid, gid, dt, type,
-                                         uname, gname, linkName);
+    ArchiveFile::Ownership ownership {uid, gid, uname, gname};
+    auto file = make_shared<ArchiveFile>(fname, content, mode, dt, type, ownership, linkName);
 
     m_files[fname.c_str()] = file;
 

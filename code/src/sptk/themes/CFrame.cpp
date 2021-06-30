@@ -74,11 +74,11 @@ void CFrames::load(Tar& tar, xml::Node* framesNode)
         unsigned frameWidth = (int) frameNode->getAttribute("width", "1");
         unsigned cornerZone = (int) frameNode->getAttribute("corner", "1");
         Fl_Boxtype frameType = FL_NO_BOX;
-        CFrame::CFrameKind kind = CFrame::USER_EXTENDED;
+        CFrame::CFrameKind kind = CFrame::CFrameKind::USER_EXTENDED;
         if (frameTypeInt < 4)
         {
             frameType = frameTypes[frameTypeInt];
-            kind = CFrame::FLTK_STANDARD;
+            kind = CFrame::CFrameKind::FLTK_STANDARD;
         }
         CPngImage::CPatternDrawMode drawMode = CPngImage::PDM_STRETCH;
         if ((String) frameNode->getAttribute("mode") == "tile")

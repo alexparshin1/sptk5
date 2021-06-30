@@ -40,6 +40,7 @@ namespace sptk {
  */
 
 class CPopupCalendar;
+
 class CDateControl;
 
 /**
@@ -47,19 +48,20 @@ class CDateControl;
  *
  * Base class for most of the date and time inputs (except fot CDateIntervalInput)
  */
-class SP_EXPORT CDateTimeBaseInput : public CInput
+class SP_EXPORT CDateTimeBaseInput
+    : public CInput
 {
     using inherited = class CInput;
 
     /**
      * @brief Mininmum date and time value to check in valid()
      */
-    DateTime            m_minValue;
+    DateTime m_minValue;
 
     /**
      * @brief Maximum date and time value to check in valid()
      */
-    DateTime            m_maxValue;
+    DateTime m_maxValue;
 
     /**
      * @brief Constructor initializer
@@ -71,27 +73,27 @@ protected:
     /**
      * @brief Popup calendar window
      */
-    CPopupCalendar      *m_calendarWindow;
+    CPopupCalendar* m_calendarWindow;
 
     /**
      * @brief Date input control
      */
-    CDateControl        *m_dateInput;
+    CDateControl* m_dateInput;
 
     /**
      * @brief Time input control
      */
-    CInput_             *m_timeInput;
+    CInput_* m_timeInput;
 
     /**
      * @brief Loads data from query
      */
-    virtual void load(Query *) override;
+    void load(Query*) override;
 
     /**
      * @brief Saves data to query
      */
-    virtual void save(Query *) override;
+    void save(Query*) override;
 
     /**
      * @brief Loads control data from XML
@@ -101,7 +103,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void     load(const xml::Node* node,CLayoutXMLmode xmlMode) override;
+    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Saves control data to XML
@@ -111,12 +113,12 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void save(xml::Node* node,CLayoutXMLmode xmlMode) const override;
+    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief Returns true if the input data is valid
      */
-    virtual bool valid() const override;
+    bool valid() const override;
 
     /**
      * @brief Constructor in SPTK style
@@ -125,12 +127,12 @@ protected:
      * @param layoutAlign CLayoutAlign, widget align in layout
      * @param autoCreate bool, auto create CInput_ widget. Internal.
      */
-    CDateTimeBaseInput(const char * label,int layoutSize,CLayoutAlign layoutAlign,bool autoCreate);
+    CDateTimeBaseInput(const char* label, int layoutSize, CLayoutAlign layoutAlign, bool autoCreate);
 
     /**
      * @brief Internal callback function
      */
-    static void calendarButtonPressed(Fl_Widget *btn,void *data);
+    static void calendarButtonPressed(Fl_Widget* btn, void* data);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -147,7 +149,7 @@ protected:
     /**
      * @brief Shows drop-down calendar
      */
-    bool showCalendar(Fl_Widget *btn);
+    bool showCalendar(Fl_Widget* btn);
 
 public:
 
@@ -157,7 +159,7 @@ public:
      * @param min DateTime, minimum value
      * @param max DateTime, maximum value
      */
-    void setLimits(bool limited,DateTime min=DateTime(),DateTime max=DateTime());
+    void setLimits(bool limited, DateTime min = DateTime(), DateTime max = DateTime());
 
     /**
      * @brief Returns widget date or time  value
@@ -167,7 +169,7 @@ public:
     /**
      * @brief Sets widget date or time value
      */
-    virtual void     dateTimeValue(DateTime dt);
+    virtual void dateTimeValue(DateTime dt);
 };
 
 class CTimeInput;
@@ -177,12 +179,14 @@ class CTimeInput;
  *
  * Masked date input with the drop-down calendar
  */
-class SP_EXPORT CDateInput : public CDateTimeBaseInput 
+class SP_EXPORT CDateInput
+    : public CDateTimeBaseInput
 {
     /**
      * @brief Constructor initializer
      */
     void ctor_init();
+
 public:
 
     /**
@@ -191,7 +195,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    explicit CDateInput(const char * label=nullptr,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    explicit CDateInput(const char* label = nullptr, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -205,21 +209,21 @@ public:
     CDateInput(int x,int y,int w,int h,const char * label=0);
 #endif
 
-    ~CDateInput();
+    ~CDateInput() override;
 
     /**
      * @brief Returns the control kind, SPTK-style RTTI
      * @see CControlKind for more information
      */
-    virtual CControlKind kind() const override
+    CControlKind kind() const override
     {
-        return DCV_DATE;
+        return CControlKind::DATE;
     }
 
     /**
      * @brief Returns the control class name, SPTK-style RTTI
      */
-    virtual String className() const override
+    String className() const override
     {
         return "date_input";
     }
@@ -242,18 +246,18 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    virtual void resize(int x,int y,int w,int h) override;
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * Computes the optimal widget height
      * @param h int&, input - height offered by the program, output - height required by widget
      */
-    virtual void preferredHeight(int& h) const override;
+    void preferredHeight(int& h) const override;
 
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node *node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 
 /**
@@ -261,7 +265,8 @@ public:
  *
  * Masked time input
  */
-class SP_EXPORT CTimeInput : public CDateTimeBaseInput 
+class SP_EXPORT CTimeInput
+    : public CDateTimeBaseInput
 {
 public:
 
@@ -271,7 +276,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    explicit CTimeInput(const char * label=nullptr,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    explicit CTimeInput(const char* label = nullptr, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -291,7 +296,7 @@ public:
      */
     CControlKind kind() const override
     {
-        return DCV_TIME;
+        return CControlKind::TIME;
     }
 
     /**
@@ -311,7 +316,7 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node *node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 
 /**
@@ -320,7 +325,9 @@ public:
  * Combines date and time input widgets. Includes two input boxes and the drop-down calendar
  * for the date input.
  */
-class SP_EXPORT CDateTimeInput : public CDateTimeBaseInput {
+class SP_EXPORT CDateTimeInput
+    : public CDateTimeBaseInput
+{
 
     /**
      * @brief Constructor initializer
@@ -335,7 +342,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CDateTimeInput(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CDateTimeInput(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -355,7 +362,7 @@ public:
      */
     CControlKind kind() const override
     {
-        return DCV_DATETIME;
+        return CControlKind::DATETIME;
     }
 
     /**
@@ -373,7 +380,7 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    void resize(int x,int y,int w,int h) override;
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * @brief Returns widget date or time  value
@@ -398,7 +405,7 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node *node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 /**
  * @}

@@ -35,7 +35,7 @@
 
 using namespace sptk;
 
-CControl* sptk::createControl(int controlKind, const String& label, const String& fieldName, int size)
+CControl* sptk::createControl(CControlKind controlKind, const String& label, const String& fieldName, int size)
 {
     CControl* control = nullptr;
 
@@ -43,52 +43,52 @@ CControl* sptk::createControl(int controlKind, const String& label, const String
 
     switch (controlKind)
     {
-        case DCV_BOX:
+        case CControlKind::BOX:
             control = new CBox(lbl, size);
             break;
-        case DCV_HTMLBOX:
+        case CControlKind::HTMLBOX:
             control = new CHtmlBox(lbl, size);
             break;
-        case DCV_RADIOBUTTONS:
+        case CControlKind::RADIOBUTTONS:
             control = new CRadioButtons(lbl, size);
             break;
-        case DCV_STRING:
+        case CControlKind::STRING:
             control = new CInput(lbl, size);
             break;
-        case DCV_MEMO:
+        case CControlKind::MEMO:
             control = new CMemoInput(lbl, size);
             break;
-        case DCV_INTEGER:
+        case CControlKind::INTEGER:
             control = new CIntegerInput(lbl);
             break;
-        case DCV_FLOAT:
+        case CControlKind::FLOAT:
             control = new CFloatInput(lbl);
             break;
-        case DCV_DATETIME:
+        case CControlKind::DATETIME:
             control = new CDateTimeInput(lbl);
             break;
-        case DCV_DATEINTERVAL:
+        case CControlKind::DATEINTERVAL:
             control = new CDateIntervalInput(lbl);
             break;
-        case DCV_DATE:
+        case CControlKind::DATE:
             control = new CDateInput(lbl);
             break;
-        case DCV_TIME:
+        case CControlKind::TIME:
             control = new CTimeInput(lbl);
             break;
-        case DCV_PHONE:
+        case CControlKind::PHONE:
             control = new CPhoneNumberInput(lbl);
             break;
-        case DCV_LISTBOX:
+        case CControlKind::LISTBOX:
             control = new CListBox(lbl, size);
             break;
-        case DCV_CHECKBUTTONS:
+        case CControlKind::CHECKBUTTONS:
             control = new CCheckButtons(lbl);
             break;
-        case DCV_COMBO:
+        case CControlKind::COMBO:
             control = new CComboBox(lbl, size);
             break;
-        case DCV_INTVALUECOMBO:
+        case CControlKind::INTVALUECOMBO:
             control = new CComboBox(lbl, size);
             break;
         default:

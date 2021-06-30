@@ -30,14 +30,13 @@ using namespace std;
 using namespace sptk;
 
 WSServices::WSServices(const SWSRequest& defaultService)
+    : m_services({{"", defaultService}})
 {
-    m_services[""] = defaultService;
 }
 
 WSServices::WSServices(const WSServices& other)
 {
-    scoped_lock lock(other.m_mutex);
-    m_services = other.m_services;
+    assign(other);
 }
 
 void WSServices::set(const sptk::String& location, const SWSRequest& service)
@@ -55,4 +54,10 @@ WSRequest& WSServices::get(const sptk::String& location) const
         itor = m_services.find("");
     }
     return *itor->second;
+}
+
+void WSServices::assign(const WSServices& other)
+{
+    scoped_lock lock(other.m_mutex);
+    m_services = other.m_services;
 }

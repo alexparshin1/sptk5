@@ -44,7 +44,7 @@ namespace sptk {
  * its size requirements, and can be a layout client.
  */
 class SP_EXPORT CCheckButton
-        : public Fl_Check_Button, public CLayoutClient
+    : public Fl_Check_Button, public CLayoutClient
 {
 
 protected:
@@ -63,7 +63,7 @@ public:
      * @param layoutAlignment CLayoutAlign, widget align in the layout
      */
     CCheckButton(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-            : Fl_Check_Button(0, 0, 10, 10, label), CLayoutClient(this, layoutSize, layoutAlignment)
+        : Fl_Check_Button(0, 0, 10, 10, label), CLayoutClient(this, layoutSize, layoutAlignment)
     {
     }
 
@@ -90,7 +90,7 @@ public:
  * Data connector returns the current state as a string with selected buttons names separated with '|' character.
  */
 class SP_EXPORT CCheckButtons
-        : public CRadioButtons
+    : public CRadioButtons
 {
     static void checkButtonsCallback(Fl_Widget*, void*);
 
@@ -146,7 +146,7 @@ public:
      */
     CControlKind kind() const override
     {
-        return DCV_CHECKBUTTONS;
+        return CControlKind::CHECKBUTTONS;
     }
 
     /**

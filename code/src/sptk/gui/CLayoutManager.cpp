@@ -92,7 +92,7 @@ CLayoutManager::CLayoutManager(Fl_Group* group, int layoutSize, CLayoutAlign ca)
 {
     m_frame = nullptr;
     m_layoutSpacing = 3;
-    m_layoutGrowMode = LGM_AUTO_GROW;
+    m_layoutGrowMode = CLayoutGrowMode::LGM_AUTO_GROW;
     m_noXml = false;
     m_frameDrawBackground = false;
 }
@@ -103,7 +103,9 @@ void CLayoutManager::clear()
 }
 
 const std::map<std::string, Fl_Boxtype>& CLayoutManager::boxTypeNames()
-{ return m_boxTypeNames; }
+{
+    return m_boxTypeNames;
+}
 
 void CLayoutManager::registerControl(std::string typeName, createControlCallback creator) noexcept
 {
@@ -290,7 +292,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                     ww -= preferred_w + m_layoutSpacing;
                     if (preferred_h > hh)
                     {
-                        if (!(m_layoutGrowMode & LGM_VERTICAL_GROW))
+                        if (!((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_VERTICAL_GROW))
                         {
                             preferred_h = hh;
                         }
@@ -317,7 +319,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                     hh -= preferred_h + m_layoutSpacing;
                     if (preferred_w > ww)
                     {
-                        if (!(m_layoutGrowMode & LGM_HORIZONTAL_GROW))
+                        if (!((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_HORIZONTAL_GROW))
                         {
                             preferred_w = ww;
                         }
@@ -378,11 +380,11 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
 
                 if (resizeWidgets && !dynamic_cast<CScroll*>(m_group))
                 {
-                    if (preferred_w > ww && !(m_layoutGrowMode & LGM_HORIZONTAL_GROW))
+                    if (preferred_w > ww && !((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_HORIZONTAL_GROW))
                     {
                         preferred_w = ww;
                     }
-                    if (preferred_h > hh && !(m_layoutGrowMode & LGM_VERTICAL_GROW))
+                    if (preferred_h > hh && !((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_VERTICAL_GROW))
                     {
                         preferred_h = hh;
                     }
@@ -399,7 +401,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
         }
 
         // Final adjustment
-        if (m_layoutGrowMode & LGM_HORIZONTAL_GROW)
+        if ((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_HORIZONTAL_GROW)
         {
             if (ww < 0)
             {
@@ -411,7 +413,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
             ww = 0;
         }
 
-        if (m_layoutGrowMode & LGM_VERTICAL_GROW)
+        if ((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_VERTICAL_GROW)
         {
             if (hh < 0)
             {
@@ -482,7 +484,9 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                 {
                     auto* layoutManager = dynamic_cast<CLayoutManager*>(widget);
                     if (layoutManager)
+                    {
                         layoutManager->loadLayout(widgetNode, xmlMode);
+                    }
                 }
                 catch (const Exception& e)
                 {
@@ -495,7 +499,9 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                 {
                     auto* cwidget = dynamic_cast<CControl*>(widget);
                     if (cwidget)
+                    {
                         cwidget->load(widgetNode, xmlMode);
+                    }
                 }
                 catch (const Exception& e)
                 {
@@ -503,8 +509,10 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                 }
             }
             if (widget->parent() != m_group)
+            {
                 m_group->add
                            (widget);
+            }
         }
         m_group->end();
     }
@@ -621,14 +629,20 @@ void CLayoutManager::saveLayout(xml::Node* groupNode, CLayoutXMLmode xmlMode) co
                 {
                     auto* control = dynamic_cast<CControl*>(widget);
                     if (xmlMode != LXM_DATA || control)
+                    {
                         layoutClient->save(node, xmlMode);
+                    }
                 }
                 if (node->empty() && !node->hasAttributes())
+                {
                     groupNode->remove(node);
+                }
                 else
                 {
                     if (widget->label() == nullptr || widget->label()[0] == 0)
+                    {
                         node->setAttribute("nn_index", (int) i);
+                    }
                 }
                 continue;
             }

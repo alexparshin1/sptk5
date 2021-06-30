@@ -44,7 +44,8 @@ namespace sptk {
  * Extended version of FLTK Fl_Group that can be a layout manager and layout client
  * at the same time.
  */
-class SP_EXPORT CGroup : public Fl_Group, public CLayoutManager
+class SP_EXPORT CGroup
+    : public Fl_Group, public CLayoutManager
 {
     /**
      * Draw the contents of the group clipped inside the group
@@ -127,20 +128,12 @@ public:
     /**
      * @brief Returns the current label
      */
-    virtual const String& label() const override
+    const String& label() const override
     {
         return m_label;
     }
 
-    /**
-     * @brief Sets the new label
-     *
-     * @param lbl               New label
-     */
-    void label(const String& lbl) override
-    {
-        CLayoutClient::label(lbl);
-    }
+    using CLayoutClient::label;
 
     /**
      * @brief Creates a widget based on the XML node information

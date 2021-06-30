@@ -179,8 +179,9 @@ int CInternalComboBoxPanel::handle(int event)
 }
 
 //===========================================================================
-const static CButtonKind buttonKind[] = {SP_BROWSE_BUTTON, SP_ADD_BUTTON, SP_EDIT_BUTTON, SP_DELETE_BUTTON,
-                                         SP_REFRESH_BUTTON};
+const static CButtonKind buttonKind[] = {CButtonKind::BROWSE_BUTTON, CButtonKind::ADD_BUTTON,
+                                         CButtonKind::EDIT_BUTTON, CButtonKind::DELETE_BUTTON,
+                                         CButtonKind::REFRESH_BUTTON};
 
 void CBaseListBox::comboButtonPressed(Fl_Widget* btn, void* data)
 {
@@ -198,21 +199,21 @@ void CBaseListBox::ctor_init(const char* label, int _mode)
     m_buttonClicked = nullptr;
     if (m_mode == IS_COMBO_BOX)
     {
-        m_buttonSet = SP_BROWSE_BUTTON;
+        m_buttonSet = (uint32_t) CButtonKind::BROWSE_BUTTON;
         m_control = new CInternalComboBoxPanel(0, 0, 10, 10);
     }
     else
     {
         m_controlFlags = FGE_MULTILINEENTRY;
-        m_buttonSet = SP_REFRESH_BUTTON;
+        m_buttonSet = (uint32_t) CButtonKind::REFRESH_BUTTON;
         m_control = m_list = new CDBListView;
     }
     m_control->align(FL_ALIGN_LEFT);
     m_buttonSpace = 0;
     for (int i = 0; i < 5; i++)
     {
-        uint64_t kind = buttonKind[i];
-        auto* btn = new CSmallButton(SP_UNDEFINED_BUTTON, SP_ALIGN_NONE);
+        auto kind = (uint64_t) buttonKind[i];
+        auto* btn = new CSmallButton(CButtonKind::UNDEFINED_BUTTON, SP_ALIGN_NONE);
         btn->buttonImage(buttonKind[i], IS_COMBO_ICON);
         btn->callback(comboButtonPressed);
         btn->user_data((void*) kind);
@@ -295,7 +296,7 @@ void CBaseListBox::resize(int x, int y, int w, int h)
         {
             break;
         }
-        if (m_buttonSet & buttonKind[i])
+        if (m_buttonSet & (int) buttonKind[i])
         {
             btn->resize(xright, ytop, bw, bh);
             btn->show();
@@ -458,26 +459,26 @@ void CBaseListBox::buttons(uint32_t buttonSet)
 void CBaseListBox::button_handle(uint32_t theButtonKind)
 {
     Fl::focus(m_control);
-    switch (theButtonKind)
+    switch ((CButtonKind) theButtonKind)
     {
-        case SP_BROWSE_BUTTON:
+        case CButtonKind::BROWSE_BUTTON:
             if (m_mode == IS_COMBO_BOX)
             {
                 dropDownList();
             }
             break;
-        case SP_REFRESH_BUTTON:
+        case CButtonKind::REFRESH_BUTTON:
             refreshData();
             break;
-        case SP_ADD_BUTTON:
+        case CButtonKind::ADD_BUTTON:
             m_event = UC_ADD_ITEM;
             do_callback();
             break;
-        case SP_EDIT_BUTTON:
+        case CButtonKind::EDIT_BUTTON:
             m_event = UC_EDIT_ITEM;
             do_callback();
             break;
-        case SP_DELETE_BUTTON:
+        case CButtonKind::DELETE_BUTTON:
             m_event = UC_DELETE_ITEM;
             do_callback();
             break;
@@ -703,7 +704,7 @@ CComboBox::~CComboBox() = default;
 
 CControlKind CComboBox::kind() const
 {
-    return DCV_INTVALUECOMBO;
+    return CControlKind::INTVALUECOMBO;
 }
 
 CLayoutClient* CComboBox::creator(xml::Node* node)

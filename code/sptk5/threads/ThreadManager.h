@@ -36,7 +36,7 @@ class ThreadManager
 public:
     explicit ThreadManager(const String& name);
 
-    void start();
+    void start() const;
 
     void stop();
 

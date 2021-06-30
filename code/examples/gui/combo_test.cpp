@@ -129,7 +129,9 @@ int main(int argc, char* argv[])
         cb.addRow(0, sl4);
         cb.addRow(0, sl5);
 
-        cb.buttons(SP_BROWSE_BUTTON | SP_ADD_BUTTON | SP_EDIT_BUTTON | SP_DELETE_BUTTON);
+        cb.buttons(
+            (int) CButtonKind::BROWSE_BUTTON | (int) CButtonKind::ADD_BUTTON | (int) CButtonKind::EDIT_BUTTON |
+            (int) CButtonKind::DELETE_BUTTON);
         cb.callback(combo_cb);
 
         // That group keeps togeteher the buttons. These
@@ -139,7 +141,7 @@ int main(int argc, char* argv[])
         CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
         buttonGroup.color(FL_LIGHT1);
 
-        CButton exitButton(SP_EXIT_BUTTON);
+        CButton exitButton(CButtonKind::EXIT_BUTTON);
         exitButton.callback(exit_cb);
 
         CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);

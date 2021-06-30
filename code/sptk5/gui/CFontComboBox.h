@@ -41,7 +41,8 @@ namespace sptk {
  *
  * A combobox filled with the system fonts names
  */
-class SP_EXPORT CFontComboBox : public CComboBox
+class SP_EXPORT CFontComboBox
+    : public CComboBox
 {
 public:
     /**
@@ -90,9 +91,11 @@ public:
      */
     Fl_Font font() const
     {
-        CPackedStrings* theSelectedRow = selectedRow();
-        if (theSelectedRow)
-            return (Fl_Font) theSelectedRow->argument();
+        if (const auto* theSelectedRow = selectedRow();
+            theSelectedRow)
+        {
+            return theSelectedRow->argument();
+        }
         return FL_HELVETICA;
     }
 

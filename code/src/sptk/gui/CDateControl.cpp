@@ -50,7 +50,7 @@ CDateControl::CDateControl(int x, int y, int w, int h, const char* label)
     m_input->box(FL_FLAT_BOX);
     m_input->callback(date_cb);
     m_input->when(FL_WHEN_CHANGED);
-    m_button = new CSmallButton(SP_CALENDAR_BUTTON);
+    m_button = new CSmallButton(CButtonKind::CALENDAR_BUTTON);
     m_button->visible_focus(false);
     end();
 }

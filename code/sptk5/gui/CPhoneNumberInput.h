@@ -44,7 +44,7 @@ namespace sptk {
  * Phone number input with two input boxes - area code and phone number.
  */
 class SP_EXPORT CPhoneNumberInput
-        : public CInput
+    : public CInput
 {
     using inherited = class CInput;
 
@@ -81,7 +81,7 @@ public:
      */
     CControlKind kind() const override
     {
-        return DCV_PHONE;
+        return CControlKind::PHONE;
     }
 
     /**

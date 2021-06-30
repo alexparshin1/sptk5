@@ -41,7 +41,9 @@ namespace sptk {
  * Implements the dialog to select a directory.
  * @see CDialog, CFileDialog, CFileOpenDialog, CFileSaveDialog
  */
-class SP_EXPORT CDirOpenDialog : public CFileDialog {
+class SP_EXPORT CDirOpenDialog
+    : public CFileDialog
+{
 protected:
     /**
      * @brief 'Ok' reaction
@@ -65,7 +67,7 @@ public:
     /**
      * @brief Destructor
      */
-    ~CDirOpenDialog() = default;
+    ~CDirOpenDialog() override = default;
 };
 /**
  * @}

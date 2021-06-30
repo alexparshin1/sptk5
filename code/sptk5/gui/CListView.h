@@ -936,7 +936,7 @@ public:
 
     CControlKind kind() const override
     {
-        return DCV_LISTBOX;
+        return CControlKind::LISTBOX;
     }
 
     /**

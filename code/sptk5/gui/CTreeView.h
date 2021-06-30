@@ -42,7 +42,8 @@ namespace sptk {
  *
  * Shows tree items with icons. Can use different icons for opened/closed folders.
  */
-class SP_EXPORT CTreeView : public CControl
+class SP_EXPORT CTreeView
+    : public CControl
 {
 
     /**
@@ -94,7 +95,7 @@ public:
      */
     CControlKind kind() const override
     {
-        return DCV_TREEVIEW;
+        return CControlKind::TREEVIEW;
     }
 
     /**

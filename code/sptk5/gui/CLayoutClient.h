@@ -20,7 +20,7 @@
 │   along with this library; if not, write to the Free Software Foundation,    │
 │   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
 │                                                                              │
-│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+│   Please report all bugs and problems to alexey overridep@gmail.com.                  │
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
@@ -58,17 +58,17 @@ enum CLayoutXMLmode
     /**
      * Load and save only controls data
      */
-            LXM_DATA = 1,
+    LXM_DATA = 1,
 
     /**
      * Load and save only controls layout
      */
-            LXM_LAYOUT = 2,
+    LXM_LAYOUT = 2,
 
     /**
      * Load and save controls data and layout
      */
-            LXM_LAYOUTDATA = 3
+    LXM_LAYOUTDATA = 3
 };
 
 /**
@@ -128,8 +128,6 @@ protected:
      */
     void lastPreferredW(int width);
 
-protected:
-
     /**
      * Widget to manage
      */
@@ -163,7 +161,8 @@ public:
      * Destructor
      */
     virtual ~CLayoutClient()
-    {}
+    {
+    }
 
     /**
      * Returns widget's layout align
@@ -256,7 +255,9 @@ public:
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
     virtual bool preferredSize(int& w, int& h)
-    { return false; }
+    {
+        return false;
+    }
 
     /**
      * Computes widget's preferred size, and stores size values internally as cache
@@ -313,4 +314,3 @@ public:
  * @}
  */
 }
-

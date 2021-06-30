@@ -549,7 +549,8 @@ int CListView::item_compute_height(CPackedStrings* l)
                 cw += borderWidth;
                 if (column.autoWidth())
                 {
-                    if ((kind() & (DCV_CHECKBUTTONS | DCV_RADIOBUTTONS)) && c == 0)
+                    if (((int) kind() &
+                         ((int) CControlKind::CHECKBUTTONS | (int) CControlKind::RADIOBUTTONS)) && c == 0)
                     {
                         cw += (m_textSize - 2) / 3 * 3 + 3;
                     }
@@ -814,14 +815,15 @@ void CListView::item_draw(
 
                 int wt = w1 - borderWidth * 2;
 
-                if ((kind() & (DCV_CHECKBUTTONS | DCV_RADIOBUTTONS)) && i == 0)
+                if (((int) kind() & ((int) CControlKind::CHECKBUTTONS | (int) CControlKind::RADIOBUTTONS)) &&
+                    i == 0)
                 {
                     int bw = m_textSize;
                     int xb = xt + bw;
 
                     int yb = yt + bw;
 
-                    if (kind() == DCV_CHECKBUTTONS)
+                    if (kind() == CControlKind::CHECKBUTTONS)
                     {
                         draw_box(FL_DOWN_BOX, xt, yt, bw + 1, bw + 1, FL_WHITE);
 
@@ -838,7 +840,7 @@ void CListView::item_draw(
                             fl_line(xb - 3, yt + 4, xt + 4, yb - 3);
                         }
                     }
-                    else if (kind() == DCV_RADIOBUTTONS)
+                    else if (kind() == CControlKind::RADIOBUTTONS)
                     {
                         draw_box(FL_ROUND_DOWN_BOX, xt, yt, bw + 1, bw + 1, FL_WHITE);
                         if (selected)
