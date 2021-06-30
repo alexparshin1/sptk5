@@ -41,13 +41,14 @@ namespace sptk {
  * The extended version of FLTK's standard Fl_Progress.
  * Added the CLayoutClient interface and preferred size computations.
  */
-class SP_EXPORT CProgressBar : public CInput 
+class SP_EXPORT CProgressBar
+    : public CInput
 {
     /**
      * Constructor initializer
      * @param label const char *, widget label
      */
-    void ctor_init(const char *label);
+    void ctor_init(const char* label);
 
 public:
     /**
@@ -56,7 +57,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CProgressBar(const char *lbl,int layoutSize=20,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CProgressBar(const char* lbl, int layoutSize = 20, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -76,7 +77,7 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    bool preferredSize(int& w,int& h) override;
+    bool preferredSize(int& w, int& h) override;
 
     /**
      * Defines the progress bar minimum value
@@ -103,7 +104,7 @@ public:
     /**
      * Sets progress bar units, default is "%"
      */
-    void units(const char *un);
+    void units(const char* un);
 
     /**
      * Returns progress bar units
@@ -114,7 +115,7 @@ public:
      * Show the progress text or not?
      * The default is true
      */
-    void showText(bool flag=true);
+    void showText(bool flag = true);
 
     /**
      * Universal data connection, returns data from date control.

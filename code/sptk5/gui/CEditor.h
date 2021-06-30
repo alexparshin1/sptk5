@@ -44,7 +44,9 @@ namespace sptk {
  * It has a modified handle() function to track the current cursor position.
  * It also allocates the text buffer in constructor and destroys it in destructor.
  */
-class SP_EXPORT CEditor : public Fl_Text_Editor, public CLayoutClient {
+class SP_EXPORT CEditor
+    : public Fl_Text_Editor, public CLayoutClient
+{
 
     /**
      * Constructor initializer
@@ -54,7 +56,7 @@ class SP_EXPORT CEditor : public Fl_Text_Editor, public CLayoutClient {
     /**
      * Last cursor position in bytes, from the beginning of the text buffer
      */
-    int  m_lastCursorPosition;
+    int m_lastCursorPosition;
 
     /**
      * Current wrap mode
@@ -68,7 +70,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    explicit CEditor(int layoutSize=100,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    explicit CEditor(int layoutSize = 100, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -90,14 +92,16 @@ public:
     /**
      * Retruns internal text buffer
      */
-    Fl_Text_Buffer *textBuffer() {
+    Fl_Text_Buffer* textBuffer()
+    {
         return mBuffer;
     }
 
     /**
      * Retruns internal style buffer
      */
-    Fl_Text_Buffer *styleBuffer() {
+    Fl_Text_Buffer* styleBuffer()
+    {
         return mStyleBuffer;
     }
 
@@ -107,19 +111,20 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    bool preferredSize(int& w,int& h) override;
+    bool preferredSize(int& w, int& h) override;
 
     /**
      * Returns current cursor position
      * @param row int&, row number
      * @param col int&, column number
      */
-    void cursorRowCol(int& row,int& col);
+    void cursorRowCol(int& row, int& col);
 
     /**
      * Returns current wrap mode
      */
-    bool wrapMode() {
+    bool wrapMode()
+    {
         return m_wrapMode;
     }
 

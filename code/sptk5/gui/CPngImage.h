@@ -37,7 +37,10 @@ namespace sptk {
  */
 enum CBorderIndex
 {
-    BORDER_LEFT, BORDER_RIGHT, BORDER_TOP, BORDER_BOTTOM
+    BORDER_LEFT,
+    BORDER_RIGHT,
+    BORDER_TOP,
+    BORDER_BOTTOM
 };
 
 /**
@@ -45,12 +48,13 @@ enum CBorderIndex
  *
  * This class is used by SPTK themes
  */
-class SP_EXPORT CPngImage : public Fl_RGB_Image
+class SP_EXPORT CPngImage
+    : public Fl_RGB_Image
 {
 
     friend class CIcon;
 
-    typedef void (* resized_draw_function)(CPngImage* image, int srcX, int srcY, int srcW, int srcH, int destX,
+    using resized_draw_function = void (*)(CPngImage* image, int srcX, int srcY, int srcW, int srcH, int destX,
                                            int destY, int destW, int destH);
 
 protected:
@@ -103,17 +107,17 @@ public:
         /**
          * Undefined and not drawn, should be defined later.
          */
-                PDM_UNDEFINED,
+        PDM_UNDEFINED,
 
         /**
          * The resized parts are tiled
          */
-                PDM_TILE,
+        PDM_TILE,
 
         /**
          * The resized parts are stretched
          */
-                PDM_STRETCH
+        PDM_STRETCH
 
     };
 
@@ -180,7 +184,7 @@ public:
      * @param y int, the y coordinate to draw image
      * @param w int, the width to draw image
      * @param h int, the height to draw image
-     * @param cornerZone int, the height (and width) of the corners that are simply copied from the image w/o processing 
+     * @param cornerZone int, the height (and width) of the corners that are simply copied from the image w/o processing
      * @param drawMode CPatternDrawMode, the mode to draw the resized parts of image
      * @param drawBackground bool, if true then the internal area of the image is used for background
      */
@@ -193,7 +197,7 @@ public:
      * @param y int, the y coordinate to draw image
      * @param w int, the width to draw image
      * @param h int, the height to draw image
-     * @param border int[], the borders that are copied from the image with minimal possible processing 
+     * @param border int[], the borders that are copied from the image with minimal possible processing
      * @param drawMode CPatternDrawMode, the mode to draw the resized parts of image
      * @param drawBackground bool, if true then the internal area of the image is used for background
      */
@@ -201,4 +205,3 @@ public:
 };
 
 }
-

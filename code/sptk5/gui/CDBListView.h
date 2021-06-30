@@ -91,7 +91,8 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CDBListView(const char* label = nullptr, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CDBListView(const char* label = nullptr, int layoutSize = 20,
+                CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**

@@ -71,7 +71,7 @@ public:
      * @param layoutSize        Widget align in layout
      * @param layoutAlign       Widget align in layout
      */
-    CTreeView(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CTreeView(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -88,7 +88,7 @@ public:
     /**
      * @brief Destructor
      */
-    ~CTreeView() = default;
+    ~CTreeView() override = default;
 
     /**
      * @brief Returns controls' kind (internal SPTK RTTI).
@@ -101,7 +101,7 @@ public:
     /**
      * @brief Returns controls' class name (internal SPTK RTTI).
      */
-    virtual String className() const override
+    String className() const override
     {
         return "CTreeView";
     }

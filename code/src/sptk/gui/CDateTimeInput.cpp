@@ -201,7 +201,7 @@ CDateInput::~CDateInput()
 
 CLayoutClient* CDateInput::creator(xml::Node* node)
 {
-    auto* widget = new CDateInput("", 10, SP_ALIGN_TOP);
+    auto* widget = new CDateInput("", 10, CLayoutAlign::TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -250,7 +250,7 @@ CTimeInput::CTimeInput(int x,int y,int w,int h,const char * label)
 
 CLayoutClient* CTimeInput::creator(xml::Node* node)
 {
-    auto* widget = new CTimeInput("", 10, SP_ALIGN_TOP);
+    auto* widget = new CTimeInput("", 10, CLayoutAlign::TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -296,7 +296,7 @@ CDateTimeInput::CDateTimeInput(int x,int y,int w,int h,const char * label)
 
 CLayoutClient* CDateTimeInput::creator(xml::Node* node)
 {
-    auto* widget = new CDateTimeInput("", 10, SP_ALIGN_TOP);
+    auto* widget = new CDateTimeInput("", 10, CLayoutAlign::TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

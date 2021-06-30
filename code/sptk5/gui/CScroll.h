@@ -59,7 +59,8 @@ enum CScrollbarMode
  * Extended version of FLTK Fl_Group that can be a layout manager and layout client
  * at the same time.
  */
-class SP_EXPORT CScroll : public ::Fl_Group, public CLayoutManager
+class SP_EXPORT CScroll
+    : public ::Fl_Group, public CLayoutManager
 {
 
     /**
@@ -121,7 +122,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CScroll(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CScroll(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -208,7 +209,7 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const override
+    String className() const override
     {
         return "scroll";
     }

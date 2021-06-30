@@ -190,7 +190,7 @@ private:
 
     mutable std::mutex m_mutex;                ///< Mutex that protects access to data members
     sqlite3* m_connect {nullptr};    ///< Database connection
-    void bindParameter(Query* query, uint32_t paramNumber) const;
+    void bindParameter(const Query* query, uint32_t paramNumber) const;
 };
 
 /**

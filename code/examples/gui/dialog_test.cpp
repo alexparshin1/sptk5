@@ -201,8 +201,8 @@ int main(int argc, char* argv[])
         CButton b2(CButtonKind::EXIT_BUTTON);
         b2.callback(exit_cb);
 
-        CButton b1(CButtonKind::EDIT_BUTTON, SP_ALIGN_RIGHT,
-        "Show Dialog");
+        CButton b1(CButtonKind::EDIT_BUTTON, CLayoutAlign::RIGHT,
+                   "Show Dialog");
         b1.callback(dialog_cb);
 
         w.end();

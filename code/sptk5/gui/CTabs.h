@@ -43,16 +43,18 @@ class CTabGroup;
  *
  * It can show the tabs in several rows if they are too wide to fit.
  */
-class SP_EXPORT CTabs : public CGroup {
+class SP_EXPORT CTabs
+    : public CGroup
+{
     /**
      * Tabs as a separate group
      */
-    CTabGroup*  m_tabs;
+    CTabGroup* m_tabs;
 
     /**
      * The internal index inside tabs auto-color table
      */
-    int32_t     m_autoColorIndex;
+    int32_t m_autoColorIndex;
 
 
     /**
@@ -63,13 +65,13 @@ class SP_EXPORT CTabs : public CGroup {
     /**
      * Removes an empty last page prior to adding a new page
      */
-    void        removeEmptyLastPage();
+    void removeEmptyLastPage();
 
 protected:
     /**
      * Sets default parameters for a new page
      */
-    virtual void prepareNewPage(Fl_Group *page,bool autoColor);
+    virtual void prepareNewPage(Fl_Group* page, bool autoColor);
 
 public:
     /**
@@ -78,7 +80,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CTabs(const char* label=0L,int32_t layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CTabs(const char* label = 0L, int32_t layoutSize = 10, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -95,26 +97,26 @@ public:
     /**
      * @brief Destructor
      */
-    ~CTabs();
+    ~CTabs() override;
 
     /**
      * @brief Creates a new CGroup page
      * @param label             Tab and page label
      * @param autoColor         Auto-color assignment on/off
      */
-    virtual Fl_Group* newPage(const char* label,bool autoColor);
+    virtual Fl_Group* newPage(const char* label, bool autoColor);
 
     /**
      * @brief Creates a new CScroll page
      * @param label             Tab and page label
      * @param autoColor         Auto-color assignment on/off
      */
-    virtual Fl_Group* newScroll(const char* label,bool autoColor);
+    virtual Fl_Group* newScroll(const char* label, bool autoColor);
 
     /**
      * @brief Custom draw method
      */
-    virtual void draw();
+    void draw() override;
 
     /**
      * @brief Show/hide tabs flag
@@ -154,7 +156,8 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const {
+    String className() const override
+    {
         return "tabs";
     }
 };

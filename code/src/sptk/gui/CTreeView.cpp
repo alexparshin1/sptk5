@@ -44,7 +44,7 @@ void CTreeView::internal_callback(Fl_Widget* widget, void*)
 void CTreeView::ctor_init()
 {
     m_controlFlags = FGE_MULTILINEENTRY;
-    m_treeControl = new CTreeControl("", 10, SP_ALIGN_NONE);
+    m_treeControl = new CTreeControl("", 10, CLayoutAlign::NONE);
     m_control = m_treeControl;
     m_control->callback(CControl::internalCallback);
     labelWidth(0);
@@ -66,7 +66,7 @@ CTreeView::CTreeView(int x,int y,int w,int h,const char *label)
 
 CLayoutClient* CTreeView::creator(xml::Node* node)
 {
-    auto* widget = new CTreeView("", 10, SP_ALIGN_TOP);
+    auto* widget = new CTreeView("", 10, CLayoutAlign::TOP);
     widget->load(node);
     return widget;
 }

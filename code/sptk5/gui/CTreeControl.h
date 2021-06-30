@@ -53,7 +53,7 @@ class CTreeControl;
  * By default (if that callback isn't redefined, SPTK creates CBox widget.
  * @param item CTreeItem*, a tree item that would be a parent for the new item
  */
-typedef CLayoutClient* (* CTreeItemCreator)(CTreeItem* item);
+using CTreeItemCreator = CLayoutClient* (*)(CTreeItem* item);
 
 /**
  * @brief Tree widget item.
@@ -61,7 +61,8 @@ typedef CLayoutClient* (* CTreeItemCreator)(CTreeItem* item);
  * A group widget with the extra information about item pixmaps
  * and current state.
  */
-class SP_EXPORT CTreeItem : public CGroup
+class SP_EXPORT CTreeItem
+    : public CGroup
 {
     /**
      * Returns the height of the item text
@@ -124,30 +125,30 @@ protected:
     CTreeItem* addPathOffset(const std::vector<String>& pathFolders, uint32_t offset, const Fl_Image* openedImage,
                              const Fl_Image* closedImage, const Fl_Image* itemImage = 0L, void* data = 0L);
 
-	/**
-	 * Default image of the opened tree
-	 */
-	static const Fl_Image* treeOpened;
+    /**
+     * Default image of the opened tree
+     */
+    static const Fl_Image* treeOpened;
 
-	/**
-	 * Default image of the closed tree
-	 */
-	static const Fl_Image* treeClosed;
+    /**
+     * Default image of the closed tree
+     */
+    static const Fl_Image* treeClosed;
 
-	/**
-	 * Default image of the opened floder
-	 */
-	static const Fl_Image* folderOpened;
+    /**
+     * Default image of the opened floder
+     */
+    static const Fl_Image* folderOpened;
 
-	/**
-	 * Default image of the closed floder
-	 */
-	static const Fl_Image* folderClosed;
+    /**
+     * Default image of the closed floder
+     */
+    static const Fl_Image* folderClosed;
 
-	/**
-	 * Default image of the document
-	 */
-	static const Fl_Image* document;
+    /**
+     * Default image of the document
+     */
+    static const Fl_Image* document;
 
 public:
 
@@ -397,55 +398,55 @@ public:
         return "treeitem";
     }
 
-	/**
-	 * Default image of the opened tree
-	 */
-	static const Fl_Image* getTreeOpened();
+    /**
+     * Default image of the opened tree
+     */
+    static const Fl_Image* getTreeOpened();
 
-	/**
-	 * Default image of the opened tree
-	 */
-	static void setTreeOpened(const Fl_Image* image);
+    /**
+     * Default image of the opened tree
+     */
+    static void setTreeOpened(const Fl_Image* image);
 
-	/**
-	 * Default image of the closed tree
-	 */
-	static const Fl_Image* getTreeClosed();
+    /**
+     * Default image of the closed tree
+     */
+    static const Fl_Image* getTreeClosed();
 
-	/**
-	 * Default image of the closed tree
-	 */
-	static void setTreeClosed(const Fl_Image* image);
+    /**
+     * Default image of the closed tree
+     */
+    static void setTreeClosed(const Fl_Image* image);
 
-	/**
-	 * Default image of the opened floder
-	 */
-	static const Fl_Image* getFolderOpened();
+    /**
+     * Default image of the opened floder
+     */
+    static const Fl_Image* getFolderOpened();
 
-	/**
-	 * Default image of the opened floder
-	 */
-	static void setFolderOpened(const Fl_Image* image);
+    /**
+     * Default image of the opened floder
+     */
+    static void setFolderOpened(const Fl_Image* image);
 
-	/**
-	 * Default image of the closed floder
-	 */
-	static const Fl_Image* getFolderClosed();
+    /**
+     * Default image of the closed floder
+     */
+    static const Fl_Image* getFolderClosed();
 
-	/**
-	 * Default image of the closed floder
-	 */
-	static void setFolderClosed(const Fl_Image* image);
+    /**
+     * Default image of the closed floder
+     */
+    static void setFolderClosed(const Fl_Image* image);
 
-	/**
-	 * Default image of the document
-	 */
-	static const Fl_Image* getDocument();
+    /**
+     * Default image of the document
+     */
+    static const Fl_Image* getDocument();
 
-	/**
-	 * Default image of the document
-	 */
-	static void setDocument(const Fl_Image* image);
+    /**
+     * Default image of the document
+     */
+    static void setDocument(const Fl_Image* image);
 };
 
 /**
@@ -460,7 +461,8 @@ using CTreeItemVector = std::vector<CTreeItem*>;
  * CTreeView widget, but also can be used by itself. It's missing for data connection
  * support of CTreeView, though.
  */
-class SP_EXPORT CTreeControl : public CScroll
+class SP_EXPORT CTreeControl
+    : public CScroll
 {
     friend class CTreeItem;
 
@@ -501,7 +503,7 @@ public:
      * @param layoutSize        Size of widget in layout. See CLayoutClient for details
      * @param align             Widget align in the layout
      */
-    CTreeControl(const char* label, int layoutSize = 50, CLayoutAlign align = SP_ALIGN_TOP);
+    CTreeControl(const char* label, int layoutSize = 50, CLayoutAlign align = CLayoutAlign::TOP);
 
     /**
      * @brief Adds a child item to the root item. If the closedImage parameter is omitted the openedImage is used instead.
@@ -515,7 +517,7 @@ public:
                        void* data = nullptr);
 
     /**
-     * @brief Adds a child item to the root item using the path. 
+     * @brief Adds a child item to the root item using the path.
      *
      * The required path items are created automatically.
      * Path elements are separated with '/'. The default images are used for the folders in the path.
@@ -588,7 +590,9 @@ public:
     CTreeItem* selected() const
     {
         if (m_selectedItems.empty())
+        {
             return 0;
+        }
 
         return m_selectedItems[0];
     }

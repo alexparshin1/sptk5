@@ -66,7 +66,7 @@ CBox::CBox(int x,int y,int w,int h,const char *label)
 
 CLayoutClient* CBox::creator(xml::Node* node)
 {
-    auto* widget = new CBox("", 10, SP_ALIGN_TOP);
+    auto* widget = new CBox("", 10, CLayoutAlign::TOP);
     widget->load(node, LXM_LAYOUTDATA);
     widget->dragable((bool) node->getAttribute("drag", "N"));
     return widget;
@@ -173,8 +173,8 @@ bool CBox::preferredSize(int& w, int& h)
 
     switch (m_layoutAlign)
     {
-        case SP_ALIGN_TOP:
-        case SP_ALIGN_BOTTOM:
+        case CLayoutAlign::TOP:
+        case CLayoutAlign::BOTTOM:
             if ((align() & FL_ALIGN_WRAP) == 0)
             {
                 cw = 0;
@@ -184,8 +184,8 @@ bool CBox::preferredSize(int& w, int& h)
                 cw = w - dw;
             }
             break;
-        case SP_ALIGN_LEFT:
-        case SP_ALIGN_RIGHT:
+        case CLayoutAlign::LEFT:
+        case CLayoutAlign::RIGHT:
             ch = h - dh;
             break;
         default:

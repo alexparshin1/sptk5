@@ -60,7 +60,7 @@ CDBListView::~CDBListView()
 
 CLayoutClient* CDBListView::creator(xml::Node* node)
 {
-    auto* widget = new CDBListView("", 10, SP_ALIGN_TOP);
+    auto* widget = new CDBListView("", 10, CLayoutAlign::TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

@@ -352,7 +352,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    explicit CControl(const char* label, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    explicit CControl(const char* label, int layoutSize = 20, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**

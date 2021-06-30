@@ -97,7 +97,7 @@ public:
      * @param layoutSize int, the size of widget in layout
      * @param layoutAlignment CLayoutAlign, widget align in the layout
      */
-    CCalendar(const char* label, int layoutSize = 20, CLayoutAlign layoutAlignment = SP_ALIGN_TOP);
+    CCalendar(const char* label, int layoutSize = 20, CLayoutAlign layoutAlignment = CLayoutAlign::TOP);
 
     /**
      * @brief FLTK-style constructor

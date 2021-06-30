@@ -46,7 +46,7 @@ CSplitter::CSplitter(const char* label, int layoutSize, CLayoutAlign layoutAlign
 
 CLayoutClient* CSplitter::creator(xml::Node* node)
 {
-    auto* widget = new CSplitter("", 10, SP_ALIGN_TOP);
+    auto* widget = new CSplitter("", 10, CLayoutAlign::TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -58,12 +58,12 @@ int CSplitter::handle(int event)
         case FL_ENTER:
             switch (m_layoutAlign)
             {
-                case SP_ALIGN_TOP:
-                case SP_ALIGN_BOTTOM:
+                case CLayoutAlign::TOP:
+                case CLayoutAlign::BOTTOM:
                     fl_cursor(FL_CURSOR_NS);
                     break;
-                case SP_ALIGN_RIGHT:
-                case SP_ALIGN_LEFT:
+                case CLayoutAlign::RIGHT:
+                case CLayoutAlign::LEFT:
                     fl_cursor(FL_CURSOR_WE);
                     break;
                 default:
@@ -97,22 +97,22 @@ int CSplitter::handle(int event)
                 int newH = m_chainedWidget->h();
                 switch (m_layoutAlign)
                 {
-                    case SP_ALIGN_TOP:
+                    case CLayoutAlign::TOP:
                         newH += dy;
                         m_chainedWidgetLayout->preferredSize(newW, newH);
                         m_chainedWidgetLayout->layoutSize(newH);
                         break;
-                    case SP_ALIGN_BOTTOM:
+                    case CLayoutAlign::BOTTOM:
                         newH -= dy;
                         m_chainedWidgetLayout->preferredSize(newW, newH);
                         m_chainedWidgetLayout->layoutSize(newH);
                         break;
-                    case SP_ALIGN_LEFT:
+                    case CLayoutAlign::LEFT:
                         newW += dx;
                         m_chainedWidgetLayout->preferredSize(newW, newH);
                         m_chainedWidgetLayout->layoutSize(newW);
                         break;
-                    case SP_ALIGN_RIGHT:
+                    case CLayoutAlign::RIGHT:
                         newW -= dx;
                         m_chainedWidgetLayout->preferredSize(newW, newH);
                         m_chainedWidgetLayout->layoutSize(newW);
@@ -176,7 +176,7 @@ void CSplitter::findChainedControl()
             nextWidget = group->child(index + 1);
             nextWidgetLayout = dynamic_cast<CLayoutClient*>(group->child(index + 1));
         }
-        if (priorWidget && priorWidgetLayout && priorWidgetLayout->layoutAlign() != SP_ALIGN_CLIENT)
+        if (priorWidget && priorWidgetLayout && priorWidgetLayout->layoutAlign() != CLayoutAlign::CLIENT)
         {
             m_chainedWidget = priorWidget;
             m_chainedWidgetLayout = priorWidgetLayout;
@@ -189,7 +189,7 @@ void CSplitter::findChainedControl()
 
         if (m_chainedWidget && m_chainedWidgetLayout)
         {
-            if (m_chainedWidgetLayout->layoutAlign() == SP_ALIGN_NONE)
+            if (m_chainedWidgetLayout->layoutAlign() == CLayoutAlign::NONE)
             {
                 m_chainedWidget = nullptr;
                 return;

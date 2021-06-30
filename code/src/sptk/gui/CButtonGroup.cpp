@@ -102,7 +102,7 @@ void CButtonGroup::buttons(const Strings& sl)
     }
     if (otherLabel)
     {
-        Fl_Button* btn = createButton("", 16, SP_ALIGN_LEFT);
+        Fl_Button* btn = createButton("", 16, CLayoutAlign::LEFT);
         btn->argument((long) otherLabel->ident());
         m_otherButton = btn;
         m_otherInput = new CInput_("");

@@ -246,7 +246,7 @@ void CCheckButtons::setSelections(const vector<uint64_t>& selection)
 
 CLayoutClient* CCheckButtons::creator(xml::Node* node)
 {
-    auto* widget = new CCheckButtons("", 20, SP_ALIGN_NONE);
+    auto* widget = new CCheckButtons("", 20, CLayoutAlign::NONE);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

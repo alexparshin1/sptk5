@@ -140,7 +140,7 @@ void CLayoutManager::relayout()
         {
             continue;
         }
-        if (ca->layoutAlign() == SP_ALIGN_NONE)
+        if (ca->layoutAlign() == CLayoutAlign::NONE)
         {
             continue;
         }
@@ -211,7 +211,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
             {
                 continue;
             }
-            if (ca->layoutAlign() == SP_ALIGN_NONE)
+            if (ca->layoutAlign() == CLayoutAlign::NONE)
             {
                 continue;
             }
@@ -234,20 +234,20 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
 
             switch (ca->layoutAlign())
             {
-                case SP_ALIGN_RIGHT:
+                case CLayoutAlign::RIGHT:
                     preferred_w = ca->layoutSize();
                     ca->preferredSize(preferred_w, preferred_h);
                     preferred_x = xx + ww - preferred_w;
                     preferred_y += (hh - preferred_h) / 2;
                     break;
 
-                case SP_ALIGN_LEFT:
+                case CLayoutAlign::LEFT:
                     preferred_w = ca->layoutSize();
                     ca->preferredSize(preferred_w, preferred_h);
                     preferred_y += (hh - preferred_h) / 2;
                     break;
 
-                case SP_ALIGN_BOTTOM:
+                case CLayoutAlign::BOTTOM:
                     preferred_h = ca->layoutSize();
                     if (preferred_w == ca->m_lastPreferredW && ca->m_lastPreferredH >= ca->layoutSize())
                     {
@@ -260,7 +260,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                     preferred_y = yy + hh - preferred_h;
                     break;
 
-                case SP_ALIGN_TOP:
+                case CLayoutAlign::TOP:
                     preferred_h = ca->layoutSize();
                     if (preferred_w == ca->m_lastPreferredW && ca->m_lastPreferredH >= ca->layoutSize())
                     {
@@ -272,7 +272,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                     }
                     break;
 
-                case SP_ALIGN_CLIENT:
+                case CLayoutAlign::CLIENT:
                     clientWidget = m_group->child(i);
                     break;
 
@@ -283,9 +283,9 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
             switch (ca->layoutAlign())
             {
 
-                case SP_ALIGN_LEFT:
-                case SP_ALIGN_RIGHT:
-                    if (ca->layoutAlign() == SP_ALIGN_LEFT)
+                case CLayoutAlign::LEFT:
+                case CLayoutAlign::RIGHT:
+                    if (ca->layoutAlign() == CLayoutAlign::LEFT)
                     {
                         xx += preferred_w + m_layoutSpacing;
                     }
@@ -313,9 +313,9 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                     }
                     break;
 
-                case SP_ALIGN_TOP:
+                case CLayoutAlign::TOP:
                     yy += preferred_h + m_layoutSpacing;
-                case SP_ALIGN_BOTTOM:
+                case CLayoutAlign::BOTTOM:
                     hh -= preferred_h + m_layoutSpacing;
                     if (preferred_w > ww)
                     {
@@ -340,7 +340,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                     }
                     break;
 
-                case SP_ALIGN_CLIENT:
+                case CLayoutAlign::CLIENT:
                     clientWidget = m_group->child(i);
                     break;
 
@@ -348,7 +348,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                     break;
             }
 
-            if (resizeWidgets && ca->layoutAlign() != SP_ALIGN_CLIENT)
+            if (resizeWidgets && ca->layoutAlign() != CLayoutAlign::CLIENT)
             {
                 widget->resize(preferred_x, preferred_y, preferred_w, preferred_h);
             }

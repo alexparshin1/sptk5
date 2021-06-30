@@ -138,13 +138,13 @@ int main(int argc, char* argv[])
         // buttons use the default alignment for buttons -
         // SP_ALIGN_RIGHT, and the text/icon defined by the
         // button kind.
-        CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
+        CGroup buttonGroup("", 10, CLayoutAlign::BOTTOM);
         buttonGroup.color(FL_LIGHT1);
 
         CButton exitButton(CButtonKind::EXIT_BUTTON);
         exitButton.callback(exit_cb);
 
-        CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);
+        CComboBox themesCombo("Theme", 200, CLayoutAlign::LEFT);
         Strings themes = CThemes::availableThemes();
         themesCombo.addRows("Theme", themes);
         themesCombo.callback(theme_cb);

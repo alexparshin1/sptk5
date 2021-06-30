@@ -213,7 +213,7 @@ void CBaseListBox::ctor_init(const char* label, int _mode)
     for (int i = 0; i < 5; i++)
     {
         auto kind = (uint64_t) buttonKind[i];
-        auto* btn = new CSmallButton(CButtonKind::UNDEFINED_BUTTON, SP_ALIGN_NONE);
+        auto* btn = new CSmallButton(CButtonKind::UNDEFINED_BUTTON, CLayoutAlign::NONE);
         btn->buttonImage(buttonKind[i], IS_COMBO_ICON);
         btn->callback(comboButtonPressed);
         btn->user_data((void*) kind);
@@ -709,7 +709,7 @@ CControlKind CComboBox::kind() const
 
 CLayoutClient* CComboBox::creator(xml::Node* node)
 {
-    auto* widget = new CComboBox("", 10, SP_ALIGN_TOP);
+    auto* widget = new CComboBox("", 10, CLayoutAlign::TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

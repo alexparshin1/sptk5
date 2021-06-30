@@ -446,7 +446,7 @@ bool CBaseButton::preferredSize(int& w, int& h)
 
 CLayoutClient* CButton::creator(xml::Node* node)
 {
-    auto* button = new CButton("", SP_ALIGN_TOP, THM_BUTTON_NORMAL);
+    auto* button = new CButton("", CLayoutAlign::TOP, THM_BUTTON_NORMAL);
     button->load(node);
     return button;
 }

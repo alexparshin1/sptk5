@@ -73,24 +73,24 @@ int main(int argc, char* argv[])
         CWindow mainWindow(500, 400, "CDirectoryDS Test");
 
         CGroup agroup;
-        directoryInput = new CInput("Local directory:", 10, SP_ALIGN_CLIENT);
+        directoryInput = new CInput("Local directory:", 10, CLayoutAlign::CLIENT);
         directoryInput->labelWidth(120);
 #ifdef _WIN32
         directoryInput->data("C:\\");
 #else
         directoryInput->data("/");
 #endif
-        CButton goButton(CButtonKind::EXEC_BUTTON, SP_ALIGN_RIGHT,
-        "Chdir");
+        CButton goButton(CButtonKind::EXEC_BUTTON, CLayoutAlign::RIGHT,
+                         "Chdir");
         goButton.callback(go_cb);
         agroup.end();
 
-        CGroup agroup2("", 10, SP_ALIGN_BOTTOM);
-        CButton exitButton(CButtonKind::EXIT_BUTTON, SP_ALIGN_RIGHT);
+        CGroup agroup2("", 10, CLayoutAlign::BOTTOM);
+        CButton exitButton(CButtonKind::EXIT_BUTTON, CLayoutAlign::RIGHT);
         exitButton.callback(exit_cb);
         agroup2.end();
 
-        filesListView = new CListView("", 10, SP_ALIGN_CLIENT);
+        filesListView = new CListView("", 10, CLayoutAlign::CLIENT);
         filesListView->callback(list_view_cb);
         directoryDS = new DirectoryDS();
 

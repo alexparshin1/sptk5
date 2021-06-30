@@ -36,7 +36,8 @@
 using namespace std;
 using namespace sptk;
 
-class SP_EXPORT CProgressBox : public Fl_Box
+class SP_EXPORT CProgressBox
+    : public Fl_Box
 {
 public:
     float m_value;
@@ -124,7 +125,7 @@ CProgressBar::CProgressBar(int x,int y,int w,int h,const char *label)
 
 CLayoutClient* CProgressBar::creator(xml::Node* node)
 {
-    auto* widget = new CProgressBar("", 10, SP_ALIGN_TOP);
+    auto* widget = new CProgressBar("", 10, CLayoutAlign::TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

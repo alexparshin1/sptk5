@@ -101,7 +101,7 @@ public:
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
     explicit CDateIntervalInput(const char* label = nullptr, int layoutSize = 10,
-                                CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+                                CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**

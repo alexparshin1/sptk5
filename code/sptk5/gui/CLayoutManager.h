@@ -176,9 +176,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~CLayoutManager()
-    {
-    }
+    ~CLayoutManager() override = default;
 
     /**
      * @brief Removes all the children

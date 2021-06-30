@@ -32,18 +32,19 @@
 using namespace std;
 using namespace sptk;
 
-CBox *dateBox;
+CBox* dateBox;
 
-void cb_clicked(Fl_Widget *w, void *)
+void cb_clicked(Fl_Widget* w, void*)
 {
-    auto* calendar = (CCalendar *) w;
+    auto* calendar = (CCalendar*) w;
     String dateString = calendar->date().dateString();
     dateBox->data(dateString);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes themes;
 
@@ -52,8 +53,8 @@ int main(int argc, char *argv[])
 
         w.layoutSpacing(10);
 
-        CCalendar calendar("", 10, SP_ALIGN_CLIENT);
-        CBox box1("", 20, SP_ALIGN_BOTTOM);
+        CCalendar calendar("", 10, CLayoutAlign::CLIENT);
+        CBox box1("", 20, CLayoutAlign::BOTTOM);
         dateBox = &box1;
 
         calendar.callback(cb_clicked);
@@ -64,7 +65,8 @@ int main(int argc, char *argv[])
 
         return EXIT_SUCCESS;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

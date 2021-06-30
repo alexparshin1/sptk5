@@ -51,7 +51,7 @@ CFloatInput::CFloatInput(int x,int y,int w,int h,const char * label)
 
 CLayoutClient* CFloatInput::creator(xml::Node* node)
 {
-    auto* widget = new CFloatInput("", 10, SP_ALIGN_TOP);
+    auto* widget = new CFloatInput("", 10, CLayoutAlign::TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

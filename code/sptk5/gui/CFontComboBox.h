@@ -51,7 +51,8 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    explicit CFontComboBox(const char* label = nullptr, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    explicit CFontComboBox(const char* label = nullptr, int layoutSize = 10,
+                           CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**

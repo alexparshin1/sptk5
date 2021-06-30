@@ -43,7 +43,8 @@ namespace sptk {
 /**
  * Theme color constants enumeration
  */
-enum CThemeColorIndex {
+enum CThemeColorIndex
+{
     /**
      * Foreground color index
      */
@@ -76,52 +77,59 @@ enum CThemeColorState
     /**
      * Color is undefined
      */
-    THM_COLOR_UNDEFINED=-1,
+    THM_COLOR_UNDEFINED = -1,
 
     /**
      * Normal color
      */
-    THM_COLOR_NORMAL=0,
+    THM_COLOR_NORMAL = 0,
 
     /**
      * Prelight color
      */
-    THM_COLOR_PRELIGHT=1,
+    THM_COLOR_PRELIGHT = 1,
 
     /**
      * Selection color
      */
-    THM_COLOR_SELECTED=2,
+    THM_COLOR_SELECTED = 2,
 
     /**
      * Active (focused) color
      */
-    THM_COLOR_ACTIVE=3,
+    THM_COLOR_ACTIVE = 3,
 
     /**
      * Intensive color
      */
-    THM_COLOR_INSENSITIVE=4
+    THM_COLOR_INSENSITIVE = 4
 
 };
 
 #define THM_MAX_COLOR_STATE 5
 
-typedef Fl_Color (*gtk_color_function)(const String& expression);
+using gtk_color_function = Fl_Color (*)(const String& expression);
 
 class SP_EXPORT CThemeColorCollection
 {
-    static std::map<String,gtk_color_function>* m_gtkColorFunctionMap;
-    static std::map<String,Fl_Color> m_colorMap;
-    Fl_Color    m_colors[THM_MAX_COLOR_INDEX][MAX_IMAGE_STATES];
+    static std::map<String, gtk_color_function>* m_gtkColorFunctionMap;
+    static std::map<String, Fl_Color> m_colorMap;
+    Fl_Color m_colors[THM_MAX_COLOR_INDEX][MAX_IMAGE_STATES];
+
     static Fl_Color gtkColorFunction(const String& expression);
-    void loadColor(xml::Node* colorNode,CThemeColorIndex colorIndex);
+
+    void loadColor(xml::Node* colorNode, CThemeColorIndex colorIndex);
+
     void loadColorMap(xml::Document& gtkTheme, const String& colorMapXPath);
 
     static Fl_Color passby(const String& expression);
+
     static Fl_Color lighter(const String& expression);
+
     static Fl_Color darker(const String& expression);
+
     static Fl_Color shade(const String& expression);
+
     static Fl_Color mix(const String& expression);
 
 public:
@@ -143,31 +151,45 @@ public:
     /**
      * @brief Returns normal color
      */
-    Fl_Color color(CThemeColorIndex colorIndex,CThemeColorState state) const { return m_colors[colorIndex][state]; }
+    Fl_Color color(CThemeColorIndex colorIndex, CThemeColorState state) const
+    {
+        return m_colors[colorIndex][state];
+    }
 
     /**
      * @brief Returns foreground color
      */
-    Fl_Color fgColor(CThemeColorState state) const { return m_colors[THM_FOREGROUND_COLOR][state]; }
+    Fl_Color fgColor(CThemeColorState state) const
+    {
+        return m_colors[THM_FOREGROUND_COLOR][state];
+    }
 
     /**
      * @brief Returns background color
      */
-    Fl_Color bgColor(CThemeColorState state) const { return m_colors[THM_BACKGROUND_COLOR][state]; }
+    Fl_Color bgColor(CThemeColorState state) const
+    {
+        return m_colors[THM_BACKGROUND_COLOR][state];
+    }
 
     /**
      * @brief Returns base color
      */
-    Fl_Color baseColor(CThemeColorState state) const { return m_colors[THM_BASE_COLOR][state]; }
+    Fl_Color baseColor(CThemeColorState state) const
+    {
+        return m_colors[THM_BASE_COLOR][state];
+    }
 
     /**
      * @brief Returns text color
      */
-    Fl_Color textColor(CThemeColorState state) const { return m_colors[THM_TEXT_COLOR][state]; }
+    Fl_Color textColor(CThemeColorState state) const
+    {
+        return m_colors[THM_TEXT_COLOR][state];
+    }
 };
 
 /**
  * @}
  */
 }
-

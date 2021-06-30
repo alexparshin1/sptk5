@@ -42,13 +42,17 @@ namespace sptk {
  * Extended version of FLTK's standard Fl_Menu_Bar.
  * Added the CLayoutClient interface and preferred size computations.
  */
-class SP_EXPORT CMenuBar : public Fl_Menu_Bar, public CLayoutClient {
+class SP_EXPORT CMenuBar
+    : public Fl_Menu_Bar, public CLayoutClient
+{
 public:
 
     /**
      * Default constructor
      */
-    CMenuBar() : Fl_Menu_Bar(0,0,10,10), CLayoutClient(this,10,SP_ALIGN_TOP) {
+    CMenuBar()
+        : Fl_Menu_Bar(0, 0, 10, 10), CLayoutClient(this, 10, CLayoutAlign::TOP)
+    {
         box(FL_THIN_UP_BOX);
     }
 
@@ -57,7 +61,8 @@ public:
      * @param w int&, input - width offered by the program, output - width required by widget
      * @param h int&, input - height offered by the program, output - height required by widget
      */
-    virtual bool preferredSize(int& w,int& h) {
+    bool preferredSize(int& w, int& h) override
+    {
         h = textsize() + 10;
         return false;
     }
@@ -66,16 +71,18 @@ public:
      * @brief Creates a widget based on the XML node information
      * @param node xml::Node*, an XML node with widget information
      */
-    static CLayoutClient* creator(xml::Node* node) {
-       CMenuBar* widget = new CMenuBar;
-       widget->load(node,LXM_LAYOUTDATA);
-       return widget;
+    static CLayoutClient* creator(xml::Node* node)
+    {
+        CMenuBar* widget = new CMenuBar;
+        widget->load(node, LXM_LAYOUTDATA);
+        return widget;
     }
 
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const {
+    String className() const override
+    {
         return "menu";
     }
 };
@@ -83,4 +90,3 @@ public:
  * @}
  */
 }
-

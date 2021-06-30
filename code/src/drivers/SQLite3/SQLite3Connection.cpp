@@ -253,7 +253,7 @@ void SQLite3Connection::queryBindParameters(Query* query)
     }
 }
 
-void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber) const
+void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) const
 {
     auto* stmt = (SQLHSTMT) query->statement();
     QueryParameter* param = &query->param(paramNumber);

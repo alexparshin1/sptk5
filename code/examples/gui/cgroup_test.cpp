@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
         w.resizable(w);
         w.layoutSpacing(4);
 
-        CGroup buttonsGroup("Buttons Group", 10, SP_ALIGN_TOP);
+        CGroup buttonsGroup("Buttons Group", 10, CLayoutAlign::TOP);
         buttonsGroup.align(FL_ALIGN_RIGHT);
         buttonsGroup.layoutSpacing(4);
         buttonsGroup.box(FL_THIN_DOWN_BOX);
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
         // SP_ALIGN_CLIENT allows that widget to occupy all
         // the space left after all the other widgets are
         // put in place
-        CListView listView("List View:", 10, SP_ALIGN_CLIENT);
+        CListView listView("List View:", 10, CLayoutAlign::CLIENT);
         listView.columns().push_back(CColumn("column 1", VariantDataType::VAR_INT, 100));
         listView.columns().push_back(CColumn("column 2", VariantDataType::VAR_INT, 100));
         listView.columns().push_back(CColumn("column 3", VariantDataType::VAR_STRING, 200));
@@ -124,13 +124,13 @@ int main(int argc, char* argv[])
         // buttons use the default alignment for buttons -
         // SP_ALIGN_RIGHT, and the text/icon defined by the
         // button kind.
-        CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
+        CGroup buttonGroup("", 10, CLayoutAlign::BOTTOM);
         buttonGroup.color(FL_LIGHT1);
 
         CButton exitButton(CButtonKind::EXIT_BUTTON);
         exitButton.callback(exit_cb);
 
-        CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);
+        CComboBox themesCombo("Theme", 200, CLayoutAlign::LEFT);
         Strings themesList = CThemes::availableThemes();
         themesList.push_back("GTK");
         themesCombo.addRows("Theme", themesList);

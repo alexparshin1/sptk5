@@ -69,9 +69,13 @@ static string reformatPhoneNumber(const char* st)
         result = result.substr(1, 10);
     } // US long distance starts from 1
     if (result.length() == 7)
+    {
         result = "(   )-" + result.substr(0, 3) + "-" + result.substr(3, 4);
+    }
     else
+    {
         result = "(" + result.substr(0, 3) + ")-" + result.substr(3, 3) + "-" + result.substr(6, 4);
+    }
     return result;
 }
 
@@ -400,7 +404,7 @@ CInput::~CInput() = default;
 
 CLayoutClient* CInput::creator(xml::Node* node)
 {
-    auto* widget = new CInput("", 10, SP_ALIGN_TOP);
+    auto* widget = new CInput("", 10, CLayoutAlign::TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

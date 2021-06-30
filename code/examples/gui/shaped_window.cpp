@@ -120,7 +120,7 @@ CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label)
     captionGroup->layoutSpacing(1);
     captionGroup->box(FL_DOWN_BOX);
     captionGroup->color(FL_BLUE);
-    m_captionBox = new CBox("Shaped Window", 10, SP_ALIGN_CLIENT);
+    m_captionBox = new CBox("Shaped Window", 10, CLayoutAlign::CLIENT);
     m_captionBox->labelcolor(FL_WHITE);
     m_captionBox->labelcolor(FL_WHITE);
     m_captionBox->dragable(true);
@@ -147,13 +147,13 @@ CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label)
     // buttons use the default alignment for buttons -
     // SP_ALIGN_RIGHT, and the text/icon defined by the
     // button kind.
-    auto* buttonGroup = new CGroup("", 10, SP_ALIGN_BOTTOM);
+    auto* buttonGroup = new CGroup("", 10, CLayoutAlign::BOTTOM);
     buttonGroup->color(FL_LIGHT1);
 
     auto* exitButton = new CButton(CButtonKind::EXIT_BUTTON);
     exitButton->callback(exit_cb);
 
-    auto* themesCombo = new CComboBox("Theme", 200, SP_ALIGN_LEFT);
+    auto* themesCombo = new CComboBox("Theme", 200, CLayoutAlign::LEFT);
     Strings themes = CThemes::availableThemes();
     themesCombo->addRows("Theme", themes);
     themesCombo->callback(theme_cb);

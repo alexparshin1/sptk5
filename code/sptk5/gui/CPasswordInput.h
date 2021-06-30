@@ -39,8 +39,11 @@ namespace sptk {
  */
 
 class CPopupWindow;
+
 class CPopupCalendar;
+
 class CDateControl;
+
 class CToggleTree;
 
 /**
@@ -49,7 +52,9 @@ class CToggleTree;
  * The extended version of Fl_SecretInput.
  * Displays '*' for the text inside
  */
-class SP_EXPORT CPasswordInput : public CInput {
+class SP_EXPORT CPasswordInput
+    : public CInput
+{
     using inherited = class CInput;
 public:
 
@@ -59,7 +64,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CPasswordInput(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CPasswordInput(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -76,7 +81,7 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node *node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 /**
  * @}

@@ -40,10 +40,11 @@ namespace sptk {
 
 class CTabButtons;
 
-class SP_EXPORT CTabButton : public Fl_Button
+class SP_EXPORT CTabButton
+    : public Fl_Button
 {
     Fl_Group* m_page;
-    CTabButtons* m_ownerRow{nullptr};
+    CTabButtons* m_ownerRow {nullptr};
 public:
     explicit CTabButton(Fl_Group* page)
         : Fl_Button(0, 0, 10, 10, ""),
@@ -77,7 +78,8 @@ public:
     int handle(int event) override;
 };
 
-class CTabButtons : public vector<CTabButton*>
+class CTabButtons
+    : public vector<CTabButton*>
 {
     int m_maxHeight;
 public:
@@ -108,7 +110,8 @@ public:
     }
 };
 
-class CTabRows : public std::vector<CTabButtons*>
+class CTabRows
+    : public std::vector<CTabButtons*>
 {
 public:
     CTabRows() = default;
@@ -128,7 +131,8 @@ public:
     }
 };
 
-class CTabGroup : public CGroup
+class CTabGroup
+    : public CGroup
 {
     friend class CTabButton;
 
@@ -145,7 +149,7 @@ protected:
 
 public:
     CTabGroup()
-        : CGroup("", 16, SP_ALIGN_TOP)
+        : CGroup("", 16, CLayoutAlign::TOP)
     {
         m_activeTabButton = nullptr;
         layoutSpacing(0);
@@ -513,7 +517,7 @@ CTabs::~CTabs()
 
 CLayoutClient* CTabs::creator(xml::Node* node)
 {
-    auto* widget = new CTabs("", 10, SP_ALIGN_TOP);
+    auto* widget = new CTabs("", 10, CLayoutAlign::TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -597,7 +601,7 @@ Fl_Group* CTabs::newScroll(const char* label, bool autoColor)
     removeEmptyLastPage();
 
     begin();
-    auto* scroll = new CScroll(label, 10, SP_ALIGN_CLIENT);
+    auto* scroll = new CScroll(label, 10, CLayoutAlign::CLIENT);
     scroll->scrollbar.visible_focus(false);
     scroll->hscrollbar.visible_focus(false);
 
@@ -610,7 +614,7 @@ Fl_Group* CTabs::newPage(const char* label, bool autoColor)
     removeEmptyLastPage();
 
     begin();
-    auto* group = new CGroup(label, 10, SP_ALIGN_CLIENT);
+    auto* group = new CGroup(label, 10, CLayoutAlign::CLIENT);
 
     prepareNewPage(group, autoColor);
     return group;

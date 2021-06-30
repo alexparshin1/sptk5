@@ -69,8 +69,8 @@ int main(int argc, char** argv)
 
         CGroup group1("", 10);
         group1.box(FL_DOWN_BOX);
-        CButton testButton1(CButtonKind::OK_BUTTON, SP_ALIGN_LEFT);
-        CButton testButton2(CButtonKind::CANCEL_BUTTON, SP_ALIGN_LEFT);
+        CButton testButton1(CButtonKind::OK_BUTTON, CLayoutAlign::LEFT);
+        CButton testButton2(CButtonKind::CANCEL_BUTTON, CLayoutAlign::LEFT);
         testButton1.defaultButton(true);
         group1.end();
 
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
         CInput inp1("input 1");
         CInput inp2("input 2");
 
-        CDBListView listView("List View:", 10, SP_ALIGN_CLIENT);
+        CDBListView listView("List View:", 10, CLayoutAlign::CLIENT);
         listView.columns().push_back(CColumn("column 1", VariantDataType::VAR_INT, 70));
         listView.columns().push_back(CColumn("column 2", VariantDataType::VAR_INT, 70));
         listView.columns().push_back(CColumn("column 3", VariantDataType::VAR_STRING, 200));
@@ -105,19 +105,19 @@ int main(int argc, char** argv)
             listView.addRow(ps);
         }
 
-        CProgressBar progressBar("Progress", 20, SP_ALIGN_TOP);
+        CProgressBar progressBar("Progress", 20, CLayoutAlign::TOP);
         progressBar.data(50);
 
-        CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
+        CGroup buttonGroup("", 10, CLayoutAlign::BOTTOM);
         buttonGroup.box(FL_DOWN_BOX);
 
-        CComboBox themesCombo("Theme:", 350, SP_ALIGN_LEFT);
+        CComboBox themesCombo("Theme:", 350, CLayoutAlign::LEFT);
         Strings themes = CThemes::availableThemes();
         themesCombo.addRows("Theme", themes);
         themesCombo.callback(theme_cb);
         themesCombo.labelWidth(70);
 
-        auto* exitButton = new CButton(CButtonKind::EXIT_BUTTON, SP_ALIGN_RIGHT);
+        auto* exitButton = new CButton(CButtonKind::EXIT_BUTTON, CLayoutAlign::RIGHT);
         exitButton->callback((Fl_Callback*) exit_cb);
         exitButton->defaultButton(true);
 

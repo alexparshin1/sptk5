@@ -196,7 +196,7 @@ CCalendar::CCalendar(const char* label, int layoutSize, CLayoutAlign layoutAlign
 }
 
 CCalendar::CCalendar(int x, int y, int w, int h, const char* lbl)
-    : Fl_Group(x, y, w, h, lbl), CLayoutClient(this, w, SP_ALIGN_NONE)
+    : Fl_Group(x, y, w, h, lbl), CLayoutClient(this, w, CLayoutAlign::NONE)
 {
     ctor_init();
 }

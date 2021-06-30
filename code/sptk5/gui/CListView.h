@@ -494,7 +494,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CListView(const char* label = 0, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CListView(const char* label = 0, int layoutSize = 20, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -512,7 +512,7 @@ public:
      * @brief Destructor
      */
 
-    ~CListView()
+    ~CListView() override
     {
         CListView::clear();
     }
@@ -803,7 +803,7 @@ protected:
      * @brief True if the data is valid
      */
 
-    virtual bool valid() const override
+    bool valid() const override
     {
         return true;
     }

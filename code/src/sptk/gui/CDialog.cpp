@@ -71,7 +71,7 @@ CDialog::CDialog(int w, int h, const char* label)
     m_updateQuery = new Query;
     m_insertQuery = new Query;
 
-    m_buttonGroup = new CGroup("", 20, SP_ALIGN_BOTTOM);
+    m_buttonGroup = new CGroup("", 20, CLayoutAlign::BOTTOM);
     m_okButton = new CButton(CButtonKind::OK_BUTTON);
     m_cancelButton = new CButton(CButtonKind::CANCEL_BUTTON);
     m_buttonGroup->end();
@@ -408,7 +408,7 @@ CControl& CDialog::operator[](const String& fieldName)
 CButton* CDialog::addExtraButton(CButtonKind buttonKind, const char* label, Fl_Callback_p callbackFunction)
 {
     m_buttonGroup->begin();
-    auto* extraButton = new CButton(buttonKind, SP_ALIGN_RIGHT, label);
+    auto* extraButton = new CButton(buttonKind, CLayoutAlign::RIGHT, label);
     m_buttonGroup->end();
     if (callbackFunction)
     {

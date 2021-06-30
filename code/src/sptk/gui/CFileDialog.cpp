@@ -182,37 +182,37 @@ CFileDialog::CFileDialog(const String& label, bool saveMode)
     CButton* btn;
 
     auto* grp = new CGroup;
-    m_lookInCombo = new CComboBox("Look in:", 10, SP_ALIGN_CLIENT);
+    m_lookInCombo = new CComboBox("Look in:", 10, CLayoutAlign::CLIENT);
     m_lookInCombo->labelWidth(60);
     m_lookInCombo->addColumn("Path", VariantDataType::VAR_STRING, 250);
 
     if (saveMode)
     {
-        btn = new CButton("", SP_ALIGN_RIGHT);
+        btn = new CButton("", CLayoutAlign::RIGHT);
         btn->buttonImage(CThemes::getIconImage("fd_new_folder", IS_LARGE_ICON));
         btn->callback(CFileDialog::new_folder_cb);
     }
 
-    btn = new CButton("", SP_ALIGN_RIGHT);
+    btn = new CButton("", CLayoutAlign::RIGHT);
     btn->buttonImage(CThemes::getIconImage("fd_level_up", IS_LARGE_ICON));
     btn->callback(CFileDialog::up_cb);
 
-    btn = new CButton("", SP_ALIGN_RIGHT);
+    btn = new CButton("", CLayoutAlign::RIGHT);
     btn->buttonImage(CThemes::getIconImage("fd_home_page", IS_LARGE_ICON));
     btn->callback(CFileDialog::home_cb);
 
     grp->end();
 
-    m_patternCombo = new CComboBox("Files of type:", 10, SP_ALIGN_BOTTOM);
+    m_patternCombo = new CComboBox("Files of type:", 10, CLayoutAlign::BOTTOM);
     m_patternCombo->addColumn("file type", VariantDataType::VAR_STRING, 150);
     m_patternCombo->addColumn("pattern", VariantDataType::VAR_STRING, 100);
     m_patternCombo->addRow(1, Strings("All Files|*.*", "|"));
     m_patternCombo->data(1);
     m_patternCombo->callback(pattern_cb);
 
-    m_fileNameInput = new CInput("File name:", 10, SP_ALIGN_BOTTOM);
+    m_fileNameInput = new CInput("File name:", 10, CLayoutAlign::BOTTOM);
 
-    m_directoryView = new CListView("", 200, SP_ALIGN_CLIENT);
+    m_directoryView = new CListView("", 200, CLayoutAlign::CLIENT);
     m_directoryView->callback(CFileDialog::dirview_cb);
     end();
     directory(".");

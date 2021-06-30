@@ -49,7 +49,8 @@ namespace sptk {
  * Extended version of FLTK's standard Fl_Double_Window, with added
  * CLayoutManager capabilities
  */
-class SP_EXPORT CWindow : public Fl_Double_Window, public CLayoutManager, public CWindowShape
+class SP_EXPORT CWindow
+    : public Fl_Double_Window, public CLayoutManager, public CWindowShape
 {
 public:
 
@@ -60,8 +61,9 @@ public:
      * @param label int, window label
      */
     CWindow(int w, int h, const char* label = 0L)
-            : Fl_Double_Window(w, h, label), CLayoutManager(this, 10, SP_ALIGN_NONE), CWindowShape(this)
-    {}
+        : Fl_Double_Window(w, h, label), CLayoutManager(this, 10, CLayoutAlign::NONE), CWindowShape(this)
+    {
+    }
 
     /**
      * @brief Constructor
@@ -72,8 +74,9 @@ public:
      * @param label int, window label
      */
     CWindow(int x, int y, int w, int h, const char* label = 0L)
-            : Fl_Double_Window(x, y, w, h), CLayoutManager(this, 10, SP_ALIGN_NONE), CWindowShape(this)
-    {}
+        : Fl_Double_Window(x, y, w, h), CLayoutManager(this, 10, CLayoutAlign::NONE), CWindowShape(this)
+    {
+    }
 
     /**
      * @brief Draws a window, including an optional background image
@@ -201,15 +204,7 @@ public:
         return m_label;
     }
 
-    /**
-     * @brief Sets the new label
-     *
-     * @param lbl               New label
-     */
-    virtual void label(const String& lbl) override
-    {
-        CLayoutClient::label(lbl);
-    }
+    using CLayoutClient::label;
 
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
