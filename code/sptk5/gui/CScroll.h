@@ -209,7 +209,7 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const override
+    String className() const override
     {
         return "scroll";
     }

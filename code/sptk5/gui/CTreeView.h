@@ -88,7 +88,7 @@ public:
     /**
      * @brief Destructor
      */
-    ~CTreeView() = default;
+    ~CTreeView() override = default;
 
     /**
      * @brief Returns controls' kind (internal SPTK RTTI).
@@ -101,7 +101,7 @@ public:
     /**
      * @brief Returns controls' class name (internal SPTK RTTI).
      */
-    virtual String className() const override
+    String className() const override
     {
         return "CTreeView";
     }

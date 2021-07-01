@@ -31,124 +31,146 @@
 
 namespace sptk {
 
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
+
+/**
+ * Type definition for pchar
+ */
+using pchar = char*;
+
+/**
+ * Type definition for cpchar
+ */
+using cpchar = const char*;
+
+
+/**
+ * @brief Packed strings list
+ *
+ * Special data structure to contain several strings packed into same memory block.
+ * The idea was to minimize the memory allocation, and decrease the total required memory.
+ * Also, contains special attributes for CListView row support.
+ */
+class SP_EXPORT CPackedStrings
+{
     /**
-     * @addtogroup gui GUI Classes
-     * @{
+     * Number of strings
      */
+    uint16_t m_size;
 
     /**
-     * Type definition for pchar
+     * Strings buffer
      */
-    using pchar = char *;
+    void* m_buffer;
 
     /**
-     * Type definition for cpchar
+     * User data
      */
-    using cpchar = const char *;
+    void* m_data;
 
+
+public:
 
     /**
-     * @brief Packed strings list
-     *
-     * Special data structure to contain several strings packed into same memory block.
-     * The idea was to minimize the memory allocation, and decrease the total required memory.
-     * Also, contains special attributes for CListView row support.
+     * Constructor
+     * @param cnt int, source strings count
+     * @param strings const char *, source strings
      */
-    class SP_EXPORT CPackedStrings {
-            /**
-             * Number of strings
-             */
-            uint16_t   m_size;
+    CPackedStrings(int cnt, const char* strings[]);
 
-            /**
-             * Strings buffer
-             */
-            void      *m_buffer;
-
-            /**
-             * User data
-             */
-            void      *m_data;
-
-
-        public:
-
-            /**
-             * Constructor
-             * @param cnt int, source strings count
-             * @param strings const char *, source strings
-             */
-            CPackedStrings(int cnt,const char *strings[]);
-
-            /**
-             * Constructor
-             * @param fields CFieldList, the fields data
-             * @param keyField int, the key field number
-             */
-            CPackedStrings(FieldList& fields,int keyField);
-
-            /**
-             * Constructor
-             * @param strings const Strings&, source strings
-             */
-            explicit CPackedStrings(const Strings& strings);
-
-            /**
-             * Destructor
-             */
-            ~CPackedStrings();
-
-            /**
-             * Strings count
-             */
-            uint16_t size() const { return *(uint16_t *)m_buffer; }
-
-            /**
-             * String access by index
-             */
-            const char * operator[](uint16_t index) const;
-
-            /**
-             * Assignment operator
-             */
-            CPackedStrings& operator=(const CPackedStrings&);
-
-            /**
-             * Assignment operator
-             */
-            CPackedStrings& operator=(const Strings&);
-
-            /**
-             * Sets user_data as void *
-             */
-            void user_data(void *d) { m_data = d;           }
-
-            /**
-             * Returns user_data as void *
-             */
-            void *user_data() const { return m_data;        }
-
-            /**
-             * Sets user_data as integer
-             */
-            void argument(int32_t arg)  { m_data = (void *) (uint64_t) arg; }
-
-            /**
-             * Returns user_data as integer
-             */
-            int32_t argument() const   { return (int32_t)(uint64_t) m_data;   }
-
-            /**
-             * Row height for CListView
-             */
-            unsigned char    height;
-
-            /**
-             * Row flags for CListView
-             */
-            unsigned char    flags;
-    };
     /**
-     * @}
+     * Constructor
+     * @param fields CFieldList, the fields data
+     * @param keyField int, the key field number
      */
+    CPackedStrings(FieldList& fields, int keyField);
+
+    /**
+     * Constructor
+     * @param strings           Source strings
+     */
+    explicit CPackedStrings(const Strings& strings);
+
+    /**
+     * Deleted copy constructor
+     * @param other             Other object
+     */
+    CPackedStrings(const CPackedStrings& other) = delete;
+
+    /**
+         * Destructor
+         */
+    ~CPackedStrings();
+
+    /**
+     * Strings count
+     */
+    uint16_t size() const
+    {
+        return *(uint16_t*) m_buffer;
+    }
+
+    /**
+     * String access by index
+     */
+    const char* operator[](uint16_t index) const;
+
+    /**
+     * Assignment operator
+     */
+    CPackedStrings& operator=(const CPackedStrings&);
+
+    /**
+     * Assignment operator
+     */
+    CPackedStrings& operator=(const Strings&);
+
+    /**
+     * Sets user_data as void *
+     */
+    void user_data(void* d)
+    {
+        m_data = d;
+    }
+
+    /**
+     * Returns user_data as void *
+     */
+    void* user_data() const
+    {
+        return m_data;
+    }
+
+    /**
+     * Sets user_data as integer
+     */
+    void argument(int32_t arg)
+    {
+        m_data = (void*) (uint64_t) arg;
+    }
+
+    /**
+     * Returns user_data as integer
+     */
+    int32_t argument() const
+    {
+        return (int32_t) (uint64_t) m_data;
+    }
+
+    /**
+     * Row height for CListView
+     */
+    unsigned char height;
+
+    /**
+     * Row flags for CListView
+     */
+    unsigned char flags;
+};
+/**
+ * @}
+ */
 }

@@ -53,7 +53,7 @@ protected:
     /**
      * Custom draw method to support SPTK themes
      */
-    void draw();
+    void draw() override;
 
 public:
     /**
@@ -84,17 +84,17 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w, int& h);
+    bool preferredSize(int& w, int& h) override;
 
     /**
      * Custom handle() method - event processing
      */
-    int handle(int event);
+    int handle(int event) override;
 
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const
+    String className() const override
     {
         return "scroll_bar";
     }

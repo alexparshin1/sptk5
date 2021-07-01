@@ -204,15 +204,7 @@ public:
         return m_label;
     }
 
-    /**
-     * @brief Sets the new label
-     *
-     * @param lbl               New label
-     */
-    virtual void label(const String& lbl) override
-    {
-        CLayoutClient::label(lbl);
-    }
+    using CLayoutClient::label;
 
     /**
      * @brief Returns widget class name (internal SPTK RTTI).

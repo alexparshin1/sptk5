@@ -43,16 +43,20 @@ namespace sptk {
  * clicks outside of it with mouse or moves the focus outside
  * the window any other way
  */
-class SP_EXPORT CPopupWindow : public CWindow {
+class SP_EXPORT CPopupWindow
+    : public CWindow
+{
 protected:
     /**
      * The outside mouse click
      */
-    int  m_clicked;
+    int m_clicked;
+
     /**
      * The special handle() function
      */
-    int  handle(int);
+    int handle(int) override;
+
 public:
     /**
      * Constructor
@@ -60,7 +64,7 @@ public:
      * @param h int, window height
      * @param label int, window label
      */
-    CPopupWindow(int w, int h, const char *label = 0);
+    CPopupWindow(int w, int h, const char* label = 0);
 
     /**
      * Shows window in modal mode. Exits from the modal mode
