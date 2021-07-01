@@ -110,7 +110,7 @@ public:
      */
     CDialogTabs()
         :
-        CTabs("", 10, SP_ALIGN_CLIENT)
+        CTabs("", 10, CLayoutAlign::CLIENT)
     {
     }
 };

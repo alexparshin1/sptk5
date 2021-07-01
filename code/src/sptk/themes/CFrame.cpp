@@ -43,7 +43,7 @@ void CFrames::clear()
 }
 
 const Strings     CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame", "|");
-const Fl_Boxtype  CFrames::frameTypes[] = {
+const std::array<Fl_Boxtype, 4>  CFrames::frameTypes = {
     FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME
 };
 
@@ -80,10 +80,10 @@ void CFrames::load(Tar& tar, xml::Node* framesNode)
             frameType = frameTypes[frameTypeInt];
             kind = CFrame::CFrameKind::FLTK_STANDARD;
         }
-        CPngImage::CPatternDrawMode drawMode = CPngImage::PDM_STRETCH;
+        CPngImage::CPatternDrawMode drawMode = CPngImage::CPatternDrawMode::PDM_STRETCH;
         if ((String) frameNode->getAttribute("mode") == "tile")
         {
-            drawMode = CPngImage::PDM_TILE;
+            drawMode = CPngImage::CPatternDrawMode::PDM_TILE;
         }
         const Buffer& imageData = tar.file(fileName);
         registerFrame(frameName, new CFrame(imageData, frameWidth, cornerZone, drawMode, kind), frameType);

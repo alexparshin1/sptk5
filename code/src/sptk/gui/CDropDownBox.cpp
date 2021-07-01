@@ -53,7 +53,7 @@ CDBDropDownList::CDBDropDownList(int width, int height, const char* label)
 {
     layoutSpacing(0);
     begin();
-    listView = new CDBDropDownListView("", 10, SP_ALIGN_NONE);
+    listView = new CDBDropDownListView("", 10, CLayoutAlign::NONE);
     end();
     listView->showGrid(false);
     listView->box(FL_FLAT_BOX);

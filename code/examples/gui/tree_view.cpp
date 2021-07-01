@@ -66,7 +66,7 @@ void add_item_cb(Fl_Widget*, void*)
     typeChoices.push_back(String("Document", 2));
     typeCombo.addRows("type", typeChoices);
     typeCombo.columns()[(unsigned) 0].width(150);
-    typeCombo.dataMode(LV_DATA_KEY);
+    typeCombo.dataMode(CListViewDataMode::LV_DATA_KEY);
     typeCombo.data(1);
 
     CComboBox modeCombo("Add Mode:");
@@ -76,7 +76,7 @@ void add_item_cb(Fl_Widget*, void*)
     modeChoices.push_back(String("To selected item", 2));
     modeCombo.addRows("type", modeChoices);
     modeCombo.columns()[(unsigned) 0].width(150);
-    modeCombo.dataMode(LV_DATA_KEY);
+    modeCombo.dataMode(CListViewDataMode::LV_DATA_KEY);
     modeCombo.data(1);
 
     CInput inp("Item Name:");
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
         CWindow window(400, 300);
         window.resizable(window);
 
-        tree = new CTreeView("", 10, SP_ALIGN_CLIENT);
+        tree = new CTreeView("", 10, CLayoutAlign::CLIENT);
         tree->end();
 
         CTreeItem* node;
@@ -184,17 +184,17 @@ int main(int argc, char* argv[])
 
         tree->callback(changed_cb);
 
-        CGroup group("", 10, SP_ALIGN_BOTTOM);
+        CGroup group("", 10, CLayoutAlign::BOTTOM);
         group.box(FL_THIN_DOWN_BOX);
         group.color(FL_LIGHT1);
 
-        CButton btn1(CButtonKind::EXIT_BUTTON, SP_ALIGN_RIGHT);
+        CButton btn1(CButtonKind::EXIT_BUTTON, CLayoutAlign::RIGHT);
         btn1.callback(exit_cb);
 
-        CButton btn2(CButtonKind::DELETE_BUTTON, SP_ALIGN_RIGHT);
+        CButton btn2(CButtonKind::DELETE_BUTTON, CLayoutAlign::RIGHT);
         btn2.callback(remove_item_cb);
 
-        CButton btn3(CButtonKind::ADD_BUTTON, SP_ALIGN_RIGHT);
+        CButton btn3(CButtonKind::ADD_BUTTON, CLayoutAlign::RIGHT);
         btn3.callback(add_item_cb);
 
         window.end();

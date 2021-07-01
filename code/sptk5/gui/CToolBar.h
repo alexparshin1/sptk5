@@ -42,11 +42,13 @@ namespace sptk {
  * The slightely extended CGroup to work as a toolbar.
  * Most of the toolbar functionality isn't implemented yet.
  */
-class SP_EXPORT CToolBar : public CGroup {
+class SP_EXPORT CToolBar
+    : public CGroup
+{
     /**
      * Flag, true if the toolbar is collapsed
      */
-    bool    m_colapsed;
+    bool m_colapsed;
 
 public:
 
@@ -54,7 +56,7 @@ public:
      * @brief Constructor in SPTK style
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    explicit CToolBar(CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    explicit CToolBar(CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -75,7 +77,8 @@ public:
      * @param buttonAlign CLayoutAlign, button align in the toolbar
      * @see CButton
      */
-    CButton *addButton(CButtonKind buttonKind,Fl_Callback_p cb,const char *label = 0,CLayoutAlign buttonAlign=SP_ALIGN_LEFT);
+    CButton* addButton(CButtonKind buttonKind, Fl_Callback_p cb, const char* label = 0,
+                       CLayoutAlign buttonAlign = CLayoutAlign::LEFT);
 
     /**
      * @brief Resizes the group and inside widgets.
@@ -84,7 +87,7 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    virtual void resize(int x,int y,int w,int h);
+    virtual void resize(int x, int y, int w, int h);
 
     /**
      * @brief Computes the optimal group size
@@ -92,12 +95,13 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w,int& h);
+    virtual bool preferredSize(int& w, int& h);
 
     /**
      * @brief Flag, true if the toolbar is collapsed
      */
-    bool collapsed() const {
+    bool collapsed() const
+    {
         return m_colapsed;
     }
 
@@ -120,7 +124,8 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const {
+    virtual String className() const
+    {
         return "toolbar";
     }
 };

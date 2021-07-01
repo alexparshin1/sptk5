@@ -36,7 +36,8 @@
 using namespace std;
 using namespace sptk;
 
-class SP_EXPORT CProgressBox : public Fl_Box
+class SP_EXPORT CProgressBox
+    : public Fl_Box
 {
 public:
     float m_value;
@@ -103,7 +104,7 @@ void CProgressBar::ctor_init(const char* label)
     m_control->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
     m_control->callback(CControl::internalCallback);
     m_control->when(FL_WHEN_CHANGED);
-    m_controlFlags = FGE_MULTILINEENTRY;
+    m_controlFlags = (int) InputEntryFlags::MULTILINEENTRY;
     labelWidth(0);
     m_label = label;
     data(0);
@@ -124,8 +125,8 @@ CProgressBar::CProgressBar(int x,int y,int w,int h,const char *label)
 
 CLayoutClient* CProgressBar::creator(xml::Node* node)
 {
-    auto* widget = new CProgressBar("", 10, SP_ALIGN_TOP);
-    widget->load(node, LXM_LAYOUTDATA);
+    auto* widget = new CProgressBar("", 10, CLayoutAlign::TOP);
+    widget->load(node, CLayoutXMLmode::LAYOUTDATA);
     return widget;
 }
 

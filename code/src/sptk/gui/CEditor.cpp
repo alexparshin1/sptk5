@@ -46,7 +46,7 @@ CEditor::CEditor(int layoutSize, CLayoutAlign layoutAlign)
 
 #ifdef __COMPATIBILITY_MODE__
 CEditor::CEditor(int x, int y, int w, int h, const char*l)
-: Fl_Text_Editor(x, y, w, h, l), CLayoutClient(this,w,SP_ALIGN_NONE) {
+: Fl_Text_Editor(x, y, w, h, l), CLayoutClient(this,w,CLayoutAlign::NONE) {
    ctor_init();
 }
 #endif

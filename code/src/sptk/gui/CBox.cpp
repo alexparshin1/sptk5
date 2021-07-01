@@ -36,7 +36,7 @@ using namespace sptk;
 //===========================================================================
 void CBox::ctor_init(const char* label)
 {
-    m_controlFlags = FGE_MULTILINEENTRY;
+    m_controlFlags = (int) InputEntryFlags::MULTILINEENTRY;
     begin();
     m_control = new Fl_Box(x(), y(), w(), h());
     m_control->clear_output();
@@ -66,8 +66,8 @@ CBox::CBox(int x,int y,int w,int h,const char *label)
 
 CLayoutClient* CBox::creator(xml::Node* node)
 {
-    auto* widget = new CBox("", 10, SP_ALIGN_TOP);
-    widget->load(node, LXM_LAYOUTDATA);
+    auto* widget = new CBox("", 10, CLayoutAlign::TOP);
+    widget->load(node, CLayoutXMLmode::LAYOUTDATA);
     widget->dragable((bool) node->getAttribute("drag", "N"));
     return widget;
 }
@@ -173,8 +173,8 @@ bool CBox::preferredSize(int& w, int& h)
 
     switch (m_layoutAlign)
     {
-        case SP_ALIGN_TOP:
-        case SP_ALIGN_BOTTOM:
+        case CLayoutAlign::TOP:
+        case CLayoutAlign::BOTTOM:
             if ((align() & FL_ALIGN_WRAP) == 0)
             {
                 cw = 0;
@@ -184,8 +184,8 @@ bool CBox::preferredSize(int& w, int& h)
                 cw = w - dw;
             }
             break;
-        case SP_ALIGN_LEFT:
-        case SP_ALIGN_RIGHT:
+        case CLayoutAlign::LEFT:
+        case CLayoutAlign::RIGHT:
             ch = h - dh;
             break;
         default:
@@ -214,7 +214,7 @@ int CBox::handle(int event)
         case FL_PUSH:
             m_xPushed = Fl::event_x();
             m_yPushed = Fl::event_y();
-            fireEvent(CE_MOUSE_CLICK, 0);
+            fireEvent(CEvent::MOUSE_CLICK, 0);
             return 1;
         case FL_DRAG:
             if (m_dragable)

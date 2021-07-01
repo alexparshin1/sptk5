@@ -48,15 +48,15 @@ int main()
         CWindow w(250, 150, "CScroll test");
         w.resizable(w);
 
-        CScroll sc("", 20, SP_ALIGN_CLIENT);
+        CScroll sc("", 20, CLayoutAlign::CLIENT);
         sc.color(w.color());
         sc.box(FL_DOWN_BOX);
         sc.layoutSpacing(0);
 
-        CGroup gr("", 20, SP_ALIGN_CLIENT);
+        CGroup gr("", 20, CLayoutAlign::CLIENT);
 
         // CCheckButtons figures out the size from the list
-        // of choices. The default alignment is SP_ALIGN_TOP,
+        // of choices. The default alignment is CLayoutAlign::TOP,
         // and you can change it in ctor
         CCheckButtons cbl("Check Buttons: ");
         cbl.buttons(Strings("first,second,third,*", ","));
@@ -66,10 +66,10 @@ int main()
         // CListView is more flexible, than CCheckButtons or
         // CRadioButtons, it's vertical size is defined with
         // the layoutSize parameter in ctor as 150.
-        // SP_ALIGN_CLIENT allows that widget to occupy all
+        // CLayoutAlign::CLIENT allows that widget to occupy all
         // the space left after all the other widgets are
         // put in place
-        CListView listView("List View:", 10, SP_ALIGN_CLIENT);
+        CListView listView("List View:", 10, CLayoutAlign::CLIENT);
         listView.columns().push_back(CColumn("column 1", VariantDataType::VAR_INT, 70));
         listView.columns().push_back(CColumn("column 2", VariantDataType::VAR_INT, 70));
         listView.columns().push_back(CColumn("column 3", VariantDataType::VAR_STRING, 200));
@@ -91,9 +91,9 @@ int main()
 
         // That group keeps togeteher the buttons. These
         // buttons use the default alignment for buttons -
-        // SP_ALIGN_RIGHT, and the text/icon defined by the
+        // CLayoutAlign::RIGHT, and the text/icon defined by the
         // button kind.
-        CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
+        CGroup buttonGroup("", 10, CLayoutAlign::BOTTOM);
         CButton exitButton(CButtonKind::EXIT_BUTTON);
         exitButton.callback(exit_cb);
         buttonGroup.end();

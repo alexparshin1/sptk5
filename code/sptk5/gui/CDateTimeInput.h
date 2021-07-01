@@ -195,7 +195,8 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    explicit CDateInput(const char* label = nullptr, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    explicit CDateInput(const char* label = nullptr, int layoutSize = 10,
+                        CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -276,7 +277,8 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    explicit CTimeInput(const char* label = nullptr, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    explicit CTimeInput(const char* label = nullptr, int layoutSize = 10,
+                        CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -342,7 +344,8 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CDateTimeInput(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CDateTimeInput(const char* label = nullptr, int layoutSize = 10,
+                   CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**

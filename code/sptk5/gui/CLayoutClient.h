@@ -40,35 +40,37 @@ namespace sptk {
 /**
  * Possible values for the widget layout aligns
  */
-enum CLayoutAlign
+enum class CLayoutAlign
+    : uint8_t
 {
-    SP_ALIGN_NONE,        /// Do not use allignment
-    SP_ALIGN_LEFT,        /// Align to the left
-    SP_ALIGN_RIGHT,       /// Align to the right
-    SP_ALIGN_TOP,         /// Align to the top
-    SP_ALIGN_BOTTOM,      /// Align to the bottom
-    SP_ALIGN_CLIENT       /// Use the whole available space
+    NONE,        /// Do not use allignment
+    LEFT,        /// Align to the left
+    RIGHT,       /// Align to the right
+    TOP,         /// Align to the top
+    BOTTOM,      /// Align to the bottom
+    CLIENT       /// Use the whole available space
 };
 
 /**
  * Layout load and save mode
  */
-enum CLayoutXMLmode
+enum class CLayoutXMLmode
+    : uint8_t
 {
     /**
      * Load and save only controls data
      */
-    LXM_DATA = 1,
+    DATA = 1,
 
     /**
      * Load and save only controls layout
      */
-    LXM_LAYOUT = 2,
+    LAYOUT = 2,
 
     /**
      * Load and save controls data and layout
      */
-    LXM_LAYOUTDATA = 3
+    LAYOUTDATA = 3
 };
 
 /**
@@ -86,9 +88,9 @@ class SP_EXPORT CLayoutClient
      * The preferred layout size
      *
      * It makes different sense depending on the widget layout align.
-     * For layout align SP_ALIGN_TOP or SP_ALIGN_BOTTOM it is a recomended height of the widget.
-     * For layout align SP_ALIGN_LEFT or SP_ALIGN_RIGHT it is a recomended width of the widget.
-     * For layout align SP_ALIGN_NONE or SP_ALIGN_CLIENT it is ignored.
+     * For layout align CLayoutAlign::TOP or CLayoutAlign::BOTTOM it is a recomended height of the widget.
+     * For layout align CLayoutAlign::LEFT or CLayoutAlign::RIGHT it is a recomended width of the widget.
+     * For layout align CLayoutAlign::NONE or CLayoutAlign::CLIENT it is ignored.
      * If the widget isn't in CLayoutManager group - it is ignored.
      * If it doesn't contradict with preferred widget size it will define the final size of the widget.
      */

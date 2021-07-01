@@ -32,14 +32,17 @@
 using namespace std;
 using namespace sptk;
 
-CMemoInput *memoInput;
+CMemoInput* memoInput;
 
-void font_cb(Fl_Widget *fc, void *)
+void font_cb(Fl_Widget* fc, void*)
 {
-    auto* fontCombo = dynamic_cast<CFontComboBox *>(fc);
+    auto* fontCombo = dynamic_cast<CFontComboBox*>(fc);
     if (!fontCombo)
+    {
         return;
-    if (fontCombo->eventType() == CE_DATA_CHANGED) {
+    }
+    if (fontCombo->eventType() == CEvent::DATA_CHANGED)
+    {
         String fontName = fontCombo->fontName();
         fontName = fontName + "  " + fontName + "  ";
         fontName = fontName + "\n" + fontName + "\n";
@@ -50,9 +53,10 @@ void font_cb(Fl_Widget *fc, void *)
     }
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes themes;
 
@@ -64,7 +68,7 @@ int main(int argc, char *argv[])
         CFontComboBox fontCombo("Fonts:");
         fontCombo.callback(font_cb);
 
-        memoInput = new CMemoInput("Font Sample:", 10, SP_ALIGN_CLIENT);
+        memoInput = new CMemoInput("Font Sample:", 10, CLayoutAlign::CLIENT);
         memoInput->data("This is just some text");
 
         w.end();
@@ -72,7 +76,8 @@ int main(int argc, char *argv[])
 
         return Fl::run();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

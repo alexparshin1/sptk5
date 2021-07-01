@@ -91,7 +91,8 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CDBListView(const char* label = nullptr, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CDBListView(const char* label = nullptr, int layoutSize = 20,
+                CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -139,7 +140,7 @@ public:
      * @param paramName         The parameter Name
      * @param refreshKind       The query it belongs to (full or fast refresh)
      */
-    QueryParameter& param(const char* paramName, CRefreshKind refreshKind = LV_REFRESH_FULL);
+    QueryParameter& param(const char* paramName, CRefreshKind refreshKind = CRefreshKind::LV_REFRESH_FULL);
 
     /**
      * Defines the key field name. This field name should be a part of the SQL query
@@ -168,7 +169,7 @@ public:
      * Refreshes the data with full or fast method
      * @param refreshKind CRefreshKind, the type of refresh
      */
-    void refreshData(CRefreshKind refreshKind = LV_REFRESH_FULL);
+    void refreshData(CRefreshKind refreshKind = CRefreshKind::LV_REFRESH_FULL);
 
     /**
      * Returns the date and time of the last data refresh

@@ -50,8 +50,8 @@ namespace sptk {
 /**
  * @brief The refersh kind
  */
-
-enum CRefreshKind
+enum class CRefreshKind
+    : uint8_t
 {
     /**
      * Retrieve the full dataset and replace the existing records completely
@@ -73,7 +73,8 @@ class CDBDropDownList;
  * @brief The data mode for the data() methods.
  */
 
-enum CListViewDataMode
+enum class CListViewDataMode
+    : uint8_t
 {
     /**
      * data() sets/returns item caption. If the data connection is defined (in CDBListView) - it flips to LV_DATA_KEY mode.
@@ -103,7 +104,6 @@ enum CListViewDataMode
  * Class CListView is the list of multicolumn rows. It allows to sort rows
  * by column, supports type-in incremental search etc.
  */
-
 class SP_EXPORT CListView
     : public CControl, public SharedMutex
 {
@@ -125,7 +125,6 @@ class SP_EXPORT CListView
      * Flag to terminate the current fill() operation
      */
     bool m_fillTerminated;
-
 
 protected:
     /**
@@ -188,7 +187,6 @@ protected:
      */
     Strings m_iconNames;
 
-
     /**
      * @brief Data mode
      * Defines the kind of data to work through data() method
@@ -221,7 +219,6 @@ protected:
      */
     uint32_t m_headerHeight;
 
-
     /**
      * The list of rows
      */
@@ -232,7 +229,6 @@ protected:
      */
     CColumnList m_columnList;
 
-
     /**
      * Dragged column
      */
@@ -242,7 +238,6 @@ protected:
      * Dragging column started
      */
     int m_draggingStarted;
-
 
     /**
      * The text font type
@@ -258,7 +253,6 @@ protected:
      * The text font color
      */
     Fl_Color m_textColor;
-
 
     /**
      * Show/hide horizontal stripes. Stripes is an alternative to cell grid.
@@ -279,7 +273,6 @@ protected:
      * Auto row height on/off
      */
     bool m_autoRowHeight;
-
 
     /**
      * @brief Computes which column contains x-coordinate
@@ -327,7 +320,6 @@ protected:
     /**
      * @brief Returns horizontal position of the scroll
      */
-
     int hposition() const
     {
         return m_horizPosition;
@@ -470,7 +462,6 @@ protected:
     /**
      * @brief Redraw all the lines
      */
-
     void redraw_lines()
     {
         damage(FL_DAMAGE_SCROLL);
@@ -494,7 +485,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CListView(const char* label = 0, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CListView(const char* label = nullptr, int layoutSize = 20, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -511,8 +502,7 @@ public:
     /**
      * @brief Destructor
      */
-
-    ~CListView()
+    ~CListView() override
     {
         CListView::clear();
     }
@@ -591,7 +581,6 @@ public:
     /**
      * @brief Returns the row count
      */
-
     virtual uint32_t size() const
     {
         return m_rows.size();
@@ -600,7 +589,6 @@ public:
     /**
      * @brief Returns the scroll position
      */
-
     virtual int top() const
     {
         return (int) m_top;
@@ -655,7 +643,6 @@ public:
     /**
      * Is the widget visible?
      */
-
     int visible() const
     {
         return (int) Fl_Widget::visible();
@@ -677,7 +664,6 @@ public:
      * Defines which information list view is working with in data() method - key value, item index, or item caption.
      * @see CListViewDataMode for more information
      */
-
     void dataMode(CListViewDataMode dm)
     {
         m_dataMode = dm;
@@ -688,8 +674,7 @@ public:
      * Defines which information list view is working with in data() method - key value, item index, or item caption.
      * @see CListViewDataMode for more information
      */
-
-    CListViewDataMode dataMode()
+    CListViewDataMode dataMode() const
     {
         return m_dataMode;
     }
@@ -716,7 +701,6 @@ public:
     /**
      * Returns selection list
      */
-
     const CSelection& selection() const
     {
         return m_selection;
@@ -739,7 +723,6 @@ public:
      * @param sel bool, true if select
      * @returns true if success
      */
-
     bool selectRow(uint32_t index, bool sel = true)
     {
         return select(index, sel, true);
@@ -761,7 +744,6 @@ public:
      * Requests to redraw just one row
      * @param index int, row number
      */
-
     void redrawRow(uint32_t index)
     {
         redraw_line(index);
@@ -802,8 +784,7 @@ protected:
     /**
      * @brief True if the data is valid
      */
-
-    virtual bool valid() const override
+    bool valid() const override
     {
         return true;
     }
@@ -883,7 +864,6 @@ public:
     /**
      * @brief Returns column list
      */
-
     CColumnList& columns()
     {
         return m_columnList;
@@ -893,7 +873,6 @@ public:
      * @brief Returns column informartion
      * @param col uint32_t, column number 0..columnCount() -1
      */
-
     CColumn& column(uint32_t col)
     {
         return m_columnList[col];
@@ -909,7 +888,6 @@ public:
      * @brief Adds a new column as a copy of column
      * @param column const CColumn&, new column information
      */
-
     void addColumn(const CColumn& column)
     {
         m_columnList.push_back(column);
@@ -922,7 +900,6 @@ public:
      * @param cwidth uint32_t, column width
      * @param cvisible bool, is the column visible?
      */
-
     void addColumn(const String& colname, VariantDataType type, uint32_t cwidth = 100, bool cvisible = true)
     {
         m_columnList.push_back(CColumn(colname, type, (short) cwidth, cvisible));
@@ -933,7 +910,6 @@ public:
      * @returns control type as CControlKind
      * @see CControlKind
      */
-
     CControlKind kind() const override
     {
         return CControlKind::LISTBOX;
@@ -942,8 +918,7 @@ public:
     /**
      * @brief Returns auto row height mode as true/false
      */
-
-    bool autoRowHeight()
+    bool autoRowHeight() const
     {
         return m_autoRowHeight;
     }
@@ -956,7 +931,6 @@ public:
     /**
      * @brief Returns text font type
      */
-
     Fl_Font textFont() const override
     {
         return m_textFont;
@@ -965,7 +939,6 @@ public:
     /**
      * @brief Sets text font type
      */
-
     void textFont(Fl_Font f) override
     {
         m_textFont = f;
@@ -974,7 +947,6 @@ public:
     /**
      * Returns text font size
      */
-
     uchar textSize() const override
     {
         return m_textSize;
@@ -983,7 +955,6 @@ public:
     /**
      * @brief Sets text font size
      */
-
     void textSize(uchar s) override
     {
         m_textSize = s;
@@ -992,7 +963,6 @@ public:
     /**
      * @brief Returns text color
      */
-
     Fl_Color textColor() const override
     {
         return m_textColor;
@@ -1001,7 +971,6 @@ public:
     /**
      * @brief Sets text color
      */
-
     void textColor(Fl_Color n) override
     {
         m_textColor = n;
@@ -1010,8 +979,7 @@ public:
     /**
      * @brief Returns show grid mode
      */
-
-    bool showGrid()
+    bool showGrid() const
     {
         return m_showGrid;
     }
@@ -1024,8 +992,7 @@ public:
     /**
      * @brief Returns show stripes
      */
-
-    bool showStripes()
+    bool showStripes() const
     {
         return m_showStripes;
     }
@@ -1038,8 +1005,7 @@ public:
     /**
      * @brief Returns show selection mode
      */
-
-    bool showSelection()
+    bool showSelection() const
     {
         return m_showSelection;
     }
@@ -1047,7 +1013,6 @@ public:
     /**
      * @brief Sets show selection mode
      */
-
     void showSelection(bool flag)
     {
         m_showSelection = flag;
@@ -1056,7 +1021,6 @@ public:
     /**
      * @brief Returns multiple selection enabled or disabled
      */
-
     bool multiSelect() const
     {
         return m_multipleSelection;
@@ -1065,7 +1029,6 @@ public:
     /**
      * @brief Sets multiple selection enabled or disabled
      */
-
     void multiSelect(bool ms)
     {
         m_multipleSelection = ms;
@@ -1135,7 +1098,6 @@ public:
     /**
      * @brief Returns the sort direction - ascending/descending
      */
-
     bool sortAscending() const
     {
         return m_rows.sortAscending();
@@ -1152,7 +1114,6 @@ public:
     /**
      * @brief Sorts ListView rows using existing information about sort column and direction
      */
-
     void sort()
     {
         m_rows.sort();
@@ -1171,7 +1132,7 @@ public:
      * @see CDataSource
      */
     void fill(DataSource& ds, const String& keyFieldName = "", uint32_t recordsLimit = 0, uint32_t recordsEstimated = 0,
-              CRefreshKind refreshKind = LV_REFRESH_FULL);
+              CRefreshKind refreshKind = CRefreshKind::LV_REFRESH_FULL);
 
     /**
      * @brief Fills the list with the data from XML node
@@ -1200,7 +1161,6 @@ public:
     /**
      * @brief Returns header height
      */
-
     uint32_t headerHeight() const
     {
         return m_headerHeight;
@@ -1209,7 +1169,6 @@ public:
     /**
      * @brief Sets the header height, 0 to hide headers
      */
-
     void headerHeight(uint32_t hh)
     {
         m_headerHeight = hh;
@@ -1218,7 +1177,6 @@ public:
     /**
      * @brief Returns the currently active row
      */
-
     uint32_t activeRow() const
     {
         return m_activeRow;
@@ -1227,7 +1185,6 @@ public:
     /**
      * @brief Returns true if column names are auto-capitilized
      */
-
     bool capitalizeColumnNames() const
     {
         return m_capitalizeColumnNames;
@@ -1237,7 +1194,6 @@ public:
      * @brief Defines if column names should be auto-capitilized
      * @param ccn bool, true if column names should be auto-capitilized
      */
-
     void capitalizeColumnNames(bool ccn)
     {
         m_capitalizeColumnNames = ccn;
@@ -1246,7 +1202,6 @@ public:
     /**
      * @brief Terminate the current fill() operation (if in progress)
      */
-
     void terminateFill()
     {
         m_fillTerminated = true;
@@ -1255,7 +1210,6 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-
     String className() const override
     {
         return "list_view";

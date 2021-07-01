@@ -43,8 +43,8 @@ enum CChangeType
     CT_CHOOSE_ITEM
 };
 
-#define IS_LIST_BOX   1
-#define IS_COMBO_BOX  2
+constexpr int IS_LIST_BOX = 1;
+constexpr int IS_COMBO_BOX = 2;
 
 namespace sptk {
 
@@ -138,7 +138,7 @@ int CInternalComboBoxPanel::handleKeyboardEvent()
     int newIntValue = listView->data().asInteger();
     if (oldIntValue != newIntValue)
     {
-        combo->fireEvent(CE_DATA_CHANGED, newIntValue);
+        combo->fireEvent(CEvent::DATA_CHANGED, newIntValue);
     }
     return rc;
 }
@@ -204,7 +204,7 @@ void CBaseListBox::ctor_init(const char* label, int _mode)
     }
     else
     {
-        m_controlFlags = FGE_MULTILINEENTRY;
+        m_controlFlags = (int) InputEntryFlags::MULTILINEENTRY;
         m_buttonSet = (uint32_t) CButtonKind::REFRESH_BUTTON;
         m_control = m_list = new CDBListView;
     }
@@ -213,8 +213,8 @@ void CBaseListBox::ctor_init(const char* label, int _mode)
     for (int i = 0; i < 5; i++)
     {
         auto kind = (uint64_t) buttonKind[i];
-        auto* btn = new CSmallButton(CButtonKind::UNDEFINED_BUTTON, SP_ALIGN_NONE);
-        btn->buttonImage(buttonKind[i], IS_COMBO_ICON);
+        auto* btn = new CSmallButton(CButtonKind::UNDEFINED_BUTTON, CLayoutAlign::NONE);
+        btn->buttonImage(buttonKind[i], CIconSize::IS_COMBO_ICON);
         btn->callback(comboButtonPressed);
         btn->user_data((void*) kind);
         btn->visible_focus(false);
@@ -443,7 +443,7 @@ void CBaseListBox::changeControlData(int changeType, int intData, string stringD
 
     if (oldSelection != newSelection)
     {
-        fireEvent(CE_DATA_CHANGED, (int32_t) m_list->data().asInteger());
+        fireEvent(CEvent::DATA_CHANGED, (int32_t) m_list->data().asInteger());
     }
 }
 
@@ -471,15 +471,15 @@ void CBaseListBox::button_handle(uint32_t theButtonKind)
             refreshData();
             break;
         case CButtonKind::ADD_BUTTON:
-            m_event = UC_ADD_ITEM;
+            m_event = CEvent::ADD_ITEM;
             do_callback();
             break;
         case CButtonKind::EDIT_BUTTON:
-            m_event = UC_EDIT_ITEM;
+            m_event = CEvent::EDIT_ITEM;
             do_callback();
             break;
         case CButtonKind::DELETE_BUTTON:
-            m_event = UC_DELETE_ITEM;
+            m_event = CEvent::DELETE_ITEM;
             do_callback();
             break;
         default:
@@ -585,7 +585,7 @@ void CBaseListBox::data(const Variant& newData)
 
     if (oldSelection != newSelection)
     {
-        fireEvent(CE_DATA_CHANGED, (int32_t) m_list->data().asInteger());
+        fireEvent(CEvent::DATA_CHANGED, (int32_t) m_list->data().asInteger());
     }
 }
 
@@ -709,8 +709,8 @@ CControlKind CComboBox::kind() const
 
 CLayoutClient* CComboBox::creator(xml::Node* node)
 {
-    auto* widget = new CComboBox("", 10, SP_ALIGN_TOP);
-    widget->load(node, LXM_LAYOUTDATA);
+    auto* widget = new CComboBox("", 10, CLayoutAlign::TOP);
+    widget->load(node, CLayoutXMLmode::LAYOUTDATA);
     return widget;
 }
 

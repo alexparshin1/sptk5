@@ -43,7 +43,7 @@ const Fl_Image* CTreeItem::folderOpened;
 const Fl_Image* CTreeItem::document;
 
 CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Image* closedImage, void* data)
-    : CGroup("", 10, SP_ALIGN_TOP)
+    : CGroup("", 10, CLayoutAlign::TOP)
 {
     drawClipped(false);
     m_tree = dynamic_cast<CTreeControl*> (parent());
@@ -541,7 +541,7 @@ CTreeItem* CTreeItem::addPath(const vector<String>& pathFolders, const Fl_Image*
 
 static Fl_Image* getIconImage(const char* iconName)
 {
-    return CThemes::getIconImage(iconName, IS_SMALL_ICON);
+    return CThemes::getIconImage(iconName, CIconSize::IS_SMALL_ICON);
 }
 
 CTreeItem* CTreeItem::addPath(const vector<String>& pathFolders, const Fl_Image* itemImage, void* data)
@@ -854,7 +854,7 @@ CTreeControl::CTreeControl(const char* label, int layoutSize, CLayoutAlign align
 
 CLayoutClient* CTreeControl::defaultItemCreator(CTreeItem*)
 {
-    auto* box = new CBox("", 16, SP_ALIGN_TOP);
+    auto* box = new CBox("", 16, CLayoutAlign::TOP);
     box->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
     return box;
 }

@@ -187,7 +187,7 @@ void CControl::ctor_init(const char* label)
         m_label = label;
     }
     m_limited = false;
-    m_controlFlags = FGE_SINGLELINEENTRY;
+    m_controlFlags = (int) InputEntryFlags::SINGLELINEENTRY;
     m_textFont = FL_HELVETICA;
     m_textSize = (uchar) FL_NORMAL_SIZE;
     m_textColor = FL_FOREGROUND_COLOR;
@@ -209,7 +209,7 @@ CControl::CControl(const char* label, int layoutSize, CLayoutAlign layoutAlignme
 
 #ifdef __COMPATIBILITY_MODE__
 CControl::CControl(int x,int y,int w,int h,const char * label) :
-    Fl_Group(x,y,w,h,""), CLayoutClient(this,w,SP_ALIGN_NONE)
+    Fl_Group(x,y,w,h,""), CLayoutClient(this,w,CLayoutAlign::NONE)
 {
     ctor_init(label);
 }
@@ -240,7 +240,7 @@ void CControl::resize(int x, int y, int w, int h)
     if (m_control != nullptr)
     {
         int hh = h;
-        if (!(m_controlFlags & FGE_MULTILINEENTRY))
+        if (!(m_controlFlags & (int) InputEntryFlags::MULTILINEENTRY))
         {
             hh = textSize() + 8;
         }
@@ -392,7 +392,7 @@ void CControl::notifyFocus(bool gotFocus)
         if (!m_hasFocus)
         {
             m_hasFocus = true;
-            fireEvent(CE_FOCUS, 0);
+            fireEvent(CEvent::FOCUS, 0);
         }
     }
     else
@@ -400,7 +400,7 @@ void CControl::notifyFocus(bool gotFocus)
         if (m_hasFocus && !contains(Fl::focus()))
         {
             m_hasFocus = false;
-            fireEvent(CE_UNFOCUS, 0);
+            fireEvent(CEvent::UNFOCUS, 0);
         }
     }
 }
@@ -410,10 +410,10 @@ int CControl::handle(int event)
     switch (event)
     {
         case FL_SHOW:
-            fireEvent(CE_SHOW, 0);
+            fireEvent(CEvent::SHOW, 0);
             break;
         case FL_HIDE:
-            fireEvent(CE_HIDE, 0);
+            fireEvent(CEvent::HIDE, 0);
             break;
         default:
             break;
@@ -425,7 +425,7 @@ int CControl::handle(int event)
         if (!newFocus)
         {
             m_hasFocus = false;
-            fireEvent(CE_UNFOCUS, 0);
+            fireEvent(CEvent::UNFOCUS, 0);
         }
     }
     return rc;
@@ -622,7 +622,7 @@ void CControl::internalCallback(Fl_Widget* internalWidget, void* data)
         auto* control = dynamic_cast<CControl*>(parentWidget);
         if (control != nullptr)
         {
-            control->fireEvent(CE_DATA_CHANGED, (int32_t) (uint64_t) (data));
+            control->fireEvent(CEvent::DATA_CHANGED, (int32_t) (uint64_t) (data));
             break;
         }
     }
@@ -634,7 +634,7 @@ void CControl::fireEvent(CEvent ev, int32_t arg)
     {
         m_event = CEventInfo(ev, arg);
         do_callback();
-        m_event = CEventInfo(CE_NONE, 0);
+        m_event = CEventInfo(CEvent::NONE, 0);
     }
 }
 
@@ -659,11 +659,12 @@ void sptk::createControls(const xml::NodeList& xmlControls)
 
 void CControl::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 {
-    if (xmlMode & LXM_LAYOUT)
+    if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
     {
-        CLayoutClient::load(node, LXM_LAYOUT);
+        CLayoutClient::load(node, CLayoutXMLmode::LAYOUT);
     }
-    if (xmlMode & LXM_DATA)
+
+    if ((int) xmlMode & (int) CLayoutXMLmode::DATA)
     {
         Variant v;
         v.load(node);
@@ -674,11 +675,13 @@ void CControl::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 void CControl::save(xml::Node* node, CLayoutXMLmode xmlMode) const
 {
     node->name("control");
-    if (xmlMode & LXM_LAYOUT)
+
+    if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
     {
-        CLayoutClient::save(node, LXM_LAYOUT);
+        CLayoutClient::save(node, CLayoutXMLmode::LAYOUT);
     }
-    if (xmlMode & LXM_DATA)
+
+    if ((int) xmlMode & (int) CLayoutXMLmode::DATA)
     {
         Variant v;
         v = data();

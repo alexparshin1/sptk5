@@ -38,108 +38,108 @@ namespace sptk {
 /**
  * Event type constants
  */
-enum CEvent
+enum class CEvent
+    : uint8_t
 {
     /**
      * Empty event (no event)
      */
-            CE_NONE,
+    NONE,
 
     /**
      * Control data changed
      */
-            CE_DATA_CHANGED,
+    DATA_CHANGED,
 
     /**
      * Control received focus
      */
-            CE_FOCUS,
+    FOCUS,
 
     /**
      * Control lost focus
      */
-            CE_UNFOCUS,
+    UNFOCUS,
 
     /**
      * Control visibility changed to show
      */
-            CE_SHOW,
+    SHOW,
 
     /**
      * Control visibility changed to hide
      */
-            CE_HIDE,
+    HIDE,
 
     /**
      * Keyboard event in control
      */
-            CE_KEYBOARD,
+    KEYBOARD,
 
     /**
      * Mouse clicked on control
      */
-            CE_MOUSE_CLICK,
+    MOUSE_CLICK,
 
     /**
      * Mouse double-clicked on control
      */
-            CE_MOUSE_DOUBLE_CLICK,
+    MOUSE_DOUBLE_CLICK,
 
     /**
      * Mouse dragged on control
      */
-            CE_MOUSE_DRAG,
+    MOUSE_DRAG,
 
     /**
      * Mouse moved over control
      */
-            CE_MOUSE_MOVE,
+    MOUSE_MOVE,
 
     /**
      * Mouse released over control
      */
-            CE_MOUSE_RELEASE,
+    MOUSE_RELEASE,
 
     /**
      * Mouse wheel over control
      */
-            CE_MOUSE_WHEEL,
+    MOUSE_WHEEL,
 
     /**
      * Progress event (if control supports it)
      */
-            CE_PROGRESS,
+    PROGRESS,
 
     /**
      * Keyboard button pressed
      */
-            CE_BUTTON_PRESSED,
+    BUTTON_PRESSED,
 
     /**
      * List event - item added (if control supports it)
      */
-            UC_ADD_ITEM,
+    ADD_ITEM,
 
     /**
      * List event - item edited or changed (if control supports it)
      */
-            UC_EDIT_ITEM,
+    EDIT_ITEM,
 
     /**
      * List event - item deleted (if control supports it)
      */
-            UC_DELETE_ITEM,
+    DELETE_ITEM,
 
     /**
      * List event - list refreshed (if control supports it)
      */
-            UC_REFRESH,
+    REFRESH,
 
     /**
      * Last event number (no event)
      */
-            CE_LAST_EVENT
-
+    LAST_EVENT
 };
 
 /**
@@ -164,8 +164,8 @@ public:
      * @param eventType CEvent, event type
      * @param eventArg CEvent, event argument
      */
-    explicit CEventInfo(CEvent eventType = CE_NONE, int32_t eventArg = 0)
-    : m_event(eventType), m_argument(eventArg)
+    explicit CEventInfo(CEvent eventType = CEvent::NONE, int32_t eventArg = 0)
+        : m_event(eventType), m_argument(eventArg)
     {
     }
 
@@ -199,4 +199,3 @@ public:
  * @}
  */
 }
-

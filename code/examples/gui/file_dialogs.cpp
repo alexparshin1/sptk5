@@ -82,19 +82,19 @@ int main(int argc, char* argv[])
 
         CWindow w(200, 150);
 
-        CButton b1(CButtonKind::OPEN_BUTTON, SP_ALIGN_TOP,
-        "Open File Dialog");
+        CButton b1(CButtonKind::OPEN_BUTTON, CLayoutAlign::TOP,
+                   "Open File Dialog");
         b1.callback(file_open_dialog_cb);
 
-        CButton b2(CButtonKind::SAVE_BUTTON, SP_ALIGN_TOP,
-        "Save File Dialog");
+        CButton b2(CButtonKind::SAVE_BUTTON, CLayoutAlign::TOP,
+                   "Save File Dialog");
         b2.callback(file_save_dialog_cb);
 
-        CButton b3(CButtonKind::BROWSE_BUTTON, SP_ALIGN_TOP,
-        "Open Directory Dialog");
+        CButton b3(CButtonKind::BROWSE_BUTTON, CLayoutAlign::TOP,
+                   "Open Directory Dialog");
         b3.callback(dir_open_dialog_cb);
 
-        CButton b4(CButtonKind::EXIT_BUTTON, SP_ALIGN_BOTTOM);
+        CButton b4(CButtonKind::EXIT_BUTTON, CLayoutAlign::BOTTOM);
         b4.callback(exit_cb);
 
         w.end();

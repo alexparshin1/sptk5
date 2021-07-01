@@ -195,7 +195,7 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, String label
     {
         m_image = CThemes::getIconImage(name, iconSize);
     }
-    if (iconSize == IS_LARGE_ICON)
+    if (iconSize == CIconSize::IS_LARGE_ICON)
     {
         this->label(label);
     }
@@ -205,10 +205,10 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, String label
 
 #ifdef __COMPATIBILITY_MODE__
 CBaseButton::CBaseButton(CButtonKind kind,int x,int y,int w,const char *l,CThemeButtonType tbt)
-: Fl_Button(x,y,w,30), CLayoutClient(this,w,SP_ALIGN_NONE) {
+: Fl_Button(x,y,w,30), CLayoutClient(this,w,CLayoutAlign::NONE) {
    m_default = false;
    m_type = tbt;
-   image(kind,IS_LARGE_ICON,l);
+   image(kind,CIconSize::IS_LARGE_ICON,l);
    box(FL_THIN_UP_BOX);
    color(FL_LIGHT3);
 }
@@ -220,10 +220,10 @@ CBaseButton::CBaseButton(CButtonKind kind, CLayoutAlign layoutAlign, bool is_sma
     m_default = false;
     if (is_small)
     {
-        image(kind, IS_SMALL_ICON);
+        image(kind, CIconSize::IS_SMALL_ICON);
     }
     else
-    { image(kind, IS_LARGE_ICON, l); }
+    { image(kind, CIconSize::IS_LARGE_ICON, l); }
     box(FL_THIN_UP_BOX);
 }
 
@@ -231,7 +231,7 @@ CBaseButton::CBaseButton(const char* l, CLayoutAlign layoutAlign, CThemeButtonTy
     : Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign),
       m_type(tbt),
       m_kind(CButtonKind::UNDEFINED_BUTTON),
-      m_iconSize(IS_SMALL_ICON)
+      m_iconSize(CIconSize::IS_SMALL_ICON)
 {
     m_default = false;
     m_image = nullptr;
@@ -446,27 +446,27 @@ bool CBaseButton::preferredSize(int& w, int& h)
 
 CLayoutClient* CButton::creator(xml::Node* node)
 {
-    auto* button = new CButton("", SP_ALIGN_TOP, THM_BUTTON_NORMAL);
+    auto* button = new CButton("", CLayoutAlign::TOP, THM_BUTTON_NORMAL);
     button->load(node);
     return button;
 }
 
 void CButton::load(const xml::Node* node)
 {
-    CLayoutClient::load(node, LXM_LAYOUT);
+    CLayoutClient::load(node, CLayoutXMLmode::LAYOUT);
     String iconName = (String) node->getAttribute("icon");
     String iconType = (String) node->getAttribute("size", "large");
     CIconSize iconSize;
     switch (iconType[0])
     {
         case 'c':
-            iconSize = IS_COMBO_ICON;
+            iconSize = CIconSize::IS_COMBO_ICON;
             break;
         case 's':
-            iconSize = IS_SMALL_ICON;
+            iconSize = CIconSize::IS_SMALL_ICON;
             break;
         default:
-            iconSize = IS_LARGE_ICON;
+            iconSize = CIconSize::IS_LARGE_ICON;
             break;
     }
     if (!iconName.empty())
@@ -478,5 +478,5 @@ void CButton::load(const xml::Node* node)
 
 void CButton::save(xml::Node* node) const
 {
-    CLayoutClient::save(node, LXM_LAYOUT);
+    CLayoutClient::save(node, CLayoutXMLmode::LAYOUT);
 }

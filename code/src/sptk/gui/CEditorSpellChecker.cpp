@@ -76,7 +76,7 @@ void CSpellChecker::cb_replaceword(Fl_Widget* w, void*)
 void CSpellChecker::cb_suggest(Fl_Widget* lv, void*)
 {
     auto* listView = (CListView*) lv;
-    if (listView->eventType() == CE_DATA_CHANGED)
+    if (listView->eventType() == CEvent::DATA_CHANGED)
     {
         auto* spellChecker = (CSpellChecker*) listView->window();
         spellChecker->m_replaceToInput->data(listView->data());
@@ -117,15 +117,15 @@ CSpellChecker::CSpellChecker()
 
     layoutSpacing(1);
 
-    m_wordInput = new CInput("Word:", 10, SP_ALIGN_TOP);
+    m_wordInput = new CInput("Word:", 10, CLayoutAlign::TOP);
     m_wordInput->labelWidth(80);
     m_wordInput->deactivate();
 
-    m_replaceToInput = new CInput("Replace To:", 10, SP_ALIGN_TOP);
+    m_replaceToInput = new CInput("Replace To:", 10, CLayoutAlign::TOP);
     m_replaceToInput->labelWidth(80);
     m_replaceToInput->callback(CSpellChecker::cb_replaceword);
 
-    m_suggestionListView = new CListView("", 10, SP_ALIGN_CLIENT);
+    m_suggestionListView = new CListView("", 10, CLayoutAlign::CLIENT);
     m_suggestionListView->addColumn("Suggestions", VariantDataType::VAR_STRING, 310);
     m_suggestionListView->callback(CSpellChecker::cb_suggest);
 

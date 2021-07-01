@@ -42,7 +42,7 @@ void CFontsMap::clear()
     {
         delete itor.second;
     }
-    map<string, CFont*>::clear();
+    map<String, CFont*, less<>>::clear();
 }
 
 void CFontsVector::clear()
@@ -57,7 +57,7 @@ void CFontsVector::push_back(CFont* font)
     m_index[font->name()] = font;
 }
 
-CFont* CFontsVector::find(std::string fontName) const
+CFont* CFontsVector::find(const String& fontName) const
 {
     auto itor = m_index.find(fontName);
     if (itor == m_index.end())

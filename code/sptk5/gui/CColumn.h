@@ -206,9 +206,7 @@ public:
     /**
      * @brief Default constructor
      */
-    CColumnList()
-    {
-    }
+    CColumnList() = default;
 
     /**
      * @brief Finds the column index by column name

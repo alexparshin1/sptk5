@@ -150,7 +150,7 @@ void CCalendar::ctor_init()
     unsigned i;
     for (i = 0; i < 7; i++)
     {
-        auto* label = m_weekDayLabels + uint64_t(i * 2);
+        auto* label = m_weekDayLabels.data() + uint64_t(i * 2);
         label[0] = DateTime::format(DateTime::Format::WEEKDAY_NAME, i).c_str()[0];
         label[1] = 0;
         m_dayNameBoxes[i] = new Fl_Box(xx + i * 16, yy + 16, 16, 16, label);
@@ -196,7 +196,7 @@ CCalendar::CCalendar(const char* label, int layoutSize, CLayoutAlign layoutAlign
 }
 
 CCalendar::CCalendar(int x, int y, int w, int h, const char* lbl)
-    : Fl_Group(x, y, w, h, lbl), CLayoutClient(this, w, SP_ALIGN_NONE)
+    : Fl_Group(x, y, w, h, lbl), CLayoutClient(this, w, CLayoutAlign::NONE)
 {
     ctor_init();
 }

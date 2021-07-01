@@ -95,7 +95,8 @@ class SP_EXPORT CCheckButtons
     static void checkButtonsCallback(Fl_Widget*, void*);
 
 protected:
-    Fl_Button* createButton(const char* label, int sz = 10, CLayoutAlign layoutAlignment = SP_ALIGN_TOP) override;
+    Fl_Button* createButton(const char* label, int sz = 10,
+                            CLayoutAlign layoutAlignment = CLayoutAlign::TOP) override;
 
 public:
 
@@ -105,7 +106,8 @@ public:
      * @param layoutSize int, the size of widget in layout
      * @param layoutAlignment CLayoutAlign, widget align in the layout
      */
-    CCheckButtons(const char* label = 0, int layoutSize = 20, CLayoutAlign layoutAlignment = SP_ALIGN_TOP);
+    CCheckButtons(const char* label = nullptr, int layoutSize = 20,
+                  CLayoutAlign layoutAlignment = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**

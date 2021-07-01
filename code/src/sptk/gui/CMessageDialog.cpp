@@ -41,17 +41,17 @@ CAskDialog::CAskDialog(const char* label, int w)
     if (textSize < 14)
     { textSize = 14; }
 
-    auto* grp = new CGroup("", 65, SP_ALIGN_LEFT);
+    auto* grp = new CGroup("", 65, CLayoutAlign::LEFT);
     m_imageBox = new Fl_Box(8, 8, 50, 50);
     m_imageBox->box(FL_NO_BOX);
     grp->end();
 
-    m_textBox = new CHtmlBox("", 30, SP_ALIGN_CLIENT);
+    m_textBox = new CHtmlBox("", 30, CLayoutAlign::CLIENT);
     m_textBox->labelWidth(0);
     m_textBox->textSize((uchar) textSize);
     m_textBox->color(FL_GRAY);
 
-    m_inputBox = new CInput("", 10, SP_ALIGN_BOTTOM);
+    m_inputBox = new CInput("", 10, CLayoutAlign::BOTTOM);
     m_inputBox->labelWidth(0);
     m_inputBox->textSize((uchar) textSize);
     m_inputBox->hide();
@@ -87,34 +87,34 @@ bool CInputDialog::execute(const String& msg, String& inputText)
 int sptk::spAsk(const String& message)
 {
     CAskDialog ask("Please, confirm");
-    ask.icon(CThemes::getIconImage("question", IS_DIALOG_ICON));
+    ask.icon(CThemes::getIconImage("question", CIconSize::IS_DIALOG_ICON));
     return ask.execute(message);
 }
 
 int sptk::spInformation(const String& message)
 {
     CMessageDialog ask("Information");
-    ask.icon(CThemes::getIconImage("info", IS_DIALOG_ICON));
+    ask.icon(CThemes::getIconImage("info", CIconSize::IS_DIALOG_ICON));
     return ask.execute(message);
 }
 
 int sptk::spWarning(const String& message)
 {
     CMessageDialog ask("Warning");
-    ask.icon(CThemes::getIconImage("warning", IS_DIALOG_ICON));
+    ask.icon(CThemes::getIconImage("warning", CIconSize::IS_DIALOG_ICON));
     return ask.execute(message);
 }
 
 int sptk::spError(const String& message)
 {
     CMessageDialog ask("Error");
-    ask.icon(CThemes::getIconImage("error", IS_DIALOG_ICON));
+    ask.icon(CThemes::getIconImage("error", CIconSize::IS_DIALOG_ICON));
     return ask.execute(message);
 }
 
 int sptk::spInput(const String& message, String& inputText)
 {
     CInputDialog ask("Please, input");
-    ask.icon(CThemes::getIconImage("question", IS_DIALOG_ICON));
+    ask.icon(CThemes::getIconImage("question", CIconSize::IS_DIALOG_ICON));
     return ask.execute(message, inputText);
 }

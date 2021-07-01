@@ -60,16 +60,16 @@ CDBListView::~CDBListView()
 
 CLayoutClient* CDBListView::creator(xml::Node* node)
 {
-    auto* widget = new CDBListView("", 10, SP_ALIGN_TOP);
-    widget->load(node, LXM_LAYOUTDATA);
+    auto* widget = new CDBListView("", 10, CLayoutAlign::TOP);
+    widget->load(node, CLayoutXMLmode::LAYOUTDATA);
     return widget;
 }
 
 void CDBListView::database(PoolDatabaseConnection* db)
 {
-    if (m_dataMode == LV_DATA_UNDEFINED)
+    if (m_dataMode == CListViewDataMode::LV_DATA_UNDEFINED)
     {
-        m_dataMode = LV_DATA_KEY;
+        m_dataMode = CListViewDataMode::LV_DATA_KEY;
     }
     m_fastRefreshQuery.connect(db);
     m_fullRefreshQuery.connect(db);
@@ -96,7 +96,7 @@ String CDBListView::sql()
 
 QueryParameter& CDBListView::param(const char* paramName, CRefreshKind refreshKind)
 {
-    if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST)
+    if (m_fastRefreshEnabed && refreshKind == CRefreshKind::LV_REFRESH_FAST)
     {
         return m_fastRefreshQuery.param(paramName);
     }
@@ -131,12 +131,14 @@ void CDBListView::refreshData(CRefreshKind refreshKind)
     }
 
     Query* query = &m_fullRefreshQuery;
-    if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST)
+    if (m_fastRefreshEnabed && refreshKind == CRefreshKind::LV_REFRESH_FAST)
     {
         query = &m_fastRefreshQuery;
     }
     else
-    { refreshKind = LV_REFRESH_FULL; }
+    {
+        refreshKind = CRefreshKind::LV_REFRESH_FULL;
+    }
 
     fill(*query, m_keyField, m_maxRecords, recordsEstimated, refreshKind);
 }

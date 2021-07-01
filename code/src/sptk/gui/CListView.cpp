@@ -102,7 +102,7 @@ void CListView::hposition(int x)
 
 void CListView::ctor_init()
 {
-    m_dataMode = LV_DATA_UNDEFINED;
+    m_dataMode = CListViewDataMode::LV_DATA_UNDEFINED;
     m_activeRow = 0;
     m_capitalizeColumnNames = false;
     m_fillTerminated = false;
@@ -876,7 +876,7 @@ void CListView::item_draw(
                         {
                             if (value < m_iconNames.size())
                             {
-                                CIcon* icon = CThemes::getIcon(m_iconNames[(size_t) value], IS_SMALL_ICON);
+                                CIcon* icon = CThemes::getIcon(m_iconNames[(size_t) value], CIconSize::IS_SMALL_ICON);
                                 if (icon)
                                 {
                                     image = icon->image();
@@ -1080,7 +1080,7 @@ void CListView::textValue(const string& tv)
     }
     if (dataWasChanged)
     {
-        fireEvent(CE_DATA_CHANGED, (int32_t) (uint64_t) dataValue);
+        fireEvent(CEvent::DATA_CHANGED, (int32_t) (uint64_t) dataValue);
     }
     redraw();
 }
@@ -1092,8 +1092,8 @@ Variant CListView::data() const
     {
         switch (m_dataMode)
         {
-            case LV_DATA_KEY:
-            case LV_DATA_INDEX:
+            case CListViewDataMode::LV_DATA_KEY:
+            case CListViewDataMode::LV_DATA_INDEX:
                 return 0;
             default: // LV_DATA_CAPTION, LV_DATA_UNDEFINED
                 return "";
@@ -1101,9 +1101,9 @@ Variant CListView::data() const
     }
     switch (m_dataMode)
     {
-        case LV_DATA_KEY:
+        case CListViewDataMode::LV_DATA_KEY:
             return t->argument();
-        case LV_DATA_INDEX:
+        case CListViewDataMode::LV_DATA_INDEX:
             return selectedIndex();
         default: // LV_DATA_CAPTION, LV_DATA_UNDEFINED
             return (*t)[0];
@@ -1126,10 +1126,10 @@ void CListView::data(const Variant& vv)
 
     switch (m_dataMode)
     {
-        case LV_DATA_KEY:
+        case CListViewDataMode::LV_DATA_KEY:
             newSelectedRow = findKey(vv.asInteger());
             break;
-        case LV_DATA_INDEX:
+        case CListViewDataMode::LV_DATA_INDEX:
         {
             auto line = (unsigned) intValue;
             if (line < cnt)
@@ -1157,7 +1157,7 @@ void CListView::data(const Variant& vv)
     }
     if (dataWasChanged)
     {
-        fireEvent(CE_DATA_CHANGED, (int32_t) (uint64_t) dataValue);
+        fireEvent(CEvent::DATA_CHANGED, (int32_t) (uint64_t) dataValue);
     }
     redraw();
 }
@@ -1307,7 +1307,7 @@ void CListView::key_changed(unsigned index)
     {
         keyValue = t->argument();
     }
-    fireEvent(CE_DATA_CHANGED, keyValue);
+    fireEvent(CEvent::DATA_CHANGED, keyValue);
 }
 
 // loading the key value in data entry dialog
@@ -1614,7 +1614,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
             unsigned recordCount = 0;
             if (fieldCount > 0)
             {
-                fireEvent(CE_PROGRESS, 0);
+                fireEvent(CEvent::PROGRESS, 0);
 
                 Strings rowStrings;
                 rowStrings.resize(fieldCount);
@@ -1643,7 +1643,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
                     }
 
                     int rowNumber;
-                    if (refreshKind == LV_REFRESH_FULL)
+                    if (refreshKind == CRefreshKind::LV_REFRESH_FULL)
                     {
                         rowNumber = recordCount;
                         if (recordCount >= listSize)
@@ -1683,7 +1683,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
                         unsigned newProgression = (recordCount * 20 / recordsEstimated) * 5;
                         if (newProgression != lastProgression)
                         {
-                            fireEvent(CE_PROGRESS, newProgression);
+                            fireEvent(CEvent::PROGRESS, newProgression);
                             lastProgression = newProgression;
                         }
                     }
@@ -1704,12 +1704,12 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
             }
             ds.close();
 
-            if (refreshKind != LV_REFRESH_FULL)
+            if (refreshKind != CRefreshKind::LV_REFRESH_FULL)
             {
                 recordCount = m_rows.size();
             }
 
-            fireEvent(CE_PROGRESS, 100);
+            fireEvent(CEvent::PROGRESS, 100);
 
             // truncate and sort rows
             m_rows.truncate(recordCount);
@@ -1865,14 +1865,14 @@ int CListView::handle(int event)
                 if (!m_hasFocus)
                 {
                     m_hasFocus = true;
-                    fireEvent(CE_FOCUS, 0);
+                    fireEvent(CEvent::FOCUS, 0);
                 }
                 return rc;
             }
             redraw();
             break;
         case FL_UNFOCUS:
-            fireEvent(CE_UNFOCUS, 0);
+            fireEvent(CEvent::UNFOCUS, 0);
             m_hasFocus = false;
             redraw();
             break;
@@ -1972,7 +1972,7 @@ int CListView::handle(int event)
             if (!m_hasFocus)
             {
                 m_hasFocus = true;
-                fireEvent(CE_FOCUS, 0);
+                fireEvent(CEvent::FOCUS, 0);
             }
             m_mousePressedX = Fl::event_x() + m_horizPosition - x();
             if (!Fl::event_inside(X, Y, W, H))
@@ -2047,11 +2047,11 @@ int CListView::handle(int event)
             }
             if (Fl::event_clicks())
             {
-                fireEvent(CE_MOUSE_DOUBLE_CLICK, 0);
+                fireEvent(CEvent::MOUSE_DOUBLE_CLICK, 0);
             }
             else
             {
-                fireEvent(CE_MOUSE_CLICK, 0);
+                fireEvent(CEvent::MOUSE_CLICK, 0);
             }
             break;
         case FL_DRAG:
@@ -2072,7 +2072,7 @@ int CListView::handle(int event)
             {
                 if (when() & FL_WHEN_RELEASE)
                 {
-                    fireEvent(CE_MOUSE_RELEASE, 0);
+                    fireEvent(CEvent::MOUSE_RELEASE, 0);
                 }
                 else if (!(when() & FL_WHEN_CHANGED))
                 {
@@ -2340,7 +2340,7 @@ bool CListView::select(unsigned index, bool i, int docallbacks)
 
     if (docallbacks)
     {
-        fireEvent(CE_DATA_CHANGED, 0);
+        fireEvent(CEvent::DATA_CHANGED, 0);
     }
 
     return true;

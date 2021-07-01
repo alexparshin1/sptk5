@@ -36,7 +36,7 @@ using namespace sptk;
 
 void CButtonGroup::ctor_init()
 {
-    m_controlFlags = FGE_MULTILINEENTRY;
+    m_controlFlags = (int) InputEntryFlags::MULTILINEENTRY;
     m_maxHeight = 0;
     m_control = new CGroup;
     m_control->align(FL_ALIGN_LEFT);
@@ -63,7 +63,7 @@ void CButtonGroup::controlDataChanged()
     string newValue = data().getString();
     if (m_lastValue != newValue)
     {
-        fireEvent(CE_DATA_CHANGED, 0);
+        fireEvent(CEvent::DATA_CHANGED, 0);
     }
 }
 
@@ -102,7 +102,7 @@ void CButtonGroup::buttons(const Strings& sl)
     }
     if (otherLabel)
     {
-        Fl_Button* btn = createButton("", 16, SP_ALIGN_LEFT);
+        Fl_Button* btn = createButton("", 16, CLayoutAlign::LEFT);
         btn->argument((long) otherLabel->ident());
         m_otherButton = btn;
         m_otherInput = new CInput_("");
@@ -185,7 +185,7 @@ void CButtonGroup::data(const Variant& d)
             m_otherInput->value(d.getString());
         }
     }
-    fireEvent(CE_DATA_CHANGED, 0);
+    fireEvent(CEvent::DATA_CHANGED, 0);
 }
 
 bool CButtonGroup::preferredSize(int& w, int& h)

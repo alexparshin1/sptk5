@@ -110,31 +110,31 @@ void general_cb(Fl_Widget* w, void*)
     {
         switch (control->eventType())
         {
-            case CE_FOCUS:
+            case CEvent::FOCUS:
                 printMessage(control, "Got focus");
                 break;
-            case CE_UNFOCUS:
+            case CEvent::UNFOCUS:
                 printMessage(control, "Lost focus");
                 break;
-            case CE_DATA_CHANGED:
+            case CEvent::DATA_CHANGED:
                 printMessage(control, "Data Changed");
                 break;
-            case UC_ADD_ITEM:
+            case CEvent::ADD_ITEM:
                 printMessage(control, "Add Item Command");
                 break;
-            case UC_EDIT_ITEM:
+            case CEvent::EDIT_ITEM:
                 printMessage(control, "Edit Item Command");
                 break;
-            case UC_DELETE_ITEM:
+            case CEvent::DELETE_ITEM:
                 printMessage(control, "Delete Item Command");
                 break;
-            case CE_MOUSE_CLICK:
+            case CEvent::MOUSE_CLICK:
                 printMessage(control, "Mouse Click");
                 break;
-            case CE_MOUSE_DOUBLE_CLICK:
+            case CEvent::MOUSE_DOUBLE_CLICK:
                 printMessage(control, "Mouse Double Click");
                 break;
-            case CE_KEYBOARD:
+            case CEvent::KEYBOARD:
                 printMessage(control, "Keyboard Key Pressed");
                 break;
             default:
@@ -173,10 +173,10 @@ void buttonDemo(CTabs* tabs)
     int button_kind = 1;
     for (int col = 0; col < 5 && button_kind < (int) CButtonKind::MAX_BUTTON; col++)
     {
-        auto* columnGroup = new CGroup("", 10, SP_ALIGN_LEFT); // Reserving some space on the page
+        auto* columnGroup = new CGroup("", 10, CLayoutAlign::LEFT); // Reserving some space on the page
         for (int row = 0; row < 6 && button_kind < (int) CButtonKind::MAX_BUTTON; row++)
         {
-            auto* btn = new CButton((CButtonKind) button_kind, SP_ALIGN_TOP);
+            auto* btn = new CButton((CButtonKind) button_kind, CLayoutAlign::TOP);
             btn->callback(general_cb);
             button_kind *= 2;
         }
@@ -317,7 +317,7 @@ void memoDemo(CTabs* tabs)
     auto* group = (CGroup*) tabs->newPage(" CMemoInput class ", false);
     group->box(FL_THIN_DOWN_BOX);
 
-    auto* memoInput = new CMemoInput("Text Editor:", 10, SP_ALIGN_CLIENT);
+    auto* memoInput = new CMemoInput("Text Editor:", 10, CLayoutAlign::CLIENT);
     memoInput->data(
         "This is a plain text editor that uses FL_Multiline_Input. By default, it sets wrap(true).");
     memoInput->callback(general_cb);
@@ -328,19 +328,19 @@ void nestedTabsDemo(CTabs* tabs)
     auto* group = (CGroup*) tabs->newPage(" Nested Tabs ", false);
     group->box(FL_THIN_DOWN_BOX);
 
-    auto* nestedTabs = new CTabs("", 10, SP_ALIGN_CLIENT);
+    auto* nestedTabs = new CTabs("", 10, CLayoutAlign::CLIENT);
     nestedTabs->selection_color(15);
 
     {
         auto* group1 = (CGroup*) nestedTabs->newPage("Nested Tab 1", true);
         group1->box(FL_THIN_DOWN_BOX);
-        new CButton("Button 1", SP_ALIGN_LEFT);
+        new CButton("Button 1", CLayoutAlign::LEFT);
     }
 
     {
         auto* group2 = (CGroup*) nestedTabs->newPage("Nested Tab 2", true);
         group2->box(FL_THIN_DOWN_BOX);
-        new CButton("Button 2", SP_ALIGN_LEFT);
+        new CButton("Button 2", CLayoutAlign::LEFT);
     }
 
     group->end();
@@ -355,7 +355,7 @@ int main(int argc, char** argv)
 
         CWindow w(550, 450, "SPTK general test");
 
-        new CBox("Title box", 20, SP_ALIGN_TOP);
+        new CBox("Title box", 20, CLayoutAlign::TOP);
 
         // This data will be used in Combo Box and List View demos.
         Strings sl1("Alex|(415)-123-45678|SF", "|");
@@ -366,7 +366,7 @@ int main(int argc, char** argv)
         Strings sl6("Jayson|(415)-123-45678|SF", "|");
 
         {
-            auto* tabs = new CTabs("", 10, SP_ALIGN_CLIENT);
+            auto* tabs = new CTabs("", 10, CLayoutAlign::CLIENT);
             tabs->selection_color(15);
 
             // Buttons demo, see cbutton.h for button_kind constants.
@@ -388,18 +388,18 @@ int main(int argc, char** argv)
             tabs->end();
         }
 
-        CGroup statusGroup("", 130, SP_ALIGN_BOTTOM);
+        CGroup statusGroup("", 130, CLayoutAlign::BOTTOM);
 
         CColumnList columns;
         columns.push_back(CColumn("Label", VariantDataType::VAR_STRING, 100));
         columns.push_back(CColumn("Class", VariantDataType::VAR_STRING, 100));
         columns.push_back(CColumn("Event", VariantDataType::VAR_STRING, 150));
-        eventsListView = new CListView("Events in the system:", 400, SP_ALIGN_LEFT);
+        eventsListView = new CListView("Events in the system:", 400, CLayoutAlign::LEFT);
         eventsListView->columns(columns);
 
-        CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
+        CGroup buttonGroup("", 10, CLayoutAlign::BOTTOM);
 
-        CComboBox themesCombo("", 10, SP_ALIGN_TOP);
+        CComboBox themesCombo("", 10, CLayoutAlign::TOP);
         Strings themes = CThemes::availableThemes();
         themesCombo.addRows("Theme", themes);
         themesCombo.callback(theme_cb);
@@ -407,7 +407,7 @@ int main(int argc, char** argv)
 
         themesCombo.data("Default");
 
-        auto* exitButton = new CButton(CButtonKind::EXIT_BUTTON, SP_ALIGN_TOP);
+        auto* exitButton = new CButton(CButtonKind::EXIT_BUTTON, CLayoutAlign::TOP);
         exitButton->callback((Fl_Callback*) cb_OK);
 
         buttonGroup.end();

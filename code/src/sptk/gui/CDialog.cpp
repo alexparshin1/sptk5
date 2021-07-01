@@ -71,7 +71,7 @@ CDialog::CDialog(int w, int h, const char* label)
     m_updateQuery = new Query;
     m_insertQuery = new Query;
 
-    m_buttonGroup = new CGroup("", 20, SP_ALIGN_BOTTOM);
+    m_buttonGroup = new CGroup("", 20, CLayoutAlign::BOTTOM);
     m_okButton = new CButton(CButtonKind::OK_BUTTON);
     m_cancelButton = new CButton(CButtonKind::CANCEL_BUTTON);
     m_buttonGroup->end();
@@ -344,7 +344,7 @@ bool CDialog::save()
             Fl::focus(control->control());
             throw Exception(control->label() + " entry has the incorrect value!");
         }
-        if (control->flags() & FGE_MANDATORY)
+        if (control->flags() & (int) InputEntryFlags::MANDATORY)
         {
             String test = control->data().asString();
             if (!trim(test).length())
@@ -381,13 +381,13 @@ bool CDialog::save()
 
 void CDialog::load(const xml::Node* node)
 {
-    CLayoutManager::loadLayout(node, LXM_DATA);
+    CLayoutManager::loadLayout(node, CLayoutXMLmode::DATA);
     loadPosition(node);
 }
 
 void CDialog::save(xml::Node* node) const
 {
-    CLayoutManager::saveLayout(node, LXM_DATA);
+    CLayoutManager::saveLayout(node, CLayoutXMLmode::DATA);
     savePosition(node);
 }
 
@@ -408,7 +408,7 @@ CControl& CDialog::operator[](const String& fieldName)
 CButton* CDialog::addExtraButton(CButtonKind buttonKind, const char* label, Fl_Callback_p callbackFunction)
 {
     m_buttonGroup->begin();
-    auto* extraButton = new CButton(buttonKind, SP_ALIGN_RIGHT, label);
+    auto* extraButton = new CButton(buttonKind, CLayoutAlign::RIGHT, label);
     m_buttonGroup->end();
     if (callbackFunction)
     {

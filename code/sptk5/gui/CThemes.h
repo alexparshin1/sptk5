@@ -49,7 +49,13 @@ namespace sptk {
 /**
  * @brief Theme button size - defines the button size and look to select the correct pixmap
  */
-enum CThemeButtonType { THM_BUTTON_COMBO, THM_BUTTON_CHECK, THM_BUTTON_RADIO, THM_BUTTON_NORMAL };
+enum CThemeButtonType
+{
+    THM_BUTTON_COMBO,
+    THM_BUTTON_CHECK,
+    THM_BUTTON_RADIO,
+    THM_BUTTON_NORMAL
+};
 
 /**
  * @brief Widget themes
@@ -57,8 +63,9 @@ enum CThemeButtonType { THM_BUTTON_COMBO, THM_BUTTON_CHECK, THM_BUTTON_RADIO, TH
  * Class CThemes is a static loader for the themes. Only one one instance of the class should exist, and it's created automatically.
  * The class allows to load a set of routines to draw the particular elements of the interface, and the images for these routines.
  */
-class SP_EXPORT CThemes :
-    public CThemeScrollBar
+class SP_EXPORT CThemes
+    :
+        public CThemeScrollBar
 {
     friend class CBaseButton;
 
@@ -71,71 +78,71 @@ class SP_EXPORT CThemes :
     /**
      * Original flat box draw function
      */
-    static Fl_Box_Draw_F *m_flatBox;
+    static Fl_Box_Draw_F* m_flatBox;
 
     /**
      * Original thin up box draw function
      */
-    static Fl_Box_Draw_F *m_thinUpBox;
+    static Fl_Box_Draw_F* m_thinUpBox;
 
     /**
      * Original up box draw function
      */
-    static Fl_Box_Draw_F *m_upBox;
+    static Fl_Box_Draw_F* m_upBox;
 
     /**
      * Original thin down box draw function
      */
-    static Fl_Box_Draw_F *m_thinDownBox;
+    static Fl_Box_Draw_F* m_thinDownBox;
 
     /**
      * Original down box draw function
      */
-    static Fl_Box_Draw_F *m_downBox;
+    static Fl_Box_Draw_F* m_downBox;
 
 
     /**
      * Original thin up frame draw function
      */
-    static Fl_Box_Draw_F *m_thinUpFrame;
+    static Fl_Box_Draw_F* m_thinUpFrame;
 
     /**
      * Original up frame draw function
      */
-    static Fl_Box_Draw_F *m_upFrame;
+    static Fl_Box_Draw_F* m_upFrame;
 
     /**
      * Original thin down frame draw function
      */
-    static Fl_Box_Draw_F *m_thinDownFrame;
+    static Fl_Box_Draw_F* m_thinDownFrame;
 
     /**
      * Original down frame draw function
      */
-    static Fl_Box_Draw_F *m_downFrame;
+    static Fl_Box_Draw_F* m_downFrame;
 
 
     /**
      * Available fonts
      */
-    static CFontsMap      m_fonts;
+    static CFontsMap m_fonts;
 
     /**
      * Available frames
      */
-    static CFrames        m_frames;
+    static CFrames m_frames;
 
     /**
      * Path to the theme' folder
      */
-    static std::string    m_themeFolder;
+    static std::string m_themeFolder;
 
 
     /**
      * An array of the background images to replace the original FLTK colors
      * FL_DARK3..FL_BACKGROUND..FL_LIGHT3
      */
-    static CPngImage     *m_background[MAX_BACKGROUND_IMAGES];
+    static CPngImage* m_background[MAX_BACKGROUND_IMAGES];
 
     /**
      * Four different types of button pixmaps - for normal button, normal pressed button, default button, and default pressed button accordingly.
@@ -178,22 +185,22 @@ class SP_EXPORT CThemes :
      *
      * One image is for the inactive tab, one for the active tab, and one for the frame on the bottom of tabs
      */
-    static CTabImages      m_tabImages;
+    static CTabImages m_tabImages;
 
     /**
      * Flag indicating if buttons should be drawn as flat bars if mouse isn't over the button
      */
-    static bool           m_flatButtons;
+    static bool m_flatButtons;
 
     /**
      * Flag indicating that theme is GTK2 theme
      */
-    static bool           m_gtkTheme;
+    static bool m_gtkTheme;
 
     /**
      * Theme registry. Contains several importang theme settings.
      */
-    static xml::Document       *m_registry;
+    static xml::Document* m_registry;
 
     /**
      * Restores the original FLTK theme
@@ -221,7 +228,7 @@ class SP_EXPORT CThemes :
      * @param hh int, rectangle height
      * @param image CPngImage *, image to use
      */
-    static void paintBackground(int xx,int yy,int ww,int hh,CPngImage *image);
+    static void paintBackground(int xx, int yy, int ww, int hh, CPngImage* image);
 
     /**
      * @brief Draws theme box with optional frame
@@ -232,7 +239,7 @@ class SP_EXPORT CThemes :
      * @param color Fl_Color, box color
      * @param frameType Fl_Boxtype, box frame type
      */
-    static void drawThemeBox(int x,int y,int w,int h,Fl_Color color,Fl_Boxtype frameType=FL_NO_BOX);
+    static void drawThemeBox(int x, int y, int w, int h, Fl_Color color, Fl_Boxtype frameType = FL_NO_BOX);
 
     /**
      * @brief Draws theme box with optional frame
@@ -242,13 +249,13 @@ class SP_EXPORT CThemes :
      * @param h int, box height
      * @param frameType Fl_Boxtype, box frame type
      */
-    static void drawThemeFrame(int x,int y,int w,int h,Fl_Boxtype frameType);
+    static void drawThemeFrame(int x, int y, int w, int h, Fl_Boxtype frameType);
 
     /**
      * Determines the background image (if any) for the given color in range
      * FL_DARK3..FL_LIGHT3
      */
-    static CPngImage *imageForColor(Fl_Color clr);
+    static CPngImage* imageForColor(Fl_Color clr);
 
     /**
      * Flag the shows if theme buttons should be desaturated for the inactive
@@ -259,7 +266,7 @@ class SP_EXPORT CThemes :
     /**
      * Defines a radius of the focus frame' corner
      */
-    static int  m_buttonFocusRadius;
+    static int m_buttonFocusRadius;
 
     /**
      * Draws a check or radio button image
@@ -271,7 +278,7 @@ class SP_EXPORT CThemes :
      * @param highlited bool, is button highlited?
      * @returns false, if theme has no pixmap for the button, or true otherwise
      */
-    static bool drawCheckOrRadioButton(CThemeImageCollection& buttonImages,int x,int y,bool checked,bool highlited);
+    static bool drawCheckOrRadioButton(CThemeImageCollection& buttonImages, int x, int y, bool checked, bool highlited);
 
 protected:
     /**
@@ -284,7 +291,7 @@ protected:
      * @param imageNode xml::Node*, an image node from GTK theme description
      * @param buttonFileNames std::map<CThemeImageState,std::string>&, file names for buttons
      */
-    static void loadGtkButton(xml::Node* imageNode,std::map<CThemeImageState,std::string>& buttonFileNames);
+    static void loadGtkButton(xml::Node* imageNode, std::map<CThemeImageState, std::string>& buttonFileNames);
 
     /**
      * @brief Loads GTK theme button file names from XPath
@@ -293,7 +300,9 @@ protected:
      * @param fileNames std::map<CThemeImageState,std::string>&, file names for buttons
      * @param orientation std::string, optional orientation (used for scrollbar elements)
      */
-    static void loadGtkButtonFileNames(xml::Document& xml,std::string XPath,std::map<CThemeImageState,std::string>& fileNames,std::string orientation="");
+    static void loadGtkButtonFileNames(xml::Document& xml, std::string XPath,
+                                       std::map<CThemeImageState, std::string>& fileNames,
+                                       std::string orientation = "");
 
     /**
      * @brief Loads GTK theme button images from 'style' node
@@ -336,7 +345,7 @@ public:
      * @param iconSize CIconSize, the size of the icon
      * @returns pointer to the icon, or NULL if not found
      */
-    static CIcon* getIcon(const std::string& iconName, CIconSize iconSize);
+    static CIcon* getIcon(const String& iconName, CIconSize iconSize);
 
     /**
      * @brief Returns a button icon image by symbolic name
@@ -344,59 +353,59 @@ public:
      * @param iconSize CIconSize, the size of the icon
      * @returns pointer to the image, or NULL if not found
      */
-    static CPngImage* getIconImage(const std::string& iconName, CIconSize iconSize);
+    static CPngImage* getIconImage(const String& iconName, CIconSize iconSize);
 
     /**
      * @brief Registers a new button icon
      * @param icon CIcon*, pointer to the icon
      * @param iconSize CIconSize, the size of the icon
      */
-    static void registerIcon(CIcon* icon,CIconSize iconSize);
+    static void registerIcon(CIcon* icon, CIconSize iconSize);
 
     /**
      * The replacement rountine to draw  FL_FLAT_BOX
      */
-    static void drawFlatBox(int x,int y,int w,int h,Fl_Color clr);
+    static void drawFlatBox(int x, int y, int w, int h, Fl_Color clr);
 
     /**
      * The replacement rountine to draw  FL_THIN_UP_BOX
      */
-    static void drawThinUpBox(int x,int y,int w,int h,Fl_Color clr);
+    static void drawThinUpBox(int x, int y, int w, int h, Fl_Color clr);
 
     /**
      * The replacement rountine to draw  FL_UP_BOX
      */
-    static void drawUpBox(int x,int y,int w,int h,Fl_Color clr);
+    static void drawUpBox(int x, int y, int w, int h, Fl_Color clr);
 
     /**
      * The replacement rountine to draw  FL_THIN_DOWN_BOX
      */
-    static void drawThinDownBox(int x,int y,int w,int h,Fl_Color clr);
+    static void drawThinDownBox(int x, int y, int w, int h, Fl_Color clr);
 
     /**
      * The replacement rountine to draw  FL_DOWN_BOX
      */
-    static void drawDownBox(int x,int y,int w,int h,Fl_Color clr);
+    static void drawDownBox(int x, int y, int w, int h, Fl_Color clr);
 
     /**
      * The replacement rountine to draw  FL_THIN_UP_FRAME
      */
-    static void drawThinUpFrame(int x,int y,int w,int h,Fl_Color clr);
+    static void drawThinUpFrame(int x, int y, int w, int h, Fl_Color clr);
 
     /**
      * The replacement rountine to draw  FL_UP_FRAME
      */
-    static void drawUpFrame(int x,int y,int w,int h,Fl_Color clr);
+    static void drawUpFrame(int x, int y, int w, int h, Fl_Color clr);
 
     /**
      * The replacement rountine to draw  FL_THIN_DOWN_FRAME
      */
-    static void drawThinDownFrame(int x,int y,int w,int h,Fl_Color clr);
+    static void drawThinDownFrame(int x, int y, int w, int h, Fl_Color clr);
 
     /**
      * The replacement rountine to draw  FL_DOWN_FRAME
      */
-    static void drawDownFrame(int x,int y,int w,int h,Fl_Color clr);
+    static void drawDownFrame(int x, int y, int w, int h, Fl_Color clr);
 
     /**
      * The rountine to draw theme button
@@ -409,7 +418,8 @@ public:
      * @param pressed bool, true to draw pressed button
      * @param defaultButton bool, true to draw default button
      */
-    static bool drawButton(CThemeButtonType sz,int x,int y,int& w,int& h,bool highlited,bool pressed,bool defaultButton);
+    static bool drawButton(CThemeButtonType sz, int x, int y, int& w, int& h, bool highlited, bool pressed,
+                           bool defaultButton);
 
     /**
      * Computes and returns the correct size of the button in the parameters.
@@ -418,7 +428,7 @@ public:
      * @param h int&, button height, may be altered by button to meet the button size requirements
      * @returns false, if theme has no pixmap for the button, or true otherwise
      */
-    static bool sizeButton(CThemeButtonType sz,int& w,int& h);
+    static bool sizeButton(CThemeButtonType sz, int& w, int& h);
 
     /**
      * Computes and returns the minimum size of the progress bar
@@ -426,12 +436,12 @@ public:
      * @param h int&, progress bar height, may be altered by progress bar to meet the progress bar size requirements
      * @returns false, if theme has no pixmap for the progress bar, or true otherwise
      */
-    static bool sizeProgressBar(int& w,int& h);
+    static bool sizeProgressBar(int& w, int& h);
 
     /**
      * Returns the button focuse corner radius
      */
-    static int  buttonFocusRadius();
+    static int buttonFocusRadius();
 
     /**
      * Draws a check button image
@@ -441,7 +451,7 @@ public:
      * @param checked bool, is button checked?
      * @param highlited bool, is button highlited?
      */
-    static bool drawCheckButton(int x,int y,bool checked,bool highlited);
+    static bool drawCheckButton(int x, int y, bool checked, bool highlited);
 
     /**
      * Draws a radio button image
@@ -451,7 +461,7 @@ public:
      * @param checked bool, is button checked?
      * @param highlited bool, is button highlited?
      */
-    static bool drawRadioButton(int x,int y,bool checked,bool highlited);
+    static bool drawRadioButton(int x, int y, bool checked, bool highlited);
 
     /**
      * Draws a progress bar image
@@ -464,7 +474,7 @@ public:
      * @param w int, width of the progress bar
      * @param percent float, percent value of the progress bar
      */
-    static bool drawProgressBar(int x,int y,int w,float percent);
+    static bool drawProgressBar(int x, int y, int w, float percent);
 
     /**
      * @brief Draws a tab.
@@ -475,7 +485,7 @@ public:
      * @param h int, width of the scroll bar
      * @param active bool, true if stab is active
      */
-    static bool drawTab(int x,int y,int w,int h,bool active);
+    static bool drawTab(int x, int y, int w, int h, bool active);
 
     /**
      * @brief Draws a tab frame
@@ -487,7 +497,7 @@ public:
      * @param w int, width of the scroll bar
      * @param h int, width of the scroll bar
      */
-    static bool drawTabFrame(int x,int y,int w,int h);
+    static bool drawTabFrame(int x, int y, int w, int h);
 
     /**
      * Returns the list of the available themes
@@ -506,22 +516,22 @@ public:
     /**
      * @brief All the available screen fonts
      */
-    static CFontsVector   screenFonts;
+    static CFontsVector screenFonts;
 
     /**
      * @brief Returns theme name
      */
-	static std::string name();
+    static std::string name();
 
     /**
      * @brief Returns path to the theme folder
      */
-	static std::string themeFolder();
+    static std::string themeFolder();
 
     /**
      * @brief Theme tar archive. Contains all the theme data
      */
-    static Tar           m_tar;
+    static Tar m_tar;
 };
 
 /**

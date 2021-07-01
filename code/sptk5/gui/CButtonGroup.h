@@ -47,7 +47,7 @@ namespace sptk {
  * Implements the most important data communication methods for these button groups.
  */
 class SP_EXPORT CButtonGroup
-        : public CControl
+    : public CControl
 {
     /**
      * Required group height
@@ -97,7 +97,8 @@ protected:
     /**
      * Creates button. Should be implemented in the derived class.
      */
-    virtual Fl_Button* createButton(const char* label, int sz = 10, CLayoutAlign layoutAlignment = SP_ALIGN_TOP) = 0;
+    virtual Fl_Button* createButton(const char* label, int sz = 10,
+                                    CLayoutAlign layoutAlignment = CLayoutAlign::TOP) = 0;
 
     /**
      * Constructor initializer
@@ -110,7 +111,8 @@ protected:
      * @param layoutSize int, the size of widget in layout
      * @param layoutAlignment CLayoutAlign, widget align in the layout
      */
-    CButtonGroup(const char* label = nullptr, int layoutSize = 20, CLayoutAlign layoutAlignment = SP_ALIGN_TOP);
+    CButtonGroup(const char* label = nullptr, int layoutSize = 20,
+                 CLayoutAlign layoutAlignment = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -204,8 +206,8 @@ public:
 
     /**
      * Computes the preferred size of the button group based on its contents
-     * @param w int&, the optimal width 
-     * @param h int&, the optimal height 
+     * @param w int&, the optimal width
+     * @param h int&, the optimal height
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
     bool preferredSize(int& w, int& h) override;

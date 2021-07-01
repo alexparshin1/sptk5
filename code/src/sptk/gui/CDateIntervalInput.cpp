@@ -80,8 +80,8 @@ CDateIntervalInput::CDateIntervalInput(int x,int y,int w,int h,const char * labe
 
 CLayoutClient* CDateIntervalInput::creator(xml::Node* node)
 {
-    auto* widget = new CDateIntervalInput("", 10, SP_ALIGN_TOP);
-    widget->load(node, LXM_LAYOUTDATA);
+    auto* widget = new CDateIntervalInput("", 10, CLayoutAlign::TOP);
+    widget->load(node, CLayoutXMLmode::LAYOUTDATA);
     return widget;
 }
 
@@ -116,7 +116,7 @@ void CDateIntervalInput::showCalendar(Fl_Widget* btn)
     }
 }
 
-void CDateIntervalInput::separator(const string& s)
+void CDateIntervalInput::separator(const String& s)
 {
     m_separator = s;
 }

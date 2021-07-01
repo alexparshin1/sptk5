@@ -220,7 +220,8 @@ bool CThemeScrollBar::drawScrollBar(
     CPngImage* normalImage = trough.image(THM_IMAGE_NORMAL);
     if (normalImage)
     {
-        normalImage->drawResized(x, y, w, h, m_scrollBarStepperSize * 2, CPngImage::PDM_STRETCH, true);
+        normalImage->drawResized(x, y, w, h, m_scrollBarStepperSize * 2, CPngImage::CPatternDrawMode::PDM_STRETCH,
+                                 true);
     }
     else
     {
@@ -354,7 +355,7 @@ bool CThemeScrollBar::drawScrollBar(
         xsl = x + m_scrollBarTroughBorder;
         if (sliderImage)
         {
-            sliderImage->drawResized(xsl, ysl, wsl, hsl, bsize, CPngImage::PDM_STRETCH, true);
+            sliderImage->drawResized(xsl, ysl, wsl, hsl, bsize, CPngImage::CPatternDrawMode::PDM_STRETCH, true);
             if (gripImage && gripImage->h() <= hsl + bsize * 3 / 2)
             {
                 gripImage->draw(xsl + (wsl - gripImage->w()) / 2, ysl + (hsl - gripImage->h()) / 2);
@@ -373,7 +374,7 @@ bool CThemeScrollBar::drawScrollBar(
         ysl = y + m_scrollBarTroughBorder;
         if (sliderImage)
         {
-            sliderImage->drawResized(xsl, ysl, wsl, hsl, bsize, CPngImage::PDM_STRETCH, true);
+            sliderImage->drawResized(xsl, ysl, wsl, hsl, bsize, CPngImage::CPatternDrawMode::PDM_STRETCH, true);
             if (gripImage && gripImage->w() <= wsl + bsize * 3 / 2)
             {
                 gripImage->draw(xsl + (wsl - gripImage->w()) / 2, ysl + (hsl - gripImage->h()) / 2);

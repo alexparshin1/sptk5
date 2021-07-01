@@ -52,15 +52,15 @@ CGroup::CGroup(const char* alabel, int layoutSize, CLayoutAlign layoutAlign)
 
 #ifdef __COMPATIBILITY_MODE__
 CGroup::CGroup(int x,int y,int w,int h,const char *alabel)
-        : Fl_Group(x,y,w,h), CLayoutManager(this,w,SP_ALIGN_NONE) {
+        : Fl_Group(x,y,w,h), CLayoutManager(this,w,CLayoutAlign::NONE) {
     ctor_init(alabel);
 }
 #endif
 
 CLayoutClient* CGroup::creator(xml::Node* node)
 {
-    auto* widget = new CGroup("", 10, SP_ALIGN_TOP);
-    widget->loadLayout(node, LXM_LAYOUTDATA);
+    auto* widget = new CGroup("", 10, CLayoutAlign::TOP);
+    widget->loadLayout(node, CLayoutXMLmode::LAYOUTDATA);
     return widget;
 }
 

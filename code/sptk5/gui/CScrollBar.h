@@ -40,7 +40,8 @@ namespace sptk {
 /**
  * Extended version of Scroll Bar - to add theme support
  */
-class SP_EXPORT CScrollBar : public Fl_Scrollbar, public CLayoutClient
+class SP_EXPORT CScrollBar
+    : public Fl_Scrollbar, public CLayoutClient
 {
     /**
      * flag to detect pushed button
@@ -60,8 +61,8 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CScrollBar(int layoutSize = 16, CLayoutAlign layoutAlign = SP_ALIGN_RIGHT)
-    : Fl_Scrollbar(0, 0, 10, 10), CLayoutClient(this, layoutSize, layoutAlign)
+    CScrollBar(int layoutSize = 16, CLayoutAlign layoutAlign = CLayoutAlign::RIGHT)
+        : Fl_Scrollbar(0, 0, 10, 10), CLayoutClient(this, layoutSize, layoutAlign)
     {
     }
 
@@ -73,7 +74,7 @@ public:
      * @param h int, height
      */
     CScrollBar(int x, int y, int w, int h)
-    : Fl_Scrollbar(x, y, w, h), CLayoutClient(this, 10, SP_ALIGN_NONE)
+        : Fl_Scrollbar(x, y, w, h), CLayoutClient(this, 10, CLayoutAlign::NONE)
     {
     }
 
@@ -102,4 +103,3 @@ public:
  * @}
  */
 }
-

@@ -35,9 +35,9 @@ using namespace sptk;
 
 void CMemoInput::ctor_init()
 {
-    m_controlFlags = FGE_MULTILINEENTRY;
+    m_controlFlags = (int) InputEntryFlags::MULTILINEENTRY;
     begin();
-    auto* e = new CEditor(50, SP_ALIGN_NONE);
+    auto* e = new CEditor(50, CLayoutAlign::NONE);
     e->wrap_mode(true, 0);
     m_control = e;
     m_control->callback(CControl::internalCallback);
@@ -60,8 +60,8 @@ CMemoInput::CMemoInput(int x,int y,int w,int h,const char * label)
 
 CLayoutClient* CMemoInput::creator(xml::Node* node)
 {
-    auto* widget = new CMemoInput("", 10, SP_ALIGN_TOP);
-    widget->load(node, LXM_LAYOUTDATA);
+    auto* widget = new CMemoInput("", 10, CLayoutAlign::TOP);
+    widget->load(node, CLayoutXMLmode::LAYOUTDATA);
     return widget;
 }
 

@@ -64,7 +64,7 @@ class SP_EXPORT CBaseListBox
     /**
      * The list of buttons
      */
-    Fl_Button* m_buttons[5];
+    std::array<Fl_Button*, 5> m_buttons;
 
     /**
      * Is the list dropped down (shown)?
@@ -199,7 +199,7 @@ public:
     /**
      * Returns the bitmask of visible buttons' IDs
      */
-    uint32_t buttons()
+    uint32_t buttons() const
     {
         return m_buttonSet;
     }
@@ -316,7 +316,7 @@ public:
      * @param caption std::string, the caption to find and select.
      * @returns an item, or NULL if item caption is not found
      */
-    CPackedStrings* findCaption(std::string caption)
+    CPackedStrings* findCaption(const String& caption)
     {
         return m_list->findCaption(caption);
     }
@@ -466,7 +466,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CComboBox(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CComboBox(const char* label = nullptr, int layoutSize = 10, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -524,7 +524,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CListBox(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CListBox(const char* label = nullptr, int layoutSize = 10, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**

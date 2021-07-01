@@ -50,8 +50,8 @@ CIntegerInput::CIntegerInput(int x,int y,int w,int h,const char * label)
 
 CLayoutClient* CIntegerInput::creator(xml::Node* node)
 {
-    auto* widget = new CIntegerInput("", 10, SP_ALIGN_TOP);
-    widget->load(node, LXM_LAYOUTDATA);
+    auto* widget = new CIntegerInput("", 10, CLayoutAlign::TOP);
+    widget->load(node, CLayoutXMLmode::LAYOUTDATA);
     return widget;
 }
 

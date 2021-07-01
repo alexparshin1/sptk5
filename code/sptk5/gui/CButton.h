@@ -174,8 +174,8 @@ protected:
      * @param label const char * label
      * @param tbt CThemeButtonType, the type of button
      */
-    CBaseButton(CButtonKind kind, CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, bool is_small = false,
-                const char* label = 0, CThemeButtonType tbt = THM_BUTTON_NORMAL);
+    CBaseButton(CButtonKind kind, CLayoutAlign layoutAlign = CLayoutAlign::RIGHT, bool is_small = false,
+                const char* label = nullptr, CThemeButtonType tbt = THM_BUTTON_NORMAL);
 
     /**
      * Constructor in SPTK style. The image should be assigned separately.
@@ -183,7 +183,7 @@ protected:
      * @param layoutAlign CLayoutAlign, widget align in layout
      * @param tbt CThemeButtonType, the type of button
      */
-    CBaseButton(const char* label = 0, CLayoutAlign layoutAlign = SP_ALIGN_RIGHT,
+    CBaseButton(const char* label = nullptr, CLayoutAlign layoutAlign = CLayoutAlign::RIGHT,
                 CThemeButtonType tbt = THM_BUTTON_NORMAL);
 
 #ifdef __COMPATIBILITY_MODE__
@@ -297,7 +297,7 @@ public:
      * @param label const char * label
      * @param tbt CThemeButtonType, the size type of the button
      */
-    CButton(CButtonKind kind, CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, const char* label = "",
+    CButton(CButtonKind kind, CLayoutAlign layoutAlign = CLayoutAlign::RIGHT, const char* label = "",
             CThemeButtonType tbt = THM_BUTTON_NORMAL)
         : CBaseButton(kind, layoutAlign, false, label, tbt)
     {
@@ -309,7 +309,8 @@ public:
      * @param layoutAlign CLayoutAlign widget align in layout
      * @param tbt CThemeButtonType, the button type (size)
      */
-    CButton(const char* label = "", CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, CThemeButtonType tbt = THM_BUTTON_NORMAL)
+    CButton(const char* label = "", CLayoutAlign layoutAlign = CLayoutAlign::RIGHT,
+            CThemeButtonType tbt = THM_BUTTON_NORMAL)
         : CBaseButton(label, layoutAlign, tbt)
     {
     }
@@ -328,7 +329,7 @@ public:
      * @param bkind CButtonKind stock image id.
      * @param iconSize CIconSize, the size of the icon
      */
-    void buttonImage(CButtonKind bkind, CIconSize iconSize = IS_LARGE_ICON) override
+    void buttonImage(CButtonKind bkind, CIconSize iconSize = CIconSize::IS_LARGE_ICON) override
     {
         image(bkind, iconSize, label());
     }
@@ -396,7 +397,7 @@ public:
      * @param layoutAlign CLayoutAlign widget align in layout
      * @param label const char *, label
      */
-    CSmallButton(CButtonKind kind, CLayoutAlign layoutAlign = SP_ALIGN_RIGHT, const char* label = 0)
+    CSmallButton(CButtonKind kind, CLayoutAlign layoutAlign = CLayoutAlign::RIGHT, const char* label = nullptr)
         : CBaseButton(kind, layoutAlign, true, label, THM_BUTTON_COMBO)
     {
     }
@@ -415,7 +416,7 @@ public:
      * @param bkind CButtonKind, stock image id.
      * @param iconSize CIconSize, the size of the icon
      */
-    void buttonImage(CButtonKind bkind, CIconSize iconSize = IS_SMALL_ICON) override
+    void buttonImage(CButtonKind bkind, CIconSize iconSize = CIconSize::IS_SMALL_ICON) override
     {
         image(bkind, iconSize);
     }

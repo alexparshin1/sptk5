@@ -50,13 +50,13 @@ int main(int argc, char* argv[])
         w.resizable(w);
         w.layoutSpacing(4);
 
-        auto* sb = new CScroll("", 100, SP_ALIGN_RIGHT);
-        new CBox("This is a box", 100, SP_ALIGN_CLIENT);
+        auto* sb = new CScroll("", 100, CLayoutAlign::RIGHT);
+        new CBox("This is a box", 100, CLayoutAlign::CLIENT);
         sb->end();
 
-        CSplitter splitter("", 3, SP_ALIGN_RIGHT);
+        CSplitter splitter("", 3, CLayoutAlign::RIGHT);
 
-        CListView listView2("List View 2:", 10, SP_ALIGN_CLIENT);
+        CListView listView2("List View 2:", 10, CLayoutAlign::CLIENT);
         listView2.columns().push_back(CColumn("column 1", VariantDataType::VAR_INT, 70));
         listView2.columns().push_back(CColumn("column 2", VariantDataType::VAR_INT, 70));
         listView2.columns().push_back(CColumn("column 3", VariantDataType::VAR_STRING, 200));
@@ -76,9 +76,9 @@ int main(int argc, char* argv[])
 
         // That group keeps togeteher the buttons. These
         // buttons use the default alignment for buttons -
-        // SP_ALIGN_RIGHT, and the text/icon defined by the
+        // CLayoutAlign::RIGHT, and the text/icon defined by the
         // button kind.
-        CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
+        CGroup buttonGroup("", 10, CLayoutAlign::BOTTOM);
         buttonGroup.color(FL_LIGHT1);
 
         CButton okButton(CButtonKind::EXIT_BUTTON);

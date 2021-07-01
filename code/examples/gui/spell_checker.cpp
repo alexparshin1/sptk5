@@ -38,10 +38,12 @@ CEditor* editor;
 void cb_spellCheck(Fl_Widget*, void*)
 {
     CEditorSpellChecker sc(editor);
-    try {
+    try
+    {
         sc.spellCheck();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         fl_alert("%s", e.what());
     }
 }
@@ -51,12 +53,12 @@ int main()
     CThemes themes;
     CWindow window(400, 300, "CSpellChecker test");
 
-    editor = new CEditor(10, SP_ALIGN_CLIENT);
+    editor = new CEditor(10, CLayoutAlign::CLIENT);
 
     editor->textBuffer()->text("Mary has a little lemb, big botl of whiskie, and cucomber");
 
     CToolBar toolBar;
-    CButton spellCheckButton("Spell Check", SP_ALIGN_LEFT);
+    CButton spellCheckButton("Spell Check", CLayoutAlign::LEFT);
     spellCheckButton.callback(cb_spellCheck);
 
     window.show();

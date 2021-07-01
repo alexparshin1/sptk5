@@ -35,86 +35,109 @@
 using namespace std;
 using namespace sptk;
 
-void build_tree(xml::Element *n, CTreeControl *tree, CTreeItem *item)
+void build_tree(xml::Element* n, CTreeControl* tree, CTreeItem* item)
 {
     if (!n)
+    {
         return;
+    }
 
-    CTreeItem *w = nullptr;
-    CTreeItem *newItem = nullptr;
-    if (!n->empty() || (int)n->type() & ((int)xml::Node::Type::DOM_CDATA_SECTION | (int)xml::Node::Type::DOM_COMMENT)) {
+    CTreeItem* w = nullptr;
+    CTreeItem* newItem = nullptr;
+    if (!n->empty() ||
+        (int) n->type() & ((int) xml::Node::Type::DOM_CDATA_SECTION | (int) xml::Node::Type::DOM_COMMENT))
+    {
         // Create a new item group
         if (item)
+        {
             newItem = item->addItem("", nullptr, nullptr, n);
+        }
         else
+        {
             newItem = tree->addItem("", nullptr, nullptr, n);
+        }
         w = newItem;
-        if ((int)n->type() & ((int)xml::Node::Type::DOM_CDATA_SECTION | (int)xml::Node::Type::DOM_COMMENT)) {
+        if ((int) n->type() & ((int) xml::Node::Type::DOM_CDATA_SECTION | (int) xml::Node::Type::DOM_COMMENT))
+        {
             w->label(n->name().c_str());
             w = newItem->addItem("", nullptr, nullptr, n);
         }
-    } else {
+    }
+    else
+    {
         if (item)
+        {
             newItem = item->addItem("", nullptr, nullptr, n);
+        }
         else
+        {
             newItem = tree->addItem("", nullptr, nullptr, n);
+        }
         w = newItem;
     }
 
     String label;
-    const xml::Attributes &attr_map = n->attributes();
+    const xml::Attributes& attr_map = n->attributes();
 
     switch (n->type())
     {
-    case xml::Node::Type::DOM_ELEMENT:
-        label = n->name();
-        if (n->hasAttributes()) {
-            auto it = attr_map.begin();
-            for (; it != attr_map.end(); it++)
-                label += string(" ") + (*it)->name() + string("=*") + (*it)->value() + "*";
-        }
-        break;
+        case xml::Node::Type::DOM_ELEMENT:
+            label = n->name();
+            if (n->hasAttributes())
+            {
+                auto it = attr_map.begin();
+                for (; it != attr_map.end(); it++)
+                {
+                    label += string(" ") + (*it)->name() + string("=*") + (*it)->value() + "*";
+                }
+            }
+            break;
 
-    case xml::Node::Type::DOM_PI:
-        label = n->name();
-        label += ": ";
-        label += n->value();
-        break;
+        case xml::Node::Type::DOM_PI:
+            label = n->name();
+            label += ": ";
+            label += n->value();
+            break;
 
-    case xml::Node::Type::DOM_DOCUMENT:
-        label = n->name();
-        break;
+        case xml::Node::Type::DOM_DOCUMENT:
+            label = n->name();
+            break;
 
-    default:
-        label = n->value();
-        break;
+        default:
+            label = n->value();
+            break;
     }
 
     w->label(label.c_str());
 
     auto itor = n->begin();
     auto iend = n->end();
-    for (; itor != iend; ++itor) {
+    for (; itor != iend; ++itor)
+    {
         auto* node = dynamic_cast<xml::Element*>(*itor);
         if (node)
+        {
             build_tree(node, tree, newItem);
+        }
     }
 }
 
-xml::Document *build_doc()
+xml::Document* build_doc()
 {
     auto* doc = new xml::Document();
 
-    xml::Node *rootNode = new xml::Element(*doc, "MyDocument");
-    xml::Node *hello = new xml::Element(*rootNode, "HelloTag");
+    xml::Node* rootNode = new xml::Element(*doc, "MyDocument");
+    xml::Node* hello = new xml::Element(*rootNode, "HelloTag");
     new xml::Element(*hello, "Hello all!");
 
-    try {
+    try
+    {
         Buffer savebuffer;
         doc->save(savebuffer, true);
         savebuffer.saveToFile("MyXML2.xml");
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         Fl::warning(e.what());
     }
 
@@ -123,45 +146,55 @@ xml::Document *build_doc()
 
 double diffSeconds(DateTime start, DateTime end)
 {
-    return chrono::duration_cast<chrono::milliseconds>(end-start).count() / 1000.0;
+    return chrono::duration_cast<chrono::milliseconds>(end - start).count() / 1000.0;
 }
 
 void saveDocument(const shared_ptr<xml::Document>& doc)
 {
-    try {
-            DateTime start("now");
-            Buffer savebuffer;
-            doc->save(savebuffer, true);
-            savebuffer.saveToFile("MyXML.xml");
-            DateTime end("now");
-            COUT("XML Test - saved for " << diffSeconds(start, end) << " sec" << endl)
-        }
-        catch (const Exception& e) {
-            Fl::warning(e.what());
-        }
+    try
+    {
+        DateTime start("now");
+        Buffer savebuffer;
+        doc->save(savebuffer, true);
+        savebuffer.saveToFile("MyXML.xml");
+        DateTime end("now");
+        COUT("XML Test - saved for " << diffSeconds(start, end) << " sec" << endl)
+    }
+    catch (const Exception& e)
+    {
+        Fl::warning(e.what());
+    }
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes themes;
 
         String fileName;
-        if (argc == 2) {
+        if (argc == 2)
+        {
             fileName = argv[1];
-        } else {
+        }
+        else
+        {
             CFileOpenDialog dialog;
             dialog.directory(".");
             dialog.addPattern("XML Files", "*.xml");
             dialog.addPattern("All Files", "*.*");
             dialog.setPattern("XML Files");
             if (dialog.execute())
+            {
                 fileName = dialog.fullFileName();
+            }
         }
 
         if (fileName.empty())
+        {
             return -1;
+        }
 
         Buffer buffer;
         buffer.loadFromFile(fileName.c_str());
@@ -170,7 +203,7 @@ int main(int argc, char **argv)
         window->resizable(window);
         window->begin();
 
-        auto* tree = new CTreeControl("Tree", 10, SP_ALIGN_CLIENT);
+        auto* tree = new CTreeControl("Tree", 10, CLayoutAlign::CLIENT);
         window->end();
 
         DateTime start = DateTime::Now();
@@ -197,7 +230,8 @@ int main(int argc, char **argv)
 
         COUT("--------------------------------" << endl)
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

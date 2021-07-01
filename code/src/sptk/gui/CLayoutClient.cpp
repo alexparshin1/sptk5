@@ -45,29 +45,29 @@ CLayoutClient::CLayoutClient(Fl_Widget* widget, int layoutSize, CLayoutAlign ca)
 
 void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 {
-    if (xmlMode & (int) LXM_LAYOUT)
+    if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
     {
         CLayoutAlign layoutAlign;
         String alignName(lowerCase((String) node->getAttribute("layout_align")));
         switch (alignName[0])
         {
             case 'b':
-                layoutAlign = SP_ALIGN_BOTTOM;
+                layoutAlign = CLayoutAlign::BOTTOM;
                 break;
             case 'l':
-                layoutAlign = SP_ALIGN_LEFT;
+                layoutAlign = CLayoutAlign::LEFT;
                 break;
             case 'r':
-                layoutAlign = SP_ALIGN_RIGHT;
+                layoutAlign = CLayoutAlign::RIGHT;
                 break;
             case 'c':
-                layoutAlign = SP_ALIGN_CLIENT;
+                layoutAlign = CLayoutAlign::CLIENT;
                 break;
             case 't':
-                layoutAlign = SP_ALIGN_TOP;
+                layoutAlign = CLayoutAlign::TOP;
                 break;
             default:
-                layoutAlign = SP_ALIGN_NONE;
+                layoutAlign = CLayoutAlign::NONE;
                 {
                     int x = (int) node->getAttribute("x", "-1");
                     int y = (int) node->getAttribute("y", "-1");
@@ -88,7 +88,7 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
         name((String) node->getAttribute("name"));
         label((String) node->getAttribute("label"));
 
-        if (layoutAlign != SP_ALIGN_NONE)
+        if (layoutAlign != CLayoutAlign::NONE)
         {
             int layoutSize = (int) node->getAttribute("layout_size");
             if (layoutSize)
@@ -128,12 +128,12 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
             m_widget->activate();
         }
     }
-    if (xmlMode & (int) LXM_DATA)
+    if ((int) xmlMode & (int) CLayoutXMLmode::DATA)
     {
         auto* control = dynamic_cast<CControl*>(m_widget);
         if (control)
         {
-            control->load(node, LXM_DATA);
+            control->load(node, CLayoutXMLmode::DATA);
         }
     }
 }
@@ -152,7 +152,7 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
     }
     node->name(className);
 
-    if (xmlMode & (int) LXM_LAYOUT)
+    if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
     {
         if (!m_name.empty())
         {
@@ -174,19 +174,19 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
         String layoutAlignStr;
         switch (m_layoutAlign)
         {
-            case SP_ALIGN_TOP:
+            case CLayoutAlign::TOP:
                 layoutAlignStr = "top";
                 break;
-            case SP_ALIGN_BOTTOM:
+            case CLayoutAlign::BOTTOM:
                 layoutAlignStr = "bottom";
                 break;
-            case SP_ALIGN_LEFT:
+            case CLayoutAlign::LEFT:
                 layoutAlignStr = "left";
                 break;
-            case SP_ALIGN_RIGHT:
+            case CLayoutAlign::RIGHT:
                 layoutAlignStr = "right";
                 break;
-            case SP_ALIGN_CLIENT:
+            case CLayoutAlign::CLIENT:
                 layoutAlignStr = "client";
                 break;
             default:
@@ -217,12 +217,12 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
             node->setAttribute("label", label());
         }
     }
-    if (xmlMode & (int) LXM_DATA)
+    if ((int) xmlMode & (int) CLayoutXMLmode::DATA)
     {
         auto* control = dynamic_cast<CControl*>(m_widget);
         if (control != nullptr)
         {
-            control->save(node, LXM_DATA);
+            control->save(node, CLayoutXMLmode::DATA);
         }
     }
 }

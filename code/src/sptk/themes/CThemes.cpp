@@ -129,18 +129,24 @@ CThemes::~CThemes()
 }
 
 std::string CThemes::name()
-{ return m_name; }
+{
+    return m_name;
+}
 
 std::string CThemes::themeFolder()
-{ return m_themeFolder; }
+{
+    return m_themeFolder;
+}
 
 int CThemes::buttonFocusRadius()
-{ return m_buttonFocusRadius; }
-
-CIcon* CThemes::getIcon(const string& iconName, CIconSize iconSize)
 {
-    auto itor = m_icons[iconSize].find(iconName);
-    if (itor == m_icons[iconSize].end())
+    return m_buttonFocusRadius;
+}
+
+CIcon* CThemes::getIcon(const String& iconName, CIconSize iconSize)
+{
+    auto itor = m_icons[(int) iconSize].find(iconName);
+    if (itor == m_icons[(int) iconSize].end())
     {
         //cerr << "Can't find icon '" << iconName << "' for size " << iconSize << endl;
         return nullptr;
@@ -148,7 +154,7 @@ CIcon* CThemes::getIcon(const string& iconName, CIconSize iconSize)
     return itor->second;
 }
 
-CPngImage* CThemes::getIconImage(const string& iconName, CIconSize iconSize)
+CPngImage* CThemes::getIconImage(const String& iconName, CIconSize iconSize)
 {
     CIcon* icon = getIcon(iconName, iconSize);
     if (icon)
@@ -160,7 +166,7 @@ CPngImage* CThemes::getIconImage(const string& iconName, CIconSize iconSize)
 
 void CThemes::registerIcon(CIcon* icon, CIconSize iconSize)
 {
-    m_icons[iconSize].insert(icon);
+    m_icons[(int) iconSize].insert(icon);
 }
 
 const Strings& CThemes::searchDirectories()
@@ -211,9 +217,9 @@ void CThemes::reset()
     m_scrollBar[THM_SCROLLBAR_VERTICAL].clear();
     m_scrollBar[THM_SCROLLBAR_HORIZONTAL].clear();
 
-    m_icons[IS_COMBO_ICON].clear();
-    m_icons[IS_SMALL_ICON].clear();
-    m_icons[IS_LARGE_ICON].clear();
+    m_icons[(int) CIconSize::IS_COMBO_ICON].clear();
+    m_icons[(int) CIconSize::IS_SMALL_ICON].clear();
+    m_icons[(int) CIconSize::IS_LARGE_ICON].clear();
 
     m_themeFolder = "";
 
@@ -316,19 +322,19 @@ void CThemes::set(string theThemeName)
                 switch (iconsSizeStr[0])
                 {
                     case 'c':
-                        iconsSize = IS_COMBO_ICON;
+                        iconsSize = CIconSize::IS_COMBO_ICON;
                         break;
                     case 's':
-                        iconsSize = IS_SMALL_ICON;
+                        iconsSize = CIconSize::IS_SMALL_ICON;
                         break;
                     case 'd':
-                        iconsSize = IS_DIALOG_ICON;
+                        iconsSize = CIconSize::IS_DIALOG_ICON;
                         break;
                     default:
-                        iconsSize = IS_LARGE_ICON;
+                        iconsSize = CIconSize::IS_LARGE_ICON;
                         break;
                 }
-                m_icons[iconsSize].load(m_tar, iconsNode);
+                m_icons[(int) iconsSize].load(m_tar, iconsNode);
             }
 
             xml::Node* buttonsNode = m_registry->findOrCreate("buttons", false);
@@ -390,13 +396,15 @@ void CThemes::set(string theThemeName)
         m_checkButtons.loadFromSptkTheme(Strings("check_button0,check_button1,check_button2,check_button3", ","));
         m_radioButtons.loadFromSptkTheme(Strings("radio_button0,radio_button1,radio_button2,radio_button3", ","));
 
-        CTreeItem::setTreeOpened(getIconImage("tree_opened", IS_SMALL_ICON)); ///< Default image of the opened tree
-        CTreeItem::setTreeClosed(getIconImage("tree_closed", IS_SMALL_ICON)); ///< Default image of the closed tree
+        CTreeItem::setTreeOpened(
+            getIconImage("tree_opened", CIconSize::IS_SMALL_ICON)); ///< Default image of the opened tree
+        CTreeItem::setTreeClosed(
+            getIconImage("tree_closed", CIconSize::IS_SMALL_ICON)); ///< Default image of the closed tree
         CTreeItem::setFolderOpened(
-            getIconImage("folder_opened", IS_SMALL_ICON)); ///< Default image of the opened floder
+            getIconImage("folder_opened", CIconSize::IS_SMALL_ICON)); ///< Default image of the opened floder
         CTreeItem::setFolderClosed(
-            getIconImage("folder_closed", IS_SMALL_ICON)); ///< Default image of the closed floder
-        CTreeItem::setDocument(getIconImage("document", IS_SMALL_ICON)); ///< Default image of the document
+            getIconImage("folder_closed", CIconSize::IS_SMALL_ICON)); ///< Default image of the closed floder
+        CTreeItem::setDocument(getIconImage("document", CIconSize::IS_SMALL_ICON)); ///< Default image of the document
         if (!CTreeItem::getFolderOpened())
         {
             CTreeItem::setFolderOpened(CTreeItem::getTreeOpened());
@@ -664,9 +672,10 @@ bool CThemes::drawButton(CThemeButtonType sz, int x, int y, int& w, int& h, bool
         CPngImage* defaultFrameImage = buttons.image(THM_DEFAULT_FRAME);
         if (defaultButton && defaultFrameImage)
         {
-            defaultFrameImage->drawResized(x - 2, y - 2, w + 4, h + 4, buttons.border(), CPngImage::PDM_STRETCH, false);
+            defaultFrameImage->drawResized(x - 2, y - 2, w + 4, h + 4, buttons.border(),
+                                           CPngImage::CPatternDrawMode::PDM_STRETCH, false);
         }
-        image->drawResized(x, y, w, h, buttons.border(), CPngImage::PDM_STRETCH, true);
+        image->drawResized(x, y, w, h, buttons.border(), CPngImage::CPatternDrawMode::PDM_STRETCH, true);
     }
 
     return true;
@@ -740,14 +749,15 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent)
 
     CPngImage* partImage[2];  // 0 - trough, 1 - bar
     int border[2] = {0, 0};
-    CPngImage::CPatternDrawMode drawMode[2] = {CPngImage::PDM_TILE, CPngImage::PDM_TILE};
+    CPngImage::CPatternDrawMode drawMode[2] = {CPngImage::CPatternDrawMode::PDM_TILE,
+                                               CPngImage::CPatternDrawMode::PDM_TILE};
 
     for (unsigned i = 0; i < 2; i++)
     {
         partImage[i] = m_progressBar[i].image(THM_IMAGE_NORMAL);
         if (m_progressBar[i].stretch())
         {
-            drawMode[i] = CPngImage::PDM_STRETCH;
+            drawMode[i] = CPngImage::CPatternDrawMode::PDM_STRETCH;
             border[i] = m_progressBar[i].border(0);
         }
     }

@@ -32,20 +32,24 @@
 using namespace std;
 using namespace sptk;
 
-CInput *i;
-CCheckButtons *cb;
-Fl_Box *bx;
+CInput* i;
+CCheckButtons* cb;
+Fl_Box* bx;
 
-void button_cb(Fl_Widget *b, void *)
+void button_cb(Fl_Widget* b, void*)
 {
     if (strcmp(b->label(), "Get Choices") == 0)
+    {
         i->data(cb->data());
-    else cb->data(i->data());
+    }
+    else
+    { cb->data(i->data()); }
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    try {
+    try
+    {
         // Initialize themes
         CThemes themes;
 
@@ -58,11 +62,11 @@ int main(int argc, char *argv[])
         CInput input("Test");
         i = &input;
 
-        CGroup g("", 10, SP_ALIGN_BOTTOM);
-        CButton btn1("Set Choices", SP_ALIGN_RIGHT);
+        CGroup g("", 10, CLayoutAlign::BOTTOM);
+        CButton btn1("Set Choices", CLayoutAlign::RIGHT);
         btn1.callback(button_cb);
 
-        CButton btn2("Get Choices", SP_ALIGN_RIGHT);
+        CButton btn2("Get Choices", CLayoutAlign::RIGHT);
         btn2.callback(button_cb);
 
         w.end();
@@ -75,7 +79,8 @@ int main(int argc, char *argv[])
 
         return EXIT_SUCCESS;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

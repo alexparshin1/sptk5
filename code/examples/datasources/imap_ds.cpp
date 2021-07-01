@@ -73,26 +73,26 @@ int main(int argc, char* argv[])
         CWindow mainWindow(600, 400, "CImapDS Test");
 
         CGroup agroup1;
-        imapServer = new CInput("Host:", 100, SP_ALIGN_LEFT);
+        imapServer = new CInput("Host:", 100, CLayoutAlign::LEFT);
         imapServer->labelWidth(40);
-        imapUser = new CInput("User:", 100, SP_ALIGN_LEFT);
+        imapUser = new CInput("User:", 100, CLayoutAlign::LEFT);
         imapUser->labelWidth(40);
-        imapPassword = new CPasswordInput("Password:", 120, SP_ALIGN_LEFT);
+        imapPassword = new CPasswordInput("Password:", 120, CLayoutAlign::LEFT);
         imapPassword->labelWidth(70);
-        imapMailBox = new CInput("Mail Box:", 130, SP_ALIGN_LEFT);
+        imapMailBox = new CInput("Mail Box:", 130, CLayoutAlign::LEFT);
         imapMailBox->labelWidth(70);
         imapMailBox->data("Inbox");
-        CButton goButton(CButtonKind::EXEC_BUTTON, SP_ALIGN_RIGHT,
-        "Messages");
+        CButton goButton(CButtonKind::EXEC_BUTTON, CLayoutAlign::RIGHT,
+                         "Messages");
         goButton.callback(go_cb);
         agroup1.end();
 
-        CGroup agroup2("", 10, SP_ALIGN_BOTTOM);
-        CButton exitButton(CButtonKind::EXIT_BUTTON, SP_ALIGN_RIGHT);
+        CGroup agroup2("", 10, CLayoutAlign::BOTTOM);
+        CButton exitButton(CButtonKind::EXIT_BUTTON, CLayoutAlign::RIGHT);
         exitButton.callback(exit_cb);
         agroup2.end();
 
-        filesListView = new CListView("", 10, SP_ALIGN_CLIENT);
+        filesListView = new CListView("", 10, CLayoutAlign::CLIENT);
         imapDS = new ImapDS();
 
         mainWindow.end();

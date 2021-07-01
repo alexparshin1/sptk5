@@ -70,16 +70,16 @@ class SP_EXPORT CFont
 public:
     /**
      * @brief Constructor
-     * @param name std::string, full font name
-     * @param size uint32_t, font size
-     * @param color uint32_t, font color
-     * @param index uint32_t, font index in the fonts collection
-     * @param attributes uint32_t, optional font attributes
+     * @param name              full font name
+     * @param size              font size
+     * @param color             font color
+     * @param index             font index in the fonts collection
+     * @param attributes        optional font attributes
      */
     explicit CFont(const String& name = "arial", uint32_t size = 10, uint32_t color = 0, uint32_t index = 0,
                    uint32_t attributes = 0)
-    : m_name(name), m_size(size), m_color(color),
-      m_index(index), m_attributes(attributes)
+        : m_name(name), m_size(size), m_color(color),
+          m_index(index), m_attributes(attributes)
     {
     }
 
@@ -88,8 +88,8 @@ public:
      * @param font const CFont&, font to copy from
      */
     CFont(const CFont& font)
-    : m_name(font.m_name), m_size(font.m_size), m_color(font.m_color),
-      m_index(font.m_index), m_attributes(font.m_attributes)
+        : m_name(font.m_name), m_size(font.m_size), m_color(font.m_color),
+          m_index(font.m_index), m_attributes(font.m_attributes)
     {
     }
 
@@ -146,7 +146,8 @@ public:
  *
  * The map contains just pointers to the fonts stored in outside list.
  */
-class SP_EXPORT CFontsMap : public std::map<std::string, CFont*>
+class SP_EXPORT CFontsMap
+    : public std::map<String, CFont*, std::less<>>
 {
 public:
     /**
@@ -218,7 +219,7 @@ public:
     /**
      * @brief Returns font by its name
      */
-    CFont* find(std::string fontName) const;
+    CFont* find(const String& fontName) const;
 
     /**
      * @brief Appends a font to fonts vector
@@ -246,4 +247,3 @@ public:
  * @}
  */
 }
-

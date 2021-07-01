@@ -39,7 +39,8 @@ using namespace sptk;
 
 namespace sptk {
 
-class CRadioButton : public Fl_Round_Button, public CLayoutClient
+class CRadioButton
+    : public Fl_Round_Button, public CLayoutClient
 {
 protected:
     void draw() override;
@@ -56,7 +57,8 @@ public:
 
 CRadioButton::CRadioButton(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
     : Fl_Round_Button(0, 0, layoutSize, layoutSize, label), CLayoutClient(this, layoutSize, layoutAlignment)
-{}
+{
+}
 
 void CRadioButton::draw()
 {
@@ -146,7 +148,8 @@ void CRadioButtons::radioButtonsCallback(Fl_Widget* w, void*)
 
 CRadioButtons::CRadioButtons(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
     : CButtonGroup(label, layoutSize, layoutAlignment)
-{}
+{
+}
 
 #ifdef __COMPATIBILITY_MODE__
 CRadioButtons::CRadioButtons(int x,int y,int w,int h,const char *l)
@@ -155,8 +158,8 @@ CRadioButtons::CRadioButtons(int x,int y,int w,int h,const char *l)
 
 CLayoutClient* CRadioButtons::creator(xml::Node* node)
 {
-    auto* widget = new CRadioButtons("", 10, SP_ALIGN_TOP);
-    widget->load(node, LXM_LAYOUTDATA);
+    auto* widget = new CRadioButtons("", 10, CLayoutAlign::TOP);
+    widget->load(node, CLayoutXMLmode::LAYOUTDATA);
     return widget;
 }
 

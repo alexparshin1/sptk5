@@ -66,7 +66,7 @@ class SP_EXPORT CDateIntervalInput
     /**
      * Separator to display
      */
-    std::string m_separator;
+    String m_separator;
 
     /**
      * Pop-up calendar window
@@ -101,7 +101,7 @@ public:
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
     explicit CDateIntervalInput(const char* label = nullptr, int layoutSize = 10,
-                                CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+                                CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -119,12 +119,12 @@ public:
      * @brief Sets the separator to display between date inputs
      * @param s std::string, separator value
      */
-    void separator(const std::string& s);
+    void separator(const String& s);
 
     /**
      * @brief Returns the separator between date inputs
      */
-    std::string separator()
+    String separator() const
     {
         return m_separator;
     }

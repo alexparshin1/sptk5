@@ -295,7 +295,7 @@ CPngImage::drawResized(int xx, int yy, int ww, int hh, int cornerWidth, CPattern
     }
 
     resized_draw_function resizedDraw = cutTileDraw;
-    if (drawMode == PDM_STRETCH)
+    if (drawMode == CPatternDrawMode::PDM_STRETCH)
     {
         resizedDraw = cutStretchDraw;
     }
@@ -318,25 +318,29 @@ CPngImage::drawResized(int xx, int yy, int ww, int hh, int cornerWidth, CPattern
 void
 CPngImage::drawResized(int xx, int yy, int ww, int hh, int border[], CPatternDrawMode drawMode, bool drawBackground)
 {
-    int xBorderSpace = border[BORDER_LEFT] + border[BORDER_RIGHT];
+    int xBorderSpace = border[(int) CBorderIndex::BORDER_LEFT] + border[(int) CBorderIndex::BORDER_RIGHT];
     int xSideSpace = w() - xBorderSpace;
 
-    int yBorderSpace = border[BORDER_TOP] + border[BORDER_BOTTOM];
+    int yBorderSpace = border[(int) CBorderIndex::BORDER_TOP] + border[(int) CBorderIndex::BORDER_BOTTOM];
     int ySideSpace = h() - yBorderSpace;
 
     /// Draw corners
     int imageHeight = h();
     int imageWidth = w();
-    draw(xx, yy, border[BORDER_LEFT], border[BORDER_TOP], 0, 0);
-    draw(xx, yy + hh - border[BORDER_BOTTOM], border[BORDER_LEFT], border[BORDER_BOTTOM], 0,
-         imageHeight - border[BORDER_BOTTOM]);
-    draw(xx + ww - border[BORDER_RIGHT], yy, border[BORDER_LEFT], border[BORDER_TOP], imageWidth - border[BORDER_RIGHT],
+    draw(xx, yy, border[(int) CBorderIndex::BORDER_LEFT], border[(int) CBorderIndex::BORDER_TOP], 0, 0);
+    draw(xx, yy + hh - border[(int) CBorderIndex::BORDER_BOTTOM], border[(int) CBorderIndex::BORDER_LEFT],
+         border[(int) CBorderIndex::BORDER_BOTTOM], 0,
+         imageHeight - border[(int) CBorderIndex::BORDER_BOTTOM]);
+    draw(xx + ww - border[(int) CBorderIndex::BORDER_RIGHT], yy, border[(int) CBorderIndex::BORDER_LEFT],
+         border[(int) CBorderIndex::BORDER_TOP], imageWidth - border[(int) CBorderIndex::BORDER_RIGHT],
          0);
-    draw(xx + ww - border[BORDER_RIGHT], yy + hh - border[BORDER_BOTTOM], border[BORDER_LEFT], border[BORDER_BOTTOM],
-         imageWidth - border[BORDER_RIGHT], imageHeight - border[BORDER_BOTTOM]);
+    draw(xx + ww - border[(int) CBorderIndex::BORDER_RIGHT], yy + hh - border[(int) CBorderIndex::BORDER_BOTTOM],
+         border[(int) CBorderIndex::BORDER_LEFT], border[(int) CBorderIndex::BORDER_BOTTOM],
+         imageWidth - border[(int) CBorderIndex::BORDER_RIGHT],
+         imageHeight - border[(int) CBorderIndex::BORDER_BOTTOM]);
 
     resized_draw_function resizedDraw = cutTileDraw;
-    if (drawMode == PDM_STRETCH)
+    if (drawMode == CPatternDrawMode::PDM_STRETCH)
     {
         resizedDraw = cutStretchDraw;
     }
@@ -344,22 +348,29 @@ CPngImage::drawResized(int xx, int yy, int ww, int hh, int border[], CPatternDra
     /// Draw frame parts
     if (xSideSpace > 0)
     {
-        resizedDraw(this, border[BORDER_LEFT], 0, xSideSpace, border[BORDER_TOP], xx + border[BORDER_LEFT], yy,
-                    ww - xBorderSpace, border[BORDER_TOP]);
-        resizedDraw(this, border[BORDER_LEFT], h() - border[BORDER_BOTTOM], xSideSpace, border[BORDER_BOTTOM],
-                    xx + border[BORDER_LEFT], yy + hh - border[BORDER_BOTTOM], ww - xBorderSpace,
-                    border[BORDER_BOTTOM]);
+        resizedDraw(this, border[(int) CBorderIndex::BORDER_LEFT], 0, xSideSpace,
+                    border[(int) CBorderIndex::BORDER_TOP], xx + border[(int) CBorderIndex::BORDER_LEFT], yy,
+                    ww - xBorderSpace, border[(int) CBorderIndex::BORDER_TOP]);
+        resizedDraw(this, border[(int) CBorderIndex::BORDER_LEFT], h() - border[(int) CBorderIndex::BORDER_BOTTOM],
+                    xSideSpace, border[(int) CBorderIndex::BORDER_BOTTOM],
+                    xx + border[(int) CBorderIndex::BORDER_LEFT], yy + hh - border[(int) CBorderIndex::BORDER_BOTTOM],
+                    ww - xBorderSpace,
+                    border[(int) CBorderIndex::BORDER_BOTTOM]);
     }
     if (ySideSpace > 0)
     {
-        resizedDraw(this, 0, border[BORDER_TOP], border[BORDER_LEFT], ySideSpace, xx, yy + border[BORDER_TOP],
-                    border[BORDER_LEFT], hh - yBorderSpace);
-        resizedDraw(this, w() - border[BORDER_RIGHT], border[BORDER_TOP], border[BORDER_RIGHT], ySideSpace,
-                    xx + ww - border[BORDER_RIGHT], yy + border[BORDER_TOP], border[BORDER_RIGHT], hh - yBorderSpace);
+        resizedDraw(this, 0, border[(int) CBorderIndex::BORDER_TOP], border[(int) CBorderIndex::BORDER_LEFT],
+                    ySideSpace, xx, yy + border[(int) CBorderIndex::BORDER_TOP],
+                    border[(int) CBorderIndex::BORDER_LEFT], hh - yBorderSpace);
+        resizedDraw(this, w() - border[(int) CBorderIndex::BORDER_RIGHT], border[(int) CBorderIndex::BORDER_TOP],
+                    border[(int) CBorderIndex::BORDER_RIGHT], ySideSpace,
+                    xx + ww - border[(int) CBorderIndex::BORDER_RIGHT], yy + border[(int) CBorderIndex::BORDER_TOP],
+                    border[(int) CBorderIndex::BORDER_RIGHT], hh - yBorderSpace);
     }
     if (drawBackground && xSideSpace > 0 && ySideSpace > 0)
     {
-        resizedDraw(this, border[BORDER_LEFT], border[BORDER_TOP], xSideSpace, ySideSpace, xx + border[BORDER_LEFT],
-                    yy + border[BORDER_TOP], ww - xBorderSpace, hh - yBorderSpace);
+        resizedDraw(this, border[(int) CBorderIndex::BORDER_LEFT], border[(int) CBorderIndex::BORDER_TOP], xSideSpace,
+                    ySideSpace, xx + border[(int) CBorderIndex::BORDER_LEFT],
+                    yy + border[(int) CBorderIndex::BORDER_TOP], ww - xBorderSpace, hh - yBorderSpace);
     }
 }

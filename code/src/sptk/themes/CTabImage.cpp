@@ -43,11 +43,11 @@ CTabImage::CTabImage(const Tar& tar, const xml::Node* tabImageNode)
     m_bottomFrameHeight = (int) tabImageNode->getAttribute("bottom_frame", "0");
     if ((String) tabImageNode->getAttribute("fill") == "stretch")
     {
-        m_backgroundDrawMode = CPngImage::PDM_STRETCH;
+        m_backgroundDrawMode = CPngImage::CPatternDrawMode::PDM_STRETCH;
     }
     else
     {
-        m_backgroundDrawMode = CPngImage::PDM_TILE;
+        m_backgroundDrawMode = CPngImage::CPatternDrawMode::PDM_TILE;
     }
 }
 

@@ -63,7 +63,7 @@ CScroll::CScroll(const char* label, int layoutSize, CLayoutAlign layoutAlignment
 #ifdef __COMPATIBILITY_MODE__
 CScroll::CScroll(int x,int y,int w,int h,const char *l)
         : Fl_Group(x,y,w,h,l),
-        CLayoutManager(this,w,SP_ALIGN_NONE),
+        CLayoutManager(this,w,CLayoutAlign::NONE),
         scrollbar(x+w-SLIDER_WIDTH,y,SLIDER_WIDTH,h-SLIDER_WIDTH),
 hscrollbar(x,y+h-SLIDER_WIDTH,w-SLIDER_WIDTH,SLIDER_WIDTH) {
     ctor_init();
@@ -72,8 +72,8 @@ hscrollbar(x,y+h-SLIDER_WIDTH,w-SLIDER_WIDTH,SLIDER_WIDTH) {
 
 CLayoutClient* CScroll::creator(xml::Node* node)
 {
-    auto* widget = new CScroll("", 10, SP_ALIGN_TOP);
-    widget->loadLayout(node, LXM_LAYOUTDATA);
+    auto* widget = new CScroll("", 10, CLayoutAlign::TOP);
+    widget->loadLayout(node, CLayoutXMLmode::LAYOUTDATA);
     return widget;
 }
 

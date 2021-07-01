@@ -41,7 +41,8 @@ namespace sptk {
 /**
  * @brief Icon size variations
  */
-enum CIconSize
+enum class CIconSize
+    : uint8_t
 {
     /**
      * Combo box icon, 12x12

@@ -26,14 +26,14 @@
 
 #pragma once
 
-class Fl_Box;
-
-class Fl_Button;
-
 #include <sptk5/gui/CPopupWindow.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/gui/CLayoutClient.h>
+
+class Fl_Box;
+
+class Fl_Button;
 
 namespace sptk {
 
@@ -55,13 +55,13 @@ class SP_EXPORT CCalendar
     Fl_Group* m_headerBox;
     Fl_Group* m_buttonBox;
     Fl_Box* m_monthNameBox;
-    Fl_Box* m_dayNameBoxes[7];
-    Fl_Button* m_dayButtons[31];
-    Fl_Button* m_switchButtons[4];
+    std::array<Fl_Box*, 7> m_dayNameBoxes;
+    std::array<Fl_Button*, 31> m_dayButtons;
+    std::array<Fl_Button*, 4> m_switchButtons;
     DateTime m_date;
     std::string m_headerLabel;
     int m_activeButtonIndex;
-    char m_weekDayLabels[14];
+    std::array<char, 14> m_weekDayLabels;
 
     /**
      * Day button callback class function
@@ -97,7 +97,7 @@ public:
      * @param layoutSize int, the size of widget in layout
      * @param layoutAlignment CLayoutAlign, widget align in the layout
      */
-    CCalendar(const char* label, int layoutSize = 20, CLayoutAlign layoutAlignment = SP_ALIGN_TOP);
+    CCalendar(const char* label, int layoutSize = 20, CLayoutAlign layoutAlignment = CLayoutAlign::TOP);
 
     /**
      * @brief FLTK-style constructor

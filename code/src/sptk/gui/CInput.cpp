@@ -69,9 +69,13 @@ static string reformatPhoneNumber(const char* st)
         result = result.substr(1, 10);
     } // US long distance starts from 1
     if (result.length() == 7)
+    {
         result = "(   )-" + result.substr(0, 3) + "-" + result.substr(3, 4);
+    }
     else
+    {
         result = "(" + result.substr(0, 3) + ")-" + result.substr(3, 3) + "-" + result.substr(6, 4);
+    }
     return result;
 }
 
@@ -302,7 +306,7 @@ CInput_::CInput_(const char* label, int layoutSize, CLayoutAlign layoutAlignment
 
 #ifdef __COMPATIBILITY_MODE__
 CInput_::CInput_(int x, int y, int w, int h, const char *l)
-: Fl_Input(x, y, w, h, l), CLayoutClient(this,w,SP_ALIGN_NONE)
+: Fl_Input(x, y, w, h, l), CLayoutClient(this,w,CLayoutAlign::NONE)
 {
    m_maxLength = 0;
 }
@@ -400,8 +404,8 @@ CInput::~CInput() = default;
 
 CLayoutClient* CInput::creator(xml::Node* node)
 {
-    auto* widget = new CInput("", 10, SP_ALIGN_TOP);
-    widget->load(node, LXM_LAYOUTDATA);
+    auto* widget = new CInput("", 10, CLayoutAlign::TOP);
+    widget->load(node, CLayoutXMLmode::LAYOUTDATA);
     return widget;
 }
 
@@ -517,7 +521,7 @@ void CInput::preferredHeight(int& h) const
     {
         hh = labelHeight();
     }
-    if (m_controlFlags & FGE_MULTILINEENTRY)
+    if (m_controlFlags & (int) InputEntryFlags::MULTILINEENTRY)
     {
         if (h < hh)
         {

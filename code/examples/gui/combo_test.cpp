@@ -39,7 +39,7 @@ void theme_cb(Fl_Widget* w, void*)
         auto* themesCombo = (CComboBox*) w;
         String themeName = themesCombo->data().asString();
 
-        if (themesCombo->eventType() == CE_DATA_CHANGED)
+        if (themesCombo->eventType() == CEvent::DATA_CHANGED)
         {
             CThemes::set(themeName);
 
@@ -68,31 +68,31 @@ void combo_cb(Fl_Widget* w, void*)
     }
     switch (control->eventType())
     {
-        case CE_FOCUS:
+        case CEvent::FOCUS:
         COUT("Got focus" << endl)
             break;
-        case CE_UNFOCUS:
+        case CEvent::UNFOCUS:
         COUT("Lost focus" << endl)
             break;
-        case CE_DATA_CHANGED:
+        case CEvent::DATA_CHANGED:
         COUT("Data Changed" << endl)
             break;
-        case UC_ADD_ITEM:
+        case CEvent::ADD_ITEM:
         COUT("Add Item Command" << endl)
             break;
-        case UC_EDIT_ITEM:
+        case CEvent::EDIT_ITEM:
         COUT("Edit Item Command" << endl)
             break;
-        case UC_DELETE_ITEM:
+        case CEvent::DELETE_ITEM:
         COUT("Delete Item Command" << endl)
             break;
-        case CE_MOUSE_CLICK:
+        case CEvent::MOUSE_CLICK:
         COUT("Mouse Click" << endl)
             break;
-        case CE_MOUSE_DOUBLE_CLICK:
+        case CEvent::MOUSE_DOUBLE_CLICK:
         COUT("Mouse Double Click" << endl)
             break;
-        case CE_KEYBOARD:
+        case CEvent::KEYBOARD:
         COUT("Keyboard Key Pressed" << endl)
             break;
         default:
@@ -136,15 +136,15 @@ int main(int argc, char* argv[])
 
         // That group keeps togeteher the buttons. These
         // buttons use the default alignment for buttons -
-        // SP_ALIGN_RIGHT, and the text/icon defined by the
+        // CLayoutAlign::RIGHT, and the text/icon defined by the
         // button kind.
-        CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
+        CGroup buttonGroup("", 10, CLayoutAlign::BOTTOM);
         buttonGroup.color(FL_LIGHT1);
 
         CButton exitButton(CButtonKind::EXIT_BUTTON);
         exitButton.callback(exit_cb);
 
-        CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);
+        CComboBox themesCombo("Theme", 200, CLayoutAlign::LEFT);
         Strings themes = CThemes::availableThemes();
         themesCombo.addRows("Theme", themes);
         themesCombo.callback(theme_cb);

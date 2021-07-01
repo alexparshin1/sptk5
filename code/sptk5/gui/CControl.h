@@ -159,44 +159,45 @@ enum class CControlKind
 /**
  * @brief Special control flags (used as bit combination)
  */
-enum FGENTRYFLAGS
+enum class InputEntryFlags
+    : uint32_t
 {
     /**
      * No flags
      */
-    FGE_NONE = 0,
+    NONE = 0,
 
     /**
      * Requires spell checking
      */
-    FGE_SPELLCHECK = 1,
+    SPELLCHECK = 1,
 
     /**
      * Must have some value
      */
-    FGE_MANDATORY = 2,
+    MANDATORY = 2,
 
     /**
      * Is a custom field
      */
-    FGE_CFIELD = 4,
+    CFIELD = 4,
 
     /**
      * Is a single-line entry
      */
-    FGE_SINGLELINEENTRY = 256,
+    SINGLELINEENTRY = 256,
 
     /**
      * Is a multi-line entry
      */
-    FGE_MULTILINEENTRY = 512
+    MULTILINEENTRY = 512
 
 };
 
 /**
  * @brief Default height for the single-row edit control
  */
-#define SINGLE_EDIT_ENTRY_HEIGHT 23
+constexpr int SINGLE_EDIT_ENTRY_HEIGHT = 23;
 
 class CDBDropDownList;
 
@@ -290,8 +291,8 @@ protected:
     int m_tag;
 
     /**
-     * @brief Control's special flags (a bit combination of FGENTRYFLAGS).
-     * @see FGENTRYFLAGS for details.
+     * @brief Control's special flags (a bit combination of InputEntryFlags).
+     * @see InputEntryFlags for details.
      */
     uint32_t m_controlFlags;
     /**
@@ -352,7 +353,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    explicit CControl(const char* label, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    explicit CControl(const char* label, int layoutSize = 20, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -650,7 +651,7 @@ public:
      */
     virtual void load(const xml::Node* node)
     {
-        load(node, LXM_DATA);
+        load(node, CLayoutXMLmode::DATA);
     }
 
     /**
@@ -672,7 +673,7 @@ public:
      */
     virtual void save(xml::Node* node) const
     {
-        save(node, LXM_DATA);
+        save(node, CLayoutXMLmode::DATA);
     }
 
     /**

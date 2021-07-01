@@ -40,38 +40,43 @@
 using namespace std;
 using namespace sptk;
 
-CInput *i;
-CRadioButtons *cb;
+CInput* i;
+CRadioButtons* cb;
 
-void button_cb(Fl_Widget *b,void *) {
-   if ( strcmp(b->label(),"Get Choice") == 0)
-      i->data(cb->data());
-   else  cb->data(i->data());
+void button_cb(Fl_Widget* b, void*)
+{
+    if (strcmp(b->label(), "Get Choice") == 0)
+    {
+        i->data(cb->data());
+    }
+    else
+    { cb->data(i->data()); }
 }
 
-int main(int argc, char *argv[]) {
-   CWindow w(400,300);
+int main(int argc, char* argv[])
+{
+    CWindow w(400, 300);
 
-   CRadioButtons cbl("RadioButtons: ");
-   cbl.buttons(Strings("First,Second,Third,A very long choice label meant to occupy two rows,*",","));
-   cb = &cbl;
+    CRadioButtons cbl("RadioButtons: ");
+    cbl.buttons(Strings("First,Second,Third,A very long choice label meant to occupy two rows,*", ","));
+    cb = &cbl;
 
-   CInput    input("Test");
-   i = &input;
+    CInput input("Test");
+    i = &input;
 
-   CGroup g("",10,SP_ALIGN_BOTTOM);
-   CButton   btn1("Set Choice",SP_ALIGN_RIGHT);
-   btn1.callback(button_cb);
+    CGroup g("", 10, CLayoutAlign::BOTTOM);
+    CButton btn1("Set Choice", CLayoutAlign::RIGHT);
+    btn1.callback(button_cb);
 
-   CButton   btn2("Get Choice",SP_ALIGN_RIGHT);
-   btn2.callback(button_cb);
+    CButton btn2("Get Choice", CLayoutAlign::RIGHT);
+    btn2.callback(button_cb);
 
-   w.show(argc,argv);
+    w.show(argc, argv);
 
-   CThemes::set("Keramic");
-   w.relayout();
+    CThemes::set("Keramic");
+    w.relayout();
 
-   Fl::run();
+    Fl::run();
 
-   return 0;
+    return 0;
 }

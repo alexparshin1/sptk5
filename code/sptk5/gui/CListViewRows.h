@@ -172,7 +172,7 @@ public:
     {
         if (index < m_rows.size())
         {
-            return (CPackedStrings*) m_rows[index];
+            return m_rows[index];
         }
         return 0L;
     }

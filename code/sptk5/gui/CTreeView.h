@@ -71,7 +71,7 @@ public:
      * @param layoutSize        Widget align in layout
      * @param layoutAlign       Widget align in layout
      */
-    CTreeView(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
+    CTreeView(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**

@@ -35,7 +35,7 @@ using namespace sptk;
 //===========================================================================
 void CHtmlBox::ctor_init(const char* label)
 {
-    m_controlFlags = FGE_MULTILINEENTRY;
+    m_controlFlags = (uint32_t) InputEntryFlags::MULTILINEENTRY;
     m_control = new Fl_Help_View(x(), y(), w(), h(), "");
     add(m_control);
     m_control->box(FL_FLAT_BOX);
@@ -64,8 +64,8 @@ CHtmlBox::CHtmlBox(int x,int y,int w,int h,const char *label)
 
 CLayoutClient* CHtmlBox::creator(xml::Node* node)
 {
-    auto* widget = new CHtmlBox("", 10, SP_ALIGN_TOP);
-    widget->load(node, LXM_LAYOUTDATA);
+    auto* widget = new CHtmlBox("", 10, CLayoutAlign::TOP);
+    widget->load(node, CLayoutXMLmode::LAYOUTDATA);
     return widget;
 }
 
