@@ -153,9 +153,9 @@ Variant CCheckButtons::data() const
         }
         if (b->value())
         {
-            if (b == m_otherButton)
+            if (b == otherButton())
             {
-                result += m_otherInput->value();
+                result += otherInput()->value();
             }
             else
             {
@@ -176,9 +176,9 @@ Variant CCheckButtons::data() const
 void CCheckButtons::data(const Variant& s)
 {
     deselectAllButtons();
-    if (m_otherButton)
+    if (otherButton())
     {
-        m_otherInput->value("");
+        otherInput()->value("");
     }
     String st = s.asString();
     Strings sl(st, "|");
@@ -194,10 +194,10 @@ void CCheckButtons::data(const Variant& s)
         }
         else
         {
-            if (m_otherButton)
+            if (otherButton())
             {
-                m_otherButton->value(1);
-                m_otherInput->value(sl[i].c_str());
+                otherButton()->value(1);
+                otherInput()->value(sl[i].c_str());
             }
         }
     }

@@ -297,20 +297,32 @@ public:
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     * @param node              the XML node
+     * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode);
+    virtual void load(const xml::Node* node, CLayoutXMLmode xmlMode);
+
+    /**
+     * Loads layout client information from XML node
+     *
+     * Layout information may also include widget size and position,
+     * as well as visible() and active() states
+     * @param node              the XML node
+     */
+    virtual void load(const xml::Node* node)
+    {
+        load(node, CLayoutXMLmode::LAYOUT);
+    }
 
     /**
      * Saves layout client information from XML node
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     * @param node              the XML node
+     * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    void save(xml::Node* node, CLayoutXMLmode xmlMode) const;
+    virtual void save(xml::Node* node, CLayoutXMLmode xmlMode) const;
 };
 /**
  * @}

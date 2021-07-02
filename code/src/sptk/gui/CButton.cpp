@@ -476,7 +476,7 @@ void CButton::load(const xml::Node* node)
     }
 }
 
-void CButton::save(xml::Node* node) const
+void CButton::save(xml::Node* node, CLayoutXMLmode) const
 {
     CLayoutClient::save(node, CLayoutXMLmode::LAYOUT);
 }

@@ -64,8 +64,6 @@ class SP_EXPORT CButtonGroup
      */
     Strings m_buttonLabels;
 
-protected:
-
     /**
      * The 'Other' Button if requested (add '*' in the button list)
      */
@@ -76,6 +74,7 @@ protected:
      */
     CInput_* m_otherInput;
 
+protected:
 
     /**
      * Internal callback processing
@@ -129,7 +128,7 @@ protected:
 public:
     /**
      * Sets the list of the buttons.
-     * @param buttonList Strings, list of the buttons
+     * @param buttonList        list of the buttons
      */
     void buttons(const Strings& buttonList);
 
@@ -179,20 +178,44 @@ public:
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     * @param node              the XML node
+     * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
     void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
+
+    /**
+     * @brief Loads control data from XML
+     *
+     * Layout information may also include widget size and position,
+     * as well as visible() and active() states
+     * @param node              the XML node
+     */
+    void load(const xml::Node* node) override
+    {
+        load(node, CLayoutXMLmode::DATA);
+    }
 
     /**
      * Saves control data to XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     * @param node              the XML node
+     * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
     void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
+
+    /**
+     * @brief Saves control data to XML
+     *
+     * Layout information may also include widget size and position,
+     * as well as visible() and active() states
+     * @param node              the XML node
+     */
+    virtual void save(xml::Node* node) const
+    {
+        save(node, CLayoutXMLmode::DATA);
+    }
 
     /**
      * Tells if the the current data content is valid
@@ -206,11 +229,28 @@ public:
 
     /**
      * Computes the preferred size of the button group based on its contents
-     * @param w int&, the optimal width
-     * @param h int&, the optimal height
+     * @param w                 the optimal width
+     * @param h                 the optimal height
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
     bool preferredSize(int& w, int& h) override;
+
+    /**
+     * The 'Other' Button if requested (add '*' in the button list)
+     */
+    Fl_Button* otherButton() const
+    {
+        return m_otherButton;
+    }
+
+    /**
+     * The 'Other' Input if requested (add '*' in the button list)
+     */
+    CInput_* otherInput() const
+    {
+        return m_otherInput;
+    }
+
 };
 /**
  * @}

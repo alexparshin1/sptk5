@@ -349,22 +349,36 @@ public:
     static CLayoutClient* creator(xml::Node* node);
 
     /**
+     * Loads layout client information from XML node
+     *
+     * Layout information may also include widget size and position,
+     * as well as visible() and active() states
+     * @param node              the XML node
+     * @param xmlMode           (ignored)
+     */
+    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override
+    {
+        load(node);
+    }
+
+    /**
      * Loads the the widget from XML node
      *
      * The widget information may include widget attributes
      * and widget data
      * @param node xml::Node*, XML node
      */
-    virtual void load(const xml::Node* node);
+    void load(const xml::Node* node) override;
 
     /**
      * Saves the the widget to XML node
      *
      * The widget information may include widget attributes
      * and widget data
-     * @param node xml::Node*, XML node
+     * @param node              XML node
+     * @param lm                (ignored)
      */
-    virtual void save(xml::Node* node) const;
+    void save(xml::Node* node, CLayoutXMLmode lm = CLayoutXMLmode::LAYOUT) const override;
 };
 
 /**
