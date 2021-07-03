@@ -96,16 +96,11 @@ class SP_EXPORT CBaseButton
 {
     friend class CThemes;
 
-    /**
-     * Is this button a default button?
-     */
-    bool m_default;
-
-    /**
-     * Button type - normal, thin, or combo box button
-     */
-    CThemeButtonType m_type;
-
+    bool m_default;             ///< Is this button a default button?
+    CThemeButtonType m_type;    ///< Button type - normal, thin, or combo box button
+    CButtonKind m_kind;         ///< Button kind (for a stock image) or SP_UNDEFINED_BUTTON for user_defined image
+    Fl_Image* m_image;          ///< Internal image pointer
+    CIconSize m_iconSize;       ///< Icon size
 
     /**
      * Draws the dotted line. The line angle should be divided by 45 degrees w/o remains.
@@ -116,23 +111,7 @@ class SP_EXPORT CBaseButton
      */
     static void drawFocusLine(int xs, int ys, int xe, int ye);
 
-    /**
-     * Button kind (for a stock image) or SP_UNDEFINED_BUTTON for user_defined image
-     */
-    CButtonKind m_kind;
-
 protected:
-
-    /**
-     * Internal image pointer
-     */
-    Fl_Image* m_image;
-
-    /**
-     * Icon size
-     */
-    CIconSize m_iconSize;
-
 
     /**
      * Sets the button image to the selected kind buttonKind
@@ -234,19 +213,28 @@ public:
      * @param bkind CButtonKind stock image id.
      * @param iconSize CIconSize, the size of the icon
      */
-    virtual void buttonImage(CButtonKind bkind, CIconSize iconSize) = 0;
+    virtual void buttonImage(CButtonKind bkind, CIconSize iconSize = CIconSize::IS_LARGE_ICON)
+    {
+        image(bkind, iconSize, label());
+    }
 
     /**
      * Sets the image to the button. Purely virtual.
      * @param image Fl_Image * image pointer
      */
-    virtual void buttonImage(Fl_Image* image) = 0;
+    virtual void buttonImage(Fl_Image* image)
+    {
+        m_image = image;
+    }
 
     /**
      * Returns the button's image. Purely virtual.
      * @returns image pointer
      */
-    virtual Fl_Image* buttonImage() = 0;
+    virtual const Fl_Image* buttonImage() const
+    {
+        return m_image;
+    }
 
     /**
      * Returns button label
@@ -313,34 +301,6 @@ public:
             CThemeButtonType tbt = THM_BUTTON_NORMAL)
         : CBaseButton(label, layoutAlign, tbt)
     {
-    }
-
-    /**
-     * Sets the image to the button.
-     * @param image const Fl_Image * image pointer
-     */
-    void buttonImage(Fl_Image* image) override
-    {
-        m_image = image;
-    }
-
-    /**
-     * Sets the stock image to the button.
-     * @param bkind CButtonKind stock image id.
-     * @param iconSize CIconSize, the size of the icon
-     */
-    void buttonImage(CButtonKind bkind, CIconSize iconSize = CIconSize::IS_LARGE_ICON) override
-    {
-        image(bkind, iconSize, label());
-    }
-
-    /**
-     * Returns the button's image.
-     * @returns image pointer
-     */
-    Fl_Image* buttonImage() override
-    {
-        return m_image;
     }
 
     /**
@@ -414,34 +374,6 @@ public:
     CSmallButton(CButtonKind kind, CLayoutAlign layoutAlign = CLayoutAlign::RIGHT, const char* label = nullptr)
         : CBaseButton(kind, layoutAlign, true, label, THM_BUTTON_COMBO)
     {
-    }
-
-    /**
-     * Sets the image to the button.
-     * @param image const Fl_Image *, image pointer
-     */
-    void buttonImage(Fl_Image* image) override
-    {
-        m_image = image;
-    }
-
-    /**
-     * Sets the stock image to the button.
-     * @param bkind CButtonKind, stock image id.
-     * @param iconSize CIconSize, the size of the icon
-     */
-    void buttonImage(CButtonKind bkind, CIconSize iconSize = CIconSize::IS_SMALL_ICON) override
-    {
-        image(bkind, iconSize);
-    }
-
-    /**
-     * Returns the button's image.
-     * @returns image pointer
-     */
-    Fl_Image* buttonImage() override
-    {
-        return m_image;
     }
 };
 /**

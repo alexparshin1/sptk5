@@ -36,7 +36,6 @@
 #include <sys/stat.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/SystemException.h>
-#include <sptk5/cgui>
 #include <sptk5/ArchiveFile.h>
 
 #endif

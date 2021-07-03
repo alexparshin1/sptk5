@@ -130,12 +130,12 @@ int main(int argc, char* argv[])
         CButton exitButton(CButtonKind::EXIT_BUTTON);
         exitButton.callback(exit_cb);
 
-        CComboBox themesCombo("Theme", 200, CLayoutAlign::LEFT);
+        CComboBox themesCombo("Theme", 400, CLayoutAlign::LEFT);
         Strings themesList = CThemes::availableThemes();
         themesList.push_back("GTK");
         themesCombo.addRows("Theme", themesList);
         themesCombo.callback(theme_cb);
-        themesCombo.data("GTK");
+        themesCombo.data("E17");
 
         buttonGroup.end();
 
