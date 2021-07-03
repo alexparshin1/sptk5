@@ -214,12 +214,15 @@ int CTabButton::handle(int event)
         case FL_FOCUS:
             tabGroup->activate(this);
             break;
+
         case FL_KEYBOARD:
             if (Fl::event_key() == FL_Down)
             {
                 redraw();
                 return m_page->handle(FL_FOCUS);
             }
+            break;
+
         default:
             break;
     }

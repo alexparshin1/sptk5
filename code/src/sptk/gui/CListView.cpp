@@ -1944,6 +1944,7 @@ int CListView::handle(int event)
                 }
                 return 1;
             }
+            break;
 
         default:
             break;

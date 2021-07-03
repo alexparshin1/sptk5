@@ -43,7 +43,8 @@ namespace sptk {
  * XML extension throws XMLException type exceptions.
  * You should catch always at least these type of exceptions, when processing XML.
  */
-class SP_EXPORT XMLException: public Exception
+class SP_EXPORT XMLException
+    : public Exception
 {
 public:
 
@@ -54,23 +55,26 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    XMLException(std::string text, std::string file = "", int line = 0, std::string description = "")
-    : Exception(text, file, line, description)
-    {}
+    XMLException(const String& text, const String& file = "", int line = 0, const String& description = "")
+        : Exception(text, file, line, description)
+    {
+    }
 
     /**
      * Copy constructor
      * @param other             Other exception object
      */
     explicit XMLException(const TimeoutException& other)
-    : Exception(other)
-    {}
+        : Exception(other)
+    {
+    }
 
     /**
      * Destructor
      */
     ~XMLException() noexcept override
-    {}
+    {
+    }
 };
 /**
  * @}

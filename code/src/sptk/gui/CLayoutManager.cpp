@@ -315,6 +315,8 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
 
                 case CLayoutAlign::TOP:
                     yy += preferred_h + m_layoutSpacing;
+                    [[fallthrough]];
+
                 case CLayoutAlign::BOTTOM:
                     hh -= preferred_h + m_layoutSpacing;
                     if (preferred_w > ww)

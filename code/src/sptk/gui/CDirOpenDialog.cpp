@@ -47,7 +47,7 @@ using namespace sptk;
 bool CDirOpenDialog::okPressed()
 {
     struct stat st = {};
-    string dname;
+    String dname;
     try
     {
         dname = fileName();
@@ -58,7 +58,7 @@ bool CDirOpenDialog::okPressed()
             if (selection.size())
             {
                 CPackedStrings& row = selection[0];
-                string fname(row[1]);
+                String fname(row[1]);
                 dname += fname;
             }
         }
@@ -67,10 +67,10 @@ bool CDirOpenDialog::okPressed()
         memset(&st, 0, sizeof(struct stat));
 
 #ifdef _WIN32
-        if (stat((dname + string(".")).c_str(), &st) != 0)
+        if (stat((dname + String(".")).c_str(), &st) != 0)
             throw Exception("Can't access directory '" + dname + "'");
 #else
-        if (lstat((dname + string(".")).c_str(), &st) != 0)
+        if (lstat((dname + String(".")).c_str(), &st) != 0)
         {
             throw Exception("Can't access directory '" + dname + "'");
         }
