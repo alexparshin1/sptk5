@@ -40,51 +40,8 @@ FieldList::FieldList(bool indexed)
     }
 }
 
-FieldList::FieldList(const FieldList& other)
-{
-    assign(other);
-}
-
-FieldList::FieldList(FieldList&& other) noexcept
-    : m_list(move(other.m_list)), m_index(move(other.m_index))
-{
-}
-
-FieldList::~FieldList()
-{
-    clear();
-}
-
-void FieldList::assign(const FieldList& other)
-{
-    clear();
-
-    if (other.m_index != nullptr)
-    {
-        m_index = make_shared<Map>();
-    }
-    else
-    {
-        m_index.reset();
-    }
-
-    for (const auto* otherField: other)
-    {
-        auto* field = new Field(*otherField);
-        m_list.push_back(field);
-        if (m_index)
-        {
-            (*m_index)[field->fieldName()] = field;
-        }
-    }
-}
-
 void FieldList::clear()
 {
-    for (auto* field: *this)
-    {
-        delete field;
-    }
     m_list.clear();
     if (m_index)
     {
@@ -92,27 +49,18 @@ void FieldList::clear()
     }
 }
 
-FieldList& FieldList::operator=(const FieldList& other)
-{
-    if (&other != this)
-    {
-        assign(other);
-    }
-    return *this;
-}
-
 Field& FieldList::push_back(const String& fname, bool checkDuplicates)
 {
     if (checkDuplicates)
     {
-        const Field* pfld = findField(fname);
-        if (pfld != nullptr)
+        auto pfld = findField(fname);
+        if (pfld)
         {
             throw Exception("Attempt to duplicate field name");
         }
     }
 
-    auto* field = new Field(fname);
+    auto field = make_shared<Field>(fname);
 
     m_list.push_back(field);
 
@@ -124,7 +72,7 @@ Field& FieldList::push_back(const String& fname, bool checkDuplicates)
     return *field;
 }
 
-Field& FieldList::push_back(Field* field)
+Field& FieldList::push_back(const SField& field)
 {
     m_list.push_back(field);
 
@@ -136,7 +84,7 @@ Field& FieldList::push_back(Field* field)
     return *field;
 }
 
-Field* FieldList::findField(const String& fname) const
+SField FieldList::findField(const String& fname) const
 {
     if (m_index)
     {
@@ -148,7 +96,7 @@ Field* FieldList::findField(const String& fname) const
     }
     else
     {
-        for (auto* field: *this)
+        for (auto& field: *this)
         {
             if (strcasecmp(field->m_name.c_str(), fname.c_str()) == 0)
             {
@@ -161,7 +109,7 @@ Field* FieldList::findField(const String& fname) const
 
 void FieldList::toXML(xml::Node& node, bool compactMode) const
 {
-    for (const auto* field: *this)
+    for (const auto& field: *this)
     {
         field->toXML(node, compactMode);
     }
@@ -171,7 +119,7 @@ void FieldList::toXML(xml::Node& node, bool compactMode) const
 
 static constexpr int testInteger = 12345;
 
-TEST(SPTK_FieldList, ctors)
+TEST(SPTK_FieldList, ctor)
 {
     FieldList fieldList(true);
 
@@ -179,15 +127,6 @@ TEST(SPTK_FieldList, ctors)
     fieldList.push_back("value", true);
     fieldList["name"] = "id";
     fieldList["value"] = testInteger;
-
-    FieldList fieldList2(fieldList);
-
-    EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
-    EXPECT_EQ(testInteger, (int32_t) fieldList2["value"]);
-
-    fieldList2["name"] = "id2";
-    EXPECT_STREQ("id", fieldList["name"].asString().c_str());
-    EXPECT_STREQ("id2", fieldList2["name"].asString().c_str());
 }
 
 TEST(SPTK_FieldList, push_back)
@@ -203,7 +142,7 @@ TEST(SPTK_FieldList, push_back)
     EXPECT_EQ(testInteger, (int32_t) fieldList["value"]);
 }
 
-TEST(SPTK_FieldList, assign)
+TEST(SPTK_FieldList, move)
 {
     FieldList fieldList(true);
 
@@ -212,7 +151,7 @@ TEST(SPTK_FieldList, assign)
     fieldList["name"] = "id";
     fieldList["value"] = testInteger;
 
-    FieldList fieldList2 = fieldList;
+    FieldList fieldList2 = move(fieldList);
 
     EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
     EXPECT_EQ(testInteger, (int32_t) fieldList2["value"]);

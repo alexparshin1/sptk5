@@ -36,15 +36,15 @@
 #include <sptk5/FieldList.h>
 #include "DatabaseField.h"
 
-namespace sptk
-{
+namespace sptk {
 
 class OracleConnection;
 
 /**
  * Oracle statement
  */
-class OracleStatement : public DatabaseStatement<OracleConnection,oracle::occi::Statement>
+class OracleStatement
+    : public DatabaseStatement<OracleConnection, oracle::occi::Statement>
 {
 public:
 
@@ -78,12 +78,12 @@ public:
     /**
      * Deleted copy assignment
      */
-    OracleStatement& operator = (const OracleStatement&) = delete;
+    OracleStatement& operator=(const OracleStatement&) = delete;
 
     /**
      * Move assignment
      */
-    OracleStatement& operator = (OracleStatement&&) = default;
+    OracleStatement& operator=(OracleStatement&&) = default;
 
     /**
      * Sets actual parameter values for the statement execution
@@ -114,7 +114,9 @@ public:
     void fetch() override
     {
         if (m_resultSet)
+        {
             state().eof = (m_resultSet->next() == ResultSet::END_OF_FETCH);
+        }
     }
 
     /**
@@ -129,9 +131,9 @@ public:
 
 private:
 
-    Statement*          m_createClobStatement {nullptr};    ///< Statement for creating CLOBs
-    Statement*          m_createBlobStatement {nullptr};    ///< Statement for creating BLOBs
-    ResultSet*          m_resultSet {nullptr};              ///< Result set (if returned by statement)
+    Statement* m_createClobStatement {nullptr};    ///< Statement for creating CLOBs
+    Statement* m_createBlobStatement {nullptr};    ///< Statement for creating BLOBs
+    ResultSet* m_resultSet {nullptr};              ///< Result set (if returned by statement)
 
     /*
      * Index of output parameters
@@ -159,14 +161,14 @@ private:
      * @param index             Column number
      * @param field             Field
      */
-    void getBLOBOutputParameter(unsigned int index, DatabaseField* field) const;
+    void getBLOBOutputParameter(unsigned int index, const SDatabaseField& field) const;
 
     /**
      * Read CLOB field
      * @param index             Column number
      * @param field             Field
      */
-    void getCLOBOutputParameter(unsigned int index, sptk::DatabaseField* field) const;
+    void getCLOBOutputParameter(unsigned int index, const SDatabaseField& field) const;
 
     /**
      * Set CLOB parameter value
@@ -231,10 +233,9 @@ private:
      */
     void setIntParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
 
-    void getDateOutputParameter(unsigned int index, DatabaseField* field) const;
+    void getDateOutputParameter(unsigned int index, const SDatabaseField& field) const;
 
-    void getDateTimeOutputParameter(unsigned int index, DatabaseField* field) const;
+    void getDateTimeOutputParameter(unsigned int index, const SDatabaseField& field) const;
 };
 
 }
-

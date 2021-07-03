@@ -498,7 +498,7 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     while (!selectData.eof())
     {
         Strings row;
-        for (const auto* field: selectData.fields())
+        for (const auto& field: selectData.fields())
         {
             row.push_back(field->asString().trim());
         }
@@ -642,7 +642,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     {
         // Check if all fields are NULLs
         int column = 0;
-        for (const auto* field: selectData.fields())
+        for (const auto& field: selectData.fields())
         {
             if (!field->isNull())
             {
@@ -663,7 +663,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         selectData.next();
 
         Strings row;
-        for (const auto* field: selectData.fields())
+        for (const auto& field: selectData.fields())
         {
             row.push_back(field->asString().trim());
         }

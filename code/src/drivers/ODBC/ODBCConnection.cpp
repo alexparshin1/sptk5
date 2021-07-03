@@ -614,7 +614,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
             columnScale = 0;
         }
 
-        Field* field = new CODBCField(columnNameStr.str(), column, cType, dataType, columnLength, columnScale);
+        auto field = make_shared<CODBCField>(columnNameStr.str(), column, cType, dataType, columnLength, columnScale);
         query->fields().push_back(field);
     }
 }

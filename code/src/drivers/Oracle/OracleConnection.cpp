@@ -450,8 +450,8 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
             resultSet->setMaxColumnSize(columnIndex + 1, 16384);
         }
         VariantDataType dataType = OracleTypeToVariantType(columnType, columnScale);
-        auto* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize,
-                                        columnScale);
+        auto field = make_shared<DatabaseField>(columnName, columnIndex, columnType, dataType, columnDataSize,
+                                                columnScale);
         query->fields().push_back(field);
 
         ++columnIndex;

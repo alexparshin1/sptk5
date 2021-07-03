@@ -41,18 +41,24 @@ void createTable(DatabaseConnection db, const String& tableName)
 {
     Query step1Query(db, "CREATE TABLE " + tableName +
                          "(id INT,name CHAR(40),position_name CHAR(20),hire_date TIMESTAMP)", true);
-    try {
+    try
+    {
         step1Query.exec();
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         if (strstr(e.what(), "exist") == nullptr)
+        {
             throw;
+        }
         COUT("Table already exists, ")
     }
 }
 
 int main()
 {
-    try {
+    try
+    {
         //DatabaseConnectionPool connectionPool("postgresql://localhost/test");
         //DatabaseConnectionPool connectionPool("mysql://localhost/test");
         DatabaseConnectionPool connectionPool("oracle://protis:xxxxx@theater/XE");
@@ -99,7 +105,8 @@ int main()
         step3Query.param("some_id") = 1;
         step3Query.open();
 
-        while (!step3Query.eof()) {
+        while (!step3Query.eof())
+        {
 
             int id = 0;
             String name;
@@ -107,8 +114,10 @@ int main()
             String hire_date;
 
             int fieldIndex = 0;
-            for (Field* field: step3Query.fields()) {
-                switch (fieldIndex) {
+            for (const auto& field: step3Query.fields())
+            {
+                switch (fieldIndex)
+                {
                     case 0:
                         id = field->asInteger();
                         break;
@@ -135,7 +144,9 @@ int main()
 
         step4Query.open();
         COUT("Ok." << endl)
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         CERR("\nError: " << e.what() << endl)
         CERR("\nSorry, you have to fix your database connection." << endl)
         CERR("Please, read the README.txt for more information." << endl)
@@ -143,4 +154,3 @@ int main()
 
     return 0;
 }
-

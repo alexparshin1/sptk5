@@ -31,7 +31,7 @@ using namespace sptk;
 
 Field& MemoryDS::operator[](const String& field_name)
 {
-    UniqueLock(m_mutex);
+    scoped_lock lock(m_mutex);
     if (m_current == m_list.end())
     {
         throw Exception("At the end of the data");
@@ -42,7 +42,7 @@ Field& MemoryDS::operator[](const String& field_name)
 
 size_t MemoryDS::recordCount() const
 {
-    SharedLock(m_mutex);
+    scoped_lock lock(m_mutex);
     return m_list.size();
 }
 
@@ -50,7 +50,7 @@ size_t MemoryDS::recordCount() const
 
 size_t MemoryDS::fieldCount() const
 {
-    SharedLock(m_mutex);
+    scoped_lock lock(m_mutex);
     if (m_current == m_list.end())
     {
         throw Exception("At the end of the data");
@@ -61,7 +61,7 @@ size_t MemoryDS::fieldCount() const
 // access to the field by number, 0..field.size()-1
 Field& MemoryDS::operator[](size_t index)
 {
-    SharedLock(m_mutex);
+    scoped_lock lock(m_mutex);
     if (m_current == m_list.end())
     {
         throw Exception("At the end of the data");
@@ -73,7 +73,7 @@ Field& MemoryDS::operator[](size_t index)
 // read this field data into external value
 bool MemoryDS::readField(const char* fname, Variant& fvalue)
 {
-    SharedLock(m_mutex);
+    scoped_lock lock(m_mutex);
     try
     {
         fvalue = *(Variant*) &(*this)[fname];
@@ -88,7 +88,7 @@ bool MemoryDS::readField(const char* fname, Variant& fvalue)
 // write this field data from external value
 bool MemoryDS::writeField(const char* fname, const Variant& fvalue)
 {
-    UniqueLock(m_mutex);
+    scoped_lock lock(m_mutex);
     try
     {
         (*this)[fname] = fvalue;
@@ -102,6 +102,7 @@ bool MemoryDS::writeField(const char* fname, const Variant& fvalue)
 
 bool MemoryDS::open()
 {
+    scoped_lock lock(m_mutex);
     if (m_list.empty())
     {
         m_current = m_list.end();
@@ -122,7 +123,7 @@ bool MemoryDS::close()
 
 bool MemoryDS::first()
 {
-    UniqueLock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     if (!m_list.empty())
     {
@@ -135,7 +136,7 @@ bool MemoryDS::first()
 
 bool MemoryDS::last()
 {
-    UniqueLock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     if (!m_list.empty())
     {
@@ -149,7 +150,7 @@ bool MemoryDS::last()
 
 bool MemoryDS::next()
 {
-    UniqueLock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     if (m_current != m_list.end())
     {
@@ -161,7 +162,7 @@ bool MemoryDS::next()
 
 bool MemoryDS::prior()
 {
-    UniqueLock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     if (m_current != m_list.begin())
     {
@@ -173,7 +174,7 @@ bool MemoryDS::prior()
 
 bool MemoryDS::find(const String& fieldName, const Variant& position)
 {
-    SharedLock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     String value = position.asString();
     for (auto itor = m_list.begin(); itor != m_list.end(); ++itor)
@@ -191,7 +192,7 @@ bool MemoryDS::find(const String& fieldName, const Variant& position)
 
 void MemoryDS::clear()
 {
-    UniqueLock(m_mutex);
+    scoped_lock lock(m_mutex);
 
     m_list.clear();
 
@@ -200,7 +201,8 @@ void MemoryDS::clear()
 
 void MemoryDS::push_back(FieldList&& fieldList)
 {
-    UniqueLock(m_mutex);
+    scoped_lock lock(m_mutex);
+
     m_list.push_back(move(fieldList));
     if (m_list.size() == 1)
     {
@@ -210,7 +212,7 @@ void MemoryDS::push_back(FieldList&& fieldList)
 
 bool MemoryDS::empty() const
 {
-    SharedLock(m_mutex);
+    scoped_lock lock(m_mutex);
     return m_list.empty();
 }
 
@@ -219,7 +221,7 @@ bool MemoryDS::empty() const
 struct Person
 {
     String name;
-    int age{0};
+    int age {0};
 };
 
 static const vector<Person> people
@@ -239,11 +241,11 @@ TEST(SPTK_MemoryDS, createAndVerify)
     {
         FieldList row(false);
 
-        auto* name = new Field("name");
+        auto name = make_shared<Field>("name");
         *name = person.name;
         row.push_back(name);
 
-        auto* age = new Field("age");
+        auto age = make_shared<Field>("age");
         *age = person.age;
         row.push_back(age);
 

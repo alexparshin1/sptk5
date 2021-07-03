@@ -109,8 +109,9 @@ void ODBCConnectionBase::freeConnect()
 {
     if (!valid())
     {
-        return;
-    } // Not connected
+        return; // Not connected
+    }
+
     if (isConnected())
     {
         disconnect();

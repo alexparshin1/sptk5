@@ -336,7 +336,7 @@ int testDatabase(const string& connectionString)
             String hire_date;
 
             int fieldIndex = 0;
-            for (Field* field: selectRecordsQuery.fields())
+            for (const auto& field: selectRecordsQuery.fields())
             {
                 switch (fieldIndex)
                 {

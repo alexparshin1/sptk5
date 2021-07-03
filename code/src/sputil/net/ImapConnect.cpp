@@ -303,7 +303,7 @@ void ImapConnect::parseMessage(FieldList& results, bool headers_only)
     bool first = true;
     for (auto& headerName: required_headers)
     {
-        auto* fld = new Field(lowerCase(headerName).c_str());
+        auto fld = make_shared<Field>(lowerCase(headerName).c_str());
         if (first)
         {
             fld->view().width = 16;
@@ -367,7 +367,7 @@ void ImapConnect::parseMessage(FieldList& results, bool headers_only)
         body += m_response[i] + "\n";
     }
 
-    Field& bodyField = results.push_back(new Field("body"));
+    Field& bodyField = results.push_back(make_shared<Field>("body"));
     bodyField.setString(body);
 }
 

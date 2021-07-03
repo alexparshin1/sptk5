@@ -391,7 +391,7 @@ void OracleStatement::execute(bool inTransaction)
     }
 }
 
-void OracleStatement::getBLOBOutputParameter(unsigned int index, DatabaseField* field) const
+void OracleStatement::getBLOBOutputParameter(unsigned int index, const SDatabaseField& field) const
 {
     Blob blob = statement()->getBlob(index);
     blob.open(OCCI_LOB_READONLY);
@@ -402,7 +402,7 @@ void OracleStatement::getBLOBOutputParameter(unsigned int index, DatabaseField* 
     field->setDataSize(bytes);
 }
 
-void OracleStatement::getCLOBOutputParameter(unsigned int index, DatabaseField* field) const
+void OracleStatement::getCLOBOutputParameter(unsigned int index, const SDatabaseField& field) const
 {
     Clob clob = statement()->getClob(index);
     clob.open(OCCI_LOB_READONLY);
@@ -425,11 +425,11 @@ void OracleStatement::getOutputParameters(FieldList& fields)
         {
             parameter = enumeratedParams()[index - 1];
 
-            auto* field = (DatabaseField*) fields.findField(parameter->name());
-            if (field == nullptr)
+            auto field = dynamic_pointer_cast<DatabaseField>(fields.findField(parameter->name()));
+            if (!field)
             {
-                field = new DatabaseField(parameter->name(), (int) fields.size(), OCCIANYDATA,
-                                          parameter->dataType(), 256);
+                field = make_shared<DatabaseField>(parameter->name(), (int) fields.size(), OCCIANYDATA,
+                                                   parameter->dataType(), 256);
                 fields.push_back(field);
             }
 
@@ -478,7 +478,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
     }
 }
 
-void OracleStatement::getDateTimeOutputParameter(unsigned int index, DatabaseField* field) const
+void OracleStatement::getDateTimeOutputParameter(unsigned int index, const SDatabaseField& field) const
 {
     int year;
     unsigned month;
@@ -494,7 +494,7 @@ void OracleStatement::getDateTimeOutputParameter(unsigned int index, DatabaseFie
     field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));
 }
 
-void OracleStatement::getDateOutputParameter(unsigned int index, DatabaseField* field) const
+void OracleStatement::getDateOutputParameter(unsigned int index, const SDatabaseField& field) const
 {
     int year;
     unsigned month;

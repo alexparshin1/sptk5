@@ -114,40 +114,12 @@ public:
     /**
      * Copy assignment operation
      */
-    Field& operator=(const Field& other)
-    {
-        if (this == &other)
-        {
-            return *this;
-        }
-
-        setData(other);
-        m_name = other.m_name;
-        m_displayName = other.m_displayName;
-
-        return *this;
-    }
+    Field& operator=(const Field& other) = default;
 
     /**
      * Move assignment operation
      */
-    Field& operator=(Field&& other) noexcept
-    {
-        if (this == &other)
-        {
-            return *this;
-        }
-
-        *static_cast<Variant*>(this) = std::move(*static_cast<Variant*>(&other));
-
-        m_name = other.m_name;
-        other.m_name.clear();
-
-        m_displayName = other.m_displayName;
-        other.m_displayName.clear();
-
-        return *this;
-    }
+    Field& operator=(Field&& other) noexcept = default;
 
     /**
      * Assignment operation
@@ -271,6 +243,9 @@ private:
 
     String epochDataToDateTimeString() const;
 };
+
+using SField = std::shared_ptr<Field>;
+
 /**
  * @}
  */

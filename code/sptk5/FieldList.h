@@ -52,12 +52,12 @@ public:
     /**
      * Field iterator
      */
-    using iterator = std::vector<Field*>::iterator;
+    using iterator = std::vector<SField>::iterator;
 
     /**
      * Field const iterator
      */
-    using const_iterator = std::vector<Field*>::const_iterator;
+    using const_iterator = std::vector<SField>::const_iterator;
 
 
     /**
@@ -73,26 +73,28 @@ public:
      *
      * @param other             Other field list
      */
-    FieldList(const FieldList& other);
+    FieldList(const FieldList& other) = delete;
 
     /**
      * Move constructor
      *
      * @param other             Other field list
      */
-    FieldList(FieldList&& other) noexcept;
-
-    /**
-     * Destructor
-     */
-    ~FieldList();
+    FieldList(FieldList&& other) noexcept = default;
 
     /**
      * Copy assignment
      *
      * @param other             Other field list
      */
-    FieldList& operator = (const FieldList& other);
+    FieldList& operator=(const FieldList& other) = delete;
+
+    /**
+     * Copy assignment
+     *
+     * @param other             Other field list
+     */
+    FieldList& operator=(FieldList&& other) noexcept = default;
 
     /**
      * Clears the field list
@@ -157,7 +159,7 @@ public:
      * @param fld               Field name
      * @returns new field reference
      */
-    Field& push_back(Field *fld);
+    Field& push_back(const SField& fld);
 
     /**
      * Finds a field by the field name
@@ -166,7 +168,7 @@ public:
      * @param fname             Field name
      * @returns CField pointer, or 0L if not found
      */
-    Field* findField(const String& fname) const;
+    SField findField(const String& fname) const;
 
     /**
      * Finds a field by the field name
@@ -175,11 +177,13 @@ public:
      * @param fname             Field name
      * @returns CField pointer, or throw exception not found
      */
-    Field* fieldByName(const String& fname) const
+    SField fieldByName(const String& fname) const
     {
-        Field* field = findField(fname);
-        if (field == nullptr)
+        auto field = findField(fname);
+        if (!field)
+        {
             throw Exception("Field name '" + String(fname) + "' not found");
+        }
         return field;
     }
 
@@ -189,7 +193,7 @@ public:
      * @param index             Field index
      * @returns field reference
      */
-    Field& operator [](int index)
+    Field& operator[](int index)
     {
         return *m_list[index];
     }
@@ -200,7 +204,7 @@ public:
      * @param index             Field index
      * @returns field reference
      */
-    const Field& operator [](int index) const
+    const Field& operator[](int index) const
     {
         return *m_list[index];
     }
@@ -210,7 +214,7 @@ public:
      * @param fname             Field name
      * @returns field reference
      */
-    Field& operator [](const String& fname)
+    Field& operator[](const String& fname)
     {
         return *fieldByName(fname);
     }
@@ -220,7 +224,7 @@ public:
      * @param fname             Field name
      * @returns field reference
      */
-    const Field& operator [](const String& fname) const
+    const Field& operator[](const String& fname) const
     {
         return *fieldByName(fname.c_str());
     }
@@ -233,21 +237,21 @@ public:
      * @param node              XML node to store fields into
      * @param compact           Compact XML export flag
      */
-    void toXML(xml::Node& node, bool compactMode=false) const;
+    void toXML(xml::Node& node, bool compactMode = false) const;
 
 private:
     /**
      * Field vector
      */
-    using Vector = std::vector<Field*>;
+    using Vector = std::vector<SField>;
 
     /**
      * Field name to field case-insensitive map
      */
-    using Map = std::map<String, Field *, CaseInsensitiveCompare>;
+    using Map = std::map<String, SField, CaseInsensitiveCompare>;
 
-    Vector                  m_list;                     ///< The list of fields
-    std::shared_ptr<Map>    m_index;                    ///< The optional field index by name. 0L if field list isn't indexed.
+    Vector m_list;                     ///< The list of fields
+    std::shared_ptr<Map> m_index;                    ///< The optional field index by name. 0L if field list isn't indexed.
 
     /**
      * Copy assignment
@@ -262,4 +266,3 @@ private:
 /**
  * @}
  */
-

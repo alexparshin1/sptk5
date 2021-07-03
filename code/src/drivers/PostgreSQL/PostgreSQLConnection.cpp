@@ -645,7 +645,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
             VariantDataType fieldType = VariantDataType::VAR_NONE;
             PostgreTypeToCType(dataType, fieldType);
             int fieldLength = PQfsize(stmt, column);
-            auto* field = new DatabaseField(columnName.str(), column, (int) dataType, fieldType, fieldLength);
+            auto field = make_shared<DatabaseField>(columnName.str(), column, (int) dataType, fieldType, fieldLength);
             query->fields().push_back(field);
         }
     }

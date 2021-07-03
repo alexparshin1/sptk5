@@ -30,8 +30,8 @@
 #include <sptk5/FieldList.h>
 #include <sptk5/DataSource.h>
 #include <sptk5/Exception.h>
+#include <mutex>
 #include <vector>
-#include <sptk5/threads/Locks.h>
 
 namespace sptk {
 
@@ -47,7 +47,8 @@ namespace sptk {
  * can be loaded all at once, in the datasource open() operation. It's a base class
  * for several actual datasources.
  */
-class SP_EXPORT MemoryDS : public DataSource
+class SP_EXPORT MemoryDS
+    : public DataSource
 {
 public:
     /**
@@ -66,7 +67,7 @@ public:
      * @param other             Other object
      */
     MemoryDS(MemoryDS&& other) noexcept
-    : m_list(std::move(other.m_list)), m_current(std::move(other.m_current))
+        : m_list(std::move(other.m_list)), m_current(std::move(other.m_current))
     {
     }
 
@@ -76,14 +77,15 @@ public:
      * Deleted copy assignment
      * @param other             Other object
      */
-    MemoryDS& operator = (const MemoryDS& other) = delete;
+    MemoryDS& operator=(const MemoryDS& other) = delete;
 
     /**
      * Move assignment
      * @param other             Other object
      */
-    MemoryDS& operator = (MemoryDS&& other) noexcept
+    MemoryDS& operator=(MemoryDS&& other) noexcept
     {
+        std::scoped_lock lock(m_mutex, other.m_mutex);
         m_list = std::move(other.m_list);
         m_current = std::move(other.m_current);
         return *this;
@@ -100,7 +102,7 @@ public:
      */
     virtual FieldList& current()
     {
-        UniqueLock(m_mutex);
+        std::lock_guard lock(m_mutex);
         return *m_current;
     }
 
@@ -184,7 +186,7 @@ public:
      */
     bool eof() const override
     {
-        SharedLock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_current == m_list.end();
     }
 
@@ -192,11 +194,13 @@ public:
 
     std::vector<FieldList>& rows()
     {
+        std::scoped_lock lock(m_mutex);
         return m_list;
     }
 
     const std::vector<FieldList>& rows() const
     {
+        std::scoped_lock lock(m_mutex);
         return m_list;
     }
 
@@ -209,9 +213,9 @@ public:
 
 private:
 
-    mutable SharedMutex                 m_mutex;
-    std::vector<FieldList>              m_list;     // List of the dataset records
-    std::vector<FieldList>::iterator    m_current;  // DS iterator
+    mutable std::mutex m_mutex;
+    std::vector<FieldList> m_list;               // List of the dataset records
+    std::vector<FieldList>::iterator m_current;  // DS iterator
 };
 /**
  * @}

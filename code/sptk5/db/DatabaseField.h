@@ -168,9 +168,10 @@ private:
     int m_fldScale;                 ///< Field scale, optional, for floating point fields
     String m_displayFormat;            ///< Column display format
     int m_alignment {ALIGN_LEFT};   ///< Column alignment
-
-
 };
+
+using SDatabaseField = std::shared_ptr<DatabaseField>;
+
 /**
  * @}
  */
