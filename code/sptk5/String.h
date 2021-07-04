@@ -44,47 +44,37 @@ class Strings;
  * String with ID
  * Extended version of std::string that supports an integer string ID
  */
-class SP_EXPORT String : public std::string
+class SP_EXPORT String
+    : public std::string
 {
 public:
     /**
      * Default constructor
      */
-    String() noexcept
-    {}
+    String()
+        : m_id(0)
+    {
+    }
 
     /**
      * Copy constructor
-     * @param str                Source string
+     * @param str                Other object
      */
-    String(const String& str) noexcept
-    : std::string(str), m_id(str.m_id)
-    {}
+    String(const String& other) = default;
 
     /**
      * Move constructor
      * @param src                Other object
      */
-    String(String&& src) noexcept
-    : std::string(std::move(src)),
-      m_id(std::exchange(src.m_id,0))
-    {}
-
-    /**
-     * Move constructor
-     * @param src                Other object
-     */
-    explicit String(std::string&& src) noexcept
-    : std::string(std::move(src))
-    {}
+    String(String&& src) noexcept = default;
 
     /**
      * Constructor
      * @param str                Source string
-     * @param id                Optional string id
+     * @param id                 Optional string id
      */
-    String(const std::string& str, int64_t id = 0) noexcept
-    : std::string(str), m_id(id)
+    String(const std::string& str, int64_t id = 0)
+        : std::string(str), m_id(id)
     {
     }
 
@@ -94,7 +84,7 @@ public:
      * @param len                Optional string id
      */
     String(const char* str) noexcept
-    : std::string(str), m_id(0)
+        : std::string(str), m_id(0)
     {
     }
 
@@ -104,8 +94,8 @@ public:
      * @param len                String length
      * @param id                 String id
      */
-    String(const char* str, size_t len, int64_t id=0) noexcept
-    : std::string(str, len), m_id(id)
+    String(const char* str, size_t len, int64_t id = 0) noexcept
+        : std::string(str, len), m_id(id)
     {
     }
 
@@ -115,8 +105,8 @@ public:
      * @param ch                Fill character
      * @param id                Optional string id
      */
-    String(size_t len, char ch, int64_t id=0) noexcept
-    : std::string(len, ch), m_id(id)
+    String(size_t len, char ch, int64_t id = 0) noexcept
+        : std::string(len, ch), m_id(id)
     {
     }
 
@@ -137,17 +127,10 @@ public:
     }
 
     /**
-     * Assignment operator
+     * Copy assignment operator
      * @param other             Source string
      */
-    String& operator=(const String& other)
-    {
-        if (&other != this) {
-            assign(other);
-            m_id = other.m_id;
-        }
-        return *this;
-    }
+    String& operator=(const String& other) = default;
 
     /**
      * Assignment operator
