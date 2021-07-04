@@ -62,24 +62,13 @@ protected:
 } // namespace sptk
 
 ODBCConnection::ODBCConnection(const String& connectionString)
-    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::GENERIC_ODBC)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::GENERIC_ODBC),
+      m_connect(shared_ptr<ODBCConnectionBase>(new ODBCConnectionBase(),
+                                               [this](ODBCConnectionBase* ptr) {
+                                                   close();
+                                                   delete ptr;
+                                               }))
 {
-}
-
-ODBCConnection::~ODBCConnection()
-{
-    try
-    {
-        if (getInTransaction() && ODBCConnection::active())
-        {
-            rollbackTransaction();
-        }
-        close();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what() << endl)
-    }
 }
 
 String ODBCConnection::nativeConnectionString() const

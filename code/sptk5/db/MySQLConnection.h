@@ -39,8 +39,7 @@
 #define ULONG_CAST
 #endif
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup Database Database Support
@@ -50,9 +49,11 @@ namespace sptk
 /**
  * @brief MySQL database connection
  */
-class SP_EXPORT MySQLConnection: public PoolDatabaseConnection
+class SP_EXPORT MySQLConnection
+    : public PoolDatabaseConnection
 {
     friend class Query;
+
     friend class MySQLStatement;
 
 public:
@@ -92,9 +93,14 @@ public:
     explicit MySQLConnection(const String& connectionString = "");
 
     MySQLConnection(const MySQLConnection&) = delete;
+
     MySQLConnection(MySQLConnection&&) = delete;
-    MySQLConnection& operator= (const MySQLConnection&) = delete;
-    MySQLConnection& operator= (MySQLConnection&&) = delete;
+
+    MySQLConnection& operator=(const MySQLConnection&) = delete;
+
+    MySQLConnection& operator=(MySQLConnection&&) = delete;
+
+    virtual ~MySQLConnection() = default;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -140,57 +146,57 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    String queryError(const Query *query) const override;
+    String queryError(const Query* query) const override;
 
     /**
      * Allocates an MySQL statement
      */
-    void queryAllocStmt(Query *query) override;
+    void queryAllocStmt(Query* query) override;
 
     /**
      * Deallocates an MySQL statement
      */
-    void queryFreeStmt(Query *query) override;
+    void queryFreeStmt(Query* query) override;
 
     /**
      * Closes an MySQL statement
      */
-    void queryCloseStmt(Query *query) override;
+    void queryCloseStmt(Query* query) override;
 
     /**
      * Prepares a query if supported by database
      */
-    void queryPrepare(Query *query) override;
+    void queryPrepare(Query* query) override;
 
     /**
      * Unprepares a query if supported by database
      */
-    void queryUnprepare(Query *query) override;
+    void queryUnprepare(Query* query) override;
 
     /**
      * Executes a statement
      */
-    void queryExecute(Query *query) override;
+    void queryExecute(Query* query) override;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    int  queryColCount(Query *query) override;
+    int queryColCount(Query* query) override;
 
     /**
      * Binds the parameters to the query
      */
-    void queryBindParameters(Query *query) override;
+    void queryBindParameters(Query* query) override;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    void queryOpen(Query *query) override;
+    void queryOpen(Query* query) override;
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    void queryFetch(Query *query) override;
+    void queryFetch(Query* query) override;
 
 
     /**
@@ -203,8 +209,8 @@ protected:
 
 private:
 
-    std::shared_ptr<MYSQL>      m_connection; ///< MySQL database connection
-    mutable std::mutex          m_mutex;      ///< Mutex that protects access to data members
+    std::shared_ptr<MYSQL> m_connection; ///< MySQL database connection
+    mutable std::mutex m_mutex;      ///< Mutex that protects access to data members
 
     /**
      * @brief Init connection to MySQL server
@@ -227,7 +233,6 @@ private:
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* mysql_create_connection(const char* connectionString);
-    SP_DRIVER_EXPORT void  mysql_destroy_connection(void* connection);
+SP_DRIVER_EXPORT void* mysql_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT void mysql_destroy_connection(void* connection);
 }
-

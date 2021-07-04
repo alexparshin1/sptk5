@@ -62,25 +62,17 @@ void ODBCEnvironment::allocEnv()
     {
         exception("Can't allocate ODBC environment", __LINE__);
     }
-    m_hEnvironment = shared_ptr<void>(hEnvironment,
-                                      [this](void* env) {
-                                          scoped_lock lck(*this);
-                                          SQLFreeEnv(env);
-                                      });
+
+    m_hEnvironment = shared_ptr<uint8_t>((uint8_t*) hEnvironment,
+                                         [this](uint8_t* env) {
+                                             scoped_lock lck(*this);
+                                             SQLFreeEnv(env);
+                                         });
 }
 
 //--------------------------------------------------------------------------------------------
 // ODBC Connection class
 //--------------------------------------------------------------------------------------------
-
-ODBCConnectionBase::~ODBCConnectionBase()
-{
-    if (isConnected())
-    {
-        disconnect();
-    }
-    freeConnect();
-}
 
 ODBCEnvironment ODBCConnectionBase::m_env;
 
@@ -98,11 +90,21 @@ void ODBCConnectionBase::allocConnect()
     scoped_lock lock(*this);
 
     // Create connection handle
-    if (!Successful(SQLAllocConnect(m_cEnvironment.handle(), &m_hConnection)))
+    SQLHDBC hConnection = nullptr;
+    if (!Successful(SQLAllocConnect(m_cEnvironment.handle(), &hConnection)))
     {
         m_hConnection = SQL_NULL_HDBC;
         exception(errorInformation("Can't alloc connection"), __LINE__);
     }
+
+    m_hConnection = shared_ptr<uint8_t>((uint8_t*) hConnection,
+                                        [this](uint8_t* ptr) {
+                                            SQLHDBC conn(ptr);
+                                            SQLDisconnect(conn);
+                                            SQLFreeConnect(conn);
+                                            m_connected = false;
+                                            m_connectString = "";
+                                        });
 }
 
 void ODBCConnectionBase::freeConnect()
@@ -119,7 +121,7 @@ void ODBCConnectionBase::freeConnect()
 
     scoped_lock lock(*this);
 
-    SQLFreeConnect(m_hConnection);
+    SQLFreeConnect(m_hConnection.get());
     m_hConnection = SQL_NULL_HDBC;
     m_connected = false;
     m_connectString = "";
@@ -155,7 +157,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
     void* ParentWnd = nullptr;
 #endif
     char* pConnectString = m_connectString.empty() ? nullptr : &m_connectString[0];
-    SQLRETURN rc = ::SQLDriverConnect(m_hConnection, ParentWnd, (UCHAR*) pConnectString, SQL_NTS,
+    SQLRETURN rc = ::SQLDriverConnect(m_hConnection.get(), ParentWnd, (UCHAR*) pConnectString, SQL_NTS,
                                       buff.data(), (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
 
 
@@ -172,13 +174,13 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
     // Trying to get more information about the driver
     Buffer driverDescription(2048);
     SQLSMALLINT descriptionLength = 0;
-    rc = SQLGetInfo(m_hConnection, SQL_DBMS_NAME, driverDescription.data(), 2048, &descriptionLength);
+    rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_NAME, driverDescription.data(), 2048, &descriptionLength);
     if (Successful(rc))
     {
         m_driverDescription = driverDescription.c_str();
     }
 
-    rc = SQLGetInfo(m_hConnection, SQL_DBMS_VER, driverDescription.data(), 2048, &descriptionLength);
+    rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_VER, driverDescription.data(), 2048, &descriptionLength);
     if (Successful(rc))
     {
         m_driverDescription += " " + String(driverDescription.c_str());
@@ -194,7 +196,7 @@ void ODBCConnectionBase::disconnect()
 
     scoped_lock lock(*this);
 
-    SQLDisconnect(m_hConnection);
+    SQLDisconnect(m_hConnection.get());
     m_connected = false;
     m_connectString = "";
 }
@@ -208,7 +210,7 @@ void ODBCConnectionBase::setConnectOption(UWORD fOption, UDWORD vParam)
 
     scoped_lock lock(*this);
 
-    if (!Successful(SQLSetConnectOption(m_hConnection, fOption, vParam)))
+    if (!Successful(SQLSetConnectOption(m_hConnection.get(), fOption, vParam)))
     {
         exception(errorInformation(cantSetConnectOption), __LINE__);
     }
@@ -221,7 +223,7 @@ void ODBCConnectionBase::execQuery(const char* query)
     scoped_lock lock(*this);
 
     // Allocate Statement Handle
-    if (!Successful(SQLAllocHandle(SQL_HANDLE_STMT, m_hConnection, &hstmt)))
+    if (!Successful(SQLAllocHandle(SQL_HANDLE_STMT, m_hConnection.get(), &hstmt)))
     {
         throw Exception("Can't allocate handle");
     }
@@ -331,11 +333,11 @@ String ODBCConnectionBase::errorInformation(const char* function)
     SWORD pcnmsg = 0;
     SQLINTEGER nativeError = 0;
 
-    int rc = SQLError(SQL_NULL_HENV, m_hConnection, SQL_NULL_HSTMT, (UCHAR*) errorState.data(), &nativeError,
+    int rc = SQLError(SQL_NULL_HENV, m_hConnection.get(), SQL_NULL_HSTMT, (UCHAR*) errorState.data(), &nativeError,
                       (UCHAR*) errorDescription.data(), sizeof(errorDescription), &pcnmsg);
     if (rc == SQL_SUCCESS)
     {
-        return extract_error(m_hConnection, SQL_HANDLE_DBC);
+        return extract_error(m_hConnection.get(), SQL_HANDLE_DBC);
     }
 
     rc = SQLError(m_cEnvironment.handle(), SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR*) errorState.data(),

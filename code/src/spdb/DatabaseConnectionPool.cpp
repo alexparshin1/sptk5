@@ -557,4 +557,46 @@ TEST(SPTK_MSSQLConnection, insertQuery)
 
 #endif
 
+//───────────────────────────────── SQLite3 ────────────────────────────────────────────
+#if HAVE_SQLITE3
+
+TEST(SPTK_SQLite3Connection, connect)
+{
+    testConnect("SQLite3");
+}
+
+TEST(SPTK_SQLite3Connection, DDL)
+{
+    testDDL("SQLite3");
+}
+
+TEST(SPTK_SQLite3Connection, bulkInsert)
+{
+    testBulkInsert("SQLite3");
+}
+
+TEST(SPTK_SQLite3Connection, bulkInsertPerformance)
+{
+    testBulkInsertPerformance("SQLite3");
+}
+
+TEST(SPTK_SQLite3Connection, queryParameters)
+{
+    testQueryParameters("SQLite3");
+}
+
+TEST(SPTK_SQLite3Connection, transaction)
+{
+    testTransaction("SQLite3");
+}
+
+TEST(SPTK_SQLite3Connection, select)
+{
+    testSelect("SQLite3");
+}
+
+// insertQuery test isn't defined, because SQLite3 doesn't support auto-incremental fields
+
+#endif
+
 #endif

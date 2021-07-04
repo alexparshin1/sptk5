@@ -1,5 +1,5 @@
 IF (GTEST_FLAG)
-    ADD_LIBRARY (sptest ${LIBRARY_TYPE} TestRunner.cpp)
+    ADD_LIBRARY(sptest ${LIBRARY_TYPE} TestRunner.cpp)
     SET_TARGET_PROPERTIES(sptest PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
     TARGET_LINK_LIBRARIES(sptest sputil5 spdb5 spwsdl5 gtest)
 
@@ -10,9 +10,9 @@ IF (GTEST_FLAG)
 
     IF (UNIX)
         TARGET_LINK_LIBRARIES(unit_tests WebServiceUnitTests)
-    ENDIF()
-ENDIF()
+    ENDIF ()
+ENDIF ()
 
 IF (UNIX)
-    add_subdirectory (wsdl)
+    add_subdirectory(wsdl)
 ENDIF ()

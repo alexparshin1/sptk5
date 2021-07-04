@@ -715,7 +715,7 @@ TEST(SPTK_JWT, encode_hs256_decode)
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     jwt["iat"] = (int) time(nullptr);
-    jwt["iss"] = "http://test.com";
+    jwt["iss"] = "https://test.com";
     jwt["exp"] = (int) time(nullptr) + 86400;
 
     auto* info = jwt.grants.root().add_object("info");

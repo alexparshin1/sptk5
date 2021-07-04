@@ -111,7 +111,7 @@ static String makeJWT()
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     jwt["iat"] = 1594642696;
-    jwt["iss"] = "http://test.com";
+    jwt["iss"] = "https://test.com";
     jwt["exp"] = 1594642697;
 
     auto* info = jwt.grants.root().add_object("info");
@@ -140,7 +140,7 @@ TEST(SPTK_HttpAuthentication, bearer)
     const auto& auth = test.getData();
 
     EXPECT_STREQ(auth["iat"].getString().c_str(), "1594642696");
-    EXPECT_STREQ(auth["iss"].getString().c_str(), "http://test.com");
+    EXPECT_STREQ(auth["iss"].getString().c_str(), "https://test.com");
     EXPECT_STREQ(auth["exp"].getString().c_str(), "1594642697");
     EXPECT_EQ(test.type(), HttpAuthentication::Type::BEARER);
 }

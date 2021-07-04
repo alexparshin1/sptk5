@@ -30,7 +30,8 @@
 using namespace std;
 using namespace sptk;
 
-void atesting() {
+void atesting()
+{
     vector<RegularExpression> values;
     RegularExpression x("");
     values.push_back(x);
@@ -40,12 +41,13 @@ void atesting() {
 
 int main(int argc, char* argv[])
 {
-    TestRunner  tests(argc, argv);
+    TestRunner tests(argc, argv);
 
     tests.addDatabaseConnection(DatabaseConnectionString("postgresql://gtest:test#123@dbhost_pg:5432/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("mssql://gtest:test#123@dsn_mssql/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/xe"));
+    tests.addDatabaseConnection(DatabaseConnectionString("sqlite3://localhost/tmp/test.sqlite3"));
 
     return tests.runAllTests();
 }

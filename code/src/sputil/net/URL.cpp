@@ -131,15 +131,15 @@ String URL::location() const
 
 #if USE_GTEST
 
-static const String testURL0 = "http://www.test.com:8080/daily/report";
+static const String testURL0 = "https://www.test.com:8080/daily/report";
 static const String testURL1 = "/daily/report?action=view&id=1";
-static const String testURL2 = "http://johnd:secret@www.test.com:8080/daily/report?action=view&id=1";
-static const String testURL3 = "http://johnd:secret@www.test.com:8080/report?action=view&id=1";
+static const String testURL2 = "https://johnd:secret@www.test.com:8080/daily/report?action=view&id=1";
+static const String testURL3 = "https://johnd:secret@www.test.com:8080/report?action=view&id=1";
 
 TEST(SPTK_URL, minimal)
 {
     URL url(testURL0);
-    EXPECT_STREQ(url.protocol().c_str(), "http");
+    EXPECT_STREQ(url.protocol().c_str(), "https");
     EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
     EXPECT_STREQ(url.username().c_str(), "");
     EXPECT_STREQ(url.password().c_str(), "");
@@ -169,7 +169,7 @@ TEST(SPTK_URL, local)
 TEST(SPTK_URL, all)
 {
     URL url(testURL2);
-    EXPECT_STREQ(url.protocol().c_str(), "http");
+    EXPECT_STREQ(url.protocol().c_str(), "https");
     EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
     EXPECT_STREQ(url.username().c_str(), "johnd");
     EXPECT_STREQ(url.password().c_str(), "secret");

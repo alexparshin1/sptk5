@@ -144,7 +144,7 @@ private:
     /**
      * ODBC environment handle
      */
-    std::shared_ptr<void> m_hEnvironment;
+    std::shared_ptr<uint8_t> m_hEnvironment;
 };
 
 /**
@@ -156,16 +156,6 @@ class SP_DRIVER_EXPORT ODBCConnectionBase
     : public ODBCBase
 {
 public:
-
-    /**
-     * Default constructor
-     */
-    ODBCConnectionBase() = default;
-
-    /**
-     * Default destructor
-     */
-    ~ODBCConnectionBase();
 
     /**
      * Allocates connection
@@ -193,7 +183,7 @@ public:
      */
     SQLHDBC handle() const
     {
-        return m_hConnection;
+        return (SQLHDBC) m_hConnection.get();
     }
 
     /**
@@ -286,7 +276,7 @@ protected:
 private:
 
     ODBCEnvironment& m_cEnvironment {getEnvironment()};  ///< ODBC environment
-    SQLHDBC m_hConnection {SQL_NULL_HDBC};               ///< ODBC connection handle
+    std::shared_ptr<uint8_t> m_hConnection;              ///< ODBC connection handle
     bool m_connected {false};                            ///< Is connection active?
     String m_connectString;                              ///< ODBC connection string
     String m_driverDescription;                          ///< Driver description, filled in during the connection to the DSN

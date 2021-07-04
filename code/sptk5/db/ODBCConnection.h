@@ -66,7 +66,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~ODBCConnection();
+    virtual ~ODBCConnection() = default;
 
     ODBCConnection& operator=(const ODBCConnection&) = delete;
 
@@ -230,8 +230,7 @@ private:
     /**
      * The ODBC connection object
      */
-    std::shared_ptr<ODBCConnectionBase> m_connect = std::make_shared<ODBCConnectionBase>();
-
+    std::shared_ptr<ODBCConnectionBase> m_connect;
 
     /**
      * @brief Retrieves an error (if any) after statement was executed

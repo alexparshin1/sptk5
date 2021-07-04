@@ -129,7 +129,8 @@ static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString
         {"postgresql", "PostgreSQL"},
         {"mysql",      "MySQL"},
         {"mssql",      "MSSQL"},
-        {"oracle",     "Oracle"}
+        {"oracle",     "Oracle"},
+        {"sqlite3",    "SQLite3"}
     };
 
     for (auto& connection: definedConnections)

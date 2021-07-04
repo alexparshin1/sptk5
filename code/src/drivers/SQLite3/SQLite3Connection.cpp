@@ -75,7 +75,7 @@ SQLite3Connection::~SQLite3Connection()
 
 String SQLite3Connection::nativeConnectionString() const
 {
-    return connectionString().databaseName();
+    return "/" + connectionString().databaseName() + "/" + connectionString().schema();
 }
 
 void SQLite3Connection::_openDatabase(const String& newConnectionString)
@@ -89,6 +89,7 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
             connectionString(DatabaseConnectionString(newConnectionString));
         }
 
+        m_connect = nullptr;
         if (sqlite3_open(nativeConnectionString().c_str(), &m_connect) != 0)
         {
             string error = sqlite3_errmsg(m_connect);
@@ -181,12 +182,6 @@ void SQLite3Connection::queryAllocStmt(Query* query)
 void SQLite3Connection::queryFreeStmt(Query* query)
 {
     scoped_lock lock(m_mutex);
-
-    if (auto* stmt = (SQLHSTMT) query->statement();
-        stmt != nullptr)
-    {
-        sqlite3_finalize(stmt);
-    }
 
     querySetStmt(query, nullptr);
     querySetPrepared(query, false);
@@ -471,7 +466,7 @@ void SQLite3Connection::queryFetch(Query* query)
             field = (SQLite3Field*) &(*query)[column];
 
             auto fieldType = (short) field->fieldType();
-            if (fieldType == 0)
+            if (fieldType == 0 || fieldType == 5)
             {
                 fieldType = (short) sqlite3_column_type(statement, int(column));
                 field->setFieldType(fieldType, 0, 0);
