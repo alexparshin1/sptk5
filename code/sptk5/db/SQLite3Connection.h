@@ -61,7 +61,7 @@ public:
     /**
      * @brief Destructor
      */
-    ~SQLite3Connection() override;
+    virtual ~SQLite3Connection();
 
     /**
      * @brief Returns driver-specific connection string

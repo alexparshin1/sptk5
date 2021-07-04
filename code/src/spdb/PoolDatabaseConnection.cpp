@@ -31,14 +31,21 @@
 using namespace std;
 using namespace sptk;
 
-PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType)
-    : m_connString(connectionString), m_connType(connectionType)
+PoolDatabaseConnection::PoolDatabaseConnection(const String& _connectionString, DatabaseConnectionType connectionType)
+    : m_connType(connectionType)
 {
+    connectionString(DatabaseConnectionString(_connectionString));
 }
 
-PoolDatabaseConnection::~PoolDatabaseConnection()
+void PoolDatabaseConnection::connectionString(const DatabaseConnectionString& connectionString)
 {
-    disconnectAllQueries();
+    m_connString = shared_ptr<DatabaseConnectionString>(
+        new DatabaseConnectionString(connectionString),
+        [this](DatabaseConnectionString* ptr) {
+            disconnectAllQueries();
+            delete ptr;
+        }
+    );
 }
 
 void PoolDatabaseConnectionQueryMethods::disconnectAllQueries()

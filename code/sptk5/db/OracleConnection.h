@@ -131,7 +131,7 @@ public:
     /**
      * @brief Destructor
      */
-    ~OracleConnection() override;
+    virtual ~OracleConnection();
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.

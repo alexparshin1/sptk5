@@ -248,14 +248,6 @@ class SP_EXPORT PoolDatabaseConnection
 public:
 
     /**
-     * Destructor
-     *
-     * Closes the database connection and all the connected queries.
-     * Releases all the database resources allocated during the connection.
-     */
-    virtual ~PoolDatabaseConnection();
-
-    /**
      * Opens the database connection
      *
      * If unsuccessful throws an exception.
@@ -283,17 +275,14 @@ public:
      */
     const DatabaseConnectionString& connectionString() const
     {
-        return m_connString;
+        return *m_connString;
     }
 
     /**
      * Set connecting string
      * @param connectionString  Connection string
      */
-    void connectionString(const DatabaseConnectionString& connectionString)
-    {
-        m_connString = connectionString;
-    }
+    void connectionString(const DatabaseConnectionString& connectionString);
 
     /**
      * Returns driver-specific connection string
@@ -510,7 +499,7 @@ protected:
 
 private:
 
-    DatabaseConnectionString m_connString;       ///< The connection string
+    SDatabaseConnectionString m_connString;      ///< The connection string
     DatabaseConnectionType m_connType;           ///< The connection type
     String m_driverDescription;                  ///< Driver description is filled by the particular driver.
     bool m_inTransaction {false};                ///< The in-transaction flag

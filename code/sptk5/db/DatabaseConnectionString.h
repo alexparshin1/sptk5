@@ -30,8 +30,7 @@
 #include <sptk5/Strings.h>
 #include <sptk5/net/HttpParams.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup Database Database Support
@@ -62,11 +61,13 @@ public:
      * Constructor
      * @param connectionString  Database connection string
      */
-    explicit DatabaseConnectionString(const String& connectionString = "") 
-    : m_connectionString(connectionString)
+    explicit DatabaseConnectionString(const String& connectionString = "")
+        : m_connectionString(connectionString)
     {
         if (!m_connectionString.empty())
+        {
             parse();
+        }
     }
 
     /**
@@ -79,7 +80,7 @@ public:
      * Assignment
      * @param cs                Database connection string object to copy from
      */
-    DatabaseConnectionString& operator = (const DatabaseConnectionString& cs) = default;
+    DatabaseConnectionString& operator=(const DatabaseConnectionString& cs) = default;
 
     /**
      * Returns connection string
@@ -159,7 +160,7 @@ public:
     {
         m_password = pass;
     }
-    
+
     /**
      * Return optional parameter value
      * @param name              Parameter name
@@ -184,37 +185,37 @@ private:
     /**
      * Database connection string
      */
-    String     m_connectionString;
+    String m_connectionString;
 
     /**
      * Database server host name
      */
-    String     m_hostName;
+    String m_hostName;
 
     /**
      * Database server port number
      */
-    uint16_t   m_portNumber {0};
+    uint16_t m_portNumber {0};
 
     /**
      * Database user name
      */
-    String     m_userName;
+    String m_userName;
 
     /**
      * Database user password
      */
-    String     m_password;
+    String m_password;
 
     /**
      * Database name
      */
-    String     m_databaseName;
+    String m_databaseName;
 
     /**
      * Database schema
      */
-    String     m_schema;
+    String m_schema;
 
     /**
      * Optional parameters
@@ -224,8 +225,11 @@ private:
     /**
      * Database driver name
      */
-    String     m_driverName;
+    String m_driverName;
 };
+
+using SDatabaseConnectionString = std::shared_ptr<DatabaseConnectionString>;
+
 /**
  * @}
  */

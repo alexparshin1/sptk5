@@ -34,8 +34,7 @@
 #include <ibase.h>
 #include "AutoDatabaseConnection.h"
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup Database Database Support
@@ -47,15 +46,17 @@ class FirebirdStatement;
 /**
  * @brief Firebird database connection
  */
-class SP_EXPORT FirebirdConnection: public PoolDatabaseConnection
+class SP_EXPORT FirebirdConnection
+    : public PoolDatabaseConnection
 {
     friend class Query;
+
     friend class FirebirdStatement;
 
-    mutable std::mutex          m_mutex;            ///< Mutex that protects access to data members
-    isc_db_handle               m_connection {0};   ///< Database connection handle
-    isc_tr_handle               m_transaction;      ///< Database transaction handle
-    std::string                 m_lastStatus;       ///< Connection status on last checkStatus
+    mutable std::mutex m_mutex;            ///< Mutex that protects access to data members
+    isc_db_handle m_connection {0};   ///< Database connection handle
+    isc_tr_handle m_transaction;      ///< Database transaction handle
+    std::string m_lastStatus;       ///< Connection status on last checkStatus
 
 protected:
 
@@ -82,58 +83,58 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    String queryError(const Query *query) const override;
+    String queryError(const Query* query) const override;
 
     /**
      * Allocates an Firebird statement
      */
-    void queryAllocStmt(Query *query) override;
+    void queryAllocStmt(Query* query) override;
 
     /**
      * Deallocates an Firebird statement
      */
-    void queryFreeStmt(Query *query) override;
+    void queryFreeStmt(Query* query) override;
 
     /**
      * Closes an Firebird statement
      */
-    void queryCloseStmt(Query *query) override;
+    void queryCloseStmt(Query* query) override;
 
     /**
      * Prepares a query if supported by database
      */
-    void queryPrepare(Query *query) override;
+    void queryPrepare(Query* query) override;
 
     /**
      * Unprepares a query if supported by database
      */
-    void queryUnprepare(Query *query) override;
+    void queryUnprepare(Query* query) override;
 
     /**
      * Executes a statement
      */
-    void queryExecute(Query *query) override;
+    void queryExecute(Query* query) override;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    int  queryColCount(Query *query) override;
+    int queryColCount(Query* query) override;
 
     /**
      * Binds the parameters to the query
      */
-    void queryBindParameters(Query *query) override;
+    void queryBindParameters(Query* query) override;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    void queryOpen(Query *query) override;
+    void queryOpen(Query* query) override;
 
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    void queryFetch(Query *query) override;
+    void queryFetch(Query* query) override;
 
     /**
      * @brief Returns parameter mark
@@ -171,7 +172,7 @@ public:
     /**
      * @brief Destructor
      */
-    ~FirebirdConnection() override;
+    virtual ~FirebirdConnection();
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -214,7 +215,6 @@ public:
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* firebird_create_connection(const char* connectionString);
-    SP_DRIVER_EXPORT void  firebird_destroy_connection(void* connection);
+SP_DRIVER_EXPORT void* firebird_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT void firebird_destroy_connection(void* connection);
 }
-
