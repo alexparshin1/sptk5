@@ -508,6 +508,24 @@ static const String testJson(
     R"("title":"\"Mouse\"",)"
     R"("address":{"married":true,"employed":false}})");
 
+static const String testFormattedJson(R"({
+  "name": "John",
+  "age": 33,
+  "temperature": 33.6,
+  "timestamp": 1519005758000,
+  "skills": [
+    "C++",
+    "Java",
+    "Motorbike"
+  ],
+  "location": null,
+  "title": "\"Mouse\"",
+  "address": {
+    "married": true,
+    "employed": false
+  }
+})");
+
 TEST(SPTK_XDoc, JsonParser)
 {
     Buffer input(testJson);
@@ -518,6 +536,9 @@ TEST(SPTK_XDoc, JsonParser)
     root.exportJson(output, false);
 
     EXPECT_STREQ(testJson.c_str(), output.c_str());
+
+    root.exportJson(output, true);
+    EXPECT_STREQ(testFormattedJson.c_str(), output.c_str());
 }
 
 #endif
