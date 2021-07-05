@@ -40,7 +40,7 @@ public:
     using iterator = Nodes::iterator;
     using const_iterator = Nodes::const_iterator;
 
-    enum class NodeType
+    enum class Type
         : uint8_t
     {
         Null,
@@ -48,14 +48,48 @@ public:
         Number,
         Boolean,
         Array,
-        Object
+        Object,
+        CData,
+        Comment,
+        ProcessingInstruction
     };
 
-    Node(const String& nodeName = "");
+    Node(const String& nodeName = "", Type type = Type::Null);
 
     String name() const
     {
         return m_name;
+    }
+
+    void name(const String& name)
+    {
+        m_name = name;
+    }
+
+    bool is(Type type) const
+    {
+        return m_type == type;
+    }
+
+    Type type() const
+    {
+        return m_type;
+    }
+
+    void type(Type type)
+    {
+        m_type = type;
+    }
+
+    Node& pushNode(const String& name, Type type);
+
+    template<typename T>
+    Node& pushValue(const String& name, Type type, const T& value)
+    {
+        Variant v(value);
+        auto& node = pushNode(name, type);
+        node.setData(v);
+        return node;
     }
 
     String getAttribute(const String& name) const;
@@ -77,6 +111,16 @@ public:
         return *pNode;
     }
 
+    Variant& operator[](const size_t index)
+    {
+        return m_nodes[index];
+    }
+
+    const Variant& operator[](const size_t index) const
+    {
+        return m_nodes[index];
+    }
+
     Node* find(const String& name, bool createIfMissing);
 
     const Node* find(const String& name) const;
@@ -84,7 +128,7 @@ public:
 private:
 
     String m_name;
-    NodeType m_nodeType {NodeType::Null};
+    Type m_type {Type::Null};
     Attributes m_attributes;
     Nodes m_nodes;
 };

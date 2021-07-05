@@ -98,14 +98,6 @@ public:
 #endif
     }
 
-    CSSLLibraryLoader(const CSSLLibraryLoader&) = delete;
-
-    CSSLLibraryLoader(CSSLLibraryLoader&&) noexcept = delete;
-
-    CSSLLibraryLoader& operator=(const CSSLLibraryLoader&) = delete;
-
-    CSSLLibraryLoader& operator=(CSSLLibraryLoader&&) noexcept = delete;
-
     ~CSSLLibraryLoader() noexcept
     {
 #if OPENSSL_API_COMPAT >= 0x10100000L
@@ -382,7 +374,7 @@ size_t SSLSocket::recv(uint8_t* buffer, size_t len)
     return (size_t) rc;
 }
 
-#define WRITE_BLOCK 16384
+static constexpr int WRITE_BLOCK = 16384;
 
 size_t SSLSocket::send(const uint8_t* buffer, size_t len)
 {

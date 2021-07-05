@@ -256,7 +256,7 @@ public:
      * Retrieves an error information for user action name
      * @returns ODBC driver error message with the user action
      */
-    String errorInformation(const char* action);
+    String errorInformation(const char* action) const;
 
 protected:
     /**

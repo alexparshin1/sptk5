@@ -24,70 +24,37 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#pragma once
+
 #include "Node.h"
 
-using namespace std;
-using namespace sptk;
-using namespace xdoc;
+namespace sptk::xdoc {
 
-Node::Node(const String& nodeName, Type type)
-    : m_name(nodeName), m_type(type)
+/// @addtogroup XDoc
+/// @{
+
+/**
+ * JSON Parser
+ *
+ * Loads JSON text into XDoc element
+ */
+class SP_EXPORT ParseJson
 {
+    friend class Element;
 
-}
+public:
+    /**
+     * Constructor
+     */
+    ParseJson() = default;
 
-String Node::getAttribute(const String& name) const
-{
-    const auto itor = m_attributes.find(name);
-    if (itor == m_attributes.end())
-    {
-        return String();
-    }
-    return itor->second;
-}
+    /**
+     * Parse JSON text
+     * Root element should have JDT_NULL type (empty element) before calling this method.
+     * @param node              Output node
+     * @param json              JSON text
+     */
+    static void parse(xdoc::Node& node, const sptk::Buffer& json);
+};
 
-void Node::setAttribute(const String& name, const String& value)
-{
-    m_attributes[name] = value;
-}
-
-Node* Node::find(const String& name, bool createIfMissing)
-{
-    for (auto& node: m_nodes)
-    {
-        if (node.name() == name)
-        {
-            return &node;
-        }
-    }
-
-    if (createIfMissing)
-    {
-        m_nodes.emplace_back();
-        return &m_nodes.back();
-    }
-
-    return nullptr;
-}
-
-const Node* Node::find(const String& name) const
-{
-    for (const auto& node: m_nodes)
-    {
-        if (node.name() == name)
-        {
-            return &node;
-        }
-    }
-
-    return nullptr;
-}
-
-Node& Node::pushNode(const String& name, Type type)
-{
-    m_nodes.resize(m_nodes.size() + 1);
-    auto& node = m_nodes.back();
-    node.name(name);
-    node.type(type);
-    return m_nodes.back();
 }

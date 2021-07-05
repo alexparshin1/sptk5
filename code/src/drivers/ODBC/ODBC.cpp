@@ -31,9 +31,9 @@
 using namespace std;
 using namespace sptk;
 
-static const char cantSetConnectOption[] = "Can't set connect option";
-static const char cantEndTranscation[] = "Can't end transaction";
-static const char cantGetInformation[] = "Can't get connect information";
+static const char* cantSetConnectOption = "Can't set connect option";
+static const char* cantEndTranscation = "Can't end transaction";
+static const char* cantGetInformation = "Can't get connect information";
 
 // Returns true if result code indicates success
 static inline bool Successful(RETCODE ret)
@@ -57,7 +57,7 @@ void ODBCEnvironment::allocEnv()
         return;
     } // Already allocated
     scoped_lock lock(*this);
-    SQLHENV hEnvironment;
+    SQLHENV hEnvironment {nullptr};
     if (!Successful(SQLAllocEnv(&hEnvironment)))
     {
         exception("Can't allocate ODBC environment", __LINE__);
@@ -306,17 +306,15 @@ string extract_error(
 {
     SQLSMALLINT i = 0;
     SQLINTEGER native = 0;
-    array<SQLCHAR, 7> state;
-    array<SQLCHAR, 256> text;
+    array<SQLCHAR, 7> state {};
+    array<SQLCHAR, 256> text {};
     SQLSMALLINT len = 0;
-    SQLRETURN ret;
 
     string error;
     for (;;)
     {
         ++i;
-        ret = SQLGetDiagRec(type, handle, i, state.data(), &native, text.data(), sizeof(text), &len);
-        if (ret != SQL_SUCCESS)
+        if (SQLGetDiagRec(type, handle, i, state.data(), &native, text.data(), sizeof(text), &len) != SQL_SUCCESS)
         {
             break;
         }
@@ -326,7 +324,7 @@ string extract_error(
     return error;
 }
 
-String ODBCConnectionBase::errorInformation(const char* function)
+String ODBCConnectionBase::errorInformation(const char* function) const
 {
     array<char, SQL_MAX_MESSAGE_LENGTH> errorDescription {};
     array<char, SQL_MAX_MESSAGE_LENGTH> errorState {};

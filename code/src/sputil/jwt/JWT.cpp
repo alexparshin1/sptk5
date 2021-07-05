@@ -485,7 +485,8 @@ void JWT::decode(const char* token, const String& _key)
     vector<Part> parts(3);
 
     size_t index = 0;
-    for (const char* data = token; data != nullptr && index < 3; ++index)
+    const char* data = token;
+    while (data != nullptr && index < 3)
     {
         parts[index].data = data;
         const char* end = strchr(data, '.');
@@ -496,6 +497,7 @@ void JWT::decode(const char* token, const String& _key)
         }
         parts[index].length = end - data;
         data = end + 1;
+        ++index;
     }
 
     if (parts[1].data == nullptr)

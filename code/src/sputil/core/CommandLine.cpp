@@ -488,9 +488,11 @@ void CommandLine::init(size_t argc, const char** argv)
     Strings arguments = preprocessArguments(args);
     Strings digestedArgs = rewriteArguments(arguments);
 
-    for (size_t i = 0; i < digestedArgs.size(); ++i)
+    size_t i = 0;
+    while (i < digestedArgs.size())
     {
         readOption(digestedArgs, i);
+        ++i;
     }
 }
 

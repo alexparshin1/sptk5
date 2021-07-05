@@ -225,7 +225,7 @@ public:
      * Set image pointer
      * @param ptr               Image pointer
      */
-    void setImagePtr(const void* ptr)
+    void setImagePtr(const uint8_t* ptr)
     {
         size_t ptrSize = sizeof(ptr);
         memcpy(m_data.data(), ptr, ptrSize);

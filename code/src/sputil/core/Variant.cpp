@@ -109,7 +109,7 @@ Variant::Variant()
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(int32_t value)
+Variant::Variant(int value)
 {
     m_data.type(VariantDataType::VAR_INT);
     m_data.setNull(false);

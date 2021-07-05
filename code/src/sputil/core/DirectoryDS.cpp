@@ -242,7 +242,9 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
     String regexpStr("^");
     bool groupStarted = false;
     bool charClassStarted = false;
-    for (size_t pos = 0; pos < wildcard.length(); ++pos)
+
+    size_t pos = 0;
+    while (pos < wildcard.length())
     {
         char ch = wildcard[pos];
 
@@ -260,6 +262,7 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
                     break;
             }
             regexpStr += ch;
+            ++pos;
             continue;
         }
 
@@ -309,6 +312,7 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
                 break;
         }
         regexpStr += ch;
+        ++pos;
     }
     regexpStr += "$";
     return make_shared<RegularExpression>(regexpStr);

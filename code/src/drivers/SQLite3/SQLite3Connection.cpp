@@ -57,7 +57,7 @@ SQLite3Connection::SQLite3Connection(const String& connectionString)
 {
 }
 
-SQLite3Connection::~SQLite3Connection()
+void SQLite3Connection::closeAndClean()
 {
     try
     {
@@ -89,27 +89,32 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
             connectionString(DatabaseConnectionString(newConnectionString));
         }
 
-        m_connect = nullptr;
-        if (sqlite3_open(nativeConnectionString().c_str(), &m_connect) != 0)
+        sqlite3* connect = nullptr;
+        if (sqlite3_open(nativeConnectionString().c_str(), &connect) != 0)
         {
-            string error = sqlite3_errmsg(m_connect);
-            sqlite3_close(m_connect);
-            m_connect = nullptr;
+            string error = sqlite3_errmsg(connect);
+            sqlite3_close(connect);
+            m_connect.reset();
             throw DatabaseException(error);
         }
+
+        m_connect = shared_ptr<sqlite3>(connect,
+                                        [this](const sqlite3*) {
+                                            closeAndClean();
+                                        });
     }
 }
 
 void SQLite3Connection::closeDatabase()
 {
     disconnectAllQueries();
-    sqlite3_close(m_connect);
+    sqlite3_close(m_connect.get());
     m_connect = nullptr;
 }
 
 DBHandle SQLite3Connection::handle() const
 {
-    return (DBHandle) m_connect;
+    return (DBHandle) m_connect.get();
 }
 
 bool SQLite3Connection::active() const
@@ -131,7 +136,7 @@ void SQLite3Connection::driverBeginTransaction()
 
 
     if (char* zErrMsg = nullptr;
-        sqlite3_exec(m_connect, "BEGIN TRANSACTION", nullptr, nullptr, &zErrMsg) != SQLITE_OK)
+        sqlite3_exec(m_connect.get(), "BEGIN TRANSACTION", nullptr, nullptr, &zErrMsg) != SQLITE_OK)
     {
         throw DatabaseException(zErrMsg);
     }
@@ -150,7 +155,7 @@ void SQLite3Connection::driverEndTransaction(bool commit)
 
 
     if (char* zErrMsg = nullptr;
-        sqlite3_exec(m_connect, action, nullptr, nullptr, &zErrMsg) != SQLITE_OK)
+        sqlite3_exec(m_connect.get(), action, nullptr, nullptr, &zErrMsg) != SQLITE_OK)
     {
         throw DatabaseException(zErrMsg);
     }
@@ -162,7 +167,7 @@ void SQLite3Connection::driverEndTransaction(bool commit)
 
 String SQLite3Connection::queryError(const Query*) const
 {
-    return sqlite3_errmsg(m_connect);
+    return sqlite3_errmsg(m_connect.get());
 }
 
 // Doesn't actually allocate stmt, but makes sure
@@ -199,9 +204,10 @@ void SQLite3Connection::queryPrepare(Query* query)
     SQLHSTMT hStmt = nullptr;
 
     if (const char* pzTail = nullptr;
-        sqlite3_prepare(m_connect, query->sql().c_str(), int(query->sql().length()), &hStmt, &pzTail) != SQLITE_OK)
+        sqlite3_prepare(m_connect.get(), query->sql().c_str(), int(query->sql().length()), &hStmt, &pzTail) !=
+        SQLITE_OK)
     {
-        const char* errorMsg = sqlite3_errmsg(m_connect);
+        const char* errorMsg = sqlite3_errmsg(m_connect.get());
         throw DatabaseException(errorMsg, __FILE__, __LINE__, query->sql());
     }
 
@@ -305,7 +311,7 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
 
         if (rc != SQLITE_OK)
         {
-            string error = sqlite3_errmsg(m_connect);
+            string error = sqlite3_errmsg(m_connect.get());
             throw DatabaseException(
                 error + ", in binding parameter " + int2string(paramBindNumber), __FILE__, __LINE__,
                 query->sql());

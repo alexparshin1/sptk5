@@ -61,7 +61,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~SQLite3Connection();
+    virtual ~SQLite3Connection() = default;
 
     /**
      * @brief Returns driver-specific connection string
@@ -169,7 +169,7 @@ protected:
      */
     sqlite3* connection()
     {
-        return m_connect;
+        return m_connect.get();
     }
 
     /**
@@ -188,9 +188,11 @@ private:
     using SQLHSTMT = sqlite3_stmt*;
     using SQLHDBC = sqlite3*;
 
-    mutable std::mutex m_mutex;                ///< Mutex that protects access to data members
-    sqlite3* m_connect {nullptr};    ///< Database connection
+    mutable std::mutex m_mutex;              ///< Mutex that protects access to data members
+    std::shared_ptr<sqlite3> m_connect;      ///< Database connection
     void bindParameter(const Query* query, uint32_t paramNumber) const;
+
+    void closeAndClean();
 };
 
 /**
