@@ -125,12 +125,36 @@ public:
 
     const Node* find(const String& name) const;
 
+    /**
+     * Parse JSON text
+     * Root element should have JDT_NULL type (empty element) before calling this method.
+     * @param node              Output node
+     * @param json              JSON text
+     */
+    static void importJson(xdoc::Node& node, const sptk::Buffer& json);
+
+    /**
+     * Export to JSON text
+     * @param node              Output node
+     * @param formatted         Format JSON output
+     */
+    void exportJson(sptk::Buffer& json, bool formatted);
+
 private:
 
     String m_name;
     Type m_type {Type::Null};
     Attributes m_attributes;
     Nodes m_nodes;
+
+    void exportJsonValueTo(std::ostream& stream, bool formatted, size_t indent) const;
+
+    void exportJsonArray(std::ostream& stream, bool formatted, size_t indent, const String& firstElement,
+                         const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+
+    void exportJsonObject(std::ostream& stream, bool formatted, size_t indent, const String& firstElement,
+                          const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+
 };
 
 }

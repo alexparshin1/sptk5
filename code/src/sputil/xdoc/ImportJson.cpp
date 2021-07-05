@@ -24,7 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "ParseJson.h"
+#include "Node.h"
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -96,7 +97,7 @@ static constexpr int ERROR_CONTEXT_CHARS = 65;
     throwError(msg.str(), json, position);
 }
 
-void ParseJson::parse(Node& jsonElement, const Buffer& jsonStr)
+void Node::importJson(Node& jsonElement, const Buffer& jsonStr)
 {
     const char* json = jsonStr.c_str();
     const char* pos = json;
@@ -501,17 +502,22 @@ String decode(const String& text)
 #if USE_GTEST
 
 static const String testJson(
-    R"({ "name": "John", "age": 33, "temperature": 33.6, "timestamp": 1519005758000 )"
-    R"("skills": [ "C++", "Java", "Motorbike" ],)"
-    R"("location": null,)"
-    R"("title": "\"Mouse\"",)"
-    R"("address": { "married": true, "employed": false } })");
+    R"({"name":"John","age":33,"temperature":33.6,"timestamp":1519005758000,)"
+    R"("skills":["C++","Java","Motorbike"],)"
+    R"("location":null,)"
+    R"("title":"\"Mouse\"",)"
+    R"("address":{"married":true,"employed":false}})");
 
 TEST(SPTK_XDoc, JsonParser)
 {
     Buffer input(testJson);
     xdoc::Node root;
-    ParseJson::parse(root, input);
+    Node::importJson(root, input);
+
+    Buffer output;
+    root.exportJson(output, false);
+
+    EXPECT_STREQ(testJson.c_str(), output.c_str());
 }
 
 #endif
