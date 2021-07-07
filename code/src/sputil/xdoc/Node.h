@@ -126,7 +126,7 @@ public:
     Node& push_back(const Variant& value)
     {
         auto& node = pushNode("", Type::Null);
-        node.set("", value);
+        node.setData(value);
         return node;
     }
 

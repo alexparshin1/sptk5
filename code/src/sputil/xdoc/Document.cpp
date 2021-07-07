@@ -277,7 +277,7 @@ TEST(SPTK_XDocument, performance)
         list.push_back(3);
     }
 
-// Verify data
+    // Verify data
     auto& arrayData = arrayElement.getArray();
     constexpr int someIndex = 100;
     const Node& object = arrayData[someIndex];

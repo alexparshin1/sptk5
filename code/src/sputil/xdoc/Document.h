@@ -34,7 +34,10 @@ class Document
     : public Node
 {
 public:
-    using Node::Node;
+    Document(Type rootType = Type::Object)
+        : Node("", rootType)
+    {
+    }
 
     Document& root()
     {

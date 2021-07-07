@@ -103,11 +103,6 @@ void Node::importJson(Node& jsonElement, const Buffer& jsonStr)
     const char* pos = json;
     skipSpaces(json, pos);
 
-    if (!jsonElement.is(Node::Type::Null))
-    {
-        throwError("Can't execute on non-null JSON element", json, 0);
-    }
-
     switch (*pos)
     {
         case '{':

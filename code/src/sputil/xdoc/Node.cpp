@@ -53,6 +53,11 @@ void Node::setAttribute(const String& name, const String& value)
 
 Node* Node::find(const String& name, bool createIfMissing)
 {
+    if (!is(Type::Object))
+    {
+        throw Exception("This element is not JSON object");
+    }
+
     for (auto& node: m_nodes)
     {
         if (node.name() == name)
@@ -67,12 +72,21 @@ Node* Node::find(const String& name, bool createIfMissing)
         m_nodes.back().name(name);
         return &m_nodes.back();
     }
+    else
+    {
+        throw Exception("");
+    }
 
     return nullptr;
 }
 
 const Node* Node::find(const String& name) const
 {
+    if (!is(Type::Object))
+    {
+        throw Exception("This element is not JSON object");
+    }
+
     for (const auto& node: m_nodes)
     {
         if (node.name() == name)
@@ -192,7 +206,7 @@ const Node& Node::getObject(const String& name) const
 
 void Node::clear()
 {
-    setNull(VariantDataType::VAR_NONE);
+    type(Type::Object);
     m_nodes.clear();
     m_attributes.clear();
 }
