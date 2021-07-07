@@ -75,16 +75,16 @@ void Document::processAttributes(Node* node, const char* ptr)
 {
     auto matches = parseAttributes.m(ptr);
 
-    for (auto itor = matches.groups().begin(); itor != matches.groups().end(); ++itor)
+    for (auto itor = matches.groups().begin(); itor != matches.groups().end(); itor += 2)
     {
         const auto& attributeName = itor->value;
-        ++itor;
-        if (itor == matches.groups().end())
+        auto vtor = itor + 1;
+        if (vtor == matches.groups().end())
         {
             break;
         }
         m_encodeBuffer.bytes(0);
-        m_doctype.decodeEntities(itor->value.c_str(), (uint32_t) itor->value.length(), m_encodeBuffer);
+        m_doctype.decodeEntities(vtor->value.c_str(), (uint32_t) vtor->value.length(), m_encodeBuffer);
         node->setAttribute(attributeName, m_encodeBuffer.c_str());
     }
 }

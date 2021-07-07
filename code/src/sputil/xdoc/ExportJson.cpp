@@ -205,7 +205,7 @@ void Node::exportJsonObject(ostream& stream, bool formatted, size_t indent, cons
     stream << newLineChar << indentSpaces << "}";
 }
 
-void Node::exportJson(sptk::Buffer& json, bool formatted)
+void Node::exportJson(sptk::Buffer& json, bool formatted) const
 {
     stringstream stream;
     exportJsonValueTo(stream, formatted, 0);

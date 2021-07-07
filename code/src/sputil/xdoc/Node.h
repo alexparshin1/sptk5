@@ -54,7 +54,16 @@ public:
         ProcessingInstruction
     };
 
+    enum class DataFormat
+        : uint8_t
+    {
+        JSON,
+        XML
+    };
+
     Node(const String& nodeName = "", Type type = Type::Null);
+
+    void clear();
 
     String name() const
     {
@@ -95,6 +104,42 @@ public:
     String getAttribute(const String& name) const;
 
     void setAttribute(const String& name, const String& value);
+
+
+    String getString(const String& name = "") const;
+
+    double getNumber(const String& name = "") const;
+
+    bool getBoolean(const String& name = "") const;
+
+    const Nodes& getArray(const String& name = "") const;
+
+    const Node& getObject(const String& name = "") const;
+
+    // Compatibility
+    size_t size() const;
+
+    Node& add_array(const String& name);
+
+    Node& add_object(const String& name);
+
+    Node& push_back(const Variant& value)
+    {
+        auto& node = pushNode("", Type::Null);
+        node.set("", value);
+        return node;
+    }
+
+    Node& push_object();
+
+    Node& set(const String& name, const Variant& value)
+    {
+        auto& node = *find(name, true);
+        node.setData(value);
+        return node;
+    }
+
+    bool remove(const String& name);
 
     Variant& operator[](const String& name)
     {
@@ -138,7 +183,11 @@ public:
      * @param node              Output node
      * @param formatted         Format JSON output
      */
-    void exportJson(sptk::Buffer& json, bool formatted);
+    void exportJson(sptk::Buffer& json, bool formatted) const;
+
+    void load(DataFormat dataFormat, const Buffer& data);
+
+    void exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const;
 
 private:
 
@@ -156,5 +205,7 @@ private:
                           const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
 
 };
+
+using Element = Node;
 
 }
