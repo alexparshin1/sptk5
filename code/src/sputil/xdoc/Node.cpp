@@ -33,7 +33,6 @@ using namespace xdoc;
 Node::Node(const String& nodeName, Type type)
     : m_name(nodeName), m_type(type)
 {
-
 }
 
 String Node::getAttribute(const String& name) const
@@ -51,7 +50,7 @@ void Node::setAttribute(const String& name, const String& value)
     m_attributes[name] = value;
 }
 
-Node* Node::find(const String& name, bool createIfMissing)
+Node& Node::findOrCreate(const String& name)
 {
     if (!is(Type::Object))
     {
@@ -62,31 +61,59 @@ Node* Node::find(const String& name, bool createIfMissing)
     {
         if (node.name() == name)
         {
+            return node;
+        }
+    }
+
+    m_nodes.emplace_back();
+    auto& newNode = m_nodes.back();
+    newNode.name(name);
+    newNode.m_parent = this;
+    return newNode;
+}
+
+Node* Node::find(const String& name, SearchMode searchMode)
+{
+    if (!is(Type::Object))
+    {
+        return nullptr;
+    }
+
+    // Search for immediate child, first
+    for (auto& node: m_nodes)
+    {
+        if (node.name() == name)
+        {
             return &node;
         }
     }
 
-    if (createIfMissing)
+    if (searchMode == SearchMode::Recursive)
     {
-        m_nodes.emplace_back();
-        m_nodes.back().name(name);
-        return &m_nodes.back();
-    }
-    else
-    {
-        throw Exception("");
+        for (auto& node: m_nodes)
+        {
+            if (node.is(Type::Object))
+            {
+                auto* found = node.find(name, searchMode);
+                if (found)
+                {
+                    return found;
+                }
+            }
+        }
     }
 
     return nullptr;
 }
 
-const Node* Node::find(const String& name) const
+const Node* Node::find(const String& name, SearchMode searchMode) const
 {
     if (!is(Type::Object))
     {
-        throw Exception("This element is not JSON object");
+        throw Exception("This element is not XDocument object");
     }
 
+    // Search for immediate child, first
     for (const auto& node: m_nodes)
     {
         if (node.name() == name)
@@ -95,15 +122,39 @@ const Node* Node::find(const String& name) const
         }
     }
 
+    if (searchMode == SearchMode::Recursive)
+    {
+        for (const auto& node: m_nodes)
+        {
+            const auto* found = node.find(name, searchMode);
+            if (found)
+            {
+                return found;
+            }
+        }
+    }
+
     return nullptr;
 }
 
 Node& Node::pushNode(const String& name, Type type)
 {
+    if (m_type == Type::Null)
+    {
+        if (name.empty())
+        {
+            m_type = Type::Array;
+        }
+        else
+        {
+            m_type = Type::Object;
+        }
+    }
     m_nodes.resize(m_nodes.size() + 1);
     auto& node = m_nodes.back();
     node.name(name);
     node.type(type);
+    node.m_parent = this;
     return m_nodes.back();
 }
 
@@ -259,4 +310,14 @@ void Node::exportTo(Node::DataFormat dataFormat, Buffer& data, bool formatted) c
     {
         exportJson(data, formatted);
     }
+}
+
+void Node::exportXML(Buffer& json, int indent) const
+{
+
+}
+
+Node* Node::parent()
+{
+    return m_parent;
 }

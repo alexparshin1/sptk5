@@ -40,6 +40,13 @@ public:
     using iterator = Nodes::iterator;
     using const_iterator = Nodes::const_iterator;
 
+    enum class SearchMode
+        : uint8_t
+    {
+        ImmediateChild,
+        Recursive
+    };
+
     enum class Type
         : uint8_t
     {
@@ -90,7 +97,7 @@ public:
         m_type = type;
     }
 
-    Node& pushNode(const String& name, Type type);
+    Node& pushNode(const String& name, Type type = Type::Null);
 
     template<typename T>
     Node& pushValue(const String& name, Type type, const T& value)
@@ -134,7 +141,7 @@ public:
 
     Node& set(const String& name, const Variant& value)
     {
-        auto& node = *find(name, true);
+        auto& node = findOrCreate(name);
         node.setData(value);
         return node;
     }
@@ -143,7 +150,7 @@ public:
 
     Variant& operator[](const String& name)
     {
-        return *find(name, true);
+        return findOrCreate(name);
     }
 
     const Variant& operator[](const String& name) const
@@ -166,9 +173,31 @@ public:
         return m_nodes[index];
     }
 
-    Node* find(const String& name, bool createIfMissing);
+    iterator begin()
+    {
+        return m_nodes.begin();
+    }
 
-    const Node* find(const String& name) const;
+    const_iterator begin() const
+    {
+        return m_nodes.begin();
+    }
+
+    iterator end()
+    {
+        return m_nodes.end();
+    }
+
+    const_iterator end() const
+    {
+        return m_nodes.end();
+    }
+
+    Node& findOrCreate(const String& name);
+
+    Node* find(const String& name, SearchMode searchMode = SearchMode::ImmediateChild);
+
+    const Node* find(const String& name, SearchMode searchMode = SearchMode::ImmediateChild) const;
 
     /**
      * Parse JSON text
@@ -185,12 +214,22 @@ public:
      */
     void exportJson(sptk::Buffer& json, bool formatted) const;
 
+    /**
+     * Export to XML text
+     * @param node              Output node
+     * @param indent            Indent (spaces)
+     */
+    void exportXML(sptk::Buffer& json, int indent) const;
+
     void load(DataFormat dataFormat, const Buffer& data);
 
     void exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const;
 
+    Node* parent();
+
 private:
 
+    Node* m_parent {nullptr};
     String m_name;
     Type m_type {Type::Null};
     Attributes m_attributes;
