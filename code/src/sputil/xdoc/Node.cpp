@@ -25,6 +25,8 @@
 */
 
 #include "Node.h"
+#include "ImportXML.h"
+#include "ExportXML.h"
 
 using namespace std;
 using namespace sptk;
@@ -33,6 +35,16 @@ using namespace xdoc;
 Node::Node(const String& nodeName, Type type)
     : m_name(nodeName), m_type(type)
 {
+}
+
+Node::Attributes& Node::attributes()
+{
+    return m_attributes;
+}
+
+const Node::Attributes& Node::attributes() const
+{
+    return m_attributes;
 }
 
 String Node::getAttribute(const String& name) const
@@ -295,12 +307,31 @@ size_t Node::size() const
     return m_nodes.size();
 }
 
-void Node::load(Node::DataFormat dataFormat, const Buffer& data)
+void Node::load(Node::DataFormat dataFormat, const Buffer& data, bool xmlKeepSpaces)
 {
+    clear();
     if (dataFormat == DataFormat::JSON)
     {
-        clear();
         importJson(*this, data);
+    }
+    else
+    {
+        importXML(data, xmlKeepSpaces);
+    }
+}
+
+void Node::load(Node::DataFormat dataFormat, const String& data, bool xmlKeepSpaces)
+{
+    Buffer input(data);
+
+    clear();
+    if (dataFormat == DataFormat::JSON)
+    {
+        importJson(*this, input);
+    }
+    else
+    {
+        importXML(input, xmlKeepSpaces);
     }
 }
 
@@ -310,11 +341,23 @@ void Node::exportTo(Node::DataFormat dataFormat, Buffer& data, bool formatted) c
     {
         exportJson(data, formatted);
     }
+    else
+    {
+        ExportXML exporter;
+        exporter.save(*this, data, formatted ? 2 : 0);
+    }
 }
 
-void Node::exportXML(Buffer& json, int indent) const
+void Node::importXML(const Buffer& xml, bool xmlKeepSpaces)
 {
+    ImportXML importer;
+    importer.import(*this, xml.c_str(), xmlKeepSpaces);
+}
 
+void Node::exportXML(Buffer& xml, int indent) const
+{
+    ExportXML exporter;
+    exporter.save(*this, xml, indent);
 }
 
 Node* Node::parent()

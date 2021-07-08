@@ -26,7 +26,8 @@
 
 #include <cstdlib>
 #include <sptk5/Strings.h>
-#include "XMLDocument.h"
+#include "ImportXML.h"
+#include "Document.h"
 #include <sptk5/Printer.h>
 
 using namespace std;
@@ -34,26 +35,9 @@ using namespace sptk;
 
 namespace sptk::xdoc {
 
-const RegularExpression XMLDocument::parseAttributes {R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])", "g"};
+const RegularExpression ImportXML::parseAttributes {R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])", "g"};
 
-XMLDocument::XMLDocument()
-    : Node("#document")
-{
-}
-
-XMLDocument::XMLDocument(const String& xml)
-    : Element(*this)
-{
-    XMLDocument::load(xml);
-}
-
-XMLDocument::XMLDocument(const char* aname, const char* public_id, const char* system_id)
-    : Element(*this),
-      m_doctype(aname, public_id, system_id)
-{
-}
-
-void XMLDocument::processAttributes(Node& node, const char* ptr)
+void ImportXML::processAttributes(Node& node, const char* ptr)
 {
     auto matches = parseAttributes.m(ptr);
 
@@ -71,7 +55,7 @@ void XMLDocument::processAttributes(Node& node, const char* ptr)
     }
 }
 
-char* XMLDocument::parseEntity(char* start)
+char* ImportXML::parseEntity(char* start)
 {
     static const RegularExpression matchEntity(R"( (?<name>[\w_\-]+)\s+["'](?<value>.*)["'])");
     constexpr int entityMarkerLength = 8;
@@ -99,7 +83,7 @@ char* XMLDocument::parseEntity(char* start)
     return end + 1;
 }
 
-void XMLDocument::parseEntities(char* entitiesSection)
+void ImportXML::parseEntities(char* entitiesSection)
 {
     auto* start = entitiesSection;
     while (start != nullptr)
@@ -108,7 +92,7 @@ void XMLDocument::parseEntities(char* entitiesSection)
     }
 }
 
-unsigned char* XMLDocument::skipSpaces(unsigned char* start)
+unsigned char* ImportXML::skipSpaces(unsigned char* start)
 {
     while (*start <= ' ')
     {
@@ -117,7 +101,7 @@ unsigned char* XMLDocument::skipSpaces(unsigned char* start)
     return start;
 }
 
-void XMLDocument::parseXMLDocType(char* docTypeSection)
+void ImportXML::parseXMLDocType(char* docTypeSection)
 {
     m_doctype.m_name = "";
     m_doctype.m_public_id = "";
@@ -192,7 +176,7 @@ void XMLDocument::parseXMLDocType(char* docTypeSection)
     }
 }
 
-void XMLDocument::extractEntities(char* docTypeSection)
+void ImportXML::extractEntities(char* docTypeSection)
 {
     char* entitiesSection = strchr(docTypeSection, '[');
     if (entitiesSection != nullptr)
@@ -208,7 +192,7 @@ void XMLDocument::extractEntities(char* docTypeSection)
     }
 }
 
-char* XMLDocument::readComment(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd)
+char* ImportXML::readComment(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd)
 {
     nodeEnd = strstr(nodeName + 3, "-->");
     if (nodeEnd == nullptr)
@@ -216,12 +200,12 @@ char* XMLDocument::readComment(Node& currentNode, char* nodeName, char* nodeEnd,
         throw Exception("Invalid end of the comment tag");
     }
     *nodeEnd = 0;
-    currentNode.pushNode(nodeName + 3, Type::Comment);
+    currentNode.pushNode(nodeName + 3, Node::Type::Comment);
     tokenEnd = nodeEnd + 2;
     return tokenEnd;
 }
 
-char* XMLDocument::readCDataSection(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd)
+char* ImportXML::readCDataSection(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd)
 {
     constexpr int cdataTagLength = 8;
     nodeEnd = strstr(nodeName + 1, "]]>");
@@ -230,13 +214,13 @@ char* XMLDocument::readCDataSection(Node& currentNode, char* nodeName, char* nod
         throw Exception("Invalid CDATA section");
     }
     *nodeEnd = 0;
-    currentNode.pushNode("#cdata", Type::CData)
+    currentNode.pushNode("#cdata", Node::Type::CData)
                .setString(nodeName + cdataTagLength);
     tokenEnd = nodeEnd + 2;
     return tokenEnd;
 }
 
-char* XMLDocument::readXMLDocType(char* tokenEnd)
+char* ImportXML::readXMLDocType(char* tokenEnd)
 {
     auto* nodeEnd = strstr(tokenEnd + 1, "]>");
 
@@ -261,7 +245,7 @@ char* XMLDocument::readXMLDocType(char* tokenEnd)
     return tokenEnd;
 }
 
-char* XMLDocument::readExclamationTag(Node& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd)
+char* ImportXML::readExclamationTag(Node& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd)
 {
     constexpr int cdataTagLength = 8;
     constexpr int docTypeTagLength = 8;
@@ -286,7 +270,8 @@ char* XMLDocument::readExclamationTag(Node& currentNode, char* nodeName, char* t
     return tokenEnd;
 }
 
-char* XMLDocument::readProcessingInstructions(Node& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
+char* ImportXML::readProcessingInstructions(Node& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
+                                            bool isRootNode)
 {
     nodeEnd = strstr(tokenEnd, "?>");
     if (nodeEnd == nullptr)
@@ -295,15 +280,26 @@ char* XMLDocument::readProcessingInstructions(Node& currentNode, const char* nod
     }
     *nodeEnd = 0;
     *tokenEnd = 0;
-    auto& pi = currentNode.pushNode(nodeName + 1, Type::ProcessingInstruction);
-    processAttributes(pi, tokenEnd + 1);
+    Node* pi;
+    if (isRootNode)
+    {
+        pi = &currentNode;
+        pi->name(nodeName + 1);
+        pi->type(Node::Type::ProcessingInstruction);
+    }
+    else
+    {
+        pi = &currentNode.pushNode(nodeName + 1, Node::Type::ProcessingInstruction);
+    }
+
+    processAttributes(*pi, tokenEnd + 1);
 
     ++nodeEnd;
     tokenEnd = nodeEnd;
     return tokenEnd;
 }
 
-char* XMLDocument::readClosingTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
+char* ImportXML::readClosingTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
 {
     char ch = *tokenEnd;
     *tokenEnd = 0;
@@ -319,17 +315,13 @@ char* XMLDocument::readClosingTag(Node*& currentNode, const char* nodeName, char
     }
 
     currentNode = currentNode->parent();
-    if (currentNode == nullptr)
-    {
-        throw Exception(
-            "Closing tag <" + string(nodeName) + "> doesn't have corresponding opening tag");
-    }
+
     nodeEnd = tokenEnd;
 
     return tokenEnd;
 }
 
-char* XMLDocument::readOpenningTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
+char* ImportXML::readOpenningTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
 {
     char ch = *tokenEnd;
     *tokenEnd = 0;
@@ -338,12 +330,12 @@ char* XMLDocument::readOpenningTag(Node*& currentNode, const char* nodeName, cha
         if (ch == '/')
         {
             // TODO: Check if Null is correct type here and below
-            currentNode->pushNode(nodeName, Type::Null);
+            currentNode->pushNode(nodeName, Node::Type::Null);
             nodeEnd = tokenEnd + 1;
         }
         else
         {
-            currentNode = &currentNode->pushNode(nodeName, Type::Null);
+            currentNode = &currentNode->pushNode(nodeName, Node::Type::Null);
             nodeEnd = tokenEnd;
         }
         return tokenEnd;
@@ -366,13 +358,13 @@ char* XMLDocument::readOpenningTag(Node*& currentNode, const char* nodeName, cha
     Node* anode;
     if (*nodeEnd == '/')
     {
-        anode = &currentNode->pushNode(nodeName, Type::Null);
+        anode = &currentNode->pushNode(nodeName, Node::Type::Null);
         *nodeEnd = 0;
         ++nodeEnd;
     }
     else
     {
-        anode = currentNode = &currentNode->pushNode(nodeName, Type::Null);
+        anode = currentNode = &currentNode->pushNode(nodeName, Node::Type::Null);
         *nodeEnd = 0;
     }
     processAttributes(*anode, tokenStart);
@@ -380,10 +372,10 @@ char* XMLDocument::readOpenningTag(Node*& currentNode, const char* nodeName, cha
     return tokenEnd;
 }
 
-void XMLDocument::load(const char* _buffer, bool keepSpaces)
+void ImportXML::import(Node& node, const char* _buffer, bool keepSpaces)
 {
-    clear();
-    Node* currentNode = this;
+    node.clear();
+    Node* currentNode = &node;
     XMLDocType* doctype = &docType();
     Buffer buffer(_buffer);
 
@@ -405,7 +397,7 @@ void XMLDocument::load(const char* _buffer, bool keepSpaces)
                 break;
 
             case '?':
-                readProcessingInstructions(*currentNode, nodeName, nameEnd, nodeEnd);
+                readProcessingInstructions(*currentNode, nodeName, nameEnd, nodeEnd, false);
                 break;
 
             case '/':
@@ -420,11 +412,12 @@ void XMLDocument::load(const char* _buffer, bool keepSpaces)
         nodeStart = strchr(nodeEnd + 1, '<');
         if (nodeStart == nullptr)
         {
-            if (currentNode == this)
+            if (currentNode == &node)
             {
                 continue;
-            } // exit the loop
-            throw Exception("Tag started but not closed");
+            }
+            // exit the loop
+            return;
         }
 
         const auto* textStart = nodeEnd + 1;
@@ -435,8 +428,8 @@ void XMLDocument::load(const char* _buffer, bool keepSpaces)
     }
 }
 
-void XMLDocument::readText(Node& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
-                           bool keepSpaces)
+void ImportXML::readText(Node& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
+                         bool keepSpaces)
 {
     const auto* textTrail = nodeStart;
     if (textStart != textTrail)
@@ -446,81 +439,13 @@ void XMLDocument::readText(Node& currentNode, XMLDocType* doctype, const char* n
         String decodedText(decoded.c_str(), decoded.length());
         if (keepSpaces || decodedText.find_first_not_of("\n\r\t ") != string::npos)
         {
-            currentNode.pushNode("#text", Type::Text);
-            currentNode.setString(decodedText);
+            currentNode.pushNode("#text", Node::Type::Text)
+                       .setString(decodedText);
         }
     }
 }
 
-void XMLDocument::save(Buffer& buffer, int indent) const
-{
-    const Node* xml_pi = nullptr;
-
-    buffer.reset();
-
-    // Write XML PI
-    bool hasXmlPI = false;
-    for (const auto& node: *this)
-    {
-        if (node.type() == Type::ProcessingInstruction && lowerCase(node.name()) == "xml")
-        {
-            xml_pi = &node;
-            xml_pi->exportXML(buffer, 0);
-            hasXmlPI = true;
-            break;
-        }
-    }
-
-    if (!hasXmlPI)
-    {
-        buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        if (indent)
-        {
-            buffer.append('\n');
-        }
-    }
-
-    if (!docType().name().empty())
-    {
-        buffer.append("<!DOCTYPE " + docType().name());
-        if (!docType().systemID().empty())
-        {
-            buffer.append(" SYSTEM \"" + docType().systemID() + "\"");
-        }
-
-        if (!docType().publicID().empty())
-        {
-            buffer.append(" PUBLIC \"" + docType().publicID() + "\"");
-        }
-
-        if (!docType().entities().empty())
-        {
-            buffer.append(" [\n", 3);
-            const Entities& entities = docType().entities();
-            for (const auto&[name, value]: entities)
-            {
-                buffer.append("<!ENTITY " + name + " \"" + value + "\">\n");
-            }
-            buffer.append("]", 1);
-        }
-        buffer.append('>');
-        if (indent)
-        { buffer.append('\n'); }
-    }
-
-    // call save() method of the first (and hopefully only) node in xml document
-    for (const auto& node: *this)
-    {
-        if (&node == xml_pi)
-        {
-            continue;
-        }
-        node.exportXML(buffer, indent);
-    }
-    buffer[buffer.length()] = 0;
-}
-
-bool XMLDocument::isNumber(const String& str)
+bool ImportXML::isNumber(const String& str)
 {
     static const RegularExpression matchNumber {R"(^[+\-]?(0|[1-9]\d*)(\.\d+)?(e-?\d+)?$)", "i"};
 
@@ -531,13 +456,16 @@ bool XMLDocument::isNumber(const String& str)
 
 #if USE_GTEST
 
-static const String testXML(
-    "<name position='president'>John</name><age>33</age><temperature>36.6</temperature><timestamp>1519005758000</timestamp>"
-    "<skills><skill>C++</skill><skill>Java</skill><skill>Motorbike</skill></skills>"
-    "<address><married>true</married><employed>false</employed></address><data><![CDATA[hello, /\\>]]></data>");
+static const String testXML("<name position='president'>John</name>"
+                            "<age>33</age>"
+                            "<temperature>36.6</temperature>"
+                            "<timestamp>1519005758000</timestamp>"
+                            "<skills><skill>C++</skill><skill>Java</skill><skill>Motorbike</skill></skills>"
+                            "<address><married>true</married><employed>false</employed></address>"
+                            "<data><![CDATA[hello, /\\>]]></data>");
 
 static const String testREST(
-    R"(<?xml version="1.0" encoding="UTF-8"?>)"
+    R"(<?xml encoding="UTF-8" version="1.0"?>)"
     R"(<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">)"
     R"(<soap:Body>)"
     R"(<ns1:GetRequests>)"
@@ -546,9 +474,9 @@ static const String testREST(
     R"(</soap:Body>)"
     R"(</soap:Envelope>)");
 
-static void verifyDocument(xdoc::XMLDocument& document)
+static void verifyDocument(xdoc::Document& document)
 {
-    const xdoc::Node* nameNode = document.find("name");
+    const xdoc::Node* nameNode = document.root().find("name");
     EXPECT_STREQ("John", nameNode->asString().c_str());
     EXPECT_STREQ("president", nameNode->getAttribute("position").c_str());
 
@@ -574,22 +502,22 @@ static void verifyDocument(xdoc::XMLDocument& document)
 
     for (const auto& cdataNode: *dataNode)
     {
-        EXPECT_TRUE(cdataNode.is(xdoc::Node::Type::CData));
+        EXPECT_TRUE(cdataNode.is(xdoc::Node::Node::Type::CData));
         EXPECT_STREQ("hello, /\\>", cdataNode.getString().c_str());
     }
 }
 
 TEST(SPTK_XDocument, loadXML)
 {
-    xdoc::XMLDocument document;
-    document.load(testXML);
+    xdoc::Document document;
+    document.load(xdoc::Node::DataFormat::XML, testXML);
     verifyDocument(document);
 }
 
 TEST(SPTK_XDocument, addNodes)
 {
-    xdoc::XMLDocument document;
-    document.load(testXML);
+    xdoc::Document document;
+    document.load(xdoc::Node::DataFormat::XML, testXML);
 
     document.pushNode("name") = String("John");
     document.pushNode("age") = String("33");
@@ -610,8 +538,8 @@ TEST(SPTK_XDocument, addNodes)
 
 TEST(SPTK_XDocument, removeNodes)
 {
-    xdoc::XMLDocument document;
-    document.load(testXML);
+    xdoc::Document document;
+    document.load(xdoc::Node::DataFormat::XML, testXML);
 
     document.findOrCreate("name");
     document.findOrCreate("age");
@@ -631,33 +559,32 @@ TEST(SPTK_XDocument, removeNodes)
 
 TEST(SPTK_XDocument, saveXml1)
 {
-    xdoc::XMLDocument document;
-    document.load(testREST);
+    xdoc::Document document;
+    document.load(xdoc::Node::DataFormat::XML, testREST);
 
     Buffer buffer;
 
-    document.indentSpaces(0);
-    document.save(buffer, 0);
+    document.exportTo(xdoc::Node::DataFormat::XML, buffer, 0);
 
     EXPECT_STREQ(testREST.c_str(), buffer.c_str());
 }
 
 TEST(SPTK_XDocument, saveXml2)
 {
-    xdoc::XMLDocument document;
-    document.load(testXML);
+    xdoc::Document document;
+    document.load(xdoc::Node::DataFormat::XML, testXML);
 
     Buffer buffer;
-    document.save(buffer, 0);
+    document.exportTo(xdoc::Node::DataFormat::XML, buffer, 0);
 
-    document.load(testXML);
+    document.load(xdoc::Node::DataFormat::XML, buffer);
     verifyDocument(document);
 }
 
 TEST(SPTK_XDocument, parseXML)
 {
-    xdoc::XMLDocument document;
-    document.load(testREST);
+    xdoc::Document document;
+    document.load(xdoc::Node::DataFormat::XML, testREST);
 
     const auto* xmlElement = document.find("xml");
     EXPECT_STREQ(xmlElement->getAttribute("version").c_str(), "1.0");
@@ -666,14 +593,14 @@ TEST(SPTK_XDocument, parseXML)
     const auto* bodyElement = document.find("soap:Body", xdoc::Node::SearchMode::Recursive);
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
-    EXPECT_EQ(xdoc::Node::Type::Object, bodyElement->type());
+    EXPECT_EQ(xdoc::Node::Node::Type::Object, bodyElement->type());
     EXPECT_EQ(1, (int) bodyElement->size());
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 
     const xdoc::Node* methodElement = nullptr;
     for (const auto& node: *bodyElement)
     {
-        if (node.is(xdoc::Node::Type::Object))
+        if (node.is(xdoc::Node::Node::Type::Object))
         {
             methodElement = &node;
             break;
@@ -686,12 +613,12 @@ TEST(SPTK_XDocument, parseXML)
 
 TEST(SPTK_XDocument, brokenXML)
 {
-    xdoc::XMLDocument document;
+    xdoc::Document document;
 
     try
     {
         const String brokenXML1("<xml></html>");
-        document.load(brokenXML1);
+        document.load(xdoc::Node::DataFormat::XML, brokenXML1);
         FAIL() << "Must throw exception";
     }
     catch (const Exception& e)
@@ -702,7 +629,7 @@ TEST(SPTK_XDocument, brokenXML)
     try
     {
         const String brokenXML1("<xml><html></xml></html>");
-        document.load(brokenXML1);
+        document.load(xdoc::Node::DataFormat::XML, brokenXML1);
         FAIL() << "Must throw exception";
     }
     catch (const Exception& e)
@@ -713,7 +640,7 @@ TEST(SPTK_XDocument, brokenXML)
     try
     {
         const String brokenXML1("<xml</html>");
-        document.load(brokenXML1);
+        document.load(xdoc::Node::DataFormat::XML, brokenXML1);
         FAIL() << "Must throw exception";
     }
     catch (const Exception& e)
@@ -724,14 +651,14 @@ TEST(SPTK_XDocument, brokenXML)
 
 TEST(SPTK_XDocument, unicodeAndSpacesXML)
 {
-    xdoc::XMLDocument document;
+    xdoc::Document document;
 
     try
     {
         const String unicodeXML(R"(<?xml version="1.0" encoding="UTF-8"?><p> “Add” </p><span> </span>)");
-        document.load(unicodeXML, true);
+        document.load(xdoc::Node::DataFormat::XML, unicodeXML, true);
         Buffer buffer;
-        document.save(buffer, 0);
+        document.exportTo(xdoc::Node::DataFormat::XML, buffer, 0);
         EXPECT_STREQ(unicodeXML.c_str(), buffer.c_str());
     }
     catch (const Exception& e)

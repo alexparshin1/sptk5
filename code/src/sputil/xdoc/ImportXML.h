@@ -48,8 +48,7 @@ namespace xdoc {
  * Represents the entire XML document.
  * It provides access to document root node, which includes all nodes in XML document tree.
  */
-class SP_EXPORT XMLDocument
-    : public xdoc::Node
+class SP_EXPORT ImportXML
 {
 
 public:
@@ -57,31 +56,7 @@ public:
     /**
      * Constructs an empty document, without doctype.
      */
-    XMLDocument();
-
-    XMLDocument(const XMLDocument&) = delete;
-
-    /**
-     * Constructs a document from XML string
-     * @param xml               XML string
-     */
-    explicit XMLDocument(const String& xml);
-
-    /**
-     * Constructs an empty document, with doctype.
-     * @param name              Name of the document.
-     * @param public_id         Public id of the document, placed on DOCTYPE declaration
-     * @param system_id         System id of the document, placed on DOCTYPE declaration
-     */
-    XMLDocument(const char* name, const char* public_id, const char* system_id);
-
-    /**
-     * Destructor
-     */
-    ~XMLDocument() override
-    {
-        XMLDocument::clear();
-    }
+    ImportXML() = default;
 
     /**
      * Return doctype of document.
@@ -121,7 +96,7 @@ public:
      * Load document from buffer.
      * @param buffer            Source buffer
      */
-    virtual void load(const char* buffer, bool keepSpaces = false);
+    void import(Node& node, const char* buffer, bool keepSpaces = false);
 
     /**
      * Load document from std::string.
@@ -140,13 +115,6 @@ public:
     {
         load(buffer.c_str(), keepSpaces);
     }
-
-    /**
-     * Save document to buffer.
-     * @param buffer            Buffer to save document
-     * @param indent            Current indent, ignored (always 0)
-     */
-    void save(Buffer& buffer, int indent) const;
 
     /**
      * Does string match a number?
@@ -196,7 +164,8 @@ private:
 
     char* readExclamationTag(Node& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd);
 
-    char* readProcessingInstructions(Node& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
+    char* readProcessingInstructions(Node& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
+                                     bool isRootNode);
 
     char* readOpenningTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 

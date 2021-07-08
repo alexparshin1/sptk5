@@ -33,6 +33,10 @@ namespace sptk::xdoc {
 class Document
     : public Node
 {
+    friend class ImportXML;
+
+    friend class ExportXML;
+
 public:
     Document(Type rootType = Type::Object)
         : Node("", rootType)
@@ -43,6 +47,7 @@ public:
     {
         return *this;
     }
+
 };
 
 }

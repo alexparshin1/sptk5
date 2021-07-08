@@ -50,6 +50,7 @@ public:
     enum class Type
         : uint8_t
     {
+        DocumentRoot,
         Null,
         Text,
         Number,
@@ -70,7 +71,9 @@ public:
 
     Node(const String& nodeName = "", Type type = Type::Null);
 
-    void clear();
+    virtual ~Node() = default;
+
+    virtual void clear();
 
     String name() const
     {
@@ -108,10 +111,18 @@ public:
         return node;
     }
 
+    bool empty() const
+    {
+        return m_nodes.empty();
+    }
+
+    Attributes& attributes();
+
+    const Attributes& attributes() const;
+
     String getAttribute(const String& name) const;
 
     void setAttribute(const String& name, const String& value);
-
 
     String getString(const String& name = "") const;
 
@@ -215,13 +226,23 @@ public:
     void exportJson(sptk::Buffer& json, bool formatted) const;
 
     /**
+     * Parse XML text
+     * Root element should have JDT_NULL type (empty element) before calling this method.
+     * @param node              Output node
+     * @param xml              JSON text
+     */
+    void importXML(const Buffer& xml, bool xmlKeepSpaces = false);
+
+    /**
      * Export to XML text
      * @param node              Output node
      * @param indent            Indent (spaces)
      */
-    void exportXML(sptk::Buffer& json, int indent) const;
+    void exportXML(sptk::Buffer& xml, int indent) const;
 
-    void load(DataFormat dataFormat, const Buffer& data);
+    void load(DataFormat dataFormat, const Buffer& data, bool xmlKeepSpaces = false);
+
+    void load(DataFormat dataFormat, const String& data, bool xmlKeepSpaces = false);
 
     void exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const;
 

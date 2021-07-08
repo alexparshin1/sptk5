@@ -48,7 +48,7 @@ namespace sptk::xdoc {
  */
 class XMLDocType
 {
-    friend class XMLDocument;
+    friend class ImportXML;
 
 public:
 
