@@ -20,7 +20,7 @@ public:
 
     void appendSubNodes(const Node& node, Buffer& buffer, int indent, bool only_cdata);
 
-    void appendClosingTag(const Node& node, Buffer& buffer, int indent, bool only_cdata);
+    void appendClosingTag(const Node& node, Buffer& buffer, int indent, bool only_cdata) const;
 
     void saveAttributes(const Node& node, Buffer& buffer);
 

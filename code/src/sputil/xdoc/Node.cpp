@@ -177,8 +177,8 @@ String Node::getString(const String& name) const
         return asString();
     }
 
-    auto* node = find(name);
-    if (node)
+    if (auto* node = find(name);
+        node != nullptr)
     {
         if (node->is(Type::Number))
         {
@@ -206,8 +206,8 @@ double Node::getNumber(const String& name) const
         return asFloat();
     }
 
-    auto* node = find(name);
-    if (node)
+    if (auto* node = find(name);
+        node != nullptr)
     {
         return node->asFloat();
     }
@@ -222,8 +222,8 @@ bool Node::getBoolean(const String& name) const
         return asBool();
     }
 
-    auto* node = find(name);
-    if (node)
+    if (auto* node = find(name);
+        node != nullptr)
     {
         return node->asBool();
     }
@@ -240,8 +240,8 @@ const Node::Nodes& Node::getArray(const String& name) const
         return m_nodes;
     }
 
-    auto* node = find(name);
-    if (node && node->is(Type::Array))
+    if (auto* node = find(name);
+        node && node->is(Type::Array))
     {
         return node->m_nodes;
     }
@@ -258,8 +258,8 @@ const Node& Node::getObject(const String& name) const
         return *this;
     }
 
-    auto* node = find(name);
-    if (node && node->is(Type::Object))
+    if (auto* node = find(name);
+        node && node->is(Type::Object))
     {
         return *node;
     }
@@ -344,20 +344,26 @@ void Node::exportTo(Node::DataFormat dataFormat, Buffer& data, bool formatted) c
     else
     {
         ExportXML exporter;
-        exporter.save(*this, data, formatted ? 2 : 0);
+        for (auto& node: m_nodes)
+        {
+            exporter.save(node, data, formatted ? 2 : 0);
+        }
     }
 }
 
 void Node::importXML(const Buffer& xml, bool xmlKeepSpaces)
 {
     ImportXML importer;
-    importer.import(*this, xml.c_str(), xmlKeepSpaces);
+    importer.parse(*this, xml.c_str(), xmlKeepSpaces ? ImportXML::Mode::KeepFormatting : ImportXML::Mode::Compact);
 }
 
 void Node::exportXML(Buffer& xml, int indent) const
 {
     ExportXML exporter;
-    exporter.save(*this, xml, indent);
+    for (auto& node: m_nodes)
+    {
+        exporter.save(node, xml, indent);
+    }
 }
 
 Node* Node::parent()

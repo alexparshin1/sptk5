@@ -8,7 +8,6 @@ static const String indentsString(1024, ' ');
 
 static constexpr int cdataStartMarkerLength = 9;
 static constexpr int cdataEndMarkerLength = 3;
-static constexpr int cdataMarkersLength = cdataStartMarkerLength + cdataEndMarkerLength;
 
 void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& buffer, int indent)
 {
@@ -52,10 +51,19 @@ void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& bu
         {
             buffer.append("?>", 2);
         }
+        else if (!node.isNull())
+        {
+            buffer.append('>');
+            buffer.append(node.asString());
+            buffer.append("</", 2);
+            buffer.append(nodeName);
+            buffer.append('>');
+        }
         else
         {
             buffer.append("/>", 2);
         }
+
         if (indent)
         {
             buffer.append('\n');
@@ -87,7 +95,7 @@ void ExportXML::appendSubNodes(const Node& node, Buffer& buffer, int indent, boo
     }
 }
 
-void ExportXML::appendClosingTag(const Node& node, Buffer& buffer, int indent, bool only_cdata)
+void ExportXML::appendClosingTag(const Node& node, Buffer& buffer, int indent, bool only_cdata) const
 {
     // output indendation spaces
     if (!only_cdata && indent > 0)

@@ -126,6 +126,10 @@ void Node::exportJsonValueTo(ostream& stream, bool formatted, size_t indent) con
             stream << "\"" << jsonEscape(asString()) << "\"";
             break;
 
+        case Type::CData:
+            stream << "\"" << jsonEscape(asString()) << "\"";
+            break;
+
         case Type::Boolean:
             stream << (asBool() ? "true" : "false");
             break;

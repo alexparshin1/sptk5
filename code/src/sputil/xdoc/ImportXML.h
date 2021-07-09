@@ -34,14 +34,13 @@
 #include <string>
 #include <map>
 
-namespace sptk {
+namespace sptk::xdoc {
 
 /**
  * @addtogroup XDoc
  * @{
  */
 
-namespace xdoc {
 /**
  * XML document.
  *
@@ -50,13 +49,21 @@ namespace xdoc {
  */
 class SP_EXPORT ImportXML
 {
-
 public:
+
+    enum class Mode
+        : uint8_t
+    {
+        Compact,        ///< Strip any XML formatting, store #text nodes directly into Nodes
+        KeepFormatting  ///< Keep any #text nodes
+    };
 
     /**
      * Constructs an empty document, without doctype.
      */
     ImportXML() = default;
+
+    virtual ~ImportXML() = default;
 
     /**
      * Return doctype of document.
@@ -94,27 +101,9 @@ public:
 
     /**
      * Load document from buffer.
-     * @param buffer            Source buffer
+     * @param _buffer            Source buffer
      */
-    void import(Node& node, const char* buffer, bool keepSpaces = false);
-
-    /**
-     * Load document from std::string.
-     * @param str               Source string
-     */
-    virtual void load(const sptk::String& str, bool keepSpaces = false)
-    {
-        load(str.c_str(), keepSpaces);
-    }
-
-    /**
-     * Load document from buffer.
-     * @param buffer            Source buffer
-     */
-    virtual void load(const Buffer& buffer, bool keepSpaces = false)
-    {
-        load(buffer.c_str(), keepSpaces);
-    }
+    void parse(xdoc::Node& node, const char* _buffer, Mode formatting = Mode::Compact);
 
     /**
      * Does string match a number?
@@ -156,13 +145,14 @@ private:
 
     static char* readComment(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
 
-    static char* readCDataSection(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
+    static char* readCDataSection(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd,
+                                  Mode formatting);
 
     char* readXMLDocType(char* tokenEnd);
 
     static const RegularExpression parseAttributes;
 
-    char* readExclamationTag(Node& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd);
+    char* readExclamationTag(Node& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd, Mode formatting);
 
     char* readProcessingInstructions(Node& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
                                      bool isRootNode);
@@ -172,12 +162,10 @@ private:
     static char* readClosingTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 
     void readText(Node& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
-                  bool keepSpaces);
+                  Mode formatting);
 
     char* parseEntity(char* start);
 };
-
-} // namespace xml
 
 /**
  * @}

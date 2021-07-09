@@ -71,7 +71,7 @@ public:
 
     Node(const String& nodeName = "", Type type = Type::Null);
 
-    virtual ~Node() = default;
+    ~Node() override = default;
 
     virtual void clear();
 
@@ -229,7 +229,7 @@ public:
      * Parse XML text
      * Root element should have JDT_NULL type (empty element) before calling this method.
      * @param node              Output node
-     * @param xml              JSON text
+     * @param xmlKeepSpaces     Import XML mode
      */
     void importXML(const Buffer& xml, bool xmlKeepSpaces = false);
 

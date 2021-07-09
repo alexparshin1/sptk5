@@ -205,7 +205,8 @@ char* ImportXML::readComment(Node& currentNode, char* nodeName, char* nodeEnd, c
     return tokenEnd;
 }
 
-char* ImportXML::readCDataSection(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd)
+char* ImportXML::readCDataSection(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd,
+                                  Mode formatting)
 {
     constexpr int cdataTagLength = 8;
     nodeEnd = strstr(nodeName + 1, "]]>");
@@ -214,8 +215,19 @@ char* ImportXML::readCDataSection(Node& currentNode, char* nodeName, char* nodeE
         throw Exception("Invalid CDATA section");
     }
     *nodeEnd = 0;
-    currentNode.pushNode("#cdata", Node::Type::CData)
-               .setString(nodeName + cdataTagLength);
+    if (formatting == Mode::KeepFormatting)
+    {
+        currentNode.pushNode("#cdata", Node::Type::CData)
+                   .setString(nodeName + cdataTagLength);
+    }
+    else
+    {
+        if (currentNode.empty())
+        {
+            currentNode.type(Node::Type::CData);
+            currentNode.setString(nodeName + cdataTagLength);
+        }
+    }
     tokenEnd = nodeEnd + 2;
     return tokenEnd;
 }
@@ -245,7 +257,7 @@ char* ImportXML::readXMLDocType(char* tokenEnd)
     return tokenEnd;
 }
 
-char* ImportXML::readExclamationTag(Node& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd)
+char* ImportXML::readExclamationTag(Node& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd, Mode formatting)
 {
     constexpr int cdataTagLength = 8;
     constexpr int docTypeTagLength = 8;
@@ -261,7 +273,7 @@ char* ImportXML::readExclamationTag(Node& currentNode, char* nodeName, char* tok
     {
         /// CDATA section
         *tokenEnd = ch;
-        tokenEnd = readCDataSection(currentNode, nodeName, nodeEnd, tokenEnd);
+        tokenEnd = readCDataSection(currentNode, nodeName, nodeEnd, tokenEnd, formatting);
     }
     else if (strncmp(nodeName, "!DOCTYPE", docTypeTagLength) == 0 && ch != '>')
     {
@@ -329,7 +341,6 @@ char* ImportXML::readOpenningTag(Node*& currentNode, const char* nodeName, char*
     {
         if (ch == '/')
         {
-            // TODO: Check if Null is correct type here and below
             currentNode->pushNode(nodeName, Node::Type::Null);
             nodeEnd = tokenEnd + 1;
         }
@@ -372,7 +383,7 @@ char* ImportXML::readOpenningTag(Node*& currentNode, const char* nodeName, char*
     return tokenEnd;
 }
 
-void ImportXML::import(Node& node, const char* _buffer, bool keepSpaces)
+void ImportXML::parse(Node& node, const char* _buffer, Mode formatting)
 {
     node.clear();
     Node* currentNode = &node;
@@ -393,7 +404,7 @@ void ImportXML::import(Node& node, const char* _buffer, bool keepSpaces)
         switch (*nameStart)
         {
             case '!':
-                nodeEnd = readExclamationTag(*currentNode, nodeName, nameEnd, nodeEnd);
+                nodeEnd = readExclamationTag(*currentNode, nodeName, nameEnd, nodeEnd, formatting);
                 break;
 
             case '?':
@@ -423,24 +434,44 @@ void ImportXML::import(Node& node, const char* _buffer, bool keepSpaces)
         const auto* textStart = nodeEnd + 1;
         if (*textStart != '<')
         {
-            readText(*currentNode, doctype, nodeStart, textStart, keepSpaces);
+            readText(*currentNode, doctype, nodeStart, textStart, formatting);
         }
     }
 }
 
 void ImportXML::readText(Node& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
-                         bool keepSpaces)
+                         Mode formatting)
 {
     const auto* textTrail = nodeStart;
     if (textStart != textTrail)
-    { // && nodeStart[1] == '/)') {
+    {
         Buffer& decoded = m_decodeBuffer;
         doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
         String decodedText(decoded.c_str(), decoded.length());
-        if (keepSpaces || decodedText.find_first_not_of("\n\r\t ") != string::npos)
+        if (formatting == Mode::KeepFormatting) // || decodedText.find_first_not_of("\n\r\t ") != string::npos)
         {
             currentNode.pushNode("#text", Node::Type::Text)
                        .setString(decodedText);
+        }
+        else
+        {
+            decodedText = decodedText.trim();
+            try
+            {
+                auto value = std::stold(decodedText);
+                currentNode.setFloat(value);
+                currentNode.type(Node::Type::Number);
+            }
+            catch (const invalid_argument&)
+            {
+                currentNode.setString(decodedText);
+                currentNode.type(Node::Type::Text);
+            }
+            catch (const out_of_range&)
+            {
+                currentNode.setString(decodedText);
+                currentNode.type(Node::Type::Text);
+            }
         }
     }
 }
@@ -564,7 +595,7 @@ TEST(SPTK_XDocument, saveXml1)
 
     Buffer buffer;
 
-    document.exportTo(xdoc::Node::DataFormat::XML, buffer, 0);
+    document.exportTo(xdoc::Node::DataFormat::XML, buffer, false);
 
     EXPECT_STREQ(testREST.c_str(), buffer.c_str());
 }
@@ -575,7 +606,7 @@ TEST(SPTK_XDocument, saveXml2)
     document.load(xdoc::Node::DataFormat::XML, testXML);
 
     Buffer buffer;
-    document.exportTo(xdoc::Node::DataFormat::XML, buffer, 0);
+    document.exportTo(xdoc::Node::DataFormat::XML, buffer, false);
 
     document.load(xdoc::Node::DataFormat::XML, buffer);
     verifyDocument(document);
@@ -655,10 +686,10 @@ TEST(SPTK_XDocument, unicodeAndSpacesXML)
 
     try
     {
-        const String unicodeXML(R"(<?xml version="1.0" encoding="UTF-8"?><p> “Add” </p><span> </span>)");
+        const String unicodeXML(R"(<?xml encoding="UTF-8" version="1.0"?><p> “Add” </p><span> </span>)");
         document.load(xdoc::Node::DataFormat::XML, unicodeXML, true);
         Buffer buffer;
-        document.exportTo(xdoc::Node::DataFormat::XML, buffer, 0);
+        document.exportTo(xdoc::Node::DataFormat::XML, buffer, false);
         EXPECT_STREQ(unicodeXML.c_str(), buffer.c_str());
     }
     catch (const Exception& e)
@@ -666,17 +697,17 @@ TEST(SPTK_XDocument, unicodeAndSpacesXML)
         FAIL() << e.what();
     }
 }
-/*
+
 TEST(SPTK_XDocument, exportToJSON)
 {
-    xdoc::XMLDocument xmlDocument;
-    json::Document jsonDocument;
-    xmlDocument.load("<d>" + testXML + "</d>");
-    xmlDocument.exportTo(jsonDocument.root());
+    Buffer input(testXML);
+    xdoc::Document document;
+    document.load(xdoc::Node::DataFormat::XML, input);
 
-    Buffer buffer;
-    jsonDocument.exportTo(buffer, true);
-    COUT(buffer.c_str() << endl)
+    Buffer output;
+    document.exportTo(xdoc::Node::DataFormat::JSON, output, true);
+
+    COUT(output.c_str() << endl)
 }
-*/
+
 #endif
