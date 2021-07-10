@@ -165,6 +165,8 @@ private:
                   Mode formatting);
 
     char* parseEntity(char* start);
+
+    void detectArray(Node& node);
 };
 
 /**

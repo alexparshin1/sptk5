@@ -29,6 +29,7 @@
 #include "ImportXML.h"
 #include "Document.h"
 #include <sptk5/Printer.h>
+#include <cmath>
 
 using namespace std;
 using namespace sptk;
@@ -383,6 +384,37 @@ char* ImportXML::readOpenningTag(Node*& currentNode, const char* nodeName, char*
     return tokenEnd;
 }
 
+void ImportXML::detectArray(Node& _node)
+{
+    if (!_node.is(Node::Type::Object) || _node.size() < 2)
+    {
+        return;
+    }
+
+    // Check if all the child nodes have the same name:
+    bool first = true;
+    String itemName;
+    for (const auto& node: _node)
+    {
+        if (first)
+        {
+            first = false;
+            itemName = node.name();
+        }
+        else
+        {
+            if (itemName != node.name())
+            {
+                return;
+            }
+        }
+    }
+
+    // All the child nodes have the same name.
+    // Convert node to array
+    _node.type(Node::Type::Array);
+}
+
 void ImportXML::parse(Node& node, const char* _buffer, Mode formatting)
 {
     node.clear();
@@ -413,6 +445,7 @@ void ImportXML::parse(Node& node, const char* _buffer, Mode formatting)
 
             case '/':
                 readClosingTag(currentNode, nodeName, nameEnd, nodeEnd);
+                detectArray(*currentNode);
                 break;
 
             default:
@@ -455,19 +488,29 @@ void ImportXML::readText(Node& currentNode, XMLDocType* doctype, const char* nod
         }
         else
         {
+            bool isNumber = false;
             decodedText = decodedText.trim();
-            try
+
+            if (decodedText[0] < 'a')
             {
-                auto value = std::stold(decodedText);
-                currentNode.setFloat(value);
-                currentNode.type(Node::Type::Number);
+                try
+                {
+                    auto value = std::stold(decodedText);
+                    currentNode.setFloat(value);
+                    currentNode.type(Node::Type::Number);
+                    isNumber = true;
+                }
+                catch (const invalid_argument&)
+                {
+                    isNumber = false;
+                }
+                catch (const out_of_range&)
+                {
+                    isNumber = false;
+                }
             }
-            catch (const invalid_argument&)
-            {
-                currentNode.setString(decodedText);
-                currentNode.type(Node::Type::Text);
-            }
-            catch (const out_of_range&)
+
+            if (!isNumber)
             {
                 currentNode.setString(decodedText);
                 currentNode.type(Node::Type::Text);
@@ -608,8 +651,6 @@ TEST(SPTK_XDocument, saveXml2)
     Buffer buffer;
     document.exportTo(xdoc::Node::DataFormat::XML, buffer, false);
 
-    COUT(testXML.c_str() << endl)
-    COUT(buffer.c_str() << endl)
     document.load(xdoc::Node::DataFormat::XML, buffer);
     verifyDocument(document);
 }
