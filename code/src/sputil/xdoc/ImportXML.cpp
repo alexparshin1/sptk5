@@ -608,6 +608,8 @@ TEST(SPTK_XDocument, saveXml2)
     Buffer buffer;
     document.exportTo(xdoc::Node::DataFormat::XML, buffer, false);
 
+    COUT(testXML.c_str() << endl)
+    COUT(buffer.c_str() << endl)
     document.load(xdoc::Node::DataFormat::XML, buffer);
     verifyDocument(document);
 }

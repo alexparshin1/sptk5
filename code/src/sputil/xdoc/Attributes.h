@@ -34,6 +34,36 @@ namespace sptk::xdoc {
 class Attributes
 {
 public:
+    using AttributeVector = std::vector<std::pair<String, String>>;
+
+    using iterator = AttributeVector::iterator;
+    using const_iterator = AttributeVector::const_iterator;
+
+    iterator begin()
+    {
+        return m_items.begin();
+    }
+
+    const_iterator begin() const
+    {
+        return m_items.begin();
+    }
+
+    iterator end()
+    {
+        return m_items.end();
+    }
+
+    const_iterator end() const
+    {
+        return m_items.end();
+    }
+
+    void clear()
+    {
+        m_items.clear();
+    }
+
     String get(const String& name) const
     {
         for (const auto&[attr, value]: m_items)
@@ -71,7 +101,7 @@ public:
 
 private:
 
-    std::vector<std::pair<String, String> > m_items;
+    AttributeVector m_items;
 };
 
 }

@@ -1,5 +1,6 @@
 #include "ExportXML.h"
 
+using namespace std;
 using namespace sptk;
 using namespace sptk::xdoc;
 
@@ -54,7 +55,23 @@ void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& bu
         else if (!node.isNull())
         {
             buffer.append('>');
-            buffer.append(node.asString());
+            if (node.is(Node::Type::Number))
+            {
+                double dvalue = node.asFloat();
+                long lvalue = long(dvalue);
+                if (dvalue == double(lvalue))
+                {
+                    buffer.append(to_string(lvalue));
+                }
+                else
+                {
+                    buffer.append(node.asString());
+                }
+            }
+            else
+            {
+                buffer.append(node.asString());
+            }
             buffer.append("</", 2);
             buffer.append(nodeName);
             buffer.append('>');
@@ -86,7 +103,7 @@ void ExportXML::appendSubNodes(const Node& node, Buffer& buffer, int indent, boo
             {
                 newIndent = indent + m_indentSpaces;
             }
-            save(np, buffer, newIndent);
+            saveElement(np, np.name(), buffer, newIndent);
             if (indent && buffer.data()[buffer.bytes() - 1] != '\n')
             {
                 buffer.append('\n');

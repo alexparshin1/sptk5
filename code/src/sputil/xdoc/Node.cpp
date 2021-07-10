@@ -37,29 +37,24 @@ Node::Node(const String& nodeName, Type type)
 {
 }
 
-Node::Attributes& Node::attributes()
+Attributes& Node::attributes()
 {
     return m_attributes;
 }
 
-const Node::Attributes& Node::attributes() const
+const Attributes& Node::attributes() const
 {
     return m_attributes;
 }
 
 String Node::getAttribute(const String& name) const
 {
-    const auto itor = m_attributes.find(name);
-    if (itor == m_attributes.end())
-    {
-        return String();
-    }
-    return itor->second;
+    return m_attributes.get(name);
 }
 
 void Node::setAttribute(const String& name, const String& value)
 {
-    m_attributes[name] = value;
+    m_attributes.set(name, value);
 }
 
 Node& Node::findOrCreate(const String& name)
@@ -346,7 +341,7 @@ void Node::exportTo(Node::DataFormat dataFormat, Buffer& data, bool formatted) c
         ExportXML exporter;
         for (auto& node: m_nodes)
         {
-            exporter.save(node, data, formatted ? 2 : 0);
+            exporter.saveElement(node, node.name(), data, formatted ? 2 : 0);
         }
     }
 }

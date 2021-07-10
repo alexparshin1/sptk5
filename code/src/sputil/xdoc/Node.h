@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "Attributes.h"
 #include <sptk5/Variant.h>
 
 namespace sptk::xdoc {
@@ -36,7 +37,6 @@ class Node
 public:
 
     using Nodes = std::vector<Node>;
-    using Attributes = std::map<String, String>;
     using iterator = Nodes::iterator;
     using const_iterator = Nodes::const_iterator;
 
