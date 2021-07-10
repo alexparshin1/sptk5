@@ -496,7 +496,7 @@ static const String testXML("<name position='president'>John</name>"
                             "<data><![CDATA[hello, /\\>]]></data>");
 
 static const String testREST(
-    R"(<?xml encoding="UTF-8" version="1.0"?>)"
+    R"(<?xml version="1.0" encoding="UTF-8"?>)"
     R"(<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">)"
     R"(<soap:Body>)"
     R"(<ns1:GetRequests>)"

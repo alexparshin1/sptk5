@@ -70,7 +70,17 @@ void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& bu
             }
             else
             {
-                buffer.append(node.asString());
+                if (node.is(Node::Type::CData))
+                {
+                    buffer.append("<![CDATA[", 9);
+                    buffer.append(node.asString());
+                    buffer.append("]]>", 3);
+                }
+                else
+                {
+                    //buffer.append(node.asString());
+                    m_docType.encodeEntities(node.asString().c_str(), buffer);
+                }
             }
             buffer.append("</", 2);
             buffer.append(nodeName);
