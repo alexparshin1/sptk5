@@ -464,9 +464,15 @@ void ImportXML::parse(Node& node, const char* _buffer, Mode formatting)
             return;
         }
 
-        const auto* textStart = nodeEnd + 1;
+        auto* textStart = nodeEnd + 1;
         if (*textStart != '<')
         {
+            if (formatting == Mode::Compact)
+            {
+                auto skipSpaces = strspn(textStart, "\n\r\t ");
+                textStart += skipSpaces;
+            }
+
             readText(*currentNode, doctype, nodeStart, textStart, formatting);
         }
     }
@@ -481,39 +487,43 @@ void ImportXML::readText(Node& currentNode, XMLDocType* doctype, const char* nod
         Buffer& decoded = m_decodeBuffer;
         doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
         String decodedText(decoded.c_str(), decoded.length());
+
+        Node::Type nodeType = Node::Type::Text;
+        if (formatting == Mode::KeepFormatting)
+        {
+            decodedText = decodedText.trim();
+        }
+
+        if (decodedText[0] >= '+' && decodedText[0] <= '9')
+        {
+            try
+            {
+                auto value = std::stold(decodedText);
+                currentNode.setFloat(value);
+                currentNode.type(Node::Type::Number);
+                nodeType = Node::Type::Number;
+            }
+            catch (const invalid_argument&)
+            {
+                nodeType = Node::Type::Text;
+            }
+            catch (const out_of_range&)
+            {
+                nodeType = Node::Type::Text;
+            }
+            currentNode.type(nodeType);
+        }
+
         if (formatting == Mode::KeepFormatting) // || decodedText.find_first_not_of("\n\r\t ") != string::npos)
         {
-            currentNode.pushNode("#text", Node::Type::Text)
+            currentNode.pushNode("#text", nodeType)
                        .setString(decodedText);
         }
         else
         {
-            bool isNumber = false;
-            decodedText = decodedText.trim();
-
-            if (decodedText[0] < 'a')
-            {
-                try
-                {
-                    auto value = std::stold(decodedText);
-                    currentNode.setFloat(value);
-                    currentNode.type(Node::Type::Number);
-                    isNumber = true;
-                }
-                catch (const invalid_argument&)
-                {
-                    isNumber = false;
-                }
-                catch (const out_of_range&)
-                {
-                    isNumber = false;
-                }
-            }
-
-            if (!isNumber)
+            if (nodeType == Node::Type::Text)
             {
                 currentNode.setString(decodedText);
-                currentNode.type(Node::Type::Text);
             }
         }
     }
@@ -751,6 +761,32 @@ TEST(SPTK_XDocument, exportToJSON)
     document.exportTo(xdoc::Node::DataFormat::JSON, output, true);
 
     COUT(output.c_str() << endl)
+}
+
+TEST(SPTK_XDocument, loadFormattedXML)
+{
+    Buffer input;
+    input.loadFromFile("data/content2.xml");
+
+    xdoc::Document document;
+    document.load(xdoc::Node::DataFormat::XML, input, true);
+
+    Buffer output;
+    document.exportTo(xdoc::Node::DataFormat::XML, output, false);
+    output.saveToFile("data/content2_exp.xml");
+}
+
+TEST(SPTK_XDocument, loadFormattedXML2)
+{
+    Buffer input;
+    input.loadFromFile("data/content3.xml");
+
+    xdoc::Document document;
+    document.load(xdoc::Node::DataFormat::XML, input, false);
+
+    Buffer output;
+    document.exportTo(xdoc::Node::DataFormat::XML, output, false);
+    output.saveToFile("data/content3_exp.xml");
 }
 
 #endif
