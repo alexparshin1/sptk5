@@ -240,7 +240,7 @@ public:
      */
     void exportXML(sptk::Buffer& xml, int indent) const;
 
-    void load(DataFormat dataFormat, const Buffer& data, bool xmlKeepSpaces = false);
+    void load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting = false);
 
     void load(DataFormat dataFormat, const String& data, bool xmlKeepSpaces = false);
 

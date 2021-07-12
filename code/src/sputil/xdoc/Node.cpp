@@ -302,7 +302,7 @@ size_t Node::size() const
     return m_nodes.size();
 }
 
-void Node::load(Node::DataFormat dataFormat, const Buffer& data, bool xmlKeepSpaces)
+void Node::load(Node::DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting)
 {
     clear();
     if (dataFormat == DataFormat::JSON)
@@ -311,7 +311,7 @@ void Node::load(Node::DataFormat dataFormat, const Buffer& data, bool xmlKeepSpa
     }
     else
     {
-        importXML(data, xmlKeepSpaces);
+        importXML(data, xmlKeepFormatting);
     }
 }
 

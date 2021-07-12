@@ -489,7 +489,7 @@ void ImportXML::readText(Node& currentNode, XMLDocType* doctype, const char* nod
         String decodedText(decoded.c_str(), decoded.length());
 
         Node::Type nodeType = Node::Type::Text;
-        if (formatting == Mode::KeepFormatting)
+        if (formatting != Mode::KeepFormatting)
         {
             decodedText = decodedText.trim();
         }
@@ -774,19 +774,6 @@ TEST(SPTK_XDocument, loadFormattedXML)
     Buffer output;
     document.exportTo(xdoc::Node::DataFormat::XML, output, false);
     output.saveToFile("data/content2_exp.xml");
-}
-
-TEST(SPTK_XDocument, loadFormattedXML2)
-{
-    Buffer input;
-    input.loadFromFile("data/content3.xml");
-
-    xdoc::Document document;
-    document.load(xdoc::Node::DataFormat::XML, input, false);
-
-    Buffer output;
-    document.exportTo(xdoc::Node::DataFormat::XML, output, false);
-    output.saveToFile("data/content3_exp.xml");
 }
 
 #endif
