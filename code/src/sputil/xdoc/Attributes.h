@@ -86,7 +86,7 @@ public:
                 return;
             }
         }
-        m_items.push_back(std::pair<String, String>(name, value));
+        m_items.emplace_back(name, value);
     }
 
     bool empty() const

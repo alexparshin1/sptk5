@@ -38,14 +38,14 @@ void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& bu
             buffer.append('>');
         }
 
-        bool only_cdata = true;
+        bool only_cdata = false;
         if (const auto& nd = node.begin();
-            node.size() == 1 && nd->type() == Node::Type::Text)
+            node.size() == 1 && (nd->type() == Node::Type::Text || nd->type() == Node::Type::CData))
         {
+            only_cdata = true;
         }
         else
         {
-            only_cdata = false;
             if (indent)
             {
                 buffer.append('\n');
