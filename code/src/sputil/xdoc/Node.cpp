@@ -47,6 +47,11 @@ const Attributes& Node::attributes() const
     return m_attributes;
 }
 
+bool Node::hasAttribute(const String& name) const
+{
+    return m_attributes.has(name);
+}
+
 String Node::getAttribute(const String& name) const
 {
     return m_attributes.get(name);

@@ -24,96 +24,73 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/String.h>
-#include <vector>
-
 #pragma once
+
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk::xdoc {
 
-class Attributes
+/**
+ * XPath Axis enum
+ */
+enum class XPathAxis
+    : uint8_t
+{
+    CHILD,      ///< Child axis
+    DESCENDANT, ///< Descendant axis
+    PARENT      ///< Parent Axis
+};
+
+/**
+ * Parsed element of XPath
+ */
+class SP_EXPORT XPathElement
 {
 public:
-    using AttributeVector = std::vector<std::pair<String, String>>;
+    String elementName;                   ///< Node name, or '*'
+    String criteria;                      ///< Criteria
+    XPathAxis axis {XPathAxis::CHILD};       ///< Axis
+    String attributeName;                 ///< Attribute name (optional)
+    String attributeValue;                ///< Attribute value (optional)
+    bool attributeValueDefined {false}; ///< true if attribute value was defined
+    int nodePosition {0};              ///< 0 (not required), -1 (last), or node position
+};
 
-    using iterator = AttributeVector::iterator;
-    using const_iterator = AttributeVector::const_iterator;
+/**
+ * Algorithms for searching nodes
+ */
+class SP_EXPORT NodeSearchAlgorithms
+{
+public:
+    /**
+     * Scan descendents nodes
+     */
+    static void scanDescendents(const Node* thisNode, Node::Nodes& nodes, const std::vector<XPathElement>& pathElements,
+                                int pathPosition,
+                                const String& starPointer);
 
-    iterator begin()
-    {
-        return m_items.begin();
-    }
+    /**
+     * Match nodes
+     */
+    static void matchNode(Node* thisNode, Node::Nodes& nodes, const std::vector<XPathElement>& pathElements,
+                          int pathPosition,
+                          const String& starPointer);
 
-    const_iterator begin() const
-    {
-        return m_items.begin();
-    }
+    /**
+     * Match nodes only this level
+     */
+    static void matchNodesThisLevel(const Node* thisNode, Node::Nodes& nodes,
+                                    const std::vector<XPathElement>& pathElements, int pathPosition,
+                                    const String& starPointer, Node::Nodes& matchedNodes, bool descendants);
 
-    iterator end()
-    {
-        return m_items.end();
-    }
+    /**
+     * Match path element
+     */
+    static bool matchPathElement(const Node* thisNode, const XPathElement& pathElement,
+                                 const String& starPointer);
 
-    const_iterator end() const
-    {
-        return m_items.end();
-    }
-
-    void clear()
-    {
-        m_items.clear();
-    }
-
-    String get(const String& name) const
-    {
-        for (const auto&[attr, value]: m_items)
-        {
-            if (attr == name)
-            {
-                return value;
-            }
-        }
-        return String();
-    }
-
-    bool has(const String& name) const
-    {
-        for (const auto&[attr, value]: m_items)
-        {
-            if (attr == name)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void set(const String& name, const String& value)
-    {
-        for (auto&[attr, val]: m_items)
-        {
-            if (attr == name)
-            {
-                val = value;
-                return;
-            }
-        }
-        m_items.emplace_back(name, value);
-    }
-
-    bool empty() const
-    {
-        return m_items.empty();
-    }
-
-    size_t size() const
-    {
-        return m_items.size();
-    }
-
-private:
-
-    AttributeVector m_items;
+    static bool matchPathElementAttribute(const Node* thisNode, const XPathElement& pathElement,
+                                          const String& starPointer);
 };
 
 }
