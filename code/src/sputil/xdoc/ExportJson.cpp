@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "Node.h"
+#include <sptk5/xdoc/Node.h>
 #include <sptk5/RegularExpression.h>
 
 using namespace std;

@@ -2,9 +2,9 @@
 
 #include <sptk5/String.h>
 #include <sptk5/Buffer.h>
-#include "Node.h"
-#include "XMLDocType.h"
-#include "Document.h"
+#include <sptk5/xdoc/Node.h>
+#include <sptk5/xdoc/XMLDocType.h>
+#include <sptk5/xdoc/Document.h>
 
 namespace sptk::xdoc {
 

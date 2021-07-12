@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "Attributes.h"
+#include <sptk5/xdoc/Attributes.h>
 
 using namespace sptk;
 using namespace xdoc;

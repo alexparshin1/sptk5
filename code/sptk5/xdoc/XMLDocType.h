@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "XMLEntities.h"
+#include <sptk5/xdoc/XMLEntities.h>
 #include <sptk5/Buffer.h>
 
 #include <string>

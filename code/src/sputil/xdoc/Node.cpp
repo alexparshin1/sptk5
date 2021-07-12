@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "Node.h"
-#include "ImportXML.h"
-#include "ExportXML.h"
+#include <sptk5/xdoc/Node.h>
+#include <sptk5/xdoc/ImportXML.h>
+#include <sptk5/xdoc/ExportXML.h>
 
 using namespace std;
 using namespace sptk;
@@ -364,4 +364,9 @@ void Node::exportXML(Buffer& xml, int indent) const
 Node* Node::parent()
 {
     return m_parent;
+}
+
+void Node::clearChildren()
+{
+    m_nodes.clear();
 }

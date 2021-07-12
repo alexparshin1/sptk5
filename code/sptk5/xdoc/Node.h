@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "Attributes.h"
+#include <sptk5/xdoc/Attributes.h>
 #include <sptk5/Variant.h>
 
 namespace sptk::xdoc {
@@ -74,6 +74,8 @@ public:
     ~Node() override = default;
 
     virtual void clear();
+
+    virtual void clearChildren();
 
     String name() const
     {

@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include "Node.h"
-#include "XMLDocType.h"
+#include <sptk5/xdoc/Node.h>
+#include <sptk5/xdoc/XMLDocType.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/RegularExpression.h>
 

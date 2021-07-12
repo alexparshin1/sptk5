@@ -33,7 +33,7 @@
 namespace sptk::xdoc {
 
 /**
- * @addtogroup XML
+ * @addtogroup XDocument
  * @{
  */
 

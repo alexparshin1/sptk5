@@ -26,8 +26,8 @@
 
 #include <cstdlib>
 #include <sptk5/Strings.h>
-#include "ImportXML.h"
-#include "Document.h"
+#include <sptk5/xdoc/ImportXML.h>
+#include <sptk5/xdoc/Document.h>
 #include <sptk5/Printer.h>
 #include <cmath>
 

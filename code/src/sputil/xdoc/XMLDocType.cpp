@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "XMLDocType.h"
+#include <sptk5/xdoc/XMLDocType.h>
 
 using namespace std;
 using namespace sptk;
