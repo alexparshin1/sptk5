@@ -358,8 +358,6 @@ TEST(SPTK_WSGeneratedClasses, MoveAssignment)
     login2 = move(login);
     EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
     EXPECT_STREQ("secret", login2.m_password.asString().c_str());
-    EXPECT_TRUE(login.m_username.isNull());
-    EXPECT_TRUE(login.m_password.isNull());
 }
 
 TEST(SPTK_WSGeneratedClasses, Clear)

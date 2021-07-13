@@ -33,15 +33,6 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::xdoc;
 
-void xdoc::Document::select(Node::Nodes& selectedNodes, const String& xpath)
-{
-    selectedNodes.clear();
-    //for (auto& node: *this)
-    {
-        NodeSearchAlgorithms::select(selectedNodes, *this, xpath);
-    }
-}
-
 #if USE_GTEST
 
 const String testJSON(

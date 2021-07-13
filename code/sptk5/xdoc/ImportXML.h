@@ -166,7 +166,7 @@ private:
 
     char* parseEntity(char* start);
 
-    void detectArray(Node& node);
+    static void detectArray(Node& node);
 };
 
 /**

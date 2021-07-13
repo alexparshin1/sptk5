@@ -131,7 +131,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~WSParser();
+    virtual ~WSParser() = default;
 
     WSParser& operator=(const WSParser& other) = delete;
 

@@ -60,18 +60,6 @@ static void replaceFile(const String& fileName, const stringstream& fileData)
     }
 }
 
-WSParser::~WSParser()
-{
-    try
-    {
-        clear();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what() << endl)
-    }
-}
-
 void WSParser::clear()
 {
     m_complexTypeIndex.clear();

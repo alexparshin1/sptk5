@@ -98,8 +98,8 @@ void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& bu
             }
             if (node.is(Node::Type::Number))
             {
-                double dvalue = node.asFloat();
-                long lvalue = long(dvalue);
+                auto dvalue = node.asFloat();
+                auto lvalue = long(dvalue);
                 if (dvalue == double(lvalue))
                 {
                     buffer.append(to_string(lvalue));
@@ -119,7 +119,6 @@ void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& bu
                 }
                 else
                 {
-                    //buffer.append(node.asString());
                     m_docType.encodeEntities(node.asString().c_str(), buffer);
                 }
             }

@@ -464,7 +464,7 @@ void ImportXML::parse(Node& node, const char* _buffer, Mode formatting)
             return;
         }
 
-        auto* textStart = nodeEnd + 1;
+        const auto* textStart = nodeEnd + 1;
         if (*textStart != '<')
         {
             if (formatting == Mode::Compact)
@@ -498,7 +498,7 @@ void ImportXML::readText(Node& currentNode, XMLDocType* doctype, const char* nod
         {
             try
             {
-                auto value = std::stold(decodedText);
+                auto value = std::stod(decodedText);
                 currentNode.setFloat(value);
                 currentNode.type(Node::Type::Number);
                 nodeType = Node::Type::Number;

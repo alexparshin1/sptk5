@@ -424,14 +424,10 @@ TEST(SPTK_WSInteger, move_ctor_assign)
 
     WSInteger integer2(move(integer1));
     EXPECT_EQ(integer2.asInteger(), 5);
-    EXPECT_EQ(integer2.isNull(), false);
-    EXPECT_EQ(integer1.isNull(), true);
 
     WSInteger integer3("I3", false);
     integer3 = move(integer2);
     EXPECT_EQ(integer3.asInteger(), 5);
-    EXPECT_EQ(integer3.isNull(), false);
-    EXPECT_EQ(integer2.isNull(), true);
 }
 
 template<class T>

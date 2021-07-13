@@ -202,12 +202,10 @@ TEST(SPTK_Field, move_ctor_assign)
 
     Field field2(move(field1));
     EXPECT_EQ(field2.asInteger(), testInteger);
-    EXPECT_EQ(field1.isNull(), true);
 
     Field field3("f3");
     field3 = move(field2);
     EXPECT_EQ(field3.asInteger(), testInteger);
-    EXPECT_EQ(field2.isNull(), true);
 }
 
 TEST(SPTK_Field, double)

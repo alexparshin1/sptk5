@@ -134,13 +134,13 @@ bool NodeSearchAlgorithms::matchPathElement(const Node* thisNode, const XPathEle
     return true;
 }
 
-void NodeSearchAlgorithms::matchNodesThisLevel(const Node* thisNode, Node::Nodes& nodes,
+void NodeSearchAlgorithms::matchNodesThisLevel(const Node& thisNode, Node::Nodes& nodes,
                                                const vector<XPathElement>& pathElements, int pathPosition,
                                                const String& starPointer, Node::Nodes& matchedNodes, bool descendants)
 {
     const XPathElement& pathElement = pathElements[size_t(pathPosition)];
 
-    for (const auto& node: *thisNode)
+    for (const auto& node: thisNode)
     {
         if (matchPathElement(&node, pathElement, starPointer))
         {
@@ -148,13 +148,13 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const Node* thisNode, Node::Nodes
         }
         if (descendants)
         {
-            scanDescendents(&node, nodes, pathElements, pathPosition, starPointer);
+            scanDescendents(node, nodes, pathElements, pathPosition, starPointer);
         }
         else
         {
             if (pathElement.axis == XPathAxis::DESCENDANT)
             {
-                scanDescendents(&node, nodes, pathElements, pathPosition, starPointer);
+                scanDescendents(node, nodes, pathElements, pathPosition, starPointer);
             }
         }
     }
@@ -184,13 +184,13 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const Node* thisNode, Node::Nodes
         matchedNodes.push_back(anode);
     }
 
-    for (auto& node: matchedNodes)
+    for (const auto& node: matchedNodes)
     {
-        matchNode(&node, nodes, pathElements, pathPosition, starPointer);
+        matchNode(node, nodes, pathElements, pathPosition, starPointer);
     }
 }
 
-void NodeSearchAlgorithms::scanDescendents(const Node* thisNode, Node::Nodes& nodes,
+void NodeSearchAlgorithms::scanDescendents(const Node& thisNode, Node::Nodes& nodes,
                                            const std::vector<XPathElement>& pathElements, int pathPosition,
                                            const String& starPointer)
 {
@@ -198,7 +198,7 @@ void NodeSearchAlgorithms::scanDescendents(const Node* thisNode, Node::Nodes& no
     matchNodesThisLevel(thisNode, nodes, pathElements, pathPosition, starPointer, matchedNodes, true);
 }
 
-void NodeSearchAlgorithms::matchNode(Node* thisNode, Node::Nodes& nodes, const vector<XPathElement>& pathElements,
+void NodeSearchAlgorithms::matchNode(const Node& thisNode, Node::Nodes& nodes, const vector<XPathElement>& pathElements,
                                      int pathPosition,
                                      const String& starPointer)
 {
@@ -208,17 +208,7 @@ void NodeSearchAlgorithms::matchNode(Node* thisNode, Node::Nodes& nodes, const v
         if (const XPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
             !pathElement.elementName.empty())
         {
-            nodes.push_back(*thisNode);
-        }
-        else if (!pathElement.attributeName.empty())
-        {
-            /*
-            Attribute* attributeNode = thisNode->attributes().getAttributeNode(pathElement.attributeName);
-            if (attributeNode != nullptr)
-            {
-                nodes.insert(nodes.end(), dynamic_cast<Node*>(attributeNode));
-            }
-             */
+            nodes.push_back(thisNode);
         }
         return;
     }
@@ -227,7 +217,7 @@ void NodeSearchAlgorithms::matchNode(Node* thisNode, Node::Nodes& nodes, const v
     matchNodesThisLevel(thisNode, nodes, pathElements, pathPosition, starPointer, matchedNodes, false);
 }
 
-void NodeSearchAlgorithms::select(Node::Nodes& nodes, xdoc::Node& start, String xpath)
+void NodeSearchAlgorithms::select(Node::Nodes& nodes, const Node& start, String xpath)
 {
     if (!xpath.startsWith("/"))
     {
@@ -246,7 +236,7 @@ void NodeSearchAlgorithms::select(Node::Nodes& nodes, xdoc::Node& start, String 
     }
 
     const String starPointer("*");
-    NodeSearchAlgorithms::matchNode(&start, nodes, pathElements, -1, starPointer);
+    NodeSearchAlgorithms::matchNode(start, nodes, pathElements, -1, starPointer);
 }
 
 #if USE_GTEST

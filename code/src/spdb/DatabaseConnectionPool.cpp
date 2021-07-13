@@ -298,7 +298,8 @@ static void testBulkInsertPerformance(const String& dbName)
         FAIL() << dbName << " connection is not defined";
     try
     {
-        DatabaseTests::testBulkInsertPerformance(connectionString, 16384);
+        constexpr auto recordCount = 4096;
+        DatabaseTests::testBulkInsertPerformance(connectionString, recordCount);
     }
     catch (const Exception& e)
     {
