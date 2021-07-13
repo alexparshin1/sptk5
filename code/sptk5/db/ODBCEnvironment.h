@@ -70,6 +70,10 @@ class SP_DRIVER_EXPORT ODBCBase
 
 public:
 
+    static constexpr const char* cantSetConnectOption = "Can't set connect option";
+    static constexpr const char* cantEndTranscation = "Can't end transaction";
+    static constexpr const char* cantGetInformation = "Can't get connect information";
+
     /**
      * Destructor
      */

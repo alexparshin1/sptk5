@@ -29,6 +29,12 @@ public:
 private:
     int m_indentSpaces;
     XMLDocType m_docType;
+
+    Buffer& appendNodeContent(const Node& node, Buffer& buffer);
+
+    void appendNodeNameAndAttributes(const Node& node, const String& nodeName, Buffer& buffer);
+
+    void appendNodeEnd(const Node& node, const String& nodeName, Buffer& buffer, bool isNode);
 };
 
 }

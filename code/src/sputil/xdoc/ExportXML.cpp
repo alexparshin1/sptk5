@@ -36,25 +36,18 @@ static const String indentsString(1024, ' ');
 static constexpr int cdataStartMarkerLength = 9;
 static constexpr int cdataEndMarkerLength = 3;
 
+inline bool isNodeByName(const String& nodeName)
+{
+    return !(nodeName[0] == '#' && (nodeName == "#text" || nodeName == "#cdata"));
+}
+
 void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& buffer, int indent)
 {
-    bool isNode = !(nodeName[0] == '#' && (nodeName == "#text" || nodeName == "#cdata"));
+    bool isNode = isNodeByName(nodeName);
 
     if (isNode)
     {
-        buffer.append('<');
-
-        if (node.type() == Node::Type::ProcessingInstruction)
-        {
-            buffer.append('?');
-        }
-
-        buffer.append(nodeName);
-        if (!node.attributes().empty())
-        {
-            // Output attributes
-            saveAttributes(node, buffer);
-        }
+        appendNodeNameAndAttributes(node, nodeName, buffer);
     }
 
     if (!node.empty())
@@ -85,60 +78,87 @@ void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& bu
     }
     else
     {
-        //LEAF
-        if (node.type() == Node::Type::ProcessingInstruction)
-        {
-            buffer.append("?>", 2);
-        }
-        else if (!node.isNull())
-        {
-            if (isNode)
-            {
-                buffer.append('>');
-            }
-            if (node.is(Node::Type::Number))
-            {
-                auto dvalue = node.asFloat();
-                auto lvalue = long(dvalue);
-                if (dvalue == double(lvalue))
-                {
-                    buffer.append(to_string(lvalue));
-                }
-                else
-                {
-                    buffer.append(node.asString());
-                }
-            }
-            else
-            {
-                if (node.is(Node::Type::CData))
-                {
-                    buffer.append("<![CDATA[", 9);
-                    buffer.append(node.asString());
-                    buffer.append("]]>", 3);
-                }
-                else
-                {
-                    m_docType.encodeEntities(node.asString().c_str(), buffer);
-                }
-            }
-            if (isNode)
-            {
-                buffer.append("</", 2);
-                buffer.append(nodeName);
-                buffer.append('>');
-            }
-        }
-        else
-        {
-            buffer.append("/>", 2);
-        }
+        appendNodeEnd(node, nodeName, buffer, isNode);
 
         if (indent)
         {
             buffer.append('\n');
         }
     }
+}
+
+void ExportXML::appendNodeEnd(const Node& node, const String& nodeName, Buffer& buffer, bool isNode)
+{
+    if (node.type() == Node::Type::ProcessingInstruction)
+    {
+        buffer.append("?>", 2);
+    }
+    else if (!node.isNull())
+    {
+        if (isNode)
+        {
+            buffer.append('>');
+        }
+        buffer = appendNodeContent(node, buffer);
+        if (isNode)
+        {
+            buffer.append("</", 2);
+            buffer.append(nodeName);
+            buffer.append('>');
+        }
+    }
+    else
+    {
+        buffer.append("/>", 2);
+    }
+}
+
+void ExportXML::appendNodeNameAndAttributes(const Node& node, const String& nodeName, Buffer& buffer)
+{
+    buffer.append('<');
+
+    if (node.type() == Node::Type::ProcessingInstruction)
+    {
+        buffer.append('?');
+    }
+
+    buffer.append(nodeName);
+    if (!node.attributes().empty())
+    {
+        // Output attributes
+        saveAttributes(node, buffer);
+    }
+}
+
+Buffer& ExportXML::appendNodeContent(const Node& node, Buffer& buffer)
+{
+    if (node.is(Node::Type::Number))
+    {
+        auto dvalue = node.asFloat();
+        auto lvalue = long(dvalue);
+        if (dvalue == double(lvalue))
+        {
+            buffer.append(to_string(lvalue));
+        }
+        else
+        {
+            buffer.append(node.asString());
+        }
+    }
+    else
+    {
+        if (node.is(Node::Type::CData))
+        {
+            buffer.append("<![CDATA[", 9);
+            buffer.append(node.asString());
+            buffer.append("]]>", 3);
+        }
+        else
+        {
+            m_docType.encodeEntities(node.asString().c_str(), buffer);
+        }
+    }
+    return buffer;
 }
 
 void ExportXML::appendSubNodes(const Node& node, Buffer& buffer, int indent, bool only_cdata)

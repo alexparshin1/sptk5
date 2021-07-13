@@ -31,10 +31,6 @@
 using namespace std;
 using namespace sptk;
 
-static const char* cantSetConnectOption = "Can't set connect option";
-static const char* cantEndTranscation = "Can't end transaction";
-static const char* cantGetInformation = "Can't get connect information";
-
 // Returns true if result code indicates success
 static inline bool Successful(RETCODE ret)
 {

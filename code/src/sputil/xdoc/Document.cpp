@@ -70,7 +70,7 @@ TEST(SPTK_XDocument, load)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(Document::DataFormat::JSON, input);
+    document.load(DataFormat::JSON, input);
     verifyDocument(document);
 }
 
@@ -78,7 +78,7 @@ TEST(SPTK_XDocument, add)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(Document::DataFormat::JSON, input);
+    document.load(DataFormat::JSON, input);
 
     xdoc::Element& root = document.root();
 
@@ -124,7 +124,7 @@ TEST(SPTK_XDocument, remove)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(Document::DataFormat::JSON, input);
+    document.load(DataFormat::JSON, input);
 
     xdoc::Element& root = document.root();
     root.remove("name");
@@ -142,7 +142,7 @@ TEST(SPTK_XDocument, clear)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(Document::DataFormat::JSON, input);
+    document.load(DataFormat::JSON, input);
 
     document.clear();
     xdoc::Element& root = document.root();
@@ -155,12 +155,12 @@ TEST(SPTK_XDocument, exportToBuffer)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(Document::DataFormat::JSON, input);
+    document.load(DataFormat::JSON, input);
 
     Buffer buffer;
-    document.exportTo(Document::DataFormat::JSON, buffer, false);
+    document.exportTo(DataFormat::JSON, buffer, false);
 
-    document.load(Document::DataFormat::JSON, input);
+    document.load(DataFormat::JSON, input);
     verifyDocument(document);
 }
 
@@ -168,7 +168,7 @@ TEST(SPTK_XDocument, copyCtor)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(Document::DataFormat::JSON, input);
+    document.load(DataFormat::JSON, input);
 
     xdoc::Document document2(document);
 
@@ -180,7 +180,7 @@ TEST(SPTK_XDocument, moveCtor)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(Document::DataFormat::JSON, input);
+    document.load(DataFormat::JSON, input);
 
     xdoc::Document document2(move(document));
 
@@ -191,7 +191,7 @@ TEST(SPTK_XDocument, copyAssign)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(Document::DataFormat::JSON, input);
+    document.load(DataFormat::JSON, input);
 
     xdoc::Document document2;
 
@@ -205,7 +205,7 @@ TEST(SPTK_XDocument, moveAssign)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(Document::DataFormat::JSON, input);
+    document.load(DataFormat::JSON, input);
 
     xdoc::Document document2;
 
@@ -221,7 +221,7 @@ TEST(SPTK_XDocument, truncated)
     Buffer input(truncatedJSON);
     try
     {
-        document.load(Document::DataFormat::JSON, input);
+        document.load(DataFormat::JSON, input);
         FAIL() << "Incorrect: MUST fail";
     }
     catch (const Exception& e)
@@ -238,7 +238,7 @@ TEST(SPTK_XDocument, errors)
     Buffer junkTailJSON(String(testJSON) + "=");
     try
     {
-        document.load(Document::DataFormat::JSON, junkTailJSON);
+        document.load(DataFormat::JSON, junkTailJSON);
         FAIL() << "Incorrect: MUST fail";
     }
     catch (const Exception&)
@@ -250,7 +250,7 @@ TEST(SPTK_XDocument, errors)
     junkInsideJSON[0] = '?';
     try
     {
-        document.load(Document::DataFormat::JSON, junkInsideJSON);
+        document.load(DataFormat::JSON, junkInsideJSON);
         FAIL() << "Incorrect: MUST fail";
     }
     catch (const Exception&)
@@ -261,7 +261,7 @@ TEST(SPTK_XDocument, errors)
     try
     {
         Buffer input(testJSON);
-        document.load(Document::DataFormat::JSON, input);
+        document.load(DataFormat::JSON, input);
         const auto* element = document.root().find("nothing");
         if (element != nullptr)
             FAIL() << "Incorrect: MUST return null";
@@ -318,13 +318,13 @@ TEST(SPTK_XDocument, performance)
     EXPECT_STREQ(list[1].getString().c_str(), "two");
 
     Buffer buffer;
-    document.exportTo(Document::DataFormat::JSON, buffer, true);
+    document.exportTo(DataFormat::JSON, buffer, true);
 
     StopWatch stopWatch;
     stopWatch.start();
 
     xdoc::Document document1;
-    document1.load(Document::DataFormat::JSON, buffer);
+    document1.load(DataFormat::JSON, buffer);
 
     stopWatch.stop();
 

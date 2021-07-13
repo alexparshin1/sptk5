@@ -250,10 +250,10 @@ static const String testXML5(R"(<AAA><BBB>1</BBB><BBB id="002">2</BBB><BBB id="0
 
 TEST(SPTK_XDocument, select)
 {
-    xdoc::Node::Nodes elementSet;
-    xdoc::Document document;
+    Node::Nodes elementSet;
+    Document document;
 
-    document.load(xdoc::Document::DataFormat::XML, testXML1);
+    document.load(DataFormat::XML, testXML1);
 
     document.select(elementSet, "/AAA");
     EXPECT_EQ(size_t(1), elementSet.size());
@@ -267,10 +267,10 @@ TEST(SPTK_XDocument, select)
 
 TEST(SPTK_XDocument, select2)
 {
-    xdoc::Node::Nodes elementSet;
-    xdoc::Document document;
+    Node::Nodes elementSet;
+    Document document;
 
-    document.load(xdoc::Document::DataFormat::XML, testXML2);
+    document.load(DataFormat::XML, testXML2);
 
     document.select(elementSet, "//BBB");
     EXPECT_EQ(size_t(5), elementSet.size());
@@ -281,13 +281,13 @@ TEST(SPTK_XDocument, select2)
 
 TEST(SPTK_XDocument, select3)
 {
-    xdoc::Node::Nodes elementSet;
-    xdoc::Document document;
+    Node::Nodes elementSet;
+    Document document;
 
-    document.load(xdoc::Document::DataFormat::XML, testXML3);
+    document.load(DataFormat::XML, testXML3);
 
     Buffer buff;
-    document.exportTo(xdoc::Document::DataFormat::XML, buff, false);
+    document.exportTo(DataFormat::XML, buff, false);
 
     document.select(elementSet, "/AAA/CCC/DDD/*");
     EXPECT_EQ(size_t(4), elementSet.size());
@@ -298,10 +298,10 @@ TEST(SPTK_XDocument, select3)
 
 TEST(SPTK_XDocument, select4)
 {
-    xdoc::Node::Nodes elementSet;
-    xdoc::Document document;
+    Node::Nodes elementSet;
+    Document document;
 
-    document.load(xdoc::Document::DataFormat::XML, testXML4);
+    document.load(DataFormat::XML, testXML4);
 
     document.select(elementSet, "/AAA/BBB[1]");
     EXPECT_EQ(size_t(1), elementSet.size());
@@ -314,10 +314,10 @@ TEST(SPTK_XDocument, select4)
 
 TEST(SPTK_XDocument, select5)
 {
-    xdoc::Node::Nodes elementSet;
-    xdoc::Document document;
+    Node::Nodes elementSet;
+    Document document;
 
-    document.load(xdoc::Document::DataFormat::XML, testXML5);
+    document.load(DataFormat::XML, testXML5);
 
     document.select(elementSet, "//BBB[@id=002]");
     EXPECT_EQ(size_t(1), elementSet.size());

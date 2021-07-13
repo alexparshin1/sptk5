@@ -37,19 +37,6 @@ SourceModule::SourceModule(String moduleName, const String& modulePath)
 {
 }
 
-SourceModule::~SourceModule()
-{
-    try
-    {
-        writeFile(m_name + ".h", Buffer(m_header.str()));
-        writeFile(m_name + ".cpp", Buffer(m_source.str()));
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what())
-    }
-}
-
 void SourceModule::open()
 {
     if (m_path.empty())
@@ -102,4 +89,10 @@ void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& d
     }
     file.write(data.c_str(), (long) data.bytes());
     file.close();
+}
+
+void SourceModule::writeOutputFiles()
+{
+    writeFile(m_name + ".h", Buffer(m_header.str()));
+    writeFile(m_name + ".cpp", Buffer(m_source.str()));
 }

@@ -72,9 +72,7 @@ public:
     /**
      * Destructor
      */
-    ~XMLException() noexcept override
-    {
-    }
+    ~XMLException() override = default;
 };
 /**
  * @}

@@ -33,6 +33,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace xdoc;
 
 namespace sptk::xdoc {
 
@@ -559,9 +560,9 @@ static const String testREST(
     R"(</soap:Body>)"
     R"(</soap:Envelope>)");
 
-static void verifyDocument(xdoc::Document& document)
+static void verifyDocument(Document& document)
 {
-    const xdoc::Node* nameNode = document.root().find("name");
+    const Node* nameNode = document.root().find("name");
     EXPECT_STREQ("John", nameNode->asString().c_str());
     EXPECT_STREQ("president", nameNode->getAttribute("position").c_str());
 
@@ -576,33 +577,33 @@ static void verifyDocument(xdoc::Document& document)
     }
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
 
-    const xdoc::Node* ptr = document.find("address");
+    const Node* ptr = document.find("address");
     EXPECT_TRUE(ptr != nullptr);
 
-    const xdoc::Node& address = *ptr;
+    const Node& address = *ptr;
     EXPECT_STREQ("true", address.getString("married").c_str());
     EXPECT_STREQ("false", address.getString("employed").c_str());
 
-    const xdoc::Node* dataNode = document.find("data");
+    const Node* dataNode = document.find("data");
 
     for (const auto& cdataNode: *dataNode)
     {
-        EXPECT_TRUE(cdataNode.is(xdoc::Node::Node::Type::CData));
+        EXPECT_TRUE(cdataNode.is(Node::Node::Type::CData));
         EXPECT_STREQ("hello, /\\>", cdataNode.getString().c_str());
     }
 }
 
 TEST(SPTK_XDocument, loadXML)
 {
-    xdoc::Document document;
-    document.load(xdoc::Node::DataFormat::XML, testXML);
+    Document document;
+    document.load(DataFormat::XML, testXML);
     verifyDocument(document);
 }
 
 TEST(SPTK_XDocument, addNodes)
 {
-    xdoc::Document document;
-    document.load(xdoc::Node::DataFormat::XML, testXML);
+    Document document;
+    document.load(DataFormat::XML, testXML);
 
     document.pushNode("name") = String("John");
     document.pushNode("age") = String("33");
@@ -623,8 +624,8 @@ TEST(SPTK_XDocument, addNodes)
 
 TEST(SPTK_XDocument, removeNodes)
 {
-    xdoc::Document document;
-    document.load(xdoc::Node::DataFormat::XML, testXML);
+    Document document;
+    document.load(DataFormat::XML, testXML);
 
     document.findOrCreate("name");
     document.findOrCreate("age");
@@ -644,48 +645,48 @@ TEST(SPTK_XDocument, removeNodes)
 
 TEST(SPTK_XDocument, saveXml1)
 {
-    xdoc::Document document;
-    document.load(xdoc::Node::DataFormat::XML, testREST);
+    Document document;
+    document.load(DataFormat::XML, testREST);
 
     Buffer buffer;
 
-    document.exportTo(xdoc::Node::DataFormat::XML, buffer, false);
+    document.exportTo(DataFormat::XML, buffer, false);
 
     EXPECT_STREQ(testREST.c_str(), buffer.c_str());
 }
 
 TEST(SPTK_XDocument, saveXml2)
 {
-    xdoc::Document document;
-    document.load(xdoc::Node::DataFormat::XML, testXML);
+    Document document;
+    document.load(DataFormat::XML, testXML);
 
     Buffer buffer;
-    document.exportTo(xdoc::Node::DataFormat::XML, buffer, false);
+    document.exportTo(DataFormat::XML, buffer, false);
 
-    document.load(xdoc::Node::DataFormat::XML, buffer);
+    document.load(DataFormat::XML, buffer);
     verifyDocument(document);
 }
 
 TEST(SPTK_XDocument, parseXML)
 {
-    xdoc::Document document;
-    document.load(xdoc::Node::DataFormat::XML, testREST);
+    Document document;
+    document.load(DataFormat::XML, testREST);
 
     const auto* xmlElement = document.find("xml");
     EXPECT_STREQ(xmlElement->getAttribute("version").c_str(), "1.0");
     EXPECT_STREQ(xmlElement->getAttribute("encoding").c_str(), "UTF-8");
 
-    const auto* bodyElement = document.find("soap:Body", xdoc::Node::SearchMode::Recursive);
+    const auto* bodyElement = document.find("soap:Body", Node::SearchMode::Recursive);
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
-    EXPECT_EQ(xdoc::Node::Node::Type::Object, bodyElement->type());
+    EXPECT_EQ(Node::Node::Type::Object, bodyElement->type());
     EXPECT_EQ(1, (int) bodyElement->size());
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 
-    const xdoc::Node* methodElement = nullptr;
+    const Node* methodElement = nullptr;
     for (const auto& node: *bodyElement)
     {
-        if (node.is(xdoc::Node::Node::Type::Object))
+        if (node.is(Node::Node::Type::Object))
         {
             methodElement = &node;
             break;
@@ -698,12 +699,12 @@ TEST(SPTK_XDocument, parseXML)
 
 TEST(SPTK_XDocument, brokenXML)
 {
-    xdoc::Document document;
+    Document document;
 
     try
     {
         const String brokenXML1("<xml></html>");
-        document.load(xdoc::Node::DataFormat::XML, brokenXML1);
+        document.load(DataFormat::XML, brokenXML1);
         FAIL() << "Must throw exception";
     }
     catch (const Exception& e)
@@ -714,7 +715,7 @@ TEST(SPTK_XDocument, brokenXML)
     try
     {
         const String brokenXML1("<xml><html></xml></html>");
-        document.load(xdoc::Node::DataFormat::XML, brokenXML1);
+        document.load(DataFormat::XML, brokenXML1);
         FAIL() << "Must throw exception";
     }
     catch (const Exception& e)
@@ -725,7 +726,7 @@ TEST(SPTK_XDocument, brokenXML)
     try
     {
         const String brokenXML1("<xml</html>");
-        document.load(xdoc::Node::DataFormat::XML, brokenXML1);
+        document.load(DataFormat::XML, brokenXML1);
         FAIL() << "Must throw exception";
     }
     catch (const Exception& e)
@@ -736,14 +737,14 @@ TEST(SPTK_XDocument, brokenXML)
 
 TEST(SPTK_XDocument, unicodeAndSpacesXML)
 {
-    xdoc::Document document;
+    Document document;
 
     try
     {
         const String unicodeXML(R"(<?xml encoding="UTF-8" version="1.0"?><p> “Add” </p><span> </span>)");
-        document.load(xdoc::Node::DataFormat::XML, unicodeXML, true);
+        document.load(DataFormat::XML, unicodeXML, true);
         Buffer buffer;
-        document.exportTo(xdoc::Node::DataFormat::XML, buffer, false);
+        document.exportTo(DataFormat::XML, buffer, false);
         EXPECT_STREQ(unicodeXML.c_str(), buffer.c_str());
     }
     catch (const Exception& e)
@@ -755,11 +756,11 @@ TEST(SPTK_XDocument, unicodeAndSpacesXML)
 TEST(SPTK_XDocument, exportToJSON)
 {
     Buffer input(testXML);
-    xdoc::Document document;
-    document.load(xdoc::Node::DataFormat::XML, input);
+    Document document;
+    document.load(DataFormat::XML, input);
 
     Buffer output;
-    document.exportTo(xdoc::Node::DataFormat::JSON, output, true);
+    document.exportTo(DataFormat::JSON, output, true);
 
     COUT(output.c_str() << endl)
 }
@@ -769,11 +770,11 @@ TEST(SPTK_XDocument, loadFormattedXML)
     Buffer input;
     input.loadFromFile("data/content2.xml");
 
-    xdoc::Document document;
-    document.load(xdoc::Node::DataFormat::XML, input, true);
+    Document document;
+    document.load(DataFormat::XML, input, true);
 
     Buffer output;
-    document.exportTo(xdoc::Node::DataFormat::XML, output, false);
+    document.exportTo(DataFormat::XML, output, false);
     output.saveToFile("data/content2_exp.xml");
 }
 

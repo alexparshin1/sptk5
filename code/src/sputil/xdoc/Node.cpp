@@ -309,7 +309,7 @@ size_t Node::size() const
     return m_nodes.size();
 }
 
-void Node::load(Node::DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting)
+void Node::load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting)
 {
     clear();
     if (dataFormat == DataFormat::JSON)
@@ -322,7 +322,7 @@ void Node::load(Node::DataFormat dataFormat, const Buffer& data, bool xmlKeepFor
     }
 }
 
-void Node::load(Node::DataFormat dataFormat, const String& data, bool xmlKeepSpaces)
+void Node::load(DataFormat dataFormat, const String& data, bool xmlKeepSpaces)
 {
     Buffer input(data);
 
@@ -337,7 +337,7 @@ void Node::load(Node::DataFormat dataFormat, const String& data, bool xmlKeepSpa
     }
 }
 
-void Node::exportTo(Node::DataFormat dataFormat, Buffer& data, bool formatted) const
+void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
 {
     if (dataFormat == DataFormat::JSON)
     {

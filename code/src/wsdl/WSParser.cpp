@@ -570,6 +570,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
         usedClasses.push_back("C" + complexType->name());
         cmakeLists << "  " << sourceDirectory << "/C" << complexType->name() << ".cpp "
                    << sourceDirectory << "/C" << complexType->name() << ".h" << endl;
+        sourceModule.writeOutputFiles();
     }
 
     // Generate Service class definition
@@ -585,6 +586,8 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     generateDefinition(usedClasses, serviceModule.header());
     generateImplementation(serviceModule.source());
 
+    serviceModule.writeOutputFiles();
+
     cmakeLists << ")" << endl;
 
     replaceFile(m_serviceName + ".inc", cmakeLists);
@@ -597,7 +600,9 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     }
 
     if (verbose)
-    COUT("Creating OpenAPI file " << openApiFileName)
+    {
+        COUT("Creating OpenAPI file " << openApiFileName)
+    }
 
     ofstream openApiFile(openApiFileName);
     openApiGenerator.generate(openApiFile, m_operations, m_complexTypeIndex.complexTypes(), m_documentation);

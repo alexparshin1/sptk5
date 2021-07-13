@@ -43,18 +43,6 @@ namespace sptk {
  */
 class SP_EXPORT SourceModule
 {
-    String m_name;     ///< Module name
-    String m_path;     ///< Module path
-    std::stringstream m_header;   ///< Module .h file content
-    std::stringstream m_source;   ///< Module cpp file content
-
-    /**
-     * Write data to file if it doesn't exist, or if file content is different from data
-     * @param fileNameAndExtension  File name
-     * @param data                  Data to write
-     */
-    void writeFile(const String& fileNameAndExtension, const Buffer& data);
-
 public:
     /**
      * @brief Constructor
@@ -62,11 +50,6 @@ public:
      * @param modulePath        Module path
      */
     SourceModule(String moduleName, const String& modulePath);
-
-    /**
-     * @brief Destructor
-     */
-    ~SourceModule();
 
     /**
      * @brief Opens module output files
@@ -82,6 +65,26 @@ public:
      * @brief Returns source file stream
      */
     std::ostream& source();
+
+    /**
+     * @brief Write output .h and .cpp files if they don't exist
+     *        or have different content.
+     */
+    void writeOutputFiles();
+
+private:
+
+    String m_name;                 ///< Module name
+    String m_path;                 ///< Module path
+    std::stringstream m_header;    ///< Module .h file content
+    std::stringstream m_source;    ///< Module cpp file content
+
+    /**
+     * Write data to file if it doesn't exist, or if file content is different from data
+     * @param fileNameAndExtension  File name
+     * @param data                  Data to write
+     */
+    void writeFile(const String& fileNameAndExtension, const Buffer& data);
 };
 
 /**

@@ -39,7 +39,8 @@ public:
     /**
      * Type(s) of field that are processed with forEach
      */
-    enum class Group: uint8_t
+    enum class Group
+        : uint8_t
     {
         ELEMENTS = 1,
         ATTRIBUTES = 2,
@@ -51,7 +52,7 @@ public:
      * @param fieldNames        Field names
      * @param fieldList         Field list
      */
-    WSFieldIndex() {}
+    WSFieldIndex() = default;
 
     /**
      * Destructor
@@ -61,22 +62,32 @@ public:
     /**
      * Do not change internal state
      */
-    WSFieldIndex(const WSFieldIndex&) {}
+    WSFieldIndex(const WSFieldIndex&)
+    {
+    }
 
     /**
      * Do not change internal state
      */
-    WSFieldIndex(WSFieldIndex&&) noexcept {}
+    WSFieldIndex(WSFieldIndex&&) noexcept
+    {
+    }
 
     /**
      * Do not change internal state
      */
-    WSFieldIndex& operator = (const WSFieldIndex&) { return *this; }
+    WSFieldIndex& operator=(const WSFieldIndex&)
+    {
+        return *this;
+    }
 
     /**
      * Do not change internal state
      */
-    WSFieldIndex& operator = (WSFieldIndex&&) noexcept { return *this; }
+    WSFieldIndex& operator=(WSFieldIndex&&) noexcept
+    {
+        return *this;
+    }
 
     /**
      * Initialize field index with elements
@@ -96,13 +107,19 @@ public:
      * Get elements
      * @return const elements map
      */
-    const std::map<String, WSType*>& elements() const { return m_elementIndex; }
+    const std::map<String, WSType*>& elements() const
+    {
+        return m_elementIndex;
+    }
 
     /**
      * Get attributes
      * @return const attributes map
      */
-    const std::map<String, WSType*>& attributes() const { return m_attributeIndex; }
+    const std::map<String, WSType*>& attributes() const
+    {
+        return m_attributeIndex;
+    }
 
     /**
      * Return a field for field name, or return nullptr if not found
@@ -115,24 +132,26 @@ public:
      * Execute the method for each field until it returns false
      * @param method            Method to execute
      */
-    void forEach(const std::function<bool(WSType*)>& method, Group fieldType=Group::ELEMENTS_AND_ATTRIBUTES);
+    void forEach(const std::function<bool(WSType*)>& method, Group fieldType = Group::ELEMENTS_AND_ATTRIBUTES);
 
     /**
      * Execute the method for each field until it returns false
      * @param method            Method to execute
      */
-    void forEach(const std::function<bool(const WSType*)>& method, Group fieldType=Group::ELEMENTS_AND_ATTRIBUTES) const;
+    void forEach(const std::function<bool(const WSType*)>& method,
+                 Group fieldType = Group::ELEMENTS_AND_ATTRIBUTES) const;
 
     bool hasElements() const;
+
     bool hasAttributes() const;
 
 private:
 
-    std::vector<WSType*>        m_elements;
-    std::vector<WSType*>        m_attributes;
+    std::vector<WSType*> m_elements;
+    std::vector<WSType*> m_attributes;
 
-    std::map<String, WSType*>   m_elementIndex;
-    std::map<String, WSType*>   m_attributeIndex;
+    std::map<String, WSType*> m_elementIndex;
+    std::map<String, WSType*> m_attributeIndex;
 };
 
 using SWSFieldIndex = std::shared_ptr<WSFieldIndex>;

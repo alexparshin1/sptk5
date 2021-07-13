@@ -38,10 +38,18 @@ class Document
     friend class ExportXML;
 
 public:
-    Document(Type rootType = Type::Object)
+    explicit Document(Type rootType = Type::Object)
         : Node("", rootType)
     {
     }
+
+    Document(const Document& other) = default;
+
+    Document(Document&& other) noexcept = default;
+
+    Document& operator=(const Document& other) = default;
+
+    Document& operator=(Document&& other) noexcept = default;
 
     Document& root()
     {

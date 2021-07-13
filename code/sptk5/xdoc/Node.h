@@ -31,6 +31,13 @@
 
 namespace sptk::xdoc {
 
+enum class DataFormat
+    : uint8_t
+{
+    JSON,
+    XML
+};
+
 class Node
     : public Variant
 {
@@ -60,13 +67,6 @@ public:
         CData,
         Comment,
         ProcessingInstruction
-    };
-
-    enum class DataFormat
-        : uint8_t
-    {
-        JSON,
-        XML
     };
 
     Node(const String& nodeName = "", Type type = Type::Null);
