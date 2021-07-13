@@ -27,6 +27,7 @@
 #include <sptk5/xdoc/Node.h>
 #include <sptk5/xdoc/ImportXML.h>
 #include <sptk5/xdoc/ExportXML.h>
+#include "XPath.h"
 
 using namespace std;
 using namespace sptk;
@@ -172,31 +173,32 @@ Node& Node::pushNode(const String& name, Type type)
 
 String Node::getString(const String& name) const
 {
-    if (name.empty())
-    {
-        return asString();
-    }
+    auto* node = this;
 
-    if (auto* node = find(name);
-        node != nullptr)
+    if (!name.empty())
     {
-        if (node->is(Type::Number))
+        node = find(name);
+        if (node == nullptr)
         {
-            auto dvalue = node->asFloat();
-            auto ivalue = node->asInt64();
-            if (dvalue == double(ivalue))
-            {
-                return int2string(ivalue);
-            }
-            else
-            {
-                return double2string(dvalue);
-            }
+            return String();
         }
-        return node->asString();
     }
 
-    return String();
+    if (node->is(Type::Number))
+    {
+        auto dvalue = node->asFloat();
+        auto ivalue = node->asInt64();
+        if (dvalue == double(ivalue))
+        {
+            return int2string(ivalue);
+        }
+        else
+        {
+            return double2string(dvalue);
+        }
+    }
+
+    return node->asString();
 }
 
 double Node::getNumber(const String& name) const
@@ -374,4 +376,10 @@ Node* Node::parent()
 void Node::clearChildren()
 {
     m_nodes.clear();
+}
+
+void Node::select(Node::Nodes& selectedNodes, const String& xpath)
+{
+    selectedNodes.clear();
+    NodeSearchAlgorithms::select(selectedNodes, *this, xpath);
 }

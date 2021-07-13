@@ -1,6 +1,8 @@
 #include "XPath.h"
 #include <sptk5/RegularExpression.h>
 #include <sptk5/xdoc/Attributes.h>
+#include <sptk5/xdoc/Document.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -128,6 +130,7 @@ bool NodeSearchAlgorithms::matchPathElement(const Node* thisNode, const XPathEle
     {
         return matchPathElementAttribute(thisNode, pathElement, starPointer);
     }
+
     return true;
 }
 
@@ -176,7 +179,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const Node* thisNode, Node::Nodes
         {
             return;
         }
-        Node& anode = matchedNodes[matchedPosition];
+        Node anode = matchedNodes[matchedPosition];
         matchedNodes.clear();
         matchedNodes.push_back(anode);
     }
@@ -224,10 +227,8 @@ void NodeSearchAlgorithms::matchNode(Node* thisNode, Node::Nodes& nodes, const v
     matchNodesThisLevel(thisNode, nodes, pathElements, pathPosition, starPointer, matchedNodes, false);
 }
 
-void select(Node::Nodes& nodes, xdoc::Node& start, String xpath)
+void NodeSearchAlgorithms::select(Node::Nodes& nodes, xdoc::Node& start, String xpath)
 {
-    nodes.clear();
-
     if (!xpath.startsWith("/"))
     {
         xpath = "//" + xpath;
@@ -247,3 +248,94 @@ void select(Node::Nodes& nodes, xdoc::Node& start, String xpath)
     const String starPointer("*");
     NodeSearchAlgorithms::matchNode(&start, nodes, pathElements, -1, starPointer);
 }
+
+#if USE_GTEST
+
+static const String testXML1("<AAA><BBB/><CCC/><BBB/><BBB/><DDD><BBB/></DDD><CCC/></AAA>");
+static const String testXML2("<AAA><BBB/><CCC/><BBB/><DDD><BBB/></DDD><CCC><DDD><BBB/><BBB/></DDD></CCC></AAA>");
+static const String testXML3(
+    "<AAA><XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX><CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC><CCC><BBB><BBB><BBB/></BBB></BBB></CCC></AAA>");
+static const String testXML4("<AAA><BBB>1</BBB><BBB>2</BBB><BBB>3</BBB><BBB>4</BBB></AAA>");
+static const String testXML5(R"(<AAA><BBB>1</BBB><BBB id="002">2</BBB><BBB id="003">3</BBB><BBB>4</BBB></AAA>)");
+
+TEST(SPTK_XDocument, select)
+{
+    xdoc::Node::Nodes elementSet;
+    xdoc::Document document;
+
+    document.load(xdoc::Document::DataFormat::XML, testXML1);
+
+    document.select(elementSet, "/AAA");
+    EXPECT_EQ(size_t(1), elementSet.size());
+
+    document.select(elementSet, "/AAA/CCC");
+    EXPECT_EQ(size_t(2), elementSet.size());
+
+    document.select(elementSet, "/AAA/DDD/BBB");
+    EXPECT_EQ(size_t(1), elementSet.size());
+}
+
+TEST(SPTK_XDocument, select2)
+{
+    xdoc::Node::Nodes elementSet;
+    xdoc::Document document;
+
+    document.load(xdoc::Document::DataFormat::XML, testXML2);
+
+    document.select(elementSet, "//BBB");
+    EXPECT_EQ(size_t(5), elementSet.size());
+
+    document.select(elementSet, "//DDD/BBB");
+    EXPECT_EQ(size_t(3), elementSet.size());
+}
+
+TEST(SPTK_XDocument, select3)
+{
+    xdoc::Node::Nodes elementSet;
+    xdoc::Document document;
+
+    document.load(xdoc::Document::DataFormat::XML, testXML3);
+
+    Buffer buff;
+    document.exportTo(xdoc::Document::DataFormat::XML, buff, false);
+
+    document.select(elementSet, "/AAA/CCC/DDD/*");
+    EXPECT_EQ(size_t(4), elementSet.size());
+
+    document.select(elementSet, "//*");
+    EXPECT_EQ(size_t(17), elementSet.size());
+}
+
+TEST(SPTK_XDocument, select4)
+{
+    xdoc::Node::Nodes elementSet;
+    xdoc::Document document;
+
+    document.load(xdoc::Document::DataFormat::XML, testXML4);
+
+    document.select(elementSet, "/AAA/BBB[1]");
+    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_STREQ("1", elementSet[0].getString().c_str());
+
+    document.select(elementSet, "/AAA/BBB[last()]");
+    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_STREQ("4", elementSet[0].getString().c_str());
+}
+
+TEST(SPTK_XDocument, select5)
+{
+    xdoc::Node::Nodes elementSet;
+    xdoc::Document document;
+
+    document.load(xdoc::Document::DataFormat::XML, testXML5);
+
+    document.select(elementSet, "//BBB[@id=002]");
+    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_STREQ("2", elementSet[0].getString().c_str());
+
+    document.select(elementSet, "//BBB[@id=003]");
+    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_STREQ("3", elementSet[0].getString().c_str());
+}
+
+#endif

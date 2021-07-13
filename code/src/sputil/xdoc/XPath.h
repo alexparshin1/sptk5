@@ -62,6 +62,9 @@ public:
 class SP_EXPORT NodeSearchAlgorithms
 {
 public:
+    static void select(Node::Nodes& nodes, Node& start, String xpath);
+
+private:
     /**
      * Scan descendents nodes
      */

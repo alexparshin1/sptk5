@@ -524,6 +524,7 @@ void ImportXML::readText(Node& currentNode, XMLDocType* doctype, const char* nod
             if (nodeType == Node::Type::Text)
             {
                 currentNode.setString(decodedText);
+                currentNode.type(nodeType);
             }
         }
     }

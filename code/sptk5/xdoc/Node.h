@@ -252,6 +252,8 @@ public:
 
     Node* parent();
 
+    virtual void select(Node::Nodes& selectedNodes, const String& xpath);
+
 private:
 
     Node* m_parent {nullptr};

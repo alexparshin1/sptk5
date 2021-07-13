@@ -48,6 +48,7 @@ public:
         return *this;
     }
 
+    void select(Node::Nodes& selectedNodes, const String& xpath) override;
 };
 
 }

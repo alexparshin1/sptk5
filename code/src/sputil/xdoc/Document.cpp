@@ -27,10 +27,20 @@
 #include <sptk5/StopWatch.h>
 #include <sptk5/Printer.h>
 #include <sptk5/xdoc/Document.h>
+#include "XPath.h"
 
 using namespace std;
 using namespace sptk;
 using namespace sptk::xdoc;
+
+void xdoc::Document::select(Node::Nodes& selectedNodes, const String& xpath)
+{
+    selectedNodes.clear();
+    //for (auto& node: *this)
+    {
+        NodeSearchAlgorithms::select(selectedNodes, *this, xpath);
+    }
+}
 
 #if USE_GTEST
 
