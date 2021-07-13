@@ -87,32 +87,6 @@ void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& bu
     }
 }
 
-void ExportXML::appendNodeEnd(const Node& node, const String& nodeName, Buffer& buffer, bool isNode)
-{
-    if (node.type() == Node::Type::ProcessingInstruction)
-    {
-        buffer.append("?>", 2);
-    }
-    else if (!node.isNull())
-    {
-        if (isNode)
-        {
-            buffer.append('>');
-        }
-        buffer = appendNodeContent(node, buffer);
-        if (isNode)
-        {
-            buffer.append("</", 2);
-            buffer.append(nodeName);
-            buffer.append('>');
-        }
-    }
-    else
-    {
-        buffer.append("/>", 2);
-    }
-}
-
 void ExportXML::appendNodeNameAndAttributes(const Node& node, const String& nodeName, Buffer& buffer)
 {
     buffer.append('<');
@@ -182,6 +156,32 @@ void ExportXML::appendSubNodes(const Node& node, Buffer& buffer, int indent, boo
                 buffer.append('\n');
             }
         }
+    }
+}
+
+void ExportXML::appendNodeEnd(const Node& node, const String& nodeName, Buffer& buffer, bool isNode)
+{
+    if (node.type() == Node::Type::ProcessingInstruction)
+    {
+        buffer.append("?>", 2);
+    }
+    else if (!node.isNull())
+    {
+        if (isNode)
+        {
+            buffer.append('>');
+        }
+        buffer = appendNodeContent(node, buffer);
+        if (isNode)
+        {
+            buffer.append("</", 2);
+            buffer.append(nodeName);
+            buffer.append('>');
+        }
+    }
+    else
+    {
+        buffer.append("/>", 2);
     }
 }
 
