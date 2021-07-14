@@ -44,6 +44,7 @@ class Node
 public:
 
     using Nodes = std::vector<Node>;
+    using Vector = std::vector<Node*>;
     using iterator = Nodes::iterator;
     using const_iterator = Nodes::const_iterator;
 
@@ -252,7 +253,7 @@ public:
 
     Node* parent();
 
-    virtual void select(Node::Nodes& selectedNodes, const String& xpath);
+    virtual void select(Node::Vector& selectedNodes, const String& xpath);
 
 private:
 

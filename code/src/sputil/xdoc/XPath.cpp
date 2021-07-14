@@ -134,17 +134,17 @@ bool NodeSearchAlgorithms::matchPathElement(const Node* thisNode, const XPathEle
     return true;
 }
 
-void NodeSearchAlgorithms::matchNodesThisLevel(const Node& thisNode, Node::Nodes& nodes,
+void NodeSearchAlgorithms::matchNodesThisLevel(Node& thisNode, Node::Vector& nodes,
                                                const vector<XPathElement>& pathElements, int pathPosition,
-                                               const String& starPointer, Node::Nodes& matchedNodes, bool descendants)
+                                               const String& starPointer, Node::Vector& matchedNodes, bool descendants)
 {
     const XPathElement& pathElement = pathElements[size_t(pathPosition)];
 
-    for (const auto& node: thisNode)
+    for (auto& node: thisNode)
     {
         if (matchPathElement(&node, pathElement, starPointer))
         {
-            matchedNodes.push_back(node);
+            matchedNodes.push_back(&node);
         }
         if (descendants)
         {
@@ -179,26 +179,27 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const Node& thisNode, Node::Nodes
         {
             return;
         }
-        Node anode = matchedNodes[matchedPosition];
+        Node* anode = matchedNodes[matchedPosition];
         matchedNodes.clear();
         matchedNodes.push_back(anode);
     }
 
-    for (const auto& node: matchedNodes)
+    for (auto* node: matchedNodes)
     {
-        matchNode(node, nodes, pathElements, pathPosition, starPointer);
+        matchNode(*node, nodes, pathElements, pathPosition, starPointer);
     }
 }
 
-void NodeSearchAlgorithms::scanDescendents(const Node& thisNode, Node::Nodes& nodes,
+void NodeSearchAlgorithms::scanDescendents(Node& thisNode, Node::Vector& nodes,
                                            const std::vector<XPathElement>& pathElements, int pathPosition,
                                            const String& starPointer)
 {
-    Node::Nodes matchedNodes;
+    Node::Vector matchedNodes;
     matchNodesThisLevel(thisNode, nodes, pathElements, pathPosition, starPointer, matchedNodes, true);
 }
 
-void NodeSearchAlgorithms::matchNode(const Node& thisNode, Node::Nodes& nodes, const vector<XPathElement>& pathElements,
+void NodeSearchAlgorithms::matchNode(Node& thisNode, Node::Vector& nodes,
+                                     const vector<XPathElement>& pathElements,
                                      int pathPosition,
                                      const String& starPointer)
 {
@@ -208,16 +209,16 @@ void NodeSearchAlgorithms::matchNode(const Node& thisNode, Node::Nodes& nodes, c
         if (const XPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
             !pathElement.elementName.empty())
         {
-            nodes.push_back(thisNode);
+            nodes.push_back(&thisNode);
         }
         return;
     }
 
-    Node::Nodes matchedNodes;
+    Node::Vector matchedNodes;
     matchNodesThisLevel(thisNode, nodes, pathElements, pathPosition, starPointer, matchedNodes, false);
 }
 
-void NodeSearchAlgorithms::select(Node::Nodes& nodes, const Node& start, String xpath)
+void NodeSearchAlgorithms::select(Node::Vector& nodes, Node& start, String xpath)
 {
     if (!xpath.startsWith("/"))
     {
@@ -250,7 +251,7 @@ static const String testXML5(R"(<AAA><BBB>1</BBB><BBB id="002">2</BBB><BBB id="0
 
 TEST(SPTK_XDocument, select)
 {
-    Node::Nodes elementSet;
+    Node::Vector elementSet;
     Document document;
 
     document.load(DataFormat::XML, testXML1);
@@ -267,7 +268,7 @@ TEST(SPTK_XDocument, select)
 
 TEST(SPTK_XDocument, select2)
 {
-    Node::Nodes elementSet;
+    Node::Vector elementSet;
     Document document;
 
     document.load(DataFormat::XML, testXML2);
@@ -281,7 +282,7 @@ TEST(SPTK_XDocument, select2)
 
 TEST(SPTK_XDocument, select3)
 {
-    Node::Nodes elementSet;
+    Node::Vector elementSet;
     Document document;
 
     document.load(DataFormat::XML, testXML3);
@@ -298,34 +299,34 @@ TEST(SPTK_XDocument, select3)
 
 TEST(SPTK_XDocument, select4)
 {
-    Node::Nodes elementSet;
+    Node::Vector elementSet;
     Document document;
 
     document.load(DataFormat::XML, testXML4);
 
     document.select(elementSet, "/AAA/BBB[1]");
     EXPECT_EQ(size_t(1), elementSet.size());
-    EXPECT_STREQ("1", elementSet[0].getString().c_str());
+    EXPECT_STREQ("1", elementSet[0]->getString().c_str());
 
     document.select(elementSet, "/AAA/BBB[last()]");
     EXPECT_EQ(size_t(1), elementSet.size());
-    EXPECT_STREQ("4", elementSet[0].getString().c_str());
+    EXPECT_STREQ("4", elementSet[0]->getString().c_str());
 }
 
 TEST(SPTK_XDocument, select5)
 {
-    Node::Nodes elementSet;
+    Node::Vector elementSet;
     Document document;
 
     document.load(DataFormat::XML, testXML5);
 
     document.select(elementSet, "//BBB[@id=002]");
     EXPECT_EQ(size_t(1), elementSet.size());
-    EXPECT_STREQ("2", elementSet[0].getString().c_str());
+    EXPECT_STREQ("2", elementSet[0]->getString().c_str());
 
     document.select(elementSet, "//BBB[@id=003]");
     EXPECT_EQ(size_t(1), elementSet.size());
-    EXPECT_STREQ("3", elementSet[0].getString().c_str());
+    EXPECT_STREQ("3", elementSet[0]->getString().c_str());
 }
 
 #endif

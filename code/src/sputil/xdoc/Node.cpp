@@ -384,7 +384,7 @@ void Node::clearChildren()
     m_nodes.clear();
 }
 
-void Node::select(Node::Nodes& selectedNodes, const String& xpath)
+void Node::select(Node::Vector& selectedNodes, const String& xpath)
 {
     selectedNodes.clear();
     NodeSearchAlgorithms::select(selectedNodes, *this, xpath);
