@@ -28,6 +28,7 @@
 
 #include <sptk5/Exception.h>
 #include <sptk5/FieldList.h>
+#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
@@ -107,11 +108,11 @@ SField FieldList::findField(const String& fname) const
     return nullptr;
 }
 
-void FieldList::toXML(xml::Node& node, bool compactMode) const
+void FieldList::exportTo(xdoc::Node& node, bool compactMode) const
 {
     for (const auto& field: *this)
     {
-        field->toXML(node, compactMode);
+        field->exportTo(node, compactMode);
     }
 }
 
@@ -222,12 +223,12 @@ TEST(SPTK_FieldList, toXml)
     fieldList["name"] = "John";
     fieldList["value"] = testInteger;
 
-    xml::Document xml;
-    auto* fieldsElement = new xml::Element(xml, "fields");
-    fieldList.toXML(*fieldsElement, false);
+    xdoc::Document xml;
+    auto& fieldsElement = xml.pushNode("fields", xdoc::Node::Type::Object);
+    fieldList.exportTo(fieldsElement, false);
 
     Buffer buffer;
-    fieldsElement->save(buffer);
+    fieldsElement.exportTo(xdoc::DataFormat::XML, buffer, false);
 
     EXPECT_STREQ(buffer.c_str(),
                  R"(<fields><field name="name" type="string" size="4">John</field><field name="value" type="int" size="4">12345</field></fields>)");

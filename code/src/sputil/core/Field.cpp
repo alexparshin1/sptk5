@@ -157,18 +157,18 @@ String Field::doubleDataToString() const
     return output.str();
 }
 
-void Field::toXML(xml::Node& node, bool compactXmlMode) const
+void Field::exportTo(xdoc::Node& node, bool compactXmlMode) const
 {
     String value = asString();
 
     if (!value.empty())
     {
-        xml::Element* element = nullptr;
+        xdoc::Element* element = nullptr;
 
         if (dataType() == VariantDataType::VAR_TEXT)
         {
-            element = new xml::Element(node, fieldName());
-            new xml::CDataSection(*element, value);
+            element = &node.pushNode(fieldName(), xdoc::Node::Type::CData);
+            element->setString(value);
         }
         else
         {
@@ -178,8 +178,8 @@ void Field::toXML(xml::Node& node, bool compactXmlMode) const
             }
             else
             {
-                element = new xml::Element(node, "field");
-                new xml::Text(element, value.c_str());
+                element = &node.pushNode("field", xdoc::Node::Type::Text);
+                element->setString(value);
             }
         }
 

@@ -41,27 +41,31 @@ bool DataSource::save()
     return saveData();
 }
 
-void DataSource::rowToXML(xml::Node& node, bool compactXmlMode)
+void DataSource::exportRowTo(xdoc::Node& node, bool compactXmlMode)
 {
     auto cnt = fieldCount();
-    for (size_t i = 0; i < cnt; ++i) {
+    for (size_t i = 0; i < cnt; ++i)
+    {
         const Field& field = operator[](i);
-        field.toXML(node, compactXmlMode);
+        field.exportTo(node, compactXmlMode);
     }
 }
 
-void DataSource::toXML(xml::Node& parentNode, const string& nodeName, bool compactXmlMode)
+void DataSource::exportTo(xdoc::Node& parentNode, const String& nodeName, bool compactXmlMode)
 {
-    try {
+    try
+    {
         open();
-        while (!eof()) {
-            xml::Node& node = *parentNode.add<xml::Element>(nodeName);
-            rowToXML(node, compactXmlMode);
+        while (!eof())
+        {
+            auto& node = parentNode.pushNode(nodeName, xdoc::Node::Type::Object);
+            exportRowTo(node, compactXmlMode);
             next();
         }
         close();
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         close();
         throw;
     }

@@ -68,7 +68,7 @@ public:
      * @param fieldIndex        Field index
      * @returns field reference
      */
-    virtual Field&       operator [] (size_t fieldIndex) = 0;
+    virtual Field& operator[](size_t fieldIndex) = 0;
 
     /**
      * Field access by the field name, const version.
@@ -77,7 +77,7 @@ public:
      * @param fieldName         Field name
      * @returns field reference
      */
-    virtual Field&       operator [] (const String& fieldName) = 0;
+    virtual Field& operator[](const String& fieldName) = 0;
 
     /**
      * Returns field count in the datasource.
@@ -102,7 +102,7 @@ public:
      * @param fieldName         Field name
      * @param fieldValue        Field value
      */
-    virtual bool readField(const char *fieldName, Variant& fieldValue) = 0;
+    virtual bool readField(const char* fieldName, Variant& fieldValue) = 0;
 
     /**
      * Writes the field by name from the datasource.
@@ -111,7 +111,7 @@ public:
      * @param fieldName         Field name
      * @param fieldValue        Field value
      */
-    virtual bool writeField(const char *fieldName, const Variant& fieldValue) = 0;
+    virtual bool writeField(const char* fieldName, const Variant& fieldValue) = 0;
 
     /**
      * Opens the datasource. Implemented in derved class.
@@ -188,27 +188,27 @@ public:
     bool save();
 
     /**
-     * Saves dataset row data into XML
+     * Saves dataset row data into XDoc
      *
      * If the compactXmlMode is true, the node would have fields presented as attributues.
      * Otherwise, the fields are stored as subnodes.
-     * @param node              XML node to fill in
+     * @param node              XDoc node to fill in
      * @param compactXmlMode    Compact XML flag
      */
-    void rowToXML(xml::Node& node, bool compactXmlMode);
+    void exportRowTo(xdoc::Node& node, bool compactXmlMode = false);
 
     /**
-     * Saves data into XML
+     * Saves data into XDoc
      *
      * Opens the dataset, reads every row, and closes dataset.
      * For every row in the dataset, creates the node with the name nodeName.
      * If the compactXmlMode is true, the nodes would have fields presented as attributues.
      * Otherwise, the fields are stored as subnodes.
-     * @param parentNode        XML node to add subnodes to
+     * @param parentNode        XDoc node to add subnodes to
      * @param nodeName          Name for subnodes
      * @param compactXmlMode    Compact XML flag
      */
-    virtual void toXML(xml::Node& parentNode, const std::string& nodeName, bool compactXmlMode);
+    virtual void exportTo(xdoc::Node& parentNode, const String& nodeName, bool compactXmlMode);
 
 protected:
     /**

@@ -29,7 +29,7 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/Variant.h>
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
 
 #include <string>
 
@@ -221,7 +221,7 @@ public:
      * @param node               Node to export field data into
      * @param compactXmlMode     Compact XML mode flag
      */
-    void toXML(xml::Node& node, bool compactXmlMode) const;
+    void exportTo(xdoc::Node& node, bool compactXmlMode = false) const;
 
     String displayName() const
     {

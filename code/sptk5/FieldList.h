@@ -27,7 +27,7 @@
 #pragma once
 
 #include <sptk5/Field.h>
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
 #include <sptk5/CaseInsensitiveCompare.h>
 #include <map>
 #include <vector>
@@ -230,14 +230,14 @@ public:
     }
 
     /**
-     * Exports data into XML node
+     * Exports data into XDoc node
      *
      * The compact XML modes means that fields values are stored as attributes, w/o type information.
      * Otherwise, fields are stored as subnodes, with the field information stored as attributes.
-     * @param node              XML node to store fields into
+     * @param node              XDoc node to store fields into
      * @param compact           Compact XML export flag
      */
-    void toXML(xml::Node& node, bool compactMode = false) const;
+    void exportTo(xdoc::Node& node, bool compactMode = false) const;
 
 private:
     /**

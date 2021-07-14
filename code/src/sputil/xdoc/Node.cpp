@@ -103,15 +103,12 @@ Node* Node::find(const String& name, SearchMode searchMode)
 
     if (searchMode == SearchMode::Recursive)
     {
+        Node* found {nullptr};
         for (auto& node: m_nodes)
         {
-            if (node.is(Type::Object))
+            if (node.is(Type::Object) && (found = node.find(name, searchMode)))
             {
-                auto* found = node.find(name, searchMode);
-                if (found)
-                {
-                    return found;
-                }
+                return found;
             }
         }
     }
@@ -346,9 +343,18 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
     else
     {
         ExportXML exporter;
-        for (auto& node: m_nodes)
+        if (m_parent != nullptr)
         {
-            exporter.saveElement(node, node.name(), data, formatted ? 2 : 0);
+            // Exporting single node
+            exporter.saveElement(*this, name(), data, formatted ? 2 : 0);
+        }
+        else
+        {
+            // Exporting root node of the document
+            for (auto& node: m_nodes)
+            {
+                exporter.saveElement(node, node.name(), data, formatted ? 2 : 0);
+            }
         }
     }
 }
