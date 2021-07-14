@@ -124,7 +124,7 @@ public:
 
     bool hasAttribute(const String& name) const;
 
-    String getAttribute(const String& name) const;
+    String getAttribute(const String& name, const String& defaultValue = "") const;
 
     void setAttribute(const String& name, const String& value);
 

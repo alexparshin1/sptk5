@@ -64,7 +64,7 @@ public:
         m_items.clear();
     }
 
-    String get(const String& name) const
+    String get(const String& name, const String& defaultValue = "") const
     {
         for (const auto&[attr, value]: m_items)
         {
@@ -73,7 +73,7 @@ public:
                 return value;
             }
         }
-        return String();
+        return defaultValue;
     }
 
     bool has(const String& name) const

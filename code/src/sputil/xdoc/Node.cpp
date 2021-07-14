@@ -53,7 +53,7 @@ bool Node::hasAttribute(const String& name) const
     return m_attributes.has(name);
 }
 
-String Node::getAttribute(const String& name) const
+String Node::getAttribute(const String& name, const String& defaultValue) const
 {
     return m_attributes.get(name);
 }
