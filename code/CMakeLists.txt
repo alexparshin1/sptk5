@@ -477,6 +477,9 @@ INSTALL (FILES ${includeFilesJSON} DESTINATION include/sptk5/json COMPONENT core
 FILE (GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
 INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml COMPONENT core)
 
+FILE(GLOB includeFilesXDoc "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xdoc/*.h")
+INSTALL(FILES ${includeFilesXDoc} DESTINATION include/sptk5/xdoc COMPONENT core)
+
 FILE (GLOB includeFilesWSDL "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/wsdl/*.h")
 INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/wsdl COMPONENT core)
 
