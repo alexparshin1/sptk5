@@ -28,79 +28,86 @@
 
 #include <sptk5/cxml>
 #include <sptk5/Variant.h>
-#include <sptk5/xml/Element.h>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
-    /**
-     * WSDL Restriction
-     */
-    class SP_EXPORT WSRestriction
+/**
+ * WSDL Restriction
+ */
+class SP_EXPORT WSRestriction
+{
+public:
+
+    enum class Type
+        : uint8_t
     {
-    public:
-
-        enum class Type: uint8_t
-        {
-            Unknown,
-            Enumeration,
-            Pattern
-        };
-
-        /**
-         * Constructor from WSDL (XML) definition
-         * @param typeName                  WSDL type name
-         * @param simpleTypeElement         Simple type XML node
-         */
-        WSRestriction(const std::string& typeName, xml::Node* simpleTypeElement);
-
-        /**
-         * Constructor from WSDL (XML) definition
-         * @param type                      Restriction type
-         * @param wsdlTypeName              WSDL type name
-         * @param enumerationsOrPatternss   Enumerations or patterns
-         */
-        WSRestriction(Type type, const String& wsdlTypeName, const Strings& enumerationsOrPattern);
-
-        /**
-         * Get restriction type
-         * @return restriction type
-         */
-        Type type() const;
-
-        /**
-         * Restriction check
-         *
-         * Checks value to satisfy restriction.
-         * If value violates restriction, throws exception.
-         * @param typeName      Name of the checked type (for error messages)
-         * @param value         Value to check
-         */
-        void check(const String& typeName, const String& value) const;
-
-        /**
-         * Generates restriction constructor for C++ skeleton
-         */
-        String generateConstructor(const String& variableName) const;
-
-        /**
-         * Optional regular expression to match
-         * @return regular expression string
-         */
-        const std::vector<RegularExpression>& patterns() const { return m_patterns; }
-
-        /**
-         * Optional enumeration to match
-         * @return enumeration
-         */
-        Strings enumeration() const { return m_enumeration; }
-
-    private:
-
-        Type                            m_type { Type::Unknown }; ///< Restriction type
-        String                          m_wsdlTypeName;           ///< WSDL type name
-        Strings                         m_enumeration;            ///< List of enumerations if any
-        std::vector<RegularExpression>  m_patterns;               ///< Patterns
+        Unknown,
+        Enumeration,
+        Pattern
     };
 
-    using SWSRestriction = std::shared_ptr<WSRestriction>;
+    /**
+     * Constructor from WSDL (XML) definition
+     * @param typeName                  WSDL type name
+     * @param simpleTypeElement         Simple type XML node
+     */
+    WSRestriction(const String& typeName, xdoc::Node* simpleTypeElement);
+
+    /**
+     * Constructor from WSDL (XML) definition
+     * @param type                      Restriction type
+     * @param wsdlTypeName              WSDL type name
+     * @param enumerationsOrPatternss   Enumerations or patterns
+     */
+    WSRestriction(Type type, const String& wsdlTypeName, const Strings& enumerationsOrPattern);
+
+    /**
+     * Get restriction type
+     * @return restriction type
+     */
+    Type type() const;
+
+    /**
+     * Restriction check
+     *
+     * Checks value to satisfy restriction.
+     * If value violates restriction, throws exception.
+     * @param typeName      Name of the checked type (for error messages)
+     * @param value         Value to check
+     */
+    void check(const String& typeName, const String& value) const;
+
+    /**
+     * Generates restriction constructor for C++ skeleton
+     */
+    String generateConstructor(const String& variableName) const;
+
+    /**
+     * Optional regular expression to match
+     * @return regular expression string
+     */
+    const std::vector<RegularExpression>& patterns() const
+    {
+        return m_patterns;
+    }
+
+    /**
+     * Optional enumeration to match
+     * @return enumeration
+     */
+    Strings enumeration() const
+    {
+        return m_enumeration;
+    }
+
+private:
+
+    Type m_type {Type::Unknown}; ///< Restriction type
+    String m_wsdlTypeName;           ///< WSDL type name
+    Strings m_enumeration;            ///< List of enumerations if any
+    std::vector<RegularExpression> m_patterns;               ///< Patterns
+};
+
+using SWSRestriction = std::shared_ptr<WSRestriction>;
 }

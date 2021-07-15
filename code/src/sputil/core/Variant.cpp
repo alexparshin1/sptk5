@@ -28,10 +28,11 @@
 #include <iomanip>
 
 #include <sptk5/Field.h>
-#include <sptk5/json/JsonDocument.h>
+#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
+using namespace xdoc;
 
 constexpr int BUFFER_TYPES =
     (int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT | (int) VariantDataType::VAR_BUFFER;
@@ -1161,46 +1162,20 @@ VariantDataType BaseVariant::nameType(const char* name)
     return itor->second;
 }
 
-void Variant::load(const xml::Node* node)
-{
-    const String& ntype = node->getAttribute("type").asString();
-    auto type = nameType(ntype.c_str());
-
-    switch (type)
-    {
-        case VariantDataType::VAR_BOOL:
-        case VariantDataType::VAR_INT:
-        case VariantDataType::VAR_INT64:
-        case VariantDataType::VAR_FLOAT:
-        case VariantDataType::VAR_MONEY:
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_DATE:
-        case VariantDataType::VAR_DATE_TIME:
-        case VariantDataType::VAR_IMAGE_NDX:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
-            *this = node->text();
-            break;
-
-        default:
-            break;
-    }
-}
-
-void Variant::load(const json::Element* element)
+void Variant::load(const Node* element)
 {
     switch (element->type())
     {
-        case json::Type::NUMBER:
+        case Node::Type::Number:
             *this = element->getNumber();
             break;
-        case json::Type::BOOLEAN:
+        case Node::Type::Boolean:
             *this = element->getBoolean();
             break;
-        case json::Type::NULL_VALUE:
+        case Node::Type::Null:
             setNull();
             break;
-        case json::Type::STRING:
+        case Node::Type::Text:
             *this = element->getString();
             break;
         default:
@@ -1208,43 +1183,43 @@ void Variant::load(const json::Element* element)
     }
 }
 
-void Variant::save(xml::Node* node) const
+void Variant::save(xdoc::Node* node) const
 {
     String stringValue(asString());
 
     node->clear();
     node->setAttribute("type", typeName(dataType()));
+    node->setData(*this);
 
     if (!stringValue.empty())
     {
         switch (dataType())
         {
             case VariantDataType::VAR_BOOL:
+                node->type(Node::Type::Boolean);
+                break;
             case VariantDataType::VAR_INT:
             case VariantDataType::VAR_INT64:
             case VariantDataType::VAR_FLOAT:
+            case VariantDataType::VAR_IMAGE_NDX:
+                node->type(Node::Type::Number);
+                break;
             case VariantDataType::VAR_MONEY:
             case VariantDataType::VAR_STRING:
             case VariantDataType::VAR_DATE:
             case VariantDataType::VAR_DATE_TIME:
-            case VariantDataType::VAR_IMAGE_NDX:
-                new xml::Text(*node, stringValue);
+                node->type(Node::Type::Text);
                 break;
 
             case VariantDataType::VAR_TEXT:
             case VariantDataType::VAR_BUFFER:
-                new xml::CDataSection(*node, asString());
+                node->type(Node::Type::CData);
                 break;
 
             default:
                 break;
         }
     }
-}
-
-void Variant::save(json::Element* node) const
-{
-    *node = asString();
 }
 
 #if USE_GTEST
@@ -1512,18 +1487,18 @@ TEST(SPTK_Variant, json)
 {
     constexpr int testInteger1 = 12345;
     const char* json = R"({ "value": 12345 })";
-    json::Document document;
-    document.load(json);
-    auto& node = document.root()["value"];
+    xdoc::Document document;
+    document.load(DataFormat::JSON, json);
+    auto* node = document.root().findFirst("value");
 
     Variant v;
-    v.load(&node);
+    v.load(node);
     EXPECT_EQ(v.asInteger(), testInteger1);
 
     constexpr int testInteger2 = 123456;
     v = testInteger2;
-    v.save(&node);
-    EXPECT_STREQ(node.getString().c_str(), "123456");
+    v.save(node);
+    EXPECT_STREQ(node->getString().c_str(), "123456");
 }
 
 TEST(SPTK_Variant, bool)
@@ -1536,8 +1511,8 @@ TEST(SPTK_Variant, bool)
 TEST(SPTK_Variant, xml)
 {
     const char* xml = "<value>12345</value>";
-    xml::Document document;
-    document.load(xml, false);
+    xdoc::Document document;
+    document.load(DataFormat::XML, xml);
     auto* node = document.findFirst("value");
 
     Variant v;
@@ -1546,7 +1521,7 @@ TEST(SPTK_Variant, xml)
 
     v = 123456;
     v.save(node);
-    EXPECT_STREQ(node->text().c_str(), "123456");
+    EXPECT_STREQ(node->getString().c_str(), "123456");
 }
 
 #endif

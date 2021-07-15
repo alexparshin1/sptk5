@@ -27,8 +27,6 @@
 #pragma once
 
 #include <sptk5/Field.h>
-#include <sptk5/cxml>
-#include <sptk5/json/JsonElement.h>
 #include <sptk5/wsdl/WSFieldIndex.h>
 #include <sptk5/wsdl/WSType.h>
 #include <sptk5/xml/Element.h>
@@ -104,16 +102,7 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    void load(const xml::Node* attr) override
-    {
-        static_cast<Variant*>(&m_field)->load(attr);
-    }
-
-    /**
-     * Loads type data from request JSON element
-     * @param attr              JSON element
-     */
-    void load(const json::Element* attr) override
+    void load(const xdoc::Node* attr) override
     {
         static_cast<Variant*>(&m_field)->load(attr);
     }
@@ -241,13 +230,7 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void addElement(xml::Node* parent, const char* name = nullptr) const override;
-
-    /**
-     * Adds an element to response JSON with this object data
-     * @param parent            Parent JSON element
-     */
-    void addElement(json::Element* parent) const override;
+    void addElement(xdoc::Node* parent, const char* name = nullptr) const override;
 
 private:
 
@@ -302,13 +285,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xml::Node* attr) override;
-
-    /**
-     * Load data from JSON element
-     * @param attr              JSON element
-     */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::Node* attr) override;
 
     /**
      * Loads type data from string
@@ -429,13 +406,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xml::Node* attr) override;
-
-    /**
-     * Load data from JSON element
-     * @param attr              JSON element
-     */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::Node* attr) override;
 
     /**
      * Load data from string
@@ -514,13 +485,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xml::Node* attr) override;
-
-    /**
-     * Load data from JSON element
-     * @param attr              JSON element
-     */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::Node* attr) override;
 
     /**
      * Load data from string
@@ -615,13 +580,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xml::Node* attr) override;
-
-    /**
-     * Load data from JSON element
-     * @param attr              JSON element
-     */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::Node* attr) override;
 
     /**
      * Load data from string
@@ -717,13 +676,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xml::Node* attr) override;
-
-    /**
-     * Load data from JSON element
-     * @param attr              JSON element
-     */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::Node* attr) override;
 
     /**
      * Load data from string
@@ -802,13 +755,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xml::Node* attr) override;
-
-    /**
-     * Load data from JSON node
-     * @param attr              JSON node
-     */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::Node* attr) override;
 
     /**
      * Load data from string

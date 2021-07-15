@@ -112,7 +112,7 @@ public:
     /**
      * Map of element names to corresponding WSDL (XML) elements
      */
-    using XmlTypeMap = std::map<String, const xml::Element*>;
+    using XmlTypeMap = std::map<String, const xdoc::Node*>;
 
     /**
      * Map of operation names to operation objects
@@ -184,31 +184,31 @@ protected:
      * Parses xsd:element nodes directly under xsd:schema
      * @param element           Schema element
      */
-    void parseElement(const xml::Element* element);
+    void parseElement(const xdoc::Node* element);
 
     /**
      * Parses xsd:simpleType nodes directly under xsd:schema
      * @param simpleTypeElement Schema simple type
      */
-    static void parseSimpleType(const xml::Element* simpleTypeElement);
+    static void parseSimpleType(const xdoc::Node* simpleTypeElement);
 
     /**
      * Parses xsd:complexType nodes directly under xsd:schema
      * @param complexTypeElement Schema complex type
      */
-    void parseComplexType(const xml::Element* complexTypeElement);
+    void parseComplexType(const xdoc::Node* complexTypeElement);
 
     /**
      * Parses wsdl:operation nodes directly under xsd:schema
      * @param operationNode         Schema complex type
      */
-    void parseOperation(const xml::Element* operationNode);
+    void parseOperation(const xdoc::Node* operationNode);
 
     /**
      * Parses xsd:schema
      * @param schemaElement     Schema element
      */
-    void parseSchema(xml::Element* schemaElement);
+    void parseSchema(xdoc::Node* schemaElement);
 
     /**
      * Generates service definition to output stream

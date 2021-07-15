@@ -131,6 +131,8 @@ public:
 
     String getString(const String& name = "") const;
 
+    String text(const String& name = "") const;
+
     double getNumber(const String& name = "") const;
 
     bool getBoolean(const String& name = "") const;
@@ -171,7 +173,7 @@ public:
 
     const Variant& operator[](const String& name) const
     {
-        auto* pNode = find(name);
+        auto* pNode = findFirst(name);
         if (pNode == nullptr)
         {
             throw Exception("Element " + name + " doesn't exist");
@@ -211,9 +213,9 @@ public:
 
     Node& findOrCreate(const String& name);
 
-    Node* find(const String& name, SearchMode searchMode = SearchMode::ImmediateChild);
+    Node* findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive);
 
-    const Node* find(const String& name, SearchMode searchMode = SearchMode::ImmediateChild) const;
+    const Node* findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const;
 
     /**
      * Parse JSON text
@@ -252,6 +254,8 @@ public:
     void exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const;
 
     Node* parent();
+
+    const Node* parent() const;
 
     virtual void select(Node::Vector& selectedNodes, const String& xpath);
 

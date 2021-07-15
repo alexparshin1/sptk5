@@ -34,12 +34,8 @@
 
 namespace sptk {
 
-namespace xml {
+namespace xdoc {
 class Node;
-}
-
-namespace json {
-class Element;
 }
 
 /**
@@ -521,25 +517,13 @@ public:
      * Loads the data from XML node
      * @param node              XML node to load data from
      */
-    virtual void load(const xml::Node* node);
-
-    /**
-     * Loads the data from JSON element
-     * @param node              JSON element to load data from
-     */
-    virtual void load(const json::Element* node);
+    virtual void load(const xdoc::Node* node);
 
     /**
      * Saves the data into XML node
      * @param node              XML node to save data into
      */
-    void save(xml::Node* node) const;
-
-    /**
-     * Saves the data into JSON element
-     * @param node              JSON element to save data into
-     */
-    void save(json::Element* node) const;
+    void save(xdoc::Node* node) const;
 };
 
 /**

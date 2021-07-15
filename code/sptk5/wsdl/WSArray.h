@@ -27,8 +27,7 @@
 #pragma once
 
 #include <sptk5/Field.h>
-#include <sptk5/cxml>
-#include <sptk5/json/JsonElement.h>
+#include <sptk5/xdoc/Node.h>
 #include <sptk5/wsdl/WSFieldIndex.h>
 #include <sptk5/wsdl/WSType.h>
 #include <sptk5/xml/Element.h>
@@ -154,26 +153,12 @@ public:
         return m_array.erase(first, last);
     }
 
-    void load(const xml::Node* node) override
+    void load(const xdoc::Node* node) override
     {
-        for (const auto* arrayElement: *node)
+        for (const auto& arrayElement: *node)
         {
             T item(m_name.c_str(), false);
-            item.load(arrayElement);
-            m_array.push_back(std::move(item));
-        }
-    }
-
-    /**
-     * Loads type data from request JSON element
-     * @param attr              JSON element
-     */
-    void load(const json::Element* attr) override
-    {
-        for (const auto* arrayElement: attr->getArray())
-        {
-            T item(m_name.c_str(), false);
-            item.load(arrayElement);
+            item.load(&arrayElement);
             m_array.push_back(std::move(item));
         }
     }
@@ -191,30 +176,18 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void addElement(xml::Node* output, const char* name = nullptr) const override
+    void addElement(xdoc::Node* output, const char* name = nullptr) const override
     {
         const char* itemName = name == nullptr ? "item" : name;
-        auto* arrayNode = new xml::Element(output, m_name.c_str());
+        auto& arrayNode = output->pushNode(m_name, xdoc::Node::Type::Array);
         for (const auto& element: m_array)
         {
-            element.addElement(arrayNode, itemName);
-        }
-    }
-
-    /**
-     * Adds an element to response JSON with this object data
-     * @param parent            Parent JSON element
-     */
-    void addElement(json::Element* parent) const override
-    {
-        auto* records_array = parent->add_array(m_name);
-        for (const auto& element: m_array)
-        {
-            element.addElement(records_array);
+            element.addElement(&arrayNode, itemName);
         }
     }
 
 private:
+
     String m_name;
     std::vector<T> m_array;
 };

@@ -26,31 +26,22 @@
 
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/wsdl/WSArray.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
+using namespace xdoc;
 
-void WSBasicType::addElement(xml::Node* parent, const char* _name) const
+void WSBasicType::addElement(xdoc::Element* parent, const char* _name) const
 {
     String elementName = _name == nullptr ? name() : _name;
-    String text(isNull() ? "" : asString());
-    if (m_optional && (isNull() || text.empty()))
-    {
-        return;
-    }
-    auto* element = new xml::Element(*parent, elementName);
-    element->text(text);
-}
-
-void WSBasicType::addElement(json::Element* parent) const
-{
     if (String text(isNull() ? "" : asString());
         m_optional && (isNull() || text.empty()))
     {
         return;
     }
 
-    if (!parent->is(json::Type::ARRAY))
+    if (!parent->is(Node::Type::Array))
     {
         if (name().empty())
         {
@@ -106,15 +97,9 @@ void WSBasicType::throwIfNull(const String& parentTypeName) const
     }
 }
 
-void WSString::load(const xml::Node* attr)
+void WSString::load(const xdoc::Element* attr)
 {
-    owaspCheck(attr->text());
-    field().setString(attr->text());
-}
-
-void WSString::load(const json::Element* attr)
-{
-    if (attr->is(json::Type::NULL_VALUE))
+    if (attr->is(Node::Type::Null))
     {
         setNull(VariantDataType::VAR_STRING);
     }
@@ -136,33 +121,9 @@ void WSString::load(const Field& field)
     load(field.asString());
 }
 
-void WSBool::load(const xml::Node* attr)
+void WSBool::load(const xdoc::Node* attr)
 {
-    String text = attr->text();
-    if (text.empty())
-    {
-        setNull(VariantDataType::VAR_BOOL);
-    }
-    else
-    {
-        if (text == "true")
-        {
-            field().setBool(true);
-        }
-        else if (text == "false")
-        {
-            field().setBool(false);
-        }
-        else
-        {
-            throw Exception("Invalid data: not true or false");
-        }
-    }
-}
-
-void WSBool::load(const json::Element* attr)
-{
-    if (attr->is(json::Type::NULL_VALUE))
+    if (attr->is(Node::Type::Null))
     {
         setNull(VariantDataType::VAR_BOOL);
     }
@@ -207,23 +168,10 @@ void WSBool::load(const Field& field)
     }
 }
 
-void WSDate::load(const xml::Node* attr)
-{
-    String text = attr->text();
-    if (text.empty())
-    {
-        setNull(VariantDataType::VAR_DATE);
-    }
-    else
-    {
-        field().setDateTime(DateTime(text.c_str()), true);
-    }
-}
-
-void WSDate::load(const json::Element* attr)
+void WSDate::load(const xdoc::Element* attr)
 {
     String text = attr->getString();
-    if (attr->is(json::Type::NULL_VALUE) || text.empty())
+    if (attr->is(Node::Type::Null) || text.empty())
     {
         setNull(VariantDataType::VAR_DATE);
     }
@@ -258,23 +206,9 @@ void WSDate::load(const Field& field)
     }
 }
 
-void WSDateTime::load(const xml::Node* attr)
+void WSDateTime::load(const xdoc::Node* attr)
 {
     String text = attr->text();
-    if (text.empty())
-    {
-        setNull(VariantDataType::VAR_DATE_TIME);
-    }
-    else
-    {
-        DateTime dt(text.c_str());
-        field().setDateTime(dt);
-    }
-}
-
-void WSDateTime::load(const json::Element* attr)
-{
-    String text = attr->getString();
     if (text.empty())
     {
         setNull(VariantDataType::VAR_DATE_TIME);
@@ -317,12 +251,7 @@ String WSDateTime::asString() const
     return dt.isoDateTimeString();
 }
 
-void WSDouble::load(const xml::Node* attr)
-{
-    field().setFloat(strtod(attr->text().c_str(), nullptr));
-}
-
-void WSDouble::load(const json::Element* attr)
+void WSDouble::load(const xdoc::Node* attr)
 {
     field().setFloat(attr->getNumber());
 }
@@ -351,22 +280,9 @@ void WSDouble::load(const Field& field)
     }
 }
 
-void WSInteger::load(const xml::Node* attr)
+void WSInteger::load(const xdoc::Node* attr)
 {
-    String text = attr->text();
-    if (text.empty())
-    {
-        setNull(VariantDataType::VAR_INT64);
-    }
-    else
-    {
-        field().setInt64(strtol(text.c_str(), nullptr, 10));
-    }
-}
-
-void WSInteger::load(const json::Element* attr)
-{
-    if (attr->is(json::Type::NULL_VALUE))
+    if (attr->is(Node::Type::Null))
     {
         setNull(VariantDataType::VAR_INT64);
     }

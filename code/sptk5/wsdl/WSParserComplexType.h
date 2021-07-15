@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Document.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <iostream>
 #include <list>
@@ -46,10 +46,10 @@ namespace sptk {
 enum class WSMultiplicity
     : uint8_t
 {
-    REQUIRED = 1, ///< Element is required
-    ZERO_OR_ONE = 2, ///< Element is optional
+    REQUIRED = 1,     ///< Element is required
+    ZERO_OR_ONE = 2,  ///< Element is optional
     ZERO_OR_MORE = 4, ///< Element may occur 0 or more times
-    ONE_OR_MORE = 8  ///< Element may occur one or more times
+    ONE_OR_MORE = 8   ///< Element may occur one or more times
 };
 
 /**
@@ -129,7 +129,7 @@ public:
      * @param name              Object name
      * @param typeName          Object types
      */
-    explicit WSParserComplexType(const xml::Element* complexTypeElement, const String& name = "",
+    explicit WSParserComplexType(const xdoc::Node* complexTypeElement, const String& name = "",
                                  const String& typeName = "");
 
     /**
@@ -192,7 +192,7 @@ public:
     /**
      * Parses WSDL child sequence
      */
-    void parseSequence(const xml::Element* sequence);
+    void parseSequence(const xdoc::Node* sequence);
 
     /**
      * Generates C++ class declaration and implementation
@@ -200,9 +200,9 @@ public:
     void generate(std::ostream& classDeclaration, std::ostream& classImplementation,
                   const String& externalHeader, const String& serviceNamespace) const;
 
-    static std::map<String, const xml::Element*> SimpleTypeElements;
+    static std::map<String, const xdoc::Node*> SimpleTypeElements;
 
-    static const xml::Element* findSimpleType(const String& typeName);
+    static const xdoc::Node* findSimpleType(const String& typeName);
 
 protected:
 
@@ -259,7 +259,7 @@ private:
 
     String m_name;                             ///< Element name
     String m_typeName;                         ///< WSDL type name
-    const xml::Element* m_element {nullptr};   ///< XML element for that WSDL element
+    const xdoc::Node* m_element {nullptr};     ///< XML element for that WSDL element
     AttributeMap m_attributes;                 ///< Element attributes
     WSParserComplexTypeList m_sequence;        ///< Child element sequence
     WSMultiplicity m_multiplicity;             ///< Multiplicity flag

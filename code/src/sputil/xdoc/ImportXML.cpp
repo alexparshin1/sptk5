@@ -562,7 +562,7 @@ static const String testREST(
 
 static void verifyDocument(Document& document)
 {
-    const Node* nameNode = document.root().find("name");
+    const Node* nameNode = document.root().findFirst("name");
     EXPECT_STREQ("John", nameNode->asString().c_str());
     EXPECT_STREQ("president", nameNode->getAttribute("position").c_str());
 
@@ -571,20 +571,20 @@ static void verifyDocument(Document& document)
     EXPECT_DOUBLE_EQ(1519005758, (int) (document.getNumber("timestamp") / 1000));
 
     Strings skills;
-    for (const auto& node: *document.find("skills"))
+    for (const auto& node: *document.findFirst("skills"))
     {
         skills.push_back(node.getString());
     }
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
 
-    const Node* ptr = document.find("address");
+    const Node* ptr = document.findFirst("address");
     EXPECT_TRUE(ptr != nullptr);
 
     const Node& address = *ptr;
     EXPECT_STREQ("true", address.getString("married").c_str());
     EXPECT_STREQ("false", address.getString("employed").c_str());
 
-    const Node* dataNode = document.find("data");
+    const Node* dataNode = document.findFirst("data");
 
     for (const auto& cdataNode: *dataNode)
     {
@@ -636,11 +636,11 @@ TEST(SPTK_XDocument, removeNodes)
     document.remove("age");
     document.remove("skills");
     document.remove("address");
-    EXPECT_TRUE(document.find("name") == nullptr);
-    EXPECT_TRUE(document.find("age") == nullptr);
-    EXPECT_TRUE(document.find("temperature") != nullptr);
-    EXPECT_TRUE(document.find("skills") == nullptr);
-    EXPECT_TRUE(document.find("address") == nullptr);
+    EXPECT_TRUE(document.findFirst("name") == nullptr);
+    EXPECT_TRUE(document.findFirst("age") == nullptr);
+    EXPECT_TRUE(document.findFirst("temperature") != nullptr);
+    EXPECT_TRUE(document.findFirst("skills") == nullptr);
+    EXPECT_TRUE(document.findFirst("address") == nullptr);
 }
 
 TEST(SPTK_XDocument, saveXml1)
@@ -672,11 +672,11 @@ TEST(SPTK_XDocument, parseXML)
     Document document;
     document.load(DataFormat::XML, testREST);
 
-    const auto* xmlElement = document.find("xml");
+    const auto* xmlElement = document.findFirst("xml");
     EXPECT_STREQ(xmlElement->getAttribute("version").c_str(), "1.0");
     EXPECT_STREQ(xmlElement->getAttribute("encoding").c_str(), "UTF-8");
 
-    const auto* bodyElement = document.find("soap:Body", Node::SearchMode::Recursive);
+    const auto* bodyElement = document.findFirst("soap:Body", Node::SearchMode::Recursive);
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
     EXPECT_EQ(Node::Node::Type::Object, bodyElement->type());

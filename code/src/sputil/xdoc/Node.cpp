@@ -85,7 +85,7 @@ Node& Node::findOrCreate(const String& name)
     return newNode;
 }
 
-Node* Node::find(const String& name, SearchMode searchMode)
+Node* Node::findFirst(const String& name, SearchMode searchMode)
 {
     if (!is(Type::Object))
     {
@@ -106,7 +106,7 @@ Node* Node::find(const String& name, SearchMode searchMode)
         Node* found {nullptr};
         for (auto& node: m_nodes)
         {
-            if (node.is(Type::Object) && (found = node.find(name, searchMode)))
+            if (node.is(Type::Object) && (found = node.findFirst(name, searchMode)))
             {
                 return found;
             }
@@ -116,7 +116,7 @@ Node* Node::find(const String& name, SearchMode searchMode)
     return nullptr;
 }
 
-const Node* Node::find(const String& name, SearchMode searchMode) const
+const Node* Node::findFirst(const String& name, SearchMode searchMode) const
 {
     if (!is(Type::Object))
     {
@@ -136,7 +136,7 @@ const Node* Node::find(const String& name, SearchMode searchMode) const
     {
         for (const auto& node: m_nodes)
         {
-            const auto* found = node.find(name, searchMode);
+            const auto* found = node.findFirst(name, searchMode);
             if (found)
             {
                 return found;
@@ -174,7 +174,7 @@ String Node::getString(const String& name) const
 
     if (!name.empty())
     {
-        node = find(name);
+        node = findFirst(name);
         if (node == nullptr)
         {
             return String();
@@ -198,6 +198,22 @@ String Node::getString(const String& name) const
     return node->asString();
 }
 
+String Node::text(const String& name) const
+{
+    auto* node = this;
+
+    if (!name.empty())
+    {
+        node = findFirst(name);
+        if (node == nullptr)
+        {
+            return String();
+        }
+    }
+
+    return node->asString();
+}
+
 double Node::getNumber(const String& name) const
 {
     if (name.empty())
@@ -205,7 +221,7 @@ double Node::getNumber(const String& name) const
         return asFloat();
     }
 
-    if (auto* node = find(name);
+    if (auto* node = findFirst(name);
         node != nullptr)
     {
         return node->asFloat();
@@ -221,7 +237,7 @@ bool Node::getBoolean(const String& name) const
         return asBool();
     }
 
-    if (auto* node = find(name);
+    if (auto* node = findFirst(name);
         node != nullptr)
     {
         return node->asBool();
@@ -239,7 +255,7 @@ const Node::Nodes& Node::getArray(const String& name) const
         return m_nodes;
     }
 
-    if (auto* node = find(name);
+    if (auto* node = findFirst(name);
         node && node->is(Type::Array))
     {
         return node->m_nodes;
@@ -257,7 +273,7 @@ const Node& Node::getObject(const String& name) const
         return *this;
     }
 
-    if (auto* node = find(name);
+    if (auto* node = findFirst(name);
         node && node->is(Type::Object))
     {
         return *node;
@@ -375,6 +391,11 @@ void Node::exportXML(Buffer& xml, int indent) const
 }
 
 Node* Node::parent()
+{
+    return m_parent;
+}
+
+const Node* Node::parent() const
 {
     return m_parent;
 }

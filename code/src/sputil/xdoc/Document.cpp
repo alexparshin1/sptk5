@@ -58,7 +58,7 @@ void verifyDocument(xdoc::Document& document)
               [](const xdoc::Element& skill) { return skill.getString(); });
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
 
-    const xdoc::Element* ptr = root.find("address");
+    const xdoc::Element* ptr = root.findFirst("address");
     EXPECT_TRUE(ptr != nullptr);
 
     const xdoc::Element& address = *ptr;
@@ -114,7 +114,7 @@ TEST(SPTK_XDocument, add)
               [](const xdoc::Element& skill) { return skill.getString(); });
     EXPECT_STREQ("C++,Java,Python", skills.join(",").c_str());
 
-    const xdoc::Element* object = root.find("object");
+    const xdoc::Element* object = root.findFirst("object");
     EXPECT_TRUE(object != nullptr);
     EXPECT_EQ(testInteger, object->getNumber("height"));
     EXPECT_DOUBLE_EQ(testDouble2, object->getNumber("weight"));
@@ -131,11 +131,11 @@ TEST(SPTK_XDocument, remove)
     root.remove("age");
     root.remove("skills");
     root.remove("address");
-    EXPECT_FALSE(root.find("name"));
-    EXPECT_FALSE(root.find("age"));
-    EXPECT_TRUE(root.find("temperature"));
-    EXPECT_FALSE(root.find("skills"));
-    EXPECT_FALSE(root.find("address"));
+    EXPECT_FALSE(root.findFirst("name"));
+    EXPECT_FALSE(root.findFirst("age"));
+    EXPECT_TRUE(root.findFirst("temperature"));
+    EXPECT_FALSE(root.findFirst("skills"));
+    EXPECT_FALSE(root.findFirst("address"));
 }
 
 TEST(SPTK_XDocument, clear)
@@ -147,7 +147,7 @@ TEST(SPTK_XDocument, clear)
     document.clear();
     xdoc::Element& root = document.root();
     EXPECT_TRUE(root.is(Document::Type::Object));
-    EXPECT_FALSE(root.find("address"));
+    EXPECT_FALSE(root.findFirst("address"));
     EXPECT_EQ(root.size(), size_t(0));
 }
 
@@ -262,12 +262,12 @@ TEST(SPTK_XDocument, errors)
     {
         Buffer input(testJSON);
         document.load(DataFormat::JSON, input);
-        const auto* element = document.root().find("nothing");
+        const auto* element = document.root().findFirst("nothing");
         if (element != nullptr)
             FAIL() << "Incorrect: MUST return null";
         const auto& root = document.root();
-        element = root.find("name");
-        element = element->find("nothing");
+        element = root.findFirst("name");
+        element = element->findFirst("nothing");
         if (element != nullptr)
             FAIL() << "Incorrect: MUST fail";
         FAIL() << "Incorrect: MUST fail";

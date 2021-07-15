@@ -25,18 +25,19 @@
 */
 
 #include <sptk5/wsdl/WSRestriction.h>
+#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
 
-WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElement)
+WSRestriction::WSRestriction(const String& typeName, xdoc::Node* simpleTypeElement)
     : m_wsdlTypeName(typeName)
 {
-    xml::NodeVector enumerationNodes;
+    xdoc::Node::Vector enumerationNodes;
     simpleTypeElement->select(enumerationNodes, "xsd:restriction/xsd:enumeration");
     for (const auto* node: enumerationNodes)
     {
-        const auto* enumerationNode = dynamic_cast<const xml::Element*>(node);
+        const auto* enumerationNode = dynamic_cast<const xdoc::Node*>(node);
         if (enumerationNode != nullptr)
         {
             m_enumeration.push_back((String) enumerationNode->getAttribute("value"));
@@ -49,12 +50,12 @@ WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElemen
     }
     else
     {
-        xml::NodeVector patternNodes;
+        xdoc::Node::Vector patternNodes;
         simpleTypeElement->select(patternNodes, "xsd:restriction/xsd:pattern");
         for (auto* patternNode: patternNodes)
         {
-            patternNode = dynamic_cast<xml::Element*>(patternNode);
-            String pattern = patternNode->getAttribute("value").asString().replace(R"(\\)", R"(\)");
+            patternNode = dynamic_cast<xdoc::Node*>(patternNode);
+            String pattern = patternNode->getAttribute("value").replace(R"(\\)", R"(\)");
             if (!pattern.empty())
             {
                 m_type = Type::Pattern;
@@ -147,7 +148,7 @@ WSRestriction::Type WSRestriction::type() const
 
 #if USE_GTEST
 
-static const String coloursXML{
+static const String coloursXML {
     "<xsd:element name=\"Colours\">"
     "<xsd:simpleType>"
     "<xsd:restriction base=\"xsd:string\">"
@@ -159,7 +160,7 @@ static const String coloursXML{
     "</xsd:element>"
 };
 
-static const String initialsXML{
+static const String initialsXML {
     "<xsd:element name=\"Initials\">"
     "<xsd:simpleType>"
     "<xsd:restriction base=\"xsd:string\">"
@@ -171,8 +172,8 @@ static const String initialsXML{
 
 TEST(SPTK_WSRestriction, parseEnumeration)
 {
-    xml::Document document;
-    document.load(coloursXML);
+    xdoc::Document document;
+    document.load(xdoc::DataFormat::XML, coloursXML);
 
     auto* simpleTypeElement = document.findFirst("xsd:simpleType");
 
@@ -200,8 +201,8 @@ TEST(SPTK_WSRestriction, parseEnumeration)
 
 TEST(SPTK_WSRestriction, parseInitials)
 {
-    xml::Document document;
-    document.load(initialsXML);
+    xdoc::Document document;
+    document.load(xdoc::DataFormat::XML, initialsXML);
 
     auto* simpleTypeElement = document.findFirst("xsd:simpleType");
 

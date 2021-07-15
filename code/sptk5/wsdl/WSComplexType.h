@@ -26,8 +26,7 @@
 
 #pragma once
 
-#include <sptk5/cxml>
-#include <sptk5/json/JsonElement.h>
+#include <sptk5/xdoc/Node.h>
 #include <sptk5/Variant.h>
 #include <sptk5/FieldList.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
@@ -116,13 +115,7 @@ public:
      * Loads type data from request XML node
      * @param input             XML node
      */
-    void load(const xml::Node* input) override;
-
-    /**
-     * Loads type data from request JSON element
-     * @param attr              JSON element
-     */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::Node* input) override;
 
     /**
      * Load data from FieldList
@@ -136,13 +129,7 @@ public:
      * Unload data to existing XML node
      * @param output            Existing XML node
      */
-    virtual void unload(xml::Node* output) const;
-
-    /**
-     * Unload data to existing JSON node
-     * @param output            Existing JSON node
-     */
-    virtual void unload(json::Element* output) const;
+    virtual void unload(xdoc::Node* output) const;
 
     /**
      * Unload data to Query's parameters
@@ -163,13 +150,7 @@ public:
      * @param parent            Parent XML node where new node is created
      * @param name              Optional name for the child element
      */
-    void addElement(xml::Node* parent, const char* name = nullptr) const override;
-
-    /**
-     * Unload data to new JSON node
-     * @param parent            Parent JSON node where new node is created
-     */
-    void addElement(json::Element* parent) const override;
+    void addElement(xdoc::Node* parent, const char* name = nullptr) const override;
 
     /**
      * True if data was not loaded, or if all the fields are null.
@@ -273,7 +254,6 @@ private:
     bool m_loaded {false};      ///< Is data loaded flag
     bool m_exportable {true};   ///< Is this object exportable?
     WSFieldIndex m_fields;      ///< All fields
-    void setAttributes(const std::map<String, String>& values, json::Element* attributes) const;
 };
 
 /**

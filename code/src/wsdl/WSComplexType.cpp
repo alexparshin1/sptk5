@@ -25,17 +25,18 @@
 */
 
 #include <sptk5/wsdl/WSComplexType.h>
-#include <sptk5/cutils>
+#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
+using namespace xdoc;
 
 void WSComplexType::copyFrom(const WSComplexType& other)
 {
-    xml::Document xml;
-    auto* element = new xml::Element(xml, "temp");
-    other.unload(element);
-    load(element);
+    xdoc::Document xml;
+    auto& element = xml.pushNode("temp");
+    other.unload(&element);
+    load(&element);
 }
 
 void WSComplexType::unload(QueryParameterList& output, const char* paramName, const WSBasicType* elementOrAttribute)
@@ -52,16 +53,7 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
     }
 }
 
-void WSComplexType::addElement(xml::Node* parent, const char* name) const
-{
-    if (m_exportable)
-    {
-        const char* elementName = name == nullptr ? m_name.c_str() : name;
-        unload(new xml::Element(parent, elementName));
-    }
-}
-
-void WSComplexType::addElement(json::Element* parent) const
+void WSComplexType::addElement(xdoc::Node* parent, const char* name) const
 {
     if (m_exportable)
     {
@@ -69,14 +61,15 @@ void WSComplexType::addElement(json::Element* parent) const
         {
             return;
         }
-        json::Element* element = nullptr;
-        if (parent->is(json::Type::ARRAY))
+        String elementName = name == nullptr ? m_name.c_str() : name;
+        xdoc::Node* element = nullptr;
+        if (parent->is(Node::Type::Array))
         {
-            element = parent->push_back();
+            element = &parent->pushNode(elementName);
         }
         else
         {
-            element = parent->set(m_name);
+            element = &parent->set(m_name, "");
         }
         unload(element);
     }
@@ -88,16 +81,16 @@ String WSComplexType::toString(bool asJSON, bool formatted) const
 
     if (asJSON)
     {
-        json::Document outputJSON;
+        xdoc::Document outputJSON;
         unload(&outputJSON.root());
-        outputJSON.exportTo(output, formatted);
+        outputJSON.exportTo(DataFormat::JSON, output, formatted);
     }
     else
     {
-        xml::Document outputXML;
-        auto* element = new xml::Element(outputXML, "type");
-        unload(element);
-        outputXML.save(output, formatted ? 2 : 0);
+        xdoc::Document outputXML;
+        auto& element = outputXML.pushNode("type");
+        unload(&element);
+        outputXML.exportTo(DataFormat::XML, output, formatted);
     }
 
     return String(output.c_str(), output.bytes());
@@ -111,74 +104,35 @@ void WSComplexType::throwIfNull(const String& parentTypeName) const
     }
 }
 
-void WSComplexType::load(const xml::Node* input)
+void WSComplexType::load(const xdoc::Node* input)
 {
     _clear();
     setLoaded(true);
-
-    // Load elements
-    for (const auto* node: *input)
-    {
-        const auto* element = dynamic_cast<const xml::Element*>(node);
-        if (element == nullptr)
-        { continue; }
-
-        auto* field = m_fields.find(element->name());
-        if (field != nullptr)
-        {
-            field->load(node);
-        }
-    }
-
-    // Load attributes
-    for (const auto* attribute: input->attributes())
-    {
-        auto* field = m_fields.find(attribute->name());
-        if (field != nullptr)
-        {
-            auto* outputField = dynamic_cast<WSBasicType*>(field);
-            if (outputField != nullptr)
-            {
-                outputField->load(attribute->value());
-            }
-        }
-    }
-
-    checkRestrictions();
-}
-
-void WSComplexType::load(const json::Element* input)
-{
-    _clear();
-    setLoaded(true);
-    if (!input->is(json::Type::OBJECT))
+    if (!input->is(Node::Type::Object))
     {
         return;
     }
 
     // Load elements
-    for (const auto& itor: input->getObject())
+    for (const auto& node: *input)
     {
-        const auto* element = itor.element();
-
-        auto* field = m_fields.find(itor.name());
-        if (field != nullptr)
+        if (auto* field = m_fields.find(node.name());
+            field != nullptr)
         {
-            field->load(element);
+            field->load(&node);
         }
     }
 
     // Load attributes
-    if (const auto* attributes = input->find("attributes");
-        attributes != nullptr && attributes->is(json::Type::OBJECT))
+    for (const auto&[attr, value]: input->attributes())
     {
-        for (const auto& attribute: attributes->getObject())
+        if (auto* field = m_fields.find(attr);
+            field != nullptr)
         {
-            auto* field = m_fields.find(attribute.name());
-            WSBasicType* outputField = field != nullptr ? dynamic_cast<WSBasicType*>(field) : nullptr;
-            if (outputField != nullptr)
+            if (auto* outputField = dynamic_cast<WSBasicType*>(field);
+                outputField != nullptr)
             {
-                outputField->load((String) *attribute.element());
+                outputField->load(value);
             }
         }
     }
@@ -218,47 +172,21 @@ bool WSComplexType::isNull() const
     return !hasValues;
 }
 
-void WSComplexType::unload(xml::Node* output) const
-{
-    const auto& fields = getFields();
-
-    // Unload attributes
-    fields.forEach([&output](const WSType* field) {
-        if (!field->isNull())
-        {
-            output->setAttribute(field->name(), field->asString());
-        }
-        return true;
-    }, WSFieldIndex::Group::ATTRIBUTES);
-
-    // Unload elements
-    fields.forEach([&output](const WSType* field) {
-        field->addElement(output);
-        return true;
-    }, WSFieldIndex::Group::ELEMENTS);
-}
-
-void WSComplexType::unload(json::Element* output) const
+void WSComplexType::unload(xdoc::Node* output) const
 {
     const auto& fields = getFields();
 
     // Unload attributes
     if (fields.hasAttributes())
     {
-        map<String, String> values;
         // Unload attributes
-        fields.forEach([&values](const WSType* field) {
+        fields.forEach([output](const WSType* field) {
             if (!field->isNull())
             {
-                values[field->name()] = field->asString();
+                output->setAttribute(field->name(), field->asString());
             }
             return true;
         }, WSFieldIndex::Group::ATTRIBUTES);
-        if (!values.empty())
-        {
-            auto* attributes = output->add_object("attributes");
-            setAttributes(values, attributes);
-        }
     }
 
     // Unload elements
@@ -266,37 +194,6 @@ void WSComplexType::unload(json::Element* output) const
         field->addElement(output);
         return true;
     }, WSFieldIndex::Group::ELEMENTS);
-}
-
-void WSComplexType::setAttributes(const map<String, String>& values, json::Element* attributes) const
-{
-    double doubleValue {0.0};
-    for (const auto&[name, value]: values)
-    {
-        auto valueType = json::Document::dataType(value);
-        switch (valueType)
-        {
-            case json::Type::STRING:
-                attributes->set(name, value);
-                break;
-            case json::Type::NUMBER:
-                doubleValue = stod(value);
-                if (doubleValue == (double) long(doubleValue))
-                {
-                    attributes->set(name, long(doubleValue));
-                }
-                else
-                {
-                    attributes->set(name, doubleValue);
-                }
-                break;
-            case json::Type::BOOLEAN:
-                attributes->set(name, value == "true");
-                break;
-            default:
-                break;
-        }
-    }
 }
 
 void WSComplexType::unload(QueryParameterList& output) const

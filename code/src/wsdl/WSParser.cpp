@@ -25,7 +25,6 @@
 */
 
 #include <iomanip>
-#include <sptk5/cutils>
 #include <sptk5/wsdl/SourceModule.h>
 #include <sptk5/wsdl/WSParser.h>
 #include <sptk5/wsdl/WSMessageIndex.h>
@@ -65,7 +64,7 @@ void WSParser::clear()
     m_complexTypeIndex.clear();
 }
 
-void WSParser::parseElement(const xml::Element* elementNode)
+void WSParser::parseElement(const xdoc::Node* elementNode)
 {
     auto elementName = (String) elementNode->getAttribute("name");
     auto elementType = (String) elementNode->getAttribute("type");
@@ -92,7 +91,7 @@ void WSParser::parseElement(const xml::Element* elementNode)
     }
 }
 
-void WSParser::parseSimpleType(const xml::Element* simpleTypeElement)
+void WSParser::parseSimpleType(const xdoc::Node* simpleTypeElement)
 {
     auto simpleTypeName = (String) simpleTypeElement->getAttribute("name");
     if (simpleTypeName.empty())
@@ -108,7 +107,7 @@ void WSParser::parseSimpleType(const xml::Element* simpleTypeElement)
     WSParserComplexType::SimpleTypeElements[simpleTypeName] = simpleTypeElement;
 }
 
-void WSParser::parseComplexType(const xml::Element* complexTypeElement)
+void WSParser::parseComplexType(const xdoc::Node* complexTypeElement)
 {
     auto complexTypeName = (String) complexTypeElement->getAttribute("name");
     if (complexTypeName.empty())
@@ -118,7 +117,7 @@ void WSParser::parseComplexType(const xml::Element* complexTypeElement)
 
     if (complexTypeName.empty())
     {
-        const xml::Node* parent = complexTypeElement->parent();
+        const xdoc::Node* parent = complexTypeElement->parent();
         complexTypeName = (String) parent->getAttribute("name");
     }
 
@@ -133,19 +132,19 @@ void WSParser::parseComplexType(const xml::Element* complexTypeElement)
     complexType->parse();
 }
 
-void WSParser::parseOperation(const xml::Element* operationNode)
+void WSParser::parseOperation(const xdoc::Node* operationNode)
 {
-    xml::NodeVector messageNodes;
+    xdoc::NodeVector messageNodes;
     operationNode->document()->select(messageNodes, "//wsdl:message");
 
     map<String, String> messageToElementMap;
     for (auto* node: messageNodes)
     {
-        if (node->type() != xml::Node::Type::DOM_ELEMENT)
+        if (node->type() != xdoc::Node::Type::DOM_ELEMENT)
         {
             throw Exception("The node " + node->name() + " is not an XML element");
         }
-        const auto* message = dynamic_cast<xml::Element*>(node);
+        const auto* message = dynamic_cast<xdoc::Node*>(node);
         const auto* part = message->findFirst("wsdl:part");
         auto messageName = (String) message->getAttribute("name");
         auto elementName = strip_namespace((String) part->getAttribute("element"));
@@ -161,11 +160,11 @@ void WSParser::parseOperation(const xml::Element* operationNode)
     bool found = false;
     for (const auto* node: *operationNode)
     {
-        if (node->type() != xml::Node::Type::DOM_ELEMENT)
+        if (node->type() != xdoc::Node::Type::DOM_ELEMENT)
         {
             throw Exception("The node " + node->name() + " is not an XML element");
         }
-        const auto* element = dynamic_cast<const xml::Element*>(node);
+        const auto* element = dynamic_cast<const xdoc::Node*>(node);
         auto message = (String) element->getAttribute("message");
         if (size_t pos = message.find(':');
             pos != string::npos)
@@ -194,26 +193,26 @@ void WSParser::parseOperation(const xml::Element* operationNode)
     }
 }
 
-void WSParser::parseSchema(xml::Element* schemaElement)
+void WSParser::parseSchema(xdoc::Node* schemaElement)
 {
-    xml::NodeVector simpleTypeNodes;
+    xdoc::NodeVector simpleTypeNodes;
     schemaElement->select(simpleTypeNodes, "//xsd:simpleType");
 
     for (const auto* node: simpleTypeNodes)
     {
-        const auto* element = dynamic_cast<const xml::Element*>(node);
+        const auto* element = dynamic_cast<const xdoc::Node*>(node);
         if (element != nullptr && element->name() == "xsd:simpleType")
         {
             parseSimpleType(element);
         }
     }
 
-    xml::NodeVector complexTypeNodes;
+    xdoc::NodeVector complexTypeNodes;
     schemaElement->select(complexTypeNodes, "//xsd:complexType");
 
     for (const auto* node: complexTypeNodes)
     {
-        const auto* element = dynamic_cast<const xml::Element*>(node);
+        const auto* element = dynamic_cast<const xdoc::Node*>(node);
         if (element != nullptr && element->name() == "xsd:complexType")
         {
             parseComplexType(element);
@@ -222,7 +221,7 @@ void WSParser::parseSchema(xml::Element* schemaElement)
 
     for (const auto* node: *schemaElement)
     {
-        const auto* element = dynamic_cast<const xml::Element*>(node);
+        const auto* element = dynamic_cast<const xdoc::Node*>(node);
         if (element != nullptr && element->name() == "xsd:element")
         {
             parseElement(element);
@@ -234,12 +233,12 @@ void WSParser::parse(const filesystem::path& wsdlFile)
 {
     m_wsdlFile = wsdlFile;
 
-    xml::Document wsdlXML;
+    xdoc::Document wsdlXML;
     Buffer buffer;
     buffer.loadFromFile(wsdlFile);
     wsdlXML.load(buffer);
 
-    const auto* service = (xml::Element*) wsdlXML.findFirst("wsdl:service");
+    const auto* service = (xdoc::Node*) wsdlXML.findFirst("wsdl:service");
     m_serviceName = (String) service->getAttribute("name");
     m_serviceNamespace = m_serviceName.toLowerCase() + "_service";
 
@@ -249,12 +248,12 @@ void WSParser::parse(const filesystem::path& wsdlFile)
         m_location = (String) address->getAttribute("location");
     }
 
-    auto* schemaElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("xsd:schema"));
+    auto* schemaElement = dynamic_cast<xdoc::Node*>(wsdlXML.findFirst("xsd:schema"));
     if (schemaElement == nullptr)
     throwException("Can't find xsd:schema element")
     parseSchema(schemaElement);
 
-    const auto* portElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("wsdl:portType"));
+    const auto* portElement = dynamic_cast<xdoc::Node*>(wsdlXML.findFirst("wsdl:portType"));
     if (portElement == nullptr)
     throwException("Can't find wsdl:portType element")
 
@@ -266,7 +265,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
 
     for (const auto* node: *portElement)
     {
-        const auto* element = dynamic_cast<const xml::Element*>(node);
+        const auto* element = dynamic_cast<const xdoc::Node*>(node);
         if (element != nullptr && element->name() == "wsdl:operation")
         {
             parseOperation(element);
@@ -392,7 +391,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition << "     * @param requestNameSpace Request SOAP element namespace" << endl;
         serviceDefinition << "     */" << endl;
         serviceDefinition << "    void process_" << requestName
-                          << "(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
+                          << "(sptk::xdoc::Node* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
                           << endl << endl;
     }
     serviceDefinition << "};" << endl << endl;
@@ -445,7 +444,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
 
     serviceImplementation << endl <<
                           "template <class InputData, class OutputData>\n"
-                          "void processAnyRequest(xml::Element* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
+                          "void processAnyRequest(xdoc::Node* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
                           "{\n"
                           "   const String requestName = wsTypeIdToName(typeid(InputData).name());\n"
                           "   const String responseName = wsTypeIdToName(typeid(OutputData).name());\n"
@@ -459,10 +458,10 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
                           "      // Can't parse input data\n"
                           "      throw HTTPException(400, e.what());\n"
                           "   }\n"
-                          "   auto* soapBody = (xml::Element*) requestNode->parent();\n"
+                          "   auto* soapBody = (xdoc::Node*) requestNode->parent();\n"
                           "   soapBody->clearChildren();\n"
                           "   method(inputData, outputData, authentication);\n"
-                          "   auto* response = new xml::Element(soapBody, (ns + \":\" + responseName).c_str());\n"
+                          "   auto* response = new xdoc::Node(soapBody, (ns + \":\" + responseName).c_str());\n"
                           "   response->setAttribute(\"xmlns:\" + ns, requestNameSpace.getLocation());\n"
                           "   outputData.unload(response);\n"
                           "}\n\n"
@@ -499,7 +498,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
         }
         serviceImplementation << endl;
         serviceImplementation << "void " << serviceClassName << "::process_" << requestName
-                              << "(xml::Element* xmlNode, json::Element* jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
+                              << "(xdoc::Node* xmlNode, json::Element* jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
                               << endl;
 
         auto inputType = "C" + operation.m_input->name();
@@ -548,7 +547,9 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
     if (verbose)
-    COUT("Creating service class " << serviceClassName)
+    {
+        COUT("Creating service class " << serviceClassName)
+    }
 
     stringstream cmakeLists;
     cmakeLists << "# The following list of files is generated automatically." << endl;
