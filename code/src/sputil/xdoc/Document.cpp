@@ -307,15 +307,25 @@ TEST(SPTK_XDocument, performance)
     // Verify data
     auto& arrayData = arrayElement.getArray();
     constexpr int someIndex = 100;
-    const Node& object = arrayData[someIndex];
+
+    auto itor = arrayData.begin();
+    for (auto i = 0; i < someIndex; i++)
+    {
+        itor++;
+    }
+
+    const Node& object = *itor;
     EXPECT_FLOAT_EQ(object.getNumber("id"), 100.0);
     EXPECT_STREQ(object.getString("name").c_str(), "Name 100");
 
     const Node& address = object.getObject("address");
     EXPECT_FLOAT_EQ(address.getNumber("number"), 100.0);
     EXPECT_STREQ(address.getString("street").c_str(), "Street 100");
+
     auto& list = address.getArray("list");
-    EXPECT_STREQ(list[1].getString().c_str(), "two");
+    auto itor2 = list.begin();
+    itor2++;
+    EXPECT_STREQ(itor2->getString().c_str(), "two");
 
     Buffer buffer;
     document.exportTo(DataFormat::JSON, buffer, true);

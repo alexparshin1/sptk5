@@ -58,4 +58,6 @@ constexpr const char* THEMES_PREFIX = "@THEMES_PREFIX@";
 
 #define TEST_DIRECTORY   "@TEST_DIRECTORY@"    ///< Directory that contains data, used in unit tests
 
+#define BUILD_TEST_WS    @BUILD_TEST_WS@        ///< Flag showing if test Web Service has to be built
+
 /// @}

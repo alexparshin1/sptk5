@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-std::map<String, const xdoc::Node*> WSParserComplexType::SimpleTypeElements;
+std::map<String, xdoc::Node*> WSParserComplexType::SimpleTypeElements;
 
 WSParserAttribute::WSParserAttribute(const String& name, const String& typeName)
     : m_name(name),
@@ -53,13 +53,13 @@ String WSParserAttribute::generate(bool initialize) const
     return str.str();
 }
 
-WSParserComplexType::WSParserComplexType(const xdoc::Node* complexTypeElement, const String& name,
+WSParserComplexType::WSParserComplexType(xdoc::Node* complexTypeElement, const String& name,
                                          const String& typeName)
     : m_name(name.empty() ? (String) complexTypeElement->getAttribute("name") : name),
       m_typeName(typeName.empty() ? (String) complexTypeElement->getAttribute("type") : typeName),
       m_element(complexTypeElement)
 {
-    const xdoc::Node* simpleTypeElement = nullptr;
+    xdoc::Node* simpleTypeElement = nullptr;
     if (!m_typeName.empty())
     {
         simpleTypeElement = findSimpleType(m_typeName);
@@ -71,8 +71,8 @@ WSParserComplexType::WSParserComplexType(const xdoc::Node* complexTypeElement, c
 
     if (simpleTypeElement)
     {
-        const auto* restrictionElement = simpleTypeElement->findFirst("xsd:restriction",
-                                                                      xdoc::Node::SearchMode::Recursive);
+        auto* restrictionElement = simpleTypeElement->findFirst("xsd:restriction",
+                                                                xdoc::Node::SearchMode::Recursive);
         if (restrictionElement != nullptr)
         {
             m_typeName = restrictionElement->getAttribute("base");
@@ -135,9 +135,9 @@ String WSParserComplexType::className() const
     return "C" + m_typeName.substr(pos + 1);
 }
 
-void WSParserComplexType::parseSequence(const xdoc::Node* sequence)
+void WSParserComplexType::parseSequence(xdoc::Node* sequence)
 {
-    for (const auto& node: *sequence)
+    for (auto& node: *sequence)
     {
         if (node.name() == "xsd:element")
         {
@@ -154,7 +154,7 @@ void WSParserComplexType::parse()
         return;
     }
 
-    for (const auto& node: *m_element)
+    for (auto& node: *m_element)
     {
         if (node.name() == "xsd:attribute")
         {
@@ -627,7 +627,7 @@ void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImpl
     generateImplementation(classImplementation, fieldNames, elementNames, attributeNames, serviceNamespace);
 }
 
-const xdoc::Node* WSParserComplexType::findSimpleType(const String& typeName)
+xdoc::Node* WSParserComplexType::findSimpleType(const String& typeName)
 {
     auto itor = SimpleTypeElements.find(typeName);
     if (itor == SimpleTypeElements.end())

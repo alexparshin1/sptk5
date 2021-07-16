@@ -43,10 +43,8 @@
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/test/TestRunner.h>
 
-#ifndef _WIN32
-
+#if BUILD_TEST_WS
 #include <test/wsdl/TestWebService.h>
-
 #endif
 
 using namespace std;
@@ -108,7 +106,7 @@ void stub()
 
     DatabaseConnectionPool connectionPool("");
 
-#ifndef _WIN32
+#if BUILD_TEST_WS
     TestWebService setvice;
 #endif
 }

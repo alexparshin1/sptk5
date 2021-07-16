@@ -24,11 +24,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <iomanip>
 #include <sptk5/wsdl/SourceModule.h>
 #include <sptk5/wsdl/WSParser.h>
 #include <sptk5/wsdl/WSMessageIndex.h>
 #include <sptk5/wsdl/OpenApiGenerator.h>
+#include <sptk5/Printer.h>
+
+#include <iomanip>
+#include <fstream>
 
 using namespace std;
 using namespace sptk;
@@ -91,7 +94,7 @@ void WSParser::parseElement(const xdoc::Node* elementNode)
     }
 }
 
-void WSParser::parseSimpleType(const xdoc::Node* simpleTypeElement)
+void WSParser::parseSimpleType(xdoc::Node* simpleTypeElement)
 {
     auto simpleTypeName = (String) simpleTypeElement->getAttribute("name");
     if (simpleTypeName.empty())
@@ -107,12 +110,12 @@ void WSParser::parseSimpleType(const xdoc::Node* simpleTypeElement)
     WSParserComplexType::SimpleTypeElements[simpleTypeName] = simpleTypeElement;
 }
 
-void WSParser::parseComplexType(const xdoc::Node* complexTypeElement)
+void WSParser::parseComplexType(xdoc::Node* complexTypeElement)
 {
-    auto complexTypeName = (String) complexTypeElement->getAttribute("name");
+    auto complexTypeName = complexTypeElement->getAttribute("name");
     if (complexTypeName.empty())
     {
-        complexTypeName = (String) complexTypeElement->parent()->getAttribute("name");
+        complexTypeName = complexTypeElement->parent()->getAttribute("name");
     }
 
     if (complexTypeName.empty())
@@ -132,18 +135,21 @@ void WSParser::parseComplexType(const xdoc::Node* complexTypeElement)
     complexType->parse();
 }
 
-void WSParser::parseOperation(const xdoc::Node* operationNode)
+void WSParser::parseOperation(xdoc::Node* operationNode)
 {
-    xdoc::NodeVector messageNodes;
-    operationNode->document()->select(messageNodes, "//wsdl:message");
+    xdoc::Node::Vector messageNodes;
+
+    xdoc::Node* document = operationNode;
+    while (document->parent())
+    {
+        document = document->parent();
+    }
+
+    document->select(messageNodes, "//wsdl:message");
 
     map<String, String> messageToElementMap;
     for (auto* node: messageNodes)
     {
-        if (node->type() != xdoc::Node::Type::DOM_ELEMENT)
-        {
-            throw Exception("The node " + node->name() + " is not an XML element");
-        }
         const auto* message = dynamic_cast<xdoc::Node*>(node);
         const auto* part = message->findFirst("wsdl:part");
         auto messageName = (String) message->getAttribute("name");
@@ -158,13 +164,9 @@ void WSParser::parseOperation(const xdoc::Node* operationNode)
 
     WSOperation operation = {};
     bool found = false;
-    for (const auto* node: *operationNode)
+    for (auto& node: *operationNode)
     {
-        if (node->type() != xdoc::Node::Type::DOM_ELEMENT)
-        {
-            throw Exception("The node " + node->name() + " is not an XML element");
-        }
-        const auto* element = dynamic_cast<const xdoc::Node*>(node);
+        auto* element = &node;
         auto message = (String) element->getAttribute("message");
         if (size_t pos = message.find(':');
             pos != string::npos)
@@ -195,33 +197,31 @@ void WSParser::parseOperation(const xdoc::Node* operationNode)
 
 void WSParser::parseSchema(xdoc::Node* schemaElement)
 {
-    xdoc::NodeVector simpleTypeNodes;
+    xdoc::Node::Vector simpleTypeNodes;
     schemaElement->select(simpleTypeNodes, "//xsd:simpleType");
 
-    for (const auto* node: simpleTypeNodes)
+    for (auto* element: simpleTypeNodes)
     {
-        const auto* element = dynamic_cast<const xdoc::Node*>(node);
         if (element != nullptr && element->name() == "xsd:simpleType")
         {
             parseSimpleType(element);
         }
     }
 
-    xdoc::NodeVector complexTypeNodes;
+    xdoc::Node::Vector complexTypeNodes;
     schemaElement->select(complexTypeNodes, "//xsd:complexType");
 
-    for (const auto* node: complexTypeNodes)
+    for (auto* element: complexTypeNodes)
     {
-        const auto* element = dynamic_cast<const xdoc::Node*>(node);
         if (element != nullptr && element->name() == "xsd:complexType")
         {
             parseComplexType(element);
         }
     }
 
-    for (const auto* node: *schemaElement)
+    for (auto& node: *schemaElement)
     {
-        const auto* element = dynamic_cast<const xdoc::Node*>(node);
+        const auto* element = &node;
         if (element != nullptr && element->name() == "xsd:element")
         {
             parseElement(element);
@@ -236,7 +236,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     xdoc::Document wsdlXML;
     Buffer buffer;
     buffer.loadFromFile(wsdlFile);
-    wsdlXML.load(buffer);
+    wsdlXML.load(xdoc::DataFormat::XML, buffer);
 
     const auto* service = (xdoc::Node*) wsdlXML.findFirst("wsdl:service");
     m_serviceName = (String) service->getAttribute("name");
@@ -253,7 +253,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     throwException("Can't find xsd:schema element")
     parseSchema(schemaElement);
 
-    const auto* portElement = dynamic_cast<xdoc::Node*>(wsdlXML.findFirst("wsdl:portType"));
+    auto* portElement = wsdlXML.findFirst("wsdl:portType");
     if (portElement == nullptr)
     throwException("Can't find wsdl:portType element")
 
@@ -263,9 +263,9 @@ void WSParser::parse(const filesystem::path& wsdlFile)
         m_description = descriptionElement->text();
     }
 
-    for (const auto* node: *portElement)
+    for (auto& node: *portElement)
     {
-        const auto* element = dynamic_cast<const xdoc::Node*>(node);
+        auto* element = &node;
         if (element != nullptr && element->name() == "wsdl:operation")
         {
             parseOperation(element);
@@ -545,7 +545,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
         externalHeader.set("");
     }
 
-    string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
+    String serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
     if (verbose)
     {
         COUT("Creating service class " << serviceClassName)

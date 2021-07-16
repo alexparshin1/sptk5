@@ -45,6 +45,7 @@ OPTION(USE_BROTLI "Use Brotli library" ON)
 
 OPTION(BUILD_EXAMPLES "Build usage examples" ON)
 OPTION(BUILD_UTILS "Build utitlity programs" ON)
+OPTION(BUILD_TEST_WS "Build Test Web Service" ON)
 OPTION(BUILD_PACKAGE "Build OS package" ON)
 
 INCLUDE(${CMAKE_ROOT}/Modules/FindASPELL.cmake)
@@ -428,6 +429,12 @@ ELSE ()
   MESSAGE("GTest unit tests:   don't compile")
 ENDIF ()
 
+IF (BUILD_TEST_WS)
+  SET (BUILD_TEST_WS "1")
+ELSE ()
+  SET (BUILD_TEST_WS "0")
+ENDIF ()
+
 CONFIGURE_FILE("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 
 ADD_SUBDIRECTORY(sptk5)
@@ -461,7 +468,7 @@ IF (BUILD_UTILS)
 ENDIF ()
 
 IF (USE_GTEST)
-  #ADD_SUBDIRECTORY(test)
+  ADD_SUBDIRECTORY(test)
 ENDIF ()
 
 IF (BUILD_PACKAGE)

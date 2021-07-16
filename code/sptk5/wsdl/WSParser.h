@@ -190,19 +190,19 @@ protected:
      * Parses xsd:simpleType nodes directly under xsd:schema
      * @param simpleTypeElement Schema simple type
      */
-    static void parseSimpleType(const xdoc::Node* simpleTypeElement);
+    static void parseSimpleType(xdoc::Node* simpleTypeElement);
 
     /**
      * Parses xsd:complexType nodes directly under xsd:schema
      * @param complexTypeElement Schema complex type
      */
-    void parseComplexType(const xdoc::Node* complexTypeElement);
+    void parseComplexType(xdoc::Node* complexTypeElement);
 
     /**
      * Parses wsdl:operation nodes directly under xsd:schema
      * @param operationNode         Schema complex type
      */
-    void parseOperation(const xdoc::Node* operationNode);
+    void parseOperation(xdoc::Node* operationNode);
 
     /**
      * Parses xsd:schema

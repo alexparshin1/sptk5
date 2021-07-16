@@ -28,6 +28,7 @@
 
 #include <sptk5/xdoc/Attributes.h>
 #include <sptk5/Variant.h>
+#include <list>
 
 namespace sptk::xdoc {
 
@@ -179,16 +180,6 @@ public:
             throw Exception("Element " + name + " doesn't exist");
         }
         return *pNode;
-    }
-
-    Variant& operator[](const size_t index)
-    {
-        return m_nodes[index];
-    }
-
-    const Variant& operator[](const size_t index) const
-    {
-        return m_nodes[index];
     }
 
     iterator begin()

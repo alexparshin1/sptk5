@@ -266,6 +266,21 @@ TEST(SPTK_XDocument, select)
     EXPECT_EQ(size_t(1), elementSet.size());
 }
 
+TEST(SPTK_XDocument, parent)
+{
+    Node::Vector elementSet;
+    Document document;
+
+    auto& node1 = document.pushNode("Node1-level1");
+    auto& node2 = node1.pushNode("Node2-level2");
+
+    auto& node3 = document.pushNode("Node3-level1");
+    auto& node4 = node3.pushNode("Node4-level2");
+
+    EXPECT_STREQ(node2.parent()->name().c_str(), "Node1-level1");
+    EXPECT_STREQ(node4.parent()->name().c_str(), "Node3-level1");
+}
+
 TEST(SPTK_XDocument, select2)
 {
     Node::Vector elementSet;

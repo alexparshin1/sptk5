@@ -129,7 +129,7 @@ public:
      * @param name              Object name
      * @param typeName          Object types
      */
-    explicit WSParserComplexType(const xdoc::Node* complexTypeElement, const String& name = "",
+    explicit WSParserComplexType(xdoc::Node* complexTypeElement, const String& name = "",
                                  const String& typeName = "");
 
     /**
@@ -192,7 +192,7 @@ public:
     /**
      * Parses WSDL child sequence
      */
-    void parseSequence(const xdoc::Node* sequence);
+    void parseSequence(xdoc::Node* sequence);
 
     /**
      * Generates C++ class declaration and implementation
@@ -200,9 +200,9 @@ public:
     void generate(std::ostream& classDeclaration, std::ostream& classImplementation,
                   const String& externalHeader, const String& serviceNamespace) const;
 
-    static std::map<String, const xdoc::Node*> SimpleTypeElements;
+    static std::map<String, xdoc::Node*> SimpleTypeElements;
 
-    static const xdoc::Node* findSimpleType(const String& typeName);
+    static xdoc::Node* findSimpleType(const String& typeName);
 
 protected:
 
@@ -259,7 +259,7 @@ private:
 
     String m_name;                             ///< Element name
     String m_typeName;                         ///< WSDL type name
-    const xdoc::Node* m_element {nullptr};     ///< XML element for that WSDL element
+    xdoc::Node* m_element {nullptr};           ///< XML element for that WSDL element
     AttributeMap m_attributes;                 ///< Element attributes
     WSParserComplexTypeList m_sequence;        ///< Child element sequence
     WSMultiplicity m_multiplicity;             ///< Multiplicity flag
