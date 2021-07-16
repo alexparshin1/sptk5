@@ -30,17 +30,16 @@
 using namespace std;
 using namespace sptk;
 
-WSRestriction::WSRestriction(const String& typeName, xdoc::Node* simpleTypeElement)
+WSRestriction::WSRestriction(const String& typeName, xdoc::SNode& simpleTypeElement)
     : m_wsdlTypeName(typeName)
 {
     xdoc::Node::Vector enumerationNodes;
     simpleTypeElement->select(enumerationNodes, "xsd:restriction/xsd:enumeration");
-    for (const auto* node: enumerationNodes)
+    for (const auto& enumerationNode: enumerationNodes)
     {
-        const auto* enumerationNode = dynamic_cast<const xdoc::Node*>(node);
         if (enumerationNode != nullptr)
         {
-            m_enumeration.push_back((String) enumerationNode->getAttribute("value"));
+            m_enumeration.push_back(enumerationNode->getAttribute("value"));
         }
     }
 
@@ -52,9 +51,8 @@ WSRestriction::WSRestriction(const String& typeName, xdoc::Node* simpleTypeEleme
     {
         xdoc::Node::Vector patternNodes;
         simpleTypeElement->select(patternNodes, "xsd:restriction/xsd:pattern");
-        for (auto* patternNode: patternNodes)
+        for (auto& patternNode: patternNodes)
         {
-            patternNode = dynamic_cast<xdoc::Node*>(patternNode);
             String pattern = patternNode->getAttribute("value").replace(R"(\\)", R"(\)");
             if (!pattern.empty())
             {
@@ -175,7 +173,7 @@ TEST(SPTK_WSRestriction, parseEnumeration)
     xdoc::Document document;
     document.load(xdoc::DataFormat::XML, coloursXML);
 
-    auto* simpleTypeElement = document.findFirst("xsd:simpleType");
+    auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
 
     WSRestriction restrictions("Colours", simpleTypeElement);
 
@@ -204,7 +202,7 @@ TEST(SPTK_WSRestriction, parseInitials)
     xdoc::Document document;
     document.load(xdoc::DataFormat::XML, initialsXML);
 
-    auto* simpleTypeElement = document.findFirst("xsd:simpleType");
+    auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
 
     WSRestriction restrictions("Initials", simpleTypeElement);
 

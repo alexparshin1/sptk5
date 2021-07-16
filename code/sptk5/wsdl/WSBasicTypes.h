@@ -102,7 +102,7 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    void load(const xdoc::Node* attr) override
+    void load(const xdoc::SNode& attr) override
     {
         static_cast<Variant*>(&m_field)->load(attr);
     }
@@ -230,7 +230,7 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void addElement(xdoc::Node* parent, const char* name = nullptr) const override;
+    void addElement(xdoc::SNode& parent, const char* name = nullptr) const override;
 
 private:
 
@@ -285,7 +285,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xdoc::Node* attr) override;
+    void load(const xdoc::SNode& attr) override;
 
     /**
      * Loads type data from string
@@ -406,7 +406,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xdoc::Node* attr) override;
+    void load(const xdoc::SNode& attr) override;
 
     /**
      * Load data from string
@@ -485,7 +485,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xdoc::Node* attr) override;
+    void load(const xdoc::SNode& attr) override;
 
     /**
      * Load data from string
@@ -580,7 +580,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xdoc::Node* attr) override;
+    void load(const xdoc::SNode& attr) override;
 
     /**
      * Load data from string
@@ -676,7 +676,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xdoc::Node* attr) override;
+    void load(const xdoc::SNode& attr) override;
 
     /**
      * Load data from string
@@ -755,7 +755,7 @@ public:
      * Load data from XML node
      * @param attr              XML node
      */
-    void load(const xdoc::Node* attr) override;
+    void load(const xdoc::SNode& attr) override;
 
     /**
      * Load data from string

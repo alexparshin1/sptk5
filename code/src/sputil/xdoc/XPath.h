@@ -62,37 +62,37 @@ public:
 class SP_EXPORT NodeSearchAlgorithms
 {
 public:
-    static void select(Node::Vector& nodes, Node& start, String xpath);
+    static void select(Node::Vector& nodes, SNode& start, String xpath);
 
 private:
     /**
      * Scan descendents nodes
      */
-    static void scanDescendents(Node& thisNode, Node::Vector& nodes, const std::vector<XPathElement>& pathElements,
+    static void scanDescendents(SNode& thisNode, Node::Vector& nodes, const std::vector<XPathElement>& pathElements,
                                 int pathPosition,
                                 const String& starPointer);
 
     /**
      * Match nodes
      */
-    static void matchNode(Node& thisNode, Node::Vector& nodes, const std::vector<XPathElement>& pathElements,
+    static void matchNode(const SNode& thisNode, Node::Vector& nodes, const std::vector<XPathElement>& pathElements,
                           int pathPosition,
                           const String& starPointer);
 
     /**
      * Match nodes only this level
      */
-    static void matchNodesThisLevel(Node& thisNode, Node::Vector& nodes,
+    static void matchNodesThisLevel(const SNode& thisNode, Node::Vector& nodes,
                                     const std::vector<XPathElement>& pathElements, int pathPosition,
                                     const String& starPointer, Node::Vector& matchedNodes, bool descendants);
 
     /**
      * Match path element
      */
-    static bool matchPathElement(const Node* thisNode, const XPathElement& pathElement,
+    static bool matchPathElement(const SNode& thisNode, const XPathElement& pathElement,
                                  const String& starPointer);
 
-    static bool matchPathElementAttribute(const Node* thisNode, const XPathElement& pathElement,
+    static bool matchPathElementAttribute(const SNode& thisNode, const XPathElement& pathElement,
                                           const String& starPointer);
 };
 

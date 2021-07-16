@@ -221,7 +221,7 @@ public:
      * @param node               Node to export field data into
      * @param compactXmlMode     Compact XML mode flag
      */
-    void exportTo(xdoc::Node& node, bool compactXmlMode = false) const;
+    void exportTo(xdoc::SNode& node, bool compactXmlMode = false) const;
 
     String displayName() const
     {

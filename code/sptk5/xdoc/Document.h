@@ -31,30 +31,35 @@
 namespace sptk::xdoc {
 
 class Document
-    : public Node
 {
-    friend class ImportXML;
-
-    friend class ExportXML;
-
 public:
-    explicit Document(Type rootType = Type::Object)
-        : Node("", rootType)
+    explicit Document(Node::Type rootType = Node::Type::Object)
+        : m_root(std::make_shared<Node>("", rootType))
     {
     }
 
-    Document(const Document& other) = default;
-
-    Document(Document&& other) noexcept = default;
-
-    Document& operator=(const Document& other) = default;
-
-    Document& operator=(Document&& other) noexcept = default;
-
-    Document& root()
+    SNode& root()
     {
-        return *this;
+        return m_root;
     }
+
+    void load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting = false)
+    {
+        m_root->load(dataFormat, data, xmlKeepFormatting);
+    }
+
+    void load(DataFormat dataFormat, const String& data, bool xmlKeepFormatting = false)
+    {
+        m_root->load(dataFormat, data, xmlKeepFormatting);
+    }
+
+    void exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
+    {
+        m_root->exportTo(dataFormat, data, formatted);
+    }
+
+private:
+    SNode m_root;
 };
 
 }

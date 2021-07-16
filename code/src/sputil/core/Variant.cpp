@@ -1162,7 +1162,7 @@ VariantDataType BaseVariant::nameType(const char* name)
     return itor->second;
 }
 
-void Variant::load(const Node* element)
+void Variant::load(const SNode& element)
 {
     switch (element->type())
     {
@@ -1183,7 +1183,7 @@ void Variant::load(const Node* element)
     }
 }
 
-void Variant::save(xdoc::Node* node) const
+void Variant::save(SNode& node) const
 {
     String stringValue(asString());
 
@@ -1489,7 +1489,7 @@ TEST(SPTK_Variant, json)
     const char* json = R"({ "value": 12345 })";
     xdoc::Document document;
     document.load(DataFormat::JSON, json);
-    auto* node = document.root().findFirst("value");
+    auto node = document.root()->findFirst("value");
 
     Variant v;
     v.load(node);
@@ -1513,7 +1513,7 @@ TEST(SPTK_Variant, xml)
     const char* xml = "<value>12345</value>";
     xdoc::Document document;
     document.load(DataFormat::XML, xml);
-    auto* node = document.findFirst("value");
+    auto node = document.root()->findFirst("value");
 
     Variant v;
     v.load(node);

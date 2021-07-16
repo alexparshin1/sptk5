@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/xdoc/Node.h>
+#include <sptk5/xdoc/Document.h>
 #include <sptk5/Printer.h>
 
 using namespace std;
@@ -44,9 +44,9 @@ bool readJsonBoolean(const char* json, const char*& readPosition);
 
 double readJsonNumber(const char* json, const char*& readPosition);
 
-void readArrayData(Node& parent, const char* json, const char*& readPosition);
+void readArrayData(SNode& parent, const char* json, const char*& readPosition);
 
-void readObjectData(Node& parent, const char* json, const char*& readPosition);
+void readObjectData(SNode& parent, const char* json, const char*& readPosition);
 
 String decode(const String& text);
 }
@@ -97,7 +97,7 @@ static constexpr int ERROR_CONTEXT_CHARS = 65;
     throwError(msg.str(), json, position);
 }
 
-void Node::importJson(Node& jsonElement, const Buffer& jsonStr)
+void Node::importJson(SNode& jsonElement, const Buffer& jsonStr)
 {
     const char* json = jsonStr.c_str();
     const char* pos = json;
@@ -106,11 +106,11 @@ void Node::importJson(Node& jsonElement, const Buffer& jsonStr)
     switch (*pos)
     {
         case '{':
-            jsonElement.type(Node::Type::Object);
+            jsonElement->type(Node::Type::Object);
             readObjectData(jsonElement, json, pos);
             break;
         case '[':
-            jsonElement.type(Node::Type::Array);
+            jsonElement->type(Node::Type::Array);
             readArrayData(jsonElement, json, pos);
             break;
         default:
@@ -245,7 +245,7 @@ void readJsonNull(const char* json, const char*& readPosition)
     skipSpaces(json, readPosition);
 }
 
-void readArrayData(Node& parent, const char* json, const char*& readPosition)
+void readArrayData(SNode& parent, const char* json, const char*& readPosition)
 {
     if (*readPosition != '[')
     {
@@ -272,34 +272,34 @@ void readArrayData(Node& parent, const char* json, const char*& readPosition)
 
             case '[':
 
-                xdoc::readArrayData(parent.pushNode("", Node::Type::Array), json, readPosition);
+                xdoc::readArrayData(parent->pushNode("", Node::Type::Array), json, readPosition);
                 break;
 
             case '{':
-                xdoc::readObjectData(parent.pushNode("", Node::Type::Object), json, readPosition);
+                xdoc::readObjectData(parent->pushNode("", Node::Type::Object), json, readPosition);
                 break;
 
             case '0':
             case '-':
                 // Number
-                parent.pushValue("", Node::Type::Number, readJsonNumber(json, readPosition));
+                parent->pushValue("", Node::Type::Number, readJsonNumber(json, readPosition));
                 break;
 
             case 't':
             case 'f':
                 // Boolean
-                parent.pushValue("", Node::Type::Boolean, readJsonBoolean(json, readPosition));
+                parent->pushValue("", Node::Type::Boolean, readJsonBoolean(json, readPosition));
                 break;
 
             case 'n':
                 // Null
                 readJsonNull(json, readPosition);
-                parent.pushNode("", Node::Type::Null);
+                parent->pushNode("", Node::Type::Null);
                 break;
 
             case '"':
                 // String
-                parent.pushValue("", Node::Type::Text, readJsonString(json, readPosition));
+                parent->pushValue("", Node::Type::Text, readJsonString(json, readPosition));
                 break;
 
             case ',':
@@ -314,7 +314,7 @@ void readArrayData(Node& parent, const char* json, const char*& readPosition)
     ++readPosition;
 }
 
-void readObjectData(Node& parent, const char* json, const char*& readPosition)
+void readObjectData(SNode& parent, const char* json, const char*& readPosition)
 {
     if (*readPosition != '{')
     {
@@ -352,35 +352,35 @@ void readObjectData(Node& parent, const char* json, const char*& readPosition)
                 break;
 
             case '[':
-                xdoc::readArrayData(parent.pushNode(elementName, Node::Type::Array),
+                xdoc::readArrayData(parent->pushNode(elementName, Node::Type::Array),
                                     json, readPosition);
                 break;
 
             case '{':
-                xdoc::readObjectData(parent.pushNode(elementName, Node::Type::Object), json, readPosition);
+                xdoc::readObjectData(parent->pushNode(elementName, Node::Type::Object), json, readPosition);
                 break;
 
             case '0':
             case '-':
                 // Number
-                parent.pushValue(elementName, Node::Type::Number, readJsonNumber(json, readPosition));
+                parent->pushValue(elementName, Node::Type::Number, readJsonNumber(json, readPosition));
                 break;
 
             case 't':
             case 'f':
                 // Boolean
-                parent.pushValue(elementName, Node::Type::Boolean, readJsonBoolean(json, readPosition));
+                parent->pushValue(elementName, Node::Type::Boolean, readJsonBoolean(json, readPosition));
                 break;
 
             case 'n':
                 // Null
                 readJsonNull(json, readPosition);
-                parent.pushNode(elementName, Node::Type::Null);
+                parent->pushNode(elementName, Node::Type::Null);
                 break;
 
             case '"':
                 // String
-                parent.pushValue(elementName, Node::Type::Text, readJsonString(json, readPosition));
+                parent->pushValue(elementName, Node::Type::Text, readJsonString(json, readPosition));
                 break;
 
             default:
@@ -524,15 +524,16 @@ static const String testFormattedJson(R"({
 TEST(SPTK_XDoc, JsonParser)
 {
     Buffer input(testJson);
-    xdoc::Node root;
+    xdoc::Document document;
+    auto& root = document.root();
     Node::importJson(root, input);
 
     Buffer output;
-    root.exportJson(output, false);
+    root->exportJson(output, false);
 
     EXPECT_STREQ(testJson.c_str(), output.c_str());
 
-    root.exportJson(output, true);
+    root->exportJson(output, true);
     EXPECT_STREQ(testFormattedJson.c_str(), output.c_str());
 }
 

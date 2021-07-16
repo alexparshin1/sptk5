@@ -182,33 +182,33 @@ public:
 protected:
     /**
      * Parses xsd:element nodes directly under xsd:schema
-     * @param element           Schema element
+     * @param elementNode           Schema element
      */
-    void parseElement(const xdoc::Node* element);
+    void parseElement(const xdoc::SNode& elementNode);
 
     /**
      * Parses xsd:simpleType nodes directly under xsd:schema
      * @param simpleTypeElement Schema simple type
      */
-    static void parseSimpleType(xdoc::Node* simpleTypeElement);
+    static void parseSimpleType(xdoc::SNode& simpleTypeElement);
 
     /**
      * Parses xsd:complexType nodes directly under xsd:schema
      * @param complexTypeElement Schema complex type
      */
-    void parseComplexType(xdoc::Node* complexTypeElement);
+    void parseComplexType(xdoc::SNode& complexTypeElement);
 
     /**
      * Parses wsdl:operation nodes directly under xsd:schema
      * @param operationNode         Schema complex type
      */
-    void parseOperation(xdoc::Node* operationNode);
+    void parseOperation(xdoc::SNode& operationNode);
 
     /**
      * Parses xsd:schema
      * @param schemaElement     Schema element
      */
-    void parseSchema(xdoc::Node* schemaElement);
+    void parseSchema(xdoc::SNode& schemaElement);
 
     /**
      * Generates service definition to output stream

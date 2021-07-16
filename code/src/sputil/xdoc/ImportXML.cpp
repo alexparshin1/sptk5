@@ -194,7 +194,7 @@ void ImportXML::extractEntities(char* docTypeSection)
     }
 }
 
-char* ImportXML::readComment(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd)
+char* ImportXML::readComment(const SNode& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd)
 {
     nodeEnd = strstr(nodeName + 3, "-->");
     if (nodeEnd == nullptr)
@@ -202,12 +202,12 @@ char* ImportXML::readComment(Node& currentNode, char* nodeName, char* nodeEnd, c
         throw Exception("Invalid end of the comment tag");
     }
     *nodeEnd = 0;
-    currentNode.pushNode(nodeName + 3, Node::Type::Comment);
+    currentNode->pushNode(nodeName + 3, Node::Type::Comment);
     tokenEnd = nodeEnd + 2;
     return tokenEnd;
 }
 
-char* ImportXML::readCDataSection(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd,
+char* ImportXML::readCDataSection(const SNode& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd,
                                   Mode formatting)
 {
     constexpr int cdataTagLength = 8;
@@ -219,15 +219,15 @@ char* ImportXML::readCDataSection(Node& currentNode, char* nodeName, char* nodeE
     *nodeEnd = 0;
     if (formatting == Mode::KeepFormatting)
     {
-        currentNode.pushNode("#cdata", Node::Type::CData)
-                   .setString(nodeName + cdataTagLength);
+        currentNode->pushNode("#cdata", Node::Type::CData)
+                   ->setString(nodeName + cdataTagLength);
     }
     else
     {
-        if (currentNode.empty())
+        if (currentNode->empty())
         {
-            currentNode.type(Node::Type::CData);
-            currentNode.setString(nodeName + cdataTagLength);
+            currentNode->type(Node::Type::CData);
+            currentNode->setString(nodeName + cdataTagLength);
         }
     }
     tokenEnd = nodeEnd + 2;
@@ -259,7 +259,8 @@ char* ImportXML::readXMLDocType(char* tokenEnd)
     return tokenEnd;
 }
 
-char* ImportXML::readExclamationTag(Node& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd, Mode formatting)
+char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd,
+                                    Mode formatting)
 {
     constexpr int cdataTagLength = 8;
     constexpr int docTypeTagLength = 8;
@@ -284,7 +285,7 @@ char* ImportXML::readExclamationTag(Node& currentNode, char* nodeName, char* tok
     return tokenEnd;
 }
 
-char* ImportXML::readProcessingInstructions(Node& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
+char* ImportXML::readProcessingInstructions(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
                                             bool isRootNode)
 {
     nodeEnd = strstr(tokenEnd, "?>");
@@ -294,16 +295,16 @@ char* ImportXML::readProcessingInstructions(Node& currentNode, const char* nodeN
     }
     *nodeEnd = 0;
     *tokenEnd = 0;
-    Node* pi;
+    SNode pi;
     if (isRootNode)
     {
-        pi = &currentNode;
+        pi = currentNode;
         pi->name(nodeName + 1);
         pi->type(Node::Type::ProcessingInstruction);
     }
     else
     {
-        pi = &currentNode.pushNode(nodeName + 1, Node::Type::ProcessingInstruction);
+        pi = currentNode->pushNode(nodeName + 1, Node::Type::ProcessingInstruction);
     }
 
     processAttributes(*pi, tokenEnd + 1);
@@ -313,7 +314,7 @@ char* ImportXML::readProcessingInstructions(Node& currentNode, const char* nodeN
     return tokenEnd;
 }
 
-char* ImportXML::readClosingTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
+char* ImportXML::readClosingTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
 {
     char ch = *tokenEnd;
     *tokenEnd = 0;
@@ -335,7 +336,7 @@ char* ImportXML::readClosingTag(Node*& currentNode, const char* nodeName, char* 
     return tokenEnd;
 }
 
-char* ImportXML::readOpenningTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
+char* ImportXML::readOpenningTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
 {
     char ch = *tokenEnd;
     *tokenEnd = 0;
@@ -348,7 +349,7 @@ char* ImportXML::readOpenningTag(Node*& currentNode, const char* nodeName, char*
         }
         else
         {
-            currentNode = &currentNode->pushNode(nodeName, Node::Type::Null);
+            currentNode = currentNode->pushNode(nodeName, Node::Type::Null);
             nodeEnd = tokenEnd;
         }
         return tokenEnd;
@@ -368,16 +369,16 @@ char* ImportXML::readOpenningTag(Node*& currentNode, const char* nodeName, char*
     }
 
     /// Attributes
-    Node* anode;
+    SNode anode;
     if (*nodeEnd == '/')
     {
-        anode = &currentNode->pushNode(nodeName, Node::Type::Null);
+        anode = currentNode->pushNode(nodeName, Node::Type::Null);
         *nodeEnd = 0;
         ++nodeEnd;
     }
     else
     {
-        anode = currentNode = &currentNode->pushNode(nodeName, Node::Type::Null);
+        anode = currentNode = currentNode->pushNode(nodeName, Node::Type::Null);
         *nodeEnd = 0;
     }
     processAttributes(*anode, tokenStart);
@@ -400,11 +401,11 @@ void ImportXML::detectArray(Node& _node)
         if (first)
         {
             first = false;
-            itemName = node.name();
+            itemName = node->name();
         }
         else
         {
-            if (itemName != node.name())
+            if (itemName != node->name())
             {
                 return;
             }
@@ -416,10 +417,10 @@ void ImportXML::detectArray(Node& _node)
     _node.type(Node::Type::Array);
 }
 
-void ImportXML::parse(Node& node, const char* _buffer, Mode formatting)
+void ImportXML::parse(SNode& node, const char* _buffer, Mode formatting)
 {
-    node.clear();
-    Node* currentNode = &node;
+    node->clear();
+    SNode currentNode = node;
     XMLDocType* doctype = &docType();
     Buffer buffer(_buffer);
 
@@ -437,11 +438,11 @@ void ImportXML::parse(Node& node, const char* _buffer, Mode formatting)
         switch (*nameStart)
         {
             case '!':
-                nodeEnd = readExclamationTag(*currentNode, nodeName, nameEnd, nodeEnd, formatting);
+                nodeEnd = readExclamationTag(currentNode, nodeName, nameEnd, nodeEnd, formatting);
                 break;
 
             case '?':
-                readProcessingInstructions(*currentNode, nodeName, nameEnd, nodeEnd, false);
+                readProcessingInstructions(currentNode, nodeName, nameEnd, nodeEnd, false);
                 break;
 
             case '/':
@@ -457,7 +458,7 @@ void ImportXML::parse(Node& node, const char* _buffer, Mode formatting)
         nodeStart = strchr(nodeEnd + 1, '<');
         if (nodeStart == nullptr)
         {
-            if (currentNode == &node)
+            if (currentNode == node)
             {
                 continue;
             }
@@ -474,12 +475,12 @@ void ImportXML::parse(Node& node, const char* _buffer, Mode formatting)
                 textStart += skipSpaces;
             }
 
-            readText(*currentNode, doctype, nodeStart, textStart, formatting);
+            readText(currentNode, doctype, nodeStart, textStart, formatting);
         }
     }
 }
 
-void ImportXML::readText(Node& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
+void ImportXML::readText(SNode& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
                          Mode formatting)
 {
     const auto* textTrail = nodeStart;
@@ -500,8 +501,8 @@ void ImportXML::readText(Node& currentNode, XMLDocType* doctype, const char* nod
             try
             {
                 auto value = std::stod(decodedText);
-                currentNode.setFloat(value);
-                currentNode.type(Node::Type::Number);
+                currentNode->setFloat(value);
+                currentNode->type(Node::Type::Number);
                 nodeType = Node::Type::Number;
             }
             catch (const invalid_argument&)
@@ -512,20 +513,20 @@ void ImportXML::readText(Node& currentNode, XMLDocType* doctype, const char* nod
             {
                 nodeType = Node::Type::Text;
             }
-            currentNode.type(nodeType);
+            currentNode->type(nodeType);
         }
 
         if (formatting == Mode::KeepFormatting) // || decodedText.find_first_not_of("\n\r\t ") != string::npos)
         {
-            currentNode.pushNode("#text", nodeType)
-                       .setString(decodedText);
+            currentNode->pushNode("#text", nodeType)
+                       ->setString(decodedText);
         }
         else
         {
             if (nodeType == Node::Type::Text)
             {
-                currentNode.setString(decodedText);
-                currentNode.type(nodeType);
+                currentNode->setString(decodedText);
+                currentNode->type(nodeType);
             }
         }
     }
@@ -562,34 +563,34 @@ static const String testREST(
 
 static void verifyDocument(Document& document)
 {
-    const Node* nameNode = document.root().findFirst("name");
+    const auto nameNode = document.root()->findFirst("name");
     EXPECT_STREQ("John", nameNode->asString().c_str());
     EXPECT_STREQ("president", nameNode->getAttribute("position").c_str());
 
-    EXPECT_EQ(33, (int) document.getNumber("age"));
-    EXPECT_DOUBLE_EQ(36.6, document.getNumber("temperature"));
-    EXPECT_DOUBLE_EQ(1519005758, (int) (document.getNumber("timestamp") / 1000));
+    EXPECT_EQ(33, (int) document.root()->getNumber("age"));
+    EXPECT_DOUBLE_EQ(36.6, document.root()->getNumber("temperature"));
+    EXPECT_DOUBLE_EQ(1519005758, (int) (document.root()->getNumber("timestamp") / 1000));
 
     Strings skills;
-    for (const auto& node: *document.findFirst("skills"))
+    for (const auto& node: *document.root()->findFirst("skills"))
     {
-        skills.push_back(node.getString());
+        skills.push_back(node->getString());
     }
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
 
-    const Node* ptr = document.findFirst("address");
+    const auto ptr = document.root()->findFirst("address");
     EXPECT_TRUE(ptr != nullptr);
 
     const Node& address = *ptr;
     EXPECT_STREQ("true", address.getString("married").c_str());
     EXPECT_STREQ("false", address.getString("employed").c_str());
 
-    const Node* dataNode = document.findFirst("data");
+    const auto dataNode = document.root()->findFirst("data");
 
     for (const auto& cdataNode: *dataNode)
     {
-        EXPECT_TRUE(cdataNode.is(Node::Node::Type::CData));
-        EXPECT_STREQ("hello, /\\>", cdataNode.getString().c_str());
+        EXPECT_TRUE(cdataNode->is(Node::Node::Type::CData));
+        EXPECT_STREQ("hello, /\\>", cdataNode->getString().c_str());
     }
 }
 
@@ -605,19 +606,19 @@ TEST(SPTK_XDocument, addNodes)
     Document document;
     document.load(DataFormat::XML, testXML);
 
-    document.pushNode("name") = String("John");
-    document.pushNode("age") = String("33");
-    document.pushNode("temperature") = String("33.6");
-    document.pushNode("timestamp") = String("1519005758000");
+    *document.root()->pushNode("name") = String("John");
+    *document.root()->pushNode("age") = String("33");
+    *document.root()->pushNode("temperature") = String("33.6");
+    *document.root()->pushNode("timestamp") = String("1519005758000");
 
-    auto& skills = document.pushNode("skills");
-    skills.pushNode("skill") = String("C++");
-    skills.pushNode("skill") = String("Java");
-    skills.pushNode("skill") = String("Motorbike");
+    auto& skills = *document.root()->pushNode("skills");
+    *skills.pushNode("skill") = String("C++");
+    *skills.pushNode("skill") = String("Java");
+    *skills.pushNode("skill") = String("Motorbike");
 
-    auto& address = document.pushNode("address");
-    address.pushNode("married") = String("true");
-    address.pushNode("employed") = String("false");
+    auto& address = *document.root()->pushNode("address");
+    *address.pushNode("married") = String("true");
+    *address.pushNode("employed") = String("false");
 
     verifyDocument(document);
 }
@@ -627,20 +628,20 @@ TEST(SPTK_XDocument, removeNodes)
     Document document;
     document.load(DataFormat::XML, testXML);
 
-    document.findOrCreate("name");
-    document.findOrCreate("age");
-    document.findOrCreate("skills");
-    document.findOrCreate("address");
+    document.root()->findOrCreate("name");
+    document.root()->findOrCreate("age");
+    document.root()->findOrCreate("skills");
+    document.root()->findOrCreate("address");
 
-    document.remove("name");
-    document.remove("age");
-    document.remove("skills");
-    document.remove("address");
-    EXPECT_TRUE(document.findFirst("name") == nullptr);
-    EXPECT_TRUE(document.findFirst("age") == nullptr);
-    EXPECT_TRUE(document.findFirst("temperature") != nullptr);
-    EXPECT_TRUE(document.findFirst("skills") == nullptr);
-    EXPECT_TRUE(document.findFirst("address") == nullptr);
+    document.root()->remove("name");
+    document.root()->remove("age");
+    document.root()->remove("skills");
+    document.root()->remove("address");
+    EXPECT_TRUE(document.root()->findFirst("name") == nullptr);
+    EXPECT_TRUE(document.root()->findFirst("age") == nullptr);
+    EXPECT_TRUE(document.root()->findFirst("temperature") != nullptr);
+    EXPECT_TRUE(document.root()->findFirst("skills") == nullptr);
+    EXPECT_TRUE(document.root()->findFirst("address") == nullptr);
 }
 
 TEST(SPTK_XDocument, saveXml1)
@@ -672,23 +673,23 @@ TEST(SPTK_XDocument, parseXML)
     Document document;
     document.load(DataFormat::XML, testREST);
 
-    const auto* xmlElement = document.findFirst("xml");
+    const auto xmlElement = document.root()->findFirst("xml");
     EXPECT_STREQ(xmlElement->getAttribute("version").c_str(), "1.0");
     EXPECT_STREQ(xmlElement->getAttribute("encoding").c_str(), "UTF-8");
 
-    const auto* bodyElement = document.findFirst("soap:Body", Node::SearchMode::Recursive);
+    const auto bodyElement = document.root()->findFirst("soap:Body", Node::SearchMode::Recursive);
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
     EXPECT_EQ(Node::Node::Type::Object, bodyElement->type());
     EXPECT_EQ(1, (int) bodyElement->size());
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 
-    const Node* methodElement = nullptr;
+    SNode methodElement = nullptr;
     for (const auto& node: *bodyElement)
     {
-        if (node.is(Node::Node::Type::Object))
+        if (node->is(Node::Node::Type::Object))
         {
-            methodElement = &node;
+            methodElement = node;
             break;
         }
     }

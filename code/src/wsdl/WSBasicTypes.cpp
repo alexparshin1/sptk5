@@ -32,7 +32,7 @@ using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
-void WSBasicType::addElement(xdoc::Element* parent, const char* _name) const
+void WSBasicType::addElement(SNode& parent, const char* _name) const
 {
     String elementName = _name == nullptr ? name() : _name;
     if (String text(isNull() ? "" : asString());
@@ -97,7 +97,7 @@ void WSBasicType::throwIfNull(const String& parentTypeName) const
     }
 }
 
-void WSString::load(const xdoc::Element* attr)
+void WSString::load(const SNode& attr)
 {
     if (attr->is(Node::Type::Null))
     {
@@ -121,7 +121,7 @@ void WSString::load(const Field& field)
     load(field.asString());
 }
 
-void WSBool::load(const xdoc::Node* attr)
+void WSBool::load(const SNode& attr)
 {
     if (attr->is(Node::Type::Null))
     {
@@ -168,7 +168,7 @@ void WSBool::load(const Field& field)
     }
 }
 
-void WSDate::load(const xdoc::Element* attr)
+void WSDate::load(const SNode& attr)
 {
     String text = attr->getString();
     if (attr->is(Node::Type::Null) || text.empty())
@@ -206,7 +206,7 @@ void WSDate::load(const Field& field)
     }
 }
 
-void WSDateTime::load(const xdoc::Node* attr)
+void WSDateTime::load(const SNode& attr)
 {
     String text = attr->text();
     if (text.empty())
@@ -251,7 +251,7 @@ String WSDateTime::asString() const
     return dt.isoDateTimeString();
 }
 
-void WSDouble::load(const xdoc::Node* attr)
+void WSDouble::load(const SNode& attr)
 {
     field().setFloat(attr->getNumber());
 }
@@ -280,7 +280,7 @@ void WSDouble::load(const Field& field)
     }
 }
 
-void WSInteger::load(const xdoc::Node* attr)
+void WSInteger::load(const SNode& attr)
 {
     if (attr->is(Node::Type::Null))
     {

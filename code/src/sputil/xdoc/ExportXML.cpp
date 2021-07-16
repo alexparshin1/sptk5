@@ -41,7 +41,7 @@ inline bool isNodeByName(const String& nodeName)
     return !(nodeName[0] == '#' && (nodeName == "#text" || nodeName == "#cdata"));
 }
 
-void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& buffer, int indent)
+void ExportXML::saveElement(const Node* node, const String& nodeName, Buffer& buffer, int indent)
 {
     bool isNode = isNodeByName(nodeName);
 
@@ -50,7 +50,7 @@ void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& bu
         appendNodeNameAndAttributes(node, nodeName, buffer);
     }
 
-    if (!node.empty())
+    if (!node->empty())
     {
         if (isNode)
         {
@@ -58,8 +58,8 @@ void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& bu
         }
 
         bool only_cdata = false;
-        if (const auto& nd = node.begin();
-            node.size() == 1 && (nd->type() == Node::Type::Text || nd->type() == Node::Type::CData))
+        if (const auto& nd = node->begin();
+            node->size() == 1 && ((*nd)->type() == Node::Type::Text || (*nd)->type() == Node::Type::CData))
         {
             only_cdata = true;
         }
@@ -87,28 +87,28 @@ void ExportXML::saveElement(const Node& node, const String& nodeName, Buffer& bu
     }
 }
 
-void ExportXML::appendNodeNameAndAttributes(const Node& node, const String& nodeName, Buffer& buffer)
+void ExportXML::appendNodeNameAndAttributes(const Node* node, const String& nodeName, Buffer& buffer)
 {
     buffer.append('<');
 
-    if (node.type() == Node::Type::ProcessingInstruction)
+    if (node->type() == Node::Type::ProcessingInstruction)
     {
         buffer.append('?');
     }
 
     buffer.append(nodeName);
-    if (!node.attributes().empty())
+    if (!node->attributes().empty())
     {
         // Output attributes
         saveAttributes(node, buffer);
     }
 }
 
-Buffer& ExportXML::appendNodeContent(const Node& node, Buffer& buffer)
+Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
 {
-    if (node.is(Node::Type::Number))
+    if (node->is(Node::Type::Number))
     {
-        auto dvalue = node.asFloat();
+        auto dvalue = node->asFloat();
         auto lvalue = long(dvalue);
         if (dvalue == double(lvalue))
         {
@@ -116,28 +116,28 @@ Buffer& ExportXML::appendNodeContent(const Node& node, Buffer& buffer)
         }
         else
         {
-            buffer.append(node.asString());
+            buffer.append(node->asString());
         }
     }
     else
     {
-        if (node.is(Node::Type::CData))
+        if (node->is(Node::Type::CData))
         {
             buffer.append("<![CDATA[", 9);
-            buffer.append(node.asString());
+            buffer.append(node->asString());
             buffer.append("]]>", 3);
         }
         else
         {
-            m_docType.encodeEntities(node.asString().c_str(), buffer);
+            m_docType.encodeEntities(node->asString().c_str(), buffer);
         }
     }
     return buffer;
 }
 
-void ExportXML::appendSubNodes(const Node& node, Buffer& buffer, int indent, bool only_cdata)
+void ExportXML::appendSubNodes(const Node* node, Buffer& buffer, int indent, bool only_cdata)
 {
-    for (const auto& np: node)
+    for (const auto& np: *node)
     {
         if (only_cdata)
         {
@@ -150,7 +150,7 @@ void ExportXML::appendSubNodes(const Node& node, Buffer& buffer, int indent, boo
             {
                 newIndent = indent + m_indentSpaces;
             }
-            saveElement(np, np.name(), buffer, newIndent);
+            saveElement(np.get(), np->name(), buffer, newIndent);
             if (indent && buffer.data()[buffer.bytes() - 1] != '\n')
             {
                 buffer.append('\n');
@@ -159,13 +159,13 @@ void ExportXML::appendSubNodes(const Node& node, Buffer& buffer, int indent, boo
     }
 }
 
-void ExportXML::appendNodeEnd(const Node& node, const String& nodeName, Buffer& buffer, bool isNode)
+void ExportXML::appendNodeEnd(const Node* node, const String& nodeName, Buffer& buffer, bool isNode)
 {
-    if (node.type() == Node::Type::ProcessingInstruction)
+    if (node->type() == Node::Type::ProcessingInstruction)
     {
         buffer.append("?>", 2);
     }
-    else if (!node.isNull())
+    else if (!node->isNull())
     {
         if (isNode)
         {
@@ -185,7 +185,7 @@ void ExportXML::appendNodeEnd(const Node& node, const String& nodeName, Buffer& 
     }
 }
 
-void ExportXML::appendClosingTag(const Node& node, Buffer& buffer, int indent, bool only_cdata) const
+void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, int indent, bool only_cdata) const
 {
     // output indendation spaces
     if (!only_cdata && indent > 0)
@@ -195,7 +195,7 @@ void ExportXML::appendClosingTag(const Node& node, Buffer& buffer, int indent, b
 
     // output closing tag
     buffer.append("</", 2);
-    buffer.append(node.name());
+    buffer.append(node->name());
     buffer.append('>');
     if (indent)
     {
@@ -203,11 +203,11 @@ void ExportXML::appendClosingTag(const Node& node, Buffer& buffer, int indent, b
     }
 }
 
-void ExportXML::saveAttributes(const Node& node, Buffer& buffer)
+void ExportXML::saveAttributes(const Node* node, Buffer& buffer)
 {
     Buffer real_id;
     Buffer real_val;
-    for (const auto&[attr, value]: node.attributes())
+    for (const auto&[attr, value]: node->attributes())
     {
         real_id.bytes(0);
         real_val.bytes(0);
@@ -228,7 +228,7 @@ void ExportXML::saveAttributes(const Node& node, Buffer& buffer)
     }
 }
 
-void ExportXML::save(const Node& node, Buffer& buffer, int indent)
+void ExportXML::save(const SNode& node, Buffer& buffer, int indent)
 {
     // output indendation spaces
     if (indent > 0)
@@ -236,11 +236,11 @@ void ExportXML::save(const Node& node, Buffer& buffer, int indent)
         buffer.append(indentsString.c_str(), size_t(indent));
     }
 
-    const auto& nodeName = node.name();
-    String value(node.asString());
+    const auto& nodeName = node->name();
+    String value(node->asString());
 
     // depending on the nodetype, do output
-    switch (node.type())
+    switch (node->type())
     {
         case Node::Type::Text:
             if (value.substr(0, cdataStartMarkerLength) == "<![CDATA[" &&
@@ -273,7 +273,7 @@ void ExportXML::save(const Node& node, Buffer& buffer, int indent)
             break;
 
         default:
-            saveElement(node, nodeName, buffer, indent);
+            saveElement(node.get(), nodeName, buffer, indent);
             break;
     }
 }

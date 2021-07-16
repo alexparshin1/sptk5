@@ -115,7 +115,7 @@ public:
      * Loads type data from request XML node
      * @param input             XML node
      */
-    void load(const xdoc::Node* input) override;
+    void load(const xdoc::SNode& input) override;
 
     /**
      * Load data from FieldList
@@ -129,7 +129,7 @@ public:
      * Unload data to existing XML node
      * @param output            Existing XML node
      */
-    virtual void unload(xdoc::Node* output) const;
+    virtual void unload(xdoc::SNode& output) const;
 
     /**
      * Unload data to Query's parameters
@@ -150,7 +150,7 @@ public:
      * @param parent            Parent XML node where new node is created
      * @param name              Optional name for the child element
      */
-    void addElement(xdoc::Node* parent, const char* name = nullptr) const override;
+    void addElement(xdoc::SNode& parent, const char* name = nullptr) const override;
 
     /**
      * True if data was not loaded, or if all the fields are null.

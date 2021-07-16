@@ -515,15 +515,15 @@ public:
 
     /**
      * Loads the data from XML node
-     * @param node              XML node to load data from
+     * @param element              XML node to load data from
      */
-    virtual void load(const xdoc::Node* node);
+    virtual void load(const std::shared_ptr<xdoc::Node>& element);
 
     /**
      * Saves the data into XML node
      * @param node              XML node to save data into
      */
-    void save(xdoc::Node* node) const;
+    void save(std::shared_ptr<xdoc::Node>& node) const;
 };
 
 /**

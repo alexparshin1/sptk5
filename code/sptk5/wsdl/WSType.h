@@ -66,7 +66,7 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    virtual void load(const xdoc::Node* attr) = 0;
+    virtual void load(const xdoc::SNode& attr) = 0;
 
     /**
      * Conversion to string
@@ -83,7 +83,7 @@ public:
      * @param parent            Parent XML node where new node is created
      * @param name              Optional name for the child element
      */
-    virtual void addElement(xdoc::Node* parent, const char* name = nullptr) const = 0;
+    virtual void addElement(xdoc::SNode& parent, const char* name = nullptr) const = 0;
 };
 
 }

@@ -157,28 +157,28 @@ String Field::doubleDataToString() const
     return output.str();
 }
 
-void Field::exportTo(xdoc::Node& node, bool compactXmlMode) const
+void Field::exportTo(xdoc::SNode& node, bool compactXmlMode) const
 {
     String value = asString();
 
     if (!value.empty())
     {
-        xdoc::Element* element = nullptr;
+        xdoc::SNode element;
 
         if (dataType() == VariantDataType::VAR_TEXT)
         {
-            element = &node.pushNode(fieldName(), xdoc::Node::Type::CData);
+            element = node->pushNode(fieldName(), xdoc::Node::Type::CData);
             element->setString(value);
         }
         else
         {
             if (compactXmlMode)
             {
-                node.setAttribute(fieldName(), value);
+                node->setAttribute(fieldName(), value);
             }
             else
             {
-                element = &node.pushNode("field", xdoc::Node::Type::Text);
+                element = node->pushNode("field", xdoc::Node::Type::Text);
                 element->setString(value);
             }
         }

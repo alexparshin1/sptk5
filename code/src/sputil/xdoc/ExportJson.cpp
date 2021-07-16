@@ -173,7 +173,7 @@ void Node::exportJsonArray(ostream& stream, bool formatted, size_t indent, const
             {
                 stream << betweenElements;
             }
-            element.exportJsonValueTo(stream, formatted, indent + 2);
+            element->exportJsonValueTo(stream, formatted, indent + 2);
         }
     }
     stream << newLineChar << indentSpaces << "]";
@@ -198,12 +198,12 @@ void Node::exportJsonObject(ostream& stream, bool formatted, size_t indent, cons
             {
                 stream << betweenElements;
             }
-            stream << "\"" << node.name() << "\":";
+            stream << "\"" << node->name() << "\":";
             if (formatted)
             {
                 stream << " ";
             }
-            node.exportJsonValueTo(stream, formatted, indent + 2);
+            node->exportJsonValueTo(stream, formatted, indent + 2);
         }
     }
     stream << newLineChar << indentSpaces << "}";

@@ -103,7 +103,7 @@ public:
      * Load document from buffer.
      * @param _buffer            Source buffer
      */
-    void parse(xdoc::Node& node, const char* _buffer, Mode formatting = Mode::Compact);
+    void parse(SNode& node, const char* _buffer, Mode formatting = Mode::Compact);
 
     /**
      * Does string match a number?
@@ -143,25 +143,25 @@ private:
      */
     void processAttributes(Node& node, const char* ptr);
 
-    static char* readComment(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
+    static char* readComment(const SNode& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
 
-    static char* readCDataSection(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd,
+    static char* readCDataSection(const SNode& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd,
                                   Mode formatting);
 
     char* readXMLDocType(char* tokenEnd);
 
     static const RegularExpression parseAttributes;
 
-    char* readExclamationTag(Node& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd, Mode formatting);
+    char* readExclamationTag(const SNode& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd, Mode formatting);
 
-    char* readProcessingInstructions(Node& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
+    char* readProcessingInstructions(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
                                      bool isRootNode);
 
-    char* readOpenningTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
+    char* readOpenningTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 
-    static char* readClosingTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
+    static char* readClosingTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 
-    void readText(Node& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
+    void readText(SNode& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
                   Mode formatting);
 
     char* parseEntity(char* start);

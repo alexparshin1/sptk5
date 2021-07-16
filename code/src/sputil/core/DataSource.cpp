@@ -41,7 +41,7 @@ bool DataSource::save()
     return saveData();
 }
 
-void DataSource::exportRowTo(xdoc::Node& node, bool compactXmlMode)
+void DataSource::exportRowTo(xdoc::SNode& node, bool compactXmlMode)
 {
     auto cnt = fieldCount();
     for (size_t i = 0; i < cnt; ++i)

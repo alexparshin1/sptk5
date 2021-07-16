@@ -153,12 +153,12 @@ public:
         return m_array.erase(first, last);
     }
 
-    void load(const xdoc::Node* node) override
+    void load(const xdoc::SNode& node) override
     {
         for (const auto& arrayElement: *node)
         {
             T item(m_name.c_str(), false);
-            item.load(&arrayElement);
+            item.load(arrayElement);
             m_array.push_back(std::move(item));
         }
     }
@@ -176,13 +176,13 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void addElement(xdoc::Node* output, const char* name = nullptr) const override
+    void addElement(xdoc::SNode& output, const char* name = nullptr) const override
     {
         const char* itemName = name == nullptr ? "item" : name;
         auto& arrayNode = output->pushNode(m_name, xdoc::Node::Type::Array);
         for (const auto& element: m_array)
         {
-            element.addElement(&arrayNode, itemName);
+            element.addElement(arrayNode, itemName);
         }
     }
 

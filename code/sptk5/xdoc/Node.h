@@ -40,12 +40,13 @@ enum class DataFormat
 };
 
 class Node
-    : public Variant
+    : public Variant, public std::enable_shared_from_this<Node>
 {
 public:
 
-    using Nodes = std::vector<Node>;
-    using Vector = std::vector<Node*>;
+    using SNode = std::shared_ptr<Node>;
+    using Nodes = std::vector<SNode>;
+    using Vector = std::vector<SNode>;
     using iterator = Nodes::iterator;
     using const_iterator = Nodes::const_iterator;
 
@@ -104,14 +105,14 @@ public:
         m_type = type;
     }
 
-    Node& pushNode(const String& name, Type type = Type::Null);
+    SNode& pushNode(const String& name, Type type = Type::Null);
 
     template<typename T>
-    Node& pushValue(const String& name, Type type, const T& value)
+    SNode& pushValue(const String& name, Type type, const T& value)
     {
         Variant v(value);
         auto& node = pushNode(name, type);
-        node.setData(v);
+        node->setData(v);
         return node;
     }
 
@@ -145,23 +146,23 @@ public:
     // Compatibility
     size_t size() const;
 
-    Node& add_array(const String& name);
+    SNode& add_array(const String& name);
 
-    Node& add_object(const String& name);
+    SNode& add_object(const String& name);
 
-    Node& push_back(const Variant& value)
+    SNode& push_back(const Variant& value)
     {
         auto& node = pushNode("", Type::Null);
-        node.setData(value);
+        node->setData(value);
         return node;
     }
 
-    Node& push_object();
+    SNode& push_object();
 
-    Node& set(const String& name, const Variant& value)
+    SNode& set(const String& name, const Variant& value)
     {
         auto& node = findOrCreate(name);
-        node.setData(value);
+        node->setData(value);
         return node;
     }
 
@@ -169,12 +170,12 @@ public:
 
     Variant& operator[](const String& name)
     {
-        return findOrCreate(name);
+        return *findOrCreate(name);
     }
 
     const Variant& operator[](const String& name) const
     {
-        auto* pNode = findFirst(name);
+        auto pNode = findFirst(name);
         if (pNode == nullptr)
         {
             throw Exception("Element " + name + " doesn't exist");
@@ -202,19 +203,19 @@ public:
         return m_nodes.end();
     }
 
-    Node& findOrCreate(const String& name);
+    SNode& findOrCreate(const String& name);
 
-    Node* findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive);
+    SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive);
 
-    const Node* findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const;
+    const SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const;
 
     /**
      * Parse JSON text
      * Root element should have JDT_NULL type (empty element) before calling this method.
-     * @param node              Output node
-     * @param json              JSON text
+     * @param jsonElement              Output node
+     * @param jsonStr              JSON text
      */
-    static void importJson(xdoc::Node& node, const sptk::Buffer& json);
+    static void importJson(SNode& jsonElement, const sptk::Buffer& jsonStr);
 
     /**
      * Export to JSON text
@@ -244,15 +245,15 @@ public:
 
     void exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const;
 
-    Node* parent();
+    SNode& parent();
 
-    const Node* parent() const;
+    const SNode& parent() const;
 
     virtual void select(Node::Vector& selectedNodes, const String& xpath);
 
 private:
 
-    Node* m_parent {nullptr};
+    SNode m_parent {nullptr};
     String m_name;
     Type m_type {Type::Null};
     Attributes m_attributes;
@@ -269,5 +270,6 @@ private:
 };
 
 using Element = Node;
+using SNode = Node::SNode;
 
 }

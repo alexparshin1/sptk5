@@ -16,25 +16,25 @@ public:
     {
     }
 
-    void saveElement(const Node& node, const String& nodeName, Buffer& buffer, int indent);
+    void saveElement(const Node* node, const String& nodeName, Buffer& buffer, int indent);
 
-    void appendSubNodes(const Node& node, Buffer& buffer, int indent, bool only_cdata);
+    void appendSubNodes(const Node* node, Buffer& buffer, int indent, bool only_cdata);
 
-    void appendClosingTag(const Node& node, Buffer& buffer, int indent, bool only_cdata) const;
+    void appendClosingTag(const Node* node, Buffer& buffer, int indent, bool only_cdata) const;
 
-    void saveAttributes(const Node& node, Buffer& buffer);
+    void saveAttributes(const Node* node, Buffer& buffer);
 
-    void save(const Node& node, Buffer& buffer, int indent);
+    void save(const SNode& node, Buffer& buffer, int indent);
 
 private:
     int m_indentSpaces;
     XMLDocType m_docType;
 
-    Buffer& appendNodeContent(const Node& node, Buffer& buffer);
+    Buffer& appendNodeContent(const Node* node, Buffer& buffer);
 
-    void appendNodeNameAndAttributes(const Node& node, const String& nodeName, Buffer& buffer);
+    void appendNodeNameAndAttributes(const Node* node, const String& nodeName, Buffer& buffer);
 
-    void appendNodeEnd(const Node& node, const String& nodeName, Buffer& buffer, bool isNode);
+    void appendNodeEnd(const Node* node, const String& nodeName, Buffer& buffer, bool isNode);
 };
 
 }

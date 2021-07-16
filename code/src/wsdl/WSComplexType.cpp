@@ -34,9 +34,9 @@ using namespace xdoc;
 void WSComplexType::copyFrom(const WSComplexType& other)
 {
     xdoc::Document xml;
-    auto& element = xml.pushNode("temp");
-    other.unload(&element);
-    load(&element);
+    auto& element = xml.root()->pushNode("temp");
+    other.unload(element);
+    load(element);
 }
 
 void WSComplexType::unload(QueryParameterList& output, const char* paramName, const WSBasicType* elementOrAttribute)
@@ -53,7 +53,7 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
     }
 }
 
-void WSComplexType::addElement(xdoc::Node* parent, const char* name) const
+void WSComplexType::addElement(SNode& parent, const char* name) const
 {
     if (m_exportable)
     {
@@ -62,14 +62,14 @@ void WSComplexType::addElement(xdoc::Node* parent, const char* name) const
             return;
         }
         String elementName = name == nullptr ? m_name.c_str() : name;
-        xdoc::Node* element = nullptr;
+        xdoc::SNode element;
         if (parent->is(Node::Type::Array))
         {
-            element = &parent->pushNode(elementName);
+            element = parent->pushNode(elementName);
         }
         else
         {
-            element = &parent->set(m_name, "");
+            element = parent->set(m_name, "");
         }
         unload(element);
     }
@@ -82,14 +82,14 @@ String WSComplexType::toString(bool asJSON, bool formatted) const
     if (asJSON)
     {
         xdoc::Document outputJSON;
-        unload(&outputJSON.root());
+        unload(outputJSON.root());
         outputJSON.exportTo(DataFormat::JSON, output, formatted);
     }
     else
     {
         xdoc::Document outputXML;
-        auto& element = outputXML.pushNode("type");
-        unload(&element);
+        auto& element = outputXML.root()->pushNode("type");
+        unload(element);
         outputXML.exportTo(DataFormat::XML, output, formatted);
     }
 
@@ -104,7 +104,7 @@ void WSComplexType::throwIfNull(const String& parentTypeName) const
     }
 }
 
-void WSComplexType::load(const xdoc::Node* input)
+void WSComplexType::load(const SNode& input)
 {
     _clear();
     setLoaded(true);
@@ -116,10 +116,10 @@ void WSComplexType::load(const xdoc::Node* input)
     // Load elements
     for (const auto& node: *input)
     {
-        if (auto* field = m_fields.find(node.name());
+        if (auto* field = m_fields.find(node->name());
             field != nullptr)
         {
-            field->load(&node);
+            field->load(node);
         }
     }
 
@@ -172,7 +172,7 @@ bool WSComplexType::isNull() const
     return !hasValues;
 }
 
-void WSComplexType::unload(xdoc::Node* output) const
+void WSComplexType::unload(SNode& output) const
 {
     const auto& fields = getFields();
 

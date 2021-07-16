@@ -67,10 +67,10 @@ void WSParser::clear()
     m_complexTypeIndex.clear();
 }
 
-void WSParser::parseElement(const xdoc::Node* elementNode)
+void WSParser::parseElement(const xdoc::SNode& elementNode)
 {
-    auto elementName = (String) elementNode->getAttribute("name");
-    auto elementType = (String) elementNode->getAttribute("type");
+    auto elementName = elementNode->getAttribute("name");
+    auto elementType = elementNode->getAttribute("type");
 
     if (size_t namespacePos = elementType.find(':');
         namespacePos != string::npos)
@@ -94,9 +94,9 @@ void WSParser::parseElement(const xdoc::Node* elementNode)
     }
 }
 
-void WSParser::parseSimpleType(xdoc::Node* simpleTypeElement)
+void WSParser::parseSimpleType(xdoc::SNode& simpleTypeElement)
 {
-    auto simpleTypeName = (String) simpleTypeElement->getAttribute("name");
+    auto simpleTypeName = simpleTypeElement->getAttribute("name");
     if (simpleTypeName.empty())
     {
         return;
@@ -110,7 +110,7 @@ void WSParser::parseSimpleType(xdoc::Node* simpleTypeElement)
     WSParserComplexType::SimpleTypeElements[simpleTypeName] = simpleTypeElement;
 }
 
-void WSParser::parseComplexType(xdoc::Node* complexTypeElement)
+void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
 {
     auto complexTypeName = complexTypeElement->getAttribute("name");
     if (complexTypeName.empty())
@@ -120,8 +120,8 @@ void WSParser::parseComplexType(xdoc::Node* complexTypeElement)
 
     if (complexTypeName.empty())
     {
-        const xdoc::Node* parent = complexTypeElement->parent();
-        complexTypeName = (String) parent->getAttribute("name");
+        const auto& parent = complexTypeElement->parent();
+        complexTypeName = parent->getAttribute("name");
     }
 
     if (const auto& complexTypes = m_complexTypeIndex.complexTypes();
@@ -135,11 +135,11 @@ void WSParser::parseComplexType(xdoc::Node* complexTypeElement)
     complexType->parse();
 }
 
-void WSParser::parseOperation(xdoc::Node* operationNode)
+void WSParser::parseOperation(xdoc::SNode& operationNode)
 {
     xdoc::Node::Vector messageNodes;
 
-    xdoc::Node* document = operationNode;
+    auto document = operationNode;
     while (document->parent())
     {
         document = document->parent();
@@ -148,14 +148,13 @@ void WSParser::parseOperation(xdoc::Node* operationNode)
     document->select(messageNodes, "//wsdl:message");
 
     map<String, String> messageToElementMap;
-    for (auto* node: messageNodes)
+    for (auto& message: messageNodes)
     {
-        const auto* message = dynamic_cast<xdoc::Node*>(node);
-        const auto* part = message->findFirst("wsdl:part");
-        auto messageName = (String) message->getAttribute("name");
-        auto elementName = strip_namespace((String) part->getAttribute("element"));
+        const auto part = message->findFirst("wsdl:part");
+        auto messageName = message->getAttribute("name");
+        auto elementName = strip_namespace(part->getAttribute("element"));
         messageToElementMap[messageName] = elementName;
-        const auto* documentationNode = part->findFirst("wsdl:documentation");
+        const auto documentationNode = part->findFirst("wsdl:documentation");
         if (documentationNode != nullptr)
         {
             m_documentation[elementName] = documentationNode->text().trim();
@@ -164,10 +163,9 @@ void WSParser::parseOperation(xdoc::Node* operationNode)
 
     WSOperation operation = {};
     bool found = false;
-    for (auto& node: *operationNode)
+    for (auto& element: *operationNode)
     {
-        auto* element = &node;
-        auto message = (String) element->getAttribute("message");
+        auto message = element->getAttribute("message");
         if (size_t pos = message.find(':');
             pos != string::npos)
         {
@@ -190,19 +188,19 @@ void WSParser::parseOperation(xdoc::Node* operationNode)
 
     if (found)
     {
-        auto operationName = (String) operationNode->getAttribute("name");
+        auto operationName = operationNode->getAttribute("name");
         m_operations[operationName] = operation;
     }
 }
 
-void WSParser::parseSchema(xdoc::Node* schemaElement)
+void WSParser::parseSchema(xdoc::SNode& schemaElement)
 {
     xdoc::Node::Vector simpleTypeNodes;
     schemaElement->select(simpleTypeNodes, "//xsd:simpleType");
 
-    for (auto* element: simpleTypeNodes)
+    for (auto& element: simpleTypeNodes)
     {
-        if (element != nullptr && element->name() == "xsd:simpleType")
+        if (element->name() == "xsd:simpleType")
         {
             parseSimpleType(element);
         }
@@ -211,18 +209,17 @@ void WSParser::parseSchema(xdoc::Node* schemaElement)
     xdoc::Node::Vector complexTypeNodes;
     schemaElement->select(complexTypeNodes, "//xsd:complexType");
 
-    for (auto* element: complexTypeNodes)
+    for (auto& element: complexTypeNodes)
     {
-        if (element != nullptr && element->name() == "xsd:complexType")
+        if (element->name() == "xsd:complexType")
         {
             parseComplexType(element);
         }
     }
 
-    for (auto& node: *schemaElement)
+    for (auto& element: *schemaElement)
     {
-        const auto* element = &node;
-        if (element != nullptr && element->name() == "xsd:element")
+        if (element->name() == "xsd:element")
         {
             parseElement(element);
         }
@@ -238,34 +235,33 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     buffer.loadFromFile(wsdlFile);
     wsdlXML.load(xdoc::DataFormat::XML, buffer);
 
-    const auto* service = (xdoc::Node*) wsdlXML.findFirst("wsdl:service");
-    m_serviceName = (String) service->getAttribute("name");
+    const auto service = wsdlXML.root()->findFirst("wsdl:service");
+    m_serviceName = service->getAttribute("name");
     m_serviceNamespace = m_serviceName.toLowerCase() + "_service";
 
-    if (const auto* address = service->findFirst("soap:address");
+    if (const auto address = service->findFirst("soap:address");
         address != nullptr)
     {
-        m_location = (String) address->getAttribute("location");
+        m_location = address->getAttribute("location");
     }
 
-    auto* schemaElement = dynamic_cast<xdoc::Node*>(wsdlXML.findFirst("xsd:schema"));
+    auto schemaElement = wsdlXML.root()->findFirst("xsd:schema");
     if (schemaElement == nullptr)
     throwException("Can't find xsd:schema element")
     parseSchema(schemaElement);
 
-    auto* portElement = wsdlXML.findFirst("wsdl:portType");
+    auto portElement = wsdlXML.root()->findFirst("wsdl:portType");
     if (portElement == nullptr)
     throwException("Can't find wsdl:portType element")
 
-    if (const auto* descriptionElement = portElement->findFirst("wsdl:documentation");
+    if (const auto descriptionElement = portElement->findFirst("wsdl:documentation");
         descriptionElement != nullptr)
     {
         m_description = descriptionElement->text();
     }
 
-    for (auto& node: *portElement)
+    for (auto& element: *portElement)
     {
-        auto* element = &node;
         if (element != nullptr && element->name() == "wsdl:operation")
         {
             parseOperation(element);

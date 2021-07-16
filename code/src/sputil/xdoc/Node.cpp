@@ -63,7 +63,7 @@ void Node::setAttribute(const String& name, const String& value)
     m_attributes.set(name, value);
 }
 
-Node& Node::findOrCreate(const String& name)
+SNode& Node::findOrCreate(const String& name)
 {
     if (!is(Type::Object))
     {
@@ -72,20 +72,19 @@ Node& Node::findOrCreate(const String& name)
 
     for (auto& node: m_nodes)
     {
-        if (node.name() == name)
+        if (node->name() == name)
         {
             return node;
         }
     }
 
-    m_nodes.emplace_back();
-    auto& newNode = m_nodes.back();
-    newNode.name(name);
-    newNode.m_parent = this;
-    return newNode;
+    auto newNode = make_shared<Node>(name);
+    newNode->m_parent = shared_from_this();
+    m_nodes.push_back(newNode);
+    return m_nodes.back();
 }
 
-Node* Node::findFirst(const String& name, SearchMode searchMode)
+SNode Node::findFirst(const String& name, SearchMode searchMode)
 {
     if (!is(Type::Object))
     {
@@ -95,18 +94,18 @@ Node* Node::findFirst(const String& name, SearchMode searchMode)
     // Search for immediate child, first
     for (auto& node: m_nodes)
     {
-        if (node.name() == name)
+        if (node->name() == name)
         {
-            return &node;
+            return node;
         }
     }
 
     if (searchMode == SearchMode::Recursive)
     {
-        Node* found {nullptr};
+        SNode found;
         for (auto& node: m_nodes)
         {
-            if (node.is(Type::Object) && (found = node.findFirst(name, searchMode)))
+            if (node->is(Type::Object) && (found = node->findFirst(name, searchMode)))
             {
                 return found;
             }
@@ -116,7 +115,7 @@ Node* Node::findFirst(const String& name, SearchMode searchMode)
     return nullptr;
 }
 
-const Node* Node::findFirst(const String& name, SearchMode searchMode) const
+const SNode Node::findFirst(const String& name, SearchMode searchMode) const
 {
     if (!is(Type::Object))
     {
@@ -126,9 +125,9 @@ const Node* Node::findFirst(const String& name, SearchMode searchMode) const
     // Search for immediate child, first
     for (const auto& node: m_nodes)
     {
-        if (node.name() == name)
+        if (node->name() == name)
         {
-            return &node;
+            return node;
         }
     }
 
@@ -136,7 +135,7 @@ const Node* Node::findFirst(const String& name, SearchMode searchMode) const
     {
         for (const auto& node: m_nodes)
         {
-            const auto* found = node.findFirst(name, searchMode);
+            auto found = node->findFirst(name, searchMode);
             if (found)
             {
                 return found;
@@ -147,7 +146,7 @@ const Node* Node::findFirst(const String& name, SearchMode searchMode) const
     return nullptr;
 }
 
-Node& Node::pushNode(const String& name, Type type)
+SNode& Node::pushNode(const String& name, Type type)
 {
     if (m_type == Type::Null)
     {
@@ -160,25 +159,19 @@ Node& Node::pushNode(const String& name, Type type)
             m_type = Type::Object;
         }
     }
-    m_nodes.resize(m_nodes.size() + 1);
-    auto& node = m_nodes.back();
-    node.name(name);
-    node.type(type);
-    node.m_parent = this;
+    auto node = make_shared<Node>(name, type);
+    m_nodes.push_back(node);
+    node->m_parent = shared_from_this();
     return m_nodes.back();
 }
 
 String Node::getString(const String& name) const
 {
-    auto* node = this;
+    const auto& node = name.empty() ? shared_from_this() : findFirst(name);
 
-    if (!name.empty())
+    if (node == nullptr)
     {
-        node = findFirst(name);
-        if (node == nullptr)
-        {
-            return String();
-        }
+        return String();
     }
 
     if (node->is(Type::Number))
@@ -200,15 +193,11 @@ String Node::getString(const String& name) const
 
 String Node::text(const String& name) const
 {
-    auto* node = this;
+    const auto& node = name.empty() ? shared_from_this() : findFirst(name);
 
-    if (!name.empty())
+    if (node == nullptr)
     {
-        node = findFirst(name);
-        if (node == nullptr)
-        {
-            return String();
-        }
+        return String();
     }
 
     return node->asString();
@@ -221,7 +210,7 @@ double Node::getNumber(const String& name) const
         return asFloat();
     }
 
-    if (auto* node = findFirst(name);
+    if (const auto& node = findFirst(name);
         node != nullptr)
     {
         return node->asFloat();
@@ -237,7 +226,7 @@ bool Node::getBoolean(const String& name) const
         return asBool();
     }
 
-    if (auto* node = findFirst(name);
+    if (const auto& node = findFirst(name);
         node != nullptr)
     {
         return node->asBool();
@@ -255,7 +244,7 @@ const Node::Nodes& Node::getArray(const String& name) const
         return m_nodes;
     }
 
-    if (auto* node = findFirst(name);
+    if (const auto& node = findFirst(name);
         node && node->is(Type::Array))
     {
         return node->m_nodes;
@@ -273,7 +262,7 @@ const Node& Node::getObject(const String& name) const
         return *this;
     }
 
-    if (auto* node = findFirst(name);
+    if (const auto& node = findFirst(name);
         node && node->is(Type::Object))
     {
         return *node;
@@ -289,17 +278,17 @@ void Node::clear()
     m_attributes.clear();
 }
 
-Node& Node::add_object(const String& name)
+SNode& Node::add_object(const String& name)
 {
     return pushNode(name, Type::Object);
 }
 
-Node& Node::add_array(const String& name)
+SNode& Node::add_array(const String& name)
 {
     return pushNode(name, Type::Array);
 }
 
-Node& Node::push_object()
+SNode& Node::push_object()
 {
     return pushNode("", Type::Object);
 }
@@ -308,7 +297,7 @@ bool Node::remove(const String& name)
 {
     for (auto node = m_nodes.begin(); node != m_nodes.end(); ++node)
     {
-        if (node->name() == name)
+        if ((*node)->name() == name)
         {
             m_nodes.erase(node);
             return true;
@@ -327,7 +316,8 @@ void Node::load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormattin
     clear();
     if (dataFormat == DataFormat::JSON)
     {
-        importJson(*this, data);
+        auto node = shared_from_this();
+        importJson(node, data);
     }
     else
     {
@@ -342,7 +332,8 @@ void Node::load(DataFormat dataFormat, const String& data, bool xmlKeepSpaces)
     clear();
     if (dataFormat == DataFormat::JSON)
     {
-        importJson(*this, input);
+        auto node = shared_from_this();
+        importJson(node, input);
     }
     else
     {
@@ -362,14 +353,14 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
         if (m_parent != nullptr)
         {
             // Exporting single node
-            exporter.saveElement(*this, name(), data, formatted ? 2 : 0);
+            exporter.saveElement(this, name(), data, formatted ? 2 : 0);
         }
         else
         {
             // Exporting root node of the document
             for (auto& node: m_nodes)
             {
-                exporter.saveElement(node, node.name(), data, formatted ? 2 : 0);
+                exporter.saveElement(node.get(), node->name(), data, formatted ? 2 : 0);
             }
         }
     }
@@ -378,7 +369,8 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
 void Node::importXML(const Buffer& xml, bool xmlKeepSpaces)
 {
     ImportXML importer;
-    importer.parse(*this, xml.c_str(), xmlKeepSpaces ? ImportXML::Mode::KeepFormatting : ImportXML::Mode::Compact);
+    auto node = shared_from_this();
+    importer.parse(node, xml.c_str(), xmlKeepSpaces ? ImportXML::Mode::KeepFormatting : ImportXML::Mode::Compact);
 }
 
 void Node::exportXML(Buffer& xml, int indent) const
@@ -390,12 +382,12 @@ void Node::exportXML(Buffer& xml, int indent) const
     }
 }
 
-Node* Node::parent()
+SNode& Node::parent()
 {
     return m_parent;
 }
 
-const Node* Node::parent() const
+const SNode& Node::parent() const
 {
     return m_parent;
 }
@@ -408,5 +400,6 @@ void Node::clearChildren()
 void Node::select(Node::Vector& selectedNodes, const String& xpath)
 {
     selectedNodes.clear();
-    NodeSearchAlgorithms::select(selectedNodes, *this, xpath);
+    auto node = shared_from_this();
+    NodeSearchAlgorithms::select(selectedNodes, node, xpath);
 }
