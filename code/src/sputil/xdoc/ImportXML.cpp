@@ -38,8 +38,6 @@ using namespace xdoc;
 namespace sptk::xdoc {
 
 const RegularExpression ImportXML::parseAttributes {R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])", "g"};
-const RegularExpression isInteger(R"((0|[\+\-]?[1-9]\d*)$)");
-const RegularExpression isNumber(R"([\+\-]?(0?\.|[1-9]+\.)\d*(e[\+\-]\d+)?)");
 
 void ImportXML::processAttributes(Node& node, const char* ptr)
 {
@@ -544,22 +542,6 @@ void ImportXML::readText(SNode& currentNode, XMLDocType* doctype, const char* no
     }
 }
 
-bool ImportXML::isInteger(const String& str)
-{
-    static const RegularExpression isInteger(R"(^(0|[\+\-]?[1-9]\d*)$)");
-
-    return isInteger.matches(str);
-}
-
-bool ImportXML::isFloat(const String& str)
-{
-    static const RegularExpression isNumber(R"(^[\+\-]?(0?\.|[1-9]\d*\.)\d*(e[\+\-]?\d+)?$)", "i");
-
-    return isNumber.matches(str);
-}
-
-} // namespace sptk
-
 #if USE_GTEST
 
 static const String testXML("<name position='president'>John</name>"
@@ -798,23 +780,6 @@ TEST(SPTK_XDocument, loadFormattedXML)
     output.saveToFile("data/content2_exp.xml");
 }
 
-TEST(SPTK_XDocument, importRegexp)
-{
-    EXPECT_TRUE(ImportXML::isInteger("0"));
-    EXPECT_TRUE(ImportXML::isInteger("+1"));
-    EXPECT_TRUE(ImportXML::isInteger("+100"));
-    EXPECT_TRUE(ImportXML::isInteger("-1234"));
-    EXPECT_FALSE(ImportXML::isInteger("01234"));
-    EXPECT_FALSE(ImportXML::isInteger("1234-11"));
-
-    EXPECT_TRUE(ImportXML::isFloat("0.1"));
-    EXPECT_TRUE(ImportXML::isFloat("+0.123"));
-    EXPECT_TRUE(ImportXML::isFloat("-0.123"));
-    EXPECT_TRUE(ImportXML::isFloat("-0.123e4"));
-    EXPECT_TRUE(ImportXML::isFloat("-10.123e43"));
-    EXPECT_FALSE(ImportXML::isFloat("00.123e43"));
-    EXPECT_FALSE(ImportXML::isFloat("127.0.0.1"));
-    EXPECT_FALSE(ImportXML::isFloat("127"));
-}
-
 #endif
+
+}

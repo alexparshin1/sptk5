@@ -452,3 +452,47 @@ Node::Type Node::variantTypeToType(VariantDataType type)
 
     return Type::Null;
 }
+
+bool sptk::xdoc::isBoolean(const String& str)
+{
+    static const RegularExpression isInteger(R"(^(true|false)$)");
+
+    return isInteger.matches(str);
+}
+
+bool sptk::xdoc::isInteger(const String& str)
+{
+    static const RegularExpression isInteger(R"(^(0|[\+\-]?[1-9]\d*)$)");
+
+    return isInteger.matches(str);
+}
+
+bool sptk::xdoc::isFloat(const String& str)
+{
+    static const RegularExpression isNumber(R"(^[\+\-]?(0?\.|[1-9]\d*\.)\d*(e[\+\-]?\d+)?$)", "i");
+
+    return isNumber.matches(str);
+}
+
+#if USE_GTEST
+
+TEST(SPTK_XDocument, typeRegexp)
+{
+    EXPECT_TRUE(isInteger("0"));
+    EXPECT_TRUE(isInteger("+1"));
+    EXPECT_TRUE(isInteger("+100"));
+    EXPECT_TRUE(isInteger("-1234"));
+    EXPECT_FALSE(isInteger("01234"));
+    EXPECT_FALSE(isInteger("1234-11"));
+
+    EXPECT_TRUE(isFloat("0.1"));
+    EXPECT_TRUE(isFloat("+0.123"));
+    EXPECT_TRUE(isFloat("-0.123"));
+    EXPECT_TRUE(isFloat("-0.123e4"));
+    EXPECT_TRUE(isFloat("-10.123e43"));
+    EXPECT_FALSE(isFloat("00.123e43"));
+    EXPECT_FALSE(isFloat("127.0.0.1"));
+    EXPECT_FALSE(isFloat("127"));
+}
+
+#endif

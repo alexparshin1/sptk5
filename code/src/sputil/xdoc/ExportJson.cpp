@@ -187,6 +187,64 @@ void Node::exportJsonObject(ostream& stream, bool formatted, size_t indent, cons
     if (is(Type::Object))
     {
         bool first = true;
+        if (!m_attributes.empty())
+        {
+            stream << "\"attributes\":";
+            if (formatted)
+            {
+                stream << " { ";
+            }
+            else
+            {
+                stream << "{";
+            }
+
+            for (const auto&[name, value]: m_attributes)
+            {
+                if (first)
+                {
+                    first = false;
+                    stream << firstElement;
+                }
+                else
+                {
+                    stream << betweenElements;
+                }
+
+                stream << "\"" << name << "\":";
+                if (formatted)
+                {
+                    stream << " ";
+                }
+
+                if (isInteger(value) || isFloat(value) || isBoolean(value))
+                {
+                    stream << value;
+                }
+                else
+                {
+                    stream << "\"" << value << "\"";
+                }
+            }
+
+            if (formatted)
+            {
+                stream << " ";
+            }
+            stream << "}";
+
+            if (m_nodes.size())
+            {
+                stream << ",";
+            }
+
+            if (formatted)
+            {
+                stream << " ";
+            }
+        }
+
+        first = true;
         for (auto& node: m_nodes)
         {
             if (first)

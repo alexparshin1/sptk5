@@ -105,18 +105,6 @@ public:
      */
     void parse(SNode& node, const char* _buffer, Mode formatting = Mode::Compact);
 
-    /**
-     * Does string match a number?
-     * @return true if string constains a number
-     */
-    static bool isFloat(const String& str);
-
-    /**
-     * Does string match an integer?
-     * @return true if string constains a number
-     */
-    static bool isInteger(const String& str);
-
 protected:
 
     /**

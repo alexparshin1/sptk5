@@ -481,7 +481,9 @@ TEST(SPTK_WSGeneratedClasses, UnloadXML)
     Buffer buffer;
     xml.root()->exportTo(DataFormat::XML, buffer, false);
 
-    EXPECT_STREQ(buffer.c_str(), testXML.c_str());
+    // Exclude <?xml..?> from test
+    auto pos = testXML.find("?>") + 2;
+    EXPECT_STREQ(buffer.c_str(), testXML.substr(pos).c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, UnloadJSON)

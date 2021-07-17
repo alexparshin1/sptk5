@@ -275,6 +275,24 @@ private:
 
 };
 
+/**
+ * Does string match a float?
+ * @return true if string constains a float
+ */
+bool isFloat(const String& str);
+
+/**
+ * Does string match an integer?
+ * @return true if string constains an integer
+ */
+bool isInteger(const String& str);
+
+/**
+ * Does string match a boolen?
+ * @return true if string constains a boolean
+ */
+bool isBoolean(const String& str);
+
 using Element = Node;
 using SNode = Node::SNode;
 
