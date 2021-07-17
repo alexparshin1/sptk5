@@ -19,6 +19,14 @@ class CLogin : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "Login";
+    }
+
    // Elements
    sptk::WSString                           m_username {"username", false};
    sptk::WSString                           m_password {"password", false};

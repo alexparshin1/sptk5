@@ -143,7 +143,7 @@ void WSRequest::processRequest(xdoc::SNode& xmlContent, xdoc::SNode& jsonContent
         map < String, WSNameSpace > allNamespaces;
         for (auto& node: *xmlContent)
         {
-            if (tagName(node->name()).toLowerCase() == "envelope")
+            if (WSParser::strip_namespace(node->name()).toLowerCase() == "envelope")
             {
                 soapEnvelope = node;
                 String nameSpaceAlias = nameSpace(node->name());
@@ -157,22 +157,26 @@ void WSRequest::processRequest(xdoc::SNode& xmlContent, xdoc::SNode& jsonContent
         throwException("Can't find SOAP Envelope node")
 
         auto soapBody = findSoapBody(soapEnvelope, soapNamespace);
+        if (!soapBody || soapBody->empty())
+        throwException("Can't find request node")
 
-        for (auto& node: *soapBody)
+        xmlRequestNode = *soapBody->begin();
+
+        if (xmlRequestNode)
         {
-            if (node != nullptr)
+            scoped_lock lock(*this);
+            String nameSpaceAlias = nameSpace(xmlRequestNode->name());
+            extractNameSpaces(xmlRequestNode, allNamespaces);
+            auto itor = allNamespaces.find(nameSpaceAlias);
+            if (itor == allNamespaces.end())
             {
-                scoped_lock lock(*this);
-                xmlRequestNode = node;
-                String nameSpaceAlias = nameSpace(xmlRequestNode->name());
-                extractNameSpaces(xmlRequestNode, allNamespaces);
-                requestNameSpace = allNamespaces[nameSpaceAlias];
-                break;
+                requestNameSpace = WSNameSpace(WSParser::get_namespace(xmlRequestNode->name()));
+            }
+            else
+            {
+                requestNameSpace = itor->second;
             }
         }
-
-        if (!xmlRequestNode)
-        throwException("Can't find request node in SOAP Body")
 
         requestName = WSParser::strip_namespace(xmlRequestNode->name());
     }

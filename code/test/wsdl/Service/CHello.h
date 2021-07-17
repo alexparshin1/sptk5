@@ -18,6 +18,14 @@ class CHello : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "Hello";
+    }
+
    // Elements
    sptk::WSString                           m_action {"action", false};
    sptk::WSString                           m_first_name {"first_name", false};

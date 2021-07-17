@@ -18,6 +18,14 @@ class CHelloResponse : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "HelloResponse";
+    }
+
    // Elements
    sptk::WSDate                             m_date_of_birth {"date_of_birth", false};
    sptk::WSDateTime                         m_verified {"verified", false};

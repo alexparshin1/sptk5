@@ -70,7 +70,7 @@ void WSComplexType::addElement(SNode& parent, const char* name) const
         }
         else
         {
-            element = parent->set(m_name, "");
+            element = parent->pushNode(m_name);
         }
         unload(element);
     }

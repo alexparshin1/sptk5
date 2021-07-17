@@ -95,11 +95,14 @@ void ODBCConnectionBase::allocConnect()
 
     m_hConnection = shared_ptr<uint8_t>((uint8_t*) hConnection,
                                         [this](uint8_t* ptr) {
-                                            SQLHDBC conn(ptr);
-                                            SQLDisconnect(conn);
-                                            SQLFreeConnect(conn);
-                                            m_connected = false;
-                                            m_connectString = "";
+                                            if (m_connected)
+                                            {
+                                                SQLHDBC conn(ptr);
+                                                SQLDisconnect(conn);
+                                                SQLFreeHandle(SQL_HANDLE_DBC, conn);
+                                                m_connected = false;
+                                                m_connectString = "";
+                                            }
                                         });
 }
 
@@ -302,8 +305,8 @@ string extract_error(
 {
     SQLSMALLINT i = 0;
     SQLINTEGER native = 0;
-    array<SQLCHAR, 7> state {};
-    array<SQLCHAR, 256> text {};
+    array < SQLCHAR, 7 > state {};
+    array < SQLCHAR, 256 > text {};
     SQLSMALLINT len = 0;
 
     string error;

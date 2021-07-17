@@ -41,8 +41,10 @@ inline bool isNodeByName(const String& nodeName)
     return !(nodeName[0] == '#' && (nodeName == "#text" || nodeName == "#cdata"));
 }
 
-void ExportXML::saveElement(const Node* node, const String& nodeName, Buffer& buffer, int indent)
+void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& buffer, int indent)
 {
+    String nodeName = _nodeName.empty() ? "item" : _nodeName;
+
     bool isNode = isNodeByName(nodeName);
 
     if (isNode)
@@ -61,16 +63,16 @@ void ExportXML::saveElement(const Node* node, const String& nodeName, Buffer& bu
         if (const auto& nd = node->begin();
             node->size() == 1 && ((*nd)->type() == Node::Type::Text || (*nd)->type() == Node::Type::CData))
         {
-            only_cdata = true;
+            only_cdata = node->name() == "#text" || node->name() == "#cdata";
         }
-        else
+
+        if (indent && !only_cdata)
         {
-            if (indent)
-            {
-                buffer.append('\n');
-            }
+            buffer.append('\n');
         }
+
         appendSubNodes(node, buffer, indent, only_cdata);
+
         if (isNode)
         {
             appendClosingTag(node, buffer, indent, only_cdata);

@@ -38,6 +38,8 @@ using namespace xdoc;
 namespace sptk::xdoc {
 
 const RegularExpression ImportXML::parseAttributes {R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])", "g"};
+const RegularExpression isInteger(R"((0|[\+\-]?[1-9]\d*)$)");
+const RegularExpression isNumber(R"([\+\-]?(0?\.|[1-9]+\.)\d*(e[\+\-]\d+)?)");
 
 void ImportXML::processAttributes(Node& node, const char* ptr)
 {
@@ -500,10 +502,20 @@ void ImportXML::readText(SNode& currentNode, XMLDocType* doctype, const char* no
         {
             try
             {
-                auto value = std::stod(decodedText);
-                currentNode->setFloat(value);
-                currentNode->type(Node::Type::Number);
-                nodeType = Node::Type::Number;
+                if (isInteger(decodedText))
+                {
+                    auto value = std::stol(decodedText);
+                    currentNode->setInt64(value);
+                    currentNode->type(Node::Type::Number);
+                    nodeType = Node::Type::Number;
+                }
+                else if (isFloat(decodedText))
+                {
+                    auto value = std::stod(decodedText);
+                    currentNode->setFloat(value);
+                    currentNode->type(Node::Type::Number);
+                    nodeType = Node::Type::Number;
+                }
             }
             catch (const invalid_argument&)
             {
@@ -532,11 +544,18 @@ void ImportXML::readText(SNode& currentNode, XMLDocType* doctype, const char* no
     }
 }
 
-bool ImportXML::isNumber(const String& str)
+bool ImportXML::isInteger(const String& str)
 {
-    static const RegularExpression matchNumber {R"(^[+\-]?(0|[1-9]\d*)(\.\d+)?(e-?\d+)?$)", "i"};
+    static const RegularExpression isInteger(R"(^(0|[\+\-]?[1-9]\d*)$)");
 
-    return matchNumber.matches(str);
+    return isInteger.matches(str);
+}
+
+bool ImportXML::isFloat(const String& str)
+{
+    static const RegularExpression isNumber(R"(^[\+\-]?(0?\.|[1-9]\d*\.)\d*(e[\+\-]?\d+)?$)", "i");
+
+    return isNumber.matches(str);
 }
 
 } // namespace sptk
@@ -777,6 +796,25 @@ TEST(SPTK_XDocument, loadFormattedXML)
     Buffer output;
     document.exportTo(DataFormat::XML, output, false);
     output.saveToFile("data/content2_exp.xml");
+}
+
+TEST(SPTK_XDocument, importRegexp)
+{
+    EXPECT_TRUE(ImportXML::isInteger("0"));
+    EXPECT_TRUE(ImportXML::isInteger("+1"));
+    EXPECT_TRUE(ImportXML::isInteger("+100"));
+    EXPECT_TRUE(ImportXML::isInteger("-1234"));
+    EXPECT_FALSE(ImportXML::isInteger("01234"));
+    EXPECT_FALSE(ImportXML::isInteger("1234-11"));
+
+    EXPECT_TRUE(ImportXML::isFloat("0.1"));
+    EXPECT_TRUE(ImportXML::isFloat("+0.123"));
+    EXPECT_TRUE(ImportXML::isFloat("-0.123"));
+    EXPECT_TRUE(ImportXML::isFloat("-0.123e4"));
+    EXPECT_TRUE(ImportXML::isFloat("-10.123e43"));
+    EXPECT_FALSE(ImportXML::isFloat("00.123e43"));
+    EXPECT_FALSE(ImportXML::isFloat("127.0.0.1"));
+    EXPECT_FALSE(ImportXML::isFloat("127"));
 }
 
 #endif

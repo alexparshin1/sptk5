@@ -18,6 +18,14 @@ class CAccountBalance : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "AccountBalance";
+    }
+
    // Elements
    sptk::WSString                           m_account_number {"account_number", false};
 

@@ -65,9 +65,19 @@ void Node::setAttribute(const String& name, const String& value)
 
 SNode& Node::findOrCreate(const String& name)
 {
-    if (!is(Type::Object) && !is(Type::Null))
+    if (name.empty())
     {
-        throw Exception("This element is not Null or Object");
+        throw Exception("Name can't be empty");
+    }
+
+    if (m_type == Type::Null)
+    {
+        m_type = Type::Object;
+    }
+
+    if (!is(Type::Object))
+    {
+        throw Exception("This element is not an Object");
     }
 
     for (auto& node: m_nodes)

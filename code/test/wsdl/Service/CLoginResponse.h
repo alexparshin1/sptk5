@@ -18,6 +18,14 @@ class CLoginResponse : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "LoginResponse";
+    }
+
    // Elements
    sptk::WSString                           m_jwt {"jwt", false};
 

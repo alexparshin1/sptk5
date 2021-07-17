@@ -109,7 +109,13 @@ public:
      * Does string match a number?
      * @return true if string constains a number
      */
-    static bool isNumber(const String& str);
+    static bool isFloat(const String& str);
+
+    /**
+     * Does string match an integer?
+     * @return true if string constains a number
+     */
+    static bool isInteger(const String& str);
 
 protected:
 

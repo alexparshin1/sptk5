@@ -164,6 +164,7 @@ public:
         auto& node = findOrCreate(name);
         node->setData(value);
         node->type(variantTypeToType(node->dataType()));
+
         return node;
     }
 

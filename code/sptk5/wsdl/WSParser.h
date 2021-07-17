@@ -169,13 +169,13 @@ public:
      * Utility function that removes namespace from the element name
      * @param name              Element name
      */
-    static std::string strip_namespace(const std::string& name);
+    static String strip_namespace(const String& name);
 
     /**
      * Utility function that returns namespace from the element name
      * @param name              Element name
      */
-    static std::string get_namespace(const std::string& name);
+    static String get_namespace(const String& name);
 
     const String& description() const;
 

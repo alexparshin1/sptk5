@@ -279,7 +279,7 @@ String capitalize(const String& name)
     return parts.join("");
 }
 
-string WSParser::strip_namespace(const string& name)
+String WSParser::strip_namespace(const String& name)
 {
     size_t pos = name.find(':');
     if (pos == string::npos)
@@ -289,7 +289,7 @@ string WSParser::strip_namespace(const string& name)
     return name.substr(pos + 1);
 }
 
-string WSParser::get_namespace(const string& name)
+String WSParser::get_namespace(const String& name)
 {
     size_t pos = name.find(':');
     if (pos == string::npos)
@@ -442,8 +442,8 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
                           "template <class InputData, class OutputData>\n"
                           "void processAnyRequest(xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
                           "{\n"
-                          "   const String requestName = wsTypeIdToName(typeid(InputData).name());\n"
-                          "   const String responseName = wsTypeIdToName(typeid(OutputData).name());\n"
+                          "   const String requestName = InputData::classId();\n"
+                          "   const String responseName = OutputData::classId();\n"
                           "   String ns(requestNameSpace.getAlias());\n"
                           "   InputData inputData((ns + \":\" + requestName).c_str());\n"
                           "   OutputData outputData((ns + \":\" + responseName).c_str());\n"

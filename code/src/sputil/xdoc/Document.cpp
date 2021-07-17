@@ -92,7 +92,7 @@ TEST(SPTK_XDocument, add)
     root["bool1"] = true;
     root["bool2"] = false;
 
-    auto& arrayData = root.add_array("array");
+    const auto& arrayData = root.add_array("array");
     arrayData->push_back(String("C++"));
     arrayData->push_back(String("Java"));
     arrayData->push_back(String("Python"));
@@ -285,7 +285,7 @@ TEST(SPTK_XDocument, performance)
 
     xdoc::Document document;
 
-    auto& arrayElement = document.root()->add_array("items");
+    const auto& arrayElement = document.root()->add_array("items");
     for (int i = 0; i < objectCount; ++i)
     {
         auto& object = *arrayElement->push_object();

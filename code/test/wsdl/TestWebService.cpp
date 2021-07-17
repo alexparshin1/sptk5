@@ -35,6 +35,7 @@
 using namespace std;
 using namespace sptk;
 using namespace test_service;
+using namespace xdoc;
 
 shared_ptr<HttpConnect::Authorization> TestWebService::jwtAuthorization;
 
@@ -150,13 +151,13 @@ static const String soapWrapper(
     "</soap:Envelope>");
 
 
-static xdoc::Document make_send_request(const String& methodName, xdoc::DataFormat dataFormat)
+static Document make_send_request(const String& methodName, DataFormat dataFormat)
 {
-    xdoc::Document sendRequest;
+    Document sendRequest;
 
     auto requestNode = sendRequest.root();
 
-    if (dataFormat == xdoc::DataFormat::XML)
+    if (dataFormat == DataFormat::XML)
     {
         auto wrapper = soapWrapper.replace("{REQUEST_DATA}", "<ns1:" + methodName + "/>");
         sendRequest.load(dataFormat, wrapper);
@@ -183,10 +184,10 @@ static xdoc::Document make_send_request(const String& methodName, xdoc::DataForm
     return sendRequest;
 }
 
-static const xdoc::SNode get_response_node(const xdoc::Document& response, xdoc::DataFormat dataFormat)
+static const SNode get_response_node(const Document& response, DataFormat dataFormat)
 {
-    xdoc::SNode responseNode = response.root();
-    if (dataFormat == xdoc::DataFormat::XML)
+    SNode responseNode = response.root();
+    if (dataFormat == DataFormat::XML)
     {
         auto bodyNode = responseNode->findFirst("soap:Body");
         responseNode = *bodyNode->begin();
@@ -200,12 +201,12 @@ static const xdoc::SNode get_response_node(const xdoc::Document& response, xdoc:
  * If gzip-encoding is allowed, it is used for messages bigger than 255 bytes.
  * @param methodNames           WS methods to be executed
  */
-static void request_listener_test(const Strings& methodNames, xdoc::DataFormat dataFormat, bool encrypted = false)
+static void request_listener_test(const Strings& methodNames, DataFormat dataFormat, bool encrypted = false)
 {
     SysLogEngine logEngine("TestWebService");
     auto service = make_shared<TestWebService>();
 
-    String serviceType = dataFormat == xdoc::DataFormat::XML ? "xml" : "json";
+    String serviceType = dataFormat == DataFormat::XML ? "xml" : "json";
 
     // Define Web Service listener
     WSConnection::Paths paths("index.html", "/test", ".");
@@ -230,7 +231,7 @@ static void request_listener_test(const Strings& methodNames, xdoc::DataFormat d
         for (const auto& methodName: methodNames)
         {
             Buffer sendRequestBuffer;
-            xdoc::Document sendRequest = make_send_request(methodName, dataFormat);
+            Document sendRequest = make_send_request(methodName, dataFormat);
             sendRequest.exportTo(dataFormat, sendRequestBuffer, true);
 
             shared_ptr<TCPSocket> client;
@@ -260,7 +261,7 @@ static void request_listener_test(const Strings& methodNames, xdoc::DataFormat d
                 FAIL() << requestResponse.c_str();
             else
             {
-                xdoc::Document response;
+                Document response;
                 response.load(dataFormat, requestResponse.c_str());
 
                 auto responseNode = get_response_node(response, dataFormat);
@@ -306,19 +307,14 @@ static void request_listener_test(const Strings& methodNames, xdoc::DataFormat d
 }
 
 /**
- * Test Hello method working through the service in JSON mode
+ * Test Hello method working through the service in JSON and XML modes
  */
-TEST(SPTK_TestWebService, Hello_HTTP_JSON)
+TEST(SPTK_TestWebService, Hello_HTTP)
 {
-    request_listener_test({"Hello"}, xdoc::DataFormat::JSON, false);
-}
-
-/**
- * Test Hello method working through the service in XML mode
- */
-TEST(SPTK_TestWebService, Hello_HTTP_XML)
-{
-    request_listener_test({"Hello"}, xdoc::DataFormat::XML, false);
+    for (auto dataType: {DataFormat::JSON, DataFormat::XML})
+    {
+        request_listener_test({"Hello"}, dataType, false);
+    }
 }
 
 /**
@@ -349,7 +345,10 @@ TEST(SPTK_TestWebService, Login)
  */
 TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
 {
-    request_listener_test(Strings("Login|AccountBalance", "|"), xdoc::DataFormat::JSON, false);
+    for (auto dataType: {DataFormat::JSON, DataFormat::XML})
+    {
+        request_listener_test(Strings("Login|AccountBalance", "|"), dataType, false);
+    }
 }
 
 /**
@@ -357,7 +356,10 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
  */
 TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
 {
-    request_listener_test(Strings("Login|AccountBalance", "|"), xdoc::DataFormat::JSON, true);
+    for (auto dataType: {DataFormat::JSON, DataFormat::XML})
+    {
+        request_listener_test(Strings("Login|AccountBalance", "|"), dataType, true);
+    }
 }
 
 TEST(SPTK_WSGeneratedClasses, CopyConstructor)
@@ -434,8 +436,8 @@ static const String testJSON(
 
 TEST(SPTK_WSGeneratedClasses, LoadXML)
 {
-    xdoc::Document input;
-    input.load(xdoc::DataFormat::XML, testXML);
+    Document input;
+    input.load(DataFormat::XML, testXML);
     const auto loginNode = input.root()->findFirst("login");
 
     CLogin login;
@@ -449,9 +451,9 @@ TEST(SPTK_WSGeneratedClasses, LoadXML)
 
 TEST(SPTK_WSGeneratedClasses, LoadJSON)
 {
-    xdoc::Document input;
-    input.load(xdoc::DataFormat::XML, testXML);
-    const auto& loginNode = input.root();
+    Document input;
+    input.load(DataFormat::XML, testXML);
+    const auto loginNode = input.root()->findFirst("login");
 
     CLogin login;
     login.load(loginNode);
@@ -472,12 +474,12 @@ TEST(SPTK_WSGeneratedClasses, UnloadXML)
     login.m_server_count = 2;
     login.m_type = "abstract";
 
-    xdoc::Document xml;
+    Document xml;
     auto loginNode = xml.root()->findOrCreate("login");
     login.unload(loginNode);
 
     Buffer buffer;
-    xml.exportTo(xdoc::DataFormat::XML, buffer, 0);
+    xml.root()->exportTo(DataFormat::XML, buffer, false);
 
     EXPECT_STREQ(buffer.c_str(), testXML.c_str());
 }
@@ -494,11 +496,11 @@ TEST(SPTK_WSGeneratedClasses, UnloadJSON)
     login.m_server_count = 2;
     login.m_type = "abstract";
 
-    xdoc::Document json;
+    Document json;
     login.unload(json.root());
 
     Buffer buffer;
-    json.exportTo(xdoc::DataFormat::JSON, buffer, false);
+    json.exportTo(DataFormat::JSON, buffer, false);
 
     EXPECT_STREQ(buffer.c_str(), testJSON.c_str());
 }

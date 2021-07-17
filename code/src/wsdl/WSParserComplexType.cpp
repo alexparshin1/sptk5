@@ -237,10 +237,14 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "class " << className << " : public sptk::WSComplexType" << endl;
     classDeclaration << "{" << endl;
 
-    if (!m_attributes.empty() || !m_sequence.empty())
-    {
-        classDeclaration << "public:" << endl << endl;
-    }
+    classDeclaration << "public:" << endl << endl;
+    classDeclaration << "    /**" << endl;
+    classDeclaration << "     * ID of the class" << endl;
+    classDeclaration << "     */" << endl;
+    classDeclaration << "    static sptk::String classId()" << endl;
+    classDeclaration << "    {" << endl;
+    classDeclaration << "        return \"" << className.substr(1) << "\";" << endl;
+    classDeclaration << "    }" << endl << endl;
 
     for (const auto&[name, value]: m_attributes)
     {
@@ -407,7 +411,7 @@ void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
 
 set<String> WSParserComplexType::getUsedClasses() const
 {
-    set<String> usedClasses;
+    set < String > usedClasses;
     // determine the list of used classes
     for (const auto& complexType: m_sequence)
     {

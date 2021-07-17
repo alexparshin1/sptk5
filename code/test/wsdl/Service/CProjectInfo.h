@@ -18,6 +18,14 @@ class CProjectInfo : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "ProjectInfo";
+    }
+
    // Elements
    sptk::WSInteger                          m_id {"id", false};
    sptk::WSString                           m_expiration {"expiration", false};

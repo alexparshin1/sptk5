@@ -78,14 +78,10 @@ public:
 
     bool has(const String& name) const
     {
-        for (const auto&[attr, value]: m_items)
-        {
-            if (attr == name)
-            {
-                return true;
-            }
-        }
-        return false;
+        return std::any_of(m_items.begin(), m_items.end(),
+                           [&name](const auto& itor) {
+                               return itor.first == name;
+                           });
     }
 
     void set(const String& name, const String& value)
