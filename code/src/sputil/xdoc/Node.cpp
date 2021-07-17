@@ -366,6 +366,13 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
     }
 }
 
+void Node::exportTo(DataFormat dataFormat, ostream& stream, bool formatted) const
+{
+    Buffer output;
+    exportTo(dataFormat, output, formatted);
+    stream << output.c_str();
+}
+
 void Node::importXML(const Buffer& xml, bool xmlKeepSpaces)
 {
     ImportXML importer;
@@ -402,4 +409,36 @@ void Node::select(Node::Vector& selectedNodes, const String& xpath)
     selectedNodes.clear();
     auto node = shared_from_this();
     NodeSearchAlgorithms::select(selectedNodes, node, xpath);
+}
+
+Node::Type Node::variantTypeToType(VariantDataType type)
+{
+    switch (type)
+    {
+        case VariantDataType::VAR_NONE:
+            return Type::Null;
+
+        case VariantDataType::VAR_INT:
+        case VariantDataType::VAR_FLOAT:
+        case VariantDataType::VAR_IMAGE_NDX:
+        case VariantDataType::VAR_INT64:
+            return Type::Number;
+
+        case VariantDataType::VAR_MONEY:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
+        case VariantDataType::VAR_IMAGE_PTR:
+            return Type::Text;
+
+        case VariantDataType::VAR_BOOL:
+            return Type::Boolean;
+
+        default:
+            break;
+    }
+
+    return Type::Null;
 }

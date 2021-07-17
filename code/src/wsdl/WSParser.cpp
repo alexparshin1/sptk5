@@ -147,7 +147,7 @@ void WSParser::parseOperation(xdoc::SNode& operationNode)
 
     document->select(messageNodes, "//wsdl:message");
 
-    map<String, String> messageToElementMap;
+    map < String, String > messageToElementMap;
     for (auto& message: messageNodes)
     {
         const auto part = message->findFirst("wsdl:part");
@@ -387,7 +387,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition << "     * @param requestNameSpace Request SOAP element namespace" << endl;
         serviceDefinition << "     */" << endl;
         serviceDefinition << "    void process_" << requestName
-                          << "(sptk::xdoc::Node* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
+                          << "(sptk::xdoc::SNode& xmlContent, sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
                           << endl << endl;
     }
     serviceDefinition << "};" << endl << endl;
@@ -440,7 +440,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
 
     serviceImplementation << endl <<
                           "template <class InputData, class OutputData>\n"
-                          "void processAnyRequest(xdoc::Node* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
+                          "void processAnyRequest(xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
                           "{\n"
                           "   const String requestName = wsTypeIdToName(typeid(InputData).name());\n"
                           "   const String responseName = wsTypeIdToName(typeid(OutputData).name());\n"
@@ -454,16 +454,16 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
                           "      // Can't parse input data\n"
                           "      throw HTTPException(400, e.what());\n"
                           "   }\n"
-                          "   auto* soapBody = (xdoc::Node*) requestNode->parent();\n"
+                          "   auto& soapBody = requestNode->parent();\n"
                           "   soapBody->clearChildren();\n"
                           "   method(inputData, outputData, authentication);\n"
-                          "   auto* response = new xdoc::Node(soapBody, (ns + \":\" + responseName).c_str());\n"
+                          "   auto& response = soapBody->pushNode(ns + \":\" + responseName);\n"
                           "   response->setAttribute(\"xmlns:\" + ns, requestNameSpace.getLocation());\n"
                           "   outputData.unload(response);\n"
                           "}\n\n"
 
                           "template <class InputData, class OutputData>\n"
-                          "void processAnyRequest(json::Element* request, HttpAuthentication* authentication,\n"
+                          "void processAnyRequest(xdoc::SNode& request, HttpAuthentication* authentication,\n"
                           "                       const function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)\n"
                           "{\n"
                           "   InputData inputData;\n"
@@ -494,21 +494,21 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
         }
         serviceImplementation << endl;
         serviceImplementation << "void " << serviceClassName << "::process_" << requestName
-                              << "(xdoc::Node* xmlNode, json::Element* jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
+                              << "(xdoc::SNode& xmlNode, xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
                               << endl;
 
         auto inputType = "C" + operation.m_input->name();
         auto outputType = "C" + operation.m_output->name();
         serviceImplementation << "{\n"
-                              << "  function<void(const " << inputType << "&, " << outputType
+                              << "    function<void(const " << inputType << "&, " << outputType
                               << "&, HttpAuthentication*)>"
                               << " method = bind(&" + serviceClassName + "::" << operationName
                               << ", this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);\n"
-                              << "  if (xmlNode)\n"
-                              << "     processAnyRequest<" << inputType << "," << outputType
+                              << "    if (xmlNode)\n"
+                              << "        processAnyRequest<" << inputType << "," << outputType
                               << ">(xmlNode, authentication, requestNameSpace, method);\n"
-                              << "  else\n"
-                              << "     processAnyRequest<" << inputType << "," << outputType
+                              << "    else\n"
+                              << "        processAnyRequest<" << inputType << "," << outputType
                               << ">(jsonNode, authentication, method);\n"
                               << "}\n";
     }

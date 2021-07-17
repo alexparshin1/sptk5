@@ -28,6 +28,7 @@
 #include <sptk5/json/JsonArrayData.h>
 #include <sptk5/json/JsonDocument.h>
 #include <cmath>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
@@ -297,12 +298,12 @@ void ElementGetMethods::exportValueTo(ostream& stream, bool formatted, size_t in
     stream.flags(saveFlags);
 }
 
-void ElementGetMethods::exportValueTo(const String& name, xml::Element& parentNode) const
+void ElementGetMethods::exportValueTo(const String& name, xdoc::SNode& parentNode) const
 {
-    xml::Element* node{nullptr};
+    xdoc::SNode node;
     if (type() != Type::ARRAY)
     {
-        node = parentNode.add<xml::Element>(name);
+        node = parentNode->pushNode(name);
     }
     switch (type())
     {
@@ -327,13 +328,12 @@ void ElementGetMethods::exportValueTo(const String& name, xml::Element& parentNo
             {
                 for (auto& itor: *data().get_object())
                 {
-                    itor.element()->exportValueTo(itor.name(), *node);
+                    itor.element()->exportValueTo(itor.name(), node);
                 }
             }
             break;
 
         default:
-            new xml::Element(node, "null");
             break;
     }
 }
@@ -404,11 +404,10 @@ void ElementGetMethods::exportTo(ostream& stream, bool formatted) const
     exportValueTo(stream, formatted, 0);
 }
 
-void ElementGetMethods::exportTo(const string& name, xml::Element& parentNode) const
+void ElementGetMethods::exportTo(const string& name, xdoc::SNode& parentNode) const
 {
     exportValueTo(name, parentNode);
 }
-
 
 void ElementGetMethods::optimizeArrays(const std::string& name)
 {

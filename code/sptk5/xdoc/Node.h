@@ -152,7 +152,7 @@ public:
 
     SNode& push_back(const Variant& value)
     {
-        auto& node = pushNode("", Type::Null);
+        auto& node = pushNode("", variantTypeToType(value.dataType()));
         node->setData(value);
         return node;
     }
@@ -163,6 +163,7 @@ public:
     {
         auto& node = findOrCreate(name);
         node->setData(value);
+        node->type(variantTypeToType(node->dataType()));
         return node;
     }
 
@@ -245,6 +246,8 @@ public:
 
     void exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const;
 
+    void exportTo(DataFormat dataFormat, std::ostream& stream, bool formatted) const;
+
     SNode& parent();
 
     const SNode& parent() const;
@@ -258,6 +261,8 @@ private:
     Type m_type {Type::Null};
     Attributes m_attributes;
     Nodes m_nodes;
+
+    static Type variantTypeToType(VariantDataType type);
 
     void exportJsonValueTo(std::ostream& stream, bool formatted, size_t indent) const;
 

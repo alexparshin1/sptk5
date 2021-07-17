@@ -138,7 +138,7 @@ public:
      * The processing results are stored in the same request XML
      * @param xmlContent           Incoming request and outgoing response
      */
-    void processRequest(xml::Document* xmlContent, json::Document* jsonContent,
+    void processRequest(xdoc::SNode& xmlContent, xdoc::SNode& jsonContent,
                         HttpAuthentication* authentication, String& requestName);
 
     /**
@@ -169,9 +169,13 @@ public:
         return String("Not defined");
     }
 
+    static String tagName(const String& nodeName);
+
+    static String nameSpace(const String& nodeName);
+
 protected:
 
-    using RequestMethod = std::function<void(sptk::xml::Element*, sptk::json::Element*, sptk::HttpAuthentication*,
+    using RequestMethod = std::function<void(sptk::xdoc::SNode&, sptk::xdoc::SNode&, sptk::HttpAuthentication*,
                                              const sptk::WSNameSpace&)>;
 
     /**
@@ -180,11 +184,11 @@ protected:
      * Receives incoming SOAP body of Web Service requests, and returns
      * application response.
      * This method is abstract and overwritten in derived generated classes.
-     * @param requestNode       Incoming and outgoing SOAP element
+     * @param xmlContent       Incoming and outgoing SOAP element
      * @param authentication    Optional setRequestMethods(move(requestMethods));HTTP authentication
      * @param requestNameSpace  Request SOAP element namespace
      */
-    virtual void requestBroker(const String& requestName, xml::Element* requestNode, json::Element* jsonNode,
+    virtual void requestBroker(const String& requestName, xdoc::SNode& xmlContent, xdoc::SNode& jsonContent,
                                HttpAuthentication* authentication, const WSNameSpace& requestNameSpace);
 
     /**
@@ -196,7 +200,7 @@ protected:
      * @param error            Error description
      * @param errorCode        Optional HTTP error code, or 0
      */
-    virtual void handleError(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent,
+    virtual void handleError(xdoc::SNode& xmlContent, sptk::xdoc::SNode& jsonContent,
                              const sptk::String& error, int errorCode) const;
 
     /**
@@ -214,7 +218,7 @@ protected:
      * @param soapEnvelope
      * @return
      */
-    xml::Element* findSoapBody(const xml::Element* soapEnvelope, const WSNameSpace& soapNamespace);
+    xdoc::SNode findSoapBody(xdoc::SNode& soapEnvelope, const WSNameSpace& soapNamespace);
 
     void setRequestMethods(std::map<sptk::String, RequestMethod>&& requestMethods);
 
@@ -222,7 +226,6 @@ private:
 
     sptk::LogEngine* m_logEngine;        ///< Optional logger, or nullptr
     std::map<sptk::String, RequestMethod> m_requestMethods;   ///< Map of requset names to methods
-
 };
 
 using SWSRequest = std::shared_ptr<WSRequest>;

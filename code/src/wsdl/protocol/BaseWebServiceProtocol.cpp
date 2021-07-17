@@ -40,11 +40,15 @@ BaseWebServiceProtocol::BaseWebServiceProtocol(TCPSocket* socket, const HttpHead
 {
 }
 
-xml::Node* BaseWebServiceProtocol::getFirstChildElement(const xml::Node* element)
+xdoc::SNode BaseWebServiceProtocol::getFirstChildElement(const xdoc::SNode& element)
 {
-    for (auto* node: *element)
+    for (auto& node: *element)
     {
-        if (node->isElement())
+        bool isElement = !(
+            node->is(xdoc::Node::Type::ProcessingInstruction) ||
+            node->is(xdoc::Node::Type::Comment)
+        );
+        if (isElement)
         {
             return node;
         }
@@ -52,10 +56,10 @@ xml::Node* BaseWebServiceProtocol::getFirstChildElement(const xml::Node* element
     return nullptr;
 }
 
-xml::Node* BaseWebServiceProtocol::findRequestNode(const xml::Document& message, const String& messageType) const
+xdoc::SNode BaseWebServiceProtocol::findRequestNode(const xdoc::SNode& message, const String& messageType) const
 {
     String ns = "soap";
-    for (const auto* node: message)
+    for (const auto& node: *message)
     {
         if (lowerCase(node->name()).endsWith(":envelope"))
         {
@@ -64,14 +68,14 @@ xml::Node* BaseWebServiceProtocol::findRequestNode(const xml::Document& message,
         }
     }
 
-    const xml::Node* xmlBody = message.findFirst(ns + ":Body", true);
+    const auto xmlBody = message->findFirst(ns + ":Body");
     if (xmlBody == nullptr)
     {
         throw HTTPException(400, "Can't find " + ns + ":Body in " + messageType);
     }
 
-    xml::Node* xmlRequest = getFirstChildElement(xmlBody);
-    if (xmlRequest == nullptr)
+    auto xmlRequest = getFirstChildElement(xmlBody);
+    if (!xmlRequest)
     {
         throw HTTPException(400, "Can't find request data in " + messageType);
     }
@@ -79,46 +83,58 @@ xml::Node* BaseWebServiceProtocol::findRequestNode(const xml::Document& message,
     return xmlRequest;
 }
 
-void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message)
+void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessage, xdoc::SNode& message)
 {
     // Converting JSON request to XML request
     json::Document jsonContent;
     Strings pathElements(url.path(), "/");
     String method(*pathElements.rbegin());
-    auto* xmlEnvelope = new xml::Element(message, "soap:Envelope");
+    auto& xmlEnvelope = message->pushNode("soap:Envelope");
     xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
-    auto* xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
+
+    auto& xmlBody = xmlEnvelope->pushNode("soap:Body");
     jsonContent.load(startOfMessage);
     for (const auto&[name, value]: url.params())
     {
         jsonContent.root()[name] = value;
     }
-    jsonContent.root().exportTo("ns1:" + method, *xmlBody);
+
+    jsonContent.root().exportTo("ns1:" + method, xmlBody);
 }
 
-void BaseWebServiceProtocol::processXmlContent(const char* startOfMessage, xml::Document& xmlContent,
-                                               json::Document& jsonContent) const
+void BaseWebServiceProtocol::processXmlContent(const char* startOfMessage, xdoc::SNode& xmlContent,
+                                               xdoc::SNode& jsonContent) const
 {
     try
     {
-        xmlContent.load(startOfMessage, false);
+        xmlContent->load(xdoc::DataFormat::XML, startOfMessage, false);
     }
     catch (const Exception& e)
     {
         throw HTTPException(406, "Invalid XML content: " + String(e.what()));
     }
 
-    xml::Node* xmlRequest = findRequestNode(xmlContent, "API request");
-    auto* jsonEnvelope = jsonContent.root().add_object(xmlRequest->name());
+    auto xmlRequest = findRequestNode(xmlContent, "API request");
     for (const auto&[name, param]: m_url.params())
     {
-        auto* paramNode = new xml::Element(xmlRequest, name.c_str());
-        paramNode->text(param);
+        auto paramNode = xmlRequest->pushNode(name, xdoc::Node::Type::Text);
+        paramNode->setString(param);
     }
-    xmlRequest->exportTo(*jsonEnvelope);
+
+    Buffer buffer;
+    xmlRequest->exportTo(xdoc::DataFormat::JSON, buffer, false);
+
+    Buffer buffer2;
+    buffer2.append("{\"", 2);
+    buffer2.append(xmlRequest->name());
+    buffer2.append("\":", 3);
+    buffer2.append(buffer);
+    buffer2.append('}');
+
+    jsonContent->load(xdoc::DataFormat::JSON, buffer2.c_str());
 }
 
-String BaseWebServiceProtocol::processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
+String BaseWebServiceProtocol::processMessage(Buffer& output, xdoc::SNode& xmlContent, xdoc::SNode& jsonContent,
                                               const SHttpAuthentication& authentication, bool requestIsJSON,
                                               HttpResponseStatus& httpResponseStatus, String& contentType) const
 {
@@ -128,18 +144,18 @@ String BaseWebServiceProtocol::processMessage(Buffer& output, xml::Document& xml
     contentType = "text/xml; charset=utf-8";
     try
     {
-        auto* pXmlContent = requestIsJSON ? nullptr : &xmlContent;
-        auto* pJsonContent = requestIsJSON ? &jsonContent : nullptr;
+        auto pXmlContent = requestIsJSON ? nullptr : xmlContent;
+        auto pJsonContent = requestIsJSON ? jsonContent : nullptr;
         auto& service = m_services.get(m_url.location());
         service.processRequest(pXmlContent, pJsonContent, authentication.get(), requestName);
-        if (pJsonContent)
+        if (requestIsJSON)
         {
-            pJsonContent->exportTo(output, false);
+            jsonContent->exportTo(xdoc::DataFormat::JSON, output, false);
             contentType = "application/json";
         }
         else
         {
-            xmlContent.save(output, 2);
+            xmlContent->exportTo(xdoc::DataFormat::XML, output, true);
             contentType = "application/xml";
         }
     }
@@ -150,7 +166,7 @@ String BaseWebServiceProtocol::processMessage(Buffer& output, xml::Document& xml
     return requestName;
 }
 
-void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, json::Document& jsonContent,
+void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, xdoc::SNode& jsonContent,
                                                 RequestInfo& requestInfo, HttpResponseStatus& httpStatus,
                                                 String& contentType) const
 {
@@ -166,7 +182,7 @@ void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, json
 
         try
         {
-            jsonContent.load(startOfMessage);
+            jsonContent->load(xdoc::DataFormat::JSON, startOfMessage);
         }
         catch (const Exception& e)
         {
@@ -175,10 +191,10 @@ void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, json
                           true);
         }
 
-        jsonContent.root()["rest_method_name"] = method;
+        jsonContent->set("rest_method_name", method);
         for (const auto&[name, value]: m_url.params())
         {
-            jsonContent.root()[name] = value;
+            jsonContent->set(name, value);
         }
     }
 }

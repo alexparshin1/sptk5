@@ -43,6 +43,7 @@ namespace sptk::json {
 class SP_EXPORT Document
 {
     friend class ObjectData;
+
     friend class Element;
 
 public:
@@ -53,7 +54,7 @@ public:
     * Use one of the load() methods to populate it, or use add(), remove() methods of the root element to modify it.
     * @param isObject           If true then document root is JSON object. Otherwise, document root is JSON array.
     */
-    explicit Document(bool isObject=true);
+    explicit Document(bool isObject = true);
 
     /**
      * Copy constructor
@@ -75,13 +76,13 @@ public:
     /**
      * Disable copy assignment
      */
-    Document& operator = (const Document& other);
+    Document& operator=(const Document& other);
 
     /**
      * Move assignment
      * @param other             Other document
      */
-    Document& operator = (Document&& other) noexcept;
+    Document& operator=(Document&& other) noexcept;
 
     /**
      * Load document from JSON text, replacing existing document
@@ -106,21 +107,20 @@ public:
      * @param stream            Stream to export JSON
      * @param formatted         If true then JSON text is nicely formatted, but takes more space
      */
-    void exportTo(std::ostream& stream, bool formatted=true) const;
+    void exportTo(std::ostream& stream, bool formatted = true) const;
 
     /**
      * Export JSON element (and all children) to buffer
      * @param buffer            Buffer to export JSON
      * @param formatted         If true then JSON text is nicely formatted, but takes more space
      */
-    void exportTo(Buffer& buffer, bool formatted=true) const;
+    void exportTo(Buffer& buffer, bool formatted = true) const;
 
     /**
      * Export JSON element (and all children) to XML document
-     * @param document          XML document to export JSON
-     * @param rootNodeName      XML document root node name
+     * @param node              XML node to export JSON
      */
-    void exportTo(xml::Document& document, const String& rootNodeName = "data") const;
+    void exportTo(xdoc::SNode& node) const;
 
     /**
      * Get document root element
@@ -172,9 +172,9 @@ protected:
 
 private:
 
-    std::shared_ptr<Element>    m_root;             ///< Root element of the document
-    SharedStrings               m_sharedStrings;    ///< Shared string table for element names
-    const Element               m_emptyElement;     ///< Empty element
+    std::shared_ptr<Element> m_root;             ///< Root element of the document
+    SharedStrings m_sharedStrings;    ///< Shared string table for element names
+    const Element m_emptyElement;     ///< Empty element
 
     /**
      * Parse JSON text, replacing current document content
@@ -186,4 +186,3 @@ private:
 };
 
 }
-

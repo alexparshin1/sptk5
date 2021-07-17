@@ -29,6 +29,7 @@
 #include <sptk5/StopWatch.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
+#include <sptk5/xdoc/Document.h>
 #include "TestWebService.h"
 
 using namespace std;
@@ -195,6 +196,7 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
             }
 
             sendRequestJson.exportTo(sendRequestBuffer);
+            COUT("SEND " << sendRequestBuffer.c_str() << endl)
 
             shared_ptr<TCPSocket> client;
             if (encrypted)
@@ -217,6 +219,8 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
             int statusCode = httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer, requestResponse,
                                                  {"gzip"}, TestWebService::jwtAuthorization.get());
             client->close();
+
+            COUT("RECV " << requestResponse.c_str() << endl)
 
             if (statusCode >= 400)
                 FAIL() << requestResponse.c_str();
@@ -386,9 +390,9 @@ static const String testJSON(
 
 TEST(SPTK_WSGeneratedClasses, LoadXML)
 {
-    xml::Document input;
-    input.load(testXML);
-    const auto* loginNode = input.findFirst("login");
+    xdoc::Document input;
+    input.load(xdoc::DataFormat::XML, testXML);
+    const auto loginNode = input.root()->findFirst("login");
 
     CLogin login;
     login.load(loginNode);
@@ -401,12 +405,12 @@ TEST(SPTK_WSGeneratedClasses, LoadXML)
 
 TEST(SPTK_WSGeneratedClasses, LoadJSON)
 {
-    json::Document input;
-    input.load(testJSON);
+    xdoc::Document input;
+    input.load(xdoc::DataFormat::XML, testXML);
     const auto& loginNode = input.root();
 
     CLogin login;
-    login.load(&loginNode);
+    login.load(loginNode);
 
     EXPECT_STREQ("johnd", login.m_username.asString().c_str());
     EXPECT_STREQ("secret", login.m_password.asString().c_str());
@@ -424,12 +428,12 @@ TEST(SPTK_WSGeneratedClasses, UnloadXML)
     login.m_server_count = 2;
     login.m_type = "abstract";
 
-    xml::Document xml;
-    auto* loginNode = xml.findOrCreate("login");
+    xdoc::Document xml;
+    auto loginNode = xml.root()->findOrCreate("login");
     login.unload(loginNode);
 
     Buffer buffer;
-    xml.save(buffer, 0);
+    xml.exportTo(xdoc::DataFormat::XML, buffer, 0);
 
     EXPECT_STREQ(buffer.c_str(), testXML.c_str());
 }
@@ -446,11 +450,11 @@ TEST(SPTK_WSGeneratedClasses, UnloadJSON)
     login.m_server_count = 2;
     login.m_type = "abstract";
 
-    json::Document json;
-    login.unload(&json.root());
+    xdoc::Document json;
+    login.unload(json.root());
 
     Buffer buffer;
-    json.exportTo(buffer, false);
+    json.exportTo(xdoc::DataFormat::JSON, buffer, false);
 
     EXPECT_STREQ(buffer.c_str(), testJSON.c_str());
 }

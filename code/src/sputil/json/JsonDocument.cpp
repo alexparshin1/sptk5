@@ -28,6 +28,7 @@
 #include <sptk5/json/JsonDocument.h>
 #include <sptk5/StopWatch.h>
 #include <sptk5/Printer.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
@@ -37,12 +38,17 @@ void Document::clear()
 {
     json::Type elementType = Type::NULL_VALUE;
     if (m_root != nullptr)
+    {
         elementType = m_root->type();
+    }
 
-    if (elementType == Type::ARRAY) {
+    if (elementType == Type::ARRAY)
+    {
         auto* arrayData = new ArrayData(this);
         m_root = make_shared<Element>(this, arrayData);
-    } else {
+    }
+    else
+    {
         auto* objectData = new ObjectData(this);
         m_root = make_shared<Element>(this, objectData);
     }
@@ -50,7 +56,8 @@ void Document::clear()
 
 void Document::parse(const String& json)
 {
-    if (json.empty()) {
+    if (json.empty())
+    {
         auto* objectData = new ObjectData(this);
         m_root = make_shared<Element>(this, objectData);
         return;
@@ -62,21 +69,23 @@ void Document::parse(const String& json)
 }
 
 Document::Document(bool isObject)
-: m_root(createDocumentRoot(isObject ? Type::OBJECT : Type::ARRAY)),
-  m_emptyElement(this, "")
-{}
+    : m_root(createDocumentRoot(isObject ? Type::OBJECT : Type::ARRAY)),
+      m_emptyElement(this, "")
+{
+}
 
 Document::Document(const Document& other)
-: m_emptyElement(this, "")
+    : m_emptyElement(this, "")
 {
     Buffer buffer;
     other.exportTo(buffer);
     load(buffer.c_str());
 }
 
-Document& Document::operator = (const Document& other)
+Document& Document::operator=(const Document& other)
 {
-    if (&other != this) {
+    if (&other != this)
+    {
         Buffer buffer;
         other.exportTo(buffer);
         load(buffer.c_str());
@@ -85,23 +94,26 @@ Document& Document::operator = (const Document& other)
 }
 
 Document::Document(Document&& other) noexcept
-: m_root(move(other.m_root)), m_emptyElement(this, "")
+    : m_root(move(other.m_root)), m_emptyElement(this, "")
 {
     other.m_root = createDocumentRoot(m_root->type());
 }
 
 std::shared_ptr<Element> Document::createDocumentRoot(Type documentType)
 {
-    if (documentType == Type::OBJECT) {
+    if (documentType == Type::OBJECT)
+    {
         auto* objectData = new ObjectData(this);
         return make_shared<Element>(this, objectData);
-    } else {
+    }
+    else
+    {
         auto* arrayData = new ArrayData(this);
         return make_shared<Element>(this, arrayData);
     }
 }
 
-Document& Document::operator = (Document&& other) noexcept
+Document& Document::operator=(Document&& other) noexcept
 {
     m_root = move(other.m_root);
     return *this;
@@ -120,15 +132,15 @@ void Document::load(const char* json)
 
 void Document::load(istream& json)
 {
-    streampos       pos = json.tellg();
-    json.seekg (0, ios::end);
+    streampos pos = json.tellg();
+    json.seekg(0, ios::end);
 
-    streampos       length = json.tellg() - pos;
-    json.seekg (pos, ios::beg);
+    streampos length = json.tellg() - pos;
+    json.seekg(pos, ios::beg);
 
-    Buffer buffer((size_t)length);
+    Buffer buffer((size_t) length);
     json.read((char*) buffer.data(), length);
-    buffer.bytes((size_t)length);
+    buffer.bytes((size_t) length);
     load(buffer.c_str());
 }
 
@@ -144,9 +156,9 @@ void Document::exportTo(Buffer& buffer, bool formatted) const
     buffer.set(stream.str());
 }
 
-void Document::exportTo(xml::Document& document, const String& rootNodeName) const
+void Document::exportTo(xdoc::SNode& node) const
 {
-    m_root->exportTo(rootNodeName, document);
+    m_root->exportTo("data", node);
 }
 
 Element& Document::root()
@@ -166,16 +178,25 @@ Type Document::dataType(const String& data)
 
     Type type = Type::STRING;
     if (data.empty())
+    {
         return type;
+    }
 
-    if (isalpha(data[0])) {
+    if (isalpha(data[0]))
+    {
         if (isBoolean.matches(data))
+        {
             type = Type::BOOLEAN;
+        }
         else if (data == "null")
+        {
             type = Type::NULL_VALUE;
+        }
     }
     else if (isNumber.matches(data))
+    {
         type = Type::NUMBER;
+    }
 
     return type;
 }
@@ -183,11 +204,11 @@ Type Document::dataType(const String& data)
 #if USE_GTEST
 
 const String testJSON(
-        R"({ "name": "John", "age": 33, "temperature": 33.6, "timestamp": 1519005758000 )"
-        R"("skills": [ "C++", "Java", "Motorbike" ],)"
-        R"("location": null,)"
-        R"("title": "\"Mouse\"",)"
-        R"("address": { "married": true, "employed": false } })");
+    R"({ "name": "John", "age": 33, "temperature": 33.6, "timestamp": 1519005758000 )"
+    R"("skills": [ "C++", "Java", "Motorbike" ],)"
+    R"("location": null,)"
+    R"("title": "\"Mouse\"",)"
+    R"("address": { "married": true, "employed": false } })");
 
 void verifyDocument(json::Document& document)
 {
@@ -223,7 +244,7 @@ TEST(SPTK_JsonDocument, loadString)
 TEST(SPTK_JsonDocument, loadStream)
 {
     json::Document document;
-    stringstream   data;
+    stringstream data;
     data << testJSON;
     document.load(data);
     verifyDocument(document);
@@ -377,11 +398,13 @@ TEST(SPTK_JsonDocument, truncated)
 {
     json::Document document;
     String truncatedJSON = testJSON.substr(0, testJSON.length() - 3);
-    try {
+    try
+    {
         document.load(truncatedJSON);
         FAIL() << "Incorrect: MUST fail";
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         SUCCEED() << "Correct: " << e.what();
     }
 }
@@ -392,25 +415,30 @@ TEST(SPTK_JsonDocument, errors)
     size_t errorCount = 0;
 
     String junkTailJSON = String(testJSON) + "=";
-    try {
+    try
+    {
         document.load(junkTailJSON);
         FAIL() << "Incorrect: MUST fail";
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         ++errorCount;
     }
 
     String junkInsideJSON = testJSON;
     junkInsideJSON[0] = '?';
-    try {
+    try
+    {
         document.load(junkInsideJSON);
         FAIL() << "Incorrect: MUST fail";
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         ++errorCount;
     }
 
-    try {
+    try
+    {
         document.load(testJSON);
         const auto* element = document.root().find("nothing");
         if (element != nullptr)
@@ -422,7 +450,8 @@ TEST(SPTK_JsonDocument, errors)
             FAIL() << "Incorrect: MUST fail";
         FAIL() << "Incorrect: MUST fail";
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         ++errorCount;
     }
 
@@ -436,7 +465,8 @@ TEST(SPTK_JsonDocument, performance)
     json::Document document;
 
     auto* arrayElement = document.root().add_array("items");
-    for (int i = 0; i < objectCount; ++i) {
+    for (int i = 0; i < objectCount; ++i)
+    {
         auto& object = *arrayElement->push_object();
         object.set("id", i);
         object.set("name", "Name " + to_string(i));

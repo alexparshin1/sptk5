@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
 #include <sptk5/Strings.h>
 #include <sptk5/Exception.h>
 #include <sptk5/json/JsonObjectData.h>
@@ -47,7 +47,8 @@ using ElementSet = std::vector<Element*>;
 /**
  * JSON Element type
  */
-enum class Type : uint8_t
+enum class Type
+    : uint8_t
 {
     NUMBER = 1,
     STRING = 2,
@@ -109,7 +110,7 @@ public:
      */
     [[nodiscard]] bool is(int types) const
     {
-        return ((int)m_type & types) != 0;
+        return ((int) m_type & types) != 0;
     }
 
     /**
@@ -170,7 +171,8 @@ protected:
     struct XPathElement
     {
         String name;       ///< Path element name
-        int index{0};      ///< Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
+        int index {
+            0};      ///< Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
 
         /**
          * Constructor
@@ -178,7 +180,7 @@ protected:
          * @param index         Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
          */
         XPathElement(String name, int index)
-                : name(std::move(name)), index(index)
+            : name(std::move(name)), index(index)
         {
         }
 
@@ -192,7 +194,8 @@ protected:
     /**
      * XPath
      */
-    struct XPath : std::vector<XPathElement>
+    struct XPath
+        : std::vector<XPathElement>
     {
         bool rootOnly {false};          ///< XPath starts from root flag
         /**
@@ -387,16 +390,16 @@ protected:
      * @param type              Data type
      */
     ElementData(Document* document, Type type) noexcept
-            : m_document(document), m_parent(nullptr), m_type(type)
+        : m_document(document), m_parent(nullptr), m_type(type)
     {
     }
 
 private:
 
-    Document*   m_document {nullptr};       ///< Parent JSON document
-    Element*    m_parent {nullptr};         ///< Parent JSON element
-    Type        m_type {Type::NULL_VALUE};  ///< JSON element type
-    Data        m_data;                     ///< JSON element data
+    Document* m_document {nullptr};       ///< Parent JSON document
+    Element* m_parent {nullptr};         ///< Parent JSON element
+    Type m_type {Type::NULL_VALUE};  ///< JSON element type
+    Data m_data;                     ///< JSON element data
     void selectArrayElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition);
 
     void selectObjectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly,
@@ -407,7 +410,7 @@ private:
  * XML Element getters
  */
 class SP_EXPORT ElementGetMethods
-        : public ElementData
+    : public ElementData
 {
 public:
 
@@ -477,7 +480,7 @@ public:
      * @param name              Parent element name
      * @param parentNode        XML element to export JSON
      */
-    void exportTo(const std::string& name, xml::Element& parentNode) const;
+    void exportTo(const std::string& name, xdoc::SNode& parentNode) const;
 
     /**
      * Optimize arrays
@@ -508,7 +511,7 @@ protected:
      * @param name              JSON element name
      * @param element           XML element to export to
      */
-    void exportValueTo(const String& name, xml::Element& element) const;
+    void exportValueTo(const String& name, xdoc::SNode& element) const;
 
     /**
      * Export JSON array element to text format
@@ -542,10 +545,13 @@ protected:
  *
  * May contain any type of JSON object
  */
-class SP_EXPORT Element : public ElementGetMethods
+class SP_EXPORT Element
+    : public ElementGetMethods
 {
     friend class Document;
+
     friend class ArrayData;
+
     friend class ObjectData;
 
 public:
@@ -866,4 +872,3 @@ std::string escape(const std::string& text);
 std::string decode(const std::string& text);
 
 }
-

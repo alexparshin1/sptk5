@@ -22,7 +22,7 @@ CTestServiceBase::CTestServiceBase(LogEngine* logEngine)
 
 
 template <class InputData, class OutputData>
-void processAnyRequest(xdoc::Node* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)
+void processAnyRequest(xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)
 {
    const String requestName = wsTypeIdToName(typeid(InputData).name());
    const String responseName = wsTypeIdToName(typeid(OutputData).name());
@@ -35,16 +35,16 @@ void processAnyRequest(xdoc::Node* requestNode, HttpAuthentication* authenticati
       // Can't parse input data
       throw HTTPException(400, e.what());
    }
-   auto* soapBody = (xdoc::Node*) requestNode->parent();
+   auto& soapBody = requestNode->parent();
    soapBody->clearChildren();
    method(inputData, outputData, authentication);
-   auto* response = new xdoc::Node(soapBody, (ns + ":" + responseName).c_str());
+   auto& response = soapBody->pushNode(ns + ":" + responseName);
    response->setAttribute("xmlns:" + ns, requestNameSpace.getLocation());
    outputData.unload(response);
 }
 
 template <class InputData, class OutputData>
-void processAnyRequest(json::Element* request, HttpAuthentication* authentication,
+void processAnyRequest(xdoc::SNode& request, HttpAuthentication* authentication,
                        const function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)
 {
    InputData inputData;
@@ -62,31 +62,31 @@ void processAnyRequest(json::Element* request, HttpAuthentication* authenticatio
 }
 
 
-void CTestServiceBase::process_AccountBalance(xdoc::Node* xmlNode, json::Element* jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+void CTestServiceBase::process_AccountBalance(xdoc::SNode& xmlNode, xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
-  function<void(const CAccountBalance&, CAccountBalanceResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::AccountBalance, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-  if (xmlNode)
-     processAnyRequest<CAccountBalance,CAccountBalanceResponse>(xmlNode, authentication, requestNameSpace, method);
-  else
-     processAnyRequest<CAccountBalance,CAccountBalanceResponse>(jsonNode, authentication, method);
+    function<void(const CAccountBalance&, CAccountBalanceResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::AccountBalance, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    if (xmlNode)
+        processAnyRequest<CAccountBalance,CAccountBalanceResponse>(xmlNode, authentication, requestNameSpace, method);
+    else
+        processAnyRequest<CAccountBalance,CAccountBalanceResponse>(jsonNode, authentication, method);
 }
 
-void CTestServiceBase::process_Hello(xdoc::Node* xmlNode, json::Element* jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+void CTestServiceBase::process_Hello(xdoc::SNode& xmlNode, xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
-  function<void(const CHello&, CHelloResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::Hello, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-  if (xmlNode)
-     processAnyRequest<CHello,CHelloResponse>(xmlNode, authentication, requestNameSpace, method);
-  else
-     processAnyRequest<CHello,CHelloResponse>(jsonNode, authentication, method);
+    function<void(const CHello&, CHelloResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::Hello, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    if (xmlNode)
+        processAnyRequest<CHello,CHelloResponse>(xmlNode, authentication, requestNameSpace, method);
+    else
+        processAnyRequest<CHello,CHelloResponse>(jsonNode, authentication, method);
 }
 
-void CTestServiceBase::process_Login(xdoc::Node* xmlNode, json::Element* jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+void CTestServiceBase::process_Login(xdoc::SNode& xmlNode, xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
-  function<void(const CLogin&, CLoginResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::Login, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-  if (xmlNode)
-     processAnyRequest<CLogin,CLoginResponse>(xmlNode, authentication, requestNameSpace, method);
-  else
-     processAnyRequest<CLogin,CLoginResponse>(jsonNode, authentication, method);
+    function<void(const CLogin&, CLoginResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::Login, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    if (xmlNode)
+        processAnyRequest<CLogin,CLoginResponse>(xmlNode, authentication, requestNameSpace, method);
+    else
+        processAnyRequest<CLogin,CLoginResponse>(jsonNode, authentication, method);
 }
 
 String CTestServiceBase::wsdl() const

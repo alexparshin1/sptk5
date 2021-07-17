@@ -105,8 +105,9 @@ void WSString::load(const SNode& attr)
     }
     else
     {
-        owaspCheck(attr->getString());
-        field().setString(attr->getString());
+        auto str = attr->getString();
+        owaspCheck(str);
+        field().setString(str);
     }
 }
 

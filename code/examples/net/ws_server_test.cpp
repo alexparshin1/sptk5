@@ -32,10 +32,11 @@
 using namespace std;
 using namespace sptk;
 
-class StubRequest : public WSRequest
+class StubRequest
+    : public WSRequest
 {
 protected:
-    void requestBroker(const String& requestName, xml::Element*, json::Element* jsonNode, HttpAuthentication*,
+    void requestBroker(const String& requestName, xdoc::SNode&, xdoc::SNode& jsonNode, HttpAuthentication*,
                        const WSNameSpace&) override
     {
         // Not used in this test
@@ -47,24 +48,30 @@ public:
 
 int main()
 {
-	try {
-		auto request = make_shared<StubRequest>();
-		SysLogEngine    log("ws_server_test");
-		Logger          logger(log);
-        
+    try
+    {
+        auto request = make_shared<StubRequest>();
+        SysLogEngine log("ws_server_test");
+        Logger logger(log);
+
         char hostname[128];
         int rc = gethostname(hostname, sizeof(hostname));
         if (rc != 0)
+        {
             throw SystemException("Can't get hostname");
-        WSConnection::Paths   paths("index.html", "request", "/var/lib/pgman/webapp");
+        }
+        WSConnection::Paths paths("index.html", "request", "/var/lib/pgman/webapp");
         WSConnection::Options options(paths);
         WSServices services(request);
         WSListener server(services, log, hostname, 32, options);
         server.listen(8000);
         while (true)
+        {
             this_thread::sleep_for(chrono::milliseconds(1000));
+        }
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl)
         return 1;
     }

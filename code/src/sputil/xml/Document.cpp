@@ -28,6 +28,8 @@
 #include <sptk5/Strings.h>
 #include <sptk5/json/JsonDocument.h>
 #include <sptk5/Printer.h>
+#include <sptk5/xml/Document.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;

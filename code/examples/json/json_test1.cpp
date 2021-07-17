@@ -30,13 +30,15 @@
 #include <sptk5/json/JsonDocument.h>
 
 #include <fstream>
+#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    try {
+    try
+    {
         json::Document jsonDocument;
 
         ifstream file("test.data/test.json");
@@ -46,22 +48,22 @@ int main()
         jsonDocument.root().exportTo(cout, true);
         COUT(endl << endl)
 
-        xml::Document doc;
+        xdoc::Document doc;
         Buffer buffer;
-        jsonDocument.exportTo(doc);
-        doc.save(buffer, true);
+        jsonDocument.exportTo(doc.root());
+        doc.exportTo(xdoc::DataFormat::XML, buffer, true);
 
         COUT(buffer.c_str() << endl << endl)
 
         json::Document doc2;
-        doc.exportTo(doc2.root());
-        doc2.root().exportTo(cout, true);
+        doc.exportTo(xdoc::DataFormat::JSON, buffer, true);
 
-        COUT(endl << endl)
+        COUT(buffer.c_str() << endl)
 
         return 0;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

@@ -26,7 +26,8 @@
 
 #include <sptk5/Brotli.h>
 #include <sptk5/ZLib.h>
-#include "sptk5/wsdl/protocol/WSWebServiceProtocol.h"
+#include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
+#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
@@ -152,8 +153,8 @@ RequestInfo WSWebServiceProtocol::process()
         ++startOfMessage;
     }
 
-    xml::Document xmlContent;
-    json::Document jsonContent;
+    xdoc::Document xmlContent;
+    xdoc::Document jsonContent;
 
     if (startOfMessage != endOfMessage)
     {
@@ -162,12 +163,12 @@ RequestInfo WSWebServiceProtocol::process()
         {
             contentType = "application/xml; charset=utf-8";
             requestIsJSON = false;
-            processXmlContent((const char*) startOfMessage, xmlContent, jsonContent);
+            processXmlContent((const char*) startOfMessage, xmlContent.root(), jsonContent.root());
         }
         else if (*startOfMessage == '{' || *startOfMessage == '[')
         {
             contentType = "application/json; charset=utf-8";
-            processJsonContent((const char*) startOfMessage, jsonContent, requestInfo, httpStatus,
+            processJsonContent((const char*) startOfMessage, jsonContent.root(), requestInfo, httpStatus,
                                contentType);
         }
         else
@@ -192,15 +193,14 @@ RequestInfo WSWebServiceProtocol::process()
         else
         {
             // Regular request w/o content
-            RESTtoSOAP(m_url, "", xmlContent);
+            RESTtoSOAP(m_url, "", xmlContent.root());
         }
     }
 
     if (!returnWSDL && httpStatus.code < httpErrorResponseCode)
     {
-        requestInfo.name = processMessage(requestInfo.response.content(), xmlContent, jsonContent, authentication,
-                                          requestIsJSON,
-                                          httpStatus, contentType);
+        requestInfo.name = processMessage(requestInfo.response.content(), xmlContent.root(), jsonContent.root(),
+                                          authentication, requestIsJSON, httpStatus, contentType);
     }
 
     Strings clientAcceptEncoding(header("accept-encoding"), "[,\\s]+", Strings::SplitMode::REGEXP);
