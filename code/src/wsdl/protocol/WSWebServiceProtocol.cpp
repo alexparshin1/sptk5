@@ -155,6 +155,7 @@ RequestInfo WSWebServiceProtocol::process()
 
     xdoc::Document xmlContent;
     xdoc::Document jsonContent;
+    xdoc::SNode responseNode;
 
     if (startOfMessage != endOfMessage)
     {
@@ -163,10 +164,11 @@ RequestInfo WSWebServiceProtocol::process()
         {
             contentType = "application/xml; charset=utf-8";
             requestIsJSON = false;
-            processXmlContent((const char*) startOfMessage, xmlContent.root(), jsonContent.root());
+            responseNode = processXmlContent((const char*) startOfMessage, xmlContent.root(), jsonContent.root());
         }
         else if (*startOfMessage == '{' || *startOfMessage == '[')
         {
+            responseNode = jsonContent.root();
             contentType = "application/json; charset=utf-8";
             processJsonContent((const char*) startOfMessage, jsonContent.root(), requestInfo, httpStatus,
                                contentType);

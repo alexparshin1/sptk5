@@ -56,7 +56,7 @@ protected:
 
     xdoc::SNode findRequestNode(const xdoc::SNode& message, const String& messageType) const;
 
-    void processXmlContent(const char* startOfMessage, xdoc::SNode& xmlContent, xdoc::SNode& jsonContent) const;
+    xdoc::SNode processXmlContent(const char* startOfMessage, xdoc::SNode& xmlContent, xdoc::SNode& jsonContent) const;
 
     void processJsonContent(const char* startOfMessage, xdoc::SNode& jsonContent,
                             RequestInfo& requestInfo, HttpResponseStatus& httpStatus,

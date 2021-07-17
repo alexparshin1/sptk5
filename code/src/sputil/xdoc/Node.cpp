@@ -65,9 +65,9 @@ void Node::setAttribute(const String& name, const String& value)
 
 SNode& Node::findOrCreate(const String& name)
 {
-    if (!is(Type::Object))
+    if (!is(Type::Object) && !is(Type::Null))
     {
-        throw Exception("This element is not JSON object");
+        throw Exception("This element is not Null or Object");
     }
 
     for (auto& node: m_nodes)

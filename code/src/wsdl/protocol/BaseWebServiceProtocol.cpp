@@ -102,8 +102,8 @@ void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessa
     jsonContent.root().exportTo("ns1:" + method, xmlBody);
 }
 
-void BaseWebServiceProtocol::processXmlContent(const char* startOfMessage, xdoc::SNode& xmlContent,
-                                               xdoc::SNode& jsonContent) const
+xdoc::SNode BaseWebServiceProtocol::processXmlContent(const char* startOfMessage, xdoc::SNode& xmlContent,
+                                                      xdoc::SNode& jsonContent) const
 {
     try
     {
@@ -117,21 +117,14 @@ void BaseWebServiceProtocol::processXmlContent(const char* startOfMessage, xdoc:
     auto xmlRequest = findRequestNode(xmlContent, "API request");
     for (const auto&[name, param]: m_url.params())
     {
-        auto paramNode = xmlRequest->pushNode(name, xdoc::Node::Type::Text);
-        paramNode->setString(param);
+        xmlRequest->set(name, param);
     }
 
-    Buffer buffer;
-    xmlRequest->exportTo(xdoc::DataFormat::JSON, buffer, false);
+    auto pos = xmlRequest->name().find(':');
+    String methodName = pos == string::npos ? xmlRequest->name() : xmlRequest->name().substr(pos + 1);
+    xmlRequest->set("rest_method_name", methodName);
 
-    Buffer buffer2;
-    buffer2.append("{\"", 2);
-    buffer2.append(xmlRequest->name());
-    buffer2.append("\":", 3);
-    buffer2.append(buffer);
-    buffer2.append('}');
-
-    jsonContent->load(xdoc::DataFormat::JSON, buffer2.c_str());
+    return xmlRequest;
 }
 
 String BaseWebServiceProtocol::processMessage(Buffer& output, xdoc::SNode& xmlContent, xdoc::SNode& jsonContent,

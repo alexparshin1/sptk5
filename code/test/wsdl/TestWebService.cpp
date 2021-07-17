@@ -141,16 +141,71 @@ TEST(SPTK_TestWebService, Hello)
     EXPECT_EQ(response.m_vacation_days.asInteger(), 21);
 }
 
+static const String soapWrapper(
+    R"(<?xml version="1.0" encoding="UTF-8"?>)"
+    R"(<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">)"
+    "<soap:Body>"
+    "{REQUEST_DATA}"
+    "</soap:Body>"
+    "</soap:Envelope>");
+
+
+static xdoc::Document make_send_request(const String& methodName, xdoc::DataFormat dataFormat)
+{
+    xdoc::Document sendRequest;
+
+    auto requestNode = sendRequest.root();
+
+    if (dataFormat == xdoc::DataFormat::XML)
+    {
+        auto wrapper = soapWrapper.replace("{REQUEST_DATA}", "<ns1:" + methodName + "/>");
+        sendRequest.load(dataFormat, wrapper);
+        requestNode = sendRequest.root()->findFirst("ns1:" + methodName);
+    }
+
+    if (methodName == "Hello")
+    {
+        requestNode->set("first_name", "John");
+        requestNode->set("last_name", "Doe");
+        TestWebService::jwtAuthorization.reset();
+    }
+    else if (methodName == "Login")
+    {
+        requestNode->set("username", "johnd");
+        requestNode->set("password", "secret");
+        TestWebService::jwtAuthorization.reset();
+    }
+    else if (methodName == "AccountBalance")
+    {
+        requestNode->set("account_number", "000-123456-7890");
+    }
+
+    return sendRequest;
+}
+
+static const xdoc::SNode get_response_node(const xdoc::Document& response, xdoc::DataFormat dataFormat)
+{
+    xdoc::SNode responseNode = response.root();
+    if (dataFormat == xdoc::DataFormat::XML)
+    {
+        auto bodyNode = responseNode->findFirst("soap:Body");
+        responseNode = *bodyNode->begin();
+    }
+    return responseNode;
+}
+
 /**
  * Test execution of { Hello, Login, AccountBalance } methods.
  * Calling AccountBalance method requires calling Login method first.
  * If gzip-encoding is allowed, it is used for messages bigger than 255 bytes.
  * @param methodNames           WS methods to be executed
  */
-static void request_listener_test(const Strings& methodNames, bool encrypted = false)
+static void request_listener_test(const Strings& methodNames, xdoc::DataFormat dataFormat, bool encrypted = false)
 {
     SysLogEngine logEngine("TestWebService");
     auto service = make_shared<TestWebService>();
+
+    String serviceType = dataFormat == xdoc::DataFormat::XML ? "xml" : "json";
 
     // Define Web Service listener
     WSConnection::Paths paths("index.html", "/test", ".");
@@ -163,7 +218,6 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
     shared_ptr<SSLKeys> sslKeys;
     try
     {
-
         if (encrypted)
         {
             sslKeys = make_shared<SSLKeys>("keys/test.key", "keys/test.cert");
@@ -176,27 +230,8 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
         for (const auto& methodName: methodNames)
         {
             Buffer sendRequestBuffer;
-            json::Document sendRequestJson;
-
-            if (methodName == "Hello")
-            {
-                sendRequestJson.root()["first_name"] = "John";
-                sendRequestJson.root()["last_name"] = "Doe";
-                TestWebService::jwtAuthorization.reset();
-            }
-            else if (methodName == "Login")
-            {
-                sendRequestJson.root()["username"] = "johnd";
-                sendRequestJson.root()["password"] = "secret";
-                TestWebService::jwtAuthorization.reset();
-            }
-            else if (methodName == "AccountBalance")
-            {
-                sendRequestJson.root()["account_number"] = "000-123456-7890";
-            }
-
-            sendRequestJson.exportTo(sendRequestBuffer);
-            COUT("SEND " << sendRequestBuffer.c_str() << endl)
+            xdoc::Document sendRequest = make_send_request(methodName, dataFormat);
+            sendRequest.exportTo(dataFormat, sendRequestBuffer, true);
 
             shared_ptr<TCPSocket> client;
             if (encrypted)
@@ -215,31 +250,32 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
             HttpConnect httpClient(*client);
             HttpParams httpParams {{"action", "view"}};
             Buffer requestResponse;
-            httpClient.requestHeaders()["Content-Type"] = "application/json";
-            int statusCode = httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer, requestResponse,
-                                                 {"gzip"}, TestWebService::jwtAuthorization.get());
+            httpClient.requestHeaders()["Content-Type"] = "application/" + serviceType;
+            int statusCode = httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer,
+                                                 requestResponse, {"gzip"},
+                                                 TestWebService::jwtAuthorization.get());
             client->close();
-
-            COUT("RECV " << requestResponse.c_str() << endl)
 
             if (statusCode >= 400)
                 FAIL() << requestResponse.c_str();
             else
             {
-                json::Document response;
-                response.load(requestResponse.c_str());
+                xdoc::Document response;
+                response.load(dataFormat, requestResponse.c_str());
+
+                auto responseNode = get_response_node(response, dataFormat);
 
                 if (methodName == "Hello")
                 {
                     // Just check some fields
-                    EXPECT_DOUBLE_EQ(response.root().getNumber("height"), 6.5);
-                    EXPECT_DOUBLE_EQ(response.root().getNumber("vacation_days"), 21);
+                    EXPECT_DOUBLE_EQ(responseNode->getNumber("height"), 6.5);
+                    EXPECT_DOUBLE_EQ(responseNode->getNumber("vacation_days"), 21);
                 }
                 else if (methodName == "Login")
                 {
                     // Set JWT authorization for future operations
                     TestWebService::jwtAuthorization = make_shared<HttpConnect::BearerAuthorization>(
-                        response.root().getString("jwt"));
+                        responseNode->getString("jwt"));
 
                     // Decode JWT content
                     JWT jwt;
@@ -253,7 +289,7 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
                 }
                 else if (methodName == "AccountBalance")
                 {
-                    EXPECT_DOUBLE_EQ(response.root().getNumber("account_balance"), 12345.67);
+                    EXPECT_DOUBLE_EQ(responseNode->getNumber("account_balance"), 12345.67);
                 }
             }
         }
@@ -270,11 +306,19 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
 }
 
 /**
- * Test Hello method working through the service
+ * Test Hello method working through the service in JSON mode
  */
-TEST(SPTK_TestWebService, Hello_HTTP)
+TEST(SPTK_TestWebService, Hello_HTTP_JSON)
 {
-    request_listener_test(Strings("Hello", ","), false);
+    request_listener_test({"Hello"}, xdoc::DataFormat::JSON, false);
+}
+
+/**
+ * Test Hello method working through the service in XML mode
+ */
+TEST(SPTK_TestWebService, Hello_HTTP_XML)
+{
+    request_listener_test({"Hello"}, xdoc::DataFormat::XML, false);
 }
 
 /**
@@ -305,7 +349,7 @@ TEST(SPTK_TestWebService, Login)
  */
 TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
 {
-    request_listener_test(Strings("Login|AccountBalance", "|"), false);
+    request_listener_test(Strings("Login|AccountBalance", "|"), xdoc::DataFormat::JSON, false);
 }
 
 /**
@@ -313,7 +357,7 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
  */
 TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
 {
-    request_listener_test(Strings("Login|AccountBalance", "|"), true);
+    request_listener_test(Strings("Login|AccountBalance", "|"), xdoc::DataFormat::JSON, true);
 }
 
 TEST(SPTK_WSGeneratedClasses, CopyConstructor)

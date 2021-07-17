@@ -43,6 +43,11 @@ public:
         return m_root;
     }
 
+    const SNode& root() const
+    {
+        return m_root;
+    }
+
     void load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting = false)
     {
         m_root->load(dataFormat, data, xmlKeepFormatting);

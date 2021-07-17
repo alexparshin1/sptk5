@@ -135,6 +135,7 @@ void WSRequest::processRequest(xdoc::SNode& xmlContent, xdoc::SNode& jsonContent
 {
     WSNameSpace requestNameSpace;
 
+    xdoc::SNode xmlRequestNode;
     if (xmlContent)
     {
         WSNameSpace soapNamespace;
@@ -157,31 +158,30 @@ void WSRequest::processRequest(xdoc::SNode& xmlContent, xdoc::SNode& jsonContent
 
         auto soapBody = findSoapBody(soapEnvelope, soapNamespace);
 
-        xdoc::SNode requestNode;
         for (auto& node: *soapBody)
         {
             if (node != nullptr)
             {
                 scoped_lock lock(*this);
-                requestNode = node;
-                String nameSpaceAlias = nameSpace(requestNode->name());
-                extractNameSpaces(requestNode, allNamespaces);
+                xmlRequestNode = node;
+                String nameSpaceAlias = nameSpace(xmlRequestNode->name());
+                extractNameSpaces(xmlRequestNode, allNamespaces);
                 requestNameSpace = allNamespaces[nameSpaceAlias];
                 break;
             }
         }
 
-        if (!requestNode)
+        if (!xmlRequestNode)
         throwException("Can't find request node in SOAP Body")
 
-        requestName = WSParser::strip_namespace(requestNode->name());
+        requestName = WSParser::strip_namespace(xmlRequestNode->name());
     }
     else
     {
         requestName = jsonContent->getString("rest_method_name");
     }
 
-    requestBroker(requestName, xmlContent, jsonContent, authentication, requestNameSpace);
+    requestBroker(requestName, xmlRequestNode, jsonContent, authentication, requestNameSpace);
 }
 
 void WSRequest::setRequestMethods(map<sptk::String, RequestMethod>&& requestMethods)

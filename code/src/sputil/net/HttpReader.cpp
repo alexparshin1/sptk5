@@ -277,7 +277,7 @@ void HttpReader::readDataChunk(bool& done)
 
 bool HttpReader::readData()
 {
-    bool done{false};
+    bool done {false};
     while (!done && m_socket.readyToRead(thirtySeconds))
     {
         readDataChunk(done);
@@ -312,6 +312,7 @@ void HttpReader::read()
             Buffer unzipBuffer;
             ZLib::decompress(unzipBuffer, m_output);
             m_output = move(unzipBuffer);
+            itor->second = "";
 #else
             throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
 #endif
@@ -322,6 +323,7 @@ void HttpReader::read()
             Buffer unzipBuffer;
             Brotli::decompress(unzipBuffer, m_output);
             m_output = move(unzipBuffer);
+            itor->second = "";
 #else
             throw Exception("Content-Encoding is 'br', but libbrotli support is not enabled in SPTK");
 #endif
