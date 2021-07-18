@@ -542,7 +542,7 @@ void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const ch
     }
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testXML("<name position='president'>John</name>"
                             "<age>33</age>"

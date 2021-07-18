@@ -43,8 +43,10 @@
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/test/TestRunner.h>
 
-#if BUILD_TEST_WS
+#ifdef BUILD_TEST_WS
+
 #include <test/wsdl/TestWebService.h>
+
 #endif
 
 using namespace std;
@@ -106,7 +108,7 @@ void stub()
 
     DatabaseConnectionPool connectionPool("");
 
-#if BUILD_TEST_WS
+#ifdef BUILD_TEST_WS
     TestWebService setvice;
 #endif
 }
@@ -123,7 +125,7 @@ void TestRunner::addDatabaseConnection(const DatabaseConnectionString& connectio
 
 static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& definedConnections)
 {
-    map<String, String> excludeDrivers = {
+    map < String, String > excludeDrivers = {
         {"postgresql", "PostgreSQL"},
         {"mysql",      "MySQL"},
         {"mssql",      "MSSQL"},

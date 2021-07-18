@@ -43,7 +43,7 @@ CLayoutClient::CLayoutClient(Fl_Widget* widget, int layoutSize, CLayoutAlign ca)
     }
 }
 
-void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
+void CLayoutClient::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
 {
     if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
     {
@@ -69,10 +69,10 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
             default:
                 layoutAlign = CLayoutAlign::NONE;
                 {
-                    int x = (int) node->getAttribute("x", "-1");
-                    int y = (int) node->getAttribute("y", "-1");
-                    int w = (int) node->getAttribute("w", "-1");
-                    int h = (int) node->getAttribute("h", "-1");
+                    int x = node->getAttribute("x", "-1").toInt();
+                    int y = node->getAttribute("y", "-1").toInt();
+                    int w = node->getAttribute("w", "-1").toInt();
+                    int h = node->getAttribute("h", "-1").toInt();
                     if (x > -1 && y > -1)
                     {
                         m_widget->position(x, y);
@@ -90,7 +90,7 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 
         if (layoutAlign != CLayoutAlign::NONE)
         {
-            int layoutSize = (int) node->getAttribute("layout_size");
+            int layoutSize = node->getAttribute("layout_size").toInt();
             if (layoutSize)
             {
                 m_layoutSize = layoutSize;
@@ -111,7 +111,7 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
             }
         }
 
-        if (!(bool) node->getAttribute("visible", "Y"))
+        if (node->getAttribute("visible", "true") != "true")
         {
             m_widget->hide();
         }
@@ -119,7 +119,7 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
         {
             m_widget->show();
         }
-        if (!(bool) node->getAttribute("enable", "Y"))
+        if (node->getAttribute("enable", "true") != "true")
         {
             m_widget->deactivate();
         }
@@ -138,12 +138,8 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
     }
 }
 
-void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
+void CLayoutClient::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 {
-    if (!node->isElement())
-    {
-        throw Exception("Node must be an element");
-    }
     String className = "widget";
     auto* layoutClient = dynamic_cast<CLayoutClient*>(m_widget);
     if (layoutClient)
@@ -164,11 +160,11 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
         }
         if (!m_widget->visible())
         {
-            node->setAttribute("visible", (int) m_widget->visible());
+            node->setAttribute("visible", m_widget->visible() ? "true" : "false");
         }
         if (!m_widget->active())
         {
-            node->setAttribute("enable", (int) m_widget->active());
+            node->setAttribute("enable", m_widget->active() ? "true" : "false");
         }
 
         String layoutAlignStr;
@@ -195,15 +191,15 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
 
         if (layoutAlignStr.empty())
         {
-            node->setAttribute("x", m_widget->x());
-            node->setAttribute("y", m_widget->y());
-            node->setAttribute("w", m_widget->w());
-            node->setAttribute("h", m_widget->h());
+            node->setAttribute("x", to_string(m_widget->x()));
+            node->setAttribute("y", to_string(m_widget->y()));
+            node->setAttribute("w", to_string(m_widget->w()));
+            node->setAttribute("h", to_string(m_widget->h()));
         }
         else
         {
             node->setAttribute("layout_align", layoutAlignStr);
-            node->setAttribute("layout_size", layoutSize());
+            node->setAttribute("layout_size", to_string(layoutSize()));
         }
     }
     else

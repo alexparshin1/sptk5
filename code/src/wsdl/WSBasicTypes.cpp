@@ -330,7 +330,7 @@ String sptk::wsTypeIdToName(const String& typeIdName)
     return "Unknown";
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_WSInteger, move_ctor_assign)
 {

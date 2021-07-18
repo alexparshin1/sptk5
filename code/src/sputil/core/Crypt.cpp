@@ -29,7 +29,7 @@
 #include <openssl/conf.h>
 #include <openssl/evp.h>
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 #include <sptk5/Base64.h>
 
@@ -148,7 +148,7 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
     EVP_CIPHER_CTX_free(ctx);
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testText("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 static const String testKey("01234567890123456789012345678901");

@@ -29,7 +29,7 @@
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <mutex>
 
-#if HAVE_ORACLE == 1
+#ifdef HAVE_ORACLE
 
 #include <sptk5/db/OracleStatement.h>
 #include <sptk5/db/OracleEnvironment.h>

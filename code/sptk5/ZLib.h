@@ -28,13 +28,12 @@
 
 #include <sptk5/sptk.h>
 
-#if HAVE_ZLIB
+#ifdef HAVE_ZLIB
 
 #include <sptk5/Buffer.h>
 #include <zlib.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * Simple wrapper for ZLib functions
@@ -44,16 +43,16 @@ class SP_EXPORT ZLib
 public:
     /**
      * Compress data using gzip format.
-     * 
+     *
      * Compressed data is appended to destination buffer
      * @param dest Buffer&, Destination buffer
      * @param src const Buffer&, Source buffer
      */
-    static void compress(Buffer& dest, const Buffer& src, int level=Z_DEFAULT_COMPRESSION);
+    static void compress(Buffer& dest, const Buffer& src, int level = Z_DEFAULT_COMPRESSION);
 
     /**
      * Uncompress data in gzip format
-     * 
+     *
      * Uncompressed data is appended to destination buffer
      * @param dest Buffer&, Destination buffer
      * @param src const Buffer&, Source buffer
@@ -64,4 +63,3 @@ public:
 }
 
 #endif
-

@@ -28,7 +28,7 @@
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 
-#if HAVE_MYSQL == 1
+#ifdef HAVE_MYSQL
 
 #include <sptk5/db/MySQLStatement.h>
 #include <mutex>

@@ -52,7 +52,7 @@ void exit_cb(Fl_Widget* w, void*)
 class CExampleDialog
     : public CDialog
 {
-    xml::Document m_state;
+    xdoc::Document m_state;
     String m_stateFileName {"dialog_test.xml"};
 public:
     CExampleDialog()
@@ -108,10 +108,10 @@ public:
             /// If the XML file doesn't exist yet - this will throw an exception that we trap.
             Buffer buffer;
             buffer.loadFromFile(m_stateFileName.c_str());
-            m_state.load(buffer);
+            m_state.load(xdoc::DataFormat::XML, buffer);
 
             /// If the XML file exists, try to load data into the dialog
-            load(&m_state);
+            load(m_state.root());
         }
         catch (const Exception& e)
         {
@@ -124,11 +124,11 @@ public:
         try
         {
             /// Save data from dialog controls into XML file
-            save(&m_state);
+            save(m_state.root());
 
             /// Save the XML file.
             Buffer buffer;
-            m_state.save(buffer, 0);
+            m_state.exportTo(xdoc::DataFormat::XML, buffer, false);
             buffer.saveToFile(m_stateFileName.c_str());
         }
         catch (const Exception& e)

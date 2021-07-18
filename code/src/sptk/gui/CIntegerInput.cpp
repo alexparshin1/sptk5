@@ -48,7 +48,7 @@ CIntegerInput::CIntegerInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CIntegerInput::creator(xml::Node* node)
+CLayoutClient* CIntegerInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CIntegerInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

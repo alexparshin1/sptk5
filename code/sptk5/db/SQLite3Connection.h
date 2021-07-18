@@ -29,7 +29,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/sptk.h>
 
-#if HAVE_SQLITE3 == 1
+#ifdef HAVE_SQLITE3
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sqlite3.h>

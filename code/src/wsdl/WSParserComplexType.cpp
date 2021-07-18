@@ -427,7 +427,6 @@ set<String> WSParserComplexType::getUsedClasses() const
 void WSParserComplexType::printImplementationIncludes(ostream& classImplementation, const String& className)
 {
     classImplementation << "#include \"" << className << ".h\"" << endl;
-    classImplementation << "#include <sptk5/json/JsonArrayData.h>" << endl << endl;
     classImplementation << "using namespace std;" << endl;
     classImplementation << "using namespace sptk;" << endl;
 }

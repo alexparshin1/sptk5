@@ -28,7 +28,7 @@
 #include <sptk5/ZLib.h>
 #include "zlib.h"
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 #include <sptk5/Base64.h>
 #include <sptk5/StopWatch.h>
@@ -175,7 +175,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
     inflateEnd(&strm);
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String originalTestString = "This is a test of compression using GZip algorithm";
 

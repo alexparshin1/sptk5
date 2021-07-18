@@ -1000,14 +1000,14 @@ int CTreeControl::handle(int event)
     return CScroll::handle(event);
 }
 
-void CTreeControl::load(const xml::Node& groupNode, bool /*autoCreate*/)
+void CTreeControl::load(const xdoc::SNode& groupNode, bool /*autoCreate*/)
 {
     if (m_noXml)
     {
         return;
     }
 
-    if (!(bool) groupNode.getAttribute("visible", "Y"))
+    if (groupNode->getAttribute("visible", "true") != "true")
     {
         m_group->hide();
     }
@@ -1016,7 +1016,7 @@ void CTreeControl::load(const xml::Node& groupNode, bool /*autoCreate*/)
         m_group->show();
     }
 
-    if (!(bool) groupNode.getAttribute("enable", "Y"))
+    if (groupNode->getAttribute("enable", "true") != "true")
     {
         m_group->deactivate();
     }
@@ -1026,10 +1026,10 @@ void CTreeControl::load(const xml::Node& groupNode, bool /*autoCreate*/)
     }
 }
 
-void CTreeControl::save(xml::Node& groupNode) const
+void CTreeControl::save(const xdoc::SNode& groupNode) const
 {
-    groupNode.clear();
-    groupNode.name("tree");
+    groupNode->clear();
+    groupNode->name("tree");
 
     if (m_noXml)
     {
@@ -1040,17 +1040,17 @@ void CTreeControl::save(xml::Node& groupNode) const
 
     if (!label.empty())
     {
-        groupNode.setAttribute("label", label);
+        groupNode->setAttribute("label", label);
     }
 
     if (!visible())
     {
-        groupNode.setAttribute("visible", "N");
+        groupNode->setAttribute("visible", "false");
     }
 
     if (!active())
     {
-        groupNode.setAttribute("enable", "N");
+        groupNode->setAttribute("enable", "false");
     }
 }
 

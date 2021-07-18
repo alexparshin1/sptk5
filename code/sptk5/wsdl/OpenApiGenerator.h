@@ -27,6 +27,7 @@
 #pragma once
 
 #include <sptk5/wsdl/WSOperation.h>
+#include <sptk5/json/JsonDocument.h>
 
 namespace sptk {
 
@@ -40,7 +41,8 @@ public:
     /**
      * Authentication method
      */
-    enum class AuthMethod: uint8_t
+    enum class AuthMethod
+        : uint8_t
     {
         NONE,        ///< No authentication
         BASIC,       ///< Authorization: Basic ZGVtbzpwQDU1dzByZA==
@@ -55,17 +57,17 @@ public:
         /**
          * Default authentication method, used by most operations
          */
-        AuthMethod                  defaultAuthMethod { AuthMethod::BEARER };
+        AuthMethod defaultAuthMethod {AuthMethod::BEARER};
 
         /**
          * Authentication method, in format: Operation name -> Auth method
          */
-        std::map<String,AuthMethod> operationsAuth;
+        std::map<String, AuthMethod> operationsAuth;
 
         /**
          * Output OpenAPI file
          */
-        String                      openApiFile;
+        String openApiFile;
     };
 
     /**
@@ -87,9 +89,10 @@ public:
      * @param documentation     Service documentation (by operation)
      */
     void generate(std::ostream& output, const WSOperationMap& operations, const WSComplexTypeMap& complexTypes,
-                  const std::map<String,String>& documentation) const;
+                  const std::map<String, String>& documentation) const;
 
     static AuthMethod authMethod(const String& auth);
+
     static String authMethodName(AuthMethod auth);
 
 private:
@@ -116,17 +119,17 @@ private:
      */
     void createServers(json::Document& document) const;
 
-    const String      m_title;          ///< Service title
-    const String      m_description;    ///< Service description
-    const String      m_version;        ///< Service version
-    const Strings     m_servers;        ///< Service servers
-    const Options     m_options;        ///< Service options
+    const String m_title;          ///< Service title
+    const String m_description;    ///< Service description
+    const String m_version;        ///< Service version
+    const Strings m_servers;        ///< Service servers
+    const Options m_options;        ///< Service options
 
     void parseClassName(const SWSParserComplexType& ctypeProperty, json::Element& property) const;
+
     void parseRestriction(const SWSParserComplexType& ctypeProperty, json::Element& property) const;
 
     void parseRestrictionPatterns(json::Element& property, const SWSRestriction& restriction) const;
 };
 
 }
-

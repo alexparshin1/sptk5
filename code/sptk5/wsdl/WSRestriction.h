@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/cxml>
 #include <sptk5/Variant.h>
 #include <sptk5/xdoc/Node.h>
+#include <sptk5/RegularExpression.h>
 
 namespace sptk {
 

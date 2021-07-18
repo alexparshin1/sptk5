@@ -2446,18 +2446,18 @@ CPackedStrings* CListView::findKey(int keyValue)
     return nullptr;
 }
 
-void CListView::loadList(const xml::Node* node)
+void CListView::loadList(const xdoc::SNode& node)
 {
     clear();
     auto ntor = node->begin();
 
     for (; ntor != node->end(); ++ntor)
     {
-        xml::Node* anode = *ntor;
+        const auto& anode = *ntor;
 
         if (anode->name() == "columns")
         {
-            m_columnList.load(*anode);
+            m_columnList.load(anode);
             continue;
         }
 
@@ -2471,14 +2471,14 @@ void CListView::loadList(const xml::Node* node)
                 strings.resize(colCount);
                 for (; itor != anode->end(); ++itor)
                 {
-                    xml::Node* rowNode = *itor;
-                    int rowID = (int) rowNode->getAttribute("id");
+                    const auto& rowNode = *itor;
+                    int rowID = rowNode->getAttribute("id").toInt();
                     auto rtor = rowNode->begin();
                     unsigned c = 0;
                     for (; rtor != rowNode->end(); ++rtor, ++c)
                     {
-                        xml::Node* cellNode = *rtor;
-                        unsigned index = (int) cellNode->getAttribute("index");
+                        const auto& cellNode = *rtor;
+                        unsigned index = cellNode->getAttribute("index").toInt();
                         if (index)
                         {
                             c = index;
@@ -2487,12 +2487,7 @@ void CListView::loadList(const xml::Node* node)
                         {
                             break;
                         }
-                        auto ctor = cellNode->begin();
-                        if (ctor != cellNode->end())
-                        {
-                            xml::Node* cdata = *ctor;
-                            strings[c] = (char*) cdata->value().c_str();
-                        }
+                        strings[c] = cellNode->text();
                     }
                     addRow(rowID, strings);
                 }
@@ -2501,19 +2496,20 @@ void CListView::loadList(const xml::Node* node)
     }
 }
 
-void CListView::saveList(xml::Node* node) const
+void CListView::saveList(const xdoc::SNode& node) const
 {
-    m_columnList.save(*(new xml::Element(node, "columns")));
-    xml::Node* rowsNode = new xml::Element(node, "rows");
+    const auto& columnListNode = node->pushNode("columns");
+    m_columnList.save(columnListNode);
+    const auto& rowsNode = node->pushNode("rows");
     unsigned rowCount = m_rows.size();
     size_t colCount = m_columnList.size();
     for (unsigned i = 0; i < rowCount; i++)
     {
         CPackedStrings* row = m_rows[i];
-        xml::Node* rowNode = new xml::Element(*rowsNode, "row");
+        const auto& rowNode = rowsNode->pushNode("row");
         if (row->argument())
         {
-            rowNode->setAttribute("id", row->argument());
+            rowNode->setAttribute("id", to_string(row->argument()));
         }
         size_t index = 0;
         for (size_t c = 0; c < colCount; c++)
@@ -2521,11 +2517,11 @@ void CListView::saveList(xml::Node* node) const
             const char* cell = (*row)[(uint16_t) c];
             if (*cell)
             {
-                xml::Node* cellNode = new xml::Element(*rowNode, "cell");
-                new xml::Text(*cellNode, cell);
+                const auto& cellNode = rowNode->pushNode("cell", xdoc::Node::Type::Text);
+                cellNode->setString(cell);
                 if (index != c)
                 {
-                    cellNode->setAttribute("index", (int) c);
+                    cellNode->setAttribute("index", to_string(c));
                     index = c;
                 }
                 index++;
@@ -2534,13 +2530,13 @@ void CListView::saveList(xml::Node* node) const
     }
 }
 
-void CListView::load(const xml::Node* node, CLayoutXMLmode xmlMode)
+void CListView::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
 {
     CControl::load(node, xmlMode);
     loadList(node);
 }
 
-void CListView::save(xml::Node* node, CLayoutXMLmode xmlMode) const
+void CListView::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 {
     CControl::save(node, xmlMode);
     saveList(node);

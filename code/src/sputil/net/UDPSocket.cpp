@@ -74,7 +74,7 @@ size_t UDPSocket::read(String& buffer, size_t size, sockaddr_in* from)
     return (size_t) bytes;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 class UDPEchoServer
     : public UDPSocket, public Thread

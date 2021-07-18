@@ -114,7 +114,7 @@ bool Semaphore::sleep_until(DateTime timeoutAt)
     return true;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_Semaphore, waitAndPost)
 {

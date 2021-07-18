@@ -79,12 +79,12 @@ void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::Ht
     JWT jwt;
     jwt.set_alg(JWT::Algorithm::HS256, jwtEncryptionKey256);
 
-    jwt["iat"] = (int) time(nullptr);                  // JWT issue time
-    jwt["iss"] = "http://test.com";                         // JWT issuer
-    jwt["exp"] = (int) time(nullptr) + secondsInDay;   // JWT expiration time
+    jwt.set("iat", (int) time(nullptr));                  // JWT issue time
+    jwt.set("iss", "http://test.com");                         // JWT issuer
+    jwt.set("exp", (int) time(nullptr) + secondsInDay);   // JWT expiration time
 
     // Add some description information that we may use later
-    auto* info = jwt.grants.root().add_object("info");
+    const auto& info = jwt.grants.root()->pushNode("info");
     info->set("username", "johnd");
     info->set("company", "My Company");
     info->set("city", "My City");
@@ -107,13 +107,13 @@ void TestWebService::AccountBalance(const CAccountBalance& input, CAccountBalanc
     }
 
     const auto& token = authentication->getData();
-    const auto& info = token.getObject("info");
-    auto username = info["username"].getString();
+    const auto info = token->findFirst("info");
+    auto username = info->getString("username");
 
     output.m_account_balance = testAmount;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static constexpr int int123 = 123;
 
@@ -283,8 +283,8 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
                     jwt.decode(TestWebService::jwtAuthorization->value().c_str(), jwtEncryptionKey256);
 
                     // Get username from "info" node
-                    auto& info = jwt.grants.root().getObject("info");
-                    auto username = info["username"].getString();
+                    auto info = jwt.grants.root()->findFirst("info");
+                    auto username = info->getString("username");
 
                     EXPECT_STREQ(username.c_str(), "johnd");
                 }
@@ -334,8 +334,8 @@ TEST(SPTK_TestWebService, Login)
     JWT jwt;
     jwt.decode(response.m_jwt.getString(), jwtEncryptionKey256);
 
-    auto& info = jwt.grants.root().getObject("info");
-    auto username = info["username"].getString();
+    auto info = jwt.grants.root()->findFirst("info");
+    auto username = info->getString("username");
 
     EXPECT_STREQ(username.c_str(), "johnd");
 }

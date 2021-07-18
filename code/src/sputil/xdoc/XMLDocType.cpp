@@ -336,7 +336,7 @@ bool XMLDocType::hasEntity(const char* name)
     return tmp != nullptr;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_XmlXMLDocType, parseEntity)
 {

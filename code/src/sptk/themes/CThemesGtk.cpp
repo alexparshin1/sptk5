@@ -28,6 +28,7 @@
 
 #include <sptk5/gui/CThemeImageCollection.h>
 #include <sptk5/cgui>
+#include <map>
 
 #include "ThemeUtils.h"
 #include "CGtkThemeLoader.h"
@@ -40,7 +41,7 @@
 using namespace std;
 using namespace sptk;
 
-void CThemes::loadGtkButton(xml::Node* imageNode, std::map<CThemeImageState, std::string>& buttonFileNames)
+void CThemes::loadGtkButton(const xdoc::SNode& imageNode, std::map<CThemeImageState, std::string>& buttonFileNames)
 {
     static const Strings buttonStates("NORMAL|ACTIVE|DFRAME|PRELIGHT", "|"); /// DFRAME is a stub
 
@@ -77,12 +78,12 @@ void CThemes::loadGtkButton(xml::Node* imageNode, std::map<CThemeImageState, std
 }
 
 void CThemes::loadGtkButtonFileNames(
-    xml::Document& xml, string XPath, map<CThemeImageState, string>& buttonFileNames, string orientation)
+    xdoc::Document& xml, string XPath, std::map<CThemeImageState, std::string>& buttonFileNames, string orientation)
 {
-    xml::NodeVector buttonImages;
+    xdoc::Node::Vector buttonImages;
 
     buttonFileNames.clear();
-    xml.select(buttonImages, XPath);
+    xml.root()->select(buttonImages, XPath);
     for (auto imageNode : buttonImages)
     {
         if (!orientation.empty() && (String) imageNode->getAttribute("arrow_direction") != orientation)
@@ -108,7 +109,7 @@ void CThemes::loadGtkButtonFileNames(
     }
 }
 
-void CThemes::loadGtkButtons(xml::Document& xml, const String& styleName, CThemeImageCollection& buttons,
+void CThemes::loadGtkButtons(xdoc::Document& xml, const String& styleName, CThemeImageCollection& buttons,
                              const String& function)
 {
     string XPath("/styles/style[@name='" + styleName + "']/engine[@name='pixmap']/image");
@@ -134,7 +135,7 @@ void CThemes::loadGtkTheme(const String& gtkThemeName)
     m_themeFolder = gtkThemeLoader.themeFolder();
 
     Buffer buffer;
-    gtkThemeLoader.xml().save(buffer, true);
+    gtkThemeLoader.xml().exportTo(xdoc::DataFormat::XML, buffer, true);
 
     try
     { // Debug
@@ -143,7 +144,7 @@ void CThemes::loadGtkTheme(const String& gtkThemeName)
     catch (...)
     {}
 
-    xml::Document& xml = gtkThemeLoader.xml();
+    xdoc::Document& xml = gtkThemeLoader.xml();
 
     /// Load theme colors
     m_colors.loadFromGtkTheme(xml);
@@ -162,8 +163,8 @@ void CThemes::loadGtkTheme(const String& gtkThemeName)
                                       "/styles/style[@name='progressbar']/engine[@name='pixmap']/image[@detail='bar']",
                                       "orientation", "HORIZONTAL");
 
-    xml::NodeVector bgImageNodes;
-    xml.select(bgImageNodes, "/styles/style/bg_pixmap");
+    xdoc::Node::Vector bgImageNodes;
+    xml.root()->select(bgImageNodes, "/styles/style/bg_pixmap");
     if (!bgImageNodes.empty())
     {
         String fileName = CThemeImageCollection::gtkFullFileName((String) bgImageNodes[0]->getAttribute("NORMAL"));

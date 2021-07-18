@@ -412,7 +412,7 @@ size_t SSLSocket::send(const uint8_t* buffer, size_t len)
     }
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_SSLSocket, connect)
 {

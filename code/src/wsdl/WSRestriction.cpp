@@ -144,7 +144,7 @@ WSRestriction::Type WSRestriction::type() const
     return m_type;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String coloursXML {
     "<xsd:element name=\"Colours\">"

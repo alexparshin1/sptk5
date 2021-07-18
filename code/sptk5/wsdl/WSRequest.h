@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/cxml>
 #include <sptk5/cthreads>
 #include <sptk5/net/HttpAuthentication.h>
 

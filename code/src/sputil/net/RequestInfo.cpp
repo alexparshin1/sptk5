@@ -45,7 +45,7 @@ void RequestInfo::Message::input(const Buffer& content, const String& contentEnc
     }
     else
 
-#if HAVE_BROTLI
+#ifdef HAVE_BROTLI
     if (contentEncoding == "br")
     {
         Brotli::decompress(m_content, content);
@@ -53,7 +53,7 @@ void RequestInfo::Message::input(const Buffer& content, const String& contentEnc
     else
 #endif
 
-#if HAVE_ZLIB
+#ifdef HAVE_ZLIB
     if (contentEncoding == "gzip")
     {
         ZLib::decompress(m_content, content);
@@ -80,7 +80,7 @@ Buffer RequestInfo::Message::output(const Strings& contentEncodings)
     if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
     {
         Buffer outputData;
-#if HAVE_BROTLI
+#ifdef HAVE_BROTLI
         if (contentEncodings.indexOf("br") >= 0)
         {
             m_contentEncoding = "br";
@@ -89,7 +89,7 @@ Buffer RequestInfo::Message::output(const Strings& contentEncodings)
             return outputData;
         }
 #endif
-#if HAVE_ZLIB
+#ifdef HAVE_ZLIB
         if (contentEncodings.indexOf("gzip") >= 0)
         {
             m_contentEncoding = "gzip";
@@ -105,14 +105,14 @@ Buffer RequestInfo::Message::output(const Strings& contentEncodings)
     return m_content;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static Buffer decode(const Buffer& data, const String& encoding)
 {
     Buffer decoded;
     if (encoding == "br")
     {
-#if HAVE_BROTLI
+#ifdef HAVE_BROTLI
         Buffer brotliData;
         Brotli::decompress(decoded, data);
         return decoded;
@@ -120,7 +120,7 @@ static Buffer decode(const Buffer& data, const String& encoding)
     }
     if (encoding == "gzip")
     {
-#if HAVE_ZLIB
+#ifdef HAVE_ZLIB
         Buffer brotliData;
         ZLib::decompress(decoded, data);
         return decoded;
@@ -151,7 +151,7 @@ TEST(SPTK_RequestInfo, Message)
     decoded = decode(output, message.contentEncoding());
     EXPECT_STREQ(testData.c_str(), decoded.c_str());
 
-#if HAVE_BROTLI
+#ifdef HAVE_BROTLI
     Buffer brotliData;
     Brotli::compress(brotliData, testData);
     EXPECT_TRUE(testData.length() > brotliData.length());
@@ -171,7 +171,7 @@ TEST(SPTK_RequestInfo, Message)
     }
 #endif
 
-#if HAVE_ZLIB
+#ifdef HAVE_ZLIB
     outputEncodings.remove("br");
     Buffer gzipData;
     ZLib::compress(gzipData, testData);

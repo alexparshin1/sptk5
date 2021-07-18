@@ -506,7 +506,7 @@ void BaseSocket::getOption(int level, int option, int& value) const
         THROW_SOCKET_ERROR("Can't get socket option");
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_BaseSocket, minimal)
 {

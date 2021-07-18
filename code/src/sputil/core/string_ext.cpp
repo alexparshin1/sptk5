@@ -40,7 +40,8 @@ String sptk::upperCase(const String& str)
     string result;
     result.resize(len);
 
-    for (uint32_t i = 0; i < len; ++i) {
+    for (uint32_t i = 0; i < len; ++i)
+    {
         result[i] = (char) toupper(str[i]);
     }
 
@@ -53,7 +54,8 @@ String sptk::lowerCase(const String& str)
     string result;
     result.resize(len);
 
-    for (uint32_t i = 0; i < len; ++i) {
+    for (uint32_t i = 0; i < len; ++i)
+    {
         result[i] = (char) tolower(str[i]);
     }
 
@@ -65,15 +67,19 @@ String sptk::trim(const String& str)
     auto len = (uint32_t) str.length();
 
     if (len == 0)
+    {
         return "";
+    }
 
     const auto* s = (const unsigned char*) str.c_str();
     auto endpos = int(len - 1);
     bool found = false;
 
     unsigned char space = ' ';
-    for (int i = endpos; i >= 0; --i) {
-        if (s[i] > space) {
+    for (int i = endpos; i >= 0; --i)
+    {
+        if (s[i] > space)
+        {
             endpos = i;
             found = true;
             break;
@@ -81,11 +87,15 @@ String sptk::trim(const String& str)
     }
 
     if (!found)
+    {
         return "";
+    }
 
     int startpos = 0;
-    for (int i = 0; i <= endpos; ++i) {
-        if (s[i] > space) {
+    for (int i = 0; i <= endpos; ++i)
+    {
+        if (s[i] > space)
+        {
             startpos = i;
             break;
         }
@@ -97,7 +107,7 @@ String sptk::trim(const String& str)
 String sptk::int2string(int32_t value)
 {
     constexpr int maxLength = 32;
-    array<char,maxLength + 1> buff;
+    array<char, maxLength + 1> buff;
     int len = snprintf(buff.data(), maxLength, "%i", value);
     return string(buff.data(), (unsigned) len);
 }
@@ -105,7 +115,7 @@ String sptk::int2string(int32_t value)
 String sptk::int2string(uint32_t value)
 {
     constexpr int maxLength = 64;
-    array<char,maxLength + 1> buff;
+    array<char, maxLength + 1> buff;
     int len = snprintf(buff.data(), maxLength, "%u", value);
     return string(buff.data(), (unsigned) len);
 }
@@ -113,7 +123,7 @@ String sptk::int2string(uint32_t value)
 String sptk::int2string(int64_t value)
 {
     constexpr int maxLength = 128;
-    array<char,maxLength + 1> buff;
+    array<char, maxLength + 1> buff;
 #ifdef _WIN32
     int len = snprintf(buff.data(), maxLength, "%lli", value);
 #else
@@ -125,7 +135,7 @@ String sptk::int2string(int64_t value)
 String sptk::int2string(uint64_t value)
 {
     constexpr int maxLength = 64;
-    array<char,maxLength + 1> buff;
+    array<char, maxLength + 1> buff;
 #ifdef _WIN32
     int len = snprintf(buff.data(), sizeof(buff), "%llu", value);
 #else
@@ -141,7 +151,9 @@ int sptk::string2int(const String& str, int defaultValue)
     auto result = (int) strtol(str.c_str(), &endptr, 10);
 
     if (errno)
+    {
         return defaultValue;
+    }
 
     return result;
 }
@@ -153,7 +165,9 @@ int64_t sptk::string2int64(const String& str, int64_t defaultValue)
     auto result = (int64_t) strtoll(str.c_str(), &endptr, 10);
 
     if (errno)
+    {
         return defaultValue;
+    }
 
     return result;
 }
@@ -161,14 +175,20 @@ int64_t sptk::string2int64(const String& str, int64_t defaultValue)
 String sptk::double2string(double value)
 {
     constexpr int maxLength = 64;
-    array<char,maxLength + 1> buffer;
+    array<char, maxLength + 1> buffer;
     int len = snprintf(buffer.data(), maxLength, "%f", value);
-    for (int i = len - 1; i > 0; --i) {
-        if (buffer[i] != '0') {
+    for (int i = len - 1; i > 0; --i)
+    {
+        if (buffer[i] != '0')
+        {
             if (buffer[i] == '.')
+            {
                 len = i + 2;
+            }
             else
+            {
                 len = i + 1;
+            }
             break;
         }
     }
@@ -182,7 +202,9 @@ double sptk::string2double(const String& str)
     auto result = strtod(str.c_str(), &endptr);
 
     if (errno)
+    {
         throw Exception("Invalid number");
+    }
 
     return result;
 }
@@ -194,7 +216,9 @@ double sptk::string2double(const String& str, double defaultValue)
     auto result = strtod(str.c_str(), &endptr);
 
     if (errno)
+    {
         return defaultValue;
+    }
 
     return result;
 }
@@ -202,19 +226,26 @@ double sptk::string2double(const String& str, double defaultValue)
 static void capitalizeWord(char* current, char* wordStart)
 {
     if (wordStart != nullptr)
+    {
         *wordStart = (char) toupper(*wordStart);
+    }
     else
+    {
         wordStart = current;
+    }
 
-    for (char* ptr = wordStart + 1; ptr < current; ++ptr) {
+    for (char* ptr = wordStart + 1; ptr < current; ++ptr)
+    {
         *ptr = (char) tolower(*ptr);
     }
 }
 
 static void lowerCaseWord(const char* current, char* wordStart)
 {
-    if (wordStart != nullptr) {
-        for (char* ptr = wordStart; ptr < current; ++ptr) {
+    if (wordStart != nullptr)
+    {
+        for (char* ptr = wordStart; ptr < current; ++ptr)
+        {
             *ptr = (char) tolower(*ptr);
         }
     }
@@ -223,30 +254,44 @@ static void lowerCaseWord(const char* current, char* wordStart)
 String sptk::capitalizeWords(const String& s)
 {
     if (s.empty())
+    {
         return s;
+    }
 
     Buffer buffer(s);
     char* wordStart = nullptr;
 
-    for (auto* current = (char*) buffer.data();; ++current) {
-        if (isalnum(*current) != 0) {
+    for (auto* current = (char*) buffer.data();; ++current)
+    {
+        if (isalnum(*current) != 0)
+        {
             if (wordStart == nullptr)
+            {
                 wordStart = current;
-        } else {
+            }
+        }
+        else
+        {
             if (current - wordStart > 3)
+            {
                 capitalizeWord(current, wordStart);
+            }
             else
+            {
                 lowerCaseWord(current, wordStart);
+            }
             wordStart = nullptr;
             if (*current == char(0))
+            {
                 break;
+            }
         }
     }
 
     return String(buffer.c_str(), buffer.length());
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_string_ext, to_string)
 {

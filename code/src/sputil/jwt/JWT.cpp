@@ -117,25 +117,24 @@ JWT::Algorithm JWT::str_alg(const char* alg)
     return itor->second;
 }
 
-const json::Element* JWT::find_grant(const json::Element* js, const String& key)
+xdoc::SNode JWT::find_grant(const xdoc::SNode& js, const String& key)
 {
-    if (js->is(json::Type::OBJECT))
+    if (js->is(xdoc::Node::Type::Object))
     {
-        const auto* element = js->find(key);
-        return element;
+        return js->findFirst(key);
     }
     return nullptr;
 }
 
-String JWT::get_js_string(const json::Element* js, const String& key, bool* found)
+String JWT::get_js_string(const xdoc::SNode& js, const String& key, bool* found)
 {
     if (found)
     {
         *found = false;
     }
 
-    if (const json::Element* element = find_grant(js, key);
-        element != nullptr && element->is(json::Type::STRING))
+    if (const auto& element = find_grant(js, key);
+        element != nullptr && element->is(xdoc::Node::Type::Text))
     {
         if (found)
         {
@@ -146,15 +145,15 @@ String JWT::get_js_string(const json::Element* js, const String& key, bool* foun
     return String();
 }
 
-long JWT::get_js_int(const json::Element* js, const String& key, bool* found)
+long JWT::get_js_int(const xdoc::SNode& js, const String& key, bool* found)
 {
     if (found)
     {
         *found = false;
     }
 
-    if (const json::Element* element = find_grant(js, key);
-        element != nullptr && element->is(json::Type::NUMBER))
+    if (const auto& element = find_grant(js, key);
+        element != nullptr && element->is(xdoc::Node::Type::Number))
     {
         if (found)
         {
@@ -165,15 +164,15 @@ long JWT::get_js_int(const json::Element* js, const String& key, bool* found)
     return 0;
 }
 
-bool JWT::get_js_bool(const json::Element* js, const String& key, bool* found)
+bool JWT::get_js_bool(const xdoc::SNode& js, const String& key, bool* found)
 {
     if (found)
     {
         *found = false;
     }
 
-    if (const json::Element* element = find_grant(js, key);
-        element != nullptr && element->is(json::Type::BOOLEAN))
+    if (const auto& element = find_grant(js, key);
+        element != nullptr && element->is(xdoc::Node::Type::Boolean))
     {
         if (found)
         {
@@ -242,7 +241,7 @@ void JWT::write_head(std::ostream& output, bool pretty) const
 
 void JWT::write_body(std::ostream& output, bool pretty) const
 {
-    grants.exportTo(output, pretty);
+    grants.root()->exportTo(xdoc::DataFormat::JSON, output, pretty);
 }
 
 void JWT::sign(Buffer& out, const char* str) const
@@ -364,12 +363,12 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
 }
 
 
-static void jwt_b64_decode_json(json::Document& dest, const Buffer& src)
+static void jwt_b64_decode_json(xdoc::Document& dest, const Buffer& src)
 {
     Buffer decodedData(1024);
     Base64::decode(decodedData, src);
 
-    dest.load(decodedData.c_str());
+    dest.load(xdoc::DataFormat::JSON, decodedData.c_str());
 }
 
 void sptk::jwt_base64uri_encode(Buffer& buffer)
@@ -439,9 +438,9 @@ static void jwt_parse_body(JWT* jwt, const Buffer& body)
 
 static void jwt_verify_head(JWT* jwt, const Buffer& head)
 {
-    json::Document jsdoc;
+    xdoc::Document jsdoc;
     jwt_b64_decode_json(jsdoc, head);
-    const json::Element* js = &jsdoc.root();
+    const auto& js = jsdoc.root();
 
     String val = JWT::get_js_string(js, "alg");
     jwt->alg = JWT::str_alg(val.c_str());
@@ -530,7 +529,7 @@ void JWT::decode(const char* token, const String& _key)
     }
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_JWT, dup)
 {
@@ -539,21 +538,21 @@ TEST(SPTK_JWT, dup)
 
     JWT jwt;
 
-    jwt["iss"] = "test";
-    auto val = (String) jwt["iss"];
+    jwt.set("iss", "test");
+    auto val = (String) jwt.get("iss");
     EXPECT_FALSE(val.empty()) << "Can't get grant for first JWT";
 
     JWT newJWT(jwt);
-    val = (String) newJWT["iss"];
+    val = (String) newJWT.get("iss");
     EXPECT_FALSE(val.empty()) << "Can't get grant for second JWT";
 
     EXPECT_STREQ("test", val.c_str()) << "Got incorrect grant";
     EXPECT_EQ(JWT::Algorithm::NONE, jwt.get_alg()) << "Got incorrect alogorithm";
 
     now = time(nullptr);
-    jwt["iat"] = (int) now;
+    jwt.set("iat", (int) now);
 
-    valint = (int) jwt["iat"];
+    valint = (int) jwt.get("iat");
     EXPECT_EQ((long) now, valint) << "Failed jwt_get_grant_int()";
 }
 
@@ -562,11 +561,11 @@ TEST(SPTK_JWT, dup_signed)
     String key256("012345678901234567890123456789XY");
 
     JWT jwt;
-    jwt["iss"] = "test";
+    jwt.set("iss", "test");
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     JWT newJWT(jwt);
-    auto val = (String) newJWT["iss"];
+    auto val = (String) newJWT.get("iss");
     EXPECT_STREQ("test", val.c_str()) << "Failed jwt_get_grant_int()";
     EXPECT_EQ(JWT::Algorithm::HS256, jwt.get_alg()) << "Failed jwt_get_alg()";
 }
@@ -716,11 +715,11 @@ TEST(SPTK_JWT, encode_hs256_decode)
     JWT jwt;
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
-    jwt["iat"] = (int) time(nullptr);
-    jwt["iss"] = "https://test.com";
-    jwt["exp"] = (int) time(nullptr) + 86400;
+    jwt.set("iat", (int) time(nullptr));
+    jwt.set("iss", "https://test.com");
+    jwt.set("exp", (int) time(nullptr) + 86400);
 
-    auto* info = jwt.grants.root().add_object("info");
+    const auto& info = jwt.grants.root()->pushNode("info");
     info->set("company", "Linotex");
     info->set("city", "Melbourne");
 

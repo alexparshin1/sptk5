@@ -306,7 +306,7 @@ public:
     /**
      * Creates a button based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 
     /**
      * Loads layout client information from XML node
@@ -316,7 +316,7 @@ public:
      * @param node              the XML node
      * @param xmlMode           (ignored)
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override
+    void load(const std::shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode) override
     {
         load(node);
     }
@@ -328,7 +328,7 @@ public:
      * and widget data
      * @param node xml::Node*, XML node
      */
-    void load(const xml::Node* node) override;
+    void load(const xdoc::SNode& node) override;
 
     /**
      * Saves the the widget to XML node
@@ -338,7 +338,7 @@ public:
      * @param node              XML node
      * @param lm                (ignored)
      */
-    void save(xml::Node* node, CLayoutXMLmode lm = CLayoutXMLmode::LAYOUT) const override;
+    void save(const std::shared_ptr<xdoc::Node>& node, CLayoutXMLmode lm = CLayoutXMLmode::LAYOUT) const override;
 };
 
 /**

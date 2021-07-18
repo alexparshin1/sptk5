@@ -240,7 +240,7 @@ void NodeSearchAlgorithms::select(Node::Vector& nodes, const SNode& start, Strin
     NodeSearchAlgorithms::matchNode(start, nodes, pathElements, -1, starPointer);
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testXML1("<AAA><BBB/><CCC/><BBB/><BBB/><DDD><BBB/></DDD><CCC/></AAA>");
 static const String testXML2("<AAA><BBB/><CCC/><BBB/><DDD><BBB/></DDD><CCC><DDD><BBB/><BBB/></DDD></CCC></AAA>");

@@ -28,7 +28,7 @@
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 
-#if HAVE_ORACLE == 1
+#ifdef HAVE_ORACLE
 
 #include <occi.h>
 

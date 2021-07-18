@@ -137,7 +137,7 @@ bool DatabaseConnectionString::empty() const
     return m_hostName.empty();
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_DatabaseConnectionString, ctorSimple)
 {

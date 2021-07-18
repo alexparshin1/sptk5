@@ -138,9 +138,9 @@ public:
 
     /**
      * @brief Creates a widget based on the XML node information
-     * @param node xml::Node*, an XML node with widget information
+     * @param node              an XML node with widget information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 
     /**
      * @brief Returns widget class name (internal SPTK RTTI).

@@ -83,7 +83,7 @@
 
 #endif
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 #include <gtest/gtest.h>
 

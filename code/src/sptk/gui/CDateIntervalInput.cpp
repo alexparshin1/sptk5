@@ -78,7 +78,7 @@ CDateIntervalInput::CDateIntervalInput(int x,int y,int w,int h,const char * labe
 }
 #endif
 
-CLayoutClient* CDateIntervalInput::creator(xml::Node* node)
+CLayoutClient* CDateIntervalInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CDateIntervalInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

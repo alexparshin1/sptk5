@@ -26,7 +26,7 @@
 
 #include <sptk5/sptk.h>
 
-#if HAVE_SQLITE3
+#ifdef HAVE_SQLITE3
 
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>

@@ -67,4 +67,6 @@ private:
     SNode m_root;
 };
 
+using SDocument = std::shared_ptr<Document>;
+
 }

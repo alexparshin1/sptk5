@@ -192,7 +192,7 @@ void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode) const
     }
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_Field, move_ctor_assign)
 {

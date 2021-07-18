@@ -494,7 +494,7 @@ String decode(const String& text)
 
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testJson(
     R"({"name":"John","age":33,"temperature":33.6,"timestamp":1519005758000,)"

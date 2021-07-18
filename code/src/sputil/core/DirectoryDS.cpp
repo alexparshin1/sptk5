@@ -318,7 +318,7 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
     return make_shared<RegularExpression>(regexpStr);
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 #ifdef _WIN32
 const String testTempDirectory = "C:\\gtest_temp_dir";

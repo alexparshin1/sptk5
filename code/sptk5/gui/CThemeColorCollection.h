@@ -28,10 +28,11 @@
 
 #include <FL/Fl.H>
 #include <FL/Enumerations.H>
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
 #include <sptk5/gui/CThemeImageState.h>
 #include <map>
 #include <string>
+#include <sptk5/xdoc/Document.h>
 
 namespace sptk {
 
@@ -118,9 +119,9 @@ class SP_EXPORT CThemeColorCollection
 
     static Fl_Color gtkColorFunction(const String& expression);
 
-    void loadColor(xml::Node* colorNode, CThemeColorIndex colorIndex);
+    void loadColor(const xdoc::SNode& colorNode, CThemeColorIndex colorIndex);
 
-    void loadColorMap(xml::Document& gtkTheme, const String& colorMapXPath);
+    void loadColorMap(xdoc::Document& gtkTheme, const String& colorMapXPath);
 
     static Fl_Color passby(const String& expression);
 
@@ -141,12 +142,12 @@ public:
     /**
      * @brief Loads them from SPTK theme definition
      */
-    void loadFromSptkTheme(xml::Document& gtkTheme);
+    void loadFromSptkTheme(xdoc::Document& gtkTheme);
 
     /**
      * @brief Loads them from GTK theme definition
      */
-    void loadFromGtkTheme(xml::Document& gtkTheme);
+    void loadFromGtkTheme(xdoc::Document& gtkTheme);
 
     /**
      * @brief Returns normal color

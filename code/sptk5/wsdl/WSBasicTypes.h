@@ -29,7 +29,7 @@
 #include <sptk5/Field.h>
 #include <sptk5/wsdl/WSFieldIndex.h>
 #include <sptk5/wsdl/WSType.h>
-#include <sptk5/xml/Element.h>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 

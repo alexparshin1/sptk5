@@ -518,7 +518,7 @@ CTabs::~CTabs()
     delete m_tabs;
 }
 
-CLayoutClient* CTabs::creator(xml::Node* node)
+CLayoutClient* CTabs::creator(const xdoc::SNode& node)
 {
     auto* widget = new CTabs("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

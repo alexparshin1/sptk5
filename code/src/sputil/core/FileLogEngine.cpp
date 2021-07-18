@@ -109,7 +109,7 @@ void FileLogEngine::reset()
     }
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_FileLogEngine, create)
 {

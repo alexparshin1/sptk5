@@ -674,7 +674,7 @@ void CommandLine::printVersion() const
     COUT(m_programVersion << endl)
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 class CommandLineTestData
 {

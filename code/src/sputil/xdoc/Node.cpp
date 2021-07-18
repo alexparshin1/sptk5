@@ -285,6 +285,19 @@ bool Node::remove(const String& name)
     return false;
 }
 
+bool Node::remove(const SNode& _node)
+{
+    for (auto node = m_nodes.begin(); node != m_nodes.end(); ++node)
+    {
+        if ((*node).get() == _node.get())
+        {
+            m_nodes.erase(node);
+            return true;
+        }
+    }
+    return false;
+}
+
 size_t Node::size() const
 {
     return m_nodes.size();
@@ -443,7 +456,7 @@ bool sptk::xdoc::isFloat(const String& str)
     return isNumber.matches(str);
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_XDocument, typeRegexp)
 {

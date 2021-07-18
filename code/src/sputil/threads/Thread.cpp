@@ -110,7 +110,7 @@ bool Thread::running() const
     return m_thread && m_thread->joinable();
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 class ThreadTestThread: public Thread
 {

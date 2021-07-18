@@ -29,7 +29,7 @@
 using namespace sptk;
 using namespace xdoc;
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_XDocument, getSetAttributes)
 {

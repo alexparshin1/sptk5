@@ -1072,7 +1072,7 @@ Element* Element::add_object(const String& name)
     return objectElement;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 static const String testJSON1(
     R"({ "AAA": { "BBB": "", "CCC": "", "BBB": "", "BBB": "", "DDD": { "BBB": "" }, "CCC": "" } })");
 static const String testJSON2(

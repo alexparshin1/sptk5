@@ -166,7 +166,7 @@ bool HttpParams::has(const String& paramName) const
     return itor != end();
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String gtestURLencoded("id=1234&items=%5B%22book%22%2C%22pen%22%5D&name=John+Doe");
 

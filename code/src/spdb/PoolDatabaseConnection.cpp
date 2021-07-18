@@ -394,7 +394,7 @@ String PoolDatabaseConnectionQueryMethods::paramMark(unsigned /*paramIndex*/)
     return String("?");
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_BulkInsert, escapeSqlString)
 {

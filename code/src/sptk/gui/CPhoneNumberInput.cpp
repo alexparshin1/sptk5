@@ -51,7 +51,7 @@ CPhoneNumberInput::CPhoneNumberInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CPhoneNumberInput::creator(xml::Node* node)
+CLayoutClient* CPhoneNumberInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CPhoneNumberInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

@@ -181,7 +181,7 @@ public:
      * @param node              the XML node
      * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
+    void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Loads control data from XML
@@ -190,7 +190,7 @@ public:
      * as well as visible() and active() states
      * @param node              the XML node
      */
-    void load(const xml::Node* node) override
+    void load(const xdoc::SNode& node) override
     {
         load(node, CLayoutXMLmode::DATA);
     }
@@ -203,7 +203,7 @@ public:
      * @param node              the XML node
      * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
+    void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief Saves control data to XML
@@ -212,7 +212,7 @@ public:
      * as well as visible() and active() states
      * @param node              the XML node
      */
-    virtual void save(xml::Node* node) const
+    virtual void save(const xdoc::SNode& node) const
     {
         save(node, CLayoutXMLmode::DATA);
     }

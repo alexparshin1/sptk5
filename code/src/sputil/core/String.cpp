@@ -94,7 +94,7 @@ int String::toInt() const
     return string2int(*this, 0);
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testString("This is a test");
 

@@ -31,7 +31,7 @@ using namespace std;
 using namespace sptk;
 
 SystemException::SystemException(const String& context, const String& file, int line) DOESNT_THROW
-: Exception(context + ": " + osError(), file, line)
+    : Exception(context + ": " + osError(), file, line)
 {
 }
 
@@ -59,16 +59,18 @@ string SystemException::osError()
 #endif
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_SystemException, openFile)
 {
     Buffer buffer;
-    try {
+    try
+    {
         buffer.loadFromFile("/xx.xx");
         FAIL() << "MUST FAIL";
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         if (String(e.what()).find("xx.xx") == string::npos)
             FAIL() << e.what();
     }

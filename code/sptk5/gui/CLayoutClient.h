@@ -28,7 +28,7 @@
 
 #include <FL/Fl_Widget.H>
 #include <string>
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
@@ -300,7 +300,7 @@ public:
      * @param node              the XML node
      * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    virtual void load(const xml::Node* node, CLayoutXMLmode xmlMode);
+    virtual void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode);
 
     /**
      * Loads layout client information from XML node
@@ -309,7 +309,7 @@ public:
      * as well as visible() and active() states
      * @param node              the XML node
      */
-    virtual void load(const xml::Node* node)
+    virtual void load(const std::shared_ptr<xdoc::Node>& node)
     {
         load(node, CLayoutXMLmode::LAYOUT);
     }
@@ -322,7 +322,7 @@ public:
      * @param node              the XML node
      * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    virtual void save(xml::Node* node, CLayoutXMLmode xmlMode) const;
+    virtual void save(const std::shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode) const;
 };
 /**
  * @}

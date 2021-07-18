@@ -44,7 +44,7 @@ CPasswordInput::CPasswordInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CPasswordInput::creator(xml::Node* node)
+CLayoutClient* CPasswordInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CPasswordInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

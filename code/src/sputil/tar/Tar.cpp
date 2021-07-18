@@ -28,7 +28,7 @@
 #include <filesystem>
 #include <fstream>
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 #include <sptk5/md5.h>
 #include <sptk5/Printer.h>
@@ -183,7 +183,7 @@ void Tar::save(const String& tarFileName) const
     archive.close();
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String file1_md5 {"2934e1a7ae11b11b88c9b0e520efd978"};
 static const String file2_md5 {"adb45e22bba7108bb4ad1b772ecf6b40"};

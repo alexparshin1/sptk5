@@ -59,43 +59,39 @@ void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& htt
     {
         contentType = "application/json";
 
-        json::Document error;
-        error.root().set("error", errorText);
-        error.root().set("status_code", (int) e.statusCode());
-        error.root().set("status_text", e.statusText());
-        error.exportTo(output, true);
+        xdoc::Document error;
+        error.root()->set("error", errorText);
+        error.root()->set("status_code", (int) e.statusCode());
+        error.root()->set("status_text", e.statusText());
+        error.exportTo(xdoc::DataFormat::JSON, output, true);
     }
     else
     {
         contentType = "application/xml";
 
-        xml::Document error;
-        auto* xmlEnvelope = new xml::Element(&error, "soap:Envelope");
+        xdoc::Document error;
+        const auto& xmlEnvelope = error.root()->pushNode("soap:Envelope");
         xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
 
-        auto* xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
-        auto* faultNode = new xml::Element(xmlBody, "soap:Fault");
+        const auto& xmlBody = xmlEnvelope->pushNode("soap:Body");
+        const auto& faultNode = xmlBody->pushNode("soap:Fault");
+        faultNode->set("faultCode", "soap:Client");
+        faultNode->set("faultString", e.what());
 
-        auto* faultcodeNode = new xml::Element(faultNode, "faultCode");
-        faultcodeNode->text("soap:Client");
-
-        auto* faultstringNode = new xml::Element(faultNode, "faultString");
-        faultstringNode->text(e.what());
-
-        error.save(output, 2);
+        error.exportTo(xdoc::DataFormat::XML, output, true);
     }
 }
 
 static void substituteHostname(Buffer& page, const Host& host)
 {
-    xml::Document wsdl;
-    wsdl.load(page);
-    xml::Node* node = wsdl.findFirst("soap:address");
+    xdoc::Document wsdl;
+    wsdl.load(xdoc::DataFormat::XML, page);
+    auto node = wsdl.root()->findFirst("soap:address");
     if (node == nullptr)
     {
         throw Exception("Can't find <soap:address> in WSDL file");
     }
-    auto location = (String) node->getAttribute("location", "");
+    auto location = node->getAttribute("location", "");
     if (location.empty())
     {
         throw Exception("Can't find location attribute of <soap:address> in WSDL file");
@@ -104,7 +100,7 @@ static void substituteHostname(Buffer& page, const Host& host)
     listener << "http://" << host.toString() << "/";
     location = location.replace("http://([^\\/]+)/", listener.str());
     node->setAttribute("location", location);
-    wsdl.save(page, 2);
+    wsdl.exportTo(xdoc::DataFormat::XML, page, true);
 }
 
 RequestInfo WSWebServiceProtocol::process()

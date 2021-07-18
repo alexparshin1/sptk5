@@ -32,7 +32,7 @@
 #include <sptk5/db/Query.h>
 #include <sptk5/gui/CEvent.h>
 #include <sptk5/gui/CLayoutClient.h>
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
 
 #include <string>
 
@@ -636,20 +636,19 @@ public:
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     * @param node              the XML node
+     * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    virtual void load(const xml::Node* node, CLayoutXMLmode xmlMode);
+    virtual void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode);
 
     /**
      * @brief Loads control data from XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     * @param node              the XML node
      */
-    virtual void load(const xml::Node* node)
+    virtual void load(const xdoc::SNode& node)
     {
         load(node, CLayoutXMLmode::DATA);
     }
@@ -659,19 +658,19 @@ public:
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     * @param node              the XML node
+     * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    virtual void save(xml::Node* node, CLayoutXMLmode xmlMode) const;
+    virtual void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const;
 
     /**
      * @brief Saves control data to XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
+     * @param node              the XML node
      */
-    virtual void save(xml::Node* node) const
+    virtual void save(const xdoc::SNode& node) const
     {
         save(node, CLayoutXMLmode::DATA);
     }
@@ -939,7 +938,7 @@ CControl* createControl(CControlKind controlKind, const String& label, const Str
  * the exception is thrown.
  * @param xmlControls           The controls description in XML
  */
-void createControls(const xml::NodeList& xmlControls);
+void createControls(const xdoc::SNode& xmlControls);
 
 /**
  * @}

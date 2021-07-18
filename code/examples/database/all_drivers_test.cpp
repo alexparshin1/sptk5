@@ -437,20 +437,20 @@ int main(int argc, const char* argv[])
         {
             Strings databaseTypes;
             const char* availableDatabaseTypes[] = {
-#if HAVE_MYSQL == 1
+#ifdef HAVE_MYSQL
                 "mysql",
 #endif
-#if HAVE_ORACLE == 1
+#ifdef HAVE_ORACLE
                 "oracle",
 #endif
-#if HAVE_POSTGRESQL == 1
+#ifdef HAVE_POSTGRESQL
                 "postgres",
 #endif
-#if HAVE_ODBC == 1
+#ifdef HAVE_ODBC
                 "odbc",
                 "mssql",
 #endif
-#if HAVE_FIREBIRD == 1
+#ifdef HAVE_FIREBIRD
                 "firebird",
 #endif
                 nullptr};

@@ -28,7 +28,7 @@
 #include <future>
 #include <regex>
 
-#if (HAVE_PCRE | HAVE_PCRE2)
+#if defined(HAVE_PCRE) | defined(HAVE_PCRE2)
 
 using namespace std;
 using namespace sptk;
@@ -45,7 +45,7 @@ class MatchData
 {
 
 public:
-#if HAVE_PCRE2
+#ifdef HAVE_PCRE2
     shared_ptr<pcre2_match_data> match_data;
 
     MatchData(pcre2_code* pcre, size_t maxMatches)
@@ -81,7 +81,7 @@ size_t RegularExpression::getCaptureCount() const
     int captureCount = 0;
 
     if (
-#if HAVE_PCRE2
+#ifdef HAVE_PCRE2
 pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_CAPTURECOUNT, &captureCount)
 #else
 pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_CAPTURECOUNT, &captureCount)
@@ -122,7 +122,7 @@ void RegularExpression::Groups::grow(size_t groupCount)
 
 void RegularExpression::compile()
 {
-#if HAVE_PCRE2
+#ifdef HAVE_PCRE2
     int errornumber {0};
     PCRE2_SIZE erroroffset {0};
 
@@ -136,7 +136,7 @@ void RegularExpression::compile()
 
     if (pcre == nullptr)
     {
-        array<PCRE2_UCHAR, 256> buffer;
+        array < PCRE2_UCHAR, 256 > buffer;
         pcre2_get_error_message(errornumber, buffer.data(), sizeof(buffer));
         throw Exception((const char*) buffer.data());
     }
@@ -209,7 +209,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
     if (!m_pcre)
     throwException(m_error)
 
-#if HAVE_PCRE2
+#ifdef HAVE_PCRE2
     auto ovector = pcre2_get_ovector_pointer(matchData.match_data.get());
 
     auto rc = pcre2_match(
@@ -373,7 +373,7 @@ void RegularExpression::extractNamedMatches(const String& text, RegularExpressio
 void RegularExpression::getNameTable(const char*& nameTable, int& nameEntrySize) const
 {
     nameEntrySize = 0;
-#if HAVE_PCRE2
+#ifdef HAVE_PCRE2
     pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMETABLE, &nameTable);
     pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMEENTRYSIZE, &nameEntrySize);
 #else
@@ -387,7 +387,7 @@ size_t RegularExpression::getNamedGroupCount() const
     int nameCount = 0;
 
     if (
-#if HAVE_PCRE2
+#ifdef HAVE_PCRE2
 pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMECOUNT, &nameCount)
 #else
 pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_NAMECOUNT, &nameCount)
@@ -565,7 +565,7 @@ size_t RegularExpression::findNextPlaceholder(size_t pos, const String& outputPa
 String RegularExpression::replaceAll(const String& text, const map<String, String>& substitutions, bool& replaced) const
 {
     // For "i" option, make lowercase match map
-    map<String, String> substitutionsMap;
+    map < String, String > substitutionsMap;
     bool ignoreCase = (m_options & SPRE_CASELESS) == SPRE_CASELESS;
     if (ignoreCase)
     {
@@ -600,7 +600,7 @@ const String& RegularExpression::pattern() const
     return m_pattern;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testPhrase("This is a test text to verify rexec text data group");
 
@@ -683,7 +683,7 @@ TEST(SPTK_RegularExpression, replace)
 
 TEST(SPTK_RegularExpression, replaceAll)
 {
-    map<String, String> substitutions = {
+    map < String, String > substitutions = {
         {"$NAME", "John Doe"},
         {"$CITY", "London"},
         {"$YEAR", "2000"}
@@ -698,7 +698,7 @@ TEST(SPTK_RegularExpression, replaceAll)
 
 TEST(SPTK_RegularExpression, lambdaReplace)
 {
-    map<String, String> substitutions = {
+    map < String, String > substitutions = {
         {"$NAME", "John Doe"},
         {"$CITY", "London"},
         {"$YEAR", "2000"}

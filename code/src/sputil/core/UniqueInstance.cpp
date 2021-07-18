@@ -43,13 +43,15 @@ using namespace sptk;
 
 // Constructor
 UniqueInstance::UniqueInstance(String instanceName)
-        : m_instanceName(move(instanceName))
+    : m_instanceName(move(instanceName))
 {
 #ifndef _WIN32
     String home = getenv("HOME");
     m_fileName = home + "/" + m_instanceName + ".lock";
     if (read_pid() == 0)
+    {
         write_pid();
+    }
 #else
     m_mutex = CreateMutex(NULL,true,m_instanceName.c_str());
     if (GetLastError() == 0) {
@@ -78,7 +80,9 @@ int UniqueInstance::read_pid() const
     ifstream lockfile(m_fileName.c_str());
     lockfile >> pid;
     if (lockfile.bad())
-        pid = 0; // Lock file doesn't exist, or doesn't contain pid
+    {
+        pid = 0;
+    } // Lock file doesn't exist, or doesn't contain pid
     lockfile.close();
     if (pid == 0)
         return 0; // Lock file exists, but there is no process id int
@@ -117,7 +121,7 @@ bool UniqueInstance::isUnique() const
     return m_lockCreated != nullptr;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 #ifndef _WIN32
 
@@ -135,11 +139,14 @@ TEST(SPTK_UniqueInstance, create)
     EXPECT_TRUE(uniqueInstance2.isUnique());
 
     // Get pid of existing process
-    if (FILE* pipe1 = popen("pidof systemd", "r"); pipe1 != nullptr) {
+    if (FILE* pipe1 = popen("pidof systemd", "r"); pipe1 != nullptr)
+    {
         array<char, 64> buffer;
-        if (const char* data = fgets(buffer.data(), sizeof(buffer), pipe1); data != nullptr) {
+        if (const char* data = fgets(buffer.data(), sizeof(buffer), pipe1); data != nullptr)
+        {
             int pid = string2int(data);
-            if (pid > 0) {
+            if (pid > 0)
+            {
                 lockFile.open(uniqueInstance.lockFileName());
                 lockFile << pid;
                 lockFile.close();

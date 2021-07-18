@@ -47,14 +47,11 @@ const std::array<Fl_Boxtype, 4>  CFrames::frameTypes = {
     FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME
 };
 
-void CFrames::load(Tar& tar, xml::Node* framesNode)
+void CFrames::load(Tar& tar, const xdoc::SNode& framesNode)
 {
     clear();
-    auto itor = framesNode->begin();
-    auto iend = framesNode->end();
-    for (; itor != iend; ++itor)
+    for (const auto& frameNode: *framesNode)
     {
-        xml::Node* frameNode = *itor;
         if (frameNode->name() != "frame")
         {
             continue;
@@ -71,8 +68,8 @@ void CFrames::load(Tar& tar, xml::Node* framesNode)
             frameTypeStr = frameName;
         }
         unsigned frameTypeInt = (unsigned) frameTypeNames.indexOf(frameTypeStr);
-        unsigned frameWidth = (int) frameNode->getAttribute("width", "1");
-        unsigned cornerZone = (int) frameNode->getAttribute("corner", "1");
+        unsigned frameWidth = frameNode->getAttribute("width", "1").toInt();
+        unsigned cornerZone = frameNode->getAttribute("corner", "1").toInt();
         Fl_Boxtype frameType = FL_NO_BOX;
         CFrame::CFrameKind kind = CFrame::CFrameKind::USER_EXTENDED;
         if (frameTypeInt < 4)

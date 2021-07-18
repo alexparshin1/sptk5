@@ -402,7 +402,7 @@ CInput::CInput(int x,int y,int w,int h,const char *label,bool autoCreate)
 
 CInput::~CInput() = default;
 
-CLayoutClient* CInput::creator(xml::Node* node)
+CLayoutClient* CInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

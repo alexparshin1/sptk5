@@ -27,7 +27,7 @@
 #include <sptk5/Exception.h>
 #include <sptk5/Brotli.h>
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 #include <sptk5/Base64.h>
 #include <sptk5/StopWatch.h>
@@ -255,7 +255,7 @@ void Brotli::decompress(Buffer& dest, const Buffer& src)
     }
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String originalTestString = "This is a test of compression using Brotli algorithm";
 

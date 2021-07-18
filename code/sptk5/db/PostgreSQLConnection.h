@@ -29,7 +29,7 @@
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <mutex>
 
-#if HAVE_POSTGRESQL == 1
+#ifdef HAVE_POSTGRESQL
 
 #include <libpq-fe.h>
 

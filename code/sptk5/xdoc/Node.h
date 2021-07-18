@@ -170,6 +170,8 @@ public:
 
     bool remove(const String& name);
 
+    bool remove(const SNode& node);
+
     Variant& operator[](const String& name)
     {
         return *findOrCreate(name);

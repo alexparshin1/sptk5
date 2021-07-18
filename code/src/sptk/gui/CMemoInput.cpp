@@ -58,7 +58,7 @@ CMemoInput::CMemoInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CMemoInput::creator(xml::Node* node)
+CLayoutClient* CMemoInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CMemoInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

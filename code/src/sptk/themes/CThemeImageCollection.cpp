@@ -123,14 +123,14 @@ string CThemeImageCollection::gtkFullFileName(string fileName)
 }
 
 void CThemeImageCollection::loadFromGtkTheme(
-    xml::Document& gtkTheme, const String& imagesXPath, const String& attribute,
+    xdoc::Document& gtkTheme, const String& imagesXPath, const String& attribute,
     const String& attributeValue)
 {
     static const Strings buttonStates("NORMAL|ACTIVE|PRELIGHT", "|");
 
-    xml::NodeVector images;
+    xdoc::Node::Vector images;
 
-    gtkTheme.select(images, imagesXPath);
+    gtkTheme.root()->select(images, imagesXPath);
     bool borderInitted = false;
     string normalImageFileName;
     string normalOverlayFileName;

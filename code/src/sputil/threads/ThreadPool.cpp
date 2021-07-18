@@ -119,7 +119,7 @@ size_t ThreadPool::size() const
     return m_threadManager->threadCount();
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 class MyTask
     : public Runable

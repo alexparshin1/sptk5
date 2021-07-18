@@ -166,7 +166,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
     return stream;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testPhrase("This is a test");
 static const fs::path tempFileName("./gtest_sptk5_buffer.tmp");

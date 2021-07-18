@@ -111,7 +111,7 @@ bool Flag::wait_until(bool value, DateTime timeoutAt)
     return true;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_Flag, ctor)
 {

@@ -136,7 +136,7 @@ bool ThreadManager::running() const
     return m_joiner->running();
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 class ThreadManagerTestThread
     : public Thread

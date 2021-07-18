@@ -638,26 +638,26 @@ void CControl::fireEvent(CEvent ev, int32_t arg)
     }
 }
 
-void sptk::createControls(const xml::NodeList& xmlControls)
+void sptk::createControls(const xdoc::SNode& xmlControls)
 {
-    for (auto* node: xmlControls)
+    for (const auto& node: *xmlControls)
     {
         CControlKind controlKind = CControlKindIndex::type(node->name());
         CControl* control = createControl(controlKind, (String) node->getAttribute("label", ""),
                                           (String) node->getAttribute("fieldName", ""),
-                                          (int) node->getAttribute("size", "12"));
-        if ((int) node->getAttribute("visible", "1") == 0)
+                                          node->getAttribute("size", "12").toInt());
+        if (node->getAttribute("visible", "1").toInt() == 0)
         {
             control->hide();
         }
-        if ((int) node->getAttribute("enable", "1") == 0)
+        if (node->getAttribute("enable", "1").toInt() == 0)
         {
             control->deactivate();
         }
     }
 }
 
-void CControl::load(const xml::Node* node, CLayoutXMLmode xmlMode)
+void CControl::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
 {
     if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
     {
@@ -672,7 +672,7 @@ void CControl::load(const xml::Node* node, CLayoutXMLmode xmlMode)
     }
 }
 
-void CControl::save(xml::Node* node, CLayoutXMLmode xmlMode) const
+void CControl::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 {
     node->name("control");
 

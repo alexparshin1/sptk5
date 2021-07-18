@@ -35,7 +35,7 @@
 #include <atomic>
 #include <memory>
 
-#if HAVE_PCRE2
+#ifdef HAVE_PCRE2
 #define PCRE2_STATIC
 #define PCRE2_CODE_UNIT_WIDTH 8
 
@@ -48,7 +48,7 @@
 using pcre_offset_t = long;
 #endif
 
-#if HAVE_PCRE
+#ifdef HAVE_PCRE
 
 #include <pcre.h>
 
@@ -59,7 +59,7 @@ using pcre_offset_t = long;
 using pcre_offset_t = int;
 #endif
 
-#if (HAVE_PCRE2 | HAVE_PCRE)
+#if defined(HAVE_PCRE2) | defined(HAVE_PCRE)
 
 namespace sptk {
 
@@ -76,7 +76,7 @@ class MatchData;
 class SP_EXPORT RegularExpression
 {
 
-#if HAVE_PCRE2
+#ifdef HAVE_PCRE2
     using PCREHandle = pcre2_code;      ///< Compiled PCRE expression handle
     using PCREExtraHandle = uint8_t*;   ///< Dummy
 #else

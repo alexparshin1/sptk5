@@ -32,15 +32,15 @@
 using namespace std;
 using namespace sptk;
 
-CTabImage::CTabImage(const Tar& tar, const xml::Node* tabImageNode)
+CTabImage::CTabImage(const Tar& tar, const xdoc::SNode& tabImageNode)
 {
     m_name = (String) tabImageNode->getAttribute("name");
     String fileName = (String) tabImageNode->getAttribute("image");
     m_image = new CPngImage(tar.file(fileName));
-    m_leftFrameWidth = (int) tabImageNode->getAttribute("left_frame", "0");
-    m_rightFrameWidth = (int) tabImageNode->getAttribute("right_frame", "0");
-    m_topFrameHeight = (int) tabImageNode->getAttribute("top_frame", "0");
-    m_bottomFrameHeight = (int) tabImageNode->getAttribute("bottom_frame", "0");
+    m_leftFrameWidth = tabImageNode->getAttribute("left_frame", "0").toInt();
+    m_rightFrameWidth = tabImageNode->getAttribute("right_frame", "0").toInt();
+    m_topFrameHeight = tabImageNode->getAttribute("top_frame", "0").toInt();
+    m_bottomFrameHeight = tabImageNode->getAttribute("bottom_frame", "0").toInt();
     if ((String) tabImageNode->getAttribute("fill") == "stretch")
     {
         m_backgroundDrawMode = CPngImage::CPatternDrawMode::PDM_STRETCH;
@@ -97,12 +97,12 @@ void CTabImage::draw(int x, int y, int w, int h)
                             h - (m_topFrameHeight + m_bottomFrameHeight));
 }
 
-void CTabImages::load(const Tar& tar, const xml::Node* tabImagesNode)
+void CTabImages::load(const Tar& tar, const xdoc::SNode& tabImagesNode)
 {
     clear();
-    for (auto tabNode: *tabImagesNode)
+    for (auto& tabNode: *tabImagesNode)
     {
-        auto tabImage = new CTabImage(tar, tabNode);
+        auto* tabImage = new CTabImage(tar, tabNode);
         (*this)[tabImage->name()] = tabImage;
     }
 }
@@ -113,7 +113,7 @@ void CTabImages::clear()
     {
         delete itor.second;
     }
-    map<String, CTabImage*>::clear();
+    map < String, CTabImage * > ::clear();
 }
 
 CTabImage* CTabImages::tabImage(const char* imageName)

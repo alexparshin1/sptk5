@@ -127,8 +127,8 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
     size_t in_len = encoded_string.size();
     int i = 0;
     int in_ = 0;
-    array<uint8_t, 4> char_array_4{};
-    array<uint8_t, 3> char_array_3{};
+    array < uint8_t, 4 > char_array_4 {};
+    array < uint8_t, 3 > char_array_3 {};
 
     dest.reset();
 
@@ -191,7 +191,7 @@ size_t Base64::decode(Buffer& bufDest, const String& strSource)
     return internal_decode(bufDest, strSource);
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testPhrase("This is a test");
 static const String testPhraseBase64("VGhpcyBpcyBhIHRlc3Q=");

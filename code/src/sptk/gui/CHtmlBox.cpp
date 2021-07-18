@@ -62,7 +62,7 @@ CHtmlBox::CHtmlBox(int x,int y,int w,int h,const char *label)
 }
 #endif
 
-CLayoutClient* CHtmlBox::creator(xml::Node* node)
+CLayoutClient* CHtmlBox::creator(const xdoc::SNode& node)
 {
     auto* widget = new CHtmlBox("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

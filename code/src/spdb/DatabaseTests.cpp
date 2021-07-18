@@ -198,7 +198,7 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
     insert2.param("dt") = DateTime("2015-06-01T11:22:33");
     insert2.exec();
 
-#if USE_GTEST
+#ifdef USE_GTEST
     Query select(db, "SELECT ts FROM gtest_temp_table");
     select.open();
     EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01T11:22:33"));
@@ -255,7 +255,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         insert.exec();
     }
 
-#if USE_GTEST
+#ifdef USE_GTEST
     Query select(db, "SELECT * FROM gtest_temp_table ORDER BY id");
     select.open();
     for (const auto& row: rows)
@@ -447,14 +447,14 @@ void DatabaseTests::createTestTableWithSerial(DatabaseConnection db)
 
     query.param("name") = "Alex";
     query.exec();
-#if USE_GTEST
+#ifdef USE_GTEST
     auto id = query.id();
     EXPECT_EQ(id, uint64_t(1));
 #endif
 
     query.param("name") = "David";
     query.exec();
-#if USE_GTEST
+#ifdef USE_GTEST
     id = query.id();
     EXPECT_EQ(id, uint64_t(2));
 #endif

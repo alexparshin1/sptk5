@@ -33,7 +33,7 @@
 
 #endif
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 #include <sptk5/db/DatabaseTests.h>
 #include <future>
@@ -205,7 +205,7 @@ void DatabaseConnectionPool::destroyConnection(SPoolDatabaseConnection& connecti
     connection.reset();
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_DatabaseConnectionPool, connectString)
 {
@@ -368,7 +368,7 @@ static void testSelect(const String& dbName)
 }
 
 //───────────────────────────────── PostgreSQL ───────────────────────────────────────────
-#if HAVE_POSTGRESQL
+#ifdef HAVE_POSTGRESQL
 
 TEST(SPTK_PostgreSQLConnection, connect)
 {
@@ -419,7 +419,7 @@ TEST(SPTK_PostgreSQLConnection, insertQuery)
 
 //───────────────────────────────── MySQL ────────────────────────────────────────────────
 
-#if HAVE_MYSQL
+#ifdef HAVE_MYSQL
 
 TEST(SPTK_MySQLConnection, connect)
 {
@@ -469,7 +469,7 @@ TEST(SPTK_MySQLConnection, insertQuery)
 #endif
 
 //───────────────────────────────── Oracle ─────────────────────────────────────────────
-#if HAVE_ORACLE
+#ifdef HAVE_ORACLE
 
 TEST(SPTK_OracleConnection, connect)
 {
@@ -514,7 +514,7 @@ TEST(SPTK_OracleConnection, insertQuery)
 #endif
 
 //───────────────────────────────── MS SQL ─────────────────────────────────────────────
-#if HAVE_ODBC
+#ifdef HAVE_ODBC
 
 TEST(SPTK_MSSQLConnection, connect)
 {
@@ -559,7 +559,7 @@ TEST(SPTK_MSSQLConnection, insertQuery)
 #endif
 
 //───────────────────────────────── SQLite3 ────────────────────────────────────────────
-#if HAVE_SQLITE3
+#ifdef HAVE_SQLITE3
 
 TEST(SPTK_SQLite3Connection, connect)
 {

@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
 #include <sptk5/gui/CPngImage.h>
 #include <sptk5/Tar.h>
 
@@ -205,7 +205,7 @@ public:
      * @param tar CTar&, tar archive with the images
      * @param frameNode xml::Node*, XML description of the frames
      */
-    void load(Tar& tar, xml::Node* frameNode);
+    void load(Tar& tar, const xdoc::SNode& frameNode);
 
     /**
      * @brief Registers a single frame image in the collection

@@ -140,13 +140,13 @@ bool CThemeScrollBar::sizeScrollBar(int& w, int& h)
 }
 
 void CThemeScrollBar::loadGtkScrollbarButtons(
-    xml::Document& xml, const String& orientation, CThemeImageCollection& buttonImages)
+    xdoc::Document& xml, const String& orientation, CThemeImageCollection& buttonImages)
 {
     String XPath("/styles/style[@name='scrollbars']/engine[@name='pixmap']/image[@function='STEPPER']");
     buttonImages.loadFromGtkTheme(xml, XPath, "arrow_direction", orientation);
 }
 
-void CThemeScrollBar::loadGtkScrollbarTroughs(xml::Document& xml)
+void CThemeScrollBar::loadGtkScrollbarTroughs(xdoc::Document& xml)
 {
     static const char* orientation[2] = {"VERTICAL", "HORIZONTAL"};
     for (unsigned i = 0; i < 2; i++)
@@ -158,7 +158,7 @@ void CThemeScrollBar::loadGtkScrollbarTroughs(xml::Document& xml)
     }
 }
 
-void CThemeScrollBar::loadGtkScrollbarSliders(xml::Document& xml)
+void CThemeScrollBar::loadGtkScrollbarSliders(xdoc::Document& xml)
 {
     static const char* orientation[2] = {"VERTICAL", "HORIZONTAL"};
 
@@ -171,16 +171,16 @@ void CThemeScrollBar::loadGtkScrollbarSliders(xml::Document& xml)
     }
 }
 
-void CThemeScrollBar::loadGtkScrollbars(xml::Document& xml)
+void CThemeScrollBar::loadGtkScrollbars(xdoc::Document& xml)
 {
-    xml::NodeVector scrollBarDefaults;
-    xml.select(scrollBarDefaults, "/styles/style/GtkRange");
+    xdoc::Node::Vector scrollBarDefaults;
+    xml.root()->select(scrollBarDefaults, "/styles/style/GtkRange");
     if (!scrollBarDefaults.empty())
     {
-        xml::Node* node = scrollBarDefaults[0];
-        m_scrollBarTroughBorder = (int) node->getAttribute("trough_border", "1");
-        m_scrollBarSliderWidth = (int) node->getAttribute("slider_width", "14");
-        m_scrollBarStepperSize = (int) node->getAttribute("stepper_size", "14");
+        const auto& node = scrollBarDefaults[0];
+        m_scrollBarTroughBorder = node->getAttribute("trough_border", "1").toInt();
+        m_scrollBarSliderWidth = node->getAttribute("slider_width", "14").toInt();
+        m_scrollBarStepperSize = node->getAttribute("stepper_size", "14").toInt();
     }
     loadGtkScrollbarButtons(xml, "UP", m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[0]);
     loadGtkScrollbarButtons(xml, "DOWN", m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[1]);

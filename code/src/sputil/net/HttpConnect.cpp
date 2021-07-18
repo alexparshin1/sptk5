@@ -138,10 +138,10 @@ static bool compressPostData(const sptk::Strings& possibleContentEncodings, Stri
                              Buffer& compressedData)
 {
     static const sptk::Strings& availableContentEncodings {
-#if HAVE_BROTLI
+#ifdef HAVE_BROTLI
         "br",
 #endif
-#if HAVE_ZLIB
+#ifdef HAVE_ZLIB
         "gzip",
 #endif
     };
@@ -158,14 +158,14 @@ static bool compressPostData(const sptk::Strings& possibleContentEncodings, Stri
     String usedEncoding;
     for (const auto& contentEncoding: encodings)
     {
-#if HAVE_BROTLI
+#ifdef HAVE_BROTLI
         if (contentEncoding == "br")
         {
             Brotli::compress(compressedData, postData);
             usedEncoding = contentEncoding;
         }
 #endif
-#if HAVE_ZLIB
+#ifdef HAVE_ZLIB
         if (contentEncoding == "gzip")
         {
             ZLib::compress(compressedData, postData);
@@ -226,7 +226,7 @@ int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& request
 {
     Strings headers = makeHeaders("PUT", pageName, requestParameters, authorization);
 
-#if HAVE_ZLIB
+#ifdef HAVE_ZLIB
     headers.push_back("Accept-Encoding: gzip");
 #endif
 
@@ -275,7 +275,7 @@ HttpConnect::Authorization::Authorization(const String& method, const String& us
 {
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_HttpConnect, get)
 {

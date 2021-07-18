@@ -308,7 +308,7 @@ void HttpReader::read()
     {
         if (itor->second == "gzip")
         {
-#if HAVE_ZLIB
+#ifdef HAVE_ZLIB
             Buffer unzipBuffer;
             ZLib::decompress(unzipBuffer, m_output);
             m_output = move(unzipBuffer);
@@ -319,7 +319,7 @@ void HttpReader::read()
         }
         if (itor->second == "br")
         {
-#if HAVE_BROTLI
+#ifdef HAVE_BROTLI
             Buffer unzipBuffer;
             Brotli::decompress(unzipBuffer, m_output);
             m_output = move(unzipBuffer);

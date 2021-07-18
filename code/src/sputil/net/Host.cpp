@@ -275,7 +275,7 @@ String Host::toString(bool forceAddress) const
 }
 
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static constexpr uint16_t sshPort = 22;
 static constexpr uint16_t telnetPort = 23;

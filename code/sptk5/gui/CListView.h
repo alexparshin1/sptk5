@@ -769,7 +769,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
+    void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Saves control data to XML
@@ -779,7 +779,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
+    void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief True if the data is valid
@@ -1140,7 +1140,7 @@ public:
      * The XML node should contain the columns information, and optional list items
      * @param node const xml::Node&, the node to load list from
      */
-    void loadList(const xml::Node* node);
+    void loadList(const xdoc::SNode& node);
 
     /**
      * @brief Saves the list data into XML node
@@ -1148,7 +1148,7 @@ public:
      * The XML node should contain the columns information, and optional list items
      * @param node const xml::Node&, the node to save list into
      */
-    void saveList(xml::Node* node) const;
+    void saveList(const xdoc::SNode& node) const;
 
     /**
      * @brief Computes the optimal widgets size

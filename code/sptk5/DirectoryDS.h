@@ -29,6 +29,7 @@
 #include <memory>
 #include <sys/stat.h>
 #include <sptk5/MemoryDS.h>
+#include <sptk5/RegularExpression.h>
 #include <sptk5/Strings.h>
 #include <sptk5/CSmallPixmapIDs.h>
 #include <sptk5/sptk-config.h>

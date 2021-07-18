@@ -32,6 +32,7 @@
 
 #include <sptk5/cutils>
 #include <sstream>
+#include <sptk5/xdoc/Document.h>
 
 namespace sptk {
 
@@ -42,7 +43,8 @@ class SP_EXPORT JWT
 {
 public:
     /** JWT algorithm types. */
-    enum class Algorithm : uint8_t
+    enum class Algorithm
+        : uint8_t
     {
         NONE = 0,
         HS256,
@@ -57,9 +59,9 @@ public:
         INVAL
     };
 
-    Algorithm       alg {Algorithm::NONE};     ///< Signature encryption algorithm
-    String          key;                    ///< Signature encryption key
-    json::Document  grants {true};   ///< Token content
+    Algorithm alg {Algorithm::NONE};     ///< Signature encryption algorithm
+    String key;                          ///< Signature encryption key
+    xdoc::Document grants;               ///< Token content
 
     /**
      * Constructor
@@ -73,21 +75,21 @@ public:
      * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
-    json::Element& operator[](const std::string& name)
+    Variant& get(const String& name) const
     {
-        return grants.root()[name];
+        return *grants.root()->findOrCreate(name);
     }
 
     /**
-     * Get JSON element in JSON object element by name.
-     * If element doesn't exist in JSON object yet, then reference to static const JSON null element is returned.
+     * Set JSON element in JSON object element by name.
+     * If element doesn't exist in JSON object yet, it's created as JSON null element.
      * If this element is not JSON object, an exception is thrown.
      * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
-    const json::Element& operator[](const std::string& name) const
+    void set(const String& name, const Variant& data) const
     {
-        return grants.root()[name];
+        grants.root()->set(name, data);
     }
 
     /*
@@ -101,21 +103,21 @@ public:
      * @param _alg               Signature encryption algorithm
      * @param _key               Signature encryption key
      */
-    void set_alg(Algorithm _alg, const String &_key);
+    void set_alg(Algorithm _alg, const String& _key);
 
     /**
      * Get signature encryption algorithm name
      * @param _alg               Signature encryption algorithm
      * @return
      */
-    static const char * alg_str(Algorithm _alg);
+    static const char* alg_str(Algorithm _alg);
 
     /**
      * Get signature encryption algorithm from name
      * @param alg               Signature encryption algorithm name
      * @return
      */
-    static Algorithm str_alg(const char *alg);
+    static Algorithm str_alg(const char* alg);
 
     /**
      * Sign token
@@ -135,7 +137,7 @@ public:
      * @param token             Input token data
      * @param _key               Optional signature encryption key
      */
-    void decode(const char *token, const String& _key="");
+    void decode(const char* token, const String& _key = "");
 
     /**
      * Export token to stream
@@ -151,7 +153,7 @@ public:
      * @param found             Optional (output) flag, true is found
      * @return grant value
      */
-    static String get_js_string(const json::Element *js, const String& key, bool* found=nullptr);
+    static String get_js_string(const xdoc::SNode& js, const String& key, bool* found = nullptr);
 
     /**
      * Find integer grant value by name
@@ -160,7 +162,7 @@ public:
      * @param found             Optional (output) flag, true is found
      * @return grant value
      */
-    static long get_js_int(const json::Element *js, const String& key, bool* found=nullptr);
+    static long get_js_int(const xdoc::SNode& js, const String& key, bool* found = nullptr);
 
     /**
      * Find boolean grant value by name
@@ -169,7 +171,7 @@ public:
      * @param found             Optional (output) flag, true is found
      * @return grant value
      */
-    static bool get_js_bool(const json::Element *js, const String& key, bool* found=nullptr);
+    static bool get_js_bool(const xdoc::SNode& js, const String& key, bool* found = nullptr);
 
     /**
      * Write token head to output stream
@@ -228,7 +230,7 @@ private:
      * @param key               Grant name
      * @return JSON element, or nullptr if not found
      */
-    static const json::Element* find_grant(const json::Element *js, const String& key);
+    static xdoc::SNode find_grant(const xdoc::SNode& js, const String& key);
 };
 
 /**
@@ -245,4 +247,3 @@ void jwt_base64uri_encode(Buffer& buffer);
 void jwt_b64_decode(Buffer& destination, const char* src);
 
 } // namespace sptk
-

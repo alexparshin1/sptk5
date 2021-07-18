@@ -28,12 +28,11 @@
 
 #include <sptk5/sptk.h>
 
-#if HAVE_BROTLI
+#ifdef HAVE_BROTLI
 
 #include <sptk5/Buffer.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * Simple wrapper for Brotli functions
@@ -63,4 +62,3 @@ public:
 }
 
 #endif
-

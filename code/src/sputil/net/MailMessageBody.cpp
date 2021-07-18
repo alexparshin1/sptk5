@@ -64,7 +64,7 @@ void MailMessageBody::text(const string& messageText, bool smtp)
     }
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_MailMessageBody, minimal)
 {

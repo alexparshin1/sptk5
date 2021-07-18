@@ -32,6 +32,7 @@
 #include <sptk5/cdatabase>
 #include <sptk5/cthreads>
 #include <sptk5/Printer.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
@@ -60,10 +61,10 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
             insertQuery.exec();
         }
 
-        if (rollback)
-            transaction.rollback();
-        else
-            transaction.commit();
+        if (rollback){
+            transaction.rollback();}
+        else{
+            transaction.commit();}
 
         DateTime ended("now");
 
@@ -120,8 +121,8 @@ void createTestTable(DatabaseConnection db, String tableName)
         query.exec();
     }
     catch (const Exception& e) {
-        if (strstr(e.what(), " already ") == nullptr)
-            throw;
+        if (strstr(e.what(), " already ") == nullptr){
+            throw;}
         COUT("Table already exists, ")
     }
 }
@@ -129,10 +130,10 @@ void createTestTable(DatabaseConnection db, String tableName)
 int main(int argc, const char* argv[])
 {
     String connectString;
-    if (argc == 1)
-        connectString = "mssql://gtest:test#123@dsn_mssql/gtest";
-    else
-        connectString = argv[1];
+    if (argc == 1){
+        connectString = "mssql://gtest:test#123@dsn_mssql/gtest";}
+    else{
+        connectString = argv[1];}
 
     try {
         if (!RegularExpression("^(mssql|odbc)://").matches(connectString)) {

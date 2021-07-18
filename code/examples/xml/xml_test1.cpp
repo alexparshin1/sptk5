@@ -35,7 +35,7 @@
 using namespace std;
 using namespace sptk;
 
-void build_tree(xml::Element* n, CTreeControl* tree, CTreeItem* item)
+void build_tree(xdoc::SNode& n, CTreeControl* tree, CTreeItem* item)
 {
     if (!n)
     {
@@ -45,95 +45,90 @@ void build_tree(xml::Element* n, CTreeControl* tree, CTreeItem* item)
     CTreeItem* w = nullptr;
     CTreeItem* newItem = nullptr;
     if (!n->empty() ||
-        (int) n->type() & ((int) xml::Node::Type::DOM_CDATA_SECTION | (int) xml::Node::Type::DOM_COMMENT))
+        (int) n->type() & ((int) xdoc::Node::Type::CData | (int) xdoc::Node::Type::Comment))
     {
         // Create a new item group
         if (item)
         {
-            newItem = item->addItem("", nullptr, nullptr, n);
+            newItem = item->addItem("", nullptr, nullptr, n.get());
         }
         else
         {
-            newItem = tree->addItem("", nullptr, nullptr, n);
+            newItem = tree->addItem("", nullptr, nullptr, n.get());
         }
         w = newItem;
-        if ((int) n->type() & ((int) xml::Node::Type::DOM_CDATA_SECTION | (int) xml::Node::Type::DOM_COMMENT))
+        if ((int) n->type() & ((int) xdoc::Node::Type::CData | (int) xdoc::Node::Type::Comment))
         {
             w->label(n->name().c_str());
-            w = newItem->addItem("", nullptr, nullptr, n);
+            w = newItem->addItem("", nullptr, nullptr, n.get());
         }
     }
     else
     {
         if (item)
         {
-            newItem = item->addItem("", nullptr, nullptr, n);
+            newItem = item->addItem("", nullptr, nullptr, n.get());
         }
         else
         {
-            newItem = tree->addItem("", nullptr, nullptr, n);
+            newItem = tree->addItem("", nullptr, nullptr, n.get());
         }
         w = newItem;
     }
 
     String label;
-    const xml::Attributes& attr_map = n->attributes();
 
     switch (n->type())
     {
-        case xml::Node::Type::DOM_ELEMENT:
+        case xdoc::Node::Type::Object:
+        case xdoc::Node::Type::Array:
+        case xdoc::Node::Type::Text:
+        case xdoc::Node::Type::Number:
+        case xdoc::Node::Type::Boolean:
             label = n->name();
-            if (n->hasAttributes())
+            if (!n->attributes().empty())
             {
-                auto it = attr_map.begin();
-                for (; it != attr_map.end(); it++)
+                for (const auto&[name, value]: n->attributes())
                 {
-                    label += string(" ") + (*it)->name() + string("=*") + (*it)->value() + "*";
+                    label += string(" ") + name + string("=*") + value + "*";
                 }
             }
             break;
 
-        case xml::Node::Type::DOM_PI:
+        case xdoc::Node::Type::ProcessingInstruction:
             label = n->name();
             label += ": ";
-            label += n->value();
+            label += n->asString();
             break;
 
-        case xml::Node::Type::DOM_DOCUMENT:
+        case xdoc::Node::Type::DocumentRoot:
             label = n->name();
             break;
 
         default:
-            label = n->value();
+            label = n->asString();
             break;
     }
 
     w->label(label.c_str());
 
-    auto itor = n->begin();
-    auto iend = n->end();
-    for (; itor != iend; ++itor)
+    for (auto& node: *n)
     {
-        auto* node = dynamic_cast<xml::Element*>(*itor);
-        if (node)
-        {
-            build_tree(node, tree, newItem);
-        }
+        build_tree(node, tree, newItem);
     }
 }
 
-xml::Document* build_doc()
+xdoc::Document* build_doc()
 {
-    auto* doc = new xml::Document();
+    auto* doc = new xdoc::Document();
 
-    xml::Node* rootNode = new xml::Element(*doc, "MyDocument");
-    xml::Node* hello = new xml::Element(*rootNode, "HelloTag");
-    new xml::Element(*hello, "Hello all!");
+    const auto& rootNode = doc->root()->pushNode("MyDocument");
+    rootNode->set("HelloTag", "Hello all!");
 
     try
     {
         Buffer savebuffer;
-        doc->save(savebuffer, true);
+        doc->exportTo(xdoc::DataFormat::XML, savebuffer, true);
         savebuffer.saveToFile("MyXML2.xml");
     }
     catch (const Exception& e)
@@ -149,13 +144,13 @@ double diffSeconds(DateTime start, DateTime end)
     return chrono::duration_cast<chrono::milliseconds>(end - start).count() / 1000.0;
 }
 
-void saveDocument(const shared_ptr<xml::Document>& doc)
+void saveDocument(const shared_ptr<xdoc::Document>& doc)
 {
     try
     {
         DateTime start("now");
         Buffer savebuffer;
-        doc->save(savebuffer, true);
+        doc->exportTo(xdoc::DataFormat::XML, savebuffer, true);
         savebuffer.saveToFile("MyXML.xml");
         DateTime end("now");
         COUT("XML Test - saved for " << diffSeconds(start, end) << " sec" << endl)
@@ -207,8 +202,8 @@ int main(int argc, char** argv)
         window->end();
 
         DateTime start = DateTime::Now();
-        shared_ptr<xml::Document> doc(new xml::Document);
-        doc->load(buffer);
+        auto doc = make_shared<xdoc::Document>();
+        doc->load(xdoc::DataFormat::XML, buffer);
         DateTime end = DateTime::Now();
 
         stringstream message;
@@ -216,7 +211,7 @@ int main(int argc, char** argv)
         window->label(message.str());
         COUT(message.str() << endl)
 
-        build_tree(doc.get(), tree, nullptr);
+        build_tree(doc->root(), tree, nullptr);
         start = DateTime::Now();
         tree->relayout();
         end = DateTime::Now();

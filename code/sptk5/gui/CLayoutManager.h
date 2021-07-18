@@ -28,7 +28,7 @@
 
 #include <string>
 #include <map>
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
 #include <sptk5/gui/CFrame.h>
 #include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/Exception.h>
@@ -47,7 +47,7 @@ namespace sptk {
  *
  * The information (layout,style,etc) is provided by the XML node
  */
-using createControlCallback = CLayoutClient* (*)(xml::Node* node);
+using createControlCallback = CLayoutClient* (*)(const xdoc::SNode& node);
 
 /**
  * @brief A callback map that stores type names and control create functions
@@ -255,7 +255,7 @@ public:
      * @param node const xml::Node*, node to load data from
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
      */
-    virtual void loadLayout(const xml::Node* node, CLayoutXMLmode xmlMode);
+    virtual void loadLayout(const xdoc::SNode& node, CLayoutXMLmode xmlMode);
 
     /**
      * @brief Saves group controls data into XML node
@@ -263,7 +263,7 @@ public:
      * @param node const xml::Node*, node to save data into
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void saveLayout(xml::Node* node, CLayoutXMLmode xmlMode) const;
+    virtual void saveLayout(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const;
 
     /**
      * @brief Builds an index of internal widget names

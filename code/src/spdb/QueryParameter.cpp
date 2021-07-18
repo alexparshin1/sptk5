@@ -139,7 +139,7 @@ void QueryParameter::setString(const char* value, size_t maxlen)
     dataType(dtype);
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_QueryParameter, minimal)
 {

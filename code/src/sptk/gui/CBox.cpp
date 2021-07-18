@@ -64,11 +64,11 @@ CBox::CBox(int x,int y,int w,int h,const char *label)
 }
 #endif
 
-CLayoutClient* CBox::creator(xml::Node* node)
+CLayoutClient* CBox::creator(const xdoc::SNode& node)
 {
     auto* widget = new CBox("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);
-    widget->dragable((bool) node->getAttribute("drag", "N"));
+    widget->dragable(node->getAttribute("drag", "false") == "true");
     return widget;
 }
 

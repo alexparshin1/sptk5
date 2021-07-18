@@ -631,35 +631,14 @@ public:
      * @param node              Node to load data from
      * @param autoCreate        Ignored
      */
-    virtual void load(const xml::Node& node, bool autoCreate);
-
-    /**
-     * @brief Loads group controls data from XML node
-     *
-     * @param node              Node to load data from
-     * @param autoCreate        Create widgets if they are not found
-     */
-    virtual void load(const xml::Node* node, bool autoCreate = false)
-    {
-        load(*node, autoCreate);
-    }
+    virtual void load(const xdoc::SNode& node, bool autoCreate = false);
 
     /**
      * @brief Saves group controls data into XML node
      *
      * @param node              Node to save data into
      */
-    virtual void save(xml::Node& node) const;
-
-    /**
-     * @brief Saves group controls data into XML node
-     *
-     * @param node              Node to save data into
-     */
-    virtual void save(xml::Node* node) const
-    {
-        save(*node);
-    }
+    virtual void save(const xdoc::SNode& node) const;
 
     /**
      * @brief Returns widget class name (internal SPTK RTTI).

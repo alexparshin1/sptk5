@@ -28,7 +28,7 @@
 #define __CGTKTHEMELOADER_H__
 
 #include <sptk5/cutils>
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Document.h>
 
 namespace sptk {
 
@@ -38,33 +38,33 @@ namespace sptk {
 /// @brief This class parses GTK theme configuration file into XML
 class CGtkThemeParser
 {
-    sptk::xml::Document m_xml;          ///< Internal XML presentation of GTK theme config
+    xdoc::Document m_xml;          ///< Internal XML presentation of GTK theme config
     std::string m_themeFolder;  ///< Path to the theme folder that contains gtkrc file
 
     /// @brief Reads parameter/value pair from the line of text
     /// @param row const std::string&, text row
     /// @param parentNode sptk::XMLNoode* parentNode, a node to attach resulting node
     /// @returns resulting XML node
-    static sptk::xml::Node* parseParameter(const String& row, sptk::xml::Node* parentNode,
-                                           bool createAttributes = false);
+    static const xdoc::SNode parseParameter(const String& row, const xdoc::SNode& parentNode,
+                                            bool createAttributes = false);
 
     /// @brief Parses a group of rows defining GTK image
     /// @param gtkrc const sptk::CStrings&, text of the GTK theme configuration file
     /// @param currentRow unsigned&, current row position in the GTK theme configuration file
     /// @param parentNode sptk::XMLNoode* parentNode, a node to attach resulting node
-    static void parseImage(const sptk::Strings& gtkrc, size_t& currentRow, sptk::xml::Node* parentNode);
+    static void parseImage(const sptk::Strings& gtkrc, size_t& currentRow, const xdoc::SNode& parentNode);
 
     /// @brief Parses a group of rows defining GTK engine
     /// @param gtkrc const sptk::CStrings&, text of the GTK theme configuration file
     /// @param currentRow unsigned&, current row position in the GTK theme configuration file
     /// @param parentNode sptk::XMLNoode* parentNode, a node to attach resulting node
-    void parseEngine(const sptk::Strings& gtkrc, size_t& currentRow, sptk::xml::Node* parentNode);
+    void parseEngine(const sptk::Strings& gtkrc, size_t& currentRow, const xdoc::SNode& parentNode);
 
     /// @brief Parses a group of rows defining GTK style
     /// @param gtkrc const sptk::CStrings&, text of the GTK theme configuration file
     /// @param currentRow unsigned&, current row position in the GTK theme configuration file
     /// @param parentNode sptk::XMLNoode* parentNode, a node to attach resulting node
-    void parseStyle(const sptk::Strings& gtkrc, size_t& currentRow, sptk::xml::Node* parentNode);
+    void parseStyle(const sptk::Strings& gtkrc, size_t& currentRow, const xdoc::SNode& parentNode);
 
     /// @brief Parses a group of rows defining GTK theme
     /// @param gtkrc const sptk::CStrings&, text of the GTK theme configuration file
@@ -78,11 +78,15 @@ public:
     /// @brief Loads GTK theme configuration
     void load(const std::string& themeName);
 
-    sptk::xml::Document& xml()
-    { return m_xml; }
+    xdoc::Document& xml()
+    {
+        return m_xml;
+    }
 
     std::string themeFolder()
-    { return m_themeFolder; }
+    {
+        return m_themeFolder;
+    }
 };
 
 /// @}

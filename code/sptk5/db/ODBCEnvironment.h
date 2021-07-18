@@ -28,7 +28,7 @@
 
 #include <sptk5/sptk.h>
 
-#if HAVE_ODBC == 1
+#ifdef HAVE_ODBC
 
 #include <sptk5/Strings.h>
 

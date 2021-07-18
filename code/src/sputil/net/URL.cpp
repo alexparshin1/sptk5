@@ -129,7 +129,7 @@ String URL::location() const
     return matches[0].value;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testURL0 = "https://www.test.com:8080/daily/report";
 static const String testURL1 = "/daily/report?action=view&id=1";

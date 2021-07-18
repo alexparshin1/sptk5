@@ -145,7 +145,7 @@ void BufferStorage::erase(size_t offset, size_t length)
     m_buffer[m_bytes] = 0;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testString("0123456789ABCDEF");
 

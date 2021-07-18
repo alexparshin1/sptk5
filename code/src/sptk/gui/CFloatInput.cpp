@@ -49,7 +49,7 @@ CFloatInput::CFloatInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CFloatInput::creator(xml::Node* node)
+CLayoutClient* CFloatInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CFloatInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

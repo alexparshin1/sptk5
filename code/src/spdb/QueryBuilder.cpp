@@ -209,7 +209,7 @@ String QueryBuilder::updateSQL(const Strings& filter, const Strings& columns, bo
         updateColumns = &m_columns;
     }
 
-    bool first{true};
+    bool first {true};
     for (auto& columnName: *updateColumns)
     {
         if (columnName.find(' ') != string::npos)
@@ -280,7 +280,7 @@ String QueryBuilder::pkColumnName() const
     return m_pkColumn;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_QueryBuilder, selectSQL)
 {

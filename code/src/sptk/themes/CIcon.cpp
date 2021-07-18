@@ -69,7 +69,7 @@ void CIconMap::clear()
             delete icon;
         }
     }
-    map<String, CIcon*, CaseInsensitiveCompare>::clear();
+    map < String, CIcon *, CaseInsensitiveCompare > ::clear();
 }
 
 void CIconMap::insert(CIcon* icon)
@@ -87,7 +87,7 @@ void CIconMap::insert(CIcon* icon)
     }
 }
 
-void CIconMap::load(Tar& tar, xml::Node* iconsNode)
+void CIconMap::load(Tar& tar, const xdoc::SNode& iconsNode)
 {
     for (auto node: *iconsNode)
     {

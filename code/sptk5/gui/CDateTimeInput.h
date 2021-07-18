@@ -103,7 +103,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
+    void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Saves control data to XML
@@ -113,7 +113,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
+    void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief Returns true if the input data is valid
@@ -258,7 +258,7 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 
 /**
@@ -318,7 +318,7 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 
 /**
@@ -408,7 +408,7 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 /**
  * @}

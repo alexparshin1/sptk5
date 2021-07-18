@@ -58,7 +58,7 @@ CDBListView::~CDBListView()
     m_fullRefreshQuery.close();
 }
 
-CLayoutClient* CDBListView::creator(xml::Node* node)
+CLayoutClient* CDBListView::creator(const xdoc::SNode& node)
 {
     auto* widget = new CDBListView("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

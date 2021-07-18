@@ -64,7 +64,7 @@ void SharedStrings::clear()
     shareString("");
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_SharedStrings, match)
 {

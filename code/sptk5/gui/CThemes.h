@@ -32,10 +32,11 @@
 #include <sptk5/gui/CFont.h>
 #include <sptk5/gui/CIcon.h>
 #include <sptk5/gui/CTabImage.h>
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
 #include <sptk5/gui/CThemeImageCollection.h>
 #include <sptk5/gui/CThemeColorCollection.h>
 #include <sptk5/gui/CThemeScrollBar.h>
+#include <map>
 
 namespace sptk {
 
@@ -200,7 +201,7 @@ class SP_EXPORT CThemes
     /**
      * Theme registry. Contains several importang theme settings.
      */
-    static xml::Document* m_registry;
+    static xdoc::Document* m_registry;
 
     /**
      * Restores the original FLTK theme
@@ -291,7 +292,7 @@ protected:
      * @param imageNode xml::Node*, an image node from GTK theme description
      * @param buttonFileNames std::map<CThemeImageState,std::string>&, file names for buttons
      */
-    static void loadGtkButton(xml::Node* imageNode, std::map<CThemeImageState, std::string>& buttonFileNames);
+    static void loadGtkButton(const xdoc::SNode& imageNode, std::map<CThemeImageState, std::string>& buttonFileNames);
 
     /**
      * @brief Loads GTK theme button file names from XPath
@@ -300,7 +301,7 @@ protected:
      * @param fileNames std::map<CThemeImageState,std::string>&, file names for buttons
      * @param orientation std::string, optional orientation (used for scrollbar elements)
      */
-    static void loadGtkButtonFileNames(xml::Document& xml, std::string XPath,
+    static void loadGtkButtonFileNames(xdoc::Document& xml, std::string XPath,
                                        std::map<CThemeImageState, std::string>& fileNames,
                                        std::string orientation = "");
 
@@ -311,7 +312,7 @@ protected:
      * @param buttons CThemeImageCollection&, set of images for the button type
      * @param function std::string, function ("BOX", CHECK", "OPTION", etc)
      */
-    static void loadGtkButtons(xml::Document& xml, const String& styleName, CThemeImageCollection& buttons,
+    static void loadGtkButtons(xdoc::Document& xml, const String& styleName, CThemeImageCollection& buttons,
                                const String& function);
 
     /**

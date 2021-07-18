@@ -52,7 +52,7 @@ CToolBar::CToolBar(int x,int y,int w,int h)
 }
 #endif
 
-CLayoutClient* CToolBar::creator(xml::Node* node)
+CLayoutClient* CToolBar::creator(const xdoc::SNode& node)
 {
     auto* widget = new CToolBar(CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

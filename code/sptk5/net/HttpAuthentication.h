@@ -43,7 +43,8 @@ public:
     /**
      * HTTP authentication type
      */
-    enum class Type: uint8_t
+    enum class Type
+        : uint8_t
     {
         UNDEFINED,
         EMPTY,
@@ -71,7 +72,7 @@ public:
      * Get decoded authentication data (username and password, or JWT)
      * @return authentication data
      */
-    const json::Element& getData();
+    const xdoc::SNode& getData();
 
     /**
      * Get authentication data type
@@ -80,10 +81,10 @@ public:
 
 private:
 
-    Type                                m_type { Type::UNDEFINED };   ///< Authentication data type
-    const String                        m_authenticationHeader;       ///< Authentication data
-    std::shared_ptr<JWT>                m_jwtData;                    ///< JWT token, if type is BEARER
-    std::shared_ptr<json::Document>     m_userData;                   ///< Decoded user data
+    Type m_type {Type::UNDEFINED};         ///< Authentication data type
+    const String m_authenticationHeader;   ///< Authentication data
+    std::shared_ptr<JWT> m_jwtData;        ///< JWT token, if type is BEARER
+    xdoc::SDocument m_userData;            ///< Decoded user data
 
     /**
      * Decode authentication data (username and password, or JWT)
@@ -94,4 +95,3 @@ private:
 using SHttpAuthentication = std::shared_ptr<HttpAuthentication>;
 
 }
-

@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cxml>
 #include <sptk5/gui/CWindow.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -110,42 +110,42 @@ void CWindow::draw()
     x(savex);
 }
 
-void CWindow::load(const xml::Node* node, CLayoutXMLmode xmlMode)
+void CWindow::load(const shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode)
 {
     CLayoutManager::loadLayout(node, xmlMode);
     loadPosition(node);
 }
 
-void CWindow::save(xml::Node* node, CLayoutXMLmode xmlMode) const
+void CWindow::save(const shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode) const
 {
     CLayoutManager::saveLayout(node, xmlMode);
     savePosition(node);
 }
 
-void CWindow::loadPosition(const xml::Node* node)
+void CWindow::loadPosition(const xdoc::SNode& node)
 {
-    int hh = (int) node->getAttribute("height");
+    int hh = node->getAttribute("height").toInt();
     if (!hh)
     {
-        hh = (int) node->getAttribute("h");
+        hh = node->getAttribute("h").toInt();
     }
-    int ww = (int) node->getAttribute("width");
+    int ww = node->getAttribute("width").toInt();
     if (!ww)
     {
-        ww = (int) node->getAttribute("w");
+        ww = node->getAttribute("w").toInt();
     }
     if (hh > 0 && ww > 0)
     {
-        resize((int) node->getAttribute("x", "0"), (int) node->getAttribute("y", "0"), ww, hh);
+        resize(node->getAttribute("x", "0").toInt(), node->getAttribute("y", "0").toInt(), ww, hh);
     }
 }
 
-void CWindow::savePosition(xml::Node* node) const
+void CWindow::savePosition(const xdoc::SNode& node) const
 {
-    node->setAttribute("x", x());
-    node->setAttribute("y", y());
-    node->setAttribute("width", w());
-    node->setAttribute("height", h());
+    node->setAttribute("x", to_string(x()));
+    node->setAttribute("y", to_string(y()));
+    node->setAttribute("width", to_string(w()));
+    node->setAttribute("height", to_string(h()));
     node->setAttribute("label", label());
     node->name(className());
 }

@@ -179,7 +179,7 @@ public:
     /**
      * Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 
     /**
      * Custom handle() to support drag event

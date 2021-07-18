@@ -27,7 +27,7 @@
 #include <sptk5/threads/Locks.h>
 #include <mutex>
 
-#if USE_GTEST
+#ifdef USE_GTEST
 #include <sptk5/threads/Thread.h>
 #endif
 
@@ -90,7 +90,7 @@ CompareLockInt::CompareLockInt(SharedMutex& mutex1, SharedMutex& mutex2)
     lock(lock1, lock2);
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 class LockTestThread : public Thread
 {

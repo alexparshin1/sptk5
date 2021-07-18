@@ -28,7 +28,6 @@
 
 #include <sptk5/Variant.h>
 #include <sptk5/FieldList.h>
-#include <sptk5/cxml>
 
 class Fl_Group;
 

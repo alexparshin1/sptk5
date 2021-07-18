@@ -30,7 +30,6 @@
 #include <sptk5/xdoc/Node.h>
 #include <sptk5/wsdl/WSFieldIndex.h>
 #include <sptk5/wsdl/WSType.h>
-#include <sptk5/xml/Element.h>
 
 namespace sptk {
 

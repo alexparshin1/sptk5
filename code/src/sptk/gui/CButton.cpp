@@ -444,14 +444,14 @@ bool CBaseButton::preferredSize(int& w, int& h)
     return false;
 }
 
-CLayoutClient* CButton::creator(xml::Node* node)
+CLayoutClient* CButton::creator(const xdoc::SNode& node)
 {
     auto* button = new CButton("", CLayoutAlign::TOP, THM_BUTTON_NORMAL);
     button->load(node);
     return button;
 }
 
-void CButton::load(const xml::Node* node)
+void CButton::load(const xdoc::SNode& node)
 {
     CLayoutClient::load(node, CLayoutXMLmode::LAYOUT);
     String iconName = (String) node->getAttribute("icon");
@@ -476,7 +476,7 @@ void CButton::load(const xml::Node* node)
     }
 }
 
-void CButton::save(xml::Node* node, CLayoutXMLmode) const
+void CButton::save(const xdoc::SNode& node, CLayoutXMLmode) const
 {
     CLayoutClient::save(node, CLayoutXMLmode::LAYOUT);
 }

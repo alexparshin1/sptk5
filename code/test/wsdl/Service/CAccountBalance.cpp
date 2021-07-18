@@ -1,6 +1,4 @@
 #include "CAccountBalance.h"
-#include <sptk5/json/JsonArrayData.h>
-
 using namespace std;
 using namespace sptk;
 using namespace test_service;

@@ -107,7 +107,7 @@ HTTPException::HTTPException(size_t statusCode, const String& text, const String
 
 String HTTPException::httpResponseStatus(size_t statusCode)
 {
-    static const map<size_t, const char*> statusCodeInfo{
+    static const map<size_t, const char*> statusCodeInfo {
         {400, "Bad Request"},
         {401, "Unauthorized"},
         {402, "Payment Required"},
@@ -152,7 +152,7 @@ String HTTPException::httpResponseStatus(size_t statusCode)
     return itor->second;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_Exception, throwException)
 {

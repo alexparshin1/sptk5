@@ -34,7 +34,7 @@ using namespace sptk;
 constexpr unsigned FETCH_BUFFER = 256;
 constexpr unsigned SMALL_BUFFER = 16;
 
-#if MYSQL_HAS_MYBOOL == 0
+#ifndef MYSQL_HAS_MYBOOL
 using my_bool = bool;
 constexpr my_bool MY_BOOL_FALSE = false;
 #else

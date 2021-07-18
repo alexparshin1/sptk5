@@ -242,7 +242,7 @@ void Strings::sort(bool ascending)
     }
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testString("This is a test\ntext that contains several\nexample rows");
 static const String resultString("This is a test\rtext that contains several\rexample rows");

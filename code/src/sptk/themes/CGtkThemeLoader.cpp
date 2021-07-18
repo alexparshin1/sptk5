@@ -35,7 +35,8 @@ namespace sptk {
 
 static const Strings notGroupingTags("styles;style;engine", ";");
 
-xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentNode, bool createAttributes)
+const xdoc::SNode CGtkThemeParser::parseParameter(const String& row, const xdoc::SNode& parentNode,
+                                                  bool createAttributes)
 {
     try
     {
@@ -119,7 +120,7 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
             }
             maxValueSize = int(pos2 - pos);
         }
-        xml::Node* node = nullptr;
+        xdoc::SNode node = nullptr;
         String value = trim(row.substr(pos, (unsigned) maxValueSize));
         bool attemptGrouping = notGroupingTags.indexOf(name) < 0;
         if (!attemptGrouping)
@@ -138,7 +139,7 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
                 node = parentNode->findFirst(name);
                 if (!node)
                 {
-                    node = new xml::Element(parentNode, name.c_str());
+                    node = parentNode->pushNode(name);
                 }
                 if (!subName.empty())
                 {
@@ -158,7 +159,7 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
             }
             if (!node)
             {
-                node = new xml::Element(parentNode, name.c_str());
+                node = parentNode->pushNode(name);
             }
             if (!subName.empty())
             {
@@ -177,7 +178,7 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
     }
 }
 
-void CGtkThemeParser::parseImage(const Strings& gtkrc, size_t& currentRow, xml::Node* parentNode)
+void CGtkThemeParser::parseImage(const Strings& gtkrc, size_t& currentRow, const xdoc::SNode& parentNode)
 {
     if (gtkrc[currentRow] != "image")
     {
@@ -189,7 +190,7 @@ void CGtkThemeParser::parseImage(const Strings& gtkrc, size_t& currentRow, xml::
         throw Exception("Expecting '{' in row '" + gtkrc[currentRow]);
     }
     currentRow++;
-    xml::Node* imageNode = new xml::Element(parentNode, "image");
+    const auto& imageNode = parentNode->pushNode("image");
     while (gtkrc[currentRow] != "}")
     {
         parseParameter(gtkrc[currentRow], imageNode, true);
@@ -201,13 +202,13 @@ void CGtkThemeParser::parseImage(const Strings& gtkrc, size_t& currentRow, xml::
     }
 }
 
-void CGtkThemeParser::parseEngine(const Strings& gtkrc, size_t& currentRow, xml::Node* parentNode)
+void CGtkThemeParser::parseEngine(const Strings& gtkrc, size_t& currentRow, const xdoc::SNode& parentNode)
 {
     if (gtkrc[currentRow].find("engine") != 0)
     {
         throw Exception("Expecting 'engine' in row " + gtkrc[currentRow]);
     }
-    xml::Node* engineNode = parseParameter(gtkrc[currentRow++], parentNode);
+    auto engineNode = parseParameter(gtkrc[currentRow++], parentNode);
     try
     {
         if (gtkrc[currentRow] != "{")
@@ -238,14 +239,14 @@ void CGtkThemeParser::parseEngine(const Strings& gtkrc, size_t& currentRow, xml:
     }
 }
 
-void CGtkThemeParser::parseStyle(const Strings& gtkrc, size_t& currentRow, xml::Node* parentNode)
+void CGtkThemeParser::parseStyle(const Strings& gtkrc, size_t& currentRow, const xdoc::SNode& parentNode)
 {
     //const string& styleRow = gtkrc[currentRow];
     if (gtkrc[currentRow].find("style") != 0)
     {
         throw Exception("Expecting 'style' in row " + gtkrc[currentRow]);
     }
-    xml::Node* styleNode = parseParameter(gtkrc[currentRow++], parentNode);
+    auto styleNode = parseParameter(gtkrc[currentRow++], parentNode);
     if ((String) styleNode->getAttribute("name") == "scrollbar")
     {
         styleNode->setAttribute("name", "scrollbars");
@@ -277,8 +278,8 @@ void CGtkThemeParser::parseStyle(const Strings& gtkrc, size_t& currentRow, xml::
 void CGtkThemeParser::parse(const Strings& gtkrc)
 {
     Buffer buffer;
-    m_xml.clear();
-    xml::Node* stylesNode = new xml::Element(&m_xml, "styles");
+    m_xml.root()->clear();
+    const auto& stylesNode = m_xml.root()->pushNode("styles");
     //Node* paramsNode = new Element(&m_xml,"styles");
     for (size_t row = 0; row < gtkrc.size(); row++)
     {
@@ -289,10 +290,10 @@ void CGtkThemeParser::parse(const Strings& gtkrc)
         }
         else
         {
-            parseParameter(str, &m_xml);
+            parseParameter(str, m_xml.root());
         }
     }
-    m_xml.save(buffer, true);
+    m_xml.exportTo(xdoc::DataFormat::XML, buffer, true);
     buffer.saveToFile("gtkrc.xml");
 }
 

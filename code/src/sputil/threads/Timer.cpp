@@ -290,7 +290,7 @@ void Timer::cancel()
     }
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static void gtestTimerCallback(void* eventData)
 {

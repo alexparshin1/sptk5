@@ -123,7 +123,7 @@ CProgressBar::CProgressBar(int x,int y,int w,int h,const char *label)
 }
 #endif
 
-CLayoutClient* CProgressBar::creator(xml::Node* node)
+CLayoutClient* CProgressBar::creator(const xdoc::SNode& node)
 {
     auto* widget = new CProgressBar("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

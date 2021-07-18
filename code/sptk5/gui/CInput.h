@@ -222,7 +222,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override
+    void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode) override
     {
         CControl::load(node, xmlMode);
     }
@@ -235,7 +235,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override
+    void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const override
     {
         CControl::save(node, xmlMode);
     }
@@ -373,7 +373,7 @@ public:
     /**
      * Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 /**
  * @}

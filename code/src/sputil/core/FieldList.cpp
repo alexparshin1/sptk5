@@ -116,7 +116,7 @@ void FieldList::exportTo(const xdoc::SNode& node, bool compactMode) const
     }
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static constexpr int testInteger = 12345;
 

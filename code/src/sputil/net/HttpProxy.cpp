@@ -78,7 +78,7 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
 
 bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket) const
 {
-    bool proxyConnected{false};
+    bool proxyConnected {false};
     Buffer buffer;
     socket->readLine(buffer);
 
@@ -235,7 +235,7 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
 #endif
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_HttpProxy, connect)
 {
@@ -272,9 +272,13 @@ TEST(SPTK_HttpProxy, connect)
 
         shared_ptr<TCPSocket> socket;
         if (ahost.port() == 80)
+        {
             socket = make_shared<TCPSocket>();
+        }
         else
+        {
             socket = make_shared<SSLSocket>();
+        }
 
         socket->setProxy(move(httpProxy));
         socket->open(ahost, BaseSocket::OpenMode::CONNECT, true, seconds(5));
@@ -284,7 +288,9 @@ TEST(SPTK_HttpProxy, connect)
         Buffer output;
 
         if (auto statusCode = http.cmd_get("/", HttpParams(), output); statusCode >= 400)
+        {
             throw Exception(http.statusText());
+        }
 
         COUT(output.c_str() << endl)
     }

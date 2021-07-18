@@ -201,7 +201,7 @@ Type Document::dataType(const String& data)
     return type;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 const String testJSON(
     R"({ "name": "John", "age": 33, "temperature": 33.6, "timestamp": 1519005758000 )"

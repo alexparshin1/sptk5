@@ -1000,7 +1000,7 @@ double sptk::duration2seconds(const DateTime::duration& duration)
     return double(chrono::duration_cast<milliseconds>(duration).count()) / millisecondsInSecond;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_DateTime, ctor1)
 {

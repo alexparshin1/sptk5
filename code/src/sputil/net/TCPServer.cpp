@@ -29,7 +29,7 @@
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 #include <sptk5/net/TCPServerConnection.h>
 
@@ -157,7 +157,7 @@ void TCPServer::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable
     ThreadPool::threadEvent(thread, eventType, runable);
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 /**
  * Not encrypted connection to control service

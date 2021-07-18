@@ -244,7 +244,7 @@ void CCheckButtons::setSelections(const vector<uint64_t>& selection)
     }
 }
 
-CLayoutClient* CCheckButtons::creator(xml::Node* node)
+CLayoutClient* CCheckButtons::creator(const xdoc::SNode& node)
 {
     auto* widget = new CCheckButtons("", 20, CLayoutAlign::NONE);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

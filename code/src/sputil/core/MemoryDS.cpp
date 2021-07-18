@@ -216,7 +216,7 @@ bool MemoryDS::empty() const
     return m_list.empty();
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 struct Person
 {

@@ -379,13 +379,13 @@ bool CDialog::save()
     return true;
 }
 
-void CDialog::load(const xml::Node* node)
+void CDialog::load(const xdoc::SNode& node)
 {
     CLayoutManager::loadLayout(node, CLayoutXMLmode::DATA);
     loadPosition(node);
 }
 
-void CDialog::save(xml::Node* node) const
+void CDialog::save(const xdoc::SNode& node) const
 {
     CLayoutManager::saveLayout(node, CLayoutXMLmode::DATA);
     savePosition(node);

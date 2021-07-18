@@ -1222,7 +1222,7 @@ void Variant::save(const SNode& node) const
     }
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 TEST(SPTK_Variant, ctors)
 {

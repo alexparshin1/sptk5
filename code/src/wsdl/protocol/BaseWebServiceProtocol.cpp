@@ -25,9 +25,10 @@
 */
 
 #include "sptk5/wsdl/protocol/WSWebServiceProtocol.h"
+#include <sptk5/wsdl/protocol/BaseWebServiceProtocol.h>
+#include <sptk5/xdoc/Document.h>
 #include <sptk5/ZLib.h>
 #include <sptk5/Brotli.h>
-#include <sptk5/wsdl/protocol/BaseWebServiceProtocol.h>
 
 using namespace std;
 using namespace sptk;
@@ -86,20 +87,23 @@ xdoc::SNode BaseWebServiceProtocol::findRequestNode(const xdoc::SNode& message, 
 void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessage, const xdoc::SNode& message)
 {
     // Converting JSON request to XML request
-    json::Document jsonContent;
+    xdoc::Document jsonContent;
     Strings pathElements(url.path(), "/");
     String method(*pathElements.rbegin());
     const auto& xmlEnvelope = message->pushNode("soap:Envelope");
     xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
 
     const auto& xmlBody = xmlEnvelope->pushNode("soap:Body");
-    jsonContent.load(startOfMessage);
+    jsonContent.root()->load(xdoc::DataFormat::JSON, startOfMessage);
+    auto& jsonRoot = *jsonContent.root();
     for (const auto&[name, value]: url.params())
     {
-        jsonContent.root()[name] = value;
+        jsonRoot[name] = value;
     }
 
-    jsonContent.root().exportTo("ns1:" + method, xmlBody);
+    Buffer xmlBuffer;
+    jsonRoot.exportTo(xdoc::DataFormat::XML, xmlBuffer, false);
+    xmlBody->load(xdoc::DataFormat::XML, xmlBuffer);
 }
 
 xdoc::SNode BaseWebServiceProtocol::processXmlContent(const char* startOfMessage, const xdoc::SNode& xmlContent) const

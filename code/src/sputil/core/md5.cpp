@@ -180,7 +180,7 @@ void MD5::transform(const uint1* block)
     uint4 b = state[1];
     uint4 c = state[2];
     uint4 d = state[3];
-    array<uint4, 16> x;
+    array < uint4, 16 > x;
 
     decode(x.data(), block, blocksize);
 
@@ -396,7 +396,7 @@ String sptk::md5(const String& data)
     return md5.hexdigest();
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static const String testPhrase("This is a test text to verify MD5 algorithm");
 

@@ -29,7 +29,7 @@
 #include <sptk5/gui/CPngImage.h>
 #include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/Tar.h>
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
@@ -190,7 +190,7 @@ public:
      * @param tar CTar&, the loaded tar archive where images are located
      * @param node xml::Node*, an XML node describing the theme icon images
      */
-    void load(Tar& tar, xml::Node* node);
+    void load(Tar& tar, const xdoc::SNode& node);
 };
 
 /**
