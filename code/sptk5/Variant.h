@@ -523,7 +523,7 @@ public:
      * Saves the data into XML node
      * @param node              XML node to save data into
      */
-    void save(std::shared_ptr<xdoc::Node>& node) const;
+    void save(const std::shared_ptr<xdoc::Node>& node) const;
 };
 
 /**

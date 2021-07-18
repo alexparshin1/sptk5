@@ -120,7 +120,7 @@ public:
      * Export JSON element (and all children) to XML document
      * @param node              XML node to export JSON
      */
-    void exportTo(xdoc::SNode& node) const;
+    void exportTo(const xdoc::SNode& node) const;
 
     /**
      * Get document root element

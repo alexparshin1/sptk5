@@ -52,7 +52,7 @@ public:
      * @param typeName                  WSDL type name
      * @param simpleTypeElement         Simple type XML node
      */
-    WSRestriction(const String& typeName, xdoc::SNode& simpleTypeElement);
+    WSRestriction(const String& typeName, const xdoc::SNode& simpleTypeElement);
 
     /**
      * Constructor from WSDL (XML) definition

@@ -83,7 +83,7 @@ public:
      * @param parent            Parent XML node where new node is created
      * @param name              Optional name for the child element
      */
-    virtual void addElement(xdoc::SNode& parent, const char* name = nullptr) const = 0;
+    virtual void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const = 0;
 };
 
 }

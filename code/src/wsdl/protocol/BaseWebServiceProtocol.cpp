@@ -42,7 +42,7 @@ BaseWebServiceProtocol::BaseWebServiceProtocol(TCPSocket* socket, const HttpHead
 
 xdoc::SNode BaseWebServiceProtocol::getFirstChildElement(const xdoc::SNode& element)
 {
-    for (auto& node: *element)
+    for (const auto& node: *element)
     {
         bool isElement = !(
             node->is(xdoc::Node::Type::ProcessingInstruction) ||
@@ -83,16 +83,16 @@ xdoc::SNode BaseWebServiceProtocol::findRequestNode(const xdoc::SNode& message, 
     return xmlRequest;
 }
 
-void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessage, xdoc::SNode& message)
+void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessage, const xdoc::SNode& message)
 {
     // Converting JSON request to XML request
     json::Document jsonContent;
     Strings pathElements(url.path(), "/");
     String method(*pathElements.rbegin());
-    auto& xmlEnvelope = message->pushNode("soap:Envelope");
+    const auto& xmlEnvelope = message->pushNode("soap:Envelope");
     xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
 
-    auto& xmlBody = xmlEnvelope->pushNode("soap:Body");
+    const auto& xmlBody = xmlEnvelope->pushNode("soap:Body");
     jsonContent.load(startOfMessage);
     for (const auto&[name, value]: url.params())
     {
@@ -102,8 +102,7 @@ void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessa
     jsonContent.root().exportTo("ns1:" + method, xmlBody);
 }
 
-xdoc::SNode BaseWebServiceProtocol::processXmlContent(const char* startOfMessage, xdoc::SNode& xmlContent,
-                                                      xdoc::SNode& jsonContent) const
+xdoc::SNode BaseWebServiceProtocol::processXmlContent(const char* startOfMessage, const xdoc::SNode& xmlContent) const
 {
     try
     {
@@ -120,14 +119,23 @@ xdoc::SNode BaseWebServiceProtocol::processXmlContent(const char* startOfMessage
         xmlRequest->set(name, param);
     }
 
-    auto pos = xmlRequest->name().find(':');
-    String methodName = pos == string::npos ? xmlRequest->name() : xmlRequest->name().substr(pos + 1);
+    String methodName;
+    if (auto pos = xmlRequest->name().find(':');
+        pos == string::npos)
+    {
+        methodName = xmlRequest->name();
+    }
+    else
+    {
+        methodName = xmlRequest->name().substr(pos + 1);
+    }
     xmlRequest->set("rest_method_name", methodName);
 
     return xmlRequest;
 }
 
-String BaseWebServiceProtocol::processMessage(Buffer& output, xdoc::SNode& xmlContent, xdoc::SNode& jsonContent,
+String BaseWebServiceProtocol::processMessage(Buffer& output, const xdoc::SNode& xmlContent,
+                                              const xdoc::SNode& jsonContent,
                                               const SHttpAuthentication& authentication, bool requestIsJSON,
                                               HttpResponseStatus& httpResponseStatus, String& contentType) const
 {
@@ -159,7 +167,7 @@ String BaseWebServiceProtocol::processMessage(Buffer& output, xdoc::SNode& xmlCo
     return requestName;
 }
 
-void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, xdoc::SNode& jsonContent,
+void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, const xdoc::SNode& jsonContent,
                                                 RequestInfo& requestInfo, HttpResponseStatus& httpStatus,
                                                 String& contentType) const
 {

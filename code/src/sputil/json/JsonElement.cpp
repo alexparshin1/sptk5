@@ -298,7 +298,7 @@ void ElementGetMethods::exportValueTo(ostream& stream, bool formatted, size_t in
     stream.flags(saveFlags);
 }
 
-void ElementGetMethods::exportValueTo(const String& name, xdoc::SNode& parentNode) const
+void ElementGetMethods::exportValueTo(const String& name, const xdoc::SNode& parentNode) const
 {
     xdoc::SNode node;
     if (type() != Type::ARRAY)
@@ -404,12 +404,12 @@ void ElementGetMethods::exportTo(ostream& stream, bool formatted) const
     exportValueTo(stream, formatted, 0);
 }
 
-void ElementGetMethods::exportTo(const string& name, xdoc::SNode& parentNode) const
+void ElementGetMethods::exportTo(const String& name, const xdoc::SNode& parentNode) const
 {
     exportValueTo(name, parentNode);
 }
 
-void ElementGetMethods::optimizeArrays(const std::string& name)
+void ElementGetMethods::optimizeArrays(const String& name)
 {
     if (is(Type::OBJECT))
     {

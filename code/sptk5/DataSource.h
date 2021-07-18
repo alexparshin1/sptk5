@@ -195,7 +195,7 @@ public:
      * @param node              XDoc node to fill in
      * @param compactXmlMode    Compact XML flag
      */
-    void exportRowTo(xdoc::SNode& node, bool compactXmlMode = false);
+    void exportRowTo(const xdoc::SNode& node, bool compactXmlMode = false);
 
     /**
      * Saves data into XDoc

@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-WSRestriction::WSRestriction(const String& typeName, xdoc::SNode& simpleTypeElement)
+WSRestriction::WSRestriction(const String& typeName, const xdoc::SNode& simpleTypeElement)
     : m_wsdlTypeName(typeName)
 {
     xdoc::Node::Vector enumerationNodes;
@@ -51,7 +51,7 @@ WSRestriction::WSRestriction(const String& typeName, xdoc::SNode& simpleTypeElem
     {
         xdoc::Node::Vector patternNodes;
         simpleTypeElement->select(patternNodes, "xsd:restriction/xsd:pattern");
-        for (auto& patternNode: patternNodes)
+        for (const auto& patternNode: patternNodes)
         {
             String pattern = patternNode->getAttribute("value").replace(R"(\\)", R"(\)");
             if (!pattern.empty())

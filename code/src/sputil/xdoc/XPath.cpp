@@ -140,7 +140,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vect
 {
     const XPathElement& pathElement = pathElements[size_t(pathPosition)];
 
-    for (auto& node: *thisNode)
+    for (const auto& node: *thisNode)
     {
         if (matchPathElement(node, pathElement, starPointer))
         {
@@ -184,13 +184,13 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vect
         matchedNodes.push_back(anode);
     }
 
-    for (auto& node: matchedNodes)
+    for (const auto& node: matchedNodes)
     {
         matchNode(node, nodes, pathElements, pathPosition, starPointer);
     }
 }
 
-void NodeSearchAlgorithms::scanDescendents(SNode& thisNode, Node::Vector& nodes,
+void NodeSearchAlgorithms::scanDescendents(const SNode& thisNode, Node::Vector& nodes,
                                            const std::vector<XPathElement>& pathElements, int pathPosition,
                                            const String& starPointer)
 {
@@ -218,7 +218,7 @@ void NodeSearchAlgorithms::matchNode(const SNode& thisNode, Node::Vector& nodes,
     matchNodesThisLevel(thisNode, nodes, pathElements, pathPosition, starPointer, matchedNodes, false);
 }
 
-void NodeSearchAlgorithms::select(Node::Vector& nodes, SNode& start, String xpath)
+void NodeSearchAlgorithms::select(Node::Vector& nodes, const SNode& start, String xpath)
 {
     if (!xpath.startsWith("/"))
     {
@@ -271,11 +271,11 @@ TEST(SPTK_XDocument, parent)
     Node::Vector elementSet;
     Document document;
 
-    auto& node1 = document.root()->pushNode("Node1-level1");
-    auto& node2 = node1->pushNode("Node2-level2");
+    const auto& node1 = document.root()->pushNode("Node1-level1");
+    const auto& node2 = node1->pushNode("Node2-level2");
 
-    auto& node3 = document.root()->pushNode("Node3-level1");
-    auto& node4 = node3->pushNode("Node4-level2");
+    const auto& node3 = document.root()->pushNode("Node3-level1");
+    const auto& node4 = node3->pushNode("Node4-level2");
 
     EXPECT_STREQ(node2->parent()->name().c_str(), "Node1-level1");
     EXPECT_STREQ(node4->parent()->name().c_str(), "Node3-level1");

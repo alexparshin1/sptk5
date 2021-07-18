@@ -480,7 +480,7 @@ public:
      * @param name              Parent element name
      * @param parentNode        XML element to export JSON
      */
-    void exportTo(const std::string& name, xdoc::SNode& parentNode) const;
+    void exportTo(const String& name, const xdoc::SNode& parentNode) const;
 
     /**
      * Optimize arrays
@@ -488,7 +488,7 @@ public:
      * only single array field, to arrays - by removing unnecessary name.
      * @param name              Optional field name, use any name if empty string
      */
-    void optimizeArrays(const std::string& name = "item");
+    void optimizeArrays(const String& name = "item");
 
 protected:
     /**
@@ -509,9 +509,9 @@ protected:
     /**
      * Export JSON element to XML element
      * @param name              JSON element name
-     * @param element           XML element to export to
+     * @param parentNode           XML element to export to
      */
-    void exportValueTo(const String& name, xdoc::SNode& element) const;
+    void exportValueTo(const String& name, const xdoc::SNode& parentNode) const;
 
     /**
      * Export JSON array element to text format

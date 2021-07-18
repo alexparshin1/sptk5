@@ -207,9 +207,7 @@ public:
 
     SNode& findOrCreate(const String& name);
 
-    SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive);
-
-    const SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const;
+    SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const;
 
     /**
      * Parse JSON text
@@ -217,7 +215,7 @@ public:
      * @param jsonElement              Output node
      * @param jsonStr              JSON text
      */
-    static void importJson(SNode& jsonElement, const sptk::Buffer& jsonStr);
+    static void importJson(const SNode& jsonElement, const sptk::Buffer& jsonStr);
 
     /**
      * Export to JSON text

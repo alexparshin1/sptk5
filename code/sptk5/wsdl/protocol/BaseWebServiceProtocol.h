@@ -52,13 +52,13 @@ protected:
     virtual void generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
                                const HTTPException& e, bool jsonOutput) const = 0;
 
-    static void RESTtoSOAP(const URL& url, const char* startOfMessage, xdoc::SNode& message);
+    static void RESTtoSOAP(const URL& url, const char* startOfMessage, const xdoc::SNode& message);
 
     xdoc::SNode findRequestNode(const xdoc::SNode& message, const String& messageType) const;
 
-    xdoc::SNode processXmlContent(const char* startOfMessage, xdoc::SNode& xmlContent, xdoc::SNode& jsonContent) const;
+    xdoc::SNode processXmlContent(const char* startOfMessage, const xdoc::SNode& xmlContent) const;
 
-    void processJsonContent(const char* startOfMessage, xdoc::SNode& jsonContent,
+    void processJsonContent(const char* startOfMessage, const xdoc::SNode& jsonContent,
                             RequestInfo& requestInfo, HttpResponseStatus& httpStatus,
                             String& contentType) const;
 
@@ -71,7 +71,7 @@ protected:
  * @param httpResponseStatus    Output HTTP response status
  * @param contentType           Output content type
  */
-    String processMessage(Buffer& output, xdoc::SNode& xmlContent, xdoc::SNode& jsonContent,
+    String processMessage(Buffer& output, const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                           const SHttpAuthentication& authentication, bool requestIsJSON,
                           HttpResponseStatus& httpResponseStatus, String& contentType) const;
 };

@@ -230,7 +230,7 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void addElement(xdoc::SNode& parent, const char* name = nullptr) const override;
+    void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const override;
 
 private:
 

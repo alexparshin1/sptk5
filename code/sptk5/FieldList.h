@@ -237,7 +237,7 @@ public:
      * @param node              XDoc node to store fields into
      * @param compact           Compact XML export flag
      */
-    void exportTo(xdoc::SNode& node, bool compactMode = false) const;
+    void exportTo(const xdoc::SNode& node, bool compactMode = false) const;
 
 private:
     /**

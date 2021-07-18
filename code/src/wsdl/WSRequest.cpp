@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-static void extractNameSpaces(xdoc::SNode& node, map<String, WSNameSpace>& nameSpaces)
+static void extractNameSpaces(const xdoc::SNode& node, map<String, WSNameSpace>& nameSpaces)
 {
     for (const auto&[attr, value]: node->attributes())
     {
@@ -44,7 +44,7 @@ static void extractNameSpaces(xdoc::SNode& node, map<String, WSNameSpace>& nameS
     }
 }
 
-void WSRequest::requestBroker(const String& requestName, xdoc::SNode& xmlContent, xdoc::SNode& jsonContent,
+void WSRequest::requestBroker(const String& requestName, const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                               HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
     try
@@ -73,23 +73,23 @@ void WSRequest::requestBroker(const String& requestName, xdoc::SNode& xmlContent
     }
 }
 
-void WSRequest::handleError(xdoc::SNode& xmlContent, xdoc::SNode& jsonContent, const String& error,
+void WSRequest::handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent, const String& error,
                             int errorCode) const
 {
     // Error handling
     if (xmlContent)
     {
-        auto& soapBody = xmlContent->parent();
+        const auto& soapBody = xmlContent->parent();
         soapBody->clearChildren();
         String soap_namespace = WSParser::get_namespace(soapBody->name());
         if (!soap_namespace.empty())
         {
             soap_namespace += ":";
         }
-        auto& faultNode = soapBody->pushNode(soap_namespace + "Fault", xdoc::Node::Type::Object);
-        auto& faultCodeNode = faultNode->pushNode("faultcode", xdoc::Node::Type::Text);
+        const auto& faultNode = soapBody->pushNode(soap_namespace + "Fault", xdoc::Node::Type::Object);
+        const auto& faultCodeNode = faultNode->pushNode("faultcode", xdoc::Node::Type::Text);
         faultCodeNode->setString(soap_namespace + "Client");
-        auto& faultStringNode = faultNode->pushNode("faultstring", xdoc::Node::Type::Text);
+        const auto& faultStringNode = faultNode->pushNode("faultstring", xdoc::Node::Type::Text);
         faultStringNode->setString(error);
     }
     else
@@ -119,7 +119,7 @@ void WSRequest::logError(const String& requestName, const String& error, int err
     }
 }
 
-xdoc::SNode WSRequest::findSoapBody(xdoc::SNode& soapEnvelope, const WSNameSpace& soapNamespace)
+xdoc::SNode WSRequest::findSoapBody(const xdoc::SNode& soapEnvelope, const WSNameSpace& soapNamespace)
 {
     scoped_lock lock(*this);
 
@@ -130,7 +130,7 @@ xdoc::SNode WSRequest::findSoapBody(xdoc::SNode& soapEnvelope, const WSNameSpace
     return soapBody;
 }
 
-void WSRequest::processRequest(xdoc::SNode& xmlContent, xdoc::SNode& jsonContent,
+void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                                HttpAuthentication* authentication, String& requestName)
 {
     WSNameSpace requestNameSpace;
@@ -141,7 +141,7 @@ void WSRequest::processRequest(xdoc::SNode& xmlContent, xdoc::SNode& jsonContent
         WSNameSpace soapNamespace;
         xdoc::SNode soapEnvelope;
         map < String, WSNameSpace > allNamespaces;
-        for (auto& node: *xmlContent)
+        for (const auto& node: *xmlContent)
         {
             if (WSParser::strip_namespace(node->name()).toLowerCase() == "envelope")
             {

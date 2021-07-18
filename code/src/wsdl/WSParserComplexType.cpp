@@ -53,10 +53,10 @@ String WSParserAttribute::generate(bool initialize) const
     return str.str();
 }
 
-WSParserComplexType::WSParserComplexType(xdoc::SNode& complexTypeElement, const String& name,
+WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, const String& name,
                                          const String& typeName)
-    : m_name(name.empty() ? (String) complexTypeElement->getAttribute("name") : name),
-      m_typeName(typeName.empty() ? (String) complexTypeElement->getAttribute("type") : typeName),
+    : m_name(name.empty() ? complexTypeElement->getAttribute("name") : name),
+      m_typeName(typeName.empty() ? complexTypeElement->getAttribute("type") : typeName),
       m_element(complexTypeElement)
 {
     xdoc::SNode simpleTypeElement = nullptr;
@@ -94,11 +94,11 @@ WSParserComplexType::WSParserComplexType(xdoc::SNode& complexTypeElement, const 
     String minOccurs;
     if (complexTypeElement->hasAttribute("maxOccurs"))
     {
-        maxOccurs = (String) complexTypeElement->getAttribute("maxOccurs");
+        maxOccurs = complexTypeElement->getAttribute("maxOccurs");
     }
     if (complexTypeElement->hasAttribute("minOccurs"))
     {
-        minOccurs = (String) complexTypeElement->getAttribute("minOccurs");
+        minOccurs = complexTypeElement->getAttribute("minOccurs");
     }
 
     m_multiplicity = WSMultiplicity::REQUIRED;
@@ -134,7 +134,7 @@ String WSParserComplexType::className() const
     return "C" + m_typeName.substr(pos + 1);
 }
 
-void WSParserComplexType::parseSequence(xdoc::SNode& sequence)
+void WSParserComplexType::parseSequence(const xdoc::SNode& sequence)
 {
     for (auto& node: *sequence)
     {
@@ -153,7 +153,7 @@ void WSParserComplexType::parse()
         return;
     }
 
-    for (auto& node: *m_element)
+    for (const auto& node: *m_element)
     {
         if (node->name() == "xsd:attribute")
         {

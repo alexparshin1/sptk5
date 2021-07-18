@@ -129,7 +129,7 @@ public:
      * @param name              Object name
      * @param typeName          Object types
      */
-    explicit WSParserComplexType(xdoc::SNode& complexTypeElement, const String& name = "",
+    explicit WSParserComplexType(const xdoc::SNode& complexTypeElement, const String& name = "",
                                  const String& typeName = "");
 
     /**
@@ -192,7 +192,7 @@ public:
     /**
      * Parses WSDL child sequence
      */
-    void parseSequence(xdoc::SNode& sequence);
+    void parseSequence(const xdoc::SNode& sequence);
 
     /**
      * Generates C++ class declaration and implementation

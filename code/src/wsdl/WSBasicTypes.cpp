@@ -32,7 +32,7 @@ using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
-void WSBasicType::addElement(SNode& parent, const char* _name) const
+void WSBasicType::exportTo(const SNode& parent, const char* _name) const
 {
     String elementName = _name == nullptr ? name() : _name;
     if (String text(isNull() ? "" : asString());

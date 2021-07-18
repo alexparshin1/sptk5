@@ -55,7 +55,7 @@ bool Node::hasAttribute(const String& name) const
 
 String Node::getAttribute(const String& name, const String& defaultValue) const
 {
-    return m_attributes.get(name);
+    return m_attributes.get(name, defaultValue);
 }
 
 void Node::setAttribute(const String& name, const String& value)
@@ -94,42 +94,11 @@ SNode& Node::findOrCreate(const String& name)
     return m_nodes.back();
 }
 
-SNode Node::findFirst(const String& name, SearchMode searchMode)
+SNode Node::findFirst(const String& name, SearchMode searchMode) const
 {
     if (!is(Type::Object))
     {
         return nullptr;
-    }
-
-    // Search for immediate child, first
-    for (auto& node: m_nodes)
-    {
-        if (node->name() == name)
-        {
-            return node;
-        }
-    }
-
-    if (searchMode == SearchMode::Recursive)
-    {
-        SNode found;
-        for (auto& node: m_nodes)
-        {
-            if (node->is(Type::Object) && (found = node->findFirst(name, searchMode)))
-            {
-                return found;
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-const SNode Node::findFirst(const String& name, SearchMode searchMode) const
-{
-    if (!is(Type::Object))
-    {
-        throw Exception("This element is not XDocument object");
     }
 
     // Search for immediate child, first

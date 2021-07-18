@@ -1183,7 +1183,7 @@ void Variant::load(const SNode& element)
     }
 }
 
-void Variant::save(SNode& node) const
+void Variant::save(const SNode& node) const
 {
     String stringValue(asString());
 

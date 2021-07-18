@@ -94,7 +94,7 @@ void WSParser::parseElement(const xdoc::SNode& elementNode)
     }
 }
 
-void WSParser::parseSimpleType(xdoc::SNode& simpleTypeElement)
+void WSParser::parseSimpleType(const xdoc::SNode& simpleTypeElement)
 {
     auto simpleTypeName = simpleTypeElement->getAttribute("name");
     if (simpleTypeName.empty())
@@ -135,7 +135,7 @@ void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
     complexType->parse();
 }
 
-void WSParser::parseOperation(xdoc::SNode& operationNode)
+void WSParser::parseOperation(const xdoc::SNode& operationNode)
 {
     xdoc::Node::Vector messageNodes;
 
@@ -148,7 +148,7 @@ void WSParser::parseOperation(xdoc::SNode& operationNode)
     document->select(messageNodes, "//wsdl:message");
 
     map < String, String > messageToElementMap;
-    for (auto& message: messageNodes)
+    for (const auto& message: messageNodes)
     {
         const auto part = message->findFirst("wsdl:part");
         auto messageName = message->getAttribute("name");
@@ -163,7 +163,7 @@ void WSParser::parseOperation(xdoc::SNode& operationNode)
 
     WSOperation operation = {};
     bool found = false;
-    for (auto& element: *operationNode)
+    for (const auto& element: *operationNode)
     {
         auto message = element->getAttribute("message");
         if (size_t pos = message.find(':');
@@ -193,12 +193,12 @@ void WSParser::parseOperation(xdoc::SNode& operationNode)
     }
 }
 
-void WSParser::parseSchema(xdoc::SNode& schemaElement)
+void WSParser::parseSchema(const xdoc::SNode& schemaElement)
 {
     xdoc::Node::Vector simpleTypeNodes;
     schemaElement->select(simpleTypeNodes, "//xsd:simpleType");
 
-    for (auto& element: simpleTypeNodes)
+    for (const auto& element: simpleTypeNodes)
     {
         if (element->name() == "xsd:simpleType")
         {
@@ -217,7 +217,7 @@ void WSParser::parseSchema(xdoc::SNode& schemaElement)
         }
     }
 
-    for (auto& element: *schemaElement)
+    for (const auto& element: *schemaElement)
     {
         if (element->name() == "xsd:element")
         {
@@ -260,7 +260,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
         m_description = descriptionElement->text();
     }
 
-    for (auto& element: *portElement)
+    for (const auto& element: *portElement)
     {
         if (element != nullptr && element->name() == "wsdl:operation")
         {
@@ -379,7 +379,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "private:" << endl << endl;
     for (const auto&[name, operation]: m_operations)
     {
-        string requestName = strip_namespace(operation.m_input->name());
+        auto requestName = strip_namespace(operation.m_input->name());
         serviceDefinition << "    /**" << endl;
         serviceDefinition << "     * Internal Web Service " << requestName << " processing" << endl;
         serviceDefinition << "     * @param requestNode      Operation input/output XML data" << endl;
@@ -387,7 +387,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition << "     * @param requestNameSpace Request SOAP element namespace" << endl;
         serviceDefinition << "     */" << endl;
         serviceDefinition << "    void process_" << requestName
-                          << "(sptk::xdoc::SNode& xmlContent, sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
+                          << "(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
                           << endl << endl;
     }
     serviceDefinition << "};" << endl << endl;
@@ -429,7 +429,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     serviceImplementation << "    map<String, RequestMethod> requestMethods {" << endl;
     for (const auto&[name, operation]: m_operations)
     {
-        string requestName = strip_namespace(operation.m_input->name());
+        auto requestName = strip_namespace(operation.m_input->name());
         serviceImplementation << "        {\"" << requestName << "\", "
                               << "bind(&" << serviceClassName << "::process_" << requestName
                               << ", this, _1, _2, _3, _4)}," << endl;
@@ -440,7 +440,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
 
     serviceImplementation << endl <<
                           "template <class InputData, class OutputData>\n"
-                          "void processAnyRequest(xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
+                          "void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
                           "{\n"
                           "   const String requestName = InputData::classId();\n"
                           "   const String responseName = OutputData::classId();\n"
@@ -454,7 +454,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
                           "      // Can't parse input data\n"
                           "      throw HTTPException(400, e.what());\n"
                           "   }\n"
-                          "   auto& soapBody = requestNode->parent();\n"
+                          "   const auto& soapBody = requestNode->parent();\n"
                           "   soapBody->clearChildren();\n"
                           "   method(inputData, outputData, authentication);\n"
                           "   auto& response = soapBody->pushNode(ns + \":\" + responseName);\n"
@@ -463,7 +463,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
                           "}\n\n"
 
                           "template <class InputData, class OutputData>\n"
-                          "void processAnyRequest(xdoc::SNode& request, HttpAuthentication* authentication,\n"
+                          "void processAnyRequest(const xdoc::SNode& request, HttpAuthentication* authentication,\n"
                           "                       const function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)\n"
                           "{\n"
                           "   InputData inputData;\n"
@@ -494,7 +494,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
         }
         serviceImplementation << endl;
         serviceImplementation << "void " << serviceClassName << "::process_" << requestName
-                              << "(xdoc::SNode& xmlNode, xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
+                              << "(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
                               << endl;
 
         auto inputType = "C" + operation.m_input->name();

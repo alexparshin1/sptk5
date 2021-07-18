@@ -62,13 +62,14 @@ public:
 class SP_EXPORT NodeSearchAlgorithms
 {
 public:
-    static void select(Node::Vector& nodes, SNode& start, String xpath);
+    static void select(Node::Vector& nodes, const SNode& start, String xpath);
 
 private:
     /**
      * Scan descendents nodes
      */
-    static void scanDescendents(SNode& thisNode, Node::Vector& nodes, const std::vector<XPathElement>& pathElements,
+    static void scanDescendents(const SNode& thisNode, Node::Vector& nodes,
+                                const std::vector<XPathElement>& pathElements,
                                 int pathPosition,
                                 const String& starPointer);
 

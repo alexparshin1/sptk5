@@ -156,7 +156,7 @@ void Document::exportTo(Buffer& buffer, bool formatted) const
     buffer.set(stream.str());
 }
 
-void Document::exportTo(xdoc::SNode& node) const
+void Document::exportTo(const xdoc::SNode& node) const
 {
     m_root->exportTo("data", node);
 }

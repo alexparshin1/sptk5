@@ -44,7 +44,7 @@ const String testJSON(
 
 void verifyDocument(xdoc::Document& document)
 {
-    auto& root = *document.root();
+    const auto& root = *document.root();
     EXPECT_STREQ("John", root.getString("name").c_str());
     EXPECT_EQ(33, (int) root.getNumber("age"));
     EXPECT_DOUBLE_EQ(33.6, root.getNumber("temperature"));
@@ -145,7 +145,7 @@ TEST(SPTK_XDocument, clear)
     document.load(DataFormat::JSON, input);
 
     document.root()->clear();
-    auto& root = *document.root();
+    const auto& root = *document.root();
     EXPECT_TRUE(root.is(Node::Type::Object));
     EXPECT_FALSE(root.findFirst("address"));
     EXPECT_EQ(root.size(), size_t(0));

@@ -157,7 +157,7 @@ String Field::doubleDataToString() const
     return output.str();
 }
 
-void Field::exportTo(xdoc::SNode& node, bool compactXmlMode) const
+void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode) const
 {
     String value = asString();
 

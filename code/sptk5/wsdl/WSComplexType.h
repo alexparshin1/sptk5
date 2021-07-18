@@ -129,7 +129,7 @@ public:
      * Unload data to existing XML node
      * @param output            Existing XML node
      */
-    virtual void unload(xdoc::SNode& output) const;
+    virtual void unload(const xdoc::SNode& output) const;
 
     /**
      * Unload data to Query's parameters
@@ -150,7 +150,7 @@ public:
      * @param parent            Parent XML node where new node is created
      * @param name              Optional name for the child element
      */
-    void addElement(xdoc::SNode& parent, const char* name = nullptr) const override;
+    void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const override;
 
     /**
      * True if data was not loaded, or if all the fields are null.

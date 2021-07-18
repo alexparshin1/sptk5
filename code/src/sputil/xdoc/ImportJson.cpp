@@ -44,9 +44,9 @@ bool readJsonBoolean(const char* json, const char*& readPosition);
 
 double readJsonNumber(const char* json, const char*& readPosition);
 
-void readArrayData(SNode& parent, const char* json, const char*& readPosition);
+void readArrayData(const SNode& parent, const char* json, const char*& readPosition);
 
-void readObjectData(SNode& parent, const char* json, const char*& readPosition);
+void readObjectData(const SNode& parent, const char* json, const char*& readPosition);
 
 String decode(const String& text);
 }
@@ -97,7 +97,7 @@ static constexpr int ERROR_CONTEXT_CHARS = 65;
     throwError(msg.str(), json, position);
 }
 
-void Node::importJson(SNode& jsonElement, const Buffer& jsonStr)
+void Node::importJson(const SNode& jsonElement, const Buffer& jsonStr)
 {
     const char* json = jsonStr.c_str();
     const char* pos = json;
@@ -245,7 +245,7 @@ void readJsonNull(const char* json, const char*& readPosition)
     skipSpaces(json, readPosition);
 }
 
-void readArrayData(SNode& parent, const char* json, const char*& readPosition)
+void readArrayData(const SNode& parent, const char* json, const char*& readPosition)
 {
     if (*readPosition != '[')
     {
@@ -314,7 +314,7 @@ void readArrayData(SNode& parent, const char* json, const char*& readPosition)
     ++readPosition;
 }
 
-void readObjectData(SNode& parent, const char* json, const char*& readPosition)
+void readObjectData(const SNode& parent, const char* json, const char*& readPosition)
 {
     if (*readPosition != '{')
     {
@@ -525,7 +525,7 @@ TEST(SPTK_XDoc, JsonParser)
 {
     Buffer input(testJson);
     xdoc::Document document;
-    auto& root = document.root();
+    const auto& root = document.root();
     Node::importJson(root, input);
 
     Buffer output;

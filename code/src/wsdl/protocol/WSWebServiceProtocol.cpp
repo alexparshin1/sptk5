@@ -164,7 +164,7 @@ RequestInfo WSWebServiceProtocol::process()
         {
             contentType = "application/xml; charset=utf-8";
             requestIsJSON = false;
-            responseNode = processXmlContent((const char*) startOfMessage, xmlContent.root(), jsonContent.root());
+            responseNode = processXmlContent((const char*) startOfMessage, xmlContent.root());
         }
         else if (*startOfMessage == '{' || *startOfMessage == '[')
         {

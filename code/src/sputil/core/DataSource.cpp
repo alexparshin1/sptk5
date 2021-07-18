@@ -41,7 +41,7 @@ bool DataSource::save()
     return saveData();
 }
 
-void DataSource::exportRowTo(xdoc::SNode& node, bool compactXmlMode)
+void DataSource::exportRowTo(const xdoc::SNode& node, bool compactXmlMode)
 {
     auto cnt = fieldCount();
     for (size_t i = 0; i < cnt; ++i)
@@ -58,7 +58,7 @@ void DataSource::exportTo(xdoc::Node& parentNode, const String& nodeName, bool c
         open();
         while (!eof())
         {
-            auto& node = parentNode.pushNode(nodeName, xdoc::Node::Type::Object);
+            const auto& node = parentNode.pushNode(nodeName, xdoc::Node::Type::Object);
             exportRowTo(node, compactXmlMode);
             next();
         }

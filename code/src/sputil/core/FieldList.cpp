@@ -108,7 +108,7 @@ SField FieldList::findField(const String& fname) const
     return nullptr;
 }
 
-void FieldList::exportTo(xdoc::SNode& node, bool compactMode) const
+void FieldList::exportTo(const xdoc::SNode& node, bool compactMode) const
 {
     for (const auto& field: *this)
     {
@@ -224,7 +224,7 @@ TEST(SPTK_FieldList, toXml)
     fieldList["value"] = testInteger;
 
     xdoc::Document xml;
-    auto& fieldsElement = xml.root()->pushNode("fields", xdoc::Node::Type::Object);
+    const auto& fieldsElement = xml.root()->pushNode("fields", xdoc::Node::Type::Object);
     fieldList.exportTo(fieldsElement, false);
 
     Buffer buffer;

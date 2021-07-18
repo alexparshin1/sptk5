@@ -285,8 +285,8 @@ char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, ch
     return tokenEnd;
 }
 
-char* ImportXML::readProcessingInstructions(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
-                                            bool isRootNode)
+char* ImportXML::readProcessingInstructions(const SNode& currentNode, const char* nodeName, char* tokenEnd,
+                                            char*& nodeEnd, bool isRootNode)
 {
     nodeEnd = strstr(tokenEnd, "?>");
     if (nodeEnd == nullptr)
@@ -417,7 +417,7 @@ void ImportXML::detectArray(Node& _node)
     _node.type(Node::Type::Array);
 }
 
-void ImportXML::parse(SNode& node, const char* _buffer, Mode formatting)
+void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
 {
     node->clear();
     SNode currentNode = node;
@@ -480,7 +480,7 @@ void ImportXML::parse(SNode& node, const char* _buffer, Mode formatting)
     }
 }
 
-void ImportXML::readText(SNode& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
+void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
                          Mode formatting)
 {
     const auto* textTrail = nodeStart;

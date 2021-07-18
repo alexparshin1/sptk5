@@ -138,7 +138,7 @@ public:
      * The processing results are stored in the same request XML
      * @param xmlContent           Incoming request and outgoing response
      */
-    void processRequest(xdoc::SNode& xmlContent, xdoc::SNode& jsonContent,
+    void processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                         HttpAuthentication* authentication, String& requestName);
 
     /**
@@ -175,8 +175,8 @@ public:
 
 protected:
 
-    using RequestMethod = std::function<void(sptk::xdoc::SNode&, sptk::xdoc::SNode&, sptk::HttpAuthentication*,
-                                             const sptk::WSNameSpace&)>;
+    using RequestMethod = std::function<void(const sptk::xdoc::SNode&, const sptk::xdoc::SNode&,
+                                             sptk::HttpAuthentication*, const sptk::WSNameSpace&)>;
 
     /**
      * Internal SOAP body processor
@@ -184,11 +184,11 @@ protected:
      * Receives incoming SOAP body of Web Service requests, and returns
      * application response.
      * This method is abstract and overwritten in derived generated classes.
-     * @param xmlContent       Incoming and outgoing SOAP element
+     * @param xmlContent        Incoming and outgoing SOAP element
      * @param authentication    Optional setRequestMethods(move(requestMethods));HTTP authentication
      * @param requestNameSpace  Request SOAP element namespace
      */
-    virtual void requestBroker(const String& requestName, xdoc::SNode& xmlContent, xdoc::SNode& jsonContent,
+    virtual void requestBroker(const String& requestName, const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                                HttpAuthentication* authentication, const WSNameSpace& requestNameSpace);
 
     /**
@@ -200,7 +200,7 @@ protected:
      * @param error            Error description
      * @param errorCode        Optional HTTP error code, or 0
      */
-    virtual void handleError(xdoc::SNode& xmlContent, sptk::xdoc::SNode& jsonContent,
+    virtual void handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                              const sptk::String& error, int errorCode) const;
 
     /**
@@ -218,7 +218,7 @@ protected:
      * @param soapEnvelope
      * @return
      */
-    xdoc::SNode findSoapBody(xdoc::SNode& soapEnvelope, const WSNameSpace& soapNamespace);
+    xdoc::SNode findSoapBody(const xdoc::SNode& soapEnvelope, const WSNameSpace& soapNamespace);
 
     void setRequestMethods(std::map<sptk::String, RequestMethod>&& requestMethods);
 

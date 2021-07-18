@@ -35,7 +35,7 @@ using namespace xdoc;
 void WSComplexType::copyFrom(const WSComplexType& other)
 {
     xdoc::Document xml;
-    auto& element = xml.root()->pushNode("temp");
+    const auto& element = xml.root()->pushNode("temp");
     other.unload(element);
     load(element);
 }
@@ -54,7 +54,7 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
     }
 }
 
-void WSComplexType::addElement(SNode& parent, const char* name) const
+void WSComplexType::exportTo(const SNode& parent, const char* name) const
 {
     if (m_exportable)
     {
@@ -89,7 +89,7 @@ String WSComplexType::toString(bool asJSON, bool formatted) const
     else
     {
         xdoc::Document outputXML;
-        auto& element = outputXML.root()->pushNode("type");
+        const auto& element = outputXML.root()->pushNode("type");
         unload(element);
         outputXML.exportTo(DataFormat::XML, output, formatted);
     }
@@ -173,7 +173,7 @@ bool WSComplexType::isNull() const
     return !hasValues;
 }
 
-void WSComplexType::unload(SNode& output) const
+void WSComplexType::unload(const SNode& output) const
 {
     const auto& fields = getFields();
 
@@ -192,7 +192,7 @@ void WSComplexType::unload(SNode& output) const
 
     // Unload elements
     fields.forEach([&output](const WSType* field) {
-        field->addElement(output);
+        field->exportTo(output);
         return true;
     }, WSFieldIndex::Group::ELEMENTS);
 }

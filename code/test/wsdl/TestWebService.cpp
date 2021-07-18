@@ -184,7 +184,7 @@ static Document make_send_request(const String& methodName, DataFormat dataForma
     return sendRequest;
 }
 
-static const SNode get_response_node(const Document& response, DataFormat dataFormat)
+static SNode get_response_node(const Document& response, DataFormat dataFormat)
 {
     SNode responseNode = response.root();
     if (dataFormat == DataFormat::XML)

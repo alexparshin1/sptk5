@@ -176,13 +176,13 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void addElement(xdoc::SNode& output, const char* name = nullptr) const override
+    void exportTo(const xdoc::SNode& output, const char* name = nullptr) const override
     {
         const char* itemName = name == nullptr ? "item" : name;
         auto& arrayNode = output->pushNode(m_name, xdoc::Node::Type::Array);
         for (const auto& element: m_array)
         {
-            element.addElement(arrayNode, itemName);
+            element.exportTo(arrayNode, itemName);
         }
     }
 

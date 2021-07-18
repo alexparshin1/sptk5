@@ -82,7 +82,7 @@ private:
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_AccountBalance(sptk::xdoc::SNode& xmlContent, sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+    void process_AccountBalance(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
     /**
      * Internal Web Service Hello processing
@@ -90,7 +90,7 @@ private:
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_Hello(sptk::xdoc::SNode& xmlContent, sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+    void process_Hello(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
     /**
      * Internal Web Service Login processing
@@ -98,7 +98,7 @@ private:
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_Login(sptk::xdoc::SNode& xmlContent, sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+    void process_Login(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
 };
 

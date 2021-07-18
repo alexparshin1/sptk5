@@ -103,7 +103,7 @@ public:
      * Load document from buffer.
      * @param _buffer            Source buffer
      */
-    void parse(SNode& node, const char* _buffer, Mode formatting = Mode::Compact);
+    void parse(const SNode& node, const char* _buffer, Mode formatting = Mode::Compact);
 
 protected:
 
@@ -148,14 +148,14 @@ private:
 
     char* readExclamationTag(const SNode& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd, Mode formatting);
 
-    char* readProcessingInstructions(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
+    char* readProcessingInstructions(const SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
                                      bool isRootNode);
 
     char* readOpenningTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 
     static char* readClosingTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 
-    void readText(SNode& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
+    void readText(const SNode& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
                   Mode formatting);
 
     char* parseEntity(char* start);
