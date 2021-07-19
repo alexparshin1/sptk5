@@ -33,6 +33,32 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::xdoc;
 
+static DataFormat autoDetectFormat(const char* data)
+{
+    int skip = strspn(data, "\n\r\t ");
+    switch (data[skip])
+    {
+        case '<':
+            return DataFormat::XML;
+        case '[':
+        case '{':
+            return DataFormat::JSON;
+        default:
+            break;
+    }
+    throw Exception("Invalid character at the data start");
+}
+
+void Document::load(const Buffer& data, bool xmlKeepFormatting) const
+{
+    m_root->load(autoDetectFormat(data.c_str()), data, xmlKeepFormatting);
+}
+
+void Document::load(const String& data, bool xmlKeepFormatting) const
+{
+    m_root->load(autoDetectFormat(data.c_str()), data, xmlKeepFormatting);
+}
+
 #ifdef USE_GTEST
 
 const String testJSON(
@@ -70,7 +96,7 @@ TEST(SPTK_XDocument, load)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(DataFormat::JSON, input);
+    document.load(input);
     verifyDocument(document);
 }
 
@@ -78,7 +104,7 @@ TEST(SPTK_XDocument, add)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(DataFormat::JSON, input);
+    document.load(input);
 
     auto& root = *document.root();
 
@@ -124,7 +150,7 @@ TEST(SPTK_XDocument, remove)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(DataFormat::JSON, input);
+    document.load(input);
 
     auto& root = *document.root();
     root.remove("name");
@@ -142,7 +168,7 @@ TEST(SPTK_XDocument, clear)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(DataFormat::JSON, input);
+    document.load(input);
 
     document.root()->clear();
     const auto& root = *document.root();
@@ -155,12 +181,12 @@ TEST(SPTK_XDocument, exportToBuffer)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(DataFormat::JSON, input);
+    document.load(input);
 
     Buffer buffer;
     document.exportTo(DataFormat::JSON, buffer, false);
 
-    document.load(DataFormat::JSON, input);
+    document.load(input);
     verifyDocument(document);
 }
 
@@ -168,7 +194,7 @@ TEST(SPTK_XDocument, copyCtor)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(DataFormat::JSON, input);
+    document.load(input);
 
     xdoc::Document document2(document);
 
@@ -180,7 +206,7 @@ TEST(SPTK_XDocument, moveCtor)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(DataFormat::JSON, input);
+    document.load(input);
 
     xdoc::Document document2(move(document));
 
@@ -191,7 +217,7 @@ TEST(SPTK_XDocument, copyAssign)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(DataFormat::JSON, input);
+    document.load(input);
 
     xdoc::Document document2;
 
@@ -205,7 +231,7 @@ TEST(SPTK_XDocument, moveAssign)
 {
     Buffer input(testJSON);
     xdoc::Document document;
-    document.load(DataFormat::JSON, input);
+    document.load(input);
 
     xdoc::Document document2;
 
@@ -221,7 +247,7 @@ TEST(SPTK_XDocument, truncated)
     Buffer input(truncatedJSON);
     try
     {
-        document.load(DataFormat::JSON, input);
+        document.load(input);
         FAIL() << "Incorrect: MUST fail";
     }
     catch (const Exception& e)
@@ -238,7 +264,7 @@ TEST(SPTK_XDocument, errors)
     Buffer junkTailJSON(String(testJSON) + "=");
     try
     {
-        document.load(DataFormat::JSON, junkTailJSON);
+        document.load(junkTailJSON);
         FAIL() << "Incorrect: MUST fail";
     }
     catch (const Exception&)
@@ -250,7 +276,7 @@ TEST(SPTK_XDocument, errors)
     junkInsideJSON[0] = '?';
     try
     {
-        document.load(DataFormat::JSON, junkInsideJSON);
+        document.load(junkInsideJSON);
         FAIL() << "Incorrect: MUST fail";
     }
     catch (const Exception&)
@@ -261,7 +287,7 @@ TEST(SPTK_XDocument, errors)
     try
     {
         Buffer input(testJSON);
-        document.load(DataFormat::JSON, input);
+        document.load(input);
         auto element = document.root()->findFirst("nothing");
         if (element != nullptr)
             FAIL() << "Incorrect: MUST return null";
@@ -324,7 +350,7 @@ TEST(SPTK_XDocument, performance)
     stopWatch.start();
 
     xdoc::Document document1;
-    document1.load(DataFormat::JSON, buffer);
+    document1.load(buffer);
 
     stopWatch.stop();
 

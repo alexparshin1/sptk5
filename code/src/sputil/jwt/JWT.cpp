@@ -368,7 +368,7 @@ static void jwt_b64_decode_json(xdoc::Document& dest, const Buffer& src)
     Buffer decodedData(1024);
     Base64::decode(decodedData, src);
 
-    dest.load(xdoc::DataFormat::JSON, decodedData.c_str());
+    dest.load(decodedData.c_str());
 }
 
 void sptk::jwt_base64uri_encode(Buffer& buffer)

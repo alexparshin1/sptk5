@@ -160,7 +160,7 @@ static Document make_send_request(const String& methodName, DataFormat dataForma
     if (dataFormat == DataFormat::XML)
     {
         auto wrapper = soapWrapper.replace("{REQUEST_DATA}", "<ns1:" + methodName + "/>");
-        sendRequest.load(dataFormat, wrapper);
+        sendRequest.load(wrapper);
         requestNode = sendRequest.root()->findFirst("ns1:" + methodName);
     }
 
@@ -262,7 +262,7 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
             else
             {
                 Document response;
-                response.load(dataFormat, requestResponse.c_str());
+                response.load(requestResponse.c_str());
 
                 auto responseNode = get_response_node(response, dataFormat);
 
@@ -437,7 +437,7 @@ static const String testJSON(
 TEST(SPTK_WSGeneratedClasses, LoadXML)
 {
     Document input;
-    input.load(DataFormat::XML, testXML);
+    input.load(testXML);
     const auto loginNode = input.root()->findFirst("login");
 
     CLogin login;
@@ -452,7 +452,7 @@ TEST(SPTK_WSGeneratedClasses, LoadXML)
 TEST(SPTK_WSGeneratedClasses, LoadJSON)
 {
     Document input;
-    input.load(DataFormat::XML, testXML);
+    input.load(testXML);
     const auto loginNode = input.root()->findFirst("login");
 
     CLogin login;

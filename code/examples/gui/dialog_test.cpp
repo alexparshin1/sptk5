@@ -108,7 +108,7 @@ public:
             /// If the XML file doesn't exist yet - this will throw an exception that we trap.
             Buffer buffer;
             buffer.loadFromFile(m_stateFileName.c_str());
-            m_state.load(xdoc::DataFormat::XML, buffer);
+            m_state.load(buffer);
 
             /// If the XML file exists, try to load data into the dialog
             load(m_state.root());

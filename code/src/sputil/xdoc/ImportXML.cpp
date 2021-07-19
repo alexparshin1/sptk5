@@ -601,14 +601,14 @@ static void verifyDocument(Document& document)
 TEST(SPTK_XDocument, loadXML)
 {
     Document document;
-    document.load(DataFormat::XML, testXML, true);
+    document.load(testXML, true);
     verifyDocument(document);
 }
 
 TEST(SPTK_XDocument, addNodes)
 {
     Document document;
-    document.load(DataFormat::XML, testXML, true);
+    document.load(testXML, true);
 
     *document.root()->pushNode("name") = String("John");
     *document.root()->pushNode("age") = String("33");
@@ -630,7 +630,7 @@ TEST(SPTK_XDocument, addNodes)
 TEST(SPTK_XDocument, removeNodes)
 {
     Document document;
-    document.load(DataFormat::XML, testXML);
+    document.load(testXML);
 
     document.root()->findOrCreate("name");
     document.root()->findOrCreate("age");
@@ -651,7 +651,7 @@ TEST(SPTK_XDocument, removeNodes)
 TEST(SPTK_XDocument, saveXml1)
 {
     Document document;
-    document.load(DataFormat::XML, testREST);
+    document.load(testREST);
 
     Buffer buffer;
 
@@ -664,14 +664,14 @@ TEST(SPTK_XDocument, saveXml2)
 {
     // Import while keeping formatting
     Document document;
-    document.load(DataFormat::XML, testXML, true);
+    document.load(testXML, true);
 
     // Export to XML without changing formatting
     Buffer buffer;
     document.exportTo(DataFormat::XML, buffer, false);
 
     // Import while keeping formatting
-    document.load(DataFormat::XML, buffer, true);
+    document.load(buffer, true);
 
     // Check that resulting document is still Ok
     verifyDocument(document);
@@ -680,7 +680,7 @@ TEST(SPTK_XDocument, saveXml2)
 TEST(SPTK_XDocument, parseXML)
 {
     Document document;
-    document.load(DataFormat::XML, testREST);
+    document.load(testREST);
 
     const auto xmlElement = document.root()->findFirst("xml");
     EXPECT_STREQ(xmlElement->getAttribute("version").c_str(), "1.0");
@@ -714,7 +714,7 @@ TEST(SPTK_XDocument, brokenXML)
     try
     {
         const String brokenXML1("<xml></html>");
-        document.load(DataFormat::XML, brokenXML1);
+        document.load(brokenXML1);
         FAIL() << "Must throw exception";
     }
     catch (const Exception& e)
@@ -725,7 +725,7 @@ TEST(SPTK_XDocument, brokenXML)
     try
     {
         const String brokenXML1("<xml><html></xml></html>");
-        document.load(DataFormat::XML, brokenXML1);
+        document.load(brokenXML1);
         FAIL() << "Must throw exception";
     }
     catch (const Exception& e)
@@ -736,7 +736,7 @@ TEST(SPTK_XDocument, brokenXML)
     try
     {
         const String brokenXML1("<xml</html>");
-        document.load(DataFormat::XML, brokenXML1);
+        document.load(brokenXML1);
         FAIL() << "Must throw exception";
     }
     catch (const Exception& e)
@@ -752,7 +752,7 @@ TEST(SPTK_XDocument, unicodeAndSpacesXML)
     try
     {
         const String unicodeXML(R"(<?xml encoding="UTF-8" version="1.0"?><p> “Add” </p><span> </span>)");
-        document.load(DataFormat::XML, unicodeXML, true);
+        document.load(unicodeXML, true);
         Buffer buffer;
         document.exportTo(DataFormat::XML, buffer, false);
         EXPECT_STREQ(unicodeXML.c_str(), buffer.c_str());
@@ -767,7 +767,7 @@ TEST(SPTK_XDocument, exportToJSON)
 {
     Buffer input(testXML);
     Document document;
-    document.load(DataFormat::XML, input);
+    document.load(input);
 
     Buffer output;
     document.exportTo(DataFormat::JSON, output, true);
@@ -781,7 +781,7 @@ TEST(SPTK_XDocument, loadFormattedXML)
     input.loadFromFile("data/content2.xml");
 
     Document document;
-    document.load(DataFormat::XML, input, true);
+    document.load(input, true);
 
     Buffer output;
     document.exportTo(DataFormat::XML, output, false);

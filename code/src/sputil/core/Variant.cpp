@@ -1488,7 +1488,7 @@ TEST(SPTK_Variant, json)
     constexpr int testInteger1 = 12345;
     const char* json = R"({ "value": 12345 })";
     xdoc::Document document;
-    document.load(DataFormat::JSON, json);
+    document.load(json);
     auto node = document.root()->findFirst("value");
 
     Variant v;
@@ -1512,7 +1512,7 @@ TEST(SPTK_Variant, xml)
 {
     const char* xml = "<value>12345</value>";
     xdoc::Document document;
-    document.load(DataFormat::XML, xml);
+    document.load(xml);
     auto node = document.root()->findFirst("value");
 
     Variant v;

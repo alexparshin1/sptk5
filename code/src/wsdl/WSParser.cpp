@@ -233,7 +233,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     xdoc::Document wsdlXML;
     Buffer buffer;
     buffer.loadFromFile(wsdlFile);
-    wsdlXML.load(xdoc::DataFormat::XML, buffer);
+    wsdlXML.load(buffer);
 
     const auto service = wsdlXML.root()->findFirst("wsdl:service");
     m_serviceName = service->getAttribute("name");

@@ -254,7 +254,7 @@ TEST(SPTK_XDocument, select)
     Node::Vector elementSet;
     Document document;
 
-    document.load(DataFormat::XML, testXML1);
+    document.load(testXML1);
 
     document.root()->select(elementSet, "/AAA");
     EXPECT_EQ(size_t(1), elementSet.size());
@@ -286,7 +286,7 @@ TEST(SPTK_XDocument, select2)
     Node::Vector elementSet;
     Document document;
 
-    document.load(DataFormat::XML, testXML2);
+    document.load(testXML2);
 
     document.root()->select(elementSet, "//BBB");
     EXPECT_EQ(size_t(5), elementSet.size());
@@ -300,7 +300,7 @@ TEST(SPTK_XDocument, select3)
     Node::Vector elementSet;
     Document document;
 
-    document.load(DataFormat::XML, testXML3);
+    document.load(testXML3);
 
     Buffer buff;
     document.exportTo(DataFormat::XML, buff, false);
@@ -317,7 +317,7 @@ TEST(SPTK_XDocument, select4)
     Node::Vector elementSet;
     Document document;
 
-    document.load(DataFormat::XML, testXML4);
+    document.load(testXML4);
 
     document.root()->select(elementSet, "/AAA/BBB[1]");
     EXPECT_EQ(size_t(1), elementSet.size());
@@ -333,7 +333,7 @@ TEST(SPTK_XDocument, select5)
     Node::Vector elementSet;
     Document document;
 
-    document.load(DataFormat::XML, testXML5);
+    document.load(testXML5);
 
     document.root()->select(elementSet, "//BBB[@id=002]");
     EXPECT_EQ(size_t(1), elementSet.size());

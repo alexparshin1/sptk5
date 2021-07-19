@@ -207,7 +207,7 @@ void CThemes::reset()
 
     Buffer defaultThemeBuffer((const uint8_t*) default_icons, default_icons_len);
     m_tar.read(defaultThemeBuffer);
-    m_registry->load(xdoc::DataFormat::XML, m_tar.file("theme.ini"));
+    m_registry->load(m_tar.file("theme.ini"));
 
     m_normalButtons.clear();
     m_comboButtons.clear();
@@ -291,7 +291,7 @@ void CThemes::set(string theThemeName)
             try
             {
                 m_tar.read(fileName);
-                m_registry->load(xdoc::DataFormat::XML, m_tar.file("theme.ini"));
+                m_registry->load(m_tar.file("theme.ini"));
                 m_name = themeName;
             }
             catch (...)
@@ -303,7 +303,7 @@ void CThemes::set(string theThemeName)
         {
             Buffer defaultThemeBuffer((const uint8_t*) default_icons, default_icons_len);
             m_tar.read(defaultThemeBuffer);
-            m_registry->load(xdoc::DataFormat::XML, m_tar.file("theme.ini"));
+            m_registry->load(m_tar.file("theme.ini"));
             m_name = themeName;
         }
 

@@ -2518,7 +2518,7 @@ void CListView::saveList(const xdoc::SNode& node) const
             if (*cell)
             {
                 const auto& cellNode = rowNode->pushNode("cell", xdoc::Node::Type::Text);
-                cellNode->setString(cell);
+                cellNode->set(cell);
                 if (index != c)
                 {
                     cellNode->setAttribute("index", to_string(c));

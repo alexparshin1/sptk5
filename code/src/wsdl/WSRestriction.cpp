@@ -171,7 +171,7 @@ static const String initialsXML {
 TEST(SPTK_WSRestriction, parseEnumeration)
 {
     xdoc::Document document;
-    document.load(xdoc::DataFormat::XML, coloursXML);
+    document.load(coloursXML);
 
     auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
 
@@ -200,7 +200,7 @@ TEST(SPTK_WSRestriction, parseEnumeration)
 TEST(SPTK_WSRestriction, parseInitials)
 {
     xdoc::Document document;
-    document.load(xdoc::DataFormat::XML, initialsXML);
+    document.load(initialsXML);
 
     auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
 

@@ -48,15 +48,9 @@ public:
         return m_root;
     }
 
-    void load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting = false) const
-    {
-        m_root->load(dataFormat, data, xmlKeepFormatting);
-    }
+    void load(const Buffer& data, bool xmlKeepFormatting = false) const;
 
-    void load(DataFormat dataFormat, const String& data, bool xmlKeepFormatting = false) const
-    {
-        m_root->load(dataFormat, data, xmlKeepFormatting);
-    }
+    void load(const String& data, bool xmlKeepFormatting = false) const;
 
     void exportTo(DataFormat dataFormat, Buffer& data, bool formatted = false) const
     {

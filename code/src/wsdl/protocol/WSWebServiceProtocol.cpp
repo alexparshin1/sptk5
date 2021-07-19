@@ -85,7 +85,7 @@ void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& htt
 static void substituteHostname(Buffer& page, const Host& host)
 {
     xdoc::Document wsdl;
-    wsdl.load(xdoc::DataFormat::XML, page);
+    wsdl.load(page);
     auto node = wsdl.root()->findFirst("soap:address");
     if (node == nullptr)
     {
