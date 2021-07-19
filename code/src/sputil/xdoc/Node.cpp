@@ -375,7 +375,7 @@ void Node::importXML(const Buffer& xml, bool xmlKeepSpaces)
 void Node::exportXML(Buffer& xml, int indent) const
 {
     ExportXML exporter;
-    for (auto& node: m_nodes)
+    for (const auto& node: m_nodes)
     {
         exporter.save(node, xml, indent);
     }
