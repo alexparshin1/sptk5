@@ -1189,7 +1189,7 @@ void Variant::save(const SNode& node) const
 
     node->clear();
     node->setAttribute("type", typeName(dataType()));
-    node->setData(*this);
+    node->set(*this);
 
     if (!stringValue.empty())
     {

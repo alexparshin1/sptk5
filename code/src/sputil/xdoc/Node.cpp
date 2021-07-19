@@ -155,8 +155,8 @@ String Node::getString(const String& name) const
 
     if (node->is(Type::Number))
     {
-        auto dvalue = node->asFloat();
-        auto ivalue = node->asInt64();
+        auto dvalue = node->m_value.asFloat();
+        auto ivalue = node->m_value.asInt64();
         if (dvalue == double(ivalue))
         {
             return int2string(ivalue);
@@ -167,7 +167,7 @@ String Node::getString(const String& name) const
         }
     }
 
-    return node->asString();
+    return node->m_value.asString();
 }
 
 String Node::text(const String& name) const
@@ -179,20 +179,20 @@ String Node::text(const String& name) const
         return String();
     }
 
-    return node->asString();
+    return node->m_value.asString();
 }
 
 double Node::getNumber(const String& name) const
 {
     if (name.empty())
     {
-        return asFloat();
+        return m_value.asFloat();
     }
 
     if (const auto& node = findFirst(name);
         node != nullptr)
     {
-        return node->asFloat();
+        return node->m_value.asFloat();
     }
 
     return 0;
@@ -202,13 +202,13 @@ bool Node::getBoolean(const String& name) const
 {
     if (name.empty())
     {
-        return asBool();
+        return m_value.asBool();
     }
 
     if (const auto& node = findFirst(name);
         node != nullptr)
     {
-        return node->asBool();
+        return node->m_value.asBool();
     }
 
     return false;
@@ -257,19 +257,28 @@ void Node::clear()
     m_attributes.clear();
 }
 
-SNode& Node::add_object(const String& name)
+SNode& xdoc::Node::pushValue(const String& name, const Variant& value, Node::Type type)
 {
-    return pushNode(name, Type::Object);
+    Node::Type actualType(type);
+    if (type == Node::Type::Null && !value.isNull())
+    {
+        actualType = variantTypeToType(value.dataType());
+    }
+    auto& node = pushNode(name, actualType);
+    node->m_value = value;
+    return node;
 }
 
-SNode& Node::add_array(const String& name)
+SNode& xdoc::Node::pushValue(const Variant& value, Node::Type type)
 {
-    return pushNode(name, Type::Array);
-}
-
-SNode& Node::push_object()
-{
-    return pushNode("", Type::Object);
+    Node::Type actualType(type);
+    if (type == Node::Type::Null && !value.isNull())
+    {
+        actualType = variantTypeToType(value.dataType());
+    }
+    auto& node = pushNode("", actualType);
+    node->m_value = value;
+    return node;
 }
 
 bool Node::remove(const String& name)
@@ -337,7 +346,7 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
 {
     if (dataFormat == DataFormat::JSON)
     {
-        exportJson(data, formatted);
+        ExportJSON::exportToJSON(this, data, formatted);
     }
     else
     {

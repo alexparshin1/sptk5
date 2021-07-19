@@ -86,20 +86,20 @@ TEST(SPTK_XDocument, add)
     constexpr double testDouble1 = 2.5;
     constexpr double testDouble2 = 85.5;
 
-    root["int"] = 1;
-    root["double"] = testDouble1;
-    root["string"] = "Test";
-    root["bool1"] = true;
-    root["bool2"] = false;
+    root.set("int", 1);
+    root.set("double", testDouble1);
+    root.set("string", "Test");
+    root.set("bool1", true);
+    root.set("bool2", false);
 
-    const auto& arrayData = root.add_array("array");
-    arrayData->push_back(String("C++"));
-    arrayData->push_back(String("Java"));
-    arrayData->push_back(String("Python"));
+    const auto& arrayData = root.pushNode("array");
+    arrayData->pushValue("C++");
+    arrayData->pushValue("Java");
+    arrayData->pushValue("Python");
 
-    auto& objectData = *root.add_object("object");
-    objectData["height"] = testInteger;
-    objectData["weight"] = testDouble2;
+    auto& objectData = *root.pushNode("object");
+    objectData.set("height", testInteger);
+    objectData.set("weight", testDouble2);
 
     EXPECT_EQ(1, (int) root.getNumber("int"));
     EXPECT_DOUBLE_EQ(testDouble1, root.getNumber("double"));
@@ -285,22 +285,22 @@ TEST(SPTK_XDocument, performance)
 
     xdoc::Document document;
 
-    const auto& arrayElement = document.root()->add_array("items");
+    const auto& arrayElement = document.root()->pushNode("items");
     for (int i = 0; i < objectCount; ++i)
     {
-        auto& object = *arrayElement->push_object();
+        auto& object = *arrayElement->pushNode("", Node::Type::Object);
         object.set("id", i);
         object.set("name", String("Name " + to_string(i)));
         object.set("exists", true);
 
-        auto& address = *object.add_object("address");
-        address["number"] = i;
-        address["street"] = String("Street " + to_string(i));
+        auto& address = *object.pushNode("address", Node::Type::Object);
+        address.set("number", i);
+        address.set("street", String("Street " + to_string(i)));
 
-        auto& list = *address.add_array("list");
-        list.push_back(1);
-        list.push_back("two");
-        list.push_back(3);
+        auto& list = *address.pushNode("list", Node::Type::Array);
+        list.pushValue(1);
+        list.pushValue("two");
+        list.pushValue(3);
     }
 
     // Verify data

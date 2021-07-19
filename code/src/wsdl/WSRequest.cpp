@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-static void extractNameSpaces(const xdoc::SNode& node, map<String, WSNameSpace>& nameSpaces)
+static void extractNameSpaces(const xdoc::SNode& node, map <String, WSNameSpace>& nameSpaces)
 {
     for (const auto&[attr, value]: node->attributes())
     {
@@ -88,9 +88,9 @@ void WSRequest::handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& js
         }
         const auto& faultNode = soapBody->pushNode(soap_namespace + "Fault", xdoc::Node::Type::Object);
         const auto& faultCodeNode = faultNode->pushNode("faultcode", xdoc::Node::Type::Text);
-        faultCodeNode->setString(soap_namespace + "Client");
+        faultCodeNode->set(soap_namespace + "Client");
         const auto& faultStringNode = faultNode->pushNode("faultstring", xdoc::Node::Type::Text);
-        faultStringNode->setString(error);
+        faultStringNode->set(error);
     }
     else
     {
@@ -125,7 +125,9 @@ xdoc::SNode WSRequest::findSoapBody(const xdoc::SNode& soapEnvelope, const WSNam
 
     auto soapBody = soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body");
     if (!soapBody)
-    throwException("Can't find SOAP Body node in incoming request")
+    {
+        throwException("Can't find SOAP Body node in incoming request")
+    }
 
     return soapBody;
 }
@@ -140,7 +142,7 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
     {
         WSNameSpace soapNamespace;
         xdoc::SNode soapEnvelope;
-        map < String, WSNameSpace > allNamespaces;
+        map <String, WSNameSpace> allNamespaces;
         for (const auto& node: *xmlContent)
         {
             if (WSParser::strip_namespace(node->name()).toLowerCase() == "envelope")
@@ -154,11 +156,15 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
         }
 
         if (soapEnvelope == nullptr)
-        throwException("Can't find SOAP Envelope node")
+        {
+            throwException("Can't find SOAP Envelope node")
+        }
 
         auto soapBody = findSoapBody(soapEnvelope, soapNamespace);
         if (!soapBody || soapBody->empty())
-        throwException("Can't find request node")
+        {
+            throwException("Can't find request node")
+        }
 
         xmlRequestNode = *soapBody->begin();
 
@@ -188,7 +194,7 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
     requestBroker(requestName, xmlRequestNode, jsonContent, authentication, requestNameSpace);
 }
 
-void WSRequest::setRequestMethods(map<sptk::String, RequestMethod>&& requestMethods)
+void WSRequest::setRequestMethods(map <sptk::String, RequestMethod>&& requestMethods)
 {
     m_requestMethods = move(requestMethods);
 }

@@ -29,7 +29,7 @@
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <mutex>
 
-#if HAVE_FIREBIRD == 1
+#ifdef HAVE_FIREBIRD
 
 #include <ibase.h>
 #include "AutoDatabaseConnection.h"

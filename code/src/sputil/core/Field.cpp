@@ -168,7 +168,7 @@ void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode) const
         if (dataType() == VariantDataType::VAR_TEXT)
         {
             element = node->pushNode(fieldName(), xdoc::Node::Type::CData);
-            element->setString(value);
+            element->set(value);
         }
         else
         {
@@ -179,7 +179,7 @@ void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode) const
             else
             {
                 element = node->pushNode("field", xdoc::Node::Type::Text);
-                element->setString(value);
+                element->set(value);
             }
         }
 

@@ -282,24 +282,24 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
             case '0':
             case '-':
                 // Number
-                parent->pushValue("", Node::Type::Number, readJsonNumber(json, readPosition));
+                parent->pushValue(readJsonNumber(json, readPosition), Node::Type::Number);
                 break;
 
             case 't':
             case 'f':
                 // Boolean
-                parent->pushValue("", Node::Type::Boolean, readJsonBoolean(json, readPosition));
+                parent->pushValue(readJsonBoolean(json, readPosition), Node::Type::Boolean);
                 break;
 
             case 'n':
                 // Null
                 readJsonNull(json, readPosition);
-                parent->pushNode("", Node::Type::Null);
+                parent->pushValue(Variant(), Node::Type::Null);
                 break;
 
             case '"':
                 // String
-                parent->pushValue("", Node::Type::Text, readJsonString(json, readPosition));
+                parent->pushValue(readJsonString(json, readPosition), Node::Type::Text);
                 break;
 
             case ',':
@@ -363,24 +363,24 @@ void readObjectData(const SNode& parent, const char* json, const char*& readPosi
             case '0':
             case '-':
                 // Number
-                parent->pushValue(elementName, Node::Type::Number, readJsonNumber(json, readPosition));
+                parent->pushValue(elementName, readJsonNumber(json, readPosition), Node::Type::Number);
                 break;
 
             case 't':
             case 'f':
                 // Boolean
-                parent->pushValue(elementName, Node::Type::Boolean, readJsonBoolean(json, readPosition));
+                parent->pushValue(elementName, readJsonBoolean(json, readPosition), Node::Type::Boolean);
                 break;
 
             case 'n':
                 // Null
                 readJsonNull(json, readPosition);
-                parent->pushNode(elementName, Node::Type::Null);
+                parent->pushValue(elementName, Variant(), Node::Type::Null);
                 break;
 
             case '"':
                 // String
-                parent->pushValue(elementName, Node::Type::Text, readJsonString(json, readPosition));
+                parent->pushValue(elementName, readJsonString(json, readPosition), Node::Type::Text);
                 break;
 
             default:
@@ -521,7 +521,7 @@ static const String testFormattedJson(R"({
   }
 })");
 
-TEST(SPTK_XDoc, JsonParser)
+TEST(SPTK_XDocument, formatJSON)
 {
     Buffer input(testJson);
     xdoc::Document document;
@@ -529,11 +529,11 @@ TEST(SPTK_XDoc, JsonParser)
     Node::importJson(root, input);
 
     Buffer output;
-    root->exportJson(output, false);
+    ExportJSON::exportToJSON(root.get(), output, false);
 
     EXPECT_STREQ(testJson.c_str(), output.c_str());
 
-    root->exportJson(output, true);
+    ExportJSON::exportToJSON(root.get(), output, true);
     EXPECT_STREQ(testFormattedJson.c_str(), output.c_str());
 }
 

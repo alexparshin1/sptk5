@@ -39,8 +39,8 @@ enum class DataFormat
     XML
 };
 
-class Node
-    : public Variant, public std::enable_shared_from_this<Node>
+class SP_EXPORT Node
+    : public std::enable_shared_from_this<Node>
 {
 public:
 
@@ -74,7 +74,7 @@ public:
 
     Node(const String& nodeName = "", Type type = Type::Null);
 
-    ~Node() override = default;
+    ~Node() = default;
 
     virtual void clear();
 
@@ -107,14 +107,24 @@ public:
 
     SNode& pushNode(const String& name, Type type = Type::Null);
 
-    template<typename T>
-    SNode& pushValue(const String& name, Type type, const T& value)
-    {
-        Variant v(value);
-        auto& node = pushNode(name, type);
-        node->setData(v);
-        return node;
-    }
+    /**
+     * @brief   Push named property to object
+     * @details If the value type isn't provided and value isn't null, the type deducted from value.
+     * @param name              Property name
+     * @param value             Property value
+     * @param type              Optional type
+     * @return created node
+     */
+    SNode& pushValue(const String& name, const Variant& value, Node::Type type = Node::Type::Null);
+
+    /**
+     * @brief   Push value to array
+     * @details If the value type isn't provided and value isn't null, the type deducted from value.
+     * @param value             Property value
+     * @param type              Optional type
+     * @return created node
+     */
+    SNode& pushValue(const Variant& value, Node::Type type = Node::Type::Null);
 
     bool empty() const
     {
@@ -146,24 +156,23 @@ public:
     // Compatibility
     size_t size() const;
 
-    SNode& add_array(const String& name);
-
-    SNode& add_object(const String& name);
-
-    SNode& push_back(const Variant& value)
+    const Variant& getValue() const
     {
-        auto& node = pushNode("", variantTypeToType(value.dataType()));
-        node->setData(value);
-        return node;
+        return m_value;
     }
 
-    SNode& push_object();
+    template<typename T>
+    void set(const T& value)
+    {
+        m_value = value;
+    }
 
-    SNode& set(const String& name, const Variant& value)
+    template<typename T>
+    SNode& set(const String& name, const T& value)
     {
         auto& node = findOrCreate(name);
-        node->setData(value);
-        node->type(variantTypeToType(node->dataType()));
+        node->m_value = value;
+        node->type(variantTypeToType(node->m_value.dataType()));
 
         return node;
     }
@@ -171,21 +180,6 @@ public:
     bool remove(const String& name);
 
     bool remove(const SNode& node);
-
-    Variant& operator[](const String& name)
-    {
-        return *findOrCreate(name);
-    }
-
-    const Variant& operator[](const String& name) const
-    {
-        auto pNode = findFirst(name);
-        if (pNode == nullptr)
-        {
-            throw Exception("Element " + name + " doesn't exist");
-        }
-        return *pNode;
-    }
 
     iterator begin()
     {
@@ -218,13 +212,6 @@ public:
      * @param jsonStr              JSON text
      */
     static void importJson(const SNode& jsonElement, const sptk::Buffer& jsonStr);
-
-    /**
-     * Export to JSON text
-     * @param node              Output node
-     * @param formatted         Format JSON output
-     */
-    void exportJson(sptk::Buffer& json, bool formatted) const;
 
     /**
      * Parse XML text
@@ -260,19 +247,42 @@ private:
     SNode m_parent {nullptr};
     String m_name;
     Type m_type {Type::Null};
+    Variant m_value;
     Attributes m_attributes;
     Nodes m_nodes;
 
     static Type variantTypeToType(VariantDataType type);
 
-    void exportJsonValueTo(std::ostream& stream, bool formatted, size_t indent) const;
+};
 
-    void exportJsonArray(std::ostream& stream, bool formatted, size_t indent, const String& firstElement,
-                         const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+using Element = Node;
+using SNode = Node::SNode;
 
-    void exportJsonObject(std::ostream& stream, bool formatted, size_t indent, const String& firstElement,
-                          const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
+class SP_EXPORT ExportJSON
+{
+public:
+    /**
+     * Export to JSON text
+     * @param node              Output node
+     * @param formatted         Format JSON output
+     */
+    static void exportToJSON(const Node* node, sptk::Buffer& json, bool formatted);
 
+private:
+
+    static void exportJsonValueTo(const Node* node, std::ostream& stream, bool formatted, size_t indent);
+
+    static void exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+                                const String& firstElement,
+                                const String& betweenElements, const String& newLineChar, const String& indentSpaces);
+
+    static void exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+                                 const String& firstElement,
+                                 const String& betweenElements, const String& newLineChar, const String& indentSpaces);
+
+    static void exportNodeAttributes(const Node* node, std::ostream& stream, bool formatted,
+                                     const String& firstElement,
+                                     const String& betweenElements);
 };
 
 /**
@@ -292,8 +302,5 @@ bool isInteger(const String& str);
  * @return true if string constains a boolean
  */
 bool isBoolean(const String& str);
-
-using Element = Node;
-using SNode = Node::SNode;
 
 }

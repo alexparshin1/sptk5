@@ -71,19 +71,19 @@ void WSBasicType::exportTo(const SNode& parent, const char* _name) const
         switch (dataType())
         {
             case VariantDataType::VAR_BOOL:
-                parent->push_back(m_field.asBool());
+                parent->pushValue(m_field.asBool());
                 break;
             case VariantDataType::VAR_INT:
-                parent->push_back(m_field.asInteger());
+                parent->pushValue(m_field.asInteger());
                 break;
             case VariantDataType::VAR_INT64:
-                parent->push_back(m_field.asInt64());
+                parent->pushValue(m_field.asInt64());
                 break;
             case VariantDataType::VAR_FLOAT:
-                parent->push_back(m_field.asFloat());
+                parent->pushValue(m_field.asFloat());
                 break;
             default:
-                parent->push_back(asString());
+                parent->pushValue(asString());
                 break;
         }
     }

@@ -11,7 +11,7 @@ namespace sptk::xdoc {
 class ExportXML
 {
 public:
-    ExportXML(int indentSPaces = 2)
+    explicit ExportXML(int indentSPaces = 2)
         : m_indentSpaces(indentSPaces)
     {
     }

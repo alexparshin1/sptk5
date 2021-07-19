@@ -27,7 +27,7 @@
 #pragma once
 
 #include <sptk5/wsdl/WSOperation.h>
-#include <sptk5/json/JsonDocument.h>
+#include <sptk5/xdoc/Document.h>
 
 namespace sptk {
 
@@ -102,7 +102,7 @@ private:
      * @param document          Output JSON
      * @param complexTypes      Service types
      */
-    void createComponents(json::Document& document, const WSComplexTypeMap& complexTypes) const;
+    void createComponents(xdoc::Document& document, const WSComplexTypeMap& complexTypes) const;
 
     /**
      * Create paths object of OpenAPI service description
@@ -110,14 +110,14 @@ private:
      * @param operations        Service operations
      * @param documentation     Service documentation (by operation)
      */
-    void createPaths(json::Document& document, const WSOperationMap& operations,
+    void createPaths(xdoc::Document& document, const WSOperationMap& operations,
                      const std::map<String, String>& documentation) const;
 
     /**
      * Create servers object of OpenAPI service description
      * @param document          Output JSON
      */
-    void createServers(json::Document& document) const;
+    void createServers(xdoc::Document& document) const;
 
     const String m_title;          ///< Service title
     const String m_description;    ///< Service description
@@ -125,11 +125,11 @@ private:
     const Strings m_servers;        ///< Service servers
     const Options m_options;        ///< Service options
 
-    void parseClassName(const SWSParserComplexType& ctypeProperty, json::Element& property) const;
+    void parseClassName(const SWSParserComplexType& ctypeProperty, const xdoc::SNode& property) const;
 
-    void parseRestriction(const SWSParserComplexType& ctypeProperty, json::Element& property) const;
+    void parseRestriction(const SWSParserComplexType& ctypeProperty, const xdoc::SNode& property) const;
 
-    void parseRestrictionPatterns(json::Element& property, const SWSRestriction& restriction) const;
+    void parseRestrictionPatterns(const xdoc::SNode& property, const SWSRestriction& restriction) const;
 };
 
 }

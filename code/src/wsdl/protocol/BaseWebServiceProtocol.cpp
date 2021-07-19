@@ -98,7 +98,7 @@ void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessa
     auto& jsonRoot = *jsonContent.root();
     for (const auto&[name, value]: url.params())
     {
-        jsonRoot[name] = value;
+        jsonRoot.set(name, value);
     }
 
     Buffer xmlBuffer;

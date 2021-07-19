@@ -110,7 +110,7 @@ Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
 {
     if (node->is(Node::Type::Number))
     {
-        auto dvalue = node->asFloat();
+        auto dvalue = node->getValue().asFloat();
         auto lvalue = long(dvalue);
         if (dvalue == double(lvalue))
         {
@@ -118,7 +118,7 @@ Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
         }
         else
         {
-            buffer.append(node->asString());
+            buffer.append(node->getValue().asString());
         }
     }
     else
@@ -126,12 +126,12 @@ Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
         if (node->is(Node::Type::CData))
         {
             buffer.append("<![CDATA[", 9);
-            buffer.append(node->asString());
+            buffer.append(node->getValue().asString());
             buffer.append("]]>", 3);
         }
         else
         {
-            m_docType.encodeEntities(node->asString().c_str(), buffer);
+            m_docType.encodeEntities(node->getValue().asString().c_str(), buffer);
         }
     }
     return buffer;
@@ -167,7 +167,7 @@ void ExportXML::appendNodeEnd(const Node* node, const String& nodeName, Buffer& 
     {
         buffer.append("?>", 2);
     }
-    else if (!node->isNull())
+    else if (!node->is(Node::Type::Null))
     {
         if (isNode)
         {
@@ -239,7 +239,7 @@ void ExportXML::save(const SNode& node, Buffer& buffer, int indent)
     }
 
     const auto& nodeName = node->name();
-    String value(node->asString());
+    String value(node->getValue().asString());
 
     // depending on the nodetype, do output
     switch (node->type())

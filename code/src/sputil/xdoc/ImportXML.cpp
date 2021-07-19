@@ -219,15 +219,14 @@ char* ImportXML::readCDataSection(const SNode& currentNode, char* nodeName, char
     *nodeEnd = 0;
     if (formatting == Mode::KeepFormatting)
     {
-        currentNode->pushNode("#cdata", Node::Type::CData)
-                   ->setString(nodeName + cdataTagLength);
+        currentNode->pushValue("#cdata", nodeName + cdataTagLength, Node::Type::CData);
     }
     else
     {
         if (currentNode->empty())
         {
             currentNode->type(Node::Type::CData);
-            currentNode->setString(nodeName + cdataTagLength);
+            currentNode->set(nodeName + cdataTagLength);
         }
     }
     tokenEnd = nodeEnd + 2;
@@ -503,14 +502,14 @@ void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const ch
                 if (isInteger(decodedText))
                 {
                     auto value = std::stol(decodedText);
-                    currentNode->setInt64(value);
+                    currentNode->set(value);
                     currentNode->type(Node::Type::Number);
                     nodeType = Node::Type::Number;
                 }
                 else if (isFloat(decodedText))
                 {
                     auto value = std::stod(decodedText);
-                    currentNode->setFloat(value);
+                    currentNode->set(value);
                     currentNode->type(Node::Type::Number);
                     nodeType = Node::Type::Number;
                 }
@@ -529,13 +528,13 @@ void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const ch
         if (formatting == Mode::KeepFormatting) // || decodedText.find_first_not_of("\n\r\t ") != string::npos)
         {
             currentNode->pushNode("#text", nodeType)
-                       ->setString(decodedText);
+                       ->set(decodedText);
         }
         else
         {
             if (nodeType == Node::Type::Text)
             {
-                currentNode->setString(decodedText);
+                currentNode->set(decodedText);
                 currentNode->type(nodeType);
             }
         }
@@ -565,7 +564,7 @@ static const String testREST(
 static void verifyDocument(Document& document)
 {
     const auto nameNode = document.root()->findFirst("name");
-    EXPECT_STREQ("John", nameNode->asString().c_str());
+    EXPECT_STREQ("John", nameNode->getValue().asString().c_str());
     EXPECT_STREQ("president", nameNode->getAttribute("position").c_str());
 
     EXPECT_EQ(33, (int) document.root()->getNumber("age"));
