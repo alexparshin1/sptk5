@@ -42,6 +42,7 @@
 #include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/test/TestRunner.h>
+#include <sptk5/SharedStrings.h>
 
 #ifdef BUILD_TEST_WS
 
@@ -125,7 +126,7 @@ void TestRunner::addDatabaseConnection(const DatabaseConnectionString& connectio
 
 static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& definedConnections)
 {
-    map < String, String > excludeDrivers = {
+    map<String, String> excludeDrivers = {
         {"postgresql", "PostgreSQL"},
         {"mysql",      "MySQL"},
         {"mssql",      "MSSQL"},

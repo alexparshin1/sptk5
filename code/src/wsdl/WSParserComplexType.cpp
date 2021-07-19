@@ -82,7 +82,7 @@ WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, 
     if (const auto& documentationElement = complexTypeElement->findFirst("xsd:documentation");
         documentationElement != nullptr)
     {
-        m_documentation = documentationElement->text().trim();
+        m_documentation = documentationElement->getText().trim();
     }
 
     if (m_typeName.empty())
@@ -411,7 +411,7 @@ void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
 
 set<String> WSParserComplexType::getUsedClasses() const
 {
-    set < String > usedClasses;
+    set<String> usedClasses;
     // determine the list of used classes
     for (const auto& complexType: m_sequence)
     {

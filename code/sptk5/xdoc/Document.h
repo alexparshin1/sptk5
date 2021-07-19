@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "Node.h"
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk::xdoc {
 
@@ -58,9 +58,29 @@ public:
         m_root->load(dataFormat, data, xmlKeepFormatting);
     }
 
-    void exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
+    void exportTo(DataFormat dataFormat, Buffer& data, bool formatted = false) const
     {
         m_root->exportTo(dataFormat, data, formatted);
+    }
+
+    void exportTo(DataFormat dataFormat, std::ostream& data, bool formatted = false) const
+    {
+        m_root->exportTo(dataFormat, data, formatted);
+    }
+
+    SNode& findOrCreate(const String& name)
+    {
+        return m_root->findOrCreate(name);
+    }
+
+    SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const
+    {
+        return m_root->findFirst(name, searchMode);
+    }
+
+    void select(Node::Vector& selectedNodes, const String& xpath)
+    {
+        m_root->select(selectedNodes, xpath);
     }
 
 private:

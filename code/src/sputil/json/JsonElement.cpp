@@ -310,7 +310,7 @@ void ElementGetMethods::exportValueTo(const String& name, const xdoc::SNode& par
         case Type::NUMBER:
         case Type::BOOLEAN:
         case Type::STRING:
-            node->text(getString());
+            node->set(getString());
             break;
 
         case Type::ARRAY:

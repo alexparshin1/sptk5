@@ -209,7 +209,7 @@ void WSDate::load(const Field& field)
 
 void WSDateTime::load(const SNode& attr)
 {
-    String text = attr->text();
+    String text = attr->getText();
     if (text.empty())
     {
         setNull(VariantDataType::VAR_DATE_TIME);

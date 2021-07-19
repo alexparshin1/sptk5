@@ -24,24 +24,37 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
+#pragma once
 
-#include <sptk5/Buffer.h>
-#include <sptk5/DataSource.h>
-#include <sptk5/FileLogEngine.h>
-#include <sptk5/HomeDirectory.h>
-#include <sptk5/Logger.h>
-#include <sptk5/Printer.h>
-#include <sptk5/RegularExpression.h>
-#include <sptk5/StopWatch.h>
-#include <sptk5/SysLogEngine.h>
-#include <sptk5/SystemException.h>
-#include <sptk5/UniqueInstance.h>
-#include <sptk5/string_ext.h>
+#include <sptk5/xdoc/Node.h>
 
-#include <sptk5/md5.h>
+namespace sptk::xdoc {
 
-#include <sptk5/xdoc/Document.h>
+class SP_EXPORT ExportJSON
+    {
+        public:
+        /**
+         * Export to JSON text
+         * @param node              Output node
+         * @param formatted         Format JSON output
+         */
+        static void exportToJSON(const Node* node, sptk::Buffer& json, bool formatted);
 
-#endif
+        private:
+
+        static void exportJsonValueTo(const Node* node, std::ostream& stream, bool formatted, size_t indent);
+
+        static void exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+        const String& firstElement,
+        const String& betweenElements, const String& newLineChar, const String& indentSpaces);
+
+        static void exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+        const String& firstElement,
+        const String& betweenElements, const String& newLineChar, const String& indentSpaces);
+
+        static void exportNodeAttributes(const Node* node, std::ostream& stream, bool formatted,
+        const String& firstElement,
+        const String& betweenElements);
+    };
+
+}

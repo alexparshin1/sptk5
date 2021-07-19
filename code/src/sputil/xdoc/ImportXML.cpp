@@ -549,6 +549,7 @@ static const String testXML("<name position='president'>John</name>"
                             "<timestamp>1519005758000</timestamp>"
                             "<skills><skill>C++</skill><skill>Java</skill><skill>Motorbike</skill></skills>"
                             "<address><married>true</married><employed>false</employed></address>"
+                            "<text>Once upon a time, in a <bold>far away kingdom</bold></text>"
                             "<data><![CDATA[hello, /\\>]]></data>");
 
 static const String testREST(
@@ -564,17 +565,20 @@ static const String testREST(
 static void verifyDocument(Document& document)
 {
     const auto nameNode = document.root()->findFirst("name");
-    EXPECT_STREQ("John", nameNode->getValue().asString().c_str());
+    EXPECT_STREQ("John", nameNode->getText().c_str());
     EXPECT_STREQ("president", nameNode->getAttribute("position").c_str());
 
     EXPECT_EQ(33, (int) document.root()->getNumber("age"));
     EXPECT_DOUBLE_EQ(36.6, document.root()->getNumber("temperature"));
     EXPECT_DOUBLE_EQ(1519005758, (int) (document.root()->getNumber("timestamp") / 1000));
 
+    const auto textNode = document.findFirst("text");
+    EXPECT_STREQ("Once upon a time, in a far away kingdom", textNode->getText().c_str());
+
     Strings skills;
     for (const auto& node: *document.root()->findFirst("skills"))
     {
-        skills.push_back(node->getString());
+        skills.push_back(node->getText());
     }
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
 
@@ -582,8 +586,8 @@ static void verifyDocument(Document& document)
     EXPECT_TRUE(ptr != nullptr);
 
     const Node& address = *ptr;
-    EXPECT_STREQ("true", address.getString("married").c_str());
-    EXPECT_STREQ("false", address.getString("employed").c_str());
+    EXPECT_STREQ("true", address.getText("married").c_str());
+    EXPECT_STREQ("false", address.getText("employed").c_str());
 
     const auto dataNode = document.root()->findFirst("data");
 
@@ -597,14 +601,14 @@ static void verifyDocument(Document& document)
 TEST(SPTK_XDocument, loadXML)
 {
     Document document;
-    document.load(DataFormat::XML, testXML);
+    document.load(DataFormat::XML, testXML, true);
     verifyDocument(document);
 }
 
 TEST(SPTK_XDocument, addNodes)
 {
     Document document;
-    document.load(DataFormat::XML, testXML);
+    document.load(DataFormat::XML, testXML, true);
 
     *document.root()->pushNode("name") = String("John");
     *document.root()->pushNode("age") = String("33");
@@ -658,13 +662,18 @@ TEST(SPTK_XDocument, saveXml1)
 
 TEST(SPTK_XDocument, saveXml2)
 {
+    // Import while keeping formatting
     Document document;
-    document.load(DataFormat::XML, testXML);
+    document.load(DataFormat::XML, testXML, true);
 
+    // Export to XML without changing formatting
     Buffer buffer;
     document.exportTo(DataFormat::XML, buffer, false);
 
-    document.load(DataFormat::XML, buffer);
+    // Import while keeping formatting
+    document.load(DataFormat::XML, buffer, true);
+
+    // Check that resulting document is still Ok
     verifyDocument(document);
 }
 
@@ -677,7 +686,7 @@ TEST(SPTK_XDocument, parseXML)
     EXPECT_STREQ(xmlElement->getAttribute("version").c_str(), "1.0");
     EXPECT_STREQ(xmlElement->getAttribute("encoding").c_str(), "UTF-8");
 
-    const auto bodyElement = document.root()->findFirst("soap:Body", Node::SearchMode::Recursive);
+    const auto bodyElement = document.root()->findFirst("soap:Body", SearchMode::Recursive);
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
     EXPECT_EQ(Node::Node::Type::Object, bodyElement->type());

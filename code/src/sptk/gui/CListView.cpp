@@ -2487,7 +2487,7 @@ void CListView::loadList(const xdoc::SNode& node)
                         {
                             break;
                         }
-                        strings[c] = cellNode->text();
+                        strings[c] = cellNode->getText();
                     }
                     addRow(rowID, strings);
                 }

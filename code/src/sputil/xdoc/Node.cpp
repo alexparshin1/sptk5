@@ -27,6 +27,7 @@
 #include <sptk5/xdoc/Node.h>
 #include <sptk5/xdoc/ImportXML.h>
 #include <sptk5/xdoc/ExportXML.h>
+#include <sptk5/xdoc/ExportJSON.h>
 #include "XPath.h"
 
 using namespace std;
@@ -170,16 +171,35 @@ String Node::getString(const String& name) const
     return node->m_value.asString();
 }
 
-String Node::text(const String& name) const
+static void getTextRecursively(const Node* node, Buffer& output)
 {
-    const auto& node = name.empty() ? shared_from_this() : findFirst(name);
-
-    if (node == nullptr)
+    if (!node->is(Node::Type::Comment))
     {
-        return String();
+        output.append(node->getString());
+        for (const auto& child: *node)
+        {
+            getTextRecursively(child.get(), output);
+        }
+    }
+}
+
+String Node::getText(const String& name) const
+{
+    const Node* node = this;
+    if (!name.empty())
+    {
+        const auto found = findFirst(name);
+        if (!found)
+        {
+            return String();
+        }
+        node = found.get();
     }
 
-    return node->m_value.asString();
+    Buffer textInSubNodes;
+    getTextRecursively(node, textInSubNodes);
+
+    return textInSubNodes.c_str();
 }
 
 double Node::getNumber(const String& name) const

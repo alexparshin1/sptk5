@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/xdoc/Node.h>
+#include <sptk5/xdoc/ExportJSON.h>
 #include <sptk5/RegularExpression.h>
 #include <iosfwd>
 #include <sptk5/String.h>

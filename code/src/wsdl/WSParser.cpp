@@ -147,7 +147,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
 
     document->select(messageNodes, "//wsdl:message");
 
-    map < String, String > messageToElementMap;
+    map<String, String> messageToElementMap;
     for (const auto& message: messageNodes)
     {
         const auto part = message->findFirst("wsdl:part");
@@ -157,7 +157,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
         const auto documentationNode = part->findFirst("wsdl:documentation");
         if (documentationNode != nullptr)
         {
-            m_documentation[elementName] = documentationNode->text().trim();
+            m_documentation[elementName] = documentationNode->getText().trim();
         }
     }
 
@@ -257,7 +257,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     if (const auto descriptionElement = portElement->findFirst("wsdl:documentation");
         descriptionElement != nullptr)
     {
-        m_description = descriptionElement->text();
+        m_description = descriptionElement->getText();
     }
 
     for (const auto& element: *portElement)

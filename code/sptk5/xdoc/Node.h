@@ -28,7 +28,6 @@
 
 #include <sptk5/xdoc/Attributes.h>
 #include <sptk5/Variant.h>
-#include <list>
 
 namespace sptk::xdoc {
 
@@ -37,6 +36,13 @@ enum class DataFormat
 {
     JSON,
     XML
+};
+
+enum class SearchMode
+    : uint8_t
+{
+    ImmediateChild,
+    Recursive
 };
 
 class SP_EXPORT Node
@@ -49,13 +55,6 @@ public:
     using Vector = std::vector<SNode>;
     using iterator = Nodes::iterator;
     using const_iterator = Nodes::const_iterator;
-
-    enum class SearchMode
-        : uint8_t
-    {
-        ImmediateChild,
-        Recursive
-    };
 
     enum class Type
         : uint8_t
@@ -143,7 +142,7 @@ public:
 
     String getString(const String& name = "") const;
 
-    String text(const String& name = "") const;
+    String getText(const String& name = "") const;
 
     double getNumber(const String& name = "") const;
 
@@ -240,7 +239,7 @@ public:
 
     const SNode& parent() const;
 
-    virtual void select(Node::Vector& selectedNodes, const String& xpath);
+    void select(Node::Vector& selectedNodes, const String& xpath);
 
 private:
 
@@ -257,33 +256,6 @@ private:
 
 using Element = Node;
 using SNode = Node::SNode;
-
-class SP_EXPORT ExportJSON
-{
-public:
-    /**
-     * Export to JSON text
-     * @param node              Output node
-     * @param formatted         Format JSON output
-     */
-    static void exportToJSON(const Node* node, sptk::Buffer& json, bool formatted);
-
-private:
-
-    static void exportJsonValueTo(const Node* node, std::ostream& stream, bool formatted, size_t indent);
-
-    static void exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
-                                const String& firstElement,
-                                const String& betweenElements, const String& newLineChar, const String& indentSpaces);
-
-    static void exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
-                                 const String& firstElement,
-                                 const String& betweenElements, const String& newLineChar, const String& indentSpaces);
-
-    static void exportNodeAttributes(const Node* node, std::ostream& stream, bool formatted,
-                                     const String& firstElement,
-                                     const String& betweenElements);
-};
 
 /**
  * Does string match a float?
