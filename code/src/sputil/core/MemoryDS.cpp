@@ -140,8 +140,8 @@ bool MemoryDS::last()
 
     if (!m_list.empty())
     {
-        size_t index = m_list.size() - 1;
-        m_current = m_list.begin() + index;
+        m_current = m_list.end();
+        m_current--;
         return true;
     }
     m_current = m_list.end();

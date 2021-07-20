@@ -31,7 +31,7 @@
 #include <sptk5/DataSource.h>
 #include <sptk5/Exception.h>
 #include <mutex>
-#include <vector>
+#include <list>
 
 namespace sptk {
 
@@ -192,13 +192,13 @@ public:
 
     bool empty() const;
 
-    std::vector<FieldList>& rows()
+    std::list<FieldList>& rows()
     {
         std::scoped_lock lock(m_mutex);
         return m_list;
     }
 
-    const std::vector<FieldList>& rows() const
+    const std::list<FieldList>& rows() const
     {
         std::scoped_lock lock(m_mutex);
         return m_list;
@@ -214,8 +214,8 @@ public:
 private:
 
     mutable std::mutex m_mutex;
-    std::vector<FieldList> m_list;               // List of the dataset records
-    std::vector<FieldList>::iterator m_current;  // DS iterator
+    std::list<FieldList> m_list;               // List of the dataset records
+    std::list<FieldList>::iterator m_current;  // DS iterator
 };
 /**
  * @}
