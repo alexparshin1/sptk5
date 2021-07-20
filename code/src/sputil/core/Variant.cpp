@@ -505,6 +505,13 @@ Variant& Variant::operator=(Variant&& other) noexcept
 }
 
 //---------------------------------------------------------------------------
+Variant& Variant::operator=(bool value)
+{
+    setBool(value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
 Variant& Variant::operator=(int32_t value)
 {
     setInteger(value);

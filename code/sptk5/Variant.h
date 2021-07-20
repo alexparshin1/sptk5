@@ -428,6 +428,12 @@ public:
      * Assignment operator
      * @param value             Value to assign
      */
+    virtual Variant& operator=(bool value);
+
+    /**
+     * Assignment operator
+     * @param value             Value to assign
+     */
     virtual Variant& operator=(int32_t value);
 
     /**
