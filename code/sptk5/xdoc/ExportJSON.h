@@ -42,15 +42,6 @@ public:
 
 private:
 
-    struct ExportFormat
-    {
-        size_t indent;
-        String firstElement;
-        String betweenElements;
-        String newLineChar;
-        String indentSpaces;
-    };
-
     static void exportJsonValueTo(const Node* node, std::ostream& stream, bool formatted, size_t indent);
 
     static void exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
