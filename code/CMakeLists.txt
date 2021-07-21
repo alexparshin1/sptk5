@@ -519,12 +519,6 @@ ENDIF ()
 FILE(GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
 INSTALL(FILES ${includeFiles} DESTINATION include/sptk5 COMPONENT core)
 
-FILE(GLOB includeFilesJSON "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/json/*.h")
-INSTALL(FILES ${includeFilesJSON} DESTINATION include/sptk5/json COMPONENT core)
-
-FILE(GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
-INSTALL(FILES ${includeFilesXML} DESTINATION include/sptk5/xml COMPONENT core)
-
 FILE(GLOB includeFilesXDoc "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xdoc/*.h")
 INSTALL(FILES ${includeFilesXDoc} DESTINATION include/sptk5/xdoc COMPONENT core)
 
