@@ -35,8 +35,8 @@ using namespace sptk::xdoc;
 
 static DataFormat autoDetectFormat(const char* data)
 {
-    int skip = strspn(data, "\n\r\t ");
-    switch (data[skip])
+    switch (auto skip = strspn(data, "\n\r\t ");
+        data[skip])
     {
         case '<':
             return DataFormat::XML;

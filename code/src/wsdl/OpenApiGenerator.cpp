@@ -40,7 +40,7 @@ OpenApiGenerator::OpenApiGenerator(const String& title, const String& descriptio
 
 void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& operations,
                                 const WSComplexTypeMap& complexTypes,
-                                const std::map <String, String>& documentation) const
+                                const std::map<String, String>& documentation) const
 {
     // Validate options
     for (const auto&[name, value]: m_options.operationsAuth)
@@ -74,15 +74,15 @@ void OpenApiGenerator::createServers(Document& document) const
     auto& servers = *document.root()->pushNode("servers");
     for (auto& url: m_servers)
     {
-        auto& server = servers.pushNode("", Node::Type::Object);
+        const auto& server = servers.pushNode("", Node::Type::Object);
         server->set("url", url);
     }
 }
 
 void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& operations,
-                                   const map <String, String>& documentation) const
+                                   const map<String, String>& documentation) const
 {
-    static const map <String, String> possibleResponses = {
+    static const map<String, String> possibleResponses = {
         {"200", "Ok"},
         {"401", "Unauthorized"},
         {"404", "Not found"},
@@ -147,7 +147,7 @@ void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeM
         String format;
     };
 
-    static const map <String, OpenApiType> wsTypesToOpenApiTypes = {
+    static const map<String, OpenApiType> wsTypesToOpenApiTypes = {
         {"string",   {"string",  ""}},
         {"datetime", {"string",  "date-time"}},
         {"bool",     {"boolean", ""}},
@@ -208,7 +208,7 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
         String format;
     };
 
-    static const map <String, OpenApiType> wsTypesToOpenApiTypes = {
+    static const map<String, OpenApiType> wsTypesToOpenApiTypes = {
         {"string",   {"string",  ""}},
         {"datetime", {"string",  "date-time"}},
         {"bool",     {"boolean", ""}},
