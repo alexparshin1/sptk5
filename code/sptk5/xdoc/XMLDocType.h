@@ -46,7 +46,7 @@ namespace sptk::xdoc {
  * It can return a map of all entities().
  * Provides the name(), public_id() and system_id() functions.
  */
-class XMLDocType
+class SP_EXPORT XMLDocType
 {
     friend class ImportXML;
 

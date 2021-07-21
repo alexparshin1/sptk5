@@ -31,30 +31,39 @@
 namespace sptk::xdoc {
 
 class SP_EXPORT ExportJSON
+{
+public:
+    /**
+     * Export to JSON text
+     * @param node              Output node
+     * @param formatted         Format JSON output
+     */
+    static void exportToJSON(const Node* node, sptk::Buffer& json, bool formatted);
+
+private:
+
+    struct ExportFormat
     {
-        public:
-        /**
-         * Export to JSON text
-         * @param node              Output node
-         * @param formatted         Format JSON output
-         */
-        static void exportToJSON(const Node* node, sptk::Buffer& json, bool formatted);
-
-        private:
-
-        static void exportJsonValueTo(const Node* node, std::ostream& stream, bool formatted, size_t indent);
-
-        static void exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
-        const String& firstElement,
-        const String& betweenElements, const String& newLineChar, const String& indentSpaces);
-
-        static void exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
-        const String& firstElement,
-        const String& betweenElements, const String& newLineChar, const String& indentSpaces);
-
-        static void exportNodeAttributes(const Node* node, std::ostream& stream, bool formatted,
-        const String& firstElement,
-        const String& betweenElements);
+        size_t indent;
+        String firstElement;
+        String betweenElements;
+        String newLineChar;
+        String indentSpaces;
     };
+
+    static void exportJsonValueTo(const Node* node, std::ostream& stream, bool formatted, size_t indent);
+
+    static void exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+                                const String& firstElement,
+                                const String& betweenElements, const String& newLineChar, const String& indentSpaces);
+
+    static void exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+                                 const String& firstElement,
+                                 const String& betweenElements, const String& newLineChar, const String& indentSpaces);
+
+    static void exportNodeAttributes(const Node* node, std::ostream& stream, bool formatted,
+                                     const String& firstElement,
+                                     const String& betweenElements);
+};
 
 }

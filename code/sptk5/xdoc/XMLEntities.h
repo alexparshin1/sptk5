@@ -40,7 +40,7 @@ namespace sptk::xdoc {
 /**
  * XML document type entity
  */
-class Entity
+class SP_EXPORT Entity
 {
 public:
     enum class Type

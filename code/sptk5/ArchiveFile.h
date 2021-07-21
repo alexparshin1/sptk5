@@ -65,7 +65,7 @@ struct TarHeader
 /**
  * @brief File inside tar archive
  */
-class ArchiveFile
+class SP_EXPORT ArchiveFile
     : public Buffer
 {
 public:

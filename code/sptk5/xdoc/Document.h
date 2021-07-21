@@ -72,7 +72,7 @@ public:
         return m_root->findFirst(name, searchMode);
     }
 
-    void select(Node::Vector& selectedNodes, const String& xpath)
+    void select(Node::Vector& selectedNodes, const String& xpath) const
     {
         m_root->select(selectedNodes, xpath);
     }

@@ -8,7 +8,7 @@
 
 namespace sptk::xdoc {
 
-class ExportXML
+class SP_EXPORT ExportXML
 {
 public:
     explicit ExportXML(int indentSPaces = 2)
