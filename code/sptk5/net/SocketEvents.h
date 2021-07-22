@@ -44,7 +44,8 @@ namespace sptk {
  * such as data available for read or peer closed connection,
  * to its sockets.
  */
-class SP_EXPORT SocketEvents : public Thread
+class SP_EXPORT SocketEvents
+    : public Thread
 {
 public:
     /**
@@ -53,8 +54,9 @@ public:
      * @param eventsCallback        Callback function called for socket events
      * @param timeout	            Timeout in event monitoring loop
      */
-    SocketEvents(const String& name, const SocketEventCallback& eventsCallback, std::chrono::milliseconds timeout = std::chrono::milliseconds(
-            100));
+    SocketEvents(const String& name, const SocketEventCallback& eventsCallback,
+                 std::chrono::milliseconds timeout = std::chrono::milliseconds(
+                     100));
 
     /**
      * Destructor
@@ -66,7 +68,7 @@ public:
      * @param socket	            Socket to monitor
      * @param userData	            User data to pass into callback function
      */
-    void add(BaseSocket& socket, void* userData);
+    void add(BaseSocket& socket, uint8_t* userData);
 
     /**
      * Remove socket from collection and stop monitoring its events
@@ -99,16 +101,15 @@ protected:
 
 private:
 
-    mutable std::mutex          m_mutex;            ///< Mutex that protects map of sockets to corresponding user data
-    SocketPool                  m_socketPool;       ///< OS-specific event manager
-    std::map<int, void*>        m_watchList;        ///< Map of sockets to corresponding user data
-    std::chrono::milliseconds   m_timeout;          ///< Timeout in event monitoring loop
+    mutable std::mutex m_mutex;            ///< Mutex that protects map of sockets to corresponding user data
+    SocketPool m_socketPool;       ///< OS-specific event manager
+    std::map<int, void*> m_watchList;        ///< Map of sockets to corresponding user data
+    std::chrono::milliseconds m_timeout;          ///< Timeout in event monitoring loop
 
-    Flag                        m_started;          ///< Is watching started?
-    bool						m_shutdown {false}; ///< Is watching shutdown?
+    Flag m_started;          ///< Is watching started?
+    bool m_shutdown {false}; ///< Is watching shutdown?
 };
 
 using SharedSocketEvents = std::shared_ptr<SocketEvents>;
 
 }
-

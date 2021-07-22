@@ -74,7 +74,7 @@ void SocketPool::close()
     m_socketData.clear();
 }
 
-void SocketPool::watchSocket(BaseSocket& socket, void* userData)
+void SocketPool::watchSocket(BaseSocket& socket, uint8_t* userData)
 {
     if (!socket.active())
     {
@@ -138,11 +138,11 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout) const
         epoll_event& event = events[i];
         if ((event.events & (EPOLLHUP | EPOLLRDHUP)) != 0)
         {
-            m_eventsCallback(event.data.ptr, SocketEventType::CONNECTION_CLOSED);
+            m_eventsCallback((uint8_t*) event.data.ptr, SocketEventType::CONNECTION_CLOSED);
         }
         else
         {
-            m_eventsCallback(event.data.ptr, SocketEventType::HAS_DATA);
+            m_eventsCallback((uint8_t*) event.data.ptr, SocketEventType::HAS_DATA);
         }
     }
 }

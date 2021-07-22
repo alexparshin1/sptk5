@@ -34,8 +34,6 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-constexpr int MAXEVENTS = 128;
-
 SocketEvents::SocketEvents(const String& name, const SocketEventCallback& eventsCallback, milliseconds timeout)
     : Thread(name), m_socketPool(eventsCallback), m_timeout(timeout)
 {
@@ -64,7 +62,7 @@ void SocketEvents::stop()
     }
 }
 
-void SocketEvents::add(BaseSocket& socket, void* userData)
+void SocketEvents::add(BaseSocket& socket, uint8_t* userData)
 {
     if (!running())
     {
@@ -130,7 +128,7 @@ class Reader
     : public TCPSocket
 {
 public:
-    Reader(const Strings& testRows)
+    explicit Reader(const Strings& testRows)
         : m_testRows(testRows),
           m_current(m_testRows.begin())
     {
@@ -180,18 +178,18 @@ private:
 
 TEST(SPTK_SocketEvents, minimal)
 {
-    auto eventsCallback = [](void* userData, SocketEventType eventType) {
+    auto eventsCallback = [](uint8_t* userData, SocketEventType eventType) {
         auto reader = (Reader*) userData;
         switch (eventType)
         {
             case SocketEventType::HAS_DATA:
-            COUT("Socket has data: ");
+            COUT("Socket has data: ")
                 reader->receive();
                 break;
             case SocketEventType::CONNECTION_CLOSED:
             COUT("Socket closed" << endl)
                 break;
-            case SocketEventType::UNKNOWN:
+            default:
                 break;
         }
     };
@@ -215,7 +213,7 @@ TEST(SPTK_SocketEvents, minimal)
         socket.open(Host("localhost", testEchoServerPort));
 
         Semaphore semaphore1;
-        socketEvents.add(socket, &socket);
+        socketEvents.add(socket, (uint8_t*) &socket);
 
         socket.start();
         socket.wait();
