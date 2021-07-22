@@ -42,15 +42,21 @@ public:
 
 private:
 
+    struct Formatting
+    {
+        String firstElement;
+        String betweenElements {","};
+        String newLineChar;
+        String indentSpaces;
+    };
+
     static void exportJsonValueTo(const Node* node, std::ostream& stream, bool formatted, size_t indent);
 
     static void exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
-                                const String& firstElement,
-                                const String& betweenElements, const String& newLineChar, const String& indentSpaces);
+                                const Formatting& formatting);
 
     static void exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
-                                 const String& firstElement,
-                                 const String& betweenElements, const String& newLineChar, const String& indentSpaces);
+                                 const Formatting& formatting);
 
     static void exportNodeAttributes(const Node* node, std::ostream& stream, bool formatted,
                                      const String& firstElement,

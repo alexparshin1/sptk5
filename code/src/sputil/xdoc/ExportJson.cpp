@@ -91,20 +91,17 @@ static String jsonEscape(const String& text)
 void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool formatted,
                                    size_t indent)
 {
-    String indentSpaces;
-    String newLineChar;
-    String firstElement;
-    String betweenElements(",");
+    Formatting formatting;
 
     if (formatted && (node->is(Node::Type::Array) || node->is(Node::Type::Object)))
     {
         if (indent)
         {
-            indentSpaces = string(indent, ' ');
+            formatting.indentSpaces = string(indent, ' ');
         }
-        newLineChar = "\n";
-        firstElement = "\n  " + indentSpaces;
-        betweenElements = ",\n  " + indentSpaces;
+        formatting.newLineChar = "\n";
+        formatting.firstElement = "\n  " + formatting.indentSpaces;
+        formatting.betweenElements = ",\n  " + formatting.indentSpaces;
     }
 
     auto saveFlags = stream.flags();
@@ -139,11 +136,11 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
             break;
 
         case Node::Type::Array:
-            exportJsonArray(node, stream, formatted, indent, firstElement, betweenElements, newLineChar, indentSpaces);
+            exportJsonArray(node, stream, formatted, indent, formatting);
             break;
 
         case Node::Type::Object:
-            exportJsonObject(node, stream, formatted, indent, firstElement, betweenElements, newLineChar, indentSpaces);
+            exportJsonObject(node, stream, formatted, indent, formatting);
             break;
 
         default:
@@ -153,10 +150,8 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
     stream.flags(saveFlags);
 }
 
-void ExportJSON::exportJsonArray(const Node* node, ostream& stream, bool formatted, size_t indent,
-                                 const String& firstElement,
-                                 const String& betweenElements, const String& newLineChar,
-                                 const String& indentSpaces)
+void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+                                 const Formatting& formatting)
 {
     stream << "[";
     if (node->is(Node::Type::Array))
@@ -173,27 +168,25 @@ void ExportJSON::exportJsonArray(const Node* node, ostream& stream, bool formatt
             if (first)
             {
                 first = false;
-                stream << firstElement;
+                stream << formatting.firstElement;
             }
             else
             {
-                stream << betweenElements;
+                stream << formatting.betweenElements;
             }
             exportJsonValueTo(element.get(), stream, formatted, indent + 2);
         }
     }
-    stream << newLineChar << indentSpaces << "]";
+    stream << formatting.newLineChar << formatting.indentSpaces << "]";
 }
 
-void ExportJSON::exportJsonObject(const Node* node, ostream& stream, bool formatted, size_t indent,
-                                  const String& firstElement,
-                                  const String& betweenElements, const String& newLineChar,
-                                  const String& indentSpaces)
+void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+                                  const Formatting& formatting)
 {
     stream << "{";
     if (node->is(Node::Type::Object))
     {
-        exportNodeAttributes(node, stream, formatted, firstElement, betweenElements);
+        exportNodeAttributes(node, stream, formatted, formatting.firstElement, formatting.betweenElements);
 
         bool first = true;
         for (auto& anode: node->getArray())
@@ -201,11 +194,11 @@ void ExportJSON::exportJsonObject(const Node* node, ostream& stream, bool format
             if (first)
             {
                 first = false;
-                stream << firstElement;
+                stream << formatting.firstElement;
             }
             else
             {
-                stream << betweenElements;
+                stream << formatting.betweenElements;
             }
             stream << "\"" << anode->name() << "\":";
             if (formatted)
@@ -215,7 +208,7 @@ void ExportJSON::exportJsonObject(const Node* node, ostream& stream, bool format
             exportJsonValueTo(anode.get(), stream, formatted, indent + 2);
         }
     }
-    stream << newLineChar << indentSpaces << "}";
+    stream << formatting.newLineChar << formatting.indentSpaces << "}";
 }
 
 void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool formatted, const String& firstElement,
