@@ -42,7 +42,7 @@ namespace sptk {
  */
 struct VariantDataBuffer
 {
-    char* data;      ///< String or buffer pointer
+    char* data;       ///< String or buffer pointer
     size_t size;      ///< Allocated buffer size
 };
 
@@ -84,9 +84,9 @@ class SP_EXPORT MoneyData
 {
 public:
 
-    static std::array<int64_t, 16> dividers;    ///< Dividers that help formatting money data
-    int64_t quantity;    ///< Integer value
-    uint8_t scale;       ///< Scale
+    static std::array<int64_t, 16> dividers; ///< Dividers that help formatting money data
+    int64_t quantity;                        ///< Integer value
+    uint8_t scale;                           ///< Scale
 
     /**
      * Constructor

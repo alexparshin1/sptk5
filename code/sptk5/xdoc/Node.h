@@ -212,24 +212,9 @@ public:
      */
     static void importJson(const SNode& jsonElement, const sptk::Buffer& jsonStr);
 
-    /**
-     * Parse XML text
-     * Root element should have JDT_NULL type (empty element) before calling this method.
-     * @param node              Output node
-     * @param xmlKeepSpaces     Import XML mode
-     */
-    void importXML(const Buffer& xml, bool xmlKeepSpaces = false);
-
-    /**
-     * Export to XML text
-     * @param node              Output node
-     * @param indent            Indent (spaces)
-     */
-    void exportXML(sptk::Buffer& xml, int indent) const;
-
     void load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting = false);
 
-    void load(DataFormat dataFormat, const String& data, bool xmlKeepSpaces = false);
+    void load(DataFormat dataFormat, const String& data, bool xmlKeepFormatting = false);
 
     void exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const;
 

@@ -1301,30 +1301,13 @@ TEST(SPTK_Variant, move_ctors)
     Variant v5m(move(v5));
     Variant v6m(move(v6));
 
-    EXPECT_EQ(VariantDataType::VAR_NONE, v1.dataType());
-    EXPECT_EQ(v1.isNull(), true);
     EXPECT_EQ(1, v1m.asInteger());
-
-    EXPECT_EQ(VariantDataType::VAR_NONE, v2.dataType());
-    EXPECT_EQ(v2.isNull(), true);
     EXPECT_DOUBLE_EQ(2.22, v2m.asFloat());
-
-    EXPECT_EQ(VariantDataType::VAR_NONE, v3.dataType());
-    EXPECT_EQ(v3.isNull(), true);
     EXPECT_STREQ("Test", v3m.asString().c_str());
-
-    EXPECT_EQ(VariantDataType::VAR_NONE, v4.dataType());
-    EXPECT_EQ(v4.isNull(), true);
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  v4m.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
-
-    EXPECT_EQ(VariantDataType::VAR_NONE, v5.dataType());
-    EXPECT_EQ(v5.isNull(), true);
     EXPECT_EQ(v5m.isNull(), true);
     EXPECT_EQ(v5m.dataType(), VariantDataType::VAR_STRING);
-
-    EXPECT_EQ(VariantDataType::VAR_NONE, v6.dataType());
-    EXPECT_EQ(v6.isNull(), true);
     EXPECT_STREQ(v6m.asString().c_str(), "A test");
     EXPECT_EQ(v6m.dataType(), VariantDataType::VAR_BUFFER);
 }

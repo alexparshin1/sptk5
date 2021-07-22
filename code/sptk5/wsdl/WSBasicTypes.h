@@ -61,25 +61,9 @@ public:
 
     virtual ~WSBasicType() noexcept = default;
 
-    WSBasicType& operator=(const WSBasicType& other)
-    {
-        if (&other != this)
-        {
-            m_field = other.m_field;
-            m_optional = other.m_optional;
-        }
-        return *this;
-    }
+    WSBasicType& operator=(const WSBasicType& other) = default;
 
-    WSBasicType& operator=(WSBasicType&& other) noexcept
-    {
-        if (&other != this)
-        {
-            m_optional = other.m_optional;
-            m_field = std::move(other.m_field);
-        }
-        return *this;
-    }
+    WSBasicType& operator=(WSBasicType&& other) noexcept = default;
 
     /**
      * Sets optionality flag

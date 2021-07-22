@@ -332,6 +332,12 @@ size_t Node::size() const
     return m_nodes.size();
 }
 
+static void importXML(const SNode& node, const Buffer& xml, bool xmlKeepSpaces)
+{
+    ImportXML importer;
+    importer.parse(node, xml.c_str(), xmlKeepSpaces ? ImportXML::Mode::KeepFormatting : ImportXML::Mode::Compact);
+}
+
 void Node::load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting)
 {
     clear();
@@ -342,11 +348,12 @@ void Node::load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormattin
     }
     else
     {
-        importXML(data, xmlKeepFormatting);
+        auto node = shared_from_this();
+        importXML(node, data, xmlKeepFormatting);
     }
 }
 
-void Node::load(DataFormat dataFormat, const String& data, bool xmlKeepSpaces)
+void Node::load(DataFormat dataFormat, const String& data, bool xmlKeepFormatting)
 {
     Buffer input(data);
 
@@ -358,7 +365,8 @@ void Node::load(DataFormat dataFormat, const String& data, bool xmlKeepSpaces)
     }
     else
     {
-        importXML(input, xmlKeepSpaces);
+        auto node = shared_from_this();
+        importXML(node, input, xmlKeepFormatting);
     }
 }
 
@@ -392,22 +400,6 @@ void Node::exportTo(DataFormat dataFormat, ostream& stream, bool formatted) cons
     Buffer output;
     exportTo(dataFormat, output, formatted);
     stream << output.c_str();
-}
-
-void Node::importXML(const Buffer& xml, bool xmlKeepSpaces)
-{
-    ImportXML importer;
-    auto node = shared_from_this();
-    importer.parse(node, xml.c_str(), xmlKeepSpaces ? ImportXML::Mode::KeepFormatting : ImportXML::Mode::Compact);
-}
-
-void Node::exportXML(Buffer& xml, int indent) const
-{
-    ExportXML exporter;
-    for (const auto& node: m_nodes)
-    {
-        exporter.save(node, xml, indent);
-    }
 }
 
 SNode& Node::parent()

@@ -139,13 +139,9 @@ void FirebirdConnection::closeDatabase()
 
 DBHandle FirebirdConnection::handle() const
 {
-    union
-    {
-        isc_db_handle connection;
-        void* handle;
-    } convert = {};
-    convert.connection = m_connection;
-    return (DBHandle) convert.handle;
+    DBHandle dbHandle {};
+    memcpy(&dbHandle, &m_connection, sizeof(m_connection));
+    return dbHandle;
 }
 
 bool FirebirdConnection::active() const
