@@ -146,7 +146,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
 
     BIO_write(b64, res.data(), res_len);
 
-    (void) BIO_flush(b64);
+    BIO_flush(b64);
 
     len = BIO_pending(bmem);
     if (len >= 0)

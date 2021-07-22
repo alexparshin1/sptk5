@@ -29,6 +29,8 @@
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
 
+#include "EchoServer.h"
+
 #ifdef USE_GTEST
 
 #include <sptk5/net/TCPServerConnection.h>
@@ -158,84 +160,6 @@ void TCPServer::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable
 }
 
 #ifdef USE_GTEST
-
-/**
- * Not encrypted connection to control service
- */
-class EchoConnection
-    : public TCPServerConnection
-{
-public:
-    EchoConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
-        : TCPServerConnection(server, connectionSocket, connectionAddress)
-    {
-    }
-
-    ~EchoConnection() override
-    {
-        COUT("Connection destroyed" << endl)
-    }
-
-    /**
-     * Terminate connection thread
-     */
-    void terminate() override
-    {
-        socket().close();
-        TCPServerConnection::terminate();
-    }
-
-    /**
-     * Connection thread function
-     */
-    void run() override
-    {
-        Buffer data;
-        while (!terminated())
-        {
-            try
-            {
-                if (socket().readyToRead(chrono::seconds(1)))
-                {
-                    if (socket().readLine(data) == 0)
-                    {
-                        return;
-                    }
-                    string str(data.c_str());
-                    str += "\n";
-                    socket().write(str);
-                }
-                else
-                {
-                    break;
-                }
-            }
-            catch (const Exception& e)
-            {
-                CERR(e.what() << endl)
-            }
-        }
-        socket().close();
-    }
-};
-
-class EchoServer
-    : public sptk::TCPServer
-{
-public:
-
-    EchoServer()
-        : TCPServer("EchoServer")
-    {
-    }
-
-protected:
-
-    sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override
-    {
-        return new EchoConnection(*this, connectionSocket, peer);
-    }
-};
 
 static constexpr uint16_t testEchoServerPort = 3001;
 

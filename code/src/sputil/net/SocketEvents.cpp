@@ -26,12 +26,15 @@
 
 #include <sptk5/cutils>
 #include <sptk5/net/SocketEvents.h>
+#include <sptk5/Printer.h>
+
+#include "EchoServer.h"
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-#define MAXEVENTS 128
+constexpr int MAXEVENTS = 128;
 
 SocketEvents::SocketEvents(const String& name, const SocketEventCallback& eventsCallback, milliseconds timeout)
     : Thread(name), m_socketPool(eventsCallback), m_timeout(timeout)
@@ -118,3 +121,111 @@ size_t SocketEvents::size() const
     scoped_lock lock(m_mutex);
     return m_watchList.size();
 }
+
+#ifdef USE_GTEST
+
+static constexpr uint16_t testEchoServerPort = 5001;
+
+class Reader
+    : public TCPSocket
+{
+public:
+    Reader(const Strings& testRows)
+        : m_testRows(testRows),
+          m_current(m_testRows.begin())
+    {
+    }
+
+    void start()
+    {
+        write(*m_current + "\n");
+    }
+
+    void receive()
+    {
+        Buffer buffer;
+        auto bytes = socketBytes();
+        TCPSocket::read(buffer, bytes);
+        auto received = String(buffer).trim();
+        COUT(received << endl)
+        if (*m_current != received)
+        {
+            m_done.post();
+        }
+        else
+        {
+            m_current++;
+            if (m_current == m_testRows.end())
+            {
+                m_done.post();
+            }
+            else
+            {
+                write(*m_current + "\n");
+            }
+        }
+    }
+
+    bool wait()
+    {
+        return m_done.sleep_for(chrono::seconds(10));
+    }
+
+private:
+    const Strings m_testRows;
+    Strings::const_iterator m_current;
+    const Strings m_receivedRows;
+    Semaphore m_done;
+};
+
+TEST(SPTK_SocketEvents, minimal)
+{
+    auto eventsCallback = [](void* userData, SocketEventType eventType) {
+        auto reader = (Reader*) userData;
+        switch (eventType)
+        {
+            case SocketEventType::HAS_DATA:
+            COUT("Socket has data: ");
+                reader->receive();
+                break;
+            case SocketEventType::CONNECTION_CLOSED:
+            COUT("Socket closed" << endl)
+                break;
+            case SocketEventType::UNKNOWN:
+                break;
+        }
+    };
+
+    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100));
+
+    Buffer buffer;
+
+    try
+    {
+        EchoServer echoServer;
+        echoServer.listen(testEchoServerPort);
+
+        Strings testRows({"Hello, World!",
+                          "This is a test of SocketEvents class.",
+                          "Using simple echo server to support data flow.",
+                          "The session is terminated when this row is received",
+                          ""});
+
+        Reader socket(testRows);
+        socket.open(Host("localhost", testEchoServerPort));
+
+        Semaphore semaphore1;
+        socketEvents.add(socket, &socket);
+
+        socket.start();
+        socket.wait();
+        socketEvents.remove(socket);
+        socket.close();
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << e.what();
+    }
+}
+
+#endif
