@@ -67,7 +67,7 @@ public:
      * Executes task
      * @param task              Task to execute
      */
-    virtual void execute(Runable* task);
+    virtual void execute(const SRunable& task);
 
     /**
      * Thread event callback function
@@ -77,7 +77,7 @@ public:
      * @param eventType         Thread event type
      * @param runable           Related runable (if any)
      */
-    void threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable) override;
+    void threadEvent(Thread* thread, ThreadEvent::Type eventType, SRunable runable) override;
 
     /**
      * Sends terminate() message to all worker threads, and sets shutdown state
@@ -95,7 +95,7 @@ private:
 
     SThreadManager m_threadManager;    ///< Pool's thread manager
     size_t m_threadLimit;      ///< Maximum number of threads in this pool
-    SynchronizedQueue<Runable*> m_taskQueue;        ///< Shared task queue
+    SynchronizedQueue<SRunable> m_taskQueue;        ///< Shared task queue
     Semaphore m_availableThreads; ///< Semaphore indicating available threads
     std::chrono::milliseconds m_threadIdleTime;   ///< Maximum thread idle time before thread in this pool is terminated
     SLogger m_logger;           ///< Optional logger

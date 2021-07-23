@@ -27,6 +27,7 @@
 #pragma once
 
 #include <sptk5/threads/Thread.h>
+#include <sptk5/threads/Runable.h>
 
 namespace sptk {
 
@@ -34,8 +35,6 @@ namespace sptk {
  * @addtogroup threads Thread Classes
  * @{
  */
-
-class Runable;
 
 /**
  * @brief Thread event interface
@@ -65,7 +64,7 @@ public:
      * @param eventType         Thread event type
      * @param runable           Related runable (if any)
      */
-    virtual void threadEvent(Thread* thread, Type eventType, Runable* runable) = 0;
+    virtual void threadEvent(Thread* thread, Type eventType, SRunable runable) = 0;
 
     /**
      * @brief Destructor

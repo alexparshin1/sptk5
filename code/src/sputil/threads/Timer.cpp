@@ -59,7 +59,7 @@ public:
     {
     }
 
-    void schedule(Timer::Event event)
+    void schedule(Timer::Event& event)
     {
         scoped_lock lock(m_scheduledMutex);
         m_scheduledEvents.try_emplace(event->getId(), event);
@@ -270,7 +270,7 @@ void Timer::cancel(Event event)
 
 set<Timer::Event> Timer::moveOutEvents()
 {
-    set<Timer::Event> events;
+    set < Timer::Event > events;
 
     // Cancel all events in this timer
     scoped_lock lock(m_mutex);
@@ -281,7 +281,7 @@ set<Timer::Event> Timer::moveOutEvents()
 
 void Timer::cancel()
 {
-    set<Timer::Event> events = moveOutEvents();
+    set < Timer::Event > events = moveOutEvents();
 
     // Unregister and destroy events
     for (auto event: events)

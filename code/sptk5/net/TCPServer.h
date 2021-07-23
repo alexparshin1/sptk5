@@ -35,8 +35,7 @@
 #include <sptk5/net/SSLKeys.h>
 #include <bitset>
 
-namespace sptk
-{
+namespace sptk {
 
 class TCPServerListener;
 
@@ -56,7 +55,8 @@ public:
     /**
      * Log details constants
      */
-    enum class MessageDetail : uint8_t
+    enum class MessageDetail
+        : uint8_t
     {
         SERIAL_ID,
         SOURCE_IP,
@@ -80,8 +80,9 @@ public:
      * @param details           Log details
      */
     explicit LogDetails(const MessageDetails& details)
-    : m_details(details)
-    {}
+        : m_details(details)
+    {
+    }
 
     /**
      * Constructor
@@ -96,10 +97,12 @@ public:
     explicit LogDetails(std::initializer_list<MessageDetail> details)
     {
         for (auto detail: details)
+        {
             m_details.insert(detail);
+        }
     }
 
-    String toString(const String& delimiter=",") const;
+    String toString(const String& delimiter = ",") const;
 
     /**
      * Query log details
@@ -117,8 +120,8 @@ public:
     }
 
 private:
-    MessageDetails                              m_details;     ///< Log details set
-    static const std::map<String,MessageDetail> detailNames;
+    MessageDetails m_details;     ///< Log details set
+    static const std::map<String, MessageDetail> detailNames;
 };
 
 /**
@@ -126,9 +129,11 @@ private:
  *
  * For every incoming connection, creates connection thread.
  */
-class SP_EXPORT TCPServer : public ThreadPool
+class SP_EXPORT TCPServer
+    : public ThreadPool
 {
     friend class TCPServerListener;
+
     friend class ServerConnection;
 
 public:
@@ -179,7 +184,9 @@ public:
     void log(LogPriority priority, const String& message) const
     {
         if (m_logger)
+        {
             m_logger->log(priority, message);
+        }
     }
 
     const LogDetails& logDetails() const
@@ -224,7 +231,7 @@ protected:
      * @param connectionSocket  Already accepted incoming connection socket
      * @param peer              Incoming connection information
      */
-    virtual ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
+    virtual SServerConnection createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
 
     /**
      * Thread event callback function
@@ -234,16 +241,16 @@ protected:
      * @param eventType         Thread event type
      * @param runable           Related runable (if any)
      */
-    void threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable) override;
+    void threadEvent(Thread* thread, ThreadEvent::Type eventType, SRunable runable) override;
 
 private:
 
-    mutable SharedMutex                     m_mutex;            ///< Mutex protecting internal data
-    std::shared_ptr<TCPServerListener>      m_listenerThread;   ///< Server listener
-    std::shared_ptr<Logger>                 m_logger;           ///< Optional logger
-    std::shared_ptr<SSLKeys>                m_sslKeys;          ///< Optional SSL keys. Only used for SSL server.
-    Host                                    m_host;             ///< This host
-    LogDetails                              m_logDetails;       ///< Log details
+    mutable SharedMutex m_mutex;            ///< Mutex protecting internal data
+    std::shared_ptr<TCPServerListener> m_listenerThread;   ///< Server listener
+    std::shared_ptr<Logger> m_logger;           ///< Optional logger
+    std::shared_ptr<SSLKeys> m_sslKeys;          ///< Optional SSL keys. Only used for SSL server.
+    Host m_host;             ///< This host
+    LogDetails m_logDetails;       ///< Log details
 };
 
 /**

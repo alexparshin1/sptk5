@@ -362,15 +362,28 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
     }
 }
 
+static String exportToString(const WSComplexType& object)
+{
+    Buffer buffer;
+    xdoc::Document document;
+    object.exportTo(document.root());
+    document.root()->exportTo(xdoc::DataFormat::JSON, buffer, true);
+    return String(buffer);
+}
+
 TEST(SPTK_WSGeneratedClasses, CopyConstructor)
 {
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
+    auto str = exportToString(login);
 
     CLogin login2(login);
     EXPECT_EQ(login.m_username.asString(), login2.m_username.asString());
     EXPECT_EQ(login.m_password.asString(), login2.m_password.asString());
+    auto str2 = exportToString(login2);
+
+    EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, MoveConstructor)
@@ -378,12 +391,14 @@ TEST(SPTK_WSGeneratedClasses, MoveConstructor)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
+    auto str = exportToString(login);
 
     CLogin login2(move(login));
     EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
     EXPECT_STREQ("secret", login2.m_password.asString().c_str());
-    EXPECT_TRUE(login.m_username.isNull());
-    EXPECT_TRUE(login.m_password.isNull());
+    auto str2 = exportToString(login2);
+
+    EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, CopyAssignment)
@@ -391,11 +406,15 @@ TEST(SPTK_WSGeneratedClasses, CopyAssignment)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
+    auto str = exportToString(login);
 
     CLogin login2;
     login2 = login;
     EXPECT_EQ(login.m_username.asString(), login2.m_username.asString());
     EXPECT_EQ(login.m_password.asString(), login2.m_password.asString());
+    auto str2 = exportToString(login2);
+
+    EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, MoveAssignment)
@@ -403,11 +422,15 @@ TEST(SPTK_WSGeneratedClasses, MoveAssignment)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
+    auto str = exportToString(login);
 
     CLogin login2;
     login2 = move(login);
     EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
     EXPECT_STREQ("secret", login2.m_password.asString().c_str());
+    auto str2 = exportToString(login2);
+
+    EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, Clear)

@@ -112,6 +112,7 @@ public:
     void copyFrom(const WSComplexType& other);
 
     /**
+        return "WSComplexType";
      * Loads type data from request XML node
      * @param input             XML node
      */
@@ -174,6 +175,7 @@ public:
     }
 
     /**
+        return "WSComplexType";
      * Print element as XML text
      * @param asJSON            Output is JSON (true) or XML (false)
      * @return object presentation as JSON or XML string

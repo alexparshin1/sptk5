@@ -31,11 +31,12 @@
 #include <sptk5/threads/Runable.h>
 
 #ifndef _WIN32
+
 #include <netinet/in.h>
+
 #endif
 
-namespace sptk
-{
+namespace sptk {
 
 class TCPServer;
 
@@ -49,7 +50,8 @@ class TCPServer;
  *
  * Used a base class for CTCPServerConnection and COpenSSLServerConnection
  */
-class SP_EXPORT ServerConnection: public Runable
+class SP_EXPORT ServerConnection
+    : public Runable
 {
     friend class TCPServer;
 
@@ -61,7 +63,8 @@ public:
      * @param connectionSocket  Already accepted by accept() function incoming connection socket
      * @param taskName          Task name
      */
-    ServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, const String& taskName);
+    ServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress,
+                     const String& taskName);
 
     /**
      * Access to internal socket for derived classes
@@ -79,13 +82,19 @@ public:
      * Get incoming connection address
      * @return incoming connection address
      */
-    String address() const { return m_address; }
+    String address() const
+    {
+        return m_address;
+    }
 
     /**
      * Get connection serial number
      * @return connection serial number
      */
-    size_t serial() const { return m_serial; }
+    size_t serial() const
+    {
+        return m_serial;
+    }
 
 protected:
 
@@ -99,11 +108,11 @@ protected:
 
 private:
 
-    mutable std::mutex          m_mutex;
-    TCPServer&                  m_server;            ///< Parent server object
-    std::shared_ptr<TCPSocket>  m_socket {nullptr};  ///< Connection socket
-    String                      m_address;           ///< Incoming connection IP address
-    size_t                      m_serial {0};        ///< Connection serial number
+    mutable std::mutex m_mutex;
+    TCPServer& m_server;            ///< Parent server object
+    std::shared_ptr<TCPSocket> m_socket {nullptr};  ///< Connection socket
+    String m_address;           ///< Incoming connection IP address
+    size_t m_serial {0};        ///< Connection serial number
 
     /**
      * Create next connection serial number
@@ -111,6 +120,8 @@ private:
      */
     static size_t nextSerial();
 };
+
+using SServerConnection = std::shared_ptr<ServerConnection>;
 
 /**
  * @}

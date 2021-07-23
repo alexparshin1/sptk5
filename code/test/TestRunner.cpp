@@ -68,7 +68,7 @@ public:
 
 protected:
 
-    ServerConnection* createConnection(SOCKET, sockaddr_in*) override
+    SServerConnection createConnection(SOCKET, sockaddr_in*) override
     {
         return nullptr;
     }
@@ -126,7 +126,7 @@ void TestRunner::addDatabaseConnection(const DatabaseConnectionString& connectio
 
 static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& definedConnections)
 {
-    map<String, String> excludeDrivers = {
+    map < String, String > excludeDrivers = {
         {"postgresql", "PostgreSQL"},
         {"mysql",      "MySQL"},
         {"mssql",      "MSSQL"},

@@ -54,7 +54,7 @@ void TCPServerListener::acceptConnection()
         }
         if (m_server->allowConnection(&connectionInfo))
         {
-            auto* connection = m_server->createConnection(connectionFD, &connectionInfo);
+            auto connection = m_server->createConnection(connectionFD, &connectionInfo);
             m_server->execute(connection);
         }
         else

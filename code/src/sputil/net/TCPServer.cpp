@@ -25,9 +25,9 @@
 */
 
 #include <sptk5/cutils>
-#include <utility>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
+#include <sptk5/Printer.h>
 
 #include "EchoServer.h"
 
@@ -149,12 +149,11 @@ const SSLKeys& TCPServer::getSSLKeys() const
     return *m_sslKeys;
 }
 
-void TCPServer::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable)
+void TCPServer::threadEvent(Thread* thread, Type eventType, SRunable runable)
 {
     if (eventType == Type::RUNABLE_FINISHED)
     {
-        delete runable;
-        runable = nullptr;
+        runable.reset();
     }
     ThreadPool::threadEvent(thread, eventType, runable);
 }

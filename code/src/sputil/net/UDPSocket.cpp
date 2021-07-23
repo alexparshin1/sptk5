@@ -146,7 +146,8 @@ TEST(SPTK_UDPSocket, minimal)
     Strings rows("Hello, World!\n"
                  "This is a test of TCPServer class.\n"
                  "Using simple echo server to verify data flow.\n"
-                 "The session is terminated when this row is received", "\n");
+                 "The session is terminated when this row is received",
+                 "\n");
 
 
     UDPSocket socket;

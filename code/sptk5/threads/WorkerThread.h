@@ -50,7 +50,8 @@ namespace sptk {
  * Worker thread automatically terminates if it's idle for the period longer
  * than defined maxIdleSec (seconds).
  */
-class SP_EXPORT WorkerThread : public Thread
+class SP_EXPORT WorkerThread
+    : public Thread
 {
 public:
     /**
@@ -66,7 +67,7 @@ public:
      * @param maxIdleTime       Maximum time the thread is idle, seconds
      */
     WorkerThread(SThreadManager threadManager,
-                 SynchronizedQueue<Runable*>& queue,
+                 SynchronizedQueue<SRunable>& queue,
                  ThreadEvent* threadEvent = nullptr,
                  std::chrono::milliseconds maxIdleTime = std::chrono::seconds(3600));
 
@@ -79,7 +80,7 @@ public:
      * Execute runable task
      * @param task              Task to execute in the worker thread
      */
-    void execute(Runable* task);
+    void execute(const SRunable& task);
 
     void terminate() override;
 
@@ -94,30 +95,29 @@ private:
     /**
      * Mutex protecting internal data
      */
-    mutable std::mutex              m_mutex;
+    mutable std::mutex m_mutex;
 
     /**
      * Task queue
      */
-    SynchronizedQueue<Runable*>&    m_queue;
+    SynchronizedQueue<SRunable>& m_queue;
 
     /**
      * Optional thread event interface
      */
-    ThreadEvent*                    m_threadEvent {nullptr};
+    ThreadEvent* m_threadEvent {nullptr};
 
     /**
      * Number of thread idle seconds before thread terminates automatically
      */
-    std::chrono::milliseconds       m_maxIdleSeconds;
+    std::chrono::milliseconds m_maxIdleSeconds;
 
-    Runable*                        m_currentRunable {nullptr};
+    SRunable m_currentRunable;
 
-    void setRunable(Runable* runable);
+    void setRunable(const SRunable& runable);
 };
 
 /**
  * @}
  */
 }
-

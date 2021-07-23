@@ -69,7 +69,7 @@ void ThreadPool::logThreadEvent(const String& event, const Thread* workerThread)
     }
 }
 
-void ThreadPool::execute(Runable* task)
+void ThreadPool::execute(const SRunable& task)
 {
     if (m_shutdown)
     {
@@ -92,16 +92,16 @@ void ThreadPool::execute(Runable* task)
     m_taskQueue.push(task);
 }
 
-void ThreadPool::threadEvent(Thread* workerThread, ThreadEvent::Type eventType, Runable*)
+void ThreadPool::threadEvent(Thread* thread, Type eventType, SRunable runable)
 {
     switch (eventType)
     {
         case ThreadEvent::Type::RUNABLE_STARTED:
-            logThreadEvent("Runable started", workerThread);
+            logThreadEvent("Runable started", thread);
             break;
         case ThreadEvent::Type::RUNABLE_FINISHED:
             m_availableThreads.post();
-            logThreadEvent("Runable finished", workerThread);
+            logThreadEvent("Runable finished", thread);
             break;
         default:
             break;
@@ -159,7 +159,7 @@ SynchronizedQueue<int> MyTask::intQueue;
 
 TEST(SPTK_ThreadPool, run)
 {
-    vector<MyTask*> tasks;
+    vector<shared_ptr<MyTask>> tasks;
 
     /// Thread manager controls tasks execution.
     constexpr uint32_t maxThreads = 16;
@@ -170,10 +170,10 @@ TEST(SPTK_ThreadPool, run)
     constexpr unsigned taskCount = 5;
     for (unsigned i = 0; i < taskCount; ++i)
     {
-        tasks.push_back(new MyTask);
+        tasks.push_back(make_shared<MyTask>());
     }
 
-    for (auto& task : tasks)
+    for (const auto& task : tasks)
     {
         threadPool->execute(task);
     }
@@ -188,7 +188,7 @@ TEST(SPTK_ThreadPool, run)
     this_thread::sleep_for(sleepInterval);
 
     EXPECT_EQ(size_t(5), tasks.size());
-    for (const auto* task: tasks)
+    for (const auto& task: tasks)
         EXPECT_NEAR(20, task->count(), 10);
 
     EXPECT_EQ(size_t(5), threadPool->size());
@@ -198,11 +198,12 @@ TEST(SPTK_ThreadPool, run)
 
     delete threadPool;
 
-    for (auto* task: tasks)
+    for (const auto& task: tasks)
     {
         task->terminate();
-        delete task;
     }
+
+    tasks.clear();
 }
 
 #endif

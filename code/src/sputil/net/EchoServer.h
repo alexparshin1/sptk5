@@ -14,7 +14,7 @@ class EchoConnection
 public:
     EchoConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress);
 
-    ~EchoConnection() override;
+    ~EchoConnection() override = default;
 
     /**
      * Terminate connection thread
@@ -39,7 +39,7 @@ public:
 
 protected:
 
-    sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
+    SServerConnection createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
 };
 
 }

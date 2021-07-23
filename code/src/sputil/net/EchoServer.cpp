@@ -11,11 +11,6 @@ EchoConnection::EchoConnection(TCPServer& server, SOCKET connectionSocket, const
 {
 }
 
-EchoConnection::~EchoConnection()
-{
-    COUT("Connection destroyed" << endl)
-}
-
 void EchoConnection::terminate()
 {
     socket().close();
@@ -57,7 +52,7 @@ EchoServer::EchoServer()
 {
 }
 
-ServerConnection* EchoServer::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
+SServerConnection EchoServer::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    return new EchoConnection(*this, connectionSocket, peer);
+    return make_shared<EchoConnection>(*this, connectionSocket, peer);
 }
