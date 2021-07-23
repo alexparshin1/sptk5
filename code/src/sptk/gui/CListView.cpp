@@ -2449,9 +2449,9 @@ CPackedStrings* CListView::findKey(int keyValue)
 void CListView::loadList(const xdoc::SNode& node)
 {
     clear();
-    auto ntor = node->begin();
+    auto ntor = node->nodes().begin();
 
-    for (; ntor != node->end(); ++ntor)
+    for (; ntor != node->nodes().end(); ++ntor)
     {
         const auto& anode = *ntor;
 
@@ -2463,22 +2463,22 @@ void CListView::loadList(const xdoc::SNode& node)
 
         if (anode->name() == "rows")
         {
-            auto itor = anode->begin();
+            auto itor = anode->nodes().begin();
             size_t colCount = m_columnList.size();
             if (colCount > 0)
             {
                 Strings strings;
                 strings.resize(colCount);
-                for (; itor != anode->end(); ++itor)
+                for (; itor != anode->nodes().end(); ++itor)
                 {
                     const auto& rowNode = *itor;
-                    int rowID = rowNode->getAttribute("id").toInt();
-                    auto rtor = rowNode->begin();
+                    int rowID = rowNode->attributes().get("id").toInt();
+                    auto rtor = rowNode->nodes().begin();
                     unsigned c = 0;
-                    for (; rtor != rowNode->end(); ++rtor, ++c)
+                    for (; rtor != rowNode->nodes().end(); ++rtor, ++c)
                     {
                         const auto& cellNode = *rtor;
-                        unsigned index = cellNode->getAttribute("index").toInt();
+                        unsigned index = cellNode->attributes().get("index").toInt();
                         if (index)
                         {
                             c = index;
@@ -2509,7 +2509,7 @@ void CListView::saveList(const xdoc::SNode& node) const
         const auto& rowNode = rowsNode->pushNode("row");
         if (row->argument())
         {
-            rowNode->setAttribute("id", to_string(row->argument()));
+            rowNode->attributes().set("id", to_string(row->argument()));
         }
         size_t index = 0;
         for (size_t c = 0; c < colCount; c++)
@@ -2521,7 +2521,7 @@ void CListView::saveList(const xdoc::SNode& node) const
                 cellNode->set(cell);
                 if (index != c)
                 {
-                    cellNode->setAttribute("index", to_string(c));
+                    cellNode->attributes().set("index", to_string(c));
                     index = c;
                 }
                 index++;

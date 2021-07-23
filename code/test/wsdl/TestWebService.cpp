@@ -190,7 +190,7 @@ static SNode get_response_node(const Document& response, DataFormat dataFormat)
     if (dataFormat == DataFormat::XML)
     {
         auto bodyNode = responseNode->findFirst("soap:Body");
-        responseNode = *bodyNode->begin();
+        responseNode = *bodyNode->nodes().begin();
     }
     return responseNode;
 }

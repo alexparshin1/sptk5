@@ -55,8 +55,8 @@ String WSParserAttribute::generate(bool initialize) const
 
 WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, const String& name,
                                          const String& typeName)
-    : m_name(name.empty() ? complexTypeElement->getAttribute("name") : name),
-      m_typeName(typeName.empty() ? complexTypeElement->getAttribute("type") : typeName),
+    : m_name(name.empty() ? complexTypeElement->attributes().get("name") : name),
+      m_typeName(typeName.empty() ? complexTypeElement->attributes().get("type") : typeName),
       m_element(complexTypeElement)
 {
     xdoc::SNode simpleTypeElement = nullptr;
@@ -74,7 +74,7 @@ WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, 
         const auto& restrictionElement = simpleTypeElement->findFirst("xsd:restriction");
         if (restrictionElement != nullptr)
         {
-            m_typeName = restrictionElement->getAttribute("base");
+            m_typeName = restrictionElement->attributes().get("base");
             m_restriction = make_shared<WSRestriction>(m_typeName, restrictionElement->parent());
         }
     }
@@ -92,13 +92,13 @@ WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, 
 
     String maxOccurs;
     String minOccurs;
-    if (complexTypeElement->hasAttribute("maxOccurs"))
+    if (complexTypeElement->attributes().have("maxOccurs"))
     {
-        maxOccurs = complexTypeElement->getAttribute("maxOccurs");
+        maxOccurs = complexTypeElement->attributes().get("maxOccurs");
     }
-    if (complexTypeElement->hasAttribute("minOccurs"))
+    if (complexTypeElement->attributes().have("minOccurs"))
     {
-        minOccurs = complexTypeElement->getAttribute("minOccurs");
+        minOccurs = complexTypeElement->attributes().get("minOccurs");
     }
 
     m_multiplicity = WSMultiplicity::REQUIRED;
@@ -136,7 +136,7 @@ String WSParserComplexType::className() const
 
 void WSParserComplexType::parseSequence(const xdoc::SNode& sequence)
 {
-    for (auto& node: *sequence)
+    for (auto& node: sequence->nodes())
     {
         if (node->name() == "xsd:element")
         {
@@ -153,12 +153,12 @@ void WSParserComplexType::parse()
         return;
     }
 
-    for (const auto& node: *m_element)
+    for (const auto& node: m_element->nodes())
     {
         if (node->name() == "xsd:attribute")
         {
-            auto attrName = node->getAttribute("name");
-            m_attributes[attrName] = new WSParserAttribute(attrName, node->getAttribute("type"));
+            auto attrName = node->attributes().get("name");
+            m_attributes[attrName] = new WSParserAttribute(attrName, node->attributes().get("type"));
         }
         else if (node->name() == "xsd:sequence")
         {

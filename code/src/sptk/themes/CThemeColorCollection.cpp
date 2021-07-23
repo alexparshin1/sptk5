@@ -264,7 +264,7 @@ void CThemeColorCollection::loadFromGtkTheme(xdoc::Document& gtkTheme)
     auto defaultStyleNode = *styleNodes.begin();
     for (const auto& styleNode : styleNodes)
     {
-        String styleName(styleNode->getAttribute("name"));
+        String styleName(styleNode->attributes().get("name"));
         if (styleName == "default" || styleName.find("-default") != STRING_NPOS)
         {
             defaultStyleNode = styleNode;
@@ -305,7 +305,7 @@ void CThemeColorCollection::loadColorMap(xdoc::Document& gtkTheme, const String&
 
     const auto& colorMapNode = *(colorMapNodes.begin());
 
-    Strings colorMapStrings((String) colorMapNode->getAttribute("colors"), "\\n");
+    Strings colorMapStrings((String) colorMapNode->attributes().get("colors"), "\\n");
 
     for (const auto& colorMapString : colorMapStrings)
     {

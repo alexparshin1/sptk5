@@ -52,7 +52,7 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
         appendNodeNameAndAttributes(node, nodeName, buffer);
     }
 
-    if (!node->empty())
+    if (!node->nodes().empty())
     {
         if (isNode)
         {
@@ -60,8 +60,8 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
         }
 
         bool only_cdata = false;
-        if (const auto& nd = node->begin();
-            node->size() == 1 && ((*nd)->type() == Node::Type::Text || (*nd)->type() == Node::Type::CData))
+        if (const auto& nd = node->nodes().begin();
+            node->nodes().size() == 1 && ((*nd)->type() == Node::Type::Text || (*nd)->type() == Node::Type::CData))
         {
             only_cdata = node->name() == "#text" || node->name() == "#cdata";
         }
@@ -139,7 +139,7 @@ Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
 
 void ExportXML::appendSubNodes(const Node* node, Buffer& buffer, int indent, bool only_cdata)
 {
-    for (const auto& np: *node)
+    for (const auto& np: node->nodes())
     {
         if (only_cdata)
         {

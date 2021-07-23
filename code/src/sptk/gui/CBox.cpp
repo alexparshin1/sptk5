@@ -68,7 +68,7 @@ CLayoutClient* CBox::creator(const xdoc::SNode& node)
 {
     auto* widget = new CBox("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);
-    widget->dragable(node->getAttribute("drag", "false") == "true");
+    widget->dragable(node->attributes().get("drag", "false") == "true");
     return widget;
 }
 

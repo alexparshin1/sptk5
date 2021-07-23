@@ -125,20 +125,9 @@ public:
      */
     SNode& pushValue(const Variant& value, Node::Type type = Node::Type::Null);
 
-    bool empty() const
-    {
-        return m_nodes.empty();
-    }
-
     Attributes& attributes();
 
     const Attributes& attributes() const;
-
-    bool hasAttribute(const String& name) const;
-
-    String getAttribute(const String& name, const String& defaultValue = "") const;
-
-    void setAttribute(const String& name, const String& value);
 
     String getString(const String& name = "") const;
 
@@ -148,12 +137,7 @@ public:
 
     bool getBoolean(const String& name = "") const;
 
-    const Nodes& getArray(const String& name = "") const;
-
-    const Node& getObject(const String& name = "") const;
-
-    // Compatibility
-    size_t size() const;
+    const Nodes& nodes(const String& name = "") const;
 
     const Variant& getValue() const
     {
@@ -179,26 +163,6 @@ public:
     bool remove(const String& name);
 
     bool remove(const SNode& node);
-
-    iterator begin()
-    {
-        return m_nodes.begin();
-    }
-
-    const_iterator begin() const
-    {
-        return m_nodes.begin();
-    }
-
-    iterator end()
-    {
-        return m_nodes.end();
-    }
-
-    const_iterator end() const
-    {
-        return m_nodes.end();
-    }
 
     SNode& findOrCreate(const String& name);
 

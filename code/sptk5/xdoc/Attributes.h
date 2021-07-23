@@ -64,38 +64,11 @@ public:
         m_items.clear();
     }
 
-    String get(const String& name, const String& defaultValue = "") const
-    {
-        for (const auto&[attr, value]: m_items)
-        {
-            if (attr == name)
-            {
-                return value;
-            }
-        }
-        return defaultValue;
-    }
+    String get(const String& name, const String& defaultValue = "") const;
 
-    bool has(const String& name) const
-    {
-        return std::any_of(m_items.begin(), m_items.end(),
-                           [&name](const auto& itor) {
-                               return itor.first == name;
-                           });
-    }
+    bool have(const String& name) const;
 
-    void set(const String& name, const String& value)
-    {
-        for (auto&[attr, val]: m_items)
-        {
-            if (attr == name)
-            {
-                val = value;
-                return;
-            }
-        }
-        m_items.emplace_back(name, value);
-    }
+    Attributes& set(const String& name, const String& value);
 
     bool empty() const
     {

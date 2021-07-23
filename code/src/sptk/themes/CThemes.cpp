@@ -309,15 +309,15 @@ void CThemes::set(string theThemeName)
 
         try
         {
-            auto itor = m_registry->root()->begin();
-            for (; itor != m_registry->root()->end(); ++itor)
+            auto itor = m_registry->root()->nodes().begin();
+            for (; itor != m_registry->root()->nodes().end(); ++itor)
             {
                 auto& iconsNode = *itor;
                 if (iconsNode->name() != "icons")
                 {
                     continue;
                 }
-                String iconsSizeStr = (String) iconsNode->getAttribute("size", "large");
+                String iconsSizeStr = (String) iconsNode->attributes().get("size", "large");
                 CIconSize iconsSize;
                 switch (iconsSizeStr[0])
                 {
@@ -338,28 +338,28 @@ void CThemes::set(string theThemeName)
             }
 
             auto buttonsNode = m_registry->root()->findOrCreate("buttons");
-            m_desaturateInactiveButtons = buttonsNode->getAttribute("DesaturateInactive", "false") == "true";
-            m_buttonFocusRadius = buttonsNode->getAttribute("FocusRadius", "0").toInt();
-            m_flatButtons = buttonsNode->getAttribute("FlatInactive", "false") == "true";
+            m_desaturateInactiveButtons = buttonsNode->attributes().get("DesaturateInactive", "false") == "true";
+            m_buttonFocusRadius = buttonsNode->attributes().get("FocusRadius", "0").toInt();
+            m_flatButtons = buttonsNode->attributes().get("FlatInactive", "false") == "true";
 
             auto tabsNode = m_registry->root()->findOrCreate("tabs");
             m_tabImages.load(m_tar, tabsNode);
 
             auto fontsTopic = m_registry->root()->findOrCreate("fonts");
             m_fonts.clear();
-            for (itor = fontsTopic->begin(); itor != fontsTopic->end(); ++itor)
+            for (itor = fontsTopic->nodes().begin(); itor != fontsTopic->nodes().end(); ++itor)
             {
                 auto& fontInfo = *itor;
-                String fontName = (String) fontInfo->getAttribute("name", "Arial");
+                String fontName = (String) fontInfo->attributes().get("name", "Arial");
                 CFont* screenFont = screenFonts.find(fontName);
                 if (!screenFont)
                 {
                     continue;
                 }
-                String object = (String) fontInfo->getAttribute("object", "Arial");
+                String object = (String) fontInfo->attributes().get("object", "Arial");
                 CFont* font = new CFont(fontName,
-                                        fontInfo->getAttribute("size", "10").toInt(),
-                                        fontInfo->getAttribute("color", "0").toInt(),
+                                        fontInfo->attributes().get("size", "10").toInt(),
+                                        fontInfo->attributes().get("color", "0").toInt(),
                                         screenFont->index(),
                                         screenFont->attributes()
                 );
@@ -418,7 +418,7 @@ void CThemes::set(string theThemeName)
         try {
             Node& topic = *m_registry->findFirst("scrollbars", false);
             if (&topic)
-                scrollBarButtonSize = topic.getAttribute("ButtonSize", "16");
+                scrollBarButtonSize = topic.attributes().get("ButtonSize", "16");
         } catch (...) {}
         */
 

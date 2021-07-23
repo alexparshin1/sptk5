@@ -48,22 +48,22 @@ CColumn::CColumn(const string& cname, VariantDataType type, int32_t cwidth, bool
 
 void CColumn::load(const xdoc::SNode& node)
 {
-    m_name = node->getAttribute("caption");
-    m_type = (VariantDataType) node->getAttribute("type").toInt();
-    m_width = node->getAttribute("width").toInt();
-    m_visible = node->getAttribute("visible") == "true";
-    m_autoWidth = node->getAttribute("auto_width") == "true";
+    m_name = node->attributes().get("caption");
+    m_type = (VariantDataType) node->attributes().get("type").toInt();
+    m_width = node->attributes().get("width").toInt();
+    m_visible = node->attributes().get("visible") == "true";
+    m_autoWidth = node->attributes().get("auto_width") == "true";
 }
 
 void CColumn::save(const xdoc::SNode& node) const
 {
     node->clear();
     node->name("column");
-    node->setAttribute("caption", m_name);
-    node->setAttribute("type", to_string((int) m_type));
-    node->setAttribute("width", to_string(m_width));
-    node->setAttribute("visible", m_visible ? "true" : "false");
-    node->setAttribute("auto_width", m_autoWidth ? "true" : "false");
+    node->attributes().set("caption", m_name);
+    node->attributes().set("type", to_string((int) m_type));
+    node->attributes().set("width", to_string(m_width));
+    node->attributes().set("visible", m_visible ? "true" : "false");
+    node->attributes().set("auto_width", m_autoWidth ? "true" : "false");
 }
 
 int CColumnList::indexOf(const char* colname) const
@@ -82,12 +82,12 @@ int CColumnList::indexOf(const char* colname) const
 
 void CColumnList::load(const xdoc::SNode& node)
 {
-    resize(node->size());
-    for (auto& columnNode: *node)
+    resize(node->nodes().size());
+    for (auto& columnNode: node->nodes())
     {
         try
         {
-            unsigned columnIndex = columnNode->getAttribute("index").toInt();
+            unsigned columnIndex = columnNode->attributes().get("index").toInt();
             if (columnIndex >= size())
             {
                 continue;
@@ -114,7 +114,7 @@ void CColumnList::save(const xdoc::SNode& node) const
             const CColumn& column = (*this)[i];
             const auto& columnNode = node->pushNode("column");
             column.save(columnNode);
-            columnNode->setAttribute("index", to_string(i));
+            columnNode->attributes().set("index", to_string(i));
         }
         catch (const Exception& e)
         {

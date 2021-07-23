@@ -34,14 +34,14 @@ using namespace sptk;
 
 CTabImage::CTabImage(const Tar& tar, const xdoc::SNode& tabImageNode)
 {
-    m_name = (String) tabImageNode->getAttribute("name");
-    String fileName = (String) tabImageNode->getAttribute("image");
+    m_name = (String) tabImageNode->attributes().get("name");
+    String fileName = (String) tabImageNode->attributes().get("image");
     m_image = new CPngImage(tar.file(fileName));
-    m_leftFrameWidth = tabImageNode->getAttribute("left_frame", "0").toInt();
-    m_rightFrameWidth = tabImageNode->getAttribute("right_frame", "0").toInt();
-    m_topFrameHeight = tabImageNode->getAttribute("top_frame", "0").toInt();
-    m_bottomFrameHeight = tabImageNode->getAttribute("bottom_frame", "0").toInt();
-    if ((String) tabImageNode->getAttribute("fill") == "stretch")
+    m_leftFrameWidth = tabImageNode->attributes().get("left_frame", "0").toInt();
+    m_rightFrameWidth = tabImageNode->attributes().get("right_frame", "0").toInt();
+    m_topFrameHeight = tabImageNode->attributes().get("top_frame", "0").toInt();
+    m_bottomFrameHeight = tabImageNode->attributes().get("bottom_frame", "0").toInt();
+    if ((String) tabImageNode->attributes().get("fill") == "stretch")
     {
         m_backgroundDrawMode = CPngImage::CPatternDrawMode::PDM_STRETCH;
     }
@@ -100,7 +100,7 @@ void CTabImage::draw(int x, int y, int w, int h)
 void CTabImages::load(const Tar& tar, const xdoc::SNode& tabImagesNode)
 {
     clear();
-    for (auto& tabNode: *tabImagesNode)
+    for (auto& tabNode: tabImagesNode->nodes())
     {
         auto* tabImage = new CTabImage(tar, tabNode);
         (*this)[tabImage->name()] = tabImage;
@@ -113,7 +113,7 @@ void CTabImages::clear()
     {
         delete itor.second;
     }
-    map < String, CTabImage * > ::clear();
+    map<String, CTabImage*>::clear();
 }
 
 CTabImage* CTabImages::tabImage(const char* imageName)

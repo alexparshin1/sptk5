@@ -131,7 +131,7 @@ const xdoc::SNode CGtkThemeParser::parseParameter(const String& row, const xdoc:
         {
             if (createAttributes)
             {
-                parentNode->setAttribute(name, value);
+                parentNode->attributes().set(name, value);
                 node = parentNode;
             }
             else
@@ -143,11 +143,11 @@ const xdoc::SNode CGtkThemeParser::parseParameter(const String& row, const xdoc:
                 }
                 if (!subName.empty())
                 {
-                    node->setAttribute(subName, value);
+                    node->attributes().set(subName, value);
                 }
                 else
                 {
-                    node->setAttribute("value", value);
+                    node->attributes().set("value", value);
                 }
             }
         }
@@ -163,11 +163,11 @@ const xdoc::SNode CGtkThemeParser::parseParameter(const String& row, const xdoc:
             }
             if (!subName.empty())
             {
-                node->setAttribute("name", subName);
+                node->attributes().set("name", subName);
             }
             if (!value.empty())
             {
-                node->setAttribute("value", value);
+                node->attributes().set("value", value);
             }
         }
         return node;
@@ -235,7 +235,8 @@ void CGtkThemeParser::parseEngine(const Strings& gtkrc, size_t& currentRow, cons
     }
     catch (exception& e)
     {
-        cerr << "Error parsing engine '" << (String) engineNode->getAttribute("name", "") << "': " << e.what() << endl;
+        cerr << "Error parsing engine '" << (String) engineNode->attributes().get("name", "") << "': " << e.what()
+             << endl;
     }
 }
 
@@ -247,9 +248,9 @@ void CGtkThemeParser::parseStyle(const Strings& gtkrc, size_t& currentRow, const
         throw Exception("Expecting 'style' in row " + gtkrc[currentRow]);
     }
     auto styleNode = parseParameter(gtkrc[currentRow++], parentNode);
-    if ((String) styleNode->getAttribute("name") == "scrollbar")
+    if ((String) styleNode->attributes().get("name") == "scrollbar")
     {
-        styleNode->setAttribute("name", "scrollbars");
+        styleNode->attributes().set("name", "scrollbars");
     }
     if (gtkrc[currentRow] != "{")
     {

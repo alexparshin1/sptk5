@@ -178,9 +178,9 @@ void CThemeScrollBar::loadGtkScrollbars(xdoc::Document& xml)
     if (!scrollBarDefaults.empty())
     {
         const auto& node = scrollBarDefaults[0];
-        m_scrollBarTroughBorder = node->getAttribute("trough_border", "1").toInt();
-        m_scrollBarSliderWidth = node->getAttribute("slider_width", "14").toInt();
-        m_scrollBarStepperSize = node->getAttribute("stepper_size", "14").toInt();
+        m_scrollBarTroughBorder = node->attributes().get("trough_border", "1").toInt();
+        m_scrollBarSliderWidth = node->attributes().get("slider_width", "14").toInt();
+        m_scrollBarStepperSize = node->attributes().get("stepper_size", "14").toInt();
     }
     loadGtkScrollbarButtons(xml, "UP", m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[0]);
     loadGtkScrollbarButtons(xml, "DOWN", m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[1]);

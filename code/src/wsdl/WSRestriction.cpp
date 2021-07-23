@@ -39,7 +39,7 @@ WSRestriction::WSRestriction(const String& typeName, const xdoc::SNode& simpleTy
     {
         if (enumerationNode != nullptr)
         {
-            m_enumeration.push_back(enumerationNode->getAttribute("value"));
+            m_enumeration.push_back(enumerationNode->attributes().get("value"));
         }
     }
 
@@ -53,7 +53,7 @@ WSRestriction::WSRestriction(const String& typeName, const xdoc::SNode& simpleTy
         simpleTypeElement->select(patternNodes, "xsd:restriction/xsd:pattern");
         for (const auto& patternNode: patternNodes)
         {
-            String pattern = patternNode->getAttribute("value").replace(R"(\\)", R"(\)");
+            String pattern = patternNode->attributes().get("value").replace(R"(\\)", R"(\)");
             if (!pattern.empty())
             {
                 m_type = Type::Pattern;

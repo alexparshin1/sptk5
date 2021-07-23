@@ -115,7 +115,7 @@ void WSComplexType::load(const SNode& input)
     }
 
     // Load elements
-    for (const auto& node: *input)
+    for (const auto& node: input->nodes())
     {
         if (auto* field = m_fields.find(node->name());
             field != nullptr)
@@ -184,7 +184,7 @@ void WSComplexType::unload(const SNode& output) const
         fields.forEach([output](const WSType* field) {
             if (!field->isNull())
             {
-                output->setAttribute(field->name(), field->asString());
+                output->attributes().set(field->name(), field->asString());
             }
             return true;
         }, WSFieldIndex::Group::ATTRIBUTES);

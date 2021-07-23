@@ -29,6 +29,40 @@
 using namespace sptk;
 using namespace xdoc;
 
+String Attributes::get(const String& name, const String& defaultValue) const
+{
+    for (const auto&[attr, value]: m_items)
+    {
+        if (attr == name)
+        {
+            return value;
+        }
+    }
+    return defaultValue;
+}
+
+bool Attributes::have(const String& name) const
+{
+    return std::any_of(m_items.begin(), m_items.end(),
+                       [&name](const auto& itor) {
+                           return itor.first == name;
+                       });
+}
+
+Attributes& Attributes::set(const String& name, const String& value)
+{
+    for (auto&[attr, val]: m_items)
+    {
+        if (attr == name)
+        {
+            val = value;
+            return *this;
+        }
+    }
+    m_items.emplace_back(name, value);
+    return *this;
+}
+
 #ifdef USE_GTEST
 
 TEST(SPTK_XDocument, getSetAttributes)

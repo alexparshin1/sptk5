@@ -460,8 +460,8 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
     {
         clear();
         m_group->begin();
-        auto itor = groupNode->begin();
-        for (; itor != groupNode->end(); ++itor)
+        auto itor = groupNode->nodes().begin();
+        for (; itor != groupNode->nodes().end(); ++itor)
         {
             auto& widgetNode = *itor;
             string widgetType = widgetNode->name();
@@ -476,7 +476,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             CLayoutClient* layoutClient = creator(widgetNode);
             Fl_Widget* widget = layoutClient->m_widget;
 
-            if (!widgetNode->empty())
+            if (!widgetNode->nodes().empty())
             {
                 try
                 {
@@ -516,16 +516,16 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
     }
     else
     {
-        map < string, xdoc::SNode > xmlControls;
-        map < string, xdoc::SNode > xmlGroups;
-        auto itor = groupNode->begin();
-        for (; itor != groupNode->end(); ++itor)
+        map<string, xdoc::SNode> xmlControls;
+        map<string, xdoc::SNode> xmlGroups;
+        auto itor = groupNode->nodes().begin();
+        for (; itor != groupNode->nodes().end(); ++itor)
         {
             auto& node = *itor;
-            String label = (String) node->getAttribute("label");
+            String label = (String) node->attributes().get("label");
             if (label.empty())
             {
-                label = "noName:" + (String) node->getAttribute("nn_index");
+                label = "noName:" + (String) node->attributes().get("nn_index");
             }
             if (node->name() == "group")
             {
@@ -631,7 +631,7 @@ void CLayoutManager::saveLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
                         layoutClient->save(node, xmlMode);
                     }
                 }
-                if (node->empty() && node->attributes().empty())
+                if (node->nodes().empty() && node->attributes().empty())
                 {
                     groupNode->remove(node);
                 }
@@ -639,7 +639,7 @@ void CLayoutManager::saveLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
                 {
                     if (widget->label() == nullptr || widget->label()[0] == 0)
                     {
-                        node->setAttribute("nn_index", to_string(i));
+                        node->attributes().set("nn_index", to_string(i));
                     }
                 }
                 continue;

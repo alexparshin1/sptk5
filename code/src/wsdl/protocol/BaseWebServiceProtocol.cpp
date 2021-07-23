@@ -43,7 +43,7 @@ BaseWebServiceProtocol::BaseWebServiceProtocol(TCPSocket* socket, const HttpHead
 
 xdoc::SNode BaseWebServiceProtocol::getFirstChildElement(const xdoc::SNode& element)
 {
-    for (const auto& node: *element)
+    for (const auto& node: element->nodes())
     {
         bool isElement = !(
             node->is(xdoc::Node::Type::ProcessingInstruction) ||
@@ -60,7 +60,7 @@ xdoc::SNode BaseWebServiceProtocol::getFirstChildElement(const xdoc::SNode& elem
 xdoc::SNode BaseWebServiceProtocol::findRequestNode(const xdoc::SNode& message, const String& messageType) const
 {
     String ns = "soap";
-    for (const auto& node: *message)
+    for (const auto& node: message->nodes())
     {
         if (lowerCase(node->name()).endsWith(":envelope"))
         {
@@ -91,7 +91,7 @@ void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessa
     Strings pathElements(url.path(), "/");
     String method(*pathElements.rbegin());
     const auto& xmlEnvelope = message->pushNode("soap:Envelope");
-    xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
+    xmlEnvelope->attributes().set("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
 
     const auto& xmlBody = xmlEnvelope->pushNode("soap:Body");
     jsonContent.root()->load(xdoc::DataFormat::JSON, startOfMessage);

@@ -48,7 +48,7 @@ void CLayoutClient::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
     if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
     {
         CLayoutAlign layoutAlign;
-        String alignName(lowerCase((String) node->getAttribute("layout_align")));
+        String alignName(lowerCase((String) node->attributes().get("layout_align")));
         switch (alignName[0])
         {
             case 'b':
@@ -69,10 +69,10 @@ void CLayoutClient::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
             default:
                 layoutAlign = CLayoutAlign::NONE;
                 {
-                    int x = node->getAttribute("x", "-1").toInt();
-                    int y = node->getAttribute("y", "-1").toInt();
-                    int w = node->getAttribute("w", "-1").toInt();
-                    int h = node->getAttribute("h", "-1").toInt();
+                    int x = node->attributes().get("x", "-1").toInt();
+                    int y = node->attributes().get("y", "-1").toInt();
+                    int w = node->attributes().get("w", "-1").toInt();
+                    int h = node->attributes().get("h", "-1").toInt();
                     if (x > -1 && y > -1)
                     {
                         m_widget->position(x, y);
@@ -85,22 +85,22 @@ void CLayoutClient::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
                 break;
         }
         m_layoutAlign = layoutAlign;
-        name((String) node->getAttribute("name"));
-        label((String) node->getAttribute("label"));
+        name((String) node->attributes().get("name"));
+        label((String) node->attributes().get("label"));
 
         if (layoutAlign != CLayoutAlign::NONE)
         {
-            int layoutSize = node->getAttribute("layout_size").toInt();
+            int layoutSize = node->attributes().get("layout_size").toInt();
             if (layoutSize)
             {
                 m_layoutSize = layoutSize;
             }
         }
 
-        String boxTypeName = (String) node->getAttribute("box");
+        String boxTypeName = (String) node->attributes().get("box");
         if (boxTypeName.empty())
         {
-            boxTypeName = (String) node->getAttribute("frame");
+            boxTypeName = (String) node->attributes().get("frame");
         }
         if (!boxTypeName.empty())
         {
@@ -111,7 +111,7 @@ void CLayoutClient::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
             }
         }
 
-        if (node->getAttribute("visible", "true") != "true")
+        if (node->attributes().get("visible", "true") != "true")
         {
             m_widget->hide();
         }
@@ -119,7 +119,7 @@ void CLayoutClient::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
         {
             m_widget->show();
         }
-        if (node->getAttribute("enable", "true") != "true")
+        if (node->attributes().get("enable", "true") != "true")
         {
             m_widget->deactivate();
         }
@@ -152,19 +152,19 @@ void CLayoutClient::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
     {
         if (!m_name.empty())
         {
-            node->setAttribute("name", name());
+            node->attributes().set("name", name());
         }
         if (!m_label.empty())
         {
-            node->setAttribute("label", label());
+            node->attributes().set("label", label());
         }
         if (!m_widget->visible())
         {
-            node->setAttribute("visible", m_widget->visible() ? "true" : "false");
+            node->attributes().set("visible", m_widget->visible() ? "true" : "false");
         }
         if (!m_widget->active())
         {
-            node->setAttribute("enable", m_widget->active() ? "true" : "false");
+            node->attributes().set("enable", m_widget->active() ? "true" : "false");
         }
 
         String layoutAlignStr;
@@ -191,26 +191,26 @@ void CLayoutClient::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 
         if (layoutAlignStr.empty())
         {
-            node->setAttribute("x", to_string(m_widget->x()));
-            node->setAttribute("y", to_string(m_widget->y()));
-            node->setAttribute("w", to_string(m_widget->w()));
-            node->setAttribute("h", to_string(m_widget->h()));
+            node->attributes().set("x", to_string(m_widget->x()));
+            node->attributes().set("y", to_string(m_widget->y()));
+            node->attributes().set("w", to_string(m_widget->w()));
+            node->attributes().set("h", to_string(m_widget->h()));
         }
         else
         {
-            node->setAttribute("layout_align", layoutAlignStr);
-            node->setAttribute("layout_size", to_string(layoutSize()));
+            node->attributes().set("layout_align", layoutAlignStr);
+            node->attributes().set("layout_size", to_string(layoutSize()));
         }
     }
     else
     {
         if (!m_name.empty())
         {
-            node->setAttribute("name", name());
+            node->attributes().set("name", name());
         }
         else if (!m_label.empty())
         {
-            node->setAttribute("label", label());
+            node->attributes().set("label", label());
         }
     }
     if ((int) xmlMode & (int) CLayoutXMLmode::DATA)

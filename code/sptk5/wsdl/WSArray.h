@@ -154,7 +154,7 @@ public:
 
     void load(const xdoc::SNode& node) override
     {
-        for (const auto& arrayElement: *node)
+        for (const auto& arrayElement: node->nodes())
         {
             T item(m_name.c_str(), false);
             item.load(arrayElement);

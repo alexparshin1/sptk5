@@ -39,7 +39,7 @@ void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authe
    soapBody->clearChildren();
    method(inputData, outputData, authentication);
    auto& response = soapBody->pushNode(ns + ":" + responseName);
-   response->setAttribute("xmlns:" + ns, requestNameSpace.getLocation());
+   response->attributes().set("xmlns:" + ns, requestNameSpace.getLocation());
    outputData.unload(response);
 }
 

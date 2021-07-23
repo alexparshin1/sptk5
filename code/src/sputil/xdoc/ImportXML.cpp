@@ -53,7 +53,7 @@ void ImportXML::processAttributes(Node& node, const char* ptr)
         }
         m_encodeBuffer.bytes(0);
         m_doctype.decodeEntities(vtor->value.c_str(), (uint32_t) vtor->value.length(), m_encodeBuffer);
-        node.setAttribute(attributeName, m_encodeBuffer.c_str());
+        node.attributes().set(attributeName, m_encodeBuffer.c_str());
     }
 }
 
@@ -223,7 +223,7 @@ char* ImportXML::readCDataSection(const SNode& currentNode, char* nodeName, char
     }
     else
     {
-        if (currentNode->empty())
+        if (currentNode->nodes().empty())
         {
             currentNode->type(Node::Type::CData);
             currentNode->set(nodeName + cdataTagLength);
@@ -387,7 +387,7 @@ char* ImportXML::readOpenningTag(SNode& currentNode, const char* nodeName, char*
 
 void ImportXML::detectArray(Node& _node)
 {
-    if (!_node.is(Node::Type::Object) || _node.size() < 2)
+    if (!_node.is(Node::Type::Object) || _node.nodes().size() < 2)
     {
         return;
     }
@@ -395,7 +395,7 @@ void ImportXML::detectArray(Node& _node)
     // Check if all the child nodes have the same name:
     bool first = true;
     String itemName;
-    for (const auto& node: _node)
+    for (const auto& node: _node.nodes())
     {
         if (first)
         {
@@ -566,7 +566,7 @@ static void verifyDocument(Document& document)
 {
     const auto nameNode = document.root()->findFirst("name");
     EXPECT_STREQ("John", nameNode->getText().c_str());
-    EXPECT_STREQ("president", nameNode->getAttribute("position").c_str());
+    EXPECT_STREQ("president", nameNode->attributes().get("position").c_str());
 
     EXPECT_EQ(33, (int) document.root()->getNumber("age"));
     EXPECT_DOUBLE_EQ(36.6, document.root()->getNumber("temperature"));
@@ -576,7 +576,7 @@ static void verifyDocument(Document& document)
     EXPECT_STREQ("Once upon a time, in a far away kingdom", textNode->getText().c_str());
 
     Strings skills;
-    for (const auto& node: *document.root()->findFirst("skills"))
+    for (const auto& node: document.root()->nodes("skills"))
     {
         skills.push_back(node->getText());
     }
@@ -591,7 +591,7 @@ static void verifyDocument(Document& document)
 
     const auto dataNode = document.root()->findFirst("data");
 
-    for (const auto& cdataNode: *dataNode)
+    for (const auto& cdataNode: dataNode->nodes())
     {
         EXPECT_TRUE(cdataNode->is(Node::Node::Type::CData));
         EXPECT_STREQ("hello, /\\>", cdataNode->getString().c_str());
@@ -683,18 +683,18 @@ TEST(SPTK_XDocument, parseXML)
     document.load(testREST);
 
     const auto xmlElement = document.root()->findFirst("xml");
-    EXPECT_STREQ(xmlElement->getAttribute("version").c_str(), "1.0");
-    EXPECT_STREQ(xmlElement->getAttribute("encoding").c_str(), "UTF-8");
+    EXPECT_STREQ(xmlElement->attributes().get("version").c_str(), "1.0");
+    EXPECT_STREQ(xmlElement->attributes().get("encoding").c_str(), "UTF-8");
 
     const auto bodyElement = document.root()->findFirst("soap:Body", SearchMode::Recursive);
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
     EXPECT_EQ(Node::Node::Type::Object, bodyElement->type());
-    EXPECT_EQ(1, (int) bodyElement->size());
+    EXPECT_EQ(1, (int) bodyElement->nodes().size());
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 
     SNode methodElement = nullptr;
-    for (const auto& node: *bodyElement)
+    for (const auto& node: bodyElement->nodes())
     {
         if (node->is(Node::Node::Type::Object))
         {
@@ -703,7 +703,7 @@ TEST(SPTK_XDocument, parseXML)
         }
     }
     EXPECT_TRUE(methodElement != nullptr);
-    EXPECT_EQ(2, (int) methodElement->size());
+    EXPECT_EQ(2, (int) methodElement->nodes().size());
     EXPECT_STREQ("ns1:GetRequests", methodElement->name().c_str());
 }
 

@@ -71,7 +71,7 @@ void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& htt
 
         xdoc::Document error;
         const auto& xmlEnvelope = error.root()->pushNode("soap:Envelope");
-        xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
+        xmlEnvelope->attributes().set("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
 
         const auto& xmlBody = xmlEnvelope->pushNode("soap:Body");
         const auto& faultNode = xmlBody->pushNode("soap:Fault");
@@ -91,7 +91,7 @@ static void substituteHostname(Buffer& page, const Host& host)
     {
         throw Exception("Can't find <soap:address> in WSDL file");
     }
-    auto location = node->getAttribute("location", "");
+    auto location = node->attributes().get("location", "");
     if (location.empty())
     {
         throw Exception("Can't find location attribute of <soap:address> in WSDL file");
@@ -99,7 +99,7 @@ static void substituteHostname(Buffer& page, const Host& host)
     stringstream listener;
     listener << "http://" << host.toString() << "/";
     location = location.replace("http://([^\\/]+)/", listener.str());
-    node->setAttribute("location", location);
+    node->attributes().set("location", location);
     wsdl.exportTo(xdoc::DataFormat::XML, page, true);
 }
 

@@ -157,7 +157,7 @@ void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, bool fo
     if (node->is(Node::Type::Array))
     {
         bool first = true;
-        const auto& array = node->getArray();
+        const auto& array = node->nodes();
         if (array.empty())
         {
             stream << "]";
@@ -189,7 +189,7 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
         exportNodeAttributes(node, stream, formatted, formatting.firstElement, formatting.betweenElements);
 
         bool first = true;
-        for (auto& anode: node->getArray())
+        for (auto& anode: node->nodes())
         {
             if (first)
             {
@@ -261,7 +261,7 @@ void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool fo
         }
         stream << "}";
 
-        if (node->getArray().size())
+        if (node->nodes().size())
         {
             stream << ",";
         }

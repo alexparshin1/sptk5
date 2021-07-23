@@ -49,21 +49,6 @@ const Attributes& Node::attributes() const
     return m_attributes;
 }
 
-bool Node::hasAttribute(const String& name) const
-{
-    return m_attributes.has(name);
-}
-
-String Node::getAttribute(const String& name, const String& defaultValue) const
-{
-    return m_attributes.get(name, defaultValue);
-}
-
-void Node::setAttribute(const String& name, const String& value)
-{
-    m_attributes.set(name, value);
-}
-
 SNode& Node::findOrCreate(const String& name)
 {
     if (name.empty())
@@ -176,7 +161,7 @@ static void getTextRecursively(const Node* node, Buffer& output)
     if (!node->is(Node::Type::Comment))
     {
         output.append(node->getString());
-        for (const auto& child: *node)
+        for (const auto& child: node->nodes())
         {
             getTextRecursively(child.get(), output);
         }
@@ -234,7 +219,7 @@ bool Node::getBoolean(const String& name) const
     return false;
 }
 
-const Node::Nodes& Node::getArray(const String& name) const
+const Node::Nodes& Node::nodes(const String& name) const
 {
     static const Nodes emptyNodes;
 
@@ -250,24 +235,6 @@ const Node::Nodes& Node::getArray(const String& name) const
     }
 
     return emptyNodes;
-}
-
-const Node& Node::getObject(const String& name) const
-{
-    static const Node emptyNode;
-
-    if (name.empty())
-    {
-        return *this;
-    }
-
-    if (const auto& node = findFirst(name);
-        node && node->is(Type::Object))
-    {
-        return *node;
-    }
-
-    return emptyNode;
 }
 
 void Node::clear()
@@ -325,11 +292,6 @@ bool Node::remove(const SNode& _node)
         }
     }
     return false;
-}
-
-size_t Node::size() const
-{
-    return m_nodes.size();
 }
 
 static void importXML(const SNode& node, const Buffer& xml, bool xmlKeepSpaces)

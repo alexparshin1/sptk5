@@ -1007,7 +1007,7 @@ void CTreeControl::load(const xdoc::SNode& groupNode, bool /*autoCreate*/)
         return;
     }
 
-    if (groupNode->getAttribute("visible", "true") != "true")
+    if (groupNode->attributes().get("visible", "true") != "true")
     {
         m_group->hide();
     }
@@ -1016,7 +1016,7 @@ void CTreeControl::load(const xdoc::SNode& groupNode, bool /*autoCreate*/)
         m_group->show();
     }
 
-    if (groupNode->getAttribute("enable", "true") != "true")
+    if (groupNode->attributes().get("enable", "true") != "true")
     {
         m_group->deactivate();
     }
@@ -1040,17 +1040,17 @@ void CTreeControl::save(const xdoc::SNode& groupNode) const
 
     if (!label.empty())
     {
-        groupNode->setAttribute("label", label);
+        groupNode->attributes().set("label", label);
     }
 
     if (!visible())
     {
-        groupNode->setAttribute("visible", "false");
+        groupNode->attributes().set("visible", "false");
     }
 
     if (!active())
     {
-        groupNode->setAttribute("enable", "false");
+        groupNode->attributes().set("enable", "false");
     }
 }
 

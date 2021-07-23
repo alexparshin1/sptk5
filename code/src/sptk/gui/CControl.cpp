@@ -640,17 +640,17 @@ void CControl::fireEvent(CEvent ev, int32_t arg)
 
 void sptk::createControls(const xdoc::SNode& xmlControls)
 {
-    for (const auto& node: *xmlControls)
+    for (const auto& node: xmlControls->nodes())
     {
         CControlKind controlKind = CControlKindIndex::type(node->name());
-        CControl* control = createControl(controlKind, (String) node->getAttribute("label", ""),
-                                          (String) node->getAttribute("fieldName", ""),
-                                          node->getAttribute("size", "12").toInt());
-        if (node->getAttribute("visible", "1").toInt() == 0)
+        CControl* control = createControl(controlKind, (String) node->attributes().get("label", ""),
+                                          (String) node->attributes().get("fieldName", ""),
+                                          node->attributes().get("size", "12").toInt());
+        if (node->attributes().get("visible", "1").toInt() == 0)
         {
             control->hide();
         }
-        if (node->getAttribute("enable", "1").toInt() == 0)
+        if (node->attributes().get("enable", "1").toInt() == 0)
         {
             control->deactivate();
         }

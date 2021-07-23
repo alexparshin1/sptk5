@@ -219,7 +219,7 @@ void CButtonGroup::save(Query* updateQuery)
 void CButtonGroup::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
 {
     CControl::load(node, xmlMode);
-    Strings btns((String) node->getAttribute("buttons"), "|");
+    Strings btns((String) node->attributes().get("buttons"), "|");
     if (!btns.empty())
     {
         buttons(btns);
@@ -229,5 +229,5 @@ void CButtonGroup::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
 void CButtonGroup::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 {
     CControl::save(node, xmlMode);
-    node->setAttribute("buttons", buttons().join("|"));
+    node->attributes().set("buttons", buttons().join("|"));
 }

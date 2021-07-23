@@ -95,7 +95,7 @@ bool NodeSearchAlgorithms::matchPathElementAttribute(const SNode& thisNode, cons
     {
         if (pathElement.attributeValue == starPointer)
         {
-            attributeMatch = attributes.has(pathElement.attributeName);
+            attributeMatch = attributes.have(pathElement.attributeName);
         }
         else
         {
@@ -110,7 +110,7 @@ bool NodeSearchAlgorithms::matchPathElementAttribute(const SNode& thisNode, cons
         }
         else
         {
-            attributeMatch = thisNode->hasAttribute(pathElement.attributeName.c_str());
+            attributeMatch = thisNode->attributes().have(pathElement.attributeName.c_str());
         }
     }
     return attributeMatch;
@@ -140,7 +140,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vect
 {
     const XPathElement& pathElement = pathElements[size_t(pathPosition)];
 
-    for (const auto& node: *thisNode)
+    for (const auto& node: thisNode->nodes())
     {
         if (matchPathElement(node, pathElement, starPointer))
         {

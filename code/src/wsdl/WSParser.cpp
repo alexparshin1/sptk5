@@ -69,8 +69,8 @@ void WSParser::clear()
 
 void WSParser::parseElement(const xdoc::SNode& elementNode)
 {
-    auto elementName = elementNode->getAttribute("name");
-    auto elementType = elementNode->getAttribute("type");
+    auto elementName = elementNode->attributes().get("name");
+    auto elementType = elementNode->attributes().get("type");
 
     if (size_t namespacePos = elementType.find(':');
         namespacePos != string::npos)
@@ -96,7 +96,7 @@ void WSParser::parseElement(const xdoc::SNode& elementNode)
 
 void WSParser::parseSimpleType(const xdoc::SNode& simpleTypeElement)
 {
-    auto simpleTypeName = simpleTypeElement->getAttribute("name");
+    auto simpleTypeName = simpleTypeElement->attributes().get("name");
     if (simpleTypeName.empty())
     {
         return;
@@ -112,16 +112,16 @@ void WSParser::parseSimpleType(const xdoc::SNode& simpleTypeElement)
 
 void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
 {
-    auto complexTypeName = complexTypeElement->getAttribute("name");
+    auto complexTypeName = complexTypeElement->attributes().get("name");
     if (complexTypeName.empty())
     {
-        complexTypeName = complexTypeElement->parent()->getAttribute("name");
+        complexTypeName = complexTypeElement->parent()->attributes().get("name");
     }
 
     if (complexTypeName.empty())
     {
         const auto& parent = complexTypeElement->parent();
-        complexTypeName = parent->getAttribute("name");
+        complexTypeName = parent->attributes().get("name");
     }
 
     if (const auto& complexTypes = m_complexTypeIndex.complexTypes();
@@ -151,8 +151,8 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
     for (const auto& message: messageNodes)
     {
         const auto part = message->findFirst("wsdl:part");
-        auto messageName = message->getAttribute("name");
-        auto elementName = strip_namespace(part->getAttribute("element"));
+        auto messageName = message->attributes().get("name");
+        auto elementName = strip_namespace(part->attributes().get("element"));
         messageToElementMap[messageName] = elementName;
         const auto documentationNode = part->findFirst("wsdl:documentation");
         if (documentationNode != nullptr)
@@ -163,9 +163,9 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
 
     WSOperation operation = {};
     bool found = false;
-    for (const auto& element: *operationNode)
+    for (const auto& element: operationNode->nodes())
     {
-        auto message = element->getAttribute("message");
+        auto message = element->attributes().get("message");
         if (size_t pos = message.find(':');
             pos != string::npos)
         {
@@ -188,7 +188,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
 
     if (found)
     {
-        auto operationName = operationNode->getAttribute("name");
+        auto operationName = operationNode->attributes().get("name");
         m_operations[operationName] = operation;
     }
 }
@@ -217,7 +217,7 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
         }
     }
 
-    for (const auto& element: *schemaElement)
+    for (const auto& element: schemaElement->nodes())
     {
         if (element->name() == "xsd:element")
         {
@@ -236,13 +236,13 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     wsdlXML.load(buffer);
 
     const auto service = wsdlXML.root()->findFirst("wsdl:service");
-    m_serviceName = service->getAttribute("name");
+    m_serviceName = service->attributes().get("name");
     m_serviceNamespace = m_serviceName.toLowerCase() + "_service";
 
     if (const auto address = service->findFirst("soap:address");
         address != nullptr)
     {
-        m_location = address->getAttribute("location");
+        m_location = address->attributes().get("location");
     }
 
     auto schemaElement = wsdlXML.root()->findFirst("xsd:schema");
@@ -260,7 +260,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
         m_description = descriptionElement->getText();
     }
 
-    for (const auto& element: *portElement)
+    for (const auto& element: portElement->nodes())
     {
         if (element != nullptr && element->name() == "wsdl:operation")
         {
@@ -458,7 +458,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
                           "   soapBody->clearChildren();\n"
                           "   method(inputData, outputData, authentication);\n"
                           "   auto& response = soapBody->pushNode(ns + \":\" + responseName);\n"
-                          "   response->setAttribute(\"xmlns:\" + ns, requestNameSpace.getLocation());\n"
+                          "   response->attributes().set(\"xmlns:\" + ns, requestNameSpace.getLocation());\n"
                           "   outputData.unload(response);\n"
                           "}\n\n"
 

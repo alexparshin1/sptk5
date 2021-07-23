@@ -124,29 +124,29 @@ void CWindow::save(const shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode) c
 
 void CWindow::loadPosition(const xdoc::SNode& node)
 {
-    int hh = node->getAttribute("height").toInt();
+    int hh = node->attributes().get("height").toInt();
     if (!hh)
     {
-        hh = node->getAttribute("h").toInt();
+        hh = node->attributes().get("h").toInt();
     }
-    int ww = node->getAttribute("width").toInt();
+    int ww = node->attributes().get("width").toInt();
     if (!ww)
     {
-        ww = node->getAttribute("w").toInt();
+        ww = node->attributes().get("w").toInt();
     }
     if (hh > 0 && ww > 0)
     {
-        resize(node->getAttribute("x", "0").toInt(), node->getAttribute("y", "0").toInt(), ww, hh);
+        resize(node->attributes().get("x", "0").toInt(), node->attributes().get("y", "0").toInt(), ww, hh);
     }
 }
 
 void CWindow::savePosition(const xdoc::SNode& node) const
 {
-    node->setAttribute("x", to_string(x()));
-    node->setAttribute("y", to_string(y()));
-    node->setAttribute("width", to_string(w()));
-    node->setAttribute("height", to_string(h()));
-    node->setAttribute("label", label());
+    node->attributes().set("x", to_string(x()));
+    node->attributes().set("y", to_string(y()));
+    node->attributes().set("width", to_string(w()));
+    node->attributes().set("height", to_string(h()));
+    node->attributes().set("label", label());
     node->name(className());
 }
 

@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-static void extractNameSpaces(const xdoc::SNode& node, map <String, WSNameSpace>& nameSpaces)
+static void extractNameSpaces(const xdoc::SNode& node, map<String, WSNameSpace>& nameSpaces)
 {
     for (const auto&[attr, value]: node->attributes())
     {
@@ -142,8 +142,8 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
     {
         WSNameSpace soapNamespace;
         xdoc::SNode soapEnvelope;
-        map <String, WSNameSpace> allNamespaces;
-        for (const auto& node: *xmlContent)
+        map<String, WSNameSpace> allNamespaces;
+        for (const auto& node: xmlContent->nodes())
         {
             if (WSParser::strip_namespace(node->name()).toLowerCase() == "envelope")
             {
@@ -161,27 +161,25 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
         }
 
         auto soapBody = findSoapBody(soapEnvelope, soapNamespace);
-        if (!soapBody || soapBody->empty())
+        if (!soapBody || soapBody->nodes().empty())
         {
             throwException("Can't find request node")
         }
 
-        xmlRequestNode = *soapBody->begin();
+        xmlRequestNode = soapBody->nodes().front();
 
-        if (xmlRequestNode)
+        scoped_lock lock(*this);
+        String nameSpaceAlias = nameSpace(xmlRequestNode->name());
+        extractNameSpaces(xmlRequestNode, allNamespaces);
+
+        if (auto itor = allNamespaces.find(nameSpaceAlias);
+            itor == allNamespaces.end())
         {
-            scoped_lock lock(*this);
-            String nameSpaceAlias = nameSpace(xmlRequestNode->name());
-            extractNameSpaces(xmlRequestNode, allNamespaces);
-            auto itor = allNamespaces.find(nameSpaceAlias);
-            if (itor == allNamespaces.end())
-            {
-                requestNameSpace = WSNameSpace(WSParser::get_namespace(xmlRequestNode->name()));
-            }
-            else
-            {
-                requestNameSpace = itor->second;
-            }
+            requestNameSpace = WSNameSpace(WSParser::get_namespace(xmlRequestNode->name()));
+        }
+        else
+        {
+            requestNameSpace = itor->second;
         }
 
         requestName = WSParser::strip_namespace(xmlRequestNode->name());
@@ -194,7 +192,7 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
     requestBroker(requestName, xmlRequestNode, jsonContent, authentication, requestNameSpace);
 }
 
-void WSRequest::setRequestMethods(map <sptk::String, RequestMethod>&& requestMethods)
+void WSRequest::setRequestMethods(map<sptk::String, RequestMethod>&& requestMethods)
 {
     m_requestMethods = move(requestMethods);
 }

@@ -77,7 +77,7 @@ void verifyDocument(xdoc::Document& document)
     EXPECT_STREQ("1519005758000", root.getString("timestamp").c_str());
     EXPECT_DOUBLE_EQ(1519005758000L, root.getNumber("timestamp"));
 
-    const auto& arrayData = root.getArray("skills");
+    const auto& arrayData = root.nodes("skills");
     Strings skills;
     skills.resize(arrayData.size());
     transform(arrayData.begin(), arrayData.end(), skills.begin(),
@@ -133,7 +133,7 @@ TEST(SPTK_XDocument, add)
     EXPECT_TRUE(root.getBoolean("bool1"));
     EXPECT_FALSE(root.getBoolean("bool2"));
 
-    auto& array = root.getArray("array");
+    auto& array = root.nodes("array");
     Strings skills;
     skills.resize(array.size());
     transform(array.begin(), array.end(), skills.begin(),
@@ -174,7 +174,7 @@ TEST(SPTK_XDocument, clear)
     const auto& root = *document.root();
     EXPECT_TRUE(root.is(Node::Type::Object));
     EXPECT_FALSE(root.findFirst("address"));
-    EXPECT_EQ(root.size(), size_t(0));
+    EXPECT_EQ(root.nodes().size(), size_t(0));
 }
 
 TEST(SPTK_XDocument, exportToBuffer)
@@ -330,17 +330,17 @@ TEST(SPTK_XDocument, performance)
     }
 
     // Verify data
-    auto& arrayData = arrayElement->getArray();
+    auto& arrayData = arrayElement->nodes();
     constexpr int someIndex = 100;
     const auto& object = arrayData[someIndex];
     EXPECT_FLOAT_EQ(object->getNumber("id"), 100.0);
     EXPECT_STREQ(object->getString("name").c_str(), "Name 100");
 
-    const Node& address = object->getObject("address");
+    const Node& address = *object->findFirst("address");
     EXPECT_FLOAT_EQ(address.getNumber("number"), 100.0);
     EXPECT_STREQ(address.getString("street").c_str(), "Street 100");
 
-    auto& list = address.getArray("list");
+    auto& list = address.nodes("list");
     EXPECT_STREQ(list[1]->getString().c_str(), "two");
 
     Buffer buffer;
