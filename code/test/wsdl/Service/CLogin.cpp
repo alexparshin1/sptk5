@@ -47,24 +47,6 @@ CLogin::CLogin(CLogin&& other) noexcept
     WSComplexType::setAttributes(fieldNames(WSFieldIndex::Group::ATTRIBUTES), {&m_server_count, &m_type});
 }
 
-CLogin& CLogin::operator = (const CLogin& other)
-{
-    m_username = other.m_username;
-    m_password = other.m_password;
-    m_servers = other.m_servers;
-    m_project = other.m_project;
-    return *this;
-}
-
-CLogin& CLogin::operator = (CLogin&& other) noexcept
-{
-    m_username = std::move(other.m_username);
-    m_password = std::move(other.m_password);
-    m_servers = std::move(other.m_servers);
-    m_project = std::move(other.m_project);
-    return *this;
-}
-
 void CLogin::checkRestrictions() const
 {
     // Check 'required' restrictions

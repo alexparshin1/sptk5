@@ -64,13 +64,13 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CLogin& operator = (const CLogin& other);
+   CLogin& operator = (const CLogin& other) = default;
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CLogin& operator = (CLogin&& other) noexcept;
+   CLogin& operator = (CLogin&& other) noexcept = default;
 
    /**
     * Get complex type field names.

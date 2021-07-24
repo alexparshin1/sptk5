@@ -40,20 +40,6 @@ CProjectInfo::CProjectInfo(CProjectInfo&& other) noexcept
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_id, &m_expiration});
 }
 
-CProjectInfo& CProjectInfo::operator = (const CProjectInfo& other)
-{
-    m_id = other.m_id;
-    m_expiration = other.m_expiration;
-    return *this;
-}
-
-CProjectInfo& CProjectInfo::operator = (CProjectInfo&& other) noexcept
-{
-    m_id = std::move(other.m_id);
-    m_expiration = std::move(other.m_expiration);
-    return *this;
-}
-
 void CProjectInfo::checkRestrictions() const
 {
     // Check 'required' restrictions

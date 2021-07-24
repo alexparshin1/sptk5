@@ -42,22 +42,6 @@ CHello::CHello(CHello&& other) noexcept
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_action, &m_first_name, &m_last_name});
 }
 
-CHello& CHello::operator = (const CHello& other)
-{
-    m_action = other.m_action;
-    m_first_name = other.m_first_name;
-    m_last_name = other.m_last_name;
-    return *this;
-}
-
-CHello& CHello::operator = (CHello&& other) noexcept
-{
-    m_action = std::move(other.m_action);
-    m_first_name = std::move(other.m_first_name);
-    m_last_name = std::move(other.m_last_name);
-    return *this;
-}
-
 void CHello::checkRestrictions() const
 {
     // Check 'required' restrictions

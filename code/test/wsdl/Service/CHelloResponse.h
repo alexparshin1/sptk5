@@ -62,13 +62,13 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CHelloResponse& operator = (const CHelloResponse& other);
+   CHelloResponse& operator = (const CHelloResponse& other) = default;
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CHelloResponse& operator = (CHelloResponse&& other) noexcept;
+   CHelloResponse& operator = (CHelloResponse&& other) noexcept = default;
 
    /**
     * Get complex type field names.

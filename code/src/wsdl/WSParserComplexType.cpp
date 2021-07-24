@@ -316,13 +316,15 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "    * Copy assignment" << endl;
     classDeclaration << "    * @param other              Other object" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "& operator = (const " << className << "& other);" << endl << endl;
+    classDeclaration << "   " << className << "& operator = (const " << className << "& other) = default;" << endl
+                     << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Move assignment" << endl;
     classDeclaration << "    * @param other              Other object" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "& operator = (" << className << "&& other) noexcept;" << endl << endl;
+    classDeclaration << "   " << className << "& operator = (" << className << "&& other) noexcept = default;" << endl
+                     << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Get complex type field names." << endl;
@@ -411,7 +413,7 @@ void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
 
 set<String> WSParserComplexType::getUsedClasses() const
 {
-    set<String> usedClasses;
+    set < String > usedClasses;
     // determine the list of used classes
     for (const auto& complexType: m_sequence)
     {
@@ -597,20 +599,6 @@ void WSParserComplexType::printImplementationConstructors(ostream& classImplemen
 
 void WSParserComplexType::printImplementationAssignments(ostream& classImplementation, const String& className) const
 {
-    auto initializer = makeInitializer();
-
-    classImplementation << className << "& " << className << "::operator = (const " << className << "& other)" << endl;
-    classImplementation << "{" << endl;
-    classImplementation << "    " << initializer.copyAssign.join(";\n    ") << ";" << endl;
-    classImplementation << "    return *this;" << endl;
-    classImplementation << "}" << endl << endl;
-
-    classImplementation << className << "& " << className << "::operator = (" << className << "&& other) noexcept"
-                        << endl;
-    classImplementation << "{" << endl;
-    classImplementation << "    " << initializer.moveAssign.join(";\n    ") << ";" << endl;
-    classImplementation << "    return *this;" << endl;
-    classImplementation << "}" << endl << endl;
 }
 
 void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation,

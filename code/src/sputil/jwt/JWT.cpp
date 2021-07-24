@@ -431,7 +431,7 @@ void JWT::verify(const Buffer& head, const Buffer& sig) const
     }
 }
 
-static void jwt_parse_body(JWT* jwt, const Buffer& body)
+static void jwt_parse_body(const JWT* jwt, const Buffer& body)
 {
     jwt_b64_decode_json(jwt->grants, body);
 }

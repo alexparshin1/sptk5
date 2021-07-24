@@ -38,18 +38,6 @@ CAccountBalance::CAccountBalance(CAccountBalance&& other) noexcept
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_account_number});
 }
 
-CAccountBalance& CAccountBalance::operator = (const CAccountBalance& other)
-{
-    m_account_number = other.m_account_number;
-    return *this;
-}
-
-CAccountBalance& CAccountBalance::operator = (CAccountBalance&& other) noexcept
-{
-    m_account_number = std::move(other.m_account_number);
-    return *this;
-}
-
 void CAccountBalance::checkRestrictions() const
 {
     // Check 'required' restrictions

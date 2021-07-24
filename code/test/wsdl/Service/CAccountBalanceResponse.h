@@ -57,13 +57,13 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CAccountBalanceResponse& operator = (const CAccountBalanceResponse& other);
+   CAccountBalanceResponse& operator = (const CAccountBalanceResponse& other) = default;
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CAccountBalanceResponse& operator = (CAccountBalanceResponse&& other) noexcept;
+   CAccountBalanceResponse& operator = (CAccountBalanceResponse&& other) noexcept = default;
 
    /**
     * Get complex type field names.

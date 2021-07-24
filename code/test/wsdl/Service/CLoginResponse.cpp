@@ -38,18 +38,6 @@ CLoginResponse::CLoginResponse(CLoginResponse&& other) noexcept
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_jwt});
 }
 
-CLoginResponse& CLoginResponse::operator = (const CLoginResponse& other)
-{
-    m_jwt = other.m_jwt;
-    return *this;
-}
-
-CLoginResponse& CLoginResponse::operator = (CLoginResponse&& other) noexcept
-{
-    m_jwt = std::move(other.m_jwt);
-    return *this;
-}
-
 void CLoginResponse::checkRestrictions() const
 {
     // Check 'required' restrictions

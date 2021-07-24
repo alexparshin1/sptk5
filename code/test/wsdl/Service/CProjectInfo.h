@@ -58,13 +58,13 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CProjectInfo& operator = (const CProjectInfo& other);
+   CProjectInfo& operator = (const CProjectInfo& other) = default;
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CProjectInfo& operator = (CProjectInfo&& other) noexcept;
+   CProjectInfo& operator = (CProjectInfo&& other) noexcept = default;
 
    /**
     * Get complex type field names.
