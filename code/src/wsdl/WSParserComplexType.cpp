@@ -413,7 +413,7 @@ void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
 
 set<String> WSParserComplexType::getUsedClasses() const
 {
-    set < String > usedClasses;
+    set<String> usedClasses;
     // determine the list of used classes
     for (const auto& complexType: m_sequence)
     {
@@ -564,7 +564,6 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "}" << endl << endl;
 
     printImplementationConstructors(classImplementation, className, elementNames, attributeNames);
-    printImplementationAssignments(classImplementation, className);
 
     printImplementationCheckRestrictions(classImplementation, className);
 
@@ -595,10 +594,6 @@ void WSParserComplexType::printImplementationConstructors(ostream& classImplemen
                         << "{" << endl;
     generateSetFieldIndex(classImplementation, elementNames, attributeNames);
     classImplementation << "}" << endl << endl;
-}
-
-void WSParserComplexType::printImplementationAssignments(ostream& classImplementation, const String& className) const
-{
 }
 
 void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation,
