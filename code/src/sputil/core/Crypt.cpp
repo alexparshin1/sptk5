@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2020 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -74,7 +74,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
     dest.checkSize(src.bytes());
     for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK)
     {
-        const auto* intext = (unsigned char*) src.data() + position;
+        const auto* intext = (const unsigned char*) src.data() + position;
         size_t inlen = src.bytes() - position;
         if (inlen > TEXT_BLOCK)
         {

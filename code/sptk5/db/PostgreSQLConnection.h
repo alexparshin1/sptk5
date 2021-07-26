@@ -130,7 +130,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~PostgreSQLConnection();
+    ~PostgreSQLConnection() override;
 
     /**
      * @brief Returns driver-specific connection string

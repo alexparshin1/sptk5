@@ -40,10 +40,10 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
 
     if (auto _options = (uint32_t) options(); (_options & LO_ENABLE) == LO_ENABLE)
     {
-        if (!m_fileStream->is_open())
+        if (!m_fileStream.is_open())
         {
-            m_fileStream->open(m_fileName.c_str(), ofstream::out | ofstream::app);
-            if (!m_fileStream->is_open())
+            m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
+            if (!m_fileStream.is_open())
             {
                 throw Exception("Can't append or create log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
             }
@@ -51,23 +51,23 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
 
         if ((_options & LO_DATE) == LO_DATE)
         {
-            *m_fileStream << message->timestamp.dateString() << " ";
+            m_fileStream << message->timestamp.dateString() << " ";
         }
 
         if ((_options & LO_TIME) == LO_TIME)
         {
-            *m_fileStream << message->timestamp.timeString(true) << " ";
+            m_fileStream << message->timestamp.timeString(true) << " ";
         }
 
         if ((_options & LO_PRIORITY) == LO_PRIORITY)
         {
-            *m_fileStream << "[" << priorityName(message->priority) << "] ";
+            m_fileStream << "[" << priorityName(message->priority) << "] ";
         }
 
-        *m_fileStream << message->message << endl;
+        m_fileStream << message->message << endl;
     }
 
-    if (m_fileStream->bad())
+    if (m_fileStream.bad())
     {
         throw Exception("Can't write to log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
     }
@@ -76,34 +76,35 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
 FileLogEngine::FileLogEngine(const fs::path& fileName)
     : LogEngine("FileLogEngine"),
       m_fileName(fileName),
-      m_fileStream(shared_ptr<ofstream>(new ofstream(fileName.c_str()),
-                                        [this](ofstream* ptr) {
-                                            sleep_for(chrono::milliseconds(1000));
-                                            terminate();
-                                            join();
-                                            UniqueLock(m_mutex);
-                                            if (ptr->is_open())
-                                            {
-                                                ptr->close();
-                                            }
-                                            delete ptr;
-                                        }))
+      m_fileStream(fileName.c_str())
 {
+}
+
+FileLogEngine::~FileLogEngine()
+{
+    sleep_for(chrono::milliseconds(1000));
+    terminate();
+    join();
+    UniqueLock(m_mutex);
+    if (m_fileStream.is_open())
+    {
+        m_fileStream.close();
+    }
 }
 
 void FileLogEngine::reset()
 {
     UniqueLock(m_mutex);
-    if (m_fileStream->is_open())
+    if (m_fileStream.is_open())
     {
-        m_fileStream->close();
+        m_fileStream.close();
     }
     if (m_fileName.empty())
     {
         throw Exception("File name isn't defined", __FILE__, __LINE__);
     }
-    m_fileStream->open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
-    if (!m_fileStream->is_open())
+    m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
+    if (!m_fileStream.is_open())
     {
         throw Exception("Can't open log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
     }

@@ -275,7 +275,7 @@ public:
      */
     const DatabaseConnectionString& connectionString() const
     {
-        return *m_connString;
+        return m_connString;
     }
 
     /**
@@ -406,6 +406,8 @@ protected:
 
     PoolDatabaseConnection& operator=(PoolDatabaseConnection&&) noexcept = default;
 
+    virtual ~PoolDatabaseConnection();
+
     /**
      * Opens the database connection.
      *
@@ -499,7 +501,7 @@ protected:
 
 private:
 
-    SDatabaseConnectionString m_connString;      ///< The connection string
+    DatabaseConnectionString m_connString;       ///< The connection string
     DatabaseConnectionType m_connType;           ///< The connection type
     String m_driverDescription;                  ///< Driver description is filled by the particular driver.
     bool m_inTransaction {false};                ///< The in-transaction flag

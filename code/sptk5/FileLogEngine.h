@@ -58,6 +58,11 @@ public:
     explicit FileLogEngine(const fs::path& fileName);
 
     /**
+     * @brief Destructor
+     */
+    ~FileLogEngine() override;
+
+    /**
      * Stores or sends log message to actual destination
      * @param message           Log message
      */
@@ -74,7 +79,7 @@ private:
 
     mutable SharedMutex m_mutex;                    ///< Mutex that protects internal data
     fs::path m_fileName;                            ///< Log file name
-    std::shared_ptr<std::ofstream> m_fileStream;    ///< Log file stream
+    std::ofstream m_fileStream;                     ///< Log file stream
 };
 /**
  * @}

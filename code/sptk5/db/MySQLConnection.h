@@ -100,7 +100,7 @@ public:
 
     MySQLConnection& operator=(MySQLConnection&&) = delete;
 
-    virtual ~MySQLConnection() = default;
+    ~MySQLConnection() override = default;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.

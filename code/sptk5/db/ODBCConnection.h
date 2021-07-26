@@ -66,7 +66,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~ODBCConnection() = default;
+    ~ODBCConnection() override = default;
 
     ODBCConnection& operator=(const ODBCConnection&) = delete;
 

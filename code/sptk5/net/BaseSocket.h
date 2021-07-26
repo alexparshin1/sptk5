@@ -134,6 +134,11 @@ public:
     BaseSocket(BaseSocket&& other) noexcept = default;
 
     /**
+     * @brief Destructor
+     */
+    virtual ~BaseSocket();
+
+    /**
      * Deleted copy assignment
      * @param other             Other socket
      */
@@ -173,14 +178,14 @@ public:
      * Sets the host name
      * @param host              The host
      */
-    void host(const Host& host) const;
+    void host(const Host& host);
 
     /**
      * Returns the host
      */
     [[nodiscard]] const Host& host() const
     {
-        return *m_host;
+        return m_host;
     }
 
     /**
@@ -410,11 +415,11 @@ protected:
 
 private:
 
-    SOCKET m_sockfd {INVALID_SOCKET};  ///< Socket internal (OS) handle
+    SOCKET m_sockfd {INVALID_SOCKET};   ///< Socket internal (OS) handle
     int32_t m_domain;                   ///< Socket domain type
     int32_t m_type;                     ///< Socket type
     int32_t m_protocol;                 ///< Socket protocol
-    SHost m_host;                     ///< Host
+    Host m_host;                        ///< Host
 };
 
 /**

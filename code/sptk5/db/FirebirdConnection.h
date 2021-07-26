@@ -172,7 +172,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~FirebirdConnection();
+    ~FirebirdConnection() override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.

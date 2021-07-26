@@ -85,17 +85,17 @@ void BaseSocket::cleanup() noexcept
 
 // Constructor
 BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-    : m_sockfd(INVALID_SOCKET), m_domain(domain), m_type(type), m_protocol(protocol),
-      m_host(shared_ptr<Host>(new Host,
-                              [this](Host* ptr) {
-                                  BaseSocket::close();
-                                  delete ptr;
-                              }))
+    : m_sockfd(INVALID_SOCKET), m_domain(domain), m_type(type), m_protocol(protocol)
 {
 #ifdef _WIN32
     init();
     m_socketCount++;
 #endif
+}
+
+BaseSocket::~BaseSocket()
+{
+    BaseSocket::close();
 }
 
 void BaseSocket::blockingMode(bool blocking) const
@@ -155,9 +155,9 @@ int32_t BaseSocket::control(int flag, const uint32_t* check) const
 #endif
 }
 
-void BaseSocket::host(const Host& host) const
+void BaseSocket::host(const Host& host)
 {
-    *m_host = host;
+    m_host = host;
 }
 
 // Connect & disconnect
@@ -241,7 +241,7 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
     if (rc != 0)
     {
         stringstream error;
-        error << "Can't " << currentOperation << " to " << m_host->toString(false) << ". " << SystemException::osError()
+        error << "Can't " << currentOperation << " to " << m_host.toString(false) << ". " << SystemException::osError()
               << ".";
         close();
         throw Exception(error.str());
@@ -286,7 +286,7 @@ void BaseSocket::listen(uint16_t portNumber)
 {
     if (portNumber != 0)
     {
-        m_host->port(portNumber);
+        m_host.port(portNumber);
     }
 
     sockaddr_in addr = {};
@@ -294,7 +294,7 @@ void BaseSocket::listen(uint16_t portNumber)
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    addr.sin_port = htons(m_host->port());
+    addr.sin_port = htons(m_host.port());
 
     open_addr(OpenMode::BIND, &addr);
 }

@@ -174,7 +174,7 @@ public:
     /**
     * Destructor
     */
-    virtual ~TCPSocket();
+    ~TCPSocket() override;
 
     /**
      * Set proxy

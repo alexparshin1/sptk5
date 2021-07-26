@@ -55,7 +55,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~UDPSocket() = default;
+    ~UDPSocket() override = default;
 
     /**
      * Reads data from the socket

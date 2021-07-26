@@ -37,15 +37,14 @@ PoolDatabaseConnection::PoolDatabaseConnection(const String& _connectionString, 
     connectionString(DatabaseConnectionString(_connectionString));
 }
 
+PoolDatabaseConnection::~PoolDatabaseConnection()
+{
+    disconnectAllQueries();
+}
+
 void PoolDatabaseConnection::connectionString(const DatabaseConnectionString& connectionString)
 {
-    m_connString = shared_ptr<DatabaseConnectionString>(
-        new DatabaseConnectionString(connectionString),
-        [this](DatabaseConnectionString* ptr) {
-            disconnectAllQueries();
-            delete ptr;
-        }
-    );
+    m_connString = DatabaseConnectionString(connectionString);
 }
 
 void PoolDatabaseConnectionQueryMethods::disconnectAllQueries()

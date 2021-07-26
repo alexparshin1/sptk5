@@ -60,7 +60,7 @@ public:
     /**
      * Set IMAP host
      */
-    void host(const Host& host) const
+    void host(const Host& host)
     {
         m_imap.host(host);
     }
