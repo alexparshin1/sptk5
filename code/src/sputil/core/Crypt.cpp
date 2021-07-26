@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2020 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,7 +26,6 @@
 
 #include <sptk5/Exception.h>
 #include <sptk5/Crypt.h>
-#include <openssl/conf.h>
 #include <openssl/evp.h>
 
 #ifdef USE_GTEST
@@ -53,12 +52,14 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
      * In this example we are using 256 bit AES (i.e. a 256 bit key). The
      * IV size for *most* modes is the same as the block size. For AES this
      * is 128 bits */
-    if (key.length() < 32)
+    const int minimalKeyLength = 32;
+    if (key.length() < minimalKeyLength)
     {
         throw Exception("Please use 256 bit key");
     }
 
-    if (iv.length() < 16)
+    const int minimalIvLength = 16;
+    if (iv.length() < minimalIvLength)
     {
         throw Exception("Please use 128 bit initialization vector");
     }
@@ -74,7 +75,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
     dest.checkSize(src.bytes());
     for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK)
     {
-        const auto* intext = (const unsigned char*) src.data() + position;
+        const auto* intext = src.data() + position;
         size_t inlen = src.bytes() - position;
         if (inlen > TEXT_BLOCK)
         {
