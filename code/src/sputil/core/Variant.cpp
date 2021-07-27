@@ -1467,7 +1467,7 @@ TEST(SPTK_Variant, externalBuffer)
 {
     Buffer externalBuffer("External Data");
     Variant v;
-    v.setExternalBuffer((uint8_t*) externalBuffer.c_str(), externalBuffer.length());
+    v.setExternalBuffer(externalBuffer.data(), externalBuffer.length());
     EXPECT_STREQ(externalBuffer.c_str(), v.asString().c_str());
     externalBuffer[1] = 'X';
     EXPECT_STREQ(externalBuffer.c_str(), v.asString().c_str());

@@ -52,14 +52,14 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
      * In this example we are using 256 bit AES (i.e. a 256 bit key). The
      * IV size for *most* modes is the same as the block size. For AES this
      * is 128 bits */
-    const int minimalKeyLength = 32;
-    if (key.length() < minimalKeyLength)
+    if (const int minimalKeyLength = 32;
+        key.length() < minimalKeyLength)
     {
         throw Exception("Please use 256 bit key");
     }
 
-    const int minimalIvLength = 16;
-    if (iv.length() < minimalIvLength)
+    if (const int minimalIvLength = 16;
+        iv.length() < minimalIvLength)
     {
         throw Exception("Please use 128 bit initialization vector");
     }

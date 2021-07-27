@@ -31,11 +31,12 @@
 using namespace std;
 using namespace sptk;
 
-void LoadBalance::sourceEventCallback(void *userData, SocketEventType eventType)
+void LoadBalance::sourceEventCallback(uint8_t* userData, SocketEventType eventType)
 {
     auto* channel = (Channel*) userData;
 
-    if (eventType == SocketEventType::CONNECTION_CLOSED) {
+    if (eventType == SocketEventType::CONNECTION_CLOSED)
+    {
         channel->close();
         delete channel;
         return;
@@ -44,11 +45,12 @@ void LoadBalance::sourceEventCallback(void *userData, SocketEventType eventType)
     channel->copyData(channel->source(), channel->destination());
 }
 
-void LoadBalance::destinationEventCallback(void *userData, SocketEventType eventType)
+void LoadBalance::destinationEventCallback(uint8_t* userData, SocketEventType eventType)
 {
     auto* channel = (Channel*) userData;
 
-    if (eventType == SocketEventType::CONNECTION_CLOSED) {
+    if (eventType == SocketEventType::CONNECTION_CLOSED)
+    {
         channel->close();
         delete channel;
         return;
@@ -58,7 +60,7 @@ void LoadBalance::destinationEventCallback(void *userData, SocketEventType event
 }
 
 LoadBalance::LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
-: Thread("load balance"), m_listenerPort(listenerPort), m_destinations(destinations), m_interfaces(interfaces)
+    : Thread("load balance"), m_listenerPort(listenerPort), m_destinations(destinations), m_interfaces(interfaces)
 {
 }
 
@@ -70,16 +72,19 @@ void LoadBalance::threadFunction()
     m_destinationEvents.run();
     m_listener.listen(m_listenerPort);
 
-    while (!terminated()) {
+    while (!terminated())
+    {
         SOCKET sourceFD;
         m_listener.accept(sourceFD, addr);
         auto* channel = new Channel(m_sourceEvents, m_destinationEvents);
         const Host& destination = m_destinations.loop();
         const String& interfaceAddress = m_interfaces.loop();
-        try {
+        try
+        {
             channel->open(sourceFD, interfaceAddress, destination);
         }
-        catch (const Exception& e) {
+        catch (const Exception& e)
+        {
             delete channel;
             CERR(e.what() << endl)
         }
