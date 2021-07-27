@@ -108,6 +108,12 @@ bool Buffer::operator!=(const Buffer& other) const
 
 ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 {
+    if ((stream.flags() & ios::hex) == 0)
+    {
+        stream << buffer.c_str();
+        return stream;
+    }
+
     char fillChar = stream.fill('0');
     auto old_settings = stream.flags();
 
@@ -295,6 +301,18 @@ TEST(SPTK_Buffer, compare)
     EXPECT_TRUE(buffer1 != buffer3);
 }
 
+TEST(SPTK_Buffer, textDump)
+{
+    Buffer buffer(testPhrase);
+    buffer.append(testPhrase);
+
+    stringstream stream;
+    stream << buffer;
+
+    Strings output(stream.str(), "\n\r", Strings::SplitMode::ANYCHAR);
+    EXPECT_STREQ(stream.str().c_str(), buffer.c_str());
+}
+
 TEST(SPTK_Buffer, hexDump)
 {
     const Strings expected {
@@ -306,7 +324,7 @@ TEST(SPTK_Buffer, hexDump)
     buffer.append(testPhrase);
 
     stringstream stream;
-    stream << buffer;
+    stream << hex << buffer;
 
     Strings output(stream.str(), "\n\r", Strings::SplitMode::ANYCHAR);
     EXPECT_TRUE(output == expected);
