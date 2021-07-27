@@ -326,13 +326,13 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, con
     if (options.encrypted)
     {
         const auto& sslKeys = server.getSSLKeys();
-        auto* socket = new SSLSocket;
+        auto socket = make_shared<SSLSocket>();
         socket->loadKeys(sslKeys);
         setSocket(socket);
     }
     else
     {
-        setSocket(new TCPSocket);
+        setSocket(make_shared<TCPSocket>());
     }
     socket().attach(connectionSocket, true);
 }

@@ -141,8 +141,8 @@ private:
     }
 };
 
-mutex               Timer::timerThreadMutex;
-TimerThread* Timer::timerThread;
+mutex                   Timer::timerThreadMutex;
+shared_ptr<TimerThread> Timer::timerThread;
 
 atomic<uint64_t>    Timer::nextSerial;
 
@@ -227,7 +227,7 @@ void Timer::checkTimerThreadRunning()
     scoped_lock lock(timerThreadMutex);
     if (timerThread == nullptr)
     {
-        timerThread = new TimerThread();
+        timerThread = make_shared<TimerThread>();
         timerThread->run();
     }
 }
@@ -292,12 +292,6 @@ void Timer::cancel()
 
 #ifdef USE_GTEST
 
-static void gtestTimerCallback(void* eventData)
-{
-    int& eventSet = *(int*) eventData;
-    ++eventSet;
-}
-
 TEST(SPTK_Timer, repeat)
 {
     if (DateTime::Now() > DateTime()) // always true
@@ -306,8 +300,11 @@ TEST(SPTK_Timer, repeat)
 
         int eventSet(0);
 
-        function<void()> eventCallback = bind(gtestTimerCallback, &eventSet);
-        Timer::Event handle = timer.repeat(milliseconds(20), eventCallback);
+        Timer::Event handle = timer.repeat(milliseconds(20),
+                                           [&eventSet]() {
+                                               ++eventSet;
+                                           });
+
         this_thread::sleep_for(milliseconds(105));
         timer.cancel(handle);
 
@@ -330,7 +327,7 @@ mutex          TimerTestData::eventCounterMutex;
 vector<size_t> TimerTestData::eventCounter(MAX_EVENT_COUNTER);
 vector<size_t> TimerTestData::eventData(MAX_EVENT_COUNTER);
 
-static void gtestTimerCallback2(void* theEventData)
+static void gtestTimerCallback2(uint8_t* theEventData)
 {
     scoped_lock lock(TimerTestData::eventCounterMutex);
     auto eventIndex = size_t(theEventData);
@@ -388,7 +385,7 @@ TEST(SPTK_Timer, repeatMultipleEvents)
         for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
             TimerTestData::eventData[eventIndex] = eventIndex;
-            function<void()> callback = bind(gtestTimerCallback2, (void*) eventIndex);
+            function<void()> callback = bind(gtestTimerCallback2, (uint8_t*) eventIndex);
             Timer::Event event = timer.repeat(milliseconds(20), callback);
             createdEvents.push_back(event);
         }
@@ -430,7 +427,7 @@ TEST(SPTK_Timer, repeatMultipleTimers)
     {
         for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
-            function<void()> callback = bind(gtestTimerCallback2, (void*) eventIndex);
+            function<void()> callback = bind(gtestTimerCallback2, (uint8_t*) eventIndex);
             timer.repeat(
                 milliseconds(10),
                 callback,
@@ -507,7 +504,7 @@ TEST(SPTK_Timer, scheduleEventsPerformance)
     stopwatch.start();
     for (size_t eventIndex = 0; eventIndex < maxEvents; ++eventIndex)
     {
-        function<void()> callback = bind(gtestTimerCallback2, (void*) eventIndex);
+        function<void()> callback = bind(gtestTimerCallback2, (uint8_t*) eventIndex);
         Timer::Event event = timer.fireAt(when, callback);
         createdEvents.push_back(event);
     }

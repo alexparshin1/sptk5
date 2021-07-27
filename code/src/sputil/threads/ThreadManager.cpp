@@ -31,13 +31,14 @@ using namespace sptk;
 using namespace chrono;
 
 ThreadManager::ThreadManager(const String& name)
-    : m_joiner(shared_ptr<Joiner>(new Joiner(name + ".Joiner"),
-                                  [this](Joiner* ptr) {
-                                      stop();
-                                      ptr->stop();
-                                      delete ptr;
-                                  }))
+    : m_joiner(make_shared<Joiner>(name + ".Joiner"))
 {
+}
+
+ThreadManager::~ThreadManager()
+{
+    stop();
+    m_joiner->stop();
 }
 
 ThreadManager::Joiner::Joiner(const String& name)

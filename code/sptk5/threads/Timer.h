@@ -222,7 +222,7 @@ private:
 
     static std::atomic<uint64_t> nextSerial;     ///< Event id serial
     static std::mutex timerThreadMutex;
-    static TimerThread* timerThread;
+    static std::shared_ptr<TimerThread> timerThread;
 
     std::set<Timer::Event> moveOutEvents();
 

@@ -308,9 +308,11 @@ protected:
 private:
 
     TCPSocketReader m_reader;          ///< Buffered socket reader
-    std::shared_ptr<Proxy> m_proxy;           ///< Optional proxy
-    Buffer m_stringBuffer;    ///< Buffer to read a line
+    std::shared_ptr<Proxy> m_proxy;    ///< Optional proxy
+    Buffer m_stringBuffer;             ///< Buffer to read a line
 };
+
+using STCPSocket = std::shared_ptr<TCPSocket>;
 
 /**
  * @}

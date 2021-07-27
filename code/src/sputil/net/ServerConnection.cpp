@@ -27,6 +27,7 @@
 #include <sptk5/cutils>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/ServerConnection.h>
+#include <sptk5/net/TCPSocket.h>
 
 #ifdef _WIN32
 #include <ws2tcpip.h>
@@ -50,10 +51,10 @@ TCPSocket& ServerConnection::socket() const
     return *m_socket;
 }
 
-void ServerConnection::setSocket(TCPSocket* socket)
+void ServerConnection::setSocket(const STCPSocket& socket)
 {
     scoped_lock lock(m_mutex);
-    m_socket = shared_ptr<TCPSocket>(socket);
+    m_socket = socket;
 }
 
 TCPServer& ServerConnection::server() const
@@ -71,7 +72,7 @@ ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in*
 
 void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
 {
-    array<char, 128> address{"127.0.0.1"};
+    array<char, 128> address {"127.0.0.1"};
     if (connectionAddress)
     {
         if (connectionAddress->sin_family == AF_INET)

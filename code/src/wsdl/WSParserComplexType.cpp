@@ -158,7 +158,7 @@ void WSParserComplexType::parse()
         if (node->name() == "xsd:attribute")
         {
             auto attrName = node->attributes().get("name");
-            m_attributes[attrName] = new WSParserAttribute(attrName, node->attributes().get("type"));
+            m_attributes[attrName] = make_shared<WSParserAttribute>(attrName, node->attributes().get("type"));
         }
         else if (node->name() == "xsd:sequence")
         {
@@ -413,7 +413,7 @@ void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
 
 set<String> WSParserComplexType::getUsedClasses() const
 {
-    set<String> usedClasses;
+    set < String > usedClasses;
     // determine the list of used classes
     for (const auto& complexType: m_sequence)
     {

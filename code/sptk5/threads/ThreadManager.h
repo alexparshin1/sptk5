@@ -34,7 +34,10 @@ namespace sptk {
 class ThreadManager
 {
 public:
+
     explicit ThreadManager(const String& name);
+
+    ~ThreadManager();
 
     void start() const;
 

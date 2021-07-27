@@ -28,8 +28,7 @@
 
 #include <sptk5/net/ServerConnection.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup net Networking Classes
@@ -42,7 +41,8 @@ namespace sptk
  * Application derives concrete TCP server connections based on this class,
  * to use with CTCPServer as connection template
  */
-class TCPServerConnection: public ServerConnection
+class TCPServerConnection
+    : public ServerConnection
 {
 public:
     /**
@@ -52,9 +52,9 @@ public:
      * @param connectionAddress Incoming connection address
      */
     explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
-    : ServerConnection(server, connectionSocket, connectionAddress, "TCPServerConnection")
+        : ServerConnection(server, connectionSocket, connectionAddress, "TCPServerConnection")
     {
-        setSocket(new TCPSocket);
+        setSocket(std::make_shared<TCPSocket>());
         socket().attach(connectionSocket, false);
     }
 };
