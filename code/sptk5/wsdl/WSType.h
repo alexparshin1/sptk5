@@ -65,8 +65,9 @@ public:
     /**
      * Loads type data from request XML node
      * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    virtual void load(const xdoc::SNode& attr) = 0;
+    virtual void load(const xdoc::SNode& attr, bool nullLargeData = false) = 0;
 
     /**
      * Conversion to string

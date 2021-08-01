@@ -86,9 +86,16 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    void load(const xdoc::SNode& attr) override
+    void load(const xdoc::SNode& attr, bool nullLargeData) override
     {
-        static_cast<Variant*>(&m_field)->load(attr);
+        if (nullLargeData && attr->getString().length() > 256)
+        {
+            static_cast<Variant*>(&m_field)->setNull(VariantDataType::VAR_STRING);
+        }
+        else
+        {
+            static_cast<Variant*>(&m_field)->load(attr);
+        }
     }
 
     /**
@@ -189,6 +196,11 @@ public:
      */
     void throwIfNull(const String& parentTypeName) const;
 
+    size_t dataSize() const
+    {
+        return m_field.dataSize();
+    }
+
     VariantDataType dataType() const
     {
         return m_field.dataType();
@@ -268,8 +280,9 @@ public:
     /**
      * Load data from XML node
      * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const xdoc::SNode& attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Loads type data from string
@@ -389,8 +402,9 @@ public:
     /**
      * Load data from XML node
      * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const xdoc::SNode& attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Load data from string
@@ -468,8 +482,9 @@ public:
     /**
      * Load data from XML node
      * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const xdoc::SNode& attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Load data from string
@@ -563,8 +578,9 @@ public:
     /**
      * Load data from XML node
      * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const xdoc::SNode& attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Load data from string
@@ -659,8 +675,9 @@ public:
     /**
      * Load data from XML node
      * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const xdoc::SNode& attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Load data from string
@@ -738,8 +755,9 @@ public:
     /**
      * Load data from XML node
      * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const xdoc::SNode& attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Load data from string

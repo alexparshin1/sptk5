@@ -349,7 +349,7 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
         else
         {
             // Exporting root node of the document
-            for (auto& node: m_nodes)
+            for (const auto& node: m_nodes)
             {
                 exporter.saveElement(node.get(), node->name(), data, formatted ? 2 : 0);
             }

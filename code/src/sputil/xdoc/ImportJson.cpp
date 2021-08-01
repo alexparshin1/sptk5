@@ -121,7 +121,7 @@ void Node::importJson(const SNode& jsonElement, const Buffer& jsonStr)
     // Check if there is trailing junk data
     while (*pos)
     {
-        if ((unsigned char) *pos > 32)
+        if ((unsigned char) *pos > ' ')
         {
             throwError("Invalid character(s) after JSON data", json, strlen(json));
         }
@@ -133,7 +133,7 @@ namespace sptk::xdoc {
 
 inline void skipSpaces(const char* json, const char*& readPosition)
 {
-    while ((unsigned char) *readPosition <= 32)
+    while ((unsigned char) *readPosition <= ' ')
     {
         if (*readPosition == 0)
         {
@@ -432,7 +432,7 @@ String decode(const String& text)
     String result;
     size_t length = text.length();
     size_t position = 0;
-    unsigned ucharCode;
+    unsigned ucharCode {0};
 
     while (position < length)
     {

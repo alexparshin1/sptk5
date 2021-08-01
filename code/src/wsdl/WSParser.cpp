@@ -305,8 +305,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     string defineName = "__" + upperCase(serviceClassName) + "__";
 
     serviceDefinition << "// Web Service " << m_serviceName << " definition" << endl << endl;
-    serviceDefinition << "#ifndef " << defineName << endl;
-    serviceDefinition << "#define " << defineName << endl << endl;
+    serviceDefinition << "#pragma once" << endl;
 
     serviceDefinition << "#include \"" << "C" + capitalize(m_serviceName) + "WSDL.h\"" << endl;
     serviceDefinition << "#include <sptk5/wsdl/WSRequest.h>" << endl;
@@ -395,8 +394,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
                       << capitalize(m_serviceName) + "ServiceBase = "
                       << "std::shared_ptr<" << serviceClassName << ">;"
                       << endl << endl;
-    serviceDefinition << "}" << endl << endl;
-    serviceDefinition << "#endif" << endl;
+    serviceDefinition << "}" << endl;
 }
 
 void WSParser::generateImplementation(ostream& serviceImplementation) const

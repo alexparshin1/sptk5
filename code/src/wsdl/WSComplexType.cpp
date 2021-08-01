@@ -105,7 +105,7 @@ void WSComplexType::throwIfNull(const String& parentTypeName) const
     }
 }
 
-void WSComplexType::load(const SNode& input)
+void WSComplexType::load(const SNode& input, bool)
 {
     _clear();
     setLoaded(true);
@@ -141,17 +141,24 @@ void WSComplexType::load(const SNode& input)
     checkRestrictions();
 }
 
-void WSComplexType::load(const FieldList& input)
+void WSComplexType::load(const FieldList& input, bool nullLargeData)
 {
     _clear();
     setLoaded(true);
 
-    m_fields.forEach([&input](WSType* field) {
+    m_fields.forEach([&input, nullLargeData](WSType* field) {
         const auto& inputField = input.findField(field->name());
         if (auto* outputField = dynamic_cast<WSBasicType*>(field);
             inputField != nullptr && outputField != nullptr)
         {
-            outputField->load(*inputField);
+            if (nullLargeData)
+            {
+                outputField->setNull(outputField->dataType());
+            }
+            else
+            {
+                outputField->load(*inputField);
+            }
         }
         return true;
     });

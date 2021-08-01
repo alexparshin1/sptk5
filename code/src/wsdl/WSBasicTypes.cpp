@@ -97,9 +97,9 @@ void WSBasicType::throwIfNull(const String& parentTypeName) const
     }
 }
 
-void WSString::load(const SNode& attr)
+void WSString::load(const SNode& attr, bool nullLargeData)
 {
-    if (attr->is(Node::Type::Null))
+    if (attr->is(Node::Type::Null) || (nullLargeData && attr->getString().length() > 256))
     {
         setNull(VariantDataType::VAR_STRING);
     }
@@ -122,7 +122,7 @@ void WSString::load(const Field& field)
     load(field.asString());
 }
 
-void WSBool::load(const SNode& attr)
+void WSBool::load(const SNode& attr, bool)
 {
     if (attr->is(Node::Type::Null))
     {
@@ -169,7 +169,7 @@ void WSBool::load(const Field& field)
     }
 }
 
-void WSDate::load(const SNode& attr)
+void WSDate::load(const SNode& attr, bool)
 {
     String text = attr->getString();
     if (attr->is(Node::Type::Null) || text.empty())
@@ -207,7 +207,7 @@ void WSDate::load(const Field& field)
     }
 }
 
-void WSDateTime::load(const SNode& attr)
+void WSDateTime::load(const SNode& attr, bool)
 {
     String text = attr->getText();
     if (text.empty())
@@ -252,7 +252,7 @@ String WSDateTime::asString() const
     return dt.isoDateTimeString();
 }
 
-void WSDouble::load(const SNode& attr)
+void WSDouble::load(const SNode& attr, bool)
 {
     field().setFloat(attr->getNumber());
 }
@@ -281,7 +281,7 @@ void WSDouble::load(const Field& field)
     }
 }
 
-void WSInteger::load(const SNode& attr)
+void WSInteger::load(const SNode& attr, bool)
 {
     if (attr->is(Node::Type::Null))
     {

@@ -114,16 +114,18 @@ public:
     /**
      * Loads type data from request XML node
      * @param input             XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const xdoc::SNode& input) override;
+    void load(const xdoc::SNode& input, bool nullLargeData = false) override;
 
     /**
      * Load data from FieldList
      *
      * Only simple WSDL type members are loaded.
      * @param input             Query field list containing CMqType data
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    virtual void load(const sptk::FieldList& input);
+    virtual void load(const sptk::FieldList& input, bool nullLargeData = false);
 
     /**
      * Unload data to existing XML node

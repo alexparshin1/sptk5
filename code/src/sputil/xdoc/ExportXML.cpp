@@ -125,7 +125,8 @@ Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
     {
         if (node->is(Node::Type::CData))
         {
-            buffer.append("<![CDATA[", 9);
+            constexpr int cdataTagLength = 9;
+            buffer.append("<![CDATA[", cdataTagLength);
             buffer.append(node->getValue().asString());
             buffer.append("]]>", 3);
         }

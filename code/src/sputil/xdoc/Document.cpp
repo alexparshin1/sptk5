@@ -133,7 +133,7 @@ TEST(SPTK_XDocument, add)
     EXPECT_TRUE(root.getBoolean("bool1"));
     EXPECT_FALSE(root.getBoolean("bool2"));
 
-    auto& array = root.nodes("array");
+    const auto& array = root.nodes("array");
     Strings skills;
     skills.resize(array.size());
     transform(array.begin(), array.end(), skills.begin(),
@@ -330,7 +330,7 @@ TEST(SPTK_XDocument, performance)
     }
 
     // Verify data
-    auto& arrayData = arrayElement->nodes();
+    const auto& arrayData = arrayElement->nodes();
     constexpr int someIndex = 100;
     const auto& object = arrayData[someIndex];
     EXPECT_FLOAT_EQ(object->getNumber("id"), 100.0);
@@ -340,7 +340,7 @@ TEST(SPTK_XDocument, performance)
     EXPECT_FLOAT_EQ(address.getNumber("number"), 100.0);
     EXPECT_STREQ(address.getString("street").c_str(), "Street 100");
 
-    auto& list = address.nodes("list");
+    const auto& list = address.nodes("list");
     EXPECT_STREQ(list[1]->getString().c_str(), "two");
 
     Buffer buffer;

@@ -152,12 +152,12 @@ public:
         return m_array.erase(first, last);
     }
 
-    void load(const xdoc::SNode& node) override
+    void load(const xdoc::SNode& node, bool nullLargeData) override
     {
         for (const auto& arrayElement: node->nodes())
         {
             T item(m_name.c_str(), false);
-            item.load(arrayElement);
+            item.load(arrayElement, nullLargeData);
             m_array.push_back(std::move(item));
         }
     }
