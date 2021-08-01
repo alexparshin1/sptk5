@@ -25,25 +25,29 @@
 */
 
 #include <sptk5/threads/Locks.h>
+#include <sptk5/Printer.h>
 #include <mutex>
 
 #ifdef USE_GTEST
+
 #include <sptk5/threads/Thread.h>
+
 #endif
 
 using namespace std;
 using namespace sptk;
 
 UniqueLockInt::UniqueLockInt(SharedMutex& mutex)
-: mutex(mutex)
+    : mutex(mutex)
 {
     mutex.lock();
 }
 
 UniqueLockInt::UniqueLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line)
-: mutex(mutex)
+    : mutex(mutex)
 {
-    if (!mutex.try_lock_for(timeout)) {
+    if (!mutex.try_lock_for(timeout))
+    {
         locked = false;
         std::stringstream error;
         error << "Can't lock for write, " << file << "(" << line << ")";
@@ -52,7 +56,7 @@ UniqueLockInt::UniqueLockInt(SharedMutex& mutex, std::chrono::milliseconds timeo
 }
 
 SharedLockInt::SharedLockInt(SharedMutex& mutex)
-: mutex(mutex)
+    : mutex(mutex)
 {
 #if USE_SHARED_MUTEX
     mutex.lock_shared();
@@ -62,12 +66,13 @@ SharedLockInt::SharedLockInt(SharedMutex& mutex)
 }
 
 SharedLockInt::SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line)
-: mutex(mutex)
+    : mutex(mutex)
 {
 #if USE_SHARED_MUTEX
     if (!mutex.try_lock_shared_for(timeout)) {
 #else
-    if (!mutex.try_lock_for(timeout)) {
+    if (!mutex.try_lock_for(timeout))
+    {
 #endif
         locked = false;
         std::stringstream error;
@@ -77,42 +82,53 @@ SharedLockInt::SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeo
 }
 
 CopyLockInt::CopyLockInt(SharedMutex& destinationMutex, SharedMutex& sourceMutex)
-: destinationLock(destinationMutex, defer_lock),
-  sourceLock(sourceMutex, defer_lock)
+    : destinationLock(destinationMutex, defer_lock),
+      sourceLock(sourceMutex, defer_lock)
 {
     lock(destinationLock, sourceLock);
 }
 
 CompareLockInt::CompareLockInt(SharedMutex& mutex1, SharedMutex& mutex2)
-: lock1(mutex1, std::defer_lock),
-  lock2(mutex2, std::defer_lock)
+    : lock1(mutex1, std::defer_lock),
+      lock2(mutex2, std::defer_lock)
 {
     lock(lock1, lock2);
 }
 
 #ifdef USE_GTEST
 
-class LockTestThread : public Thread
+class LockTestThread
+    : public Thread
 {
 public:
-    static SharedMutex  amutex;
-    String              aresult;
+    static SharedMutex amutex;
 
     LockTestThread()
-    : Thread("test")
+        : Thread("test")
     {
     }
 
     void threadFunction() override
     {
-        try {
-            TimedUniqueLock(amutex, chrono::milliseconds(500));
+        try
+        {
+            TimedUniqueLock(amutex, chrono::milliseconds(100));
             aresult = "locked";
         }
-        catch (const Exception& e) {
+        catch (const Exception& e)
+        {
             aresult = "lock timeout: " + String(e.what());
         }
     }
+
+    String result() const
+    {
+        return aresult;
+    }
+
+private:
+
+    String aresult;
 };
 
 SharedMutex  LockTestThread::amutex;
@@ -122,8 +138,9 @@ TEST(SPTK_Locks, writeLockAndWait)
     UniqueLock(LockTestThread::amutex);
     LockTestThread th;
     th.run();
-    this_thread::sleep_for(chrono::seconds(1));
+    this_thread::sleep_for(chrono::milliseconds(200));
     th.join();
+    EXPECT_TRUE(th.result().startsWith("lock timeout"));
 }
 
 #endif

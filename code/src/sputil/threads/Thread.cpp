@@ -32,22 +32,28 @@ using namespace sptk;
 
 void Thread::threadStart()
 {
-    try {
+    try
+    {
         if (m_threadManager)
+        {
             m_threadManager->registerThread(this);
+        }
         threadFunction();
         onThreadExit();
         if (m_threadManager)
+        {
             m_threadManager->destroyThread(this);
+        }
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR("Exception in thread '" << name() << "': " << e.what() << endl)
     }
 }
 
-Thread::Thread(const String& name, std::shared_ptr<ThreadManager> threadManager)
-: m_name(name),
-  m_threadManager(threadManager)
+Thread::Thread(const String& name, const shared_ptr<ThreadManager>& threadManager)
+    : m_name(name),
+      m_threadManager(threadManager)
 {
 }
 
@@ -55,7 +61,9 @@ Thread::~Thread()
 {
     Thread::terminate();
     if (m_thread && m_thread->joinable())
+    {
         m_thread->join();
+    }
 }
 
 void Thread::terminate()
@@ -74,13 +82,16 @@ bool Thread::terminated()
 Thread::Id Thread::id() const
 {
     if (m_thread)
+    {
         return m_thread->get_id();
+    }
     return Id();
 }
 
 void Thread::join()
 {
-    if (m_thread && m_thread->joinable()) {
+    if (m_thread && m_thread->joinable())
+    {
         m_thread->join();
         m_thread.reset();
     }
@@ -91,7 +102,9 @@ void Thread::run()
     UniqueLock(m_mutex);
     m_terminated = false;
     if (m_thread && m_thread->joinable())
+    {
         return;
+    }
     m_thread = make_shared<thread>(&Thread::threadStart, this);
 }
 
@@ -112,27 +125,35 @@ bool Thread::running() const
 
 #ifdef USE_GTEST
 
-class ThreadTestThread: public Thread
+class ThreadTestThread
+    : public Thread
 {
-    atomic_int  m_counter {0};
-    int         m_maxCounter;
+    atomic_int m_counter {0};
+    int m_maxCounter;
 public:
     explicit ThreadTestThread(const String& threadName, int maxCounter)
-    : Thread(threadName), m_maxCounter(maxCounter)
-    {}
+        : Thread(threadName), m_maxCounter(maxCounter)
+    {
+    }
 
     void threadFunction() override
     {
         m_counter = 0;
-        while (!terminated()) {
+        while (!terminated())
+        {
             ++m_counter;
             if (m_counter == m_maxCounter)
+            {
                 break;
+            }
             sleep_for(chrono::milliseconds(5));
         }
     }
 
-    int counter() const { return m_counter; }
+    int counter() const
+    {
+        return m_counter;
+    }
 };
 
 // Test thread start and join
@@ -140,7 +161,8 @@ TEST(SPTK_Thread, run)
 {
     ThreadTestThread testThread("Test Thread", 5);
     testThread.run();
-    this_thread::sleep_for(chrono::milliseconds(60));
+    constexpr chrono::milliseconds interval(60);
+    this_thread::sleep_for(interval);
     testThread.terminate();
     testThread.join();
     EXPECT_EQ(5, testThread.counter());

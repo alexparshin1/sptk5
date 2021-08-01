@@ -204,7 +204,7 @@ public:
      * Cancel event
      * @param event                     Event handle, returned by event scheduling method.
      */
-    void cancel(Event event);
+    void cancel(const Event& event);
 
     /**
      * Cancel all events
@@ -213,7 +213,7 @@ public:
 
 protected:
 
-    void unlink(Event event);                       ///< Remove event from this timer
+    void unlink(Event& event);                       ///< Remove event from this timer
 
 private:
 

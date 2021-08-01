@@ -83,7 +83,7 @@ public:
         m_scheduledEvents.clear();
     }
 
-    void forget(Timer::Event event)
+    void forget(const Timer::Event& event)
     {
         scoped_lock lock(m_scheduledMutex);
         m_scheduledEvents.erase(event->getId());
@@ -92,7 +92,7 @@ public:
     void forget(const set<Timer::Event>& events)
     {
         scoped_lock lock(m_scheduledMutex);
-        for (auto event: events)
+        for (auto& event: events)
         {
             m_scheduledEvents.erase(event->getId());
         }
@@ -216,7 +216,7 @@ Timer::~Timer()
     cancel();
 }
 
-void Timer::unlink(Timer::Event event)
+void Timer::unlink(Event& event)
 {
     scoped_lock lock(m_mutex);
     m_events.erase(event);
@@ -258,7 +258,7 @@ Timer::Event Timer::repeat(milliseconds interval, const EventData::Callback& eve
     return event;
 }
 
-void Timer::cancel(Event event)
+void Timer::cancel(const Event& event)
 {
     scoped_lock lock(m_mutex);
     if (event)
@@ -270,7 +270,7 @@ void Timer::cancel(Event event)
 
 set<Timer::Event> Timer::moveOutEvents()
 {
-    set < Timer::Event > events;
+    set<Timer::Event> events;
 
     // Cancel all events in this timer
     scoped_lock lock(m_mutex);
@@ -281,7 +281,7 @@ set<Timer::Event> Timer::moveOutEvents()
 
 void Timer::cancel()
 {
-    set < Timer::Event > events = moveOutEvents();
+    set<Timer::Event> events = moveOutEvents();
 
     // Unregister and destroy events
     for (auto event: events)
@@ -327,7 +327,7 @@ mutex          TimerTestData::eventCounterMutex;
 vector<size_t> TimerTestData::eventCounter(MAX_EVENT_COUNTER);
 vector<size_t> TimerTestData::eventData(MAX_EVENT_COUNTER);
 
-static void gtestTimerCallback2(uint8_t* theEventData)
+static void gtestTimerCallback2(const uint8_t* theEventData)
 {
     scoped_lock lock(TimerTestData::eventCounterMutex);
     auto eventIndex = size_t(theEventData);
