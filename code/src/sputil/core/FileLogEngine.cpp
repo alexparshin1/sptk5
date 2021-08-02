@@ -45,7 +45,7 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
             m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
             if (!m_fileStream.is_open())
             {
-                throw Exception("Can't append or create log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
+                throw Exception("Can't append or create log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
             }
         }
 
@@ -69,7 +69,7 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
 
     if (m_fileStream.bad())
     {
-        throw Exception("Can't write to log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
+        throw Exception("Can't write to log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
     }
 }
 
@@ -106,7 +106,7 @@ void FileLogEngine::reset()
     m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
     if (!m_fileStream.is_open())
     {
-        throw Exception("Can't open log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
+        throw Exception("Can't open log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
     }
 }
 
@@ -116,7 +116,7 @@ TEST(SPTK_FileLogEngine, create)
 {
     const fs::path logFileName("/tmp/file_log_test.tmp");
 
-    unlink(logFileName.c_str());
+    unlink(logFileName.string().c_str());
 
     auto logEngine = make_shared<FileLogEngine>(logFileName);
     auto logger = make_shared<Logger>(*logEngine, "(Test application) ");

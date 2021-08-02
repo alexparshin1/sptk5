@@ -151,7 +151,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     ArchiveFile::Ownership ownership {uid, gid, uname, gname};
     auto file = make_shared<ArchiveFile>(fname, content, mode, dt, type, ownership, linkName);
 
-    m_files[fname.c_str()] = file;
+    m_files[fname.string()] = file;
 
     offset += blockCount * TAR_BLOCK_SIZE;
 
@@ -231,13 +231,13 @@ protected:
 TEST_F(SPTK_Tar, relativePath)
 {
     auto relPath = ArchiveFile::relativePath("/tmp/mydir/myfile.txt", "/tmp/mydir");
-    EXPECT_STREQ(relPath.c_str(), "myfile.txt");
+    EXPECT_STREQ(relPath.string().c_str(), "myfile.txt");
 
     relPath = ArchiveFile::relativePath("/tmp/mydir1/mydir2/myfile.txt", "/tmp/mydir1");
-    EXPECT_STREQ(relPath.c_str(), "mydir2/myfile.txt");
+    EXPECT_STREQ(relPath.string().c_str(), "mydir2/myfile.txt");
 
     relPath = ArchiveFile::relativePath("/tmp/mydir1/myfile.txt", "/tmp/mydir");
-    EXPECT_STREQ(relPath.c_str(), "/tmp/mydir1/myfile.txt");
+    EXPECT_STREQ(relPath.string().c_str(), "/tmp/mydir1/myfile.txt");
 }
 
 TEST_F(SPTK_Tar, read)

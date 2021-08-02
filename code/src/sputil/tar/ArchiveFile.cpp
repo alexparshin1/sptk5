@@ -66,7 +66,7 @@ ArchiveFile::ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory
     {
         m_type = ArchiveFile::Type::SYM_LINK;
         status = fs::symlink_status(path);
-        m_linkname = fs::read_symlink(path);
+        m_linkname = fs::read_symlink(path).string();
     }
     else if (fs::is_regular_file(status))
     {
@@ -144,8 +144,8 @@ ArchiveFile::ArchiveFile(const fs::path& fileName, const Buffer& content, int mo
                          ArchiveFile::Type type, const sptk::ArchiveFile::Ownership& ownership,
                          const fs::path& linkName)
     : Buffer(content),
-      m_fileName(fileName), m_mode(mode), m_ownership(ownership), m_mtime(mtime),
-      m_type(type), m_linkname(linkName)
+      m_fileName(fileName.string()), m_mode(mode), m_ownership(ownership), m_mtime(mtime),
+      m_type(type), m_linkname(linkName.string())
 {
     makeHeader();
 }

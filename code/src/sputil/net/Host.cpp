@@ -96,7 +96,7 @@ void Host::setHostNameFromAddress(socklen_t addressLen)
     array<char, NI_MAXHOST> hbuf {};
     array<char, NI_MAXSERV> sbuf {};
 #ifdef _WIN32
-    if (getnameinfo((const sockaddr*)m_address, addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
+    if (getnameinfo((const sockaddr*)m_address.data(), addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
         m_hostname = hbuf.data();
 #else
     if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(),

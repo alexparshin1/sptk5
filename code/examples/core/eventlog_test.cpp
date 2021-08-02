@@ -40,7 +40,7 @@ int main()
 
       /// Cleaning log file before test.
       fileLog.reset();
-      fileLog.option(LogEngine::LO_STDOUT, true);
+      fileLog.option(LO_STDOUT, true);
 
       /// Set the minimal priority for the messages.
       /// Any messages with the less priority are ignored.

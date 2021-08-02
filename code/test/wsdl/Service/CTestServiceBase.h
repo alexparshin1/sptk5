@@ -24,7 +24,7 @@ namespace test_service {
  * Web Service application derives its service class from this class
  * by overriding abstract methods
  */
-class CTestServiceBase : public sptk::WSRequest
+class SP_EXPORT CTestServiceBase : public sptk::WSRequest
 {
 public:
     /**

@@ -40,18 +40,18 @@ Buffer::Buffer(const String& str)
 
 void Buffer::loadFromFile(const filesystem::path& fileName)
 {
-    FILE* f = fopen(fileName.c_str(), "rb");
+    FILE* f = fopen(fileName.string().c_str(), "rb");
 
     if (f == nullptr)
     {
-        throw SystemException("Can't open file " + (string) fileName + " for reading");
+        throw SystemException("Can't open file " + fileName.string() + " for reading");
     }
 
     struct stat st = {};
     if (fstat(fileno(f), &st) != 0)
     {
         fclose(f);
-        throw Exception("Can't get file size for '" + (string) fileName + "'");
+        throw Exception("Can't get file size for '" + fileName.string() + "'");
     }
 
     auto size = (size_t) st.st_size;
@@ -63,11 +63,11 @@ void Buffer::loadFromFile(const filesystem::path& fileName)
 
 void Buffer::saveToFile(const fs::path& fileName) const
 {
-    FILE* f = fopen(fileName.c_str(), "wb");
+    FILE* f = fopen(fileName.string().c_str(), "wb");
 
     if (f == nullptr)
     {
-        throw SystemException("Can't open file " + (string) fileName + " for writing");
+        throw SystemException("Can't open file " + fileName.string() + " for writing");
     }
 
     fwrite(data(), bytes(), 1, f);

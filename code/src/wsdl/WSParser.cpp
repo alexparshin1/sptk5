@@ -228,7 +228,7 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
 
 void WSParser::parse(const filesystem::path& wsdlFile)
 {
-    m_wsdlFile = wsdlFile;
+    m_wsdlFile = wsdlFile.string();
 
     xdoc::Document wsdlXML;
     Buffer buffer;

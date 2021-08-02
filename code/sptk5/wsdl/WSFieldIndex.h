@@ -27,6 +27,7 @@
 #pragma once
 
 #include <sptk5/wsdl/WSType.h>
+#include <functional>
 
 namespace sptk {
 

@@ -31,7 +31,7 @@
 
 namespace sptk::xdoc {
 
-class Attributes
+class SP_EXPORT Attributes
 {
 public:
     using AttributeVector = std::vector<std::pair<String, String>>;

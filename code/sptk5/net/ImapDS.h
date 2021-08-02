@@ -28,6 +28,7 @@
 
 #include <sptk5/MemoryDS.h>
 #include <sptk5/net/ImapConnect.h>
+#include <functional>
 
 namespace sptk {
 

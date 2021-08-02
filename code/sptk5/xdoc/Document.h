@@ -30,7 +30,7 @@
 
 namespace sptk::xdoc {
 
-class Document
+class SP_EXPORT Document
 {
 public:
     explicit Document(Node::Type rootType = Node::Type::Object)

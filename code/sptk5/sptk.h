@@ -134,7 +134,7 @@
 #define strncasecmp _strnicmp
 #define strtok_r strtok_s
 #include <filesystem>
-namespace filesystem = std::filesystem;
+namespace fs = std::filesystem;
 #else
 #if __cplusplus >= 201703L && __has_include(<filesystem>)
 
@@ -143,7 +143,7 @@ namespace filesystem = std::filesystem;
 namespace fs = std::filesystem;
 #else
 #include <experimental/filesystem>
-namespace filesystem = std::experimental::filesystem;
+namespace fs = std::experimental::filesystem;
 #endif
 #endif
 

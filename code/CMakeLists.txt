@@ -45,8 +45,11 @@ OPTION(USE_BROTLI "Use Brotli library" ON)
 
 OPTION(BUILD_EXAMPLES "Build usage examples" ON)
 OPTION(BUILD_UTILS "Build utitlity programs" ON)
-OPTION(BUILD_TEST_WS "Build Test Web Service" ON)
 OPTION(BUILD_PACKAGE "Build OS package" ON)
+
+IF (NOT WIN32)
+OPTION(BUILD_TEST_WS "Build Test Web Service" ON)
+ENDIF ()
 
 INCLUDE(${CMAKE_ROOT}/Modules/FindASPELL.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
