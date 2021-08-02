@@ -136,7 +136,7 @@ void RegularExpression::compile()
 
     if (pcre == nullptr)
     {
-        array < PCRE2_UCHAR, 256 > buffer;
+        array<PCRE2_UCHAR, 256> buffer {};
         pcre2_get_error_message(errornumber, buffer.data(), sizeof(buffer));
         throw Exception((const char*) buffer.data());
     }
@@ -210,7 +210,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
     throwException(m_error)
 
 #ifdef HAVE_PCRE2
-    auto ovector = pcre2_get_ovector_pointer(matchData.match_data.get());
+    auto* ovector = pcre2_get_ovector_pointer(matchData.match_data.get());
 
     auto rc = pcre2_match(
         m_pcre.get(),               // the compiled pattern
@@ -565,7 +565,7 @@ size_t RegularExpression::findNextPlaceholder(size_t pos, const String& outputPa
 String RegularExpression::replaceAll(const String& text, const map<String, String>& substitutions, bool& replaced) const
 {
     // For "i" option, make lowercase match map
-    map < String, String > substitutionsMap;
+    map<String, String> substitutionsMap;
     bool ignoreCase = (m_options & SPRE_CASELESS) == SPRE_CASELESS;
     if (ignoreCase)
     {
@@ -683,7 +683,7 @@ TEST(SPTK_RegularExpression, replace)
 
 TEST(SPTK_RegularExpression, replaceAll)
 {
-    map < String, String > substitutions = {
+    map<String, String> substitutions = {
         {"$NAME", "John Doe"},
         {"$CITY", "London"},
         {"$YEAR", "2000"}
@@ -698,7 +698,7 @@ TEST(SPTK_RegularExpression, replaceAll)
 
 TEST(SPTK_RegularExpression, lambdaReplace)
 {
-    map < String, String > substitutions = {
+    map<String, String> substitutions = {
         {"$NAME", "John Doe"},
         {"$CITY", "London"},
         {"$YEAR", "2000"}

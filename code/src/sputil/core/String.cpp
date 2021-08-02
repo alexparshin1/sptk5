@@ -51,7 +51,7 @@ String String::toLowerCase() const
 
 Strings String::split(const String& pattern) const
 {
-    return Strings(*this, pattern.c_str(), Strings::SplitMode::REGEXP);
+    return {*this, pattern.c_str(), Strings::SplitMode::REGEXP};
 }
 
 bool String::startsWith(const String& subject) const
@@ -83,7 +83,7 @@ String String::trim() const
     auto startPos = find_first_not_of(" \n\r\t\b");
     if (startPos == string::npos)
     {
-        return String("");
+        return {};
     }
     size_t endPos = find_last_not_of(" \n\r\t\b");
     return substr(startPos, endPos - startPos + 1);

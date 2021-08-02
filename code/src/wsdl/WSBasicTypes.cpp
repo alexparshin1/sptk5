@@ -385,7 +385,6 @@ TEST(SPTK_WSBasicTypes, array)
     array4 = move(array);
     EXPECT_EQ(array4.size(), size_t(3));
     EXPECT_EQ(array4[1].asInteger(), 2);
-    EXPECT_TRUE(array.empty());
 }
 
 TEST(SPTK_WSBasicTypes, scriptAttack)

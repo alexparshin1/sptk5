@@ -180,7 +180,7 @@ void MD5::transform(const uint1* block)
     uint4 b = state[1];
     uint4 c = state[2];
     uint4 d = state[3];
-    array < uint4, 16 > x;
+    array<uint4, 16> x {};
 
     decode(x.data(), block, blocksize);
 
@@ -281,7 +281,7 @@ void MD5::update(const unsigned char input[], size_type length)
     // number of bytes we need to fill in buffer
     size_type firstpart = 64 - index;
 
-    size_type i;
+    size_type i {0};
 
     // transform as many times as possible.
     if (length >= firstpart)
@@ -365,7 +365,7 @@ sptk::String MD5::hexdigest() const
         return "";
     }
 
-    array<char, 34> buf;
+    array<char, 34> buf {};
     auto* ptr = buf.data();
     for (const auto& digestElement: digest)
     {

@@ -72,7 +72,7 @@ void OpenApiGenerator::createServers(Document& document) const
 {
     // Create servers object
     auto& servers = *document.root()->pushNode("servers");
-    for (auto& url: m_servers)
+    for (const auto& url: m_servers)
     {
         const auto& server = servers.pushNode("", Node::Type::Object);
         server->set("url", url);
@@ -164,7 +164,7 @@ void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeM
         complexType->set("type", "object");
         const auto& properties = complexType->pushNode("properties", Node::Type::Object);
         Strings requiredProperties;
-        for (auto ctypeProperty: complexTypeInfo->sequence())
+        for (const auto& ctypeProperty: complexTypeInfo->sequence())
         {
             const auto& property = properties->pushNode(ctypeProperty->name(), Node::Type::Object);
             parseClassName(ctypeProperty, property);

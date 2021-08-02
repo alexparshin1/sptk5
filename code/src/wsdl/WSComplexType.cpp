@@ -94,7 +94,7 @@ String WSComplexType::toString(bool asJSON, bool formatted) const
         outputXML.exportTo(DataFormat::XML, output, formatted);
     }
 
-    return String(output.c_str(), output.bytes());
+    return {output.c_str(), output.bytes()};
 }
 
 void WSComplexType::throwIfNull(const String& parentTypeName) const

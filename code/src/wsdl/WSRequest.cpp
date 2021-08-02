@@ -202,7 +202,7 @@ String WSRequest::tagName(const String& nodeName)
     auto pos = nodeName.find(':');
     if (pos == string::npos)
     {
-        return String();
+        return {};
     }
     return nodeName.substr(pos + 1);
 }
@@ -212,7 +212,7 @@ String WSRequest::nameSpace(const String& nodeName)
     auto pos = nodeName.find(':');
     if (pos == string::npos)
     {
-        return String();
+        return {};
     }
     return nodeName.substr(0, pos);
 }

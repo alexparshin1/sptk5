@@ -107,7 +107,7 @@ String sptk::trim(const String& str)
 String sptk::int2string(int32_t value)
 {
     constexpr int maxLength = 32;
-    array<char, maxLength + 1> buff;
+    array<char, maxLength + 1> buff {};
     int len = snprintf(buff.data(), maxLength, "%i", value);
     return string(buff.data(), (unsigned) len);
 }
@@ -115,7 +115,7 @@ String sptk::int2string(int32_t value)
 String sptk::int2string(uint32_t value)
 {
     constexpr int maxLength = 64;
-    array<char, maxLength + 1> buff;
+    array<char, maxLength + 1> buff {};
     int len = snprintf(buff.data(), maxLength, "%u", value);
     return string(buff.data(), (unsigned) len);
 }
@@ -123,7 +123,7 @@ String sptk::int2string(uint32_t value)
 String sptk::int2string(int64_t value)
 {
     constexpr int maxLength = 128;
-    array<char, maxLength + 1> buff;
+    array<char, maxLength + 1> buff {};
 #ifdef _WIN32
     int len = snprintf(buff.data(), maxLength, "%lli", value);
 #else
@@ -135,7 +135,7 @@ String sptk::int2string(int64_t value)
 String sptk::int2string(uint64_t value)
 {
     constexpr int maxLength = 64;
-    array<char, maxLength + 1> buff;
+    array<char, maxLength + 1> buff {};
 #ifdef _WIN32
     int len = snprintf(buff.data(), sizeof(buff), "%llu", value);
 #else
@@ -175,7 +175,7 @@ int64_t sptk::string2int64(const String& str, int64_t defaultValue)
 String sptk::double2string(double value)
 {
     constexpr int maxLength = 64;
-    array<char, maxLength + 1> buffer;
+    array<char, maxLength + 1> buffer {};
     int len = snprintf(buffer.data(), maxLength, "%f", value);
     for (int i = len - 1; i > 0; --i)
     {
@@ -288,7 +288,7 @@ String sptk::capitalizeWords(const String& s)
         }
     }
 
-    return String(buffer.c_str(), buffer.length());
+    return {buffer.c_str(), buffer.length()};
 }
 
 #ifdef USE_GTEST

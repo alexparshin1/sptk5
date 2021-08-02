@@ -79,7 +79,7 @@ String Field::asString() const
     constexpr int maxPrintLength = 64;
 
     String result;
-    array<char, maxPrintLength + 1> print_buffer;
+    array<char, maxPrintLength + 1> print_buffer {};
     int len = 0;
 
     if (isNull())

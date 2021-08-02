@@ -92,7 +92,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
 
     if (masked)
     {
-        array<uint8_t, 4> mask;
+        array<uint8_t, 4> mask {};
         memcpy(mask.data(), ptr, sizeof(mask));
         ptr += 4;
         auto* dest = m_payload.data();

@@ -85,7 +85,9 @@ int UniqueInstance::read_pid() const
     } // Lock file doesn't exist, or doesn't contain pid
     lockfile.close();
     if (pid == 0)
-        return 0; // Lock file exists, but there is no process id int
+    {
+        return 0;
+    } // Lock file exists, but there is no process id int
 
     if (int rc = getsid(pid); rc < 0 || rc == ESRCH)
         return 0; // No such process - stale lock file.
@@ -141,7 +143,7 @@ TEST(SPTK_UniqueInstance, create)
     // Get pid of existing process
     if (FILE* pipe1 = popen("pidof systemd", "r"); pipe1 != nullptr)
     {
-        array<char, 64> buffer;
+        array<char, 64> buffer {};
         if (const char* data = fgets(buffer.data(), sizeof(buffer), pipe1); data != nullptr)
         {
             int pid = string2int(data);

@@ -78,7 +78,7 @@ WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const String
     }
     else if (type == Type::Pattern)
     {
-        for (auto& pattern: enumerationsOrPatterns)
+        for (const auto& pattern: enumerationsOrPatterns)
         {
             m_patterns.emplace_back(pattern);
         }
@@ -125,7 +125,7 @@ String sptk::WSRestriction::generateConstructor(const String& variableName) cons
                 << "{ \"" << m_enumeration.join("\", \"") << "\" })";
             break;
         case Type::Pattern:
-            for (auto& regex: m_patterns)
+            for (const auto& regex: m_patterns)
             {
                 patterns.push_back(regex.pattern());
             }

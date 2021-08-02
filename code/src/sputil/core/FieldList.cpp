@@ -97,7 +97,7 @@ SField FieldList::findField(const String& fname) const
     }
     else
     {
-        for (auto& field: *this)
+        for (const auto& field: *this)
         {
             if (strcasecmp(field->m_name.c_str(), fname.c_str()) == 0)
             {

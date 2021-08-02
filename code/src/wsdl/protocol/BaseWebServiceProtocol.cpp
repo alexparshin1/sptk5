@@ -33,6 +33,11 @@
 using namespace std;
 using namespace sptk;
 
+constexpr int httpOkCode = 200;
+constexpr int minHttpErrorCode = 400;
+constexpr int httpNotFoundErrorCode = 404;
+constexpr int httpInvalidContentErrorCode = 406;
+
 BaseWebServiceProtocol::BaseWebServiceProtocol(TCPSocket* socket, const HttpHeaders& headers,
                                                sptk::WSServices& services, const URL& url)
     : WSProtocol(socket, headers),
@@ -72,13 +77,13 @@ xdoc::SNode BaseWebServiceProtocol::findRequestNode(const xdoc::SNode& message, 
     const auto xmlBody = message->findFirst(ns + ":Body");
     if (xmlBody == nullptr)
     {
-        throw HTTPException(400, "Can't find " + ns + ":Body in " + messageType);
+        throw HTTPException(minHttpErrorCode, "Can't find " + ns + ":Body in " + messageType);
     }
 
     auto xmlRequest = getFirstChildElement(xmlBody);
     if (!xmlRequest)
     {
-        throw HTTPException(400, "Can't find request data in " + messageType);
+        throw HTTPException(minHttpErrorCode, "Can't find request data in " + messageType);
     }
 
     return xmlRequest;
@@ -114,7 +119,7 @@ xdoc::SNode BaseWebServiceProtocol::processXmlContent(const char* startOfMessage
     }
     catch (const Exception& e)
     {
-        throw HTTPException(406, "Invalid XML content: " + String(e.what()));
+        throw HTTPException(httpInvalidContentErrorCode, "Invalid XML content: " + String(e.what()));
     }
 
     auto xmlRequest = findRequestNode(xmlContent, "API request");
@@ -144,7 +149,7 @@ String BaseWebServiceProtocol::processMessage(Buffer& output, const xdoc::SNode&
                                               HttpResponseStatus& httpResponseStatus, String& contentType) const
 {
     String requestName("Error");
-    httpResponseStatus.code = 200;
+    httpResponseStatus.code = httpOkCode;
     httpResponseStatus.description = "OK";
     contentType = "text/xml; charset=utf-8";
     try
@@ -178,7 +183,7 @@ void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, cons
     if (m_url.path().length() < 2)
     {
         generateFault(requestInfo.response.content(), httpStatus, contentType,
-                      HTTPException(404, "Not Found"), true);
+                      HTTPException(httpNotFoundErrorCode, "Not Found"), true);
     }
     else
     {
@@ -192,7 +197,7 @@ void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, cons
         catch (const Exception& e)
         {
             generateFault(requestInfo.response.content(), httpStatus, contentType,
-                          HTTPException(406, "Invalid JSON content: " + String(e.what())),
+                          HTTPException(httpInvalidContentErrorCode, "Invalid JSON content: " + String(e.what())),
                           true);
         }
 
