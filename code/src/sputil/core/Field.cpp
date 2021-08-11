@@ -178,8 +178,7 @@ void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode) const
             }
             else
             {
-                element = node->pushNode("field", xdoc::Node::Type::Text);
-                element->set(value);
+                element = node->pushValue(fieldName(), value);
             }
         }
 

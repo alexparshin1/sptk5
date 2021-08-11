@@ -172,6 +172,11 @@ public:
 
     static String nameSpace(const String& nodeName);
 
+    sptk::LogEngine* getLogEngine()
+    {
+        return m_logEngine;
+    }
+
 protected:
 
     using RequestMethod = std::function<void(const sptk::xdoc::SNode&, const sptk::xdoc::SNode&,
@@ -223,8 +228,8 @@ protected:
 
 private:
 
-    sptk::LogEngine* m_logEngine;        ///< Optional logger, or nullptr
-    std::map<sptk::String, RequestMethod> m_requestMethods;   ///< Map of requset names to methods
+    sptk::LogEngine* m_logEngine;                            ///< Optional logger, or nullptr
+    std::map<sptk::String, RequestMethod> m_requestMethods;  ///< Map of requset names to methods
 };
 
 using SWSRequest = std::shared_ptr<WSRequest>;
