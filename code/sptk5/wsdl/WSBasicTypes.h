@@ -101,11 +101,11 @@ public:
     {
         if (nullLargeData && attr->getString().length() > 256)
         {
-            static_cast<Variant*>(&m_value)->setNull(VariantDataType::VAR_STRING);
+            m_value.setNull(VariantDataType::VAR_STRING);
         }
         else
         {
-            static_cast<Variant*>(&m_value)->load(attr);
+            m_value.load(attr);
         }
     }
 
@@ -124,7 +124,7 @@ public:
      */
     virtual void load(const Field& field)
     {
-        *static_cast<Variant*>(&m_value) = *static_cast<const Variant*>(&field);
+        m_value = *static_cast<const Variant*>(&field);
     }
 
     /**

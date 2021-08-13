@@ -30,12 +30,10 @@
 using namespace std;
 using namespace sptk;
 
-WorkerThread::WorkerThread(SThreadManager threadManager, SynchronizedQueue<SRunable>& queue, ThreadEvent* threadEvent,
-                           chrono::milliseconds maxIdleTime)
-    : Thread("worker", std::move(threadManager)),
-      m_queue(queue),
-      m_threadEvent(threadEvent),
-      m_maxIdleSeconds(maxIdleTime)
+WorkerThread::WorkerThread(const SThreadManager& threadManager, SynchronizedQueue<SRunable>& queue,
+                           ThreadEvent* threadEvent, chrono::milliseconds maxIdleTime)
+    : Thread("worker", threadManager), m_queue(queue), m_threadEvent(threadEvent), m_maxIdleSeconds(
+    maxIdleTime)
 {
 }
 

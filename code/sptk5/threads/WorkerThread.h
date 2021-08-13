@@ -66,7 +66,7 @@ public:
      * @param threadEvent       Optional thread event interface
      * @param maxIdleTime       Maximum time the thread is idle, seconds
      */
-    WorkerThread(SThreadManager threadManager,
+    WorkerThread(const SThreadManager& threadManager,
                  SynchronizedQueue<SRunable>& queue,
                  ThreadEvent* threadEvent = nullptr,
                  std::chrono::milliseconds maxIdleTime = std::chrono::seconds(3600));

@@ -51,9 +51,8 @@ void Thread::threadStart()
     }
 }
 
-Thread::Thread(const String& name, const shared_ptr<ThreadManager>& threadManager)
-    : m_name(name),
-      m_threadManager(threadManager)
+Thread::Thread(const String& name, const SThreadManager& threadManager)
+    : m_name(name), m_threadManager(threadManager)
 {
 }
 
