@@ -51,7 +51,7 @@ public:
      * @param optional          Element optionality flag
      */
     WSBasicType(const char* name, bool optional)
-        : m_field(name), m_optional(optional)
+        : m_name(name), m_optional(optional)
     {
     }
 
@@ -61,9 +61,20 @@ public:
 
     virtual ~WSBasicType() noexcept = default;
 
-    WSBasicType& operator=(const WSBasicType& other) = default;
+    WSBasicType& operator=(const WSBasicType& other)
+    {
+        m_value = other.m_value;
+        m_optional = other.m_optional;
+        return *this;
+    }
 
-    WSBasicType& operator=(WSBasicType&& other) noexcept = default;
+    WSBasicType& operator=(WSBasicType&& other) noexcept
+    {
+        m_value = std::move(other.m_value);
+        m_optional = other.m_optional;
+        return *this;
+    }
+
 
     /**
      * Sets optionality flag
@@ -79,7 +90,7 @@ public:
      */
     void clear() override
     {
-        m_field.setNull(VariantDataType::VAR_NONE);
+        m_value.setNull(defaultDataType());
     }
 
     /**
@@ -90,11 +101,11 @@ public:
     {
         if (nullLargeData && attr->getString().length() > 256)
         {
-            static_cast<Variant*>(&m_field)->setNull(VariantDataType::VAR_STRING);
+            static_cast<Variant*>(&m_value)->setNull(VariantDataType::VAR_STRING);
         }
         else
         {
-            static_cast<Variant*>(&m_field)->load(attr);
+            static_cast<Variant*>(&m_value)->load(attr);
         }
     }
 
@@ -104,7 +115,7 @@ public:
      */
     virtual void load(const String& attr)
     {
-        m_field.setString(attr);
+        m_value.setString(attr);
     }
 
     /**
@@ -113,7 +124,7 @@ public:
      */
     virtual void load(const Field& field)
     {
-        *static_cast<Variant*>(&m_field) = *static_cast<const Variant*>(&field);
+        *static_cast<Variant*>(&m_value) = *static_cast<const Variant*>(&field);
     }
 
     /**
@@ -121,7 +132,7 @@ public:
      */
     [[nodiscard]] String name() const override
     {
-        return m_field.fieldName();
+        return m_name;
     }
 
     /**
@@ -129,7 +140,7 @@ public:
      */
     virtual operator String() const
     {
-        return m_field.asString();
+        return m_value.asString();
     }
 
     /**
@@ -137,57 +148,57 @@ public:
      */
     String asString() const override
     {
-        return m_field.asString();
+        return m_value.asString();
     }
 
     auto asInteger() const
     {
-        return field().asInteger();
+        return value().asInteger();
     }
 
     auto asInt64() const
     {
-        return field().asInt64();
+        return value().asInt64();
     }
 
     auto asFloat() const
     {
-        return field().asFloat();
+        return value().asFloat();
     }
 
     auto asBool() const
     {
-        return field().asBool();
+        return m_value.asBool();
     }
 
-    void setInteger(int32_t value)
+    void setInteger(int32_t _value)
     {
-        field().setInteger(value);
+        m_value.setInteger(_value);
     }
 
-    void setInt64(int64_t value)
+    void setInt64(int64_t _value)
     {
-        field().setInt64(value);
+        m_value.setInt64(_value);
     }
 
-    void setFloat(bool value)
+    void setFloat(bool _value)
     {
-        field().setFloat(value);
+        m_value.setFloat(_value);
     }
 
-    void setBool(bool value)
+    void setBool(bool _value)
     {
-        field().setBool(value);
+        m_value.setBool(_value);
     }
 
     void setBuffer(const char* buffer, size_t size)
     {
-        field().setBuffer((const uint8_t*) buffer, size);
+        m_value.setBuffer((const uint8_t*) buffer, size);
     }
 
     bool isNull() const override
     {
-        return m_field.isNull();
+        return m_value.isNull();
     }
 
     /**
@@ -198,27 +209,27 @@ public:
 
     size_t dataSize() const
     {
-        return m_field.dataSize();
+        return m_value.dataSize();
     }
 
     VariantDataType dataType() const
     {
-        return m_field.dataType();
+        return m_value.dataType();
     }
 
-    void setNull(VariantDataType type)
+    void setNull()
     {
-        m_field.setNull(type);
+        m_value.setNull(defaultDataType());
     }
 
-    Field& field()
+    Variant& value()
     {
-        return m_field;
+        return m_value;
     }
 
-    const Field& field() const
+    const Variant& value() const
     {
-        return m_field;
+        return m_value;
     }
 
     /**
@@ -228,9 +239,27 @@ public:
      */
     void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const override;
 
+protected:
+
+    void setNull(VariantDataType dataType)
+    {
+        m_value.setNull(dataType);
+    }
+
+    /**
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
+     */
+    virtual VariantDataType defaultDataType() const
+    {
+        return VariantDataType::VAR_NONE;
+    }
+
 private:
 
-    Field m_field {""};
+    const String m_name;
+    Variant m_value;
     bool m_optional {false};    ///< Element optionality flag
 };
 
@@ -264,9 +293,9 @@ public:
      * Constructor
      * @param value             Value
      */
-    WSString(const String& value)
+    WSString(const String& _value)
     {
-        field().setString(value);
+        value().setString(_value);
     }
 
     /**
@@ -276,6 +305,16 @@ public:
     {
         return "WSString";
     }
+
+    /**
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
+     */
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_STRING;
+    };
 
     /**
      * Load data from XML node
@@ -299,45 +338,45 @@ public:
     /**
      * Assignment operation
      */
-    WSString& operator=(const char* value)
+    WSString& operator=(const char* _value)
     {
-        field().setString(value);
+        value().setString(_value);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(const String& value)
+    WSString& operator=(const String& _value)
     {
-        field().setBuffer((const uint8_t*) value.c_str(), value.length(), VariantDataType::VAR_STRING);
+        value().setBuffer((const uint8_t*) _value.c_str(), _value.length(), VariantDataType::VAR_STRING);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(const Buffer& value)
+    WSString& operator=(const Buffer& _value)
     {
-        field().setBuffer(value.data(), value.bytes(), VariantDataType::VAR_BUFFER);
+        value().setBuffer(_value.data(), _value.bytes(), VariantDataType::VAR_BUFFER);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(int32_t value)
+    WSString& operator=(int32_t _value)
     {
-        field().setInteger(value);
+        value().setInteger(_value);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(int64_t value)
+    WSString& operator=(int64_t _value)
     {
-        field().setInt64(value);
+        value().setInt64(_value);
         return *this;
     }
 
@@ -346,12 +385,12 @@ public:
      */
     operator String() const override
     {
-        return field().asString();
+        return value().asString();
     }
 
     const char* getString() const
     {
-        return field().getString();
+        return value().getString();
     }
 };
 
@@ -386,9 +425,9 @@ public:
      * @param value             Value
      * @param optional          Element optionality flag
      */
-    explicit WSBool(bool value)
+    explicit WSBool(bool _value)
     {
-        field().setBool(value);
+        value().setBool(_value);
     }
 
     /**
@@ -398,6 +437,16 @@ public:
     {
         return "WSBool";
     }
+
+    /**
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
+     */
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_BOOL;
+    };
 
     /**
      * Load data from XML node
@@ -421,9 +470,9 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSBool& operator=(bool value)
+    virtual WSBool& operator=(bool _value)
     {
-        field().setBool(value);
+        value().setBool(_value);
         return *this;
     }
 
@@ -432,7 +481,7 @@ public:
      */
     operator bool() const
     {
-        return field().asBool();
+        return value().asBool();
     }
 };
 
@@ -466,9 +515,9 @@ public:
      * Constructor
      * @param value             Value
      */
-    explicit WSDate(const DateTime& value)
+    explicit WSDate(const DateTime& _value)
     {
-        field().setDateTime(value, true);
+        value().setDateTime(_value, true);
     }
 
     /**
@@ -478,6 +527,16 @@ public:
     {
         return "WSDate";
     }
+
+    /**
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
+     */
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_DATE;
+    };
 
     /**
      * Load data from XML node
@@ -501,9 +560,9 @@ public:
     /**
      * Assignment operation
      */
-    WSDate& operator=(DateTime value)
+    WSDate& operator=(DateTime _value)
     {
-        field().setDateTime(value, true);
+        value().setDateTime(_value, true);
         return *this;
     }
 
@@ -512,7 +571,7 @@ public:
      */
     auto asDate() const
     {
-        return field().asDate();
+        return value().asDate();
     }
 
     /**
@@ -520,7 +579,7 @@ public:
      */
     auto asDateTime() const
     {
-        return field().asDateTime();
+        return value().asDateTime();
     }
 
     /**
@@ -528,7 +587,7 @@ public:
      */
     operator DateTime() const
     {
-        return field().asDate();
+        return value().asDate();
     }
 };
 
@@ -562,9 +621,9 @@ public:
      * Constructor
      * @param value             Value
      */
-    explicit WSDateTime(const DateTime& value)
+    explicit WSDateTime(const DateTime& _value)
     {
-        field().setDateTime(value);
+        value().setDateTime(_value);
     }
 
     /**
@@ -574,6 +633,16 @@ public:
     {
         return "WSDateTime";
     }
+
+    /**
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
+     */
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_DATE_TIME;
+    };
 
     /**
      * Load data from XML node
@@ -604,7 +673,7 @@ public:
      */
     auto asDate() const
     {
-        return field().asDate();
+        return value().asDate();
     }
 
     /**
@@ -612,15 +681,15 @@ public:
      */
     auto asDateTime() const
     {
-        return field().asDateTime();
+        return value().asDateTime();
     }
 
     /**
      * Assignment operation
      */
-    WSDateTime& operator=(DateTime value)
+    WSDateTime& operator=(DateTime _value)
     {
-        field().setDateTime(value);
+        value().setDateTime(_value);
         return *this;
     }
 
@@ -629,7 +698,7 @@ public:
      */
     operator DateTime() const
     {
-        return field().asDateTime();
+        return value().asDateTime();
     }
 };
 
@@ -659,9 +728,9 @@ public:
         setNull(VariantDataType::VAR_FLOAT);
     }
 
-    WSDouble(double value)
+    WSDouble(double _value)
     {
-        field().setFloat(value);
+        value().setFloat(_value);
     }
 
     /**
@@ -671,6 +740,16 @@ public:
     {
         return "WSDouble";
     }
+
+    /**
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
+     */
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_FLOAT;
+    };
 
     /**
      * Load data from XML node
@@ -694,9 +773,9 @@ public:
     /**
      * Assignment operation
      */
-    WSDouble& operator=(double value)
+    WSDouble& operator=(double _value)
     {
-        field().setFloat(value);
+        value().setFloat(_value);
         return *this;
     }
 
@@ -705,7 +784,7 @@ public:
      */
     operator double() const
     {
-        return field().asFloat();
+        return value().asFloat();
     }
 };
 
@@ -739,9 +818,9 @@ public:
      * Constructor
      * @param value             Value
      */
-    WSInteger(int value)
+    WSInteger(int _value)
     {
-        field().setInteger(value);
+        value().setInteger(_value);
     }
 
     /**
@@ -751,6 +830,16 @@ public:
     {
         return "WSInteger";
     }
+
+    /**
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
+     */
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_INT;
+    };
 
     /**
      * Load data from XML node
@@ -774,18 +863,18 @@ public:
     /**
      * Assignment operation
      */
-    WSInteger& operator=(int64_t value)
+    WSInteger& operator=(int64_t _value)
     {
-        field().setInt64(value);
+        value().setInt64(_value);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSInteger& operator=(int value)
+    WSInteger& operator=(int _value)
     {
-        field().setInteger(value);
+        value().setInteger(_value);
         return *this;
     }
 
@@ -794,7 +883,7 @@ public:
      */
     operator int32_t() const
     {
-        return field().asInteger();
+        return value().asInteger();
     }
 
     /**
@@ -802,7 +891,7 @@ public:
      */
     operator int64_t() const
     {
-        return field().asInt64();
+        return value().asInt64();
     }
 
     /**
@@ -810,7 +899,7 @@ public:
      */
     operator uint64_t() const
     {
-        return (uint64_t) field().asInt64();
+        return (uint64_t) value().asInt64();
     }
 };
 

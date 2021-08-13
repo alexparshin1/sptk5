@@ -184,7 +184,7 @@ void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode) const
 
         if (!compactXmlMode)
         {
-            element->attributes().set("name", fieldName());
+            //element->attributes().set("name", fieldName());
             element->attributes().set("type", Variant::typeName(dataType()));
             element->attributes().set("size", int2string((uint32_t) dataSize()));
         }
