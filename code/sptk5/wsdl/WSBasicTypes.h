@@ -293,7 +293,7 @@ public:
      * Constructor
      * @param value             Value
      */
-    WSString(const String& _value)
+    explicit WSString(const String& _value)
     {
         value().setString(_value);
     }
