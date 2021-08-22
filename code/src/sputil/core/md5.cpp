@@ -411,7 +411,10 @@ static const String testSQL(
 
 TEST(SPTK_MD5, md5)
 {
-    String testMD5 = md5(Buffer(testPhrase));
+    String testMD5 = md5(testPhrase);
+    EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
+
+    testMD5 = md5(Buffer(testPhrase));
     EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
 }
 

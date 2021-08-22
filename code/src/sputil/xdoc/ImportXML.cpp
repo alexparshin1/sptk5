@@ -94,15 +94,6 @@ void ImportXML::parseEntities(char* entitiesSection)
     }
 }
 
-unsigned char* ImportXML::skipSpaces(unsigned char* start)
-{
-    while (*start <= ' ')
-    {
-        ++start;
-    }
-    return start;
-}
-
 void ImportXML::parseXMLDocType(char* docTypeSection)
 {
     m_doctype.m_name = "";
@@ -711,38 +702,14 @@ TEST(SPTK_XDocument, brokenXML)
 {
     Document document;
 
-    try
-    {
-        const String brokenXML1("<xml></html>");
-        document.load(brokenXML1);
-        FAIL() << "Must throw exception";
-    }
-    catch (const Exception& e)
-    {
-        SUCCEED() << "Correct exception: " << e.what();
-    }
+    String brokenXML1("<xml></html>");
+    EXPECT_THROW(document.load(brokenXML1), Exception);
 
-    try
-    {
-        const String brokenXML1("<xml><html></xml></html>");
-        document.load(brokenXML1);
-        FAIL() << "Must throw exception";
-    }
-    catch (const Exception& e)
-    {
-        SUCCEED() << "Correct exception: " << e.what();
-    }
+    brokenXML1 = "<xml><html></xml></html>";
+    EXPECT_THROW(document.load(brokenXML1), Exception);
 
-    try
-    {
-        const String brokenXML1("<xml</html>");
-        document.load(brokenXML1);
-        FAIL() << "Must throw exception";
-    }
-    catch (const Exception& e)
-    {
-        SUCCEED() << "Correct exception: " << e.what();
-    }
+    brokenXML1 = "<xml</html>";
+    EXPECT_THROW(document.load(brokenXML1), Exception);
 }
 
 TEST(SPTK_XDocument, unicodeAndSpacesXML)

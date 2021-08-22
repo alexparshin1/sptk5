@@ -77,7 +77,7 @@ public:
 
 private:
 
-    mutable SharedMutex m_mutex;                    ///< Mutex that protects internal data
+    mutable std::mutex m_mutex;                    ///< Mutex that protects internal data
     fs::path m_fileName;                            ///< Log file name
     std::ofstream m_fileStream;                     ///< Log file stream
 };
