@@ -1,0 +1,257 @@
+<div class="topmenu">
+    <ul class="topmenuitems">
+        <li>
+            <a href="#" id="protis" title="ProTIS">ProTIS</a>
+            <ul>
+                <li level="superuser">
+                    <a href="#" id="protis_users" title="System Users">System Users</a>
+                </li>
+                <li level="superuser">
+                    <a href="#" id="protis_request_log" title="Request Log">Request Log</a>
+                </li>
+                <li level="superuser">
+                    <hr/>
+                </li>
+                <li level="superuser">
+                    <a href="#" id="protis_study_lessons" title="Lessons">Lessons</a>
+                </li>
+                <li level="superuser">
+                    <a href="#" id="protis_study_exercises" title="Exercises">Exercises</a>
+                </li>
+                <li level="superuser">
+                    <a href="#" id="protis_study_progress" title="Study Progress">Study Progress</a>
+                </li>
+                <li level="superuser">
+                    <hr/>
+                </li>
+                <li>
+                    <a href="#" id="protis_print_setup" title="Print Setup">Print Setup</a>
+                </li>
+                <li>
+                    <a href="#" id="protis_theme" title="Interface Theme">Interface Theme</a>
+                    <ul>
+                        <li>
+                            <a href="#" id="theme_protis" title="ProTIS">ProTIS</a>
+                        </li>
+                        <li>
+                            <a href="#" id="theme_redmond" title="Redmond">Redmond</a>
+                        </li>
+                        <li>
+                            <a href="#" id="theme_smoothness" title="Smoothness">Smoothness</a>
+                        </li>
+                        <li>
+                            <a href="#" id="theme_mint_choc" title="Mint Chocolate">Mint Chocolate</a>
+                        </li>
+                        <li>
+                            <a href="#" id="theme_black_n_white" title="Black and White">Black and White</a>
+                        </li>
+                        <li>
+                            <a href="#" id="theme_white" title="White">White</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <hr/>
+                </li>
+                <li>
+                    <a href="#" id="protis_logout" title="Logout">Logout</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" id="project" title="Project">Project</a>
+            <ul>
+                <li>
+                    <a href="#" id="project_status" title="Project Status">Project Status</a>
+                </li>
+                <li>
+                    <hr/>
+                </li>
+                <li permission="project_create">
+                    <a href="#" id="project_create" title="New">New</a>
+                </li>
+                <li>
+                    <a href="#" id="project_open" title="Open">Open</a>
+                </li>
+                <li permission="project_modify">
+                    <a href="#" id="project_edit" title="Edit">Edit</a>
+                </li>
+                <li permission="project_view">
+                    <a href="#" id="project_copy" title="Copy">Copy</a>
+                </li>
+                <li permission="project_delete">
+                    <a href="#" id="project_delete" title="Delete">Delete</a>
+                </li>
+                <li>
+                    <hr/>
+                </li>
+                <li permission="node_view">
+                    <a href="#" id="nodes_view" title="Nodes">Nodes</a>
+                </li>
+                <li permission="document_type_view">
+                    <a href="#" id="document_types_view" title="Document Types">Document Types</a>
+                </li>
+                <li permission="route_view">
+                    <a href="#" id="routes_view" title="Routes">Routes</a>
+                </li>
+                <li permission="user_view">
+                    <a href="#" id="users_view" title="Users">Users</a>
+                </li>
+                <li permission="client_view">
+                    <a href="#" id="clients_view" title="Clients">Clients</a>
+                </li>
+                <li permission="role_view">
+                    <a href="#" id="roles_view" title="Roles">Roles</a>
+                </li>
+                <li permission="document_set_view">
+                    <a href="#" id="client_document_sets_view" title="Client Document Folders">Client Document Folders
+                    </a>
+                </li>
+                <li>
+                    <hr/>
+                </li>
+                <li>
+                    <a href="#" id="user_action_history_view" title="User Action History">User Action History</a>
+                </li>
+                <li>
+                    <hr/>
+                </li>
+                <li>
+                    <a href="#" id="project_news" title="Project News">Project News</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" id="document" title="Document">Document</a>
+            <ul>
+                <li permission="document_view">
+                    <a href="#" id="documents_view" title="All Documents">All Documents</a>
+                </li>
+                <li permission="document_view">
+                    <a href="#" id="node_documents_view" title="Node Documents">Node Documents</a>
+                </li>
+                <li permission="document_view">
+                    <a href="#" id="client_documents_view" title="Client Documents">Client Documents</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" id="notifications" title="Notifications">Notifications</a>
+            <ul>
+                <li>
+                    <a href="#" id="limitation_violations" title="Violations of restrictions">Violations of
+                        restrictions
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li level="translator">
+            <a href="#" id="translation" title="Translation">Translation</a>
+            <ul>
+                <li>
+                    <a href="#" id="alert_translation_edit" title="Edit Alert Messages">Edit Alert Messages</a>
+                </li>
+                <li>
+                    <a href="#" id="dialog_translation_edit" title="Edit Dialog Screens">Edit Dialog Screens</a>
+                </li>
+                <li>
+                    <a href="#" id="view_translation_edit" title="Edit Data Screens">Edit Data Screens</a>
+                </li>
+                <li>
+                    <a href="#" id="udv_translation_edit" title="Edit User Defined Screens">Edit User Defined Screens
+                    </a>
+                </li>
+                <li>
+                    <hr/>
+                </li>
+                <li>
+                    <a href="#" id="menu_translation_edit" title="Edit Main Menu">Edit Main Menu</a>
+                </li>
+                <li>
+                    <a href="#" id="udv_menu_translation_edit" title="Edit User Defined Menu">Edit User Defined Menu</a>
+                </li>
+                <li>
+                    <hr/>
+                </li>
+                <li>
+                    <a href="#" id="translation_languages" title="Translation Languages">Translation Languages</a>
+                </li>
+                <li>
+                    <a href="#" id="translation_log" title="Translation Log">Translation Log</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" id="reports" title="Editor">Editor</a>
+            <ul>
+                <li permission="document_modify">
+                    <a href="#" id="document_editor" title="Document Editor">Document Editor</a>
+                </li>
+                <li permission="document_modify">
+                    <a href="#" id="document_templates" title="Document Templates">Document Templates</a>
+                    <ul>
+                        <li>
+                            <a href="#" id="document_template_1" title="Document Template 1">Document Template 1</a>
+                        </li>
+                        <li>
+                            <a href="#" id="document_template_2" title="Document Template 2">Document Template 2</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" id="user_data" title="User Data">User Data</a>
+            <ul>
+                <li>
+                    <a href="#" id="user_data_types" title="User Data Types">User Data Types</a>
+                </li>
+                <li>
+                    <a href="#" id="user_defined_data" title="User Defined Data">User Defined Data</a>
+                </li>
+                <li>
+                    <hr/>
+                </li>
+                <li>
+                    <a href="#" id="user_defined_views" title="User Defined Views">User Defined Views</a>
+                </li>
+                <li>
+                    <a href="#" id="user_defined_view_editor" title="User Defined View Editor">User Defined View
+                        Editor
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" id="modules" title="Modules">Modules</a>
+            <ul>
+                <li permission="invoice_view">
+                    <a id="module_invoices" title="Invoices" href="#" disabled="true">Invoices</a>
+                </li>
+                <li level="superuser">
+                    <a id="module_invoice_templates" title="Invoice Templates" href="#">Invoices Templates</a>
+                </li>
+                <li permission="speaker_view">
+                    <a id="module_speaker" title="Speaker" href="#" disabled="true">Speaker</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" id="help" title="Help">Help</a>
+            <ul>
+                <li>
+                    <a href="#" id="help_documentation" title="Documentation">Documentation</a>
+                </li>
+                <li>
+                    <a href="#" id="help_about" title="About ProTIS">About ProTIS</a>
+                </li>
+                <li>
+                    <hr/>
+                </li>
+                <li>
+                    <a href="forums" id="protis_forums" title="ProTIS User forums">ProTIS forums</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
