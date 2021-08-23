@@ -136,7 +136,7 @@ String Node::getString(const String& name) const
 
     if (node == nullptr)
     {
-        return String();
+        return {};
     }
 
     if (node->is(Type::Number))

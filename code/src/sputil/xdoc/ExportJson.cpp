@@ -276,3 +276,20 @@ void ExportJSON::exportToJSON(const Node* node, sptk::Buffer& json, bool formatt
     exportJsonValueTo(node, stream, formatted, 0);
     json.set(stream.str());
 }
+
+#ifdef USE_GTEST
+
+TEST(SPTK_XDocument, xmlToJson)
+{
+    xdoc::Document document;
+    Buffer buffer;
+
+    buffer.loadFromFile("data/menu.xml");
+
+    document.load(buffer, false);
+    document.exportTo(xdoc::DataFormat::JSON, buffer, true);
+
+    COUT(buffer << endl);
+}
+
+#endif

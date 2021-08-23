@@ -1,280 +1,140 @@
+# GoogleTest
 
-### Generic Build Instructions ###
+### Announcements
 
-#### Setup ####
+#### Live at Head
 
-To build Google Test and your tests that use it, you need to tell your
-build system where to find its headers and source files.  The exact
-way to do it depends on which build system you use, and is usually
-straightforward.
+GoogleTest now follows the
+[Abseil Live at Head philosophy](https://abseil.io/about/philosophy#upgrade-support).
+We recommend using the latest commit in the `master` branch in your projects.
 
-#### Build ####
+#### Documentation Updates
 
-Suppose you put Google Test in directory `${GTEST_DIR}`.  To build it,
-create a library build target (or a project as called by Visual Studio
-and Xcode) to compile
+Our documentation is now live on GitHub Pages at
+https://google.github.io/googletest/. We recommend browsing the documentation on
+GitHub Pages rather than directly in the repository.
 
-    ${GTEST_DIR}/src/gtest-all.cc
+#### Release 1.11.0
 
-with `${GTEST_DIR}/include` in the system header search path and `${GTEST_DIR}`
-in the normal header search path.  Assuming a Linux-like system and gcc,
-something like the following will do:
+[Release 1.11.0](https://github.com/google/googletest/releases/tag/release-1.11.0)
+is now available.
 
-    g++ -isystem ${GTEST_DIR}/include -I${GTEST_DIR} \
-        -pthread -c ${GTEST_DIR}/src/gtest-all.cc
-    ar -rv libgtest.a gtest-all.o
+#### Coming Soon
 
-(We need `-pthread` as Google Test uses threads.)
+*   We are planning to take a dependency on
+    [Abseil](https://github.com/abseil/abseil-cpp).
+*   More documentation improvements are planned.
 
-Next, you should compile your test source file with
-`${GTEST_DIR}/include` in the system header search path, and link it
-with gtest and any other necessary libraries:
+## Welcome to **GoogleTest**, Google's C++ test framework!
 
-    g++ -isystem ${GTEST_DIR}/include -pthread path/to/your_test.cc libgtest.a \
-        -o your_test
+This repository is a merger of the formerly separate GoogleTest and GoogleMock
+projects. These were so closely related that it makes sense to maintain and
+release them together.
 
-As an example, the make/ directory contains a Makefile that you can
-use to build Google Test on systems where GNU make is available
-(e.g. Linux, Mac OS X, and Cygwin).  It doesn't try to build Google
-Test's own tests.  Instead, it just builds the Google Test library and
-a sample test.  You can use it as a starting point for your own build
-script.
+### Getting Started
 
-If the default settings are correct for your environment, the
-following commands should succeed:
+See the [GoogleTest User's Guide](https://google.github.io/googletest/) for
+documentation. We recommend starting with the
+[GoogleTest Primer](https://google.github.io/googletest/primer.html).
 
-    cd ${GTEST_DIR}/make
-    make
-    ./sample1_unittest
+More information about building GoogleTest can be found at
+[googletest/README.md](googletest/README.md).
 
-If you see errors, try to tweak the contents of `make/Makefile` to make
-them go away.  There are instructions in `make/Makefile` on how to do
-it.
+## Features
 
-### Using CMake ###
+*   An [xUnit](https://en.wikipedia.org/wiki/XUnit) test framework.
+*   Test discovery.
+*   A rich set of assertions.
+*   User-defined assertions.
+*   Death tests.
+*   Fatal and non-fatal failures.
+*   Value-parameterized tests.
+*   Type-parameterized tests.
+*   Various options for running the tests.
+*   XML test report generation.
 
-Google Test comes with a CMake build script (
-[CMakeLists.txt](CMakeLists.txt)) that can be used on a wide range of platforms ("C" stands for
-cross-platform.). If you don't have CMake installed already, you can
-download it for free from <http://www.cmake.org/>.
+## Supported Platforms
 
-CMake works by generating native makefiles or build projects that can
-be used in the compiler environment of your choice.  The typical
-workflow starts with:
+GoogleTest requires a codebase and compiler compliant with the C++11 standard or
+newer.
 
-    mkdir mybuild       # Create a directory to hold the build output.
-    cd mybuild
-    cmake ${GTEST_DIR}  # Generate native build scripts.
+The GoogleTest code is officially supported on the following platforms.
+Operating systems or tools not listed below are community-supported. For
+community-supported platforms, patches that do not complicate the code may be
+considered.
 
-If you want to build Google Test's samples, you should replace the
-last command with
+If you notice any problems on your platform, please file an issue on the
+[GoogleTest GitHub Issue Tracker](https://github.com/google/googletest/issues).
+Pull requests containing fixes are welcome!
 
-    cmake -Dgtest_build_samples=ON ${GTEST_DIR}
+### Operating Systems
 
-If you are on a \*nix system, you should now see a Makefile in the
-current directory.  Just type 'make' to build gtest.
+*   Linux
+*   macOS
+*   Windows
 
-If you use Windows and have Visual Studio installed, a `gtest.sln` file
-and several `.vcproj` files will be created.  You can then build them
-using Visual Studio.
+### Compilers
 
-On Mac OS X with Xcode installed, a `.xcodeproj` file will be generated.
+*   gcc 5.0+
+*   clang 5.0+
+*   MSVC 2015+
 
-### Legacy Build Scripts ###
+**macOS users:** Xcode 9.3+ provides clang 5.0+.
 
-Before settling on CMake, we have been providing hand-maintained build
-projects/scripts for Visual Studio, Xcode, and Autotools.  While we
-continue to provide them for convenience, they are not actively
-maintained any more.  We highly recommend that you follow the
-instructions in the previous two sections to integrate Google Test
-with your existing build system.
+### Build Systems
 
-If you still need to use the legacy build scripts, here's how:
+*   [Bazel](https://bazel.build/)
+*   [CMake](https://cmake.org/)
 
-The msvc\ folder contains two solutions with Visual C++ projects.
-Open the `gtest.sln` or `gtest-md.sln` file using Visual Studio, and you
-are ready to build Google Test the same way you build any Visual
-Studio project.  Files that have names ending with -md use DLL
-versions of Microsoft runtime libraries (the /MD or the /MDd compiler
-option).  Files without that suffix use static versions of the runtime
-libraries (the /MT or the /MTd option).  Please note that one must use
-the same option to compile both gtest and the test code.  If you use
-Visual Studio 2005 or above, we recommend the -md version as /MD is
-the default for new projects in these versions of Visual Studio.
+**Note:** Bazel is the build system used by the team internally and in tests.
+CMake is supported on a best-effort basis and by the community.
 
-On Mac OS X, open the `gtest.xcodeproj` in the `xcode/` folder using
-Xcode.  Build the "gtest" target.  The universal binary framework will
-end up in your selected build directory (selected in the Xcode
-"Preferences..." -> "Building" pane and defaults to xcode/build).
-Alternatively, at the command line, enter:
+## Who Is Using GoogleTest?
 
-    xcodebuild
+In addition to many internal projects at Google, GoogleTest is also used by the
+following notable projects:
 
-This will build the "Release" configuration of gtest.framework in your
-default build location.  See the "xcodebuild" man page for more
-information about building different configurations and building in
-different locations.
+*   The [Chromium projects](http://www.chromium.org/) (behind the Chrome browser
+    and Chrome OS).
+*   The [LLVM](http://llvm.org/) compiler.
+*   [Protocol Buffers](https://github.com/google/protobuf), Google's data
+    interchange format.
+*   The [OpenCV](http://opencv.org/) computer vision library.
 
-If you wish to use the Google Test Xcode project with Xcode 4.x and
-above, you need to either:
+## Related Open Source Projects
 
- * update the SDK configuration options in xcode/Config/General.xconfig.
-   Comment options `SDKROOT`, `MACOS_DEPLOYMENT_TARGET`, and `GCC_VERSION`. If
-   you choose this route you lose the ability to target earlier versions
-   of MacOS X.
- * Install an SDK for an earlier version. This doesn't appear to be
-   supported by Apple, but has been reported to work
-   (http://stackoverflow.com/questions/5378518).
+[GTest Runner](https://github.com/nholthaus/gtest-runner) is a Qt5 based
+automated test-runner and Graphical User Interface with powerful features for
+Windows and Linux platforms.
 
-### Tweaking Google Test ###
+[GoogleTest UI](https://github.com/ospector/gtest-gbar) is a test runner that
+runs your test binary, allows you to track its progress via a progress bar, and
+displays a list of test failures. Clicking on one shows failure text. GoogleTest
+UI is written in C#.
 
-Google Test can be used in diverse environments.  The default
-configuration may not work (or may not work well) out of the box in
-some environments.  However, you can easily tweak Google Test by
-defining control macros on the compiler command line.  Generally,
-these macros are named like `GTEST_XYZ` and you define them to either 1
-or 0 to enable or disable a certain feature.
+[GTest TAP Listener](https://github.com/kinow/gtest-tap-listener) is an event
+listener for GoogleTest that implements the
+[TAP protocol](https://en.wikipedia.org/wiki/Test_Anything_Protocol) for test
+result output. If your test runner understands TAP, you may find it useful.
 
-We list the most frequently used macros below.  For a complete list,
-see file [include/gtest/internal/gtest-port.h](include/gtest/internal/gtest-port.h).
+[gtest-parallel](https://github.com/google/gtest-parallel) is a test runner that
+runs tests from your binary in parallel to provide significant speed-up.
 
-### Choosing a TR1 Tuple Library ###
+[GoogleTest Adapter](https://marketplace.visualstudio.com/items?itemName=DavidSchuldenfrei.gtest-adapter)
+is a VS Code extension allowing to view GoogleTest in a tree view, and run/debug
+your tests.
 
-Some Google Test features require the C++ Technical Report 1 (TR1)
-tuple library, which is not yet available with all compilers.  The
-good news is that Google Test implements a subset of TR1 tuple that's
-enough for its own need, and will automatically use this when the
-compiler doesn't provide TR1 tuple.
+[C++ TestMate](https://github.com/matepek/vscode-catch2-test-adapter) is a VS
+Code extension allowing to view GoogleTest in a tree view, and run/debug your
+tests.
 
-Usually you don't need to care about which tuple library Google Test
-uses.  However, if your project already uses TR1 tuple, you need to
-tell Google Test to use the same TR1 tuple library the rest of your
-project uses, or the two tuple implementations will clash.  To do
-that, add
+[Cornichon](https://pypi.org/project/cornichon/) is a small Gherkin DSL parser
+that generates stub code for GoogleTest.
 
-    -DGTEST_USE_OWN_TR1_TUPLE=0
+## Contributing Changes
 
-to the compiler flags while compiling Google Test and your tests.  If
-you want to force Google Test to use its own tuple library, just add
+Please read
+[`CONTRIBUTING.md`](https://github.com/google/googletest/blob/master/CONTRIBUTING.md)
+for details on how to contribute to this project.
 
-    -DGTEST_USE_OWN_TR1_TUPLE=1
-
-to the compiler flags instead.
-
-If you don't want Google Test to use tuple at all, add
-
-    -DGTEST_HAS_TR1_TUPLE=0
-
-and all features using tuple will be disabled.
-
-### Multi-threaded Tests ###
-
-Google Test is thread-safe where the pthread library is available.
-After `#include "gtest/gtest.h"`, you can check the `GTEST_IS_THREADSAFE`
-macro to see whether this is the case (yes if the macro is `#defined` to
-1, no if it's undefined.).
-
-If Google Test doesn't correctly detect whether pthread is available
-in your environment, you can force it with
-
-    -DGTEST_HAS_PTHREAD=1
-
-or
-
-    -DGTEST_HAS_PTHREAD=0
-
-When Google Test uses pthread, you may need to add flags to your
-compiler and/or linker to select the pthread library, or you'll get
-link errors.  If you use the CMake script or the deprecated Autotools
-script, this is taken care of for you.  If you use your own build
-script, you'll need to read your compiler and linker's manual to
-figure out what flags to add.
-
-### As a Shared Library (DLL) ###
-
-Google Test is compact, so most users can build and link it as a
-static library for the simplicity.  You can choose to use Google Test
-as a shared library (known as a DLL on Windows) if you prefer.
-
-To compile *gtest* as a shared library, add
-
-    -DGTEST_CREATE_SHARED_LIBRARY=1
-
-to the compiler flags.  You'll also need to tell the linker to produce
-a shared library instead - consult your linker's manual for how to do
-it.
-
-To compile your *tests* that use the gtest shared library, add
-
-    -DGTEST_LINKED_AS_SHARED_LIBRARY=1
-
-to the compiler flags.
-
-Note: while the above steps aren't technically necessary today when
-using some compilers (e.g. GCC), they may become necessary in the
-future, if we decide to improve the speed of loading the library (see
-<http://gcc.gnu.org/wiki/Visibility> for details).  Therefore you are
-recommended to always add the above flags when using Google Test as a
-shared library.  Otherwise a future release of Google Test may break
-your build script.
-
-### Avoiding Macro Name Clashes ###
-
-In C++, macros don't obey namespaces.  Therefore two libraries that
-both define a macro of the same name will clash if you `#include` both
-definitions.  In case a Google Test macro clashes with another
-library, you can force Google Test to rename its macro to avoid the
-conflict.
-
-Specifically, if both Google Test and some other code define macro
-FOO, you can add
-
-    -DGTEST_DONT_DEFINE_FOO=1
-
-to the compiler flags to tell Google Test to change the macro's name
-from `FOO` to `GTEST_FOO`.  Currently `FOO` can be `FAIL`, `SUCCEED`,
-or `TEST`.  For example, with `-DGTEST_DONT_DEFINE_TEST=1`, you'll
-need to write
-
-    GTEST_TEST(SomeTest, DoesThis) { ... }
-
-instead of
-
-    TEST(SomeTest, DoesThis) { ... }
-
-in order to define a test.
-
-## Developing Google Test ##
-
-This section discusses how to make your own changes to Google Test.
-
-### Testing Google Test Itself ###
-
-To make sure your changes work as intended and don't break existing
-functionality, you'll want to compile and run Google Test's own tests.
-For that you can use CMake:
-
-    mkdir mybuild
-    cd mybuild
-    cmake -Dgtest_build_tests=ON ${GTEST_DIR}
-
-Make sure you have Python installed, as some of Google Test's tests
-are written in Python.  If the cmake command complains about not being
-able to find Python (`Could NOT find PythonInterp (missing:
-PYTHON_EXECUTABLE)`), try telling it explicitly where your Python
-executable can be found:
-
-    cmake -DPYTHON_EXECUTABLE=path/to/python -Dgtest_build_tests=ON ${GTEST_DIR}
-
-Next, you can build Google Test and all of its own tests.  On \*nix,
-this is usually done by 'make'.  To run the tests, do
-
-    make test
-
-All tests should pass.
-
-Normally you don't need to worry about regenerating the source files,
-unless you need to modify them.  In that case, you should modify the
-corresponding .pump files instead and run the pump.py Python script to
-regenerate them.  You can find pump.py in the [scripts/](scripts/) directory.
-Read the [Pump manual](docs/PumpManual.md) for how to use it.
+Happy testing!
