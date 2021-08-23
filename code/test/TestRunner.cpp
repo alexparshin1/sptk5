@@ -26,7 +26,7 @@
 
 #include <sptk5/db/DatabaseTests.h>
 #include <sptk5/Strings.h>
-#include <googletest/include/gtest/gtest.h>
+#include <googletest/googletest/include/gtest/gtest.h>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/SSLSocket.h>
 #include <sptk5/net/ServerConnection.h>
@@ -126,7 +126,7 @@ void TestRunner::addDatabaseConnection(const DatabaseConnectionString& connectio
 
 static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& definedConnections)
 {
-    map < String, String > excludeDrivers = {
+    map<String, String> excludeDrivers = {
         {"postgresql", "PostgreSQL"},
         {"mysql",      "MySQL"},
         {"mssql",      "MSSQL"},
