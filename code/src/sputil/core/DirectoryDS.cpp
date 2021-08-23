@@ -148,6 +148,11 @@ bool DirectoryDS::open()
 
     clear();
 
+    if (!fs::exists(m_directory.c_str()))
+    {
+        throw Exception("Directory doesn't exist");
+    }
+
     if ((showPolicy() & DDS_HIDE_DOT_FILES) == 0)
     {
         for (const String& dirName: {".", ".."})

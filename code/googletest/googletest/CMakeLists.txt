@@ -13,7 +13,7 @@
 option(
   gtest_force_shared_crt
   "Use shared (DLL) run-time lib even when Google Test is built as static lib."
-  OFF)
+  ON)
 
 option(gtest_build_tests "Build all of gtest's own tests." OFF)
 
@@ -128,9 +128,9 @@ include_directories(${gtest_build_include_dirs})
 # Google Test libraries.  We build them using more strict warnings than what
 # are used for other targets, to ensure that gtest can be compiled by a user
 # aggressive about warnings.
-cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)
+cxx_shared_library(gtest "${cxx_strict}" src/gtest-all.cc)
 set_target_properties(gtest PROPERTIES VERSION ${GOOGLETEST_VERSION})
-cxx_library(gtest_main "${cxx_strict}" src/gtest_main.cc)
+cxx_shared_library(gtest_main "${cxx_strict}" src/gtest_main.cc)
 set_target_properties(gtest_main PROPERTIES VERSION ${GOOGLETEST_VERSION})
 # If the CMake version supports it, attach header directory information
 # to the targets for when we are part of a parent build (ie being pulled
