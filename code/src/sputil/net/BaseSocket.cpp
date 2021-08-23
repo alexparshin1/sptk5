@@ -510,7 +510,7 @@ void BaseSocket::getOption(int level, int option, int& value) const
 
 TEST(SPTK_BaseSocket, minimal)
 {
-    Host yahoo("www.yahoo.com", 80);
+    Host yahoo("www.yahoo.com", 443);
     sockaddr_in address;
     yahoo.getAddress(address);
 

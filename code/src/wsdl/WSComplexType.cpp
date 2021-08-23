@@ -50,7 +50,7 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
     auto param = output.find(paramName);
     if (param)
     {
-        *param = elementOrAttribute->field();
+        *param = elementOrAttribute->value();
     }
 }
 
@@ -153,7 +153,7 @@ void WSComplexType::load(const FieldList& input, bool nullLargeData)
         {
             if (nullLargeData)
             {
-                outputField->setNull(outputField->dataType());
+                outputField->setNull();
             }
             else
             {

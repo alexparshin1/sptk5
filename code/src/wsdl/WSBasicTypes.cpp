@@ -50,16 +50,16 @@ void WSBasicType::exportTo(const SNode& parent, const char* _name) const
         switch (dataType())
         {
             case VariantDataType::VAR_BOOL:
-                parent->set(name(), m_field.asBool());
+                parent->set(name(), m_value.asBool());
                 break;
             case VariantDataType::VAR_INT:
-                parent->set(name(), m_field.asInteger());
+                parent->set(name(), m_value.asInteger());
                 break;
             case VariantDataType::VAR_INT64:
-                parent->set(name(), m_field.asInt64());
+                parent->set(name(), m_value.asInt64());
                 break;
             case VariantDataType::VAR_FLOAT:
-                parent->set(name(), m_field.asFloat());
+                parent->set(name(), m_value.asFloat());
                 break;
             default:
                 parent->set(name(), asString());
@@ -71,16 +71,16 @@ void WSBasicType::exportTo(const SNode& parent, const char* _name) const
         switch (dataType())
         {
             case VariantDataType::VAR_BOOL:
-                parent->pushValue(m_field.asBool());
+                parent->pushValue(m_value.asBool());
                 break;
             case VariantDataType::VAR_INT:
-                parent->pushValue(m_field.asInteger());
+                parent->pushValue(m_value.asInteger());
                 break;
             case VariantDataType::VAR_INT64:
-                parent->pushValue(m_field.asInt64());
+                parent->pushValue(m_value.asInt64());
                 break;
             case VariantDataType::VAR_FLOAT:
-                parent->pushValue(m_field.asFloat());
+                parent->pushValue(m_value.asFloat());
                 break;
             default:
                 parent->pushValue(asString());
@@ -93,7 +93,7 @@ void WSBasicType::throwIfNull(const String& parentTypeName) const
 {
     if (isNull())
     {
-        throw SOAPException("Element '" + m_field.fieldName() + "' is required in '" + parentTypeName + "'.");
+        throw SOAPException("Element '" + m_name + "' is required in '" + parentTypeName + "'.");
     }
 }
 
@@ -107,14 +107,14 @@ void WSString::load(const SNode& attr, bool nullLargeData)
     {
         auto str = attr->getString();
         owaspCheck(str);
-        field().setString(str);
+        value().setString(str);
     }
 }
 
 void WSString::load(const String& attr)
 {
     owaspCheck(attr);
-    field().setString(attr);
+    value().setString(attr);
 }
 
 void WSString::load(const Field& field)
@@ -130,7 +130,7 @@ void WSBool::load(const SNode& attr, bool)
     }
     else
     {
-        field().setBool(attr->getBoolean());
+        value().setBool(attr->getBoolean());
     }
 }
 
@@ -144,11 +144,11 @@ void WSBool::load(const String& attr)
     {
         if (attr == "true")
         {
-            field().setBool(true);
+            value().setBool(true);
         }
         else if (attr == "false")
         {
-            field().setBool(false);
+            value().setBool(false);
         }
         else
         {
@@ -165,7 +165,7 @@ void WSBool::load(const Field& field)
     }
     else
     {
-        this->field().setBool(field.asBool());
+        this->value().setBool(field.asBool());
     }
 }
 
@@ -178,7 +178,7 @@ void WSDate::load(const SNode& attr, bool)
     }
     else
     {
-        field().setDateTime(DateTime(text.c_str()), true);
+        value().setDateTime(DateTime(text.c_str()), true);
     }
 }
 
@@ -191,7 +191,7 @@ void WSDate::load(const String& attr)
     else
     {
         DateTime dt(attr.c_str());
-        field().setDateTime(dt, true);
+        value().setDateTime(dt, true);
     }
 }
 
@@ -203,7 +203,7 @@ void WSDate::load(const Field& field)
     }
     else
     {
-        this->field().setDateTime(field.asDate(), true);
+        this->value().setDateTime(field.asDate(), true);
     }
 }
 
@@ -217,7 +217,7 @@ void WSDateTime::load(const SNode& attr, bool)
     else
     {
         DateTime dt(text.c_str());
-        field().setDateTime(dt);
+        value().setDateTime(dt);
     }
 }
 
@@ -230,7 +230,7 @@ void WSDateTime::load(const String& attr)
     else
     {
         DateTime dt(attr.c_str());
-        field().setDateTime(DateTime(attr.c_str()));
+        value().setDateTime(DateTime(attr.c_str()));
     }
 }
 
@@ -242,19 +242,19 @@ void WSDateTime::load(const Field& field)
     }
     else
     {
-        this->field().setDateTime(field.asDateTime());
+        this->value().setDateTime(field.asDateTime());
     }
 }
 
 String WSDateTime::asString() const
 {
-    DateTime dt = field().asDateTime();
+    DateTime dt = value().asDateTime();
     return dt.isoDateTimeString();
 }
 
 void WSDouble::load(const SNode& attr, bool)
 {
-    field().setFloat(attr->getNumber());
+    value().setFloat(attr->getNumber());
 }
 
 void WSDouble::load(const String& attr)
@@ -265,7 +265,7 @@ void WSDouble::load(const String& attr)
     }
     else
     {
-        field().setFloat(strtod(attr.c_str(), nullptr));
+        value().setFloat(strtod(attr.c_str(), nullptr));
     }
 }
 
@@ -277,7 +277,7 @@ void WSDouble::load(const Field& field)
     }
     else
     {
-        this->field().setFloat(field.asFloat());
+        this->value().setFloat(field.asFloat());
     }
 }
 
@@ -289,7 +289,7 @@ void WSInteger::load(const SNode& attr, bool)
     }
     else
     {
-        field().setInt64((int64_t) attr->getNumber());
+        value().setInt64((int64_t) attr->getNumber());
     }
 }
 
@@ -301,7 +301,7 @@ void WSInteger::load(const String& attr)
     }
     else
     {
-        field().setInt64(strtol(attr.c_str(), nullptr, 10));
+        value().setInt64(strtol(attr.c_str(), nullptr, 10));
     }
 }
 
@@ -313,7 +313,7 @@ void WSInteger::load(const Field& field)
     }
     else
     {
-        this->field().setInt64(field.asInt64());
+        this->value().setInt64(field.asInt64());
     }
 }
 
@@ -362,6 +362,24 @@ void loadScriptAttackData()
         if (String(e.what()).find("<script>") != string::npos)
             FAIL() << type.className() << ": Script attack is reflected back";
     }
+}
+
+TEST(SPTK_WSBasicTypes, defaultType)
+{
+    WSInteger field1("field1", true);
+    EXPECT_EQ(field1.dataType(), VariantDataType::VAR_INT);
+}
+
+TEST(SPTK_WSBasicTypes, fieldNames)
+{
+    WSInteger field1("field1", true);
+    WSInteger field2("field2", true);
+
+    field2 = 2;
+    field1 = field2;
+
+    EXPECT_EQ(field1.name(), "field1");
+    EXPECT_EQ(field2.name(), "field2");
 }
 
 TEST(SPTK_WSBasicTypes, array)

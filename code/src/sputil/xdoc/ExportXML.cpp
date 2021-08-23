@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/xdoc/ExportXML.h>
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -59,23 +60,16 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
             buffer.append('>');
         }
 
-        bool only_cdata = false;
-        if (const auto& nd = node->nodes().begin();
-            node->nodes().size() == 1 && ((*nd)->type() == Node::Type::Text || (*nd)->type() == Node::Type::CData))
-        {
-            only_cdata = node->name() == "#text" || node->name() == "#cdata";
-        }
-
-        if (indent && !only_cdata)
+        if (indent)
         {
             buffer.append('\n');
         }
 
-        appendSubNodes(node, buffer, indent, only_cdata);
+        appendSubNodes(node, buffer, indent);
 
         if (isNode)
         {
-            appendClosingTag(node, buffer, indent, only_cdata);
+            appendClosingTag(node, buffer, indent);
         }
     }
     else
@@ -91,11 +85,17 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
 
 void ExportXML::appendNodeNameAndAttributes(const Node* node, const String& nodeName, Buffer& buffer)
 {
-    buffer.append('<');
-
-    if (node->type() == Node::Type::ProcessingInstruction)
+    switch (node->type())
     {
-        buffer.append('?');
+        case Node::Type::ProcessingInstruction:
+            buffer.append("<?", 2);
+            break;
+        case Node::Type::Comment:
+            buffer.append("<!--", 4);
+            break;
+        default:
+            buffer.append('<');
+            break;
     }
 
     buffer.append(nodeName);
@@ -138,26 +138,19 @@ Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
     return buffer;
 }
 
-void ExportXML::appendSubNodes(const Node* node, Buffer& buffer, int indent, bool only_cdata)
+void ExportXML::appendSubNodes(const Node* node, Buffer& buffer, int indent)
 {
     for (const auto& np: node->nodes())
     {
-        if (only_cdata)
+        int newIndent = 0;
+        if (indent)
         {
-            save(np, buffer, -1);
+            newIndent = indent + m_indentSpaces;
         }
-        else
+        saveElement(np.get(), np->name(), buffer, newIndent);
+        if (indent && buffer.data()[buffer.bytes() - 1] != '\n')
         {
-            int newIndent = 0;
-            if (indent)
-            {
-                newIndent = indent + m_indentSpaces;
-            }
-            saveElement(np.get(), np->name(), buffer, newIndent);
-            if (indent && buffer.data()[buffer.bytes() - 1] != '\n')
-            {
-                buffer.append('\n');
-            }
+            buffer.append('\n');
         }
     }
 }
@@ -167,6 +160,10 @@ void ExportXML::appendNodeEnd(const Node* node, const String& nodeName, Buffer& 
     if (node->type() == Node::Type::ProcessingInstruction)
     {
         buffer.append("?>", 2);
+    }
+    else if (node->type() == Node::Type::Comment)
+    {
+        buffer.append("-->", 3);
     }
     else if (!node->is(Node::Type::Null))
     {
@@ -188,10 +185,10 @@ void ExportXML::appendNodeEnd(const Node* node, const String& nodeName, Buffer& 
     }
 }
 
-void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, int indent, bool only_cdata) const
+void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, int indent) const
 {
     // output indendation spaces
-    if (!only_cdata && indent > 0)
+    if (indent > 0)
     {
         buffer.append(indentsString.c_str(), size_t(indent));
     }
@@ -231,52 +228,30 @@ void ExportXML::saveAttributes(const Node* node, Buffer& buffer)
     }
 }
 
-void ExportXML::save(const SNode& node, Buffer& buffer, int indent)
+#ifdef USE_GTEST
+
+static const String textXML(
+    R"(<?xml encoding="UTF-8" version="1.0"?>)"
+    "<!-- test comment -->"
+    "<info>"
+    "<sometext>"
+    "Row 1\n\r"
+    "Row 2\n\r"
+    "Row 3\n\r"
+    "</sometext>"
+    "<data><![CDATA[xxx]]></data>"
+    "</info>"
+);
+
+TEST(SPTK_XDocument, exportXMLTypes)
 {
-    // output indendation spaces
-    if (indent > 0)
-    {
-        buffer.append(indentsString.c_str(), size_t(indent));
-    }
+    xdoc::Document document;
+    Buffer buffer;
 
-    const auto& nodeName = node->name();
-    String value(node->getValue().asString());
+    document.load(textXML, true);
+    document.exportTo(xdoc::DataFormat::XML, buffer);
 
-    // depending on the nodetype, do output
-    switch (node->type())
-    {
-        case Node::Type::Text:
-            if (value.substr(0, cdataStartMarkerLength) == "<![CDATA[" &&
-                value.substr(value.length() - cdataEndMarkerLength) == "]]>")
-            {
-                buffer.append(value);
-            }
-            else
-            {
-                m_docType.encodeEntities(value.c_str(), buffer);
-            }
-            break;
-
-        case Node::Type::CData:
-            // output all subnodes
-            buffer.append("<![CDATA[" + value + "]]>");
-            if (indent)
-            {
-                buffer.append("\n", 1);
-            }
-            break;
-
-        case Node::Type::Comment:
-            // output all subnodes
-            buffer.append("<!-- " + value + " -->");
-            if (indent)
-            {
-                buffer.append("\n", 1);
-            }
-            break;
-
-        default:
-            saveElement(node.get(), nodeName, buffer, indent);
-            break;
-    }
+    EXPECT_STREQ(buffer.c_str(), textXML.c_str());
 }
+
+#endif

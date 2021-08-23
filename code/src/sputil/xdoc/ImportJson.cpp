@@ -501,7 +501,10 @@ static const String testJson(
     R"({"name":"John","age":33,"temperature":33.6,"timestamp":1519005758000,)"
     R"("skills":["C++","Java","Motorbike"],)"
     R"("location":null,)"
+    R"("description":"Title: \"Mouse\"\r\nPosition:\t\fManager/Janitor\b",)"
+    R"("value":"\\0x05",)"
     R"("title":"\"Mouse\"",)"
+    R"("name":"Юстас",)"
     R"("address":{"married":true,"employed":false}})");
 
 static const String testFormattedJson(R"({
@@ -515,7 +518,10 @@ static const String testFormattedJson(R"({
     "Motorbike"
   ],
   "location": null,
+  "description": "Title: \"Mouse\"\r\nPosition:\t\fManager/Janitor\b",
+  "value": "\\0x05",
   "title": "\"Mouse\"",
+  "name": "Юстас",
   "address": {
     "married": true,
     "employed": false

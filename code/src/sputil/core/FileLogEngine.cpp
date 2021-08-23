@@ -31,12 +31,7 @@ using namespace sptk;
 
 void FileLogEngine::saveMessage(const Logger::UMessage& message)
 {
-    UniqueLock(m_mutex);
-
-    if (!m_fileStream)
-    {
-        return;
-    }
+    lock_guard lock(m_mutex);
 
     if (auto _options = (uint32_t) options(); (_options & LO_ENABLE) == LO_ENABLE)
     {
@@ -74,9 +69,7 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
 }
 
 FileLogEngine::FileLogEngine(const fs::path& fileName)
-    : LogEngine("FileLogEngine"),
-      m_fileName(fileName),
-      m_fileStream(fileName.c_str())
+    : LogEngine("FileLogEngine"), m_fileName(fileName), m_fileStream(fileName.c_str())
 {
 }
 
@@ -85,7 +78,7 @@ FileLogEngine::~FileLogEngine()
     sleep_for(chrono::milliseconds(1000));
     terminate();
     join();
-    UniqueLock(m_mutex);
+    lock_guard lock(m_mutex);
     if (m_fileStream.is_open())
     {
         m_fileStream.close();
@@ -94,7 +87,7 @@ FileLogEngine::~FileLogEngine()
 
 void FileLogEngine::reset()
 {
-    UniqueLock(m_mutex);
+    lock_guard lock(m_mutex);
     if (m_fileStream.is_open())
     {
         m_fileStream.close();

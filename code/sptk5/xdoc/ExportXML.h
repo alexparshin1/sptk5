@@ -18,13 +18,11 @@ public:
 
     void saveElement(const Node* node, const String& nodeName, Buffer& buffer, int indent);
 
-    void appendSubNodes(const Node* node, Buffer& buffer, int indent, bool only_cdata);
+    void appendSubNodes(const Node* node, Buffer& buffer, int indent);
 
-    void appendClosingTag(const Node* node, Buffer& buffer, int indent, bool only_cdata) const;
+    void appendClosingTag(const Node* node, Buffer& buffer, int indent) const;
 
     void saveAttributes(const Node* node, Buffer& buffer);
-
-    void save(const SNode& node, Buffer& buffer, int indent);
 
 private:
     int m_indentSpaces;

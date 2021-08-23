@@ -38,6 +38,11 @@ public:
     {
     }
 
+    void clear()
+    {
+        m_root->clear();
+    }
+
     SNode& root()
     {
         return m_root;

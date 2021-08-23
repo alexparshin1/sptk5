@@ -270,8 +270,7 @@ String HttpConnect::statusText() const
 
 HttpConnect::Authorization::Authorization(const String& method, const String& username, const String& password,
                                           const String& jwtToken)
-    : m_method(method),
-      m_value(method == "basic" ? md5(username + ":" + password) : jwtToken)
+    : m_method(method), m_value(method == "basic" ? md5(username + ":" + password) : jwtToken)
 {
 }
 
