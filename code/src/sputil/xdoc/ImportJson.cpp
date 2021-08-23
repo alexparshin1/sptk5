@@ -214,7 +214,7 @@ bool readJsonBoolean(const char* json, const char*& readPosition)
         throwError("Premature end of data, expecting boolean value", json, readPosition - json);
     }
     ++pos;
-    bool result = false;
+    bool result;
     if (strncmp(readPosition, "true", 4) == 0)
     {
         result = true;
@@ -432,7 +432,7 @@ String decode(const String& text)
     String result;
     size_t length = text.length();
     size_t position = 0;
-    unsigned ucharCode {0};
+    unsigned ucharCode;
 
     while (position < length)
     {
