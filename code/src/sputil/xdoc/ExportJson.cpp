@@ -104,6 +104,17 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
         formatting.betweenElements = ",\n  " + formatting.indentSpaces;
     }
 
+    string spacing = formatted ? " " : "";
+
+    bool isValue = node->nodes().empty();
+
+    if (isValue && !node->attributes().empty())
+    {
+        stream << "{" << spacing;
+        exportNodeAttributes(node, stream, formatted, formatting.firstElement, formatting.betweenElements);
+        stream << "\"value\":" << spacing;
+    }
+
     auto saveFlags = stream.flags();
 
     double dNumber {0};
@@ -144,6 +155,12 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
             stream << "null";
             break;
     }
+
+    if (isValue && !node->attributes().empty())
+    {
+        stream << spacing << "}";
+    }
+
     stream.flags(saveFlags);
 }
 
@@ -185,6 +202,8 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
     {
         exportNodeAttributes(node, stream, formatted, formatting.firstElement, formatting.betweenElements);
 
+        string spacing = formatted ? " " : "";
+
         bool first = true;
         for (const auto& anode: node->nodes())
         {
@@ -197,11 +216,9 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
             {
                 stream << formatting.betweenElements;
             }
-            stream << "\"" << anode->name() << "\":";
-            if (formatted)
-            {
-                stream << " ";
-            }
+
+            stream << "\"" << anode->name() << "\":" << spacing;
+
             exportJsonValueTo(anode.get(), stream, formatted, indent + 2);
         }
     }
@@ -212,35 +229,24 @@ void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool fo
                                       const String& betweenElements)
 {
     bool first1 = true;
+    String spacing = formatted ? " " : "";
     if (!node->attributes().empty())
     {
-        stream << "\"attributes\":";
-        if (formatted)
-        {
-            stream << " { ";
-        }
-        else
-        {
-            stream << "{";
-        }
+        stream << firstElement << "\"attributes\":" << spacing << "{";
 
         for (const auto&[name, value]: node->attributes())
         {
             if (first1)
             {
                 first1 = false;
-                stream << firstElement;
+                stream << spacing;
             }
             else
             {
-                stream << betweenElements;
+                stream << "," << spacing;
             }
 
-            stream << "\"" << name << "\":";
-            if (formatted)
-            {
-                stream << " ";
-            }
+            stream << "\"" << name << "\":" << spacing;
 
             if (isInteger(value) || isFloat(value) || isBoolean(value))
             {
@@ -252,13 +258,9 @@ void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool fo
             }
         }
 
-        if (formatted)
-        {
-            stream << " ";
-        }
-        stream << "}";
+        stream << spacing << "}";
 
-        if (!node->nodes().empty())
+        if (!node->nodes().empty() || !node->attributes().empty())
         {
             stream << ",";
         }

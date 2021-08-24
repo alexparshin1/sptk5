@@ -160,7 +160,7 @@ private:
 
     char* parseEntity(char* start);
 
-    static void detectArray(Node& node);
+    static SNode detectArray(const SNode& node);
 };
 
 /**

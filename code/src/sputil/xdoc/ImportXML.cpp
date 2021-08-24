@@ -172,8 +172,6 @@ char* ImportXML::readClosingTag(SNode& currentNode, const char* nodeName, char* 
             "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() + ">");
     }
 
-    currentNode = currentNode->parent();
-
     nodeEnd = tokenEnd;
 
     return tokenEnd;
@@ -229,17 +227,17 @@ char* ImportXML::readOpenningTag(SNode& currentNode, const char* nodeName, char*
     return tokenEnd;
 }
 
-void ImportXML::detectArray(Node& _node)
+SNode ImportXML::detectArray(const SNode& _node)
 {
-    if (!_node.is(Node::Type::Object) || _node.nodes().size() < 2)
+    if (!_node->is(Node::Type::Object) || _node->nodes().size() < 2)
     {
-        return;
+        return _node;
     }
 
     // Check if all the child nodes have the same name:
     bool first = true;
     String itemName;
-    for (const auto& node: _node.nodes())
+    for (const auto& node: _node->nodes())
     {
         if (first)
         {
@@ -250,14 +248,13 @@ void ImportXML::detectArray(Node& _node)
         {
             if (itemName != node->name())
             {
-                return;
+                return _node;
             }
         }
     }
+    _node->type(Node::Type::Array);
 
-    // All the child nodes have the same name.
-    // Convert node to array
-    _node.type(Node::Type::Array);
+    return _node;
 }
 
 void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
@@ -290,7 +287,8 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
 
             case '/':
                 readClosingTag(currentNode, nodeName, nameEnd, nodeEnd);
-                detectArray(*currentNode);
+                detectArray(currentNode);
+                currentNode = currentNode->parent();
                 break;
 
             default:
@@ -513,6 +511,7 @@ TEST(SPTK_XDocument, saveXml2)
     // Export to XML without changing formatting
     Buffer buffer;
     document.exportTo(DataFormat::XML, buffer, false);
+    document.exportTo(DataFormat::XML, cout, false);
 
     // Import while keeping formatting
     document.load(buffer, true);
