@@ -26,7 +26,7 @@
 
 #include <sptk5/db/DatabaseTests.h>
 #include <sptk5/Strings.h>
-#include <googletest/googletest/include/gtest/gtest.h>
+#include <googletest/include/gtest/gtest.h>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/SSLSocket.h>
 #include <sptk5/net/ServerConnection.h>
