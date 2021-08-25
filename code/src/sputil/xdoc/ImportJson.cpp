@@ -544,4 +544,21 @@ TEST(SPTK_XDocument, formatJSON)
     EXPECT_STREQ(testFormattedJson.c_str(), output.c_str());
 }
 
+TEST(SPTK_XDocument, importJsonExceptions)
+{
+    Buffer input("<?xml?>");
+    xdoc::Document document;
+    const auto& root = document.root();
+    EXPECT_THROW(Node::importJson(root, input), Exception);
+}
+
+TEST(SPTK_XDocument, importJsonTypes)
+{
+    Buffer input(R"([ null, "\u0410" ])");
+    xdoc::Document document;
+    const auto& root = document.root();
+    Node::importJson(root, input);
+    document.exportTo(xdoc::DataFormat::JSON, cout, true);
+}
+
 #endif

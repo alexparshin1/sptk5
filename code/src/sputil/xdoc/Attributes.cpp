@@ -72,6 +72,7 @@ TEST(SPTK_XDocument, getSetAttributes)
     attributes.set("name", "John");
     attributes.set("position", "engineer");
 
+    EXPECT_TRUE(attributes.have("name"));
     EXPECT_STREQ("John", attributes.get("name").c_str());
     EXPECT_STREQ("engineer", attributes.get("position").c_str());
 

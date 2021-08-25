@@ -570,7 +570,7 @@ TEST(SPTK_XDocument, unicodeAndSpacesXML)
 
     try
     {
-        const String unicodeXML(R"(<?xml encoding="UTF-8" version="1.0"?><p> “Add” </p><span> </span>)");
+        const String unicodeXML(R"(<?xml encoding="UTF-8" version="1.0"?><p> 世界您好 </p><span> </span>)");
         document.load(unicodeXML, true);
         Buffer buffer;
         document.exportTo(DataFormat::XML, buffer, false);
