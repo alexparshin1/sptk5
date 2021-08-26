@@ -62,7 +62,7 @@ void WSComplexType::exportTo(const SNode& parent, const char* name) const
         {
             return;
         }
-        String elementName = name == nullptr ? m_name.c_str() : name;
+        String elementName = name == nullptr ? this->name().c_str() : name;
         xdoc::SNode element;
         if (parent->is(Node::Type::Array))
         {
@@ -70,7 +70,7 @@ void WSComplexType::exportTo(const SNode& parent, const char* name) const
         }
         else
         {
-            element = parent->pushNode(m_name);
+            element = parent->pushNode(this->name());
         }
         unload(element);
     }
@@ -101,7 +101,7 @@ void WSComplexType::throwIfNull(const String& parentTypeName) const
 {
     if (!m_loaded)
     {
-        throw SOAPException("Element '" + m_name + "' is required in '" + parentTypeName + "'.");
+        throw SOAPException("Element '" + name() + "' is required in '" + parentTypeName + "'.");
     }
 }
 

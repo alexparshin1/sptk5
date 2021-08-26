@@ -42,6 +42,34 @@ class SP_EXPORT WSType
 {
 public:
     /**
+     * Constructor
+     */
+    WSType() = default;
+
+    /**
+     * Constructor
+     * @param name              WSDL element name
+     */
+    WSType(const char* name)
+        : m_name(name)
+    {
+    }
+
+    WSType(const WSType& other) = default;
+
+    WSType(WSType&& other) = default;
+
+    WSType& operator=(const WSType& other)
+    {
+        return *this;
+    }
+
+    WSType& operator=(WSType&& other) noexcept
+    {
+        return *this;
+    }
+
+    /**
      * Get WS type name
      * @return WS type name
      */
@@ -52,7 +80,7 @@ public:
 
     [[nodiscard]] virtual String name() const
     {
-        return "";
+        return m_name;
     }
 
     virtual void owaspCheck(const String& value);
@@ -85,6 +113,10 @@ public:
      * @param name              Optional name for the child element
      */
     virtual void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const = 0;
+
+private:
+
+    const String m_name;
 };
 
 }

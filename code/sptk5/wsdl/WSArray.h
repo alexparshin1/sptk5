@@ -50,7 +50,7 @@ public:
      * @param name              Element name
      */
     explicit WSArray(const char* name = "array")
-        : m_name(name)
+        : WSType(name)
     {
     }
 
@@ -156,7 +156,7 @@ public:
     {
         for (const auto& arrayElement: node->nodes())
         {
-            T item(m_name.c_str(), false);
+            T item(name().c_str(), false);
             item.load(arrayElement, nullLargeData);
             m_array.push_back(std::move(item));
         }
@@ -178,7 +178,7 @@ public:
     void exportTo(const xdoc::SNode& output, const char* name = nullptr) const override
     {
         const char* itemName = name == nullptr ? "item" : name;
-        auto& arrayNode = output->pushNode(m_name, xdoc::Node::Type::Array);
+        auto& arrayNode = output->pushNode(this->name(), xdoc::Node::Type::Array);
         for (const auto& element: m_array)
         {
             element.exportTo(arrayNode, itemName);
@@ -187,7 +187,6 @@ public:
 
 private:
 
-    String m_name;
     std::vector<T> m_array;
 };
 

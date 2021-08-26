@@ -219,9 +219,10 @@ public:
      * Otherwise, the field is exported as subnodes.
      * For the fields of the VAR_TEXT type, the subnode is created containing CDATA section.
      * @param node               Node to export field data into
-     * @param compactXmlMode     Compact XML mode flag
+     * @param compactXmlMode     When exporting to XML, export fields as attributes
+     * @param detailedInfo       Export extra field info such as size and type
      */
-    void exportTo(const xdoc::SNode& node, bool compactXmlMode = false) const;
+    void exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailedInfo = false) const;
 
     String displayName() const
     {

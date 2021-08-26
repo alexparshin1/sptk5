@@ -51,7 +51,7 @@ public:
      * @param optional          Element optionality flag
      */
     WSBasicType(const char* name, bool optional)
-        : m_name(name), m_optional(optional)
+        : WSType(name), m_optional(optional)
     {
     }
 
@@ -129,14 +129,6 @@ public:
 
     /**
      * Returns element name
-     */
-    [[nodiscard]] String name() const override
-    {
-        return m_name;
-    }
-
-    /**
-     * Conversion operator
      */
     virtual operator String() const
     {
@@ -258,7 +250,6 @@ protected:
 
 private:
 
-    const String m_name;
     Variant m_value;
     bool m_optional {false};    ///< Element optionality flag
 };

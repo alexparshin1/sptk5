@@ -56,7 +56,7 @@ public:
      * @param optional          Element optionality flag
      */
     WSComplexType(const char* name, bool optional = false)
-        : m_name(name), m_optional(optional)
+        : WSType(name), m_optional(optional)
     {
     }
 
@@ -160,14 +160,6 @@ public:
     bool isNull() const override;
 
     /**
-     * Returns element name
-     */
-    [[nodiscard]] String name() const override
-    {
-        return m_name;
-    }
-
-    /**
      * True is element is optional
      */
     virtual bool isOptional() const
@@ -251,7 +243,6 @@ protected:
     }
 
 private:
-    String m_name;              ///< WSDL element name
     bool m_optional {false};    ///< Element optionality flag
     bool m_loaded {false};      ///< Is data loaded flag
     bool m_exportable {true};   ///< Is this object exportable?

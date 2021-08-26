@@ -157,7 +157,7 @@ String Field::doubleDataToString() const
     return output.str();
 }
 
-void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode) const
+void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailedInfo) const
 {
     String value = asString();
 
@@ -182,7 +182,7 @@ void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode) const
             }
         }
 
-        if (!compactXmlMode)
+        if (detailedInfo)
         {
             element->attributes().set("type", Variant::typeName(dataType()));
             element->attributes().set("size", int2string((uint32_t) dataSize()));

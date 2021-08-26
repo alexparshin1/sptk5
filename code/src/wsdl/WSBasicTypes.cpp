@@ -93,7 +93,7 @@ void WSBasicType::throwIfNull(const String& parentTypeName) const
 {
     if (isNull())
     {
-        throw SOAPException("Element '" + m_name + "' is required in '" + parentTypeName + "'.");
+        throw SOAPException("Element '" + name() + "' is required in '" + parentTypeName + "'.");
     }
 }
 
@@ -403,6 +403,22 @@ TEST(SPTK_WSBasicTypes, array)
     array4 = move(array);
     EXPECT_EQ(array4.size(), size_t(3));
     EXPECT_EQ(array4[1].asInteger(), 2);
+}
+
+TEST(SPTK_WSBasicTypes, arrayName)
+{
+    WSArray<WSInteger> array("array1");
+    array.emplace_back(1);
+    array.emplace_back(2);
+    array.emplace_back(3);
+    EXPECT_EQ(array.size(), size_t(3));
+
+    WSArray<WSInteger> array2("array2");
+
+    array2 = array;
+
+    EXPECT_EQ(array2.size(), size_t(3));
+    EXPECT_STREQ(array2.name().c_str(), "array2");
 }
 
 TEST(SPTK_WSBasicTypes, scriptAttack)
