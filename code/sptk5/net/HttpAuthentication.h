@@ -63,6 +63,12 @@ public:
     explicit HttpAuthentication(String authenticationHeader);
 
     /**
+     * Copy constructor
+     * @param authenticationHeader  Authentication HTTP header content
+     */
+    explicit HttpAuthentication(const HttpAuthentication& other) = default;
+
+    /**
      * Get decoded authentication data (username and password, or JWT)
      * @return authentication data
      */
