@@ -26,14 +26,13 @@
 
 #pragma once
 
-#include <sptk5/net/TCPSocket.h>
-#include <sptk5/Strings.h>
 #include <sptk5/FieldList.h>
+#include <sptk5/Strings.h>
+#include <sptk5/net/TCPSocket.h>
 
 #include <string>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup utility Utility Classes
@@ -47,7 +46,7 @@ namespace sptk
  * It implements the most popular commands of IMAP protocol to build
  * a simple IMAP client.
  */
-class SP_EXPORT ImapConnect: public TCPSocket
+class SP_EXPORT ImapConnect : public TCPSocket
 {
 public:
     /**
@@ -240,10 +239,9 @@ public:
      * @param msg_id int, the message identifier
      * @param flags const char *, the message flags
      */
-    void cmd_store_flags(int32_t msg_id, const char *flags);
+    void cmd_store_flags(int32_t msg_id, const char* flags);
 
 protected:
-
     /**
      * Sends a command to the server, but doesn't retrieve the server response
      *
@@ -280,13 +278,12 @@ protected:
     void parseFolderList();
 
 private:
-
-    Strings                m_response;     ///< Internal response buffer
-    int32_t                m_ident {1};    ///< Message id
-    static const String    empty_quotes;   ///< Empty quotes string
+    Strings m_response;               ///< Internal response buffer
+    int32_t m_ident {1};              ///< Message id
+    static const String empty_quotes; ///< Empty quotes string
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

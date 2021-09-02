@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/net/BaseSocket.h>
 #include <sptk5/Buffer.h>
+#include <sptk5/net/BaseSocket.h>
 
 namespace sptk {
 
@@ -88,4 +88,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <sptk5/net/ServerConnection.h>
-#include <sptk5/Logger.h>
-#include <set>
 #include <iostream>
+#include <set>
+#include <sptk5/Logger.h>
+#include <sptk5/net/ServerConnection.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
 namespace sptk {
@@ -45,7 +45,8 @@ class TCPServer;
  * Internal TCP server listener thread
  */
 class TCPServerListener
-    : public Thread, public std::mutex
+    : public Thread
+    , public std::mutex
 {
 public:
     /**
@@ -99,15 +100,14 @@ public:
     void stop();
 
 private:
+    std::shared_ptr<TCPServer> m_server; ///< TCP server created connection
+    TCPSocket m_listenerSocket;          ///< Listener socket
+    String m_error;                      ///< Last socket error
 
-    std::shared_ptr<TCPServer> m_server;  ///< TCP server created connection
-    TCPSocket m_listenerSocket;           ///< Listener socket
-    String m_error;                       ///< Last socket error
-
-    void acceptConnection();              ///< Accept connection
+    void acceptConnection(); ///< Accept connection
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

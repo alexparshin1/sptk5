@@ -54,7 +54,7 @@ public:
      * @param sql              SQL query, optional
      * @param idFieldName      Name of auto-incremental field
      */
-    explicit InsertQuery(DatabaseConnection db, const String& sql = "", const String& idFieldName="id");
+    explicit InsertQuery(DatabaseConnection db, const String& sql = "", const String& idFieldName = "id");
 
     /**
      * Return query' SQL
@@ -99,10 +99,9 @@ public:
     }
 
 private:
-
-    uint64_t  m_id {0};           ///< The value of 'id' field in inserted record
-    String    m_idFieldName;      ///< The name of auto-incremental field
-    SQuery    m_lastInsertedId;   ///< The query retrieving last inserted id (if needed by connection)
+    uint64_t m_id {0};       ///< The value of 'id' field in inserted record
+    String m_idFieldName;    ///< The name of auto-incremental field
+    SQuery m_lastInsertedId; ///< The query retrieving last inserted id (if needed by connection)
 
     /**
      * Adjust insert query by adding RETURNING id if connection type allows that
@@ -114,5 +113,4 @@ private:
     static String reviewQuery(DatabaseConnectionType connectionType, const String& sql, const String& idFieldName);
 };
 
-}
-
+} // namespace sptk

@@ -28,13 +28,13 @@
 
 #include <occi.h>
 
+#include <cstdio>
 #include <list>
 #include <string>
-#include <cstdio>
 
-#include <sptk5/db/DatabaseStatement.h>
-#include <sptk5/FieldList.h>
 #include "DatabaseField.h"
+#include <sptk5/FieldList.h>
+#include <sptk5/db/DatabaseStatement.h>
 
 namespace sptk {
 
@@ -47,11 +47,10 @@ class OracleStatement
     : public DatabaseStatement<OracleConnection, oracle::occi::Statement>
 {
 public:
-
-    using Connection = oracle::occi::Connection;        ///< Oracle connection type
-    using Statement = oracle::occi::Statement;          ///< Oracle statement type
-    using ResultSet = oracle::occi::ResultSet;          ///< Oracle result set type
-    using MetaData = oracle::occi::MetaData;            ///< Oracle result set metdata type
+    using Connection = oracle::occi::Connection; ///< Oracle connection type
+    using Statement = oracle::occi::Statement;   ///< Oracle statement type
+    using ResultSet = oracle::occi::ResultSet;   ///< Oracle result set type
+    using MetaData = oracle::occi::MetaData;     ///< Oracle result set metdata type
 
     /**
      * Constructor
@@ -130,10 +129,9 @@ public:
     void getOutputParameters(FieldList& fields);
 
 private:
-
-    Statement* m_createClobStatement {nullptr};    ///< Statement for creating CLOBs
-    Statement* m_createBlobStatement {nullptr};    ///< Statement for creating BLOBs
-    ResultSet* m_resultSet {nullptr};              ///< Result set (if returned by statement)
+    Statement* m_createClobStatement {nullptr}; ///< Statement for creating CLOBs
+    Statement* m_createBlobStatement {nullptr}; ///< Statement for creating BLOBs
+    ResultSet* m_resultSet {nullptr};           ///< Result set (if returned by statement)
 
     /*
      * Index of output parameters
@@ -238,4 +236,4 @@ private:
     void getDateTimeOutputParameter(unsigned int index, const SDatabaseField& field) const;
 };
 
-}
+} // namespace sptk

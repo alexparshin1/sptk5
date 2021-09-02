@@ -27,15 +27,15 @@
 #pragma once
 
 #ifdef WIN32
-#include <winsock2.h>
 #include <windows.h>
+#include <winsock2.h>
 #endif
 
 #include <sptk5/DataSource.h>
 
+#include <sptk5/FieldList.h>
 #include <sptk5/db/AutoDatabaseConnection.h>
 #include <sptk5/db/QueryParameterList.h>
-#include <sptk5/FieldList.h>
 #include <sptk5/threads/Locks.h>
 
 namespace sptk {
@@ -138,7 +138,6 @@ public:
     }
 
 protected:
-
     /**
      * Set database (internal)
      */
@@ -252,7 +251,6 @@ class SP_EXPORT Query
     friend class PoolDatabaseConnectionQueryMethods;
 
 public:
-
     /**
      * Default constructor
      */
@@ -484,7 +482,6 @@ public:
     [[noreturn]] static void throwError(const String& method, const String& error);
 
 protected:
-
     /**
      * Executes a statement
      */
@@ -513,7 +510,6 @@ protected:
     }
 
 private:
-
     /**
      * List of query parameters
      */
@@ -544,8 +540,13 @@ using SQuery = std::shared_ptr<Query>;
  * @}
  */
 
-#define THROW_QUERY_ERROR(query, error) { std::stringstream err; err << error; throw sptk::DatabaseException(err.str(),__FILE__,__LINE__, query->sql()); }
+#define THROW_QUERY_ERROR(query, error)                                             \
+    {                                                                               \
+        std::stringstream err;                                                      \
+        err << error;                                                               \
+        throw sptk::DatabaseException(err.str(), __FILE__, __LINE__, query->sql()); \
+    }
 
 constexpr int FETCH_BUFFER_SIZE = 1024;
 
-}
+} // namespace sptk

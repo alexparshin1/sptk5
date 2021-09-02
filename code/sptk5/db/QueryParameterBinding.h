@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/Variant.h>
+#include <sptk5/sptk.h>
 
-#include <vector>
 #include <map>
 #include <sptk5/db/PoolDatabaseConnection.h>
+#include <vector>
 
 namespace sptk {
 
@@ -112,4 +112,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

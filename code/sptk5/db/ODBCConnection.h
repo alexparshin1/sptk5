@@ -52,7 +52,6 @@ class SP_DRIVER_EXPORT ODBCConnection
     friend class Query;
 
 public:
-
     /**
      * @brief Constructor
      * @param connectionString  The ODBC connection string
@@ -110,7 +109,6 @@ public:
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
 protected:
-
     /**
      * @brief Begins the transaction
      */
@@ -278,7 +276,7 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk
 #endif
 
 extern "C" {

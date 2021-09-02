@@ -28,9 +28,9 @@
 
 #include <sptk5/sptk.h>
 
-#include <sptk5/Variant.h>
-#include <sptk5/Strings.h>
 #include <sptk5/Field.h>
+#include <sptk5/Strings.h>
+#include <sptk5/Variant.h>
 
 namespace sptk {
 
@@ -51,7 +51,6 @@ class SP_EXPORT DatabaseField
     friend class Query;
 
 public:
-
     /**
      * Constructor
      * @param fieldName			Field name
@@ -146,7 +145,6 @@ public:
     }
 
 protected:
-
     /**
      * Set field type
      * @param fieldType         Field type
@@ -161,13 +159,12 @@ protected:
     }
 
 private:
-
-    int m_fldType;                  ///< Native database data type
-    int m_fldColumn;                ///< Field column number in recordset
-    int m_fldSize;                  ///< Field size
-    int m_fldScale;                 ///< Field scale, optional, for floating point fields
-    String m_displayFormat;            ///< Column display format
-    int m_alignment {ALIGN_LEFT};   ///< Column alignment
+    int m_fldType;                ///< Native database data type
+    int m_fldColumn;              ///< Field column number in recordset
+    int m_fldSize;                ///< Field size
+    int m_fldScale;               ///< Field scale, optional, for floating point fields
+    String m_displayFormat;       ///< Column display format
+    int m_alignment {ALIGN_LEFT}; ///< Column alignment
 };
 
 using SDatabaseField = std::shared_ptr<DatabaseField>;
@@ -175,4 +172,4 @@ using SDatabaseField = std::shared_ptr<DatabaseField>;
 /**
  * @}
  */
-}
+} // namespace sptk

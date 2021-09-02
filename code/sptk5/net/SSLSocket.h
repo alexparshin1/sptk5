@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/net/SSLContext.h>
-#include <sptk5/net/TCPSocket.h>
 #include <memory>
+#include <sptk5/net/SSLContext.h>
 #include <sptk5/net/SSLKeys.h>
+#include <sptk5/net/TCPSocket.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -42,7 +42,8 @@ namespace sptk {
 /**
  * Encrypted TCP Socket
  */
-class SP_EXPORT SSLSocket: public TCPSocket, public std::mutex
+class SP_EXPORT SSLSocket : public TCPSocket
+    , public std::mutex
 {
 public:
     /**
@@ -61,7 +62,7 @@ public:
      * Constructor
 	 * @param cipherList		Optional cipher list
      */
-    explicit SSLSocket(const String& cipherList="ALL");
+    explicit SSLSocket(const String& cipherList = "ALL");
 
     /**
      * Destructor
@@ -112,7 +113,6 @@ public:
     }
 
 protected:
-
     /**
      * Initialize SSL context and socket structures
      */
@@ -165,13 +165,12 @@ protected:
     virtual std::string getSSLError(const std::string& function, int32_t SSLError) const;
 
 private:
+    SharedSSLContext m_sslContext {nullptr}; ///< SSL context
+    SSL* m_ssl {nullptr};                    ///< SSL socket
+    SSLKeys m_keys;                          ///< SSL keys info
 
-    SharedSSLContext	m_sslContext {nullptr};     ///< SSL context
-    SSL*				m_ssl {nullptr};            ///< SSL socket
-    SSLKeys				m_keys;                     ///< SSL keys info
-
-    String				m_sniHostName;              ///< SNI host name (optional)
-    String				m_cipherList;				///< Cipher List, the default is "ALL"
+    String m_sniHostName; ///< SNI host name (optional)
+    String m_cipherList;  ///< Cipher List, the default is "ALL"
 
     void openSocketFD(bool blockingMode, const std::chrono::milliseconds& timeout);
 
@@ -181,5 +180,4 @@ private:
 /**
  * @}
  */
-}
-
+} // namespace sptk

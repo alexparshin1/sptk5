@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/db/PoolDatabaseConnection.h>
-#include <sptk5/Exception.h>
 #include "AutoDatabaseConnection.h"
+#include <sptk5/Exception.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 namespace sptk {
 
@@ -77,11 +77,10 @@ public:
     }
 
 private:
-
-    PoolDatabaseConnection* m_db;    ///< Database to work with
-    std::shared_ptr<bool> m_active;  ///< Transaction activity
+    PoolDatabaseConnection* m_db;   ///< Database to work with
+    std::shared_ptr<bool> m_active; ///< Transaction activity
 };
 /**
  * @}
  */
-}
+} // namespace sptk

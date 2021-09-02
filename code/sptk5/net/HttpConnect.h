@@ -26,15 +26,14 @@
 
 #pragma once
 
+#include <memory>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/Strings.h>
 #include <sptk5/net/HttpParams.h>
 #include <sptk5/net/HttpReader.h>
 #include <sptk5/net/TCPSocket.h>
-#include <memory>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup utility Utility Classes
@@ -50,7 +49,6 @@ namespace sptk
 class SP_EXPORT HttpConnect
 {
 public:
-
     /**
      * HTTP authorization
      */
@@ -67,22 +65,27 @@ public:
          * Copy assignment
          * @param other         Other object
          */
-        Authorization& operator = (const Authorization& other) = default;
+        Authorization& operator=(const Authorization& other) = default;
 
         /**
          * Get authorization method name
          * @return authorization method name
          */
-        String method() const { return m_method; }
+        String method() const
+        {
+            return m_method;
+        }
 
         /**
          * Get authorization metod value
          * @return authorization metod value
          */
-        String value() const { return m_value; }
+        String value() const
+        {
+            return m_value;
+        }
 
     protected:
-
         /**
          * Constructor
          */
@@ -98,11 +101,11 @@ public:
         explicit Authorization(const String& method, const String& username, const String& password, const String& jwtToken);
 
     private:
-        String  m_method;       ///< Authorization method name
-        String  m_value;        ///< Authorization data
+        String m_method; ///< Authorization method name
+        String m_value;  ///< Authorization data
     };
 
-    class BasicAuthorization: public Authorization
+    class BasicAuthorization : public Authorization
     {
     public:
         /**
@@ -111,11 +114,12 @@ public:
          * @param password      Password
          */
         BasicAuthorization(const String& username, const String& password)
-        : Authorization("basic", username, password, "")
-        {}
+            : Authorization("basic", username, password, "")
+        {
+        }
     };
 
-    class BearerAuthorization: public Authorization
+    class BearerAuthorization : public Authorization
     {
     public:
         /**
@@ -123,8 +127,9 @@ public:
          * @param jwtToken      JWT token
          */
         explicit BearerAuthorization(const String& jwtToken)
-        : Authorization("bearer", "", "", jwtToken)
-        {}
+            : Authorization("bearer", "", "", jwtToken)
+        {
+        }
     };
 
     /**
@@ -242,7 +247,6 @@ public:
     [[nodiscard]] String statusText() const;
 
 protected:
-
     /**
      * Create default headers for HTTP request
      */
@@ -284,15 +288,15 @@ private:
     /**
      * External socket
      */
-    TCPSocket&      m_socket;
+    TCPSocket& m_socket;
 
     /**
      * HTTP request headers
      */
-    HttpHeaders     m_requestHeaders;
+    HttpHeaders m_requestHeaders;
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

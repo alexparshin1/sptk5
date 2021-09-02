@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <sptk5/db/AutoDatabaseConnection.h>
-#include <sptk5/db/PoolDatabaseConnection.h>
-#include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/CaseInsensitiveCompare.h>
+#include <sptk5/db/AutoDatabaseConnection.h>
+#include <sptk5/db/DatabaseConnectionString.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/threads/SynchronizedList.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
@@ -67,8 +67,7 @@ using DriverHandle = uint8_t*;
 /**
  * Information about loaded database driver
  */
-struct SP_EXPORT DatabaseDriver
-{
+struct SP_EXPORT DatabaseDriver {
     /**
      * Driver SO/DLL handle after load
      */
@@ -83,7 +82,6 @@ struct SP_EXPORT DatabaseDriver
      * Function that destroys driver instances
      */
     DestroyDriverInstance* m_destroyConnection;
-
 };
 
 /**
@@ -93,7 +91,8 @@ struct SP_EXPORT DatabaseDriver
  * Already loaded drivers are cached.
  */
 class SP_EXPORT DatabaseConnectionPool
-    : public DatabaseConnectionString, public std::mutex
+    : public DatabaseConnectionString
+    , public std::mutex
 {
     friend class AutoDatabaseConnection;
 
@@ -111,7 +110,6 @@ public:
     [[nodiscard]] DatabaseConnection getConnection();
 
 protected:
-
     /**
      * Loads database driver
      *
@@ -157,11 +155,11 @@ private:
      * Maximum number of connections in the pool
      */
     size_t m_maxConnections;
-    SynchronizedQueue<SPoolDatabaseConnection> m_pool;          ///< Available connections
-    SynchronizedList<SPoolDatabaseConnection> m_connections;   ///< All connections
+    SynchronizedQueue<SPoolDatabaseConnection> m_pool;       ///< Available connections
+    SynchronizedList<SPoolDatabaseConnection> m_connections; ///< All connections
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

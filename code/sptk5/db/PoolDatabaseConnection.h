@@ -26,15 +26,14 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/Strings.h>
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/Variant.h>
 #include <sptk5/Logger.h>
+#include <sptk5/Strings.h>
+#include <sptk5/Variant.h>
+#include <sptk5/db/DatabaseConnectionString.h>
 
-#include <vector>
 #include <list>
 #include <set>
+#include <vector>
 
 namespace sptk {
 
@@ -52,40 +51,37 @@ using SStmtHandle = std::shared_ptr<uint8_t>;
 /**
  * Database connection type
  */
-enum class DatabaseConnectionType
-    : uint16_t
+enum class DatabaseConnectionType : uint16_t
 {
-    UNKNOWN = 0,          ///< Unknown
-    MYSQL = 1,            ///< MySQL
-    ORACLE = 2,           ///< Oracle
-    POSTGRES = 4,         ///< PostgreSQL
-    SQLITE3 = 8,          ///< SQLite3
-    FIREBIRD = 16,        ///< Firebird
-    GENERIC_ODBC = 32,    ///< Generic ODBC
-    MSSQL_ODBC = 64       ///< MS SQL ODBC
+    UNKNOWN = 0,       ///< Unknown
+    MYSQL = 1,         ///< MySQL
+    ORACLE = 2,        ///< Oracle
+    POSTGRES = 4,      ///< PostgreSQL
+    SQLITE3 = 8,       ///< SQLite3
+    FIREBIRD = 16,     ///< Firebird
+    GENERIC_ODBC = 32, ///< Generic ODBC
+    MSSQL_ODBC = 64    ///< MS SQL ODBC
 };
 
 /**
  * Types of the objects for DatabaseConnection::listObjects method
  */
-enum class DatabaseObjectType
-    : uint8_t
+enum class DatabaseObjectType : uint8_t
 {
-    UNDEFINED,          ///< Undefined
-    TABLES,             ///< Tables
-    VIEWS,              ///< Views
-    PROCEDURES,         ///< Stored procedures
-    FUNCTIONS,          ///< Stored functions
-    DATABASES           ///< Available databases
+    UNDEFINED,  ///< Undefined
+    TABLES,     ///< Tables
+    VIEWS,      ///< Views
+    PROCEDURES, ///< Stored procedures
+    FUNCTIONS,  ///< Stored functions
+    DATABASES   ///< Available databases
 };
 
 /**
  * Column type and size structure
  */
-struct QueryColumnTypeSize
-{
-    VariantDataType type;   ///< Column type
-    size_t length; ///< Column data size
+struct QueryColumnTypeSize {
+    VariantDataType type; ///< Column type
+    size_t length;        ///< Column data size
 };
 
 /**
@@ -228,8 +224,7 @@ protected:
     void disconnectAllQueries();
 
 private:
-
-    std::map<Query*, SStmtHandle> m_queryList;  ///< The list of queries that use this database
+    std::map<Query*, SStmtHandle> m_queryList; ///< The list of queries that use this database
 };
 
 /**
@@ -246,7 +241,6 @@ class SP_EXPORT PoolDatabaseConnection
     friend class QueryStatementManagement;
 
 public:
-
     /**
      * Opens the database connection
      *
@@ -383,7 +377,6 @@ public:
     }
 
 protected:
-
     bool getInTransaction() const;
 
     void setInTransaction(bool inTransaction);
@@ -500,11 +493,10 @@ protected:
                            const std::vector<VariantVector>::const_iterator& end);
 
 private:
-
-    DatabaseConnectionString m_connString;       ///< The connection string
-    DatabaseConnectionType m_connType;           ///< The connection type
-    String m_driverDescription;                  ///< Driver description is filled by the particular driver.
-    bool m_inTransaction {false};                ///< The in-transaction flag
+    DatabaseConnectionString m_connString; ///< The connection string
+    DatabaseConnectionType m_connType;     ///< The connection type
+    String m_driverDescription;            ///< Driver description is filled by the particular driver.
+    bool m_inTransaction {false};          ///< The in-transaction flag
 };
 
 using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;
@@ -520,4 +512,4 @@ SP_EXPORT String escapeSQLString(const String& str, bool tsv = false);
 /**
  * @}
  */
-}
+} // namespace sptk

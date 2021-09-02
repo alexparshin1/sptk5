@@ -26,12 +26,11 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/CaseInsensitiveCompare.h>
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace sptk {
 
@@ -66,7 +65,7 @@ public:
  * CHttpConnect and CCgiApplication. It is, basically, a string-to-string
  * map with an addition of encode and decode functions for HTTP Mime.
  */
-class SP_EXPORT HttpParams: public StringHttpFieldMap
+class SP_EXPORT HttpParams : public StringHttpFieldMap
 {
 public:
     /**
@@ -82,7 +81,7 @@ public:
     /**
      * Initialization constructor.
      */
-    HttpParams(std::initializer_list<std::pair<String,String>> lst);
+    HttpParams(std::initializer_list<std::pair<String, String>> lst);
 
     /**
      * Encodes HTTP parameters for sending to the server.
@@ -114,4 +113,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

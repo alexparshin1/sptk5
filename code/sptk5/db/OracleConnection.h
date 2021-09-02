@@ -26,15 +26,15 @@
 
 #pragma once
 
-#include <sptk5/db/PoolDatabaseConnection.h>
 #include <mutex>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 #ifdef HAVE_ORACLE
 
-#include <sptk5/db/OracleStatement.h>
-#include <sptk5/db/OracleEnvironment.h>
-#include <src/drivers/Oracle/OracleBulkInsertQuery.h>
 #include "DatabaseField.h"
+#include <sptk5/db/OracleEnvironment.h>
+#include <sptk5/db/OracleStatement.h>
+#include <src/drivers/Oracle/OracleBulkInsertQuery.h>
 
 namespace sptk {
 
@@ -166,7 +166,6 @@ public:
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
 protected:
-
     /**
      * @brief Begins the transaction
      */
@@ -243,13 +242,12 @@ protected:
     String paramMark(unsigned paramIndex) override;
 
 private:
-
     using SConnection = std::shared_ptr<Connection>;
 
-    mutable std::mutex m_mutex;               ///< Mutex that protects access to data members
-    OracleEnvironment m_environment;          ///< Oracle connection environment
-    SConnection m_connection;                 ///< Oracle database connection
-    std::string m_lastError;                  ///< Last error in this connection or query
+    mutable std::mutex m_mutex;      ///< Mutex that protects access to data members
+    OracleEnvironment m_environment; ///< Oracle connection environment
+    SConnection m_connection;        ///< Oracle database connection
+    std::string m_lastError;         ///< Last error in this connection or query
 
     void executeMultipleStatements(const Strings& statements, Strings* errors);
 
@@ -284,12 +282,16 @@ VariantDataType OracleTypeToVariantType(OracleConnection::Type oracleType, int s
  */
 OracleConnection::Type VariantTypeToOracleType(VariantDataType dataType);
 
-#define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }
+#define throwOracleException(description)    \
+    {                                        \
+        m_lastError = description;           \
+        throwDatabaseException(m_lastError); \
+    }
 
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif
 

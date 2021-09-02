@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/db/QueryParameterBinding.h>
 #include <array>
+#include <sptk5/db/QueryParameterBinding.h>
 
 namespace sptk {
 
@@ -47,7 +47,6 @@ class SP_EXPORT QueryParameter
     friend class QueryParameterList;
 
 public:
-
     /**
      * Adds internal parameter binding index
      */
@@ -253,13 +252,12 @@ public:
     void reallocateBuffer(const char* value, size_t maxlen, size_t valueLength);
 
 private:
-
-    QueryParameterBinding m_binding;               ///< The last successfull binding information
-    String m_name;                  ///< Parameter name
-    std::vector<uint32_t> m_bindParamIndexes;      ///< The list of SQL query parameter numbers with this name
-    std::array<uint8_t, 80> m_timeData;              ///< Special memory allocated for time structures
-    int32_t m_callbackLength {0};    ///< An integer reserved to callback parameter data length
-    QueryParameterList* m_paramList {nullptr};   ///< Parent param list used for notifications
+    QueryParameterBinding m_binding;           ///< The last successfull binding information
+    String m_name;                             ///< Parameter name
+    std::vector<uint32_t> m_bindParamIndexes;  ///< The list of SQL query parameter numbers with this name
+    std::array<uint8_t, 80> m_timeData;        ///< Special memory allocated for time structures
+    int32_t m_callbackLength {0};              ///< An integer reserved to callback parameter data length
+    QueryParameterList* m_paramList {nullptr}; ///< Parent param list used for notifications
 };
 
 using SQueryParameter = std::shared_ptr<QueryParameter>;
@@ -267,4 +265,4 @@ using SQueryParameter = std::shared_ptr<QueryParameter>;
 /**
  * @}
  */
-}
+} // namespace sptk

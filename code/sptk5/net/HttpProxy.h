@@ -26,18 +26,19 @@
 
 #pragma once
 
-#include <sptk5/net/Proxy.h>
-#include <sptk5/net/Host.h>
 #include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/Host.h>
+#include <sptk5/net/Proxy.h>
 
 namespace sptk {
 
 class SP_EXPORT HttpProxy : public Proxy
 {
 public:
-    explicit HttpProxy(const Host& host, const String& username="", const String& password="")
-    : Proxy(host, username, password)
-    {}
+    explicit HttpProxy(const Host& host, const String& username = "", const String& password = "")
+        : Proxy(host, username, password)
+    {
+    }
 
     SOCKET connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) override;
 
@@ -48,5 +49,4 @@ public:
     bool readResponse(const std::shared_ptr<TCPSocket>& socket) const;
 };
 
-}
-
+} // namespace sptk

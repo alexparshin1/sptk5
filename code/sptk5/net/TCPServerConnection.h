@@ -62,4 +62,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

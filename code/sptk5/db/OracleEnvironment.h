@@ -98,7 +98,6 @@ public:
     void terminateConnection(oracle::occi::Connection* connection) const;
 
 private:
-
     /**
      * Environment handle
      */
@@ -107,13 +106,12 @@ private:
             oracle::occi::Environment::createEnvironment("UTF8", "UTF8", oracle::occi::Environment::THREADED_MUTEXED),
             [](oracle::occi::Environment* handle) {
                 oracle::occi::Environment::terminateEnvironment(handle);
-            }
-        )};
+            })};
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif

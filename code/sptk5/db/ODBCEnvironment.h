@@ -33,19 +33,19 @@
 #include <sptk5/Strings.h>
 
 #ifdef WIN32
-#include <winsock2.h>
-#include <windows.h>
 #include <sys/types.h>
 #include <time.h>
+#include <windows.h>
+#include <winsock2.h>
 #else
-#define LPCVOID  const void *
+#define LPCVOID const void*
 #endif
 
-#include <sqlext.h>
 #include <cassert>
+#include <sqlext.h>
 
-#include <sptk5/db/QueryParameterList.h>
 #include <mutex>
+#include <sptk5/db/QueryParameterList.h>
 
 namespace sptk {
 
@@ -69,7 +69,6 @@ class SP_DRIVER_EXPORT ODBCBase
     friend class ODBCConnection;
 
 public:
-
     static constexpr const char* cantSetConnectOption = "Can't set connect option";
     static constexpr const char* cantEndTranscation = "Can't end transaction";
     static constexpr const char* cantGetInformation = "Can't get connect information";
@@ -85,14 +84,12 @@ public:
     [[noreturn]] static void exception(const String& text, int line);
 
 protected:
-
     /**
      * Constructor
      */
     ODBCBase() = default;
 
 private:
-
     /**
      * Assignment operator, disabled
      */
@@ -115,7 +112,6 @@ class SP_DRIVER_EXPORT ODBCEnvironment
     friend class ODBCConnectionBase;
 
 public:
-
     /**
      * Returns enviromment handle
      */
@@ -125,7 +121,6 @@ public:
     }
 
 protected:
-
     /**
      * Constructor
      */
@@ -160,7 +155,6 @@ class SP_DRIVER_EXPORT ODBCConnectionBase
     : public ODBCBase
 {
 public:
-
     /**
      * Allocates connection
      */
@@ -278,12 +272,11 @@ protected:
     void execQuery(const char* query);
 
 private:
-
-    ODBCEnvironment& m_cEnvironment {getEnvironment()};  ///< ODBC environment
-    std::shared_ptr<uint8_t> m_hConnection;              ///< ODBC connection handle
-    bool m_connected {false};                            ///< Is connection active?
-    String m_connectString;                              ///< ODBC connection string
-    String m_driverDescription;                          ///< Driver description, filled in during the connection to the DSN
+    ODBCEnvironment& m_cEnvironment {getEnvironment()}; ///< ODBC environment
+    std::shared_ptr<uint8_t> m_hConnection;             ///< ODBC connection handle
+    bool m_connected {false};                           ///< Is connection active?
+    String m_connectString;                             ///< ODBC connection string
+    String m_driverDescription;                         ///< Driver description, filled in during the connection to the DSN
     static ODBCEnvironment m_env;
 };
 
@@ -295,5 +288,5 @@ String removeDriverIdentification(const char* error);
 /**
  * @}
  */
-}
+} // namespace sptk
 #endif

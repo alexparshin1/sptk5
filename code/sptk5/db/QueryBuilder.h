@@ -26,15 +26,14 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
 #include <memory>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
 class QueryBuilder
 {
 public:
-
     class Join
     {
     public:
@@ -73,4 +72,4 @@ private:
     void removeUnNeededColumns(const Join& join, const String& tableAlias);
 };
 
-}
+} // namespace sptk

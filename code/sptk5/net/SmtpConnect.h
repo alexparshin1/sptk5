@@ -26,15 +26,14 @@
 
 #pragma once
 
-#include <sptk5/net/TCPSocket.h>
+#include <sptk5/Logger.h>
 #include <sptk5/Strings.h>
 #include <sptk5/net/BaseMailConnect.h>
-#include <sptk5/Logger.h>
+#include <sptk5/net/TCPSocket.h>
 
 #include <string>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup utility Utility Classes
@@ -48,14 +47,15 @@ namespace sptk
  * It uses CSocket class to establish the connection, and CBaseMailConnect
  * to make the complete RFC 822 message.
  */
-class SP_EXPORT SmtpConnect: public BaseMailConnect, public TCPSocket
+class SP_EXPORT SmtpConnect : public BaseMailConnect
+    , public TCPSocket
 {
 public:
     /**
      * @brief Default constructor
      * @param log               Optional log object
      */
-    explicit SmtpConnect(Logger* log=nullptr);
+    explicit SmtpConnect(Logger* log = nullptr);
 
     /**
      * Sends command using SMTP protocol and retrieve the server response.
@@ -104,7 +104,6 @@ public:
     void sendMessage() override;
 
 protected:
-
     /**
      * @brief Sends command using SMTP protocol
      *
@@ -144,11 +143,10 @@ protected:
     static String unmime(const String& s);
 
 private:
-
-    Logger*    m_log;
-    Strings    m_response;
+    Logger* m_log;
+    Strings m_response;
 };
 /**
  * @}
  */
-}
+} // namespace sptk

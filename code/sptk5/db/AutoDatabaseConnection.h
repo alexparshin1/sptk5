@@ -26,11 +26,10 @@
 
 #pragma once
 
-#include <sptk5/db/PoolDatabaseConnection.h>
 #include <memory>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup Database Database Support
@@ -46,15 +45,14 @@ class AutoDatabaseConnection
     /**
      * Database connection pool
      */
-    DatabaseConnectionPool&     m_connectionPool;
+    DatabaseConnectionPool& m_connectionPool;
 
     /**
      * Database connection
      */
-    SPoolDatabaseConnection     m_connection {nullptr};
+    SPoolDatabaseConnection m_connection {nullptr};
 
 public:
-
     /**
      * Constructor
      * Automatically gets connection from connection pool
@@ -71,8 +69,8 @@ public:
      */
     ~AutoDatabaseConnection();
 
-    AutoDatabaseConnection& operator = (const AutoDatabaseConnection&) = delete;
-    AutoDatabaseConnection& operator = (AutoDatabaseConnection&&) = delete;
+    AutoDatabaseConnection& operator=(const AutoDatabaseConnection&) = delete;
+    AutoDatabaseConnection& operator=(AutoDatabaseConnection&&) = delete;
 
     /**
      * Returns database connection acquired from the connection pool
@@ -225,4 +223,4 @@ using DatabaseConnection = std::shared_ptr<AutoDatabaseConnection>;
 /**
  * @}
  */
-}
+} // namespace sptk

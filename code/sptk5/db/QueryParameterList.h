@@ -28,11 +28,10 @@
 
 #include <sptk5/db/QueryParameter.h>
 
-#include <vector>
 #include <map>
+#include <vector>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup Database Database Support
@@ -155,13 +154,12 @@ protected:
     void add(const SQueryParameter& item);
 
 private:
-
-    CParamVector                        m_items;                        ///< The list of parameters
-    std::map<String, SQueryParameter>   m_index;                        ///< The parameters index
-    bool                                m_bindingTypeChanged {true};    ///< Indicates that one of the parameters binding type has changed since prepare()
+    CParamVector m_items;                      ///< The list of parameters
+    std::map<String, SQueryParameter> m_index; ///< The parameters index
+    bool m_bindingTypeChanged {true};          ///< Indicates that one of the parameters binding type has changed since prepare()
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

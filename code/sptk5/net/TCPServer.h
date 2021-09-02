@@ -26,14 +26,14 @@
 
 #pragma once
 
-#include <sptk5/net/ServerConnection.h>
-#include <sptk5/Logger.h>
-#include <set>
+#include <bitset>
 #include <iostream>
+#include <set>
+#include <sptk5/Logger.h>
+#include <sptk5/net/SSLKeys.h>
+#include <sptk5/net/ServerConnection.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/threads/ThreadPool.h>
-#include <sptk5/net/SSLKeys.h>
-#include <bitset>
 
 namespace sptk {
 
@@ -55,8 +55,7 @@ public:
     /**
      * Log details constants
      */
-    enum class MessageDetail
-        : uint8_t
+    enum class MessageDetail : uint8_t
     {
         SERIAL_ID,
         SOURCE_IP,
@@ -120,7 +119,7 @@ public:
     }
 
 private:
-    MessageDetails m_details;     ///< Log details set
+    MessageDetails m_details; ///< Log details set
     static const std::map<String, MessageDetail> detailNames;
 };
 
@@ -244,16 +243,15 @@ protected:
     void threadEvent(Thread* thread, ThreadEvent::Type eventType, SRunable runable) override;
 
 private:
-
-    mutable SharedMutex m_mutex;            ///< Mutex protecting internal data
-    std::shared_ptr<TCPServerListener> m_listenerThread;   ///< Server listener
-    std::shared_ptr<Logger> m_logger;           ///< Optional logger
-    std::shared_ptr<SSLKeys> m_sslKeys;          ///< Optional SSL keys. Only used for SSL server.
-    Host m_host;             ///< This host
-    LogDetails m_logDetails;       ///< Log details
+    mutable SharedMutex m_mutex;                         ///< Mutex protecting internal data
+    std::shared_ptr<TCPServerListener> m_listenerThread; ///< Server listener
+    std::shared_ptr<Logger> m_logger;                    ///< Optional logger
+    std::shared_ptr<SSLKeys> m_sslKeys;                  ///< Optional SSL keys. Only used for SSL server.
+    Host m_host;                                         ///< This host
+    LogDetails m_logDetails;                             ///< Log details
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

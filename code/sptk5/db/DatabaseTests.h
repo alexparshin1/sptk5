@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include "DatabaseConnectionString.h"
 #include "AutoDatabaseConnection.h"
+#include "DatabaseConnectionString.h"
 
 namespace sptk {
 
@@ -37,7 +37,6 @@ namespace sptk {
 class SP_EXPORT DatabaseTests
 {
 public:
-
     /**
      * Constructor
      */
@@ -124,10 +123,10 @@ public:
      */
     static void testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount);
 
-	/**
+    /**
 	 * Global database tests collection
 	 */
-	static DatabaseTests& tests();
+    static DatabaseTests& tests();
 
 private:
     /**
@@ -177,5 +176,4 @@ private:
     static void createOracleAutoIncrement(const DatabaseConnection& db, const String& tableName, const String& columnName);
 };
 
-}
-
+} // namespace sptk

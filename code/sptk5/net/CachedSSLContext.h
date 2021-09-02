@@ -25,9 +25,9 @@
 */
 #pragma once
 
+#include "SSLContext.h"
 #include <set>
 #include <sptk5/net/SSLKeys.h>
-#include "SSLContext.h"
 
 namespace sptk {
 
@@ -35,8 +35,8 @@ class CachedSSLContext
 {
     using CachedSSLContextMap = std::map<String, SharedSSLContext>;
 
-    static SharedMutex          m_mutex;
-    static CachedSSLContextMap  m_contexts;
+    static SharedMutex m_mutex;
+    static CachedSSLContextMap m_contexts;
 
     /**
      * Makes SSL context ident, used as cache index, from keys definition
@@ -50,7 +50,8 @@ class CachedSSLContext
      */
     static String makeIdent(const String& keyFileName = "", const String& certificateFileName = "",
                             const String& password = "",
-                            const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0, const String & cipherList="ALL");
+                            const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0, const String& cipherList = "ALL");
+
 public:
     /**
      * @brief Loads private key and certificate(s)
@@ -66,5 +67,4 @@ public:
     static SharedSSLContext get(const SSLKeys& keys, const String& cipherList);
 };
 
-}
-
+} // namespace sptk

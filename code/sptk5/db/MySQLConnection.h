@@ -30,8 +30,8 @@
 
 #ifdef HAVE_MYSQL
 
-#include <sptk5/db/MySQLStatement.h>
 #include <mutex>
+#include <sptk5/db/MySQLStatement.h>
 
 #ifdef _WIN32
 #define ULONG_CAST (unsigned long)
@@ -130,7 +130,6 @@ public:
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
 protected:
-
     /**
      * @brief Begins the transaction
      */
@@ -208,9 +207,8 @@ protected:
     String paramMark(unsigned paramIndex) override;
 
 private:
-
     std::shared_ptr<MYSQL> m_connection; ///< MySQL database connection
-    mutable std::mutex m_mutex;      ///< Mutex that protects access to data members
+    mutable std::mutex m_mutex;          ///< Mutex that protects access to data members
 
     /**
      * @brief Init connection to MySQL server
@@ -228,7 +226,7 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif
 

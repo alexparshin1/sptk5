@@ -30,11 +30,9 @@
 
 namespace sptk {
 
-struct HttpResponseStatus
-{
-    size_t  code;
-    String  description;
+struct HttpResponseStatus {
+    size_t code;
+    String description;
 };
 
-}
-
+} // namespace sptk

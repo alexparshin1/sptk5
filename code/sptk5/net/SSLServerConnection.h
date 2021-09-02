@@ -28,8 +28,7 @@
 
 #include <sptk5/net/ServerConnection.h>
 
-namespace sptk
-{
+namespace sptk {
 /**
  * @addtogroup net Networking Classes
  * @{
@@ -41,7 +40,7 @@ namespace sptk
  * Application derives concrete TCP server connections based on this class,
  * to use with CTCPServer as connection template
  */
-class SSLServerConnection: public ServerConnection
+class SSLServerConnection : public ServerConnection
 {
 public:
     /**
@@ -50,7 +49,7 @@ public:
      * @param connectionSocket   SOCKET, Already accepted by accept() function incoming connection socket
      */
     SSLServerConnection(TCPServer& server, SOCKET connectionSocket)
-    : ServerConnection(server, connectionSocket, "SSLServerConnection")
+        : ServerConnection(server, connectionSocket, "SSLServerConnection")
     {
         setSocket(new SSLSocket);
         socket().attach(connectionSocket);
@@ -67,4 +66,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

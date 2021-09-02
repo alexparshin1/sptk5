@@ -38,8 +38,8 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
 
@@ -55,8 +55,8 @@ using SOCKET_ADDRESS_FAMILY = sa_family_t;
 #define INVALID_SOCKET (-1)
 
 #else
-#include <winsock2.h>
 #include <windows.h>
+#include <winsock2.h>
 using socklen_t = int;
 using SOCKET_ADDRESS_FAMILY = unsigned short;
 #endif
@@ -75,7 +75,6 @@ class SP_EXPORT TCPSocketReader
     : public Buffer
 {
 public:
-
     /**
      * Constructor
      * @param socket            Socket to work with
@@ -306,10 +305,9 @@ protected:
     }
 
 private:
-
-    TCPSocketReader m_reader;          ///< Buffered socket reader
-    std::shared_ptr<Proxy> m_proxy;    ///< Optional proxy
-    Buffer m_stringBuffer;             ///< Buffer to read a line
+    TCPSocketReader m_reader;       ///< Buffered socket reader
+    std::shared_ptr<Proxy> m_proxy; ///< Optional proxy
+    Buffer m_stringBuffer;          ///< Buffer to read a line
 };
 
 using STCPSocket = std::shared_ptr<TCPSocket>;
@@ -317,4 +315,4 @@ using STCPSocket = std::shared_ptr<TCPSocket>;
 /**
  * @}
  */
-}
+} // namespace sptk

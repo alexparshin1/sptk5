@@ -26,13 +26,13 @@
 
 #pragma once
 
-#include <sptk5/db/PoolDatabaseConnection.h>
 #include <mutex>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 #ifdef HAVE_FIREBIRD
 
-#include <ibase.h>
 #include "AutoDatabaseConnection.h"
+#include <ibase.h>
 
 namespace sptk {
 
@@ -53,13 +53,12 @@ class SP_EXPORT FirebirdConnection
 
     friend class FirebirdStatement;
 
-    mutable std::mutex m_mutex;            ///< Mutex that protects access to data members
-    isc_db_handle m_connection {0};   ///< Database connection handle
-    isc_tr_handle m_transaction;      ///< Database transaction handle
+    mutable std::mutex m_mutex;     ///< Mutex that protects access to data members
+    isc_db_handle m_connection {0}; ///< Database connection handle
+    isc_tr_handle m_transaction;    ///< Database transaction handle
     std::string m_lastStatus;       ///< Connection status on last checkStatus
 
 protected:
-
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString  The Firebird connection string
@@ -145,7 +144,6 @@ protected:
     String paramMark(unsigned paramIndex) override;
 
 public:
-
     /**
      * @brief Returns the Firebird connection object
      */
@@ -210,7 +208,7 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif
 

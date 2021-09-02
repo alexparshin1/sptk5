@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/String.h>
 #include <openssl/ssl.h>
+#include <sptk5/String.h>
+#include <sptk5/sptk.h>
 #include <sptk5/threads/Locks.h>
 
 namespace sptk {
@@ -36,12 +36,12 @@ namespace sptk {
 class SP_EXPORT SSLKeys
 {
     mutable SharedMutex m_mutex;
-    String              m_privateKeyFileName;
-    String              m_certificateFileName;
-    String              m_password;
-    String              m_caFileName;
-    int                 m_verifyMode {SSL_VERIFY_NONE};
-    int                 m_verifyDepth {0};
+    String m_privateKeyFileName;
+    String m_certificateFileName;
+    String m_password;
+    String m_caFileName;
+    int m_verifyMode {SSL_VERIFY_NONE};
+    int m_verifyDepth {0};
 
     /**
      * Assign keys from another object
@@ -50,7 +50,6 @@ class SP_EXPORT SSLKeys
     void assign(const SSLKeys& other);
 
 public:
-
     /**
      * Default constructor
      */
@@ -70,8 +69,8 @@ public:
      * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
      * @param verifyDepth           Connection verify depth
      */
-    SSLKeys(String privateKeyFileName, String certificateFileName, String password="",
-            String caFileName="", int verifyMode=SSL_VERIFY_NONE, int verifyDepth=0);
+    SSLKeys(String privateKeyFileName, String certificateFileName, String password = "",
+            String caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
 
     /**
      * Copy constructor
@@ -83,7 +82,7 @@ public:
      * Copy assignment
      * @param other             The other object
      */
-    SSLKeys& operator = (const SSLKeys& other);
+    SSLKeys& operator=(const SSLKeys& other);
 
     /**
      * Destructor
@@ -127,5 +126,4 @@ public:
     int verifyDepth() const;
 };
 
-}
-
+} // namespace sptk

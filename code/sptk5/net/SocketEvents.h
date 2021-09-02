@@ -26,14 +26,14 @@
 
 #pragma once
 
+#include "sptk5/SystemException.h"
 #include <map>
 #include <mutex>
 #include <sptk5/Exception.h>
 #include <sptk5/net/BaseSocket.h>
 #include <sptk5/net/SocketPool.h>
-#include <sptk5/threads/Thread.h>
 #include <sptk5/threads/Flag.h>
-#include "sptk5/SystemException.h"
+#include <sptk5/threads/Thread.h>
 
 namespace sptk {
 
@@ -93,18 +93,16 @@ public:
     size_t size() const;
 
 protected:
-
     /**
      * Event monitoring thread
      */
     void threadFunction() override;
 
 private:
-
-    mutable std::mutex m_mutex;            ///< Mutex that protects map of sockets to corresponding user data
-    SocketPool m_socketPool;       ///< OS-specific event manager
-    std::map<int, void*> m_watchList;        ///< Map of sockets to corresponding user data
-    std::chrono::milliseconds m_timeout;          ///< Timeout in event monitoring loop
+    mutable std::mutex m_mutex;          ///< Mutex that protects map of sockets to corresponding user data
+    SocketPool m_socketPool;             ///< OS-specific event manager
+    std::map<int, void*> m_watchList;    ///< Map of sockets to corresponding user data
+    std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
 
     Flag m_started;          ///< Is watching started?
     bool m_shutdown {false}; ///< Is watching shutdown?
@@ -112,4 +110,4 @@ private:
 
 using SharedSocketEvents = std::shared_ptr<SocketEvents>;
 
-}
+} // namespace sptk

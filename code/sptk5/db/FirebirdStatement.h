@@ -29,8 +29,8 @@
 #include <ibase.h>
 
 #include <list>
-#include <string>
 #include <stdio.h>
+#include <string>
 #include <sys/time.h>
 
 #include <sptk5/db/DatabaseField.h>
@@ -133,7 +133,6 @@ class FirebirdStatement
     : public DatabaseStatement<FirebirdConnection, isc_stmt_handle>
 {
 public:
-
     /**
      * @brief Translates Firebird native type to CVariant type
      * @param firebirdType int, Firebird native type
@@ -223,11 +222,10 @@ public:
     void fetch() override;
 
 private:
-
-    std::shared_ptr<isc_stmt_handle> m_statement;        ///< Statement
-    FirebirdBindBuffers m_outputBuffers;    ///< Output result buffers
-    FirebirdBindBuffers m_paramBuffers;     ///< Parameter buffers
-    std::array<ISC_STATUS, 20> m_status_vector;    ///< Execution result
+    std::shared_ptr<isc_stmt_handle> m_statement; ///< Statement
+    FirebirdBindBuffers m_outputBuffers;          ///< Output result buffers
+    FirebirdBindBuffers m_paramBuffers;           ///< Parameter buffers
+    std::array<ISC_STATUS, 20> m_status_vector;   ///< Execution result
 };
 
-}
+} // namespace sptk

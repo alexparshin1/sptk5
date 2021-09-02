@@ -86,12 +86,12 @@ public:
     {
     }
 
-    Message request;                ///< Request data
-    Message response;               ///< Response data
-    String name;                   ///< Request name
+    Message request;  ///< Request data
+    Message response; ///< Response data
+    String name;      ///< Request name
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

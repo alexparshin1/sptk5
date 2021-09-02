@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/db/PoolDatabaseConnection.h>
 #include <mutex>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 #ifdef HAVE_POSTGRESQL
 
@@ -35,8 +35,8 @@
 
 #ifndef _WIN32
 
-#include <netinet/in.h>
 #include <list>
+#include <netinet/in.h>
 
 #endif
 
@@ -60,9 +60,7 @@ class SP_EXPORT PostgreSQLConnection
     friend class Query;
 
 public:
-
-    enum class TimestampFormat
-        : uint8_t
+    enum class TimestampFormat : uint8_t
     {
         UNKNOWN,
         DOUBLE,
@@ -167,7 +165,6 @@ public:
     static Strings extractStatements(const Strings& sqlBatch);
 
 protected:
-
     /**
      * @brief Begins the transaction
      */
@@ -262,16 +259,15 @@ protected:
     }
 
 private:
-
     mutable std::mutex m_mutex;                                    ///< Mutex that protects access to data members
-    PGconn* m_connect {nullptr};                        ///< PostgreSQL database connection
+    PGconn* m_connect {nullptr};                                   ///< PostgreSQL database connection
     TimestampFormat m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif
 

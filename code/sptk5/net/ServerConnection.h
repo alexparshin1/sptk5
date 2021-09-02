@@ -27,8 +27,8 @@
 #pragma once
 
 #include <sptk5/net/TCPSocket.h>
-#include <sptk5/threads/Thread.h>
 #include <sptk5/threads/Runable.h>
+#include <sptk5/threads/Thread.h>
 
 #ifndef _WIN32
 
@@ -56,7 +56,6 @@ class SP_EXPORT ServerConnection
     friend class TCPServer;
 
 public:
-
     /**
      * Constructor
      * @param server            Server that created this connection
@@ -97,7 +96,6 @@ public:
     }
 
 protected:
-
     /**
      * Assign new socket
      * @param socket            Socket to assign
@@ -107,12 +105,11 @@ protected:
     void parseAddress(const sockaddr_in* connectionAddress);
 
 private:
-
     mutable std::mutex m_mutex;
-    TCPServer& m_server;          ///< Parent server object
-    STCPSocket m_socket;          ///< Connection socket
-    String m_address;             ///< Incoming connection IP address
-    size_t m_serial {0};          ///< Connection serial number
+    TCPServer& m_server; ///< Parent server object
+    STCPSocket m_socket; ///< Connection socket
+    String m_address;    ///< Incoming connection IP address
+    size_t m_serial {0}; ///< Connection serial number
 
     /**
      * Create next connection serial number
@@ -126,4 +123,4 @@ using SServerConnection = std::shared_ptr<ServerConnection>;
 /**
  * @}
  */
-}
+} // namespace sptk

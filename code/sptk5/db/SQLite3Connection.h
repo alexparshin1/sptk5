@@ -27,7 +27,6 @@
 #pragma once
 
 #include <sptk5/sptk.h>
-#include <sptk5/sptk.h>
 
 #ifdef HAVE_SQLITE3
 
@@ -51,7 +50,6 @@ class SP_EXPORT SQLite3Connection
     friend class Query;
 
 public:
-
     /**
      * @brief Constructor
      * @param connectionString  The SQLite3 connection string
@@ -96,7 +94,6 @@ public:
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
 protected:
-
     /**
      * @brief Begins the transaction
      */
@@ -184,12 +181,11 @@ protected:
     void _openDatabase(const String& connectionString = "") override;
 
 private:
-
     using SQLHSTMT = sqlite3_stmt*;
     using SQLHDBC = sqlite3*;
 
-    mutable std::mutex m_mutex;              ///< Mutex that protects access to data members
-    std::shared_ptr<sqlite3> m_connect;      ///< Database connection
+    mutable std::mutex m_mutex;         ///< Mutex that protects access to data members
+    std::shared_ptr<sqlite3> m_connect; ///< Database connection
     void bindParameter(const Query* query, uint32_t paramNumber) const;
 
     void closeAndClean();
@@ -198,7 +194,7 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif
 
