@@ -27,9 +27,9 @@
 #pragma once
 
 #include <sptk5/Field.h>
-#include <sptk5/xdoc/Node.h>
 #include <sptk5/wsdl/WSFieldIndex.h>
 #include <sptk5/wsdl/WSType.h>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
@@ -186,8 +186,7 @@ public:
     }
 
 private:
-
     std::vector<T> m_array;
 };
 
-}
+} // namespace sptk

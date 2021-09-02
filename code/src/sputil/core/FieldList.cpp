@@ -22,7 +22,7 @@
 │                                                                              │
 │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 └──────────────────────────────────────────────────────────────────────────────┘
- */
+*/
 
 #include <cstring>
 
@@ -97,7 +97,7 @@ SField FieldList::findField(const String& fname) const
     }
     else
     {
-        for (const auto& field: *this)
+        for (const auto& field : *this)
         {
             if (strcasecmp(field->m_name.c_str(), fname.c_str()) == 0)
             {
@@ -110,7 +110,7 @@ SField FieldList::findField(const String& fname) const
 
 void FieldList::exportTo(const xdoc::SNode& node, bool compactMode) const
 {
-    for (const auto& field: *this)
+    for (const auto& field : *this)
     {
         field->exportTo(node, compactMode);
     }
@@ -198,7 +198,8 @@ TEST(SPTK_FieldList, dataTypes)
     EXPECT_TRUE(fieldList["date"].asDateTime() == testDate);
     EXPECT_STREQ("2020-02-01T11:22:33Z",
                  fieldList["date"].asDateTime().isoDateTimeString(sptk::DateTime::PrintAccuracy::SECONDS,
-                                                                  true).c_str());
+                                                                  true)
+                     .c_str());
 
     EXPECT_TRUE(fieldList["null"].isNull());
     EXPECT_STREQ("1234", fieldList["text"].asString().c_str());

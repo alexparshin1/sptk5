@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/DateTime.h>
 #include <sptk5/Buffer.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <sptk5/VariantData.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -50,7 +50,6 @@ class SP_EXPORT BaseVariant
     friend class VariantAdaptors;
 
 public:
-
     /**
      * Returns the data type
      */
@@ -157,8 +156,7 @@ public:
     virtual uint32_t getImageNdx() const;
 
 protected:
-
-    VariantData m_data;                 ///< Internal variant data storage
+    VariantData m_data; ///< Internal variant data storage
 
     /**
      * Releases allocated buffer (if any)
@@ -198,7 +196,6 @@ class SP_EXPORT VariantAdaptors
     : public BaseVariant
 {
 public:
-
     /**
      * Assignment method
      */
@@ -329,7 +326,6 @@ public:
     const uint8_t* asImagePtr() const;
 
 protected:
-
     /**
      * Copies data from another CVariant
      */
@@ -346,7 +342,6 @@ class SP_EXPORT Variant
     : public VariantAdaptors
 {
 public:
-
     /**
      * Constructor
      */
@@ -540,4 +535,4 @@ using VariantVector = std::vector<Variant>;
 /**
  * @}
  */
-}
+} // namespace sptk

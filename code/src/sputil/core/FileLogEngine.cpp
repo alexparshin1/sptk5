@@ -69,7 +69,9 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
 }
 
 FileLogEngine::FileLogEngine(const fs::path& fileName)
-    : LogEngine("FileLogEngine"), m_fileName(fileName), m_fileStream(fileName.c_str())
+    : LogEngine("FileLogEngine")
+    , m_fileName(fileName)
+    , m_fileStream(fileName.c_str())
 {
 }
 
@@ -126,7 +128,7 @@ TEST(SPTK_FileLogEngine, create)
     content.loadFromFile(logFileName);
 
     EXPECT_EQ(content.size(), 5U);
-    for (String level: {"critical", "error", "warning", "info", "debug"})
+    for (String level : {"critical", "error", "warning", "info", "debug"})
     {
         const auto messages = content.grep(level.toUpperCase());
         EXPECT_EQ(messages.size(), 1U);
