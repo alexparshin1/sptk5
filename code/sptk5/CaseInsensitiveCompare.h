@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <sptk5/String.h>
 #include <sptk5/sptk.h>
 
 namespace sptk {
@@ -62,5 +63,4 @@ public:
  * @}
  */
 
-}
-
+} // namespace sptk
