@@ -66,6 +66,7 @@
 
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 #include <winsock2.h>
+
 #include <windows.h>
 #include <process.h>
 #pragma warning (disable: 4251)

@@ -30,8 +30,9 @@
 
 #ifdef _WIN32
 
-# include <windows.h>
 # include <winsock2.h>
+
+# include <windows.h>
 # include <io.h>
 # include <direct.h>
 

@@ -35,8 +35,9 @@
 #ifdef WIN32
 #include <sys/types.h>
 #include <time.h>
-#include <windows.h>
 #include <winsock2.h>
+
+#include <windows.h>
 #else
 #define LPCVOID const void*
 #endif

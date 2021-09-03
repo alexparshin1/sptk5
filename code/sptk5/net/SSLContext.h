@@ -26,12 +26,13 @@
 
 #pragma once
 
+#include <sptk5/sptk.h>
+
 #include <memory>
 #include <mutex>
 #include <openssl/ssl.h>
 #include <sptk5/String.h>
 #include <sptk5/net/SSLKeys.h>
-#include <sptk5/sptk.h>
 #include <sptk5/threads/Locks.h>
 
 namespace sptk {

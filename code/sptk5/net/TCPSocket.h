@@ -55,8 +55,10 @@ using SOCKET_ADDRESS_FAMILY = sa_family_t;
 #define INVALID_SOCKET (-1)
 
 #else
-#include <windows.h>
 #include <winsock2.h>
+
+#include <windows.h>
+
 using socklen_t = int;
 using SOCKET_ADDRESS_FAMILY = unsigned short;
 #endif

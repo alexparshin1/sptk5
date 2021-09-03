@@ -55,7 +55,8 @@ using socklen_t = int;
 
 #else
 #include <winsock2.h>
-    #include <windows.h>
+
+#include <windows.h>
     using socklen_t = int;
     using SOCKET_ADDRESS_FAMILY = unsigned short;
 #endif

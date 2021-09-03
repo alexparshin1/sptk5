@@ -26,11 +26,12 @@
 
 #pragma once
 
+#include <sptk5/sptk.h>
+
 #include <memory>
 #include <sptk5/net/SSLContext.h>
 #include <sptk5/net/SSLKeys.h>
 #include <sptk5/net/TCPSocket.h>
-#include <sptk5/sptk.h>
 
 namespace sptk {
 
