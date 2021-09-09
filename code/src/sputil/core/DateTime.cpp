@@ -1161,4 +1161,17 @@ TEST(SPTK_DateTime, parsePerformance)
     COUT("Performed " << size_t(maxTests / millisecondsInSecond / durationSec) << "K parses/sec" << endl)
 }
 
+TEST(SPTK_DateTime, tzset)
+{
+    TimeZone::set("Australia/Melbourne");
+    auto currentTimeZoneOffset = TimeZone::offset();
+    EXPECT_NE(currentTimeZoneOffset, 0);
+
+    TimeZone::set("GMT");
+    EXPECT_EQ(0, TimeZone::offset());
+
+    TimeZone::set("Australia/Melbourne");
+    EXPECT_EQ(currentTimeZoneOffset, TimeZone::offset());
+}
+
 #endif
