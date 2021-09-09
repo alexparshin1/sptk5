@@ -106,11 +106,9 @@ static int decodeTZOffset(const char* tzOffset)
 
 char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
 {
-    char separator = ' ';
-
     // find a separator char
     size_t separatorPos = dateOrTime.find_first_not_of("0123456789 ");
-    separator = dateOrTime[separatorPos];
+    char separator = dateOrTime[separatorPos];
 
     const auto* ptr = dateOrTime.c_str();
 
