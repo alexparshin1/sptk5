@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <ctime>
 #include <cmath>
 #include <cstring>
+#include <ctime>
 #include <sptk5/cutils>
 
 using namespace std;
@@ -50,19 +50,19 @@ public:
 static const array<short, 12> gRegularYear = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 static const array<short, 12> gLeapYear = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-String   DateTime::_dateFormat;
-String   DateTime::_datePartsOrder;
-String   DateTime::_fullTimeFormat;
-String   DateTime::_shortTimeFormat;
-char     DateTime::_dateSeparator;
-char     DateTime::_timeSeparator;
-Strings  DateTime::_weekDayNames;
-Strings  DateTime::_monthNames;
+String DateTime::_dateFormat;
+String DateTime::_datePartsOrder;
+String DateTime::_fullTimeFormat;
+String DateTime::_shortTimeFormat;
+char DateTime::_dateSeparator;
+char DateTime::_timeSeparator;
+Strings DateTime::_weekDayNames;
+Strings DateTime::_monthNames;
 
-bool     DateTime::_time24Mode;
-String   DateTime::_timeZoneName;
-int      DateTime::_timeZoneOffset;
-int      DateTime::_isDaylightSavingsTime;
+bool DateTime::_time24Mode;
+String DateTime::_timeZoneName;
+int DateTime::_timeZoneOffset;
+int DateTime::_isDaylightSavingsTime;
 
 constexpr int minutesInHour = 60;
 constexpr int secondsInMinute = 60;
@@ -122,23 +122,23 @@ char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
         switch (string2int(ptr))
         {
             case 10:
-                pattern = "19";   // hour (12-hour mode)
+                pattern = "19"; // hour (12-hour mode)
                 DateTime::_time24Mode = false;
                 break;
             case 22:
-                pattern = "29";    // hour (24-hour mode)
+                pattern = "29"; // hour (24-hour mode)
                 DateTime::_time24Mode = true;
                 break;
             case 48:
             case 59:
-                pattern = "59";    // second
+                pattern = "59"; // second
                 break;
             case 17:
-                pattern = "39";   // day
+                pattern = "39"; // day
                 DateTime::_datePartsOrder += "D";
                 break;
             case 6:
-                pattern = "19";   // month
+                pattern = "19"; // month
                 DateTime::_datePartsOrder += "M";
                 break;
             case 2000:
@@ -176,13 +176,13 @@ void DateTimeFormat::init() noexcept
 {
     // make a special date and time - today :)
     struct tm t = {};
-    t.tm_year = 100;    // since 1900, -> 2000
-    t.tm_mon = 5;      // June (January=0)
+    t.tm_year = 100; // since 1900, -> 2000
+    t.tm_mon = 5;    // June (January=0)
     t.tm_mday = 17;
     t.tm_hour = 22;
     t.tm_min = 48;
     t.tm_sec = 59;
-    t.tm_wday = 0;      // Sunday
+    t.tm_wday = 0; // Sunday
 
 #ifdef __linux__
     // For unknown reason this call of setlocale() under Windows makes
@@ -204,7 +204,7 @@ void DateTimeFormat::init() noexcept
 
     // Filling up the week day names, as defined in locale.
     // This date should be Monday:
-    t.tm_year = 103;    // since 1900, -> 2003
+    t.tm_year = 103; // since 1900, -> 2003
     t.tm_mon = 9;
     t.tm_mday = 21;
     t.tm_hour = 0;
@@ -220,7 +220,7 @@ void DateTimeFormat::init() noexcept
 
     // Filling up the month names, as defined in locale.
     // This date should be January 1st:
-    t.tm_year = 103;    // since 1900, -> 2003
+    t.tm_year = 103; // since 1900, -> 2003
     t.tm_mon = 1;
     t.tm_mday = 1;
     t.tm_hour = 0;
@@ -236,7 +236,7 @@ void DateTimeFormat::init() noexcept
     }
     ::tzset();
 #if defined(__BORLANDC__) || _MSC_VER > 1800
-    const char *ptr = _tzname[0];
+    const char* ptr = _tzname[0];
 #else
     const char* ptr = tzname[0];
 #endif
@@ -251,7 +251,8 @@ void DateTimeFormat::init() noexcept
 
     time_t ts = time(nullptr);
     array<char, 16> buf {};
-    struct tm ltime {};
+    struct tm ltime {
+    };
 #ifdef _WIN32
     localtime_s(&ltime, &ts);
 #else
@@ -270,8 +271,8 @@ static const DateTimeFormat dateTimeFormatInitializer;
 namespace sptk {
 
 #if _WIN32
-#define gmtime_r(a,b)		gmtime_s(b,a)
-#define localtime_r(a,b)	localtime_s(b,a)
+#define gmtime_r(a, b) gmtime_s(b, a)
+#define localtime_r(a, b) localtime_s(b, a)
 #endif
 
 static void decodeDate(const DateTime::time_point& dt, short& year, short& month, short& day, short& dayOfWeek,
@@ -513,7 +514,7 @@ static void encodeDate(DateTime::time_point& dt, const char* dat)
     }
 
     if (timePtr != nullptr)
-    {// Time part included into string
+    { // Time part included into string
         DateTime::time_point dtime;
         encodeTime(dtime, timePtr);
         dt += dtime.time_since_epoch();
@@ -548,7 +549,7 @@ static int isLeapYear(const int16_t year)
     return ((year & 3) == 0 && year % 100) || ((year % 400) == 0);
 }
 
-}
+} // namespace sptk
 
 void TimeZone::set(const String& timeZoneName)
 {
@@ -618,7 +619,9 @@ DateTime::DateTime(const char* dat) noexcept
     }
 
     while (*dat == ' ')
-    { ++dat; }
+    {
+        ++dat;
+    }
     if (*dat == char(0))
     {
         m_dateTime = time_point();
@@ -715,7 +718,7 @@ DateTime::duration operator-(const DateTime& dt, const sptk::DateTime& dt2)
 }
 
 
-}
+} // namespace sptk
 
 //----------------------------------------------------------------
 // Format routine
@@ -858,7 +861,7 @@ DateTime DateTime::date() const
 {
     duration sinceEpoch = m_dateTime.time_since_epoch();
     long days = duration_cast<hours>(sinceEpoch).count() / hoursInDay;
-    DateTime dt(time_point() + hours(days * hoursInDay));  // Sets the current date
+    DateTime dt(time_point() + hours(days * hoursInDay)); // Sets the current date
     return dt;
 }
 
@@ -1106,7 +1109,8 @@ TEST(SPTK_DateTime, formatTime)
     strftime(buffer.data(), sizeof(buffer) - 1, "%X", &tt);
 
     EXPECT_STREQ("11:22:33.444Z", dateTime.timeString(DateTime::PF_GMT | DateTime::PF_TIMEZONE,
-                                                      DateTime::PrintAccuracy::MILLISECONDS).c_str());
+                                                      DateTime::PrintAccuracy::MILLISECONDS)
+                                      .c_str());
     EXPECT_STREQ("11:22:33", dateTime.timeString(DateTime::PF_GMT).c_str());
 }
 
