@@ -39,7 +39,7 @@ using namespace chrono;
 class CSSLLibraryLoader
 {
 #if OPENSSL_API_COMPAT >= 0x10100000L
-    static std::mutex*          m_locks;
+    static std::mutex* m_locks;
 #endif
 
     static CSSLLibraryLoader m_loader;
@@ -71,25 +71,24 @@ class CSSLLibraryLoader
 #else
         ret = pthread_self();
 #endif
-        return(ret);
+        return (ret);
     }
 
     static void init_locks()
     {
         m_locks = new mutex[CRYPTO_num_locks()];
         CRYPTO_set_id_callback(thread_id);
-        CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback);
+        CRYPTO_set_locking_callback((void(*)(int, int, const char*, int)) lock_callback);
     }
 
     static void kill_locks()
     {
         CRYPTO_set_locking_callback(NULL);
-        delete [] m_locks;
+        delete[] m_locks;
     }
 #endif
 
 public:
-
     CSSLLibraryLoader() noexcept
     {
         load_library();
@@ -97,6 +96,9 @@ public:
         init_locks();
 #endif
     }
+
+    CSSLLibraryLoader(const CSSLLibraryLoader&) = delete;
+    CSSLLibraryLoader& operator=(const CSSLLibraryLoader&) = delete;
 
     ~CSSLLibraryLoader() noexcept
     {
@@ -122,10 +124,10 @@ public:
 };
 
 #if OPENSSL_API_COMPAT >= 0x10100000L
-mutex*              CSSLLibraryLoader::m_locks;
+mutex* CSSLLibraryLoader::m_locks;
 #endif
 
-CSSLLibraryLoader   CSSLLibraryLoader::m_loader;
+CSSLLibraryLoader CSSLLibraryLoader::m_loader;
 
 void SSLSocket::throwSSLError(const String& function, int rc) const
 {
@@ -343,7 +345,7 @@ size_t SSLSocket::socketBytes()
     }
     if (m_ssl != nullptr)
     {
-        array<char, 8> dummy;
+        array<char, 8> dummy {};
         SSL_read(m_ssl, dummy.data(), 0);
         return (uint32_t) SSL_pending(m_ssl);
     }
@@ -382,7 +384,8 @@ size_t SSLSocket::send(const uint8_t* buffer, size_t len)
     {
         return 0;
     }
-    auto* ptr = (const char*) buffer;
+
+    const auto* ptr = (const char*) buffer;
     auto totalLen = (uint32_t) len;
     for (;;)
     {
@@ -408,7 +411,9 @@ size_t SSLSocket::send(const uint8_t* buffer, size_t len)
         {
             throw Exception(getSSLError("writing to SSL connection", errorCode));
         }
-        this_thread::sleep_for(chrono::milliseconds(10));
+
+        constexpr auto smallDelay = chrono::milliseconds(10);
+        this_thread::sleep_for(smallDelay);
     }
 }
 

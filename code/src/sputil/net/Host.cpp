@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/BaseSocket.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/SystemException.h>
+#include <sptk5/net/BaseSocket.h>
 
 #ifndef _WIN32
 
@@ -45,7 +45,8 @@ Host::Host() noexcept
 }
 
 Host::Host(const String& hostname, uint16_t port)
-    : m_hostname(hostname), m_port(port)
+    : m_hostname(hostname)
+    , m_port(port)
 {
     getHostAddress();
     setPort(m_port);
@@ -96,7 +97,7 @@ void Host::setHostNameFromAddress(socklen_t addressLen)
     array<char, NI_MAXHOST> hbuf {};
     array<char, NI_MAXSERV> sbuf {};
 #ifdef _WIN32
-    if (getnameinfo((const sockaddr*)m_address.data(), addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
+    if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
         m_hostname = hbuf.data();
 #else
     if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(),
@@ -109,14 +110,16 @@ void Host::setHostNameFromAddress(socklen_t addressLen)
 }
 
 Host::Host(const Host& other)
-    : m_hostname(other.m_hostname), m_port(other.m_port)
+    : m_hostname(other.m_hostname)
+    , m_port(other.m_port)
 {
     SharedLock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
 Host::Host(Host&& other) noexcept
-    : m_hostname(exchange(other.m_hostname, "")), m_port(exchange(other.m_port, 0))
+    : m_hostname(exchange(other.m_hostname, ""))
+    , m_port(exchange(other.m_port, 0))
 {
     SharedLock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
@@ -178,8 +181,8 @@ static struct addrinfo* safeGetAddrInfo(const String& hostname)
 
     struct addrinfo hints = {};
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;          // IPv4 or IPv6
-    hints.ai_socktype = SOCK_STREAM;    // Socket type
+    hints.ai_family = AF_INET;       // IPv4 or IPv6
+    hints.ai_socktype = SOCK_STREAM; // Socket type
     hints.ai_protocol = 0;
 
     UniqueLock(getaddrinfoMutex);
@@ -204,13 +207,14 @@ void Host::getHostAddress()
     memset(&m_address, 0, sizeof(m_address));
     any().sa_family = host_info->h_addrtype;
 
-    switch (any().sa_family) {
-    case AF_INET:
-        memcpy(&ip_v4().sin_addr, host_info->h_addr, size_t(host_info->h_length));
-        break;
-    case AF_INET6:
-        memcpy(&ip_v6().sin6_addr, host_info->h_addr, size_t(host_info->h_length));
-        break;
+    switch (any().sa_family)
+    {
+        case AF_INET:
+            memcpy(&ip_v4().sin_addr, host_info->h_addr, size_t(host_info->h_length));
+            break;
+        case AF_INET6:
+            memcpy(&ip_v6().sin6_addr, host_info->h_addr, size_t(host_info->h_length));
+            break;
     }
 #else
     struct addrinfo* result = safeGetAddrInfo(m_hostname);
@@ -326,8 +330,6 @@ TEST(SPTK_Host, ctorMove)
 {
     Host host1("11.22.33.44", sshPort);
     Host host2(move(host1));
-    EXPECT_STREQ("", host1.hostname().c_str());
-    EXPECT_EQ(0, host1.port());
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
     EXPECT_EQ(sshPort, host2.port());
 }

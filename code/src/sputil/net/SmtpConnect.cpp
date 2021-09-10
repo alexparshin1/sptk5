@@ -41,7 +41,7 @@ constexpr int RSP_BLOCK_SIZE = 1024;
 
 int SmtpConnect::getResponse(bool decode)
 {
-    array<char, RSP_BLOCK_SIZE + 1> readBuffer;
+    array<char, RSP_BLOCK_SIZE + 1> readBuffer {};
     String longLine;
     bool readCompleted = false;
     int rc = 0;
@@ -61,8 +61,7 @@ int SmtpConnect::getResponse(bool decode)
             {
                 len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
                 longLine += readBuffer.data();
-            }
-            while (len == RSP_BLOCK_SIZE);
+            } while (len == RSP_BLOCK_SIZE);
         }
 
         if (longLine[3] == ' ')
@@ -150,7 +149,8 @@ String SmtpConnect::unmime(const String& s)
 void SmtpConnect::cmd_auth(const String& user, const String& password)
 {
     close();
-    open(Host(), OpenMode::CONNECT, true, chrono::seconds(30));
+    constexpr auto connectTimeout = chrono::seconds(30);
+    open(Host(), OpenMode::CONNECT, true, connectTimeout);
 
     m_response.clear();
     getResponse();
@@ -254,7 +254,9 @@ void SmtpConnect::sendMessage()
     for (uint32_t i = 0; i < cnt; ++i)
     {
         if (trim(recepients[i]).empty())
-        { continue; }
+        {
+            continue;
+        }
         rc = command("RCPT TO:<" + parseAddress(recepients[i]) + ">");
         if (rc > 251)
         {

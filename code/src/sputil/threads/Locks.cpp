@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/Locks.h>
-#include <sptk5/Printer.h>
 #include <mutex>
+#include <sptk5/Printer.h>
+#include <sptk5/threads/Locks.h>
 
 #ifdef USE_GTEST
 
@@ -69,7 +69,8 @@ SharedLockInt::SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeo
     : mutex(mutex)
 {
 #if USE_SHARED_MUTEX
-    if (!mutex.try_lock_shared_for(timeout)) {
+    if (!mutex.try_lock_shared_for(timeout))
+    {
 #else
     if (!mutex.try_lock_for(timeout))
     {
@@ -82,15 +83,15 @@ SharedLockInt::SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeo
 }
 
 CopyLockInt::CopyLockInt(SharedMutex& destinationMutex, SharedMutex& sourceMutex)
-    : destinationLock(destinationMutex, defer_lock),
-      sourceLock(sourceMutex, defer_lock)
+    : destinationLock(destinationMutex, defer_lock)
+    , sourceLock(sourceMutex, defer_lock)
 {
     lock(destinationLock, sourceLock);
 }
 
 CompareLockInt::CompareLockInt(SharedMutex& mutex1, SharedMutex& mutex2)
-    : lock1(mutex1, std::defer_lock),
-      lock2(mutex2, std::defer_lock)
+    : lock1(mutex1, std::defer_lock)
+    , lock2(mutex2, std::defer_lock)
 {
     lock(lock1, lock2);
 }
@@ -127,18 +128,18 @@ public:
     }
 
 private:
-
     String aresult;
 };
 
-SharedMutex  LockTestThread::amutex;
+SharedMutex LockTestThread::amutex;
 
 TEST(SPTK_Locks, writeLockAndWait)
 {
     UniqueLock(LockTestThread::amutex);
     LockTestThread th;
     th.run();
-    this_thread::sleep_for(chrono::milliseconds(200));
+    constexpr auto smallDelay = chrono::milliseconds(200);
+    this_thread::sleep_for(smallDelay);
     th.join();
     EXPECT_TRUE(th.result().startsWith("lock timeout"));
 }

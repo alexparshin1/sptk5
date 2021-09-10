@@ -24,13 +24,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
+#include <array>
 #include <iomanip>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/ODBCConnection.h>
 #include <sptk5/db/Query.h>
-#include <array>
 
 constexpr size_t MAX_BUF = 1024;
 constexpr size_t MAX_NAME_LEN = 256;
@@ -62,8 +62,8 @@ protected:
 } // namespace sptk
 
 ODBCConnection::ODBCConnection(const String& connectionString)
-    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::GENERIC_ODBC),
-      m_connect(shared_ptr<ODBCConnectionBase>(new ODBCConnectionBase(),
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::GENERIC_ODBC)
+    , m_connect(shared_ptr<ODBCConnectionBase>(new ODBCConnectionBase(),
                                                [this](ODBCConnectionBase* ptr) {
                                                    close();
                                                    delete ptr;
@@ -266,10 +266,10 @@ void ODBCConnection::queryPrepare(Query* query)
 
     query->fields().clear();
 
-    char* sql = query->sql().empty() ? nullptr : &query->sql()[0];
+    char* sql = query->sql().empty() ? nullptr : query->sql().data();
     if (!successful(SQLPrepare(query->statement(), (SQLCHAR*) sql, SQL_NTS)))
-    THROW_QUERY_ERROR(query,
-                      queryError(query))
+        THROW_QUERY_ERROR(query,
+                          queryError(query))
 }
 
 void ODBCConnection::queryUnprepare(Query* query)
@@ -324,7 +324,7 @@ void ODBCConnection::queryExecute(Query* query)
     }
 
     if (!successful(rc))
-    THROW_QUERY_ERROR(query, queryError(query))
+        THROW_QUERY_ERROR(query, queryError(query))
 }
 
 int ODBCConnection::queryColCount(Query* query)
@@ -333,7 +333,7 @@ int ODBCConnection::queryColCount(Query* query)
 
     int16_t count = 0;
     if (!successful(SQLNumResultCols(query->statement(), &count)))
-    THROW_QUERY_ERROR(query, queryError(query))
+        THROW_QUERY_ERROR(query, queryError(query))
 
     return count;
 }
@@ -344,9 +344,9 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     SQLLEN result = 0;
 
     if (!successful(
-        SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr,
-                         &result)))
-    THROW_QUERY_ERROR(query, queryError(query))
+            SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr,
+                             &result)))
+        THROW_QUERY_ERROR(query, queryError(query))
     value = (int32_t) result;
 }
 
@@ -354,14 +354,14 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
 {
     int16_t available = 0;
     if (buff == nullptr || len <= 0)
-    THROW_QUERY_ERROR(query, "Invalid buffer or buffer len")
+        THROW_QUERY_ERROR(query, "Invalid buffer or buffer len")
 
     scoped_lock lock(*m_connect);
 
     if (!successful(
-        SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len,
-                         &available, nullptr)))
-    THROW_QUERY_ERROR(query, queryError(query))
+            SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len,
+                             &available, nullptr)))
+        THROW_QUERY_ERROR(query, queryError(query))
 }
 
 static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
@@ -472,7 +472,7 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
                 break;
 
             default:
-            THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'")
+                THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'")
         }
         SQLLEN* cbValue = nullptr;
         if (param->isNull())
@@ -524,7 +524,7 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantDa
             dataType = VariantDataType::VAR_FLOAT;
             break;
 
-        case SQL_DATE: // ODBC 2.0 only
+        case SQL_DATE:      // ODBC 2.0 only
         case SQL_TYPE_DATE: // ODBC 3.0 only
             cType = SQL_C_TIMESTAMP;
             dataType = VariantDataType::VAR_DATE;
@@ -659,7 +659,6 @@ void ODBCConnection::queryOpen(Query* query)
     if (query->fieldCount() == 0)
     {
         parseColumns(query, count);
-
     }
 
     querySetEof(query, false);
@@ -673,7 +672,9 @@ static uint32_t trimField(char* s, uint32_t sz)
     s[0] = '!';
 
     while (*p == ' ')
-    { --p; }
+    {
+        --p;
+    }
     *(++p) = 0;
 
     if (ch == ' ' && s[1] == 0)
@@ -745,7 +746,7 @@ SQLRETURN ODBCConnection::readTimestampField(SQLHSTMT statement, DatabaseField* 
 void ODBCConnection::queryFetch(Query* query)
 {
     if (!query->active())
-    THROW_QUERY_ERROR(query, "Dataset isn't open")
+        THROW_QUERY_ERROR(query, "Dataset isn't open")
 
     auto* statement = query->statement();
 

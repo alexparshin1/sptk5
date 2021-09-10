@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "zlib.h"
 #include <sptk5/Exception.h>
 #include <sptk5/ZLib.h>
-#include "zlib.h"
 
 #ifdef USE_GTEST
 
@@ -88,19 +88,17 @@ void ZLib::compress(Buffer& dest, const Buffer& src, int level)
         {
             strm.avail_out = CHUNK;
             strm.next_out = out.data();
-            ret = deflate(&strm, flush);    // no bad return value
+            ret = deflate(&strm, flush); // no bad return value
             if (ret == Z_STREAM_ERROR)
-            {      // state not clobbered
+            { // state not clobbered
                 throw Exception("compressed data error");
             }
             size_t have = CHUNK - strm.avail_out;
             dest.append(out.data(), have);
-        }
-        while (strm.avail_out == 0);
+        } while (strm.avail_out == 0);
 
         // Done when last data in file processed
-    }
-    while (!eof);
+    } while (!eof);
 
     // Clean up and return
     deflateEnd(&strm);
@@ -149,7 +147,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
             strm.next_out = out.data();
             ret = inflate(&strm, Z_NO_FLUSH);
             if (ret == Z_STREAM_ERROR)
-            {  // state not clobbered
+            { // state not clobbered
                 throw Exception("compressed data error");
             }
             switch (ret)
@@ -164,12 +162,10 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
             }
             unsigned have = CHUNK - strm.avail_out;
             dest.append(out.data(), have);
-        }
-        while (strm.avail_out == 0);
+        } while (strm.avail_out == 0);
 
         // Done when inflate() says it's done
-    }
-    while (ret != Z_STREAM_END);
+    } while (ret != Z_STREAM_END);
 
     // clean up and return
     inflateEnd(&strm);
@@ -235,9 +231,10 @@ TEST(SPTK_ZLib, performance)
     ZLib::compress(compressed, data);
     stopWatch.stop();
 
+    constexpr auto bytesInMB = 1E6;
     COUT("ZLib compressor:" << endl)
     COUT("Compressed " << data.bytes() << " bytes to " << compressed.bytes() << " bytes for "
-                       << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / 1E6 << " Mb/s)"
+                       << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / bytesInMB << " Mb/s)"
                        << endl)
 
     stopWatch.start();
@@ -245,7 +242,7 @@ TEST(SPTK_ZLib, performance)
     stopWatch.stop();
 
     COUT("Decompressed " << compressed.bytes() << " bytes to " << decompressed.bytes() << " bytes for "
-                         << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / 1E6
+                         << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / bytesInMB
                          << " Mb/s)" << endl)
 
     EXPECT_STREQ(data.c_str(), decompressed.c_str());

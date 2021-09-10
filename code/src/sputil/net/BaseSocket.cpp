@@ -39,8 +39,8 @@ using namespace sptk;
 
 
 #ifdef _WIN32
-static int   m_socketCount;
-static bool  m_inited(false);
+static int m_socketCount;
+static bool m_inited(false);
 #endif
 
 void sptk::throwSocketError(const String& operation, const char* file, int line)
@@ -49,10 +49,11 @@ void sptk::throwSocketError(const String& operation, const char* file, int line)
 #ifdef _WIN32
     LPCTSTR lpMsgBuf = nullptr;
     const DWORD dw = GetLastError();
-    if (dw != 0) {
+    if (dw != 0)
+    {
         FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
-            nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr );
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr);
         if (lpMsgBuf)
             errorStr = lpMsgBuf;
     }
@@ -70,22 +71,25 @@ void BaseSocket::init() noexcept
 {
     if (m_inited)
         return;
-    m_inited =  true;
-    WSADATA  wsaData = {};
-    const WORD     wVersionRequested = MAKEWORD (2, 0);
-    WSAStartup (wVersionRequested, &wsaData);
+    m_inited = true;
+    WSADATA wsaData = {};
+    const WORD wVersionRequested = MAKEWORD(2, 0);
+    WSAStartup(wVersionRequested, &wsaData);
 }
 
 void BaseSocket::cleanup() noexcept
 {
-    m_inited =  false;
+    m_inited = false;
     WSACleanup();
 }
 #endif
 
 // Constructor
 BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-    : m_sockfd(INVALID_SOCKET), m_domain(domain), m_type(type), m_protocol(protocol)
+    : m_sockfd(INVALID_SOCKET)
+    , m_domain(domain)
+    , m_type(type)
+    , m_protocol(protocol)
 {
 #ifdef _WIN32
     init();
@@ -130,7 +134,7 @@ size_t BaseSocket::socketBytes()
 #else
         int32_t rc = ioctl(m_sockfd, FIONREAD, &bytes);
 #endif
-rc < 0)
+        rc < 0)
         THROW_SOCKET_ERROR("Can't get socket bytes");
 
     return bytes;
@@ -138,18 +142,18 @@ rc < 0)
 
 size_t BaseSocket::recv(uint8_t* buffer, size_t len)
 {
-    return (size_t) ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
+    return (size_t)::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
 }
 
 size_t BaseSocket::send(const uint8_t* buffer, size_t len)
 {
-    return (size_t) ::send(m_sockfd, (const char*) buffer, (int32_t) len, 0);
+    return (size_t)::send(m_sockfd, (const char*) buffer, (int32_t) len, 0);
 }
 
 int32_t BaseSocket::control(int flag, const uint32_t* check) const
 {
 #ifdef _WIN32
-    return ioctlsocket (m_sockfd, flag, (u_long *) check);
+    return ioctlsocket(m_sockfd, flag, (u_long*) check);
 #else
     return fcntl(m_sockfd, flag, *check);
 #endif
@@ -307,7 +311,7 @@ void BaseSocket::close() noexcept
         shutdown(m_sockfd, SHUT_RDWR);
         ::close(m_sockfd);
 #else
-        closesocket (m_sockfd);
+        closesocket(m_sockfd);
 #endif
         m_sockfd = INVALID_SOCKET;
     }
@@ -407,31 +411,32 @@ size_t BaseSocket::write(const String& buffer, const sockaddr_in* peer)
 }
 
 #if (__FreeBSD__ | __OpenBSD__)
-#define CONNCLOSED (POLLHUP)
+constexpr int CONNCLOSED = POLLHUP;
 #else
-#define CONNCLOSED (POLLRDHUP|POLLHUP)
+constexpr int CONNCLOSED = POLLRDHUP | POLLHUP;
 #endif
 
 bool BaseSocket::readyToRead(chrono::milliseconds timeout)
 {
     const auto timeoutMS = (int) timeout.count();
 #ifdef _WIN32
-    WSAPOLLFD fdarray{};
+    WSAPOLLFD fdarray {};
     fdarray.fd = m_sockfd;
     fdarray.events = POLLRDNORM;
     int rc = WSAPoll(&fdarray, 1, timeoutMS);
-    switch (rc) {
-    case 0:
-        return false;
-    case 1:
-        if (fdarray.revents & POLLRDNORM)
-            return true;
-        if (fdarray.revents & POLLHUP)
-            throw ConnectionException("Connection closed");
-        break;
-    default:
-        THROW_SOCKET_ERROR("WSAPoll error");
-        break;
+    switch (rc)
+    {
+        case 0:
+            return false;
+        case 1:
+            if (fdarray.revents & POLLRDNORM)
+                return true;
+            if (fdarray.revents & POLLHUP)
+                throw ConnectionException("Connection closed");
+            break;
+        default:
+            THROW_SOCKET_ERROR("WSAPoll error");
+            break;
     }
     return false;
 #else
@@ -457,18 +462,19 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
     WSAPOLLFD fdarray {};
     fdarray.fd = m_sockfd;
     fdarray.events = POLLWRNORM;
-    switch (WSAPoll(&fdarray, 1, timeoutMS)) {
-    case 0:
-        return false;
-    case 1:
-        if (fdarray.revents & POLLWRNORM)
-            return true;
-        if (fdarray.revents & POLLHUP)
-            throw ConnectionException("Connection closed");
-        break;
-    default:
-        THROW_SOCKET_ERROR("WSAPoll error");
-        break;
+    switch (WSAPoll(&fdarray, 1, timeoutMS))
+    {
+        case 0:
+            return false;
+        case 1:
+            if (fdarray.revents & POLLWRNORM)
+                return true;
+            if (fdarray.revents & POLLHUP)
+                throw ConnectionException("Connection closed");
+            break;
+        default:
+            THROW_SOCKET_ERROR("WSAPoll error");
+            break;
     }
     return false;
 #else
@@ -487,22 +493,22 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 }
 
 #ifdef _WIN32
-# define VALUE_TYPE(val) (char*)(val)
+#define VALUE_TYPE(val) (char*) (val)
 #else
-# define VALUE_TYPE(val) (void*)(val)
+#define VALUE_TYPE(val) (void*) (val)
 #endif
 
 void BaseSocket::setOption(int level, int option, int value) const
 {
     const socklen_t len = sizeof(int);
-    if (setsockopt(m_sockfd, level, option, VALUE_TYPE (&value), len) != 0)
+    if (setsockopt(m_sockfd, level, option, VALUE_TYPE(&value), len) != 0)
         THROW_SOCKET_ERROR("Can't set socket option");
 }
 
 void BaseSocket::getOption(int level, int option, int& value) const
 {
     socklen_t len = sizeof(int);
-    if (getsockopt(m_sockfd, level, option, VALUE_TYPE (&value), &len) != 0)
+    if (getsockopt(m_sockfd, level, option, VALUE_TYPE(&value), &len) != 0)
         THROW_SOCKET_ERROR("Can't get socket option");
 }
 
@@ -510,7 +516,8 @@ void BaseSocket::getOption(int level, int option, int& value) const
 
 TEST(SPTK_BaseSocket, minimal)
 {
-    Host yahoo("www.yahoo.com", 443);
+    constexpr uint16_t sslPort {443};
+    Host yahoo("www.yahoo.com", sslPort);
     sockaddr_in address;
     yahoo.getAddress(address);
 
@@ -521,7 +528,8 @@ TEST(SPTK_BaseSocket, minimal)
 
 TEST(SPTK_BaseSocket, option)
 {
-    Host yahoo("www.yahoo.com", 80);
+    constexpr uint16_t sslPort {443};
+    Host yahoo("www.yahoo.com", sslPort);
     sockaddr_in address;
     yahoo.getAddress(address);
 

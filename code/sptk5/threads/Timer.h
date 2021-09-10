@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include "Thread.h"
 #include "Semaphore.h"
+#include "Thread.h"
 
 #include <functional>
 #include <set>
@@ -46,8 +46,7 @@ public:
     /**
      * Timer Event Id
      */
-    struct EventId
-    {
+    struct EventId {
         uint64_t serial {++Timer::nextSerial}; ///< Serial number
         DateTime when;                         ///< Execution date and time
         /**
@@ -153,11 +152,10 @@ public:
         bool fire();
 
     private:
-
-        EventId m_id;                ///< Event serial and when the event has to fire next time.
-        Callback m_callback;          ///< Event callback function, defined when event is scheduled.
-        std::chrono::milliseconds m_repeatInterval;    ///< Event repeat interval.
-        int m_repeatCount {0};   ///< Number of event repeats, -1 means no limit.
+        EventId m_id;                               ///< Event serial and when the event has to fire next time.
+        Callback m_callback;                        ///< Event callback function, defined when event is scheduled.
+        std::chrono::milliseconds m_repeatInterval; ///< Event repeat interval.
+        int m_repeatCount {0};                      ///< Number of event repeats, -1 means no limit.
     };
 
     /**
@@ -212,15 +210,13 @@ public:
     void cancel();
 
 protected:
-
-    void unlink(Event& event);                       ///< Remove event from this timer
+    void unlink(const Event& event); ///< Remove event from this timer
 
 private:
+    mutable std::mutex m_mutex; ///< Mutex protecting events set
+    std::set<Event> m_events;   ///< Events scheduled by this timer
 
-    mutable std::mutex m_mutex;        ///< Mutex protecting events set
-    std::set<Event> m_events;       ///< Events scheduled by this timer
-
-    static std::atomic<uint64_t> nextSerial;     ///< Event id serial
+    static std::atomic<uint64_t> nextSerial; ///< Event id serial
     static std::mutex timerThreadMutex;
     static std::shared_ptr<TimerThread> timerThread;
 

@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/net/UDPSocket.h>
 #include <sptk5/threads/Thread.h>
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -39,7 +39,7 @@ UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY _domain)
 
 size_t UDPSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
 {
-    sockaddr_in6 addr;
+    sockaddr_in6 addr {};
     if (from == nullptr)
     {
         from = (sockaddr_in*) &addr;
@@ -76,15 +76,19 @@ size_t UDPSocket::read(String& buffer, size_t size, sockaddr_in* from)
 
 #ifdef USE_GTEST
 
+static constexpr uint16_t testPort = 3000;
+
 class UDPEchoServer
-    : public UDPSocket, public Thread
+    : public UDPSocket
+    , public Thread
 {
     UDPSocket socket;
+
 public:
     UDPEchoServer()
         : Thread("UDP server")
     {
-        socket.bind(nullptr, 3000);
+        socket.bind(nullptr, testPort);
     }
 
     void getAddress(sockaddr_in& addr) const
@@ -140,7 +144,7 @@ TEST(SPTK_UDPSocket, minimal)
     echoServer.run();
 
     sockaddr_in serverAddr {};
-    Host serverHost("127.0.0.1:3000");
+    Host serverHost("127.0.0.1", testPort);
     serverHost.getAddress(serverAddr);
 
     Strings rows("Hello, World!\n"
@@ -153,11 +157,12 @@ TEST(SPTK_UDPSocket, minimal)
     UDPSocket socket;
 
     int rowCount = 0;
+    constexpr auto readTimeout = chrono::milliseconds(100);
     for (const auto& row: rows)
     {
         socket.write((const uint8_t*) row.c_str(), row.length(), &serverAddr);
         buffer.bytes(0);
-        if (socket.readyToRead(chrono::milliseconds(100)))
+        if (socket.readyToRead(readTimeout))
         {
             auto bytes = socket.read(buffer.data(), 2048);
             if (bytes > 0)

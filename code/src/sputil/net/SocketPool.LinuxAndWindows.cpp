@@ -125,7 +125,7 @@ constexpr int MAXEVENTS = 16;
 
 void SocketPool::waitForEvents(chrono::milliseconds timeout) const
 {
-    array < epoll_event, MAXEVENTS > events;
+    array<epoll_event, MAXEVENTS> events {};
 
     int eventCount = epoll_wait(m_pool, events.data(), MAXEVENTS, (int) timeout.count());
     if (eventCount < 0)

@@ -48,9 +48,10 @@ ThreadManager::Joiner::Joiner(const String& name)
 
 void ThreadManager::Joiner::threadFunction()
 {
+    constexpr auto timeout = std::chrono::milliseconds(1000);
     while (!terminated())
     {
-        joinTerminatedThreads(std::chrono::milliseconds(1000));
+        joinTerminatedThreads(timeout);
     }
 }
 
@@ -90,7 +91,7 @@ void ThreadManager::stop()
 void ThreadManager::terminateRunningThreads()
 {
     scoped_lock lock(m_mutex);
-    for (const auto&[thread, threadSPtr]: m_runningThreads)
+    for (const auto& [thread, threadSPtr]: m_runningThreads)
     {
         m_joiner->push(threadSPtr);
         threadSPtr->terminate();
@@ -146,7 +147,7 @@ public:
     static atomic<size_t> taskCounter;
     static atomic<size_t> joinCounter;
 
-    ThreadManagerTestThread(const String& name, const shared_ptr<ThreadManager> threadManager)
+    ThreadManagerTestThread(const String& name, const shared_ptr<ThreadManager>& threadManager)
         : Thread(name, threadManager)
     {
     }
@@ -159,8 +160,9 @@ public:
 protected:
     void threadFunction() override
     {
+        constexpr auto tenMilliseconds = milliseconds(10);
         ++taskCounter;
-        sleep_for(milliseconds(10));
+        sleep_for(tenMilliseconds);
     }
 };
 
@@ -169,18 +171,19 @@ atomic<size_t> ThreadManagerTestThread::joinCounter;
 
 TEST(SPTK_ThreadManager, minimal)
 {
-    size_t maxThreads = 10;
+    constexpr size_t maxThreads = 10;
     auto threadManager = make_shared<ThreadManager>("Test Manager");
 
     threadManager->start();
 
     for (size_t i = 0; i < maxThreads; ++i)
     {
-        auto thread = new ThreadManagerTestThread("thread " + to_string(i), threadManager);
+        auto* thread = new ThreadManagerTestThread("thread " + to_string(i), threadManager);
         thread->run();
     }
 
-    this_thread::sleep_for(milliseconds(200));
+    constexpr auto smallDelay = milliseconds(200);
+    this_thread::sleep_for(smallDelay);
     threadManager->stop();
 
     EXPECT_EQ(maxThreads, ThreadManagerTestThread::taskCounter);

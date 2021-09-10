@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Printer.h>
 #include <sptk5/cutils>
 #include <sptk5/net/SocketEvents.h>
-#include <sptk5/Printer.h>
 
 #include "EchoServer.h"
 
@@ -35,7 +35,9 @@ using namespace sptk;
 using namespace chrono;
 
 SocketEvents::SocketEvents(const String& name, const SocketEventCallback& eventsCallback, milliseconds timeout)
-    : Thread(name), m_socketPool(eventsCallback), m_timeout(timeout)
+    : Thread(name)
+    , m_socketPool(eventsCallback)
+    , m_timeout(timeout)
 {
     m_socketPool.open();
 }
@@ -72,7 +74,7 @@ void SocketEvents::add(BaseSocket& socket, uint8_t* userData)
             throw Exception("SocketEvents already stopped");
         }
         run();
-        m_started.wait_for(true, milliseconds(1000));
+        m_started.wait_for(true, seconds(1));
     }
     m_socketPool.watchSocket(socket, userData);
 }
@@ -129,8 +131,8 @@ class Reader
 {
 public:
     explicit Reader(const Strings& testRows)
-        : m_testRows(testRows),
-          m_current(m_testRows.begin())
+        : m_testRows(testRows)
+        , m_current(m_testRows.begin())
     {
     }
 
@@ -179,15 +181,15 @@ private:
 TEST(SPTK_SocketEvents, minimal)
 {
     auto eventsCallback = [](uint8_t* userData, SocketEventType eventType) {
-        auto reader = (Reader*) userData;
+        auto* reader = (Reader*) userData;
         switch (eventType)
         {
             case SocketEventType::HAS_DATA:
-            COUT("Socket has data: ")
+                COUT("Socket has data: ")
                 reader->receive();
                 break;
             case SocketEventType::CONNECTION_CLOSED:
-            COUT("Socket closed" << endl)
+                COUT("Socket closed" << endl)
                 break;
             default:
                 break;

@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Printer.h>
 #include <sptk5/xdoc/Document.h>
 #include <sptk5/xdoc/ExportJSON.h>
-#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -50,7 +50,7 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
 void readObjectData(const SNode& parent, const char* json, const char*& readPosition);
 
 String decode(const String& text);
-}
+} // namespace sptk::xdoc
 
 static constexpr int ERROR_CONTEXT_CHARS = 65;
 
@@ -493,7 +493,7 @@ String decode(const String& text)
     return result;
 }
 
-}
+} // namespace sptk::xdoc
 
 #ifdef USE_GTEST
 
@@ -550,15 +550,6 @@ TEST(SPTK_XDocument, importJsonExceptions)
     xdoc::Document document;
     const auto& root = document.root();
     EXPECT_THROW(Node::importJson(root, input), Exception);
-}
-
-TEST(SPTK_XDocument, importJsonTypes)
-{
-    Buffer input(R"([ null, "\u0410" ])");
-    xdoc::Document document;
-    const auto& root = document.root();
-    Node::importJson(root, input);
-    document.exportTo(xdoc::DataFormat::JSON, cout, true);
 }
 
 #endif

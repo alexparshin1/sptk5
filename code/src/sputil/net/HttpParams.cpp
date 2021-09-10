@@ -43,10 +43,10 @@ String Url::encode(const String& str)
 {
     auto cnt = (uint32_t) str.length();
     const char* src = str.c_str();
-    array<char, 5> hexBuffer;
+    array<char, 5> hexBuffer {};
     Buffer buffer(cnt * 3 + 1);
     buffer.data();
-    int len;
+    int len {0};
     while (*src != 0)
     {
         if (isalnum(*src) != 0)
@@ -78,7 +78,7 @@ String Url::encode(const String& str)
 String Url::decode(const String& str)
 {
     const char* src = str.c_str();
-    char dest;
+    char dest {0};
     Buffer buffer;
     while (*src != 0)
     {
@@ -107,7 +107,7 @@ String Url::decode(const String& str)
 
 HttpParams::HttpParams(std::initializer_list<std::pair<String, String>> lst)
 {
-    for (const auto&[name, value]: lst)
+    for (const auto& [name, value]: lst)
     {
         operator[](name) = value;
     }
@@ -137,7 +137,7 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
 void HttpParams::encode(Buffer& result) const
 {
     unsigned cnt = 0;
-    for (auto&[name, value]: *this)
+    for (const auto& [name, value]: *this)
     {
         String param;
         param = name + "=" + Url::encode(value);

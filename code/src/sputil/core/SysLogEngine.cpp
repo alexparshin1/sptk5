@@ -33,24 +33,25 @@
 using namespace std;
 using namespace sptk;
 
-SharedMutex      SysLogEngine::syslogMutex;
-atomic_bool      SysLogEngine::m_logOpened(false);
+SharedMutex SysLogEngine::syslogMutex;
+atomic_bool SysLogEngine::m_logOpened(false);
 
 #ifdef _WIN32
-bool             SysLogEngine::m_registrySet(false);
+bool SysLogEngine::m_registrySet(false);
 #endif
 
 SysLogEngine::SysLogEngine(const String& _programName, uint32_t facilities)
-    : LogEngine("SysLogEngine"), m_facilities(facilities)
+    : LogEngine("SysLogEngine")
+    , m_facilities(facilities)
 {
     programName(_programName);
 }
 
 void SysLogEngine::saveMessage(const Logger::UMessage& message)
 {
-    uint32_t options;
+    uint32_t options {0};
     String programName;
-    uint32_t facilities;
+    uint32_t facilities {0};
 
     getOptions(options, programName, facilities);
 
@@ -65,7 +66,8 @@ void SysLogEngine::saveMessage(const Logger::UMessage& message)
         }
         syslog((int) message->priority, "[%s] %s", priorityName(message->priority).c_str(), message->message.c_str());
 #else
-        if (m_logHandle.load() == nullptr) {
+        if (m_logHandle.load() == nullptr)
+        {
             OSVERSIONINFO version;
             version.dwOSVersionInfoSize = sizeof(version);
             if (!GetVersionEx(&version))
@@ -78,7 +80,8 @@ void SysLogEngine::saveMessage(const Logger::UMessage& message)
             throw Exception("Can't open Application Event Log");
 
         WORD eventType;
-        switch (message->priority) {
+        switch (message->priority)
+        {
             case LOG_EMERG:
             case LOG_ALERT:
             case LOG_CRIT:
@@ -94,18 +97,18 @@ void SysLogEngine::saveMessage(const Logger::UMessage& message)
         }
 
         //const char *messageStrings[] = { message, NULL };
-        LPCTSTR messageStrings[]= {TEXT(message->message.c_str())};
+        LPCTSTR messageStrings[] = {TEXT(message->message.c_str())};
 
         if (!ReportEvent(
-                        m_logHandle,    // handle returned by RegisterEventSource
-                        eventType,		// event type to log
-                        SPTK_MSG_CATEGORY, // event category
-                        MSG_TEXT,		// event identifier
-                        NULL,			// user security identifier (optional)
-                        1,				// number of strings to merge with message
-                        0,				// size of binary data, in bytes
-                        messageStrings,	// array of strings to merge with message
-                        NULL			// address of binary data
+                m_logHandle,       // handle returned by RegisterEventSource
+                eventType,         // event type to log
+                SPTK_MSG_CATEGORY, // event category
+                MSG_TEXT,          // event identifier
+                NULL,              // user security identifier (optional)
+                1,                 // number of strings to merge with message
+                0,                 // size of binary data, in bytes
+                messageStrings,    // array of strings to merge with message
+                NULL               // address of binary data
                 ))
         {
             throw Exception("Can't write an event to Application Event Log ");
@@ -137,7 +140,7 @@ void SysLogEngine::setupEventSource() const
     m_logOpened = false;
     closelog();
 #else
-    char *buffer = new char[_MAX_PATH];
+    char* buffer = new char[_MAX_PATH];
     GetModuleFileName(0, buffer, _MAX_PATH);
     string moduleFileName = buffer;
 
@@ -149,47 +152,51 @@ void SysLogEngine::setupEventSource() const
 
     unsigned long len = _MAX_PATH;
     unsigned long vtype = REG_EXPAND_SZ;
-    int rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, (BYTE*)buffer, &len);
-    if (rc != ERROR_SUCCESS) {
+    int rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, (BYTE*) buffer, &len);
+    if (rc != ERROR_SUCCESS)
+    {
 
         struct ValueData {
             const char* name;
             const char* strValue;
-            DWORD       intValue;
+            DWORD intValue;
         } valueData[5] = {
-            { "CategoryCount", NULL, 3 },
-            { "CategoryMessageFile", moduleFileName.c_str(), 0 },
-            { "EventMessageFile", moduleFileName.c_str(), 0 },
-            { "ParameterMessageFile", moduleFileName.c_str(), 0 },
-            { "TypesSupported", NULL, 7 }
-        };
+            {"CategoryCount", NULL, 3},
+            {"CategoryMessageFile", moduleFileName.c_str(), 0},
+            {"EventMessageFile", moduleFileName.c_str(), 0},
+            {"ParameterMessageFile", moduleFileName.c_str(), 0},
+            {"TypesSupported", NULL, 7}};
 
-        for (int i = 0; i < 5; i++) {
-            CONST BYTE * value;
+        for (int i = 0; i < 5; i++)
+        {
+            CONST BYTE* value;
             DWORD valueSize;
             DWORD valueType;
-            if (valueData[i].strValue == NULL) {
+            if (valueData[i].strValue == NULL)
+            {
                 // DWORD value
-                value = (CONST BYTE *) &(valueData[i].intValue);
+                value = (CONST BYTE*) &(valueData[i].intValue);
                 valueSize = sizeof(valueData[i].intValue);
                 valueType = REG_DWORD;
             }
-            else {
+            else
+            {
                 // String value
-                value = (CONST BYTE *) valueData[i].strValue;
-                valueSize = (DWORD)strlen(valueData[i].strValue) + 1;
+                value = (CONST BYTE*) valueData[i].strValue;
+                valueSize = (DWORD) strlen(valueData[i].strValue) + 1;
                 valueType = REG_EXPAND_SZ;
             }
             rc = RegSetValueEx(
-                keyHandle,          // handle to key to set value for
-                valueData[i].name,  // name of the value to set
-                0,                  // reserved
-                valueType,          // flag for value type
-                value,              // address of value data
-                valueSize           // size of value data
+                keyHandle,         // handle to key to set value for
+                valueData[i].name, // name of the value to set
+                0,                 // reserved
+                valueType,         // flag for value type
+                value,             // address of value data
+                valueSize          // size of value data
             );
 
-            if (rc != ERROR_SUCCESS) {
+            if (rc != ERROR_SUCCESS)
+            {
                 stringstream error;
                 error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
                 error << "value '" << valueData[i].name << "' to ";

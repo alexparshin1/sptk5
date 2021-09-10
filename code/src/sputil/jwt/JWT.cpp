@@ -28,8 +28,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/JWT.h>
 #include <sptk5/Base64.h>
+#include <sptk5/JWT.h>
 
 using namespace std;
 using namespace sptk;
@@ -92,7 +92,7 @@ const char* JWT::alg_str(Algorithm _alg)
 JWT::Algorithm JWT::str_alg(const char* alg)
 {
     static const map<String, Algorithm> algorithmInfo = {
-        {"NONE",  Algorithm::NONE},
+        {"NONE", Algorithm::NONE},
         {"HS256", Algorithm::HS256},
         {"HS384", Algorithm::HS384},
         {"HS512", Algorithm::HS512},
@@ -101,8 +101,7 @@ JWT::Algorithm JWT::str_alg(const char* alg)
         {"RS512", Algorithm::RS512},
         {"ES256", Algorithm::ES256},
         {"ES384", Algorithm::ES384},
-        {"ES512", Algorithm::ES512}
-    };
+        {"ES512", Algorithm::ES512}};
 
     if (alg == nullptr)
     {
@@ -475,8 +474,7 @@ static void jwt_verify_head(JWT* jwt, const Buffer& head)
 
 void JWT::decode(const char* token, const String& _key)
 {
-    struct Part
-    {
+    struct Part {
         const char* data;
         size_t length;
     };
@@ -715,9 +713,10 @@ TEST(SPTK_JWT, encode_hs256_decode)
     JWT jwt;
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
+    constexpr int secondsInDay = 86400;
     jwt.set("iat", (int) time(nullptr));
     jwt.set("iss", "https://test.com");
-    jwt.set("exp", (int) time(nullptr) + 86400);
+    jwt.set("exp", (int) time(nullptr) + secondsInDay);
 
     const auto& info = jwt.grants.root()->pushNode("info");
     info->set("company", "Linotex");
@@ -736,7 +735,7 @@ TEST(SPTK_JWT, encode_hs256_decode)
     jwt2.exportTo(copiedJSON, false);
 
     EXPECT_STREQ(originalJSON.str().c_str(), copiedJSON.str().c_str())
-                    << "Decoded JSON payload doesn't match the original";
+        << "Decoded JSON payload doesn't match the original";
 }
 
 #endif

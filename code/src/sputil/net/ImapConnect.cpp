@@ -37,7 +37,7 @@ static constexpr int RSP_BLOCK_SIZE = 1024;
 
 bool ImapConnect::getResponse(const String& ident)
 {
-    array<char, RSP_BLOCK_SIZE + 1> readBuffer;
+    array<char, RSP_BLOCK_SIZE + 1> readBuffer {};
 
     for (;;)
     {
@@ -49,12 +49,13 @@ bool ImapConnect::getResponse(const String& ident)
             {
                 len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
                 longLine += readBuffer.data();
-            }
-            while (len == RSP_BLOCK_SIZE);
+            } while (len == RSP_BLOCK_SIZE);
         }
         m_response.push_back(longLine);
         if (ident[0] == 0)
-        { return true; }
+        {
+            return true;
+        }
 
         if (longLine[0] == '*')
         {
@@ -68,7 +69,9 @@ bool ImapConnect::getResponse(const String& ident)
         {
             auto p = (uint32_t) ident.length();
             while (longLine[p] == ' ')
-            { ++p; }
+            {
+                ++p;
+            }
             switch (longLine[p])
             {
                 case 'O': // OK
@@ -94,7 +97,7 @@ static String quotes(const String& st)
 String ImapConnect::sendCommand(const String& cmd)
 {
     String command(cmd);
-    array<char, 10> id_str;
+    array<char, 10> id_str {};
     int len = snprintf(id_str.data(), sizeof(id_str), "a%03i ", ++m_ident);
     String ident(id_str.data(), (size_t) len);
     command = ident + cmd + "\n";
@@ -192,8 +195,7 @@ static const Strings required_headers {
     "CC",
     "Content-Type",
     "Reply-To",
-    "Return-Path"
-};
+    "Return-Path"};
 
 static void parse_header(const String& header, String& header_name, String& header_value)
 {
@@ -216,7 +218,7 @@ static void parse_header(const String& header, String& header_name, String& head
 
 static DateTime decodeDate(const String& dt)
 {
-    array<char, 40> temp;
+    array<char, 40> temp {};
     snprintf(temp.data(), sizeof(temp), "%s", dt.c_str() + 5);
 
     // 1. get the day of the month
@@ -359,7 +361,9 @@ void ImapConnect::parseMessage(FieldList& results, bool headers_only)
     }
 
     if (headers_only)
-    { return; }
+    {
+        return;
+    }
 
     String body;
     for (; i < m_response.size() - 1; ++i)
@@ -431,11 +435,15 @@ void ImapConnect::parseFolderList()
             // passing the attribute(s)
             const char* p = strstr(st.c_str() + prefix.length(), ") ");
             if (p == nullptr)
-            { continue; }
+            {
+                continue;
+            }
             // passing the reference
             p = strchr(p + 2, ' ');
             if (p == nullptr)
-            { continue; }
+            {
+                continue;
+            }
             ++p;
             // Ok, we found the path
             folder_names.push_back(strip_framing_quotes(p));

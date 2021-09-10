@@ -24,13 +24,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Printer.h>
 #include <sptk5/cthreads>
 #include <sptk5/net/HttpConnect.h>
-#include <sptk5/Printer.h>
 
+#include <sptk5/Brotli.h>
 #include <sptk5/ZLib.h>
 #include <sptk5/md5.h>
-#include <sptk5/Brotli.h>
 
 using namespace std;
 using namespace sptk;
@@ -39,8 +39,6 @@ HttpConnect::HttpConnect(TCPSocket& socket)
     : m_socket(socket)
 {
 }
-
-#define RSP_BLOCK_SIZE (1024*64)
 
 String HttpConnect::responseHeader(const String& headerName) const
 {
@@ -110,7 +108,7 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
     headers.push_back(command + " HTTP/1.1");
     headers.push_back("HOST: " + m_socket.host().toString(false));
 
-    for (const auto&[name, value]: m_requestHeaders)
+    for (const auto& [name, value]: m_requestHeaders)
     {
         headers.push_back(name + ": " + value);
     }
@@ -147,7 +145,7 @@ static bool compressPostData(const sptk::Strings& possibleContentEncodings, Stri
     };
 
     Strings encodings;
-    for (auto& contentEncoding: availableContentEncodings)
+    for (const auto& contentEncoding: availableContentEncodings)
     {
         if (possibleContentEncodings.indexOf(contentEncoding) != -1)
         {
@@ -196,8 +194,7 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
     bool compressed = false;
     size_t contentLength = postData.bytes();
     Buffer compressBuffer;
-    if (!possibleContentEncodings.empty()
-        && compressPostData(possibleContentEncodings, headers, postData, compressBuffer))
+    if (!possibleContentEncodings.empty() && compressPostData(possibleContentEncodings, headers, postData, compressBuffer))
     {
         compressed = true;
         contentLength = compressBuffer.bytes();
@@ -270,7 +267,8 @@ String HttpConnect::statusText() const
 
 HttpConnect::Authorization::Authorization(const String& method, const String& username, const String& password,
                                           const String& jwtToken)
-    : m_method(method), m_value(method == "basic" ? md5(username + ":" + password) : jwtToken)
+    : m_method(method)
+    , m_value(method == "basic" ? md5(username + ":" + password) : jwtToken)
 {
 }
 
@@ -282,13 +280,13 @@ TEST(SPTK_HttpConnect, get)
 
     auto socket = make_shared<TCPSocket>();
 
-    ASSERT_NO_THROW(socket->open(google));
-    ASSERT_TRUE(socket->active());
+    EXPECT_NO_THROW(socket->open(google));
+    EXPECT_TRUE(socket->active());
 
     HttpConnect http(*socket);
     Buffer output;
 
-    int statusCode;
+    int statusCode {500};
     try
     {
         statusCode = http.cmd_get("/", HttpParams(), output);

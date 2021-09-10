@@ -25,8 +25,8 @@
 */
 
 #include <sptk5/cutils>
-#include <sptk5/net/TCPServer.h>
 #include <sptk5/net/ServerConnection.h>
+#include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPSocket.h>
 
 #ifdef _WIN32
@@ -65,7 +65,9 @@ TCPServer& ServerConnection::server() const
 
 ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in* connectionAddress,
                                    const String& taskName)
-    : Runable(taskName), m_server(server), m_serial(nextSerial())
+    : Runable(taskName)
+    , m_server(server)
+    , m_serial(nextSerial())
 {
     parseAddress(connectionAddress);
 }
@@ -81,7 +83,7 @@ void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
         }
         else if (connectionAddress->sin_family == AF_INET6)
         {
-            auto* connectionAddress6 = (const sockaddr_in6*) connectionAddress;
+            const auto* connectionAddress6 = (const sockaddr_in6*) connectionAddress;
             inet_ntop(AF_INET6, &connectionAddress6->sin6_addr, address.data(), sizeof(address));
         }
     }

@@ -24,12 +24,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/HttpProxy.h>
-#include <sptk5/net/SSLSocket.h>
 #include <sptk5/Base64.h>
 #include <sptk5/RegularExpression.h>
-#include <sptk5/net/HttpConnect.h>
 #include <sptk5/cutils>
+#include <sptk5/net/HttpConnect.h>
+#include <sptk5/net/HttpProxy.h>
+#include <sptk5/net/SSLSocket.h>
 
 #ifdef _WIN32
 #include <winhttp.h>
@@ -85,8 +85,9 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket) const
     RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
     if (auto responseMatches = matchProxyResponse.m(buffer.c_str()); responseMatches)
     {
+        constexpr int minimalHttpError = 400;
         int rc = responseMatches[0].value.toInt();
-        if (rc < 400)
+        if (rc < minimalHttpError)
         {
             proxyConnected = true;
         }
@@ -148,14 +149,14 @@ void HttpProxy::sendRequest(const Host& destination, const shared_ptr<TCPSocket>
 #ifdef _WIN32
 static bool windowsGetDefaultProxy(Host& host, String& username, String& password)
 {
-    WINHTTP_AUTOPROXY_OPTIONS  AutoProxyOptions {};
-    WINHTTP_PROXY_INFO         ProxyInfo {};
+    WINHTTP_AUTOPROXY_OPTIONS AutoProxyOptions {};
+    WINHTTP_PROXY_INFO ProxyInfo {};
 
     HINTERNET hHttpSession = WinHttpOpen(L"WinHTTP AutoProxy",
-        WINHTTP_ACCESS_TYPE_NO_PROXY,
-        WINHTTP_NO_PROXY_NAME,
-        WINHTTP_NO_PROXY_BYPASS,
-        0);
+                                         WINHTTP_ACCESS_TYPE_NO_PROXY,
+                                         WINHTTP_NO_PROXY_NAME,
+                                         WINHTTP_NO_PROXY_BYPASS,
+                                         0);
 
     if (!hHttpSession)
         throw Exception("Can't initialize WinHTTP");
@@ -178,9 +179,9 @@ static bool windowsGetDefaultProxy(Host& host, String& username, String& passwor
     char passWord[256] {};
     DWORD size = sizeof(password);
     if (WinHttpGetProxyForUrl(hHttpSession,
-    L"https://www.microsoft.com/ms.htm",
-    &AutoProxyOptions,
-    &ProxyInfo))
+                              L"https://www.microsoft.com/ms.htm",
+                              &AutoProxyOptions,
+                              &ProxyInfo))
     {
         if (ProxyInfo.lpszProxy == nullptr)
             return false;
@@ -286,8 +287,10 @@ TEST(SPTK_HttpProxy, connect)
         HttpConnect http(*socket);
 
         Buffer output;
+        constexpr int minimalHttpError = 400;
 
-        if (auto statusCode = http.cmd_get("/", HttpParams(), output); statusCode >= 400)
+        if (auto statusCode = http.cmd_get("/", HttpParams(), output);
+            statusCode >= minimalHttpError)
         {
             throw Exception(http.statusText());
         }

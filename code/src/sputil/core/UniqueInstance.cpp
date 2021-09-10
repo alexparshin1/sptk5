@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 
 #include <sptk5/Exception.h>
@@ -53,10 +53,14 @@ UniqueInstance::UniqueInstance(String instanceName)
         write_pid();
     }
 #else
-    m_mutex = CreateMutex(NULL,true,m_instanceName.c_str());
-    if (GetLastError() == 0) {
+    m_mutex = CreateMutex(NULL, true, m_instanceName.c_str());
+    if (GetLastError() == 0)
+    {
         m_lockCreated = shared_ptr<bool>(new bool,
-                                         [this](bool* ptr) { cleanup(); delete ptr; } );
+                                         [this](bool* ptr) {
+                                             cleanup();
+                                             delete ptr;
+                                         });
     }
 #endif
 }
@@ -64,7 +68,10 @@ UniqueInstance::UniqueInstance(String instanceName)
 void UniqueInstance::cleanup()
 {
 #ifndef _WIN32
-    unlink(m_fileName.c_str());
+    if (!m_fileName.empty())
+    {
+        unlink(m_fileName.c_str());
+    }
 #else
     CloseHandle(m_mutex);
 #endif
@@ -103,7 +110,7 @@ int UniqueInstance::write_pid()
     lockfile.close();
 
     m_lockCreated = shared_ptr<bool>(new bool,
-                                     [this](bool* ptr) {
+                                     [this](const bool* ptr) {
                                          cleanup();
                                          delete ptr;
                                      });
@@ -134,7 +141,8 @@ TEST(SPTK_UniqueInstance, create)
 
     // Simulate lock file with non-existing process
     ofstream lockFile(uniqueInstance.lockFileName());
-    lockFile << 123456;
+    constexpr int testPID = 123456;
+    lockFile << testPID;
     lockFile.close();
 
     UniqueInstance uniqueInstance2("unit_tests");
@@ -143,7 +151,8 @@ TEST(SPTK_UniqueInstance, create)
     // Get pid of existing process
     if (FILE* pipe1 = popen("pidof systemd", "r"); pipe1 != nullptr)
     {
-        array<char, 64> buffer {};
+        constexpr int bufferSize = 64;
+        array<char, bufferSize> buffer {};
         if (const char* data = fgets(buffer.data(), sizeof(buffer), pipe1); data != nullptr)
         {
             int pid = string2int(data);

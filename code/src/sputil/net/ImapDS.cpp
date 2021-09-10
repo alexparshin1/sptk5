@@ -38,8 +38,9 @@ bool ImapDS::open()
     m_imap.cmd_login(m_user, m_password);
 
     // Select the mail box
-    int32_t total_messages;
-    int32_t first_message = 1;
+    int32_t total_messages {0};
+    int32_t first_message {1};
+
     m_imap.cmd_select(m_folder, total_messages);
 
     if (m_msgid != 0)
@@ -47,6 +48,7 @@ bool ImapDS::open()
         first_message = m_msgid;
         total_messages = m_msgid;
     }
+
     if (total_messages != 0)
     {
         if (m_callback != nullptr)
@@ -62,7 +64,9 @@ bool ImapDS::open()
                 m_imap.cmd_fetch_message((int32_t) msg_id, df);
             }
             else
-            { m_imap.cmd_fetch_headers((int32_t) msg_id, df); }
+            {
+                m_imap.cmd_fetch_headers((int32_t) msg_id, df);
+            }
 
             auto fld = make_shared<Field>("msg_id");
             fld->view().width = 0;

@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/Timer.h>
 #include <sptk5/cutils>
+#include <sptk5/threads/Timer.h>
 
 using namespace std;
 using namespace sptk;
@@ -99,11 +99,9 @@ public:
     }
 
 protected:
-
     void threadFunction() override;
 
 private:
-
     using EventMap = map<Timer::EventId, Timer::Event, EventIdComparator>;
 
     mutex m_scheduledMutex;
@@ -141,19 +139,23 @@ private:
     }
 };
 
-mutex                   Timer::timerThreadMutex;
+mutex Timer::timerThreadMutex;
 shared_ptr<TimerThread> Timer::timerThread;
 
-atomic<uint64_t>    Timer::nextSerial;
+atomic<uint64_t> Timer::nextSerial;
 
 Timer::EventId::EventId(const DateTime& when)
-    : serial(++nextSerial), when(when)
+    : serial(++nextSerial)
+    , when(when)
 {
 }
 
 Timer::EventData::EventData(const DateTime& timestamp, const Callback& eventCallback, milliseconds repeatEvery,
                             int repeatCount)
-    : m_id(timestamp), m_callback(eventCallback), m_repeatInterval(repeatEvery), m_repeatCount(repeatCount)
+    : m_id(timestamp)
+    , m_callback(eventCallback)
+    , m_repeatInterval(repeatEvery)
+    , m_repeatCount(repeatCount)
 {
 }
 
@@ -216,7 +218,7 @@ Timer::~Timer()
     cancel();
 }
 
-void Timer::unlink(Event& event)
+void Timer::unlink(const Event& event)
 {
     scoped_lock lock(m_mutex);
     m_events.erase(event);
@@ -308,7 +310,7 @@ TEST(SPTK_Timer, repeat)
         this_thread::sleep_for(milliseconds(105));
         timer.cancel(handle);
 
-        EXPECT_NEAR(5, eventSet, 1);
+        EXPECT_NEAR(5, eventSet, 2);
     }
 }
 
@@ -323,7 +325,7 @@ public:
     static vector<size_t> eventData;
 };
 
-mutex          TimerTestData::eventCounterMutex;
+mutex TimerTestData::eventCounterMutex;
 vector<size_t> TimerTestData::eventCounter(MAX_EVENT_COUNTER);
 vector<size_t> TimerTestData::eventData(MAX_EVENT_COUNTER);
 
@@ -345,8 +347,7 @@ TEST(SPTK_Timer, fireOnce)
         [&counter, &counterMutex]() {
             scoped_lock lock(counterMutex);
             ++counter;
-        }
-    );
+        });
 
     this_thread::sleep_for(milliseconds(20));
 
@@ -366,8 +367,7 @@ TEST(SPTK_Timer, repeatTwice)
             scoped_lock lock(counterMutex);
             ++counter;
         },
-        2
-    );
+        2);
 
     this_thread::sleep_for(milliseconds(40));
 
@@ -454,6 +454,7 @@ class NotifyObject
 {
     mutable mutex m_mutex;
     int m_value {0};
+
 public:
     int getValue() const
     {
@@ -479,12 +480,10 @@ TEST(SPTK_Timer, notifyObjects)
 
     timer.fireAt(
         DateTime::Now() + milliseconds(10),
-        object1function
-    );
+        object1function);
     timer.fireAt(
         DateTime::Now() + milliseconds(10),
-        object2function
-    );
+        object2function);
     this_thread::sleep_for(milliseconds(30));
     EXPECT_EQ(object1.getValue(), 1);
     EXPECT_EQ(object2.getValue(), -1);
