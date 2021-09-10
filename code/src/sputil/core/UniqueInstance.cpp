@@ -56,13 +56,14 @@ UniqueInstance::UniqueInstance(String instanceName)
     m_mutex = CreateMutex(NULL, true, m_instanceName.c_str());
     if (GetLastError() == 0)
     {
-        m_lockCreated = shared_ptr<bool>(new bool,
-                                         [this](bool* ptr) {
-                                             cleanup();
-                                             delete ptr;
-                                         });
+        m_lockCreated = true;
     }
 #endif
+}
+
+UniqueInstance::~UniqueInstance()
+{
+    cleanup();
 }
 
 void UniqueInstance::cleanup()
@@ -109,11 +110,7 @@ int UniqueInstance::write_pid()
     lockfile << pid;
     lockfile.close();
 
-    m_lockCreated = shared_ptr<bool>(new bool,
-                                     [this](const bool* ptr) {
-                                         cleanup();
-                                         delete ptr;
-                                     });
+    m_lockCreated = true;
 
     return pid;
 }
@@ -127,7 +124,7 @@ const String& UniqueInstance::lockFileName() const
 
 bool UniqueInstance::isUnique() const
 {
-    return m_lockCreated != nullptr;
+    return m_lockCreated;
 }
 
 #ifdef USE_GTEST
