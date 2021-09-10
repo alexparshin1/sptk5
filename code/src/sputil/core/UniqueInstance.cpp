@@ -72,6 +72,7 @@ void UniqueInstance::cleanup()
     if (!m_fileName.empty())
     {
         unlink(m_fileName.c_str());
+        m_lockCreated = false;
     }
 #else
     CloseHandle(m_mutex);
