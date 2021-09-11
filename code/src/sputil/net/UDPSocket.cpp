@@ -77,6 +77,7 @@ size_t UDPSocket::read(String& buffer, size_t size, sockaddr_in* from)
 #ifdef USE_GTEST
 
 static constexpr uint16_t testPort = 3000;
+static constexpr auto readTimeout = chrono::milliseconds(200);
 
 class UDPEchoServer
     : public UDPSocket
@@ -114,7 +115,7 @@ public:
         {
             try
             {
-                if (socket.readyToRead(chrono::milliseconds(100)))
+                if (socket.readyToRead(readTimeout))
                 {
                     sockaddr_in from {};
                     size_t sz = socket.read(data.data(), 2048, &from);
@@ -157,7 +158,6 @@ TEST(SPTK_UDPSocket, minimal)
     UDPSocket socket;
 
     int rowCount = 0;
-    constexpr auto readTimeout = chrono::milliseconds(100);
     for (const auto& row: rows)
     {
         socket.write((const uint8_t*) row.c_str(), row.length(), &serverAddr);

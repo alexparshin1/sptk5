@@ -24,11 +24,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/xdoc/ExportJSON.h>
-#include <sptk5/RegularExpression.h>
 #include <iosfwd>
+#include <sptk5/RegularExpression.h>
 #include <sptk5/String.h>
 #include <sptk5/cutils>
+#include <sptk5/xdoc/ExportJSON.h>
 
 using namespace std;
 using namespace sptk;
@@ -234,7 +234,7 @@ void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool fo
     {
         stream << firstElement << "\"attributes\":" << spacing << "{";
 
-        for (const auto&[name, value]: node->attributes())
+        for (const auto& [name, value]: node->attributes())
         {
             if (first1)
             {
