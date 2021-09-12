@@ -24,9 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/WSBasicTypes.h>
-#include <sptk5/wsdl/WSArray.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/wsdl/WSArray.h>
+#include <sptk5/wsdl/WSBasicTypes.h>
+#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
@@ -99,7 +100,8 @@ void WSBasicType::throwIfNull(const String& parentTypeName) const
 
 void WSString::load(const SNode& attr, bool nullLargeData)
 {
-    if (attr->is(Node::Type::Null) || (nullLargeData && attr->getString().length() > 256))
+    constexpr size_t longStringLength = 256;
+    if (attr->is(Node::Type::Null) || (nullLargeData && attr->getString().length() > longStringLength))
     {
         setNull(VariantDataType::VAR_STRING);
     }
@@ -178,7 +180,7 @@ void WSDate::load(const SNode& attr, bool)
     }
     else
     {
-        value().setDateTime(DateTime(text.c_str()), true);
+        value().setDateTime(DateTime(text.c_str()), false);
     }
 }
 
@@ -301,7 +303,8 @@ void WSInteger::load(const String& attr)
     }
     else
     {
-        value().setInt64(strtol(attr.c_str(), nullptr, 10));
+        constexpr int decimal = 10;
+        value().setInt64(strtol(attr.c_str(), nullptr, decimal));
     }
 }
 
@@ -334,13 +337,14 @@ String sptk::wsTypeIdToName(const String& typeIdName)
 
 TEST(SPTK_WSInteger, move_ctor_assign)
 {
+    constexpr int testIntegerValue = 5;
     WSInteger integer1("I1", false);
-    integer1 = 5;
-    EXPECT_EQ(integer1.asInteger(), 5);
+    integer1 = testIntegerValue;
+    EXPECT_EQ(integer1.asInteger(), testIntegerValue);
     EXPECT_EQ(integer1.isNull(), false);
 
     WSInteger integer2(move(integer1));
-    EXPECT_EQ(integer2.asInteger(), 5);
+    EXPECT_EQ(integer2.asInteger(), testIntegerValue);
 
     WSInteger integer3("I3", false);
     integer3 = move(integer2);
@@ -429,6 +433,48 @@ TEST(SPTK_WSBasicTypes, scriptAttack)
     loadScriptAttackData<WSDouble>();
     loadScriptAttackData<WSInteger>();
     loadScriptAttackData<WSString>();
+}
+
+TEST(SPTK_WSBasicTypes, loadValue)
+{
+    constexpr int testIntegerValue = 1234567;
+    constexpr double testDoubleValue = 1234.567;
+
+    xdoc::Document document;
+    const auto& root = document.root();
+    root->set("date", DateTime("2021-01-02"));
+    root->set("datetime", DateTime("2021-01-02T11:12:13Z"));
+    root->set("true", true);
+    root->set("false", false);
+    root->set("integer", testIntegerValue);
+    root->set("double", testDoubleValue);
+    root->set("string", "Hello, World!");
+
+    WSDate date;
+    date.load(root->findFirst("date"), true);
+    EXPECT_STREQ(date.asDateTime().dateString().c_str(), DateTime("2021-01-02").dateString().c_str());
+
+    WSDateTime datetime;
+    datetime.load(root->findFirst("datetime"), true);
+    EXPECT_STREQ(datetime.asDateTime().isoDateTimeString().c_str(), DateTime("2021-01-02T11:12:13Z").isoDateTimeString().c_str());
+
+    WSBool boolean;
+    boolean.load(root->findFirst("true"), true);
+    EXPECT_EQ(boolean.asBool(), true);
+    boolean.load(root->findFirst("false"), true);
+    EXPECT_EQ(boolean.asBool(), false);
+
+    WSInteger integer;
+    integer.load(root->findFirst("integer"), true);
+    EXPECT_EQ(integer.asInteger(), testIntegerValue);
+
+    WSDouble wsDouble;
+    wsDouble.load(root->findFirst("double"), true);
+    EXPECT_EQ(wsDouble.asFloat(), testDoubleValue);
+
+    WSString string;
+    string.load(root->findFirst("string"), true);
+    EXPECT_STREQ(string.asString().c_str(), "Hello, World!");
 }
 
 #endif

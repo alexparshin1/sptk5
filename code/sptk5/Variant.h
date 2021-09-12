@@ -51,6 +51,16 @@ class SP_EXPORT BaseVariant
 
 public:
     /**
+     * @brief Default constructor
+     */
+    BaseVariant() = default;
+
+    /**
+     * @brief Default destructor
+     */
+    ~BaseVariant() = default;
+
+    /**
      * Returns the data type
      */
     VariantDataType dataType() const;
@@ -74,7 +84,7 @@ public:
     /**
      * Returns the internal buffer
      */
-    uint8_t* dataBuffer() const;
+    uint8_t* dataBuffer();
 
     /**
      * Null flag
@@ -196,6 +206,16 @@ class SP_EXPORT VariantAdaptors
     : public BaseVariant
 {
 public:
+    /**
+     * @brief Default constructor
+     */
+    VariantAdaptors() = default;
+
+    /**
+     * @brief Default destructor
+     */
+    virtual ~VariantAdaptors() = default;
+
     /**
      * Assignment method
      */

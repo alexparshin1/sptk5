@@ -37,6 +37,8 @@ using namespace xdoc;
 constexpr int BUFFER_TYPES =
     (int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT | (int) VariantDataType::VAR_BUFFER;
 
+constexpr int secondsInDay = 86400;
+
 array<int64_t, 16> MoneyData::dividers = {1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL,
                                           1000000000LL,
                                           10000000000LL, 100000000000LL,
@@ -359,8 +361,8 @@ void VariantAdaptors::setDateTime(DateTime value, bool dateOnly)
     {
         VariantType vtype {VariantDataType::VAR_DATE, false, false};
         m_data.type(vtype);
-        int64_t days = chrono::duration_cast<chrono::hours>(sinceEpoch).count() / 24;
-        m_data.getInt64() = days * 86400 * 1000000;
+        auto days = (chrono::duration_cast<chrono::seconds>(sinceEpoch).count() / secondsInDay) * secondsInDay;
+        m_data.getInt64() = days * 1000000;
     }
     else
     {
@@ -631,7 +633,7 @@ DateTime BaseVariant::getDateTime() const
 //---------------------------------------------------------------------------
 DateTime BaseVariant::getDate() const
 {
-    int64_t days = m_data.getInt64() / 1000000 / 86400;
+    int64_t days = m_data.getInt64() / 1000000 / secondsInDay;
     return DateTime(DateTime::time_point(chrono::hours(days * 24)));
 }
 
@@ -666,7 +668,7 @@ size_t BaseVariant::bufferSize() const
 }
 
 //---------------------------------------------------------------------------
-uint8_t* BaseVariant::dataBuffer() const
+uint8_t* BaseVariant::dataBuffer()
 {
     return (uint8_t*) &m_data;
 }
@@ -783,7 +785,7 @@ int64_t VariantAdaptors::asInt64() const
         case VariantDataType::VAR_TEXT:
         case VariantDataType::VAR_BUFFER:
 #ifdef _MSC_VER
-            return _atoi64 (m_data.getBuffer().data);
+            return _atoi64(m_data.getBuffer().data);
 #else
             return string2int64(m_data.getBuffer().data);
 #endif
@@ -941,11 +943,11 @@ String VariantAdaptors::asString() const
             break;
 
         case VariantDataType::VAR_DATE:
-            output = DateTime(chrono::microseconds(m_data.getInt64())).dateString();
+            output = DateTime(chrono::microseconds(m_data.getInt64())).dateString(DateTime::PF_RFC_DATE);
             break;
 
         case VariantDataType::VAR_DATE_TIME:
-            output = (String) DateTime(chrono::microseconds(m_data.getInt64()));
+            output = DateTime(chrono::microseconds(m_data.getInt64())).isoDateTimeString();
             break;
 
         case VariantDataType::VAR_IMAGE_PTR:
@@ -1140,19 +1142,19 @@ String BaseVariant::typeName(VariantDataType type)
 VariantDataType BaseVariant::nameType(const char* name)
 {
     static const std::map<string, VariantDataType, less<>> nameToTypeMap {
-        {typeName(VariantDataType::VAR_NONE),      VariantDataType::VAR_NONE},
-        {typeName(VariantDataType::VAR_INT),       VariantDataType::VAR_INT},
-        {typeName(VariantDataType::VAR_FLOAT),     VariantDataType::VAR_FLOAT},
-        {typeName(VariantDataType::VAR_MONEY),     VariantDataType::VAR_MONEY},
-        {typeName(VariantDataType::VAR_STRING),    VariantDataType::VAR_STRING},
-        {typeName(VariantDataType::VAR_TEXT),      VariantDataType::VAR_TEXT},
-        {typeName(VariantDataType::VAR_BUFFER),    VariantDataType::VAR_BUFFER},
-        {typeName(VariantDataType::VAR_DATE),      VariantDataType::VAR_DATE},
+        {typeName(VariantDataType::VAR_NONE), VariantDataType::VAR_NONE},
+        {typeName(VariantDataType::VAR_INT), VariantDataType::VAR_INT},
+        {typeName(VariantDataType::VAR_FLOAT), VariantDataType::VAR_FLOAT},
+        {typeName(VariantDataType::VAR_MONEY), VariantDataType::VAR_MONEY},
+        {typeName(VariantDataType::VAR_STRING), VariantDataType::VAR_STRING},
+        {typeName(VariantDataType::VAR_TEXT), VariantDataType::VAR_TEXT},
+        {typeName(VariantDataType::VAR_BUFFER), VariantDataType::VAR_BUFFER},
+        {typeName(VariantDataType::VAR_DATE), VariantDataType::VAR_DATE},
         {typeName(VariantDataType::VAR_DATE_TIME), VariantDataType::VAR_DATE_TIME},
         {typeName(VariantDataType::VAR_IMAGE_PTR), VariantDataType::VAR_IMAGE_PTR},
         {typeName(VariantDataType::VAR_IMAGE_NDX), VariantDataType::VAR_IMAGE_NDX},
-        {typeName(VariantDataType::VAR_INT64),     VariantDataType::VAR_INT64},
-        {typeName(VariantDataType::VAR_BOOL),      VariantDataType::VAR_BOOL},
+        {typeName(VariantDataType::VAR_INT64), VariantDataType::VAR_INT64},
+        {typeName(VariantDataType::VAR_BOOL), VariantDataType::VAR_BOOL},
     };
 
     if (name == nullptr || name[0] == 0)
@@ -1233,15 +1235,16 @@ void Variant::save(const SNode& node) const
 
 TEST(SPTK_Variant, ctors)
 {
+    constexpr double testDoubleValue {2.22};
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
     Variant v1(1);
-    Variant v2(2.22);
+    Variant v2(testDoubleValue);
     Variant v3("Test");
     Variant v4(testDate);
 
     EXPECT_EQ(1, v1.asInteger());
-    EXPECT_DOUBLE_EQ(2.22, v2.asFloat());
+    EXPECT_DOUBLE_EQ(testDoubleValue, v2.asFloat());
     EXPECT_STREQ("Test", v3.asString().c_str());
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  v4.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
@@ -1249,10 +1252,11 @@ TEST(SPTK_Variant, ctors)
 
 TEST(SPTK_Variant, copy_ctors)
 {
+    constexpr double testDoubleValue {2.22};
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
     Variant v1(1);
-    Variant v2(2.22);
+    Variant v2(testDoubleValue);
     Variant v3("Test");
     Variant v4(testDate);
     Variant v5;
@@ -1270,7 +1274,7 @@ TEST(SPTK_Variant, copy_ctors)
     Variant v7c(v7);
 
     EXPECT_EQ(1, v1c.asInteger());
-    EXPECT_DOUBLE_EQ(2.22, v2c.asFloat());
+    EXPECT_DOUBLE_EQ(testDoubleValue, v2c.asFloat());
     EXPECT_STREQ("Test", v3c.asString().c_str());
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  v4c.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());

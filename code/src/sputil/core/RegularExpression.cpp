@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <future>
 #include <regex>
+#include <sptk5/cutils>
 
 #if defined(HAVE_PCRE) | defined(HAVE_PCRE2)
 
@@ -35,10 +35,9 @@ using namespace sptk;
 
 namespace sptk {
 
-struct Match
-{
-    pcre_offset_t m_start {0};  ///< Match start
-    pcre_offset_t m_end {0};    ///< Match end
+struct Match {
+    pcre_offset_t m_start {0}; ///< Match start
+    pcre_offset_t m_end {0};   ///< Match end
 };
 
 class MatchData
@@ -50,9 +49,11 @@ public:
 
     MatchData(pcre2_code* pcre, size_t maxMatches)
         : match_data(shared_ptr<pcre2_match_data>(pcre2_match_data_create_from_pattern(pcre, nullptr),
-                                                  [](auto* ptr) { pcre2_match_data_free(ptr); })),
-          maxMatches(maxMatches + 2),
-          matches(maxMatches + 2)
+                                                  [](auto* ptr) {
+                                                      pcre2_match_data_free(ptr);
+                                                  }))
+        , maxMatches(maxMatches + 2)
+        , matches(maxMatches + 2)
     {
     }
 
@@ -60,8 +61,8 @@ public:
     static constexpr int reservedMatches = 4;
 
     MatchData(const pcre*, size_t maxMatches)
-    : maxMatches(maxMatches + reservedMatches),
-      matches(maxMatches + reservedMatches * 2)
+        : maxMatches(maxMatches + reservedMatches)
+        , matches(maxMatches + reservedMatches * 2)
     {
     }
 #endif
@@ -74,7 +75,7 @@ public:
     vector<Match> matches;
 };
 
-}
+} // namespace sptk
 
 size_t RegularExpression::getCaptureCount() const
 {
@@ -82,11 +83,11 @@ size_t RegularExpression::getCaptureCount() const
 
     if (
 #ifdef HAVE_PCRE2
-pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_CAPTURECOUNT, &captureCount)
+        pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_CAPTURECOUNT, &captureCount)
 #else
-pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_CAPTURECOUNT, &captureCount)
+        pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_CAPTURECOUNT, &captureCount)
 #endif
-!= 0)
+        != 0)
     {
         captureCount = 0;
     }
@@ -127,12 +128,12 @@ void RegularExpression::compile()
     PCRE2_SIZE erroroffset {0};
 
     auto* pcre = pcre2_compile(
-        (PCRE2_SPTR) m_pattern.c_str(),     // the pattern
-        PCRE2_ZERO_TERMINATED,              // indicates pattern is zero-terminated
-        m_options,                          // options
-        &errornumber,                       // for error number
-        &erroroffset,                       // for error offset
-        nullptr);                           // use default compile context
+        (PCRE2_SPTR) m_pattern.c_str(), // the pattern
+        PCRE2_ZERO_TERMINATED,          // indicates pattern is zero-terminated
+        m_options,                      // options
+        &errornumber,                   // for error number
+        &erroroffset,                   // for error offset
+        nullptr);                       // use default compile context
 
     if (pcre == nullptr)
     {
@@ -159,11 +160,15 @@ void RegularExpression::compile()
     if (!m_pcre)
         m_error = "PCRE pattern error at pattern offset " + int2string(errorOffset) + ": " + string(error);
 #if PCRE_MAJOR > 7
-    else {
+    else
+    {
         auto* pcreExtra = pcre_study(m_pcre.get(), 0, &error);
-        if (!pcreExtra && error) {
+        if (!pcreExtra && error)
+        {
             m_error = "PCRE pattern study error : " + string(error);
-        } else {
+        }
+        else
+        {
             m_pcreExtra = shared_ptr<PCREExtraHandle>(pcreExtra,
                                                       [](pcre_extra* study) {
                                                           pcre_free_study(study);
@@ -207,14 +212,15 @@ RegularExpression::RegularExpression(String pattern, const String& options)
 size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchData& matchData) const
 {
     if (!m_pcre)
-    throwException(m_error)
+        throwException(m_error)
 
 #ifdef HAVE_PCRE2
-    auto* ovector = pcre2_get_ovector_pointer(matchData.match_data.get());
+
+            const auto* ovector = pcre2_get_ovector_pointer(matchData.match_data.get());
 
     auto rc = pcre2_match(
         m_pcre.get(),               // the compiled pattern
-        (PCRE2_SPTR) text.c_str(),   // the subject string
+        (PCRE2_SPTR) text.c_str(),  // the subject string
         text.length(),              // the length of the subject
         offset,                     // start at offset in the subject
         0,                          // default options
@@ -233,28 +239,26 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
         if (m_options == 0)
         {
             return false;
-        }      /* All matches found */
-        ++offset;              /* Advance one code unit */
+        }         /* All matches found */
+        ++offset; /* Advance one code unit */
     }
 
     return rc >= 0;
 #else
-    int rc = pcre_exec(
-            m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
-            (pcre_offset_t*) matchData.matches.data(),
-            (pcre_offset_t) matchData.maxMatches * 2);
+            int rc = pcre_exec(
+                m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
+                (pcre_offset_t*) matchData.matches.data(),
+                (pcre_offset_t) matchData.maxMatches * 2);
 
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
 
-    if (rc < 0) {
-        switch (rc) {
-            case PCRE_ERROR_NULL         : throwException("Null argument")
-            case PCRE_ERROR_BADOPTION    : throwException("Invalid regular expression option")
-            case PCRE_ERROR_BADMAGIC     :
-            case PCRE_ERROR_UNKNOWN_NODE : throwException("Invalid compiled regular expression\n")
-            case PCRE_ERROR_NOMEMORY     : throwException("Out of memory")
-            default                      : throwException("Unknown error")
+    if (rc < 0)
+    {
+        switch (rc)
+        {
+            case PCRE_ERROR_NULL:
+                throwException("Null argument") case PCRE_ERROR_BADOPTION : throwException("Invalid regular expression option") case PCRE_ERROR_BADMAGIC : case PCRE_ERROR_UNKNOWN_NODE : throwException("Invalid compiled regular expression\n") case PCRE_ERROR_NOMEMORY : throwException("Out of memory") default : throwException("Unknown error")
         }
     }
 
@@ -336,8 +340,7 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
 
         first = false;
 
-    }
-    while (m_global && offset < text.length());
+    } while (m_global && offset < text.length());
 
     return matchedStrings;
 }
@@ -388,11 +391,11 @@ size_t RegularExpression::getNamedGroupCount() const
 
     if (
 #ifdef HAVE_PCRE2
-pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMECOUNT, &nameCount)
+        pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMECOUNT, &nameCount)
 #else
-pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_NAMECOUNT, &nameCount)
+        pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_NAMECOUNT, &nameCount)
 #endif
-!= 0)
+        != 0)
     {
         nameCount = 0;
     }
@@ -423,8 +426,7 @@ Strings RegularExpression::split(const String& text) const
             lastMatchEnd = match.m_end;
         }
 
-    }
-    while (offset);
+    } while (offset);
 
     matchedStrings.push_back(string(text.c_str() + lastMatchEnd));
 
@@ -490,8 +492,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
         // Append next replacement
         result += nextReplacement;
 
-    }
-    while (offset);
+    } while (offset);
 
     if (lastOffset < text.length())
     {
@@ -519,7 +520,7 @@ String RegularExpression::s(const String& text, const std::function<String(const
         if (size_t matchCount = nextMatch(text, offset, matchData); matchCount == 0)
         {
             break;
-        }  // No matches
+        } // No matches
         if (offset)
         {
             lastOffset = offset;
@@ -542,8 +543,7 @@ String RegularExpression::s(const String& text, const std::function<String(const
 
         result += nextReplacement;
 
-    }
-    while (offset);
+    } while (offset);
 
     return result + text.substr(lastOffset);
 }
@@ -569,7 +569,7 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
     bool ignoreCase = (m_options & SPRE_CASELESS) == SPRE_CASELESS;
     if (ignoreCase)
     {
-        for (const auto&[name, value]: substitutions)
+        for (const auto& [name, value]: substitutions)
         {
             substitutionsMap[lowerCase(name)] = value;
         }
@@ -579,14 +579,16 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
         substitutionsMap = substitutions;
     }
 
-    return s(text, [&substitutionsMap, ignoreCase](const String& needle) {
-        auto itor = substitutionsMap.find(ignoreCase ? needle.toLowerCase() : needle);
-        if (itor == substitutionsMap.end())
-        {
-            return needle;
-        }
-        return itor->second;
-    }, replaced);
+    return s(
+        text, [&substitutionsMap, ignoreCase](const String& needle) {
+            auto itor = substitutionsMap.find(ignoreCase ? needle.toLowerCase() : needle);
+            if (itor == substitutionsMap.end())
+            {
+                return needle;
+            }
+            return itor->second;
+        },
+        replaced);
 }
 
 String RegularExpression::s(const String& text, const String& outputPattern) const
@@ -686,8 +688,7 @@ TEST(SPTK_RegularExpression, replaceAll)
     map<String, String> substitutions = {
         {"$NAME", "John Doe"},
         {"$CITY", "London"},
-        {"$YEAR", "2000"}
-    };
+        {"$YEAR", "2000"}};
 
     RegularExpression matchPlaceholders("\\$[A-Z]+", "g");
     String text = "$NAME was in $CITY in $YEAR ";
@@ -701,14 +702,16 @@ TEST(SPTK_RegularExpression, lambdaReplace)
     map<String, String> substitutions = {
         {"$NAME", "John Doe"},
         {"$CITY", "London"},
-        {"$YEAR", "2000"}
-    };
+        {"$YEAR", "2000"}};
 
     RegularExpression matchPlaceholders("\\$[A-Z]+", "g");
     String text = "$NAME was in $CITY in $YEAR ";
     bool replaced(false);
-    String result = matchPlaceholders.s(text, [&substitutions](const String& match) { return substitutions[match]; },
-                                        replaced);
+    String result = matchPlaceholders.s(
+        text, [&substitutions](const String& match) {
+            return substitutions[match];
+        },
+        replaced);
     EXPECT_STREQ("John Doe was in London in 2000 ", result.c_str());
 }
 
@@ -783,7 +786,7 @@ TEST(SPTK_RegularExpression, asyncExec)
     RegularExpression match("(?<aname>[xyz]+) (?<avalue>\\d+) (?<description>\\w+)");
 
     mutex amutex;
-    queue<future<size_t> > states;
+    queue<future<size_t>> states;
 
     constexpr size_t maxThreads = 10;
     for (size_t n = 0; n < maxThreads; ++n)

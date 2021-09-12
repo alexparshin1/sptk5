@@ -1019,6 +1019,16 @@ TEST(SPTK_DateTime, ctor2)
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
 }
 
+TEST(SPTK_DateTime, ctorDate)
+{
+    DateTime dateTime1("2018-02-01");
+    DateTime dateTime2(2018, 2, 1);
+    chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
+    chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
+    EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
+    EXPECT_TRUE(dateTime1.isoDateTimeString().startsWith("2018-02-01"));
+}
+
 TEST(SPTK_DateTime, isoTimeString)
 {
     String input("2018-01-01T11:22:33");

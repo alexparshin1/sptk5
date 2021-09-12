@@ -24,19 +24,20 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Field.h>
 #include <iomanip>
+#include <sptk5/Field.h>
 
 using namespace std;
 using namespace sptk;
 
 Field::Field(const String& name)
-    : m_name(name), m_displayName(name)
+    : m_name(name)
+    , m_displayName(name)
 {
     m_view.width = -1;
-    m_view.flags = 4;       // FL_ALIGN_LEFT
+    m_view.flags = 4; // FL_ALIGN_LEFT
     m_view.visible = true;
-    m_view.precision = 3;   // default precision, only affects floating point fields
+    m_view.precision = 3; // default precision, only affects floating point fields
     dataSize(0);
 }
 
@@ -178,7 +179,7 @@ void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailed
             }
             else
             {
-                element = node->pushValue(fieldName(), value);
+                element = node->pushValue(fieldName(), Variant(value));
             }
         }
 
