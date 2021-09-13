@@ -413,7 +413,11 @@ size_t BaseSocket::write(const String& buffer, const sockaddr_in* peer)
 #if (__FreeBSD__ | __OpenBSD__)
 constexpr int CONNCLOSED = POLLHUP;
 #else
+#ifdef _WIN32
+constexpr int CONNCLOSED = POLLHUP;
+#else
 constexpr int CONNCLOSED = POLLRDHUP | POLLHUP;
+#endif
 #endif
 
 bool BaseSocket::readyToRead(chrono::milliseconds timeout)
