@@ -94,13 +94,29 @@ static int decodeTZOffset(const char* tzOffset)
         default:
             break;
     }
-    const char* p1 = strchr(p, ':');
+
     int minutes = 0;
-    if (p1 != nullptr)
+    int hours = 0;
+    if (strlen(p) > 2)
     {
-        minutes = string2int(p1 + 1);
+        const char* p1 = strchr(p, ':');
+        if (p1 != nullptr)
+        {
+            minutes = string2int(p1 + 1);
+            hours = string2int(p);
+        }
+        else
+        {
+            auto hoursAndMinutes = string2int(p);
+            hours = hoursAndMinutes / 100;
+            minutes = hoursAndMinutes % 100;
+        }
     }
-    int hours = string2int(p);
+    else
+    {
+        hours = string2int(p);
+    }
+
     return sign * (hours * minutesInHour + minutes);
 }
 
@@ -318,13 +334,6 @@ static void decodeTime(const DateTime::time_point& dt, short& h, short& m, short
 
 static void encodeDate(DateTime::time_point& dt, short year, short month, short day)
 {
-    if (year == 0 && month == 0 && day == 0)
-    {
-        DateTime::time_point tp;
-        dt = tp;
-        return;
-    }
-
     tm time = {};
     time.tm_year = year - 1900;
     time.tm_mon = month - 1;
@@ -1182,6 +1191,36 @@ TEST(SPTK_DateTime, tzset)
 
     TimeZone::set("Australia/Melbourne");
     EXPECT_EQ(currentTimeZoneOffset, TimeZone::offset());
+}
+
+TEST(SPTK_DateTime, timezoneFormats1)
+{
+    DateTime dt1("2021-02-03T01:02:03+10");
+    DateTime dt2("2021-02-03T01:02:03+10:00");
+    DateTime dt3("2021-02-03T01:02:03+1000");
+
+    EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt2.isoDateTimeString().c_str());
+    EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt3.isoDateTimeString().c_str());
+}
+
+TEST(SPTK_DateTime, timezoneFormats2)
+{
+    DateTime dt1("2021-02-03T01:02:03-10");
+    DateTime dt2("2021-02-03T01:02:03-10:00");
+    DateTime dt3("2021-02-03T01:02:03-1000");
+
+    EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt2.isoDateTimeString().c_str());
+    EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt3.isoDateTimeString().c_str());
+}
+
+TEST(SPTK_DateTime, timezoneFormats3)
+{
+    DateTime dt1("2021-02-03T01:02:03Z");
+    DateTime dt2("2021-02-03T01:02:03-00:00");
+    DateTime dt3("2021-02-03T01:02:03-00");
+
+    EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt2.isoDateTimeString().c_str());
+    EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt3.isoDateTimeString().c_str());
 }
 
 #endif
