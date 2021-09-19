@@ -24,16 +24,17 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/SourceModule.h>
-#include <sptk5/Printer.h>
 #include <fstream>
+#include <sptk5/Printer.h>
+#include <sptk5/wsdl/SourceModule.h>
 #include <utility>
 
 using namespace std;
 using namespace sptk;
 
 SourceModule::SourceModule(String moduleName, const String& modulePath)
-    : m_name(std::move(moduleName)), m_path(modulePath)
+    : m_name(std::move(moduleName))
+    , m_path(modulePath)
 {
 }
 
@@ -81,14 +82,7 @@ void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& d
         return;
     }
 
-    ofstream file;
-    file.open(fileName.c_str(), ofstream::out | ofstream::trunc);
-    if (!file.is_open())
-    {
-        throw Exception("Can't create file " + fileNameAndExtension);
-    }
-    file.write(data.c_str(), (long) data.bytes());
-    file.close();
+    data.saveToFile(fileName.c_str());
 }
 
 void SourceModule::writeOutputFiles()

@@ -370,6 +370,11 @@ public:
     /**
      * Constructor
      */
+    Variant(bool value);
+
+    /**
+     * Constructor
+     */
     Variant(int32_t value);
 
     /**

@@ -112,6 +112,14 @@ Variant::Variant()
 }
 
 //---------------------------------------------------------------------------
+Variant::Variant(bool value)
+{
+    m_data.type(VariantDataType::VAR_BOOL);
+    m_data.setNull(false);
+    m_data.getBool() = value;
+}
+
+//---------------------------------------------------------------------------
 Variant::Variant(int32_t value)
 {
     m_data.type(VariantDataType::VAR_INT);

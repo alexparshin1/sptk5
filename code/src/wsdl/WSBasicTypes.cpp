@@ -44,26 +44,26 @@ void WSBasicType::exportTo(const SNode& parent, const char* _name) const
 
     if (!parent->is(Node::Type::Array))
     {
-        if (name().empty())
+        if (elementName.empty())
         {
             return;
         }
         switch (dataType())
         {
             case VariantDataType::VAR_BOOL:
-                parent->set(name(), m_value.asBool());
+                parent->set(elementName, m_value.asBool());
                 break;
             case VariantDataType::VAR_INT:
-                parent->set(name(), m_value.asInteger());
+                parent->set(elementName, m_value.asInteger());
                 break;
             case VariantDataType::VAR_INT64:
-                parent->set(name(), m_value.asInt64());
+                parent->set(elementName, m_value.asInt64());
                 break;
             case VariantDataType::VAR_FLOAT:
-                parent->set(name(), m_value.asFloat());
+                parent->set(elementName, m_value.asFloat());
                 break;
             default:
-                parent->set(name(), asString());
+                parent->set(elementName, asString());
                 break;
         }
     }
@@ -433,6 +433,16 @@ TEST(SPTK_WSBasicTypes, scriptAttack)
     loadScriptAttackData<WSDouble>();
     loadScriptAttackData<WSInteger>();
     loadScriptAttackData<WSString>();
+
+    WSString string;
+    EXPECT_THROW(string.load("<script>Hello()</script>"), Exception);
+    EXPECT_NO_THROW(string.load("<Hello></Hello"));
+
+    Field field("fname");
+    field.setString("<script>Hello()</script>");
+    EXPECT_THROW(string.load(field), Exception);
+    field.setString("<Hello></Hello");
+    EXPECT_NO_THROW(string.load(field));
 }
 
 TEST(SPTK_WSBasicTypes, loadValue)
@@ -449,6 +459,7 @@ TEST(SPTK_WSBasicTypes, loadValue)
     root->set("integer", testIntegerValue);
     root->set("double", testDoubleValue);
     root->set("string", "Hello, World!");
+    root->findOrCreate("null");
 
     WSDate date;
     date.load(root->findFirst("date"), true);
@@ -461,8 +472,16 @@ TEST(SPTK_WSBasicTypes, loadValue)
     WSBool boolean;
     boolean.load(root->findFirst("true"), true);
     EXPECT_EQ(boolean.asBool(), true);
+    boolean.load("true");
+    EXPECT_EQ(boolean.asBool(), true);
     boolean.load(root->findFirst("false"), true);
     EXPECT_EQ(boolean.asBool(), false);
+    boolean.load("false");
+    EXPECT_EQ(boolean.asBool(), false);
+    boolean.load(root->findFirst("null"), true);
+    EXPECT_TRUE(boolean.isNull());
+    boolean.load("");
+    EXPECT_TRUE(boolean.isNull());
 
     WSInteger integer;
     integer.load(root->findFirst("integer"), true);
@@ -472,9 +491,132 @@ TEST(SPTK_WSBasicTypes, loadValue)
     wsDouble.load(root->findFirst("double"), true);
     EXPECT_EQ(wsDouble.asFloat(), testDoubleValue);
 
+    WSString wsString;
+    wsString.load(root->findFirst("string"), true);
+    EXPECT_STREQ(wsString.asString().c_str(), "Hello, World!");
+
+    std::string largeData(300, 'x');
+    root->set("string", largeData);
+    wsString.load(root->findFirst("string"), true);
+    EXPECT_TRUE(wsString.isNull());
+}
+
+TEST(SPTK_WSBasicTypes, throws)
+{
+    WSDate date;
+    EXPECT_THROW(date.throwIfNull("date"), Exception);
+
+    date = DateTime::Now();
+    EXPECT_NO_THROW(date.throwIfNull("date"));
+}
+
+TEST(SPTK_WSBasicTypes, exportValue)
+{
+    constexpr int testIntegerValue = 1234567;
+    constexpr int64_t testIntegerValue64 = 1234567890123456;
+    constexpr double testDoubleValue = 1234.567;
+
+    xdoc::Document document;
+    const auto& root = document.root();
+
+    // Optional null value shouldn't export
+    WSInteger wsInt("integer", true);
+    wsInt.exportTo(root);
+    EXPECT_EQ(root->findFirst("integer"), nullptr);
+
+    WSDate date;
+
+    date = DateTime("2021-01-02 10:00:00+10");
+
+    // WS variable doesn't have a filed name, and export doesn't provide one
+    date.exportTo(root);
+    EXPECT_STREQ(root->getString("date").c_str(), "");
+
+    date.exportTo(root, "date");
+    EXPECT_STREQ(root->getString("date").c_str(), "2021-01-02");
+
+    WSDateTime datetime;
+    datetime = DateTime("2021-01-02 10:00:00");
+    datetime.exportTo(root, "datetime");
+    EXPECT_STREQ(root->getString("datetime").substr(0, 19).c_str(), "2021-01-02T10:00:00");
+
+    WSBool boolean;
+    boolean = true;
+    boolean.exportTo(root, "boolean");
+    EXPECT_EQ(root->getBoolean("boolean"), true);
+
+    boolean = false;
+    boolean.exportTo(root, "boolean");
+    EXPECT_EQ(root->getBoolean("boolean"), false);
+
+    WSInteger integer;
+    integer = testIntegerValue;
+    integer.exportTo(root, "integer");
+    EXPECT_DOUBLE_EQ(root->getNumber("integer"), double(testIntegerValue));
+
+    integer = testIntegerValue64;
+    integer.exportTo(root, "integer");
+    EXPECT_DOUBLE_EQ(root->getNumber("integer"), double(testIntegerValue64));
+
+    WSDouble wsDouble;
+    wsDouble = testDoubleValue;
+    wsDouble.exportTo(root, "double");
+    EXPECT_DOUBLE_EQ(root->getNumber("double"), testDoubleValue);
+
     WSString string;
-    string.load(root->findFirst("string"), true);
-    EXPECT_STREQ(string.asString().c_str(), "Hello, World!");
+    string = "Hello, World!";
+    string.exportTo(root, "string");
+    EXPECT_STREQ(root->getString("string").c_str(), "Hello, World!");
+}
+
+TEST(SPTK_WSBasicTypes, exportValueToArray)
+{
+    constexpr int testIntegerValue = 1234567;
+    constexpr int64_t testIntegerValue64 = 1234567890123456;
+    constexpr double testDoubleValue = 1234.567;
+
+    xdoc::Document document;
+    const auto& root = document.root();
+
+    const auto& array = root->pushValue("array", Node::Type::Array);
+
+    WSDate date;
+    date = DateTime("2021-01-02 10:00:00+10");
+    date.exportTo(array);
+    EXPECT_STREQ(array->nodes()[0]->getString().c_str(), "2021-01-02");
+
+    WSDateTime datetime;
+    datetime = DateTime("2021-01-02 10:00:00");
+    datetime.exportTo(array);
+    EXPECT_STREQ(array->nodes()[1]->getString().substr(0, 19).c_str(), "2021-01-02T10:00:00");
+
+    WSBool boolean;
+    boolean = true;
+    boolean.exportTo(array);
+    EXPECT_STREQ(array->nodes()[2]->getString().c_str(), "true");
+
+    boolean = false;
+    boolean.exportTo(array);
+    EXPECT_STREQ(array->nodes()[3]->getString().c_str(), "false");
+
+    WSInteger integer;
+    integer = testIntegerValue;
+    integer.exportTo(array);
+    EXPECT_DOUBLE_EQ(array->nodes()[4]->getNumber(), double(testIntegerValue));
+
+    integer = testIntegerValue64;
+    integer.exportTo(array);
+    EXPECT_DOUBLE_EQ(array->nodes()[5]->getNumber(), double(testIntegerValue64));
+
+    WSDouble wsDouble;
+    wsDouble = testDoubleValue;
+    wsDouble.exportTo(array);
+    EXPECT_DOUBLE_EQ(array->nodes()[6]->getNumber(), testDoubleValue);
+
+    WSString string;
+    string = "Hello, World!";
+    string.exportTo(array);
+    EXPECT_STREQ(array->nodes()[7]->getString().c_str(), "Hello, World!");
 }
 
 #endif
