@@ -445,6 +445,47 @@ TEST(SPTK_WSBasicTypes, scriptAttack)
     EXPECT_NO_THROW(string.load(field));
 }
 
+TEST(SPTK_WSBasicTypes, loadBoolean)
+{
+    xdoc::Document document;
+    const auto& root = document.root();
+    root->set("true", true);
+    root->set("false", false);
+    root->findOrCreate("null");
+
+    WSBool boolean;
+    boolean.load(root->findFirst("true"), true);
+    EXPECT_EQ(boolean.asBool(), true);
+
+    boolean.load("true");
+    EXPECT_EQ(boolean.asBool(), true);
+
+    boolean.load(root->findFirst("false"), true);
+    EXPECT_EQ(boolean.asBool(), false);
+
+    boolean.load("false");
+    EXPECT_EQ(boolean.asBool(), false);
+
+    boolean.load(root->findFirst("null"), true);
+    EXPECT_TRUE(boolean.isNull());
+
+    boolean.load("");
+    EXPECT_TRUE(boolean.isNull());
+
+    Field field("boolean");
+
+    boolean.load(field);
+    EXPECT_TRUE(boolean.isNull());
+
+    field.setBool(true);
+    boolean.load(field);
+    EXPECT_EQ(boolean.asBool(), true);
+
+    field.setBool(false);
+    boolean.load(field);
+    EXPECT_EQ(boolean.asBool(), false);
+}
+
 TEST(SPTK_WSBasicTypes, loadValue)
 {
     constexpr int testIntegerValue = 1234567;
@@ -454,8 +495,6 @@ TEST(SPTK_WSBasicTypes, loadValue)
     const auto& root = document.root();
     root->set("date", DateTime("2021-01-02"));
     root->set("datetime", DateTime("2021-01-02T11:12:13Z"));
-    root->set("true", true);
-    root->set("false", false);
     root->set("integer", testIntegerValue);
     root->set("double", testDoubleValue);
     root->set("string", "Hello, World!");
@@ -468,20 +507,6 @@ TEST(SPTK_WSBasicTypes, loadValue)
     WSDateTime datetime;
     datetime.load(root->findFirst("datetime"), true);
     EXPECT_STREQ(datetime.asDateTime().isoDateTimeString().c_str(), DateTime("2021-01-02T11:12:13Z").isoDateTimeString().c_str());
-
-    WSBool boolean;
-    boolean.load(root->findFirst("true"), true);
-    EXPECT_EQ(boolean.asBool(), true);
-    boolean.load("true");
-    EXPECT_EQ(boolean.asBool(), true);
-    boolean.load(root->findFirst("false"), true);
-    EXPECT_EQ(boolean.asBool(), false);
-    boolean.load("false");
-    EXPECT_EQ(boolean.asBool(), false);
-    boolean.load(root->findFirst("null"), true);
-    EXPECT_TRUE(boolean.isNull());
-    boolean.load("");
-    EXPECT_TRUE(boolean.isNull());
 
     WSInteger integer;
     integer.load(root->findFirst("integer"), true);
