@@ -37,16 +37,6 @@ namespace sptk {
  */
 
 /**
- * Variant data buffer (internal).
- *
- * A buffer for data with the variable length like strings, or just generic buffers
- */
-struct VariantDataBuffer {
-    char* data;  ///< String or buffer pointer
-    size_t size; ///< Allocated buffer size
-};
-
-/**
  * Variant types
  */
 enum class VariantDataType : uint16_t

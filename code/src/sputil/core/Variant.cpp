@@ -1321,8 +1321,6 @@ TEST(SPTK_Variant, move_assigns)
     v = 1;
     vm = move(v);
     EXPECT_EQ(1, vm.asInteger());
-    EXPECT_EQ(true, v.isNull());
-    EXPECT_EQ(VariantDataType::VAR_NONE, v.dataType());
 
     v = 2.22;
     vm = move(v);
