@@ -41,9 +41,7 @@ public:
     static void exportToJSON(const Node* node, sptk::Buffer& json, bool formatted);
 
 private:
-
-    struct Formatting
-    {
+    struct Formatting {
         String firstElement;
         String betweenElements {","};
         String newLineChar;
@@ -58,9 +56,7 @@ private:
     static void exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
                                  const Formatting& formatting);
 
-    static void exportNodeAttributes(const Node* node, std::ostream& stream, bool formatted,
-                                     const String& firstElement,
-                                     const String& betweenElements);
+    static void exportNodeAttributes(const Node* node, std::ostream& stream, bool formatted, const String& firstElement);
 };
 
-}
+} // namespace sptk::xdoc

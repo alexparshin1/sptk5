@@ -24,12 +24,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdlib>
-#include <sptk5/Strings.h>
-#include <sptk5/xdoc/ImportXML.h>
-#include <sptk5/xdoc/Document.h>
-#include <sptk5/Printer.h>
 #include <cmath>
+#include <cstdlib>
+#include <sptk5/Printer.h>
+#include <sptk5/Strings.h>
+#include <sptk5/xdoc/Document.h>
+#include <sptk5/xdoc/ImportXML.h>
 
 using namespace std;
 using namespace sptk;
@@ -157,7 +157,7 @@ char* ImportXML::readProcessingInstructions(const SNode& currentNode, const char
     return tokenEnd;
 }
 
-char* ImportXML::readClosingTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
+char* ImportXML::readClosingTag(const SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
 {
     char ch = *tokenEnd;
     *tokenEnd = 0;
@@ -370,7 +370,7 @@ void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const ch
         if (formatting == Mode::KeepFormatting) // || decodedText.find_first_not_of("\n\r\t ") != string::npos)
         {
             currentNode->pushNode("#text", nodeType)
-                       ->set(decodedText);
+                ->set(decodedText);
         }
         else
         {
@@ -609,4 +609,4 @@ TEST(SPTK_XDocument, loadFormattedXML)
 
 #endif
 
-}
+} // namespace sptk::xdoc

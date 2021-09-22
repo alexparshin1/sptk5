@@ -38,7 +38,7 @@ public:
     {
     }
 
-    void clear()
+    void clear() const
     {
         m_root->clear();
     }

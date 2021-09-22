@@ -54,9 +54,9 @@ public:
     }
 
 protected:
-    char* getData()
+    auto& getData()
     {
-        return m_data.getData();
+        return m_data;
     }
 };
 } // namespace sptk
@@ -397,7 +397,7 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
         int16_t paramType = 0;
         int16_t sqlType = 0;
         int16_t scale = 0;
-        auto* buff = (void*) &param->getInt64();
+        void* buff = nullptr;
         long len = 0;
         auto paramNumber = int16_t(param->bindIndex(j) + 1);
 
@@ -407,42 +407,46 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
             case VariantDataType::VAR_BOOL:
                 paramType = SQL_C_BIT;
                 sqlType = SQL_BIT;
+                buff = (void*) &param->getBool();
                 break;
 
             case VariantDataType::VAR_INT:
                 paramType = SQL_C_SLONG;
                 sqlType = SQL_INTEGER;
+                buff = (void*) &param->getInteger();
                 break;
 
             case VariantDataType::VAR_INT64:
                 paramType = SQL_C_SBIGINT;
                 sqlType = SQL_BIGINT;
+                buff = (void*) &param->getInt64();
                 break;
 
             case VariantDataType::VAR_FLOAT:
                 paramType = SQL_C_DOUBLE;
                 sqlType = SQL_DOUBLE;
+                buff = (void*) &param->getFloat();
                 break;
 
             case VariantDataType::VAR_STRING:
-                buff = (void*) param->getString();
                 len = (long) param->dataSize();
                 paramType = SQL_C_CHAR;
                 sqlType = SQL_WVARCHAR;
+                buff = (void*) param->getText();
                 break;
 
             case VariantDataType::VAR_TEXT:
-                buff = (void*) param->getString();
                 len = (long) param->dataSize();
                 paramType = SQL_C_CHAR;
                 sqlType = SQL_WLONGVARCHAR;
+                buff = (void*) param->getText();
                 break;
 
             case VariantDataType::VAR_BUFFER:
                 paramType = SQL_C_BINARY;
                 sqlType = SQL_LONGVARBINARY;
-                buff = (void*) param->getString();
                 len = (long) param->dataSize();
+                buff = (void*) param->getText();
                 break;
 
             case VariantDataType::VAR_DATE:
@@ -507,12 +511,16 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantDa
 {
     switch (odbcType)
     {
-        case SQL_BIGINT:
         case SQL_TINYINT:
         case SQL_SMALLINT:
-        case SQL_INTEGER:
-            cType = SQL_C_SLONG;
+            cType = SQL_C_SSHORT;
             dataType = VariantDataType::VAR_INT;
+            break;
+
+        case SQL_INTEGER:
+        case SQL_BIGINT:
+            cType = SQL_C_SLONG;
+            dataType = VariantDataType::VAR_INT64;
             break;
 
         case SQL_NUMERIC:
@@ -693,14 +701,14 @@ SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseFiel
     constexpr size_t initialBlobBufferSize = 128;
     field->checkSize(initialBlobBufferSize);
     auto readSize = (SQLLEN) field->bufferSize();
-    auto* buffer = field->getBuffer();
+    auto* buffer = (char*) field->getText();
     auto rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
 
     SQLLEN offset = readSize - 1;
     if (dataLength > SQLINTEGER(readSize))
     { // continue to fetch BLOB data in one go
         field->checkSize(uint32_t(dataLength + 1));
-        buffer = field->getBuffer();
+        buffer = (char*) field->getText();
         readSize = dataLength - readSize + 2;
         rc = SQLGetData(statement, column, fieldType, buffer + offset, SQLINTEGER(readSize), nullptr);
     }
@@ -716,7 +724,7 @@ SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseFiel
         {
             bufferSize += readSize;
             field->checkSize(bufferSize);
-            buffer = field->getBuffer();
+            buffer = (char*) field->getText();
             rc = SQLGetData(statement, column, fieldType, buffer + offset, SQLINTEGER(readSize), &remainingSize);
             if (remainingSize > 0)
             {
@@ -782,17 +790,19 @@ void ODBCConnection::queryFetch(Query* query)
         {
             field = (CODBCField*) &(*query)[column];
             auto fieldType = (int16_t) field->fieldType();
-            char* buffer = field->getData();
+            auto& data = field->getData();
 
             ++column;
 
             rc = SQL_SUCCESS;
             switch (fieldType)
             {
-
                 case SQL_C_SLONG:
+                    rc = SQLGetData(statement, column, fieldType, &data.get<int64_t>(), 0, &dataLength);
+                    break;
+
                 case SQL_C_DOUBLE:
-                    rc = SQLGetData(statement, column, fieldType, buffer, 0, &dataLength);
+                    rc = SQLGetData(statement, column, fieldType, &data.get<double>(), 0, &dataLength);
                     break;
 
                 case SQL_C_TIMESTAMP:
@@ -802,11 +812,10 @@ void ODBCConnection::queryFetch(Query* query)
                 case SQL_C_BINARY:
                 case SQL_C_CHAR:
                     rc = readStringOrBlobField(statement, field, column, fieldType, dataLength);
-                    buffer = (char*) field->getBuffer();
                     break;
 
                 case SQL_BIT:
-                    rc = SQLGetData(statement, column, fieldType, buffer, 1, &dataLength);
+                    rc = SQLGetData(statement, column, fieldType, &data.get<bool>(), 1, &dataLength);
                     break;
 
                 default:
@@ -821,7 +830,7 @@ void ODBCConnection::queryFetch(Query* query)
 
             if (fieldType == SQL_C_CHAR && dataLength > 0)
             {
-                dataLength = (SQLINTEGER) trimField(buffer, (uint32_t) dataLength);
+                dataLength = (SQLINTEGER) trimField((char*) data.get<Buffer>().data(), (uint32_t) dataLength);
             }
 
             if (dataLength <= 0)

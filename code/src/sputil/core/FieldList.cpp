@@ -97,7 +97,7 @@ SField FieldList::findField(const String& fname) const
     }
     else
     {
-        for (const auto& field : *this)
+        for (const auto& field: *this)
         {
             if (strcasecmp(field->m_name.c_str(), fname.c_str()) == 0)
             {
@@ -110,7 +110,7 @@ SField FieldList::findField(const String& fname) const
 
 void FieldList::exportTo(const xdoc::SNode& node, bool compactMode) const
 {
-    for (const auto& field : *this)
+    for (const auto& field: *this)
     {
         field->exportTo(node, compactMode);
     }
@@ -176,8 +176,8 @@ TEST(SPTK_FieldList, dataTypes)
     fieldList.push_back("long_value", true);
     fieldList["name"] = "id";
     fieldList["value"] = testInteger;
-    fieldList["online"].setBool(true);
-    fieldList["visible"].setBool(false);
+    fieldList["online"] = true;
+    fieldList["visible"] = false;
     fieldList["date"] = testDate;
     fieldList["null"].setNull(VariantDataType::VAR_STRING);
     fieldList["text"].setBuffer((const uint8_t*) "1234", 5);

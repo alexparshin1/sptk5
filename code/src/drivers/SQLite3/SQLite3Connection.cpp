@@ -275,6 +275,9 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
             switch (ptype)
             {
                 case VariantDataType::VAR_BOOL:
+                    rc = sqlite3_bind_int(stmt, paramBindNumber, param->getBool());
+                    break;
+
                 case VariantDataType::VAR_INT:
                     rc = sqlite3_bind_int(stmt, paramBindNumber, param->getInteger());
                     break;
@@ -300,12 +303,9 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
 
                 case VariantDataType::VAR_DATE:
                 case VariantDataType::VAR_DATE_TIME:
-                throwException("Date and time types isn't yet supported for SQLite3")
+                    throwException("Date and time types isn't yet supported for SQLite3")
 
-                default:
-                    throw DatabaseException(
-                        "Unsupported type of parameter " + int2string(paramBindNumber), __FILE__, __LINE__,
-                        query->sql());
+                        default : throw DatabaseException("Unsupported type of parameter " + int2string(paramBindNumber), __FILE__, __LINE__, query->sql());
             }
         }
 
@@ -496,7 +496,7 @@ void SQLite3Connection::queryFetch(Query* query)
                     case SQLITE_TEXT:
                         field->setBuffer(sqlite3_column_text(statement, int(column)), dataLength,
                                          VariantDataType::VAR_STRING);
-                        dataLength = trimField((char*) field->getBuffer(), dataLength);
+                        dataLength = trimField((char*) field->getText(), dataLength);
                         break;
 
                     case SQLITE_BLOB:
@@ -510,7 +510,6 @@ void SQLite3Connection::queryFetch(Query* query)
                 }
 
                 field->dataSize(dataLength);
-
             }
             else
             {

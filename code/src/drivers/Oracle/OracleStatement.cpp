@@ -132,30 +132,30 @@ void OracleStatement::setParameterValues()
         switch (priorDataType)
         {
 
-            case VariantDataType::VAR_NONE:      ///< Undefined
-            throwDatabaseException("Parameter " + parameter.name() + " data type is undefined")
+            case VariantDataType::VAR_NONE: ///< Undefined
+                throwDatabaseException("Parameter " + parameter.name() + " data type is undefined")
 
-            case VariantDataType::VAR_INT:       ///< Integer
-                setIntParamValue(parameterIndex, parameter);
+                    case VariantDataType::VAR_INT : ///< Integer
+                                                    setIntParamValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_FLOAT:     ///< Floating-point (double)
+            case VariantDataType::VAR_FLOAT: ///< Floating-point (double)
                 setFloatParamValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_STRING:    ///< String pointer
+            case VariantDataType::VAR_STRING: ///< String pointer
                 setStringParamValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_TEXT:      ///< String pointer, corresponding to CLOB in database
+            case VariantDataType::VAR_TEXT: ///< String pointer, corresponding to CLOB in database
                 setCLOBParameterValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_BUFFER:    ///< Data pointer, corresponding to BLOB in database
+            case VariantDataType::VAR_BUFFER: ///< Data pointer, corresponding to BLOB in database
                 setBLOBParameterValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_DATE:      ///< DateTime (double)
+            case VariantDataType::VAR_DATE: ///< DateTime (double)
                 setDateParameterValue(parameterIndex, parameter);
                 break;
 
@@ -163,16 +163,16 @@ void OracleStatement::setParameterValues()
                 setDateTimeParameterValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_INT64:     ///< 64bit integer
+            case VariantDataType::VAR_INT64: ///< 64bit integer
                 setInt64ParamValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_BOOL:      ///< Boolean
+            case VariantDataType::VAR_BOOL: ///< Boolean
                 setBooleanParamValue(parameterIndex, parameter);
                 break;
 
             default:
-            throwDatabaseException("Unsupported data type for parameter " + parameter.name())
+                throwDatabaseException("Unsupported data type for parameter " + parameter.name())
         }
         ++parameterIndex;
     }
@@ -252,16 +252,16 @@ void OracleStatement::setDateTimeParameterValue(unsigned int parameterIndex, con
     }
     else
     {
-        int16_t year;
-        int16_t month;
-        int16_t day;
-        int16_t wday;
-        int16_t yday;
+        int16_t year {0};
+        int16_t month {0};
+        int16_t day {0};
+        int16_t wday {0};
+        int16_t yday {0};
         parameter.asDateTime().decodeDate(&year, &month, &day, &wday, &yday);
-        int16_t hour;
-        int16_t minute;
-        int16_t second;
-        int16_t msecond;
+        int16_t hour {0};
+        int16_t minute {0};
+        int16_t second {0};
+        int16_t msecond {0};
         parameter.getDateTime().decodeTime(&hour, &minute, &second, &msecond);
         Timestamp timestampValue(connection()->environment(),
                                  year, (unsigned) month, (unsigned) day, (unsigned) hour, (unsigned) minute,
@@ -279,11 +279,11 @@ void OracleStatement::setDateParameterValue(unsigned int parameterIndex, const Q
     }
     else
     {
-        int16_t year;
-        int16_t month;
-        int16_t day;
-        int16_t wday;
-        int16_t yday;
+        int16_t year {0};
+        int16_t month {0};
+        int16_t day {0};
+        int16_t wday {0};
+        int16_t yday {0};
         parameter.asDate().decodeDate(&year, &month, &day, &wday, &yday);
         Date dateValue(connection()->environment(), year, (unsigned) month, (unsigned) day);
         statement()->setDate(parameterIndex, dateValue);
@@ -299,7 +299,7 @@ void OracleStatement::setBLOBParameterValue(unsigned int parameterIndex, const Q
     }
     else
     {
-        setBlobParameter(parameterIndex, parameter.getBuffer(), (unsigned) parameter.dataSize());
+        setBlobParameter(parameterIndex, const_cast<uint8_t*>((const uint8_t*) parameter.getText()), (unsigned) parameter.dataSize());
     }
 }
 
@@ -312,7 +312,7 @@ void OracleStatement::setCLOBParameterValue(unsigned int parameterIndex, const Q
     }
     else
     {
-        setClobParameter(parameterIndex, parameter.getBuffer(), (unsigned) parameter.dataSize());
+        setClobParameter(parameterIndex, const_cast<uint8_t*>((const uint8_t*) parameter.getText()), (unsigned) parameter.dataSize());
     }
 }
 
@@ -397,7 +397,7 @@ void OracleStatement::getBLOBOutputParameter(unsigned int index, const SDatabase
     blob.open(OCCI_LOB_READONLY);
     unsigned bytes = blob.length();
     field->checkSize(bytes);
-    blob.read(bytes, field->getBuffer(), bytes, 1);
+    blob.read(bytes, const_cast<uint8_t*>((const uint8_t*) field->getText()), bytes, 1);
     blob.close();
     field->setDataSize(bytes);
 }
@@ -410,7 +410,7 @@ void OracleStatement::getCLOBOutputParameter(unsigned int index, const SDatabase
     unsigned clobChars = clob.length();
     unsigned clobBytes = clobChars * 4;
     field->checkSize(clobBytes);
-    unsigned bytes = clob.read(clobChars, field->getBuffer(), clobBytes, 1);
+    unsigned bytes = clob.read(clobChars, const_cast<uint8_t*>((const uint8_t*) field->getText()), clobBytes, 1);
     clob.close();
     field->setDataSize(bytes);
 }
@@ -464,7 +464,6 @@ void OracleStatement::getOutputParameters(FieldList& fields)
                     field->setString(statement()->getString(index));
                     break;
             }
-
         }
         catch (const Exception& e)
         {
@@ -480,12 +479,12 @@ void OracleStatement::getOutputParameters(FieldList& fields)
 
 void OracleStatement::getDateTimeOutputParameter(unsigned int index, const SDatabaseField& field) const
 {
-    int year;
-    unsigned month;
-    unsigned day;
-    unsigned hour;
-    unsigned min;
-    unsigned sec;
+    int year {0};
+    unsigned month {0};
+    unsigned day {0};
+    unsigned hour {0};
+    unsigned min {0};
+    unsigned sec {0};
 
     Timestamp timestamp = statement()->getTimestamp(index);
     unsigned ms;
@@ -496,12 +495,12 @@ void OracleStatement::getDateTimeOutputParameter(unsigned int index, const SData
 
 void OracleStatement::getDateOutputParameter(unsigned int index, const SDatabaseField& field) const
 {
-    int year;
-    unsigned month;
-    unsigned day;
-    unsigned hour;
-    unsigned min;
-    unsigned sec;
+    int year {0};
+    unsigned month {0};
+    unsigned day {0};
+    unsigned hour {0};
+    unsigned min {0};
+    unsigned sec {0};
     statement()->getDate(index).getDate(year, month, day, hour, min, sec);
     field->setDateTime(DateTime(short(year), short(month), short(day), short(0), short(0), short(0)), true);
 }

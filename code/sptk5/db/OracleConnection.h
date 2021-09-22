@@ -259,10 +259,10 @@ private:
 
     static void readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
 
-    void setMaxParamSizes(const CParamVector& enumeratedParams, Statement* stmt,
-                          const QueryColumnTypeSizeMap& columnTypeSizes) const;
+    static void setMaxParamSizes(const CParamVector& enumeratedParams, Statement* stmt,
+                                 const QueryColumnTypeSizeMap& columnTypeSizes);
 
-    void createQueryFieldsFromMetadata(Query* query, oracle::occi::ResultSet* resultSet) const;
+    static void createQueryFieldsFromMetadata(Query* query, oracle::occi::ResultSet* resultSet);
 
     void bulkInsertSingleRow(const Strings& columnNames, const QueryColumnTypeSizeVector& columnTypeSizeVector,
                              sptk::OracleBulkInsertQuery& insertQuery, const VariantVector& row) const;

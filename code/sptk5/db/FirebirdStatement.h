@@ -222,10 +222,10 @@ public:
     void fetch() override;
 
 private:
-    std::shared_ptr<isc_stmt_handle> m_statement; ///< Statement
-    FirebirdBindBuffers m_outputBuffers;          ///< Output result buffers
-    FirebirdBindBuffers m_paramBuffers;           ///< Parameter buffers
-    std::array<ISC_STATUS, 20> m_status_vector;   ///< Execution result
+    std::shared_ptr<isc_stmt_handle> m_statement;  ///< Statement
+    FirebirdBindBuffers m_outputBuffers;           ///< Output result buffers
+    FirebirdBindBuffers m_paramBuffers;            ///< Parameter buffers
+    std::array<ISC_STATUS, 20> m_status_vector {}; ///< Execution result
 };
 
 } // namespace sptk

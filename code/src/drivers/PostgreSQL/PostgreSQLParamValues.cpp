@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/QueryParameter.h>
 #include "PostgreSQLParamValues.h"
 #include "htonq.h"
+#include <sptk5/db/QueryParameter.h>
 
 using namespace std;
 using namespace sptk;
@@ -109,7 +109,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
     {
         uint32_t* uptrBuffer {nullptr};
         uint64_t* uptrBuffer64 {nullptr};
-        long days;
+        long days {0};
         int64_t mcs = 0;
         switch (ptype)
         {
@@ -183,7 +183,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
             case VariantDataType::VAR_STRING:
             case VariantDataType::VAR_TEXT:
             case VariantDataType::VAR_BUFFER:
-                setParameterValue(paramIndex, param->getBuffer(), (unsigned) param->dataSize(), 0,
+                setParameterValue(paramIndex, (const uint8_t*) param->getText(), (unsigned) param->dataSize(), 0,
                                   PostgreSQLDataType::VARCHAR);
                 break;
 

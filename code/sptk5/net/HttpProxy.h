@@ -35,10 +35,7 @@ namespace sptk {
 class SP_EXPORT HttpProxy : public Proxy
 {
 public:
-    explicit HttpProxy(const Host& host, const String& username = "", const String& password = "")
-        : Proxy(host, username, password)
-    {
-    }
+    using Proxy::Proxy;
 
     SOCKET connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) override;
 

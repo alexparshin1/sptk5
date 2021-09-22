@@ -32,15 +32,13 @@ using namespace sptk;
 
 DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType,
                              VariantDataType dataType, int fieldLength, int fieldScale)
-    : Field(fName.c_str()),
-      m_fldType(fieldType),
-      m_fldColumn(fieldColumn),
-      m_fldSize(fieldLength),
-      m_fldScale(fieldScale)
+    : Field(fName.c_str())
+    , m_fldType(fieldType)
+    , m_fldColumn(fieldColumn)
+    , m_fldSize(fieldLength)
+    , m_fldScale(fieldScale)
 {
     displayName(fName);
-
-    m_data.getBuffer().size = 0;
 
     switch (dataType)
     {
@@ -105,16 +103,5 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
 
 void DatabaseField::checkSize(size_t sz)
 {
-    if (sz > m_data.getBuffer().size)
-    {
-        size_t newSize = (sz / 16 + 1) * 16;
-        auto* p = new char[newSize + 1];
-        if (m_data.getBuffer().data != nullptr)
-        {
-            memcpy(p, m_data.getBuffer().data, m_data.getBuffer().size);
-            delete[] m_data.getBuffer().data;
-        }
-        m_data.getBuffer().data = p;
-        m_data.getBuffer().size = newSize;
-    }
+    m_data.get<Buffer>().checkSize(sz);
 }

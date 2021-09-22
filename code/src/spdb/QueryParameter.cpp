@@ -45,7 +45,8 @@ uint32_t QueryParameter::bindIndex(uint32_t ind)
 }
 
 QueryParameter::QueryParameter(const char* name, bool isOutput)
-    : m_binding(isOutput), m_name(lowerCase(name))
+    : m_binding(isOutput)
+    , m_name(lowerCase(name))
 {
 }
 
@@ -71,15 +72,10 @@ QueryParameter& QueryParameter::operator=(const Variant& param)
 void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t valueLength)
 {
     m_data.size(maxlen > 0 ? min(valueLength, maxlen) : valueLength);
-    m_data.getBuffer().size = m_data.size() + 1;
-    if (((int) dataType() &
-         ((int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT | (int) VariantDataType::VAR_BUFFER)) !=
-        0)
-    {
-        delete[] m_data.getBuffer().data;
-    }
-    auto* data = new char[m_data.size() + 1];
-    m_data.getBuffer().data = data;
+
+    auto& buffer = m_data.get<Buffer>();
+    buffer.checkSize(m_data.size() + 1);
+    auto* data = buffer.data();
     if (value == nullptr)
     {
         memset(data, 0, m_data.size());
@@ -111,31 +107,27 @@ void QueryParameter::setString(const char* value, size_t maxlen)
         }
     }
 
-    m_data.setNull(false);
-    if (dataType() == VariantDataType::VAR_STRING && m_data.getBuffer().size >= valueLength + 1)
+    if (dataType() != dtype)
     {
-        if (value != nullptr)
-        {
-            memcpy(m_data.getBuffer().data, value, valueLength);
-            m_data.getBuffer().data[valueLength] = 0;
-            m_data.size(valueLength);
-        }
-        else
-        {
-            m_data.getBuffer().data[0] = 0;
-            m_data.size(0);
-            m_data.setNull(true);
-        }
+        m_data.set(Buffer((const uint8_t*) value, valueLength));
+        dataSize(valueLength);
     }
     else
     {
-        reallocateBuffer(value, maxlen, valueLength);
-        if (value == nullptr)
+        auto& buffer = m_data.get<Buffer>();
+        if (value != nullptr)
         {
-            m_data.size(0);
-            m_data.setNull(true);
+            buffer.set((const uint8_t*) value, valueLength);
+            dataSize(valueLength);
+        }
+        else
+        {
+            dataSize(0);
         }
     }
+
+    m_data.setNull(value == nullptr);
+
     dataType(dtype);
 }
 

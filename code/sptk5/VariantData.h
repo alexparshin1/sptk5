@@ -27,6 +27,7 @@
 #pragma once
 
 #include <sptk5/sptk.h>
+#include <variant>
 
 namespace sptk {
 
@@ -40,17 +41,15 @@ namespace sptk {
  *
  * A buffer for data with the variable length like strings, or just generic buffers
  */
-struct VariantDataBuffer
-{
-    char* data;       ///< String or buffer pointer
-    size_t size;      ///< Allocated buffer size
+struct VariantDataBuffer {
+    char* data;  ///< String or buffer pointer
+    size_t size; ///< Allocated buffer size
 };
 
 /**
  * Variant types
  */
-enum class VariantDataType
-    : uint16_t
+enum class VariantDataType : uint16_t
 {
     VAR_NONE = 0,        ///< Undefined
     VAR_INT = 1,         ///< Integer
@@ -67,11 +66,10 @@ enum class VariantDataType
     VAR_BOOL = 2048      ///< Boolean
 };
 
-struct VariantType
-{
-    VariantDataType type: 12;
-    bool isNull: 1;
-    bool isExternalBuffer: 1;
+struct VariantType {
+    VariantDataType type : 12;
+    bool isNull : 1;
+    bool isExternalBuffer : 1;
 };
 
 /**
@@ -83,7 +81,6 @@ struct VariantType
 class SP_EXPORT MoneyData
 {
 public:
-
     static std::array<int64_t, 16> dividers; ///< Dividers that help formatting money data
     int64_t quantity;                        ///< Integer value
     uint8_t scale;                           ///< Scale
@@ -94,7 +91,8 @@ public:
      * @param scale             Money value scale (signs after decimal point)
      */
     MoneyData(int64_t quantity, uint8_t scale)
-        : quantity(quantity), scale(scale)
+        : quantity(quantity)
+        , scale(scale)
     {
     }
 
@@ -117,7 +115,6 @@ public:
      * Convert to bool value
      */
     explicit operator bool() const;
-
 };
 
 class SP_EXPORT VariantData
@@ -125,6 +122,7 @@ class SP_EXPORT VariantData
     friend class Variant_SetMethods;
 
 public:
+    using Storage = std::variant<bool, int32_t, int64_t, double, const uint8_t*, const void*, DateTime, Buffer, MoneyData>;
 
     /**
      * Default constructor
@@ -142,9 +140,9 @@ public:
      * @param other             Other object
      */
     VariantData(VariantData&& other) noexcept
-        : m_data(std::move(other.m_data)),
-          m_dataType(std::exchange(other.m_dataType, emptyType)),
-          m_dataSize(std::exchange(other.m_dataSize, 0))
+        : m_storage(std::move(other.m_storage))
+        , m_dataType(std::exchange(other.m_dataType, emptyType))
+        , m_dataSize(std::exchange(other.m_dataSize, 0))
     {
     }
 
@@ -160,156 +158,36 @@ public:
      * Move assignment
      * @param other             Other object
      */
-    VariantData& operator=(VariantData&& other) noexcept
+    VariantData& operator=(VariantData&& other) noexcept = default;
+
+    /**
+     * @brief Access to variant data
+     * @return variant data reference
+     */
+    template<typename T>
+    T& get()
     {
-        if (&other != this)
-        {
-            m_data = std::move(other.m_data);
-            m_dataType = other.m_dataType;
-            other.m_dataType = VariantType {VariantDataType::VAR_NONE, true, false};
-            m_dataSize = other.m_dataSize;
-            other.m_dataSize = 0;
-        }
-        return *this;
+        return std::get<T>(m_storage);
     }
 
     /**
-     * @return boolean data
+     * @brief Access to variant data
+     * @return variant data reference
      */
-    bool& getBool()
+    template<typename T>
+    const T& get() const
     {
-        return *(bool*) m_data.data();
-    }
-
-    /**
-     * @return integer data
-     */
-    int32_t& getInteger()
-    {
-        return *(int32_t*) m_data.data();
-    }
-
-    /**
-     * @return 64 bit integer data
-     */
-    int64_t& getInt64()
-    {
-        return *(int64_t*) m_data.data();
-    }
-
-    /**
-     * @return floating point data
-     */
-    double& getFloat()
-    {
-        return *(double*) m_data.data();
-    }
-
-    /**
-     * @return date and time data
-     */
-    int64_t& getTime()
-    {
-        return *(int64_t*) m_data.data();
-    }
-
-    /**
-     * @return buffer for data with the variable length like strings, or just generic buffers
-     */
-    VariantDataBuffer& getBuffer()
-    {
-        return *(VariantDataBuffer*) m_data.data();
+        return std::get<T>(m_storage);
     }
 
     /**
      * Set image pointer
      * @param ptr               Image pointer
      */
-    void setImagePtr(const uint8_t* ptr)
+    template<typename T>
+    void set(const T& value)
     {
-        size_t ptrSize = sizeof(ptr);
-        memcpy(m_data.data(), ptr, ptrSize);
-    }
-
-    /**
-     * @return money data
-     */
-    MoneyData& getMoneyData()
-    {
-        return *(MoneyData*) m_data.data();
-    }
-
-
-    /**
-     * @return boolean data
-     */
-    const bool& getBool() const
-    {
-        return *(const bool*) m_data.data();
-    }
-
-    /**
-     * @return integer data
-     */
-    const int32_t& getInteger() const
-    {
-        return *(const int32_t*) m_data.data();
-    }
-
-    /**
-     * @return 64 bit integer data
-     */
-    const int64_t& getInt64() const
-    {
-        return *(const int64_t*) m_data.data();
-    }
-
-    /**
-     * @return floating point data
-     */
-    const double& getFloat() const
-    {
-        return *(const double*) m_data.data();
-    }
-
-    /**
-     * @return date and time data
-     */
-    int64_t getTime() const
-    {
-        return *(const int64_t*) m_data.data();
-    }
-
-    /**
-     * @return buffer for data with the variable length like strings, or just generic buffers
-     */
-    const VariantDataBuffer& getBuffer() const
-    {
-        return *(const VariantDataBuffer*) m_data.data();
-    }
-
-    /**
-     * @return image pointer
-     */
-    const uint8_t* getImagePtr() const
-    {
-        return m_data.data();
-    }
-
-    /**
-     * @return money data
-     */
-    const MoneyData& getMoneyData() const
-    {
-        return *(const MoneyData*) m_data.data();
-    }
-
-    /**
-     * @return data pointer
-     */
-    char* getData()
-    {
-        return (char*) m_data.data();
+        m_storage = value;
     }
 
     void type(VariantType dataType)
@@ -343,10 +221,9 @@ public:
     }
 
 private:
-
     static constexpr VariantType emptyType {VariantDataType::VAR_NONE, true, false};
 
-    std::array<uint8_t, 32> m_data {};  ///< Variant data BLOB
+    Storage m_storage;                  ///< Variant data
     VariantType m_dataType {emptyType}; ///< Variant type
     size_t m_dataSize {0};              ///< Data size
 };
@@ -354,4 +231,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

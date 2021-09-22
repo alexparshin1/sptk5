@@ -111,7 +111,7 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
     if (isValue && !node->attributes().empty())
     {
         stream << "{" << spacing;
-        exportNodeAttributes(node, stream, formatted, formatting.firstElement, formatting.betweenElements);
+        exportNodeAttributes(node, stream, formatted, formatting.firstElement);
         stream << "\"value\":" << spacing;
     }
 
@@ -200,7 +200,7 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
     stream << "{";
     if (node->is(Node::Type::Object))
     {
-        exportNodeAttributes(node, stream, formatted, formatting.firstElement, formatting.betweenElements);
+        exportNodeAttributes(node, stream, formatted, formatting.firstElement);
 
         string spacing = formatted ? " " : "";
 
@@ -225,8 +225,7 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
     stream << formatting.newLineChar << formatting.indentSpaces << "}";
 }
 
-void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool formatted, const String& firstElement,
-                                      const String& betweenElements)
+void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool formatted, const String& firstElement)
 {
     bool first1 = true;
     String spacing = formatted ? " " : "";
@@ -291,7 +290,7 @@ TEST(SPTK_XDocument, xmlToJson)
     document.load(buffer, false);
     document.exportTo(xdoc::DataFormat::JSON, buffer, true);
 
-    COUT(buffer << endl);
+    COUT(buffer << endl)
 }
 
 #endif

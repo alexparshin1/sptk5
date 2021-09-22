@@ -56,7 +56,19 @@ public:
     BaseVariant() = default;
 
     /**
-     * @brief Default destructor
+     * @brief Copy constructor
+     * @param other             The other object
+     */
+    BaseVariant(const BaseVariant& other) = default;
+
+    /**
+     * @brief Move constructor
+     * @param other             The other object
+     */
+    BaseVariant(BaseVariant&& other) noexcept = default;
+
+    /**
+     * @brief Destructor
      */
     ~BaseVariant() = default;
 
@@ -82,11 +94,6 @@ public:
     size_t bufferSize() const;
 
     /**
-     * Returns the internal buffer
-     */
-    uint8_t* dataBuffer();
-
-    /**
      * Null flag
      *
      * Returns true if the NULL state is set
@@ -108,7 +115,7 @@ public:
     /**
      * Directly reads the internal data
      */
-    virtual bool getBool() const;
+    virtual const bool& getBool() const;
 
     /**
      * Directly reads the internal data
@@ -138,7 +145,7 @@ public:
     /**
      * Directly reads the internal data
      */
-    virtual uint8_t* getBuffer() const;
+    virtual const uint8_t* getExternalBuffer() const;
 
     /**
      * Directly reads the internal data
@@ -167,11 +174,6 @@ public:
 
 protected:
     VariantData m_data; ///< Internal variant data storage
-
-    /**
-     * Releases allocated buffer (if any)
-     */
-    void releaseBuffers();
 
     /**
      * Sets the data type
@@ -210,6 +212,18 @@ public:
      * @brief Default constructor
      */
     VariantAdaptors() = default;
+
+    /**
+     * @brief Copy constructor
+     * @param other             The other object
+     */
+    VariantAdaptors(const VariantAdaptors& other) = default;
+
+    /**
+     * @brief Move constructor
+     * @param other             The other object
+     */
+    VariantAdaptors(VariantAdaptors&& other) noexcept = default;
 
     /**
      * @brief Default destructor
@@ -349,7 +363,8 @@ protected:
     /**
      * Copies data from another CVariant
      */
-    void setData(const BaseVariant& C);
+    void setData(const BaseVariant& other);
+    const char* getBufferPtr() const;
 };
 
 /**
@@ -419,18 +434,18 @@ public:
      * Copy constructor
      * @param other             Other object
      */
-    explicit Variant(const Variant& other);
+    explicit Variant(const Variant& other) = default;
 
     /**
      * Move constructor
      * @param other             Other object
      */
-    Variant(Variant&& other) noexcept;
+    Variant(Variant&& other) noexcept = default;
 
     /**
      * Destructor
      */
-    virtual ~Variant();
+    ~Variant() override;
 
     /**
      * Assignment operator

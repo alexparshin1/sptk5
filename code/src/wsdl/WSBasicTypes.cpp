@@ -256,7 +256,14 @@ String WSDateTime::asString() const
 
 void WSDouble::load(const SNode& attr, bool)
 {
-    value().setFloat(attr->getNumber());
+    if (attr->is(Node::Type::Null))
+    {
+        setNull(VariantDataType::VAR_FLOAT);
+    }
+    else
+    {
+        value().setFloat(attr->getNumber());
+    }
 }
 
 void WSDouble::load(const String& attr)
@@ -486,35 +493,82 @@ TEST(SPTK_WSBasicTypes, loadBoolean)
     EXPECT_EQ(boolean.asBool(), false);
 }
 
-TEST(SPTK_WSBasicTypes, loadValue)
+TEST(SPTK_WSBasicTypes, loadInteger)
 {
     constexpr int testIntegerValue = 1234567;
+
+    xdoc::Document document;
+    const auto& root = document.root();
+    root->findOrCreate("integer");
+    root->findOrCreate("null");
+
+    WSInteger integer;
+
+    integer.load(root->findFirst("integer"), true);
+    EXPECT_TRUE(integer.isNull());
+
+    root->set("integer", testIntegerValue);
+    integer.load(root->findFirst("integer"), true);
+    EXPECT_EQ(integer.asInteger(), testIntegerValue);
+
+    Field field("integer");
+
+    integer.load(field);
+    EXPECT_TRUE(integer.isNull());
+
+    field.setInteger(testIntegerValue);
+    integer.load(field);
+    EXPECT_EQ(integer.asInteger(), testIntegerValue);
+}
+
+TEST(SPTK_WSBasicTypes, loadDateTime)
+{
+    xdoc::Document document;
+    const auto& root = document.root();
+    root->set("datetime", DateTime("2021-01-02T11:12:13Z"));
+    root->findOrCreate("null");
+
+    WSDate date;
+
+    date.load(root->findFirst("null"), true);
+    EXPECT_TRUE(date.isNull());
+
+    date.load(root->findFirst("datetime"), true);
+    EXPECT_STREQ(date.asDateTime().dateString().c_str(), DateTime("2021-01-02").dateString().c_str());
+
+    WSDateTime datetime;
+
+    datetime.load(root->findFirst("null"), true);
+    EXPECT_TRUE(datetime.isNull());
+
+    datetime.load(root->findFirst("datetime"), true);
+    EXPECT_STREQ(datetime.asDateTime().isoDateTimeString().c_str(), DateTime("2021-01-02T11:12:13Z").isoDateTimeString().c_str());
+}
+
+TEST(SPTK_WSBasicTypes, loadDouble)
+{
     constexpr double testDoubleValue = 1234.567;
 
     xdoc::Document document;
     const auto& root = document.root();
-    root->set("date", DateTime("2021-01-02"));
-    root->set("datetime", DateTime("2021-01-02T11:12:13Z"));
-    root->set("integer", testIntegerValue);
     root->set("double", testDoubleValue);
-    root->set("string", "Hello, World!");
     root->findOrCreate("null");
 
-    WSDate date;
-    date.load(root->findFirst("date"), true);
-    EXPECT_STREQ(date.asDateTime().dateString().c_str(), DateTime("2021-01-02").dateString().c_str());
-
-    WSDateTime datetime;
-    datetime.load(root->findFirst("datetime"), true);
-    EXPECT_STREQ(datetime.asDateTime().isoDateTimeString().c_str(), DateTime("2021-01-02T11:12:13Z").isoDateTimeString().c_str());
-
-    WSInteger integer;
-    integer.load(root->findFirst("integer"), true);
-    EXPECT_EQ(integer.asInteger(), testIntegerValue);
-
     WSDouble wsDouble;
+
+    wsDouble.load(root->findFirst("null"), true);
+    EXPECT_TRUE(wsDouble.isNull());
+
     wsDouble.load(root->findFirst("double"), true);
     EXPECT_EQ(wsDouble.asFloat(), testDoubleValue);
+}
+
+TEST(SPTK_WSBasicTypes, loadValue)
+{
+    xdoc::Document document;
+    const auto& root = document.root();
+    root->set("string", "Hello, World!");
+    root->findOrCreate("null");
 
     WSString wsString;
     wsString.load(root->findFirst("string"), true);

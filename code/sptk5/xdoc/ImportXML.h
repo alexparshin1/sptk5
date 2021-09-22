@@ -26,13 +26,13 @@
 
 #pragma once
 
-#include <sptk5/xdoc/Node.h>
-#include <sptk5/xdoc/XMLDocType.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/xdoc/Node.h>
+#include <sptk5/xdoc/XMLDocType.h>
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace sptk::xdoc {
 
@@ -50,12 +50,10 @@ namespace sptk::xdoc {
 class SP_EXPORT ImportXML
 {
 public:
-
-    enum class Mode
-        : uint8_t
+    enum class Mode : uint8_t
     {
-        Compact,        ///< Strip any XML formatting, store #text nodes directly into Nodes
-        KeepFormatting  ///< Keep any #text nodes
+        Compact,       ///< Strip any XML formatting, store #text nodes directly into Nodes
+        KeepFormatting ///< Keep any #text nodes
     };
 
     /**
@@ -106,7 +104,6 @@ public:
     void parse(const SNode& node, const char* _buffer, Mode formatting = Mode::Compact);
 
 protected:
-
     /**
      * Extract entities
      * @param docTypeSection    XMLDocument type section
@@ -116,11 +113,10 @@ protected:
     static unsigned char* skipSpaces(unsigned char* start);
 
 private:
-
-    XMLDocType m_doctype;                                  ///< XMLDocument type
-    int m_indentSpaces {2};                         ///< Indent spaces
-    Buffer m_encodeBuffer;                             ///< Buffer to encode entities
-    Buffer m_decodeBuffer;                             ///< Decode and encode buffer
+    XMLDocType m_doctype;   ///< XMLDocument type
+    int m_indentSpaces {2}; ///< Indent spaces
+    Buffer m_encodeBuffer;  ///< Buffer to encode entities
+    Buffer m_decodeBuffer;  ///< Decode and encode buffer
 
     /**
      * Internal entities parser
@@ -153,7 +149,7 @@ private:
 
     char* readOpenningTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 
-    static char* readClosingTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
+    static char* readClosingTag(const SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 
     void readText(const SNode& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
                   Mode formatting);
@@ -166,4 +162,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk::xdoc

@@ -46,7 +46,6 @@ class sptk::MySQLStatementField
     : public DatabaseField
 {
 public:
-
     MySQLStatementField(const string& fieldName, int fieldColumn, enum_field_types fieldType, VariantDataType dataType,
                         int fieldSize)
         : DatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize)
@@ -71,7 +70,6 @@ public:
     }
 
 private:
-
     // Callback variables
     unsigned long m_cbLength {0};
     my_bool m_cbNull {MY_BOOL_FALSE};
@@ -84,12 +82,15 @@ private:
 
 
 MySQLStatement::MySQLStatement(MySQLConnection* connection, String sql, bool autoPrepare)
-    : DatabaseStatement<MySQLConnection, MYSQL_STMT>(connection), m_sql(move(sql))
+    : DatabaseStatement<MySQLConnection, MYSQL_STMT>(connection)
+    , m_sql(move(sql))
 {
     if (autoPrepare)
     {
         auto* stmt = mysql_stmt_init((MYSQL*) connection->handle());
-        m_stmt = shared_ptr<MYSQL_STMT>(stmt, [](auto* ptr) { mysql_stmt_close(ptr); });
+        m_stmt = shared_ptr<MYSQL_STMT>(stmt, [](auto* ptr) {
+            mysql_stmt_close(ptr);
+        });
         statement(m_stmt.get());
     }
     else
@@ -174,8 +175,10 @@ VariantDataType MySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlTyp
 
         case MYSQL_TYPE_SHORT:
         case MYSQL_TYPE_YEAR:
-        case MYSQL_TYPE_LONG:
             return VariantDataType::VAR_INT;
+
+        case MYSQL_TYPE_LONG:
+            return VariantDataType::VAR_INT64;
 
         case MYSQL_TYPE_FLOAT:
         case MYSQL_TYPE_DOUBLE:
@@ -255,7 +258,7 @@ void MySQLStatement::setParameterValues()
         bool setNull = param->isNull();
         MYSQL_BIND& bind = m_paramBuffers[paramIndex];
 
-        bind.buffer = (void*) param->getBuffer();
+        bind.buffer = nullptr;
         bind.buffer_type = variantTypeToMySQLType(param->dataType());
 
         switch (param->dataType())
@@ -267,8 +270,20 @@ void MySQLStatement::setParameterValues()
                 break;
 
             case VariantDataType::VAR_BOOL:
+                m_paramLengths[paramIndex] = 0;
+                bind.buffer = (void*) &param->getBool();
+                break;
+
             case VariantDataType::VAR_INT:
+                m_paramLengths[paramIndex] = 0;
+                bind.buffer = (void*) &param->getInteger();
+                break;
+
             case VariantDataType::VAR_FLOAT:
+                m_paramLengths[paramIndex] = 0;
+                bind.buffer = (void*) &param->getFloat();
+                break;
+
             case VariantDataType::VAR_INT64:
                 m_paramLengths[paramIndex] = 0;
                 bind.buffer = (void*) &param->getInt64();
@@ -278,6 +293,7 @@ void MySQLStatement::setParameterValues()
             case VariantDataType::VAR_TEXT:
             case VariantDataType::VAR_BUFFER:
                 m_paramLengths[paramIndex] = ULONG_CAST(param->dataSize());
+                bind.buffer = (void*) param->getText();
                 break;
 
             case VariantDataType::VAR_DATE:
@@ -338,7 +354,9 @@ void MySQLStatement::execute(bool)
         if (state().columnCount != 0U)
         {
             auto* result = mysql_stmt_result_metadata(statement());
-            m_result = shared_ptr<MYSQL_RES>(result, [](auto* ptr) { mysql_free_result(ptr); });
+            m_result = shared_ptr<MYSQL_RES>(result, [](auto* ptr) {
+                mysql_free_result(ptr);
+            });
         }
     }
     else
@@ -353,7 +371,9 @@ void MySQLStatement::execute(bool)
         if (state().columnCount != 0U)
         {
             auto* result = mysql_store_result(conn);
-            m_result = shared_ptr<MYSQL_RES>(result, [](auto* ptr) { mysql_free_result(ptr); });
+            m_result = shared_ptr<MYSQL_RES>(result, [](auto* ptr) {
+                mysql_free_result(ptr);
+            });
         }
     }
 }
@@ -407,6 +427,10 @@ void MySQLStatement::bindResult(FieldList& fields)
                 // Fixed length buffer - integers
                 case MYSQL_TYPE_BIT:
                 case MYSQL_TYPE_TINY:
+                    bind.buffer = (void*) &field->getBool();
+                    bind.buffer_length = sizeof(bool);
+                    break;
+
                 case MYSQL_TYPE_SHORT:
                 case MYSQL_TYPE_YEAR:
                     bind.buffer = (void*) &field->getInteger();
@@ -445,7 +469,7 @@ void MySQLStatement::bindResult(FieldList& fields)
                     // Variable length buffer - will be extended during fetch if needed
                 default:
                     bind.buffer_length = field->fieldSize();
-                    bind.buffer = (void*) field->getBuffer();
+                    bind.buffer = (void*) field->getText();
                     break;
             }
 
@@ -533,7 +557,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
                 break;
 
             default:
-            throwDatabaseException("Unsupported Variant type: " + int2string((int) fieldType))
+                throwDatabaseException("Unsupported Variant type: " + int2string((int) fieldType))
         }
     }
 }
@@ -565,7 +589,7 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
     }
     else
     {
-        auto dataLength = (uint32_t) *(bind.length);
+        auto dataLength = (uint32_t) * (bind.length);
         if (dataLength == sizeof(float))
         {
             float value = *(float*) bind.buffer;
@@ -593,7 +617,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             continue;
         }
 
-        auto dataLength = (uint32_t) *(bind.length);
+        auto dataLength = (uint32_t) * (bind.length);
 
         switch (fieldType)
         {
@@ -623,7 +647,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
                 break;
 
             default:
-            throwDatabaseException("Unsupported Variant type: " + int2string((int) fieldType))
+                throwDatabaseException("Unsupported Variant type: " + int2string((int) fieldType))
         }
     }
 
@@ -641,7 +665,7 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
     {
         /// Fetch truncated, enlarge buffer and fetch again
         field->checkSize(dataLength);
-        bind.buffer = field->getBuffer();
+        bind.buffer = const_cast<char*>(field->getText());
         bind.buffer_length = ULONG_CAST(field->bufferSize());
         if (mysql_stmt_fetch_column(statement(), &bind, (unsigned) fieldIndex, 0) != 0)
         {
@@ -676,7 +700,7 @@ void MySQLStatement::fetch()
         int rc = mysql_stmt_fetch(statement());
         switch (rc)
         {
-            case 0: // Successful, the data has been fetched to application data buffers
+            case 0:                    // Successful, the data has been fetched to application data buffers
             case MYSQL_DATA_TRUNCATED: // Successful, but one or mode fields were truncated
                 state().eof = false;
                 break;

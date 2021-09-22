@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/xdoc/ExportXML.h>
 #include <sptk5/Printer.h>
+#include <sptk5/xdoc/ExportXML.h>
 
 using namespace std;
 using namespace sptk;
@@ -33,9 +33,6 @@ using namespace sptk::xdoc;
 
 static const String emptyString;
 static const String indentsString(1024, ' ');
-
-static constexpr int cdataStartMarkerLength = 9;
-static constexpr int cdataEndMarkerLength = 3;
 
 inline bool isNodeByName(const String& nodeName)
 {
@@ -207,7 +204,7 @@ void ExportXML::saveAttributes(const Node* node, Buffer& buffer)
 {
     Buffer real_id;
     Buffer real_val;
-    for (const auto&[attr, value]: node->attributes())
+    for (const auto& [attr, value]: node->attributes())
     {
         real_id.bytes(0);
         real_val.bytes(0);
@@ -240,8 +237,7 @@ static const String textXML(
     "Row 3\n\r"
     "</sometext>"
     "<data><![CDATA[xxx]]></data>"
-    "</info>"
-);
+    "</info>");
 
 TEST(SPTK_XDocument, exportXMLTypes)
 {

@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include "PostgreSQLParamValues.h"
 #include "htonq.h"
+#include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/Query.h>
 
@@ -38,12 +38,12 @@ namespace sptk {
 const DateTime epochDate(2000, 1, 1);
 const long daysSinceEpoch = chrono::duration_cast<chrono::hours>(epochDate.timePoint().time_since_epoch()).count() / 24;
 const int64_t microsecondsSinceEpoch = chrono::duration_cast<chrono::microseconds>(
-    epochDate.timePoint().time_since_epoch()).count();
+                                           epochDate.timePoint().time_since_epoch())
+                                           .count();
 
 class PostgreSQLStatement
 {
 public:
-
     PostgreSQLStatement(bool int64timestamps, bool prepared)
         : m_paramValues(int64timestamps)
     {
@@ -71,7 +71,9 @@ public:
 
     void stmt(PGresult* st, unsigned rows, unsigned cols = 99999)
     {
-        m_stmt = shared_ptr<PGresult>(st, [](auto* ptr) { PQclear(ptr); });
+        m_stmt = shared_ptr<PGresult>(st, [](auto* ptr) {
+            PQclear(ptr);
+        });
         m_rows = (int) rows;
 
         if (cols != 99999)
@@ -118,7 +120,6 @@ public:
     }
 
 private:
-
     shared_ptr<PGresult> m_stmt;
     String m_stmtName;
     static unsigned index;
@@ -370,7 +371,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     if (fieldCount != 0 && PQftype(stmt2, 0) == VOIDOID)
     {
         fieldCount = 0;
-    }   // VOID result considered as no result
+    } // VOID result considered as no result
 
     PQclear(stmt2);
 
@@ -400,18 +401,18 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     const CParamVector& params = paramValues.params();
 
     uint32_t paramNumber = 0;
-    for (auto& param: params)
+    for (const auto& param: params)
     {
         paramValues.setParameterValue(paramNumber, param);
         ++paramNumber;
     }
 
-    int resultFormat = 1;   // Results are presented in binary format
+    int resultFormat = 1; // Results are presented in binary format
 
     if (statement->colCount() == 0)
     {
         resultFormat = 0;
-    }   // VOID result or NO results, using text format
+    } // VOID result or NO results, using text format
 
     PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), (int) paramValues.size(),
                                     (const char* const*) paramValues.values(),
@@ -457,13 +458,13 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
-    for (auto& param: params)
+    for (const auto& param: params)
     {
         paramValues.setParameterValue(paramNumber, param);
         ++paramNumber;
     }
 
-    int resultFormat = 1;   // Results are presented in binary format
+    int resultFormat = 1; // Results are presented in binary format
     PGresult* stmt = PQexecParams(m_connect, query->sql().c_str(), (int) paramValues.size(), paramValues.types(),
                                   (const char* const*) paramValues.values(),
                                   paramValues.lengths(), paramValues.formats(), resultFormat);
@@ -549,34 +550,34 @@ void PostgreSQLConnection::CTypeToPostgreType(VariantDataType dataType, PostgreS
     {
         case VariantDataType::VAR_INT:
             postgreType = PostgreSQLDataType::INT4;
-            return;        ///< Integer 4 bytes
+            return; ///< Integer 4 bytes
 
         case VariantDataType::VAR_MONEY:
         case VariantDataType::VAR_FLOAT:
             postgreType = PostgreSQLDataType::FLOAT8;
-            return;        ///< Floating-point (double)
+            return; ///< Floating-point (double)
 
         case VariantDataType::VAR_STRING:
         case VariantDataType::VAR_TEXT:
             postgreType = PostgreSQLDataType::VARCHAR;
-            return;        ///< Varchar
+            return; ///< Varchar
 
         case VariantDataType::VAR_BUFFER:
             postgreType = PostgreSQLDataType::BYTEA;
-            return;        ///< Bytea
+            return; ///< Bytea
 
         case VariantDataType::VAR_DATE:
         case VariantDataType::VAR_DATE_TIME:
             postgreType = PostgreSQLDataType::TIMESTAMP;
-            return;        ///< Timestamp
+            return; ///< Timestamp
 
         case VariantDataType::VAR_INT64:
             postgreType = PostgreSQLDataType::INT8;
-            return;        ///< Integer 8 bytes
+            return; ///< Integer 8 bytes
 
         case VariantDataType::VAR_BOOL:
             postgreType = PostgreSQLDataType::BOOLEAN;
-            return;           ///< Boolean
+            return; ///< Boolean
 
         default:
             throw DatabaseException(
@@ -803,15 +804,13 @@ static inline MoneyData readNumericToScaledInteger(const char* v)
 
 static void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::TimestampFormat timestampFormat)
 {
-    struct PGArrayHeader
-    {
+    struct PGArrayHeader {
         uint32_t dimensionNumber;
         uint32_t hasNull;
         uint32_t elementType;
     };
 
-    struct PGArrayDimension
-    {
+    struct PGArrayDimension {
         uint32_t elementCount;
         uint32_t lowerBound;
     };
@@ -877,7 +876,8 @@ static void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::
                 case PostgreSQLDataType::TIMESTAMPTZ:
                 case PostgreSQLDataType::TIMESTAMP:
                     output << readTimestamp(data, timestampFormat ==
-                                                  PostgreSQLConnection::TimestampFormat::INT64).dateString();
+                                                      PostgreSQLConnection::TimestampFormat::INT64)
+                                  .dateString();
                     break;
 
                 default:
@@ -893,7 +893,7 @@ static void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::
 void PostgreSQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
-    THROW_QUERY_ERROR(query, "Dataset isn't open")
+        THROW_QUERY_ERROR(query, "Dataset isn't open")
 
     scoped_lock lock(m_mutex);
 
@@ -1077,7 +1077,7 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
 
     while (!query.eof())
     {
-        objects.push_back(query[uint32_t(0)].asString());
+        objects.push_back(query[0].asString());
         query.next();
     }
 
@@ -1166,7 +1166,7 @@ void PostgreSQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* er
 {
     Strings statements = extractStatements(sqlBatch);
 
-    for (const auto& stmt : statements)
+    for (const auto& stmt: statements)
     {
         try
         {
@@ -1201,7 +1201,7 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
 
     bool functionHeader = false;
     bool functionBody = false;
-    for (auto row : sqlBatch)
+    for (auto row: sqlBatch)
     {
         if (!functionHeader && !functionBody)
         {

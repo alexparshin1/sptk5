@@ -144,17 +144,17 @@ void OracleConnection::driverBeginTransaction()
     }
 
     if (getInTransaction())
-    throwOracleException("Transaction already started.")
+        throwOracleException("Transaction already started.")
 
-    setInTransaction(true);
+            setInTransaction(true);
 }
 
 void OracleConnection::driverEndTransaction(bool commit)
 {
     if (!getInTransaction())
-    throwOracleException("Transaction isn't started.")
+        throwOracleException("Transaction isn't started.")
 
-    string action;
+            string action;
     try
     {
         if (commit)
@@ -234,7 +234,7 @@ void OracleConnection::queryPrepare(Query* query)
 }
 
 void OracleConnection::setMaxParamSizes(const CParamVector& enumeratedParams, Statement* stmt,
-                                        const QueryColumnTypeSizeMap& columnTypeSizes) const
+                                        const QueryColumnTypeSizeMap& columnTypeSizes)
 {
     unsigned paramIndex = 1;
     for (const auto& param: enumeratedParams)
@@ -328,9 +328,7 @@ Type sptk::VariantTypeToOracleType(VariantDataType dataType)
     switch (dataType)
     {
         case VariantDataType::VAR_NONE:
-        throwException("Data type is not defined")
-        case VariantDataType::VAR_INT:
-            return (Type) SQLT_INT;
+            throwException("Data type is not defined") case VariantDataType::VAR_INT : return (Type) SQLT_INT;
         case VariantDataType::VAR_FLOAT:
             return OCCIBDOUBLE;
         case VariantDataType::VAR_STRING:
@@ -347,7 +345,7 @@ Type sptk::VariantTypeToOracleType(VariantDataType dataType)
         case VariantDataType::VAR_BOOL:
             return OCCIINT;
         default:
-        throwException("Unsupported SPTK data type: " << (int) dataType)
+            throwException("Unsupported SPTK data type: " << (int) dataType)
     }
 }
 
@@ -429,7 +427,7 @@ void OracleConnection::queryOpen(Query* query)
     queryFetch(query);
 }
 
-void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* resultSet) const
+void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* resultSet)
 {
     vector<MetaData> resultSetMetaData = resultSet->getColumnListMetaData();
     unsigned columnIndex = 0;
@@ -441,7 +439,7 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
         int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
         if (columnName.empty())
         {
-            array<char, 32> alias;
+            array<char, 32> alias {};
             snprintf(alias.data(), sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
             columnName = alias.data();
         }
@@ -488,7 +486,7 @@ void OracleConnection::readDate(ResultSet* resultSet, DatabaseField* field, unsi
 void OracleConnection::queryFetch(Query* query)
 {
     if (!query->active())
-    THROW_QUERY_ERROR(query, "Dataset isn't open")
+        THROW_QUERY_ERROR(query, "Dataset isn't open")
 
     scoped_lock lock(m_mutex);
 
@@ -583,7 +581,6 @@ void OracleConnection::queryFetch(Query* query)
                     field->setString(resultSet->getString(columnIndex));
                     break;
             }
-
         }
         catch (const Exception& e)
         {
@@ -604,10 +601,10 @@ void OracleConnection::readCLOB(ResultSet* resultSet, DatabaseField* field, unsi
     unsigned clobChars = clob.length();
     unsigned clobBytes = clobChars * 4;
     field->checkSize(clobBytes);
-    unsigned bytes = clob.read(clobChars, field->getBuffer(), clobBytes, 1);
+    unsigned bytes = clob.read(clobChars, const_cast<uint8_t*>((const uint8_t*) field->getText()), clobBytes, 1);
     clob.close();
     field->setDataSize(bytes);
-    field->getBuffer()[bytes] = 0;
+    const_cast<uint8_t*>((const uint8_t*) field->getText())[bytes] = 0;
 }
 
 void OracleConnection::readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
@@ -616,7 +613,7 @@ void OracleConnection::readBLOB(ResultSet* resultSet, DatabaseField* field, unsi
     blob.open(OCCI_LOB_READONLY);
     unsigned bytes = blob.length();
     field->checkSize(bytes);
-    blob.read(bytes, field->getBuffer(), bytes, 1);
+    blob.read(bytes, const_cast<uint8_t*>((const uint8_t*) field->getText()), bytes, 1);
     blob.close();
     field->setDataSize(bytes);
 }
@@ -721,14 +718,14 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
     {
         auto column = columnTypeSizeMap.find(upperCase(columnName));
         if (column == columnTypeSizeMap.end())
-        throwDatabaseException(
-            "Column '" << columnName << "' doesn't belong to table " << tableName)
-        columnTypeSizeVector.push_back(column->second);
+            throwDatabaseException(
+                "Column '" << columnName << "' doesn't belong to table " << tableName)
+                columnTypeSizeVector.push_back(column->second);
     }
 
     OracleBulkInsertQuery insertQuery(this,
                                       "INSERT INTO " + tableName + "(" + columnNames.join(",") +
-                                      ") VALUES (:" + columnNames.join(",:") + ")",
+                                          ") VALUES (:" + columnNames.join(",:") + ")",
                                       data.size(),
                                       columnTypeSizeMap);
     for (const auto& row: data)
@@ -743,7 +740,7 @@ void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
 {
     for (size_t i = 0; i < columnNames.size(); ++i)
     {
-        auto& value = row[i];
+        const auto& value = row[i];
         switch (columnTypeSizeVector[i].type)
         {
             case VariantDataType::VAR_TEXT:
@@ -775,7 +772,7 @@ String OracleConnection::driverDescription() const
 
 String OracleConnection::paramMark(unsigned paramIndex)
 {
-    array<char, 16> mark;
+    array<char, 16> mark {};
     snprintf(mark.data(), sizeof(mark) - 1, ":%i", paramIndex + 1);
     return string(mark.data());
 }

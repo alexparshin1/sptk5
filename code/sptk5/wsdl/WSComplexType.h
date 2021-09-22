@@ -26,14 +26,14 @@
 
 #pragma once
 
-#include <sptk5/xdoc/Node.h>
-#include <sptk5/Variant.h>
 #include <sptk5/FieldList.h>
-#include <sptk5/wsdl/WSBasicTypes.h>
-#include <sptk5/wsdl/WSArray.h>
-#include <sptk5/wsdl/WSFieldIndex.h>
+#include <sptk5/Variant.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/threads/Locks.h>
+#include <sptk5/wsdl/WSArray.h>
+#include <sptk5/wsdl/WSBasicTypes.h>
+#include <sptk5/wsdl/WSFieldIndex.h>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
@@ -49,14 +49,14 @@ class SP_EXPORT WSComplexType
     : public WSType
 {
 public:
-
     /**
      * Default constructor
      * @param name              Element name
      * @param optional          Element optionality flag
      */
     WSComplexType(const char* name, bool optional = false)
-        : WSType(name), m_optional(optional)
+        : WSType(name)
+        , m_optional(optional)
     {
     }
 
@@ -75,7 +75,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~WSComplexType() = default;
+    ~WSComplexType() override = default;
 
     /**
      * Copy assignment
@@ -190,7 +190,6 @@ public:
     }
 
 protected:
-
     /**
      * @return true if object is loaded
      */
@@ -243,14 +242,14 @@ protected:
     }
 
 private:
-    bool m_optional {false};    ///< Element optionality flag
-    bool m_loaded {false};      ///< Is data loaded flag
-    bool m_exportable {true};   ///< Is this object exportable?
-    WSFieldIndex m_fields;      ///< All fields
+    bool m_optional {false};  ///< Element optionality flag
+    bool m_loaded {false};    ///< Is data loaded flag
+    bool m_exportable {true}; ///< Is this object exportable?
+    WSFieldIndex m_fields;    ///< All fields
 };
 
 /**
  * @}
  */
 
-}
+} // namespace sptk

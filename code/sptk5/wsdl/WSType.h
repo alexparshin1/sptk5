@@ -50,24 +50,26 @@ public:
      * Constructor
      * @param name              WSDL element name
      */
-    WSType(const char* name)
+    explicit WSType(const char* name)
         : m_name(name)
     {
     }
 
-    WSType(const WSType& other) = default;
+    WSType(const WSType&) = default;
 
-    WSType(WSType&& other) = default;
+    WSType(WSType&&) noexcept = default;
 
-    WSType& operator=(const WSType& other)
+    WSType& operator=(const WSType&)
     {
         return *this;
     }
 
-    WSType& operator=(WSType&& other) noexcept
+    WSType& operator=(WSType&&) noexcept
     {
         return *this;
     }
+
+    virtual ~WSType() = default;
 
     /**
      * Get WS type name
@@ -115,8 +117,7 @@ public:
     virtual void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const = 0;
 
 private:
-
     const String m_name;
 };
 
-}
+} // namespace sptk

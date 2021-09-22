@@ -882,12 +882,12 @@ short DateTime::dayOfWeek() const
 
     sptk::decodeDate(m_dateTime, y, m, d, wd, yd, false);
 
-    return short(wd + 1);
+    return short(wd);
 }
 
 String DateTime::dayOfWeekName() const
 {
-    return DateTime::_weekDayNames[size_t(dayOfWeek()) - 1];
+    return DateTime::_weekDayNames[size_t(dayOfWeek())];
 }
 
 String DateTime::monthName() const
@@ -1221,6 +1221,15 @@ TEST(SPTK_DateTime, timezoneFormats3)
 
     EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt2.isoDateTimeString().c_str());
     EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt3.isoDateTimeString().c_str());
+}
+
+TEST(SPTK_DateTime, dateElements)
+{
+    DateTime dt("2021-09-20 00:00:00");
+    EXPECT_EQ(dt.daysInMonth(), 30);
+    EXPECT_EQ(dt.dayOfWeek(), 1);
+    EXPECT_STREQ(dt.monthName().c_str(), "September");
+    EXPECT_STREQ(dt.dayOfWeekName().c_str(), "Monday");
 }
 
 #endif

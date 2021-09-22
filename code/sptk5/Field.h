@@ -58,12 +58,11 @@ public:
     /**
      * Combination of field view attributes
      */
-    struct View
-    {
-        signed int width: 10;       ///< Field width
-        unsigned precision: 5;    ///< Field precision
-        unsigned flags: 16;       ///< Field flags like alignment, etc
-        bool visible: 1;      ///< Is field visible?
+    struct View {
+        signed int width : 10;  ///< Field width
+        unsigned precision : 5; ///< Field precision
+        unsigned flags : 16;    ///< Field flags like alignment, etc
+        bool visible : 1;       ///< Is field visible?
     };
 
     /**
@@ -138,9 +137,9 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator=(int64_t value) override
+    Field& operator=(bool value) override
     {
-        setInt64(value);
+        setBool(value);
         return *this;
     }
 
@@ -150,6 +149,15 @@ public:
     Field& operator=(int32_t value) override
     {
         setInteger(value);
+        return *this;
+    }
+
+    /**
+     * Assignment operation
+     */
+    Field& operator=(int64_t value) override
+    {
+        setInt64(value);
         return *this;
     }
 
@@ -235,10 +243,9 @@ public:
     }
 
 private:
-
-    String m_name;          ///< Field name
+    String m_name;        ///< Field name
     View m_view {};       ///< Combination of field view attributes
-    String m_displayName;   ///< Optional display field name
+    String m_displayName; ///< Optional display field name
 
     String doubleDataToString() const;
 
@@ -250,4 +257,4 @@ using SField = std::shared_ptr<Field>;
 /**
  * @}
  */
-}
+} // namespace sptk

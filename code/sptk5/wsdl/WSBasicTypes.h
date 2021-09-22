@@ -51,7 +51,8 @@ public:
      * @param optional          Element optionality flag
      */
     WSBasicType(const char* name, bool optional)
-        : WSType(name), m_optional(optional)
+        : WSType(name)
+        , m_optional(optional)
     {
     }
 
@@ -59,7 +60,7 @@ public:
 
     WSBasicType(WSBasicType&& other) noexcept = default;
 
-    virtual ~WSBasicType() noexcept = default;
+    ~WSBasicType() override = default;
 
     WSBasicType& operator=(const WSBasicType& other)
     {
@@ -232,7 +233,6 @@ public:
     void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const override;
 
 protected:
-
     void setNull(VariantDataType dataType)
     {
         m_value.setNull(dataType);
@@ -249,9 +249,8 @@ protected:
     }
 
 private:
-
     Variant m_value;
-    bool m_optional {false};    ///< Element optionality flag
+    bool m_optional {false}; ///< Element optionality flag
 };
 
 /**
@@ -905,4 +904,4 @@ String SP_EXPORT wsTypeIdToName(const String& typeIdName);
  * @}
  */
 
-}
+} // namespace sptk

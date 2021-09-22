@@ -50,17 +50,45 @@ void Field::setNull(VariantDataType vtype)
         case VariantDataType::VAR_BUFFER:
             if (isExternalBuffer())
             {
-                m_data.getBuffer().data = nullptr;
+                m_data.set<const uint8_t*>(nullptr);
             }
-            else if (m_data.getBuffer().data != nullptr)
+            else
             {
-                m_data.getBuffer().data[0] = 0;
+                m_data.get<Buffer>().reset();
             }
+            break;
 
+        case VariantDataType::VAR_BOOL:
+            m_data.set(false);
+            break;
+
+        case VariantDataType::VAR_INT:
+        case VariantDataType::VAR_IMAGE_NDX:
+            m_data.set<int32_t>(0);
+            break;
+
+        case VariantDataType::VAR_INT64:
+            m_data.set<int64_t>(0);
+            break;
+
+        case VariantDataType::VAR_FLOAT:
+            m_data.set<double>(0);
+            break;
+
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
+            m_data.set(DateTime());
+            break;
+
+        case VariantDataType::VAR_MONEY:
+            m_data.set(MoneyData(0, 2));
+            break;
+
+        case VariantDataType::VAR_IMAGE_PTR:
+            m_data.set((const uint8_t*) nullptr);
             break;
 
         default:
-            m_data.getInt64() = 0;
             break;
     }
 
@@ -91,20 +119,20 @@ String Field::asString() const
     switch (dataType())
     {
         case VariantDataType::VAR_BOOL:
-            result = m_data.getInteger() != 0 ? "true" : "false";
+            result = m_data.get<bool>() != 0 ? "true" : "false";
             break;
 
         case VariantDataType::VAR_INT:
         case VariantDataType::VAR_IMAGE_NDX:
-            len = snprintf(print_buffer.data(), maxPrintLength, "%i", m_data.getInteger());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%i", m_data.get<int32_t>());
             result.assign(print_buffer.data(), len);
             break;
 
         case VariantDataType::VAR_INT64:
 #ifndef _WIN32
-            len = snprintf(print_buffer.data(), maxPrintLength, "%li", m_data.getInt64());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%li", m_data.get<int64_t>());
 #else
-            len = snprintf(print_buffer.data(), maxPrintLength, "%lli", m_data.getInt64());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%lli", m_data.get<int64_t>());
 #endif
             result.assign(print_buffer.data(), len);
             break;
@@ -120,14 +148,18 @@ String Field::asString() const
         case VariantDataType::VAR_STRING:
         case VariantDataType::VAR_TEXT:
         case VariantDataType::VAR_BUFFER:
-            if (m_data.getBuffer().data != nullptr)
+            if (isExternalBuffer())
             {
-                result = m_data.getBuffer().data;
+                result = (const char*) m_data.get<const uint8_t*>();
+            }
+            else if (const auto& buffer = m_data.get<Buffer>(); !buffer.empty())
+            {
+                result = buffer.c_str();
             }
             break;
 
         case VariantDataType::VAR_DATE:
-            result = DateTime(chrono::microseconds(m_data.getInt64())).dateString();
+            result = DateTime(chrono::microseconds(m_data.get<int64_t>())).dateString();
             break;
 
         case VariantDataType::VAR_DATE_TIME:
@@ -135,7 +167,7 @@ String Field::asString() const
             break;
 
         case VariantDataType::VAR_IMAGE_PTR:
-            len = snprintf(print_buffer.data(), maxPrintLength, "%p", (const void*) m_data.getImagePtr());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%p", (const void*) m_data.get<const uint8_t*>());
             result.assign(print_buffer.data(), len);
             break;
 
@@ -147,14 +179,14 @@ String Field::asString() const
 
 String Field::epochDataToDateTimeString() const
 {
-    DateTime dt(chrono::microseconds(m_data.getInt64()));
+    const auto& dt(m_data.get<DateTime>());
     return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PrintAccuracy::SECONDS);
 }
 
 String Field::doubleDataToString() const
 {
     stringstream output;
-    output << fixed << setprecision((int) m_view.precision) << m_data.getFloat();
+    output << fixed << setprecision((int) m_view.precision) << m_data.get<double>();
     return output.str();
 }
 
