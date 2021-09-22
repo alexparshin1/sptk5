@@ -346,7 +346,10 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     if (!successful(
             SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr,
                              &result)))
+    {
         THROW_QUERY_ERROR(query, queryError(query))
+    }
+
     value = (int32_t) result;
 }
 
@@ -588,10 +591,12 @@ void ODBCConnection::parseColumns(Query* query, int count)
         queryColAttributes(query, column, SQL_COLUMN_LENGTH, columnLength);
         queryColAttributes(query, column, SQL_COLUMN_SCALE, columnScale);
         ODBCtypeToCType(columnType, cType, dataType);
+
         if (dataType == VariantDataType::VAR_STRING && columnLength >= largeTextSize)
         {
             dataType = VariantDataType::VAR_TEXT;
         }
+
         if (columnName[0] != 0)
         {
             columnNameStr.str(columnName.data());
@@ -601,6 +606,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
             columnNameStr.str("column");
             columnNameStr << setw(2) << column;
         }
+
         if (columnLength > FETCH_BUFFER_SIZE)
         {
             columnLength = FETCH_BUFFER_SIZE;
@@ -835,7 +841,7 @@ void ODBCConnection::queryFetch(Query* query)
 
             if (dataLength <= 0)
             {
-                field->setNull(VariantDataType::VAR_NONE);
+                field->setNull(field->dataType());
             }
             else
             {

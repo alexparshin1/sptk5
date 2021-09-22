@@ -41,68 +41,6 @@ Field::Field(const String& name)
     dataSize(0);
 }
 
-void Field::setNull(VariantDataType vtype)
-{
-    switch (dataType())
-    {
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
-            if (isExternalBuffer())
-            {
-                m_data.set<const uint8_t*>(nullptr);
-            }
-            else
-            {
-                m_data.get<Buffer>().reset();
-            }
-            break;
-
-        case VariantDataType::VAR_BOOL:
-            m_data.set(false);
-            break;
-
-        case VariantDataType::VAR_INT:
-        case VariantDataType::VAR_IMAGE_NDX:
-            m_data.set<int32_t>(0);
-            break;
-
-        case VariantDataType::VAR_INT64:
-            m_data.set<int64_t>(0);
-            break;
-
-        case VariantDataType::VAR_FLOAT:
-            m_data.set<double>(0);
-            break;
-
-        case VariantDataType::VAR_DATE:
-        case VariantDataType::VAR_DATE_TIME:
-            m_data.set(DateTime());
-            break;
-
-        case VariantDataType::VAR_MONEY:
-            m_data.set(MoneyData(0, 2));
-            break;
-
-        case VariantDataType::VAR_IMAGE_PTR:
-            m_data.set((const uint8_t*) nullptr);
-            break;
-
-        default:
-            break;
-    }
-
-    if (vtype == VariantDataType::VAR_NONE)
-    {
-        m_data.setNull(true);
-    }
-    else
-    {
-        VariantType type {vtype, true, false};
-        m_data.type(type);
-    }
-}
-
 String Field::asString() const
 {
     constexpr int maxPrintLength = 64;

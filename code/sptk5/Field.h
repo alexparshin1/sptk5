@@ -102,15 +102,6 @@ public:
     }
 
     /**
-     * Sets the NULL state
-     *
-     * Useful for the database operations.
-     * Retains the data type. Sets the data to zero(s).
-     * @param vtype              Optional variant type to enforce
-     */
-    void setNull(VariantDataType vtype) override;
-
-    /**
      * Copy assignment operation
      */
     Field& operator=(const Field& other) = default;
