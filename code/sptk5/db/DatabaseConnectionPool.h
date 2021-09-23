@@ -128,13 +128,6 @@ protected:
      */
     void releaseConnection(const SPoolDatabaseConnection& connection);
 
-    /**
-     * Destroys connection
-     * @param connection DatabaseConnection*, destroys the driver instance
-     * @param unlink            Should always be true for any external use
-     */
-    void destroyConnection(SPoolDatabaseConnection& connection) const;
-
 private:
     /**
      * Database driver

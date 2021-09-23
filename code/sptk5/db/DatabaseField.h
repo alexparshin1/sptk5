@@ -158,6 +158,9 @@ protected:
         m_fldScale = fieldScale;
     }
 
+protected:
+    String doubleDataToString() const override;
+
 private:
     int m_fldType;                ///< Native database data type
     int m_fldColumn;              ///< Field column number in recordset

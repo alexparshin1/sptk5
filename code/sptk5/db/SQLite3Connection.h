@@ -180,6 +180,16 @@ protected:
      */
     void _openDatabase(const String& connectionString = "") override;
 
+    /**
+     * @brief Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL          SQL batch file
+     * @param errors            If not nullptr, store errors here instead of exceptions
+     */
+    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+
 private:
     using SQLHSTMT = sqlite3_stmt*;
     using SQLHDBC = sqlite3*;

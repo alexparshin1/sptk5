@@ -625,16 +625,19 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     switch (objectType)
     {
         case DatabaseObjectType::PROCEDURES:
-            objectsSQL = "SELECT object_name FROM user_procedures";
+            objectsSQL = "SELECT object_name FROM user_procedures WHERE object_type = 'PROCEDURE'";
             break;
         case DatabaseObjectType::FUNCTIONS:
-            objectsSQL = "SELECT object_name FROM user_functions";
+            objectsSQL = "SELECT object_name FROM user_procedures WHERE object_type = 'FUNCTION'";
             break;
         case DatabaseObjectType::TABLES:
             objectsSQL = "SELECT table_name FROM user_tables";
             break;
         case DatabaseObjectType::VIEWS:
-            objectsSQL = "SELECT view_name FROM user_views";
+            objectsSQL = "SELECT view_name FROM sys.all_views";
+            break;
+        case DatabaseObjectType::DATABASES:
+            objectsSQL = "SELECT username FROM all_users";
             break;
         default:
             throw Exception("Not implemented yet");

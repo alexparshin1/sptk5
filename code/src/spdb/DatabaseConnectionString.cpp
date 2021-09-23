@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <set> // Fedora
 #include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/net/URL.h>
-#include <set> // Fedora
 
 using namespace std;
 using namespace sptk;
@@ -105,7 +105,7 @@ String DatabaseConnectionString::toString() const
     {
         result << "?";
         bool first = true;
-        for (auto&[name, value]: m_parameters)
+        for (auto& [name, value]: m_parameters)
         {
             if (first)
             {
@@ -145,6 +145,12 @@ TEST(SPTK_DatabaseConnectionString, ctorSimple)
     EXPECT_STREQ("postgresql", simple.driverName().c_str());
     EXPECT_STREQ("localhost", simple.hostName().c_str());
     EXPECT_STREQ("dbname", simple.databaseName().c_str());
+}
+
+TEST(SPTK_DatabaseConnectionString, errorHandling)
+{
+    EXPECT_THROW(
+        DatabaseConnectionString("unknown://localhost/dbname"), DatabaseException);
 }
 
 TEST(SPTK_DatabaseConnectionString, ctorAdvanced)

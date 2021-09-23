@@ -25,8 +25,8 @@
 */
 
 #include <sptk5/cutils>
-#include <sptk5/db/DatabaseTests.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
+#include <sptk5/db/DatabaseTests.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/db/Transaction.h>
 
@@ -42,7 +42,7 @@ DatabaseTests DatabaseTests::_databaseTests;
 vector<DatabaseConnectionString> DatabaseTests::connectionStrings() const
 {
     vector<DatabaseConnectionString> connectionStrings;
-    for (auto&[name, value]: m_connectionStrings)
+    for (auto& [name, value]: m_connectionStrings)
     {
         connectionStrings.push_back(value);
     }
@@ -63,8 +63,18 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
         DatabaseConnection db = connectionPool.getConnection();
         db->open();
 
+        auto info = db->driverDescription();
+        if (info.length() < 10)
+        {
+            throw DatabaseException("Driver info is empty");
+        }
+
         Strings objects;
         db->objectList(DatabaseObjectType::TABLES, objects);
+        db->objectList(DatabaseObjectType::DATABASES, objects);
+        db->objectList(DatabaseObjectType::FUNCTIONS, objects);
+        db->objectList(DatabaseObjectType::PROCEDURES, objects);
+        db->objectList(DatabaseObjectType::VIEWS, objects);
         db->close();
     }
 }
@@ -87,7 +97,7 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
     {
         RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
-        CERR(e.what() << endl)
+            CERR(e.what() << endl)
     }
 
     createTable.exec();
@@ -96,8 +106,7 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
     db->close();
 }
 
-struct Row
-{
+struct Row {
     int id;
     string name;
     double price;
@@ -107,36 +116,33 @@ struct Row
 static const DateTime testDateTime("2015-06-01 11:22:33");
 
 static const vector<Row> rows = {
-    {1, "apple",      1.5,  testDateTime},
-    {2, "pear",       3.1,  testDateTime},
-    {3, "melon",      1.05, testDateTime},
+    {1, "apple", 1.5, testDateTime},
+    {2, "pear", 3.1, testDateTime},
+    {3, "melon", 1.05, testDateTime},
     {4, "watermelon", 0.85, testDateTime},
-    {5, "lemon",      5.5,  testDateTime}
-};
+    {5, "lemon", 5.5, testDateTime}};
 
 static const map<String, String> dateTimeFieldTypes = {
-    {"mysql",      "TIMESTAMP"},
+    {"mysql", "TIMESTAMP"},
     {"postgresql", "TIMESTAMP"},
-    {"mssql",      "DATETIME2"},
-    {"oracle",     "TIMESTAMP"},
-    {"sqlite3",    "VARCHAR(30)"}
-};
+    {"mssql", "DATETIME2"},
+    {"oracle", "TIMESTAMP"},
+    {"sqlite3", "VARCHAR(30)"}};
 
 static const map<String, String> boolFieldTypes = {
-    {"mysql",      "BOOL"},
+    {"mysql", "BOOL"},
     {"postgresql", "BOOL"},
-    {"mssql",      "BIT"},
-    {"oracle",     "NUMBER(1)"},
-    {"sqlite3",    "INT"},
+    {"mssql", "BIT"},
+    {"oracle", "NUMBER(1)"},
+    {"sqlite3", "INT"},
 };
 
 static const map<String, String> textFieldTypes = {
-    {"mysql",      "LONGTEXT"},
+    {"mysql", "LONGTEXT"},
     {"postgresql", "TEXT"},
-    {"mssql",      "NVARCHAR(MAX)"},
-    {"oracle",     "CLOB"},
-    {"sqlite3",    "TEXT"}
-};
+    {"mssql", "NVARCHAR(MAX)"},
+    {"oracle", "CLOB"},
+    {"sqlite3", "TEXT"}};
 
 static String fieldType(const String& fieldType, const String& driverName)
 {
@@ -384,7 +390,7 @@ void DatabaseTests::createTestTable(DatabaseConnection db)
     {
         RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
-        CERR(e.what() << endl)
+            CERR(e.what() << endl)
     }
 
     createTable.exec();
@@ -433,7 +439,7 @@ void DatabaseTests::createTestTableWithSerial(DatabaseConnection db)
     {
         RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
-        CERR(e.what() << endl)
+            CERR(e.what() << endl)
     }
 
     createTable.exec();
@@ -591,6 +597,41 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
               << setprecision(1) << fixed << setw(8) << data.size() * 1000.0 / durationMS1 << " rec/sec" << endl)
 }
 
+void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection db = connectionPool.getConnection();
+    createTestTable(db);
+
+    Query selectData(db, "SELECT * FROM gtest_temp_table ORDER BY 1");
+
+    Strings batchSQL {
+        "INSERT INTO gtest_temp_table VALUES (1, 'Jonh', 'CEO', '2020-01-02');",
+        "INSERT INTO gtest_temp_table VALUES (2, 'Jane', 'CFO', '2021-02-03');",
+        "INSERT INTO gtest_temp_table VALUES (3, 'William', 'CIO', '2022-03-04');"};
+
+    Strings expectedResults {
+        "1,Jonh,CEO,2020-01-02",
+        "2,Jane,CFO,2021-02-03",
+        "3,William,CIO,2022-03-04"};
+
+    db->executeBatchSQL(batchSQL);
+
+    selectData.open();
+    int i = 0;
+    for (; !selectData.eof(); i++)
+    {
+        Strings row;
+        for (size_t column = 0; column < selectData.fieldCount(); ++column)
+        {
+            row.push_back(selectData[column].asString().trim());
+        }
+        EXPECT_STREQ(expectedResults[i].c_str(), row.join(",").c_str());
+        selectData.next();
+    }
+    EXPECT_EQ(i, 3);
+}
+
 void DatabaseTests::testSelect(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
@@ -711,14 +752,13 @@ void DatabaseTests::createOracleAutoIncrement(const DatabaseConnection& db, cons
     {
         Query createTrigger(db,
                             "CREATE OR REPLACE TRIGGER " + triggerName + "\n" +
-                            "BEFORE INSERT ON " + tableName + "\n" +
-                            "FOR EACH ROW\n" +
-                            "BEGIN\n" +
-                            "  IF :new." + columnName + " IS NULL THEN\n" +
-                            "    :new." + columnName + " := " + sequenceName + ".nextval;\n" +
-                            "  END IF;\n" +
-                            "END;\n"
-        );
+                                "BEFORE INSERT ON " + tableName + "\n" +
+                                "FOR EACH ROW\n" +
+                                "BEGIN\n" +
+                                "  IF :new." + columnName + " IS NULL THEN\n" +
+                                "    :new." + columnName + " := " + sequenceName + ".nextval;\n" +
+                                "  END IF;\n" +
+                                "END;\n");
         createTrigger.exec();
     }
     catch (const Exception& e)

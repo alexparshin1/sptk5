@@ -59,26 +59,16 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
             break;
 
         case VariantDataType::VAR_STRING:
-            Variant::setString("");
-            if (fieldLength == 0)
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
+            if (dataType == VariantDataType::VAR_STRING && fieldLength == 0)
             {
                 fieldLength = 256;
                 m_fldSize = fieldLength;
             }
+            Variant::setBuffer((const uint8_t*) "", 1, dataType);
             checkSize((size_t) fieldLength + 1);
-            view().width = fieldLength;
-            break;
-
-        case VariantDataType::VAR_TEXT:
-            Variant::setBuffer((const uint8_t*) "", 1, VariantDataType::VAR_TEXT);
-            checkSize((size_t) fieldLength + 1);
-            view().width = fieldLength;
-            break;
-
-        case VariantDataType::VAR_BUFFER:
-            Variant::setBuffer((const uint8_t*) "", 1, VariantDataType::VAR_BUFFER);
-            checkSize((size_t) fieldLength);
-            view().width = 1;
+            view().width = dataType == VariantDataType::VAR_BUFFER ? 1 : fieldLength;
             break;
 
         case VariantDataType::VAR_DATE:
@@ -104,4 +94,11 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
 void DatabaseField::checkSize(size_t sz)
 {
     m_data.get<Buffer>().checkSize(sz);
+}
+
+String DatabaseField::doubleDataToString() const
+{
+    stringstream output;
+    output << fixed << setprecision(m_fldScale) << m_data.get<double>();
+    return output.str();
 }

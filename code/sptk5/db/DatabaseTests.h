@@ -124,6 +124,12 @@ public:
     static void testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount);
 
     /**
+     * Test batch SQL
+     * @param connectionString  Database connection string
+     */
+    static void testBatchSQL(const DatabaseConnectionString& connectionString);
+
+    /**
 	 * Global database tests collection
 	 */
     static DatabaseTests& tests();

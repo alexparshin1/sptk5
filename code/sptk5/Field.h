@@ -233,12 +233,13 @@ public:
         m_displayName = name;
     }
 
+protected:
+    virtual String doubleDataToString() const;
+
 private:
     String m_name;        ///< Field name
     View m_view {};       ///< Combination of field view attributes
     String m_displayName; ///< Optional display field name
-
-    String doubleDataToString() const;
 
     String epochDataToDateTimeString() const;
 };

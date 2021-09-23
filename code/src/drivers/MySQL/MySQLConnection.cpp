@@ -112,7 +112,9 @@ void MySQLConnection::executeCommand(const String& command)
 void MySQLConnection::driverBeginTransaction()
 {
     if (getInTransaction())
+    {
         throwMySQLException("Transaction already started");
+    }
 
     executeCommand("BEGIN");
     setInTransaction(true);
@@ -121,7 +123,9 @@ void MySQLConnection::driverBeginTransaction()
 void MySQLConnection::driverEndTransaction(bool commit)
 {
     if (!getInTransaction())
-    throwDatabaseException("Transaction isn't started.")
+    {
+        throwDatabaseException("Transaction isn't started.")
+    }
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
     executeCommand(action);
@@ -303,7 +307,7 @@ void MySQLConnection::queryOpen(Query* query)
 void MySQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
-    THROW_QUERY_ERROR(query, "Dataset isn't open")
+        THROW_QUERY_ERROR(query, "Dataset isn't open")
 
     scoped_lock lock(m_mutex);
 

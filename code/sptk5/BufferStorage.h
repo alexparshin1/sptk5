@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
+#include <sptk5/sptk.h>
 #include <string.h>
 
 namespace sptk {
@@ -43,7 +43,6 @@ namespace sptk {
 class SP_EXPORT BufferStorage
 {
 public:
-
     /**
      * Default constructor
      *
@@ -252,7 +251,6 @@ public:
     void erase(size_t offset, size_t length);
 
 protected:
-
     /**
      * Resizes current buffer
      * @param sz                Required memory size
@@ -316,12 +314,11 @@ protected:
     }
 
 private:
-
-    std::vector<uint8_t> m_buffer;         ///< Actual storage
-    size_t m_bytes {0};      ///< Actual size of the data in buffer
+    std::vector<uint8_t> m_buffer {16}; ///< Actual storage
+    size_t m_bytes {0};                 ///< Actual size of the data in buffer
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

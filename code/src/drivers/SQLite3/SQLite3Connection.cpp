@@ -413,7 +413,12 @@ void SQLite3Connection::queryOpen(Query* query)
 
 static uint32_t trimField(char* s, uint32_t sz)
 {
-    char* p = s + sz;
+    if (sz == 0)
+    {
+        return 0;
+    }
+
+    char* p = s + sz - 1;
     char ch = s[0];
     s[0] = '!';
 
@@ -522,6 +527,67 @@ void SQLite3Connection::queryFetch(Query* query)
             throw DatabaseException(
                 "Can't read field " + field->fieldName() + "\n" + string(e.what()), __FILE__, __LINE__,
                 query->sql());
+        }
+    }
+}
+
+void SQLite3Connection::_executeBatchSQL(const sptk::Strings& sqlBatch, Strings* errors)
+{
+    RegularExpression matchStatementEnd("(;\\s*)$");
+    RegularExpression matchCommentRow("^\\s*--");
+
+    Strings statements;
+    string statement;
+    for (String row: sqlBatch)
+    {
+        row = trim(row);
+        if (row.empty() || matchCommentRow.matches(row))
+        {
+            continue;
+        }
+
+        row = trim(row);
+        if (row.empty() || row.startsWith("--"))
+        {
+            continue;
+        }
+
+        if (matchStatementEnd.matches(row))
+        {
+            row = matchStatementEnd.s(row, "");
+            statement += row;
+            statements.push_back(trim(statement));
+            statement = "";
+            continue;
+        }
+
+        statement += row + "\n";
+    }
+
+    if (!trim(statement).empty())
+    {
+        statements.push_back(statement);
+    }
+
+    for (const auto& stmt: statements)
+    {
+        try
+        {
+            Query query(this, stmt, false);
+            query.exec();
+        }
+        catch (const Exception& e)
+        {
+            stringstream error;
+            error << e.what() << ". Query: " << stmt;
+            if (errors != nullptr)
+            {
+                errors->push_back(error.str());
+            }
+            else
+            {
+                throw DatabaseException(error.str());
+            }
         }
     }
 }

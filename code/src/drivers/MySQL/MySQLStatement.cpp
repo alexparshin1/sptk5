@@ -168,7 +168,6 @@ VariantDataType MySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlTyp
 {
     switch (mysqlType)
     {
-
         case MYSQL_TYPE_BIT:
         case MYSQL_TYPE_TINY:
             return VariantDataType::VAR_BOOL;
@@ -213,7 +212,6 @@ enum_field_types MySQLStatement::variantTypeToMySQLType(VariantDataType dataType
 {
     switch (dataType)
     {
-
         case VariantDataType::VAR_NONE:
             return MYSQL_TYPE_VARCHAR;
 
@@ -263,7 +261,6 @@ void MySQLStatement::setParameterValues()
 
         switch (param->dataType())
         {
-
             case VariantDataType::VAR_NONE:
                 m_paramLengths[paramIndex] = 0;
                 param->setNull();
@@ -661,7 +658,7 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
                                       uint32_t dataLength) const
 {
     bool fieldSizeChanged = false;
-    if (bind.buffer_length < dataLength)
+    if (field->bufferSize() < dataLength)
     {
         /// Fetch truncated, enlarge buffer and fetch again
         field->checkSize(dataLength);

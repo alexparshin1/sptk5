@@ -947,6 +947,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
                 break;
 
             case DatabaseObjectType::PROCEDURES:
+            case DatabaseObjectType::FUNCTIONS:
                 rc = SQLProcedures(stmt, nullptr, 0, Buffer("").data(), SQL_NTS,
                                    Buffer("%").data(), SQL_NTS);
                 if (rc != SQL_SUCCESS)
@@ -963,13 +964,24 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
         array<SQLCHAR, MAX_NAME_LEN> objectName = {};
         SQLLEN cbObjectSchema = 0;
         SQLLEN cbObjectName = 0;
+
         if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema.data(), objectSchema.size(), &cbObjectSchema) != SQL_SUCCESS)
         {
             throw DatabaseException("SQLBindCol");
         }
+
         if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName.data(), objectName.size(), &cbObjectName) != SQL_SUCCESS)
         {
             throw DatabaseException("SQLBindCol");
+        }
+
+        short procedureType = 0;
+        if (objectType == DatabaseObjectType::FUNCTIONS || objectType == DatabaseObjectType::PROCEDURES)
+        {
+            if (SQLBindCol(stmt, 8, SQL_C_SHORT, &procedureType, sizeof(procedureType), nullptr) != SQL_SUCCESS)
+            {
+                throw DatabaseException("SQLBindCol");
+            }
         }
 
         while (true)
@@ -977,15 +989,29 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
             objectSchema[0] = 0;
             objectName[0] = 0;
             rc = SQLFetch(stmt);
+
             if (rc == SQL_NO_DATA_FOUND)
             {
                 break;
             }
+
             if (!successful(rc))
             {
                 throw DatabaseException("SQLFetch");
             }
+
             String objectNameStr = String((char*) objectName.data()).replace(";0$", "");
+
+            if (objectType == DatabaseObjectType::FUNCTIONS && procedureType != SQL_PT_FUNCTION)
+            {
+                continue;
+            }
+
+            if (objectType == DatabaseObjectType::PROCEDURES && procedureType != SQL_PT_PROCEDURE)
+            {
+                continue;
+            }
+
             objects.push_back(String((char*) objectSchema.data()) + "." + objectNameStr);
         }
 

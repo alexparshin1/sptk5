@@ -35,8 +35,9 @@
 
 #ifdef USE_GTEST
 
-#include <sptk5/db/DatabaseTests.h>
 #include <future>
+#include <sptk5/db/DatabaseTests.h>
+#include <sptk5/db/Query.h>
 
 #endif
 
@@ -64,19 +65,17 @@ public:
     static DriverLoaders loadedDrivers;
 
 private:
-
     map<string, shared_ptr<DatabaseDriver>, CaseInsensitiveCompare> drivers;
 };
 
 DriverLoaders DriverLoaders::loadedDrivers;
 
 DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections)
-    :
-    DatabaseConnectionString(connectionString),
-    m_driver(nullptr),
-    m_createConnection(nullptr),
-    m_destroyConnection(nullptr),
-    m_maxConnections(maxConnections)
+    : DatabaseConnectionString(connectionString)
+    , m_driver(nullptr)
+    , m_createConnection(nullptr)
+    , m_destroyConnection(nullptr)
+    , m_maxConnections(maxConnections)
 {
 }
 
@@ -200,11 +199,6 @@ void DatabaseConnectionPool::releaseConnection(const SPoolDatabaseConnection& co
     m_pool.push(connection);
 }
 
-void DatabaseConnectionPool::destroyConnection(SPoolDatabaseConnection& connection) const
-{
-    connection.reset();
-}
-
 #ifdef USE_GTEST
 
 TEST(SPTK_DatabaseConnectionPool, connectString)
@@ -261,6 +255,26 @@ static void testDDL(const String& dbName)
     }
 }
 
+static void testInvalidQuery(const String& dbName)
+{
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    if (connectionString.empty())
+        FAIL() << dbName << " connection is not defined";
+
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection db = connectionPool.getConnection();
+
+    vector<String> invalidQueries {
+        "SELECT * FROM x",
+        "UNSELECT * FROM x"};
+
+    for (const auto& sql: invalidQueries)
+    {
+        Query query(db, sql);
+        EXPECT_THROW(query.exec(), DatabaseException);
+    }
+}
+
 static void testInsertQuery(const String& dbName)
 {
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
@@ -284,6 +298,7 @@ static void testBulkInsert(const String& dbName)
     try
     {
         DatabaseTests::testBulkInsert(connectionString);
+        DatabaseTests::testBatchSQL(connectionString);
     }
     catch (const Exception& e)
     {
@@ -408,6 +423,7 @@ TEST(SPTK_PostgreSQLConnection, transaction)
 TEST(SPTK_PostgreSQLConnection, select)
 {
     testSelect("PostgreSQL");
+    testInvalidQuery("PostgreSQL");
 }
 
 TEST(SPTK_PostgreSQLConnection, insertQuery)
@@ -459,6 +475,7 @@ TEST(SPTK_MySQLConnection, transaction)
 TEST(SPTK_MySQLConnection, select)
 {
     testSelect("MySQL");
+    testInvalidQuery("MySQL");
 }
 
 TEST(SPTK_MySQLConnection, insertQuery)
@@ -504,6 +521,7 @@ TEST(SPTK_OracleConnection, transaction)
 TEST(SPTK_OracleConnection, select)
 {
     testSelect("Oracle");
+    testInvalidQuery("Oracle");
 }
 
 TEST(SPTK_OracleConnection, insertQuery)
@@ -549,6 +567,7 @@ TEST(SPTK_MSSQLConnection, transaction)
 TEST(SPTK_MSSQLConnection, select)
 {
     testSelect("MSSQL");
+    testInvalidQuery("MSSQL");
 }
 
 TEST(SPTK_MSSQLConnection, insertQuery)
