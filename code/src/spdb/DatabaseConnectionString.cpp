@@ -141,6 +141,9 @@ bool DatabaseConnectionString::empty() const
 
 TEST(SPTK_DatabaseConnectionString, ctorSimple)
 {
+    DatabaseConnectionString empty;
+    EXPECT_TRUE(empty.empty());
+
     DatabaseConnectionString simple("postgres://localhost/dbname");
     EXPECT_STREQ("postgresql", simple.driverName().c_str());
     EXPECT_STREQ("localhost", simple.hostName().c_str());
@@ -174,6 +177,7 @@ TEST(SPTK_DatabaseConnectionString, ctorFull)
 
     EXPECT_STREQ("UTF8", simple.parameter("encoding").c_str());
     EXPECT_STREQ("free", simple.parameter("mode").c_str());
+    EXPECT_STREQ("", simple.parameter("xyz").c_str());
 }
 
 TEST(SPTK_DatabaseConnectionString, ctorCopy)
